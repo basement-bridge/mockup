@@ -313,6 +313,3 @@ html,body{overscroll-behavior-y:contain}.body{overscroll-behavior-y:contain}
 .group.shut .grouphead h2{font-weight:500;color:var(--muted);font-size:1.05rem}
 .grouphead{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .flinks{padding-right:84px}
-
-.rscroll{padding-right:0;-webkit-mask-image:linear-gradient(to right,transparent,#000 18px,#000 calc(100% - 18px),transparent);mask-image:linear-gradient(to right,transparent,#000 18px,#000 calc(100% - 18px),transparent)}
-.twoRow{grid-template-rows:repeat(2,auto);align-content:start}
