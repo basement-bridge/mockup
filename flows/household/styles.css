@@ -166,7 +166,6 @@ textarea.field{padding:12px 14px;min-height:76px;resize:none;font-size:15px}
 @keyframes rise{0%{transform:translateY(8px);opacity:0}30%{opacity:.7}100%{transform:translateY(-8px);opacity:0}}
 @keyframes pop{0%{transform:translateY(8px) scale(.4);opacity:0}30%{opacity:1;transform:translateY(0) scale(1)}100%{transform:translateY(-10px) scale(.9);opacity:0}}
 @keyframes sway{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
-@media (prefers-reduced-motion:reduce){.scene *{animation:none!important}}
 /* welcome fits the screen: no scrolling, the picture gives way first */
 .body.fit{overflow:auto;overscroll-behavior:contain;padding:8px 20px 16px;gap:10px}
 .fit .hello h1{font-size:2rem}.fit .hello p{margin:6px 0 0;font-size:16px}
@@ -197,4 +196,3 @@ textarea.field{padding:12px 14px;min-height:76px;resize:none;font-size:15px}
 .env .sparks>*{transform-box:fill-box;transform-origin:center;animation:twinkle 2.4s ease-in-out infinite}.env .s2{animation-delay:.5s}.env .s3{animation-delay:1s}.env .s4{animation-delay:1.5s}.env .s5{animation-delay:.8s}
 @keyframes peek{0%,100%{transform:translateY(6px) rotate(-1deg)}50%{transform:translateY(-8px) rotate(1.5deg)}}
 @keyframes twinkle{0%,100%{opacity:.35;transform:scale(.8)}50%{opacity:1;transform:scale(1.15)}}
-@media (prefers-reduced-motion:reduce){.env *{animation:none!important}}
