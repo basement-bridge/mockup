@@ -562,24 +562,32 @@ document.addEventListener("pointerup", endGesture); document.addEventListener("p
 document.addEventListener("contextmenu", (e) => { if (e.target.closest("[data-swipe]")) e.preventDefault(); });
 document.addEventListener("keydown", (e) => { const t = e.target; if ((e.key === "Enter" || e.key === " ") && t.matches && t.matches('[role=button][data-act]')) { e.preventDefault(); t.click(); } });
 document.addEventListener("scroll", (e) => { const sn = e.target; if (sn.id !== "snap") return; const n = Math.round(sn.scrollLeft / sn.clientWidth); sn.parentElement.querySelectorAll(".dots i").forEach((d, k) => d.classList.toggle("on", k === n)); }, true);
-/* pull down at the top of Pantry: a shallow pull opens search, a deep pull refreshes */
+/* pull down at the top of Pantry: a shallow pull opens search, a deep pull refreshes. Mouse and touch. */
 const PULL_SHALLOW = 70, PULL_DEEP = 170; let pl = null;
-document.addEventListener("pointerdown", (e) => {
-  const b = e.target.closest(".body.tight"); if (!b || S.screen !== "pantry" || b.scrollTop > 0 || e.target.closest("input,[data-swipe]") || e.button > 0) return;
-  pl = { y: e.clientY, dy: 0, b, el: b.querySelector("#pull") };
-});
-document.addEventListener("pointermove", (e) => {
-  if (!pl) return; const dy = e.clientY - pl.y;
+function pullStart(target, y) {
+  const b = target.closest && target.closest(".body.tight"); if (!b || S.screen !== "pantry" || b.scrollTop > 0 || target.closest("input")) return;
+  pl = { y, dy: 0, b, el: b.querySelector("#pull") };
+}
+function pullMove(y, e) {
+  if (!pl) return; const dy = y - pl.y;
   if (dy <= 8) { if (pl.dy) { pl.dy = 0; pl.el.style.height = "0px"; } return; }
-  pl.dy = dy; const h = Math.min(dy * 0.5, 96); pl.el.style.height = h + "px";
+  if (e && e.cancelable) e.preventDefault();
+  pl.dy = dy; pl.el.style.height = Math.min(dy * 0.5, 96) + "px";
   pl.el.firstElementChild.textContent = dy >= PULL_DEEP ? "Let go to refresh" : dy >= PULL_SHALLOW ? "Let go to search. Pull further to refresh" : "Pull to search";
-});
-const endPull = () => {
+}
+function pullEnd() {
   if (!pl) return; const x = pl; pl = null; x.el.style.height = "0px";
   if (x.dy > 8) lastGesture = Date.now();
   if (x.dy >= PULL_DEEP) { toast("Refreshing…"); setTimeout(() => toast("Up to date"), 900); }
   else if (x.dy >= PULL_SHALLOW && !S.searchOpen) acts.search();
-};
-document.addEventListener("pointerup", endPull); document.addEventListener("pointercancel", endPull);
+}
+document.addEventListener("pointerdown", (e) => { if (e.pointerType !== "touch" && e.button === 0 && !e.target.closest("[data-swipe]")) pullStart(e.target, e.clientY); });
+document.addEventListener("pointermove", (e) => { if (e.pointerType !== "touch") pullMove(e.clientY); });
+document.addEventListener("pointerup", (e) => { if (e.pointerType !== "touch") pullEnd(); });
+document.addEventListener("pointercancel", (e) => { if (e.pointerType !== "touch") pullEnd(); });
+/* touch: the browser would otherwise take the drag for its own scroll or bounce, so handle it here */
+document.addEventListener("touchstart", (e) => { if (e.touches.length === 1 && !e.target.closest("[data-swipe]")) pullStart(e.target, e.touches[0].clientY); }, { passive: true });
+document.addEventListener("touchmove", (e) => pullMove(e.touches[0].clientY, e), { passive: false });
+document.addEventListener("touchend", pullEnd); document.addEventListener("touchcancel", pullEnd);
 document.getElementById("gear").addEventListener("click", () => document.getElementById("panel").classList.toggle("open"));
 render();
