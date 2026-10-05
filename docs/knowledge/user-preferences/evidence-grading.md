@@ -88,6 +88,15 @@ From the owner:
 - Explainability goes both ways. The person can ask "why did you recommend that, what makes you think so?" and can correct the answer.
 - A correction has to be dealt with in terms of provenance and lineage, in a way that is not heavy ("not so uncompressed").
 
+## Two ways to extrapolate
+
+Named by the owner, 5 Oct 2026:
+
+- **Behavioural extrapolation:** from what the person did or chose, infer what they will want.
+- **Attribute-based extrapolation:** from the attributes of what they did or chose, infer what else they would want.
+
+Both are inference, so both pass through the same two gates above. Not yet decided: which kinds of claim each is allowed for, and the bar for each.
+
 ## What the person can do
 
 - Ask why something was surfaced, and what the system believes about them, and correct it.
@@ -99,6 +108,7 @@ From the owner:
 - What counts as "materially different" situations, and as an "independent interaction" (same day, session, meal).
 - What triggers a discard or a restart, and whether it discards everything or only part of what was learned.
 - What counts as a "strong signal" for acting, and what acting means for each feature (suggesting, ranking, hiding, filling in a field).
+- Which extrapolation (behavioural or attribute-based) is allowed for which kind of claim, and the bar for each.
 - What the machine does when it is wrong repeatedly and the person is not being helped.
 - How provenance and lineage are kept lightweight, and how a correction travels through what was derived from the wrong claim.
 - Where the grade, the count and the threshold are stored, and how they are shown back to the person.
