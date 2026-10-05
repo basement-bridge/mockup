@@ -356,7 +356,7 @@ const screens = {
 
   pantry: () => header() + downBanner() + `<div class="body tight">
     <div class="pull ${S.refresh ? "on" : ""}" id="pull" ${S.refresh ? 'role="status"' : 'aria-hidden="true"'} ${S.refresh ? 'style="height:64px"' : ""}>${S.refresh ? `<div class="rf">${S.refresh[1]}<span>${S.refresh[0]}</span></div>` : "<span></span>"}</div>
-    <div class="phead"><h1>Pantry</h1><button class="icon addbtn" data-sheet="add" aria-label="Add an item" title="Add an item" ${S.down ? "disabled" : ""}>${I.plus}</button></div>
+    <div class="phead"><h1 class="vh">Pantry</h1><p class="count" aria-live="polite">${S.pantry.length} items</p><button class="icon addbtn" data-sheet="add" aria-label="Add an item" title="Add an item" ${S.down ? "disabled" : ""}>${I.plus}</button></div>
     ${S.searchOpen ? `<div class="searchbar"><input class="field" id="search" placeholder="Search your pantry" value="${esc(S.search)}" autocomplete="off" aria-label="Search your pantry"><button class="icon" data-act="mic" aria-label="Search by voice" title="Voice">${riSvg("mic", 22)}</button><button class="link cancel" data-act="search">Cancel</button></div>` : ""}
     ${S.fa
       ? `<div class="cview" role="status"><span class="cvi">${riSvg("funnel", 20)}</span><div class="cvt"><b>Custom view</b><span>${fItems(S.fa).length} items${fSummary(S.fa) ? " · " + esc(fSummary(S.fa)) : ""}</span></div><button class="link" data-sheet="filters">Edit</button><button class="icon" data-act="cvclear" aria-label="Clear custom view" title="Clear">${I.x}</button></div>`
@@ -379,7 +379,7 @@ const screens = {
       <p class="small">Finished with it? Use the tick on the pantry list.</p></div>`;
   },
 
-  recipes: () => shell(`<div class="body"><h1>Recipes</h1><p>Ranked by what you already have.</p>
+  recipes: () => shell(`<div class="body"><h1 class="vh">Recipes</h1><p class="count">Ranked by what you already have</p>
     <div style="display:flex;flex-direction:column;gap:10px">${[...RECIPES].sort((a, b) => can(b).length / b.ings.length - can(a).length / a.ings.length).map((r) => `<button class="rc" data-go="recipe" data-p="${r.id}"><span class="ph">${r.emoji}</span><div style="flex:1"><b>${esc(r.name)}</b><p class="small">You have ${can(r).length} of ${r.ings.length} · ${r.time} min</p></div></button>`).join("")}</div></div>`),
 
   recipe: () => {

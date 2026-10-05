@@ -312,3 +312,7 @@ html,body{overscroll-behavior-y:contain}.body{overscroll-behavior-y:contain}
 
 /* keep the page from panning sideways when a ribbon hits its end */
 html,body{overflow-x:hidden}.phone,.body{overflow-x:hidden}.rscroll,.twoRow{overscroll-behavior-x:contain}
+
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.count{margin:0;color:var(--muted);font-weight:600;align-self:center}
+.phead{align-items:center;margin-bottom:.4rem}
