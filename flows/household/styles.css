@@ -257,3 +257,4 @@ html,body{overscroll-behavior-y:contain}.body{overscroll-behavior-y:contain}
 @keyframes popt{0%,100%{transform:translateY(8px) rotate(0)}50%{transform:translateY(-16px) rotate(8deg)}}
 @keyframes toss{0%{transform:translate(-34px,26px)}25%{transform:translate(-14px,-14px)}50%{transform:translate(34px,26px)}75%{transform:translate(14px,34px)}100%{transform:translate(-34px,26px)}}
 @keyframes rock{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
+.rf{flex-direction:row;gap:10px;justify-content:center}.rf svg{width:64px;height:44px}.rf span{font-size:13px;color:var(--fg)}

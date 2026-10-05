@@ -226,11 +226,11 @@ function listHtml() {
 
 /* quirky refresh scenes: a different one each time, drawn in theme tokens */
 const RF = [
-  ["Stirring the pot…", `<svg viewBox="0 0 120 80" aria-hidden="true"><g class="rf-b"><circle cx="46" cy="40" r="3"/><circle cx="62" cy="44" r="2.5"/><circle cx="72" cy="38" r="3.5"/></g><path class="rf-p" d="M28 48h64v10c0 10-9 16-32 16s-32-6-32-16z"/><path class="rf-ph" d="M28 54h-7a4 4 0 0 0 0 8h7M92 54h7a4 4 0 0 1 0 8h-7"/><g class="rf-spoon"><path d="M60 52L84 14"/><circle cx="85" cy="12" r="5"/></g></svg>`],
-  ["Popping some toast…", `<svg viewBox="0 0 120 80" aria-hidden="true"><g class="rf-t1"><path d="M38 40a8 8 0 0 1 8-8h8a8 8 0 0 1 8 8v12H38z"/></g><g class="rf-t2"><path d="M62 40a8 8 0 0 1 8-8h8a8 8 0 0 1 8 8v12H62z"/></g><rect class="rf-p" x="28" y="48" width="64" height="26" rx="8"/><rect class="rf-slot" x="40" y="52" width="40" height="5" rx="2.5"/><circle class="rf-dot" cx="82" cy="66" r="3"/></svg>`],
-  ["Juggling the veg…", `<svg viewBox="0 0 120 80" aria-hidden="true"><circle class="rf-j j1" cx="60" cy="40" r="9"/><circle class="rf-j j2" cx="60" cy="40" r="9"/><circle class="rf-j j3" cx="60" cy="40" r="9"/><path class="rf-hand" d="M24 70c8-8 16-8 22 0M74 70c6-8 14-8 22 0"/></svg>`],
-  ["Kettle's on…", `<svg viewBox="0 0 120 80" aria-hidden="true"><g class="rf-steam"><path d="M40 28c-4-6 4-10 0-16"/><path d="M52 24c-4-6 4-10 0-16"/><path d="M64 28c-4-6 4-10 0-16"/></g><g class="rf-kettle"><path class="rf-p" d="M30 46a22 22 0 0 1 44 0v18a6 6 0 0 1-6 6H36a6 6 0 0 1-6-6z"/><path class="rf-ph" d="M74 48c14-2 18 4 14 12M30 50l-10-8"/><circle class="rf-lid" cx="52" cy="26" r="4"/></g></svg>`],
-  ["Boiling a quick egg…", `<svg viewBox="0 0 120 80" aria-hidden="true"><g class="rf-egg"><path class="rf-e" d="M60 8c14 0 22 20 22 34a22 22 0 0 1-44 0C38 28 46 8 60 8z"/><circle class="rf-eye" cx="52" cy="40" r="2.5"/><circle class="rf-eye" cx="68" cy="40" r="2.5"/><path class="rf-ph" d="M54 50c4 4 8 4 12 0"/></g><path class="rf-p2" d="M22 74h76"/></svg>`],
+  ["Stirring the pot. Gently.", `<svg viewBox="0 0 120 80" aria-hidden="true"><g class="rf-b"><circle cx="46" cy="40" r="3"/><circle cx="62" cy="44" r="2.5"/><circle cx="72" cy="38" r="3.5"/></g><path class="rf-p" d="M28 48h64v10c0 10-9 16-32 16s-32-6-32-16z"/><path class="rf-ph" d="M28 54h-7a4 4 0 0 0 0 8h7M92 54h7a4 4 0 0 1 0 8h-7"/><g class="rf-spoon"><path d="M60 52L84 14"/><circle cx="85" cy="12" r="5"/></g></svg>`],
+  ["Toast is thinking about it", `<svg viewBox="0 0 120 80" aria-hidden="true"><g class="rf-t1"><path d="M38 40a8 8 0 0 1 8-8h8a8 8 0 0 1 8 8v12H38z"/></g><g class="rf-t2"><path d="M62 40a8 8 0 0 1 8-8h8a8 8 0 0 1 8 8v12H62z"/></g><rect class="rf-p" x="28" y="48" width="64" height="26" rx="8"/><rect class="rf-slot" x="40" y="52" width="40" height="5" rx="2.5"/><circle class="rf-dot" cx="82" cy="66" r="3"/></svg>`],
+  ["Juggling veg. Don't tell the carrots", `<svg viewBox="0 0 120 80" aria-hidden="true"><circle class="rf-j j1" cx="60" cy="40" r="9"/><circle class="rf-j j2" cx="60" cy="40" r="9"/><circle class="rf-j j3" cx="60" cy="40" r="9"/><path class="rf-hand" d="M24 70c8-8 16-8 22 0M74 70c6-8 14-8 22 0"/></svg>`],
+  ["Kettle's on. Obviously.", `<svg viewBox="0 0 120 80" aria-hidden="true"><g class="rf-steam"><path d="M40 28c-4-6 4-10 0-16"/><path d="M52 24c-4-6 4-10 0-16"/><path d="M64 28c-4-6 4-10 0-16"/></g><g class="rf-kettle"><path class="rf-p" d="M30 46a22 22 0 0 1 44 0v18a6 6 0 0 1-6 6H36a6 6 0 0 1-6-6z"/><path class="rf-ph" d="M74 48c14-2 18 4 14 12M30 50l-10-8"/><circle class="rf-lid" cx="52" cy="26" r="4"/></g></svg>`],
+  ["Egg is feeling fragile", `<svg viewBox="0 0 120 80" aria-hidden="true"><g class="rf-egg"><path class="rf-e" d="M60 8c14 0 22 20 22 34a22 22 0 0 1-44 0C38 28 46 8 60 8z"/><circle class="rf-eye" cx="52" cy="40" r="2.5"/><circle class="rf-eye" cx="68" cy="40" r="2.5"/><path class="rf-ph" d="M54 50c4 4 8 4 12 0"/></g><path class="rf-p2" d="M22 74h76"/></svg>`],
 ];
 let lastRF = -1;
 /* ---------- screens ---------- */
@@ -308,7 +308,7 @@ const screens = {
   </div>`),
 
   pantry: () => header() + downBanner() + `<div class="body tight">
-    <div class="pull ${S.refresh ? "on" : ""}" id="pull" ${S.refresh ? 'role="status"' : 'aria-hidden="true"'} ${S.refresh ? 'style="height:124px"' : ""}>${S.refresh ? `<div class="rf">${S.refresh[1]}<span>${S.refresh[0]}</span></div>` : "<span></span>"}</div>
+    <div class="pull ${S.refresh ? "on" : ""}" id="pull" ${S.refresh ? 'role="status"' : 'aria-hidden="true"'} ${S.refresh ? 'style="height:64px"' : ""}>${S.refresh ? `<div class="rf">${S.refresh[1]}<span>${S.refresh[0]}</span></div>` : "<span></span>"}</div>
     <div class="phead"><h1>Pantry</h1><button class="icon addbtn" data-sheet="add" aria-label="Add an item" title="Add an item" ${S.down ? "disabled" : ""}>${I.plus}</button></div>
     ${S.searchOpen ? `<div class="searchbar"><input class="field" id="search" placeholder="Search your pantry" value="${esc(S.search)}" autocomplete="off" aria-label="Search your pantry"><button class="icon" data-act="search" aria-label="Close search" title="Close">${I.x}</button></div>` : ""}
     <div class="tools"><div class="seg3" role="radiogroup" aria-label="Show">${[["name", "A to Z"], ["useby", "Use by"], ["low", "Running low"]].map(([k, l]) => `<button role="radio" aria-checked="${S.view === k}" data-act="view" data-p="${k}" class="${S.view === k ? "on" : ""}">${l}</button>`).join("")}</div><button class="tbtn" data-act="recent" aria-pressed="${S.recentOnly}">Recent</button></div>
@@ -590,7 +590,7 @@ function pullEnd() {
   if (x.dy >= PULL_DEEP) {
     let n; do { n = Math.floor(Math.random() * RF.length); } while (n === lastRF); lastRF = n;
     S.refresh = RF[n]; render();
-    setTimeout(() => { S.refresh = null; render(); toast("Up to date"); }, 2000);
+    setTimeout(() => { S.refresh = null; render(); toast("Up to date"); }, 1500);
   }
   else if (x.dy >= PULL_SHALLOW && !S.searchOpen) acts.search();
 }
