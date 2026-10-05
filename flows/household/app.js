@@ -8,6 +8,7 @@ const I = {
   search: ico('<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>'),
   plus: ico('<path d="M12 5v14M5 12h14"/>'),
   minus: ico('<path d="M6 12h12"/>'),
+  x: ico('<path d="M6 6l12 12M18 6L6 18"/>'),
   tick: ico('<path d="M5 12.5l4.5 4.5L19 7.5"/>'),
   chev: ico('<path d="M9 6l6 6-6 6"/>'),
   down: ico('<path d="M6 9l6 6 6-6"/>'),
@@ -53,9 +54,13 @@ const RI = {
   people: '<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.4"/><path d="M3 19c0-3.500 2.700-6 6-6s6 2.500 6 6M15.500 14c3 0 5.500 2 5.500 5"/>',
   leaf: '<path d="M5 19C5 10 10 5 20 4c0 10-5 15-14 15zM5 19l8-8"/>',
   lock: '<rect x="5" y="11" width="14" height="9" rx="2.500"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  home: '<path d="M4 11l8-7 8 7v8.500a1.500 1.500 0 0 1-1.500 1.500h-3.500v-6h-6v6H5.500A1.500 1.500 0 0 1 4 19.500z"/>',
+  jar: '<rect x="6" y="4" width="12" height="3.500" rx="1.500"/><path d="M7 7.500h10a2 2 0 0 1 2 2V18a2.500 2.500 0 0 1-2.500 2.500h-9A2.500 2.500 0 0 1 5 18V9.500a2 2 0 0 1 2-2z"/><circle cx="12" cy="14" r="2.200"/>',
+  cart: '<circle cx="9" cy="20" r="1.500"/><circle cx="18" cy="20" r="1.500"/><path d="M3 4h2.500l2.200 10.200a1 1 0 0 0 1 .8h8.800a1 1 0 0 0 1-.8L20 8H6.200"/>',
+  clock: '<circle cx="12" cy="12" r="8"/><path d="M12 7.500V12l3 2"/>',
   heart: '<path d="M12 20s-8-5-8-11a4.5 4.5 0 0 1 8-2.5A4.5 4.5 0 0 1 20 9c0 6-8 11-8 11z"/>',
 };
-const ICON_LIB = Object.keys(RI).filter((k) => !["cap", "tag", "lock", "people"].includes(k)); /* 30 light monoline icons */
+const ICON_LIB = Object.keys(RI).filter((k) => !["cap", "tag", "lock", "people", "home", "jar", "cart", "clock"].includes(k)); /* 30 light monoline icons */
 const NAMES = ["Arjan", "Priya", "Tom", "Mei"];
 const riSvg = (k, s = 26) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${RI[k] || RI.spark}</svg>`;
 const roleIc = (r, size = 44) => r ? `<span class="ric" style="width:${size}px;height:${size}px">${riSvg(r.ic, Math.round(size * .55))}</span>` : "";
@@ -88,29 +93,29 @@ const freshPantry = () => [
   { id: "carrots", key: "carrots", emoji: "🥕", name: "Carrots", n: 1, unit: "bag", area: "Fridge", spot: "Crisper", cat: "Vegetables", days: null, upd: 2, recent: false, by: "Arjan" },
   { id: "cheddar", key: "cheese", emoji: "", name: "Cheddar", n: 200, unit: "g", area: "Fridge", spot: "Top shelf", cat: "Dairy and eggs", days: null, upd: 3, recent: false, by: "Arjan" },
   { id: "eggs", key: "eggs", emoji: "🥚", name: "Eggs", n: 12, unit: "", area: "Fridge", spot: "Door", cat: "Dairy and eggs", days: null, upd: 9, recent: true, by: "Arjan" },
-  { id: "milk", key: "milk", emoji: "🥛", name: "Milk", n: 2, unit: "L", area: "Fridge", spot: "Door", cat: "Dairy and eggs", days: 0, upd: 5, recent: false, by: "Arjan" },
-  { id: "paneer", key: "paneer", emoji: "", name: "Paneer", n: 200, unit: "g", area: "Fridge", spot: "Top shelf", cat: "Dairy and eggs", days: 3, upd: 6, recent: false, by: "Arjan" },
-  { id: "spinach", key: "spinach", emoji: "🥬", name: "Spinach", n: 250, unit: "g", area: "Fridge", spot: "Crisper", cat: "Vegetables", days: 1, upd: 10, recent: true, by: "Arjan" },
+  { id: "milk", key: "milk", emoji: "🥛", name: "Milk", n: 1, unit: "L", area: "Fridge", spot: "Door", cat: "Dairy and eggs", days: 0, upd: 5, recent: false, low: true, by: "Arjan" },
+  { id: "paneer", key: "paneer", emoji: "", name: "Paneer", n: 50, unit: "g", area: "Fridge", spot: "Top shelf", cat: "Dairy and eggs", days: 3, upd: 6, recent: false, low: true, by: "Arjan" },
+  { id: "spinach", key: "spinach", emoji: "🥬", name: "Spinach", n: 50, unit: "g", area: "Fridge", spot: "Crisper", cat: "Vegetables", days: 1, upd: 10, recent: true, low: true, by: "Arjan" },
   { id: "yoghurt", key: "yoghurt", emoji: "", name: "Greek yoghurt", n: 500, unit: "g", area: "Fridge", spot: "Top shelf", cat: "Dairy and eggs", days: 7, upd: 4, recent: false, by: "Arjan" },
   { id: "rice", key: "rice", emoji: "🍚", name: "Basmati rice", n: 5, unit: "kg", area: "Pantry", spot: "Bottom shelf", cat: "Dry goods", days: null, upd: 1, recent: false, by: "Arjan" },
   { id: "brownrice", key: "brownrice", emoji: "🍚", name: "Brown rice", n: 1, unit: "kg", area: "Pantry", spot: "Bottom shelf", cat: "Dry goods", days: null, upd: 2, recent: false, by: "Arjan" },
   { id: "jasmine", key: "jasmine", emoji: "🍚", name: "Jasmine rice", n: 1, unit: "kg", area: "Pantry", spot: "Bottom shelf", cat: "Dry goods", days: null, upd: 2, recent: false, by: "Arjan" },
   { id: "tomatoes", key: "tomatoes", emoji: "🥫", name: "Chopped tomatoes", n: 4, unit: "tin", area: "Pantry", spot: "Top shelf", cat: "Cans", days: null, upd: 2, recent: false, by: "Arjan" },
   { id: "onion", key: "onion", emoji: "🧅", name: "Onions", n: 6, unit: "", area: "Pantry", spot: "Baskets", cat: "Vegetables", days: null, upd: 3, recent: false, by: "Arjan" },
-  { id: "garam", key: "garam", emoji: "", name: "Garam masala", n: 1, unit: "jar", area: "Pantry", spot: "Spice rack", cat: "Seasoning", days: null, upd: 2, recent: false, by: "Arjan" },
+  { id: "garam", key: "garam", emoji: "", name: "Garam masala", n: 1, unit: "jar", area: "Pantry", spot: "Spice rack", cat: "Seasoning", days: null, upd: 2, recent: false, low: true, by: "Arjan" },
   { id: "choc", key: "choc", emoji: "🍫", name: "Hazelnut chocolates", n: 1, unit: "box", area: "Pantry", spot: "Top shelf", cat: "Snacks", days: 12, upd: 8, recent: true, by: "Arjan" },
   { id: "peas", key: "peas", emoji: "", name: "Frozen peas", n: 1, unit: "bag", area: "Freezer", spot: "Top drawer", cat: "Frozen", days: null, upd: 4, recent: false, by: "Arjan" },
 ];
 
 const initial = () => ({
   screen: "invite", stack: [], tab: "today", param: null,
-  persona: "sam", recipes: false, down: false, expireNext: false,
+  persona: "sam", recipes: true, down: false, expireNext: false,
   pantry: freshPantry(), sheet: null, toast: null,
   members: ["arjan", "sam"], invites: [{ name: "Priya", days: 6 }],
   roles: { arjan: { title: "Pantry Marshal", ic: "shield", desc: "Keeps order on the shelves and the fridge. Knows exactly where the cumin lives." }, sam: null },
   aiTab: "ChatGPT", aiActive: true, bannerGot: false, pending: null, joined: false,
   /* pantry view */
-  sort: "name", sortOpen: false, recentOnly: false, areaTab: "All", collapsed: {}, search: "", searchOpen: false, draft: { days: null },
+  sort: "name", view: "name", shop: [], sel: null, sortOpen: false, recentOnly: false, areaTab: "All", collapsed: {}, search: "", searchOpen: false, draft: { days: null },
   memberWho: null, existing: 1, own: false, rdraft: null, iconPick: false,
   /* install prompt: nothing until 1 hour of use, then 1, 2, 1 across three weeks, then never */
   usageMin: 0, week: 0, pwa: { startWeek: null, shown: {}, done: false }, pwaCard: false,
@@ -120,6 +125,11 @@ let S = initial();
 /* ---------- helpers ---------- */
 const dayLabel = (d) => (d === null ? "" : d === 0 ? "Today" : d === 1 ? "Tomorrow" : "in " + d + " days");
 const fmtAmt = (i) => { const n = Math.round(i.n * 100) / 100; return String(n) + (i.unit ? " " + i.unit : ""); };
+const isLow = (i) => !!i.low;
+const onList = (id) => S.shop.includes(id);
+const emo = (i) => i.emoji || emojiOf(i.name) || "🍽️";
+const lowText = (i) => `${fmtAmt(i)} left`;
+const greeting = () => { const h = new Date().getHours(); return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening"; };
 const reducible = (i) => COUNT_UNITS.includes(i.unit);
 const can = (r) => r.ings.filter(([k]) => S.pantry.some((p) => p.key === k));
 const me = () => PEOPLE[S.persona];
@@ -151,7 +161,8 @@ function maybePrompt() {
 function go(screen, param = null, opts = {}) {
   if (!opts.replace) S.stack.push({ screen: S.screen, param: S.param, tab: S.tab });
   S.screen = screen; S.param = param; S.sortOpen = false;
-  if (["today", "pantry", "recipes"].includes(screen)) { S.tab = screen; S.stack = []; }
+  if (["today", "pantry", "recipes", "shop"].includes(screen)) { S.tab = screen; S.stack = []; }
+  if (screen !== "pantry") S.sel = null;
   if (screen === "today") maybePrompt();
   render();
 }
@@ -165,10 +176,11 @@ function toast(msg) { S.toast = msg; render(); clearTimeout(toast.t); toast.t = 
 /* ---------- pieces ---------- */
 const header = () => `<div class="top"><span>Our kitchen</span><button class="av" data-go="menu" aria-label="Account">${me().initial}</button></div>`;
 const backHeader = (label, title) => `<div class="top"><button class="back" data-act="back">&lsaquo; ${esc(label)}</button><span class="ttl">${esc(title || "")}</span><span style="width:64px"></span></div>`;
-const bar = () => `<nav class="bar">
-  <button data-go="today" class="${S.tab === "today" ? "on" : ""}">Today</button>
-  <button data-go="pantry" class="${S.tab === "pantry" ? "on" : ""}">Pantry</button>
-  <button data-go="${S.recipes ? "recipes" : "upgrade"}" class="${S.tab === "recipes" ? "on" : ""}">Recipes${S.recipes ? "" : ' <span class="chip add">Add</span>'}</button>
+const bar = () => `<nav class="bar" aria-label="Main">
+  <button data-go="today" class="${S.tab === "today" ? "on" : ""}">${riSvg("home", 24)}<span>Home</span></button>
+  <button data-go="pantry" class="${S.tab === "pantry" ? "on" : ""}">${riSvg("jar", 24)}<span>Pantry</span></button>
+  <button data-go="${S.recipes ? "recipes" : "upgrade"}" class="${S.tab === "recipes" ? "on" : ""}">${riSvg("chef", 24)}<span>Recipes${S.recipes ? "" : ' <i class="chip add">Add</i>'}</span></button>
+  <button data-go="shop" class="${S.tab === "shop" ? "on" : ""}">${riSvg("cart", 24)}<span>Shopping</span>${S.shop.length ? `<i class="badge" aria-label="${S.shop.length} on the list">${S.shop.length}</i>` : ""}</button>
 </nav>`;
 const downBanner = () => S.down ? `<div class="banner warn"><b>Showing your saved list</b><span>Updated 3 minutes ago. We're reconnecting. Changes will work again shortly.</span><button class="lnk" data-act="retry">Try again</button></div>` : "";
 const shell = (inner) => header() + downBanner() + inner + bar();
@@ -185,14 +197,23 @@ const sorters = {
 };
 function visibleItems() {
   const q = S.search.trim().toLowerCase();
-  return S.pantry.filter((i) => (S.areaTab === "All" || i.area === S.areaTab) && (!q || i.name.toLowerCase().includes(q) || i.cat.toLowerCase().includes(q)) && (!S.recentOnly || i.recent));
+  return S.pantry.filter((i) => (S.areaTab === "All" || i.area === S.areaTab) && (!q || i.name.toLowerCase().includes(q) || i.cat.toLowerCase().includes(q)) && (!S.recentOnly || i.recent) && (S.view !== "low" || isLow(i)));
 }
 function rowHtml(i) {
   const hot = i.days !== null && i.days <= 1;
   return `<li class="rowx"><button class="rowlink" data-go="item" data-p="${i.id}"><div class="main"><div class="name">${i.emoji ? `<span aria-hidden="true">${i.emoji}</span> ` : ""}${esc(i.name)}${i.recent ? ` <span class="cue" role="img" aria-label="Added in the last 24 hours">${I.up(17)}</span>` : ""}</div><div class="meta">${esc(fmtAmt(i))} · ${esc(i.spot)} · ${esc(i.cat)}</div></div>${i.days !== null ? `<span class="due ${hot ? "hot" : ""}">${dayLabel(i.days)}</span>` : ""}<span class="chev">${I.chev}</span></button>${reducible(i) ? `<button class="iconbtn" data-act="useone" data-p="${i.id}" aria-label="Use one of ${esc(i.name)}" title="Use one" ${S.down ? "disabled" : ""}>${I.minus}</button>` : ""}<button class="iconbtn ok2" data-act="usedup" data-p="${i.id}" aria-label="Mark ${esc(i.name)} as used up" title="Used up" ${S.down ? "disabled" : ""}>${I.tick}</button></li>`;
 }
+/* running-low rows: swipe to add to the shopping list, press and hold to pick several */
+function lowRowHtml(i) {
+  const picked = S.sel && S.sel.includes(i.id);
+  return `<li class="rowx swr ${picked ? "sel" : ""}" data-swipe="${i.id}"><div class="swbg" aria-hidden="true"><span>Add to list</span>${riSvg("cart", 20)}</div><div class="swfg"><button class="rowlink" data-act="rowtap" data-p="${i.id}" ${picked ? 'aria-pressed="true"' : ""}>${S.sel ? `<span class="chk" aria-hidden="true">${picked ? I.tick : ""}</span>` : ""}<div class="main"><div class="name">${i.emoji ? `<span aria-hidden="true">${i.emoji}</span> ` : ""}${esc(i.name)}</div><div class="meta">${esc(lowText(i))} · ${esc(i.spot)}</div></div>${onList(i.id) ? '<span class="chip">On your list</span>' : ""}${S.sel ? "" : `<span class="chev">${I.chev}</span>`}</button></div></li>`;
+}
 function listHtml() {
-  const items = visibleItems().sort(S.recentOnly ? sorters.updated : sorters[S.sort]);
+  const items = visibleItems().sort(S.recentOnly ? sorters.updated : S.view === "useby" ? sorters.useby : sorters.name);
+  if (S.view !== "name") {
+    if (!items.length) return `<p style="padding:20px 4px">${S.view === "low" ? "Nothing is running low. Nice." : "Nothing matches."}</p>`;
+    return `${S.view === "low" ? `<p class="hint">${S.sel ? "Tap to pick more, then add them together." : "Swipe a row to add it to your shopping list. Press and hold to pick several."}</p>` : ""}<ul class="rows">${items.map(S.view === "low" ? lowRowHtml : rowHtml).join("")}</ul>`;
+  }
   const groups = AREAS.filter((a) => items.some((i) => i.area === a));
   if (!groups.length) return `<p style="padding:20px 4px">${S.pantry.length ? "Nothing matches." : "Your pantry is empty. Add what you have."}</p>`;
   return groups.map((a) => {
@@ -248,27 +269,41 @@ const screens = {
 
   today: () => {
     const soon = S.pantry.filter((p) => p.days !== null && p.days <= 3).sort((a, b) => a.days - b.days);
-    const cook = RECIPES.filter((r) => can(r).length >= r.ings.length - 1).slice(0, 3);
+    const low = S.pantry.filter(isLow);
+    const ideas = [...RECIPES].sort((a, b) => can(b).length / b.ings.length - can(a).length / a.ings.length);
     const first = !S.bannerGot && S.persona === "sam" && S.joined && !S.own;
     return shell(`<div class="body">
       ${first ? `<div class="banner" style="margin:0"><span>Shared with Arjan</span><button class="lnk" data-act="gotit">Got it</button></div>` : ""}
-      <div><h1 style="font-size:2rem">Good morning, ${esc(me().name)}.</h1><p style="margin-top:6px">${S.recipes ? "Use these up, and here's what they make." : "Here's what to use up."}</p></div>
+      <h1 style="font-size:2rem">${greeting()}, ${esc(me().name)}.</h1>
       ${S.pwaCard ? `<div class="card dash"><div class="pwa"><span style="color:var(--fg)">${POT}</span><div><b style="font-size:17px">Open your kitchen straight away</b><p class="small" style="margin-top:2px">No browser, no faff. Just tap and you're in.</p></div></div><div class="row" style="gap:18px"><button class="btn sm" data-sheet="pwa">Add it now</button><button class="link" data-act="pwano" style="color:var(--muted);font-weight:600">Not now</button></div></div>` : ""}
-      <div class="card"><span class="big">${soon.length} to use soon</span>${soon.length ? soon.map((p) => `<button class="li" data-go="item" data-p="${p.id}"><span>${esc(p.name)}</span><span class="chip ${p.days <= 1 ? "warn" : ""}">${dayLabel(p.days)}</span></button>`).join("") : "<p>Nothing is about to expire.</p>"}</div>
+      <section class="card tile" role="button" tabindex="0" data-act="openuse" aria-label="On the way out. View all">
+        <div class="th"><span class="ric" style="width:36px;height:36px">${riSvg("clock", 20)}</span><h2>On the way out</h2><span class="va">View all</span></div>
+        ${soon.length ? `<div class="chips3">${soon.slice(0, 3).map((p) => `<div class="mini"><span class="em" aria-hidden="true">${emo(p)}</span><b>${esc(p.name)}</b><span>${dayLabel(p.days)}</span></div>`).join("")}</div>` : "<p>Nothing is about to expire.</p>"}</section>
+      <section class="card tile" role="button" tabindex="0" data-act="openlow" aria-label="Running low. View all">
+        <div class="th"><span class="ric t3" style="width:36px;height:36px">${riSvg("basket", 20)}</span><h2>Running low</h2><span class="va">View all</span></div>
+        ${low.length ? low.slice(0, 3).map((p) => `<div class="lrow"><span class="em" aria-hidden="true">${emo(p)}</span><div><b>${esc(p.name)}</b><span>${esc(lowText(p))}</span></div>${onList(p.id) ? '<span class="chip">On your list</span>' : `<button class="pillbtn" data-act="shopadd" data-p="${p.id}" aria-label="Add ${esc(p.name)} to shopping list">Add</button>`}</div>`).join("") : "<p>Nothing is running low.</p>"}</section>
       ${S.recipes
-        ? `<div class="card"><span class="big">${cook.length} you can cook now</span>${cook.map((r) => `<button class="li" data-go="recipe" data-p="${r.id}"><span>${esc(r.name)}</span><span class="sub" style="margin:0">${r.time} min</span></button>`).join("")}</div>`
+        ? `<section class="card tile3"><div class="th"><span class="ric t2" style="width:36px;height:36px">${riSvg("chef", 20)}</span><h2>Cooking ideas for you</h2><button class="va" data-go="recipes">See all</button></div>
+            <div class="snap" id="snap">${ideas.map((r) => `<button class="idea" data-go="recipe" data-p="${r.id}"><span class="ph big" aria-hidden="true">${r.emoji}</span><div style="flex:1;min-width:0"><b>${esc(r.name)}</b><p class="small" style="margin-top:2px">Uses ${r.ings.slice(0, 3).map(([, n]) => esc(n.toLowerCase())).join(", ")}${r.ings.length > 3 ? ` +${r.ings.length - 3} more` : ""}</p><p class="small" style="margin-top:6px">${r.time} min · you have ${can(r).length} of ${r.ings.length}</p></div><span class="chev" style="color:var(--muted)">${I.chev}</span></button>`).join("")}</div>
+            <div class="dots" aria-hidden="true">${ideas.map((_, n) => `<i class="${n ? "" : "on"}"></i>`).join("")}</div></section>`
         : `<button class="card" data-go="upgrade"><b>Know what you can cook</b><p class="small">Recipes uses what's in your pantry. Add it to your kitchen.</p></button>`}
     </div>`);
   },
 
+  shop: () => shell(`<div class="body"><h1>Shopping</h1>
+    ${S.shop.length
+      ? `<ul class="rows">${S.shop.map((id) => S.pantry.find((x) => x.id === id)).filter(Boolean).map((i) => `<li class="rowx"><div class="rowlink" style="cursor:default"><span class="em" aria-hidden="true" style="font-size:26px">${emo(i)}</span><div class="main"><div class="name">${esc(i.name)}</div><div class="meta">${esc(isLow(i) ? lowText(i) : fmtAmt(i))} at home</div></div></div><button class="iconbtn ok2" data-act="shopdone" data-p="${i.id}" aria-label="Got ${esc(i.name)}" title="Got it">${I.tick}</button></li>`).join("")}</ul>`
+      : `<div class="card" style="align-items:center;text-align:center;gap:10px;padding:28px 18px"><span class="ric" style="width:64px;height:64px">${riSvg("cart", 32)}</span><b style="font-size:20px">Nothing on the list yet</b><p>Swipe a running-low item to put it here.</p><button class="btn sm" data-act="openlow">See what's running low</button></div>`}
+  </div>`),
+
   pantry: () => header() + downBanner() + `<div class="body tight">
     <div class="phead"><h1>Pantry</h1><button class="icon" data-act="search" aria-label="Search" aria-expanded="${S.searchOpen}">${I.search}</button></div>
     ${S.searchOpen ? `<div class="searchbar"><input class="field" id="search" placeholder="Search your pantry" value="${esc(S.search)}" autocomplete="off"></div>` : ""}
-    <div class="tools"><button class="tbtn sortbtn" data-act="sortopen" aria-label="Sort">${SORTS.find((s) => s[0] === S.sort)[1]}</button><button class="tbtn" data-act="recent" aria-pressed="${S.recentOnly}">Recent</button>
-      ${S.sortOpen ? `<div class="sortpanel" role="menu">${SORTS.map(([k, l]) => `<button role="menuitemcheckbox" aria-checked="${S.sort === k}" data-act="sort" data-p="${k}">${l}</button>`).join("")}</div>` : ""}</div>
+    <div class="tools"><div class="seg3" role="radiogroup" aria-label="Show">${[["name", "A to Z"], ["useby", "Use by"], ["low", "Running low"]].map(([k, l]) => `<button role="radio" aria-checked="${S.view === k}" data-act="view" data-p="${k}" class="${S.view === k ? "on" : ""}">${l}</button>`).join("")}</div><button class="tbtn" data-act="recent" aria-pressed="${S.recentOnly}">Recent</button></div>
     <nav class="atabs" aria-label="Area">${["All", ...AREAS].map((a) => `<button data-act="areatab" data-p="${a}" class="${S.areaTab === a ? "on" : ""}">${a}</button>`).join("")}</nav>
     <div id="plist">${listHtml()}</div></div>
-    <nav class="dock" aria-label="Add and share"><button class="icon" data-sheet="add" aria-label="Add an item" title="Add an item" ${S.down ? "disabled" : ""}>${I.plus}</button><button class="icon" data-act="copyshop" aria-label="Copy shopping list" title="Copy shopping list">${I.cart}</button><button class="icon" data-act="copykitchen" aria-label="Copy kitchen list" title="Copy kitchen list">${I.list}</button></nav>` + bar(),
+    ${S.sel ? `<div class="selbar" role="region" aria-label="Selected items"><button class="btn" data-act="seladd">Add ${S.sel.length} to shopping list</button><button class="icon" data-act="selcancel" aria-label="Cancel selection" title="Cancel">${I.x}</button></div>` : ""}
+    <nav class="dock" aria-label="Add and share" ${S.sel ? "hidden" : ""}><button class="icon" data-sheet="add" aria-label="Add an item" title="Add an item" ${S.down ? "disabled" : ""}>${I.plus}</button><button class="icon" data-act="copyshop" aria-label="Copy shopping list" title="Copy shopping list">${I.cart}</button><button class="icon" data-act="copykitchen" aria-label="Copy kitchen list" title="Copy kitchen list">${I.list}</button></nav>` + bar(),
 
   item: () => {
     const p = S.pantry.find((x) => x.id === S.param);
@@ -280,6 +315,7 @@ const screens = {
       <div><div class="kv"><span>Location</span><span>${esc(p.area)}</span></div><div class="kv"><span>Spot</span><span>${esc(p.spot)}</span></div><div class="kv"><span>Category</span><span>${esc(p.cat)}</span></div><div class="kv"><span>Use by</span><span>${p.days === null ? "Not set" : dayLabel(p.days)}</span></div></div>
       ${S.recipes && rs.length ? `<div style="display:flex;flex-direction:column;gap:10px"><span class="lbl">Cook it tonight</span>${rs.map((r) => `<button class="rc" data-go="recipe" data-p="${r.id}"><span class="ph">${r.emoji}</span><div style="flex:1"><b>${esc(r.name)}</b><p class="small">${can(r).length} of ${r.ings.length} ingredients · ${r.time} min</p></div></button>`).join("")}</div>` : ""}
       ${!S.recipes ? `<button class="card" data-go="upgrade"><b>Know what you can cook</b><p class="small">Recipes uses what's in your pantry.</p></button>` : ""}
+      ${onList(p.id) ? `<p class="small">On your shopping list.</p>` : `<button class="btn ghost" data-act="shopadd" data-p="${p.id}">Add to shopping list</button>`}
       <p class="small">Finished with it? Use the tick on the pantry list.</p></div>`;
   },
 
@@ -378,7 +414,7 @@ function panelHtml() {
   <div class="grp"><h3>Invite</h3>${sw("own", "Starting their own kitchen")}<label><span>People already in</span><select data-ctl="existing">${[1, 2, 3].map((n) => `<option value="${n}" ${S.existing === n ? "selected" : ""}>${n === 3 ? "3 or more" : n}</option>`).join("")}</select></label><p class="st">Changes the welcome words. Use "Invite link opens" to replay.</p></div>
   <div class="grp"><h3>Household</h3>${sw("recipes", "Has Recipes")}${sw("down", "Platform is down")}${sw("expireNext", "Sign-in ends on next save")}</div>
   <div class="grp"><h3>Home-screen prompt</h3><div class="st" id="pwa-st">${esc(pwaStatus())}</div><button class="pb" data-act="usage">Add 30 min of use</button><button class="pb" data-act="week">Move on a week</button><p class="st">Nothing until 1 hour of use. Then once, twice, once over three weeks. Then never. Shows on Today.</p></div>
-  <div class="grp"><h3>Jump to</h3><button class="pb" data-act="restart">Invite link opens</button><button class="pb" data-act="jump" data-p="today">Today</button><button class="pb" data-act="jump" data-p="pantry">Pantry</button><button class="pb" data-act="jump" data-p="household">Household</button><button class="pb" data-act="jump" data-p="notmember">Not a member</button><button class="pb" data-act="reset">Reset everything</button></div>
+  <div class="grp"><h3>Jump to</h3><button class="pb" data-act="restart">Invite link opens</button><button class="pb" data-act="jump" data-p="today">Home</button><button class="pb" data-act="jump" data-p="pantry">Pantry</button><button class="pb" data-act="jump" data-p="household">Household</button><button class="pb" data-act="jump" data-p="notmember">Not a member</button><button class="pb" data-act="reset">Reset everything</button></div>
   <p class="st">Fake data. Nothing leaves your browser.</p>`;
 }
 
@@ -440,6 +476,15 @@ const acts = {
     if (S.expireNext) { S.expireNext = false; refreshPanel(); S.sheet = "expired"; render(); } else commitAdd();
   },
   resume() { S.sheet = null; commitAdd(); },
+  view(k) { S.view = k; S.sel = null; S.recentOnly = false; render(); },
+  openuse() { S.view = "useby"; S.areaTab = "All"; S.recentOnly = false; go("pantry"); },
+  openlow() { S.view = "low"; S.areaTab = "All"; S.recentOnly = false; go("pantry"); },
+  shopadd(id) { const i = S.pantry.find((x) => x.id === id); if (!i) return; if (!onList(id)) S.shop.push(id); toast(i.name + " added to your shopping list"); },
+  shopdone(id) { S.shop = S.shop.filter((x) => x !== id); render(); },
+  rowtap(id) { if (S.sel) { S.sel = S.sel.includes(id) ? S.sel.filter((x) => x !== id) : [...S.sel, id]; if (!S.sel.length) S.sel = null; render(); } else go("item", id); },
+  selstart(id) { S.sel = [id]; render(); },
+  selcancel() { S.sel = null; render(); },
+  seladd() { const n = S.sel.length; S.sel.forEach((id) => { if (!onList(id)) S.shop.push(id); }); S.sel = null; toast(n + (n === 1 ? " item" : " items") + " added to your shopping list"); },
   copyshop() { toast("Shopping list copied"); }, copykitchen() { toast("Kitchen list copied"); },
   copy() { toast("Link copied"); }, copyinvite() { toast("Invite link copied"); },
   revoke(name) { S.invites = S.invites.filter((i) => i.name !== name); render(); toast("Invite cancelled"); },
@@ -467,7 +512,9 @@ const acts = {
   jump(p) { S.joined = S.joined || p !== "notmember"; S.stack = []; go(p, null, { replace: true }); },
 };
 
+let lastGesture = 0;
 document.addEventListener("click", (e) => {
+  if (Date.now() - lastGesture < 450 && e.target.closest(".swr")) { e.stopPropagation(); return; }
   const t = e.target.closest("[data-act],[data-go],[data-sheet],[data-ctl],[data-stop]"); if (!t) return;
   if (t.dataset.stop && !t.dataset.act && !t.dataset.go && !t.dataset.sheet) return;
   if (t.dataset.ctl) { const k = t.dataset.ctl; if (k === "persona" || k === "existing") return; S[k] = !S[k]; refreshPanel(); render(); return; }
@@ -482,5 +529,34 @@ document.addEventListener("click", (e) => {
 });
 document.addEventListener("change", (e) => { const c = e.target.dataset && e.target.dataset.ctl; if (c === "persona") { S.persona = e.target.value; refreshPanel(); render(); } if (c === "existing") { S.existing = Number(e.target.value); render(); } });
 document.addEventListener("input", (e) => { if (e.target.id === "r-title" && S.rdraft) S.rdraft.title = e.target.value; if (e.target.id === "r-desc" && S.rdraft) S.rdraft.desc = e.target.value; if (e.target.id === "search") { S.search = e.target.value; document.getElementById("plist").innerHTML = listHtml(); } });
+/* swipe a running-low row to add it; press and hold to start picking several */
+let g = null;
+document.addEventListener("pointerdown", (e) => {
+  const row = e.target.closest("[data-swipe]"); if (!row || e.button > 0) return;
+  g = { id: row.dataset.swipe, row, fg: row.querySelector(".swfg"), x: e.clientX, y: e.clientY, dx: 0, swiping: false, long: false };
+  g.timer = setTimeout(() => { if (g && !g.swiping) { g.long = true; lastGesture = Date.now(); if (navigator.vibrate) navigator.vibrate(15); acts.selstart(g.id); } }, 480);
+});
+document.addEventListener("pointermove", (e) => {
+  if (!g || g.long) return;
+  const dx = e.clientX - g.x, dy = e.clientY - g.y;
+  if (!g.swiping) {
+    if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)) { clearTimeout(g.timer); g = null; return; }
+    if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy)) { g.swiping = true; clearTimeout(g.timer); g.row.classList.add("drag"); }
+    else return;
+  }
+  g.dx = dx; g.fg.style.transform = `translateX(${dx}px)`;
+  g.row.classList.toggle("armed", Math.abs(dx) > 90); g.row.classList.toggle("rt", dx > 0);
+});
+const endGesture = () => {
+  if (!g) return; clearTimeout(g.timer); const x = g; g = null;
+  if (!x.swiping) return;
+  lastGesture = Date.now(); x.row.classList.remove("drag");
+  if (Math.abs(x.dx) > 90) { x.fg.style.transform = `translateX(${x.dx > 0 ? 110 : -110}%)`; setTimeout(() => acts.shopadd(x.id), 160); }
+  else { x.fg.style.transform = ""; x.row.classList.remove("armed"); }
+};
+document.addEventListener("pointerup", endGesture); document.addEventListener("pointercancel", endGesture);
+document.addEventListener("contextmenu", (e) => { if (e.target.closest("[data-swipe]")) e.preventDefault(); });
+document.addEventListener("keydown", (e) => { const t = e.target; if ((e.key === "Enter" || e.key === " ") && t.matches && t.matches('[role=button][data-act]')) { e.preventDefault(); t.click(); } });
+document.addEventListener("scroll", (e) => { const sn = e.target; if (sn.id !== "snap") return; const n = Math.round(sn.scrollLeft / sn.clientWidth); sn.parentElement.querySelectorAll(".dots i").forEach((d, k) => d.classList.toggle("on", k === n)); }, true);
 document.getElementById("gear").addEventListener("click", () => document.getElementById("panel").classList.toggle("open"));
 render();

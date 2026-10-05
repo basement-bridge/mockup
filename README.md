@@ -20,7 +20,8 @@ The side panel (Controls button on a phone) switches who you are (owner or membe
 ## What the household flow shows
 
 - Invite link, Google sign-in, first arrival with an optional playful kitchen role
-- Today, Pantry, Recipes as sections of one app. A section appears only if the household has it
+- Home, Pantry, Recipes, Shopping as the bottom bar of one app. Home is a greeting (by time of day) over three tiles: On the way out (opens Pantry on Use by), Running low (opens Pantry on Running low) and Cooking ideas (only if the household has Recipes). Pantry has a three-state toggle: A to Z (default), Use by, Running low. In Running low, swipe a row to add it to the shopping list, or press and hold to pick several and add them together.
+-  A section appears only if the household has it
 - Pantry mirrors Kitchie's finished list: sort, Recent, area tabs, collapsible areas with an "added in the last 24 hours" marker, use one, used up, search, add item, copy lists
 - Not entitled: Recipes is offered. The person who looks after the plan buys it (fake checkout), others ask them
 - Household: anyone can invite. No rank is shown anywhere. Optional playful roles, picked from a grid of icons (six presets, or name your own and choose an icon), shown as a badge on the avatar. Tap a name to read the one-liner
