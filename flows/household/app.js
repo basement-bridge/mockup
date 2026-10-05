@@ -340,7 +340,6 @@ const screens = {
     <div class="hello"><span class="pill">${riSvg("lock", 14)}By invite only</span>
       <h1>Good kitchens start with an invite.</h1>
       <p>You're signed in as <b style="color:var(--fg)">j.smith@example.com</b>, which isn't in a household yet.</p></div>
-    <ul class="wl nmw">${[["people", "A small, trusted circle", ""], ["heart", "Cook and plan together", "t2"], ["leaf", "Less food waste", "t3"]].map(([ic, t, c]) => `<li><span class="ric ${c}" style="width:40px;height:40px">${riSvg(ic, 22)}</span><span>${t}</span></li>`).join("")}</ul>
     <div class="acts"><button class="btn" data-act="restart">I have an invite link</button>
       <button class="btn ghost" data-act="askaround">Will ask around :-(</button>
       <button class="btn ghost" data-act="restart">Use a different Google account</button></div></div>`,
