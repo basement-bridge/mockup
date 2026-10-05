@@ -34,9 +34,26 @@ const RI = {
   drop: '<path d="M12 3c3.5 4.5 6 7.2 6 10.2a6 6 0 0 1-12 0C6 10.200 8.500 7.500 12 3z"/><path d="M9.500 14a2.500 2.500 0 0 0 2 2.300"/>',
   spark: '<path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/>',
   flame: '<path d="M12 3c1 4 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3 0-6 1-9z"/>',
+  fox: '<path d="M4 4l5 4h6l5-4v8c0 5-3.5 8-8 8s-8-3-8-8z"/><path d="M11 16h2"/><circle cx="9" cy="12" r=".6"/><circle cx="15" cy="12" r=".6"/>',
+  octopus: '<path d="M5 12a7 7 0 0 1 14 0v3"/><path d="M5 12v3c0 2-1 3-2 3M9 15v4M12 15v5M15 15v4M19 15c0 2 1 3 2 3"/><circle cx="9.5" cy="11" r=".6"/><circle cx="14.5" cy="11" r=".6"/>',
+  owl: '<path d="M6 4l3 2h6l3-2v10a6 6 0 0 1-12 0z"/><circle cx="9.500" cy="10" r="2"/><circle cx="14.500" cy="10" r="2"/><path d="M12 12.500l-1 2h2z"/>',
+  shark: '<path d="M3 19h18M6 19c1-8 5-12 9-14-1 4 0 9 3 14"/><path d="M8 14c2 1 4 1 6 0"/>',
+  hedgehog: '<path d="M3 17c0-7 4-11 10-11s8 5 8 11z"/><path d="M6 11l-1-3M10 8l-.5-3M14 8l.5-3M18 11l1-3"/><circle cx="17" cy="14" r=".6"/>',
+  penguin: '<path d="M12 3c-3 0-4 3-4 6 0 4-2 6-2 9 0 2 2 3 6 3s6-1 6-3c0-3-2-5-2-9 0-3-1-6-4-6z"/><path d="M10 9.500h4l-2 2z"/><circle cx="10.500" cy="7" r=".6"/><circle cx="13.500" cy="7" r=".6"/>',
+  frog: '<circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M4 12c0 5 3.500 8 8 8s8-3 8-8c0-1-1-2-2-2H6c-1 0-2 1-2 2z"/><path d="M9 15c2 1.500 4 1.500 6 0"/>',
+  duck: '<path d="M7 9a4 4 0 0 1 8 0v1h5l-2 2v1c0 4-3 7-7 7s-7-3-7-7c0-2 1-4 3-4z"/><circle cx="10.500" cy="8.500" r=".6"/>',
+  bee: '<ellipse cx="12" cy="14" rx="6" ry="5"/><path d="M6.500 12h11M6.500 16h11M9 9c-2-3-2-5-1-5M15 9c2-3 2-5 1-5"/>',
+  snail: '<path d="M3 19h16c2 0 3-1 3-3M14 19a6 6 0 1 0-6-6"/><circle cx="14" cy="13" r="2"/><path d="M4 19c0-2 1-4 3-5M5 14l-1-3M8 13l.5-3"/>',
+  turtle: '<path d="M4 15a8 7 0 0 1 16 0z"/><path d="M8 15v-4M12 15V9M16 15v-4M4 15l-2 2M20 15l2 2M10 18v2M14 18v2"/>',
+  bear: '<circle cx="7" cy="6" r="2.200"/><circle cx="17" cy="6" r="2.200"/><circle cx="12" cy="13" r="8"/><circle cx="9.500" cy="11.500" r=".6"/><circle cx="14.500" cy="11.500" r=".6"/><path d="M11 15h2"/>',
+  pig: '<path d="M5 8l3 1.500M19 8l-3 1.500"/><circle cx="12" cy="13" r="8"/><ellipse cx="12" cy="14.500" rx="3" ry="2.200"/><circle cx="9" cy="10.500" r=".6"/><circle cx="15" cy="10.500" r=".6"/>',
+  hen: '<path d="M13 3c1 0 2 1 2 2.500-1 0-1 1 0 1.500l-2 2c3 0 6 2 6 6 0 3-3 5-7 5s-7-2-7-5c0-2 1-3 3-4z"/><circle cx="14" cy="6" r=".5"/>',
+  cat: '<path d="M5 4l4 3h6l4-3v9c0 4-3 7-7 7s-7-3-7-7z"/><circle cx="9.500" cy="12" r=".6"/><circle cx="14.500" cy="12" r=".6"/><path d="M11 15l1 1 1-1M2 14l4 1M22 14l-4 1"/>',
+  whale: '<path d="M3 13c0 4 4 7 9 7s9-3 9-7c0-2-1-3-3-3h-3c0-2-1-4-3-5 0 2-1 3-3 3-3 0-6 2-6 5z"/><path d="M18 8c1-1 2-1 3-1"/>',
   heart: '<path d="M12 20s-8-5-8-11a4.5 4.5 0 0 1 8-2.5A4.5 4.5 0 0 1 20 9c0 6-8 11-8 11z"/>',
 };
-const OWN_ICONS = ["spark", "flame", "heart", "chef", "pot", "basket", "fridge", "knife"];
+const ICON_LIB = Object.keys(RI).filter((k) => k !== "cap" && k !== "tag"); /* 30 light monoline icons */
+const NAMES = ["Arjan", "Priya", "Tom", "Mei"];
 const riSvg = (k, s = 26) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${RI[k] || RI.spark}</svg>`;
 const roleIc = (r, size = 44) => r ? `<span class="ric" style="width:${size}px;height:${size}px">${riSvg(r.ic, Math.round(size * .55))}</span>` : "";
 
@@ -73,6 +90,8 @@ const freshPantry = () => [
   { id: "spinach", key: "spinach", emoji: "🥬", name: "Spinach", n: 250, unit: "g", area: "Fridge", spot: "Crisper", cat: "Vegetables", days: 1, upd: 10, recent: true, by: "Arjan" },
   { id: "yoghurt", key: "yoghurt", emoji: "", name: "Greek yoghurt", n: 500, unit: "g", area: "Fridge", spot: "Top shelf", cat: "Dairy and eggs", days: 7, upd: 4, recent: false, by: "Arjan" },
   { id: "rice", key: "rice", emoji: "🍚", name: "Basmati rice", n: 5, unit: "kg", area: "Pantry", spot: "Bottom shelf", cat: "Dry goods", days: null, upd: 1, recent: false, by: "Arjan" },
+  { id: "brownrice", key: "brownrice", emoji: "🍚", name: "Brown rice", n: 1, unit: "kg", area: "Pantry", spot: "Bottom shelf", cat: "Dry goods", days: null, upd: 2, recent: false, by: "Arjan" },
+  { id: "jasmine", key: "jasmine", emoji: "🍚", name: "Jasmine rice", n: 1, unit: "kg", area: "Pantry", spot: "Bottom shelf", cat: "Dry goods", days: null, upd: 2, recent: false, by: "Arjan" },
   { id: "tomatoes", key: "tomatoes", emoji: "🥫", name: "Chopped tomatoes", n: 4, unit: "tin", area: "Pantry", spot: "Top shelf", cat: "Cans", days: null, upd: 2, recent: false, by: "Arjan" },
   { id: "onion", key: "onion", emoji: "🧅", name: "Onions", n: 6, unit: "", area: "Pantry", spot: "Baskets", cat: "Vegetables", days: null, upd: 3, recent: false, by: "Arjan" },
   { id: "garam", key: "garam", emoji: "", name: "Garam masala", n: 1, unit: "jar", area: "Pantry", spot: "Spice rack", cat: "Seasoning", days: null, upd: 2, recent: false, by: "Arjan" },
@@ -89,7 +108,7 @@ const initial = () => ({
   aiTab: "ChatGPT", aiActive: true, bannerGot: false, pending: null, joined: false,
   /* pantry view */
   sort: "name", sortOpen: false, recentOnly: false, areaTab: "All", collapsed: {}, search: "", searchOpen: false, draft: { days: null },
-  memberWho: null,
+  memberWho: null, existing: 1, own: false, rdraft: null, iconPick: false,
   /* install prompt: nothing until 1 hour of use, then 1, 2, 1 across three weeks, then never */
   usageMin: 0, week: 0, pwa: { startWeek: null, shown: {}, done: false }, pwaCard: false,
 });
@@ -180,27 +199,37 @@ function listHtml() {
 }
 
 /* ---------- screens ---------- */
+/* role editor, shared by Welcome and the role sheet: icon tiles first, then icon, name and tagline all tap-to-edit */
+function roleEditor(ctx) {
+  const d = S.rdraft, w = ctx === "welcome";
+  return `<div class="rgrid">${ROLE_PRESETS.map((r, i) => `<button class="rtile ${d && d.pi === i ? "on" : ""}" data-act="rolepick" data-p="${i}" aria-pressed="${!!(d && d.pi === i)}">${roleIc(r, 52)}<b>${esc(r.title)}</b></button>`).join("")}</div>
+  ${d ? `<div class="card"><div class="row"><button type="button" class="ric" style="width:56px;height:56px" data-act="roleicons" aria-label="Change icon" aria-expanded="${S.iconPick}">${riSvg(d.ic, 30)}</button><input class="field" id="r-title" value="${esc(d.title)}" maxlength="32" aria-label="Role name" autocomplete="off"></div><input class="field" id="r-desc" value="${esc(d.desc)}" maxlength="80" aria-label="Tagline" autocomplete="off"><p class="small">Tap the icon, name or tagline to change it.</p>${S.iconPick ? `<div class="irow" role="radiogroup" aria-label="Icon">${ICON_LIB.map((k) => `<button type="button" class="ipick ${d.ic === k ? "on" : ""}" data-act="iconchoose" data-p="${k}" role="radio" aria-checked="${d.ic === k}" aria-label="${k}">${riSvg(k, 22)}</button>`).join("")}</div>` : ""}</div>` : ""}
+  <button class="btn" data-act="roleconfirm" data-p="${ctx}">${w ? "See your kitchen" : "Save"}</button>
+  <button class="btn ghost" data-act="rolelater" data-p="${ctx}">${w ? "Later" : "Not now"}</button>`;
+}
+
 const screens = {
   invite: () => `<div class="body center">
     <div class="av" style="width:56px;height:56px;font-size:22px">A</div>
-    <h1>Arjan invited you to Our kitchen</h1>
-    <p>Share what's in the fridge and pantry, and cook from it together.</p>
+    ${S.own ? `<h1>Arjan set you up with a kitchen of your own</h1><p>Keep track of what's in the fridge and pantry. Invite people in whenever you like.</p>` : `<h1>Arjan invited you to Our kitchen</h1><p>Share what's in the fridge and pantry, and cook from it together.</p>`}
     <button class="btn" data-act="signin">Continue with Google</button>
     <p class="small">You'll sign in with Google. We never see your password.</p></div>`,
 
-  welcome: () => header() + `<div class="body" style="padding-top:28px">
-    <div><h1>You're in, ${esc(me().name)}.</h1><p style="margin-top:8px">Our kitchen · ${S.members.length} members</p></div>
-    <div style="display:flex;flex-direction:column;gap:12px">
-      <div class="row"><span class="dot"></span><span>Everything Arjan has added is already here</span></div>
-      <div class="row"><span class="dot"></span><span>${S.recipes ? "Pantry, and recipes you can cook from it" : "Your pantry, shared with the household"}</span></div>
-      <div class="row"><span class="dot"></span><span>Changes show up for everyone</span></div></div>
-    <button class="btn" data-go="today">Open our kitchen</button>
-    <button class="card dash rolecard" data-sheet="role">${role(S.persona) ? `${roleIc(role(S.persona), 48)}<div><b>${esc(role(S.persona).title)}</b><p class="small">Tap to change</p></div>` : `<div class="ricrow">${["chef", "pot", "basket", "fridge"].map((k) => `<span class="ric" style="width:40px;height:40px">${riSvg(k, 22)}</span>`).join("")}</div><div><b>Got a kitchen job?</b><p class="small">Pick an icon for the household. Optional.</p></div>`}</button></div>`,
+  welcome: () => {
+    const names = NAMES.slice(0, S.existing);
+    const who = names.length === 1 ? names[0] : names.length === 2 ? `${names[0]} and ${names[1]}` : `${names[0]}, ${names[1]} and the rest`;
+    return header() + `<div class="body" style="padding-top:28px">
+      ${S.own
+        ? `<div><h1>Your very own kitchen, ${esc(me().name)}.</h1><p style="margin-top:8px">Arjan thought you'd like one. Zero peer pressure.</p></div><p>It's empty and a little echoey. Fill it with whatever you like, including fourteen kinds of rice.</p>`
+        : `<div><h1>You're in, ${esc(me().name)}.</h1><p style="margin-top:8px">${esc(who)} would be thrilled to have you in their kitchen.</p></div><p>Kitchens are messy places. We'd like to make this one a bit more organised.</p>`}
+      <b>No pressure. Pick a role you like playing, or do it later.</b>
+      ${roleEditor("welcome")}</div>`;
+  },
 
   today: () => {
     const soon = S.pantry.filter((p) => p.days !== null && p.days <= 3).sort((a, b) => a.days - b.days);
     const cook = RECIPES.filter((r) => can(r).length >= r.ings.length - 1).slice(0, 3);
-    const first = !S.bannerGot && S.persona === "sam" && S.joined;
+    const first = !S.bannerGot && S.persona === "sam" && S.joined && !S.own;
     return shell(`<div class="body">
       ${first ? `<div class="banner" style="margin:0"><span>Shared with Arjan</span><button class="lnk" data-act="gotit">Got it</button></div>` : ""}
       <div><h1 style="font-size:2rem">Good morning, ${esc(me().name)}.</h1><p style="margin-top:6px">${S.recipes ? "Use these up, and here's what they make." : "Here's what to use up."}</p></div>
@@ -306,15 +335,7 @@ function sheetHtml() {
     <div class="field" style="display:flex;align-items:center"><span class="mono">https://kitchen.example/join/k7Q2-m9xA-0pR4</span></div>
     <button class="btn" data-act="copyinvite">Copy link</button><p class="small">Works once and expires in 7 days. It can be cancelled from Household.</p>`);
   if (sh === "expired") return wrap(`<h2>Sign in again to save</h2><p>Your sign-in ended. What you typed is kept, and you'll come straight back.</p><button class="btn" data-act="resume">Continue with Google</button>`, true);
-  if (sh === "role") {
-    const cur = role(S.persona);
-    return wrap(`<h2>Pick your kitchen role</h2><p>Optional. Tap one. It sits beside your name. Change it any time.</p>
-      <div class="rgrid">${ROLE_PRESETS.map((r, i) => `<button class="rtile ${cur && cur.title === r.title ? "on" : ""}" data-act="rolepick" data-p="${i}" aria-pressed="${!!(cur && cur.title === r.title)}">${roleIc(r, 52)}<b>${esc(r.title)}</b></button>`).join("")}</div>
-      <span class="lbl" style="margin-top:6px">Or make your own</span>
-      <div class="irow" role="radiogroup" aria-label="Icon">${OWN_ICONS.map((k) => `<button type="button" class="ipick ${(S.ownIc || "spark") === k ? "on" : ""}" data-act="ownic" data-p="${k}" role="radio" aria-checked="${(S.ownIc || "spark") === k}" aria-label="${k}">${riSvg(k, 22)}</button>`).join("")}</div>
-      <input class="field" id="r-title" placeholder="Name it" maxlength="32" autocomplete="off"><input class="field" id="r-desc" placeholder="One line, if you like" maxlength="80" autocomplete="off">
-      <button class="btn" data-act="roleown">Use my own</button>${cur ? `<button class="btn ghost" data-act="roleclear">No role</button>` : `<button class="btn ghost" data-act="closesheet">Skip for now</button>`}`);
-  }
+  if (sh === "role") return wrap(`<h2>Your kitchen role</h2><p>Optional. It sits beside your name.</p>${roleEditor("sheet")}`);
   if (sh === "member") {
     const w = S.memberWho, r = role(w), self = w === S.persona;
     return wrap(`<div class="row"><span class="av" style="width:56px;height:56px;font-size:20px">${PEOPLE[w].initial}</span><div><b style="font-size:20px">${PEOPLE[w].name}</b>${self ? ' <span class="chip">You</span>' : ""}</div></div>
@@ -329,6 +350,7 @@ function panelHtml() {
   const sw = (k, label) => `<label><span>${label}</span><button class="sw ${S[k] ? "on" : ""}" data-ctl="${k}" aria-pressed="${S[k]}"></button></label>`;
   return `<div class="grp"><h3>Who you are</h3><label><span>Signed in as</span><select data-ctl="persona"><option value="sam" ${S.persona === "sam" ? "selected" : ""}>Sam</option><option value="arjan" ${S.persona === "arjan" ? "selected" : ""}>Arjan (looks after the plan)</option></select></label></div>
   <div class="grp"><h3>Theme</h3><div class="tgrid">${window.themeHtml()}</div></div>
+  <div class="grp"><h3>Invite</h3>${sw("own", "Starting their own kitchen")}<label><span>People already in</span><select data-ctl="existing">${[1, 2, 3].map((n) => `<option value="${n}" ${S.existing === n ? "selected" : ""}>${n === 3 ? "3 or more" : n}</option>`).join("")}</select></label><p class="st">Changes the welcome words. Use "Invite link opens" to replay.</p></div>
   <div class="grp"><h3>Household</h3>${sw("recipes", "Has Recipes")}${sw("down", "Platform is down")}${sw("expireNext", "Sign-in ends on next save")}</div>
   <div class="grp"><h3>Home-screen prompt</h3><div class="st" id="pwa-st">${esc(pwaStatus())}</div><button class="pb" data-act="usage">Add 30 min of use</button><button class="pb" data-act="week">Move on a week</button><p class="st">Nothing until 1 hour of use. Then once, twice, once over three weeks. Then never. Shows on Today.</p></div>
   <div class="grp"><h3>Jump to</h3><button class="pb" data-act="restart">Invite link opens</button><button class="pb" data-act="jump" data-p="today">Today</button><button class="pb" data-act="jump" data-p="pantry">Pantry</button><button class="pb" data-act="jump" data-p="household">Household</button><button class="pb" data-act="jump" data-p="notmember">Not a member</button><button class="pb" data-act="reset">Reset everything</button></div>
@@ -361,11 +383,10 @@ function parseAmt(t) {
   const m = String(t).trim().match(/^([\d.,/]+)?\s*(.*)$/); let n = m && m[1] ? Number(m[1].replace(",", ".")) : 1; if (!isFinite(n)) n = 1;
   let u = (m && m[2] ? m[2] : "").trim(); const known = ["g", "kg", "mL", "L", ...COUNT_UNITS.filter(Boolean)]; const hit = known.find((k) => k.toLowerCase() === u.toLowerCase()); return { n, unit: hit || "" };
 }
-const setRole = (title, desc, ic) => { S.roles[S.persona] = { title, desc, ic: ic || "spark" }; S.sheet = null; refreshPanel(); render(); toast("Role set"); };
 
 const acts = {
   back, closesheet() { S.sheet = null; render(); },
-  signin() { S.joined = true; go("welcome", null, { replace: true }); },
+  signin() { S.joined = true; S.rdraft = null; S.iconPick = false; if (S.own) { S.pantry = []; S.members = [S.persona]; S.invites = []; S.roles = {}; } go("welcome", null, { replace: true }); },
   gotit() { S.bannerGot = true; render(); },
   retry() { toast(S.down ? "Still reconnecting" : "Back online"); },
   fold(a) { S.collapsed[a] = !S.collapsed[a]; render(); },
@@ -401,16 +422,21 @@ const acts = {
   aitab(t) { S.aiTab = t; S.aiActive = true; render(); }, aitoggle() { S.aiActive = !S.aiActive; render(); },
   ask() { toast("Sent to Arjan"); S.stack.pop(); go("today", null, { replace: true }); },
   pay() { S.recipes = true; refreshPanel(); S.stack = []; go("recipes", null, { replace: true }); toast("Recipes added for Our kitchen"); },
-  rolepick(i) { const r = ROLE_PRESETS[Number(i)]; setRole(r.title, r.desc, r.ic); },
-  ownic(k) { S.ownIc = k; document.querySelectorAll(".ipick").forEach((b) => { const on = b.dataset.p === k; b.classList.toggle("on", on); b.setAttribute("aria-checked", String(on)); }); },
-  roleown() { const t = document.getElementById("r-title").value.trim(), d = document.getElementById("r-desc").value.trim(); if (!t) return; setRole(t, d, S.ownIc); },
-  roleclear() { S.roles[S.persona] = null; S.sheet = null; render(); toast("Role removed"); },
+  rolepick(i) { const r = ROLE_PRESETS[Number(i)]; S.rdraft = { pi: Number(i), ic: r.ic, title: r.title, desc: r.desc }; S.iconPick = false; render(); },
+  roleicons() { S.iconPick = !S.iconPick; render(); },
+  iconchoose(k) { if (S.rdraft) S.rdraft.ic = k; S.iconPick = false; render(); },
+  roleconfirm(ctx) {
+    const d = S.rdraft; if (d && d.title.trim()) S.roles[S.persona] = { ic: d.ic, title: d.title.trim(), desc: d.desc.trim() };
+    S.rdraft = null; S.iconPick = false; S.sheet = null; refreshPanel();
+    if (ctx === "welcome") go("today", null, { replace: true }); else { render(); toast("Role saved"); }
+  },
+  rolelater(ctx) { S.rdraft = null; S.iconPick = false; S.sheet = null; if (ctx === "welcome") go("today", null, { replace: true }); else render(); },
   pwano() { S.pwaCard = false; render(); },
   pwadone() { S.pwa.done = true; S.pwaCard = false; S.sheet = null; render(); toast("Added. See you on the home screen."); },
   usage() { S.usageMin += 30; render(); },
   week() { S.week += 1; render(); },
-  signout() { const k = { persona: S.persona, recipes: S.recipes, down: S.down, usageMin: S.usageMin, week: S.week, pwa: S.pwa }; S = Object.assign(initial(), k); refreshPanel(); render(); },
-  restart() { const k = { persona: S.persona, recipes: S.recipes, down: S.down }; S = Object.assign(initial(), k); refreshPanel(); render(); },
+  signout() { const k = { persona: S.persona, recipes: S.recipes, down: S.down, own: S.own, existing: S.existing, usageMin: S.usageMin, week: S.week, pwa: S.pwa }; S = Object.assign(initial(), k); refreshPanel(); render(); },
+  restart() { const k = { persona: S.persona, recipes: S.recipes, down: S.down, own: S.own, existing: S.existing }; S = Object.assign(initial(), k); refreshPanel(); render(); },
   reset() { S = initial(); refreshPanel(); render(); },
   jump(p) { S.joined = S.joined || p !== "notmember"; S.stack = []; go(p, null, { replace: true }); },
 };
@@ -418,16 +444,17 @@ const acts = {
 document.addEventListener("click", (e) => {
   const t = e.target.closest("[data-act],[data-go],[data-sheet],[data-ctl],[data-stop]"); if (!t) return;
   if (t.dataset.stop && !t.dataset.act && !t.dataset.go && !t.dataset.sheet) return;
-  if (t.dataset.ctl) { const k = t.dataset.ctl; if (k === "persona") return; S[k] = !S[k]; refreshPanel(); render(); return; }
+  if (t.dataset.ctl) { const k = t.dataset.ctl; if (k === "persona" || k === "existing") return; S[k] = !S[k]; refreshPanel(); render(); return; }
   if (t.dataset.sheet) {
     if (t.dataset.sheet === "member") S.memberWho = t.dataset.p;
     if (t.dataset.sheet === "add") S.draft = { days: null };
+    if (t.dataset.sheet === "role") { const r = role(S.persona); S.rdraft = r ? { pi: -1, ic: r.ic, title: r.title, desc: r.desc } : null; S.iconPick = false; }
     S.sheet = t.dataset.sheet; render(); return;
   }
   if (t.dataset.act) { if (t.disabled) return; e.stopPropagation(); (acts[t.dataset.act] || (() => {}))(t.dataset.p, t.dataset.d); return; }
   if (t.dataset.go) { S.sheet = null; return go(t.dataset.go, ["item", "recipe"].includes(t.dataset.go) ? t.dataset.p : null); }
 });
-document.addEventListener("change", (e) => { if (e.target.dataset && e.target.dataset.ctl === "persona") { S.persona = e.target.value; refreshPanel(); render(); } });
-document.addEventListener("input", (e) => { if (e.target.id === "search") { S.search = e.target.value; document.getElementById("plist").innerHTML = listHtml(); } });
+document.addEventListener("change", (e) => { const c = e.target.dataset && e.target.dataset.ctl; if (c === "persona") { S.persona = e.target.value; refreshPanel(); render(); } if (c === "existing") { S.existing = Number(e.target.value); render(); } });
+document.addEventListener("input", (e) => { if (e.target.id === "r-title" && S.rdraft) S.rdraft.title = e.target.value; if (e.target.id === "r-desc" && S.rdraft) S.rdraft.desc = e.target.value; if (e.target.id === "search") { S.search = e.target.value; document.getElementById("plist").innerHTML = listHtml(); } });
 document.getElementById("gear").addEventListener("click", () => document.getElementById("panel").classList.toggle("open"));
 render();
