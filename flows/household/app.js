@@ -199,12 +199,22 @@ function listHtml() {
 }
 
 /* ---------- screens ---------- */
+const KITCHEN_SCENE = `<svg class="scene" viewBox="0 0 360 150" role="img" aria-label="A friendly kitchen: a pot on the stove, a plant and jars on a shelf"><g class="sh"><rect x="8" y="104" width="124" height="7" rx="3"/><rect x="236" y="112" width="116" height="7" rx="3"/><rect x="0" y="144" width="360" height="3" rx="1.5"/></g>
+<g class="plant"><path class="lf" d="M38 78c-8-8-9-18-5-24 8 3 11 14 5 24zM44 76c0-10 5-18 12-22 3 8-1 17-12 22z"/><rect class="pt" x="32" y="80" width="22" height="22" rx="4"/></g>
+<g><rect class="jar j1" x="70" y="84" width="16" height="20" rx="4"/><rect class="jar j2" x="90" y="80" width="16" height="24" rx="4"/><rect class="jar j3" x="110" y="70" width="18" height="34" rx="5"/></g>
+<g class="steam"><path d="M156 52c-4-6 4-10 0-16"/><path d="M180 48c-4-6 4-10 0-16"/><path d="M204 52c-4-6 4-10 0-16"/></g>
+<g class="pot"><g class="lid"><path d="M146 80c8-12 60-12 68 0z"/><circle cx="180" cy="64" r="3.5"/></g><path class="body" d="M146 82h68v38c0 14-10 24-34 24s-34-10-34-24z"/><path class="hd" d="M146 94h-8a5 5 0 0 0 0 10h8M214 94h8a5 5 0 0 1 0 10h-8"/></g>
+<g class="hearts"><path class="h1" d="M236 62c-5-5-11 1-6 6l6 5 6-5c5-5-1-11-6-6z"/><path class="h2" d="M252 44c-4-4-9 1-5 5l5 4 5-4c4-4-1-9-5-5z"/></g>
+<g class="pan"><rect x="264" y="92" width="52" height="20" rx="4"/><rect x="258" y="88" width="64" height="5" rx="2.5"/></g>
+<g class="cups"><rect x="262" y="74" width="12" height="14" rx="3"/><rect x="280" y="78" width="14" height="10" rx="3"/></g></svg>`;
+
+
 /* role editor, shared by Welcome and the role sheet: icon tiles first, then icon, name and tagline all tap-to-edit */
 function roleEditor(ctx) {
   const d = S.rdraft, w = ctx === "welcome";
-  return `<div class="rgrid">${ROLE_PRESETS.map((r, i) => `<button class="rtile ${d && d.pi === i ? "on" : ""}" data-act="rolepick" data-p="${i}" aria-pressed="${!!(d && d.pi === i)}">${roleIc(r, 52)}<b>${esc(r.title)}</b></button>`).join("")}</div>
-  ${d ? `<div class="card"><div class="row"><button type="button" class="ric" style="width:56px;height:56px" data-act="roleicons" aria-label="Change icon" aria-expanded="${S.iconPick}">${riSvg(d.ic, 30)}</button><input class="field" id="r-title" value="${esc(d.title)}" maxlength="32" aria-label="Role name" autocomplete="off"></div><input class="field" id="r-desc" value="${esc(d.desc)}" maxlength="80" aria-label="Tagline" autocomplete="off"><p class="small">Tap the icon, name or tagline to change it.</p>${S.iconPick ? `<div class="irow" role="radiogroup" aria-label="Icon">${ICON_LIB.map((k) => `<button type="button" class="ipick ${d.ic === k ? "on" : ""}" data-act="iconchoose" data-p="${k}" role="radio" aria-checked="${d.ic === k}" aria-label="${k}">${riSvg(k, 22)}</button>`).join("")}</div>` : ""}</div>` : ""}
-  <button class="btn" data-act="roleconfirm" data-p="${ctx}">${w ? "See your kitchen" : "Save"}</button>
+  return `<div class="rgrid">${ROLE_PRESETS.map((r, i) => `<button class="rtile ${d && d.pi === i ? "on" : ""}" data-act="rolepick" data-p="${i}" aria-pressed="${!!(d && d.pi === i)}">${roleIc(r, 52)}<b>${esc(r.title)}</b><span class="tg">${esc(r.desc)}</span></button>`).join("")}</div>
+  ${d ? `<div class="card"><div class="row"><button type="button" class="ric" style="width:56px;height:56px" data-act="roleicons" aria-label="Change icon" aria-expanded="${S.iconPick}">${riSvg(d.ic, 30)}</button><input class="field" id="r-title" value="${esc(d.title)}" maxlength="32" aria-label="Role name" autocomplete="off"></div><input class="field" id="r-desc" value="${esc(d.desc)}" maxlength="80" aria-label="Tagline" autocomplete="off">${S.iconPick ? `<div class="irow" role="radiogroup" aria-label="Icon">${ICON_LIB.map((k) => `<button type="button" class="ipick ${d.ic === k ? "on" : ""}" data-act="iconchoose" data-p="${k}" role="radio" aria-checked="${d.ic === k}" aria-label="${k}">${riSvg(k, 22)}</button>`).join("")}</div>` : ""}</div>` : ""}
+  <button class="btn" data-act="roleconfirm" data-p="${ctx}">${w ? "Take me to the kitchen" : "Save"}</button>
   <button class="btn ghost" data-act="rolelater" data-p="${ctx}">${w ? "Later" : "Not now"}</button>`;
 }
 
@@ -218,11 +228,13 @@ const screens = {
   welcome: () => {
     const names = NAMES.slice(0, S.existing);
     const who = names.length === 1 ? names[0] : names.length === 2 ? `${names[0]} and ${names[1]}` : `${names[0]}, ${names[1]} and the rest`;
-    return header() + `<div class="body" style="padding-top:28px">
-      ${S.own
-        ? `<div><h1>Your very own kitchen, ${esc(me().name)}.</h1><p style="margin-top:8px">Arjan thought you'd like one. Zero peer pressure.</p></div><p>It's empty and a little echoey. Fill it with whatever you like, including fourteen kinds of rice.</p>`
-        : `<div><h1>You're in, ${esc(me().name)}.</h1><p style="margin-top:8px">${esc(who)} would be thrilled to have you in their kitchen.</p></div><p>Kitchens are messy places. We'd like to make this one a bit more organised.</p>`}
-      <b>No pressure. Pick a role you like playing, or do it later.</b>
+    const perks = [["fridge", "Tame the pantry", ""], ["pot", "Plan & cook together", "t2"], ["basket", "Never run out of stuff", "t3"]];
+    return header() + `<div class="body" style="padding-top:12px">
+      ${KITCHEN_SCENE}
+      <div><h1>${S.own ? `Your very own kitchen, ${esc(me().name)}.` : `Welcome, ${esc(me().name)}.`}</h1>
+      <p style="margin-top:8px;font-size:17px">${S.own ? "Arjan thought you'd like one. Zero peer pressure." : `${esc(who)} will be thrilled to see you!`}</p></div>
+      <ul class="wl">${perks.map(([ic, t, c]) => `<li><span class="ric ${c}" style="width:44px;height:44px">${riSvg(ic, 24)}</span>${t}</li>`).join("")}</ul>
+      <div><h2>Pick a role you like playing</h2></div>
       ${roleEditor("welcome")}</div>`;
   },
 
