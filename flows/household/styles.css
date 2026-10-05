@@ -323,3 +323,6 @@ html,body{overscroll-behavior-y:contain}.body{overscroll-behavior-y:contain}
 .rscroll{gap:.25rem;padding:0 0 0 4px;scroll-snap-type:x proximity;scroll-padding-left:4px;-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 22px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 22px),transparent)}
 .rc2{min-height:44px;border:0;background:none;border-radius:.75rem;padding:0 1rem;font-size:.95rem;scroll-snap-align:start;max-width:132px}
 .rc2.on{background:var(--accent);color:var(--on-accent)}
+
+.searchbar .cancel{color:var(--accent);font-weight:700;min-height:44px;padding:0 4px;white-space:nowrap}
+.due{text-align:right;line-height:1.25}

@@ -58,11 +58,12 @@ const RI = {
   jar: '<rect x="6" y="4" width="12" height="3.500" rx="1.500"/><path d="M7 7.500h10a2 2 0 0 1 2 2V18a2.500 2.500 0 0 1-2.500 2.500h-9A2.500 2.500 0 0 1 5 18V9.500a2 2 0 0 1 2-2z"/><circle cx="12" cy="14" r="2.200"/>',
   cart: '<circle cx="9" cy="20" r="1.500"/><circle cx="18" cy="20" r="1.500"/><path d="M3 4h2.500l2.200 10.200a1 1 0 0 0 1 .8h8.800a1 1 0 0 0 1-.8L20 8H6.200"/>',
   clock: '<circle cx="12" cy="12" r="8"/><path d="M12 7.500V12l3 2"/>',
+  mic: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.500 11a6.500 6.500 0 0 0 13 0M12 17.500V21"/>',
   yy: '<circle cx="12" cy="12" r="9"/><path d="M12 3a4.500 4.500 0 0 1 0 9 4.500 4.500 0 0 0 0 9"/><circle cx="12" cy="7.500" r="1.100" fill="currentColor" stroke="none"/><circle cx="12" cy="16.500" r="1.100" stroke-width="1.200"/>',
   funnel: '<path d="M4 5h16l-6 7.500V19l-4-2v-4.500z"/>',
   heart: '<path d="M12 20s-8-5-8-11a4.5 4.5 0 0 1 8-2.5A4.5 4.5 0 0 1 20 9c0 6-8 11-8 11z"/>',
 };
-const ICON_LIB = Object.keys(RI).filter((k) => !["cap", "tag", "lock", "people", "home", "jar", "cart", "clock", "yy", "funnel"].includes(k)); /* 30 light monoline icons */
+const ICON_LIB = Object.keys(RI).filter((k) => !["cap", "tag", "lock", "people", "home", "jar", "cart", "clock", "yy", "funnel", "mic"].includes(k)); /* 30 light monoline icons */
 const NAMES = ["Arjan", "Priya", "Tom", "Mei"];
 const riSvg = (k, s = 26) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${RI[k] || RI.spark}</svg>`;
 const roleIc = (r, size = 44) => r ? `<span class="ric" style="width:${size}px;height:${size}px">${riSvg(r.ic, Math.round(size * .55))}</span>` : "";
@@ -242,7 +243,7 @@ function visibleItems() {
 }
 function rowHtml(i) {
   const hot = i.days !== null && i.days <= 1;
-  return `<li class="rowx"><button class="rowlink" data-go="item" data-p="${i.id}"><div class="main"><div class="name">${i.emoji ? `<span aria-hidden="true">${i.emoji}</span> ` : ""}${esc(i.name)}${i.recent ? ` <span class="cue" role="img" aria-label="Added in the last 24 hours">${I.up(17)}</span>` : ""}</div><div class="meta">${esc(fmtAmt(i))} · ${esc(i.spot)} · ${esc(i.cat)}</div></div>${i.days !== null ? `<span class="due ${hot ? "hot" : ""}">${dayLabel(i.days)}</span>` : ""}<span class="chev">${I.chev}</span></button>${reducible(i) ? `<button class="iconbtn" data-act="useone" data-p="${i.id}" aria-label="Use one of ${esc(i.name)}" title="Use one" ${S.down ? "disabled" : ""}>${I.minus}</button>` : ""}<button class="iconbtn ok2" data-act="usedup" data-p="${i.id}" aria-label="Mark ${esc(i.name)} as used up" title="Used up" ${S.down ? "disabled" : ""}>${I.tick}</button></li>`;
+  return `<li class="rowx"><button class="rowlink" data-go="item" data-p="${i.id}"><div class="main"><div class="name">${i.emoji ? `<span aria-hidden="true">${i.emoji}</span> ` : ""}${esc(i.name)}${i.recent ? ` <span class="cue" role="img" aria-label="Added in the last 24 hours">${I.up(17)}</span>` : ""}</div><div class="meta">${esc(i.area)} · ${esc(fmtAmt(i))} · ${esc(i.spot)} · ${esc(i.cat)}</div></div>${i.days !== null ? `<span class="due ${hot ? "hot" : ""}">${i.days >= 2 ? `Use within<br>${i.days} days` : dayLabel(i.days)}</span>` : ""}<span class="chev">${I.chev}</span></button>${reducible(i) ? `<button class="iconbtn" data-act="useone" data-p="${i.id}" aria-label="Use one of ${esc(i.name)}" title="Use one" ${S.down ? "disabled" : ""}>${I.minus}</button>` : ""}<button class="iconbtn ok2" data-act="usedup" data-p="${i.id}" aria-label="Mark ${esc(i.name)} as used up" title="Used up" ${S.down ? "disabled" : ""}>${I.tick}</button></li>`;
 }
 /* running-low rows: swipe to add to the shopping list, press and hold to pick several */
 function lowRowHtml(i) {
@@ -360,7 +361,7 @@ const screens = {
   pantry: () => header() + downBanner() + `<div class="body tight">
     <div class="pull ${S.refresh ? "on" : ""}" id="pull" ${S.refresh ? 'role="status"' : 'aria-hidden="true"'} ${S.refresh ? 'style="height:64px"' : ""}>${S.refresh ? `<div class="rf">${S.refresh[1]}<span>${S.refresh[0]}</span></div>` : "<span></span>"}</div>
     <div class="phead"><h1>Pantry</h1><button class="icon addbtn" data-sheet="add" aria-label="Add an item" title="Add an item" ${S.down ? "disabled" : ""}>${I.plus}</button></div>
-    ${S.searchOpen ? `<div class="searchbar"><input class="field" id="search" placeholder="Search your pantry" value="${esc(S.search)}" autocomplete="off" aria-label="Search your pantry"><button class="icon" data-act="search" aria-label="Close search" title="Close">${I.x}</button></div>` : ""}
+    ${S.searchOpen ? `<div class="searchbar"><input class="field" id="search" placeholder="Search your pantry" value="${esc(S.search)}" autocomplete="off" aria-label="Search your pantry"><button class="icon" data-act="mic" aria-label="Search by voice" title="Voice">${riSvg("mic", 22)}</button><button class="link cancel" data-act="search">Cancel</button></div>` : ""}
     ${S.fa
       ? `<div class="cview" role="status"><span class="cvi">${riSvg("funnel", 20)}</span><div class="cvt"><b>Custom view</b><span>${fItems(S.fa).length} items${fSummary(S.fa) ? " · " + esc(fSummary(S.fa)) : ""}</span></div><button class="link" data-sheet="filters">Edit</button><button class="icon" data-act="cvclear" aria-label="Clear custom view" title="Clear">${I.x}</button></div>`
       : `<div class="tools"><div class="seg3" role="radiogroup" aria-label="Show">${[["name", "A to Z"], ["useby", "Use by"], ["low", "Running low"]].map(([k, l]) => `<button role="radio" aria-checked="${S.view === k}" data-act="view" data-p="${k}" class="${S.view === k ? "on" : ""}">${l}</button>`).join("")}</div><button class="tbtn" data-sheet="filters" aria-label="Filters">${riSvg("funnel", 18)}<span>Filters</span></button></div>
@@ -532,6 +533,11 @@ const acts = {
   sortopen() { S.sortOpen = !S.sortOpen; render(); },
   sort(k) { S.sort = k; S.recentOnly = false; S.sortOpen = false; render(); },
   recent() { S.recentOnly = !S.recentOnly; S.sortOpen = false; render(); },
+  mic() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) { toast("Voice search isn't available in this browser"); return; }
+    const r = new SR(); r.lang = "en-AU"; r.onresult = (e) => { S.search = e.results[0][0].transcript; S.searchFocus = true; render(); S.searchFocus = false; }; r.onerror = () => toast("Couldn't hear that. Try again"); r.start(); toast("Listening…");
+  },
   search() { S.searchOpen = !S.searchOpen; S.searchFocus = S.searchOpen; if (!S.searchOpen) S.search = ""; render(); S.searchFocus = false; },
   useone(id) {
     if (S.down) return; const i = S.pantry.find((x) => x.id === id); if (!i) return;
