@@ -16,6 +16,10 @@ Jobs we design for (not exhaustive):
 
 It is not always obvious which job someone is in. Design as if the job matters, and leave room to infer it or ask. Do not default to one static view and call it done. Information architecture is part of the design, not only the look.
 
+Each job touches only the aspects it needs. A job does not have to show everything we know about an item just because we know it. What a job does not need is left out of that view, not just made quieter.
+
+Jobs are written up under `docs/knowledge/jobs-to-be-done/` (one file per job, same sections, see its README). Update the job's file and its mockup together. Mockups don't need to solve how a job is detected, but the knowledge of how it will be detected must be in the job's file, ready for the implementation.
+
 Don't bake in detail we have not derived yet (for example how freshness or amounts are ranked). Leave those open.
 
 ## 2. One token set drives everything
@@ -24,7 +28,7 @@ Don't bake in detail we have not derived yet (for example how freshness or amoun
 - A theme is only different values for the same tokens. Never a different structure.
 - Controls, widgets and spacing must look like one family on every page, in every theme. If a new page needs a new control, add it to the shared styles first.
 - `kitchie` and `kitchie-day` are production's palette exactly (Kitchie `server/src/layout.ts`). Any new theme must still read as the same family, and is checked against production, not invented in a vacuum.
-- Themes shipped: Kitchie Night, Kitchie Day, Marmalade, Blueberry, Herb Garden. Every page offers the picker. Check new work in at least one dark and one light theme.
+- Ten themes are shipped to pick from, to be narrowed to three or five later. The picker is tucked behind one small button, bottom right, in the same place on every page (inside Controls in the household flow). It must not take space from the mockup itself. Check new work in at least one dark and one light theme.
 
 ## 3. Playful over clinical
 

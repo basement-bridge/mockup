@@ -1,0 +1,22 @@
+# Jobs to be done
+
+Every screen starts from what the person is here to do right now. Layout, and what leads, follow from the job.
+
+## Convention
+
+- One file per job: `docs/knowledge/jobs-to-be-done/<job>.md`. The slug is the job in plain words, lower case, hyphens.
+- Same sections in every file, in this order: **Job**, **How we know the person is in this job**, **What leads**, **What this job does not need**, **Mockup**, **Open questions**, **For the implementation**.
+- Write what the owner said, in their terms. Keep proposals out, or label them "Proposal" with a date.
+- Not every job touches every aspect of an item. Each file lists only the aspects it needs. Anything else is left out of that view, not shown quietly.
+- When a job changes, update its file and the mockup together, and link the mockup.
+
+## Status
+
+| Job | File | State |
+|---|---|---|
+| Cooking right now | [cooking-right-now.md](cooking-right-now.md) | Captured, mockup drafted |
+| About to shop | – | Named, nothing captured yet |
+| Scanning things in | – | Named, nothing captured yet |
+| Planning the week | – | Named, nothing captured yet |
+| Using things up | – | Named, nothing captured yet |
+| Cook from one main thing | – | Named, nothing captured yet |

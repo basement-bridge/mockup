@@ -10,12 +10,11 @@
 <div class="wrap">
   <h1>Our kitchen</h1>
   <p>Mockups for the household experience. Drafts, fake data. Flows are settled enough to click through end to end. Fragments are still being decided.</p>
-
-  <div class="tstrip" id="ts" role="group" aria-label="Theme" style="margin-top:14px"></div><script>document.getElementById("ts").innerHTML=themeHtml();themeApply()</script>
   <section class="sec" aria-labelledby="j">
     <div class="lbl" id="j">Jobs we design for</div>
     <p>Every screen starts from what someone is here to do. Layout and what leads follow from that.</p>
-    <div class="jobs"><span>Cooking right now</span><span>About to shop</span><span>Scanning things in</span><span>Planning the week</span><span>Using things up</span><span>Cook from one main thing</span></div>
+    <div class="jobs"><a href="fragments/mid-cook/">Cooking right now</a><span class="soon">About to shop</span><span class="soon">Scanning things in</span><span class="soon">Planning the week</span><span class="soon">Using things up</span><span class="soon">Cook from one main thing</span></div>
+    <p class="q" style="margin-top:10px">Linked jobs have a mockup. The rest are named, not yet explored. <a href="https://github.com/basement-bridge/platform-mockup/blob/prototype-v1/docs/knowledge/jobs-to-be-done/README.md" style="text-decoration:underline">Notes per job</a></p>
   </section>
 
   <section class="sec" aria-labelledby="f">
@@ -31,6 +30,11 @@
   <section class="sec" aria-labelledby="g">
     <div class="lbl" id="g">Fragments</div>
     <p>One item at a time, still in deliberation. Once clear, a fragment folds into a flow.</p>
+    <a class="tile frag" href="fragments/mid-cook/">
+      <div class="row"><h2>Cooking right now</h2><span class="tag">Fragment</span></div>
+      <p>Opening the app mid-cook lands on the ingredients. A saved recipe is a secondary action, and only if it's in the vault and unaltered.</p>
+      <div class="q">Open: how the app learns you're mid-cook, from the conversation with the AI.</div>
+    </a>
     <a class="tile frag" href="fragments/pwa-cta/">
       <div class="row"><h2>Home-screen prompt, the rules</h2><span class="tag">Fragment</span></div>
       <p>The wording, the three-week schedule and every state it can be in. Already running inside the household flow on Today.</p>

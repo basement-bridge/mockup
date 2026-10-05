@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Cooking right now — fragment</title>
+<link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><script src="../../theme.js"></script>
+<style>
+.scr{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-phone);overflow:hidden;max-width:390px;margin:0 auto}
+.scr .top{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);font-family:var(--head);font-weight:700;font-size:19px}
+.scr .body{padding:16px;display:flex;flex-direction:column;gap:14px}
+.now{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.now i{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.scr h2{font-size:1.7rem;line-height:1.1}
+.src{font-size:13px}
+.ing{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.ing li{display:flex;align-items:center;gap:14px;min-height:64px;padding:8px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);cursor:pointer;user-select:none}
+.ing li .amt{font-family:var(--head);font-weight:700;font-size:1.25rem;min-width:84px}
+.ing li .nm{font-size:1.05rem;font-weight:600;flex:1}
+.ing li .ck{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);flex:none;display:flex;align-items:center;justify-content:center;color:var(--on-accent)}
+.ing li[aria-checked=true]{opacity:.55}
+.ing li[aria-checked=true] .nm{text-decoration:line-through}
+.ing li[aria-checked=true] .ck{background:var(--accent);border-color:var(--accent)}
+.sec2{border:1px solid var(--border);border-radius:var(--r-ctl);padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px;font-weight:600;color:var(--fg);background:none;width:100%;text-align:left;min-height:48px}
+.sw2{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:16px 0 12px}
+.sw2 button{min-height:44px;padding:0 16px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);color:var(--fg);font:600 14px var(--body);cursor:pointer}
+.sw2 button[aria-pressed=true]{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.cols{display:grid;gap:12px;margin-top:18px}
+@media(min-width:640px){.cols{grid-template-columns:1fr 1fr}}
+.cols .opt{margin:0}
+.tick{display:none}[aria-checked=true] .tick{display:block}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Cooking right now</h1>
+<p>Fragment for the job "cooking right now". Opening the app mid-cook lands on the <b style="color:var(--fg)">ingredients</b>, because those are what people can't hold in their head. Tap an ingredient to tick it off. Notes: <a href="https://github.com/basement-bridge/platform-mockup/blob/prototype-v1/docs/knowledge/jobs-to-be-done/cooking-right-now.md" style="color:var(--accent);font-weight:600">cooking-right-now.md</a>.</p>
+
+<div class="sw2" role="group" aria-label="Which recipe">
+  <button type="button" data-v="wing" aria-pressed="true">Made up with the AI</button>
+  <button type="button" data-v="vault" aria-pressed="false">From a saved recipe</button>
+</div>
+
+<div class="scr" id="scr" aria-live="polite"></div>
+
+<div class="cols">
+  <div class="opt"><h2>Shown</h2><p class="note">Ingredients and the amount for this dish. Nothing else.</p></div>
+  <div class="opt"><h2>Left out</h2><p class="note">Where things are kept, freshness, stock levels, history. Not needed to cook, so not on this view.</p></div>
+</div>
+<div class="opt" style="margin-top:12px"><h2>Not in the mockup</h2><p class="note">How the app knows you're mid-cook, and which recipe. That comes from the conversation with the AI through the tooling. See the notes file.</p></div>
+</div>
+<script>
+var D={
+ wing:{t:"Garlic soy noodles",src:"Made up in your chat. Not in your saved recipes.",ing:[["200 g","Egg noodles"],["3 cloves","Garlic"],["2 tbsp","Soy sauce"],["1 tbsp","Sesame oil"],["2","Spring onions"]],sec:null},
+ vault:{t:"Egg fried rice",src:"From your saved recipes, as written.",ing:[["3","Eggs"],["300 g","Basmati rice"],["1","Onion"]],sec:"Browse the recipe"}
+};
+var done={};
+function draw(v){
+  var d=D[v],h='<div class="top"><span>Our kitchen</span></div><div class="body"><span class="now"><i></i>Cooking now</span><div><h2>'+d.t+'</h2><p class="src">'+d.src+'</p></div><ul class="ing" role="group" aria-label="Ingredients">';
+  d.ing.forEach(function(r,i){var on=!!done[v+i];h+='<li role="checkbox" tabindex="0" aria-checked="'+on+'" data-k="'+v+i+'"><span class="amt">'+r[0]+'</span><span class="nm">'+r[1]+'</span><span class="ck"><svg class="tick" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></span></li>'});
+  h+='</ul>'+(d.sec?'<button class="sec2" type="button">'+d.sec+'<span aria-hidden="true">&rsaquo;</span></button>':'')+'</div>';
+  document.getElementById("scr").innerHTML=h;
+}
+var cur="wing";draw(cur);
+document.querySelector(".sw2").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;cur=b.dataset.v;document.querySelectorAll(".sw2 button").forEach(function(x){x.setAttribute("aria-pressed",String(x===b))});draw(cur)});
+function tog(li){if(!li)return;done[li.dataset.k]=!done[li.dataset.k];draw(cur)}
+document.getElementById("scr").addEventListener("click",function(e){tog(e.target.closest("li"))});
+document.getElementById("scr").addEventListener("keydown",function(e){if(e.key===" "||e.key==="Enter"){var li=e.target.closest("li");if(li){e.preventDefault();tog(li);var k=li.dataset.k;var n=document.querySelector('[data-k="'+k+'"]');if(n)n.focus()}}});
+</script></body></html>

@@ -12,8 +12,9 @@ The side panel (Controls button on a phone) switches who you are (owner or membe
 
 - `index.html`: the index. **Flows** are complete or significant end-to-end parts. **Fragments** are single items still in deliberation; once clear they fold into a flow.
 - `flows/household/`: the clickable household prototype (below).
-- `fragments/`: `pwa-cta`, `item-row-axes`, `inventory-home`.
-- `theme.css` + `theme.js`: the single token set and the theme picker (five themes) used by every page. `shared.css`: layout for the index and fragments.
+- `fragments/`: `mid-cook`, `pwa-cta`, `item-row-axes`, `inventory-home`.
+- `theme.css` + `theme.js`: the single token set and the theme picker (ten themes) used by every page. `shared.css`: layout for the index and fragments.
+- `docs/knowledge/`: what we've learned, per job to be done, for carrying into the implementation.
 - `DESIGN.md`: the design brief. Read it before changing anything.
 
 ## What the household flow shows
@@ -37,4 +38,4 @@ The side panel (Controls button on a phone) switches who you are (owner or membe
 
 ## Look
 
-Five themes drive every page from one token set. Two are production's palette exactly. No font files are bundled, so text falls back to system fonts.
+Ten themes drive every page from one token set. Two are production's palette exactly. No font files are bundled, so text falls back to system fonts.
