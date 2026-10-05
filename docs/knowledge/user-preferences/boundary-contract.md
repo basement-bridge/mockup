@@ -1,6 +1,6 @@
 # Boundary contract: the conversational AI and the learning engine
 
-Status: draft v0.1, 5 Oct 2026. A proposal, written for the owner to review. Not built. No personal data in this file (public repo).
+Status: draft v0.2, 5 Oct 2026. A proposal, written for the owner to review. Not built. v0.2 narrows to two tools (owner, 5 Oct 2026): one to get context and hints, one for feedback, where a correction carries more weight than going along with an inference. No personal data in this file (public repo).
 
 Scope: the engine only informs the conversational AI. The AI is the only way in and the only way out. Framework: see `evidence-grading.md`.
 
@@ -60,22 +60,23 @@ Permission meanings:
 
 A claim below the bar for the current situation is not returned as a claim. It may appear under `unknown`.
 
-## Tool 1: `get_user_context` (engine to AI)
+## Tool 1: `get_context` (engine to AI, with hints)
 
-When: planning, the start of a session, or whenever the situation changes. A read.
+When: planning, the start of a session, whenever the situation changes, or when the person asks "why did you suggest that?". A read.
 
 Input (all optional):
 
 ```
 { context?: Context,
   topic?: string[],        // items, ingredients, a dish, a meal
+  explain?: string,        // a claim_id or suggestion_id: return its reasons instead
   max_claims?: int }       // engine caps it regardless
 ```
 
 Output:
 
 ```
-{ contract_version: "0.1",
+{ contract_version: "0.2",
   as_of: timestamp,
   engine: "on" | "off",
   context_used: { ...Context, "<field>_from": "given" | "session" | "default" },
@@ -83,89 +84,94 @@ Output:
   constraints: ClaimView[],        // safety limits, separate from taste
   claims: ClaimView[],             // only those that clear the bar for context_used
   unknown: [{ about: string, note: "insufficient evidence" }],
-  ask: AskHint[] }                 // 0 to 2
+  hints: AskHint[],                // 0 to 2; "ask if appropriate", each with why it matters
+  explanation?: {                  // only when explain was given
+    claim: ClaimView,
+    because: [{ kind: "corrected" | "rejected" | "stated" | "observed" | "accepted",
+                said?: string, at: timestamp, count: int }],   // at most 5
+    not_enough?: string,
+    status: "active" | "faded" | "rejected" } }
 ```
 
 Rules:
 
 - Context comes from, in order: the call, the recent calls in this session (`cook_meal` suggests cooking, `shopping_list` suggests shopping, a burst of `add_item` suggests scanning in), a short-lived session memory that decays, then the cautious default.
-- Cautious default (job unknown): only Established claims, highest bar, and an ask hint addressed to the AI to pass the job.
+- Cautious default (job unknown): only Established claims, highest bar, and a hint addressed to the AI to pass the job.
 - Never returns raw evidence, and never returns anything below the bar as a claim.
+- Hints are offers, not orders: the AI asks only if it is appropriate, uses `why_it_matters` to decide, asks one at a time, and never asks a `may` or `should` hint while the job is `cooking`.
+- Explanations are built only from stored fields. The AI may paraphrase, never invent a reason.
 - Answers from stored rollups. No inference on the call. Bounded payload.
 - When the engine is off: `engine: "off"`, empty lists, `evidence_quality: "insufficient"`.
 - Hard constraints are always included for the people in `for_whom`, whatever the job.
 
-## Tool 2: `why_suggested` (engine to AI)
+Why one read tool and not two: hints depend on the context, so they come back from the call that receives the context. Explanations are a read too, so they are an option on the same tool.
 
-When: the person asks "why did you suggest that?" or "what makes you think so?". A read.
+## Tool 2: `give_feedback` (AI to engine)
 
-Input (exactly one):
-
-```
-{ claim_id?: string, suggestion_id?: string }
-```
-
-Output:
-
-```
-{ claim: ClaimView,
-  because: [{ kind: "stated" | "reacted" | "observed", said?: string, at: timestamp, count: int }],   // at most 5
-  not_enough?: string,             // what is missing, if the grade is low
-  status: "active" | "faded" | "rejected",
-  can_correct: true }
-```
-
-Rules: built only from stored fields. The AI may paraphrase it. It must not invent a reason. To act on a correction, the AI calls `report_signal`.
-
-## Tool 3: `report_signal` (AI to engine)
-
-When: the person says or does something worth remembering, or reacts to a suggestion. A write.
+When: the person reacts to a hint, a suggestion or a claim, or says something worth remembering. A write.
 
 Input:
 
 ```
-{ signals: Signal[],             // 1 to 10
-  context?: Context }            // applies to every signal that has none of its own
+{ feedback: Feedback[],          // 1 to 10; one utterance can carry several
+  context?: Context }            // applies to every item that has none of its own
 
-Signal = {
-  kind: "stated" | "reacted" | "observed",
-  said?: string,                 // the person's words verbatim, max 500. Required for "stated".
-  about?: { type: "item" | "ingredient" | "recipe" | "cuisine" | "suggestion" | "claim" | "person" | "other",
+Feedback = {
+  kind: "corrected" | "rejected" | "stated" | "observed" | "accepted",
+  said?: string,                 // the person's words verbatim, max 500. Required for corrected and stated.
+  on?: { hint?: string, suggestion?: string, claim?: string },   // what it responds to, if anything
+  about?: { type: "item" | "ingredient" | "recipe" | "cuisine" | "person" | "other",
             ref?: string, text?: string },
-  statement?: "likes" | "dislikes" | "avoids" | "usually" | "fact",      // for "stated"
+  statement?: "likes" | "dislikes" | "avoids" | "usually" | "fact",   // for stated and corrected
   severity?: "hard" | "soft",    // for "avoids", only if the person said how strict
-  outcome?: "accepted" | "rejected" | "corrected",                       // required for "reacted"
   applies_to?: Scope,            // if the person limited it ("at dinner", "when it's just me")
-  answers?: string,              // ask hint id, when this is the reply to one
   client_ref?: string            // optional, to de-duplicate retries
 }
 ```
 
-Output (deliberately small):
+Output (deliberately small, no claims echoed):
 
 ```
 { accepted: int,
   ignored: [{ index: int, reason: string }],
-  applied_now: string[] }        // e.g. "rejection recorded"
+  applied_now: string[] }        // e.g. "correction recorded"
 ```
+
+### Weight of feedback (strongest first)
+
+No numbers. An ordering the engine respects:
+
+1. `corrected`: the person said the system was wrong, and usually what is right ("no, that's wrong", "not chicken, it was the sauce"). Retires the claim, blocks re-inference from the same evidence, and the right answer becomes a stated fact.
+2. `rejected`: the person said no to a hint or suggestion without saying what is right. Lowers the claim it came from; repeated rejections retire it.
+3. `stated`: the person said something about themselves unprompted, or answered a hint. Can create an Established claim.
+4. `observed`: the person did something unprompted, seen by the AI (a choice, a tool call). Never the AI's interpretation. Weak on its own.
+5. `accepted`: the person went along with a suggestion. The weakest signal, because going along with an inference is partly the system's own doing. It never raises a claim to Established on its own.
 
 Rules:
 
-- `stated`: only what the person said. Reply to an ask hint is `stated` with `answers`. Can create an Established claim.
-- `reacted`: the person accepted, rejected or corrected something the system suggested. `about.ref` is the `suggestion_id` or `claim_id` where there is one. A rejection or correction is written immediately and blocks re-inference from the same evidence. A suggestion the person simply did not take up is not a rejection.
-- `observed`: the AI saw it happen (a tool call, a choice made unprompted). Never the AI's interpretation. Weak evidence by itself.
-- The AI's own inference is not a signal. It is ignored if sent.
-- The response does not echo claims, so the AI does not treat the write as confirmation of a belief.
+- `corrected` and `rejected` are written immediately (synchronously). The rest can be handled in the background.
+- A suggestion the person simply ignored is not a rejection.
+- The AI's own inference is not feedback. It is ignored if sent.
 - Never fails the conversation. Unknown values become `other`, bad items go to `ignored`.
+
+## Evidence: selective, traceable, not only the journal
+
+From the owner (5 Oct 2026, by voice):
+
+- The journal holds what the person sees. There will be other facts the system gets to know that are not journal entries (for example, which hints were offered, asked and answered, or what context was served).
+- Capture is selective. Write only what is worth keeping as evidence, otherwise it is spam.
+- Whatever is captured as evidence must have a way back to it. Relying purely on the journal is myopic.
+
+So each evidence entry points either at a journal row or at its own record, and both are resolvable later. How the evidence store is shaped is open.
 
 ## Cross-cutting
 
-- Hot path: no engine call may add measurable latency to existing operations. Evidence points at rows the operation already wrote (the journal). Rollups run in the background. Only rejections, corrections and hard avoids are written synchronously.
+- Hot path: no engine call may add measurable latency to existing operations. Evidence points at rows the operation already wrote (the journal). Rollups run in the background. Only corrections, rejections and hard avoids are written synchronously.
 - Scoping: per person and per household, from the authenticated session. `PersonRef` is an id the engine already knows, never free text.
 - Versioning: `contract_version` on every output. Additive changes only within a major version.
-- Where a suggestion comes from another tool, that tool's response carries a `suggestion_id` so reactions can point at it.
-- Tool descriptions carry the usage guidance: what each permission means, that ask hints are optional, to ask at most one at a time, never to ask while the job is `cooking` unless the hint is `must`.
-- Testing: a set of recorded conversations as contract tests (does the AI report the right signal, respect `permission`, and skip `may` hints mid-cook), plus a log of whether each hint was followed.
+- Where a suggestion comes from another tool, that tool's response carries a `suggestion_id` so feedback can point at it.
+- Tool descriptions carry the usage guidance: what each permission means, that hints are optional, to ask at most one at a time, never to ask while the job is `cooking` unless the hint is `must`, and to send a correction whenever the person says the system got something wrong.
+- Testing: a set of recorded conversations as contract tests (does the AI send the right feedback kind, respect `permission`, and skip `may` hints mid-cook), plus a log of whether each hint was followed.
 
 ## Open questions
 
@@ -173,4 +179,6 @@ Rules:
 - `PersonRef` and household identity across Kitchie, Recipe and the platform.
 - Where `suggestion_id` is issued when the suggestion is the AI's own and not a tool's.
 - Which of these live in Kitchie, Recipe or the platform, and who owns the engine.
+- What the evidence store looks like, beyond the journal, and which events earn a place in it.
+- Where personal data (preferences, constraints) is stored, given the repositories are treated as public and Kitchie's MCP endpoint may be unauthenticated.
 - Thresholds and the definition of a "strong signal" (see `evidence-grading.md`).
