@@ -3,15 +3,43 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Our kitchen — prototype</title>
-<link rel="stylesheet" href="styles.css">
+<title>Our kitchen — mockups</title>
+<link rel="stylesheet" href="shared.css">
 </head>
 <body>
-<main class="stage">
-  <div class="phone" id="phone" aria-live="polite"></div>
-  <aside class="panel" id="panel"></aside>
-</main>
-<button class="gear" id="gear" aria-label="Prototype controls">Controls</button>
-<script src="app.js"></script>
+<div class="wrap">
+  <h1>Our kitchen</h1>
+  <p>Mockups for the household experience. Drafts, fake data. Flows are settled enough to click through end to end. Fragments are still being decided.</p>
+
+  <section class="sec" aria-labelledby="f">
+    <div class="lbl" id="f">Flows</div>
+    <p>Complete, or significant, end-to-end parts.</p>
+    <a class="tile" href="flows/household/">
+      <div class="row"><h2>Household, start to finish</h2><span class="tag flow">Flow</span></div>
+      <p>One kitchen app, access by entitlement. Clickable, with a controls panel to switch who you are and what is switched on.</p>
+      <div class="steps"><span>Invite link</span><span>Sign-in</span><span>First arrival</span><span>Today · Pantry · Recipes</span><span>Buy Recipes</span><span>Household &amp; roles</span><span>Home-screen prompt</span><span>Platform down</span></div>
+    </a>
+  </section>
+
+  <section class="sec" aria-labelledby="g">
+    <div class="lbl" id="g">Fragments</div>
+    <p>One item at a time, still in deliberation. Once clear, a fragment folds into a flow.</p>
+    <a class="tile frag" href="fragments/pwa-cta/">
+      <div class="row"><h2>Home-screen prompt, the rules</h2><span class="tag">Fragment</span></div>
+      <p>The wording, the three-week schedule and every state it can be in. Already running inside the household flow on Today.</p>
+      <div class="q">Open: is "Not now" a showing? Where do weeks start counting?</div>
+    </a>
+    <a class="tile frag" href="fragments/item-row-axes/">
+      <div class="row"><h2>Item row, by what matters now</h2><span class="tag">Fragment</span></div>
+      <p>Four ways a pantry row can answer the question of the moment: do I have it, is it enough, how much, is it still good.</p>
+      <div class="q">Open: which signal wins when amount and level disagree? Most recent, per the current thinking.</div>
+    </a>
+    <a class="tile frag" href="fragments/inventory-home/">
+      <div class="row"><h2>Inventory home layouts</h2><span class="tag">Fragment</span></div>
+      <p>Three ways to open the pantry, led by the job in hand: cooking, shopping, or using things up.</p>
+      <div class="q">Open: one default layout, or let the moment choose?</div>
+    </a>
+  </section>
+</div>
 </body>
 </html>
