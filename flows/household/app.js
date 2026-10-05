@@ -50,9 +50,12 @@ const RI = {
   hen: '<path d="M13 3c1 0 2 1 2 2.500-1 0-1 1 0 1.500l-2 2c3 0 6 2 6 6 0 3-3 5-7 5s-7-2-7-5c0-2 1-3 3-4z"/><circle cx="14" cy="6" r=".5"/>',
   cat: '<path d="M5 4l4 3h6l4-3v9c0 4-3 7-7 7s-7-3-7-7z"/><circle cx="9.500" cy="12" r=".6"/><circle cx="14.500" cy="12" r=".6"/><path d="M11 15l1 1 1-1M2 14l4 1M22 14l-4 1"/>',
   whale: '<path d="M3 13c0 4 4 7 9 7s9-3 9-7c0-2-1-3-3-3h-3c0-2-1-4-3-5 0 2-1 3-3 3-3 0-6 2-6 5z"/><path d="M18 8c1-1 2-1 3-1"/>',
+  people: '<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.4"/><path d="M3 19c0-3.500 2.700-6 6-6s6 2.500 6 6M15.500 14c3 0 5.500 2 5.500 5"/>',
+  leaf: '<path d="M5 19C5 10 10 5 20 4c0 10-5 15-14 15zM5 19l8-8"/>',
+  lock: '<rect x="5" y="11" width="14" height="9" rx="2.500"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
   heart: '<path d="M12 20s-8-5-8-11a4.5 4.5 0 0 1 8-2.5A4.5 4.5 0 0 1 20 9c0 6-8 11-8 11z"/>',
 };
-const ICON_LIB = Object.keys(RI).filter((k) => k !== "cap" && k !== "tag"); /* 30 light monoline icons */
+const ICON_LIB = Object.keys(RI).filter((k) => !["cap", "tag", "lock", "people"].includes(k)); /* 30 light monoline icons */
 const NAMES = ["Arjan", "Priya", "Tom", "Mei"];
 const riSvg = (k, s = 26) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${RI[k] || RI.spark}</svg>`;
 const roleIc = (r, size = 44) => r ? `<span class="ric" style="width:${size}px;height:${size}px">${riSvg(r.ic, Math.round(size * .55))}</span>` : "";
@@ -218,6 +221,10 @@ function roleEditor(ctx) {
   <button class="btn ghost" data-act="rolelater" data-p="${ctx}">${w ? "Later" : "Not now"}</button></div>`;
 }
 
+const INVITE_SCENE = `<svg class="scene env" viewBox="0 0 240 150" role="img" aria-label="An invite letter arriving in an envelope"><g class="sparks"><path class="s1" d="M40 58l4-9 4 9 9 4-9 4-4 9-4-9-9-4z"/><path class="s2" d="M196 40l3-7 3 7 7 3-7 3-3 7-3-7-7-3z"/><circle class="s3" cx="206" cy="92" r="4"/><circle class="s4" cx="30" cy="104" r="3"/><path class="s5" d="M60 24l5 12M120 12v12M176 22l-6 12M214 64l-12 4"/></g>
+<g class="letter"><rect x="70" y="8" width="100" height="96" rx="8"/><g class="lp" transform="translate(0,-66)"><path d="M98 78h44v12c0 8-6 13-22 13s-22-5-22-13z"/><path d="M92 82h-5a3 3 0 0 0 0 6h5M148 82h5a3 3 0 0 1 0 6h-5"/><path d="M96 74c8-8 40-8 48 0z"/></g></g>
+<path class="back" d="M52 70l68-30 68 30v62a8 8 0 0 1-8 8H60a8 8 0 0 1-8-8z"/><path class="flap" d="M52 74l68 44 68-44v58a8 8 0 0 1-8 8H60a8 8 0 0 1-8-8z"/><path class="fold" d="M52 132l50-36M188 132l-50-36"/></svg>`;
+
 const screens = {
   invite: () => `<div class="body center">
     <div class="av" style="width:56px;height:56px;font-size:22px">A</div>
@@ -231,7 +238,7 @@ const screens = {
     const perks = [["fridge", "Tame the pantry", ""], ["pot", "Plan & cook together", "t2"], ["basket", "Never run out of stuff", "t3"]];
     const anim = S.anim; S.anim = false;
     return header() + `<div class="body fit ${S.rdraft ? "editing" : ""} ${anim ? "anim" : ""} ${S.iconPick ? "picking" : ""}">
-      <div class="top">${KITCHEN_SCENE}
+      <div class="hero">${KITCHEN_SCENE}
       <div class="hello"><h1>${S.own ? `Your very own kitchen, ${esc(me().name)}.` : `Welcome, ${esc(me().name)}.`}</h1>
       <p>${S.own ? "Arjan thought you'd like one. Zero peer pressure." : `${esc(who)} will be thrilled to see you!`}</p></div>
       <ul class="wl">${perks.map(([ic, t, c]) => `<li><span class="ric ${c}" style="width:40px;height:40px">${riSvg(ic, 22)}</span><span>${t}</span></li>`).join("")}</ul></div>
@@ -328,9 +335,15 @@ const screens = {
     <div class="body"><div class="card"><span class="lbl">Prototype payment page</span><b style="font-size:20px">Recipes for Our kitchen</b><p>$4.99 a month</p></div>
     <p class="small">This stands in for a hosted checkout page. No card is taken.</p><button class="btn" data-act="pay">Pay $4.99</button></div>`,
 
-  notmember: () => `<div class="body center"><h1 style="font-size:2rem">This Google account isn't in a household yet</h1>
-    <p>You're signed in as <b style="color:var(--fg)">j.smith@example.com</b>. To join one, ask someone in the household to send you an invite link.</p>
-    <button class="btn" data-act="restart">I have an invite link</button><button class="btn ghost" data-act="restart">Use a different Google account</button></div>`,
+  notmember: () => `<div class="body fit nm">
+    <div class="hero">${INVITE_SCENE}</div>
+    <div class="hello"><span class="pill">${riSvg("lock", 14)}By invite only</span>
+      <h1>Good kitchens start with an invite.</h1>
+      <p>You're signed in as <b style="color:var(--fg)">j.smith@example.com</b>, which isn't in a household yet.</p></div>
+    <ul class="wl nmw">${[["people", "A small, trusted circle", ""], ["heart", "Cook and plan together", "t2"], ["leaf", "Less food waste", "t3"]].map(([ic, t, c]) => `<li><span class="ric ${c}" style="width:40px;height:40px">${riSvg(ic, 22)}</span><span>${t}</span></li>`).join("")}</ul>
+    <div class="acts"><button class="btn" data-act="restart">I have an invite link</button>
+      <button class="btn ghost" data-act="askaround">Will ask around :-(</button>
+      <button class="btn ghost" data-act="restart">Use a different Google account</button></div></div>`,
 };
 
 /* ---------- sheets ---------- */
@@ -451,6 +464,7 @@ const acts = {
   signout() { const k = { persona: S.persona, recipes: S.recipes, down: S.down, own: S.own, existing: S.existing, usageMin: S.usageMin, week: S.week, pwa: S.pwa }; S = Object.assign(initial(), k); refreshPanel(); render(); },
   restart() { const k = { persona: S.persona, recipes: S.recipes, down: S.down, own: S.own, existing: S.existing }; S = Object.assign(initial(), k); refreshPanel(); render(); },
   reset() { S = initial(); refreshPanel(); render(); },
+  askaround() { toast("No rush. The kitchen will keep."); },
   jump(p) { S.joined = S.joined || p !== "notmember"; S.stack = []; go(p, null, { replace: true }); },
 };
 
