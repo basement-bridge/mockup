@@ -229,11 +229,12 @@ const screens = {
     const names = NAMES.slice(0, S.existing);
     const who = names.length === 1 ? names[0] : names.length === 2 ? `${names[0]} and ${names[1]}` : `${names[0]}, ${names[1]} and the rest`;
     const perks = [["fridge", "Tame the pantry", ""], ["pot", "Plan & cook together", "t2"], ["basket", "Never run out of stuff", "t3"]];
-    return header() + `<div class="body fit ${S.rdraft ? "editing" : ""} ${S.iconPick ? "picking" : ""}">
-      ${KITCHEN_SCENE}
+    const anim = S.anim; S.anim = false;
+    return header() + `<div class="body fit ${S.rdraft ? "editing" : ""} ${anim ? "anim" : ""} ${S.iconPick ? "picking" : ""}">
+      <div class="top">${KITCHEN_SCENE}
       <div class="hello"><h1>${S.own ? `Your very own kitchen, ${esc(me().name)}.` : `Welcome, ${esc(me().name)}.`}</h1>
       <p>${S.own ? "Arjan thought you'd like one. Zero peer pressure." : `${esc(who)} will be thrilled to see you!`}</p></div>
-      <ul class="wl">${perks.map(([ic, t, c]) => `<li><span class="ric ${c}" style="width:40px;height:40px">${riSvg(ic, 22)}</span><span>${t}</span></li>`).join("")}</ul>
+      <ul class="wl">${perks.map(([ic, t, c]) => `<li><span class="ric ${c}" style="width:40px;height:40px">${riSvg(ic, 22)}</span><span>${t}</span></li>`).join("")}</ul></div>
       <h2 class="pickh">Pick a role you like playing</h2>
       ${roleEditor("welcome")}</div>`;
   },
@@ -434,7 +435,7 @@ const acts = {
   aitab(t) { S.aiTab = t; S.aiActive = true; render(); }, aitoggle() { S.aiActive = !S.aiActive; render(); },
   ask() { toast("Sent to Arjan"); S.stack.pop(); go("today", null, { replace: true }); },
   pay() { S.recipes = true; refreshPanel(); S.stack = []; go("recipes", null, { replace: true }); toast("Recipes added for Our kitchen"); },
-  rolepick(i) { const r = ROLE_PRESETS[Number(i)]; S.rdraft = { pi: Number(i), ic: r.ic, title: r.title, desc: r.desc }; S.iconPick = false; render(); },
+  rolepick(i) { S.anim = !S.rdraft; const r = ROLE_PRESETS[Number(i)]; S.rdraft = { pi: Number(i), ic: r.ic, title: r.title, desc: r.desc }; S.iconPick = false; render(); },
   roleicons() { S.iconPick = !S.iconPick; render(); },
   iconchoose(k) { if (S.rdraft) S.rdraft.ic = k; S.iconPick = false; render(); },
   roleconfirm(ctx) {

@@ -168,7 +168,7 @@ textarea.field{padding:12px 14px;min-height:76px;resize:none;font-size:15px}
 @keyframes sway{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
 @media (prefers-reduced-motion:reduce){.scene *{animation:none!important}}
 /* welcome fits the screen: no scrolling, the picture gives way first */
-.body.fit{overflow:hidden;padding:8px 20px 16px;gap:10px}
+.body.fit{overflow:auto;overscroll-behavior:contain;padding:8px 20px 16px;gap:10px}
 .fit .hello h1{font-size:2rem}.fit .hello p{margin:6px 0 0;font-size:16px}
 .fit .wl{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;flex:none}
 .fit .wl li{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;font-size:12.5px;font-weight:600;line-height:1.2}
@@ -177,8 +177,12 @@ textarea.field{padding:12px 14px;min-height:76px;resize:none;font-size:15px}
 .fit .rtile{min-height:0;padding:8px 4px;gap:4px}
 .fit .card{flex:none;padding:10px;gap:8px}
 .fit .irow{gap:4px}.fit .ipick{width:40px;height:40px}
-.fit .acts{display:flex;flex-direction:column;gap:6px;margin-top:auto;flex:none}
-.fit .btn{min-height:48px}.fit .btn.ghost{min-height:40px;border:0}
-.fit.editing .scene,.fit.editing .wl{display:none}
-.fit.picking .hello,.fit.picking .pickh{display:none}
+.fit .acts{position:sticky;bottom:-16px;background:var(--bg);padding:6px 0 0;display:flex;flex-direction:column;gap:6px;margin-top:auto;flex:none}
+.fit .btn{min-height:48px}.fit .btn.ghost{min-height:32px;width:auto;align-self:center;border:0;background:none;color:var(--muted);font-size:14px;font-weight:500;padding:0 14px;text-decoration:underline;text-underline-offset:3px}
+.fit .top{display:flex;flex-direction:column;gap:10px;flex:1 1 auto;min-height:0;overflow:hidden}
+.fit.editing .top{display:none}
+.fit.editing.anim .top{display:flex;animation:away .4s ease-in forwards}
+@keyframes away{from{max-height:520px;opacity:1;transform:none}to{max-height:0;opacity:0;transform:translateY(-40px)}}
+.fit.picking .pickh{display:none}
 @media (max-height:760px){.fit .rtile .tg{display:none}.fit .hello h1{font-size:1.7rem}}
+@media (prefers-reduced-motion:reduce){.fit.editing.anim .top{animation:none;display:none}}
