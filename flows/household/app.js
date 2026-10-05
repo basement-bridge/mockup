@@ -118,7 +118,7 @@ const initial = () => ({
   roles: { arjan: { title: "Pantry Marshal", ic: "shield", desc: "Keeps order on the shelves and the fridge. Knows exactly where the cumin lives." }, sam: null },
   aiTab: "ChatGPT", aiActive: true, bannerGot: false, pending: null, joined: false,
   /* pantry view */
-  rmode: "loc", order: { loc: [...AREAS], cat: [...CATEGORIES] }, fa: null, fd: null, flast: null, fTab: "filters", seenP: 0, seenR: 0, sort: "name", view: "name", shop: [], sel: null, sortOpen: false, recentOnly: false, areaTab: "All", collapsed: {}, search: "", searchOpen: false, draft: { days: null },
+  rmode: "loc", order: { loc: [...AREAS], cat: [...CATEGORIES] }, fa: null, fd: null, flast: null, fTab: "filters", seenP: 0, seenR: 0, view: "name", shop: [], sel: null, areaTab: "All", collapsed: {}, search: "", searchOpen: false, draft: { days: null },
   memberWho: null, existing: 1, own: false, rdraft: null, iconPick: false,
   /* install prompt: nothing until 1 hour of use, then 1, 2, 1 across three weeks, then never */
   usageMin: 0, week: 0, pwa: { startWeek: null, shown: {}, done: false }, pwaCard: false,
@@ -168,7 +168,7 @@ function maybePrompt() {
 /* ---------- navigation ---------- */
 function go(screen, param = null, opts = {}) {
   if (!opts.replace) S.stack.push({ screen: S.screen, param: S.param, tab: S.tab });
-  S.screen = screen; S.param = param; S.sortOpen = false;
+  S.screen = screen; S.param = param;
   if (["today", "pantry", "recipes", "shop"].includes(screen)) { S.tab = screen; S.stack = []; }
   if (screen !== "pantry") S.sel = null;
   if (screen === "today") maybePrompt();
@@ -231,15 +231,11 @@ const roleChip = (who) => role(who) ? `<span class="chip rchip">${riSvg(role(who
 /* ---------- pantry ---------- */
 const sorters = {
   name: (a, b) => a.name.localeCompare(b.name),
-  area: (a, b) => AREAS.indexOf(a.area) - AREAS.indexOf(b.area) || a.name.localeCompare(b.name),
-  spot: (a, b) => a.spot.localeCompare(b.spot) || a.name.localeCompare(b.name),
-  amount: (a, b) => b.n - a.n || a.name.localeCompare(b.name),
   useby: (a, b) => (a.days ?? 1e9) - (b.days ?? 1e9) || a.name.localeCompare(b.name),
-  updated: (a, b) => b.upd - a.upd,
 };
 function visibleItems() {
   const q = S.search.trim().toLowerCase();
-  return S.pantry.filter((i) => (S.areaTab === "All" || (S.rmode === "cat" ? i.cat : i.area) === S.areaTab) && (!q || i.name.toLowerCase().includes(q) || i.cat.toLowerCase().includes(q)) && (!S.recentOnly || i.recent) && (S.view !== "low" || isLow(i)));
+  return S.pantry.filter((i) => (S.areaTab === "All" || (S.rmode === "cat" ? i.cat : i.area) === S.areaTab) && (!q || i.name.toLowerCase().includes(q) || i.cat.toLowerCase().includes(q)) && (S.view !== "low" || isLow(i)));
 }
 function rowHtml(i) {
   const hot = i.days !== null && i.days <= 1;
@@ -261,7 +257,7 @@ function listHtml() {
     const k = SORTK[S.fa.key]; const items = fItems(S.fa).filter((i) => !q || i.name.toLowerCase().includes(q)).sort((a, b) => k.cmp(a, b, S.fa.dir));
     return items.length ? `<ul class="rows">${items.map(rowHtml).join("")}</ul>` : `<p style="padding:20px 4px">Nothing matches these filters.</p>`;
   }
-  const items = visibleItems().sort(S.recentOnly ? sorters.updated : S.view === "useby" ? sorters.useby : sorters.name);
+  const items = visibleItems().sort(S.view === "useby" ? sorters.useby : sorters.name);
   if (S.view !== "name") {
     if (!items.length) return `<p style="padding:20px 4px">${S.view === "low" ? "Nothing is running low. Nice." : "Nothing matches."}</p>`;
     return `${S.view === "low" ? `<p class="hint">${S.sel ? "Tap to pick more, then add them together." : "Swipe a row to add it to your shopping list. Press and hold to pick several."}</p>` : ""}<ul class="rows">${items.map(S.view === "low" ? lowRowHtml : rowHtml).join("")}</ul>`;
@@ -530,9 +526,6 @@ const acts = {
   retry() { toast(S.down ? "Still reconnecting" : "Back online"); },
   fold(a) { S.collapsed[a] = !S.collapsed[a]; render(); },
   areatab(a) { S.areaTab = a; render(); },
-  sortopen() { S.sortOpen = !S.sortOpen; render(); },
-  sort(k) { S.sort = k; S.recentOnly = false; S.sortOpen = false; render(); },
-  recent() { S.recentOnly = !S.recentOnly; S.sortOpen = false; render(); },
   mic() {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) { toast("Voice search isn't available in this browser"); return; }
@@ -569,16 +562,16 @@ const acts = {
   fdir(n) { S.fd.dir = Number(n); render(); },
   fshow() { const f = S.fd; S.fa = fActive(f) ? clone(f) : null; if (S.fa) S.flast = clone(f); S.sheet = null; S.fd = null; render(); },
   cvclear() { S.fa = null; render(); },
-  view(k) { S.view = k; S.sel = null; S.recentOnly = false; render(); },
-  openuse() { S.view = "useby"; S.areaTab = "All"; S.recentOnly = false; go("pantry"); },
-  openlow() { S.view = "low"; S.areaTab = "All"; S.recentOnly = false; go("pantry"); },
+  view(k) { S.view = k; S.sel = null; render(); },
+  openuse() { S.view = "useby"; S.areaTab = "All"; go("pantry"); },
+  openlow() { S.view = "low"; S.areaTab = "All"; go("pantry"); },
   shopadd(id) { const i = S.pantry.find((x) => x.id === id); if (!i) return; if (!onList(id)) S.shop.push(id); toast(i.name + " added to your shopping list"); },
   shopdone(id) { S.shop = S.shop.filter((x) => x !== id); render(); },
   rowtap(id) { if (S.sel) { S.sel = S.sel.includes(id) ? S.sel.filter((x) => x !== id) : [...S.sel, id]; if (!S.sel.length) S.sel = null; render(); } else go("item", id); },
   selstart(id) { S.sel = [id]; render(); },
   selcancel() { S.sel = null; render(); },
   seladd() { const n = S.sel.length; S.sel.forEach((id) => { if (!onList(id)) S.shop.push(id); }); S.sel = null; toast(n + (n === 1 ? " item" : " items") + " added to your shopping list"); },
-  copyshop() { toast("Shopping list copied"); }, copykitchen() { toast("Kitchen list copied"); },
+  copykitchen() { toast("Kitchen list copied"); },
   copy() { toast("Link copied"); }, copyinvite() { toast("Invite link copied"); },
   revoke(name) { S.invites = S.invites.filter((i) => i.name !== name); render(); toast("Invite cancelled"); },
   leave() { toast("You'd leave Our kitchen here"); },
