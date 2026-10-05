@@ -232,3 +232,28 @@ textarea.field{padding:12px 14px;min-height:76px;resize:none;font-size:15px}
 .pull{flex:none;height:0;overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px;font-weight:600;transition:height .15s}
 .addbtn{background:var(--accent);color:var(--on-accent);border-color:transparent}
 html,body{overscroll-behavior-y:contain}.body{overscroll-behavior-y:contain}
+
+/* refresh scenes */
+.pull.on{animation:pulldown .3s ease-out}
+@keyframes pulldown{from{height:0}}
+.rf{display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--muted);font-size:13px;font-weight:600}
+.rf svg{width:130px;height:88px;overflow:visible}
+.rf svg *{transform-box:fill-box;transform-origin:center}
+.rf .rf-p{fill:var(--accent)}.rf .rf-p2{fill:none;stroke:var(--border);stroke-width:3;stroke-linecap:round}
+.rf .rf-ph{fill:none;stroke:var(--accent);stroke-width:4;stroke-linecap:round}
+.rf .rf-spoon path{fill:none;stroke:var(--fg);stroke-width:4;stroke-linecap:round}.rf .rf-spoon circle{fill:var(--fg)}
+.rf .rf-spoon{transform-origin:60px 52px;animation:stir 1s ease-in-out infinite}
+.rf .rf-b circle{fill:var(--cue);animation:bub 1.2s ease-in infinite}.rf .rf-b circle:nth-child(2){animation-delay:.4s}.rf .rf-b circle:nth-child(3){animation-delay:.8s}
+.rf .rf-t1,.rf .rf-t2{fill:var(--sage)}.rf .rf-t1{animation:popt 1.1s ease-in-out infinite}.rf .rf-t2{animation:popt 1.1s ease-in-out .25s infinite}
+.rf .rf-slot{fill:var(--bg)}.rf .rf-dot{fill:var(--bg)}
+.rf .rf-j{animation:toss 1.5s linear infinite}.rf .j1{fill:var(--accent)}.rf .j2{fill:var(--cue);animation-delay:-.5s}.rf .j3{fill:var(--danger);animation-delay:-1s}
+.rf .rf-hand{fill:none;stroke:var(--fg);stroke-width:4;stroke-linecap:round}
+.rf .rf-steam path{fill:none;stroke:var(--muted);stroke-width:3;stroke-linecap:round;animation:bub 1.3s ease-in infinite}.rf .rf-steam path:nth-child(2){animation-delay:.4s}.rf .rf-steam path:nth-child(3){animation-delay:.8s}
+.rf .rf-kettle{animation:rock .5s ease-in-out infinite}.rf .rf-lid{fill:var(--fg)}
+.rf .rf-e{fill:var(--surface);stroke:var(--accent);stroke-width:3}.rf .rf-eye{fill:var(--fg)}.rf .rf-egg .rf-ph{stroke:var(--fg);stroke-width:3}
+.rf .rf-egg{transform-origin:50% 100%;animation:rock .8s ease-in-out infinite}
+@keyframes stir{0%{transform:rotate(-14deg)}50%{transform:rotate(14deg)}100%{transform:rotate(-14deg)}}
+@keyframes bub{0%{transform:translateY(8px);opacity:0}30%{opacity:1}100%{transform:translateY(-16px);opacity:0}}
+@keyframes popt{0%,100%{transform:translateY(8px) rotate(0)}50%{transform:translateY(-16px) rotate(8deg)}}
+@keyframes toss{0%{transform:translate(-34px,26px)}25%{transform:translate(-14px,-14px)}50%{transform:translate(34px,26px)}75%{transform:translate(14px,34px)}100%{transform:translate(-34px,26px)}}
+@keyframes rock{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
