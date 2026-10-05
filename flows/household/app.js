@@ -249,10 +249,27 @@ function lowRowHtml(i) {
   const picked = S.sel && S.sel.includes(i.id);
   return `<li class="rowx swr ${picked ? "sel" : ""}" data-swipe="${i.id}"><div class="swbg" aria-hidden="true"><span>Add to list</span>${riSvg("cart", 20)}</div><div class="swfg"><button class="rowlink" data-act="rowtap" data-p="${i.id}" ${picked ? 'aria-pressed="true"' : ""}>${S.sel ? `<span class="chk" aria-hidden="true">${picked ? I.tick : ""}</span>` : ""}<div class="main"><div class="name">${i.emoji ? `<span aria-hidden="true">${i.emoji}</span> ` : ""}${esc(i.name)}</div><div class="meta">${esc(lowText(i))} · ${esc(i.spot)}</div></div>${onList(i.id) ? '<span class="chip">On your list</span>' : ""}${S.sel ? "" : `<span class="chev">${I.chev}</span>`}</button></div></li>`;
 }
+/* an endless ribbon: the set is repeated and the scroll position wraps, so it never runs out */
+const LOOP_N = 7, LOOP_MID = 3;
+const loopCopies = (vals, f) => Array.from({ length: LOOP_N }, (_, c) => vals.map((v, n) => f(v, c === LOOP_MID, n === 0)).join("")).join("");
+const loopPos = {};
+function loopInit() {
+  document.querySelectorAll("[data-loop]").forEach((el) => {
+    const f = el.querySelectorAll("[data-s]"); if (f.length < 2) return;
+    const W = f[1].offsetLeft - f[0].offsetLeft; if (W <= 0) return; el._W = W;
+    el.scrollLeft = f[0].offsetLeft - el.firstElementChild.offsetLeft + LOOP_MID * W + (loopPos[el.dataset.loop] || 0);
+    el.addEventListener("scroll", () => {
+      if (rd && rd.active) return;
+      const base = f[0].offsetLeft - el.firstElementChild.offsetLeft; let x = el.scrollLeft - base;
+      if (x < 2 * W) el.scrollLeft += 2 * W; else if (x > 4 * W) el.scrollLeft -= 2 * W;
+      loopPos[el.dataset.loop] = (((el.scrollLeft - base) % W) + W) % W;
+    }, { passive: true });
+  });
+}
 function ribbonHtml() {
   const m = S.rmode, loc = m === "loc";
   return `<div class="ribbon ${S.rflip ? "flip" : ""}"><button class="rmode" data-act="rmode" aria-label="Showing ${loc ? "locations" : "categories"}. Switch to ${loc ? "categories" : "locations"}" title="Switch between location and category"><span class="yy">${riSvg("yy", 22)}</span><span class="cap">${loc ? "Location" : "Category"}</span></button>
-    <div class="rscroll" id="rscroll" role="group" aria-label="${loc ? "Location" : "Category"}">${["All", ...S.order[m]].map((v) => `<button class="rc2 ${S.areaTab === v ? "on" : ""}" data-act="areatab" data-p="${esc(v)}" ${v === "All" ? "" : `data-chip="${esc(v)}"`}><span>${esc(v)}</span></button>`).join("")}</div></div>`;
+    <div class="rscroll" id="rscroll" data-loop="rib${m}" role="group" aria-label="${loc ? "Location" : "Category"}">${loopCopies(["All", ...S.order[m]], (v, mid, first) => `<button class="rc2 ${S.areaTab === v ? "on" : ""}" data-act="areatab" data-p="${esc(v)}" ${first ? "data-s=1" : ""} ${v === "All" || !mid ? "" : `data-chip="${esc(v)}"`} ${mid ? "" : 'tabindex="-1" aria-hidden="true"'}><span>${esc(v)}</span></button>`)}</div></div>`;
 }
 function listHtml() {
   if (S.fa) {
@@ -450,7 +467,7 @@ function sheetHtml() {
   const wrap = (inner, mid) => `<div class="sheet-dim" ${mid ? "" : 'data-act="closesheet"'}><div class="sheet ${mid ? "mid" : ""}" data-stop="1">${inner}</div></div>`;
   if (sh === "filters" && S.fd) {
     const f = S.fd, tab = S.fTab;
-    const chips = (t, vals) => `<div class="twoRow" data-two="${t}">${vals.map((v) => { const on = f[t].includes(v); return `<button class="mc ${on ? "on" : ""}" data-act="fpick" data-p="${t}|${esc(v)}" data-fchip="${t}|${esc(v)}" aria-pressed="${on}"><span class="mi" aria-hidden="true">${on ? I.tick : EM[v] || ""}</span><span>${esc(v)}</span></button>`; }).join("")}</div>`;
+    const chips = (t, vals0) => { const vals = vals0.length % 2 ? [...vals0, ...vals0] : vals0; return `<div class="twoRow" data-loop="sh${t}">${loopCopies(vals, (v, mid, first) => { const on = f[t].includes(v); return `<button class="mc ${on ? "on" : ""}" data-act="fpick" data-p="${t}|${esc(v)}" data-fchip="${t}|${esc(v)}" ${first ? "data-s=1" : ""} aria-pressed="${on}" ${mid ? "" : 'tabindex="-1"'}><span class="mi" aria-hidden="true">${on ? I.tick : EM[v] || ""}</span><span>${esc(v)}</span></button>`; })}</div>`; };
     const srow = (k) => { const st = f.st[k]; return `<div class="strow ${st.on ? "on" : ""}" data-fk="${k}"><button class="stt" data-act="fst" data-p="${k}" role="switch" aria-checked="${st.on}"><span class="dotc" aria-hidden="true">${st.on ? I.tick : ""}</span>${ROT[k].label}</button><button class="rot" data-rot="${k}" aria-label="${ROT[k].label}: ${ROT[k].opts[st.i][0]}. Drag up or down, or tap, to change"><span class="rv">${ROT[k].opts[st.i][0]}</span><span class="rar" aria-hidden="true"><i>▴</i><i>▾</i></span></button></div>`; };
     const body = tab === "filters"
       ? `<h3 class="fh">Status</h3><div class="strows">${Object.keys(ROT).map(srow).join("")}</div><h3 class="fh">Location</h3>${chips("locs", S.order.loc)}<h3 class="fh">Category</h3>${chips("cats", S.order.cat)}`
@@ -503,6 +520,7 @@ function render() {
   const sc = screens[S.screen] || screens.today;
   phone.innerHTML = sc() + sheetHtml() + (S.toast ? `<div class="toast">${esc(S.toast)}</div>` : "");
   const nb = phone.querySelector(".body"); if (nb && top) nb.scrollTop = top;
+  loopInit();
   lastScreen = S.screen;
   const panel = document.getElementById("panel");
   if (!panel.dataset.ready || S.panelDirty) { panel.innerHTML = panelHtml(); panel.dataset.ready = "1"; S.panelDirty = false; }
