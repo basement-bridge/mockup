@@ -68,6 +68,17 @@ All came up in the discussion. The list is not exhaustive.
 - Some people do not want to be asked, and some do not want to decide at all.
 - Not asking, and not withholding: a suggestion can repeat until the person says stop, but a dislike is never invented.
 
+## Self-reinforcement
+
+A typical problem: what the system suggests is what gets chosen, and what gets chosen is then read as preference. Suggestions feed back into the evidence, and the loop narrows to the same thing again and again (the same item bought, the same song played, the same thing used). The owner does not want an endless recommendation of the same thing.
+
+From the owner:
+
+- Inference needs a higher bar.
+- Inference must be flexible: able to throw away or discard some of what it has learned, or restart on a different tangent. This is quite important.
+
+Consequence for grading: a choice made from the system's own suggestion is weaker evidence of preference than a choice the person made unprompted.
+
 ## What the person can do
 
 - Ask why something was surfaced, and what the system believes about them, and correct it.
@@ -77,5 +88,6 @@ All came up in the discussion. The list is not exhaustive.
 
 - The threshold for each kind of claim above.
 - What counts as "materially different" situations, and as an "independent interaction" (same day, session, meal).
+- What triggers a discard or a restart, and whether it discards everything or only part of what was learned.
 - What counts as a "strong signal" for acting, and what acting means for each feature (suggesting, ranking, hiding, filling in a field).
 - Where the grade, the count and the threshold are stored, and how they are shown back to the person.
