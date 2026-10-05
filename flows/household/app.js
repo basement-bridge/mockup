@@ -20,17 +20,36 @@ const POT = `<svg width="74" height="74" viewBox="0 0 74 74" aria-hidden="true">
 
 const PEOPLE = { arjan: { name: "Arjan", initial: "A" }, sam: { name: "Sam", initial: "S" } };
 
+const RI = {
+  chef: '<path d="M7 14a4 4 0 0 1-1-7.7 4.5 4.5 0 0 1 8.6-1.3 4 4 0 0 1 3.4 5.5A4 4 0 0 1 17 14v5H7z"/><path d="M7 17h10"/>',
+  pot: '<path d="M5 11h14v6a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3z"/><path d="M3 11h18M15 3l-3 8"/>',
+  basket: '<path d="M4 9h16l-1.5 9a2 2 0 0 1-2 1.7H7.5a2 2 0 0 1-2-1.7z"/><path d="M8 9l3-5M16 9l-3-5"/>',
+  tag: '<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.3"/>',
+  cap: '<path d="M4 15h16M6 15c0-5 2.5-8 6-8s6 3 6 8"/><path d="M5 15c0 2 3 3 7 3s7-1 7-3"/><circle cx="12" cy="11" r="1.2"/>',
+  stack: '<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 12.5l9 5 9-5M3 16.5l9 5 9-5"/>',
+  onion: '<path d="M12 3c1 3 6 5 6 10a6 6 0 0 1-12 0c0-5 5-7 6-10z"/><path d="M9.5 9c-1 3-1 6 .5 9M14.5 9c1 3 1 6-.5 9"/>',
+  knife: '<path d="M4 20L16 8c2-2 4-3 4-3s-1 3-3 5L9 18z"/><path d="M4 20l3-3"/>',
+  shield: '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9.5 10.5h5V16h-5zM10 8.5h4"/>',
+  fridge: '<rect x="6" y="3" width="12" height="18" rx="2.5"/><path d="M6 10h12M9 6v2M9 13v3"/>',
+  spark: '<path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/>',
+  flame: '<path d="M12 3c1 4 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3 0-6 1-9z"/>',
+  heart: '<path d="M12 20s-8-5-8-11a4.5 4.5 0 0 1 8-2.5A4.5 4.5 0 0 1 20 9c0 6-8 11-8 11z"/>',
+};
+const OWN_ICONS = ["spark", "flame", "heart", "chef", "pot", "basket", "fridge", "knife"];
+const riSvg = (k, s = 26) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${RI[k] || RI.spark}</svg>`;
+const roleIc = (r, size = 44) => r ? `<span class="ric" style="width:${size}px;height:${size}px">${riSvg(r.ic, Math.round(size * .55))}</span>` : "";
+
 const ROLE_PRESETS = [
-  { title: "Head Chef", desc: "Decides what's for dinner. Overrules everyone, mostly with garlic." },
-  { title: "Chief Stirring Officer", desc: "Always near the pot. Never far from a wooden spoon." },
-  { title: "Supply Runner", desc: "Knows every aisle. Comes back with the wrong brand, but with love." },
-  { title: "Chief Procurement Officer", desc: "Negotiates with the supermarket. Loses to the special offers." },
-  { title: "Kitchen Captain", desc: "Shops, cooks and tidies up. Please check they've eaten." },
-  { title: "Full Stack Cook", desc: "Front of house, back of house, and the washing up." },
-  { title: "Chief Chopping Officer", desc: "Onions fear them. Uniform pieces optional, enthusiasm not." },
-  { title: "Knife Hand", desc: "Quick, tidy, and slightly terrifying near a courgette." },
-  { title: "Pantry Marshal", desc: "Keeps order on the shelves. Knows exactly where the cumin lives." },
-  { title: "Keeper of the Fridge", desc: "Guardian of the leftovers. Nothing expires on their watch." },
+  { title: "Head Chef", ic: "chef", desc: "Decides what's for dinner. Overrules everyone, mostly with garlic." },
+  { title: "Chief Stirring Officer", ic: "pot", desc: "Always near the pot. Never far from a wooden spoon." },
+  { title: "Supply Runner", ic: "basket", desc: "Knows every aisle. Comes back with the wrong brand, but with love." },
+  { title: "Chief Procurement Officer", ic: "tag", desc: "Negotiates with the supermarket. Loses to the special offers." },
+  { title: "Kitchen Captain", ic: "cap", desc: "Shops, cooks and tidies up. Please check they've eaten." },
+  { title: "Full Stack Cook", ic: "stack", desc: "Front of house, back of house, and the washing up." },
+  { title: "Chief Chopping Officer", ic: "onion", desc: "Onions fear them. Uniform pieces optional, enthusiasm not." },
+  { title: "Knife Hand", ic: "knife", desc: "Quick, tidy, and slightly terrifying near a courgette." },
+  { title: "Pantry Marshal", ic: "shield", desc: "Keeps order on the shelves. Knows exactly where the cumin lives." },
+  { title: "Keeper of the Fridge", ic: "fridge", desc: "Guardian of the leftovers. Nothing expires on their watch." },
 ];
 
 const RECIPES = [
@@ -69,7 +88,7 @@ const initial = () => ({
   persona: "sam", recipes: false, down: false, expireNext: false,
   pantry: freshPantry(), sheet: null, toast: null,
   members: ["arjan", "sam"], invites: [{ name: "Priya", days: 6 }],
-  roles: { arjan: { title: "Pantry Marshal", desc: "Keeps order on the shelves. Knows exactly where the cumin lives." }, sam: null },
+  roles: { arjan: { title: "Pantry Marshal", ic: "shield", desc: "Keeps order on the shelves. Knows exactly where the cumin lives." }, sam: null },
   aiTab: "ChatGPT", aiActive: true, bannerGot: false, pending: null, joined: false,
   /* pantry view */
   sort: "name", sortOpen: false, recentOnly: false, areaTab: "All", collapsed: {}, search: "", searchOpen: false, draft: { days: null },
@@ -134,7 +153,7 @@ const bar = () => `<nav class="bar">
 </nav>`;
 const downBanner = () => S.down ? `<div class="banner warn"><b>Showing your saved list</b><span>Updated 3 minutes ago. We're reconnecting. Changes will work again shortly.</span><button class="lnk" data-act="retry">Try again</button></div>` : "";
 const shell = (inner) => header() + downBanner() + inner + bar();
-const roleChip = (who) => role(who) ? `<span class="chip">${esc(role(who).title)}</span>` : "";
+const roleChip = (who) => role(who) ? `<span class="chip rchip">${riSvg(role(who).ic, 14)}${esc(role(who).title)}</span>` : "";
 
 /* ---------- pantry ---------- */
 const sorters = {
@@ -179,7 +198,7 @@ const screens = {
       <div class="row"><span class="dot"></span><span>${S.recipes ? "Pantry, and recipes you can cook from it" : "Your pantry, shared with the household"}</span></div>
       <div class="row"><span class="dot"></span><span>Changes show up for everyone</span></div></div>
     <button class="btn" data-go="today">Open our kitchen</button>
-    <div class="card dash"><b>${role(S.persona) ? esc(role(S.persona).title) : "Got a kitchen job?"}</b><p class="small">${role(S.persona) ? esc(role(S.persona).desc) : "Pick a playful title for the household list, or write your own. Totally optional."}</p><button class="link" data-sheet="role">${role(S.persona) ? "Change it" : "Pick a role (optional)"}</button></div></div>`,
+    <button class="card dash rolecard" data-sheet="role">${role(S.persona) ? `${roleIc(role(S.persona), 48)}<div><b>${esc(role(S.persona).title)}</b><p class="small">Tap to change</p></div>` : `<div class="ricrow">${["chef", "pot", "basket", "fridge"].map((k) => `<span class="ric" style="width:40px;height:40px">${riSvg(k, 22)}</span>`).join("")}</div><div><b>Got a kitchen job?</b><p class="small">Pick an icon for the household. Optional.</p></div>`}</button></div>`,
 
   today: () => {
     const soon = S.pantry.filter((p) => p.days !== null && p.days <= 3).sort((a, b) => a.days - b.days);
@@ -241,7 +260,7 @@ const screens = {
 
   household: () => backHeader("Back", "Household") + `<div class="body">
     <div><h1 style="font-size:2rem">Our kitchen</h1><p style="margin-top:4px">${S.members.length} members</p></div>
-    <div><span class="lbl">Members</span>${S.members.map((w) => `<button class="m" data-sheet="member" data-p="${w}"><span class="av">${PEOPLE[w].initial}</span><div style="flex:1"><b>${PEOPLE[w].name}</b>${w === S.persona ? ' <span class="chip">You</span>' : ""}${role(w) ? `<p class="small">${esc(role(w).title)}</p>` : ""}</div><span class="chev" style="color:var(--muted)">${I.chev}</span></button>`).join("")}
+    <div><span class="lbl">Members</span>${S.members.map((w) => `<button class="m" data-sheet="member" data-p="${w}"><span class="avw"><span class="av">${PEOPLE[w].initial}</span>${role(w) ? `<span class="avbadge">${riSvg(role(w).ic, 13)}</span>` : ""}</span><div style="flex:1"><b>${PEOPLE[w].name}</b>${w === S.persona ? ' <span class="chip">You</span>' : ""}${role(w) ? `<p class="small">${esc(role(w).title)}</p>` : ""}</div><span class="chev" style="color:var(--muted)">${I.chev}</span></button>`).join("")}
       ${S.invites.map((i) => `<div class="m"><span class="av" style="border-style:dashed;color:var(--muted)">${esc(i.name[0])}</span><div style="flex:1"><b>${esc(i.name)}</b><p class="small">Invited · link expires in ${i.days} days</p></div><button data-act="revoke" data-p="${esc(i.name)}" class="danger" style="font-size:14px">Cancel</button></div>`).join("")}</div>
     <button class="btn" data-sheet="invite">Invite someone</button>
     <div style="border-top:1px solid var(--border);padding-top:14px"><span class="lbl">Included for this household</span>
@@ -292,15 +311,17 @@ function sheetHtml() {
   if (sh === "expired") return wrap(`<h2>Sign in again to save</h2><p>Your sign-in ended. What you typed is kept, and you'll come straight back.</p><button class="btn" data-act="resume">Continue with Google</button>`, true);
   if (sh === "role") {
     const cur = role(S.persona);
-    return wrap(`<h2>Pick a kitchen role</h2><p>Optional. It shows next to your name in the household list. Skip it, or change it any time.</p>
-      ${ROLE_PRESETS.map((r, i) => `<button class="role ${cur && cur.title === r.title ? "on" : ""}" data-act="rolepick" data-p="${i}"><b>${esc(r.title)}</b><span>${esc(r.desc)}</span></button>`).join("")}
-      <span class="lbl" style="margin-top:6px">Or write your own</span><input class="field" id="r-title" placeholder="Title" maxlength="32" autocomplete="off"><textarea class="field" id="r-desc" placeholder="A line about it" maxlength="120"></textarea>
+    return wrap(`<h2>Pick your kitchen role</h2><p>Optional. Tap one. It sits beside your name. Change it any time.</p>
+      <div class="rgrid">${ROLE_PRESETS.map((r, i) => `<button class="rtile ${cur && cur.title === r.title ? "on" : ""}" data-act="rolepick" data-p="${i}" aria-pressed="${!!(cur && cur.title === r.title)}">${roleIc(r, 52)}<b>${esc(r.title)}</b></button>`).join("")}</div>
+      <span class="lbl" style="margin-top:6px">Or make your own</span>
+      <div class="irow" role="radiogroup" aria-label="Icon">${OWN_ICONS.map((k) => `<button type="button" class="ipick ${(S.ownIc || "spark") === k ? "on" : ""}" data-act="ownic" data-p="${k}" role="radio" aria-checked="${(S.ownIc || "spark") === k}" aria-label="${k}">${riSvg(k, 22)}</button>`).join("")}</div>
+      <input class="field" id="r-title" placeholder="Name it" maxlength="32" autocomplete="off"><input class="field" id="r-desc" placeholder="One line, if you like" maxlength="80" autocomplete="off">
       <button class="btn" data-act="roleown">Use my own</button>${cur ? `<button class="btn ghost" data-act="roleclear">No role</button>` : `<button class="btn ghost" data-act="closesheet">Skip for now</button>`}`);
   }
   if (sh === "member") {
     const w = S.memberWho, r = role(w), self = w === S.persona;
     return wrap(`<div class="row"><span class="av" style="width:56px;height:56px;font-size:20px">${PEOPLE[w].initial}</span><div><b style="font-size:20px">${PEOPLE[w].name}</b>${self ? ' <span class="chip">You</span>' : ""}</div></div>
-      ${r ? `<div><b style="font-size:17px">${esc(r.title)}</b><p style="margin-top:4px">${esc(r.desc)}</p></div>` : `<p>${self ? "You haven't picked a kitchen role." : PEOPLE[w].name + " hasn't picked a kitchen role."}</p>`}
+      ${r ? `<div class="row" style="gap:14px">${roleIc(r, 56)}<div><b style="font-size:17px">${esc(r.title)}</b>${r.desc ? `<p style="margin-top:4px">${esc(r.desc)}</p>` : ""}</div></div>` : `<p>${self ? "You haven't picked a kitchen role." : PEOPLE[w].name + " hasn't picked a kitchen role."}</p>`}
       ${self ? `<button class="btn" data-sheet="role">${r ? "Change role" : "Pick a role"}</button>` : ""}<button class="btn ghost" data-act="closesheet">Close</button>`);
   }
   return "";
@@ -310,6 +331,7 @@ function sheetHtml() {
 function panelHtml() {
   const sw = (k, label) => `<label><span>${label}</span><button class="sw ${S[k] ? "on" : ""}" data-ctl="${k}" aria-pressed="${S[k]}"></button></label>`;
   return `<div class="grp"><h3>Who you are</h3><label><span>Signed in as</span><select data-ctl="persona"><option value="sam" ${S.persona === "sam" ? "selected" : ""}>Sam</option><option value="arjan" ${S.persona === "arjan" ? "selected" : ""}>Arjan (looks after the plan)</option></select></label></div>
+  <div class="grp"><h3>Theme</h3><div class="tpicks">${window.themeHtml()}</div></div>
   <div class="grp"><h3>Household</h3>${sw("recipes", "Has Recipes")}${sw("down", "Platform is down")}${sw("expireNext", "Sign-in ends on next save")}</div>
   <div class="grp"><h3>Home-screen prompt</h3><div class="st" id="pwa-st">${esc(pwaStatus())}</div><button class="pb" data-act="usage">Add 30 min of use</button><button class="pb" data-act="week">Move on a week</button><p class="st">Nothing until 1 hour of use. Then once, twice, once over three weeks. Then never. Shows on Today.</p></div>
   <div class="grp"><h3>Jump to</h3><button class="pb" data-act="restart">Invite link opens</button><button class="pb" data-act="jump" data-p="today">Today</button><button class="pb" data-act="jump" data-p="pantry">Pantry</button><button class="pb" data-act="jump" data-p="household">Household</button><button class="pb" data-act="jump" data-p="notmember">Not a member</button><button class="pb" data-act="reset">Reset everything</button></div>
@@ -342,7 +364,7 @@ function parseAmt(t) {
   const m = String(t).trim().match(/^([\d.,/]+)?\s*(.*)$/); let n = m && m[1] ? Number(m[1].replace(",", ".")) : 1; if (!isFinite(n)) n = 1;
   let u = (m && m[2] ? m[2] : "").trim(); const known = ["g", "kg", "mL", "L", ...COUNT_UNITS.filter(Boolean)]; const hit = known.find((k) => k.toLowerCase() === u.toLowerCase()); return { n, unit: hit || "" };
 }
-const setRole = (title, desc) => { S.roles[S.persona] = { title, desc }; S.sheet = null; refreshPanel(); render(); toast("Role set"); };
+const setRole = (title, desc, ic) => { S.roles[S.persona] = { title, desc, ic: ic || "spark" }; S.sheet = null; refreshPanel(); render(); toast("Role set"); };
 
 const acts = {
   back, closesheet() { S.sheet = null; render(); },
@@ -382,8 +404,9 @@ const acts = {
   aitab(t) { S.aiTab = t; S.aiActive = true; render(); }, aitoggle() { S.aiActive = !S.aiActive; render(); },
   ask() { toast("Sent to Arjan"); S.stack.pop(); go("today", null, { replace: true }); },
   pay() { S.recipes = true; refreshPanel(); S.stack = []; go("recipes", null, { replace: true }); toast("Recipes added for Our kitchen"); },
-  rolepick(i) { const r = ROLE_PRESETS[Number(i)]; setRole(r.title, r.desc); },
-  roleown() { const t = document.getElementById("r-title").value.trim(), d = document.getElementById("r-desc").value.trim(); if (!t) return; setRole(t, d); },
+  rolepick(i) { const r = ROLE_PRESETS[Number(i)]; setRole(r.title, r.desc, r.ic); },
+  ownic(k) { S.ownIc = k; document.querySelectorAll(".ipick").forEach((b) => { const on = b.dataset.p === k; b.classList.toggle("on", on); b.setAttribute("aria-checked", String(on)); }); },
+  roleown() { const t = document.getElementById("r-title").value.trim(), d = document.getElementById("r-desc").value.trim(); if (!t) return; setRole(t, d, S.ownIc); },
   roleclear() { S.roles[S.persona] = null; S.sheet = null; render(); toast("Role removed"); },
   pwano() { S.pwaCard = false; render(); },
   pwadone() { S.pwa.done = true; S.pwaCard = false; S.sheet = null; render(); toast("Added. See you on the home screen."); },

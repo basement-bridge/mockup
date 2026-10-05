@@ -1,0 +1,17 @@
+/* One token set drives every control, in every mockup. A theme is only different values for these tokens.
+   'kitchie' and 'kitchie-day' are production's palette exactly (kitchie server/src/layout.ts). See DESIGN.md. */
+:root{--head:"Bricolage Grotesque","DM Sans",system-ui,sans-serif;--body:"DM Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--r-pill:99px}
+:root,:root[data-theme=kitchie]{color-scheme:dark;--bg:#0F1E19;--surface:#172A23;--border:#24403A;--fg:#F3EEE3;--muted:#A9B8AE;--accent:#F2B84B;--on-accent:#0F1E19;--danger:#FF9A8F;--sage:#9CCBA8;--cue:#86D99B;--added-bg:#BFE8C8;--added-fg:#17633A;--stage:#0a1411;--dim:rgba(5,10,8,.65);--r-ctl:14px;--r-card:18px;--r-phone:36px}
+:root[data-theme=kitchie-day]{color-scheme:light;--bg:#F6F1E6;--surface:#FFFFFF;--border:#D9D1BF;--fg:#1D2A24;--muted:#56645B;--accent:#8A5600;--on-accent:#FFFFFF;--danger:#B42318;--sage:#2F6B45;--cue:#1E7A44;--added-bg:#BFE8C8;--added-fg:#17633A;--stage:#d9d2bf;--dim:rgba(20,25,22,.5);--r-ctl:14px;--r-card:18px;--r-phone:36px}
+:root[data-theme=marmalade]{color-scheme:light;--bg:#FBF1E3;--surface:#FFFFFF;--border:#EAD3B5;--fg:#3A2412;--muted:#7A5B43;--accent:#C2410C;--on-accent:#FFFFFF;--danger:#B42318;--sage:#4D7A3A;--cue:#2E7D32;--added-bg:#FCE3C4;--added-fg:#7A2E0B;--stage:#efdcc2;--dim:rgba(58,36,18,.5);--r-ctl:18px;--r-card:24px;--r-phone:40px}
+:root[data-theme=blueberry]{color-scheme:dark;--bg:#14142B;--surface:#1D1D3D;--border:#34346B;--fg:#EEEBFF;--muted:#A9A8D0;--accent:#F48FB1;--on-accent:#2B0F1B;--danger:#FF9A8F;--sage:#8BD3C7;--cue:#8BD3C7;--added-bg:#2A3F5F;--added-fg:#BFE8FF;--stage:#0c0c1d;--dim:rgba(5,5,16,.7);--r-ctl:10px;--r-card:14px;--r-phone:30px}
+:root[data-theme=herb]{color-scheme:light;--bg:#EEF4E6;--surface:#FFFFFF;--border:#C8D8B8;--fg:#1B2E1B;--muted:#4F6A4F;--accent:#2F7D32;--on-accent:#FFFFFF;--danger:#B42318;--sage:#5F8A4E;--cue:#2F7D32;--added-bg:#D6EBC4;--added-fg:#1E4D20;--stage:#dce8cf;--dim:rgba(27,46,27,.5);--r-ctl:12px;--r-card:20px;--r-phone:34px}
+.tpick{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px 0 8px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);color:var(--fg);font:600 13px var(--body);cursor:pointer;text-align:left}
+.tpick[aria-pressed=true]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.tsw{width:22px;height:22px;border-radius:50%;border:1px solid var(--border);flex:none}
+.tsw[data-sw=kitchie]{background:linear-gradient(135deg,#0F1E19 50%,#F2B84B 50%)}
+.tsw[data-sw=kitchie-day]{background:linear-gradient(135deg,#F6F1E6 50%,#8A5600 50%)}
+.tsw[data-sw=marmalade]{background:linear-gradient(135deg,#FBF1E3 50%,#C2410C 50%)}
+.tsw[data-sw=blueberry]{background:linear-gradient(135deg,#14142B 50%,#F48FB1 50%)}
+.tsw[data-sw=herb]{background:linear-gradient(135deg,#EEF4E6 50%,#2F7D32 50%)}
+.tstrip{display:flex;gap:8px;flex-wrap:wrap}

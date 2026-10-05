@@ -4,12 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Our kitchen — mockups</title>
-<link rel="stylesheet" href="shared.css">
+<link rel="stylesheet" href="theme.css"><link rel="stylesheet" href="shared.css"><script src="theme.js"></script>
 </head>
 <body>
 <div class="wrap">
   <h1>Our kitchen</h1>
   <p>Mockups for the household experience. Drafts, fake data. Flows are settled enough to click through end to end. Fragments are still being decided.</p>
+
+  <div class="tstrip" id="ts" role="group" aria-label="Theme" style="margin-top:14px"></div><script>document.getElementById("ts").innerHTML=themeHtml();themeApply()</script>
+  <section class="sec" aria-labelledby="j">
+    <div class="lbl" id="j">Jobs we design for</div>
+    <p>Every screen starts from what someone is here to do. Layout and what leads follow from that.</p>
+    <div class="jobs"><span>Cooking right now</span><span>About to shop</span><span>Scanning things in</span><span>Planning the week</span><span>Using things up</span><span>Cook from one main thing</span></div>
+  </section>
 
   <section class="sec" aria-labelledby="f">
     <div class="lbl" id="f">Flows</div>
