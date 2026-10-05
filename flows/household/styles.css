@@ -258,3 +258,58 @@ html,body{overscroll-behavior-y:contain}.body{overscroll-behavior-y:contain}
 @keyframes toss{0%{transform:translate(-34px,26px)}25%{transform:translate(-14px,-14px)}50%{transform:translate(34px,26px)}75%{transform:translate(14px,34px)}100%{transform:translate(-34px,26px)}}
 @keyframes rock{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
 .rf{flex-direction:row;gap:10px;justify-content:center}.rf svg{width:64px;height:44px}.rf span{font-size:13px;color:var(--fg)}
+
+/* ribbon: location or category, draggable, scrolls sideways; the toggle sits on the left because the right is where things hide */
+.ribbon{display:flex;align-items:stretch;gap:6px;margin-bottom:.4rem}
+.rmode{flex:none;width:56px;min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;border-radius:.9rem;border:1px solid var(--border);background:var(--surface);color:var(--accent)}
+.rmode .cap{font-size:10px;font-weight:700;color:var(--muted)}.rmode .yy{display:inline-flex}
+.ribbon.flip .yy{animation:spin180 .45s ease}@keyframes spin180{from{transform:rotate(-180deg)}}
+.rscroll{flex:1;min-width:0;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-right:30px;touch-action:pan-x;-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 30px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 30px),transparent)}
+.rscroll::-webkit-scrollbar{display:none}
+.rc2{flex:none;max-width:124px;min-height:52px;padding:0 14px;border-radius:.9rem;border:1px solid var(--border);background:var(--surface);font-weight:700;display:inline-flex;align-items:center;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.rc2 span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rc2.on{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.rc2.lift{box-shadow:0 8px 20px rgba(0,0,0,.35);position:relative;z-index:3;transition:none}
+.tbtn{gap:6px}
+/* custom view strip */
+.cview{display:flex;align-items:center;gap:8px;padding:6px 6px 6px 12px;margin:0 0 .6rem;border:1px solid var(--accent);border-radius:1rem;background:color-mix(in srgb,var(--accent) 10%,var(--bg))}
+.cvi{color:var(--accent);display:inline-flex}.cvt{flex:1;min-width:0;display:flex;flex-direction:column}
+.cvt span{font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cview .link{color:var(--accent);font-weight:700;min-height:44px;padding:0 8px}
+/* filters sheet */
+.sheet.tall{height:calc(100% - 52px);max-height:none;padding:0;gap:0;overflow:hidden;border-radius:22px 22px 0 0}
+.fhead{display:flex;justify-content:space-between;align-items:center;padding:8px 14px 0 20px;flex:none}
+.ftabs{display:flex;gap:20px}
+.ftabs button{font:700 1.25rem var(--head);color:var(--muted);min-height:48px;padding:0 2px;border-bottom:3px solid transparent}
+.ftabs button.on{color:var(--fg);border-bottom-color:var(--accent)}
+.ftabs.sm button{font-size:1rem}
+.fbody{flex:1;min-height:0;overflow:auto;padding:4px 20px 16px;display:flex;flex-direction:column;gap:10px}
+.fh{margin:10px 0 0;font:700 12px var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.strows{display:flex;flex-direction:column;gap:8px}
+.strow{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:56px;padding:4px 6px 4px 6px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--bg)}
+.strow.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--bg))}
+.stt{display:flex;align-items:center;gap:10px;font-weight:700;min-height:44px;flex:1;text-align:left}
+.dotc{width:30px;height:30px;border-radius:50%;border:2px solid var(--border);display:inline-flex;align-items:center;justify-content:center;flex:none}
+.dotc svg{width:16px;height:16px}
+.strow.on .dotc{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.rot{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border-radius:var(--r-pill);background:var(--surface);border:1px solid var(--border);touch-action:none;cursor:ns-resize;font-weight:600;font-size:14px;user-select:none;-webkit-user-select:none}
+.rar{display:inline-flex;flex-direction:column;font-size:9px;line-height:9px;color:var(--muted)}.rar i{font-style:normal}
+.twoRow{display:grid;grid-auto-flow:column;grid-template-rows:repeat(2,auto);grid-auto-columns:max-content;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px 2px 6px;justify-content:start}
+.twoRow::-webkit-scrollbar{display:none}
+.mc{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px 0 10px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--bg);font-weight:600;white-space:nowrap}
+.mc .mi{width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;font-size:17px;flex:none}.mc .mi svg{width:15px;height:15px}
+.mc.on{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.mc.on .mi{border-radius:50%;background:var(--on-accent);color:var(--accent)}
+.sortlist{display:flex;flex-direction:column}
+.sr{display:flex;align-items:center;gap:12px;min-height:52px;font-weight:600;font-size:1.05rem;border-bottom:1px solid var(--border);text-align:left}
+.rd{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);flex:none}.sr.on .rd{border-color:var(--accent);background:radial-gradient(circle,var(--accent) 45%,transparent 50%)}
+.ffoot{flex:none;padding:10px 20px 18px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:6px;background:var(--surface)}
+.flinks{display:flex;justify-content:space-between}
+.flinks .link{color:var(--accent);font-weight:700;min-height:40px}.flinks .link[disabled]{opacity:.4}
+
+/* group headers: bold when open, quiet when folded */
+.grouphead h2{font-size:1.15rem;font-weight:800;transition:color .15s,font-weight .15s}
+.grouphead h2 small{margin-left:8px;font-size:.8rem;font-weight:600;color:var(--muted)}
+.group.shut .grouphead h2{font-weight:500;color:var(--muted);font-size:1.05rem}
+.grouphead{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.flinks{padding-right:84px}

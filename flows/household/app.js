@@ -58,9 +58,11 @@ const RI = {
   jar: '<rect x="6" y="4" width="12" height="3.500" rx="1.500"/><path d="M7 7.500h10a2 2 0 0 1 2 2V18a2.500 2.500 0 0 1-2.500 2.500h-9A2.500 2.500 0 0 1 5 18V9.500a2 2 0 0 1 2-2z"/><circle cx="12" cy="14" r="2.200"/>',
   cart: '<circle cx="9" cy="20" r="1.500"/><circle cx="18" cy="20" r="1.500"/><path d="M3 4h2.500l2.200 10.200a1 1 0 0 0 1 .8h8.800a1 1 0 0 0 1-.8L20 8H6.200"/>',
   clock: '<circle cx="12" cy="12" r="8"/><path d="M12 7.500V12l3 2"/>',
+  yy: '<circle cx="12" cy="12" r="9"/><path d="M12 3a4.500 4.500 0 0 1 0 9 4.500 4.500 0 0 0 0 9"/><circle cx="12" cy="7.500" r="1.100" fill="currentColor" stroke="none"/><circle cx="12" cy="16.500" r="1.100" stroke-width="1.200"/>',
+  funnel: '<path d="M4 5h16l-6 7.500V19l-4-2v-4.500z"/>',
   heart: '<path d="M12 20s-8-5-8-11a4.5 4.5 0 0 1 8-2.5A4.5 4.5 0 0 1 20 9c0 6-8 11-8 11z"/>',
 };
-const ICON_LIB = Object.keys(RI).filter((k) => !["cap", "tag", "lock", "people", "home", "jar", "cart", "clock"].includes(k)); /* 30 light monoline icons */
+const ICON_LIB = Object.keys(RI).filter((k) => !["cap", "tag", "lock", "people", "home", "jar", "cart", "clock", "yy", "funnel"].includes(k)); /* 30 light monoline icons */
 const NAMES = ["Arjan", "Priya", "Tom", "Mei"];
 const riSvg = (k, s = 26) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${RI[k] || RI.spark}</svg>`;
 const roleIc = (r, size = 44) => r ? `<span class="ric" style="width:${size}px;height:${size}px">${riSvg(r.ic, Math.round(size * .55))}</span>` : "";
@@ -115,7 +117,7 @@ const initial = () => ({
   roles: { arjan: { title: "Pantry Marshal", ic: "shield", desc: "Keeps order on the shelves and the fridge. Knows exactly where the cumin lives." }, sam: null },
   aiTab: "ChatGPT", aiActive: true, bannerGot: false, pending: null, joined: false,
   /* pantry view */
-  seenP: 0, seenR: 0, sort: "name", view: "name", shop: [], sel: null, sortOpen: false, recentOnly: false, areaTab: "All", collapsed: {}, search: "", searchOpen: false, draft: { days: null },
+  rmode: "loc", order: { loc: [...AREAS], cat: [...CATEGORIES] }, fa: null, fd: null, flast: null, fTab: "filters", seenP: 0, seenR: 0, sort: "name", view: "name", shop: [], sel: null, sortOpen: false, recentOnly: false, areaTab: "All", collapsed: {}, search: "", searchOpen: false, draft: { days: null },
   memberWho: null, existing: 1, own: false, rdraft: null, iconPick: false,
   /* install prompt: nothing until 1 hour of use, then 1, 2, 1 across three weeks, then never */
   usageMin: 0, week: 0, pwa: { startWeek: null, shown: {}, done: false }, pwaCard: false,
@@ -127,7 +129,10 @@ const dayLabel = (d) => (d === null ? "" : d === 0 ? "Today" : d === 1 ? "Tomorr
 const fmtAmt = (i) => { const n = Math.round(i.n * 100) / 100; return String(n) + (i.unit ? " " + i.unit : ""); };
 const newCount = (tab) => Math.max(0, (tab === "pantry" ? S.pantry.filter((i) => i.recent).length : RECIPES.filter((r) => r.new).length) - (tab === "pantry" ? S.seenP : S.seenR));
 const nbadge = (tab) => newCount(tab) ? `<i class="badge" aria-label="${newCount(tab)} new">${newCount(tab)}</i>` : "";
-const isLow = (i) => !!i.low;
+const OUT = { butter: 20, carrots: 10, cheddar: 15, eggs: 9, milk: 2, paneer: 5, spinach: 3, yoghurt: 8, rice: 60, brownrice: 40, jasmine: 40, tomatoes: 30, onion: 25, garam: 6, choc: 30, peas: 11 };
+const outDays = (i) => OUT[i.id] ?? 30;
+const agoH = (i) => (i.recent ? 26 - i.upd * 2 : 30 + (10 - i.upd) * 24);
+const isLow = (i) => outDays(i) <= 7;
 const onList = (id) => S.shop.includes(id);
 const emo = (i) => i.emoji || emojiOf(i.name) || "🍽️";
 const lowText = (i) => `${fmtAmt(i)} left`;
@@ -175,6 +180,40 @@ function back() {
 }
 function toast(msg) { S.toast = msg; render(); clearTimeout(toast.t); toast.t = setTimeout(() => { S.toast = null; render(); }, 2600); }
 
+/* ---------- advanced filters ---------- */
+const ROT = {
+  low: { label: "Running low", opts: [["in 3 days", 3], ["in 1 week", 7], ["in 2 weeks", 14]], def: 1, test: (i, v) => outDays(i) <= v },
+  soon: { label: "Expiring soon", opts: [["in 3 days", 3], ["in 1 week", 7], ["in 2 weeks", 14], ["in 1 month", 30]], def: 1, test: (i, v) => i.days !== null && i.days <= v },
+  recent: { label: "Recently added", opts: [["last 24 hours", 24], ["last 3 days", 72], ["last week", 168]], def: 0, test: (i, v) => agoH(i) <= v },
+};
+const dirNull = (a, b, f) => (a.days === null && b.days === null ? 0 : a.days === null ? 1 : b.days === null ? -1 : f(a.days, b.days));
+const SORTK = {
+  name: { label: "Name", dirs: ["A to Z", "Z to A"], cmp: (a, b, d) => (d ? -1 : 1) * a.name.localeCompare(b.name) },
+  useby: { label: "Use by", dirs: ["Soonest first", "Latest first"], cmp: (a, b, d) => dirNull(a, b, (x, y) => (d ? y - x : x - y)) || a.name.localeCompare(b.name) },
+  added: { label: "Added", dirs: ["Newest first", "Oldest first"], cmp: (a, b, d) => (d ? -1 : 1) * (agoH(a) - agoH(b)) },
+};
+const EM = { Fridge: "❄️", Pantry: "🫙", Freezer: "🧊", "Dairy and eggs": "🥛", Vegetables: "🥦", Fruits: "🍎", Meat: "🍗", "Dry goods": "🌾", Cans: "🥫", Seasoning: "🧂", Snacks: "🍫", Frozen: "🥶", Other: "🍽️" };
+const clone = (o) => JSON.parse(JSON.stringify(o));
+const blankF = () => ({ st: { low: { on: false, i: ROT.low.def }, soon: { on: false, i: ROT.soon.def }, recent: { on: false, i: ROT.recent.def } }, locs: [], cats: [], key: "name", dir: 0 });
+const fCount = (f) => Object.values(f.st).filter((x) => x.on).length + f.locs.length + f.cats.length;
+const fActive = (f) => fCount(f) > 0 || f.key !== "name" || f.dir !== 0;
+function matchF(f, i) {
+  const on = Object.keys(f.st).filter((k) => f.st[k].on);
+  if (on.length && !on.some((k) => ROT[k].test(i, ROT[k].opts[f.st[k].i][1]))) return false;
+  if (f.locs.length && !f.locs.includes(i.area)) return false;
+  if (f.cats.length && !f.cats.includes(i.cat)) return false;
+  return true;
+}
+const fItems = (f) => S.pantry.filter((i) => matchF(f, i));
+const fShowText = (f) => { const n = fItems(f).length; return `Show ${n} ${n === 1 ? "item" : "items"}`; };
+const fSummary = (f) => [...Object.keys(f.st).filter((k) => f.st[k].on).map((k) => ROT[k].label), ...f.locs, ...f.cats, ...(f.key !== "name" || f.dir ? [`${SORTK[f.key].label}, ${SORTK[f.key].dirs[f.dir].toLowerCase()}`] : [])].join(" · ");
+function refreshSheet() {
+  const f = S.fd; if (!f) return;
+  document.querySelectorAll("[data-fchip]").forEach((el) => { const [t, v] = el.dataset.fchip.split("|"); const on = f[t].includes(v); el.classList.toggle("on", on); el.setAttribute("aria-pressed", on); el.querySelector(".mi").innerHTML = on ? I.tick : (EM[v] || ""); });
+  document.querySelectorAll(".strow").forEach((r) => { const k = r.dataset.fk, st = f.st[k]; r.classList.toggle("on", st.on); r.querySelector(".stt").setAttribute("aria-checked", st.on); r.querySelector(".dotc").innerHTML = st.on ? I.tick : ""; r.querySelector(".rv").textContent = ROT[k].opts[st.i][0]; });
+  const b = document.getElementById("fshow"); if (b) b.textContent = fShowText(f);
+}
+
 /* ---------- pieces ---------- */
 const header = () => `<div class="top"><span>Our kitchen</span><button class="av" data-go="menu" aria-label="Account">${me().initial}</button></div>`;
 const backHeader = (label, title) => `<div class="top"><button class="back" data-act="back">&lsaquo; ${esc(label)}</button><span class="ttl">${esc(title || "")}</span><span style="width:64px"></span></div>`;
@@ -199,7 +238,7 @@ const sorters = {
 };
 function visibleItems() {
   const q = S.search.trim().toLowerCase();
-  return S.pantry.filter((i) => (S.areaTab === "All" || i.area === S.areaTab) && (!q || i.name.toLowerCase().includes(q) || i.cat.toLowerCase().includes(q)) && (!S.recentOnly || i.recent) && (S.view !== "low" || isLow(i)));
+  return S.pantry.filter((i) => (S.areaTab === "All" || (S.rmode === "cat" ? i.cat : i.area) === S.areaTab) && (!q || i.name.toLowerCase().includes(q) || i.cat.toLowerCase().includes(q)) && (!S.recentOnly || i.recent) && (S.view !== "low" || isLow(i)));
 }
 function rowHtml(i) {
   const hot = i.days !== null && i.days <= 1;
@@ -210,17 +249,28 @@ function lowRowHtml(i) {
   const picked = S.sel && S.sel.includes(i.id);
   return `<li class="rowx swr ${picked ? "sel" : ""}" data-swipe="${i.id}"><div class="swbg" aria-hidden="true"><span>Add to list</span>${riSvg("cart", 20)}</div><div class="swfg"><button class="rowlink" data-act="rowtap" data-p="${i.id}" ${picked ? 'aria-pressed="true"' : ""}>${S.sel ? `<span class="chk" aria-hidden="true">${picked ? I.tick : ""}</span>` : ""}<div class="main"><div class="name">${i.emoji ? `<span aria-hidden="true">${i.emoji}</span> ` : ""}${esc(i.name)}</div><div class="meta">${esc(lowText(i))} · ${esc(i.spot)}</div></div>${onList(i.id) ? '<span class="chip">On your list</span>' : ""}${S.sel ? "" : `<span class="chev">${I.chev}</span>`}</button></div></li>`;
 }
+function ribbonHtml() {
+  const m = S.rmode, loc = m === "loc";
+  return `<div class="ribbon ${S.rflip ? "flip" : ""}"><button class="rmode" data-act="rmode" aria-label="Showing ${loc ? "locations" : "categories"}. Switch to ${loc ? "categories" : "locations"}" title="Switch between location and category"><span class="yy">${riSvg("yy", 22)}</span><span class="cap">${loc ? "Location" : "Category"}</span></button>
+    <div class="rscroll" id="rscroll" role="group" aria-label="${loc ? "Location" : "Category"}">${["All", ...S.order[m]].map((v) => `<button class="rc2 ${S.areaTab === v ? "on" : ""}" data-act="areatab" data-p="${esc(v)}" ${v === "All" ? "" : `data-chip="${esc(v)}"`}><span>${esc(v)}</span></button>`).join("")}</div></div>`;
+}
 function listHtml() {
+  if (S.fa) {
+    const q = S.search.trim().toLowerCase();
+    const k = SORTK[S.fa.key]; const items = fItems(S.fa).filter((i) => !q || i.name.toLowerCase().includes(q)).sort((a, b) => k.cmp(a, b, S.fa.dir));
+    return items.length ? `<ul class="rows">${items.map(rowHtml).join("")}</ul>` : `<p style="padding:20px 4px">Nothing matches these filters.</p>`;
+  }
   const items = visibleItems().sort(S.recentOnly ? sorters.updated : S.view === "useby" ? sorters.useby : sorters.name);
   if (S.view !== "name") {
     if (!items.length) return `<p style="padding:20px 4px">${S.view === "low" ? "Nothing is running low. Nice." : "Nothing matches."}</p>`;
     return `${S.view === "low" ? `<p class="hint">${S.sel ? "Tap to pick more, then add them together." : "Swipe a row to add it to your shopping list. Press and hold to pick several."}</p>` : ""}<ul class="rows">${items.map(S.view === "low" ? lowRowHtml : rowHtml).join("")}</ul>`;
   }
-  const groups = AREAS.filter((a) => items.some((i) => i.area === a));
+  const gk = S.rmode === "cat" ? "cat" : "area";
+  const groups = S.order[S.rmode].filter((a) => items.some((i) => i[gk] === a));
   if (!groups.length) return `<p style="padding:20px 4px">${S.pantry.length ? "Nothing matches." : "Your pantry is empty. Add what you have."}</p>`;
   return groups.map((a) => {
-    const its = items.filter((i) => i.area === a); const shut = !!S.collapsed[a]; const nr = its.filter((i) => i.recent).length;
-    return `<section class="group ${shut ? "shut" : ""}"><button class="grouphead" data-act="fold" data-p="${a}" aria-expanded="${!shut}"><h2>${a}</h2><span class="ghmeta">${nr ? `<span class="added" role="img" aria-label="${nr} added in the last 24 hours">${I.up(12)}${nr}</span>` : ""}<span class="fold">${I.down}</span></span></button><ul class="rows">${its.map(rowHtml).join("")}</ul></section>`;
+    const its = items.filter((i) => i[gk] === a); const shut = !!S.collapsed[a]; const nr = its.filter((i) => i.recent).length;
+    return `<section class="group ${shut ? "shut" : ""}"><button class="grouphead" data-act="fold" data-p="${esc(a)}" data-fold="1" aria-expanded="${!shut}"><h2>${esc(a)}${shut ? `<small>${its.length}</small>` : ""}</h2><span class="ghmeta">${nr ? `<span class="added" role="img" aria-label="${nr} added in the last 24 hours">${I.up(12)}${nr}</span>` : ""}<span class="fold">${I.down}</span></span></button><ul class="rows">${its.map(rowHtml).join("")}</ul></section>`;
   }).join("");
 }
 
@@ -311,8 +361,10 @@ const screens = {
     <div class="pull ${S.refresh ? "on" : ""}" id="pull" ${S.refresh ? 'role="status"' : 'aria-hidden="true"'} ${S.refresh ? 'style="height:64px"' : ""}>${S.refresh ? `<div class="rf">${S.refresh[1]}<span>${S.refresh[0]}</span></div>` : "<span></span>"}</div>
     <div class="phead"><h1>Pantry</h1><button class="icon addbtn" data-sheet="add" aria-label="Add an item" title="Add an item" ${S.down ? "disabled" : ""}>${I.plus}</button></div>
     ${S.searchOpen ? `<div class="searchbar"><input class="field" id="search" placeholder="Search your pantry" value="${esc(S.search)}" autocomplete="off" aria-label="Search your pantry"><button class="icon" data-act="search" aria-label="Close search" title="Close">${I.x}</button></div>` : ""}
-    <div class="tools"><div class="seg3" role="radiogroup" aria-label="Show">${[["name", "A to Z"], ["useby", "Use by"], ["low", "Running low"]].map(([k, l]) => `<button role="radio" aria-checked="${S.view === k}" data-act="view" data-p="${k}" class="${S.view === k ? "on" : ""}">${l}</button>`).join("")}</div><button class="tbtn" data-act="recent" aria-pressed="${S.recentOnly}">Recent</button></div>
-    <nav class="atabs" aria-label="Area">${["All", ...AREAS].map((a) => `<button data-act="areatab" data-p="${a}" class="${S.areaTab === a ? "on" : ""}">${a}</button>`).join("")}</nav>
+    ${S.fa
+      ? `<div class="cview" role="status"><span class="cvi">${riSvg("funnel", 20)}</span><div class="cvt"><b>Custom view</b><span>${fItems(S.fa).length} items${fSummary(S.fa) ? " · " + esc(fSummary(S.fa)) : ""}</span></div><button class="link" data-sheet="filters">Edit</button><button class="icon" data-act="cvclear" aria-label="Clear custom view" title="Clear">${I.x}</button></div>`
+      : `<div class="tools"><div class="seg3" role="radiogroup" aria-label="Show">${[["name", "A to Z"], ["useby", "Use by"], ["low", "Running low"]].map(([k, l]) => `<button role="radio" aria-checked="${S.view === k}" data-act="view" data-p="${k}" class="${S.view === k ? "on" : ""}">${l}</button>`).join("")}</div><button class="tbtn" data-sheet="filters" aria-label="Filters">${riSvg("funnel", 18)}<span>Filters</span></button></div>
+    ${ribbonHtml()}`}
     <div id="plist">${listHtml()}</div></div>
     ${S.sel ? `<div class="selbar" role="region" aria-label="Selected items"><button class="btn" data-act="seladd">Add ${S.sel.length} to shopping list</button><button class="icon" data-act="selcancel" aria-label="Cancel selection" title="Cancel">${I.x}</button></div>` : ""}` + bar(),
 
@@ -396,6 +448,18 @@ const screens = {
 function sheetHtml() {
   const sh = S.sheet; if (!sh) return "";
   const wrap = (inner, mid) => `<div class="sheet-dim" ${mid ? "" : 'data-act="closesheet"'}><div class="sheet ${mid ? "mid" : ""}" data-stop="1">${inner}</div></div>`;
+  if (sh === "filters" && S.fd) {
+    const f = S.fd, tab = S.fTab;
+    const chips = (t, vals) => `<div class="twoRow" data-two="${t}">${vals.map((v) => { const on = f[t].includes(v); return `<button class="mc ${on ? "on" : ""}" data-act="fpick" data-p="${t}|${esc(v)}" data-fchip="${t}|${esc(v)}" aria-pressed="${on}"><span class="mi" aria-hidden="true">${on ? I.tick : EM[v] || ""}</span><span>${esc(v)}</span></button>`; }).join("")}</div>`;
+    const srow = (k) => { const st = f.st[k]; return `<div class="strow ${st.on ? "on" : ""}" data-fk="${k}"><button class="stt" data-act="fst" data-p="${k}" role="switch" aria-checked="${st.on}"><span class="dotc" aria-hidden="true">${st.on ? I.tick : ""}</span>${ROT[k].label}</button><button class="rot" data-rot="${k}" aria-label="${ROT[k].label}: ${ROT[k].opts[st.i][0]}. Drag up or down, or tap, to change"><span class="rv">${ROT[k].opts[st.i][0]}</span><span class="rar" aria-hidden="true"><i>▴</i><i>▾</i></span></button></div>`; };
+    const body = tab === "filters"
+      ? `<h3 class="fh">Status</h3><div class="strows">${Object.keys(ROT).map(srow).join("")}</div><h3 class="fh">Location</h3>${chips("locs", S.order.loc)}<h3 class="fh">Category</h3>${chips("cats", S.order.cat)}`
+      : `<h3 class="fh">Sort by</h3><div class="sortlist" role="radiogroup" aria-label="Sort by">${Object.entries(SORTK).map(([k, v]) => `<button role="radio" aria-checked="${f.key === k}" class="sr ${f.key === k ? "on" : ""}" data-act="fsort" data-p="${k}"><span class="rd" aria-hidden="true"></span>${v.label}</button>`).join("")}</div><h3 class="fh">Order</h3><div class="ftabs sm" role="radiogroup" aria-label="Order">${SORTK[f.key].dirs.map((l, n) => `<button role="radio" aria-checked="${f.dir === n}" class="${f.dir === n ? "on" : ""}" data-act="fdir" data-p="${n}">${l}</button>`).join("")}</div>`;
+    return `<div class="sheet-dim" data-act="closesheet"><div class="sheet tall" data-stop="1" role="dialog" aria-label="Filters and sorting">
+      <div class="fhead"><div class="ftabs" role="tablist"><button role="tab" aria-selected="${tab === "filters"}" class="${tab === "filters" ? "on" : ""}" data-act="ftab" data-p="filters">Filters</button><button role="tab" aria-selected="${tab === "sort"}" class="${tab === "sort" ? "on" : ""}" data-act="ftab" data-p="sort">Sort</button></div><button class="icon" data-act="closesheet" aria-label="Close" title="Close">${I.x}</button></div>
+      <div class="fbody">${body}</div>
+      <div class="ffoot"><div class="flinks"><button class="link" data-act="fclear">Clear</button><button class="link" data-act="fuselast" ${S.flast ? "" : "disabled"}>Use last filters</button></div><button class="btn" id="fshow" data-act="fshow">${fShowText(f)}</button></div></div></div>`;
+  }
   if (sh === "pwa") return wrap(`<h2>Add it to your home screen</h2><p>On iPhone: tap Share, then Add to Home Screen.<br>On Android: tap the menu, then Add to Home screen.</p><button class="btn" data-act="pwadone">Done, I've added it</button><button class="btn ghost" data-act="closesheet">Not now</button>`);
   if (sh === "add") return wrap(`<h2>Add item</h2>
     <input class="field" id="f-name" placeholder="Name" autocomplete="off"><input class="field" id="f-amt" placeholder="Amount (e.g. 2, 500 g, 1 bag)" autocomplete="off">
@@ -489,6 +553,16 @@ const acts = {
     if (S.expireNext) { S.expireNext = false; refreshPanel(); S.sheet = "expired"; render(); } else commitAdd();
   },
   resume() { S.sheet = null; commitAdd(); },
+  rmode() { S.rmode = S.rmode === "loc" ? "cat" : "loc"; S.areaTab = "All"; S.rflip = true; render(); S.rflip = false; },
+  ftab(t) { S.fTab = t; render(); },
+  fst(k) { S.fd.st[k].on = !S.fd.st[k].on; refreshSheet(); },
+  fpick(v) { const [t, val] = v.split("|"); const a = S.fd[t], n = a.indexOf(val); if (n < 0) a.push(val); else a.splice(n, 1); refreshSheet(); },
+  fclear() { S.fd = blankF(); render(); },
+  fuselast() { if (S.flast) { S.fd = clone(S.flast); render(); } },
+  fsort(k) { S.fd.key = k; S.fd.dir = 0; render(); },
+  fdir(n) { S.fd.dir = Number(n); render(); },
+  fshow() { const f = S.fd; S.fa = fActive(f) ? clone(f) : null; if (S.fa) S.flast = clone(f); S.sheet = null; S.fd = null; render(); },
+  cvclear() { S.fa = null; render(); },
   view(k) { S.view = k; S.sel = null; S.recentOnly = false; render(); },
   openuse() { S.view = "useby"; S.areaTab = "All"; S.recentOnly = false; go("pantry"); },
   openlow() { S.view = "low"; S.areaTab = "All"; S.recentOnly = false; go("pantry"); },
@@ -527,13 +601,14 @@ const acts = {
 
 let lastGesture = 0;
 document.addEventListener("click", (e) => {
-  if (Date.now() - lastGesture < 450 && e.target.closest(".swr,.body.tight")) { e.stopPropagation(); return; }
+  if (Date.now() - lastGesture < 450 && e.target.closest(".swr,.body.tight,.grouphead")) { e.stopPropagation(); return; }
   const t = e.target.closest("[data-act],[data-go],[data-sheet],[data-ctl],[data-stop]"); if (!t) return;
   if (t.dataset.stop && !t.dataset.act && !t.dataset.go && !t.dataset.sheet) return;
   if (t.dataset.ctl) { const k = t.dataset.ctl; if (k === "persona" || k === "existing") return; S[k] = !S[k]; refreshPanel(); render(); return; }
   if (t.dataset.sheet) {
     if (t.dataset.sheet === "member") S.memberWho = t.dataset.p;
     if (t.dataset.sheet === "add") S.draft = { days: null };
+    if (t.dataset.sheet === "filters") { S.fd = S.fa ? clone(S.fa) : blankF(); S.fTab = "filters"; }
     if (t.dataset.sheet === "role") { const r = role(S.persona); S.rdraft = r ? { pi: -1, ic: r.ic, title: r.title, desc: r.desc } : null; S.iconPick = false; }
     S.sheet = t.dataset.sheet; render(); return;
   }
@@ -602,5 +677,54 @@ document.addEventListener("pointercancel", (e) => { if (e.pointerType !== "touch
 document.addEventListener("touchstart", (e) => { if (e.touches.length === 1 && !e.target.closest("[data-swipe]")) pullStart(e.target, e.touches[0].clientY); }, { passive: true });
 document.addEventListener("touchmove", (e) => pullMove(e.touches[0].clientY, e), { passive: false });
 document.addEventListener("touchend", pullEnd); document.addEventListener("touchcancel", pullEnd);
+/* press and hold a group header: collapsed opens everything, open closes everything */
+let fh = null;
+document.addEventListener("pointerdown", (e) => {
+  const h = e.target.closest("[data-fold]"); if (!h || e.button > 0) return;
+  fh = { h, x: e.clientY, t: setTimeout(() => {
+    const names = [...document.querySelectorAll("[data-fold]")].map((b) => b.dataset.p);
+    const open = h.getAttribute("aria-expanded") === "true";
+    names.forEach((n) => (S.collapsed[n] = open));
+    lastGesture = Date.now(); fh = null; if (navigator.vibrate) navigator.vibrate(15); render();
+  }, 450) };
+});
+document.addEventListener("pointermove", (e) => { if (fh && Math.abs(e.clientY - fh.x) > 8) { clearTimeout(fh.t); fh = null; } });
+const endFh = () => { if (fh) { clearTimeout(fh.t); fh = null; } };
+document.addEventListener("pointerup", endFh); document.addEventListener("pointercancel", endFh);
+/* ribbon: press and hold a chip, then drag it sideways to put what matters first */
+let rd = null;
+document.addEventListener("pointerdown", (e) => {
+  const c = e.target.closest(".rc2[data-chip]"); if (!c || e.button > 0) return;
+  rd = { chip: c, sc: c.parentElement, x: e.clientX, y: e.clientY, active: false };
+  rd.timer = setTimeout(() => { if (!rd) return; rd.active = true; rd.grab = rd.x - rd.chip.getBoundingClientRect().left; rd.chip.classList.add("lift"); rd.chip.style.pointerEvents = "none"; if (navigator.vibrate) navigator.vibrate(12); }, 380);
+});
+document.addEventListener("pointermove", (e) => {
+  if (!rd) return;
+  if (!rd.active) { if (Math.hypot(e.clientX - rd.x, e.clientY - rd.y) > 8) { clearTimeout(rd.timer); rd = null; } return; }
+  const ch = rd.chip, sc = rd.sc, x = e.clientX;
+  ch.style.transform = "none"; const cx = x - rd.grab + ch.offsetWidth / 2;
+  for (const sib of sc.querySelectorAll(".rc2[data-chip]")) {
+    if (sib === ch) continue; const r = sib.getBoundingClientRect(), mid = r.left + r.width / 2;
+    const after = ch.compareDocumentPosition(sib) & Node.DOCUMENT_POSITION_FOLLOWING;
+    if (after && cx > mid) { sib.after(ch); break; } if (!after && cx < mid) { sib.before(ch); break; }
+  }
+  const nat = ch.getBoundingClientRect().left; ch.style.transform = `translateX(${x - rd.grab - nat}px)`;
+  const sr = sc.getBoundingClientRect(); if (x > sr.right - 36) sc.scrollLeft += 10; else if (x < sr.left + 36) sc.scrollLeft -= 10;
+});
+const endRd = () => {
+  if (!rd) return; clearTimeout(rd.timer); const x = rd; rd = null; if (!x.active) return;
+  lastGesture = Date.now(); S.order[S.rmode] = [...x.sc.querySelectorAll(".rc2[data-chip]")].map((c) => c.dataset.chip); render();
+};
+document.addEventListener("pointerup", endRd); document.addEventListener("pointercancel", endRd);
+document.addEventListener("touchmove", (e) => { if (rd && rd.active && e.cancelable) e.preventDefault(); }, { passive: false });
+document.addEventListener("contextmenu", (e) => { if (e.target.closest(".rc2")) e.preventDefault(); });
+/* status rotary: drag up or down on the value, scroll over it, or tap to step through the options */
+let ro = null;
+const rotStep = (k, i) => { const n = ROT[k].opts.length, st = S.fd.st[k]; i = Math.max(0, Math.min(n - 1, i)); if (i !== st.i || !st.on) { st.i = i; st.on = true; refreshSheet(); if (navigator.vibrate) navigator.vibrate(6); } };
+document.addEventListener("pointerdown", (e) => { const r = e.target.closest("[data-rot]"); if (!r || e.button > 0 || !S.fd) return; ro = { k: r.dataset.rot, y: e.clientY, base: S.fd.st[r.dataset.rot].i, moved: false }; });
+document.addEventListener("pointermove", (e) => { if (!ro) return; const dy = ro.y - e.clientY; if (Math.abs(dy) > 6) ro.moved = true; if (ro.moved) rotStep(ro.k, ro.base + Math.round(dy / 20)); });
+const endRo = () => { if (!ro) return; const x = ro; ro = null; lastGesture = Date.now(); if (!x.moved) { const n = ROT[x.k].opts.length; rotStep(x.k, (S.fd.st[x.k].i + 1) % n); } };
+document.addEventListener("pointerup", endRo); document.addEventListener("pointercancel", endRo);
+document.addEventListener("wheel", (e) => { const r = e.target.closest("[data-rot]"); if (!r || !S.fd) return; e.preventDefault(); const k = r.dataset.rot; rotStep(k, S.fd.st[k].i + (e.deltaY > 0 ? 1 : -1)); }, { passive: false });
 document.getElementById("gear").addEventListener("click", () => document.getElementById("panel").classList.toggle("open"));
 render();
