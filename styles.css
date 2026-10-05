@@ -148,3 +148,5 @@ textarea.field{padding:12px 14px;min-height:76px;resize:none;font-size:15px}
 .role b{font-size:15px}.role span{font-size:13px;color:var(--muted);line-height:1.35}
 .pwa{display:flex;gap:14px;align-items:center}
 .pwa svg{flex:none}
+.field.plain{background:transparent;border:1px dashed var(--border)}
+.field.plain:focus{border-style:solid;border-color:var(--accent);outline:0}
