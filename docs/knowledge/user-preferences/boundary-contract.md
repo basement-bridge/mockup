@@ -1,6 +1,6 @@
 # Boundary contract: the conversational AI and the learning engine
 
-Status: draft v0.2, 5 Oct 2026. A proposal, written for the owner to review. Not built. v0.2 narrows to two tools (owner, 5 Oct 2026): one to get context and hints, one for feedback, where a correction carries more weight than going along with an inference. No personal data in this file (public repo).
+Status: draft v0.2, 5 Oct 2026. **As built (v1, stated only):** Kitchie issue #236, PR #237 against `uat`, requirement R26 in Kitchie's `docs/project-plan.md`. Where this draft and R26 differ, R26 is what was built: v1 acts only on stated and corrected feedback, hints have no priority field, and evidence roles are supports, retired and noted. A proposal, written for the owner to review. Not built. v0.2 narrows to two tools (owner, 5 Oct 2026): one to get context and hints, one for feedback, where a correction carries more weight than going along with an inference. No personal data in this file (public repo).
 
 Scope: the engine only informs the conversational AI. The AI is the only way in and the only way out. Framework: see `evidence-grading.md`.
 
