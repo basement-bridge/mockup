@@ -101,7 +101,7 @@ textarea.field{padding:12px 14px;min-height:76px;resize:none;font-size:15px}
 .atabs{display:flex;gap:.25rem;padding:.25rem;border-radius:1rem;background:var(--surface);margin-bottom:.4rem}
 .atabs button{flex:1;display:flex;align-items:center;justify-content:center;min-height:44px;border-radius:.75rem;font-weight:700;font-size:.95rem}
 .atabs button.on{background:var(--accent);color:var(--on-accent)}
-.searchbar{margin:0 0 .6rem}
+.searchbar{margin:0 0 .6rem;display:flex;gap:8px;align-items:center}.searchbar .field{flex:1}
 .grouphead{display:flex;justify-content:space-between;align-items:center;padding:.6rem .25rem 0;min-height:52px;width:100%;text-align:left}
 .group.shut .grouphead{border-bottom:1px solid var(--border)}
 .ghmeta{display:flex;align-items:center;gap:.6rem}
@@ -229,3 +229,5 @@ textarea.field{padding:12px 14px;min-height:76px;resize:none;font-size:15px}
 .selbar .btn{flex:1;min-height:48px}.selbar .icon{width:48px;height:48px;border:1px solid var(--border);border-radius:var(--r-ctl)}
 .dock[hidden]{display:none}
 .tools .tbtn{padding:0 .75rem}
+.pull{flex:none;height:0;overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px;font-weight:600;transition:height .15s}
+.addbtn{background:var(--accent);color:var(--on-accent);border-color:transparent}

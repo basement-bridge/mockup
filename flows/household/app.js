@@ -77,8 +77,8 @@ const ROLE_PRESETS = [
 const RECIPES = [
   { id: "saag", emoji: "🥬", name: "Saag paneer", time: 35, ings: [["spinach", "Spinach", "250 g"], ["paneer", "Paneer", "200 g"], ["onion", "Onion", "2"], ["garam", "Garam masala", "2 tsp"], ["cream", "Cream", "100 ml"]] },
   { id: "rice", emoji: "🍚", name: "Egg fried rice", time: 20, ings: [["eggs", "Eggs", "3"], ["rice", "Basmati rice", "300 g"], ["onion", "Onion", "1"]] },
-  { id: "omelette", emoji: "🍳", name: "Spinach omelette", time: 10, ings: [["spinach", "Spinach", "100 g"], ["eggs", "Eggs", "3"]] },
-  { id: "toastie", emoji: "🥪", name: "Cheese and onion toastie", time: 8, ings: [["cheese", "Cheese", "80 g"], ["onion", "Onion", "1"], ["bread", "Bread", "4 slices"]] },
+  { new: true, id: "omelette", emoji: "🍳", name: "Spinach omelette", time: 10, ings: [["spinach", "Spinach", "100 g"], ["eggs", "Eggs", "3"]] },
+  { new: true, id: "toastie", emoji: "🥪", name: "Cheese and onion toastie", time: 8, ings: [["cheese", "Cheese", "80 g"], ["onion", "Onion", "1"], ["bread", "Bread", "4 slices"]] },
 ];
 
 const AREAS = ["Fridge", "Pantry", "Freezer"];
@@ -115,7 +115,7 @@ const initial = () => ({
   roles: { arjan: { title: "Pantry Marshal", ic: "shield", desc: "Keeps order on the shelves and the fridge. Knows exactly where the cumin lives." }, sam: null },
   aiTab: "ChatGPT", aiActive: true, bannerGot: false, pending: null, joined: false,
   /* pantry view */
-  sort: "name", view: "name", shop: [], sel: null, sortOpen: false, recentOnly: false, areaTab: "All", collapsed: {}, search: "", searchOpen: false, draft: { days: null },
+  seenP: 0, seenR: 0, sort: "name", view: "name", shop: [], sel: null, sortOpen: false, recentOnly: false, areaTab: "All", collapsed: {}, search: "", searchOpen: false, draft: { days: null },
   memberWho: null, existing: 1, own: false, rdraft: null, iconPick: false,
   /* install prompt: nothing until 1 hour of use, then 1, 2, 1 across three weeks, then never */
   usageMin: 0, week: 0, pwa: { startWeek: null, shown: {}, done: false }, pwaCard: false,
@@ -125,6 +125,8 @@ let S = initial();
 /* ---------- helpers ---------- */
 const dayLabel = (d) => (d === null ? "" : d === 0 ? "Today" : d === 1 ? "Tomorrow" : "in " + d + " days");
 const fmtAmt = (i) => { const n = Math.round(i.n * 100) / 100; return String(n) + (i.unit ? " " + i.unit : ""); };
+const newCount = (tab) => Math.max(0, (tab === "pantry" ? S.pantry.filter((i) => i.recent).length : RECIPES.filter((r) => r.new).length) - (tab === "pantry" ? S.seenP : S.seenR));
+const nbadge = (tab) => newCount(tab) ? `<i class="badge" aria-label="${newCount(tab)} new">${newCount(tab)}</i>` : "";
 const isLow = (i) => !!i.low;
 const onList = (id) => S.shop.includes(id);
 const emo = (i) => i.emoji || emojiOf(i.name) || "🍽️";
@@ -178,8 +180,8 @@ const header = () => `<div class="top"><span>Our kitchen</span><button class="av
 const backHeader = (label, title) => `<div class="top"><button class="back" data-act="back">&lsaquo; ${esc(label)}</button><span class="ttl">${esc(title || "")}</span><span style="width:64px"></span></div>`;
 const bar = () => `<nav class="bar" aria-label="Main">
   <button data-go="today" class="${S.tab === "today" ? "on" : ""}">${riSvg("home", 24)}<span>Home</span></button>
-  <button data-go="pantry" class="${S.tab === "pantry" ? "on" : ""}">${riSvg("jar", 24)}<span>Pantry</span></button>
-  <button data-go="${S.recipes ? "recipes" : "upgrade"}" class="${S.tab === "recipes" ? "on" : ""}">${riSvg("chef", 24)}<span>Recipes${S.recipes ? "" : ' <i class="chip add">Add</i>'}</span></button>
+  <button data-go="pantry" class="${S.tab === "pantry" ? "on" : ""}">${riSvg("jar", 24)}<span>Pantry</span>${nbadge("pantry")}</button>
+  <button data-go="${S.recipes ? "recipes" : "upgrade"}" class="${S.tab === "recipes" ? "on" : ""}">${riSvg("chef", 24)}<span>Recipes${S.recipes ? "" : ' <i class="chip add">Add</i>'}</span>${S.recipes ? nbadge("recipes") : ""}</button>
   <button data-go="shop" class="${S.tab === "shop" ? "on" : ""}">${riSvg("cart", 24)}<span>Shopping</span>${S.shop.length ? `<i class="badge" aria-label="${S.shop.length} on the list">${S.shop.length}</i>` : ""}</button>
 </nav>`;
 const downBanner = () => S.down ? `<div class="banner warn"><b>Showing your saved list</b><span>Updated 3 minutes ago. We're reconnecting. Changes will work again shortly.</span><button class="lnk" data-act="retry">Try again</button></div>` : "";
@@ -297,13 +299,13 @@ const screens = {
   </div>`),
 
   pantry: () => header() + downBanner() + `<div class="body tight">
-    <div class="phead"><h1>Pantry</h1><button class="icon" data-act="search" aria-label="Search" aria-expanded="${S.searchOpen}">${I.search}</button></div>
-    ${S.searchOpen ? `<div class="searchbar"><input class="field" id="search" placeholder="Search your pantry" value="${esc(S.search)}" autocomplete="off"></div>` : ""}
+    <div class="pull" id="pull" aria-hidden="true"><span></span></div>
+    <div class="phead"><h1>Pantry</h1><button class="icon addbtn" data-sheet="add" aria-label="Add an item" title="Add an item" ${S.down ? "disabled" : ""}>${I.plus}</button></div>
+    ${S.searchOpen ? `<div class="searchbar"><input class="field" id="search" placeholder="Search your pantry" value="${esc(S.search)}" autocomplete="off" aria-label="Search your pantry"><button class="icon" data-act="search" aria-label="Close search" title="Close">${I.x}</button></div>` : ""}
     <div class="tools"><div class="seg3" role="radiogroup" aria-label="Show">${[["name", "A to Z"], ["useby", "Use by"], ["low", "Running low"]].map(([k, l]) => `<button role="radio" aria-checked="${S.view === k}" data-act="view" data-p="${k}" class="${S.view === k ? "on" : ""}">${l}</button>`).join("")}</div><button class="tbtn" data-act="recent" aria-pressed="${S.recentOnly}">Recent</button></div>
     <nav class="atabs" aria-label="Area">${["All", ...AREAS].map((a) => `<button data-act="areatab" data-p="${a}" class="${S.areaTab === a ? "on" : ""}">${a}</button>`).join("")}</nav>
     <div id="plist">${listHtml()}</div></div>
-    ${S.sel ? `<div class="selbar" role="region" aria-label="Selected items"><button class="btn" data-act="seladd">Add ${S.sel.length} to shopping list</button><button class="icon" data-act="selcancel" aria-label="Cancel selection" title="Cancel">${I.x}</button></div>` : ""}
-    <nav class="dock" aria-label="Add and share" ${S.sel ? "hidden" : ""}><button class="icon" data-sheet="add" aria-label="Add an item" title="Add an item" ${S.down ? "disabled" : ""}>${I.plus}</button><button class="icon" data-act="copyshop" aria-label="Copy shopping list" title="Copy shopping list">${I.cart}</button><button class="icon" data-act="copykitchen" aria-label="Copy kitchen list" title="Copy kitchen list">${I.list}</button></nav>` + bar(),
+    ${S.sel ? `<div class="selbar" role="region" aria-label="Selected items"><button class="btn" data-act="seladd">Add ${S.sel.length} to shopping list</button><button class="icon" data-act="selcancel" aria-label="Cancel selection" title="Cancel">${I.x}</button></div>` : ""}` + bar(),
 
   item: () => {
     const p = S.pantry.find((x) => x.id === S.param);
@@ -423,6 +425,8 @@ let lastScreen = null;
 function render() {
   const phone = document.getElementById("phone");
   const prev = phone.querySelector(".body"); const top = prev && lastScreen === S.screen ? prev.scrollTop : 0;
+  if (S.screen === "pantry") S.seenP = S.pantry.filter((i) => i.recent).length;
+  if (S.screen === "recipes") S.seenR = RECIPES.filter((r) => r.new).length;
   const sc = screens[S.screen] || screens.today;
   phone.innerHTML = sc() + sheetHtml() + (S.toast ? `<div class="toast">${esc(S.toast)}</div>` : "");
   const nb = phone.querySelector(".body"); if (nb && top) nb.scrollTop = top;
@@ -514,7 +518,7 @@ const acts = {
 
 let lastGesture = 0;
 document.addEventListener("click", (e) => {
-  if (Date.now() - lastGesture < 450 && e.target.closest(".swr")) { e.stopPropagation(); return; }
+  if (Date.now() - lastGesture < 450 && e.target.closest(".swr,.body.tight")) { e.stopPropagation(); return; }
   const t = e.target.closest("[data-act],[data-go],[data-sheet],[data-ctl],[data-stop]"); if (!t) return;
   if (t.dataset.stop && !t.dataset.act && !t.dataset.go && !t.dataset.sheet) return;
   if (t.dataset.ctl) { const k = t.dataset.ctl; if (k === "persona" || k === "existing") return; S[k] = !S[k]; refreshPanel(); render(); return; }
@@ -558,5 +562,24 @@ document.addEventListener("pointerup", endGesture); document.addEventListener("p
 document.addEventListener("contextmenu", (e) => { if (e.target.closest("[data-swipe]")) e.preventDefault(); });
 document.addEventListener("keydown", (e) => { const t = e.target; if ((e.key === "Enter" || e.key === " ") && t.matches && t.matches('[role=button][data-act]')) { e.preventDefault(); t.click(); } });
 document.addEventListener("scroll", (e) => { const sn = e.target; if (sn.id !== "snap") return; const n = Math.round(sn.scrollLeft / sn.clientWidth); sn.parentElement.querySelectorAll(".dots i").forEach((d, k) => d.classList.toggle("on", k === n)); }, true);
+/* pull down at the top of Pantry: a shallow pull opens search, a deep pull refreshes */
+const PULL_SHALLOW = 70, PULL_DEEP = 170; let pl = null;
+document.addEventListener("pointerdown", (e) => {
+  const b = e.target.closest(".body.tight"); if (!b || S.screen !== "pantry" || b.scrollTop > 0 || e.target.closest("input,[data-swipe]") || e.button > 0) return;
+  pl = { y: e.clientY, dy: 0, b, el: b.querySelector("#pull") };
+});
+document.addEventListener("pointermove", (e) => {
+  if (!pl) return; const dy = e.clientY - pl.y;
+  if (dy <= 8) { if (pl.dy) { pl.dy = 0; pl.el.style.height = "0px"; } return; }
+  pl.dy = dy; const h = Math.min(dy * 0.5, 96); pl.el.style.height = h + "px";
+  pl.el.firstElementChild.textContent = dy >= PULL_DEEP ? "Let go to refresh" : dy >= PULL_SHALLOW ? "Let go to search. Pull further to refresh" : "Pull to search";
+});
+const endPull = () => {
+  if (!pl) return; const x = pl; pl = null; x.el.style.height = "0px";
+  if (x.dy > 8) lastGesture = Date.now();
+  if (x.dy >= PULL_DEEP) { toast("Refreshing…"); setTimeout(() => toast("Up to date"), 900); }
+  else if (x.dy >= PULL_SHALLOW && !S.searchOpen) acts.search();
+};
+document.addEventListener("pointerup", endPull); document.addEventListener("pointercancel", endPull);
 document.getElementById("gear").addEventListener("click", () => document.getElementById("panel").classList.toggle("open"));
 render();
