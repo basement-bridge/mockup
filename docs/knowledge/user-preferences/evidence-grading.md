@@ -79,6 +79,15 @@ From the owner:
 
 Consequence for grading: a choice made from the system's own suggestion is weaker evidence of preference than a choice the person made unprompted.
 
+## Collaboration between machine and person
+
+The relationship is a collaboration. The machine can silently make observations and inferences. But it must not become a system with no feedback loop, one that keeps making the wrong recommendation without noticing the person is frustrated or not being helped.
+
+From the owner:
+
+- Explainability goes both ways. The person can ask "why did you recommend that, what makes you think so?" and can correct the answer.
+- A correction has to be dealt with in terms of provenance and lineage, in a way that is not heavy ("not so uncompressed").
+
 ## What the person can do
 
 - Ask why something was surfaced, and what the system believes about them, and correct it.
@@ -90,4 +99,6 @@ Consequence for grading: a choice made from the system's own suggestion is weake
 - What counts as "materially different" situations, and as an "independent interaction" (same day, session, meal).
 - What triggers a discard or a restart, and whether it discards everything or only part of what was learned.
 - What counts as a "strong signal" for acting, and what acting means for each feature (suggesting, ranking, hiding, filling in a field).
+- What the machine does when it is wrong repeatedly and the person is not being helped.
+- How provenance and lineage are kept lightweight, and how a correction travels through what was derived from the wrong claim.
 - Where the grade, the count and the threshold are stored, and how they are shown back to the person.
