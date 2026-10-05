@@ -313,3 +313,13 @@ html,body{overscroll-behavior-y:contain}.body{overscroll-behavior-y:contain}
 .group.shut .grouphead h2{font-weight:500;color:var(--muted);font-size:1.05rem}
 .grouphead{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .flinks{padding-right:84px}
+
+.rscroll{padding-right:0;-webkit-mask-image:linear-gradient(to right,transparent,#000 18px,#000 calc(100% - 18px),transparent);mask-image:linear-gradient(to right,transparent,#000 18px,#000 calc(100% - 18px),transparent)}
+.twoRow{grid-template-rows:repeat(2,auto);align-content:start}
+
+/* ribbon: one continuous strip, like Kitchie: a single surface, flat tabs, the pick filled */
+.ribbon{gap:2px;padding:.25rem;border-radius:1rem;background:var(--surface);align-items:center}
+.rmode{width:52px;min-height:44px;border:0;background:none;border-radius:.75rem;border-right:1px solid var(--border);border-radius:.75rem 0 0 .75rem;flex:none}
+.rscroll{gap:.25rem;padding:0 0 0 4px;scroll-snap-type:x proximity;scroll-padding-left:4px;-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 22px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 22px),transparent)}
+.rc2{min-height:44px;border:0;background:none;border-radius:.75rem;padding:0 1rem;font-size:.95rem;scroll-snap-align:start;max-width:132px}
+.rc2.on{background:var(--accent);color:var(--on-accent)}
