@@ -7,4 +7,8 @@ What we have learned and decided about the product, written so it can be carried
 
 Capture what the owner says. Do not add proposals of your own here. If something is a proposal, mark it as one and say who asked for it.
 
+## Principle for every AI interaction
+
+Closed vocabulary where the logic acts, free text everywhere else, and every decision-critical value surfaced explicitly to the AI (owner, 5 Oct 2026). Kitchie only needs the one or two values its logic acts on (for example an avoidance's reason: safety or other), and the person's own words stay free text. The full record and a checklist for new fields: Kitchie `docs/adr/closed-vocabulary-for-ai.md` (issue #238).
+
 This repo is public. Keep personal details of real people out of it.
