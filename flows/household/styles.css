@@ -151,9 +151,8 @@ textarea.field{padding:12px 14px;min-height:76px;resize:none;font-size:15px}
 .pwa{display:flex;gap:14px;align-items:center}
 .pwa svg{flex:none}
 
-.wl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}.wl li{display:flex;align-items:center;gap:14px;font-size:16px;font-weight:600}
 .rtile .tg{font-size:11.5px;line-height:1.25;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.scene{align-self:stretch;width:100%;height:140px;flex:none;display:block}
+.scene{align-self:stretch;width:100%;flex:1 1 0;min-height:56px;max-height:200px;display:block}
 .scene .sh rect{fill:var(--border)}.scene .pt{fill:var(--accent)}.scene .lf{fill:var(--cue)}
 .scene .j1{fill:var(--accent)}.scene .j2{fill:var(--sage)}.scene .j3{fill:var(--muted)}
 .scene .body,.scene .lid path{fill:var(--accent)}.scene .lid circle{fill:var(--fg)}.scene .hd{fill:none;stroke:var(--accent);stroke-width:4;stroke-linecap:round}
@@ -168,3 +167,18 @@ textarea.field{padding:12px 14px;min-height:76px;resize:none;font-size:15px}
 @keyframes pop{0%{transform:translateY(8px) scale(.4);opacity:0}30%{opacity:1;transform:translateY(0) scale(1)}100%{transform:translateY(-10px) scale(.9);opacity:0}}
 @keyframes sway{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
 @media (prefers-reduced-motion:reduce){.scene *{animation:none!important}}
+/* welcome fits the screen: no scrolling, the picture gives way first */
+.body.fit{overflow:hidden;padding:8px 20px 16px;gap:10px}
+.fit .hello h1{font-size:2rem}.fit .hello p{margin:6px 0 0;font-size:16px}
+.fit .wl{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;flex:none}
+.fit .wl li{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;font-size:12.5px;font-weight:600;line-height:1.2}
+.fit .pickh{font-size:1.2rem;flex:none}
+.fit .rgrid{flex:none;gap:6px}.fit .rgrid.hide{display:none}
+.fit .rtile{min-height:0;padding:8px 4px;gap:4px}
+.fit .card{flex:none;padding:10px;gap:8px}
+.fit .irow{gap:4px}.fit .ipick{width:40px;height:40px}
+.fit .acts{display:flex;flex-direction:column;gap:6px;margin-top:auto;flex:none}
+.fit .btn{min-height:48px}.fit .btn.ghost{min-height:40px;border:0}
+.fit.editing .scene,.fit.editing .wl{display:none}
+.fit.picking .hello,.fit.picking .pickh{display:none}
+@media (max-height:760px){.fit .rtile .tg{display:none}.fit .hello h1{font-size:1.7rem}}
