@@ -31,6 +31,7 @@ const RI = {
   knife: '<path d="M4 20L16 8c2-2 4-3 4-3s-1 3-3 5L9 18z"/><path d="M4 20l3-3"/>',
   shield: '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9.5 10.5h5V16h-5zM10 8.5h4"/>',
   fridge: '<rect x="6" y="3" width="12" height="18" rx="2.5"/><path d="M6 10h12M9 6v2M9 13v3"/>',
+  drop: '<path d="M12 3c3.5 4.5 6 7.2 6 10.2a6 6 0 0 1-12 0C6 10.200 8.500 7.500 12 3z"/><path d="M9.500 14a2.500 2.500 0 0 0 2 2.300"/>',
   spark: '<path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/>',
   flame: '<path d="M12 3c1 4 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3 0-6 1-9z"/>',
   heart: '<path d="M12 20s-8-5-8-11a4.5 4.5 0 0 1 8-2.5A4.5 4.5 0 0 1 20 9c0 6-8 11-8 11z"/>',
@@ -41,15 +42,11 @@ const roleIc = (r, size = 44) => r ? `<span class="ric" style="width:${size}px;h
 
 const ROLE_PRESETS = [
   { title: "Head Chef", ic: "chef", desc: "Decides what's for dinner. Overrules everyone, mostly with garlic." },
-  { title: "Chief Stirring Officer", ic: "pot", desc: "Always near the pot. Never far from a wooden spoon." },
   { title: "Supply Runner", ic: "basket", desc: "Knows every aisle. Comes back with the wrong brand, but with love." },
-  { title: "Chief Procurement Officer", ic: "tag", desc: "Negotiates with the supermarket. Loses to the special offers." },
-  { title: "Kitchen Captain", ic: "cap", desc: "Shops, cooks and tidies up. Please check they've eaten." },
   { title: "Full Stack Cook", ic: "stack", desc: "Front of house, back of house, and the washing up." },
-  { title: "Chief Chopping Officer", ic: "onion", desc: "Onions fear them. Uniform pieces optional, enthusiasm not." },
   { title: "Knife Hand", ic: "knife", desc: "Quick, tidy, and slightly terrifying near a courgette." },
-  { title: "Pantry Marshal", ic: "shield", desc: "Keeps order on the shelves. Knows exactly where the cumin lives." },
-  { title: "Keeper of the Fridge", ic: "fridge", desc: "Guardian of the leftovers. Nothing expires on their watch." },
+  { title: "Pantry Marshal", ic: "shield", desc: "Keeps order on the shelves and the fridge. Knows exactly where the cumin lives." },
+  { title: "Sink General", ic: "drop", desc: "Commands the washing up. Has never lost a sponge in battle." },
 ];
 
 const RECIPES = [
@@ -88,7 +85,7 @@ const initial = () => ({
   persona: "sam", recipes: false, down: false, expireNext: false,
   pantry: freshPantry(), sheet: null, toast: null,
   members: ["arjan", "sam"], invites: [{ name: "Priya", days: 6 }],
-  roles: { arjan: { title: "Pantry Marshal", ic: "shield", desc: "Keeps order on the shelves. Knows exactly where the cumin lives." }, sam: null },
+  roles: { arjan: { title: "Pantry Marshal", ic: "shield", desc: "Keeps order on the shelves and the fridge. Knows exactly where the cumin lives." }, sam: null },
   aiTab: "ChatGPT", aiActive: true, bannerGot: false, pending: null, joined: false,
   /* pantry view */
   sort: "name", sortOpen: false, recentOnly: false, areaTab: "All", collapsed: {}, search: "", searchOpen: false, draft: { days: null },
