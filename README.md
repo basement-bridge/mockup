@@ -31,6 +31,14 @@ The side panel (Controls button on a phone) switches who you are (owner or membe
 - Avatar menu: household, role, AI assistant link
 - Platform down (saved list, writes "temporarily unavailable"), sign-in ended mid-save, account not in a household
 
+## Item detail (performance, DESIGN.md section 6)
+
+Read first, tap to edit per field: every field production edits is a plain row (name and emoji, quantity, level, location, spot, category, use by, single use, minimum). Tapping a row opens its editor under it and every change autosaves with a short Saved line. There is no Save button. A failed save (platform down, or a bad value such as an empty name or a past date) shows an error on that field with Try again. Mark as used up opens a confirm (with a guard line when two or more items were used up in the last 5 minutes) and ends in an Undo toast; the tick on the pantry list uses the same Undo.
+
+- Default path (opening the screen): only the read rows, built from state already in memory. No editor markup, no option lists, no extra requests.
+- Deferred to the first tap of a field: that field's editor and its data, in `flows/household/fields/` (`name.js` has the emoji set, `amounts.js` the unit list, `place.js` the spots per location, `category.js`, `useby.js` the quick pills and date picker, `flags.js`). One file is fetched once, on the first tap of one of its rows, then cached. The date input is built only when Pick date is tapped. The used-up confirm is built only when opened.
+- Why this split: the read rows are what the job needs on arrival (look, glance, leave). Editors are needed by a minority of visits, and each is small, so a first tap costs one tiny fetch. Not done yet: prefetching a file on hover or focus of its row.
+
 ## Open decisions this prototype assumes
 
 - The word "Owner" is never shown, but one person still looks after the plan (billing). Only they can buy Recipes.

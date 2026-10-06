@@ -12,6 +12,7 @@ const I = {
   tick: ico('<path d="M5 12.5l4.5 4.5L19 7.5"/>'),
   chev: ico('<path d="M9 6l6 6-6 6"/>'),
   down: ico('<path d="M6 9l6 6 6-6"/>'),
+  alert: (s) => ico('<circle cx="12" cy="12" r="9"/><path d="M12 7.500v5M12 16v.5"/>', s),
   cart: ico('<circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M3 4h2.5l2.2 10.2a1 1 0 0 0 1 .8h8.8a1 1 0 0 0 1-.8L20 8H6.2"/>'),
   list: ico('<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/>'),
   up: (s) => ico('<path d="M12 20V5M5.5 11.5L12 5l6.5 6.5"/>', s).replace('stroke-width="1.8"', 'stroke-width="3"'),
@@ -92,28 +93,29 @@ const SORTS = [["name", "Name A to Z"], ["area", "Area"], ["spot", "Spot"], ["am
 
 /* n and unit are stored separately so "use one" and the stepper can work on counts */
 const freshPantry = () => [
-  { id: "butter", key: "butter", emoji: "🧈", name: "Butter", n: 250, unit: "g", area: "Fridge", spot: "Door", cat: "Dairy and eggs", days: null, upd: 1, recent: false, by: "Arjan" },
-  { id: "carrots", key: "carrots", emoji: "🥕", name: "Carrots", n: 1, unit: "bag", area: "Fridge", spot: "Crisper", cat: "Vegetables", days: null, upd: 2, recent: false, by: "Arjan" },
-  { id: "cheddar", key: "cheese", emoji: "", name: "Cheddar", n: 200, unit: "g", area: "Fridge", spot: "Top shelf", cat: "Dairy and eggs", days: null, upd: 3, recent: false, by: "Arjan" },
-  { id: "eggs", key: "eggs", emoji: "🥚", name: "Eggs", n: 12, unit: "", area: "Fridge", spot: "Door", cat: "Dairy and eggs", days: null, upd: 9, recent: true, by: "Arjan" },
-  { id: "milk", key: "milk", emoji: "🥛", name: "Milk", n: 1, unit: "L", area: "Fridge", spot: "Door", cat: "Dairy and eggs", days: 0, upd: 5, recent: false, low: true, by: "Arjan" },
-  { id: "paneer", key: "paneer", emoji: "", name: "Paneer", n: 50, unit: "g", area: "Fridge", spot: "Top shelf", cat: "Dairy and eggs", days: 3, upd: 6, recent: false, low: true, by: "Arjan" },
-  { id: "spinach", key: "spinach", emoji: "🥬", name: "Spinach", n: 50, unit: "g", area: "Fridge", spot: "Crisper", cat: "Vegetables", days: 1, upd: 10, recent: true, low: true, by: "Arjan" },
-  { id: "yoghurt", key: "yoghurt", emoji: "", name: "Greek yoghurt", n: 500, unit: "g", area: "Fridge", spot: "Top shelf", cat: "Dairy and eggs", days: 7, upd: 4, recent: false, by: "Arjan" },
-  { id: "rice", key: "rice", emoji: "🍚", name: "Basmati rice", n: 5, unit: "kg", area: "Pantry", spot: "Bottom shelf", cat: "Dry goods", days: null, upd: 1, recent: false, by: "Arjan" },
-  { id: "brownrice", key: "brownrice", emoji: "🍚", name: "Brown rice", n: 1, unit: "kg", area: "Pantry", spot: "Bottom shelf", cat: "Dry goods", days: null, upd: 2, recent: false, by: "Arjan" },
-  { id: "jasmine", key: "jasmine", emoji: "🍚", name: "Jasmine rice", n: 1, unit: "kg", area: "Pantry", spot: "Bottom shelf", cat: "Dry goods", days: null, upd: 2, recent: false, by: "Arjan" },
-  { id: "tomatoes", key: "tomatoes", emoji: "🥫", name: "Chopped tomatoes", n: 4, unit: "tin", area: "Pantry", spot: "Top shelf", cat: "Cans", days: null, upd: 2, recent: false, by: "Arjan" },
-  { id: "onion", key: "onion", emoji: "🧅", name: "Onions", n: 6, unit: "", area: "Pantry", spot: "Baskets", cat: "Vegetables", days: null, upd: 3, recent: false, by: "Arjan" },
-  { id: "garam", key: "garam", emoji: "", name: "Garam masala", n: 1, unit: "jar", area: "Pantry", spot: "Spice rack", cat: "Seasoning", days: null, upd: 2, recent: false, low: true, by: "Arjan" },
-  { id: "choc", key: "choc", emoji: "🍫", name: "Hazelnut chocolates", n: 1, unit: "box", area: "Pantry", spot: "Top shelf", cat: "Snacks", days: 12, upd: 8, recent: true, by: "Arjan" },
-  { id: "peas", key: "peas", emoji: "", name: "Frozen peas", n: 1, unit: "bag", area: "Freezer", spot: "Top drawer", cat: "Frozen", days: null, upd: 4, recent: false, by: "Arjan" },
+  { id: "butter", key: "butter", emoji: "🧈", name: "Butter", n: 250, unit: "g", area: "Fridge", spot: "Door", cat: "Dairy and eggs", days: null, upd: 1, recent: false, by: "Arjan", single: false, min: 0, est: true },
+  { id: "carrots", key: "carrots", emoji: "🥕", name: "Carrots", n: 1, unit: "bag", area: "Fridge", spot: "Crisper", cat: "Vegetables", days: null, upd: 2, recent: false, by: "Arjan", single: false, min: 0, est: false },
+  { id: "cheddar", key: "cheese", emoji: "", name: "Cheddar", n: 200, unit: "g", area: "Fridge", spot: "Top shelf", cat: "Dairy and eggs", days: null, upd: 3, recent: false, by: "Arjan", single: false, min: 0, est: false },
+  { id: "eggs", key: "eggs", emoji: "🥚", name: "Eggs", n: 12, unit: "", area: "Fridge", spot: "Door", cat: "Dairy and eggs", days: null, upd: 9, recent: true, by: "Arjan", single: false, min: 0, est: false },
+  { id: "milk", key: "milk", emoji: "🥛", name: "Milk", n: 1, unit: "L", area: "Fridge", spot: "Door", cat: "Dairy and eggs", days: 0, upd: 5, recent: false, low: true, by: "Arjan", single: false, min: 1, est: false },
+  { id: "paneer", key: "paneer", emoji: "", name: "Paneer", n: 50, unit: "g", area: "Fridge", spot: "Top shelf", cat: "Dairy and eggs", days: 3, upd: 6, recent: false, low: true, by: "Arjan", single: false, min: 0, est: false },
+  { id: "spinach", key: "spinach", emoji: "🥬", name: "Spinach", n: 50, unit: "g", area: "Fridge", spot: "Crisper", cat: "Vegetables", days: 1, upd: 10, recent: true, low: true, by: "Arjan", single: false, min: 0, est: false },
+  { id: "yoghurt", key: "yoghurt", emoji: "", name: "Greek yoghurt", n: 500, unit: "g", area: "Fridge", spot: "Top shelf", cat: "Dairy and eggs", days: 7, upd: 4, recent: false, by: "Arjan", single: false, min: 0, est: false },
+  { id: "rice", key: "rice", emoji: "🍚", name: "Basmati rice", n: 5, unit: "kg", area: "Pantry", spot: "Bottom shelf", cat: "Dry goods", days: null, upd: 1, recent: false, by: "Arjan", single: false, min: 0, est: false },
+  { id: "brownrice", key: "brownrice", emoji: "🍚", name: "Brown rice", n: 1, unit: "kg", area: "Pantry", spot: "Bottom shelf", cat: "Dry goods", days: null, upd: 2, recent: false, by: "Arjan", single: false, min: 0, est: false },
+  { id: "jasmine", key: "jasmine", emoji: "🍚", name: "Jasmine rice", n: 1, unit: "kg", area: "Pantry", spot: "Bottom shelf", cat: "Dry goods", days: null, upd: 2, recent: false, by: "Arjan", single: false, min: 0, est: false },
+  { id: "tomatoes", key: "tomatoes", emoji: "🥫", name: "Chopped tomatoes", n: 4, unit: "tin", area: "Pantry", spot: "Top shelf", cat: "Cans", days: null, upd: 2, recent: false, by: "Arjan", single: false, min: 0, est: false },
+  { id: "onion", key: "onion", emoji: "🧅", name: "Onions", n: 6, unit: "", area: "Pantry", spot: "Baskets", cat: "Vegetables", days: null, upd: 3, recent: false, by: "Arjan", single: false, min: 0, est: false },
+  { id: "garam", key: "garam", emoji: "", name: "Garam masala", n: 1, unit: "jar", area: "Pantry", spot: "Spice rack", cat: "Seasoning", days: null, upd: 2, recent: false, low: true, by: "Arjan", single: false, min: 0, est: false },
+  { id: "choc", key: "choc", emoji: "🍫", name: "Hazelnut chocolates", n: 1, unit: "box", area: "Pantry", spot: "Top shelf", cat: "Snacks", days: 12, upd: 8, recent: true, by: "Arjan", single: false, min: 0, est: false },
+  { id: "peas", key: "peas", emoji: "", name: "Frozen peas", n: 1, unit: "bag", area: "Freezer", spot: "Top drawer", cat: "Frozen", days: null, upd: 4, recent: false, by: "Arjan", single: true, min: 0, est: false },
 ];
 
+const noEd = () => ({ open: null, err: null, saved: null, picking: false }); /* item detail: which field editor is open, its error, its Saved line */
 const initial = () => ({
   screen: "invite", stack: [], tab: "today", param: null,
   persona: "sam", recipes: true, down: false, expireNext: false,
-  pantry: freshPantry(), sheet: null, toast: null,
+  pantry: freshPantry(), sheet: null, toast: null, ed: noEd(), usedLog: [],
   members: ["arjan", "sam"], invites: [{ name: "Priya", days: 6 }],
   roles: { arjan: { title: "Pantry Marshal", ic: "shield", desc: "Keeps order on the shelves and the fridge. Knows exactly where the cumin lives." }, sam: null },
   aiTab: "ChatGPT", aiActive: true, bannerGot: false, pending: null, joined: false,
@@ -168,7 +170,7 @@ function maybePrompt() {
 /* ---------- navigation ---------- */
 function go(screen, param = null, opts = {}) {
   if (!opts.replace) S.stack.push({ screen: S.screen, param: S.param, tab: S.tab });
-  S.screen = screen; S.param = param;
+  S.screen = screen; S.param = param; S.ed = noEd();
   if (["today", "pantry", "recipes", "shop"].includes(screen)) { S.tab = screen; S.stack = []; }
   if (screen !== "pantry") S.sel = null;
   if (screen === "today") maybePrompt();
@@ -177,9 +179,10 @@ function go(screen, param = null, opts = {}) {
 function back() {
   const p = S.stack.pop();
   if (p) { S.screen = p.screen; S.param = p.param; S.tab = p.tab; } else { S.screen = "today"; S.tab = "today"; }
-  render();
+  S.ed = noEd(); render();
 }
-function toast(msg) { S.toast = msg; render(); clearTimeout(toast.t); toast.t = setTimeout(() => { S.toast = null; render(); }, 2600); }
+let undoFn = null; /* set while a toast offers Undo */
+function toast(msg, undo) { S.toast = msg; undoFn = undo || null; render(); clearTimeout(toast.t); toast.t = setTimeout(() => { S.toast = null; undoFn = null; render(); }, undo ? 6000 : 2600); }
 
 /* ---------- advanced filters ---------- */
 const ROT = {
@@ -227,6 +230,59 @@ const bar = () => `<nav class="bar" aria-label="Main">
 const downBanner = () => S.down ? `<div class="banner warn"><b>Showing your saved list</b><span>Updated 3 minutes ago. We're reconnecting. Changes will work again shortly.</span><button class="lnk" data-act="retry">Try again</button></div>` : "";
 const shell = (inner) => header() + downBanner() + inner + bar();
 const roleChip = (who) => role(who) ? `<span class="chip rchip">${riSvg(role(who).ic, 14)}${esc(role(who).title)}</span>` : "";
+
+/* ---------- item detail ----------
+   Read first: every field is a plain row, and tapping a row opens that field's editor under it. Edits autosave (no Save button).
+   Default path (screen open): only these read rows, built from state already in memory. Nothing else is rendered or fetched.
+   Deferred to the first tap of a field: its editor (markup, option lists, emoji set, unit list, date picker) lives in fields/<file>.js,
+   fetched once on that first tap and cached. The used-up confirm is built only when opened. README: "Item detail". */
+const ITEM_FIELDS = {}; /* each fields/*.js adds { html(p), set: { op(p, value) -> patch | error text } } for its keys */
+const FIELD_FILE = { name: "name", qty: "amounts", min: "amounts", level: "flags", single: "flags", loc: "place", spot: "place", cat: "category", useby: "useby" };
+const fieldLoads = new Map();
+function loadField(k) {
+  const f = FIELD_FILE[k];
+  if (!fieldLoads.has(f)) fieldLoads.set(f, new Promise((ok, no) => { const s = document.createElement("script"); s.src = `fields/${f}.js`; s.onload = ok; s.onerror = () => { fieldLoads.delete(f); s.remove(); no(); }; document.head.append(s); }));
+  return fieldLoads.get(f);
+}
+const level = (p) => (p.n <= 0 ? "Out" : isLow(p) || (p.min && p.n <= p.min) ? "Low" : "Plenty");
+const VAL = {
+  name: (p) => esc(p.name),
+  qty: (p) => esc(fmtAmt(p)),
+  level: (p) => `<span class="chip ${level(p) === "Plenty" ? "" : "warn"}">${level(p)}</span>${p.est ? ' <span class="chip">Estimated</span>' : ""}`,
+  loc: (p) => esc(p.area),
+  spot: (p) => esc(p.spot),
+  cat: (p) => esc(p.cat),
+  useby: (p) => (p.days === null ? "Not set" : dayLabel(p.days)),
+  single: (p) => (p.single ? "Yes" : "No"),
+  min: (p) => (p.min ? esc(fmtAmt({ n: p.min, unit: p.unit })) : "Not set"),
+};
+const savedLine = () => `<p class="fstat" role="status">${I.tick}<span>Saved</span></p>`;
+const fld = (k, p, inner, label) => {
+  const open = S.ed.open === k, err = S.ed.err && S.ed.err.key === k;
+  return `<div class="fld${open ? " open" : ""}${err ? " bad" : ""}" data-fld="${k}"><button class="frow" data-act="edit" data-p="${k}" aria-expanded="${open}" ${label ? `aria-label="${esc(label)}"` : ""}>${inner}<span class="chev" aria-hidden="true">${I.chev}</span></button>${open && ITEM_FIELDS[k] ? `<div class="fedit">${ITEM_FIELDS[k].html(p)}</div>` : ""}${err ? `<p class="ferr" role="alert">${I.alert(18)}<span>${esc(S.ed.err.msg)}</span><button class="link" data-act="fretry">Try again</button></p>` : ""}${S.ed.saved === k ? savedLine() : ""}</div>`;
+};
+/* option pills shared by the editors */
+const opts = (k, op, items, cur, aria) => `<div class="opts" role="radiogroup" aria-label="${aria}">${items.map(([v, label]) => `<button class="opt${v === cur ? " on" : ""}" role="radio" aria-checked="${v === cur}" data-act="fset" data-p="${k}|${op}|${esc(v)}">${label}</button>`).join("")}</div>`;
+const stepper = (k, p, val) => `<div class="stepper"><button data-act="fset" data-p="${k}|step|-1" aria-label="Less">${I.minus}</button><b>${val}</b><button data-act="fset" data-p="${k}|step|1" aria-label="More">${I.plus}</button></div>`;
+const curItem = () => S.pantry.find((x) => x.id === S.param);
+function save(k, patch, quiet) {
+  const p = curItem(); if (!p) return;
+  if (S.down) { S.ed.err = { key: k, msg: "Not saved. We can't reach the platform.", retry: patch }; S.ed.saved = null; render(); return; }
+  Object.assign(p, patch, { upd: 200 }); S.ed.err = null; S.ed.saved = k;
+  if (quiet) { /* typed input: update in place so a click on the next control is not lost to a re-render */
+    document.querySelectorAll(`[data-fv="${k}"]`).forEach((el) => { el.innerHTML = VAL[k](p); });
+    const ttl = document.querySelector(".top .ttl"); if (ttl) ttl.textContent = p.name;
+    document.querySelectorAll(".fstat,.ferr").forEach((el) => el.remove());
+    const f = document.querySelector(`[data-fld="${k}"]`); if (f) { f.classList.remove("bad"); f.insertAdjacentHTML("beforeend", savedLine()); }
+  } else render();
+  clearTimeout(save.t); save.t = setTimeout(() => { S.ed.saved = null; document.querySelectorAll(".fstat").forEach((el) => el.remove()); }, 2200);
+}
+const recentUsed = () => S.usedLog.filter((t) => Date.now() - t < 5 * 60 * 1000).length;
+function markUsedUp(id) {
+  const at = S.pantry.findIndex((x) => x.id === id); if (at < 0) return;
+  const [item] = S.pantry.splice(at, 1); S.usedLog.push(Date.now());
+  toast(item.name + " marked as used up", () => { S.pantry.splice(at, 0, item); S.usedLog.pop(); toast(item.name + " is back in your pantry"); });
+}
 
 /* ---------- pantry ---------- */
 const sorters = {
@@ -369,14 +425,16 @@ const screens = {
     const p = S.pantry.find((x) => x.id === S.param);
     if (!p) return backHeader("Pantry", "") + `<div class="body"><p>That item is gone.</p></div>`;
     const rs = RECIPES.filter((r) => r.ings.some(([k]) => k === p.key));
-    return backHeader("Pantry", p.name) + `<div class="body">
-      <div><h1 style="font-size:2rem">${p.emoji ? p.emoji + " " : ""}${esc(p.name)}</h1><p style="margin-top:4px">Added by ${esc(p.by)}</p></div>
-      <div><span class="lbl">Quantity</span><div class="stepper" style="margin-top:8px"><button data-act="qty" data-p="${p.id}" data-d="-1" aria-label="Less" ${S.down ? "disabled" : ""}>−</button><b>${esc(fmtAmt(p))}</b><button data-act="qty" data-p="${p.id}" data-d="1" aria-label="More" ${S.down ? "disabled" : ""}>+</button></div></div>
-      <div><div class="kv"><span>Location</span><span>${esc(p.area)}</span></div><div class="kv"><span>Spot</span><span>${esc(p.spot)}</span></div><div class="kv"><span>Category</span><span>${esc(p.cat)}</span></div><div class="kv"><span>Use by</span><span>${p.days === null ? "Not set" : dayLabel(p.days)}</span></div></div>
+    const row = (k, ic, label) => fld(k, p, `<span class="ric" style="width:34px;height:34px">${riSvg(ic, 18)}</span><span class="fl">${label}</span><span class="fv" data-fv="${k}">${VAL[k](p)}</span>`);
+    return backHeader("Pantry", p.name) + downBanner() + `<div class="body">
+      <div class="flist">
+        ${fld("name", p, `<span class="ph" aria-hidden="true">${emo(p)}</span><span class="idt"><b data-fv="name">${VAL.name(p)}</b><span class="small">Added by ${esc(p.by)}</span></span>`, `Name and emoji: ${p.name}`)}
+        ${row("qty", "stack", "Quantity")}${row("level", "drop", "Level")}${row("loc", "fridge", "Location")}${row("spot", "jar", "Spot")}${row("cat", "basket", "Category")}${row("useby", "clock", "Use by")}${row("single", "spark", "Single use")}${row("min", "shield", "Minimum")}
+      </div>
       ${S.recipes && rs.length ? `<div style="display:flex;flex-direction:column;gap:10px"><span class="lbl">Cook it tonight</span>${rs.map((r) => `<button class="rc" data-go="recipe" data-p="${r.id}"><span class="ph">${r.emoji}</span><div style="flex:1"><b>${esc(r.name)}</b><p class="small">${can(r).length} of ${r.ings.length} ingredients · ${r.time} min</p></div></button>`).join("")}</div>` : ""}
       ${!S.recipes ? `<button class="card" data-go="upgrade"><b>Know what you can cook</b><p class="small">Recipes uses what's in your pantry.</p></button>` : ""}
       ${onList(p.id) ? `<p class="small">On your shopping list.</p>` : `<button class="btn ghost" data-act="shopadd" data-p="${p.id}">Add to shopping list</button>`}
-      <p class="small">Finished with it? Use the tick on the pantry list.</p></div>`;
+      <button class="btn ghost danger" data-act="usedask">${I.tick}<span>Mark as used up</span></button></div>`;
   },
 
   recipes: () => shell(`<div class="body"><h1 class="vh">Recipes</h1><p class="count">Ranked by what you already have</p>
@@ -464,6 +522,14 @@ function sheetHtml() {
     <select class="field" id="f-cat">${CATEGORIES.map((c) => `<option>${c}</option>`).join("")}</select>
     <span class="lbl">Use by</span><div class="pillrow">${[[null, "Not set"], [3, "+3 days"], [5, "+5 days"], [7, "+1 week"]].map(([d, l]) => `<button class="pill ${S.draft.days === d ? "on" : ""}" data-act="useby" data-p="${d}">${l}</button>`).join("")}</div>
     <button class="btn" data-act="additem">Save</button>`);
+  if (sh === "usedup") {
+    const p = curItem(); if (!p) return "";
+    const n = recentUsed(), err = S.ed.err && S.ed.err.key === "used";
+    return wrap(`<h2>${esc(p.name)} is all gone?</h2>
+      ${n >= 2 ? `<p class="guard" role="alert">${I.alert(20)}<span>You've used up ${n} items in the last 5 minutes. Is this one really finished?</span></p>` : ""}
+      ${err ? `<p class="ferr" role="alert">${I.alert(18)}<span>${esc(S.ed.err.msg)}</span></p>` : ""}
+      <button class="btn" data-act="usedconfirm">${err ? "Try again" : "Yes, used up"}</button><button class="btn ghost" data-act="closesheet">Keep it</button>`, true);
+  }
   if (sh === "invite") return wrap(`<h2>Invite someone</h2><p>Send this link. They sign in with Google and join Our kitchen. Anyone in the household can send one.</p>
     <div class="field" style="display:flex;align-items:center"><span class="mono">https://kitchen.example/join/k7Q2-m9xA-0pR4</span></div>
     <button class="btn" data-act="copyinvite">Copy link</button><p class="small">Works once and expires in 7 days. It can be cancelled from Household.</p>`);
@@ -498,7 +564,7 @@ function render() {
   if (S.screen === "pantry") S.seenP = S.pantry.filter((i) => i.recent).length;
   if (S.screen === "recipes") S.seenR = RECIPES.filter((r) => r.new).length;
   const sc = screens[S.screen] || screens.today;
-  phone.innerHTML = sc() + sheetHtml() + (S.toast ? `<div class="toast">${esc(S.toast)}</div>` : "");
+  phone.innerHTML = sc() + sheetHtml() + (S.toast ? `<div class="toast" role="status"><span>${esc(S.toast)}</span>${undoFn ? '<button class="tact" data-act="undo">Undo</button>' : ""}</div>` : "");
   const nb = phone.querySelector(".body"); if (nb && top) nb.scrollTop = top;
   lastScreen = S.screen;
   const panel = document.getElementById("panel");
@@ -511,7 +577,7 @@ const refreshPanel = () => { S.panelDirty = true; };
 /* ---------- actions ---------- */
 function commitAdd() {
   const x = S.pending; if (!x) return; S.pending = null; S.sheet = null;
-  S.pantry.unshift({ id: "n" + Date.now(), key: x.name.toLowerCase().split(/[ ,]/)[0], emoji: emojiOf(x.name), name: x.name, n: x.n, unit: x.unit, area: x.area, spot: x.spot || "Anywhere", cat: x.cat, days: x.days, upd: 100 + S.pantry.length, recent: true, by: me().name });
+  S.pantry.unshift({ id: "n" + Date.now(), key: x.name.toLowerCase().split(/[ ,]/)[0], emoji: emojiOf(x.name), name: x.name, n: x.n, unit: x.unit, area: x.area, spot: x.spot || "Anywhere", cat: x.cat, days: x.days, upd: 100 + S.pantry.length, recent: true, by: me().name, single: false, min: 0, est: false });
   render(); toast("Added " + x.name);
 }
 function parseAmt(t) {
@@ -536,8 +602,27 @@ const acts = {
     if (S.down) return; const i = S.pantry.find((x) => x.id === id); if (!i) return;
     i.n -= 1; if (i.n <= 0) { S.pantry = S.pantry.filter((x) => x !== i); render(); toast(i.name + " used up"); } else { i.upd = 200; render(); }
   },
-  usedup(id) { if (S.down) return; const i = S.pantry.find((x) => x.id === id); S.pantry = S.pantry.filter((x) => x.id !== id); render(); toast((i ? i.name : "Item") + " marked as used up"); },
-  qty(id, d) { if (S.down) return; const i = S.pantry.find((x) => x.id === id); if (!i) return; const st = STEP[i.unit] || 1; i.n = Math.max(0, Math.round((i.n + Number(d) * st) * 100) / 100); i.upd = 200; render(); },
+  usedup(id) { if (S.down) return; markUsedUp(id); },
+  usedask() { S.ed = noEd(); S.sheet = "usedup"; render(); },
+  usedconfirm() {
+    if (S.down) { S.ed.err = { key: "used", msg: "Not saved. We can't reach the platform." }; render(); return; }
+    const id = S.param; S.sheet = null; back(); markUsedUp(id);
+  },
+  undo() { const f = undoFn; undoFn = null; clearTimeout(toast.t); S.toast = null; if (f) f(); },
+  edit(k) {
+    const reopen = () => { const b = document.querySelector(`[data-act=edit][data-p=${k}]`); if (b) b.focus(); };
+    if (S.ed.open === k) { S.ed = noEd(); render(); reopen(); return; }
+    loadField(k).then(() => { S.ed = { ...noEd(), open: k }; render(); reopen(); })
+      .catch(() => { S.ed = { ...noEd(), err: { key: k, msg: "Couldn't open this. Check your connection." } }; render(); });
+  },
+  fset(v, quiet) {
+    const [k, op, ...rest] = v.split("|"), p = curItem(); if (!p) return;
+    const out = ITEM_FIELDS[k].set[op](p, rest.join("|"));
+    if (typeof out === "string") { S.ed.err = { key: k, msg: out }; S.ed.saved = null; render(); } else save(k, out, quiet === true);
+    const again = [...document.querySelectorAll("[data-act=fset]")].find((el) => el.dataset.p === v); if (again && !quiet) again.focus();
+  },
+  fretry() { const e = S.ed.err; if (!e) return; if (e.retry) save(e.key, e.retry); else acts.edit(e.key); },
+  picker() { S.ed.picking = !S.ed.picking; render(); },
   cook(id) {
     if (S.down) return;
     const r = RECIPES.find((x) => x.id === id); const keys = can(r).map(([k]) => k);
@@ -614,7 +699,7 @@ document.addEventListener("click", (e) => {
   if (t.dataset.act) { if (t.disabled) return; e.stopPropagation(); (acts[t.dataset.act] || (() => {}))(t.dataset.p, t.dataset.d); return; }
   if (t.dataset.go) { S.sheet = null; return go(t.dataset.go, ["item", "recipe"].includes(t.dataset.go) ? t.dataset.p : null); }
 });
-document.addEventListener("change", (e) => { const c = e.target.dataset && e.target.dataset.ctl; if (c === "persona") { S.persona = e.target.value; refreshPanel(); render(); } if (c === "existing") { S.existing = Number(e.target.value); render(); } });
+document.addEventListener("change", (e) => { const fin = e.target.dataset && e.target.dataset.fin; if (fin) { acts.fset(fin + "|" + e.target.value, e.target.type === "text"); return; } const c = e.target.dataset && e.target.dataset.ctl; if (c === "persona") { S.persona = e.target.value; refreshPanel(); render(); } if (c === "existing") { S.existing = Number(e.target.value); render(); } });
 document.addEventListener("input", (e) => { if (e.target.id === "r-title" && S.rdraft) S.rdraft.title = e.target.value; if (e.target.id === "r-desc" && S.rdraft) S.rdraft.desc = e.target.value; if (e.target.id === "search") { S.search = e.target.value; document.getElementById("plist").innerHTML = listHtml(); } });
 /* swipe a running-low row to add it; press and hold to start picking several */
 let g = null;
