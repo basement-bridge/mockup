@@ -266,13 +266,15 @@ html,body{overscroll-behavior-y:contain}.body{overscroll-behavior-y:contain}
 .strows{display:flex;flex-direction:column;gap:8px}
 .strow{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:56px;padding:4px 6px 4px 6px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--bg)}
 .strow.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--bg))}
+.stt{padding:0 14px}.strow.on .stt{color:var(--accent)}
+.strow.drag .stt{color:var(--accent)}.strow.drag .lbl2{font-variant-numeric:tabular-nums}
 .stt{display:flex;align-items:center;gap:10px;font-weight:700;min-height:44px;flex:1;text-align:left}
 .dotc{width:30px;height:30px;border-radius:50%;border:2px solid var(--border);display:inline-flex;align-items:center;justify-content:center;flex:none}
 .dotc svg{width:16px;height:16px}
 .strow.on .dotc{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 .rot{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border-radius:var(--r-pill);background:var(--surface);border:1px solid var(--border);touch-action:none;cursor:ns-resize;font-weight:600;font-size:14px;user-select:none;-webkit-user-select:none}
 .rar{display:inline-flex;flex-direction:column;font-size:9px;line-height:9px;color:var(--muted)}.rar i{font-style:normal}
-.twoRow{display:grid;grid-auto-flow:column;grid-template-rows:repeat(2,auto);grid-auto-columns:max-content;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px 2px 6px;justify-content:start}
+.twoRow{display:grid;grid-auto-flow:column;grid-template-rows:auto;grid-auto-columns:max-content;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px 2px 6px;justify-content:start}
 .twoRow::-webkit-scrollbar{display:none}
 .mc{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px 0 10px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--bg);font-weight:600;white-space:nowrap}
 .mc .mi{width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;font-size:17px;flex:none}.mc .mi svg{width:15px;height:15px}
@@ -293,7 +295,7 @@ html,body{overscroll-behavior-y:contain}.body{overscroll-behavior-y:contain}
 .flinks{padding-right:84px}
 
 .rscroll{padding-right:0;-webkit-mask-image:linear-gradient(to right,transparent,#000 18px,#000 calc(100% - 18px),transparent);mask-image:linear-gradient(to right,transparent,#000 18px,#000 calc(100% - 18px),transparent)}
-.twoRow{grid-template-rows:repeat(2,auto);align-content:start}
+.twoRow{align-content:start}
 
 /* ribbon: one continuous strip, like Kitchie: a single surface, flat tabs, the pick filled */
 .ribbon{gap:2px;padding:.25rem;border-radius:1rem;background:var(--surface);align-items:center}
