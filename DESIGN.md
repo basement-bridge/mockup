@@ -62,6 +62,8 @@ Asset loading (icons, images, bundles) is lazy and progressive, decided in three
 
 Standard patterns this maps to: route-based code-splitting with dynamic imports (do not load the next screen until it is reached) and intent-based, interaction-triggered prefetching (hover, focus, first interaction).
 
+In the mockup the themes are the first worked example: the default path loads only the two default themes, any other theme is a separate file fetched on choice, and the picker warms the rest the first time it is engaged (`theme.js`, `themes/`).
+
 For a mockup screen, say in its notes what the default path loads and what is deferred, and why that is reasonable at this stage.
 
 **Migration TODO (do not lose):** this section lives here only while the mockup is the working copy. When the mockup is migrated into the real repos, copy it into every repo's own design doc (platform, Kitchie, Recipe). Tracked in issue #34.
