@@ -387,3 +387,9 @@ html,body{overflow-x:hidden}.phone,.body{overflow-x:hidden}.rscroll,.twoRow{over
 
 .seg2.wide{width:100%}.seg2.wide button{flex:1}
 .flip{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:56px;margin-top:12px;padding:0 18px;border-radius:var(--r-pill);border:1px solid var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--bg));color:var(--accent);font-weight:700;font-size:16px}
+
+.sr:has(.sr1){padding:0}.sr .sr1{display:flex;align-items:center;gap:12px;flex:1;min-height:52px;font:inherit;text-align:left}
+.dirb{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 12px;border-radius:var(--r-pill);font-weight:600;font-size:14px;color:var(--muted)}
+.sr.on .dirb{color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--bg))}
+.tri{font-size:12px}
+#fshow:disabled{opacity:.5;cursor:not-allowed}
