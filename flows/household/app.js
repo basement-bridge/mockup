@@ -121,7 +121,7 @@ const initial = () => ({
   members: ["arjan", "sam"], invites: [{ name: "Priya", days: 6 }],
   roles: { arjan: { title: "Pantry Marshal", ic: "shield", desc: "Keeps order on the shelves and the fridge. Knows exactly where the cumin lives." }, sam: null },
   cfg: { size: "normal", emoji: true, motion: false, spot: true, amount: true, useby: true, activity: true, compact: false }, stockChecks: true,
-  day: 1, aiDone: false, inviteDone: false, aiTab: "ChatGPT", aiActive: true, bannerGot: false, pending: null, joined: false,
+  day: 1, aiDone: false, inviteDone: false, cvOpt: "A", aiTab: "ChatGPT", aiActive: true, bannerGot: false, pending: null, joined: false,
   /* pantry view */
   rmode: "loc", order: { loc: [...AREAS], cat: [...CATEGORIES] }, fa: null, fd: null, flast: null, fTab: "filters", seenP: 0, seenR: 0, view: "name", shop: ["milk", "carrots", "butter"], slx: { milk: { by: "arjan", want: "2 litres", tick: false }, carrots: { by: "sam", want: "", tick: false }, butter: { by: "arjan", want: "", tick: false } }, wantFor: null, sel: null, areaTab: "All", collapsed: {}, search: "", searchOpen: false, draft: { days: null },
   memberWho: null, existing: 1, own: false, rdraft: null, iconPick: false,
@@ -434,7 +434,7 @@ const screens = {
     <div class="phead"><h1 class="vh">Pantry</h1><p class="count" aria-live="polite">${S.pantry.length} items</p><button class="icon addbtn" data-sheet="add" aria-label="Add an item" title="Add an item" ${S.down ? "disabled" : ""}>${I.plus}</button></div>
     ${S.searchOpen ? `<div class="searchbar"><input class="field" id="search" placeholder="Search your pantry" value="${esc(S.search)}" autocomplete="off" aria-label="Search your pantry"><button class="icon" data-act="mic" aria-label="Search by voice" title="Voice">${riSvg("mic", 22)}</button><button class="link cancel" data-act="search">Cancel</button></div>` : ""}
     ${S.fa
-      ? `<div class="cview" role="status"><span class="cvi">${riSvg("funnel", 20)}</span><div class="cvt"><b>Custom view</b><span>${fItems(S.fa).length} items${fSummary(S.fa) ? " · " + esc(fSummary(S.fa)) : ""}</span></div><button class="link" data-sheet="filters">Edit</button><button class="icon" data-act="cvclear" aria-label="Clear custom view" title="Clear">${I.x}</button></div>`
+      ? cvHtml()
       : `<div class="tools"><button class="tbtn" data-sheet="filters" aria-label="Filters">${riSvg("funnel", 18)}<span>Filters</span></button></div>
     ${ribbonHtml()}`}
     <div id="plist">${listHtml()}</div></div>
@@ -621,6 +621,21 @@ function panelHtml() {
 
 /* ---------- render ---------- */
 let lastScreen = null;
+/* Custom view strip, three layouts to choose between (prototype switch under it). Every pill is remove-only: it drops that one condition from the live view and
+   leaves the remembered last filters alone. To add something back the person opens the Filters sheet. */
+const cvPills = (f) => [
+  ...Object.keys(f.st).filter((k) => f.st[k].on).map((k) => ["st|" + k, ROT[k].label]),
+  ...f.locs.map((v) => ["loc|" + v, v]), ...f.cats.map((v) => ["cat|" + v, v]),
+  ...(f.key !== "name" || f.dir ? [["sort|", `${SORTK[f.key].label}: ${SORTK[f.key].dirs[f.dir]}`]] : []),
+];
+const cvPill = ([p, l]) => `<button class="cvp" data-act="cvrm" data-p="${esc(p)}" aria-label="Remove ${esc(l)}"><span>${esc(l)}</span><span class="cvx" aria-hidden="true">${I.x}</span></button>`;
+const cvHtml = () => {
+  const o = S.cvOpt || "A", f = S.fa, n = fItems(f).length, pills = `<div class="cvscroll" role="group" aria-label="Active filters">${cvPills(f).map(cvPill).join("")}</div>`;
+  const sw = `<div class="srow plain"><span class="small">Prototype: strip</span><div class="seg2" role="radiogroup" aria-label="Strip layout">${["A", "B", "C"].map((x) => `<button role="radio" aria-checked="${o === x}" class="${o === x ? "on" : ""}" data-act="cvopt" data-p="${x}">${x}</button>`).join("")}</div></div>`;
+  if (o === "B") return `<div class="cview col" role="status"><div class="cvtop"><span class="cvi">${riSvg("funnel", 20)}</span><div class="cvt"><b>Custom view</b><span>${n} item${n === 1 ? "" : "s"}</span></div><button class="link" data-sheet="filters">Edit</button><button class="icon" data-act="cvclear" aria-label="Clear custom view" title="Clear">${I.x}</button></div>${pills}</div>${sw}`;
+  if (o === "C") return `<div class="cview one" role="status"><button class="cvfun" data-sheet="filters" aria-label="Edit filters. ${n} item${n === 1 ? "" : "s"}">${riSvg("funnel", 18)}<b>${n}</b></button>${pills}<button class="icon" data-act="cvclear" aria-label="Clear custom view" title="Clear">${I.x}</button></div>${sw}`;
+  return `<div class="cview one" role="status"><span class="cvi">${riSvg("funnel", 20)}</span>${pills}<button class="link" data-sheet="filters">Edit</button></div><p class="small cvn">${n} item${n === 1 ? "" : "s"}</p>${sw}`;
+};
 /* Sort tab (owner chose option B, 6 October 2026): the sort keys as one row, and a single button that flips the order. */
 const sortTab = (f) => `<h3 class="fh">Sort by</h3><div class="seg2 wide" role="radiogroup" aria-label="Sort by">${Object.entries(SORTK).map(([k, v]) => `<button role="radio" aria-checked="${f.key === k}" class="${f.key === k ? "on" : ""}" data-act="fsort" data-p="${k}">${v.label}</button>`).join("")}</div><button class="flip" data-act="fdir" data-p="${f.dir ? 0 : 1}" aria-label="Order: ${SORTK[f.key].dirs[f.dir]}. Tap to flip"><span>${SORTK[f.key].dirs[f.dir]}</span><span aria-hidden="true">⇅</span></button>`;
 /* a chip row is one line when everything fits on it, and two scrolling lines only when it does not */
@@ -716,6 +731,8 @@ const acts = {
   fdir(n) { S.fd.dir = Number(n); render(); },
   fshow() { const f = S.fd; S.fa = fActive(f) ? clone(f) : null; if (S.fa) S.flast = clone(f); S.sheet = null; S.fd = null; render(); },
   cvclear() { S.fa = null; render(); },
+  cvopt(o) { S.cvOpt = o; render(); },
+  cvrm(p) { const [t, v] = p.split("|"), f = S.fa; if (!f) return; if (t === "st") f.st[v].on = false; else if (t === "loc") f.locs = f.locs.filter((x) => x !== v); else if (t === "cat") f.cats = f.cats.filter((x) => x !== v); else { f.key = "name"; f.dir = 0; } if (!fSummary(f)) S.fa = null; render(); },
   openuse() { S.areaTab = "All"; const f = blankF(); f.key = "useby"; S.fa = f; S.flast = clone(f); go("pantry"); },
   openlow() { S.areaTab = "All"; const f = blankF(); f.st.low.on = true; S.fa = f; S.flast = clone(f); go("pantry"); },
   shopadd(id) { const i = S.pantry.find((x) => x.id === id); if (!i) return; addToList(id); toast(i.name + " added to your shopping list"); },
