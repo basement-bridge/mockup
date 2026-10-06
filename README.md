@@ -68,3 +68,6 @@ Read first, tap to edit per field: every field production edits is a plain row (
 ## Look
 
 Ten themes drive every page from one token set; the five core ones are Kitchie Night, Kitchie Day, Marmalade, Blueberry and Herb Garden, and none is removed. To add a theme: one `themes/<id>.css` block plus one line in the list in `theme.js`. Two are production's palette exactly. No font files are bundled, so text falls back to system fonts.
+
+### Pantry curtain pull (first version, for feedback)
+A shallow pull-down on the Pantry header row slides the Filters and Add panel down like a vertical curtain and reveals a Search button already behind it. Tap Search to open the search bar; tap the "tap to close" count to close the curtain. A deep pull still refreshes. Mockup only, not in Kitchie.

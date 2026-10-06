@@ -431,7 +431,7 @@ const screens = {
 
   pantry: () => header() + downBanner() + `<div class="body tight">
     <div class="pull ${S.refresh ? "on" : ""}" id="pull" ${S.refresh ? 'role="status"' : 'aria-hidden="true"'} ${S.refresh ? 'style="height:64px"' : ""}>${S.refresh ? `<div class="rf">${S.refresh[1]}<span>${S.refresh[0]}</span></div>` : "<span></span>"}</div>
-    <div class="phead"><h1 class="vh">Pantry</h1><p class="count" aria-live="polite">${S.pantry.length} items</p><div class="pact">${S.fa ? "" : `<button class="tbtn" data-sheet="filters" aria-label="Filters">${riSvg("funnel", 18)}<span>Filters</span></button>`}<button class="icon addbtn" data-sheet="add" aria-label="Add an item" title="Add an item" ${S.down ? "disabled" : ""}>${I.plus}</button></div></div>
+    <div class="phead"><h1 class="vh">Pantry</h1><p class="count" aria-live="polite" ${S.curtain ? 'data-act="curtainclose" style="cursor:pointer"' : ""}>${S.pantry.length} items${S.curtain ? " · tap to close" : ""}</p><div class="pact${S.curtain ? " open" : ""}" id="pact"><button class="icon cback" data-act="curtainsearch" aria-label="Search your pantry" title="Search">${I.search}</button><div class="cfront">${S.fa ? "" : `<button class="tbtn" data-sheet="filters" aria-label="Filters">${riSvg("funnel", 18)}<span>Filters</span></button>`}<button class="icon addbtn" data-sheet="add" aria-label="Add an item" title="Add an item" ${S.down ? "disabled" : ""}>${I.plus}</button></div></div></div>
     ${S.searchOpen ? `<div class="searchbar"><input class="field" id="search" placeholder="Search your pantry" value="${esc(S.search)}" autocomplete="off" aria-label="Search your pantry"><button class="icon" data-act="mic" aria-label="Search by voice" title="Voice">${riSvg("mic", 22)}</button><button class="link cancel" data-act="search">Cancel</button></div>` : ""}
     ${S.fa
       ? cvHtml()
@@ -695,7 +695,9 @@ const acts = {
     if (!SR) { toast("Voice search isn't available in this browser"); return; }
     const r = new SR(); r.lang = "en-AU"; r.onresult = (e) => { S.search = e.results[0][0].transcript; S.searchFocus = true; render(); S.searchFocus = false; }; r.onerror = () => toast("Couldn't hear that. Try again"); r.start(); toast("Listening…");
   },
-  search() { S.searchOpen = !S.searchOpen; S.searchFocus = S.searchOpen; if (!S.searchOpen) S.search = ""; render(); S.searchFocus = false; },
+  curtainclose() { S.curtain = false; render(); },
+  curtainsearch() { S.curtain = false; acts.search(); },
+  search() { S.curtain = false; S.searchOpen = !S.searchOpen; S.searchFocus = S.searchOpen; if (!S.searchOpen) S.search = ""; render(); S.searchFocus = false; },
   useone(id) {
     if (S.down) return; const i = S.pantry.find((x) => x.id === id); if (!i) return;
     i.n -= 1; if (i.n <= 0) { S.pantry = S.pantry.filter((x) => x !== i); render(); toast(i.name + " used up"); } else { i.upd = 200; render(); }
@@ -851,24 +853,24 @@ document.addEventListener("scroll", (e) => { const sn = e.target; if (sn.id !== 
 const PULL_SHALLOW = 70, PULL_DEEP = 170; let pl = null;
 function pullStart(target, y) {
   const b = target.closest && target.closest(".body.tight"); if (!b || S.screen !== "pantry" || b.scrollTop > 0 || target.closest("input")) return;
-  pl = { y, dy: 0, b, el: b.querySelector("#pull") };
+  pl = { y, dy: 0, b, el: b.querySelector("#pull"), cf: b.querySelector("#pact .cfront") };
 }
 function pullMove(y, e) {
   if (!pl) return; const dy = y - pl.y;
-  if (dy <= 8) { if (pl.dy) { pl.dy = 0; pl.el.style.height = "0px"; } return; }
+  if (dy <= 8) { if (pl.dy) { pl.dy = 0; pl.el.style.height = "0px"; if (pl.cf) { pl.cf.style.transition = ""; pl.cf.style.transform = ""; } } return; }
   if (e && e.cancelable) e.preventDefault();
-  pl.dy = dy; pl.el.style.height = Math.min(dy * 0.5, 96) + "px";
-  pl.el.firstElementChild.textContent = dy >= PULL_DEEP ? "Let go to refresh" : dy >= PULL_SHALLOW ? "Let go to search. Pull further to refresh" : "Pull to search";
+  pl.dy = dy; if (pl.cf && !S.searchOpen) { pl.cf.style.transition = "none"; pl.cf.style.transform = `translateY(${Math.min(dy * 0.6, 52)}px)`; } else pl.el.style.height = Math.min(dy * 0.5, 96) + "px";
+  if (!(pl.cf && !S.searchOpen && dy < PULL_DEEP)) pl.el.firstElementChild.textContent = dy >= PULL_DEEP ? "Let go to refresh" : dy >= PULL_SHALLOW ? "Let go to search. Pull further to refresh" : "Pull to search";
 }
 function pullEnd() {
-  if (!pl) return; const x = pl; pl = null; x.el.style.height = "0px";
+  if (!pl) return; const x = pl; pl = null; x.el.style.height = "0px"; if (x.cf) { x.cf.style.transition = ""; x.cf.style.transform = ""; }
   if (x.dy > 8) lastGesture = Date.now();
   if (x.dy >= PULL_DEEP) {
     let n; do { n = Math.floor(Math.random() * RF.length); } while (n === lastRF); lastRF = n;
     S.refresh = RF[n]; render();
     setTimeout(() => { S.refresh = null; render(); toast("Up to date"); }, 1500);
   }
-  else if (x.dy >= PULL_SHALLOW && !S.searchOpen) acts.search();
+  else if (x.dy >= PULL_SHALLOW && !S.searchOpen) { S.curtain = true; render(); }
 }
 document.addEventListener("pointerdown", (e) => { if (e.pointerType !== "touch" && e.button === 0 && !e.target.closest("[data-swipe]")) pullStart(e.target, e.clientY); });
 document.addEventListener("pointermove", (e) => { if (e.pointerType !== "touch") pullMove(e.clientY); });
