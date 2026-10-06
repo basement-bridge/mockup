@@ -430,8 +430,8 @@ const screens = {
   },
 
   pantry: () => header() + downBanner() + `<div class="body tight">
-    <div class="pull ${S.refresh ? "on" : ""}" id="pull" ${S.refresh ? 'role="status"' : 'aria-hidden="true"'} ${S.refresh ? 'style="height:64px"' : ""}>${S.refresh ? `<div class="rf">${S.refresh[1]}<span>${S.refresh[0]}</span></div>` : "<span></span>"}</div>
-    <div class="phead"><h1 class="vh">Pantry</h1><p class="count" aria-live="polite" ${S.curtain ? 'data-act="curtainclose" style="cursor:pointer"' : ""}>${S.pantry.length} items${S.curtain ? " · tap to close" : ""}</p><div class="pact${S.curtain ? " open" : ""}" id="pact"><button class="icon cback" data-act="curtainsearch" aria-label="Search your pantry" title="Search">${I.search}</button><div class="cfront">${S.fa ? "" : `<button class="tbtn" data-sheet="filters" aria-label="Filters">${riSvg("funnel", 18)}<span>Filters</span></button>`}<button class="icon addbtn" data-sheet="add" aria-label="Add an item" title="Add an item" ${S.down ? "disabled" : ""}>${I.plus}</button></div></div></div>
+    <div class="pull" id="pull" aria-hidden="true"><span></span></div>
+    <div class="phead${S.refresh ? " refreshing" : ""}" id="phead"><h1 class="vh">Pantry</h1><div class="lgr" aria-hidden="true">Let go to refresh</div>${S.refresh ? `<div class="rf rfrow" role="status">${S.refresh[1]}<span>${S.refresh[0]}</span></div>` : ""}<p class="count" aria-live="polite" ${S.curtain ? 'data-act="curtainclose" style="cursor:pointer"' : ""}>${S.pantry.length} items${S.curtain ? " · tap to close" : ""}</p><div class="pact${S.curtain ? " open" : ""}" id="pact"><button class="icon cback" data-act="curtainsearch" aria-label="Search your pantry" title="Search">${I.search}</button><div class="cfront">${S.fa ? "" : `<button class="tbtn" data-sheet="filters" aria-label="Filters">${riSvg("funnel", 18)}<span>Filters</span></button>`}<button class="icon addbtn" data-sheet="add" aria-label="Add an item" title="Add an item" ${S.down ? "disabled" : ""}>${I.plus}</button></div></div></div>
     ${S.searchOpen ? `<div class="searchbar"><input class="field" id="search" placeholder="Search your pantry" value="${esc(S.search)}" autocomplete="off" aria-label="Search your pantry"><button class="icon" data-act="mic" aria-label="Search by voice" title="Voice">${riSvg("mic", 22)}</button><button class="link cancel" data-act="search">Cancel</button></div>` : ""}
     ${S.fa
       ? cvHtml()
@@ -623,7 +623,7 @@ let lastScreen = null;
 /* Quantity words, in the person's own language: on Save, a quantity that is exactly "amount unit" has the unit written in its standard short form (2 litres -> 2 L).
    Anything else is kept exactly as typed; nothing is forced on people. */
 const UNITS = [
-  ["mL", /^(ml|mls|millilit(?:er|re)s?)$/], ["L", /^(l|lt|ltr|ltrs|lit(?:er|re)s?)$/],
+  ["mL", /^(ml|mls|millilit(?:er|re)s?)$/], ["L", /^(l|lt|ltr|ltrs|lit(?:er|re)s?|let(?:ter|re)s?)$/],
   ["kg", /^(kg|kgs|kilos?|kilograms?|kilogrammes?)$/], ["g", /^(g|gm|gms|grams?|grammes?)$/],
   ["lb", /^(lb|lbs|pounds?)$/], ["oz", /^(oz|ounces?)$/],
 ];
@@ -856,18 +856,20 @@ function pullStart(target, y) {
   pl = { y, dy: 0, b, el: b.querySelector("#pull"), cf: b.querySelector("#pact .cfront") };
 }
 function pullMove(y, e) {
-  if (!pl) return; const dy = y - pl.y;
-  if (dy <= 8) { if (pl.dy) { pl.dy = 0; pl.el.style.height = "0px"; if (pl.cf) { pl.cf.style.transition = ""; pl.cf.style.transform = ""; } } return; }
+  if (!pl) return; const dy = y - pl.y, ph = pl.b.querySelector("#phead");
+  if (dy <= 8) { if (pl.dy) { pl.dy = 0; if (pl.cf) { pl.cf.style.transition = ""; pl.cf.style.transform = ""; } if (ph) ph.classList.remove("deep"); } return; }
   if (e && e.cancelable) e.preventDefault();
-  pl.dy = dy; if (pl.cf && !S.searchOpen) { pl.cf.style.transition = "none"; pl.cf.style.transform = `translateY(${Math.min(dy * 0.6, 52)}px)`; } else pl.el.style.height = Math.min(dy * 0.5, 96) + "px";
-  if (!(pl.cf && !S.searchOpen && dy < PULL_DEEP)) pl.el.firstElementChild.textContent = dy >= PULL_DEEP ? "Let go to refresh" : dy >= PULL_SHALLOW ? "Let go to search. Pull further to refresh" : "Pull to search";
+  pl.dy = dy;
+  if (pl.cf && !S.searchOpen) { pl.cf.style.transition = "none"; pl.cf.style.transform = `translateY(${dy >= PULL_DEEP ? "110%" : Math.min(dy * 0.6, 52) + "px"})`; }
+  /* past the point where Search is fully shown the curtain closes again and the row says Let go to refresh */
+  if (ph) ph.classList.toggle("deep", dy >= PULL_DEEP);
 }
 function pullEnd() {
-  if (!pl) return; const x = pl; pl = null; x.el.style.height = "0px"; if (x.cf) { x.cf.style.transition = ""; x.cf.style.transform = ""; }
+  if (!pl) return; const x = pl; pl = null; x.el.style.height = "0px"; const ph0 = x.b.querySelector("#phead"); if (ph0) ph0.classList.remove("deep"); if (x.cf) { x.cf.style.transition = ""; x.cf.style.transform = ""; }
   if (x.dy > 8) lastGesture = Date.now();
   if (x.dy >= PULL_DEEP) {
     let n; do { n = Math.floor(Math.random() * RF.length); } while (n === lastRF); lastRF = n;
-    S.refresh = RF[n]; render();
+    S.refresh = RF[n]; S.curtain = false; render();
     setTimeout(() => { S.refresh = null; render(); toast("Up to date"); }, 1500);
   }
   else if (x.dy >= PULL_SHALLOW && !S.searchOpen) { S.curtain = true; render(); }

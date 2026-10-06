@@ -71,3 +71,5 @@ Ten themes drive every page from one token set; the five core ones are Kitchie N
 
 ### Pantry curtain pull (first version, for feedback)
 A shallow pull-down on the Pantry header row slides the Filters and Add panel down like a vertical curtain and reveals a Search button already behind it. Tap Search to open the search bar; tap the "tap to close" count to close the curtain. A deep pull still refreshes. Mockup only, not in Kitchie.
+
+Curtain deep pull: pulling past where Search is shown closes the curtain again and the row reads "Let go to refresh". On release the playful animation plays in that same row (no separate banner) while it refreshes. Units: "letters" typed or dictated counts as litres, so "2 letters", "2 litres" and "2L" all save as "2 L".
