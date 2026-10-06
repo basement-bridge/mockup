@@ -863,7 +863,7 @@ function closeSearch() {
   setRow(row, S.refresh ? "anim" : "rest"); const l = document.getElementById("plist"); if (l) l.innerHTML = listHtml();
 }
 function pullStart(target, x, y) {
-  const b = target.closest && target.closest(".body.tight"); if (!b || S.screen !== "pantry" || S.sheet || S.refresh || b.scrollTop > 0 || target.closest("input")) return;
+  const b = target.closest && target.closest(".body.tight"); if (!b || S.screen !== "pantry" || S.sheet || S.refresh || S.searchOpen || b.scrollTop > 0 || target.closest("input")) return; /* search open: no pull at all, so a refresh can never start while it is held open */
   pl = { x, y, dy: 0, b, row: b.querySelector("#prow"), st: null };
 }
 function pullMove(x, y, e) {
@@ -889,8 +889,8 @@ function pullEnd() {
   if (x.dy >= PULL_REFRESH) {
     let n; do { n = Math.floor(Math.random() * RF.length); } while (n === lastRF); lastRF = n;
     S.refresh = RF[n]; const msg = row.querySelector("#pmsg"); msg.innerHTML = refreshHtml(S.refresh); msg.setAttribute("role", "status"); setRow(row, "anim"); row.dataset.scene = n;
-    clearTimeout(refreshTimer); refreshTimer = setTimeout(() => { refreshTimer = null; S.refresh = null; const r = document.getElementById("prow"); if (r) { setRow(r, S.searchOpen ? "search" : "rest"); delete r.dataset.scene; } toast("Up to date"); }, reducedMotion() ? REFRESH_MS_REDUCED : REFRESH_MS);
-  } else if (x.dy >= PULL_SEARCH) { if (S.searchOpen) setRow(row, "search"); else openSearch(row); }
+    clearTimeout(refreshTimer); refreshTimer = setTimeout(() => { refreshTimer = null; S.refresh = null; const r = document.getElementById("prow"); if (r) { setRow(r, "rest"); delete r.dataset.scene; } toast("Up to date"); }, reducedMotion() ? REFRESH_MS_REDUCED : REFRESH_MS);
+  } else if (x.dy >= PULL_SEARCH) openSearch(row);
   else setRow(row, rowState());
 }
 document.addEventListener("pointerdown", (e) => { if (e.pointerType !== "touch" && e.button === 0 && !e.target.closest("[data-swipe]")) pullStart(e.target, e.clientX, e.clientY); });
@@ -901,18 +901,6 @@ document.addEventListener("pointercancel", (e) => { if (e.pointerType !== "touch
 document.addEventListener("touchstart", (e) => { if (e.touches.length === 1 && !e.target.closest("[data-swipe]")) pullStart(e.target, e.touches[0].clientX, e.touches[0].clientY); else pullCancel(); }, { passive: true });
 document.addEventListener("touchmove", (e) => pullMove(e.touches[0].clientX, e.touches[0].clientY, e), { passive: false });
 document.addEventListener("touchend", pullEnd); document.addEventListener("touchcancel", pullCancel);
-/* desktop previews: a mouse or trackpad wheel scrolled up past the top of the list counts as a pull (same thresholds, released when the wheel goes quiet); "/" opens search, Escape closes it */
-let wheelDy = 0, wheelT = null;
-document.addEventListener("wheel", (e) => {
-  const b = e.target.closest && e.target.closest(".body.tight"); if (!b || S.screen !== "pantry" || S.sheet || S.refresh || e.deltaY >= 0 || (b.scrollTop > 0 && !wheelT)) return;
-  if (!pl) pullStart(e.target, 0, 0); if (!pl) return; wheelDy += -e.deltaY; e.preventDefault(); pl.y = 0; pullMove(0, wheelDy);
-  clearTimeout(wheelT); wheelT = setTimeout(() => { wheelT = null; wheelDy = 0; pullEnd(); }, 220);
-}, { passive: false });
-document.addEventListener("keydown", (e) => {
-  if (S.screen !== "pantry" || S.sheet) return;
-  if (e.key === "/" && !e.target.closest("input,textarea") && !S.refresh) { e.preventDefault(); const row = document.getElementById("prow"); if (row) { if (S.searchOpen) document.getElementById("search").focus(); else openSearch(row); } }
-  else if (e.key === "Escape" && S.searchOpen) closeSearch();
-});
 /* press and hold a group header: collapsed opens everything, open closes everything */
 let fh = null;
 document.addEventListener("pointerdown", (e) => {

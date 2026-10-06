@@ -1,6 +1,6 @@
 # Pantry top row: pull for search, pull further to refresh
 
-Status: mockup for the owner to review (7 Oct 2026). Not built in Kitchie. Source: owner's voice spec of 7 Oct 2026. Lines marked **Proposal** are choices the mockup made where the spec was silent; the owner has not approved them.
+Status: mockup for the owner to review (7 Oct 2026). Not built in Kitchie. Source: owner's voice spec and answers of 7 Oct 2026. Lines marked **Proposal** are choices the mockup made where the spec was silent; the owner has not approved them.
 
 Code: `flows/household/app.js` (search for `PULL_SEARCH`, `prow`), `flows/household/styles.css` (`.prow`).
 
@@ -26,9 +26,11 @@ Distances are finger (or pointer) travel downward from where the gesture started
 | peek | 8 to 70 px | the front layer follows the finger down by up to 22 px, nothing else changes |
 | search | 70 px or more (first threshold) | front slides down out of the row like a curtain, revealing the search bar |
 | let | 170 px or more (second threshold) | the search bar slides back up, the row reads "Let go to refresh" |
-| anim | released at 170 px or more | one refresh animation plus its text, 2400 ms (1600 ms reduced motion), then back to rest, toast "Up to date" |
+| anim | released at 170 px or more | one refresh animation plus its text, 2400 ms (1600 ms reduced motion), then back to Filters + Add, toast "Up to date" (kept, owner) |
 
-Everything above is live while the finger is down, in both directions: dragging back above 170 px brings the search bar back down, dragging back above 70 px returns the row to rest (or to search, if it was already open).
+Everything above is live while the finger is down, in both directions, within one continuous drag from rest: dragging back above 170 px brings the search bar back down, dragging back above 70 px returns the row to rest.
+
+Search and refresh are mutually exclusive (owner): a pull that starts while the search bar is open does nothing at all, so a refresh can never start while search is open. Refresh is reached only by one continuous drag from rest, passing through the search curtain.
 
 Release rules:
 - Below 70 px: nothing happens, row returns to where it was.
@@ -39,8 +41,7 @@ Slide timing: 320 ms, ease `cubic-bezier(.2,.8,.2,1)`. Reduced motion: no slide,
 
 ## Cancel and closing search
 
-- Cancel: clears the query, closes the bar (the front layer slides back up), the list shows all items again, Filters and Add return.
-- Desktop: Escape does the same. "/" opens search from anywhere on Pantry and focuses the field.
+- Only the Cancel button closes the search bar (owner). Tapping or scrolling the list does not. Cancel clears the query, the front layer slides back up, the list shows all items again, Filters and Add return.
 - The mic button uses the browser's voice recognition where available (unchanged).
 
 ## Refresh animations
@@ -63,18 +64,22 @@ The refresh is fake in the mockup. In Kitchie it ends when the real reload finis
 - The list is not scrolled to the very top when the finger goes down: no gesture, the list scrolls normally. If the list scrolls during a gesture, the gesture is dropped.
 - The first move is mostly sideways (row swipes, ribbon, chips): not a pull.
 - A second finger, a touch that starts on a swipeable row, or one that starts in the search field: no pull.
-- A refresh is already playing, or a sheet is open: no pull.
+- A refresh is already playing, a sheet is open, or the search bar is open: no pull.
+- Refresh is drag-only (owner): there is no button, key or wheel way to trigger it.
 - Both touch and mouse/pointer drag work. Touch uses touch events with `preventDefault` on the drag so the browser's own bounce or pull-to-refresh does not fire.
+
+## Desktop previews
+
+Mouse drag works like touch (pointer events, same thresholds). Nothing else is added: the wheel, "/" and Escape extras I had added were not in the earlier mockup and have been removed.
 
 ## Proposals (not from the owner)
 
-- Desktop previews: a mouse drag works like touch. **Proposal:** wheel or trackpad scroll up while at the top counts as a pull with the same px thresholds (released when the wheel is quiet for 220 ms), plus the "/" and Escape keys, so search is reachable without a gesture.
-- **Proposal:** if search was already open when a refresh is pulled, the row returns to the search bar afterwards (query kept), not to Filters + Add.
 - **Proposal:** the six scenes keep the five that already existed in the mockup and add the timer.
 - **Proposal:** thresholds 70 and 170 px were the mockup's existing values, kept as is.
 
-## Open questions
+## Resolved (owner, 7 Oct 2026)
 
-- Is there a non-gesture way to refresh for keyboard and screen-reader users? None is designed yet.
-- Should "Up to date" toast stay after the animation, or is the row settling enough?
-- Should Cancel also dismiss on tapping the list or scrolling it?
+- No non-gesture way to refresh: drag-only stays.
+- The "Up to date" toast stays after a refresh.
+- Return to search or Filters after a refresh: does not apply, search and refresh are mutually exclusive. After a refresh the row returns to Filters + Add.
+- Only Cancel closes the search bar; tapping or scrolling the list does not.
