@@ -405,3 +405,5 @@ html,body{overflow-x:hidden}.phone,.body{overflow-x:hidden}.rscroll,.twoRow{over
 .cvx{display:inline-flex;color:var(--muted)}.cvx svg{width:16px;height:16px}
 .cvfun{display:inline-flex;align-items:center;gap:6px;flex:none;min-height:44px;padding:0 12px;border-radius:var(--r-pill);background:var(--accent);color:var(--on-accent);font-weight:700}
 .cvn{margin:-.2rem 0 .5rem 4px}
+
+.pact{display:flex;align-items:center;gap:.6rem}

@@ -431,12 +431,11 @@ const screens = {
 
   pantry: () => header() + downBanner() + `<div class="body tight">
     <div class="pull ${S.refresh ? "on" : ""}" id="pull" ${S.refresh ? 'role="status"' : 'aria-hidden="true"'} ${S.refresh ? 'style="height:64px"' : ""}>${S.refresh ? `<div class="rf">${S.refresh[1]}<span>${S.refresh[0]}</span></div>` : "<span></span>"}</div>
-    <div class="phead"><h1 class="vh">Pantry</h1><p class="count" aria-live="polite">${S.pantry.length} items</p><button class="icon addbtn" data-sheet="add" aria-label="Add an item" title="Add an item" ${S.down ? "disabled" : ""}>${I.plus}</button></div>
+    <div class="phead"><h1 class="vh">Pantry</h1><p class="count" aria-live="polite">${S.pantry.length} items</p><div class="pact">${S.fa ? "" : `<button class="tbtn" data-sheet="filters" aria-label="Filters">${riSvg("funnel", 18)}<span>Filters</span></button>`}<button class="icon addbtn" data-sheet="add" aria-label="Add an item" title="Add an item" ${S.down ? "disabled" : ""}>${I.plus}</button></div></div>
     ${S.searchOpen ? `<div class="searchbar"><input class="field" id="search" placeholder="Search your pantry" value="${esc(S.search)}" autocomplete="off" aria-label="Search your pantry"><button class="icon" data-act="mic" aria-label="Search by voice" title="Voice">${riSvg("mic", 22)}</button><button class="link cancel" data-act="search">Cancel</button></div>` : ""}
     ${S.fa
       ? cvHtml()
-      : `<div class="tools"><button class="tbtn" data-sheet="filters" aria-label="Filters">${riSvg("funnel", 18)}<span>Filters</span></button></div>
-    ${ribbonHtml()}`}
+      : ribbonHtml()}
     <div id="plist">${listHtml()}</div></div>
     ${S.sel ? `<div class="selbar" role="region" aria-label="Selected items"><button class="btn" data-act="seladd">Add ${S.sel.length} to shopping list</button><button class="icon" data-act="selcancel" aria-label="Cancel selection" title="Cancel">${I.x}</button></div>` : ""}` + bar(),
 
