@@ -121,7 +121,7 @@ const initial = () => ({
   members: ["arjan", "sam"], invites: [{ name: "Priya", days: 6 }],
   roles: { arjan: { title: "Pantry Marshal", ic: "shield", desc: "Keeps order on the shelves and the fridge. Knows exactly where the cumin lives." }, sam: null },
   cfg: { size: "normal", emoji: true, motion: false, spot: true, amount: true, useby: true, activity: true, compact: false }, stockChecks: true,
-  day: 1, aiDone: false, inviteDone: false, sortOpt: "D", aiTab: "ChatGPT", aiActive: true, bannerGot: false, pending: null, joined: false,
+  day: 1, aiDone: false, inviteDone: false, aiTab: "ChatGPT", aiActive: true, bannerGot: false, pending: null, joined: false,
   /* pantry view */
   rmode: "loc", order: { loc: [...AREAS], cat: [...CATEGORIES] }, fa: null, fd: null, flast: null, fTab: "filters", seenP: 0, seenR: 0, view: "name", shop: ["milk", "carrots", "butter"], slx: { milk: { by: "arjan", want: "2 litres", tick: false }, carrots: { by: "sam", want: "", tick: false }, butter: { by: "arjan", want: "", tick: false } }, wantFor: null, sel: null, areaTab: "All", collapsed: {}, search: "", searchOpen: false, draft: { days: null },
   memberWho: null, existing: 1, own: false, rdraft: null, iconPick: false,
@@ -621,15 +621,8 @@ function panelHtml() {
 
 /* ---------- render ---------- */
 let lastScreen = null;
-/* Sort tab, four layouts (D is the owner's own description, 6 October 2026: radio rows, the active order in brackets on the right with a triangle that flips it) to choose between (DESIGN.md section 5: options, not one take-it-or-leave-it). A: pick what, then pick the order. B: what as one row, order as a single flip button. C: one flat list of every combination, one tap. */
-const sortOptSwitch = () => `<div class="srow plain"><span class="small">Prototype: layout</span><div class="seg2" role="radiogroup" aria-label="Sort layout">${["D", "A", "B", "C"].map((o) => `<button role="radio" aria-checked="${S.sortOpt === o}" class="${S.sortOpt === o ? "on" : ""}" data-act="sortopt" data-p="${o}">${o}</button>`).join("")}</div></div>`;
-const sortTab = (f) => {
-  const o = S.sortOpt || "D";
-  if (o === "D") return `<div class="sortlist" role="radiogroup" aria-label="Sort by">${Object.entries(SORTK).map(([k, v]) => { const on = f.key === k, dir = on ? f.dir : 0; return `<div class="sr ${on ? "on" : ""}"><button role="radio" aria-checked="${on}" class="sr1" data-act="fsort" data-p="${k}"><span class="rd" aria-hidden="true"></span>${v.label}</button><button class="dirb" data-act="fsortflip" data-p="${k}" aria-label="${v.label}: ${v.dirs[dir]}. Tap to change the order">(${v.dirs[dir]}) <span class="tri" aria-hidden="true">${dir ? "▼" : "▲"}</span></button></div>`; }).join("")}</div>${sortOptSwitch()}`;
-  if (o === "B") return `<h3 class="fh">Sort by</h3><div class="seg2 wide" role="radiogroup" aria-label="Sort by">${Object.entries(SORTK).map(([k, v]) => `<button role="radio" aria-checked="${f.key === k}" class="${f.key === k ? "on" : ""}" data-act="fsort" data-p="${k}">${v.label}</button>`).join("")}</div><button class="flip" data-act="fdir" data-p="${f.dir ? 0 : 1}" aria-label="Order: ${SORTK[f.key].dirs[f.dir]}. Tap to flip"><span>${SORTK[f.key].dirs[f.dir]}</span><span aria-hidden="true">⇅</span></button>${sortOptSwitch()}`;
-  if (o === "C") return `<div class="sortlist" role="radiogroup" aria-label="Sort">${Object.entries(SORTK).map(([k, v]) => v.dirs.map((l, n) => { const on = f.key === k && f.dir === n; return `<button role="radio" aria-checked="${on}" class="sr ${on ? "on" : ""}" data-act="fsortdir" data-p="${k}|${n}"><span class="rd" aria-hidden="true"></span><span>${v.label}</span><span class="small" style="margin-left:auto">${l}</span></button>`; }).join("")).join("")}</div>${sortOptSwitch()}`;
-  return `<h3 class="fh">Sort by</h3><div class="sortlist" role="radiogroup" aria-label="Sort by">${Object.entries(SORTK).map(([k, v]) => `<button role="radio" aria-checked="${f.key === k}" class="sr ${f.key === k ? "on" : ""}" data-act="fsort" data-p="${k}"><span class="rd" aria-hidden="true"></span>${v.label}</button>`).join("")}</div><h3 class="fh">Order</h3><div class="ftabs sm" role="radiogroup" aria-label="Order">${SORTK[f.key].dirs.map((l, n) => `<button role="radio" aria-checked="${f.dir === n}" class="${f.dir === n ? "on" : ""}" data-act="fdir" data-p="${n}">${l}</button>`).join("")}</div>` + sortOptSwitch();
-};
+/* Sort tab (owner chose option B, 6 October 2026): the sort keys as one row, and a single button that flips the order. */
+const sortTab = (f) => `<h3 class="fh">Sort by</h3><div class="seg2 wide" role="radiogroup" aria-label="Sort by">${Object.entries(SORTK).map(([k, v]) => `<button role="radio" aria-checked="${f.key === k}" class="${f.key === k ? "on" : ""}" data-act="fsort" data-p="${k}">${v.label}</button>`).join("")}</div><button class="flip" data-act="fdir" data-p="${f.dir ? 0 : 1}" aria-label="Order: ${SORTK[f.key].dirs[f.dir]}. Tap to flip"><span>${SORTK[f.key].dirs[f.dir]}</span><span aria-hidden="true">⇅</span></button>`;
 /* a chip row is one line when everything fits on it, and two scrolling lines only when it does not */
 function fitRows() { document.querySelectorAll(".twoRow").forEach((g) => { g.style.gridTemplateRows = "auto"; if (g.scrollWidth > g.clientWidth + 1) g.style.gridTemplateRows = "repeat(2,auto)"; }); }
 function render() {
@@ -721,9 +714,6 @@ const acts = {
   fuselast() { if (S.flast) { S.fd = clone(S.flast); render(); } },
   fsort(k) { S.fd.key = k; S.fd.dir = 0; render(); },
   fdir(n) { S.fd.dir = Number(n); render(); },
-  fsortdir(p) { const [k, n] = p.split("|"); S.fd.key = k; S.fd.dir = Number(n); render(); },
-  sortopt(o) { S.sortOpt = o; render(); },
-  fsortflip(k) { if (S.fd.key === k) S.fd.dir = S.fd.dir ? 0 : 1; else { S.fd.key = k; S.fd.dir = 0; } render(); },
   fshow() { const f = S.fd; S.fa = fActive(f) ? clone(f) : null; if (S.fa) S.flast = clone(f); S.sheet = null; S.fd = null; render(); },
   cvclear() { S.fa = null; render(); },
   openuse() { S.areaTab = "All"; const f = blankF(); f.key = "useby"; S.fa = f; S.flast = clone(f); go("pantry"); },
