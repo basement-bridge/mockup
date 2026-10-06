@@ -118,6 +118,7 @@ const initial = () => ({
   pantry: freshPantry(), sheet: null, toast: null, ed: noEd(), usedLog: [],
   members: ["arjan", "sam"], invites: [{ name: "Priya", days: 6 }],
   roles: { arjan: { title: "Pantry Marshal", ic: "shield", desc: "Keeps order on the shelves and the fridge. Knows exactly where the cumin lives." }, sam: null },
+  cfg: { size: "normal", emoji: true, motion: false, spot: true, amount: true, useby: true, activity: true, compact: false }, stockChecks: true,
   aiTab: "ChatGPT", aiActive: true, bannerGot: false, pending: null, joined: false,
   /* pantry view */
   rmode: "loc", order: { loc: [...AREAS], cat: [...CATEGORIES] }, fa: null, fd: null, flast: null, fTab: "filters", seenP: 0, seenR: 0, view: "name", shop: ["milk", "carrots", "butter"], slx: { milk: { by: "arjan", want: "2 litres", tick: false }, carrots: { by: "sam", want: "", tick: false }, butter: { by: "arjan", want: "", tick: false } }, wantFor: null, sel: null, areaTab: "All", collapsed: {}, search: "", searchOpen: false, draft: { days: null },
@@ -300,8 +301,9 @@ function visibleItems() {
   return S.pantry.filter((i) => (S.areaTab === "All" || (S.rmode === "cat" ? i.cat : i.area) === S.areaTab) && (!q || i.name.toLowerCase().includes(q) || i.cat.toLowerCase().includes(q)));
 }
 function rowHtml(i) {
-  const hot = i.days !== null && i.days <= 1;
-  return `<li class="rowx"><button class="rowlink" data-go="item" data-p="${i.id}"><div class="main"><div class="name">${i.emoji ? `<span aria-hidden="true">${i.emoji}</span> ` : ""}${esc(i.name)}${i.recent ? ` <span class="cue" role="img" aria-label="Added in the last 24 hours">${I.up(17)}</span>` : ""}</div><div class="meta">${esc(i.area)} · ${esc(fmtAmt(i))} · ${esc(i.spot)} · ${esc(i.cat)}</div></div>${i.days !== null ? `<span class="due ${hot ? "hot" : ""}">${i.days >= 2 ? `Use within<br>${i.days} days` : dayLabel(i.days)}</span>` : ""}<span class="chev">${I.chev}</span></button>${reducible(i) ? `<button class="iconbtn" data-act="useone" data-p="${i.id}" aria-label="Use one of ${esc(i.name)}" title="Use one" ${S.down ? "disabled" : ""}>${I.minus}</button>` : ""}<button class="iconbtn ok2" data-act="usedup" data-p="${i.id}" aria-label="Mark ${esc(i.name)} as used up" title="Used up" ${S.down ? "disabled" : ""}>${I.tick}</button></li>`;
+  const hot = i.days !== null && i.days <= 1, c = S.cfg;
+  const meta = [i.area, c.amount ? fmtAmt(i) : null, c.spot ? i.spot : null, i.cat].filter((x) => x !== null && x !== "").map(esc).join(" · ");
+  return `<li class="rowx"><button class="rowlink" data-go="item" data-p="${i.id}"><div class="main"><div class="name">${i.emoji && c.emoji ? `<span aria-hidden="true">${i.emoji}</span> ` : ""}${esc(i.name)}${i.recent ? ` <span class="cue" role="img" aria-label="Added in the last 24 hours">${I.up(17)}</span>` : ""}</div><div class="meta">${meta}</div></div>${i.days !== null && c.useby ? `<span class="due ${hot ? "hot" : ""}">${i.days >= 2 ? `Use within<br>${i.days} days` : dayLabel(i.days)}</span>` : ""}<span class="chev">${I.chev}</span></button>${reducible(i) ? `<button class="iconbtn" data-act="useone" data-p="${i.id}" aria-label="Use one of ${esc(i.name)}" title="Use one" ${S.down ? "disabled" : ""}>${I.minus}</button>` : ""}<button class="iconbtn ok2" data-act="usedup" data-p="${i.id}" aria-label="Mark ${esc(i.name)} as used up" title="Used up" ${S.down ? "disabled" : ""}>${I.tick}</button></li>`;
 }
 /* running-low rows: swipe to add to the shopping list, press and hold to pick several */
 function lowRowHtml(i) {
@@ -468,10 +470,44 @@ const screens = {
     <div class="row"><span class="av" style="width:56px;height:56px;font-size:20px">${me().initial}</span><div><b style="font-size:20px">${esc(me().name)}</b><p class="small">${role(S.persona) ? esc(role(S.persona).title) : "Our kitchen"}</p></div></div>
     <div class="menu">
       <button data-go="household">Household <span class="chip">${S.members.length}</span></button>
+      <button data-act="proto" data-p="History">History</button>
+      <button data-go="settings">Settings</button>
+      <button data-sheet="invite">Create invite link</button>
       <button data-sheet="role">${role(S.persona) ? "Change my kitchen role" : "Pick a kitchen role"}</button>
       <button data-go="ai">AI assistant</button>
       ${pays() ? `<button data-go="${S.recipes ? "household" : "upgrade"}">Plan and billing</button>` : ""}
+      <button data-act="proto" data-p="Download CSV">Download CSV</button>
+      <button data-act="proto" data-p="JSON">JSON</button>
       <button data-act="signout" class="danger">Sign out</button></div></div>`,
+
+  /* Mirrors Kitchie's Settings page (renderSettingsPage): browser-only display settings, then the household's pages, sample items, kitchen role. */
+  settings: () => {
+    const c = S.cfg, sw = (k, l) => `<button class="srow" role="switch" aria-checked="${c[k]}" data-act="cfg" data-p="${k}"><span>${l}</span><span class="swt" aria-hidden="true"></span></button>`;
+    const left = S.pantry.filter((i) => i.starter).length;
+    return backHeader("Back", "Settings") + `<div class="body">
+      <p class="small">These stay on this device. Only your theme and the emoji setting also travel with you, so pages open in the right colours.</p>
+      <div class="card sgroup"><span class="lbl">Theme</span><div class="tgrid" role="group" aria-label="Theme">${window.themeHtml ? window.themeHtml(["kitchie", "kitchie-day", "marmalade", "blueberry", "herb"]) : ""}</div>
+        <div class="srow plain"><span>Item name size</span><div class="seg2" role="radiogroup" aria-label="Item name size">${[["small", "Small"], ["normal", "Normal"], ["large", "Large"]].map(([k, l]) => `<button role="radio" aria-checked="${c.size === k}" class="${c.size === k ? "on" : ""}" data-act="cfgsize" data-p="${k}">${l}</button>`).join("")}</div></div>
+        ${sw("emoji", "Show emoji")}${sw("motion", "Reduce motion")}${sw("spot", "Show the spot")}${sw("amount", "Show the amount")}${sw("useby", "Show the use-by date")}${sw("activity", "Show household activity")}${sw("compact", "Compact rows")}
+        <button class="btn ghost" data-act="cfgreset">Reset to defaults</button></div>
+      <div class="menu card">
+        <button data-go="stock">Stock checks <span class="chev" style="color:var(--muted)">${I.chev}</span></button>
+        <button data-go="cats">Categories <span class="chev" style="color:var(--muted)">${I.chev}</span></button>
+        <button data-sheet="role">Your kitchen role <span class="small">${role(S.persona) ? esc(role(S.persona).title) : "Optional"}</span></button></div>
+      <p class="small">Stock checks and Categories are the household's, not just this device's.</p>
+      <div><h2 style="font-size:1.1rem">Sample items</h2><p class="small" style="margin-top:4px">${left === 0 ? "No sample items are left." : `${left} sample item${left === 1 ? "" : "s"} left. They count toward nothing until you change one.`}</p>${left ? `<button class="btn ghost" data-act="proto" data-p="Clear sample items" style="margin-top:8px">Clear sample items</button>` : ""}</div>
+      <button class="btn ghost" data-act="back">Back to Kitchie</button>
+      <button data-act="signout" class="danger" style="text-align:left;min-height:48px">Sign out</button></div>`;
+  },
+
+  stock: () => backHeader("Settings", "Stock checks") + `<div class="body">
+    <p>Stock checks ask "still about right?" about an item, only when you are already looking at it. Turning them off stops every question on the web and in chat. Estimates already stored stay, so the shopping list can still use them.</p>
+    <div class="card sgroup"><button class="srow" role="switch" aria-checked="${S.stockChecks}" data-act="stocktoggle"><span>Ask me to check amounts</span><span class="swt" aria-hidden="true"></span></button></div>
+    <p class="small">Keeping it off is fine. We will check back less and less often. Some of this is the household's: only the household owner can change the shared settings.</p></div>`,
+
+  cats: () => backHeader("Settings", "Categories") + `<div class="body">
+    <p>Rename a category for every item at once. This is the household's, not just this device's.</p>
+    <div class="menu card">${S.order.cat.map((c) => `<button data-act="proto" data-p="Rename ${esc(c)}">${EM[c] || ""} ${esc(c)} <span class="small">Rename</span></button>`).join("")}</div></div>`,
 
   household: () => backHeader("Back", "Household") + `<div class="body">
     <div><h1 style="font-size:2rem">Our kitchen</h1><p style="margin-top:4px">${S.members.length} members</p></div>
@@ -587,6 +623,7 @@ function render() {
   if (S.screen === "recipes") S.seenR = RECIPES.filter((r) => r.new).length;
   const sc = screens[S.screen] || screens.today;
   phone.innerHTML = sc() + sheetHtml() + (S.toast ? `<div class="toast" role="status"><span>${esc(S.toast)}</span>${undoFn ? '<button class="tact" data-act="undo">Undo</button>' : ""}</div>` : "");
+  phone.dataset.size = S.cfg.size; phone.dataset.motion = S.cfg.motion ? "reduce" : ""; phone.classList.toggle("compact", S.cfg.compact);
   const nb = phone.querySelector(".body"); if (nb && top) nb.scrollTop = top;
   lastScreen = S.screen;
   const panel = document.getElementById("panel");
@@ -702,8 +739,13 @@ const acts = {
   pwano() { S.pwaCard = false; render(); },
   pwadone() { S.pwa.done = true; S.pwaCard = false; S.sheet = null; render(); toast("Added. See you on the home screen."); },
   usage() { S.usageMin += 30; render(); },
+  cfg(k) { S.cfg[k] = !S.cfg[k]; render(); },
+  cfgsize(v) { S.cfg.size = v; render(); },
+  cfgreset() { S.cfg = initial().cfg; render(); toast("Display settings back to defaults."); },
+  stocktoggle() { S.stockChecks = !S.stockChecks; render(); },
+  proto(l) { toast(`${l}: not in this prototype.`); },
   week() { S.week += 1; render(); },
-  signout() { const k = { persona: S.persona, recipes: S.recipes, down: S.down, own: S.own, existing: S.existing, usageMin: S.usageMin, week: S.week, pwa: S.pwa }; S = Object.assign(initial(), k); refreshPanel(); render(); },
+  signout() { const k = { cfg: S.cfg, persona: S.persona, recipes: S.recipes, down: S.down, own: S.own, existing: S.existing, usageMin: S.usageMin, week: S.week, pwa: S.pwa }; S = Object.assign(initial(), k); refreshPanel(); render(); },
   restart() { const k = { persona: S.persona, recipes: S.recipes, down: S.down, own: S.own, existing: S.existing }; S = Object.assign(initial(), k); refreshPanel(); render(); },
   reset() { S = initial(); refreshPanel(); render(); },
   askaround() { toast("No rush. The kitchen will keep."); },

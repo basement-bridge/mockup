@@ -364,3 +364,21 @@ html,body{overflow-x:hidden}.phone,.body{overflow-x:hidden}.rscroll,.twoRow{over
 .shoprow .byic{position:absolute;inset:0;display:inline-flex;align-items:center;justify-content:center;color:var(--accent);opacity:.28}
 .shoprow .byic svg{width:30px;height:30px}
 .shoprow .bi{position:relative;font-weight:800;font-size:14px;color:var(--fg)}
+
+/* Settings screen (mirrors Kitchie's Settings page) */
+.sgroup{display:flex;flex-direction:column;gap:2px}
+.sgroup .tgrid{margin:8px 0 6px}
+.srow{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:52px;width:100%;text-align:left;font-size:16px;font-weight:600;border-top:1px solid var(--border)}
+.srow.plain{padding:6px 0;flex-wrap:wrap}
+.swt{flex:none;width:48px;height:28px;border-radius:999px;background:var(--border);position:relative;transition:background .15s}
+.swt::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--surface);transition:transform .15s}
+.srow[aria-checked=true] .swt{background:var(--accent)}
+.srow[aria-checked=true] .swt::after{transform:translateX(20px)}
+.seg2{display:flex;padding:3px;border-radius:.8rem;background:var(--bg);border:1px solid var(--border)}
+.seg2 button{min-height:40px;padding:0 12px;border-radius:.65rem;font-weight:700;font-size:13px;color:var(--muted)}
+.seg2 button.on{background:var(--accent);color:var(--on-accent)}
+#phone[data-size=small] .rowx .name{font-size:15px}
+#phone[data-size=large] .rowx .name{font-size:20px}
+#phone.compact .rowx{padding-top:2px;padding-bottom:2px}
+#phone.compact .rowx .meta{display:none}
+#phone[data-motion=reduce] *{transition:none!important;animation:none!important}

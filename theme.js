@@ -31,7 +31,7 @@
   apply(cur,true);
   var sw=function(t){return '<i class="tsw" style="background:linear-gradient(135deg,'+t[2]+' 50%,'+t[3]+' 50%)"></i>'};
   window.themeWarm=warm;
-  window.themeHtml=function(){return T.map(function(t){return '<button type="button" class="tpick" data-theme-pick="'+t[0]+'" aria-pressed="'+(t[0]===cur)+'">'+sw(t)+t[1]+'</button>'}).join("")};
+  window.themeHtml=function(ids){return T.filter(function(t){return !ids||ids.indexOf(t[0])>-1}).map(function(t){return '<button type="button" class="tpick" data-theme-pick="'+t[0]+'" aria-pressed="'+(t[0]===cur)+'">'+sw(t)+t[1]+'</button>'}).join("")};
   document.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("[data-theme-pick]");if(b){set(b.dataset.themePick);apply(b.dataset.themePick)}});
   window.themeApply=function(){apply(cur)};
   document.addEventListener("DOMContentLoaded",function(){
