@@ -223,7 +223,7 @@ const fSummary = (f) => [...Object.keys(f.st).filter((k) => f.st[k].on).map((k) 
 function refreshSheet() {
   const f = S.fd; if (!f) return;
   document.querySelectorAll("[data-fchip]").forEach((el) => { const [t, v] = el.dataset.fchip.split("|"); const on = f[t].includes(v); el.classList.toggle("on", on); el.setAttribute("aria-pressed", on); el.querySelector(".mi").innerHTML = on ? I.tick : (EM[v] || ""); });
-  document.querySelectorAll(".strow").forEach((r) => { const k = r.dataset.fk, st = f.st[k]; r.classList.toggle("on", st.on); r.querySelector(".stt").setAttribute("aria-checked", st.on); const drag = ro && ro.moved && ro.k === k; r.classList.toggle("drag", !!drag); r.querySelector(".lbl2").textContent = drag ? ROT[k].opts[st.i][0] : ROT[k].label; r.querySelector(".rv").textContent = ROT[k].opts[st.i][0]; });
+  document.querySelectorAll(".strow").forEach((r) => { const k = r.dataset.fk, st = f.st[k]; r.classList.toggle("on", st.on); r.querySelector(".stt").setAttribute("aria-checked", st.on); r.querySelector(".dotc").innerHTML = st.on ? I.tick : ""; const drag = ro && ro.moved && ro.k === k; r.classList.toggle("drag", !!drag); r.querySelector(".lbl2").textContent = drag ? ROT[k].opts[st.i][0] : ROT[k].label; r.querySelector(".rv").textContent = ROT[k].opts[st.i][0]; });
   const b = document.getElementById("fshow"); if (b) { b.textContent = fShowText(f); b.disabled = fItems(f).length === 0; }
 }
 
@@ -562,7 +562,7 @@ function sheetHtml() {
   if (sh === "filters" && S.fd) {
     const f = S.fd, tab = S.fTab;
     const chips = (t, vals) => `<div class="twoRow" data-two="${t}">${vals.map((v) => { const on = f[t].includes(v); return `<button class="mc ${on ? "on" : ""}" data-act="fpick" data-p="${t}|${esc(v)}" data-fchip="${t}|${esc(v)}" aria-pressed="${on}"><span class="mi" aria-hidden="true">${on ? I.tick : EM[v] || ""}</span><span>${esc(v)}</span></button>`; }).join("")}</div>`;
-    const srow = (k) => { const st = f.st[k]; return `<div class="strow ${st.on ? "on" : ""}" data-fk="${k}"><button class="stt" data-act="fst" data-p="${k}" role="switch" aria-checked="${st.on}"><span class="lbl2">${ROT[k].label}</span></button><button class="rot" data-rot="${k}" aria-label="${ROT[k].label}: ${ROT[k].opts[st.i][0]}. Drag up or down, or tap, to change"><span class="rv">${ROT[k].opts[st.i][0]}</span><span class="rar" aria-hidden="true"><i>▴</i><i>▾</i></span></button></div>`; };
+    const srow = (k) => { const st = f.st[k]; return `<div class="strow ${st.on ? "on" : ""}" data-fk="${k}"><button class="stt" data-act="fst" data-p="${k}" role="checkbox" aria-checked="${st.on}"><span class="dotc" aria-hidden="true">${st.on ? I.tick : ""}</span><span class="lbl2">${ROT[k].label}</span></button><button class="rot" data-rot="${k}" aria-label="${ROT[k].label}: ${ROT[k].opts[st.i][0]}. Drag up or down, or tap, to change"><span class="rv">${ROT[k].opts[st.i][0]}</span><span class="rar" aria-hidden="true"><i>▴</i><i>▾</i></span></button></div>`; };
     const body = tab === "filters"
       ? `<h3 class="fh">Status</h3><div class="strows">${Object.keys(ROT).map(srow).join("")}</div><h3 class="fh">Location</h3>${chips("locs", S.order.loc)}<h3 class="fh">Category</h3>${chips("cats", S.order.cat)}`
       : sortTab(f);

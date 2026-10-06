@@ -266,7 +266,7 @@ html,body{overscroll-behavior-y:contain}.body{overscroll-behavior-y:contain}
 .strows{display:flex;flex-direction:column;gap:8px}
 .strow{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:56px;padding:4px 6px 4px 6px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--bg)}
 .strow.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--bg))}
-.stt{padding:0 14px}.strow.on .stt{color:var(--accent)}
+.stt{padding:0 8px}.strow.on .stt{color:var(--fg)}
 .strow.drag .stt{color:var(--accent)}.strow.drag .lbl2{font-variant-numeric:tabular-nums}
 .stt{display:flex;align-items:center;gap:10px;font-weight:700;min-height:44px;flex:1;text-align:left}
 .dotc{width:30px;height:30px;border-radius:50%;border:2px solid var(--border);display:inline-flex;align-items:center;justify-content:center;flex:none}
@@ -393,3 +393,8 @@ html,body{overflow-x:hidden}.phone,.body{overflow-x:hidden}.rscroll,.twoRow{over
 .sr.on .dirb{color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--bg))}
 .tri{font-size:12px}
 #fshow:disabled{opacity:.5;cursor:not-allowed}
+
+/* the rotary is plain text with its arrows, not a pill inside the pill */
+.strow .rot{background:transparent;border-color:transparent;padding:0 10px;color:var(--muted)}
+.strow.on .rot{color:var(--accent)}
+.strow .rot .rar{opacity:.8}
