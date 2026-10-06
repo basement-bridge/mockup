@@ -120,7 +120,7 @@ const initial = () => ({
   roles: { arjan: { title: "Pantry Marshal", ic: "shield", desc: "Keeps order on the shelves and the fridge. Knows exactly where the cumin lives." }, sam: null },
   aiTab: "ChatGPT", aiActive: true, bannerGot: false, pending: null, joined: false,
   /* pantry view */
-  rmode: "loc", order: { loc: [...AREAS], cat: [...CATEGORIES] }, fa: null, fd: null, flast: null, fTab: "filters", seenP: 0, seenR: 0, view: "name", shop: [], sel: null, areaTab: "All", collapsed: {}, search: "", searchOpen: false, draft: { days: null },
+  rmode: "loc", order: { loc: [...AREAS], cat: [...CATEGORIES] }, fa: null, fd: null, flast: null, fTab: "filters", seenP: 0, seenR: 0, view: "name", shop: ["milk", "carrots", "butter"], slx: { milk: { by: "arjan", want: "2 litres", tick: false }, carrots: { by: "sam", want: "", tick: false }, butter: { by: "arjan", want: "", tick: false } }, wantFor: null, sel: null, areaTab: "All", collapsed: {}, search: "", searchOpen: false, draft: { days: null },
   memberWho: null, existing: 1, own: false, rdraft: null, iconPick: false,
   /* install prompt: nothing until 1 hour of use, then 1, 2, 1 across three weeks, then never */
   usageMin: 0, week: 0, pwa: { startWeek: null, shown: {}, done: false }, pwaCard: false,
@@ -137,6 +137,12 @@ const outDays = (i) => OUT[i.id] ?? 30;
 const agoH = (i) => (i.recent ? 26 - i.upd * 2 : 30 + (10 - i.upd) * 24);
 const isLow = (i) => outDays(i) <= 7;
 const onList = (id) => S.shop.includes(id);
+const sx = (id) => S.slx[id] || (S.slx[id] = { by: S.persona, want: "", tick: false });
+const initials = (who) => { const w = (PEOPLE[who] ? PEOPLE[who].name : who).trim().split(/\s+/); return (w.length > 1 ? w[0][0] + w[w.length - 1][0] : w[0][0]).toUpperCase(); };
+const addToList = (id) => { if (!onList(id)) { S.shop.push(id); S.slx[id] = { by: S.persona, want: "", tick: false }; } };
+/* five hand-drawn scribbles; one is picked per item from its id, so a ticked list never looks stamped out */
+const SCRIBBLES = ["M2 8 C20 3 40 11 60 5 S90 9 98 4", "M2 5 L98 9 M4 9 L96 4 M2 7 L98 6", "M1 7 C15 2 25 12 40 6 S70 2 99 8", "M2 4 C30 10 50 2 98 7 M3 9 C40 3 70 11 97 5", "M2 6 L10 3 L18 9 L28 3 L38 9 L50 3 L62 9 L74 3 L86 9 L98 5"];
+const scrib = (id) => { let h = 0; for (const c of id) h = (h * 31 + c.charCodeAt(0)) >>> 0; return SCRIBBLES[h % SCRIBBLES.length]; };
 const emo = (i) => i.emoji || emojiOf(i.name) || "🍽️";
 const lowText = (i) => `${fmtAmt(i)} left`;
 const greeting = () => { const h = new Date().getHours(); return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening"; };
@@ -302,6 +308,14 @@ function lowRowHtml(i) {
   const picked = S.sel && S.sel.includes(i.id);
   return `<li class="rowx swr ${picked ? "sel" : ""}" data-swipe="${i.id}"><div class="swbg" aria-hidden="true"><span>Add to list</span>${riSvg("cart", 20)}</div><div class="swfg"><button class="rowlink" data-act="rowtap" data-p="${i.id}" ${picked ? 'aria-pressed="true"' : ""}>${S.sel ? `<span class="chk" aria-hidden="true">${picked ? I.tick : ""}</span>` : ""}<div class="main"><div class="name">${i.emoji ? `<span aria-hidden="true">${i.emoji}</span> ` : ""}${esc(i.name)}</div><div class="meta">${esc(lowText(i))} · ${esc(i.spot)}</div></div>${onList(i.id) ? '<span class="chip">On your list</span>' : ""}${S.sel ? "" : `<span class="chev">${I.chev}</span>`}</button></div></li>`;
 }
+/* shopping rows: tick = in the basket (visual only), swipe right = bought now, swipe left = remove. Tap = how much, in your own words. */
+function shopRowHtml(i) {
+  const x = sx(i.id), other = x.by !== S.persona && PEOPLE[x.by];
+  const home = `${esc(i.n <= 0 ? "None" : fmtAmt(i))} left at home`;
+  return `<li class="rowx swr shoprow ${x.tick ? "inbag" : ""}" data-swipe="${i.id}" data-sw="shop"><div class="swbg two" aria-hidden="true"><span class="l">${I.tick}Bought</span><span class="r">Remove${I.x}</span></div><div class="swfg">
+    <button class="tick" data-act="shoptick" data-p="${i.id}" role="checkbox" aria-checked="${x.tick}" aria-label="In the basket: ${esc(i.name)}"><span aria-hidden="true">${x.tick ? I.tick : ""}</span></button>
+    <button class="rowlink" data-act="shopwant" data-p="${i.id}" aria-label="${esc(i.name)}. ${x.want ? "Want " + esc(x.want) + ". " : ""}${home}. Tap to set how much"><span class="em" aria-hidden="true" style="font-size:26px">${emo(i)}</span><div class="main"><div class="name"><span class="nm">${esc(i.name)}${x.tick ? `<svg class="scr" viewBox="0 0 100 12" preserveAspectRatio="none" aria-hidden="true"><path d="${scrib(i.id)}" pathLength="1"/></svg>` : ""}</span>${x.want ? ` <b class="want">${esc(x.want)}</b>` : ""}</div><div class="meta">${home}</div></div>${other ? `<span class="by" aria-label="Added by ${esc(other.name)}"><span class="avw">${role(x.by) ? `<span class="byic" aria-hidden="true">${riSvg(role(x.by).ic, 26)}</span>` : ""}<span class="bi">${initials(x.by)}</span></span></span>` : ""}</button></div></li>`;
+}
 function ribbonHtml() {
   const m = S.rmode, loc = m === "loc";
   return `<div class="ribbon ${S.rflip ? "flip" : ""}"><button class="rmode" data-act="rmode" aria-label="Showing ${loc ? "locations" : "categories"}. Switch to ${loc ? "categories" : "locations"}" title="Switch between location and category"><span class="yy">${riSvg("yy", 22)}</span><span class="cap">${loc ? "Location" : "Category"}</span></button>
@@ -404,11 +418,15 @@ const screens = {
     </div>`);
   },
 
-  shop: () => shell(`<div class="body"><h1>Shopping</h1>
-    ${S.shop.length
-      ? `<ul class="rows">${S.shop.map((id) => S.pantry.find((x) => x.id === id)).filter(Boolean).map((i) => `<li class="rowx"><div class="rowlink" style="cursor:default"><span class="em" aria-hidden="true" style="font-size:26px">${emo(i)}</span><div class="main"><div class="name">${esc(i.name)}</div><div class="meta">${esc(isLow(i) ? lowText(i) : fmtAmt(i))} at home</div></div></div><button class="iconbtn ok2" data-act="shopdone" data-p="${i.id}" aria-label="Got ${esc(i.name)}" title="Got it">${I.tick}</button></li>`).join("")}</ul>`
+  shop: () => {
+    const items = S.shop.map((id) => S.pantry.find((x) => x.id === id)).filter(Boolean);
+    const ticked = items.filter((i) => sx(i.id).tick).length;
+    return shell(`<div class="body tight"><h1 class="vh">Shopping</h1>
+    ${items.length
+      ? `<p class="hint">Tick as you drop things in the basket. Swipe right when you've bought it, left to take it off.</p><ul class="rows">${items.map(shopRowHtml).join("")}</ul>`
       : `<div class="card" style="align-items:center;text-align:center;gap:10px;padding:28px 18px"><span class="ric" style="width:64px;height:64px">${riSvg("cart", 32)}</span><b style="font-size:20px">Nothing on the list yet</b><p>Swipe a running-low item to put it here.</p><button class="btn sm" data-act="openlow">See what's running low</button></div>`}
-  </div>`),
+  </div>${ticked ? `<div class="selbar" role="region" aria-label="Basket"><button class="btn" data-act="shopfinish">Done shopping · ${ticked} in the basket</button></div>` : ""}`);
+  },
 
   pantry: () => header() + downBanner() + `<div class="body tight">
     <div class="pull ${S.refresh ? "on" : ""}" id="pull" ${S.refresh ? 'role="status"' : 'aria-hidden="true"'} ${S.refresh ? 'style="height:64px"' : ""}>${S.refresh ? `<div class="rf">${S.refresh[1]}<span>${S.refresh[0]}</span></div>` : "<span></span>"}</div>
@@ -522,6 +540,13 @@ function sheetHtml() {
     <select class="field" id="f-cat">${CATEGORIES.map((c) => `<option>${c}</option>`).join("")}</select>
     <span class="lbl">Use by</span><div class="pillrow">${[[null, "Not set"], [3, "+3 days"], [5, "+5 days"], [7, "+1 week"]].map(([d, l]) => `<button class="pill ${S.draft.days === d ? "on" : ""}" data-act="useby" data-p="${d}">${l}</button>`).join("")}</div>
     <button class="btn" data-act="additem">Save</button>`);
+  if (sh === "want" && S.wantFor) {
+    const p = S.pantry.find((q) => q.id === S.wantFor.id); if (!p) return "";
+    const buy = S.wantFor.buy;
+    return wrap(`<h2>${buy ? `How much did you buy?` : `How much ${esc(p.name)}?`}</h2><p>Your own words. One kilo, a packet, two bunches.</p>
+      <input class="field" id="wantin" value="${esc(S.wantFor.text)}" placeholder="${buy ? "For example: 1 packet" : "Optional"}" autocomplete="off" aria-label="How much">
+      <button class="btn" data-act="wantsave">${buy ? "Bought it" : "Save"}</button><button class="btn ghost" data-act="closesheet">Cancel</button>`, true);
+  }
   if (sh === "usedup") {
     const p = curItem(); if (!p) return "";
     const n = recentUsed(), err = S.ed.err && S.ed.err.key === "used";
@@ -650,12 +675,18 @@ const acts = {
   view(k) { S.view = k; S.sel = null; render(); },
   openuse() { S.view = "useby"; S.areaTab = "All"; go("pantry"); },
   openlow() { S.view = "low"; S.areaTab = "All"; go("pantry"); },
-  shopadd(id) { const i = S.pantry.find((x) => x.id === id); if (!i) return; if (!onList(id)) S.shop.push(id); toast(i.name + " added to your shopping list"); },
+  shopadd(id) { const i = S.pantry.find((x) => x.id === id); if (!i) return; addToList(id); toast(i.name + " added to your shopping list"); },
   shopdone(id) { S.shop = S.shop.filter((x) => x !== id); render(); },
+  shoptick(id) { const x = sx(id); x.tick = !x.tick; render(); },
+  shopwant(id) { const x = sx(id); S.wantFor = { id, text: x.want, buy: false }; S.sheet = "want"; render(); setTimeout(() => { const f = document.getElementById("wantin"); if (f) f.focus(); }); },
+  shoprm(id) { const i = S.pantry.find((q) => q.id === id), was = S.slx[id]; S.shop = S.shop.filter((x) => x !== id); delete S.slx[id]; toast((i ? i.name : "Item") + " taken off your list", () => { S.shop.push(id); S.slx[id] = was; render(); }); },
+  shopbuy(id) { const x = sx(id); if (!x.want.trim()) { S.wantFor = { id, text: "", buy: true }; S.sheet = "want"; render(); setTimeout(() => { const f = document.getElementById("wantin"); if (f) f.focus(); }); return; } commitBought([id]); },
+  wantsave() { const w = S.wantFor; if (!w) return; const t = (document.getElementById("wantin") || {}).value || ""; S.wantFor = null; S.sheet = null; sx(w.id).want = t.trim(); if (w.buy) { if (!t.trim()) { render(); return; } commitBought([w.id]); } else render(); },
+  shopfinish() { const ids = S.shop.filter((id) => sx(id).tick); if (ids.length) commitBought(ids); },
   rowtap(id) { if (S.sel) { S.sel = S.sel.includes(id) ? S.sel.filter((x) => x !== id) : [...S.sel, id]; if (!S.sel.length) S.sel = null; render(); } else go("item", id); },
   selstart(id) { S.sel = [id]; render(); },
   selcancel() { S.sel = null; render(); },
-  seladd() { const n = S.sel.length; S.sel.forEach((id) => { if (!onList(id)) S.shop.push(id); }); S.sel = null; toast(n + (n === 1 ? " item" : " items") + " added to your shopping list"); },
+  seladd() { const n = S.sel.length; S.sel.forEach((id) => addToList(id)); S.sel = null; toast(n + (n === 1 ? " item" : " items") + " added to your shopping list"); },
   copykitchen() { toast("Kitchen list copied"); },
   copy() { toast("Link copied"); }, copyinvite() { toast("Invite link copied"); },
   revoke(name) { S.invites = S.invites.filter((i) => i.name !== name); render(); toast("Invite cancelled"); },
@@ -683,6 +714,12 @@ const acts = {
   jump(p) { S.joined = S.joined || p !== "notmember"; S.stack = []; go(p, null, { replace: true }); },
 };
 
+/* bought: the amount goes into Pantry (the leading number in what you wrote, else 1) and the item leaves the list */
+function commitBought(ids) {
+  const names = [];
+  ids.forEach((id) => { const p = S.pantry.find((q) => q.id === id), x = sx(id); if (p) { const m = /^\s*(\d+(?:\.\d+)?)/.exec(x.want || ""); p.n = (p.n > 0 ? p.n : 0) + (m ? Number(m[1]) : 1); p.recent = true; names.push(p.name); } S.shop = S.shop.filter((q) => q !== id); delete S.slx[id]; });
+  toast(names.length === 1 ? names[0] + " is in your pantry" : names.length + " items are in your pantry");
+}
 let lastGesture = 0;
 document.addEventListener("click", (e) => {
   if (Date.now() - lastGesture < 450 && e.target.closest(".swr,.body.tight,.grouphead")) { e.stopPropagation(); return; }
@@ -706,7 +743,8 @@ let g = null;
 document.addEventListener("pointerdown", (e) => {
   const row = e.target.closest("[data-swipe]"); if (!row || e.button > 0) return;
   g = { id: row.dataset.swipe, row, fg: row.querySelector(".swfg"), x: e.clientX, y: e.clientY, dx: 0, swiping: false, long: false };
-  g.timer = setTimeout(() => { if (g && !g.swiping) { g.long = true; lastGesture = Date.now(); if (navigator.vibrate) navigator.vibrate(15); acts.selstart(g.id); } }, 480);
+  g.shop = row.dataset.sw === "shop";
+  if (!g.shop) g.timer = setTimeout(() => { if (g && !g.swiping) { g.long = true; lastGesture = Date.now(); if (navigator.vibrate) navigator.vibrate(15); acts.selstart(g.id); } }, 480);
 });
 document.addEventListener("pointermove", (e) => {
   if (!g || g.long) return;
@@ -723,7 +761,7 @@ const endGesture = () => {
   if (!g) return; clearTimeout(g.timer); const x = g; g = null;
   if (!x.swiping) return;
   lastGesture = Date.now(); x.row.classList.remove("drag");
-  if (Math.abs(x.dx) > 90) { x.fg.style.transform = `translateX(${x.dx > 0 ? 110 : -110}%)`; setTimeout(() => acts.shopadd(x.id), 160); }
+  if (Math.abs(x.dx) > 90) { x.fg.style.transform = `translateX(${x.dx > 0 ? 110 : -110}%)`; setTimeout(() => (x.shop ? (x.dx > 0 ? acts.shopbuy : acts.shoprm) : acts.shopadd)(x.id), 160); }
   else { x.fg.style.transform = ""; x.row.classList.remove("armed"); }
 };
 document.addEventListener("pointerup", endGesture); document.addEventListener("pointercancel", endGesture);

@@ -31,6 +31,9 @@ The side panel (Controls button on a phone) switches who you are (owner or membe
 - Avatar menu: household, role, AI assistant link
 - Platform down (saved list, writes "temporarily unavailable"), sign-in ended mid-save, account not in a household
 
+## Shopping (voice spec, 6 Oct)
+Its own tab, no headline (the tab says where you are). Flat list. Each row: tick box (in the basket, visual only, hand-drawn scribble, one of five picked per item), what you want in your own words (tap the row; free text, no units), "N left at home" from Pantry, and a softened role avatar with initials only when someone else added it (own items show none). Swipe right = bought now (asks for the amount only if blank), swipe left = remove (Undo toast). "Done shopping" commits every ticked item to Pantry at once. Pantry item detail keeps "Add to shopping list". Not built yet: places to buy (Costco etc.), grouping. Open: whether blank amounts should be asked in the batch path (the mockup assumes 1).
+
 ## Item detail (performance, DESIGN.md section 6)
 
 Read first, tap to edit per field: every field production edits is a plain row (name and emoji, quantity, level, location, spot, category, use by, single use, minimum). Tapping a row opens its editor under it and every change autosaves with a short Saved line. There is no Save button. A failed save (platform down, or a bad value such as an empty name or a past date) shows an error on that field with Try again. Mark as used up opens a confirm (with a guard line when two or more items were used up in the last 5 minutes) and ends in an Undo toast; the tick on the pantry list uses the same Undo.

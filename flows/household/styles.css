@@ -345,3 +345,25 @@ html,body{overflow-x:hidden}.phone,.body{overflow-x:hidden}.rscroll,.twoRow{over
 .guard{color:var(--danger);align-items:flex-start}
 .btn.ghost.danger{color:var(--danger);border-color:var(--danger);gap:8px}
 .btn.danger svg{width:20px;height:20px}
+
+/* ---- Shopping rows ---- */
+.swbg.two{justify-content:space-between}
+.swbg.two span{display:inline-flex;align-items:center;gap:8px}
+.swr:not(.rt) .swbg.two .l,.swr.rt .swbg.two .r{visibility:hidden}
+.shoprow .tick{flex:none;align-self:center;width:48px;height:56px;display:inline-flex;align-items:center;justify-content:center;margin-left:2px}
+.shoprow .tick span{width:26px;height:26px;border-radius:7px;border:2px solid var(--muted);display:inline-flex;align-items:center;justify-content:center;color:var(--on-accent)}
+.shoprow .tick[aria-checked="true"] span{background:var(--accent);border-color:var(--accent)}
+.shoprow .rowlink{align-items:center;gap:12px}
+.shoprow .name{text-transform:none}
+.shoprow .nm{position:relative;display:inline-block}
+.shoprow .want{font-weight:700;color:var(--accent);margin-left:6px;font-size:.95rem}
+.shoprow.inbag .em,.shoprow.inbag .meta,.shoprow.inbag .want{opacity:.55}
+.scr{position:absolute;left:-5%;width:110%;top:50%;height:1.15em;transform:translateY(-50%) rotate(-1.5deg);overflow:visible;pointer-events:none}
+.scr path{fill:none;stroke:var(--accent);stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke;stroke-dasharray:1;stroke-dashoffset:0;animation:scrib .35s ease-out}
+@keyframes scrib{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+@media (prefers-reduced-motion:reduce){.scr path{animation:none}}
+.shoprow .by{flex:none;display:inline-flex}
+.shoprow .by .avw{width:40px;height:40px;align-items:center;justify-content:center;border-radius:50%;background:var(--surface);border:1px solid var(--border)}
+.shoprow .byic{position:absolute;inset:0;display:inline-flex;align-items:center;justify-content:center;color:var(--accent);opacity:.28}
+.shoprow .byic svg{width:30px;height:30px}
+.shoprow .bi{position:relative;font-weight:800;font-size:14px;color:var(--fg)}
