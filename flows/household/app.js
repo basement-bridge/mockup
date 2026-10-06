@@ -297,7 +297,7 @@ const sorters = {
 };
 function visibleItems() {
   const q = S.search.trim().toLowerCase();
-  return S.pantry.filter((i) => (S.areaTab === "All" || (S.rmode === "cat" ? i.cat : i.area) === S.areaTab) && (!q || i.name.toLowerCase().includes(q) || i.cat.toLowerCase().includes(q)) && (S.view !== "low" || isLow(i)));
+  return S.pantry.filter((i) => (S.areaTab === "All" || (S.rmode === "cat" ? i.cat : i.area) === S.areaTab) && (!q || i.name.toLowerCase().includes(q) || i.cat.toLowerCase().includes(q)));
 }
 function rowHtml(i) {
   const hot = i.days !== null && i.days <= 1;
@@ -325,12 +325,13 @@ function listHtml() {
   if (S.fa) {
     const q = S.search.trim().toLowerCase();
     const k = SORTK[S.fa.key]; const items = fItems(S.fa).filter((i) => !q || i.name.toLowerCase().includes(q)).sort((a, b) => k.cmp(a, b, S.fa.dir));
-    return items.length ? `<ul class="rows">${items.map(rowHtml).join("")}</ul>` : `<p style="padding:20px 4px">Nothing matches these filters.</p>`;
+    const low = S.fa.st.low.on, onlyLow = low && !S.fa.st.soon.on && !S.fa.st.recent.on && !S.fa.locs.length && !S.fa.cats.length; /* with Running low on, rows swipe to the shopping list and press-and-hold picks several */
+    return items.length ? `${low ? `<p class="hint">${S.sel ? "Tap to pick more, then add them together." : "Swipe a row to add it to your shopping list. Press and hold to pick several."}</p>` : ""}<ul class="rows">${items.map(low ? lowRowHtml : rowHtml).join("")}</ul>` : `<p style="padding:20px 4px">${onlyLow ? "Nothing is running low. Nice." : "Nothing matches these filters."}</p>`;
   }
   const items = visibleItems().sort(S.view === "useby" ? sorters.useby : sorters.name);
   if (S.view !== "name") {
-    if (!items.length) return `<p style="padding:20px 4px">${S.view === "low" ? "Nothing is running low. Nice." : "Nothing matches."}</p>`;
-    return `${S.view === "low" ? `<p class="hint">${S.sel ? "Tap to pick more, then add them together." : "Swipe a row to add it to your shopping list. Press and hold to pick several."}</p>` : ""}<ul class="rows">${items.map(S.view === "low" ? lowRowHtml : rowHtml).join("")}</ul>`;
+    if (!items.length) return `<p style="padding:20px 4px">Nothing matches.</p>`;
+    return `<ul class="rows">${items.map(rowHtml).join("")}</ul>`;
   }
   const gk = S.rmode === "cat" ? "cat" : "area";
   const groups = S.order[S.rmode].filter((a) => items.some((i) => i[gk] === a));
@@ -434,7 +435,7 @@ const screens = {
     ${S.searchOpen ? `<div class="searchbar"><input class="field" id="search" placeholder="Search your pantry" value="${esc(S.search)}" autocomplete="off" aria-label="Search your pantry"><button class="icon" data-act="mic" aria-label="Search by voice" title="Voice">${riSvg("mic", 22)}</button><button class="link cancel" data-act="search">Cancel</button></div>` : ""}
     ${S.fa
       ? `<div class="cview" role="status"><span class="cvi">${riSvg("funnel", 20)}</span><div class="cvt"><b>Custom view</b><span>${fItems(S.fa).length} items${fSummary(S.fa) ? " · " + esc(fSummary(S.fa)) : ""}</span></div><button class="link" data-sheet="filters">Edit</button><button class="icon" data-act="cvclear" aria-label="Clear custom view" title="Clear">${I.x}</button></div>`
-      : `<div class="tools"><div class="seg3" role="radiogroup" aria-label="Show">${[["name", "A to Z"], ["useby", "Use by"], ["low", "Running low"]].map(([k, l]) => `<button role="radio" aria-checked="${S.view === k}" data-act="view" data-p="${k}" class="${S.view === k ? "on" : ""}">${l}</button>`).join("")}</div><button class="tbtn" data-sheet="filters" aria-label="Filters">${riSvg("funnel", 18)}<span>Filters</span></button></div>
+      : `<div class="tools"><div class="seg3" role="radiogroup" aria-label="Show">${[["name", "A to Z"], ["useby", "Use by"]].map(([k, l]) => `<button role="radio" aria-checked="${S.view === k}" data-act="view" data-p="${k}" class="${S.view === k ? "on" : ""}">${l}</button>`).join("")}</div><button class="tbtn" data-sheet="filters" aria-label="Filters">${riSvg("funnel", 18)}<span>Filters</span></button></div>
     ${ribbonHtml()}`}
     <div id="plist">${listHtml()}</div></div>
     ${S.sel ? `<div class="selbar" role="region" aria-label="Selected items"><button class="btn" data-act="seladd">Add ${S.sel.length} to shopping list</button><button class="icon" data-act="selcancel" aria-label="Cancel selection" title="Cancel">${I.x}</button></div>` : ""}` + bar(),
@@ -674,7 +675,7 @@ const acts = {
   cvclear() { S.fa = null; render(); },
   view(k) { S.view = k; S.sel = null; render(); },
   openuse() { S.view = "useby"; S.areaTab = "All"; go("pantry"); },
-  openlow() { S.view = "low"; S.areaTab = "All"; go("pantry"); },
+  openlow() { S.view = "name"; S.areaTab = "All"; const f = blankF(); f.st.low.on = true; S.fa = f; S.flast = clone(f); go("pantry"); },
   shopadd(id) { const i = S.pantry.find((x) => x.id === id); if (!i) return; addToList(id); toast(i.name + " added to your shopping list"); },
   shopdone(id) { S.shop = S.shop.filter((x) => x !== id); render(); },
   shoptick(id) { const x = sx(id); x.tick = !x.tick; render(); },
