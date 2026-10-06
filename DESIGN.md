@@ -46,3 +46,22 @@ Kitchie, Recipe, platform and their mockups are one product to the person using 
 - Mockups are drafts until the owner says a piece is settled.
 - **Fragments** are single items still in deliberation. **Flows** are complete or significant end-to-end parts. A settled fragment graduates into a flow. The index separates the two.
 - Open questions are written on the fragment, not buried.
+
+## 6. Performance: load only what this person needs now
+
+Owner direction, 6 October 2026. Speed is a design constraint. Every screen is designed together with what it loads. Tracked in [platform issue #34](https://github.com/basement-bridge/platform/issues/34).
+
+Asset loading (icons, images, bundles) is lazy and progressive, decided in three layers:
+
+1. **Product boundary (structural).** Platform knows which assets belong to which product (Kitchie, Recipe). Code-splitting follows those lines.
+2. **Entitlement, fine-grained.** Not only "does this household have the product" but "does this member have this feature". Check at whatever granularity a feature boundary exists, and prune assets and bundles at the same granularity. A feature the person is not entitled to inside an entitled product does not load its assets either, even if they click into it. This is our own architecture (server-known membership and entitlement decide what is fetchable), not an off-the-shelf pattern.
+3. **Interaction timing (progressive, on demand).** Within what is entitled, load on engagement, not on page load.
+   - Sign-in or sign-up does not load the ~20 role icons: most people take the default. Fetch them asynchronously only when the person engages the role picker (focus or first interaction).
+   - A second-page post-login step loads only if the person reaches it.
+   - Past the picker, the icon set is not needed again.
+
+Standard patterns this maps to: route-based code-splitting with dynamic imports (do not load the next screen until it is reached) and intent-based, interaction-triggered prefetching (hover, focus, first interaction).
+
+For a mockup screen, say in its notes what the default path loads and what is deferred, and why that is reasonable at this stage.
+
+**Migration TODO (do not lose):** this section lives here only while the mockup is the working copy. When the mockup is migrated into the real repos, copy it into every repo's own design doc (platform, Kitchie, Recipe). Tracked in issue #34.
