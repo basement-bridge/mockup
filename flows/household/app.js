@@ -34,6 +34,8 @@ const RI = {
   shield: '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9.5 10.5h5V16h-5zM10 8.5h4"/>',
   fridge: '<rect x="6" y="3" width="12" height="18" rx="2.5"/><path d="M6 10h12M9 6v2M9 13v3"/>',
   drop: '<path d="M12 3c3.5 4.5 6 7.2 6 10.2a6 6 0 0 1-12 0C6 10.200 8.500 7.500 12 3z"/><path d="M9.500 14a2.500 2.500 0 0 0 2 2.300"/>',
+  link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+  mail: '<rect x="3" y="5" width="18" height="14" rx="2.500"/><path d="M3 7l9 6 9-6"/>',
   spark: '<path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/>',
   flame: '<path d="M12 3c1 4 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3 0-6 1-9z"/>',
   fox: '<path d="M4 4l5 4h6l5-4v8c0 5-3.5 8-8 8s-8-3-8-8z"/><path d="M11 16h2"/><circle cx="9" cy="12" r=".6"/><circle cx="15" cy="12" r=".6"/>',
@@ -119,7 +121,7 @@ const initial = () => ({
   members: ["arjan", "sam"], invites: [{ name: "Priya", days: 6 }],
   roles: { arjan: { title: "Pantry Marshal", ic: "shield", desc: "Keeps order on the shelves and the fridge. Knows exactly where the cumin lives." }, sam: null },
   cfg: { size: "normal", emoji: true, motion: false, spot: true, amount: true, useby: true, activity: true, compact: false }, stockChecks: true,
-  aiTab: "ChatGPT", aiActive: true, bannerGot: false, pending: null, joined: false,
+  day: 1, aiDone: false, inviteDone: false, aiTab: "ChatGPT", aiActive: true, bannerGot: false, pending: null, joined: false,
   /* pantry view */
   rmode: "loc", order: { loc: [...AREAS], cat: [...CATEGORIES] }, fa: null, fd: null, flast: null, fTab: "filters", seenP: 0, seenR: 0, view: "name", shop: ["milk", "carrots", "butter"], slx: { milk: { by: "arjan", want: "2 litres", tick: false }, carrots: { by: "sam", want: "", tick: false }, butter: { by: "arjan", want: "", tick: false } }, wantFor: null, sel: null, areaTab: "All", collapsed: {}, search: "", searchOpen: false, draft: { days: null },
   memberWho: null, existing: 1, own: false, rdraft: null, iconPick: false,
@@ -466,19 +468,22 @@ const screens = {
       <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px"><button class="btn" data-act="cook" data-p="${r.id}" ${S.down || !have.length ? "disabled" : ""}>Cook this</button><p class="small" style="text-align:center">Cooking takes the used items out of your pantry.</p></div></div>` + bar();
   },
 
-  menu: () => backHeader("Back", "") + `<div class="body">
+  /* Profile menu, grouped by job (Look and Kitchen live in Settings; People, Connect, My data here). A "Get started" strip is timed by how long you have been a member: AI link for the first 2 days, Invite for the first 5; each drops off when done and both settle into their segments afterwards. */
+  menu: () => {
+    const strip = [];
+    if (S.day <= 2 && !S.aiDone) strip.push(["ai", "link", "Link your AI", "go"]);
+    if (S.day <= 5 && !S.inviteDone) strip.push(["invite", "mail", "Invite someone", "sheet"]);
+    const seg = (t, rows) => `<div><span class="lbl">${t}</span><div class="menu card">${rows}</div></div>`;
+    return backHeader("Back", "") + `<div class="body">
     <div class="row"><span class="av" style="width:56px;height:56px;font-size:20px">${me().initial}</span><div><b style="font-size:20px">${esc(me().name)}</b><p class="small">${role(S.persona) ? esc(role(S.persona).title) : "Our kitchen"}</p></div></div>
-    <div class="menu">
-      <button data-go="household">Household <span class="chip">${S.members.length}</span></button>
-      <button data-act="proto" data-p="History">History</button>
-      <button data-go="settings">Settings</button>
-      <button data-sheet="invite">Create invite link</button>
-      <button data-sheet="role">${role(S.persona) ? "Change my kitchen role" : "Pick a kitchen role"}</button>
-      <button data-go="ai">AI assistant</button>
-      ${pays() ? `<button data-go="${S.recipes ? "household" : "upgrade"}">Plan and billing</button>` : ""}
-      <button data-act="proto" data-p="Download CSV">Download CSV</button>
-      <button data-act="proto" data-p="JSON">JSON</button>
-      <button data-act="signout" class="danger">Sign out</button></div></div>`,
+    ${strip.length ? `<div><span class="lbl">Get started</span><div class="menu card">${strip.map(([t, ic, l, k]) => `<button data-${k === "go" ? "go" : "sheet"}="${t}"><span class="row" style="gap:10px">${riSvg(ic, 20)}${l}</span><span class="chev" style="color:var(--muted)">${I.chev}</span></button>`).join("")}</div></div>` : ""}
+    ${seg("Look and kitchen", `<button data-go="settings">Settings</button><button data-sheet="role">${role(S.persona) ? "Change my kitchen role" : "Pick a kitchen role"}</button>`)}
+    ${seg("People", `<button data-go="household">Household <span class="chip">${S.members.length}</span></button><button data-sheet="invite">Create invite link</button>${pays() ? `<button data-go="${S.recipes ? "household" : "upgrade"}">Plan and billing</button>` : ""}`)}
+    ${seg("Connect", `<button data-go="ai">AI assistant <span class="chip">${S.aiDone ? "Linked" : "Not linked"}</span></button>`)}
+    ${seg("My data", `<button data-act="proto" data-p="History">History</button><button data-act="proto" data-p="Download CSV">Download CSV</button><button data-act="proto" data-p="JSON">Download JSON</button>`)}
+    <button data-act="signout" class="danger" style="text-align:left;min-height:48px">Sign out</button>
+    <div class="srow plain"><span class="small">Prototype: member for</span><div class="seg2" role="radiogroup" aria-label="Member for">${[[1, "Day 1"], [3, "Day 3"], [6, "Day 6"]].map(([d, l]) => `<button role="radio" aria-checked="${S.day === d}" class="${S.day === d ? "on" : ""}" data-act="day" data-p="${d}">${l}</button>`).join("")}</div></div></div>`;
+  },
 
   /* Mirrors Kitchie's Settings page (renderSettingsPage): browser-only display settings, then the household's pages, sample items, kitchen role. */
   settings: () => {
@@ -486,11 +491,11 @@ const screens = {
     const left = S.pantry.filter((i) => i.starter).length;
     return backHeader("Back", "Settings") + `<div class="body">
       <p class="small">These stay on this device. Only your theme and the emoji setting also travel with you, so pages open in the right colours.</p>
-      <div class="card sgroup"><span class="lbl">Theme</span><div class="tgrid" role="group" aria-label="Theme">${window.themeHtml ? window.themeHtml(["kitchie", "kitchie-day", "marmalade", "blueberry", "herb"]) : ""}</div>
+      <span class="lbl">Look</span><div class="card sgroup"><span class="lbl">Theme</span><div class="tgrid" role="group" aria-label="Theme">${window.themeHtml ? window.themeHtml(["kitchie", "kitchie-day", "marmalade", "blueberry", "herb"]) : ""}</div>
         <div class="srow plain"><span>Item name size</span><div class="seg2" role="radiogroup" aria-label="Item name size">${[["small", "Small"], ["normal", "Normal"], ["large", "Large"]].map(([k, l]) => `<button role="radio" aria-checked="${c.size === k}" class="${c.size === k ? "on" : ""}" data-act="cfgsize" data-p="${k}">${l}</button>`).join("")}</div></div>
         ${sw("emoji", "Show emoji")}${sw("motion", "Reduce motion")}${sw("spot", "Show the spot")}${sw("amount", "Show the amount")}${sw("useby", "Show the use-by date")}${sw("activity", "Show household activity")}${sw("compact", "Compact rows")}
         <button class="btn ghost" data-act="cfgreset">Reset to defaults</button></div>
-      <div class="menu card">
+      <span class="lbl">Kitchen</span><div class="menu card">
         <button data-go="stock">Stock checks <span class="chev" style="color:var(--muted)">${I.chev}</span></button>
         <button data-go="cats">Categories <span class="chev" style="color:var(--muted)">${I.chev}</span></button>
         <button data-sheet="role">Your kitchen role <span class="small">${role(S.persona) ? esc(role(S.persona).title) : "Optional"}</span></button></div>
@@ -721,7 +726,7 @@ const acts = {
   selcancel() { S.sel = null; render(); },
   seladd() { const n = S.sel.length; S.sel.forEach((id) => addToList(id)); S.sel = null; toast(n + (n === 1 ? " item" : " items") + " added to your shopping list"); },
   copykitchen() { toast("Kitchen list copied"); },
-  copy() { toast("Link copied"); }, copyinvite() { toast("Invite link copied"); },
+  copy() { S.aiDone = true; toast("Link copied"); }, copyinvite() { S.inviteDone = true; toast("Invite link copied"); }, day(d) { S.day = +d; render(); },
   revoke(name) { S.invites = S.invites.filter((i) => i.name !== name); render(); toast("Invite cancelled"); },
   leave() { toast("You'd leave Our kitchen here"); },
   aitab(t) { S.aiTab = t; S.aiActive = true; render(); }, aitoggle() { S.aiActive = !S.aiActive; render(); },
@@ -745,7 +750,7 @@ const acts = {
   stocktoggle() { S.stockChecks = !S.stockChecks; render(); },
   proto(l) { toast(`${l}: not in this prototype.`); },
   week() { S.week += 1; render(); },
-  signout() { const k = { cfg: S.cfg, persona: S.persona, recipes: S.recipes, down: S.down, own: S.own, existing: S.existing, usageMin: S.usageMin, week: S.week, pwa: S.pwa }; S = Object.assign(initial(), k); refreshPanel(); render(); },
+  signout() { const k = { day: S.day, cfg: S.cfg, persona: S.persona, recipes: S.recipes, down: S.down, own: S.own, existing: S.existing, usageMin: S.usageMin, week: S.week, pwa: S.pwa }; S = Object.assign(initial(), k); refreshPanel(); render(); },
   restart() { const k = { persona: S.persona, recipes: S.recipes, down: S.down, own: S.own, existing: S.existing }; S = Object.assign(initial(), k); refreshPanel(); render(); },
   reset() { S = initial(); refreshPanel(); render(); },
   askaround() { toast("No rush. The kitchen will keep."); },
