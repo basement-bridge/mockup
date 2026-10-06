@@ -36,6 +36,14 @@ The side panel (Controls button on a phone) switches who you are (owner or membe
 ## Shopping (voice spec, 6 Oct)
 Its own tab, no headline (the tab says where you are). Flat list. Each row: tick box (in the basket, visual only, hand-drawn scribble, one of five picked per item), what you want in your own words (tap the row; free text, no units), "N left at home" from Pantry, and a softened role avatar with initials only when someone else added it (own items show none). Swipe right = bought now (asks for the amount only if blank), swipe left = remove (Undo toast). "Done shopping" commits every ticked item to Pantry at once. Pantry item detail keeps "Add to shopping list". Not built yet: places to buy (Costco etc.), grouping. Open: whether blank amounts should be asked in the batch path (the mockup assumes 1).
 
+## Pantry, Shopping, profile menu and Settings (performance, DESIGN.md section 6)
+
+- Default path loads: the household flow's one script and stylesheet, the two default themes, and the screen's own markup. The Pantry list renders only the rows for the current tab; the Filters sheet and Sort tab are built when opened.
+- Deferred: the other themes (fetched on choice, warmed when the picker is first engaged), the role icons (only when the role picker is opened), item field editors (first tap of a field), and Stock checks and Categories (built only when you open them from Settings).
+- Profile menu: the Get started strip is computed from the member's age and costs nothing extra; it adds no request. In the real app it would come from the member's created date already on the page.
+- Settings: every display switch is a browser-only value, so nothing is fetched to show or change them. Entitlement per setting is not modelled yet (open).
+- Why this is reasonable at this stage: it is a static mockup. The notes say what the real build must keep: no per-screen bundle for the menu or Settings, and no fetch to open them.
+
 ## Item detail (performance, DESIGN.md section 6)
 
 Read first, tap to edit per field: every field production edits is a plain row (name and emoji, quantity, level, location, spot, category, use by, single use, minimum). Tapping a row opens its editor under it and every change autosaves with a short Saved line. There is no Save button. A failed save (platform down, or a bad value such as an empty name or a past date) shows an error on that field with Try again. Mark as used up opens a confirm (with a guard line when two or more items were used up in the last 5 minutes) and ends in an Undo toast; the tick on the pantry list uses the same Undo.
