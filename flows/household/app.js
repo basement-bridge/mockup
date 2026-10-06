@@ -349,8 +349,11 @@ const RF = [
   ["Juggling veg. Don't tell the carrots", `<svg viewBox="0 0 120 80" aria-hidden="true"><circle class="rf-j j1" cx="60" cy="40" r="9"/><circle class="rf-j j2" cx="60" cy="40" r="9"/><circle class="rf-j j3" cx="60" cy="40" r="9"/><path class="rf-hand" d="M24 70c8-8 16-8 22 0M74 70c6-8 14-8 22 0"/></svg>`],
   ["Kettle's on. Obviously.", `<svg viewBox="0 0 120 80" aria-hidden="true"><g class="rf-steam"><path d="M40 28c-4-6 4-10 0-16"/><path d="M52 24c-4-6 4-10 0-16"/><path d="M64 28c-4-6 4-10 0-16"/></g><g class="rf-kettle"><path class="rf-p" d="M30 46a22 22 0 0 1 44 0v18a6 6 0 0 1-6 6H36a6 6 0 0 1-6-6z"/><path class="rf-ph" d="M74 48c14-2 18 4 14 12M30 50l-10-8"/><circle class="rf-lid" cx="52" cy="26" r="4"/></g></svg>`],
   ["Egg is feeling fragile", `<svg viewBox="0 0 120 80" aria-hidden="true"><g class="rf-egg"><path class="rf-e" d="M60 8c14 0 22 20 22 34a22 22 0 0 1-44 0C38 28 46 8 60 8z"/><circle class="rf-eye" cx="52" cy="40" r="2.5"/><circle class="rf-eye" cx="68" cy="40" r="2.5"/><path class="rf-ph" d="M54 50c4 4 8 4 12 0"/></g><path class="rf-p2" d="M22 74h76"/></svg>`],
+  ["Timer's ticking. Nearly ready", `<svg viewBox="0 0 120 80" aria-hidden="true"><path class="rf-ph" d="M52 10h16M60 10v8"/><circle class="rf-e" cx="60" cy="46" r="26"/><g class="rf-hand2"><path class="rf-ph" d="M60 46V28"/></g><circle class="rf-eye" cx="60" cy="46" r="3"/></svg>`],
 ];
 let lastRF = -1;
+const refreshHtml = (r) => `<div class="rf">${reducedMotion() ? "" : r[1]}<span>${r[0]}</span></div>`;
+const reducedMotion = () => S.cfg.motion || (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
 /* ---------- screens ---------- */
 const KITCHEN_SCENE = `<svg class="scene" viewBox="0 0 360 150" role="img" aria-label="A friendly kitchen: a pot on the stove, a plant and jars on a shelf"><g class="sh"><rect x="8" y="104" width="124" height="7" rx="3"/><rect x="236" y="112" width="116" height="7" rx="3"/><rect x="0" y="144" width="360" height="3" rx="1.5"/></g>
 <g class="plant"><path class="lf" d="M38 78c-8-8-9-18-5-24 8 3 11 14 5 24zM44 76c0-10 5-18 12-22 3 8-1 17-12 22z"/><rect class="pt" x="32" y="80" width="22" height="22" rx="4"/></g>
@@ -430,9 +433,11 @@ const screens = {
   },
 
   pantry: () => header() + downBanner() + `<div class="body tight">
-    <div class="pull ${S.refresh ? "on" : ""}" id="pull" ${S.refresh ? 'role="status"' : 'aria-hidden="true"'} ${S.refresh ? 'style="height:64px"' : ""}>${S.refresh ? `<div class="rf">${S.refresh[1]}<span>${S.refresh[0]}</span></div>` : "<span></span>"}</div>
-    <div class="phead"><h1 class="vh">Pantry</h1><p class="count" aria-live="polite" ${S.curtain ? 'data-act="curtainclose" style="cursor:pointer"' : ""}>${S.pantry.length} items${S.curtain ? " · tap to close" : ""}</p><div class="pact${S.curtain ? " open" : ""}" id="pact"><button class="icon cback" data-act="curtainsearch" aria-label="Search your pantry" title="Search">${I.search}</button><div class="cfront">${S.fa ? "" : `<button class="tbtn" data-sheet="filters" aria-label="Filters">${riSvg("funnel", 18)}<span>Filters</span></button>`}<button class="icon addbtn" data-sheet="add" aria-label="Add an item" title="Add an item" ${S.down ? "disabled" : ""}>${I.plus}</button></div></div></div>
-    ${S.searchOpen ? `<div class="searchbar"><input class="field" id="search" placeholder="Search your pantry" value="${esc(S.search)}" autocomplete="off" aria-label="Search your pantry"><button class="icon" data-act="mic" aria-label="Search by voice" title="Voice">${riSvg("mic", 22)}</button><button class="link cancel" data-act="search">Cancel</button></div>` : ""}
+    <div class="prow" id="prow" data-state="${S.refresh ? "anim" : S.searchOpen ? "search" : "rest"}"><h1 class="vh">Pantry</h1>
+      <div class="pl pl-msg" id="pmsg" ${S.refresh ? 'role="status"' : 'aria-hidden="true"'}>${S.refresh ? refreshHtml(S.refresh) : ""}</div>
+      <div class="pl pl-search"><input class="field" id="search" placeholder="Search your pantry" value="${esc(S.search)}" autocomplete="off" aria-label="Search your pantry"><button class="icon" data-act="mic" aria-label="Search by voice" title="Voice">${riSvg("mic", 22)}</button><button class="link cancel" data-act="searchcancel">Cancel</button></div>
+      <div class="pl pl-front"><p class="count" aria-live="polite">${S.pantry.length} items</p><div class="pact">${S.fa ? "" : `<button class="tbtn" data-sheet="filters" aria-label="Filters">${riSvg("funnel", 18)}<span>Filters</span></button>`}<button class="icon addbtn" data-sheet="add" aria-label="Add an item" title="Add an item" ${S.down ? "disabled" : ""}>${I.plus}</button></div></div>
+    </div>
     ${S.fa
       ? cvHtml()
       : ribbonHtml()}
@@ -695,9 +700,7 @@ const acts = {
     if (!SR) { toast("Voice search isn't available in this browser"); return; }
     const r = new SR(); r.lang = "en-AU"; r.onresult = (e) => { S.search = e.results[0][0].transcript; S.searchFocus = true; render(); S.searchFocus = false; }; r.onerror = () => toast("Couldn't hear that. Try again"); r.start(); toast("Listening…");
   },
-  curtainclose() { S.curtain = false; render(); },
-  curtainsearch() { S.curtain = false; acts.search(); },
-  search() { S.curtain = false; S.searchOpen = !S.searchOpen; S.searchFocus = S.searchOpen; if (!S.searchOpen) S.search = ""; render(); S.searchFocus = false; },
+  searchcancel() { closeSearch(); },
   useone(id) {
     if (S.down) return; const i = S.pantry.find((x) => x.id === id); if (!i) return;
     i.n -= 1; if (i.n <= 0) { S.pantry = S.pantry.filter((x) => x !== i); render(); toast(i.name + " used up"); } else { i.upd = 200; render(); }
@@ -850,36 +853,66 @@ document.addEventListener("contextmenu", (e) => { if (e.target.closest("[data-sw
 document.addEventListener("keydown", (e) => { const t = e.target; if ((e.key === "Enter" || e.key === " ") && t.matches && t.matches('[role=button][data-act]')) { e.preventDefault(); t.click(); } });
 document.addEventListener("scroll", (e) => { const sn = e.target; if (sn.id !== "snap") return; const n = Math.round(sn.scrollLeft / sn.clientWidth); sn.parentElement.querySelectorAll(".dots i").forEach((d, k) => d.classList.toggle("on", k === n)); }, true);
 /* pull down at the top of Pantry: a shallow pull opens search, a deep pull refreshes. Mouse and touch. */
-const PULL_SHALLOW = 70, PULL_DEEP = 170; let pl = null;
-function pullStart(target, y) {
-  const b = target.closest && target.closest(".body.tight"); if (!b || S.screen !== "pantry" || b.scrollTop > 0 || target.closest("input")) return;
-  pl = { y, dy: 0, b, el: b.querySelector("#pull"), cf: b.querySelector("#pact .cfront") };
+/* Pantry top row: pull down for search (first threshold), keep pulling for refresh (second). Spec: docs/knowledge/pantry-pull-row.md */
+const PULL_SEARCH = 70, PULL_REFRESH = 170, REFRESH_MS = 2400, REFRESH_MS_REDUCED = 1600; let pl = null, refreshTimer = null;
+const rowState = () => (S.refresh ? "anim" : S.searchOpen ? "search" : "rest");
+function setRow(row, st) { row.dataset.state = st; row.classList.remove("peek"); const f = row.querySelector(".pl-front"); f.style.transition = ""; f.style.transform = ""; }
+function openSearch(row) { S.searchOpen = true; setRow(row, "search"); const s = document.getElementById("search"); if (s) s.focus({ preventScroll: true }); }
+function closeSearch() {
+  S.searchOpen = false; S.search = ""; const row = document.getElementById("prow"); if (!row) return; const s = document.getElementById("search"); if (s) { s.value = ""; s.blur(); }
+  setRow(row, S.refresh ? "anim" : "rest"); const l = document.getElementById("plist"); if (l) l.innerHTML = listHtml();
 }
-function pullMove(y, e) {
-  if (!pl) return; const dy = y - pl.y;
-  if (dy <= 8) { if (pl.dy) { pl.dy = 0; pl.el.style.height = "0px"; if (pl.cf) { pl.cf.style.transition = ""; pl.cf.style.transform = ""; } } return; }
+function pullStart(target, x, y) {
+  const b = target.closest && target.closest(".body.tight"); if (!b || S.screen !== "pantry" || S.sheet || S.refresh || b.scrollTop > 0 || target.closest("input")) return;
+  pl = { x, y, dy: 0, b, row: b.querySelector("#prow"), st: null };
+}
+function pullMove(x, y, e) {
+  if (!pl) return; if (pl.b.scrollTop > 0) { pullCancel(); return; }
+  const dy = y - pl.y;
+  if (dy <= 8) { if (pl.dy) { pl.dy = 0; pullShow("base"); } return; }
+  if (!pl.dy && Math.abs(x - pl.x) > dy) { pl = null; return; } /* a sideways drag is not a pull */
   if (e && e.cancelable) e.preventDefault();
-  pl.dy = dy; if (pl.cf && !S.searchOpen) { pl.cf.style.transition = "none"; pl.cf.style.transform = `translateY(${Math.min(dy * 0.6, 52)}px)`; } else pl.el.style.height = Math.min(dy * 0.5, 96) + "px";
-  if (!(pl.cf && !S.searchOpen && dy < PULL_DEEP)) pl.el.firstElementChild.textContent = dy >= PULL_DEEP ? "Let go to refresh" : dy >= PULL_SHALLOW ? "Let go to search. Pull further to refresh" : "Pull to search";
+  pl.dy = dy; pullShow(dy >= PULL_REFRESH ? "let" : dy >= PULL_SEARCH ? "search" : "peek", dy);
 }
+/* shows the state under the finger without committing it */
+function pullShow(st, dy) {
+  const row = pl.row, f = row.querySelector(".pl-front"), msg = row.querySelector("#pmsg");
+  if (st === "base") { pl.st = null; setRow(row, rowState()); msg.setAttribute("aria-hidden", "true"); return; }
+  if (st === "peek") { row.dataset.state = rowState(); if (rowState() === "rest") { row.classList.add("peek"); f.style.transition = "none"; f.style.transform = `translateY(${Math.round(Math.min(dy / PULL_SEARCH, 1) * 22)}px)`; } pl.st = "peek"; return; }
+  if (pl.st === st) return; pl.st = st; setRow(row, st);
+  if (st === "let") { msg.innerHTML = `<div class="rf"><span>Let go to refresh</span></div>`; msg.removeAttribute("aria-hidden"); }
+}
+function pullCancel() { if (!pl) return; const x = pl; pl = null; setRow(x.row, rowState()); }
 function pullEnd() {
-  if (!pl) return; const x = pl; pl = null; x.el.style.height = "0px"; if (x.cf) { x.cf.style.transition = ""; x.cf.style.transform = ""; }
+  if (!pl) return; const x = pl; pl = null; const row = x.row;
   if (x.dy > 8) lastGesture = Date.now();
-  if (x.dy >= PULL_DEEP) {
+  if (x.dy >= PULL_REFRESH) {
     let n; do { n = Math.floor(Math.random() * RF.length); } while (n === lastRF); lastRF = n;
-    S.refresh = RF[n]; render();
-    setTimeout(() => { S.refresh = null; render(); toast("Up to date"); }, 1500);
-  }
-  else if (x.dy >= PULL_SHALLOW && !S.searchOpen) { S.curtain = true; render(); }
+    S.refresh = RF[n]; const msg = row.querySelector("#pmsg"); msg.innerHTML = refreshHtml(S.refresh); msg.setAttribute("role", "status"); setRow(row, "anim"); row.dataset.scene = n;
+    clearTimeout(refreshTimer); refreshTimer = setTimeout(() => { refreshTimer = null; S.refresh = null; const r = document.getElementById("prow"); if (r) { setRow(r, S.searchOpen ? "search" : "rest"); delete r.dataset.scene; } toast("Up to date"); }, reducedMotion() ? REFRESH_MS_REDUCED : REFRESH_MS);
+  } else if (x.dy >= PULL_SEARCH) { if (S.searchOpen) setRow(row, "search"); else openSearch(row); }
+  else setRow(row, rowState());
 }
-document.addEventListener("pointerdown", (e) => { if (e.pointerType !== "touch" && e.button === 0 && !e.target.closest("[data-swipe]")) pullStart(e.target, e.clientY); });
-document.addEventListener("pointermove", (e) => { if (e.pointerType !== "touch") pullMove(e.clientY); });
+document.addEventListener("pointerdown", (e) => { if (e.pointerType !== "touch" && e.button === 0 && !e.target.closest("[data-swipe]")) pullStart(e.target, e.clientX, e.clientY); });
+document.addEventListener("pointermove", (e) => { if (e.pointerType !== "touch") pullMove(e.clientX, e.clientY); });
 document.addEventListener("pointerup", (e) => { if (e.pointerType !== "touch") pullEnd(); });
-document.addEventListener("pointercancel", (e) => { if (e.pointerType !== "touch") pullEnd(); });
+document.addEventListener("pointercancel", (e) => { if (e.pointerType !== "touch") pullCancel(); });
 /* touch: the browser would otherwise take the drag for its own scroll or bounce, so handle it here */
-document.addEventListener("touchstart", (e) => { if (e.touches.length === 1 && !e.target.closest("[data-swipe]")) pullStart(e.target, e.touches[0].clientY); }, { passive: true });
-document.addEventListener("touchmove", (e) => pullMove(e.touches[0].clientY, e), { passive: false });
-document.addEventListener("touchend", pullEnd); document.addEventListener("touchcancel", pullEnd);
+document.addEventListener("touchstart", (e) => { if (e.touches.length === 1 && !e.target.closest("[data-swipe]")) pullStart(e.target, e.touches[0].clientX, e.touches[0].clientY); else pullCancel(); }, { passive: true });
+document.addEventListener("touchmove", (e) => pullMove(e.touches[0].clientX, e.touches[0].clientY, e), { passive: false });
+document.addEventListener("touchend", pullEnd); document.addEventListener("touchcancel", pullCancel);
+/* desktop previews: a mouse or trackpad wheel scrolled up past the top of the list counts as a pull (same thresholds, released when the wheel goes quiet); "/" opens search, Escape closes it */
+let wheelDy = 0, wheelT = null;
+document.addEventListener("wheel", (e) => {
+  const b = e.target.closest && e.target.closest(".body.tight"); if (!b || S.screen !== "pantry" || S.sheet || S.refresh || e.deltaY >= 0 || (b.scrollTop > 0 && !wheelT)) return;
+  if (!pl) pullStart(e.target, 0, 0); if (!pl) return; wheelDy += -e.deltaY; e.preventDefault(); pl.y = 0; pullMove(0, wheelDy);
+  clearTimeout(wheelT); wheelT = setTimeout(() => { wheelT = null; wheelDy = 0; pullEnd(); }, 220);
+}, { passive: false });
+document.addEventListener("keydown", (e) => {
+  if (S.screen !== "pantry" || S.sheet) return;
+  if (e.key === "/" && !e.target.closest("input,textarea") && !S.refresh) { e.preventDefault(); const row = document.getElementById("prow"); if (row) { if (S.searchOpen) document.getElementById("search").focus(); else openSearch(row); } }
+  else if (e.key === "Escape" && S.searchOpen) closeSearch();
+});
 /* press and hold a group header: collapsed opens everything, open closes everything */
 let fh = null;
 document.addEventListener("pointerdown", (e) => {

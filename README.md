@@ -69,5 +69,5 @@ Read first, tap to edit per field: every field production edits is a plain row (
 
 Ten themes drive every page from one token set; the five core ones are Kitchie Night, Kitchie Day, Marmalade, Blueberry and Herb Garden, and none is removed. To add a theme: one `themes/<id>.css` block plus one line in the list in `theme.js`. Two are production's palette exactly. No font files are bundled, so text falls back to system fonts.
 
-### Pantry curtain pull (first version, for feedback)
-A shallow pull-down on the Pantry header row slides the Filters and Add panel down like a vertical curtain and reveals a Search button already behind it. Tap Search to open the search bar; tap the "tap to close" count to close the curtain. A deep pull still refreshes. Mockup only, not in Kitchie.
+### Pantry top row: pull for search, pull further to refresh (for feedback)
+At rest the row shows Filters and Add. Pulling the list down 70 px slides them away like a curtain and shows the full search bar (field, mic, Cancel) in the same row. Pulling on to 170 px closes that bar and reads "Let go to refresh"; releasing there plays one of six little kitchen animations (pot, toast, juggling veg, kettle, egg, timer) with its own line, then the row settles back to Filters and Add. Releasing between 70 and 170 px keeps the search bar open until Cancel. Reduced motion shows the text only. Full behaviour, px thresholds and timings: `docs/knowledge/pantry-pull-row.md`. Mockup only, not in Kitchie.

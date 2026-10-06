@@ -91,7 +91,7 @@ textarea.field{padding:12px 14px;min-height:76px;resize:none;font-size:15px}
 .tools{display:flex;justify-content:flex-end;gap:.6rem;align-items:center;margin:.6rem 0 .8rem;position:relative}
 .tbtn{display:inline-flex;align-items:center;min-height:48px;padding:0 1rem;border:1px solid var(--border);border-radius:.8rem;background:var(--surface);font-weight:500}
 .tbtn[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);font-weight:700}
-.searchbar{margin:0 0 .6rem;display:flex;gap:8px;align-items:center}.searchbar .field{flex:1}
+.pl-search .field{flex:1;min-width:0}
 .grouphead{display:flex;justify-content:space-between;align-items:center;padding:.6rem .25rem 0;min-height:52px;width:100%;text-align:left}
 .group.shut .grouphead{border-bottom:1px solid var(--border)}
 .ghmeta{display:flex;align-items:center;gap:.6rem}
@@ -207,13 +207,10 @@ textarea.field{padding:12px 14px;min-height:76px;resize:none;font-size:15px}
 .selbar{position:absolute;left:12px;right:12px;bottom:80px;display:flex;gap:8px;z-index:6;padding:8px;border-radius:var(--r-card);background:var(--surface);border:1px solid var(--accent);box-shadow:0 8px 24px rgba(0,0,0,.3)}
 .selbar .btn{flex:1;min-height:48px}.selbar .icon{width:48px;height:48px;border:1px solid var(--border);border-radius:var(--r-ctl)}
 .tools .tbtn{padding:0 .75rem}
-.pull{flex:none;height:0;overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px;font-weight:600;transition:height .15s}
 .addbtn{background:var(--accent);color:var(--on-accent);border-color:transparent}
 html,body{overscroll-behavior-y:contain}.body{overscroll-behavior-y:contain}
 
 /* refresh scenes */
-.pull.on{animation:pulldown .3s ease-out}
-@keyframes pulldown{from{height:0}}
 .rf{display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--muted);font-size:13px;font-weight:600}
 .rf svg{width:130px;height:88px;overflow:visible}
 .rf svg *{transform-box:fill-box;transform-origin:center}
@@ -229,11 +226,13 @@ html,body{overscroll-behavior-y:contain}.body{overscroll-behavior-y:contain}
 .rf .rf-steam path{fill:none;stroke:var(--muted);stroke-width:3;stroke-linecap:round;animation:bub 1.3s ease-in infinite}.rf .rf-steam path:nth-child(2){animation-delay:.4s}.rf .rf-steam path:nth-child(3){animation-delay:.8s}
 .rf .rf-kettle{animation:rock .5s ease-in-out infinite}.rf .rf-lid{fill:var(--fg)}
 .rf .rf-e{fill:var(--surface);stroke:var(--accent);stroke-width:3}.rf .rf-eye{fill:var(--fg)}.rf .rf-egg .rf-ph{stroke:var(--fg);stroke-width:3}
+.rf .rf-hand2{transform-box:view-box;transform-origin:60px 46px;animation:spin 2.4s linear infinite}
 .rf .rf-egg{transform-origin:50% 100%;animation:rock .8s ease-in-out infinite}
 @keyframes stir{0%{transform:rotate(-14deg)}50%{transform:rotate(14deg)}100%{transform:rotate(-14deg)}}
 @keyframes bub{0%{transform:translateY(8px);opacity:0}30%{opacity:1}100%{transform:translateY(-16px);opacity:0}}
 @keyframes popt{0%,100%{transform:translateY(8px) rotate(0)}50%{transform:translateY(-16px) rotate(8deg)}}
 @keyframes toss{0%{transform:translate(-34px,26px)}25%{transform:translate(-14px,-14px)}50%{transform:translate(34px,26px)}75%{transform:translate(14px,34px)}100%{transform:translate(-34px,26px)}}
+@keyframes spin{to{transform:rotate(360deg)}}
 @keyframes rock{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
 .rf{flex-direction:row;gap:10px;justify-content:center}.rf svg{width:64px;height:44px}.rf span{font-size:13px;color:var(--fg)}
 
@@ -304,7 +303,7 @@ html,body{overscroll-behavior-y:contain}.body{overscroll-behavior-y:contain}
 .rc2{min-height:44px;border:0;background:none;border-radius:.75rem;padding:0 1rem;font-size:.95rem;scroll-snap-align:start;max-width:132px}
 .rc2.on{background:var(--accent);color:var(--on-accent)}
 
-.searchbar .cancel{color:var(--accent);font-weight:700;min-height:44px;padding:0 4px;white-space:nowrap}
+.pl-search .cancel{color:var(--accent);font-weight:700;min-height:44px;padding:0 4px;white-space:nowrap}
 .due{text-align:right;line-height:1.25}
 
 /* keep the page from panning sideways when a ribbon hits its end */
@@ -312,7 +311,6 @@ html,body{overflow-x:hidden}.phone,.body{overflow-x:hidden}.rscroll,.twoRow{over
 
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .count{margin:0;color:var(--muted);font-weight:600;align-self:center}
-.phead{align-items:center;margin-bottom:.4rem}
 
 /* item detail: read rows, editor under the tapped row, per-field Saved and error lines */
 .flist{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden}
@@ -406,11 +404,17 @@ html,body{overflow-x:hidden}.phone,.body{overflow-x:hidden}.rscroll,.twoRow{over
 .cvfun{display:inline-flex;align-items:center;gap:6px;flex:none;min-height:44px;padding:0 12px;border-radius:var(--r-pill);background:var(--accent);color:var(--on-accent);font-weight:700}
 .cvn{margin:-.2rem 0 .5rem 4px}
 
-.pact{display:flex;align-items:center;gap:.6rem}
 
-/* curtain: a shallow pull slides the Filters and Add panel down and reveals Search behind it */
-.pact{position:relative;overflow:hidden;min-height:44px;min-width:44px;justify-content:flex-end}
-.pact .cfront{display:flex;align-items:center;gap:.6rem;background:var(--bg,var(--surface,#fff));position:relative;z-index:1;transition:transform .28s cubic-bezier(.2,.8,.2,1)}
-.pact .cback{position:absolute;right:0;top:0;background:var(--accent);color:var(--on-accent);border-color:transparent}
-.pact.open .cfront{transform:translateY(110%);pointer-events:none}
-@media (prefers-reduced-motion:reduce){.pact .cfront{transition:none}}
+/* Pantry top row (docs/knowledge/pantry-pull-row.md): three layers in one fixed-height row.
+   rest = Filters + Add; search = search field, mic, Cancel; anim = refresh message or scene. Layers slide like a curtain. */
+.pact{display:flex;align-items:center;gap:.6rem}
+.prow{position:relative;flex:none;height:56px;min-height:56px;overflow:hidden;margin-bottom:.4rem;--slide:.32s}
+.prow .pl{position:absolute;inset:0;display:flex;align-items:center;gap:8px;background:var(--bg);visibility:hidden;transition:transform var(--slide) cubic-bezier(.2,.8,.2,1),visibility 0s var(--slide)}
+.prow .pl-msg{z-index:1;justify-content:center;color:var(--fg);font-size:13px;font-weight:600}
+.prow .pl-search{z-index:2}
+.prow .pl-front{z-index:3;justify-content:space-between}
+.prow[data-state=rest] .pl-front,.prow[data-state=search] .pl-search,.prow[data-state=let] .pl-msg,.prow[data-state=anim] .pl-msg,.prow.peek .pl-search{visibility:visible;transition-delay:0s}
+.prow[data-state=search] .pl-front,.prow[data-state=let] .pl-front,.prow[data-state=anim] .pl-front{transform:translateY(100%)}
+.prow[data-state=let] .pl-search,.prow[data-state=anim] .pl-search{transform:translateY(-100%)}
+.prow .pl-msg .rf{max-width:100%;padding:0 8px}
+@media (prefers-reduced-motion:reduce){.prow .pl{transition:none}}
