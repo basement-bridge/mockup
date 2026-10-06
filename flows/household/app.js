@@ -558,7 +558,7 @@ const screens = {
 /* ---------- sheets ---------- */
 function sheetHtml() {
   const sh = S.sheet; if (!sh) return "";
-  const wrap = (inner, mid) => `<div class="sheet-dim" ${mid ? "" : 'data-act="closesheet"'}><div class="sheet ${mid ? "mid" : ""}" data-stop="1">${inner}</div></div>`;
+  const wrap = (inner, mid, dismiss) => `<div class="sheet-dim" ${mid && !dismiss ? "" : 'data-act="closesheet"'}><div class="sheet ${mid ? "mid" : ""}" data-stop="1">${inner}</div></div>`;
   if (sh === "filters" && S.fd) {
     const f = S.fd, tab = S.fTab;
     const chips = (t, vals) => `<div class="twoRow" data-two="${t}">${vals.map((v) => { const on = f[t].includes(v); return `<button class="mc ${on ? "on" : ""}" data-act="fpick" data-p="${t}|${esc(v)}" data-fchip="${t}|${esc(v)}" aria-pressed="${on}"><span class="mi" aria-hidden="true">${on ? I.tick : EM[v] || ""}</span><span>${esc(v)}</span></button>`; }).join("")}</div>`;
@@ -583,7 +583,7 @@ function sheetHtml() {
     const buy = S.wantFor.buy;
     return wrap(`<h2>${buy ? `How much did you buy?` : `How much ${esc(p.name)}?`}</h2><p>Your own words. One kilo, a packet, two bunches.</p>
       <input class="field" id="wantin" value="${esc(S.wantFor.text)}" placeholder="${buy ? "For example: 1 packet" : "Optional"}" autocomplete="off" aria-label="How much">
-      <button class="btn" data-act="wantsave">${buy ? "Bought it" : "Save"}</button><button class="btn ghost" data-act="closesheet">Cancel</button>`, true);
+      <button class="btn" data-act="wantsave">${buy ? "Bought it" : "Save"}</button>`, true, true);
   }
   if (sh === "usedup") {
     const p = curItem(); if (!p) return "";
