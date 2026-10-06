@@ -621,6 +621,21 @@ function panelHtml() {
 
 /* ---------- render ---------- */
 let lastScreen = null;
+/* Quantity words, in the person's own language: on Save, a quantity that is exactly "amount unit" has the unit written in its standard short form (2 litres -> 2 L).
+   Anything else is kept exactly as typed; nothing is forced on people. */
+const UNITS = [
+  ["mL", /^(ml|mls|millilit(?:er|re)s?)$/], ["L", /^(l|lt|ltr|ltrs|lit(?:er|re)s?)$/],
+  ["kg", /^(kg|kgs|kilos?|kilograms?|kilogrammes?)$/], ["g", /^(g|gm|gms|grams?|grammes?)$/],
+  ["lb", /^(lb|lbs|pounds?)$/], ["oz", /^(oz|ounces?)$/],
+];
+function tidyQty(text) {
+  const t = String(text).trim(); if (!t) return t;
+  const m = t.match(/^(\d+(?:[.,]\d+)?|\d+\/\d+|\d*\s?[½¼¾]|a|an|one|two|three|four|five|six|seven|eight|nine|ten|half|quarter)\s*(.+)$/i); if (!m) return t;
+  let u = m[2].trim().toLowerCase().replace(/\.$/, "");
+  if (/^(?:[a-z] ){2,}[a-z]$/.test(u)) u = u.replace(/ /g, ""); /* "L I T R E S" */
+  for (const [short, re] of UNITS) if (re.test(u)) return `${m[1]} ${short}`;
+  return t;
+}
 /* Custom view strip, three layouts to choose between (prototype switch under it). Every pill is remove-only: it drops that one condition from the live view and
    leaves the remembered last filters alone. To add something back the person opens the Filters sheet. */
 const cvPills = (f) => [
@@ -741,7 +756,7 @@ const acts = {
   shopwant(id) { const x = sx(id); S.wantFor = { id, text: x.want, buy: false }; S.sheet = "want"; render(); setTimeout(() => { const f = document.getElementById("wantin"); if (f) f.focus(); }); },
   shoprm(id) { const i = S.pantry.find((q) => q.id === id), was = S.slx[id]; S.shop = S.shop.filter((x) => x !== id); delete S.slx[id]; toast((i ? i.name : "Item") + " taken off your list", () => { S.shop.push(id); S.slx[id] = was; render(); }); },
   shopbuy(id) { const x = sx(id); if (!x.want.trim()) { S.wantFor = { id, text: "", buy: true }; S.sheet = "want"; render(); setTimeout(() => { const f = document.getElementById("wantin"); if (f) f.focus(); }); return; } commitBought([id]); },
-  wantsave() { const w = S.wantFor; if (!w) return; const t = (document.getElementById("wantin") || {}).value || ""; S.wantFor = null; S.sheet = null; sx(w.id).want = t.trim(); if (w.buy) { if (!t.trim()) { render(); return; } commitBought([w.id]); } else render(); },
+  wantsave() { const w = S.wantFor; if (!w) return; const t = (document.getElementById("wantin") || {}).value || ""; S.wantFor = null; S.sheet = null; sx(w.id).want = tidyQty(t); if (w.buy) { if (!t.trim()) { render(); return; } commitBought([w.id]); } else render(); },
   shopfinish() { const ids = S.shop.filter((id) => sx(id).tick); if (ids.length) commitBought(ids); },
   rowtap(id) { if (S.sel) { S.sel = S.sel.includes(id) ? S.sel.filter((x) => x !== id) : [...S.sel, id]; if (!S.sel.length) S.sel = null; render(); } else go("item", id); },
   selstart(id) { S.sel = [id]; render(); },
