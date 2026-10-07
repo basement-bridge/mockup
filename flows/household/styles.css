@@ -91,7 +91,6 @@ textarea.field{padding:12px 14px;min-height:76px;resize:none;font-size:15px}
 .tools{display:flex;justify-content:flex-end;gap:.6rem;align-items:center;margin:.6rem 0 .8rem;position:relative}
 .tbtn{display:inline-flex;align-items:center;min-height:48px;padding:0 1rem;border:1px solid var(--border);border-radius:.8rem;background:var(--surface);font-weight:500}
 .tbtn[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);font-weight:700}
-.pl-search .field{flex:1;min-width:0}
 .grouphead{display:flex;justify-content:space-between;align-items:center;padding:.6rem .25rem 0;min-height:52px;width:100%;text-align:left}
 .group.shut .grouphead{border-bottom:1px solid var(--border)}
 .ghmeta{display:flex;align-items:center;gap:.6rem}
@@ -303,7 +302,21 @@ html,body{overscroll-behavior-y:contain}.body{overscroll-behavior-y:contain}
 .rc2{min-height:44px;border:0;background:none;border-radius:.75rem;padding:0 1rem;font-size:.95rem;scroll-snap-align:start;max-width:132px}
 .rc2.on{background:var(--accent);color:var(--on-accent)}
 
-.pl-search .cancel{color:var(--accent);font-weight:700;min-height:44px;padding:0 4px;white-space:nowrap}
+.pl-search .cancel{position:absolute;left:4px;top:50%;transform:translateY(-50%);color:var(--accent);font-weight:700;min-height:44px;padding:0 4px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity var(--slide)}
+.prow[data-state=search] .pl-search .cancel{opacity:1;pointer-events:auto}
+/* the magnifier sits under Filters and Add at rest; a shallow pull opens it leftwards into the search field */
+.spill{display:flex;align-items:center;flex:none;margin-left:auto;width:48px;height:48px;overflow:hidden;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--surface);transition:width var(--slide) cubic-bezier(.2,.8,.2,1),border-color var(--slide)}
+.prow[data-state=search] .spill{width:calc(100% - 84px);border-color:var(--accent)}
+.spill .field{flex:1;min-width:0;border:0;background:none;min-height:46px;padding:0 4px 0 14px;border-radius:0}
+.spill .field:focus-visible{outline:none} /* the pill already shows the accent border, and its overflow would clip the ring to a stray line */
+.spill:focus-within{box-shadow:inset 0 0 0 1px var(--accent)}
+.spill .icon{width:44px;height:46px;border:0;border-radius:0;background:none}
+.spill .mg{flex:none;width:46px;height:46px;display:inline-flex;align-items:center;justify-content:center;color:var(--muted)}
+.prow[data-state=search] .spill .mg{color:var(--accent)}
+.prow.lock .spill{animation:pill-lock .5s ease-out}
+.prow.lock .spill .mg{animation:mg-pop .4s ease-out}
+@keyframes pill-lock{0%{background:color-mix(in srgb,var(--accent) 28%,var(--surface))}100%{background:var(--surface)}}
+@keyframes mg-pop{0%{transform:scale(1)}40%{transform:scale(1.3)}100%{transform:scale(1)}}
 .due{text-align:right;line-height:1.25}
 
 /* keep the page from panning sideways when a ribbon hits its end */
@@ -417,4 +430,4 @@ html,body{overflow-x:hidden}.phone,.body{overflow-x:hidden}.rscroll,.twoRow{over
 .prow[data-state=search] .pl-front,.prow[data-state=let] .pl-front,.prow[data-state=anim] .pl-front{transform:translateY(100%)}
 .prow[data-state=let] .pl-search,.prow[data-state=anim] .pl-search{transform:translateY(-100%)}
 .prow .pl-msg .rf{max-width:100%;padding:0 8px}
-@media (prefers-reduced-motion:reduce){.prow .pl{transition:none}}
+@media (prefers-reduced-motion:reduce){.prow .pl,.spill,.pl-search .cancel{transition:none}.prow.lock .spill,.prow.lock .spill .mg{animation:none}}

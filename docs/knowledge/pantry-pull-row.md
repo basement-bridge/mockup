@@ -11,7 +11,7 @@ One row at the top of Pantry, fixed height 56px (it never changes height, so the
 | Layer | Contents | Shown in state |
 |---|---|---|
 | front | item count at left, Filters button and Add (plus) button at right | rest |
-| search | search field, microphone button, Cancel button | search |
+| search | magnifier (under Filters and Add at rest), search field and microphone that open leftwards from it, Cancel at the left | search |
 | message | "Let go to refresh", then the refresh animation and its text | let, anim |
 
 Filters opens the existing filter sheet, unchanged. While a custom view is active the Filters button is absent (the strip's Edit replaces it), as before.
@@ -23,8 +23,8 @@ Distances are finger (or pointer) travel downward from where the gesture started
 | State | When | What the row shows |
 |---|---|---|
 | rest | default | Filters + Add |
-| peek | 8 to 70 px | the front layer follows the finger down by up to 22 px, nothing else changes |
-| search | 70 px or more (first threshold) | front slides down out of the row like a curtain, revealing the search bar |
+| peek | 8 to 70 px | the front layer follows the finger down by up to 22 px, the magnifier peeks out from under Add |
+| search | 70 px or more (first threshold, the lock-in) | front slides down out of the row like a curtain; the magnifier that was underneath opens leftwards into the search field; lock-in cue (below) |
 | let | 170 px or more (second threshold) | the search bar slides back up, the row reads "Let go to refresh" |
 | anim | released at 170 px or more | one refresh animation plus its text, 2400 ms (1600 ms reduced motion), then back to Filters + Add, toast "Up to date" (kept, owner) |
 
@@ -34,10 +34,19 @@ Search and refresh are mutually exclusive (owner): a pull that starts while the 
 
 Release rules:
 - Below 70 px: nothing happens, row returns to where it was.
-- 70 to 170 px: the search bar stays open and its field is focused. Filters and Add stay hidden until Cancel.
+- 70 to 170 px: the search bar stays open and its field is focused (focus happens on release, because phones only open the keyboard from a touch end). Filters and Add stay hidden until Cancel.
 - 170 px or more: the refresh animation plays (see below), then the row settles.
 
 Slide timing: 320 ms, ease `cubic-bezier(.2,.8,.2,1)`. Reduced motion: no slide, layers switch instantly.
+
+## Shallow pull: the magnifier opens into the search field
+
+Owner's voice spec, 7 Oct 2026. At rest the Filters and Add buttons sit over a magnifier. A shallow pull slides them away, the magnifier is revealed at the right edge and opens leftwards into the text field (320 ms, same easing as the curtain). The field takes the width between Cancel (left) and the magnifier (right); the microphone sits inside the field beside the magnifier.
+
+Lock-in cue at 70 px: the field's border turns accent, the magnifier turns accent and pops (scale 1.3 and back), the field flashes an accent tint that fades, and devices that support it give a 10 ms buzz. Dragging back under 70 px closes the field again and clears the cue. Reduced motion: no slide, no pop or flash, the accent border alone marks the lock.
+
+- **Proposal:** Cancel appears at the left (where the item count was), so the magnifier never moves from under Add.
+- **Proposal:** the cursor goes into the field on release, not the instant the threshold is passed.
 
 ## Cancel and closing search
 
