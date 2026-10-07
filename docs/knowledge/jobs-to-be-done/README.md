@@ -16,7 +16,7 @@ Every screen starts from what the person is here to do right now. Layout, and wh
 |---|---|---|
 | Cooking right now | [cooking-right-now.md](cooking-right-now.md) | Captured, mockup drafted |
 | About to shop | – | Named, nothing captured yet |
-| Scanning things in | – | Named, nothing captured yet |
-| Planning the week | – | Named, nothing captured yet |
-| Using things up | – | Named, nothing captured yet |
+| Scanning things in | [scan-in.md](scan-in.md) | Named, options drafted, nothing else captured |
+| Planning the week | [plan-week.md](plan-week.md) | Named, options drafted, nothing else captured |
+| Using things up | [use-up.md](use-up.md) | Named, options drafted, nothing else captured |
 | Cook from one main thing | – | Named, nothing captured yet |
