@@ -122,7 +122,7 @@ const initial = () => ({
   members: ["arjan", "sam"], invites: [{ name: "Priya", days: 6 }],
   roles: { arjan: { title: "Pantry Marshal", ic: "shield", desc: "Keeps order on the shelves and the fridge. Knows exactly where the cumin lives." }, sam: null },
   cfg: { size: "normal", emoji: true, motion: false, spot: true, amount: true, useby: true, activity: true, compact: false }, stockChecks: true,
-  day: 1, aiDone: false, inviteDone: false, cvOpt: "A", aiTab: "ChatGPT", links: { ChatGPT: false, Claude: false, Other: false }, founder: "arjan", avatars: {}, bannerGot: false, pending: null, joined: false,
+  day: 1, aiDone: false, inviteDone: false, cvOpt: "A", aiTab: "ChatGPT", links: { ChatGPT: false, Claude: false, Other: false }, founder: "arjan", avatars: {}, hh2: "Gran's flat", bannerGot: false, pending: null, joined: false,
   /* pantry view */
   rmode: "loc", order: { loc: [...AREAS], cat: [...CATEGORIES] }, fa: null, fd: null, flast: null, fTab: "filters", seenP: 0, seenR: 0, view: "name", shop: ["milk", "carrots", "butter"], slx: { milk: { by: "arjan", want: "2 litres", tick: false }, carrots: { by: "sam", want: "", tick: false }, butter: { by: "arjan", want: "", tick: false } }, wantFor: null, sel: null, areaTab: "All", collapsed: {}, search: "", searchOpen: false, draft: { days: null },
   memberWho: null, existing: 1, own: false, rdraft: null, iconPick: false,
@@ -486,9 +486,9 @@ const screens = {
     return backHeader("Back", "") + `<div class="body">
     <div class="row"><span class="av" style="width:56px;height:56px;font-size:20px">${avt(S.persona)}</span><div><b style="font-size:20px">${esc(me().name)}</b><p class="small">${role(S.persona) ? esc(role(S.persona).title) : "Our kitchen"}</p></div></div>
     ${strip.length ? `<div><span class="lbl">Get started</span><div class="menu card">${strip.map(([t, ic, l, k]) => `<button data-${k === "go" ? "go" : "sheet"}="${t}"><span class="row" style="gap:10px">${riSvg(ic, 20)}${l}</span><span class="chev" style="color:var(--muted)">${I.chev}</span></button>`).join("")}</div></div>` : ""}
-    ${seg("Look and kitchen", `<button data-go="settings">Settings</button><button data-sheet="role">${role(S.persona) ? "Change my kitchen role" : "Pick a kitchen role"}</button>`)}
+    ${seg("Look and kitchen", `<button data-go="settings">Settings</button><button data-act="proto" data-p="History">History</button>`)}
     ${seg("People", `<button data-go="me">Me <span class="chip">${esc(me().name)}</span></button><button data-go="household">Household <span class="chip">${S.members.length}</span></button>${pays() ? `<button data-go="${S.recipes ? "household" : "upgrade"}">Plan and billing</button>` : ""}`)}
-    ${seg("My data", `<button data-act="proto" data-p="History">History</button><button data-act="proto" data-p="Download CSV">Download CSV</button><button data-act="proto" data-p="JSON">Download JSON</button>`)}
+    ${seg("My data", `<button data-act="proto" data-p="Download inventory CSV">Download inventory CSV</button>`)}
     <button data-act="signout" class="danger" style="text-align:left;min-height:48px">Sign out</button>
     <div class="srow plain"><span class="small">Prototype: member for</span><div class="seg2" role="radiogroup" aria-label="Member for">${[[1, "Day 1"], [3, "Day 3"], [6, "Day 6"]].map(([d, l]) => `<button role="radio" aria-checked="${S.day === d}" class="${S.day === d ? "on" : ""}" data-act="day" data-p="${d}">${l}</button>`).join("")}</div></div></div>`;
   },
@@ -526,8 +526,10 @@ const screens = {
   me: () => backHeader("Back", "Me") + `<div class="body">
     <div class="row" style="gap:14px"><button class="avbig" data-sheet="avatar" aria-label="Change your picture"><span class="av" style="width:72px;height:72px;font-size:30px">${avt(S.persona)}</span><span class="avedit" aria-hidden="true">${I.pencil}</span></button><div><b style="font-size:20px">${esc(me().name)}</b><p class="small">Tap the picture to change it</p></div></div>
     <div><span class="lbl">Name</span><div class="row" style="gap:8px"><input class="field" id="myname" value="${esc(me().name)}" maxlength="24" autocomplete="off" aria-label="Your name" style="flex:1"><button class="btn sm" id="namesave" data-act="savename" disabled>Save</button></div></div>
-    <div><span class="lbl">AI assistants</span>${["ChatGPT", "Claude", "Other"].map((t) => `<div class="m"><div style="flex:1"><b>${t}</b> <span class="chip">${S.links[t] ? "Active" : "Not linked"}</span></div>${S.links[t] ? `<button class="danger" data-act="linkrevoke" data-p="${t}" aria-label="Revoke ${t}" style="min-height:44px;padding:0 8px">Revoke</button>` : `<button class="link" data-act="linkopen" data-p="${t}" aria-label="Link ${t}" style="min-height:44px;padding:0 8px">Link</button>`}</div>`).join("")}
-      <p class="small" style="margin-top:8px">Your own links. They act as you and see everything your household has. Revoking stops one at once.</p></div></div>`,
+    <div><span class="lbl">Kitchen role</span><button class="m" data-sheet="role"><div style="flex:1"><b>${role(S.persona) ? esc(role(S.persona).title) : "Pick a kitchen role"}</b><p class="small">Only you can change yours</p></div><span class="chev" style="color:var(--muted)">${I.chev}</span></button></div>
+    <div><span class="lbl">AI assistants</span>${["ChatGPT", "Claude", "Other"].map((t) => `<div class="m"><div style="flex:1"><b>${t}</b> <span class="chip">${S.links[t] ? "Active" : "Not linked"}</span></div>${S.links[t] ? `<button class="danger" data-act="linkrevoke" data-p="${t}" aria-label="Revoke ${t}" style="min-height:44px;padding:0 8px">Revoke</button>` : `<button class="link" data-act="linkopen" data-p="${t}" aria-label="Create a link for ${t}" style="min-height:44px;padding:0 8px">Create link</button>`}</div>`).join("")}
+      <p class="small" style="margin-top:8px">Your own links. They act as you and see everything your household has. Revoking stops one at once.</p></div>
+    <div><span class="lbl">Other households</span><button class="m" data-sheet="invite2"><div style="flex:1"><b>Invite someone to a different household</b><p class="small">Not Our kitchen. You pick where they join</p></div><span class="chev" style="color:var(--muted)">${I.chev}</span></button></div></div>`,
 
   /* People, part two: Household (members, pending invites, leave). Anyone can remove anyone and anyone can cancel an invite (owner, 8 Oct 2026). */
   household: () => backHeader("Back", "Household") + `<div class="body">
@@ -610,6 +612,10 @@ function sheetHtml() {
   if (sh === "invite") return wrap(`<h2>Invite someone</h2><p>Send this link. They sign in with Google and join Our kitchen. Anyone in the household can send one.</p>
     <div class="field" style="display:flex;align-items:center"><span class="mono">https://kitchen.example/join/k7Q2-m9xA-0pR4</span></div>
     <button class="btn" data-act="copyinvite">Copy link</button><p class="small">Works once and expires in 7 days. It can be cancelled from Household.</p>`);
+  if (sh === "invite2") return wrap(`<h2>Invite to a different household</h2><p>Pick where they should join. It isn't Our kitchen.</p>
+    <div class="seg2" role="radiogroup" aria-label="Which household">${["Gran's flat", "A new household"].map((h) => `<button role="radio" aria-checked="${S.hh2 === h}" class="${S.hh2 === h ? "on" : ""}" data-act="hhpick" data-p="${h}">${h}</button>`).join("")}</div>
+    <div class="field" style="display:flex;align-items:center"><span class="mono">https://kitchen.example/join/h3W8-q2nB-6vT1</span></div>
+    <button class="btn" data-act="copyinvite2">Copy link</button><p class="small">They join ${esc(S.hh2)}. Works once and expires in 7 days.</p>`);
   if (sh === "expired") return wrap(`<h2>Sign in again to save</h2><p>Your sign-in ended. What you typed is kept, and you'll come straight back.</p><button class="btn" data-act="resume">Continue with Google</button>`, true);
   if (sh === "role") return wrap(`<h2>Your kitchen role</h2><p>Optional. It sits beside your name.</p>${roleEditor("sheet")}`);
   if (sh === "member") {
@@ -784,6 +790,7 @@ const acts = {
   copykitchen() { toast("Kitchen list copied"); },
   copy() { S.aiDone = true; S.links[S.aiTab] = true; toast("Link copied"); }, copyinvite() { S.inviteDone = true; toast("Invite link copied"); }, day(d) { S.day = +d; render(); },
   revoke(name) { S.invites = S.invites.filter((i) => i.name !== name); render(); toast("Invite cancelled"); },
+  hhpick(h) { S.hh2 = h; render(); }, copyinvite2() { toast("Invite link copied"); },
   savename() { const v = document.getElementById("myname"); if (!v) return; const n = v.value.trim().slice(0, 24); if (!n) return; PEOPLE[S.persona].name = n; PEOPLE[S.persona].initial = initials(S.persona); render(); toast("Name saved"); },
   setavatar(a) { if (a) S.avatars[S.persona] = a; else delete S.avatars[S.persona]; S.sheet = null; render(); toast("Picture changed"); },
   removestart() { S.sheet = "removing"; render(); },
