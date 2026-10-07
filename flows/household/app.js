@@ -602,11 +602,12 @@ function itemSheetHtml() {
     const tile = (k, ic, val, label, prompt, sr) => val === null
       ? `<button class="tl empty" data-act="itile" data-p="${k}">${I.plus.replace('width="22" height="22"', 'width="20" height="20"')}<span>${prompt}</span></button>`
       : `<button class="tl" data-act="itile" data-p="${k}" ${sr ? `aria-label="${esc(sr)}"` : ""}>${ic}${val === "" ? "" : `<b>${val}</b>`}${label ? `<span>${label}</span>` : ""}</button>`;
-    const head = `<div class="shead"><span class="ph" aria-hidden="true">${emo(p)}</span><div class="sid"><b>${esc(p.name)}</b>${cnt || ["g", "mL", "kg", "L"].includes(p.unit) ? `<span class="small shq">${out ? "Out" : esc(fmtAmt(p))}</span>` : ""}<span class="small"><b class="shw">${esc(p.area)}</b>${p.spot && p.spot !== "Anywhere" ? " · " + esc(p.spot) : ""}</span></div>${close}</div>`;
+    const hasQty = typeof p.n === "number" && !Number.isNaN(p.n) && (cnt || ["g", "mL", "kg", "L"].includes(p.unit));
+    const head = `<div class="shead"><span class="ph" aria-hidden="true">${emo(p)}</span><div class="sid"><b>${esc(p.name)}</b>${hasQty ? `<span class="small shq">${out ? "Out" : esc(fmtAmt(p))}</span>` : ""}</div>${close}</div>`;
     const first = cnt
-      ? tile("amount", levelDrop(lv), out ? "0" : esc(fmtAmt(p)), srOnly("Amount, " + lv), "")
+      ? tile("amount", levelDrop(lv), out ? "0" : esc(fmtAmt(p)), srOnly("Amount, " + lv) + (p.min > 0 ? "Min " + esc(fmtAmt({ n: p.min, unit: p.unit })) : ""), "")
       : tile("level", levelDrop(lv), "", srOnly("Level, " + lv), "");
-    const tiles = `<div class="tiles3">${first}${tile("where", riSvg("fridge", 20), esc(p.area), "Where")}${tile("useby", riSvg("clock", 20), p.days === null ? null : esc(dayLabel(p.days)), "Use by", "Add use-by")}${tile("cat", riSvg("basket", 20), p.cat ? esc(p.cat) : null, "Category", "Add category")}<button class="tl more" data-act="itile" data-p="all">${riSvg("list", 20)}<b>More</b><span>All fields</span></button></div>`;
+    const tiles = `<div class="tiles3">${first}${tile("where", riSvg("fridge", 20), esc(p.area), p.spot && p.spot !== "Anywhere" ? esc(p.spot) : "Where")}${tile("useby", riSvg("clock", 20), p.days === null ? null : esc(dayLabel(p.days)), "Use by", "Add use-by")}${tile("cat", riSvg("basket", 20), p.cat ? esc(p.cat) : null, "", "Add category")}<button class="tl more" data-act="itile" data-p="all">${riSvg("list", 20)}<b>More</b><span>All fields</span></button></div>`;
     const acts2 = `<div class="sacts">${out ? `<button class="btn ghost" disabled>${I.tick}<span>&nbsp;Marked Out</span></button>` : `<button class="btn ghost" data-act="sheetused">${I.tick}<span>&nbsp;Used up</span></button>`}${onList(p.id) ? `<button class="btn ghost" disabled>${I.tick}<span>&nbsp;On your list</span></button>` : `<button class="btn" data-act="sheetshop">${riSvg("cart", 20)}<span>&nbsp;Add to shopping</span></button>`}</div>`;
     body = head + errHtml + tiles + acts2;
   } else {

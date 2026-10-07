@@ -61,8 +61,13 @@ A tile with data is filled (tinted surface, accent border) and shows its value w
 - **Last tile reads "More / All fields"** (the fragment's tile said Name / More). The emoji and name sit in the sheet header.
 - **Used up item**: its Used up button becomes a disabled "Marked Out"; the Amount tile reads Out in the accent colour. Bringing it back is Undo, or Amount.
 
-## Header under the name (owner, voice, 8 Oct 2026)
+## Header and tile captions (owner, voice, 8 Oct 2026)
 
-Owner: show the quantity "if it's available" just under the item name, and the location too, since it is already tracked. Shown under the name in the sheet header: the quantity, then the location in bold followed by the spot (for example **Fridge** · Door). This is in addition to the Amount tile and its editor, not instead of them.
+Owner's words, in order:
+- The quantity goes just under the item name, "only if there is quantity mentioned. Don't make it up."
+- "Location is a tile on its own. Location and spot are in the same tile." The header does not repeat the location. In the Where tile the location is the bold value and the spot sits where the word "Where" was.
+- Category: "where it says category and vegetables, it's quite obvious", so the tile shows the value alone, without the word Category. An empty one still reads "Add category".
+- If an item has a minimum and a defined quantity, show the minimum "as a title": it is the caption under the number on the Amount tile (for example "Min 4").
 
-- **Proposal:** the quantity line shows for counted items and for weighed or measured ones (g, mL, kg, L), because they all have a number. Items with no number show only the location. Out items read "Out".
+- **Proposal:** the quantity line shows for counted items and for weighed or measured ones (g, mL, kg, L), because they all carry a number. Out items read "Out".
+- **Proposal:** "as a title" is read as the Amount tile's caption line. Weighed items have no Amount tile, so their minimum stays under All fields.
