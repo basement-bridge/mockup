@@ -508,8 +508,7 @@ const screens = {
         <button class="btn ghost" data-act="cfgreset">Reset to defaults</button></div>
       <span class="lbl">Kitchen</span><div class="menu card">
         <button data-go="stock">Stock checks <span class="chev" style="color:var(--muted)">${I.chev}</span></button>
-        <button data-go="cats">Categories <span class="chev" style="color:var(--muted)">${I.chev}</span></button>
-        <button data-sheet="role">Your kitchen role <span class="small">${role(S.persona) ? esc(role(S.persona).title) : "Optional"}</span></button></div>
+        <button data-go="cats">Categories <span class="chev" style="color:var(--muted)">${I.chev}</span></button></div>
       <p class="small">Stock checks and Categories are the household's, not just this device's.</p>
       <div><h2 style="font-size:1.1rem">Sample items</h2><p class="small" style="margin-top:4px">${left === 0 ? "No sample items are left." : `${left} sample item${left === 1 ? "" : "s"} left. They count toward nothing until you change one.`}</p>${left ? `<button class="btn ghost" data-act="proto" data-p="Clear sample items" style="margin-top:8px">Clear sample items</button>` : ""}</div>
       <button class="btn ghost" data-act="back">Back to Kitchie</button>
