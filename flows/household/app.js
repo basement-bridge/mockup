@@ -6,6 +6,7 @@ const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&
 const ico = (d, s = 22) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const I = {
   search: ico('<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>'),
+  pencil: ico('<path d="M4 20l1-4L16.5 4.5a2 2 0 0 1 3 3L8 19z"/>', 16),
   plus: ico('<path d="M12 5v14M5 12h14"/>'),
   minus: ico('<path d="M6 12h12"/>'),
   x: ico('<path d="M6 6l12 12M18 6L6 18"/>'),
@@ -121,7 +122,7 @@ const initial = () => ({
   members: ["arjan", "sam"], invites: [{ name: "Priya", days: 6 }],
   roles: { arjan: { title: "Pantry Marshal", ic: "shield", desc: "Keeps order on the shelves and the fridge. Knows exactly where the cumin lives." }, sam: null },
   cfg: { size: "normal", emoji: true, motion: false, spot: true, amount: true, useby: true, activity: true, compact: false }, stockChecks: true,
-  day: 1, aiDone: false, inviteDone: false, cvOpt: "A", aiTab: "ChatGPT", aiActive: true, bannerGot: false, pending: null, joined: false,
+  day: 1, aiDone: false, inviteDone: false, cvOpt: "A", aiTab: "ChatGPT", links: { ChatGPT: false, Claude: false, Other: false }, founder: "arjan", avatars: {}, hh2: "Gran's flat", bannerGot: false, pending: null, joined: false,
   /* pantry view */
   rmode: "loc", order: { loc: [...AREAS], cat: [...CATEGORIES] }, fa: null, fd: null, flast: null, fTab: "filters", seenP: 0, seenR: 0, view: "name", shop: ["milk", "carrots", "butter"], slx: { milk: { by: "arjan", want: "2 litres", tick: false }, carrots: { by: "sam", want: "", tick: false }, butter: { by: "arjan", want: "", tick: false } }, wantFor: null, sel: null, areaTab: "All", collapsed: {}, search: "", searchOpen: false, draft: { days: null },
   memberWho: null, existing: 1, own: false, rdraft: null, iconPick: false,
@@ -152,6 +153,10 @@ const greeting = () => { const h = new Date().getHours(); return h < 12 ? "Good 
 const reducible = (i) => COUNT_UNITS.includes(i.unit);
 const can = (r) => r.ings.filter(([k]) => S.pantry.some((p) => p.key === k));
 const me = () => PEOPLE[S.persona];
+const AVATARS = ["🦊", "🐼", "🐸", "🦉", "🐙", "🐝", "🍋", "🥑", "🌶️", "🍄", "🧁", "🌻"];
+const avt = (w) => S.avatars[w] || PEOPLE[w].initial;
+const starIc = ico('<path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8 6.8 19.6l1-5.8L3.5 9.7l5.9-.8z"/>', 14);
+const founderChip = (w) => (S.founder === w ? `<span class="chip fchip">${starIc}Founding member</span>` : "");
 const pays = () => S.persona === "arjan"; /* the billing contact; never shown as a rank */
 const role = (who) => S.roles[who];
 const emojiOf = (n) => { const m = { milk: "🥛", egg: "🥚", rice: "🍚", bread: "🍞", cheese: "🧀", tomato: "🍅", apple: "🍎", banana: "🍌", butter: "🧈", onion: "🧅", carrot: "🥕", pasta: "🍝", chicken: "🍗", fish: "🐟" }; const k = Object.keys(m).find((x) => n.toLowerCase().includes(x)); return k ? m[k] : ""; };
@@ -228,7 +233,7 @@ function refreshSheet() {
 }
 
 /* ---------- pieces ---------- */
-const header = () => `<div class="top"><span>Our kitchen</span><button class="av" data-go="menu" aria-label="Account">${me().initial}</button></div>`;
+const header = () => `<div class="top"><span>Our kitchen</span><button class="av" data-go="menu" aria-label="Account">${avt(S.persona)}</button></div>`;
 const backHeader = (label, title) => `<div class="top"><button class="back" data-act="back">&lsaquo; ${esc(label)}</button><span class="ttl">${esc(title || "")}</span><span style="width:64px"></span></div>`;
 const bar = () => `<nav class="bar" aria-label="Main">
   <button data-go="today" class="${S.tab === "today" ? "on" : ""}">${riSvg("home", 24)}<span>Home</span></button>
@@ -481,12 +486,11 @@ const screens = {
     if (S.day <= 5 && !S.inviteDone) strip.push(["invite", "mail", "Invite someone", "sheet"]);
     const seg = (t, rows) => `<div><span class="lbl">${t}</span><div class="menu card">${rows}</div></div>`;
     return backHeader("Back", "") + `<div class="body">
-    <div class="row"><span class="av" style="width:56px;height:56px;font-size:20px">${me().initial}</span><div><b style="font-size:20px">${esc(me().name)}</b><p class="small">${role(S.persona) ? esc(role(S.persona).title) : "Our kitchen"}</p></div></div>
+    <div class="row"><span class="av" style="width:56px;height:56px;font-size:20px">${avt(S.persona)}</span><div><b style="font-size:20px">${esc(me().name)}</b><p class="small">${role(S.persona) ? esc(role(S.persona).title) : "Our kitchen"}</p></div></div>
     ${strip.length ? `<div><span class="lbl">Get started</span><div class="menu card">${strip.map(([t, ic, l, k]) => `<button data-${k === "go" ? "go" : "sheet"}="${t}"><span class="row" style="gap:10px">${riSvg(ic, 20)}${l}</span><span class="chev" style="color:var(--muted)">${I.chev}</span></button>`).join("")}</div></div>` : ""}
-    ${seg("Look and kitchen", `<button data-go="settings">Settings</button><button data-sheet="role">${role(S.persona) ? "Change my kitchen role" : "Pick a kitchen role"}</button>`)}
-    ${seg("People", `<button data-go="household">Household <span class="chip">${S.members.length}</span></button><button data-sheet="invite">Create invite link</button>${pays() ? `<button data-go="${S.recipes ? "household" : "upgrade"}">Plan and billing</button>` : ""}`)}
-    ${seg("Connect", `<button data-go="ai">AI assistant <span class="chip">${S.aiDone ? "Linked" : "Not linked"}</span></button>`)}
-    ${seg("My data", `<button data-act="proto" data-p="History">History</button><button data-act="proto" data-p="Download CSV">Download CSV</button><button data-act="proto" data-p="JSON">Download JSON</button>`)}
+    ${seg("Look and kitchen", `<button data-go="settings">Settings</button><button data-act="proto" data-p="History">History</button>`)}
+    ${seg("People", `<button data-go="me">Me <span class="chip">${esc(me().name)}</span></button><button data-go="household">Household <span class="chip">${S.members.length}</span></button>${pays() ? `<button data-go="${S.recipes ? "household" : "upgrade"}">Plan and billing</button>` : ""}`)}
+    ${seg("My data", `<button data-act="proto" data-p="Download inventory CSV">Download inventory CSV</button>`)}
     <button data-act="signout" class="danger" style="text-align:left;min-height:48px">Sign out</button>
     <div class="srow plain"><span class="small">Prototype: member for</span><div class="seg2" role="radiogroup" aria-label="Member for">${[[1, "Day 1"], [3, "Day 3"], [6, "Day 6"]].map(([d, l]) => `<button role="radio" aria-checked="${S.day === d}" class="${S.day === d ? "on" : ""}" data-act="day" data-p="${d}">${l}</button>`).join("")}</div></div></div>`;
   },
@@ -520,14 +524,22 @@ const screens = {
     <p>Rename a category for every item at once. This is the household's, not just this device's.</p>
     <div class="menu card">${S.order.cat.map((c) => `<button data-act="proto" data-p="Rename ${esc(c)}">${EM[c] || ""} ${esc(c)} <span class="small">Rename</span></button>`).join("")}</div></div>`,
 
+  /* People, part one: Me (name, picture, my AI links). Spec: docs/knowledge/people-settings.md */
+  me: () => backHeader("Back", "Me") + `<div class="body">
+    <div class="row" style="gap:14px"><button class="avbig" data-sheet="avatar" aria-label="Change your picture"><span class="av" style="width:72px;height:72px;font-size:30px">${avt(S.persona)}</span><span class="avedit" aria-hidden="true">${I.pencil}</span></button><div><b style="font-size:20px">${esc(me().name)}</b><p class="small">Tap the picture to change it</p></div></div>
+    <div><span class="lbl">Name</span><div class="row" style="gap:8px"><input class="field" id="myname" value="${esc(me().name)}" maxlength="24" autocomplete="off" aria-label="Your name" style="flex:1"><button class="btn sm" id="namesave" data-act="savename" disabled>Save</button></div></div>
+    <div><span class="lbl">Kitchen role</span><button class="m" data-sheet="role"><div style="flex:1"><b>${role(S.persona) ? esc(role(S.persona).title) : "Pick a kitchen role"}</b><p class="small">Only you can change yours</p></div><span class="chev" style="color:var(--muted)">${I.chev}</span></button></div>
+    <div><span class="lbl">AI assistants</span>${["ChatGPT", "Claude", "Other"].map((t) => `<div class="m"><div style="flex:1"><b>${t}</b> <span class="chip">${S.links[t] ? "Active" : "Not linked"}</span></div>${S.links[t] ? `<button class="danger" data-act="linkrevoke" data-p="${t}" aria-label="Revoke ${t}" style="min-height:44px;padding:0 8px">Revoke</button>` : `<button class="link" data-act="linkopen" data-p="${t}" aria-label="Create a link for ${t}" style="min-height:44px;padding:0 8px">Create link</button>`}</div>`).join("")}
+      <p class="small" style="margin-top:8px">Your own links. They act as you and see everything your household has. Revoking stops one at once.</p></div>
+    <div><span class="lbl">Other households</span><button class="m" data-sheet="invite2"><div style="flex:1"><b>Invite someone to a different household</b><p class="small">Not Our kitchen. You pick where they join</p></div><span class="chev" style="color:var(--muted)">${I.chev}</span></button></div></div>`,
+
+  /* People, part two: Household (members, pending invites, leave). Anyone can remove anyone and anyone can cancel an invite (owner, 8 Oct 2026). */
   household: () => backHeader("Back", "Household") + `<div class="body">
-    <div><h1 style="font-size:2rem">Our kitchen</h1><p style="margin-top:4px">${S.members.length} members</p></div>
-    <div><span class="lbl">Members</span>${S.members.map((w) => `<button class="m" data-sheet="member" data-p="${w}"><span class="avw"><span class="av">${PEOPLE[w].initial}</span>${role(w) ? `<span class="avbadge">${riSvg(role(w).ic, 13)}</span>` : ""}</span><div style="flex:1"><b>${PEOPLE[w].name}</b>${w === S.persona ? ' <span class="chip">You</span>' : ""}${role(w) ? `<p class="small">${esc(role(w).title)}</p>` : ""}</div><span class="chev" style="color:var(--muted)">${I.chev}</span></button>`).join("")}
-      ${S.invites.map((i) => `<div class="m"><span class="av" style="border-style:dashed;color:var(--muted)">${esc(i.name[0])}</span><div style="flex:1"><b>${esc(i.name)}</b><p class="small">Invited · link expires in ${i.days} days</p></div><button data-act="revoke" data-p="${esc(i.name)}" class="danger" style="font-size:14px">Cancel</button></div>`).join("")}</div>
+    <div><h1 style="font-size:2rem">Our kitchen</h1><p style="margin-top:4px">${S.members.length} member${S.members.length === 1 ? "" : "s"}</p></div>
+    <div><span class="lbl">Members</span>${S.members.map((w) => `<button class="m" data-sheet="member" data-p="${w}"><span class="avw"><span class="av">${avt(w)}</span>${role(w) ? `<span class="avbadge">${riSvg(role(w).ic, 13)}</span>` : ""}</span><div style="flex:1"><b>${esc(PEOPLE[w].name)}</b>${w === S.persona ? ' <span class="chip">You</span>' : ""} ${founderChip(w)}${role(w) ? `<p class="small">${esc(role(w).title)}</p>` : ""}</div><span class="chev" style="color:var(--muted)">${I.chev}</span></button>`).join("")}
+      ${S.invites.map((i) => `<div class="m"><span class="av" style="border-style:dashed;color:var(--muted)">${esc(i.name[0])}</span><div style="flex:1"><b>${esc(i.name)}</b><p class="small">Invited · link expires in ${i.days} days</p></div><button data-act="revoke" data-p="${esc(i.name)}" class="danger" aria-label="Cancel invite for ${esc(i.name)}" style="font-size:14px;min-height:44px;padding:0 8px">Cancel</button></div>`).join("")}</div>
     <button class="btn" data-sheet="invite">Invite someone</button>
-    <div style="border-top:1px solid var(--border);padding-top:14px"><span class="lbl">Included for this household</span>
-      <div class="pillrow" style="margin-top:10px"><span class="chip">Pantry</span>${S.recipes ? '<span class="chip">Recipes</span>' : `<button class="chip add" data-go="upgrade">Add Recipes</button>`}</div></div>
-    <button data-act="leave" class="danger" style="text-align:left">Leave this household</button></div>`,
+    <div class="dz"><span class="lbl danger">Danger zone</span><p class="small">Leave Our kitchen. You lose access until someone invites you back.</p><button class="btn ghost danger" data-act="leavestart">Leave household</button></div></div>`,
 
   ai: () => backHeader("Back", "AI assistant") + `<div class="body">
     <div><h2>Your personal link</h2><p style="margin-top:6px">Lets an assistant read and update Our kitchen as you. It sees everything your household has.</p></div>
@@ -535,7 +547,7 @@ const screens = {
     <div class="field" style="display:flex;align-items:center"><span class="mono">https://kitchen.example/mcp/s9Xk-4tPq-L2vE</span></div>
     <button class="btn" data-act="copy">Copy link</button>
     <div style="display:flex;flex-direction:column;gap:10px;font-size:15px"><div class="row"><b>1</b><span>${S.aiTab === "Claude" ? "In Claude, open Settings, then Connectors." : S.aiTab === "ChatGPT" ? "In ChatGPT, open Settings, then Connectors." : "Open your assistant's connector settings."}</span></div><div class="row"><b>2</b><span>Paste your link and name it Kitchen.</span></div><div class="row"><b>3</b><span>Ask: "What should I cook tonight?"</span></div></div>
-    <div style="border-top:1px solid var(--border);padding-top:14px" class="row"><div style="flex:1"><b>${S.aiTab}</b> <span class="chip">${S.aiActive ? "Active" : "Revoked"}</span><p class="small">${S.aiActive ? "Last used 2 hours ago" : "Make a new link to reconnect"}</p></div><button data-act="aitoggle" class="${S.aiActive ? "danger" : "link"}">${S.aiActive ? "Revoke" : "New link"}</button></div>
+    <div style="border-top:1px solid var(--border);padding-top:14px" class="row"><div style="flex:1"><b>${S.aiTab}</b> <span class="chip">${S.links[S.aiTab] ? "Active" : "Not linked"}</span><p class="small">${S.links[S.aiTab] ? "Linked. Revoke it any time" : "Copy the link above to connect it"}</p></div>${S.links[S.aiTab] ? '<button data-act="aitoggle" class="danger" style="min-height:44px;padding:0 8px">Revoke</button>' : ""}</div>
     <p class="small">Anyone with this link can act as you. Revoking it stops it at once.</p></div>`,
 
   upgrade: () => backHeader("Back", "Add to your kitchen") + (pays()
@@ -602,14 +614,23 @@ function sheetHtml() {
   if (sh === "invite") return wrap(`<h2>Invite someone</h2><p>Send this link. They sign in with Google and join Our kitchen. Anyone in the household can send one.</p>
     <div class="field" style="display:flex;align-items:center"><span class="mono">https://kitchen.example/join/k7Q2-m9xA-0pR4</span></div>
     <button class="btn" data-act="copyinvite">Copy link</button><p class="small">Works once and expires in 7 days. It can be cancelled from Household.</p>`);
+  if (sh === "invite2") return wrap(`<h2>Invite to a different household</h2><p>Pick where they should join. It isn't Our kitchen.</p>
+    <div class="seg2" role="radiogroup" aria-label="Which household">${["Gran's flat", "A new household"].map((h) => `<button role="radio" aria-checked="${S.hh2 === h}" class="${S.hh2 === h ? "on" : ""}" data-act="hhpick" data-p="${h}">${h}</button>`).join("")}</div>
+    <div class="field" style="display:flex;align-items:center"><span class="mono">https://kitchen.example/join/h3W8-q2nB-6vT1</span></div>
+    <button class="btn" data-act="copyinvite2">Copy link</button><p class="small">They join ${esc(S.hh2)}. Works once and expires in 7 days.</p>`);
   if (sh === "expired") return wrap(`<h2>Sign in again to save</h2><p>Your sign-in ended. What you typed is kept, and you'll come straight back.</p><button class="btn" data-act="resume">Continue with Google</button>`, true);
   if (sh === "role") return wrap(`<h2>Your kitchen role</h2><p>Optional. It sits beside your name.</p>${roleEditor("sheet")}`);
   if (sh === "member") {
     const w = S.memberWho, r = role(w), self = w === S.persona;
-    return wrap(`<div class="row"><span class="av" style="width:56px;height:56px;font-size:20px">${PEOPLE[w].initial}</span><div><b style="font-size:20px">${PEOPLE[w].name}</b>${self ? ' <span class="chip">You</span>' : ""}</div></div>
+    return wrap(`<div class="row"><span class="av" style="width:56px;height:56px;font-size:20px">${avt(w)}</span><div><b style="font-size:20px">${esc(PEOPLE[w].name)}</b>${self ? ' <span class="chip">You</span>' : ""} ${founderChip(w)}</div></div>
       ${r ? `<div class="row" style="gap:14px">${roleIc(r, 56)}<div><b style="font-size:17px">${esc(r.title)}</b>${r.desc ? `<p style="margin-top:4px">${esc(r.desc)}</p>` : ""}</div></div>` : `<p>${self ? "You haven't picked a kitchen role." : PEOPLE[w].name + " hasn't picked a kitchen role."}</p>`}
-      ${self ? `<button class="btn" data-sheet="role">${r ? "Change role" : "Pick a role"}</button>` : ""}<button class="btn ghost" data-act="closesheet">Close</button>`);
+      ${self ? `<button class="btn" data-sheet="role">${r ? "Change role" : "Pick a role"}</button>` : `<button class="btn ghost danger" data-act="removestart">Remove ${esc(PEOPLE[w].name)} from household</button>`}<button class="btn ghost" data-act="closesheet">Close</button>`);
   }
+  if (sh === "removing") { const w = S.memberWho; return wrap(`<h2>Remove ${esc(PEOPLE[w].name)}?</h2><p>${esc(PEOPLE[w].name)} loses access to Our kitchen. What ${esc(PEOPLE[w].name)} added stays. Anyone in the household can invite them back.</p><button class="btn alert" data-act="removeconfirm">Remove ${esc(PEOPLE[w].name)}</button><button class="btn ghost" data-act="closesheet">Keep ${esc(PEOPLE[w].name)}</button>`, true); }
+  if (sh === "leave") return wrap(`<h2>Leave Our kitchen?</h2><p>You lose access to its pantry, shopping and recipes. Nothing is deleted: the others keep everything. Someone has to invite you back to rejoin.${S.members.length === 1 ? " You are the only member, so the kitchen will have no one in it." : ""}</p>
+    <label class="small" for="leavename">Type <b>${esc(me().name)}</b> to confirm</label><input class="field" id="leavename" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${esc(me().name)}" aria-label="Type your name to confirm">
+    <button class="btn alert" id="leavego" data-act="leaveconfirm" disabled>Leave household</button><button class="btn ghost" data-act="closesheet">Stay</button>`, true);
+  if (sh === "avatar") return wrap(`<h2>Your picture</h2><p>Pick one. It shows beside your name.</p><div class="avgrid">${[""].concat(AVATARS).map((a) => `<button class="avopt" data-act="setavatar" data-p="${a}" aria-label="${a ? "Picture " + a : "Your initial"}" aria-pressed="${(S.avatars[S.persona] || "") === a}">${a || PEOPLE[S.persona].initial}</button>`).join("")}</div><button class="btn ghost" data-act="closesheet">Close</button>`);
   return "";
 }
 
@@ -771,10 +792,17 @@ const acts = {
   selcancel() { S.sel = null; render(); },
   seladd() { const n = S.sel.length; S.sel.forEach((id) => addToList(id)); S.sel = null; toast(n + (n === 1 ? " item" : " items") + " added to your shopping list"); },
   copykitchen() { toast("Kitchen list copied"); },
-  copy() { S.aiDone = true; toast("Link copied"); }, copyinvite() { S.inviteDone = true; toast("Invite link copied"); }, day(d) { S.day = +d; render(); },
+  copy() { S.aiDone = true; S.links[S.aiTab] = true; toast("Link copied"); }, copyinvite() { S.inviteDone = true; toast("Invite link copied"); }, day(d) { S.day = +d; render(); },
   revoke(name) { S.invites = S.invites.filter((i) => i.name !== name); render(); toast("Invite cancelled"); },
-  leave() { toast("You'd leave Our kitchen here"); },
-  aitab(t) { S.aiTab = t; S.aiActive = true; render(); }, aitoggle() { S.aiActive = !S.aiActive; render(); },
+  hhpick(h) { S.hh2 = h; render(); }, copyinvite2() { toast("Invite link copied"); },
+  savename() { const v = document.getElementById("myname"); if (!v) return; const n = v.value.trim().slice(0, 24); if (!n) return; PEOPLE[S.persona].name = n; PEOPLE[S.persona].initial = initials(S.persona); render(); toast("Name saved"); },
+  setavatar(a) { if (a) S.avatars[S.persona] = a; else delete S.avatars[S.persona]; S.sheet = null; render(); toast("Picture changed"); },
+  removestart() { S.sheet = "removing"; render(); },
+  removeconfirm() { const w = S.memberWho, n = PEOPLE[w].name; S.members = S.members.filter((x) => x !== w); S.sheet = null; render(); toast(n + " removed"); },
+  leavestart() { S.sheet = "leave"; render(); },
+  leaveconfirm() { const v = document.getElementById("leavename"); if (!v || v.value.trim().toLowerCase() !== me().name.toLowerCase()) return; S.members = S.members.filter((x) => x !== S.persona); S.sheet = null; S.stack = []; go("notmember", null, { replace: true }); toast("You left Our kitchen"); },
+  aitab(t) { S.aiTab = t; render(); }, aitoggle() { S.links[S.aiTab] = false; render(); toast("Link revoked"); },
+  linkrevoke(t) { S.links[t] = false; render(); toast(t + " link revoked"); }, linkopen(t) { S.aiTab = t; go("ai"); },
   ask() { toast("Sent to Arjan"); S.stack.pop(); go("today", null, { replace: true }); },
   pay() { S.recipes = true; refreshPanel(); S.stack = []; go("recipes", null, { replace: true }); toast("Recipes added for Our kitchen"); },
   rolepick(i) { S.anim = !S.rdraft; const r = ROLE_PRESETS[Number(i)]; S.rdraft = { pi: Number(i), ic: r.ic, title: r.title, desc: r.desc }; S.iconPick = false; render(); },
@@ -825,7 +853,9 @@ document.addEventListener("click", (e) => {
   if (t.dataset.go) { S.sheet = null; return go(t.dataset.go, ["item", "recipe"].includes(t.dataset.go) ? t.dataset.p : null); }
 });
 document.addEventListener("change", (e) => { const fin = e.target.dataset && e.target.dataset.fin; if (fin) { acts.fset(fin + "|" + e.target.value, e.target.type === "text"); return; } const c = e.target.dataset && e.target.dataset.ctl; if (c === "persona") { S.persona = e.target.value; refreshPanel(); render(); } if (c === "existing") { S.existing = Number(e.target.value); render(); } });
-document.addEventListener("input", (e) => { if (e.target.id === "r-title" && S.rdraft) S.rdraft.title = e.target.value; if (e.target.id === "r-desc" && S.rdraft) S.rdraft.desc = e.target.value; if (e.target.id === "search") { S.search = e.target.value; document.getElementById("plist").innerHTML = listHtml(); } });
+document.addEventListener("input", (e) => { if (e.target.id === "r-title" && S.rdraft) S.rdraft.title = e.target.value; if (e.target.id === "r-desc" && S.rdraft) S.rdraft.desc = e.target.value; if (e.target.id === "search") { S.search = e.target.value; document.getElementById("plist").innerHTML = listHtml(); }
+  if (e.target.id === "myname") { const v = e.target.value.trim(); document.getElementById("namesave").disabled = !v || v === me().name; }
+  if (e.target.id === "leavename") document.getElementById("leavego").disabled = e.target.value.trim().toLowerCase() !== me().name.toLowerCase(); });
 /* swipe a running-low row to add it; press and hold to start picking several */
 let g = null; const DEEP = 190; /* px: past this a left swipe means used up, not use one */
 document.addEventListener("pointerdown", (e) => {
@@ -865,7 +895,16 @@ document.addEventListener("scroll", (e) => { const sn = e.target; if (sn.id !== 
 /* Pantry top row: pull down for search (first threshold), keep pulling for refresh (second). Spec: docs/knowledge/pantry-pull-row.md */
 const PULL_SEARCH = 70, PULL_REFRESH = 170, REFRESH_MS = 2400, REFRESH_MS_REDUCED = 1600; let pl = null, refreshTimer = null;
 const rowState = () => (S.refresh ? "anim" : S.searchOpen ? "search" : "rest");
-function setRow(row, st) { row.dataset.state = st; row.classList.remove("peek"); if (st !== "search") row.classList.remove("lock"); const f = row.querySelector(".pl-front"); f.style.transition = ""; f.style.transform = ""; }
+function setRow(row, st) { row.dataset.state = st; row.classList.remove("peek"); if (st !== "search") row.classList.remove("lock"); const f = row.querySelector(".pl-front"); f.style.transition = ""; f.style.transform = ""; f.style.opacity = ""; const sp = row.querySelector(".spill"), cn = row.querySelector(".pl-search .cancel"); if (sp) { sp.style.transition = ""; sp.style.width = ""; } if (cn) { cn.style.transition = ""; cn.style.opacity = ""; } }
+/* While the finger is down between 8 and 70 px the hide follows it: Filters and Add slide away and fade, the magnifier opens into the field and Cancel fades in, all in step with the pull. At 70 px they are exactly where the locked state puts them, so the lock does not jump. */
+function pullFollow(row, dy) {
+  const f = row.querySelector(".pl-front"), sp = row.querySelector(".spill"), cn = row.querySelector(".pl-search .cancel");
+  if (reducedMotion()) { f.style.transition = "none"; f.style.transform = `translateY(${Math.round(Math.min(dy / PULL_SEARCH, 1) * 22)}px)`; return; }
+  const p = Math.max(0, Math.min(1, (dy - 8) / (PULL_SEARCH - 8))), e = p * p * (3 - 2 * p);
+  f.style.transition = "none"; f.style.transform = `translateY(${e * 100}%)`; f.style.opacity = String(1 - e);
+  sp.style.transition = "none"; sp.style.width = `calc(48px + (100% - 132px) * ${e})`;
+  cn.style.transition = "none"; cn.style.opacity = String(e);
+}
 function openSearch(row) { S.searchOpen = true; setRow(row, "search"); const s = document.getElementById("search"); if (s) s.focus({ preventScroll: true }); }
 function closeSearch() {
   S.searchOpen = false; S.search = ""; const row = document.getElementById("prow"); if (!row) return; const s = document.getElementById("search"); if (s) { s.value = ""; s.blur(); }
@@ -887,7 +926,7 @@ function pullMove(x, y, e) {
 function pullShow(st, dy) {
   const row = pl.row, f = row.querySelector(".pl-front"), msg = row.querySelector("#pmsg");
   if (st === "base") { pl.st = null; setRow(row, rowState()); msg.setAttribute("aria-hidden", "true"); return; }
-  if (st === "peek") { row.classList.remove("lock"); row.dataset.state = rowState(); if (rowState() === "rest") { row.classList.add("peek"); f.style.transition = "none"; f.style.transform = `translateY(${Math.round(Math.min(dy / PULL_SEARCH, 1) * 22)}px)`; } pl.st = "peek"; return; }
+  if (st === "peek") { row.classList.remove("lock"); row.dataset.state = rowState(); if (rowState() === "rest") { row.classList.add("peek"); pullFollow(row, dy); } pl.st = "peek"; return; }
   if (pl.st === st) return; pl.st = st; setRow(row, st);
   if (st === "search") { row.classList.remove("lock"); void row.offsetWidth; row.classList.add("lock"); if (navigator.vibrate) navigator.vibrate(10); } /* locked in: the magnifier has opened into the field (ring and pop, a short buzz where the device has one) */
   if (st === "let") { msg.innerHTML = `<div class="rf"><span>Let go to refresh</span></div>`; msg.removeAttribute("aria-hidden"); }

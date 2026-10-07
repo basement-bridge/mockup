@@ -422,7 +422,7 @@ html,body{overflow-x:hidden}.phone,.body{overflow-x:hidden}.rscroll,.twoRow{over
    rest = Filters + Add; search = search field, mic, Cancel; anim = refresh message or scene. Layers slide like a curtain. */
 .pact{display:flex;align-items:center;gap:.6rem}
 .prow{position:relative;flex:none;height:56px;min-height:56px;overflow:hidden;margin-bottom:.4rem;--slide:.32s}
-.prow .pl{position:absolute;inset:0;display:flex;align-items:center;gap:8px;background:var(--bg);visibility:hidden;transition:transform var(--slide) cubic-bezier(.2,.8,.2,1),visibility 0s var(--slide)}
+.prow .pl{position:absolute;inset:0;display:flex;align-items:center;gap:8px;background:var(--bg);visibility:hidden;transition:transform var(--slide) cubic-bezier(.2,.8,.2,1),opacity var(--slide) ease,visibility 0s var(--slide)}
 .prow .pl-msg{z-index:1;justify-content:center;color:var(--fg);font-size:13px;font-weight:600}
 .prow .pl-search{z-index:2}
 .prow .pl-front{z-index:3;justify-content:space-between}
@@ -440,3 +440,15 @@ html,body{overflow-x:hidden}.phone,.body{overflow-x:hidden}.rscroll,.twoRow{over
 .pswipe.deep .swbg.three .l1{display:none}.pswipe.deep .swbg.three .l2{display:inline-flex}
 .pswipe.deep .swbg{background:var(--danger)}
 .pswipe.isout .name,.pswipe.isout .meta{opacity:.55}
+/* People: Me and Household (docs/knowledge/people-settings.md) */
+.fchip{display:inline-flex;align-items:center;gap:4px;color:var(--accent);border-color:var(--accent);vertical-align:middle}
+.fchip svg{flex:none}
+.avbig{position:relative;flex:none;display:inline-flex;min-width:72px;min-height:72px}
+.avbig .avedit{position:absolute;right:-4px;bottom:-4px;width:30px;height:30px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:inline-flex;align-items:center;justify-content:center;border:2px solid var(--bg)}
+.avgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.avopt{min-height:56px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);font-size:28px;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--fg)}
+.avopt[aria-pressed=true]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.dz{border:1px solid var(--danger);border-radius:var(--r-card);padding:14px;display:flex;flex-direction:column;gap:10px}
+.dz .lbl{margin:0}
+.btn.alert{background:var(--danger);color:var(--on-accent);border-color:transparent}
+.btn.alert:disabled{opacity:.45}
