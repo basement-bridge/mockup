@@ -442,7 +442,7 @@ html,body{overflow-x:hidden}.phone,.body{overflow-x:hidden}.rscroll,.twoRow{over
 .pswipe.isout .name,.pswipe.isout .meta{opacity:.55}
 
 /* item sheet: half height, above the tab bar */
-.sheet-dim.isheet{bottom:68px}
+.sheet-dim.isheet{bottom:0}
 .sheet.half{height:auto;max-height:54%;padding:8px 16px 14px;gap:12px;border-radius:var(--r-card) var(--r-card) 0 0;overflow:auto;touch-action:pan-y}
 .sheet.half.rise{animation:sheetup .26s ease-out}
 @keyframes sheetup{from{transform:translateY(100%)}}
@@ -470,7 +470,7 @@ html,body{overflow-x:hidden}.phone,.body{overflow-x:hidden}.rscroll,.twoRow{over
 .sacts .btn{flex:1;width:auto;padding:0 10px;font-size:14px}
 .sedit{display:flex;flex-direction:column;gap:12px}
 .sedit .stepper{background:var(--bg)}
-.toast.abovesheet{bottom:calc(68px + 54% + 10px)}
+.toast.abovesheet{bottom:calc(260px + 10px)}
 .isheet-open .gear{display:none} /* the phone-width Controls button would sit on the sheet actions */
 /* People: Me and Household (docs/knowledge/people-settings.md) */
 .fchip{display:inline-flex;align-items:center;gap:4px;color:var(--accent);border-color:var(--accent);vertical-align:middle}

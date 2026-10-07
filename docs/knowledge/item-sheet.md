@@ -71,39 +71,49 @@ Owner's words, in the order he said them, last word wins:
 - The sheet should "be economic about how much space we are using". Whether it sits over or above the tab bar stays open.
 - The owner asked for the scenarios to be thought through so the handover for build is clear (table below).
 
+### Decided by the owner (voice, 8 Oct 2026)
+
+- The sheet sits **over** the tab bar, so the tabs are covered while it is open ("it's gonna be over").
+- Tapping the dimmed background closes it. There is no X: the top-right button is the All fields icon, which opens the whole item editor.
+- Quantity steps are whole numbers ("it's one. It's whole numbers") for counted items, the same one as a left swipe. Weighed and measured units use the reference steps already in the mockup: g and mL by 50, kg and L by 0.5, anything else by 1 (`STEP` in `app.js`).
+- Heard but not placed: "grow to full height", "drag the handle down", and "confirm on use of none". The mockup keeps drag-handle-down to close and does not grow to full height. Open, below.
+
 ### What the sheet shows
 
-- Header: name; quantity line (number plus unit, "Out" at zero); location in bold with the spot after it (Fridge · Door). A small list icon (All fields) and the close button sit at the right.
+- Header: name; quantity line (number plus unit, "Out" at zero); location in bold with the spot after it (Fridge · Door). The All fields icon sits at the top right.
 - Tiles, one row of four: Level (the drop), Use by, Minimum, Category.
 - Buttons: Used up, and Add to shopping (or On your list).
 - Height follows the content (about 244px on a 390px-wide phone), capped at 54% of the screen. **Proposal.**
 
 ### Scenarios (what each missing field does)
 
-| Situation | Header | Tiles |
-|---|---|---|
-| Number and unit, e.g. 12 or 250 g | quantity line shows it | Level drop reflects it |
-| No number (or no unit) | no quantity line; nothing invented | Level tile only |
-| Zero | quantity reads "Out" | drop is the empty outline; Used up disabled ("Marked Out") |
-| No location | location line omitted | no tile for it |
-| Location, no spot (or spot "Anywhere") | location bold alone | n/a |
-| Location and spot | **Fridge** · Door | n/a |
-| No use-by | n/a | Use by tile is dashed: "Add use-by" |
-| No minimum | n/a | Minimum tile is dashed: "Add minimum" |
-| Minimum set | n/a | Minimum tile shows value, e.g. 4 with caption Minimum |
-| No category | n/a | Category tile is dashed: "Add category" |
-| Counted item, tap Level | n/a | opens the quantity stepper and unit chooser |
-| Weighed or level-only item, tap Level | n/a | opens the four level choices (Plenty, Some, Running low, Out) |
-| Many fields missing at once | name only, plus whatever exists | up to three dashed tiles; the row stays four wide |
-| Long name, spot or category | name and location wrap or truncate with ellipsis; no overflow | tiles truncate their value |
+Status: **Owner** follows from something the owner said; **Proposal** is the mockup's choice and needs sign-off.
 
-- **Proposal:** the Level tile opens the quantity editor on a counted item (the quantity is the data; the level follows from it) and the level choices otherwise.
-- **Proposal:** Minimum is its own editor (the existing running-low stepper) for every item, including weighed ones, which no longer need All fields for it.
-- **Proposal:** the Category tile shows the value alone, with no caption. An empty one reads "Add category".
+| Situation | Header | Tiles | Status |
+|---|---|---|---|
+| Number and unit, e.g. 12 or 250 g | quantity line shows it | Level drop reflects it | Owner |
+| No number (or no unit) | no quantity line; nothing invented | Level tile only | Owner ("Don't make it up") |
+| Zero | quantity reads "Out" | empty outline drop; Used up disabled ("Marked Out") | Proposal |
+| No location | location line omitted | no tile for it | Proposal |
+| Location, no spot (or spot "Anywhere") | location in bold alone | n/a | Proposal |
+| Location and spot | **Fridge** · Door | n/a | Owner |
+| No use-by | n/a | dashed "Add use-by" | Proposal |
+| No minimum | n/a | dashed "Add minimum" | Proposal |
+| Minimum set | n/a | shows the value, caption Minimum | Owner (minimum is a tile) |
+| No category | n/a | dashed "Add category" | Proposal |
+| Counted item, tap Level | n/a | quantity stepper (step 1) and unit chooser | Proposal (step 1 is Owner) |
+| Weighed or level-only item, tap Level | n/a | four level choices | Proposal |
+| Many fields missing at once | name only, plus whatever exists | up to three dashed tiles; row stays four wide | Proposal |
+| Long name, spot or category | wrap or truncate with ellipsis | tiles truncate the value | Proposal |
+
+- **Proposal:** the Level tile opens the quantity editor on a counted item and the level choices otherwise; Minimum is its own editor for every item; the Category tile shows the value alone.
+- The quantity line also shows for weighed items. **Proposal** (the owner said "anything that's got a unit").
 
 ### Still open
 
-- Over or above the tab bar, and whether dragging the sheet up reaches the full screen.
-- What the Level tile should do when an item has both a quantity and a manual level (today the quantity wins).
-- Which rule makes "Some" (between Plenty and Running low) for a counted item. The owner said "we'll work out rules".
-- Whether a missing-number item should offer a way to add a quantity from the sheet (today only All fields does).
+- Grow to full height, and what dragging the handle up should do (the owner said something about full height and then decided on "over").
+- "Confirm on use of none": not understood; what is to be confirmed?
+- What the Level tile does when an item has both a quantity and a manual level (today the quantity wins).
+- The rule for "Some" between Plenty and Running low on a counted item. The owner said "we'll work out rules".
+- Whether an item with no number can get a quantity from the sheet (today only All fields).
+- The Undo toast sits 260px up, above the sheet, as a fixed offset.

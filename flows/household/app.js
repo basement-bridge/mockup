@@ -606,7 +606,7 @@ function itemSheetHtml() {
     const spot = p.spot && p.spot !== "Anywhere" ? esc(p.spot) : "";
     const place = p.area ? `<span class="small shw">${`<b>${esc(p.area)}</b>`}${spot ? " · " + spot : ""}</span>` : "";
     const more = `<button class="icon smore" data-act="itile" data-p="all" aria-label="All fields" title="All fields">${I.list}</button>`;
-    const head = `<div class="shead"><span class="ph" aria-hidden="true">${emo(p)}</span><div class="sid"><b>${esc(p.name)}</b>${hasQty ? `<span class="small shq">${out ? "Out" : esc(fmtAmt(p))}</span>` : ""}${place}</div>${more}${close}</div>`;
+    const head = `<div class="shead"><span class="ph" aria-hidden="true">${emo(p)}</span><div class="sid"><b>${esc(p.name)}</b>${hasQty ? `<span class="small shq">${out ? "Out" : esc(fmtAmt(p))}</span>` : ""}${place}</div>${more}</div>`;
     /* the Level tile is the drop; on a counted item it opens the quantity stepper, on a level-only item it opens the level choices */
     const first = tile(cnt ? "amount" : "level", levelDrop(lv), "", srOnly((cnt ? "Quantity and level, " : "Level, ") + lv), "");
     const minTile = tile("min", typeof I.down === "string" ? I.down.replace('width="22" height="22"', 'width="20" height="20"') : riSvg("alert", 20), p.min > 0 ? esc(fmtAmt({ n: p.min, unit: p.unit })) : null, "Minimum", "Add minimum");
