@@ -16,6 +16,7 @@ Under Settings, People stops being a flat invite-link screen and splits in two: 
 - invite another person to a different household (this lives under Me, not under Household; addendum of 8 Oct 2026)
 - **Settled (owner, voice, 8 Oct 2026):** a different household is always a new one: the person invited starts their own household, it is not one the inviter already belongs to.
 - **Settled (owner, voice, 8 Oct 2026):** the founding member cannot be removed by anyone. Anyone else can be removed by anyone.
+- **Settled (owner, voice, 8 Oct 2026):** leaving is always allowed, even for the last member. Once everyone has left the household is an orphan: nobody can get back in. The last member gets an explicit warning before confirming that they will not be able to come back in.
 
 **Household**:
 - invite another person to this household, the list of members, with a badge on the founding member
@@ -47,4 +48,3 @@ Also from the owner, 8 Oct 2026, in the profile menu:
 ## Open
 
 - What happens to the Founding member badge when the founder has left?
-- If the last member leaves, the sheet warns that the kitchen will have no one in it. What should actually happen?
