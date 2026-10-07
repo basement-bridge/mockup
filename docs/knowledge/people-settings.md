@@ -32,7 +32,7 @@ Also from the owner, 8 Oct 2026, in the profile menu:
 ## What the mockup does
 
 - Profile menu, People group: two rows, Me (shows the name) and Household (shows the member count). The old "Create invite link" row is gone; Invite someone lives on Household. Plan and billing stays for the billing contact.
-- Me: tap the picture to open a sheet of twelve pictures plus the person's initial; a Name field that saves as you type (no Save button; an emptied field goes back to the saved name); a Kitchen role row that opens the existing role editor (the role is the person's own); an AI assistants row, Your link, showing Active or Not linked: tapping it opens the AI assistant screen where the one link is copied (copying makes it Active), and when Active a Revoke button opens a confirmation sheet (Keep it, or Yes, revoke it); and an Other households row, Invite someone to a different household, which opens a sheet to pick the household and copy a single-use link.
+- Me: tap the picture to open a sheet of the drawn role icons plus the person's initial; a Name field that saves as you type (no Save button; an emptied field goes back to the saved name); a Kitchen role row that opens the existing role editor (the role is the person's own); an AI assistants row, Your link, showing Active or Not linked: tapping it opens the AI assistant screen where the one link is copied (copying makes it Active), and when Active a Revoke button opens a confirmation sheet (Keep it, or Yes, revoke it); and an Other households row, Invite someone to a different household, which opens a sheet to pick the household and copy a single-use link.
 - Household: members (You chip, Founding member chip, role line), pending invites with Cancel, Invite someone, then a Danger zone box with Leave household.
 - Tap a member: the existing member sheet, now with a "Remove <name> from household" button for anyone but yourself and the founding member (who shows a short note instead). It leads to a confirm sheet (Remove or Keep).
 - Leave household: sheet that says what is lost and what is kept, a field "Type <your name> to confirm", and a Leave button that stays disabled until the typed name matches (ignoring case and spaces at the ends). Confirming returns the person to the "not a member" screen.
@@ -41,7 +41,7 @@ Also from the owner, 8 Oct 2026, in the profile menu:
 
 
 - **Proposal:** the profile menu's Connect group (AI assistant) is removed, because AI links now live under Me. The Link your AI step in Get started still opens the AI assistant screen.
-- **Proposal:** a name is at most 24 characters; the avatar set is twelve emoji plus the initial.
+- **Proposal:** a name is at most 24 characters; the avatar set is the role-icon library plus the initial.
 - **Proposal:** removing someone takes a second confirm (the owner said tapping a person lets you remove them).
 - **Proposal:** an assistant that has never been linked reads Not linked, and revoking returns it to Not linked (no separate Revoked state).
 
@@ -66,5 +66,8 @@ Owner, by voice: "There's no need to have a save button." "Me knows Sam, right? 
 - Name saves as you type. No Save button, no toast.
 - The Me body no longer shows the person's name as text above the Name field; the Name field is the only place.
 - Settings > Theme shows only the two-tone swatches (tooltip and screen-reader label carry the name). The picked theme's name is written once underneath. The five themes are unchanged; `theme.js` gained an opt-in swatch-only mode, the profile menu popup still shows names.
-- **Open question (not changed):** the owner said the picture should not be an emoji grid and should reuse the avatar people pick at sign-up. The mockup has no sign-up avatar picker: its only avatar set is the twelve emoji plus initial in the Me sheet. Which avatar system does sign-up use in Kitchie (Google picture, drawn icons, something else)? Until that is known the Me picker is unchanged.
+- Me picture: no emoji. Owner, by voice: "there's role picking, and role picking goes by avatars", so the picture picker offers the same drawn icons the role picker uses (`ICON_LIB`), plus the person's initial. Stored as `ri:<key>`.
+- **Proposal:** the whole role-icon library is offered, including non-person icons (fridge, link, mail). Trim to a person-friendly subset if the owner wants.
+- **Open question:** a role badge and a picture can now be the same icon. Fine, or should the picture set be separate?
+- Settings > Sample items shows only while sample items are still outstanding (with Clear sample items); once they're gone the whole block is hidden (owner: "if they've already cleared it, we don't show that in Settings"). The same rule applies to any action that would do nothing.
 - Settings no longer has a "Your kitchen role" row (owner, 8 Oct 2026: "we don't need your kitchen role under settings, because we set that under Me"). The role is set only under Me.
