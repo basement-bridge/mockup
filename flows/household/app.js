@@ -602,7 +602,7 @@ function itemSheetHtml() {
     const tile = (k, ic, val, label, prompt, sr) => val === null
       ? `<button class="tl empty" data-act="itile" data-p="${k}">${I.plus.replace('width="22" height="22"', 'width="20" height="20"')}<span>${prompt}</span></button>`
       : `<button class="tl" data-act="itile" data-p="${k}" ${sr ? `aria-label="${esc(sr)}"` : ""}>${ic}${val === "" ? "" : `<b>${val}</b>`}${label ? `<span>${label}</span>` : ""}</button>`;
-    const head = `<div class="shead"><span class="ph" aria-hidden="true">${emo(p)}</span><div class="sid"><b>${esc(p.name)}</b><span class="small">${esc(p.area)}${p.spot && p.spot !== "Anywhere" ? " · " + esc(p.spot) : ""}</span></div>${close}</div>`;
+    const head = `<div class="shead"><span class="ph" aria-hidden="true">${emo(p)}</span><div class="sid"><b>${esc(p.name)}</b>${cnt || ["g", "mL", "kg", "L"].includes(p.unit) ? `<span class="small shq">${out ? "Out" : esc(fmtAmt(p))}</span>` : ""}<span class="small"><b class="shw">${esc(p.area)}</b>${p.spot && p.spot !== "Anywhere" ? " · " + esc(p.spot) : ""}</span></div>${close}</div>`;
     const first = cnt
       ? tile("amount", levelDrop(lv), out ? "0" : esc(fmtAmt(p)), srOnly("Amount, " + lv), "")
       : tile("level", levelDrop(lv), "", srOnly("Level, " + lv), "");

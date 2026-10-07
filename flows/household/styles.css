@@ -484,3 +484,7 @@ html,body{overflow-x:hidden}.phone,.body{overflow-x:hidden}.rscroll,.twoRow{over
 .dz .lbl{margin:0}
 .btn.alert{background:var(--danger);color:var(--on-accent);border-color:transparent}
 .btn.alert:disabled{opacity:.45}
+
+/* item sheet header: quantity (counted items) then location in bold, spot plain */
+.shead .sid .small b.shw{font-size:inherit;font-weight:700;color:var(--fg);overflow:visible;white-space:normal}
+.shead .sid .shq{color:var(--fg);font-weight:600}

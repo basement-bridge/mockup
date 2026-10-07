@@ -60,3 +60,9 @@ A tile with data is filled (tinted surface, accent border) and shows its value w
 - **Counted vs level-only** uses the swipe's rule (count units are counted, weights and volumes are level-only), so a 250 g block of butter has no Amount tile in the sheet. Open: should weighed items keep an Amount tile with a step (50 g, 0.5 kg)? Today the amount is in All fields.
 - **Last tile reads "More / All fields"** (the fragment's tile said Name / More). The emoji and name sit in the sheet header.
 - **Used up item**: its Used up button becomes a disabled "Marked Out"; the Amount tile reads Out in the accent colour. Bringing it back is Undo, or Amount.
+
+## Header under the name (owner, voice, 8 Oct 2026)
+
+Owner: show the quantity "if it's available" just under the item name, and the location too, since it is already tracked. Shown under the name in the sheet header: the quantity, then the location in bold followed by the spot (for example **Fridge** · Door). This is in addition to the Amount tile and its editor, not instead of them.
+
+- **Proposal:** the quantity line shows for counted items and for weighed or measured ones (g, mL, kg, L), because they all have a number. Items with no number show only the location. Out items read "Out".
