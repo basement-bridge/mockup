@@ -122,7 +122,7 @@ const initial = () => ({
   members: ["arjan", "sam"], invites: [{ name: "Priya", days: 6 }],
   roles: { arjan: { title: "Pantry Marshal", ic: "shield", desc: "Keeps order on the shelves and the fridge. Knows exactly where the cumin lives." }, sam: null },
   cfg: { size: "normal", emoji: true, motion: false, spot: true, amount: true, useby: true, activity: true, compact: false }, stockChecks: true,
-  day: 1, aiDone: false, inviteDone: false, cvOpt: "A", aiTab: "ChatGPT", links: { ChatGPT: false, Claude: false, Other: false }, founder: "arjan", avatars: {}, hh2: "Gran's flat", bannerGot: false, pending: null, joined: false,
+  day: 1, aiDone: false, inviteDone: false, cvOpt: "A", aiTab: "ChatGPT", links: { ChatGPT: false, Claude: false, Other: false }, founder: "arjan", avatars: {}, bannerGot: false, pending: null, joined: false,
   /* pantry view */
   rmode: "loc", order: { loc: [...AREAS], cat: [...CATEGORIES] }, fa: null, fd: null, flast: null, fTab: "filters", seenP: 0, seenR: 0, view: "name", shop: ["milk", "carrots", "butter"], slx: { milk: { by: "arjan", want: "2 litres", tick: false }, carrots: { by: "sam", want: "", tick: false }, butter: { by: "arjan", want: "", tick: false } }, wantFor: null, sel: null, areaTab: "All", collapsed: {}, search: "", searchOpen: false, draft: { days: null },
   memberWho: null, existing: 1, own: false, rdraft: null, iconPick: false,
@@ -531,7 +531,7 @@ const screens = {
     <div><span class="lbl">Kitchen role</span><button class="m" data-sheet="role"><div style="flex:1"><b>${role(S.persona) ? esc(role(S.persona).title) : "Pick a kitchen role"}</b><p class="small">Only you can change yours</p></div><span class="chev" style="color:var(--muted)">${I.chev}</span></button></div>
     <div><span class="lbl">AI assistants</span>${["ChatGPT", "Claude", "Other"].map((t) => `<div class="m"><div style="flex:1"><b>${t}</b> <span class="chip">${S.links[t] ? "Active" : "Not linked"}</span></div>${S.links[t] ? `<button class="danger" data-act="linkrevoke" data-p="${t}" aria-label="Revoke ${t}" style="min-height:44px;padding:0 8px">Revoke</button>` : `<button class="link" data-act="linkopen" data-p="${t}" aria-label="Create a link for ${t}" style="min-height:44px;padding:0 8px">Create link</button>`}</div>`).join("")}
       <p class="small" style="margin-top:8px">Your own links. They act as you and see everything your household has. Revoking stops one at once.</p></div>
-    <div><span class="lbl">Other households</span><button class="m" data-sheet="invite2"><div style="flex:1"><b>Invite someone to a different household</b><p class="small">Not Our kitchen. You pick where they join</p></div><span class="chev" style="color:var(--muted)">${I.chev}</span></button></div></div>`,
+    <div><span class="lbl">Other households</span><button class="m" data-sheet="invite2"><div style="flex:1"><b>Invite someone to a different household</b><p class="small">They start their own new household</p></div><span class="chev" style="color:var(--muted)">${I.chev}</span></button></div></div>`,
 
   /* People, part two: Household (members, pending invites, leave). Anyone can remove anyone and anyone can cancel an invite (owner, 8 Oct 2026). */
   household: () => backHeader("Back", "Household") + `<div class="body">
@@ -579,8 +579,8 @@ const screens = {
    tap one and its editor takes over the sheet with a back arrow. Editors are the same fields/*.js files as the full item screen,
    fetched on the first tap of a tile (nothing extra loads when the sheet opens). "All fields" opens the full item screen.
    Counted = the unit is a count (reducible); anything weighed or measured is level-only. Used up = amount 0, shows Out, Undo toast. */
-const TILE_FIELDS = { amount: ["qty", "min"], level: [], where: ["loc", "spot"], useby: ["useby"], cat: ["cat"] };
-const TILE_TITLE = { amount: "Amount", level: "Level", where: "Where", useby: "Use by", cat: "Category" };
+const TILE_FIELDS = { amount: ["qty"], level: [], min: ["min"], where: ["loc", "spot"], useby: ["useby"], cat: ["cat"] };
+const TILE_TITLE = { amount: "Amount", level: "Level", min: "Minimum", where: "Where", useby: "Use by", cat: "Category" };
 /* level drop: fuller or emptier with the level. Plenty full (green), Some about half (amber), Running low about a quarter (red), Out an empty outline.
    No level word is drawn; the name is screen-reader text only (.sr-only). */
 const LEVELS = { Plenty: [1, "plenty"], Some: [0.5, "some"], "Running low": [0.25, "low"], Out: [0, "out"] };
@@ -602,11 +602,15 @@ function itemSheetHtml() {
     const tile = (k, ic, val, label, prompt, sr) => val === null
       ? `<button class="tl empty" data-act="itile" data-p="${k}">${I.plus.replace('width="22" height="22"', 'width="20" height="20"')}<span>${prompt}</span></button>`
       : `<button class="tl" data-act="itile" data-p="${k}" ${sr ? `aria-label="${esc(sr)}"` : ""}>${ic}${val === "" ? "" : `<b>${val}</b>`}${label ? `<span>${label}</span>` : ""}</button>`;
-    const head = `<div class="shead"><span class="ph" aria-hidden="true">${emo(p)}</span><div class="sid"><b>${esc(p.name)}</b><span class="small">${esc(p.area)}${p.spot && p.spot !== "Anywhere" ? " · " + esc(p.spot) : ""}</span></div>${close}</div>`;
-    const first = cnt
-      ? tile("amount", levelDrop(lv), out ? "0" : esc(fmtAmt(p)), srOnly("Amount, " + lv), "")
-      : tile("level", levelDrop(lv), "", srOnly("Level, " + lv), "");
-    const tiles = `<div class="tiles3">${first}${tile("where", riSvg("fridge", 20), esc(p.area), "Where")}${tile("useby", riSvg("clock", 20), p.days === null ? null : esc(dayLabel(p.days)), "Use by", "Add use-by")}${tile("cat", riSvg("basket", 20), p.cat ? esc(p.cat) : null, "Category", "Add category")}<button class="tl more" data-act="itile" data-p="all">${riSvg("list", 20)}<b>More</b><span>All fields</span></button></div>`;
+    const hasQty = typeof p.n === "number" && !Number.isNaN(p.n) && (cnt || ["g", "mL", "kg", "L"].includes(p.unit));
+    const spot = p.spot && p.spot !== "Anywhere" ? esc(p.spot) : "";
+    const place = p.area ? `<span class="small shw">${`<b>${esc(p.area)}</b>`}${spot ? " · " + spot : ""}</span>` : "";
+    const more = `<button class="icon smore" data-act="itile" data-p="all" aria-label="All fields" title="All fields">${I.list}</button>`;
+    const head = `<div class="shead"><span class="ph" aria-hidden="true">${emo(p)}</span><div class="sid"><b>${esc(p.name)}</b>${hasQty ? `<span class="small shq">${out ? "Out" : esc(fmtAmt(p))}</span>` : ""}${place}</div>${more}</div>`;
+    /* the Level tile is the drop; on a counted item it opens the quantity stepper, on a level-only item it opens the level choices */
+    const first = tile(cnt ? "amount" : "level", levelDrop(lv), "", srOnly((cnt ? "Quantity and level, " : "Level, ") + lv), "");
+    const minTile = tile("min", typeof I.down === "string" ? I.down.replace('width="22" height="22"', 'width="20" height="20"') : riSvg("alert", 20), p.min > 0 ? esc(fmtAmt({ n: p.min, unit: p.unit })) : null, "Minimum", "Add minimum");
+    const tiles = `<div class="tiles4">${first}${tile("useby", riSvg("clock", 20), p.days === null ? null : esc(dayLabel(p.days)), "Use by", "Add use-by")}${minTile}${tile("cat", riSvg("basket", 20), p.cat ? esc(p.cat) : null, "", "Add category")}</div>`;
     const acts2 = `<div class="sacts">${out ? `<button class="btn ghost" disabled>${I.tick}<span>&nbsp;Marked Out</span></button>` : `<button class="btn ghost" data-act="sheetused">${I.tick}<span>&nbsp;Used up</span></button>`}${onList(p.id) ? `<button class="btn ghost" disabled>${I.tick}<span>&nbsp;On your list</span></button>` : `<button class="btn" data-act="sheetshop">${riSvg("cart", 20)}<span>&nbsp;Add to shopping</span></button>`}</div>`;
     body = head + errHtml + tiles + acts2;
   } else {
@@ -614,7 +618,7 @@ function itemSheetHtml() {
     let ed = "";
     if (v === "level") {
       ed = `<div class="opts lvpick" role="radiogroup" aria-label="Level">${Object.keys(LEVELS).reverse().map((l) => `<button class="opt${l === lv ? " on" : ""}" role="radio" aria-checked="${l === lv}" data-act="lvl" data-p="${l}">${levelDrop(l, 40)}${srOnly(l)}</button>`).join("")}</div><p class="small">The drop empties as it runs down. An empty drop means none left. Nothing is deleted: it stays in the pantry.</p>`;
-    } else if (v === "amount") ed = `${ITEM_FIELDS.qty.html(p)}<span class="lbl">Running low at or under</span>${ITEM_FIELDS.min.html(p)}`;
+    } else if (v === "amount") ed = ITEM_FIELDS.qty.html(p);
     else if (v === "where") ed = TILE_FIELDS.where.map((k) => `<span class="lbl">${k === "loc" ? "Location" : "Spot"}</span>${ITEM_FIELDS[k].html(p)}`).join("");
     else ed = ITEM_FIELDS[TILE_FIELDS[v][0]].html(p);
     body = hd + `<div class="sedit">${ed}</div>${errHtml}${S.ed.saved ? savedLine() : ""}`;
@@ -662,20 +666,19 @@ function sheetHtml() {
   if (sh === "invite") return wrap(`<h2>Invite someone</h2><p>Send this link. They sign in with Google and join Our kitchen. Anyone in the household can send one.</p>
     <div class="field" style="display:flex;align-items:center"><span class="mono">https://kitchen.example/join/k7Q2-m9xA-0pR4</span></div>
     <button class="btn" data-act="copyinvite">Copy link</button><p class="small">Works once and expires in 7 days. It can be cancelled from Household.</p>`);
-  if (sh === "invite2") return wrap(`<h2>Invite to a different household</h2><p>Pick where they should join. It isn't Our kitchen.</p>
-    <div class="seg2" role="radiogroup" aria-label="Which household">${["Gran's flat", "A new household"].map((h) => `<button role="radio" aria-checked="${S.hh2 === h}" class="${S.hh2 === h ? "on" : ""}" data-act="hhpick" data-p="${h}">${h}</button>`).join("")}</div>
+  if (sh === "invite2") return wrap(`<h2>Invite to start a new household</h2><p>They create their own household. They don't join Our kitchen.</p>
     <div class="field" style="display:flex;align-items:center"><span class="mono">https://kitchen.example/join/h3W8-q2nB-6vT1</span></div>
-    <button class="btn" data-act="copyinvite2">Copy link</button><p class="small">They join ${esc(S.hh2)}. Works once and expires in 7 days.</p>`);
+    <button class="btn" data-act="copyinvite2">Copy link</button><p class="small">Works once and expires in 7 days.</p>`);
   if (sh === "expired") return wrap(`<h2>Sign in again to save</h2><p>Your sign-in ended. What you typed is kept, and you'll come straight back.</p><button class="btn" data-act="resume">Continue with Google</button>`, true);
   if (sh === "role") return wrap(`<h2>Your kitchen role</h2><p>Optional. It sits beside your name.</p>${roleEditor("sheet")}`);
   if (sh === "member") {
     const w = S.memberWho, r = role(w), self = w === S.persona;
     return wrap(`<div class="row"><span class="av" style="width:56px;height:56px;font-size:20px">${avt(w)}</span><div><b style="font-size:20px">${esc(PEOPLE[w].name)}</b>${self ? ' <span class="chip">You</span>' : ""} ${founderChip(w)}</div></div>
       ${r ? `<div class="row" style="gap:14px">${roleIc(r, 56)}<div><b style="font-size:17px">${esc(r.title)}</b>${r.desc ? `<p style="margin-top:4px">${esc(r.desc)}</p>` : ""}</div></div>` : `<p>${self ? "You haven't picked a kitchen role." : PEOPLE[w].name + " hasn't picked a kitchen role."}</p>`}
-      ${self ? `<button class="btn" data-sheet="role">${r ? "Change role" : "Pick a role"}</button>` : `<button class="btn ghost danger" data-act="removestart">Remove ${esc(PEOPLE[w].name)} from household</button>`}<button class="btn ghost" data-act="closesheet">Close</button>`);
+      ${self ? `<button class="btn" data-sheet="role">${r ? "Change role" : "Pick a role"}</button>` : S.founder === w ? `<p class="small">The founding member can't be removed.</p>` : `<button class="btn ghost danger" data-act="removestart">Remove ${esc(PEOPLE[w].name)} from household</button>`}<button class="btn ghost" data-act="closesheet">Close</button>`);
   }
   if (sh === "removing") { const w = S.memberWho; return wrap(`<h2>Remove ${esc(PEOPLE[w].name)}?</h2><p>${esc(PEOPLE[w].name)} loses access to Our kitchen. What ${esc(PEOPLE[w].name)} added stays. Anyone in the household can invite them back.</p><button class="btn alert" data-act="removeconfirm">Remove ${esc(PEOPLE[w].name)}</button><button class="btn ghost" data-act="closesheet">Keep ${esc(PEOPLE[w].name)}</button>`, true); }
-  if (sh === "leave") return wrap(`<h2>Leave Our kitchen?</h2><p>You lose access to its pantry, shopping and recipes. Nothing is deleted: the others keep everything. Someone has to invite you back to rejoin.${S.members.length === 1 ? " You are the only member, so the kitchen will have no one in it." : ""}</p>
+  if (sh === "leave") return wrap(`<h2>Leave Our kitchen?</h2>${S.members.length === 1 ? `<p><b>You are the last member.</b> If you leave, nobody is left to invite you back, so you can't get back in. The household can't be rejoined.</p>` : `<p>You lose access to its pantry, shopping and recipes. Nothing is deleted: the others keep everything. Someone has to invite you back to rejoin.</p>`}
     <label class="small" for="leavename">Type <b>${esc(me().name)}</b> to confirm</label><input class="field" id="leavename" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${esc(me().name)}" aria-label="Type your name to confirm">
     <button class="btn alert" id="leavego" data-act="leaveconfirm" disabled>Leave household</button><button class="btn ghost" data-act="closesheet">Stay</button>`, true);
   if (sh === "avatar") return wrap(`<h2>Your picture</h2><p>Pick one. It shows beside your name.</p><div class="avgrid">${[""].concat(AVATARS).map((a) => `<button class="avopt" data-act="setavatar" data-p="${a}" aria-label="${a ? "Picture " + a : "Your initial"}" aria-pressed="${(S.avatars[S.persona] || "") === a}">${a || PEOPLE[S.persona].initial}</button>`).join("")}</div><button class="btn ghost" data-act="closesheet">Close</button>`);
@@ -859,7 +862,7 @@ const acts = {
   copykitchen() { toast("Kitchen list copied"); },
   copy() { S.aiDone = true; S.links[S.aiTab] = true; toast("Link copied"); }, copyinvite() { S.inviteDone = true; toast("Invite link copied"); }, day(d) { S.day = +d; render(); },
   revoke(name) { S.invites = S.invites.filter((i) => i.name !== name); render(); toast("Invite cancelled"); },
-  hhpick(h) { S.hh2 = h; render(); }, copyinvite2() { toast("Invite link copied"); },
+  copyinvite2() { toast("Invite link copied"); },
   savename() { const v = document.getElementById("myname"); if (!v) return; const n = v.value.trim().slice(0, 24); if (!n) return; PEOPLE[S.persona].name = n; PEOPLE[S.persona].initial = initials(S.persona); render(); toast("Name saved"); },
   setavatar(a) { if (a) S.avatars[S.persona] = a; else delete S.avatars[S.persona]; S.sheet = null; render(); toast("Picture changed"); },
   removestart() { S.sheet = "removing"; render(); },
