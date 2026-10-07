@@ -113,7 +113,19 @@ Status: **Owner** follows from something the owner said; **Proposal** is the moc
 
 - Grow to full height, and what dragging the handle up should do (the owner said something about full height and then decided on "over").
 - "Confirm on use of none": not understood; what is to be confirmed?
-- What the Level tile does when an item has both a quantity and a manual level (today the quantity wins).
 - The rule for "Some" between Plenty and Running low on a counted item. The owner said "we'll work out rules".
 - Whether an item with no number can get a quantity from the sheet (today only All fields).
 - The Undo toast sits 260px up, above the sheet, as a fixed offset.
+
+## Level rules (owner, voice, 8 Oct 2026)
+
+Owner's words: "Level on a counted item is derived. Level on running low is stored as a label. Out is amount always zero." And: "We're not going to have six tiles."
+
+- **Out** means the amount is zero, always, for every item. An item at zero reads Out; marking Out sets the amount to zero (Used up).
+- **Counted item** (a count unit such as pack, tin, jar, bag, or no unit): the level is derived from the quantity and the minimum. It is never stored. Any stored label is ignored for these items.
+- **Level-only item** (weighed or measured, or anything where a number does not make sense): the level is a stored label (Plenty, Some, Running low), set by the person.
+- The mockup now follows this in `level()` in `app.js`. Before, a stored label could override the derived level on a counted item.
+- **Proposal:** the derived rule for a counted item is Running low at or under the minimum (or when the use-by is within a week), Some at up to twice the minimum, otherwise Plenty. The owner said rules are still to be worked out.
+- **Settled (owner):** "All fields" opens the existing full item screen, not a bigger sheet.
+- **Resolved by the level rules above:** an item with both a quantity and a stored label. A counted item always derives its level; a stored label only matters for level-only items.
+- **Not understood:** "follow up and load". Left out.
