@@ -288,9 +288,9 @@ function save(k, patch, quiet) {
 }
 const recentUsed = () => S.usedLog.filter((t) => Date.now() - t < 5 * 60 * 1000).length;
 function markUsedUp(id) {
-  const at = S.pantry.findIndex((x) => x.id === id); if (at < 0) return;
-  const [item] = S.pantry.splice(at, 1); S.usedLog.push(Date.now());
-  toast(item.name + " marked as used up", () => { S.pantry.splice(at, 0, item); S.usedLog.pop(); toast(item.name + " is back in your pantry"); });
+  const i = S.pantry.find((x) => x.id === id); if (!i) return;
+  const was = { n: i.n, upd: i.upd }; i.n = 0; S.usedLog.push(Date.now()); render();
+  toast(i.name + " used up. It's marked Out", () => { i.n = was.n; i.upd = was.upd; S.usedLog.pop(); render(); toast(i.name + " is back"); });
 }
 
 /* ---------- pantry ---------- */
@@ -303,9 +303,11 @@ function visibleItems() {
   return S.pantry.filter((i) => (S.areaTab === "All" || (S.rmode === "cat" ? i.cat : i.area) === S.areaTab) && (!q || i.name.toLowerCase().includes(q) || i.cat.toLowerCase().includes(q)));
 }
 function rowHtml(i) {
-  const hot = i.days !== null && i.days <= 1, c = S.cfg;
-  const meta = [i.area, c.amount ? fmtAmt(i) : null, c.spot ? i.spot : null, i.cat].filter((x) => x !== null && x !== "").map(esc).join(" · ");
-  return `<li class="rowx"><button class="rowlink" data-go="item" data-p="${i.id}"><div class="main"><div class="name">${i.emoji && c.emoji ? `<span aria-hidden="true">${i.emoji}</span> ` : ""}${esc(i.name)}${i.recent ? ` <span class="cue" role="img" aria-label="Added in the last 24 hours">${I.up(17)}</span>` : ""}</div><div class="meta">${meta}</div></div>${i.days !== null && c.useby ? `<span class="due ${hot ? "hot" : ""}">${i.days >= 2 ? `Use within<br>${i.days} days` : dayLabel(i.days)}</span>` : ""}<span class="chev">${I.chev}</span></button>${reducible(i) ? `<button class="iconbtn" data-act="useone" data-p="${i.id}" aria-label="Use one of ${esc(i.name)}" title="Use one" ${S.down ? "disabled" : ""}>${I.minus}</button>` : ""}<button class="iconbtn ok2" data-act="usedup" data-p="${i.id}" aria-label="Mark ${esc(i.name)} as used up" title="Used up" ${S.down ? "disabled" : ""}>${I.tick}</button></li>`;
+  const hot = i.days !== null && i.days <= 1, c = S.cfg, out = i.n <= 0, cnt = reducible(i);
+  const meta = [i.area, c.amount ? (out ? "Out" : fmtAmt(i)) : null, c.spot ? i.spot : null, i.cat].filter((x) => x !== null && x !== "").map(esc).join(" · ");
+  /* swipe left a little = use one (counted) or used up (level only); left a lot = used up; right = shopping list. Nothing is deleted. */
+  const bg = `<div class="swbg three" aria-hidden="true"><span class="r">${riSvg("cart", 20)}Add to list</span><span class="l l1">${cnt ? `${I.minus}Use one` : `${I.tick}Used up`}</span><span class="l l2">${I.tick}Used up</span></div>`;
+  return `<li class="rowx swr pswipe ${out ? "isout" : ""}" data-swipe="${i.id}" data-sw="pantry" data-kind="${cnt ? "count" : "level"}">${bg}<div class="swfg"><button class="rowlink" data-go="item" data-p="${i.id}"><div class="main"><div class="name">${i.emoji && c.emoji ? `<span aria-hidden="true">${i.emoji}</span> ` : ""}${esc(i.name)}${i.recent ? ` <span class="cue" role="img" aria-label="Added in the last 24 hours">${I.up(17)}</span>` : ""}</div><div class="meta">${meta}</div></div>${i.days !== null && c.useby && !out ? `<span class="due ${hot ? "hot" : ""}">${i.days >= 2 ? `Use within<br>${i.days} days` : dayLabel(i.days)}</span>` : ""}</button></div></li>`;
 }
 /* running-low rows: swipe to add to the shopping list, press and hold to pick several */
 function lowRowHtml(i) {
@@ -703,7 +705,9 @@ const acts = {
   searchcancel() { closeSearch(); },
   useone(id) {
     if (S.down) return; const i = S.pantry.find((x) => x.id === id); if (!i) return;
-    i.n -= 1; if (i.n <= 0) { S.pantry = S.pantry.filter((x) => x !== i); render(); toast(i.name + " used up"); } else { i.upd = 200; render(); }
+    if (!reducible(i) || i.n <= 1) { markUsedUp(id); return; }
+    const was = { n: i.n, upd: i.upd }; i.n -= 1; i.upd = 200; render();
+    toast(`${i.name}: ${fmtAmt(i)} left`, () => { i.n = was.n; i.upd = was.upd; render(); });
   },
   usedup(id) { if (S.down) return; markUsedUp(id); },
   usedask() { S.ed = noEd(); S.sheet = "usedup"; render(); },
@@ -823,12 +827,13 @@ document.addEventListener("click", (e) => {
 document.addEventListener("change", (e) => { const fin = e.target.dataset && e.target.dataset.fin; if (fin) { acts.fset(fin + "|" + e.target.value, e.target.type === "text"); return; } const c = e.target.dataset && e.target.dataset.ctl; if (c === "persona") { S.persona = e.target.value; refreshPanel(); render(); } if (c === "existing") { S.existing = Number(e.target.value); render(); } });
 document.addEventListener("input", (e) => { if (e.target.id === "r-title" && S.rdraft) S.rdraft.title = e.target.value; if (e.target.id === "r-desc" && S.rdraft) S.rdraft.desc = e.target.value; if (e.target.id === "search") { S.search = e.target.value; document.getElementById("plist").innerHTML = listHtml(); } });
 /* swipe a running-low row to add it; press and hold to start picking several */
-let g = null;
+let g = null; const DEEP = 190; /* px: past this a left swipe means used up, not use one */
 document.addEventListener("pointerdown", (e) => {
   const row = e.target.closest("[data-swipe]"); if (!row || e.button > 0) return;
   g = { id: row.dataset.swipe, row, fg: row.querySelector(".swfg"), x: e.clientX, y: e.clientY, dx: 0, swiping: false, long: false };
   g.shop = row.dataset.sw === "shop";
-  if (!g.shop) g.timer = setTimeout(() => { if (g && !g.swiping) { g.long = true; lastGesture = Date.now(); if (navigator.vibrate) navigator.vibrate(15); acts.selstart(g.id); } }, 480);
+  g.pan = row.dataset.sw === "pantry"; g.kind = row.dataset.kind;
+  if (!g.shop && !g.pan) g.timer = setTimeout(() => { if (g && !g.swiping) { g.long = true; lastGesture = Date.now(); if (navigator.vibrate) navigator.vibrate(15); acts.selstart(g.id); } }, 480);
 });
 document.addEventListener("pointermove", (e) => {
   if (!g || g.long) return;
@@ -840,12 +845,16 @@ document.addEventListener("pointermove", (e) => {
   }
   g.dx = dx; g.fg.style.transform = `translateX(${dx}px)`;
   g.row.classList.toggle("armed", Math.abs(dx) > 90); g.row.classList.toggle("rt", dx > 0);
+  if (g.pan) { const deep = dx < -DEEP && g.kind === "count"; if (deep !== g.row.classList.contains("deep")) { g.row.classList.toggle("deep", deep); if (navigator.vibrate) navigator.vibrate(10); } }
 });
 const endGesture = () => {
   if (!g) return; clearTimeout(g.timer); const x = g; g = null;
   if (!x.swiping) return;
   lastGesture = Date.now(); x.row.classList.remove("drag");
-  if (Math.abs(x.dx) > 90) { x.fg.style.transform = `translateX(${x.dx > 0 ? 110 : -110}%)`; setTimeout(() => (x.shop ? (x.dx > 0 ? acts.shopbuy : acts.shoprm) : acts.shopadd)(x.id), 160); }
+  if (x.pan && Math.abs(x.dx) > 90) {
+    x.fg.style.transform = `translateX(${x.dx > 0 ? 110 : -110}%)`;
+    setTimeout(() => { x.fg.style.transform = ""; x.row.classList.remove("armed", "deep"); (x.dx > 0 ? acts.shopadd : x.dx < -DEEP ? acts.usedup : acts.useone)(x.id); }, 160);
+  } else if (Math.abs(x.dx) > 90) { x.fg.style.transform = `translateX(${x.dx > 0 ? 110 : -110}%)`; setTimeout(() => (x.shop ? (x.dx > 0 ? acts.shopbuy : acts.shoprm) : acts.shopadd)(x.id), 160); }
   else { x.fg.style.transform = ""; x.row.classList.remove("armed"); }
 };
 document.addEventListener("pointerup", endGesture); document.addEventListener("pointercancel", endGesture);

@@ -431,3 +431,12 @@ html,body{overflow-x:hidden}.phone,.body{overflow-x:hidden}.rscroll,.twoRow{over
 .prow[data-state=let] .pl-search,.prow[data-state=anim] .pl-search{transform:translateY(-100%)}
 .prow .pl-msg .rf{max-width:100%;padding:0 8px}
 @media (prefers-reduced-motion:reduce){.prow .pl,.spill,.pl-search .cancel{transition:none}.prow.lock .spill,.prow.lock .spill .mg{animation:none}}
+
+/* pantry row swipe: right = shopping list, left a little = use one, left a lot = used up */
+.swbg.three{justify-content:space-between}
+.swbg.three span{display:inline-flex;align-items:center;gap:8px}
+.pswipe:not(.rt) .swbg.three .r,.pswipe.rt .swbg.three .l{visibility:hidden}
+.pswipe .swbg.three .l2{display:none}
+.pswipe.deep .swbg.three .l1{display:none}.pswipe.deep .swbg.three .l2{display:inline-flex}
+.pswipe.deep .swbg{background:var(--danger)}
+.pswipe.isout .name,.pswipe.isout .meta{opacity:.55}
