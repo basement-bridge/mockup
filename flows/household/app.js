@@ -96,22 +96,22 @@ const SORTS = [["name", "Name A to Z"], ["area", "Area"], ["spot", "Spot"], ["am
 
 /* n and unit are stored separately so "use one" and the stepper can work on counts */
 const freshPantry = () => [
-  { id: "butter", key: "butter", emoji: "🧈", name: "Butter", n: 250, unit: "g", area: "Fridge", spot: "Door", cat: "Dairy and eggs", days: null, upd: 1, recent: false, by: "Arjan", single: false, min: 0, est: true },
-  { id: "carrots", key: "carrots", emoji: "🥕", name: "Carrots", n: 1, unit: "bag", area: "Fridge", spot: "Crisper", cat: "Vegetables", days: null, upd: 2, recent: false, by: "Arjan", single: false, min: 0, est: false },
-  { id: "cheddar", key: "cheese", emoji: "", name: "Cheddar", n: 200, unit: "g", area: "Fridge", spot: "Top shelf", cat: "Dairy and eggs", days: null, upd: 3, recent: false, by: "Arjan", single: false, min: 0, est: false },
-  { id: "eggs", key: "eggs", emoji: "🥚", name: "Eggs", n: 12, unit: "", area: "Fridge", spot: "Door", cat: "Dairy and eggs", days: null, upd: 9, recent: true, by: "Arjan", single: false, min: 0, est: false },
-  { id: "milk", key: "milk", emoji: "🥛", name: "Milk", n: 1, unit: "L", area: "Fridge", spot: "Door", cat: "Dairy and eggs", days: 0, upd: 5, recent: false, low: true, by: "Arjan", single: false, min: 1, est: false },
-  { id: "paneer", key: "paneer", emoji: "", name: "Paneer", n: 50, unit: "g", area: "Fridge", spot: "Top shelf", cat: "Dairy and eggs", days: 3, upd: 6, recent: false, low: true, by: "Arjan", single: false, min: 0, est: false },
-  { id: "spinach", key: "spinach", emoji: "🥬", name: "Spinach", n: 50, unit: "g", area: "Fridge", spot: "Crisper", cat: "Vegetables", days: 1, upd: 10, recent: true, low: true, by: "Arjan", single: false, min: 0, est: false },
-  { id: "yoghurt", key: "yoghurt", emoji: "", name: "Greek yoghurt", n: 500, unit: "g", area: "Fridge", spot: "Top shelf", cat: "Dairy and eggs", days: 7, upd: 4, recent: false, by: "Arjan", single: false, min: 0, est: false },
-  { id: "rice", key: "rice", emoji: "🍚", name: "Basmati rice", n: 5, unit: "kg", area: "Pantry", spot: "Bottom shelf", cat: "Dry goods", days: null, upd: 1, recent: false, by: "Arjan", single: false, min: 0, est: false },
-  { id: "brownrice", key: "brownrice", emoji: "🍚", name: "Brown rice", n: 1, unit: "kg", area: "Pantry", spot: "Bottom shelf", cat: "Dry goods", days: null, upd: 2, recent: false, by: "Arjan", single: false, min: 0, est: false },
-  { id: "jasmine", key: "jasmine", emoji: "🍚", name: "Jasmine rice", n: 1, unit: "kg", area: "Pantry", spot: "Bottom shelf", cat: "Dry goods", days: null, upd: 2, recent: false, by: "Arjan", single: false, min: 0, est: false },
-  { id: "tomatoes", key: "tomatoes", emoji: "🥫", name: "Chopped tomatoes", n: 4, unit: "tin", area: "Pantry", spot: "Top shelf", cat: "Cans", days: null, upd: 2, recent: false, by: "Arjan", single: false, min: 0, est: false },
-  { id: "onion", key: "onion", emoji: "🧅", name: "Onions", n: 6, unit: "", area: "Pantry", spot: "Baskets", cat: "Vegetables", days: null, upd: 3, recent: false, by: "Arjan", single: false, min: 0, est: false },
-  { id: "garam", key: "garam", emoji: "", name: "Garam masala", n: 1, unit: "jar", area: "Pantry", spot: "Spice rack", cat: "Seasoning", days: null, upd: 2, recent: false, low: true, by: "Arjan", single: false, min: 0, est: false },
-  { id: "choc", key: "choc", emoji: "🍫", name: "Hazelnut chocolates", n: 1, unit: "box", area: "Pantry", spot: "Top shelf", cat: "Snacks", days: 12, upd: 8, recent: true, by: "Arjan", single: false, min: 0, est: false },
-  { id: "peas", key: "peas", emoji: "", name: "Frozen peas", n: 1, unit: "bag", area: "Freezer", spot: "Top drawer", cat: "Frozen", days: null, upd: 4, recent: false, by: "Arjan", single: true, min: 0, est: false },
+  { id: "butter", key: "butter", emoji: "🧈", name: "Butter", n: 250, unit: "g", area: "Fridge", spot: "Door", cat: "Dairy and eggs", days: null, upd: 1, recent: false, by: "Arjan", min: 0, est: true },
+  { id: "carrots", key: "carrots", emoji: "🥕", name: "Carrots", n: 1, unit: "bag", area: "Fridge", spot: "Crisper", cat: "Vegetables", days: null, upd: 2, recent: false, by: "Arjan", min: 0, est: false },
+  { id: "cheddar", key: "cheese", emoji: "", name: "Cheddar", n: 200, unit: "g", area: "Fridge", spot: "Top shelf", cat: "Dairy and eggs", days: null, upd: 3, recent: false, by: "Arjan", min: 0, est: false },
+  { id: "eggs", key: "eggs", emoji: "🥚", name: "Eggs", n: 12, unit: "", area: "Fridge", spot: "Door", cat: "Dairy and eggs", days: null, upd: 9, recent: true, by: "Arjan", min: 0, est: false },
+  { id: "milk", key: "milk", emoji: "🥛", name: "Milk", n: 1, unit: "L", area: "Fridge", spot: "Door", cat: "Dairy and eggs", days: 0, upd: 5, recent: false, low: true, by: "Arjan", min: 1, est: false },
+  { id: "paneer", key: "paneer", emoji: "", name: "Paneer", n: 50, unit: "g", area: "Fridge", spot: "Top shelf", cat: "Dairy and eggs", days: 3, upd: 6, recent: false, low: true, by: "Arjan", min: 0, est: false },
+  { id: "spinach", key: "spinach", emoji: "🥬", name: "Spinach", n: 50, unit: "g", area: "Fridge", spot: "Crisper", cat: "Vegetables", days: 1, upd: 10, recent: true, low: true, by: "Arjan", min: 0, est: false },
+  { id: "yoghurt", key: "yoghurt", emoji: "", name: "Greek yoghurt", n: 500, unit: "g", area: "Fridge", spot: "Top shelf", cat: "Dairy and eggs", days: 7, upd: 4, recent: false, by: "Arjan", min: 0, est: false },
+  { id: "rice", key: "rice", emoji: "🍚", name: "Basmati rice", n: 5, unit: "kg", area: "Pantry", spot: "Bottom shelf", cat: "Dry goods", days: null, upd: 1, recent: false, by: "Arjan", min: 0, est: false },
+  { id: "brownrice", key: "brownrice", emoji: "🍚", name: "Brown rice", n: 1, unit: "kg", area: "Pantry", spot: "Bottom shelf", cat: "Dry goods", days: null, upd: 2, recent: false, by: "Arjan", min: 0, est: false },
+  { id: "jasmine", key: "jasmine", emoji: "🍚", name: "Jasmine rice", n: 1, unit: "kg", area: "Pantry", spot: "Bottom shelf", cat: "Dry goods", days: null, upd: 2, recent: false, by: "Arjan", min: 0, est: false },
+  { id: "tomatoes", key: "tomatoes", emoji: "🥫", name: "Chopped tomatoes", n: 4, unit: "tin", area: "Pantry", spot: "Top shelf", cat: "Cans", days: null, upd: 2, recent: false, by: "Arjan", min: 0, est: false },
+  { id: "onion", key: "onion", emoji: "🧅", name: "Onions", n: 6, unit: "", area: "Pantry", spot: "Baskets", cat: "Vegetables", days: null, upd: 3, recent: false, by: "Arjan", min: 0, est: false },
+  { id: "garam", key: "garam", emoji: "", name: "Garam masala", n: 1, unit: "jar", area: "Pantry", spot: "Spice rack", cat: "Seasoning", days: null, upd: 2, recent: false, low: true, by: "Arjan", min: 0, est: false },
+  { id: "choc", key: "choc", emoji: "🍫", name: "Hazelnut chocolates", n: 1, unit: "box", area: "Pantry", spot: "Top shelf", cat: "Snacks", days: 12, upd: 8, recent: true, by: "Arjan", min: 0, est: false },
+  { id: "peas", key: "peas", emoji: "", name: "Frozen peas", n: 1, unit: "bag", area: "Freezer", spot: "Top drawer", cat: "Frozen", days: null, upd: 4, recent: false, by: "Arjan", min: 0, est: false },
 ];
 
 const noEd = () => ({ open: null, err: null, saved: null, picking: false }); /* item detail: which field editor is open, its error, its Saved line */
@@ -250,7 +250,7 @@ const roleChip = (who) => role(who) ? `<span class="chip rchip">${riSvg(role(who
    Deferred to the first tap of a field: its editor (markup, option lists, emoji set, unit list, date picker) lives in fields/<file>.js,
    fetched once on that first tap and cached. The used-up confirm is built only when opened. README: "Item detail". */
 const ITEM_FIELDS = {}; /* each fields/*.js adds { html(p), set: { op(p, value) -> patch | error text } } for its keys */
-const FIELD_FILE = { name: "name", qty: "amounts", min: "amounts", level: "flags", single: "flags", loc: "place", spot: "place", cat: "category", useby: "useby" };
+const FIELD_FILE = { name: "name", qty: "amounts", min: "amounts", level: "flags", loc: "place", spot: "place", cat: "category", useby: "useby" };
 const fieldLoads = new Map();
 function loadField(k) {
   const f = FIELD_FILE[k];
@@ -267,7 +267,6 @@ const VAL = {
   spot: (p) => esc(p.spot),
   cat: (p) => esc(p.cat),
   useby: (p) => (p.days === null ? "Not set" : dayLabel(p.days)),
-  single: (p) => (p.single ? "Yes" : "No"),
   min: (p) => (p.min ? esc(fmtAmt({ n: p.min, unit: p.unit })) : "Not set"),
 };
 const savedLine = () => `<p class="fstat" role="status">${I.tick}<span>Saved</span></p>`;
@@ -459,7 +458,7 @@ const screens = {
     return backHeader("Pantry", p.name) + downBanner() + `<div class="body">
       <div class="flist">
         ${fld("name", p, `<span class="ph" aria-hidden="true">${emo(p)}</span><span class="idt"><b data-fv="name">${VAL.name(p)}</b><span class="small">Added by ${esc(p.by)}</span></span>`, `Name and emoji: ${p.name}`)}
-        ${row("qty", "stack", "Quantity")}${row("level", "drop", "Level")}${row("loc", "fridge", "Location")}${row("spot", "jar", "Spot")}${row("cat", "basket", "Category")}${row("useby", "clock", "Use by")}${row("single", "spark", "Single use")}${row("min", "shield", "Minimum")}
+        ${row("qty", "stack", "Quantity")}${row("level", "drop", "Level")}${row("loc", "fridge", "Location")}${row("spot", "jar", "Spot")}${row("cat", "basket", "Category")}${row("useby", "clock", "Use by")}${row("min", "shield", "Minimum")}
       </div>
       ${S.recipes && rs.length ? `<div style="display:flex;flex-direction:column;gap:10px"><span class="lbl">Cook it tonight</span>${rs.map((r) => `<button class="rc" data-go="recipe" data-p="${r.id}"><span class="ph">${r.emoji}</span><div style="flex:1"><b>${esc(r.name)}</b><p class="small">${can(r).length} of ${r.ings.length} ingredients · ${r.time} min</p></div></button>`).join("")}</div>` : ""}
       ${!S.recipes ? `<button class="card" data-go="upgrade"><b>Know what you can cook</b><p class="small">Recipes uses what's in your pantry.</p></button>` : ""}
@@ -755,7 +754,7 @@ const refreshPanel = () => { S.panelDirty = true; };
 /* ---------- actions ---------- */
 function commitAdd() {
   const x = S.pending; if (!x) return; S.pending = null; S.sheet = null;
-  S.pantry.unshift({ id: "n" + Date.now(), key: x.name.toLowerCase().split(/[ ,]/)[0], emoji: emojiOf(x.name), name: x.name, n: x.n, unit: x.unit, area: x.area, spot: x.spot || "Anywhere", cat: x.cat, days: x.days, upd: 100 + S.pantry.length, recent: true, by: me().name, single: false, min: 0, est: false });
+  S.pantry.unshift({ id: "n" + Date.now(), key: x.name.toLowerCase().split(/[ ,]/)[0], emoji: emojiOf(x.name), name: x.name, n: x.n, unit: x.unit, area: x.area, spot: x.spot || "Anywhere", cat: x.cat, days: x.days, upd: 100 + S.pantry.length, recent: true, by: me().name, min: 0, est: false });
   render(); toast("Added " + x.name);
 }
 function parseAmt(t) {
