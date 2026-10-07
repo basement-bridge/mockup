@@ -153,8 +153,7 @@ const greeting = () => { const h = new Date().getHours(); return h < 12 ? "Good 
 const reducible = (i) => COUNT_UNITS.includes(i.unit);
 const can = (r) => r.ings.filter(([k]) => S.pantry.some((p) => p.key === k));
 const me = () => PEOPLE[S.persona];
-const AVATARS = ["🦊", "🐼", "🐸", "🦉", "🐙", "🐝", "🍋", "🥑", "🌶️", "🍄", "🧁", "🌻"];
-const avt = (w) => S.avatars[w] || PEOPLE[w].initial;
+const avt = (w, sz = 20) => { const a = S.avatars[w]; return a && a.startsWith("ri:") ? riSvg(a.slice(3), sz) : a || PEOPLE[w].initial; }; /* a picture is one of the role icons ("ri:key"), or the initial */
 const starIc = ico('<path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8 6.8 19.6l1-5.8L3.5 9.7l5.9-.8z"/>', 14);
 const founderChip = (w) => (S.founder === w ? `<span class="chip fchip">${starIc}Founding member</span>` : "");
 const pays = () => S.persona === "arjan"; /* the billing contact; never shown as a rank */
@@ -487,7 +486,7 @@ const screens = {
     if (S.day <= 5 && !S.inviteDone) strip.push(["invite", "mail", "Invite someone", "sheet"]);
     const seg = (t, rows) => `<div><span class="lbl">${t}</span><div class="menu card">${rows}</div></div>`;
     return backHeader("Back", "") + `<div class="body">
-    <div class="row"><span class="av" style="width:56px;height:56px;font-size:20px">${avt(S.persona)}</span><div><b style="font-size:20px">${esc(me().name)}</b><p class="small">${role(S.persona) ? esc(role(S.persona).title) : "Our kitchen"}</p></div></div>
+    <div class="row"><span class="av" style="width:56px;height:56px;font-size:20px">${avt(S.persona, 30)}</span><div><b style="font-size:20px">${esc(me().name)}</b><p class="small">${role(S.persona) ? esc(role(S.persona).title) : "Our kitchen"}</p></div></div>
     ${strip.length ? `<div><span class="lbl">Get started</span><div class="menu card">${strip.map(([t, ic, l, k]) => `<button data-${k === "go" ? "go" : "sheet"}="${t}"><span class="row" style="gap:10px">${riSvg(ic, 20)}${l}</span><span class="chev" style="color:var(--muted)">${I.chev}</span></button>`).join("")}</div></div>` : ""}
     ${seg("Look and kitchen", `<button data-go="settings">Settings</button><button data-act="proto" data-p="History">History</button>`)}
     ${seg("People", `<button data-go="me">Me <span class="chip">${esc(me().name)}</span></button><button data-go="household">Household <span class="chip">${S.members.length}</span></button>${pays() ? `<button data-go="${S.recipes ? "household" : "upgrade"}">Plan and billing</button>` : ""}`)}
@@ -502,16 +501,15 @@ const screens = {
     const left = S.pantry.filter((i) => i.starter).length;
     return backHeader("Back", "Settings") + `<div class="body">
       <p class="small">These stay on this device. Only your theme and the emoji setting also travel with you, so pages open in the right colours.</p>
-      <span class="lbl">Look</span><div class="card sgroup"><span class="lbl">Theme</span><div class="tgrid" role="group" aria-label="Theme">${window.themeHtml ? window.themeHtml(["kitchie", "kitchie-day", "marmalade", "blueberry", "herb"]) : ""}</div>
+      <span class="lbl">Look</span><div class="card sgroup"><span class="lbl">Theme</span><div class="tgrid swatches" role="group" aria-label="Theme">${window.themeHtml ? window.themeHtml(["kitchie", "kitchie-day", "marmalade", "blueberry", "herb"], true) : ""}</div><p class="small" data-theme-name>${window.themeName ? esc(window.themeName()) : ""}</p>
         <div class="srow plain"><span>Item name size</span><div class="seg2" role="radiogroup" aria-label="Item name size">${[["small", "Small"], ["normal", "Normal"], ["large", "Large"]].map(([k, l]) => `<button role="radio" aria-checked="${c.size === k}" class="${c.size === k ? "on" : ""}" data-act="cfgsize" data-p="${k}">${l}</button>`).join("")}</div></div>
         ${sw("emoji", "Show emoji")}${sw("motion", "Reduce motion")}${sw("spot", "Show the spot")}${sw("amount", "Show the amount")}${sw("useby", "Show the use-by date")}${sw("activity", "Show household activity")}${sw("compact", "Compact rows")}
         <button class="btn ghost" data-act="cfgreset">Reset to defaults</button></div>
       <span class="lbl">Kitchen</span><div class="menu card">
         <button data-go="stock">Stock checks <span class="chev" style="color:var(--muted)">${I.chev}</span></button>
-        <button data-go="cats">Categories <span class="chev" style="color:var(--muted)">${I.chev}</span></button>
-        <button data-sheet="role">Your kitchen role <span class="small">${role(S.persona) ? esc(role(S.persona).title) : "Optional"}</span></button></div>
+        <button data-go="cats">Categories <span class="chev" style="color:var(--muted)">${I.chev}</span></button></div>
       <p class="small">Stock checks and Categories are the household's, not just this device's.</p>
-      <div><h2 style="font-size:1.1rem">Sample items</h2><p class="small" style="margin-top:4px">${left === 0 ? "No sample items are left." : `${left} sample item${left === 1 ? "" : "s"} left. They count toward nothing until you change one.`}</p>${left ? `<button class="btn ghost" data-act="proto" data-p="Clear sample items" style="margin-top:8px">Clear sample items</button>` : ""}</div>
+      ${left ? `<div><h2 style="font-size:1.1rem">Sample items</h2><p class="small" style="margin-top:4px">${left} sample item${left === 1 ? "" : "s"} left. They count toward nothing until you change one.</p><button class="btn ghost" data-act="proto" data-p="Clear sample items" style="margin-top:8px">Clear sample items</button></div>` : ""}
       <button class="btn ghost" data-act="back">Back to Kitchie</button>
       <button data-act="signout" class="danger" style="text-align:left;min-height:48px">Sign out</button></div>`;
   },
@@ -527,8 +525,8 @@ const screens = {
 
   /* People, part one: Me (name, picture, my AI links). Spec: docs/knowledge/people-settings.md */
   me: () => backHeader("Back", "Me") + `<div class="body">
-    <div class="row" style="gap:14px"><button class="avbig" data-sheet="avatar" aria-label="Change your picture"><span class="av" style="width:72px;height:72px;font-size:30px">${avt(S.persona)}</span><span class="avedit" aria-hidden="true">${I.pencil}</span></button><div><b style="font-size:20px">${esc(me().name)}</b><p class="small">Tap the picture to change it</p></div></div>
-    <div><span class="lbl">Name</span><div class="row" style="gap:8px"><input class="field" id="myname" value="${esc(me().name)}" maxlength="24" autocomplete="off" aria-label="Your name" style="flex:1"><button class="btn sm" id="namesave" data-act="savename" disabled>Save</button></div></div>
+    <div class="row" style="gap:14px"><button class="avbig" data-sheet="avatar" aria-label="Change your picture"><span class="av" style="width:72px;height:72px;font-size:30px">${avt(S.persona, 40)}</span><span class="avedit" aria-hidden="true">${I.pencil}</span></button><p class="small">Tap the picture to change it</p></div>
+    <div><span class="lbl">Name</span><div class="row" style="gap:8px"><input class="field" id="myname" value="${esc(me().name)}" maxlength="24" autocomplete="off" aria-label="Your name" style="flex:1"></div></div>
     <div><span class="lbl">Kitchen role</span><button class="m" data-sheet="role"><div style="flex:1"><b>${role(S.persona) ? esc(role(S.persona).title) : "Pick a kitchen role"}</b><p class="small">Only you can change yours</p></div><span class="chev" style="color:var(--muted)">${I.chev}</span></button></div>
     <div><span class="lbl">AI assistants</span><div class="m"><button class="rowbtn" data-act="linkopen" aria-label="Open your AI assistant link" style="flex:1;display:flex;align-items:center;gap:10px;text-align:left;min-height:44px"><div style="flex:1"><b>Your link</b> <span class="chip">${S.aiLink ? "Active" : "Not linked"}</span><p class="small">${S.aiLink ? "Works in ChatGPT, Claude or any assistant" : "Tap to get your link"}</p></div><span class="chev" style="color:var(--muted)">${I.chev}</span></button>${S.aiLink ? '<button class="danger" data-sheet="airevoke" aria-label="Revoke your AI link" style="min-height:44px;padding:0 8px">Revoke</button>' : ""}</div>
       <p class="small" style="margin-top:8px">One personal link. It acts as you and sees everything your household has. Revoking it stops every assistant at once.</p></div>
@@ -676,7 +674,7 @@ function sheetHtml() {
   if (sh === "role") return wrap(`<h2>Your kitchen role</h2><p>Optional. It sits beside your name.</p>${roleEditor("sheet")}`);
   if (sh === "member") {
     const w = S.memberWho, r = role(w), self = w === S.persona;
-    return wrap(`<div class="row"><span class="av" style="width:56px;height:56px;font-size:20px">${avt(w)}</span><div><b style="font-size:20px">${esc(PEOPLE[w].name)}</b>${self ? ' <span class="chip">You</span>' : ""} ${founderChip(w)}</div></div>
+    return wrap(`<div class="row"><span class="av" style="width:56px;height:56px;font-size:20px">${avt(w, 30)}</span><div><b style="font-size:20px">${esc(PEOPLE[w].name)}</b>${self ? ' <span class="chip">You</span>' : ""} ${founderChip(w)}</div></div>
       ${r ? `<div class="row" style="gap:14px">${roleIc(r, 56)}<div><b style="font-size:17px">${esc(r.title)}</b>${r.desc ? `<p style="margin-top:4px">${esc(r.desc)}</p>` : ""}</div></div>` : `<p>${self ? "You haven't picked a kitchen role." : PEOPLE[w].name + " hasn't picked a kitchen role."}</p>`}
       ${self ? `<button class="btn" data-sheet="role">${r ? "Change role" : "Pick a role"}</button>` : S.founder === w ? `<p class="small">The founding member can't be removed.</p>` : `<button class="btn ghost danger" data-act="removestart">Remove ${esc(PEOPLE[w].name)} from household</button>`}<button class="btn ghost" data-act="closesheet">Close</button>`);
   }
@@ -684,7 +682,7 @@ function sheetHtml() {
   if (sh === "leave") return wrap(`<h2>Leave Our kitchen?</h2>${S.members.length === 1 ? `<p><b>You are the last member.</b> If you leave, nobody is left to invite you back, so you can't get back in. The household can't be rejoined.</p>` : `<p>You lose access to its pantry, shopping and recipes. Nothing is deleted: the others keep everything. Someone has to invite you back to rejoin.</p>`}
     <label class="small" for="leavename">Type <b>${esc(me().name)}</b> to confirm</label><input class="field" id="leavename" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${esc(me().name)}" aria-label="Type your name to confirm">
     <button class="btn alert" id="leavego" data-act="leaveconfirm" disabled>Leave household</button><button class="btn ghost" data-act="closesheet">Stay</button>`, true);
-  if (sh === "avatar") return wrap(`<h2>Your picture</h2><p>Pick one. It shows beside your name.</p><div class="avgrid">${[""].concat(AVATARS).map((a) => `<button class="avopt" data-act="setavatar" data-p="${a}" aria-label="${a ? "Picture " + a : "Your initial"}" aria-pressed="${(S.avatars[S.persona] || "") === a}">${a || PEOPLE[S.persona].initial}</button>`).join("")}</div><button class="btn ghost" data-act="closesheet">Close</button>`);
+  if (sh === "avatar") return wrap(`<h2>Your picture</h2><p>Pick one. It shows beside your name.</p><div class="avgrid">${[""].concat(ICON_LIB.map((k) => "ri:" + k)).map((a) => `<button class="avopt" data-act="setavatar" data-p="${a}" aria-label="${a ? "Picture " + a.slice(3) : "Your initial"}" title="${a ? a.slice(3) : "Your initial"}" aria-pressed="${(S.avatars[S.persona] || "") === a}">${a ? riSvg(a.slice(3), 28) : PEOPLE[S.persona].initial}</button>`).join("")}</div><button class="btn ghost" data-act="closesheet">Close</button>`);
   return "";
 }
 
@@ -866,7 +864,6 @@ const acts = {
   copy() { S.aiDone = true; S.aiLink = true; toast("Link copied"); }, copyinvite() { S.inviteDone = true; toast("Invite link copied"); }, day(d) { S.day = +d; render(); },
   revoke(name) { S.invites = S.invites.filter((i) => i.name !== name); render(); toast("Invite cancelled"); },
   copyinvite2() { toast("Invite link copied"); },
-  savename() { const v = document.getElementById("myname"); if (!v) return; const n = v.value.trim().slice(0, 24); if (!n) return; PEOPLE[S.persona].name = n; PEOPLE[S.persona].initial = initials(S.persona); render(); toast("Name saved"); },
   setavatar(a) { if (a) S.avatars[S.persona] = a; else delete S.avatars[S.persona]; S.sheet = null; render(); toast("Picture changed"); },
   removestart() { S.sheet = "removing"; render(); },
   removeconfirm() { const w = S.memberWho, n = PEOPLE[w].name; S.members = S.members.filter((x) => x !== w); S.sheet = null; render(); toast(n + " removed"); },
@@ -923,9 +920,9 @@ document.addEventListener("click", (e) => {
   if (t.dataset.act) { if (t.disabled) return; e.stopPropagation(); (acts[t.dataset.act] || (() => {}))(t.dataset.p, t.dataset.d); return; }
   if (t.dataset.go) { S.sheet = null; return go(t.dataset.go, ["item", "recipe"].includes(t.dataset.go) ? t.dataset.p : null); }
 });
-document.addEventListener("change", (e) => { const fin = e.target.dataset && e.target.dataset.fin; if (fin) { acts.fset(fin + "|" + e.target.value, e.target.type === "text"); return; } const c = e.target.dataset && e.target.dataset.ctl; if (c === "persona") { S.persona = e.target.value; refreshPanel(); render(); } if (c === "existing") { S.existing = Number(e.target.value); render(); } });
+document.addEventListener("change", (e) => { const fin = e.target.dataset && e.target.dataset.fin; if (fin) { acts.fset(fin + "|" + e.target.value, e.target.type === "text"); return; } const c = e.target.dataset && e.target.dataset.ctl; if (e.target.id === "myname") { if (!e.target.value.trim()) e.target.value = me().name; S.nameDirty = false; return; } if (c === "persona") { S.persona = e.target.value; refreshPanel(); render(); } if (c === "existing") { S.existing = Number(e.target.value); render(); } });
 document.addEventListener("input", (e) => { if (e.target.id === "r-title" && S.rdraft) S.rdraft.title = e.target.value; if (e.target.id === "r-desc" && S.rdraft) S.rdraft.desc = e.target.value; if (e.target.id === "search") { S.search = e.target.value; document.getElementById("plist").innerHTML = listHtml(); }
-  if (e.target.id === "myname") { const v = e.target.value.trim(); document.getElementById("namesave").disabled = !v || v === me().name; }
+  if (e.target.id === "myname") { const v = e.target.value.trim().slice(0, 24); if (v && v !== me().name) { PEOPLE[S.persona].name = v; PEOPLE[S.persona].initial = initials(S.persona); const big = document.querySelector(".avbig .av"); if (big && !S.avatars[S.persona]) big.textContent = PEOPLE[S.persona].initial; S.nameDirty = true; } } /* saves as you type: no Save button */
   if (e.target.id === "leavename") document.getElementById("leavego").disabled = e.target.value.trim().toLowerCase() !== me().name.toLowerCase(); });
 /* swipe a running-low row to add it; press and hold to start picking several */
 let g = null; const DEEP = 190; /* px: past this a left swipe means used up, not use one */

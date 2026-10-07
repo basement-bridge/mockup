@@ -12,3 +12,5 @@
 .tpop{position:fixed;right:12px;bottom:64px;z-index:61;width:min(340px,calc(100vw - 24px));max-height:70vh;overflow:auto;padding:12px;border-radius:var(--r-card);border:1px solid var(--border);background:var(--bg);box-shadow:0 12px 40px rgba(0,0,0,.35)}
 .tpop[hidden]{display:none}
 .tpop h3{margin:0 0 8px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.tpick.tbare{width:44px;height:44px;min-height:44px;padding:0;justify-content:center;gap:0}
+.tgrid.swatches{display:flex;flex-wrap:wrap;gap:10px}
