@@ -435,7 +435,7 @@ const screens = {
   pantry: () => header() + downBanner() + `<div class="body tight">
     <div class="prow" id="prow" data-state="${S.refresh ? "anim" : S.searchOpen ? "search" : "rest"}"><h1 class="vh">Pantry</h1>
       <div class="pl pl-msg" id="pmsg" ${S.refresh ? 'role="status"' : 'aria-hidden="true"'}>${S.refresh ? refreshHtml(S.refresh) : ""}</div>
-      <div class="pl pl-search"><input class="field" id="search" placeholder="Search your pantry" value="${esc(S.search)}" autocomplete="off" aria-label="Search your pantry"><button class="icon" data-act="mic" aria-label="Search by voice" title="Voice">${riSvg("mic", 22)}</button><button class="link cancel" data-act="searchcancel">Cancel</button></div>
+      <div class="pl pl-search"><button class="link cancel" data-act="searchcancel">Cancel</button><div class="spill"><input class="field" id="search" placeholder="Search your pantry" value="${esc(S.search)}" autocomplete="off" aria-label="Search your pantry"><button class="icon" data-act="mic" aria-label="Search by voice" title="Voice">${riSvg("mic", 22)}</button><span class="mg" aria-hidden="true">${I.search}</span></div></div>
       <div class="pl pl-front"><p class="count" aria-live="polite">${S.pantry.length} items</p><div class="pact">${S.fa ? "" : `<button class="tbtn" data-sheet="filters" aria-label="Filters">${riSvg("funnel", 18)}<span>Filters</span></button>`}<button class="icon addbtn" data-sheet="add" aria-label="Add an item" title="Add an item" ${S.down ? "disabled" : ""}>${I.plus}</button></div></div>
     </div>
     ${S.fa
@@ -856,7 +856,7 @@ document.addEventListener("scroll", (e) => { const sn = e.target; if (sn.id !== 
 /* Pantry top row: pull down for search (first threshold), keep pulling for refresh (second). Spec: docs/knowledge/pantry-pull-row.md */
 const PULL_SEARCH = 70, PULL_REFRESH = 170, REFRESH_MS = 2400, REFRESH_MS_REDUCED = 1600; let pl = null, refreshTimer = null;
 const rowState = () => (S.refresh ? "anim" : S.searchOpen ? "search" : "rest");
-function setRow(row, st) { row.dataset.state = st; row.classList.remove("peek"); const f = row.querySelector(".pl-front"); f.style.transition = ""; f.style.transform = ""; }
+function setRow(row, st) { row.dataset.state = st; row.classList.remove("peek"); if (st !== "search") row.classList.remove("lock"); const f = row.querySelector(".pl-front"); f.style.transition = ""; f.style.transform = ""; }
 function openSearch(row) { S.searchOpen = true; setRow(row, "search"); const s = document.getElementById("search"); if (s) s.focus({ preventScroll: true }); }
 function closeSearch() {
   S.searchOpen = false; S.search = ""; const row = document.getElementById("prow"); if (!row) return; const s = document.getElementById("search"); if (s) { s.value = ""; s.blur(); }
@@ -878,8 +878,9 @@ function pullMove(x, y, e) {
 function pullShow(st, dy) {
   const row = pl.row, f = row.querySelector(".pl-front"), msg = row.querySelector("#pmsg");
   if (st === "base") { pl.st = null; setRow(row, rowState()); msg.setAttribute("aria-hidden", "true"); return; }
-  if (st === "peek") { row.dataset.state = rowState(); if (rowState() === "rest") { row.classList.add("peek"); f.style.transition = "none"; f.style.transform = `translateY(${Math.round(Math.min(dy / PULL_SEARCH, 1) * 22)}px)`; } pl.st = "peek"; return; }
+  if (st === "peek") { row.classList.remove("lock"); row.dataset.state = rowState(); if (rowState() === "rest") { row.classList.add("peek"); f.style.transition = "none"; f.style.transform = `translateY(${Math.round(Math.min(dy / PULL_SEARCH, 1) * 22)}px)`; } pl.st = "peek"; return; }
   if (pl.st === st) return; pl.st = st; setRow(row, st);
+  if (st === "search") { row.classList.remove("lock"); void row.offsetWidth; row.classList.add("lock"); if (navigator.vibrate) navigator.vibrate(10); } /* locked in: the magnifier has opened into the field (ring and pop, a short buzz where the device has one) */
   if (st === "let") { msg.innerHTML = `<div class="rf"><span>Let go to refresh</span></div>`; msg.removeAttribute("aria-hidden"); }
 }
 function pullCancel() { if (!pl) return; const x = pl; pl = null; setRow(x.row, rowState()); }
