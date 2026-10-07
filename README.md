@@ -57,6 +57,13 @@ Read first, tap to edit per field: every field production edits is a plain row (
 - Deferred to the first tap of a field: that field's editor and its data, in `flows/household/fields/` (`name.js` has the emoji set, `amounts.js` the unit list, `place.js` the spots per location, `category.js`, `useby.js` the quick pills and date picker, `flags.js`). One file is fetched once, on the first tap of one of its rows, then cached. The date input is built only when Pick date is tapped. The used-up confirm is built only when opened.
 - Why this split: the read rows are what the job needs on arrival (look, glance, leave). Editors are needed by a minority of visits, and each is small, so a first tap costs one tiny fetch. Not done yet: prefetching a file on hover or focus of its row.
 
+## Item sheet (performance, DESIGN.md section 6)
+
+Tapping a pantry row opens a half-height bottom sheet above the tab bar (owner chose the tile grid from `fragments/item-sheet/`). Tiles show each value; tapping one opens its editor in the sheet with a back arrow; All fields opens the full item screen above. Counted items have an Amount tile; level-only items (weighed or measured) set Out, Low or Plenty. Used up and the Amount minus match the swipe: zero, Out, Undo toast. Spec and proposals: `docs/knowledge/item-sheet.md`.
+
+- Default path (tap a row): the sheet is built from state already in memory. No request, no editor markup.
+- Deferred: each tile's editor (`fields/*.js`) on the first tap of that tile, cached after.
+
 ## Open decisions this prototype assumes
 
 - The word "Owner" is never shown, but one person still looks after the plan (billing). Only they can buy Recipes.
@@ -69,7 +76,7 @@ Read first, tap to edit per field: every field production edits is a plain row (
 
 Ten themes drive every page from one token set; the five core ones are Kitchie Night, Kitchie Day, Marmalade, Blueberry and Herb Garden, and none is removed. To add a theme: one `themes/<id>.css` block plus one line in the list in `theme.js`. Two are production's palette exactly. No font files are bundled, so text falls back to system fonts.
 
-### Pantry curtain pull (first version, for feedback)
-A shallow pull-down on the Pantry header row slides the Filters and Add panel down like a vertical curtain and reveals a Search button already behind it. Tap Search to open the search bar; tap the "tap to close" count to close the curtain. A deep pull still refreshes. Mockup only, not in Kitchie.
+### Pantry top row: pull for search, pull further to refresh (for feedback)
+At rest the row shows Filters and Add. Pulling the list down 70 px slides them away like a curtain and shows the full search bar (field, mic, Cancel) in the same row. Pulling on to 170 px closes that bar and reads "Let go to refresh"; releasing there plays one of six little kitchen animations (pot, toast, juggling veg, kettle, egg, timer) with its own line, then the row settles back to Filters and Add. Releasing between 70 and 170 px keeps the search bar open; only Cancel closes it (not tapping or scrolling the list), and no refresh can start while it is open. Refresh is drag-only. Reduced motion shows the text only. Full behaviour, px thresholds and timings: `docs/knowledge/pantry-pull-row.md`. Mockup only, not in Kitchie.
 
-Curtain deep pull: pulling past where Search is shown closes the curtain again and the row reads "Let go to refresh". On release the playful animation plays in that same row (no separate banner) while it refreshes. Units: "letters" typed or dictated counts as litres, so "2 letters", "2 litres" and "2L" all save as "2 L".
+Units: "letters" typed or dictated counts as litres, so "2 letters", "2 litres" and "2L" all save as "2 L".

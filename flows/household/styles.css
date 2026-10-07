@@ -91,7 +91,6 @@ textarea.field{padding:12px 14px;min-height:76px;resize:none;font-size:15px}
 .tools{display:flex;justify-content:flex-end;gap:.6rem;align-items:center;margin:.6rem 0 .8rem;position:relative}
 .tbtn{display:inline-flex;align-items:center;min-height:48px;padding:0 1rem;border:1px solid var(--border);border-radius:.8rem;background:var(--surface);font-weight:500}
 .tbtn[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);font-weight:700}
-.searchbar{margin:0 0 .6rem;display:flex;gap:8px;align-items:center}.searchbar .field{flex:1}
 .grouphead{display:flex;justify-content:space-between;align-items:center;padding:.6rem .25rem 0;min-height:52px;width:100%;text-align:left}
 .group.shut .grouphead{border-bottom:1px solid var(--border)}
 .ghmeta{display:flex;align-items:center;gap:.6rem}
@@ -207,13 +206,10 @@ textarea.field{padding:12px 14px;min-height:76px;resize:none;font-size:15px}
 .selbar{position:absolute;left:12px;right:12px;bottom:80px;display:flex;gap:8px;z-index:6;padding:8px;border-radius:var(--r-card);background:var(--surface);border:1px solid var(--accent);box-shadow:0 8px 24px rgba(0,0,0,.3)}
 .selbar .btn{flex:1;min-height:48px}.selbar .icon{width:48px;height:48px;border:1px solid var(--border);border-radius:var(--r-ctl)}
 .tools .tbtn{padding:0 .75rem}
-.pull{flex:none;height:0;overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px;font-weight:600;transition:height .15s}
 .addbtn{background:var(--accent);color:var(--on-accent);border-color:transparent}
 html,body{overscroll-behavior-y:contain}.body{overscroll-behavior-y:contain}
 
 /* refresh scenes */
-.pull.on{animation:pulldown .3s ease-out}
-@keyframes pulldown{from{height:0}}
 .rf{display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--muted);font-size:13px;font-weight:600}
 .rf svg{width:130px;height:88px;overflow:visible}
 .rf svg *{transform-box:fill-box;transform-origin:center}
@@ -229,11 +225,13 @@ html,body{overscroll-behavior-y:contain}.body{overscroll-behavior-y:contain}
 .rf .rf-steam path{fill:none;stroke:var(--muted);stroke-width:3;stroke-linecap:round;animation:bub 1.3s ease-in infinite}.rf .rf-steam path:nth-child(2){animation-delay:.4s}.rf .rf-steam path:nth-child(3){animation-delay:.8s}
 .rf .rf-kettle{animation:rock .5s ease-in-out infinite}.rf .rf-lid{fill:var(--fg)}
 .rf .rf-e{fill:var(--surface);stroke:var(--accent);stroke-width:3}.rf .rf-eye{fill:var(--fg)}.rf .rf-egg .rf-ph{stroke:var(--fg);stroke-width:3}
+.rf .rf-hand2{transform-box:view-box;transform-origin:60px 46px;animation:spin 2.4s linear infinite}
 .rf .rf-egg{transform-origin:50% 100%;animation:rock .8s ease-in-out infinite}
 @keyframes stir{0%{transform:rotate(-14deg)}50%{transform:rotate(14deg)}100%{transform:rotate(-14deg)}}
 @keyframes bub{0%{transform:translateY(8px);opacity:0}30%{opacity:1}100%{transform:translateY(-16px);opacity:0}}
 @keyframes popt{0%,100%{transform:translateY(8px) rotate(0)}50%{transform:translateY(-16px) rotate(8deg)}}
 @keyframes toss{0%{transform:translate(-34px,26px)}25%{transform:translate(-14px,-14px)}50%{transform:translate(34px,26px)}75%{transform:translate(14px,34px)}100%{transform:translate(-34px,26px)}}
+@keyframes spin{to{transform:rotate(360deg)}}
 @keyframes rock{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
 .rf{flex-direction:row;gap:10px;justify-content:center}.rf svg{width:64px;height:44px}.rf span{font-size:13px;color:var(--fg)}
 
@@ -304,7 +302,21 @@ html,body{overscroll-behavior-y:contain}.body{overscroll-behavior-y:contain}
 .rc2{min-height:44px;border:0;background:none;border-radius:.75rem;padding:0 1rem;font-size:.95rem;scroll-snap-align:start;max-width:132px}
 .rc2.on{background:var(--accent);color:var(--on-accent)}
 
-.searchbar .cancel{color:var(--accent);font-weight:700;min-height:44px;padding:0 4px;white-space:nowrap}
+.pl-search .cancel{position:absolute;left:4px;top:50%;transform:translateY(-50%);color:var(--accent);font-weight:700;min-height:44px;padding:0 4px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity var(--slide)}
+.prow[data-state=search] .pl-search .cancel{opacity:1;pointer-events:auto}
+/* the magnifier sits under Filters and Add at rest; a shallow pull opens it leftwards into the search field */
+.spill{display:flex;align-items:center;flex:none;margin-left:auto;width:48px;height:48px;overflow:hidden;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--surface);transition:width var(--slide) cubic-bezier(.2,.8,.2,1),border-color var(--slide)}
+.prow[data-state=search] .spill{width:calc(100% - 84px);border-color:var(--accent)}
+.spill .field{flex:1;min-width:0;border:0;background:none;min-height:46px;padding:0 4px 0 14px;border-radius:0}
+.spill .field:focus-visible{outline:none} /* the pill already shows the accent border, and its overflow would clip the ring to a stray line */
+.spill:focus-within{box-shadow:inset 0 0 0 1px var(--accent)}
+.spill .icon{width:44px;height:46px;border:0;border-radius:0;background:none}
+.spill .mg{flex:none;width:46px;height:46px;display:inline-flex;align-items:center;justify-content:center;color:var(--muted)}
+.prow[data-state=search] .spill .mg{color:var(--accent)}
+.prow.lock .spill{animation:pill-lock .5s ease-out}
+.prow.lock .spill .mg{animation:mg-pop .4s ease-out}
+@keyframes pill-lock{0%{background:color-mix(in srgb,var(--accent) 28%,var(--surface))}100%{background:var(--surface)}}
+@keyframes mg-pop{0%{transform:scale(1)}40%{transform:scale(1.3)}100%{transform:scale(1)}}
 .due{text-align:right;line-height:1.25}
 
 /* keep the page from panning sideways when a ribbon hits its end */
@@ -312,7 +324,6 @@ html,body{overflow-x:hidden}.phone,.body{overflow-x:hidden}.rscroll,.twoRow{over
 
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .count{margin:0;color:var(--muted);font-weight:600;align-self:center}
-.phead{align-items:center;margin-bottom:.4rem}
 
 /* item detail: read rows, editor under the tapped row, per-field Saved and error lines */
 .flist{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden}
@@ -406,18 +417,70 @@ html,body{overflow-x:hidden}.phone,.body{overflow-x:hidden}.rscroll,.twoRow{over
 .cvfun{display:inline-flex;align-items:center;gap:6px;flex:none;min-height:44px;padding:0 12px;border-radius:var(--r-pill);background:var(--accent);color:var(--on-accent);font-weight:700}
 .cvn{margin:-.2rem 0 .5rem 4px}
 
+
+/* Pantry top row (docs/knowledge/pantry-pull-row.md): three layers in one fixed-height row.
+   rest = Filters + Add; search = search field, mic, Cancel; anim = refresh message or scene. Layers slide like a curtain. */
 .pact{display:flex;align-items:center;gap:.6rem}
+.prow{position:relative;flex:none;height:56px;min-height:56px;overflow:hidden;margin-bottom:.4rem;--slide:.32s}
+.prow .pl{position:absolute;inset:0;display:flex;align-items:center;gap:8px;background:var(--bg);visibility:hidden;transition:transform var(--slide) cubic-bezier(.2,.8,.2,1),opacity var(--slide) ease,visibility 0s var(--slide)}
+.prow .pl-msg{z-index:1;justify-content:center;color:var(--fg);font-size:13px;font-weight:600}
+.prow .pl-search{z-index:2}
+.prow .pl-front{z-index:3;justify-content:space-between}
+.prow[data-state=rest] .pl-front,.prow[data-state=search] .pl-search,.prow[data-state=let] .pl-msg,.prow[data-state=anim] .pl-msg,.prow.peek .pl-search{visibility:visible;transition-delay:0s}
+.prow[data-state=search] .pl-front,.prow[data-state=let] .pl-front,.prow[data-state=anim] .pl-front{transform:translateY(100%)}
+.prow[data-state=let] .pl-search,.prow[data-state=anim] .pl-search{transform:translateY(-100%)}
+.prow .pl-msg .rf{max-width:100%;padding:0 8px}
+@media (prefers-reduced-motion:reduce){.prow .pl,.spill,.pl-search .cancel{transition:none}.prow.lock .spill,.prow.lock .spill .mg{animation:none}}
 
-/* curtain: a shallow pull slides the Filters and Add panel down and reveals Search behind it */
-.pact{position:relative;overflow:hidden;min-height:44px;min-width:44px;justify-content:flex-end}
-.pact .cfront{display:flex;align-items:center;gap:.6rem;background:var(--bg,var(--surface,#fff));position:relative;z-index:1;transition:transform .28s cubic-bezier(.2,.8,.2,1)}
-.pact .cback{position:absolute;right:0;top:0;background:var(--accent);color:var(--on-accent);border-color:transparent}
-.pact.open .cfront{transform:translateY(110%);pointer-events:none}
-@media (prefers-reduced-motion:reduce){.pact .cfront{transition:none}}
+/* pantry row swipe: right = shopping list, left a little = use one, left a lot = used up */
+.swbg.three{justify-content:space-between}
+.swbg.three span{display:inline-flex;align-items:center;gap:8px}
+.pswipe:not(.rt) .swbg.three .r,.pswipe.rt .swbg.three .l{visibility:hidden}
+.pswipe .swbg.three .l2{display:none}
+.pswipe.deep .swbg.three .l1{display:none}.pswipe.deep .swbg.three .l2{display:inline-flex}
+.pswipe.deep .swbg{background:var(--danger)}
+.pswipe.isout .name,.pswipe.isout .meta{opacity:.55}
 
-/* deep pull: the curtain closes and the row reads Let go to refresh; on release the kettle animation plays in the same row */
-.phead{position:relative}
-.phead .lgr{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:var(--bg);color:var(--fg);font-weight:700;font-size:15px;z-index:3}
-.phead.deep .lgr{display:flex}
-.phead.refreshing>.count,.phead.refreshing>.pact{display:none}
-.phead .rfrow{flex:1;justify-content:center;min-height:48px}
+/* item sheet: half height, above the tab bar */
+.sheet-dim.isheet{bottom:68px}
+.sheet.half{height:54%;max-height:none;padding:8px 16px 14px;gap:12px;border-radius:var(--r-card) var(--r-card) 0 0;overflow:auto;touch-action:pan-y}
+.sheet.half.rise{animation:sheetup .26s ease-out}
+@keyframes sheetup{from{transform:translateY(100%)}}
+@media (prefers-reduced-motion:reduce){.sheet.half.rise{animation:none}}
+.phone[data-motion=reduce] .sheet.half.rise{animation:none}
+.grab{position:relative;flex:none;width:40px;height:5px;border-radius:3px;background:var(--border);margin:0 auto;touch-action:none;cursor:grab}
+.grab::after{content:"";position:absolute;inset:-18px -70px}
+.shead{display:flex;align-items:center;gap:12px;flex:none}
+.shead .sid{flex:1;min-width:0;display:flex;flex-direction:column}
+.shead .sid b{font-size:19px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sclose{margin-left:auto}
+.tiles3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tl{min-height:72px;min-width:0;padding:6px;border-radius:var(--r-ctl);border:1px solid color-mix(in srgb,var(--accent) 40%,var(--border));background:color-mix(in srgb,var(--accent) 12%,var(--bg));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12px;font-weight:600;color:var(--muted)}
+.tl b{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px;color:var(--fg)}
+.tl svg{color:var(--accent)}
+.tl.empty{background:none;border:2px dashed var(--border);color:var(--muted);font-weight:500}
+.tl.empty svg{color:var(--muted)}
+.tl.more{background:var(--bg);border-color:var(--border)}
+.drop{flex:none}.drop.lv-plenty{color:var(--cue)}.drop.lv-some{color:var(--accent)}.drop.lv-low{color:var(--danger)}.drop.lv-out{color:var(--out,var(--fg))}
+.tl .drop{width:34px;height:34px}
+.lvpick .opt{min-width:56px;justify-content:center;padding:0 10px}
+.lvpick .opt.on{background:var(--surface);border:2px solid var(--accent);color:inherit}
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.sacts{display:flex;gap:8px;margin-top:auto}
+.sacts .btn{flex:1;width:auto;padding:0 10px;font-size:14px}
+.sedit{display:flex;flex-direction:column;gap:12px}
+.sedit .stepper{background:var(--bg)}
+.toast.abovesheet{bottom:calc(68px + 54% + 10px)}
+.isheet-open .gear{display:none} /* the phone-width Controls button would sit on the sheet actions */
+/* People: Me and Household (docs/knowledge/people-settings.md) */
+.fchip{display:inline-flex;align-items:center;gap:4px;color:var(--accent);border-color:var(--accent);vertical-align:middle}
+.fchip svg{flex:none}
+.avbig{position:relative;flex:none;display:inline-flex;min-width:72px;min-height:72px}
+.avbig .avedit{position:absolute;right:-4px;bottom:-4px;width:30px;height:30px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:inline-flex;align-items:center;justify-content:center;border:2px solid var(--bg)}
+.avgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.avopt{min-height:56px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);font-size:28px;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--fg)}
+.avopt[aria-pressed=true]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.dz{border:1px solid var(--danger);border-radius:var(--r-card);padding:14px;display:flex;flex-direction:column;gap:10px}
+.dz .lbl{margin:0}
+.btn.alert{background:var(--danger);color:var(--on-accent);border-color:transparent}
+.btn.alert:disabled{opacity:.45}

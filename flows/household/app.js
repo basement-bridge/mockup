@@ -6,6 +6,7 @@ const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&
 const ico = (d, s = 22) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const I = {
   search: ico('<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>'),
+  pencil: ico('<path d="M4 20l1-4L16.5 4.5a2 2 0 0 1 3 3L8 19z"/>', 16),
   plus: ico('<path d="M12 5v14M5 12h14"/>'),
   minus: ico('<path d="M6 12h12"/>'),
   x: ico('<path d="M6 6l12 12M18 6L6 18"/>'),
@@ -117,11 +118,11 @@ const noEd = () => ({ open: null, err: null, saved: null, picking: false }); /* 
 const initial = () => ({
   screen: "invite", stack: [], tab: "today", param: null,
   persona: "sam", recipes: true, down: false, expireNext: false,
-  pantry: freshPantry(), sheet: null, toast: null, ed: noEd(), usedLog: [],
+  pantry: freshPantry(), sheet: null, isheet: null, toast: null, ed: noEd(), usedLog: [],
   members: ["arjan", "sam"], invites: [{ name: "Priya", days: 6 }],
   roles: { arjan: { title: "Pantry Marshal", ic: "shield", desc: "Keeps order on the shelves and the fridge. Knows exactly where the cumin lives." }, sam: null },
   cfg: { size: "normal", emoji: true, motion: false, spot: true, amount: true, useby: true, activity: true, compact: false }, stockChecks: true,
-  day: 1, aiDone: false, inviteDone: false, cvOpt: "A", aiTab: "ChatGPT", aiActive: true, bannerGot: false, pending: null, joined: false,
+  day: 1, aiDone: false, inviteDone: false, cvOpt: "A", aiTab: "ChatGPT", links: { ChatGPT: false, Claude: false, Other: false }, founder: "arjan", avatars: {}, hh2: "Gran's flat", bannerGot: false, pending: null, joined: false,
   /* pantry view */
   rmode: "loc", order: { loc: [...AREAS], cat: [...CATEGORIES] }, fa: null, fd: null, flast: null, fTab: "filters", seenP: 0, seenR: 0, view: "name", shop: ["milk", "carrots", "butter"], slx: { milk: { by: "arjan", want: "2 litres", tick: false }, carrots: { by: "sam", want: "", tick: false }, butter: { by: "arjan", want: "", tick: false } }, wantFor: null, sel: null, areaTab: "All", collapsed: {}, search: "", searchOpen: false, draft: { days: null },
   memberWho: null, existing: 1, own: false, rdraft: null, iconPick: false,
@@ -152,6 +153,10 @@ const greeting = () => { const h = new Date().getHours(); return h < 12 ? "Good 
 const reducible = (i) => COUNT_UNITS.includes(i.unit);
 const can = (r) => r.ings.filter(([k]) => S.pantry.some((p) => p.key === k));
 const me = () => PEOPLE[S.persona];
+const AVATARS = ["🦊", "🐼", "🐸", "🦉", "🐙", "🐝", "🍋", "🥑", "🌶️", "🍄", "🧁", "🌻"];
+const avt = (w) => S.avatars[w] || PEOPLE[w].initial;
+const starIc = ico('<path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8 6.8 19.6l1-5.8L3.5 9.7l5.9-.8z"/>', 14);
+const founderChip = (w) => (S.founder === w ? `<span class="chip fchip">${starIc}Founding member</span>` : "");
 const pays = () => S.persona === "arjan"; /* the billing contact; never shown as a rank */
 const role = (who) => S.roles[who];
 const emojiOf = (n) => { const m = { milk: "🥛", egg: "🥚", rice: "🍚", bread: "🍞", cheese: "🧀", tomato: "🍅", apple: "🍎", banana: "🍌", butter: "🧈", onion: "🧅", carrot: "🥕", pasta: "🍝", chicken: "🍗", fish: "🐟" }; const k = Object.keys(m).find((x) => n.toLowerCase().includes(x)); return k ? m[k] : ""; };
@@ -179,7 +184,7 @@ function maybePrompt() {
 /* ---------- navigation ---------- */
 function go(screen, param = null, opts = {}) {
   if (!opts.replace) S.stack.push({ screen: S.screen, param: S.param, tab: S.tab });
-  S.screen = screen; S.param = param; S.ed = noEd();
+  S.screen = screen; S.param = param; S.ed = noEd(); S.isheet = null;
   if (["today", "pantry", "recipes", "shop"].includes(screen)) { S.tab = screen; S.stack = []; }
   if (screen !== "pantry") S.sel = null;
   if (screen === "today") maybePrompt();
@@ -228,7 +233,7 @@ function refreshSheet() {
 }
 
 /* ---------- pieces ---------- */
-const header = () => `<div class="top"><span>Our kitchen</span><button class="av" data-go="menu" aria-label="Account">${me().initial}</button></div>`;
+const header = () => `<div class="top"><span>Our kitchen</span><button class="av" data-go="menu" aria-label="Account">${avt(S.persona)}</button></div>`;
 const backHeader = (label, title) => `<div class="top"><button class="back" data-act="back">&lsaquo; ${esc(label)}</button><span class="ttl">${esc(title || "")}</span><span style="width:64px"></span></div>`;
 const bar = () => `<nav class="bar" aria-label="Main">
   <button data-go="today" class="${S.tab === "today" ? "on" : ""}">${riSvg("home", 24)}<span>Home</span></button>
@@ -253,7 +258,7 @@ function loadField(k) {
   if (!fieldLoads.has(f)) fieldLoads.set(f, new Promise((ok, no) => { const s = document.createElement("script"); s.src = `fields/${f}.js`; s.onload = ok; s.onerror = () => { fieldLoads.delete(f); s.remove(); no(); }; document.head.append(s); }));
   return fieldLoads.get(f);
 }
-const level = (p) => (p.n <= 0 ? "Out" : isLow(p) || (p.min && p.n <= p.min) ? "Low" : "Plenty");
+const level = (p) => (p.n <= 0 ? "Out" : p.lvl ? p.lvl : isLow(p) || (p.min && p.n <= p.min) ? "Running low" : p.min && p.n <= p.min * 2 ? "Some" : "Plenty");
 const VAL = {
   name: (p) => esc(p.name),
   qty: (p) => esc(fmtAmt(p)),
@@ -273,7 +278,7 @@ const fld = (k, p, inner, label) => {
 /* option pills shared by the editors */
 const opts = (k, op, items, cur, aria) => `<div class="opts" role="radiogroup" aria-label="${aria}">${items.map(([v, label]) => `<button class="opt${v === cur ? " on" : ""}" role="radio" aria-checked="${v === cur}" data-act="fset" data-p="${k}|${op}|${esc(v)}">${label}</button>`).join("")}</div>`;
 const stepper = (k, p, val) => `<div class="stepper"><button data-act="fset" data-p="${k}|step|-1" aria-label="Less">${I.minus}</button><b>${val}</b><button data-act="fset" data-p="${k}|step|1" aria-label="More">${I.plus}</button></div>`;
-const curItem = () => S.pantry.find((x) => x.id === S.param);
+const curItem = () => S.pantry.find((x) => x.id === (S.sheet === "item" && S.isheet ? S.isheet.id : S.param)); /* the item sheet edits the same way the full screen does */
 function save(k, patch, quiet) {
   const p = curItem(); if (!p) return;
   if (S.down) { S.ed.err = { key: k, msg: "Not saved. We can't reach the platform.", retry: patch }; S.ed.saved = null; render(); return; }
@@ -288,9 +293,9 @@ function save(k, patch, quiet) {
 }
 const recentUsed = () => S.usedLog.filter((t) => Date.now() - t < 5 * 60 * 1000).length;
 function markUsedUp(id) {
-  const at = S.pantry.findIndex((x) => x.id === id); if (at < 0) return;
-  const [item] = S.pantry.splice(at, 1); S.usedLog.push(Date.now());
-  toast(item.name + " marked as used up", () => { S.pantry.splice(at, 0, item); S.usedLog.pop(); toast(item.name + " is back in your pantry"); });
+  const i = S.pantry.find((x) => x.id === id); if (!i) return;
+  const was = { n: i.n, upd: i.upd }; i.was = i.n; i.n = 0; S.usedLog.push(Date.now()); render();
+  toast(i.name + " used up. It's marked Out", () => { i.n = was.n; i.upd = was.upd; S.usedLog.pop(); render(); toast(i.name + " is back"); });
 }
 
 /* ---------- pantry ---------- */
@@ -303,9 +308,11 @@ function visibleItems() {
   return S.pantry.filter((i) => (S.areaTab === "All" || (S.rmode === "cat" ? i.cat : i.area) === S.areaTab) && (!q || i.name.toLowerCase().includes(q) || i.cat.toLowerCase().includes(q)));
 }
 function rowHtml(i) {
-  const hot = i.days !== null && i.days <= 1, c = S.cfg;
-  const meta = [i.area, c.amount ? fmtAmt(i) : null, c.spot ? i.spot : null, i.cat].filter((x) => x !== null && x !== "").map(esc).join(" · ");
-  return `<li class="rowx"><button class="rowlink" data-go="item" data-p="${i.id}"><div class="main"><div class="name">${i.emoji && c.emoji ? `<span aria-hidden="true">${i.emoji}</span> ` : ""}${esc(i.name)}${i.recent ? ` <span class="cue" role="img" aria-label="Added in the last 24 hours">${I.up(17)}</span>` : ""}</div><div class="meta">${meta}</div></div>${i.days !== null && c.useby ? `<span class="due ${hot ? "hot" : ""}">${i.days >= 2 ? `Use within<br>${i.days} days` : dayLabel(i.days)}</span>` : ""}<span class="chev">${I.chev}</span></button>${reducible(i) ? `<button class="iconbtn" data-act="useone" data-p="${i.id}" aria-label="Use one of ${esc(i.name)}" title="Use one" ${S.down ? "disabled" : ""}>${I.minus}</button>` : ""}<button class="iconbtn ok2" data-act="usedup" data-p="${i.id}" aria-label="Mark ${esc(i.name)} as used up" title="Used up" ${S.down ? "disabled" : ""}>${I.tick}</button></li>`;
+  const hot = i.days !== null && i.days <= 1, c = S.cfg, out = i.n <= 0, cnt = reducible(i);
+  const meta = [i.area, c.amount ? (out ? "Out" : fmtAmt(i)) : null, c.spot ? i.spot : null, i.cat].filter((x) => x !== null && x !== "").map(esc).join(" · ");
+  /* swipe left a little = use one (counted) or used up (level only); left a lot = used up; right = shopping list. Nothing is deleted. */
+  const bg = `<div class="swbg three" aria-hidden="true"><span class="r">${riSvg("cart", 20)}Add to list</span><span class="l l1">${cnt ? `${I.minus}Use one` : `${I.tick}Used up`}</span><span class="l l2">${I.tick}Used up</span></div>`;
+  return `<li class="rowx swr pswipe ${out ? "isout" : ""}" data-swipe="${i.id}" data-sw="pantry" data-kind="${cnt ? "count" : "level"}">${bg}<div class="swfg"><button class="rowlink" data-act="isheet" data-p="${i.id}" aria-haspopup="dialog"><div class="main"><div class="name">${i.emoji && c.emoji ? `<span aria-hidden="true">${i.emoji}</span> ` : ""}${esc(i.name)}${i.recent ? ` <span class="cue" role="img" aria-label="Added in the last 24 hours">${I.up(17)}</span>` : ""}</div><div class="meta">${meta}</div></div>${i.days !== null && c.useby && !out ? `<span class="due ${hot ? "hot" : ""}">${i.days >= 2 ? `Use within<br>${i.days} days` : dayLabel(i.days)}</span>` : ""}</button></div></li>`;
 }
 /* running-low rows: swipe to add to the shopping list, press and hold to pick several */
 function lowRowHtml(i) {
@@ -349,8 +356,11 @@ const RF = [
   ["Juggling veg. Don't tell the carrots", `<svg viewBox="0 0 120 80" aria-hidden="true"><circle class="rf-j j1" cx="60" cy="40" r="9"/><circle class="rf-j j2" cx="60" cy="40" r="9"/><circle class="rf-j j3" cx="60" cy="40" r="9"/><path class="rf-hand" d="M24 70c8-8 16-8 22 0M74 70c6-8 14-8 22 0"/></svg>`],
   ["Kettle's on. Obviously.", `<svg viewBox="0 0 120 80" aria-hidden="true"><g class="rf-steam"><path d="M40 28c-4-6 4-10 0-16"/><path d="M52 24c-4-6 4-10 0-16"/><path d="M64 28c-4-6 4-10 0-16"/></g><g class="rf-kettle"><path class="rf-p" d="M30 46a22 22 0 0 1 44 0v18a6 6 0 0 1-6 6H36a6 6 0 0 1-6-6z"/><path class="rf-ph" d="M74 48c14-2 18 4 14 12M30 50l-10-8"/><circle class="rf-lid" cx="52" cy="26" r="4"/></g></svg>`],
   ["Egg is feeling fragile", `<svg viewBox="0 0 120 80" aria-hidden="true"><g class="rf-egg"><path class="rf-e" d="M60 8c14 0 22 20 22 34a22 22 0 0 1-44 0C38 28 46 8 60 8z"/><circle class="rf-eye" cx="52" cy="40" r="2.5"/><circle class="rf-eye" cx="68" cy="40" r="2.5"/><path class="rf-ph" d="M54 50c4 4 8 4 12 0"/></g><path class="rf-p2" d="M22 74h76"/></svg>`],
+  ["Timer's ticking. Nearly ready", `<svg viewBox="0 0 120 80" aria-hidden="true"><path class="rf-ph" d="M52 10h16M60 10v8"/><circle class="rf-e" cx="60" cy="46" r="26"/><g class="rf-hand2"><path class="rf-ph" d="M60 46V28"/></g><circle class="rf-eye" cx="60" cy="46" r="3"/></svg>`],
 ];
 let lastRF = -1;
+const refreshHtml = (r) => `<div class="rf">${reducedMotion() ? "" : r[1]}<span>${r[0]}</span></div>`;
+const reducedMotion = () => S.cfg.motion || (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
 /* ---------- screens ---------- */
 const KITCHEN_SCENE = `<svg class="scene" viewBox="0 0 360 150" role="img" aria-label="A friendly kitchen: a pot on the stove, a plant and jars on a shelf"><g class="sh"><rect x="8" y="104" width="124" height="7" rx="3"/><rect x="236" y="112" width="116" height="7" rx="3"/><rect x="0" y="144" width="360" height="3" rx="1.5"/></g>
 <g class="plant"><path class="lf" d="M38 78c-8-8-9-18-5-24 8 3 11 14 5 24zM44 76c0-10 5-18 12-22 3 8-1 17-12 22z"/><rect class="pt" x="32" y="80" width="22" height="22" rx="4"/></g>
@@ -430,9 +440,11 @@ const screens = {
   },
 
   pantry: () => header() + downBanner() + `<div class="body tight">
-    <div class="pull" id="pull" aria-hidden="true"><span></span></div>
-    <div class="phead${S.refresh ? " refreshing" : ""}" id="phead"><h1 class="vh">Pantry</h1><div class="lgr" aria-hidden="true">Let go to refresh</div>${S.refresh ? `<div class="rf rfrow" role="status">${S.refresh[1]}<span>${S.refresh[0]}</span></div>` : ""}<p class="count" aria-live="polite" ${S.curtain ? 'data-act="curtainclose" style="cursor:pointer"' : ""}>${S.pantry.length} items${S.curtain ? " · tap to close" : ""}</p><div class="pact${S.curtain ? " open" : ""}" id="pact"><button class="icon cback" data-act="curtainsearch" aria-label="Search your pantry" title="Search">${I.search}</button><div class="cfront">${S.fa ? "" : `<button class="tbtn" data-sheet="filters" aria-label="Filters">${riSvg("funnel", 18)}<span>Filters</span></button>`}<button class="icon addbtn" data-sheet="add" aria-label="Add an item" title="Add an item" ${S.down ? "disabled" : ""}>${I.plus}</button></div></div></div>
-    ${S.searchOpen ? `<div class="searchbar"><input class="field" id="search" placeholder="Search your pantry" value="${esc(S.search)}" autocomplete="off" aria-label="Search your pantry"><button class="icon" data-act="mic" aria-label="Search by voice" title="Voice">${riSvg("mic", 22)}</button><button class="link cancel" data-act="search">Cancel</button></div>` : ""}
+    <div class="prow" id="prow" data-state="${S.refresh ? "anim" : S.searchOpen ? "search" : "rest"}"><h1 class="vh">Pantry</h1>
+      <div class="pl pl-msg" id="pmsg" ${S.refresh ? 'role="status"' : 'aria-hidden="true"'}>${S.refresh ? refreshHtml(S.refresh) : ""}</div>
+      <div class="pl pl-search"><button class="link cancel" data-act="searchcancel">Cancel</button><div class="spill"><input class="field" id="search" placeholder="Search your pantry" value="${esc(S.search)}" autocomplete="off" aria-label="Search your pantry"><button class="icon" data-act="mic" aria-label="Search by voice" title="Voice">${riSvg("mic", 22)}</button><span class="mg" aria-hidden="true">${I.search}</span></div></div>
+      <div class="pl pl-front"><p class="count" aria-live="polite">${S.pantry.length} items</p><div class="pact">${S.fa ? "" : `<button class="tbtn" data-sheet="filters" aria-label="Filters">${riSvg("funnel", 18)}<span>Filters</span></button>`}<button class="icon addbtn" data-sheet="add" aria-label="Add an item" title="Add an item" ${S.down ? "disabled" : ""}>${I.plus}</button></div></div>
+    </div>
     ${S.fa
       ? cvHtml()
       : ribbonHtml()}
@@ -474,12 +486,11 @@ const screens = {
     if (S.day <= 5 && !S.inviteDone) strip.push(["invite", "mail", "Invite someone", "sheet"]);
     const seg = (t, rows) => `<div><span class="lbl">${t}</span><div class="menu card">${rows}</div></div>`;
     return backHeader("Back", "") + `<div class="body">
-    <div class="row"><span class="av" style="width:56px;height:56px;font-size:20px">${me().initial}</span><div><b style="font-size:20px">${esc(me().name)}</b><p class="small">${role(S.persona) ? esc(role(S.persona).title) : "Our kitchen"}</p></div></div>
+    <div class="row"><span class="av" style="width:56px;height:56px;font-size:20px">${avt(S.persona)}</span><div><b style="font-size:20px">${esc(me().name)}</b><p class="small">${role(S.persona) ? esc(role(S.persona).title) : "Our kitchen"}</p></div></div>
     ${strip.length ? `<div><span class="lbl">Get started</span><div class="menu card">${strip.map(([t, ic, l, k]) => `<button data-${k === "go" ? "go" : "sheet"}="${t}"><span class="row" style="gap:10px">${riSvg(ic, 20)}${l}</span><span class="chev" style="color:var(--muted)">${I.chev}</span></button>`).join("")}</div></div>` : ""}
-    ${seg("Look and kitchen", `<button data-go="settings">Settings</button><button data-sheet="role">${role(S.persona) ? "Change my kitchen role" : "Pick a kitchen role"}</button>`)}
-    ${seg("People", `<button data-go="household">Household <span class="chip">${S.members.length}</span></button><button data-sheet="invite">Create invite link</button>${pays() ? `<button data-go="${S.recipes ? "household" : "upgrade"}">Plan and billing</button>` : ""}`)}
-    ${seg("Connect", `<button data-go="ai">AI assistant <span class="chip">${S.aiDone ? "Linked" : "Not linked"}</span></button>`)}
-    ${seg("My data", `<button data-act="proto" data-p="History">History</button><button data-act="proto" data-p="Download CSV">Download CSV</button><button data-act="proto" data-p="JSON">Download JSON</button>`)}
+    ${seg("Look and kitchen", `<button data-go="settings">Settings</button><button data-act="proto" data-p="History">History</button>`)}
+    ${seg("People", `<button data-go="me">Me <span class="chip">${esc(me().name)}</span></button><button data-go="household">Household <span class="chip">${S.members.length}</span></button>${pays() ? `<button data-go="${S.recipes ? "household" : "upgrade"}">Plan and billing</button>` : ""}`)}
+    ${seg("My data", `<button data-act="proto" data-p="Download inventory CSV">Download inventory CSV</button>`)}
     <button data-act="signout" class="danger" style="text-align:left;min-height:48px">Sign out</button>
     <div class="srow plain"><span class="small">Prototype: member for</span><div class="seg2" role="radiogroup" aria-label="Member for">${[[1, "Day 1"], [3, "Day 3"], [6, "Day 6"]].map(([d, l]) => `<button role="radio" aria-checked="${S.day === d}" class="${S.day === d ? "on" : ""}" data-act="day" data-p="${d}">${l}</button>`).join("")}</div></div></div>`;
   },
@@ -513,14 +524,22 @@ const screens = {
     <p>Rename a category for every item at once. This is the household's, not just this device's.</p>
     <div class="menu card">${S.order.cat.map((c) => `<button data-act="proto" data-p="Rename ${esc(c)}">${EM[c] || ""} ${esc(c)} <span class="small">Rename</span></button>`).join("")}</div></div>`,
 
+  /* People, part one: Me (name, picture, my AI links). Spec: docs/knowledge/people-settings.md */
+  me: () => backHeader("Back", "Me") + `<div class="body">
+    <div class="row" style="gap:14px"><button class="avbig" data-sheet="avatar" aria-label="Change your picture"><span class="av" style="width:72px;height:72px;font-size:30px">${avt(S.persona)}</span><span class="avedit" aria-hidden="true">${I.pencil}</span></button><div><b style="font-size:20px">${esc(me().name)}</b><p class="small">Tap the picture to change it</p></div></div>
+    <div><span class="lbl">Name</span><div class="row" style="gap:8px"><input class="field" id="myname" value="${esc(me().name)}" maxlength="24" autocomplete="off" aria-label="Your name" style="flex:1"><button class="btn sm" id="namesave" data-act="savename" disabled>Save</button></div></div>
+    <div><span class="lbl">Kitchen role</span><button class="m" data-sheet="role"><div style="flex:1"><b>${role(S.persona) ? esc(role(S.persona).title) : "Pick a kitchen role"}</b><p class="small">Only you can change yours</p></div><span class="chev" style="color:var(--muted)">${I.chev}</span></button></div>
+    <div><span class="lbl">AI assistants</span>${["ChatGPT", "Claude", "Other"].map((t) => `<div class="m"><div style="flex:1"><b>${t}</b> <span class="chip">${S.links[t] ? "Active" : "Not linked"}</span></div>${S.links[t] ? `<button class="danger" data-act="linkrevoke" data-p="${t}" aria-label="Revoke ${t}" style="min-height:44px;padding:0 8px">Revoke</button>` : `<button class="link" data-act="linkopen" data-p="${t}" aria-label="Create a link for ${t}" style="min-height:44px;padding:0 8px">Create link</button>`}</div>`).join("")}
+      <p class="small" style="margin-top:8px">Your own links. They act as you and see everything your household has. Revoking stops one at once.</p></div>
+    <div><span class="lbl">Other households</span><button class="m" data-sheet="invite2"><div style="flex:1"><b>Invite someone to a different household</b><p class="small">Not Our kitchen. You pick where they join</p></div><span class="chev" style="color:var(--muted)">${I.chev}</span></button></div></div>`,
+
+  /* People, part two: Household (members, pending invites, leave). Anyone can remove anyone and anyone can cancel an invite (owner, 8 Oct 2026). */
   household: () => backHeader("Back", "Household") + `<div class="body">
-    <div><h1 style="font-size:2rem">Our kitchen</h1><p style="margin-top:4px">${S.members.length} members</p></div>
-    <div><span class="lbl">Members</span>${S.members.map((w) => `<button class="m" data-sheet="member" data-p="${w}"><span class="avw"><span class="av">${PEOPLE[w].initial}</span>${role(w) ? `<span class="avbadge">${riSvg(role(w).ic, 13)}</span>` : ""}</span><div style="flex:1"><b>${PEOPLE[w].name}</b>${w === S.persona ? ' <span class="chip">You</span>' : ""}${role(w) ? `<p class="small">${esc(role(w).title)}</p>` : ""}</div><span class="chev" style="color:var(--muted)">${I.chev}</span></button>`).join("")}
-      ${S.invites.map((i) => `<div class="m"><span class="av" style="border-style:dashed;color:var(--muted)">${esc(i.name[0])}</span><div style="flex:1"><b>${esc(i.name)}</b><p class="small">Invited · link expires in ${i.days} days</p></div><button data-act="revoke" data-p="${esc(i.name)}" class="danger" style="font-size:14px">Cancel</button></div>`).join("")}</div>
+    <div><h1 style="font-size:2rem">Our kitchen</h1><p style="margin-top:4px">${S.members.length} member${S.members.length === 1 ? "" : "s"}</p></div>
+    <div><span class="lbl">Members</span>${S.members.map((w) => `<button class="m" data-sheet="member" data-p="${w}"><span class="avw"><span class="av">${avt(w)}</span>${role(w) ? `<span class="avbadge">${riSvg(role(w).ic, 13)}</span>` : ""}</span><div style="flex:1"><b>${esc(PEOPLE[w].name)}</b>${w === S.persona ? ' <span class="chip">You</span>' : ""} ${founderChip(w)}${role(w) ? `<p class="small">${esc(role(w).title)}</p>` : ""}</div><span class="chev" style="color:var(--muted)">${I.chev}</span></button>`).join("")}
+      ${S.invites.map((i) => `<div class="m"><span class="av" style="border-style:dashed;color:var(--muted)">${esc(i.name[0])}</span><div style="flex:1"><b>${esc(i.name)}</b><p class="small">Invited · link expires in ${i.days} days</p></div><button data-act="revoke" data-p="${esc(i.name)}" class="danger" aria-label="Cancel invite for ${esc(i.name)}" style="font-size:14px;min-height:44px;padding:0 8px">Cancel</button></div>`).join("")}</div>
     <button class="btn" data-sheet="invite">Invite someone</button>
-    <div style="border-top:1px solid var(--border);padding-top:14px"><span class="lbl">Included for this household</span>
-      <div class="pillrow" style="margin-top:10px"><span class="chip">Pantry</span>${S.recipes ? '<span class="chip">Recipes</span>' : `<button class="chip add" data-go="upgrade">Add Recipes</button>`}</div></div>
-    <button data-act="leave" class="danger" style="text-align:left">Leave this household</button></div>`,
+    <div class="dz"><span class="lbl danger">Danger zone</span><p class="small">Leave Our kitchen. You lose access until someone invites you back.</p><button class="btn ghost danger" data-act="leavestart">Leave household</button></div></div>`,
 
   ai: () => backHeader("Back", "AI assistant") + `<div class="body">
     <div><h2>Your personal link</h2><p style="margin-top:6px">Lets an assistant read and update Our kitchen as you. It sees everything your household has.</p></div>
@@ -528,7 +547,7 @@ const screens = {
     <div class="field" style="display:flex;align-items:center"><span class="mono">https://kitchen.example/mcp/s9Xk-4tPq-L2vE</span></div>
     <button class="btn" data-act="copy">Copy link</button>
     <div style="display:flex;flex-direction:column;gap:10px;font-size:15px"><div class="row"><b>1</b><span>${S.aiTab === "Claude" ? "In Claude, open Settings, then Connectors." : S.aiTab === "ChatGPT" ? "In ChatGPT, open Settings, then Connectors." : "Open your assistant's connector settings."}</span></div><div class="row"><b>2</b><span>Paste your link and name it Kitchen.</span></div><div class="row"><b>3</b><span>Ask: "What should I cook tonight?"</span></div></div>
-    <div style="border-top:1px solid var(--border);padding-top:14px" class="row"><div style="flex:1"><b>${S.aiTab}</b> <span class="chip">${S.aiActive ? "Active" : "Revoked"}</span><p class="small">${S.aiActive ? "Last used 2 hours ago" : "Make a new link to reconnect"}</p></div><button data-act="aitoggle" class="${S.aiActive ? "danger" : "link"}">${S.aiActive ? "Revoke" : "New link"}</button></div>
+    <div style="border-top:1px solid var(--border);padding-top:14px" class="row"><div style="flex:1"><b>${S.aiTab}</b> <span class="chip">${S.links[S.aiTab] ? "Active" : "Not linked"}</span><p class="small">${S.links[S.aiTab] ? "Linked. Revoke it any time" : "Copy the link above to connect it"}</p></div>${S.links[S.aiTab] ? '<button data-act="aitoggle" class="danger" style="min-height:44px;padding:0 8px">Revoke</button>' : ""}</div>
     <p class="small">Anyone with this link can act as you. Revoking it stops it at once.</p></div>`,
 
   upgrade: () => backHeader("Back", "Add to your kitchen") + (pays()
@@ -555,8 +574,56 @@ const screens = {
 };
 
 /* ---------- sheets ---------- */
+/* ---------- item sheet (tile grid, owner's choice from fragments/item-sheet) ----------
+   Tap a pantry row: a half-height sheet rises above the tab bar. Six tiles (five for level-only items), each showing its value;
+   tap one and its editor takes over the sheet with a back arrow. Editors are the same fields/*.js files as the full item screen,
+   fetched on the first tap of a tile (nothing extra loads when the sheet opens). "All fields" opens the full item screen.
+   Counted = the unit is a count (reducible); anything weighed or measured is level-only. Used up = amount 0, shows Out, Undo toast. */
+const TILE_FIELDS = { amount: ["qty", "min"], level: [], where: ["loc", "spot"], useby: ["useby"], cat: ["cat"] };
+const TILE_TITLE = { amount: "Amount", level: "Level", where: "Where", useby: "Use by", cat: "Category" };
+/* level drop: fuller or emptier with the level. Plenty full (green), Some about half (amber), Running low about a quarter (red), Out an empty outline.
+   No level word is drawn; the name is screen-reader text only (.sr-only). */
+const LEVELS = { Plenty: [1, "plenty"], Some: [0.5, "some"], "Running low": [0.25, "low"], Out: [0, "out"] };
+const DROP = "M12 3c3.500 4.500 6 7.200 6 10.200a6 6 0 0 1-12 0C6 10.200 8.500 7.500 12 3z";
+function levelDrop(l, size = 26) {
+  const [f, k] = LEVELS[l], y = (19.2 - f * 16.2).toFixed(2);
+  return `<svg class="drop lv-${k}" width="${size}" height="${size}" viewBox="0 0 24 24" aria-hidden="true"><defs><clipPath id="dc-${k}-${size}"><path d="${DROP}"/></clipPath></defs>${f ? `<rect x="0" y="${y}" width="24" height="24" clip-path="url(#dc-${k}-${size})" fill="currentColor" fill-opacity=".9"/>` : ""}<path d="${DROP}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`;
+}
+const srOnly = (t) => `<span class="sr-only">${esc(t)}</span>`;
+function itemSheetHtml() {
+  const s = S.isheet, p = s && S.pantry.find((x) => x.id === s.id); if (!p) return "";
+  const cnt = reducible(p), out = p.n <= 0, v = s.view, lv = level(p), err = S.ed.err;
+  const close = `<button class="icon sclose" data-act="closesheet" aria-label="Close" title="Close">${I.x}</button>`;
+  const errHtml = err ? `<p class="ferr" role="alert">${I.alert(18)}<span>${esc(err.msg)}</span>${err.retry ? '<button class="link" data-act="fretry">Try again</button>' : ""}</p>` : "";
+  const grab = '<span class="grab" data-grab aria-hidden="true"></span>';
+  let body;
+  if (v === "tiles") {
+    /* a tile with data is filled and shows its value; a tile with none is dashed and offers a quiet prompt, and tapping it is how you fill it */
+    const tile = (k, ic, val, label, prompt, sr) => val === null
+      ? `<button class="tl empty" data-act="itile" data-p="${k}">${I.plus.replace('width="22" height="22"', 'width="20" height="20"')}<span>${prompt}</span></button>`
+      : `<button class="tl" data-act="itile" data-p="${k}" ${sr ? `aria-label="${esc(sr)}"` : ""}>${ic}${val === "" ? "" : `<b>${val}</b>`}${label ? `<span>${label}</span>` : ""}</button>`;
+    const head = `<div class="shead"><span class="ph" aria-hidden="true">${emo(p)}</span><div class="sid"><b>${esc(p.name)}</b><span class="small">${esc(p.area)}${p.spot && p.spot !== "Anywhere" ? " · " + esc(p.spot) : ""}</span></div>${close}</div>`;
+    const first = cnt
+      ? tile("amount", levelDrop(lv), out ? "0" : esc(fmtAmt(p)), srOnly("Amount, " + lv), "")
+      : tile("level", levelDrop(lv), "", srOnly("Level, " + lv), "");
+    const tiles = `<div class="tiles3">${first}${tile("where", riSvg("fridge", 20), esc(p.area), "Where")}${tile("useby", riSvg("clock", 20), p.days === null ? null : esc(dayLabel(p.days)), "Use by", "Add use-by")}${tile("cat", riSvg("basket", 20), p.cat ? esc(p.cat) : null, "Category", "Add category")}<button class="tl more" data-act="itile" data-p="all">${riSvg("list", 20)}<b>More</b><span>All fields</span></button></div>`;
+    const acts2 = `<div class="sacts">${out ? `<button class="btn ghost" disabled>${I.tick}<span>&nbsp;Marked Out</span></button>` : `<button class="btn ghost" data-act="sheetused">${I.tick}<span>&nbsp;Used up</span></button>`}${onList(p.id) ? `<button class="btn ghost" disabled>${I.tick}<span>&nbsp;On your list</span></button>` : `<button class="btn" data-act="sheetshop">${riSvg("cart", 20)}<span>&nbsp;Add to shopping</span></button>`}</div>`;
+    body = head + errHtml + tiles + acts2;
+  } else {
+    const hd = `<div class="shead"><button class="icon" data-act="itile" data-p="tiles" aria-label="Back to ${esc(p.name)}" title="Back">${I.chev.replace("<svg", '<svg style="transform:scaleX(-1)"')}</button><div class="sid"><b>${TILE_TITLE[v]}</b><span class="small">${esc(p.name)}</span></div>${close}</div>`;
+    let ed = "";
+    if (v === "level") {
+      ed = `<div class="opts lvpick" role="radiogroup" aria-label="Level">${Object.keys(LEVELS).reverse().map((l) => `<button class="opt${l === lv ? " on" : ""}" role="radio" aria-checked="${l === lv}" data-act="lvl" data-p="${l}">${levelDrop(l, 40)}${srOnly(l)}</button>`).join("")}</div><p class="small">The drop empties as it runs down. An empty drop means none left. Nothing is deleted: it stays in the pantry.</p>`;
+    } else if (v === "amount") ed = `${ITEM_FIELDS.qty.html(p)}<span class="lbl">Running low at or under</span>${ITEM_FIELDS.min.html(p)}`;
+    else if (v === "where") ed = TILE_FIELDS.where.map((k) => `<span class="lbl">${k === "loc" ? "Location" : "Spot"}</span>${ITEM_FIELDS[k].html(p)}`).join("");
+    else ed = ITEM_FIELDS[TILE_FIELDS[v][0]].html(p);
+    body = hd + `<div class="sedit">${ed}</div>${errHtml}${S.ed.saved ? savedLine() : ""}`;
+  }
+  return `<div class="sheet-dim isheet" data-act="closesheet"><div class="sheet half${s.fresh ? " rise" : ""}" data-stop="1" role="dialog" aria-modal="true" aria-label="${esc(p.name)}">${grab}${body}</div></div>`;
+}
 function sheetHtml() {
   const sh = S.sheet; if (!sh) return "";
+  if (sh === "item") return itemSheetHtml();
   const wrap = (inner, mid, dismiss) => `<div class="sheet-dim" ${mid && !dismiss ? "" : 'data-act="closesheet"'}><div class="sheet ${mid ? "mid" : ""}" data-stop="1">${inner}</div></div>`;
   if (sh === "filters" && S.fd) {
     const f = S.fd, tab = S.fTab;
@@ -595,14 +662,23 @@ function sheetHtml() {
   if (sh === "invite") return wrap(`<h2>Invite someone</h2><p>Send this link. They sign in with Google and join Our kitchen. Anyone in the household can send one.</p>
     <div class="field" style="display:flex;align-items:center"><span class="mono">https://kitchen.example/join/k7Q2-m9xA-0pR4</span></div>
     <button class="btn" data-act="copyinvite">Copy link</button><p class="small">Works once and expires in 7 days. It can be cancelled from Household.</p>`);
+  if (sh === "invite2") return wrap(`<h2>Invite to a different household</h2><p>Pick where they should join. It isn't Our kitchen.</p>
+    <div class="seg2" role="radiogroup" aria-label="Which household">${["Gran's flat", "A new household"].map((h) => `<button role="radio" aria-checked="${S.hh2 === h}" class="${S.hh2 === h ? "on" : ""}" data-act="hhpick" data-p="${h}">${h}</button>`).join("")}</div>
+    <div class="field" style="display:flex;align-items:center"><span class="mono">https://kitchen.example/join/h3W8-q2nB-6vT1</span></div>
+    <button class="btn" data-act="copyinvite2">Copy link</button><p class="small">They join ${esc(S.hh2)}. Works once and expires in 7 days.</p>`);
   if (sh === "expired") return wrap(`<h2>Sign in again to save</h2><p>Your sign-in ended. What you typed is kept, and you'll come straight back.</p><button class="btn" data-act="resume">Continue with Google</button>`, true);
   if (sh === "role") return wrap(`<h2>Your kitchen role</h2><p>Optional. It sits beside your name.</p>${roleEditor("sheet")}`);
   if (sh === "member") {
     const w = S.memberWho, r = role(w), self = w === S.persona;
-    return wrap(`<div class="row"><span class="av" style="width:56px;height:56px;font-size:20px">${PEOPLE[w].initial}</span><div><b style="font-size:20px">${PEOPLE[w].name}</b>${self ? ' <span class="chip">You</span>' : ""}</div></div>
+    return wrap(`<div class="row"><span class="av" style="width:56px;height:56px;font-size:20px">${avt(w)}</span><div><b style="font-size:20px">${esc(PEOPLE[w].name)}</b>${self ? ' <span class="chip">You</span>' : ""} ${founderChip(w)}</div></div>
       ${r ? `<div class="row" style="gap:14px">${roleIc(r, 56)}<div><b style="font-size:17px">${esc(r.title)}</b>${r.desc ? `<p style="margin-top:4px">${esc(r.desc)}</p>` : ""}</div></div>` : `<p>${self ? "You haven't picked a kitchen role." : PEOPLE[w].name + " hasn't picked a kitchen role."}</p>`}
-      ${self ? `<button class="btn" data-sheet="role">${r ? "Change role" : "Pick a role"}</button>` : ""}<button class="btn ghost" data-act="closesheet">Close</button>`);
+      ${self ? `<button class="btn" data-sheet="role">${r ? "Change role" : "Pick a role"}</button>` : `<button class="btn ghost danger" data-act="removestart">Remove ${esc(PEOPLE[w].name)} from household</button>`}<button class="btn ghost" data-act="closesheet">Close</button>`);
   }
+  if (sh === "removing") { const w = S.memberWho; return wrap(`<h2>Remove ${esc(PEOPLE[w].name)}?</h2><p>${esc(PEOPLE[w].name)} loses access to Our kitchen. What ${esc(PEOPLE[w].name)} added stays. Anyone in the household can invite them back.</p><button class="btn alert" data-act="removeconfirm">Remove ${esc(PEOPLE[w].name)}</button><button class="btn ghost" data-act="closesheet">Keep ${esc(PEOPLE[w].name)}</button>`, true); }
+  if (sh === "leave") return wrap(`<h2>Leave Our kitchen?</h2><p>You lose access to its pantry, shopping and recipes. Nothing is deleted: the others keep everything. Someone has to invite you back to rejoin.${S.members.length === 1 ? " You are the only member, so the kitchen will have no one in it." : ""}</p>
+    <label class="small" for="leavename">Type <b>${esc(me().name)}</b> to confirm</label><input class="field" id="leavename" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${esc(me().name)}" aria-label="Type your name to confirm">
+    <button class="btn alert" id="leavego" data-act="leaveconfirm" disabled>Leave household</button><button class="btn ghost" data-act="closesheet">Stay</button>`, true);
+  if (sh === "avatar") return wrap(`<h2>Your picture</h2><p>Pick one. It shows beside your name.</p><div class="avgrid">${[""].concat(AVATARS).map((a) => `<button class="avopt" data-act="setavatar" data-p="${a}" aria-label="${a ? "Picture " + a : "Your initial"}" aria-pressed="${(S.avatars[S.persona] || "") === a}">${a || PEOPLE[S.persona].initial}</button>`).join("")}</div><button class="btn ghost" data-act="closesheet">Close</button>`);
   return "";
 }
 
@@ -660,10 +736,10 @@ function render() {
   if (S.screen === "pantry") S.seenP = S.pantry.filter((i) => i.recent).length;
   if (S.screen === "recipes") S.seenR = RECIPES.filter((r) => r.new).length;
   const sc = screens[S.screen] || screens.today;
-  phone.innerHTML = sc() + sheetHtml() + (S.toast ? `<div class="toast" role="status"><span>${esc(S.toast)}</span>${undoFn ? '<button class="tact" data-act="undo">Undo</button>' : ""}</div>` : "");
-  phone.dataset.size = S.cfg.size; phone.dataset.motion = S.cfg.motion ? "reduce" : ""; phone.classList.toggle("compact", S.cfg.compact);
+  phone.innerHTML = sc() + sheetHtml() + (S.toast ? `<div class="toast ${S.sheet === "item" ? "abovesheet" : ""}" role="status"><span>${esc(S.toast)}</span>${undoFn ? '<button class="tact" data-act="undo">Undo</button>' : ""}</div>` : "");
+  document.body.classList.toggle("isheet-open", S.sheet === "item"); phone.dataset.size = S.cfg.size; phone.dataset.motion = S.cfg.motion ? "reduce" : ""; phone.classList.toggle("compact", S.cfg.compact);
   const nb = phone.querySelector(".body"); if (nb && top) nb.scrollTop = top;
-  lastScreen = S.screen;
+  lastScreen = S.screen; if (S.isheet) S.isheet.fresh = false;
   const panel = document.getElementById("panel");
   if (!panel.dataset.ready || S.panelDirty) { panel.innerHTML = panelHtml(); panel.dataset.ready = "1"; S.panelDirty = false; }
   else { const st = document.getElementById("pwa-st"); if (st) st.textContent = pwaStatus(); }
@@ -684,7 +760,7 @@ function parseAmt(t) {
 }
 
 const acts = {
-  back, closesheet() { S.sheet = null; render(); },
+  back, closesheet() { S.sheet = null; S.isheet = null; render(); },
   signin() { S.joined = true; S.rdraft = null; S.iconPick = false; if (S.own) { S.pantry = []; S.members = [S.persona]; S.invites = []; S.roles = {}; } go("welcome", null, { replace: true }); },
   gotit() { S.bannerGot = true; render(); },
   retry() { toast(S.down ? "Still reconnecting" : "Back online"); },
@@ -695,14 +771,30 @@ const acts = {
     if (!SR) { toast("Voice search isn't available in this browser"); return; }
     const r = new SR(); r.lang = "en-AU"; r.onresult = (e) => { S.search = e.results[0][0].transcript; S.searchFocus = true; render(); S.searchFocus = false; }; r.onerror = () => toast("Couldn't hear that. Try again"); r.start(); toast("Listening…");
   },
-  curtainclose() { S.curtain = false; render(); },
-  curtainsearch() { S.curtain = false; acts.search(); },
-  search() { S.curtain = false; S.searchOpen = !S.searchOpen; S.searchFocus = S.searchOpen; if (!S.searchOpen) S.search = ""; render(); S.searchFocus = false; },
+  searchcancel() { closeSearch(); },
   useone(id) {
     if (S.down) return; const i = S.pantry.find((x) => x.id === id); if (!i) return;
-    i.n -= 1; if (i.n <= 0) { S.pantry = S.pantry.filter((x) => x !== i); render(); toast(i.name + " used up"); } else { i.upd = 200; render(); }
+    if (!reducible(i) || i.n <= 1) { markUsedUp(id); return; }
+    const was = { n: i.n, upd: i.upd }; i.n -= 1; i.upd = 200; render();
+    toast(`${i.name}: ${fmtAmt(i)} left`, () => { i.n = was.n; i.upd = was.upd; render(); });
   },
   usedup(id) { if (S.down) return; markUsedUp(id); },
+  isheet(id) { S.ed = noEd(); S.sheet = "item"; S.isheet = { id, view: "tiles", fresh: true }; render(); const t = document.querySelector(".sheet.half .tl"); if (t) t.focus({ preventScroll: true }); },
+  itile(k) {
+    const s = S.isheet; if (!s) return;
+    if (k === "all") { const id = s.id; S.sheet = null; S.isheet = null; go("item", id); return; }
+    const files = k === "tiles" ? [] : TILE_FIELDS[k];
+    const open = () => { S.ed = noEd(); s.view = k; render(); const b = document.querySelector(".sheet.half .shead .icon"); if (b) b.focus({ preventScroll: true }); };
+    Promise.all(files.map(loadField)).then(open).catch(() => { S.ed = { ...noEd(), err: { key: k, msg: "Couldn't open this. Check your connection." } }; render(); });
+  },
+  sheetused() { const s = S.isheet; if (!s) return; if (S.down) { S.ed.err = { key: "used", msg: "Not saved. We can't reach the platform." }; render(); return; } S.sheet = null; S.isheet = null; markUsedUp(s.id); },
+  sheetshop() { const s = S.isheet; if (!s) return; S.sheet = null; S.isheet = null; acts.shopadd(s.id); },
+  lvl(l) {
+    const p = curItem(); if (!p) return;
+    if (l === "Out") { if (p.n > 0) acts.sheetused(); return; }
+    if (!LEVELS[l]) return;
+    save("level", { lvl: l, n: p.n > 0 ? p.n : (p.was || STEP[p.unit] || 1) });
+  },
   usedask() { S.ed = noEd(); S.sheet = "usedup"; render(); },
   usedconfirm() {
     if (S.down) { S.ed.err = { key: "used", msg: "Not saved. We can't reach the platform." }; render(); return; }
@@ -717,6 +809,7 @@ const acts = {
   },
   fset(v, quiet) {
     const [k, op, ...rest] = v.split("|"), p = curItem(); if (!p) return;
+    if (S.sheet === "item" && v === "qty|step|-1" && reducible(p) && !S.down) { const id = p.id; if (p.n <= 1) { S.sheet = null; S.isheet = null; } acts.useone(id); return; } /* same as the left swipe: one off, the last one is used up with an Undo toast */
     const out = ITEM_FIELDS[k].set[op](p, rest.join("|"));
     if (typeof out === "string") { S.ed.err = { key: k, msg: out }; S.ed.saved = null; render(); } else save(k, out, quiet === true);
     const again = [...document.querySelectorAll("[data-act=fset]")].find((el) => el.dataset.p === v); if (again && !quiet) again.focus();
@@ -764,10 +857,17 @@ const acts = {
   selcancel() { S.sel = null; render(); },
   seladd() { const n = S.sel.length; S.sel.forEach((id) => addToList(id)); S.sel = null; toast(n + (n === 1 ? " item" : " items") + " added to your shopping list"); },
   copykitchen() { toast("Kitchen list copied"); },
-  copy() { S.aiDone = true; toast("Link copied"); }, copyinvite() { S.inviteDone = true; toast("Invite link copied"); }, day(d) { S.day = +d; render(); },
+  copy() { S.aiDone = true; S.links[S.aiTab] = true; toast("Link copied"); }, copyinvite() { S.inviteDone = true; toast("Invite link copied"); }, day(d) { S.day = +d; render(); },
   revoke(name) { S.invites = S.invites.filter((i) => i.name !== name); render(); toast("Invite cancelled"); },
-  leave() { toast("You'd leave Our kitchen here"); },
-  aitab(t) { S.aiTab = t; S.aiActive = true; render(); }, aitoggle() { S.aiActive = !S.aiActive; render(); },
+  hhpick(h) { S.hh2 = h; render(); }, copyinvite2() { toast("Invite link copied"); },
+  savename() { const v = document.getElementById("myname"); if (!v) return; const n = v.value.trim().slice(0, 24); if (!n) return; PEOPLE[S.persona].name = n; PEOPLE[S.persona].initial = initials(S.persona); render(); toast("Name saved"); },
+  setavatar(a) { if (a) S.avatars[S.persona] = a; else delete S.avatars[S.persona]; S.sheet = null; render(); toast("Picture changed"); },
+  removestart() { S.sheet = "removing"; render(); },
+  removeconfirm() { const w = S.memberWho, n = PEOPLE[w].name; S.members = S.members.filter((x) => x !== w); S.sheet = null; render(); toast(n + " removed"); },
+  leavestart() { S.sheet = "leave"; render(); },
+  leaveconfirm() { const v = document.getElementById("leavename"); if (!v || v.value.trim().toLowerCase() !== me().name.toLowerCase()) return; S.members = S.members.filter((x) => x !== S.persona); S.sheet = null; S.stack = []; go("notmember", null, { replace: true }); toast("You left Our kitchen"); },
+  aitab(t) { S.aiTab = t; render(); }, aitoggle() { S.links[S.aiTab] = false; render(); toast("Link revoked"); },
+  linkrevoke(t) { S.links[t] = false; render(); toast(t + " link revoked"); }, linkopen(t) { S.aiTab = t; go("ai"); },
   ask() { toast("Sent to Arjan"); S.stack.pop(); go("today", null, { replace: true }); },
   pay() { S.recipes = true; refreshPanel(); S.stack = []; go("recipes", null, { replace: true }); toast("Recipes added for Our kitchen"); },
   rolepick(i) { S.anim = !S.rdraft; const r = ROLE_PRESETS[Number(i)]; S.rdraft = { pi: Number(i), ic: r.ic, title: r.title, desc: r.desc }; S.iconPick = false; render(); },
@@ -818,14 +918,17 @@ document.addEventListener("click", (e) => {
   if (t.dataset.go) { S.sheet = null; return go(t.dataset.go, ["item", "recipe"].includes(t.dataset.go) ? t.dataset.p : null); }
 });
 document.addEventListener("change", (e) => { const fin = e.target.dataset && e.target.dataset.fin; if (fin) { acts.fset(fin + "|" + e.target.value, e.target.type === "text"); return; } const c = e.target.dataset && e.target.dataset.ctl; if (c === "persona") { S.persona = e.target.value; refreshPanel(); render(); } if (c === "existing") { S.existing = Number(e.target.value); render(); } });
-document.addEventListener("input", (e) => { if (e.target.id === "r-title" && S.rdraft) S.rdraft.title = e.target.value; if (e.target.id === "r-desc" && S.rdraft) S.rdraft.desc = e.target.value; if (e.target.id === "search") { S.search = e.target.value; document.getElementById("plist").innerHTML = listHtml(); } });
+document.addEventListener("input", (e) => { if (e.target.id === "r-title" && S.rdraft) S.rdraft.title = e.target.value; if (e.target.id === "r-desc" && S.rdraft) S.rdraft.desc = e.target.value; if (e.target.id === "search") { S.search = e.target.value; document.getElementById("plist").innerHTML = listHtml(); }
+  if (e.target.id === "myname") { const v = e.target.value.trim(); document.getElementById("namesave").disabled = !v || v === me().name; }
+  if (e.target.id === "leavename") document.getElementById("leavego").disabled = e.target.value.trim().toLowerCase() !== me().name.toLowerCase(); });
 /* swipe a running-low row to add it; press and hold to start picking several */
-let g = null;
+let g = null; const DEEP = 190; /* px: past this a left swipe means used up, not use one */
 document.addEventListener("pointerdown", (e) => {
   const row = e.target.closest("[data-swipe]"); if (!row || e.button > 0) return;
   g = { id: row.dataset.swipe, row, fg: row.querySelector(".swfg"), x: e.clientX, y: e.clientY, dx: 0, swiping: false, long: false };
   g.shop = row.dataset.sw === "shop";
-  if (!g.shop) g.timer = setTimeout(() => { if (g && !g.swiping) { g.long = true; lastGesture = Date.now(); if (navigator.vibrate) navigator.vibrate(15); acts.selstart(g.id); } }, 480);
+  g.pan = row.dataset.sw === "pantry"; g.kind = row.dataset.kind;
+  if (!g.shop && !g.pan) g.timer = setTimeout(() => { if (g && !g.swiping) { g.long = true; lastGesture = Date.now(); if (navigator.vibrate) navigator.vibrate(15); acts.selstart(g.id); } }, 480);
 });
 document.addEventListener("pointermove", (e) => {
   if (!g || g.long) return;
@@ -837,51 +940,81 @@ document.addEventListener("pointermove", (e) => {
   }
   g.dx = dx; g.fg.style.transform = `translateX(${dx}px)`;
   g.row.classList.toggle("armed", Math.abs(dx) > 90); g.row.classList.toggle("rt", dx > 0);
+  if (g.pan) { const deep = dx < -DEEP && g.kind === "count"; if (deep !== g.row.classList.contains("deep")) { g.row.classList.toggle("deep", deep); if (navigator.vibrate) navigator.vibrate(10); } }
 });
 const endGesture = () => {
   if (!g) return; clearTimeout(g.timer); const x = g; g = null;
   if (!x.swiping) return;
   lastGesture = Date.now(); x.row.classList.remove("drag");
-  if (Math.abs(x.dx) > 90) { x.fg.style.transform = `translateX(${x.dx > 0 ? 110 : -110}%)`; setTimeout(() => (x.shop ? (x.dx > 0 ? acts.shopbuy : acts.shoprm) : acts.shopadd)(x.id), 160); }
+  if (x.pan && Math.abs(x.dx) > 90) {
+    x.fg.style.transform = `translateX(${x.dx > 0 ? 110 : -110}%)`;
+    setTimeout(() => { x.fg.style.transform = ""; x.row.classList.remove("armed", "deep"); (x.dx > 0 ? acts.shopadd : x.dx < -DEEP ? acts.usedup : acts.useone)(x.id); }, 160);
+  } else if (Math.abs(x.dx) > 90) { x.fg.style.transform = `translateX(${x.dx > 0 ? 110 : -110}%)`; setTimeout(() => (x.shop ? (x.dx > 0 ? acts.shopbuy : acts.shoprm) : acts.shopadd)(x.id), 160); }
   else { x.fg.style.transform = ""; x.row.classList.remove("armed"); }
 };
 document.addEventListener("pointerup", endGesture); document.addEventListener("pointercancel", endGesture);
 document.addEventListener("contextmenu", (e) => { if (e.target.closest("[data-swipe]")) e.preventDefault(); });
-document.addEventListener("keydown", (e) => { const t = e.target; if ((e.key === "Enter" || e.key === " ") && t.matches && t.matches('[role=button][data-act]')) { e.preventDefault(); t.click(); } });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && S.sheet === "item" && S.isheet) { if (S.isheet.view !== "tiles") acts.itile("tiles"); else acts.closesheet(); return; } const t = e.target; if ((e.key === "Enter" || e.key === " ") && t.matches && t.matches('[role=button][data-act]')) { e.preventDefault(); t.click(); } });
 document.addEventListener("scroll", (e) => { const sn = e.target; if (sn.id !== "snap") return; const n = Math.round(sn.scrollLeft / sn.clientWidth); sn.parentElement.querySelectorAll(".dots i").forEach((d, k) => d.classList.toggle("on", k === n)); }, true);
 /* pull down at the top of Pantry: a shallow pull opens search, a deep pull refreshes. Mouse and touch. */
-const PULL_SHALLOW = 70, PULL_DEEP = 170; let pl = null;
-function pullStart(target, y) {
-  const b = target.closest && target.closest(".body.tight"); if (!b || S.screen !== "pantry" || b.scrollTop > 0 || target.closest("input")) return;
-  pl = { y, dy: 0, b, el: b.querySelector("#pull"), cf: b.querySelector("#pact .cfront") };
+/* Pantry top row: pull down for search (first threshold), keep pulling for refresh (second). Spec: docs/knowledge/pantry-pull-row.md */
+const PULL_SEARCH = 70, PULL_REFRESH = 170, REFRESH_MS = 2400, REFRESH_MS_REDUCED = 1600; let pl = null, refreshTimer = null;
+const rowState = () => (S.refresh ? "anim" : S.searchOpen ? "search" : "rest");
+function setRow(row, st) { row.dataset.state = st; row.classList.remove("peek"); if (st !== "search") row.classList.remove("lock"); const f = row.querySelector(".pl-front"); f.style.transition = ""; f.style.transform = ""; f.style.opacity = ""; const sp = row.querySelector(".spill"), cn = row.querySelector(".pl-search .cancel"); if (sp) { sp.style.transition = ""; sp.style.width = ""; } if (cn) { cn.style.transition = ""; cn.style.opacity = ""; } }
+/* While the finger is down between 8 and 70 px the hide follows it: Filters and Add slide away and fade, the magnifier opens into the field and Cancel fades in, all in step with the pull. At 70 px they are exactly where the locked state puts them, so the lock does not jump. */
+function pullFollow(row, dy) {
+  const f = row.querySelector(".pl-front"), sp = row.querySelector(".spill"), cn = row.querySelector(".pl-search .cancel");
+  if (reducedMotion()) { f.style.transition = "none"; f.style.transform = `translateY(${Math.round(Math.min(dy / PULL_SEARCH, 1) * 22)}px)`; return; }
+  const p = Math.max(0, Math.min(1, (dy - 8) / (PULL_SEARCH - 8))), e = p * p * (3 - 2 * p);
+  f.style.transition = "none"; f.style.transform = `translateY(${e * 100}%)`; f.style.opacity = String(1 - e);
+  sp.style.transition = "none"; sp.style.width = `calc(48px + (100% - 132px) * ${e})`;
+  cn.style.transition = "none"; cn.style.opacity = String(e);
 }
-function pullMove(y, e) {
-  if (!pl) return; const dy = y - pl.y, ph = pl.b.querySelector("#phead");
-  if (dy <= 8) { if (pl.dy) { pl.dy = 0; if (pl.cf) { pl.cf.style.transition = ""; pl.cf.style.transform = ""; } if (ph) ph.classList.remove("deep"); } return; }
+function openSearch(row) { S.searchOpen = true; setRow(row, "search"); const s = document.getElementById("search"); if (s) s.focus({ preventScroll: true }); }
+function closeSearch() {
+  S.searchOpen = false; S.search = ""; const row = document.getElementById("prow"); if (!row) return; const s = document.getElementById("search"); if (s) { s.value = ""; s.blur(); }
+  setRow(row, S.refresh ? "anim" : "rest"); const l = document.getElementById("plist"); if (l) l.innerHTML = listHtml();
+}
+function pullStart(target, x, y) {
+  const b = target.closest && target.closest(".body.tight"); if (!b || S.screen !== "pantry" || S.sheet || S.refresh || S.searchOpen || b.scrollTop > 0 || target.closest("input")) return; /* search open: no pull at all, so a refresh can never start while it is held open */
+  pl = { x, y, dy: 0, b, row: b.querySelector("#prow"), st: null };
+}
+function pullMove(x, y, e) {
+  if (!pl) return; if (pl.b.scrollTop > 0) { pullCancel(); return; }
+  const dy = y - pl.y;
+  if (dy <= 8) { if (pl.dy) { pl.dy = 0; pullShow("base"); } return; }
+  if (!pl.dy && Math.abs(x - pl.x) > dy) { pl = null; return; } /* a sideways drag is not a pull */
   if (e && e.cancelable) e.preventDefault();
-  pl.dy = dy;
-  if (pl.cf && !S.searchOpen) { pl.cf.style.transition = "none"; pl.cf.style.transform = `translateY(${dy >= PULL_DEEP ? "110%" : Math.min(dy * 0.6, 52) + "px"})`; }
-  /* past the point where Search is fully shown the curtain closes again and the row says Let go to refresh */
-  if (ph) ph.classList.toggle("deep", dy >= PULL_DEEP);
+  pl.dy = dy; pullShow(dy >= PULL_REFRESH ? "let" : dy >= PULL_SEARCH ? "search" : "peek", dy);
 }
+/* shows the state under the finger without committing it */
+function pullShow(st, dy) {
+  const row = pl.row, f = row.querySelector(".pl-front"), msg = row.querySelector("#pmsg");
+  if (st === "base") { pl.st = null; setRow(row, rowState()); msg.setAttribute("aria-hidden", "true"); return; }
+  if (st === "peek") { row.classList.remove("lock"); row.dataset.state = rowState(); if (rowState() === "rest") { row.classList.add("peek"); pullFollow(row, dy); } pl.st = "peek"; return; }
+  if (pl.st === st) return; pl.st = st; setRow(row, st);
+  if (st === "search") { row.classList.remove("lock"); void row.offsetWidth; row.classList.add("lock"); if (navigator.vibrate) navigator.vibrate(10); } /* locked in: the magnifier has opened into the field (ring and pop, a short buzz where the device has one) */
+  if (st === "let") { msg.innerHTML = `<div class="rf"><span>Let go to refresh</span></div>`; msg.removeAttribute("aria-hidden"); }
+}
+function pullCancel() { if (!pl) return; const x = pl; pl = null; setRow(x.row, rowState()); }
 function pullEnd() {
-  if (!pl) return; const x = pl; pl = null; x.el.style.height = "0px"; const ph0 = x.b.querySelector("#phead"); if (ph0) ph0.classList.remove("deep"); if (x.cf) { x.cf.style.transition = ""; x.cf.style.transform = ""; }
+  if (!pl) return; const x = pl; pl = null; const row = x.row;
   if (x.dy > 8) lastGesture = Date.now();
-  if (x.dy >= PULL_DEEP) {
+  if (x.dy >= PULL_REFRESH) {
     let n; do { n = Math.floor(Math.random() * RF.length); } while (n === lastRF); lastRF = n;
-    S.refresh = RF[n]; S.curtain = false; render();
-    setTimeout(() => { S.refresh = null; render(); toast("Up to date"); }, 1500);
-  }
-  else if (x.dy >= PULL_SHALLOW && !S.searchOpen) { S.curtain = true; render(); }
+    S.refresh = RF[n]; const msg = row.querySelector("#pmsg"); msg.innerHTML = refreshHtml(S.refresh); msg.setAttribute("role", "status"); setRow(row, "anim"); row.dataset.scene = n;
+    clearTimeout(refreshTimer); refreshTimer = setTimeout(() => { refreshTimer = null; S.refresh = null; const r = document.getElementById("prow"); if (r) { setRow(r, "rest"); delete r.dataset.scene; } toast("Up to date"); }, reducedMotion() ? REFRESH_MS_REDUCED : REFRESH_MS);
+  } else if (x.dy >= PULL_SEARCH) openSearch(row);
+  else setRow(row, rowState());
 }
-document.addEventListener("pointerdown", (e) => { if (e.pointerType !== "touch" && e.button === 0 && !e.target.closest("[data-swipe]")) pullStart(e.target, e.clientY); });
-document.addEventListener("pointermove", (e) => { if (e.pointerType !== "touch") pullMove(e.clientY); });
+document.addEventListener("pointerdown", (e) => { if (e.pointerType !== "touch" && e.button === 0 && !e.target.closest("[data-swipe]")) pullStart(e.target, e.clientX, e.clientY); });
+document.addEventListener("pointermove", (e) => { if (e.pointerType !== "touch") pullMove(e.clientX, e.clientY); });
 document.addEventListener("pointerup", (e) => { if (e.pointerType !== "touch") pullEnd(); });
-document.addEventListener("pointercancel", (e) => { if (e.pointerType !== "touch") pullEnd(); });
+document.addEventListener("pointercancel", (e) => { if (e.pointerType !== "touch") pullCancel(); });
 /* touch: the browser would otherwise take the drag for its own scroll or bounce, so handle it here */
-document.addEventListener("touchstart", (e) => { if (e.touches.length === 1 && !e.target.closest("[data-swipe]")) pullStart(e.target, e.touches[0].clientY); }, { passive: true });
-document.addEventListener("touchmove", (e) => pullMove(e.touches[0].clientY, e), { passive: false });
-document.addEventListener("touchend", pullEnd); document.addEventListener("touchcancel", pullEnd);
+document.addEventListener("touchstart", (e) => { if (e.touches.length === 1 && !e.target.closest("[data-swipe]")) pullStart(e.target, e.touches[0].clientX, e.touches[0].clientY); else pullCancel(); }, { passive: true });
+document.addEventListener("touchmove", (e) => pullMove(e.touches[0].clientX, e.touches[0].clientY, e), { passive: false });
+document.addEventListener("touchend", pullEnd); document.addEventListener("touchcancel", pullCancel);
 /* press and hold a group header: collapsed opens everything, open closes everything */
 let fh = null;
 document.addEventListener("pointerdown", (e) => {
@@ -933,3 +1066,10 @@ document.addEventListener("pointerup", endRo); document.addEventListener("pointe
 document.addEventListener("wheel", (e) => { const r = e.target.closest("[data-rot]"); if (!r || !S.fd) return; e.preventDefault(); const k = r.dataset.rot; rotStep(k, S.fd.st[k].i + (e.deltaY > 0 ? 1 : -1)); }, { passive: false });
 document.getElementById("gear").addEventListener("click", () => document.getElementById("panel").classList.toggle("open"));
 render();
+
+/* drag the grab handle down to close the item sheet (Proposal: drag up does nothing; "All fields" is the way to the full screen) */
+let sd = null;
+document.addEventListener("pointerdown", (e) => { const h = e.target.closest && e.target.closest("[data-grab]"); if (!h) return; const sh = h.closest(".sheet"); sd = { y: e.clientY, sh, dy: 0 }; sh.style.transition = "none"; try { h.setPointerCapture(e.pointerId); } catch (x) {} });
+document.addEventListener("pointermove", (e) => { if (!sd) return; sd.dy = Math.max(0, e.clientY - sd.y); sd.sh.style.transform = `translateY(${sd.dy}px)`; });
+const endDrag = () => { if (!sd) return; const x = sd; sd = null; x.sh.style.transition = "transform .2s"; if (x.dy > 90) { x.sh.style.transform = "translateY(100%)"; setTimeout(() => acts.closesheet(), 180); } else x.sh.style.transform = ""; };
+document.addEventListener("pointerup", endDrag); document.addEventListener("pointercancel", endDrag);
