@@ -253,7 +253,7 @@ function loadField(k) {
   if (!fieldLoads.has(f)) fieldLoads.set(f, new Promise((ok, no) => { const s = document.createElement("script"); s.src = `fields/${f}.js`; s.onload = ok; s.onerror = () => { fieldLoads.delete(f); s.remove(); no(); }; document.head.append(s); }));
   return fieldLoads.get(f);
 }
-const level = (p) => (p.n <= 0 ? "Out" : p.lvl ? p.lvl : isLow(p) || (p.min && p.n <= p.min) ? "Low" : "Plenty");
+const level = (p) => (p.n <= 0 ? "Out" : p.lvl ? p.lvl : isLow(p) || (p.min && p.n <= p.min) ? "Running low" : p.min && p.n <= p.min * 2 ? "Some" : "Plenty");
 const VAL = {
   name: (p) => esc(p.name),
   qty: (p) => esc(fmtAmt(p)),
@@ -567,8 +567,17 @@ const screens = {
    tap one and its editor takes over the sheet with a back arrow. Editors are the same fields/*.js files as the full item screen,
    fetched on the first tap of a tile (nothing extra loads when the sheet opens). "All fields" opens the full item screen.
    Counted = the unit is a count (reducible); anything weighed or measured is level-only. Used up = amount 0, shows Out, Undo toast. */
-const TILE_FIELDS = { amount: ["qty"], level: ["min"], where: ["loc", "spot"], useby: ["useby"], cat: ["cat"] };
+const TILE_FIELDS = { amount: ["qty", "min"], level: [], where: ["loc", "spot"], useby: ["useby"], cat: ["cat"] };
 const TILE_TITLE = { amount: "Amount", level: "Level", where: "Where", useby: "Use by", cat: "Category" };
+/* level drop: fuller or emptier with the level. Plenty full (green), Some about half (amber), Running low about a quarter (red), Out an empty outline.
+   No level word is drawn; the name is screen-reader text only (.sr-only). */
+const LEVELS = { Plenty: [1, "plenty"], Some: [0.5, "some"], "Running low": [0.25, "low"], Out: [0, "out"] };
+const DROP = "M12 3c3.500 4.500 6 7.200 6 10.200a6 6 0 0 1-12 0C6 10.200 8.500 7.500 12 3z";
+function levelDrop(l, size = 26) {
+  const [f, k] = LEVELS[l], y = (19.2 - f * 16.2).toFixed(2);
+  return `<svg class="drop lv-${k}" width="${size}" height="${size}" viewBox="0 0 24 24" aria-hidden="true"><defs><clipPath id="dc-${k}-${size}"><path d="${DROP}"/></clipPath></defs>${f ? `<rect x="0" y="${y}" width="24" height="24" clip-path="url(#dc-${k}-${size})" fill="currentColor" fill-opacity=".9"/>` : ""}<path d="${DROP}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`;
+}
+const srOnly = (t) => `<span class="sr-only">${esc(t)}</span>`;
 function itemSheetHtml() {
   const s = S.isheet, p = s && S.pantry.find((x) => x.id === s.id); if (!p) return "";
   const cnt = reducible(p), out = p.n <= 0, v = s.view, lv = level(p), err = S.ed.err;
@@ -577,17 +586,23 @@ function itemSheetHtml() {
   const grab = '<span class="grab" data-grab aria-hidden="true"></span>';
   let body;
   if (v === "tiles") {
-    const tile = (k, ic, val, label, warn) => `<button class="tl${warn ? " warn" : ""}" data-act="itile" data-p="${k}">${ic}<b>${val}</b>${label}</button>`;
+    /* a tile with data is filled and shows its value; a tile with none is dashed and offers a quiet prompt, and tapping it is how you fill it */
+    const tile = (k, ic, val, label, prompt, sr) => val === null
+      ? `<button class="tl empty" data-act="itile" data-p="${k}">${I.plus.replace('width="22" height="22"', 'width="20" height="20"')}<span>${prompt}</span></button>`
+      : `<button class="tl" data-act="itile" data-p="${k}" ${sr ? `aria-label="${esc(sr)}"` : ""}>${ic}${val === "" ? "" : `<b>${val}</b>`}${label ? `<span>${label}</span>` : ""}</button>`;
     const head = `<div class="shead"><span class="ph" aria-hidden="true">${emo(p)}</span><div class="sid"><b>${esc(p.name)}</b><span class="small">${esc(p.area)}${p.spot && p.spot !== "Anywhere" ? " · " + esc(p.spot) : ""}</span></div>${close}</div>`;
-    const tiles = `<div class="tiles3">${cnt ? tile("amount", riSvg("stack", 20), out ? "Out" : esc(fmtAmt(p)), "Amount", out) : ""}${tile("level", riSvg("drop", 20), lv, "Level", lv !== "Plenty")}${tile("where", riSvg("fridge", 20), esc(p.area), "Where")}${tile("useby", riSvg("clock", 20), p.days === null ? "None" : esc(dayLabel(p.days)), "Use by")}${tile("cat", riSvg("basket", 20), esc(p.cat), "Category")}${tile("all", riSvg("list", 20), "More", "All fields")}</div>`;
+    const first = cnt
+      ? tile("amount", levelDrop(lv), out ? "0" : esc(fmtAmt(p)), srOnly("Amount, " + lv), "")
+      : tile("level", levelDrop(lv), "", srOnly("Level, " + lv), "");
+    const tiles = `<div class="tiles3">${first}${tile("where", riSvg("fridge", 20), esc(p.area), "Where")}${tile("useby", riSvg("clock", 20), p.days === null ? null : esc(dayLabel(p.days)), "Use by", "Add use-by")}${tile("cat", riSvg("basket", 20), p.cat ? esc(p.cat) : null, "Category", "Add category")}<button class="tl more" data-act="itile" data-p="all">${riSvg("list", 20)}<b>More</b><span>All fields</span></button></div>`;
     const acts2 = `<div class="sacts">${out ? `<button class="btn ghost" disabled>${I.tick}<span>&nbsp;Marked Out</span></button>` : `<button class="btn ghost" data-act="sheetused">${I.tick}<span>&nbsp;Used up</span></button>`}${onList(p.id) ? `<button class="btn ghost" disabled>${I.tick}<span>&nbsp;On your list</span></button>` : `<button class="btn" data-act="sheetshop">${riSvg("cart", 20)}<span>&nbsp;Add to shopping</span></button>`}</div>`;
     body = head + errHtml + tiles + acts2;
   } else {
     const hd = `<div class="shead"><button class="icon" data-act="itile" data-p="tiles" aria-label="Back to ${esc(p.name)}" title="Back">${I.chev.replace("<svg", '<svg style="transform:scaleX(-1)"')}</button><div class="sid"><b>${TILE_TITLE[v]}</b><span class="small">${esc(p.name)}</span></div>${close}</div>`;
     let ed = "";
-    if (v === "level" && !cnt) {
-      ed = `<div class="opts" role="radiogroup" aria-label="Level">${["Out", "Low", "Plenty"].map((l) => `<button class="opt${l === lv ? " on" : ""}" role="radio" aria-checked="${l === lv}" data-act="lvl" data-p="${l}">${l}</button>`).join("")}</div><p class="small">Out means none left. Nothing is deleted: it stays in the pantry showing Out.</p>`;
-    } else if (v === "level") ed = `${ITEM_FIELDS.min.html(p)}<p class="small">Shows Low when the amount is at or under this. Now: ${lv}.</p>`;
+    if (v === "level") {
+      ed = `<div class="opts lvpick" role="radiogroup" aria-label="Level">${Object.keys(LEVELS).reverse().map((l) => `<button class="opt${l === lv ? " on" : ""}" role="radio" aria-checked="${l === lv}" data-act="lvl" data-p="${l}">${levelDrop(l, 40)}${srOnly(l)}</button>`).join("")}</div><p class="small">The drop empties as it runs down. An empty drop means none left. Nothing is deleted: it stays in the pantry.</p>`;
+    } else if (v === "amount") ed = `${ITEM_FIELDS.qty.html(p)}<span class="lbl">Running low at or under</span>${ITEM_FIELDS.min.html(p)}`;
     else if (v === "where") ed = TILE_FIELDS.where.map((k) => `<span class="lbl">${k === "loc" ? "Location" : "Spot"}</span>${ITEM_FIELDS[k].html(p)}`).join("");
     else ed = ITEM_FIELDS[TILE_FIELDS[v][0]].html(p);
     body = hd + `<div class="sedit">${ed}</div>${errHtml}${S.ed.saved ? savedLine() : ""}`;
@@ -747,7 +762,7 @@ const acts = {
   itile(k) {
     const s = S.isheet; if (!s) return;
     if (k === "all") { const id = s.id; S.sheet = null; S.isheet = null; go("item", id); return; }
-    const files = k === "tiles" || (k === "level" && !reducible(curItem())) ? [] : TILE_FIELDS[k];
+    const files = k === "tiles" ? [] : TILE_FIELDS[k];
     const open = () => { S.ed = noEd(); s.view = k; render(); const b = document.querySelector(".sheet.half .shead .icon"); if (b) b.focus({ preventScroll: true }); };
     Promise.all(files.map(loadField)).then(open).catch(() => { S.ed = { ...noEd(), err: { key: k, msg: "Couldn't open this. Check your connection." } }; render(); });
   },
@@ -756,6 +771,7 @@ const acts = {
   lvl(l) {
     const p = curItem(); if (!p) return;
     if (l === "Out") { if (p.n > 0) acts.sheetused(); return; }
+    if (!LEVELS[l]) return;
     save("level", { lvl: l, n: p.n > 0 ? p.n : (p.was || STEP[p.unit] || 1) });
   },
   usedask() { S.ed = noEd(); S.sheet = "usedup"; render(); },
