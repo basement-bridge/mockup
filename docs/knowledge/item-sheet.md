@@ -22,7 +22,7 @@ Code: `flows/household/app.js` (`itemSheetHtml`, `acts.isheet`, `acts.itile`, `a
 | Level | Drop beside the number; the Amount editor also sets "Running low at or under" | Four drops to pick: Out, Running low, Some, Plenty |
 | Used up | Amount to 0, row shows Out, sheet closes, Undo toast | same |
 
-Where opens Location and Spot. Use by, Category, Minimum and Unit reuse the editors the full item screen uses (`fields/*.js`). Every change autosaves with the short Saved line; a failed save (platform down) shows the same error and Try again. Add to shopping adds the item to the list and closes the sheet; if it is already on the list the button reads "On your list". All fields closes the sheet and opens the full item screen (Back returns to Pantry). Name, Single use and the Estimated flag are edited there.
+Where opens Location and Spot. Use by, Category, Minimum and Unit reuse the editors the full item screen uses (`fields/*.js`). Every change autosaves with the short Saved line; a failed save (platform down) shows the same error and Try again. Add to shopping adds the item to the list and closes the sheet; if it is already on the list the button reads "On your list". All fields closes the sheet and opens the full item screen (Back returns to Pantry). Name and the Estimated flag are edited there. (Single use was removed on 8 Oct 2026: not needed for Kitchie.)
 
 The minus on the Amount stepper is the left swipe: one off with an Undo toast, and the last one means used up. Plus adds one (or the item's own step).
 
