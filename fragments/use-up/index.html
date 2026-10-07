@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Using things up, four directions, fragment</title><link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><script src="../../theme.js"></script>
+<style>
+.kind{display:flex;gap:6px;margin:14px 0 0;padding:4px;border-radius:var(--r-pill);background:var(--surface);border:1px solid var(--border);width:max-content;max-width:100%}
+.kind button{min-height:44px;padding:0 16px;border-radius:var(--r-pill);font-weight:600;color:var(--fg);background:none;border:0;font-family:inherit;font-size:14px;cursor:pointer}
+.kind button[aria-pressed=true]{background:var(--accent);color:var(--on-accent)}
+.grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:18px}
+@media(min-width:660px){.grid{grid-template-columns:1fr 1fr}}
+.ph2{position:relative;width:100%;max-width:300px;height:600px;margin:0 auto;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden;font-size:14px;line-height:1.4;color:var(--fg)}
+.sc{height:100%;overflow-y:auto;padding:12px 14px 20px}
+.ph2 svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.hd{font-size:20px;font-weight:800;margin:2px 0 10px}
+.sb{display:flex;align-items:center;gap:8px;min-height:48px;padding:0 14px;border-radius:var(--r-pill);background:var(--surface);border:1px solid var(--border);color:var(--muted)}
+.sb.on{border-color:var(--accent);color:var(--fg)}.sb span{flex:1}
+.big{min-height:84px;align-items:flex-start;padding:12px 14px;border-radius:var(--r-card);display:flex;gap:8px;background:var(--surface);border:1px solid var(--border)}
+.big.on{border-color:var(--accent)}.big svg{margin-top:2px;color:var(--accent)}
+.ch{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.c{display:inline-flex;align-items:center;gap:5px;min-height:36px;padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-size:13px;font-weight:700;color:var(--fg)}
+.c.sel{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.c.x::after{content:"\00d7";margin-left:4px;font-weight:800}
+.c.ai{border-style:dashed;color:var(--muted)}
+.c.tall{min-height:44px;padding:0 16px}
+.lb2{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:16px 0 6px}
+.rr{display:flex;gap:10px;align-items:center;min-height:64px;padding:8px 0;border-top:1px solid var(--border)}.rr:first-of-type{border-top:0}
+.rr .e,.e{width:48px;height:48px;border-radius:var(--r-ctl);display:flex;align-items:center;justify-content:center;font-size:26px;background:linear-gradient(160deg,color-mix(in srgb,var(--accent) 22%,var(--surface)),var(--surface));flex:none}
+.rr b{display:block}.rr small{display:block;color:var(--muted);font-size:12px}.rr>div{min-width:0}
+.mt{margin-left:auto;font-size:11px;font-weight:800;padding:3px 9px;border-radius:var(--r-pill);border:1px solid var(--sage);color:var(--sage);white-space:nowrap}.mt.no{border-color:var(--accent);color:var(--accent)}.mt.hot{border-color:var(--danger);color:var(--danger)}
+.why{color:var(--cue)!important}
+.int{font-size:12px;color:var(--muted);margin-top:8px}
+.bub{max-width:88%;padding:10px 12px;border-radius:var(--r-card);background:var(--surface);border:1px solid var(--border);margin:8px 0}
+.bub.me{margin-left:auto;background:var(--accent);color:var(--on-accent);border-color:var(--accent);font-weight:600}
+.btn2{display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;width:100%;border-radius:var(--r-pill);background:var(--accent);color:var(--on-accent);font-weight:800;border:0;margin-top:14px}
+.btn2.ghost{background:none;color:var(--fg);border:1px solid var(--border)}
+.ib{width:44px;height:44px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:var(--surface);border:1px solid var(--border);color:var(--fg);flex:none}
+.ib.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.tick{width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;border:2px solid var(--border);flex:none;color:var(--on-accent)}.tick.on{background:var(--accent);border-color:var(--accent)}.tick svg{width:16px;height:16px}
+.tile2{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:88px;padding:8px;border-radius:var(--r-card);background:var(--surface);border:1px solid var(--border);text-align:center;position:relative}
+.tile2 .em{font-size:30px}.tile2 b{font-size:13px}.tile2 small{font-size:11px;color:var(--muted)}
+.tile2.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}.tile2.hot{border-color:var(--danger)}
+.tile2 .tick{position:absolute;top:6px;right:6px;width:22px;height:22px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.vf{position:relative;height:250px;border-radius:var(--r-card);background:linear-gradient(160deg,color-mix(in srgb,var(--accent) 14%,var(--surface)),var(--surface));border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:54px;overflow:hidden}
+.vf::after{content:"";position:absolute;inset:26px;border:2px dashed var(--accent);border-radius:var(--r-ctl);opacity:.8}
+.vf .cap{position:absolute;left:0;right:0;bottom:8px;text-align:center;font-size:12px;font-weight:700;color:var(--muted);z-index:1}
+.shut{width:64px;height:64px;border-radius:50%;background:var(--accent);border:4px solid var(--surface);box-shadow:0 0 0 2px var(--accent);display:flex;align-items:center;justify-content:center;color:var(--on-accent);margin:0 auto}
+.shut svg{width:26px;height:26px}
+.days{display:flex;flex-direction:column}
+.day{display:flex;gap:10px;align-items:center;min-height:56px;padding:6px 0;border-top:1px solid var(--border)}.day:first-child{border-top:0}
+.day .dn{width:36px;font-weight:800;font-size:13px;color:var(--muted);flex:none}
+.slot{flex:1;min-height:44px;display:flex;align-items:center;gap:8px;padding:0 10px;border-radius:var(--r-ctl);border:1px dashed var(--border);color:var(--muted);font-size:13px;min-width:0}
+.slot.f{border-style:solid;background:var(--surface);color:var(--fg);font-weight:700}.slot.f span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.slot .em{font-size:20px}.slot small{margin-left:auto;font-weight:600;color:var(--sage);font-size:11px;white-space:nowrap}
+.bar{height:8px;border-radius:var(--r-pill);background:var(--border);overflow:hidden;margin-top:6px}.bar i{display:block;height:100%;background:var(--accent)}
+.perf{margin-top:18px;padding:14px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface)}.perf b{color:var(--accent)}.perf li{margin:6px 0 6px 18px;color:var(--muted)}.perf li b{color:var(--fg)}
+.qs{margin-top:18px;padding:14px;border:1px dashed var(--border);border-radius:var(--r-card)}.qs li{margin:6px 0 6px 18px}
+</style></head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="se" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.500"/><path d="M16 16l4.500 4.500"/></symbol>
+<symbol id="sp" viewBox="0 0 24 24"><path d="M12 3l1.800 5.200L19 10l-5.200 1.800L12 17l-1.800-5.200L5 10l5.200-1.800zM18.500 16l.8 2.200 2.200.8-2.200.8-.8 2.200-.8-2.200-2.200-.8 2.200-.8z"/></symbol>
+<symbol id="mi" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.500 11a6.500 6.500 0 0 0 13 0M12 17.500V21"/></symbol>
+<symbol id="ck" viewBox="0 0 24 24"><path d="M5 12.500l4.500 4.500L19 7.500"/></symbol>
+<symbol id="cam" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.500"/></symbol>
+<symbol id="bar" viewBox="0 0 24 24"><path d="M4 6v12M8 6v12M12 6v12M16 6v12M20 6v12"/></symbol>
+<symbol id="rc" viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6"/></symbol>
+<symbol id="pl" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="cl" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 7.500V12l3 2"/></symbol>
+<symbol id="fz" viewBox="0 0 24 24"><path d="M12 3v18M4.500 7.500l15 9M19.500 7.500l-15 9"/></symbol>
+<symbol id="tr" viewBox="0 0 24 24"><path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13"/></symbol>
+<symbol id="ca" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></symbol>
+<symbol id="sw" viewBox="0 0 24 24"><path d="M5 9h12l-3-3M19 15H7l3 3"/></symbol>
+</defs></svg>
+<div class="wrap">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Using things up, four directions</h1>
+<p>Fragment. The job: finding what will go off and making the most of it. Four ways to look when someone opens it, then what happens when they act on one thing.</p>
+<div class="kind" role="group" aria-label="Moment"><button type="button" aria-pressed="true" data-m="0">When they arrive</button><button type="button" aria-pressed="false" data-m="1">After they act on one</button></div>
+<p class="q">Sample data only: spinach, milk, tomatoes, feta and bread. The days left are made up; how freshness is worked out and ranked is not decided here.</p>
+<div class="grid" id="grid"></div>
+<div class="qs"><b>Open</b>
+<ul>
+<li>How freshness is ranked (soonest first, or weighted by how likely it is to be wasted) is open and not shown. The badges here are made-up days.</li>
+<li>How we know someone is in this job, rather than just browsing the pantry? Open. See the job file.</li>
+<li>Which direction leads? 4 only appears when something is close, so it could sit above any of the others.</li>
+<li>What are the ways out for an item: cook it, freeze it, used it, bin it? Is "bin it" shown at all, or does it hide behind a long press?</li>
+<li>Do ideas come from saved recipes only, or can the AI suggest new ones? Shown: saved only.</li>
+<li>Does cooking an idea tick the items off as used, or ask first?</li>
+<li>Should "freeze it" move the item to the freezer and reset its date in one tap?</li>
+</ul></div>
+<div class="perf"><b>Performance note</b> (<a href="../../DESIGN.md" style="text-decoration:underline">DESIGN.md section 6</a>)
+<ul>
+<li><b>Default path loads</b>: this page, the shared theme and the small inline icon set. Emoji stand in for item pictures, so no image downloads.</li>
+<li><b>Deferred until engaged</b>: in the real app, the ideas (recipe matching against what is going off) are asked for after the list is on screen, or only when an item is tapped. Item pictures load for visible rows only.</li>
+<li><b>Also deferred</b>: freeze, used and bin actions need nothing extra until pressed. Other themes are separate files fetched on choice (theme.js).</li>
+<li><b>Why reasonable now</b>: the first thing wanted is the short list of what is close; matching ideas is the slower part, so it follows rather than blocks.</li>
+</ul></div>
+</div>
+<script>
+var ic=function(n){return '<svg><use href="#'+n+'"/></svg>'};
+var chip=function(t,c){return '<span class="c '+(c||"")+'">'+t+'</span>'};
+var frame=function(x){return '<div class="ph2"><div class="sc">'+x+'</div></div>'};
+var tick=function(on){return '<span class="tick'+(on?' on':'')+'">'+(on?ic("ck"):'')+'</span>'};
+var tile=function(em,b,s,c){return '<div class="tile2 '+(c||"")+'"><span class="em">'+em+'</span><b>'+b+'</b>'+(s?'<small>'+s+'</small>':'')+'</div>'};
+
+var I=[["🥬","Spinach","Fridge","3 days","hot"],["🥛","Milk","Fridge","2 days","hot"],["🍅","Cherry tomatoes","Fridge","5 days","no"],["🧀","Feta","Fridge","1 week","no"],["🍞","Bread","Pantry","Today",""]];
+var item=function(i,extra){var x=I[i];return '<div class="rr"><span class="e">'+x[0]+'</span><div><b>'+x[1]+'</b><small>'+x[2]+'</small></div><span class="mt '+x[4]+'">'+x[3]+'</span></div>'};
+var idea=function(em,n,s,why){return '<div class="rr"><span class="e">'+em+'</span><div><b>'+n+'</b><small>'+s+'</small><small class="why">'+why+'</small></div></div>'};
+var V=[
+ /*1 countdown list*/[function(){return '<div class="hd">Going off soon</div><div class="lb2" style="margin-top:0">Needs you first</div>'+item(0)+item(1)+'<div class="lb2">This week</div>'+item(2)+item(3)},
+  function(){return '<div class="hd">🥬 Spinach</div><p class="int" style="margin:0">Fridge, 3 days left</p><div class="lb2">Ideas for it</div>'+idea("🥚","Spinach frittata","25 min","Also uses 1 other thing going off")+idea("🍝","Creamy spinach pasta","20 min","You have all of it")+'<div class="lb2">Or</div><div class="g3">'+tile("❄️","Freeze it")+tile("✅","Used it")+tile("🗑️","Bin it")+'</div>'}],
+ /*2 ideas first*/[function(){return '<div class="hd">Cook this to use things up</div>'+idea("🥬","Spinach frittata","25 min","Uses spinach, cheddar")+idea("🥣","Tomato and feta bake","35 min","Uses tomatoes, feta")+idea("🍞","French toast","15 min","Uses bread, milk")+'<div class="lb2">What is behind these</div><div class="ch" style="margin-top:0">'+chip("🥬 Spinach")+chip("🥛 Milk")+chip("🍅 Tomatoes")+chip("🍞 Bread")+'</div>'},
+  function(){return '<div class="hd">🥬 Spinach frittata</div><p style="margin-bottom:10px">25 min. Cooking it uses up:</p><div class="g2">'+tile("🥬","Spinach","3 days","hot")+tile("🧀","Cheddar","6 days")+'</div><p class="int">Missing: feta (optional)</p><button class="btn2" type="button">'+ic("cl")+' Cook this tonight</button><button class="btn2 ghost" type="button">'+ic("ca")+' Put it on a day</button>'}],
+ /*3 rescue board*/[function(){return '<div class="hd">What is at risk</div><div class="g2">'+tile("🥬","Spinach","3 days","hot")+tile("🥛","Milk","2 days","hot")+tile("🍅","Tomatoes","5 days")+tile("🧀","Feta","1 week")+tile("🍞","Bread","Today","hot")+tile("🍎","Apples","10 days")+'</div><p class="int">Tap the ones you want to deal with together.</p>'},
+  function(){return '<div class="hd">2 picked</div><div class="g2">'+tile("🥬","Spinach","3 days","hot sel")+tile("🥛","Milk","2 days","hot sel")+'</div><div class="lb2">Make something with both</div>'+idea("🥣","Spinach and milk soup","30 min","Uses both")+idea("🥞","Spinach pancakes","20 min","Uses both")+'<div class="ch">'+chip("Add another")+chip("Freeze them")+'</div>'}],
+ /*4 a nudge*/[function(){return '<div class="bub" style="margin-top:0"><b>3 things want you before Friday</b><br>Spinach, milk and bread. Want a plan for them?</div><div class="ch">'+chip(ic("sp")+" Plan for me","sel tall")+chip("Show me them","tall")+chip("Not now","tall")+'</div><p class="int">Only shows when something is close. Otherwise this screen is quiet.</p>'},
+  function(){return '<div class="bub me">plan for me</div><div class="bub">Milk and bread: French toast tomorrow. Spinach: frittata Thursday, or freeze it now.</div><div class="g2">'+tile("🍞","French toast","Tomorrow","sel")+tile("🥬","Frittata","Thursday","sel")+'</div><div class="ch">'+chip(ic("fz")+" Freeze spinach","tall")+chip("Change","tall")+'</div><button class="btn2" type="button">'+ic("ck")+' Looks good</button>'}]
+];
+var T=[["1","Countdown list","A list, soonest first, with a plain days-left badge. Tap an item and it offers ideas for that thing, plus freeze, used it, bin it. Familiar and clear."],["2","Ideas first","Starts from what to cook, not what is old. Each idea names the things it uses up. Least thinking, assumes you will cook."],["3","Rescue board","Big tiles of what is at risk. Pick several, get ideas that use them together. Playful and visual; best when two things want to go together."],["4","A nudge","Quiet most of the time. When something is close, a short message offers a plan, one tap at a time. Least to open, depends on timing."]];
+
+var m=0;
+function draw(){document.getElementById("grid").innerHTML=T.map(function(t,i){return '<div class="opt"><h2><b>'+t[0]+'</b>'+t[1]+'</h2><p class="note">'+t[2]+'</p>'+frame(V[i][m]())+'</div>'}).join("")}
+document.querySelectorAll(".kind button").forEach(function(b){b.addEventListener("click",function(){m=Number(b.dataset.m);document.querySelectorAll(".kind button").forEach(function(x){x.setAttribute("aria-pressed",x===b?"true":"false")});draw()})});
+draw();
+</script>
+</body></html>
