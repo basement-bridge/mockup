@@ -502,7 +502,7 @@ const screens = {
     const left = S.pantry.filter((i) => i.starter).length;
     return backHeader("Back", "Settings") + `<div class="body">
       <p class="small">These stay on this device. Only your theme and the emoji setting also travel with you, so pages open in the right colours.</p>
-      <span class="lbl">Look</span><div class="card sgroup"><span class="lbl">Theme</span><div class="tgrid" role="group" aria-label="Theme">${window.themeHtml ? window.themeHtml(["kitchie", "kitchie-day", "marmalade", "blueberry", "herb"]) : ""}</div>
+      <span class="lbl">Look</span><div class="card sgroup"><span class="lbl">Theme</span><div class="tgrid swatches" role="group" aria-label="Theme">${window.themeHtml ? window.themeHtml(["kitchie", "kitchie-day", "marmalade", "blueberry", "herb"], true) : ""}</div><p class="small" data-theme-name>${window.themeName ? esc(window.themeName()) : ""}</p>
         <div class="srow plain"><span>Item name size</span><div class="seg2" role="radiogroup" aria-label="Item name size">${[["small", "Small"], ["normal", "Normal"], ["large", "Large"]].map(([k, l]) => `<button role="radio" aria-checked="${c.size === k}" class="${c.size === k ? "on" : ""}" data-act="cfgsize" data-p="${k}">${l}</button>`).join("")}</div></div>
         ${sw("emoji", "Show emoji")}${sw("motion", "Reduce motion")}${sw("spot", "Show the spot")}${sw("amount", "Show the amount")}${sw("useby", "Show the use-by date")}${sw("activity", "Show household activity")}${sw("compact", "Compact rows")}
         <button class="btn ghost" data-act="cfgreset">Reset to defaults</button></div>
@@ -527,8 +527,8 @@ const screens = {
 
   /* People, part one: Me (name, picture, my AI links). Spec: docs/knowledge/people-settings.md */
   me: () => backHeader("Back", "Me") + `<div class="body">
-    <div class="row" style="gap:14px"><button class="avbig" data-sheet="avatar" aria-label="Change your picture"><span class="av" style="width:72px;height:72px;font-size:30px">${avt(S.persona)}</span><span class="avedit" aria-hidden="true">${I.pencil}</span></button><div><b style="font-size:20px">${esc(me().name)}</b><p class="small">Tap the picture to change it</p></div></div>
-    <div><span class="lbl">Name</span><div class="row" style="gap:8px"><input class="field" id="myname" value="${esc(me().name)}" maxlength="24" autocomplete="off" aria-label="Your name" style="flex:1"><button class="btn sm" id="namesave" data-act="savename" disabled>Save</button></div></div>
+    <div class="row" style="gap:14px"><button class="avbig" data-sheet="avatar" aria-label="Change your picture"><span class="av" style="width:72px;height:72px;font-size:30px">${avt(S.persona)}</span><span class="avedit" aria-hidden="true">${I.pencil}</span></button><p class="small">Tap the picture to change it</p></div>
+    <div><span class="lbl">Name</span><div class="row" style="gap:8px"><input class="field" id="myname" value="${esc(me().name)}" maxlength="24" autocomplete="off" aria-label="Your name" style="flex:1"></div></div>
     <div><span class="lbl">Kitchen role</span><button class="m" data-sheet="role"><div style="flex:1"><b>${role(S.persona) ? esc(role(S.persona).title) : "Pick a kitchen role"}</b><p class="small">Only you can change yours</p></div><span class="chev" style="color:var(--muted)">${I.chev}</span></button></div>
     <div><span class="lbl">AI assistants</span><div class="m"><button class="rowbtn" data-act="linkopen" aria-label="Open your AI assistant link" style="flex:1;display:flex;align-items:center;gap:10px;text-align:left;min-height:44px"><div style="flex:1"><b>Your link</b> <span class="chip">${S.aiLink ? "Active" : "Not linked"}</span><p class="small">${S.aiLink ? "Works in ChatGPT, Claude or any assistant" : "Tap to get your link"}</p></div><span class="chev" style="color:var(--muted)">${I.chev}</span></button>${S.aiLink ? '<button class="danger" data-sheet="airevoke" aria-label="Revoke your AI link" style="min-height:44px;padding:0 8px">Revoke</button>' : ""}</div>
       <p class="small" style="margin-top:8px">One personal link. It acts as you and sees everything your household has. Revoking it stops every assistant at once.</p></div>
@@ -866,7 +866,6 @@ const acts = {
   copy() { S.aiDone = true; S.aiLink = true; toast("Link copied"); }, copyinvite() { S.inviteDone = true; toast("Invite link copied"); }, day(d) { S.day = +d; render(); },
   revoke(name) { S.invites = S.invites.filter((i) => i.name !== name); render(); toast("Invite cancelled"); },
   copyinvite2() { toast("Invite link copied"); },
-  savename() { const v = document.getElementById("myname"); if (!v) return; const n = v.value.trim().slice(0, 24); if (!n) return; PEOPLE[S.persona].name = n; PEOPLE[S.persona].initial = initials(S.persona); render(); toast("Name saved"); },
   setavatar(a) { if (a) S.avatars[S.persona] = a; else delete S.avatars[S.persona]; S.sheet = null; render(); toast("Picture changed"); },
   removestart() { S.sheet = "removing"; render(); },
   removeconfirm() { const w = S.memberWho, n = PEOPLE[w].name; S.members = S.members.filter((x) => x !== w); S.sheet = null; render(); toast(n + " removed"); },
@@ -923,9 +922,9 @@ document.addEventListener("click", (e) => {
   if (t.dataset.act) { if (t.disabled) return; e.stopPropagation(); (acts[t.dataset.act] || (() => {}))(t.dataset.p, t.dataset.d); return; }
   if (t.dataset.go) { S.sheet = null; return go(t.dataset.go, ["item", "recipe"].includes(t.dataset.go) ? t.dataset.p : null); }
 });
-document.addEventListener("change", (e) => { const fin = e.target.dataset && e.target.dataset.fin; if (fin) { acts.fset(fin + "|" + e.target.value, e.target.type === "text"); return; } const c = e.target.dataset && e.target.dataset.ctl; if (c === "persona") { S.persona = e.target.value; refreshPanel(); render(); } if (c === "existing") { S.existing = Number(e.target.value); render(); } });
+document.addEventListener("change", (e) => { const fin = e.target.dataset && e.target.dataset.fin; if (fin) { acts.fset(fin + "|" + e.target.value, e.target.type === "text"); return; } const c = e.target.dataset && e.target.dataset.ctl; if (e.target.id === "myname") { if (!e.target.value.trim()) e.target.value = me().name; S.nameDirty = false; return; } if (c === "persona") { S.persona = e.target.value; refreshPanel(); render(); } if (c === "existing") { S.existing = Number(e.target.value); render(); } });
 document.addEventListener("input", (e) => { if (e.target.id === "r-title" && S.rdraft) S.rdraft.title = e.target.value; if (e.target.id === "r-desc" && S.rdraft) S.rdraft.desc = e.target.value; if (e.target.id === "search") { S.search = e.target.value; document.getElementById("plist").innerHTML = listHtml(); }
-  if (e.target.id === "myname") { const v = e.target.value.trim(); document.getElementById("namesave").disabled = !v || v === me().name; }
+  if (e.target.id === "myname") { const v = e.target.value.trim().slice(0, 24); if (v && v !== me().name) { PEOPLE[S.persona].name = v; PEOPLE[S.persona].initial = initials(S.persona); const big = document.querySelector(".avbig .av"); if (big && !S.avatars[S.persona]) big.textContent = PEOPLE[S.persona].initial; S.nameDirty = true; } } /* saves as you type: no Save button */
   if (e.target.id === "leavename") document.getElementById("leavego").disabled = e.target.value.trim().toLowerCase() !== me().name.toLowerCase(); });
 /* swipe a running-low row to add it; press and hold to start picking several */
 let g = null; const DEEP = 190; /* px: past this a left swipe means used up, not use one */
