@@ -57,6 +57,13 @@ Read first, tap to edit per field: every field production edits is a plain row (
 - Deferred to the first tap of a field: that field's editor and its data, in `flows/household/fields/` (`name.js` has the emoji set, `amounts.js` the unit list, `place.js` the spots per location, `category.js`, `useby.js` the quick pills and date picker, `flags.js`). One file is fetched once, on the first tap of one of its rows, then cached. The date input is built only when Pick date is tapped. The used-up confirm is built only when opened.
 - Why this split: the read rows are what the job needs on arrival (look, glance, leave). Editors are needed by a minority of visits, and each is small, so a first tap costs one tiny fetch. Not done yet: prefetching a file on hover or focus of its row.
 
+## Item sheet (performance, DESIGN.md section 6)
+
+Tapping a pantry row opens a half-height bottom sheet above the tab bar (owner chose the tile grid from `fragments/item-sheet/`). Tiles show each value; tapping one opens its editor in the sheet with a back arrow; All fields opens the full item screen above. Counted items have an Amount tile; level-only items (weighed or measured) set Out, Low or Plenty. Used up and the Amount minus match the swipe: zero, Out, Undo toast. Spec and proposals: `docs/knowledge/item-sheet.md`.
+
+- Default path (tap a row): the sheet is built from state already in memory. No request, no editor markup.
+- Deferred: each tile's editor (`fields/*.js`) on the first tap of that tile, cached after.
+
 ## Open decisions this prototype assumes
 
 - The word "Owner" is never shown, but one person still looks after the plan (billing). Only they can buy Recipes.
