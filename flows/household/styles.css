@@ -422,7 +422,7 @@ html,body{overflow-x:hidden}.phone,.body{overflow-x:hidden}.rscroll,.twoRow{over
    rest = Filters + Add; search = search field, mic, Cancel; anim = refresh message or scene. Layers slide like a curtain. */
 .pact{display:flex;align-items:center;gap:.6rem}
 .prow{position:relative;flex:none;height:56px;min-height:56px;overflow:hidden;margin-bottom:.4rem;--slide:.32s}
-.prow .pl{position:absolute;inset:0;display:flex;align-items:center;gap:8px;background:var(--bg);visibility:hidden;transition:transform var(--slide) cubic-bezier(.2,.8,.2,1),visibility 0s var(--slide)}
+.prow .pl{position:absolute;inset:0;display:flex;align-items:center;gap:8px;background:var(--bg);visibility:hidden;transition:transform var(--slide) cubic-bezier(.2,.8,.2,1),opacity var(--slide) ease,visibility 0s var(--slide)}
 .prow .pl-msg{z-index:1;justify-content:center;color:var(--fg);font-size:13px;font-weight:600}
 .prow .pl-search{z-index:2}
 .prow .pl-front{z-index:3;justify-content:space-between}

@@ -856,7 +856,16 @@ document.addEventListener("scroll", (e) => { const sn = e.target; if (sn.id !== 
 /* Pantry top row: pull down for search (first threshold), keep pulling for refresh (second). Spec: docs/knowledge/pantry-pull-row.md */
 const PULL_SEARCH = 70, PULL_REFRESH = 170, REFRESH_MS = 2400, REFRESH_MS_REDUCED = 1600; let pl = null, refreshTimer = null;
 const rowState = () => (S.refresh ? "anim" : S.searchOpen ? "search" : "rest");
-function setRow(row, st) { row.dataset.state = st; row.classList.remove("peek"); if (st !== "search") row.classList.remove("lock"); const f = row.querySelector(".pl-front"); f.style.transition = ""; f.style.transform = ""; }
+function setRow(row, st) { row.dataset.state = st; row.classList.remove("peek"); if (st !== "search") row.classList.remove("lock"); const f = row.querySelector(".pl-front"); f.style.transition = ""; f.style.transform = ""; f.style.opacity = ""; const sp = row.querySelector(".spill"), cn = row.querySelector(".pl-search .cancel"); if (sp) { sp.style.transition = ""; sp.style.width = ""; } if (cn) { cn.style.transition = ""; cn.style.opacity = ""; } }
+/* While the finger is down between 8 and 70 px the hide follows it: Filters and Add slide away and fade, the magnifier opens into the field and Cancel fades in, all in step with the pull. At 70 px they are exactly where the locked state puts them, so the lock does not jump. */
+function pullFollow(row, dy) {
+  const f = row.querySelector(".pl-front"), sp = row.querySelector(".spill"), cn = row.querySelector(".pl-search .cancel");
+  if (reducedMotion()) { f.style.transition = "none"; f.style.transform = `translateY(${Math.round(Math.min(dy / PULL_SEARCH, 1) * 22)}px)`; return; }
+  const p = Math.max(0, Math.min(1, (dy - 8) / (PULL_SEARCH - 8))), e = p * p * (3 - 2 * p);
+  f.style.transition = "none"; f.style.transform = `translateY(${e * 100}%)`; f.style.opacity = String(1 - e);
+  sp.style.transition = "none"; sp.style.width = `calc(48px + (100% - 132px) * ${e})`;
+  cn.style.transition = "none"; cn.style.opacity = String(e);
+}
 function openSearch(row) { S.searchOpen = true; setRow(row, "search"); const s = document.getElementById("search"); if (s) s.focus({ preventScroll: true }); }
 function closeSearch() {
   S.searchOpen = false; S.search = ""; const row = document.getElementById("prow"); if (!row) return; const s = document.getElementById("search"); if (s) { s.value = ""; s.blur(); }
@@ -878,7 +887,7 @@ function pullMove(x, y, e) {
 function pullShow(st, dy) {
   const row = pl.row, f = row.querySelector(".pl-front"), msg = row.querySelector("#pmsg");
   if (st === "base") { pl.st = null; setRow(row, rowState()); msg.setAttribute("aria-hidden", "true"); return; }
-  if (st === "peek") { row.classList.remove("lock"); row.dataset.state = rowState(); if (rowState() === "rest") { row.classList.add("peek"); f.style.transition = "none"; f.style.transform = `translateY(${Math.round(Math.min(dy / PULL_SEARCH, 1) * 22)}px)`; } pl.st = "peek"; return; }
+  if (st === "peek") { row.classList.remove("lock"); row.dataset.state = rowState(); if (rowState() === "rest") { row.classList.add("peek"); pullFollow(row, dy); } pl.st = "peek"; return; }
   if (pl.st === st) return; pl.st = st; setRow(row, st);
   if (st === "search") { row.classList.remove("lock"); void row.offsetWidth; row.classList.add("lock"); if (navigator.vibrate) navigator.vibrate(10); } /* locked in: the magnifier has opened into the field (ring and pop, a short buzz where the device has one) */
   if (st === "let") { msg.innerHTML = `<div class="rf"><span>Let go to refresh</span></div>`; msg.removeAttribute("aria-hidden"); }
