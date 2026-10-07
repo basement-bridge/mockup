@@ -11,7 +11,7 @@ Under Settings, People stops being a flat invite-link screen and splits in two: 
 **Me** (the person looking at it):
 - change their name
 - change their avatar
-- manage their AI assistant connections: see them, create a link, and revoke one
+- manage their AI assistant link: one personal link per person, created and copied in one tap, revoked with a confirmation (see Settled simplification below)
 - change their own kitchen role (only their own, never anyone else's)
 - invite another person to a different household (this lives under Me, not under Household; addendum of 8 Oct 2026)
 - **Settled (owner, voice, 8 Oct 2026):** a different household is always a new one: the person invited starts their own household, it is not one the inviter already belongs to.
@@ -32,7 +32,7 @@ Also from the owner, 8 Oct 2026, in the profile menu:
 ## What the mockup does
 
 - Profile menu, People group: two rows, Me (shows the name) and Household (shows the member count). The old "Create invite link" row is gone; Invite someone lives on Household. Plan and billing stays for the billing contact.
-- Me: tap the picture to open a sheet of twelve pictures plus the person's initial; a Name field with Save (enabled only when the name changed and isn't empty); a Kitchen role row that opens the existing role editor (the role is the person's own); an AI assistants list (ChatGPT, Claude, Other), each Active with Revoke, or Not linked with Create link (it opens the existing AI assistant screen on that assistant, where the link is copied); and an Other households row, Invite someone to a different household, which opens a sheet to pick the household and copy a single-use link.
+- Me: tap the picture to open a sheet of twelve pictures plus the person's initial; a Name field with Save (enabled only when the name changed and isn't empty); a Kitchen role row that opens the existing role editor (the role is the person's own); an AI assistants row, Your link, showing Active or Not linked: tapping it opens the AI assistant screen where the one link is copied (copying makes it Active), and when Active a Revoke button opens a confirmation sheet (Keep it, or Yes, revoke it); and an Other households row, Invite someone to a different household, which opens a sheet to pick the household and copy a single-use link.
 - Household: members (You chip, Founding member chip, role line), pending invites with Cancel, Invite someone, then a Danger zone box with Leave household.
 - Tap a member: the existing member sheet, now with a "Remove <name> from household" button for anyone but yourself and the founding member (who shows a short note instead). It leads to a confirm sheet (Remove or Keep).
 - Leave household: sheet that says what is lost and what is kept, a field "Type <your name> to confirm", and a Leave button that stays disabled until the typed name matches (ignoring case and spaces at the ends). Confirming returns the person to the "not a member" screen.
@@ -48,3 +48,13 @@ Also from the owner, 8 Oct 2026, in the profile menu:
 ## Open
 
 - What happens to the Founding member badge when the founder has left?
+
+## Settled simplification: one AI link (owner's decision, 8 Oct 2026)
+
+Owner, by voice: "why are we calling out ChatGPT versus..." and agreed to one link, one revoke. "You would want an area where you click to open up your AI assistance thing, that would copy a link." And any other AI assistant there should be able to be revoked with a confirmation.
+
+- The three named rows (ChatGPT, Claude, Other) are gone. A person has **one** personal link; its Active or Not linked state is singular. Revoking it stops every assistant at once.
+- The AI assistant screen keeps ChatGPT / Claude / Other only as a "How to connect" selector: the setup steps differ per product, the link does not.
+- Revoke always asks first: "Revoke your AI link?", Keep it (primary) or Yes, revoke it. Revoking from the Me row or from the AI assistant screen opens the same sheet.
+- **Proposal:** "any other AI assistant there should be able to revoke with confirmation" is read as this single confirmed revoke covering every assistant. If the owner wants to see and revoke each connected assistant separately, that would need Kitchie to report which assistants are connected; the mockup does not show that.
+- **Proposal:** the Me row is tappable to open the screen, with Revoke beside it when Active. The owner's "click to open … that would copy a link" may mean the row itself should copy the link in one tap; the mockup copies from the screen's Copy link button. Open question.

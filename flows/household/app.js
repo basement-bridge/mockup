@@ -122,7 +122,7 @@ const initial = () => ({
   members: ["arjan", "sam"], invites: [{ name: "Priya", days: 6 }],
   roles: { arjan: { title: "Pantry Marshal", ic: "shield", desc: "Keeps order on the shelves and the fridge. Knows exactly where the cumin lives." }, sam: null },
   cfg: { size: "normal", emoji: true, motion: false, spot: true, amount: true, useby: true, activity: true, compact: false }, stockChecks: true,
-  day: 1, aiDone: false, inviteDone: false, cvOpt: "A", aiTab: "ChatGPT", links: { ChatGPT: false, Claude: false, Other: false }, founder: "arjan", avatars: {}, bannerGot: false, pending: null, joined: false,
+  day: 1, aiDone: false, inviteDone: false, cvOpt: "A", aiTab: "ChatGPT", aiLink: false, founder: "arjan", avatars: {}, bannerGot: false, pending: null, joined: false,
   /* pantry view */
   rmode: "loc", order: { loc: [...AREAS], cat: [...CATEGORIES] }, fa: null, fd: null, flast: null, fTab: "filters", seenP: 0, seenR: 0, view: "name", shop: ["milk", "carrots", "butter"], slx: { milk: { by: "arjan", want: "2 litres", tick: false }, carrots: { by: "sam", want: "", tick: false }, butter: { by: "arjan", want: "", tick: false } }, wantFor: null, sel: null, areaTab: "All", collapsed: {}, search: "", searchOpen: false, draft: { days: null },
   memberWho: null, existing: 1, own: false, rdraft: null, iconPick: false,
@@ -530,8 +530,8 @@ const screens = {
     <div class="row" style="gap:14px"><button class="avbig" data-sheet="avatar" aria-label="Change your picture"><span class="av" style="width:72px;height:72px;font-size:30px">${avt(S.persona)}</span><span class="avedit" aria-hidden="true">${I.pencil}</span></button><div><b style="font-size:20px">${esc(me().name)}</b><p class="small">Tap the picture to change it</p></div></div>
     <div><span class="lbl">Name</span><div class="row" style="gap:8px"><input class="field" id="myname" value="${esc(me().name)}" maxlength="24" autocomplete="off" aria-label="Your name" style="flex:1"><button class="btn sm" id="namesave" data-act="savename" disabled>Save</button></div></div>
     <div><span class="lbl">Kitchen role</span><button class="m" data-sheet="role"><div style="flex:1"><b>${role(S.persona) ? esc(role(S.persona).title) : "Pick a kitchen role"}</b><p class="small">Only you can change yours</p></div><span class="chev" style="color:var(--muted)">${I.chev}</span></button></div>
-    <div><span class="lbl">AI assistants</span>${["ChatGPT", "Claude", "Other"].map((t) => `<div class="m"><div style="flex:1"><b>${t}</b> <span class="chip">${S.links[t] ? "Active" : "Not linked"}</span></div>${S.links[t] ? `<button class="danger" data-act="linkrevoke" data-p="${t}" aria-label="Revoke ${t}" style="min-height:44px;padding:0 8px">Revoke</button>` : `<button class="link" data-act="linkopen" data-p="${t}" aria-label="Create a link for ${t}" style="min-height:44px;padding:0 8px">Create link</button>`}</div>`).join("")}
-      <p class="small" style="margin-top:8px">Your own links. They act as you and see everything your household has. Revoking stops one at once.</p></div>
+    <div><span class="lbl">AI assistants</span><div class="m"><button class="rowbtn" data-act="linkopen" aria-label="Open your AI assistant link" style="flex:1;display:flex;align-items:center;gap:10px;text-align:left;min-height:44px"><div style="flex:1"><b>Your link</b> <span class="chip">${S.aiLink ? "Active" : "Not linked"}</span><p class="small">${S.aiLink ? "Works in ChatGPT, Claude or any assistant" : "Tap to get your link"}</p></div><span class="chev" style="color:var(--muted)">${I.chev}</span></button>${S.aiLink ? '<button class="danger" data-sheet="airevoke" aria-label="Revoke your AI link" style="min-height:44px;padding:0 8px">Revoke</button>' : ""}</div>
+      <p class="small" style="margin-top:8px">One personal link. It acts as you and sees everything your household has. Revoking it stops every assistant at once.</p></div>
     <div><span class="lbl">Other households</span><button class="m" data-sheet="invite2"><div style="flex:1"><b>Invite someone to a different household</b><p class="small">They start their own new household</p></div><span class="chev" style="color:var(--muted)">${I.chev}</span></button></div></div>`,
 
   /* People, part two: Household (members, pending invites, leave). Anyone can remove anyone and anyone can cancel an invite (owner, 8 Oct 2026). */
@@ -544,11 +544,11 @@ const screens = {
 
   ai: () => backHeader("Back", "AI assistant") + `<div class="body">
     <div><h2>Your personal link</h2><p style="margin-top:6px">Lets an assistant read and update Our kitchen as you. It sees everything your household has.</p></div>
-    <div class="tabs">${["ChatGPT", "Claude", "Other"].map((t) => `<button data-act="aitab" data-p="${t}" class="${S.aiTab === t ? "on" : ""}">${t}</button>`).join("")}</div>
+    <span class="lbl">How to connect</span><div class="tabs">${["ChatGPT", "Claude", "Other"].map((t) => `<button data-act="aitab" data-p="${t}" class="${S.aiTab === t ? "on" : ""}">${t}</button>`).join("")}</div>
     <div class="field" style="display:flex;align-items:center"><span class="mono">https://kitchen.example/mcp/s9Xk-4tPq-L2vE</span></div>
-    <button class="btn" data-act="copy">Copy link</button>
+    <button class="btn" data-act="copy">${S.aiLink ? "Copy link again" : "Copy link"}</button>
     <div style="display:flex;flex-direction:column;gap:10px;font-size:15px"><div class="row"><b>1</b><span>${S.aiTab === "Claude" ? "In Claude, open Settings, then Connectors." : S.aiTab === "ChatGPT" ? "In ChatGPT, open Settings, then Connectors." : "Open your assistant's connector settings."}</span></div><div class="row"><b>2</b><span>Paste your link and name it Kitchen.</span></div><div class="row"><b>3</b><span>Ask: "What should I cook tonight?"</span></div></div>
-    <div style="border-top:1px solid var(--border);padding-top:14px" class="row"><div style="flex:1"><b>${S.aiTab}</b> <span class="chip">${S.links[S.aiTab] ? "Active" : "Not linked"}</span><p class="small">${S.links[S.aiTab] ? "Linked. Revoke it any time" : "Copy the link above to connect it"}</p></div>${S.links[S.aiTab] ? '<button data-act="aitoggle" class="danger" style="min-height:44px;padding:0 8px">Revoke</button>' : ""}</div>
+    <div style="border-top:1px solid var(--border);padding-top:14px" class="row"><div style="flex:1"><b>Your link</b> <span class="chip">${S.aiLink ? "Active" : "Not linked"}</span><p class="small">${S.aiLink ? "Linked. Revoke it any time" : "Copy the link above to connect it"}</p></div>${S.aiLink ? '<button data-sheet="airevoke" class="danger" style="min-height:44px;padding:0 8px">Revoke</button>' : ""}</div>
     <p class="small">Anyone with this link can act as you. Revoking it stops it at once.</p></div>`,
 
   upgrade: () => backHeader("Back", "Add to your kitchen") + (pays()
@@ -664,6 +664,8 @@ function sheetHtml() {
       ${err ? `<p class="ferr" role="alert">${I.alert(18)}<span>${esc(S.ed.err.msg)}</span></p>` : ""}
       <button class="btn" data-act="usedconfirm">${err ? "Try again" : "Yes, used up"}</button><button class="btn ghost" data-act="closesheet">Keep it</button>`, true);
   }
+  if (sh === "airevoke") return wrap(`<h2>Revoke your AI link?</h2><p>Every assistant using it loses access at once. You can make a new link any time.</p>
+    <button class="btn" data-act="closesheet">Keep it</button><button class="btn ghost danger" data-act="airevoke">Yes, revoke it</button>`);
   if (sh === "invite") return wrap(`<h2>Invite someone</h2><p>Send this link. They sign in with Google and join Our kitchen. Anyone in the household can send one.</p>
     <div class="field" style="display:flex;align-items:center"><span class="mono">https://kitchen.example/join/k7Q2-m9xA-0pR4</span></div>
     <button class="btn" data-act="copyinvite">Copy link</button><p class="small">Works once and expires in 7 days. It can be cancelled from Household.</p>`);
@@ -861,7 +863,7 @@ const acts = {
   selcancel() { S.sel = null; render(); },
   seladd() { const n = S.sel.length; S.sel.forEach((id) => addToList(id)); S.sel = null; toast(n + (n === 1 ? " item" : " items") + " added to your shopping list"); },
   copykitchen() { toast("Kitchen list copied"); },
-  copy() { S.aiDone = true; S.links[S.aiTab] = true; toast("Link copied"); }, copyinvite() { S.inviteDone = true; toast("Invite link copied"); }, day(d) { S.day = +d; render(); },
+  copy() { S.aiDone = true; S.aiLink = true; toast("Link copied"); }, copyinvite() { S.inviteDone = true; toast("Invite link copied"); }, day(d) { S.day = +d; render(); },
   revoke(name) { S.invites = S.invites.filter((i) => i.name !== name); render(); toast("Invite cancelled"); },
   copyinvite2() { toast("Invite link copied"); },
   savename() { const v = document.getElementById("myname"); if (!v) return; const n = v.value.trim().slice(0, 24); if (!n) return; PEOPLE[S.persona].name = n; PEOPLE[S.persona].initial = initials(S.persona); render(); toast("Name saved"); },
@@ -870,8 +872,8 @@ const acts = {
   removeconfirm() { const w = S.memberWho, n = PEOPLE[w].name; S.members = S.members.filter((x) => x !== w); S.sheet = null; render(); toast(n + " removed"); },
   leavestart() { S.sheet = "leave"; render(); },
   leaveconfirm() { const v = document.getElementById("leavename"); if (!v || v.value.trim().toLowerCase() !== me().name.toLowerCase()) return; S.members = S.members.filter((x) => x !== S.persona); S.sheet = null; S.stack = []; go("notmember", null, { replace: true }); toast("You left Our kitchen"); },
-  aitab(t) { S.aiTab = t; render(); }, aitoggle() { S.links[S.aiTab] = false; render(); toast("Link revoked"); },
-  linkrevoke(t) { S.links[t] = false; render(); toast(t + " link revoked"); }, linkopen(t) { S.aiTab = t; go("ai"); },
+  aitab(t) { S.aiTab = t; render(); }, airevoke() { S.aiLink = false; S.sheet = null; render(); toast("Link revoked. No assistant can use it now"); },
+  linkopen() { go("ai"); },
   ask() { toast("Sent to Arjan"); S.stack.pop(); go("today", null, { replace: true }); },
   pay() { S.recipes = true; refreshPanel(); S.stack = []; go("recipes", null, { replace: true }); toast("Recipes added for Our kitchen"); },
   rolepick(i) { S.anim = !S.rdraft; const r = ROLE_PRESETS[Number(i)]; S.rdraft = { pi: Number(i), ic: r.ic, title: r.title, desc: r.desc }; S.iconPick = false; render(); },
