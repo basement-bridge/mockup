@@ -71,3 +71,5 @@ Ten themes drive every page from one token set; the five core ones are Kitchie N
 
 ### Pantry top row: pull for search, pull further to refresh (for feedback)
 At rest the row shows Filters and Add. Pulling the list down 70 px slides them away like a curtain and shows the full search bar (field, mic, Cancel) in the same row. Pulling on to 170 px closes that bar and reads "Let go to refresh"; releasing there plays one of six little kitchen animations (pot, toast, juggling veg, kettle, egg, timer) with its own line, then the row settles back to Filters and Add. Releasing between 70 and 170 px keeps the search bar open; only Cancel closes it (not tapping or scrolling the list), and no refresh can start while it is open. Refresh is drag-only. Reduced motion shows the text only. Full behaviour, px thresholds and timings: `docs/knowledge/pantry-pull-row.md`. Mockup only, not in Kitchie.
+
+Units: "letters" typed or dictated counts as litres, so "2 letters", "2 litres" and "2L" all save as "2 L".

@@ -628,7 +628,7 @@ let lastScreen = null;
 /* Quantity words, in the person's own language: on Save, a quantity that is exactly "amount unit" has the unit written in its standard short form (2 litres -> 2 L).
    Anything else is kept exactly as typed; nothing is forced on people. */
 const UNITS = [
-  ["mL", /^(ml|mls|millilit(?:er|re)s?)$/], ["L", /^(l|lt|ltr|ltrs|lit(?:er|re)s?)$/],
+  ["mL", /^(ml|mls|millilit(?:er|re)s?)$/], ["L", /^(l|lt|ltr|ltrs|lit(?:er|re)s?|let(?:ter|re)s?)$/],
   ["kg", /^(kg|kgs|kilos?|kilograms?|kilogrammes?)$/], ["g", /^(g|gm|gms|grams?|grammes?)$/],
   ["lb", /^(lb|lbs|pounds?)$/], ["oz", /^(oz|ounces?)$/],
 ];
