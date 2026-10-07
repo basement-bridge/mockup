@@ -443,7 +443,7 @@ html,body{overflow-x:hidden}.phone,.body{overflow-x:hidden}.rscroll,.twoRow{over
 
 /* item sheet: half height, above the tab bar */
 .sheet-dim.isheet{bottom:68px}
-.sheet.half{height:54%;max-height:none;padding:8px 16px 14px;gap:12px;border-radius:var(--r-card) var(--r-card) 0 0;overflow:auto;touch-action:pan-y}
+.sheet.half{height:auto;max-height:54%;padding:8px 16px 14px;gap:12px;border-radius:var(--r-card) var(--r-card) 0 0;overflow:auto;touch-action:pan-y}
 .sheet.half.rise{animation:sheetup .26s ease-out}
 @keyframes sheetup{from{transform:translateY(100%)}}
 @media (prefers-reduced-motion:reduce){.sheet.half.rise{animation:none}}
@@ -487,3 +487,7 @@ html,body{overflow-x:hidden}.phone,.body{overflow-x:hidden}.rscroll,.twoRow{over
 
 /* item sheet header: quantity under the name, only when the item has one */
 .shead .sid .shq{color:var(--fg);font-weight:600}
+.tiles4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.tiles4 .tl{min-height:72px}
+.shead .sid .shw{color:var(--muted)}.shead .sid .shw b{font-size:inherit;font-weight:700;color:var(--fg);overflow:visible;white-space:normal}
+.smore{margin-left:auto}.smore+.sclose{margin-left:0}

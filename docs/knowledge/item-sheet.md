@@ -61,13 +61,49 @@ A tile with data is filled (tinted surface, accent border) and shows its value w
 - **Last tile reads "More / All fields"** (the fragment's tile said Name / More). The emoji and name sit in the sheet header.
 - **Used up item**: its Used up button becomes a disabled "Marked Out"; the Amount tile reads Out in the accent colour. Bringing it back is Undo, or Amount.
 
-## Header and tile captions (owner, voice, 8 Oct 2026)
+## Header, tiles and the way into All fields (owner, voice, 8 Oct 2026)
 
-Owner's words, in order:
-- The quantity goes just under the item name, "only if there is quantity mentioned. Don't make it up."
-- "Location is a tile on its own. Location and spot are in the same tile." The header does not repeat the location. In the Where tile the location is the bold value and the spot sits where the word "Where" was.
-- Category: "where it says category and vegetables, it's quite obvious", so the tile shows the value alone, without the word Category. An empty one still reads "Add category".
-- If an item has a minimum and a defined quantity, show the minimum "as a title": it is the caption under the number on the Amount tile (for example "Min 4").
+Owner's words, in the order he said them, last word wins:
+- The quantity goes just under the item name, "only if there is quantity mentioned. Don't make it up." It is "anything that's got a unit", not only counted items.
+- Location and spot go "under the quantity" in the header (an earlier moment had location as its own tile; the later statement replaces it).
+- "I want to reduce the tiles to only important things. Level is fine. Use by is fine. And the minimum level is fine." Category stays (confirmed by voice with "that's fine").
+- "All fields" is not a big tile: "I would find an icon that would look like more fields", the same full editor that already exists. Tapping outside the sheet closes it.
+- The sheet should "be economic about how much space we are using". Whether it sits over or above the tab bar stays open.
+- The owner asked for the scenarios to be thought through so the handover for build is clear (table below).
 
-- **Proposal:** the quantity line shows for counted items and for weighed or measured ones (g, mL, kg, L), because they all carry a number. Out items read "Out".
-- **Proposal:** "as a title" is read as the Amount tile's caption line. Weighed items have no Amount tile, so their minimum stays under All fields.
+### What the sheet shows
+
+- Header: name; quantity line (number plus unit, "Out" at zero); location in bold with the spot after it (Fridge · Door). A small list icon (All fields) and the close button sit at the right.
+- Tiles, one row of four: Level (the drop), Use by, Minimum, Category.
+- Buttons: Used up, and Add to shopping (or On your list).
+- Height follows the content (about 244px on a 390px-wide phone), capped at 54% of the screen. **Proposal.**
+
+### Scenarios (what each missing field does)
+
+| Situation | Header | Tiles |
+|---|---|---|
+| Number and unit, e.g. 12 or 250 g | quantity line shows it | Level drop reflects it |
+| No number (or no unit) | no quantity line; nothing invented | Level tile only |
+| Zero | quantity reads "Out" | drop is the empty outline; Used up disabled ("Marked Out") |
+| No location | location line omitted | no tile for it |
+| Location, no spot (or spot "Anywhere") | location bold alone | n/a |
+| Location and spot | **Fridge** · Door | n/a |
+| No use-by | n/a | Use by tile is dashed: "Add use-by" |
+| No minimum | n/a | Minimum tile is dashed: "Add minimum" |
+| Minimum set | n/a | Minimum tile shows value, e.g. 4 with caption Minimum |
+| No category | n/a | Category tile is dashed: "Add category" |
+| Counted item, tap Level | n/a | opens the quantity stepper and unit chooser |
+| Weighed or level-only item, tap Level | n/a | opens the four level choices (Plenty, Some, Running low, Out) |
+| Many fields missing at once | name only, plus whatever exists | up to three dashed tiles; the row stays four wide |
+| Long name, spot or category | name and location wrap or truncate with ellipsis; no overflow | tiles truncate their value |
+
+- **Proposal:** the Level tile opens the quantity editor on a counted item (the quantity is the data; the level follows from it) and the level choices otherwise.
+- **Proposal:** Minimum is its own editor (the existing running-low stepper) for every item, including weighed ones, which no longer need All fields for it.
+- **Proposal:** the Category tile shows the value alone, with no caption. An empty one reads "Add category".
+
+### Still open
+
+- Over or above the tab bar, and whether dragging the sheet up reaches the full screen.
+- What the Level tile should do when an item has both a quantity and a manual level (today the quantity wins).
+- Which rule makes "Some" (between Plenty and Running low) for a counted item. The owner said "we'll work out rules".
+- Whether a missing-number item should offer a way to add a quantity from the sheet (today only All fields does).
