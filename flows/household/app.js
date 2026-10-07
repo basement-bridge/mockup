@@ -258,7 +258,8 @@ function loadField(k) {
   if (!fieldLoads.has(f)) fieldLoads.set(f, new Promise((ok, no) => { const s = document.createElement("script"); s.src = `fields/${f}.js`; s.onload = ok; s.onerror = () => { fieldLoads.delete(f); s.remove(); no(); }; document.head.append(s); }));
   return fieldLoads.get(f);
 }
-const level = (p) => (p.n <= 0 ? "Out" : p.lvl ? p.lvl : isLow(p) || (p.min && p.n <= p.min) ? "Running low" : p.min && p.n <= p.min * 2 ? "Some" : "Plenty");
+/* Out is amount zero, always. A counted item's level is derived from its quantity (a stored label is ignored); a level-only item's level is the label it was given. */
+const level = (p) => (p.n <= 0 ? "Out" : p.lvl && !reducible(p) ? p.lvl : isLow(p) || (p.min && p.n <= p.min) ? "Running low" : p.min && p.n <= p.min * 2 ? "Some" : "Plenty");
 const VAL = {
   name: (p) => esc(p.name),
   qty: (p) => esc(fmtAmt(p)),
