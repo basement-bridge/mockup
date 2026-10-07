@@ -117,7 +117,7 @@ const noEd = () => ({ open: null, err: null, saved: null, picking: false }); /* 
 const initial = () => ({
   screen: "invite", stack: [], tab: "today", param: null,
   persona: "sam", recipes: true, down: false, expireNext: false,
-  pantry: freshPantry(), sheet: null, toast: null, ed: noEd(), usedLog: [],
+  pantry: freshPantry(), sheet: null, isheet: null, toast: null, ed: noEd(), usedLog: [],
   members: ["arjan", "sam"], invites: [{ name: "Priya", days: 6 }],
   roles: { arjan: { title: "Pantry Marshal", ic: "shield", desc: "Keeps order on the shelves and the fridge. Knows exactly where the cumin lives." }, sam: null },
   cfg: { size: "normal", emoji: true, motion: false, spot: true, amount: true, useby: true, activity: true, compact: false }, stockChecks: true,
@@ -179,7 +179,7 @@ function maybePrompt() {
 /* ---------- navigation ---------- */
 function go(screen, param = null, opts = {}) {
   if (!opts.replace) S.stack.push({ screen: S.screen, param: S.param, tab: S.tab });
-  S.screen = screen; S.param = param; S.ed = noEd();
+  S.screen = screen; S.param = param; S.ed = noEd(); S.isheet = null;
   if (["today", "pantry", "recipes", "shop"].includes(screen)) { S.tab = screen; S.stack = []; }
   if (screen !== "pantry") S.sel = null;
   if (screen === "today") maybePrompt();
@@ -253,7 +253,7 @@ function loadField(k) {
   if (!fieldLoads.has(f)) fieldLoads.set(f, new Promise((ok, no) => { const s = document.createElement("script"); s.src = `fields/${f}.js`; s.onload = ok; s.onerror = () => { fieldLoads.delete(f); s.remove(); no(); }; document.head.append(s); }));
   return fieldLoads.get(f);
 }
-const level = (p) => (p.n <= 0 ? "Out" : isLow(p) || (p.min && p.n <= p.min) ? "Low" : "Plenty");
+const level = (p) => (p.n <= 0 ? "Out" : p.lvl ? p.lvl : isLow(p) || (p.min && p.n <= p.min) ? "Low" : "Plenty");
 const VAL = {
   name: (p) => esc(p.name),
   qty: (p) => esc(fmtAmt(p)),
@@ -273,7 +273,7 @@ const fld = (k, p, inner, label) => {
 /* option pills shared by the editors */
 const opts = (k, op, items, cur, aria) => `<div class="opts" role="radiogroup" aria-label="${aria}">${items.map(([v, label]) => `<button class="opt${v === cur ? " on" : ""}" role="radio" aria-checked="${v === cur}" data-act="fset" data-p="${k}|${op}|${esc(v)}">${label}</button>`).join("")}</div>`;
 const stepper = (k, p, val) => `<div class="stepper"><button data-act="fset" data-p="${k}|step|-1" aria-label="Less">${I.minus}</button><b>${val}</b><button data-act="fset" data-p="${k}|step|1" aria-label="More">${I.plus}</button></div>`;
-const curItem = () => S.pantry.find((x) => x.id === S.param);
+const curItem = () => S.pantry.find((x) => x.id === (S.sheet === "item" && S.isheet ? S.isheet.id : S.param)); /* the item sheet edits the same way the full screen does */
 function save(k, patch, quiet) {
   const p = curItem(); if (!p) return;
   if (S.down) { S.ed.err = { key: k, msg: "Not saved. We can't reach the platform.", retry: patch }; S.ed.saved = null; render(); return; }
@@ -289,7 +289,7 @@ function save(k, patch, quiet) {
 const recentUsed = () => S.usedLog.filter((t) => Date.now() - t < 5 * 60 * 1000).length;
 function markUsedUp(id) {
   const i = S.pantry.find((x) => x.id === id); if (!i) return;
-  const was = { n: i.n, upd: i.upd }; i.n = 0; S.usedLog.push(Date.now()); render();
+  const was = { n: i.n, upd: i.upd }; i.was = i.n; i.n = 0; S.usedLog.push(Date.now()); render();
   toast(i.name + " used up. It's marked Out", () => { i.n = was.n; i.upd = was.upd; S.usedLog.pop(); render(); toast(i.name + " is back"); });
 }
 
@@ -307,7 +307,7 @@ function rowHtml(i) {
   const meta = [i.area, c.amount ? (out ? "Out" : fmtAmt(i)) : null, c.spot ? i.spot : null, i.cat].filter((x) => x !== null && x !== "").map(esc).join(" · ");
   /* swipe left a little = use one (counted) or used up (level only); left a lot = used up; right = shopping list. Nothing is deleted. */
   const bg = `<div class="swbg three" aria-hidden="true"><span class="r">${riSvg("cart", 20)}Add to list</span><span class="l l1">${cnt ? `${I.minus}Use one` : `${I.tick}Used up`}</span><span class="l l2">${I.tick}Used up</span></div>`;
-  return `<li class="rowx swr pswipe ${out ? "isout" : ""}" data-swipe="${i.id}" data-sw="pantry" data-kind="${cnt ? "count" : "level"}">${bg}<div class="swfg"><button class="rowlink" data-go="item" data-p="${i.id}"><div class="main"><div class="name">${i.emoji && c.emoji ? `<span aria-hidden="true">${i.emoji}</span> ` : ""}${esc(i.name)}${i.recent ? ` <span class="cue" role="img" aria-label="Added in the last 24 hours">${I.up(17)}</span>` : ""}</div><div class="meta">${meta}</div></div>${i.days !== null && c.useby && !out ? `<span class="due ${hot ? "hot" : ""}">${i.days >= 2 ? `Use within<br>${i.days} days` : dayLabel(i.days)}</span>` : ""}</button></div></li>`;
+  return `<li class="rowx swr pswipe ${out ? "isout" : ""}" data-swipe="${i.id}" data-sw="pantry" data-kind="${cnt ? "count" : "level"}">${bg}<div class="swfg"><button class="rowlink" data-act="isheet" data-p="${i.id}" aria-haspopup="dialog"><div class="main"><div class="name">${i.emoji && c.emoji ? `<span aria-hidden="true">${i.emoji}</span> ` : ""}${esc(i.name)}${i.recent ? ` <span class="cue" role="img" aria-label="Added in the last 24 hours">${I.up(17)}</span>` : ""}</div><div class="meta">${meta}</div></div>${i.days !== null && c.useby && !out ? `<span class="due ${hot ? "hot" : ""}">${i.days >= 2 ? `Use within<br>${i.days} days` : dayLabel(i.days)}</span>` : ""}</button></div></li>`;
 }
 /* running-low rows: swipe to add to the shopping list, press and hold to pick several */
 function lowRowHtml(i) {
@@ -562,8 +562,41 @@ const screens = {
 };
 
 /* ---------- sheets ---------- */
+/* ---------- item sheet (tile grid, owner's choice from fragments/item-sheet) ----------
+   Tap a pantry row: a half-height sheet rises above the tab bar. Six tiles (five for level-only items), each showing its value;
+   tap one and its editor takes over the sheet with a back arrow. Editors are the same fields/*.js files as the full item screen,
+   fetched on the first tap of a tile (nothing extra loads when the sheet opens). "All fields" opens the full item screen.
+   Counted = the unit is a count (reducible); anything weighed or measured is level-only. Used up = amount 0, shows Out, Undo toast. */
+const TILE_FIELDS = { amount: ["qty"], level: ["min"], where: ["loc", "spot"], useby: ["useby"], cat: ["cat"] };
+const TILE_TITLE = { amount: "Amount", level: "Level", where: "Where", useby: "Use by", cat: "Category" };
+function itemSheetHtml() {
+  const s = S.isheet, p = s && S.pantry.find((x) => x.id === s.id); if (!p) return "";
+  const cnt = reducible(p), out = p.n <= 0, v = s.view, lv = level(p), err = S.ed.err;
+  const close = `<button class="icon sclose" data-act="closesheet" aria-label="Close" title="Close">${I.x}</button>`;
+  const errHtml = err ? `<p class="ferr" role="alert">${I.alert(18)}<span>${esc(err.msg)}</span>${err.retry ? '<button class="link" data-act="fretry">Try again</button>' : ""}</p>` : "";
+  const grab = '<span class="grab" data-grab aria-hidden="true"></span>';
+  let body;
+  if (v === "tiles") {
+    const tile = (k, ic, val, label, warn) => `<button class="tl${warn ? " warn" : ""}" data-act="itile" data-p="${k}">${ic}<b>${val}</b>${label}</button>`;
+    const head = `<div class="shead"><span class="ph" aria-hidden="true">${emo(p)}</span><div class="sid"><b>${esc(p.name)}</b><span class="small">${esc(p.area)}${p.spot && p.spot !== "Anywhere" ? " · " + esc(p.spot) : ""}</span></div>${close}</div>`;
+    const tiles = `<div class="tiles3">${cnt ? tile("amount", riSvg("stack", 20), out ? "Out" : esc(fmtAmt(p)), "Amount", out) : ""}${tile("level", riSvg("drop", 20), lv, "Level", lv !== "Plenty")}${tile("where", riSvg("fridge", 20), esc(p.area), "Where")}${tile("useby", riSvg("clock", 20), p.days === null ? "None" : esc(dayLabel(p.days)), "Use by")}${tile("cat", riSvg("basket", 20), esc(p.cat), "Category")}${tile("all", riSvg("list", 20), "More", "All fields")}</div>`;
+    const acts2 = `<div class="sacts">${out ? `<button class="btn ghost" disabled>${I.tick}<span>&nbsp;Marked Out</span></button>` : `<button class="btn ghost" data-act="sheetused">${I.tick}<span>&nbsp;Used up</span></button>`}${onList(p.id) ? `<button class="btn ghost" disabled>${I.tick}<span>&nbsp;On your list</span></button>` : `<button class="btn" data-act="sheetshop">${riSvg("cart", 20)}<span>&nbsp;Add to shopping</span></button>`}</div>`;
+    body = head + errHtml + tiles + acts2;
+  } else {
+    const hd = `<div class="shead"><button class="icon" data-act="itile" data-p="tiles" aria-label="Back to ${esc(p.name)}" title="Back">${I.chev.replace("<svg", '<svg style="transform:scaleX(-1)"')}</button><div class="sid"><b>${TILE_TITLE[v]}</b><span class="small">${esc(p.name)}</span></div>${close}</div>`;
+    let ed = "";
+    if (v === "level" && !cnt) {
+      ed = `<div class="opts" role="radiogroup" aria-label="Level">${["Out", "Low", "Plenty"].map((l) => `<button class="opt${l === lv ? " on" : ""}" role="radio" aria-checked="${l === lv}" data-act="lvl" data-p="${l}">${l}</button>`).join("")}</div><p class="small">Out means none left. Nothing is deleted: it stays in the pantry showing Out.</p>`;
+    } else if (v === "level") ed = `${ITEM_FIELDS.min.html(p)}<p class="small">Shows Low when the amount is at or under this. Now: ${lv}.</p>`;
+    else if (v === "where") ed = TILE_FIELDS.where.map((k) => `<span class="lbl">${k === "loc" ? "Location" : "Spot"}</span>${ITEM_FIELDS[k].html(p)}`).join("");
+    else ed = ITEM_FIELDS[TILE_FIELDS[v][0]].html(p);
+    body = hd + `<div class="sedit">${ed}</div>${errHtml}${S.ed.saved ? savedLine() : ""}`;
+  }
+  return `<div class="sheet-dim isheet" data-act="closesheet"><div class="sheet half${s.fresh ? " rise" : ""}" data-stop="1" role="dialog" aria-modal="true" aria-label="${esc(p.name)}">${grab}${body}</div></div>`;
+}
 function sheetHtml() {
   const sh = S.sheet; if (!sh) return "";
+  if (sh === "item") return itemSheetHtml();
   const wrap = (inner, mid, dismiss) => `<div class="sheet-dim" ${mid && !dismiss ? "" : 'data-act="closesheet"'}><div class="sheet ${mid ? "mid" : ""}" data-stop="1">${inner}</div></div>`;
   if (sh === "filters" && S.fd) {
     const f = S.fd, tab = S.fTab;
@@ -667,10 +700,10 @@ function render() {
   if (S.screen === "pantry") S.seenP = S.pantry.filter((i) => i.recent).length;
   if (S.screen === "recipes") S.seenR = RECIPES.filter((r) => r.new).length;
   const sc = screens[S.screen] || screens.today;
-  phone.innerHTML = sc() + sheetHtml() + (S.toast ? `<div class="toast" role="status"><span>${esc(S.toast)}</span>${undoFn ? '<button class="tact" data-act="undo">Undo</button>' : ""}</div>` : "");
-  phone.dataset.size = S.cfg.size; phone.dataset.motion = S.cfg.motion ? "reduce" : ""; phone.classList.toggle("compact", S.cfg.compact);
+  phone.innerHTML = sc() + sheetHtml() + (S.toast ? `<div class="toast ${S.sheet === "item" ? "abovesheet" : ""}" role="status"><span>${esc(S.toast)}</span>${undoFn ? '<button class="tact" data-act="undo">Undo</button>' : ""}</div>` : "");
+  document.body.classList.toggle("isheet-open", S.sheet === "item"); phone.dataset.size = S.cfg.size; phone.dataset.motion = S.cfg.motion ? "reduce" : ""; phone.classList.toggle("compact", S.cfg.compact);
   const nb = phone.querySelector(".body"); if (nb && top) nb.scrollTop = top;
-  lastScreen = S.screen;
+  lastScreen = S.screen; if (S.isheet) S.isheet.fresh = false;
   const panel = document.getElementById("panel");
   if (!panel.dataset.ready || S.panelDirty) { panel.innerHTML = panelHtml(); panel.dataset.ready = "1"; S.panelDirty = false; }
   else { const st = document.getElementById("pwa-st"); if (st) st.textContent = pwaStatus(); }
@@ -691,7 +724,7 @@ function parseAmt(t) {
 }
 
 const acts = {
-  back, closesheet() { S.sheet = null; render(); },
+  back, closesheet() { S.sheet = null; S.isheet = null; render(); },
   signin() { S.joined = true; S.rdraft = null; S.iconPick = false; if (S.own) { S.pantry = []; S.members = [S.persona]; S.invites = []; S.roles = {}; } go("welcome", null, { replace: true }); },
   gotit() { S.bannerGot = true; render(); },
   retry() { toast(S.down ? "Still reconnecting" : "Back online"); },
@@ -710,6 +743,21 @@ const acts = {
     toast(`${i.name}: ${fmtAmt(i)} left`, () => { i.n = was.n; i.upd = was.upd; render(); });
   },
   usedup(id) { if (S.down) return; markUsedUp(id); },
+  isheet(id) { S.ed = noEd(); S.sheet = "item"; S.isheet = { id, view: "tiles", fresh: true }; render(); const t = document.querySelector(".sheet.half .tl"); if (t) t.focus({ preventScroll: true }); },
+  itile(k) {
+    const s = S.isheet; if (!s) return;
+    if (k === "all") { const id = s.id; S.sheet = null; S.isheet = null; go("item", id); return; }
+    const files = k === "tiles" || (k === "level" && !reducible(curItem())) ? [] : TILE_FIELDS[k];
+    const open = () => { S.ed = noEd(); s.view = k; render(); const b = document.querySelector(".sheet.half .shead .icon"); if (b) b.focus({ preventScroll: true }); };
+    Promise.all(files.map(loadField)).then(open).catch(() => { S.ed = { ...noEd(), err: { key: k, msg: "Couldn't open this. Check your connection." } }; render(); });
+  },
+  sheetused() { const s = S.isheet; if (!s) return; if (S.down) { S.ed.err = { key: "used", msg: "Not saved. We can't reach the platform." }; render(); return; } S.sheet = null; S.isheet = null; markUsedUp(s.id); },
+  sheetshop() { const s = S.isheet; if (!s) return; S.sheet = null; S.isheet = null; acts.shopadd(s.id); },
+  lvl(l) {
+    const p = curItem(); if (!p) return;
+    if (l === "Out") { if (p.n > 0) acts.sheetused(); return; }
+    save("level", { lvl: l, n: p.n > 0 ? p.n : (p.was || STEP[p.unit] || 1) });
+  },
   usedask() { S.ed = noEd(); S.sheet = "usedup"; render(); },
   usedconfirm() {
     if (S.down) { S.ed.err = { key: "used", msg: "Not saved. We can't reach the platform." }; render(); return; }
@@ -724,6 +772,7 @@ const acts = {
   },
   fset(v, quiet) {
     const [k, op, ...rest] = v.split("|"), p = curItem(); if (!p) return;
+    if (S.sheet === "item" && v === "qty|step|-1" && reducible(p) && !S.down) { const id = p.id; if (p.n <= 1) { S.sheet = null; S.isheet = null; } acts.useone(id); return; } /* same as the left swipe: one off, the last one is used up with an Undo toast */
     const out = ITEM_FIELDS[k].set[op](p, rest.join("|"));
     if (typeof out === "string") { S.ed.err = { key: k, msg: out }; S.ed.saved = null; render(); } else save(k, out, quiet === true);
     const again = [...document.querySelectorAll("[data-act=fset]")].find((el) => el.dataset.p === v); if (again && !quiet) again.focus();
@@ -859,7 +908,7 @@ const endGesture = () => {
 };
 document.addEventListener("pointerup", endGesture); document.addEventListener("pointercancel", endGesture);
 document.addEventListener("contextmenu", (e) => { if (e.target.closest("[data-swipe]")) e.preventDefault(); });
-document.addEventListener("keydown", (e) => { const t = e.target; if ((e.key === "Enter" || e.key === " ") && t.matches && t.matches('[role=button][data-act]')) { e.preventDefault(); t.click(); } });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && S.sheet === "item" && S.isheet) { if (S.isheet.view !== "tiles") acts.itile("tiles"); else acts.closesheet(); return; } const t = e.target; if ((e.key === "Enter" || e.key === " ") && t.matches && t.matches('[role=button][data-act]')) { e.preventDefault(); t.click(); } });
 document.addEventListener("scroll", (e) => { const sn = e.target; if (sn.id !== "snap") return; const n = Math.round(sn.scrollLeft / sn.clientWidth); sn.parentElement.querySelectorAll(".dots i").forEach((d, k) => d.classList.toggle("on", k === n)); }, true);
 /* pull down at the top of Pantry: a shallow pull opens search, a deep pull refreshes. Mouse and touch. */
 /* Pantry top row: pull down for search (first threshold), keep pulling for refresh (second). Spec: docs/knowledge/pantry-pull-row.md */
@@ -962,3 +1011,10 @@ document.addEventListener("pointerup", endRo); document.addEventListener("pointe
 document.addEventListener("wheel", (e) => { const r = e.target.closest("[data-rot]"); if (!r || !S.fd) return; e.preventDefault(); const k = r.dataset.rot; rotStep(k, S.fd.st[k].i + (e.deltaY > 0 ? 1 : -1)); }, { passive: false });
 document.getElementById("gear").addEventListener("click", () => document.getElementById("panel").classList.toggle("open"));
 render();
+
+/* drag the grab handle down to close the item sheet (Proposal: drag up does nothing; "All fields" is the way to the full screen) */
+let sd = null;
+document.addEventListener("pointerdown", (e) => { const h = e.target.closest && e.target.closest("[data-grab]"); if (!h) return; const sh = h.closest(".sheet"); sd = { y: e.clientY, sh, dy: 0 }; sh.style.transition = "none"; try { h.setPointerCapture(e.pointerId); } catch (x) {} });
+document.addEventListener("pointermove", (e) => { if (!sd) return; sd.dy = Math.max(0, e.clientY - sd.y); sd.sh.style.transform = `translateY(${sd.dy}px)`; });
+const endDrag = () => { if (!sd) return; const x = sd; sd = null; x.sh.style.transition = "transform .2s"; if (x.dy > 90) { x.sh.style.transform = "translateY(100%)"; setTimeout(() => acts.closesheet(), 180); } else x.sh.style.transform = ""; };
+document.addEventListener("pointerup", endDrag); document.addEventListener("pointercancel", endDrag);

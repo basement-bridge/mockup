@@ -11,7 +11,7 @@ Code: `flows/household/app.js` (`rowHtml`, `useone`, `markUsedUp`, `DEEP`), `flo
 - Swipe left a long way: always zero the item and mark it Out.
 - Swipe right: add to the shopping list.
 - Nothing is deleted. A used-up item stays in the pantry showing Out.
-- Tapping a row opens the item. The owner wants it as a half-height bottom sheet (see `fragments/item-sheet/`); until a layout is chosen the row still opens the existing item screen.
+- Tapping a row opens the item. The owner wants it as a half-height bottom sheet and chose the tile grid layout; the row now opens that sheet. Spec and proposals: `item-sheet.md`.
 
 ## What the mockup does
 
