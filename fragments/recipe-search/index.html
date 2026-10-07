@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Recipe search, four directions — fragment</title><link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><script src="../../theme.js"></script>
+<style>
+.kind{display:flex;gap:6px;margin:14px 0 0;padding:4px;border-radius:var(--r-pill);background:var(--surface);border:1px solid var(--border);width:max-content;max-width:100%}
+.kind button{min-height:44px;padding:0 16px;border-radius:var(--r-pill);font-weight:600;color:var(--fg)}
+.kind button[aria-pressed=true]{background:var(--accent);color:var(--on-accent)}
+.grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:18px}
+@media(min-width:660px){.grid{grid-template-columns:1fr 1fr}}
+.ph2{position:relative;width:100%;max-width:300px;height:600px;margin:0 auto;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden;font-size:14px;line-height:1.4;color:var(--fg)}
+.sc{height:100%;overflow-y:auto;padding:12px 14px 20px}
+.ph2 svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.hd{font-size:20px;font-weight:800;margin:2px 0 10px}
+.sb{display:flex;align-items:center;gap:8px;min-height:48px;padding:0 14px;border-radius:var(--r-pill);background:var(--surface);border:1px solid var(--border);color:var(--muted)}
+.sb.on{border-color:var(--accent);color:var(--fg)}.sb span{flex:1}
+.sb .sp{color:var(--accent)}
+.big{min-height:84px;align-items:flex-start;padding:12px 14px;border-radius:var(--r-card);display:flex;gap:8px;background:var(--surface);border:1px solid var(--border)}
+.big.on{border-color:var(--accent)}.big svg{margin-top:2px;color:var(--accent)}
+.ch{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.c{display:inline-flex;align-items:center;gap:5px;min-height:36px;padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-size:13px;font-weight:700;color:var(--fg)}
+.c.sel{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.c.x::after{content:"×";margin-left:4px;font-weight:800}
+.c.ai{border-style:dashed;color:var(--muted)}
+.lb2{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:16px 0 6px}
+.rr{display:flex;gap:10px;align-items:center;min-height:64px;padding:8px 0;border-top:1px solid var(--border)}.rr:first-of-type{border-top:0}
+.rr .e{width:48px;height:48px;border-radius:var(--r-ctl);display:flex;align-items:center;justify-content:center;font-size:26px;background:linear-gradient(160deg,color-mix(in srgb,var(--accent) 22%,var(--surface)),var(--surface));flex:none}
+.rr b{display:block}.rr small{display:block;color:var(--muted);font-size:12px}
+.mt{margin-left:auto;font-size:11px;font-weight:800;padding:3px 9px;border-radius:var(--r-pill);border:1px solid var(--sage);color:var(--sage);white-space:nowrap}.mt.no{border-color:var(--accent);color:var(--accent)}
+.why{color:var(--cue)!important}
+.int{font-size:12px;color:var(--muted);margin-top:8px}
+.bub{max-width:88%;padding:10px 12px;border-radius:var(--r-card);background:var(--surface);border:1px solid var(--border);margin:8px 0}
+.bub.me{margin-left:auto;background:var(--accent);color:var(--on-accent);border-color:var(--accent);font-weight:600}
+.cook{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px}.cook .k{flex:none;width:130px;padding:10px;border-radius:var(--r-card);background:var(--surface);border:1px solid var(--border)}.cook .k .e{font-size:34px;display:block}.cook .k b{display:block;font-size:13px;margin-top:4px}.cook .k small{color:var(--muted);font-size:11px}
+.qs{margin-top:18px;padding:14px;border:1px dashed var(--border);border-radius:var(--r-card)}.qs li{margin:6px 0 6px 18px}
+</style></head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="se" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.500"/><path d="M16 16l4.500 4.500"/></symbol>
+<symbol id="sp" viewBox="0 0 24 24"><path d="M12 3l1.800 5.200L19 10l-5.200 1.800L12 17l-1.800-5.200L5 10l5.200-1.800zM18.500 16l.8 2.200 2.200.8-2.200.8-.8 2.200-.8-2.200-2.200-.8 2.200-.8z"/></symbol>
+<symbol id="mi" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.500 11a6.500 6.500 0 0 0 13 0M12 17.500V21"/></symbol>
+<symbol id="ck" viewBox="0 0 24 24"><path d="M5 12.500l4.500 4.500L19 7.500"/></symbol>
+</defs></svg>
+<div class="wrap">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Recipe search, four directions</h1>
+<p>Fragment. The owner wants a very intelligent search button for recipes. These are four ways for it to look when someone opens it. Each phone shows the first moment, then what comes back. Results carry what we know: what's in your pantry, what's missing, what's about to go off.</p>
+<div class="kind" role="group" aria-label="Moment"><button type="button" aria-pressed="true" data-m="0">When they arrive</button><button type="button" aria-pressed="false" data-m="1">After they ask</button></div>
+<p class="q">Example query: "something quick with eggs, no onion". Sample data only; the real search would read the pantry and the household's recipes.</p>
+<div class="grid" id="grid"></div>
+<div class="qs"><b>Open</b>
+<ul>
+<li>Which direction leads? They are not exclusive: 2's stock-first start could sit under 1's box.</li>
+<li>When the search understood the request, should it say how (the chips in 1), or just show results?</li>
+<li>Does it search only your saved recipes, or also suggest new ones from the AI? (This mockup shows saved only, plus one marked "Ask for new ideas".)</li>
+<li>"Missing one thing": show those with a clear badge, or keep them out until nothing is missing?</li>
+<li>Things about to go off: should they quietly rank results higher? Today's example does, and says so.</li>
+<li>Tapping a result opens the recipe page (see recipe page fragment). Does it carry the search with it, for example the missing item pre-added to shopping?</li>
+<li>Voice: is the mic on the box enough, or does the voice job start search by itself?</li>
+</ul></div>
+</div>
+<script>
+var ic=function(n){return '<svg><use href="#'+n+'"/></svg>'};
+var R=[["🍳","Egg fried rice","20 min","Missing spring onions","Uses your eggs, use within 2 days",1],["🥚","Shakshuka","25 min","You have all","Eggs and tinned tomatoes",0],["🧀","Cheese omelette","10 min","You have all","Fastest match",0],["🥬","Spinach frittata","25 min","Missing feta","Uses spinach going off in 3 days",1]];
+var row1=function(r){return '<div class="rr"><span class="e">'+r[0]+'</span><div><b>'+r[1]+'</b><small>'+r[2]+'</small><small class="why">'+r[4]+'</small></div><span class="mt'+(r[5]?' no':'')+'">'+(r[5]?r[3]:'You have all')+'</span></div>'};
+var rows=function(n){return R.slice(0,n).map(row1).join("")};
+var frame=function(x){return '<div class="ph2"><div class="sc">'+x+'</div></div>'};
+var chip=function(t,c){return '<span class="c '+(c||"")+'">'+t+'</span>'};
+var V=[
+ /*1 describe it*/[function(){return '<div class="hd">Find a recipe</div><div class="big">'+ic("se")+'<span style="color:var(--muted)">Tell me what you feel like. Quick, a main ingredient, who is eating, what to avoid…</span></div><div class="ch">'+chip("What can I make tonight?")+chip("Use up what's going off")+chip("Something light")+chip("Kid-friendly")+'</div><div class="lb2">Recent</div><div class="rr"><span class="e">🍝</span><div><b>Creamy mushroom pasta</b><small>Cooked last week</small></div></div>'},
+  function(){return '<div class="hd">Find a recipe</div><div class="big on">'+ic("se")+'<span>something quick with eggs, no onion</span></div><p class="int">I read that as:</p><div class="ch" style="margin-top:6px">'+chip("Under 30 min","sel x")+chip("Eggs","sel x")+chip("No onion","sel x")+chip("From your recipes","x")+'</div><div class="lb2">2 ready, 1 one thing away</div>'+rows(3)+'<div class="chip-row"></div><div class="ch">'+chip(ic("sp")+" Ask for new ideas","ai")+'</div>'}],
+ /*2 stock first*/[function(){return '<div class="sb">'+ic("se")+'<span>Search recipes</span>'+ic("mi")+'</div><div class="lb2">You can cook now</div><div class="cook"><div class="k"><span class="e">🧀</span><b>Cheese omelette</b><small>10 min · all in</small></div><div class="k"><span class="e">🥚</span><b>Shakshuka</b><small>25 min · all in</small></div><div class="k"><span class="e">🍝</span><b>Tomato pasta</b><small>20 min · all in</small></div></div><div class="lb2">One thing away</div>'+row1(R[0])+row1(R[3])+'<div class="lb2">Going off soon, ideas</div><div class="ch" style="margin-top:0">'+chip("🥬 Spinach · 3 days")+chip("🥛 Milk · 2 days")+'</div>'},
+  function(){return '<div class="sb on">'+ic("se")+'<span>eggs</span>'+ic("mi")+'</div><div class="ch" style="margin-top:8px">'+chip("Ready to cook","sel")+chip("One thing away")+chip("Under 30 min")+'</div><div class="lb2">4 recipes</div>'+rows(4)}],
+ /*3 chips + type*/[function(){return '<div class="sb">'+ic("se")+'<span>Search or pick below</span>'+ic("mi")+'</div><div class="lb2">How long</div><div class="ch" style="margin-top:0">'+chip("Under 15")+chip("Under 30")+chip("Take your time")+'</div><div class="lb2">Built around</div><div class="ch" style="margin-top:0">'+chip("🥚 Eggs")+chip("🧀 Cheese")+chip("🥬 Spinach")+chip("🍚 Rice")+chip("More from pantry")+'</div><div class="lb2">Mood</div><div class="ch" style="margin-top:0">'+chip("Comforting")+chip("Light")+chip("Spicy")+chip("Big batch")+'</div><div class="lb2">Leave out</div><div class="ch" style="margin-top:0">'+chip("Onion")+chip("Nuts")+chip("Meat")+chip("Add…")+'</div>'},
+  function(){return '<div class="sb">'+ic("se")+'<span>Search or pick below</span>'+ic("mi")+'</div><div class="ch">'+chip("Under 30","sel x")+chip("🥚 Eggs","sel x")+chip("No onion","sel x")+'</div><div class="lb2">3 recipes</div>'+rows(3)+'<div class="ch">'+chip("Clear all")+'</div>'}],
+ /*4 conversation*/[function(){return '<div class="hd">What are we cooking?</div><div class="bub">I know what is in your pantry and what you have cooked. Ask me anything, or pick one.</div><div class="ch">'+chip("Dinner in 20 minutes")+chip("Use up the spinach")+chip("Something I haven't made in a while")+chip("Surprise me")+'</div><div class="sb" style="margin-top:16px">'+ic("se")+'<span>Type or speak</span>'+ic("mi")+'</div>'},
+  function(){return '<div class="bub me">something quick with eggs, no onion</div><div class="bub">Three you can do tonight. Cheese omelette is the quickest. Spinach frittata uses the spinach that goes off in 3 days, but you are out of feta.</div>'+rows(3)+'<div class="ch">'+chip("Make it vegetarian")+chip("Only things I have")+chip("Something else")+'</div><div class="sb" style="margin-top:12px">'+ic("se")+'<span>Ask a follow-up</span>'+ic("mi")+'</div>'}]
+];
+var T=[["1","Describe it","One big box. Say what you want in your own words. It shows how it read you as removable chips, so you can fix a misread without retyping."],["2","Stock first","Opens on what you can cook right now, then one thing away, then what is going off. Typing narrows it. Least effort for the common case."],["3","Pick and type","Opens on tap-to-choose groups: time, main ingredient from your pantry, mood, leave out. The search box is there too. Predictable, less magic."],["4","Conversation","Search is a chat with the AI. It explains its picks and offers follow-ups. Most flexible, most to read."]];
+var m=0;
+function draw(){document.getElementById("grid").innerHTML=T.map(function(t,i){return '<div class="opt"><h2><b>'+t[0]+'</b>'+t[1]+'</h2><p class="note">'+t[2]+'</p>'+frame(V[i][m]())+'</div>'}).join("")}
+document.querySelectorAll(".kind button").forEach(function(b){b.addEventListener("click",function(){m=Number(b.dataset.m);document.querySelectorAll(".kind button").forEach(function(x){x.setAttribute("aria-pressed",x===b?"true":"false")});draw()})});
+draw();
+</script>
+</body></html>
