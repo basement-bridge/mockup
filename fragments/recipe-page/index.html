@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Recipe page, four layouts — fragment</title><link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><script src="../../theme.js"></script>
+<style>
+.kind{display:flex;gap:6px;margin:14px 0 0;padding:4px;border-radius:var(--r-pill);background:var(--surface);border:1px solid var(--border);width:max-content;max-width:100%}
+.kind button{min-height:44px;padding:0 16px;border-radius:var(--r-pill);font-weight:600;color:var(--fg)}
+.kind button[aria-pressed=true]{background:var(--accent);color:var(--on-accent)}
+body[data-photos=off] .sp{display:none!important}
+.grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:18px}
+@media(min-width:660px){.grid{grid-template-columns:1fr 1fr}}
+.ph2{position:relative;width:100%;max-width:300px;height:640px;margin:0 auto;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden;font-size:14px;line-height:1.4;color:var(--fg)}
+.sc{height:100%;overflow-y:auto;padding:0 0 92px}
+.cb{position:absolute;left:0;right:0;bottom:0;padding:10px 12px 12px;background:var(--surface);border-top:1px solid var(--border);display:flex;flex-direction:column;gap:6px;align-items:stretch}
+.cb .go{min-height:48px;border-radius:var(--r-ctl);background:var(--accent);color:var(--on-accent);font-weight:800;display:flex;align-items:center;justify-content:center;gap:8px}
+.cb small{text-align:center;color:var(--muted);font-size:11px}
+.cb .two{display:flex;gap:8px}.cb .two .go{flex:1}.cb .two .alt{flex:1;min-height:48px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);color:var(--fg);font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px}
+.ph2 svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.hero{position:relative;height:170px;display:flex;align-items:center;justify-content:center;font-size:84px;background:linear-gradient(160deg,color-mix(in srgb,var(--accent) 30%,var(--surface)),var(--surface))}
+.hero.sm{height:96px;font-size:52px}
+.hero i{position:absolute;left:10px;bottom:8px;font-style:normal;font-size:11px;font-weight:700;padding:3px 8px;border-radius:var(--r-pill);background:var(--bg);color:var(--muted);border:1px solid var(--border)}
+.pad{padding:12px 14px}
+h3.t{font-size:22px;font-weight:800;line-height:1.15}
+.meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.mc{display:inline-flex;align-items:center;gap:5px;min-height:30px;padding:0 10px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-size:12px;font-weight:700;color:var(--muted)}
+.mc.hot{color:var(--accent);border-color:var(--accent)}
+.sec2{margin-top:14px}.sec2 .lb2{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
+.ig{display:flex;align-items:center;gap:10px;min-height:44px;border-top:1px solid var(--border)}.ig:first-of-type{border-top:0}
+.ig .n{flex:1}.ig .q{color:var(--muted);font-size:13px}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--cue);flex:none}.dot.no{background:transparent;border:2px solid var(--danger)}
+.tag2{font-size:11px;font-weight:800;padding:2px 8px;border-radius:var(--r-pill);border:1px solid var(--sage);color:var(--sage)}.tag2.no{border-color:var(--danger);color:var(--danger)}
+.stp{display:flex;gap:10px;padding:10px 0;border-top:1px solid var(--border)}.stp:first-of-type{border-top:0}
+.stp .nb{width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--on-accent);font-weight:800;font-size:13px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.stp b{display:block}.stp p{color:var(--fg);margin-top:2px}
+.stp .sp{margin-top:8px;height:92px;border-radius:var(--r-ctl);display:flex;align-items:center;justify-content:center;font-size:40px;background:linear-gradient(160deg,color-mix(in srgb,var(--accent) 18%,var(--surface)),var(--surface));border:1px solid var(--border)}
+.use{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}.use span{font-size:11px;font-weight:700;padding:2px 8px;border-radius:var(--r-pill);background:var(--surface);border:1px solid var(--border);color:var(--muted)}
+.use span.no{color:var(--danger);border-color:var(--danger)}
+.bn{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r-ctl);background:var(--surface);border:1px solid var(--border);font-weight:700}
+.bn small{display:block;font-weight:500;color:var(--muted);font-size:12px}
+.tabs{display:flex;gap:4px;padding:4px;margin:10px 14px 0;border-radius:var(--r-pill);background:var(--surface);border:1px solid var(--border);position:sticky;top:6px;z-index:2}
+.tabs button{flex:1;min-height:44px;border-radius:var(--r-pill);font-weight:700;font-size:13px;color:var(--muted)}.tabs button[aria-selected=true]{background:var(--accent);color:var(--on-accent)}
+.nut{display:flex;gap:6px}.nut div{flex:1;text-align:center;padding:8px 2px;border-radius:var(--r-ctl);background:var(--surface);border:1px solid var(--border);font-size:11px;color:var(--muted)}.nut b{display:block;color:var(--fg);font-size:14px}
+.card2{margin:12px 14px 0;padding:14px;border-radius:var(--r-card);background:var(--surface);border:1px solid var(--border)}
+.card2 .big{height:150px;border-radius:var(--r-ctl);display:flex;align-items:center;justify-content:center;font-size:64px;background:linear-gradient(160deg,color-mix(in srgb,var(--accent) 22%,var(--surface)),var(--bg));margin-bottom:10px}
+.dots{display:flex;gap:6px;justify-content:center;margin-top:12px}.dots i{width:8px;height:8px;border-radius:50%;background:var(--border)}.dots i.on{background:var(--accent);width:22px;border-radius:4px}
+.tm{display:inline-flex;align-items:center;gap:5px;font-weight:800;color:var(--accent);margin-top:8px}
+.qs{margin-top:18px;padding:14px;border:1px dashed var(--border);border-radius:var(--r-card)}.qs li{margin:6px 0 6px 18px}
+</style></head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="cl" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 7.500V12l3 2"/></symbol>
+<symbol id="us" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 19c0-3.500 3-5.500 6-5.500s6 2 6 5.500"/><path d="M16 5.500a3 3 0 0 1 0 5.500M18 14c2 .8 3 2.500 3 5"/></symbol>
+<symbol id="st" viewBox="0 0 24 24"><path d="M12 3.500l2.600 5.400 5.900.8-4.300 4.100 1 5.800L12 16.800 6.800 19.600l1-5.800L3.500 9.700l5.900-.8z"/></symbol>
+<symbol id="ck" viewBox="0 0 24 24"><path d="M5 12.500l4.500 4.500L19 7.500"/></symbol>
+<symbol id="ca" viewBox="0 0 24 24"><path d="M3 4h2l2.400 11h10.200L20 8H6.200"/><circle cx="9" cy="19" r="1.400"/><circle cx="17" cy="19" r="1.400"/></symbol>
+<symbol id="fl" viewBox="0 0 24 24"><path d="M12 3c1 3.500 5 5.500 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 .2 1.500 1 2 2 2-1-3 0-5 1-8z"/></symbol>
+<symbol id="ch" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
+<symbol id="bk" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></symbol>
+</defs></svg>
+<div class="wrap">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Recipe page, four layouts</h1>
+<p>Fragment. Egg fried rice as the example. A recipe page generally carries a picture of the finished dish, time and servings, ingredients, steps, and sometimes a picture per step. Ours adds what we know: what's in your pantry, your own variations, and nutrition per serving. Four ways to organise it. All content is sample content.</p>
+<div class="kind" role="group" aria-label="Step pictures"><button type="button" aria-pressed="true" data-p="on">Step pictures on</button><button type="button" aria-pressed="false" data-p="off">Text-only steps</button></div>
+<p class="q">Many recipes have no step pictures, so every layout has to hold up without them. Scroll inside each phone to see the whole page.</p>
+<div class="grid" id="grid"></div>
+<div class="qs"><b>Open</b>
+<ul>
+<li>Which layout leads: the whole page in one scroll, tabs, cooking cards, or steps with their ingredients?</li>
+<li>Where do the extras go: your variations, nutrition per serving, where the recipe came from, and the star?</li>
+<li>Cook this takes the used items out of the pantry. Should it stay pinned, or only appear once you start cooking?</li>
+<li>A missing ingredient could offer "Add to shopping" right on its row. Wanted?</li>
+<li>Do step timers belong in the page, or is that the cooking-right-now job's own screen?</li>
+</ul></div>
+</div>
+<script>
+var ING=[["Eggs","3",1],["Basmati rice, cooked and cooled","300 g",1],["Onion","1",1],["Spring onions","2",0],["Soy sauce","2 tbsp",1],["Oil","1 tbsp",1]];
+var STEPS=[["Beat the eggs","Beat the eggs with a pinch of salt.","🥚",null,["Eggs"]],["Soften the onion","Chop the onion and fry it in the oil until soft.","🧅","3 min",["Onion","Oil"]],["Scramble the eggs","Push the onion aside, pour in the eggs and stir until just set.","🍳","1 min",["Eggs"]],["Add the rice","Tip in the cold rice and break up any lumps. Keep the heat high.","🍚","4 min",["Basmati rice"]],["Season and serve","Splash in the soy sauce, toss in the spring onions and serve.","🥢",null,["Soy sauce","Spring onions"]]];
+var ic=function(n){return '<svg><use href="#'+n+'"/></svg>'};
+var miss=function(n){return ING.some(function(i){return !i[2]&&i[0].indexOf(n)===0})};
+var meta='<div class="meta"><span class="mc">'+ic("cl")+'20 min</span><span class="mc">'+ic("us")+'Serves 2</span><span class="mc hot">'+ic("ck")+'You have 5 of 6</span><span class="mc">'+ic("st")+'Starred</span></div>';
+var ings=ING.map(function(i){return '<div class="ig"><span class="dot'+(i[2]?'':' no')+'"></span><span class="n">'+i[0]+' <span class="q">'+i[1]+'</span></span><span class="tag2'+(i[2]?'':' no')+'">'+(i[2]?'In pantry':'Missing')+'</span></div>'}).join("");
+var steps=function(withUse){return STEPS.map(function(s,k){return '<div class="stp"><span class="nb">'+(k+1)+'</span><div style="flex:1"><b>'+s[0]+'</b><p>'+s[1]+'</p>'+(s[3]?'<span class="tm">'+ic("cl")+s[3]+'</span>':'')+(withUse?'<div class="use">'+s[4].map(function(u){return '<span'+(miss(u)?' class="no"':'')+'>'+u+'</span>'}).join("")+'</div>':'')+'<div class="sp">'+s[2]+'</div></div></div>'}).join("")};
+var extras='<div class="sec2"><div class="lb2">Your versions</div><div class="bn">🫛<div>Egg fried rice with peas<small>Your variation, cooked 4 times</small></div></div></div><div class="sec2"><div class="lb2">Per serving, estimated</div><div class="nut"><div><b>480</b>kcal</div><div><b>16 g</b>protein</div><div><b>3 g</b>fibre</div><div><b>62 g</b>carbs</div></div></div><div class="sec2"><div class="lb2">From</div><p class="q" style="color:var(--muted)">Home kitchen notes, added by Sam</p></div>';
+var cook='<div class="cb"><div class="go">'+ic("fl")+'Cook this</div><small>Cooking takes the used items out of your pantry.</small></div>';
+var frame=function(inner,bar){return '<div class="ph2">'+inner+(bar||cook)+'</div>'};
+var A=frame('<div class="sc"><div class="hero">🍚<i>Photo of the finished dish</i></div><div class="pad"><h3 class="t">Egg fried rice</h3>'+meta+'<div class="sec2"><div class="lb2">Ingredients</div>'+ings+'</div><div class="sec2"><div class="lb2">Steps</div>'+steps(false)+'</div>'+extras+'</div></div>');
+var B=frame('<div class="sc" id="tabsc"><div class="hero sm">🍚</div><div class="pad" style="padding-bottom:0"><h3 class="t">Egg fried rice</h3>'+meta+'</div><div class="tabs" role="tablist"><button role="tab" aria-selected="true" data-t="i">Ingredients</button><button role="tab" aria-selected="false" data-t="s">Steps</button><button role="tab" aria-selected="false" data-t="m">More</button></div><div class="pad" id="tabbody">'+ings+'</div></div>');
+var D=frame('<div class="sc"><div class="hero sm">🍚</div><div class="pad"><h3 class="t">Egg fried rice</h3>'+meta+'<div class="sec2"><div class="lb2">Steps, with what each one uses</div>'+steps(true)+'</div><div class="sec2"><div class="lb2">All ingredients</div>'+ings+'</div>'+extras+'</div></div>');
+var cardHtml=function(k){var s=STEPS[k];return '<div class="card2"><div class="lb2" style="font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Step '+(k+1)+' of 5</div><div class="big sp">'+s[2]+'</div><b style="font-size:19px">'+s[0]+'</b><p style="margin-top:4px">'+s[1]+'</p>'+(s[3]?'<span class="tm">'+ic("cl")+s[3]+'</span>':'')+'<div class="use">'+s[4].map(function(u){return '<span'+(miss(u)?' class="no"':'')+'>'+u+'</span>'}).join("")+'</div><div class="dots">'+STEPS.map(function(_,j){return '<i'+(j===k?' class="on"':'')+'></i>'}).join("")+'</div></div>'};
+var C=frame('<div class="sc" id="cardsc"><div class="pad" style="padding-bottom:0"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:34px">🍚</span><div><h3 class="t" style="font-size:19px">Egg fried rice</h3><span class="q" style="color:var(--muted);font-size:12px">20 min · Serves 2</span></div></div><div class="bn" style="margin-top:10px">'+ic("ck")+'<div>Ingredients<small>5 of 6 in your pantry. Tap to see all</small></div></div></div><div id="cardbody">'+cardHtml(0)+'</div></div>','<div class="cb"><div class="two"><span class="alt" data-c="-1">'+ic("bk")+'Back</span><span class="go" data-c="1">Next'+ic("ch")+'</span></div></div>');
+var opts=[["1","Whole page, one scroll","Picture first, then ingredients, then steps, then the extras. The familiar recipe page. Nothing hidden.",A],["2","Tabs","A short header and three tabs: Ingredients, Steps, More. Less scrolling, one thing at a time. Tap the tabs.",B],["3","Cooking cards","One step per card with its picture, a timer and what it uses. Built for cooking right now. Tap Back and Next.",C],["4","Steps with their ingredients","Each step lists the ingredients it uses, so you never look back up the page. The full list sits underneath.",D]];
+document.getElementById("grid").innerHTML=opts.map(function(o){return '<div class="opt"><h2><b>'+o[0]+'</b>'+o[1]+'</h2><p class="note">'+o[2]+'</p>'+o[3]+'</div>'}).join("");
+document.body.dataset.photos="on";
+document.querySelectorAll(".kind button").forEach(function(b){b.addEventListener("click",function(){document.body.dataset.photos=b.dataset.p;document.querySelectorAll(".kind button").forEach(function(x){x.setAttribute("aria-pressed",x===b?"true":"false")})})});
+var tabs=document.querySelector(".tabs");tabs.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;tabs.querySelectorAll("button").forEach(function(x){x.setAttribute("aria-selected",x===b?"true":"false")});document.getElementById("tabbody").innerHTML=b.dataset.t==="i"?ings:b.dataset.t==="s"?steps(false):extras});
+var ck=0;document.querySelectorAll("[data-c]").forEach(function(b){b.addEventListener("click",function(){ck=Math.max(0,Math.min(4,ck+Number(b.dataset.c)));document.getElementById("cardbody").innerHTML=cardHtml(ck)})});
+</script>
+</body></html>
