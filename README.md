@@ -12,7 +12,7 @@ The side panel (Controls button on a phone) switches who you are (owner or membe
 
 - `index.html`: the index. **Flows** are complete or significant end-to-end parts. **Fragments** are single items still in deliberation; once clear they fold into a flow.
 - `flows/household/`: the clickable household prototype (below).
-- `fragments/`: `mid-cook`, `pwa-cta`, `item-row-axes`, `inventory-home`.
+- `fragments/`: `mid-cook`, `pwa-cta`, `item-row-axes`, `inventory-home`, `locations-spots`.
 - `theme.css` + `theme.js` + `themes/`: the single token set and the theme picker (ten themes) used by every page. Only the two default themes (Kitchie Night and Day) live in `theme.css`; every other theme is one small file in `themes/`, loaded when chosen and warmed in the background once the person engages the picker (DESIGN.md section 6). `shared.css`: layout for the index and fragments.
 - `docs/knowledge/`: what we've learned, per job to be done, for carrying into the implementation.
 - `DESIGN.md`: the design brief. Read it before changing anything.
