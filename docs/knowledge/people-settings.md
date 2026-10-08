@@ -49,6 +49,14 @@ Also from the owner, 8 Oct 2026, in the profile menu:
 
 - What happens to the Founding member badge when the founder has left?
 
+## Invite codes (owner, voice, 8 October 2026; kitchie issue #322)
+
+- An invite is a six-digit code, shown as `482 913`, for both kinds (join Our kitchen, or start a new household). The invite sheet shows the code large with Copy code and Copy link; it works once and expires in 24 hours; at most 3 unused codes at a time.
+- Household lists each unused code with its kind, hours left, Copy and Cancel. At 3 codes, Invite someone is disabled with one line saying why.
+- The invite landing shows the code as a chip above Continue with Google. "Use a different code" and the Not a member screen's "I have an invite code" open Enter your invite code (numeric keypad, groups itself as 000 000).
+- One neutral message for a wrong, used or expired code. A separate lockout message (try again in 15 minutes) disables the buttons. Prototype switch: Controls > Invite > Code entry shows.
+- **Proposal:** the code sits in the link (`/invite/482913`) so tapping a link needs no typing. **Proposal:** the lockout wording says 15 minutes. Open: should the code show on the landing at all, or only after sign-in? A wrong guess costs a little privacy, not safety.
+
 ## Settled simplification: one AI link (owner's decision, 8 Oct 2026)
 
 Owner, by voice: "why are we calling out ChatGPT versus..." and agreed to one link, one revoke. "You would want an area where you click to open up your AI assistance thing, that would copy a link." And any other AI assistant there should be able to be revoked with a confirmation.
