@@ -22,7 +22,7 @@ Code: `flows/household/app.js` (`itemSheetHtml`, `acts.isheet`, `acts.itile`, `a
 | Level | Drop beside the number; the Amount editor also sets "Running low at or under" | Four drops to pick: Out, Running low, Some, Plenty |
 | Used up | Amount to 0, row shows Out, sheet closes, Undo toast | same |
 
-Where opens Location and Spot. Use by, Category, Minimum and Unit reuse the editors the full item screen uses (`fields/*.js`). Every change autosaves with the short Saved line; a failed save (platform down) shows the same error and Try again. Add to shopping adds the item to the list and closes the sheet; if it is already on the list the button reads "On your list". All fields closes the sheet and opens the full item screen (Back returns to Pantry). Name, Single use and the Estimated flag are edited there.
+Where opens Location and Spot. Use by, Category, Minimum and Unit reuse the editors the full item screen uses (`fields/*.js`). Every change autosaves with the short Saved line; a failed save (platform down) shows the same error and Try again. Add to shopping adds the item to the list and closes the sheet; if it is already on the list the button reads "On your list". All fields closes the sheet and opens the full item screen (Back returns to Pantry). Name and the Estimated flag are edited there. (Single use was removed on 8 Oct 2026: not needed for Kitchie.)
 
 The minus on the Amount stepper is the left swipe: one off with an Undo toast, and the last one means used up. Plus adds one (or the item's own step).
 
@@ -52,7 +52,7 @@ A tile with data is filled (tinted surface, accent border) and shows its value w
 - **Step size.** Counted items step by one, the same as the left swipe (the fragment's proposal).
 - **No confirm on Used up.** It matches the swipe (zero, Out, Undo toast). The full screen's confirm and its "you used up several items" guard are not repeated here. Open: does the sheet need the guard?
 - **All fields opens today's full item screen**, not the sheet grown to full height.
-- **Level on a counted item** is derived: Out at 0, Running low at or under the minimum (or the existing running-low rule), Some at up to twice the minimum, otherwise Plenty. There is no separate Level tile for counted items: the drop sits in the Amount tile beside the number, and the Amount editor holds the minimum ("Running low at or under"). This drops the fragment's separate Level tile for counted items.
+- **Level on a counted item** is derived with the owner's locked thresholds (voice, 8 Oct 2026; Kitchie v0.35.3): more than twice the minimum is Plenty; more than the minimum and up to twice it is Some; more than 0 and up to and including the minimum is Running low; 0 is Out. A counted item with no minimum is Plenty until 0. There is no separate Level tile for counted items: the drop sits in the Amount tile beside the number, and the Amount editor holds the minimum ("Running low at or under"). This drops the fragment's separate Level tile for counted items.
 - **Level on a level-only item**: Out sets the amount to 0 (same as Used up). Running low, Some and Plenty are a stored label that overrides the derived one; coming back from Out restores the amount from before. How they relate to a real amount is open.
 - **`--out` token** (new in `theme.css`): the owner said Out is black. Black vanishes on the dark theme, so Kitchie Night uses a mid grey (#8A9A91) and Kitchie Day near-black (#111815). Themes that do not define it fall back to the text colour. Open: is grey acceptable on dark, or should Out get a filled disc behind it?
 - **Hidden level picker**: the four-way picker shows only drops (no words), the chosen one ringed.
@@ -113,7 +113,7 @@ Status: **Owner** follows from something the owner said; **Proposal** is the moc
 
 - Grow to full height, and what dragging the handle up should do (the owner said something about full height and then decided on "over").
 - "Confirm on use of none": not understood; what is to be confirmed?
-- The rule for "Some" between Plenty and Running low on a counted item. The owner said "we'll work out rules".
+- ~~The rule for "Some" between Plenty and Running low on a counted item.~~ Settled by the owner on 8 Oct 2026 (see "Level rules" below).
 - Whether an item with no number can get a quantity from the sheet (today only All fields).
 - The Undo toast sits 260px up, above the sheet, as a fixed offset.
 
@@ -124,8 +124,9 @@ Owner's words: "Level on a counted item is derived. Level on running low is stor
 - **Out** means the amount is zero, always, for every item. An item at zero reads Out; marking Out sets the amount to zero (Used up).
 - **Counted item** (a count unit such as pack, tin, jar, bag, or no unit): the level is derived from the quantity and the minimum. It is never stored. Any stored label is ignored for these items.
 - **Level-only item** (weighed or measured, or anything where a number does not make sense): the level is a stored label (Plenty, Some, Running low), set by the person.
+- **Counted item with no minimum (owner, voice, 8 Oct 2026; decision recorded, not built, needs review):** with no minimum there is nothing to derive Running low or Some from, so the level reads Plenty until the amount hits zero, then Out, with no graduated warning in between. If the person sets the level to Some or Running low by hand, that label is remembered (stored) and stays until the amount next goes up (stock added); then the derived rule takes over again. This applies only to counted items with no minimum. Counted items that have a minimum keep deriving their level, and level-only items are unaffected. This is a carve-out from "any stored label is ignored" above.
 - The mockup now follows this in `level()` in `app.js`. Before, a stored label could override the derived level on a counted item.
-- **Proposal:** the derived rule for a counted item is Running low at or under the minimum (or when the use-by is within a week), Some at up to twice the minimum, otherwise Plenty. The owner said rules are still to be worked out.
+- **Locked (owner, voice, then typed "get that built in UAT and merge it", 8 Oct 2026):** the derived level of a counted item that has a minimum: amount more than 2 x minimum is Plenty; more than the minimum and up to 2 x minimum is Some; more than 0 and up to and including the minimum is Running low (exactly the minimum is Running low); 0 is Out, always. It does not change level-only items (weight, volume, free text: the stored label). The use-by-within-a-week clause in the earlier proposal is dropped. The mockup follows this in `level()` in `app.js`.
 - **Settled (owner):** "All fields" opens the existing full item screen, not a bigger sheet.
 - **Resolved by the level rules above:** an item with both a quantity and a stored label. A counted item always derives its level; a stored label only matters for level-only items.
 - **Not understood:** "follow up and load". Left out.

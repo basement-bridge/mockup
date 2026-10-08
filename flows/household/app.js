@@ -96,22 +96,22 @@ const SORTS = [["name", "Name A to Z"], ["area", "Area"], ["spot", "Spot"], ["am
 
 /* n and unit are stored separately so "use one" and the stepper can work on counts */
 const freshPantry = () => [
-  { id: "butter", key: "butter", emoji: "🧈", name: "Butter", n: 250, unit: "g", area: "Fridge", spot: "Door", cat: "Dairy and eggs", days: null, upd: 1, recent: false, by: "Arjan", single: false, min: 0, est: true },
-  { id: "carrots", key: "carrots", emoji: "🥕", name: "Carrots", n: 1, unit: "bag", area: "Fridge", spot: "Crisper", cat: "Vegetables", days: null, upd: 2, recent: false, by: "Arjan", single: false, min: 0, est: false },
-  { id: "cheddar", key: "cheese", emoji: "", name: "Cheddar", n: 200, unit: "g", area: "Fridge", spot: "Top shelf", cat: "Dairy and eggs", days: null, upd: 3, recent: false, by: "Arjan", single: false, min: 0, est: false },
-  { id: "eggs", key: "eggs", emoji: "🥚", name: "Eggs", n: 12, unit: "", area: "Fridge", spot: "Door", cat: "Dairy and eggs", days: null, upd: 9, recent: true, by: "Arjan", single: false, min: 0, est: false },
-  { id: "milk", key: "milk", emoji: "🥛", name: "Milk", n: 1, unit: "L", area: "Fridge", spot: "Door", cat: "Dairy and eggs", days: 0, upd: 5, recent: false, low: true, by: "Arjan", single: false, min: 1, est: false },
-  { id: "paneer", key: "paneer", emoji: "", name: "Paneer", n: 50, unit: "g", area: "Fridge", spot: "Top shelf", cat: "Dairy and eggs", days: 3, upd: 6, recent: false, low: true, by: "Arjan", single: false, min: 0, est: false },
-  { id: "spinach", key: "spinach", emoji: "🥬", name: "Spinach", n: 50, unit: "g", area: "Fridge", spot: "Crisper", cat: "Vegetables", days: 1, upd: 10, recent: true, low: true, by: "Arjan", single: false, min: 0, est: false },
-  { id: "yoghurt", key: "yoghurt", emoji: "", name: "Greek yoghurt", n: 500, unit: "g", area: "Fridge", spot: "Top shelf", cat: "Dairy and eggs", days: 7, upd: 4, recent: false, by: "Arjan", single: false, min: 0, est: false },
-  { id: "rice", key: "rice", emoji: "🍚", name: "Basmati rice", n: 5, unit: "kg", area: "Pantry", spot: "Bottom shelf", cat: "Dry goods", days: null, upd: 1, recent: false, by: "Arjan", single: false, min: 0, est: false },
-  { id: "brownrice", key: "brownrice", emoji: "🍚", name: "Brown rice", n: 1, unit: "kg", area: "Pantry", spot: "Bottom shelf", cat: "Dry goods", days: null, upd: 2, recent: false, by: "Arjan", single: false, min: 0, est: false },
-  { id: "jasmine", key: "jasmine", emoji: "🍚", name: "Jasmine rice", n: 1, unit: "kg", area: "Pantry", spot: "Bottom shelf", cat: "Dry goods", days: null, upd: 2, recent: false, by: "Arjan", single: false, min: 0, est: false },
-  { id: "tomatoes", key: "tomatoes", emoji: "🥫", name: "Chopped tomatoes", n: 4, unit: "tin", area: "Pantry", spot: "Top shelf", cat: "Cans", days: null, upd: 2, recent: false, by: "Arjan", single: false, min: 0, est: false },
-  { id: "onion", key: "onion", emoji: "🧅", name: "Onions", n: 6, unit: "", area: "Pantry", spot: "Baskets", cat: "Vegetables", days: null, upd: 3, recent: false, by: "Arjan", single: false, min: 0, est: false },
-  { id: "garam", key: "garam", emoji: "", name: "Garam masala", n: 1, unit: "jar", area: "Pantry", spot: "Spice rack", cat: "Seasoning", days: null, upd: 2, recent: false, low: true, by: "Arjan", single: false, min: 0, est: false },
-  { id: "choc", key: "choc", emoji: "🍫", name: "Hazelnut chocolates", n: 1, unit: "box", area: "Pantry", spot: "Top shelf", cat: "Snacks", days: 12, upd: 8, recent: true, by: "Arjan", single: false, min: 0, est: false },
-  { id: "peas", key: "peas", emoji: "", name: "Frozen peas", n: 1, unit: "bag", area: "Freezer", spot: "Top drawer", cat: "Frozen", days: null, upd: 4, recent: false, by: "Arjan", single: true, min: 0, est: false },
+  { id: "butter", key: "butter", emoji: "🧈", name: "Butter", n: 250, unit: "g", area: "Fridge", spot: "Door", cat: "Dairy and eggs", days: null, upd: 1, recent: false, by: "Arjan", min: 0, est: true },
+  { id: "carrots", key: "carrots", emoji: "🥕", name: "Carrots", n: 1, unit: "bag", area: "Fridge", spot: "Crisper", cat: "Vegetables", days: null, upd: 2, recent: false, by: "Arjan", min: 0, est: false },
+  { id: "cheddar", key: "cheese", emoji: "", name: "Cheddar", n: 200, unit: "g", area: "Fridge", spot: "Top shelf", cat: "Dairy and eggs", days: null, upd: 3, recent: false, by: "Arjan", min: 0, est: false },
+  { id: "eggs", key: "eggs", emoji: "🥚", name: "Eggs", n: 12, unit: "", area: "Fridge", spot: "Door", cat: "Dairy and eggs", days: null, upd: 9, recent: true, by: "Arjan", min: 0, est: false },
+  { id: "milk", key: "milk", emoji: "🥛", name: "Milk", n: 1, unit: "L", area: "Fridge", spot: "Door", cat: "Dairy and eggs", days: 0, upd: 5, recent: false, low: true, by: "Arjan", min: 1, est: false },
+  { id: "paneer", key: "paneer", emoji: "", name: "Paneer", n: 50, unit: "g", area: "Fridge", spot: "Top shelf", cat: "Dairy and eggs", days: 3, upd: 6, recent: false, low: true, by: "Arjan", min: 0, est: false },
+  { id: "spinach", key: "spinach", emoji: "🥬", name: "Spinach", n: 50, unit: "g", area: "Fridge", spot: "Crisper", cat: "Vegetables", days: 1, upd: 10, recent: true, low: true, by: "Arjan", min: 0, est: false },
+  { id: "yoghurt", key: "yoghurt", emoji: "", name: "Greek yoghurt", n: 500, unit: "g", area: "Fridge", spot: "Top shelf", cat: "Dairy and eggs", days: 7, upd: 4, recent: false, by: "Arjan", min: 0, est: false },
+  { id: "rice", key: "rice", emoji: "🍚", name: "Basmati rice", n: 5, unit: "kg", area: "Pantry", spot: "Bottom shelf", cat: "Dry goods", days: null, upd: 1, recent: false, by: "Arjan", min: 0, est: false },
+  { id: "brownrice", key: "brownrice", emoji: "🍚", name: "Brown rice", n: 1, unit: "kg", area: "Pantry", spot: "Bottom shelf", cat: "Dry goods", days: null, upd: 2, recent: false, by: "Arjan", min: 0, est: false },
+  { id: "jasmine", key: "jasmine", emoji: "🍚", name: "Jasmine rice", n: 1, unit: "kg", area: "Pantry", spot: "Bottom shelf", cat: "Dry goods", days: null, upd: 2, recent: false, by: "Arjan", min: 0, est: false },
+  { id: "tomatoes", key: "tomatoes", emoji: "🥫", name: "Chopped tomatoes", n: 4, unit: "tin", area: "Pantry", spot: "Top shelf", cat: "Cans", days: null, upd: 2, recent: false, by: "Arjan", min: 0, est: false },
+  { id: "onion", key: "onion", emoji: "🧅", name: "Onions", n: 6, unit: "", area: "Pantry", spot: "Baskets", cat: "Vegetables", days: null, upd: 3, recent: false, by: "Arjan", min: 0, est: false },
+  { id: "garam", key: "garam", emoji: "", name: "Garam masala", n: 1, unit: "jar", area: "Pantry", spot: "Spice rack", cat: "Seasoning", days: null, upd: 2, recent: false, low: true, by: "Arjan", min: 0, est: false },
+  { id: "choc", key: "choc", emoji: "🍫", name: "Hazelnut chocolates", n: 1, unit: "box", area: "Pantry", spot: "Top shelf", cat: "Snacks", days: 12, upd: 8, recent: true, by: "Arjan", min: 0, est: false },
+  { id: "peas", key: "peas", emoji: "", name: "Frozen peas", n: 1, unit: "bag", area: "Freezer", spot: "Top drawer", cat: "Frozen", days: null, upd: 4, recent: false, by: "Arjan", min: 0, est: false },
 ];
 
 const noEd = () => ({ open: null, err: null, saved: null, picking: false }); /* item detail: which field editor is open, its error, its Saved line */
@@ -122,7 +122,7 @@ const initial = () => ({
   members: ["arjan", "sam"], invites: [{ code: "482913", hours: 20 }], codeState: "ok", codeTyped: "", codeMsg: null,
   roles: { arjan: { title: "Pantry Marshal", ic: "shield", desc: "Keeps order on the shelves and the fridge. Knows exactly where the cumin lives." }, sam: null },
   cfg: { size: "normal", emoji: true, motion: false, spot: true, amount: true, useby: true, activity: true, compact: false }, stockChecks: true,
-  day: 1, aiDone: false, inviteDone: false, cvOpt: "A", aiTab: "ChatGPT", links: { ChatGPT: false, Claude: false, Other: false }, founder: "arjan", avatars: {}, bannerGot: false, pending: null, joined: false,
+  day: 1, aiDone: false, inviteDone: false, cvOpt: "A", aiTab: "ChatGPT", aiLink: false, founder: "arjan", avatars: {}, bannerGot: false, pending: null, joined: false,
   /* pantry view */
   rmode: "loc", order: { loc: [...AREAS], cat: [...CATEGORIES] }, fa: null, fd: null, flast: null, fTab: "filters", seenP: 0, seenR: 0, view: "name", shop: ["milk", "carrots", "butter"], slx: { milk: { by: "arjan", want: "2 litres", tick: false }, carrots: { by: "sam", want: "", tick: false }, butter: { by: "arjan", want: "", tick: false } }, wantFor: null, sel: null, areaTab: "All", collapsed: {}, search: "", searchOpen: false, draft: { days: null },
   memberWho: null, existing: 1, own: false, rdraft: null, iconPick: false,
@@ -153,8 +153,7 @@ const greeting = () => { const h = new Date().getHours(); return h < 12 ? "Good 
 const reducible = (i) => COUNT_UNITS.includes(i.unit);
 const can = (r) => r.ings.filter(([k]) => S.pantry.some((p) => p.key === k));
 const me = () => PEOPLE[S.persona];
-const AVATARS = ["🦊", "🐼", "🐸", "🦉", "🐙", "🐝", "🍋", "🥑", "🌶️", "🍄", "🧁", "🌻"];
-const avt = (w) => S.avatars[w] || PEOPLE[w].initial;
+const avt = (w, sz = 20) => { const a = S.avatars[w]; return a && a.startsWith("ri:") ? riSvg(a.slice(3), sz) : a || PEOPLE[w].initial; }; /* a picture is one of the role icons ("ri:key"), or the initial */
 const starIc = ico('<path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8 6.8 19.6l1-5.8L3.5 9.7l5.9-.8z"/>', 14);
 const founderChip = (w) => (S.founder === w ? `<span class="chip fchip">${starIc}Founding member</span>` : "");
 const pays = () => S.persona === "arjan"; /* the billing contact; never shown as a rank */
@@ -251,7 +250,7 @@ const roleChip = (who) => role(who) ? `<span class="chip rchip">${riSvg(role(who
    Deferred to the first tap of a field: its editor (markup, option lists, emoji set, unit list, date picker) lives in fields/<file>.js,
    fetched once on that first tap and cached. The used-up confirm is built only when opened. README: "Item detail". */
 const ITEM_FIELDS = {}; /* each fields/*.js adds { html(p), set: { op(p, value) -> patch | error text } } for its keys */
-const FIELD_FILE = { name: "name", qty: "amounts", min: "amounts", level: "flags", single: "flags", loc: "place", spot: "place", cat: "category", useby: "useby" };
+const FIELD_FILE = { name: "name", qty: "amounts", min: "amounts", level: "flags", loc: "place", spot: "place", cat: "category", useby: "useby" };
 const fieldLoads = new Map();
 function loadField(k) {
   const f = FIELD_FILE[k];
@@ -259,7 +258,7 @@ function loadField(k) {
   return fieldLoads.get(f);
 }
 /* Out is amount zero, always. A counted item's level is derived from its quantity (a stored label is ignored); a level-only item's level is the label it was given. */
-const level = (p) => (p.n <= 0 ? "Out" : p.lvl && !reducible(p) ? p.lvl : isLow(p) || (p.min && p.n <= p.min) ? "Running low" : p.min && p.n <= p.min * 2 ? "Some" : "Plenty");
+const level = (p) => (p.n <= 0 ? "Out" : p.lvl && !reducible(p) ? p.lvl : p.min && p.n <= p.min ? "Running low" : p.min && p.n <= p.min * 2 ? "Some" : "Plenty");
 const VAL = {
   name: (p) => esc(p.name),
   qty: (p) => esc(fmtAmt(p)),
@@ -268,7 +267,6 @@ const VAL = {
   spot: (p) => esc(p.spot),
   cat: (p) => esc(p.cat),
   useby: (p) => (p.days === null ? "Not set" : dayLabel(p.days)),
-  single: (p) => (p.single ? "Yes" : "No"),
   min: (p) => (p.min ? esc(fmtAmt({ n: p.min, unit: p.unit })) : "Not set"),
 };
 const savedLine = () => `<p class="fstat" role="status">${I.tick}<span>Saved</span></p>`;
@@ -478,7 +476,7 @@ const screens = {
     return backHeader("Pantry", p.name) + downBanner() + `<div class="body">
       <div class="flist">
         ${fld("name", p, `<span class="ph" aria-hidden="true">${emo(p)}</span><span class="idt"><b data-fv="name">${VAL.name(p)}</b><span class="small">Added by ${esc(p.by)}</span></span>`, `Name and emoji: ${p.name}`)}
-        ${row("qty", "stack", "Quantity")}${row("level", "drop", "Level")}${row("loc", "fridge", "Location")}${row("spot", "jar", "Spot")}${row("cat", "basket", "Category")}${row("useby", "clock", "Use by")}${row("single", "spark", "Single use")}${row("min", "shield", "Minimum")}
+        ${row("qty", "stack", "Quantity")}${row("level", "drop", "Level")}${row("loc", "fridge", "Location")}${row("spot", "jar", "Spot")}${row("cat", "basket", "Category")}${row("useby", "clock", "Use by")}${row("min", "shield", "Minimum")}
       </div>
       ${S.recipes && rs.length ? `<div style="display:flex;flex-direction:column;gap:10px"><span class="lbl">Cook it tonight</span>${rs.map((r) => `<button class="rc" data-go="recipe" data-p="${r.id}"><span class="ph">${r.emoji}</span><div style="flex:1"><b>${esc(r.name)}</b><p class="small">${can(r).length} of ${r.ings.length} ingredients · ${r.time} min</p></div></button>`).join("")}</div>` : ""}
       ${!S.recipes ? `<button class="card" data-go="upgrade"><b>Know what you can cook</b><p class="small">Recipes uses what's in your pantry.</p></button>` : ""}
@@ -505,7 +503,7 @@ const screens = {
     if (S.day <= 5 && !S.inviteDone) strip.push(["invite", "mail", "Invite someone", "sheet"]);
     const seg = (t, rows) => `<div><span class="lbl">${t}</span><div class="menu card">${rows}</div></div>`;
     return backHeader("Back", "") + `<div class="body">
-    <div class="row"><span class="av" style="width:56px;height:56px;font-size:20px">${avt(S.persona)}</span><div><b style="font-size:20px">${esc(me().name)}</b><p class="small">${role(S.persona) ? esc(role(S.persona).title) : "Our kitchen"}</p></div></div>
+    <div class="row"><span class="av" style="width:56px;height:56px;font-size:20px">${avt(S.persona, 30)}</span><div><b style="font-size:20px">${esc(me().name)}</b><p class="small">${role(S.persona) ? esc(role(S.persona).title) : "Our kitchen"}</p></div></div>
     ${strip.length ? `<div><span class="lbl">Get started</span><div class="menu card">${strip.map(([t, ic, l, k]) => `<button data-${k === "go" ? "go" : "sheet"}="${t}"><span class="row" style="gap:10px">${riSvg(ic, 20)}${l}</span><span class="chev" style="color:var(--muted)">${I.chev}</span></button>`).join("")}</div></div>` : ""}
     ${seg("Look and kitchen", `<button data-go="settings">Settings</button><button data-act="proto" data-p="History">History</button>`)}
     ${seg("People", `<button data-go="me">Me <span class="chip">${esc(me().name)}</span></button><button data-go="household">Household <span class="chip">${S.members.length}</span></button>${pays() ? `<button data-go="${S.recipes ? "household" : "upgrade"}">Plan and billing</button>` : ""}`)}
@@ -520,16 +518,15 @@ const screens = {
     const left = S.pantry.filter((i) => i.starter).length;
     return backHeader("Back", "Settings") + `<div class="body">
       <p class="small">These stay on this device. Only your theme and the emoji setting also travel with you, so pages open in the right colours.</p>
-      <span class="lbl">Look</span><div class="card sgroup"><span class="lbl">Theme</span><div class="tgrid" role="group" aria-label="Theme">${window.themeHtml ? window.themeHtml(["kitchie", "kitchie-day", "marmalade", "blueberry", "herb"]) : ""}</div>
+      <span class="lbl">Look</span><div class="card sgroup"><span class="lbl">Theme</span><div class="tgrid swatches" role="group" aria-label="Theme">${window.themeHtml ? window.themeHtml(["kitchie", "kitchie-day", "marmalade", "blueberry", "herb"], true) : ""}</div><p class="small" data-theme-name>${window.themeName ? esc(window.themeName()) : ""}</p>
         <div class="srow plain"><span>Item name size</span><div class="seg2" role="radiogroup" aria-label="Item name size">${[["small", "Small"], ["normal", "Normal"], ["large", "Large"]].map(([k, l]) => `<button role="radio" aria-checked="${c.size === k}" class="${c.size === k ? "on" : ""}" data-act="cfgsize" data-p="${k}">${l}</button>`).join("")}</div></div>
         ${sw("emoji", "Show emoji")}${sw("motion", "Reduce motion")}${sw("spot", "Show the spot")}${sw("amount", "Show the amount")}${sw("useby", "Show the use-by date")}${sw("activity", "Show household activity")}${sw("compact", "Compact rows")}
         <button class="btn ghost" data-act="cfgreset">Reset to defaults</button></div>
       <span class="lbl">Kitchen</span><div class="menu card">
         <button data-go="stock">Stock checks <span class="chev" style="color:var(--muted)">${I.chev}</span></button>
-        <button data-go="cats">Categories <span class="chev" style="color:var(--muted)">${I.chev}</span></button>
-        <button data-sheet="role">Your kitchen role <span class="small">${role(S.persona) ? esc(role(S.persona).title) : "Optional"}</span></button></div>
+        <button data-go="cats">Categories <span class="chev" style="color:var(--muted)">${I.chev}</span></button></div>
       <p class="small">Stock checks and Categories are the household's, not just this device's.</p>
-      <div><h2 style="font-size:1.1rem">Sample items</h2><p class="small" style="margin-top:4px">${left === 0 ? "No sample items are left." : `${left} sample item${left === 1 ? "" : "s"} left. They count toward nothing until you change one.`}</p>${left ? `<button class="btn ghost" data-act="proto" data-p="Clear sample items" style="margin-top:8px">Clear sample items</button>` : ""}</div>
+      ${left ? `<div><h2 style="font-size:1.1rem">Sample items</h2><p class="small" style="margin-top:4px">${left} sample item${left === 1 ? "" : "s"} left. They count toward nothing until you change one.</p><button class="btn ghost" data-act="proto" data-p="Clear sample items" style="margin-top:8px">Clear sample items</button></div>` : ""}
       <button class="btn ghost" data-act="back">Back to Kitchie</button>
       <button data-act="signout" class="danger" style="text-align:left;min-height:48px">Sign out</button></div>`;
   },
@@ -545,11 +542,11 @@ const screens = {
 
   /* People, part one: Me (name, picture, my AI links). Spec: docs/knowledge/people-settings.md */
   me: () => backHeader("Back", "Me") + `<div class="body">
-    <div class="row" style="gap:14px"><button class="avbig" data-sheet="avatar" aria-label="Change your picture"><span class="av" style="width:72px;height:72px;font-size:30px">${avt(S.persona)}</span><span class="avedit" aria-hidden="true">${I.pencil}</span></button><div><b style="font-size:20px">${esc(me().name)}</b><p class="small">Tap the picture to change it</p></div></div>
-    <div><span class="lbl">Name</span><div class="row" style="gap:8px"><input class="field" id="myname" value="${esc(me().name)}" maxlength="24" autocomplete="off" aria-label="Your name" style="flex:1"><button class="btn sm" id="namesave" data-act="savename" disabled>Save</button></div></div>
+    <div class="row" style="gap:14px"><button class="avbig" data-sheet="avatar" aria-label="Change your picture"><span class="av" style="width:72px;height:72px;font-size:30px">${avt(S.persona, 40)}</span><span class="avedit" aria-hidden="true">${I.pencil}</span></button><p class="small">Tap the picture to change it</p></div>
+    <div><span class="lbl">Name</span><div class="row" style="gap:8px"><input class="field" id="myname" value="${esc(me().name)}" maxlength="24" autocomplete="off" aria-label="Your name" style="flex:1"></div></div>
     <div><span class="lbl">Kitchen role</span><button class="m" data-sheet="role"><div style="flex:1"><b>${role(S.persona) ? esc(role(S.persona).title) : "Pick a kitchen role"}</b><p class="small">Only you can change yours</p></div><span class="chev" style="color:var(--muted)">${I.chev}</span></button></div>
-    <div><span class="lbl">AI assistants</span>${["ChatGPT", "Claude", "Other"].map((t) => `<div class="m"><div style="flex:1"><b>${t}</b> <span class="chip">${S.links[t] ? "Active" : "Not linked"}</span></div>${S.links[t] ? `<button class="danger" data-act="linkrevoke" data-p="${t}" aria-label="Revoke ${t}" style="min-height:44px;padding:0 8px">Revoke</button>` : `<button class="link" data-act="linkopen" data-p="${t}" aria-label="Create a link for ${t}" style="min-height:44px;padding:0 8px">Create link</button>`}</div>`).join("")}
-      <p class="small" style="margin-top:8px">Your own links. They act as you and see everything your household has. Revoking stops one at once.</p></div>
+    <div><span class="lbl">AI assistants</span><div class="m"><button class="rowbtn" data-act="linkopen" aria-label="Open your AI assistant link" style="flex:1;display:flex;align-items:center;gap:10px;text-align:left;min-height:44px"><div style="flex:1"><b>Your link</b> <span class="chip">${S.aiLink ? "Active" : "Not linked"}</span><p class="small">${S.aiLink ? "Works in ChatGPT, Claude or any assistant" : "Tap to get your link"}</p></div><span class="chev" style="color:var(--muted)">${I.chev}</span></button>${S.aiLink ? '<button class="danger" data-sheet="airevoke" aria-label="Revoke your AI link" style="min-height:44px;padding:0 8px">Revoke</button>' : ""}</div>
+      <p class="small" style="margin-top:8px">One personal link. It acts as you and sees everything your household has. Revoking it stops every assistant at once.</p></div>
     <div><span class="lbl">Other households</span><button class="m" data-sheet="invite2"><div style="flex:1"><b>Invite someone to a different household</b><p class="small">They start their own new household</p></div><span class="chev" style="color:var(--muted)">${I.chev}</span></button></div></div>`,
 
   /* People, part two: Household (members, pending invites, leave). Anyone can remove anyone and anyone can cancel an invite (owner, 8 Oct 2026). */
@@ -562,11 +559,11 @@ const screens = {
 
   ai: () => backHeader("Back", "AI assistant") + `<div class="body">
     <div><h2>Your personal link</h2><p style="margin-top:6px">Lets an assistant read and update Our kitchen as you. It sees everything your household has.</p></div>
-    <div class="tabs">${["ChatGPT", "Claude", "Other"].map((t) => `<button data-act="aitab" data-p="${t}" class="${S.aiTab === t ? "on" : ""}">${t}</button>`).join("")}</div>
+    <span class="lbl">How to connect</span><div class="tabs">${["ChatGPT", "Claude", "Other"].map((t) => `<button data-act="aitab" data-p="${t}" class="${S.aiTab === t ? "on" : ""}">${t}</button>`).join("")}</div>
     <div class="field" style="display:flex;align-items:center"><span class="mono">https://kitchen.example/mcp/s9Xk-4tPq-L2vE</span></div>
-    <button class="btn" data-act="copy">Copy link</button>
+    <button class="btn" data-act="copy">${S.aiLink ? "Copy link again" : "Copy link"}</button>
     <div style="display:flex;flex-direction:column;gap:10px;font-size:15px"><div class="row"><b>1</b><span>${S.aiTab === "Claude" ? "In Claude, open Settings, then Connectors." : S.aiTab === "ChatGPT" ? "In ChatGPT, open Settings, then Connectors." : "Open your assistant's connector settings."}</span></div><div class="row"><b>2</b><span>Paste your link and name it Kitchen.</span></div><div class="row"><b>3</b><span>Ask: "What should I cook tonight?"</span></div></div>
-    <div style="border-top:1px solid var(--border);padding-top:14px" class="row"><div style="flex:1"><b>${S.aiTab}</b> <span class="chip">${S.links[S.aiTab] ? "Active" : "Not linked"}</span><p class="small">${S.links[S.aiTab] ? "Linked. Revoke it any time" : "Copy the link above to connect it"}</p></div>${S.links[S.aiTab] ? '<button data-act="aitoggle" class="danger" style="min-height:44px;padding:0 8px">Revoke</button>' : ""}</div>
+    <div style="border-top:1px solid var(--border);padding-top:14px" class="row"><div style="flex:1"><b>Your link</b> <span class="chip">${S.aiLink ? "Active" : "Not linked"}</span><p class="small">${S.aiLink ? "Linked. Revoke it any time" : "Copy the link above to connect it"}</p></div>${S.aiLink ? '<button data-sheet="airevoke" class="danger" style="min-height:44px;padding:0 8px">Revoke</button>' : ""}</div>
     <p class="small">Anyone with this link can act as you. Revoking it stops it at once.</p></div>`,
 
   upgrade: () => backHeader("Back", "Add to your kitchen") + (pays()
@@ -682,6 +679,8 @@ function sheetHtml() {
       ${err ? `<p class="ferr" role="alert">${I.alert(18)}<span>${esc(S.ed.err.msg)}</span></p>` : ""}
       <button class="btn" data-act="usedconfirm">${err ? "Try again" : "Yes, used up"}</button><button class="btn ghost" data-act="closesheet">Keep it</button>`, true);
   }
+  if (sh === "airevoke") return wrap(`<h2>Revoke your AI link?</h2><p>Every assistant using it loses access at once. You can make a new link any time.</p>
+    <button class="btn" data-act="closesheet">Keep it</button><button class="btn ghost danger" data-act="airevoke">Yes, revoke it</button>`);
   if (sh === "invite" || sh === "invite2") {
     const own = sh === "invite2"; const c = own ? "906254" : "482913";
     return wrap(`<h2>${own ? "Invite to start a new household" : "Invite someone"}</h2><p>${own ? "They create their own household. They don't join Our kitchen." : "Share this code. They sign in with Google and join Our kitchen. Anyone in the household can make one."}</p>
@@ -693,7 +692,7 @@ function sheetHtml() {
   if (sh === "role") return wrap(`<h2>Your kitchen role</h2><p>Optional. It sits beside your name.</p>${roleEditor("sheet")}`);
   if (sh === "member") {
     const w = S.memberWho, r = role(w), self = w === S.persona;
-    return wrap(`<div class="row"><span class="av" style="width:56px;height:56px;font-size:20px">${avt(w)}</span><div><b style="font-size:20px">${esc(PEOPLE[w].name)}</b>${self ? ' <span class="chip">You</span>' : ""} ${founderChip(w)}</div></div>
+    return wrap(`<div class="row"><span class="av" style="width:56px;height:56px;font-size:20px">${avt(w, 30)}</span><div><b style="font-size:20px">${esc(PEOPLE[w].name)}</b>${self ? ' <span class="chip">You</span>' : ""} ${founderChip(w)}</div></div>
       ${r ? `<div class="row" style="gap:14px">${roleIc(r, 56)}<div><b style="font-size:17px">${esc(r.title)}</b>${r.desc ? `<p style="margin-top:4px">${esc(r.desc)}</p>` : ""}</div></div>` : `<p>${self ? "You haven't picked a kitchen role." : PEOPLE[w].name + " hasn't picked a kitchen role."}</p>`}
       ${self ? `<button class="btn" data-sheet="role">${r ? "Change role" : "Pick a role"}</button>` : S.founder === w ? `<p class="small">The founding member can't be removed.</p>` : `<button class="btn ghost danger" data-act="removestart">Remove ${esc(PEOPLE[w].name)} from household</button>`}<button class="btn ghost" data-act="closesheet">Close</button>`);
   }
@@ -701,7 +700,7 @@ function sheetHtml() {
   if (sh === "leave") return wrap(`<h2>Leave Our kitchen?</h2>${S.members.length === 1 ? `<p><b>You are the last member.</b> If you leave, nobody is left to invite you back, so you can't get back in. The household can't be rejoined.</p>` : `<p>You lose access to its pantry, shopping and recipes. Nothing is deleted: the others keep everything. Someone has to invite you back to rejoin.</p>`}
     <label class="small" for="leavename">Type <b>${esc(me().name)}</b> to confirm</label><input class="field" id="leavename" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${esc(me().name)}" aria-label="Type your name to confirm">
     <button class="btn alert" id="leavego" data-act="leaveconfirm" disabled>Leave household</button><button class="btn ghost" data-act="closesheet">Stay</button>`, true);
-  if (sh === "avatar") return wrap(`<h2>Your picture</h2><p>Pick one. It shows beside your name.</p><div class="avgrid">${[""].concat(AVATARS).map((a) => `<button class="avopt" data-act="setavatar" data-p="${a}" aria-label="${a ? "Picture " + a : "Your initial"}" aria-pressed="${(S.avatars[S.persona] || "") === a}">${a || PEOPLE[S.persona].initial}</button>`).join("")}</div><button class="btn ghost" data-act="closesheet">Close</button>`);
+  if (sh === "avatar") return wrap(`<h2>Your picture</h2><p>Pick one. It shows beside your name.</p><div class="avgrid">${[""].concat(ICON_LIB.map((k) => "ri:" + k)).map((a) => `<button class="avopt" data-act="setavatar" data-p="${a}" aria-label="${a ? "Picture " + a.slice(3) : "Your initial"}" title="${a ? a.slice(3) : "Your initial"}" aria-pressed="${(S.avatars[S.persona] || "") === a}">${a ? riSvg(a.slice(3), 28) : PEOPLE[S.persona].initial}</button>`).join("")}</div><button class="btn ghost" data-act="closesheet">Close</button>`);
   return "";
 }
 
@@ -774,7 +773,7 @@ const refreshPanel = () => { S.panelDirty = true; };
 /* ---------- actions ---------- */
 function commitAdd() {
   const x = S.pending; if (!x) return; S.pending = null; S.sheet = null;
-  S.pantry.unshift({ id: "n" + Date.now(), key: x.name.toLowerCase().split(/[ ,]/)[0], emoji: emojiOf(x.name), name: x.name, n: x.n, unit: x.unit, area: x.area, spot: x.spot || "Anywhere", cat: x.cat, days: x.days, upd: 100 + S.pantry.length, recent: true, by: me().name, single: false, min: 0, est: false });
+  S.pantry.unshift({ id: "n" + Date.now(), key: x.name.toLowerCase().split(/[ ,]/)[0], emoji: emojiOf(x.name), name: x.name, n: x.n, unit: x.unit, area: x.area, spot: x.spot || "Anywhere", cat: x.cat, days: x.days, upd: 100 + S.pantry.length, recent: true, by: me().name, min: 0, est: false });
   render(); toast("Added " + x.name);
 }
 function parseAmt(t) {
@@ -880,21 +879,20 @@ const acts = {
   selcancel() { S.sel = null; render(); },
   seladd() { const n = S.sel.length; S.sel.forEach((id) => addToList(id)); S.sel = null; toast(n + (n === 1 ? " item" : " items") + " added to your shopping list"); },
   copykitchen() { toast("Kitchen list copied"); },
-  copy() { S.aiDone = true; S.links[S.aiTab] = true; toast("Link copied"); }, copyinvite() { S.inviteDone = true; toast("Invite link copied"); }, day(d) { S.day = +d; render(); },
+  copy() { S.aiDone = true; S.aiLink = true; toast("Link copied"); }, copyinvite() { S.inviteDone = true; toast("Invite link copied"); }, day(d) { S.day = +d; render(); },
   revoke(code) { S.invites = S.invites.filter((i) => i.code !== code); render(); toast("Code cancelled"); },
   copycode(code) { S.inviteDone = true; toast("Code " + fmtCode(code) + " copied"); },
   entercode() { go("entercode"); },
   othercode() { go("entercode", null, { replace: true }); },
   usecode() { const d = S.codeTyped.replace(/\D/g, ""); if (S.codeState === "locked") return render(); if (d.length !== 6) { S.codeState = "wrong"; return render(); } S.code = d; S.codeState = "ok"; go("invite", null, { replace: true }); },
   copyinvite2() { toast("Invite link copied"); },
-  savename() { const v = document.getElementById("myname"); if (!v) return; const n = v.value.trim().slice(0, 24); if (!n) return; PEOPLE[S.persona].name = n; PEOPLE[S.persona].initial = initials(S.persona); render(); toast("Name saved"); },
   setavatar(a) { if (a) S.avatars[S.persona] = a; else delete S.avatars[S.persona]; S.sheet = null; render(); toast("Picture changed"); },
   removestart() { S.sheet = "removing"; render(); },
   removeconfirm() { const w = S.memberWho, n = PEOPLE[w].name; S.members = S.members.filter((x) => x !== w); S.sheet = null; render(); toast(n + " removed"); },
   leavestart() { S.sheet = "leave"; render(); },
   leaveconfirm() { const v = document.getElementById("leavename"); if (!v || v.value.trim().toLowerCase() !== me().name.toLowerCase()) return; S.members = S.members.filter((x) => x !== S.persona); S.sheet = null; S.stack = []; go("notmember", null, { replace: true }); toast("You left Our kitchen"); },
-  aitab(t) { S.aiTab = t; render(); }, aitoggle() { S.links[S.aiTab] = false; render(); toast("Link revoked"); },
-  linkrevoke(t) { S.links[t] = false; render(); toast(t + " link revoked"); }, linkopen(t) { S.aiTab = t; go("ai"); },
+  aitab(t) { S.aiTab = t; render(); }, airevoke() { S.aiLink = false; S.sheet = null; render(); toast("Link revoked. No assistant can use it now"); },
+  linkopen() { go("ai"); },
   ask() { toast("Sent to Arjan"); S.stack.pop(); go("today", null, { replace: true }); },
   pay() { S.recipes = true; refreshPanel(); S.stack = []; go("recipes", null, { replace: true }); toast("Recipes added for Our kitchen"); },
   rolepick(i) { S.anim = !S.rdraft; const r = ROLE_PRESETS[Number(i)]; S.rdraft = { pi: Number(i), ic: r.ic, title: r.title, desc: r.desc }; S.iconPick = false; render(); },
@@ -944,9 +942,9 @@ document.addEventListener("click", (e) => {
   if (t.dataset.act) { if (t.disabled) return; e.stopPropagation(); (acts[t.dataset.act] || (() => {}))(t.dataset.p, t.dataset.d); return; }
   if (t.dataset.go) { S.sheet = null; return go(t.dataset.go, ["item", "recipe"].includes(t.dataset.go) ? t.dataset.p : null); }
 });
-document.addEventListener("change", (e) => { const fin = e.target.dataset && e.target.dataset.fin; if (fin) { acts.fset(fin + "|" + e.target.value, e.target.type === "text"); return; } const c = e.target.dataset && e.target.dataset.ctl; if (c === "persona") { S.persona = e.target.value; refreshPanel(); render(); } if (c === "existing") { S.existing = Number(e.target.value); render(); } if (c === "codeState") { S.codeState = e.target.value; render(); } });
+document.addEventListener("change", (e) => { const fin = e.target.dataset && e.target.dataset.fin; if (fin) { acts.fset(fin + "|" + e.target.value, e.target.type === "text"); return; } const c = e.target.dataset && e.target.dataset.ctl; if (e.target.id === "myname") { if (!e.target.value.trim()) e.target.value = me().name; S.nameDirty = false; return; } if (c === "persona") { S.persona = e.target.value; refreshPanel(); render(); } if (c === "existing") { S.existing = Number(e.target.value); render(); }  if (c === "codeState") { S.codeState = e.target.value; render(); } });
 document.addEventListener("input", (e) => { if (e.target.id === "codein") { const d = e.target.value.replace(/\D/g, "").slice(0, 6); S.codeTyped = d.length > 3 ? d.slice(0, 3) + " " + d.slice(3) : d; e.target.value = S.codeTyped; } if (e.target.id === "r-title" && S.rdraft) S.rdraft.title = e.target.value; if (e.target.id === "r-desc" && S.rdraft) S.rdraft.desc = e.target.value; if (e.target.id === "search") { S.search = e.target.value; document.getElementById("plist").innerHTML = listHtml(); }
-  if (e.target.id === "myname") { const v = e.target.value.trim(); document.getElementById("namesave").disabled = !v || v === me().name; }
+  if (e.target.id === "myname") { const v = e.target.value.trim().slice(0, 24); if (v && v !== me().name) { PEOPLE[S.persona].name = v; PEOPLE[S.persona].initial = initials(S.persona); const big = document.querySelector(".avbig .av"); if (big && !S.avatars[S.persona]) big.textContent = PEOPLE[S.persona].initial; S.nameDirty = true; } } /* saves as you type: no Save button */
   if (e.target.id === "leavename") document.getElementById("leavego").disabled = e.target.value.trim().toLowerCase() !== me().name.toLowerCase(); });
 /* swipe a running-low row to add it; press and hold to start picking several */
 let g = null; const DEEP = 190; /* px: past this a left swipe means used up, not use one */
