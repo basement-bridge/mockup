@@ -12,9 +12,10 @@ The side panel (Controls button on a phone) switches who you are (owner or membe
 
 - `index.html`: the index. **Flows** are complete or significant end-to-end parts. **Fragments** are single items still in deliberation; once clear they fold into a flow.
 - `flows/household/`: the clickable household prototype (below).
-- `fragments/`: `mid-cook`, `pwa-cta`, `item-row-axes`, `inventory-home`.
+- `fragments/`: `mid-cook`, `pwa-cta`, `item-row-axes`, `inventory-home`, `locations-spots`.
 - `theme.css` + `theme.js` + `themes/`: the single token set and the theme picker (ten themes) used by every page. Only the two default themes (Kitchie Night and Day) live in `theme.css`; every other theme is one small file in `themes/`, loaded when chosen and warmed in the background once the person engages the picker (DESIGN.md section 6). `shared.css`: layout for the index and fragments.
 - `docs/knowledge/`: what we've learned, per job to be done, for carrying into the implementation.
+- `tools/screenshots.mjs`: screenshots every screen at phone, tablet and desktop widths in light and dark, with layout checks (DESIGN.md section 7).
 - `DESIGN.md`: the design brief. Read it before changing anything.
 
 ## What the household flow shows
@@ -51,7 +52,7 @@ Its own tab, no headline (the tab says where you are). Flat list. Each row: tick
 
 ## Item detail (performance, DESIGN.md section 6)
 
-Read first, tap to edit per field: every field production edits is a plain row (name and emoji, quantity, level, location, spot, category, use by, single use, minimum). Tapping a row opens its editor under it and every change autosaves with a short Saved line. There is no Save button. A failed save (platform down, or a bad value such as an empty name or a past date) shows an error on that field with Try again. Mark as used up opens a confirm (with a guard line when two or more items were used up in the last 5 minutes) and ends in an Undo toast; the tick on the pantry list uses the same Undo.
+Read first, tap to edit per field: every field production edits is a plain row (name and emoji, quantity, level, location, spot, category, use by, minimum). Tapping a row opens its editor under it and every change autosaves with a short Saved line. There is no Save button. A failed save (platform down, or a bad value such as an empty name or a past date) shows an error on that field with Try again. Mark as used up opens a confirm (with a guard line when two or more items were used up in the last 5 minutes) and ends in an Undo toast; the tick on the pantry list uses the same Undo.
 
 - Default path (opening the screen): only the read rows, built from state already in memory. No editor markup, no option lists, no extra requests.
 - Deferred to the first tap of a field: that field's editor and its data, in `flows/household/fields/` (`name.js` has the emoji set, `amounts.js` the unit list, `place.js` the spots per location, `category.js`, `useby.js` the quick pills and date picker, `flags.js`). One file is fetched once, on the first tap of one of its rows, then cached. The date input is built only when Pick date is tapped. The used-up confirm is built only when opened.

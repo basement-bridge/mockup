@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Locations and spots, three ways, fragment</title><link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><script src="../../theme.js"></script>
+<style>
+.own{margin:14px 0 0;padding:12px 14px;border-left:4px solid var(--accent);background:var(--surface);border-radius:0 var(--r-card) var(--r-card) 0;color:var(--fg);font-size:14px}
+.own small{display:block;color:var(--muted);margin-top:4px;font-size:12px}
+.prop{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:1px 8px;border-radius:var(--r-pill);border:1px solid var(--accent);color:var(--accent);margin-right:6px;white-space:nowrap}
+.ownr{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:1px 8px;border-radius:var(--r-pill);border:1px solid var(--sage);color:var(--sage);margin-right:6px;white-space:nowrap}
+.rules{margin-top:18px;padding:14px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface)}
+.rules ul{margin:8px 0 0;padding:0;list-style:none}.rules li{margin:8px 0;font-size:14px;color:var(--fg)}
+.where{margin-top:18px}.where .mn{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden}
+.where .mn div{display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 14px;border-top:1px solid var(--border);font-weight:600}
+.where .mn div:first-child{border-top:0}.where .mn div.new{color:var(--accent)}
+.tabs2{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:22px 0 0;padding:4px;border-radius:var(--r-card);background:var(--surface);border:1px solid var(--border)}
+.tabs2 button{min-height:44px;padding:4px 6px;border-radius:var(--r-ctl);font:700 13px var(--body);color:var(--fg);background:none;border:0;cursor:pointer}
+.tabs2 button[aria-selected=true]{background:var(--accent);color:var(--on-accent)}
+.info{margin-top:14px}.info h2{font-size:1.4rem}.info p{margin:8px 0 0;font-size:14px;color:var(--fg)}.info p b{color:var(--accent)}
+.ctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:14px 0 8px}
+.seg{display:inline-flex;gap:4px;padding:3px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface)}
+.seg button{min-height:44px;padding:0 14px;border-radius:var(--r-pill);border:0;background:none;color:var(--fg);font:600 13px var(--body);cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--accent);color:var(--on-accent)}
+.rst{min-height:44px;min-width:44px;padding:0 16px;border:1px solid var(--border);border-radius:var(--r-pill);background:var(--surface);color:var(--fg);font:600 13px var(--body);cursor:pointer}
+.ph{position:relative;width:100%;max-width:390px;height:640px;margin:0 auto;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-phone);overflow:hidden;font-size:15px;line-height:1.4;color:var(--fg)}
+.scr{height:100%;overflow-y:auto;padding:16px 14px 90px}
+.ph button{font-family:inherit}
+.hd{display:flex;align-items:center;gap:6px;margin:0 0 4px}.hd h3{font-family:var(--head);font-size:1.4rem;margin:0;flex:1;line-height:1.1}
+.bk{min-height:44px;min-width:44px;padding:0 10px 0 4px;background:none;border:0;color:var(--accent);font-weight:700;font-size:15px;cursor:pointer;text-align:left}
+.sm{font-size:12px;color:var(--muted)}
+.card2{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);margin-top:12px;overflow:hidden}
+.rw{display:flex;align-items:center;gap:8px;min-height:48px;padding:2px 8px 2px 14px;border-top:1px solid var(--border);width:100%;text-align:left;background:none;border-left:0;border-right:0;border-bottom:0;color:var(--fg);font-size:15px;cursor:pointer}
+.rw:first-child,.card2>.rw:first-child{border-top:0}
+.rw .nm{flex:1;min-width:0;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rw .nm small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+.rw .em{font-size:22px;width:28px;text-align:center;flex:none}
+.rw.ind{padding-left:30px;border-left:3px solid var(--border);margin-left:14px;width:auto}
+.rw.ro{color:var(--muted);cursor:default;font-style:italic}.rw.ro .nm{font-weight:500}
+.ib2{width:44px;height:44px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:none;border:0;color:var(--fg);font-size:20px;cursor:pointer;flex:none}
+.ib2:disabled{opacity:.35;cursor:default}
+.add{display:flex;align-items:center;gap:8px;min-height:48px;padding:0 14px;color:var(--accent);font-weight:700;background:none;border:0;border-top:1px solid var(--border);width:100%;text-align:left;font-size:15px;cursor:pointer}
+.big{display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;width:100%;margin-top:14px;border-radius:var(--r-pill);background:var(--accent);color:var(--on-accent);font-weight:800;border:0;font-size:15px;cursor:pointer}
+.big.ghost{background:none;color:var(--fg);border:1px solid var(--border)}.big.dng{background:var(--danger);color:var(--bg)}
+.big:disabled{opacity:.45;cursor:default}
+.empty{text-align:center;padding:36px 18px}.empty .e{font-size:54px;line-height:1}.empty b{display:block;font-size:18px;margin-top:10px}.empty p{margin-top:4px}
+.empty.in{padding:16px 14px;border-top:1px solid var(--border)}.empty.in .e{font-size:30px}.empty.in b{font-size:15px}
+.bd{position:absolute;inset:0;background:var(--dim);z-index:5;border:0;padding:0;width:100%}
+.sh{position:absolute;left:0;right:0;bottom:0;z-index:6;max-height:84%;overflow-y:auto;background:var(--bg);border-top:1px solid var(--border);border-radius:var(--r-card) var(--r-card) 0 0;padding:16px 14px 20px}
+.sh h3{font-family:var(--head);font-size:1.25rem;margin:0 0 6px}.sh p{font-size:14px}
+.sh .field{display:block;width:100%;min-height:48px;margin-top:10px;padding:0 14px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--surface);color:var(--fg);font:600 16px var(--body)}
+.err{color:var(--danger);font-size:13px;min-height:18px;margin-top:6px}
+.mr{display:flex;align-items:center;gap:10px;min-height:48px;width:100%;padding:0 14px;border:0;border-top:1px solid var(--border);background:none;color:var(--fg);font-size:15px;font-weight:600;text-align:left;cursor:pointer}
+.mr:first-child{border-top:0}.mr.dng{color:var(--danger)}.mr:disabled{opacity:.4;cursor:default}
+.rad{display:flex;align-items:center;gap:10px;min-height:48px;width:100%;padding:0 14px;border:0;border-top:1px solid var(--border);background:none;color:var(--fg);font-size:15px;text-align:left;cursor:pointer}
+.rad:first-child{border-top:0}.rad:disabled{opacity:.4;cursor:default}
+.rad i{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);flex:none}.rad[aria-checked=true] i{border-color:var(--accent);background:radial-gradient(circle,var(--accent) 45%,transparent 50%)}
+.rad[aria-checked=true]{font-weight:700}.rad.sp{padding-left:38px}
+.grp{padding:8px 14px 2px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted);border-top:1px solid var(--border)}
+.tst{position:absolute;left:12px;right:12px;bottom:12px;z-index:7;display:flex;align-items:center;gap:8px;padding:4px 4px 4px 14px;min-height:52px;border-radius:var(--r-card);background:var(--fg);color:var(--bg);font-size:14px;font-weight:600}
+.tst span{flex:1}.tst button{min-height:44px;padding:0 14px;border-radius:var(--r-pill);border:0;background:none;color:var(--bg);font-weight:800;text-decoration:underline;cursor:pointer;font-size:14px}
+.cardc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);margin-top:12px;padding:6px 10px 12px}
+.cardc.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.ch{display:flex;align-items:center;gap:8px;min-height:44px;width:100%;background:none;border:0;color:var(--fg);text-align:left;cursor:pointer;font-size:16px;font-weight:700;padding:0 4px}
+.ch .em{font-size:24px}.ch .ct{margin-left:auto;font-size:12px;color:var(--muted);font-weight:500}
+.chips2{display:flex;flex-wrap:wrap;gap:8px;padding:0 4px}
+.cp{min-height:44px;padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--bg);color:var(--fg);font-weight:600;font-size:14px;cursor:pointer}
+.cp small{color:var(--muted);margin-left:4px;font-weight:500}.cp.sel{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}.cp.sel small{color:var(--on-accent)}
+.cp.dash{border-style:dashed;color:var(--accent)}.cp.ro{border-style:dashed;color:var(--muted);font-style:italic;cursor:default}
+.abar{position:absolute;left:0;right:0;bottom:0;z-index:4;background:var(--surface);border-top:1px solid var(--border);padding:8px 10px 12px;border-radius:var(--r-card) var(--r-card) 0 0}
+.abar .t{font-size:13px;font-weight:700;padding:0 4px 6px}.abar .bs{display:flex;flex-wrap:wrap;gap:6px}
+.abar button{flex:1 1 30%;min-height:44px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);color:var(--fg);font-weight:700;font-size:13px;cursor:pointer}
+.abar button.dng{color:var(--danger);border-color:var(--danger)}.abar button:disabled{opacity:.4;cursor:default}
+.qs{margin-top:18px;padding:14px;border:1px dashed var(--border);border-radius:var(--r-card)}.qs li{margin:6px 0 6px 18px;font-size:14px}
+.perf{margin-top:18px;padding:14px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface)}.perf b{color:var(--accent)}.perf li{margin:6px 0 6px 18px;color:var(--muted)}.perf li b{color:var(--fg)}
+.perf.op{margin-top:12px}
+</style></head>
+<body>
+<div class="wrap">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Locations and spots, three ways</h1>
+<p>Fragment. Settings > Kitchen already lets you rename a category for every item at once. Locations (Fridge, Pantry, Freezer) and the spots inside them (Door, Crisper, Top shelf) need the same, but a spot lives inside a location, so a flat list is not enough. Three ways to manage that. Fake data, tap everything.</p>
+<div class="own">"Under Kitchen in Settings you have categories. We should also have something for locations and spots. Remember location and spot have a parent-child. I would think about what's the best way to tackle that."<small>Owner, voice, 8 October 2026. A design-options request, not a build. Not in the household flow yet.</small></div>
+
+<div class="where"><span class="prop">Proposal</span><span class="sm">Where it sits: one new row under Kitchen, next to Categories.</span>
+<div class="mn" style="margin-top:8px"><div><span>Stock checks</span><span class="sm">&rsaquo;</span></div><div><span>Categories</span><span class="sm">&rsaquo;</span></div><div class="new"><span>Locations and spots</span><span class="sm">&rsaquo;</span></div></div></div>
+
+<div class="rules"><b>Same item rules under all three</b> <span class="sm">(the options differ in how you get to them, not in what they do)</span>
+<ul>
+<li><span class="ownr">Owner</span>A spot is a child of one location. Renaming a location or a spot updates every item stored there at once, like categories.</li>
+<li><span class="prop">Proposal</span>Remove and merge are one action: "Move items to...". Pick an existing spot or location and the items go there. No default is picked for you; the button stays off until you choose.</li>
+<li><span class="prop">Proposal</span>Moving a spot to another location takes its items with it. A name already used there blocks the move.</li>
+<li><span class="prop">Proposal</span>Removing a location moves its items to another location and keeps its spots (same names merge) unless you choose to drop them, then items land with no spot.</li>
+<li><span class="prop">Proposal</span>An item can sit in a location with no spot ("Not in a spot"). A spot name is unique inside its location, not across locations. The last location cannot be removed.</li>
+<li><span class="prop">Proposal</span>Removing something that holds nothing asks one plain confirm, no destination. Every change shows an Undo toast. Reorder uses buttons, not drag.</li>
+</ul></div>
+
+<div class="tabs2" role="tablist" aria-label="Option"><button role="tab" id="t0" aria-selected="true" data-t="0">1 The tree</button><button role="tab" id="t1" aria-selected="false" data-t="1">2 Drill in</button><button role="tab" id="t2" aria-selected="false" data-t="2">3 Pick, then act</button></div>
+<div class="info" id="info" role="tabpanel" aria-labelledby="t0"></div>
+<div class="ctl"><div class="seg" role="group" aria-label="Sample data"><button type="button" aria-pressed="true" data-s="0">Lived in</button><button type="button" aria-pressed="false" data-s="1">Brand new</button></div><button type="button" class="rst" data-s="r">Reset</button></div>
+<div class="ph" id="ph"></div>
+<p class="sm" style="margin-top:8px;text-align:center">Lived in has Fridge (with a few items in no spot), Pantry, and an empty-of-spots Freezer. Brand new shows the first-time empty state.</p>
+
+<div class="qs"><b>Open questions</b>
+<ul>
+<li>Can a spot belong to two locations (one "Door" for fridge and freezer), or is each spot owned by exactly one? This mockup: one parent, same names allowed in different locations.</li>
+<li>Can items sit in a location with no spot? This mockup says yes. A wrong guess means either blocking adds that name only a location, or forcing a spot on every item.</li>
+<li>Does the real Kitchie model allow renaming a location, and does a rename update items (like categories) or are items matched by name? Not checked here.</li>
+<li>Terminology: the household flow and code say "area" for the parent. The owner says "location". Which word does the person see?</li>
+<li>When a location is removed, should its spots default to kept or dropped? This mockup keeps them.</li>
+<li>Should flows that already name a place (filters, scan-in shelf, item sheet) follow a rename live? Assumed yes, since the id stays.</li>
+<li>Who can change them: anyone in the household (like people settings) or only the owner? Not decided.</li>
+<li>Which option leads, or does a large household want 2 and a small one 1?</li>
+</ul></div>
+<div class="perf"><b>Performance note</b> (<a href="../../DESIGN.md" style="text-decoration:underline">DESIGN.md section 6</a>)
+<ul>
+<li><b>Default path loads</b>: this page, the shared theme and one inline script. No images, no icon files; the glyphs are plain text and emoji.</li>
+<li><b>Deferred until engaged</b>: in the real app the screen needs only location and spot names with item counts. Rename, move and remove sheets and the destination picker are built when opened. Other themes are separate files fetched on choice (theme.js).</li>
+<li><b>Why reasonable now</b>: it is a settings screen reached on purpose, so a small counts query on entry is enough. Each option notes anything extra above.</li>
+</ul></div>
+</div>
+<script>
+(function(){
+var M,UI,SH,TST,SNAP,tab=0,ph=document.getElementById('ph');
+var INFO=[
+{n:'1 The tree',s:'Everything on one screen: each location is a card with its spots nested underneath. Tap the three dots on any row for its actions.',w:'People who want to see the whole kitchen at once and move a spot between locations. Households with a handful of locations.',t:'Shows the hierarchy most plainly and needs no extra navigation. The screen gets long as spots grow, and every row carries a menu button, so it can feel busy.',p:'One query loads every location, spot and count on entry. Menus and sheets are built on tap. Collapsing a location does not load less, it only hides.'},
+{n:'2 Drill in',s:'Closest to Categories: a list of locations, tap one to open its spots. Tapping a row opens one form with its name and, for a spot, the location it lives in.',w:'Phone-first people, big households with many spots, anyone who already knows the Categories screen.',t:'Familiar and calm, each screen short. Spots are a tap away, so you do not see the whole kitchen, and moving a spot is a field in a form rather than a gesture.',p:'Top screen loads locations and counts only. A location\'s spots and counts load when it is opened, so a large kitchen pays only for the places visited.'},
+{n:'3 Pick, then act',s:'A map of cards, each location holding its spots as chips. Tap a chip or a card title to select it, and a bar at the bottom offers what you can do to it.',w:'Visual people who think "where does this sit". Good for seeing how full each place is.',t:'Playful and compact, and one action bar serves every row. Long names truncate, many spots wrap into a dense block, and the bar covers the bottom of the list.',p:'Same single query as the tree. The action bar and its buttons are only built the first time something is selected.'}];
+function sample(){return{nid:30,locs:[
+{id:'fr',name:'Fridge',em:'🧊',loose:2,spots:[{id:'fd',name:'Door',n:4},{id:'fc',name:'Crisper',n:3},{id:'ft',name:'Top shelf',n:5}]},
+{id:'pa',name:'Pantry',em:'🥫',loose:1,spots:[{id:'pc',name:'Cupboard',n:6},{id:'pb',name:'Baking shelf',n:3}]},
+{id:'fz',name:'Freezer',em:'❄️',loose:3,spots:[]}]}}
+function init(nw){M=nw?{nid:1,locs:[]}:sample();UI={a:{col:{}},b:{loc:null,ro:false},c:{sel:null}};SH=null;TST=null;SNAP=null;render()}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function pl(n,w){return n+' '+w+(n===1?'':'s')}
+function L(id){return M.locs.filter(function(l){return l.id===id})[0]}
+function SP(id){for(var i=0;i<M.locs.length;i++){var s=M.locs[i].spots.filter(function(x){return x.id===id})[0];if(s)return{loc:M.locs[i],spot:s}}return null}
+function tot(l){return l.spots.reduce(function(a,s){return a+s.n},l.loose)}
+function ent(k,i){return k==='loc'?{loc:L(i),spot:null,o:L(i)}:(function(r){return r?{loc:r.loc,spot:r.spot,o:r.spot}:null})(SP(i))}
+function cnt(k,i){var e=ent(k,i);return k==='loc'?tot(e.loc):e.spot.n}
+function snap(){SNAP=JSON.stringify(M)}
+function say(m,u){TST={m:m,u:!!u}}
+function dl(lid,sid){var l=L(lid);return sid?l.name+', '+SP(sid).spot.name:l.name+' (no spot)'}
+function nameErr(k,parent,v,self){v=v.trim().toLowerCase();if(!v)return'';
+ if(k==='loc'){return M.locs.some(function(l){return l.id!==self&&l.name.toLowerCase()===v})?'There is already a location called '+v.charAt(0).toUpperCase()+v.slice(1)+'.':''}
+ var p=L(parent);return p&&p.spots.some(function(s){return s.id!==self&&s.name.toLowerCase()===v})?p.name+' already has a spot called '+v.charAt(0).toUpperCase()+v.slice(1)+'.':''}
+function swap(arr,i,d){var j=i+d;if(j<0||j>=arr.length)return;var t=arr[i];arr[i]=arr[j];arr[j]=t}
+function reorder(k,i,d){snap();if(k==='loc'){swap(M.locs,M.locs.indexOf(L(i)),d)}else{var r=SP(i);swap(r.loc.spots,r.loc.spots.indexOf(r.spot),d)}say('Order changed.',true)}
+function canMove(k,i,d){var a,x;if(k==='loc'){a=M.locs;x=a.indexOf(L(i))}else{var r=SP(i);a=r.loc.spots;x=a.indexOf(r.spot)}return x+d>=0&&x+d<a.length}
+function cap(s){return s.trim().replace(/^./,function(c){return c.toUpperCase()})}
+
+/* surfaces */
+function emptyAll(){return '<div class="empty"><div class="e">🧊</div><b>No places yet</b><p>Where does your food live? Start with a fridge.</p><button class="big" data-a="add" data-k="loc">+ Add a location</button></div>'}
+function emptySpots(l){return '<div class="empty in"><div class="e">🫙</div><b>No spots yet</b><p class="sm">Items just go in '+esc(l.name)+'. Add a spot to say which shelf.</p></div>'}
+function menuBtn(k,i,n){return '<button class="ib2" data-a="menu" data-k="'+k+'" data-i="'+i+'" aria-label="Actions for '+esc(n)+'">⋯</button>'}
+function viewA(){
+ var h='<div class="hd"><h3>Locations and spots</h3></div><p class="sm">Rename a place for every item at once. This is the household\'s, not just this device\'s.</p>';
+ if(!M.locs.length)return h+emptyAll();
+ M.locs.forEach(function(l){var col=UI.a.col[l.id];
+  h+='<div class="card2"><div class="rw" style="cursor:default;padding-right:0"><button class="ch" data-a="col" data-i="'+l.id+'" aria-expanded="'+!col+'" aria-label="'+(col?'Expand ':'Collapse ')+esc(l.name)+'" style="flex:1"><span class="em">'+l.em+'</span><span>'+esc(l.name)+'</span><span class="ct">'+pl(tot(l),'item')+' · '+(col?'▸':'▾')+'</span></button>'+menuBtn('loc',l.id,l.name)+'</div>';
+  if(!col){
+   l.spots.forEach(function(s){h+='<div class="rw ind" style="cursor:default;padding-right:0"><span class="nm">'+esc(s.name)+'<small>'+pl(s.n,'item')+'</small></span>'+menuBtn('spot',s.id,s.name)+'</div>'});
+   if(l.loose)h+='<div class="rw ind ro"><span class="nm">Not in a spot<small>'+pl(l.loose,'item')+'</small></span></div>';
+   if(!l.spots.length)h+=emptySpots(l);
+   h+='<button class="add" data-a="add" data-k="spot" data-i="'+l.id+'">+ Add a spot to '+esc(l.name)+'</button>'}
+  h+='</div>'});
+ return h+'<button class="big ghost" data-a="add" data-k="loc">+ Add a location</button>'}
+function viewB(){
+ var b=UI.b,loc=b.loc&&L(b.loc),h='',ro=b.ro;
+ if(b.loc&&!loc){b.loc=null}
+ if(!loc){
+  h+='<div class="hd"><h3>Locations</h3>'+(M.locs.length>1?'<button class="bk" data-a="ro" aria-pressed="'+ro+'" style="text-align:right">'+(ro?'Done':'Reorder')+'</button>':'')+'</div><p class="sm">Tap a place to see its spots. Rename for every item at once.</p>';
+  if(!M.locs.length)return h+emptyAll();
+  h+='<div class="card2">';
+  M.locs.forEach(function(l){var inner='<span class="em">'+l.em+'</span><span class="nm">'+esc(l.name)+'<small>'+pl(l.spots.length,'spot')+' · '+pl(tot(l),'item')+'</small></span>';
+   h+=ro?'<div class="rw" style="cursor:default">'+inner+'<button class="ib2" data-a="up" data-k="loc" data-i="'+l.id+'" aria-label="Move '+esc(l.name)+' up"'+(canMove('loc',l.id,-1)?'':' disabled')+'>▲</button><button class="ib2" data-a="dn" data-k="loc" data-i="'+l.id+'" aria-label="Move '+esc(l.name)+' down"'+(canMove('loc',l.id,1)?'':' disabled')+'>▼</button></div>'
+   :'<button class="rw" data-a="open" data-i="'+l.id+'">'+inner+'<span class="sm" aria-hidden="true">›</span></button>'});
+  return h+'</div><button class="big ghost" data-a="add" data-k="loc">+ Add a location</button>'}
+ h+='<div class="hd"><button class="bk" data-a="home">‹ Locations</button><span style="flex:1"></span>'+(loc.spots.length>1?'<button class="bk" data-a="ro" aria-pressed="'+ro+'" style="text-align:right">'+(ro?'Done':'Reorder')+'</button>':'')+'</div>';
+ h+='<div class="hd"><h3>'+loc.em+' '+esc(loc.name)+'</h3><button class="ib2" style="width:auto;padding:0 12px;border:1px solid var(--border);border-radius:var(--r-pill);font:700 13px var(--body)" data-a="edit" data-k="loc" data-i="'+loc.id+'">Edit place</button></div><p class="sm">'+pl(loc.spots.length,'spot')+' · '+pl(tot(loc),'item')+'. Tap a spot to rename, move or remove it.</p>';
+ h+='<div class="card2">';
+ loc.spots.forEach(function(s){var inner='<span class="nm">'+esc(s.name)+'<small>'+pl(s.n,'item')+'</small></span>';
+  h+=ro?'<div class="rw" style="cursor:default">'+inner+'<button class="ib2" data-a="up" data-k="spot" data-i="'+s.id+'" aria-label="Move '+esc(s.name)+' up"'+(canMove('spot',s.id,-1)?'':' disabled')+'>▲</button><button class="ib2" data-a="dn" data-k="spot" data-i="'+s.id+'" aria-label="Move '+esc(s.name)+' down"'+(canMove('spot',s.id,1)?'':' disabled')+'>▼</button></div>'
+  :'<button class="rw" data-a="edit" data-k="spot" data-i="'+s.id+'">'+inner+'<span class="sm" aria-hidden="true">›</span></button>'});
+ if(loc.loose)h+='<div class="rw ro"><span class="nm">Not in a spot<small>'+pl(loc.loose,'item')+'</small></span></div>';
+ if(!loc.spots.length)h+=emptySpots(loc);
+ return h+'</div><button class="big" data-a="add" data-k="spot" data-i="'+loc.id+'">+ Add a spot</button>'}
+function viewC(){
+ var sel=UI.c.sel,h='<div class="hd"><h3>Your kitchen</h3></div><p class="sm">Tap a place or a spot, then choose what to do.</p>';
+ if(sel&&!ent(sel.k,sel.i).o){UI.c.sel=sel=null}
+ if(!M.locs.length)return h+emptyAll();
+ M.locs.forEach(function(l){var ls=sel&&sel.k==='loc'&&sel.i===l.id;
+  h+='<div class="cardc'+(ls?' sel':'')+'"><button class="ch" data-a="pick" data-k="loc" data-i="'+l.id+'" aria-pressed="'+ls+'"><span class="em">'+l.em+'</span><span>'+esc(l.name)+'</span><span class="ct">'+pl(tot(l),'item')+'</span></button><div class="chips2">';
+  l.spots.forEach(function(s){var ss=sel&&sel.k==='spot'&&sel.i===s.id;h+='<button class="cp'+(ss?' sel':'')+'" data-a="pick" data-k="spot" data-i="'+s.id+'" aria-pressed="'+ss+'">'+esc(s.name)+'<small>'+s.n+'</small></button>'});
+  if(l.loose)h+='<span class="cp ro">Not in a spot<small>'+l.loose+'</small></span>';
+  h+='<button class="cp dash" data-a="add" data-k="spot" data-i="'+l.id+'" aria-label="Add a spot to '+esc(l.name)+'">+ Spot</button></div>';
+  if(!l.spots.length)h+='<p class="sm" style="padding:8px 4px 0">🫙 No spots yet. Items just go in '+esc(l.name)+'.</p>';
+  h+='</div>'});
+ h+='<button class="big ghost" data-a="add" data-k="loc">+ Add a location</button>';
+ if(sel){var e=ent(sel.k,sel.i),k=sel.k,i=sel.i;
+  h+='<div class="abar"><div class="t">'+(k==='spot'?esc(e.spot.name)+' in '+esc(e.loc.name):esc(e.loc.name))+' · '+pl(cnt(k,i),'item')+'</div><div class="bs"><button data-a="rename" data-k="'+k+'" data-i="'+i+'">Rename</button>'
+   +(k==='spot'?'<button data-a="move" data-i="'+i+'"'+(M.locs.length<2?' disabled':'')+'>Move</button>':'')
+   +'<button data-a="up" data-k="'+k+'" data-i="'+i+'"'+(canMove(k,i,-1)?'':' disabled')+'>'+(k==='spot'?'◀ Earlier':'▲ Earlier')+'</button><button data-a="dn" data-k="'+k+'" data-i="'+i+'"'+(canMove(k,i,1)?'':' disabled')+'>'+(k==='spot'?'Later ▶':'Later ▼')+'</button><button class="dng" data-a="remove" data-k="'+k+'" data-i="'+i+'">Remove</button></div></div>'}
+ return h}
+
+/* sheets */
+function sheetHtml(){if(!SH)return'';var s=SH,h='',e;
+ if(s.t==='menu'){e=ent(s.k,s.i);var nm=e.o.name;
+  h='<h3>'+(s.k==='loc'?e.loc.em+' ':'')+esc(nm)+'</h3><p class="sm">'+(s.k==='spot'?'A spot in '+esc(e.loc.name)+' · ':'')+pl(cnt(s.k,s.i),'item')+'</p><div class="card2">'
+   +'<button class="mr" data-a="rename" data-k="'+s.k+'" data-i="'+s.i+'">Rename</button>'
+   +(s.k==='loc'?'<button class="mr" data-a="add" data-k="spot" data-i="'+s.i+'">Add a spot</button>':'<button class="mr" data-a="move" data-i="'+s.i+'"'+(M.locs.length<2?' disabled':'')+'>Move to another location</button>')
+   +'<button class="mr" data-a="up" data-k="'+s.k+'" data-i="'+s.i+'"'+(canMove(s.k,s.i,-1)?'':' disabled')+'>Move up</button><button class="mr" data-a="dn" data-k="'+s.k+'" data-i="'+s.i+'"'+(canMove(s.k,s.i,1)?'':' disabled')+'>Move down</button>'
+   +'<button class="mr dng" data-a="remove" data-k="'+s.k+'" data-i="'+s.i+'">Remove or merge</button></div><button class="big ghost" data-a="close">Close</button>'}
+ else if(s.t==='rename'){e=ent(s.k,s.i);
+  h='<h3>Rename '+esc(e.o.name)+'</h3><p>Every item stored here updates at once: '+pl(cnt(s.k,s.i),'item')+'.</p><input class="field" id="inp" maxlength="24" autocomplete="off" aria-label="New name" value="'+esc(s.val)+'"><div class="err" id="err" role="alert"></div><button class="big" id="ok" data-a="save" disabled>Save</button><button class="big ghost" data-a="close">Cancel</button>'}
+ else if(s.t==='add'){var par=s.k==='spot'?L(s.i):null;
+  h='<h3>'+(par?'Add a spot to '+esc(par.name):'Add a location')+'</h3><p>'+(par?(par.loose?'The '+pl(par.loose,'item')+' already in '+esc(par.name)+' stay as they are, with no spot.':'Items can still go in '+esc(par.name)+' with no spot.'):'Then add spots inside it, or leave it without.')+'</p><input class="field" id="inp" maxlength="24" autocomplete="off" aria-label="Name" placeholder="'+(par?'e.g. Top shelf':'e.g. Garage fridge')+'" value="'+esc(s.val)+'"><div class="err" id="err" role="alert"></div><button class="big" id="ok" data-a="save" disabled>Add</button><button class="big ghost" data-a="close">Cancel</button>'}
+ else if(s.t==='edit'){e=ent(s.k,s.i);
+  h='<h3>'+(s.k==='spot'?'Edit '+esc(e.spot.name):'Edit '+esc(e.loc.name))+'</h3><label class="sm" for="inp">Name</label><input class="field" id="inp" maxlength="24" autocomplete="off" style="margin-top:4px" value="'+esc(s.val)+'">';
+  if(s.k==='spot'){h+='<label class="sm" for="sel" style="display:block;margin-top:12px">Lives in</label><select class="field" id="sel" style="margin-top:4px">'+M.locs.map(function(l){return'<option value="'+l.id+'"'+(l.id===s.to?' selected':'')+'>'+esc(l.name)+'</option>'}).join('')+'</select>'}
+  h+='<p class="sm" id="hint" style="margin-top:8px"></p><div class="err" id="err" role="alert"></div><button class="big" id="ok" data-a="save" disabled>Save</button><button class="big ghost" style="color:var(--danger);border-color:var(--danger)" data-a="remove" data-k="'+s.k+'" data-i="'+s.i+'">Remove or merge</button><button class="big ghost" data-a="close">Cancel</button>'}
+ else if(s.t==='move'){e=ent('spot',s.i);
+  h='<h3>Move '+esc(e.spot.name)+'</h3><p>Out of '+esc(e.loc.name)+' and into:</p><div class="card2" role="radiogroup" aria-label="New location">'+M.locs.filter(function(l){return l.id!==e.loc.id}).map(function(l){var clash=nameErr('spot',l.id,e.spot.name,'');return'<button class="rad" role="radio" aria-checked="'+(s.pick===l.id)+'" data-a="mpick" data-v="'+l.id+'"'+(clash?' disabled':'')+'><i></i><span>'+l.em+' '+esc(l.name)+(clash?'<br><small class="sm">Already has a spot called '+esc(e.spot.name)+'</small>':'')+'</span></button>'}).join('')+'</div><p class="sm" style="margin-top:10px">'+pl(e.spot.n,'item')+' go with it. Nothing else changes.</p><button class="big" data-a="save"'+(s.pick?'':' disabled')+'>'+(s.pick?'Move '+esc(e.spot.name)+' to '+esc(L(s.pick).name):'Pick a location')+'</button><button class="big ghost" data-a="close">Cancel</button>'}
+ else if(s.t==='remove'){h=removeHtml(s)}
+ return '<button class="bd" data-a="close" aria-label="Close"></button><div class="sh" role="dialog" aria-modal="true" aria-label="Sheet">'+h+'</div>'}
+function removeHtml(s){var e=ent(s.k,s.i),n=cnt(s.k,s.i),nm=e.o.name,h='';
+ if(s.k==='loc'){
+  if(M.locs.length<2)return'<h3>Keep one location</h3><p>'+esc(nm)+' is your only location. Add another first, then you can remove or merge this one.</p><button class="big ghost" data-a="close">OK</button>';
+  var l=e.loc;
+  if(n===0){return'<h3>Remove '+esc(nm)+'?</h3><p>Nothing is stored here.'+(l.spots.length?' Its '+pl(l.spots.length,'spot')+' go too.':'')+' This cannot be undone from here, but the Undo toast will bring it back for a moment.</p><button class="big dng" data-a="doremove">Remove '+esc(nm)+'</button><button class="big ghost" data-a="close">Keep it</button>'}
+  h='<h3>Remove or merge '+esc(nm)+'</h3><p>'+pl(n,'item')+' are stored here. Where do they go?</p><div class="card2" role="radiogroup" aria-label="Move items to">'+M.locs.filter(function(x){return x.id!==l.id}).map(function(x){return'<button class="rad" role="radio" aria-checked="'+(s.pick===x.id)+'" data-a="rpick" data-v="'+x.id+'"><i></i><span>'+x.em+' '+esc(x.name)+'</span></button>'}).join('')+'</div>';
+  if(l.spots.length){h+='<p class="sm" style="margin-top:12px">Its spots</p><div class="seg" role="group" aria-label="Its spots" style="margin-top:6px"><button type="button" aria-pressed="'+s.keep+'" data-a="keep" data-v="1">Keep as spots</button><button type="button" aria-pressed="'+!s.keep+'" data-a="keep" data-v="0">Drop them</button></div>'}
+  if(s.pick){var d=L(s.pick);h+='<p class="sm" style="margin-top:10px">'+(l.spots.length?(s.keep?esc(l.spots.map(function(x){return x.name}).join(', '))+' become spots in '+esc(d.name)+' (same names merge). Items stay in their spots.':'The spots are removed. All '+pl(n,'item')+' land in '+esc(d.name)+' with no spot.'):'All '+pl(n,'item')+' land in '+esc(d.name)+' with no spot.')+'</p>'}
+  return h+'<button class="big dng" data-a="doremove"'+(s.pick?'':' disabled')+'>'+(s.pick?'Move '+pl(n,'item')+' to '+esc(L(s.pick).name)+' and remove '+esc(nm):'Pick where the items go')+'</button><button class="big ghost" data-a="close">Keep it</button>'}
+ if(n===0){return'<h3>Remove '+esc(nm)+'?</h3><p>Nothing is stored in '+esc(nm)+' ('+esc(e.loc.name)+').</p><button class="big dng" data-a="doremove">Remove '+esc(nm)+'</button><button class="big ghost" data-a="close">Keep it</button>'}
+ h='<h3>Remove or merge '+esc(nm)+'</h3><p>'+pl(n,'item')+' are stored in '+esc(nm)+' ('+esc(e.loc.name)+'). Where do they go? Pick an existing spot to merge into it.</p><div class="card2" role="radiogroup" aria-label="Move items to">';
+ M.locs.forEach(function(l){h+='<div class="grp">'+l.em+' '+esc(l.name)+'</div><button class="rad sp" role="radio" aria-checked="'+(s.pick===l.id+'|')+'" data-a="rpick" data-v="'+l.id+'|"><i></i><span>No spot, just '+esc(l.name)+'</span></button>';
+  l.spots.forEach(function(x){if(x.id===s.i)return;var v=l.id+'|'+x.id;h+='<button class="rad sp" role="radio" aria-checked="'+(s.pick===v)+'" data-a="rpick" data-v="'+v+'"><i></i><span>'+esc(x.name)+'</span></button>'})});
+ h+='</div>';
+ return h+'<button class="big dng" data-a="doremove"'+(s.pick?'':' disabled')+'>'+(s.pick?'Move '+pl(n,'item')+' to '+esc(dl(s.pick.split('|')[0],s.pick.split('|')[1]))+' and remove '+esc(nm):'Pick where the items go')+'</button><button class="big ghost" data-a="close">Keep it</button>'}
+
+function render(){
+ var sc=ph.querySelector('.scr'),sh=ph.querySelector('.sh'),a=sc?sc.scrollTop:0,b=sh?sh.scrollTop:0;
+ var v=tab===0?viewA():tab===1?viewB():viewC();
+ ph.innerHTML='<div class="scr">'+v+'</div>'+sheetHtml()+(TST?'<div class="tst" role="status"><span>'+esc(TST.m)+'</span>'+(TST.u&&SNAP?'<button data-a="undo">Undo</button>':'')+'</div>':'');
+ var s2=ph.querySelector('.scr'),h2=ph.querySelector('.sh');if(s2)s2.scrollTop=a;if(h2)h2.scrollTop=b;
+ if(SH)upd()}
+function upd(){var s=SH,inp=document.getElementById('inp'),ok=document.getElementById('ok'),err=document.getElementById('err');if(!inp||!ok)return;
+ var v=inp.value;s.val=v;var m='',dis=false,par,self;
+ if(s.t==='rename'){var e=ent(s.k,s.i);par=e.loc.id;self=s.i;m=nameErr(s.k,par,v,self);dis=!v.trim()||!!m||cap(v)===e.o.name}
+ else if(s.t==='add'){m=nameErr(s.k,s.k==='spot'?s.i:null,v,'');dis=!v.trim()||!!m}
+ else if(s.t==='edit'){var e2=ent(s.k,s.i),sel=document.getElementById('sel');s.to=sel?sel.value:null;var tp=s.k==='spot'?s.to:null;m=nameErr(s.k,tp,v,s.i);var ch=cap(v)!==e2.o.name||(s.k==='spot'&&s.to!==e2.loc.id);dis=!v.trim()||!!m||!ch;
+  var hint=document.getElementById('hint');if(hint){var n=cnt(s.k,s.i);hint.textContent=(s.k==='spot'&&s.to!==e2.loc.id)?pl(n,'item')+' go with it to '+L(s.to).name+'.':'Renaming updates every item stored here at once: '+pl(n,'item')+'.'}}
+ err.textContent=m;ok.disabled=dis}
+function open(o,focus){SH=o;TST=null;render();if(focus){var i=document.getElementById('inp');if(i){i.focus();i.select&&i.select()}}}
+function done(m,u){SH=null;say(m,u);render()}
+
+ph.addEventListener('input',function(e){if(e.target.id==='inp')upd()});
+ph.addEventListener('change',function(e){if(e.target.id==='sel')upd()});
+ph.addEventListener('keydown',function(e){if(e.key==='Escape'&&SH){SH=null;render()}if(e.key==='Enter'&&e.target.id==='inp'){var ok=document.getElementById('ok');if(ok&&!ok.disabled)ok.click()}});
+ph.addEventListener('click',function(ev){var el=ev.target.closest('[data-a]');if(!el)return;var a=el.dataset.a,k=el.dataset.k,i=el.dataset.i,v=el.dataset.v;
+ switch(a){
+ case'close':SH=null;render();break;
+ case'col':UI.a.col[i]=!UI.a.col[i];render();break;
+ case'open':UI.b.loc=i;UI.b.ro=false;render();break;
+ case'home':UI.b.loc=null;UI.b.ro=false;render();break;
+ case'ro':UI.b.ro=!UI.b.ro;render();break;
+ case'pick':UI.c.sel=(UI.c.sel&&UI.c.sel.k===k&&UI.c.sel.i===i)?null:{k:k,i:i};render();break;
+ case'menu':open({t:'menu',k:k,i:i});break;
+ case'rename':{var e=ent(k,i);open({t:'rename',k:k,i:i,val:e.o.name},1);break}
+ case'add':open({t:'add',k:k,i:i,val:''},1);break;
+ case'edit':{var e3=ent(k,i);open({t:'edit',k:k,i:i,val:e3.o.name,to:e3.loc.id},1);break}
+ case'move':open({t:'move',i:i,pick:null});break;
+ case'mpick':SH.pick=v;render();break;
+ case'remove':{open({t:'remove',k:k,i:i,pick:null,keep:true});break}
+ case'rpick':SH.pick=v;render();break;
+ case'keep':SH.keep=v==='1';render();break;
+ case'up':case'dn':{var wasSh=!!SH;SH=null;reorder(k,i,a==='up'?-1:1);render();break}
+ case'undo':if(SNAP){M=JSON.parse(SNAP);SNAP=null;TST={m:'Undone.',u:false};render()}break;
+ case'save':doSave();break;
+ case'doremove':doRemove();break}});
+
+function doSave(){var s=SH;
+ if(s.t==='rename'){var e=ent(s.k,s.i),n=cnt(s.k,s.i),old=e.o.name;snap();e.o.name=cap(s.val);done('Renamed '+old+' to '+e.o.name+'. '+pl(n,'item')+' updated.',true)}
+ else if(s.t==='add'){snap();var nm=cap(s.val);if(s.k==='loc'){M.locs.push({id:'n'+M.nid++,name:nm,em:'📦',loose:0,spots:[]});done('Added '+nm+'.',true)}else{var p=L(s.i);p.spots.push({id:'n'+M.nid++,name:nm,n:0});done('Added '+nm+' to '+p.name+'.',true)}}
+ else if(s.t==='edit'){var e2=ent(s.k,s.i),n2=cnt(s.k,s.i),nn=cap(s.val),moved=s.k==='spot'&&s.to!==e2.loc.id,msg;snap();
+  if(nn!==e2.o.name){e2.o.name=nn;msg='Renamed to '+nn+'. '+pl(n2,'item')+' updated.'}
+  if(moved){var to=L(s.to);e2.loc.spots.splice(e2.loc.spots.indexOf(e2.spot),1);to.spots.push(e2.spot);msg=(msg?msg+' ':'')+'Moved '+nn+' to '+to.name+', '+pl(n2,'item')+' with it.'}
+  done(msg,true)}
+ else if(s.t==='move'){var r=SP(s.i),to2=L(s.pick);snap();r.loc.spots.splice(r.loc.spots.indexOf(r.spot),1);to2.spots.push(r.spot);done('Moved '+r.spot.name+' to '+to2.name+', '+pl(r.spot.n,'item')+' with it.',true)}}
+function doRemove(){var s=SH,e=ent(s.k,s.i),n=cnt(s.k,s.i),nm=e.o.name;snap();
+ if(s.k==='spot'){var loc=e.loc;loc.spots.splice(loc.spots.indexOf(e.spot),1);
+  if(n>0){var p=s.pick.split('|'),d=L(p[0]);if(p[1]){SP(p[1]).spot.n+=n}else{d.loose+=n}done('Removed '+nm+'. '+pl(n,'item')+' moved to '+dl(p[0],p[1])+'.',true)}else done('Removed '+nm+'.',true)}
+ else{var l=e.loc;M.locs.splice(M.locs.indexOf(l),1);
+  if(n>0){var d2=L(s.pick);if(s.keep){d2.loose+=l.loose;l.spots.forEach(function(x){var m=d2.spots.filter(function(y){return y.name.toLowerCase()===x.name.toLowerCase()})[0];if(m)m.n+=x.n;else d2.spots.push(x)})}else{d2.loose+=n}done('Removed '+nm+'. '+pl(n,'item')+' moved to '+d2.name+'.',true)}else done('Removed '+nm+'.',true)}}
+
+/* chrome */
+function setTab(t){tab=t;SH=null;TST=null;[0,1,2].forEach(function(j){var b=document.getElementById('t'+j);b.setAttribute('aria-selected',j===t);b.tabIndex=j===t?0:-1});
+ var f=INFO[t];document.getElementById('info').setAttribute('aria-labelledby','t'+t);
+ document.getElementById('info').innerHTML='<h2>'+f.n+'</h2><p>'+f.s+'</p><p><b>Who it suits</b> '+f.w+'</p><p><b>Tradeoffs</b> '+f.t+'</p><div class="perf op"><b>Performance note</b><br><span style="color:var(--muted);font-size:14px">'+f.p+'</span></div>';
+ render()}
+document.querySelector('.tabs2').addEventListener('click',function(e){var b=e.target.closest('[data-t]');if(b)setTab(+b.dataset.t)});
+document.querySelector('.ctl').addEventListener('click',function(e){var b=e.target.closest('[data-s]');if(!b)return;
+ if(b.dataset.s==='r'){init(document.querySelector('[data-s="1"]').getAttribute('aria-pressed')==='true');return}
+ document.querySelectorAll('.seg [data-s]').forEach(function(x){x.setAttribute('aria-pressed',x===b)});init(b.dataset.s==='1')});
+init(false);setTab(0);
+})();
+</script>
+</body></html>

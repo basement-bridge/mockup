@@ -7,6 +7,7 @@ What we have learned and decided about the product, written so it can be carried
 - `pantry-swipe.md`: swipe gestures on pantry rows (use one, used up, add to shopping list); counted vs level-only is a proposal.
 - `item-sheet.md`: the half-height bottom sheet a pantry row opens (tile grid, owner's choice); counted vs level-only, Used up, All fields, and the proposals it had to make.
 - `people-settings.md`: Settings > People split into Me and Household: what is on each, removing people, leaving with a typed name.
+- `locations-spots.md`: Settings > Kitchen locations (parents) and spots (children): three management options, proposals, open questions.
 - `user-preferences/`: how the system learns about people and decides what to act on (evidence grades, thresholds). Start with `evidence-grading.md`; the tool contract is in `boundary-contract.md`.
 
 Capture what the owner says. Do not add proposals of your own here. If something is a proposal, mark it as one and say who asked for it.

@@ -26,12 +26,14 @@
   var set=function(v){try{localStorage.setItem("theme",v)}catch(e){}};
   var cur=get();
   if(!T.some(function(t){return t[0]===cur})) cur=matchMedia("(prefers-color-scheme: light)").matches?"kitchie-day":"kitchie";
-  var show=function(v){document.documentElement.setAttribute("data-theme",v);cur=v;document.querySelectorAll("[data-theme-pick]").forEach(function(b){b.setAttribute("aria-pressed",String(b.dataset.themePick===v))})};
+  var nm=function(v){var t=T.filter(function(x){return x[0]===v})[0];return t?t[1]:""};
+  var show=function(v){document.documentElement.setAttribute("data-theme",v);cur=v;document.querySelectorAll("[data-theme-name]").forEach(function(el){el.textContent=nm(v)});document.querySelectorAll("[data-theme-pick]").forEach(function(b){b.setAttribute("aria-pressed",String(b.dataset.themePick===v))})};
   var apply=function(v,sync){ensure(v,function(){show(v)},sync)};
   apply(cur,true);
   var sw=function(t){return '<i class="tsw" style="background:linear-gradient(135deg,'+t[2]+' 50%,'+t[3]+' 50%)"></i>'};
   window.themeWarm=warm;
-  window.themeHtml=function(ids){return T.filter(function(t){return !ids||ids.indexOf(t[0])>-1}).map(function(t){return '<button type="button" class="tpick" data-theme-pick="'+t[0]+'" aria-pressed="'+(t[0]===cur)+'">'+sw(t)+t[1]+'</button>'}).join("")};
+  window.themeName=function(){return nm(cur)};
+  window.themeHtml=function(ids,bare){if(bare)return T.filter(function(t){return !ids||ids.indexOf(t[0])>-1}).map(function(t){return '<button type="button" class="tpick tbare" data-theme-pick="'+t[0]+'" aria-pressed="'+(t[0]===cur)+'" aria-label="'+t[1]+'" title="'+t[1]+'">'+sw(t)+'</button>'}).join("");return T.filter(function(t){return !ids||ids.indexOf(t[0])>-1}).map(function(t){return '<button type="button" class="tpick" data-theme-pick="'+t[0]+'" aria-pressed="'+(t[0]===cur)+'">'+sw(t)+t[1]+'</button>'}).join("")};
   document.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("[data-theme-pick]");if(b){set(b.dataset.themePick);apply(b.dataset.themePick)}});
   window.themeApply=function(){apply(cur)};
   document.addEventListener("DOMContentLoaded",function(){

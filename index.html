@@ -27,6 +27,19 @@
     </a>
   </section>
 
+  <section class="sec" aria-labelledby="ff">
+    <div class="lbl" id="ff">Phone, tablet and desktop</div>
+    <p>Every screen here follows the three form-factor buckets: phone under 600px, tablet 600 to 1023px, desktop 1024px and up. Same single column in each, relaxed on tablet, capped and centred on desktop. Resize this window to see it.</p>
+    <a class="tile" href="https://github.com/basement-bridge/platform-mockup/blob/main/DESIGN.md#7-form-factors-and-responsive-loading">
+      <div class="row"><h2>Form factors, the decision</h2><span class="tag">Design note</span></div>
+      <p>DESIGN.md section 7: the owner decision, shared width and gutter tokens, screen exceptions, and how to run the screenshot check.</p>
+    </a>
+    <a class="tile" href="docs/screenshots/responsive/plan-week__768-light.png">
+      <div class="row"><h2>Sample screenshots</h2><span class="tag">Images</span></div>
+      <p>Committed samples in <code>docs/screenshots/responsive/</code>: Planning the week at 768 and 1280, Household at 768 and 1280, Cooking right now at 360, this page at 390 dark. Run <code>tools/screenshots.mjs</code> for the full set at 360, 390, 768 and 1280 in light and dark.</p>
+    </a>
+  </section>
+
   <section class="sec" aria-labelledby="g">
     <div class="lbl" id="g">Fragments</div>
     <p>One item at a time, still in deliberation. Once clear, a fragment folds into a flow.</p>
@@ -54,6 +67,11 @@
       <div class="row"><h2>Item sheet, four layouts</h2><span class="tag">Fragment</span></div>
       <p>Tapping a Pantry item opens a bottom sheet to about half the screen. Four ways to lay out its details and edits. The owner chose the tile grid (option 2); it is now wired into the household flow.</p>
       <div class="q">Open: see docs/knowledge/item-sheet.md for the proposals the flow had to make.</div>
+    </a>
+    <a class="tile frag" href="fragments/locations-spots/">
+      <div class="row"><h2>Locations and spots, three ways</h2><span class="tag">Fragment</span></div>
+      <p>Settings > Kitchen: manage Fridge, Pantry and the spots inside them. A tree, drill in, or pick then act. Rename, add, remove or merge, reorder.</p>
+      <div class="q">Open: which option leads, and whether a spot can have two parents. Not in the household flow yet.</div>
     </a>
     <a class="tile frag" href="fragments/scan-in/">
       <div class="row"><h2>Scanning things in, four directions</h2><span class="tag">Fragment</span></div>
