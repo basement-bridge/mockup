@@ -2,7 +2,7 @@
 
 Status: mockup for the owner to review (8 Oct 2026). Not built in Kitchie. Source: owner's voice spec. Lines marked **Proposal** are mockup choices where the spec was silent.
 
-Code: `flows/household/app.js` (`rowHtml`, `useone`, `markUsedUp`, `DEEP`), `flows/household/styles.css` (`.pswipe`).
+Code: `flows/household/app.js` (`rowHtml`, `useone`, `markUsedUp`, `DEEP`), `flows/household/{mobile,tablet,desktop}/styles.css` (`.pswipe`).
 
 ## What the owner asked for
 

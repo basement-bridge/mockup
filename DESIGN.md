@@ -98,12 +98,30 @@ Shared in every bucket: spacing scale `--sp-1..--sp-7` (4, 8, 12, 16, 24, 32, 48
 
 ### Screen exceptions
 
-- `flows/household/`: this screen is the phone app itself, so it keeps a phone frame instead of a flowing column. Phone: full bleed. Tablet: the app as a centred 390px frame, the prototype Controls panel behind a Controls button. Desktop: the frame beside the always-open Controls panel. Layout code is in the flow's `styles.css`.
+- `flows/household/`: this screen is the phone app itself, so it keeps a phone frame instead of a flowing column. It is split by form factor, see "Household flow by form factor" below.
 - Fragment pages draw their phone mockups at fixed widths (300 to 390px). That is the content being compared, not the page layout.
+
+### Household flow by form factor (built 9 October 2026)
+
+Owner decision, voice session, 9 October 2026. `flows/household/` was the start-to-finish household flow and was in effect the phone version. It is now explicit, one folder per form factor:
+
+| Folder | Behaviour | Controls panel |
+|---|---|---|
+| `flows/household/mobile/` | The original. Phone: full bleed. 600px and up: the 390px phone frame, centred. | Behind the Controls button; beside the frame from 1024px |
+| `flows/household/tablet/` | **Only tablet relaxes wider.** 600px and up: a centred column of `--content-max` (720px, 24px gutter; 840px, 32px gutter above 1024px), as tall as the window. Phone widths: full bleed. | Behind the Controls button |
+| `flows/household/desktop/` | The phone-width (390px) frame stays, centred. Phone widths: full bleed. 600 to 1023px: framed, Controls behind the button. | Always open beside the frame from 1024px |
+
+Kitchie app decision: the phone frame stays on phone and on desktop; only tablet is wider.
+
+- **One shared script.** `flows/household/app.js` (and its deferred `flows/household/fields/*.js`) is referenced by all three `index.html` files. No logic is copied. The script finds its `fields/` folder from its own URL, so it works from any variant folder. A variant tells the script which form factor it is with `data-form="mobile|tablet|desktop"` on `<body>`; the script reads that only for behaviour that genuinely differs (none yet).
+- **Own folder, own `styles.css`.** Each variant has its own `index.html` and `styles.css`. Today `mobile/styles.css` and `desktop/styles.css` match apart from their header comments (same frame, same Controls behaviour) and `tablet/styles.css` differs in the form-factor block at the top. They are copies on purpose: the owner expects each form factor may EVOLVE DIFFERENTLY later. Change a variant's file when only that form factor should change; if a change should apply to all three, make it in all three (or move the rule to a shared file when the three have settled).
+- **Shared tokens.** All three load `theme.css` for `--content-max`, `--gutter`, spacing and `--tap`, so the buckets above stay the single source for widths.
+- **Old address.** `flows/household/index.html` is a tiny redirect to `mobile/` (query string and hash kept), with links to all three, so older links keep working.
+- **Scope.** The household flow only. A global per-form-factor toggle is a separate, later idea and is not built.
 
 ### Screenshot script
 
-`tools/screenshots.mjs`: captures every screen in the list at 360, 390, 768 and 1280, in both themes, full page, and prints checks (sideways scroll, controls under 44px, `.wrap` wider than `--content-max`, theme not applied). Inline text links are exempt from the 44px check. Run:
+`tools/screenshots.mjs`: captures every screen in the list (the household flow as its three variants, `household-mobile`, `household-tablet`, `household-desktop`) at 360, 390, 768 and 1280, in both themes, full page, and prints checks (sideways scroll, controls under 44px, `.wrap` wider than `--content-max`, theme not applied). Inline text links are exempt from the 44px check. Run:
 
     python3 -m http.server 8123 &
     npm i --no-save playwright-core@1.56.0

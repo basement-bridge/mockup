@@ -18,9 +18,10 @@ button{background:none;border:0;padding:0;cursor:pointer}
 .sw::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--fg);transition:.15s}
 .sw.on{background:var(--accent)}.sw.on::after{left:21px;background:var(--on-accent)}
 .gear{display:none}
-/* Form factors (DESIGN.md section 7). EXCEPTION, noted in the flow's notes: this screen is the phone app itself, so it keeps a phone frame.
-   Phone (under 600px): the app is full bleed. Tablet (600 to 1023px): the same app as a centred phone frame, Controls behind the button.
-   Desktop (1024px and up): the frame centred beside the always-open Controls panel. */
+/* MOBILE variant (DESIGN.md section 7). Own folder, own styles.css; the script (../app.js) is shared with tablet and desktop.
+   The phone app itself, so it keeps a phone frame in every bucket. Phone (under 600px): full bleed.
+   600px and up: the same 390px phone frame, centred; at 1024px and up the prototype Controls panel sits beside it.
+   Today this file and desktop/styles.css match; they are separate on purpose so each form factor can evolve alone. */
 @media (max-width:1023.98px){
   .stage{padding:var(--sp-4) var(--gutter);min-height:100%}
   .phone{max-height:calc(100dvh - 32px)}

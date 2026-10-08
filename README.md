@@ -11,7 +11,7 @@ The side panel (Controls button on a phone) switches who you are (owner or membe
 ## Layout
 
 - `index.html`: the index. **Flows** are complete or significant end-to-end parts. **Fragments** are single items still in deliberation; once clear they fold into a flow.
-- `flows/household/`: the clickable household prototype (below).
+- `flows/household/`: the clickable household prototype (below), one folder per form factor: `mobile/` (the original phone version), `tablet/` (the wider layout) and `desktop/` (phone frame beside Controls). Each has its own `index.html` and `styles.css`; they share one script, `flows/household/app.js`, and its deferred `fields/`. `flows/household/index.html` is a small redirect to `mobile/`, so old links still work. Open `flows/household/mobile/`, `.../tablet/` or `.../desktop/`. DESIGN.md section 7.
 - `fragments/`: `mid-cook`, `pwa-cta`, `item-row-axes`, `inventory-home`, `locations-spots`.
 - `theme.css` + `theme.js` + `themes/`: the single token set and the theme picker (ten themes) used by every page. Only the two default themes (Kitchie Night and Day) live in `theme.css`; every other theme is one small file in `themes/`, loaded when chosen and warmed in the background once the person engages the picker (DESIGN.md section 6). `shared.css`: layout for the index and fragments.
 - `docs/knowledge/`: what we've learned, per job to be done, for carrying into the implementation.
@@ -44,7 +44,7 @@ Its own tab, no headline (the tab says where you are). Flat list. Each row: tick
 
 ## Pantry, Shopping, profile menu and Settings (performance, DESIGN.md section 6)
 
-- Default path loads: the household flow's one script and stylesheet, the two default themes, and the screen's own markup. The Pantry list renders only the rows for the current tab; the Filters sheet and Sort tab are built when opened.
+- Default path loads: the household flow's one shared script and the variant's own stylesheet, the two default themes, and the screen's own markup. The Pantry list renders only the rows for the current tab; the Filters sheet and Sort tab are built when opened.
 - Deferred: the other themes (fetched on choice, warmed when the picker is first engaged), the role icons (only when the role picker is opened), item field editors (first tap of a field), and Stock checks and Categories (built only when you open them from Settings).
 - Profile menu: the Get started strip is computed from the member's age and costs nothing extra; it adds no request. In the real app it would come from the member's created date already on the page.
 - Settings: every display switch is a browser-only value, so nothing is fetched to show or change them. Entitlement per setting is not modelled yet (open).
@@ -55,7 +55,7 @@ Its own tab, no headline (the tab says where you are). Flat list. Each row: tick
 Read first, tap to edit per field: every field production edits is a plain row (name and emoji, quantity, level, location, spot, category, use by, minimum). Tapping a row opens its editor under it and every change autosaves with a short Saved line. There is no Save button. A failed save (platform down, or a bad value such as an empty name or a past date) shows an error on that field with Try again. Mark as used up opens a confirm (with a guard line when two or more items were used up in the last 5 minutes) and ends in an Undo toast; the tick on the pantry list uses the same Undo.
 
 - Default path (opening the screen): only the read rows, built from state already in memory. No editor markup, no option lists, no extra requests.
-- Deferred to the first tap of a field: that field's editor and its data, in `flows/household/fields/` (`name.js` has the emoji set, `amounts.js` the unit list, `place.js` the spots per location, `category.js`, `useby.js` the quick pills and date picker, `flags.js`). One file is fetched once, on the first tap of one of its rows, then cached. The date input is built only when Pick date is tapped. The used-up confirm is built only when opened.
+- Deferred to the first tap of a field: that field's editor and its data, in `flows/household/fields/`, shared by all three variants (`name.js` has the emoji set, `amounts.js` the unit list, `place.js` the spots per location, `category.js`, `useby.js` the quick pills and date picker, `flags.js`). One file is fetched once, on the first tap of one of its rows, then cached. The date input is built only when Pick date is tapped. The used-up confirm is built only when opened.
 - Why this split: the read rows are what the job needs on arrival (look, glance, leave). Editors are needed by a minority of visits, and each is small, so a first tap costs one tiny fetch. Not done yet: prefetching a file on hover or focus of its row.
 
 ## Item sheet (performance, DESIGN.md section 6)
