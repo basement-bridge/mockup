@@ -18,13 +18,23 @@ button{background:none;border:0;padding:0;cursor:pointer}
 .sw::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--fg);transition:.15s}
 .sw.on{background:var(--accent)}.sw.on::after{left:21px;background:var(--on-accent)}
 .gear{display:none}
-@media (max-width:760px){
+/* Form factors (DESIGN.md section 7). EXCEPTION, noted in the flow's notes: this screen is the phone app itself, so it keeps a phone frame.
+   Phone (under 600px): the app is full bleed. Tablet (600 to 1023px): the same app as a centred phone frame, Controls behind the button.
+   Desktop (1024px and up): the frame centred beside the always-open Controls panel. */
+@media (max-width:1023.98px){
+  .stage{padding:var(--sp-4) var(--gutter);min-height:100%}
+  .phone{max-height:calc(100dvh - 32px)}
+  .panel{display:none;position:fixed;right:var(--sp-3);bottom:calc(var(--sp-3) + var(--tap) + var(--sp-2));width:min(340px,calc(100vw - 24px));z-index:50;background:var(--stage);padding:var(--sp-3);border-radius:var(--r-card);border:1px solid var(--border);max-height:70vh}
+  .panel.open{display:flex}
+  .gear{display:inline-flex;align-items:center;min-height:var(--tap);position:fixed;right:var(--sp-3);bottom:var(--sp-3);z-index:60;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-pill);padding:0 var(--sp-4);font-size:12px;opacity:.92;font-weight:700;color:var(--accent)}
+}
+@media (max-width:599.98px){
   .stage{padding:0;display:block}
   .phone{width:100%;height:100dvh;max-height:none;border-radius:0;border:0}
-  .panel{display:none;position:fixed;inset:auto 12px 120px 12px;width:auto;z-index:50;background:var(--stage);padding:12px;border-radius:var(--r-card);border:1px solid var(--border);max-height:70vh}
-  .panel.open{display:flex}
-  .gear{display:block;position:fixed;right:10px;bottom:78px;z-index:60;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-pill);padding:6px 12px;font-size:12px;opacity:.92;font-weight:700;color:var(--accent)}
+  .gear{bottom:78px;right:10px}
+  .panel{inset:auto 12px 128px 12px;width:auto}
 }
+.panel select,.panel .pb,.panel label{min-height:var(--tap)}
 
 /* app */
 .top{height:60px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--border);font-family:var(--head);font-weight:700;font-size:19px}
