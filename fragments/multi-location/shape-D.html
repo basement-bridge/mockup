@@ -1,0 +1,56 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Shape D mockup</title><style>
+:root{color-scheme:dark;--bg:#0F1E19;--surface:#172A23;--border:#24403A;--fg:#F3EEE3;--muted:#A9B8AE;--accent:#F2B84B;--on-accent:#0F1E19;--danger:#FF9A8F;--sage:#9CCBA8;--added:#86D99B;--r-ctl:14px;--r-card:18px;--head:"Bricolage Grotesque","DM Sans",system-ui,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"DM Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.4;font-size:15px}
+.w{max-width:390px;margin:0 auto;padding:14px 16px 40px}
+h1{font-family:var(--head);font-size:26px;margin:4px 0 2px}
+.tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.sub{color:var(--muted);font-size:13px;margin:0 0 10px}
+.cap{margin:26px 0 8px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--accent)}
+.area{margin:14px 0 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.list{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden}
+.row{display:flex;gap:10px;align-items:center;min-height:56px;padding:8px 12px;border-top:1px solid var(--border)}
+.row:first-child{border-top:0}
+.em{font-size:24px;width:36px;text-align:center}
+.nm{flex:1;min-width:0;font-weight:600}.nm small{display:block;font-weight:400;font-size:12px;color:var(--muted)}
+.amt{font-weight:700;text-align:right;font-size:14px}.amt small{display:block;font-weight:400;font-size:11px;color:var(--muted)}
+.pill{font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;border:1px solid var(--border);white-space:nowrap;color:var(--sage)}
+.pill.low{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.pill.out{color:var(--danger);border-color:var(--danger)}
+.bd{display:inline-block;font-size:11px;font-weight:700;padding:1px 7px;border-radius:99px;border:1px dashed var(--muted);color:var(--muted);margin-top:3px}
+.bd.k{border-style:solid;border-color:var(--accent);color:var(--accent)}
+.bad{outline:2px dashed var(--danger);outline-offset:-2px}
+.sheet{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:8px 14px 14px}
+.grip{width:40px;height:5px;border-radius:3px;background:var(--border);margin:0 auto 10px}
+.top{display:flex;gap:10px;align-items:center}.top .em{background:var(--bg);border-radius:var(--r-ctl);height:44px;line-height:44px;font-size:28px;width:44px}
+.top b{font-size:19px;display:block}.top span{color:var(--muted);font-size:13px}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.tl{min-height:62px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;color:var(--muted);font-weight:600;text-align:center;padding:4px}
+.tl b{font-size:14px;color:var(--fg)}
+.tl.span2{grid-column:span 2}
+.step{display:flex;align-items:center;gap:8px}
+.step .v{flex:1;text-align:center;font-size:22px;font-weight:800}.step .v small{display:block;font-size:11px;font-weight:600;color:var(--muted)}
+.rb{width:44px;height:44px;border-radius:50%;border:1px solid var(--border);background:var(--bg);display:inline-flex;align-items:center;justify-content:center;font-size:20px;font-weight:700}
+.rows2{border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--bg);overflow:hidden;margin-top:10px}
+.rw{display:flex;align-items:center;gap:8px;min-height:44px;padding:4px 12px;border-top:1px solid var(--border);font-size:14px}.rw:first-child{border-top:0}
+.rw .l{flex:1;color:var(--muted)}.rw b{font-weight:700}
+.rw .sm{font-size:11px;color:var(--muted)}
+.btn{min-height:44px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);color:var(--fg);font:700 13px inherit;display:inline-flex;align-items:center;justify-content:center;padding:0 12px;gap:6px}
+.btn.m{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.acts{display:flex;gap:8px;margin-top:10px}.acts .btn{flex:1}
+.note{margin-top:10px;padding:10px 12px;border-radius:var(--r-ctl);border:1px dashed var(--border);color:var(--muted);font-size:13px}
+.note i{color:var(--fg);font-style:normal;font-weight:600}
+.flaws{margin-top:26px;border:2px solid var(--danger);border-radius:var(--r-card);padding:12px 14px;background:color-mix(in srgb,var(--danger) 8%,var(--bg))}
+.flaws h2{font-family:var(--head);font-size:17px;margin:0 0 6px;color:var(--danger)}
+.flaws li{margin:6px 0;font-size:13.5px}.flaws ul{padding-left:18px;margin:0}
+.flaws .ok{color:var(--sage)}
+.swipe{position:relative}
+.sw{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--muted);padding:4px 12px;background:var(--bg);border-top:1px solid var(--border)}
+</style></head><body><div class="w">
+<span class="tag">Mockup, not decided &middot; Shape D</span><h1>Backup fields on the item</h1><p class="sub">One row with a structured backup (amount, where, use by) and the everyday container as plain text.</p>
+<div class="cap">Pantry list</div><div class="area">Pantry</div><div class="list">
+<div class="row "><span class="em">🍬</span><div class="nm">Sugar<small>everyday: blue jar by the kettle</small><span class="bd k">Backup 10 kg · Garage</span></div><div class="amt">1.2 kg<small></small></div><span class="pill ">Plenty</span></div></div>
+<div class="area">Fridge</div><div class="list">
+<div class="row "><span class="em">🐄</span><div class="nm">Ground beef<small>thawed, 3 meals</small><span class="bd k">Backup 5 lb · Freezer</span></div><div class="amt">1 lb<small>use by Fri</small></div><span class="pill ">Some</span></div></div>
+<div class="note">The text note ("blue jar by the kettle") rides on the row as a subtitle. It is searchable text but has no amount, no area, no level.</div><div class="cap">Item sheet: sugar</div><div class="sheet"><div class="grip"></div><div class="top"><span class="em">🍬</span><div><b>Sugar</b><span>Pantry cupboard</span></div></div><div class="tiles"><div class="tl"><b>1.2 kg</b>Amount</div><div class="tl"><b>Plenty</b>Level</div><div class="tl"><b>1 kg</b>Minimum</div></div><div class="step"><span class="rb">&minus;</span><div class="v">1.2<small>kg</small></div><span class="rb">+</span></div><div class="rows2"><div class="rw">📦<span class="l">Backup</span><b>10 kg</b></div><div class="rw">📍<span class="l">Backup where</span><b>Garage</b></div></div><div class="note">Everyday container (free text): <i>Bowl by the kettle; refill from cupboard bag</i>. Not counted, not tracked.</div></div><div class="cap">Item sheet: ground beef</div><div class="sheet"><div class="grip"></div><div class="top"><span class="em">🐄</span><div><b>Ground beef</b><span>Fridge &middot; thawed</span></div></div><div class="tiles"><div class="tl"><b>1 lb</b>Amount</div><div class="tl"><b>Some</b>Level</div><div class="tl"><b>Fri</b>Use by</div></div><div class="step"><span class="rb">&minus;</span><div class="v">1<small>lb</small></div><span class="rb">+</span></div><div class="rows2"><div class="rw">❄️<span class="l">Backup</span><b>5 lb</b></div><div class="rw">📍<span class="l">Backup where</span><b>Freezer</b></div><div class="rw">⏱<span class="l">Backup use by</span><b>14 Jan</b></div></div><div class="acts"><span class="btn m">Thaw 1 lb</span><span class="btn">Cook</span></div></div>
+<div class="flaws"><h2>Flaws in this option</h2><ul><li><b>Bowl is a lie by omission.</b> The tracked amount is the cupboard bag; the bowl is prose. "Is there sugar on the bench?" cannot be answered by anything but reading the note.</li><li><b>Only two tiers.</b> Sugar bowl + bag + sack: one lives in prose, so the note must be maintained by hand and goes stale ("refill from cupboard bag").</li><li><b>Second member</b> finds the row under Pantry; the note might say kettle, but Counter area search and the Counter list never show it. This is the exact cost the owner may accept; it is real for anyone not the person who wrote the note.</li><li><b>Beef is well served</b>: two amounts, two use-bys, thaw is a transfer between backup and main. Backup use by is a third field to design.</li><li><b>Level, swipe, Amount tile unchanged</b>; level reads the working amount only. "Don't buy" is a rule: warn if backup &gt; 0 and working is low.</li><li><b>Backup-only data on every item</b> is dead weight for the 95% of items that have one place; fields must hide when empty (an "Add backup" affordance).</li><li><b class="ok">Wins:</b> no new list, no rank, smallest mental model; tool change is three optional fields.</li></ul></div></div></body></html>
