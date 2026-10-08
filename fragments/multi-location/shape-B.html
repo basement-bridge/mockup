@@ -1,0 +1,56 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Shape B mockup</title><style>
+:root{color-scheme:dark;--bg:#0F1E19;--surface:#172A23;--border:#24403A;--fg:#F3EEE3;--muted:#A9B8AE;--accent:#F2B84B;--on-accent:#0F1E19;--danger:#FF9A8F;--sage:#9CCBA8;--added:#86D99B;--r-ctl:14px;--r-card:18px;--head:"Bricolage Grotesque","DM Sans",system-ui,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"DM Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.4;font-size:15px}
+.w{max-width:390px;margin:0 auto;padding:14px 16px 40px}
+h1{font-family:var(--head);font-size:26px;margin:4px 0 2px}
+.tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.sub{color:var(--muted);font-size:13px;margin:0 0 10px}
+.cap{margin:26px 0 8px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--accent)}
+.area{margin:14px 0 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.list{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden}
+.row{display:flex;gap:10px;align-items:center;min-height:56px;padding:8px 12px;border-top:1px solid var(--border)}
+.row:first-child{border-top:0}
+.em{font-size:24px;width:36px;text-align:center}
+.nm{flex:1;min-width:0;font-weight:600}.nm small{display:block;font-weight:400;font-size:12px;color:var(--muted)}
+.amt{font-weight:700;text-align:right;font-size:14px}.amt small{display:block;font-weight:400;font-size:11px;color:var(--muted)}
+.pill{font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;border:1px solid var(--border);white-space:nowrap;color:var(--sage)}
+.pill.low{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.pill.out{color:var(--danger);border-color:var(--danger)}
+.bd{display:inline-block;font-size:11px;font-weight:700;padding:1px 7px;border-radius:99px;border:1px dashed var(--muted);color:var(--muted);margin-top:3px}
+.bd.k{border-style:solid;border-color:var(--accent);color:var(--accent)}
+.bad{outline:2px dashed var(--danger);outline-offset:-2px}
+.sheet{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:8px 14px 14px}
+.grip{width:40px;height:5px;border-radius:3px;background:var(--border);margin:0 auto 10px}
+.top{display:flex;gap:10px;align-items:center}.top .em{background:var(--bg);border-radius:var(--r-ctl);height:44px;line-height:44px;font-size:28px;width:44px}
+.top b{font-size:19px;display:block}.top span{color:var(--muted);font-size:13px}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.tl{min-height:62px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;color:var(--muted);font-weight:600;text-align:center;padding:4px}
+.tl b{font-size:14px;color:var(--fg)}
+.tl.span2{grid-column:span 2}
+.step{display:flex;align-items:center;gap:8px}
+.step .v{flex:1;text-align:center;font-size:22px;font-weight:800}.step .v small{display:block;font-size:11px;font-weight:600;color:var(--muted)}
+.rb{width:44px;height:44px;border-radius:50%;border:1px solid var(--border);background:var(--bg);display:inline-flex;align-items:center;justify-content:center;font-size:20px;font-weight:700}
+.rows2{border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--bg);overflow:hidden;margin-top:10px}
+.rw{display:flex;align-items:center;gap:8px;min-height:44px;padding:4px 12px;border-top:1px solid var(--border);font-size:14px}.rw:first-child{border-top:0}
+.rw .l{flex:1;color:var(--muted)}.rw b{font-weight:700}
+.rw .sm{font-size:11px;color:var(--muted)}
+.btn{min-height:44px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);color:var(--fg);font:700 13px inherit;display:inline-flex;align-items:center;justify-content:center;padding:0 12px;gap:6px}
+.btn.m{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.acts{display:flex;gap:8px;margin-top:10px}.acts .btn{flex:1}
+.note{margin-top:10px;padding:10px 12px;border-radius:var(--r-ctl);border:1px dashed var(--border);color:var(--muted);font-size:13px}
+.note i{color:var(--fg);font-style:normal;font-weight:600}
+.flaws{margin-top:26px;border:2px solid var(--danger);border-radius:var(--r-card);padding:12px 14px;background:color-mix(in srgb,var(--danger) 8%,var(--bg))}
+.flaws h2{font-family:var(--head);font-size:17px;margin:0 0 6px;color:var(--danger)}
+.flaws li{margin:6px 0;font-size:13.5px}.flaws ul{padding-left:18px;margin:0}
+.flaws .ok{color:var(--sage)}
+.swipe{position:relative}
+.sw{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--muted);padding:4px 12px;background:var(--bg);border-top:1px solid var(--border)}
+</style></head><body><div class="w">
+<span class="tag">Mockup, not decided &middot; Shape B</span><h1>Symmetric entries</h1><p class="sub">One item, a list of stock entries, each with its own place, amount and use by. Total is the sum.</p>
+<div class="cap">Pantry list</div><div class="area">Counter &middot; first placement</div><div class="list">
+<div class="row "><span class="em">🍬</span><div class="nm">Sugar<small>bowl · cupboard · garage</small><span class="bd">Counter 1 cup</span> <span class="bd">Pantry 1.2 kg</span> <span class="bd">Garage 10 kg</span></div><div class="amt">11.3 kg<small>3 places</small></div><span class="pill ">Plenty</span></div></div>
+<div class="area">Fridge &middot; first placement</div><div class="list">
+<div class="row "><span class="em">🐄</span><div class="nm">Ground beef<small>use by Fri (fridge)</small><span class="bd">Fridge 1 lb</span> <span class="bd">Freezer 5 lb</span></div><div class="amt">6 lb<small>2 places</small></div><span class="pill ">Plenty</span></div></div>
+<div class="note">Item appears once, under the area of its first entry. Searching Freezer finds nothing in the freezer group. Rule needed; the alternative is the item repeated under every area it touches.</div><div class="cap">Item sheet: sugar</div><div class="sheet"><div class="grip"></div><div class="top"><span class="em">🍬</span><div><b>Sugar</b><span>3 placements &middot; 11.3 kg total</span></div></div><div class="tiles"><div class="tl"><b>11.3 kg</b>Total</div><div class="tl"><b>Plenty</b>Level (sum)</div><div class="tl"><b>1 kg</b>Minimum</div></div><div class="rows2"><div class="rw">🫙<span class="l">Counter bowl</span><b>1 cup</b><span class="sm">use by &mdash;</span></div><div class="rw">🚪<span class="l">Pantry bag</span><b>1.2 kg</b><span class="sm">&mdash;</span></div><div class="rw">🏠<span class="l">Garage sack</span><b>10 kg</b><span class="sm">&mdash;</span></div></div><div class="acts"><span class="btn">+ Add placement</span><span class="btn">Move between</span></div><div class="note">Mixed units (cup, kg): the total "11.3 kg" is a unit conversion Kitchie must guess for sugar. Tap an entry to edit its own stepper.</div></div><div class="cap">Item sheet: ground beef</div><div class="sheet"><div class="grip"></div><div class="top"><span class="em">🐄</span><div><b>Ground beef</b><span>2 placements &middot; 6 lb total</span></div></div><div class="tiles"><div class="tl"><b>6 lb</b>Total</div><div class="tl"><b>Plenty</b>Level (sum)</div><div class="tl"><b>Fri</b>Use by (earliest)</div></div><div class="rows2"><div class="rw">🧊<span class="l">Fridge, thawed</span><b>1 lb</b><span class="sm">Fri</span></div><div class="rw">❄️<span class="l">Freezer, bulk</span><b>5 lb</b><span class="sm">14 Jan</span></div></div><div class="acts"><span class="btn m">Thaw 1 lb &rarr;</span><span class="btn">Cook</span></div><div class="note">Swipe on the list row: reduce <i>which</i> entry? A prompt on every swipe kills swipe; "earliest use by first" drains the fridge, correct here, wrong for sugar (would empty the bowl, not the sack).</div></div>
+<div class="flaws"><h2>Flaws in this option</h2><ul><li><b>Row lies about where.</b> A single row cannot say where to look; chips fix it but crowd the row at 390px with 3+ placements.</li><li><b>Amount tile becomes a list.</b> The existing Amount tile (#288) and stepper cannot stay: edit target is ambiguous, two levels of tap to change a number.</li><li><b>Level from the sum hides the shortage that matters:</b> 6 lb of beef is "Plenty" while only 1 lb is thawed and dinner needs thawing tonight. Sugar bowl empty, still Plenty.</li><li><b>Mixed units</b> (cup vs kg) make the total a made-up number. Total as hero is wrong for sugar.</li><li><b>Swipe has no good answer</b>: ask (slow), earliest use-by (wrong for sugar), first entry (arbitrary).</li><li><b>Pantry grouping by area</b> and Use by sort: item is either under one area (hides freezer stock from a Freezer search) or in several (duplicate rows by another name).</li><li><b class="ok">Wins:</b> true total is one tile; "don't buy" and recipe matching read the sum cleanly; no duplicate records. Heaviest migration of the four.</li></ul></div></div></body></html>
