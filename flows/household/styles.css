@@ -491,3 +491,12 @@ html,body{overflow-x:hidden}.phone,.body{overflow-x:hidden}.rscroll,.twoRow{over
 .tiles4 .tl{min-height:72px}
 .shead .sid .shw{color:var(--muted)}.shead .sid .shw b{font-size:inherit;font-weight:700;color:var(--fg);overflow:visible;white-space:normal}
 .smore{margin-left:auto}.smore+.sclose{margin-left:0}
+
+/* Invite codes (owner, 8 Oct 2026) */
+.codechip{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:999px;background:var(--surface);border:1px solid var(--border);color:var(--muted);font-size:14px}
+.codechip b{color:var(--fg);font-size:18px;letter-spacing:.12em}
+.codebig{display:flex;align-items:center;justify-content:center;min-height:72px;border-radius:var(--r-ctl);background:var(--surface);border:1px solid var(--border)}
+.codebig b{font-size:34px;letter-spacing:.18em;overflow:visible}
+.codeb{letter-spacing:.12em;font-size:17px}
+.codein{text-align:center;font-size:28px;letter-spacing:.18em;font-variant-numeric:tabular-nums}
+.center-t{justify-content:center;text-align:center;padding:0}

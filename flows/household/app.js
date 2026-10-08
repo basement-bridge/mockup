@@ -119,7 +119,7 @@ const initial = () => ({
   screen: "invite", stack: [], tab: "today", param: null,
   persona: "sam", recipes: true, down: false, expireNext: false,
   pantry: freshPantry(), sheet: null, isheet: null, toast: null, ed: noEd(), usedLog: [],
-  members: ["arjan", "sam"], invites: [{ name: "Priya", days: 6 }],
+  members: ["arjan", "sam"], invites: [{ code: "482913", hours: 20 }], codeState: "ok", codeTyped: "", codeMsg: null,
   roles: { arjan: { title: "Pantry Marshal", ic: "shield", desc: "Keeps order on the shelves and the fridge. Knows exactly where the cumin lives." }, sam: null },
   cfg: { size: "normal", emoji: true, motion: false, spot: true, amount: true, useby: true, activity: true, compact: false }, stockChecks: true,
   day: 1, aiDone: false, inviteDone: false, cvOpt: "A", aiTab: "ChatGPT", links: { ChatGPT: false, Claude: false, Other: false }, founder: "arjan", avatars: {}, bannerGot: false, pending: null, joined: false,
@@ -386,12 +386,30 @@ const INVITE_SCENE = `<svg class="scene env" viewBox="0 0 240 150" role="img" ar
 <g class="letter"><rect x="70" y="8" width="100" height="96" rx="8"/><g class="lp" transform="translate(0,-66)"><path d="M98 78h44v12c0 8-6 13-22 13s-22-5-22-13z"/><path d="M92 82h-5a3 3 0 0 0 0 6h5M148 82h5a3 3 0 0 1 0 6h-5"/><path d="M96 74c8-8 40-8 48 0z"/></g></g>
 <path class="back" d="M52 70l68-30 68 30v62a8 8 0 0 1-8 8H60a8 8 0 0 1-8-8z"/><path class="flap" d="M52 74l68 44 68-44v58a8 8 0 0 1-8 8H60a8 8 0 0 1-8-8z"/><path class="fold" d="M52 132l50-36M188 132l-50-36"/></svg>`;
 
+/* Invite codes (owner, 8 Oct 2026): six digits, shown as 482 913. One neutral message for wrong, used, expired or locked-out; the lockout is the only one that says "try later". */
+const fmtCode = (c) => String(c).replace(/(\d{3})(\d{3})/, "$1 $2");
+const CODE_WRONG = "That code didn't work. It may have been used, have expired, or be typed wrong. Ask for a new one.";
+const CODE_LOCKED = "Too many tries. Please wait 15 minutes, then try again.";
+
 const screens = {
+  /* Typing the code in: for someone who was given the digits rather than a link. */
+  entercode: () => `<div class="body center">
+    <h1>Enter your invite code</h1><p>Six digits from the person who invited you.</p>
+    <input class="field codein" id="codein" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" maxlength="7" placeholder="000 000" value="${esc(S.codeTyped)}" aria-label="Invite code" aria-invalid="${S.codeState === "wrong"}">
+    ${S.codeState === "wrong" ? `<p class="ferr center-t" role="alert">${I.alert(18)}<span>${CODE_WRONG}</span></p>` : ""}
+    ${S.codeState === "locked" ? `<p class="ferr center-t" role="alert">${I.alert(18)}<span>${CODE_LOCKED}</span></p>` : ""}
+    <button class="btn" data-act="usecode" ${S.codeState === "locked" ? "disabled" : ""}>Continue</button>
+    <p class="small">Next you sign in with Google. A code works once.</p></div>`,
+
   invite: () => `<div class="body center">
     <div class="av" style="width:56px;height:56px;font-size:22px">A</div>
     ${S.own ? `<h1>Arjan set you up with a kitchen of your own</h1><p>Keep track of what's in the fridge and pantry. Invite people in whenever you like.</p>` : `<h1>Arjan invited you to Our kitchen</h1><p>Share what's in the fridge and pantry, and cook from it together.</p>`}
-    <button class="btn" data-act="signin">Continue with Google</button>
-    <p class="small">You'll sign in with Google. We never see your password.</p></div>`,
+    <div class="codechip" aria-label="Your invite code">${riSvg("lock", 14)}<span>Invite code</span><b class="mono">${fmtCode(S.code || "482913")}</b></div>
+    ${S.codeState === "wrong" ? `<p class="ferr center-t" role="alert">${I.alert(18)}<span>${CODE_WRONG}</span></p>` : ""}
+    ${S.codeState === "locked" ? `<p class="ferr center-t" role="alert">${I.alert(18)}<span>${CODE_LOCKED}</span></p>` : ""}
+    <button class="btn" data-act="signin" ${S.codeState === "locked" ? "disabled" : ""}>Continue with Google</button>
+    <p class="small">You'll sign in with Google. We never see your password.</p>
+    <button class="link" data-act="othercode">Use a different code</button></div>`,
 
   welcome: () => {
     const names = NAMES.slice(0, S.existing);
@@ -538,8 +556,8 @@ const screens = {
   household: () => backHeader("Back", "Household") + `<div class="body">
     <div><h1 style="font-size:2rem">Our kitchen</h1><p style="margin-top:4px">${S.members.length} member${S.members.length === 1 ? "" : "s"}</p></div>
     <div><span class="lbl">Members</span>${S.members.map((w) => `<button class="m" data-sheet="member" data-p="${w}"><span class="avw"><span class="av">${avt(w)}</span>${role(w) ? `<span class="avbadge">${riSvg(role(w).ic, 13)}</span>` : ""}</span><div style="flex:1"><b>${esc(PEOPLE[w].name)}</b>${w === S.persona ? ' <span class="chip">You</span>' : ""} ${founderChip(w)}${role(w) ? `<p class="small">${esc(role(w).title)}</p>` : ""}</div><span class="chev" style="color:var(--muted)">${I.chev}</span></button>`).join("")}
-      ${S.invites.map((i) => `<div class="m"><span class="av" style="border-style:dashed;color:var(--muted)">${esc(i.name[0])}</span><div style="flex:1"><b>${esc(i.name)}</b><p class="small">Invited · link expires in ${i.days} days</p></div><button data-act="revoke" data-p="${esc(i.name)}" class="danger" aria-label="Cancel invite for ${esc(i.name)}" style="font-size:14px;min-height:44px;padding:0 8px">Cancel</button></div>`).join("")}</div>
-    <button class="btn" data-sheet="invite">Invite someone</button>
+      ${S.invites.map((i) => `<div class="m"><span class="av" style="border-style:dashed;color:var(--muted)">${riSvg("mail", 16)}</span><div style="flex:1"><b class="mono codeb">${fmtCode(i.code)}</b><p class="small">${i.own ? "Own household" : "Join Our kitchen"} \u00b7 expires in ${i.hours} hours \u00b7 works once</p></div><button data-act="copycode" data-p="${esc(i.code)}" class="link" aria-label="Copy code ${fmtCode(i.code)}" style="font-size:14px;min-height:44px;padding:0 8px">Copy</button><button data-act="revoke" data-p="${esc(i.code)}" class="danger" aria-label="Cancel code ${fmtCode(i.code)}" style="font-size:14px;min-height:44px;padding:0 8px">Cancel</button></div>`).join("")}</div>
+    <button class="btn" data-sheet="invite" ${S.invites.length >= 3 ? "disabled" : ""}>Invite someone</button>${S.invites.length >= 3 ? `<p class="small">You have 3 unused codes, the most there can be. Cancel one or wait for one to be used or expire.</p>` : ""}
     <div class="dz"><span class="lbl danger">Danger zone</span><p class="small">Leave Our kitchen. You lose access until someone invites you back.</p><button class="btn ghost danger" data-act="leavestart">Leave household</button></div></div>`,
 
   ai: () => backHeader("Back", "AI assistant") + `<div class="body">
@@ -569,7 +587,7 @@ const screens = {
     <div class="hello"><span class="pill">${riSvg("lock", 14)}By invite only</span>
       <h1>Good kitchens start with an invite.</h1>
       <p>You're signed in as <b style="color:var(--fg)">j.smith@example.com</b>, which isn't in a household yet.</p></div>
-    <div class="acts"><button class="btn" data-act="restart">I have an invite link</button>
+    <div class="acts"><button class="btn" data-act="entercode">I have an invite code</button>
       <button class="btn ghost" data-act="askaround">Will ask around :-(</button>
       <button class="btn ghost" data-act="restart">Use a different Google account</button></div></div>`,
 };
@@ -664,12 +682,13 @@ function sheetHtml() {
       ${err ? `<p class="ferr" role="alert">${I.alert(18)}<span>${esc(S.ed.err.msg)}</span></p>` : ""}
       <button class="btn" data-act="usedconfirm">${err ? "Try again" : "Yes, used up"}</button><button class="btn ghost" data-act="closesheet">Keep it</button>`, true);
   }
-  if (sh === "invite") return wrap(`<h2>Invite someone</h2><p>Send this link. They sign in with Google and join Our kitchen. Anyone in the household can send one.</p>
-    <div class="field" style="display:flex;align-items:center"><span class="mono">https://kitchen.example/join/k7Q2-m9xA-0pR4</span></div>
-    <button class="btn" data-act="copyinvite">Copy link</button><p class="small">Works once and expires in 7 days. It can be cancelled from Household.</p>`);
-  if (sh === "invite2") return wrap(`<h2>Invite to start a new household</h2><p>They create their own household. They don't join Our kitchen.</p>
-    <div class="field" style="display:flex;align-items:center"><span class="mono">https://kitchen.example/join/h3W8-q2nB-6vT1</span></div>
-    <button class="btn" data-act="copyinvite2">Copy link</button><p class="small">Works once and expires in 7 days.</p>`);
+  if (sh === "invite" || sh === "invite2") {
+    const own = sh === "invite2"; const c = own ? "906254" : "482913";
+    return wrap(`<h2>${own ? "Invite to start a new household" : "Invite someone"}</h2><p>${own ? "They create their own household. They don't join Our kitchen." : "Share this code. They sign in with Google and join Our kitchen. Anyone in the household can make one."}</p>
+    <div class="codebig" aria-label="Invite code ${fmtCode(c)}"><b class="mono">${fmtCode(c)}</b></div>
+    <div class="row" style="gap:8px"><button class="btn" data-act="copycode" data-p="${c}">Copy code</button><button class="btn ghost" data-act="copyinvite">Copy link</button></div>
+    <p class="small">Works once and expires in 24 hours. Up to 3 unused codes at a time. ${own ? "" : "It can be cancelled from Household."}</p>`);
+  }
   if (sh === "expired") return wrap(`<h2>Sign in again to save</h2><p>Your sign-in ended. What you typed is kept, and you'll come straight back.</p><button class="btn" data-act="resume">Continue with Google</button>`, true);
   if (sh === "role") return wrap(`<h2>Your kitchen role</h2><p>Optional. It sits beside your name.</p>${roleEditor("sheet")}`);
   if (sh === "member") {
@@ -691,10 +710,10 @@ function panelHtml() {
   const sw = (k, label) => `<label><span>${label}</span><button class="sw ${S[k] ? "on" : ""}" data-ctl="${k}" aria-pressed="${S[k]}"></button></label>`;
   return `<div class="grp"><h3>Who you are</h3><label><span>Signed in as</span><select data-ctl="persona"><option value="sam" ${S.persona === "sam" ? "selected" : ""}>Sam</option><option value="arjan" ${S.persona === "arjan" ? "selected" : ""}>Arjan (looks after the plan)</option></select></label></div>
   <div class="grp"><h3>Theme</h3><div class="tgrid">${(window.themeWarm&&window.themeWarm(),window.themeHtml())}</div></div>
-  <div class="grp"><h3>Invite</h3>${sw("own", "Starting their own kitchen")}<label><span>People already in</span><select data-ctl="existing">${[1, 2, 3].map((n) => `<option value="${n}" ${S.existing === n ? "selected" : ""}>${n === 3 ? "3 or more" : n}</option>`).join("")}</select></label><p class="st">Changes the welcome words. Use "Invite link opens" to replay.</p></div>
+  <div class="grp"><h3>Invite</h3>${sw("own", "Starting their own kitchen")}<label><span>People already in</span><select data-ctl="existing">${[1, 2, 3].map((n) => `<option value="${n}" ${S.existing === n ? "selected" : ""}>${n === 3 ? "3 or more" : n}</option>`).join("")}</select></label><label><span>Code entry shows</span><select data-ctl="codeState">${[["ok", "Fine"], ["wrong", "Wrong, used or expired"], ["locked", "Locked out"]].map(([v, l]) => `<option value="${v}" ${S.codeState === v ? "selected" : ""}>${l}</option>`).join("")}</select></label><p class="st">Changes the welcome words. Use "Invite link opens" to replay.</p></div>
   <div class="grp"><h3>Household</h3>${sw("recipes", "Has Recipes")}${sw("down", "Platform is down")}${sw("expireNext", "Sign-in ends on next save")}</div>
   <div class="grp"><h3>Home-screen prompt</h3><div class="st" id="pwa-st">${esc(pwaStatus())}</div><button class="pb" data-act="usage">Add 30 min of use</button><button class="pb" data-act="week">Move on a week</button><p class="st">Nothing until 1 hour of use. Then once, twice, once over three weeks. Then never. Shows on Today.</p></div>
-  <div class="grp"><h3>Jump to</h3><button class="pb" data-act="restart">Invite link opens</button><button class="pb" data-act="jump" data-p="today">Home</button><button class="pb" data-act="jump" data-p="pantry">Pantry</button><button class="pb" data-act="jump" data-p="household">Household</button><button class="pb" data-act="jump" data-p="notmember">Not a member</button><button class="pb" data-act="reset">Reset everything</button></div>
+  <div class="grp"><h3>Jump to</h3><button class="pb" data-act="restart">Invite link opens</button><button class="pb" data-act="jump" data-p="today">Home</button><button class="pb" data-act="jump" data-p="pantry">Pantry</button><button class="pb" data-act="jump" data-p="household">Household</button><button class="pb" data-act="jump" data-p="notmember">Not a member</button><button class="pb" data-act="jump" data-p="entercode">Enter a code</button><button class="pb" data-act="reset">Reset everything</button></div>
   <p class="st">Fake data. Nothing leaves your browser.</p>`;
 }
 
@@ -862,7 +881,11 @@ const acts = {
   seladd() { const n = S.sel.length; S.sel.forEach((id) => addToList(id)); S.sel = null; toast(n + (n === 1 ? " item" : " items") + " added to your shopping list"); },
   copykitchen() { toast("Kitchen list copied"); },
   copy() { S.aiDone = true; S.links[S.aiTab] = true; toast("Link copied"); }, copyinvite() { S.inviteDone = true; toast("Invite link copied"); }, day(d) { S.day = +d; render(); },
-  revoke(name) { S.invites = S.invites.filter((i) => i.name !== name); render(); toast("Invite cancelled"); },
+  revoke(code) { S.invites = S.invites.filter((i) => i.code !== code); render(); toast("Code cancelled"); },
+  copycode(code) { S.inviteDone = true; toast("Code " + fmtCode(code) + " copied"); },
+  entercode() { go("entercode"); },
+  othercode() { go("entercode", null, { replace: true }); },
+  usecode() { const d = S.codeTyped.replace(/\D/g, ""); if (S.codeState === "locked") return render(); if (d.length !== 6) { S.codeState = "wrong"; return render(); } S.code = d; S.codeState = "ok"; go("invite", null, { replace: true }); },
   copyinvite2() { toast("Invite link copied"); },
   savename() { const v = document.getElementById("myname"); if (!v) return; const n = v.value.trim().slice(0, 24); if (!n) return; PEOPLE[S.persona].name = n; PEOPLE[S.persona].initial = initials(S.persona); render(); toast("Name saved"); },
   setavatar(a) { if (a) S.avatars[S.persona] = a; else delete S.avatars[S.persona]; S.sheet = null; render(); toast("Picture changed"); },
@@ -910,7 +933,7 @@ document.addEventListener("click", (e) => {
   if (Date.now() - lastGesture < 450 && e.target.closest(".swr,.body.tight,.grouphead")) { e.stopPropagation(); return; }
   const t = e.target.closest("[data-act],[data-go],[data-sheet],[data-ctl],[data-stop]"); if (!t) return;
   if (t.dataset.stop && !t.dataset.act && !t.dataset.go && !t.dataset.sheet) return;
-  if (t.dataset.ctl) { const k = t.dataset.ctl; if (k === "persona" || k === "existing") return; S[k] = !S[k]; refreshPanel(); render(); return; }
+  if (t.dataset.ctl) { const k = t.dataset.ctl; if (k === "persona" || k === "existing" || k === "codeState") return; S[k] = !S[k]; refreshPanel(); render(); return; }
   if (t.dataset.sheet) {
     if (t.dataset.sheet === "member") S.memberWho = t.dataset.p;
     if (t.dataset.sheet === "add") S.draft = { days: null };
@@ -921,8 +944,8 @@ document.addEventListener("click", (e) => {
   if (t.dataset.act) { if (t.disabled) return; e.stopPropagation(); (acts[t.dataset.act] || (() => {}))(t.dataset.p, t.dataset.d); return; }
   if (t.dataset.go) { S.sheet = null; return go(t.dataset.go, ["item", "recipe"].includes(t.dataset.go) ? t.dataset.p : null); }
 });
-document.addEventListener("change", (e) => { const fin = e.target.dataset && e.target.dataset.fin; if (fin) { acts.fset(fin + "|" + e.target.value, e.target.type === "text"); return; } const c = e.target.dataset && e.target.dataset.ctl; if (c === "persona") { S.persona = e.target.value; refreshPanel(); render(); } if (c === "existing") { S.existing = Number(e.target.value); render(); } });
-document.addEventListener("input", (e) => { if (e.target.id === "r-title" && S.rdraft) S.rdraft.title = e.target.value; if (e.target.id === "r-desc" && S.rdraft) S.rdraft.desc = e.target.value; if (e.target.id === "search") { S.search = e.target.value; document.getElementById("plist").innerHTML = listHtml(); }
+document.addEventListener("change", (e) => { const fin = e.target.dataset && e.target.dataset.fin; if (fin) { acts.fset(fin + "|" + e.target.value, e.target.type === "text"); return; } const c = e.target.dataset && e.target.dataset.ctl; if (c === "persona") { S.persona = e.target.value; refreshPanel(); render(); } if (c === "existing") { S.existing = Number(e.target.value); render(); } if (c === "codeState") { S.codeState = e.target.value; render(); } });
+document.addEventListener("input", (e) => { if (e.target.id === "codein") { const d = e.target.value.replace(/\D/g, "").slice(0, 6); S.codeTyped = d.length > 3 ? d.slice(0, 3) + " " + d.slice(3) : d; e.target.value = S.codeTyped; } if (e.target.id === "r-title" && S.rdraft) S.rdraft.title = e.target.value; if (e.target.id === "r-desc" && S.rdraft) S.rdraft.desc = e.target.value; if (e.target.id === "search") { S.search = e.target.value; document.getElementById("plist").innerHTML = listHtml(); }
   if (e.target.id === "myname") { const v = e.target.value.trim(); document.getElementById("namesave").disabled = !v || v === me().name; }
   if (e.target.id === "leavename") document.getElementById("leavego").disabled = e.target.value.trim().toLowerCase() !== me().name.toLowerCase(); });
 /* swipe a running-low row to add it; press and hold to start picking several */
