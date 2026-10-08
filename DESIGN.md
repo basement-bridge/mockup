@@ -67,3 +67,20 @@ In the mockup the themes are the first worked example: the default path loads on
 For a mockup screen, say in its notes what the default path loads and what is deferred, and why that is reasonable at this stage.
 
 **Migration TODO (do not lose):** this section lives here only while the mockup is the working copy. When the mockup is migrated into the real repos, copy it into every repo's own design doc (platform, Kitchie, Recipe). Tracked in issue #34.
+
+## 7. Form factors and responsive loading
+
+Owner decision, voice session, 8 October 2026. Extends section 6: the same "load only what this person needs now" rule, applied to screen size.
+
+1. **Three form-factor buckets.** Phone (under ~600px), tablet (~600 to 1024px), desktop (above ~1024px). Pure CSS width-based breakpoints. No touch or pointer detection.
+2. **Layout per bucket.**
+   - Phone is the baseline: a single-column flow at its natural width.
+   - Tablet is the same single-column flow, relaxed wider to use more of the screen. Not two-pane, not a redesign.
+   - Desktop and laptop is the same single-column flow, capped at a max-width and centred (Twitter-classic-feed or Basecamp style). Deliberately not the full width of a laptop screen: leave breathing room on both sides.
+3. **One shared responsive system.** The spacing scale and the content max-width per bucket are shared tokens (section 2), applied by default to every screen. Do not hand-craft layouts per screen or feature. A screen that earns an exception says so in its notes.
+4. **JS is CSS-first.** The default is one shared JS bundle for all form factors, because most responsive differences are CSS only. Split into per-form-factor bundles only for the rare screen whose interaction behaviour (not just layout) genuinely diverges by device. That is an explicit exception, not the default.
+5. **Where splitting is used.** Server-rendered first, with the small deferred vanilla JS already practised. The server reads a viewport or device hint from the request and serves the pre-built, already-minified bundle for that bucket. Bundling, minification and splitting happen at build or deploy time, never per request, so the only runtime cost is a cheap lookup.
+6. **Decision record: no framework.** No JS framework is adopted for this (not Next.js, Astro or similar). It stays hand-rolled and vanilla while the number of genuinely divergent screens is small. Revisit only if that number grows enough to become its own maintenance burden.
+7. **Verification.** UI changes are checked with screenshots at the bucket widths (for example 360 and 390 for phone, ~768 tablet, ~1280 desktop), in light and dark. A reusable screenshot script is planned.
+
+**Keep in sync:** this file is the canonical copy of sections 6 and 7 while the mockup is the working copy. Kitchie carries a derived copy of the section 6 rules in its `AGENTS.md` ("Performance and regression guard", 7 October 2026), and this repo's `AGENTS.md` points here. Platform, Recipe and infra carry no copy yet (the section 6 migration TODO is still open). Section 7 has not been propagated to any repo yet. Propagate it with section 6 when the migration happens (issue #34).
