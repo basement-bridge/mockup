@@ -15,6 +15,7 @@ The side panel (Controls button on a phone) switches who you are (owner or membe
 - `fragments/`: `mid-cook`, `pwa-cta`, `item-row-axes`, `inventory-home`, `locations-spots`.
 - `theme.css` + `theme.js` + `themes/`: the single token set and the theme picker (ten themes) used by every page. Only the two default themes (Kitchie Night and Day) live in `theme.css`; every other theme is one small file in `themes/`, loaded when chosen and warmed in the background once the person engages the picker (DESIGN.md section 6). `shared.css`: layout for the index and fragments.
 - `docs/knowledge/`: what we've learned, per job to be done, for carrying into the implementation.
+- `tools/screenshots.mjs`: screenshots every screen at phone, tablet and desktop widths in light and dark, with layout checks (DESIGN.md section 7).
 - `DESIGN.md`: the design brief. Read it before changing anything.
 
 ## What the household flow shows
