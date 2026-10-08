@@ -249,12 +249,14 @@ const roleChip = (who) => role(who) ? `<span class="chip rchip">${riSvg(role(who
    Default path (screen open): only these read rows, built from state already in memory. Nothing else is rendered or fetched.
    Deferred to the first tap of a field: its editor (markup, option lists, emoji set, unit list, date picker) lives in fields/<file>.js,
    fetched once on that first tap and cached. The used-up confirm is built only when opened. README: "Item detail". */
+/* app.js is shared by the mobile, tablet and desktop pages, which sit one folder below it, so field files are found next to this script and not next to the page. */
+const APP_BASE = document.currentScript.src.replace(/[^/]*$/, "");
 const ITEM_FIELDS = {}; /* each fields/*.js adds { html(p), set: { op(p, value) -> patch | error text } } for its keys */
 const FIELD_FILE = { name: "name", qty: "amounts", min: "amounts", level: "flags", loc: "place", spot: "place", cat: "category", useby: "useby" };
 const fieldLoads = new Map();
 function loadField(k) {
   const f = FIELD_FILE[k];
-  if (!fieldLoads.has(f)) fieldLoads.set(f, new Promise((ok, no) => { const s = document.createElement("script"); s.src = `fields/${f}.js`; s.onload = ok; s.onerror = () => { fieldLoads.delete(f); s.remove(); no(); }; document.head.append(s); }));
+  if (!fieldLoads.has(f)) fieldLoads.set(f, new Promise((ok, no) => { const s = document.createElement("script"); s.src = APP_BASE + `fields/${f}.js`; s.onload = ok; s.onerror = () => { fieldLoads.delete(f); s.remove(); no(); }; document.head.append(s); }));
   return fieldLoads.get(f);
 }
 /* Out is amount zero, always. A counted item's level is derived from its quantity (a stored label is ignored); a level-only item's level is the label it was given. */

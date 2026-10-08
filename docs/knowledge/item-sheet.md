@@ -2,7 +2,7 @@
 
 Status: mockup for the owner to review (8 Oct 2026). Not built in Kitchie. Lines marked **Proposal** are mockup choices where the owner's words were silent; none of them is settled.
 
-Code: `flows/household/app.js` (`itemSheetHtml`, `acts.isheet`, `acts.itile`, `acts.sheetused`, `acts.sheetshop`, `acts.lvl`), `flows/household/styles.css` (`.sheet.half`, `.tiles3`, `.tl`). Options she chose from: `fragments/item-sheet/`.
+Code: `flows/household/app.js` (`itemSheetHtml`, `acts.isheet`, `acts.itile`, `acts.sheetused`, `acts.sheetshop`, `acts.lvl`), `flows/household/{mobile,tablet,desktop}/styles.css` (`.sheet.half`, `.tiles3`, `.tl`). Options she chose from: `fragments/item-sheet/`.
 
 ## What the owner asked for
 
@@ -35,7 +35,7 @@ The minus on the Amount stepper is the left swipe: one off with an Undo toast, a
 | Running low | about a quarter | `--danger` (red) |
 | Out | empty outline | `--out` (new, see Proposals) |
 
-No level word is drawn anywhere in the sheet. Each level's name is screen-reader text only (`.sr-only`, now in `shared.css` and `flows/household/styles.css`). A counted item keeps its quantity ("2 bag") visible beside the drop. A level-only item shows the drop alone.
+No level word is drawn anywhere in the sheet. Each level's name is screen-reader text only (`.sr-only`, now in `shared.css` and `flows/household/{mobile,tablet,desktop}/styles.css`). A counted item keeps its quantity ("2 bag") visible beside the drop. A level-only item shows the drop alone.
 
 A tile with data is filled (tinted surface, accent border) and shows its value with a small label. A tile with no data (no use-by, no category) is empty: dashed outline, a plus and a quiet prompt ("Add use-by"). Tapping it opens the editor, which is how it gets filled. "All fields" is a plain tile (it is an action, not data).
 

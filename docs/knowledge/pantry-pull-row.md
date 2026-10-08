@@ -2,7 +2,7 @@
 
 Status: mockup for the owner to review (7 Oct 2026). Not built in Kitchie. Source: owner's voice spec and answers of 7 Oct 2026. Lines marked **Proposal** are choices the mockup made where the spec was silent; the owner has not approved them.
 
-Code: `flows/household/app.js` (search for `PULL_SEARCH`, `prow`), `flows/household/styles.css` (`.prow`).
+Code: `flows/household/app.js` (search for `PULL_SEARCH`, `prow`), `flows/household/{mobile,tablet,desktop}/styles.css` (`.prow`).
 
 ## The row
 

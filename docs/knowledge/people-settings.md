@@ -2,7 +2,7 @@
 
 Status: mockup for the owner to review (8 Oct 2026). Not built in Kitchie. Source: owner's voice spec of 8 Oct 2026. Lines marked **Proposal** are choices the mockup made where the spec was silent; the owner has not approved them.
 
-Code: `flows/household/app.js` (screens `me` and `household`, sheets `avatar`, `removing`, `leave`), `flows/household/styles.css` (end of file).
+Code: `flows/household/app.js` (screens `me` and `household`, sheets `avatar`, `removing`, `leave`), `flows/household/{mobile,tablet,desktop}/styles.css` (end of file).
 
 ## What the owner asked for
 
