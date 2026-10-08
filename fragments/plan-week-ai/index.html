@@ -85,7 +85,7 @@
 <li>Locking a meal ties it to a recipe: what is on hand gets <b>reserved</b> (a soft label, not stock maths); what is missing is offered for the shopping list, and the same moment is where the assistant can be asked for a <b>substitute</b>.</li>
 <li>A day holds <b>several meal cards</b> (one person on leftovers, another cooking). A whole-household meal is sized by the assistant for everyone; otherwise cards stack, told apart by <b>avatar</b>. Competing claims on one ingredient are made visible, not auto-resolved.</li>
 <li><b>Nobody edits another person's plan.</b> Anyone can view anyone's, or focus on their own. Blocking is per person.</li>
-<li>A meal card shows <b>what is missing</b> at a glance, like "uses spinach" today.</li></ul></div>
+<li>A meal card shows <b>how many ingredients are missing</b> as a small count, enough to tap and sort out later (the card opens the split; the names are not on the card).</li></ul></div>
 
 <div class="perf"><b>Proposals</b> (owner silent)<ul>
 <li>Week shown Monday to Sunday, dinner only (as in the four-direction mockup).</li>
@@ -124,7 +124,7 @@ function av(w){return w==="Sam"?'<span class="av" title="Sam">S</span>':w==="Jan
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;")}
 function isBlocked(day,p){return !!(S.blocked[p]&&S.blocked[p][day])}
 function cardHtml(c){var r=R[c.r],m=missing(c),sh="",mine=me(c);
- if(m.length)sh+='<span class="tg miss">uses '+esc(m[0])+(m.length>1?" +"+(m.length-1):"")+'</span>';
+ if(m.length)sh+='<span class="tg miss" role="img" aria-label="'+m.length+' ingredients missing. Open to resolve">'+m.length+' missing</span>';
  if(c.res)sh+='<span class="tg">Reserved</span>';
  var sub=c.forw==="all"?"Everyone · "+ALL+" portions":(c.forw==="Sam"?"Sam · 1 portion":"Jane · 1 portion");
  return '<button class="mc '+(mine?"mine":"theirs")+'" '+(mine?'draggable="true"':'')+' data-card="'+c.id+'" aria-label="'+esc(r.n)+', '+c.day+', '+sub+(mine?"":", planned by Jane, view only")+'"><span class="e">'+r.e+'</span><span class="t"><b>'+esc(r.n)+'</b><small>'+sub+'</small>'+(sh?'<span class="chips">'+sh+'</span>':'')+'</span>'+av(c.by)+(mine?'':'<span class="lock" aria-hidden="true">🔒</span>')+'</button>'}
@@ -169,7 +169,7 @@ function draw(){var ph=document.getElementById("ph");
  document.getElementById("jump").innerHTML=Object.keys(jm).map(function(k){return '<button data-jump="'+k+'" aria-pressed="'+(S.at===k)+'">'+jm[k]+'</button>'}).join("");
  document.getElementById("say").innerHTML='<div class="say"><h2>'+(NOTE[S.at]||NOTE.x)[0]+'</h2><p>'+(NOTE[S.at]||NOTE.x)[1]+'</p></div>'}
 var NOTE={empty:["Nothing yet, with an invitation","No manual add button on purpose (owner: the assistant is the way in for now). Every empty night carries the prompt; the banner adds Copy last week. Friday shows as a usual day off, from the stencil."],
-copy:["Copy last week","Fills your unblocked days from last week. Friday's soup was skipped because Friday is your usual day off. The red tag on a card is the missing ingredient, as 'uses spinach' did before."],
+copy:["Copy last week","Fills your unblocked days from last week. Friday's soup was skipped because Friday is your usual day off. The red count on a card is how many ingredients are missing; tapping the card opens the split."],
 jane:["Two people, one day","Jane's cards are view-only (lock mark) and carry her avatar. Thursday has two cards, her leftovers and your frittata; Everyone view shows them stacked."],
 sheet:["Locking in a meal","On hand gets a soft Reserve; missing gets Add to list or Substitute. The orange 'also' tag shows another card has claimed the same ingredient: made visible, not resolved for you."],
 block:["Blocking a night","Tap the three dots on a day. The grid asks whether it is just this week or every such day, which writes the Settings stencil. Block is yours only; Jane's days are untouched."],
