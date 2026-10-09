@@ -64,10 +64,15 @@ function fbodyFilters(){var mac=/Mac|iPhone|iPad/.test(navigator.platform||"");r
  +'<section><h3>Category</h3>'+fcurt("cat","Category",cats().map(function(c){return fpill("cat",c,FCAT.indexOf(c)>-1,ITEMS.filter(function(i){return i[6]===c}).length)}).join(""))+'</section>'}
 function fbodySort(){return '' +'<section><h3>Sort by</h3><div class="fsort"><div class="fchips" role="group" aria-label="Sort">'+SORTS.map(function(t){return fch("sort",t[0],t[1],FSORT===t[0])}).join("")+'</div>'+(FSORT!=="none"?'<button class="fdir" data-fdir aria-label="Order: '+(FDIR?"reversed":"normal")+'. Press to flip.">'+fsv(FI.dir)+(FDIR?"Reversed":"Normal")+'</button>':"")+'</div></section>'}
 function fpanel(){var n=order().length;
- return '<div class="fp"><div class="fph"><div><div class="ftabs" role="tablist" aria-label="Filters and sort">'+[["filters","Filters"],["sort","Sort"]].map(function(t){var on=FTAB===t[0];return '<button class="ftab'+(on?" on":"")+'" role="tab" id="ftab-'+t[0]+'" aria-selected="'+on+'" aria-controls="fbody" tabindex="'+(on?0:-1)+'" data-ftab="'+t[0]+'">'+t[1]+(t[0]==="sort"&&FSORT!=="none"?'<i class="fdot" aria-label="in use"></i>':"")+'</button>'}).join("")+'</div><p id="fcount">'+n+(n===1?" item":" items")+'</p></div><button class="btn pri" data-fdone>Done</button></div><div class="fpb" id="fbody" role="tabpanel" aria-labelledby="ftab-'+FTAB+'">'+(FTAB==="sort"?fbodySort():fbodyFilters())+'</div>'
+ return '<div class="fp"><div class="fph"><div><h2>Filters</h2><p id="fcount">'+n+(n===1?" item":" items")+'</p></div>'+tick("data-fdone")+'</div><div class="fpb" id="fbody">'+sortRow()+fbodyFilters()+'</div>'
  +'<div class="fpf"><button class="btn" data-fclear'+(nF()||FSORT!=="none"?"":" disabled")+'>Clear</button><button class="btn" data-flast>Use last filters</button></div></div>'}
-function fre(focus){if(!FP)return;var b=$(".fpb"),y=b?b.scrollTop:0;$("#panel").innerHTML=fpanel();fcMeasure();var nb=$(".fpb");if(nb)nb.scrollTop=y;if(focus){var e=focus[0]==="tab"?$('[data-ftab="'+focus[1]+'"]'):focus[0]==="step"?($('[data-st="'+focus[2]+'"][data-fstep="'+focus[1]+'"]:not([disabled])')||$('[data-st="'+focus[2]+'"]:not([disabled])')):focus[0]==="dir"?$("[data-fdir]"):$('.fc[data-fk="'+focus[0]+'"][data-v="'+focus[1]+'"]');if(e)e.focus()}}
-var FCH={loc:null,cat:null},FTAB="filters";
+function fre(focus){if(!FP)return;var b=$(".fpb"),y=b?b.scrollTop:0;$("#panel").innerHTML=fpanel();fcMeasure();if(SORTP)drawS();var nb=$(".fpb");if(nb)nb.scrollTop=y;if(focus){var e=focus[0]==="step"?($('[data-st="'+focus[2]+'"][data-fstep="'+focus[1]+'"]:not([disabled])')||$('[data-st="'+focus[2]+'"]:not([disabled])')):focus[0]==="dir"?$("[data-fdir]"):$('.fc[data-fk="'+focus[0]+'"][data-v="'+focus[1]+'"]');if(e)e.focus()}}
+var FCH={loc:null,cat:null},SORTP=false;
+function tick(attr){return '<button class="tick" '+attr+' aria-label="Done" title="Done (Esc)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>'}
+function sortRow(){var cur=SORTS.filter(function(x){return x[0]===FSORT})[0][1]+(FSORT!=="none"&&FDIR?", reversed":"");return '<button class="fsortrow'+(SORTP?" on":"")+'" data-fsort aria-expanded="'+SORTP+'" aria-controls="scol"><span class="fsl">Sort</span><span class="fsv">'+esc(cur)+'</span>'+fsv(FI.right)+'</button>'}
+function drawS(){var h=$("#scol");if(!h)return;h.hidden=!(SORTP&&FP);h.innerHTML=SORTP&&FP?'<div class="fph scolh"><div><h2>Sort</h2></div>'+tick("data-sdone")+'</div><div class="scolb">'+fbodySort()+'</div>':"";var a=$(".app");if(a)a.classList.toggle("sopen",SORTP&&FP);drawH()}
+function openS(){SORTP=true;drawS();var e=$("#scol .fc.on")||$("#scol .fc");if(e)e.focus();var r=$("[data-fsort]");if(r)r.setAttribute("aria-expanded","true");if(r)r.classList.add("on")}
+function closeS(){SORTP=false;drawS();var r=$("[data-fsort]");if(r){r.setAttribute("aria-expanded","false");r.classList.remove("on");r.focus()}}
 function fcurt(k,lab,inner){return '<div class="fcurt" data-cs="'+k+'"><div class="fcw"><div class="fchips" role="group" aria-label="'+lab+'">'+inner+'</div></div><button class="fcor" data-fcor aria-label="Show all '+lab.toLowerCase()+' options" title="Double-click to show all"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></button><div class="fgrip" role="separator" aria-orientation="horizontal" aria-label="Resize the '+lab.toLowerCase()+' list. Arrow keys resize, Enter shows all." tabindex="0" title="Drag to resize. Double-click to show all."><i></i></div></div>'}
 function fcSet(c,v,keep){var w=c.querySelector(".fcw"),ch=c.querySelector(".fchips"),f=ch.firstChild,row=f?f.offsetHeight+6:42,cap=row*5-6,need=Math.max(row,ch.offsetHeight),full=Math.min(cap,need);v=Math.max(row,Math.min(full,Math.round(v)));w.style.height=v+"px";w.classList.toggle("scrolls",need>cap&&v>=full);if(keep)FCH[c.dataset.cs]=v;c.querySelector(".fcor").classList.toggle("open",v>=full);c.querySelector(".fgrip").setAttribute("aria-valuenow",v);return{row:row,full:full,v:v}}
 function fcMeasure(){var a=document.querySelectorAll(".fcurt");for(var n=0;n<a.length;n++){var k=a[n].dataset.cs;fcSet(a[n],FCH[k]==null?0:FCH[k],false)}}
@@ -86,8 +91,8 @@ function ftiles(){var t=[];stOn().forEach(function(x){t.push(["st",x[0],"Status:
  return '<div class="ftiles" role="group" aria-label="Filters in use">'+t.map(function(x){return '<span class="ft">'+esc(x[2])+'<button data-frm="'+x[0]+'" data-v="'+esc(x[1])+'" aria-label="Remove '+esc(x[2])+'">&times;</button></span>'}).join("")+'<button class="ftclear" data-fclear2>Clear all</button></div>'}
 function strip(){var rw=$("#ribw"),ft=$("#ftw");if(!rw||!ft)return;if(!nF()&&FSORT==="none")FUSED=false;var show=FUSED,was=!rw.hidden;rw.hidden=show;ft.hidden=!show;ft.innerHTML=show?ftiles():"";if(!show&&!was){measure();setH(RH)}}
 function saveLast(){if(nF()||FSORT!=="none"){var st={};stOn().forEach(function(t){st[t[0]]=1});FLAST={st:st,loc:SELA.slice(),cat:FCAT.slice(),sort:FSORT,win:JSON.parse(JSON.stringify(FW)),dir:FDIR}}}
-function openF(){if(FP)return;FTAB="filters";settle();FP=true;redraw();var b=$("[data-fdone]");if(b)b.focus()}
-function closeF(){if(!FP)return;saveLast();FP=false;redraw();focusRow()}
+function openF(){if(FP)return;SORTP=false;settle();FP=true;redraw();var b=$("[data-fdone]");if(b)b.focus()}
+function closeF(){if(!FP)return;saveLast();FP=false;SORTP=false;redraw();focusRow()}
 function clearF(){saveLast();FST={};FCAT=[];SELA=[];FSORT="none";FW=JSON.parse(JSON.stringify(FWD));FDIR=false;FUSED=false;syncChips();lw();fre()}
 function lastF(){FUSED=true;FST=JSON.parse(JSON.stringify(FLAST.st));SELA=FLAST.loc.slice();FCAT=FLAST.cat.slice();FSORT=FLAST.sort;FW=FLAST.win?JSON.parse(JSON.stringify(FLAST.win)):JSON.parse(JSON.stringify(FWD));FDIR=!!FLAST.dir;syncChips();lw();fre()}
 /* History mirrors Kitchie's journal (store.getHistory(id), MCP item_history): one entry per write, each with an action, the item before and after, the source and a note.
@@ -123,7 +128,7 @@ function hcol(i){var D=hdays(i),k=HSHOWN[i[0]]||HFIRST,shown=D.slice(0,k),left=D
  +shown.map(function(d){return '<section class="hday"><h3>'+esc(d.d)+'</h3><ol class="hist" aria-label="'+esc(d.d)+'">'+d.e.map(function(e){return '<li>'+hline(e)+'<span class="trunc">'+esc(e.t)+' · '+esc(e.who)+' · '+esc(SRC[e.src]||e.src)+'</span></li>'}).join("")+'</ol></section>'}).join("")
  +(left>0?'<button class="btn hmore" data-hmore>Show '+Math.min(HMORE,left)+' more days <span class="kbd keep">'+left+' earlier</span></button>':'<p class="phint">That is everything for this item.</p>')
  +'<p class="phint"><span class="kbd">Esc</span> closes this column. Pick another row to see its history.</p>'}
-function drawH(){var h=$("#hcol"),i=cur();if(!h)return;var on=HIST&&!!i;h.hidden=!on;h.innerHTML=on?hcol(i):"";var a=$(".app");if(a)a.classList.toggle("hopen",on)}
+function drawH(){var h=$("#hcol"),i=cur();if(!h)return;var on=HIST&&!!i&&!(SORTP&&FP);h.hidden=!on;h.innerHTML=on?hcol(i):"";var a=$(".app");if(a)a.classList.toggle("hopen",on)}
 /* Add form, three options for the owner to choose from (?add=a|b|c): A side panel, B quick-add bar, C window. All three use the same fields and the same save. */
 var AF=[["name","Name","e.g. chicken thighs"],["qty","Quantity","e.g. 2 kg or 6"],["area","Location"],["spot","Spot","e.g. top shelf"],["cat","Category","e.g. Protein"],["useby","Use-by","e.g. 14 Oct"],["min","Minimum","e.g. 2"]];
 function adef(){return{name:"",qty:"",area:"Unplaced",spot:"",cat:"",useby:"",min:""}}
@@ -165,13 +170,13 @@ var HELPHTML='<div class="kb" id="kb" hidden><div class="kbc" role="dialog" aria
 function G(t,r){return '<section class="kbs"><h3>'+t+'</h3>'+r.map(function(x){var k=x[0][0]==="~"?x[0].slice(1):x[0].split(" ").map(function(w){return /^(then|or|and|click)$/.test(w)?'<em>'+w+'</em>':'<kbd>'+w+'</kbd>'}).join(" ");return '<div class="kbr"><span class="kk">'+k+'</span><span>'+x[1]+'</span></div>'}).join("")+'</section>'}
 var sw='';
 var main=SCR==="pantry"?pantry():home();
-var h=sw+'<div class="app"><nav class="rail" aria-label="Main"><div class="brand">Our<br>kitchen</div><div id="navw" style="display:contents">'+nav()+'</div><div class="me"><button class="nv" data-help aria-label="Keyboard shortcuts"><span class="qk">?</span><span>Keys</span></button><button class="av" data-profile aria-label="Profile and settings" aria-haspopup="dialog">S</button></div></nav><main class="main">'+main+'</main><aside class="panel" id="panel" aria-label="'+(SCR==="home"?"Ideas":"Item detail")+'">'+(SCR==="pantry"?panel():ideas())+'</aside>'+(SCR==="pantry"?'<aside class="hcol" id="hcol" hidden aria-label="History"></aside>':"")+'</div><div class="toast" id="toast" role="status" hidden></div>'+HELPHTML;
+var h=sw+'<div class="app"><nav class="rail" aria-label="Main"><div class="brand">Our<br>kitchen</div><div id="navw" style="display:contents">'+nav()+'</div><div class="me"><button class="nv" data-help aria-label="Keyboard shortcuts"><span class="qk">?</span><span>Keys</span></button><button class="av" data-profile aria-label="Profile and settings" aria-haspopup="dialog">S</button></div></nav><main class="main">'+main+'</main><aside class="panel" id="panel" aria-label="'+(SCR==="home"?"Ideas":"Item detail")+'">'+(SCR==="pantry"?panel():ideas())+'</aside>'+(SCR==="pantry"?'<aside class="hcol" id="hcol" hidden aria-label="History"></aside><aside class="hcol scol" id="scol" hidden aria-label="Sort"></aside>':"")+'</div><div class="toast" id="toast" role="status" hidden></div>'+HELPHTML;
 document.body.innerHTML=h;try{if(localStorage.getItem("desktop-cues")==="0")cues(false)}catch(e){}
 function snap(){return JSON.stringify([ITEMS,LIST,SHOPN,X,SEL])}
 function toast(msg,undo){clearTimeout(TT);var t=$("#toast");t.innerHTML='<span>'+msg+'</span>'+(undo?'<button data-undo>Undo <span class="kbd">Z</span></button>':"");t.hidden=false;UNDO=undo||null;TT=setTimeout(function(){t.hidden=true;UNDO=null},6000)}
 function url(){try{var u=new URL(location.href);if(SEL)u.searchParams.set("sel",SEL);else u.searchParams.delete("sel");history.replaceState(null,"",u)}catch(e){}}
 function lw(){var l=$("#lw");if(l)l.innerHTML=list();var c=$("#cnt");if(c)c.textContent=order().length+(order().length===1?" item":" items");var fb=$("#fbadge");if(fb){fb.textContent=nF();fb.hidden=!nF()}var fc=$("#fcount");if(fc)fc.textContent=c.textContent;strip()}
-function redraw(){NAV[3][2]=SHOPN;if(SCR!=="pantry")return;lw();$("#panel").innerHTML=panel();if(FP)fcMeasure();$("#navw").innerHTML=nav();drawH();url()}
+function redraw(){NAV[3][2]=SHOPN;if(SCR!=="pantry")return;lw();$("#panel").innerHTML=panel();if(FP)fcMeasure();$("#navw").innerHTML=nav();drawS();drawH();url()}
 function focusRow(){var r=$('li[data-id="'+SEL+'"] .row');if(r){r.focus({preventScroll:true});r.scrollIntoView({block:"nearest"})}}
 function focusF(k){var e=$('#pedit [data-f="'+k+'"]');if(e){e.focus();if(e.select&&e.tagName==="INPUT")e.select()}}
 function select(id){SEL=id;EDIT=false;settle();redraw();focusRow()}
@@ -202,7 +207,7 @@ if(SCR==="pantry"){measure();setH(ROW);if(Q.get("filters")==='1'){if(Q.get("pre"
  document.addEventListener("pointerdown",function(e){var g=e.target.closest&&e.target.closest(".fgrip");if(!g)return;var c=g.closest(".fcurt"),y0=e.clientY,h0=parseFloat(c.querySelector(".fcw").style.height)||0;e.preventDefault();g.setPointerCapture(e.pointerId);c.dataset.drag=1;function mv(ev){fcSet(c,h0+ev.clientY-y0,true)}function up(){delete c.dataset.drag;g.removeEventListener("pointermove",mv);g.removeEventListener("pointerup",up)}g.addEventListener("pointermove",mv);g.addEventListener("pointerup",up)});
  document.addEventListener("dblclick",function(e){var g=e.target.closest&&e.target.closest(".fgrip,.fcor");if(g)fcToggle(g.closest(".fcurt"))});
  document.addEventListener("click",function(e){var g=e.target.closest&&e.target.closest(".fcor");if(g&&e.detail===0)fcToggle(g.closest(".fcurt"))});
- document.addEventListener("keydown",function(e){var tb=e.target.closest&&e.target.closest("[data-ftab]");if(tb&&(e.key==="ArrowLeft"||e.key==="ArrowRight")){FTAB=FTAB==="filters"?"sort":"filters";fre(["tab",FTAB]);e.preventDefault();e.stopPropagation();return}var g=e.target.closest&&e.target.closest(".fgrip");if(!g)return;var c=g.closest(".fcurt"),m=fcSet(c,parseFloat(c.querySelector(".fcw").style.height)||0,false),k=e.key;if(k==="ArrowDown")fcSet(c,m.v+m.row,true);else if(k==="ArrowUp")fcSet(c,m.v-m.row,true);else if(k==="Home")fcSet(c,0,true);else if(k==="End")fcSet(c,m.full,true);else if(k==="Enter")fcToggle(c);else return;e.preventDefault();e.stopPropagation()},true);
+ document.addEventListener("keydown",function(e){var g=e.target.closest&&e.target.closest(".fgrip");if(!g)return;var c=g.closest(".fcurt"),m=fcSet(c,parseFloat(c.querySelector(".fcw").style.height)||0,false),k=e.key;if(k==="ArrowDown")fcSet(c,m.v+m.row,true);else if(k==="ArrowUp")fcSet(c,m.v-m.row,true);else if(k==="Home")fcSet(c,0,true);else if(k==="End")fcSet(c,m.full,true);else if(k==="Enter")fcToggle(c);else return;e.preventDefault();e.stopPropagation()},true);
  g.addEventListener("dblclick",togglePills);$("#rcorner").addEventListener("dblclick",togglePills);$("#rcorner").addEventListener("click",function(e){if(e.detail===0)togglePills()});
  g.addEventListener("keydown",function(e){var k=e.key;if(k==="ArrowDown"){setH(RH+ROW);e.preventDefault()}else if(k==="ArrowUp"){setH(RH-ROW);e.preventDefault()}else if(k==="Home"){setH(ROW);e.preventDefault()}else if(k==="End"||k==="Enter"){k==="End"?setH(FULLH):togglePills();e.preventDefault()}});
  $("#find").addEventListener("input",function(e){FIND=e.target.value;lw()});
@@ -222,7 +227,8 @@ document.body.addEventListener("click",function(e){var t=e.target,c;
  if(t.closest("[data-close]")){SEL=null;EDIT=false;HIST=false;settle();redraw();return}
  if(c=t.closest("[data-edit]")){openEdit(c.dataset.edit);return}
  if(c=t.closest(".chip:not(.fc)")){chip(c.dataset.a,e);return}
- if(c=t.closest("[data-ftab]")){FTAB=c.dataset.ftab;fre(["tab",FTAB]);return}
+ if(t.closest("[data-fsort]")){SORTP?closeS():openS();return}
+ if(t.closest("[data-sdone]")){closeS();return}
  if(c=t.closest("[data-fstep]")){stepF(c.dataset.st,parseInt(c.dataset.fstep,10));return}
  if(t.closest("[data-fdir]")){flipDir();return}
  if(c=t.closest(".fc")){pickF(c.dataset.fk,c.dataset.v,e);return}
@@ -251,7 +257,7 @@ document.addEventListener("keydown",function(e){var k=e.key,t=e.target,typing=!!
   if(SCR!=="pantry")return;
   if(t.id==="find"){t.value="";FIND="";lw();t.blur();return}
   if(ADDV){closeAdd();e.preventDefault();return}
-  if(FP){closeF();return}
+  if(FP){if(SORTP){closeS();return}closeF();return}
   if(HIST){HIST=false;drawH();focusRow();return}
   if(EDIT){closeEdit();return}
   if(SEL&&!typing){SEL=null;settle();redraw()}return}
