@@ -89,7 +89,7 @@
 
 <div class="perf"><b>Proposals</b> (owner silent)<ul>
 <li>Week shown Monday to Sunday, dinner only (as in the four-direction mockup).</li>
-<li>Everyone / Mine switch at the top of the grid; Mine is where empty prompts and blocking apply.</li>
+<li>Mine / Jane / Everyone switch at the top of the grid: Mine is where empty prompts and blocking apply; Jane (or any other member) shows just that person's plan, view-only; Everyone stacks all of them.</li>
 <li>Competing claim shown as an orange "also Thu, Jane" tag on the on-hand ingredient, not a warning dialog.</li>
 <li>Reserve is one tap for all on-hand ingredients of a meal, with per-ingredient undo left out.</li>
 <li>Blocked days still show others' cards in Everyone view, with a small "Sam is out" mark.</li>
@@ -129,21 +129,22 @@ function cardHtml(c){var r=R[c.r],m=missing(c),sh="",mine=me(c);
  var sub=c.forw==="all"?"Everyone · "+ALL+" portions":(c.forw==="Sam"?"Sam · 1 portion":"Jane · 1 portion");
  return '<button class="mc '+(mine?"mine":"theirs")+'" '+(mine?'draggable="true"':'')+' data-card="'+c.id+'" aria-label="'+esc(r.n)+', '+c.day+', '+sub+(mine?"":", planned by Jane, view only")+'"><span class="e">'+r.e+'</span><span class="t"><b>'+esc(r.n)+'</b><small>'+sub+'</small>'+(sh?'<span class="chips">'+sh+'</span>':'')+'</span>'+av(c.by)+(mine?'':'<span class="lock" aria-hidden="true">🔒</span>')+'</button>'}
 function dayHtml(d,i){
- var cs=S.cards.filter(function(c){return c.day===d&&(S.view==="all"||me(c)||c.forw==="all"&&false)});
+ var cs=S.cards.filter(function(c){return c.day===d&&(S.view==="all"||(S.view==="Jane"?c.by==="Jane":me(c)))});
  var h='<div class="day'+(S.over===d?" over":"")+'" data-day="'+d+'"><div class="dn">'+d+'<small>'+DD[i]+' Oct</small></div><div class="stack">';
  var b=isBlocked(d,ME);
  if(S.view==="mine"&&b)h+='<button class="blocked" data-unblock="'+d+'"><span>🌙 Not cooking</span><em>'+(S.blocked.Sam[d]==="stencil"?"usual day":"this week")+' · tap to cook</em></button>';
  else if(S.view==="all"&&b&&!cs.some(me))h+='<div class="blocked" style="min-height:36px"><span>'+av("Sam")+' Sam is out</span></div>';
  cs.forEach(function(c){h+=cardHtml(c)});
- var jb=isBlocked(d,"Jane");if(S.view==="all"&&jb&&!cs.some(function(c){return c.by==="Jane"}))h+='<div class="blocked" style="min-height:36px"><span>'+av("Jane")+' Jane is out</span></div>';
- if(!cs.length&&!(S.view==="mine"&&b)&&!(S.view==="all"&&(b||jb)&&false))h+='<button class="slot" data-ask="'+d+'"><span>✦</span><span>Speak to your assistant to lock in '+d+'. It shows up here.</span></button>';
+ var jb=isBlocked(d,"Jane");if((S.view==="all"||S.view==="Jane")&&jb&&!cs.some(function(c){return c.by==="Jane"}))h+='<div class="blocked" style="min-height:36px"><span>'+av("Jane")+' Jane is out</span></div>';
+ if(S.view==="Jane"){if(!cs.length&&!jb)h+='<div class="blocked" style="min-height:36px;opacity:.7"><span>Nothing planned by Jane</span></div>'}
+ else if(!cs.length&&!(S.view==="mine"&&b)&&!(S.view==="all"&&(b||jb)&&false))h+='<button class="slot" data-ask="'+d+'"><span>✦</span><span>Speak to your assistant to lock in '+d+'. It shows up here.</span></button>';
  h+='</div>';
  if(S.view==="mine"&&!b)h+='<button class="dots" data-blk="'+d+'" aria-label="Not cooking on '+d+'">⋯</button>';
  return h+'</div>'}
 function headHtml(){var any=S.cards.length>0;
  return '<div class="top"><h3>Week of 12 Oct</h3><button class="ib" data-act="stencil" aria-label="Usual days">⚙</button></div>'
- +'<div class="seg" role="group" aria-label="View"><button data-view="mine" aria-pressed="'+(S.view==="mine")+'">Mine</button><button data-view="all" aria-pressed="'+(S.view==="all")+'">Everyone</button></div>'
- +(!any?'<div class="banner"><b>Nothing planned yet</b><p>Speak to your assistant to lock in a night and it shows up here. Or start from last week.</p><div class="row2"><button class="btn" data-act="chat">✦ Ask assistant</button><button class="btn ghost" data-act="copy">Copy last week</button></div></div>'
+ +'<div class="seg" role="group" aria-label="View"><button data-view="mine" aria-pressed="'+(S.view==="mine")+'">Mine</button><button data-view="Jane" aria-pressed="'+(S.view==="Jane")+'">Jane</button><button data-view="all" aria-pressed="'+(S.view==="all")+'">Everyone</button></div>'
+ +(S.view==="Jane"?'':!any?'<div class="banner"><b>Nothing planned yet</b><p>Speak to your assistant to lock in a night and it shows up here. Or start from last week.</p><div class="row2"><button class="btn" data-act="chat">✦ Ask assistant</button><button class="btn ghost" data-act="copy">Copy last week</button></div></div>'
   :'<div class="row2" style="margin-bottom:6px"><button class="btn ghost" data-act="chat">✦ Ask assistant</button><button class="btn ghost" data-act="copy">Copy last week</button></div>')}
 function sheetHtml(){var c=S.cards.filter(function(x){return x.id===S.sheet})[0];if(!c)return"";var r=R[c.r],mine=me(c);
  var h='<div class="scrim" data-close></div><div class="sheet" role="dialog" aria-label="'+esc(r.n)+'"><h4>'+r.e+' '+esc(r.n)+'</h4><p style="font-size:13px">'+c.day+' · '+(c.forw==="all"?"Everyone, "+ALL+" portions (sized by the assistant)":c.forw+", 1 portion")+' · planned by '+(mine?"you":c.by)+'</p>';
@@ -174,7 +175,7 @@ jane:["Two people, one day","Jane's cards are view-only (lock mark) and carry he
 sheet:["Locking in a meal","On hand gets a soft Reserve; missing gets Add to list or Substitute. The orange 'also' tag shows another card has claimed the same ingredient: made visible, not resolved for you."],
 block:["Blocking a night","Tap the three dots on a day. The grid asks whether it is just this week or every such day, which writes the Settings stencil. Block is yours only; Jane's days are untouched."],
 stencil:["Usual days off, in Settings","Per person. The same home as renaming categories. Jane's row is read-only for you."],
-all:["Everyone's plan","Same grid, all cards. Others' cards are marked and locked. Switch to Mine to plan and block."],
+all:["Everyone's plan","Same grid, all cards. Others' cards are marked and locked. Tap Jane to look at only her plan (also view-only), or Mine to plan and block."],
 x:["Try it","Drag one of your meal cards to another day, or tap a card, or block a night with the three dots."]};
 function pushToast(t,b){S.toast={t:t,b:b}}
 function copyLast(){var n=0,sk=[];LAST.forEach(function(l){var who=l[2];if(who==="Sam"&&isBlocked(l[0],ME)){sk.push(l[0]);return}if(S.cards.some(function(c){return c.day===l[0]&&c.r===l[1]&&c.by===ME}))return;S.cards.push(card(l[0],l[1],"Sam",who==="all"?"all":"Sam"));n++});S.at="copy";return sk}
