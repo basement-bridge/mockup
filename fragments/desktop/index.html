@@ -4,9 +4,12 @@
 <a class="back" href="../../">&lsaquo; All mockups</a>
 <h1>Desktop: locked decisions</h1>
 <p>Desktop is locked in (owner, chat, 9 October 2026): the options that were open are settled and the rejected ones are removed. It is a <b>mode of the household flow</b>: open the flow, then move to the top edge of the window (or press the backtick key) to pick Phone, Tablet or a desktop size. The control is hidden so the screen is shown in full. Nothing here is built in Kitchie until its issue (#402 to #409) is approved.</p>
-<div class="sec"><div class="lbl">Open it (desktop sizes, 1024px and up)</div>
+<div class="sec"><div class="lbl">Open it (desktop sizes, 1024px and up). The Add form has three options still to choose from: press N or Add.</div>
 <a class="tile" href="pantry.html?sel=butter"><div class="row"><b>Pantry</b><span class="tag">1280 × 800</span></div><p>Press <b>?</b> for shortcuts, <b>F</b> for Filters, click the avatar for Profile.</p></a>
 <a class="tile" href="pantry.html?sel=butter&amp;vp=1920"><div class="row"><b>Pantry at 1920 × 1080</b><span class="tag">Wide</span></div><p>The same screen in a frame of that size, scaled to fit your window.</p></a>
+<a class="tile" href="pantry.html?add=a&amp;open=add"><div class="row"><b>Add form: A, side panel</b><span class="tag">Option</span></div><p>The form opens in the right lane like Filters. Every field visible; Enter adds, Shift Enter adds and starts another, Esc cancels.</p></a>
+<a class="tile" href="pantry.html?add=b&amp;open=add"><div class="row"><b>Add form: B, quick-add bar</b><span class="tag">Option</span></div><p>One line above the list: type it as you say it ("2 kg chicken thighs in the freezer"), see it understood as chips, Enter adds. More fields opens option A.</p></a>
+<a class="tile" href="pantry.html?add=c&amp;open=add"><div class="row"><b>Add form: C, window</b><span class="tag">Option</span></div><p>A centred window that blocks the page, two columns of fields, same keys. The same shape as Profile.</p></a>
 <a class="tile" href="home.html"><div class="row"><b>Home</b><span class="tag">rail</span></div><p>One off-centre column of cards; Cooking ideas live in the panel lane.</p></a>
 <a class="tile" href="../desktop-profile/index.html"><div class="row"><b>Profile</b><span class="tag">Window</span></div><p>Two-pane, settings-style window that blocks the page.</p></a></div>
 <div class="sec"><div class="lbl">Locked</div>
@@ -15,7 +18,7 @@
 <li><b>Sizes.</b> Phone under 600px and Tablet 600 to 1023px are the household flow (tablet is the phone app in a centred frame). Desktop is 1024px and up: 1024 × 768, 1280 × 800, 1440 × 900, 1920 × 1080, 2560 × 1440. Desktop shows Home and Pantry; other screens are not drawn yet.</li>
 <li><b>Device control.</b> Hidden. Move to the top edge or press the backtick key; it lists the sizes, the shortcuts, the prototype controls and the theme. Nothing else is on the page.</li>
 <li><b>Header.</b> No "Pantry" title: the rail says where you are. The count, Filters and Add sit on the left and Search on the right. Search is dimmed until clicked or <b>/</b>; then it widens and Add steps aside.</li>
-<li><b>Open item.</b> Clicking a row selects it (lighter fill, outline, accent bar). Clicking any tile expands every field below it in the panel, saved as you go; Used up and Add to shopping list are not buttons there. History shows that item's history only.</li>
+<li><b>Open item.</b> Clicking a row selects it (lighter fill, outline, accent bar). Clicking any tile expands every field below it in the panel, saved as you go; Used up and Add to shopping list are not buttons there. History opens as a column on the right for that item only: hidden until asked for (nothing loads before), the last 3 days that have entries, then 5 more days at a time; long text is cut short with the full text in a tooltip.</li>
 <li><b>Row actions.</b> Hover or focus buttons on the row plus <b>U</b> use one, <b>D</b> used up, <b>S</b> shopping list, <b>Z</b> undo; nothing asks first. Use one exists only for counted items; weights, volumes and free text have no Use one and change by level. Level is worked out for counted items and set by hand for the rest.</li>
 <li><b>Location and Category.</b> The pills switch between Location and Category with the pin and tag button, as in Kitchie. A plain click picks one, Ctrl or Cmd click adds more. The strip can be dragged taller, scrolls, and after 5 seconds picked pills move left.</li>
 <li><b>Filters.</b> A live side panel in the right lane (not a window). Sort, Status, Location, Category; plain click picks one, Ctrl or Cmd click adds. Done or Esc closes and keeps the picks; the item panel returns. Clear and Use last filters at the bottom.</li>
@@ -25,6 +28,6 @@
 </ol></div>
 <div class="sec"><div class="lbl">Notes</div>
 <p><b>Replaces DESIGN.md section 7 for desktop.</b> The household flow's phone frame is not used on desktop. Lanes: rail 88px, column 640px plus a 48px gutter each side, panel 400px.</p>
-<p style="margin-top:8px"><b>Still not drawn.</b> Recipes and Shopping on desktop, the Add form, and Home panel content beyond Cooking ideas.</p>
+<p style="margin-top:8px"><b>Still not drawn.</b> Recipes and Shopping on desktop, and Home panel content beyond Cooking ideas. <b>Open:</b> which Add form option (A, B or C).</p>
 <p style="margin-top:8px"><b>Loads.</b> Static HTML, one CSS and one JS file per screen, shared theme tokens, no images; the Profile window loads only when opened.</p></div>
 </div><style>.locked{margin:0;padding-left:1.2rem;display:grid;gap:10px}.locked li{line-height:1.5}</style></body></html>
