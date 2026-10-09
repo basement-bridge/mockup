@@ -76,3 +76,6 @@ Mockup: `fragments/desktop/pantry.html` (press `?`), `fragments/desktop-profile/
 - **Handover uses live links (owner, voice, 10 October 2026).** "Better than screenshots, the actual link to the mockup along with the hashtags and everything": every state opens from a URL (`docs/handover/desktop.md`, section 11). New URL options: `hist`, `st`, `soonwin`, `recentwin`, `loc`, `cat`, `sortby`, `panel=sort`, `curtain`, `help`, `profile`.
 - **Overlays sit on the main column (owner, voice, 10 October 2026).** The shortcuts list and the Add window (option C) line up with the main column (left edge on the column's left, 640px wide) instead of the middle of the window, so on a big screen they do not float away from the content. The owner said "right boundary of the main column"; **Proposal:** the dialog fills the column exactly, so its right edge is the column's right boundary. The Profile window stays a true modal in the middle of the window. The shortcuts list is one column at this width.
 
+
+### 10 October 2026 (owner, typed): M focuses the first item
+`M` puts focus on the first item in the centre column (it used to return to the open row). Close keys unchanged: Ctrl or Cmd plus Esc replaces Esc. The owner's message was cut off after "centre column s"; ask if more was meant.
