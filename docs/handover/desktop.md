@@ -29,7 +29,7 @@ Live mockup: <https://basement-bridge.github.io/mockup/fragments/desktop/pantry.
 - **Location and Category pills** on the face: one row by default, a drag bar to show more rows, a corner arrow, and double-click to show everything. Location and Category switch with a pin / tag button (as in Kitchie uat).
 - **Counted vs level-only items** (`docs/adr/pantry-item-sheet.md` in Kitchie): the **Use one** button and the `U` key exist only for counted items. Level-only items change by level (rules of levels still apply).
 - **Filters in use:** when any filter is picked the pill strip is replaced by removable tiles and "Clear all".
-- **Shortcuts:** `?` or `H` list; ↑ ↓ or J K move; Enter or E edit; U use one; D used up; S shopping list; Z undo; N add; F Filters; `/` search; G then H, P, R, S go to a screen; **M back to the main column** (focus returns to the open row, or the column itself, from any panel; the panel stays open; ignored while typing in a box). There is no key for History yet; it opens from the History button on the item panel. (The Profile window has its own `G Y`.)
+- **Shortcuts:** `?` or `H` list; ↑ ↓ or J K move; Enter or E edit; U use one; D used up; S shopping list; Z undo; N add; F Filters; `/` search; G then H, P, R, S go to a screen; **M focuses the first item in the main column** (owner, 10 October 2026, from any panel; the panel stays open; ignored while typing in a box). There is no key for History yet; it opens from the History button on the item panel. (The Profile window has its own `G Y`.)
 
 ![Shortcuts list](img/04-shortcuts-help.png)
 
