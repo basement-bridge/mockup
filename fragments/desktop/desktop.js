@@ -7,7 +7,7 @@ var NAV=[["home","Home",0],["pantry","Pantry",0],["recipes","Recipes",2],["cart"
 function nav(cls){return NAV.map(function(n){var on=(SCR==="home"&&n[0]==="home")||(SCR==="pantry"&&n[0]==="pantry");return '<button class="nv '+(on?"on":"")+'" '+(on?'aria-current="page"':"")+'><svg viewBox="0 0 24 24" aria-hidden="true">'+IC[n[0]]+'</svg><span>'+n[1]+'</span>'+(n[2]?'<i class="n">'+n[2]+'</i>':"")+'</button>'}).join("")}
 function due(d){return d===null?"":d===0?'<span class="due hot">Today</span>':d===1?'<span class="due hot">Tomorrow</span>':'<span class="due">Use within<br>'+d+' days</span>'}
 var AREAS=["Fridge","Pantry","Freezer","Unplaced","Laundry","Garage","Spice rack","Cellar","Balcony"],DISP=["All"].concat(AREAS);
-var EDIT=false,EF="qty",HELP=false,PEND=null,PT=null,TT=null,UNDO=null,FIND="",SELA=[],SHOPN=3,LIST={},X={},RH=0,ROW=50,FULLH=50,ST=null,LASTF=null,FP=false,HIST=false,HLOG={},BY="location",DISPC=null,FUSED=false,CUES=true,FST={},FCAT=[],FSORT="none",FLAST={st:{soon:1},loc:["Fridge"],cat:[],sort:"useby"};
+var EDIT=false,EF="qty",HELP=false,PEND=null,PT=null,TT=null,UNDO=null,FIND="",SELA=[],SHOPN=3,LIST={},X={},RH=0,ROW=50,FULLH=50,ST=null,LASTF=null,ADDV="",ADDO=(Q.get("add")||"a").slice(0,1),AD={},ANEW=0,AOPEN=null,FP=false,HIST=false,HLOG={},BY="location",DISPC=null,FUSED=false,CUES=true,FST={},FCAT=[],FSORT="none",FLAST={st:{soon:1},loc:["Fridge"],cat:[],sort:"useby"};
 ITEMS.push(["peas","","peas","Freezer","1 kg","Drawer 2","Vegetables",null],["ice","🍨","ice cream","Freezer","1 tub","Door","Dessert",null]);
 NAV[3][2]=SHOPN;
 function $(s){return document.querySelector(s)}
@@ -31,7 +31,7 @@ function vis(){var f=FIND.toLowerCase(),so=stOn();return ITEMS.filter(function(i
 function order(){return groups().reduce(function(o,g){return o.concat(g[1])},[])}
 var KB={cart:'<svg viewBox="0 0 24 24" aria-hidden="true">'+IC.cart+'</svg>'};
 function RA(i){var c=isCount(i),n=esc(i[2]);return (c?'<button class="rb" data-act="use" title="'+(c?"Use one":"Use some")+' (U)" aria-label="'+(c?"Use one of ":"Use some of ")+n+'">'+(c?"&minus;1":"&minus;&hellip;")+'</button>':"")+'<button class="rb" data-act="done" title="Used up (D)" aria-label="Mark '+n+' used up">&#10003;</button><button class="rb'+(LIST[i[0]]?" on":"")+'" data-act="list" title="'+(LIST[i[0]]?"Take off your shopping list":"Add to shopping list")+' (S)" aria-label="'+(LIST[i[0]]?"Take "+n+" off your shopping list":"Add "+n+" to your shopping list")+'">'+KB.cart+'</button>'}
-function row(i){var on=SEL===i[0];return '<li class="rw'+(on?" sel":"")+'" data-id="'+i[0]+'"><button class="row" data-open="'+i[0]+'"'+(on?' aria-current="true"':"")+'><div><div class="nm">'+(i[1]?i[1]+" ":"")+esc(i[2])+'</div><div class="mt">'+esc(i[3])+' · '+esc(i[4])+' · '+esc(i[5])+' · '+esc(i[6])+(LIST[i[0]]?' · <b class="onl">On your list</b>':"")+'</div></div>'+due(i[7])+'</button><div class="ra" role="group" aria-label="Quick actions for '+esc(i[2])+'">'+RA(i)+'</div></li>'}
+function row(i){var on=SEL===i[0];return '<li class="rw'+(on?" sel":"")+'" data-id="'+i[0]+'"><button class="row" data-open="'+i[0]+'"'+(on?' aria-current="true"':"")+'><div><div class="nm" title="'+esc(i[2])+'">'+(i[1]?i[1]+" ":"")+esc(i[2])+'</div><div class="mt" title="'+esc(i[3]+" · "+i[4]+" · "+i[5]+" · "+i[6])+'">'+esc(i[3])+' · '+esc(i[4])+' · '+esc(i[5])+' · '+esc(i[6])+(LIST[i[0]]?' · <b class="onl">On your list</b>':"")+'</div></div>'+due(i[7])+'</button><div class="ra" role="group" aria-label="Quick actions for '+esc(i[2])+'">'+RA(i)+'</div></li>'}
 function groups(){var V=vis();if(BY==="category"){var cs=FCAT.length?cats().filter(function(c){return FCAT.indexOf(c)>-1}):cats();return cs.map(function(c){return[c,V.filter(function(i){return i[6]===c})]}).filter(function(g){return g[1].length||FCAT.length})}return areasShown().map(function(a){return[a,V.filter(function(i){return i[3]===a})]}).filter(function(g){return g[1].length||SELA.length})}
 function list(){var G=groups();return G.length?G.map(function(g){return '<div class="grp"><h2>'+esc(g[0])+'</h2><span class="kbd">'+g[1].length+'</span></div>'+(g[1].length?'<ul class="rows">'+g[1].map(row).join("")+'</ul>':'<p class="none">Nothing here yet.</p>')}).join(""):'<p class="none">No match.</p>'}
 function ptop(i){return '<span class="ph">'+(i[1]||"🧀")+'</span><div><h2>'+esc(i[2])+'</h2><p>'+esc(i[4])+'</p><p><b style="color:var(--fg)">'+esc(i[3])+'</b> · '+esc(i[5])+'</p>'+(LIST[i[0]]?'<p class="onl">On your list</p>':"")+'</div><button class="x" aria-label="Close" data-close>&times;</button>'}
@@ -41,14 +41,14 @@ function edit(i){var x=dflt(i[0]);
  function inp(k,lab,v,ph){return '<label class="f"><span>'+lab+'</span><input data-f="'+k+'" value="'+esc(v)+'" placeholder="'+(ph||"")+'" autocomplete="off"></label>'}
  function sel(k,lab,v,o,dis){return '<label class="f"><span>'+lab+'</span><select data-f="'+k+'"'+(dis?" disabled":"")+'>'+o.map(function(a){return '<option'+(a===v?" selected":"")+'>'+a+'</option>'}).join("")+'</select></label>'}
  return '<div class="edit" id="pedit" role="group" aria-label="Edit '+esc(i[2])+'">'+inp("qty","Quantity",i[4])+sel("area","Location",i[3],AREAS)+inp("spot","Spot",i[5],"Pick or type")+inp("cat","Category",i[6])+sel("level",isCount(i)?"Level (worked out from amount and minimum)":"Level",lvl(i),["Plenty","Some","Running low","Out"],isCount(i))+inp("useby","Use-by",x.useby,"e.g. 14 Oct")+inp("min","Minimum",x.min,"e.g. 2")+'<p class="eh"><span class="kbd">Esc</span> closes. Changes save as you go.</p></div>'}
-function panel(){if(FP)return fpanel();var i=cur();
+function panel(){if(FP)return fpanel();if(ADDV==="a")return apanel();var i=cur();
  if(!i)return '<div class="empty"><p>Pick an item to see it here.</p><p style="margin-top:8px"><span class="kbd">&uarr;</span> <span class="kbd">&darr;</span> to move, <span class="kbd">Esc</span> to close, <span class="kbd">?</span> for all shortcuts</p></div>';
  return '<div class="top" id="ptop">'+ptop(i)+'</div><div class="tiles" id="ptiles">'+tiles(i)+'</div>'+(EDIT?edit(i):"")
  +'<p class="phint">'+(isCount(i)?'<span class="kbd">U</span> use one ':"")+'<span class="kbd">D</span> used up <span class="kbd">S</span> shopping list <span class="kbd">E</span> edit</p><div class="acts"><button class="btn" data-hist>History</button></div>'}
 function chipsHtml(){return dispA().map(function(a){var on=a==="All"?!selA().length:selA().indexOf(a)>-1;return '<button class="chip'+(on?" on":"")+'" data-a="'+esc(a)+'" aria-pressed="'+on+'">'+esc(a)+'</button>'}).join("")}
 function modeBtn(){var loc=BY==="location";return '<button class="mode" id="modebtn" data-mode aria-label="Showing '+(loc?"locations":"categories")+'. Switch to '+(loc?"categories":"locations")+'" title="Switch between location and category"><svg viewBox="0 0 24 24" aria-hidden="true">'+(loc?IC.pin:IC.tag)+'</svg></button>'}
 function ribbon(){return '<div class="ftw" id="ftw" hidden></div><div class="ribwrap" id="ribw"><div class="ribbon" id="rib">'+modeBtn()+'<div class="chips" id="chips" role="group" aria-label="Pick several with Ctrl or Command click.">'+chipsHtml()+'</div></div><button class="rcorner" id="rcorner" aria-label="Show all locations" title="Double-click to show all locations"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></button><div class="rgrip" id="rgrip" role="separator" aria-orientation="horizontal" aria-label="Resize the locations. Arrow keys resize, Enter shows all." tabindex="0" title="Drag to resize. Double-click to show all."><i></i></div></div>'}
-function pantry(){return '<div class="col"><div class="hd"><h1 class="sr">Pantry</h1><span class="count" id="cnt"></span><button class="btn" data-filters>Filters <span class="fbadge" id="fbadge" hidden></span><span class="kbd">F</span></button><button class="btn pri" aria-label="Add" data-add>+ Add</button><label class="find"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg><input id="find" type="search" placeholder="Search your pantry" aria-label="Search your pantry" autocomplete="off"><span class="kbd">/</span></label></div>'+ribbon()+'<div id="lw">'+list()+'</div></div>'}
+function pantry(){return '<div class="col"><div class="hd"><h1 class="sr">Pantry</h1><span class="count" id="cnt"></span><button class="btn" data-filters>Filters <span class="fbadge" id="fbadge" hidden></span><span class="kbd">F</span></button><button class="btn pri" aria-label="Add" data-add>+ Add</button><label class="find"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg><input id="find" type="search" placeholder="Search your pantry" aria-label="Search your pantry" autocomplete="off"><span class="kbd">/</span></label></div><div id="qaw"></div>'+ribbon()+'<div id="lw">'+list()+'</div></div>'}
 function cats(){var c=[];ITEMS.forEach(function(i){if(c.indexOf(i[6])<0)c.push(i[6])});return c.sort()}
 function fch(k,v,lab,on,n){return '<button class="chip fc'+(on?" on":"")+'" data-fk="'+k+'" data-v="'+esc(v)+'" aria-pressed="'+on+'">'+esc(lab)+(n===undefined?"":' <i>'+n+'</i>')+'</button>'}
 function fpanel(){var n=order().length,so=stOn();
@@ -78,24 +78,60 @@ function clearF(){saveLast();FST={};FCAT=[];SELA=[];FSORT="none";FUSED=false;syn
 function lastF(){FUSED=true;FST=JSON.parse(JSON.stringify(FLAST.st));SELA=FLAST.loc.slice();FCAT=FLAST.cat.slice();FSORT=FLAST.sort;syncChips();lw();fre()}
 /* History mirrors Kitchie's journal (store.getHistory(id), MCP item_history): one entry per write, each with an action, the item before and after, the source and a note.
    Real entries come in bursts (a stepper tapped several times), so entries from one source within two minutes are shown as one line per field with the net change. Sample data only: nothing here is a real household. */
-var HF=[["qty","Quantity"],["min","Minimum"],["staple","Staple"],["level","Level"],["useby","Use-by"],["area","Location"]],SRC={"item-sheet":"Item sheet",assistant:"Assistant",import:"Import",desk:"This page"};
+var HF=[["qty","Quantity"],["min","Minimum"],["staple","Staple"],["level","Level"],["useby","Use-by"],["area","Location"],["note","Note"]],SRC={"item-sheet":"Item sheet",assistant:"Assistant",import:"Import",desk:"This page"},HSHOWN={},HFIRST=3,HMORE=5;
 function jr(t,who,src,a,b,gap){return{t:t,who:who,src:src,gap:gap||0,before:a,after:b}}
-function journal(i){var c=isCount(i),q=i[4],n=parseFloat(q),alt=c&&n>0?q.replace(String(n),String(n+1)):q,m=Math.max(1,Math.round(c&&n>0?n:2));
- var J=[jr("Fri 25 Sep, 11:10 am","Priya","import",{},{qty:q,area:i[3]}),
+function journal(i){var c=isCount(i),q=i[4],n=parseFloat(q),alt=c&&n>0?q.replace(String(n),String(n+1)):q,m=Math.max(1,Math.round(c&&n>0?n:2)),NOTE="Bought at the Saturday market with the second jar for the long weekend cook-up, use this one first and keep the lid tight";
+ return[jr("Mon 14 Sep, 11:10 am","Priya","import",{},{qty:q,area:i[3]}),
+  jr("Fri 18 Sep, 5:02 pm","Sam","item-sheet",{level:"Plenty"},{level:"Some"}),
+  jr("Mon 21 Sep, 8:15 am","Priya","assistant",{useby:""},{useby:"30 Sep"}),
+  jr("Wed 23 Sep, 7:30 pm","Sam","item-sheet",{level:"Some"},{level:"Plenty"}),
+  jr("Sat 26 Sep, 10:00 am","Priya","assistant",{area:"Unplaced"},{area:i[3]}),
+  jr("Tue 29 Sep, 4:30 pm","Sam","item-sheet",{useby:"30 Sep"},{useby:""}),
+  jr("Thu 1 Oct, 6:12 pm","Sam","item-sheet",{level:"Plenty"},{level:"Some"}),
   jr("Sat 3 Oct, 9:05 am","Priya","assistant",{area:i[3]==="Fridge"?"Pantry":"Fridge"},{area:i[3]}),
+  jr("Mon 5 Oct, 7:45 am","Sam","item-sheet",{level:"Some"},{level:"Plenty"}),
   jr("Wed 7 Oct, 6:40 pm","Sam","item-sheet",{qty:q,min:"",staple:"No"},{qty:alt,min:"",staple:"No"}),
   jr("Wed 7 Oct, 6:40 pm","Sam","item-sheet",{qty:alt,min:"",staple:"No"},{qty:q,min:"",staple:"No"},12),
   jr("Wed 7 Oct, 6:40 pm","Sam","item-sheet",{qty:q,min:"",staple:"No"},{qty:q,min:m+1,staple:"Yes"},20),
-  jr("Wed 7 Oct, 6:41 pm","Sam","item-sheet",{qty:q,min:m+1,staple:"Yes"},{qty:q,min:m,staple:"Yes"},8)];
- return J}
-function net(group){var a=group[0].before,b=group[group.length-1].after,out=[];HF.forEach(function(f){var x=a[f[0]],y=b[f[0]];if(x===undefined&&y===undefined)return;if(String(x===undefined?"":x)!==String(y===undefined?"":y))out.push([f[1],x===undefined||x===""?"not set":x,y===undefined||y===""?"not set":y,x===undefined])});return out}
-function hevents(i){var J=journal(i),G=[];J.forEach(function(e){var g=G[G.length-1];if(g&&g[0].src===e.src&&g[0].who===e.who&&e.gap&&e.gap<=120)g.push(e);else G.push([e])});
- var out=G.map(function(g){var ch=net(g),first=g[0].before&&!Object.keys(g[0].before).length;return{t:g[0].t,who:g[0].who,src:g[0].src,n:g.length,added:first,ch:ch}}).filter(function(e){return e.added||e.ch.length});
- return out.reverse().concat((HLOG[i[0]]||[]).map(function(x){return{t:"Just now",who:"Sam",src:"desk",n:1,added:false,ch:[],text:x[2]}}).reverse()).sort(function(a,b){return(b.t==="Just now")-(a.t==="Just now")})}
+  jr("Wed 7 Oct, 6:41 pm","Sam","item-sheet",{qty:q,min:m+1,staple:"Yes"},{qty:q,min:m,staple:"Yes"},8),
+  jr("Thu 8 Oct, 8:20 pm","Priya","assistant",{note:""},{note:NOTE})]}
+function net(group){var a=group[0].before,b=group[group.length-1].after,out=[];HF.forEach(function(f){var x=a[f[0]],y=b[f[0]];if(x===undefined&&y===undefined)return;if(String(x===undefined?"":x)!==String(y===undefined?"":y))out.push([f[1],x===undefined||x===""?"not set":x,y===undefined||y===""?"not set":y])});return out}
+/* Entries newest first, grouped into days. Only days that have entries count, so a quiet month is not padded with empty days. */
+function hdays(i){var J=journal(i),G=[];J.forEach(function(e){var g=G[G.length-1];if(g&&g[0].src===e.src&&g[0].who===e.who&&e.gap&&e.gap<=120)g.push(e);else G.push([e])});
+ var ev=G.map(function(g){var ch=net(g),first=!Object.keys(g[0].before).length,tt=g[0].t.split(", ");return{d:tt[0],t:tt[1],who:g[0].who,src:g[0].src,n:g.length,added:first,ch:ch}}).filter(function(e){return e.added||e.ch.length}).reverse();
+ (HLOG[i[0]]||[]).slice().reverse().forEach(function(x){ev.unshift({d:"Today",t:"just now",who:"Sam",src:"desk",n:1,added:false,ch:[],text:x[2]})});
+ var days=[];ev.forEach(function(e){var d=days[days.length-1];if(d&&d.d===e.d)d.e.push(e);else days.push({d:e.d,e:[e]})});return days}
 function addLog(i,t){(HLOG[i[0]]=HLOG[i[0]]||[]).unshift(["Just now","Sam",t])}
-function hline(e){if(e.text)return '<b>'+esc(e.text)+'</b>';if(e.added)return '<b>Added</b><span class="hch">'+esc(e.ch.map(function(c){return c[0]+" "+c[2]}).join(", "))+'</span>';return '<b>'+(e.ch.length===1?esc(e.ch[0][0])+" changed":"Edited")+(e.n>1?' <em>'+e.n+' edits</em>':"")+'</b>'+e.ch.map(function(c){return '<span class="hch">'+esc(c[0])+': '+esc(c[1])+' &rarr; '+esc(c[2])+'</span>'}).join("")}
-function hcol(i){return '<div class="hh"><div><h2>History</h2><p>'+esc(i[2])+' only</p></div><button class="x" data-hclose aria-label="Close history">&times;</button></div><ol class="hist" aria-label="History of '+esc(i[2])+'">'+hevents(i).map(function(e){return '<li>'+hline(e)+'<span>'+esc(e.t)+' · '+esc(e.who)+' · '+esc(SRC[e.src]||e.src)+'</span></li>'}).join("")+'</ol><p class="phint"><span class="kbd">Esc</span> closes this column. Pick another row to see its history.</p>'}
+function hch(a,b,c){var full=a+": "+b+" → "+c;return '<span class="hch" title="'+esc(full)+'">'+esc(a)+': '+esc(b)+' &rarr; '+esc(c)+'</span>'}
+function hline(e){if(e.text)return '<b>'+esc(e.text)+'</b>';if(e.added){var f=e.ch.map(function(c){return c[0]+" "+c[2]}).join(", ");return '<b>Added</b><span class="hch" title="'+esc(f)+'">'+esc(f)+'</span>'}return '<b>'+(e.ch.length===1?esc(e.ch[0][0])+" changed":"Edited")+(e.n>1?' <em>'+e.n+' edits</em>':"")+'</b>'+e.ch.map(function(c){return hch(c[0],c[1],c[2])}).join("")}
+function hcol(i){var D=hdays(i),k=HSHOWN[i[0]]||HFIRST,shown=D.slice(0,k),left=D.length-shown.length;
+ return '<div class="hh"><div><h2>History</h2><p class="trunc" title="'+esc(i[2])+'">'+esc(i[2])+' only</p></div><button class="x" data-hclose aria-label="Close history">&times;</button></div>'
+ +shown.map(function(d){return '<section class="hday"><h3>'+esc(d.d)+'</h3><ol class="hist" aria-label="'+esc(d.d)+'">'+d.e.map(function(e){return '<li>'+hline(e)+'<span class="trunc">'+esc(e.t)+' · '+esc(e.who)+' · '+esc(SRC[e.src]||e.src)+'</span></li>'}).join("")+'</ol></section>'}).join("")
+ +(left>0?'<button class="btn hmore" data-hmore>Show '+Math.min(HMORE,left)+' more days <span class="kbd keep">'+left+' earlier</span></button>':'<p class="phint">That is everything for this item.</p>')
+ +'<p class="phint"><span class="kbd">Esc</span> closes this column. Pick another row to see its history.</p>'}
 function drawH(){var h=$("#hcol"),i=cur();if(!h)return;var on=HIST&&!!i;h.hidden=!on;h.innerHTML=on?hcol(i):"";var a=$(".app");if(a)a.classList.toggle("hopen",on)}
+/* Add form, three options for the owner to choose from (?add=a|b|c): A side panel, B quick-add bar, C window. All three use the same fields and the same save. */
+var AF=[["name","Name","e.g. chicken thighs"],["qty","Quantity","e.g. 2 kg or 6"],["area","Location"],["spot","Spot","e.g. top shelf"],["cat","Category","e.g. Protein"],["useby","Use-by","e.g. 14 Oct"],["min","Minimum","e.g. 2"]];
+function adef(){return{name:"",qty:"",area:"Unplaced",spot:"",cat:"",useby:"",min:""}}
+function aform(){var d=AD;return '<form class="af" id="af" novalidate autocomplete="off">'+AF.map(function(f){return f[0]==="area"?'<label class="f"><span>Location</span><select data-a="area">'+AREAS.map(function(a){return '<option'+(a===d.area?" selected":"")+'>'+a+'</option>'}).join("")+'</select></label>':'<label class="f"><span>'+f[1]+(f[0]==="name"?" (needed)":"")+'</span><input data-a="'+f[0]+'" value="'+esc(d[f[0]]||"")+'" placeholder="'+f[2]+'"'+(f[0]==="cat"?' list="acats"':"")+'></label>'}).join("")+'<datalist id="acats">'+cats().map(function(c){return '<option value="'+esc(c)+'">'}).join("")+'</datalist>'
+ +'<div class="afb"><button type="button" class="btn pri" data-asave>Add item <span class="kbd">Enter</span></button><button type="button" class="btn" data-asave2>Add and start another <span class="kbd">&#8679; Enter</span></button><button type="button" class="btn" data-acancel>Cancel <span class="kbd">Esc</span></button></div></form>'}
+function arev(){return Q.has("add")?'<div class="arev" role="group" aria-label="Add form option">Add form option '+["a","b","c"].map(function(k){return '<button type="button" data-aopt="'+k+'" aria-pressed="'+(ADDO===k)+'">'+k.toUpperCase()+'</button>'}).join("")+'</div>':""}
+function apanel(){return '<div class="fp"><div class="fph"><div><h2>Add an item</h2><p>Option A: side panel</p></div><button class="x" data-acancel aria-label="Close">&times;</button></div><div class="fpb">'+arev()+aform()+'</div></div>'}
+function awin(){return '<div class="scrim2" id="addwin"><div class="awin" role="dialog" aria-modal="true" aria-labelledby="awt"><div class="awh"><h2 id="awt">Add an item</h2><button class="x" data-acancel aria-label="Close">&times;</button></div>'+arev()+aform()+'</div></div>'}
+function parseQ(t){var o={name:"",qty:"",area:""},m=t.match(/^\s*(\d+(?:\.\d+)?)\s*(kg|g|ml|l|x|pack|packs|tin|tins|jar|jars|bottle|bottles)?\b\s*(.*)$/i),r=t;if(m){o.qty=m[1]+(m[2]&&!/^x$/i.test(m[2])?" "+m[2].toLowerCase():"");r=m[3]}
+ var a=r.match(new RegExp("\\b(?:in|to|into|on)\\s+(?:the\\s+)?("+AREAS.filter(function(x){return x!=="Unplaced"}).join("|")+")\\b","i"));if(a){o.area=AREAS.filter(function(x){return x.toLowerCase()===a[1].toLowerCase()})[0];r=r.replace(a[0],"")}
+ o.name=r.replace(/\s+/g," ").trim();return o}
+function qchips(){var o=parseQ(AD.qtext||"");AD.name=o.name;AD.qty=o.qty;if(o.area)AD.area=o.area;return [["Name",AD.name||"needed"],["Quantity",AD.qty||"not set"],["Location",AD.area]].map(function(c,n){return '<span class="qc'+(n===0&&!AD.name?" need":"")+'"><b>'+c[0]+'</b> '+esc(c[1])+'</span>'}).join("")}
+function qabar(){return '<div class="qa" id="qa" role="group" aria-label="Quick add"><div class="qrow"><input id="qin" data-qa value="'+esc(AD.qtext||"")+'" placeholder="Type it as you say it: 2 kg chicken thighs in the freezer" aria-label="Quick add. Quantity, name, then in and a location." autocomplete="off"><button type="button" class="btn pri" data-asave>Add <span class="kbd">Enter</span></button><button type="button" class="btn" data-amore>More fields</button><button type="button" class="x" data-acancel aria-label="Close quick add">&times;</button></div><div class="qchips" id="qchips" aria-live="polite">'+qchips()+'</div>'+arev()+'</div>'}
+function drawAdd(focus){var q=$("#qaw"),w=$("#addwin");if(q)q.innerHTML=ADDV==="b"?qabar():"";if(w)w.remove();if(ADDV==="c")document.body.insertAdjacentHTML("beforeend",awin());$("#panel").innerHTML=panel();var a=document.body;if(focus!==false&&ADDV){var e=ADDV==="b"?$("#qin"):$('#af [data-a="name"]');if(e)e.focus()}}
+function openAdd(o,opener){FP=false;HIST=false;drawH();AOPEN=opener||document.activeElement;if(o)ADDO=o;AD=adef();ADDV=ADDO;drawAdd()}
+function closeAdd(back){ADDV="";var w=$("#addwin");if(w)w.remove();drawAdd(false);if(back!==false&&AOPEN&&document.contains(AOPEN))AOPEN.focus()}
+function saveAdd(another){if(ADDV==="b"){var o=parseQ(AD.qtext||"");AD.name=o.name;AD.qty=o.qty;if(o.area)AD.area=o.area}
+ if(!(AD.name||"").trim()){var e=ADDV==="b"?$("#qin"):$('#af [data-a="name"]');if(e){e.focus();e.classList.add("bad");e.setAttribute("aria-invalid","true")}toast("Give it a name first.");return}
+ var sn=snap(),id="new"+(++ANEW),it=[id,"",AD.name.trim(),AD.area,AD.qty.trim()||"1",AD.spot.trim(),AD.cat.trim()||"Uncategorised",null];if(AD.useby.trim()){var dy=parseInt(AD.useby,10);it[7]=isNaN(dy)?7:Math.max(0,dy)}ITEMS.push(it);if(AD.min.trim())dflt(id).min=AD.min.trim();dflt(id).useby=AD.useby.trim();
+ addLog(it,"Added "+it[4]+" to "+it[3]);
+ if(another){var keep=AD.area;AD=adef();AD.area=keep;lw();drawAdd();toast("Added "+esc(it[2])+" to "+esc(it[3])+". Add the next one.",sn);return}
+ var was=ADDV;ADDV="";var w=$("#addwin");if(w)w.remove();SEL=id;EDIT=false;redraw();drawAdd(false);var q=$("#qaw");if(q)q.innerHTML="";toast("Added "+esc(it[2])+" to "+esc(it[3])+".",sn);focusRow()}
 function sofar(){return ITEMS.filter(function(i){return i[7]!==null&&i[7]<=3}).sort(function(a,b){return a[7]-b[7]})}
 function homeCards(){var s=sofar().slice(0,3);
  return '<section class="card"><div class="th"><span class="ric">⏱</span><h2>On the way out</h2><button class="va">View all</button></div><div class="three">'+s.map(function(i){return '<button class="mini" data-id="'+i[0]+'"><span class="em">'+(i[1]||"🍽️")+'</span><b>'+i[2]+'</b><span>'+(i[7]===0?"Today":i[7]===1?"Tomorrow":"in "+i[7]+" days")+'</span></button>'}).join("")+'</div></section>'
@@ -147,12 +183,14 @@ function settle(){clearTimeout(ST);ST=null;var c=$("#chips");if(!c)return;var N=
  var old={};[].forEach.call(c.children,function(b){old[b.dataset.a]=b.getBoundingClientRect()});setDispA(nd);c.innerHTML=chipsHtml();$("#rib").scrollTop=0;
  if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)return;
  [].forEach.call(c.children,function(b){var o=old[b.dataset.a],n=b.getBoundingClientRect(),dx=o.left-n.left,dy=o.top-n.top;if(dx||dy){b.style.transition="none";b.style.transform="translate("+dx+"px,"+dy+"px)";b.offsetWidth;b.style.transition="transform .35s ease";b.style.transform=""}})}
-if(SCR==="pantry"){measure();setH(ROW);if(Q.get("filters")==='1'){if(Q.get("pre")==='1'){FST={soon:1};FCAT=["Dairy and eggs"];FSORT="useby"}FP=true;$("#panel").innerHTML=panel()}lw();window.addEventListener("resize",function(){measure();setH(RH)});
+if(SCR==="pantry"){measure();setH(ROW);if(Q.get("filters")==='1'){if(Q.get("pre")==='1'){FST={soon:1};FCAT=["Dairy and eggs"];FSORT="useby"}FP=true;$("#panel").innerHTML=panel()}if(Q.get("open")==="add"||Q.get("open")==="1"&&Q.has("add")){AD=adef();ADDV=ADDO;$("#panel").innerHTML=panel();var qb=$("#qaw");if(qb)qb.innerHTML=ADDV==="b"?qabar():"";if(ADDV==="c")document.body.insertAdjacentHTML("beforeend",awin())}lw();window.addEventListener("resize",function(){measure();setH(RH)});
  var g=$("#rgrip");g.addEventListener("pointerdown",function(e){e.preventDefault();g.setPointerCapture(e.pointerId);var y0=e.clientY,h0=RH;$("#rib").dataset.drag=1;function mv(ev){setH(h0+ev.clientY-y0)}function up(){delete $("#rib").dataset.drag;g.removeEventListener("pointermove",mv);g.removeEventListener("pointerup",up)}g.addEventListener("pointermove",mv);g.addEventListener("pointerup",up)});
  g.addEventListener("dblclick",togglePills);$("#rcorner").addEventListener("dblclick",togglePills);$("#rcorner").addEventListener("click",function(e){if(e.detail===0)togglePills()});
  g.addEventListener("keydown",function(e){var k=e.key;if(k==="ArrowDown"){setH(RH+ROW);e.preventDefault()}else if(k==="ArrowUp"){setH(RH-ROW);e.preventDefault()}else if(k==="Home"){setH(ROW);e.preventDefault()}else if(k==="End"||k==="Enter"){k==="End"?setH(FULLH):togglePills();e.preventDefault()}});
  $("#find").addEventListener("input",function(e){FIND=e.target.value;lw()});
  document.body.addEventListener("input",function(e){var f=e.target.dataset&&e.target.dataset.f;if(f)setF(f,e.target.value)});
+ document.body.addEventListener("input",function(e){var d=e.target.dataset||{};if(d.a){AD[d.a]=e.target.value;e.target.classList.remove("bad");e.target.removeAttribute("aria-invalid")}else if(d.qa!==undefined){AD.qtext=e.target.value;$("#qchips").innerHTML=qchips();e.target.classList.remove("bad")}});
+ document.body.addEventListener("keydown",function(e){if(e.key!=="Enter"||!ADDV)return;var t=e.target;if(t.closest&&(t.closest("#af")||t.closest("#qa"))&&t.tagName!=="BUTTON"){e.preventDefault();saveAdd(e.shiftKey&&ADDV!=="b")}})
  document.body.addEventListener("change",function(e){var f=e.target.dataset&&e.target.dataset.f;if(f&&e.target.tagName==="SELECT")setF(f,e.target.value)})}
 document.body.addEventListener("click",function(e){var t=e.target,c;
  if(t.closest("[data-cues]")){cues(!CUES);return}
@@ -171,17 +209,25 @@ document.body.addEventListener("click",function(e){var t=e.target,c;
  if(t.closest("[data-fclear2]")){clearF();return}
  if(t.closest("[data-mode]")){BY=BY==="location"?"category":"location";$("#rib").innerHTML=modeBtn()+'<div class="chips" id="chips" role="group" aria-label="Pick several with Ctrl or Command click.">'+chipsHtml()+'</div>';measure();setH(RH);lw();$("#modebtn").focus();return}
  if(t.closest("[data-hist]")){HIST=!HIST;drawH();if(HIST){var hb=$("[data-hclose]");if(hb)hb.focus()}return}
+ if(t.closest("[data-hmore]")){var hi=cur();if(hi){HSHOWN[hi[0]]=(HSHOWN[hi[0]]||HFIRST)+HMORE;var hc=$("#hcol"),y=hc.scrollTop;drawH();hc.scrollTop=y}return}
  if(t.closest("[data-hclose]")){HIST=false;drawH();focusRow();return}
  if(t.closest("[data-fdone]")){closeF();return}
  if(t.closest("[data-fclear]")){clearF();return}
  if(t.closest("[data-flast]")){lastF();return}
  if(t.closest("[data-filters]")){FP?closeF():openF();return}
- if(t.closest("[data-add]")){toast("Add opens the add form (not drawn here).");return}});
+ if(c=t.closest("[data-add]")){openAdd(null,c);return}
+ if(t.closest("[data-asave2]")){saveAdd(true);return}
+ if(t.closest("[data-asave]")){saveAdd(false);return}
+ if(t.closest("[data-acancel]")){closeAdd();return}
+ if(t.closest("[data-amore]")){var o=parseQ(AD.qtext||"");AD.name=o.name;AD.qty=o.qty;if(o.area)AD.area=o.area;ADDV="a";drawAdd();return}
+ if(c=t.closest("[data-aopt]")){var keepA=AD;ADDO=c.dataset.aopt;ADDV=ADDO;AD=keepA;drawAdd();return}
+ if(t.id==="addwin"){closeAdd();return}});
 document.addEventListener("kitchie-help",function(){help(!HELP)});
 document.addEventListener("keydown",function(e){var k=e.key,t=e.target,typing=!!(t.closest&&t.closest("input,textarea,select,[contenteditable]"));
  if(k==="Escape"){if(HELP){help(false);e.preventDefault();return}
   if(SCR!=="pantry")return;
   if(t.id==="find"){t.value="";FIND="";lw();t.blur();return}
+  if(ADDV){closeAdd();e.preventDefault();return}
   if(FP){closeF();return}
   if(HIST){HIST=false;drawH();focusRow();return}
   if(EDIT){closeEdit();return}
@@ -198,7 +244,7 @@ document.addEventListener("keydown",function(e){var k=e.key,t=e.target,typing=!!
  else if(k==="Enter"||K==="e"){if(k==="Enter"&&!(t===document.body||t.closest(".row")))return;e.preventDefault();settle();if(!cur()){var o=order();if(!o.length)return;SEL=o[0][0];redraw()}openEdit("qty")}
  else if(K==="u"||K==="d"||K==="s"){e.preventDefault();if(!cur()){toast("Pick an item first.");return}act({u:"use",d:"done",s:"list"}[K])}
  else if(K==="z"){e.preventDefault();doUndo()}
- else if(K==="n"){e.preventDefault();toast("Add opens the add form (not drawn here).")}
+ else if(K==="n"){e.preventDefault();openAdd(null,document.activeElement)}
  else if(K==="f"){FP?closeF():openF();e.preventDefault()}
  else if(k==="/"){e.preventDefault();var f=$("#find");if(f)f.focus()}});
 })();
