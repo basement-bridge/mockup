@@ -114,7 +114,7 @@
 <li><b>Week header gestures.</b> On the "Week of ..." header, a long-press jumps back to the current week and a tap steps forward one week. The left/right arrows stay alongside it.</li>
 <li><b>Not cooking, look.</b> Keep "Not cooking" (the moon was dropped later: decision 24). Remove the diagonal-slash fill; it was distracting.</li>
 <li><b>Blocking from the grid is one week only.</b> No "just this week or every Wednesday" choice on the grid. Repeating days are a Settings matter (the usual-days stencil).</li>
-<li><b>Open your assistant must open the app.</b> <i>Superseded by decision 17.</i> (First said as a working deep link into the person's chosen assistant app, with no copy-to-clipboard fallback.)</li>
+<li><b>Open your assistant must open the app.</b> <i>Superseded by decision 17, which was withdrawn by decision 42; what the button does is open again.</i> (First said as a working deep link into the person's chosen assistant app, with no copy-to-clipboard fallback.)</li>
 <li><b>Moving a meal is drag only.</b> "Move to another day" and the day picker are gone from the meal sheet, on desktop and on touch alike, with no button fallback.</li>
 <li><b>Three meal-source states, labelled apart.</b> (a) An unmodified saved recipe: tap through to that recipe. (b) A saved recipe the assistant changed: labelled <b>Modified by assistant</b>; the substitution is locked to that plan entry, so on cook day the substitute is what is held, shown and shopped for. (c) A recipe invented on the fly with nothing saved behind it: labelled <b>Made up by your assistant</b>. <b>7(b) needs follow-up build work</b> (the entry carries its own ingredient list).</li>
 <li><b>Card meta line.</b> Just who and how many: "Everyone · 4 people". No "sized by your assistant" or "planned by you".</li>
@@ -126,7 +126,7 @@
 <li><b>Empty days carry no copy.</b> The permanent "speak to your assistant to lock something in" text is gone; the dashed outline is enough.</li>
 <li><b>Idle nudge.</b> After a stretch of doing nothing on a week with an empty day, a "curtain" drops and says <b>Plan with your AI assistant.</b> Never right when the plan opens. The owner's number: about five seconds.</li>
 <li><b>Copy last week is an icon.</b> A small persistent icon beside the settings cog, not a button in the main view. Pressing it again after it was applied clears what it copied.</li>
-<li><b>The assistant runs inside Kitchie.</b> "Open your assistant" is not an external deep link to a separate chat app; it is driven from inside Kitchie as an in-app agent. Supersedes decision 5. <b>Architecture note for the build</b>, beyond the mockup.</li>
+<li><b>The assistant runs inside Kitchie.</b> <i>Withdrawn by decision 42.</i> "Open your assistant" is not an external deep link to a separate chat app; it is driven from inside Kitchie as an in-app agent. Supersedes decision 5. <b>Architecture note for the build</b>, beyond the mockup.</li>
 <li><b>View switch order.</b> Left to right: Mine, Everyone, then the named other person (Jane in the sample). Replaces Mine, Jane, Everyone.</li>
 <li><b>Nudge anchors below the switch.</b> The curtain drops from just under the Mine / Everyone / person row, not from the top of the screen.</li>
 <li><b>The curtain pushes the grid down.</b> It makes room for itself instead of covering the week.</li>
@@ -150,10 +150,11 @@
 <li><b>Replan only removes the meal.</b> Swipe left removes the person's own meal and leaves the night open to plan again; it does not open the assistant. Other people's meals are locked and cannot be swiped.</li>
 <li><b>Modern settings icon.</b> The settings cog emoji becomes a line icon, matching the copy icon.</li>
 <li><b>No automatic household resizing.</b> A whole-household meal does not follow household size changes by itself. Changing who a meal is for is revised through the assistant (and the People stepper on the card), not automatically.</li>
-<li><b>Drag only is an accepted limitation.</b> People who cannot drag cannot move a meal; the owner accepts this for now.</li></ol></div>
+<li><b>Drag only is an accepted limitation.</b> People who cannot drag cannot move a meal; the owner accepts this for now.</li>
+<li><b>There is no in-app agent.</b> The product has no in-app agent any more. Decision 17 is withdrawn. The assistant is the person's own AI app, outside Kitchie, and the assistant sheet here is only a stand-in. Open: what "Open your assistant" does now (open the person's chosen AI app as in decision 5, or no button at all).</li></ol></div>
 
 <div class="perf"><b>Follow-up work beyond the mockup</b> (these touch the real Kitchie backend and app)<ul>
-<li><b>Decision 5 is superseded by 17.</b> The deep-link fix is no longer the plan: the assistant is an in-app agent. <b>Decision 17</b> is an architecture question for the build (the agent is driven from inside Kitchie), not a link fix.</li>
+<li><b>Decisions 5, 17 and 42.</b> There is no in-app agent in the product (42), so 17 is withdrawn. What "Open your assistant" does is open: the deep-link fix of decision 5 may be back, or the button may go. Waiting on the owner.</li>
 <li><b>Decision 7(b).</b> A modified entry carries its own locked ingredient list; reservation and the shopping list read that list, not the recipe's.</li>
 <li><b>Decision 10.</b> Store assistant-made and modified ingredient lists per person, so quantities scale when the people count changes.</li></ul></div>
 
@@ -174,7 +175,7 @@
 <li>Settings stencil: seven day buttons per person, "Usual days off cooking".</li></ul></div>
 
 <div class="qs"><b>Open questions</b> (and what a wrong guess costs: a redraw, nothing built)<ul>
-<li>What exactly is the in-app assistant (decision 17)? A build question, not a mockup one.</li></ul></div>
+<li>What does "Open your assistant" do now that there is no in-app agent: open the person's chosen AI app (decision 5), or go away?</li></ul></div>
 
 <div class="perf"><b>Performance note</b> (DESIGN.md section 6). <b>Default path loads:</b> this page, the shared theme, no images (emoji stand in for pictures). <b>Deferred in the real app:</b> the recipe's ingredient list and the pantry match load when a meal sheet opens, not with the week; the assistant conversation loads when the person taps the prompt. <b>Why reasonable:</b> most visits just look at the week.</div>
 </div>
@@ -267,7 +268,7 @@ function sheetHtml(){var c=S.cards.filter(function(x){return x.id===S.sheet})[0]
  if(!oh.length&&!ms.length)h+='<p style="margin-top:10px;font-size:13px">Leftovers need no shopping and no reservation.</p>';
  if(mine)h+='<button class="btn ghost" style="width:100%;margin-top:14px" data-act="remove">Remove</button>';
  return h+'</div>'}
-function chatHtml(){var h='<div class="scrim" data-close></div><div class="sheet" role="dialog" aria-label="Assistant"><h4>✦ Your assistant</h4><p style="font-size:12px;color:var(--muted)">Mockup stand-in. In the real app this is an agent that runs inside Kitchie itself, not a link out to another chat app.</p><div class="bub">Planning next week? Want me to start from last week\'s plan? I will leave your usual days off alone.</div>';
+function chatHtml(){var h='<div class="scrim" data-close></div><div class="sheet" role="dialog" aria-label="Assistant"><h4>✦ Your assistant</h4><p style="font-size:12px;color:var(--muted)">Mockup stand-in for the person\'s own AI app, which lives outside Kitchie. There is no in-app agent.</p><div class="bub">Planning next week? Want me to start from last week\'s plan? I will leave your usual days off alone.</div>';
  S.msgs.forEach(function(m){h+='<div class="bub'+(m[0]==="me"?" me":"")+'">'+esc(m[1])+'</div>'});
  h+='<div class="cc"><button data-act="chatcopy">Yes, copy last week</button><button data-act="chatfresh">Start fresh</button><button data-act="chatjane">Jane is cooking Thursday, I will have leftovers</button></div><div class="inp"><span>Or say: "I am out Wednesday"</span>🎤</div></div>';return h}
 function settingsHtml(){var h='<div class="scrim" data-close></div><div class="sheet" role="dialog" aria-label="Usual days"><h4>Meal planning</h4><p style="font-size:13px">Usual days off cooking. Each week starts with these blocked. Repeating days are set only here; the grid changes one week at a time.</p>';
