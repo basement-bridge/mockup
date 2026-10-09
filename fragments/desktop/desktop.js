@@ -23,10 +23,11 @@ function dispA(){if(BY==="location")return DISP;if(!DISPC)DISPC=["All"].concat(c
 function setDispA(d){if(BY==="location")DISP=d;else DISPC=d}
 function pickArr(arr,v,multi){var h=arr.indexOf(v)>-1;return multi?(h?arr.filter(function(x){return x!==v}):arr.concat(v)):(h&&arr.length===1?[]:[v])}
 function areasShown(){return SELA.length?AREAS.filter(function(a){return SELA.indexOf(a)>-1}):AREAS}
-var STS=[["soon","Expiring soon",function(i){return i[7]!==null&&i[7]<=7}],["list","On your list",function(i){return!!LIST[i[0]]}],["nodate","No use-by set",function(i){return i[7]===null}]],SORTS=[["none","As listed"],["name","Name A to Z"],["useby","Use-by soonest"],["cat","Category"]];
+var FWI=1,FDIR=false,WINS=[[3,"in 3 days"],[7,"in 1 week"],[14,"in 2 weeks"],[30,"in 1 month"]],STS=[["low","Running low",function(i){return lvl(i)==="Running low"}],["soon","Expiring soon",function(i){return i[7]!==null&&i[7]<=WINS[FWI][0]}],["list","On your list",function(i){return!!LIST[i[0]]}],["nodate","No use-by set",function(i){return i[7]===null}]],SORTS=[["none","As listed"],["name","Name A to Z"],["useby","Use-by soonest"],["cat","Category"]];
 function stOn(){return STS.filter(function(t){return FST[t[0]]})}
 function nF(){return stOn().length+SELA.length+FCAT.length}
-function cmp(a,b){if(FSORT==="name")return a[2].localeCompare(b[2]);if(FSORT==="cat")return a[6].localeCompare(b[6])||a[2].localeCompare(b[2]);if(FSORT==="useby"){var x=a[7]===null?1e9:a[7],y=b[7]===null?1e9:b[7];return x-y}return 0}
+function cmp(a,b){var r=cmp0(a,b);return FDIR?-r:r}
+function cmp0(a,b){if(FSORT==="name")return a[2].localeCompare(b[2]);if(FSORT==="cat")return a[6].localeCompare(b[6])||a[2].localeCompare(b[2]);if(FSORT==="useby"){var x=a[7]===null?1e9:a[7],y=b[7]===null?1e9:b[7];return x-y}return 0}
 function vis(){var f=FIND.toLowerCase(),so=stOn();return ITEMS.filter(function(i){return(!SELA.length||SELA.indexOf(i[3])>-1)&&(!FCAT.length||FCAT.indexOf(i[6])>-1)&&(!so.length||so.some(function(t){return t[2](i)}))&&(!f||(i[2]+" "+i[6]).toLowerCase().indexOf(f)>-1)}).sort(cmp)}
 function order(){return groups().reduce(function(o,g){return o.concat(g[1])},[])}
 var KB={cart:'<svg viewBox="0 0 24 24" aria-hidden="true">'+IC.cart+'</svg>'};
@@ -51,15 +52,22 @@ function ribbon(){return '<div class="ftw" id="ftw" hidden></div><div class="rib
 function pantry(){return '<div class="col"><div class="hd"><h1 class="sr">Pantry</h1><span class="count" id="cnt"></span><button class="btn" data-filters>Filters <span class="fbadge" id="fbadge" hidden></span><span class="kbd">F</span></button><button class="btn pri" aria-label="Add" data-add>+ Add</button><label class="find"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg><input id="find" type="search" placeholder="Search your pantry" aria-label="Search your pantry" autocomplete="off"><span class="kbd">/</span></label></div><div id="qaw"></div>'+ribbon()+'<div id="lw">'+list()+'</div></div>'}
 function cats(){var c=[];ITEMS.forEach(function(i){if(c.indexOf(i[6])<0)c.push(i[6])});return c.sort()}
 function fch(k,v,lab,on,n){return '<button class="chip fc'+(on?" on":"")+'" data-fk="'+k+'" data-v="'+esc(v)+'" aria-pressed="'+on+'">'+esc(lab)+(n===undefined?"":' <i>'+n+'</i>')+'</button>'}
-function fpanel(){var n=order().length,so=stOn();
+var FI={tick:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',minus:'<path d="M6 12h12"/>',plus:'<path d="M12 6v12M6 12h12"/>',dir:'<path d="M12 19V5M6 11l6-6 6 6"/>',Pantry:'<path d="M7 3h10v3H7zM6 6h12v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1zM9 11h6v5H9z"/>',Freezer:'<path d="M12 3v18M4.2 7.5l15.6 9M19.8 7.5l-15.6 9M9.5 4.5L12 6.5l2.5-2M9.5 19.5l2.5-2 2.5 2"/>',Fridge:'<rect x="6" y="3" width="12" height="18" rx="2"/><path d="M6 10h12M9 6v2M9 13v3"/>',Laundry:'<rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="14" r="4"/><path d="M8 6.5h.01M11 6.5h.01"/>',pin:'<path d="M12 21s-6-5.6-6-10a6 6 0 0 1 12 0c0 4.4-6 10-6 10z"/><circle cx="12" cy="11" r="2"/>'};
+function fsv(p,c){return '<svg viewBox="0 0 24 24" aria-hidden="true"'+(c?' class="'+c+'"':"")+'>'+p+'</svg>'}
+function fpill(k,v,on,n,ic){return '<button class="fc fpl'+(on?" on":"")+(n?"":" zero")+'" data-fk="'+k+'" data-v="'+esc(v)+'" aria-pressed="'+on+'">'+fsv(ic||FI.tick,ic?"":"ftk")+'<span>'+esc(v)+'</span><i>'+n+'</i></button>'}
+function fpanel(){var n=order().length,so=stOn(),mac=/Mac|iPhone|iPad/.test(navigator.platform||"");
  return '<div class="fp"><div class="fph"><div><h2>Filters</h2><p id="fcount">'+n+(n===1?" item":" items")+'</p></div><button class="btn pri" data-fdone>Done</button></div><div class="fpb">'
- +'<p class="fhint">Click picks one. <span class="kbd keep">'+(/Mac|iPhone|iPad/.test(navigator.platform||"")?"&#8984;":"Ctrl")+'</span> click adds more. The list updates as you go.</p>'
- +'<section><h3>Sort</h3><div class="fchips" role="group" aria-label="Sort">'+SORTS.map(function(t){return fch("sort",t[0],t[1],FSORT===t[0])}).join("")+'</div></section>'
- +'<section><h3>Status</h3><div class="fchips" role="group" aria-label="Status">'+STS.map(function(t){return fch("st",t[0],t[1],!!FST[t[0]],ITEMS.filter(t[2]).length)}).join("")+'</div></section>'
- +'<section><h3>Location</h3><div class="fchips" role="group" aria-label="Location">'+AREAS.slice(0,4).map(function(a){return fch("loc",a,a,SELA.indexOf(a)>-1,ITEMS.filter(function(i){return i[3]===a}).length)}).join("")+'</div></section>'
- +'<section><h3>Category</h3><div class="fchips" role="group" aria-label="Category">'+cats().map(function(c){return fch("cat",c,c,FCAT.indexOf(c)>-1,ITEMS.filter(function(i){return i[6]===c}).length)}).join("")+'</div></section></div>'
+ +'<p class="fhint">Click picks one. <span class="kbd keep">'+(mac?"&#8984;":"Ctrl")+'</span> click adds more. The list updates as you go.</p>'
+ +'<section><h3>Status</h3><p class="fsub">Shows an item that matches any one of these.</p><div class="fsts" role="group" aria-label="Status">'+STS.map(function(t,x){var on=!!FST[t[0]],c=ITEMS.filter(t[2]).length,soon=t[0]==="soon",sub=(soon?WINS[FWI][1]+" · ":"")+c+(c===1?" item":" items");
+  return '<div class="fst'+(on?" on":"")+'"><button class="fc fstb" data-fk="st" data-v="'+t[0]+'" role="checkbox" aria-checked="'+on+'"><span class="fcirc">'+fsv(FI.tick)+'</span><span class="fstt"><b>'+t[1]+'</b><span>'+sub+'</span></span><kbd class="kbd">'+(x+1)+'</kbd></button>'
+  +(soon?'<span class="fstep" role="group" aria-label="Expiring soon period"><button data-fstep="-1" aria-label="Shorter period"'+(FWI===0?" disabled":"")+'>'+fsv(FI.minus)+'</button><button data-fstep="1" aria-label="Longer period"'+(FWI===WINS.length-1?" disabled":"")+'>'+fsv(FI.plus)+'</button></span>':'<span class="fstep fnostep" aria-hidden="true"></span>')+'</div>'}).join("")+'</div></section>'
+ +'<section><h3>Location</h3><div class="fchips" role="group" aria-label="Location">'+AREAS.map(function(a){return fpill("loc",a,SELA.indexOf(a)>-1,ITEMS.filter(function(i){return i[3]===a}).length,FI[a]||FI.pin)}).join("")+'</div></section>'
+ +'<section><h3>Category</h3><div class="fchips" role="group" aria-label="Category">'+cats().map(function(c){return fpill("cat",c,FCAT.indexOf(c)>-1,ITEMS.filter(function(i){return i[6]===c}).length)}).join("")+'</div></section>'
+ +'<section><h3>Sort</h3><div class="fsort"><div class="fchips" role="group" aria-label="Sort">'+SORTS.map(function(t){return fch("sort",t[0],t[1],FSORT===t[0])}).join("")+'</div>'+(FSORT!=="none"?'<button class="fdir" data-fdir aria-label="Order: '+(FDIR?"reversed":"normal")+'. Press to flip.">'+fsv(FI.dir)+(FDIR?"Reversed":"Normal")+'</button>':"")+'</div></section></div>'
  +'<div class="fpf"><button class="btn" data-fclear'+(nF()||FSORT!=="none"?"":" disabled")+'>Clear</button><button class="btn" data-flast>Use last filters</button></div></div>'}
-function fre(focus){if(!FP)return;var b=$(".fpb"),y=b?b.scrollTop:0;$("#panel").innerHTML=fpanel();var nb=$(".fpb");if(nb)nb.scrollTop=y;if(focus){var e=$('.fc[data-fk="'+focus[0]+'"][data-v="'+focus[1]+'"]');if(e)e.focus()}}
+function fre(focus){if(!FP)return;var b=$(".fpb"),y=b?b.scrollTop:0;$("#panel").innerHTML=fpanel();var nb=$(".fpb");if(nb)nb.scrollTop=y;if(focus){var e=focus[0]==="step"?($('[data-fstep="'+focus[1]+'"]:not([disabled])')||$('.fstep button:not([disabled])')):focus[0]==="dir"?$("[data-fdir]"):$('.fc[data-fk="'+focus[0]+'"][data-v="'+focus[1]+'"]');if(e)e.focus()}}
+function stepF(d){FUSED=true;FWI=Math.max(0,Math.min(WINS.length-1,FWI+d));FST.soon=1;paintChips();lw();fre(["step",d])}
+function flipDir(){FDIR=!FDIR;lw();fre(["dir"])}
 function syncChips(){settle();var c=$("#chips");if(c)c.innerHTML=chipsHtml()}
 function pickF(k,v,e){var multi=e.ctrlKey||e.metaKey;FUSED=true;
  if(k==="sort")FSORT=v;
@@ -67,15 +75,15 @@ function pickF(k,v,e){var multi=e.ctrlKey||e.metaKey;FUSED=true;
  else if(k==="cat")FCAT=pickArr(FCAT,v,multi);
  else if(k==="loc")SELA=pickArr(SELA,v,multi);
  paintChips();lw();fre([k,v])}
-function rmTile(k,v){if(k==="st")delete FST[v];else if(k==="loc")SELA=SELA.filter(function(x){return x!==v});else if(k==="cat")FCAT=FCAT.filter(function(x){return x!==v});else FSORT="none";paintChips();lw();fre()}
-function ftiles(){var t=[];stOn().forEach(function(x){t.push(["st",x[0],"Status: "+x[1]])});SELA.forEach(function(a){t.push(["loc",a,"Location: "+a])});FCAT.forEach(function(c){t.push(["cat",c,"Category: "+c])});if(FSORT!=="none")t.push(["sort","none","Sort: "+SORTS.filter(function(x){return x[0]===FSORT})[0][1]]);
+function rmTile(k,v){if(k==="st")delete FST[v];else if(k==="loc")SELA=SELA.filter(function(x){return x!==v});else if(k==="cat")FCAT=FCAT.filter(function(x){return x!==v});else{FSORT="none";FDIR=false}paintChips();lw();fre()}
+function ftiles(){var t=[];stOn().forEach(function(x){t.push(["st",x[0],"Status: "+x[1]+(x[0]==="soon"?" ("+WINS[FWI][1]+")":"")])});SELA.forEach(function(a){t.push(["loc",a,"Location: "+a])});FCAT.forEach(function(c){t.push(["cat",c,"Category: "+c])});if(FSORT!=="none")t.push(["sort","none","Sort: "+SORTS.filter(function(x){return x[0]===FSORT})[0][1]+(FDIR?" (reversed)":"")]);
  return '<div class="ftiles" role="group" aria-label="Filters in use">'+t.map(function(x){return '<span class="ft">'+esc(x[2])+'<button data-frm="'+x[0]+'" data-v="'+esc(x[1])+'" aria-label="Remove '+esc(x[2])+'">&times;</button></span>'}).join("")+'<button class="ftclear" data-fclear2>Clear all</button></div>'}
 function strip(){var rw=$("#ribw"),ft=$("#ftw");if(!rw||!ft)return;if(!nF()&&FSORT==="none")FUSED=false;var show=FUSED,was=!rw.hidden;rw.hidden=show;ft.hidden=!show;ft.innerHTML=show?ftiles():"";if(!show&&!was){measure();setH(RH)}}
-function saveLast(){if(nF()||FSORT!=="none"){var st={};stOn().forEach(function(t){st[t[0]]=1});FLAST={st:st,loc:SELA.slice(),cat:FCAT.slice(),sort:FSORT}}}
+function saveLast(){if(nF()||FSORT!=="none"){var st={};stOn().forEach(function(t){st[t[0]]=1});FLAST={st:st,loc:SELA.slice(),cat:FCAT.slice(),sort:FSORT,win:FWI,dir:FDIR}}}
 function openF(){if(FP)return;settle();FP=true;redraw();var b=$("[data-fdone]");if(b)b.focus()}
 function closeF(){if(!FP)return;saveLast();FP=false;redraw();focusRow()}
-function clearF(){saveLast();FST={};FCAT=[];SELA=[];FSORT="none";FUSED=false;syncChips();lw();fre()}
-function lastF(){FUSED=true;FST=JSON.parse(JSON.stringify(FLAST.st));SELA=FLAST.loc.slice();FCAT=FLAST.cat.slice();FSORT=FLAST.sort;syncChips();lw();fre()}
+function clearF(){saveLast();FST={};FCAT=[];SELA=[];FSORT="none";FWI=1;FDIR=false;FUSED=false;syncChips();lw();fre()}
+function lastF(){FUSED=true;FST=JSON.parse(JSON.stringify(FLAST.st));SELA=FLAST.loc.slice();FCAT=FLAST.cat.slice();FSORT=FLAST.sort;FWI=FLAST.win===undefined?1:FLAST.win;FDIR=!!FLAST.dir;syncChips();lw();fre()}
 /* History mirrors Kitchie's journal (store.getHistory(id), MCP item_history): one entry per write, each with an action, the item before and after, the source and a note.
    Real entries come in bursts (a stepper tapped several times), so entries from one source within two minutes are shown as one line per field with the net change. Sample data only: nothing here is a real household. */
 var HF=[["qty","Quantity"],["min","Minimum"],["staple","Staple"],["level","Level"],["useby","Use-by"],["area","Location"],["note","Note"]],SRC={"item-sheet":"Item sheet",assistant:"Assistant",import:"Import",desk:"This page"},HSHOWN={},HFIRST=3,HMORE=5;
@@ -204,6 +212,8 @@ document.body.addEventListener("click",function(e){var t=e.target,c;
  if(t.closest("[data-close]")){SEL=null;EDIT=false;HIST=false;settle();redraw();return}
  if(c=t.closest("[data-edit]")){openEdit(c.dataset.edit);return}
  if(c=t.closest(".chip:not(.fc)")){chip(c.dataset.a,e);return}
+ if(c=t.closest("[data-fstep]")){stepF(parseInt(c.dataset.fstep,10));return}
+ if(t.closest("[data-fdir]")){flipDir();return}
  if(c=t.closest(".fc")){pickF(c.dataset.fk,c.dataset.v,e);return}
  if(c=t.closest("[data-frm]")){rmTile(c.dataset.frm,c.dataset.v);return}
  if(t.closest("[data-fclear2]")){clearF();return}
@@ -224,6 +234,7 @@ document.body.addEventListener("click",function(e){var t=e.target,c;
  if(t.id==="addwin"){closeAdd();return}});
 document.addEventListener("kitchie-help",function(){help(!HELP)});
 document.addEventListener("keydown",function(e){var k=e.key,t=e.target,typing=!!(t.closest&&t.closest("input,textarea,select,[contenteditable]"));
+ if(FP&&!typing&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&/^[1-9]$/.test(k)&&STS[+k-1]){e.preventDefault();pickF("st",STS[+k-1][0],{ctrlKey:true});return}
  if(k==="Escape"){if(HELP){help(false);e.preventDefault();return}
   if(SCR!=="pantry")return;
   if(t.id==="find"){t.value="";FIND="";lw();t.blur();return}
