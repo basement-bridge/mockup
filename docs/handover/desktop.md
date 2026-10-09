@@ -71,13 +71,11 @@ Live mockup: <https://basement-bridge.github.io/mockup/fragments/desktop/pantry.
 - Long values are cut with an ellipsis and carry the full text as a tooltip.
 - Kitchie source: journal-based history (`store.getHistory(id)`, MCP `item_history`). Requirement: lazy, on demand (section 1).
 
-## 6. Add item: three options (owner has not chosen)
+## 6. Add item: Option A, side panel (chosen)
 
-A: side panel in the right lane with every field. B: quick-add bar ("2 kg chicken thighs in the freezer") with the other fields behind "More fields". C: a centred window. My recommendation: B with A behind "More fields". Enter adds; Shift Enter adds and starts another; `Ctrl/Cmd Esc` cancels; new items default to Unplaced and count as "recently added".
+Owner, voice, 10 October 2026: "option A for add an item". A side panel in the right lane, like Filters, with every field: name (needed), quantity, location, spot, category, use-by, minimum. Enter adds; Shift Enter adds and starts another; `Ctrl/Cmd Esc` or the x cancels; new items default to Unplaced and count as "recently added". The quick-add bar and the window were drawn, not chosen, and are removed.
 
-![Option A](img/10-add-form-option-a.png)
-![Option B](img/10-add-form-option-b.png)
-![Option C](img/10-add-form-option-c.png)
+![Add form](img/10-add-form.png)
 
 ## 7. Profile
 
@@ -98,12 +96,11 @@ Found by reading `uat` (read only; nothing was changed there).
 ## 9. Not decided (ask the owner; do not guess)
 
 1. **Level filter (not final, not built).** The owner said "rather than Running low... we should simply say Level", with options drawn from the real config (not invented), and that it must change in UAT and prod too. Real list: Out, Running low (`low`), Some, Plenty. Open: pick one level or several; where the row sits; Recently added default (3 days or the real app's 24 hours). Not built in the mockup yet.
-2. **Which Add form option** (A, B or C).
-3. **Which of issues #402 to #409 and #413 are released for build.**
-4. **Next desktop screens to draw:** Recipes, Shopping (only Home and Pantry exist).
-5. **Scenario controls on desktop.** The household flow's scenario controls (persona, invite, household, jump to) do not load at desktop sizes, because desktop opens its own page. Proposed fix: share the same state and Controls panel, carried in the URL. Not built.
-6. **"Same number of rows" elsewhere.** The owner asked for a similar row limit "elsewhere"; the Category curtain already has it. Other places not named.
-7. **The "focus" shortcut.** M is my proposal for the main column; the owner said it needs its own single key and left the letter to me.
+2. **Which of issues #402 to #409 and #413 are released for build.**
+3. **Next desktop screens to draw:** Recipes, Shopping (only Home and Pantry exist).
+4. **Scenario controls on desktop.** The household flow's scenario controls (persona, invite, household, jump to) do not load at desktop sizes, because desktop opens its own page. Proposed fix: share the same state and Controls panel, carried in the URL. Not built.
+5. **"Same number of rows" elsewhere.** The owner asked for a similar row limit "elsewhere"; the Category curtain already has it. Other places not named.
+6. **The "focus" shortcut.** M is my proposal for the main column; the owner said it needs its own single key and left the letter to me.
 
 ## 10. File map (mockup)
 
@@ -128,16 +125,14 @@ Base: `https://basement-bridge.github.io/mockup/fragments/desktop/`. Add `&vp=12
 | Filters in use plus the Sort flyout | `pantry.html?filters=1&st=low&loc=Pantry&sortby=name&panel=sort` |
 | Shortcuts list | `pantry.html?help=1` |
 | Profile window | `pantry.html?profile=1` |
-| Add form A, side panel | `pantry.html?add=a&open=add` |
-| Add form B, quick-add bar | `pantry.html?add=b&open=add` |
-| Add form C, window | `pantry.html?add=c&open=add` |
+| Add form (side panel) | `pantry.html?add=a&open=add` |
 | Laptop size, both flyouts | `pantry.html?filters=1&panel=sort&vp=1280` |
 
 URL options on `pantry.html` (all optional, they combine):
 
 - `sel=<id>`: the open item (ids: butter, carrots, cheddar, eggs, yog, milk, paneer, spinach, rice, tom, onion, garam, peas, ice). `hist=1` opens its History.
 - `filters=1`: open Filters. `st=low,soon,recent`: statuses on. `soonwin=0..3` and `recentwin=0..3`: window index (see the table in section 4). `loc=Pantry,Fridge`, `cat=Cans`: pills picked. `sortby=name|useby|cat`. `panel=sort`: open the Sort flyout. `curtain=1`: open both curtains. `pre=1`: the older preset (Expiring soon, Dairy and eggs, Use-by soonest).
-- `help=1`, `profile=1`: the shortcuts list, the Profile window. `add=a|b|c&open=add`: the Add form option.
+- `help=1`, `profile=1`: the shortcuts list, the Profile window. `add=a&open=add` (or `open=add`): the Add form.
 - `vp=<width>`: show the page in a frame of that size.
 
 The page also writes the open item back into its own address (`sel=`), so copying the address bar shares the open item.
