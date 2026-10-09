@@ -41,3 +41,10 @@ Mockup: `fragments/desktop/pantry.html` (press `?`), `fragments/desktop-filters/
 - Owner: location pills are a resizable area (drag down, or double-click the top right corner to show all), scroll when shorter than the content, Ctrl/Cmd click picks several; after 5 seconds or when the list is used, picked pills move left and the rest follow.
 - Owner: Filters and Profile are windows that block everything behind them; three options each to choose from.
 - Open: weighed items have no "use one" (drawn: opens Quantity); plain click vs Ctrl/Cmd click for several pills; Esc discarding unsaved filter changes; whether a non-blocking menu is acceptable in Profile option C.
+
+## Decisions and tooling (9 October 2026)
+
+- **Decided (owner, chat): Profile on desktop is Option B**, the two-pane settings-style window (`fragments/desktop-profile/?o=b`). Options A and C are kept until the owner says they are dropped. Kitchie issue #409.
+- `fragments/desktop/decisions.html` lists every open desktop question with options, a recommendation and the cost of a wrong guess; picks are kept in the browser and can be copied. Still open: Filters option, pill click rule, row actions, use-one for weighed items, save behaviour, help key, very wide windows, tablet.
+- `fragments/viewport.js` adds a viewport picker (Fit, 1024, 1280, 1440, 1920, 2560) to the desktop pages. A chosen width loads the page in a frame of that width, scaled to fit, so its own width rules run for that size. The choice is in the address (`?vp=1440`).
+- **Owner (chat, 9 October 2026): mockup and build HTML, CSS and JS should be very close where possible.** See AGENTS.md "Mockup and build stay close".
