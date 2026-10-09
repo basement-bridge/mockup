@@ -42,7 +42,7 @@ var VIEWS={
 };
 var KEYS={p:"profile",m:"me",s:"settings",y:"history",h:"household",d:"data"};
 function keys(k){return '<span class="pf-keys" aria-label="shortcut: G then '+k+'"><kbd>G</kbd><kbd>'+k+'</kbd></span>'}
-var ESCL=/Mac|iPhone|iPad/.test(navigator.platform||"")?"\u2318 Esc":"Ctrl Esc";
+var ESCL=/Mac|iPhone|iPad/.test(navigator.platform||"")?"\u2318 Enter":"Ctrl Enter";
 var FOOT='<span><kbd>'+ESCL+'</kbd> close</span><span><kbd>Tab</kbd> move</span><span><kbd>G</kbd> then a letter jumps</span><span><kbd>?</kbd> shortcuts</span>';
 
 /* ---------- pane content (drawn on first view) ---------- */
@@ -169,7 +169,7 @@ document.addEventListener("click",function(e){
 
 document.addEventListener("keydown",function(e){
  var top=stack[stack.length-1],t=e.target;
- if(e.key==="Escape"&&(e.ctrlKey||e.metaKey)&&top){e.preventDefault();e.stopPropagation();closeTop();return}
+ if(e.key==="Enter"&&(e.ctrlKey||e.metaKey)&&top){e.preventDefault();e.stopPropagation();closeTop();return}
  if(e.key==="Tab"&&top){
   var f=focusables(top.frame);if(!f.length){e.preventDefault();return}
   var i=f.indexOf(document.activeElement);
