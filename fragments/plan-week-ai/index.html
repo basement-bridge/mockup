@@ -84,6 +84,7 @@
 <li>Meals are <b>dragged between days</b>. Days can be <b>blocked</b> (night out); a <b>Settings stencil</b> sets the usual days, the grid overrides one week, with an offer to make it every week.</li>
 <li>Locking a meal ties it to a recipe: what is on hand gets <b>reserved</b> (a soft label, not stock maths); what is missing is offered for the shopping list, and the same moment is where the assistant can be asked for a <b>substitute</b>.</li>
 <li>A day holds <b>several meal cards</b> (one person on leftovers, another cooking). A whole-household meal is sized by the assistant for everyone; otherwise cards stack, told apart by <b>avatar</b>. Competing claims on one ingredient are made visible, not auto-resolved.</li>
+<li><b>Leftovers is a protected category.</b> People can rename it to whatever they like, but the app always knows it as Leftovers for its mechanics (no recipe, no reservation, no shopping), and it cannot be deleted.</li>
 <li><b>Nobody edits another person's plan.</b> Anyone can view anyone's, or focus on their own. Blocking is per person.</li>
 <li>A meal card shows <b>how many ingredients are missing</b> as a small count, enough to tap and sort out later (the card opens the split; the names are not on the card).</li></ul></div>
 
@@ -98,7 +99,6 @@
 <li>Settings stencil: seven day buttons per person, "Usual days off cooking".</li></ul></div>
 
 <div class="qs"><b>Open questions</b> (and what a wrong guess costs: a redraw, nothing built)<ul>
-<li>Is "leftovers" its own kind of card (no recipe, no reservation) or a normal card? Drawn as a normal card with "Leftovers" in the name.</li>
 <li>When a reserved meal is moved to another day, does the reservation move with it? Drawn: yes.</li>
 <li>When someone else's meal uses an ingredient you reserved, who is told? Drawn: nobody is blocked; both cards show the tag.</li>
 <li>Does a stencil day ever suppress a card you plant there by hand? Drawn: no, you are asked.</li>
@@ -153,6 +153,7 @@ function sheetHtml(){var c=S.cards.filter(function(x){return x.id===S.sheet})[0]
  if(oh.length){h+='<div class="lbl">On hand'+(c.res?" · reserved":"")+'</div>';oh.forEach(function(i){var a=also(c,i);h+='<div class="ing"><span>'+i+'</span>'+(a.length?'<span class="tg also">also '+esc(a[0])+'</span>':'')+(c.res?'<span class="tg">Reserved</span>':'')+'</div>'});
   if(mine&&!c.res)h+='<button class="btn" style="width:100%;margin-top:8px" data-act="reserve">Reserve '+oh.length+' for '+c.day+'</button>'}
  if(ms.length){h+='<div class="lbl">Missing</div>';ms.forEach(function(i){h+='<div class="ing"><span style="color:var(--danger)">'+i+'</span>'+(mine?'<button class="mini" data-act="addlist" data-i="'+esc(i)+'">'+(c["l_"+i]?"✓ On list":"Add to list")+'</button><button class="mini" data-act="sub" data-i="'+esc(i)+'">✦ Substitute</button>':'')+'</div>'})}
+ if(c.r==="left")h+='<p class="tg" style="display:inline-block;margin-top:8px;border-color:var(--border);color:var(--muted)">🔒 Category: Leftovers (protected)</p>';
  if(!oh.length&&!ms.length)h+='<p style="margin-top:10px;font-size:13px">Leftovers need no shopping and no reservation.</p>';
  if(mine)h+='<div class="lbl">Move or remove</div><div class="stl" style="margin:0">'+DN.filter(function(d){return d!==c.day}).map(function(d){return '<button data-move="'+d+'">'+d+'</button>'}).join("")+'</div><button class="btn ghost" style="width:100%;margin-top:8px" data-act="remove">Remove from '+c.day+'</button>';
  return h+'</div>'}
@@ -161,6 +162,7 @@ function chatHtml(){var h='<div class="scrim" data-close></div><div class="sheet
  h+='<div class="cc"><button data-act="chatcopy">Yes, copy last week</button><button data-act="chatfresh">Start fresh</button><button data-act="chatjane">Jane is cooking Thursday, I will have leftovers</button></div><div class="inp"><span>Or say: "I am out Wednesday"</span>🎤</div></div>';return h}
 function settingsHtml(){var h='<div class="scrim" data-close></div><div class="sheet" role="dialog" aria-label="Usual days"><h4>Meal planning</h4><p style="font-size:13px">Usual days off cooking. Each week starts with these blocked. You can still change one week from the grid.</p>';
  ["Sam","Jane"].forEach(function(p){h+='<div class="lbl">'+(p==="Sam"?"You (Sam)":"Jane")+(p!=="Sam"?" · only Jane can change":"")+'</div><div class="stl">'+DN.map(function(d){return '<button '+(p!=="Sam"?'disabled style="opacity:.55"':'data-stl="'+d+'"')+' aria-pressed="'+(S.stencil[p].indexOf(d)>-1)+'">'+d+'</button>'}).join("")+'</div>'});
+ h+='<div class="lbl">Categories</div><div class="ing"><span>🔒 Leftovers</span><button class="mini" disabled style="opacity:.6">Rename</button></div><p style="font-size:12px;color:var(--muted);margin-top:4px">Rename it to anything. It can never be deleted, and the app still treats it as Leftovers.</p>';
  return h+'<button class="btn" style="width:100%;margin-top:10px" data-close>Done</button></div>'}
 function draw(){var ph=document.getElementById("ph");
  var scroll=ph.querySelector(".sc");var st=scroll?scroll.scrollTop:0;
