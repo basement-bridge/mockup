@@ -7,7 +7,7 @@ var NAV=[["home","Home",0],["pantry","Pantry",0],["recipes","Recipes",2],["cart"
 function nav(cls){return NAV.map(function(n){var on=(SCR==="home"&&n[0]==="home")||(SCR==="pantry"&&n[0]==="pantry");return '<button class="nv '+(on?"on":"")+'" '+(on?'aria-current="page"':"")+'><svg viewBox="0 0 24 24" aria-hidden="true">'+IC[n[0]]+'</svg><span>'+n[1]+'</span>'+(n[2]?'<i class="n">'+n[2]+'</i>':"")+'</button>'}).join("")}
 function due(d){return d===null?"":d===0?'<span class="due hot">Today</span>':d===1?'<span class="due hot">Tomorrow</span>':'<span class="due">Use within<br>'+d+' days</span>'}
 var AREAS=["Fridge","Pantry","Freezer","Unplaced","Laundry","Garage","Spice rack","Cellar","Balcony"],DISP=["All"].concat(AREAS);
-var EDIT=false,EF="qty",HELP=false,PEND=null,PT=null,TT=null,UNDO=null,FIND="",SELA=[],SHOPN=3,LIST={},X={},RH=0,ROW=50,FULLH=50,ST=null,LASTF=null;
+var EDIT=false,EF="qty",HELP=false,PEND=null,PT=null,TT=null,UNDO=null,FIND="",SELA=[],SHOPN=3,LIST={},X={},RH=0,ROW=50,FULLH=50,ST=null,LASTF=null,FP=false,FST={},FCAT=[],FSORT="none",FLAST={st:{soon:1},loc:["Fridge"],cat:[],sort:"useby"};
 ITEMS.push(["peas","","peas","Freezer","1 kg","Drawer 2","Vegetables",null],["ice","🍨","ice cream","Freezer","1 tub","Door","Dessert",null]);
 NAV[3][2]=SHOPN;
 function $(s){return document.querySelector(s)}
@@ -16,7 +16,11 @@ function cur(){return ITEMS.filter(function(x){return x[0]===SEL})[0]}
 function isCount(i){return !/\d\s*(g|kg|ml|L)\b/.test(i[4])}
 function dflt(id){return X[id]||(X[id]={level:"Plenty",useby:"",min:""})}
 function areasShown(){return SELA.length?AREAS.filter(function(a){return SELA.indexOf(a)>-1}):AREAS}
-function vis(){var f=FIND.toLowerCase();return ITEMS.filter(function(i){return(!SELA.length||SELA.indexOf(i[3])>-1)&&(!f||(i[2]+" "+i[6]).toLowerCase().indexOf(f)>-1)})}
+var STS=[["soon","Expiring soon",function(i){return i[7]!==null&&i[7]<=7}],["list","On your list",function(i){return!!LIST[i[0]]}],["nodate","No use-by set",function(i){return i[7]===null}]],SORTS=[["none","As listed"],["name","Name A to Z"],["useby","Use-by soonest"],["cat","Category"]];
+function stOn(){return STS.filter(function(t){return FST[t[0]]})}
+function nF(){return stOn().length+SELA.length+FCAT.length}
+function cmp(a,b){if(FSORT==="name")return a[2].localeCompare(b[2]);if(FSORT==="cat")return a[6].localeCompare(b[6])||a[2].localeCompare(b[2]);if(FSORT==="useby"){var x=a[7]===null?1e9:a[7],y=b[7]===null?1e9:b[7];return x-y}return 0}
+function vis(){var f=FIND.toLowerCase(),so=stOn();return ITEMS.filter(function(i){return(!SELA.length||SELA.indexOf(i[3])>-1)&&(!FCAT.length||FCAT.indexOf(i[6])>-1)&&(!so.length||so.some(function(t){return t[2](i)}))&&(!f||(i[2]+" "+i[6]).toLowerCase().indexOf(f)>-1)}).sort(cmp)}
 function order(){var V=vis(),o=[];areasShown().forEach(function(a){o=o.concat(V.filter(function(i){return i[3]===a}))});return o}
 var KB={cart:'<svg viewBox="0 0 24 24" aria-hidden="true">'+IC.cart+'</svg>'};
 function RA(i){var c=isCount(i),n=esc(i[2]);return '<button class="rb" data-act="use" title="'+(c?"Use one":"Use some")+' (U)" aria-label="'+(c?"Use one of ":"Use some of ")+n+'">'+(c?"&minus;1":"&minus;&hellip;")+'</button><button class="rb" data-act="done" title="Used up (D)" aria-label="Mark '+n+' used up">&#10003;</button><button class="rb'+(LIST[i[0]]?" on":"")+'" data-act="list" title="'+(LIST[i[0]]?"Take off your shopping list":"Add to shopping list")+' (S)" aria-label="'+(LIST[i[0]]?"Take "+n+" off your shopping list":"Add "+n+" to your shopping list")+'">'+KB.cart+'</button>'}
@@ -30,13 +34,36 @@ function edit(i){var x=dflt(i[0]);
  function inp(k,lab,v,ph){return '<label class="f"><span>'+lab+'</span><input data-f="'+k+'" value="'+esc(v)+'" placeholder="'+(ph||"")+'" autocomplete="off"></label>'}
  function sel(k,lab,v,o){return '<label class="f"><span>'+lab+'</span><select data-f="'+k+'">'+o.map(function(a){return '<option'+(a===v?" selected":"")+'>'+a+'</option>'}).join("")+'</select></label>'}
  return '<div class="edit" id="pedit" role="group" aria-label="Edit '+esc(i[2])+'">'+inp("qty","Quantity",i[4])+sel("area","Location",i[3],AREAS)+inp("spot","Spot",i[5],"Pick or type")+inp("cat","Category",i[6])+sel("level","Level",x.level,["Plenty","Some","Low","Out"])+inp("useby","Use-by",x.useby,"e.g. 14 Oct")+inp("min","Minimum",x.min,"e.g. 2")+'<p class="eh"><span class="kbd">Esc</span> closes. Changes save as you go.</p></div>'}
-function panel(){var i=cur();
+function panel(){if(FP)return fpanel();var i=cur();
  if(!i)return '<div class="empty"><p>Pick an item to see it here.</p><p style="margin-top:8px"><span class="kbd">&uarr;</span> <span class="kbd">&darr;</span> to move, <span class="kbd">Esc</span> to close, <span class="kbd">?</span> for all shortcuts</p></div>';
  return '<div class="top" id="ptop">'+ptop(i)+'</div><div class="tiles" id="ptiles">'+tiles(i)+'</div>'+(EDIT?edit(i):"")
  +'<p class="phint"><span class="kbd">U</span> use one <span class="kbd">D</span> used up <span class="kbd">S</span> shopping list <span class="kbd">E</span> edit</p><div class="acts"><button class="btn">History</button></div>'}
 function chipsHtml(){return DISP.map(function(a){var on=a==="All"?!SELA.length:SELA.indexOf(a)>-1;return '<button class="chip'+(on?" on":"")+'" data-a="'+esc(a)+'" aria-pressed="'+on+'">'+esc(a)+'</button>'}).join("")}
 function ribbon(){return '<div class="ribwrap"><div class="ribbon" id="rib"><div class="chips" id="chips" role="group" aria-label="Locations. Ctrl or Command click to pick several.">'+chipsHtml()+'</div></div><button class="rcorner" id="rcorner" aria-label="Show all locations" title="Double-click to show all locations"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg></button><div class="rgrip" id="rgrip" role="separator" aria-orientation="horizontal" aria-label="Resize the locations. Arrow keys resize, Enter shows all." tabindex="0" title="Drag to resize. Double-click to show all."><i></i></div></div>'}
-function pantry(){return '<div class="col"><div class="hd"><h1>Pantry</h1><span class="count" id="cnt"></span><button class="btn" data-filters>Filters <span class="kbd">F</span></button><button class="btn pri" aria-label="Add" data-add>+ Add</button><label class="find"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg><input id="find" type="search" placeholder="Search your pantry" aria-label="Search your pantry" autocomplete="off"><span class="kbd">/</span></label></div>'+ribbon()+'<div id="lw">'+list()+'</div></div>'}
+function pantry(){return '<div class="col"><div class="hd"><h1>Pantry</h1><span class="count" id="cnt"></span><button class="btn" data-filters>Filters <span class="fbadge" id="fbadge" hidden></span><span class="kbd">F</span></button><button class="btn pri" aria-label="Add" data-add>+ Add</button><label class="find"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/></svg><input id="find" type="search" placeholder="Search your pantry" aria-label="Search your pantry" autocomplete="off"><span class="kbd">/</span></label></div>'+ribbon()+'<div id="lw">'+list()+'</div></div>'}
+function cats(){var c=[];ITEMS.forEach(function(i){if(c.indexOf(i[6])<0)c.push(i[6])});return c.sort()}
+function fch(k,v,lab,on,n){return '<button class="chip fc'+(on?" on":"")+'" data-fk="'+k+'" data-v="'+esc(v)+'" aria-pressed="'+on+'">'+esc(lab)+(n===undefined?"":' <i>'+n+'</i>')+'</button>'}
+function fpanel(){var n=order().length,so=stOn();
+ return '<div class="fp"><div class="fph"><div><h2>Filters</h2><p id="fcount">'+n+(n===1?" item":" items")+'</p></div><button class="btn pri" data-fdone>Done</button></div><div class="fpb">'
+ +'<p class="fhint">Click picks one. <span class="kbd">'+(/Mac|iPhone|iPad/.test(navigator.platform||"")?"&#8984;":"Ctrl")+'</span> click adds more. The list updates as you go.</p>'
+ +'<section><h3>Sort</h3><div class="fchips" role="group" aria-label="Sort">'+SORTS.map(function(t){return fch("sort",t[0],t[1],FSORT===t[0])}).join("")+'</div></section>'
+ +'<section><h3>Status</h3><div class="fchips" role="group" aria-label="Status">'+STS.map(function(t){return fch("st",t[0],t[1],!!FST[t[0]],ITEMS.filter(t[2]).length)}).join("")+'</div></section>'
+ +'<section><h3>Location</h3><div class="fchips" role="group" aria-label="Location">'+AREAS.slice(0,4).map(function(a){return fch("loc",a,a,SELA.indexOf(a)>-1,ITEMS.filter(function(i){return i[3]===a}).length)}).join("")+'</div></section>'
+ +'<section><h3>Category</h3><div class="fchips" role="group" aria-label="Category">'+cats().map(function(c){return fch("cat",c,c,FCAT.indexOf(c)>-1,ITEMS.filter(function(i){return i[6]===c}).length)}).join("")+'</div></section></div>'
+ +'<div class="fpf"><button class="btn" data-fclear'+(nF()||FSORT!=="none"?"":" disabled")+'>Clear</button><button class="btn" data-flast>Use last filters</button></div></div>'}
+function fre(focus){var b=$(".fpb"),y=b?b.scrollTop:0;$("#panel").innerHTML=fpanel();var nb=$(".fpb");if(nb)nb.scrollTop=y;if(focus){var e=$('.fc[data-fk="'+focus[0]+'"][data-v="'+focus[1]+'"]');if(e)e.focus()}}
+function syncChips(){settle();var c=$("#chips");if(c)c.innerHTML=chipsHtml()}
+function pickF(k,v,e){var multi=e.ctrlKey||e.metaKey;
+ if(k==="sort")FSORT=v;
+ else if(k==="st"){var on=!!FST[v],only=stOn().length===1&&on;if(multi){if(on)delete FST[v];else FST[v]=1}else{FST={};if(!only)FST[v]=1}}
+ else if(k==="cat"){var h=FCAT.indexOf(v)>-1;FCAT=multi?(h?FCAT.filter(function(x){return x!==v}):FCAT.concat(v)):(h&&FCAT.length===1?[]:[v])}
+ else if(k==="loc"){chip(v,e)}
+ lw();fre([k,v])}
+function saveLast(){if(nF()||FSORT!=="none"){var st={};stOn().forEach(function(t){st[t[0]]=1});FLAST={st:st,loc:SELA.slice(),cat:FCAT.slice(),sort:FSORT}}}
+function openF(){if(FP)return;settle();FP=true;redraw();var b=$("[data-fdone]");if(b)b.focus()}
+function closeF(){if(!FP)return;saveLast();FP=false;redraw();focusRow()}
+function clearF(){saveLast();FST={};FCAT=[];SELA=[];FSORT="none";syncChips();lw();fre()}
+function lastF(){FST=JSON.parse(JSON.stringify(FLAST.st));SELA=FLAST.loc.slice();FCAT=FLAST.cat.slice();FSORT=FLAST.sort;syncChips();lw();fre()}
 function sofar(){return ITEMS.filter(function(i){return i[7]!==null&&i[7]<=3}).sort(function(a,b){return a[7]-b[7]})}
 function homeCards(){var s=sofar().slice(0,3);
  return '<section class="card"><div class="th"><span class="ric">⏱</span><h2>On the way out</h2><button class="va">View all</button></div><div class="three">'+s.map(function(i){return '<button class="mini" data-id="'+i[0]+'"><span class="em">'+(i[1]||"🍽️")+'</span><b>'+i[2]+'</b><span>'+(i[7]===0?"Today":i[7]===1?"Tomorrow":"in "+i[7]+" days")+'</span></button>'}).join("")+'</div></section>'
@@ -50,7 +77,7 @@ var HELPHTML='<div class="kb" id="kb" hidden><div class="kbc" role="dialog" aria
  +G("Move",[["&uarr; &darr; or J K","Previous or next item"],["Enter or E","Edit the open item"],["Esc","Close the edit, then the item"],["/","Search your pantry"]])
  +G("The open item",[["U","Use one (weighed items: set how much is left)"],["D","Used up"],["S","Add to, or take off, the shopping list"],["Z","Undo the last change"]])
  +G("Go to",[["G then H","Home"],["G then P","Pantry"],["G then R","Recipes"],["G then S","Shopping"]])
- +G("General",[["N","Add an item"],["F","Filters"],["? or H","This list"],["Esc","Close this list"]])
+ +G("General",[["N","Add an item"],["F","Filters side panel (F or Esc closes, picks stay)"],["? or H","This list"],["Esc","Close this list"]])
  +G("Location pills",[["Click","Show just that location"],["Ctrl or &#8984; click","Pick several"],["~Drag the bar below","Show more rows. Scroll for the rest"],["~Double-click the top right corner","Show every pill"]])
  +'</div><p class="kbf">Shortcuts pause while you type in a box. Picked pills move to the left after 5 seconds, or when you use the list.</p></div></div>';
 function G(t,r){return '<section class="kbs"><h3>'+t+'</h3>'+r.map(function(x){var k=x[0][0]==="~"?x[0].slice(1):x[0].split(" ").map(function(w){return /^(then|or|and|click)$/.test(w)?'<em>'+w+'</em>':'<kbd>'+w+'</kbd>'}).join(" ");return '<div class="kbr"><span class="kk">'+k+'</span><span>'+x[1]+'</span></div>'}).join("")+'</section>'}
@@ -61,7 +88,7 @@ document.body.innerHTML=h;
 function snap(){return JSON.stringify([ITEMS,LIST,SHOPN,X,SEL])}
 function toast(msg,undo){clearTimeout(TT);var t=$("#toast");t.innerHTML='<span>'+msg+'</span>'+(undo?'<button data-undo>Undo <span class="kbd">Z</span></button>':"");t.hidden=false;UNDO=undo||null;TT=setTimeout(function(){t.hidden=true;UNDO=null},6000)}
 function url(){try{var u=new URL(location.href);if(SEL)u.searchParams.set("sel",SEL);else u.searchParams.delete("sel");history.replaceState(null,"",u)}catch(e){}}
-function lw(){var l=$("#lw");if(l)l.innerHTML=list();var c=$("#cnt");if(c)c.textContent=order().length+(order().length===1?" item":" items")}
+function lw(){var l=$("#lw");if(l)l.innerHTML=list();var c=$("#cnt");if(c)c.textContent=order().length+(order().length===1?" item":" items");var fb=$("#fbadge");if(fb){fb.textContent=nF();fb.hidden=!nF()}var fc=$("#fcount");if(fc)fc.textContent=c.textContent}
 function redraw(){NAV[3][2]=SHOPN;if(SCR!=="pantry")return;lw();$("#panel").innerHTML=panel();$("#navw").innerHTML=nav();url()}
 function focusRow(){var r=$('li[data-id="'+SEL+'"] .row');if(r){r.focus({preventScroll:true});r.scrollIntoView({block:"nearest"})}}
 function focusF(k){var e=$('#pedit [data-f="'+k+'"]');if(e){e.focus();if(e.select&&e.tagName==="INPUT")e.select()}}
@@ -86,7 +113,7 @@ function settle(){clearTimeout(ST);ST=null;var c=$("#chips");if(!c)return;var se
  var old={};[].forEach.call(c.children,function(b){old[b.dataset.a]=b.getBoundingClientRect()});DISP=nd;c.innerHTML=chipsHtml();$("#rib").scrollTop=0;
  if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)return;
  [].forEach.call(c.children,function(b){var o=old[b.dataset.a],n=b.getBoundingClientRect(),dx=o.left-n.left,dy=o.top-n.top;if(dx||dy){b.style.transition="none";b.style.transform="translate("+dx+"px,"+dy+"px)";b.offsetWidth;b.style.transition="transform .35s ease";b.style.transform=""}})}
-if(SCR==="pantry"){measure();setH(ROW);lw();window.addEventListener("resize",function(){measure();setH(RH)});
+if(SCR==="pantry"){measure();setH(ROW);if(Q.get("filters")==='1'){if(Q.get("pre")==='1'){FST={soon:1};FCAT=["Dairy and eggs"];FSORT="useby"}FP=true;$("#panel").innerHTML=panel()}lw();window.addEventListener("resize",function(){measure();setH(RH)});
  var g=$("#rgrip");g.addEventListener("pointerdown",function(e){e.preventDefault();g.setPointerCapture(e.pointerId);var y0=e.clientY,h0=RH;$("#rib").dataset.drag=1;function mv(ev){setH(h0+ev.clientY-y0)}function up(){delete $("#rib").dataset.drag;g.removeEventListener("pointermove",mv);g.removeEventListener("pointerup",up)}g.addEventListener("pointermove",mv);g.addEventListener("pointerup",up)});
  g.addEventListener("dblclick",togglePills);$("#rcorner").addEventListener("dblclick",togglePills);$("#rcorner").addEventListener("click",function(e){if(e.detail===0)togglePills()});
  g.addEventListener("keydown",function(e){var k=e.key;if(k==="ArrowDown"){setH(RH+ROW);e.preventDefault()}else if(k==="ArrowUp"){setH(RH-ROW);e.preventDefault()}else if(k==="Home"){setH(ROW);e.preventDefault()}else if(k==="End"||k==="Enter"){k==="End"?setH(FULLH):togglePills();e.preventDefault()}});
@@ -102,13 +129,18 @@ document.body.addEventListener("click",function(e){var t=e.target,c;
  if(c=t.closest("[data-open]")){select(c.dataset.open);return}
  if(t.closest("[data-close]")){SEL=null;EDIT=false;settle();redraw();return}
  if(c=t.closest("[data-edit]")){openEdit(c.dataset.edit);return}
- if(c=t.closest(".chip")){chip(c.dataset.a,e);return}
- if(t.closest("[data-filters]")){toast('Filters opens a window that blocks the page. <a href="../desktop-filters/index.html">See the options</a>');return}
+ if(c=t.closest(".chip:not(.fc)")){chip(c.dataset.a,e);return}
+ if(c=t.closest(".fc")){pickF(c.dataset.fk,c.dataset.v,e);return}
+ if(t.closest("[data-fdone]")){closeF();return}
+ if(t.closest("[data-fclear]")){clearF();return}
+ if(t.closest("[data-flast]")){lastF();return}
+ if(t.closest("[data-filters]")){FP?closeF():openF();return}
  if(t.closest("[data-add]")){toast("Add opens the add form (not drawn here).");return}});
 document.addEventListener("keydown",function(e){var k=e.key,t=e.target,typing=!!(t.closest&&t.closest("input,textarea,select,[contenteditable]"));
  if(k==="Escape"){if(HELP){help(false);e.preventDefault();return}
   if(SCR!=="pantry")return;
   if(t.id==="find"){t.value="";FIND="";lw();t.blur();return}
+  if(FP){closeF();return}
   if(EDIT){closeEdit();return}
   if(SEL&&!typing){SEL=null;settle();redraw()}return}
  if(e.ctrlKey||e.metaKey||e.altKey||typing)return;
@@ -124,6 +156,6 @@ document.addEventListener("keydown",function(e){var k=e.key,t=e.target,typing=!!
  else if(K==="u"||K==="d"||K==="s"){e.preventDefault();if(!cur()){toast("Pick an item first.");return}act({u:"use",d:"done",s:"list"}[K])}
  else if(K==="z"){e.preventDefault();doUndo()}
  else if(K==="n"){e.preventDefault();toast("Add opens the add form (not drawn here).")}
- else if(K==="f"){toast('Filters opens a window that blocks the page. <a href="../desktop-filters/index.html">See the options</a>');e.preventDefault()}
+ else if(K==="f"){FP?closeF():openF();e.preventDefault()}
  else if(k==="/"){e.preventDefault();var f=$("#find");if(f)f.focus()}});
 })();

@@ -136,3 +136,19 @@ p{margin:0;color:var(--muted)}
 .toast button{border:0;background:none;color:var(--bg);font-weight:800;text-decoration:underline;padding:0}
 .rail .me{margin-top:auto;display:flex;flex-direction:column;gap:6px;align-items:stretch}
 .qk{width:24px;height:24px;border:1.8px solid currentColor;border-radius:7px;display:grid;place-items:center;font:700 14px var(--body)}
+/* Filters: side panel in the right lane, live-updating the list. Replaces the item panel until Done or Esc */
+.panel:has(.fp){padding:0}
+.fp{display:flex;flex-direction:column;height:calc(100vh - 53px - 56px)}
+.fph{display:flex;align-items:center;gap:12px;padding:20px 24px 14px;border-bottom:1px solid var(--border)}
+.fph>div{flex:1;min-width:0}.fph h2{font-size:1.25rem}.fph p{color:var(--muted);font-weight:600;margin-top:2px}
+.fpb{flex:1;overflow:auto;padding:14px 24px 20px}
+.fhint{font-size:12px;color:var(--muted);margin-bottom:14px}
+.fpb section{margin-bottom:18px}.fpb h3{font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.fchips{display:flex;flex-wrap:wrap;gap:6px}
+.fc{border-color:var(--border);background:var(--bg)}.fc.on{background:var(--surface)}
+.fc i{font-style:normal;font-weight:500;color:var(--muted);margin-left:4px;font-size:12px}
+.fpf{display:flex;gap:10px;padding:12px 24px;border-top:1px solid var(--border);background:var(--surface)}
+.fpf .btn{flex:1;justify-content:center}.fpf .btn[disabled]{opacity:.45}
+.fbadge{min-width:20px;height:20px;border-radius:99px;background:var(--accent);color:var(--on-accent);font-size:12px;display:inline-grid;place-items:center;padding:0 6px}
+.fbadge[hidden]{display:none}
+.fc:focus-visible,.fph .btn:focus-visible,.fpf .btn:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
