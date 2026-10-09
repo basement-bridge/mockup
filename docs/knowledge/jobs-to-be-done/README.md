@@ -17,6 +17,6 @@ Every screen starts from what the person is here to do right now. Layout, and wh
 | Cooking right now | [cooking-right-now.md](cooking-right-now.md) | Captured, mockup drafted |
 | About to shop | – | Named, nothing captured yet |
 | Scanning things in | [scan-in.md](scan-in.md) | Named, options drafted, nothing else captured |
-| Planning the week | [plan-week.md](plan-week.md) | Named, options drafted, nothing else captured |
+| Planning the week | [plan-week.md](plan-week.md), [plan-week-ai.md](plan-week-ai.md) | Named; AI-led direction chosen, 16 owner decisions captured (9 Oct 2026) |
 | Using things up | [use-up.md](use-up.md) | Named, options drafted, nothing else captured |
 | Cook from one main thing | – | Named, nothing captured yet |
