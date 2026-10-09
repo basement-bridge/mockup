@@ -19,20 +19,20 @@ button{background:none;border:0;padding:0;cursor:pointer}
 .sw.on{background:var(--accent)}.sw.on::after{left:21px;background:var(--on-accent)}
 .gear{display:none}
 /* Form factors (DESIGN.md section 7). EXCEPTION, noted in the flow's notes: this screen is the phone app itself, so it keeps a phone frame.
-   Phone (under 600px): the app is full bleed. Tablet (600 to 1023px): the same app as a centred phone frame, Controls behind the button.
-   Desktop (1024px and up): the frame centred beside the always-open Controls panel. */
-@media (max-width:1023.98px){
+   Phone (under 600px): the app is full bleed. Tablet (600 to 1023px): the same app as a centred phone frame. Desktop sizes (1024px and up) are the
+   desktop screens (fragments/desktop), reached with the Device control (fragments/device.js). The Controls panel is hidden at every size: open it from the Device control. */
+@media all{
   .stage{padding:var(--sp-4) var(--gutter);min-height:100%}
   .phone{max-height:calc(100dvh - 32px)}
-  .panel{display:none;position:fixed;right:var(--sp-3);bottom:calc(var(--sp-3) + var(--tap) + var(--sp-2));width:min(340px,calc(100vw - 24px));z-index:50;background:var(--stage);padding:var(--sp-3);border-radius:var(--r-card);border:1px solid var(--border);max-height:70vh}
+  .panel{display:none;position:fixed;right:var(--sp-3);top:var(--sp-3);width:min(340px,calc(100vw - 24px));z-index:50;background:var(--stage);padding:var(--sp-3);border-radius:var(--r-card);border:1px solid var(--border);max-height:70vh}
   .panel.open{display:flex}
-  .gear{display:inline-flex;align-items:center;min-height:var(--tap);position:fixed;right:var(--sp-3);bottom:var(--sp-3);z-index:60;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-pill);padding:0 var(--sp-4);font-size:12px;opacity:.92;font-weight:700;color:var(--accent)}
+  .gear{display:none;align-items:center;min-height:var(--tap);position:fixed;right:var(--sp-3);bottom:var(--sp-3);z-index:60;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-pill);padding:0 var(--sp-4);font-size:12px;opacity:.92;font-weight:700;color:var(--accent)}
 }
 @media (max-width:599.98px){
   .stage{padding:0;display:block}
   .phone{width:100%;height:100dvh;max-height:none;border-radius:0;border:0}
   .gear{bottom:78px;right:10px}
-  .panel{inset:auto 12px 128px 12px;width:auto}
+  .panel{inset:12px 12px auto 12px;width:auto}
 }
 .panel select,.panel .pb,.panel label{min-height:var(--tap)}
 
