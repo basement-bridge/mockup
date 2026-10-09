@@ -168,11 +168,15 @@ p{margin:0;color:var(--muted)}
 .fpl.on{background:var(--accent);color:var(--on-accent);border-color:transparent}.fpl.on i{color:inherit;opacity:.8}
 .fpl i{margin-left:0}
 .fpl.zero:not(.on){border-style:dashed;color:var(--muted)}
-.ftabs{display:flex;gap:4px;margin-bottom:6px}
-.ftab{min-height:var(--tap);padding:0 14px;border:0;border-bottom:3px solid transparent;border-radius:var(--r-ctl) var(--r-ctl) 0 0;background:none;font:700 1.15rem var(--head,inherit);color:var(--muted);display:inline-flex;align-items:center;gap:6px}
-.ftab.on{color:var(--fg);border-bottom-color:var(--accent)}.ftab:hover{color:var(--fg)}
-.fdot{width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block}
-.ftab:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.tick{width:var(--tap);height:var(--tap);border-radius:50%;border:0;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;flex:none;padding:0}
+.tick svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.tick:hover{filter:brightness(1.08)}.tick:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+.fsortrow{width:100%;display:flex;align-items:center;gap:10px;min-height:var(--tap);padding:0 14px;margin-bottom:16px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--bg);color:inherit;font:inherit;text-align:left}
+.fsortrow.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.fsl{font-weight:700}.fsv{margin-left:auto;color:var(--muted);font-weight:600;font-size:13px}.fsortrow svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.fsortrow:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.scolh{padding:0 0 14px;margin-bottom:14px}.scolb{padding:0}
+.scol .fc{border-color:var(--border);background:var(--bg)}
 .fcurt{position:relative;padding-bottom:14px}
 .fcw{overflow:hidden;transition:height .2s}.fcurt[data-drag] .fcw{transition:none}
 .fcw.scrolls{overflow-y:auto;scrollbar-width:thin}
@@ -220,12 +224,12 @@ p{margin:0;color:var(--muted)}
 .ft button,.ftclear{border:0;background:none}
 .ft button{border-radius:50%}
 /* History: a fourth column to the right of the item panel, closed with the x. The list gives up width to make room; below 1240px the column lays over the right edge instead. */
-.app.hopen{grid-template-columns:88px minmax(0,736px) 400px 320px}
+.app.hopen,.app.sopen{grid-template-columns:88px minmax(0,736px) 400px 320px}
 .hcol{background:var(--surface);border-left:1px solid var(--border);padding:24px;position:sticky;top:0;height:100vh;overflow:auto}
 .hcol[hidden]{display:none}
 .hh{display:flex;align-items:center;gap:12px;margin-bottom:14px}.hh>div{flex:1}.hh p{margin-top:2px}
 .hcol .x{width:var(--tap);height:var(--tap);border-radius:50%;border:1px solid var(--border);background:var(--bg);font-size:20px}
-@media (max-width:1239.98px){.app.hopen{grid-template-columns:88px minmax(0,736px) 400px}.hcol{position:fixed;right:0;top:0;width:320px;z-index:30;box-shadow:-12px 0 32px rgba(0,0,0,.25)}}
+@media (max-width:1239.98px){.app.hopen,.app.sopen{grid-template-columns:88px minmax(0,736px) 400px}.hcol{position:fixed;right:0;top:0;width:320px;z-index:30;box-shadow:-12px 0 32px rgba(0,0,0,.25)}}
 .hd{flex-wrap:wrap}.hd .count{flex:1 1 auto}.btn{white-space:nowrap}
 .hist .hch{display:block;color:var(--fg);font-size:14px;margin-top:2px}.hist b em{font-style:normal;font-weight:500;color:var(--muted);font-size:12px;margin-left:6px}
 .trunc,.hist .hch{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
@@ -246,3 +250,4 @@ p{margin:0;color:var(--muted)}
 .awin .af{grid-template-columns:1fr 1fr}.awin .af .f:first-child{grid-column:1/-1}.awin .afb{grid-column:1/-1;grid-template-columns:1fr 1fr auto}
 .arev{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted);margin:0 0 12px}.arev button{min-height:32px;min-width:32px;border-radius:99px;border:1px solid var(--border);background:var(--bg);font-weight:700}.arev button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
 .btn.pri .kbd{color:var(--on-accent);border-color:currentColor;opacity:.85}
+.scol h3{display:none}
