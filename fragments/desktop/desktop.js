@@ -165,7 +165,7 @@ var HELPHTML='<div class="kb" id="kb" hidden><div class="kbc" role="dialog" aria
  +G("Move",[["&uarr; &darr; or J K","Previous or next item"],["Enter or E","Edit the open item"],[ESCL,"Close the edit, then the item"],["/","Search your pantry"]])
  +G("The open item",[["U","Use one (counted items only; other items change by level)"],["D","Used up"],["S","Add to, or take off, the shopping list"],["Z","Undo the last change"]])
  +G("Go to",[["G then H","Home"],["G then P","Pantry"],["G then R","Recipes"],["G then S","Shopping"]])
- +G("General",[["N","Add an item"],["F","Filters side panel (F or "+ESCL+" closes, picks stay)"],["~<kbd>1</kbd> <em>to</em> <kbd>3</kbd>","In Filters: switch a status on or off"],["~<kbd>Shift</kbd> <kbd>&lt;</kbd> <em>or</em> <kbd>Shift</kbd> <kbd>&gt;</kbd>","In Filters: shorter or longer window on the status you are on"],["? or H","This list"],[ESCL,"Close this list"]])
+ +G("General",[["N","Add an item"],["F","Filters side panel (F or "+ESCL+" closes, picks stay)"],["~<kbd>1</kbd> <em>to</em> <kbd>3</kbd>","In Filters: switch a status on or off"],["~<kbd>Shift</kbd> <kbd>&lt;</kbd> <em>or</em> <kbd>Shift</kbd> <kbd>&gt;</kbd>","In Filters: shorter or longer window on the status you are on"],["M","Back to the main column from any panel, so the arrow keys move or scroll it. The panel stays open"],["? or H","This list"],[ESCL,"Close this list"]])
  +G("Location pills",[["Click","Show just that location"],["Ctrl or &#8984; click","Pick several"],["~Drag the bar below","Show more rows. Scroll for the rest"],["~Double-click the top right corner","Show every pill"]])
  +'</div><div class="kbt"><span id="cuel">Show shortcut cues on buttons and hints</span><button type="button" class="sw2" id="cuetog" role="switch" aria-checked="true" aria-labelledby="cuel" data-cues><i>On</i></button></div><p class="kbf">Shortcuts pause while you type in a box. Picked pills move to the left after 5 seconds, or when you use the list.</p></div></div>';
 function G(t,r){return '<section class="kbs"><h3>'+t+'</h3>'+r.map(function(x){var k=x[0][0]==="~"?x[0].slice(1):x[0].split(" ").map(function(w){return /^(then|or|and|click)$/.test(w)?'<em>'+w+'</em>':'<kbd>'+w+'</kbd>'}).join(" ");return '<div class="kbr"><span class="kk">'+k+'</span><span>'+x[1]+'</span></div>'}).join("")+'</section>'}
@@ -178,6 +178,7 @@ function toast(msg,undo){clearTimeout(TT);var t=$("#toast");t.innerHTML='<span>'
 function url(){try{var u=new URL(location.href);if(SEL)u.searchParams.set("sel",SEL);else u.searchParams.delete("sel");history.replaceState(null,"",u)}catch(e){}}
 function lw(){var l=$("#lw");if(l)l.innerHTML=list();var c=$("#cnt");if(c)c.textContent=order().length+(order().length===1?" item":" items");var fb=$("#fbadge");if(fb){fb.textContent=nF();fb.hidden=!nF()}var fc=$("#fcount");if(fc)fc.textContent=c.textContent;strip()}
 function redraw(){NAV[3][2]=SHOPN;if(SCR!=="pantry")return;lw();$("#panel").innerHTML=panel();if(FP)fcMeasure();$("#navw").innerHTML=nav();drawS();drawH();url()}
+function focusMain(){var r=SCR==="pantry"?($('li[data-id="'+SEL+'"] .row')||$(".rows .row")):null;if(r){r.focus({preventScroll:true});r.scrollIntoView({block:"nearest"});return}var c=$(".col");if(c){c.setAttribute("tabindex","-1");c.focus({preventScroll:true})}}
 function focusRow(){var r=$('li[data-id="'+SEL+'"] .row');if(r){r.focus({preventScroll:true});r.scrollIntoView({block:"nearest"})}}
 function focusF(k){var e=$('#pedit [data-f="'+k+'"]');if(e){e.focus();if(e.select&&e.tagName==="INPUT")e.select()}}
 function select(id){SEL=id;EDIT=false;settle();redraw();focusRow()}
@@ -268,6 +269,7 @@ document.addEventListener("keydown",function(e){var k=e.key,t=e.target,typing=!!
  if(PEND){PEND=null;clearTimeout(PT);var d={h:"home.html",p:"pantry.html"}[K];if(d)location.href=d;else if(K==="r"||K==="s")toast("Recipes and Shopping are not drawn in this fragment.");e.preventDefault();return}
  if(k==="?"||K==="h"){help(!HELP);e.preventDefault();return}
  if(HELP)return;
+ if(K==="m"){e.preventDefault();focusMain();return}
  if(K==="g"){PEND=1;PT=setTimeout(function(){PEND=null},1500);return}
  if(SCR!=="pantry"||(t.closest&&t.closest(".rgrip,.fgrip")))return;
  if(k==="ArrowDown"||K==="j"){move(1);e.preventDefault()}
