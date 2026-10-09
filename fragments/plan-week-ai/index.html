@@ -59,11 +59,11 @@
 .lbl{font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:14px 0 4px}
 .ing{display:flex;align-items:center;gap:8px;min-height:44px;border-top:1px solid var(--border)}
 .ing:first-of-type{border-top:0}
-.ing.ind{padding-left:14px}.q{color:var(--muted);font-size:13px}.rt{margin-left:auto;display:flex;gap:6px;align-items:center}
+.ing.ind{padding-left:14px}.nm{flex:1;min-width:0;line-height:1.3}.ing.miss .nm{color:var(--danger)}.nm .q{color:var(--muted);font-size:13px;margin-left:4px}.was{color:var(--muted);font-size:13px}.was s{text-decoration-thickness:1.5px}.rt{margin-left:auto;display:flex;gap:6px;align-items:center}
 .mini{min-height:36px;min-width:36px;padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--border);background:none;font-size:12px;font-weight:700}
 .mini[aria-pressed=true]{border-color:var(--accent);color:var(--accent);box-shadow:0 0 0 1px var(--accent)}.mini.cart{padding:0;font-size:15px}
 .lblrow{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;margin-top:14px}.lblrow .lbl{margin:0}
-.hint{font-size:12.5px;color:var(--muted);margin:4px 0 0 14px}
+.hint{font-size:12.5px;color:var(--muted);margin:2px 0 2px 14px}
 .srcbox{margin-top:10px;display:flex;flex-direction:column;gap:6px;align-items:flex-start}.lnk{background:none;border:0;padding:0;min-height:36px;color:var(--accent);font-weight:700;font-size:13px}
 .ppl{display:flex;align-items:center;gap:10px;margin-top:10px}.ppl b{min-width:18px;text-align:center}.ppl .mini{min-width:44px;min-height:44px;font-size:16px}
 .cslot{height:46px;margin-bottom:8px;overflow:hidden}
@@ -134,7 +134,10 @@
 <li><b>No moon.</b> The blocked night shows just the words "Not cooking", no icon. The swipe-right tint reads "Not cooking" (not "Remove and not cooking").</li>
 <li><b>Swipe left is Replan.</b> The word on the swipe-left tint is "Replan" instead of "Remove". The owner agreed it is the wording; the effect (meal removed, night stays open) is unchanged. Open: should Replan also open the assistant?</li>
 <li><b>Source labels only in the detail.</b> "Modified by assistant" and "Made up by your assistant" leave the card face and show only in the meal sheet; the card was too crowded.</li>
-<li><b>Symbolic pills.</b> The pills on a card are an icon plus a number, not words: missing (warning icon, count), on the shopping list (cart icon, count), held (bookmark). Same colours as before, from the theme. Full words stay in the accessible labels and the meal sheet.</li></ol></div>
+<li><b>Symbolic pills.</b> The pills on a card are an icon plus a number, not words: missing (warning icon, count), on the shopping list (cart icon, count), held (bookmark). Same colours as before, from the theme. Full words stay in the accessible labels and the meal sheet.</li>
+<li><b>Item and quantity are one pair.</b> In On hand and Missing the quantity sits right after the item name, on the same line and baseline (no fixed column, which would jump around with name length). The vertical misalignment is fixed.</li>
+<li><b>Substitute hint under the Missing heading.</b> "Talk to your assistant about substitutes" sits directly under the heading, above the list.</li>
+<li><b>A substitution shows where the item is.</b> On a modified meal the substitute is the item on the row (on hand or missing), and what it replaced follows in brackets with a strike-through: carrots (<s>mushrooms</s>). This replaces the "mushrooms → carrots" line in the sheet. The quantity is the substitute's. The substitution is still locked to that plan entry (decision 7b).</li></ol></div>
 
 <div class="perf"><b>Follow-up work beyond the mockup</b> (these touch the real Kitchie backend and app)<ul>
 <li><b>Decision 5 is superseded by 17.</b> The deep-link fix is no longer the plan: the assistant is an in-app agent. <b>Decision 17</b> is an architecture question for the build (the agent is driven from inside Kitchie), not a link fix.</li>
@@ -180,6 +183,8 @@ S=fresh();
 function card(day,r,who,forw,mod){var f=forw||(who==="all"?"all":who);return {id:++uid,day:day,wk:S.wk,r:r,by:who,forw:f,n:f==="all"?ALL:1,res:false,mod:mod||null,fromCopy:false}}
 function me(c){return c.by===ME}
 function ings(c){var b=R[c.r].ing;return c.mod?b.map(function(i){return c.mod[i]||i}):b}
+function orig(c,i){if(!c.mod)return null;var k=Object.keys(c.mod).filter(function(x){return c.mod[x]===i})[0];return k||null}
+function nm(c,i){var o=orig(c,i);return '<span class="nm">'+esc(i)+(o?' <span class="was">(<s>'+esc(o)+'</s>)</span>':'')+' <span class="q">'+qty(i,c.n)+'</span></span>'}
 function srcOf(c){return c.mod?"mod":(R[c.r].src||"saved")}
 function missing(c){return ings(c).filter(function(i){return !PANTRY[i]})}
 function onhand(c){return ings(c).filter(function(i){return PANTRY[i]})}
@@ -231,14 +236,14 @@ function sheetHtml(){var c=S.cards.filter(function(x){return x.id===S.sheet})[0]
  var h='<div class="scrim" data-close></div><div class="sheet" role="dialog" aria-label="'+esc(r.n)+'"><h4>'+r.e+' '+esc(r.n)+'</h4><p style="font-size:13px">'+c.day+' · '+meta(c)+'</p>';
  if(!mine)h+='<p class="tg" style="display:inline-block;margin-top:8px;border-color:var(--border);color:var(--muted)">🔒 Jane planned this. You can look, not change.</p>';
  if(sr==="saved")h+='<div class="srcbox"><button class="lnk" data-act="viewrec">📖 View recipe ›</button></div>';
- if(sr==="mod"){var sw=Object.keys(c.mod).map(function(k){return k+" → "+c.mod[k]}).join(", ");h+='<div class="srcbox"><span class="tg also">Modified by assistant</span><span style="font-size:13px">'+esc(sw)+'. Kept with this meal on '+c.day+'.</span><button class="lnk" data-act="viewrec">📖 View original recipe ›</button></div>'}
+ if(sr==="mod"){h+='<div class="srcbox"><span class="tg also">Modified by assistant</span><span style="font-size:13px">Swaps are kept with this meal on '+c.day+' and shown on the rows below.</span><button class="lnk" data-act="viewrec">📖 View original recipe ›</button></div>'}
  if(sr==="made")h+='<div class="srcbox"><span class="tg also">Made up by your assistant</span><span style="font-size:13px">Not a saved recipe.</span></div>';
  if(mine&&sr!=="left")h+='<div class="ppl"><span class="lbl" style="margin:0">People</span><button class="mini" data-act="ppl" data-d="-1" aria-label="Fewer people"'+(c.n<=1?' disabled':'')+'>−</button><b>'+c.n+'</b><button class="mini" data-act="ppl" data-d="1" aria-label="More people"'+(c.n>=8?' disabled':'')+'>+</button></div>';
  var oh=onhand(c),ms=missing(c);
  if(oh.length){h+='<div class="lblrow"><div class="lbl">On hand</div>'+(mine?'<button class="mini" data-act="hold" aria-pressed="'+!!c.res+'">'+(c.res?"Held":"Hold")+'</button>':'')+'</div>';
-  oh.forEach(function(i){var a=also(c,i);h+='<div class="ing ind"><span>'+esc(i)+'</span><span class="q">'+qty(i,c.n)+'</span><span class="rt">'+(a.length?'<span class="tg also">also '+esc(a[0])+'</span>':'')+'</span></div>'})}
- if(ms.length){h+='<div class="lbl">Missing</div>';ms.forEach(function(i){h+='<div class="ing ind"><span style="color:var(--danger)">'+esc(i)+'</span><span class="q">'+qty(i,c.n)+'</span><span class="rt">'+(mine?'<button class="mini cart" data-act="addlist" data-i="'+esc(i)+'" aria-pressed="'+!!c["l_"+i]+'" aria-label="'+(c["l_"+i]?esc(i)+' is on the shopping list':'Add '+esc(i)+' to the shopping list')+'">'+(c["l_"+i]?"✓":"🛒")+'</button>':'')+'</span></div>'});
-  h+='<p class="hint">Talk to your assistant about substitutes</p>'}
+  oh.forEach(function(i){var a=also(c,i);h+='<div class="ing ind">'+nm(c,i)+'<span class="rt">'+(a.length?'<span class="tg also">also '+esc(a[0])+'</span>':'')+'</span></div>'})}
+ if(ms.length){h+='<div class="lbl">Missing</div><p class="hint">Talk to your assistant about substitutes</p>';ms.forEach(function(i){h+='<div class="ing ind miss">'+nm(c,i)+'<span class="rt">'+(mine?'<button class="mini cart" data-act="addlist" data-i="'+esc(i)+'" aria-pressed="'+!!c["l_"+i]+'" aria-label="'+(c["l_"+i]?esc(i)+' is on the shopping list':'Add '+esc(i)+' to the shopping list')+'">'+(c["l_"+i]?"✓":"🛒")+'</button>':'')+'</span></div>'});
+  }
  if(sr==="left")h+='<p class="tg" style="display:inline-block;margin-top:8px;border-color:var(--border);color:var(--muted)">🔒 Category: Leftovers (protected)</p>';
  if(!oh.length&&!ms.length)h+='<p style="margin-top:10px;font-size:13px">Leftovers need no shopping and no reservation.</p>';
  if(mine)h+='<button class="btn ghost" style="width:100%;margin-top:14px" data-act="remove">Remove</button>';

@@ -33,7 +33,11 @@ Status: decisions by the owner, by voice, 9 October 2026, applied to the mockup 
 26. **Source labels only in the detail.** "Modified by assistant" and "Made up by your assistant" leave the card face and show only in the meal sheet.
 27. **Symbolic pills.** Card pills are an icon plus a number: missing (warning icon), on the shopping list (cart), held (bookmark). Same theme colours; full words in the accessible labels and the sheet.
 
-(17 to 27: owner, by voice, 9 October 2026, later the same day.)
+28. **Item and quantity are one pair.** In On hand and Missing the quantity sits right after the item name, same line and baseline; no fixed column. The vertical misalignment is fixed.
+29. **Substitute hint under the Missing heading.** "Talk to your assistant about substitutes" sits directly under the heading, above the list.
+30. **A substitution shows where the item is.** On a modified meal the substitute is the item on the row (on hand or missing); what it replaced follows in brackets with a strike-through, e.g. carrots (~~mushrooms~~). Replaces the "mushrooms → carrots" line. Still locked to the plan entry (decision 7b).
+
+(17 to 30: owner, by voice, 9 October 2026, later the same day.)
 
 ## Follow-up work beyond the mockup
 
