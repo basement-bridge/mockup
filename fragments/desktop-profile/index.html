@@ -1,34 +1,15 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Desktop profile — fragment</title><link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="profile.css"><script src="../../theme.js"></script><script src="../viewport.js"></script></head>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Desktop profile — fragment</title><link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="profile.css"><link rel="stylesheet" href="page.css"><script src="../../theme.js"></script><script src="../viewport.js"></script></head>
 <body>
 <div class="pf-page" id="pf-page">
 <div class="pf-top">
 <header class="pf-bar">
 <a class="pf-back" href="../../">&lsaquo; All mockups</a>
-<div class="pf-tabs" role="tablist" aria-label="Profile options">
-<button type="button" class="pf-tab" role="tab" id="tab-a" data-opt="a" aria-controls="info-a" aria-selected="true">Option A <span>Account card</span></button>
-<button type="button" class="pf-tab" role="tab" id="tab-b" data-opt="b" aria-controls="info-b" aria-selected="false" tabindex="-1">Option B <span>Two-pane</span></button>
-<button type="button" class="pf-tab" role="tab" id="tab-c" data-opt="c" aria-controls="info-c" aria-selected="false" tabindex="-1">Option C <span>Menu, then modal</span></button>
-</div>
+<h1>Desktop profile</h1>
 <span class="pf-sp"></span>
-<span class="pf-hint"><kbd>?</kbd> shortcuts</span>
-<span class="pf-hint pf-hide-sm">1280 &times; 800 target</span>
+<span class="pf-hint pf-hide-sm"><kbd>G</kbd> <kbd>P</kbd> opens it &middot; <kbd>?</kbd> shortcuts</span>
+<button type="button" class="pf-open" data-open>Open profile</button>
 </header>
-
-<section class="pf-info" id="info-a" role="tabpanel" aria-labelledby="tab-a">
-<div class="pf-ihead"><div><h1>Option A: Account card</h1><p>The phone Profile page, widened into one small centred card. Settings, History, Me and Household drill in and back out.</p></div><button type="button" class="pf-open" data-open>Open profile</button></div>
-<dl class="pf-pcw"><div><dt>Pros</dt><dd>The page the owner already knows; smallest build; one column.</dd></div><div><dt>Cons</dt><dd>Settings and Household feel cramped in 440px; every visit is drill in, drill out.</dd></div><div><dt>If we guess wrong</dt><dd>Low cost. One component, and the panes are reused if we move to B or C.</dd></div></dl>
-</section>
-
-<section class="pf-info" id="info-b" role="tabpanel" aria-labelledby="tab-b" hidden>
-<div class="pf-ihead"><div><h1>Option B: Two-pane settings dialog <span class="tag">Decided</span></h1><p><b>Decided by the owner, 9 October 2026 (chat: "decision : option B").</b> A and C are kept until the owner says they are dropped.</p><p>One big window: sections down the left, the page on the right. Nothing drills in; Settings and Household really render.</p></div><button type="button" class="pf-open" data-open>Open profile</button></div>
-<dl class="pf-pcw"><div><dt>Pros</dt><dd>Settings, History and Household are one click apart and have room; grows without a redesign.</dd></div><div><dt>Cons</dt><dd>Heaviest build; a lot of window to reach one action like Download CSV; furthest from the phone.</dd></div><div><dt>If we guess wrong</dt><dd>Highest cost. New layout, nav and focus handling; cheap to back out only before it is built.</dd></div></dl>
-</section>
-
-<section class="pf-info" id="info-c" role="tabpanel" aria-labelledby="tab-c" hidden>
-<div class="pf-ihead"><div><h1>Option C: Menu, then modal</h1><p>The avatar opens a small menu beside the rail. Settings, History, Household and Me open a full modal over it; Download CSV just runs.</p></div><span class="pf-btns"><button type="button" class="pf-open" data-open>Open menu</button><button type="button" class="pf-open ghost" data-open-both>Menu + Household modal</button></span></div>
-<dl class="pf-pcw"><div><dt>Pros</dt><dd>Quick actions need no window; a modal appears only for real work; the menu doubles as the shortcut cheat sheet.</dd></div><div><dt>Cons</dt><dd>Two layers to build and learn; the menu is not screen-blocking, so it bends the owner's rule.</dd></div><div><dt>If we guess wrong</dt><dd>Medium cost. The menu is cheap, but two patterns must be kept in step.</dd></div></dl>
-</section>
 
 <div class="pf-app" id="pf-app">
 <nav class="pf-rail" aria-label="Main navigation (sample, not interactive)">
@@ -61,14 +42,14 @@
 
 <section class="pf-notes">
 <h2>Notes for the owner</h2>
-<p><b>What you asked for</b> (owner, 9 October 2026): the phone Profile page on desktop, with the dialogs as screen-blocking windows that block everything behind them, and a few mockup ideas to choose from. The avatar sits at the bottom of the left rail. Open it from the rail, or press <kbd>G</kbd> then <kbd>P</kbd>.</p>
-<p><b>True modal in all three.</b> The scrim covers the whole window including the rail, the page behind is inert (no clicking, no tabbing into it), focus is trapped and returned to where it was, <kbd>Esc</kbd> closes, a click on the scrim closes. In C the menu is the only thing that is not a modal.</p>
-<p><b>Shortcuts.</b> Every entry shows its key: <kbd>G</kbd> <kbd>P</kbd> profile, <kbd>G</kbd> <kbd>M</kbd> me, <kbd>G</kbd> <kbd>S</kbd> settings, <kbd>G</kbd> <kbd>Y</kbd> history, <kbd>G</kbd> <kbd>H</kbd> household, <kbd>G</kbd> <kbd>D</kbd> download inventory CSV. Press <kbd>?</kbd> for the list. They work from the page and inside the open window.</p>
-<p><b>Proposals (owner silent).</b> The letters and the 1.5 second window after <kbd>G</kbd>. Window sizes: A 440px, B 900 by 620px, C 560px. Esc closes the whole window, not one level. In B, Me is the Profile pane and People is named Household (as on the phone). Sample data only: nothing is saved, downloaded or sent. The theme swatches in Settings are the real shared ones.</p>
-<p><b>Open questions.</b> Is a non-blocking menu acceptable in C, given the rule that dialogs block everything? Should Esc in A step back one level before closing? Should Download CSV also be reachable without opening anything (C does this)? A wrong guess on the first costs a rebuild of the entry point only.</p>
-<p><b>Loads.</b> Default path: shared theme tokens, this page's one CSS and one JS file, no images, no libraries. Window contents are built only when a window is opened; Settings, History and Household panes are drawn on first view.</p>
+<p><b>What you asked for</b> (owner, 9 October 2026): the phone Profile page on desktop, as a screen-blocking window that blocks everything behind it. Decided the same day: the two-pane, settings-style window (sections down the left, the page on the right). Options A (account card) and C (menu, then modal) are removed. The avatar sits at the bottom of the left rail. Open it from the rail, or press <kbd>G</kbd> then <kbd>P</kbd>.</p>
+<p><b>True modal.</b> The scrim covers the whole window including the rail, the page behind is inert (no clicking, no tabbing into it), focus is trapped and returned to the opener, <kbd>Esc</kbd>, the &times; button and a click on the scrim close it.</p>
+<p><b>Shortcuts.</b> <kbd>G</kbd> <kbd>P</kbd> profile, <kbd>G</kbd> <kbd>M</kbd> me, <kbd>G</kbd> <kbd>S</kbd> settings, <kbd>G</kbd> <kbd>Y</kbd> history, <kbd>G</kbd> <kbd>H</kbd> household, <kbd>G</kbd> <kbd>D</kbd> my data. Press <kbd>?</kbd> for the list. They work from the page and inside the open window. <kbd>&uarr;</kbd> <kbd>&darr;</kbd> switch section when the section list has focus.</p>
+<p><b>Proposals (owner silent).</b> The letters and the 1.5 second window after <kbd>G</kbd>. Window size 900 by 620px. Me is the Profile section and People is named Household (as on the phone). Sample data only: nothing is saved, downloaded or sent. The theme swatches in Settings are the real shared ones.</p>
+<p><b>Reuse.</b> Any page can load <code>profile.css</code> and <code>profile.js</code> and call <code>KProfile.open(opener)</code> and <code>KProfile.close()</code>. <code>opener</code> is the element that gets focus back. This page also opens it at load with <code>?open=1</code> (or <code>me</code>, <code>settings</code>, <code>history</code>, <code>household</code>, <code>data</code>, <code>shortcuts</code>); the Pantry behind it is <code>page.css</code> and exists only here.</p>
+<p><b>Open question.</b> Esc closes the whole window, not one level. A wrong guess costs one key handler.</p>
+<p><b>Loads.</b> Default path: shared theme tokens, this page's CSS and one JS file, no images, no libraries. The window is built only when opened; its Settings, History and Household sections are drawn on first view.</p>
 </section>
 </div>
-<div id="pf-toast" class="pf-toast" role="status" aria-live="polite"></div>
 <script src="profile.js"></script>
 </body></html>

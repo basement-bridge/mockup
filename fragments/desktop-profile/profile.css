@@ -1,85 +1,22 @@
-/* Desktop profile options. Fragment, owner review. Tokens from theme.css only (no raw colours). No framework, no storage.
-   Layout of the faux Pantry mirrors fragments/desktop (88px rail, 640px column, 400px panel) but is copied here so the two never depend on each other. */
-*{box-sizing:border-box}
-html{scrollbar-gutter:stable}
+/* Profile window (reusable). Tokens from theme.css only (no raw colours). No framework, no storage.
+   Everything is scoped under .pf-scrim so the file can be loaded on any page (Kitchie, the mockup Pantry) without touching it.
+   Opened with window.KProfile.open(opener) from profile.js. */
 html.pf-lock{overflow:hidden}
-body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);line-height:1.4}
-button,input{font:inherit;color:inherit}
-button{cursor:pointer}
-h1,h2,h3{font-family:var(--head);margin:0}
-p{margin:0;color:var(--muted)}
-ul{list-style:none;margin:0;padding:0}
-a{color:inherit;text-decoration:none}
-:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
-kbd{font:600 11px/1.5 var(--body);border:1px solid var(--border);border-bottom-width:2px;border-radius:6px;padding:0 6px;min-width:20px;text-align:center;color:var(--muted);background:var(--bg);display:inline-block}
-[hidden]{display:none!important}
-
-/* ---------- page chrome ---------- */
-.pf-top{height:100vh;min-height:620px;display:flex;flex-direction:column}
-.pf-bar{display:flex;gap:8px;align-items:center;padding:8px var(--gutter);background:var(--stage);border-bottom:1px solid var(--border);flex-wrap:wrap;flex:none}
-.pf-back{display:inline-flex;align-items:center;min-height:var(--tap);color:var(--accent);font-weight:600;padding-right:8px}
-.pf-tabs{display:flex;gap:8px;flex-wrap:wrap}
-.pf-tab{min-height:var(--tap);padding:0 16px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-weight:700;font-size:14px}
-.pf-tab span{font-weight:500;color:var(--muted);margin-left:4px}
-.pf-tab[aria-selected=true]{background:var(--accent);color:var(--on-accent);border-color:transparent}
-.pf-tab[aria-selected=true] span{color:var(--on-accent)}
-.pf-sp{flex:1}
-.pf-hint{font-size:12px;color:var(--muted);display:inline-flex;gap:6px;align-items:center}
-.pf-info{flex:none;padding:12px var(--gutter) 14px;border-bottom:1px solid var(--border)}
-.pf-ihead{display:flex;gap:16px;align-items:center;justify-content:space-between}
-.pf-ihead h1{font-size:1.3rem;line-height:1.1;margin-bottom:2px}
-.pf-ihead p{font-size:14px;max-width:760px}
-.pf-btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-.pf-open{flex:none;min-height:var(--tap);padding:0 18px;border-radius:var(--r-ctl);border:0;background:var(--accent);color:var(--on-accent);font-weight:700}
-.pf-open.ghost{background:var(--surface);color:var(--fg);border:1px solid var(--border)}
-.pf-pcw{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:10px 0 0}
-.pf-pcw dt{font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--accent)}
-.pf-pcw dd{margin:2px 0 0;font-size:13px;color:var(--muted)}
-
-/* ---------- faux Pantry (static background) ---------- */
-.pf-app{flex:1;min-height:0;display:grid;grid-template-rows:minmax(0,1fr);grid-template-columns:88px minmax(0,736px) 400px;justify-content:start;overflow:hidden;user-select:none}
-.pf-rail{border-right:1px solid var(--border);padding:16px 8px 14px;display:flex;flex-direction:column;gap:6px;min-height:0}
-.pf-brand{font:700 13px var(--head);text-align:center;color:var(--muted);margin-bottom:10px}
-.pf-nv{display:flex;flex-direction:column;align-items:center;gap:2px;min-height:var(--tap);padding:8px 2px;border-radius:var(--r-ctl);font-size:12px;font-weight:600;color:var(--muted);position:relative}
-.pf-nv svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.pf-nv.on{color:var(--accent);background:var(--surface)}
-.pf-nv i{position:absolute;top:2px;right:14px;background:var(--accent);color:var(--on-accent);font:700 10px var(--body);border-radius:99px;padding:0 5px;min-width:16px;text-align:center}
-.pf-me{margin-top:auto;display:grid;place-items:center;padding-top:8px}
-.pf-avbtn{position:relative;width:48px;height:48px;border-radius:50%;border:1px solid var(--border);background:var(--surface);display:grid;place-items:center;padding:0}
-.pf-avbtn:hover,.pf-avbtn[aria-expanded=true]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
-.pf-avbtn::after{content:attr(data-tip);position:absolute;left:calc(100% + 10px);top:50%;transform:translateY(-50%);background:var(--fg);color:var(--bg);font:600 12px var(--body);padding:5px 10px;border-radius:8px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .12s;z-index:5}
-.pf-avbtn:hover::after,.pf-avbtn:focus-visible::after{opacity:1}
-.pf-avbtn[aria-expanded=true]::after{opacity:0}
-.pf-main{padding:28px 48px 0;min-width:0}
-.pf-col{max-width:640px}
-.pf-hd{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-.pf-hd h2{font-size:2rem;line-height:1.05}
-.pf-count{color:var(--muted);font-weight:600;flex:1}
-.pf-fbtn{min-height:var(--tap);padding:0 18px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--surface);font-weight:600;display:inline-flex;align-items:center}
-.pf-fbtn.pri{background:var(--accent);color:var(--on-accent);border-color:transparent}
-.pf-ribbon{display:flex;gap:6px;padding:6px;border:1px solid var(--border);border-radius:var(--r-pill);background:var(--surface);margin-bottom:10px}
-.pf-ribbon span{min-height:36px;padding:0 16px;border-radius:var(--r-pill);border:1px solid transparent;font-weight:600;display:inline-flex;align-items:center}
-.pf-ribbon .on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);color:var(--accent)}
-.pf-grp{margin:18px 0 4px;display:flex;align-items:center;justify-content:space-between}
-.pf-grp h3{font-size:1.15rem}
-.pf-rows li{display:flex;align-items:center;gap:12px;padding:12px 10px;border-bottom:1px solid var(--border)}
-.pf-rows b{font-size:1.05rem;display:block}
-.pf-rows small{color:var(--muted);font-size:.9rem}
-.pf-rows em{margin-left:auto;font-style:normal;font-size:.85rem;color:var(--muted);text-align:right;white-space:nowrap}
-.pf-rows em.hot{color:var(--accent);font-weight:700}
-.pf-side{background:var(--surface);border-left:1px solid var(--border);padding:24px;display:grid;place-items:center}
-
-/* ---------- notes ---------- */
-.pf-notes{max-width:840px;padding:32px var(--gutter) 64px;display:grid;gap:10px;font-size:14px}
-.pf-notes h2{font-size:1.25rem;margin-bottom:4px}
-.pf-notes b{color:var(--fg)}
+.pf-scrim,.pf-scrim *{box-sizing:border-box}
+.pf-scrim{font-family:var(--body);line-height:1.4;color:var(--fg)}
+.pf-scrim :where(button,input){font:inherit;color:inherit}
+.pf-scrim :where(button){cursor:pointer}
+.pf-scrim :where(h2,h3){font-family:var(--head);margin:0}
+.pf-scrim :where(p){margin:0;color:var(--muted)}
+.pf-scrim :where(ul){list-style:none;margin:0;padding:0}
+.pf-scrim :where(:focus-visible){outline:3px solid var(--accent);outline-offset:2px}
+.pf-scrim [hidden]{display:none!important}
+.pf-scrim :where(kbd){font:600 11px/1.5 var(--body);border:1px solid var(--border);border-bottom-width:2px;border-radius:6px;padding:0 6px;min-width:20px;text-align:center;color:var(--muted);background:var(--bg);display:inline-block}
 
 /* ---------- scrim and dialogs ---------- */
 .pf-scrim{position:fixed;inset:0;z-index:100;background:var(--dim);backdrop-filter:blur(2px);display:grid;place-items:center;padding:24px;animation:pf-fade .14s ease-out}
 .pf-dlg{background:var(--surface);color:var(--fg);border:1px solid var(--border);border-radius:var(--r-card);box-shadow:0 24px 80px var(--dim);max-height:calc(100vh - 48px);display:flex;flex-direction:column;overflow:hidden;animation:pf-pop .16s ease-out;outline:0;min-width:0}
-.pf-a{width:min(440px,100%)}
-.pf-b{width:min(900px,100%);height:min(620px,calc(100vh - 48px));flex-direction:row}
-.pf-c{width:min(560px,100%)}
+.pf-win{width:min(900px,100%);height:min(620px,calc(100vh - 48px));flex-direction:row}
 .pf-s{width:min(440px,100%)}
 @keyframes pf-fade{from{opacity:0}to{opacity:1}}
 @keyframes pf-pop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
@@ -91,9 +28,8 @@ kbd{font:600 11px/1.5 var(--body);border:1px solid var(--border);border-bottom-w
 .pf-head h2.sm{font-size:1.2rem}
 .pf-sub{font-size:14px}
 .pf-hx{display:flex;align-items:center;gap:8px;flex:none}
-.pf-x,.pf-bk{width:var(--tap);height:var(--tap);border-radius:50%;border:1px solid var(--border);background:var(--bg);display:grid;place-items:center;padding:0;flex:none}
-.pf-x:hover,.pf-bk:hover{border-color:var(--accent)}
-.pf-bk{border-radius:var(--r-pill);width:auto;padding:0 14px 0 8px;display:inline-flex;gap:2px;align-items:center;font-weight:600}
+.pf-x{width:var(--tap);height:var(--tap);border-radius:50%;border:1px solid var(--border);background:var(--bg);display:grid;place-items:center;padding:0;flex:none}
+.pf-x:hover{border-color:var(--accent)}
 .pf-body{padding:4px 20px 16px;overflow:auto;flex:1;min-height:0;display:flex;flex-direction:column;gap:16px}
 .pf-foot{flex:none;display:flex;gap:6px 16px;flex-wrap:wrap;align-items:center;padding:10px 20px;border-top:1px solid var(--border);font-size:12px;color:var(--muted)}
 .pf-foot span{display:inline-flex;gap:6px;align-items:center}
@@ -169,44 +105,32 @@ kbd{font:600 11px/1.5 var(--body);border:1px solid var(--border);border-bottom-w
 .pf-avedit .pe{position:absolute;right:0;bottom:0;width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;border:2px solid var(--surface)}
 .pf-metop{display:flex;gap:16px;align-items:center}
 
-/* ---------- option B: two-pane ---------- */
-.pf-bnav{width:244px;flex:none;border-right:1px solid var(--border);background:var(--bg);display:flex;flex-direction:column;padding:16px 10px 12px;gap:2px;min-height:0}
-.pf-bwho{display:flex;gap:12px;align-items:center;padding:0 8px 14px}
-.pf-bwho .pf-badgewrap{width:48px;height:48px}
-.pf-bwho b{font-family:var(--head);font-size:1.15rem;display:block;line-height:1.1}
-.pf-bwho .pf-sub{font-size:13px}
+/* ---------- two-pane layout: sections left, page right ---------- */
+.pf-nav{width:244px;flex:none;border-right:1px solid var(--border);background:var(--bg);display:flex;flex-direction:column;padding:16px 10px 12px;gap:2px;min-height:0}
+.pf-nwho{display:flex;gap:12px;align-items:center;padding:0 8px 14px}
+.pf-nwho .pf-badgewrap{width:48px;height:48px}
+.pf-nwho b{font-family:var(--head);font-size:1.15rem;display:block;line-height:1.1}
+.pf-nwho .pf-sub{font-size:13px}
 .pf-nvt{display:flex;align-items:center;gap:8px;width:100%;min-height:var(--tap);padding:0 8px;border:0;background:none;border-radius:var(--r-ctl);text-align:left;font-weight:600;position:relative}
 .pf-nvt:hover{background:var(--surface)}
 .pf-nvt[aria-selected=true]{background:var(--surface);box-shadow:inset 3px 0 0 var(--accent)}
 .pf-nvt[aria-selected=true] .pf-i{color:var(--accent)}
 .pf-nvt .pf-t{font-weight:600;white-space:nowrap}
 .pf-nvt .pf-keys kbd{font-size:10px;padding:0 5px;min-width:18px}
-.pf-bnav .pf-grow{flex:1}
-.pf-bnav .pf-small{padding:0 8px;font-size:12px}
-.pf-bmain{flex:1;min-width:0;display:flex;flex-direction:column}
-.pf-bmain .pf-head{padding-left:24px}
-.pf-bmain .pf-body{padding-left:24px;padding-right:24px;outline-offset:-3px}
-.pf-bmain .pf-foot{padding-left:24px}
+.pf-nav .pf-grow{flex:1}
+.pf-nav .pf-small{padding:0 8px;font-size:12px}
+.pf-cont{flex:1;min-width:0;display:flex;flex-direction:column}
+.pf-cont .pf-head{padding-left:24px}
+.pf-cont .pf-body{padding-left:24px;padding-right:24px;outline-offset:-3px}
+.pf-cont .pf-foot{padding-left:24px}
 
-/* ---------- option C: anchored menu ---------- */
-.pf-pop{position:fixed;z-index:50;width:356px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);box-shadow:0 12px 40px var(--dim);padding:6px;animation:pf-pop .12s ease-out}
-.pf-pop::before{content:"";position:absolute;left:-7px;bottom:20px;width:12px;height:12px;background:var(--surface);border-left:1px solid var(--border);border-bottom:1px solid var(--border);transform:rotate(45deg)}
-.pf-pop .pf-phead{display:flex;gap:12px;align-items:center;padding:8px 10px 10px}
-.pf-pop .pf-phead .pf-badgewrap{width:48px;height:48px}
-.pf-pop .pf-phead b{font-family:var(--head);font-size:1.2rem;display:block;line-height:1.1}
-.pf-pop .pf-sub{font-size:13px}
-.pf-pop .pf-pg{border-top:1px solid var(--border);padding:6px 0 2px}
-.pf-pop .pf-lbl{margin:4px 0 2px 10px}
-.pf-pop .pf-item{border-radius:var(--r-ctl);min-height:var(--tap);padding:6px 10px}
-.pf-pop .pf-ico{width:30px;height:30px}
-.pf-pop .pf-foot{border-top:1px solid var(--border);padding:8px 10px 6px;margin-top:4px}
+/* shortcuts list and toast */
+.pf-scrim{position:fixed;inset:0;z-index:100;background:var(--dim);backdrop-filter:blur(2px);display:grid;place-items:center;padding:24px;animation:pf-fade .14s ease-out}
 .pf-sc{display:grid;gap:0}
 .pf-sc li{display:flex;align-items:center;gap:12px;padding:10px 12px;min-height:44px}
 .pf-sc li+li{border-top:1px solid var(--border)}
 .pf-sc li span:first-child{flex:1}
-
 .pf-toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:110;background:var(--fg);color:var(--bg);padding:10px 18px;border-radius:var(--r-pill);font-weight:600;font-size:14px;opacity:0;pointer-events:none;transition:opacity .15s;max-width:calc(100vw - 32px);text-align:center}
 .pf-toast.on{opacity:1}
 
-@media (max-width:1100px){.pf-hide-sm{display:none}.pf-pcw{gap:12px}.pf-b{height:min(620px,calc(100vh - 48px))}}
-@media (max-width:900px){.pf-pcw{grid-template-columns:1fr}.pf-b{flex-direction:column}.pf-bnav{width:auto;border-right:0;border-bottom:1px solid var(--border);flex-direction:row;flex-wrap:wrap}.pf-bwho,.pf-bnav .pf-grow,.pf-bnav>.pf-small{display:none}.pf-nvt{width:auto}.pf-nvt .pf-keys{display:none}}
+@media (max-width:900px){.pf-win{flex-direction:column}.pf-nav{width:auto;border-right:0;border-bottom:1px solid var(--border);flex-direction:row;flex-wrap:wrap}.pf-nwho,.pf-nav .pf-grow,.pf-nav>.pf-small{display:none}.pf-nvt{width:auto}.pf-nvt .pf-keys{display:none}}
