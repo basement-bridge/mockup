@@ -117,16 +117,18 @@ p{margin:0;color:var(--muted)}
 /* Shortcuts window (opaque block) and toast */
 [hidden]{display:none!important}
 .kb{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:var(--dim)}
-.kbc{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-card);padding:22px 26px;width:min(760px,calc(100vw - 48px));max-height:calc(100vh - 48px);overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+/* Overlays sit on the main column, not the middle of the window: left edge on the column's left (rail 88 + gutter 48), 640 wide, so on a big screen they do not float away from the content. */
+@media (min-width:1024px){.kb,.scrim2{justify-items:start;padding-left:136px}}
+.kbc{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-card);padding:22px 26px;width:min(640px,calc(100vw - 48px));max-height:calc(100vh - 48px);overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.35)}
 .kbh{display:flex;align-items:center;margin-bottom:12px}
 .kbh .x{margin-left:auto;width:var(--tap);height:var(--tap);border-radius:50%;border:1px solid var(--border);background:var(--surface)}
-.kbg{display:grid;grid-template-columns:1fr 1fr;gap:6px 36px}
+.kbg{display:grid;grid-template-columns:1fr;gap:0}
 .kbs h3{font:700 12px var(--body);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:14px 0 6px}
 .kbr{display:flex;justify-content:space-between;gap:14px;padding:6px 0;border-bottom:1px solid var(--border);font-size:14px}
-.kk{white-space:nowrap}
+.kk{white-space:nowrap;flex:0 0 210px}
 .kk kbd{font:700 12px var(--body);border:1px solid var(--border);border-bottom-width:2px;border-radius:6px;padding:1px 7px;background:var(--surface)}
 .kk em{font-style:normal;color:var(--muted);font-size:12px;margin:0 2px}
-.kbr span:last-child{text-align:right;color:var(--muted)}
+.kbr span:last-child{text-align:left;color:var(--muted);flex:1}
 .kbf{font-size:12px;margin-top:14px}
 .toast{position:fixed;left:calc(88px + 48px);bottom:20px;z-index:40;display:flex;align-items:center;gap:14px;max-width:560px;padding:12px 16px;border-radius:var(--r-ctl);background:var(--fg);color:var(--bg);font-weight:600;box-shadow:0 8px 30px rgba(0,0,0,.3)}
 .toast a{color:inherit;text-decoration:underline}
@@ -245,7 +247,7 @@ p{margin:0;color:var(--muted)}
 .qrow input.bad{border-color:var(--accent)}.qrow .x{width:var(--tap);height:var(--tap);border-radius:50%;border:1px solid var(--border);background:var(--bg);font-size:20px;flex:none}
 .qchips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.qc{padding:4px 12px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--bg);font-size:13px}.qc b{color:var(--muted);font-weight:600;margin-right:4px}.qc.need{border-color:var(--accent);color:var(--accent)}
 .scrim2{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.45);display:grid;place-items:center;padding:24px}
-.awin{width:min(680px,100%);max-height:calc(100vh - 48px);overflow:auto;background:var(--surface);border-radius:var(--r-card);border:1px solid var(--border);padding:24px;box-shadow:0 24px 70px rgba(0,0,0,.4)}
+.awin{width:min(640px,100%);max-height:calc(100vh - 48px);overflow:auto;background:var(--surface);border-radius:var(--r-card);border:1px solid var(--border);padding:24px;box-shadow:0 24px 70px rgba(0,0,0,.4)}
 .awh{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.awh .x,.fph .x{width:var(--tap);height:var(--tap);border-radius:50%;border:1px solid var(--border);background:var(--bg);font-size:20px}
 .awin .af{grid-template-columns:1fr 1fr}.awin .af .f:first-child{grid-column:1/-1}.awin .afb{grid-column:1/-1;grid-template-columns:1fr 1fr auto}
 .arev{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted);margin:0 0 12px}.arev button{min-height:32px;min-width:32px;border-radius:99px;border:1px solid var(--border);background:var(--bg);font-weight:700}.arev button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
