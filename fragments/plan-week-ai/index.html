@@ -152,11 +152,12 @@
 <li><b>No automatic household resizing.</b> A whole-household meal does not follow household size changes by itself. Changing who a meal is for is revised through the assistant (and the People stepper on the card), not automatically.</li>
 <li><b>Drag only is an accepted limitation.</b> People who cannot drag cannot move a meal; the owner accepts this for now.</li>
 <li><b>There is no in-app agent.</b> The product has no in-app agent any more. Decision 17 is withdrawn. The assistant is the person's own AI app, outside Kitchie, and the assistant sheet here is only a stand-in. Open: what "Open your assistant" does now (decision 43 keeps the button).</li>
-<li><b>The "Open your assistant" button stays.</b> The owner first said to remove it (superseded by the curtain nudge), then said keep it: the removal was a mistake. The button and the curtain nudge both stay. What the button does is still open.</li>
+<li><b>The "Open your assistant" button stays.</b> The owner first said to remove it (superseded by the curtain nudge), then said keep it: the removal was a mistake. The button and the curtain nudge both stay. What the button does is decision 45.</li>
+<li><b>The button opens the person's default AI app.</b> It does nothing else: no in-app agent, no chat inside Kitchie. It opens whatever AI app the person has set as their default. The assistant sheet in this mockup is only a stand-in for that app. Settles decision 5.</li>
 <li><b>Data-model work is scoped to the plan's weeks.</b> Locked substitutions (7b) and per-person ingredient lists (10) are only built and stored for the weeks the plan covers: last week up to four weeks ahead. Nothing is stored or migrated outside that window.</li></li></ol></div>
 
 <div class="perf"><b>Follow-up work beyond the mockup</b> (these touch the real Kitchie backend and app)<ul>
-<li><b>Decisions 5, 17 and 42.</b> There is no in-app agent in the product (42), so 17 is withdrawn. What "Open your assistant" does is open: the deep-link fix of decision 5 may be back, or the button may go. Waiting on the owner.</li>
+<li><b>Decisions 5, 17, 42, 43 and 45.</b> No in-app agent (42). The button stays (43) and opens the person's default AI app (45); build it as a launch of that app. Nothing left open here.</li>
 <li><b>Decision 7(b).</b> A modified entry carries its own locked ingredient list; reservation and the shopping list read that list, not the recipe's. Only for the weeks the plan covers (44).</li>
 <li><b>Decision 10.</b> Store assistant-made and modified ingredient lists per person, so quantities scale when the people count changes. Only for the weeks the plan covers (44).</li></ul></div>
 
@@ -177,7 +178,7 @@
 <li>Settings stencil: seven day buttons per person, "Usual days off cooking".</li></ul></div>
 
 <div class="qs"><b>Open questions</b> (and what a wrong guess costs: a redraw, nothing built)<ul>
-<li>What does "Open your assistant" do now that there is no in-app agent: open the person's chosen AI app (decision 5), or go away?</li></ul></div>
+</ul></div>
 
 <div class="perf"><b>Performance note</b> (DESIGN.md section 6). <b>Default path loads:</b> this page, the shared theme, no images (emoji stand in for pictures). <b>Deferred in the real app:</b> the recipe's ingredient list and the pantry match load when a meal sheet opens, not with the week; the assistant conversation loads when the person taps the prompt. <b>Why reasonable:</b> most visits just look at the week.</div>
 </div>
