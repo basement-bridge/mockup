@@ -46,7 +46,12 @@ Status: decisions by the owner, by voice, 9 October 2026, applied to the mockup 
 36. **This week's one-off block has its own colour.** Filled, not dashed and not plain, so it reads at a glance as this week only.
 37. **Edge cases kept.** Tapping a blocked night cooks it this week only (usual day: shows the override line; one-off block: back to dashed). The stencil is a default and a planted card is never hidden. Last week shows the same states, read-only.
 
-(17 to 37: owner, by voice, 9 October 2026, later the same day.)
+38. **Replan only removes the meal.** Swipe left removes the person's own meal and leaves the night open; it does not open the assistant. Other people's meals are locked.
+39. **Modern settings icon.** The cog emoji becomes a line icon like the copy icon.
+40. **No automatic household resizing.** A whole-household meal does not follow household size changes by itself; changes are revised through the assistant.
+41. **Drag only is an accepted limitation.** People who cannot drag cannot move a meal; accepted for now.
+
+(17 to 41: owner, typed, 10 October 2026 for 38 to 41; the rest by voice, 9 October 2026.)
 
 ## Follow-up work beyond the mockup
 
@@ -58,8 +63,11 @@ These touch the real Kitchie backend and app, not only the screens.
 
 ## Proposals (not the owner's words)
 
+The owner looked at the list of small proposals below on 10 October 2026 and said they look good (typed: "look good"); they stand unless changed.
+
 Marked on the fragment page: arrows and a small week label in the header, idle time of five seconds and once per visit, swipe distance, a people stepper in the meal sheet, "Held" as the state word for Hold, indent on Missing items too, Copy last week clearing only untouched copied cards.
 
 ## Open questions
 
-- Drag is the only way to move a meal, so someone who cannot drag has no way to move one. The owner chose it; revisit for accessibility.
+- What exactly is the in-app assistant (decision 17)? A build question.
+

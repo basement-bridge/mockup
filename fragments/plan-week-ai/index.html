@@ -146,7 +146,11 @@
 <li><b>A stencil day opened by hand shows it is an exception.</b> A usual day off that you cooked this week gets a small line, "Usual day off, cooking this week". The stencil is a default; a one-week override always wins and a planted card is never silently hidden. Reconfirmed.</li>
 <li><b>Three day states that cannot be mistaken for each other.</b> An empty night stays a dashed outline. A night blocked by hand for this week only is a solid filled block in the accent tint. A usual day off from the Settings stencil stays a plain outline with no fill. (A usual day cooked by hand keeps its small override line, decision 34.)</li>
 <li><b>This week's one-off block has its own colour.</b> It is filled, not dashed and not plain, so it reads at a glance as something done this week, not the recurring pattern.</li>
-<li><b>Edge cases kept.</b> Tapping a blocked night cooks it this week only (usual day: back to the override line; one-off block: back to dashed empty). The stencil is a default and a planted card is never hidden. Last week shows the same states but cannot be changed.</li></ol></div>
+<li><b>Edge cases kept.</b> Tapping a blocked night cooks it this week only (usual day: back to the override line; one-off block: back to dashed empty). The stencil is a default and a planted card is never hidden. Last week shows the same states but cannot be changed.</li>
+<li><b>Replan only removes the meal.</b> Swipe left removes the person's own meal and leaves the night open to plan again; it does not open the assistant. Other people's meals are locked and cannot be swiped.</li>
+<li><b>Modern settings icon.</b> The settings cog emoji becomes a line icon, matching the copy icon.</li>
+<li><b>No automatic household resizing.</b> A whole-household meal does not follow household size changes by itself. Changing who a meal is for is revised through the assistant (and the People stepper on the card), not automatically.</li>
+<li><b>Drag only is an accepted limitation.</b> People who cannot drag cannot move a meal; the owner accepts this for now.</li></ol></div>
 
 <div class="perf"><b>Follow-up work beyond the mockup</b> (these touch the real Kitchie backend and app)<ul>
 <li><b>Decision 5 is superseded by 17.</b> The deep-link fix is no longer the plan: the assistant is an in-app agent. <b>Decision 17</b> is an architecture question for the build (the agent is driven from inside Kitchie), not a link fix.</li>
@@ -170,8 +174,7 @@
 <li>Settings stencil: seven day buttons per person, "Usual days off cooking".</li></ul></div>
 
 <div class="qs"><b>Open questions</b> (and what a wrong guess costs: a redraw, nothing built)<ul>
-<li>Drag is the only way to move a meal. Someone who cannot drag (keyboard, switch access, some touch devices) has no way to move one. The owner chose it; the cost is an accessibility gap to revisit.</li>
-<li>Should a whole-household card follow household size changes automatically?</li></ul></div>
+<li>What exactly is the in-app assistant (decision 17)? A build question, not a mockup one.</li></ul></div>
 
 <div class="perf"><b>Performance note</b> (DESIGN.md section 6). <b>Default path loads:</b> this page, the shared theme, no images (emoji stand in for pictures). <b>Deferred in the real app:</b> the recipe's ingredient list and the pantry match load when a meal sheet opens, not with the week; the assistant conversation loads when the person taps the prompt. <b>Why reasonable:</b> most visits just look at the week.</div>
 </div>
@@ -236,6 +239,7 @@ function dayHtml(d,i){
 var IMISS='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.3"/></svg>';
 var ICART='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M3 4h2.5l2.2 11h10.6l2-8H6.2"/></svg>';
 var IHELD='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v16l-5-3.5L7 20z"/></svg>';
+var ICOG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>';
 var ICOPY='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6.5A2.5 2.5 0 0 1 7.5 4H15"/></svg>';
 function slotHtml(){if(S.nudge)return '<div class="cslot in"><button class="curtain" data-nudge>✦ Plan with your AI assistant.</button></div>';if(S.gap)return '<div class="cslot">'+(S.gapAnim?'<button class="curtain up" tabindex="-1" aria-hidden="true">✦ Plan with your AI assistant.</button>':'')+'</div>';return ''}
 function headHtml(){var cp=!!S.copied[S.wk];
@@ -243,7 +247,7 @@ function headHtml(){var cp=!!S.copied[S.wk];
  +'<button class="wkh" data-wkhd aria-label="Week of '+dateOf(0)+'. Tap for next week. Hold to return to this week."><b>Week of '+dateOf(0)+'</b><small>'+wkLabel()+'</small></button>'
  +'<button class="ib sm" data-wk="1" aria-label="Next week"'+(S.wk>=WMAX?' disabled':'')+'>›</button>'
  +'<button class="ib" data-act="copy"'+(ro()?' disabled':'')+' aria-pressed="'+cp+'" aria-label="Copy last week'+(cp?' (applied, press again to clear)':'')+'" title="Copy last week">'+ICOPY+'</button>'
- +'<button class="ib" data-act="stencil" aria-label="Settings, usual days">⚙</button></div>'
+ +'<button class="ib" data-act="stencil" aria-label="Settings, usual days">'+ICOG+'</button></div>'
  +'<div class="seg" role="group" aria-label="View"><button data-view="mine" aria-pressed="'+(S.view==="mine")+'">Mine</button><button data-view="all" aria-pressed="'+(S.view==="all")+'">Everyone</button><button data-view="Jane" aria-pressed="'+(S.view==="Jane")+'">Jane</button></div>'
  +slotHtml()
  +((S.view==="Jane"||ro())?'':'<div style="margin-bottom:6px"><button class="btn ghost" style="width:100%" data-act="chat">✦ Open your assistant</button></div>')}
