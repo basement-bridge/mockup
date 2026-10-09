@@ -32,7 +32,7 @@ What the owner decided, and the proposals the mockup had to make. Mockup: `fragm
 
 ## Desktop interaction (9 October 2026, owner, chat; mockup first)
 
-Mockup: `fragments/desktop/pantry.html` (press `?`), `fragments/desktop-filters/`, `fragments/desktop-profile/`.
+Mockup: `fragments/desktop/pantry.html` (press `?`), `fragments/desktop-profile/`. The locked list is `fragments/desktop/index.html`.
 
 - Owner: desktop should have shortcuts "as its the way desktops work", sensible ones from the rest of the web, listed in an opaque block opened with `?` (or `h`). Proposal: ? or H help, Esc back, / search, J K or arrows move, Enter or E edit, U use one, D used up, S shopping list, Z undo, G then H/P/R/S go to, N add, F filters. Never fire while typing or with Ctrl/Cmd/Alt.
 - Owner: the selected item must look different from the rest. Drawn: lighter fill, outline, accent bar, accent name.
@@ -45,7 +45,18 @@ Mockup: `fragments/desktop/pantry.html` (press `?`), `fragments/desktop-filters/
 
 ## Decisions and tooling (9 October 2026)
 
-- **Decided (owner, chat): Profile on desktop is Option B**, the two-pane settings-style window (`fragments/desktop-profile/?o=b`). Options A and C are kept until the owner says they are dropped. Kitchie issue #409.
-- `fragments/desktop/decisions.html` lists every open desktop question with options, a recommendation and the cost of a wrong guess; picks are kept in the browser and can be copied. Still open: pill click rule, row actions, use-one for weighed items, save behaviour, help key, very wide windows, tablet.
-- `fragments/viewport.js` adds a viewport picker (Fit, 1024, 1280, 1440, 1920, 2560) to the desktop pages. A chosen width loads the page in a frame of that width, scaled to fit, so its own width rules run for that size. The choice is in the address (`?vp=1440`).
+- **Decided (owner, chat): Profile on desktop is Option B**, the two-pane settings-style window (`fragments/desktop-profile/`, the only version now; A and C were removed). Options A and C are kept until the owner says they are dropped. Kitchie issue #409.
 - **Owner (chat, 9 October 2026): mockup and build HTML, CSS and JS should be very close where possible.** See AGENTS.md "Mockup and build stay close".
+
+## Locked (owner, chat, 9 October 2026: "lock in the desktop decision, remove redundant options")
+
+- The open desktop questions are settled as drawn and the rejected options are removed: the old Filters window options (the page `fragments/desktop-filters/` is deleted), Profile options A and C, and the decisions-picker page. `fragments/desktop/index.html` is now the list of locked decisions.
+- **Device mode.** Desktop is a mode of the household flow, not a separate fragment. `fragments/device.js` (replaces `viewport.js`) is loaded by the flow and the desktop screens. It is hidden: move to the top edge or press the backtick key. It lists Full window, Phone 390 × 844, Tablet 768 × 1024 and desktop 1024 × 768, 1280 × 800, 1440 × 900, 1920 × 1080, 2560 × 1440, plus Shortcuts, the prototype controls and the theme. A chosen size loads the page in a frame of exactly that size, scaled to fit (`?vp=<width>`). Phone and Tablet show the household flow; desktop sizes show the desktop Pantry. The flow's Controls panel is hidden at every size (open it from the Device control). The top bar on the desktop screens is gone.
+- **Header.** No "Pantry" title; count, Filters and Add on the left, Search on the right; focusing Search hides Add.
+- **Location / Category.** The pills switch with a pin and tag button, as in Kitchie (issue #134, #330). Plain click picks one, Ctrl/Cmd adds.
+- **Filters in use.** Chosen filters replace the pill strip with removable tiles and Clear all.
+- **Use one only on counted items.** Weights, volumes and free text are level-only, with no Use one (button and U); counted items show a worked-out level, the rest a level set by hand. Matches `docs/adr/pantry-item-sheet.md` in Kitchie.
+- **History** opens as a fourth column to the right of the item panel, for that item only, closed with the x or Esc. Below 1240px it lays over the right edge. Real data would come from `item_history` / `store.getHistory(id)`; the mockup uses sample events plus what you do in the page.
+- **Shortcut cues.** A switch in the shortcuts list shows or hides the key hints on buttons and hints. It is kept in the browser only.
+- **Profile** opens from the avatar in the rail (loaded on first use).
+

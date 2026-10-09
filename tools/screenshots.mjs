@@ -15,7 +15,6 @@ const SCREENS = [
   ["inventory-home", "fragments/inventory-home/index.html"],
   ["item-row-axes", "fragments/item-row-axes/index.html"],
   ["desktop", "fragments/desktop/index.html"],
-  ["desktop-filters", "fragments/desktop-filters/index.html"],
   ["desktop-profile", "fragments/desktop-profile/index.html"],
   ["item-sheet", "fragments/item-sheet/index.html"],
   ["locations-spots", "fragments/locations-spots/index.html"],

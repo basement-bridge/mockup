@@ -102,7 +102,7 @@ Shared in every bucket: spacing scale `--sp-1..--sp-7` (4, 8, 12, 16, 24, 32, 48
 
 - Desktop rail layout (1024px and up): not an exception any more, it is the desktop layout (item 2 above). The household flow below still keeps its phone frame.
 
-- `flows/household/`: this screen is the phone app itself, so it keeps a phone frame instead of a flowing column. Phone: full bleed. Tablet: the app as a centred 390px frame, the prototype Controls panel behind a Controls button. Desktop: the frame beside the always-open Controls panel. Layout code is in the flow's `styles.css`.
+- `flows/household/`: this screen is the phone app itself, so it keeps a phone frame instead of a flowing column. Phone: full bleed. Tablet: the app as a centred 390px frame. Desktop sizes (1024px and up) are the desktop screens in `fragments/desktop/`, reached as a mode with the hidden Device control (`fragments/device.js`: move to the top edge or press the backtick key; it lists Phone 390 × 844, Tablet 768 × 1024 and desktop 1024 × 768 up to 2560 × 1440). The prototype Controls panel is hidden at every size and opens from the Device control. Layout code is in the flow's `styles.css`.
 - Fragment pages draw their phone mockups at fixed widths (300 to 390px). That is the content being compared, not the page layout.
 
 ### Screenshot script
