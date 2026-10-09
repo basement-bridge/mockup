@@ -40,6 +40,7 @@
 .mc small{display:block;color:var(--muted);font-size:11px}
 .chips{display:flex;gap:4px;flex-wrap:wrap;margin-top:3px}
 .tg{font-size:10.5px;font-weight:800;padding:1px 7px;border-radius:99px;border:1px solid var(--sage);color:var(--sage);white-space:nowrap}
+.tg{display:inline-flex;align-items:center;gap:3px}.tg svg{width:12px;height:12px;flex:none}
 .tg.miss{border-color:var(--danger);color:var(--danger)}
 .tg.also{border-color:var(--accent);color:var(--accent)}
 .av{width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex:none;border:2px solid var(--surface);background:var(--accent);color:var(--on-accent)}
@@ -65,9 +66,16 @@
 .hint{font-size:12.5px;color:var(--muted);margin:4px 0 0 14px}
 .srcbox{margin-top:10px;display:flex;flex-direction:column;gap:6px;align-items:flex-start}.lnk{background:none;border:0;padding:0;min-height:36px;color:var(--accent);font-weight:700;font-size:13px}
 .ppl{display:flex;align-items:center;gap:10px;margin-top:10px}.ppl b{min-width:18px;text-align:center}.ppl .mini{min-width:44px;min-height:44px;font-size:16px}
-.curtain{position:absolute;left:10px;right:10px;top:0;z-index:6;padding:12px 14px;border:0;border-radius:0 0 var(--r-card) var(--r-card);background:var(--accent);color:var(--on-accent);font-weight:800;font-size:14px;text-align:left;box-shadow:0 8px 20px rgba(0,0,0,.25);animation:drop .45s ease-out both}
+.cslot{height:46px;margin-bottom:8px;overflow:hidden}
+.cslot.in{animation:push .4s ease-out both}
+@keyframes push{from{height:0;margin-bottom:0}to{height:46px;margin-bottom:8px}}
+.curtain{display:block;width:100%;height:46px;padding:0 14px;border:0;border-radius:var(--r-ctl);background:var(--accent);color:var(--on-accent);font-weight:800;font-size:14px;text-align:left}
+.cslot.in .curtain{animation:drop .4s ease-out both}
+.curtain.up{animation:lift .3s ease-in forwards}
 @keyframes drop{from{transform:translateY(-100%)}to{transform:none}}
-@media(prefers-reduced-motion:reduce){.curtain{animation:none}}
+@keyframes lift{from{transform:none;opacity:1}to{transform:translateY(-100%);opacity:0}}
+@media(prefers-reduced-motion:reduce){.cslot.in,.cslot.in .curtain,.curtain.up{animation:none}.curtain.up{opacity:0}}
+.ib svg{width:20px;height:20px;display:block}
 .toast{position:absolute;left:10px;right:10px;bottom:12px;z-index:7;background:var(--fg);color:var(--bg);border-radius:var(--r-card);padding:12px 14px;font-size:13px}
 .toast .row2{margin-top:8px}.toast .btn{min-height:40px;background:var(--bg);color:var(--fg);font-size:13px}
 .toast .btn.ghost{background:none;color:var(--bg);border-color:var(--bg)}
@@ -102,9 +110,9 @@
 <div class="perf" id="decisions"><b>Design decisions, 9 October 2026 (owner, by voice)</b> Applied to this mockup first; the live app follows once this is settled. Each is its own decision so it can be traced.<ol style="margin-left:18px">
 <li><b>Week limits.</b> Scrolling back stops at last week (nothing earlier is reachable). Planning ahead stops four weeks out from the current week.</li>
 <li><b>Week header gestures.</b> On the "Week of ..." header, a long-press jumps back to the current week and a tap steps forward one week. The left/right arrows stay alongside it.</li>
-<li><b>Not cooking, look.</b> Keep the moon and "Not cooking". Remove the diagonal-slash fill; it was distracting.</li>
+<li><b>Not cooking, look.</b> Keep "Not cooking" (the moon was dropped later: decision 24). Remove the diagonal-slash fill; it was distracting.</li>
 <li><b>Blocking from the grid is one week only.</b> No "just this week or every Wednesday" choice on the grid. Repeating days are a Settings matter (the usual-days stencil).</li>
-<li><b>Open your assistant must open the app.</b> A working deep link into the person's chosen assistant app (per-member setting), not a copy-to-clipboard fallback. <b>Needs follow-up build work</b>: this is a bug in the built app, and the link schemes must be verified against the real apps.</li>
+<li><b>Open your assistant must open the app.</b> <i>Superseded by decision 17.</i> (First said as a working deep link into the person's chosen assistant app, with no copy-to-clipboard fallback.)</li>
 <li><b>Moving a meal is drag only.</b> "Move to another day" and the day picker are gone from the meal sheet, on desktop and on touch alike, with no button fallback.</li>
 <li><b>Three meal-source states, labelled apart.</b> (a) An unmodified saved recipe: tap through to that recipe. (b) A saved recipe the assistant changed: labelled <b>Modified by assistant</b>; the substitution is locked to that plan entry, so on cook day the substitute is what is held, shown and shopped for. (c) A recipe invented on the fly with nothing saved behind it: labelled <b>Made up by your assistant</b>. <b>7(b) needs follow-up build work</b> (the entry carries its own ingredient list).</li>
 <li><b>Card meta line.</b> Just who and how many: "Everyone · 4 people". No "sized by your assistant" or "planned by you".</li>
@@ -115,20 +123,31 @@
 <li><b>Swipe on a meal card.</b> Swipe left = Remove (the day stays open for replanning). Swipe right = Remove and mark the day Not cooking. Two different outcomes.</li>
 <li><b>Empty days carry no copy.</b> The permanent "speak to your assistant to lock something in" text is gone; the dashed outline is enough.</li>
 <li><b>Idle nudge.</b> After a stretch of doing nothing on a week with an empty day, a "curtain" drops and says <b>Plan with your AI assistant.</b> Never right when the plan opens. The owner's number: about five seconds.</li>
-<li><b>Copy last week is an icon.</b> A small persistent icon beside the settings cog, not a button in the main view. Pressing it again after it was applied clears what it copied.</li></ol></div>
+<li><b>Copy last week is an icon.</b> A small persistent icon beside the settings cog, not a button in the main view. Pressing it again after it was applied clears what it copied.</li>
+<li><b>The assistant runs inside Kitchie.</b> "Open your assistant" is not an external deep link to a separate chat app; it is driven from inside Kitchie as an in-app agent. Supersedes decision 5. <b>Architecture note for the build</b>, beyond the mockup.</li>
+<li><b>View switch order.</b> Left to right: Mine, Everyone, then the named other person (Jane in the sample). Replaces Mine, Jane, Everyone.</li>
+<li><b>Nudge anchors below the switch.</b> The curtain drops from just under the Mine / Everyone / person row, not from the top of the screen.</li>
+<li><b>The curtain pushes the grid down.</b> It makes room for itself instead of covering the week.</li>
+<li><b>No jitter on the way out.</b> When the curtain lifts, the grid does not move back up with it; the space settles later (here: when the view or week changes, or after a pause).</li>
+<li><b>Modern Copy last week icon.</b> The old clipboard emoji ("1990s") is replaced with a clean line icon (two overlapping pages) drawn like the rest of the page's controls.</li>
+<li><b>Tap an empty night to mark it Not cooking.</b> On a night with no meal, a plain tap on the dashed slot sets Not cooking for this week; no menu needed. The three dots stay only on nights that already have a meal, where the swipe-right gesture also stays as it is.</li>
+<li><b>No moon.</b> The blocked night shows just the words "Not cooking", no icon. The swipe-right tint reads "Not cooking" (not "Remove and not cooking").</li>
+<li><b>Swipe left is Replan.</b> The word on the swipe-left tint is "Replan" instead of "Remove". The owner agreed it is the wording; the effect (meal removed, night stays open) is unchanged. Open: should Replan also open the assistant?</li>
+<li><b>Source labels only in the detail.</b> "Modified by assistant" and "Made up by your assistant" leave the card face and show only in the meal sheet; the card was too crowded.</li>
+<li><b>Symbolic pills.</b> The pills on a card are an icon plus a number, not words: missing (warning icon, count), on the shopping list (cart icon, count), held (bookmark). Same colours as before, from the theme. Full words stay in the accessible labels and the meal sheet.</li></ol></div>
 
 <div class="perf"><b>Follow-up work beyond the mockup</b> (these touch the real Kitchie backend and app)<ul>
-<li><b>Decision 5.</b> Open-assistant deep link is broken today (it falls back to the clipboard). Verify the real Claude and ChatGPT link schemes and fix.</li>
+<li><b>Decision 5 is superseded by 17.</b> The deep-link fix is no longer the plan: the assistant is an in-app agent. <b>Decision 17</b> is an architecture question for the build (the agent is driven from inside Kitchie), not a link fix.</li>
 <li><b>Decision 7(b).</b> A modified entry carries its own locked ingredient list; reservation and the shopping list read that list, not the recipe's.</li>
 <li><b>Decision 10.</b> Store assistant-made and modified ingredient lists per person, so quantities scale when the people count changes.</li></ul></div>
 
 <div class="perf"><b>Proposals</b> (owner silent)<ul>
 <li>Week shown Monday to Sunday, dinner only (as in the four-direction mockup).</li>
-<li>Mine / Jane / Everyone switch at the top of the grid: Mine is where blocking and the idle nudge apply; Jane (or any other member) shows just that person's plan, view-only; Everyone stacks all of them.</li>
+<li>Mine / Everyone / Jane switch at the top of the grid (order is the owner's, 9 Oct): Mine is where blocking and the idle nudge apply; Jane (or any other member) shows just that person's plan, view-only; Everyone stacks all of them.</li>
 <li>Week header: the earlier fragment had no arrows, so small ‹ › buttons are drawn (greyed at the limits) and a small label under the title says This week, Next week, In 3 weeks. The sample plan exists only for this week; the Settings stencil applies to every week.</li>
 <li>Gestures: moving up or down drags to another day (a short press first on touch, so scrolling still works); sideways swipes. A swipe commits past about 90 px and tints the card with what it will do.</li>
-<li>Idle nudge: once per visit, only in Mine with an open night; it drops from the top, any action dismisses it, tapping it opens the assistant. With reduced motion it simply appears.</li>
-<li>With the banner gone, the assistant has one full-width "Open your assistant" button under the switch, plus empty nights (tap opens it) and the nudge.</li>
+<li>Idle nudge: once per visit, only in Mine with an open night; it drops from under the switch and pushes the week down, any action dismisses it, tapping it opens the assistant. With reduced motion it simply appears.</li>
+<li>With the banner gone, the assistant has one full-width "Open your assistant" button under the switch, plus the curtain nudge. Tapping an empty night now marks it Not cooking.</li>
 <li>People count is a plain stepper in the meal sheet (owner earlier: editable per meal). The per-person quantities in the sample are invented.</li>
 <li>Hold is one tap for all on-hand ingredients and taps back off. The state word on cards and rows is "Held" (the owner said Hold for the button; the state word is mine).</li>
 <li>The indent applies to the Missing items too, so the two lists line up.</li>
@@ -155,8 +174,8 @@ var R={shak:{e:"🥚",n:"Shakshuka",ing:["eggs","tomatoes","onion","feta"]},rice
 var QPP={eggs:[1,""],tomatoes:[100,"g"],onion:[.5,""],feta:[30,"g"],rice:[75,"g"],pasta:[90,"g"],mushrooms:[60,"g"],cream:[30,"ml"],spinach:[50,"g"],"chicken thighs":[1,""],carrots:[1,""],stock:[250,"ml"],"soy sauce":[15,"ml"]};
 var ME="Sam",ALL=4,WMIN=-1,WMAX=4;
 var LAST=[["Mon","shak","Sam"],["Tue","rice","all"],["Wed","pasta","Sam",{mushrooms:"carrots"}],["Thu","fritt","Sam"],["Fri","soup","Sam"],["Sat","stir","Sam"]];
-var S;var uid=0,DRAWT=0,LASTG=0,NT=null,TT=null,LP=null,G=null;
-function fresh(){return {view:"mine",wk:0,cards:[],ov:{},stencil:{Sam:["Fri"],Jane:["Sun"]},sheet:null,chat:false,settings:false,toast:null,over:null,msgs:[],nudge:false,nudgeDone:false,copied:{}}}
+var S;var GT=null,uid=0,DRAWT=0,LASTG=0,NT=null,TT=null,LP=null,G=null;
+function fresh(){return {gap:false,gapAnim:false,view:"mine",wk:0,cards:[],ov:{},stencil:{Sam:["Fri"],Jane:["Sun"]},sheet:null,chat:false,settings:false,toast:null,over:null,msgs:[],nudge:false,nudgeDone:false,copied:{}}}
 S=fresh();
 function card(day,r,who,forw,mod){var f=forw||(who==="all"?"all":who);return {id:++uid,day:day,wk:S.wk,r:r,by:who,forw:f,n:f==="all"?ALL:1,res:false,mod:mod||null,fromCopy:false}}
 function me(c){return c.by===ME}
@@ -175,32 +194,38 @@ function av(w){return w==="Sam"?'<span class="av" title="Sam">S</span>':w==="Jan
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;")}
 function okey(day,p,wk){return (wk===undefined?S.wk:wk)+"|"+p+"|"+day}
 function isBlocked(day,p,wk){var k=okey(day,p,wk);if(k in S.ov)return S.ov[k];return S.stencil[p].indexOf(day)>-1}
-function cardHtml(c){var r=R[c.r],m=missing(c),sh="",mine=me(c),sr=srcOf(c);
- if(m.length)sh+='<span class="tg miss" role="img" aria-label="'+m.length+' ingredients missing. Open to resolve">'+m.length+' missing</span>';
- if(sr==="mod")sh+='<span class="tg also">Modified by assistant</span>';
- if(sr==="made")sh+='<span class="tg also">Made up by your assistant</span>';
- if(c.res)sh+='<span class="tg">Held</span>';
- return '<button class="mc '+(mine?"mine":"theirs")+'" data-card="'+c.id+'" aria-label="'+esc(r.n)+', '+c.day+', '+meta(c)+(sr==="mod"?", modified by assistant":sr==="made"?", made up by your assistant":"")+(mine?". Drag to another day. Swipe left to remove, right to remove and mark not cooking.":", planned by Jane, view only")+'"><span class="e">'+r.e+'</span><span class="t"><b>'+esc(r.n)+'</b><small>'+meta(c)+'</small>'+(sh?'<span class="chips">'+sh+'</span>':'')+'</span>'+av(c.by)+(mine?'':'<span class="lock" aria-hidden="true">🔒</span>')+'</button>'}
+function pill(cls,ic,n,label){return '<span class="tg '+cls+'" role="img" aria-label="'+label+'">'+ic+(n===""?"":n)+'</span>'}
+function cardHtml(c){var r=R[c.r],m=missing(c),sh="",mine=me(c),sr=srcOf(c),nl=Object.keys(c).filter(function(k){return k.indexOf("l_")===0&&c[k]}).length;
+ if(m.length)sh+=pill("miss",IMISS,m.length,m.length+" ingredients missing. Open to resolve");
+ if(nl)sh+=pill("also",ICART,nl,nl+" on the shopping list");
+ if(c.res)sh+=pill("",IHELD,"","Held");
+ return '<button class="mc '+(mine?"mine":"theirs")+'" data-card="'+c.id+'" aria-label="'+esc(r.n)+', '+c.day+', '+meta(c)+(mine?". Drag to another day. Swipe left to remove, right to remove and mark not cooking.":", planned by Jane, view only")+'"><span class="e">'+r.e+'</span><span class="t"><b>'+esc(r.n)+'</b><small>'+meta(c)+'</small>'+(sh?'<span class="chips">'+sh+'</span>':'')+'</span>'+av(c.by)+(mine?'':'<span class="lock" aria-hidden="true">🔒</span>')+'</button>'}
 function dayHtml(d,i){
  var cs=S.cards.filter(function(c){return c.wk===S.wk&&c.day===d&&(S.view==="all"||(S.view==="Jane"?c.by==="Jane":me(c)))});
  var h='<div class="day'+(S.over===d?" over":"")+'" data-day="'+d+'"><div class="dn">'+d+'<small>'+dateOf(i)+'</small></div><div class="stack">';
  var b=isBlocked(d,ME);
- if(S.view==="mine"&&b)h+='<button class="blocked" data-unblock="'+d+'" aria-label="Not cooking '+d+'. Tap to cook this week"><span>🌙 Not cooking</span></button>';
+ if(S.view==="mine"&&b)h+='<button class="blocked" data-unblock="'+d+'" aria-label="Not cooking '+d+'. Tap to cook this week"><span>Not cooking</span></button>';
  else if(S.view==="all"&&b&&!cs.some(me))h+='<div class="blocked" style="min-height:36px"><span>'+av("Sam")+' Sam is out</span></div>';
  cs.forEach(function(c){h+=cardHtml(c)});
  var jb=isBlocked(d,"Jane");if((S.view==="all"||S.view==="Jane")&&jb&&!cs.some(function(c){return c.by==="Jane"}))h+='<div class="blocked" style="min-height:36px"><span>'+av("Jane")+' Jane is out</span></div>';
  if(S.view==="Jane"){if(!cs.length&&!jb)h+='<div class="blocked" style="min-height:36px;opacity:.7"><span>Nothing planned by Jane</span></div>'}
- else if(!cs.length&&!(S.view==="mine"&&b))h+='<button class="slot" data-ask="'+d+'" aria-label="Plan '+d+' with your assistant"></button>';
+ else if(!cs.length&&!(S.view==="mine"&&b))h+='<button class="slot" data-blk="'+d+'" aria-label="Not cooking on '+d+', this week only"></button>';
  h+='</div>';
- if(S.view==="mine"&&!b)h+='<button class="dots" data-blk="'+d+'" aria-label="Not cooking on '+d+', this week only">⋯</button>';
+ if(S.view==="mine"&&!b&&cs.length)h+='<button class="dots" data-blk="'+d+'" aria-label="Not cooking on '+d+', this week only">⋯</button>';
  return h+'</div>'}
+var IMISS='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.3"/></svg>';
+var ICART='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M3 4h2.5l2.2 11h10.6l2-8H6.2"/></svg>';
+var IHELD='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v16l-5-3.5L7 20z"/></svg>';
+var ICOPY='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6.5A2.5 2.5 0 0 1 7.5 4H15"/></svg>';
+function slotHtml(){if(S.nudge)return '<div class="cslot in"><button class="curtain" data-nudge>✦ Plan with your AI assistant.</button></div>';if(S.gap)return '<div class="cslot">'+(S.gapAnim?'<button class="curtain up" tabindex="-1" aria-hidden="true">✦ Plan with your AI assistant.</button>':'')+'</div>';return ''}
 function headHtml(){var cp=!!S.copied[S.wk];
  return '<div class="top"><button class="ib sm" data-wk="-1" aria-label="Previous week"'+(S.wk<=WMIN?' disabled':'')+'>‹</button>'
  +'<button class="wkh" data-wkhd aria-label="Week of '+dateOf(0)+'. Tap for next week. Hold to return to this week."><b>Week of '+dateOf(0)+'</b><small>'+wkLabel()+'</small></button>'
  +'<button class="ib sm" data-wk="1" aria-label="Next week"'+(S.wk>=WMAX?' disabled':'')+'>›</button>'
- +'<button class="ib" data-act="copy" aria-pressed="'+cp+'" aria-label="Copy last week'+(cp?' (applied, press again to clear)':'')+'" title="Copy last week">📋</button>'
+ +'<button class="ib" data-act="copy" aria-pressed="'+cp+'" aria-label="Copy last week'+(cp?' (applied, press again to clear)':'')+'" title="Copy last week">'+ICOPY+'</button>'
  +'<button class="ib" data-act="stencil" aria-label="Settings, usual days">⚙</button></div>'
- +'<div class="seg" role="group" aria-label="View"><button data-view="mine" aria-pressed="'+(S.view==="mine")+'">Mine</button><button data-view="Jane" aria-pressed="'+(S.view==="Jane")+'">Jane</button><button data-view="all" aria-pressed="'+(S.view==="all")+'">Everyone</button></div>'
+ +'<div class="seg" role="group" aria-label="View"><button data-view="mine" aria-pressed="'+(S.view==="mine")+'">Mine</button><button data-view="all" aria-pressed="'+(S.view==="all")+'">Everyone</button><button data-view="Jane" aria-pressed="'+(S.view==="Jane")+'">Jane</button></div>'
+ +slotHtml()
  +(S.view==="Jane"?'':'<div style="margin-bottom:6px"><button class="btn ghost" style="width:100%" data-act="chat">✦ Open your assistant</button></div>')}
 function sheetHtml(){var c=S.cards.filter(function(x){return x.id===S.sheet})[0];if(!c)return"";var r=R[c.r],mine=me(c),sr=srcOf(c);
  var h='<div class="scrim" data-close></div><div class="sheet" role="dialog" aria-label="'+esc(r.n)+'"><h4>'+r.e+' '+esc(r.n)+'</h4><p style="font-size:13px">'+c.day+' · '+meta(c)+'</p>';
@@ -218,7 +243,7 @@ function sheetHtml(){var c=S.cards.filter(function(x){return x.id===S.sheet})[0]
  if(!oh.length&&!ms.length)h+='<p style="margin-top:10px;font-size:13px">Leftovers need no shopping and no reservation.</p>';
  if(mine)h+='<button class="btn ghost" style="width:100%;margin-top:14px" data-act="remove">Remove</button>';
  return h+'</div>'}
-function chatHtml(){var h='<div class="scrim" data-close></div><div class="sheet" role="dialog" aria-label="Assistant"><h4>✦ Your assistant</h4><p style="font-size:12px;color:var(--muted)">Mockup stand-in. The real button opens Claude (the assistant this person chose) directly, with no copy-to-clipboard step.</p><div class="bub">Planning next week? Want me to start from last week\'s plan? I will leave your usual days off alone.</div>';
+function chatHtml(){var h='<div class="scrim" data-close></div><div class="sheet" role="dialog" aria-label="Assistant"><h4>✦ Your assistant</h4><p style="font-size:12px;color:var(--muted)">Mockup stand-in. In the real app this is an agent that runs inside Kitchie itself, not a link out to another chat app.</p><div class="bub">Planning next week? Want me to start from last week\'s plan? I will leave your usual days off alone.</div>';
  S.msgs.forEach(function(m){h+='<div class="bub'+(m[0]==="me"?" me":"")+'">'+esc(m[1])+'</div>'});
  h+='<div class="cc"><button data-act="chatcopy">Yes, copy last week</button><button data-act="chatfresh">Start fresh</button><button data-act="chatjane">Jane is cooking Thursday, I will have leftovers</button></div><div class="inp"><span>Or say: "I am out Wednesday"</span>🎤</div></div>';return h}
 function settingsHtml(){var h='<div class="scrim" data-close></div><div class="sheet" role="dialog" aria-label="Usual days"><h4>Meal planning</h4><p style="font-size:13px">Usual days off cooking. Each week starts with these blocked. Repeating days are set only here; the grid changes one week at a time.</p>';
@@ -228,27 +253,28 @@ function settingsHtml(){var h='<div class="scrim" data-close></div><div class="s
 function hasOpenDay(){return DN.some(function(d){return !isBlocked(d,ME)&&!S.cards.some(function(c){return c.wk===S.wk&&c.day===d&&me(c)})})}
 function canNudge(){return S.view==="mine"&&!S.sheet&&!S.chat&&!S.settings&&!S.toast&&!S.nudge&&!S.nudgeDone&&hasOpenDay()}
 function armNudge(){clearTimeout(NT);if(canNudge())NT=setTimeout(function(){if(canNudge()){S.nudge=true;S.nudgeDone=true;draw()}},5000)}
+function closeNudge(){S.nudge=false;S.gap=true;S.gapAnim=true;clearTimeout(GT);GT=setTimeout(function(){if(S.gap){S.gap=false;draw()}},6000)}
 function draw(){var ph=document.getElementById("ph");
  var scroll=ph.querySelector(".sc");var st=scroll?scroll.scrollTop:0;
- var over=!!(S.sheet||S.chat||S.settings);
- ph.innerHTML='<div class="sc">'+headHtml()+DN.map(dayHtml).join("")+'</div>'+(S.sheet?sheetHtml():S.chat?chatHtml():S.settings?settingsHtml():"")+(S.nudge&&!over?'<button class="curtain" data-nudge>✦ Plan with your AI assistant.</button>':"")+(S.toast?'<div class="toast" role="status">'+S.toast+'</div>':"");
- DRAWT=Date.now();
+ var over=!!(S.sheet||S.chat||S.settings);if(over)S.gap=false;
+ ph.innerHTML='<div class="sc">'+headHtml()+DN.map(dayHtml).join("")+'</div>'+(S.sheet?sheetHtml():S.chat?chatHtml():S.settings?settingsHtml():"")+""+(S.toast?'<div class="toast" role="status">'+S.toast+'</div>':"");
+ DRAWT=Date.now();S.gapAnim=false;
  var n=ph.querySelector(".sc");if(n)n.scrollTop=st;
  var jm={empty:"1 Empty",copy:"2 After copy",jane:"3 Jane planned too",sheet:"4 Lock in a meal",block:"5 Block a night",stencil:"6 Usual days",all:"7 Everyone view",sources:"8 Where a meal came from",nudge:"9 Idle nudge",weeks:"10 Week limits"};
  document.getElementById("jump").innerHTML=Object.keys(jm).map(function(k){return '<button data-jump="'+k+'" aria-pressed="'+(S.at===k)+'">'+jm[k]+'</button>'}).join("");
  document.getElementById("say").innerHTML='<div class="say"><h2>'+(NOTE[S.at]||NOTE.x)[0]+'</h2><p>'+(NOTE[S.at]||NOTE.x)[1]+'</p></div>';
  armNudge()}
-var NOTE={empty:["Nothing yet, no copy","Empty nights are only a dashed outline (owner, 9 Oct). Friday shows as a usual day off, from the Settings stencil. Ways in: Open your assistant, tapping an empty night, and the curtain that drops after about five idle seconds (jump to 9)."],
+var NOTE={empty:["Nothing yet, no copy","Empty nights are only a dashed outline (owner, 9 Oct). Friday shows as a usual day off, from the Settings stencil. Ways in: Open your assistant and the curtain that drops after about five idle seconds (jump to 9)."],
 copy:["Copy last week","The clipboard icon beside the cog fills your unblocked days from last week, and pressing it again clears what it added. Friday's soup was skipped because Friday is your usual day off. The red count on a card is how many ingredients are missing."],
 jane:["Two people, one day","Jane's cards are view-only (lock mark) and carry her avatar. Thursday has two cards, her leftovers and your frittata; Everyone view shows them stacked."],
 sheet:["Locking in a meal","Hold is a small button beside On hand. Each missing item has its own cart button, with a plain hint to talk to your assistant about substitutes. Quantities follow the people count. The orange 'also' tag shows another card has claimed the same ingredient."],
-block:["Blocking a night","The three dots, or a swipe right on a card, close a night for this week only. Repeating days are only in Settings. Block is yours only; Jane's days are untouched."],
+block:["Blocking a night","Tap an empty night to mark it Not cooking, or use the three dots or a swipe right on a night that has a meal. One week only. Repeating days are only in Settings. Block is yours only; Jane's days are untouched."],
 stencil:["Usual days off, in Settings","Per person. The same home as renaming categories. Jane's row is read-only for you."],
 all:["Everyone's plan","Same grid, all cards. Others' cards are marked and locked. Tap Jane to look at only her plan (also view-only), or Mine to plan and block."],
 sources:["Where a meal came from","Wednesday is a saved recipe the assistant changed: swaps are kept with that day's meal. Saturday was made up on the spot. Other cards link straight to their saved recipe. Open each to see the sheet."],
-nudge:["Idle nudge","After about five seconds of nothing on a week with an open night, a curtain drops: Plan with your AI assistant. It never shows on open, and only once per visit. Any action dismisses it."],
+nudge:["Idle nudge","After about five seconds of nothing on a week with an open night, a curtain drops from under the switch and pushes the week down: Plan with your AI assistant. It never shows on open, and only once per visit. Any action lifts it; the week stays put until the view or week changes, so nothing jitters."],
 weeks:["Week limits","Back as far as last week, ahead four weeks. Tap the title to step forward, hold it to jump to this week; the arrows still step. Settings stencil days apply in every week."],
-x:["Try it","Drag a card to another day, swipe it left (remove) or right (remove and not cooking), or tap it. Tap or hold the week title."]};
+x:["Try it","Drag a card to another day, tap an empty night to mark it not cooking, swipe it left (replan) or right (not cooking), or tap it. Tap or hold the week title."]};
 function pushToast(t){S.toast=t;clearTimeout(TT);TT=setTimeout(function(){S.toast=null;draw()},3500)}
 function copyLast(){var sk=[];LAST.forEach(function(l){var w=l[2];if(w==="Sam"&&isBlocked(l[0],ME)){sk.push(l[0]);return}if(S.cards.some(function(c){return c.wk===S.wk&&c.day===l[0]&&c.r===l[1]&&c.by===ME}))return;var c=card(l[0],l[1],"Sam",w==="all"?"all":"Sam",l[3]);c.fromCopy=true;S.cards.push(c)});S.copied[S.wk]=true;S.at="copy";return sk}
 function clearCopied(){S.cards=S.cards.filter(function(c){return !(c.wk===S.wk&&c.fromCopy)});S.copied[S.wk]=false}
@@ -270,11 +296,11 @@ function curCard(){return S.cards.filter(function(c){return c.id===S.sheet})[0]}
 ph.addEventListener("click",function(e){var t=e.target;
  if(Date.now()-LASTG<400)return;
  var x,was=S.nudge;
- if(x=t.closest("[data-nudge]")){S.nudge=false;S.chat=true}
- else{if(S.nudge)S.nudge=false;
- if(x=t.closest("[data-wk]")){setWk(S.wk+Number(x.dataset.wk))}
- else if(t.closest("[data-wkhd]")){setWk(S.wk+1)}
- else if(x=t.closest("[data-view]")){S.view=x.dataset.view;S.at="x"}
+ if(x=t.closest("[data-nudge]")){S.nudge=false;S.gap=false;S.chat=true}
+ else{if(S.nudge)closeNudge();
+ if(x=t.closest("[data-wk]")){S.gap=false;setWk(S.wk+Number(x.dataset.wk))}
+ else if(t.closest("[data-wkhd]")){S.gap=false;setWk(S.wk+1)}
+ else if(x=t.closest("[data-view]")){S.gap=false;S.view=x.dataset.view;S.at="x"}
  else if(x=t.closest("[data-card]")){S.sheet=Number(x.dataset.card);S.at="sheet"}
  else if(t.closest("[data-ask]")||(x=t.closest("[data-act=chat]"))){S.chat=true}
  else if(x=t.closest("[data-blk]")){var d=x.dataset.blk;S.ov[okey(d,ME)]=true;pushToast("Not cooking "+d+", this week only. Usual days are set in Settings.");S.at="block";S.cards=S.cards.filter(function(c){return !(c.wk===S.wk&&c.day===d&&me(c))})}
@@ -303,7 +329,7 @@ function gm(e){if(!G||e.pointerId!==G.pid)return;var dx=e.clientX-G.x,dy=e.clien
   if(G.type==="mouse"){if(ax>8&&ax>ay)G.mode="swipe";else if(ay>8)startDrag()}
   else{if(ax>10&&ax>ay*1.2){clearTimeout(G.timer);G.mode="swipe"}else if(ax>10||ay>10){clearTimeout(G.timer)}}
   if(G.mode==="swipe")G.el.classList.add("sw")}
- if(G.mode==="swipe"){G.el.style.transform="translateX("+dx+"px)";var dir=dx<-40?"left":dx>40?"right":"";if(dir){G.el.dataset.swipe=dir;G.el.dataset.swipeLabel=dir==="left"?"Remove":"Remove · Not cooking 🌙"}else{delete G.el.dataset.swipe}}
+ if(G.mode==="swipe"){G.el.style.transform="translateX("+dx+"px)";var dir=dx<-40?"left":dx>40?"right":"";if(dir){G.el.dataset.swipe=dir;G.el.dataset.swipeLabel=dir==="left"?"Replan":"Not cooking"}else{delete G.el.dataset.swipe}}
  else if(G.mode==="drag"){G.el.style.transform="translate("+dx+"px,"+dy+"px)";var el=document.elementFromPoint(e.clientX,e.clientY),dd=el&&el.closest("[data-day]");document.querySelectorAll(".day.over").forEach(function(n){n.classList.remove("over")});if(dd)dd.classList.add("over");G.over=dd?dd.dataset.day:null}}
 function gu(e){if(!G||e.pointerId!==G.pid)return;var g=G;G=null;gEnd();if(!g.mode)return;LASTG=Date.now();
  var dx=e.clientX-g.x,c=S.cards.filter(function(x){return x.id===g.id})[0];S.over=null;
@@ -321,7 +347,7 @@ ph.addEventListener("pointerdown",function(e){
  window.addEventListener("pointermove",gm);window.addEventListener("pointerup",gu);window.addEventListener("pointercancel",gc)});
 ["pointerup","pointercancel","pointerleave"].forEach(function(n){ph.addEventListener(n,function(e){if(e.target.closest&&e.target.closest("[data-wkhd]")||n==="pointerleave")clearTimeout(LP)})});
 document.addEventListener("touchmove",function(e){if(G&&G.mode)e.preventDefault()},{passive:false});
-ph.addEventListener("scroll",function(){if(Date.now()-DRAWT<200)return;if(S.nudge){S.nudge=false;draw()}else armNudge()},true);
+ph.addEventListener("scroll",function(){if(Date.now()-DRAWT<200)return;if(S.nudge){closeNudge();draw()}else armNudge()},true);
 ph.addEventListener("pointerdown",armNudge);
 go("empty");
 </script></body></html>
