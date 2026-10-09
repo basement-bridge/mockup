@@ -4,7 +4,7 @@ Status: **living handover, written 10 October 2026.** The owner said that once t
 
 Live mockup: <https://basement-bridge.github.io/mockup/fragments/desktop/pantry.html?sel=butter>. The decision record, in the owner's words and in order, is `docs/knowledge/desktop-layout.md`. Pull requests #37 to #49 in this repo carry the build detail. The Kitchie issues are #402 to #409 and #413; **none is approved for build** until the owner says so.
 
-Screenshots are in `docs/handover/img/` (1440 × 900 unless the name says otherwise).
+**Live links are the source of truth** (owner, voice, 10 October 2026: "better than screenshots, the actual link to the mockup along with the hashtags and everything"). Every state below opens from a link; screenshots in `docs/handover/img/` (1440 × 900) are only a quick look. Section 11 lists every link and what each URL option does.
 
 ## 1. Rules to follow
 
@@ -112,3 +112,33 @@ Found by reading `uat` (read only; nothing was changed there).
 - `fragments/device.js`: the hidden Device control. `flows/household/`: the phone flow.
 - `docs/knowledge/desktop-layout.md`: decision record. `docs/handover/`: this file and its pictures.
 - To regenerate pictures, serve the folder (`python3 -m http.server`) and use Playwright at 1440 × 900.
+
+## 11. Live links (open the real mockup in any state)
+
+Base: `https://basement-bridge.github.io/mockup/fragments/desktop/`. Add `&vp=1280` (or 1024, 1440, 1920, 2560) to see it in a window of that exact size; phone and tablet sizes open the household flow.
+
+| State | Link |
+|---|---|
+| Home | `home.html` |
+| Pantry, item open | `pantry.html?sel=butter` |
+| History column | `pantry.html?sel=butter&hist=1` |
+| Filters, clean | `pantry.html?filters=1` |
+| Filters, location and category curtains open | `pantry.html?filters=1&curtain=1` |
+| Filters, Expiring soon (2 weeks) and Recently added (5 days) | `pantry.html?filters=1&st=soon,recent&soonwin=2&recentwin=2` |
+| Filters in use plus the Sort flyout | `pantry.html?filters=1&st=low&loc=Pantry&sortby=name&panel=sort` |
+| Shortcuts list | `pantry.html?help=1` |
+| Profile window | `pantry.html?profile=1` |
+| Add form A, side panel | `pantry.html?add=a&open=add` |
+| Add form B, quick-add bar | `pantry.html?add=b&open=add` |
+| Add form C, window | `pantry.html?add=c&open=add` |
+| Laptop size, both flyouts | `pantry.html?filters=1&panel=sort&vp=1280` |
+
+URL options on `pantry.html` (all optional, they combine):
+
+- `sel=<id>`: the open item (ids: butter, carrots, cheddar, eggs, yog, milk, paneer, spinach, rice, tom, onion, garam, peas, ice). `hist=1` opens its History.
+- `filters=1`: open Filters. `st=low,soon,recent`: statuses on. `soonwin=0..3` and `recentwin=0..3`: window index (see the table in section 4). `loc=Pantry,Fridge`, `cat=Cans`: pills picked. `sortby=name|useby|cat`. `panel=sort`: open the Sort flyout. `curtain=1`: open both curtains. `pre=1`: the older preset (Expiring soon, Dairy and eggs, Use-by soonest).
+- `help=1`, `profile=1`: the shortcuts list, the Profile window. `add=a|b|c&open=add`: the Add form option.
+- `vp=<width>`: show the page in a frame of that size.
+
+The page also writes the open item back into its own address (`sel=`), so copying the address bar shares the open item.
+
