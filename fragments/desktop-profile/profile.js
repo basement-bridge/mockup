@@ -254,7 +254,7 @@ document.addEventListener("keydown",function(e){
 
 /* ---------- start ---------- */
 var Q=new URLSearchParams(location.search),o0=Q.get("o");
-setOpt(/^[abc]$/.test(o0||"")?o0:"a",true);
+setOpt(/^[abc]$/.test(o0||"")?o0:"b",true);
 var op=Q.get("open");
 if(op){
  if(op==="shortcuts")toggleShortcuts();
