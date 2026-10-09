@@ -1,14 +1,15 @@
 (function(){
 var F="../desktop-filters/index.html",P="../desktop-profile/index.html",D="pantry.html";
 var DEC=[
-{id:"filters-window",t:"Filters and Sort window",why:"Owner: it must block the whole page, not pop out on the right. Issue #408.",rec:"a",cost:"Medium. B and C change the layout and the code; A reuses the phone content.",o:[
+{id:"filters-window",t:"Filters and Sort window",why:"Owner first said it must block the page. DECIDED by the owner, 9 October 2026: Option C controls as a side panel in the right lane, no blocking, updating the Pantry list live (Ctrl/Cmd click adds). Issue #408.",rec:"d",decided:"d",cost:"Medium. B and C change the layout and the code; A reuses the phone content.",o:[
  {k:"a",l:"A. Centred compact",d:"Two columns, no tabs. Closest to the phone sheet, cheapest.",u:F+"?opt=a&open=1"},
  {k:"b",l:"B. Large two-pane",d:"Section list on the left, one section at a time, chosen filters as chips. Scales if filters grow.",u:F+"?opt=b&open=1"},
- {k:"c",l:"C. Wide with live preview",d:"Controls beside the matching items, updating on every click. Widest, needs a second list renderer.",u:F+"?opt=c&open=1"}]},
-{id:"filters-place",t:"Where Option A sits",why:"Owner said it pops out where item details are shown, and also that it blocks everything.",rec:"centre",cost:"Low. One setting.",o:[
+ {k:"c",l:"C. Wide with live preview",d:"Controls beside the matching items, updating on every click. Widest, needs a second list renderer.",u:F+"?opt=c&open=1"},
+ {k:"d",l:"D. Side panel, live (decided)",d:"Option C controls in the right lane where the item panel sits. Every click updates the Pantry list. Done or Esc closes and the item panel returns. Sort sits at the top of the panel. No preview list.",u:D+"?filters=1&pre=1"}]},
+{id:"filters-place",t:"Where Option A sits",why:"Settled by the side-panel decision above: the right lane, no blocking.",rec:"lane",decided:"lane",cost:"Low. One setting.",o:[
  {k:"centre",l:"Centred over the page",d:"A normal modal.",u:F+"?opt=a&open=1"},
  {k:"lane",l:"Tall, over the detail lane",d:"Same controls in one column where the item panel is, still blocking everything.",u:F+"?opt=a&open=1&place=lane"}]},
-{id:"filters-esc",t:"Esc or a click outside the Filters window",why:"Unsaved picks are lost or kept.",rec:"discard",cost:"Low, but annoying either way if wrong.",o:[
+{id:"filters-esc",t:"Esc or a click outside the Filters window",why:"Settled with the side-panel decision: picks apply live, so Esc keeps them. Only Clear resets.",rec:"keep",decided:"keep",cost:"Low, but annoying either way if wrong.",o:[
  {k:"discard",l:"Close without applying",d:"Show N items is the only way to apply, as on the phone.",u:F+"?opt=a&open=1"},
  {k:"keep",l:"Keep the picks and apply",d:"Fewer lost picks, but Esc then changes the list.",u:""},
  {k:"ask",l:"Ask first",d:"Safe, one more click.",u:""}]},
