@@ -154,10 +154,12 @@ p{margin:0;color:var(--muted)}
 .fcirc svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;opacity:0}
 .fst.on .fcirc{background:var(--accent);border-color:var(--accent)}.fst.on .fcirc svg{opacity:1}
 .fstt{min-width:0}.fstt b{display:block;font-size:15px}.fstt span{display:block;font-size:13px;color:var(--muted);font-weight:500}
-.fstep{display:inline-flex;gap:4px;flex:none;min-width:92px;justify-content:flex-end}.fnostep{visibility:hidden}
-.fstep button{width:44px;height:44px;border-radius:50%;border:1px solid var(--border);background:var(--surface);display:grid;place-items:center;color:inherit}
-.fstep button:hover:not(:disabled){border-color:var(--accent)}.fstep button:disabled{opacity:.4;cursor:not-allowed}
-.fstep svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round}
+.fstep{display:inline-flex;align-items:center;flex:none;border:1px solid var(--border);border-radius:var(--r-pill);background:var(--surface);height:44px}
+.fnostep{visibility:hidden;border-color:transparent;width:112px}
+.fstep button{width:34px;height:42px;border:0;background:none;display:grid;place-items:center;color:inherit;border-radius:var(--r-pill)}
+.fstep button:hover:not(:disabled){color:var(--accent)}.fstep button:disabled{opacity:.35;cursor:not-allowed}
+.fval{min-width:44px;text-align:center;font-weight:700;font-size:13px}
+.fstep svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 .fpl{display:inline-flex;align-items:center;gap:8px;min-height:var(--tap);padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--bg);font-weight:600;font-size:13px;color:inherit}
 .fpl svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
 .fpl .ftk{display:none;width:16px;height:16px;stroke-width:3}.fpl.on .ftk{display:block}
