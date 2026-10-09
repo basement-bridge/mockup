@@ -76,7 +76,7 @@ Owner decision, voice session, 8 October 2026. Extends section 6: the same "load
 2. **Layout per bucket.**
    - Phone is the baseline: a single-column flow at its natural width.
    - Tablet is the same single-column flow, relaxed wider to use more of the screen. Not two-pane, not a redesign.
-   - Desktop and laptop is the same single-column flow, capped at a max-width and centred (Twitter-classic-feed or Basecamp style). Deliberately not the full width of a laptop screen: leave breathing room on both sides.
+   - Desktop and laptop (1024px and up) is a left rail, an off-centre column and a side panel (owner decision, chat, 9 October 2026, after voice direction the same day that desktop was "a big phone version"; replaces the earlier centred single column). The bottom bar becomes a rail down the left edge. The main column sits beside the rail, not centred. Where a screen has a detail (Pantry: the item; Home: Cooking ideas) it opens in a side panel instead of the phone's bottom sheet. The rail, the column and the panel are one group anchored on the left: the panel starts where the column ends, so the space between the list and the panel is always one gutter (48px), on any window; free space collects to the right of the panel, never between the lanes (owner, 9 October 2026). Below about 1224px the column gives up width so the panel never covers it. The top-bar-and-drawer alternative was dropped. See `fragments/desktop/` and `docs/knowledge/desktop-layout.md`.
 3. **One shared responsive system.** The spacing scale and the content max-width per bucket are shared tokens (section 2), applied by default to every screen. Do not hand-craft layouts per screen or feature. A screen that earns an exception says so in its notes.
 4. **JS is CSS-first.** The default is one shared JS bundle for all form factors, because most responsive differences are CSS only. Split into per-form-factor bundles only for the rare screen whose interaction behaviour (not just layout) genuinely diverges by device. That is an explicit exception, not the default.
 5. **Where splitting is used.** Server-rendered first, with the small deferred vanilla JS already practised. The server reads a viewport or device hint from the request and serves the pre-built, already-minified bundle for that bucket. Bundling, minification and splitting happen at build or deploy time, never per request, so the only runtime cost is a cheap lookup.
@@ -89,14 +89,18 @@ Defined once, at the top of `theme.css`, so every page that loads the theme has 
 
 | Token | Phone (<600) | Tablet (600-1023) | Desktop (1024+) |
 |---|---|---|---|
-| `--content-max` | 100% | 720px | 840px |
+| `--content-max` | 100% | 720px | 840px (pages without the rail layout) |
 | `--gutter` | 16px | 24px | 32px |
+
+Desktop rail layout tokens (settled 9 October 2026; widths are proposals the owner did not object to): rail 88px, column 640px plus a 48px gutter each side (a 736px lane), panel 400px. They apply to screens with the rail; the gap rule is in section 7, item 2.
 
 Shared in every bucket: spacing scale `--sp-1..--sp-7` (4, 8, 12, 16, 24, 32, 48px) and `--tap` (44px, minimum height of any control). `.wrap` in `shared.css` uses them, so every index and fragment page gets the three buckets with no per-page CSS. A page that needs side by side options uses the shared `.grid` / `.opts.two` rule: one column on phone, two from 600px up.
 
 **Proposal** (owner was silent on the numbers): 720 and 840 for the tablet and desktop caps, and 16, 24, 32 for the gutters. Tablet is 720 so it reads as the phone column relaxed, desktop 840 so the cap stays well inside a laptop width and the two option cards still fit side by side. Change the two `--content-max` values in `theme.css` to retune every screen at once.
 
 ### Screen exceptions
+
+- Desktop rail layout (1024px and up): not an exception any more, it is the desktop layout (item 2 above). The household flow below still keeps its phone frame.
 
 - `flows/household/`: this screen is the phone app itself, so it keeps a phone frame instead of a flowing column. Phone: full bleed. Tablet: the app as a centred 390px frame, the prototype Controls panel behind a Controls button. Desktop: the frame beside the always-open Controls panel. Layout code is in the flow's `styles.css`.
 - Fragment pages draw their phone mockups at fixed widths (300 to 390px). That is the content being compared, not the page layout.
@@ -111,4 +115,4 @@ Shared in every bucket: spacing scale `--sp-1..--sp-7` (4, 8, 12, 16, 24, 32, 48
 
 A new screen is added to the `SCREENS` list in the script. Output in `shots/` is git-ignored.
 
-**Keep in sync:** this file is the canonical copy of sections 6 and 7 while the mockup is the working copy. Kitchie carries a derived copy of the section 6 rules in its `AGENTS.md` ("Performance and regression guard", 7 October 2026), and this repo's `AGENTS.md` points here. Platform, Recipe and infra carry no copy yet (the section 6 migration TODO is still open). Section 7 has not been propagated to any repo yet. Propagate it with section 6 when the migration happens (issue #34).
+**Keep in sync:** this file is the canonical copy of sections 6 and 7 while the mockup is the working copy. Kitchie carries a derived copy of the section 6 rules in its `AGENTS.md` ("Performance and regression guard", 7 October 2026), and this repo's `AGENTS.md` points here. Platform, Recipe and infra carry no copy yet (the section 6 migration TODO is still open). Section 7 has not been propagated to any repo yet, and Kitchie's `AGENTS.md` "Form factors and responsive layout" still says desktop is one 840px column; it needs the owner's edit to match the desktop layout in item 2. Propagate it with section 6 when the migration happens (issue #34).
