@@ -12,7 +12,7 @@ ITEMS.push(["peas","","peas","Freezer","1 kg","Drawer 2","Vegetables",null],["ic
 X.tom={level:"Plenty",useby:"",min:"4"};
 NAV[3][2]=SHOPN;
 function $(s){return document.querySelector(s)}
-var ESCL=/Mac|iPhone|iPad/.test(navigator.platform||"")?"&#8984; Esc":"Ctrl Esc";
+var ESCL=/Mac|iPhone|iPad/.test(navigator.platform||"")?"&#8984; Enter":"Ctrl Enter";
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;")}
 function cur(){return ITEMS.filter(function(x){return x[0]===SEL})[0]}
 function lvl(i){var x=dflt(i[0]);if(!isCount(i))return x.level;var n=parseFloat(i[4]),m=parseFloat(x.min);if(!(n>0))return"Out";if(!(m>0))return"Plenty";return n<=m?"Running low":n<=2*m?"Some":"Plenty"}
@@ -25,11 +25,11 @@ function dispA(){if(BY==="location")return DISP;if(!DISPC)DISPC=["All"].concat(c
 function setDispA(d){if(BY==="location")DISP=d;else DISPC=d}
 function pickArr(arr,v,multi){var h=arr.indexOf(v)>-1;return multi?(h?arr.filter(function(x){return x!==v}):arr.concat(v)):(h&&arr.length===1?[]:[v])}
 function areasShown(){return SELA.length?AREAS.filter(function(a){return SELA.indexOf(a)>-1}):AREAS}
-var FWD={soon:1,recent:1},FW={soon:1,recent:1},FSTEPT="soon",FDIR=false,ADDED={milk:5,spinach:30,yog:60,peas:200},WINS={soon:[[3,"in 3 days","3 d"],[7,"in 1 week","1 wk"],[14,"in 2 weeks","2 wk"],[30,"in 1 month","1 mo"]],recent:[[24,"last 24 hours","24 h"],[72,"last 3 days","3 d"],[120,"last 5 days","5 d"],[168,"last week","1 wk"]]},STS=[["low","Running low",function(i){return lvl(i)==="Running low"}],["soon","Expiring soon",function(i){return i[7]!==null&&i[7]<=WINS.soon[FW.soon][0]}],["recent","Recently added",function(i){return ADDED[i[0]]!==undefined&&ADDED[i[0]]<=WINS.recent[FW.recent][0]}]],SORTS=[["none","As listed"],["name","Name A to Z"],["useby","Use-by soonest"],["cat","Category"]];
+var FWD={soon:1,recent:1},FW={soon:1,recent:1},FSTEPT="soon",FDIR=false,ADDED={milk:5,spinach:30,yog:60,peas:200},WINS={soon:[[3,"in 3 days","3 d"],[7,"in 1 week","1 wk"],[14,"in 2 weeks","2 wk"],[30,"in 1 month","1 mo"]],recent:[[24,"last 24 hours","24 h"],[72,"last 3 days","3 d"],[120,"last 5 days","5 d"],[168,"last week","1 wk"]]},STS=[["low","Running low",function(i){return lvl(i)==="Running low"}],["soon","Expiring soon",function(i){return i[7]!==null&&i[7]<=WINS.soon[FW.soon][0]}],["recent","Recently added",function(i){return ADDED[i[0]]!==undefined&&ADDED[i[0]]<=WINS.recent[FW.recent][0]}]],SORTS=[["name","Name",["A to Z","Z to A"]],["useby","Use-by",["Soonest first","Latest first"]],["added","Added",["Newest first","Oldest first"]]];function sortLab(){var t=SORTS.filter(function(x){return x[0]===FSORT})[0];return t?t[1]+" ("+t[2][FDIR?1:0]+")":"As listed"}function addAge(a){return ADDED[a[0]]===undefined?999:ADDED[a[0]]}
 function stOn(){return STS.filter(function(t){return FST[t[0]]})}
 function nF(){return stOn().length+SELA.length+FCAT.length}
 function cmp(a,b){var r=cmp0(a,b);return FDIR?-r:r}
-function cmp0(a,b){if(FSORT==="name")return a[2].localeCompare(b[2]);if(FSORT==="cat")return a[6].localeCompare(b[6])||a[2].localeCompare(b[2]);if(FSORT==="useby"){var x=a[7]===null?1e9:a[7],y=b[7]===null?1e9:b[7];return x-y}return 0}
+function cmp0(a,b){if(FSORT==="name")return a[2].localeCompare(b[2]);if(FSORT==="added")return addAge(a)-addAge(b);if(FSORT==="useby"){var x=a[7]===null?1e9:a[7],y=b[7]===null?1e9:b[7];return x-y}return 0}
 function vis(){var f=FIND.toLowerCase(),so=stOn();return ITEMS.filter(function(i){return(!SELA.length||SELA.indexOf(i[3])>-1)&&(!FCAT.length||FCAT.indexOf(i[6])>-1)&&(!so.length||so.some(function(t){return t[2](i)}))&&(!f||(i[2]+" "+i[6]).toLowerCase().indexOf(f)>-1)}).sort(cmp)}
 function order(){return groups().reduce(function(o,g){return o.concat(g[1])},[])}
 var KB={cart:'<svg viewBox="0 0 24 24" aria-hidden="true">'+IC.cart+'</svg>'};
@@ -63,14 +63,14 @@ function fbodyFilters(){var mac=/Mac|iPhone|iPad/.test(navigator.platform||"");r
   +(wn?'<span class="fstep" role="group" aria-label="'+t[1]+' period"><button data-fstep="-1" data-st="'+t[0]+'" aria-label="Shorter period"'+(FW[t[0]]===0?" disabled":"")+'>'+fsv(FI.left)+'</button><span class="fval" aria-live="polite">'+wn[FW[t[0]]][2]+'</span><button data-fstep="1" data-st="'+t[0]+'" aria-label="Longer period"'+(FW[t[0]]===wn.length-1?" disabled":"")+'>'+fsv(FI.right)+'</button></span>':'<span class="fstep fnostep" aria-hidden="true"></span>')+'</div>'}).join("")+'</div></section>'
  +'<section><h3>Location</h3>'+fcurt("loc","Location",AREAS.map(function(a){return fpill("loc",a,SELA.indexOf(a)>-1,ITEMS.filter(function(i){return i[3]===a}).length,FI[a]||FI.pin)}).join(""))+'</section>'
  +'<section><h3>Category</h3>'+fcurt("cat","Category",cats().map(function(c){return fpill("cat",c,FCAT.indexOf(c)>-1,ITEMS.filter(function(i){return i[6]===c}).length)}).join(""))+'</section>'}
-function fbodySort(){return '' +'<section><h3>Sort by</h3><div class="fsort"><div class="fchips" role="group" aria-label="Sort">'+SORTS.map(function(t){return fch("sort",t[0],t[1],FSORT===t[0])}).join("")+'</div>'+(FSORT!=="none"?'<button class="fdir" data-fdir aria-label="Order: '+(FDIR?"reversed":"normal")+'. Press to flip.">'+fsv(FI.dir)+(FDIR?"Reversed":"Normal")+'</button>':"")+'</div></section>'}
+function fbodySort(){return '<section><h3>Sort by</h3><div class="fsrts" role="group" aria-label="Sort. Press the active one to flip its direction.">'+SORTS.map(function(t){var on=FSORT===t[0],d=t[2][on&&FDIR?1:0];return '<button class="fsrt'+(on?" on":"")+'" data-fsrt="'+t[0]+'" aria-pressed="'+on+'"><span class="fsl">'+t[1]+'</span><span class="fsv">('+d+')</span>'+(on?fsv(FI.dir,FDIR?"flip":""):"")+'</button>'}).join("")+'</div></section>'}
 function fpanel(){var n=order().length;
  return '<div class="fp"><div class="fph"><div><h2>Filters</h2><p id="fcount">'+n+(n===1?" item":" items")+'</p></div>'+tick("data-fdone")+'</div><div class="fpb" id="fbody">'+sortRow()+fbodyFilters()+'</div>'
  +'<div class="fpf"><button class="btn" data-fclear'+(nF()||FSORT!=="none"?"":" disabled")+'>Clear</button><button class="btn" data-flast>Use last filters</button></div></div>'}
-function fre(focus){if(!FP)return;var b=$(".fpb"),y=b?b.scrollTop:0;$("#panel").innerHTML=fpanel();fcMeasure();if(SORTP)drawS();var nb=$(".fpb");if(nb)nb.scrollTop=y;if(focus){var e=focus[0]==="step"?($('[data-st="'+focus[2]+'"][data-fstep="'+focus[1]+'"]:not([disabled])')||$('[data-st="'+focus[2]+'"]:not([disabled])')):focus[0]==="dir"?$("[data-fdir]"):$('.fc[data-fk="'+focus[0]+'"][data-v="'+focus[1]+'"]');if(e)e.focus()}}
+function fre(focus){if(!FP)return;var b=$(".fpb"),y=b?b.scrollTop:0;$("#panel").innerHTML=fpanel();fcMeasure();if(SORTP)drawS();var nb=$(".fpb");if(nb)nb.scrollTop=y;if(focus){var e=focus[0]==="step"?($('[data-st="'+focus[2]+'"][data-fstep="'+focus[1]+'"]:not([disabled])')||$('[data-st="'+focus[2]+'"]:not([disabled])')):focus[0]==="srt"?$('[data-fsrt="'+focus[1]+'"]'):$('.fc[data-fk="'+focus[0]+'"][data-v="'+focus[1]+'"]');if(e)e.focus()}}
 var FCH={loc:null,cat:null},SORTP=false;
 function tick(attr){return '<button class="tick" '+attr+' aria-label="Done" title="Done ('+ESCL+')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>'}
-function sortRow(){var cur=SORTS.filter(function(x){return x[0]===FSORT})[0][1]+(FSORT!=="none"&&FDIR?", reversed":"");return '<button class="fsortrow'+(SORTP?" on":"")+'" data-fsort aria-expanded="'+SORTP+'" aria-controls="scol"><span class="fsl">Sort</span><span class="fsv">'+esc(cur)+'</span>'+fsv(FI.right)+'</button>'}
+function sortRow(){var cur=sortLab();return '<button class="fsortrow'+(SORTP?" on":"")+'" data-fsort aria-expanded="'+SORTP+'" aria-controls="scol"><span class="fsl">Sort</span><span class="fsv">'+esc(cur)+'</span>'+fsv(FI.right)+'</button>'}
 function drawS(){var h=$("#scol");if(!h)return;h.hidden=!(SORTP&&FP);h.innerHTML=SORTP&&FP?'<div class="fph scolh"><div><h2>Sort</h2></div>'+tick("data-sdone")+'</div><div class="scolb">'+fbodySort()+'</div>':"";var a=$(".app");if(a)a.classList.toggle("sopen",SORTP&&FP);drawH()}
 function openS(){SORTP=true;drawS();var e=$("#scol .fc.on")||$("#scol .fc");if(e)e.focus();var r=$("[data-fsort]");if(r)r.setAttribute("aria-expanded","true");if(r)r.classList.add("on")}
 function closeS(){SORTP=false;drawS();var r=$("[data-fsort]");if(r){r.setAttribute("aria-expanded","false");r.classList.remove("on");r.focus()}}
@@ -79,20 +79,19 @@ function fcSet(c,v,keep){var w=c.querySelector(".fcw"),ch=c.querySelector(".fchi
 function fcMeasure(){var a=document.querySelectorAll(".fcurt");for(var n=0;n<a.length;n++){var k=a[n].dataset.cs;fcSet(a[n],FCH[k]==null?0:FCH[k],false)}}
 function fcToggle(c){var cur=parseFloat(c.querySelector(".fcw").style.height)||0,m=fcSet(c,cur,false);fcSet(c,m.v>=m.full&&m.full>m.row?m.row:m.full,true)}
 function stepF(k,d,key){FSTEPT=k;FUSED=true;FW[k]=Math.max(0,Math.min(WINS[k].length-1,FW[k]+d));FST[k]=1;paintChips();lw();fre(key?["st",k]:["step",d,k])}
-function flipDir(){FDIR=!FDIR;lw();fre(["dir"])}
+function sortPick(k){FUSED=true;if(FSORT===k)FDIR=!FDIR;else{FSORT=k;FDIR=false}paintChips();lw();fre(["srt",k])}
 function syncChips(){settle();var c=$("#chips");if(c)c.innerHTML=chipsHtml()}
 function pickF(k,v,e){var multi=e.ctrlKey||e.metaKey;FUSED=true;if(k==="st"&&WINS[v])FSTEPT=v;
- if(k==="sort")FSORT=v;
- else if(k==="st"){var on=!!FST[v],only=stOn().length===1&&on;if(multi){if(on)delete FST[v];else FST[v]=1}else{FST={};if(!only)FST[v]=1}}
+ if(k==="st"){var on=!!FST[v],only=stOn().length===1&&on;if(multi){if(on)delete FST[v];else FST[v]=1}else{FST={};if(!only)FST[v]=1}}
  else if(k==="cat")FCAT=pickArr(FCAT,v,multi);
  else if(k==="loc")SELA=pickArr(SELA,v,multi);
  paintChips();lw();fre([k,v])}
 function rmTile(k,v){if(k==="st")delete FST[v];else if(k==="loc")SELA=SELA.filter(function(x){return x!==v});else if(k==="cat")FCAT=FCAT.filter(function(x){return x!==v});else{FSORT="none";FDIR=false}paintChips();lw();fre()}
-function ftiles(){var t=[];stOn().forEach(function(x){t.push(["st",x[0],"Status: "+x[1]+(WINS[x[0]]?" ("+WINS[x[0]][FW[x[0]]][1]+")":"")])});SELA.forEach(function(a){t.push(["loc",a,"Location: "+a])});FCAT.forEach(function(c){t.push(["cat",c,"Category: "+c])});if(FSORT!=="none")t.push(["sort","none","Sort: "+SORTS.filter(function(x){return x[0]===FSORT})[0][1]+(FDIR?" (reversed)":"")]);
+function ftiles(){var t=[];stOn().forEach(function(x){t.push(["st",x[0],"Status: "+x[1]+(WINS[x[0]]?" ("+WINS[x[0]][FW[x[0]]][1]+")":"")])});SELA.forEach(function(a){t.push(["loc",a,"Location: "+a])});FCAT.forEach(function(c){t.push(["cat",c,"Category: "+c])});if(FSORT!=="none")t.push(["sort","none","Sort: "+sortLab()]);
  return '<div class="ftiles" role="group" aria-label="Filters in use">'+t.map(function(x){return '<span class="ft">'+esc(x[2])+'<button data-frm="'+x[0]+'" data-v="'+esc(x[1])+'" aria-label="Remove '+esc(x[2])+'">&times;</button></span>'}).join("")+'<button class="ftclear" data-fclear2>Clear all</button></div>'}
 function strip(){var rw=$("#ribw"),ft=$("#ftw");if(!rw||!ft)return;if(!nF()&&FSORT==="none")FUSED=false;var show=FUSED,was=!rw.hidden;rw.hidden=show;ft.hidden=!show;ft.innerHTML=show?ftiles():"";if(!show&&!was){measure();setH(RH)}}
 function saveLast(){if(nF()||FSORT!=="none"){var st={};stOn().forEach(function(t){st[t[0]]=1});FLAST={st:st,loc:SELA.slice(),cat:FCAT.slice(),sort:FSORT,win:JSON.parse(JSON.stringify(FW)),dir:FDIR}}}
-function openF(){if(FP)return;SORTP=false;settle();FP=true;redraw();var b=$("[data-fdone]");if(b)b.focus()}
+function openF(){if(FP)return;SORTP=false;HIST=false;ADDV="";settle();FP=true;redraw();drawH();var b=$("[data-fdone]");if(b)b.focus()}
 function closeF(){if(!FP)return;saveLast();FP=false;SORTP=false;redraw();focusRow()}
 function clearF(){saveLast();FST={};FCAT=[];SELA=[];FSORT="none";FW=JSON.parse(JSON.stringify(FWD));FDIR=false;FUSED=false;syncChips();lw();fre()}
 function lastF(){FUSED=true;FST=JSON.parse(JSON.stringify(FLAST.st));SELA=FLAST.loc.slice();FCAT=FLAST.cat.slice();FSORT=FLAST.sort;FW=FLAST.win?JSON.parse(JSON.stringify(FLAST.win)):JSON.parse(JSON.stringify(FWD));FDIR=!!FLAST.dir;syncChips();lw();fre()}
@@ -129,6 +128,7 @@ function hcol(i){var D=hdays(i),k=HSHOWN[i[0]]||HFIRST,shown=D.slice(0,k),left=D
  +shown.map(function(d){return '<section class="hday"><h3>'+esc(d.d)+'</h3><ol class="hist" aria-label="'+esc(d.d)+'">'+d.e.map(function(e){return '<li>'+hline(e)+'<span class="trunc">'+esc(e.t)+' · '+esc(e.who)+' · '+esc(SRC[e.src]||e.src)+'</span></li>'}).join("")+'</ol></section>'}).join("")
  +(left>0?'<button class="btn hmore" data-hmore>Show '+Math.min(HMORE,left)+' more days <span class="kbd keep">'+left+' earlier</span></button>':'<p class="phint">That is everything for this item.</p>')
  +'<p class="phint"><span class="kbd">'+ESCL+'</span> closes this column. Pick another row to see its history.</p>'}
+function histToggle(){if(!cur()){toast("Pick an item first.");return}if(FP){saveLast();FP=false;SORTP=false;drawS();redraw()}ADDV="";HIST=!HIST;if(!HIST){drawH();focusRow();return}$("#panel").innerHTML=panel();drawH();var hb=$("[data-hclose]");if(hb)hb.focus()}
 function drawH(){var h=$("#hcol"),i=cur();if(!h)return;var on=HIST&&!!i&&!(SORTP&&FP);h.hidden=!on;h.innerHTML=on?hcol(i):"";var a=$(".app");if(a)a.classList.toggle("hopen",on)}
 /* Add form: Option A, side panel in the right lane (owner chose it, voice, 10 October 2026; the quick-add bar and the window were removed). */
 var AF=[["name","Name","e.g. chicken thighs"],["qty","Quantity","e.g. 2 kg or 6"],["area","Location"],["spot","Spot","e.g. top shelf"],["cat","Category","e.g. Protein"],["useby","Use-by","e.g. 14 Oct"],["min","Minimum","e.g. 2"]];
@@ -137,7 +137,7 @@ function aform(){var d=AD;return '<form class="af" id="af" novalidate autocomple
  +'<div class="afb"><button type="button" class="btn pri" data-asave>Add item <span class="kbd">Enter</span></button><button type="button" class="btn" data-asave2>Add and start another <span class="kbd">&#8679; Enter</span></button><button type="button" class="btn" data-acancel>Cancel <span class="kbd">'+ESCL+'</span></button></div></form>'}
 function apanel(){return '<div class="fp"><div class="fph"><div><h2>Add an item</h2></div><button class="x" data-acancel aria-label="Close">&times;</button></div><div class="fpb">'+aform()+'</div></div>'}
 function drawAdd(focus){$("#panel").innerHTML=panel();if(focus!==false&&ADDV){var e=$('#af [data-a="name"]');if(e)e.focus()}}
-function openAdd(o,opener){FP=false;HIST=false;drawH();AOPEN=opener||document.activeElement;AD=adef();ADDV="a";drawAdd()}
+function openAdd(o,opener){if(FP){saveLast();FP=false}SORTP=false;drawS();HIST=false;drawH();AOPEN=opener||document.activeElement;AD=adef();ADDV="a";drawAdd()}
 function closeAdd(back){ADDV="";drawAdd(false);if(back!==false&&AOPEN&&document.contains(AOPEN))AOPEN.focus()}
 function saveAdd(another){
  if(!(AD.name||"").trim()){var e=$('#af [data-a="name"]');if(e){e.focus();e.classList.add("bad");e.setAttribute("aria-invalid","true")}toast("Give it a name first.");return}
@@ -155,7 +155,7 @@ function ideas(){return '<section class="card" style="margin-top:0"><div class="
 function home(){var g='<h1 style="font-size:2.2rem">Good morning, Sam.</h1>';
  return '<div class="col">'+g+homeCards()+'</div>'}
 var HELPHTML='<div class="kb" id="kb" hidden><div class="kbc" role="dialog" aria-modal="true" aria-labelledby="kbt"><div class="kbh"><h2 id="kbt">Keyboard shortcuts</h2><button class="x" data-help-close aria-label="Close">&times;</button></div><div class="kbg">'
- +G("Move",[["&uarr; &darr; or J K","Previous or next item"],["Enter or E","Edit the open item"],[ESCL,"Close the edit, then the item"],["/","Search your pantry"]])
+ +G("Move",[["&uarr; &darr; or J K","Previous or next item"],["Enter or E","Edit the open item"],[ESCL,"Close the edit, then the item"],["/","Search your pantry"],[",","Open or close History for the open item"]])
  +G("The open item",[["U","Use one (counted items only; other items change by level)"],["D","Used up"],["S","Add to, or take off, the shopping list"],["Z","Undo the last change"]])
  +G("Go to",[["G then H","Home"],["G then P","Pantry"],["G then R","Recipes"],["G then S","Shopping"]])
  +G("General",[["N","Add an item"],["F","Filters side panel (F or "+ESCL+" closes, picks stay)"],["~<kbd>1</kbd> <em>to</em> <kbd>3</kbd>","In Filters: switch a status on or off"],["~<kbd>Shift</kbd> <kbd>&lt;</kbd> <em>or</em> <kbd>Shift</kbd> <kbd>&gt;</kbd>","In Filters: shorter or longer window"],["M","Focus the first item in the main column, from any panel (the panel stays open)"],["? or H","This list"],[ESCL,"Close this list"]])
@@ -199,7 +199,7 @@ function settle(){clearTimeout(ST);ST=null;var c=$("#chips");if(!c)return;var N=
  [].forEach.call(c.children,function(b){var o=old[b.dataset.a],n=b.getBoundingClientRect(),dx=o.left-n.left,dy=o.top-n.top;if(dx||dy){b.style.transition="none";b.style.transform="translate("+dx+"px,"+dy+"px)";b.offsetWidth;b.style.transition="transform .35s ease";b.style.transform=""}})}
 if(SCR==="pantry"){measure();setH(ROW);var qlist=function(k){return(Q.get(k)||"").split(",").map(function(x){return x.trim()}).filter(Boolean)};
  if(Q.get("filters")==='1'||Q.has("st")||Q.has("loc")||Q.has("cat")||Q.has("sortby")){if(Q.get("pre")==='1'){FST={soon:1};FCAT=["Dairy and eggs"];FSORT="useby"}
-  qlist("st").forEach(function(k){if(WINS[k]||k==="low")FST[k]=1});SELA=SELA.concat(qlist("loc").filter(function(a){return AREAS.indexOf(a)>-1}));FCAT=FCAT.concat(qlist("cat"));if(SORTS.some(function(x){return x[0]===Q.get("sortby")}))FSORT=Q.get("sortby");
+  qlist("st").forEach(function(k){if(WINS[k]||k==="low")FST[k]=1});SELA=SELA.concat(qlist("loc").filter(function(a){return AREAS.indexOf(a)>-1}));FCAT=FCAT.concat(qlist("cat"));if(SORTS.some(function(x){return x[0]===Q.get("sortby")}))FSORT=Q.get("sortby");FDIR=Q.get("sortdir")==="1";
   if(Q.has("soonwin")&&WINS.soon[+Q.get("soonwin")])FW.soon=+Q.get("soonwin");if(Q.has("recentwin")&&WINS.recent[+Q.get("recentwin")])FW.recent=+Q.get("recentwin");
   if(nF()||FSORT!=="none"){FUSED=true;syncChips()}
   if(Q.get("filters")==='1'){FP=true;if(Q.get("curtain")==='1'){FCH={loc:9999,cat:9999}}if(Q.get("panel")==='sort')SORTP=true;$("#panel").innerHTML=panel();fcMeasure();drawS()}strip()}
@@ -214,7 +214,7 @@ if(SCR==="pantry"){measure();setH(ROW);var qlist=function(k){return(Q.get(k)||""
  $("#find").addEventListener("input",function(e){FIND=e.target.value;lw()});
  document.body.addEventListener("input",function(e){var f=e.target.dataset&&e.target.dataset.f;if(f)setF(f,e.target.value)});
  document.body.addEventListener("input",function(e){var d=e.target.dataset||{};if(d.a){AD[d.a]=e.target.value;e.target.classList.remove("bad");e.target.removeAttribute("aria-invalid")}});
- document.body.addEventListener("keydown",function(e){if(e.key!=="Enter"||!ADDV)return;var t=e.target;if(t.closest&&t.closest("#af")&&t.tagName!=="BUTTON"){e.preventDefault();saveAdd(e.shiftKey)}})
+ document.body.addEventListener("keydown",function(e){if(e.key!=="Enter"||e.ctrlKey||e.metaKey||!ADDV)return;var t=e.target;if(t.closest&&t.closest("#af")&&t.tagName!=="BUTTON"){e.preventDefault();saveAdd(e.shiftKey)}})
  document.body.addEventListener("change",function(e){var f=e.target.dataset&&e.target.dataset.f;if(f&&e.target.tagName==="SELECT")setF(f,e.target.value)})}
 document.body.addEventListener("click",function(e){var t=e.target,c;
  if(t.closest("[data-cues]")){cues(!CUES);return}
@@ -224,14 +224,14 @@ document.body.addEventListener("click",function(e){var t=e.target,c;
  if(t.closest("[data-undo]")){doUndo();return}
  if(SCR!=="pantry")return;
  if(c=t.closest("[data-act]")){var li=c.closest("li");if(li.dataset.id!==SEL){SEL=li.dataset.id;EDIT=false}act(c.dataset.act);return}
- if(c=t.closest("[data-open]")){select(c.dataset.open);return}
+ if(c=t.closest("[data-open]")){if(FP){saveLast();FP=false;SORTP=false;drawS()}if(ADDV)ADDV="";select(c.dataset.open);return}
  if(t.closest("[data-close]")){SEL=null;EDIT=false;HIST=false;settle();redraw();return}
  if(c=t.closest("[data-edit]")){openEdit(c.dataset.edit);return}
  if(c=t.closest(".chip:not(.fc)")){chip(c.dataset.a,e);return}
  if(t.closest("[data-fsort]")){SORTP?closeS():openS();return}
  if(t.closest("[data-sdone]")){closeS();return}
  if(c=t.closest("[data-fstep]")){stepF(c.dataset.st,parseInt(c.dataset.fstep,10));return}
- if(t.closest("[data-fdir]")){flipDir();return}
+ if(c=t.closest("[data-fsrt]")){sortPick(c.dataset.fsrt);return}
  if(c=t.closest(".fc")){pickF(c.dataset.fk,c.dataset.v,e);return}
  if(c=t.closest("[data-frm]")){rmTile(c.dataset.frm,c.dataset.v);return}
  if(t.closest("[data-fclear2]")){clearF();return}
@@ -252,7 +252,8 @@ document.addEventListener("kitchie-help",function(){help(!HELP)});
 document.addEventListener("keydown",function(e){var k=e.key,t=e.target,typing=!!(t.closest&&t.closest("input,textarea,select,[contenteditable]"));
  if(FP&&!typing&&(k==="<"||k===">")&&!e.ctrlKey&&!e.metaKey&&!e.altKey){var fr=t.closest&&t.closest(".fst"),fk=fr?fr.querySelector("[data-v]").dataset.v:FSTEPT;if(!WINS[fk])fk=FSTEPT;e.preventDefault();stepF(fk,k==="<"?-1:1,true);return}
  if(FP&&!typing&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&/^[1-9]$/.test(k)&&STS[+k-1]){e.preventDefault();pickF("st",STS[+k-1][0],{ctrlKey:true});return}
- if(k==="Escape"){var mod=e.ctrlKey||e.metaKey;if(!mod){if(SCR==="pantry"&&t.id==="find"){t.value="";FIND="";lw();t.blur()}return}
+ if(k==="Escape"){if(SCR==="pantry"&&t.id==="find"){t.value="";FIND="";lw();t.blur()}return}
+ if(k==="Enter"&&(e.ctrlKey||e.metaKey)){e.preventDefault();
   if(HELP){help(false);e.preventDefault();return}
   if(SCR!=="pantry")return;
   if(t.id==="find"){t.value="";FIND="";lw();t.blur();return}
@@ -266,6 +267,7 @@ document.addEventListener("keydown",function(e){var k=e.key,t=e.target,typing=!!
  if(PEND){PEND=null;clearTimeout(PT);var d={h:"home.html",p:"pantry.html"}[K];if(d)location.href=d;else if(K==="r"||K==="s")toast("Recipes and Shopping are not drawn in this fragment.");e.preventDefault();return}
  if(k==="?"||K==="h"){help(!HELP);e.preventDefault();return}
  if(HELP)return;
+ if(k===","){e.preventDefault();histToggle();return}
  if(K==="m"){e.preventDefault();focusMain();return}
  if(K==="g"){PEND=1;PT=setTimeout(function(){PEND=null},1500);return}
  if(SCR!=="pantry"||(t.closest&&t.closest(".rgrip,.fgrip")))return;
