@@ -24,6 +24,8 @@ Not captured yet. Principle from the owner: each job touches only the aspects it
 
 Proposal (8 Oct 2026, from Claude, not the owner): four directions (week grid, plan it for me, pick then place, conversation). Drafts to react to, not decisions.
 
+The AI-led direction and the owner's decisions on it (9 Oct 2026) are in [plan-week-ai.md](plan-week-ai.md); mockup `fragments/plan-week-ai/`.
+
 ## Open questions
 
 - How the person is known to be planning.
