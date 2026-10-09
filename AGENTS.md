@@ -2,6 +2,8 @@
 
 Before changing any mockup here, read `DESIGN.md`. It is the design brief for this repo: jobs to be done first, one theme token set, playful tone, one visual family, options before decisions.
 
+**Building or reviewing the desktop screens: start with `docs/handover/desktop.md`** (the master reference: every decision, requirement, open question and live link). 
+
 Static files, no build. Test by serving the folder (`python3 -m http.server`) and opening `index.html`.
 
 ## Performance and regression guard
