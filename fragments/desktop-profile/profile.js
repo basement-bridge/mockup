@@ -42,7 +42,8 @@ var VIEWS={
 };
 var KEYS={p:"profile",m:"me",s:"settings",y:"history",h:"household",d:"data"};
 function keys(k){return '<span class="pf-keys" aria-label="shortcut: G then '+k+'"><kbd>G</kbd><kbd>'+k+'</kbd></span>'}
-var FOOT='<span><kbd>Esc</kbd> close</span><span><kbd>Tab</kbd> move</span><span><kbd>G</kbd> then a letter jumps</span><span><kbd>?</kbd> shortcuts</span>';
+var ESCL=/Mac|iPhone|iPad/.test(navigator.platform||"")?"\u2318 Esc":"Ctrl Esc";
+var FOOT='<span><kbd>'+ESCL+'</kbd> close</span><span><kbd>Tab</kbd> move</span><span><kbd>G</kbd> then a letter jumps</span><span><kbd>?</kbd> shortcuts</span>';
 
 /* ---------- pane content (drawn on first view) ---------- */
 function sw(label,on){return '<li><button type="button" class="pf-sw" role="switch" aria-checked="'+on+'"><span>'+label+'</span><i aria-hidden="true"></i></button></li>'}
@@ -83,7 +84,7 @@ var PANE={me:paneMe,settings:paneSettings,history:paneHistory,household:paneHous
 var stack=[],home=null,gTimer=null,toastTimer=null,toastEl=null;
 
 /* ---------- renderers ---------- */
-function xbtn(){return '<span class="pf-hx"><kbd>Esc</kbd><button type="button" class="pf-x" data-close aria-label="Close">'+ic("close",20)+'</button></span>'}
+function xbtn(){return '<span class="pf-hx"><kbd>'+ESCL+'</kbd><button type="button" class="pf-x" data-close aria-label="Close">'+ic("close",20)+'</button></span>'}
 function renderWin(m){
  var tabs=["me","settings","history","household","data"].map(function(k){var v=VIEWS[k],on=m.view===k;
   var label=k==="me"?"Profile":v.t,kk=k==="me"?"P":v.k;
@@ -95,7 +96,7 @@ function renderShortcuts(){
  var rows=[["Open profile","P"],["Me","M"],["Settings","S"],["History","Y"],["Household","H"],["Download inventory CSV","D"]];
  return '<div class="pf-head"><span class="pf-ico">'+ic("kbd",18)+'</span><div class="pf-who"><h2 class="sm">Keyboard shortcuts</h2></div>'+xbtn()+'</div><div class="pf-body"><p class="pf-small">Press <kbd>G</kbd>, then the letter, within 1.5 seconds. Works on the page and inside the open window.</p><ul class="pf-list pf-sc">'
  +rows.map(function(r){return '<li><span>'+r[0]+'</span>'+keys(r[1])+'</li>'}).join("")
- +'<li><span>Close the window</span><span class="pf-keys"><kbd>Esc</kbd></span></li><li><span>Show this list</span><span class="pf-keys"><kbd>?</kbd></span></li></ul></div><div class="pf-foot"><span>Press <kbd>Esc</kbd> to go back</span></div>'}
+ +'<li><span>Close the window</span><span class="pf-keys"><kbd>'+ESCL+'</kbd></span></li><li><span>Show this list</span><span class="pf-keys"><kbd>?</kbd></span></li></ul></div><div class="pf-foot"><span>Press <kbd>'+ESCL+'</kbd> to go back</span></div>'}
 var RENDER={win:renderWin,s:renderShortcuts};
 function label(m){return m.kind==="s"?"Keyboard shortcuts":"Profile, "+(m.view==="me"?"Profile":VIEWS[m.view].t)}
 
@@ -168,7 +169,7 @@ document.addEventListener("click",function(e){
 
 document.addEventListener("keydown",function(e){
  var top=stack[stack.length-1],t=e.target;
- if(e.key==="Escape"&&top){e.preventDefault();e.stopPropagation();closeTop();return}
+ if(e.key==="Escape"&&(e.ctrlKey||e.metaKey)&&top){e.preventDefault();e.stopPropagation();closeTop();return}
  if(e.key==="Tab"&&top){
   var f=focusables(top.frame);if(!f.length){e.preventDefault();return}
   var i=f.indexOf(document.activeElement);
