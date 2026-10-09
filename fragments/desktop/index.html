@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Desktop layout — fragment</title><link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><script src="../../theme.js"></script></head>
+<body><div class="wrap">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Desktop: off-centre main, side panel</h1>
+<p>Fragment. Exploration only, nothing decided. Owner direction, 9 October 2026 (voice): desktop today is "a big phone version"; the main page should sit slightly off-centre, and clicking an item should open a side panel instead of the bottom sheet that mobile uses. Start with Pantry and Home.</p>
+<div class="sec"><div class="lbl">Open these at 1024px wide or more</div>
+<a class="tile" href="pantry.html?o=A&amp;sel=butter"><div class="row"><b>Pantry, option A</b><span class="tag">rail</span></div><p>Left rail replaces the bottom bar. List is pinned left of the free space, the item panel is always open on the right.</p></a>
+<a class="tile" href="pantry.html?o=B&amp;sel=butter"><div class="row"><b>Pantry, option B</b><span class="tag">top bar</span></div><p>Top bar nav. List sits left of centre; the item opens as a drawer from the right, the list stays usable.</p></a>
+<a class="tile" href="home.html?o=A"><div class="row"><b>Home, option A</b><span class="tag">rail</span></div><p>One off-centre column of cards; Cooking ideas live in the right column instead of under the cards.</p></a>
+<a class="tile" href="home.html?o=B"><div class="row"><b>Home, option B</b><span class="tag">top bar</span></div><p>Top bar, two columns: the day's cards left, Cooking ideas right.</p></a></div>
+<div class="sec"><div class="lbl">Notes</div>
+<p><b>Exception to DESIGN.md section 7.</b> Section 7 says desktop is one centred column. This explores the owner's new direction: an off-centre main and a side panel (the section 7 exception clause). The household flow's phone frame is not used here. Phone and tablet are untouched.</p>
+<p style="margin-top:8px"><b>Proposals</b> (owner silent): rail 88px; main 640px (A) / 600px (B), left-weighted with a 48px or 14vw inset; panel 400px / 410px; same Pantry data and the same four tiles as the phone item sheet; Esc closes; click or Enter on a row opens it; the first item is not auto-opened.</p>
+<p style="margin-top:8px"><b>Open questions.</b> Always-open panel (A) or on demand (B)? Rail or top bar? On a desktop 1024 to 1280 wide, does the panel squeeze the list too much? Should swipe gestures give way to hover buttons on rows? What happens at tablet widths (not drawn)?</p>
+<p style="margin-top:8px"><b>Loads.</b> Static HTML, one small CSS and one JS file, shared theme tokens, no images; nothing loads on engagement.</p></div>
+</div></body></html>
