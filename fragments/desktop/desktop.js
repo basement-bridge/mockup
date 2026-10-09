@@ -9,6 +9,7 @@ function due(d){return d===null?"":d===0?'<span class="due hot">Today</span>':d=
 var AREAS=["Fridge","Pantry","Freezer","Unplaced","Laundry","Garage","Spice rack","Cellar","Balcony"],DISP=["All"].concat(AREAS);
 var EDIT=false,EF="qty",HELP=false,PEND=null,PT=null,TT=null,UNDO=null,FIND="",SELA=[],SHOPN=3,LIST={},X={},RH=0,ROW=50,FULLH=50,ST=null,LASTF=null,ADDV="",ADDO=(Q.get("add")||"a").slice(0,1),AD={},ANEW=0,AOPEN=null,FP=false,HIST=false,HLOG={},BY="location",DISPC=null,FUSED=false,CUES=true,FST={},FCAT=[],FSORT="none",FLAST={st:{soon:1},loc:["Fridge"],cat:[],sort:"useby"};
 ITEMS.push(["peas","","peas","Freezer","1 kg","Drawer 2","Vegetables",null],["ice","🍨","ice cream","Freezer","1 tub","Door","Dessert",null]);
+X.tom={level:"Plenty",useby:"",min:"4"};
 NAV[3][2]=SHOPN;
 function $(s){return document.querySelector(s)}
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;")}
@@ -23,7 +24,7 @@ function dispA(){if(BY==="location")return DISP;if(!DISPC)DISPC=["All"].concat(c
 function setDispA(d){if(BY==="location")DISP=d;else DISPC=d}
 function pickArr(arr,v,multi){var h=arr.indexOf(v)>-1;return multi?(h?arr.filter(function(x){return x!==v}):arr.concat(v)):(h&&arr.length===1?[]:[v])}
 function areasShown(){return SELA.length?AREAS.filter(function(a){return SELA.indexOf(a)>-1}):AREAS}
-var FWI=1,FDIR=false,WINS=[[3,"in 3 days"],[7,"in 1 week"],[14,"in 2 weeks"],[30,"in 1 month"]],STS=[["low","Running low",function(i){return lvl(i)==="Running low"}],["soon","Expiring soon",function(i){return i[7]!==null&&i[7]<=WINS[FWI][0]}],["list","On your list",function(i){return!!LIST[i[0]]}],["nodate","No use-by set",function(i){return i[7]===null}]],SORTS=[["none","As listed"],["name","Name A to Z"],["useby","Use-by soonest"],["cat","Category"]];
+var FW={soon:1,recent:0},FDIR=false,ADDED={milk:5,spinach:30,yog:60,peas:200},WINS={soon:[[3,"in 3 days"],[7,"in 1 week"],[14,"in 2 weeks"],[30,"in 1 month"]],recent:[[24,"last 24 hours"],[72,"last 3 days"],[168,"last week"]]},STS=[["low","Running low",function(i){return lvl(i)==="Running low"}],["soon","Expiring soon",function(i){return i[7]!==null&&i[7]<=WINS.soon[FW.soon][0]}],["recent","Recently added",function(i){return ADDED[i[0]]!==undefined&&ADDED[i[0]]<=WINS.recent[FW.recent][0]}]],SORTS=[["none","As listed"],["name","Name A to Z"],["useby","Use-by soonest"],["cat","Category"]];
 function stOn(){return STS.filter(function(t){return FST[t[0]]})}
 function nF(){return stOn().length+SELA.length+FCAT.length}
 function cmp(a,b){var r=cmp0(a,b);return FDIR?-r:r}
@@ -58,15 +59,15 @@ function fpill(k,v,on,n,ic){return '<button class="fc fpl'+(on?" on":"")+(n?"":"
 function fpanel(){var n=order().length,so=stOn(),mac=/Mac|iPhone|iPad/.test(navigator.platform||"");
  return '<div class="fp"><div class="fph"><div><h2>Filters</h2><p id="fcount">'+n+(n===1?" item":" items")+'</p></div><button class="btn pri" data-fdone>Done</button></div><div class="fpb">'
  +'<p class="fhint">Click picks one. <span class="kbd keep">'+(mac?"&#8984;":"Ctrl")+'</span> click adds more. The list updates as you go.</p>'
- +'<section><h3>Status</h3><p class="fsub">Shows an item that matches any one of these.</p><div class="fsts" role="group" aria-label="Status">'+STS.map(function(t,x){var on=!!FST[t[0]],c=ITEMS.filter(t[2]).length,soon=t[0]==="soon",sub=(soon?WINS[FWI][1]+" · ":"")+c+(c===1?" item":" items");
+ +'<section><h3>Status</h3><p class="fsub">Shows an item that matches any one of these.</p><div class="fsts" role="group" aria-label="Status">'+STS.map(function(t,x){var on=!!FST[t[0]],c=ITEMS.filter(t[2]).length,wn=WINS[t[0]],sub=(wn?wn[FW[t[0]]][1]+" · ":"")+c+(c===1?" item":" items");
   return '<div class="fst'+(on?" on":"")+'"><button class="fc fstb" data-fk="st" data-v="'+t[0]+'" role="checkbox" aria-checked="'+on+'"><span class="fcirc">'+fsv(FI.tick)+'</span><span class="fstt"><b>'+t[1]+'</b><span>'+sub+'</span></span><kbd class="kbd">'+(x+1)+'</kbd></button>'
-  +(soon?'<span class="fstep" role="group" aria-label="Expiring soon period"><button data-fstep="-1" aria-label="Shorter period"'+(FWI===0?" disabled":"")+'>'+fsv(FI.minus)+'</button><button data-fstep="1" aria-label="Longer period"'+(FWI===WINS.length-1?" disabled":"")+'>'+fsv(FI.plus)+'</button></span>':'<span class="fstep fnostep" aria-hidden="true"></span>')+'</div>'}).join("")+'</div></section>'
+  +(wn?'<span class="fstep" role="group" aria-label="'+t[1]+' period"><button data-fstep="-1" data-st="'+t[0]+'" aria-label="Shorter period"'+(FW[t[0]]===0?" disabled":"")+'>'+fsv(FI.minus)+'</button><button data-fstep="1" data-st="'+t[0]+'" aria-label="Longer period"'+(FW[t[0]]===wn.length-1?" disabled":"")+'>'+fsv(FI.plus)+'</button></span>':'<span class="fstep fnostep" aria-hidden="true"></span>')+'</div>'}).join("")+'</div></section>'
  +'<section><h3>Location</h3><div class="fchips" role="group" aria-label="Location">'+AREAS.map(function(a){return fpill("loc",a,SELA.indexOf(a)>-1,ITEMS.filter(function(i){return i[3]===a}).length,FI[a]||FI.pin)}).join("")+'</div></section>'
  +'<section><h3>Category</h3><div class="fchips" role="group" aria-label="Category">'+cats().map(function(c){return fpill("cat",c,FCAT.indexOf(c)>-1,ITEMS.filter(function(i){return i[6]===c}).length)}).join("")+'</div></section>'
  +'<section><h3>Sort</h3><div class="fsort"><div class="fchips" role="group" aria-label="Sort">'+SORTS.map(function(t){return fch("sort",t[0],t[1],FSORT===t[0])}).join("")+'</div>'+(FSORT!=="none"?'<button class="fdir" data-fdir aria-label="Order: '+(FDIR?"reversed":"normal")+'. Press to flip.">'+fsv(FI.dir)+(FDIR?"Reversed":"Normal")+'</button>':"")+'</div></section></div>'
  +'<div class="fpf"><button class="btn" data-fclear'+(nF()||FSORT!=="none"?"":" disabled")+'>Clear</button><button class="btn" data-flast>Use last filters</button></div></div>'}
-function fre(focus){if(!FP)return;var b=$(".fpb"),y=b?b.scrollTop:0;$("#panel").innerHTML=fpanel();var nb=$(".fpb");if(nb)nb.scrollTop=y;if(focus){var e=focus[0]==="step"?($('[data-fstep="'+focus[1]+'"]:not([disabled])')||$('.fstep button:not([disabled])')):focus[0]==="dir"?$("[data-fdir]"):$('.fc[data-fk="'+focus[0]+'"][data-v="'+focus[1]+'"]');if(e)e.focus()}}
-function stepF(d){FUSED=true;FWI=Math.max(0,Math.min(WINS.length-1,FWI+d));FST.soon=1;paintChips();lw();fre(["step",d])}
+function fre(focus){if(!FP)return;var b=$(".fpb"),y=b?b.scrollTop:0;$("#panel").innerHTML=fpanel();var nb=$(".fpb");if(nb)nb.scrollTop=y;if(focus){var e=focus[0]==="step"?($('[data-st="'+focus[2]+'"][data-fstep="'+focus[1]+'"]:not([disabled])')||$('[data-st="'+focus[2]+'"]:not([disabled])')):focus[0]==="dir"?$("[data-fdir]"):$('.fc[data-fk="'+focus[0]+'"][data-v="'+focus[1]+'"]');if(e)e.focus()}}
+function stepF(k,d){FUSED=true;FW[k]=Math.max(0,Math.min(WINS[k].length-1,FW[k]+d));FST[k]=1;paintChips();lw();fre(["step",d,k])}
 function flipDir(){FDIR=!FDIR;lw();fre(["dir"])}
 function syncChips(){settle();var c=$("#chips");if(c)c.innerHTML=chipsHtml()}
 function pickF(k,v,e){var multi=e.ctrlKey||e.metaKey;FUSED=true;
@@ -76,14 +77,14 @@ function pickF(k,v,e){var multi=e.ctrlKey||e.metaKey;FUSED=true;
  else if(k==="loc")SELA=pickArr(SELA,v,multi);
  paintChips();lw();fre([k,v])}
 function rmTile(k,v){if(k==="st")delete FST[v];else if(k==="loc")SELA=SELA.filter(function(x){return x!==v});else if(k==="cat")FCAT=FCAT.filter(function(x){return x!==v});else{FSORT="none";FDIR=false}paintChips();lw();fre()}
-function ftiles(){var t=[];stOn().forEach(function(x){t.push(["st",x[0],"Status: "+x[1]+(x[0]==="soon"?" ("+WINS[FWI][1]+")":"")])});SELA.forEach(function(a){t.push(["loc",a,"Location: "+a])});FCAT.forEach(function(c){t.push(["cat",c,"Category: "+c])});if(FSORT!=="none")t.push(["sort","none","Sort: "+SORTS.filter(function(x){return x[0]===FSORT})[0][1]+(FDIR?" (reversed)":"")]);
+function ftiles(){var t=[];stOn().forEach(function(x){t.push(["st",x[0],"Status: "+x[1]+(WINS[x[0]]?" ("+WINS[x[0]][FW[x[0]]][1]+")":"")])});SELA.forEach(function(a){t.push(["loc",a,"Location: "+a])});FCAT.forEach(function(c){t.push(["cat",c,"Category: "+c])});if(FSORT!=="none")t.push(["sort","none","Sort: "+SORTS.filter(function(x){return x[0]===FSORT})[0][1]+(FDIR?" (reversed)":"")]);
  return '<div class="ftiles" role="group" aria-label="Filters in use">'+t.map(function(x){return '<span class="ft">'+esc(x[2])+'<button data-frm="'+x[0]+'" data-v="'+esc(x[1])+'" aria-label="Remove '+esc(x[2])+'">&times;</button></span>'}).join("")+'<button class="ftclear" data-fclear2>Clear all</button></div>'}
 function strip(){var rw=$("#ribw"),ft=$("#ftw");if(!rw||!ft)return;if(!nF()&&FSORT==="none")FUSED=false;var show=FUSED,was=!rw.hidden;rw.hidden=show;ft.hidden=!show;ft.innerHTML=show?ftiles():"";if(!show&&!was){measure();setH(RH)}}
-function saveLast(){if(nF()||FSORT!=="none"){var st={};stOn().forEach(function(t){st[t[0]]=1});FLAST={st:st,loc:SELA.slice(),cat:FCAT.slice(),sort:FSORT,win:FWI,dir:FDIR}}}
+function saveLast(){if(nF()||FSORT!=="none"){var st={};stOn().forEach(function(t){st[t[0]]=1});FLAST={st:st,loc:SELA.slice(),cat:FCAT.slice(),sort:FSORT,win:JSON.parse(JSON.stringify(FW)),dir:FDIR}}}
 function openF(){if(FP)return;settle();FP=true;redraw();var b=$("[data-fdone]");if(b)b.focus()}
 function closeF(){if(!FP)return;saveLast();FP=false;redraw();focusRow()}
-function clearF(){saveLast();FST={};FCAT=[];SELA=[];FSORT="none";FWI=1;FDIR=false;FUSED=false;syncChips();lw();fre()}
-function lastF(){FUSED=true;FST=JSON.parse(JSON.stringify(FLAST.st));SELA=FLAST.loc.slice();FCAT=FLAST.cat.slice();FSORT=FLAST.sort;FWI=FLAST.win===undefined?1:FLAST.win;FDIR=!!FLAST.dir;syncChips();lw();fre()}
+function clearF(){saveLast();FST={};FCAT=[];SELA=[];FSORT="none";FW={soon:1,recent:0};FDIR=false;FUSED=false;syncChips();lw();fre()}
+function lastF(){FUSED=true;FST=JSON.parse(JSON.stringify(FLAST.st));SELA=FLAST.loc.slice();FCAT=FLAST.cat.slice();FSORT=FLAST.sort;FW=FLAST.win?JSON.parse(JSON.stringify(FLAST.win)):{soon:1,recent:0};FDIR=!!FLAST.dir;syncChips();lw();fre()}
 /* History mirrors Kitchie's journal (store.getHistory(id), MCP item_history): one entry per write, each with an action, the item before and after, the source and a note.
    Real entries come in bursts (a stepper tapped several times), so entries from one source within two minutes are shown as one line per field with the net change. Sample data only: nothing here is a real household. */
 var HF=[["qty","Quantity"],["min","Minimum"],["staple","Staple"],["level","Level"],["useby","Use-by"],["area","Location"],["note","Note"]],SRC={"item-sheet":"Item sheet",assistant:"Assistant",import:"Import",desk:"This page"},HSHOWN={},HFIRST=3,HMORE=5;
@@ -136,7 +137,7 @@ function openAdd(o,opener){FP=false;HIST=false;drawH();AOPEN=opener||document.ac
 function closeAdd(back){ADDV="";var w=$("#addwin");if(w)w.remove();drawAdd(false);if(back!==false&&AOPEN&&document.contains(AOPEN))AOPEN.focus()}
 function saveAdd(another){if(ADDV==="b"){var o=parseQ(AD.qtext||"");AD.name=o.name;AD.qty=o.qty;if(o.area)AD.area=o.area}
  if(!(AD.name||"").trim()){var e=ADDV==="b"?$("#qin"):$('#af [data-a="name"]');if(e){e.focus();e.classList.add("bad");e.setAttribute("aria-invalid","true")}toast("Give it a name first.");return}
- var sn=snap(),id="new"+(++ANEW),it=[id,"",AD.name.trim(),AD.area,AD.qty.trim()||"1",AD.spot.trim(),AD.cat.trim()||"Uncategorised",null];if(AD.useby.trim()){var dy=parseInt(AD.useby,10);it[7]=isNaN(dy)?7:Math.max(0,dy)}ITEMS.push(it);if(AD.min.trim())dflt(id).min=AD.min.trim();dflt(id).useby=AD.useby.trim();
+ var sn=snap(),id="new"+(++ANEW),it=[id,"",AD.name.trim(),AD.area,AD.qty.trim()||"1",AD.spot.trim(),AD.cat.trim()||"Uncategorised",null];if(AD.useby.trim()){var dy=parseInt(AD.useby,10);it[7]=isNaN(dy)?7:Math.max(0,dy)}ITEMS.push(it);ADDED[id]=0;if(AD.min.trim())dflt(id).min=AD.min.trim();dflt(id).useby=AD.useby.trim();
  addLog(it,"Added "+it[4]+" to "+it[3]);
  if(another){var keep=AD.area;AD=adef();AD.area=keep;lw();drawAdd();toast("Added "+esc(it[2])+" to "+esc(it[3])+". Add the next one.",sn);return}
  var was=ADDV;ADDV="";var w=$("#addwin");if(w)w.remove();SEL=id;EDIT=false;redraw();drawAdd(false);var q=$("#qaw");if(q)q.innerHTML="";toast("Added "+esc(it[2])+" to "+esc(it[3])+".",sn);focusRow()}
@@ -212,7 +213,7 @@ document.body.addEventListener("click",function(e){var t=e.target,c;
  if(t.closest("[data-close]")){SEL=null;EDIT=false;HIST=false;settle();redraw();return}
  if(c=t.closest("[data-edit]")){openEdit(c.dataset.edit);return}
  if(c=t.closest(".chip:not(.fc)")){chip(c.dataset.a,e);return}
- if(c=t.closest("[data-fstep]")){stepF(parseInt(c.dataset.fstep,10));return}
+ if(c=t.closest("[data-fstep]")){stepF(c.dataset.st,parseInt(c.dataset.fstep,10));return}
  if(t.closest("[data-fdir]")){flipDir();return}
  if(c=t.closest(".fc")){pickF(c.dataset.fk,c.dataset.v,e);return}
  if(c=t.closest("[data-frm]")){rmTile(c.dataset.frm,c.dataset.v);return}
