@@ -147,6 +147,7 @@ p{margin:0;color:var(--muted)}
 .fsub{color:var(--muted);font-size:12.5px;margin:-4px 0 8px}
 .fsts{display:grid;gap:6px}
 .fst{display:flex;align-items:center;gap:4px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--bg);padding-right:6px}
+.fst.zero:not(.on){border-style:dashed}.fst.zero:not(.on) .fstt b{color:var(--muted)}
 .fst.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
 .fstb{flex:1;min-width:0;display:flex;align-items:center;gap:12px;min-height:52px;padding:6px 8px 6px 14px;background:none;border:0;text-align:left;border-radius:var(--r-ctl);color:inherit;font:inherit}
 .fstb .kbd{margin-left:auto}
@@ -169,6 +170,7 @@ p{margin:0;color:var(--muted)}
 .fpl.zero:not(.on){border-style:dashed;color:var(--muted)}
 .fcurt{position:relative;padding-bottom:14px}
 .fcw{overflow:hidden;transition:height .2s}.fcurt[data-drag] .fcw{transition:none}
+.fcw.scrolls{overflow-y:auto;scrollbar-width:thin}
 .fcurt .fchips{padding-right:34px}
 .fcor{position:absolute;top:2px;right:0;width:28px;height:28px;border-radius:50%;border:0;background:var(--surface);display:grid;place-items:center;color:var(--muted);padding:0}
 .fcor:hover{color:var(--accent)}.fcor svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}.fcor.open svg{transform:rotate(180deg)}
