@@ -56,7 +56,7 @@ Mockup: `fragments/desktop/pantry.html` (press `?`), `fragments/desktop-profile/
 - **Location / Category.** The pills switch with a pin and tag button, as in Kitchie (issue #134, #330). Plain click picks one, Ctrl/Cmd adds.
 - **Filters in use.** Chosen filters replace the pill strip with removable tiles and Clear all.
 - **Use one only on counted items.** Weights, volumes and free text are level-only, with no Use one (button and U); counted items show a worked-out level, the rest a level set by hand. Matches `docs/adr/pantry-item-sheet.md` in Kitchie.
-- **History** opens as a fourth column to the right of the item panel, for that item only, closed with the x or Esc. Below 1240px it lays over the right edge. Real data would come from `item_history` / `store.getHistory(id)`; the mockup uses sample events plus what you do in the page.
+- **History** opens as a fourth column to the right of the item panel, for that item only, closed with the x or Esc. Below 1240px it lays over the right edge. The mockup's History follows the real journal shape (checked against UAT `item_history`, 9 October 2026): one entry per write with an action, the item before and after, a source (item sheet, assistant, import) and a note. Real entries come in bursts (a stepper tapped several times), so entries from one source within two minutes are shown as one item with the net change per field and an "N edits" count. The data in the mockup is synthetic: the repo is public, so no real household items are committed. The build reads `store.getHistory(id)`.
 - **Shortcut cues.** A switch in the shortcuts list shows or hides the key hints on buttons and hints. It is kept in the browser only.
 - **Profile** opens from the avatar in the rail (loaded on first use).
 

@@ -76,13 +76,25 @@ function openF(){if(FP)return;settle();FP=true;redraw();var b=$("[data-fdone]");
 function closeF(){if(!FP)return;saveLast();FP=false;redraw();focusRow()}
 function clearF(){saveLast();FST={};FCAT=[];SELA=[];FSORT="none";FUSED=false;syncChips();lw();fre()}
 function lastF(){FUSED=true;FST=JSON.parse(JSON.stringify(FLAST.st));SELA=FLAST.loc.slice();FCAT=FLAST.cat.slice();FSORT=FLAST.sort;syncChips();lw();fre()}
+/* History mirrors Kitchie's journal (store.getHistory(id), MCP item_history): one entry per write, each with an action, the item before and after, the source and a note.
+   Real entries come in bursts (a stepper tapped several times), so entries from one source within two minutes are shown as one line per field with the net change. Sample data only: nothing here is a real household. */
+var HF=[["qty","Quantity"],["min","Minimum"],["staple","Staple"],["level","Level"],["useby","Use-by"],["area","Location"]],SRC={"item-sheet":"Item sheet",assistant:"Assistant",import:"Import",desk:"This page"};
+function jr(t,who,src,a,b,gap){return{t:t,who:who,src:src,gap:gap||0,before:a,after:b}}
+function journal(i){var c=isCount(i),q=i[4],n=parseFloat(q),alt=c&&n>0?q.replace(String(n),String(n+1)):q,m=Math.max(1,Math.round(c&&n>0?n:2));
+ var J=[jr("Fri 25 Sep, 11:10 am","Priya","import",{},{qty:q,area:i[3]}),
+  jr("Sat 3 Oct, 9:05 am","Priya","assistant",{area:i[3]==="Fridge"?"Pantry":"Fridge"},{area:i[3]}),
+  jr("Wed 7 Oct, 6:40 pm","Sam","item-sheet",{qty:q,min:"",staple:"No"},{qty:alt,min:"",staple:"No"}),
+  jr("Wed 7 Oct, 6:40 pm","Sam","item-sheet",{qty:alt,min:"",staple:"No"},{qty:q,min:"",staple:"No"},12),
+  jr("Wed 7 Oct, 6:40 pm","Sam","item-sheet",{qty:q,min:"",staple:"No"},{qty:q,min:m+1,staple:"Yes"},20),
+  jr("Wed 7 Oct, 6:41 pm","Sam","item-sheet",{qty:q,min:m+1,staple:"Yes"},{qty:q,min:m,staple:"Yes"},8)];
+ return J}
+function net(group){var a=group[0].before,b=group[group.length-1].after,out=[];HF.forEach(function(f){var x=a[f[0]],y=b[f[0]];if(x===undefined&&y===undefined)return;if(String(x===undefined?"":x)!==String(y===undefined?"":y))out.push([f[1],x===undefined||x===""?"not set":x,y===undefined||y===""?"not set":y,x===undefined])});return out}
+function hevents(i){var J=journal(i),G=[];J.forEach(function(e){var g=G[G.length-1];if(g&&g[0].src===e.src&&g[0].who===e.who&&e.gap&&e.gap<=120)g.push(e);else G.push([e])});
+ var out=G.map(function(g){var ch=net(g),first=g[0].before&&!Object.keys(g[0].before).length;return{t:g[0].t,who:g[0].who,src:g[0].src,n:g.length,added:first,ch:ch}}).filter(function(e){return e.added||e.ch.length});
+ return out.reverse().concat((HLOG[i[0]]||[]).map(function(x){return{t:"Just now",who:"Sam",src:"desk",n:1,added:false,ch:[],text:x[2]}}).reverse()).sort(function(a,b){return(b.t==="Just now")-(a.t==="Just now")})}
 function addLog(i,t){(HLOG[i[0]]=HLOG[i[0]]||[]).unshift(["Just now","Sam",t])}
-function hevents(i){var c=isCount(i),e=(HLOG[i[0]]||[]).slice();
- e.push(["Wed 7 Oct, 6:40 pm","Sam",c?"Used one":"Level set to "+lvl(i)]);
- e.push(["Sat 3 Oct, 9:05 am","Priya (assistant)",LIST[i[0]]?"Added to the shopping list":"Moved to "+i[3]]);
- e.push(["Tue 29 Sep, 4:30 pm","Sam",i[7]!==null?"Use-by set":"Spot set to "+i[5]]);
- e.push(["Fri 25 Sep, 11:10 am","Priya","Added "+i[4]+" to "+i[3]]);return e}
-function hcol(i){return '<div class="hh"><div><h2>History</h2><p>'+esc(i[2])+' only</p></div><button class="x" data-hclose aria-label="Close history">&times;</button></div><ol class="hist" aria-label="History of '+esc(i[2])+'">'+hevents(i).map(function(x){return '<li><b>'+esc(x[2])+'</b><span>'+esc(x[0])+' · '+esc(x[1])+'</span></li>'}).join("")+'</ol><p class="phint"><span class="kbd">Esc</span> closes this column. Pick another row to see its history.</p>'}
+function hline(e){if(e.text)return '<b>'+esc(e.text)+'</b>';if(e.added)return '<b>Added</b><span class="hch">'+esc(e.ch.map(function(c){return c[0]+" "+c[2]}).join(", "))+'</span>';return '<b>'+(e.ch.length===1?esc(e.ch[0][0])+" changed":"Edited")+(e.n>1?' <em>'+e.n+' edits</em>':"")+'</b>'+e.ch.map(function(c){return '<span class="hch">'+esc(c[0])+': '+esc(c[1])+' &rarr; '+esc(c[2])+'</span>'}).join("")}
+function hcol(i){return '<div class="hh"><div><h2>History</h2><p>'+esc(i[2])+' only</p></div><button class="x" data-hclose aria-label="Close history">&times;</button></div><ol class="hist" aria-label="History of '+esc(i[2])+'">'+hevents(i).map(function(e){return '<li>'+hline(e)+'<span>'+esc(e.t)+' · '+esc(e.who)+' · '+esc(SRC[e.src]||e.src)+'</span></li>'}).join("")+'</ol><p class="phint"><span class="kbd">Esc</span> closes this column. Pick another row to see its history.</p>'}
 function drawH(){var h=$("#hcol"),i=cur();if(!h)return;var on=HIST&&!!i;h.hidden=!on;h.innerHTML=on?hcol(i):"";var a=$(".app");if(a)a.classList.toggle("hopen",on)}
 function sofar(){return ITEMS.filter(function(i){return i[7]!==null&&i[7]<=3}).sort(function(a,b){return a[7]-b[7]})}
 function homeCards(){var s=sofar().slice(0,3);
