@@ -167,6 +167,14 @@ p{margin:0;color:var(--muted)}
 .fpl.on{background:var(--accent);color:var(--on-accent);border-color:transparent}.fpl.on i{color:inherit;opacity:.8}
 .fpl i{margin-left:0}
 .fpl.zero:not(.on){border-style:dashed;color:var(--muted)}
+.fcurt{position:relative;padding-bottom:14px}
+.fcw{overflow:hidden;transition:height .2s}.fcurt[data-drag] .fcw{transition:none}
+.fcurt .fchips{padding-right:34px}
+.fcor{position:absolute;top:2px;right:0;width:28px;height:28px;border-radius:50%;border:0;background:var(--surface);display:grid;place-items:center;color:var(--muted);padding:0}
+.fcor:hover{color:var(--accent)}.fcor svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}.fcor.open svg{transform:rotate(180deg)}
+.fgrip{position:absolute;left:50%;bottom:-4px;transform:translateX(-50%);width:80px;height:16px;cursor:ns-resize;touch-action:none;display:grid;place-items:center}
+.fgrip i{width:36px;height:4px;border-radius:2px;background:var(--border)}.fgrip:hover i,.fgrip:focus-visible i{background:var(--accent)}
+.fgrip:focus-visible,.fcor:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 .fsort{display:flex;flex-direction:column;align-items:flex-start;gap:8px}
 .fdir{display:inline-flex;align-items:center;gap:6px;min-height:var(--tap);padding:0 14px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--surface);font-weight:600;font-size:14px;color:inherit}
 .fdir svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
