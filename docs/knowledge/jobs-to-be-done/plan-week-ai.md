@@ -52,16 +52,17 @@ Status: decisions by the owner, by voice, 9 October 2026, applied to the mockup 
 41. **Drag only is an accepted limitation.** People who cannot drag cannot move a meal; accepted for now.
 
 42. **There is no in-app agent.** The product has no in-app agent any more; decision 17 is withdrawn. The assistant is the person's own AI app, outside Kitchie. Open: what "Open your assistant" does now.
-43. **The "Open your assistant" button stays.** First said remove (superseded by the curtain nudge), then keep: the removal was a mistake. Button and curtain nudge both stay. What the button does is still open. (Owner, typed, 10 Oct 2026.)
+43. **The "Open your assistant" button stays.** First said remove (superseded by the curtain nudge), then keep: the removal was a mistake. Button and curtain nudge both stay. What the button does is decision 45. (Owner, typed, 10 Oct 2026.)
 44. **Data-model work only for the weeks the plan covers.** Locked substitutions (7b) and per-person ingredient lists (10) apply only to last week through four weeks ahead; nothing is stored or migrated outside that window. (Owner, typed, 10 Oct 2026.)
+45. **The button opens the person’s default AI app.** It does nothing else: no in-app agent, no chat inside Kitchie. It opens whatever AI app the person has as their default. Settles decision 5. (Owner, typed, 10 Oct 2026.)
 
-(17 to 44: owner, typed, 10 October 2026 for 38 to 44; the rest by voice, 9 October 2026.)
+(17 to 45: owner, typed, 10 October 2026 for 38 to 45; the rest by voice, 9 October 2026.)
 
 ## Follow-up work beyond the mockup
 
 These touch the real Kitchie backend and app, not only the screens.
 
-- **Decisions 5, 17 and 42.** There is no in-app agent in the product (42), so 17 is withdrawn. What "Open your assistant" does is open: the deep-link fix (5) may be back, or the button may go. Waiting on the owner.
+- **Decisions 5, 17, 42, 43 and 45.** No in-app agent (42). The button stays (43) and opens the person's default AI app (45); build it as a launch of that app. Nothing left open here.
 - **Decision 7(b).** A modified plan entry carries its own locked ingredient list; reservation and the shopping list read that list, not the recipe's. Only for the weeks the plan covers (44).
 - **Decision 10.** Assistant-made and modified ingredient lists are stored per person so quantities scale when the people count changes. Only for the weeks the plan covers (44).
 
@@ -73,5 +74,4 @@ Marked on the fragment page: arrows and a small week label in the header, idle t
 
 ## Open questions
 
-- What does "Open your assistant" do now that there is no in-app agent: open the person's chosen AI app (decision 5), or go away?
 
