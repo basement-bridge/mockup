@@ -1,6 +1,6 @@
 # Desktop handover for the building agent
 
-Status: **living handover, written 10 October 2026.** The owner said that once the mockups are locked in this must be handed to the building agent with all the notes. Everything below is settled in the mockup unless it is under "Not decided". Mockups stay ahead of the build: show a change here first, never build first (see `AGENTS.md`).
+**This is the master reference for the desktop mockup handover.** Start here; the decision record and the PRs sit behind it. Status: **living handover, written 10 October 2026.** The owner said that once the mockups are locked in this must be handed to the building agent with all the notes. Everything below is settled in the mockup unless it is under "Not decided". Mockups stay ahead of the build: show a change here first, never build first (see `AGENTS.md`).
 
 Live mockup: <https://basement-bridge.github.io/mockup/fragments/desktop/pantry.html?sel=butter>. The decision record, in the owner's words and in order, is `docs/knowledge/desktop-layout.md`. Pull requests #37 to #49 in this repo carry the build detail. The Kitchie issues are #402 to #409 and #413; **none is approved for build** until the owner says so.
 
@@ -97,7 +97,7 @@ Found by reading `uat` (read only; nothing was changed there).
 
 ## 9. Not decided (ask the owner; do not guess)
 
-1. **Level filter.** The owner said "rather than Running low... we should simply say Level", with options drawn from the real config (not invented), and that it must change in UAT and prod too. Real list: Out, Running low (`low`), Some, Plenty. Open: pick one level or several; where the row sits; Recently added default (3 days or the real app's 24 hours). Not built in the mockup yet.
+1. **Level filter (not final, not built).** The owner said "rather than Running low... we should simply say Level", with options drawn from the real config (not invented), and that it must change in UAT and prod too. Real list: Out, Running low (`low`), Some, Plenty. Open: pick one level or several; where the row sits; Recently added default (3 days or the real app's 24 hours). Not built in the mockup yet.
 2. **Which Add form option** (A, B or C).
 3. **Which of issues #402 to #409 and #413 are released for build.**
 4. **Next desktop screens to draw:** Recipes, Shopping (only Home and Pantry exist).
