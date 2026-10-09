@@ -37,7 +37,16 @@ Status: decisions by the owner, by voice, 9 October 2026, applied to the mockup 
 29. **Substitute hint under the Missing heading.** "Talk to your assistant about substitutes" sits directly under the heading, above the list.
 30. **A substitution shows where the item is.** On a modified meal the substitute is the item on the row (on hand or missing); what it replaced follows in brackets with a strike-through, e.g. carrots (~~mushrooms~~). Replaces the "mushrooms → carrots" line. Still locked to the plan entry (decision 7b).
 
-(17 to 30: owner, by voice, 9 October 2026, later the same day.)
+31. **Last week is read-only.** A meal planned last week can be opened and looked at, not edited, moved, removed or held. Empty days there stay empty, with no way to plan into them. Settles the earlier open question.
+32. **A hold moves with its meal; removing the meal releases it.** Confirms what was drawn.
+33. **A hold is a real claim.** Once one meal holds an ingredient, a second meal cannot hold it too (no double counting of stock). Reverses the earlier drawn answer. Shown as a switched-off Hold button with a line naming what is held, plus a "held for Mon" tag on the row.
+34. **A stencil day opened by hand shows it is an exception.** A usual day off cooked this week gets a small line, "Usual day off, cooking this week". The stencil is a default; a one-week override always wins and a planted card is never silently hidden. Reconfirmed.
+
+35. **Three day states that cannot be mistaken for each other.** Empty night: dashed outline (unchanged). Blocked by hand for this week only: a solid filled block in the accent tint. Usual day off from the Settings stencil: plain outline, no fill. A usual day cooked by hand keeps its small override line (34).
+36. **This week's one-off block has its own colour.** Filled, not dashed and not plain, so it reads at a glance as this week only.
+37. **Edge cases kept.** Tapping a blocked night cooks it this week only (usual day: shows the override line; one-off block: back to dashed). The stencil is a default and a planted card is never hidden. Last week shows the same states, read-only.
+
+(17 to 37: owner, by voice, 9 October 2026, later the same day.)
 
 ## Follow-up work beyond the mockup
 
@@ -54,5 +63,3 @@ Marked on the fragment page: arrows and a small week label in the header, idle t
 ## Open questions
 
 - Drag is the only way to move a meal, so someone who cannot drag has no way to move one. The owner chose it; revisit for accessibility.
-- Can last week still be planned into or edited? Drawn: yes.
-- Does a hold move with a moved meal? Drawn: yes; removing releases it.
