@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Item edit flyout, options and notes</title>
+<link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><script src="../../theme.js"></script>
+<style>
+.cols{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+@media(min-width:760px){.cols.two{grid-template-columns:1fr 1fr}.cols.three{grid-template-columns:1fr 1fr 1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:16px}
+.card h3{margin:0 0 4px;font-size:18px}.card .pitch{font-weight:600;margin:0 0 8px;color:var(--fg)}
+.card ul{margin:6px 0 10px;padding-left:18px;font-size:14px}.card li{margin-bottom:3px}
+.rec{border:2px solid var(--accent)}
+.links{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.links a{display:inline-flex;align-items:center;min-height:var(--tap);padding:0 14px;border-radius:99px;border:1px solid var(--border);background:var(--bg);font-size:13px;font-weight:600}
+.links a:hover{border-color:var(--accent)}
+.tbl{overflow-x:auto}.tbl table{min-width:640px}
+.decs{padding-left:0;list-style:none;font-size:14px}.decs li{margin-bottom:8px;padding-left:34px;position:relative}
+.decs li b.n{position:absolute;left:0;top:0;min-width:28px;color:var(--accent)}
+kbd{font:700 12px var(--body);border:1px solid var(--border);border-bottom-width:2px;border-radius:6px;padding:1px 7px;background:var(--surface)}
+.mini2{font-size:13px}
+code{font-size:13px;overflow-wrap:anywhere}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Item edit flyout</h1>
+<p>Editing an item used to open its own full page. Here it opens as a flyout nested under the item flyout you already have open, on phone, tablet and desktop. Mockup only: nothing is saved, nothing is built. Everything below is a <b>proposal</b> until the owner confirms it. Decisions are numbered 63 to 81 (Plan on desktop used 49 to 62).</p>
+<div class="links"><a href="pantry.html?sel=butter&amp;child=edit">Open the mockup (butter, Edit)</a><a href="pantry.html?sel=butter&amp;child=history">History</a><a href="pantry.html?mode=add">Add item</a><a href="https://github.com/basement-bridge/mockup/blob/main/docs/knowledge/jobs-to-be-done/item-edit-flyout.md">Job note</a><a href="https://github.com/basement-bridge/mockup/blob/main/docs/handover/item-edit-flyout.md">Handover</a></div>
+<p class="mini2" style="margin-top:8px">Open any link, then move the pointer to the top edge or press the backtick key to pick a window size (Phone, Tablet, 1024 to 1920), or add <code>&amp;vp=390</code>, <code>768</code>, <code>1024</code>, <code>1280</code>, <code>1440</code>, <code>1920</code>.</p>
+
+<div class="sec"><div class="lbl">Recommendation</div>
+<div class="card rec">
+<p class="pitch">Layout A, one scroll in five groups, with the key hints shown on the icons.</p>
+<p>The flyout nests: the item flyout stays open and in front, the edit flyout comes out from beneath it (a fourth column from 1240 wide, tucked under the item's header in the same lane from 1024, a taller sheet stacked over the half sheet on a phone). Header: a pencil (edit), a turned-back clock (history), then the close x. The two tabs do not survive: a cook editing a tin of tomatoes needs quantity, minimum and use-by together, and the second tab hid them. The fix for the Shopping list block is one spaced, ruled-off group at the end of the form, not under both tabs. Add item is the same form in add mode.</p>
+</div></div>
+
+<div class="sec"><div class="lbl">Layout of the fields: the real choice</div>
+<div class="cols three">
+<div class="card rec"><h3>A. One scroll, five groups</h3><p class="pitch">Recommended.</p>
+<ul><li>Item (emoji and name), Amount (quantity, level drop, minimum), Where (location, spot, category), Use by, Shopping list; then the recipe action.</li><li>Every field visible without a second tap; level is a drop, never a word.</li><li>Cost: a long scroll on a phone (about two screens).</li></ul>
+<div class="links"><a href="pantry.html?sel=butter&amp;child=edit&amp;opt=a">Desktop</a><a href="pantry.html?sel=butter&amp;child=edit&amp;opt=a&amp;vp=390">Phone</a><a href="pantry.html?sel=spinach&amp;child=edit&amp;vp=1440">Spinach (no number)</a></div></div>
+<div class="card"><h3>B. Two tabs kept</h3><p class="pitch">Parity with the app today.</p>
+<ul><li>Details (name, quantity, where) and Stock &amp; more (level, minimum, use by, shopping). Shopping now sits on one tab only; the recipe action sits under both.</li><li>Shorter screens, familiar to people who use the current page.</li><li>Cost: use by is one tap further, and the owner has already moved away from hiding things on a second tab.</li></ul>
+<div class="links"><a href="pantry.html?sel=butter&amp;child=edit&amp;opt=b">Desktop</a><a href="pantry.html?sel=butter&amp;child=edit&amp;opt=b&amp;tab=stock">Stock tab</a><a href="pantry.html?sel=butter&amp;child=edit&amp;opt=b&amp;vp=390">Phone</a></div></div>
+<div class="card"><h3>C. Tiles</h3><p class="pitch">The item flyout's own pattern, one level down.</p>
+<ul><li>Every field is a tile with its value; a tap opens that one editor with a way back.</li><li>Consistent with the tile grid, big touch targets.</li><li>Cost: it repeats the parent's tiles, adds a tap to every edit, and hides how much is editable.</li></ul>
+<div class="links"><a href="pantry.html?sel=butter&amp;child=edit&amp;opt=c">Desktop</a><a href="pantry.html?sel=butter&amp;child=edit&amp;opt=c&amp;field=useby">One field</a><a href="pantry.html?sel=butter&amp;child=edit&amp;opt=c&amp;vp=390">Phone</a></div></div>
+</div></div>
+
+<div class="sec"><div class="lbl">Key hints on the two icons: the visual choice</div>
+<div class="cols two">
+<div class="card rec"><h3>Show (default)</h3><p class="pitch">A small key cap sits on each icon, the same <kbd>kbd</kbd> chip the Pantry uses on Filters and Search.</p><p class="mini2">Always visible, so a keyboard user finds E and the comma without hovering. The cue switch in the <kbd>?</kbd> list turns every hint off together.</p><div class="links"><a href="pantry.html?sel=butter&amp;hint=show&amp;vp=1440">Open</a></div></div>
+<div class="card"><h3>Reveal</h3><p class="pitch">Caps appear when the pointer or keyboard is on the icons.</p><p class="mini2">Quieter header, one more step to learn the keys. The tooltip always says "Edit item (E)" and "History (,)".</p><div class="links"><a href="pantry.html?sel=butter&amp;hint=reveal&amp;vp=1440">Open</a></div></div>
+</div>
+<p class="mini2" style="margin-top:8px">In both, the shortcut line under the buttons reads <kbd>D</kbd> used up <kbd>S</kbd> shopping list <kbd>E</kbd> edit <kbd>,</kbd> history: key, then a lower-case label, the same pattern for every key. Hints are drawn at desktop widths only.</p></div>
+
+<div class="sec"><div class="lbl">Where each field lives</div>
+<div class="tbl card"><table>
+<tr><th>Field (Kitchie 0.70.0)</th><th>Layout A (recommended)</th><th>What changed</th></tr>
+<tr><td>Name, emoji</td><td>Item: 56px emoji tile ("+" when none, a 24-food picker, no photos) and a large name input</td><td>Same</td></tr>
+<tr><td>Quantity</td><td>Amount: stepper and unit; free text with an Add unit button for "a big handful"</td><td>Same</td></tr>
+<tr><td>Level ("Level: plenty" chip, and a select)</td><td>Amount: a drop. A counted item's is worked out and not editable; a weighed or worded item's is four drops to pick</td><td>No level word anywhere (owner, 8 Oct). One place, not a chip and a select</td></tr>
+<tr><td>Minimum stock</td><td>Amount, under quantity, shown only when the item has a unit or a minimum</td><td>Moved from "Stock &amp; more": it decides Running low, so it sits with the amount</td></tr>
+<tr><td>Location, spot, category</td><td>Where: an input with suggestion pills each</td><td>Suggestions are visible pills, not a hidden list</td></tr>
+<tr><td>Use by</td><td>Its own group: the date in words, Today to 1 month pills, a date input, Clear</td><td>Same controls</td></tr>
+<tr><td>Shopping list</td><td>One group at the end, spaced and ruled off: status line, the "How much to buy" input, Update the shopping list or Add to shopping list</td><td>Once only (it was under both tabs), with space above it</td></tr>
+<tr><td>Use in a recipe</td><td>A plain action row at the very bottom, outside the fields. Label and target come from the Recipe manifest; hidden when there is no Recipes (<code>&amp;recipes=0</code>)</td><td>It is an action that leaves the form, not a field</td></tr>
+<tr><td>Mark as used up</td><td>Not repeated: the item flyout above has Used up and it is still on screen</td><td>Removed from the form</td></tr>
+</table></div></div>
+
+<div class="sec"><div class="lbl">Add item: the same flyout in add mode</div>
+<div class="card"><p>Same form, same classes, an empty draft, in the item flyout's place (a side panel in the right lane on desktop, a tall sheet on a phone). It has name, quantity, minimum, location, spot, category and use by, and none of: the level, the shopping list, the recipe action, the history and edit icons. The footer is <b>Add item</b> (<kbd>Enter</kbd>), <b>Add and start another</b> (<kbd>Shift</kbd> <kbd>Enter</kbd>), <b>Cancel</b> (<kbd>Ctrl</kbd> or <kbd>Cmd</kbd> <kbd>Enter</kbd>). A new item lands in Unplaced.</p><div class="links"><a href="pantry.html?mode=add">Desktop</a><a href="pantry.html?mode=add&amp;vp=390">Phone</a></div></div></div>
+
+<div class="sec"><div class="lbl">Touch and pointer</div>
+<div class="tbl card"><table>
+<tr><th>Phone and tablet (also with a mouse)</th><th>Desktop</th></tr>
+<tr><td>The item is a half sheet. Edit or History rises as a second, taller sheet; the item slides up to a one-line strip above it</td><td>From 1240: the child slides out from beneath the item flyout as a 360px column. From 1024: it tucks under the item's header in the same 400px lane</td></tr>
+<tr><td>Drag either grab handle, or the child's title bar, down to close that layer (mouse drag works the same, pointer events)</td><td>The x, or <kbd>Ctrl</kbd>/<kbd>Cmd</kbd> <kbd>Enter</kbd>: the edit or history first, then the item. Plain Esc closes nothing</td></tr>
+<tr><td>Tap the item strip, or the dim, to step back one layer. Esc does too</td><td>Click the lit pencil or clock again, or press <kbd>E</kbd> or <kbd>,</kbd> again, to close it</td></tr>
+<tr><td>Tap a tile in the item flyout to land in the edit flyout on that field (highlighted, no on-screen keyboard)</td><td>Same, and the field's input takes focus. <kbd>E</kbd> then lands on the name</td></tr>
+<tr><td>No key hints</td><td><kbd>E</kbd> edit, <kbd>,</kbd> history, <kbd>U</kbd> <kbd>D</kbd> <kbd>S</kbd> <kbd>Z</kbd>, <kbd>N</kbd> add, <kbd>M</kbd> main column, <kbd>?</kbd> list. Letters do nothing while typing</td></tr>
+</table></div></div>
+
+<div class="sec"><div class="lbl">Open and linkable states</div>
+<p>Options on <code>pantry.html</code>: <code>sel=&lt;id&gt;</code> (butter, carrots, cheddar, eggs, yog, milk, paneer, spinach, rice, tom, onion, garam, peas, ice; empty for none), <code>child=edit|history</code>, <code>opt=a|b|c</code>, <code>tab=stock</code> (layout b), <code>field=name|qty|level|min|area|spot|cat|useby|shop</code>, <code>mode=add</code>, <code>hint=show|reveal</code>, <code>recipes=0</code>, <code>down=1</code> (the platform is down: a change shows "Not saved" with Try again), <code>more=1</code> (History with 5 more days), <code>help=1</code> and <code>cues=0</code> (desktop), <code>vp=&lt;width&gt;</code>.</p></div>
+
+<div class="sec"><div class="lbl">Decisions 63 to 81 (proposed, none confirmed)</div>
+<ol class="decs" start="63">
+<li><b class="n">63.</b>Editing is a flyout nested under the open item flyout, never a page. The item flyout stays open, in front and live.</li>
+<li><b class="n">64.</b>One child slot: Edit and History share it. The pencil and <kbd>E</kbd>, and the clock and <kbd>,</kbd>, toggle their child; opening one while the other is open swaps.</li>
+<li><b class="n">65.</b>Desktop from 1240: a 360px column beside the item flyout, sliding out from beneath it. From 1024: tucked under the item's header inside the lane. It never covers the list or the item. History's slot goes from 320 to 360 so both children share one width.</li>
+<li><b class="n">66.</b>Phone and tablet: a second sheet (84% high) stacked over the half sheet; the item collapses to a strip. Tap the strip or the dim, drag a grab handle or the title bar down, or press Esc to step back one layer.</li>
+<li><b class="n">67.</b>Header actions in this order: pencil, turned-back clock, round x. The open child's icon is filled. The phone sheet keeps the no-x rule of 8 October.</li>
+<li><b class="n">68.</b>Hints: a key cap on each icon (default) or on hover and focus; the shortcut line reads "E edit" and ", history"; the cue switch hides all; desktop widths only.</li>
+<li><b class="n">69.</b>Close is Ctrl or Cmd Enter on desktop, Esc on a phone: the top layer first. Layout c steps back from a field to its tiles first.</li>
+<li><b class="n">70.</b>A tile tap in the item flyout lands in the edit flyout on that field, highlighted. The tiles stay the glance.</li>
+<li><b class="n">71.</b>Layout A is recommended. The two tabs do not survive. Tiles (C) are drawn, not recommended.</li>
+<li><b class="n">72.</b>Level is a drop, never a word. Counted: worked out, not editable here. Weighed or worded: four drops. The "Level: plenty" chip and the separate select are gone.</li>
+<li><b class="n">73.</b>Minimum stock sits under Quantity in Amount, shown only when the item has a unit or a minimum.</li>
+<li><b class="n">74.</b>Shopping list is one spaced, ruled-off group at the end, once. The copy is the app's; the item flyout's Used up and Add to shopping stay exactly as they are (owner).</li>
+<li><b class="n">75.</b>"Use in a recipe" is a plain action row at the bottom; its label and target belong to the Recipe manifest; hidden without Recipes.</li>
+<li><b class="n">76.</b>"Mark as used up" is not repeated in the form.</li>
+<li><b class="n">77.</b>Every change autosaves with a short "Saved". No Save button. Errors sit on the field with Try again. A name is needed; a use-by date cannot be in the past.</li>
+<li><b class="n">78.</b>Add item is the same form in add mode, in the item flyout's place, with its own footer. New items are Unplaced.</li>
+<li><b class="n">79.</b>History shows this item only, newest first by day: what changed, when, who, from where. The last 3 days that have entries, then 5 more. Edits made on this page appear under Today. Fetched on open, never before.</li>
+<li><b class="n">80.</b>The emoji is a tile ("+" when none) with a small picker of foods and "No emoji". No photos.</li>
+<li><b class="n">81.</b>Viewport code is in its own files: <code>phone.css</code>, <code>tablet.css</code>, <code>desktop.css</code>, <code>desktop-1240.css</code>, and one host script (<code>phone.js</code> or <code>desktop.js</code>).</li>
+</ol></div>
+
+<div class="sec"><div class="lbl">Open questions for the owner</div>
+<ol class="decs" start="1">
+<li><b class="n">1.</b>Layout A, B or C? A wrong guess on B costs nothing to build but keeps the hidden second tab; on C it adds a tap to every edit.</li>
+<li><b class="n">2.</b>Phone: keep no close x on the item sheet (8 October), now that the header carries two icons? Today the dim, the grab handle and Esc close it.</li>
+<li><b class="n">3.</b>Hint look: show or reveal?</li>
+<li><b class="n">4.</b>History's column goes from 320 to 360 so it matches Edit. Acceptable?</li>
+<li><b class="n">5.</b>Is History wanted on the phone sheet too, or desktop only? It is drawn on both.</li>
+<li><b class="n">6.</b>The "Estimated" flag: <code>item-sheet.md</code> says All fields holds it, the 0.70.0 form read did not show it. Left out. In or out?</li>
+<li><b class="n">7.</b>Should a tile tap open a small inline editor instead of the edit flyout? Drawn as a jump into the form.</li>
+<li><b class="n">8.</b>Is a counted item's level really read-only in the form (it follows your 8 October rules)? Drawn so.</li>
+<li><b class="n">9.</b>Where should "Open the list" go (the Shopping tab, or the sheet), and where does "Use in a recipe" land? Not drawn; both are toasts.</li>
+<li><b class="n">10.</b>Add item: new items default to Unplaced, as in the desktop Add panel. Keep?</li>
+</ol></div>
+
+<div class="sec"><div class="lbl">What loads, and when (DESIGN.md section 6)</div>
+<p>Default path: <code>pantry.html</code>, <code>theme.css</code> (two default themes), <code>flyout.css</code>, the size stylesheets (each is <code>media</code>-gated to its own width, so a browser applies only the matching ones and fetches the rest last, without blocking), <code>flyout.js</code>, and exactly one host script (<code>phone.js</code> below 1024px, <code>desktop.js</code> from it). No images, no fonts. Deferred: <code>form.js</code> on the first Edit or Add, <code>history.js</code> on the first History open, and the journal itself only on that open. Nothing is preloaded. Why this is reasonable: most visits open the item and leave; the form is for the minority who edit, and History is rarer still.</p></div>
+
+<div class="sec"><div class="lbl">Not checked here</div>
+<p>This page was checked in a headless browser at 360, 390, 768, 1024, 1280, 1440 and 1920, light and dark. It has not been checked on a real touch device, with a screen reader, or on Safari or Firefox. Crossing the 1024px line in a real window reloads the page (one host script per size). The sample data and the History journal are made up.</p></div>
+</div></body></html>

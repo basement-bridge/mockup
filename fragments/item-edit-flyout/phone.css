@@ -1,0 +1,37 @@
+/* Phone and tablet (under 1024px): the item flyout is the household item sheet, a half-height bottom sheet over a dim. The child (Edit, History) is a second, taller sheet stacked over it:
+   the parent slides up to a one-line strip above it (name, quantity, the edit and history icons) so you still see which item you are in; tap the strip, drag either grab handle down, tap the dim or press Esc to step back.
+   Add item is the same form in a tall sheet. Hints for keys are not drawn here (no hardware keyboard assumed). */
+.app{min-height:100vh}
+.main{padding:16px 16px 96px}
+.tabbar{position:fixed;left:0;right:0;bottom:0;height:56px;z-index:10;background:var(--surface);border-top:1px solid var(--border);display:flex;justify-content:space-around;align-items:center}
+.tabbar .nv{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:64px;min-height:var(--tap);font-size:11px;font-weight:600;color:var(--muted)}
+.tabbar .nv.on{color:var(--accent)}
+.tabbar svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.dim{position:fixed;inset:0;z-index:20;background:var(--dim)}
+.app:not([data-open]) .dim{display:none}
+.panel,.ief-child{position:fixed;left:0;right:0;bottom:0;display:flex;flex-direction:column;gap:12px;padding:8px 16px max(16px,env(safe-area-inset-bottom));background:var(--surface);border-top:1px solid var(--border);border-radius:var(--r-card) var(--r-card) 0 0;overflow:auto;touch-action:pan-y}
+.panel{z-index:30;max-height:54vh;transition:bottom .26s ease-out,max-height .26s ease-out,transform .26s ease-out,filter .26s}
+.panel[data-empty="1"]{display:none}
+.panel.rise{animation:sheetup .26s ease-out}
+.panel[data-mode=add]{height:88vh;max-height:88vh}
+.panel .phint,.panel .kbd.cap{display:none}
+.hacts .x{display:none}
+.ief-child{z-index:32;height:84vh;box-shadow:0 -10px 28px rgba(0,0,0,.3)}
+.ief-child.enter{animation:sheetup .26s ease-out}
+.ief-child .chd{padding-top:2px}
+.ief-child .cbody{padding-bottom:8px}
+/* the parent tucked under the child: only its header shows above the child's top edge */
+.app[data-child] .panel{bottom:calc(84vh - 22px);max-height:106px;overflow:hidden;z-index:31;filter:brightness(.9)}
+.app[data-child] .panel .shead{cursor:pointer}
+.app[data-child] .panel .tiles,.app[data-child] .panel .sacts{visibility:hidden}
+.app[data-child] .panel .shw,.app[data-child] .panel .shead .onl{display:none}
+.cft{grid-template-columns:1fr 1fr}
+.cft .btn.pri{grid-column:1/-1}
+.toast{top:12px;left:50%;transform:translateX(-50%);width:max-content}
+.toast .kbd{display:none}
+.grab,.chd[data-grab]{touch-action:none}
+.chd[data-grab]{cursor:grab}
+.chd[data-grab] .ib{cursor:pointer}
+.app[data-child] .grab{display:block}
+@media (prefers-reduced-motion:reduce){.panel.rise,.ief-child.enter{animation:none}}
+.btn.sm{min-height:var(--tap)}

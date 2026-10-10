@@ -17,6 +17,8 @@ const SCREENS = [
   ["desktop", "fragments/desktop/index.html"],
   ["desktop-profile", "fragments/desktop-profile/index.html"],
   ["item-sheet", "fragments/item-sheet/index.html"],
+  ["item-edit-flyout", "fragments/item-edit-flyout/index.html"],
+  ["item-edit-flyout-live", "fragments/item-edit-flyout/pantry.html?sel=butter&child=edit"],
   ["locations-spots", "fragments/locations-spots/index.html"],
   ["mid-cook", "fragments/mid-cook/index.html"],
   ["plan-week", "fragments/plan-week/index.html"],
