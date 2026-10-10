@@ -5,8 +5,9 @@
    - food claims: a member's and the household's are added together (Kitchie context_claims);
    - assistant: member only (Kitchie stock_prefs key assistant);
    - recipe stars and votes: household only, no member column (Recipe preferences).
-   Locked by the owner (voice, 10 October 2026; D5 to D8 in docs/knowledge/preferences-option-a.md): any member may change household values (no owner, no tenure gate; a tenure gate is deferred, not decided);
-   a member may set quiet hours to none for themselves; Most suggestions per day is 1 to 20, default 2; household food statements are open to any member.
+   Locked by the owner (voice, 10 October 2026; D5 to D8 and D25 to D30 in docs/knowledge/preferences-option-a.md): D5 (any member edits household values) and D8 (any member records household food claims) are SUPERSEDED
+   by the household admin role: only admins change household-level values (D28), the founding member is admin by default (D26), personal values are never gated (D29). The page's "Your role" control stands in for who is looking
+   (Admin or Not an admin); the Members and admins view is drawn in option B only. A member may set quiet hours to none for themselves (D6); Most suggestions per day is 1 to 20, default 2.
    Mockup-only names (sample data, the prototype switches) live here, never in a.css. */
 (function () {
   "use strict";
@@ -31,6 +32,9 @@
   ];
 
   var S, UI;
+  var role = "admin"; // the viewer's household role (D25 to D27): "admin" (the founding member or one they made admin) or "member"
+  var ADMIN_WHY = "Only household admins can change this.";
+  function isAdmin() { return role === "admin"; } // D28: the one place that decides who may change a household-level value; personal values never ask (D29)
 
   function sample(data) {
     var s = { recipe: data !== "norecipe", me: {}, house: {}, note: { me: "", house: "" }, assistant: null, foods: { me: [], house: [] }, rec: { star: 0, up: 0, down: 0 } };
@@ -92,10 +96,11 @@
     return '<button type="button" role="radio" class="rad" aria-checked="' + checked + '" data-act="' + act + '" data-k="' + k + '" data-v="' + esc(val) + '"><i aria-hidden="true"></i><span class="rt">' + esc(label) + (sub ? "<small>" + esc(sub) + "</small>" : "") + "</span></button>";
   }
 
-  /* D5: household values have no owner and no gate. Any member edits; this line only says so. */
+  /* D28: household values are changed by household admins. A member who is not an admin sees the value and the reason, read-only. */
   function anyLine() {
-    return '<p class="small">Any member of the household can change this. It applies to everyone who has not set their own.</p>';
+    return '<p class="small">Household admins can change this. It applies to everyone who has not set their own.</p>';
   }
+  function lockLine() { return '<p class="small"><span aria-hidden="true">🔒</span> ' + ADMIN_WHY + "</p>"; }
 
   /* ---- dial rows: enum, hours, int, tz ---- */
   function editor(def, level) {
@@ -146,7 +151,7 @@
         why = h !== undefined
           ? "The household chose " + fmt(def.k, h) + ". It applies to everyone who has not set their own."
           : "The household has not set this. Everyone gets the built-in default, " + fmt(def.k, DEFAULTS[def.k]) + ", unless they set their own.";
-        body = editor(def, "house") + anyLine();
+        body = isAdmin() ? editor(def, "house") + anyLine() : lockLine();
       }
       html += '<div class="pref-b" id="b-' + def.k + '">' + scopeSwitch(def, scope) + '<p class="why">' + esc(why) + "</p>" + body + "</div>";
     }
@@ -164,8 +169,10 @@
       var body;
       if (scope === "me") {
         body = '<textarea class="field" data-f="note" data-l="me" maxlength="' + NOTE_MAX + '" rows="4" aria-label="Your note" placeholder="Anything your assistant should keep in mind">' + esc(n.me) + '</textarea><div class="count">' + n.me.length + " / " + NOTE_MAX + '</div><p class="small">Only you and your assistant see your note. ' + NOTE_LINE + "</p>";
+      } else if (!isAdmin()) {
+        body = '<p class="why">' + (n.house ? esc(n.house) : "No household note yet.") + "</p>" + lockLine() + '<p class="small">Every member’s assistant reads this. ' + NOTE_LINE + "</p>";
       } else {
-        body = '<textarea class="field" data-f="note" data-l="house" maxlength="' + NOTE_MAX + '" rows="4" aria-label="Household note" placeholder="Anything every member’s assistant should keep in mind">' + esc(n.house) + '</textarea><div class="count">' + n.house.length + " / " + NOTE_MAX + '</div><p class="small">Every member’s assistant reads this, and any member can change it. ' + NOTE_LINE + "</p>";
+        body = '<textarea class="field" data-f="note" data-l="house" maxlength="' + NOTE_MAX + '" rows="4" aria-label="Household note" placeholder="Anything every member’s assistant should keep in mind">' + esc(n.house) + '</textarea><div class="count">' + n.house.length + " / " + NOTE_MAX + '</div><p class="small">Every member’s assistant reads this, and household admins can change it. ' + NOTE_LINE + "</p>";
       }
       html += '<div class="pref-b" id="b-note">' + scopeSwitch(def, scope) + '<p class="why">Notes do not override each other. Your assistant reads the household’s and yours.</p>' + body + "</div>";
     }
@@ -188,8 +195,8 @@
     if (UI.open === "foods") {
       var who = scope === "me" ? "you" : "the household";
       var body = list.length ? '<ul class="claims">' + list.map(claimLi).join("") + "</ul>" : '<div class="claims none">Nothing recorded for ' + who + ' yet. Tell your assistant what ' + (scope === "me" ? "you like or avoid" : "the household likes or avoids") + ", in your own words.</div>";
-      html += '<div class="pref-b" id="b-foods">' + scopeSwitch(def, scope) + '<p class="why">Yours and the household’s are used together. One person cannot switch off something the household avoids.' + (scope === "house" ? " Any member can add to the household’s." : "") + '</p>' + body +
-        '<button type="button" class="btn ghost" data-act="proto" data-m="Said to your assistant, not typed here. Kitchie records it when the assistant reports what you stated.">Tell your assistant' + (scope === "house" ? " for the household" : "") + "</button>" +
+      html += '<div class="pref-b" id="b-foods">' + scopeSwitch(def, scope) + '<p class="why">Yours and the household’s are used together. One person cannot switch off something the household avoids.' + (scope === "house" && isAdmin() ? " Household admins can add to the household’s." : "") + '</p>' + body +
+        (scope === "house" && !isAdmin() ? lockLine() : '<button type="button" class="btn ghost" data-act="proto" data-m="Said to your assistant, not typed here. Kitchie records it when the assistant reports what you stated.">Tell your assistant' + (scope === "house" ? " for the household" : "") + "</button>") +
         '<p class="small">This is the only way in. Kitchie only records what you state. It never guesses from what you cook.</p></div>';
     }
     return html + "</li>";
@@ -231,7 +238,7 @@
   function render() {
     var scr = document.querySelector("#ph .scr"), top = scr ? scr.scrollTop : 0;
     var h = '<div class="scr"><div class="hd"><button type="button" class="bk" data-act="proto" data-m="Back to Settings">‹ Settings</button><h3>Preferences</h3></div>' +
-      '<p class="small">Each row shows the value in force for you, and where it comes from. Open a row to see or change the household’s value.</p>' +
+      '<p class="small">Each row shows the value in force for you, and where it comes from. Open a row to see the household’s value, and to change it if you are a household admin.</p>' +
       '<div class="legend" aria-label="Where a value comes from">' + chip("default", "Built-in default") + chip("household", "From household") + chip("member", "Your choice") + "</div>";
     if (nothingSet()) h += '<div class="pa-empty"><span class="e" aria-hidden="true">🌱</span><div><b>Nothing set yet</b><p>Everything follows the built-in defaults. Change a row when you want it your way.</p></div></div>';
     GROUPS.forEach(function (g) {
@@ -254,8 +261,9 @@
     tstTimer = setTimeout(function () { t.hidden = true; }, 2400);
   }
 
-  /* ---- writes: a member writes their own; any member writes the household's (D5, no owner) ---- */
+  /* ---- writes: a member writes their own; only an admin writes the household's (D28; D5 is superseded) ---- */
   function write(level, k, v) {
+    if (level === "house" && !isAdmin()) return false;
     var store = level === "me" ? S.me : S.house;
     if (v === undefined || v === null) delete store[k]; else store[k] = v;
     return true;
@@ -312,6 +320,7 @@
       b.addEventListener("click", function () {
         var kind = b.getAttribute("data-pc"), v = b.getAttribute("data-v");
         if (kind === "reset") { start(); return; }
+        if (kind === "role") { role = v; document.querySelectorAll('[data-pc="role"]').forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); render(); return; }
         data = v;
         document.querySelectorAll('[data-pc="' + kind + '"]').forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
         start();
