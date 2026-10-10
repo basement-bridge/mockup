@@ -5,8 +5,8 @@
 <div class="stage"><div class="phone" id="ph"></div></div>
 <script>
 /* The flow slice's list (R-O1, one ranked list) with the photo rule the owner typed on 10 Oct 2026 (P-D21):
-   - Every row with a banner starts with a STOCK placeholder in its tile (no request), so the recipe content (names, times, pills)
-     is what paints first. A row whose recipe has no banner keeps its emoji (P-D19), never a cooked photo (P-D10 B).
+   - Every row starts with a STOCK placeholder in its tile (no request), so the recipe content (names, times, pills) is what paints
+     first. A row whose recipe has no banner keeps the stock picture, never a cooked photo (P-D10 B).
    - Then images load in place, in this order:
        1. if this week's plan exists, the planned recipes' thumbnails first;
        2. the rows on screen plus the next 5 in the shown category (the chip), whatever the layout;
@@ -27,7 +27,9 @@ var row=function(r,i){
   if(planned.indexOf(r.name)>-1)pills.push('<span class="tg acc">'+ic("cal")+'Planned</span>');
   if(r.star)pills.push('<span class="tg acc" aria-label="Starred">'+ic("star")+'</span>');
   if(vc>1)pills.push('<span class="tg mut" aria-label="'+vc+' versions">'+ic("branch")+vc+'</span>');
-  var thumb=c?'<span class="th ph">'+F.frame(c.p.id,"t",{phase:"list",stock:1,prep:c.p.prep,small:1,alt:""})+'</span>':'<span class="th" aria-hidden="true">'+r.e+'</span>';
+  /* P-D21: every row's tile starts as the stock picture (no request). A row whose recipe has a banner loads its square in place later;
+     a row with no banner keeps the stock picture (never a cooked photo, P-D10 B). */
+  var thumb=c?'<span class="th ph">'+F.frame(c.p.id,"t",{phase:"list",stock:1,prep:c.p.prep,small:1,alt:""})+'</span>':'<span class="th ph" aria-hidden="true"><span class="pf stock">'+ic("chef")+'</span></span>';
   var meta=r.min+" min · "+(r.batch?"makes "+r.serves:"serves "+r.serves);
   return '<li><a class="rr" href="recipe.html?id='+r.id+'" data-name="'+esc(r.name)+'">'+thumb+'<span class="t"><b>'+esc(r.name)+'</b><small>'+meta+'</small><span class="pills">'+pills.join("")+'</span></span><span class="chev">'+ic("chev","s")+'</span></a></li>';
 };

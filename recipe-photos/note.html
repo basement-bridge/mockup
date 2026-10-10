@@ -6,7 +6,9 @@
 <script>
 /* Add a note: the UI's second job (owner decision L4, 10 Oct 2026: "notes is fine"). P-D26 to P-D29.
    Reached from the Notes section of the recipe page (?from=recipe) and from the end of a cook (?from=cook, recipe/cook.html).
-   Option N1 (Mockup panel): A, recommended, every note is the household's, on the recipe, on every version (R-D24); written after a cook
+   Notes are a field of the version, inherited down the lineage (owner, typed, 10 Oct 2026: V-D31 in recipe-versions/spec.html 9.4, refining R-D24):
+   a note shows on the version it was written on and every version made from it, and is stored as a change only where a version differs.
+   Option N1 (Mockup panel): A, recommended, the note goes on the version being viewed, for the whole household, no question; written after a cook
    it carries a reference to that cook, with no question. B: one question at the end of a cook, "Where?": this cook only, or the household's.
    Simple rich text: bold and list lines, plus one photo by reference (an id, never bytes). Kept as a tiny Markdown subset so the same
    text reads fine to an assistant over MCP and renders with PHO.noteHtml in the app. Any member, same controls (L5).
@@ -23,20 +25,26 @@ var where=from==="cook"&&opt==="B"?"cook":"household";
 var att=X.Q.get("att")||"";
 var ph=document.getElementById("ph");
 var me=X.me[2];
-/* back: the flow slice passes where to return (../recipe/detail.html or ../recipe/cook.html). Only same-site relative paths are honoured.
-   On save with a back link, the note returns as ?noted=<body> (and &v, &cook), which recipe.js's savedNotes reads; without one, Saved. */
+/* Hand-off contract with the flow slice (recipe/): note.html?to=<recipe>&from=recipe|cook&v=<version>&cook=<cook id>&back=<url-encoded return>.
+   On Save the note is appended as {body, by, when:"today", v, cook} to localStorage "rcp-notes-<recipe id>" (recipe.js savedNotes reads it),
+   then Saved (done.html) opens with the same back, so "Back to ..." returns there. Without back, the old returns apply.
+   Only same-site relative return paths are honoured (never another site). */
+var vq=X.Q.get("v")||"";
 var backQ=X.Q.get("back")||"";
-var safeBack=/^(\.\.\/recipe(-photos)?\/|recipe\.html|done\.html)[\w.\-\/?=&%#]*$/.test(backQ)?backQ:"";
+var safeBack=/^(\.\.\/recipe(-photos)?\/|recipe\.html|done\.html)[\w.\-\/?=&%#~]*$/.test(backQ)?backQ:"";
 var back=safeBack||(from==="cook"?"../recipe/cook.html?id="+r.id+"&step=99":"recipe.html?id="+r.id+"#not");
-var withNoted=function(u,body){var h=u.indexOf("#"),hash=h>-1?u.slice(h):"",base=h>-1?u.slice(0,h):u;return base+(base.indexOf("?")>-1?"&":"?")+"noted="+encodeURIComponent(body)+(X.Q.get("v")&&!/[?&]v=/.test(base)?"&v="+encodeURIComponent(X.Q.get("v")):"")+(cook&&!/[?&]cook=/.test(base)?"&cook="+encodeURIComponent(cook):"")+hash};
+var store=function(body){try{var k="rcp-notes-"+r.id,a=JSON.parse(localStorage.getItem(k)||"[]");if(!Array.isArray(a))a=[];a.push({body:body,by:me,when:"today",v:vq||null,cook:cook||null});localStorage.setItem(k,JSON.stringify(a))}catch(e){}};
 var text=X.Q.get("t")||"";
+/* a cook id from the flow slice (ck_…) is not a date: say "tonight's" rather than show the id */
+var cookWord=function(){return cook==="tonight"||/^ck_|^[a-z]+_/.test(cook)?"tonight's":cook+"'s"};
+var vname=((r.vers.filter(function(x){return x.id===vq})[0])||(r.vers.filter(function(x){return x.def})[0])||r.vers[0]).name;
 function draw(){
-  var cookName=cook==="tonight"?"tonight's cook":"the "+cook+" cook";
+  var cookName=cookWord()==="tonight's"?"tonight's cook":"the "+cook+" cook";
   var h='<div class="top"><a class="back" href="'+back+'">'+ic("back","s")+'Cancel</a><span class="ttl">Add a note</span><span style="width:64px"></span></div><div class="body"><div class="pad">'+
-    '<p style="font-size:13px"><b style="color:var(--fg)">'+esc(r.name)+'</b> · '+(where==="cook"?"on "+cookName+" only":"shows on every version")+'. Notes never change the recipe.</p>';
+    '<p style="font-size:13px"><b style="color:var(--fg)">'+esc(r.name)+'</b> · '+(where==="cook"?"on "+cookName+" only":"shows on "+esc(vname)+" and every version made from it")+'. Notes never change the recipe.</p>';
   if(from==="cook"&&opt==="B")h+='<div class="lblrow"><span class="lbl">Where does it go?</span></div><div class="where">'+
     '<button type="button" data-where="cook" aria-pressed="'+(where==="cook")+'"><b>This cook only</b><small>On '+esc(cookName)+' in Cooked</small></button>'+
-    '<button type="button" data-where="household" aria-pressed="'+(where==="household")+'"><b>For next time</b><small>Under Notes, every version</small></button></div>';
+    '<button type="button" data-where="household" aria-pressed="'+(where==="household")+'"><b>For next time</b><small>Under Notes, this version and the ones made from it</small></button></div>';
   h+='<div class="lblrow"><label class="lbl" for="nt">Your note</label></div>'+
     '<div class="ntool" role="toolbar" aria-label="Format">'+
       '<button type="button" data-fmt="b" aria-label="Bold"><b>B</b></button>'+
@@ -53,7 +61,7 @@ function body(){return text.trim()+(att?"\n[photo:"+att+"]":"")}
 function preview(){
   var p=document.getElementById("prev");
   p.innerHTML=(text.trim()||att?F.noteHtml(body()):'<p style="color:var(--muted)">Start typing.</p>')+
-    '<div class="nmeta"><span>'+esc(me)+' · today</span>'+(cook&&where==="household"?'<span class="tg">'+ic("flame")+'After '+(cook==="tonight"?"tonight's":cook+"'s")+' cook</span>':'')+(where==="cook"?'<span class="tg">'+ic("flame")+'This cook only</span>':'')+'</div>';
+    '<div class="nmeta"><span>'+esc(me)+' · today</span>'+(cook&&where==="household"?'<span class="tg">'+ic("flame")+'After '+cookWord()+' cook</span>':'')+(where==="cook"?'<span class="tg">'+ic("flame")+'This cook only</span>':'')+'</div>';
   F.eager(p);
 }
 function wrap(fn){var f=document.getElementById("nt"),a=f.selectionStart,b=f.selectionEnd;var r2=fn(text.slice(0,a),text.slice(a,b),text.slice(b));text=r2[0];f.value=text;f.focus();f.setSelectionRange(r2[1],r2[2]);preview()}
@@ -68,14 +76,14 @@ ph.addEventListener("click",function(e){
     var own=F.photos(r).slice(0,5);
     X.sheet('<h3>A photo in the note</h3><p style="font-size:13px">One per note. It is kept once and pointed to, never copied.</p><div class="pgal" style="margin-top:10px">'+
       '<button type="button" class="addp" data-new>'+ic("cam")+'New</button>'+own.map(function(p){return '<button type="button" data-pa="'+p.id+'" aria-label="'+(p.k==="cooked"?"Cooked "+p.when:"Photo of the recipe")+'">'+F.frame(p.id,"t",{eager:1,alt:""})+'</button>'}).join("")+'</div>',
-      function(s,close){F.eager(s);s.addEventListener("click",function(ev){var b=ev.target.closest("[data-pa],[data-new]");if(!b)return;att=b.dataset.pa||"efr-c2";close();draw();if(b.hasAttribute("data-new"))X.toast(cook?"New photo added to "+(cook==="tonight"?"tonight's":cook+"'s")+" cook, and shown in the note":"New photo saved to Photos, and shown in the note")})});}
+      function(s,close){F.eager(s);s.addEventListener("click",function(ev){var b=ev.target.closest("[data-pa],[data-new]");if(!b)return;att=b.dataset.pa||"efr-c2";close();draw();if(b.hasAttribute("data-new"))X.toast(cook?"New photo added to "+cookWord()+" cook, and shown in the note":"New photo saved to Photos, and shown in the note")})});}
   else if(t.hasAttribute("data-save")){text=document.getElementById("nt").value;if(!text.trim()&&!att){X.toast("Write something first");return}
-    if(safeBack){location.href=withNoted(safeBack,body());return}
-    var u=new URLSearchParams({to:r.id,kind:"note",where:where});if(from)u.set("from",from);if(cook)u.set("cook",cook);if(att)u.set("p",att);location.href="done.html?"+u.toString()}
+    store(body());
+    var u=new URLSearchParams({to:r.id,kind:"note",where:where});if(from)u.set("from",from);if(cook)u.set("cook",cook);if(vq)u.set("v",vq);if(att)u.set("p",att);if(safeBack)u.set("back",safeBack);location.href="done.html?"+u.toString()}
 });
 draw();
-F.controls('<h4>Where a note lives (option N1)</h4><div class="seg"><button type="button" data-n1="A" aria-pressed="'+(opt==="A")+'">A Household, on every version</button><button type="button" data-n1="B" aria-pressed="'+(opt==="B")+'">B Asks: this cook or household</button></div>'+
-  '<h4>Jump to</h4><p><a href="?to=efr&from=recipe">From Notes on the recipe page</a> · <a href="?to=efr&from=cook">From the end of a cook</a> · <a href="?to=efr&from=cook&att=efr-c1&t=**Brown%20rice%20works**%0A-%202%20tbsp%20more%20soy">With rich text and a photo</a></p>');
+F.controls('<h4>Where a note lives (option N1)</h4><div class="seg"><button type="button" data-n1="A" aria-pressed="'+(opt==="A")+'">A On this version, inherited</button><button type="button" data-n1="B" aria-pressed="'+(opt==="B")+'">B Asks: this cook or household</button></div>'+
+  '<h4>Jump to</h4><p><a href="?to=efr&from=recipe&v=v1&back=..%2Frecipe%2Fdetail.html%3Fid%3Defr%26v%3Dv1%23not">From the flow slice (with back)</a> · <a href="?to=efr&from=recipe">From Notes on the recipe page</a> · <a href="?to=efr&from=cook">From the end of a cook</a> · <a href="?to=efr&from=cook&att=efr-c1&t=**Brown%20rice%20works**%0A-%202%20tbsp%20more%20soy">With rich text and a photo</a></p>');
 document.addEventListener("click",function(e){var b=e.target.closest("[data-n1]");if(b){X.store.set("pn1",b.dataset.n1);var u=new URL(location.href);u.searchParams.delete("n1");location.href=u.toString()}});
 })();
 </script>

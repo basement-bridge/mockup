@@ -21,10 +21,13 @@ var v=r.vers.filter(function(x){return x.id===X.Q.get("v")})[0]||(r.vers.filter(
 var sn=+(X.Q.get("sn")||0);
 /* Replace (P-D17 B as locked): the new photo is stored, the old one is removed with the 5-minute undo, then gone. */
 if(replace&&F.META[replace])F.remove(replace);
-var back=from==="cook"?"../recipe/cook.html?id="+r.id+"&step=99":"recipe.html?id="+r.id+(kind==="note"?"#not":kind==="cooked"?"#his":"");
+/* back: carried from note.html (the flow slice's return url). Only same-site relative paths; otherwise the old returns. */
+var backQ=X.Q.get("back")||"";
+var safeBack=/^(\.\.\/recipe(-photos)?\/|recipe\.html)[\w.\-\/?=&%#~]*$/.test(backQ)?backQ:"";
+var back=safeBack||(from==="cook"?"../recipe/cook.html?id="+r.id+"&step=99":"recipe.html?id="+r.id+(kind==="note"?"#not":kind==="cooked"?"#his":""));
 var e,t,s,next;
 if(kind==="note"){
-  e="📝";t="Note saved";s=(where==="cook"?"On "+(cook==="tonight"?"tonight's":cook+"'s")+" cook, and under Notes on every version.":"Under Notes on "+esc(r.name)+", on every version.")+" Everyone in the household sees it.";
+  e="📝";t="Note saved";s=(where==="cook"?"On "+(cook==="tonight"?"tonight's":cook+"'s")+" cook, and under Notes.":"Under Notes on "+esc(v.name)+" and every version made from it.")+" Everyone in the household sees it.";
   next='<a class="btn ghost" href="'+F.addHref(r,{from:from,cook:cook==="tonight"?"":cook})+'">'+ic("cam","s")+'Add a photo</a>';
 }else if(kind==="banner"||kind==="step"||kind==="more"){
   var what=kind==="banner"?"banner":kind==="step"?"photo for step "+(sn+1):"photo";
@@ -40,10 +43,10 @@ document.getElementById("ph").innerHTML='<div class="top"><span style="width:64p
   (ps.length?'<div class="row">'+ps.map(function(id){return '<span class="pt">'+F.frame(id,"t",{prep:raw,small:1,alt:"Saved photo"})+'</span>'}).join("")+'</div>':'')+
   (raw?'<p class="qnote" style="margin-top:10px">'+ic("img","xs")+' Sent as it was. Recipe makes its sizes when the server is free; until then it shows as "Photo is being prepared".</p>':'')+
   '</div></div>'+
-  '<div class="act">'+next+'<a class="btn" href="'+back+'">'+(from==="cook"?ic("back","s")+'Back to the cook':'Back to '+esc(r.name))+'</a></div>';
+  '<div class="act">'+next+'<a class="btn" href="'+back+'">'+(from==="cook"?ic("back","s")+'Back to the cook':ic("back","s")+'Back to '+esc(r.name))+'</a></div>';
 F.eager(document.getElementById("ph"));
 document.getElementById("ph").addEventListener("click",function(e){if(e.target.closest("[data-undo]")&&replace){F.restore(replace);X.toast("The old one is back. The new one stays too; remove either from the recipe page.")}});
-F.controls('<h4>Saved after</h4><p><a href="?to=efr&kind=cooked&p=efr-c2">One cooked photo</a> · <a href="?to=efr&kind=cooked&p=efr-c1,efr-c2,efr-c3&from=cook">Three, from the end of a cook</a> · <a href="?to=efr&kind=banner&p=efr-c2&replace=efr-1">Replaced banner (undo 5 min)</a> · <a href="?to=efr&kind=step&sn=2&p=efr-s2">Step photo</a> · <a href="?to=efr&kind=cooked&p=efr-c2&phone=raw">Sent unshrunk</a> · <a href="?to=efr&kind=note">A household note</a> · <a href="?to=efr&kind=note&where=cook&from=cook">A note on tonight\'s cook</a></p>');
+F.controls('<h4>Saved after</h4><p><a href="?to=efr&kind=cooked&p=efr-c2">One cooked photo</a> · <a href="?to=efr&kind=cooked&p=efr-c1,efr-c2,efr-c3&from=cook">Three, from the end of a cook</a> · <a href="?to=efr&kind=banner&p=efr-c2&replace=efr-1">Replaced banner (undo 5 min)</a> · <a href="?to=efr&kind=step&sn=2&p=efr-s2">Step photo</a> · <a href="?to=efr&kind=cooked&p=efr-c2&phone=raw">Sent unshrunk</a> · <a href="?to=efr&kind=note">A note on this version</a> · <a href="?to=efr&kind=note&v=v1&back=..%2Frecipe%2Fdetail.html%3Fid%3Defr%26v%3Dv1%23not">A note, back to the flow slice</a> · <a href="?to=efr&kind=note&where=cook&from=cook">A note on tonight\'s cook</a></p>');
 })();
 </script>
 </body></html>
