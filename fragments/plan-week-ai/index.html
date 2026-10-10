@@ -155,6 +155,7 @@
 <li><b>There is no in-app agent.</b> The product has no in-app agent any more. Decision 17 is withdrawn. The assistant is the person's own AI app, outside Kitchie, and the assistant sheet here is only a stand-in. Open: what "Open your assistant" does now (decision 43 keeps the button).</li>
 <li><b>The "Open your assistant" button stays.</b> The owner first said to remove it (superseded by the curtain nudge), then said keep it: the removal was a mistake. The button and the curtain nudge both stay. What the button does is decision 45.</li>
 <li><b>The week title keeps one width, so the next-week arrow never moves.</b> The arrow sits right beside the title (copy and settings stay at the far right). The title is as wide as the widest of the weeks the plan covers (last week to four weeks ahead), so changing week never moves the arrow. Owner, typed, 10 Oct 2026. (Decision 46.)</li>
+<li><b>The week you were on is remembered.</b> The app keeps the Monday date of the week the person was viewing in the browser's own storage (localStorage), so a reload, refresh or later visit opens on that week instead of snapping back to this week. It is used only if it is a Monday inside the plan window (last week to four weeks ahead); anything else, or storage that is blocked, opens on this week. It is written whenever the week changes (arrows, title tap, long-press back to this week). Nothing is sent to the server. The view (Mine, Everyone, a person) is not remembered. Owner, typed, 10 Oct 2026. (Decision 47.)</li>
 <li><b>The button opens the person's default AI app.</b> It does nothing else: no in-app agent, no chat inside Kitchie. It opens whatever AI app the person has set as their default. The assistant sheet in this mockup is only a stand-in for that app. Settles decision 5.</li>
 <li><b>Data-model work is scoped to the plan's weeks.</b> Locked substitutions (7b) and per-person ingredient lists (10) are only built and stored for the weeks the plan covers: last week up to four weeks ahead. Nothing is stored or migrated outside that window.</li></li></ol></div>
 
@@ -218,7 +219,11 @@ function dateOf(i){return dateW(S.wk,i)}
 function wkLabel(){return labelW(S.wk)}
 // decision 46: the title is as wide as the widest of the weeks the plan covers (hidden copies share its cell), so the right arrow beside it never moves.
 function ghosts(){var h="";for(var w=WMIN;w<=WMAX;w++)h+='<span class="gh" aria-hidden="true"><b>Week of '+dateW(w,0)+'</b><small>'+labelW(w)+'</small></span>';return h}
-function setWk(n){S.wk=Math.max(WMIN,Math.min(WMAX,n))}
+function setWk(n){S.wk=Math.max(WMIN,Math.min(WMAX,n));keepWk()}
+// decision 47: the week the person was on is kept in this browser (localStorage) as its Monday date, so a reload opens on it. Every read and write is in try/catch (storage can be blocked: it then opens on this week). Nothing leaves the browser. The jump buttons below set their own week and do not write it.
+function isoW(w){var d=new Date(2026,9,12+7*w),m=d.getMonth()+1,n=d.getDate();return d.getFullYear()+"-"+(m<10?"0":"")+m+"-"+(n<10?"0":"")+n}
+function keepWk(){try{window.localStorage.setItem("pw-week",isoW(S.wk))}catch(e){}}
+function savedWk(){try{var v=window.localStorage.getItem("pw-week");if(v)for(var w=WMIN;w<=WMAX;w++)if(isoW(w)===v)return w}catch(e){}return 0}
 function av(w){return w==="Sam"?'<span class="av" title="Sam">S</span>':w==="Jane"?'<span class="av j" title="Jane">J</span>':'<span class="av all" title="Everyone">👥</span>'}
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;")}
 function okey(day,p,wk){return (wk===undefined?S.wk:wk)+"|"+p+"|"+day}
@@ -307,7 +312,7 @@ stencil:["Usual days off, in Settings","Per person. The same home as renaming ca
 all:["Everyone's plan","Same grid, all cards. Others' cards are marked and locked. Tap Jane to look at only her plan (also view-only), or Mine to plan and block."],
 sources:["Where a meal came from","Wednesday is a saved recipe the assistant changed: swaps are kept with that day's meal. Saturday was made up on the spot. Other cards link straight to their saved recipe. Open each to see the sheet."],
 nudge:["Idle nudge","After about five seconds of nothing on a week with an open night, a curtain drops from under the switch and pushes the week down: Plan with your AI assistant. It never shows on open, and only once per visit. Any action lifts it; the week stays put until the view or week changes, so nothing jitters."],
-weeks:["Week limits","Back as far as last week (read-only), ahead four weeks. Tap the title to step forward, hold it to jump to this week; the arrows still step. Settings stencil days apply in every week."],
+weeks:["Week limits","Back as far as last week (read-only), ahead four weeks. Tap the title to step forward, hold it to jump to this week; the arrows still step. Settings stencil days apply in every week. The week you were on is remembered in this browser, so a reload opens on it (the jump buttons here still set their own week)."],
 override:["A usual day off, cooked this week","Friday is a usual day off, but this week it was opened by hand. A small line marks it as an exception to the usual pattern; next week it is blocked again. The stencil is a default, and a one-week override always wins."],
 past:["Last week is read-only","Meals planned last week can be opened and looked at, nothing more: no moving, removing, holding or editing. Empty days stay empty with no way to plan into them, and Copy last week and Open your assistant are off here."],
 x:["Try it","Drag a card to another day, tap an empty night to mark it not cooking, swipe it left (replan) or right (not cooking), or tap it. Tap or hold the week title."]};
@@ -378,7 +383,7 @@ function gu(e){if(!G||e.pointerId!==G.pid)return;var g=G;G=null;gEnd();if(!g.mod
 function gc(e){if(!G||e.pointerId!==G.pid)return;var g=G;G=null;gEnd();if(g.mode){LASTG=Date.now();S.over=null;draw()}}
 ph.addEventListener("pointerdown",function(e){
  var h=e.target.closest("[data-wkhd]");
- if(h){clearTimeout(LP);LP=setTimeout(function(){S.wk=0;LASTG=Date.now();draw()},550);return}
+ if(h){clearTimeout(LP);LP=setTimeout(function(){S.wk=0;keepWk();LASTG=Date.now();draw()},550);return}
  var c=e.target.closest(".mc.mine");if(!c||G||(e.pointerType==="mouse"&&e.button!==0))return;
  G={el:c,id:Number(c.dataset.card),x:e.clientX,y:e.clientY,mode:null,type:e.pointerType,pid:e.pointerId,over:null};
  if(e.pointerType!=="mouse")G.timer=setTimeout(function(){if(G&&!G.mode)startDrag()},320);
@@ -388,4 +393,5 @@ document.addEventListener("touchmove",function(e){if(G&&G.mode)e.preventDefault(
 ph.addEventListener("scroll",function(){if(Date.now()-DRAWT<200)return;if(S.nudge){closeNudge();draw()}else armNudge()},true);
 ph.addEventListener("pointerdown",armNudge);
 go("empty");
+S.wk=savedWk();draw();
 </script></body></html>
