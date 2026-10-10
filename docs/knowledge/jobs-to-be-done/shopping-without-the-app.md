@@ -45,7 +45,7 @@ Answered by the owner's review (10 Oct 2026), with the rest in `docs/knowledge/s
 - Should a finished link be reopenable for a second shop the same day? Yes; one link, reused (SL-D12).
 - 48 hours from sharing or from first opening? From sharing, plus a fresh 48 from first open if that gives more (SL-D13).
 
-Still open: whether a "got" reaches the Pantry by itself at the listed amount (SL-J2, a judgement call), and the phase-two questions.
+Answered by the owner on 10 Oct 2026 (typed): a "got" reaches the Pantry by itself at the listed amount (SL-J2, confirmed). Still open: SL-J3, SL-J11 and SL-J13, and the phase-two questions (see `docs/knowledge/shopper-link.md`, "Owner confirmations").
 
 ## For the implementation
 
