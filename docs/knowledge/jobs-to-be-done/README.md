@@ -16,7 +16,7 @@ Every screen starts from what the person is here to do right now. Layout, and wh
 |---|---|---|
 | Cooking right now | [cooking-right-now.md](cooking-right-now.md) | Captured, mockup drafted |
 | About to shop | – | Named, nothing captured yet |
-| Shopping without the app | [shopping-without-the-app.md](shopping-without-the-app.md) | Captured (owner, voice, 10 Oct 2026), mockup drafted; detected by arriving through the one-off link |
+| Shopping without the app | [shopping-without-the-app.md](shopping-without-the-app.md) | Captured (owner, voice, 10 Oct 2026); owner review the same day settled SL-D1 to SL-D16 (live updates, swipe and multi-select, link lifecycle); mockup revised; receipt scan deferred; detected by arriving through the one-off link |
 | Scanning things in | [scan-in.md](scan-in.md) | Named, options drafted, nothing else captured |
 | Planning the week | [plan-week.md](plan-week.md), [plan-week-ai.md](plan-week-ai.md) | Named; AI-led direction chosen, 16 owner decisions captured (9 Oct 2026) |
 | Planning the week, on desktop | [plan-desktop.md](plan-desktop.md) | Four options drawn (10 Oct 2026); decisions 49 to 62 are proposals awaiting the owner |

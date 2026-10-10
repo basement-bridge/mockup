@@ -3,14 +3,14 @@
 <body>
 <div class="wrap">
 <a class="back" href="../../">&lsaquo; All mockups</a>
-<h1>Shopper link: tick it off from the chat</h1>
-<p>Fragment. The job: <b>shopping for the household without being in the app</b>. Someone is handed the list in the family's own chat, buys what they can, and says what came home with one link and no sign-in. Kitchie issue <a href="https://github.com/basement-bridge/kitchie/issues/479" style="text-decoration:underline">kitchie#479</a>.</p>
+<h1>Shopper link: someone else is shopping</h1>
+<p>Fragment. The job: <b>shopping for the household without being in the app</b>. A member says someone else is shopping and hands over the list, in the family's own chat, with one link and no sign-in. The shopper swipes what they got and the household's list and Pantry change as they go. Kitchie issue <a href="https://github.com/basement-bridge/kitchie/issues/479" style="text-decoration:underline">kitchie#479</a>. Owner review of this fragment: 10 October 2026, decisions <b>SL-D1 to SL-D16</b> below.</p>
 
 <ol class="sl-loop" aria-label="The loop">
-<li><span class="em" aria-hidden="true">📝</span><b>Share</b>A member sends the list, with a link</li>
-<li><span class="em" aria-hidden="true">💬</span><b>Chat</b>It lands where the family already talks</li>
-<li><span class="em" aria-hidden="true">🛒</span><b>Shop</b>Tick, or say what you got instead</li>
-<li><span class="em" aria-hidden="true">📨</span><b>Send</b>One confirm, one message back</li>
+<li><span class="em" aria-hidden="true">🛍️</span><b>Hand over</b>A member says someone else is shopping</li>
+<li><span class="em" aria-hidden="true">💬</span><b>Chat</b>The list lands, then the link</li>
+<li><span class="em" aria-hidden="true">👉</span><b>Swipe</b>Right: got it. Left: couldn't find it</li>
+<li><span class="em" aria-hidden="true">⚡</span><b>Live</b>Every swipe reaches the list and the Pantry at once</li>
 <li><span class="em" aria-hidden="true">🧺</span><b>Home</b>The Shopping screen shows what came home</li>
 </ol>
 
@@ -24,34 +24,44 @@
 <li>&ldquo;The call to action there needs to be two modes. One is that they just tick off what's on the list and do the substitutes. Let's start with it as an MVP.&rdquo; <span>The second mode, scanning the receipt, is phase two: drawn below, not built.</span></li>
 <li><span>The shopper</span> &ldquo;may choose neither&rdquo; <span>and that is accepted.</span></li>
 </ul></div>
+
+<div class="sl-notes sl-review"><b>What changed on 10 October 2026</b> <span class="tag">owner review, decisions SL-D1 to SL-D16</span>
+<ul>
+<li><b>The control is renamed.</b> &ldquo;Share&rdquo; is now <b>&ldquo;Someone else is shopping&rdquo;</b>: it is only for when someone else does the shopping (SL-D1).</li>
+<li><b>It is live.</b> What the shopper does reaches the real list at once, not after a &ldquo;Done shopping&rdquo; tap, and two shoppers see each other's answers so nothing is bought twice (SL-D2, SL-D3). The result card is only a notification (SL-D4).</li>
+<li><b>The shopper's page has two modes.</b> Swipe is the default and syncs every action with no confirm step (SL-D5), with Undo always on screen (SL-D6) and a bottom button, &ldquo;Won't be able to buy these&rdquo; (SL-D7). A long-press turns the list into checkboxes with one batch Send (SL-D8). &ldquo;Got something else&rdquo; edits in place (SL-D9) and the &ldquo;also got&rdquo; box is built now (SL-D10).</li>
+<li><b>Swaps go into the Pantry by themselves</b>, matched like any added item (SL-D11).</li>
+<li><b>One link, one window.</b> It stays usable and shows the current state (SL-D12), for 48 hours from sharing or 48 from first open (SL-D13); it goes after the list text (SL-D14); Cancel is one tap (SL-D15); three links at most, counting unsent ones, which can be withdrawn (SL-D16).</li>
+<li>Phase two (the receipt) is unchanged and still deferred. Where something was not answered, the page says <b>Judgement call</b> and the list is at the end.</li>
+</ul></div>
 <p class="q">Sample data only: twelve made-up groceries. Nobody is named: people are &ldquo;a member&rdquo; and &ldquo;the shopper&rdquo;. Every phone below is the real page from this folder in a frame, so what you tap is the markup the build would lift.</p>
 
 <!-- ================================================================== A -->
 <section class="sl-part" aria-labelledby="pa">
 <div class="lbl">Part A</div>
 <h2 id="pa">The member, signed in, on Shopping</h2>
-<p>Three moments: sharing, waiting while the link is live, and the result coming back.</p>
+<p>Four moments: where the hand-over lives, what lands in the chat, links being out, and what comes back as it happens.</p>
 
-<h3>1. Where does Share live? <span class="tag">Open, three options</span></h3>
-<p>The Shopping header lost its cart button on purpose (one shared header on every screen), and the plan still asks where copy or share goes. Tap Share in any phone: it makes the link and hands the list to the phone's own share sheet (or copies it).</p>
+<h3>1. Where does &ldquo;Someone else is shopping&rdquo; live? <span class="tag new">Judgement call: A</span></h3>
+<p>The Shopping header lost its cart button on purpose (one shared header on every screen), and the plan still asks where the hand-off goes. Tap it in any phone: it makes the link and hands the list to the phone's own share sheet (or copies it). The owner did not pick a place, so the fragment's own favourite stands as a judgement call (SL-J1) and the other two stay here for comparison.</p>
 <div class="opts two">
-<div class="opt"><h2><b>A</b>A hand-off slot above the list <span class="tag new">Proposal</span></h2><p class="note"><b>Proposed.</b> One quiet strip above the list is where the hand-off lives: Share now, the live link next, the result later. Seen on arrival however long the list is, and the shared header stays untouched. Costs one row of height, always.</p>
-<figure class="sl-ph"><iframe src="member.html" title="Member, option A: Share in a slot above the list"></iframe></figure></div>
+<div class="opt"><h2><b>A</b>A hand-off slot above the list <span class="tag new">Judgement call</span></h2><p class="note"><b>Used.</b> One strip above the list is where the hand-off lives: the control, the link lines, then what came back. Seen on arrival however long the list is, and the shared header stays untouched. Costs one row of height, always.</p>
+<figure class="sl-ph"><iframe src="member.html" title="Member, option A: Someone else is shopping, in a slot above the list"></iframe></figure></div>
 <div class="opt"><h2><b>B</b>An icon in the header</h2><p class="note">Smallest. But the header is the same on Home, Pantry and Shopping by the owner's decision, an icon alone does not say &ldquo;with a link&rdquo;, and the live state has nowhere to sit beside it.</p>
-<figure class="sl-ph"><iframe src="member.html?share=b" title="Member, option B: a share icon in the header"></iframe></figure></div>
+<figure class="sl-ph"><iframe src="member.html?share=b" title="Member, option B: an icon in the header"></iframe></figure></div>
 <div class="opt"><h2><b>C</b>After the last line</h2><p class="note">Where you are when the list is finished, and close to the thumb on a short list. On a long list it is below the fold, and it sits where &ldquo;Done shopping&rdquo; appears once anything is ticked.</p>
-<figure class="sl-ph"><iframe src="member.html?share=c" title="Member, option C: Share after the last line"></iframe></figure></div>
+<figure class="sl-ph"><iframe src="member.html?share=c" title="Member, option C: after the last line"></iframe></figure></div>
 <div class="opt sl-why"><h2>Why A</h2>
 <ul>
-<li><b>One place for the whole hand-off.</b> Share, &ldquo;link is live&rdquo; and &ldquo;the shop is back&rdquo; take turns in the same slot, so there is nothing to hunt for.</li>
-<li><b>It says what it does.</b> A question and a word, not an icon to decode.</li>
+<li><b>One place for the whole hand-off.</b> The control, the link lines and the cards sit together, so there is nothing to hunt for.</li>
+<li><b>It says what it does.</b> A sentence and a bag, not an icon to decode.</li>
 <li><b>It leaves settled things alone:</b> the shared header and the &ldquo;Done shopping&rdquo; bar.</li>
-<li><b>What it costs:</b> the list starts one row lower for everyone, including households that never share.</li>
+<li><b>What it costs:</b> the list starts one row lower for everyone, including households that never hand over.</li>
 </ul></div>
 </div>
 
 <h3>2. What lands in the family's chat</h3>
-<p>Plain text, so it reads the same in any chat app: the list exactly as Kitchie already writes it (<code>share-text.ts</code>), then one line and the link. <b>Proposal:</b> the link goes after the list, with these words. The list alone is still useful to someone who never taps.</p>
+<p>Plain text, so it reads the same in any chat app: the list exactly as Kitchie already writes it (<code>share-text.ts</code>), then one line and the link. The link goes <b>after</b> the list (SL-D14): the list alone is still useful to someone who never taps.</p>
 <div class="sl-chat" aria-label="A family chat, drawn plainly">
 <div class="sl-chat-h">Family chat</div>
 <div class="sl-bub">Shopping list
@@ -68,27 +78,31 @@
 - spinach, 1 bag
 - tomatoes, 1 kg
 
-Tick off what you got, no sign-in needed. Works for 48 hours:
+Tick off what you get, no sign-in needed. The link works for 48 hours:
 <u>https://kitchie.example/list/sample-link-not-real-000000000000000000000</u></div>
 <div class="sl-bub them">On it 👍</div>
 </div>
 
-<h3>3. While the link is live</h3>
-<p>Quiet, one line per link, with a way to cancel. Up to 3 live links per household, none labelled with a person (<b>Proposal</b>). Cancel works in the phones.</p>
+<h3>3. Links that are out</h3>
+<p>Quiet, one line per link, with a way to end it. A link stays usable for its whole window however often it is opened, so a second trip the same day reuses it (SL-D12). The window is 48 hours from sharing, plus a fresh 48 from the first open if that is later (SL-D13), so an opened link can say &ldquo;ends in 45 hours&rdquo; and a link nobody has opened keeps its first window. Up to 3 links per household, <b>including ones never sent</b>; a link made when the share sheet was closed reads &ldquo;Made, not sent?&rdquo; and has Withdraw (SL-D16). Cancel is one tap with no second confirm (SL-D15). None is labelled with a person (SL-D3). Cancel and Withdraw work in the phones.</p>
 <div class="opts two">
-<div class="opt"><h2>One link out</h2><p class="note">Share stays, for a second shopper.</p>
-<figure class="sl-ph short"><iframe src="member.html?live=1" title="Member: one link is live, ends in 47 hours, Cancel"></iframe></figure></div>
-<div class="opt"><h2>Three out, the most</h2><p class="note">Share steps aside and says why. Cancel one and it comes back.</p>
-<figure class="sl-ph short"><iframe src="member.html?live=3" title="Member: three links are live, the most at once"></iframe></figure></div>
+<div class="opt"><h2>One link, opened</h2><p class="note">Opened 3 hours ago, ends in 45. The hand-off stays for a second shopper.</p>
+<figure class="sl-ph short"><iframe src="member.html?live=1" title="Member: one link is live, opened, ends in 45 hours, Cancel"></iframe></figure></div>
+<div class="opt"><h2>Made, not sent?</h2><p class="note">The share sheet was closed. The link still counts toward the 3 until it is withdrawn or ends.</p>
+<figure class="sl-ph short"><iframe src="member.html?live=unsent" title="Member: a link was made but not sent, with Withdraw"></iframe></figure></div>
+<div class="opt"><h2>Three out, the most</h2><p class="note">Opened, not opened, and not sent. The hand-off steps aside and says why. Cancel or withdraw one and it comes back.</p>
+<figure class="sl-ph"><iframe src="member.html?live=3" title="Member: three links are out, the most at once"></iframe></figure></div>
 </div>
 
-<h3>4. The result comes back</h3>
-<p>A card with the three counts. Lines the shopper got arrive ticked, &ldquo;in the basket&rdquo;. A swapped line says <b>Got instead</b> in the shopper's words and is not ticked. Then the &ldquo;Done shopping&rdquo; bar the household already knows. <b>Proposal:</b> nothing reaches the Pantry until a member presses it.</p>
+<h3>4. What comes back, as it happens</h3>
+<p>The real list changes as the shopper answers (SL-D2): bought lines are crossed out and say &ldquo;in the Pantry&rdquo;, a swap says what the Pantry did with it (a fusilli already in the Pantry is topped up; anything else is added as new, SL-D11), and a line that could not be found stays on the list. What the shopper added as &ldquo;also got&rdquo; shows after the list. Nothing waits behind &ldquo;Done shopping&rdquo;. The card is a <b>notification only</b> (SL-D4): counts, and which lines, so two shoppers on two links can be told apart without labels (SL-D3).</p>
 <div class="opts two">
-<div class="opt"><h2>Top of the screen</h2><p class="note">Ticks, the count and Dismiss work.</p>
+<div class="opt"><h2>The shop is back</h2><p class="note">Every line answered: 9 got, 1 swap, 2 not got, plus an also-got. A heads-up with Dismiss, not a button to press.</p>
 <figure class="sl-ph"><iframe src="member-result.html" title="Member: the shop is back, 9 got, 1 swapped, 2 not got"></iframe></figure></div>
-<div class="opt"><h2>Further down</h2><p class="note">Olive oil: not got. Penne: got instead, not ticked. Spinach: not got.</p>
-<figure class="sl-ph"><iframe src="member-result.html?at=mid" title="Member: the swapped and not got lines"></iframe></figure></div>
+<div class="opt"><h2>Further down</h2><p class="note">Olive oil: couldn't find. Penne: got fusilli instead, topped up in the Pantry. Spinach: couldn't find. Ticked lines are done.</p>
+<figure class="sl-ph"><iframe src="member-result.html?at=mid" title="Member: the swapped and not found lines"></iframe></figure></div>
+<div class="opt"><h2>Two shoppers, two links</h2><p class="note">Morning and afternoon. One card each, told apart by the lines in them, not by a label. Together they cover the 12.</p>
+<figure class="sl-ph"><iframe src="member-result.html?s=two" title="Member: two links, one card each"></iframe></figure></div>
 </div>
 </section>
 
@@ -96,57 +110,78 @@ Tick off what you got, no sign-in needed. Works for 48 hours:
 <section class="sl-part" aria-labelledby="pb">
 <div class="lbl">Part B</div>
 <h2 id="pb">The shopper: no sign-in, one hand, in a shop</h2>
-<p>One page. The whole line is the tick, the amount sits beside the name, and the one button stays under the thumb.</p>
+<p>One page, two modes. <b>Swipe</b> is the default: swipe right for &ldquo;got it&rdquo;, left for &ldquo;couldn't find it&rdquo; (SL-D5). Every action syncs at once, with no confirm step. A tap on the tick is &ldquo;got it&rdquo; too. A long-press on any line is <b>multi-select</b>: checkboxes, nothing syncs, one Send at the end (SL-D8).</p>
 
-<h3>Try it</h3>
+<h3>Try it, live</h3>
+<p>Three phones that share one pretend server. Swipe in the first and watch the other two: the second shopper's list marks it &ldquo;Someone else got this&rdquo; and the member's Shopping screen changes by itself. Press and hold a line for multi-select.</p>
+<div class="sl-trio">
+<figure class="sl-ph"><iframe id="sl-live-phone" src="list.html?g=live&amp;as=A" title="Shopper one: the list, working"></iframe><figcaption>Shopper one. <a href="list.html">Open the page on its own</a></figcaption></figure>
+<figure class="sl-ph"><iframe id="sl-live-phone-b" src="list.html?g=live&amp;as=B" title="Shopper two on another link: the same list"></iframe><figcaption>Shopper two, on another link</figcaption></figure>
+<figure class="sl-ph"><iframe id="sl-live-member" src="member-result.html?g=live" title="Member: the Shopping screen, following along"></iframe><figcaption>The member's Shopping screen</figcaption></figure>
+</div>
 <div class="sl-try">
-<figure class="sl-ph"><iframe id="sl-live-phone" src="list.html" title="Shopper: the list, working"></iframe><figcaption><a href="list.html">Open the page on its own</a></figcaption></figure>
-<div>
 <ol>
-<li><b>Tick</b> a few lines. Tap anywhere on a line.</li>
-<li>Tap <b>Got something else</b> on one, say what you got, press Enter. The tick comes off: a swap wins.</li>
-<li><b>Send</b> shows the count first. Send again and it is gone.</li>
-<li>Close the tab half way and come back: the ticks are still on this phone. Nothing reached Kitchie before Send.</li>
+<li><b>Swipe</b> a line right, another left. The bar at the top says what is left and what <b>Undo</b> will take back.</li>
+<li>Tap <b>Got something else</b> on one, say what you got, press Enter. It syncs as a swap (120 characters at most).</li>
+<li>Type in <b>Also got something that wasn't on the list?</b> and press Add.</li>
+<li><b>Won't be able to buy these</b> closes every line still open. Undo brings them back.</li>
+<li><b>Press and hold</b> a line: the list becomes checkboxes and the bottom button becomes Send, with the three counts first.</li>
 </ol>
 <button type="button" class="sl-reset" id="sl-reset">Start again</button>
-</div>
 </div>
 
 <h3>Every state</h3>
 <div class="opts two">
-<div class="opt"><h2>Got something else</h2><p class="note">One short field, 120 characters at most. Said and done, the line folds back to &ldquo;Got instead: &hellip;&rdquo;.</p>
+<div class="opt"><h2>Swipe, mid-shop</h2><p class="note">Bread, Cheddar and more are got. Dish soap was not found (dashed, &ldquo;Couldn't find&rdquo;). Penne is swapped. Undo is live and says what it would take back.</p>
+<figure class="sl-ph"><iframe src="list.html?s=mid" title="Shopper: swiping, mid-shop"></iframe></figure></div>
+<div class="opt"><h2>Mid-swipe</h2><p class="note">Past about a third of the line, the reveal says &ldquo;Got it&rdquo; and the edge lights up. Let go before that and the line springs back and nothing is sent.</p>
+<figure class="sl-ph"><iframe src="list.html?s=drag" title="Shopper: a line dragged right, Got it showing"></iframe></figure></div>
+<div class="opt"><h2>Got something else</h2><p class="note">A small button under the line opens one text field in place, 120 characters at most. Enter or Done and it syncs as a swap; the line folds back to &ldquo;Got instead: &hellip;&rdquo;.</p>
 <figure class="sl-ph"><iframe src="list.html?s=swap" title="Shopper: the swap field open on one line"></iframe></figure></div>
-<div class="opt"><h2>Ready to send</h2><p class="note">The button counts as you go. The end of the list says how long the link has left.</p>
-<figure class="sl-ph"><iframe src="list.html?s=ready" title="Shopper: nine ticked, one swap, the end of the list"></iframe></figure></div>
-<div class="opt"><h2>The confirm step</h2><p class="note">&ldquo;Got 9 of 12 &middot; 1 swap &middot; 2 not got.&rdquo; Only the lines that are not a plain &ldquo;got&rdquo; are listed, so a missed tick is easy to spot.</p>
-<figure class="sl-ph"><iframe src="list.html?s=summary" title="Shopper: the confirm step"></iframe></figure></div>
+<div class="opt"><h2>Also got</h2><p class="note">Free text for what came home and was not on the list. Added, it syncs at once; each can be removed, and Undo takes the last one back.</p>
+<figure class="sl-ph"><iframe src="list.html?s=also" title="Shopper: the also got box with two entries"></iframe></figure></div>
+<div class="opt"><h2>Multi-select</h2><p class="note">After a long-press: every line is a checkbox, the pressed line starts ticked, nothing syncs. Undo takes back the last pick. &ldquo;Back to swiping&rdquo; drops what was not sent.</p>
+<figure class="sl-ph"><iframe src="list.html?s=multi" title="Shopper: multi-select, checkboxes, Send with counts"></iframe></figure></div>
+<div class="opt"><h2>The batch confirm</h2><p class="note">&ldquo;Got 9 of 12 &middot; 1 swap &middot; 2 not got.&rdquo; Only the lines that are not a plain &ldquo;got&rdquo; are listed (and any also-got). Send writes the batch in one go.</p>
+<figure class="sl-ph"><iframe src="list.html?s=summary" title="Shopper: the three-count confirm"></iframe></figure></div>
 <div class="opt"><h2>Nothing ticked</h2><p class="note">Allowed, after the same step. It tells the household the shop did not happen.</p>
 <figure class="sl-ph short"><iframe src="list.html?s=none" title="Shopper: confirm with nothing ticked"></iframe></figure></div>
-<div class="opt"><h2>Sent</h2><p class="note">A thank-you and what was sent. Opening the link again shows this same page, read-only, until the 48 hours end (<b>Proposal</b>).</p>
+<div class="opt"><h2>Won't be able to buy these</h2><p class="note">One tap marks every line still open as not found and leaves answered lines alone. The bar goes; Undo is the way back. The link keeps working.</p>
+<figure class="sl-ph"><iframe src="list.html?s=wont" title="Shopper: the rest closed with Won't be able to buy these"></iframe></figure></div>
+<div class="opt"><h2>Someone else got it</h2><p class="note">The other shopper's answer arrives within about a second: the line is done, locked, and says so. Nobody is named.</p>
+<figure class="sl-ph"><iframe src="list.html?s=live" title="Shopper: a line another shopper just got"></iframe></figure></div>
+<div class="opt"><h2>Opened again</h2><p class="note">A second trip reuses the link and shows the current state: what is still to get first (including what was not found), what is bought after.</p>
+<figure class="sl-ph"><iframe src="list.html?s=reopen" title="Shopper: the link opened again, still to get first"></iframe></figure></div>
+<div class="opt"><h2>Sent (no script, or after a batch)</h2><p class="note">A thank-you and what was sent, with a way back to the list. The link is not finished by sending: it works until its window ends.</p>
 <figure class="sl-ph tall"><iframe src="sent.html" title="Shopper: sent, thank you, with the summary"></iframe></figure></div>
-<div class="opt"><h2>That link has finished</h2><p class="note">One neutral page for ended, cancelled and unknown links. It never says which.</p>
+<div class="opt"><h2>That link has finished</h2><p class="note">One neutral page for ended, cancelled, withdrawn and unknown links. It never says which.</p>
 <figure class="sl-ph tiny"><iframe src="finished.html" title="Shopper: that link has finished"></iframe></figure></div>
 </div>
-<p class="q">With no script the same form still works: Send answers a page with this confirm step (<a href="summary.html" style="text-decoration:underline">summary.html</a>), and its Send posts <code>confirm=1</code>.</p>
+<p class="q">With no script the same page is the multi-select form: a checkbox per line, a field per swap, one Send. It answers a page with the three-count confirm (<a href="summary.html" style="text-decoration:underline">summary.html</a>), and its Send posts <code>confirm=1</code>. Nothing syncs live without script.</p>
 
-<div class="sl-notes"><b>The form, exactly</b> <span class="tag">for the build</span>
+<div class="sl-notes"><b>The requests, exactly</b> <span class="tag">for the build</span>
+<p class="q">Swipe mode sends one request per action and the server answers with the whole list's state. Multi-select and the no-script form send one request. All are form-encoded <code>POST</code>s to <code>&lt;base&gt;/list/&lt;token&gt;/&hellip;</code> with no cookie and no session. A <code>404</code> is the one neutral answer for a link that has finished.</p>
 <dl class="sl-fields">
-<dt><code>got</code></dt><dd>Repeated, one per ticked line. The value is the line's key: <code>l0</code>, <code>l1</code>, &hellip; (its place in the snapshot).</dd>
-<dt><code>swap_&lt;key&gt;</code></dt><dd>Text, up to 120 characters, for example <code>swap_l8</code>. Only counts when not empty. If a <code>got</code> arrives for the same key, the swap wins.</dd>
-<dt><code>confirm</code></dt><dd><code>1</code> once the person has seen the summary and pressed Send. Without it the server answers the summary page.</dd>
+<dt><code>line</code></dt><dd><code>key</code> (the line's id, stable while the list changes), <code>state</code> (<code>got</code>, <code>notgot</code> or <code>open</code>), <code>swap</code> (text, up to 120 characters; if it is not empty the line is swapped and the swap wins). One swipe, tap or saved swap is one request. Answers <code>409</code> with the current state if the line was already <code>got</code> on another link.</dd>
+<dt><code>extra</code>, <code>extra/remove</code></dt><dd><code>text</code> (up to 120 characters) adds an &ldquo;also got&rdquo; line; <code>id</code> removes one of this link's own.</dd>
+<dt><code>unresolved</code></dt><dd>No fields. &ldquo;Won't be able to buy these&rdquo;: every line still <code>open</code> becomes <code>notgot</code>; answered lines, and lines answered on other links, are untouched.</dd>
+<dt><code>undo</code></dt><dd>No fields. Takes back this link's own latest action (a whole <code>unresolved</code> or <code>batch</code> counts as one) and answers the state.</dd>
+<dt><code>batch</code></dt><dd>Multi-select and the no-script form: <code>got</code> (repeated, one per ticked line), <code>swap_&lt;key&gt;</code>, <code>also</code> (repeated), <code>confirm=1</code>. Lines not named are <code>notgot</code>; lines already <code>got</code> on another link are skipped. Without <code>confirm</code> the server answers the confirm page.</dd>
+<dt><code>GET events</code></dt><dd>The live stream (server-sent events). Each event is the whole state, so a missed one costs nothing: <code>{ rev, lines: { &lt;key&gt;: { state, words, by } }, extras, last, hours }</code>. <code>by</code> is <code>you</code>, <code>other</code> or empty, never a name. Within about a second of any change on any link of the list.</dd>
 </dl>
 <ul>
-<li><code>GET &lt;base&gt;/list/&lt;token&gt;</code> draws the page; the same address takes the <code>POST</code>. No other field, no cookie, no session.</li>
-<li>List rows use the Shopping screen's own names (<code>ul.rows.shop</code>, <code>li.shoprow[data-shop-row]</code>, <code>.swfg</code>, <code>.tick</code>, <code>.rlink</code>, <code>.em</code>, <code>.smain</code>, <code>.sname</code>, <code>.want</code>). Everything new starts with <code>sl-</code>.</li>
+<li><code>GET &lt;base&gt;/list/&lt;token&gt;</code> draws the page with <code>data-state</code>, <code>data-by</code> and the swap words already on each line, so it is right before the script runs. On a second visit the server puts what is still to get first and what is bought after (SL-J9).</li>
+<li>List rows use the Shopping screen's own names (<code>ul.rows.shop</code>, <code>li.shoprow[data-shop-row]</code>, <code>.swrow</code>, <code>.swfg</code>, <code>.swbg</code>, <code>.tick</code>, <code>.rlink</code>, <code>.em</code>, <code>.smain</code>, <code>.sname</code>, <code>.want</code>). Everything new starts with <code>sl-</code>.</li>
 <li><b>One place the markup cannot match the app:</b> the app's tick is <code>button.tick[role=checkbox]</code>, which needs script. Here it is <code>label.tick</code> around a real checkbox, so the page works as a plain form. Same class, same look, one size up.</li>
+<li>Pantry rules are server-side and not drawn: a <code>got</code> line adds its listed amount (1 where there is none, SL-J2); a swap and an also-got go through the same add-item matching as a hand-added item (SL-D11).</li>
 </ul></div>
 </section>
 
 <!-- ================================================================== C -->
 <section class="sl-part" aria-labelledby="pc">
-<div class="lbl">Part C &middot; Phase two, not built</div>
-<h2 id="pc">The second mode: scan the receipt <span class="tag p2">Phase two, not built</span></h2>
-<p>Mockup only. The owner: the photo goes to the Kitchie server &ldquo;over WebSocket&rdquo;, the server does the image recognition (&ldquo;We are not going to use any tokens for this&rdquo;), and pushes the answer back &ldquo;through the same WebSocket&rdquo;. If 80% of the list's lines are findable on the receipt, &ldquo;that image was decent enough&rdquo;. If not, one more try, then: &ldquo;hey, it seems like that didn't work out, it might just be easier for you to just clear this based on the list.&rdquo;</p>
+<div class="lbl">Part C &middot; Phase two, deferred</div>
+<h2 id="pc">The second mode: scan the receipt <span class="tag p2">Phase two, not built, deferred</span></h2>
+<p><b>Deferred by the owner on 10 October 2026: no changes in this round.</b> The frames below are as drawn before and still show the earlier &ldquo;tick the list&rdquo; wording; the mode names will follow the swipe page when this is picked up. Mockup only. The owner: the photo goes to the Kitchie server &ldquo;over WebSocket&rdquo;, the server does the image recognition (&ldquo;We are not going to use any tokens for this&rdquo;), and pushes the answer back &ldquo;through the same WebSocket&rdquo;. If 80% of the list's lines are findable on the receipt, &ldquo;that image was decent enough&rdquo;. If not, one more try, then: &ldquo;hey, it seems like that didn't work out, it might just be easier for you to just clear this based on the list.&rdquo;</p>
 <div class="opts two">
 <div class="opt"><h2><b>1</b>Choose</h2><p class="note">Two ways to finish, side by side. Ticking stays the first one.</p>
 <figure class="sl-ph short"><iframe src="list.html?s=p2" title="Phase two: choose tick the list or snap the receipt"></iframe></figure></div>
@@ -154,7 +189,7 @@ Tick off what you got, no sign-in needed. Works for 48 hours:
 <figure class="sl-ph short"><iframe src="list.html?s=p2-ask" title="Phase two: snap the receipt"></iframe></figure></div>
 <div class="opt"><h2><b>3</b>Reading</h2><p class="note">The server pushes what it has found so far.</p>
 <figure class="sl-ph short"><iframe src="list.html?s=p2-reading" title="Phase two: reading the receipt"></iframe></figure></div>
-<div class="opt"><h2><b>4</b>80% or more <span class="tag new">Proposal</span></h2><p class="note">10 of 12 is 83%. The lines found arrive ticked; the shopper checks the rest and presses Send as usual. Nothing is sent for them.</p>
+<div class="opt"><h2><b>4</b>80% or more <span class="tag new">Proposal</span></h2><p class="note">10 of 12 is 83%. The lines found arrive ticked, as a batch (the page goes to multi-select); the shopper checks the rest and presses Send as usual. Nothing is sent for them.</p>
 <figure class="sl-ph short"><iframe src="list.html?s=p2-ok" title="Phase two: ten of twelve found, lines arrive ticked"></iframe></figure></div>
 <div class="opt"><h2><b>5</b>Under 80%</h2><p class="note">7 of 12 is 58%. One more photo is offered, once.</p>
 <figure class="sl-ph short"><iframe src="list.html?s=p2-retry" title="Phase two: under 80 percent, one more photo"></iframe></figure></div>
@@ -163,47 +198,90 @@ Tick off what you got, no sign-in needed. Works for 48 hours:
 </div>
 </section>
 
-<!-- ================================================================== notes -->
-<div class="sl-notes"><b>Proposals</b> <span class="tag">ours, not the owner's; each can change</span>
+<!-- ================================================================== decisions -->
+<div class="sl-notes" id="decisions"><b>Decisions</b> <span class="tag">the owner's, 10 October 2026 (review of this fragment); numbered SL-D1 to SL-D16</span>
+<p class="q">Numbered as this feature's own series, like the preferences D-series and the recipe tab's R-D series. &ldquo;Revises&rdquo; and &ldquo;answers&rdquo; point at the proposals (P1 to P9) and open questions (1 to 13) these replace.</p>
+<ol class="sl-dec">
+<li><b>SL-D1. Naming.</b> &ldquo;Share&rdquo; becomes a hand-off wording, for example &ldquo;Someone else is shopping&rdquo;. It is only for when someone else does the shopping.</li>
+<li><b>SL-D2. A result updates the real list at once.</b> When a result comes back on any link, the shopping list updates immediately for members. It is not gated on a &ldquo;Done shopping&rdquo; tap. <i>Revises P1; answers question 1; is question 13.</i></li>
+<li><b>SL-D3. Concurrent links share one live view.</b> Other live links for the same list reflect an update in near real time, so two shoppers (morning and afternoon) do not double-buy. P3's frozen snapshot becomes a live, shared view. Links need no label: the result's content tells concurrent shoppers apart. <i>Revises P3; answers question 3.</i></li>
+<li><b>SL-D4. The result card is a notification.</b> &ldquo;Got 9 of 12 &middot; 1 swap &middot; 2 not got&rdquo; is a summary only, never a gate.</li>
+<li><b>SL-D5. The shopper's page defaults to swipe.</b> Swipe right = got it, swipe left = didn't find it. Every action syncs instantly with no confirm step.</li>
+<li><b>SL-D6. Undo is always visible</b> at the top of the page, because the shopper is the person least familiar with the app.</li>
+<li><b>SL-D7. The bottom button in swipe mode is not &ldquo;Send&rdquo;.</b> It reads &ldquo;Won't be able to buy these&rdquo; and applies only to lines still unresolved; lines already synced are untouched.</li>
+<li><b>SL-D8. Long-press is multi-select.</b> A long-press on any line turns the whole list into checkboxes. Nothing syncs live; the picks are one batch. The bottom button is the original summary send and confirm: three counts, listing only the non-&ldquo;got&rdquo; lines. <i>Revises P4.</i></li>
+<li><b>SL-D9. &ldquo;Got something else&rdquo; is a small button on each line</b> with an in-place text edit (120 characters) that syncs instantly as a swap. <i>Revises P2.</i></li>
+<li><b>SL-D10. The free-text &ldquo;also got&rdquo; box is built now</b>, for things bought that were not on the list. <i>Answers question 4.</i></li>
+<li><b>SL-D11. Swaps go into the Pantry automatically</b> with the standard add-item matching: an existing fusilli is topped up when penne was swapped for fusilli; otherwise a new item is created. No member hand-add. <i>Answers question 2.</i></li>
+<li><b>SL-D12. One link, reused.</b> A link stays usable for its whole validity window however many times it is opened; each open shows the current state (what is still not bought). A second trip the same day reuses it. <i>Revises P5; answers question 5.</i></li>
+<li><b>SL-D13. The window.</b> 48 hours from sharing; if the link is first opened later, a fresh 48 hours from first open too (effectively whichever gives more time). <i>Answers question 6.</i></li>
+<li><b>SL-D14. The link goes after the list text</b> in the chat message. <i>Answers question 7.</i></li>
+<li><b>SL-D15. Cancel is one tap</b>, with no second confirm. <i>Answers question 8.</i></li>
+<li><b>SL-D16. At most 3 live links per household (P7).</b> A link made but not sent (the share sheet closed without sending) still counts, unless the sender withdraws it. Links expire by themselves after their window. <i>Answers question 9.</i></li>
+</ol></div>
+
+<div class="sl-notes open" id="judgement"><b>Judgement calls</b> <span class="tag">ours, because the owner's decisions did not say; each is listed in the PR to review before production</span>
+<p class="q">Numbered SL-J1 on. Each says what was chosen, what the other way would be, and what a wrong guess costs. None is settled.</p>
+<ol class="sl-dec">
+<li><b>SL-J1. Where the hand-off control lives: option A, the slot above the list</b> (question 10; the fragment's favourite). <i>Cost:</i> the wrong one is rebuilt; A also moves the list down one row for households that never hand over.</li>
+<li><b>SL-J2. A got line also reaches the Pantry by itself</b>, at the amount on the list (1 where the list gave none), the same effect as a member's &ldquo;Done shopping&rdquo;. SL-D2 says the list is not gated on that tap and SL-D11 names swaps only; treating gots differently from swaps would leave the Pantry half-updated. <i>Other way:</i> got lines wait, ticked, for a member's &ldquo;Done shopping&rdquo;. <i>Cost:</i> if gots should wait, the Pantry gains stock a shopper only claimed (undoable per item in History); if they should not, the household pays one tap per shop. This is the largest call here.</li>
+<li><b>SL-J3. How &ldquo;live&rdquo; travels:</b> one server-sent-events stream per open page, each event the whole state, the browser reconnecting itself; a polling fallback every few seconds is the build's to add and is not drawn. <i>Cost:</i> a different transport (WebSocket, polling) changes server code only; the page's contract (a snapshot) stays.</li>
+<li><b>SL-J4. Two links, one line.</b> A line answered &ldquo;got&rdquo; on one link is locked on the others (&ldquo;Someone else got this&rdquo;, nobody named, P6 stands), so it cannot be bought twice or overwritten; a &ldquo;not found&rdquo; or a swap can still be answered by the other shopper. A refused write answers 409 and the page corrects itself. <i>Cost:</i> a wrong &ldquo;got&rdquo; can only be undone by the shopper who made it, or by a member.</li>
+<li><b>SL-J5. Swipe is not the only way.</b> A tap on the tick is &ldquo;got it&rdquo; (and again is back to open), and each line has a hidden &ldquo;Couldn't find&rdquo; button that shows when it has keyboard focus, for people who cannot swipe. <i>Cost:</i> none visible.</li>
+<li><b>SL-J6. Undo takes back this link's own latest action</b>, one step at a time; a whole &ldquo;Won't be able to buy these&rdquo; or a batch Send is one step. It shows what it would undo. In multi-select it takes back the last pick. It is disabled, not hidden, when there is nothing to take back. <i>Cost:</i> undoing someone else's answer is not possible from this page.</li>
+<li><b>SL-J7. &ldquo;Won't be able to buy these&rdquo; has no confirm and no count on the button</b> (SL-D5 says no confirm step; Undo is the safety). It is a quiet outline button, not the accent one, because it closes every open line. The bar leaves when no line is open. <i>Cost:</i> an accidental tap closes the rest until Undo.</li>
+<li><b>SL-J8. Multi-select details.</b> The long-pressed line starts ticked; the list starts from the current synced answers; lines another link got are locked and ticked; &ldquo;Back to swiping&rdquo; drops the unsent picks and says so; sending returns to the list in swipe mode with the link still live. Unticked lines become &ldquo;not got&rdquo; at Send (the owner's original rule). <i>Cost:</i> a shopper who backs out loses the picks.</li>
+<li><b>SL-J9. A second visit puts &ldquo;still to get&rdquo; first</b> (open and not-found lines), then &ldquo;bought already&rdquo;, drawn by the server on that visit and not re-sorted while the page is open. A line not found last time can be swiped to got on the second trip. The status reads &ldquo;3 to go &middot; 2 not found&rdquo;. <i>Cost:</i> a redraw.</li>
+<li><b>SL-J10. &ldquo;Also got&rdquo; is free text only</b> (up to 120 characters, no amount field), read by the Pantry's add-item matching; the shopper can remove their own and Undo takes the last one back. It shows on the member's screen after the list. <i>Cost:</i> amounts in the words (&ldquo;2 cans&rdquo;) are only as good as the matching.</li>
+<li><b>SL-J11. The live list is the real list</b> (SL-D3 retires the snapshot): lines a member adds while a link is out appear on the open page, and removed ones disappear unless already answered. Line keys are therefore stable ids, not places in a snapshot; the 200-line cap (P8) stands. Not drawn: the mock list is fixed at 12. <i>Cost:</i> a shopper's list can change under them; the other way is a stale list.</li>
+<li><b>SL-J12. The member's card</b> says &ldquo;Shopping is coming in&rdquo; with a live dot until no line is open, then &ldquo;The shop is back&rdquo;; it shows the counts and the first three lines, one card per link, Dismiss, no link named. The hand-off control no longer steps aside while a result is waiting (it did when a result was a gate); it still steps aside at 3 links. <i>Cost:</i> two cards stack on a busy day.</li>
+<li><b>SL-J13. &ldquo;Opened&rdquo; means the page ran</b>, not that the address was fetched: the first live-stream connection starts the fresh 48 hours, because chat apps fetch links to draw a preview and that must not count. The member's line shows &ldquo;Not opened yet&rdquo; or &ldquo;Opened 3 hours ago&rdquo; with the hours left. <i>Cost:</i> an unopened link keeps only its first window.</li>
+<li><b>SL-J14. Made, not sent?</b> The page tells the server the share sheet was closed (the share answer now carries the link's id) so that line can say so and offer Withdraw. It never withdraws by itself; it still counts toward the 3 (SL-D16). <i>Cost:</i> a sheet closed by mistake leaves a line to withdraw.</li>
+<li><b>SL-J15. No script is multi-select.</b> The server-drawn page is the checkbox form with one Send; swiping and live need script. <i>Cost:</i> a browser with no script gets no live updates.</li>
+<li><b>SL-J16. Phase two is untouched</b> and still says &ldquo;Tick the list&rdquo;; a good read arrives as a batch, which is what multi-select is. Questions 11 and 12 stay with it.</li>
+<li><b>SL-J17. The numbers.</b> Decisions are SL-D1 to SL-D16 and judgement calls SL-J1 on, one series for this feature, because the other series (plan 1 to 62, preferences D1 to D30 and F1 to F14, recipe R-D1 to R-D28) are taken or per-feature.</li>
+</ol></div>
+
+<div class="sl-notes"><b>Proposals from before the review</b> <span class="tag">kitchie#479 and the first drawing; what the review did to each</span>
 <ul>
-<li><b>Proposal P1, P2.</b> The shopper's Send does not change the Pantry by itself. It ticks lines on the Shopping screen; a member commits with the existing &ldquo;Done shopping&rdquo; (which already asks &ldquo;How much did you buy?&rdquo;). A swapped line is not ticked.</li>
-<li><b>Proposal P3.</b> The shopper sees the list as it was when shared: a snapshot. Lines added later are not on it.</li>
-<li><b>Proposal P4.</b> Ticks stay on the shopper's phone until Send: one write per link. If Send cannot reach Kitchie the ticks stay and the page says so.</li>
-<li><b>Proposal P5.</b> After Send the link has done its job. Opening it again shows what was sent, read-only.</li>
-<li><b>Proposal P6.</b> No names on the shopper's page: not the household's, not a member's. Not what is left at home either.</li>
-<li><b>Proposal P7.</b> Up to 3 live links per household, each cancellable, none labelled with a person.</li>
-<li><b>Proposal P8.</b> Swap text up to 120 characters; up to 200 lines in a snapshot.</li>
-<li><b>Proposal P9.</b> Share lives in a hand-off slot above the list (option A).</li>
-<li><b>Proposals the drawing added.</b> The link line after the list, and its words. The whole line is the tick, with a plain strike-through instead of the app's hand-drawn one (it needs no script). A swap takes the tick off; tapping a swapped line opens its words again. The confirm step lists only what is not a plain &ldquo;got&rdquo;, and ignores a second tap for half a second. One page for &ldquo;sent&rdquo; and for the link opened again. The shopper is told how long the link has left. On the member's side: Share steps aside at 3 live links and while a result is waiting; lines the shopper did not get say &ldquo;Not got&rdquo;; the card has Dismiss; Cancel is one tap.</li>
-<li><b>Proposals in phase two.</b> A good read does not send by itself: the lines found arrive ticked and the rest say &ldquo;Not on the receipt&rdquo;. The socket opens when the mode is chosen. The message shapes are in <code>receipt.js</code>. After the second miss the receipt button goes away for that link.</li>
+<li><b>P1</b> (Send does not reach the Pantry; a member presses Done shopping): <b>revised by SL-D2</b> (and SL-J2).</li>
+<li><b>P2</b> (a swap is not ticked; the member decides): a swap is still not ticked and still says &ldquo;Got instead&rdquo;; <b>the member no longer decides</b>: SL-D9 and SL-D11.</li>
+<li><b>P3</b> (a snapshot of the list at share time): <b>revised by SL-D3</b> and SL-J11.</li>
+<li><b>P4</b> (ticks stay on the phone until Send, one write per link): <b>revised by SL-D5 and SL-D8</b>. Swipe syncs every action. Only multi-select is held back until Send. Picks are not kept after leaving the page (SL-J8).</li>
+<li><b>P5</b> (after the confirm the link is finished): <b>revised by SL-D12</b>.</li>
+<li><b>P6</b> (no names on the shopper's page): stands. &ldquo;Someone else got this&rdquo; names nobody.</li>
+<li><b>P7</b> (3 live links per household, each cancellable, none labelled with a person): stands, now with unsent links and Withdraw (SL-D16, SL-D3, SL-D15).</li>
+<li><b>P8</b> (swap text 120 characters; 200 lines): stands; the 120 now also bounds an also-got line.</li>
+<li><b>P9</b> (where Share lives, option A): now a judgement call (SL-J1).</li>
+<li><b>Drawing proposals that stand:</b> the whole line is a real checkbox (works with no script) with a plain strike-through; a swap takes the tick off and tapping a swapped line opens its words again; the shopper is told how long the link has left; one neutral &ldquo;That link has finished&rdquo; page. <b>Dropped or changed:</b> &ldquo;Send cannot reach Kitchie, the ticks stay on the phone&rdquo; becomes &ldquo;That didn't sync. Try again.&rdquo; and the line goes back to what it was; the confirm step's half-second double-tap guard stays, in multi-select only.</li>
 </ul></div>
 
-<div class="sl-notes open"><b>Open questions</b> <span class="tag">and what a wrong guess costs</span>
-<p class="q">The first six are kitchie#479's own. The costs after the first are our reading, not the owner's.</p>
+<div class="sl-notes open"><b>Open questions, answered</b> <span class="tag">the twelve from before the review, and the thirteenth</span>
 <ol>
-<li><b>Should the shopper's confirm put the items into the Pantry straight away, with no member tap?</b> That is the lowest-friction loop, and it means a person who is not signed in changes stock. P1 says no for now. <i>Cost:</i> P1 costs the household one tap per shop; the other way lets anyone holding a link within 48 hours add stock (undoable per item in History).</li>
-<li><b>What should a swap do to the Pantry:</b> add the swapped thing as a new item, or leave it to the member (P2)? <i>Cost:</i> as drawn, the member adds it by hand. The other way, the Pantry gains items named in an outsider's free text.</li>
-<li><b>Should a link be labelled for a person</b> (&ldquo;for the weekend shop&rdquo;, a name), given &ldquo;that link is just unique for that person&rdquo;? <i>Cost:</i> unlabelled, two live links can only be told apart by the hours left. Labelled, sharing gains a question and a name is stored against a public page.</li>
-<li><b>Things bought that were not on the list:</b> a free-text &ldquo;also got&rdquo; box, or wait for the receipt phase? <i>Cost:</i> without it, extras never reach Kitchie in phase one. With it, one more thing to type in a shop.</li>
-<li><b>Should a finished link be reopenable for a second shop the same day?</b> <i>Cost:</i> as drawn, a second trip needs a new share. The other way, a result can change after the household has acted on it.</li>
-<li><b>48 hours from sharing (built) or from first opening?</b> <i>Cost:</i> from sharing, a list sent on Friday night for a Sunday shop has finished. From opening, an unopened link lives on with no end unless it is capped.</li>
-<li><b>From the drawing: the link before or after the list?</b> <i>Cost:</i> after (as drawn), a long list is cut short by some chat apps and the link hides behind &ldquo;read more&rdquo;. Before, the list is pushed down by a link the shopper may not want.</li>
-<li><b>From the drawing: does Cancel need a second tap?</b> <i>Cost:</i> as drawn, one slip ends a link someone may be shopping with (their ticks stay on their phone, but Send answers &ldquo;That link has finished&rdquo;). A confirm costs a tap on a rare action.</li>
-<li><b>From the drawing: the share sheet is closed without sending.</b> The link already exists and counts toward the 3. <i>Cost:</i> as drawn, it shows as live until cancelled or it ends. Cancelling it automatically needs the page to know which link it made (the share answer has no link id).</li>
-<li><b>From the drawing: which Share placement</b> (A, B or C above)? <i>Cost:</i> the wrong one is rebuilt; A also moves the list down by one row for households that never share.</li>
-<li><b>Phase two: a line that is not on the receipt.</b> Not got, or simply not read? And a swap looks like a miss (the receipt says fusilli, the list says penne). <i>Cost:</i> treating misses as &ldquo;not got&rdquo; puts things back on the list that are already in the bag, which is why the drawing leaves them for the shopper to check.</li>
-<li><b>Phase two: is the photo kept?</b> A receipt shows a shop, a time and part of a card number. <i>Cost:</i> keeping it makes a public, unsigned-in page a way to store personal data. Not decided; nothing here assumes it is kept.</li>
+<li><b>Should the shopper's confirm put the items into the Pantry straight away, with no member tap?</b> <i>Answered: yes, as they go (SL-D2), with the amounts a judgement call (SL-J2).</i></li>
+<li><b>What should a swap do to the Pantry?</b> <i>Answered: it goes in by itself with the standard add-item matching, topping up an existing item or creating a new one (SL-D11).</i></li>
+<li><b>Should a link be labelled for a person?</b> <i>Answered: no. The content of what came back tells concurrent shoppers apart (SL-D3).</i></li>
+<li><b>Things bought that were not on the list.</b> <i>Answered: a free-text &ldquo;also got&rdquo; box, built now (SL-D10).</i></li>
+<li><b>Reopenable for a second shop the same day?</b> <i>Answered: yes. One link stays usable for its whole window and shows the current state (SL-D12).</i></li>
+<li><b>48 hours from sharing or from first opening?</b> <i>Answered: from sharing, plus a fresh 48 from first open if that gives more (SL-D13).</i></li>
+<li><b>The link before or after the list?</b> <i>Answered: after (SL-D14).</i></li>
+<li><b>Does Cancel need a second tap?</b> <i>Answered: no, one tap (SL-D15).</i></li>
+<li><b>The share sheet closed without sending.</b> <i>Answered: the link still counts toward the 3 unless the sender withdraws it (SL-D16); the page can tell it is unsent (SL-J14).</i></li>
+<li><b>Which placement?</b> <i>Not answered by the owner. Judgement call: A (SL-J1).</i></li>
+<li><b>Phase two: a line that is not on the receipt.</b> <i>Deferred with phase two; the owner left phase two out of this round.</i></li>
+<li><b>Phase two: is the photo kept?</b> <i>Deferred with phase two. Nothing here assumes it is kept.</i></li>
+<li><b>13. New: should a result on any link update the real list at once, rather than wait for a member's &ldquo;Done shopping&rdquo;?</b> <i>Answered: yes (SL-D2), and other links see it in near real time (SL-D3).</i></li>
 </ol></div>
 
 <div class="sl-notes"><b>Performance note</b> (<a href="../../DESIGN.md" style="text-decoration:underline">DESIGN.md section 6</a>)
 <ul>
-<li><b>Shopper, default path loads</b>: the page (19 KB for 12 lines, about 3 KB compressed; 1.3 KB a line, so about 260 KB at the 200-line cap, which compresses to about 9 KB), <code>shopper.css</code> (7 KB, 2.5 KB compressed) and one deferred script, <code>shopper.js</code> (11 KB, 4 KB compressed). No app stylesheet, no header, no bottom bar, no scribble script. The page is usable before the script arrives, and without it.</li>
-<li><b>Shopper, no request while shopping</b>: ticks and swap words stay in the browser. One POST when the person presses Send, then one page back.</li>
-<li><b>Deferred until chosen (phase two)</b>: <code>receipt.js</code> (8 KB, 3 KB compressed) and <code>receipt.css</code> (2 KB) are fetched only when the person taps &ldquo;Snap the receipt&rdquo;. The camera input is created by that script and the WebSocket opens then: before the choice the page has no file input, no socket and none of that code. In phase one the chooser itself is not in the page.</li>
+<li><b>Shopper, default path loads</b>: the page (29 KB for 12 lines, about 4 KB compressed; about 2.1 KB a line, so roughly 420 KB at the 200-line cap, which should compress to about 20 KB; both figures are estimates. The swipe reveals and the swap field are on every line), <code>shopper.css</code> (14 KB, 4 KB compressed) and one deferred script, <code>shopper.js</code> (28 KB with its comments, 8 KB compressed; about 23 KB and 7 KB compressed without the comment lines). No app stylesheet, no header, no bottom bar, no scribble script. The page is usable before the script arrives, and without it (as the multi-select form).</li>
+<li><b>Shopper, while shopping</b>: one small request per swipe (a few hundred bytes, answered with the state, so about 2 KB for 12 lines), plus the one open event stream. Nothing polls. Without a swipe nothing is sent.</li>
+<li><b>Deferred until chosen (phase two)</b>: <code>receipt.js</code> (8 KB, 3 KB compressed) and <code>receipt.css</code> (2 KB) are fetched only when the person taps &ldquo;Snap the receipt&rdquo;. In phase one the chooser itself is not in the page.</li>
 <li><b>Sent and &ldquo;That link has finished&rdquo;</b>: the page and its stylesheet only. No script, no list rows.</li>
-<li><b>Member, default path</b>: the Shopping screen as today plus the hand-off slot's markup (drawn on the server), about 4 KB of CSS and about 4 KB of script folded into <code>shopping.js</code>. Nothing is fetched on load: Share, Cancel and Dismiss each make one POST when tapped. The share sheet is the phone's own.</li>
-<li><b>Why reasonable now</b>: the shopper opens this once, on mobile data, possibly with a weak signal in a shop. Everything they need arrives in the first response; the only heavy part (a photo upload) waits for a choice they may never make.</li>
-<li><b>This fragment page</b> is heavier than any screen it shows: it loads 20 frames at once so every state can be compared. Mockup only. <code>mock.js</code> and <code>kitchie.css</code> are also mockup only (a stand-in for the server, and rules the app already has).</li>
+<li><b>Member, default path</b>: the Shopping screen as today plus the hand-off slot's markup (drawn on the server), about 6 KB of CSS (2 KB compressed) and about 5 KB of script folded into <code>shopping.js</code>. The live feed is the Shopping screen's own, opened only while a link is out; with no link out nothing extra loads.</li>
+<li><b>Why reasonable now</b>: the shopper opens this on mobile data, possibly with a weak signal in a shop. Everything they need arrives in the first response, and a missed event costs nothing because every event is the whole state.</li>
+<li><b>This fragment page</b> is heavier than any screen it shows: it loads about 30 frames at once so every state can be compared. Mockup only. <code>mock.js</code> (the pretend server, its stream and a second shopper) and <code>kitchie.css</code> are also mockup only.</li>
 </ul></div>
 </div>
 <script src="fragment.js"></script>
