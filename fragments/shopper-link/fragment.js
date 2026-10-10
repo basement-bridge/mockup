@@ -1,11 +1,12 @@
 // Shopper link fragment: the fragment page's own script (index.html). Nothing here is for the build.
-// "Start again" empties the working phone's ticks (they are kept in this browser, as on a real phone) and puts it back on the list.
+// "Start again" empties the live demo's pretend server (shared by the three phones, kept in this browser like a real phone keeps its page) and reloads the three phones.
 (function () {
   "use strict";
-  var phone = document.getElementById("sl-live-phone"), reset = document.getElementById("sl-reset");
-  if (!phone || !reset) return;
+  var reset = document.getElementById("sl-reset");
+  var frames = ["sl-live-phone", "sl-live-phone-b", "sl-live-member"].map(function (id) { return document.getElementById(id); });
+  if (!reset || !frames[0]) return;
   reset.addEventListener("click", function () {
-    try { localStorage.removeItem("kitchie.sl:demo-list"); } catch (e) { /* no storage: nothing was kept */ }
-    phone.contentWindow.location.replace("list.html");
+    try { localStorage.removeItem("kitchie.sl.srv:live"); } catch (e) { /* no storage: nothing was kept */ }
+    frames.forEach(function (f) { if (f && f.contentWindow) f.contentWindow.location.reload(); });
   });
 })();

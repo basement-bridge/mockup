@@ -1,7 +1,7 @@
 /* Shopper link, the shopper's pages (list.html, summary.html, sent.html, finished.html). NEW FOR THE BUILD: lift this file as it is.
-   It sits on top of rules the app already has (kitchie.css here): ul.rows.shop, li.shoprow, .swfg, .tick, .rlink, .em, .smain, .sname, .want,
-   .hint, .note, .btn, .selbar, .shop-empty, .ric, .brandbar, .toast, .sr-only. Every name added here starts with sl-. Theme tokens only.
-   The states need no script: a ticked line is li:has(input:checked), an open swap is details[open]. */
+   It sits on top of rules the app already has (kitchie.css here): ul.rows.shop, li.shoprow, .swrow, .swfg, .swbg, .tick, .rlink, .em, .smain, .sname, .want,
+   .hint, .note, .btn, .selbar, .shop-empty, .ric, .brandbar, .toast, .sr-only. Every name added here starts with sl-.
+   Theme tokens only. The look of a line follows its data-state (open, got, notgot, swapped) and the page's data-sl-mode (swipe or multi). */
 
 /* The page: one phone column on any screen, like the invite landing page. No app header, no bottom bar. */
 main.sl-page{max-width:30rem;margin:0 auto}
@@ -9,11 +9,25 @@ main.sl-page h1{font-size:2rem;line-height:1.05;margin:.2rem 0 .3rem}
 main.sl-page h1:focus{outline:none}
 .sl-form{margin:0}
 .sl-foot{margin:12px 2px 0}
+.sl-sprite{position:absolute}
+
+/* Undo, always on screen (SL-D6): stuck to the top of the page. The shopper is the person least familiar with the app. */
+.sl-undo-bar{position:sticky;top:0;z-index:7;display:flex;align-items:center;gap:10px;margin:0 -2px 6px;padding:6px 2px;background:var(--bg);border-bottom:1px solid var(--border)}
+.sl-undo{display:inline-flex;align-items:center;gap:6px;flex:none;min-height:44px;padding:0 14px;border:1px solid var(--border);border-radius:.8rem;background:var(--surface);color:var(--fg);font:inherit;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.sl-undo svg{color:var(--accent)}
+.sl-undo:disabled{opacity:.5;cursor:default}
+.sl-undo:disabled svg{color:var(--muted)}
+.sl-status{flex:1 1 auto;min-width:0;margin:0;font-size:.9rem;line-height:1.3;color:var(--muted);overflow-wrap:anywhere}
+.sl-status b,.sl-status span{display:block}
+.sl-status b{color:var(--fg);font-size:1rem}
+.sl-back-swipe{flex:none;max-width:6.2rem;min-height:44px;padding:0 6px;line-height:1.2;text-align:right;border:0;background:none;color:var(--accent);font:inherit;font-size:.9rem;font-weight:700;cursor:pointer}
+.sl-allset{display:flex;flex-direction:column;gap:2px;margin:0 0 10px;padding:.7rem .9rem;border:1px solid var(--sage);border-radius:1rem;background:var(--surface);font-size:.9rem;color:var(--muted)}
+.sl-allset b{font-size:1.05rem;color:var(--fg)}
 
 /* A list line. The whole line is the tick: label.tick holds the real checkbox, label.rlink points at it.
    (The app's own row uses button.tick[role=checkbox], which cannot work without script; the look is the app's rule, a size up.) */
 .sl-list li.shoprow{min-height:0}
-.sl-list li.shoprow .swfg{min-height:48px;transition:none}
+.sl-list li.shoprow .swfg{min-height:56px;touch-action:pan-y;transform:translateX(var(--dx,0px))}
 .sl-list li.shoprow .tick{position:relative;width:56px;height:48px;margin-left:0}
 .sl-list li.shoprow .tick input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}
 .sl-list li.shoprow .tick span{width:32px;height:32px;border-radius:9px}
@@ -24,13 +38,43 @@ main.sl-page h1:focus{outline:none}
 @media (prefers-reduced-motion:no-preference){.sl-list li.shoprow .tick span{transition:background-color .16s ease,border-color .16s ease,transform .16s ease}
 .sl-list li.shoprow .tick span path{transition:stroke-dashoffset .22s ease-out .04s}
 .sl-list li.shoprow .tick:active span{transform:scale(.88)}}
-.sl-list li.shoprow .rlink{padding:.5rem .5rem .1rem 0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.sl-list li.shoprow .rlink{padding:.5rem .5rem .1rem 0;cursor:pointer;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
 .sl-list li.shoprow .smain,.sl-list li.shoprow .sname{display:block}
+.sl-sub{display:block;margin-top:.1rem;font-size:.9rem;line-height:1.3;font-weight:600;color:var(--muted)}
 /* Got: crossed out with a plain line. The app's hand-drawn scribble needs its script, and this page stays tiny. */
 .sl-list li.shoprow:has(.tick input:checked) [data-scribble]{text-decoration:line-through;text-decoration-color:var(--accent);text-decoration-thickness:2px}
-.sl-list li.shoprow:has(.tick input:checked) :is(.em,.want),.sl-list li.shoprow[data-sl-swapped] :is(.em,.want){opacity:.55}
+.sl-list li.shoprow:has(.tick input:checked) :is(.em,.want),.sl-list li.shoprow[data-state=swapped] :is(.em,.want),.sl-list li.shoprow[data-state=notgot] :is(.em,.want){opacity:.55}
 
-/* "Got something else": a details element, so it opens with no script. One short text field inside. */
+/* The swipe reveals (SL-D5): right is "Got it", left is "Couldn't find". They sit under the line and show as it slides. */
+.sl-list li.shoprow .swbg{position:absolute;inset:0;display:none;align-items:center;gap:8px;padding:0 20px;font-weight:700}
+.sl-list li.shoprow .swbg.got{justify-content:flex-start;background:var(--accent);color:var(--on-accent,var(--bg))}
+.sl-list li.shoprow .swbg.no{justify-content:flex-end;background:color-mix(in srgb,var(--muted) 35%,var(--bg));color:var(--fg)}
+main[data-sl-mode=swipe] .sl-list li.shoprow[data-sl-drag=got] .swbg.got,main[data-sl-mode=swipe] .sl-list li.shoprow[data-sl-drag=notgot] .swbg.no{display:flex}
+.sl-list li.shoprow[data-sl-drag][data-sl-armed] .swbg{box-shadow:inset 0 0 0 3px var(--fg)}
+.sl-list li.shoprow[data-sl-drag] .swfg{transition:none}
+.sl-list li.shoprow[data-sl-drag] .rlink{pointer-events:none}
+main[data-sl-mode=swipe] .sl-list li.shoprow .swfg{cursor:grab}
+
+/* Not found (swipe left). A dashed muted box with a dash in it; the line says so, and a swipe right still gets it on a second trip. */
+.sl-list li.shoprow[data-state=notgot] .tick span{border-style:dashed;color:var(--muted)}
+.sl-list li.shoprow[data-state=notgot] .tick span svg{display:none}
+.sl-list li.shoprow[data-state=notgot] .tick span::after{content:"";width:14px;height:2px;border-radius:2px;background:currentColor}
+.sl-list li.shoprow[data-state=notgot] .sl-sub{color:var(--muted)}
+/* Got on another link (SL-D3, SL-J4): the line is done and nobody should buy it twice, so it is locked here. Nobody is named (kitchie#479 P6). */
+.sl-list li.shoprow[data-by=other] .tick{pointer-events:none}
+.sl-list li.shoprow[data-by=other] .tick span{background:var(--surface);border-color:var(--sage);color:var(--sage)}
+.sl-list li.shoprow[data-by=other] .tick input:checked+span{background:var(--surface);border-color:var(--sage);color:var(--sage)}
+.sl-list li.shoprow[data-by=other] .tick span path{stroke-dashoffset:0}
+.sl-list li.shoprow[data-by=other] .sl-sub{color:var(--sage)}
+.sl-list li.shoprow[data-by=other] .sl-acts{display:none}
+.sl-list li.shoprow[data-fresh]{animation:sl-fresh 2.4s ease-out}
+@keyframes sl-fresh{from{background:color-mix(in srgb,var(--sage) 28%,var(--bg))}to{background:var(--bg)}}
+@media (prefers-reduced-motion:reduce){.sl-list li.shoprow[data-fresh]{animation:none}}
+/* The divider on a second visit: what is still to get first, what is bought after (the server orders it; SL-J9). */
+.sl-list li.sl-divider{min-height:0;padding:14px 2px 6px;border-bottom:0;font-size:.85rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+
+/* "Got something else" (SL-D9): a small button under the line that opens one text field in place. Said and done, it is one line again. */
+.sl-acts{position:relative}
 .sl-swap{margin:0 8px 0 56px}
 .sl-swap>summary{display:flex;align-items:center;gap:6px;width:fit-content;min-height:44px;max-width:100%;margin:-6px 0 0 -8px;padding:0 10px 0 8px;border-radius:.75rem;color:var(--muted);font-size:.9rem;font-weight:600;line-height:1.25;cursor:pointer;list-style:none;-webkit-tap-highlight-color:transparent}
 .sl-swap>summary::-webkit-details-marker{display:none}
@@ -38,20 +82,50 @@ main.sl-page h1:focus{outline:none}
 .sl-swap>summary svg{flex:none}
 .sl-swap>summary span{min-width:0;overflow-wrap:anywhere}
 .sl-swap[open]>summary{color:var(--fg)}
-.sl-swap-f{padding:0 0 12px}
-.sl-swap-f input{font:inherit;width:100%;min-height:48px;padding:.4rem .9rem;background:var(--surface);color:var(--fg);border:1px solid var(--border);border-radius:.8rem}
+.sl-swap-f{display:flex;gap:8px;padding:0 0 12px}
+.sl-swap-f input{flex:1 1 auto;min-width:0;font:inherit;min-height:48px;padding:.4rem .9rem;background:var(--surface);color:var(--fg);border:1px solid var(--border);border-radius:.8rem}
 .sl-swap-f input::placeholder{color:var(--muted);opacity:1}
 .sl-swap-f input:focus-visible{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
-/* A swapped line (set by shopper.js): no tick, a dashed box, and the summary says what came home instead. */
-.sl-list li.shoprow[data-sl-swapped] .tick span{border-style:dashed;border-color:var(--accent)}
-.sl-list li.shoprow[data-sl-swapped] .sl-swap>summary{color:var(--accent)}
+.sl-swap-f .btn{flex:none;min-height:48px;margin:0}
+/* A swapped line: no tick, a dashed box, and the line says what came home instead. */
+.sl-list li.shoprow[data-state=swapped] .tick span{border-style:dashed;border-color:var(--accent)}
+.sl-list li.shoprow[data-state=swapped] .sl-swap>summary{color:var(--accent)}
+/* The keyboard and screen-reader way to say "couldn't find" (swiping is a shortcut, not the only way). Visible only when it has focus. */
+.sl-nf{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.sl-nf:focus-visible{position:static;display:block;width:auto;height:auto;margin:0 0 8px 56px;padding:.6rem 1rem;clip:auto;border:1px solid var(--border);border-radius:.8rem;background:var(--surface);color:var(--fg);font:inherit;font-weight:600}
 
-/* The Send bar: the app's .selbar, sitting on the bottom edge because this page has no bottom bar. */
+/* Multi-select (SL-D8): no swipes, no reveals; the whole list is checkboxes and nothing syncs. */
+main[data-sl-mode=multi] .sl-list li.shoprow .swfg{transform:none}
+main[data-sl-mode=multi] .sl-list li.shoprow .tick span{border-style:solid}
+main[data-sl-mode=multi] .sl-list li.shoprow[data-by=other] .sl-sub{margin-top:0}
+main[data-sl-mode=multi] .sl-undo-bar{border-bottom-color:var(--accent)}
+
+/* Also got (SL-D10): the things that came home and were not on the list. */
+.sl-also{margin:18px 0 0}
+.sl-also h2{margin:0 2px 8px;font-family:var(--head);font-size:1.1rem;line-height:1.2}
+.sl-extras{list-style:none;margin:0;padding:0}
+.sl-extras:empty{display:none}
+.sl-extras li{display:flex;align-items:center;gap:10px;min-height:52px;padding:.3rem 0 .3rem 2px;border-bottom:1px solid var(--border)}
+.sl-extras li>svg{flex:none;color:var(--accent)}
+.sl-extras li>span{flex:1 1 auto;min-width:0;font-weight:600;overflow-wrap:anywhere}
+.sl-extras li small{display:block;font-size:.85rem;font-weight:600;color:var(--muted)}
+.sl-x{flex:none;display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border:0;border-radius:.75rem;background:none;color:var(--muted);cursor:pointer}
+.sl-also-f{display:flex;gap:8px;margin-top:8px}
+.sl-also-f input{flex:1 1 auto;min-width:0;font:inherit;min-height:48px;padding:.4rem .9rem;background:var(--surface);color:var(--fg);border:1px solid var(--border);border-radius:.8rem}
+.sl-also-f input::placeholder{color:var(--muted);opacity:1}
+.sl-also-f input:focus-visible{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+.sl-also-f .btn{flex:none;gap:6px;min-height:48px;margin:0}
+
+/* The bottom bars: the app's .selbar, sitting on the bottom edge because this page has no bottom bar.
+   Swipe mode: "Won't be able to buy these", quiet on purpose (it ends the lines still open, so it must not be the easy thing to hit). Multi-select: Send. */
 .selbar.sl-send{bottom:calc(12px + env(safe-area-inset-bottom));max-width:calc(30rem - 24px)}
 .sl-send button.btn{min-height:52px}
 .sl-send button.btn.sl-back{flex:0 0 auto;width:auto;border:1px solid var(--border);background:var(--bg);color:var(--fg);font-weight:600}
 .sl-send button.btn:disabled{opacity:.6;cursor:default}
 .sl-send-n{font-weight:600;opacity:.85;white-space:pre}
+.selbar.sl-wont{border-color:var(--border)}
+.sl-wont button.btn{gap:.4rem;background:var(--bg);color:var(--fg);border:1px solid var(--border)}
+.sl-wont button.btn[disabled]{opacity:.5}
 
 /* The confirm step and the sent page: one sentence, three counts, then only the lines that are not a plain "got". */
 .sl-sum{margin:.5rem 2px 0;font-size:1.1rem;font-weight:700;line-height:1.3;color:var(--fg)}
@@ -65,7 +139,7 @@ main.sl-page h1:focus{outline:none}
 .sl-lines{list-style:none;margin:0;padding:0}
 .sl-lines li{display:flex;align-items:center;gap:12px;min-height:52px;padding:.4rem 2px;border-bottom:1px solid var(--border)}
 .sl-lines li>svg{flex:none;color:var(--muted)}
-.sl-lines li[data-sl-line=swapped]>svg{color:var(--accent)}
+.sl-lines li[data-sl-line=swapped]>svg,.sl-lines li[data-sl-line=also]>svg{color:var(--accent)}
 .sl-lines li>span{min-width:0}
 .sl-lines b{display:block;font-weight:600;overflow-wrap:anywhere}
 .sl-lines small{display:block;font-size:.9rem;color:var(--muted);overflow-wrap:anywhere}
@@ -73,6 +147,8 @@ main.sl-page h1:focus{outline:none}
 /* Sent, and "That link has finished": the Shopping screen's own empty-state card. */
 .sl-end{margin:.6rem 0 1rem}
 .sl-end .ric{width:64px;height:64px}
+.sl-again{display:flex;margin:14px 0 0}
+.sl-again a.btn{flex:1;min-height:52px;margin:0}
 
 /* PHASE TWO, NOT BUILT. The two ways to finish, side by side; the server leaves the block out in phase one. The receipt screens themselves
    are in receipt.css, fetched with receipt.js only when the shopper picks that mode. */

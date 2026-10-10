@@ -2,16 +2,20 @@
    (web-shopping.ts SHOPPING_CSS). It sits on rules the app already has (kitchie.css here): .btn, .ric, .note, .icon, li.shoprow and its parts,
    .shome, .selbar. Every name added here starts with sl-. Theme tokens only. */
 
-/* The hand-off slot above the list: Share, then one quiet line per live link, then (later) the result card. */
+/* The hand-off slot above the list: the hand-off control, then one quiet line per link, then one card per link that has something to say. */
 .sl-top{display:flex;flex-direction:column;gap:4px;margin:0 0 8px}
 .sl-top:not(:has(*)){display:none}
-.sl-share{display:flex;align-items:center;gap:10px;margin:0;padding:5px 5px 5px 14px;border:1px dashed var(--border);border-radius:18px}
-.sl-share-t{flex:1 1 auto;min-width:0;font-size:.95rem;font-weight:600;line-height:1.25}
-.sl-share button.btn{flex:none;gap:6px;margin:0;border-color:var(--border);background:var(--surface);color:var(--fg);font-weight:700}
-.sl-share button.btn svg{color:var(--accent)}
-.sl-share button.btn:disabled{opacity:.6;cursor:default}
+.sl-share{margin:0}
+.sl-handoff{display:flex;align-items:center;gap:12px;width:100%;min-height:60px;margin:0;padding:8px 10px 8px 14px;border:1px dashed var(--border);border-radius:18px;background:none;color:var(--fg);font:inherit;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.sl-handoff>svg:first-child{flex:none;color:var(--accent)}
+.sl-handoff>svg:last-child{flex:none;margin-left:auto;color:var(--muted)}
+.sl-handoff-t{flex:1 1 auto;min-width:0;line-height:1.25}
+.sl-handoff-t b{display:block;font-size:1rem}
+.sl-handoff-t span{display:block;font-size:.85rem;color:var(--muted)}
+.sl-handoff:disabled{opacity:.6;cursor:default}
 .sl-live{display:flex;align-items:center;gap:10px;min-height:48px;padding-left:10px;font-size:.9rem;line-height:1.3;color:var(--muted)}
 .sl-live>svg{flex:none;color:var(--sage)}
+.sl-live[data-sl-kind=unsent]>svg{color:var(--muted)}
 .sl-live-t{flex:1 1 auto;min-width:0}
 .sl-live-t b{display:block;font-weight:600;color:var(--fg)}
 .sl-live-t span{display:block}
@@ -19,11 +23,16 @@
 .sl-quiet{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;padding:0 10px;border:0;border-radius:.75rem;background:none;color:var(--accent);font:inherit;font-size:.9rem;font-weight:700;cursor:pointer}
 .sl-full{margin:0 2px 0 10px}
 
-/* The result: the shopper has sent the list. Counts only; the lines themselves carry the detail. */
+/* What came back on one link (SL-D4): a notification, not a gate. The list and the Pantry are already up to date; this says so, with the counts and which lines. */
 .sl-card{margin:0 0 6px;padding:8px 12px 12px;border:1px solid var(--accent);border-radius:18px;background:var(--surface)}
 .sl-card-h{display:flex;align-items:center;gap:10px;margin-right:-8px}
 .sl-card-h b{flex:1 1 auto;min-width:0;font-size:1.05rem;line-height:1.2}
 .sl-card .note{margin:8px 0 0}
+.sl-card .sl-card-who{margin:6px 0 0;font-size:.9rem;line-height:1.35;color:var(--fg)}
+.sl-card-live{display:inline-flex;align-items:center;gap:5px;margin-left:2px;font-size:.8rem;font-weight:700;color:var(--sage)}
+.sl-card-live::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--sage)}
+@media (prefers-reduced-motion:no-preference){.sl-card-live::before{animation:sl-pulse 1.6s ease-in-out infinite}}
+@keyframes sl-pulse{50%{opacity:.35}}
 /* The same three counts as on the shopper's page, smaller (shopper.css has its own, larger set: the two pages share no stylesheet). */
 .sl-tally{list-style:none;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:4px 0 0;padding:0}
 .sl-tally li{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0;padding:7px 4px 6px;border:1px solid var(--border);border-radius:12px;background:var(--bg);font-size:.85rem;font-weight:600;line-height:1.2;color:var(--muted);text-align:center}
@@ -32,10 +41,27 @@
 .sl-tally [data-sl-tally=swapped] b{color:var(--accent)}
 .sl-tally li[data-n="0"] b{color:var(--muted)}
 
-/* A line the shopper swapped is not ticked and says what came home instead; a line they did not get says so. */
+/* Lines the shopper answered (SL-D2): the real list changes as they do, with no tap from a member. Bought lines are crossed out and say they are in the Pantry;
+   a swapped line says what came home instead and what the Pantry did with it; a line the shopper could not find says so and stays on the list. */
+li.shoprow[data-sl=got] :is(.em,.shome,.want){opacity:.55}
+li.shoprow[data-sl=got] [data-scribble]{text-decoration:line-through;text-decoration-color:var(--accent);text-decoration-thickness:2px}
+li.shoprow[data-sl=got] .tick{pointer-events:none}
 li.shoprow .sl-instead{display:flex;align-items:center;gap:5px;color:var(--accent);font-weight:600;overflow-wrap:anywhere}
 li.shoprow .sl-instead svg{flex:none}
 li.shoprow .sl-notgot{font-weight:600}
+li.shoprow .sl-pantry{display:flex;align-items:center;gap:5px;color:var(--sage);font-weight:600}
+li.shoprow .sl-pantry svg{flex:none}
+li.shoprow[data-fresh]{animation:sl-fresh 2.4s ease-out}
+@keyframes sl-fresh{from{background:color-mix(in srgb,var(--sage) 28%,var(--bg))}to{background:var(--bg)}}
+@media (prefers-reduced-motion:reduce){li.shoprow[data-fresh]{animation:none}}
+/* Things the shopper got that were not on the list (SL-D10), after the list: free text, with what the Pantry did with each. */
+.sl-also-m{margin:18px 0 0}
+.sl-also-m h2{margin:0 2px 4px;font-family:var(--head);font-size:1.1rem;line-height:1.2}
+.sl-also-m ul{list-style:none;margin:0;padding:0}
+.sl-also-m li{display:flex;align-items:center;gap:12px;min-height:60px;padding:.4rem 2px;border-bottom:1px solid var(--border)}
+.sl-also-m li>svg{flex:none;color:var(--accent)}
+.sl-also-m li>span{min-width:0;font-weight:600;overflow-wrap:anywhere}
+.sl-also-m li small{display:block;font-size:.9rem;font-weight:600;color:var(--sage)}
 
 /* Only when the phone has no share sheet and will not let the page copy. */
 .sl-sharebox{display:flex;flex-direction:column;gap:8px;margin:0 0 12px;padding:12px;border:1px solid var(--accent);border-radius:18px;background:var(--surface)}

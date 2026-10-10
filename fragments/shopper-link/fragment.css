@@ -71,3 +71,14 @@
 .sl-why li{margin:8px 0;font-size:14px;color:var(--muted)}
 .sl-why li b{color:var(--fg)}
 .sl-notes .q{margin:4px 0 0}
+
+/* Three phones that share one pretend server (the live try-it), and the decision lists. */
+.sl-trio{display:grid;gap:14px;margin-top:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));align-items:start}
+.sl-trio .sl-ph{max-width:360px;margin-top:0}
+.sl-trio .sl-ph iframe{height:640px}
+.sl-trio+.sl-try{margin-top:14px}
+.sl-try:has(ol:only-child),.sl-trio+.sl-try{grid-template-columns:1fr}
+.sl-review{border-color:var(--accent)}
+ol.sl-dec{margin:8px 0 0;padding:0 0 0 22px}
+ol.sl-dec li{margin:9px 0}
+.sl-notes>.tag{white-space:normal;display:inline-block;max-width:100%;vertical-align:top}
