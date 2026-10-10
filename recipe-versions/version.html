@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>A version — Recipe versions mockup</title>
+<link rel="stylesheet" href="../theme.css"><link rel="stylesheet" href="../recipe/recipe.css"><link rel="stylesheet" href="versions.css">
+<script src="../theme.js"></script><script src="../recipe/recipe.js"></script><script src="versions.js"></script></head>
+<body data-no-theme-fab>
+<div class="stage"><div class="phone" id="ph"></div></div>
+<script>
+(function(){
+var X=RCP,V=VER,ic=X.ic,esc=X.esc,F=V.FAM;
+var v=V.byId(X.Q.get("v")||F.usual)||V.byId(F.usual);
+var follower=X.P.persona==="follower";
+var ph=document.getElementById("ph");
+var star=!!v.star;
+function band(){
+  /* V-D4: the state says itself in one slim band, with the one action that moves it on. Kept needs no band unless it is the usual. */
+  var h=V.head(v);
+  if(v.state==="trying")return '<div class="band">'+ic("flame","s")+'<span class="t"><b>Trying</b> since '+v.when+' · cooked '+v.cooked+'×<small>Changes save straight into it. Revision '+h.n+'.</small></span>'+(follower?'':'<button type="button" class="btn sm" data-keep>Keep it</button>')+'</div>';
+  if(v.state==="put_away")return '<div class="band mut">'+ic("x","s")+'<span class="t"><b>Put away</b><small>'+esc(v.awayWhy||"Hidden from lists, plans and ideas.")+'</small></span><button type="button" class="btn sm ghost" data-back>Bring back</button></div>';
+  if(v.state==="spun")return '<div class="band mut">'+ic("branch","s")+'<span class="t"><b>Spun off</b><small>Now its own recipe: '+esc(v.spunTo)+'. Its versions live there.</small></span><a class="btn sm ghost" href="#" data-spunopen>Open</a></div>';
+  return '';
+}
+function draw(){
+  var c=V.CONTENT[v.id],p=v.parent?V.byId(v.parent):null,h=V.head(v),sg=F.sugg.filter(function(s){return s.target===v.id})[0];
+  var vcount=F.versions.filter(function(x){return x.state!=="put_away"&&x.state!=="spun"}).length;
+  /* V-D8: one chip names the version and the family; it opens the family screen, not a sheet, because the family is now a place. */
+  var meta='<div class="meta"><span class="mc ro">'+ic("clock")+'20 min</span><a class="mc" href="family.html?v='+v.id+'">'+ic("branch")+esc(v.name)+' · '+vcount+' versions'+ic("chev")+'</a></div>';
+  var line='<p style="font-size:12.5px;margin-top:6px">'+(p?'From <a href="version.html?v='+p.id+'" style="color:var(--accent);font-weight:700">'+esc(p.name)+'</a> · ':'')+'Made by '+V.who(v.by)+(V.isAI(v.by)?' for '+V.who(V.WHO[v.by][2]):'')+', '+v.when+' · <a href="history.html?v='+v.id+'" style="color:var(--accent);font-weight:700">'+h.n+' revision'+(h.n>1?'s':'')+'</a></p>';
+  /* V-D12: a child is pinned to the parent revision it was made from. A later fix to the parent is offered once, never applied silently. */
+  var pf=p&&!follower&&v.state!=="put_away"&&v.state!=="spun"?p.revs.filter(function(r){return r.kind==="fix"&&r.when==="21 Sep"&&v.id==="v1"})[0]:null;
+  var pfix=pf&&!window._pfDone?'<div class="slim"><span class="e" aria-hidden="true">↧</span><span class="t"><b>'+esc(p.name)+' was fixed on '+pf.when+'</b><small>Step 4 now says cold rice. Yours still says the rice.</small></span><button type="button" class="mini" data-pf>Bring it in</button></div>':'';
+  var sug=sg&&!follower?'<a class="slim acc" href="suggestions.html?s='+sg.id+'">'+'<span class="e" aria-hidden="true">✦</span><span class="t"><b>'+V.who(sg.by)+' suggests a change</b><small>'+esc(sg.title)+' · waiting for a person</small></span>'+ic("chev","s")+'</a>':'';
+  var ings=c.ings.map(function(i){var ch=c.chg[i[0]];return '<div class="ing'+(ch?' chg':'')+'"><span class="dot" aria-hidden="true"></span><span class="nm">'+esc(i[0])+'<span class="q">'+esc(i[1])+'</span>'+(ch&&ch!=="added"?' <span class="was">(<s>'+esc(ch)+'</s>)</span>':'')+(ch==="added"?' <span class="was">added</span>':'')+'</span></div>'}).join("");
+  var st=c.steps.map(function(s,k){return '<div class="stp"><span class="nb">'+(k+1)+'</span><div style="flex:1"><p>'+esc(s)+'</p></div></div>'}).join("");
+  ph.innerHTML='<div class="top"><a class="back" href="family.html">'+ic("back","s")+'Versions</a><span class="ttl"></span>'+
+    '<button type="button" class="ib bare" data-star aria-pressed="'+star+'" aria-label="'+(star?"Starred by you":"Star")+'">'+(star?'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true" style="fill:var(--accent);stroke:var(--accent)"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8 6.8 19.6l1-5.8L3.5 9.7l5.9-.8z"/></svg>':ic("star"))+'</button>'+
+    (follower?'':'<button type="button" class="ib bare" data-more aria-label="More" aria-haspopup="dialog">'+ic("dots")+'</button>')+'</div>'+
+    '<div class="body" id="body">'+band()+sug+pfix+
+    '<div class="pad"><div style="display:flex;gap:8px;align-items:flex-start"><span style="font-size:34px;line-height:1" aria-hidden="true">'+F.e+'</span><h1 style="flex:1">'+esc(F.name)+'</h1></div>'+
+    '<div class="pills" style="margin-top:6px">'+(F.usual===v.id?V.usual:'')+V.pill(v.state)+'<span class="tg mut">'+esc(v.name)+'</span></div>'+meta+line+'</div>'+
+    '<section class="sec"><div class="lblrow"><span class="lbl">Ingredients · serves 2</span></div>'+ings+'</section>'+
+    '<section class="sec"><div class="lblrow"><span class="lbl">Method</span></div>'+st+'</section><div style="height:24px"></div></div>'+
+    '<div class="act">'+(follower||v.state==="spun"?'':'<a class="btn ghost" href="change.html?v='+v.id+'">'+ic("pen","s")+'Change</a>')+
+    (v.state==="put_away"||v.state==="spun"?'':'<a class="btn" href="after-cook.html?v='+v.id+'">'+ic("flame","s")+'Cook it</a>')+'</div>';
+}
+ph.addEventListener("click",function(e){
+  var t=e.target.closest("button,a");if(!t)return;
+  if(t.hasAttribute("data-star")){star=!star;draw();X.toast(star?"Starred for you. Others keep their own stars.":"Unstarred")}
+  else if(t.hasAttribute("data-keep")){e.preventDefault();keepSheet()}
+  else if(t.hasAttribute("data-back")){v.state="kept";draw();X.toast("Back as Kept. It shows in lists again.",function(){v.state="put_away";draw()})}
+  else if(t.hasAttribute("data-spunopen")){e.preventDefault();X.toast("Opens Kimchi fried rice (sample stops here)")}
+  else if(t.hasAttribute("data-more"))more();
+  else if(t.hasAttribute("data-pf")){X.sheet('<h3>Bring the fix into '+esc(v.name)+'?</h3><p style="font-size:13px">Original changed step 4 to say cold rice. '+esc(v.name)+' was made before that, so it still says "the rice". Bringing it in saves revision '+(V.head(v).n+1)+' of '+esc(v.name)+'.</p>'+V.diff([["chg","Step 4: Tip in the cold rice and the peas…","Tip in the rice and the peas…"]])+'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn ghost" data-close data-pfno>Leave it</button><button class="btn" data-close data-pfok>Bring it in</button></div>',function(s){s.addEventListener("click",function(e){if(e.target.closest("[data-pfok],[data-pfno]")){window._pfDone=1;setTimeout(draw,0);if(e.target.closest("[data-pfok]"))X.toast("Saved as revision "+(V.head(v).n+1))}})})}
+});
+function keepSheet(){
+  X.sheet('<h3>Keep '+esc(v.name)+'?</h3><p style="font-size:13px">It stops being a try. Changes after this ask first: fix it, or save a new version.</p>'+
+    '<button type="button" class="ch" data-u aria-pressed="false">'+ic("star")+'<span class="t"><b>Also make it our usual</b><small>Plan, Cook and Ideas open this one instead of '+esc(V.byId(F.usual).name)+'.</small></span><span class="rad" aria-hidden="true"></span></button>'+
+    '<div style="display:flex;gap:8px;margin-top:14px"><button class="btn ghost" data-close>Not yet</button><button class="btn" data-ok>Keep it</button></div>',
+  function(s,close){var u=s.querySelector("[data-u]");u.onclick=function(){u.setAttribute("aria-pressed",u.getAttribute("aria-pressed")!=="true")};
+    s.querySelector("[data-ok]").onclick=function(){var was=F.usual,mk=u.getAttribute("aria-pressed")==="true";v.state="kept";if(mk)F.usual=v.id;close();draw();X.toast("Kept"+(mk?" and made our usual":""),function(){v.state="trying";F.usual=was;draw()})}});
+}
+function more(){
+  /* V-D9: every lifecycle action lives in one sheet, in the order people reach for them. Only the ones that apply show. */
+  var o=[];
+  if(F.usual!==v.id&&v.state!=="put_away"&&v.state!=="spun")o.push(['data-usual',"star","Make it our usual","Plan, Cook and Ideas open this one for everyone"]);
+  if(v.state!=="spun")o.push(['href="change.html?v='+v.id+'&new=1"',"branch","New version from this","Starts as Trying, with this one as its parent"]);
+  if(v.state!=="spun")o.push(['data-spin',"spark","Make it its own recipe","For when it is a different dish now. The link back stays"]);
+  o.push(['href="history.html?v='+v.id+'"',"undo","History","Every saved change, who made it, and going back"]);
+  if(F.usual!==v.id)o.push(['href="history.html?v='+v.id+'&cmp='+F.usual+'"',"note","Compare with our usual","Side by side, only what differs"]);
+  if(v.state==="trying")o.push(['data-keep',"check","Keep it","Stops being a try"]);
+  if(v.state==="kept"&&F.usual!==v.id)o.push(['data-totry',"flame","Back to trying","Changes save straight into it again"]);
+  if(v.state!=="put_away"&&v.state!=="spun")o.push(['data-away',"x",F.usual===v.id?"Put away (pick a new usual first)":"Put away","Hidden from lists, plans and ideas. Nothing is deleted"]);
+  X.sheet('<h3>'+esc(v.name)+'</h3>'+o.map(function(x){var isA=/^href/.test(x[0]);return (isA?'<a class="opt" '+x[0]+'>':'<button type="button" class="opt" '+x[0]+(F.usual===v.id&&x[0]==="data-away"?' disabled style="opacity:.5"':'')+'>')+ic(x[1])+'<span class="t"><b>'+x[2]+'</b><small>'+x[3]+'</small></span>'+(isA?'</a>':'</button>')}).join(""),
+  function(s,close){s.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;
+    if(b.hasAttribute("data-usual")){var was=F.usual;F.usual=v.id;if(v.state==="trying")v.state="kept";close();draw();X.toast("Our usual is now "+v.name,function(){F.usual=was;draw()})}
+    else if(b.hasAttribute("data-keep")){close();keepSheet()}
+    else if(b.hasAttribute("data-totry")){v.state="trying";close();draw();X.toast("Back to trying")}
+    else if(b.hasAttribute("data-away")){v.state="put_away";v.awayWhy="Put away just now by "+X.me[2];close();draw();X.toast("Put away",function(){v.state="kept";draw()})}
+    else if(b.hasAttribute("data-spin")){close();X.sheet('<h3>Make it its own recipe</h3><p style="font-size:13px">'+esc(v.name)+' becomes a new recipe in the list, starting as Trying. This family keeps a "Spun off" row that points to it, and the new one shows "From '+esc(F.name)+'".</p><label class="lbl" for="sn" style="display:block;margin-top:12px">New recipe name</label><input id="sn" class="field" style="margin-top:4px" value="'+esc(v.name)+'"><div style="display:flex;gap:8px;margin-top:12px"><button class="btn ghost" data-close>Back</button><button class="btn" data-close>Make it</button></div>')}
+  })});
+}
+draw();
+V.controls();
+})();
+</script>
+</body></html>

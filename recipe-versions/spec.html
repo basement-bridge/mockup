@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Recipe versions backend spec</title>
+<link rel="stylesheet" href="../theme.css"><link rel="stylesheet" href="../shared.css"><script src="../theme.js"></script>
+<style>
+.banner{margin-top:14px;padding:12px 14px;border:1px dashed var(--danger);border-radius:var(--r-card);font-size:14px;color:var(--fg)}
+.banner b{color:var(--danger)}
+h3{font:800 1.05rem var(--head);margin:22px 0 6px}
+.sec p,.sec li{font-size:14px}
+.sec ul,.sec ol{color:var(--muted);padding-left:20px;margin:6px 0}
+.sec li{margin:4px 0}
+.sec li b{color:var(--fg)}
+code{font-size:12.5px;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0 4px;color:var(--fg)}
+pre{font-size:12px;line-height:1.45;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-ctl);padding:10px 12px;overflow-x:auto;color:var(--fg);margin:8px 0}
+pre code{border:0;padding:0;background:none}
+.tw{overflow-x:auto;margin-top:8px}
+.tw table{min-width:560px;font-size:13px}
+.tw td code{white-space:nowrap}
+.tag.new{color:var(--sage);border-color:var(--sage)}
+.tag.chg{color:var(--accent);border-color:var(--accent)}
+.tag.dep{color:var(--danger);border-color:var(--danger)}
+.issue{border:1px solid var(--border);border-radius:var(--r-card);padding:12px 14px;margin-top:10px;background:var(--surface)}
+.issue b{color:var(--fg)}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.toc a{display:inline-flex;align-items:center;min-height:var(--tap);padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--border);font-size:13px;font-weight:700}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="index.html">&lsaquo; Recipe versions</a>
+<h1>Recipe versions: backend spec</h1>
+<p>What Recipe needs, as MCP tools, HTTP and storage, to support the <a href="index.html" style="color:var(--accent);font-weight:700">versions and lifecycle mockup</a> (V-D1 to V-D30). Written against Recipe's code as of 10 October 2026 (schema v5, 21 tools, <code>server/src/mcp.ts</code>, <code>domain.ts</code>, <code>schema.ts</code>).</p>
+<div class="banner"><b>Backend rules, to be filed as Recipe repo issues later.</b> Nothing here is filed or built. Recipe's AGENTS.md says recipes and variations are immutable and that a schema change is an owner-reserved decision: this page proposes changing that rule, so it needs the owner's yes on an issue first. Everything stays in UAT until the owner tags a release. All Proposal.</div>
+<div class="toc"><a href="#rules">Rules</a><a href="#data">Data model</a><a href="#tools">Tools</a><a href="#errors">Errors</a><a href="#changed">Existing tools</a><a href="#http">HTTP</a><a href="#migrate">Migration</a><a href="#issues">Issues to file</a></div>
+
+<section class="sec" id="rules"><div class="lbl">1. Rules (replace "recipes and variations are immutable")</div>
+<ol>
+<li><b>BR1 Revisions are immutable.</b> A revision's content, author, channel, words and time never change and are never deleted (DB triggers, as today's <code>recipes_immutable</code>).</li>
+<li><b>BR2 Versions and families are mutable pointers.</b> Allowed to change: version <code>name</code>, <code>state</code>, <code>head_revision_id</code>; family <code>name</code>, <code>usual_version_id</code>. Nothing else. Every change appends a journal event with actor and channel.</li>
+<li><b>BR3 Nothing is deleted.</b> Put away (<code>state = put_away</code>) replaces disabled. No DELETE on families, versions, revisions, cooks, suggestions.</li>
+<li><b>BR4 One usual per family, always.</b> It must be a version in state <code>trying</code> or <code>kept</code>. Setting a <code>trying</code> version as usual also sets it <code>kept</code>. The usual cannot be put away.</li>
+<li><b>BR5 Parent is pinned.</b> A version records <code>parent_version_id</code> and <code>parent_revision_id</code>. Later revisions of the parent never change the child. "Bring in the parent's fix" is a normal revise call by the caller.</li>
+<li><b>BR6 Optimistic concurrency.</b> Every revise names <code>base_revision_id</code>; if it is not the head, the call fails with <code>stale_base</code> and returns the current head. Nothing is merged by the server.</li>
+<li><b>BR7 Author and channel on every write.</b> <code>actor_member_id</code> comes from the session (platform token; <code>legacy</code> in standalone). <code>channel</code> is <code>app</code> for HTTP from Kitchie and <code>assistant</code> for MCP. The server sets both; the caller cannot.</li>
+<li><b>BR8 Assistant writes carry the person's words.</b> On channel <code>assistant</code>, <code>user_intent</code> is required on create_version, revise_version, propose_change and set_version_state. On channel <code>app</code> it is optional (the tap is the intent). Same "never paraphrase into approval" wording as today's create_variation.</li>
+<li><b>BR9 Assistant scope (option 4 A).</b> On channel <code>assistant</code>: may create versions (born <code>trying</code>, or <code>suggested</code> for a whole new recipe, see BR10), may revise a <code>trying</code> or <code>suggested</code> version, may NOT revise a <code>kept</code> version or the usual and may NOT set state <code>kept</code>, set the usual or put away: those return <code>needs_person</code> and the caller should use <code>propose_change</code>. (Option 4 B removes the revise restriction; option 4 C reads a per-member <code>assistant_trusted</code> flag.)</li>
+<li><b>BR10 Suggested is invisible to ordinary reads.</b> A family whose only version is <code>suggested</code> is a draft (R-D12, gap G3): excluded from list, search, what_can_i_cook and ideas unless <code>include_suggested</code>. Accepting it (app, or a person through an assistant with words) moves it to <code>trying</code>.</li>
+<li><b>BR11 Temporary substitutions are still not persisted.</b> Unchanged from today: "I used pork tonight" is a cook-log note, not a revision, unless the person says keep it.</li>
+<li><b>BR12 Missing stays missing.</b> Unchanged: <code>basis</code>, <code>value: null</code>, no invented servings.</li>
+<li><b>BR13 Reasoning stays with the caller.</b> The server never picks a version, never merges, never judges a substitution, never decides a try is good.</li>
+</ol>
+<p>Option 5 on the overview asks how far to relax: <b>A</b> (this page) frozen revisions under mutable versions; <b>B</b> mutable rows with only the journal as history (simpler, but "see it as it was" and pinned parents need journal replay; not recommended); <b>C</b> keep today's immutability and add only state and usual (no edit in place: does not meet the brief).</p>
+</section>
+
+<section class="sec" id="data"><div class="lbl">2. Data model (schema v6)</div>
+<p>Option 6 on the overview: <b>A</b> (recommended) each revision stores the <b>whole resolved recipe</b>, plus a computed <code>changes</code> list against its predecessor for display. <b>B</b> stores a sparse change set against the pinned parent revision (today's variation model, pinned). A is chosen because editing in place makes a chain of sparse change sets fragile (a fix in the middle of a chain must not move every child), and recipes are small (a few KB). Ingredient and step ids stay stable across revisions so diffs and cook ticks line up.</p>
+<pre><code>families      id, household_id, name, usual_version_id, put_away (0|1),
+              created_at, created_by
+              (mutable: name, usual_version_id, put_away)
+versions      id, family_id, household_id, name, state, head_revision_id,
+              parent_version_id NULL, parent_revision_id NULL,
+              spun_to_family_id NULL, created_at, created_by, created_channel
+              state IN ('suggested','trying','kept','put_away','spun_off')
+              (mutable: name, state, head_revision_id, spun_to_family_id)
+revisions     id, version_id, household_id, n (1,2,3 per version), kind,
+              base_revision_id NULL, content_json (title, ingredients, steps,
+              servings, times, metadata, source), changes_json (vs base),
+              actor_member_id, channel, user_intent NULL, note NULL, created_at
+              kind IN ('create','fix','adjust','restore','merge_parent','spin','migrated')
+              IMMUTABLE, no delete
+suggestions   id, version_id, household_id, base_revision_id, changes_json,
+              title, user_intent, actor_member_id, channel, created_at,
+              status ('open','applied','branched','dismissed'), resolved_by,
+              resolved_at, result_revision_id NULL, result_version_id NULL
+              (content immutable; status moves forward once, like nutrition_proposals)
+cooks         id, household_id, family_id, version_id, revision_id, member_id,
+              servings, verdict NULL ('keep','work','no'), line NULL,
+              photo_ref NULL, cooked_at          (append-only; gap G2)
+member_prefs  member_id, version_id, starred, vote   (per member; V-D6)
+member_settings member_id, assistant_trusted       (only for option 4 C)
+legacy_ids    old_kind ('recipe'|'variation'), old_id, version_id, revision_id</code></pre>
+<p>Triggers: <code>revisions</code> and <code>cooks</code> no UPDATE, no DELETE; <code>versions</code> UPDATE only of the mutable columns, <code>head_revision_id</code> must point to a revision of the same version with a higher <code>n</code> (a restore is a new revision, so the head only moves forward); <code>families.usual_version_id</code> must be a version of the family in <code>trying</code>/<code>kept</code>; same-household checks as v5. <code>search_text</code> moves to <code>versions</code> and is rebuilt from the head revision when the head moves (derived, so mutable).</p>
+<p>Nutrition: <code>nutrition_observations.target_kind</code> gains <code>'revision'</code>. <code>get_nutrition</code> on a version reads the head revision's figures, and if there are none, returns the latest earlier revision's with <code>for_revision</code> and <code>stale: true</code> (V-D29). No recomputation.</p>
+</section>
+
+<section class="sec" id="tools"><div class="lbl">3. MCP tools (new)</div>
+<p>All writes go through the existing <code>runWrite</code> entitlement gate and append one journal event each. All are household-scoped. Ids: <code>fam_</code>, <code>ver_</code>, <code>rev_</code>, <code>sug_</code>, <code>ck_</code>.</p>
+<div class="tw"><table>
+<tr><th>Tool</th><th>Input</th><th>Output</th><th>Notes</th></tr>
+<tr><td><code>create_recipe</code> <span class="tag chg">changed</span></td><td>as today + <code>state?</code> (<code>trying</code> default from app; assistant may pass <code>suggested</code>), <code>user_intent?</code></td><td><code>{family, version, revision, potential_duplicates}</code></td><td>Makes a family, its first version "Original" (the usual) and revision 1. Duplicates surfaced, never merged.</td></tr>
+<tr><td><code>get_family</code> <span class="tag new">new</span></td><td><code>family_id</code> or any legacy id</td><td><code>{family, usual, versions[]: {id,name,state,parent,head:{id,n,actor,channel,created_at},cooked,last_cooked,open_suggestions}, spun_off[]}</code></td><td>Feeds the Versions screen. <code>include_put_away</code> default false.</td></tr>
+<tr><td><code>get_version</code> <span class="tag new">new</span></td><td><code>version_id</code>, <code>revision_id?</code></td><td><code>{version, revision: {content, n, actor, channel, user_intent, created_at}, parent: {version_id, revision_id, newer_parent_revisions[]}}</code></td><td>Head by default; a past revision is read-only "as it was". <code>newer_parent_revisions</code> drives V-D12's "Bring it in".</td></tr>
+<tr><td><code>create_version</code> <span class="tag new">new</span></td><td><code>from: {version_id, revision_id?}</code>, <code>name</code>, <code>content</code> (full) <b>or</b> <code>changes</code> (ops as today), <code>user_intent?</code> (BR8), <code>note?</code></td><td><code>{version, revision}</code></td><td>Keep both. Born <code>trying</code>. Replaces create_variation.</td></tr>
+<tr><td><code>revise_version</code> <span class="tag new">new</span></td><td><code>version_id</code>, <code>base_revision_id</code>, <code>content</code> or <code>changes</code>, <code>kind</code> (<code>fix</code>|<code>adjust</code>|<code>merge_parent</code>), <code>user_intent?</code>, <code>note?</code></td><td><code>{version, revision, changes}</code></td><td>Fix in place. <code>stale_base</code> if someone saved first (BR6). <code>needs_person</code> for an assistant on a kept version (BR9). Empty change set is <code>no_change</code>.</td></tr>
+<tr><td><code>restore_revision</code> <span class="tag new">new</span></td><td><code>version_id</code>, <code>revision_id</code>, <code>base_revision_id</code></td><td><code>{version, revision}</code></td><td>Go back. Writes a new revision (kind <code>restore</code>) with the old content. App channel only by default.</td></tr>
+<tr><td><code>list_revisions</code> <span class="tag new">new</span></td><td><code>version_id</code>, <code>limit?</code> (1-100, 20), <code>before_n?</code></td><td><code>{revisions[]: {id,n,kind,actor,channel,user_intent,note,changes,created_at}, more}</code></td><td>Newest first; History screen. Content not included (use get_version with revision_id).</td></tr>
+<tr><td><code>compare_versions</code> <span class="tag new">new</span></td><td><code>a: {version_id, revision_id?}</code>, <code>b: {...}</code></td><td><code>{ingredients: {same:n, differ:[{id,a,b}]}, steps: {same:n, differ:[...]}, fields:[...]}</code></td><td>Structural diff by ingredient and step id. No judgement.</td></tr>
+<tr><td><code>set_version_state</code> <span class="tag new">new</span></td><td><code>version_id</code>, <code>state</code> (<code>trying</code>|<code>kept</code>|<code>put_away</code>), <code>reason?</code>, <code>user_intent?</code></td><td><code>{version}</code></td><td>Allowed moves only (V-D3), else <code>bad_transition</code>. Put away the usual: <code>is_usual</code>. Replaces set_variation_status / set_recipe_status.</td></tr>
+<tr><td><code>set_usual</code> <span class="tag new">new</span></td><td><code>family_id</code>, <code>version_id</code></td><td><code>{family}</code></td><td>Trying becomes kept. Admin rule (V-D23) checked against platform roles when present: <code>not_allowed</code>.</td></tr>
+<tr><td><code>rename</code> <span class="tag new">new</span></td><td><code>target: {kind: family|version, id}</code>, <code>name</code></td><td>the target</td><td>Journal only; no revision.</td></tr>
+<tr><td><code>spin_off</code> <span class="tag new">new</span></td><td><code>version_id</code>, <code>new_name</code>, <code>revision_id?</code>, <code>user_intent?</code></td><td><code>{family, version, revision}</code></td><td>New family (its version starts <code>trying</code>, <code>source.kind = derived</code>, link back). Old version becomes <code>spun_off</code> with <code>spun_to_family_id</code>. Cannot spin off the usual: <code>is_usual</code>.</td></tr>
+<tr><td><code>propose_change</code> <span class="tag new">new</span></td><td><code>version_id</code>, <code>base_revision_id</code>, <code>changes</code>, <code>title</code>, <code>user_intent</code> (required)</td><td><code>{suggestion}</code></td><td>The assistant's way to touch a kept version (BR9). Max 5 open per version: <code>too_many_open</code>.</td></tr>
+<tr><td><code>list_suggestions</code> <span class="tag new">new</span></td><td><code>family_id?</code>, <code>status?</code> (default <code>open</code>)</td><td><code>{suggestions[]}</code></td><td>Also returns families whose only version is <code>suggested</code> (drafts).</td></tr>
+<tr><td><code>resolve_suggestion</code> <span class="tag new">new</span></td><td><code>suggestion_id</code>, <code>action</code> (<code>apply</code>|<code>branch</code>|<code>dismiss</code>), <code>name?</code> (for branch)</td><td><code>{suggestion, revision?|version?}</code></td><td>App channel only (a person decides). <code>apply</code> on a moved head returns <code>stale_base</code> with the current head; the person can apply on top. Status moves forward once.</td></tr>
+<tr><td><code>record_cook</code> <span class="tag new">new</span></td><td><code>version_id</code>, <code>revision_id?</code> (head), <code>servings?</code>, <code>verdict?</code>, <code>line?</code>, <code>photo_ref?</code></td><td><code>{cook, version}</code></td><td>Appends a cook (G2). <code>verdict</code> on a <code>trying</code> version: <code>keep</code> → kept, <code>no</code> → put_away, <code>work</code> → no change; ignored on other states. Keeps today's preference counters in step. <code>record_usage</code> becomes an alias with no verdict.</td></tr>
+<tr><td><code>list_cooks</code> <span class="tag new">new</span></td><td><code>family_id</code> or <code>version_id</code>, <code>limit?</code></td><td><code>{cooks[]}</code></td><td>Cooked history (R-D26), each with version and revision.</td></tr>
+</table></div>
+<p>Discovery text: the server instructions' RULES block is rewritten around BR1, BR8, BR9, BR10 and BR11, with the same examples and counterexamples style as today ("the user only agreed to try it tonight" is still not a version).</p>
+</section>
+
+<section class="sec" id="errors"><div class="lbl">4. Errors</div>
+<p>Same shape as today, <code>Error [code]: message. hint</code>, with hints written for an assistant.</p>
+<ul>
+<li><b>not_found</b>, <b>invalid</b>, <b>conflict</b>, <b>internal</b>: unchanged.</li>
+<li><b>stale_base</b>: base_revision_id is not the head. Returns <code>{head_revision_id, n, actor, created_at}</code>. Hint: read the head with get_version, show the person both, retry on the new base only if they say so.</li>
+<li><b>needs_person</b>: an assistant tried to change a kept version or the usual, keep, set usual or put away. Hint: use propose_change with the person's words.</li>
+<li><b>bad_transition</b>: the state move is not allowed (e.g. suggested → kept). Lists the allowed moves.</li>
+<li><b>is_usual</b>: cannot put away or spin off the usual. Hint: set_usual on another version first.</li>
+<li><b>no_change</b>: the revise or create produced identical content. Nothing saved.</li>
+<li><b>intent_required</b>: assistant channel without user_intent (BR8).</li>
+<li><b>not_allowed</b>: household admin rule (V-D23) or app-only tool on the assistant channel.</li>
+<li><b>too_many_open</b>: suggestion cap per version.</li>
+<li><b>invalid_change</b>, <b>parent_disabled</b>: kept for the changes form; parent_disabled now means a put-away version as <code>from</code> (allowed from the app, refused for an assistant).</li>
+</ul>
+</section>
+
+<section class="sec" id="changed"><div class="lbl">5. What happens to today's tools</div>
+<div class="tw"><table>
+<tr><th>Today</th><th>After</th></tr>
+<tr><td><code>create_recipe</code></td><td>Kept, returns family + version + revision; old <code>id</code> field still present (= version id) for a release. <span class="tag chg">changed</span></td></tr>
+<tr><td><code>get_recipe</code>, <code>get_resolved_recipe</code></td><td>Aliases of get_version (legacy ids accepted). <code>lineage</code> becomes version ancestry. <span class="tag dep">alias</span></td></tr>
+<tr><td><code>list_recipes</code>, <code>search_recipes</code></td><td>One row per family, showing the usual; <code>include_put_away</code> replaces <code>include_disabled</code> (old flag accepted); suggested excluded unless <code>include_suggested</code>. <span class="tag chg">changed</span></td></tr>
+<tr><td><code>create_variation</code></td><td>Alias of create_version with <code>changes</code>; <code>user_intent</code> still required. <span class="tag dep">alias</span></td></tr>
+<tr><td><code>get_variation</code>, <code>list_variations</code>, <code>get_lineage</code></td><td>Aliases over versions; get_lineage reads parent_version_id. <span class="tag dep">alias</span></td></tr>
+<tr><td><code>set_recipe_status</code>, <code>set_variation_status</code></td><td>Aliases: disabled → put_away, active → kept. <span class="tag dep">alias</span></td></tr>
+<tr><td><code>set_preference</code></td><td>Per member (member_prefs); target accepts a version. <span class="tag chg">changed</span></td></tr>
+<tr><td><code>record_usage</code></td><td>Alias of record_cook with no verdict. <span class="tag dep">alias</span></td></tr>
+<tr><td><code>what_can_i_cook</code>, <code>what_am_i_missing</code></td><td>Read the usual's head revision; <code>version_id</code> optional to ask about another. <span class="tag chg">changed</span></td></tr>
+<tr><td>Nutrition tools</td><td>Targets accept a revision or a version (= its head); see V-D29. <span class="tag chg">changed</span></td></tr>
+</table></div>
+<p>Aliases stay for one minor release, then the owner decides removal. The tool-list snapshot test and <code>mcp-descriptions</code> tests change in the same PR.</p>
+</section>
+
+<section class="sec" id="http"><div class="lbl">6. HTTP for Kitchie (channel app)</div>
+<p>Same handlers as the tools, under the existing surface (<code>server/src/web/routes.ts</code>), session cookie or platform token, JSON only. Fragment mode (D18) pages can come later.</p>
+<pre><code>GET    /families/:id                    get_family
+GET    /versions/:id[?rev=]             get_version
+GET    /versions/:id/revisions          list_revisions
+GET    /compare?a=&b=                   compare_versions
+POST   /families                        create_recipe
+POST   /versions                        create_version
+POST   /versions/:id/revisions          revise_version | restore_revision (body.kind)
+PATCH  /versions/:id                    set_version_state | rename
+PATCH  /families/:id                    set_usual | rename
+POST   /versions/:id/spin-off           spin_off
+GET    /suggestions?family=             list_suggestions
+POST   /suggestions/:id/resolve         resolve_suggestion
+POST   /cooks   GET /cooks?family=      record_cook, list_cooks</code></pre>
+<p>Same validation, size limits and rate limits as the MCP boundary. A 409 carries <code>stale_base</code>'s body.</p>
+</section>
+
+<section class="sec" id="migrate"><div class="lbl">7. Migration of today's immutable data (v5 → v6)</div>
+<ol>
+<li><b>Back up first</b> (infra runbook) and run on a copy in UAT; additive tables, old tables kept read-only for one release.</li>
+<li>Each <code>recipes</code> row → one family (same household, name = title) + version "Original" + revision 1 (kind <code>migrated</code>, content = the row, actor <code>legacy</code>, channel <code>assistant</code> if <code>source.kind</code> is <code>conversation</code> else <code>app</code>, user_intent null). State: <code>kept</code> if active, <code>put_away</code> if disabled. It is the usual.</li>
+<li>Each <code>variations</code> row (oldest first) → a version in its root's family, name = title or "Version n", revision 1 = <code>resolve()</code> of that variation at migration time (so content is exactly what callers saw), <code>changes_json</code> = its stored change set, <code>user_intent</code> and <code>note</code> copied, parent pinned to the parent's revision 1. State: <code>kept</code> if active, <code>put_away</code> if disabled.</li>
+<li>A disabled root with active variations: the family's usual becomes the most-used active variation (preferences.times_used, then newest); if none is active, the root stays the usual and the whole family is put away (a family-level <code>put_away</code> flag), so nothing that was hidden reappears. Owner to confirm.</li>
+<li><code>preferences</code> → <code>member_prefs</code> for the household's first member (or <code>legacy</code>); <code>times_used</code>/<code>last_used</code> become synthetic cook rows marked <code>migrated</code> with no date detail beyond last_used.</li>
+<li><code>nutrition_observations</code> on a recipe or variation → re-pointed via <code>legacy_ids</code> to the new revision 1 (observations are append-only: add a mapping, do not update rows).</li>
+<li><code>legacy_ids</code> filled for every old id, so old ids in plans, chats and Kitchie keep resolving.</li>
+<li>Journal: one <code>migration.v6</code> event per family with counts. Migration test from a real v5 file database with data at each shape (root only, chain of three, disabled root, disabled middle, nutrition attached).</li>
+<li>Rollback: v6 tables dropped, v5 tables untouched (they were not written during the release). After the owner removes the aliases, v5 tables can be archived.</li>
+</ol>
+</section>
+
+<section class="sec" id="issues"><div class="lbl">8. Issues to file in basement-bridge/recipe (later, by the owner or on his say)</div>
+<div class="issue"><b>R-V1 Decision: relax immutability to revisions (BR1 to BR3)</b><p>Changes AGENTS.md "Recipes and persisted variations are immutable" and brief sections 6, 7, 14, 20. Owner-reserved. Options 5 and 6 from the mockup.</p></div>
+<div class="issue"><b>R-V2 Schema v6: families, versions, revisions, triggers, migration</b><p>Section 2 and 7. Includes migration tests from v5 at every shape.</p></div>
+<div class="issue"><b>R-V3 Tools: get_family, get_version, create_version, revise_version, restore_revision, list_revisions, compare_versions, set_version_state, set_usual, rename, spin_off</b><p>Section 3 and 4, with acceptance tests (new B-items: in-place fix keeps history; stale_base; usual invariants; pinned parent).</p></div>
+<div class="issue"><b>R-V4 Authorship and channel (BR7, BR8, BR9)</b><p>Member id from the session, channel from the transport; assistant scope; option 4 choice.</p></div>
+<div class="issue"><b>R-V5 Suggestions and drafts (BR10, propose_change, list/resolve_suggestion)</b><p>Closes gap G3.</p></div>
+<div class="issue"><b>R-V6 Cook log with version, revision and verdict (record_cook, list_cooks)</b><p>Closes gap G2 and V-D18's promote-after-cook.</p></div>
+<div class="issue"><b>R-V7 Aliases and discovery text for the old tools</b><p>Section 5, tool snapshot, descriptions.</p></div>
+<div class="issue"><b>R-V8 HTTP routes for Kitchie</b><p>Section 6.</p></div>
+<div class="issue"><b>R-V9 Per-member preferences</b><p>V-D6; needs member ids from platform.</p></div>
+</section>
+
+<div style="margin-top:18px;padding:14px;border:1px dashed var(--border);border-radius:var(--r-card)"><b>Open questions for the backend</b>
+<ul style="margin:6px 0 0 18px;color:var(--muted)">
+<li>Option 6 (whole content per revision vs sparse). Wrong guess: a second migration.</li>
+<li>Migration step 4: a disabled root with active variations. Mockup proposes a family-level put away.</li>
+<li>Does the assistant channel ever get restore_revision? Proposed: no.</li>
+<li>Where do member ids come from in standalone mode? Proposed: one <code>legacy</code> member, as today's single household.</li>
+</ul></div>
+</div></body></html>

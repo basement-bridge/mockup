@@ -1,0 +1,87 @@
+/* Recipe versions slice. Adds only what recipe/recipe.css does not have: state pills, revision timeline, diff rows,
+   the suggestion card and the save-choice cards. Theme tokens only, no raw colours (DESIGN.md section 2).
+   Class names are meant to be lifted into the build next to recipe.css. */
+
+/* state pills: Trying (dashed accent), Kept (sage), Put away (muted). "Our usual" is a mark, not a state. */
+.st{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:800;padding:1px 8px;border-radius:var(--r-pill);border:1px solid var(--border);color:var(--muted);white-space:nowrap;letter-spacing:.02em}
+.st .ic{width:12px;height:12px}
+.st.trying{border:1px dashed var(--accent);color:var(--accent)}
+.st.kept{border-color:var(--sage);color:var(--sage)}
+.st.away{border-color:var(--border);color:var(--muted)}
+.st.usual{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.st.ai{border-style:dashed;border-color:var(--muted);color:var(--fg)}
+
+/* version rows (family screen) */
+.vr{display:flex;align-items:flex-start;gap:var(--sp-3);min-height:64px;padding:var(--sp-3) var(--sp-1);border-bottom:1px solid var(--border);width:100%;text-align:left;color:var(--fg)}
+.vr .t{flex:1;min-width:0}
+.vr b{display:block;font-size:15.5px}
+.vr small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px;line-height:1.35}
+.vr .pills{margin-top:6px}
+.vr.on{background:color-mix(in srgb,var(--accent) 8%,transparent);border-radius:var(--r-ctl)}
+.vr.away{opacity:.62}
+.vav{width:36px;height:36px;border-radius:50%;flex:none;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;background:var(--surface);border:1px solid var(--border);color:var(--fg)}
+.vav.ai{border-style:dashed;color:var(--accent)}
+.grp{display:flex;align-items:center;justify-content:space-between;min-height:44px;margin-top:var(--sp-2)}
+.grp button{min-height:44px;color:var(--accent);font-weight:700;font-size:13px}
+
+/* tree (family option B): dotted rails like the version sheet's .vtree */
+.tree{list-style:none;margin:0;padding:0}
+.tree ul{list-style:none;margin:0 0 0 17px;padding:0 0 0 var(--sp-3);border-left:2px dotted var(--border)}
+.tree .vr{border-bottom:0;min-height:56px;padding:var(--sp-2) var(--sp-1)}
+
+/* state banner on a version page */
+.band{display:flex;align-items:center;gap:var(--sp-3);margin:var(--sp-2) var(--sp-3) 0;padding:var(--sp-2) var(--sp-3);min-height:52px;border-radius:var(--r-ctl);border:1px dashed var(--accent);background:color-mix(in srgb,var(--accent) 7%,var(--surface));font-size:14px}
+.band .t{flex:1;min-width:0}.band small{display:block;color:var(--muted);font-size:12px}
+.band.sage{border:1px solid var(--sage);background:color-mix(in srgb,var(--sage) 8%,var(--surface))}
+.band.mut{border:1px solid var(--border);background:var(--surface)}
+.band .btn{flex:none}
+
+/* revision timeline */
+.rv{position:relative;padding:var(--sp-3) 0 var(--sp-3) 34px;border-left:2px solid var(--border);margin-left:13px}
+.rv:last-child{border-left-color:transparent}
+.rv .k{position:absolute;left:-14px;top:var(--sp-3);width:26px;height:26px;border-radius:50%;background:var(--surface);border:2px solid var(--border);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--muted)}
+.rv.head .k{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.rv b{font-size:14.5px}
+.rv small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.rv .acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:var(--sp-2)}
+
+/* diff rows: one line per change, reusing the R-D20 tint and struck-through brackets */
+.df{list-style:none;margin:var(--sp-2) 0 0;padding:0}
+.df li{display:flex;gap:var(--sp-2);align-items:flex-start;padding:6px 8px;border-radius:var(--r-ctl);font-size:13.5px;line-height:1.35;color:var(--fg)}
+.df li+li{margin-top:4px}
+.df li.add{background:color-mix(in srgb,var(--sage) 14%,transparent)}
+.df li.chg{background:color-mix(in srgb,var(--accent) 10%,transparent)}
+.df li.rm{background:color-mix(in srgb,var(--danger) 10%,transparent)}
+.df li .sym{flex:none;width:16px;font-weight:800;text-align:center}
+.df s{color:var(--muted)}
+
+/* choice cards (save sheet, after cook, suggestion) */
+.ch{display:flex;gap:var(--sp-3);align-items:flex-start;width:100%;min-height:64px;padding:var(--sp-3);margin-top:var(--sp-2);border-radius:var(--r-card);border:1px solid var(--border);background:var(--bg);text-align:left;color:var(--fg)}
+.ch .t{flex:1;min-width:0}.ch b{display:block;font-size:15px}.ch small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px;line-height:1.35}
+.ch .ic{color:var(--accent);margin-top:2px}
+.ch[aria-pressed=true]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.ch .rad{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);flex:none;margin-top:2px}
+.ch[aria-pressed=true] .rad{border:7px solid var(--accent)}
+
+/* suggestion card (assistant change waiting for a person) */
+.sug{margin:var(--sp-3) var(--sp-3) 0;padding:var(--sp-3);border-radius:var(--r-card);border:1px dashed var(--accent);background:var(--surface)}
+.sug .hd{display:flex;align-items:center;gap:var(--sp-2);font-size:13px;color:var(--muted)}
+.sug .hd b{color:var(--fg)}
+.sug q{display:block;margin-top:var(--sp-2);font-size:13px;color:var(--muted);font-style:italic}
+.sug .row{display:flex;gap:6px;flex-wrap:wrap;margin-top:var(--sp-3)}
+.sug .row .btn{flex:1 1 140px}
+
+/* big verdict buttons at the end of a cook */
+.verd{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--sp-2);margin-top:var(--sp-3)}
+.verd button{min-height:88px;border-radius:var(--r-card);border:1px solid var(--border);background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-weight:800;font-size:14px;color:var(--fg)}
+.verd button span{font-size:26px;line-height:1}
+.verd button small{font-weight:600;font-size:11px;color:var(--muted)}
+.verd button[aria-pressed=true]{border-color:var(--accent);background:var(--accent);color:var(--on-accent)}
+.verd button[aria-pressed=true] small{color:var(--on-accent)}
+
+/* compare two versions */
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:13px}
+.cmp>div{padding:6px 8px;border-radius:var(--r-ctl);background:var(--bg);border:1px solid var(--border);min-height:36px;color:var(--fg)}
+.cmp>div.h{background:none;border:0;font-weight:800;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.cmp>div.d{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--bg))}
+.cmp>div.x{border-style:dashed;color:var(--muted)}

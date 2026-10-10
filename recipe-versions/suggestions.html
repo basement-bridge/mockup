@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Assistant suggestions — Recipe versions mockup</title>
+<link rel="stylesheet" href="../theme.css"><link rel="stylesheet" href="../recipe/recipe.css"><link rel="stylesheet" href="versions.css">
+<script src="../theme.js"></script><script src="../recipe/recipe.js"></script><script src="versions.js"></script></head>
+<body data-no-theme-fab>
+<div class="stage"><div class="phone" id="ph"></div></div>
+<script>
+(function(){
+var X=RCP,V=VER,ic=X.ic,esc=X.esc,F=V.FAM,O=V.O;
+var ph=document.getElementById("ph");
+var decided={};
+function card(s){
+  var tv=V.byId(s.target);
+  if(decided[s.id])return '<div class="sug" style="border-style:solid"><div class="hd">'+ic("check","s")+'<b>'+esc(decided[s.id])+'</b></div></div>';
+  if(O.ai==="B"){
+    /* Option B: the assistant already saved into the kept version; a person reviews afterwards and can undo in one tap. */
+    return '<div class="sug"><div class="hd">'+V.av(s.by)+'<span><b>'+V.who(s.by)+'</b> changed <b>'+esc(tv.name)+'</b> · '+s.when+'</span></div>'+
+      '<p style="margin-top:8px;color:var(--fg);font-weight:700">'+esc(s.title)+'</p><q>'+esc(s.words)+'</q>'+V.diff(s.d)+
+      '<p style="font-size:12px;margin-top:8px">Already saved as revision '+(V.head(tv).n+1)+'. Plans and cooks use it now.</p>'+
+      '<div class="row"><button type="button" class="btn ghost" data-act="undo" data-s="'+s.id+'">'+ic("undo","s")+'Undo it</button><button type="button" class="btn" data-act="ok" data-s="'+s.id+'">'+ic("check","s")+'Looks right</button></div></div>';
+  }
+  /* Options A and C: a suggestion waits. Apply makes it the next revision; Keep both makes a new Trying version; Not now leaves it. */
+  return '<div class="sug"><div class="hd">'+V.av(s.by)+'<span><b>'+V.who(s.by)+'</b> suggests a change to <b>'+esc(tv.name)+'</b>'+(F.usual===tv.id?' (our usual)':'')+' · '+s.when+'</span></div>'+
+    '<p style="margin-top:8px;color:var(--fg);font-weight:700">'+esc(s.title)+'</p><q>'+esc(s.words)+'</q>'+V.diff(s.d)+
+    '<div class="row"><button type="button" class="btn" data-act="apply" data-s="'+s.id+'">'+ic("check","s")+'Apply to '+esc(tv.name)+'</button><button type="button" class="btn ghost" data-act="both" data-s="'+s.id+'">'+ic("branch","s")+'Keep both</button></div>'+
+    '<div class="row" style="margin-top:6px"><button type="button" class="btn ghost" data-act="later" data-s="'+s.id+'">Not now</button><button type="button" class="btn ghost" data-act="no" data-s="'+s.id+'">'+ic("x","s")+'No thanks</button></div></div>';
+}
+function draw(){
+  /* A second, already-applied example so the "who did what" mark is visible on something the assistant changed without asking (trying version). */
+  var auto='<div class="sug" style="border-style:solid"><div class="hd">'+V.av("ai_alex")+'<span><b>Alex\'s assistant</b> changed <b>Less soy, more garlic</b> · 5 Oct</span></div><p style="margin-top:6px;font-size:13px">It is a try, so the change went straight in. Shown here once so you know. <a href="history.html?v=v2" style="color:var(--accent);font-weight:700">History</a></p></div>';
+  var intro={A:"Your assistant can try anything, but it never changes a kept version or the usual on its own. It suggests; a person says yes.",
+    B:"Your assistant saves straight into any version. Changes to a kept version or the usual show here once, to check or undo.",
+    C:"Each member chooses: trusted, their assistant edits kept versions directly; not trusted, it suggests. Alex has not trusted theirs."}[O.ai];
+  ph.innerHTML='<div class="top"><a class="back" href="family.html">'+ic("back","s")+'Versions</a><span class="ttl">From assistants</span><span style="width:44px"></span></div>'+
+    '<div class="body"><div class="pad" style="padding-bottom:0"><p style="font-size:13px">'+intro+'</p>'+
+    (O.ai==="C"?'<button type="button" class="ch" data-trust aria-pressed="false" style="margin-top:8px">'+ic("spark")+'<span class="t"><b>Trust my assistant with kept versions</b><small>Your setting only (Alex). Its changes still show who made them.</small></span><span class="rad" aria-hidden="true"></span></button>':'')+
+    '</div>'+F.sugg.map(card).join("")+auto+'<div style="height:24px"></div></div>';
+}
+ph.addEventListener("click",function(e){
+  var t=e.target.closest("button");if(!t)return;
+  if(t.hasAttribute("data-trust")){t.setAttribute("aria-pressed",t.getAttribute("aria-pressed")!=="true");return}
+  var s=t.dataset.s,a=t.dataset.act;if(!s)return;
+  var tv=V.byId(F.sugg[0].target);
+  var msg={apply:"Applied to "+tv.name+" as revision "+(V.head(tv).n+1)+". Approved by "+X.me[2]+".",both:"Saved as a new version, Trying. "+tv.name+" unchanged.",later:"Left for later. It stays on the version page.",no:"Dismissed. Kept in the assistant's history, not in the recipe.",undo:"Undone: a new revision puts it back as it was.",ok:"Marked as checked."}[a];
+  decided[s]=msg;draw();X.toast(msg);
+});
+draw();
+V.controls();
+})();
+</script>
+</body></html>

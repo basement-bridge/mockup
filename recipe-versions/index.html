@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Recipe versions and lifecycle</title>
+<link rel="stylesheet" href="../theme.css"><link rel="stylesheet" href="../shared.css"><script src="../theme.js"></script>
+<style>
+.d{list-style:none;margin:8px 0 0;padding:0}
+.d li{padding:10px 0;border-top:1px solid var(--border);font-size:14px;color:var(--muted)}
+.d li:first-child{border-top:0}
+.d li b{color:var(--fg)}
+.d .n{display:inline-block;min-width:52px;font-weight:800;color:var(--accent)}
+.prop{font-size:11px;font-weight:800;padding:1px 7px;border-radius:var(--r-pill);border:1px dashed var(--accent);color:var(--accent);margin-left:4px;white-space:nowrap}
+.sup{font-size:11px;font-weight:800;padding:1px 7px;border-radius:var(--r-pill);border:1px solid var(--danger);color:var(--danger);margin-left:4px;white-space:nowrap}
+.per{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.per a{display:inline-flex;align-items:center;min-height:var(--tap);padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-weight:700;font-size:14px}
+.per a:hover{border-color:var(--accent);color:var(--accent)}
+.opts .opt p{font-size:13px}
+code{font-size:12.5px}
+.sm{display:block;width:100%;height:auto;max-width:640px;margin-top:10px}
+.sm text{font:600 12px var(--body);fill:var(--fg)}
+.sm .m{fill:var(--muted);font-weight:500;font-size:11px}
+.sm rect{fill:var(--surface);stroke:var(--border)}
+.sm rect.t{stroke:var(--accent);stroke-dasharray:4 3}
+.sm rect.k{stroke:var(--sage)}
+.sm path{fill:none;stroke:var(--muted);stroke-width:1.4}
+.layers{display:grid;gap:8px;margin-top:10px}
+.layers div{padding:10px 12px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--surface);font-size:14px;color:var(--muted)}
+.layers b{color:var(--fg)}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../">&lsaquo; All mockups</a>
+<h1>Recipe versions and lifecycle</h1>
+<p>Draft for feedback, 10 October 2026. One slice of the Recipe tab (the end-to-end flow is in <a href="../recipe/" style="color:var(--accent);font-weight:700">recipe/</a>). This one answers: what is "the recipe" to a person, when a change fixes the version you have and when it makes a new one, how a try becomes a keeper, what stays as an audit trail, and what the assistant may change on its own. Phone-width screens; sample data only; open <b>Mockup</b> (bottom right on every screen) to flip options or who is using it.</p>
+
+<section class="sec"><div class="lbl">Start here</div>
+<div class="per">
+<a href="version.html?v=v1">The usual (With peas)</a>
+<a href="family.html">All versions</a>
+<a href="version.html?v=v2">A try</a>
+<a href="change.html?v=v2">Change a try</a>
+<a href="change.html?v=v1">Change a keeper</a>
+<a href="after-cook.html?v=v2">After cooking a try</a>
+<a href="history.html?v=v0">History</a>
+<a href="history.html?v=v1&cmp=v2">Compare</a>
+<a href="suggestions.html">Assistant suggestions</a>
+<a href="spec.html">Backend spec (Recipe)</a>
+</div>
+</section>
+
+<section class="sec"><div class="lbl">The model in one picture</div>
+<p>Three layers. Only the bottom one is frozen; the two above it are allowed to move. That is the relaxation.</p>
+<div class="layers">
+<div><b>Recipe (a family).</b> What a person means by "egg fried rice": one row in the list. It is named by, and opens, the household's <b>usual</b> version.</div>
+<div><b>Version.</b> One way of making it: "With peas", "Less soy, more garlic". Has a parent, a state (Suggested, Trying, Kept, Put away) and a current revision. Its name and state can change.</div>
+<div><b>Revision.</b> One saved edit of a version: the whole recipe as it stood, who saved it (and whether through an assistant), their words, when. Never changed, never deleted. Fixing a version adds a revision; going back adds one too.</div>
+</div>
+<svg class="sm" viewBox="0 0 640 170" role="img" aria-label="Lifecycle: Suggested goes to Trying when a person says yes. Trying goes to Kept with Keep it, or to Put away with Not for us. Kept can go back to Trying or be put away. Put away comes back as Kept.">
+<rect class="t" x="6" y="62" width="110" height="44" rx="12"/><text x="22" y="82">Suggested</text><text class="m" x="22" y="98">assistant, unseen</text>
+<rect class="t" x="186" y="62" width="110" height="44" rx="12"/><text x="202" y="82">Trying</text><text class="m" x="202" y="98">edits go in place</text>
+<rect class="k" x="366" y="14" width="110" height="44" rx="12"/><text x="382" y="34">Kept</text><text class="m" x="382" y="50">edits ask first</text>
+<rect x="366" y="112" width="110" height="44" rx="12"/><text x="382" y="132">Put away</text><text class="m" x="382" y="148">hidden, not gone</text>
+<rect class="k" x="530" y="14" width="104" height="44" rx="12"/><text x="546" y="34">★ Our usual</text><text class="m" x="546" y="50">a pointer, not a state</text>
+<path d="M116 84h70"/><path d="M180 80l6 4-6 4"/><text class="m" x="124" y="76">person: yes</text>
+<path d="M296 74l70-38"/><path d="M359 34l7 2-3 7"/><text class="m" x="300" y="44">Keep it</text>
+<path d="M296 94l70 38"/><path d="M359 135l7-1-3-7"/><text class="m" x="300" y="128">Not for us</text>
+<path d="M421 58v54"/><path d="M417 105l4 7 4-7"/><path d="M476 36h54" stroke-dasharray="3 3"/>
+</svg>
+</section>
+
+<section class="sec"><div class="lbl">Options for yay, nay or combine</div>
+<p>Each is built; flip them from the Mockup button, or use the links.</p>
+<div class="opts two">
+<div class="opt"><h2><b>1</b>The versions screen</h2><p><b>A By state</b>: Our usual, then Trying, then Kept; put away and spun off folded at the bottom. Answers "which one do we make?". <b>B Family tree</b>: parent above child on dotted rails. Answers "where did this come from?". Recommended: <b>A</b>; lineage is still one line on each row ("From With peas") and on the version page.</p><div class="per"><a href="family.html?vfam=A">A</a><a href="family.html?vfam=B">B</a></div></div>
+<div class="opt"><h2><b>2</b>Where a change goes</h2><p><b>A Ask at save</b>: edit freely, then choose Fix this one, Keep both, or Different dish. <b>B Ask first</b>: choose before editing. <b>C By state</b>: a Trying version takes edits straight in (it is a try; nobody relies on it yet); a Kept one asks at save. Recommended: <b>C</b>. It is the owner's "update the same version in place" without risking the household's keeper. <span class="sup">Supersedes R-D16</span></p><div class="per"><a href="change.html?v=v2&vsave=C">C on a try</a><a href="change.html?v=v1&vsave=C">C on a keeper</a><a href="change.html?v=v1&vsave=A">A</a><a href="change.html?v=v1&vsave=B">B</a></div></div>
+<div class="opt"><h2><b>3</b>Promoting a try after a cook</h2><p><b>A Every cook</b> of a Trying version ends with three big answers: Keep it, Needs work, Not for us. <b>B From the second cook</b>: the first cook of a try is usually a learning one. <b>C Never ask</b>: keep it from the version page. Recommended: <b>A</b>; one tap, and a try that is never judged clutters the list. Kept versions are never asked.</p><div class="per"><a href="after-cook.html?v=v2&vcook=A">A</a><a href="after-cook.html?v=v2&vcook=B">B</a><a href="after-cook.html?v=v2&vcook=C">C</a></div></div>
+<div class="opt"><h2><b>4</b>The assistant and a kept version</h2><p><b>A Suggest only</b>: an assistant may create and change Trying versions with the person's words; a change to a Kept version or the usual waits as a suggestion for a person. <b>B Edit, review after</b>: it saves straight in; the change shows once to check or undo. <b>C Trusted per member</b>: each member chooses A or B for their own assistant. Recommended: <b>A</b>; the usual is what everyone cooks.</p><div class="per"><a href="suggestions.html?vai=A">A</a><a href="suggestions.html?vai=B">B</a><a href="suggestions.html?vai=C">C</a></div></div>
+<div class="opt"><h2><b>5</b>How far immutability is relaxed (backend)</h2><p><b>A Frozen revisions</b>: versions move, every revision is frozen. <b>B Mutable rows</b> with the event journal as the only trail. <b>C Keep today's rule</b>, add only states and the usual pointer. Recommended: <b>A</b>. Details on the <a href="spec.html" style="color:var(--accent)">spec page</a>.</p></div>
+<div class="opt"><h2><b>6</b>What a revision stores (backend)</h2><p><b>A The whole recipe</b> per revision; the diff is worked out when shown. <b>B A sparse change set</b> against the parent's pinned revision (today's model, pinned). Recommended: <b>A</b>; editing in place makes inherited content fragile. Details on the spec page.</p></div>
+</div>
+</section>
+
+<section class="sec"><div class="lbl">Decisions in this slice (all Proposal until the owner says)</div>
+<p>Numbered V-D so they do not clash with R-D (flow slice) or other slices. The same list is in <code>docs/knowledge/jobs-to-be-done/recipe-tab.md</code>.</p>
+<ol class="d">
+<li><span class="n">V-D1</span><b>Three layers: recipe (family), version, revision.</b> Immutability moves down from the version to the revision. A version can be fixed in place; what it said before is never lost. <span class="prop">Proposal</span></li>
+<li><span class="n">V-D2</span><b>Four states for a version: Suggested, Trying, Kept, Put away.</b> Suggested = made by an assistant and nobody has said yes (out of lists, plans, ideas and search). Trying = in use, not yet judged. Kept = a keeper. Put away = hidden, kept in full. "Favourite" is not a state: it is each member's star (existing <code>set_preference</code>, made per member). <span class="prop">Proposal</span></li>
+<li><span class="n">V-D3</span><b>Transitions.</b> Suggested → Trying (a person says yes) or dismissed. Trying → Kept (Keep it), → Put away (Not for us). Kept → Trying (Back to trying), → Put away. Put away → Kept (Bring back). Making a Trying version the usual also keeps it. A spin-off ends a version's life here with a pointer to its new recipe. <span class="prop">Proposal</span></li>
+<li><span class="n">V-D4</span><b>The state says itself in one slim band at the top of a version</b>, with the one action that moves it on (Keep it, Bring back, Open). Kept and the usual need no band: the "Our usual" pill under the title says it. Same slim component as R-D12. <span class="prop">Proposal</span></li>
+<li><span class="n">V-D5</span><b>"The recipe" is the family, named by and opening its usual.</b> The list shows one row per family; Plan, Cook and Ideas open the usual unless someone picks another version. Every family has exactly one usual at all times; the first version is it until someone changes it. This is gap G4, answered. <span class="prop">Proposal</span></li>
+<li><span class="n">V-D6</span><b>Stars are per member and never change what the household opens.</b> Only the usual does. <span class="prop">Proposal</span></li>
+<li><span class="n">V-D7</span><b>A version row reads: name, what it changed from its parent, who and when, cooked count and revision, then usual and state pills.</b> An assistant's work shows a dashed ✦ avatar and "Alex's assistant". <span class="prop">Proposal</span></li>
+<li><span class="n">V-D8</span><b>Versions is a screen, not a sheet.</b> The R-D20 chip ("With peas · 4 versions") opens it. The flow slice's sheet stays fine for a quick switch; the screen holds states, put-away versions, suggestions and compare. <span class="prop">Proposal</span></li>
+<li><span class="n">V-D9</span><b>Every lifecycle action is in the version's ⋯ sheet, and only the ones that apply show:</b> Make it our usual, New version from this, Make it its own recipe, History, Compare with our usual, Keep it, Back to trying, Put away. <span class="prop">Proposal</span></li>
+<li><span class="n">V-D10</span><b>Three kinds of change, in the person's words:</b> <i>Fix this one</i> (next revision of the same version), <i>Keep both</i> (new version, parent = this one, starts Trying), <i>It is a different dish now</i> (spin off: a new recipe, linked back). <span class="prop">Proposal</span></li>
+<li><span class="n">V-D11</span><b>Where a change goes is option 2</b> (recommended C: a try takes edits in place, a keeper asks at save). Either way the top band says where the change will land before you touch anything. <span class="sup">Supersedes R-D16</span> <span class="prop">Proposal</span></li>
+<li><span class="n">V-D12</span><b>A child version is pinned to the revision of its parent it was made from.</b> A later fix to the parent is offered once on the child ("Original was fixed on 21 Sep · Bring it in"), never applied silently. <span class="prop">Proposal</span></li>
+<li><span class="n">V-D13</span><b>History lists revisions newest first:</b> what kind (Made, Fixed, Adjusted, Went back, Spun off), who (assistant marked), when, their words, and the diff in the R-D20 tint. Each older one has See it as it was and Go back to this. <b>Going back saves a new revision</b>; nothing is rewound. <span class="prop">Proposal</span></li>
+<li><span class="n">V-D14</span><b>Compare is two columns with only what differs</b>, the rest folded into one line ("5 ingredients the same, method the same"). Left is always the usual. <span class="prop">Proposal</span></li>
+<li><span class="n">V-D15</span><b>Kept as an audit trail, never changed or deleted:</b> revisions, the cook log (each cook points to a version and revision), the event journal, nutrition observations (attached to a revision), suggestions and their outcome, and spin-off links. <span class="prop">Proposal</span></li>
+<li><span class="n">V-D16</span><b>Relaxed:</b> a version's name, state, current revision and parent label; the family's name and usual; per-member stars. Every one of these changes is a journal event with who and when. <span class="prop">Proposal</span></li>
+<li><span class="n">V-D17</span><b>A person's own words stay required where an assistant acts</b> (create a version, change a try, accept nothing on a person's behalf). In the app, tapping Save is the intent; "why" is optional. Each revision stores which it was. <span class="prop">Proposal</span></li>
+<li><span class="n">V-D18</span><b>Promoting a try is option 3</b> (recommended A: ask after every cook of a Trying version: Keep it, Needs work, Not for us). Keep it offers "Make it our usual" as a separate tick. Needs work can open Change on the try. Not for us puts it away with the date. It sits after R-D19's pantry and freezer questions, in the same single end-of-cook ask. <span class="prop">Proposal</span></li>
+<li><span class="n">V-D19</span><b>Any member who can cook can answer, and the first answer counts.</b> A later cook can change it. Followers (R-D8) are not asked; their cook is logged. <span class="prop">Proposal</span></li>
+<li><span class="n">V-D20</span><b>Every revision and state change carries an author (a member) and a channel (app or assistant).</b> An assistant is never an author on its own: it acts for one member and shows as "Alex's assistant". Answers gap G5 (added by). <span class="prop">Proposal</span></li>
+<li><span class="n">V-D21</span><b>The assistant and kept versions is option 4</b> (recommended A: a Kept version or the usual is changed by an assistant only as a suggestion). An assistant may freely create Trying versions and fix Trying versions when it passes the person's words. <span class="prop">Proposal</span></li>
+<li><span class="n">V-D22</span><b>Suggestions wait quietly:</b> one slim line on the version and on Versions, and a Suggestions screen. Never a pop-up, never on Home (R-D12). Four answers: Apply (next revision), Keep both (new Trying version), Not now, No thanks. A whole new recipe from an assistant is a family whose only version is Suggested: this is R-D12's draft and answers gap G3 (drafts live in Recipe). <span class="prop">Proposal</span></li>
+<li><span class="n">V-D23</span><b>Who may do what:</b> any member who is not only following may make, fix, keep and put away versions. Changing the usual, and putting away a version others cooked, follow the household-admin rule where the household has admins (preferences D25 to D30); otherwise any member. Putting away the usual is blocked until another one is the usual. <span class="prop">Proposal</span></li>
+<li><span class="n">V-D24</span><b>Two people saving at once never overwrite each other.</b> A save names the revision it started from; if someone else saved first, the screen says so ("Jane saved a change 2 minutes ago") and shows both, and the person picks Save on top or Keep both. <span class="prop">Proposal</span></li>
+<li><span class="n">V-D25</span><b>Spin off makes a new recipe whose first version is Trying</b>, with "From Egg fried rice" on it; the old version stays, read-only, as "Spun off" with a link across. <span class="prop">Proposal</span></li>
+<li><span class="n">V-D26</span><b>Word on screen is "version", never "variation".</b> The API moves to "version" too, with the old tool names kept as aliases for a release (spec). <span class="prop">Proposal</span></li>
+<li><span class="n">V-D27</span><b>Existing data migrates without loss:</b> each recipe becomes a family with its "Original" version (Kept, usual) at revision 1; each variation becomes a version (Kept if active, Put away if disabled) whose revision 1 is its resolved content, pinned to its parent's revision 1; old ids keep working. Authors are "before members". Detail on the spec page. <span class="prop">Proposal</span></li>
+<li><span class="n">V-D28</span><b>The cook log records version and revision</b> (extends gap G2), so "what did we cook on the 8th" shows the recipe exactly as it was then, even after fixes. <span class="prop">Proposal</span></li>
+<li><span class="n">V-D29</span><b>Nutrition belongs to a revision.</b> A fix that changes ingredients marks the figures "for an earlier revision" until someone records new ones; nothing is recomputed by Recipe. <span class="prop">Proposal</span></li>
+<li><span class="n">V-D30</span><b>Loading:</b> the version page loads the version's head only. Versions, History, Compare and Suggestions are separate routes, fetched on tap. The ⋯ sheet and the Keep sheet build on tap. One small stylesheet (<code>versions.css</code>) and one small script on top of the flow slice's. <span class="prop">Proposal</span></li>
+</ol>
+</section>
+
+<section class="sec"><div class="lbl">How this changes the flow slice's decisions</div>
+<ol class="d">
+<li><span class="n">R-D16</span>"Changing a recipe always makes a new version" becomes V-D10 and V-D11: a try is fixed in place; a keeper asks.</li>
+<li><span class="n">R-D17</span>Stands. Naming from the change and the "why keep it" line are used for Keep both and spin off; a fix asks "what did you fix?" instead.</li>
+<li><span class="n">R-D19</span>Stands, with V-D18's three answers added for a Trying version; "Keep it as a version" for tonight's swap makes a Trying version.</li>
+<li><span class="n">R-D11, R-D20</span>"Make this version the default" is worded "Make it our usual"; the chip opens the Versions screen (V-D8).</li>
+<li><span class="n">G3, G4, G5</span>Answered by V-D22, V-D5 and V-D20. G2 is extended by V-D28.</li>
+</ol>
+</section>
+
+<section class="sec"><div class="lbl">What loads (DESIGN.md section 6)</div>
+<ol class="d">
+<li><b>Default path</b> (a version page): theme, the flow slice's <code>recipe.css</code> and <code>recipe.js</code>, then <code>versions.css</code> (about 7 KB) and <code>versions.js</code> (sample data and helpers). In the build: one <code>get_version</code> call for the head revision.</li>
+<li><b>Deferred:</b> the family, history, compare and suggestion screens are routes, loaded on tap; history pages older revisions in on scroll. Sheets are built on tap.</li>
+<li><b>Stays close to the build:</b> <code>.st</code>, <code>.vr</code>, <code>.band</code>, <code>.rv</code>, <code>.df</code>, <code>.ch</code>, <code>.sug</code>, <code>.verd</code>, <code>.cmp</code> are meant to be lifted beside the flow slice's classes. Sample names live only in <code>versions.js</code>.</li>
+</ol>
+</section>
+
+<div style="margin-top:18px;padding:14px;border:1px dashed var(--border);border-radius:var(--r-card)"><b>Open questions</b>
+<ul style="margin:6px 0 0 18px;color:var(--muted)">
+<li>Options 1 to 6 above. A wrong guess on 2 or 4 changes what people trust; on 5 or 6 it costs a second migration.</li>
+<li>Should "Not for us" after the first cook of a try put it away at once, or wait for a second opinion in a household of several cooks? Mockup: at once, undo in the toast.</li>
+<li>Does a version page need its own photo and notes, or do they stay on the family (R-D24)? Mockup: notes on the family; cook photos on the cook log entry, so they show which version.</li>
+<li>Is there ever a real delete (for example a try made by mistake a minute ago)? Mockup: no; Put away only. A hard delete for a version with no cooks and one revision is cheap to add later.</li>
+<li>How long do dismissed suggestions stay visible to the member whose assistant made them? Mockup: in their assistant's history only.</li>
+</ul></div>
+</div></body></html>

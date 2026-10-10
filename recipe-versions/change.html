@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Change a version — Recipe versions mockup</title>
+<link rel="stylesheet" href="../theme.css"><link rel="stylesheet" href="../recipe/recipe.css"><link rel="stylesheet" href="versions.css">
+<script src="../theme.js"></script><script src="../recipe/recipe.js"></script><script src="versions.js"></script></head>
+<body data-no-theme-fab>
+<div class="stage"><div class="phone" id="ph"></div></div>
+<script>
+(function(){
+var X=RCP,V=VER,ic=X.ic,esc=X.esc,F=V.FAM,O=V.O;
+var v=V.byId(X.Q.get("v")||F.usual)||V.byId(F.usual);
+var forceNew=X.Q.get("new")==="1";
+/* where: null until chosen; "fix" (new revision of this version), "new" (new version, parent = this), "own" (spin off) */
+var where=forceNew?"new":(O.save==="C"&&v.state==="trying"?"fix":null);
+var rows=V.CONTENT[v.id].ings.map(function(i){return {n:i[0],q:i[1],oq:i[1],on:i[0],gone:false,added:false}});
+var steps=V.CONTENT[v.id].steps.map(function(s){return {t:s,o:s}});
+var ph=document.getElementById("ph");
+function changes(){
+  var c=[];
+  rows.forEach(function(x){if(x.added)c.push(["add",x.n+" "+x.q]);else if(x.gone)c.push(["rm",x.on]);else if(x.q!==x.oq||x.n!==x.on)c.push(["chg",x.n+" "+x.q,x.on+" "+x.oq])});
+  steps.forEach(function(s,k){if(s.t!==s.o)c.push(["chg","Step "+(k+1)+" reworded"])});
+  return c;
+}
+function intro(){
+  /* The line at the top says, before anything is touched, where these changes will land (R-D16 kept: never a surprise). */
+  if(where==="fix")return '<div class="band">'+ic("pen","s")+'<span class="t"><b>Saving into '+esc(v.name)+'</b><small>'+(v.state==="trying"?"It is a try, so changes go straight in. ":"")+'Revision '+(V.head(v).n+1)+'; the old one stays in History.</small></span>'+(O.save==="C"?'<button type="button" class="mini" data-swapto="new">New version instead</button>':'')+'</div>';
+  if(where==="new")return '<div class="band sage">'+ic("branch","s")+'<span class="t"><b>New version from '+esc(v.name)+'</b><small>'+esc(v.name)+' stays exactly as it is. The new one starts as Trying.</small></span></div>';
+  if(where==="own")return '<div class="band mut">'+ic("spark","s")+'<span class="t"><b>A new recipe, from '+esc(v.name)+'</b><small>Its own row in the list, linked back here.</small></span></div>';
+  return '<div class="band mut">'+ic("pen","s")+'<span class="t"><b>Changing '+esc(v.name)+'</b><small>'+V.STATE[v.state][0]+'. When you save, you choose: fix this one or keep both.</small></span></div>';
+}
+function draw(){
+  var c=changes();
+  if(O.save==="B"&&!where){askFirst();return}
+  ph.innerHTML='<div class="top"><a class="back" href="version.html?v='+v.id+'">'+ic("back","s")+'Cancel</a><span class="ttl">Change</span><span style="width:64px"></span></div>'+
+  '<div class="body">'+intro()+'<div class="pad"><h2>'+esc(F.name)+'</h2>'+
+  '<div class="lblrow"><span class="lbl">Ingredients · serves 2</span><button type="button" class="back" style="font-size:13px" data-addi>'+ic("plus","xs")+' Add</button></div>'+
+  rows.map(function(x,k){var ch=x.added||x.gone||x.q!==x.oq||x.n!==x.on;
+    return '<div class="erow'+(ch?' ing chg':'')+'" style="'+(x.gone?'opacity:.5':'')+'"><span class="nm">'+(x.gone?'<s>':'')+esc(x.n)+' <span style="color:var(--muted);font-size:13px">'+esc(x.q)+'</span>'+(x.gone?'</s>':'')+(ch&&!x.added&&!x.gone?' <span class="was">(<s>'+esc(x.oq)+'</s>)</span>':'')+(x.added?' <span class="was">added</span>':'')+'</span>'+
+    (x.gone?'<button type="button" class="mini ico" data-undo="'+k+'" aria-label="Put back">'+ic("undo","s")+'</button>':'<button type="button" class="mini ico" data-q="'+k+'" aria-label="Change amount of '+esc(x.n)+'">'+ic("pen","s")+'</button><button type="button" class="mini ico" data-rm="'+k+'" aria-label="Remove '+esc(x.n)+'">'+ic("x","s")+'</button>')+'</div>'}).join("")+
+  '<div class="lblrow"><span class="lbl">Method</span></div>'+
+  steps.map(function(s,k){return '<div class="stp'+(s.t!==s.o?' ing chg':'')+'"><span class="nb">'+(k+1)+'</span><textarea class="field" data-step="'+k+'" rows="2" aria-label="Step '+(k+1)+'" style="padding:8px;min-height:60px;resize:vertical">'+esc(s.t)+'</textarea></div>'}).join("")+
+  '</div><div style="height:24px"></div></div>'+
+  '<div class="act"><span style="flex:1;font-size:12.5px;color:var(--muted);align-self:center" id="cnt">'+(c.length?c.length+' change'+(c.length>1?'s':''):'No changes yet')+'</span><button type="button" class="btn sm" data-save'+(c.length?'':' disabled')+'>'+ic(where==="fix"?"check":"branch","s")+(where==="fix"?'Save':'Save…')+'</button></div>';
+}
+function askFirst(){
+  /* Option B: choose where the change goes before touching anything. */
+  ph.innerHTML='<div class="top"><a class="back" href="version.html?v='+v.id+'">'+ic("back","s")+'Cancel</a><span class="ttl">Change '+esc(v.name)+'</span><span style="width:64px"></span></div>'+
+  '<div class="body"><div class="pad"><h2>What are you doing?</h2><p style="margin-top:4px">'+esc(v.name)+' is '+V.STATE[v.state][0].toLowerCase()+'.</p>'+choices()+'</div></div>';
+}
+function choices(sel){
+  return '<button type="button" class="ch" data-w="fix" aria-pressed="'+(sel==="fix")+'">'+ic("pen")+'<span class="t"><b>Fix '+esc(v.name)+'</b><small>A mistake, a better amount, clearer words. Same version, next revision. Everyone using it gets the fix.</small></span><span class="rad" aria-hidden="true"></span></button>'+
+  '<button type="button" class="ch" data-w="new" aria-pressed="'+(sel==="new")+'">'+ic("branch")+'<span class="t"><b>Keep both</b><small>A new version with '+esc(v.name)+' as its parent. Starts as Trying. '+esc(v.name)+' does not change.</small></span><span class="rad" aria-hidden="true"></span></button>'+
+  '<button type="button" class="ch" data-w="own" aria-pressed="'+(sel==="own")+'">'+ic("spark")+'<span class="t"><b>It is a different dish now</b><small>Its own recipe in the list, linked back to '+esc(F.name)+'.</small></span><span class="rad" aria-hidden="true"></span></button>';
+}
+function saveSheet(){
+  var c=changes();
+  var nm=c[0][0]==="add"?"With "+c[0][1].split(" ")[0].toLowerCase():c[0][0]==="rm"?"Without "+c[0][1].toLowerCase():"More "+c[0][1].split(" ")[0].toLowerCase();
+  var pick=where;
+  var body=function(){return '<h3>Save '+c.length+' change'+(c.length>1?'s':'')+'</h3>'+V.diff(c)+
+    (O.save==="A"||(O.save==="C"&&v.state!=="trying"&&!forceNew)?choices(pick):'')+
+    (pick==="new"||pick==="own"?'<label class="lbl" for="vn" style="display:block;margin-top:12px">'+(pick==="own"?"Recipe name":"Call it")+'</label><input id="vn" class="field" style="margin-top:4px" value="'+esc(nm)+'">':'')+
+    '<label class="lbl" for="vw" style="display:block;margin-top:10px">'+(pick==="fix"?"What did you fix? (optional)":"Why keep it? (optional)")+'</label><input id="vw" class="field" style="margin-top:4px" placeholder="'+(pick==="fix"?"e.g. amount was per pot":"e.g. less salty, kids prefer it")+'">'+
+    '<div style="display:flex;gap:8px;margin-top:12px"><button class="btn ghost" data-close>Back</button><button class="btn" data-go'+(pick?'':' disabled')+'>'+(pick==="fix"?"Save into "+esc(v.name):pick==="own"?"Make the recipe":"Save version")+'</button></div>'};
+  X.sheet('<div id="sb">'+body()+'</div>',function(s,close){
+    s.addEventListener("click",function(e){var b=e.target.closest("[data-w]");if(b){pick=b.dataset.w;s.querySelector("#sb").innerHTML=body();return}
+      if(e.target.closest("[data-go]")){close();done(pick)}});
+  });
+}
+function done(pick){
+  if(pick==="fix"){X.toast("Saved into "+v.name+" as revision "+(V.head(v).n+1)+". Old one in History.",function(){});setTimeout(function(){location.href="history.html?v="+v.id+"&just=1"},1300)}
+  else if(pick==="new"){X.toast("New version saved as Trying. "+v.name+" is unchanged.");setTimeout(function(){location.href="version.html?v=v2"},1300)}
+  else{X.toast("New recipe made, linked back to "+F.name+".")}
+}
+ph.addEventListener("click",function(e){
+  var t=e.target.closest("button");if(!t)return;
+  if(t.dataset.w&&O.save==="B"&&!where){where=t.dataset.w;draw();return}
+  if(t.dataset.swapto){where=t.dataset.swapto;draw()}
+  else if(t.dataset.rm){rows[+t.dataset.rm].gone=true;draw()}
+  else if(t.dataset.undo){rows[+t.dataset.undo].gone=false;draw()}
+  else if(t.dataset.q){var x=rows[+t.dataset.q];X.sheet('<h3>'+esc(x.n)+'</h3><label class="lbl" for="aq">Amount for 2</label><input id="aq" class="field" style="margin-top:4px" value="'+esc(x.q)+'"><div style="display:flex;gap:8px;margin-top:12px"><button class="btn ghost" data-close>Cancel</button><button class="btn" data-ok>Done</button></div>',function(s,close){s.querySelector("[data-ok]").onclick=function(){x.q=s.querySelector("#aq").value||x.q;close();draw()}})}
+  else if(t.hasAttribute("data-addi")){rows.push({n:"Chilli flakes",q:"½ tsp",oq:"½ tsp",on:"Chilli flakes",added:true,gone:false});draw()}
+  else if(t.hasAttribute("data-save")){if(where==="fix"&&O.save==="C")done("fix");else saveSheet()}
+});
+ph.addEventListener("input",function(e){var k=e.target.dataset.step;if(k!=null){steps[+k].t=e.target.value;var c=changes();document.getElementById("cnt").textContent=c.length?c.length+" change"+(c.length>1?"s":""):"No changes yet";ph.querySelector("[data-save]").disabled=!c.length}});
+draw();
+V.controls();
+})();
+</script>
+</body></html>

@@ -101,3 +101,92 @@ Where things are stored in the kitchen, use-by dates, stock levels beyond in or 
 - Default path loads the list only: theme, `recipe.css`, one shared script. Day picker, version tree, note and photo sheets are built on tap; Add, Check it, Change it and Cook are separate routes. On the recipe page load the first photo only; Cooked and Photos below the fold can be fetched as they near the viewport.
 - Class names (`.rr`, `.ing`, `.strip`, `.act`, `.sheet`, `.serves`) and tokens are meant to be lifted. Sample names are only in `recipe/recipe.js`.
 - Recipe tools used: `list_recipes` / `search_recipes` (list), `get_resolved_recipe` and `list_variations` / `get_lineage` (page and versions), `what_am_i_missing` (pantry dots), `create_recipe` with `basis` and `potential_duplicates` (Check it), `create_variation` with `user_intent` (Change it, end of cook), `record_usage` (end of cook), `set_preference` (star), `set_recipe_status` (Put away). Plan entries, holds and shopping belong to Kitchie.
+
+---
+
+## Slice: recipe versions and lifecycle
+
+Mockup: [`recipe-versions/`](../../../recipe-versions/index.html) (index with decisions and options, `version.html`, `family.html`, `change.html`, `history.html` (history and compare), `after-cook.html`, `suggestions.html`, backend `spec.html`; shared `versions.css`, `versions.js` on top of the flow slice's `recipe/recipe.css` and `recipe/recipe.js`).
+
+### Job
+
+Owner's brief (10 October 2026, paraphrased): Recipe treats recipes and variations as immutable, and that should be relaxed a lot. People do not know what "the recipe" is. Sometimes they need to update the same version in place, sometimes keep several, sometimes spin one off with a parent. They may not want to lock in a recipe until it is tasty (a draft or trying state). Assistants (AI via MCP) and the UI both create and update. Database changes are fine; everything stays in UAT.
+
+### How we know the person is in this job
+
+They opened a recipe's version chip, Change, History, or reached the end of a cook of a version that is still Trying, or a suggestion from an assistant is waiting on a version they opened. Not detected otherwise; it is part of the Recipe tab job.
+
+### What leads
+
+- On a version: its state, in one slim band with the one action that moves it on; then the recipe.
+- On Versions: the household's usual, then what is being tried, then the keepers; put away folded.
+- On Change: where the change will land, said before anything is touched.
+- At the end of a cook of a try: one question, three big answers.
+
+### What this job does not need
+
+Pantry status beyond the dots, plan and holds, photos, nutrition figures (only that they belong to a revision), the full lineage graph by default.
+
+### Decisions (all Proposal, V-D numbering)
+
+1. **V-D1 Three layers: recipe (family), version, revision.** Immutability moves down to the revision; a version can be fixed in place and nothing it said before is lost.
+2. **V-D2 Four version states: Suggested, Trying, Kept, Put away.** Suggested = an assistant made it and no person said yes (out of lists, plans, ideas, search). "Favourite" is not a state; it is each member's star.
+3. **V-D3 Transitions:** Suggested to Trying (a person says yes) or dismissed; Trying to Kept (Keep it) or Put away (Not for us); Kept to Trying or Put away; Put away to Kept. Making a try the usual also keeps it. Spin off ends a version here with a link to its new recipe.
+4. **V-D4 State shows in one slim band** with its one next action (Keep it, Bring back, Open). Kept and the usual need no band; the "Our usual" pill says it.
+5. **V-D5 "The recipe" is the family, named by and opening its usual.** One list row per family. Plan, Cook and Ideas open the usual. Exactly one usual always; the first version until changed. Answers G4.
+6. **V-D6 Stars are per member** and never change what the household opens.
+7. **V-D7 A version row:** name, what it changed from its parent, who and when, cooked count and revision, usual and state pills. Assistant work shows a dashed ✦ and "Alex's assistant".
+8. **V-D8 Versions is a screen,** opened from the R-D20 chip; the flow slice's sheet can stay for a quick switch.
+9. **V-D9 All lifecycle actions in the version's ⋯ sheet, only those that apply:** Make it our usual, New version from this, Make it its own recipe, History, Compare with our usual, Keep it, Back to trying, Put away.
+10. **V-D10 Three kinds of change in the person's words:** Fix this one (next revision), Keep both (new version, parent = this, starts Trying), It is a different dish now (spin off).
+11. **V-D11 Where a change goes: option 2** (recommended C). The top band says where it lands first. Supersedes R-D16.
+12. **V-D12 A child is pinned to its parent's revision.** A later parent fix is offered once ("Bring it in"), never applied silently.
+13. **V-D13 History:** revisions newest first with kind, who (assistant marked), when, their words, diff in the R-D20 tint; See it as it was; Go back saves a new revision.
+14. **V-D14 Compare:** two columns, only what differs, the rest folded into one line; left is always the usual.
+15. **V-D15 Kept as audit trail, never changed or deleted:** revisions, cook log (version and revision), journal, nutrition observations (on a revision), suggestions and outcomes, spin-off links.
+16. **V-D16 Relaxed:** version name, state, current revision; family name and usual; per-member stars. Each change is a journal event with who and when.
+17. **V-D17 The person's words stay required when an assistant acts.** In the app the tap is the intent and "why" is optional. Each revision records which.
+18. **V-D18 Promoting a try: option 3** (recommended A: after every cook of a Trying version: Keep it, Needs work, Not for us). Keep it offers "Make it our usual" separately. Sits inside R-D19's single end-of-cook ask.
+19. **V-D19 Any cooking member answers; the first answer counts;** a later cook can change it. Followers are not asked.
+20. **V-D20 Every revision and state change has an author (member) and a channel (app or assistant).** An assistant acts for one member. Answers G5.
+21. **V-D21 Assistant and kept versions: option 4** (recommended A: a kept version or the usual changes only through a suggestion; tries can be created and fixed with the person's words).
+22. **V-D22 Suggestions wait quietly** (slim line on the version and Versions, a Suggestions screen; never a pop-up or on Home). Apply, Keep both, Not now, No thanks. A whole new recipe from an assistant is a family whose only version is Suggested: R-D12's draft. Answers G3 (drafts live in Recipe).
+23. **V-D23 Who may do what:** any non-follower makes, fixes, keeps and puts away versions; changing the usual and putting away a version others cooked follow the household-admin rule where there are admins (preferences D25 to D30). The usual cannot be put away until another is the usual.
+24. **V-D24 Two saves at once never overwrite.** A save names its starting revision; if someone saved first the person sees both and picks Save on top or Keep both.
+25. **V-D25 Spin off** makes a new recipe whose first version is Trying, labelled "From Egg fried rice"; the old version stays read-only as "Spun off" with a link.
+26. **V-D26 "Version" on screen, never "variation".** The API follows with aliases for a release.
+27. **V-D27 Migration without loss:** recipe to family plus "Original" (Kept, usual, revision 1); variation to version (Kept or Put away) whose revision 1 is its resolved content, pinned to the parent's revision 1; old ids keep working.
+28. **V-D28 The cook log records version and revision** (extends G2).
+29. **V-D29 Nutrition belongs to a revision;** after an ingredient fix, figures show "for an earlier revision" until new ones are recorded. Recipe recomputes nothing.
+30. **V-D30 Loading:** the version page loads its head only; Versions, History, Compare and Suggestions are routes; sheets build on tap; one small stylesheet and script on top of the flow slice.
+
+How this changes the flow slice: R-D16 is superseded by V-D10 and V-D11 (a try is fixed in place, a keeper asks). R-D17 stands for Keep both and spin off; a fix asks "what did you fix?". R-D19 gains V-D18's three answers for a try, and "Keep it as a version" makes a Trying version. R-D11 and R-D20: "Make this version the default" is worded "Make it our usual", and the chip opens the Versions screen. Gaps G3, G4, G5 answered (V-D22, V-D5, V-D20); G2 extended (V-D28).
+
+### Options awaiting yay, nay or combine
+
+| # | Question | A | B | C | Recommended |
+|---|---|---|---|---|---|
+| V1 | Versions screen | Grouped by state (usual, trying, kept, put away folded) | Family tree by parent | – | A |
+| V2 | Where a change goes | Ask at save | Ask before editing | By state: a try takes edits in place, a keeper asks at save | C |
+| V3 | Promote a try after a cook | Ask every cook | Ask from the 2nd cook | Never ask; version page only | A |
+| V4 | Assistant on a kept version or the usual | Suggest only | Edit, review after | Trusted per member | A |
+| V5 | How far immutability is relaxed (backend) | Frozen revisions under mutable versions | Mutable rows, journal only | Today's rule plus states and usual | A |
+| V6 | What a revision stores (backend) | Whole recipe per revision | Sparse change set vs pinned parent revision | – | A |
+
+### Recipe-side backend rules (to be filed as Recipe issues later; not filed)
+
+Full detail in [`recipe-versions/spec.html`](../../../recipe-versions/spec.html): rules BR1 to BR13, schema v6 (families, versions, revisions, suggestions, cooks, member_prefs, legacy_ids), new tools (`get_family`, `get_version`, `create_version`, `revise_version`, `restore_revision`, `list_revisions`, `compare_versions`, `set_version_state`, `set_usual`, `rename`, `spin_off`, `propose_change`, `list_suggestions`, `resolve_suggestion`, `record_cook`, `list_cooks`), error codes (`stale_base`, `needs_person`, `bad_transition`, `is_usual`, `no_change`, `intent_required`, `not_allowed`, `too_many_open`), today's tools as aliases for a release, HTTP routes for Kitchie, and the v5 to v6 migration. Proposed issues R-V1 to R-V9. R-V1 (relaxing "recipes and variations are immutable" in Recipe's AGENTS.md and brief) is owner-reserved and comes first.
+
+### Open questions
+
+- Options V1 to V6. A wrong guess on V2 or V4 changes what people trust; on V5 or V6 it costs a second migration.
+- "Not for us" on the first cook of a try in a household of several cooks: put away at once (mockup, with undo) or wait for a second opinion?
+- Do notes and photos sit on the family (R-D24) or on a version? Mockup: notes on the family, cook photos on the cook entry.
+- Any real delete (a try made by mistake, no cooks, one revision)? Mockup: no.
+- Migration: a disabled root with active variations. Spec proposes the most-used active variation becomes the usual, or the whole family is put away if none is active.
+- Member ids in standalone mode: one `legacy` member proposed.
+
+### For the implementation
+
+- Default path: theme, `recipe/recipe.css`, `recipe/recipe.js`, `versions.css`, `versions.js`; one `get_version` call for the head revision. Everything else is a route or a sheet built on tap; history pages older revisions on scroll.
+- Classes to lift beside the flow slice's: `.st` (state pills), `.vr` (version row), `.tree`, `.band`, `.rv` (revision), `.df` (diff rows), `.ch` (choice cards), `.sug`, `.verd`, `.cmp`. Sample names only in `versions.js`.

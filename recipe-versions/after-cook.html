@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>After a cook — Recipe versions mockup</title>
+<link rel="stylesheet" href="../theme.css"><link rel="stylesheet" href="../recipe/recipe.css"><link rel="stylesheet" href="versions.css">
+<script src="../theme.js"></script><script src="../recipe/recipe.js"></script><script src="versions.js"></script></head>
+<body data-no-theme-fab>
+<div class="stage"><div class="phone" id="ph"></div></div>
+<script>
+(function(){
+var X=RCP,V=VER,ic=X.ic,esc=X.esc,F=V.FAM,O=V.O;
+var v=V.byId(X.Q.get("v")||"v2")||V.byId("v2");
+var follower=X.P.persona==="follower";
+var verdict=null,tweak=false,mkUsual=false;
+var ph=document.getElementById("ph");
+/* The cook count after this one. The sample's Trying version has 1 cook logged; tonight is its 2nd. */
+var nth=v.cooked+1;
+function ask(){
+  if(v.state!=="trying")return false;
+  if(O.cook==="C")return false;
+  if(O.cook==="B"&&nth<2)return false;
+  return true;
+}
+function draw(){
+  var head='<div class="pad"><p class="lbl" style="color:var(--accent)">Done · '+esc(F.name)+'</p><h1 style="margin-top:4px">How was it?</h1><p style="margin-top:6px">'+esc(v.name)+' · '+V.STATE[v.state][0].toLowerCase()+(v.state==="trying"?' · cook '+nth:'')+'</p></div>';
+  /* The pantry and freezer questions of R-D19 come first in the real end-of-cook; this screen shows only the version part. */
+  var pre='<div class="note" style="margin:0 var(--sp-4)">'+ic("check","xs")+' Pantry: 3 eggs, 300 g rice, 1 onion taken out. <span style="color:var(--muted)">(R-D19, the flow slice)</span></div>';
+  var body;
+  if(!ask()){
+    /* Option C or a kept version: no question. The cook is logged; promotion is only ever from the version page. */
+    body='<div class="pad">'+(v.state==="trying"?'<div class="band" style="margin:0">'+ic("flame","s")+'<span class="t"><b>Still trying</b><small>'+(O.cook==="B"?"We ask from the second cook.":"Keep it from the version page when you are ready.")+'</small></span></div>':'')+
+      '<label class="lbl" for="ln" style="display:block;margin-top:12px">A line for Cooked (optional)</label><input id="ln" class="field" style="margin-top:4px" placeholder="e.g. doubled it for lunches"></div>';
+  }else{
+    /* Options A and B: three big answers. Only "Keep it" changes state; "Not for us" puts it away; "Needs work" leaves it trying. */
+    body='<div class="pad"><div class="verd" role="group" aria-label="How was it">'+
+      [["keep","😋","Keep it","a keeper"],["work","🤔","Needs work","try again"],["no","🙅","Not for us","put it away"]].map(function(x){return '<button type="button" data-vd="'+x[0]+'" aria-pressed="'+(verdict===x[0])+'"><span aria-hidden="true">'+x[1]+'</span>'+x[2]+'<small>'+x[3]+'</small></button>'}).join("")+'</div>'+
+      (verdict==="keep"?'<button type="button" class="ch" data-u aria-pressed="'+mkUsual+'">'+ic("star")+'<span class="t"><b>Make it our usual</b><small>Instead of '+esc(V.byId(F.usual).name)+'. Plan and Cook open this one for everyone.</small></span><span class="rad" aria-hidden="true"></span></button>':'')+
+      (verdict==="work"?'<button type="button" class="ch" data-tw aria-pressed="'+tweak+'">'+ic("pen")+'<span class="t"><b>Note what to change</b><small>Opens Change on this try. It saves straight in, as revision '+(V.head(v).n+1)+'.</small></span><span class="rad" aria-hidden="true"></span></button>':'')+
+      (verdict==="no"?'<p style="font-size:13px;margin-top:10px">It goes to Put away with tonight\'s date. Nothing is deleted; bring it back from Versions.</p>':'')+
+      '<label class="lbl" for="ln" style="display:block;margin-top:12px">A line for Cooked (optional)</label><input id="ln" class="field" style="margin-top:4px" placeholder="e.g. garlic was perfect this time">'+
+      '<p style="font-size:12px;margin-top:10px">'+ic("users","xs")+' Only this answer changes the version. Anyone in the household can answer; the first answer counts, later cooks can change it.</p></div>';
+  }
+  ph.innerHTML='<div class="top"><a class="back" href="version.html?v='+v.id+'">'+ic("back","s")+'Back</a><span class="ttl">Cooked</span><span style="width:44px"></span></div>'+
+    '<div class="body">'+head+pre+body+'<div style="height:24px"></div></div>'+
+    '<div class="act"><button type="button" class="btn ghost" data-skip>Skip</button><button type="button" class="btn" data-done'+(ask()&&!verdict?' disabled':'')+'>Done</button></div>';
+}
+ph.addEventListener("click",function(e){
+  var t=e.target.closest("button");if(!t)return;
+  if(t.dataset.vd){verdict=t.dataset.vd;draw()}
+  else if(t.hasAttribute("data-u")){mkUsual=!mkUsual;draw()}
+  else if(t.hasAttribute("data-tw")){tweak=!tweak;draw()}
+  else if(t.hasAttribute("data-skip")){X.toast("Cook logged. "+esc(v.name)+" stays "+V.STATE[v.state][0].toLowerCase()+".")}
+  else if(t.hasAttribute("data-done")){
+    if(verdict==="keep"){v.state="kept";if(mkUsual)F.usual=v.id;X.toast("Kept"+(mkUsual?" and made our usual":"")+". Cook logged.");setTimeout(function(){location.href="version.html?v="+v.id},1300)}
+    else if(verdict==="no"){v.state="put_away";X.toast("Put away. Cook logged.",function(){v.state="trying"})}
+    else if(verdict==="work"&&tweak){location.href="change.html?v="+v.id}
+    else X.toast("Cook logged. Still trying.");
+  }
+});
+draw();
+V.controls();
+})();
+</script>
+</body></html>

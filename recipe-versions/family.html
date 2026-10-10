@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Versions of a recipe — Recipe versions mockup</title>
+<link rel="stylesheet" href="../theme.css"><link rel="stylesheet" href="../recipe/recipe.css"><link rel="stylesheet" href="versions.css">
+<script src="../theme.js"></script><script src="../recipe/recipe.js"></script><script src="versions.js"></script></head>
+<body data-no-theme-fab>
+<div class="stage"><div class="phone" id="ph"></div></div>
+<script>
+(function(){
+var X=RCP,V=VER,ic=X.ic,esc=X.esc,F=V.FAM;
+var follower=X.P.persona==="follower";
+var showAway=false;
+var ph=document.getElementById("ph");
+var cur=X.Q.get("v");
+function row(v,tree){
+  var h=V.head(v),p=v.parent?V.byId(v.parent):null;
+  /* V-D7: a row says, in this order, what it is called, how it stands (usual, state), what changed from its parent, who and when. */
+  var what=v.state==="spun"?'Now its own recipe: '+esc(v.spunTo):(p?'From '+esc(p.name)+': '+esc(v.revs[0].d.map(function(d){return d[1]}).join(", ")):'The first one');
+  return '<a class="vr'+(v.id===cur?' on':'')+(v.state==="put_away"||v.state==="spun"?' away':'')+'" href="version.html?v='+v.id+'">'+V.av(v.by)+
+    '<span class="t"><b>'+esc(v.name)+'</b><small>'+what+'</small><small>'+V.who(v.by)+', '+v.when+' · cooked '+v.cooked+'× · rev '+h.n+'</small>'+
+    '<span class="pills">'+(F.usual===v.id?V.usual:'')+V.pill(v.state)+(v.star?'<span class="tg acc">'+ic("star","xs")+'you</span>':'')+'</span></span>'+
+    '<span class="chev">'+ic("chev","s")+'</span></a>';
+}
+function draw(){
+  var vs=F.versions,act=vs.filter(function(v){return v.state!=="put_away"&&v.state!=="spun"}),off=vs.filter(function(v){return v.state==="put_away"||v.state==="spun"});
+  var body;
+  var sg=F.sugg.length&&!follower?'<a class="slim acc" href="suggestions.html">'+'<span class="e" aria-hidden="true">✦</span><span class="t"><b>'+F.sugg.length+' suggested change waiting</b><small>From '+V.who(F.sugg[0].by)+', '+F.sugg[0].when+'</small></span>'+ic("chev","s")+'</a>':'';
+  /* V-D5 "the recipe" to a person = the usual. It leads, alone, above everything else. */
+  var usual=V.byId(F.usual);
+  if(V.O.fam==="A"){
+    /* Option A: grouped by state. Usual first, then Trying, then Kept; Put away and Spun off folded at the bottom. */
+    var g=function(lbl,list){return list.length?'<div class="grp"><span class="lbl">'+lbl+'</span></div>'+list.map(function(v){return row(v)}).join(""):''};
+    body=g("Our usual",[usual])+
+      g("Trying",act.filter(function(v){return v.state==="trying"&&v.id!==F.usual}))+
+      g("Kept",act.filter(function(v){return v.state==="kept"&&v.id!==F.usual}))+
+      (off.length?'<div class="grp"><span class="lbl">Put away and spun off · '+off.length+'</span><button type="button" data-away aria-expanded="'+showAway+'">'+(showAway?"Hide":"Show")+'</button></div>'+(showAway?off.map(function(v){return row(v)}).join(""):''):'');
+  }else{
+    /* Option B: the family tree, parent above child, dotted rails (the R-D20 sheet's .vtree, given a whole screen). */
+    var kids=function(id){return vs.filter(function(v){return v.parent===id&&(showAway||(v.state!=="put_away"&&v.state!=="spun"))})};
+    var node=function(v){var k=kids(v.id);return '<li>'+row(v,true)+(k.length?'<ul>'+k.map(node).join("")+'</ul>':'')+'</li>'};
+    body='<ul class="tree" style="margin-top:8px">'+vs.filter(function(v){return !v.parent}).map(node).join("")+'</ul>'+
+      (off.length?'<div class="grp"><span class="lbl">'+off.length+' put away or spun off</span><button type="button" data-away aria-expanded="'+showAway+'">'+(showAway?"Hide":"Show")+'</button></div>':'');
+  }
+  ph.innerHTML='<div class="top"><a class="back" href="version.html?v='+(cur||F.usual)+'">'+ic("back","s")+'Recipe</a><span class="ttl">'+esc(F.name)+'</span><span style="width:44px"></span></div>'+
+    '<div class="body">'+sg+'<div class="pad" style="padding-bottom:0"><p style="font-size:13px">'+act.length+' versions in use. <b style="color:var(--fg)">Our usual</b> is what Plan, Cook and Ideas open. Tap one to see it.</p></div>'+
+    '<div style="padding:0 var(--sp-3)">'+body+'</div><div style="height:24px"></div></div>'+
+    (follower?'':'<div class="act"><a class="btn ghost" href="history.html?v='+F.usual+'&cmp=v2">'+ic("note","s")+'Compare</a><a class="btn" href="change.html?v='+F.usual+'&new=1">'+ic("plus","s")+'New version</a></div>');
+}
+ph.addEventListener("click",function(e){var t=e.target.closest("[data-away]");if(t){showAway=!showAway;draw()}});
+draw();
+V.controls();
+})();
+</script>
+</body></html>

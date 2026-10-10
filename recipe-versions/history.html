@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>History of a version — Recipe versions mockup</title>
+<link rel="stylesheet" href="../theme.css"><link rel="stylesheet" href="../recipe/recipe.css"><link rel="stylesheet" href="versions.css">
+<script src="../theme.js"></script><script src="../recipe/recipe.js"></script><script src="versions.js"></script></head>
+<body data-no-theme-fab>
+<div class="stage"><div class="phone" id="ph"></div></div>
+<script>
+(function(){
+var X=RCP,V=VER,ic=X.ic,esc=X.esc,F=V.FAM;
+var v=V.byId(X.Q.get("v")||"v0")||V.byId("v0");
+var cmp=X.Q.get("cmp");
+var follower=X.P.persona==="follower";
+var ph=document.getElementById("ph");
+var tab=cmp?"cmp":"hist";
+function hist(){
+  var r=v.revs.slice().reverse();
+  if(X.Q.get("just"))r.unshift({n:V.head(v).n+1,by:X.P.persona==="improviser"?"alex":"sam",when:"just now",kind:"fix",why:"",d:[["chg","Frozen peas 100 g","80 g"]],fresh:1});
+  /* V-D13: a revision is one row: who (assistant marked), when, what kind, their words, and the diff. Newest first. */
+  return '<p style="font-size:13px;margin:4px 0 8px">Every saved change to <b style="color:var(--fg)">'+esc(v.name)+'</b>. Nothing here is ever rewritten: going back saves a new revision.</p>'+
+  r.map(function(x,k){return '<div class="rv'+(k===0?' head':'')+'"><span class="k">'+x.n+'</span>'+
+    '<b>'+V.kindWord[x.kind]+' by '+V.who(x.by)+'</b>'+(V.isAI(x.by)?' <span class="st ai">'+ic("spark","xs")+'assistant</span>':'')+
+    '<small>'+x.when+(k===0?' · what you see now':'')+'</small>'+(x.why?'<small style="color:var(--fg)">'+esc(x.why)+'</small>':'')+V.diff(x.d)+
+    (k>0&&!follower?'<div class="acts"><button type="button" class="mini" data-see="'+x.n+'">See it as it was</button><button type="button" class="mini" data-restore="'+x.n+'">'+ic("undo","xs")+'Go back to this</button></div>':'')+'</div>'}).join("");
+}
+function compare(){
+  /* V-D14: compare is two columns, only the rows that differ, the rest folded into one line. */
+  var a=V.byId(F.usual),b=v.id===F.usual?V.byId(cmp||"v2"):v;
+  var ca=V.CONTENT[a.id],cb=V.CONTENT[b.id];
+  var names={};ca.ings.concat(cb.ings).forEach(function(i){names[i[0]]=1});
+  var find=function(c,n){var r=c.ings.filter(function(i){return i[0]===n})[0];return r?r[1]:null};
+  var diff=[],same=0;
+  Object.keys(names).forEach(function(n){var x=find(ca,n),y=find(cb,n);if(x===y)same++;else diff.push([n,x,y])});
+  var sd=0;ca.steps.forEach(function(s,k){if(s!==cb.steps[k])sd++});
+  var pick=F.versions.filter(function(x){return x.id!==a.id}).map(function(x){return '<button type="button" data-cmp="'+x.id+'" aria-pressed="'+(x.id===b.id)+'">'+esc(x.name)+'</button>'}).join('<span class="sd" aria-hidden="true"></span>');
+  return '<div class="strip" style="padding:0 0 8px" role="group" aria-label="Compare our usual with">'+pick+'</div>'+
+    '<div class="cmp"><div class="h">'+esc(a.name)+' · usual</div><div class="h">'+esc(b.name)+'</div>'+
+    diff.map(function(d){return '<div class="'+(d[1]?'':'x')+'">'+(d[1]?esc(d[0])+' '+esc(d[1]):'not in it')+'</div><div class="'+(d[2]?'d':'x')+'">'+(d[2]?esc(d[0])+' '+esc(d[2]):'not in it')+'</div>'}).join("")+
+    '</div><p style="font-size:12.5px;margin-top:8px">'+same+' ingredients the same'+(sd?' · '+sd+' step'+(sd>1?'s':'')+' worded differently':' · method the same')+'.</p>'+
+    (follower?'':'<div style="display:flex;gap:8px;margin-top:12px"><a class="btn ghost" href="version.html?v='+b.id+'">Open '+esc(b.name)+'</a></div>');
+}
+function draw(){
+  ph.innerHTML='<div class="top"><a class="back" href="version.html?v='+v.id+'">'+ic("back","s")+esc(v.name)+'</a><span class="ttl"></span><span style="width:44px"></span></div>'+
+    '<nav class="jumps" role="tablist" aria-label="View"><a href="#" role="tab" data-tab="hist" aria-selected="'+(tab==="hist")+'" class="'+(tab==="hist"?"on":"")+'">History · '+v.revs.length+'</a><a href="#" role="tab" data-tab="cmp" aria-selected="'+(tab==="cmp")+'" class="'+(tab==="cmp"?"on":"")+'">Compare with our usual</a></nav>'+
+    '<div class="body"><div class="pad">'+(tab==="hist"?hist():compare())+'</div><div style="height:24px"></div></div>';
+}
+ph.addEventListener("click",function(e){
+  var t=e.target.closest("button,a");if(!t)return;
+  if(t.dataset.tab){e.preventDefault();tab=t.dataset.tab;draw()}
+  else if(t.dataset.cmp){cmp=t.dataset.cmp;v=V.byId(F.usual);draw()}
+  else if(t.dataset.see){X.sheet('<h3>'+esc(v.name)+', revision '+t.dataset.see+'</h3><p style="font-size:13px">Read only. This is the recipe exactly as it was saved then: amounts, steps and all. Cooks logged against it still point here.</p><div class="note" style="margin-top:10px">Sample: the full recipe would render here with the page\'s normal layout, greyed header "as it was on '+v.revs[+t.dataset.see-1].when+'".</div><button class="btn" data-close style="width:100%;margin-top:8px">Close</button>')}
+  else if(t.dataset.restore){var n=+t.dataset.restore;X.sheet('<h3>Go back to revision '+n+'?</h3><p style="font-size:13px">'+esc(v.name)+' will read as it did on '+v.revs[n-1].when+'. This saves as revision '+(V.head(v).n+1)+', so the newer ones stay in History and you can come forward again.</p><div style="display:flex;gap:8px;margin-top:12px"><button class="btn ghost" data-close>Cancel</button><button class="btn" data-ok>Go back</button></div>',function(s,close){s.querySelector("[data-ok]").onclick=function(){v.revs.push({n:V.head(v).n+1,by:"sam",when:"just now",kind:"restore",why:"Back to revision "+n,d:[["chg","Content of revision "+n]]});close();draw();X.toast("Saved as revision "+V.head(v).n)}})}
+});
+draw();
+V.controls();
+})();
+</script>
+</body></html>
