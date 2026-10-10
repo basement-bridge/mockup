@@ -1,6 +1,6 @@
 # Shopper link: someone else is shopping, and the household's list follows them live
 
-Status: owner direction by voice, 10 October 2026 (the idea), and owner review of the mockup the same day (decisions **SL-D1 to SL-D16**, below). Phase one is Kitchie issue `basement-bridge/kitchie#479`; phase two (scan the receipt) is drawn only, deferred, and not built. Lines marked **Judgement call** (SL-J1 on) are choices the mockup made where the owner was silent; none is settled and each is listed in the pull request under "Decisions to review before production". Lines marked **Proposal** are the earlier proposals (P1 to P9), most of them revised by the review: the section "What the review did to the earlier proposals" says how.
+Status: owner direction by voice, 10 October 2026 (the idea), and owner review of the mockup the same day (decisions **SL-D1 to SL-D16**, below). Phase one is Kitchie issue `basement-bridge/kitchie#479`; phase two (scan the receipt) is drawn only, deferred, and not built. Lines marked **Judgement call** (SL-J1 on) are choices the mockup made where the owner was silent; each is listed in the pull request under "Decisions to review before production". **Owner replies of 10 October 2026 (typed) confirmed SL-J1, SL-J2 and SL-J4 (as built); SL-J3, SL-J11 and SL-J13 are still open; the rest he did not single out** (section "Owner confirmations, 10 October 2026"). Lines marked **Proposal** are the earlier proposals (P1 to P9), most of them revised by the review: the section "What the review did to the earlier proposals" says how.
 
 Code: `fragments/shopper-link/` (the fragment page is `index.html`; the pages it frames are the screens themselves). Job file: `jobs-to-be-done/shopping-without-the-app.md`. Live: <https://basement-bridge.github.io/mockup/fragments/shopper-link/>.
 
@@ -70,10 +70,10 @@ Source: the owner's consolidated feedback on the fragment (the Claude Docs feedb
 
 Each lists what was chosen, the other way, and what a wrong guess costs. They are repeated in the pull request under "Decisions to review before production".
 
-- **SL-J1. Where the hand-off control lives: option A, a slot above the list** (Q10; the fragment's favourite of the three, the other two stay on the page). Cost: the wrong one is rebuilt; A moves the list down one row for households that never hand over.
-- **SL-J2. A got line also reaches the Pantry by itself**, at the amount on the list (1 where the list gave none), with the effect of a member's "Done shopping". SL-D2 says the list is not gated on that tap and SL-D11 names swaps only; leaving gots to wait would leave the Pantry half-updated. Other way: got lines wait, ticked, for "Done shopping". Cost: if gots should wait, the Pantry gains stock a shopper only claimed (undoable per item in History); if they should not, the household pays one tap per shop. The largest call here.
+- **SL-J1. Where the hand-off control lives: option A, a slot above the list. Confirmed by the owner, 10 October 2026 (typed: "OK").** (Q10; the fragment's favourite of the three, the other two stay on the page). Cost: the wrong one is rebuilt; A moves the list down one row for households that never hand over.
+- **SL-J2. A got line also reaches the Pantry by itself. Confirmed by the owner, 10 October 2026 (typed: "OK").** at the amount on the list (1 where the list gave none), with the effect of a member's "Done shopping". SL-D2 says the list is not gated on that tap and SL-D11 names swaps only; leaving gots to wait would leave the Pantry half-updated. Other way: got lines wait, ticked, for "Done shopping". Cost: if gots should wait, the Pantry gains stock a shopper only claimed (undoable per item in History); if they should not, the household pays one tap per shop. The largest call here.
 - **SL-J3. How "live" travels.** One server-sent-events stream per open page, each event the whole state, the browser reconnecting itself; a polling fallback is the build's to add. Cost: a different transport changes server code only.
-- **SL-J4. Two links, one line.** A line answered "got" on one link is locked on the others ("Someone else got this", nobody named, P6 stands); a "not found" or a swap can still be answered by the other shopper; a refused write answers 409 and the page corrects itself. Cost: a wrong "got" is only undone by the shopper who made it or a member.
+- **SL-J4. Two links, one line. Confirmed by the owner, 10 October 2026, as built: a line answered "got" or swapped on one link is locked on the others; "didn't find" does not lock.** A locked line reads "Someone else got this" (nobody named, P6 stands); a refused write answers 409 and the page corrects itself. *Changed from the first text of this call, which let the other shopper still answer a swap:* the build locks a swapped line too, and his words are the build's rule. The fragment's `mock.js` has not been changed to match; that is a known gap in the mockup, not in the build. Cost: a wrong "got" is only undone by the shopper who made it or a member.
 - **SL-J5. Swipe is not the only way.** A tap on the tick is "got it" (again is back to open), and each line has a hidden "Couldn't find" button that appears on keyboard focus. Cost: none visible.
 - **SL-J6. Undo takes back this link's own latest action**, one step at a time; a whole "Won't be able to buy these" or a batch Send is one step; it says what it would undo; in multi-select it takes back the last pick; disabled, not hidden, when there is nothing to take back.
 - **SL-J7. "Won't be able to buy these" has no confirm and no count on the button** (SL-D5 says no confirm step; Undo is the safety). A quiet outline button, because it closes every open line. The bar leaves when no line is open. Cost: an accidental tap closes the rest until Undo.
@@ -148,12 +148,26 @@ The twelve before the review, in order, and the thirteenth.
 7. The link before or after the list in the chat text? **Answered: after (SL-D14).**
 8. Does Cancel need a second tap? **Answered: no (SL-D15).**
 9. The share sheet closed without sending: the link already counts toward the 3. **Answered: it still counts unless the sender withdraws it (SL-D16); SL-J14 lets the line say so.**
-10. Which of the three placements? **Not answered by the owner. Judgement call: A (SL-J1).**
+10. Which of the three placements? **Not answered in the review; answered on 10 October 2026 by his typed reply: option A is OK (SL-J1).**
 11. Phase two: is a line that is not on the receipt "not got" or "not read"? **Deferred with phase two.**
 12. Phase two: is the photo kept? **Deferred with phase two. Nothing assumes it is kept.**
 13. New: should a result on any link update the real list at once, rather than wait for a member's "Done shopping"? **Answered: yes (SL-D2), and other links see it in near real time (SL-D3).**
 
-Still open for production, from the judgement calls: SL-J2 (do gots reach the Pantry by themselves), SL-J3 (transport), SL-J11 (lines added while a link is out), SL-J13 (what counts as opened).
+Still open for production, from the judgement calls: SL-J3 (transport), SL-J11 (lines added while a link is out), SL-J13 (what counts as opened). SL-J2 (do gots reach the Pantry by themselves) is answered: yes, confirmed 10 October 2026.
+
+## Owner confirmations, 10 October 2026
+
+The owner replied by typed message to the list of decisions to review before production (the pull requests that built this in `basement-bridge/kitchie`, #519 server and #538 screens, with this mockup as PR #71). In his order:
+
+1. The Pantry gets "got" lines automatically (SL-J2): **OK, confirmed.**
+2. Live writes by someone who is not signed in: **OK "so long as it's only that link that can be accessed without signing in".** This is a **condition**, not a loose end. It was checked against the Kitchie code on 11 October 2026 and is met for everything the shopper link adds; the record and its three plainly-said exceptions that are not the link's are in Kitchie's `docs/adr/shopper-link.md`, section "Owner review, 10 October 2026, and the condition".
+3. Hand-off placement option A (SL-J1): **OK, confirmed.**
+4. Locking: a line got or swapped on one link locks on the others, "didn't find" does not lock (SL-J4): **correct, confirmed as built** (see the changed text of SL-J4).
+5. Phase-one link data dropped, not migrated: **OK** (a build decision: the phase-one build was never merged into `uat`).
+6. The listed gaps between the build and the mockup (Kitchie PR #538, "Listed differences"): **OK.** Nothing in the mockup changes for them.
+7. Version 0.71.0: **OK.**
+
+**Still open, not decided by him:** SL-J3 (server-sent events as the transport), SL-J11 (the live list is the real list, lines added while a link is out), SL-J13 ("opened" means the page ran). The judgement calls he did not single out (SL-J5 to SL-J10, SL-J12, SL-J14 to SL-J17) are neither confirmed nor reopened.
 
 ## For the implementation
 
