@@ -187,7 +187,7 @@ legacy_ids    old_kind ('recipe'|'variation'), old_id, version_id, revision_id</
 <li><b>invented_value</b>: a quantity or time with <code>basis: unknown</code> and a non-null value, or <code>basis: observed</code> with no source text. Hint: unknown stays null.</li>
 <li><b>duplicate_key</b>: an <code>idempotency_key</code> reused with a different body. (Same key, same body returns the first result, not an error.)</li>
 <li><b>not_allowed</b>: an app-only tool on the assistant channel (resolve_review). Never a household-role check (BR16).</li>
-<li><b>too_large</b>: patch over 200 ops, note over 64 KB, import over 25 recipes.</li>
+<li><b>too_large</b>: patch over 200 ops, one note over 4,000 characters of text or a version's own notes over 16 KB (10.6), provenance text over 64 KB, import over 25 recipes.</li>
 <li><b>invalid_change</b>: unknown item id, bad <code>after</code>, id collision; same as today's resolve.ts.</li>
 </ul>
 </section>
@@ -427,7 +427,7 @@ Inherited photos cost nothing: a child version that shows its parent's banner an
 </ul>
 
 <h3 id="s-size">9.10 Size estimate against the 2 GB budget</h3>
-<p>Household: <b>200 recipes × 5 versions × 20 revisions = 20,000 revisions</b>, 1,000 versions. Measured on generated recipe JSON shaped like Recipe's schema (12 ingredients with quantity, basis, unit, preparation; 8 steps; tags, metadata, source): one resolved recipe is <b>3.9 KB</b>, a typical change set (1 to 3 ops) <b>~124 B</b>, the person's words and revision columns ~200 B, notes 1.8 KB per family edited 10 times. SQLite overhead (pages, indexes) taken as ×1.35; serialised as canonical JSON; numbers rounded.</p>
+<p>Household: <b>200 recipes × 5 versions × 20 revisions = 20,000 revisions</b>, 1,000 versions. Measured on generated recipe JSON shaped like Recipe's schema (12 ingredients with quantity, basis, unit, preparation; 8 steps; tags, metadata, source): one resolved recipe is <b>3.9 KB</b>, a typical change set (1 to 3 ops) <b>~124 B</b>, the person's words and revision columns ~200 B, notes 1.8 KB per recipe, written on its versions (most of it on the first one and inherited), edited 10 times in all. SQLite overhead (pages, indexes) taken as ×1.35; serialised as canonical JSON; numbers rounded.</p>
 <div class="tw"><table>
 <tr><th>What</th><th>6 A whole recipe per revision</th><th>6 B changes only (picked)</th></tr>
 <tr><td>Recipe content</td><td>20,000 × (3.9 KB + 0.2 KB) ≈ <b>111 MB</b></td><td>change sets + rows 8.8 MB; new item objects 7.2 MB; first revisions 1.2 MB; checkpoints (K10) 3.0 MB ≈ <b>20 MB</b></td></tr>
@@ -464,7 +464,8 @@ Inherited photos cost nothing: a child version that shows its parent's banner an
       ~ Frozen peas 120 g (was 80 g)
       + Step 1: Thaw the peas in a sieve under the tap
       Review: kept by Jane, 10 Oct 2026 18:40
-  notes.md                          the notes as Markdown
+  versions/with-peas/notes.md       that version's resolved notes as Markdown, each marked with
+                                    where it was first written ("From Original")
   log.jsonl                         the exact change sets, for re-import
   photos.txt                        photo ids, kind, step id, hashes (blobs are in the photo backup)</code></pre></li>
 <li>Re-import of <code>log.jsonl</code> rebuilds identical hashes (canonical JSON), which doubles as the export's integrity check.</li>
@@ -506,7 +507,9 @@ Inherited photos cost nothing: a child version that shows its parent's banner an
              description?: string (..4000),                  "Mum's handwritten card, front only"
              reference?: string (..4000),                    URL, book and page: text only, never fetched
              provenance_text?: string (..64 KB) }            what the assistant read, verbatim if the person wants it kept
-  notes?: string (Markdown subset, ..64 KB)                  becomes the family's notes (10.7)
+  notes?: string (Markdown subset; 10.6)                     becomes the FIRST version's notes, a field of that
+                                                            version; every version made from it inherits them and
+                                                            stores a notes change only where it differs (9.4, V-D31)
 }
 Ingredient {
   id?: string                                               server assigns i1.. if omitted on create; required on patch
@@ -535,15 +538,15 @@ Tag  closed: "batch" (cook big, eat through the week), "freezes" (portions freez
 
 <h4><code>create_recipe</code> (changed)</h4>
 <p>In: <code>{recipe: Recipe, user_intent: string, idempotency_key: string, check_duplicates?: true}</code>. Out: <code>{family, version: {id, name: "Original", state: "suggested"}, revision: {id, n: 1}, potential_duplicates[], warnings[]}</code>. Errors: <code>invalid</code>, <code>invented_value</code>, <code>intent_required</code>, <code>duplicate_key</code>, <code>too_large</code>.</p>
-<p class="nc">"Save a NEW recipe for this household, built from what the person gave you in this conversation. Recipe does not read links, photos or pages: you read them, you pass the content and say where it came from in source (description, and reference as plain text). Only title is required. Never invent: an amount you cannot read is {value: null, basis: 'unknown'}; mark values you guessed as 'inferred' and only if the person accepted the guess. It is saved as Suggested: nobody in the household sees it in lists or plans until a person says yes. If the person already said to save it, call accept_suggested next with their words. If potential_duplicates is not empty, show them and ask; never merge or skip. Pass the person's words in user_intent and a fresh idempotency_key; if the call times out, retry with the same key. Counterexample: a one-off change to tonight's dinner is not a new recipe."</p>
+<p class="nc">"Save a NEW recipe for this household, built from what the person gave you in this conversation. Recipe does not read links, photos or pages: you read them, you pass the content and say where it came from in source (description, and reference as plain text). Only title is required. Notes you pass are written on the recipe's first version; later versions inherit them. Never invent: an amount you cannot read is {value: null, basis: 'unknown'}; mark values you guessed as 'inferred' and only if the person accepted the guess. It is saved as Suggested: nobody in the household sees it in lists or plans until a person says yes. If the person already said to save it, call accept_suggested next with their words. If potential_duplicates is not empty, show them and ask; never merge or skip. Pass the person's words in user_intent and a fresh idempotency_key; if the call times out, retry with the same key. Counterexample: a one-off change to tonight's dinner is not a new recipe."</p>
 
 <h4><code>import_recipes</code> (new)</h4>
 <p>In: <code>{recipes: Recipe[] (1..25), user_intent, idempotency_key}</code>. Out: <code>{results: [{index, ok, family_id?, potential_duplicates?, error?}]}</code>. Each recipe is its own transaction; one failure does not stop the rest; all born Suggested. Errors per item as create_recipe.</p>
 <p class="nc">"Save several recipes at once, for example a person moving their recipe notes over. Same rules as create_recipe for each. Report back per recipe: saved, likely duplicate, or what was wrong. Do not import more than the person asked for."</p>
 
 <h4><code>get_version</code> (new; today's get_resolved_recipe is an alias)</h4>
-<p>In: <code>{version_id | family_id (= its usual) | legacy id, revision_id?}</code>. Out: <code>{family, version: {id, name, state, is_usual, open_review?}, revision: {id, n, author, channel, client}, content: Recipe with item ids, notes_markdown, photos: [{id, kind, cover?}]}</code>.</p>
-<p class="nc">"Read a recipe exactly as it is now (or at an earlier revision). Always read before you change anything, and pass revision.id as base_revision_id. The ids of ingredients and steps are how you say which line you change. state tells you whether it is a try (edits go straight in) or a keeper (ask the person where the change goes)."</p>
+<p>In: <code>{version_id | family_id (= its usual) | legacy id, revision_id?}</code>. Out: <code>{family, version: {id, name, state, is_usual, open_review?}, revision: {id, n, author, channel, client}, content: Recipe with item ids, notes: [{block_id, markdown, written_on: version_id, reworded_here, hidden, cook_id?}] (this version's resolved notes, 9.4), photos: [{id, kind, step_id?, inherited}]}</code>.</p>
+<p class="nc">"Read a recipe exactly as it is now (or at an earlier revision). Always read before you change anything, and pass revision.id as base_revision_id. The ids of ingredients and steps are how you say which line you change. state tells you whether it is a try (edits go straight in) or a keeper (ask the person where the change goes). notes are this version's notes: those written on an earlier version say so in written_on; they show here because this version inherits them."</p>
 
 <h4><code>patch_version</code> (new; replaces revise_version and create_version)</h4>
 <p>In:</p>
@@ -563,9 +566,9 @@ Tag  closed: "batch" (cook big, eat through the week), "freezes" (portions freez
 <p>In: the target id, the new value, <code>user_intent</code> on the assistant channel. Out: the updated family or version. Errors: <code>bad_transition</code>, <code>is_usual</code>, <code>intent_required</code>. No role check (BR16); putting away needs no approval (L8).</p>
 <p class="nc">"Change how a recipe or version stands, only when the person asks: say yes to a draft, keep a try, put one away, make one 'our usual' (what Plan and Cook open for everyone), or rename. Putting away hides, never deletes; tell the person it can be brought back."</p>
 
-<h4><code>write_notes</code> (new)</h4>
+<h4><code>write_notes</code> (new; also how create_recipe's notes are stored)</h4>
 <p>In: <code>{version_id, scope?: "this_version" | "every_version", base_notes_revision_id?, markdown?: string | ops?: NoteOp[], cook_id?, user_intent, idempotency_key}</code>. Out: <code>{notes_revision, written_on: version_id, blocks_changed, inherited_by: [version ids]}</code>. Errors: <code>stale_base</code>, <code>too_large</code>, <code>invalid</code> (unsupported Markdown). Sections 9.4, 10.7.</p>
-<p class="nc">"Add to or change a recipe version's notes (tips, what the family likes, where it came from). A note shows on the version it is written on and on every version made from it. By default write on the version the person is talking about; if they say it is for the dish in general ('always', 'for all of them'), pass scope 'every_version'. Send Markdown: paragraphs, **bold**, *italics*, headings, lists, [links](https://…). Send the whole notes text you want for this version; Recipe stores only what changed, and notes inherited from a parent that you did not change stay inherited. Links are kept as text; Recipe never opens them."</p>
+<p class="nc">"Add to or change a recipe version's notes (tips, what the family likes, where it came from). A note shows on the version it is written on and on every version made from it. By default write on the version the person is talking about; if they say it is for the dish in general ('always', 'for all of them'), pass scope 'every_version'. Send Markdown: paragraphs, **bold**, *italics*, headings, lists, [links](https://…). Send the whole notes text you want for this version; Recipe stores only what changed, and notes inherited from a parent that you did not change stay inherited. Links are kept as text; Recipe never opens them. Keep each note short, as the person would write it: the app's note box holds 600 characters; you may write up to 4,000 for one note when the person wants it, but the person can then change it only through you. Long source material goes in the recipe's source.provenance_text instead."</p>
 <h4><code>react</code> (new; set_preference is an alias)</h4>
 <p>In: <code>{version_id, value: "liked" | "no" | null}</code>. Out: <code>{reaction, household: {liked_by: [member ids], of: n, favourite}}</code>. Only for the calling member. No <code>user_intent</code> needed (it is the member's own opinion).</p>
 <p class="nc">"Record what THIS person thought of a version: liked, or not for them, or clear it. Never record a reaction for someone else, and never as the household's: the household view is worked out from everyone's own answers."</p>
@@ -609,7 +612,15 @@ Tag  closed: "batch" (cook big, eat through the week), "freezes" (portions freez
 </ul>
 
 <h3>10.6 Data limits</h3>
-<p>Same zod boundary as <code>domain.ts</code>: 200 ingredients and 200 steps, strings to 4000 characters, notes 64 KB, provenance text 64 KB, 200 ops per patch.</p>
+<p>Same zod boundary as <code>domain.ts</code>: 200 ingredients and 200 steps, strings to 4000 characters, provenance text 64 KB (a <code>text</code> object, stored once, never shown in the app), 200 ops per patch. Notes as below.</p>
+<h4 id="note-length">Note length: one rule for the app and the assistant <span class="rw">Proposal</span></h4>
+<p>A <b>note</b> is one entry under Notes: one block, or a short run of blocks (a heading and its list) added together, with one author and time (9.4).</p>
+<ul>
+<li><b>In the app: a soft limit of 600 characters of text per note</b>, matching the photos slice's P-D27 (Markdown marks and a <code>[photo:&lt;id&gt;]</code> reference not counted). The note box counts down from 100 left; at 600 it offers "Longer? Ask your assistant" (opens the person's AI app, L4). It is a limit of the app's box, not of Recipe: the server accepts longer notes from an assistant (next point).</li>
+<li><b>From an assistant: up to 4,000 characters of text per note</b> (the same cap as one step, 10.6), and <b>at most 16 KB for a version's own notes</b> (what that version adds or rewords; inherited notes do not count against it). Why that much is safe: notes are stored per block and diffed per block (9.4), so the size of a note costs once, when it is written; a later typo fix in a long note stores one splice and one new block (~200 B), never the note again; and a version that inherits notes stores 0 bytes for them. At 9.10's sizes even a household whose 1,000 versions each carried 16 KB of their own notes would hold about 22 MB (with ×1.35 overhead), about 1% of the 2 GB budget, against 1.6 MB for the household as modelled. Why not more: the resolved notes ride in every <code>get_version</code> read and in the head cache, and a phone page is not the place for a document. Longer source material belongs in the recipe's provenance text (64 KB), which is stored once and not shown.</li>
+<li><b>What the app shows for a long note written by an assistant:</b> the note in full, folded after about 600 characters with "Read all" (no text is ever cut off in storage). It can be hidden or removed in the app like any note (with undo). Its <b>edit</b> in the app is replaced by "Longer than the app's note box: change it through your assistant", which opens the person's AI app aimed at that note (as Change does, L4); the app never truncates it to fit.</li>
+</ul>
+<p class="nc"><span class="opn">Open for the owner, small</span> Is 600 characters right for the app's note box, and should an assistant's note be allowed to run longer (to 4,000 characters, 16 KB per version)? <b>Recommended default:</b> yes to both, as above. Wrong guess: a person whose assistant writes a long note cannot edit it in the app (only through the assistant), or, the other way, an assistant has to split long advice into several short notes.</p>
 
 <h3>10.7 Rich-text input</h3>
 <p>Markdown subset in, block document stored (9.4): paragraphs, <code>#</code>/<code>##</code>/<code>###</code> as heading levels, <code>-</code> and <code>1.</code> lists with nesting up to 3, <code>**bold**</code>, <code>*italics*</code>, <code>[label](https://url)</code>, <code>&gt;</code> quote. Anything else (HTML, images by URL, tables) is rejected with <code>invalid</code> and a hint. When the assistant sends the whole new notes text, the server diffs it by block (matching unchanged blocks by content, then by position) so ids stay stable. <code>get_version</code> returns the notes as the same Markdown.</p>
@@ -671,6 +682,7 @@ Tag  closed: "batch" (cook big, eat through the week), "freezes" (portions freez
 <div id="open" style="margin-top:18px;padding:14px;border:1px dashed var(--border);border-radius:var(--r-card)"><b>Still open (not decided here). Each has a build default; the mockup keeps its current behaviour.</b>
 <ul style="margin:6px 0 0 18px;color:var(--muted)">
 <li><b>Notes sub-option NA, NB or NC</b> (9.4). Default and mockup: NA, live inheritance.</li>
+<li><b>Note length</b> (10.6): 600 characters in the app's note box, up to 4,000 per note (16 KB per version) from an assistant, edited in the app only up to 600. Default: as proposed.</li>
 <li><b>The household favourite rule</b> (2.1). Default: more than half of those who ate it liked it, at least 2.</li>
 <li><b>A cook photo as a version's banner, by a person's explicit choice</b> (9.5; photos P-D10 B). Default: allowed only as that explicit choice, never automatic. Owner to confirm.</li>
 <li><b>Tab bar items</b> (R-O6) and <b>who draws the Recipe tab</b> (X16): not this slice; unchanged.</li>
