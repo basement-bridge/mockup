@@ -304,7 +304,8 @@ const sorters = {
 };
 function visibleItems() {
   const q = S.search.trim().toLowerCase();
-  return S.pantry.filter((i) => (S.areaTab === "All" || (S.rmode === "cat" ? i.cat : i.area) === S.areaTab) && (!q || i.name.toLowerCase().includes(q) || i.cat.toLowerCase().includes(q)));
+  /* Default view hides what is gone: level Out or quantity zero (kitchie #329). Search and filters still reach them. */
+  return S.pantry.filter((i) => (q || level(i) !== "Out") && (S.areaTab === "All" || (S.rmode === "cat" ? i.cat : i.area) === S.areaTab) && (!q || i.name.toLowerCase().includes(q) || i.cat.toLowerCase().includes(q)));
 }
 function rowHtml(i) {
   const hot = i.days !== null && i.days <= 1, c = S.cfg, out = i.n <= 0, cnt = reducible(i);
@@ -338,10 +339,10 @@ function listHtml() {
     const low = S.fa.st.low.on, onlyLow = low && !S.fa.st.soon.on && !S.fa.st.recent.on && !S.fa.locs.length && !S.fa.cats.length; /* with Running low on, rows swipe to the shopping list and press-and-hold picks several */
     return items.length ? `${low ? `<p class="hint">${S.sel ? "Tap to pick more, then add them together." : "Swipe a row to add it to your shopping list. Press and hold to pick several."}</p>` : ""}<ul class="rows">${items.map(low ? lowRowHtml : rowHtml).join("")}</ul>` : `<p style="padding:20px 4px">${onlyLow ? "Nothing is running low. Nice." : "Nothing matches these filters."}</p>`;
   }
-  const items = visibleItems().sort(sorters.name); /* no filters or sort chosen: A to Z, grouped */
+  const q0 = S.search.trim(), items = visibleItems().sort(sorters.name); /* no filters or sort chosen: A to Z, grouped */
   const gk = S.rmode === "cat" ? "cat" : "area";
   const groups = S.order[S.rmode].filter((a) => items.some((i) => i[gk] === a));
-  if (!groups.length) return `<p style="padding:20px 4px">${S.pantry.length ? "Nothing matches." : "Your pantry is empty. Add what you have."}</p>`;
+  if (!groups.length) return `<p style="padding:20px 4px">${!S.pantry.length ? "Your pantry is empty. Add what you have." : q0 ? "Nothing matches." : "Nothing in stock here. Search or use Filters to find what is out."}</p>`;
   return groups.map((a) => {
     const its = items.filter((i) => i[gk] === a); const shut = !!S.collapsed[a]; const nr = its.filter((i) => i.recent).length;
     return `<section class="group ${shut ? "shut" : ""}"><button class="grouphead" data-act="fold" data-p="${esc(a)}" data-fold="1" aria-expanded="${!shut}"><h2>${esc(a)}${shut ? `<small>${its.length}</small>` : ""}</h2><span class="ghmeta">${nr ? `<span class="added" role="img" aria-label="${nr} added in the last 24 hours">${I.up(12)}${nr}</span>` : ""}<span class="fold">${I.down}</span></span></button><ul class="rows">${its.map(rowHtml).join("")}</ul></section>`;
@@ -460,7 +461,7 @@ const screens = {
     <div class="prow" id="prow" data-state="${S.refresh ? "anim" : S.searchOpen ? "search" : "rest"}"><h1 class="vh">Pantry</h1>
       <div class="pl pl-msg" id="pmsg" ${S.refresh ? 'role="status"' : 'aria-hidden="true"'}>${S.refresh ? refreshHtml(S.refresh) : ""}</div>
       <div class="pl pl-search"><button class="link cancel" data-act="searchcancel">Cancel</button><div class="spill"><input class="field" id="search" placeholder="Search your pantry" value="${esc(S.search)}" autocomplete="off" aria-label="Search your pantry"><button class="icon" data-act="mic" aria-label="Search by voice" title="Voice">${riSvg("mic", 22)}</button><span class="mg" aria-hidden="true">${I.search}</span></div></div>
-      <div class="pl pl-front"><p class="count" aria-live="polite">${S.pantry.length} items</p><div class="pact">${S.fa ? "" : `<button class="tbtn" data-sheet="filters" aria-label="Filters">${riSvg("funnel", 18)}<span>Filters</span></button>`}<button class="icon addbtn" data-sheet="add" aria-label="Add an item" title="Add an item" ${S.down ? "disabled" : ""}>${I.plus}</button></div></div>
+      <div class="pl pl-front"><p class="count" aria-live="polite">${S.fa || S.search.trim() ? S.pantry.length : S.pantry.filter((i) => level(i) !== "Out").length} items</p><div class="pact">${S.fa ? "" : `<button class="tbtn" data-sheet="filters" aria-label="Filters">${riSvg("funnel", 18)}<span>Filters</span></button>`}<button class="icon addbtn" data-sheet="add" aria-label="Add an item" title="Add an item" ${S.down ? "disabled" : ""}>${I.plus}</button></div></div>
     </div>
     ${S.fa
       ? cvHtml()

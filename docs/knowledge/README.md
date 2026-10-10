@@ -4,6 +4,7 @@ What we have learned and decided about the product, written so it can be carried
 
 - `jobs-to-be-done/`: one file per job. See its README for the convention and the status of each job.
 - `pantry-pull-row.md`: the Pantry top row (Filters and Add, pull for search, pull further to refresh): thresholds, timings, animations.
+- `pantry-default-view.md`: the default Pantry: grouped by area, A to Z, Out and zero-quantity items hidden (still reachable by search and filter); Use by stays a sort and filter.
 - `pantry-swipe.md`: swipe gestures on pantry rows (use one, used up, add to shopping list); counted vs level-only is a proposal.
 - `item-sheet.md`: the half-height bottom sheet a pantry row opens (tile grid, owner's choice); counted vs level-only, Used up, All fields, and the proposals it had to make.
 - `people-settings.md`: Settings > People split into Me and Household: what is on each, removing people, leaving with a typed name.
