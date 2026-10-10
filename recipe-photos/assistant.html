@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Photo from the assistant — Recipe photos mockup</title>
+<link rel="stylesheet" href="../theme.css"><link rel="stylesheet" href="../recipe/recipe.css"><link rel="stylesheet" href="photos.css"><script src="../theme.js"></script><script src="../recipe/recipe.js"></script><script src="photos.js"></script></head>
+<body data-no-theme-fab>
+<div class="stage"><div class="phone" id="ph"></div></div>
+<script>
+/* How a photo gets from the person's own AI app into Recipe (P-D12). The chat is a neutral stand-in, not any product's look:
+   there is no in-app agent (plan-week-ai decision 42). Two scenes:
+   1 cooked: the person shows the assistant tonight's dish. The assistant cannot carry the picture across; it asks Recipe for a
+     one-time add link (request_photo_upload), and the person taps it: Kitchie's add screen opens already aimed at the right recipe.
+   2 web: the assistant reads a recipe page and passes the page's photo address with the draft; Recipe fetches it (P-D12 C),
+     and Check it shows it with the rest of the draft, so a person still says yes before it is kept. */
+(function(){
+var X=RCP,F=PHO,ic=X.ic,esc=X.esc;
+var scene=X.Q.get("scene")||"cooked";
+var step=X.Q.get("step")||"chat";
+var r=X.byId(X.Q.get("to")||"rag")||X.byId("rag");
+var ph=document.getElementById("ph");
+function draw(){
+  var h;
+  if(step==="chat"&&scene==="cooked"){
+    h='<div class="chathead"><span class="dotai" aria-hidden="true">'+ic("spark","s")+'</span>Your assistant<span style="flex:1"></span><span class="lbl">your AI app</span></div>'+
+      '<div class="body"><div class="mockmark">Stand-in for the person\'s own AI app</div><div class="chat">'+
+      '<div class="bub me"><span class="att">'+F.frame("rag-1","t",{eager:1,alt:"Photo of tonight's ragù"})+'</span>Made the ragù tonight, 10 portions. Can you save the photo to it?</div>'+
+      '<div class="bub">Looks great. I can\'t carry the picture across to Recipe myself, so here is a link that opens it ready to add: <b>Beef ragù, Cooked, today, by Priya</b>. It works once, for the next 15 minutes.'+
+        '<a class="lnk2" href="?scene=cooked&step=open&to=rag">'+ic("img","s")+'Add the photo in Kitchie</a>'+
+        '<small>Recipe tool: request_photo_upload (recipe, kind: cooked). No picture data goes through the chat.</small></div>'+
+      '<div class="bub">I\'ve also noted the cook: 10 portions, with your line "10 portions."<small>record_usage. The photo joins this cook when you add it.</small></div>'+
+      '</div></div>';
+  }else if(step==="open"){
+    /* Kitchie opens from the link: the target is already set; the person only picks the photo (the phone's picker), nothing else to choose. */
+    h='<div class="top"><a class="back" href="../recipe-photos/recipe.html?id='+r.id+'">'+ic("back","s")+'Cancel</a><span class="ttl">Add a photo</span><span style="width:64px"></span></div>'+
+      '<div class="body"><a class="slim acc" href="?scene=cooked&step=chat"><span class="e" aria-hidden="true">'+ic("spark")+'</span><span class="t"><b>From your assistant</b><small>'+esc(r.name)+' · Cooked today · by Priya</small></span></a>'+
+      '<div class="pad"><p style="font-size:14px;color:var(--fg)">Pick the photo you showed your assistant.</p></div>'+
+      '<div class="pad" style="padding-top:0"><div class="pgal"><button type="button" data-done aria-label="The ragù photo">'+F.frame("rag-1","t",{alt:""})+'</button><button type="button" disabled aria-label="Another photo">'+F.frame("cur-1","t",{alt:""})+'</button><button type="button" disabled aria-label="Another photo">'+F.frame("sha-1","t",{alt:""})+'</button></div>'+
+      '<p style="font-size:12px;margin-top:10px">Signed in as Priya. The link only works for your household, once.</p></div></div>';
+  }else if(step==="saved"){
+    h='<div class="top"><span style="width:64px"></span><span class="ttl">Added</span><span style="width:64px"></span></div><div class="body"><div class="pad" style="text-align:center;padding-top:40px"><div style="font-size:48px" aria-hidden="true">🍽️</div><h2 style="margin-top:8px">Added to Cooked</h2><p style="margin-top:6px">'+esc(r.name)+', today. Your assistant can see it was added, but not the picture.</p></div></div>'+
+      '<div class="act"><a class="btn" href="recipe.html?id=rag">Open '+esc(r.name)+'</a></div>';
+  }else if(step==="chat"&&scene==="web"){
+    h='<div class="chathead"><span class="dotai" aria-hidden="true">'+ic("spark","s")+'</span>Your assistant<span style="flex:1"></span><span class="lbl">your AI app</span></div>'+
+      '<div class="body"><div class="mockmark">Later (P-D12 C) · stand-in for the person\'s own AI app</div><div class="chat">'+
+      '<div class="bub me">Save this one for us: a red lentil soup link</div>'+
+      '<div class="bub">Done: <b>Red lentil soup</b> is waiting as a draft in Recipes. I included the photo from that page; it only stays if you keep the recipe.'+
+        '<a class="lnk2" href="?scene=web&step=check">'+ic("check","s")+'Check the draft</a>'+
+        '<small>create_recipe (draft) with photo_url. Recipe fetches the picture itself: https only, 8 MB cap, images only.</small></div>'+
+      '</div></div>';
+  }else{
+    /* Check it (recipe/review.html, R-D14) with the photo row this slice adds */
+    h='<div class="top"><a class="back" href="?scene=web&step=chat">'+ic("back","s")+'Back</a><span class="ttl">Check it</span><span style="width:64px"></span></div>'+
+      '<div class="body"><div class="pad"><span class="badge">'+ic("spark","xs")+'Your assistant, from a web page</span> <span class="badge sage">Later</span><h1 style="margin-top:10px">Red lentil soup</h1></div>'+
+      '<div class="frame">'+F.frame("len-1","m",{eager:1,lq:1,alt:"Photo from the recipe page"})+'<span class="pcap">From the web page</span></div>'+
+      '<div class="pad" style="display:flex;gap:8px"><button type="button" class="btn ghost sm" style="flex:1" data-drop>'+ic("x","s")+'Drop the photo</button><button type="button" class="btn ghost sm" style="flex:1">'+ic("cam","s")+'Use my own</button></div>'+
+      '<div class="pad"><p style="font-size:12.5px">A photo from someone else\'s site is kept for your household only, with the page it came from, and never shown outside it.</p>'+
+      '<div class="lblrow"><span class="lbl">Ingredients · 6</span></div><p>Red lentils, onion, carrot, cumin, stock, lemon…</p></div></div>'+
+      '<div class="act"><button type="button" class="btn ghost">Not now</button><button type="button" class="btn">'+ic("check","s")+'Save</button></div>';
+  }
+  ph.innerHTML=h;F.load(ph);
+}
+ph.addEventListener("click",function(e){var t=e.target.closest("button");if(!t)return;
+  if(t.hasAttribute("data-done")){step="saved";draw()}
+  else if(t.hasAttribute("data-drop")){var f=ph.querySelector(".frame");f.outerHTML='<div class="pad"><button type="button" class="pempty"><span class="e" aria-hidden="true">📷</span><span class="t"><b>No photo</b><small>Saved without one. Add yours after you cook it.</small></span></button></div>';X.toast("Photo dropped. The recipe is kept without it.")}
+});
+draw();
+F.controls('<h4>Scene</h4><p><a href="?scene=cooked&step=chat">1 A cooked photo shown to the assistant</a><br><a href="?scene=web&step=chat">2 A recipe from a web page, with its photo</a></p>');
+})();
+</script>
+</body></html>

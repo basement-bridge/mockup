@@ -95,7 +95,7 @@ ph.addEventListener("click",function(e){
   else if(t.hasAttribute("data-plan")){if(planned){X.toast("On the plan for Tuesday. Change it in Plan.")}else window.planSheet(r,{version:X.resolve(r,vid).v.name,onDone:function(){planned=true;draw(true)}})}
   else if(t.dataset.tab){e.preventDefault();tab=t.dataset.tab;draw(true)}
   else if(t.hasAttribute("data-addnote"))X.sheet('<h3>Add a note</h3><p style="font-size:13px">Shows on every version. Notes never change the recipe.</p><textarea class="field" style="min-height:100px;padding:10px;margin-top:10px" placeholder="e.g. Use day-old rice"></textarea><div style="display:flex;gap:8px;margin-top:12px"><button class="btn ghost" data-close>Cancel</button><button class="btn" data-close>Save note</button></div>');
-  else if(t.hasAttribute("data-addphoto"))X.sheet('<h3>Add a photo</h3><button class="opt">'+ic("cam")+'<span class="t"><b>Take a photo</b><small>Of tonight\'s dish. It goes into Cooked too.</small></span></button><button class="opt">'+ic("img")+'<span class="t"><b>Choose from photos</b></span></button><p style="font-size:12px;margin-top:8px">Where photos are stored: see <a href="../fragments/" style="color:var(--accent)">photo storage</a> (another slice).</p>');
+  else if(t.hasAttribute("data-addphoto"))X.sheet('<h3>Add a photo</h3><button class="opt">'+ic("cam")+'<span class="t"><b>Take a photo</b><small>Of tonight\'s dish. It goes into Cooked too.</small></span></button><button class="opt">'+ic("img")+'<span class="t"><b>Choose from photos</b></span></button><p style="font-size:12px;margin-top:8px">How photos are added, shown and stored: see <a href="../recipe-photos/" style="color:var(--accent)">Recipe photos</a> (another slice).</p>');
 });
 function versSheet(){
   var res=X.resolve(r,vid);

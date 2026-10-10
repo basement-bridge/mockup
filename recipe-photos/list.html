@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Recipe list with photos — Recipe photos mockup</title>
+<link rel="stylesheet" href="../theme.css"><link rel="stylesheet" href="../recipe/recipe.css"><link rel="stylesheet" href="photos.css"><script src="../theme.js"></script><script src="../recipe/recipe.js"></script><script src="photos.js"></script></head>
+<body data-no-theme-fab>
+<div class="stage"><div class="phone" id="ph"></div></div>
+<script>
+/* The flow slice's list (recipe/list.html, option A) with only the photo change: the 56px tile shows the cover thumbnail
+   instead of the emoji (P-D21 A). No row gets taller. Rows without a photo keep their emoji: no grey placeholder (P-D19). */
+(function(){
+var X=RCP,F=PHO,ic=X.ic,esc=X.esc;
+var opt=X.Q.get("lt")||X.store.get("plt","A");X.store.set("plt",opt);
+var ph=document.getElementById("ph");
+var ord=X.R.slice().sort(function(a,b){return X.missing(X.resolve(a).ings).length-X.missing(X.resolve(b).ings).length||a.last-b.last});
+var row=function(r){
+  var m=X.missing(X.resolve(r).ings),vc=r.vers.length,c=F.coverFor(r,(r.vers.filter(function(v){return v.def})[0]||r.vers[0]).id);
+  var pills=[];
+  pills.push(m.length?'<span class="tg miss">'+m.length+' missing</span>':'<span class="tg">'+ic("check")+'All in</span>');
+  if(r.star)pills.push('<span class="tg acc" aria-label="Starred">'+ic("star")+'</span>');
+  if(vc>1)pills.push('<span class="tg mut" aria-label="'+vc+' versions">'+ic("branch")+vc+'</span>');
+  var thumb=opt==="B"?'':(c?'<span class="th ph"'+(opt==="C"?' style="width:40px;height:40px"':'')+'>'+F.frame(c.p.id,"t",{alt:""})+'</span>':'<span class="th"'+(opt==="C"?' style="width:40px;height:40px;font-size:20px"':'')+' aria-hidden="true">'+r.e+'</span>');
+  if(opt==="B")thumb='<span style="font-size:24px;width:32px;text-align:center" aria-hidden="true">'+r.e+'</span>';
+  var meta=r.min+" min · "+(r.batch?"makes "+r.serves:"serves "+r.serves);
+  return '<li><a class="rr" href="recipe.html?id='+r.id+'"'+(opt==="C"?' style="min-height:60px"':'')+'>'+thumb+'<span class="t"><b>'+esc(r.name)+'</b><small>'+meta+'</small>'+(opt==="C"?'':'<span class="pills">'+pills.join("")+'</span>')+'</span><span class="chev">'+ic("chev","s")+'</span></a></li>';
+};
+/* sample: more rows than one screen, so lazy loading has something to skip. The tail repeats the sample recipes. */
+var rows=ord.concat(ord).concat(ord);
+ph.innerHTML='<div class="top" style="border-bottom:0"><label class="search">'+ic("search","s")+'<span class="vh">Search recipes</span><input type="search" placeholder="Search recipes or ingredients"></label><a class="ib acc" href="../recipe/add.html" aria-label="Add a recipe">'+ic("plus")+'</a></div>'+
+  '<div class="strip" role="group" aria-label="Show"><button type="button" aria-pressed="true">All</button><span class="sd" aria-hidden="true"></span><button type="button" aria-pressed="false">Ready now</button><button type="button" aria-pressed="false">Starred</button><button type="button" aria-pressed="false">Batch</button><button type="button" aria-pressed="false">Under 30</button></div>'+
+  '<div class="body" id="body"><ul class="rl" style="margin-top:4px">'+rows.map(row).join("")+'</ul><div style="height:24px"></div></div>'+X.bar().replace(/href="list\.html"/,'href="list.html"');
+F.load(ph);
+F.controls('<h4>Photos in the list (P-D21)</h4><div class="seg"><button type="button" data-lt="A" aria-pressed="'+(opt==="A")+'">A Thumb in the tile</button><button type="button" data-lt="B" aria-pressed="'+(opt==="B")+'">B No photos in lists</button><button type="button" data-lt="C" aria-pressed="'+(opt==="C")+'">C Small thumb, slim rows</button></div>');
+document.addEventListener("click",function(e){var b=e.target.closest("[data-lt]");if(b){X.store.set("plt",b.dataset.lt);var u=new URL(location.href);u.searchParams.delete("lt");location.href=u.toString()}});
+})();
+</script>
+</body></html>

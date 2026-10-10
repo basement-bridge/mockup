@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Add a photo — Recipe photos mockup</title>
+<link rel="stylesheet" href="../theme.css"><link rel="stylesheet" href="../recipe/recipe.css"><link rel="stylesheet" href="photos.css"><script src="../theme.js"></script><script src="../recipe/recipe.js"></script><script src="photos.js"></script></head>
+<body data-no-theme-fab>
+<div class="stage"><div class="phone" id="ph"></div></div>
+<script>
+/* Add a photo from the app (P-D11). Separate route: none of this loads until the person taps Add.
+   1 pick (camera or library: the phone's own picker), 2 say what it is (cover of this version, or tonight's cook), 3 it shrinks on the phone, uploads, done.
+   The original never leaves the phone at full size: the phone makes a 1600px WebP first (P-D6), and strips location data. */
+(function(){
+var X=RCP,F=PHO,ic=X.ic,esc=X.esc;
+var r=X.byId(X.Q.get("to")||"efr")||X.R[0];
+var src=X.Q.get("src")||"lib";
+var replace=X.Q.get("replace");
+var kind=X.Q.get("kind")||(replace?"dish":"");
+var step=X.Q.get("step")||(src==="lib"?"pick":"edit");
+var picked=X.Q.get("p")||"efr-c1";
+var many={};
+var v=(r.vers.filter(function(x){return x.def})[0]||r.vers[0]);
+var ph=document.getElementById("ph");
+var back='<a class="back" href="recipe.html?id='+r.id+'">'+ic("back","s")+'Cancel</a>';
+function draw(){
+  var title=replace?"Replace the cover":"Add a photo";
+  var h='<div class="top">'+back+'<span class="ttl">'+title+'</span><span style="width:64px"></span></div>';
+  if(step==="pick"){
+    /* stands in for the phone's own photo picker; the app never sees the library, only what the person picks */
+    var lib=["efr-c1","efr-c2","efr-c3","efr-1","sha-1","cur-1","len-1","rag-1","efr-2"];
+    h+='<div class="body"><div class="mockmark">Your phone\'s photo picker</div><div class="pad"><div class="pgal">'+lib.map(function(id){return '<button type="button" data-pk="'+id+'" aria-pressed="'+!!many[id]+'" aria-label="Photo">'+F.frame(id,"t",{alt:""})+(many[id]?'<span class="badge2">'+(Object.keys(many).indexOf(id)+1)+'</span>':'')+'</button>'}).join("")+'</div>'+
+      '<p style="font-size:12.5px;margin-top:10px">Pick one, or up to 3 from the same cook.</p></div></div>'+
+      '<div class="act"><button type="button" class="btn" data-next'+(Object.keys(many).length?'':' disabled')+'>'+(Object.keys(many).length>1?'Add '+Object.keys(many).length+' photos':'Add')+'</button></div>';
+  }else if(step==="edit"){
+    var ks=[["cooked","🍽️","Tonight's cook","Goes into Cooked, "+(X.TODAY===1?"Tue 7 Oct":"today")+", with your name"],["dish","📸","Cover of "+v.name,"What this version shows in the list and on top of the page"]];
+    if(!kind)kind="cooked";
+    h+='<div class="body">'+
+      '<div class="frame'+(kind==="dish"?' sq':'')+'">'+F.frame(picked,"m",{eager:1,alt:"The photo you picked"})+(kind==="dish"?'<span class="crop" aria-hidden="true"></span>':'')+'</div>'+
+      (kind==="dish"?'<p class="pad" style="font-size:12.5px;padding-bottom:0">Drag to choose the square the list shows. The page shows the whole photo.</p>':'')+
+      (replace?'':'<div class="lblrow pad" style="padding-top:0;padding-bottom:0"><span class="lbl">What is it?</span></div><div class="kind">'+ks.map(function(k){return '<button type="button" data-kind="'+k[0]+'" aria-pressed="'+(kind===k[0])+'"><span class="e" aria-hidden="true">'+k[1]+'</span><b>'+esc(k[2])+'</b><small>'+esc(k[3])+'</small></button>'}).join("")+'</div>')+
+      (kind==="cooked"?'<div class="pad"><label class="lbl" for="ln">A line (optional)</label><input id="ln" class="field" style="margin-top:6px" placeholder="e.g. Used brown rice, fine."></div>':'')+
+      '<div class="pad"><div class="shrink">'+ic("check","s")+'<span>Made smaller on your phone first: <b>4.2 MB → 190 KB</b>. Location removed.</span></div></div>'+
+      '</div><div class="act"><button type="button" class="btn" data-up>'+ic("check","s")+(replace?'Use as cover':'Save photo')+'</button></div>';
+  }else if(step==="up"){
+    h+='<div class="body"><div class="frame">'+F.frame(picked,"m",{eager:1,alt:""})+'</div><div class="pad"><b id="upl">Sending…</b><div class="prog"><i id="bar"></i></div>'+
+      '<p style="font-size:12.5px;margin-top:8px">You can leave this screen. If the signal drops it tries again; nothing is lost.</p></div></div>';
+  }else{
+    h+='<div class="body"><div class="pad" style="text-align:center;padding-top:40px"><div style="font-size:48px" aria-hidden="true">'+(kind==="dish"?"📸":"🍽️")+'</div><h2 style="margin-top:8px">'+(kind==="dish"?(replace?"New cover in":"Cover saved"):"Added to Cooked")+'</h2>'+
+      '<p style="margin-top:6px">'+(kind==="dish"?"Everyone in the household sees it on "+esc(v.name)+".":"Only your household can see it.")+'</p>'+
+      (replace?'<p style="margin-top:6px;font-size:13px">The old cover is still in Photos. Remove it there if you do not want it.</p>':'')+'</div></div>'+
+      '<div class="act"><a class="btn" href="recipe.html?id='+r.id+'">Back to '+esc(r.name)+'</a></div>';
+  }
+  ph.innerHTML=h;F.load(ph);
+  if(step==="up"){var w=0,b=document.getElementById("bar");var t=setInterval(function(){w+=22;b.style.width=Math.min(w,100)+"%";if(w>=100){clearInterval(t);step="done";draw()}},F.state==="slow"?600:220)}
+}
+ph.addEventListener("click",function(e){
+  var t=e.target.closest("button");if(!t)return;
+  if(t.dataset.pk){var id=t.dataset.pk;if(many[id])delete many[id];else if(Object.keys(many).length<3)many[id]=1;else X.toast("Up to 3 from one cook");draw()}
+  else if(t.hasAttribute("data-next")){picked=Object.keys(many)[0];step="edit";draw()}
+  else if(t.dataset.kind){kind=t.dataset.kind;draw()}
+  else if(t.hasAttribute("data-up")){step="up";draw()}
+});
+draw();
+F.controls('<h4>Jump to</h4><p><a href="?to=efr&src=lib">Pick from photos</a> · <a href="?to=efr&src=cam">After the camera</a> · <a href="?to=efr&src=cam&kind=dish&replace=efr-1&p=efr-c2">Replace the cover</a></p>');
+})();
+</script>
+</body></html>

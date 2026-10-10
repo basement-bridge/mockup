@@ -271,3 +271,92 @@ What is in and missing: Recipe `what_can_i_cook` / `what_am_i_missing` (stock fr
 - Default path on Home: one K1 call after the stock tiles, never blocking them; only for a household with Recipes. Sheets (Why, Tune, Ask, day picker) build on tap; See all is its own route.
 - Ranking: one pass over at most 100 recipes, cached per household for a few minutes and dropped on any stock, plan or food-rule change.
 - Lift `.ideas`, `.idl`, `.idr`, `.why`, `.rtag` and the `rank()` shape from `recipe-ideas/ideas.js`; sample signals live only there.
+
+---
+
+## Slice: recipe photos
+
+Mockup: [`recipe-photos/`](../../../recipe-photos/index.html) (index with the architecture decisions and options, `list.html`, `recipe.html`, `add.html`, `assistant.html`; shared `photos.css`, `photos.js` on top of the flow slice's `recipe/recipe.css` and `recipe/recipe.js`; sample pictures in `img/` at the three proposed sizes). Answers gap G7.
+
+### Job
+
+Seeing what a recipe looks like when choosing it, keeping a picture of what was actually cooked, and adding one with as little effort as possible, from the app or by showing it to the assistant. Owner's brief (10 October 2026, paraphrased): lock the architecture before anything is built (where bytes live, storage on the existing Tencent Lighthouse 2 vCPU / 2 GB server with snap Docker, pay for nothing, backups include photos, sizes and formats, upload from the UI and from AI, limits, per-version vs per-recipe, cooked-it photos, privacy through the Platform household token, caching, deletion); site performance is strict: lazy and progressive, nothing loaded until needed, thumbnails in lists, a tiny placeholder.
+
+### How we know the person is in this job
+
+They opened a recipe (the cover), scrolled to Cooked or Photos, tapped the camera in the top row or Add in Photos, reached the end of a cook (R-D19's optional photo), or tapped an add link from their assistant. Not detected otherwise; it is part of the Recipe tab job.
+
+### What leads
+
+- On the list: the cover thumbnail in the existing 56px tile, or the emoji when there is none.
+- On the recipe page: the version's cover (or its parent's, labelled), then the recipe; Photos and Cooked further down.
+- On Add: the picture, then one question, "What is it?" (Tonight's cook or Cover of this version).
+
+### What this job does not need
+
+Storage details on screen, file sizes (except the one reassurance line on Add), editing tools beyond a square crop for a cover, sharing outside the household, step photos (later, P-D23).
+
+### Decisions (all Proposal, P-D numbering)
+
+1. **P-D1 Recipe owns recipe photos;** Kitchie stores none and shows them by id. Only ids and the P-D5 contract cross apps. Option P1.
+2. **P-D2 Files in `photos/<household>/<id>-<size>.webp` beside `recipes.db`** in Recipe's data folder (today the `recipe-data` volume; a move to a `/home` folder like Kitchie's carries photos with it, since snap Docker only bind-mounts under `/home`). Option P2.
+3. **P-D3 Disk budget:** about 350 KB per photo for three sizes (1,000 photos ≈ 350 MB). Check free space on the data folder before switching photos on; the household cap guards the rest.
+4. **P-D4 One row per photo:** random 128-bit id, household, family, version or cook, kind (`dish`/`cooked`), author and channel (app/assistant), dimensions, square crop, colour, 24px preview, bytes per size, added, removed, purge-after, source page for a web photo. A version gains one changeable pointer, `cover_photo_id` (fits V-D16).
+5. **P-D5 Contract:** replies carry photo ids and colour (preview for the cover only), never bytes. HTTP `GET /recipe/photos/<id>/t|m|l.webp`, `POST /recipe/photos`, remove, restore. MCP `request_photo_upload` and photo ids in recipe and cook replies. No image bytes through MCP.
+6. **P-D6 Three WebP sizes, no original:** l 1600px long edge (viewer), m 960px (top of page), t 240px square (every thumbnail); quality about 75; colour and preview stored. Option P3.
+7. **P-D7 The phone makes the sizes** (also drops location and camera data); Recipe accepts only WebP of the right dimensions and size. Option P4.
+8. **P-D8 Limits (settings):** 6 recipe photos per version, 3 per cook, 1 MB per upload, 2 GB per household (slim warning at 80%), 60 uploads an hour per member. Option P9.
+9. **P-D9 A photo belongs to a version or a cook, never a revision.** A fix keeps photos; a new version shows its parent's cover, labelled, until it has its own; a spin-off (V-D25) offers "Bring the cover along" (on by default; files copied). The page's Photos section shows the whole family, this version first. Option P6.
+10. **P-D10 Cover:** first recipe photo of a version; any photo, cooked included, can be made the cover in one tap; with none up the line, the newest cooked photo stands in, dated. Option P7.
+11. **P-D11 Adding from the app:** camera in the page's top row, Add in Photos, end of a cook. Phone camera or picker; "What is it?" (Tonight's cook by default, or Cover of this version with a square crop); optional line for a cook; up to 3 from one cook; background send with retry.
+12. **P-D12 From an assistant:** a one-time add link (15 minutes, one use, bound to household and target) opens Kitchie's add screen already aimed; the person picks the photo. Later, for drafts from a web page, a photo address Recipe fetches (https, public addresses only, 8 MB, images only), shown on Check it so a person keeps or drops it. Option P5.
+13. **P-D13 Cooked-it photos are part of the cook entry** (G2, the versions slice's `record_cook`, up to 3 photo ids); thumbnail on that night's Cooked row and in Photos with date and who; not the cover unless chosen or nothing else exists.
+14. **P-D14 Nothing jumps, nothing loads early:** every box sized up front and filled with the photo's colour (no request); thumbnails load within 200px of the screen; only the page's cover loads up front, with the inline 24px preview; its siblings on first swipe; the large size only in the viewer; the add screen and its shrinking code are a separate route.
+15. **P-D15 Private to the household:** same-site addresses, Platform sign-in cookie and household checked on every request (locally, platform D11); 404 for anyone else; no public URLs, no tokens in addresses. Option P8.
+16. **P-D16 Caching:** bytes never change (replace = new id), so `private, max-age=31536000, immutable`; no shared cache.
+17. **P-D17 Removing:** by the person who added it or a household admin (no admins: any member but a follower); hidden at once with Undo, restorable 30 days, then files deleted and only the fact kept; "Delete it for good now" skips the wait; a removed cover falls back per P-D10; a household that leaves takes its photos. Option P10.
+18. **P-D18 Backups:** the existing data-folder backup includes photos, database first then photos; switch to copying only new files past about 500 MB. Option P11.
+19. **P-D19 No photo, no pretend photo:** emoji in the tile and beside the title (R-D9 stands); Photos shows one dashed line "No photos yet: snap it next time you cook it" with one tap to add.
+20. **P-D20 Top of the recipe page:** option P12.
+21. **P-D21 Lists:** option P13. One 240px square serves every thumbnail in the app.
+22. **P-D22 Viewer:** large photo with who and when; Replace cover or Use as cover; Remove only for those allowed (others are told who can).
+23. **P-D23 Step photos later:** same mechanism, kind `step` plus a step number.
+24. **P-D24 A photo from someone else's site** is kept for the household only, with its source page, never shown outside.
+
+How this changes other slices: R-D9 stands, and gains P-D19's empty line in Photos. R-D19's optional photo is P-D11's add screen with Tonight's cook preselected. R-D26 and G2: a cook carries up to 3 photo ids (P-D13). G7 is answered by P-D1 to P-D18. Versions slice: `record_cook.photo_ref` becomes `photo_ids` (up to 3); a version gains `cover_photo_id`; V-D25 spin-off gains "Bring the cover along"; the open question "notes and photos on the family or a version" is answered for photos by P-D9.
+
+### Options awaiting yay, nay or combine
+
+| # | Question | A | B | C | Recommended | Downside of the pick |
+|---|---|---|---|---|---|---|
+| P1 | Who owns photos | Recipe | Shared Platform service | Kitchie | A | Recipe gains file serving; Kitchie item photos later would repeat it |
+| P2 | Where bytes sit | Files beside `recipes.db` | SQLite blobs | Tencent COS | A | Row and files must be kept in step (files first, nightly sweep) |
+| P3 | What is kept | Three WebP sizes, no original | Plus original | Original only, resize on view | A | No full-quality original ever |
+| P4 | Who shrinks | Phone | Server library | Phone to 1600, server the rest | A | Server must strictly check bytes; web photos wait for a server library |
+| P5 | Assistant upload | One-time add link | Base64 in the tool call | Photo URL fetched by Recipe | A now, C later for drafts | One more tap; assistant never sees the photo |
+| P6 | Attached to | Version or cook | Whole recipe | Revision | A | New version shows parent's photo until it has one |
+| P7 | No cover | Parent's, then newest cooked | Recipe photos only | Newest of any kind | A | A messy dinner photo can lead unchosen (dated) |
+| P8 | Privacy | Same-site cookie check | Signed expiring links | Script-loaded with token | A | Needs one site for Kitchie and Recipe; no sharing out |
+| P9 | Limits | Tight (6/3/1 MB/2 GB) | Roomy (20/10/5 GB) | Household total only | A | Stage-by-stage photographers hit 3 per cook |
+| P10 | Removing | Hidden, purge after 30 days | Gone at once | Never deleted | A | File lingers 30 days and in backups |
+| P11 | Backups | With the database | Database plus new files only | None | A now, B past 500 MB | Every backup copies all photos; still on the same server |
+| P12 | Top of page | Full width 195px, swipe | 72px square by title | None | A | Ingredients start lower; biggest download on the page |
+| P13 | Lists | Cover in the 56px tile | No photos in lists | 40px thumb, slimmer rows | A | Each visible row downloads ~12 KB |
+
+### Recipe-side work (to file as Recipe issues once directions are picked; not filed)
+
+RP1 photos table and folder with files-then-row writes and a nightly sweep (strays, 30-day purge). RP2 upload, serve, remove, restore, delete-now routes with checks, limits and cache headers. RP3 version cover pointer, fallbacks, photo ids in replies. RP4 Recipe accepts the Platform cookie on photo `GET` (today bearer header only). RP5 `request_photo_upload` and the one-time link. RP6 backup runbook includes the photo folder, database first. RP7 later: web photo for drafts (server image library, private-network fencing). Kitchie: the add route with in-browser shrinking, the frame markup, the ~40-line loader; nothing stored.
+
+### Open questions
+
+- Free disk on the server's data folder (not recorded anywhere readable). A wrong guess fills the server; P-D8's cap is the guard.
+- An off-server backup copy at no cost in the current Tencent plan? Infra's call, for all apps.
+- P4 A means a web photo for a draft (P5 C) waits for a server image library.
+- Can a follower add a cooked photo? Mockup: yes; they cannot remove others'.
+- Replacing a cover: keep the old one in Photos (mockup) or remove it?
+- P8 A assumes Kitchie and Recipe stay on one site; a separate subdomain later needs P8 B.
+
+### For the implementation
+
+- Default path: the list sends ids and colours; thumbnails load as rows near the screen. The recipe page loads one medium cover with its inline preview; everything else on approach, on swipe, or in the viewer. Add is its own route. The Mockup panel meter counts what each screen fetched (sample pictures are flat drawings, far smaller than real photos).
+- Classes to lift beside the flow slice's: `.pf` (frame: `--pc` colour, `--lq` preview, `.in` when loaded), `.hero2`, `.pcap`, `.tthumb`, `.pgal`, `.pempty`, `.pv` (viewer), `.frame`, `.kind`. `tools/shots-photos.mjs` captures every photo screen at three scroll points.

@@ -35,6 +35,8 @@ const SCREENS = [
   ["recipe-ideas", "recipe-ideas/index.html"],
   ["recipe-ideas-home", "recipe-ideas/home.html"],
   ["recipe-ideas-all", "recipe-ideas/all.html"],
+  ["recipe-photos", "recipe-photos/index.html"],
+  ["recipe-photos-recipe", "recipe-photos/recipe.html?id=efr"],
   ["recipe-page", "fragments/recipe-page/index.html"],
   ["recipe-search", "fragments/recipe-search/index.html"],
   ["scan-in", "fragments/scan-in/index.html"],
