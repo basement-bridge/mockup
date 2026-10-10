@@ -57,8 +57,9 @@ Status: decisions by the owner, by voice, 9 October 2026, applied to the mockup 
 45. **The button opens the person’s default AI app.** It does nothing else: no in-app agent, no chat inside Kitchie. It opens whatever AI app the person has as their default. Settles decision 5. (Owner, typed, 10 Oct 2026.)
 46. **The week title keeps one width, so the next-week arrow never moves.** The arrow sits right beside the title; copy and settings stay far right. The title is as wide as the widest of the weeks the plan covers (last week to four weeks ahead), so changing week does not make the header jump. (Owner, typed, 10 Oct 2026.)
 47. **The week you were on is remembered.** The Monday date of the week being viewed is kept in the browser's localStorage (key `pw-week`), so a reload, refresh or later visit opens on that week. Used only if it is a Monday inside the plan window (last week to four weeks ahead); otherwise, or if storage is blocked, it opens on this week. Written whenever the week changes (arrows, title tap, long-press back to this week). Nothing goes to the server. The view (Mine, Everyone, a person) is not remembered. (Owner, typed, 10 Oct 2026: "remember the date on which the user was on in the browser storage so that it survives reloads and refreshes".)
+48. **One compact strip replaces the Mine / Everyone / People pill.** The wide pill and the "People" dropdown are gone. One thin row: Mine and Everyone (the two defaults, set apart by thin dotted dividers with little padding, not hard pipes), then each household member as their own chip. Swipe right to reach more people. One chevron at the right end expands the strip into wrapped rows, packed with no white gaps, at most five rows (the opened area scrolls past that); it flips up to collapse; it shows only when the row cannot hold everyone. Same component wherever the switch appears. (Owner, voice, 10 Oct 2026: "it's taking too much real estate".) Supersedes the picker part of decision 18.
 
-(17 to 47: owner, typed, 10 October 2026 for 38 to 47; the rest by voice, 9 October 2026.)
+(17 to 48: owner, typed, 10 October 2026 for 38 to 47, voice for 48; the rest by voice, 9 October 2026.)
 
 ## Follow-up work beyond the mockup
 
@@ -75,5 +76,7 @@ The owner looked at the list of small proposals below on 10 October 2026 and sai
 Marked on the fragment page: arrows and a small week label in the header, idle time of five seconds and once per visit, swipe distance, a people stepper in the meal sheet, "Held" as the state word for Hold, indent on Missing items too, Copy last week clearing only untouched copied cards.
 
 ## Open questions
+
+- Strip (decision 48), all marked Proposal on the fragment: chip height 36px (under the 44px guide), name cut at about 9rem, picking anyone closes an opened strip, chip order after Everyone is the household's order. A wrong guess costs a redraw.
 
 
