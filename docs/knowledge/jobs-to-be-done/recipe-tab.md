@@ -89,13 +89,38 @@ Spoken by the owner after the second lot. Each is **Locked (owner, voice, 11 Oct
 
 **Still open after the third lot:**
 
-- The editing screen: assistant hand-off, deferred ("we'll do that later"; R-O4: content comes only through the assistant).
+- The editing screen: **reversed and drawn on 11 Oct 2026 (T10, fourth lot, above).** Only its options E-O1 to E-O5 are open.
 - Cross-feature requests XR1 to XR3 (the Plan owners: what "sorted" means for R-D29, the desktop rule, the View recipe link) and XR4 (the preferences chat, with its F1, Q1, Q-R8 and the private "no" in Ideas).
 - Infra: free disk on the server's data folder (P-D3) and an off-server backup copy.
 - The cooking-ideas pane as a whole is still not reviewed by the owner (only its place, T8, and I-O4 are settled).
 - Smaller leftovers with build defaults: notes sub-option NA, NB or NC (default NA); migration of a disabled root with active variations; member ids in standalone mode.
 
 **Now settled (were open after the first lot):** V1 to V6, P1 to P13, R-V1.
+
+### Fourth lot: voice (T10, 11 October 2026): editing by hand
+
+Spoken by the owner after the third lot. **Locked (owner, voice, 11 Oct 2026).** It **reverses** the "assistant-only authoring" rule (L4, R-O4, "we'll do that later" for the editing screen) **for editing only**: the AI assistant remains the way to **start or create** a recipe, but **everything must be editable by hand in Kitchie**: title (recipe and version name), ingredients, steps, notes, tags and other fields (time, serves, where it came from), and photos (add, replace, remove, make banner, crop, rotate). It does not change the data model: the same version, revision and change-set model and the same Recipe service methods (so a hand edit is `patch_version` with a member as the author), which makes this a UI and flow mockup.
+
+| # | Decision | Ids touched | Replaces or closes |
+|---|---|---|---|
+| T10 | **Editing by hand is allowed for every part of a version; the assistant remains the way to start a recipe.** | L4, R-O4, R-D13, V-D3 (authorship) | "assistant-only authoring" for editing; the deferred editing screen; RT-K5 stays withdrawn, its place is RT-K12 |
+| T10a | **The version rules apply to hand edits unchanged:** a try edits in place; a keeper asks at save (fix this one / keep both / different dish, V2 C); every save is a revision with per-change undo; no hard delete, undo only; an assistant edit and a hand edit land in the same History with who did it shown. | V2, V5, V6, V-D13, V-D32 | |
+| T10b | **Notes use the single 4,000-character scrolling box (T7).** Photo rules as locked: one banner per version, one photo per step (at most 10), gallery 3; no originals kept, so crop and rotate act on the stored large (banner) or medium (others) and the screen says so; a pending photo shows the calm "Photo is being prepared" state. | T7, P3, P7, P9, P-D7 | |
+| T10c | **New build slices:** RT-R12 (Recipe HTTP routes for hand editing), RT-R13 (photo transform route), RT-K12 (Kitchie edit screens, phone and desktop), RT-K13 (photo crop and rotate screen). See `recipe-tab-handoff.md` 7.2 and 7.3. | handoff 7 | |
+
+**What the mockup drew** (`recipe/edit.html`, replacing the hand-off to the assistant; `recipe/edit-options.html` for the choices): one edit screen for the version with Details, Ingredients, Method, Notes and Photos, opened at the section tapped (a pencil in the recipe page's top row, key **E**, and one beside each section); ingredients as name, amount, unit and an "Amount?" switch (never guessed); steps with an optional timer and one photo each; Reorder mode with move arrows; removed saved rows struck through with Put back; notes in the 4,000-character box (a note from higher up is reworded here for this version and below); tags; photos with their own sheet and a crop and rotate screen (rotate, plus a fixed 4-to-3 frame you move and zoom, with the size it will save at); the keeper question as a sheet at Save; a changes lane on desktop (1280) that also holds the keeper question. Phone first (390), desktop where the layout differs (`edit-desktop.css` and `.js`, fetched only at 1024 px and up). History shows a "by hand" mark next to the "assistant" mark.
+
+**Options awaiting the owner's yay, nay or combine (recommended default marked, and used in the screens).** Details in `recipe/edit-options.html`.
+
+| # | Choice | Recommended default (used) | Other options |
+|---|---|---|---|
+| E-O1 | Where you edit | **A. One edit screen for the version, opened at the section tapped** (one change set, one revision, one keeper question) | B edit in place per field (a revision or a hidden pending state per field, a keeper question per field); C a sheet per section (two saves for a change that spans sections) |
+| E-O2 | Typing and reordering on a phone | **Three fields per ingredient (name, amount, unit, "Amount?"); Reorder mode with move arrows** | B a row menu; C a drag handle (fights scrolling, needs arrows anyway); D one parsed line per ingredient (nay: a parser, and it invents amounts) |
+| E-O3 | Crop and rotate | **Rotate plus a fixed 4-to-3 frame you move and zoom, with the saved size shown** | A rotate only (the smaller build); C a free crop (stored photos are all 4 to 3: nay) |
+| E-O4 | How the keeper question appears | **A sheet at Save** (change list, three cards, nothing preselected, optional words); on desktop it sits in the lane | B inline above the Save bar; C choose before editing (not "asks at save") |
+| E-O5 | Desktop layout | **Form plus a changes lane** (a plain wide window, since the Recipes tab is not drawn on desktop yet, X13) | B the phone column centred; C a nested flyout like the Pantry item edit (once desktop Recipes exists) |
+
+**Smaller choices made where the owner was silent (all Proposal):** E-D1 a hand edit on a keeper opens no "To review" (a person made it with the change list in front of them; wrong guess: noise on every hand edit); E-D2 the banner can be replaced or swapped, not removed (existing photos-slice rule; alternative: remove falls back to the parent's or the stock picture); E-D3 photos apply at once, are not part of Save, undo for 5 minutes, and an inherited photo gets its own copy on Replace or crop (the parent keeps its photo; no Remove for an inherited one); E-D4 Save does nothing until something changed, leaving with changes asks, Ctrl or Cmd plus Enter closes and never saves silently; E-D5 amounts are typed for the recipe's own serving count and stored per serving (the build converts); E-D6 editing a note written higher up rewords it for this version and below, taking a note off is a change in the revision; E-D7 two people editing at once is handled by the base revision (`stale_base`: "Jane saved revision 5 while you were editing", Apply mine on top or Start again), not drawn; E-D8 one History, hand edits marked "by hand", assistant edits marked "assistant" with the on-behalf-of name; E-D9 keys: E edit, comma History, Ctrl or Cmd plus Enter close (T3, no Recipe-specific keys).
 
 ---
 
@@ -523,3 +548,10 @@ Applied by the docs agent after the three slice agents redrew their pages (versi
 ## Owner's third lot applied (11 October 2026)
 
 Recorded by the docs agent from the owner's voice decisions: T1 to T9 (see "Third lot" above). Files updated: `recipe/index.html` (ledger), `recipe-versions/spec.html` (10.6 rewritten to one 4,000-character cap; 2.1, 9.5 and the open list), `recipe-photos/index.html` (N1 closed, P-D10, P-D27), this file and `recipe-tab-handoff.md`. Nothing has been built, and nothing has been filed.
+
+
+---
+
+## Owner's fourth lot applied (11 October 2026)
+
+Recorded by the mockup agent from the owner's voice decision T10 (see "Fourth lot" above). Files: `recipe/edit.html` (replaced: the hand-off to the assistant became the edit screen), `recipe/edit.css`, `edit.js`, `edit-photo.css`, `edit-photo.js`, `edit-desktop.css`, `edit-desktop.js`, `recipe/edit-options.html` (the options), `recipe/index.html` (ledger, T10), `recipe/detail.html` (pencils, E and comma), `recipe-versions/` (History marks "by hand"; Change hands off to either way), `tools/shots-edit.mjs`, this file and `recipe-tab-handoff.md`. Nothing has been built, and nothing has been filed.
