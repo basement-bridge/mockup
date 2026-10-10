@@ -1,0 +1,73 @@
+/* Shopper link fragment: the fragment page's own layout only (index.html). Nothing here is for the build.
+   The phones are frames around the real pages in this folder (list.html, member.html ...), at fixed phone sizes (DESIGN.md section 7, exceptions). */
+.sl-part{margin:36px 0 0;padding-top:20px;border-top:1px solid var(--border)}
+.sl-part>.lbl{font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--accent)}
+.sl-part>h2{font-size:1.5rem;line-height:1.15;margin:2px 0 6px}
+.sl-part h3{font-family:var(--head);font-size:1.1rem;margin:26px 0 4px}
+.sl-part p{font-size:14px}
+.sl-part p+p{margin-top:8px}
+.wrap code{font-size:.9em;padding:1px 5px;border-radius:6px;background:var(--surface);border:1px solid var(--border);overflow-wrap:anywhere}
+.wrap u{text-decoration-color:var(--accent);text-underline-offset:3px}
+.tag.new{color:var(--accent);border-color:var(--accent)}
+.tag.p2{border-style:dashed}
+.opt h2{flex-wrap:wrap}
+.opt h2 b{flex:none}
+.opt .note b{color:var(--fg)}
+
+/* The loop, at a glance. */
+.sl-loop{list-style:none;display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0 0;padding:0}
+@media(min-width:600px){.sl-loop{grid-template-columns:repeat(5,1fr)}}
+.sl-loop li{display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface);text-align:center;font-size:13px;line-height:1.3;color:var(--muted)}
+.sl-loop li:last-child{grid-column:1/-1}
+@media(min-width:600px){.sl-loop li:last-child{grid-column:auto}}
+.sl-loop .em{font-size:28px;line-height:1.1}
+.sl-loop b{color:var(--fg);font-size:14px}
+
+/* The owner's words. */
+.sl-said{margin-top:18px;padding:14px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface)}
+.sl-said>b{color:var(--accent)}
+.sl-said ul{margin:6px 0 0;padding:0 0 0 18px}
+.sl-said li{margin:6px 0;font-size:14px;color:var(--fg)}
+.sl-said li span{color:var(--muted)}
+
+/* A phone. */
+.sl-ph{margin:10px auto 0;width:100%;max-width:320px}
+.sl-ph iframe{display:block;width:100%;height:600px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--bg)}
+.sl-ph.short iframe{height:470px}
+.sl-ph.tall iframe{height:690px}
+/* On a phone the option card's padding would make the frame narrower than any real phone (298px); let it reach 320px and more. */
+@media(max-width:599px){.opt .sl-ph{width:calc(100% + 22px);max-width:none;margin-left:-11px;margin-right:-11px}}
+.sl-ph.tiny iframe{height:330px}
+.sl-ph figcaption{margin-top:6px;font-size:12px;color:var(--muted);text-align:center}
+.sl-ph figcaption a{text-decoration:underline}
+.sl-try{display:grid;gap:14px;margin-top:14px;align-items:start}
+@media(min-width:600px){.sl-try{grid-template-columns:minmax(0,390px) minmax(0,1fr)}}
+.sl-try .sl-ph{max-width:390px;margin-top:0}
+.sl-try .sl-ph iframe{height:700px}
+.sl-try ol{margin:0;padding:0 0 0 20px;font-size:14px}
+.sl-try li{margin:8px 0}
+.sl-reset{display:inline-flex;align-items:center;min-height:var(--tap);margin-top:8px;padding:0 16px;border:1px solid var(--border);border-radius:var(--r-pill);background:var(--surface);color:var(--fg);font:600 14px var(--body);cursor:pointer}
+
+/* What lands in the family's chat: a plain bubble, no app's look. */
+.sl-chat{max-width:320px;margin:10px auto 0;padding:12px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--bg)}
+.sl-chat-h{padding:2px 4px 10px;font-size:13px;font-weight:700;color:var(--muted);text-align:center;border-bottom:1px solid var(--border)}
+.sl-bub{max-width:92%;margin:12px 0 0 auto;padding:10px 12px;border:1px solid var(--border);border-radius:var(--r-card) var(--r-card) 6px var(--r-card);background:var(--surface);color:var(--fg);font-size:14px;line-height:1.4;white-space:pre-wrap;overflow-wrap:anywhere}
+.sl-bub.them{margin:10px auto 0 0;border-radius:var(--r-card) var(--r-card) var(--r-card) 6px;background:none;white-space:normal}
+.sl-bub u{color:var(--accent)}
+.sl-chat small{display:block;margin-top:4px;font-size:11px;color:var(--muted);text-align:right}
+
+/* Notes. */
+.sl-notes{margin-top:18px;padding:14px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface)}
+.sl-notes.open{border-style:dashed;background:none}
+.sl-notes>b{color:var(--accent)}
+.sl-notes ul,.sl-notes ol{margin:6px 0 0;padding:0 0 0 20px}
+.sl-notes li{margin:7px 0;font-size:14px;color:var(--muted)}
+.sl-notes li b{color:var(--fg)}
+.sl-notes li i{font-style:normal;color:var(--sage)}
+.sl-fields{margin:8px 0 0}
+.sl-fields dt{margin-top:10px;font-weight:700}
+.sl-fields dd{margin:2px 0 0;font-size:14px;color:var(--muted)}
+.sl-why ul{margin:6px 0 0;padding:0 0 0 18px}
+.sl-why li{margin:8px 0;font-size:14px;color:var(--muted)}
+.sl-why li b{color:var(--fg)}
+.sl-notes .q{margin:4px 0 0}

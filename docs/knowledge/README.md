@@ -8,6 +8,7 @@ What we have learned and decided about the product, written so it can be carried
 - `item-sheet.md`: the half-height bottom sheet a pantry row opens (tile grid, owner's choice); counted vs level-only, Used up, All fields, and the proposals it had to make.
 - `people-settings.md`: Settings > People split into Me and Household: what is on each, removing people, leaving with a typed name.
 - `locations-spots.md`: Settings > Kitchen locations (parents) and spots (children): three management options, proposals, open questions.
+- `shopper-link.md`: the one-off link that lets someone who is not in the app tick off the shared shopping list (48 hours, no sign-in): the owner's words and decisions, the proposals from Kitchie issue #479 and from the drawing, thresholds, open questions; phase two (scan the receipt) is drawn only.
 - `desktop-layout.md`: desktop (1024px and up) as a left rail, an off-centre column and a side panel that sits one gutter from the list; settled direction, proposals, open questions.
 - `preferences-option-a.md`: what the code holds for person and household preferences, and option A (one list, a You / Household switch per row); awaiting approval, A-1 to A-10 are proposals.
 - `user-preferences/`: how the system learns about people and decides what to act on (evidence grades, thresholds). Start with `evidence-grading.md`; the tool contract is in `boundary-contract.md`.
