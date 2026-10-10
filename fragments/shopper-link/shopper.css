@@ -185,3 +185,35 @@ main[data-sl-mode=multi] .sl-undo-bar{border-bottom-color:var(--accent)}
 .sl-mode{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:84px;padding:10px 8px;border:1px solid var(--border);border-radius:18px;background:var(--surface);color:var(--fg);font:inherit;font-weight:700;line-height:1.2;text-align:center;cursor:pointer}
 .sl-mode svg{color:var(--accent)}
 .sl-mode[aria-pressed=true]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+
+/* The promise (owner, voice, 11 October 2026, SL-D21 to SL-D24). Two wholesale actions at the very top, above the list: "I'll get these" (the main button) and, until a line has been swiped,
+   "I won't do it" (quiet: it turns the whole trip down and cannot be undone, so it asks once more). After the promise the block is a calm strip. Colour is never the only cue:
+   every state has words, and the strip has the tick. */
+.sl-plan,.sl-promised{margin:8px 0 10px;padding:12px;border:1px solid var(--border);border-radius:18px;background:var(--surface)}
+.sl-plan h2{margin:0;font-family:var(--head);font-size:1.15rem;line-height:1.2}
+.sl-plan>p,.sl-promised>p{margin:4px 0 10px;font-size:.9rem;line-height:1.4;color:var(--muted)}
+.sl-plan{border-color:var(--accent)}
+button.btn.sl-promise{display:flex;align-items:center;justify-content:flex-start;gap:12px;width:100%;min-height:60px;margin:0;padding:6px 16px;border:0;border-radius:14px;background:var(--accent);color:var(--on-accent,var(--bg));text-align:left;-webkit-tap-highlight-color:transparent}
+.sl-promise svg{flex:none}
+.sl-pb-t{display:block;line-height:1.2}
+.sl-pb-t b{display:block;font-size:1.1rem}
+.sl-pb-t small{display:block;font-size:.85rem;font-weight:600;opacity:.9}
+.sl-refuse-wrap{margin:8px 0 0}
+button.btn.sl-refuse{width:100%;min-height:48px;margin:0;background:var(--bg);color:var(--fg);border:1px solid var(--border);font-weight:600}
+.sl-ask{padding:10px 0 0}
+.sl-ask p{margin:0 0 8px;font-size:.95rem;line-height:1.4}
+.sl-ask-b{display:flex;gap:8px}
+.sl-ask-b .btn{flex:1;min-height:52px;margin:0;padding:0 10px;line-height:1.2;text-align:center}
+.sl-ask-b .btn.sl-ask-yes{background:var(--bg);color:var(--fg);border:2px solid var(--danger);font-weight:700}
+.sl-promised-h{display:flex;align-items:center;gap:10px}
+.sl-promised-t{min-width:0;line-height:1.25}
+.sl-promised-t b{display:block;font-size:1.05rem}
+.sl-promised-t span{display:block;font-size:.9rem;color:var(--muted)}
+.sl-promised>p{margin:8px 0 0}
+.sl-promised .sl-refuse-wrap{margin-top:10px}
+/* A line another shopper has promised (SL-D26): it says so for a moment and leaves, like a line they got (SL-J20); nobody is named. */
+.sl-list li.shoprow[data-claim=other] .tick{pointer-events:none}
+.sl-list li.shoprow[data-claim=other] .tick span{border-style:dashed;border-color:var(--sage);color:var(--sage)}
+.sl-list li.shoprow[data-claim=other] .sl-sub{color:var(--sage)}
+.sl-list li.shoprow[data-claim=other]:not([data-sl-hold]) .sl-acts{display:none}
+.sl-dead .ric{filter:none}

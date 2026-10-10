@@ -5,13 +5,17 @@
 //   list.html            ?s=mid | drag | drag-armed | drag-no | drag-no-armed | leave | done | done-none | swap | also | multi | summary | none | wont | live | reopen | two        phase one (see the seeds below)
 //                        ?s=p2 | p2-ask | p2-reading | p2-ok | p2-retry | p2-fallback   phase two (not built); ?p2=1 only shows the chooser
 //                        ?g=<group>&as=A|B   several frames in one group share one pretend server (A and B are two links; the member sees both)
+//                        SL-D21 on (11 October 2026, second round): ?s=fresh | trim | committed | committed-all | bailed | reject-ask | rejected | claimed-other | released
 //   member.html          ?share=a | b | c   where the hand-off control sits      ?live=0 | 1 | 2 | 3 | unsent   which links are out
 //   member-result.html   ?at=mid starts scrolled to the swapped line     ?s=two shows two links' cards     ?g=<group> follows that group live
+//   member-list.html    ?s=plain | states | three | sorting | dead | ended   the household's Shopping list with claims (SL-D21 on); ?g=<group> follows that group live (mock-member.js draws it)
+//   link.html            ?s=unopened | opened | active | got | swapped | notfound | dead   one outstanding link, tapped into (SL-D29 on); ?g=live&as=A follows a live link
 //   sent.html            ?from=<scope> shows what that frame really sent
 (function () {
   "use strict";
   var q = new URLSearchParams(location.search), s = q.get("s") || "";
   var form = document.getElementById("sl-form"), list = document.getElementById("shop");
+  var root_ = null;
   var page = (location.pathname.split("/").pop() || "").replace(/\.html$/, "");
   var auto = s !== "";
   var wait = function (ms) { return new Promise(function (ok) { setTimeout(ok, auto ? 0 : ms); }); };
@@ -30,10 +34,15 @@
   var PANTRY = ["fusilli", "milk", "rice", "eggs"]; // what the pretend Pantry already holds (for add-item matching)
   var SKEY = "kitchie.sl.srv:" + group;
   var chan = window.BroadcastChannel ? new BroadcastChannel("kitchie.sl:" + group) : null;
-  function fresh() { return { rev: 0, lines: {}, extras: [], hist: { A: [], B: [] }, order: [], hours: 46 }; }
-  function load() { try { return JSON.parse(local.get(SKEY)) || fresh(); } catch (e) { return fresh(); } }
+  // links: per link { committed, dead, deadAt, slot, opened, left }; claims: line key -> the link that promised it (SL-D21 on). A claim is kept when its line is answered
+  // (the answer wins) and goes when the link ends, is turned down or is cancelled, or when the promise is undone.
+  function fresh() { return { rev: 0, lines: {}, extras: [], hist: { A: [], B: [] }, order: [], hours: 46, links: {}, claims: {}, removed: {} }; }
+  function norm(o) { o.links = o.links || {}; o.claims = o.claims || {}; o.removed = o.removed || {}; return o; }
+  function load() { try { return norm(JSON.parse(local.get(SKEY)) || fresh()); } catch (e) { return fresh(); } }
   var srv = (auto && !q.get("g")) ? fresh() : load();
+  var streams = [];
   function save() { srv.rev++; local.set(SKEY, JSON.stringify(srv)); if (chan) chan.postMessage({ rev: srv.rev }); }
+  function ping() { streams.forEach(function (t) { t(); }); } // tells this page's own live stream about a change made by a frame script (a change from another page arrives by itself)
   function label(k, r) {
     var n = NAMES[Number(k.slice(1))];
     return r.state === "got" ? n + ", got it" : r.state === "notgot" ? n + ", couldn't find" : r.state === "swapped" ? n + ", got " + r.words + " instead" : n + ", back to open";
@@ -41,11 +50,23 @@
   function lineOf(k) { return srv.lines[k] || { state: "open", words: "", by: "" }; }
   function put(k, r) { if (r.state === "open") delete srv.lines[k]; else srv.lines[k] = r; }
   function seen(link) { if (srv.order.indexOf(link) === -1) srv.order.push(link); }
+  function linkOf(link) { return srv.links[link] || (srv.links[link] = { committed: false, dead: false }); }
+  function live(link) { var l = srv.links[link]; return !!l && !l.dead && !l.ended; }
+  function claimOf(k) { var c = srv.claims[k]; return c && live(c) ? c : ""; } // who has promised this line, if that link is still alive
+  // A link stops (turned down by its shopper, ended by its window, cancelled by a member): what it had promised and not answered goes back to the open pool (SL-D23, SL-D27).
+  function endLink(link, how) {
+    var l = linkOf(link);
+    if (how === "rejected") { l.dead = true; l.deadAt = Date.now(); } else { l.ended = how; }
+    Object.keys(srv.claims).forEach(function (k) { if (srv.claims[k] === link) delete srv.claims[k]; });
+  }
   function snapshot(link) {
     var lines = {};
-    NAMES.forEach(function (n, i) { var k = "l" + i, r = lineOf(k); lines[k] = { state: r.state, words: r.words, by: r.by ? (r.by === link ? "you" : "other") : "" }; });
+    NAMES.forEach(function (n, i) {
+      var k = "l" + i, r = lineOf(k), c = r.state === "open" ? claimOf(k) : "";
+      lines[k] = { state: r.state, words: r.words, by: r.by ? (r.by === link ? "you" : "other") : "", claim: c ? (c === link ? "you" : "other") : "" };
+    });
     var h = srv.hist[link] || [];
-    return { rev: srv.rev, lines: lines, extras: srv.extras.filter(function (x) { return x.by === link; }).map(function (x) { return { id: x.id, text: x.text }; }), last: h.length ? { label: h[h.length - 1].label } : null, hours: srv.hours };
+    return { rev: srv.rev, lines: lines, extras: srv.extras.filter(function (x) { return x.by === link; }).map(function (x) { return { id: x.id, text: x.text }; }), last: h.length ? { label: h[h.length - 1].label } : null, hours: srv.hours, committed: !!linkOf(link).committed, dead: !!linkOf(link).dead, gone: !live(link) };
   }
   function push(link, label_, undo) { seen(link); (srv.hist[link] = srv.hist[link] || []).push({ label: label_, undo: undo }); }
   function act(path, d, link) {
@@ -53,6 +74,7 @@
     if (path === "line") {
       k = d.get("key"); r = lineOf(k); prev = r;
       if ((r.state === "got" || r.state === "swapped") && r.by && r.by !== link) return 409; // got or swapped on another link: locked (SL-J4, confirmed 10 October 2026)
+      if (r.state === "open" && claimOf(k) && claimOf(k) !== link) return 409; // promised on another link: locked too, so two people never buy the same line (SL-D26, extends SL-J4)
       var w = (d.get("swap") || "").trim().slice(0, 120), st = d.get("state");
       var n = w ? { state: "swapped", words: w, by: link } : st === "open" ? { state: "open", words: "", by: "" } : { state: st, words: "", by: link };
       put(k, n); push(link, label(k, n), [{ k: k, prev: prev }]);
@@ -64,16 +86,26 @@
       if (gone) { srv.extras = srv.extras.filter(function (v) { return v !== gone; }); push(link, "Removed: " + gone.text, [{ put: gone }]); }
     } else if (path === "unresolved") {
       var undo = [];
-      NAMES.forEach(function (n_, i) { var kk = "l" + i; if (lineOf(kk).state === "open") { undo.push({ k: kk, prev: lineOf(kk) }); put(kk, { state: "notgot", words: "", by: link }); } });
+      NAMES.forEach(function (n_, i) { var kk = "l" + i; if (lineOf(kk).state === "open" && (!claimOf(kk) || claimOf(kk) === link)) { undo.push({ k: kk, prev: lineOf(kk) }); put(kk, { state: "notgot", words: "", by: link }); } });
       if (undo.length) push(link, "The rest, can't buy", undo);
     } else if (path === "undo") {
       var h = (srv.hist[link] || []).pop();
-      if (h) h.undo.forEach(function (u) { if (u.k) put(u.k, u.prev); else if (u.extra) srv.extras = srv.extras.filter(function (v) { return v.id !== u.extra; }); else if (u.put) srv.extras.push(u.put); });
+      if (h) h.undo.forEach(function (u) { if (u.k) put(u.k, u.prev); else if (u.claim) delete srv.claims[u.claim]; else if (u.committed) linkOf(link).committed = false; else if (u.extra) srv.extras = srv.extras.filter(function (v) { return v.id !== u.extra; }); else if (u.put) srv.extras.push(u.put); });
+    } else if (path === "commit") {
+      // "I'll get these" (SL-D21): every line still open and not promised elsewhere becomes this link's promise. Lines already answered are untouched.
+      var mine = [];
+      NAMES.forEach(function (n_, i) { var kk = "l" + i; if (lineOf(kk).state === "open" && !claimOf(kk)) { srv.claims[kk] = link; mine.push({ claim: kk }); } });
+      linkOf(link).committed = true;
+      push(link, "Promised " + mine.length + (mine.length === 1 ? " line" : " lines"), mine.concat([{ committed: true }]));
+    } else if (path === "reject") {
+      // "I won't do it" (SL-D23): the link is dead at once, its promise is cleared, and it cannot be undone.
+      endLink(link, "rejected");
     } else if (path === "batch") {
       var got = d.getAll("got"), undo2 = [];
       NAMES.forEach(function (n_, i) {
         var kk = "l" + i, cur = lineOf(kk), sw = (d.get("swap_" + kk) || "").trim().slice(0, 120);
         if ((cur.state === "got" || cur.state === "swapped") && cur.by && cur.by !== link) return;
+        if (cur.state === "open" && claimOf(kk) && claimOf(kk) !== link) return;
         undo2.push({ k: kk, prev: cur });
         put(kk, sw ? { state: "swapped", words: sw, by: link } : got.indexOf(kk) !== -1 ? { state: "got", words: "", by: link } : { state: "notgot", words: "", by: link });
       });
@@ -88,10 +120,13 @@
   var SHARE_TEXT = "Shopping list\n- bananas, 6\n- bread, 1 loaf\n- cheddar, 1 block\n- dish soap\n- eggs, a dozen (2 left, minimum 6)\n- milk, 2 L\n- olive oil, 1 bottle\n- onions (running low)\n- penne, 500 g\n- rice, 2 kg\n- spinach, 1 bag\n- tomatoes, 1 kg\n\nTick off what you get, no sign-in needed. The link works for 48 hours:\nhttps://kitchie.example/list/sample-link-not-real-000000000000000000000";
   window.fetch = function (url, opts) {
     if (!opts || opts.method !== "POST") return realFetch.apply(window, arguments);
-    var to = String(url), m = /(?:^|\/)(line|extra\/remove|extra|unresolved|undo|batch)$/.exec(to);
+    var to = String(url), m = /(?:^|\/)(line|extra\/remove|extra|unresolved|undo|batch|commit|reject)$/.exec(to);
     if (m && /(^|\/)api\//.test(to)) {
       var d = new URLSearchParams(opts.body), code;
-      return wait(120).then(function () { code = act(m[1], d, me); return json(code, snapshot(me)); });
+      return wait(120).then(function () {
+        if (srv.links[me] && (srv.links[me].dead || srv.links[me].ended)) return json(404, {}); // a link that has finished answers the one neutral 404
+        code = act(m[1], d, me); return json(code, snapshot(me));
+      });
     }
     if (/share$/.test(to)) {
       store.set("sl-mock-live", "1");
@@ -105,6 +140,7 @@
     var me_ = this;
     me_.url = url; me_.readyState = 1;
     var tell = function () { if (me_.onmessage) me_.onmessage({ data: JSON.stringify(snapshot(me)) }); };
+    streams.push(tell);
     setTimeout(tell, 0);
     me_._on = function () { srv = load(); tell(); };
     if (chan) chan.addEventListener("message", me_._on);
@@ -114,13 +150,19 @@
   window.EventSource = FakeStream;
 
   // ================================================================ seeds for the fixed frames
-  function seed(lines, extras, last) {
+  function seed(lines, extras, last, committed) {
     Object.keys(lines).forEach(function (k) { var v = lines[k]; srv.lines[k] = { state: v[0], words: v[1] || "", by: v[2] || "A" }; });
     (extras || []).forEach(function (t, i) { srv.extras.push({ id: "x" + (i + 1), text: t, by: "A" }); });
     if (last) srv.hist.A.push({ label: last, undo: [] });
+    if (committed) { var l = linkOf("A"); l.committed = true; Object.keys(committed).forEach(function (k) { srv.claims[k] = "A"; }); }
     srv.rev++;
   }
+  // Link facts the member screens print (opened, hours left, slot); the shopper's page does not use them. Mockup only.
+  function meta(link, o) { var l = linkOf(link); Object.keys(o).forEach(function (k) { l[k] = o[k]; }); if (srv.order.indexOf(link) === -1) srv.order.push(link); }
+  function claim(link, keys) { keys.forEach(function (k) { srv.claims[k] = link; }); linkOf(link).committed = true; }
   var MID = { l0: ["got"], l1: ["got"], l2: ["got"], l3: ["notgot"], l4: ["got"], l5: ["got"], l8: ["swapped", "fusilli, same size"] };
+  var ALL = ["l0", "l1", "l2", "l3", "l4", "l5", "l6", "l7", "l8", "l9", "l10", "l11"];
+  var rest = function (done) { return ALL.filter(function (k) { return done.indexOf(k) === -1; }); };
   if (auto && !q.get("g")) {
     if (s === "done" || s === "done-none") {
       // Nothing left (SL-D18). "done": 9 of 12 got, one swapped, two not found. "done-none": nothing was bought, every line not found; still a calm end, not an error.
@@ -136,7 +178,75 @@
       if (s === "live") { mid = { l0: ["got"], l1: ["got"], l5: ["got"], l10: ["got", "", "B"] }; }
       if (s === "also") mid = { l0: ["got"], l1: ["got"], l2: ["got"], l4: ["got"], l5: ["got"] };
       if (s === "reopen") { mid = { l0: ["got"], l1: ["got"], l2: ["got"], l3: ["got"], l4: ["got"], l5: ["got"], l6: ["notgot"], l8: ["swapped", "fusilli, same size"], l10: ["notgot"] }; }
-      seed(mid, s === "also" ? ["2 cans of sparkling water", "birthday candles"] : s === "mid" || s === "wont" ? ["2 cans of sparkling water"] : [], s === "also" ? "Also got: birthday candles" : s.indexOf("drag") === 0 || s === "leave" ? "Bread, got it" : s === "swap" ? "Onions, got it" : s === "live" ? "Milk, got it" : s === "reopen" ? "Spinach, couldn't find" : "Penne, got fusilli, same size instead");
+      // These are mid-shop frames of the first round: the shopper has already made the promise (SL-D21), so the rest of the list is theirs.
+      var promised = {};
+      rest(Object.keys(mid).concat(s === "live" ? [] : [])).forEach(function (k) { promised[k] = 1; });
+      seed(mid, s === "also" ? ["2 cans of sparkling water", "birthday candles"] : s === "mid" || s === "wont" ? ["2 cans of sparkling water"] : [], s === "also" ? "Also got: birthday candles" : s.indexOf("drag") === 0 || s === "leave" ? "Bread, got it" : s === "swap" ? "Onions, got it" : s === "live" ? "Milk, got it" : s === "reopen" ? "Spinach, couldn't find" : "Penne, got fusilli, same size instead", promised);
+    }
+    // ---- the second round (owner, voice, 11 October 2026: SL-D21 on) ----
+    if (s === "trim" || s === "committed") {
+      // Swiped left on three lines (wrong shop: dish soap, olive oil, spinach). "trim": not promised yet. "committed": then "I'll get these" on the nine that are left.
+      var trimmed = { l3: ["notgot"], l6: ["notgot"], l10: ["notgot"] }, prom = {};
+      if (s === "committed") rest(Object.keys(trimmed)).forEach(function (k) { prom[k] = 1; });
+      seed(trimmed, [], s === "committed" ? "Promised 9 lines" : "Spinach, couldn't find", s === "committed" ? prom : null);
+    }
+    if (s === "committed-all") { var pall = {}; ALL.forEach(function (k) { pall[k] = 1; }); seed({}, [], "Promised 12 lines", pall); }
+    if (s === "bailed") {
+      // Promised, bought some on the way, then "Won't be able to buy these": what was still untouched is now not bought.
+      var bl = { l0: ["got"], l1: ["got"], l2: ["got"], l4: ["got"], l5: ["got"], l8: ["swapped", "fusilli, same size"], l3: ["notgot"], l6: ["notgot"], l7: ["notgot"], l9: ["notgot"], l10: ["notgot"], l11: ["notgot"] }, pb = {};
+      ALL.forEach(function (k) { pb[k] = 1; });
+      seed(bl, [], "The rest, can't buy", pb);
+    }
+    if (s === "claimed-other" || s === "released") {
+      // Another shopper (link B) promised the last five lines; they have dropped out of this shopper's list. "released": a moment after load that link is cancelled and they come back.
+      meta("B", { slot: 2 }); claim("B", ["l7", "l8", "l9", "l10", "l11"]); srv.rev++;
+    }
+    // ---- the household's view (SL-D25 on): member-list.html and link.html. The links' own facts (opened, hours left, slot) are mockup data; the lines and claims are the pretend server's.
+    if (page === "member-list") {
+      if (s === "states") {
+        // One link out: Link 1 promised five lines and bought two of them, so the screen shows needed, claimed (grouped under the link) and bought side by side.
+        meta("A", { slot: 1, opened: "3 hours ago", left: 45 }); claim("A", ["l0", "l1", "l6", "l7", "l8"]);
+        seed({ l0: ["got"], l1: ["got"] }, ["2 cans of sparkling water"], "Bread, got it");
+      }
+      if (s === "three") {
+        // Three links out at once, each with its own group: A has bought one, B has bought one and swapped one, C has only promised.
+        meta("A", { slot: 1, opened: "3 hours ago", left: 45 }); claim("A", ["l0", "l1", "l2"]);
+        meta("B", { slot: 2, opened: "5 hours ago", left: 43 }); claim("B", ["l4", "l5", "l6"]);
+        meta("C", { slot: 3, opened: "40 minutes ago", left: 47 }); claim("C", ["l9", "l10", "l11"]);
+        seed({ l0: ["got", "", "A"], l4: ["got", "", "B"], l5: ["swapped", "oat milk, 2 L", "B"] }, [], "");
+      }
+      if (s === "sorting") {
+        // The shopper swiped left on three lines and bought the rest but three: the household is nudged, and the three that nobody has sit at the top with what to do.
+        meta("A", { slot: 1, opened: "2 hours ago", left: 46 }); claim("A", ALL.filter(function (k) { return k !== "l3" && k !== "l6" && k !== "l10"; }));
+        seed({ l0: ["got"], l1: ["got"], l2: ["got"], l4: ["got"], l5: ["got"], l8: ["swapped", "fusilli, same size"], l3: ["notgot"], l6: ["notgot"], l10: ["notgot"] }, [], "Spinach, couldn't find");
+      }
+      if (s === "dead") {
+        // Link 1 is out; Link 2's shopper turned the trip down an hour ago (grey, no countdown, Dismiss; its slot is free); Link 3 has not been opened. Link 2's promise has been cleared.
+        meta("A", { slot: 1, opened: "3 hours ago", left: 45 }); claim("A", ["l0", "l1", "l2"]);
+        meta("B", { slot: 2 }); endLink("B", "rejected"); linkOf("B").deadAgo = "1 hour ago";
+        meta("C", { slot: 3, opened: false, left: 31 });
+        seed({ l0: ["got"] }, [], "Bananas, got it");
+      }
+      if (s === "ended") {
+        // Link 2's window ran out 20 minutes ago with three lines promised and not answered: they went back to needed. Link 1 is still out.
+        meta("A", { slot: 1, opened: "3 hours ago", left: 45 }); claim("A", ["l0", "l1"]);
+        meta("B", { slot: 2 }); endLink("B", "expired"); linkOf("B").endedAgo = "20 minutes ago"; linkOf("B").back = 3;
+        seed({ l0: ["got"] }, [], "Bananas, got it");
+      }
+      save();
+    }
+    if (page === "link") {
+      // One link, tapped into. The same data on every frame but "unopened", "opened" and "dead": Link 2 promised nine lines; three are got, one swapped, two not found, three still promised.
+      var base = function () {
+        meta("A", { slot: 2, opened: "3 hours ago", left: 31 }); claim("A", ["l0", "l1", "l2", "l3", "l4", "l5", "l6", "l7", "l8"]);
+        seed({ l0: ["got"], l1: ["got"], l2: ["got"], l8: ["swapped", "fusilli, same size"], l3: ["notgot"], l6: ["notgot"] }, [], "");
+      };
+      if (s === "unopened") meta("A", { slot: 2, opened: false, left: 47 });
+      if (s === "opened") meta("A", { slot: 2, opened: "20 minutes ago", left: 47 });
+      if (s === "promised") { meta("A", { slot: 2, opened: "20 minutes ago", left: 47 }); claim("A", ["l0", "l1", "l2", "l3", "l4", "l5", "l6", "l7", "l8", "l9", "l10", "l11"]); }
+      if (s === "active" || s === "got" || s === "swapped" || s === "notfound") base();
+      if (s === "dead") { meta("A", { slot: 2 }); endLink("A", "rejected"); linkOf("A").deadAgo = "1 hour ago"; }
+      save();
     }
     if (s === "two") {
       seed({ l0: ["got", "", "A"], l1: ["got", "", "A"], l2: ["got", "", "A"], l3: ["got", "", "A"], l4: ["got", "", "A"], l5: ["got", "", "A"], l6: ["notgot", "", "A"],
@@ -151,14 +261,22 @@
   }
   srv.order = srv.order || [];
 
+  // In the fragment's live try-it, a shopper's link shows up on the household's screen as soon as the page is opened, as a link that has been opened just now.
+  if (page === "list" && q.get("g")) { seen(me); linkOf(me); save(); }
   // ================================================================ list.html as the server would draw it (SL-D18)
   // The real server draws every line with its state and marks the answered ones data-sl-gone, so the page is right before shopper.js runs and a second visit shows only what is left.
   // Here the static file has twelve open lines, so this does what that server would have done, from the pretend server's state, before shopper.js reads the page.
   if (page === "list" && list) {
+    // A link that has been turned down, ended or cancelled answers with the neutral page, however it is opened again.
+    if (srv.links[me] && (srv.links[me].dead || srv.links[me].ended)) { location.replace("finished.html"); return; }
+    root_ = document.getElementById("sl"); if (root_) { root_.setAttribute("data-sl-committed", linkOf(me).committed ? "1" : "0"); }
     Array.prototype.forEach.call(list.querySelectorAll("li[data-shop-row]"), function (li) {
       var r = lineOf(li.getAttribute("data-key")), by = r.by ? (r.by === me ? "you" : "other") : "", st = r.state;
       if (by === "other" && st === "notgot") { st = "open"; by = ""; } // not found on another link is still to do here
       var lock = by === "other" && (st === "got" || st === "swapped");
+      var cl = st === "open" ? claimOf(li.getAttribute("data-key")) : "";
+      if (cl) li.setAttribute("data-claim", cl === me ? "you" : "other");
+      if (cl && cl !== me) li.setAttribute("data-sl-gone", "");
       li.setAttribute("data-state", st);
       if (by === "you" || lock) li.setAttribute("data-by", by);
       if (st === "swapped" && !lock) li.querySelector(".sl-swap input").value = r.words;
@@ -288,6 +406,8 @@
     // bought lines use the plain strike-through in member.css, so no drawn stroke is needed here
   }
 
+  // What the household's pages (mock-member.js) read. Mockup only.
+  window.KitchieMock = { srv: function () { return srv; }, reload: function () { srv = load(); }, names: NAMES, qty: QTY, pantry: PANTRY, linkOf: linkOf, live: live, claimOf: claimOf, endLink: endLink, put: put, save: save, ping: ping, group: group, as: me, auto: auto, chan: chan, key: SKEY, topOf: topOf, store: store };
   if (page !== "list" || !list) return;
 
   // ================================================================ PHASE TWO, NOT BUILT: the receipt reader. The server finds list lines on the receipt and applies the owner's rule (80%, one more try).
@@ -347,6 +467,12 @@
     if (s === "live") setTimeout(function () { window.scrollTo(0, topOf(row("l9")) - 120); }, 120);
     if (s === "live") setTimeout(function () { S().say("Someone else just got Spinach."); }, 140);
     if (s === "wont") setTimeout(function () { document.querySelector("[data-sl-wont]").click(); }, 140);
+    // ---- the second round (SL-D21 on)
+    if (s === "reject-ask" || s === "rejected") setTimeout(function () { document.querySelector("[data-sl-plan] [data-sl-refuse]").click(); }, 140);
+    if (s === "rejected") setTimeout(function () { document.querySelector("[data-sl-plan] [data-sl-refuse-yes]").click(); }, 260);
+    if (s === "claimed-other") setTimeout(function () { S().say("Someone else is getting 5 of these."); }, 140);
+    // Link B ends (its member cancelled it; the same happens when it expires): what it had promised and not answered goes back to the open pool, live.
+    if (s === "released") setTimeout(function () { endLink("B", "cancelled"); save(); ping(); }, 1500);
     if (s === "multi" || s === "summary" || s === "none") setTimeout(function () {
       var api = S();
       api.enterMulti(s === "multi" ? row("l7") : null);
