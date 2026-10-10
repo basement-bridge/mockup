@@ -55,8 +55,9 @@ Status: decisions by the owner, by voice, 9 October 2026, applied to the mockup 
 43. **The "Open your assistant" button stays.** First said remove (superseded by the curtain nudge), then keep: the removal was a mistake. Button and curtain nudge both stay. What the button does is decision 45. (Owner, typed, 10 Oct 2026.)
 44. **Data-model work only for the weeks the plan covers.** Locked substitutions (7b) and per-person ingredient lists (10) apply only to last week through four weeks ahead; nothing is stored or migrated outside that window. (Owner, typed, 10 Oct 2026.)
 45. **The button opens the person’s default AI app.** It does nothing else: no in-app agent, no chat inside Kitchie. It opens whatever AI app the person has as their default. Settles decision 5. (Owner, typed, 10 Oct 2026.)
+46. **The week title keeps one width, so the next-week arrow never moves.** The arrow sits right beside the title; copy and settings stay far right. The title is as wide as the widest of the weeks the plan covers (last week to four weeks ahead), so changing week does not make the header jump. (Owner, typed, 10 Oct 2026.)
 
-(17 to 45: owner, typed, 10 October 2026 for 38 to 45; the rest by voice, 9 October 2026.)
+(17 to 46: owner, typed, 10 October 2026 for 38 to 46; the rest by voice, 9 October 2026.)
 
 ## Follow-up work beyond the mockup
 

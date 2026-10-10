@@ -12,7 +12,8 @@
 .sc{height:100%;overflow-y:auto;padding:12px 14px 24px}
 :where(.ph) button{font-family:inherit;color:inherit;cursor:pointer}
 .top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.wkh{flex:1;min-width:0;text-align:left;background:none;border:0;padding:0;min-height:44px;display:flex;flex-direction:column;justify-content:center;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.wkh{flex:0 1 auto;min-width:0;text-align:left;background:none;border:0;padding:0;min-height:44px;display:grid;justify-items:start;align-items:center;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.wkh>*{grid-area:1/1;display:flex;flex-direction:column;justify-content:center;min-width:0}.wkh .gh{visibility:hidden;pointer-events:none}.top .ib[data-act=copy]{margin-left:auto}
 .wkh b{font:800 17px var(--head);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.wkh small{font-size:11px;color:var(--muted);font-weight:600}
 .ib{width:44px;height:44px;border-radius:50%;border:1px solid var(--border);background:var(--surface);display:inline-flex;align-items:center;justify-content:center;font-size:18px}
 .ib.sm{width:36px;height:44px;border-radius:var(--r-pill);font-size:20px}.ib:disabled{opacity:.35;cursor:default}.ib[aria-pressed=true]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
@@ -153,6 +154,7 @@
 <li><b>Drag only is an accepted limitation.</b> People who cannot drag cannot move a meal; the owner accepts this for now.</li>
 <li><b>There is no in-app agent.</b> The product has no in-app agent any more. Decision 17 is withdrawn. The assistant is the person's own AI app, outside Kitchie, and the assistant sheet here is only a stand-in. Open: what "Open your assistant" does now (decision 43 keeps the button).</li>
 <li><b>The "Open your assistant" button stays.</b> The owner first said to remove it (superseded by the curtain nudge), then said keep it: the removal was a mistake. The button and the curtain nudge both stay. What the button does is decision 45.</li>
+<li><b>The week title keeps one width, so the next-week arrow never moves.</b> The arrow sits right beside the title (copy and settings stay at the far right). The title is as wide as the widest of the weeks the plan covers (last week to four weeks ahead), so changing week never moves the arrow. Owner, typed, 10 Oct 2026. (Decision 46.)</li>
 <li><b>The button opens the person's default AI app.</b> It does nothing else: no in-app agent, no chat inside Kitchie. It opens whatever AI app the person has set as their default. The assistant sheet in this mockup is only a stand-in for that app. Settles decision 5.</li>
 <li><b>Data-model work is scoped to the plan's weeks.</b> Locked substitutions (7b) and per-person ingredient lists (10) are only built and stored for the weeks the plan covers: last week up to four weeks ahead. Nothing is stored or migrated outside that window.</li></li></ol></div>
 
@@ -210,8 +212,12 @@ function also(c,ing){return S.cards.filter(function(o){return o.id!==c.id&&o.wk=
 function qty(i,n){var p=QPP[i];if(!p)return"";var v=p[0]*n;if(p[1])return Math.round(v/5)*5+" "+p[1];var w=Math.floor(v),f=v-w;return (f>=.25&&f<.75)?(w?w+"½":"½"):String(Math.round(v))}
 function who(c){return c.forw==="all"?"Everyone":c.forw}
 function meta(c){return who(c)+" · "+c.n+(c.n===1?" person":" people")}
-function dateOf(i){var d=new Date(2026,9,12+7*S.wk+i);return d.getDate()+" "+MON[d.getMonth()]}
-function wkLabel(){return S.wk===0?"This week":S.wk===-1?"Last week":S.wk===1?"Next week":"In "+S.wk+" weeks"}
+function dateW(w,i){var d=new Date(2026,9,12+7*w+i);return d.getDate()+" "+MON[d.getMonth()]}
+function labelW(w){return w===0?"This week":w===-1?"Last week":w===1?"Next week":"In "+w+" weeks"}
+function dateOf(i){return dateW(S.wk,i)}
+function wkLabel(){return labelW(S.wk)}
+// decision 46: the title is as wide as the widest of the weeks the plan covers (hidden copies share its cell), so the right arrow beside it never moves.
+function ghosts(){var h="";for(var w=WMIN;w<=WMAX;w++)h+='<span class="gh" aria-hidden="true"><b>Week of '+dateW(w,0)+'</b><small>'+labelW(w)+'</small></span>';return h}
 function setWk(n){S.wk=Math.max(WMIN,Math.min(WMAX,n))}
 function av(w){return w==="Sam"?'<span class="av" title="Sam">S</span>':w==="Jane"?'<span class="av j" title="Jane">J</span>':'<span class="av all" title="Everyone">👥</span>'}
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;")}
@@ -248,7 +254,7 @@ var ICOPY='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-wid
 function slotHtml(){if(S.nudge)return '<div class="cslot in"><button class="curtain" data-nudge>✦ Plan with your AI assistant.</button></div>';if(S.gap)return '<div class="cslot">'+(S.gapAnim?'<button class="curtain up" tabindex="-1" aria-hidden="true">✦ Plan with your AI assistant.</button>':'')+'</div>';return ''}
 function headHtml(){var cp=!!S.copied[S.wk];
  return '<div class="top"><button class="ib sm" data-wk="-1" aria-label="Previous week"'+(S.wk<=WMIN?' disabled':'')+'>‹</button>'
- +'<button class="wkh" data-wkhd aria-label="Week of '+dateOf(0)+'. Tap for next week. Hold to return to this week."><b>Week of '+dateOf(0)+'</b><small>'+wkLabel()+'</small></button>'
+ +'<button class="wkh" data-wkhd aria-label="Week of '+dateOf(0)+'. Tap for next week. Hold to return to this week."><span><b>Week of '+dateOf(0)+'</b><small>'+wkLabel()+'</small></span>'+ghosts()+'</button>'
  +'<button class="ib sm" data-wk="1" aria-label="Next week"'+(S.wk>=WMAX?' disabled':'')+'>›</button>'
  +'<button class="ib" data-act="copy"'+(ro()?' disabled':'')+' aria-pressed="'+cp+'" aria-label="Copy last week'+(cp?' (applied, press again to clear)':'')+'" title="Copy last week">'+ICOPY+'</button>'
  +'<button class="ib" data-act="stencil" aria-label="Settings, usual days">'+ICOG+'</button></div>'
