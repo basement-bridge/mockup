@@ -1,9 +1,12 @@
 /* Profile window: two-pane, settings-style (owner decision, 9 October 2026). Static sample data, no storage, no libraries.
    Reusable: load profile.css + profile.js on any page and call window.KProfile.open(opener) / .close(). The window is built only when opened.
    Modal rules: scrim covers the whole window, the page behind is inert, focus is trapped and handed back to the opener, Esc, the x button and a scrim click close.
-   Standalone page (the mockup Pantry): ?open=1|me|settings|history|household|data|shortcuts opens it at load. */
+   Standalone page (the mockup Pantry): ?open=1|me|settings|preferences|history|household|data|shortcuts opens it at load.
+   11 Oct 2026 (owner): Preferences is its own section, right after Settings, so the sections are numbered 1 to 6 and the number keys jump to them (the same keys the built window uses).
+   Preferences is drawn by the Preferences mockup itself (fragments/preferences-mine-household, embed mode), loaded in a frame only when the section is first shown. */
 (function(){
 "use strict";
+var SELF=document.currentScript&&document.currentScript.src||"";
 var NAME="persian",SUB="Full Stack Cook",LETTER="P";
 var $=function(s,r){return(r||document).querySelector(s)};
 var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
@@ -25,6 +28,7 @@ spark:'<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/>',
 hat:'<path d="M7 14a4 4 0 1 1 2-7 4 4 0 0 1 6 0 4 4 0 1 1 2 7v6H7z"/>',
 door:'<path d="M10 4H5v16h5M15 8l4 4-4 4M19 12H9"/>',
 kbd:'<rect x="2.5" y="6" width="19" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/>',
+prefs:'<path d="M5 4v16M12 4v16M19 4v16"/><circle cx="5" cy="14" r="2"/><circle cx="12" cy="8" r="2"/><circle cx="19" cy="15" r="2"/>',
 mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 7 9-7"/>'
 };
 function ic(k,s){s=s||20;return '<svg class="pf-i" viewBox="0 0 24 24" width="'+s+'" height="'+s+'" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+P[k]+'</svg>'}
@@ -36,14 +40,21 @@ function bw(px,inner){return '<span class="pf-badgewrap" style="width:'+px+'px;h
 var VIEWS={
  me:{t:"Me",icon:"user",k:"M"},
  settings:{t:"Settings",icon:"sliders",k:"S"},
+ preferences:{t:"Preferences",icon:"prefs",k:""},
  history:{t:"History",icon:"clock",k:"Y"},
  household:{t:"Household",icon:"people",k:"H"},
  data:{t:"My data",icon:"down",k:"D"}
 };
+/* Page-level shortcuts (no window open): G then a letter. Preferences has no letter, it is the 3 key inside the window. */
 var KEYS={p:"profile",m:"me",s:"settings",y:"history",h:"household",d:"data"};
+/* Inside the open window: the number keys, in the order of the list (a Proposal, as in the built window). */
+var ORDER=["me","settings","preferences","history","household","data"];
+var NUM={};ORDER.forEach(function(k,i){NUM[String(i+1)]=k});
+function num(k){return String(ORDER.indexOf(k)+1)}
 function keys(k){return '<span class="pf-keys" aria-label="shortcut: G then '+k+'"><kbd>G</kbd><kbd>'+k+'</kbd></span>'}
+function nkey(k){return '<span class="pf-keys" aria-label="shortcut: '+k+'"><kbd>'+k+'</kbd></span>'}
 var ESCL=/Mac|iPhone|iPad/.test(navigator.platform||"")?"\u2318 Enter":"Ctrl Enter";
-var FOOT='<span><kbd>'+ESCL+'</kbd> close</span><span><kbd>Tab</kbd> move</span><span><kbd>G</kbd> then a letter jumps</span><span><kbd>?</kbd> shortcuts</span>';
+var FOOT='<span><kbd>'+ESCL+'</kbd> close</span><span><kbd>Tab</kbd> move</span><span><kbd>1</kbd> to <kbd>'+ORDER.length+'</kbd> jump to a section</span><span><kbd>?</kbd> shortcuts</span>';
 
 /* ---------- pane content (drawn on first view) ---------- */
 function sw(label,on){return '<li><button type="button" class="pf-sw" role="switch" aria-checked="'+on+'"><span>'+label+'</span><i aria-hidden="true"></i></button></li>'}
@@ -78,25 +89,31 @@ function paneHousehold(){
 function paneData(){
  return '<div class="pf-card"><span class="pf-ico">'+ic("down",18)+'</span><span class="pf-t">Inventory CSV<small>One file, one row per item: name, amount, place, use-by. 16 items.</small></span><button type="button" class="pf-btn pri" data-act="download">Download '+keys("D")+'</button></div>'
  +'<p class="pf-small">Sample only: nothing is downloaded in this mockup.</p>'}
-var PANE={me:paneMe,settings:paneSettings,history:paneHistory,household:paneHousehold,data:paneData};
+/* Preferences: the Preferences mockup in embed mode (no page chrome, no phone frame, no Settings back link). Built when the section is first shown. The window is the founding member's. */
+function panePrefs(){
+ var src=SELF?new URL("../preferences-mine-household/index.html?embed=1&as=arjan&tab=mine",SELF).href:"";
+ return '<iframe class="pf-frame" title="Preferences" src="'+src+'"></iframe>'}
+var PANE={me:paneMe,settings:paneSettings,preferences:panePrefs,history:paneHistory,household:paneHousehold,data:paneData};
 
 /* ---------- state ---------- */
 var stack=[],home=null,gTimer=null,toastTimer=null,toastEl=null;
 
 /* ---------- renderers ---------- */
 function xbtn(){return '<span class="pf-hx"><kbd>'+ESCL+'</kbd><button type="button" class="pf-x" data-close aria-label="Close">'+ic("close",20)+'</button></span>'}
-function renderWin(m){
- var tabs=["me","settings","history","household","data"].map(function(k){var v=VIEWS[k],on=m.view===k;
-  var label=k==="me"?"Profile":v.t,kk=k==="me"?"P":v.k;
-  return '<button type="button" class="pf-nvt" role="tab" id="pf-tab-'+k+'" data-view="'+k+'" aria-selected="'+on+'" aria-controls="pf-panel" tabindex="'+(on?0:-1)+'"'+(on?' data-focus':'')+'>'+ic(v.icon,20)+'<span class="pf-t">'+label+'</span>'+(k==="household"?'<span class="pf-chip">2</span>':'')+keys(kk)+'</button>'}).join("");
- var title=m.view==="me"?"Profile":VIEWS[m.view].t;
- return '<div class="pf-nav"><div class="pf-nwho">'+bw(48)+'<div><b>'+NAME+'</b><span class="pf-sub">'+SUB+'</span></div></div><div role="tablist" aria-orientation="vertical" aria-label="Profile sections">'+tabs+'</div><span class="pf-grow"></span><p class="pf-small"><kbd>&uarr;</kbd> <kbd>&darr;</kbd> switch section</p></div>'
- +'<div class="pf-cont"><div class="pf-head"><div class="pf-who"><h2>'+title+'</h2></div>'+xbtn()+'</div><div class="pf-body" id="pf-panel" role="tabpanel" aria-labelledby="pf-tab-'+m.view+'" tabindex="0">'+PANE[m.view]()+'</div><div class="pf-foot">'+FOOT+'</div></div>'}
+function navHtml(view){
+ var tabs=ORDER.map(function(k){var v=VIEWS[k],on=view===k;
+  var label=k==="me"?"Profile":v.t;
+  return '<button type="button" class="pf-nvt" role="tab" id="pf-tab-'+k+'" data-view="'+k+'" aria-selected="'+on+'" aria-controls="pf-panel" tabindex="'+(on?0:-1)+'"'+(on?' data-focus':'')+'>'+ic(v.icon,20)+'<span class="pf-t">'+label+'</span>'+(k==="household"?'<span class="pf-chip">2</span>':'')+nkey(num(k))+'</button>'}).join("");
+ return '<div class="pf-nav"><div class="pf-nwho">'+bw(48)+'<div><b>'+NAME+'</b><span class="pf-sub">'+SUB+'</span></div></div><div role="tablist" aria-orientation="vertical" aria-label="Profile sections">'+tabs+'</div><span class="pf-grow"></span><p class="pf-small"><kbd>&uarr;</kbd> <kbd>&darr;</kbd> switch section</p></div>'}
+function winHtml(view,bodyHtml){
+ var title=view==="me"?"Profile":VIEWS[view].t;
+ return navHtml(view)+'<div class="pf-cont"><div class="pf-head"><div class="pf-who"><h2>'+title+'</h2></div>'+xbtn()+'</div><div class="pf-body'+(view==="preferences"?' pf-flush':'')+'" id="pf-panel" role="tabpanel" aria-labelledby="pf-tab-'+view+'" tabindex="0">'+bodyHtml+'</div><div class="pf-foot">'+FOOT+'</div></div>'}
+function renderWin(m){return winHtml(m.view,PANE[m.view]())}
 function renderShortcuts(){
- var rows=[["Open profile","P"],["Me","M"],["Settings","S"],["History","Y"],["Household","H"],["Download inventory CSV","D"]];
- return '<div class="pf-head"><span class="pf-ico">'+ic("kbd",18)+'</span><div class="pf-who"><h2 class="sm">Keyboard shortcuts</h2></div>'+xbtn()+'</div><div class="pf-body"><p class="pf-small">Press <kbd>G</kbd>, then the letter, within 1.5 seconds. Works on the page and inside the open window.</p><ul class="pf-list pf-sc">'
- +rows.map(function(r){return '<li><span>'+r[0]+'</span>'+keys(r[1])+'</li>'}).join("")
- +'<li><span>Close the window</span><span class="pf-keys"><kbd>'+ESCL+'</kbd></span></li><li><span>Show this list</span><span class="pf-keys"><kbd>?</kbd></span></li></ul></div><div class="pf-foot"><span>Press <kbd>'+ESCL+'</kbd> to go back</span></div>'}
+ var rows=ORDER.map(function(k){return [k==="me"?"Profile":VIEWS[k].t,num(k)]});
+ return '<div class="pf-head"><span class="pf-ico">'+ic("kbd",18)+'</span><div class="pf-who"><h2 class="sm">Keyboard shortcuts</h2></div>'+xbtn()+'</div><div class="pf-body"><p class="pf-small">With the window open, press a number to jump to that section. They pause while you type in a box.</p><ul class="pf-list pf-sc">'
+ +rows.map(function(r){return '<li><span>'+r[0]+'</span>'+nkey(r[1])+'</li>'}).join("")
+ +'<li><span>Close the window</span><span class="pf-keys"><kbd>'+ESCL+'</kbd></span></li><li><span>Show this list</span><span class="pf-keys"><kbd>?</kbd></span></li></ul><p class="pf-small">On the page, with no window open, <kbd>G</kbd> then <kbd>P</kbd> opens the profile. <kbd>G</kbd> then <kbd>M</kbd>, <kbd>S</kbd>, <kbd>Y</kbd>, <kbd>H</kbd> or <kbd>D</kbd> opens Me, Settings, History, Household or My data.</p></div><div class="pf-foot"><span>Press <kbd>'+ESCL+'</kbd> to go back</span></div>'}
 var RENDER={win:renderWin,s:renderShortcuts};
 function label(m){return m.kind==="s"?"Keyboard shortcuts":"Profile, "+(m.view==="me"?"Profile":VIEWS[m.view].t)}
 
@@ -152,6 +169,11 @@ document.addEventListener("click",function(e){
  var t=e.target;
  if(t.classList&&t.classList.contains("pf-scrim")){closeTop();return}
  var el=t.closest?t.closest("button"):null;if(!el)return;
+ /* the inline window drawn on the Preferences mockup pages: its section list and close button only say what they would do */
+ if(el.closest(".pf-inline .pf-nav, .pf-inline .pf-hx")){
+  if(el.hasAttribute("data-close"))toast("Mockup: this closes the window");
+  else if(el.dataset.view&&el.dataset.view!=="preferences")toast("Mockup: the other sections are in the Desktop profile mockup");
+  return}
  var top=stack[stack.length-1];
  if(!top)return;
  if(el.hasAttribute("data-close")){closeTop();return}
@@ -186,11 +208,27 @@ document.addEventListener("keydown",function(e){
  if(t.matches&&t.matches("input,textarea,select,[contenteditable]"))return;
  if(e.key==="?"){e.preventDefault();toggleShortcuts();return}
  if(top&&top.kind==="s")return;
+ if(top&&NUM[e.key]){e.preventDefault();setView(top,NUM[e.key]);return}
+ if(!top&&NUM[e.key]&&$(".pf-inline")){e.preventDefault();toast("Mockup: in the window, "+e.key+" jumps to "+(NUM[e.key]==="me"?"Profile":VIEWS[NUM[e.key]].t));return}
  if(gTimer){clearTimeout(gTimer);gTimer=null;toastNode().classList.remove("on");var v=KEYS[e.key.toLowerCase()];if(v){e.preventDefault();go(v)}return}
  if(e.key==="g"||e.key==="G"){gTimer=setTimeout(function(){gTimer=null;toastNode().classList.remove("on")},1500);toast("G, then P, M, S, Y, H or D")}
 },true);
 
-window.KProfile={open:openProfile,close:closeAll};
+/* Keys pressed inside the embedded Preferences frame are passed up, so the window keeps its own keys (Ctrl or Cmd Enter, the numbers, ?). */
+window.addEventListener("message",function(ev){
+ var d=ev.data,top=stack[stack.length-1];
+ if(!d||d.kind!=="pf-key"||!top||top.kind!=="win")return;
+ var f=$("iframe.pf-frame",top.frame);if(!f||ev.source!==f.contentWindow)return;
+ if(d.key==="Enter"&&(d.ctrl||d.meta)){closeTop();return}
+ if(d.key==="?"){toggleShortcuts();return}
+ if(NUM[d.key])setView(top,NUM[d.key])});
+
+/* The window drawn in place, not as a modal, for the Preferences mockup pages at desktop width: same markup and classes, Preferences selected, the page's own screen as the body. Returns the body element. */
+function inline(host,view){
+ host.innerHTML='<div class="pf-scrim pf-inline"><div class="pf-dlg pf-win" role="group" aria-label="Settings window (sample)">'+winHtml(view,"")+'</div></div>';
+ return $("#pf-panel",host)}
+
+window.KProfile={open:openProfile,close:closeAll,inline:inline};
 
 /* ---------- standalone page only (the mockup Pantry): avatar, Open button, ?open= ---------- */
 if($("#pf-app")){

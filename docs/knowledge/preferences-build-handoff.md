@@ -16,6 +16,7 @@ How it was made: read-only checks on 10 October 2026 of this repo (`main` at f72
 6. Process rules for the build
 7. Confirmation window
 8. Inconsistencies found
+9. 11 Oct owner changes (desktop Settings window, row and line removals)
 
 ---
 
@@ -167,7 +168,7 @@ All eleven are already recorded in the notes, so no extra line is added. Where e
 | Q1 | Recipe stars and votes are household-wide; give them a person level? | No. Recipe unchanged. | Recipe schema change |
 | Q4 | Should anything be lockable by the household so a member cannot override it? | No lock field anywhere. | A new column and a resolver rule |
 | Q6 | No operation moves a food statement between Just you and Everyone. | None built. Say it again for the other scope (today's behaviour). | One new service operation |
-| Q7 | Where the screen lives. | New route for Preferences under Settings; `/settings/stock-checks` stays and redirects to it (links, tests and tool text keep working). | Route name |
+| Q7 | Where the screen lives. | New route for Preferences under Settings; `/settings/stock-checks` stays and redirects to it (links, tests and tool text keep working). **11 Oct 2026:** on desktop it is its own section of the Settings window, right after Settings, and the route opens inside that window (section 9). | Route name |
 | A-open 1 | Quiet start and end are two keys: one preference or two? | Keep two stored keys, always written as a pair by one operation; a lone start or end is refused. | Validation and chat tool |
 | A-open 2 | A person cannot switch off a household avoid for themselves. | Intended. Food is added together; no override. | A resolver rule (safety makes this the safe side) |
 | A-open 3 | Household-wide stops (the table allows `member_id` null, nothing writes it). | Not built. | A new write path |
@@ -517,7 +518,7 @@ These are the seams. Change one only by updating this section in the same PR and
 
 **K4. Preferences page: Mine and Household tabs, stock level checks group.**
 - Depends: K1, K2 (values and role). K16 helpful, not blocking.
-- Accept: the page matches `preferences-mine-household` states for: tab bar and focus order; rows with App, Household, You chips (D16); an opened row with "Same as household (value)" or "Same as app default (value)" and the chain line (D16); quiet hours None for me; daily limit helper text; the stopped-items list inside the group (D17), name "Stock level checks"; Household tab as editors for an admin and as read-only rows with "Only household admins can change this." for a member; "Nothing set yet" state (`?data=empty`); old route `/settings/stock-checks` redirects; server-rendered, script optional (a `<noscript>` line only where needed); closed rows load no editor code. Screenshots at 360, 390, 768, 1280 light and dark, markup parity (5.6). Page route and nav entry sit inside Settings, no new top-level nav item (manifest nav unchanged).
+- Accept: **(11 Oct 2026, section 9) no On this device block, no profile lines, household-only rows on the Household tab only, and on desktop the page opens inside the Settings window.** The page matches `preferences-mine-household` states for: tab bar and focus order; rows with App, Household, You chips (D16); an opened row with "Same as household (value)" or "Same as app default (value)" and the chain line (D16); quiet hours None for me; daily limit helper text; the stopped-items list inside the group (D17), name "Stock level checks"; Household tab as editors for an admin and as read-only rows with "Only household admins can change this." for a member; "Nothing set yet" state (`?data=empty`); old route `/settings/stock-checks` redirects; server-rendered, script optional (a `<noscript>` line only where needed); closed rows load no editor code. Screenshots at 360, 390, 768, 1280 light and dark, markup parity (5.6). Page route and nav entry sit inside Settings, no new top-level nav item (manifest nav unchanged).
 - Touches: new `preferences/web-page.ts`, `server/src/assets/preferences.css` (inlined on this page only), `preferences-600.css`, `preferences-1024.css`, `preferences.js` (the generic row and editor code only); one line each in `ASSET_FILES`; the redirect in `web-stock.ts`.
 - Issue: `Kitchie: Preferences page (Mine and Household tabs, Stock level checks)`.
 
@@ -535,7 +536,7 @@ These are the seams. Change one only by updating this section in the same PR and
 
 **K7. Notes side by side.**
 - Depends: K4.
-- Accept: state `?as=sam&tab=mine&open=me:note` (both notes, chips You and Household, 600 characters, personal note private); household note read-only for a non-admin (`...hh:note`); both read by `get_context` and the planner (already true; test it). No change to storage.
+- Accept: state `?as=sam&tab=mine&open=me:note` (both notes, chips You and Household, 600 characters, personal note private; **11 Oct 2026: the Household chip on Mine is a button that opens the household note on the Household tab, with no "Open in Household" link and no "Read next to yours, not instead of it." line; "Both notes are read. Neither replaces the other." stays**); household note read-only for a non-admin (`...hh:note`); both read by `get_context` and the planner (already true; test it). No change to storage.
 - Touches: `preferences-notes.js` (own file), one `ASSET_FILES` line.
 - Issue: `Kitchie: Preferences notes (personal and household side by side)`.
 
@@ -729,3 +730,20 @@ Contradictions are listed here and **not fixed**, except the stale-wording fixes
 | I-21 | `docs/knowledge/README.md` says Option B and the food notes are "awaiting approval" while the owner chose B (D15) and decided food F1 to F14. | Treated as chosen and decided (section 1). Wording left as is. |
 
 **Top risks.** (1) The `context_claims` table rebuild in schema 31 (CHECK widening) is the riskiest migration; the fallback is a new table. (2) Reserved-decision wording (I-1, I-3, I-4, I-5) could stop a merge; the owner's instruction is read as covering this feature in `uat`. (3) The admin role needs the Platform side (PL2 to PL3); until it lands, Kitchie in platform mode has no household writer. (4) C-Q6 (who sees a pending record) is the most privacy-sensitive default; review it first. (5) Production households get a behaviour change from the 22:00 to 06:00 default; keep the flag off until the owner has seen UAT.
+
+## 9. 11 Oct owner changes
+
+Owner direction, 11 October 2026 (change request to the Preferences mockups, desktop and mobile). Drawn in `fragments/preferences-mine-household` (Option B), `fragments/preferences-option-c` and `fragments/desktop-profile` (the Settings window); Option A is kept for reference and was not redrawn. Where this section and an older line above disagree, this section wins. Each item marks what the owner said and what is a **Proposal**.
+
+| # | Change | Build note |
+|---|---|---|
+| 1 | **Preferences is its own section in the desktop Settings window.** It sits in the left list right after Settings. Section keys renumber 1 to 6 (Profile 1, Settings 2, Preferences 3, History 4, Household 5, My data 6); the footer reads "1 to 6 jump to a section". Opening Preferences, the `/settings/preferences` address included, stays inside the window on desktop: no separate full-page layout. Mobile keeps Settings > Kitchen > Preferences. | Kitchie `server/src/assets/profile.js`: add a `preferences` entry to `SECTIONS` and `ORDER` between `settings` and `history` (path `/settings/preferences`), renumber `key`, change `FOOT` from "1 to 5" to "1 to 6"; the shortcuts list follows `ORDER`. A direct visit to `/settings/preferences` at 1024px and wider opens the window on that section; below 1024px it is the phone page. Update `desktop-profile.test.ts` and `browser/desktop-profile.browser.ts` (they assert five sections and "1 to 5"). The Preferences page still renders on its own at phone width, with the Settings back link. |
+| 2 | **"Plan the week" leaves the Settings > Kitchen list.** | Kitchie `app.ts` (`renderSettingsPage`, the Kitchen menu): remove the `${base}/plan` row. Plan the week is still reached from **Plan** in the bottom bar on a phone and in the left rail on desktop (`bottom-nav.ts`), and by `/plan`. **Proposal:** the Kitchen list becomes Preferences, Categories, Locations and spots (Preferences in the row Stock checks had, since `/settings/stock-checks` redirects to it); whether a Stock checks row stays beside Preferences is open. |
+| 3 | **Household note row on Mine.** Remove the "Open in Household" link and the line "Read next to yours, not instead of it." The **Household** chip is the tap target and goes to the household notes on the Household tab. Keep "Both notes are read. Neither replaces the other." | The chip is a real button (44px high, chevron, accessible name "Household note, open it in the Household tab"). It selects the Household tab and focuses the household note row. A member who is not an admin lands on the read-only note. Rule rows from the household on Mine still have their own "Open in Household" link: the owner named the note row only. **Open:** the same chip treatment for those rows? |
+| 4 | **Remove the whole "On this device" block** (Look and display, and its footnote). | It is in Settings already. No data or route change. |
+| 5 | **Three lines removed from Mine:** "See Recipe stars and votes under Household"; "Your kitchen role and your assistant are part of your profile, not preferences."; "Open your profile". | Copy only. Kitchen role and My assistant stay on the profile (D24); the profile states are unchanged. |
+| 6 | **Household-only rows show only under the Household tab:** Members and admins, Household name, Categories, Locations and spots, Recipe stars and votes, and every "Household only" chip. | Mine renders none of them. The Household tab keeps its group "Only the household has these". |
+
+**Owner silent (Proposal; a wrong guess costs a redraw):** the number keys inside the window (the built window already uses them; the mockup keeps its G-then-letter pairs for the page, with no letter for Preferences); the window loading Preferences in a frame only when first shown (a mockup detail); the rows listed in item 2; the window's Settings section still lists Stock checks and Categories under Kitchen.
+
+**Check list for the builder.** Open Preferences from the window at 1280px: no page layout behind it, Preferences selected, the footer says "1 to 6"; press 3 from another section; press the Household chip on the note as Sam (read-only note) and as Arjan (editable); Mine has no household-only rows; the phone page has no On this device block and keeps the Settings back link; Settings > Kitchen has no Plan the week; Plan still opens from the bottom bar and the rail.

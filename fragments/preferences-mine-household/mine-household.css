@@ -125,3 +125,16 @@
 /* a heading line inside a card (the Stock level checks group), and the profile sketch beside the notes */
 .sp .prow.grp .pbtn{min-height:0;padding:14px 0 6px}
 .sp .prow.grp{border-top:1px solid var(--border)}
+
+/* ---------- the Household chip as a tap target (owner, 11 Oct 2026) ---------- */
+.sp button.src{font:700 12px var(--body);cursor:pointer;min-height:44px;padding:0 6px 0 14px;display:inline-flex;align-items:center;gap:2px}
+.sp button.src svg{width:16px;height:16px;flex:none}
+.sp button.src:hover{border-color:var(--accent)}
+
+/* ---------- embedded in the Settings window (?embed=1): only the screen, no page chrome, no phone frame ---------- */
+html.mh-embed body{background:var(--bg)}
+html.mh-embed .mh-pg{padding:0;max-width:none;margin:0}
+html.mh-embed .mh-pg>.back,html.mh-embed .mh-pg>br,html.mh-embed .mh-pg>.tag,html.mh-embed .mh-pg>h1,html.mh-embed .mh-sub,html.mh-embed .mh-ctl,html.mh-embed .mh-jump,html.mh-embed .mh-state,html.mh-embed .mh-notes{display:none}
+html.mh-embed .mh-cols{display:block;margin:0}
+html.mh-embed .mh-frame{margin:0;max-width:none;border:0;border-radius:0;position:static;max-height:none;overflow:visible}
+html.mh-embed #app{max-width:640px}

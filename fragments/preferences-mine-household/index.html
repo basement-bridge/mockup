@@ -4,13 +4,14 @@
 <link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><link rel="stylesheet" href="mine-household.css">
 <link rel="stylesheet" href="mine-household-600.css" media="(min-width:600px)">
 <link rel="stylesheet" href="mine-household-1024.css" media="(min-width:1024px)">
+<link rel="stylesheet" href="../desktop-profile/profile.css" media="(min-width:1024px)">
 <script src="../../theme.js"></script></head>
 <body>
 <div class="wrap mh-pg">
   <a class="back" href="../../">&lsaquo; All mockups</a><br>
   <span class="tag">Chosen direction &middot; Option B</span>
   <h1>Mine and Household, two sections</h1>
-  <p class="mh-sub">One Preferences screen with two tabs. Mine is about you: every row shows the value in force and where it comes from (App, Household or You). Household is the kitchen's own list, managed there and nowhere else, and only household admins can change it. <b>Chosen direction</b> (owner, 10 Oct 2026, D15): Option A stays for reference, Option C builds on this.</p>
+  <p class="mh-sub">One Preferences screen with two tabs (on desktop, a section of the Settings window). Mine is about you: every row shows the value in force and where it comes from (App, Household or You). Household is the kitchen's own list, managed there and nowhere else, and only household admins can change it. <b>Chosen direction</b> (owner, 10 Oct 2026, D15): Option A stays for reference, Option C builds on this.</p>
 
   <div class="mh-ctl">
     <div class="mh-g" role="group" aria-label="View as"><span class="mh-lab">View as</span><div class="mh-seg"><button type="button" data-pc="as" data-v="sam" aria-pressed="true">Sam</button><button type="button" data-pc="as" data-v="arjan" aria-pressed="false">Arjan</button><button type="button" data-pc="as" data-v="jo" aria-pressed="false">Jo</button></div><span class="mh-state" style="margin:0">Arjan is the founding member, Jo an admin, Sam a member.</span></div>
@@ -59,14 +60,33 @@
           <li><b>Stock level checks</b> (renamed, D17) ask whether the level Kitchie has recorded is still right; they are not about the amount. The group holds the switch, quiet hours, the daily limit, level and how often by place (D21), and the switched-off list. There is no time zone row (D18) and no separate &ldquo;How proactive&rdquo; dial.</li>
           <li><b>Household is managed on its own tab, by household admins.</b> An admin sees the rows as editors. A member who is not an admin sees the same rows read-only, with one line: <i>Only household admins can change this.</i> (D25 to D28; this replaces D5, which let any member edit.) Everything on Mine stays editable by everyone (D29).</li>
           <li><b>Members and admins.</b> A small view under Household. The founding member (the person who set the household up) is an admin by default and can make another member an admin, or take it back, one person at a time (D26, D27).</li>
-          <li><b>Things with one scope say so.</b> Household name, categories, locations and Recipe stars and votes are only the household's, with no personal version to override. Kitchen role and the assistant moved out of Preferences into your profile (D24); the sketch at the end of this page shows both.</li>
+          <li><b>Things with one scope say so.</b> Household name, categories, locations and Recipe stars and votes are only the household's, with no personal version to override, so they are on the Household tab only and not on Mine. Kitchen role and the assistant moved out of Preferences into your profile (D24); the sketch at the end of this page shows both.</li>
           <li><b>Notes and food are added together, not swapped.</b> Your note (chip <i>You</i>) and the household note (chip <i>Household</i>) sit side by side and are both read (D23). Your food statements and the household's are both used.</li>
         </ul>
       </div>
       <div class="sec2">
+        <h2>11 Oct 2026, owner changes <span class="prop">Owner</span></h2>
+        <ul>
+          <li><b>Preferences is its own section of the desktop Settings window.</b> It sits in the left list right after Settings, so the sections are Profile, Settings, Preferences, History, Household, My data and the number keys run 1 to 6 (the footer reads &ldquo;1 to 6 jump to a section&rdquo;). It opens inside the window, the <code>/settings/preferences</code> address included; there is no separate full-page layout. At 1024px and wider this page draws that window around the screen. The real window is <a href="../desktop-profile/index.html?open=preferences">Desktop profile, Preferences selected</a>.</li>
+          <li><b>Phone and tablet are unchanged:</b> Settings &gt; Kitchen &gt; Preferences, the screen with a Settings back link.</li>
+          <li><b>Plan the week is off the Settings &gt; Kitchen list</b> (sketch below). It is still reachable from <b>Plan</b> in the bottom bar on a phone and in the left rail on desktop, which is where it always lived; the Settings row only repeated it.</li>
+          <li><b>Household note row:</b> no &ldquo;Open in Household&rdquo; link and no &ldquo;Read next to yours, not instead of it.&rdquo; line. The <b>Household</b> chip is the tap target and goes to the household notes on the Household tab. &ldquo;Both notes are read. Neither replaces the other.&rdquo; stays.</li>
+          <li><b>On this device is gone</b> (Look and display and its footnote). Theme and display options are in Settings already.</li>
+          <li><b>Three lines are gone from Mine:</b> &ldquo;See Recipe stars and votes under Household&rdquo;, &ldquo;Your kitchen role and your assistant are part of your profile, not preferences.&rdquo; and &ldquo;Open your profile&rdquo;.</li>
+          <li><b>Household-only rows are on the Household tab only</b> (Members and admins, Household name, Categories, Locations and spots, Recipe stars and votes, and every <i>Household only</i> chip). Mine has none of them.</li>
+        </ul>
+        <p style="margin-top:8px"><b>Phone, Settings &gt; Kitchen</b> <span class="prop">Proposal</span></p>
+        <ol style="margin:4px 0 0;padding-left:1.3rem;font-size:14px">
+          <li>Preferences (<span class="prop">Proposal</span> the row that Stock checks was, since the old address redirects here)</li>
+          <li>Categories</li>
+          <li>Locations and spots</li>
+        </ol>
+        <p style="margin-top:8px">Open: whether Stock checks keeps its own row beside Preferences (owner silent). A wrong guess costs one row.</p>
+      </div>
+      <div class="sec2">
         <h2>Good for, and costs</h2>
         <p><b>Good for:</b> "whose is this?" is answered by where you are, not by reading a chip. The household's rules can be looked at by everyone, and changed by admins, without any of your own choices in the way.</p>
-        <p style="margin-top:8px"><b>Costs:</b> to see a household default while you are on Mine, you follow the link under the row or switch tab. Two tabs mean one more tap than a single list. The household tab repeats the five stock rows.</p>
+        <p style="margin-top:8px"><b>Costs:</b> to see a household default while you are on Mine, you follow the link under the row, tap the Household chip on the note, or switch tab. Two tabs mean one more tap than a single list. The household tab repeats the five stock rows.</p>
       </div>
       <div>
         <h2>What the code really holds</h2>
@@ -79,7 +99,7 @@
           <tr><td>Kitchen role, and the assistant link (both moved to the profile, D24)</td><td>Person only</td><td>None</td><td>The person</td></tr>
           <tr><td>Household name, categories, locations and spots</td><td>Household only</td><td>None</td><td>Household admins</td></tr>
           <tr><td>Recipe star, vote, times used</td><td>Household only, per recipe</td><td>None: one record per recipe, no member on it</td><td>Any member, through the assistant</td></tr>
-          <tr><td>Theme, name size, display switches</td><td>This device only</td><td>None</td><td>The device</td></tr>
+          <tr><td>Theme, name size, display switches (in Settings, not shown here since 11 Oct 2026)</td><td>This device only</td><td>None</td><td>The device</td></tr>
         </table></div>
         <p style="margin-top:8px">Platform stores no preferences. Its session token carries only the person, the household and the enabled products.</p>
       </div>
@@ -130,7 +150,7 @@
           <li><b>Quiet hours default.</b> Drawn as admin only, as the owner listed it with the household-level things; confirm it needs admin.</li>
           <li><b>Recipe stars and votes are household-wide.</b> There is no per-person star. If you want one, that is a change in Recipe's data (the token already says who is asking). A wrong guess costs a schema change.</li>
           <li><b>No lock.</b> A household value is a default; a member can always override it. Is there anything the household should be able to fix for everyone? (Quiet hours are decided: a member may set none for themselves, D6.)</li>
-          <li><b>Where it lives:</b> as Settings > Preferences next to Stock checks, or replacing Stock checks.</li>
+          <li><b>Where it lives:</b> settled on 11 Oct 2026 for desktop (its own section of the Settings window, after Settings) and for the phone (Settings &gt; Kitchen &gt; Preferences). Still open: whether a Stock checks row stays beside it.</li>
         </ul>
       </div>
       <div>
@@ -139,7 +159,7 @@
         <ul>
           <li>Two tabs, Mine first.</li>
           <li>Rows save the moment you choose (no Save button), like the item fields. Kitchie's page today has Save buttons.</li>
-          <li>The chip words <i>Yours</i>, <i>Household</i>, <i>Built-in</i>, <i>Only you</i>, <i>Everyone</i>, <i>Household only</i>, <i>This device</i>.</li>
+          <li>The chip words <i>Yours</i>, <i>Household</i>, <i>Built-in</i>, <i>Only you</i>, <i>Everyone</i>, <i>Household only</i>.</li>
           <li>"Founding member" (the People mockup's word) for the person who set the household up. B-P4 was superseded by D5 and the word is back, now as the default admin (D26).</li>
           <li>Members and admins as a row under <i>Only the household has these</i>, opening a small view with one row per member and a Make admin or Remove admin button. Chip words <i>Founding member</i>, <i>Admin</i>, <i>Member</i>. A change shows at once, with no confirmation step.</li>
           <li>A web list of food statements with "Stop remembering this". Today there is no web page for them; they are said to the assistant.</li>
@@ -211,5 +231,6 @@
     </div>
   </div>
 </div>
+<script>/* desktop only, and never inside the Settings window's own frame: the Settings window is drawn around the screen (11 Oct 2026) */if(matchMedia("(min-width:1024px)").matches&&!/[?&]embed=1/.test(location.search))document.write('<script src="../desktop-profile/profile.js"><\/script>')</script>
 <script src="mine-household.js"></script>
 </body></html>

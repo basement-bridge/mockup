@@ -113,6 +113,24 @@
   var M = seed(S.data);
   var root = document.getElementById("app");
 
+  /* ---------- where the screen lives (owner, 11 Oct 2026) ----------
+     Desktop: Preferences is its own section of the Settings window, right after Settings, and it opens inside that window (the /settings/preferences address too). There is no separate full-page layout.
+     This page therefore draws the Settings window around the screen at 1024px and wider (KProfile.inline, from fragments/desktop-profile), and the Profile window's Preferences section loads this page with ?embed=1.
+     Phone and tablet: unchanged, Settings > Kitchen > Preferences, the phone frame with a Settings back link. The choice is made at load. */
+  var EMBED = new URLSearchParams(location.search).get("embed") === "1";
+  var INWIN = EMBED || !!(window.KProfile && window.KProfile.inline && window.matchMedia("(min-width:1024px)").matches);
+  if (INWIN) document.documentElement.classList.add("mh-win");
+  if (EMBED) {
+    document.documentElement.classList.add("mh-embed");
+    if (window.parent !== window) document.addEventListener("keydown", function (e) { /* hand the window's own keys up to the Settings window */
+      var inField = /^(INPUT|TEXTAREA|SELECT)$/.test((e.target || {}).tagName || "");
+      if ((e.key === "Enter" && (e.ctrlKey || e.metaKey)) || (!inField && !e.ctrlKey && !e.metaKey && !e.altKey && /^[1-6?]$/.test(e.key))) { e.preventDefault(); window.parent.postMessage({ kind: "pf-key", key: e.key, ctrl: e.ctrlKey, meta: e.metaKey }, "*"); }
+    });
+  } else if (INWIN) {
+    var host = root.closest(".mh-frame");
+    if (host) { host.classList.add("mh-winhost"); var pane = window.KProfile.inline(host, "preferences"); pane.classList.add("pf-flush"); pane.appendChild(root); }
+  }
+
   /* ---------- helpers ---------- */
   function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
@@ -185,6 +203,8 @@
 
   var CHIP = { you: ["you", "You"], hh: ["hh", "Household"], app: ["app", "App"] };
   function chip(kind, text) { return '<span class="src ' + kind + '">' + esc(text) + "</span>"; }
+  /* The Household chip as the tap target (owner, 11 Oct 2026): it goes to the household notes on the Household tab. Same chip, drawn as a button with a chevron. */
+  function chipGo(kind, text, id, label) { return '<button type="button" class="src ' + kind + '" data-act="goto" data-id="' + id + '" aria-label="' + esc(label) + '">' + esc(text) + ICON.chev + "</button>"; }
   function chipFor(from) { return chip(CHIP[from][0], CHIP[from][1]); }
 
   /* The provenance chain, App then Household then You, with the one in force in bold (D16). */
@@ -569,13 +589,11 @@
       '<span class="lbl">Stock level checks</span><div class="card sgroup">' + ROWS.map(function (r) { return dialRow(r, "me"); }).join("") + rulesBlock("me") + stopsList() + "</div>" +
       '<p class="small">Stock level checks ask whether the level Kitchie has recorded is still right. They are not about how much you have.</p>' +
       '<span class="lbl">Notes</span><div class="card sgroup notescard">' + noteRow("me") +
-      '<div class="prow static household-note"><div class="pbtn"><span class="pt"><span class="pl">Household note</span>' + (M.hh.note ? '<span class="pv clamp">' + esc(M.hh.note) + "</span>" : '<span class="pv">Nobody has written one</span>') + '<span class="pw">Read next to yours, not instead of it.</span><button type="button" class="lnk" data-act="goto" data-id="hh:note">Open in Household</button></span>' + chip("hh", "Household") + "</div></div>" +
+      '<div class="prow static household-note"><div class="pbtn"><span class="pt"><span class="pl">Household note</span>' + (M.hh.note ? '<span class="pv clamp">' + esc(M.hh.note) + "</span>" : '<span class="pv">Nobody has written one</span>') + "</span>" + chipGo("hh", "Household", "hh:note", "Household note, open it in the Household tab") + "</div></div>" +
       '<p class="note">Both notes are read. Neither replaces the other.</p></div>' +
       '<span class="lbl">Food</span><div class="card sgroup foodcard">' + foodList("me") +
       '<p class="note">Your statements and the household\'s are added together, not swapped. Say new ones, or a new category, to your assistant. The household\'s can be changed by household admins only.</p></div>' +
-      '<span class="lbl">On this device</span><div class="card sgroup">' + navRow("Look and display", "Theme, name size, emoji, compact rows", "dev", "This device", "Settings") + '</div>' +
-      '<p class="small">Theme and display options stay on this phone and are not part of your account. Recipe stars and votes belong to the household, not to you.</p><button type="button" class="lnk" data-act="goto" data-id="hh:recipes">See Recipe stars and votes under Household</button>' +
-      '<p class="small">Your kitchen role and your assistant are part of your profile, not preferences.</p><button type="button" class="lnk" data-act="nav" data-id="Me">Open your profile</button></div>';
+      '</div>';
   }
 
   function householdScreen() {
@@ -641,7 +659,7 @@
     var keepScroll = window.scrollY;
     var flash = S.flash ? '<div class="banner" role="status">' + esc(S.flash) + "</div>" : "";
     if (S.view === "members") { root.innerHTML = membersScreen(flash); window.scrollTo(0, keepScroll); syncControls(); if (S.focus) { var fe = root.querySelector(S.focus); if (fe) fe.focus({ preventScroll: true }); S.focus = null; } return; }
-    root.innerHTML = '<div class="sp"><div class="mtop"><a class="back" href="#" data-act="nav" data-id="Settings">&lsaquo; Settings</a><h1 class="ttl">Preferences</h1><span style="width:64px" aria-hidden="true"></span></div>' +
+    root.innerHTML = '<div class="sp">' + (INWIN ? "" : '<div class="mtop"><a class="back" href="#" data-act="nav" data-id="Settings">&lsaquo; Settings</a><h1 class="ttl">Preferences</h1><span style="width:64px" aria-hidden="true"></span></div>') +
       '<main class="mbody">' + flash + seg() + (S.tab === "mine" ? mineScreen() : householdScreen()) + "</main></div>";
     var cur = document.activeElement;
     window.scrollTo(0, keepScroll);

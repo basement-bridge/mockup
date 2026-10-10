@@ -4,6 +4,7 @@
 <link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><link rel="stylesheet" href="option-c.css">
 <link rel="stylesheet" href="option-c-600.css" media="(min-width:600px)">
 <link rel="stylesheet" href="option-c-1024.css" media="(min-width:1024px)">
+<link rel="stylesheet" href="../desktop-profile/profile.css" media="(min-width:1024px)">
 <script src="../../theme.js"></script></head>
 <body>
 <div class="wrap oc-pg">
@@ -41,6 +42,10 @@
     <div class="oc-frame"><div id="app" aria-live="polite"><noscript><p style="padding:20px">This mockup needs script to draw the screen.</p></noscript></div></div>
 
     <div class="oc-notes">
+      <div>
+        <h2>11 Oct 2026, owner changes <span class="prop">Owner</span></h2>
+        <p>Drawn the same way as in <a href="../preferences-mine-household/index.html">Option B</a>, which this option builds on. On desktop Preferences is its own section of the Settings window, right after Settings (sections 1 to 6), and it opens inside the window; this page draws that window at 1024px and wider. The phone keeps Settings &gt; Kitchen &gt; Preferences. Plan the week is off the Settings &gt; Kitchen list and is still reached from Plan. Option C draws no On this device block, no &ldquo;Open in Household&rdquo; link, no household-only rows on Mine and none of the three removed profile lines; its Mine tab says &ldquo;Everything else, exactly as in option B&rdquo; for the rest, so Option B's household note chip and Household-tab-only rows apply here too.</p>
+      </div>
       <div>
         <h2>What this option does</h2>
         <p style="color:var(--muted)">The owner's shape (voice, 10 October 2026), recorded as C-D1 to C-D4, and the ten decisions locked later that day, recorded as D5 to D14 below. It is not a hard approval gate. Option C itself, and every open question below, is awaiting approval.</p>
@@ -144,5 +149,6 @@
     </div>
   </div>
 </div>
+<script>/* desktop only (11 Oct 2026): the Settings window is drawn around the screen */if(matchMedia("(min-width:1024px)").matches)document.write('<script src="../desktop-profile/profile.js"><\/script>')</script>
 <script src="option-c.js"></script>
 </body></html>

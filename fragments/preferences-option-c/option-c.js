@@ -56,6 +56,15 @@
   var M = seed(S.data);
   var root = document.getElementById("app");
 
+  /* 11 Oct 2026 (owner): on desktop Preferences is a section of the Settings window, right after Settings, and opens inside it (the /settings/preferences address too); no separate full-page layout.
+     At 1024px and wider this page draws that window around the screen (KProfile.inline, fragments/desktop-profile). Phone and tablet keep Settings > Kitchen > Preferences. Chosen at load. */
+  var INWIN = !!(window.KProfile && window.KProfile.inline && window.matchMedia("(min-width:1024px)").matches);
+  if (INWIN) {
+    document.documentElement.classList.add("oc-win");
+    var host = root.closest(".oc-frame");
+    if (host) { host.classList.add("oc-winhost"); var pane = window.KProfile.inline(host, "preferences"); pane.classList.add("pf-flush"); pane.appendChild(root); }
+  }
+
   /* ---------- helpers ---------- */
   function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
@@ -337,7 +346,7 @@
   function flashHtml() { return S.flash ? '<div class="banner" role="status">' + esc(S.flash) + "</div>" : ""; }
 
   function mainScreen() {
-    var top = '<div class="mtop"><a class="back" href="#" data-act="nav" data-id="Settings">&lsaquo; Settings</a><h1 class="ttl">Preferences</h1><span style="width:64px" aria-hidden="true"></span></div>';
+    var top = INWIN ? "" : '<div class="mtop"><a class="back" href="#" data-act="nav" data-id="Settings">&lsaquo; Settings</a><h1 class="ttl">Preferences</h1><span style="width:64px" aria-hidden="true"></span></div>';
     return '<div class="sp">' + top + '<main class="mbody">' + flashHtml() + (S.tab === "mine" ? noticeBanner(S.as) : "") + seg() + (S.tab === "mine" ? mineScreen() : householdScreen()) + "</main></div>";
   }
 

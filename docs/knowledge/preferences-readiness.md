@@ -136,3 +136,13 @@ Counted on 11 October 2026 from the remote branches and tags. "Prod pin" is the 
 Rollback notes: Kitchie and Platform cannot be rolled back across their schema bump without restoring the backup taken at deploy (older code refuses the newer database, tested); Recipe can be re-pinned freely. The Platform tables added by schema 6 are empty until a household uses them. Production data was not touched by any check in this report.
 
 No pull request to `main` was opened or merged by this slice, no tag was made and nothing was deployed.
+
+## 11. 11 Oct owner changes
+
+Added after the report above was written. The owner changed the Preferences mockups on 11 October 2026 (full list and build notes: `preferences-build-handoff.md`, section 9). **None of this is built or checked yet**: the report above describes the build merged into `uat`, which still has the older screen. It changes what the checks in sections 4 and 9 should expect, and it adds one slice of work (the desktop window section).
+
+- **Desktop:** Preferences becomes its own section of the Settings window, right after Settings; section keys run 1 to 6 and the footer says "1 to 6 jump to a section"; `/settings/preferences` opens inside the window. Mobile keeps Settings > Kitchen > Preferences. The `uat` window has five sections and "1 to 5", so the window tests (`desktop-profile.test.ts`, `desktop-profile.browser.ts`) change with it.
+- **Settings > Kitchen:** "Plan the week" is removed from the list. It is still reached from Plan in the bottom bar and the rail.
+- **Mine tab:** the Household note row loses "Open in Household" and "Read next to yours, not instead of it."; the Household chip is the tap target to the Household tab. The On this device block, the Recipe stars link and the two profile lines are gone. The household-only rows (Members and admins, Household name, Categories, Locations and spots, Recipe stars and votes) show only on the Household tab.
+- **Effect on this report:** the verdict and the four decisions in section 7 stand. The manual checklist in section 9 gains: open Preferences from the Settings window on a wide screen and press 3; tap the Household chip on the note; confirm Mine has no household-only rows and no On this device block; confirm Settings > Kitchen has no Plan the week. The "Settings screens" browser test (section 4) will also need its list of rows updated.
+- **Not decided:** whether Settings > Kitchen keeps a Stock checks row beside Preferences, and whether the household rule rows on Mine get the same chip treatment as the note. Both are listed in the handoff, section 9.

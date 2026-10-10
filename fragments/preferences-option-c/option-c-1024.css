@@ -3,3 +3,9 @@
 .oc-cols{display:grid;grid-template-columns:390px minmax(0,1fr);gap:var(--sp-6);align-items:start;margin-top:var(--sp-3)}
 .oc-cols .oc-frame{margin:0;position:sticky;top:var(--sp-4);max-height:calc(100dvh - 32px);overflow:auto}
 .oc-cols .oc-notes{margin:0;max-width:none}
+
+/* 11 Oct 2026 (owner): on desktop Preferences is a section of the Settings window, not a page of its own. The window is drawn in place of the phone column, with the notes under it. */
+html.oc-win .oc-cols{grid-template-columns:minmax(0,1fr);gap:var(--sp-5)}
+html.oc-win .oc-cols .oc-winhost{position:static;max-width:none;max-height:none;overflow:visible;border:0;border-radius:0;background:none;margin:0}
+html.oc-win .oc-winhost #app{max-width:640px}
+html.oc-win .oc-notes{max-width:840px;margin-left:0}
