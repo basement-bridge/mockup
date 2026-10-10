@@ -1,6 +1,10 @@
 # Item edit flyout: handover
 
+<<<<<<< Updated upstream
 **Status: round 2 drawn 11 October 2026 (Sydney), for anyone to pick up cold.** The mockup is drawn and merged to mockup `main` (round 1: PR 72, 10 Oct; round 2: the PR titled "item edit flyout round 2", 11 Oct). Nothing is built in the real app. Confirmed by the owner on 11 Oct: layout A (71) and key hints shown on the icons (68). Everything else, including the round 2 changes (decisions 82 to 93), is a proposal waiting for his look. Read `AGENTS.md` and `DESIGN.md` in this repo first (sections 6, 7, 9 and 10 bite most). Style follows `docs/handover/plan-desktop.md`.
+=======
+**Status: round 3 drawn 11 October 2026 (Sydney), for anyone to pick up cold.** The mockup is drawn and merged to mockup `main` (round 1: PR 72, 10 Oct; round 2: the PR titled "item edit flyout round 2", PR 74, squash 776e396, 11 Oct; round 3: PR 76, squash 9d7cf7b, 11 Oct). Nothing is built in the real app (a parallel build is in Kitchie `uat`; it must match this mockup exactly). Confirmed by the owner: layout A (71) and key hints shown (68) by typed note; and by voice on 11 Oct (round 3) the battery everywhere (94), the four bands for counted and weighed with a minimum (84), no-minimum rule (95), increase-only reset (96), category and unit chips plus free text (97, 98), the buy default aim (99), the use-by quick set (92), identical look everywhere and no shopping effect (100, 101). Still proposals: the rest of 63 to 93 that is not marked confirmed. Section 10 (new) is what the Kitchie build copies for the battery. Read `AGENTS.md` and `DESIGN.md` in this repo first (sections 6, 7, 9 and 10 bite most). Style follows `docs/handover/plan-desktop.md`.
+>>>>>>> Stashed changes
 
 ## 1. The ask, in the owner's words
 
@@ -105,5 +109,9 @@ Proposal for slicing, not agreed: settle section 5 here and in the job note (moc
 - This handover: [blob](https://github.com/basement-bridge/mockup/blob/main/docs/handover/item-edit-flyout.md).
 - Job note: [blob](https://github.com/basement-bridge/mockup/blob/main/docs/knowledge/jobs-to-be-done/item-edit-flyout.md).
 - Options page: [source](https://github.com/basement-bridge/mockup/blob/main/fragments/item-edit-flyout/index.html), [live](https://basement-bridge.github.io/mockup/fragments/item-edit-flyout/index.html).
+<<<<<<< Updated upstream
 - Round 1: PR 72, squash eb35f8f. Round 2: see `git log --oneline -- fragments/item-edit-flyout` on mockup `main` (the PR titled "item edit flyout round 2").
+=======
+- Round 1: PR 72, squash eb35f8f. Round 2: PR 74, squash 776e396. Round 3: PR 76, squash 9d7cf7b.
+>>>>>>> Stashed changes
 - Rules: [`AGENTS.md`](https://github.com/basement-bridge/mockup/blob/main/AGENTS.md), [`DESIGN.md`](https://github.com/basement-bridge/mockup/blob/main/DESIGN.md). Related: [`plan-desktop.md` handover](https://github.com/basement-bridge/mockup/blob/main/docs/handover/plan-desktop.md) (decisions 49 to 62).
