@@ -21,7 +21,7 @@ Said by the owner by voice on 10 October 2026, roughly 22:00 to 22:30 Sydney. Ea
 | L6 | **R-D29** | On the Plan tab, once a planned meal's items are sorted, tapping it goes straight into cook mode. This is Plan-tab behaviour. | Cross-feature request XR1 and XR2 to the Plan owners (handoff section 11). Meets plan-week-ai 7(a) ("tap through to that recipe"). |
 | L7 | **R-D30** | Cook-mode step buttons are labelled with the destination step's content, not "Back" and "Next". | Rewords R-D18. |
 | L8 | **R-D31** | Putting away needs no admin approval. | Changes V-D23 and the X3 build default; closes "does Put away need admin agreement". |
-| L9 | **R-D32** | The navigation pattern is unchanged: left gutter (rail) on desktop, bottom nav on mobile. | Leaves which items are in the bar open (R-O6 below). |
+| L9 | **R-D32** | The navigation pattern is unchanged: left gutter (rail) on desktop, bottom nav on mobile. | Which items are in the bar: closed by T2 (third lot). |
 
 ### Second lot: versions (typed, 10 October 2026, late)
 
@@ -44,7 +44,7 @@ Each is **Locked (owner, typed, 10 Oct 2026)**. Source: [`recipe-versions/index.
 | 2 | **Notes are a field of the version**, inherited down the lineage, carried as a change only where a version's notes differ (diffed per block). Default sub-option NA, live inheritance (Proposal). | V-D31, spec 9.4; **refines R-D24** (still the household's; "every version" becomes every version below the one it was written on, with "Every version of this recipe" one tap away) | "Notes on the family only, or also per version" |
 | 3 | **No hard delete; undo at any time** as a new revision or journal event; a mistaken try is put away, with undo. | BR3, BR18, V-D32, `undo_event`, `revert_change`, `restore_revision` | "Hard delete of a try made by mistake; default none" |
 | 4 | A **dismissed draft is visible only in that member's assistant history**. | BR10, `list_my_drafts` | "Dismissed drafts show under Put away" |
-| 5 | **Stars and reactions are per member; the household level is derived** ("Liked by Sam and Jane · 2 of 3 who ate it"). Proposed household-favourite rule: more than half of those who ate it liked it, and at least 2 (a household setting, default majority). A "not for me" is shown by name only to its giver. Nothing is stored as a household vote. | BR19, V-D6, V-D33, spec 2.1, `react`; **answers preferences X5 for Recipe's side as "both, derived"** | V-D6's "Open, cross-feature X5"; R-V9's "household-wide until X5" |
+| 5 | **Stars and reactions are per member; the household level is derived** ("Liked by Sam and Jane · 2 of 3 who ate it"). Household-favourite rule (confirmed, T6): more than half of those who ate it liked it, and at least 2 (a household setting, default majority). A "not for me" is shown by name only to its giver. Nothing is stored as a household vote. | BR19, V-D6, V-D33, spec 2.1, `react`; **answers preferences X5 for Recipe's side as "both, derived"** | V-D6's "Open, cross-feature X5"; R-V9's "household-wide until X5" |
 | 6 | **R-V1 approved**: reverse "recipes and variations are immutable" in Recipe's `AGENTS.md` and brief, as the **first Recipe-repo change when the build starts** (an issue, a branch, a PR to `uat`, under Recipe's own rules), with the replacement wording in spec section 8. No agent edits Recipe's `AGENTS.md` before then. | R-V1, spec section 8 | "The owner's call; nothing is built until he says yes" |
 
 **Left with the preferences chat (their files, not edited here):** their F1, Q1 and Q-R8 still draw Recipe stars household-wide; they should read Recipe's reactions as per member with the household view derived, and decide whether a member's private "no" may lower a recipe's rank in that member's own Ideas.
@@ -61,7 +61,7 @@ Each is **Locked (owner, typed, 10 Oct 2026)**. Source: [`recipe-photos/index.ht
 | **P4 = C** | **The phone shrinks first**; an unshrunk upload is derived by a **server derive queue that runs only when resources are free** (lowest priority, backs off under load; banner square first, then other squares, then larger sizes); a **third-party image service seam** (`Deriver`) is named, not built; until a photo's sizes exist the UI says **"Photo is being prepared"**. | P-D7, P-D30, RP10 | Phone only |
 | **P5 = A, refined** | **The assistant uploads the photo itself**: its MCP call gets a one-time upload slot (the person is not involved); **not blocking**; a **verified acknowledgement** (received hash, bytes, dimensions, the sizes it will keep); **up to 3 attempts, each smaller** (2000px q85, 1400 q80, 1000 q75), then stop and tell the person. Fallback for an assistant that cannot send files: a Kitchie link to the same slot. | P-D12, RP5, `request_photo_upload`, `get_upload` | P-D12 as "a one-time add link the person taps" |
 | **P6 = A** | A photo belongs to **a version or a cook, never a revision**; any member can delete or replace a version's photos (Replace adds the new one and removes the old with the 5-minute undo). | P-D9 | Open P6 |
-| **P7 = B** | **Only recipe photos are banners**; a cooked photo never stands in. A version showing an ancestor's banner or step photo carries a small branch icon until it has its own. **Open:** may a person explicitly make a cook photo a banner? (Build default: allowed only as that explicit choice, never automatic.) | P-D10, spec 9.5 | P-D10's "newest cooked photo stands in" |
+| **P7 = B** | **Only recipe photos are banners**; a cooked photo never stands in. A version showing an ancestor's banner or step photo carries a small branch icon until it has its own. **Closed by T5:** a cook photo may become the banner only by explicit choice, never automatic; always exactly one banner per version. | P-D10, spec 9.5 | P-D10's "newest cooked photo stands in" |
 | **P8 = A + MCP read** | Household only: same-site, Platform sign-in and household checked on every request. Plus **the assistant reads a photo through MCP** (`get_photo`) under **the same SSO** as the person on Kitchie. Expiring public share links are a named future. | P-D15, RP4, RP11 | Open P8 |
 | **P9** | Limits: **one banner per version; one photo per step, up to 10 per version; gallery up to 3; 3 per cook; 2 GB per household** with the **search-and-remove "Free up space" flow** (versions listed by photo bytes, unused first); 8 MB per upload; 60 uploads an hour per member. | P-D8, RP12, RP13 | 6 per version, 1 MB per upload |
 | **P10 = B** | Removal = **undo for 5 minutes only**, then the blobs are deleted (unless the same hash is used elsewhere in the household). | P-D17 | A 30-day restore and "Delete it for good now" |
@@ -69,15 +69,31 @@ Each is **Locked (owner, typed, 10 Oct 2026)**. Source: [`recipe-photos/index.ht
 | **P12 = A** | Recipe page top: full-width banner; **text first, then step photos, then the banner last**; other photos on demand; the banner's box is there from the first paint. | P-D20 | Open P12 |
 | **P13** | List: **a stock placeholder first** in every tile; then **the planned recipes' photos** (if this week's plan exists); then **rows on screen plus 5 more in that category**; the rest on demand. **Home is never affected.** | P-D21 | "Cover in the 56px tile" as the only rule |
 
-Also recorded on the photos page (Proposal unless it says Locked): **P-D25** after-cook photos are the primary add door, **P-D26** notes are the UI's second job (`recipe-photos/note.html`), **P-D27** simple rich text stored as text, **P-D28** removing a note keeps its photo, **P-D29** a note after a cook carries that cook's tag, **P-D30** the "being prepared" state, **P-D31** notes and the 5-minute removal. **N1** (does the end of a cook ask "this cook only" or "for next time"; recommended A, no question) **is still open.** Recipe-side work RP1 to RP13 (RP7 dropped by L4).
+Also recorded on the photos page (Proposal unless it says Locked): **P-D25** after-cook photos are the primary add door, **P-D26** notes are the UI's second job (`recipe-photos/note.html`), **P-D27** simple rich text stored as text, **P-D28** removing a note keeps its photo, **P-D29** a note after a cook carries that cook's tag, **P-D30** the "being prepared" state, **P-D31** notes and the 5-minute removal. **N1** (does the end of a cook ask "this cook only" or "for next time") **was closed by T4:** no question; notes live at recipe or version level. Recipe-side work RP1 to RP13 (RP7 dropped by L4).
 
-**Not locked, still open:**
+### Third lot: voice (T1 to T9, 11 October 2026)
 
-- **R-O6, the tab bar items (option 6, R-D2, handoff X1).** The owner said "moving on" without picking. In the same voice session an assistant said "locked as A". **That was wrong: nothing was picked, and option 6 is still open.** L9 (R-D32) locks only the pattern (rail on desktop, bottom bar on phone), not which items are in it.
-- Who draws the tab (handoff X16).
-- Where ranking runs (I-O4), and the cooking-ideas pane as a whole (not reviewed yet).
-- The editing screen: the owner said "we'll do that later". R-O4 says content comes only through the assistant.
-- Small: N1; a cook photo as a banner by a person's explicit choice; the household-favourite rule; notes sub-option NA, NB or NC (default NA); free disk on the server (P-D3); an off-server backup copy (infra); the preferences chat's F1, Q1, Q-R8 and the private "no" in Ideas.
+Spoken by the owner after the second lot. Each is **Locked (owner, voice, 11 Oct 2026)**. They close X16, R-O6, N1 and the small items; any older line that still says "open" for them is superseded.
+
+| # | Decision | Ids touched | Replaces or closes |
+|---|---|---|---|
+| T1 | **Kitchie draws the Recipe UI; Recipe is headless** (MCP and API only). | R-D3, handoff X16 | **Resolves X16** (the hosted-fragment question) |
+| T2 | **Recipes stays a standalone tab:** bottom nav on mobile, left menu on desktop. | R-D2, R-D32, option 6 | **Closes R-O6** |
+| T3 | **Keyboard shortcuts:** Recipe screens map onto the existing app-level shortcut system, as built for Pantry (`desktop-layout.md`). No Recipe-specific shortcut system. | desktop only | A per-tab shortcut set |
+| T4 | **Notes live at recipe or version level,** inherited down the lineage (V-D31). No "this cook only" question at the end of a cook. | V-D31, P-D26, P-D29 | **Closes N1** (option B not taken) |
+| T5 | **A cook photo may become the banner only by explicit choice; there is always exactly one banner per version.** Never automatic, never by fallback. (Reading used: a version never has two banners; with none of its own or inherited, the one banner slot shows the stock picture, P-D19. To confirm with the owner.) | P-D10, spec 9.5 | The open part of P7 |
+| T6 | **Household favourite rule confirmed:** more than half of those who ate it liked it, and at least 2. | V-D33, BR19, spec 2.1 | "Proposal" on the rule |
+| T7 | **Note limit: one 4,000-character cap everywhere** (app and assistant). The UI must **not** enforce a smaller cap; a long note scrolls inside a bounded note box and does not grow the page. | P-D27, spec 10.6 | The 600-character app limit and the app/assistant split |
+| T8 | **The ideas pane stays in the Recipes tab.** Where ranking runs (I-O4) defaults to **A = Kitchie** (owner delegated; correctable later). | R-D1, I-D3, I-O4 | "Ideas live on Home"; I-O4 open |
+| T9 | **Build authority:** agents merge into `uat` of any repo when done; never `main`, never tags; the owner deploys. | handoff section 9 | Per-slice "owner merges" wording, except infra's note |
+
+**Still open after the third lot:**
+
+- The editing screen: assistant hand-off, deferred ("we'll do that later"; R-O4: content comes only through the assistant).
+- Cross-feature requests XR1 to XR3 (the Plan owners: what "sorted" means for R-D29, the desktop rule, the View recipe link) and XR4 (the preferences chat, with its F1, Q1, Q-R8 and the private "no" in Ideas).
+- Infra: free disk on the server's data folder (P-D3) and an off-server backup copy.
+- The cooking-ideas pane as a whole is still not reviewed by the owner (only its place, T8, and I-O4 are settled).
+- Smaller leftovers with build defaults: notes sub-option NA, NB or NC (default NA); migration of a disabled root with active variations; member ids in standalone mode.
 
 **Now settled (were open after the first lot):** V1 to V6, P1 to P13, R-V1.
 
@@ -113,7 +129,7 @@ Where things are stored in the kitchen, use-by dates, stock levels beyond in or 
 ### Decisions (Proposal unless marked Locked; R-D numbering)
 
 1. **R-D1 The tab opens on the list.** No dashboard above it. Ideas live on Home (cooking-ideas pane, another slice).
-2. **R-D2 Tab bar: Plan, Pantry, Recipes, Shopping.** Same bar component as the household flow. **Open, owner's call (option 6, R-O6); not decided.** The owner said "moving on" without picking; an assistant's "locked as A" in the voice session was wrong. The pattern (rail on desktop, bottom bar on phone) is locked by R-D32. The household flow and the ideas slice draw Home, Pantry, Recipes, Shopping; production Kitchie and the plan-desktop rail have five (Home, Pantry, Plan, Recipes, Shopping). Option A has no Home, where R-D1 and I-D1 put the ideas pane (handoff X1).
+2. **R-D2 Tab bar: Plan, Pantry, Recipes, Shopping.** Same bar component as the household flow. **Closed by T2 (owner, voice, 11 Oct 2026): Recipes stays a standalone tab** (bottom nav on mobile, left menu on desktop); R-O6 is closed. The pattern (rail on desktop, bottom bar on phone) is locked by R-D32. The household flow and the ideas slice draw Home, Pantry, Recipes, Shopping; production Kitchie and the plan-desktop rail have five (Home, Pantry, Plan, Recipes, Shopping). The ideas pane stays in the Recipes tab (T8), so the missing Home no longer matters (handoff X1).
 3. **R-D3 Kitchie renders, Recipe owns.** Every value comes from a Recipe tool or from Kitchie's own plan and stock. Missing capability is listed under Recipe-side gaps, not faked in Kitchie.
 4. **R-D4 One top row on the list: search and Add.** No heading. Search matches names and ingredients. **Narrowed by R-O4 (locked):** Add no longer opens an in-app form or reader; a new recipe comes through the person's AI app. How the top row is drawn now is the flow screens' to redraw (Proposal: the button opens the person's default AI app, plan-week-ai 45).
 5. **R-D5 One chip strip, the plan-week-ai strip (its decision 48):** All, Ready now, Starred, Batch, Under 30, Added by me. Tap the chosen chip again for All. Remembered per person in localStorage (`rcp-chip-<persona>` in the mockup). The batch cooker starts on Batch.
@@ -143,7 +159,7 @@ Where things are stored in the kitchen, use-by dates, stock levels beyond in or 
 29. **R-D29 Plan tab: a sorted meal taps straight into cook mode.** **Locked (owner, voice, 10 Oct 2026; L6).** Plan-tab behaviour, owned by the Plan features: recorded as cross-feature requests XR1 and XR2 in the handoff. What "sorted" means is open (build default in the handoff).
 30. **R-D30 Cook-mode step buttons name where they go.** **Locked (owner, voice, 10 Oct 2026; L7).** The buttons carry the destination step's content, not Back and Next.
 31. **R-D31 Putting away needs no admin approval.** **Locked (owner, voice, 10 Oct 2026; L8).**
-32. **R-D32 Navigation pattern unchanged.** **Locked (owner, voice, 10 Oct 2026; L9):** left gutter (rail) on desktop, bottom nav on mobile. The items in the bar stay open (R-O6).
+32. **R-D32 Navigation pattern unchanged.** **Locked (owner, voice, 10 Oct 2026; L9):** left gutter (rail) on desktop, bottom nav on mobile. The items: Recipes is a standalone tab (T2, closes R-O6).
 
 ### Options (five locked, one open)
 
@@ -154,7 +170,7 @@ Where things are stored in the kitchen, use-by dates, stock levels beyond in or 
 | 3 | Versions | Chip in the meta row, tree in a sheet | Strip under the title | – | **Locked R-O3 = B varied**: no row for one version, scrolling strip for several, docked above the jump row |
 | 4 | Adding | One box (paste, type, link; camera and mic on it) | Four doors | – | **Locked R-O4 = redefined**: neither; content only through the assistant's MCP surface; the app adds photos and notes |
 | 5 | Follower | Tonight leads, opens the recipe | Tonight opens cook mode | – | **Locked R-O5 = void**: no follower distinction (R-D8 void) |
-| 6 | Tab bar | Plan, Pantry, Recipes, Shopping | Home first, Plan inside Home | – | **Open (R-O6)**: owner said "moving on" without picking; "locked as A" in the voice session was an assistant's error |
+| 6 | Tab bar | Plan, Pantry, Recipes, Shopping | Home first, Plan inside Home | – | **Closed (T2, 11 Oct 2026)**: Recipes is a standalone tab; the voice session's earlier "locked as A" was an assistant's error, this is the owner's own answer |
 
 ### Recipe-side gaps (solve in Recipe; Kitchie renders)
 
@@ -177,7 +193,7 @@ Where things are stored in the kitchen, use-by dates, stock levels beyond in or 
 - ~~Can a follower change a recipe, or only add notes?~~ **Closed by R-O5 (locked):** there are no followers; every member has the same controls.
 - Should Ready now treat items held for another meal as unavailable? Mockup: no. **Conflicts with I-D6** (a held item counts as not in). Build default: held counts as not in, in both places (plan-week-ai 33: a hold is a real claim). Handoff X8.
 - ~~Does Put away need agreement in a household with admins (preferences D25 to D30)?~~ **Closed by R-D31 (locked):** no admin approval.
-- Still open (unchanged): the tab bar items (R-O6), who draws the tab (X16), the editing screen (owner: "we'll do that later"), what "sorted" means for R-D29.
+- Closed 11 Oct 2026: the tab bar items (R-O6, T2) and who draws the tab (X16, T1). Still open: the editing screen (owner: "we'll do that later"), what "sorted" means for R-D29.
 
 ### For the implementation
 
@@ -280,7 +296,7 @@ Full detail in [`recipe-versions/spec.html`](../../../recipe-versions/spec.html)
 - ~~How long dismissed drafts stay visible?~~ Only in that member's assistant history (locked answer 4, BR10).
 - ~~Stars per member or household-wide (X5)?~~ Per member, household derived (locked answer 5, V-D33); X5 answered for Recipe's side.
 - ~~R-V1.~~ Approved (locked answer 6).
-- **Still open:** notes sub-option NA (live, default) vs NB (pinned) vs NC (two levels) (spec 9.4); the household-favourite rule (spec 2.1; default more than half of those who ate it, at least 2); migration of a disabled root with active variations (default: the most-used active variation becomes the usual, none active: family put away); member ids in standalone mode (default one `legacy` member); a cook photo as a banner by a person's explicit choice (spec 9.5, shared with the photos slice).
+- **Still open:** notes sub-option NA (live, default) vs NB (pinned) vs NC (two levels) (spec 9.4); the household-favourite rule is confirmed (T6; spec 2.1); migration of a disabled root with active variations (default: the most-used active variation becomes the usual, none active: family put away); member ids in standalone mode (default one `legacy` member); a cook photo as a banner by explicit choice is locked (T5, spec 9.5).
 - **For the preferences feature (their files, not edited here):** F1, Q1, Q-R8 to read Recipe's reactions as per member with the household view derived; whether a member's private "no" may lower a recipe's rank in that member's own Ideas.
 
 ### For the implementation
@@ -358,7 +374,7 @@ What is in and missing: Recipe `what_can_i_cook` / `what_am_i_missing` (stock fr
 
 ### Open questions
 
-- I-O1 to I-O4. A wrong I-O4 costs a rewrite across two repos.
+- I-O1 to I-O3. I-O4 defaults to A = Kitchie (T8, owner delegated 11 Oct 2026; correctable later; a wrong I-O4 would cost a rewrite across two repos).
 - Does Not for me write a dislike at once (person level, ungated) or ask? Mockup: writes, with Undo.
 - A household lean set by an admin? Mockup: no, per person.
 - Cooked in the last two days: filter, or just a strong negative? Mockup: filter.
@@ -404,7 +420,7 @@ Storage details on screen, file sizes (except Free up space), editing tools beyo
 7. **P-D7 The phone shrinks first; the server derives when it is free:** an unshrunk upload is stored, the row is pending, and the derive queue makes the sizes at lowest priority with load back-off (banner square, other squares, banner large, other mediums); a third-party `Deriver` is a named seam. **Locked P4 = C.**
 8. **P-D8 Limits (settings):** 1 banner per version; 1 photo per step, at most 10 step photos per version; up to 3 gallery photos per version; 3 per cook; 2 GB per household (a slim line at 80% links to Free up space); 8 MB per upload; 60 uploads an hour per member. Free up space lists versions by photo bytes, unused first, with search; only photos go, text and history stay. **Locked.**
 9. **P-D9 Photos belong to a version or a cook, never a revision.** A fix keeps photos; a new version shows its parent's, marked; Replace adds the new one and removes the old with the 5-minute undo; a spin-off can point at the same blobs (nothing copied). **Locked P6 = A.**
-10. **P-D10 Banner: only a recipe photo can be a banner;** a cooked photo never stands in. A version with no banner of its own shows its nearest ancestor's with a small branch icon; no banner up the line means no banner. **Locked P7 = B.** Open: may a person explicitly make a cook photo a banner (build default: only as that explicit choice)?
+10. **P-D10 Banner: only a recipe photo can be a banner;** a cooked photo never stands in. A version with no banner of its own shows its nearest ancestor's with a small branch icon; no banner up the line means no banner. **Locked P7 = B.** Closed by T5: a cook photo may be the banner by explicit choice only; always exactly one banner per version.
 11. **P-D11 Adding from the app:** every add door opens the phone's camera or picker on the first tap, aimed; secondary paths: the banner, Step photo beside Method, Replace in the viewer; a banner gets a square crop; up to 3 at once from one cook; background send with retry; any member (L5). Proposal.
 12. **P-D12 From an assistant:** the assistant's MCP call gets a one-time upload slot itself (15 minutes, bound to household, target, declared hash and size; secret in a header); not blocking; verified acknowledgement; at most 3 attempts, each smaller (2000px q85, 1400 q80, 1000 q75), then it stops and tells the person; fallback a Kitchie link to the same slot. **Locked P5 = A, refined.** Replaces the link the person taps.
 13. **P-D13 Cooked-it photos are part of the cook entry** (`record_cook`, up to 3 `photo_ids`; an assistant may pass pending upload slots). Shown on that night's Cooked row and under Photos, on demand. Never the banner. Proposal.
@@ -421,7 +437,7 @@ Storage details on screen, file sizes (except Free up space), editing tools beyo
 24. ~~**P-D24 A photo from someone else's website.**~~ **Void by L4.**
 25. **P-D25 After-cook photos are the star:** the end of a cook and each Cooked row are the primary add doors; one tap opens the camera already aimed at that cook. Proposal.
 26. **P-D26 Notes are the UI's second job:** `note.html`, its own route, from Notes on the recipe page and the end of a cook; where a note lives is V-D31 (locked). Proposal.
-27. **P-D27 Simple rich text, stored as text:** bold and list lines and at most one photo reference `[photo:<id>]`; never HTML. Proposal.
+27. **P-D27 Simple rich text, stored as text:** bold and list lines and at most one photo reference `[photo:<id>]`; never HTML. **Note limit (T7, locked 11 Oct 2026): one 4,000-character cap for the app and the assistant; the UI enforces nothing smaller; a long note scrolls inside a bounded note box.** Replaces the 600-character app limit.
 28. **P-D28 Removing a note keeps its photo;** removing a photo a note points to drops the picture from the note. Proposal.
 29. **P-D29 A note written after a cook carries that cook's tag** ("After the 8 Oct cook"). Proposal.
 30. **P-D30 "Photo is being prepared":** a pending photo draws its box at final size in its own colour with one quiet line; Kitchie checks three times, then "Photo will appear later". Proposal (draws P-D7).
@@ -446,7 +462,7 @@ How this changes other slices: R-D9 is narrowed (one banner, loaded last, stock 
 | P11 | Backups | **B** database, then new blobs only | A whole folder; C none | Both copies still on one server (infra's question) |
 | P12 | Top of page | **A** full width, loaded last | B square by title; C none | The banner is the last thing to appear |
 | P13 | Lists | **The owner's order** (stock first, planned, on screen + 5) | B no photos; C 40px rows | Every row shows the stock picture for a moment |
-| N1 | A note at the end of a cook | **Open** (recommended A: no question, on the version with the cook's tag) | B ask "this cook only" or "for next time" | A one-night note sits among the lasting ones |
+| N1 | A note at the end of a cook | **Closed (T4, 11 Oct 2026):** A, no question; notes live at recipe or version level, inherited | B ask "this cook only" or "for next time" | A one-night note sits among the lasting ones |
 
 ### Recipe-side work (to file as Recipe issues on the owner's say; not filed)
 
@@ -454,8 +470,8 @@ RP1 photos table (kinds, states, hashes per kept size), blob first then row, nig
 
 ### Open questions
 
-- N1 (above).
-- May a person explicitly make a cook photo a version's banner? Build default: only as that explicit choice; never automatic (shared with the versions spec 9.5).
+- N1: closed by T4 (above).
+- Cook photo as a banner: closed by T5 (explicit choice only; exactly one banner per version).
 - Free disk on the server's data folder (P-D3). The 2 GB household cap is the guard.
 - An off-server backup copy: infra's call, for all apps.
 - A photo for "tonight" when no cook was recorded: the mockup adds a cook with no pantry change.
@@ -501,5 +517,9 @@ Applied by the docs agent after the three slice agents redrew their pages (versi
 - **Superseded or void:** the suggestion model (`propose_change`, `list_suggestions`, `resolve_suggestion`, the `suggestions` table, `assistant_trusted`) by V4 B's review after; `revise_version` and `create_version` by `patch_version`; the whole-recipe revision (V6 A); the 30-day photo restore and "Delete it for good now" (P10 B); `photos/<household>/<id>-<size>.webp` with three sizes (P2 port, P3 varied); 350 KB per photo (P-D3 now about 260 KB for a banner, 87 KB otherwise); P-D12 as a link the person taps (P5 refined); the newest-cooked-photo cover fallback (P7 B); notes on the family only (V-D31).
 - **Refined:** R-D24 by V-D31; R-D9 by P7 and P12; R-D12 and R-D15 by BR10; R-D19 by BR17 and V-D33; I-D6's favourite and G11 by V-D33.
 - **Answered:** X5 for Recipe's side (both, derived); gap G1 (V-D31); the stars, notes, delete and draft questions; R-V1.
-- **Still open:** R-O6 (tab bar items), X16 (who draws the tab), I-O4 (where ranking runs) and the ideas pane, the editing screen; small: N1, a cook photo as a banner by explicit choice, the household-favourite rule, notes NA/NB/NC, free disk, off-server backups, the preferences chat's F1, Q1, Q-R8 and the private "no" in Ideas.
+- **Still open (as of 11 Oct 2026, after the third lot T1 to T9):** the editing screen (assistant hand-off, deferred); XR1 to XR3 (Plan owners) and XR4 (preferences chat); infra free disk and off-server backup; the ideas pane as a whole is not reviewed (its place, T8, and I-O4 are settled); small defaults NA/NB/NC. Closed by the third lot: R-O6, X16, N1, the cook-photo banner, the favourite rule, the note limit.
 - **Nothing has been built, and nothing has been filed.**
+
+## Owner's third lot applied (11 October 2026)
+
+Recorded by the docs agent from the owner's voice decisions: T1 to T9 (see "Third lot" above). Files updated: `recipe/index.html` (ledger), `recipe-versions/spec.html` (10.6 rewritten to one 4,000-character cap; 2.1, 9.5 and the open list), `recipe-photos/index.html` (N1 closed, P-D10, P-D27), this file and `recipe-tab-handoff.md`. Nothing has been built, and nothing has been filed.

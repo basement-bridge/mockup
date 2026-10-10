@@ -33,6 +33,8 @@ The first handoff (10 October 2026, before 22:00) had every option open. Since t
 - **Typed, late (versions):** V1 A grouped by state; V2 C a try edits in place, a keeper asks at save; V3 A ask after every cook of a try; V4 B the assistant edits a kept version or the usual directly and the household reviews after (To review, badge, per-change undo); V5 A frozen revisions under changeable versions; V6 B only the changes are kept, git-like. Answers: "Not for us" puts a try away at once with undo; notes are a field of the version, inherited; no hard delete, undo any time; dismissed drafts only in that member's assistant history; stars per member, household derived; **R-V1 approved**.
 - **Typed, late (photos):** P1 A Recipe owns photos; P2 a blob-storage port with a files adapter now; P3 banner large + square, others medium + square, no originals; P4 phone first, server derive queue when free; P5 the assistant uploads itself (not blocking, verified, 3 smaller tries); P6 a version or a cook, never a revision; P7 only recipe photos are banners; P8 household only plus `get_photo` under the same SSO; limits (1 banner, 10 step photos, 3 gallery, 3 per cook, 2 GB with Free up space); removal undo 5 minutes only; backups database plus new files only; page and list loading order.
 
+- **Voice, 11 October 2026 (T1 to T9, section 2.0):** Kitchie draws the Recipe UI and Recipe is headless (X16 resolved); Recipes stays a standalone tab, bottom nav on mobile and left menu on desktop (R-O6 closed); Recipe keyboard shortcuts map onto the existing app-level system as built for Pantry; notes live at recipe or version level (N1 closed); a cook photo is a banner only by explicit choice, exactly one banner per version; the household-favourite rule confirmed; one 4,000-character note cap everywhere, the UI enforcing nothing smaller, long notes scrolling in a bounded box; the ideas pane stays in the Recipes tab and I-O4 defaults to A = Kitchie (owner delegated); agents merge into `uat` of any repo, never `main`, never tags, the owner deploys.
+
 What that unblocks: **R-V1 and photo storage are no longer blocking.** Recipe's backend (schema v6, git-like storage, the blob port, the derive queue, the assistant authoring surface) can start as soon as the owner files the issues. What still needs the owner is in section 3.
 
 ---
@@ -105,15 +107,29 @@ Status words: **locked** (the owner's: voice or typed, 10 Oct 2026); **proposal*
 | P12 = A | Recipe page: text first, then step photos, then the banner last; others on demand (P-D20) | Open P12 |
 | P13 | List: stock placeholder first; planned recipes' photos first; then rows on screen plus 5 in that category; the rest on demand; Home never affected (P-D21) | Cover in the tile only |
 
-**Still open (owner):** R-O6 tab bar items (an assistant's "locked as A" in the voice session was wrong; nothing was picked); X16 who draws the tab; I-O4 where ranking runs (and the ideas pane, not reviewed); the editing screen ("we'll do that later"). Small: N1; a cook photo as a banner by explicit choice; the household-favourite rule; notes NA/NB/NC; free disk; the preferences chat's items (section 4, X5).
+**Third lot: voice, 11 October 2026 (T1 to T9).** Each **locked** by the owner.
+
+| # | Decision | Ids | Closes |
+|---|---|---|---|
+| T1 | Kitchie draws the Recipe UI; Recipe is headless (MCP and API) | R-D3, X16 | **X16** |
+| T2 | Recipes is a standalone tab: bottom nav on mobile, left menu on desktop | R-D2, R-D32, option 6 | **R-O6**, X1 |
+| T3 | Recipe screens use the existing app-level keyboard shortcut system (as built for Pantry); no Recipe-specific system | desktop | |
+| T4 | Notes live at recipe or version level, inherited (V-D31); no "this cook only" question | P-D26, P-D29 | **N1** |
+| T5 | A cook photo is a banner only by explicit choice; always exactly one banner per version | P-D10, spec 9.5 | open part of P7 |
+| T6 | Household favourite: more than half of those who ate it liked it, and at least 2 | V-D33, spec 2.1 | the rule's "Proposal" |
+| T7 | One 4,000-character note cap everywhere; the UI enforces nothing smaller; long notes scroll inside a bounded note box | P-D27, spec 10.6 | the 600-character app limit and the split limits |
+| T8 | The ideas pane stays in the Recipes tab; I-O4 defaults to A = Kitchie (delegated; correctable later) | R-D1, I-D3, I-O4 | **I-O4** (as a default) |
+| T9 | Agents merge into `uat` of any repo when done; never `main`, never tags; the owner deploys | section 9 | |
+
+**Still open (owner, after the third lot):** the editing screen (assistant hand-off, deferred: "we'll do that later"); XR1 to XR3 (Plan owners) and XR4 (preferences chat); infra: free disk on the data folder and an off-server backup copy; the ideas pane as a whole (not reviewed; its place and I-O4 are settled); small defaults (notes NA/NB/NC, disabled-root migration, standalone member ids).
 
 ### 2.1 Flow (R-D)
 
 | ID | Decision | Status | Note |
 |---|---|---|---|
 | R-D1 | The tab opens on the list; ideas live on Home | proposal | Needs a Home tab: X1 |
-| R-D2 | Tab bar: Plan, Pantry, Recipes, Shopping | **open, owner's call** (option 6, R-O6) | X1; not decided (the voice session's "locked as A" was an assistant's error). Pattern locked by R-D32 |
-| R-D3 | Kitchie renders, Recipe owns | proposal (owner's brief) | Meets Kitchie R34 hosted fragment: X16 |
+| R-D2 | Tab bar: Plan, Pantry, Recipes, Shopping | **closed by T2** (standalone Recipes tab; option 6, R-O6) | X1; pattern locked by R-D32 |
+| R-D3 | Kitchie renders, Recipe owns; Recipe is headless (MCP and API) | **locked** (T1) | X16 resolved |
 | R-D4 | One top row: search and Add | proposal; **narrowed by R-O4** | Add hands off to the person's AI app (Proposal); no in-app form |
 | R-D5 | One chip strip (plan-week-ai 48): All, Ready now, Starred, Batch, Under 30, Added by me | proposal | Starred = "Liked by me" (V-D33); Added by me needs V-D20 |
 | R-D6 | Swipe right to plan; no swipe left | proposal | |
@@ -142,7 +158,7 @@ Status words: **locked** (the owner's: voice or typed, 10 Oct 2026); **proposal*
 | R-D29 | Plan tab: a sorted meal taps straight into cook mode | **locked** (L6) | Plan's behaviour: XR1, XR2 |
 | R-D30 | Step buttons labelled with the destination step | **locked** (L7) | |
 | R-D31 | Put away needs no admin approval | **locked** (L8) | |
-| R-D32 | Navigation pattern unchanged (rail desktop, bottom nav phone) | **locked** (L9) | Items: R-O6 open |
+| R-D32 | Navigation pattern unchanged (rail desktop, bottom nav phone) | **locked** (L9) | Items: Recipes standalone (T2) |
 
 ### 2.2 Versions (V-D)
 
@@ -195,7 +211,7 @@ Status words: **locked** (the owner's: voice or typed, 10 Oct 2026); **proposal*
 | P-D7 | Phone first; server derive queue when free | **locked P4 C** | RP10 |
 | P-D8 | Limits: 1 banner, 10 step, 3 gallery, 3 per cook, 2 GB, Free up space | **locked** (P9) | RP12, RP13 |
 | P-D9 | A version or a cook, never a revision | **locked P6 A** | |
-| P-D10 | Only recipe photos are banners; inherited with an icon | **locked P7 B** | Cook photo as banner by choice: open |
+| P-D10 | Only recipe photos are banners; inherited with an icon; a cook photo only by explicit choice; exactly one banner per version | **locked P7 B, T5** | |
 | P-D11 | Adding from the app | proposal | |
 | P-D12 | The assistant uploads itself; not blocking; verified; 3 smaller tries | **locked P5 A, refined** | RP5 |
 | P-D13 | Cooked photos on the cook entry, up to 3 | proposal | `record_cook.photo_ids`, `pending_uploads` |
@@ -212,12 +228,12 @@ Status words: **locked** (the owner's: voice or typed, 10 Oct 2026); **proposal*
 | P-D24 | Web photos | **void by R-O4** | |
 | P-D25 | After-cook photos are the star | proposal | |
 | P-D26 | Notes are the UI's second job | proposal | Where a note lives: V-D31 |
-| P-D27 | Simple rich text, stored as text | proposal | |
+| P-D27 | Simple rich text, stored as text; one 4,000-character note cap, no smaller UI cap, bounded scrolling note box | proposal; **cap locked** (T7) | |
 | P-D28 | Removing a note keeps its photo | proposal | |
 | P-D29 | A note after a cook carries the cook's tag | proposal | |
 | P-D30 | "Photo is being prepared" | proposal (draws P4) | |
 | P-D31 | Notes and the 5-minute removal | proposal | |
-| N1 | A note at the end of a cook: no question, or ask | **open** (rec A) | |
+| N1 | A note at the end of a cook: no question, or ask | **closed by T4** (no question; recipe or version level) | |
 
 ### 2.4 Ideas (I-D)
 
@@ -225,7 +241,7 @@ Status words: **locked** (the owner's: voice or typed, 10 Oct 2026); **proposal*
 |---|---|---|---|
 | I-D1 | The pane answers the next meal | proposal | Needs Home: X1 |
 | I-D2 | Saved recipes and freezer portions only | proposal | |
-| I-D3 | Kitchie ranks, deterministic | open (I-O4, rec A) | Blocking for the ideas slice |
+| I-D3 | Kitchie ranks, deterministic | default A (T8, owner delegated; correctable later) | No longer blocking the ideas slice |
 | I-D4 | Filter, then score | proposal | |
 | I-D5 | Filters listed with reasons | proposal; **cross** | Avoid and cap from food rules: X4 |
 | I-D6 | Score weights | proposal; **cross** | Like/dislike arithmetic: X4; held: X8; favourite now derived (V-D33) |
@@ -253,9 +269,9 @@ Reordered on 11 October 2026 after the second lot. **Settled and removed from th
 
 **Blocking a build slice**
 
-1. **Who draws the Recipe tab (X16).** The brief says Kitchie renders; today Kitchie hosts Recipe's server fragment (Kitchie R34, Recipe fragment mode), which allows no script. The mockup needs script (swipe, sheets, cook timers, the versions strip, the phased photo loader). Rec: Kitchie renders from Recipe's JSON routes (spec section 6) at the same `<base>/recipes` address, behind a flag, with the hosted fragment as the fallback. Blocks every RT-K screen slice (not RT-K0's client). Cost: the whole Kitchie side.
-2. **Tab bar items (R-O6: R-D2, option 6; X1). Still open.** The owner said "moving on" without picking; the "locked as A" said by an assistant in the voice session was wrong. A: Plan, Pantry, Recipes, Shopping. B: Home first, Plan inside Home. The pattern is locked (R-D32). **No recommendation: owner's call.** Until answered, the build leaves production's bar unchanged (Home, Pantry, Plan, Recipes, Shopping), so it blocks only the ideas pane's home (R-D1, I-D1 assume Home).
-3. **Where ranking runs (I-O4).** Rec A: Kitchie. Blocks the ideas slice, which the owner has not reviewed yet (I-O1 to I-O3 with it). Cost: a rewrite across two repos.
+1. **Closed (T1, 11 Oct 2026): Kitchie draws the tab; Recipe is headless.** Was: who draws the Recipe tab (X16). The brief says Kitchie renders; today Kitchie hosts Recipe's server fragment (Kitchie R34, Recipe fragment mode), which allows no script. The mockup needs script (swipe, sheets, cook timers, the versions strip, the phased photo loader). Rec: Kitchie renders from Recipe's JSON routes (spec section 6) at the same `<base>/recipes` address, behind a flag, with the hosted fragment as the fallback. Blocks every RT-K screen slice (not RT-K0's client). Cost: the whole Kitchie side.
+2. **Closed (T2, 11 Oct 2026): Recipes is a standalone tab, bottom nav on mobile, left menu on desktop.** Was: tab bar items (R-O6: R-D2, option 6; X1). The owner said "moving on" without picking; the "locked as A" said by an assistant in the voice session was wrong. A: Plan, Pantry, Recipes, Shopping. B: Home first, Plan inside Home. The pattern is locked (R-D32). **No recommendation: owner's call.** Until answered, the build leaves production's bar unchanged (Home, Pantry, Plan, Recipes, Shopping), so it blocks only the ideas pane's home (R-D1, I-D1 assume Home).
+3. **Where ranking runs (I-O4): default A = Kitchie (T8, owner delegated 11 Oct 2026; correctable later).** Blocks the ideas slice, which the owner has not reviewed yet (I-O1 to I-O3 with it). Cost: a rewrite across two repos.
 4. **Filing the issues (RT-R0).** R-V1 is approved; the owner (or an agent on his say) files R-V1 to R-V12 and RP1 to RP13 in `recipe` (RP7 dropped). Recipe's `AGENTS.md` says building starts only after the owner approves it on the issue.
 
 **What people trust (each has a build default; the build does not stop)**
@@ -266,9 +282,9 @@ Reordered on 11 October 2026 after the second lot. **Settled and removed from th
 
 **Small (build defaults in section 5)**
 
-8. **N1:** a note at the end of a cook: no question (rec A) or ask "this cook only".
-9. **A cook photo as a banner by a person's explicit choice** (P-D10, spec 9.5). Default: allowed only as that explicit choice, never automatic.
-10. **The household-favourite rule** (spec 2.1). Default: more than half of those who ate it liked it, and at least 2; a household setting.
+8. **Closed (T4):** N1, a note at the end of a cook: no question; recipe or version level.
+9. **Closed (T5):** a cook photo as a banner by explicit choice only (P-D10, spec 9.5); always exactly one banner per version.
+10. **Closed (T6):** the household-favourite rule (spec 2.1): more than half of those who ate it liked it, and at least 2; a household setting.
 11. **Notes inheritance NA, NB or NC** (spec 9.4). Default NA, live inheritance.
 12. **The preferences chat's items** (X5): their F1, Q1, Q-R8 and whether a member's private "no" may lower a recipe's rank in that member's own Ideas.
 13. The open questions in section 5 and X8, X10, X11, X13, X14, X15.
@@ -298,7 +314,7 @@ Each names both sides' ids. The other feature's decision is **not** changed by t
 | X13 | I-D20 (desktop pane), R-D3 | Plan-desktop 49 to 62 (inspector "View recipe ›" is a toast in `plan.js`); `docs/handover/desktop.md` ("next desktop screens to draw: Recipes") | Desktop Recipes and the ideas side panel are not drawn | Desktop is not built in v1. "View recipe" on desktop Plan navigates to the Recipes tab's recipe page in the desktop column (phone layout) until desktop Recipes is drawn. No recipe picker exists on desktop Plan. Also XR3 (section 11): the toast should become that navigation, with the notes and photos UI reachable there. |
 | X14 | V-D27 (new ids `fam_`, `ver_`), BR3 | Preferences RC2 (`/capability/titles?ref=recipe:<id>&ref=variation:<id>`), food F6, `food_rule_recipes (recipe_kind, recipe_id)` | Preferences builds against schema v5 kinds; v6 renames them | The titles capability accepts `recipe`, `variation`, `family` and `version` and maps through `legacy_ids`. A category attaches a **family** (a rule about a dish covers its versions). Order: whichever lands second adapts; RC2 and RT-R1 both touch Recipe's route table (hotspot, 9.12). |
 | X15 | I-D7 (lean remembered per person, "preferences, person level") | Preferences 4.1 (stock_prefs keys are a closed list) | No key exists for a lean | Browser storage per person and device (`rcp-lean-<member>`), like R-D5's chip. No server key. |
-| X16 | R-D3, owner's brief ("Kitchie renders recipes") | Kitchie R34 and `docs/adr/hosted-screens.md`; Recipe `docs/adr/fragment-mode.md` (fragment: one style, one div, no script) | The built hosted screen cannot carry the mockup's behaviour | Kitchie renders the tab from Recipe JSON (spec section 6, HTTP for Kitchie) behind `KITCHIE_RECIPE_TAB=on|off` (default off); when off, today's hosted fragment stands. Recipe's own pages and fragment mode stay for standalone and fallback. Owner confirms (section 3, item 1). |
+| X16 **(resolved by T1, 11 Oct 2026: Kitchie draws, Recipe headless)** | R-D3, owner's brief ("Kitchie renders recipes") | Kitchie R34 and `docs/adr/hosted-screens.md`; Recipe `docs/adr/fragment-mode.md` (fragment: one style, one div, no script) | The built hosted screen cannot carry the mockup's behaviour | Kitchie renders the tab from Recipe JSON (spec section 6, HTTP for Kitchie) behind `KITCHIE_RECIPE_TAB=on|off` (default off); when off, today's hosted fragment stands. Recipe's own pages and fragment mode stay for standalone and fallback. Owner confirms (section 3, item 1). |
 
 ---
 
@@ -312,10 +328,10 @@ Each names both sides' ids. The other feature's decision is **not** changed by t
 | ~~"Not for us" on the first cook in a household of several cooks~~ | **Locked (answer 1):** put away at once, with undo (BR17) | – |
 | ~~Notes on the family or a version~~ | **Locked (answer 2):** a field of the version, inherited (V-D31) | – |
 | Notes inheritance NA, NB or NC (spec 9.4) | NA, live inheritance | A re-resolve of every version's notes |
-| N1: a note at the end of a cook | A: no question; on the cooked version with the cook's tag (P-D29) | A question at the quickest moment |
+| ~~N1: a note at the end of a cook~~ | **Closed by T4:** no question; on the cooked version with the cook's tag (P-D29) | – |
 | ~~Any real delete~~ | **Locked (answer 3):** none; undo any time (BR3, BR18) | – |
 | ~~Dismissed suggestions~~ | **Locked (answer 4):** visible only in that member's assistant history (BR10) | – |
-| Household-favourite rule (spec 2.1) | More than half of those who ate it liked it, and at least 2 (1 in a one-member household); a household setting `favourite_rule` (majority, anyone, everyone) | A setting's default |
+| ~~Household-favourite rule (spec 2.1)~~ **Confirmed by T6** | More than half of those who ate it liked it, and at least 2 (1 in a one-member household); a household setting `favourite_rule` (majority, anyone, everyone) | A setting's default |
 | Migration of a disabled root with active variations | The most-used active variation becomes the usual; none active: family put away (spec section 7) | Things reappear |
 | Member ids in standalone mode | One `legacy` member | A remap |
 | Assistant `restore_revision` | Allowed with the person's words (spec section 3 lists it for both channels); `resolve_review` stays app only | A permission |
@@ -330,7 +346,7 @@ Each names both sides' ids. The other feature's decision is **not** changed by t
 |---|---|---|
 | Free disk on the data folder | Unknown. Photos stay off (flag `RECIPE_PHOTOS=off`) until infra records free space (`df -h`); the 2 GB household cap is the guard | A full server |
 | Off-server backup copy | Infra's call; none assumed | Lost photos |
-| A cook photo as a banner by a person's explicit choice | Allowed only as that explicit choice (Replace banner, picking it; one `photo.banner` op naming the same id; the derive queue makes the large size); never by fallback | A rule change in two places |
+| ~~A cook photo as a banner by a person's explicit choice~~ **Locked by T5** | Allowed only as that explicit choice (Replace banner, picking it; one `photo.banner` op naming the same id; the derive queue makes the large size); never by fallback | A rule change in two places |
 | A photo for "tonight" when no cook was recorded | Adds a cook with no pantry change (mockup) | A stray cook row |
 | An assistant that cannot send a file over HTTP | Hands the person a Kitchie link to the same slot | An extra tap |
 | One site for Kitchie and Recipe | Assumed (P8 A); a subdomain later needs another way in | Broken images |
@@ -358,9 +374,9 @@ Owner's brief: Recipe is a separate service (MCP and API); Kitchie is the only U
 | Recipe photos | **Recipe** | Photo rows (kinds banner, step, more, cooked; states pending, ready, removed, failed), bytes only through the **`BlobStore` port** (files adapter now: hash-keyed blobs at `<data>/blobs/<household>/<aa>/<bb>/<hash>` beside `recipes.db`, plus `uploads/`), **two kept sizes** (banner l + t; others m + t; no originals), the **derive queue** (lowest priority, when free; `Deriver` seam), upload, serve, remove with a 5-minute undo, the assistant upload slot with verified acknowledgement, `get_photo`, Free up space usage | Bytes through MCP tool arguments; public URLs; originals |
 | Versions logic | **Recipe** | State machine (V-D3), one usual (BR4), pinned parents (BR5), rebase or `stale_base` (BR6), author, channel and client (BR7), assistant scope and review after (BR9, BR15), `target_required` (V2 C), equal roles (BR16) | Choosing a version for anyone, judging a try |
 | What can I cook / missing | **Recipe asks Kitchie** | Reads stock from Kitchie's inventory capability; judges the usual's head revision (G10); keeps `matched_as` (G13) | Storing stock |
-| Rendering the tab | **Kitchie** (X16 open) | List (R-O1), recipe page (R-O2) with the versions strip (R-O3), Versions (V1 A), History with undo, Compare, To review (V4 B), cook mode (R-D30) with step photos, the end of a cook (verdict, reactions, photo, note), notes, photo frames and the phased loader, the add route with in-browser shrinking, the viewer, Free up space, the day picker, the ideas pane. **No recipe create or content-edit UI** (R-O4): Add and Change hand off to the person's AI app | Copying recipe content into its own tables; storing photos |
+| Rendering the tab | **Kitchie** (X16 resolved, T1; Recipe is headless) | List (R-O1), recipe page (R-O2) with the versions strip (R-O3), Versions (V1 A), History with undo, Compare, To review (V4 B), cook mode (R-D30) with step photos, the end of a cook (verdict, reactions, photo, note), notes, photo frames and the phased loader, the add route with in-browser shrinking, the viewer, Free up space, the day picker, the ideas pane. **No recipe create or content-edit UI** (R-O4): Add and Change hand off to the person's AI app | Copying recipe content into its own tables; storing photos |
 | Stock, plan, holds, shopping | **Kitchie** | `plan_meal`, `plan_reserve`, `plan_add_missing_to_list`, `shopping_add`, `cook_meal`, freezer items linked to a family (K2), plan entries holding a version id (K4) | Writing recipes |
-| Ranking ideas | **Kitchie** (I-O4 A, open) | One pure function over at most 100 recipes; `cooking_ideas` read (K1); "Not tonight" snooze (K3) | Asking an AI to rank |
+| Ranking ideas | **Kitchie** (I-O4 A, default T8) | One pure function over at most 100 recipes; `cooking_ideas` read (K1); "Not tonight" snooze (K3) | Asking an AI to rank |
 | Food rules | **Kitchie** (preferences feature) | `evaluate()`, which the ranking calls (X4) | Recipe reading food rules |
 | Write contracts | **Kitchie to Recipe** | Recipe's HTTP routes (spec section 6), channel `app`, the caller's Platform token; the 409 `stale_base` body; photo `POST` with the cookie | Kitchie writing Recipe's database |
 | Sign-in, household, entitlement | **Platform** | The token Kitchie and Recipe verify locally (platform D11), also the assistant's MCP session (the same SSO for `get_photo`); entitlement per household | A new session claim (contract change: owner-reserved) |
@@ -480,7 +496,7 @@ From this repo's `AGENTS.md` and `DESIGN.md`, the app repos' `AGENTS.md`, and th
 1. **Mockups go straight to `main` of this repo**; a change to a settled mockup is drawn here first, never built first.
 2. **Mockup and build stay close: match exactly** (one of the three build rules the owner restated). The built screen copies the mockup's markup, class names, data attributes and tokens (`.rr`, `.ing`, `.strip`, `.act`, `.sheet`, `.serves`; `.vstrip`; `.st`, `.rvw`, `.vr`, `.band`, `.rv`, `.df`, `.ch`, `.rvc`, `.rvrow`, `.verd`, `.cmp`, `.note.vn`, `.nfrom`, `.nhid`, `.react`, `.ate`; `.pf`, `.pf.stock`, `.pf.prep`, `.pprep`, `.pinh`, `.psp`, `.hero2.one`, `.pundo`, `.qbar`, `.vrow`, `.vpics`, `.pv`, `.aim`, `.addc`; `.ideas`, `.idl`, `.idr`, `.why`, `.rtag`). Sample names stay in the mockup scripts. Every difference is listed in the PR.
 3. **Headless-browser screenshots** (a build rule) before reporting a UI change done: at 360, 390, 768 and 1280, light (`kitchie-day`) and dark (`kitchie`), several scroll points, every variant; no script errors, no sideways scroll, controls at least 44px (`tools/screenshots.mjs`; `tools/shots-photos.mjs` and `tools/shots-versions.mjs` for the slices). Say what did not run and what was not checked on a real phone.
-4. **Never `main`** of `recipe`, `kitchie` or `platform`; never tags; nothing live. Agents merge their own PRs into `uat` when the PR is agent-authored, the repo's checks pass locally (CI read where it can run), there is no unresolved comment or conflict, and no owner-reserved decision is needed. Infra: the owner merges.
+4. **Never `main`** of `recipe`, `kitchie` or `platform`; never tags; nothing live. Agents merge their own PRs into `uat` of any repo when done (**T9, owner, voice, 11 Oct 2026**): the PR is agent-authored, the repo's checks pass locally (CI read where it can run), and there is no unresolved comment or conflict. Never `main`, never tags; the owner deploys. Infra: the owner merges.
 5. **Performance first, lazy loading** (`DESIGN.md` section 6; a build rule). The list paints text and stock tiles first, then the planned recipes' squares, then rows on screen plus 5 in the chip, the rest on scroll (P-D21); the recipe page paints its text from the head cache, then step photos, then the banner last (P-D20), the versions strip only when there are several versions; Home never imports the photo loader; every sheet builds on tap; Versions, History, Compare, To review, Cook, the photo add route, Note, Free up space and See all are separate routes; ideas never block the stock tiles; a household without Recipes loads none of it. Viewport-specific code lives in its own file.
 6. **One service, two surfaces.** Every MCP tool and its screen call the same service method (`cooking_ideas`, `record_cook`, food rules).
 7. **Closed vocabulary where logic acts, free text elsewhere.** States, kinds, channels, verdicts, tags `batch` and `freezes` are closed; the person's words are data, never instructions.
@@ -525,4 +541,6 @@ Requests from the Recipe tab to features owned by other chats. Their notes and m
 | XR3 | **plan-desktop owner** (`fragments/plan-desktop/plan.js`, the "📖 View recipe ›" and "View original recipe ›" buttons, today a toast: "Opens the saved recipe. (Mockup: nothing opens.)") | Replace the toast with navigation to the Recipe tab's recipe page (R-O2: one scroll, jump row at top, versions strip when several), where the **notes and photo UI** (add a note, add a photo, especially after cooking: R-O4, P-D11) is reachable. | R-O2, R-O3, R-O4 (locked); X13 | 49 to 62; `plan.js` `viewrec` | Opens `recipe/detail.html` in the main column (phone layout) with the plan entry's version id (X11). No notes or photo controls are drawn inside the inspector itself. |
 | XR4 | **preferences owner** ([`../preferences-build-handoff.md`](../preferences-build-handoff.md), [`../user-preferences/food-preferences.md`](../user-preferences/food-preferences.md)) | Read Recipe stars and votes as **per-member reactions with the household view derived** (Recipe's side of X5, locked): update their F1, Q1 and Q-R8 (today "household-wide, Recipe unchanged"), and decide whether a member's private "no" may lower a recipe's rank in that member's own Ideas. | V-D33, BR19, answer 5 (**locked**, owner, typed, 10 Oct 2026) | Option B facts F1, Q1, Q-R8; the row "Recipe stars and votes" in their handoff | Recipe stores per-member reactions; the preferences screens show nothing new; nobody's private "no" ranks anything (spec 2.1). |
 
-Also for the Plan owners, for information only (no ask): R-D32 (locked) keeps the rail on desktop and the bottom bar on phone; the bar's items (R-O6) are still open.
+Also for the Plan owners, for information only (no ask): R-D32 (locked) keeps the rail on desktop and the bottom bar on phone; Recipes is a standalone tab in both (T2, R-O6 closed).
+
+**Updated after the owner's third lot (11 October 2026, docs agent):** section 0 and section 2.0 gain T1 to T9; statuses in 2.1 to 2.4, section 3 items 1, 2, 3, 8, 9, 10, section 4 (X16), 5.1 and 5.2 defaults, section 6 owners, section 9 rule 4 (build authority) and section 11 note updated. The 600-character note limit and the app/assistant split are gone: one 4,000-character cap (T7). **Nothing has been built, and nothing has been filed.**
