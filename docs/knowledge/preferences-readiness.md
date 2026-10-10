@@ -9,19 +9,19 @@ Sources: the build handoff (`preferences-build-handoff.md`), the review list (ki
 **Ready for the owner's production decision, with four things to decide first (section 7). Not ready to tag without them.**
 
 - The built part is solid where it could be tested: every suite passes, the whole mockup-parity set passes as one run, the three repos fit together on the real wire, and the data moves from the production schema to the new one without loss.
-- **One slice was never built: K10 (food rule tools and the planner check, contract 1.1).** The page can save a limit ("no more than twice a week") or a swap, but the assistant cannot see them and the planner does not enforce them; the chat side of avoid, like and dislike is as before. This is the biggest gap against the handoff and the owner's call (7.1).
+- **K10 (food rule tools and the planner check, contract 1.1) was not built when this report was written; it is now built and merged into `uat` (11 October 2026, kitchie issue #557, PR #558, merge df57feb).** Kitchie's own AI contract is "1.1", additive: `give_feedback` and `get_context` carry caps, substitutions, categories, ends and recipes; there is a new read-only `check_food_rules`; `plan_meal` and `plan_update_meal` refuse an avoid and ask at a weekly limit (`override_limit`). Household writes go through the K1 check with the offer to record as their own. Local checks only (typecheck, 2,218 tests, credential scan); CI did not start (billing). The owner still has to accept contract 1.1 and the planner behaviour (kitchie#497, "Needs owner"). The text below was written before it and is left as it was.
 - **Platform has to be released before, or with, Kitchie** for household admins to work in production (7.2). Without it nothing breaks, but nobody can change a household setting in platform mode.
 - Nothing was run on a real phone, and no one signed in to the deployed UAT screens (section 5).
 
 ## 2. What shipped
 
-Twenty-five of the twenty-six slices are on `uat`; K10 is the one that is not (there was no issue, branch or pull request for it). The count in the task ("26 merged") was wrong on that one.
+Twenty-five of the twenty-six slices were on `uat` when this was written; K10 was the one that was not (there was no issue, branch or pull request for it). K10 has since landed (see the first bullet). The count in the task ("26 merged") was wrong on that one.
 
 | Repo | Slices | Schema | Where it stands on 11 October 2026 |
 |---|---|---|---|
 | platform | PL1 to PL4, then the two flags removed | 5 to 6 (tables `household_admins`, `household_admin_events`, both empty on creation) | `main` has PL1 to PL4 behind two flags that default off; `uat` has the flag removal (platform #69), so the admin and assistant-name fields are on out of the box. Not tagged: the production pin is `v0.1.5` (schema 5). |
 | recipe | RC1, RC2, then the flag removed | none (stays 5) | In `main` and tagged `v1.1.4`: `GET /capability/titles` is on out of the box. |
-| kitchie | K0 to K9, K11 to K16 (K10 not built) | 30 to 34 | `main` and `uat` carry the same code at 0.71.5 (the owner promoted `uat` to `main` at 02:35 on 11 October, pull request #554). Not tagged: the production pin is `v0.67.1` (schema 30). |
+| kitchie | K0 to K9, K11 to K16 (K10 not built when written; merged since, PR #558) | 30 to 34 | `main` and `uat` carry the same code at 0.71.5 (the owner promoted `uat` to `main` at 02:35 on 11 October, pull request #554). Not tagged: the production pin is `v0.67.1` (schema 30). |
 
 What the owner gets, in his words from the handoff: a Preferences page with Mine and Household tabs; stock-check dials (quiet hours including None, a daily limit of 1 to 20, a time zone from the browser); rules by place with a "what applies to this item" probe; a household admin role (the founding member grants and revokes; household settings need an admin); Members and admins view; notes side by side; Kitchen role and My assistant in the profile; food rules as one service with `evaluate()`; the Food card (avoid, like, dislike, end dates, limits with recipes attached by reference, substitutions); live recipe titles from Recipe; counting of recent meals for limits; propose a preference for another member, with a banner at the next sign-in; and the mockup-to-build parity check.
 
@@ -37,7 +37,7 @@ All are listed with their reasons on #497 (the owner's review list at the top, t
 - The suggestion on a limit ("these recipes seem to match") is computed from plan cards and cooking sessions, not written by the assistant: storing one would have needed a schema change.
 - Quiet hours default to 22:00 to 06:00 and the daily limit to 3 (K2's own note calls this a behaviour change for every household), because the flag that kept the old defaults was removed. A household's own stored values are kept. See risk 8.2.
 - Where the handoff was silent the code fails closed: a Platform that cannot answer means the write is refused with "try again", never allowed; a missing `admin` field means not an admin.
-- Both notes are read by `stock_brief` and `stock_settings`, not `get_context` (that is K10's, with the contract bump).
+- Both notes are read by `stock_brief` and `stock_settings`, not `get_context` (that is K10's, with the contract bump; K10 is merged and did not add the notes to `get_context`, kept as a listed default on kitchie#497).
 
 ## 4. What was checked, and how
 
@@ -92,7 +92,7 @@ Pull request: kitchie #555 (`fix/k17-test-drift` into `uat`, merged by the agent
 
 ## 7. Owner decisions needed before production
 
-1. **K10.** Build it before production, or release without it? Without it: limits and substitutions are saved and shown on the page but the assistant does not see them (`get_context` withholds them on purpose) and the planner does not check them; likes and dislikes cannot be kept for good or stopped from chat. K10 also changes the tool contract (1.1) and the golden tool snapshot, which an agent may not take on alone.
+1. **K10 (built since, kitchie PR #558; the question now is whether to accept contract 1.1).** Build it before production, or release without it? Without it: limits and substitutions are saved and shown on the page but the assistant does not see them (`get_context` withholds them on purpose) and the planner does not check them; likes and dislikes cannot be kept for good or stopped from chat. K10 also changes the tool contract (1.1) and the golden tool snapshot, which an agent may not take on alone.
 2. **Release order.** Platform first (promote `uat` to `main`, tag, deploy: this is what makes admins work and removes the two flags), then Recipe (`v1.1.4` already carries the titles route), then Kitchie. If Kitchie goes before Platform, platform-mode households cannot change household settings until Platform follows (they could not before either, but the page now says "only household admins can change this"). The tags and the infra pins are the owner's.
 3. **Snapshot before Kitchie's migration** (ADR amendment 4). Schema 30 to 34 is one-way: older code refuses the new database, so rollback means restoring the deploy-time backup (`scripts/rollback.sh`) and losing what was written since. Platform 5 to 6 is additive.
 4. **The defaults in section 3 that change what people see**, above all: quiet hours 22:00 to 06:00 and a daily limit of 3 for every household that has not set its own; the K9 reading of soft avoids; "ask once" for a safety avoid; and the Waiting-for-Sam line (the most privacy-sensitive default; it shows person, thing and proposer, never the words or the reason).
