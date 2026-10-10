@@ -10,8 +10,13 @@ const PAGES = [
   ["recipe-A", "recipe.html?id=efr&hero=A&state=photos", "body"], ["recipe-B", "recipe.html?id=efr&hero=B", "body"], ["recipe-C", "recipe.html?id=efr&hero=C", "body"],
   ["recipe-v2", "recipe.html?id=efr&v=v2&hero=A", "body"], ["recipe-rag", "recipe.html?id=rag", "body"],
   ["recipe-none", "recipe.html?id=efr&state=none", "body"], ["recipe-slow", "recipe.html?id=efr&state=slow", "body"],
-  ["add-pick", "add.html?to=efr&src=lib&state=photos", "body"], ["add-cam", "add.html?to=efr&src=cam", "body"], ["add-replace", "add.html?to=efr&src=cam&kind=dish&replace=efr-1&p=efr-c2", "body"],
-  ["ai-cooked", "assistant.html?scene=cooked", "body"], ["ai-open", "assistant.html?scene=cooked&step=open", "body"], ["ai-web", "assistant.html?scene=web", "body"], ["ai-check", "assistant.html?scene=web&step=check", "body"],
+  ["add-tonight", "add.html?to=efr&kind=cooked&from=cook&state=photos", "body"], ["add-row", "add.html?to=efr&kind=cooked&cook=29%20Sep", "body"],
+  ["add-top", "add.html?to=efr&kind=cooked&step=edit&p=efr-c1,efr-c2", "body"], ["add-cam", "add.html?to=efr&kind=cooked&src=cam&from=cook", "body"],
+  ["add-cover", "add.html?to=efr&kind=dish", "body"], ["add-replace", "add.html?to=efr&src=cam&kind=dish&replace=efr-1&p=efr-c2", "body"],
+  ["note-recipe", "note.html?to=efr&from=recipe&n1=A", "body"], ["note-cook-B", "note.html?to=efr&from=cook&n1=B", "body"],
+  ["note-rich", "note.html?to=efr&from=cook&n1=A&att=efr-c1&t=**Brown%20rice%20works**%0A-%202%20tbsp%20more%20soy%0A-%20Fry%20longer", "body"],
+  ["done-cooked", "done.html?to=efr&kind=cooked&p=efr-c1,efr-c2,efr-c3&from=cook", "body"], ["done-note", "done.html?to=efr&kind=note", "body"], ["done-cover", "done.html?to=efr&kind=dish&p=efr-c2&replace=efr-1", "body"],
+  ["ai-chat", "assistant.html?step=chat", "body"], ["ai-open", "assistant.html?step=open", "body"],
 ];
 const W = [[390, 844], [360, 800]], T = [["kitchie-day", "light"], ["kitchie", "dark"]];
 const b = await chromium.launch(); const problems = [];

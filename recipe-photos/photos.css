@@ -86,3 +86,40 @@
 .meter{font-size:12px;color:var(--fg);padding:6px 10px;border-radius:var(--r-ctl);background:var(--surface);border:1px solid var(--border)}
 /* a sheet opened from the viewer sits above it (recipe.css sheets are z 10/11, the viewer is 30) */
 .pv~div>.scrim{z-index:40}.pv~div>.sheet{z-index:41}
+
+/* add: the target, said once at the top, so nothing needs asking (P-D25) */
+.aim{display:flex;align-items:center;gap:var(--sp-3);margin:var(--sp-3) var(--sp-4) 0;padding:var(--sp-2) var(--sp-3);border-radius:var(--r-ctl);border:1px solid var(--accent);background:var(--surface)}
+.aim .ic{color:var(--accent)}
+.aim b{display:block;font-size:14px}.aim small{display:block;color:var(--muted);font-size:12px}
+.pgal .pt{position:relative;aspect-ratio:1;border-radius:var(--r-ctl);overflow:hidden;border:1px solid var(--border);display:block}
+.pgal a.addp{text-decoration:none}
+
+/* notes (P-D26 to P-D29): simple rich text, a photo by reference. .nbody is the rendered note, the same markup everywhere. */
+.nbody p{margin:0 0 4px}.nbody p:last-child{margin-bottom:0}
+.nbody ul{margin:2px 0 4px;padding-left:20px}
+.nph{display:block;width:88px;height:88px;margin-top:var(--sp-2);border-radius:var(--r-ctl);overflow:hidden;border:1px solid var(--border);padding:0}
+.nph .pf{width:100%;height:100%}
+.ncard{position:relative}
+.ncard .nmeta{display:flex;align-items:center;gap:var(--sp-2);flex-wrap:wrap;margin-top:var(--sp-2);font-size:12px;color:var(--muted)}
+.ncard .nmeta .sp{flex:1}
+.ncard .nmeta .tg{border-color:var(--border);color:var(--muted)}
+.ntool{display:flex;gap:var(--sp-1);flex-wrap:wrap;padding:var(--sp-1) 0}
+.ntool button{display:inline-flex;align-items:center;justify-content:center;gap:4px;min-height:44px;min-width:44px;padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-weight:700;font-size:13px}
+.ntool button b{font-weight:900}
+textarea.field{min-height:120px;padding:10px 12px;line-height:1.4;resize:vertical}
+.nprev{padding:var(--sp-3);border-radius:var(--r-ctl);border:1px dashed var(--border);font-size:14px}
+.natt{display:flex;align-items:center;gap:var(--sp-3);margin-top:var(--sp-2)}
+.natt .nph{margin-top:0;width:64px;height:64px}
+.where{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-2)}
+.where button{display:flex;flex-direction:column;gap:2px;min-height:72px;padding:var(--sp-2) var(--sp-3);border-radius:var(--r-card);border:1px solid var(--border);background:var(--surface);text-align:left}
+.where button b{font-size:13.5px}.where button small{color:var(--muted);font-size:11.5px;line-height:1.3}
+.where button[aria-pressed=true]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+
+/* the Cooked row's own add-photo button (P-D25): the row is where "what you made" lives */
+.hist .addc{flex:none;width:44px;height:44px;border-radius:var(--r-ctl);border:1.5px dashed var(--border);display:inline-flex;align-items:center;justify-content:center;color:var(--accent)}
+
+/* saved confirmation (done.html) */
+.saved{text-align:center;padding:32px var(--sp-4) var(--sp-2)}
+.saved .row{display:flex;justify-content:center;gap:var(--sp-2);margin-top:var(--sp-3)}
+.saved .row .pt{width:84px;height:84px;border-radius:var(--r-ctl);overflow:hidden;border:1px solid var(--border)}
+.saved .row .pt .pf{width:100%;height:100%}

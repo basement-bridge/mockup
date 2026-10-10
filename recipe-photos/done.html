@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Saved — Recipe photos mockup</title>
+<link rel="stylesheet" href="../theme.css"><link rel="stylesheet" href="../recipe/recipe.css"><link rel="stylesheet" href="photos.css"><script src="../theme.js"></script><script src="../recipe/recipe.js"></script><script src="photos.js"></script></head>
+<body data-no-theme-fab>
+<div class="stage"><div class="phone" id="ph"></div></div>
+<script>
+/* Saved confirmation for the add-photo and add-note flows (P-D25, P-D28). One screen, one way back, and the other UI job one tap away:
+   after a photo, "Add a note"; after a note, "Add a photo". Coming from the end of a cook, Back returns to that end screen.
+   Params: to, kind (cooked | dish | note), p (photo ids, comma separated), cook, from (cook | recipe), replace, where (household | cook). */
+(function(){
+var X=RCP,F=PHO,ic=X.ic,esc=X.esc;
+var r=X.byId(X.Q.get("to")||"efr")||X.R[0];
+var kind=X.Q.get("kind")||"cooked";
+var ps=(X.Q.get("p")||(kind==="note"?"":"efr-c2")).split(",").filter(function(id){return F.META[id]});
+var cook=X.Q.get("cook")||"tonight";
+var from=X.Q.get("from")||"";
+var replace=X.Q.get("replace");
+var where=X.Q.get("where")||"household";
+var v=(r.vers.filter(function(x){return x.def})[0]||r.vers[0]);
+var back=from==="cook"?"../recipe/cook.html?id="+r.id+"&step=99":"recipe.html?id="+r.id+(kind==="note"?"#not":kind==="cooked"?"#his":"");
+var e,t,s,next;
+if(kind==="note"){
+  e="📝";t="Note saved";s=(where==="cook"?"On "+(cook==="tonight"?"tonight's":cook+"'s")+" cook, and under Notes on every version.":"Under Notes on "+esc(r.name)+", on every version.")+" Everyone in the household sees it.";
+  next='<a class="btn ghost" href="'+F.addHref(r,{from:from,cook:cook==="tonight"?"":cook})+'">'+ic("cam","s")+'Add a photo</a>';
+}else if(kind==="dish"){
+  e="📸";t=replace?"New cover in":"Cover saved";s="Everyone in the household sees it on "+esc(v.name)+"."+(replace?" The old cover is still in Photos; remove it there if you do not want it.":"");
+  next='';
+}else{
+  e="🍽️";t=ps.length>1?ps.length+" photos added to Cooked":"Added to Cooked";s=(cook==="tonight"?"Tonight":cook)+", with your name. Everyone in the household can see "+(ps.length>1?"them":"it")+", and nobody outside it.";
+  next='<a class="btn ghost" href="'+F.noteHref(r,{from:from,cook:cook})+'">'+ic("note","s")+'Add a note</a>';
+}
+document.getElementById("ph").innerHTML='<div class="top"><span style="width:64px"></span><span class="ttl">Saved</span><span style="width:64px"></span></div>'+
+  '<div class="body"><div class="saved" role="status"><div style="font-size:48px" aria-hidden="true">'+e+'</div><h2 style="margin-top:8px">'+t+'</h2><p style="margin-top:6px">'+s+'</p>'+
+  (ps.length?'<div class="row">'+ps.map(function(id){return '<span class="pt">'+F.frame(id,"t",{eager:1,alt:"Saved photo"})+'</span>'}).join("")+'</div>':'')+
+  '</div></div>'+
+  '<div class="act">'+next+'<a class="btn" href="'+back+'">'+(from==="cook"?ic("back","s")+'Back to the cook':'Back to '+esc(r.name))+'</a></div>';
+F.load(document.getElementById("ph"));
+F.controls('<h4>Saved after</h4><p><a href="?to=efr&kind=cooked&p=efr-c2">One cooked photo</a> · <a href="?to=efr&kind=cooked&p=efr-c1,efr-c2,efr-c3&from=cook">Three, from the end of a cook</a> · <a href="?to=efr&kind=dish&p=efr-c2&replace=efr-1">Replaced cover</a> · <a href="?to=efr&kind=note">A household note</a> · <a href="?to=efr&kind=note&where=cook&from=cook">A note on tonight\'s cook</a></p>');
+})();
+</script>
+</body></html>

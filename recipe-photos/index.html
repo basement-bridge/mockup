@@ -19,6 +19,9 @@
 .opts .opt p.dn{color:var(--danger)}
 .opts .opt .rec{display:inline-block;margin-top:8px;font-size:12px;font-weight:800;padding:2px 9px;border-radius:var(--r-pill);background:var(--accent);color:var(--on-accent)}
 code{font-size:12.5px}
+.chg{font-size:11px;font-weight:800;padding:1px 7px;border-radius:var(--r-pill);border:1px solid var(--accent);background:var(--accent);color:var(--on-accent);margin-left:4px;white-space:nowrap;display:inline-block}
+.lk{font-size:11px;font-weight:800;padding:1px 7px;border-radius:var(--r-pill);border:1px solid var(--sage);background:var(--sage);color:var(--bg);margin-left:4px;white-space:nowrap}
+s.void{color:var(--muted)}
 .opt h2 b{width:auto!important;min-width:26px;padding:0 7px;border-radius:13px!important}
 .flow{display:grid;gap:8px;margin-top:10px}
 .flow div{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--surface);font-size:13.5px;color:var(--muted)}
@@ -29,11 +32,29 @@ code{font-size:12.5px}
 <body><div class="wrap">
 <a class="back" href="../recipe/index.html">&lsaquo; Recipe tab</a>
 <h1>Recipe photos</h1>
-<p>Draft for feedback, one slice of the Recipe tab (gap G7). Two halves: the <b>architecture decisions</b> to lock before anything is built (where the bytes live, sizes, uploads from the app and from an assistant, limits, versions, privacy, caching, deletion, backups), and a <b>clickable phone mockup</b> of the experience. Storage is not drawn: only what a person sees. Everything is a <span class="prop">Proposal</span> until the owner says yay, nay or combine.</p>
-<p style="margin-top:10px;padding:10px 12px;border:1px dashed var(--border);border-radius:var(--r-card);font-size:14px"><b>Reconciled 10 October 2026</b> with the other Recipe tab slices: the versions spec now carries <code>photo_ids</code> on a cook and <code>cover_photo_id</code> on a version, as P-D4 and P-D13 say; the remove rule (P-D17) meets the preferences admin role and stays open. Build handoff: <a href="https://github.com/basement-bridge/mockup/blob/main/docs/knowledge/jobs-to-be-done/recipe-tab-handoff.md" style="color:var(--accent);font-weight:700">recipe-tab-handoff.md</a>. Nothing has been built or filed.</p>
+<p>Draft for feedback, one slice of the Recipe tab (gap G7). Two halves: the <b>architecture decisions</b> to lock before anything is built (where the bytes live, sizes, uploads from the app and from an assistant, limits, versions, privacy, caching, deletion, backups), and a <b>clickable phone mockup</b> of the experience. Storage is not drawn: only what a person sees. Everything is a <span class="prop">Proposal</span> until the owner says yay, nay or combine, except what the owner locked below.</p>
+<div style="margin-top:10px;padding:12px 14px;border:1.5px solid var(--accent);border-radius:var(--r-card);font-size:14px"><b>Owner's locked decisions applied (voice, 10 October 2026)</b> <span class="lk">Locked</span>
+<ul style="margin:6px 0 0 18px;color:var(--muted)">
+<li><b style="color:var(--fg)">L4 (R-O4):</b> recipe content comes only through the person's own AI assistant over Recipe's MCP tools. No link paste, no scraping, no reading a photo or a link. The app's job is exactly two things: <b style="color:var(--fg)">adding extra photos</b>, especially "when they've made their meal", and <b style="color:var(--fg)">notes</b> ("notes is fine"). So: after-cook photos lead the add flow (P-D25), notes get their own screen (P-D26 to P-D29), and everything about fetching a photo from a web address is gone (P-D12's later part, P-D24, option P5 C, RP7, the web scene on the assistant screen, two open questions).</li>
+<li><b style="color:var(--fg)">L5 (R-O5):</b> no follower-versus-cook distinction; every member has the same controls. Anyone adds photos and notes, and removes their own (P-D17, P-D22). "Can someone who only follows the plan add cooked photos?" is closed: yes.</li>
+<li><b style="color:var(--fg)">L8 (R-D31):</b> putting away needs no approval. Nothing in this slice asks anyone's approval either.</li>
+</ul>
+<p style="margin-top:6px;color:var(--muted)"><b style="color:var(--fg)">Not locked, kept exactly as they were:</b> storage options P1 to P13 (every option, recommendation and downside; only P5 C is gone, by L4), the tab bar, the editing screen, who draws the tab.</p></div>
+<p style="margin-top:10px;padding:10px 12px;border:1px dashed var(--border);border-radius:var(--r-card);font-size:14px"><b>Reconciled 10 October 2026</b> with the other Recipe tab slices: the versions spec now carries <code>photo_ids</code> on a cook and <code>cover_photo_id</code> on a version, as P-D4 and P-D13 say; the remove rule (P-D17) is settled for this slice by L5 (equal roles). Build handoff: <a href="https://github.com/basement-bridge/mockup/blob/main/docs/knowledge/jobs-to-be-done/recipe-tab-handoff.md" style="color:var(--accent);font-weight:700">recipe-tab-handoff.md</a>. Nothing has been built or filed.</p>
 
 <section class="sec"><div class="lbl">Try it</div>
 <p>Every screen is a live phone. <b>Mockup</b> (bottom right) switches between Has photos, No photos yet and Slow network, and shows what that screen has loaded so far.</p>
+<p style="margin-top:8px"><b>The two UI jobs (L4)</b></p>
+<div class="per">
+<a href="add.html?to=efr&kind=cooked&from=cook">Photo of what you made tonight (end of a cook)</a>
+<a href="add.html?to=efr&kind=cooked&cook=29%20Sep">Photo on a Cooked row</a>
+<a href="add.html?to=efr&kind=cooked">From the top camera (one question: which cook)</a>
+<a href="note.html?to=efr&from=recipe">Add a note (recipe page)</a>
+<a href="note.html?to=efr&from=cook">Add a note (end of a cook)</a>
+<a href="done.html?to=efr&kind=cooked&p=efr-c1,efr-c2&from=cook">Saved</a>
+<a href="../recipe/cook.html?id=efr&step=99">The end of a cook (flow slice)</a>
+</div>
+<p style="margin-top:8px"><b>Everything else</b></p>
 <div class="per">
 <a href="list.html">List with thumbnails</a>
 <a href="recipe.html?id=efr">Recipe page</a>
@@ -41,12 +62,11 @@ code{font-size:12.5px}
 <a href="recipe.html?id=efr&state=slow">Loading (slow network)</a>
 <a href="recipe.html?id=efr&v=v2">Version with no photo of its own</a>
 <a href="recipe.html?id=rag">Only a cooked photo</a>
-<a href="add.html?to=efr&src=lib">Add from your photos</a>
+<a href="add.html?to=efr&kind=dish">A cover (secondary path)</a>
 <a href="add.html?to=efr&src=cam&kind=dish&replace=efr-1&p=efr-c2">Replace the cover</a>
-<a href="assistant.html?scene=cooked">From the assistant: a cooked photo</a>
-<a href="assistant.html?scene=web">From the assistant: a web recipe</a>
+<a href="assistant.html?step=chat">From the assistant: a photo you showed it</a>
 </div>
-<p class="q">On the recipe page, tap any photo to open it (Replace cover, Use as cover, Remove). Remove has Undo, and a "Delete it for good now" for a photo that should never have been added.</p>
+<p class="q">On the recipe page, tap any photo to open it (Replace cover, Use as cover, Remove). Remove has Undo, and a "Delete it for good now" for a photo that should never have been added. Every member sees the same buttons (L5). The web-recipe scene (a photo fetched from a recipe page) was removed: <span class="chg">Changed by owner decision L4, 10 Oct 2026</span>.</p>
 </section>
 
 <section class="sec"><div class="lbl">Options for yay, nay or combine</div>
@@ -79,14 +99,14 @@ code{font-size:12.5px}
 <p><b>B The server</b> with an image library (sharp/libvips).</p>
 <p><b>C Both:</b> the phone shrinks to 1600px, the server makes the other two.</p>
 <span class="rec">Recommended A</span>
-<p class="dn">Downside of A: the server has to trust bytes it did not make, so it checks strictly (real WebP, sizes and dimensions within caps) and cannot fetch and shrink a photo from a web link by itself (option 5C needs B or C). B adds a native dependency, a bigger container and CPU spikes on a small server.</p></div>
+<p class="dn">Downside of A: the server has to trust bytes it did not make, so it checks strictly (real WebP, sizes and dimensions within caps) <s class="void">and cannot fetch and shrink a photo from a web link by itself (option 5C needs B or C).</s> <span class="chg">Changed by owner decision L4, 10 Oct 2026</span>: that part of the downside no longer applies, since nothing fetches a web photo. B adds a native dependency, a bigger container and CPU spikes on a small server.</p></div>
 
 <div class="opt"><h2><b>P5</b>How an assistant adds a photo (P-D12)</h2>
 <p><b>A A one-time add link.</b> The assistant calls <code>request_photo_upload</code>; the person taps the link and picks the photo in Kitchie, already aimed at the right recipe and cook. No picture goes through the chat.</p>
 <p><b>B Picture data in the tool call</b> (base64).</p>
-<p><b>C A web address</b>: the assistant passes an image URL (e.g. from a recipe page) and Recipe fetches it.</p>
-<span class="rec">Recommended A now; C later, for drafts only</span>
-<p class="dn">Downside of A: one more tap for the person, and the assistant never sees the photo it "added". B is huge in tokens, capped by every assistant, and lets an assistant store any image without a person looking. C is a server that fetches addresses it is told to, which must be fenced off from the private network, and needs option 4B or 4C.</p></div>
+<p><s class="void"><b>C A web address</b>: the assistant passes an image URL (e.g. from a recipe page) and Recipe fetches it.</s> <span class="chg">Changed by owner decision L4, 10 Oct 2026</span>: removed. Nothing fetches or reads a link or a photo.</p>
+<span class="rec">Recommended A <s>now; C later, for drafts only</s></span>
+<p class="dn">Downside of A: one more tap for the person, and the assistant never sees the photo it "added". B is huge in tokens, capped by every assistant, and lets an assistant store any image without a person looking. <s class="void">C is a server that fetches addresses it is told to, which must be fenced off from the private network, and needs option 4B or 4C.</s></p></div>
 
 <div class="opt"><h2><b>P6</b>What a photo is attached to (P-D9)</h2>
 <p><b>A A version</b> (its photos and one cover), or <b>a cook</b> (cooked-it photos). A version with no cover shows its parent's, labelled "Photo of With peas".</p>
@@ -146,35 +166,47 @@ code{font-size:12.5px}
 <p class="dn">Downside of A: each row on screen downloads a small thumbnail (about 10 to 15 KB). B is the zero-cost choice if the list is used mostly by searching.</p>
 <div class="per"><a href="list.html?lt=A">A</a><a href="list.html?lt=B">B</a><a href="list.html?lt=C">C</a></div></div>
 
+<div class="opt"><h2><b>N1</b>Where a note lives (P-D26)</h2>
+<p><b>A Household note, always.</b> Every note is the household's, on the recipe, shown on every version (R-D24). Written at the end of a cook it carries that cook as a tag (P-D29). No question asked.</p>
+<p><b>B Ask at the end of a cook:</b> "This cook only" (shows on that night's row in Cooked) or "For next time" (the household's, as A). From the recipe page it is always A.</p>
+<span class="rec">Recommended A</span>
+<p class="dn">Downside of A: a note that only made sense that night ("ran out of soy, used fish sauce") sits among the lasting notes; the cook tag and the cook's own one-line comment (P-D11) soften that. B adds a question to the quickest moment, and two kinds of note to explain. Added for L4, 10 Oct 2026: notes are the second UI job.</p>
+<div class="per"><a href="note.html?to=efr&from=cook&n1=A">A</a><a href="note.html?to=efr&from=cook&n1=B">B</a></div></div>
+
 </div></section>
 
 <section class="sec"><div class="lbl">Decisions in this slice (P-D numbering, all Proposal)</div>
-<p>The same list is appended to <code>docs/knowledge/jobs-to-be-done/recipe-tab.md</code>.</p>
+<p>The same list is appended to <code>docs/knowledge/jobs-to-be-done/recipe-tab.md</code>. <b>Not yet there:</b> P-D25 to P-D29, option N1 and RP8 (added here for L4 on 10 October 2026); this slice does not edit files outside <code>recipe-photos/</code>, so the docs agent copies them across.</p>
 <ol class="d">
 <li><span class="n">P-D1</span><b>Recipe owns recipe photos;</b> Kitchie stores none and shows them by id. Each app keeps its own persistence; across apps only ids and the contract in P-D5 travel. Option P1. <span class="prop">Proposal</span></li>
 <li><span class="n">P-D2</span><b>Files in <code>photos/</code> beside <code>recipes.db</code>,</b> in Recipe's data folder (today the <code>recipe-data</code> volume; if Recipe moves to a <code>/home</code> folder like Kitchie, photos move with it, since snap Docker can only bind-mount under <code>/home</code>). Folder per household, file per photo and size: <code>photos/&lt;household&gt;/&lt;id&gt;-t.webp</code>. Option P2. <span class="prop">Proposal</span></li>
 <li><span class="n">P-D3</span><b>Disk budget.</b> About 350 KB per photo for all three sizes, so 1,000 photos is about 350 MB. A household cap (P-D8) keeps one household from filling the server. Check the server's free space before turning photos on (<code>df -h</code> on the data folder); the Lighthouse disk size is not recorded anywhere this slice could read. <span class="prop">Proposal</span></li>
-<li><span class="n">P-D4</span><b>One row per photo in Recipe's database:</b> random 128-bit id (never a counter, so ids cannot be guessed), household, recipe family, version or cook, kind (<code>dish</code> or <code>cooked</code>), who added it and through which channel (app or assistant), width, height, the square crop, colour, the 24px preview, bytes per size, added, removed, purge after, and for a web photo the page it came from. A version gets one changeable pointer, <code>cover_photo_id</code> (fits the versions slice's V-D16 list of what may change). <span class="prop">Proposal</span></li>
-<li><span class="n">P-D5</span><b>The contract.</b> Recipe's responses carry photo ids plus colour (and the preview for the cover only); never bytes. HTTP: <code>GET /recipe/photos/&lt;id&gt;/t|m|l.webp</code>, <code>POST /recipe/photos</code> (the three sizes and the target), remove and restore. MCP: <code>request_photo_upload</code> (P-D12) and photo ids in recipe and cook replies. No picture bytes ever go through MCP. <span class="prop">Proposal</span></li>
+<li><span class="n">P-D4</span><b>One row per photo in Recipe's database:</b> random 128-bit id (never a counter, so ids cannot be guessed), household, recipe family, version or cook, kind (<code>dish</code> or <code>cooked</code>), who added it and through which channel (app, or an assistant's one-time link), width, height, the square crop, colour, the 24px preview, bytes per size, added, removed, purge after, and a content hash (SHA-256) of each stored size, so the same bytes are recognised and kept once. <s class="void">For a web photo the page it came from.</s> <span class="chg">Changed by owner decision L4, 10 Oct 2026</span> (no web photos). The id never changes and is the only way anything points at a photo: a cook's <code>photo_ids</code>, a version's <code>cover_photo_id</code>, and a note's <code>[photo:&lt;id&gt;]</code> (P-D27). A revision never holds a photo (P-D9), so history stays small. A version gets one changeable pointer, <code>cover_photo_id</code> (fits the versions slice's V-D16 list of what may change). <span class="prop">Proposal</span></li>
+<li><span class="n">P-D5</span><b>The contract.</b> Recipe's responses carry photo ids plus colour (and the preview for the cover only); never bytes. HTTP: <code>GET /recipe/photos/&lt;id&gt;/t|m|l.webp</code>, <code>POST /recipe/photos</code> (the three sizes and the target: a cook, a version's cover, or none yet for a photo going into a note), remove and restore. MCP: <code>request_photo_upload</code> (P-D12), photo ids in recipe, cook and note replies, and <code>add_note</code> / <code>list_notes</code> with the note body (P-D27). No picture bytes ever go through MCP, and no tool takes a link or an image address. <span class="prop">Proposal</span></li>
 <li><span class="n">P-D6</span><b>Three WebP sizes, no original:</b> l 1600px long edge, m 960px, t 240px square crop; quality about 75. WebP works in every browser Kitchie supports. Colour and preview are computed once and stored. Option P3. <span class="prop">Proposal</span></li>
 <li><span class="n">P-D7</span><b>The phone makes the sizes.</b> Re-drawing the photo in the browser also drops its location and camera data. Recipe accepts only WebP with the right dimensions and size, and rejects anything else. Option P4. <span class="prop">Proposal</span></li>
 <li><span class="n">P-D8</span><b>Limits:</b> 6 recipe photos per version, 3 per cook, 1 MB per upload, 2 GB per household (a slim line warns at 80%), 60 uploads an hour per member. All are settings. Option P9. <span class="prop">Proposal</span></li>
 <li><span class="n">P-D9</span><b>Photos belong to a version or to a cook, never to a revision.</b> A fix to a version keeps its photos. A new version starts with none and shows its parent's cover, labelled. A spin-off (V-D25) offers "Bring the cover along" (on by default), which copies the files so the two recipes never share bytes. The Photos section on the page shows the whole family's photos, this version's first. Option P6. <span class="prop">Proposal</span></li>
 <li><span class="n">P-D10</span><b>Cover:</b> the first recipe photo of a version becomes its cover; any photo, cooked ones included, can be made the cover with one tap. With no cover up the line, the newest cooked photo stands in, labelled with its date. Option P7. <span class="prop">Proposal</span></li>
-<li><span class="n">P-D11</span><b>Adding from the app:</b> the camera icon in the recipe page's top row, the Add tile in Photos, and the end of a cook (R-D19). The phone's own camera or picker; then one question, "What is it?": Tonight's cook (default) or Cover of this version, with a square crop for a cover; an optional line for a cook. Up to 3 at once from one cook. Sending shows progress, carries on in the background and retries. <span class="prop">Proposal</span></li>
-<li><span class="n">P-D12</span><b>From an assistant:</b> a one-time add link (15 minutes, one use, bound to the household and the target) that opens Kitchie's add screen already aimed; the person picks the photo. Later, for a recipe the assistant drafts from a web page, it may pass the page's photo address; Recipe fetches it (https only, public addresses only, 8 MB, images only) and Check it shows it, so a person still keeps or drops it. Option P5. <span class="prop">Proposal</span></li>
+<li><span class="n">P-D11</span><b>Adding from the app:</b> <s class="void">the camera icon in the recipe page's top row, the Add tile in Photos, and the end of a cook (R-D19). The phone's own camera or picker; then one question, "What is it?": Tonight's cook (default) or Cover of this version.</s> <span class="chg">Changed by owner decision L4, 10 Oct 2026</span>: adding photos is one of the app's only two jobs, and after-cook photos lead (P-D25). Every add door opens the phone's own camera or picker on the first tap, aimed at a cook. The cover of a version is the secondary path: a quiet "Or a cover for …" link on the add screen, and Replace cover or Use as cover in the viewer, with a square crop. An optional line for a cook. Up to 3 at once from one cook. Sending shows progress, carries on in the background and retries. Any member (L5). <span class="prop">Proposal</span></li>
+<li><span class="n">P-D12</span><b>From an assistant:</b> a one-time add link (15 minutes, one use, bound to the household and the target) that opens Kitchie's add screen already aimed; the person picks the photo they showed the assistant. <s class="void">Later, for a recipe the assistant drafts from a web page, it may pass the page's photo address; Recipe fetches it (https only, public addresses only, 8 MB, images only) and Check it shows it.</s> <span class="chg">Changed by owner decision L4, 10 Oct 2026</span>: fetching a photo from a web address is dropped, not deferred. The one-time link stands. Option P5. <span class="prop">Proposal</span></li>
 <li><span class="n">P-D13</span><b>Cooked-it photos</b> are part of the cook entry (gap G2, the versions slice's <code>record_cook</code> with up to 3 photo ids). <span class="rw">Spec aligned: <code>photo_ids</code></span> They show as a thumbnail on that night's row in Cooked and in Photos with date and who. They are not the cover unless someone chooses it, or nothing else exists (P-D10). <span class="prop">Proposal</span></li>
 <li><span class="n">P-D14</span><b>Nothing jumps, nothing loads early.</b> Every photo box has its size before a byte arrives and is filled with the photo's own colour (no request). Thumbnails load only when within 200px of the screen. The top photo on the recipe page is the only photo loaded up front, with the 24px blurred preview inline so something appears at once. Its siblings load on first swipe. The large size loads only in the viewer, only for the photo opened. The add screen and its shrinking code are a separate route. <span class="prop">Proposal</span></li>
 <li><span class="n">P-D15</span><b>Private to the household.</b> Same-site addresses checked against the Platform sign-in cookie and household on every request (verified locally, platform D11); 404 for anyone else, the same answer as "no such photo". No public URLs, no tokens in addresses (so nothing sensitive lands in the edge's access log). Option P8. <span class="prop">Proposal</span></li>
 <li><span class="n">P-D16</span><b>Caching:</b> a photo's bytes never change (replacing makes a new photo with a new id), so the browser keeps them for a year, privately (<code>private, max-age=31536000, immutable</code>). Nothing is shared through a public cache. A removed photo stops being listed at once; a device that already has it keeps its copy until the browser drops it. <span class="prop">Proposal</span></li>
-<li><span class="n">P-D17</span><b>Removing:</b> by whoever added it or a household admin (preferences D25 to D30; in a household without admins, any member except a follower). Hidden at once with Undo, restorable from Removed photos for 30 days, then the files are deleted and the row keeps only that a photo was removed, by whom and when. "Delete it for good now" skips the 30 days. Removing the cover falls back as P-D10. A household that leaves takes all its photos with it. Option P10. <span class="prop">Proposal</span> <span class="opn">Open X3, X6: under D26 every household has an admin, and "follower" is not a stored role</span></li>
+<li><span class="n">P-D17</span><b>Removing:</b> <s class="void">by whoever added it or a household admin (preferences D25 to D30; in a household without admins, any member except a follower).</s> <span class="chg">Changed by owner decision L5, 10 Oct 2026</span>: by the person who added it, or any member for now (restrictions later). The viewer shows Remove to everyone. Hidden at once with Undo, restorable from Removed photos for 30 days, then the files are deleted and the row keeps only that a photo was removed, by whom and when. "Delete it for good now" skips the 30 days. Removing the cover falls back as P-D10. A household that leaves takes all its photos with it. Option P10 (open). <span class="prop">Proposal</span> <span class="rw">X3, X6 settled for Recipe by L5</span></li>
 <li><span class="n">P-D18</span><b>Backups:</b> the existing backup of Recipe's data folder includes photos (option P11 A). Order matters: database first, then photos, so every photo the backup's database names is in it (files are only deleted 30 days after removal). Move to copying only new photo files once photos pass about 500 MB. <span class="prop">Proposal</span></li>
 <li><span class="n">P-D19</span><b>No photo, no pretend photo.</b> No grey box on the page or in the list: the recipe's emoji sits in the tile and beside the title (R-D9 stands). Photos shows one dashed line, "No photos yet: snap it next time you cook it", with one tap to add. <span class="prop">Proposal</span></li>
 <li><span class="n">P-D20</span><b>Top of the recipe page:</b> option P12. Either way a version with an inherited photo says whose it is. <span class="prop">Proposal</span></li>
 <li><span class="n">P-D21</span><b>Lists:</b> option P13. The same 240px square is used for every thumbnail in the app (lists, Cooked, Photos, the Versions sheet, Plan), so one file serves them all. <span class="prop">Proposal</span></li>
-<li><span class="n">P-D22</span><b>Viewer:</b> tap a photo to see it large, with who and when; Replace cover or Use as cover; Remove only for those allowed (others see who can). <span class="prop">Proposal</span></li>
+<li><span class="n">P-D22</span><b>Viewer:</b> tap a photo to see it large, with who and when; Replace cover or Use as cover; Remove for every member. <s class="void">Remove only for those allowed (others see who can).</s> <span class="chg">Changed by owner decision L5, 10 Oct 2026</span>. <span class="prop">Proposal</span></li>
 <li><span class="n">P-D23</span><b>Step photos later.</b> Same mechanism with kind <code>step</code> and a step number; not in the first build. <span class="prop">Proposal</span></li>
-<li><span class="n">P-D24</span><b>A photo from someone else's website</b> is stored for the household only, with the page it came from, and is never shown outside the household. <span class="prop">Proposal</span></li>
+<li><span class="n">P-D24</span><s class="void"><b>A photo from someone else's website</b> is stored for the household only, with the page it came from, and is never shown outside the household.</s> <span class="chg">Changed by owner decision L4, 10 Oct 2026</span>: void, there are no web photos.</li>
+<li><span class="n">P-D25</span><b>After-cook photos are the star.</b> The primary add doors are the end of a cook ("Add a photo" on the end screen: <code>add.html?kind=cooked&amp;from=cook</code>) and each row in Cooked on the recipe page (a dashed camera on the row while it has fewer than 3 photos, plus "Made it tonight?" at the top of Cooked). The quickest path: one tap opens the phone's camera or picker, already aimed at that cook; pick up to 3; Save. No question when the entry knows the cook. From the top-row camera or the Photos Add tile, which do not, one question: "Which cook?" (Tonight preselected; a photo for tonight with no cook recorded adds one, with no pantry change). Then a "Saved" screen (<code>done.html</code>) that offers the other job, a note. <span class="prop">Proposal</span></li>
+<li><span class="n">P-D26</span><b>Notes are the UI's second job.</b> <code>note.html</code>, its own route, reached from Add a note under Notes on the recipe page and from the end of a cook. Where a note lives is option N1 below; the default respects R-D24 (notes are the household's, on the family, shown on every version). Any member adds a note and removes their own, or any member's for now (L5). Notes never change the recipe. <span class="prop">Proposal</span></li>
+<li><span class="n">P-D27</span><b>Simple rich text, stored as text.</b> Bold and list lines (a tiny Markdown subset: <code>**bold**</code>, <code>- item</code>) and at most one photo, written in the body as <code>[photo:&lt;id&gt;]</code>. Up to 600 characters of text (G1's cap). Stored as typed, never as HTML, so an assistant reads and writes the same body over MCP and the app renders it safely (text escaped first; only bold, lists and the photo reference become markup). A photo in a note is a normal photo row (P-D4): picked from the recipe's photos (a reference, nothing copied) or added new (stored like any photo, on the note's cook if it has one). A note never holds bytes or a link. <span class="prop">Proposal</span></li>
+<li><span class="n">P-D28</span><b>Removing a note</b> hides it with Undo; the photo it points to stays (a note is only a reference). Removing a photo that a note points to leaves the note's text and drops the picture from it (it renders nothing). <span class="prop">Proposal</span></li>
+<li><span class="n">P-D29</span><b>A note written after a cook</b> carries a reference to that cook and shows "After the 8 Oct cook" as a tag, so the household sees the context, without making the note belong to the cook (under N1 A). <span class="prop">Proposal</span></li>
 </ol>
 </section>
 
@@ -192,9 +224,11 @@ code{font-size:12.5px}
 <tr><td>List</td><td>Colours only (inside the list data); thumbnails for rows on screen</td><td>8 to 10 × 12 KB</td></tr>
 <tr><td>Recipe page</td><td>Cover, medium size, with inline preview; gallery and Cooked thumbnails as they near the screen</td><td>70 KB, then 12 KB each</td></tr>
 <tr><td>Viewer</td><td>The large size of the one photo opened</td><td>250 KB</td></tr>
-<tr><td>Add</td><td>Its own route and script; nothing until Add is tapped</td><td>–</td></tr>
+<tr><td>Add</td><td>Its own route and script; nothing until a photo is picked (the first tap opens the phone's own picker)</td><td>–</td></tr>
+<tr><td>Note</td><td>Its own route; a plain text box and three buttons, no editor library; a photo thumbnail only if one is attached</td><td>a few KB</td></tr>
+<tr><td>Saved</td><td>The thumbnails just added (already in the browser's cache)</td><td>0</td></tr>
 </table>
-<p style="margin-top:8px;font-size:13px">Sizes are estimates for real food photos at quality 75. The mockup's sample pictures are flat drawings and much smaller; the Mockup panel's meter counts what each screen really fetched. Mockup files: <code>photos.css</code> and <code>photos.js</code> on top of the flow slice's <code>recipe.css</code> and <code>recipe.js</code>; classes to lift: <code>.pf</code> (frame), <code>.hero2</code>, <code>.pgal</code>, <code>.pempty</code>, <code>.pv</code> (viewer), <code>.kind</code>.</p>
+<p style="margin-top:8px;font-size:13px">Sizes are estimates for real food photos at quality 75. The mockup's sample pictures are flat drawings and much smaller; the Mockup panel's meter counts what each screen really fetched. Mockup files: <code>photos.css</code> and <code>photos.js</code> on top of the flow slice's <code>recipe.css</code> and <code>recipe.js</code>; classes to lift: <code>.pf</code> (frame), <code>.hero2</code>, <code>.pgal</code>, <code>.pempty</code>, <code>.pv</code> (viewer), <code>.aim</code> (the add target), <code>.addc</code> (the Cooked row's camera), <code>.nbody</code>, <code>.nph</code>, <code>.ncard</code>, <code>.ntool</code> (notes), <code>.saved</code>; and <code>PHO.noteHtml</code> (the note renderer, about 15 lines).</p>
 </section>
 
 <section class="sec"><div class="lbl">Recipe-side work (to file as Recipe issues once directions are picked; not filed)</div>
@@ -205,17 +239,20 @@ code{font-size:12.5px}
 <li><span class="n">RP4</span><b>Sign-in cookie on photo routes:</b> Recipe verifies the Platform token from the cookie for <code>GET</code> of photos (today it reads the bearer header only).</li>
 <li><span class="n">RP5</span><b><code>request_photo_upload</code></b> MCP tool and its one-time link (P-D12 A).</li>
 <li><span class="n">RP6</span><b>Backups</b> include the photo folder, database first (P-D18); the runbook says so.</li>
-<li><span class="n">RP7</span><b>Later:</b> photo from a web address for drafts (P-D12 C), only with a server image library and private-network fencing.</li>
+<li><span class="n">RP7</span><s class="void"><b>Later:</b> photo from a web address for drafts (P-D12 C), only with a server image library and private-network fencing.</s> <span class="chg">Changed by owner decision L4, 10 Oct 2026</span>: dropped.</li>
+<li><span class="n">RP8</span><b>Notes body and photo references</b> (P-D27 to P-D29): G1's notes table gains an optional <code>cook_id</code> and allows the Markdown subset and one <code>[photo:&lt;id&gt;]</code>; <code>add_note</code> checks the photo id belongs to the household; a note can be hidden (removed with Undo) by any member. Belongs with the versions spec's notes (RT-R1, RT-R3); flagged to it, not written there.</li>
 </ol>
-<p style="margin-top:8px;font-size:13px">Kitchie's side: the add route and its in-browser shrinking, the frame markup and the ~40-line loader. Nothing stored.</p>
+<p style="margin-top:8px;font-size:13px">Kitchie's side: the add route and its in-browser shrinking, the note route, the frame markup, the ~40-line loader and the note renderer. Nothing stored.</p>
 </section>
 
 <div class="qs" style="margin-top:18px;padding:14px;border:1px dashed var(--border);border-radius:var(--r-card)"><b>Open questions</b>
 <ul style="margin:6px 0 0 18px;color:var(--muted)">
 <li>Server disk: how much is free on the data folder? A wrong guess could fill the server; P-D8's household cap is the guard.</li>
 <li>An off-server copy of backups (for all apps, not just photos): is any included in the current Tencent plan at no cost? Infra's call.</li>
-<li>Option P4 against option 5C: choosing A (phone shrinks) means a web photo for a draft has to wait for a server image library.</li>
-<li>Can a follower add a cooked photo? Mockup: yes (R-D8 says star, notes and photos stay); they cannot remove other people's.</li>
+<li><s class="void">Option P4 against option 5C: choosing A (phone shrinks) means a web photo for a draft has to wait for a server image library.</s> <span class="chg">Changed by owner decision L4, 10 Oct 2026</span>: closed, no web photos.</li>
+<li><s class="void">Can a follower add a cooked photo?</s> <span class="chg">Changed by owner decision L5, 10 Oct 2026</span>: closed, yes. Every member adds photos and notes, and removes their own (any member's, for now).</li>
+<li>Where a note lives: option N1 (A recommended).</li>
+<li>A photo for "tonight" when no cook was recorded (someone skipped cook mode): the mockup adds a cook with no pantry change. Wrong guess: an extra row in Cooked, or a photo with nowhere to sit.</li>
 <li>Does replacing a cover keep the old one in Photos (mockup) or remove it?</li>
 <li>Are Recipe and Kitchie always served from one site? Option P8 A depends on it; a separate subdomain later would need option P8 B.</li>
 </ul></div>

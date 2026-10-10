@@ -4,8 +4,9 @@
 <body data-no-theme-fab>
 <div class="stage"><div class="phone" id="ph"></div></div>
 <script>
-/* The recipe page (recipe/detail.html, R-D7 option A) with the photo pieces in place: cover at the top, the photo gallery,
-   cooked-it photos in Cooked, replace and remove. Ingredients and Method are kept short here: they belong to the flow slice. */
+/* The recipe page (recipe/detail.html, R-O2 A) with the photo and note pieces in place: cover at the top, Notes (P-D26 to P-D29),
+   Cooked with "what you made" on each row (P-D25: the primary add-photo door besides the end of a cook), the photo gallery,
+   replace and remove (any member, L5). Ingredients and Method are kept short here: they belong to the flow slice. */
 (function(){
 var X=RCP,F=PHO,ic=X.ic,esc=X.esc;
 var r=X.byId(X.Q.get("id")||"efr")||X.R[0];
@@ -42,28 +43,37 @@ function draw(keep){
   var ingH='<div class="lblrow" style="margin-top:4px"><span class="lbl">Ingredients'+(miss.length?' · '+(ings.length-miss.length)+' of '+ings.length+' in':' · all in')+'</span></div>'+
     ings.map(function(x){var i=x.i,ok=X.has(i[0]),q=X.fmt(i[2],i[3],r.batch?1:r.serves);return '<div class="ing'+(ok?'':' miss')+'"><span class="dot'+(ok?'':' no')+'" aria-hidden="true"></span><span class="nm">'+esc(i[1])+(q?'<span class="q">'+q+'</span>':' <span class="unk">amount?</span>')+'</span></div>'}).join("");
   var met='<div class="lblrow"><span class="lbl">Method</span></div>'+r.steps.map(function(s,k){return '<div class="stp"><span class="nb">'+(k+1)+'</span><div style="flex:1"><p>'+esc(s[0])+'</p></div></div>'}).join("");
-  /* Cooked: one row per cook (gap G2); a cook with a photo shows its thumbnail, tap to open. */
-  var hist=r.hist.length?r.hist.map(function(h){var d=h[0].split(" ");var p=cooked.filter(function(c){return c.when===h[0]})[0];
+  /* Notes (P-D26 to P-D29): the household's, on every version (R-D24). Rich notes from the photos slice first, then the flow slice's plain ones.
+     A note written after a cook carries that cook as a tag. Add a note opens note.html (its own route). */
+  var gone=removed;
+  var nts=(F.NOTES[r.id]||[]).map(function(n){return '<div class="note ncard">'+F.noteHtml(n.body,gone)+'<div class="nmeta"><span>'+esc(n.by)+' · '+n.when+'</span>'+(n.cook?'<span class="tg">'+ic("flame")+'After the '+n.cook+' cook</span>':'')+'</div></div>'}).join("")+
+    r.notes.map(function(n){return '<div class="note ncard"><div class="nbody"><p>'+esc(n[0])+'</p></div><div class="nmeta"><span>'+esc(n[1])+' · '+n[2]+'</span></div></div>'}).join("");
+  var notes=(nts||'<p style="font-size:13px">No notes yet.</p>')+'<a class="back" href="'+F.noteHref(r,{from:"recipe"})+'" style="font-size:14px">'+ic("note","s")+' Add a note</a>';
+  /* Cooked: one row per cook (gap G2). P-D25: each row is where "what you made" lives: its photos (tap to open) and, while it has
+     fewer than 3, a dashed camera that goes straight to the picker aimed at that cook. No question asked. */
+  var hist=r.hist.length?r.hist.map(function(h){var d=h[0].split(" ");var ps=cooked.filter(function(c){return c.when===h[0]});
     return '<div class="hist"><span class="d"><b>'+d[0]+'</b>'+d[1]+'</span><span class="t">'+esc(h[1])+' cooked <b>'+esc(h[2])+'</b>'+(h[3]?'<small>"'+esc(h[3])+'"</small>':'')+'</span>'+
-      (p?'<button type="button" class="th ph" style="width:56px;height:56px" data-open="'+p.id+'" aria-label="Photo from '+h[0]+'">'+F.frame(p.id,"t",{alt:""})+'</button>':'')+'</div>'}).join(""):'<p style="font-size:13px">Not cooked yet.</p>';
+      ps.map(function(p){return '<button type="button" class="th ph" style="width:44px;height:44px" data-open="'+p.id+'" aria-label="Photo from '+h[0]+'">'+F.frame(p.id,"t",{alt:""})+'</button>'}).join("")+
+      (ps.length<3?'<a class="addc" href="'+F.addHref(r,{cook:h[0]})+'" aria-label="Add a photo of the '+h[0]+' cook">'+ic("cam","s")+'</a>':'')+'</div>'}).join(""):'<p style="font-size:13px">Not cooked yet.</p>';
+  hist='<a class="pempty" style="margin-bottom:8px" href="'+F.addHref(r,{cook:"tonight"})+'"><span class="e" aria-hidden="true">🍽️</span><span class="t"><b>Made it tonight?</b><small>Add a photo of what you made. Up to 3.</small></span>'+ic("cam")+'</a>'+hist;
   /* Photos: the recipe's own (covers marked) then cooked-it photos, newest first; three across, thumbnails only. */
   var gal;
   if(!all.length){
-    gal='<button type="button" class="pempty" data-add="dish"><span class="e" aria-hidden="true">📷</span><span class="t"><b>No photos yet</b><small>Snap it next time you cook it. The first photo becomes the cover.</small></span>'+ic("plus")+'</button>';
+    gal='<a class="pempty" href="'+F.addHref(r,{})+'"><span class="e" aria-hidden="true">📷</span><span class="t"><b>No photos yet</b><small>Snap it next time you cook it. The first photo becomes the cover.</small></span>'+ic("plus")+'</a>';
   }else{
     var ord=dish.slice().sort(function(a,b){return (b.v===vid)-(a.v===vid)||(b.cover||0)-(a.cover||0)}).concat(cooked);
     gal='<div class="pgal">'+ord.map(function(p){var vn=(r.vers.filter(function(x){return x.id===p.v})[0]||{}).name;
       return '<button type="button" data-open="'+p.id+'" aria-label="'+(p.k==="cooked"?"Cooked "+p.when+" by "+esc(p.by):(p.cover?"Cover of ":"Photo of ")+esc(vn))+'">'+F.frame(p.id,"t",{alt:""})+
         (p.cover&&p.v===vid?'<span class="badge2">Cover</span>':p.cover?'<span class="badge2" style="background:var(--surface);color:var(--fg)">'+esc(vn)+'</span>':'')+
         (p.k==="cooked"?'<span class="when">'+p.when+' · '+esc(p.by)+'</span>':'')+'</button>'}).join("")+
-      '<button type="button" class="addp" data-add>'+ic("cam")+'Add</button></div>'+
+      '<a class="addp" href="'+F.addHref(r,{})+'">'+ic("cam")+'Add</a></div>'+
       '<p style="font-size:12px;margin-top:8px">'+dish.length+' of 6 recipe photos · '+cooked.length+' from cooks</p>';
   }
-  var SEC=[["ing","Ingredients",ingH],["met","Method",met],["his","Cooked",'<div class="lblrow"><span class="lbl">Cooked</span></div>'+hist],["pho","Photos",'<div class="lblrow"><span class="lbl">Photos</span>'+(all.length?'<span class="lbl">'+all.length+'</span>':'')+'</div>'+gal]];
+  var SEC=[["ing","Ingredients",ingH],["met","Method",met],["not","Notes",'<div class="lblrow"><span class="lbl">Notes</span></div>'+notes],["his","Cooked",'<div class="lblrow"><span class="lbl">Cooked</span></div>'+hist],["pho","Photos",'<div class="lblrow"><span class="lbl">Photos</span>'+(all.length?'<span class="lbl">'+all.length+'</span>':'')+'</div>'+gal]];
   var body=top+head+'<nav class="jumps" aria-label="Sections">'+SEC.map(function(s,i){return '<a href="#'+s[0]+'" class="'+(i?'':'on')+'">'+s[1]+(s[0]==="pho"&&all.length?' '+all.length:'')+'</a>'}).join("")+'</nav>'+
     SEC.map(function(s){return '<section class="sec" id="'+s[0]+'">'+s[2]+'</section>'}).join("")+'<div style="height:24px"></div>';
   ph.innerHTML='<div class="top"><a class="back" href="list.html">'+ic("back","s")+'Recipes</a><span class="ttl"></span>'+
-    '<button type="button" class="ib bare" data-add aria-label="Add a photo">'+ic("cam")+'</button>'+
+    '<a class="ib bare" href="'+F.addHref(r,{})+'" aria-label="Add a photo of what you made">'+ic("cam")+'</a>'+
     '<button type="button" class="ib bare" data-more aria-label="More" aria-haspopup="dialog">'+ic("dots")+'</button></div>'+
     '<div class="body" id="body">'+body+'</div>'+
     '<div class="act"><button type="button" class="btn ghost">'+ic("cal","s")+'Plan it</button><a class="btn" href="../recipe/cook.html?id='+r.id+'">'+ic("flame","s")+'Cook it</a></div>';
@@ -82,7 +92,6 @@ ph.addEventListener("click",function(e){
     F.viewer(r,p,{nextCover:nxt?"its other photo":"its parent version's cover, or no photo",
       onCover:function(p){X.toast("Now the cover of "+esc((r.vers.filter(function(x){return x.id===vid})[0]).name)+" for the household")},
       onRemove:function(p,now){removed[p.id]=1;draw(true);X.toast(now?"Deleted for good":"Photo removed",now?null:function(){delete removed[p.id];draw(true)})}});}
-  else if(t.hasAttribute("data-add"))F.addSheet(r,t.dataset.add||"");
   else if(t.hasAttribute("data-vers"))X.sheet('<h3>Versions</h3>'+r.vers.map(function(x){var c=F.coverFor(r,x.id);return '<button type="button" class="opt'+(x.id===vid?' on':'')+'" data-pick="'+x.id+'">'+
       (c?'<span class="th ph" style="width:44px;height:44px">'+F.frame(c.p.id,"t",{eager:1,alt:""})+'</span>':'<span class="th" style="width:44px;height:44px;font-size:20px">'+r.e+'</span>')+
       '<span class="t"><b>'+esc(x.name)+'</b><small>'+(c?(c.inherited?"Shows "+esc(c.from.name)+"'s photo":c.cooked?"Shows a cooked photo":"Has its own cover"):"No photo")+'</small></span></button>'}).join(""),

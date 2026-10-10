@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Add a note — Recipe photos mockup</title>
+<link rel="stylesheet" href="../theme.css"><link rel="stylesheet" href="../recipe/recipe.css"><link rel="stylesheet" href="photos.css"><script src="../theme.js"></script><script src="../recipe/recipe.js"></script><script src="photos.js"></script></head>
+<body data-no-theme-fab>
+<div class="stage"><div class="phone" id="ph"></div></div>
+<script>
+/* Add a note: the UI's second job (owner decision L4, 10 Oct 2026: "notes is fine"). P-D26 to P-D29.
+   Reached from the Notes section of the recipe page (?from=recipe) and from the end of a cook (?from=cook, recipe/cook.html).
+   Option N1 (Mockup panel): A, recommended, every note is the household's, on the recipe, on every version (R-D24); written after a cook
+   it carries a reference to that cook, with no question. B: one question at the end of a cook, "Where?": this cook only, or the household's.
+   Simple rich text: bold and list lines, plus one photo by reference (an id, never bytes). Kept as a tiny Markdown subset so the same
+   text reads fine to an assistant over MCP and renders with PHO.noteHtml in the app. Any member, same controls (L5).
+   Build: a plain <textarea> and three buttons; no editor library. Its own route: none of this loads until Add a note is tapped (P-D14). */
+(function(){
+var X=RCP,F=PHO,ic=X.ic,esc=X.esc;
+var r=X.byId(X.Q.get("to")||"efr")||X.R[0];
+/* recipe/cook.html's end screen links here without ?from=cook; until the flow slice adds it, the referrer says so (mockup only:
+   the build passes from=cook and the cook id explicitly). */
+var from=X.Q.get("from")||(/\/recipe\/cook\.html/.test(document.referrer)?"cook":"recipe");
+var cook=X.Q.get("cook")||(from==="cook"?"tonight":"");
+var opt=X.Q.get("n1")||X.store.get("pn1","A");X.store.set("pn1",opt);
+var where=from==="cook"&&opt==="B"?"cook":"household";
+var att=X.Q.get("att")||"";
+var ph=document.getElementById("ph");
+var me=X.me[2];
+var back=from==="cook"?"../recipe/cook.html?id="+r.id+"&step=99":"recipe.html?id="+r.id+"#not";
+var text=X.Q.get("t")||"";
+function draw(){
+  var cookName=cook==="tonight"?"tonight's cook":"the "+cook+" cook";
+  var h='<div class="top"><a class="back" href="'+back+'">'+ic("back","s")+'Cancel</a><span class="ttl">Add a note</span><span style="width:64px"></span></div><div class="body"><div class="pad">'+
+    '<p style="font-size:13px"><b style="color:var(--fg)">'+esc(r.name)+'</b> · '+(where==="cook"?"on "+cookName+" only":"shows on every version")+'. Notes never change the recipe.</p>';
+  if(from==="cook"&&opt==="B")h+='<div class="lblrow"><span class="lbl">Where does it go?</span></div><div class="where">'+
+    '<button type="button" data-where="cook" aria-pressed="'+(where==="cook")+'"><b>This cook only</b><small>On '+esc(cookName)+' in Cooked</small></button>'+
+    '<button type="button" data-where="household" aria-pressed="'+(where==="household")+'"><b>For next time</b><small>Under Notes, every version</small></button></div>';
+  h+='<div class="lblrow"><label class="lbl" for="nt">Your note</label></div>'+
+    '<div class="ntool" role="toolbar" aria-label="Format">'+
+      '<button type="button" data-fmt="b" aria-label="Bold"><b>B</b></button>'+
+      '<button type="button" data-fmt="li" aria-label="List line">• List</button>'+
+      '<button type="button" data-att aria-haspopup="dialog">'+ic("cam","s")+(att?'Change photo':'Photo')+'</button></div>'+
+    '<textarea class="field" id="nt" placeholder="e.g. Day-old rice really is better.">'+esc(text)+'</textarea>'+
+    (att?'<div class="natt">'+'<span class="nph">'+F.frame(att,"t",{eager:1,alt:"Photo in this note"})+'</span><span style="flex:1;font-size:12.5px">One photo, kept by reference: removing the note never removes the photo.</span><button type="button" class="mini" data-unatt>'+ic("x","xs")+'Take out</button></div>':'')+
+    '<div class="lblrow"><span class="lbl">How it will look</span></div><div class="nprev note ncard" id="prev"></div>'+
+    '</div></div><div class="act"><button type="button" class="btn" data-save>'+ic("check","s")+'Save note</button></div>';
+  ph.innerHTML=h;F.load(ph);preview();
+  document.getElementById("nt").addEventListener("input",function(e){text=e.target.value;preview()});
+}
+function body(){return text.trim()+(att?"\n[photo:"+att+"]":"")}
+function preview(){
+  var p=document.getElementById("prev");
+  p.innerHTML=(text.trim()||att?F.noteHtml(body()):'<p style="color:var(--muted)">Start typing.</p>')+
+    '<div class="nmeta"><span>'+esc(me)+' · today</span>'+(cook&&where==="household"?'<span class="tg">'+ic("flame")+'After '+(cook==="tonight"?"tonight's":cook+"'s")+' cook</span>':'')+(where==="cook"?'<span class="tg">'+ic("flame")+'This cook only</span>':'')+'</div>';
+  F.load(p);
+}
+function wrap(fn){var f=document.getElementById("nt"),a=f.selectionStart,b=f.selectionEnd;var r2=fn(text.slice(0,a),text.slice(a,b),text.slice(b));text=r2[0];f.value=text;f.focus();f.setSelectionRange(r2[1],r2[2]);preview()}
+ph.addEventListener("click",function(e){
+  var t=e.target.closest("button");if(!t)return;
+  if(t.dataset.where){where=t.dataset.where;text=document.getElementById("nt").value;draw()}
+  else if(t.dataset.fmt==="b")wrap(function(pre,sel,post){sel=sel||"bold";return [pre+"**"+sel+"**"+post,pre.length+2,pre.length+2+sel.length]});
+  else if(t.dataset.fmt==="li")wrap(function(pre,sel,post){var nl=pre&&!/\n$/.test(pre)?"\n":"";return [pre+nl+"- "+sel+post,pre.length+nl.length+2,pre.length+nl.length+2+sel.length]});
+  else if(t.hasAttribute("data-unatt")){att="";text=document.getElementById("nt").value;draw()}
+  else if(t.hasAttribute("data-att")){text=document.getElementById("nt").value;
+    /* a photo in a note: one of this recipe's photos (a reference), or a new one from the phone (stored like any photo, then referenced) */
+    var own=F.photos(r).slice(0,5);
+    X.sheet('<h3>A photo in the note</h3><p style="font-size:13px">One per note. It is kept once and pointed to, never copied.</p><div class="pgal" style="margin-top:10px">'+
+      '<button type="button" class="addp" data-new>'+ic("cam")+'New</button>'+own.map(function(p){return '<button type="button" data-pa="'+p.id+'" aria-label="'+(p.k==="cooked"?"Cooked "+p.when:"Photo of the recipe")+'">'+F.frame(p.id,"t",{eager:1,alt:""})+'</button>'}).join("")+'</div>',
+      function(s,close){s.addEventListener("click",function(ev){var b=ev.target.closest("[data-pa],[data-new]");if(!b)return;att=b.dataset.pa||"efr-c2";close();draw();if(b.hasAttribute("data-new"))X.toast(cook?"New photo added to "+(cook==="tonight"?"tonight's":cook+"'s")+" cook, and shown in the note":"New photo saved to Photos, and shown in the note")})});}
+  else if(t.hasAttribute("data-save")){text=document.getElementById("nt").value;if(!text.trim()&&!att){X.toast("Write something first");return}
+    var u=new URLSearchParams({to:r.id,kind:"note",where:where});if(from)u.set("from",from);if(cook)u.set("cook",cook);if(att)u.set("p",att);location.href="done.html?"+u.toString()}
+});
+draw();
+F.controls('<h4>Where a note lives (option N1)</h4><div class="seg"><button type="button" data-n1="A" aria-pressed="'+(opt==="A")+'">A Household, on every version</button><button type="button" data-n1="B" aria-pressed="'+(opt==="B")+'">B Asks: this cook or household</button></div>'+
+  '<h4>Jump to</h4><p><a href="?to=efr&from=recipe">From Notes on the recipe page</a> · <a href="?to=efr&from=cook">From the end of a cook</a> · <a href="?to=efr&from=cook&att=efr-c1&t=**Brown%20rice%20works**%0A-%202%20tbsp%20more%20soy">With rich text and a photo</a></p>');
+document.addEventListener("click",function(e){var b=e.target.closest("[data-n1]");if(b){X.store.set("pn1",b.dataset.n1);var u=new URL(location.href);u.searchParams.delete("n1");location.href=u.toString()}});
+})();
+</script>
+</body></html>

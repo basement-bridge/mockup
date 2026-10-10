@@ -33,7 +33,12 @@
     rag: [{ id: "rag-1", k: "cooked", v: "v0", by: "Priya", when: "5 Sep", line: "10 portions." }],
     pas: [], fri: [], oml: []
   };
-  var ADMINS = { Sam: 1, Priya: 1 }; /* household admins (preferences D25 to D30); sample only */
+  /* Notes (P-D26, P-D27): the household's, on the family (R-D24), shown on every version. Simple rich text: a tiny Markdown
+     subset (**bold**, "- " list lines) and photos by reference, [photo:<id>], never bytes. cook: the cook it was written after
+     (a reference, shown as a tag), or null. Sample only; the flow slice's plain notes in recipe.js are shown first. */
+  var NOTES = {
+    efr: [{ id: "n-efr-1", by: "Sam", when: "8 Oct", cook: "8 Oct", body: "**Brown rice works** if it is day-old.\n- 2 tbsp more soy\n- Fry the rice longer\n[photo:efr-c1]" }]
+  };
   var Q = X.Q;
   var state = Q.get("state") || X.store.get("pstate", "photos"); /* photos | none | slow */
   if (Q.get("state")) X.store.set("pstate", state);
@@ -89,16 +94,17 @@
   var viewer = function (r, p, opts) {
     opts = opts || {};
     var ph = document.querySelector(".phone");
-    var me = X.me[2], canRemove = p.by === me || ADMINS[me];
+    /* P-D17 as changed by owner decision L5 (10 Oct 2026): the person who added it, or any member for now (restrictions later). */
+    var me = X.me[2], mine = p.by === me;
     var vname = (r.vers.filter(function (x) { return x.id === p.v; })[0] || {}).name || "";
     var d = document.createElement("div"); d.className = "pv"; d.setAttribute("role", "dialog"); d.setAttribute("aria-modal", "true"); d.setAttribute("aria-label", "Photo");
     d.innerHTML = '<div class="top"><button type="button" class="ib bare" data-x aria-label="Close">' + X.ic("x") + '</button><span class="ttl">' + X.esc(r.name) + '</span><span style="width:44px"></span></div>' +
       '<div class="stagep">' + frame(p.id, "l", { eager: 1, alt: (p.k === "cooked" ? "Cooked by " + p.by + ", " + p.when : "Photo of " + r.name) }) + '</div>' +
       '<div class="meta2">' + (p.k === "cooked" ? '<b>Cooked ' + p.when + '</b> by ' + X.esc(p.by) + ' · ' + X.esc(vname) + (p.line ? '<br>"' + X.esc(p.line) + '"' : '') : '<b>' + (p.cover ? "Cover of " + X.esc(vname) : "Photo of " + X.esc(vname)) + '</b> · added by ' + X.esc(p.by) + ', ' + p.when) +
-      (canRemove ? '' : '<br>Only ' + X.esc(p.by) + ' or a household admin can remove it.') + '</div>' +
+      (mine ? '' : '<br>Anyone in the household can remove it.') + '</div>' +
       '<div class="acts">' +
         (p.cover ? '<a class="btn ghost" href="add.html?to=' + r.id + '&kind=dish&cover=1&replace=' + p.id + '">' + X.ic("cam", "s") + 'Replace cover</a>' : '<button type="button" class="btn ghost" data-cover>' + X.ic("img", "s") + 'Use as cover</button>') +
-        (canRemove ? '<button type="button" class="btn ghost" data-rm>' + X.ic("x", "s") + 'Remove</button>' : '') +
+        '<button type="button" class="btn ghost" data-rm>' + X.ic("x", "s") + 'Remove</button>' +
       '</div>';
     ph.appendChild(d); load(d);
     var close = function () { d.remove(); };
@@ -115,12 +121,31 @@
     d.querySelector("[data-x]").focus();
   };
 
-  /* Add sheet: the same two doors everywhere (recipe page, Cooked, end of a cook). Opens the add route only after a choice. */
-  var addSheet = function (r, kind) {
-    X.sheet('<h3>Add a photo</h3><p style="font-size:13px">' + X.esc(r.name) + '</p>' +
-      '<a class="opt" href="add.html?to=' + r.id + '&src=cam' + (kind ? "&kind=" + kind : "") + '">' + X.ic("cam") + '<span class="t"><b>Take a photo</b><small>Opens the camera</small></span></a>' +
-      '<a class="opt" href="add.html?to=' + r.id + '&src=lib' + (kind ? "&kind=" + kind : "") + '">' + X.ic("img") + '<span class="t"><b>Choose from your photos</b><small>One at a time, or up to 3 from one cook</small></span></a>' +
-      '<a class="opt" href="assistant.html?to=' + r.id + '">' + X.ic("spark") + '<span class="t"><b>It is in a chat with my assistant</b><small>See how the assistant hands it over</small></span></a>');
+  /* Add a photo. P-D25 (after-cook photos lead): every add door goes straight to the phone's own camera or picker, aimed at the
+     newest cook ("what you made tonight"). No sheet in between. The cover is the secondary path (P-D11 as changed): a link on the
+     add screen and Replace cover in the viewer. cook: the cook's date in the sample (its id in the build). */
+  var addHref = function (r, o) {
+    o = o || {};
+    return "add.html?to=" + r.id + "&kind=" + (o.kind || "cooked") + (o.cook ? "&cook=" + encodeURIComponent(o.cook) : "") + (o.v ? "&v=" + o.v : "") + (o.from ? "&from=" + o.from : "");
+  };
+  var noteHref = function (r, o) { o = o || {}; return "note.html?to=" + r.id + (o.from ? "&from=" + o.from : "") + (o.cook ? "&cook=" + encodeURIComponent(o.cook) : ""); };
+  /* kept for older links: opens the add route directly (the sheet's three doors were dropped with P-D25) */
+  var addSheet = function (r, kind) { location.href = addHref(r, { kind: kind === "dish" ? "dish" : "cooked" }); };
+
+  /* Note body: the tiny Markdown subset to safe HTML. Text is escaped first; only bold, list lines and photo references
+     become markup. A [photo:<id>] whose photo was removed renders nothing (the note's text stays). */
+  var noteHtml = function (body, gone) {
+    gone = gone || {};
+    var out = [], list = [];
+    var flush = function () { if (list.length) { out.push("<ul>" + list.join("") + "</ul>"); list = []; } };
+    var inline = function (t) { return X.esc(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>"); };
+    String(body).split("\n").forEach(function (ln) {
+      var m = ln.match(/^\[photo:([\w-]+)\]$/);
+      if (m) { flush(); if (META[m[1]] && !gone[m[1]] && state !== "none") out.push('<button type="button" class="nph" data-open="' + m[1] + '" aria-label="Photo in this note">' + frame(m[1], "t", { alt: "" }) + "</button>"); return; }
+      if (/^- /.test(ln)) { list.push("<li>" + inline(ln.slice(2)) + "</li>"); return; }
+      flush(); if (ln.trim()) out.push("<p>" + inline(ln) + "</p>");
+    });
+    flush(); return '<div class="nbody">' + out.join("") + "</div>";
   };
 
   /* Prototype controls, same button and panel as the rest of recipe/ (classes .mockb / .mockp from recipe.css). */
@@ -133,7 +158,7 @@
       "<h4>Who is using it</h4>" + seg("persona", X.P.persona, X.PERSONAS.map(function (x) { return [x[0], x[2]]; })) +
       (extra || "") +
       '<h4>Theme</h4><div class="tgrid swatches">' + (window.themeHtml ? themeHtml(null, true) : "") + "</div>" +
-      '<h4>Screens</h4><p><a href="index.html">Photos: decisions</a> · <a href="list.html">List</a> · <a href="recipe.html?id=efr">Recipe</a> · <a href="add.html?to=efr">Add</a> · <a href="assistant.html?to=rag">From the assistant</a> · <a href="../recipe/index.html">Recipe tab</a></p>';
+      '<h4>Screens</h4><p><a href="index.html">Photos: decisions</a> · <a href="list.html">List</a> · <a href="recipe.html?id=efr">Recipe</a> · <a href="add.html?to=efr&kind=cooked">Add a photo</a> · <a href="note.html?to=efr">Add a note</a> · <a href="done.html?to=efr&kind=cooked&n=2">Saved</a> · <a href="assistant.html?to=rag">From the assistant</a> · <a href="../recipe/index.html">Recipe tab</a></p>';
     document.body.appendChild(p); document.body.appendChild(b); meter();
     b.addEventListener("click", function () { p.hidden = !p.hidden; b.setAttribute("aria-expanded", String(!p.hidden)); if (window.themeWarm) themeWarm(); });
     p.addEventListener("click", function (e) {
@@ -146,5 +171,5 @@
     document.addEventListener("keydown", function (e) { if (e.key === "Escape") p.hidden = true; });
   };
 
-  window.PHO = { META: META, PH: PH, ADMINS: ADMINS, state: state, coverFor: coverFor, photos: photos, frame: frame, load: load, viewer: viewer, addSheet: addSheet, controls: controls };
+  window.PHO = { META: META, PH: PH, NOTES: NOTES, state: state, coverFor: coverFor, photos: photos, frame: frame, load: load, viewer: viewer, addSheet: addSheet, addHref: addHref, noteHref: noteHref, noteHtml: noteHtml, controls: controls };
 })();
