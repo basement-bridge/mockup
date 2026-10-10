@@ -32,6 +32,8 @@
     <a href="?as=arjan&amp;do=reject:p1">4 Answered: the proposer is told nothing</a>
     <a href="?as=sam&amp;do=reject:p1&amp;screen=plan">4 Rejected, planning</a>
     <a href="?as=sam&amp;data=empty&amp;screen=review">4 Nothing waiting</a>
+    <a href="?as=sam&amp;tab=hh&amp;open=c2">5 Household food, read-only for a member</a>
+    <a href="?as=jo&amp;tab=hh&amp;open=c2">5 Household food, an admin edits</a>
   </div>
   <p class="oc-state" id="oc-state" aria-live="polite"></p>
 
@@ -59,7 +61,16 @@
           <li><span class="qid">D12</span><b>A pending proposal never expires or escalates.</b> It stays pending until the subject deals with it, on their own timing. (Resolves C-Q4.)</li>
           <li><span class="qid">D13</span><b>The subject sees nothing of a pending proposal before their next login</b>: no badge or preview elsewhere. The next-login notice is the first they see. (Resolves C-Q5.)</li>
           <li><span class="qid">D14</span><b>A pending proposal is fully reliable at once</b> (for example for allergy-safe recipe filtering), not downgraded to unconfirmed. (Resolves C-Q10.)</li>
-          <li><span class="qid">D5</span> and <span class="qid">D8</span> touch the Household tab: any member may edit household settings and household food statements. No owner, no tenure gate. A tenure-based gate was <b>deliberately deferred</b> by the owner, not forgotten.</li>
+          <li><span class="qid">D5</span> and <span class="qid">D8</span> <span class="prop">Superseded 10 Oct 2026 by D25 to D28</span> touched the Household tab: any member may edit household settings and household food statements. No owner, no tenure gate. Kept as given, with their history. The owner later introduced a household admin role (below), so the Household tab is now editable by admins only.</li>
+        </ul>
+      </div>
+      <div>
+        <h2>Household admin <span class="prop">Owner, voice, 10 Oct 2026, later session</span></h2>
+        <p>D25 to D30, recorded in full in <code>docs/knowledge/user-preferences/option-b-mine-and-household.md</code> (Option B draws the Members and admins view; this option draws none). What changes here:</p>
+        <ul>
+          <li><span class="qid">D28</span><b>Only household admins change household-level things.</b> The Household tab's food list, and the household's rows on Mine (<i>Everyone</i>), are read-only for a member who is not an admin: <i>Only household admins can change this.</i> View as Sam to see it; Arjan (the founding member, admin by default, D26) and Jo (an admin Arjan granted, D27) can edit.</li>
+          <li><span class="qid">D29</span><b>Proposing is not gated.</b> Any member may still propose for another member (D9), whatever their role: it is written on the subject's own record, never at household level, so no admin is needed and Sam can propose too. Personal values stay free for everyone.</li>
+          <li><span class="qid">D25</span> <span class="qid">D26</span> <span class="qid">D27</span> <span class="qid">D30</span> A binary role, the founding member admin by default and granting or revoking it per person, and <i>Household admin</i> kept apart from <i>Kitchen role</i>. Tenure gating and finer roles stay deferred.</li>
         </ul>
       </div>
       <div class="sec2">
@@ -92,7 +103,7 @@
         <ul>
           <li><b>Today a member can only write their own record or the household's.</b> <code>give_feedback</code> takes <code>who</code> as "me" or "household", and the member always comes from the link, never an argument. There is no way to write on another member's list. <b>Change:</b> name the subject member, checked server side as a member of the same household.</li>
           <li><b>Person-level food statements exist</b> (<code>context_claims</code>, member_id set). <b>Change:</b> add <code>proposed_by</code>, <code>proposed_at</code>, an acknowledgment state (pending, accepted, edited) and when; rejected is the existing retired status.</li>
-          <li><b>Any member can already write a household claim</b> (and D8 keeps it that way) and nothing addresses a claim to a member. There is a household-changes banner (joins and removals, dismissed per member, deleted after 60 days) and "new" badges, but nothing to claim back. <b>Change:</b> the notice can be a query over pending records on the member's own list, so no queue table is needed; only the "Later" dismissal needs storing.</li>
+          <li><b>Any member can write a household claim today</b> (D8 kept that; D28 now says only household admins may, so that is a code change in front of the chat tool too) and nothing addresses a claim to a member. There is a household-changes banner (joins and removals, dismissed per member, deleted after 60 days) and "new" badges, but nothing to claim back. <b>Change:</b> the notice can be a query over pending records on the member's own list, so no queue table is needed; only the "Later" dismissal needs storing.</li>
           <li><b>Reads stop at the caller.</b> <code>get_context</code> returns the caller's own and the household's; "another member's are never read", and plans carry <code>for_whom</code> but do not read anyone's claims. For "planning picks it up right away" to be true, the plan and recipe read must include the avoidances of each member the meal is for. That is a change to the visibility rule, and it also applies to Sam's own avoidances today.</li>
           <li><b>Accept, edit, remove map to existing feedback kinds</b> (<code>accepted</code>, <code>corrected</code>, a retire) but v1 only notes <code>accepted</code> and never acts on it; here it would clear the flag. Tool texts say everything returned was <i>stated</i> and Established: a proposal is stated by someone else, so it needs its own source.</li>
           <li><b>No outcome goes back to the proposer</b> (D11), so no event, queue or table is needed for it, and nothing in the pending state expires or escalates (D12).</li>
@@ -103,6 +114,7 @@
         <h2>Open questions <span class="prop">Awaiting approval</span></h2>
         <p>C-Q1 to C-Q5 and C-Q10 are decided (D9 to D14, above) and are removed from this list; the other numbers are not renumbered. The mockup draws the reading given for each question still open; a wrong guess costs a redraw, and where noted a data change.</p>
         <ol>
+          <li><span class="qid">C-Q14</span><b>Household admin questions.</b> Admin rights against the founding member's, the last admin, what a non-admin sees, who sees who is admin and household values set before roles arrive are open in Option B's notes; none changes what this option draws. Reading here: a proposal is not a household-level value, so no role gates it.</li>
           <li><span class="qid">C-Q6</span><b>Who can see a pending record?</b> The subject's side is decided (D13: first seen in the next-login notice). Reading for the rest: the proposer and every other member see a read-only line (person, thing, who proposed, status), and nothing else of the subject's list. That line disappears once the subject has dealt with it, which is the only trace the proposer gets (D11). Wrong guess: privacy of a personal list, or surprise at a meal being held back.</li>
           <li><span class="qid">C-Q7</span><b>Can the proposer take it back or change it while pending?</b> Reading: take back only, until answered.</li>
           <li><span class="qid">C-Q8</span><b>If the subject already has a conflicting record</b> (Sam likes peanuts, Arjan proposes avoids peanuts)? Reading (not drawn): a proposal never retires the subject's own record; both stand and the stricter is used.</li>

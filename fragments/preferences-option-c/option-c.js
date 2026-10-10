@@ -5,6 +5,7 @@
    - It is written DIRECTLY on that member's own personal list (owner = Sam), tagged "proposed by", pending Sam's acknowledgment. Never on the household list.
    - It takes effect IMMEDIATELY (planning and recipe building use it at once).
    - Sam gets a courtesy notice at the next login and can accept as is, edit, or reject. Not an approval gate.
+   Household-level values: D5 and D8 (any member edits) are SUPERSEDED by the household admin role (D25 to D30): only admins change them (D28); proposing for another member is not gated (D29, D9).
    Locked by the owner (voice, 10 October 2026, D5 to D14 in the notes): any member may propose for another member (D9); a later reject or edit never changes a meal already planned (D10);
    the proposer is NEVER told what the subject decided (D11, so there is no outcome line or event list here); a pending proposal never expires or escalates (D12); the subject sees nothing of it
    before the next-login notice (D13, so the subject never appears in the "Added for housemates" lines, and no badge or preview is drawn elsewhere); while pending it is fully reliable and in use at once (D14).
@@ -23,6 +24,12 @@
 
   var PEOPLE = { sam: { name: "Sam" }, arjan: { name: "Arjan" }, jo: { name: "Jo" } };
   var ORDER = ["arjan", "sam", "jo"];
+  /* D25 to D28: household-level values (the Household tab, and the household's rows on Mine) are changed by household admins only. Arjan is the founding member, Jo an admin, Sam a member (same household as option B).
+     A proposal for another member is written on that member's own record and is not gated by role (D29, D9). */
+  var HH_ROLE = { arjan: "founder", jo: "admin", sam: "member" };
+  function isAdmin(id) { return HH_ROLE[id] === "founder" || HH_ROLE[id] === "admin"; }
+  function lockNote() { return '<p class="note ro">' + ICON.lock + "<span>" + ADMIN_WHY + "</span></p>"; }
+  var ADMIN_WHY = "Only household admins can change this.";
   var ROLE = { arjan: "Arjan, who proposes", sam: "Sam, the person it is about", jo: "Jo, another member" };
 
   /* ---------- sample data (mockup only) ---------- */
@@ -115,6 +122,8 @@
         ed = '<div class="ped" id="ed-' + c.id + '"><p class="small">Said: <q>' + esc(c.said) + '</q></p>' +
           '<p class="note">This is already in use. Recipes and plans leave it out' + (c.statement === "avoids" ? "" : " or take it into account") + ' while you decide.</p>' +
           '<button type="button" class="btn" data-act="go" data-id="review">Keep, change or remove it</button></div>';
+      } else if (c.owner === null && !isAdmin(viewer)) { // D28: a household rule is read-only for a member who is not an admin
+        ed = '<div class="ped" id="ed-' + c.id + '"><p class="small">Said: <q>' + esc(c.said) + '</q></p>' + lockNote() + "</div>";
       } else {
         ed = '<div class="ped" id="ed-' + c.id + '"><p class="small">Said: <q>' + esc(c.said) + '</q></p>' +
           (c.proposed_by ? '<p class="note">It started as ' + esc(name(c.proposed_by)) + '\'s suggestion and is now yours. The note stays so you can see where it came from.</p>' : "") +
@@ -129,7 +138,7 @@
     var rows = visibleFood(viewer).filter(function (c) { return scope === "hh" ? c.owner === null : true; });
     if (!rows.length) {
       return '<div class="empty">' + ICON.pot + "<b>" + (scope === "hh" ? "Nothing for the whole kitchen yet" : "Nothing remembered about you yet") + "</b><p class=\"small\">" +
-        (scope === "hh" ? "Allergies and house rules for everyone go here. Tell your assistant, and say it is for the household." : "Tell your assistant what you like, dislike or cannot eat, and it shows up here. A housemate can also add something for you.") + "</p></div>";
+        (scope === "hh" ? (isAdmin(viewer) ? "Allergies and house rules for everyone go here. Tell your assistant, and say it is for the household." : "Allergies and house rules for everyone go here. Only household admins can add them.") : "Tell your assistant what you like, dislike or cannot eat, and it shows up here. A housemate can also add something for you.") + "</p></div>";
     }
     var out = "";
     var waiting = rows.filter(function (c) { return c.ack_state === "pending"; });
@@ -200,7 +209,8 @@
     return '<div role="tabpanel" id="panel-hh" aria-labelledby="tab-hh" class="mbody2">' +
       '<p>Shared by everyone in Our kitchen.</p>' +
       '<p class="note ro">' + ICON.lock + "<span>Nothing a member adds for another member is kept here. It is written on that person's own list, so it never becomes a household rule.</span></p>" +
-      '<span class="lbl">Food for everyone</span><div class="card sgroup foodcard">' + foodList(S.as, "hh") + '<p class="note">Any member of the kitchen can say or retire these. Unchanged from option B.</p></div>' +
+      (isAdmin(S.as) ? "" : '<p class="note ro">' + ICON.lock + "<span>" + ADMIN_WHY + " You can still change everything on Mine.</span></p>") +
+      '<span class="lbl">Food for everyone</span><div class="card sgroup foodcard">' + foodList(S.as, "hh") + '<p class="note">' + (isAdmin(S.as) ? "Household admins can say or retire these. Same as option B." : "Only household admins can say or retire these.") + "</p></div>" +
       '<span class="lbl">Everything else</span><div class="card sgroup">' + navRow("Stock-check defaults, household note, names and places", "Exactly as in option B", "bi", "Unchanged", "Option B rows") + "</div></div>";
   }
 
@@ -345,7 +355,7 @@
       b.setAttribute("aria-pressed", String(S[k] === v));
     });
     var st = document.getElementById("oc-state");
-    if (st) st.textContent = ROLE[S.as] + " · " + SCREEN_WORD[S.screen] + (S.screen === "main" ? " · " + (S.tab === "mine" ? "Mine" : "Household") : "") + " · " + (S.data === "empty" ? "nothing set yet" : "some set");
+    if (st) st.textContent = ROLE[S.as] + (isAdmin(S.as) ? " (" + (HH_ROLE[S.as] === "founder" ? "founding member" : "household admin") + ")" : " (not an admin)") + " · " + SCREEN_WORD[S.screen] + (S.screen === "main" ? " · " + (S.tab === "mine" ? "Mine" : "Household") : "") + " · " + (S.data === "empty" ? "nothing set yet" : "some set");
   }
 
   /* ---------- actions ---------- */
@@ -414,7 +424,7 @@
     }
     else if (act === "keepit") { S.confirm = null; S.focus = '[data-act="reject"][data-id="' + id + '"]'; render(); }
     else if (act === "takeback") { c = claim(id); if (c) { M.claims = M.claims.filter(function (x) { return x.id !== id; }); S.flash = "Taken back. " + cap(c.subject) + " is off " + name(c.owner) + "'s list and no longer used."; render(); } }
-    else if (act === "forget") { M.claims = M.claims.filter(function (x) { return x.id !== id; }); S.open = null; render(); }
+    else if (act === "forget") { var fg = claim(id); if (fg && fg.owner === null && !isAdmin(S.as)) return; M.claims = M.claims.filter(function (x) { return x.id !== id; }); S.open = null; render(); }
     else if (act === "nav") { S.flash = id === "plan" ? "" : "Opens " + id + ". Not drawn in this option."; if (id === "plan") { go("plan"); return; } if (id === "review") { go("review"); return; } S.open = null; render(); }
   });
 
