@@ -1,0 +1,16 @@
+/* Shopper link, PHASE TWO, NOT BUILT: the receipt screens. Fetched with receipt.js only when the shopper picks "Snap the receipt".
+   Reuses the page's .shop-empty card, .ric, .btn and .note; adds only sl-rcpt names. Theme tokens only. */
+.sl-rcpt .shop-empty{gap:12px}
+.sl-rcpt .shop-empty p{max-width:22rem}
+.sl-rcpt .btn{align-self:stretch;min-height:52px;margin:0}
+.sl-rcpt label.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 1rem;border:1px solid var(--accent);border-radius:.8rem;background:var(--accent);color:var(--on-accent);font-weight:700;cursor:pointer}
+.sl-rcpt label.btn:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+.sl-rcpt-bar{width:100%;height:10px;border:0;border-radius:99px;background:var(--border);overflow:hidden;-webkit-appearance:none;appearance:none}
+.sl-rcpt-bar::-webkit-progress-bar{background:var(--border);border-radius:99px}
+.sl-rcpt-bar::-webkit-progress-value{background:var(--accent);border-radius:99px;transition:width .2s ease}
+.sl-rcpt-bar::-moz-progress-bar{background:var(--accent);border-radius:99px}
+@media (prefers-reduced-motion:reduce){.sl-rcpt-bar::-webkit-progress-value{transition:none}}
+/* Back on the list after a good read: what the receipt showed is ticked, and the lines it did not show say so. */
+.sl-rcpt-note{display:flex;align-items:center;gap:10px;margin:0 0 10px;padding:.6rem .8rem;border:1px solid var(--accent);border-radius:1rem;background:var(--surface);font-weight:600;line-height:1.3}
+.sl-rcpt-note svg{flex:none;color:var(--accent)}
+.sl-list .sl-rcpt-miss{display:block;margin-top:.1rem;font-size:.9rem;font-weight:600;color:var(--accent)}

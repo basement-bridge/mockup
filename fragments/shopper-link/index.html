@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Shopper link, the whole loop — fragment</title><link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><link rel="stylesheet" href="fragment.css"><script src="../../theme.js"></script></head>
+<body>
+<div class="wrap">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Shopper link: tick it off from the chat</h1>
+<p>Fragment. The job: <b>shopping for the household without being in the app</b>. Someone is handed the list in the family's own chat, buys what they can, and says what came home with one link and no sign-in. Kitchie issue <a href="https://github.com/basement-bridge/kitchie/issues/479" style="text-decoration:underline">kitchie#479</a>.</p>
+
+<ol class="sl-loop" aria-label="The loop">
+<li><span class="em" aria-hidden="true">📝</span><b>Share</b>A member sends the list, with a link</li>
+<li><span class="em" aria-hidden="true">💬</span><b>Chat</b>It lands where the family already talks</li>
+<li><span class="em" aria-hidden="true">🛒</span><b>Shop</b>Tick, or say what you got instead</li>
+<li><span class="em" aria-hidden="true">📨</span><b>Send</b>One confirm, one message back</li>
+<li><span class="em" aria-hidden="true">🧺</span><b>Home</b>The Shopping screen shows what came home</li>
+</ol>
+
+<div class="sl-said"><b>The owner's words</b> <span class="tag">voice, 10 October 2026</span>
+<ul>
+<li>&ldquo;The intent of the entire thing here is to reduce the friction and not force people to be in the system for them to make use of it.&rdquo; &ldquo;Find people where they already naturally live.&rdquo;</li>
+<li>Whoever shops is not on the app: &ldquo;Give me the list, I'm going to get those things in the house. And that's the extent of how engaged they're willing to be.&rdquo;</li>
+<li>The gap: &ldquo;they bought some of them, they've gone and substituted some of those things, and there's no way for Kitchie to get all of that information back in.&rdquo;</li>
+<li>&ldquo;At the time of sharing the shopping list, what if Kitchie could spin off a one-off link where the person who's doing the shopping can [tick it off], then that person is not forced to be in the system. That link is just unique for that person. It expires, let's say, forty-eight hours. That's good enough.&rdquo;</li>
+<li>&ldquo;We can just get that person to tick off what they bought, and make any substitutes that they made decisions on, and if they don't tick it off, we kind of know that. Get a confirmation, of course, but we know that person has now acted on that list either fully or partially.&rdquo;</li>
+<li>&ldquo;The call to action there needs to be two modes. One is that they just tick off what's on the list and do the substitutes. Let's start with it as an MVP.&rdquo; <span>The second mode, scanning the receipt, is phase two: drawn below, not built.</span></li>
+<li><span>The shopper</span> &ldquo;may choose neither&rdquo; <span>and that is accepted.</span></li>
+</ul></div>
+<p class="q">Sample data only: twelve made-up groceries. Nobody is named: people are &ldquo;a member&rdquo; and &ldquo;the shopper&rdquo;. Every phone below is the real page from this folder in a frame, so what you tap is the markup the build would lift.</p>
+
+<!-- ================================================================== A -->
+<section class="sl-part" aria-labelledby="pa">
+<div class="lbl">Part A</div>
+<h2 id="pa">The member, signed in, on Shopping</h2>
+<p>Three moments: sharing, waiting while the link is live, and the result coming back.</p>
+
+<h3>1. Where does Share live? <span class="tag">Open, three options</span></h3>
+<p>The Shopping header lost its cart button on purpose (one shared header on every screen), and the plan still asks where copy or share goes. Tap Share in any phone: it makes the link and hands the list to the phone's own share sheet (or copies it).</p>
+<div class="opts two">
+<div class="opt"><h2><b>A</b>A hand-off slot above the list <span class="tag new">Proposal</span></h2><p class="note"><b>Proposed.</b> One quiet strip above the list is where the hand-off lives: Share now, the live link next, the result later. Seen on arrival however long the list is, and the shared header stays untouched. Costs one row of height, always.</p>
+<figure class="sl-ph"><iframe src="member.html" title="Member, option A: Share in a slot above the list"></iframe></figure></div>
+<div class="opt"><h2><b>B</b>An icon in the header</h2><p class="note">Smallest. But the header is the same on Home, Pantry and Shopping by the owner's decision, an icon alone does not say &ldquo;with a link&rdquo;, and the live state has nowhere to sit beside it.</p>
+<figure class="sl-ph"><iframe src="member.html?share=b" title="Member, option B: a share icon in the header"></iframe></figure></div>
+<div class="opt"><h2><b>C</b>After the last line</h2><p class="note">Where you are when the list is finished, and close to the thumb on a short list. On a long list it is below the fold, and it sits where &ldquo;Done shopping&rdquo; appears once anything is ticked.</p>
+<figure class="sl-ph"><iframe src="member.html?share=c" title="Member, option C: Share after the last line"></iframe></figure></div>
+<div class="opt sl-why"><h2>Why A</h2>
+<ul>
+<li><b>One place for the whole hand-off.</b> Share, &ldquo;link is live&rdquo; and &ldquo;the shop is back&rdquo; take turns in the same slot, so there is nothing to hunt for.</li>
+<li><b>It says what it does.</b> A question and a word, not an icon to decode.</li>
+<li><b>It leaves settled things alone:</b> the shared header and the &ldquo;Done shopping&rdquo; bar.</li>
+<li><b>What it costs:</b> the list starts one row lower for everyone, including households that never share.</li>
+</ul></div>
+</div>
+
+<h3>2. What lands in the family's chat</h3>
+<p>Plain text, so it reads the same in any chat app: the list exactly as Kitchie already writes it (<code>share-text.ts</code>), then one line and the link. <b>Proposal:</b> the link goes after the list, with these words. The list alone is still useful to someone who never taps.</p>
+<div class="sl-chat" aria-label="A family chat, drawn plainly">
+<div class="sl-chat-h">Family chat</div>
+<div class="sl-bub">Shopping list
+- bananas, 6
+- bread, 1 loaf
+- cheddar, 1 block
+- dish soap
+- eggs, a dozen (2 left, minimum 6)
+- milk, 2 L
+- olive oil, 1 bottle
+- onions (running low)
+- penne, 500 g
+- rice, 2 kg
+- spinach, 1 bag
+- tomatoes, 1 kg
+
+Tick off what you got, no sign-in needed. Works for 48 hours:
+<u>https://kitchie.example/list/sample-link-not-real-000000000000000000000</u></div>
+<div class="sl-bub them">On it 👍</div>
+</div>
+
+<h3>3. While the link is live</h3>
+<p>Quiet, one line per link, with a way to cancel. Up to 3 live links per household, none labelled with a person (<b>Proposal</b>). Cancel works in the phones.</p>
+<div class="opts two">
+<div class="opt"><h2>One link out</h2><p class="note">Share stays, for a second shopper.</p>
+<figure class="sl-ph short"><iframe src="member.html?live=1" title="Member: one link is live, ends in 47 hours, Cancel"></iframe></figure></div>
+<div class="opt"><h2>Three out, the most</h2><p class="note">Share steps aside and says why. Cancel one and it comes back.</p>
+<figure class="sl-ph short"><iframe src="member.html?live=3" title="Member: three links are live, the most at once"></iframe></figure></div>
+</div>
+
+<h3>4. The result comes back</h3>
+<p>A card with the three counts. Lines the shopper got arrive ticked, &ldquo;in the basket&rdquo;. A swapped line says <b>Got instead</b> in the shopper's words and is not ticked. Then the &ldquo;Done shopping&rdquo; bar the household already knows. <b>Proposal:</b> nothing reaches the Pantry until a member presses it.</p>
+<div class="opts two">
+<div class="opt"><h2>Top of the screen</h2><p class="note">Ticks, the count and Dismiss work.</p>
+<figure class="sl-ph"><iframe src="member-result.html" title="Member: the shop is back, 9 got, 1 swapped, 2 not got"></iframe></figure></div>
+<div class="opt"><h2>Further down</h2><p class="note">Olive oil: not got. Penne: got instead, not ticked. Spinach: not got.</p>
+<figure class="sl-ph"><iframe src="member-result.html?at=mid" title="Member: the swapped and not got lines"></iframe></figure></div>
+</div>
+</section>
+
+<!-- ================================================================== B -->
+<section class="sl-part" aria-labelledby="pb">
+<div class="lbl">Part B</div>
+<h2 id="pb">The shopper: no sign-in, one hand, in a shop</h2>
+<p>One page. The whole line is the tick, the amount sits beside the name, and the one button stays under the thumb.</p>
+
+<h3>Try it</h3>
+<div class="sl-try">
+<figure class="sl-ph"><iframe id="sl-live-phone" src="list.html" title="Shopper: the list, working"></iframe><figcaption><a href="list.html">Open the page on its own</a></figcaption></figure>
+<div>
+<ol>
+<li><b>Tick</b> a few lines. Tap anywhere on a line.</li>
+<li>Tap <b>Got something else</b> on one, say what you got, press Enter. The tick comes off: a swap wins.</li>
+<li><b>Send</b> shows the count first. Send again and it is gone.</li>
+<li>Close the tab half way and come back: the ticks are still on this phone. Nothing reached Kitchie before Send.</li>
+</ol>
+<button type="button" class="sl-reset" id="sl-reset">Start again</button>
+</div>
+</div>
+
+<h3>Every state</h3>
+<div class="opts two">
+<div class="opt"><h2>Got something else</h2><p class="note">One short field, 120 characters at most. Said and done, the line folds back to &ldquo;Got instead: &hellip;&rdquo;.</p>
+<figure class="sl-ph"><iframe src="list.html?s=swap" title="Shopper: the swap field open on one line"></iframe></figure></div>
+<div class="opt"><h2>Ready to send</h2><p class="note">The button counts as you go. The end of the list says how long the link has left.</p>
+<figure class="sl-ph"><iframe src="list.html?s=ready" title="Shopper: nine ticked, one swap, the end of the list"></iframe></figure></div>
+<div class="opt"><h2>The confirm step</h2><p class="note">&ldquo;Got 9 of 12 &middot; 1 swap &middot; 2 not got.&rdquo; Only the lines that are not a plain &ldquo;got&rdquo; are listed, so a missed tick is easy to spot.</p>
+<figure class="sl-ph"><iframe src="list.html?s=summary" title="Shopper: the confirm step"></iframe></figure></div>
+<div class="opt"><h2>Nothing ticked</h2><p class="note">Allowed, after the same step. It tells the household the shop did not happen.</p>
+<figure class="sl-ph short"><iframe src="list.html?s=none" title="Shopper: confirm with nothing ticked"></iframe></figure></div>
+<div class="opt"><h2>Sent</h2><p class="note">A thank-you and what was sent. Opening the link again shows this same page, read-only, until the 48 hours end (<b>Proposal</b>).</p>
+<figure class="sl-ph tall"><iframe src="sent.html" title="Shopper: sent, thank you, with the summary"></iframe></figure></div>
+<div class="opt"><h2>That link has finished</h2><p class="note">One neutral page for ended, cancelled and unknown links. It never says which.</p>
+<figure class="sl-ph tiny"><iframe src="finished.html" title="Shopper: that link has finished"></iframe></figure></div>
+</div>
+<p class="q">With no script the same form still works: Send answers a page with this confirm step (<a href="summary.html" style="text-decoration:underline">summary.html</a>), and its Send posts <code>confirm=1</code>.</p>
+
+<div class="sl-notes"><b>The form, exactly</b> <span class="tag">for the build</span>
+<dl class="sl-fields">
+<dt><code>got</code></dt><dd>Repeated, one per ticked line. The value is the line's key: <code>l0</code>, <code>l1</code>, &hellip; (its place in the snapshot).</dd>
+<dt><code>swap_&lt;key&gt;</code></dt><dd>Text, up to 120 characters, for example <code>swap_l8</code>. Only counts when not empty. If a <code>got</code> arrives for the same key, the swap wins.</dd>
+<dt><code>confirm</code></dt><dd><code>1</code> once the person has seen the summary and pressed Send. Without it the server answers the summary page.</dd>
+</dl>
+<ul>
+<li><code>GET &lt;base&gt;/list/&lt;token&gt;</code> draws the page; the same address takes the <code>POST</code>. No other field, no cookie, no session.</li>
+<li>List rows use the Shopping screen's own names (<code>ul.rows.shop</code>, <code>li.shoprow[data-shop-row]</code>, <code>.swfg</code>, <code>.tick</code>, <code>.rlink</code>, <code>.em</code>, <code>.smain</code>, <code>.sname</code>, <code>.want</code>). Everything new starts with <code>sl-</code>.</li>
+<li><b>One place the markup cannot match the app:</b> the app's tick is <code>button.tick[role=checkbox]</code>, which needs script. Here it is <code>label.tick</code> around a real checkbox, so the page works as a plain form. Same class, same look, one size up.</li>
+</ul></div>
+</section>
+
+<!-- ================================================================== C -->
+<section class="sl-part" aria-labelledby="pc">
+<div class="lbl">Part C &middot; Phase two, not built</div>
+<h2 id="pc">The second mode: scan the receipt <span class="tag p2">Phase two, not built</span></h2>
+<p>Mockup only. The owner: the photo goes to the Kitchie server &ldquo;over WebSocket&rdquo;, the server does the image recognition (&ldquo;We are not going to use any tokens for this&rdquo;), and pushes the answer back &ldquo;through the same WebSocket&rdquo;. If 80% of the list's lines are findable on the receipt, &ldquo;that image was decent enough&rdquo;. If not, one more try, then: &ldquo;hey, it seems like that didn't work out, it might just be easier for you to just clear this based on the list.&rdquo;</p>
+<div class="opts two">
+<div class="opt"><h2><b>1</b>Choose</h2><p class="note">Two ways to finish, side by side. Ticking stays the first one.</p>
+<figure class="sl-ph short"><iframe src="list.html?s=p2" title="Phase two: choose tick the list or snap the receipt"></iframe></figure></div>
+<div class="opt"><h2><b>2</b>Snap</h2><p class="note">Only now does the page ask for a camera, and only now does the socket open.</p>
+<figure class="sl-ph short"><iframe src="list.html?s=p2-ask" title="Phase two: snap the receipt"></iframe></figure></div>
+<div class="opt"><h2><b>3</b>Reading</h2><p class="note">The server pushes what it has found so far.</p>
+<figure class="sl-ph short"><iframe src="list.html?s=p2-reading" title="Phase two: reading the receipt"></iframe></figure></div>
+<div class="opt"><h2><b>4</b>80% or more <span class="tag new">Proposal</span></h2><p class="note">10 of 12 is 83%. The lines found arrive ticked; the shopper checks the rest and presses Send as usual. Nothing is sent for them.</p>
+<figure class="sl-ph short"><iframe src="list.html?s=p2-ok" title="Phase two: ten of twelve found, lines arrive ticked"></iframe></figure></div>
+<div class="opt"><h2><b>5</b>Under 80%</h2><p class="note">7 of 12 is 58%. One more photo is offered, once.</p>
+<figure class="sl-ph short"><iframe src="list.html?s=p2-retry" title="Phase two: under 80 percent, one more photo"></iframe></figure></div>
+<div class="opt"><h2><b>6</b>Second miss</h2><p class="note">The owner's fallback, nearly word for word. Back to ticking; the receipt button goes away for this link.</p>
+<figure class="sl-ph short"><iframe src="list.html?s=p2-fallback" title="Phase two: second miss, tick the list instead"></iframe></figure></div>
+</div>
+</section>
+
+<!-- ================================================================== notes -->
+<div class="sl-notes"><b>Proposals</b> <span class="tag">ours, not the owner's; each can change</span>
+<ul>
+<li><b>Proposal P1, P2.</b> The shopper's Send does not change the Pantry by itself. It ticks lines on the Shopping screen; a member commits with the existing &ldquo;Done shopping&rdquo; (which already asks &ldquo;How much did you buy?&rdquo;). A swapped line is not ticked.</li>
+<li><b>Proposal P3.</b> The shopper sees the list as it was when shared: a snapshot. Lines added later are not on it.</li>
+<li><b>Proposal P4.</b> Ticks stay on the shopper's phone until Send: one write per link. If Send cannot reach Kitchie the ticks stay and the page says so.</li>
+<li><b>Proposal P5.</b> After Send the link has done its job. Opening it again shows what was sent, read-only.</li>
+<li><b>Proposal P6.</b> No names on the shopper's page: not the household's, not a member's. Not what is left at home either.</li>
+<li><b>Proposal P7.</b> Up to 3 live links per household, each cancellable, none labelled with a person.</li>
+<li><b>Proposal P8.</b> Swap text up to 120 characters; up to 200 lines in a snapshot.</li>
+<li><b>Proposal P9.</b> Share lives in a hand-off slot above the list (option A).</li>
+<li><b>Proposals the drawing added.</b> The link line after the list, and its words. The whole line is the tick, with a plain strike-through instead of the app's hand-drawn one (it needs no script). A swap takes the tick off; tapping a swapped line opens its words again. The confirm step lists only what is not a plain &ldquo;got&rdquo;, and ignores a second tap for half a second. One page for &ldquo;sent&rdquo; and for the link opened again. The shopper is told how long the link has left. On the member's side: Share steps aside at 3 live links and while a result is waiting; lines the shopper did not get say &ldquo;Not got&rdquo;; the card has Dismiss; Cancel is one tap.</li>
+<li><b>Proposals in phase two.</b> A good read does not send by itself: the lines found arrive ticked and the rest say &ldquo;Not on the receipt&rdquo;. The socket opens when the mode is chosen. The message shapes are in <code>receipt.js</code>. After the second miss the receipt button goes away for that link.</li>
+</ul></div>
+
+<div class="sl-notes open"><b>Open questions</b> <span class="tag">and what a wrong guess costs</span>
+<p class="q">The first six are kitchie#479's own. The costs after the first are our reading, not the owner's.</p>
+<ol>
+<li><b>Should the shopper's confirm put the items into the Pantry straight away, with no member tap?</b> That is the lowest-friction loop, and it means a person who is not signed in changes stock. P1 says no for now. <i>Cost:</i> P1 costs the household one tap per shop; the other way lets anyone holding a link within 48 hours add stock (undoable per item in History).</li>
+<li><b>What should a swap do to the Pantry:</b> add the swapped thing as a new item, or leave it to the member (P2)? <i>Cost:</i> as drawn, the member adds it by hand. The other way, the Pantry gains items named in an outsider's free text.</li>
+<li><b>Should a link be labelled for a person</b> (&ldquo;for the weekend shop&rdquo;, a name), given &ldquo;that link is just unique for that person&rdquo;? <i>Cost:</i> unlabelled, two live links can only be told apart by the hours left. Labelled, sharing gains a question and a name is stored against a public page.</li>
+<li><b>Things bought that were not on the list:</b> a free-text &ldquo;also got&rdquo; box, or wait for the receipt phase? <i>Cost:</i> without it, extras never reach Kitchie in phase one. With it, one more thing to type in a shop.</li>
+<li><b>Should a finished link be reopenable for a second shop the same day?</b> <i>Cost:</i> as drawn, a second trip needs a new share. The other way, a result can change after the household has acted on it.</li>
+<li><b>48 hours from sharing (built) or from first opening?</b> <i>Cost:</i> from sharing, a list sent on Friday night for a Sunday shop has finished. From opening, an unopened link lives on with no end unless it is capped.</li>
+<li><b>From the drawing: the link before or after the list?</b> <i>Cost:</i> after (as drawn), a long list is cut short by some chat apps and the link hides behind &ldquo;read more&rdquo;. Before, the list is pushed down by a link the shopper may not want.</li>
+<li><b>From the drawing: does Cancel need a second tap?</b> <i>Cost:</i> as drawn, one slip ends a link someone may be shopping with (their ticks stay on their phone, but Send answers &ldquo;That link has finished&rdquo;). A confirm costs a tap on a rare action.</li>
+<li><b>From the drawing: the share sheet is closed without sending.</b> The link already exists and counts toward the 3. <i>Cost:</i> as drawn, it shows as live until cancelled or it ends. Cancelling it automatically needs the page to know which link it made (the share answer has no link id).</li>
+<li><b>From the drawing: which Share placement</b> (A, B or C above)? <i>Cost:</i> the wrong one is rebuilt; A also moves the list down by one row for households that never share.</li>
+<li><b>Phase two: a line that is not on the receipt.</b> Not got, or simply not read? And a swap looks like a miss (the receipt says fusilli, the list says penne). <i>Cost:</i> treating misses as &ldquo;not got&rdquo; puts things back on the list that are already in the bag, which is why the drawing leaves them for the shopper to check.</li>
+<li><b>Phase two: is the photo kept?</b> A receipt shows a shop, a time and part of a card number. <i>Cost:</i> keeping it makes a public, unsigned-in page a way to store personal data. Not decided; nothing here assumes it is kept.</li>
+</ol></div>
+
+<div class="sl-notes"><b>Performance note</b> (<a href="../../DESIGN.md" style="text-decoration:underline">DESIGN.md section 6</a>)
+<ul>
+<li><b>Shopper, default path loads</b>: the page (19 KB for 12 lines, about 3 KB compressed; 1.3 KB a line, so about 260 KB at the 200-line cap, which compresses to about 9 KB), <code>shopper.css</code> (7 KB, 2.5 KB compressed) and one deferred script, <code>shopper.js</code> (11 KB, 4 KB compressed). No app stylesheet, no header, no bottom bar, no scribble script. The page is usable before the script arrives, and without it.</li>
+<li><b>Shopper, no request while shopping</b>: ticks and swap words stay in the browser. One POST when the person presses Send, then one page back.</li>
+<li><b>Deferred until chosen (phase two)</b>: <code>receipt.js</code> (8 KB, 3 KB compressed) and <code>receipt.css</code> (2 KB) are fetched only when the person taps &ldquo;Snap the receipt&rdquo;. The camera input is created by that script and the WebSocket opens then: before the choice the page has no file input, no socket and none of that code. In phase one the chooser itself is not in the page.</li>
+<li><b>Sent and &ldquo;That link has finished&rdquo;</b>: the page and its stylesheet only. No script, no list rows.</li>
+<li><b>Member, default path</b>: the Shopping screen as today plus the hand-off slot's markup (drawn on the server), about 4 KB of CSS and about 4 KB of script folded into <code>shopping.js</code>. Nothing is fetched on load: Share, Cancel and Dismiss each make one POST when tapped. The share sheet is the phone's own.</li>
+<li><b>Why reasonable now</b>: the shopper opens this once, on mobile data, possibly with a weak signal in a shop. Everything they need arrives in the first response; the only heavy part (a photo upload) waits for a choice they may never make.</li>
+<li><b>This fragment page</b> is heavier than any screen it shows: it loads 20 frames at once so every state can be compared. Mockup only. <code>mock.js</code> and <code>kitchie.css</code> are also mockup only (a stand-in for the server, and rules the app already has).</li>
+</ul></div>
+</div>
+<script src="fragment.js"></script>
+</body></html>

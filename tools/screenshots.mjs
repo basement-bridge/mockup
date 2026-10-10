@@ -26,6 +26,7 @@ const SCREENS = [
   ["recipe-page", "fragments/recipe-page/index.html"],
   ["recipe-search", "fragments/recipe-search/index.html"],
   ["scan-in", "fragments/scan-in/index.html"],
+  ["shopper-link", "fragments/shopper-link/index.html"],
   ["use-up", "fragments/use-up/index.html"],
 ].filter(s => !only || s[0].includes(only));
 const WIDTHS = [[360, 800, "phone"], [390, 844, "phone"], [768, 1024, "tablet"], [1280, 900, "desktop"]];

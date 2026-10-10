@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="robots" content="noindex">
+<title>Shopping list</title>
+<!-- The shopper's page: GET <base>/list/<token>. As the build would serve it: this page, shopper.css and one deferred script, shopper.js.
+     It is one plain form and works with no script: POST to the same address answers summary.html, whose Send posts confirm=1.
+     Mockup only, not for the build: theme.css and theme.js (the mockup's tokens and theme choice), kitchie.css (rules the app already has)
+     and mock.js (stands in for the server and jumps a frame to a state; see its first lines). -->
+<link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="kitchie.css"><link rel="stylesheet" href="shopper.css">
+<script src="../../theme.js"></script><script src="mock.js" defer></script><script src="shopper.js" defer></script>
+</head><body data-no-theme-fab>
+<main class="sl-page" id="sl" data-sl-receipt-css="receipt.css" data-sl-receipt-js="receipt.js" data-sl-receipt-ws="receipt">
+<span class="brandbar"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="6" y="2.5" width="12" height="19" rx="2.5"></rect><path d="M6 10h12M9 6v1.5M9 13v3"></path></svg><span>Kitchie</span></span>
+<!-- Form contract (kitchie #479): fields got (one per ticked line, value = the line key), swap_<key> (text, up to 120 characters), confirm=1. No other field. -->
+<form class="sl-form" id="sl-form" method="post" action="" data-sl-link="3f9a1c2e">
+
+<section class="sl-view" data-sl-view="list">
+<h1 tabindex="-1">Shopping list</h1>
+<!-- PHASE TWO, NOT BUILT. The server leaves this block out in phase one (here: hidden until mock.js is asked for ?p2). -->
+<div class="sl-modes" data-sl-modes role="group" aria-label="How do you want to finish?" hidden>
+<button type="button" class="sl-mode" data-sl-mode="tick" aria-pressed="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Tick the list</button>
+<button type="button" class="sl-mode" data-sl-mode="receipt" aria-pressed="false"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Snap the receipt</button>
+</div>
+<p id="shop-hint" class="hint">Tick what you got. Nothing is sent until you press Send.</p>
+<ul class="rows shop sl-list" id="shop">
+<li class="shoprow" data-shop-row data-key="l0" data-name="Bananas">
+<div class="swfg"><label class="tick"><input type="checkbox" name="got" value="l0" id="sl-got-l0"><span aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1"/></svg></span></label>
+<label class="rlink" for="sl-got-l0"><span class="em" aria-hidden="true">🍌</span><span class="smain"><span class="sname"><span data-scribble>Bananas</span> <b class="want">6</b></span></span></label></div>
+<details class="sl-swap"><summary><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 9h12l-3-3M19 15H7l3 3"/></svg><span data-sl-swap-label>Got something else</span></summary>
+<div class="sl-swap-f"><label class="sr-only" for="sl-swap-l0">What did you get instead of Bananas?</label><input type="text" id="sl-swap-l0" name="swap_l0" maxlength="120" autocomplete="off" autocapitalize="off" enterkeyhint="done" placeholder="What did you get instead?"></div></details>
+</li>
+<li class="shoprow" data-shop-row data-key="l1" data-name="Bread">
+<div class="swfg"><label class="tick"><input type="checkbox" name="got" value="l1" id="sl-got-l1"><span aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1"/></svg></span></label>
+<label class="rlink" for="sl-got-l1"><span class="em" aria-hidden="true">🍞</span><span class="smain"><span class="sname"><span data-scribble>Bread</span> <b class="want">1 loaf</b></span></span></label></div>
+<details class="sl-swap"><summary><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 9h12l-3-3M19 15H7l3 3"/></svg><span data-sl-swap-label>Got something else</span></summary>
+<div class="sl-swap-f"><label class="sr-only" for="sl-swap-l1">What did you get instead of Bread?</label><input type="text" id="sl-swap-l1" name="swap_l1" maxlength="120" autocomplete="off" autocapitalize="off" enterkeyhint="done" placeholder="What did you get instead?"></div></details>
+</li>
+<li class="shoprow" data-shop-row data-key="l2" data-name="Cheddar">
+<div class="swfg"><label class="tick"><input type="checkbox" name="got" value="l2" id="sl-got-l2"><span aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1"/></svg></span></label>
+<label class="rlink" for="sl-got-l2"><span class="em" aria-hidden="true">🧀</span><span class="smain"><span class="sname"><span data-scribble>Cheddar</span> <b class="want">1 block</b></span></span></label></div>
+<details class="sl-swap"><summary><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 9h12l-3-3M19 15H7l3 3"/></svg><span data-sl-swap-label>Got something else</span></summary>
+<div class="sl-swap-f"><label class="sr-only" for="sl-swap-l2">What did you get instead of Cheddar?</label><input type="text" id="sl-swap-l2" name="swap_l2" maxlength="120" autocomplete="off" autocapitalize="off" enterkeyhint="done" placeholder="What did you get instead?"></div></details>
+</li>
+<li class="shoprow" data-shop-row data-key="l3" data-name="Dish soap">
+<div class="swfg"><label class="tick"><input type="checkbox" name="got" value="l3" id="sl-got-l3"><span aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1"/></svg></span></label>
+<label class="rlink" for="sl-got-l3"><span class="em" aria-hidden="true">🧼</span><span class="smain"><span class="sname"><span data-scribble>Dish soap</span></span></span></label></div>
+<details class="sl-swap"><summary><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 9h12l-3-3M19 15H7l3 3"/></svg><span data-sl-swap-label>Got something else</span></summary>
+<div class="sl-swap-f"><label class="sr-only" for="sl-swap-l3">What did you get instead of Dish soap?</label><input type="text" id="sl-swap-l3" name="swap_l3" maxlength="120" autocomplete="off" autocapitalize="off" enterkeyhint="done" placeholder="What did you get instead?"></div></details>
+</li>
+<li class="shoprow" data-shop-row data-key="l4" data-name="Eggs">
+<div class="swfg"><label class="tick"><input type="checkbox" name="got" value="l4" id="sl-got-l4"><span aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1"/></svg></span></label>
+<label class="rlink" for="sl-got-l4"><span class="em" aria-hidden="true">🥚</span><span class="smain"><span class="sname"><span data-scribble>Eggs</span> <b class="want">a dozen</b></span></span></label></div>
+<details class="sl-swap"><summary><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 9h12l-3-3M19 15H7l3 3"/></svg><span data-sl-swap-label>Got something else</span></summary>
+<div class="sl-swap-f"><label class="sr-only" for="sl-swap-l4">What did you get instead of Eggs?</label><input type="text" id="sl-swap-l4" name="swap_l4" maxlength="120" autocomplete="off" autocapitalize="off" enterkeyhint="done" placeholder="What did you get instead?"></div></details>
+</li>
+<li class="shoprow" data-shop-row data-key="l5" data-name="Milk">
+<div class="swfg"><label class="tick"><input type="checkbox" name="got" value="l5" id="sl-got-l5"><span aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1"/></svg></span></label>
+<label class="rlink" for="sl-got-l5"><span class="em" aria-hidden="true">🥛</span><span class="smain"><span class="sname"><span data-scribble>Milk</span> <b class="want">2 L</b></span></span></label></div>
+<details class="sl-swap"><summary><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 9h12l-3-3M19 15H7l3 3"/></svg><span data-sl-swap-label>Got something else</span></summary>
+<div class="sl-swap-f"><label class="sr-only" for="sl-swap-l5">What did you get instead of Milk?</label><input type="text" id="sl-swap-l5" name="swap_l5" maxlength="120" autocomplete="off" autocapitalize="off" enterkeyhint="done" placeholder="What did you get instead?"></div></details>
+</li>
+<li class="shoprow" data-shop-row data-key="l6" data-name="Olive oil">
+<div class="swfg"><label class="tick"><input type="checkbox" name="got" value="l6" id="sl-got-l6"><span aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1"/></svg></span></label>
+<label class="rlink" for="sl-got-l6"><span class="em" aria-hidden="true">🫒</span><span class="smain"><span class="sname"><span data-scribble>Olive oil</span> <b class="want">1 bottle</b></span></span></label></div>
+<details class="sl-swap"><summary><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 9h12l-3-3M19 15H7l3 3"/></svg><span data-sl-swap-label>Got something else</span></summary>
+<div class="sl-swap-f"><label class="sr-only" for="sl-swap-l6">What did you get instead of Olive oil?</label><input type="text" id="sl-swap-l6" name="swap_l6" maxlength="120" autocomplete="off" autocapitalize="off" enterkeyhint="done" placeholder="What did you get instead?"></div></details>
+</li>
+<li class="shoprow" data-shop-row data-key="l7" data-name="Onions">
+<div class="swfg"><label class="tick"><input type="checkbox" name="got" value="l7" id="sl-got-l7"><span aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1"/></svg></span></label>
+<label class="rlink" for="sl-got-l7"><span class="em" aria-hidden="true">🧅</span><span class="smain"><span class="sname"><span data-scribble>Onions</span></span></span></label></div>
+<details class="sl-swap"><summary><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 9h12l-3-3M19 15H7l3 3"/></svg><span data-sl-swap-label>Got something else</span></summary>
+<div class="sl-swap-f"><label class="sr-only" for="sl-swap-l7">What did you get instead of Onions?</label><input type="text" id="sl-swap-l7" name="swap_l7" maxlength="120" autocomplete="off" autocapitalize="off" enterkeyhint="done" placeholder="What did you get instead?"></div></details>
+</li>
+<li class="shoprow" data-shop-row data-key="l8" data-name="Penne">
+<div class="swfg"><label class="tick"><input type="checkbox" name="got" value="l8" id="sl-got-l8"><span aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1"/></svg></span></label>
+<label class="rlink" for="sl-got-l8"><span class="em" aria-hidden="true">🍝</span><span class="smain"><span class="sname"><span data-scribble>Penne</span> <b class="want">500 g</b></span></span></label></div>
+<details class="sl-swap"><summary><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 9h12l-3-3M19 15H7l3 3"/></svg><span data-sl-swap-label>Got something else</span></summary>
+<div class="sl-swap-f"><label class="sr-only" for="sl-swap-l8">What did you get instead of Penne?</label><input type="text" id="sl-swap-l8" name="swap_l8" maxlength="120" autocomplete="off" autocapitalize="off" enterkeyhint="done" placeholder="What did you get instead?"></div></details>
+</li>
+<li class="shoprow" data-shop-row data-key="l9" data-name="Rice">
+<div class="swfg"><label class="tick"><input type="checkbox" name="got" value="l9" id="sl-got-l9"><span aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1"/></svg></span></label>
+<label class="rlink" for="sl-got-l9"><span class="em" aria-hidden="true">🍚</span><span class="smain"><span class="sname"><span data-scribble>Rice</span> <b class="want">2 kg</b></span></span></label></div>
+<details class="sl-swap"><summary><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 9h12l-3-3M19 15H7l3 3"/></svg><span data-sl-swap-label>Got something else</span></summary>
+<div class="sl-swap-f"><label class="sr-only" for="sl-swap-l9">What did you get instead of Rice?</label><input type="text" id="sl-swap-l9" name="swap_l9" maxlength="120" autocomplete="off" autocapitalize="off" enterkeyhint="done" placeholder="What did you get instead?"></div></details>
+</li>
+<li class="shoprow" data-shop-row data-key="l10" data-name="Spinach">
+<div class="swfg"><label class="tick"><input type="checkbox" name="got" value="l10" id="sl-got-l10"><span aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1"/></svg></span></label>
+<label class="rlink" for="sl-got-l10"><span class="em" aria-hidden="true">🥬</span><span class="smain"><span class="sname"><span data-scribble>Spinach</span> <b class="want">1 bag</b></span></span></label></div>
+<details class="sl-swap"><summary><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 9h12l-3-3M19 15H7l3 3"/></svg><span data-sl-swap-label>Got something else</span></summary>
+<div class="sl-swap-f"><label class="sr-only" for="sl-swap-l10">What did you get instead of Spinach?</label><input type="text" id="sl-swap-l10" name="swap_l10" maxlength="120" autocomplete="off" autocapitalize="off" enterkeyhint="done" placeholder="What did you get instead?"></div></details>
+</li>
+<li class="shoprow" data-shop-row data-key="l11" data-name="Tomatoes">
+<div class="swfg"><label class="tick"><input type="checkbox" name="got" value="l11" id="sl-got-l11"><span aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1"/></svg></span></label>
+<label class="rlink" for="sl-got-l11"><span class="em" aria-hidden="true">🍅</span><span class="smain"><span class="sname"><span data-scribble>Tomatoes</span> <b class="want">1 kg</b></span></span></label></div>
+<details class="sl-swap"><summary><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 9h12l-3-3M19 15H7l3 3"/></svg><span data-sl-swap-label>Got something else</span></summary>
+<div class="sl-swap-f"><label class="sr-only" for="sl-swap-l11">What did you get instead of Tomatoes?</label><input type="text" id="sl-swap-l11" name="swap_l11" maxlength="120" autocomplete="off" autocapitalize="off" enterkeyhint="done" placeholder="What did you get instead?"></div></details>
+</li>
+</ul>
+<p class="note sl-foot">No sign-in needed. This link works for another 46 hours.</p>
+<div class="selbar sl-send" role="region" aria-label="Send"><button type="submit" class="btn"><span>Send</span><span class="sl-send-n" data-sl-count hidden></span></button></div>
+</section>
+
+<!-- The confirm step, shown in place when shopper.js is running. Without script the server answers the first POST with this same block as a
+     page of its own (summary.html). shopper.js fills the three counts, the sentence and the lines; item text only ever goes in as text. -->
+<section class="sl-view sl-summary" data-sl-view="summary" hidden>
+<h1 tabindex="-1" data-sl-sum-title>Send this?</h1>
+<p class="sl-sum" data-sl-sum></p>
+<ul class="sl-tally">
+<li data-sl-tally="got" data-n="0"><b>0</b>got</li>
+<li data-sl-tally="swapped" data-n="0"><b>0</b>swapped</li>
+<li data-sl-tally="notgot" data-n="12"><b>12</b>not got</li>
+</ul>
+<ul class="sl-lines" data-sl-lines></ul>
+<div class="selbar sl-send" role="region" aria-label="Send"><button type="button" class="btn sl-back" data-sl-back>Back</button><button type="submit" class="btn" name="confirm" value="1" data-sl-confirm>Send</button></div>
+</section>
+
+</form>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+</main>
+</body></html>

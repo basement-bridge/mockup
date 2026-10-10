@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="robots" content="noindex">
+<title>Shopping</title>
+<!-- The member's Shopping screen (signed in) with the Share control and the live-link line. Everything outside the sl- blocks is the
+     screen as it is today (web-shopping.ts). New for the build: member.css and member.js (to fold into shopping.js).
+     Options B and C of the Share control are in this file only so the fragment can compare them (data-mock-share); A is the one proposed.
+     Mockup only, not for the build: theme.css and theme.js (the mockup's tokens and theme choice), kitchie.css (rules the app already has)
+     and mock.js (stands in for the server and jumps a frame to a state; see its first lines). -->
+<link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="kitchie.css"><link rel="stylesheet" href="member.css">
+<script src="../../theme.js"></script><script src="mock.js" defer></script><script src="member.js" defer></script>
+</head><body data-no-theme-fab>
+<header class="appbar"><a class="brandbar" href="#" title="Our kitchen"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="6" y="2.5" width="12" height="19" rx="2.5"></rect><path d="M6 10h12M9 6v1.5M9 13v3"></path></svg><span>Our kitchen</span></a><div class="hdr"><form method="post" action="shopping/share" data-sl-share data-mock-share="b"><button type="submit" class="icon sl-share-icon" aria-label="Share the list"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 15V4M8 7.5L12 4l4 3.5M6 12v6.5A1.5 1.5 0 0 0 7.5 20h9a1.5 1.5 0 0 0 1.5-1.5V12"/></svg></button></form><a class="icon" href="#" aria-label="Profile"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 14a4 4 0 0 1-1-7.7 4.5 4.5 0 0 1 8.6-1.3 4 4 0 0 1 3.4 5.5A4 4 0 0 1 17 14v5H7z"/><path d="M7 17h10"/></svg></a></div></header>
+<h1 class="sr-only">Shopping</h1>
+<!-- THE HAND-OFF SLOT (Proposal, option A): one place above the list for sharing, the live link and, later, the result (member-result.html). -->
+<div class="sl-top" id="sl-top">
+<form class="sl-share" method="post" action="shopping/share" data-sl-share data-mock-share="a"><span class="sl-share-t">Someone else shopping?</span><button class="btn" type="submit"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 15V4M8 7.5L12 4l4 3.5M6 12v6.5A1.5 1.5 0 0 0 7.5 20h9a1.5 1.5 0 0 0 1.5-1.5V12"/></svg>Share</button></form>
+<!-- One line per live link, at most 3 (mock.js shows 0, 1 or 3 of them). The field "link" is the first 8 hex of the link's hash. -->
+<div class="sl-live" data-sl-link="3f9a1c2e"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span class="sl-live-t"><b>Link is live</b><span>Ends in 47 hours</span></span>
+<form method="post" action="shopping/share/cancel" data-sl-cancel><input type="hidden" name="link" value="3f9a1c2e"><button type="submit" class="sl-quiet" aria-label="Cancel the link that ends in 47 hours">Cancel</button></form></div>
+<div class="sl-live" data-sl-link="b81d04e7"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span class="sl-live-t"><b>Link is live</b><span>Ends in 31 hours</span></span>
+<form method="post" action="shopping/share/cancel" data-sl-cancel><input type="hidden" name="link" value="b81d04e7"><button type="submit" class="sl-quiet" aria-label="Cancel the link that ends in 31 hours">Cancel</button></form></div>
+<div class="sl-live" data-sl-link="5c2e9a10"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span class="sl-live-t"><b>Link is live</b><span>Ends in 6 hours</span></span>
+<form method="post" action="shopping/share/cancel" data-sl-cancel><input type="hidden" name="link" value="5c2e9a10"><button type="submit" class="sl-quiet" aria-label="Cancel the link that ends in 6 hours">Cancel</button></form></div>
+<p class="note sl-full" data-sl-full hidden>3 links are live, the most at once. Cancel one to share again.</p>
+</div>
+<p id="shop-hint" class="hint">Tick as you drop things in the basket. Swipe right when you've bought it, left to take it off.</p>
+<ul class="rows shop" id="shop" data-scope="demo" data-writes="1">
+<li class="shoprow" data-shop-row data-id="s-01" data-name="Bananas" data-qty="6">
+<div class="swrow"><div class="swfg"><button type="button" class="tick" role="checkbox" aria-checked="false" aria-label="In the basket: Bananas"><span aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1"/></svg></span></button>
+<div class="rlink"><span class="em" aria-hidden="true">🍌</span><div class="smain"><div class="sname"><span data-scribble>Bananas</span> <b class="want">6</b></div><div class="shome">None at home</div></div></div></div></div>
+</li>
+<li class="shoprow" data-shop-row data-id="s-02" data-name="Bread" data-qty="1 loaf">
+<div class="swrow"><div class="swfg"><button type="button" class="tick" role="checkbox" aria-checked="false" aria-label="In the basket: Bread"><span aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1"/></svg></span></button>
+<div class="rlink"><span class="em" aria-hidden="true">🍞</span><div class="smain"><div class="sname"><span data-scribble>Bread</span> <b class="want">1 loaf</b></div><div class="shome">None at home</div></div></div></div></div>
+</li>
+<li class="shoprow" data-shop-row data-id="s-03" data-name="Cheddar" data-qty="1 block">
+<div class="swrow"><div class="swfg"><button type="button" class="tick" role="checkbox" aria-checked="false" aria-label="In the basket: Cheddar"><span aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1"/></svg></span></button>
+<div class="rlink"><span class="em" aria-hidden="true">🧀</span><div class="smain"><div class="sname"><span data-scribble>Cheddar</span> <b class="want">1 block</b></div><div class="shome">None at home</div></div></div></div></div>
+</li>
+<li class="shoprow" data-shop-row data-id="s-04" data-placeholder data-name="Dish soap" data-qty="">
+<div class="swrow"><div class="swfg"><button type="button" class="tick" role="checkbox" aria-checked="false" aria-label="In the basket: Dish soap"><span aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1"/></svg></span></button>
+<div class="rlink"><span class="em ph" aria-hidden="true">🧼</span><div class="smain"><div class="sname"><span data-scribble>Dish soap</span></div><div class="shome"><span class="ptag">Not tracked</span></div></div></div></div></div>
+</li>
+<li class="shoprow" data-shop-row data-id="s-05" data-name="Eggs" data-qty="a dozen">
+<div class="swrow"><div class="swfg"><button type="button" class="tick" role="checkbox" aria-checked="false" aria-label="In the basket: Eggs"><span aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1"/></svg></span></button>
+<div class="rlink"><span class="em" aria-hidden="true">🥚</span><div class="smain"><div class="sname"><span data-scribble>Eggs</span> <b class="want">a dozen</b></div><div class="shome">2 left at home</div></div></div></div></div>
+</li>
+<li class="shoprow" data-shop-row data-id="s-06" data-name="Milk" data-qty="2 L">
+<div class="swrow"><div class="swfg"><button type="button" class="tick" role="checkbox" aria-checked="false" aria-label="In the basket: Milk"><span aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1"/></svg></span></button>
+<div class="rlink"><span class="em" aria-hidden="true">🥛</span><div class="smain"><div class="sname"><span data-scribble>Milk</span> <b class="want">2 L</b></div><div class="shome">None at home</div></div></div></div></div>
+</li>
+<li class="shoprow" data-shop-row data-id="s-07" data-name="Olive oil" data-qty="1 bottle">
+<div class="swrow"><div class="swfg"><button type="button" class="tick" role="checkbox" aria-checked="false" aria-label="In the basket: Olive oil"><span aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1"/></svg></span></button>
+<div class="rlink"><span class="em" aria-hidden="true">🫒</span><div class="smain"><div class="sname"><span data-scribble>Olive oil</span> <b class="want">1 bottle</b></div><div class="shome">None at home</div></div></div></div></div>
+</li>
+<li class="shoprow" data-shop-row data-id="s-08" data-name="Onions" data-qty="">
+<div class="swrow"><div class="swfg"><button type="button" class="tick" role="checkbox" aria-checked="false" aria-label="In the basket: Onions"><span aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1"/></svg></span></button>
+<div class="rlink"><span class="em" aria-hidden="true">🧅</span><div class="smain"><div class="sname"><span data-scribble>Onions</span></div><div class="shome">1 left at home</div></div></div></div></div>
+</li>
+<li class="shoprow" data-shop-row data-id="s-09" data-name="Penne" data-qty="500 g">
+<div class="swrow"><div class="swfg"><button type="button" class="tick" role="checkbox" aria-checked="false" aria-label="In the basket: Penne"><span aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1"/></svg></span></button>
+<div class="rlink"><span class="em" aria-hidden="true">🍝</span><div class="smain"><div class="sname"><span data-scribble>Penne</span> <b class="want">500 g</b></div><div class="shome">None at home</div></div></div></div></div>
+</li>
+<li class="shoprow" data-shop-row data-id="s-10" data-name="Rice" data-qty="2 kg">
+<div class="swrow"><div class="swfg"><button type="button" class="tick" role="checkbox" aria-checked="false" aria-label="In the basket: Rice"><span aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1"/></svg></span></button>
+<div class="rlink"><span class="em" aria-hidden="true">🍚</span><div class="smain"><div class="sname"><span data-scribble>Rice</span> <b class="want">2 kg</b></div><div class="shome">None at home</div></div></div></div></div>
+</li>
+<li class="shoprow" data-shop-row data-id="s-11" data-name="Spinach" data-qty="1 bag">
+<div class="swrow"><div class="swfg"><button type="button" class="tick" role="checkbox" aria-checked="false" aria-label="In the basket: Spinach"><span aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1"/></svg></span></button>
+<div class="rlink"><span class="em" aria-hidden="true">🥬</span><div class="smain"><div class="sname"><span data-scribble>Spinach</span> <b class="want">1 bag</b></div><div class="shome">None at home</div></div></div></div></div>
+</li>
+<li class="shoprow" data-shop-row data-id="s-12" data-name="Tomatoes" data-qty="1 kg">
+<div class="swrow"><div class="swfg"><button type="button" class="tick" role="checkbox" aria-checked="false" aria-label="In the basket: Tomatoes"><span aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5" pathLength="1"/></svg></span></button>
+<div class="rlink"><span class="em" aria-hidden="true">🍅</span><div class="smain"><div class="sname"><span data-scribble>Tomatoes</span> <b class="want">1 kg</b></div><div class="shome">None at home</div></div></div></div></div>
+</li>
+</ul>
+<!-- Option C (comparison only): the same form after the last line. -->
+<form class="sl-share sl-share-end" method="post" action="shopping/share" data-sl-share data-mock-share="c"><span class="sl-share-t">Someone else shopping?</span><button class="btn" type="submit"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 15V4M8 7.5L12 4l4 3.5M6 12v6.5A1.5 1.5 0 0 0 7.5 20h9a1.5 1.5 0 0 0 1.5-1.5V12"/></svg>Share</button></form>
+<!-- Only when the phone has no share sheet and will not let the page copy: the text to copy by hand. The no-script answer to Share is a page with this same block. -->
+<div class="sl-sharebox" id="sl-sharebox" hidden><b>Copy this into the chat</b><textarea readonly rows="8" aria-label="The list and its link" data-sl-sharetext></textarea><button type="button" class="btn" data-sl-shareclose>Done</button></div>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<nav class="bar" aria-label="Main">
+<a href="#"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 11l8-7 8 7v8.5a1.5 1.5 0 0 1-1.5 1.5h-3.5v-6h-6v6H5.5A1.5 1.5 0 0 1 4 19.5z"/></svg><span>Home</span></a>
+<a href="#"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="6" y="4" width="12" height="3.5" rx="1.5"/><path d="M7 7.5h10a2 2 0 0 1 2 2V18a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 5 18V9.5a2 2 0 0 1 2-2z"/><circle cx="12" cy="14" r="2.2"/></svg><span>Pantry</span></a>
+<a href="#"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 14a4 4 0 0 1-1-7.7 4.5 4.5 0 0 1 8.6-1.3 4 4 0 0 1 3.4 5.5A4 4 0 0 1 17 14v5H7z"/><path d="M7 17h10"/></svg><span>Recipes</span></a>
+<a href="#" aria-current="page"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M3 4h2.5l2.2 10.2a1 1 0 0 0 1 .8h8.8a1 1 0 0 0 1-.8L20 8H6.2"/></svg><span>Shopping</span><i class="badge" aria-hidden="true">12</i></a>
+</nav>
+</body></html>
