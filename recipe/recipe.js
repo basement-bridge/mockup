@@ -10,20 +10,21 @@
   /* A URL parameter wins over the remembered choice, so a link or screenshot can pin a state. */
   var pick = function (k, d) { var v = Q.get(k); if (v) { store.set(k, v); return v; } return store.get(k, d); };
 
+  /* Locked by the owner (voice, 10 Oct 2026): list = one ranked list (R-O1 A), recipe page = one scroll (R-O2 A),
+     versions = strip only when there are several (R-O3 B). Those are no longer switches, so they are not in P. */
   var P = {
     persona: pick("persona", "weeknight"),
-    list: pick("list", "A"),
-    detail: pick("detail", "A"),
-    vers: pick("vers", "A"),
-    photos: pick("photos", "on"),
-    follow: pick("follow", "A")
+    photos: pick("photos", "on")
   };
 
+  /* Who is using it. A persona is a habit that changes what leads, never what a person may do:
+     every member has the same controls (R-O5, locked). Jane's key stays "follower" so links and the
+     other slices' scripts keep working; it carries no permission. */
   var PERSONAS = [
-    ["weeknight", "Weeknight cook", "Sam", "Wants dinner in 30 minutes from what is in."],
-    ["batch", "Batch cooker", "Priya", "Cooks big on Sunday, eats it through the week."],
-    ["improviser", "Improviser", "Alex", "Uses a recipe as a starting point, changes things."],
-    ["follower", "Follows the plan", "Jane", "Cooks what someone else planned. Rarely adds or plans."]
+    ["weeknight", "Sam", "Sam", "Weeknight cook: wants dinner in 30 minutes from what is in."],
+    ["batch", "Priya", "Priya", "Batch cooker: cooks big on Sunday, eats it through the week."],
+    ["improviser", "Alex", "Alex", "Improviser: uses a recipe as a starting point, changes things."],
+    ["follower", "Jane", "Jane", "Often cooks what is on the plan. Same controls as everyone."]
   ];
   var me = PERSONAS.filter(function (p) { return p[0] === P.persona; })[0] || PERSONAS[0];
 
@@ -31,10 +32,13 @@
   var PANTRY = { eggs: 1, rice: 1, onion: 1, soy: 1, oil: 1, peas: 1, garlic: 1, chickpeas: 1, tomatoes: 1, spinach: 1, pasta: 1, mushrooms: 1, cream: 1, cheese: 1, mince: 1, carrot: 1, lentils: 1, stock: 1, butter: 1, cumin: 1 };
   var HELD = { rice: "Tue" };
 
-  /* Ingredients: [key, name, quantity per serving or null when the source did not say, unit]. Quantities scale with Serves. */
+  /* Every recipe came in through someone's own AI assistant over Recipe's MCP tools (R-O4, locked): the app never
+     reads a link, a page or a photo. The assistant may have; src says what it worked from.
+     Egg fried rice has three versions (the versions strip shows); every other recipe has one (no versions row).
+     Ingredients: [key, name, quantity per serving or null when the source did not say, unit]. Quantities scale with Serves. */
   var R = [
     { id: "efr", name: "Egg fried rice", e: "🍚", min: 20, serves: 2, star: 1, cooked: 6, last: 2, tags: ["Quick"],
-      src: "Home kitchen notes, typed in by Sam, 3 Sep", srcKind: "manual",
+      src: "Sam's assistant, from Sam's kitchen notes, 3 Sep", srcKind: "conversation",
       ings: [["eggs", "Eggs", 1.5, ""], ["rice", "Basmati rice, cooked and cooled", 150, "g"], ["onion", "Onion", .5, ""], ["spring", "Spring onions", 1, ""], ["soy", "Soy sauce", 1, "tbsp"], ["oil", "Oil", .5, "tbsp"]],
       steps: [["Beat the eggs with a pinch of salt.", "🥚"], ["Chop the onion and fry it in the oil until soft.", "🧅", 3], ["Push the onion aside, pour in the eggs and stir until just set.", "🍳", 1], ["Tip in the cold rice and break up any lumps. Keep the heat high.", "🍚", 4], ["Splash in the soy sauce, toss in the spring onions and serve.", "🥢"]],
       notes: [["Day-old rice really is better. Fresh rice goes mushy.", "Sam", "12 Sep"], ["Kids like it with frozen peas thrown in at step 4.", "Jane", "20 Sep"]],
@@ -46,14 +50,14 @@
         { id: "v2", name: "Less soy, more garlic", by: "Alex", when: "5 Oct", cooked: 0, depth: 2, chg: { add: [["garlic", "Garlic cloves", 1, ""]], swap: { soy: ["soy", "Soy sauce", .5, "tbsp"] } }, why: "Alex: \"save this, less salty\"." }
       ] },
     { id: "cur", name: "Chickpea and spinach curry", e: "🍛", min: 40, serves: 8, batch: 1, freezes: 1, cooked: 3, last: 9, tags: ["Batch", "Freezes"],
-      src: "Photo of a magazine page, added by Priya, 14 Aug", srcKind: "photo_card",
+      src: "Priya's assistant, from a magazine page Priya showed it, 14 Aug", srcKind: "conversation",
       ings: [["chickpeas", "Tinned chickpeas", .5, "tin"], ["tomatoes", "Tinned tomatoes", .25, "tin"], ["coconut", "Coconut milk", .25, "tin"], ["spinach", "Spinach", 30, "g"], ["onion", "Onion", .25, ""], ["garlic", "Garlic cloves", .5, ""], ["cumin", "Cumin", null, ""]],
       steps: [["Soften the onion and garlic in a big pot.", "🧅", 6], ["Add the spices and fry for a minute.", "🌶️", 1], ["Add chickpeas, tomatoes and coconut milk. Simmer.", "🍛", 20], ["Stir the spinach through until it wilts.", "🥬", 2], ["Cool, then portion into tubs. Freezes for 3 months.", "🧊"]],
       notes: [["Portions: 8 tubs from one pot. Label the lids.", "Priya", "14 Aug"]],
       photos: ["🍛"], hist: [["28 Sep", "Priya", "Original", "8 tubs, 3 into the freezer.", "🍛"], ["7 Sep", "Priya", "Original", "", ""]],
       vers: [{ id: "v0", name: "Original", by: "Priya", when: "14 Aug", cooked: 3, depth: 0, def: 1 }] },
     { id: "pas", name: "Creamy mushroom pasta", e: "🍝", min: 25, serves: 2, cooked: 4, last: 14, tags: ["Quick"],
-      src: "From a link, added by Alex, 1 Sep", srcKind: "import",
+      src: "Alex's assistant, from a web page Alex sent it, 1 Sep", srcKind: "conversation",
       ings: [["pasta", "Pasta", 100, "g"], ["mushrooms", "Mushrooms", 125, "g"], ["cream", "Cream", 75, "ml"], ["garlic", "Garlic cloves", 1, ""], ["cheese", "Parmesan", 15, "g"]],
       steps: [["Boil the pasta.", "🍝", 10], ["Fry the mushrooms and garlic.", "🍄", 6], ["Add cream, then the pasta and cheese.", "🧀", 2]],
       notes: [], photos: [], hist: [["26 Sep", "Alex", "Original", "Added chilli.", ""]],
@@ -64,18 +68,18 @@
       steps: [["Soften the onion.", "🧅", 5], ["Add tomatoes and cumin, simmer.", "🍅", 8], ["Make wells, crack in the eggs, cover.", "🍳", 6]],
       notes: [], photos: ["🍳"], hist: [], vers: [{ id: "v0", name: "Original", by: "Alex", when: "2 Sep", cooked: 5, depth: 0, def: 1 }] },
     { id: "fri", name: "Spinach frittata", e: "🥬", min: 25, serves: 4, cooked: 1, last: 30, tags: [],
-      src: "Recipe book, page 112, typed in by Sam", srcKind: "manual",
+      src: "Sam's assistant, from a recipe book (page 112)", srcKind: "conversation",
       ings: [["eggs", "Eggs", 1.5, ""], ["spinach", "Spinach", 40, "g"], ["feta", "Feta", 25, "g"], ["onion", "Onion", .25, ""]],
       steps: [["Wilt the spinach.", "🥬", 3], ["Beat the eggs, add spinach and feta.", "🥚"], ["Bake until set.", "🔥", 18]],
       notes: [], photos: [], hist: [], vers: [{ id: "v0", name: "Original", by: "Sam", when: "1 Sep", cooked: 1, depth: 0, def: 1 }] },
     { id: "rag", name: "Beef ragù", e: "🥘", min: 150, serves: 10, batch: 1, freezes: 1, cooked: 2, last: 40, tags: ["Batch", "Freezes"],
-      src: "Photo of a handwritten card, added by Priya", srcKind: "photo_card",
+      src: "Priya's assistant, from a handwritten card", srcKind: "conversation",
       ings: [["mince", "Beef mince", 100, "g"], ["tomatoes", "Tinned tomatoes", .3, "tin"], ["carrot", "Carrot", .2, ""], ["celery", "Celery", .2, "stick"], ["wine", "Red wine", 25, "ml"], ["onion", "Onion", .2, ""]],
       steps: [["Brown the mince in batches.", "🥩", 12], ["Soften the vegetables.", "🥕", 10], ["Add wine, tomatoes; simmer low.", "🥘", 120]],
       notes: [["Card says \"a glug\" of wine. We use about 250 ml.", "Priya", "2 Sep"]], photos: ["🥘"], hist: [["5 Sep", "Priya", "Original", "10 portions.", "🥘"]],
       vers: [{ id: "v0", name: "Original", by: "Priya", when: "2 Sep", cooked: 2, depth: 0, def: 1 }] },
     { id: "oml", name: "Cheese omelette", e: "🧀", min: 10, serves: 1, cooked: 9, last: 4, tags: ["Quick"],
-      src: "Typed in by Jane", srcKind: "manual",
+      src: "Jane's assistant, from a chat with Jane", srcKind: "conversation",
       ings: [["eggs", "Eggs", 3, ""], ["cheese", "Cheese", 30, "g"], ["butter", "Butter", 1, "tsp"]],
       steps: [["Beat the eggs.", "🥚"], ["Melt butter, pour in eggs, stir gently.", "🍳", 2], ["Add cheese, fold.", "🧀", 1]],
       notes: [], photos: [], hist: [], vers: [{ id: "v0", name: "Original", by: "Jane", when: "1 Aug", cooked: 9, depth: 0, def: 1 }] }
@@ -108,6 +112,12 @@
     var v = q * n; var s = v >= 10 ? Math.round(v) : Math.round(v * 4) / 4;
     var f = String(s).replace(/\.25$/, "¼").replace(/\.5$/, "½").replace(/\.75$/, "¾").replace(/^0(?=[¼½¾])/, "");
     return f + (u ? (u === "g" || u === "ml" ? " " + u : " " + u + (s > 1 && /tin|stick/.test(u) ? "s" : "")) : "");
+  };
+  /* Ask your assistant: opens the person's own default AI app and does nothing else (plan-week-ai decisions 42 and 45:
+     no in-app agent). Recipe content only ever arrives that way, over Recipe's MCP tools (R-O4, locked).
+     The mockup cannot open an app, so it says what would happen. */
+  var askAssistant = function (about) {
+    toast("Opening your AI app" + (about ? " with " + about : "") + ". It adds recipes through Recipe's tools.");
   };
   var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
 
@@ -174,12 +184,9 @@
     var b = document.createElement("button"); b.type = "button"; b.className = "mockb"; b.textContent = "Mockup"; b.setAttribute("aria-expanded", "false");
     var p = document.createElement("div"); p.className = "mockp"; p.hidden = true;
     p.innerHTML = "<h4>Who is using it</h4>" + seg("persona", PERSONAS.map(function (x) { return [x[0], x[1]]; })) +
-      '<p style="margin-top:6px;font-size:12px">' + esc(me[2] + ": " + me[3]) + "</p>" +
-      "<h4>List, option</h4>" + seg("list", [["A", "A One list"], ["B", "B Shelves"], ["C", "C Photo grid"]]) +
-      "<h4>Recipe page, option</h4>" + seg("detail", [["A", "A One scroll"], ["B", "B Tabs"]]) +
-      "<h4>Versions, option</h4>" + seg("vers", [["A", "A Chip and sheet"], ["B", "B Strip under title"]]) +
-      "<h4>Follower, option</h4>" + seg("follow", [["A", "A Tonight leads"], ["B", "B Just cook mode"]]) +
+      '<p style="margin-top:6px;font-size:12px">' + esc(me[3]) + " Everyone in the household has the same controls (R-O5).</p>" +
       "<h4>Photos</h4>" + seg("photos", [["on", "Has photos"], ["off", "No photos"]]) +
+      '<h4>Versions</h4><p><a href="detail.html?id=efr">Several versions (Egg fried rice)</a> · <a href="detail.html?id=cur">One version (Chickpea curry)</a></p>' +
       (extra || "") +
       '<h4>Theme</h4><div class="tgrid swatches">' + (window.themeHtml ? themeHtml(null, true) : "") + "</div>" +
       '<h4>Screens</h4><p><a href="index.html">Overview and decisions</a> · <a href="list.html">List</a> · <a href="detail.html?id=efr">Recipe</a> · <a href="add.html">Add</a> · <a href="review.html">Review</a> · <a href="edit.html?id=efr">Edit</a> · <a href="cook.html?id=efr">Cook</a></p>';
@@ -189,5 +196,5 @@
     document.addEventListener("keydown", function (e) { if (e.key === "Escape") p.hidden = true; });
   };
 
-  window.RCP = { P: P, Q: Q, me: me, PERSONAS: PERSONAS, R: R, DRAFTS: DRAFTS, WEEK: WEEK, TODAY: TODAY, HELD: HELD, byId: byId, has: has, resolve: resolve, missing: missing, fmt: fmt, esc: esc, ic: ic, bar: bar, toast: toast, sheet: sheet, controls: controls, store: store };
+  window.RCP = { P: P, Q: Q, me: me, PERSONAS: PERSONAS, R: R, DRAFTS: DRAFTS, WEEK: WEEK, TODAY: TODAY, HELD: HELD, byId: byId, has: has, resolve: resolve, missing: missing, fmt: fmt, esc: esc, ic: ic, bar: bar, toast: toast, sheet: sheet, controls: controls, store: store, askAssistant: askAssistant };
 })();

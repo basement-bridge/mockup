@@ -7,12 +7,10 @@
 (function(){
 var X=RCP,P=X.P,ic=X.ic,esc=X.esc,fmt=X.fmt;
 var r=X.byId(X.Q.get("id")||"efr")||X.R[0];
-var follower=P.persona==="follower";
 var fromPlan=X.Q.get("from")==="plan";
 var vid=X.Q.get("v")||(r.vers.filter(function(v){return v.def})[0]||r.vers[0]).id;
 var base=r.batch?1:r.serves;
 var n=fromPlan?4:(P.persona==="batch"&&r.batch?r.serves:base); /* servings shown */
-var tab="ing";
 var star=!!r.star;
 var planned=fromPlan||r.id==="efr"; /* sample: egg fried rice is on Tuesday's plan */
 var heldAll=planned;
@@ -27,10 +25,14 @@ function draw(keepScroll){
   /* hero: R-D9 photos swipe sideways; no photos means no hero at all (the title moves up, nothing pretends). */
   var hero=photos.length?'<div style="position:relative"><div class="hero" id="hero" aria-label="Photos, swipe for more">'+photos.map(function(p,i){return '<div class="'+(i%2?"alt":"")+'" role="img" aria-label="Photo '+(i+1)+' of '+photos.length+'">'+p+'</div>'}).join("")+'</div>'+(photos.length>1?'<div class="hdots">'+photos.map(function(_,i){return '<i class="'+(i?"":"on")+'"></i>'}).join("")+'</div>':'')+'</div>':'';
   /* versions */
-  var vchip=r.vers.length>1?(P.vers==="A"
-      ?'<button type="button" class="mc" data-vers aria-haspopup="dialog">'+ic("branch")+esc(v.name)+' · '+r.vers.length+' versions'+ic("down")+'</button>'
-      :''):'';
-  var vstrip=r.vers.length>1&&P.vers==="B"?'<div class="strip" style="padding:8px 0 0" role="group" aria-label="Version">'+r.vers.map(function(x,i){return (i?'<span class="sd" aria-hidden="true"></span>':'')+'<button type="button" data-v="'+x.id+'" aria-pressed="'+(x.id===v.id)+'">'+esc(x.name)+(x.def?' ★':'')+'</button>'}).join("")+'</div>':'';
+  /* R-O3 = B, varied (locked): one version means no versions row at all. Several versions are a strip that scrolls sideways,
+     its own row between the title and the jump row; while the page scrolls it docks at the top, above the jump row.
+     The last item opens the Versions sheet (who made each, why, and Change it). ★ marks the household's usual. */
+  var multi=r.vers.length>1;
+  var vstrip=multi?'<div class="strip vstrip" id="vstrip" role="group" aria-label="Version, '+r.vers.length+' versions">'+
+    '<span class="vlab" aria-hidden="true">'+ic("branch","s")+r.vers.length+'</span>'+
+    r.vers.map(function(x,i){return (i?'<span class="sd" aria-hidden="true"></span>':'')+'<button type="button" data-v="'+x.id+'" aria-pressed="'+(x.id===v.id)+'"'+(x.def?' aria-label="'+esc(x.name)+', our usual"':'')+'>'+esc(x.name)+(x.def?' <span aria-hidden="true">★</span>':'')+'</button>'}).join("")+
+    '<span class="sd" aria-hidden="true"></span><button type="button" class="more" data-vers aria-haspopup="dialog">All versions'+ic("down","xs")+'</button></div>':'';
   var vline=v.depth>0?'<p style="font-size:12.5px;margin-top:6px">'+esc(v.name)+' changes '+(v.chg.add.length+Object.keys(v.chg.swap).length)+' thing'+((v.chg.add.length+Object.keys(v.chg.swap).length)>1?"s":"")+' from '+esc(r.vers[v.depth-1].name)+'. Changed rows are tinted.</p>':'';
   var head='<div class="pad" style="padding-top:'+(photos.length?12:16)+'px">'+
     (fromPlan?'<p class="lbl" style="color:var(--accent);margin-bottom:4px">Tonight · planned by Sam</p>':'')+
@@ -38,13 +40,12 @@ function draw(keepScroll){
     '<div class="meta">'+
       '<span class="mc ro">'+ic("clock")+r.min+' min</span>'+
       /* R-D10: the serving stepper is the quantity control; on-hand and missing amounts follow it (plan-week-ai decision 10). */
-      '<span class="serves" role="group" aria-label="'+(r.batch?"Portions":"Serves")+'"><button type="button" data-n="-1" aria-label="Fewer">−</button><span>'+(r.batch?n+" portions":"Serves "+n)+'</span><button type="button" data-n="1" aria-label="More">+</button></span>'+
-      vchip+
-    '</div>'+vstrip+vline+'</div>';
+      '<span class="serves" role="group" aria-label="'+(r.batch?"Portions":"Serves")+'"><button type="button" data-n="-1" aria-label="Fewer">−</button><span>'+(r.batch?n+" portion"+(n>1?"s":""):"Serves "+n)+'</span><button type="button" data-n="1" aria-label="More">+</button></span>'+
+    '</div>'+vline+'</div>';
   /* sections */
   var ingH='<div class="lblrow" style="margin-top:4px"><span class="lbl">Ingredients'+(miss.length?' · '+(ings.length-miss.length)+' of '+ings.length+' in':' · all in')+'</span>'+
-    (planned&&!follower?'<button type="button" class="mini" data-holdall aria-pressed="'+heldAll+'">'+ic("hold","xs")+(heldAll?"Held for Tue":"Hold")+'</button>':'')+'</div>'+
-    (miss.length&&!follower?'<p class="hint">Talk to your assistant about substitutes</p>':'')+
+    (planned?'<button type="button" class="mini" data-holdall aria-pressed="'+heldAll+'">'+ic("hold","xs")+(heldAll?"Held for Tue":"Hold")+'</button>':'')+'</div>'+
+    (miss.length?'<p class="hint">Talk to your assistant about substitutes</p>':'')+
     ings.map(function(x){
       var i=x.i,ok=X.has(i[0]),q=fmt(i[2],i[3],mult);
       return '<div class="ing'+(ok?'':' miss')+(x.was||x.added?' chg':'')+'"><span class="dot'+(ok?(heldAll?' held':''):' no')+'" aria-hidden="true"></span><span class="nm">'+esc(i[1])+(q?'<span class="q">'+q+'</span>':' <span class="unk" title="The source did not say">amount?</span>')+(x.was?' <span class="was">(<s>'+esc(x.was[1])+(x.was[2]!=null?' '+fmt(x.was[2],x.was[3],mult):'')+'</s>)</span>':'')+(x.added?' <span class="was">added</span>':'')+'<span class="vh">'+(ok?", in pantry":", missing")+'</span></span>'+
@@ -54,33 +55,47 @@ function draw(keepScroll){
   var steps=r.steps.map(function(s,k){return '<div class="stp"><span class="nb">'+(k+1)+'</span><div style="flex:1"><p>'+esc(s[0])+'</p>'+(s[2]?'<span class="timer" style="margin-top:6px;font-size:13px">'+ic("clock","s")+s[2]+' min</span>':'')+(P.photos==="on"&&photos.length&&k<2?'<div class="sp" aria-hidden="true">'+s[1]+'</div>':'')+'</div></div>'}).join("");
   var notes=(r.notes.length?r.notes.map(function(n){return '<div class="note">'+esc(n[0])+'<small>'+esc(n[1])+' · '+n[2]+'</small></div>'}).join(""):'<p style="font-size:13px">No notes yet.</p>')+
     '<button type="button" class="back" data-addnote style="font-size:14px">'+ic("note","s")+' Add a note</button>';
-  var hist=(r.hist.length?r.hist.map(function(h){var d=h[0].split(" ");return '<div class="hist"><span class="d"><b>'+d[0]+'</b>'+d[1]+'</span><span class="t">'+esc(h[1])+' cooked <b>'+esc(h[2])+'</b>'+(h[3]?'<small>"'+esc(h[3])+'"</small>':'')+'</span>'+(h[4]&&P.photos==="on"?'<span class="th" style="width:44px;height:44px;font-size:22px" aria-label="Photo from that night">'+h[4]+'</span>':'')+'</div>'}).join(""):'<p style="font-size:13px">Not cooked yet.</p>');
-  var ph2='<div class="pgrid">'+(P.photos==="on"?r.photos.concat(r.hist.filter(function(h){return h[4]}).map(function(h){return h[4]})).slice(0,5):[]).map(function(p){return '<div role="img" aria-label="Photo">'+p+'</div>'}).join("")+'<button type="button" class="add" style="aspect-ratio:1;border-radius:var(--r-ctl);border:1px dashed var(--border);color:var(--muted);font-size:13px;font-weight:700" data-addphoto>'+ic("cam")+'<br>Add</button></div>';
-  var src='<p class="src">'+ic("link","xs")+' '+esc(r.src)+(v.depth?' · '+esc(v.name)+' by '+esc(v.by)+', '+v.when:'')+'</p>';
+  /* R-O4: after cooking, the app's job is the extra photo and the note. The photo flow is the photos slice's (recipe-photos/add.html). */
+  var addCooked='<a class="back" href="../recipe-photos/add.html?to='+r.id+'&kind=cooked" style="font-size:14px">'+ic("cam","s")+' Add a photo of your cook</a>';
+  var hist=(r.hist.length?r.hist.map(function(h){var d=h[0].split(" ");return '<div class="hist"><span class="d"><b>'+d[0]+'</b>'+d[1]+'</span><span class="t">'+esc(h[1])+' cooked <b>'+esc(h[2])+'</b>'+(h[3]?'<small>"'+esc(h[3])+'"</small>':'')+'</span>'+(h[4]&&P.photos==="on"?'<span class="th" style="width:44px;height:44px;font-size:22px" aria-label="Photo from that night">'+h[4]+'</span>':'')+'</div>'}).join(""):'<p style="font-size:13px">Not cooked yet.</p>')+addCooked;
+  var ph2='<div class="pgrid">'+(P.photos==="on"?r.photos.concat(r.hist.filter(function(h){return h[4]}).map(function(h){return h[4]})).slice(0,5):[]).map(function(p){return '<div role="img" aria-label="Photo">'+p+'</div>'}).join("")+'<a class="add" href="../recipe-photos/add.html?to='+r.id+'" aria-label="Add a photo">'+ic("cam")+'<span>Add</span></a></div>';
+  var src='<p class="src">'+ic("spark","xs")+' '+esc(r.src)+(v.depth?' · '+esc(v.name)+' by '+esc(v.by)+', '+v.when:'')+'</p>';
   var SEC=[["ing","Ingredients",ingH],["met","Method",steps],["not","Notes",notes],["his","Cooked",hist],["pho","Photos",ph2]];
-  var bodyH;
-  if(P.detail==="A"){
-    /* R-D7 option A: one scroll with a sticky jump row. Nothing is hidden; the jump row saves the scrolling. */
-    bodyH=hero+head+'<nav class="jumps" aria-label="Sections">'+SEC.map(function(s,i){return '<a href="#'+s[0]+'" class="'+(i?'':'on')+'">'+s[1]+(s[0]==="his"&&r.hist.length?' '+r.hist.length:'')+'</a>'}).join("")+'</nav>'+
-      SEC.map(function(s){return '<section class="sec" id="'+s[0]+'">'+(s[0]==="ing"?'':'<div class="lblrow"><span class="lbl">'+s[1]+'</span></div>')+s[2]+'</section>'}).join("")+'<div class="sec">'+src+'</div><div style="height:24px"></div>';
-  }else{
-    bodyH=hero+head+'<nav class="jumps" role="tablist" aria-label="Sections">'+SEC.map(function(s){return '<a href="#" role="tab" data-tab="'+s[0]+'" aria-selected="'+(tab===s[0])+'" class="'+(tab===s[0]?'on':'')+'">'+s[1]+'</a>'}).join("")+'</nav>'+
-      '<section class="sec" style="min-height:300px">'+SEC.filter(function(s){return s[0]===tab})[0][2]+(tab==="his"?src:'')+'</section><div style="height:24px"></div>';
-  }
-  /* R-D11 action bar: Cook it leads, Plan it beside it; everything else in the overflow. */
+  /* R-O2 = A (locked): one continuous scroll. The jump row docks at the top while scrolling (under the versions strip when there is one).
+     Nothing is hidden; the jump row saves the scrolling. Tabs (option 2 B) are dropped. */
+  var bodyH=hero+head+vstrip+'<nav class="jumps" aria-label="Sections">'+SEC.map(function(s,i){return '<a href="#'+s[0]+'" class="'+(i?'':'on')+'">'+s[1]+(s[0]==="his"&&r.hist.length?' '+r.hist.length:'')+'</a>'}).join("")+'</nav>'+
+    SEC.map(function(s){return '<section class="sec" id="'+s[0]+'">'+(s[0]==="ing"?'':'<div class="lblrow"><span class="lbl">'+s[1]+'</span></div>')+s[2]+'</section>'}).join("")+'<div class="sec">'+src+'</div><div style="height:24px"></div>';
+  /* R-D11 action bar: Cook it leads, Plan it beside it; everything else in the overflow. Same for every member (R-O5). */
   var act='<div class="act">'+
-    (follower?'':'<button type="button" class="btn ghost" data-plan>'+ic("cal","s")+(planned?'Planned Tue':'Plan it')+'</button>')+
+    '<button type="button" class="btn ghost" data-plan>'+ic("cal","s")+(planned?'Planned Tue':'Plan it')+'</button>'+
     '<a class="btn" href="cook.html?id='+r.id+'&v='+v.id+'&n='+n+'">'+ic("flame","s")+'Cook it</a>'+
   '</div>';
   ph.innerHTML='<div class="top"><a class="back" href="list.html">'+ic("back","s")+'Recipes</a><span class="ttl"></span>'+
     '<button type="button" class="ib bare" data-star aria-pressed="'+star+'" aria-label="'+(star?"Starred":"Star")+'">'+(star?'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true" style="fill:var(--accent);stroke:var(--accent)">'+'<path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8 6.8 19.6l1-5.8L3.5 9.7l5.9-.8z"/></svg>':ic("star"))+'</button>'+
-    (follower?'':'<button type="button" class="ib bare" data-more aria-label="More" aria-haspopup="dialog">'+ic("dots")+'</button>')+
-  '</div><div class="body" id="body">'+bodyH+'</div>'+act;
+    '<button type="button" class="ib bare" data-more aria-label="More" aria-haspopup="dialog">'+ic("dots")+'</button>'+
+  '</div><div class="body'+(multi?' has-vers':'')+'" id="body">'+bodyH+'</div>'+act;
   var b=document.getElementById("body");b.scrollTop=y;
   /* hero dots follow the swipe */
   var he=document.getElementById("hero");if(he)he.addEventListener("scroll",function(){var k=Math.round(he.scrollLeft/he.clientWidth);document.querySelectorAll(".hdots i").forEach(function(d,j){d.classList.toggle("on",j===k)})});
   /* jump row highlights the section in view */
-  if(P.detail==="A")b.addEventListener("scroll",function(){var cur="ing";SEC.forEach(function(s){var el=document.getElementById(s[0]);if(el&&el.offsetTop-60<=b.scrollTop)cur=s[0]});document.querySelectorAll(".jumps a").forEach(function(a){a.classList.toggle("on",a.getAttribute("href")==="#"+cur)})});
+  var vs=document.getElementById("vstrip"),jr=b.querySelector(".jumps");
+  var vh=vs?vs.offsetHeight:0,dock=vh+(jr?jr.offsetHeight:0); /* what is docked at the top: the strip (if any) plus the jump row */
+  var picked=null;
+  ["wheel","touchstart","keydown"].forEach(function(ev){b.addEventListener(ev,function(){picked=null},{passive:true})});
+  var onScroll=function(){
+    var cur="ing";SEC.forEach(function(s){var el=document.getElementById(s[0]);if(el&&el.offsetTop-dock-4<=b.scrollTop)cur=s[0]});
+    /* at the very bottom a short section cannot reach the top: keep the one the person tapped */
+    if(picked&&b.scrollTop+b.clientHeight>=b.scrollHeight-2)cur=picked;
+    document.querySelectorAll(".jumps a").forEach(function(a){var on=a.getAttribute("href")==="#"+cur;a.classList.toggle("on",on);if(on&&a.scrollIntoView&&b.scrollTop>0){var j=a.parentNode;j.scrollLeft=Math.max(0,a.offsetLeft-j.clientWidth/2+a.offsetWidth/2)}});
+    /* docked state: a shadow under whatever is stuck at the top */
+    if(jr)jr.classList.toggle("docked",jr.getBoundingClientRect().top-b.getBoundingClientRect().top<=vh+1);
+    if(vs)vs.classList.toggle("docked",vs.getBoundingClientRect().top-b.getBoundingClientRect().top<=1);
+  };
+  b.addEventListener("scroll",onScroll);onScroll();
+  /* the picked version stays in view in the strip */
+  if(vs){var on=vs.querySelector("[aria-pressed=true]");if(on)vs.scrollLeft=Math.max(0,on.offsetLeft-vs.clientWidth/2+on.offsetWidth/2)}
+  /* jump links scroll the body, not the window (the page itself never scrolls) */
+  b.querySelectorAll(".jumps a").forEach(function(a){a.addEventListener("click",function(e){e.preventDefault();var el=document.getElementById(a.getAttribute("href").slice(1));if(el){picked=a.getAttribute("href").slice(1);b.scrollTop=el.offsetTop-dock;onScroll()}})});
 }
 ph.addEventListener("click",function(e){
   var t=e.target.closest("button,a");if(!t)return;
@@ -93,15 +108,13 @@ ph.addEventListener("click",function(e){
   else if(t.hasAttribute("data-vers"))versSheet();
   else if(t.hasAttribute("data-more"))moreSheet();
   else if(t.hasAttribute("data-plan")){if(planned){X.toast("On the plan for Tuesday. Change it in Plan.")}else window.planSheet(r,{version:X.resolve(r,vid).v.name,onDone:function(){planned=true;draw(true)}})}
-  else if(t.dataset.tab){e.preventDefault();tab=t.dataset.tab;draw(true)}
   else if(t.hasAttribute("data-addnote"))X.sheet('<h3>Add a note</h3><p style="font-size:13px">Shows on every version. Notes never change the recipe.</p><textarea class="field" style="min-height:100px;padding:10px;margin-top:10px" placeholder="e.g. Use day-old rice"></textarea><div style="display:flex;gap:8px;margin-top:12px"><button class="btn ghost" data-close>Cancel</button><button class="btn" data-close>Save note</button></div>');
-  else if(t.hasAttribute("data-addphoto"))X.sheet('<h3>Add a photo</h3><button class="opt">'+ic("cam")+'<span class="t"><b>Take a photo</b><small>Of tonight\'s dish. It goes into Cooked too.</small></span></button><button class="opt">'+ic("img")+'<span class="t"><b>Choose from photos</b></span></button><p style="font-size:12px;margin-top:8px">How photos are added, shown and stored: see <a href="../recipe-photos/" style="color:var(--accent)">Recipe photos</a> (another slice).</p>');
 });
 function versSheet(){
   var res=X.resolve(r,vid);
   X.sheet('<h3>Versions</h3><p style="font-size:13px">Each version keeps what it changed and takes the rest from the one above. Nothing is overwritten.</p><div style="margin-top:8px">'+
     r.vers.map(function(x){return '<div class="'+(x.depth?'vtree':'')+'" style="margin-left:'+(x.depth>1?(x.depth-1)*14:0)+'px"><button type="button" class="opt'+(x.id===res.v.id?' on':'')+'" data-pick="'+x.id+'">'+ic(x.id===res.v.id?"check":"branch")+'<span class="t"><b>'+esc(x.name)+'</b><small>'+esc(x.by)+', '+x.when+' · cooked '+x.cooked+'×'+(x.def?' · our usual':'')+'</small>'+(x.why?'<small>'+esc(x.why)+'</small>':'')+'</span></button></div>'}).join("")+
-    '</div>'+(follower?'':'<a class="btn ghost" style="margin-top:12px;width:100%" href="edit.html?id='+r.id+'&v='+res.v.id+'">'+ic("pen","s")+'Change it</a>'),
+    '</div><a class="btn ghost" style="margin-top:12px;width:100%" href="edit.html?id='+r.id+'&v='+res.v.id+'">'+ic("pen","s")+'Change it</a>',
   function(s,close){s.addEventListener("click",function(e){var b=e.target.closest("[data-pick]");if(b){vid=b.dataset.pick;close();draw(true)}})});
 }
 function moreSheet(){
@@ -109,9 +122,14 @@ function moreSheet(){
   X.sheet('<h3>'+esc(r.name)+'</h3>'+
     '<a class="opt" href="edit.html?id='+r.id+'&v='+res.v.id+'">'+ic("pen")+'<span class="t"><b>Change it</b><small>A try takes changes in place; for a keeper you choose Fix this one or Keep both.</small></span></a>'+
     '<button class="opt" data-close>'+ic("branch")+'<span class="t"><b>Make it our usual</b><small>What Plan and Cook open for the household</small></span></button>'+
-    '<button class="opt" data-close>'+ic("spark")+'<span class="t"><b>Ask your assistant about it</b><small>Opens your AI app with this recipe</small></span></button>'+
-    '<button class="opt" data-close>'+ic("link")+'<span class="t"><b>Where it came from</b><small>'+esc(r.src)+'</small></span></button>'+
-    '<button class="opt" data-close>'+ic("x")+'<span class="t"><b>Put away</b><small>Hides it from lists and ideas. Nothing is deleted; bring it back any time.</small></span></button>');
+    '<button class="opt" data-close data-askabout>'+ic("spark")+'<span class="t"><b>Ask your assistant about it</b><small>Opens your AI app with this recipe</small></span></button>'+
+    '<button class="opt" data-close>'+ic("spark")+'<span class="t"><b>Where it came from</b><small>'+esc(r.src)+'</small></span></button>'+
+    /* R-D31 (L8, locked): putting away is a plain action anyone in the household can take. No approval, no admin. */
+    '<button class="opt" data-close data-putaway>'+ic("x")+'<span class="t"><b>Put away</b><small>Hides it from lists and ideas. Nothing is deleted; bring it back any time.</small></span></button>',
+    function(sh){sh.addEventListener("click",function(e){
+      if(e.target.closest("[data-askabout]"))X.askAssistant(r.name);
+      else if(e.target.closest("[data-putaway]"))X.toast("Put away. It is out of lists and ideas.",function(){X.toast("Back in the list")});
+    })});
 }
 draw();
 X.controls();
