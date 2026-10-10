@@ -1,4 +1,4 @@
-# Locations and spots: managing them in Settings > Kitchen
+# Locations and spots: managing them in Settings > App (called Kitchen until 11 Oct 2026)
 
 Status: design options for the owner to review (8 Oct 2026). Not built in Kitchie and not in `flows/household/` yet. Lines marked **Proposal** are mockup choices where the owner was silent; none is settled.
 
@@ -31,7 +31,7 @@ Each has an empty state (no locations: "No places yet"; a location with no spots
 - **Proposal:** every change shows an Undo toast; reorder uses buttons, not drag.
 - **Proposal:** items may sit in a location with no spot ("Not in a spot"), shown read-only.
 - **Proposal:** names are unique within a parent (two spots called Door in different locations are fine). Max 24 characters, as in people settings.
-- **Proposal:** entry is one new row, "Locations and spots", under Kitchen next to Categories; the household's, not per device.
+- **Proposal:** entry is one new row, "Locations and spots", under App next to Categories; the household's, not per device.
 
 ## Open questions (and the cost of a wrong guess)
 

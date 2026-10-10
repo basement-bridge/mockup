@@ -146,3 +146,11 @@ Added after the report above was written. The owner changed the Preferences mock
 - **Mine tab:** the Household note row loses "Open in Household" and "Read next to yours, not instead of it."; the Household chip is the tap target to the Household tab. The On this device block, the Recipe stars link and the two profile lines are gone. The household-only rows (Members and admins, Household name, Categories, Locations and spots, Recipe stars and votes) show only on the Household tab.
 - **Effect on this report:** the verdict and the four decisions in section 7 stand. The manual checklist in section 9 gains: open Preferences from the Settings window on a wide screen and press 3; tap the Household chip on the note; confirm Mine has no household-only rows and no On this device block; confirm Settings > Kitchen has no Plan the week. The "Settings screens" browser test (section 4) will also need its list of rows updated.
 - **Not decided:** whether Settings > Kitchen keeps a Stock checks row beside Preferences, and whether the household rule rows on Mine get the same chip treatment as the note. Both are listed in the handoff, section 9.
+
+### 11 Oct (2)
+
+Second owner note of 11 October 2026 (detail: `preferences-build-handoff.md`, "11 Oct (2)"). **Not built or checked.**
+
+- **Mobile:** Preferences becomes a top-level section of the profile menu, after Settings, matching the desktop gutter section. It leaves Settings > Kitchen, which also closes the open Stock checks question (no row).
+- **Settings:** the Kitchen group is renamed App and holds Looks, Categories, Locations and spots. Looks is the theme and display card as its own screen.
+- **Effect on this report:** verdict and the four decisions in section 7 stand. UAT checklist gains: profile menu shows Preferences as its own section; Settings shows App with three rows; Looks opens the theme screen.

@@ -116,7 +116,7 @@
   /* ---------- where the screen lives (owner, 11 Oct 2026) ----------
      Desktop: Preferences is its own section of the Settings window, right after Settings, and it opens inside that window (the /settings/preferences address too). There is no separate full-page layout.
      This page therefore draws the Settings window around the screen at 1024px and wider (KProfile.inline, from fragments/desktop-profile), and the Profile window's Preferences section loads this page with ?embed=1.
-     Phone and tablet: unchanged, Settings > Kitchen > Preferences, the phone frame with a Settings back link. The choice is made at load. */
+     Phone and tablet: Preferences is a top-level section of the profile menu (owner, 11 Oct second note), the phone frame with a back link to that menu. The choice is made at load. */
   var EMBED = new URLSearchParams(location.search).get("embed") === "1";
   var INWIN = EMBED || !!(window.KProfile && window.KProfile.inline && window.matchMedia("(min-width:1024px)").matches);
   if (INWIN) document.documentElement.classList.add("mh-win");
@@ -659,7 +659,7 @@
     var keepScroll = window.scrollY;
     var flash = S.flash ? '<div class="banner" role="status">' + esc(S.flash) + "</div>" : "";
     if (S.view === "members") { root.innerHTML = membersScreen(flash); window.scrollTo(0, keepScroll); syncControls(); if (S.focus) { var fe = root.querySelector(S.focus); if (fe) fe.focus({ preventScroll: true }); S.focus = null; } return; }
-    root.innerHTML = '<div class="sp">' + (INWIN ? "" : '<div class="mtop"><a class="back" href="#" data-act="nav" data-id="Settings">&lsaquo; Settings</a><h1 class="ttl">Preferences</h1><span style="width:64px" aria-hidden="true"></span></div>') +
+    root.innerHTML = '<div class="sp">' + (INWIN ? "" : '<div class="mtop"><a class="back" href="#" data-act="nav" data-id="Settings">&lsaquo; Back</a><h1 class="ttl">Preferences</h1><span style="width:64px" aria-hidden="true"></span></div>') +
       '<main class="mbody">' + flash + seg() + (S.tab === "mine" ? mineScreen() : householdScreen()) + "</main></div>";
     var cur = document.activeElement;
     window.scrollTo(0, keepScroll);

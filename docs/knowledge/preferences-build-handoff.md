@@ -747,3 +747,17 @@ Owner direction, 11 October 2026 (change request to the Preferences mockups, des
 **Owner silent (Proposal; a wrong guess costs a redraw):** the number keys inside the window (the built window already uses them; the mockup keeps its G-then-letter pairs for the page, with no letter for Preferences); the window loading Preferences in a frame only when first shown (a mockup detail); the rows listed in item 2; the window's Settings section still lists Stock checks and Categories under Kitchen.
 
 **Check list for the builder.** Open Preferences from the window at 1280px: no page layout behind it, Preferences selected, the footer says "1 to 6"; press 3 from another section; press the Household chip on the note as Sam (read-only note) and as Arjan (editable); Mine has no household-only rows; the phone page has no On this device block and keeps the Settings back link; Settings > Kitchen has no Plan the week; Plan still opens from the bottom bar and the rail.
+
+### 11 Oct (2): Settings groups and Preferences on mobile
+
+Owner, voice, 11 Oct 2026, second note. Drawn in `flows/household/app.js` (profile menu, Settings, new Looks screen), `fragments/desktop-profile/profile.js`, `fragments/preferences-mine-household` and `fragments/locations-spots`.
+
+Real labels found first (live `kitchie/server/src/app.ts`, `renderSettingsPage`): **Look** (the theme and display card), **On this phone** (the Install Kitchie row, shown only where installing is possible) and **Kitchen** (Stock checks, Plan the week, Categories, Locations and spots). "Look and display" was the removed On this device row, not a current label.
+
+| # | Change | Build note |
+|---|---|---|
+| 1 | **Rename the Kitchen group to App.** | `app.ts`: the `<span class="lbl">Kitchen</span>` over the household menu. The footnote reads "Categories and Locations and spots are the household's, not just this device's." |
+| 2 | **App holds Looks, Categories, Locations and spots**, flat (no subgroup; three rows). Looks is the existing theme and display card, now its own screen. | Looks becomes a row that opens the card (today the card sits inline above the list). Stock checks and Plan the week have no row (Plan is in the bottom bar; Stock checks moved into Preferences). Install row ("On this phone") is untouched and not drawn in the mockup. |
+| 3 | **Preferences is a top-level section of the mobile profile menu**, after the Settings section and before People, not under Settings or App. Same as the desktop gutter section (mockup 587d6d4). | Profile menu gets a "Preferences" group with one row. The screen's back link goes to the profile menu. `/settings/preferences` address unchanged. |
+
+Closes the "Stock checks beside Preferences" question from section 9 as no row. Not decided: the install row's label, and whether Preferences on phone wants a badge.

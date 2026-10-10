@@ -498,7 +498,7 @@ const screens = {
       <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px"><button class="btn" data-act="cook" data-p="${r.id}" ${S.down || !have.length ? "disabled" : ""}>Cook this</button><p class="small" style="text-align:center">Cooking takes the used items out of your pantry.</p></div></div>` + bar();
   },
 
-  /* Profile menu, grouped by job (Look and Kitchen live in Settings; People, Connect, My data here). A "Get started" strip is timed by how long you have been a member: AI link for the first 2 days, Invite for the first 5; each drops off when done and both settle into their segments afterwards. */
+  /* Profile menu, grouped by job (Settings holds the App list; Preferences is its own section, after Settings; People, Connect, My data here). A "Get started" strip is timed by how long you have been a member: AI link for the first 2 days, Invite for the first 5; each drops off when done and both settle into their segments afterwards. */
   menu: () => {
     const strip = [];
     if (S.day <= 2 && !S.aiDone) strip.push(["ai", "link", "Link your AI", "go"]);
@@ -507,30 +507,37 @@ const screens = {
     return backHeader("Back", "") + `<div class="body">
     <div class="row"><span class="av" style="width:56px;height:56px;font-size:20px">${avt(S.persona, 30)}</span><div><b style="font-size:20px">${esc(me().name)}</b><p class="small">${role(S.persona) ? esc(role(S.persona).title) : "Our kitchen"}</p></div></div>
     ${strip.length ? `<div><span class="lbl">Get started</span><div class="menu card">${strip.map(([t, ic, l, k]) => `<button data-${k === "go" ? "go" : "sheet"}="${t}"><span class="row" style="gap:10px">${riSvg(ic, 20)}${l}</span><span class="chev" style="color:var(--muted)">${I.chev}</span></button>`).join("")}</div></div>` : ""}
-    ${seg("Look and kitchen", `<button data-go="settings">Settings</button><button data-act="proto" data-p="History">History</button>`)}
+    ${seg("Settings", `<button data-go="settings">Settings</button><button data-act="proto" data-p="History">History</button>`)}
+    ${seg("Preferences", `<button data-act="proto" data-p="Preferences">Preferences</button>`)}
     ${seg("People", `<button data-go="me">Me <span class="chip">${esc(me().name)}</span></button><button data-go="household">Household <span class="chip">${S.members.length}</span></button>${pays() ? `<button data-go="${S.recipes ? "household" : "upgrade"}">Plan and billing</button>` : ""}`)}
     ${seg("My data", `<button data-act="proto" data-p="Download inventory CSV">Download inventory CSV</button>`)}
     <button data-act="signout" class="danger" style="text-align:left;min-height:48px">Sign out</button>
     <div class="srow plain"><span class="small">Prototype: member for</span><div class="seg2" role="radiogroup" aria-label="Member for">${[[1, "Day 1"], [3, "Day 3"], [6, "Day 6"]].map(([d, l]) => `<button role="radio" aria-checked="${S.day === d}" class="${S.day === d ? "on" : ""}" data-act="day" data-p="${d}">${l}</button>`).join("")}</div></div></div>`;
   },
 
-  /* Mirrors Kitchie's Settings page (renderSettingsPage): browser-only display settings, then the household's pages, sample items, kitchen role. */
+  /* Settings (owner, 11 Oct 2026 (2)): the list is the App group. Looks (the theme and display screen), Categories, Locations and spots, flat. Stock checks is no longer a row (Preferences took its place, and is its own top-level section of the profile menu). Plan the week stays off the list. */
   settings: () => {
-    const c = S.cfg, sw = (k, l) => `<button class="srow" role="switch" aria-checked="${c[k]}" data-act="cfg" data-p="${k}"><span>${l}</span><span class="swt" aria-hidden="true"></span></button>`;
     const left = S.pantry.filter((i) => i.starter).length;
     return backHeader("Back", "Settings") + `<div class="body">
-      <p class="small">These stay on this device. Only your theme and the emoji setting also travel with you, so pages open in the right colours.</p>
-      <span class="lbl">Look</span><div class="card sgroup"><span class="lbl">Theme</span><div class="tgrid swatches" role="group" aria-label="Theme">${window.themeHtml ? window.themeHtml(["kitchie", "kitchie-day", "marmalade", "blueberry", "herb"], true) : ""}</div><p class="small" data-theme-name>${window.themeName ? esc(window.themeName()) : ""}</p>
-        <div class="srow plain"><span>Item name size</span><div class="seg2" role="radiogroup" aria-label="Item name size">${[["small", "Small"], ["normal", "Normal"], ["large", "Large"]].map(([k, l]) => `<button role="radio" aria-checked="${c.size === k}" class="${c.size === k ? "on" : ""}" data-act="cfgsize" data-p="${k}">${l}</button>`).join("")}</div></div>
-        ${sw("emoji", "Show emoji")}${sw("motion", "Reduce motion")}${sw("spot", "Show the spot")}${sw("amount", "Show the amount")}${sw("useby", "Show the use-by date")}${sw("activity", "Show household activity")}${sw("compact", "Compact rows")}
-        <button class="btn ghost" data-act="cfgreset">Reset to defaults</button></div>
-      <span class="lbl">Kitchen</span><div class="menu card">
-        <button data-go="stock">Stock checks <span class="chev" style="color:var(--muted)">${I.chev}</span></button>
-        <button data-go="cats">Categories <span class="chev" style="color:var(--muted)">${I.chev}</span></button></div>
-      <p class="small">Stock checks and Categories are the household's, not just this device's.</p>
+      <span class="lbl">App</span><div class="menu card">
+        <button data-go="looks">Looks <span class="chev" style="color:var(--muted)">${I.chev}</span></button>
+        <button data-go="cats">Categories <span class="chev" style="color:var(--muted)">${I.chev}</span></button>
+        <button data-act="proto" data-p="Locations and spots">Locations and spots <span class="chev" style="color:var(--muted)">${I.chev}</span></button></div>
+      <p class="small">Categories and Locations and spots are the household's, not just this device's.</p>
       ${left ? `<div><h2 style="font-size:1.1rem">Sample items</h2><p class="small" style="margin-top:4px">${left} sample item${left === 1 ? "" : "s"} left. They count toward nothing until you change one.</p><button class="btn ghost" data-act="proto" data-p="Clear sample items" style="margin-top:8px">Clear sample items</button></div>` : ""}
       <button class="btn ghost" data-act="back">Back to Kitchie</button>
       <button data-act="signout" class="danger" style="text-align:left;min-height:48px">Sign out</button></div>`;
+  },
+
+  /* Looks: the existing theme and display screen (was the Look group on Settings, then "Look and display"). Mirrors Kitchie's browser-only display settings. */
+  looks: () => {
+    const c = S.cfg, sw = (k, l) => `<button class="srow" role="switch" aria-checked="${c[k]}" data-act="cfg" data-p="${k}"><span>${l}</span><span class="swt" aria-hidden="true"></span></button>`;
+    return backHeader("Settings", "Looks") + `<div class="body">
+      <p class="small">These stay on this device. Only your theme and the emoji setting also travel with you, so pages open in the right colours.</p>
+      <div class="card sgroup"><span class="lbl">Theme</span><div class="tgrid swatches" role="group" aria-label="Theme">${window.themeHtml ? window.themeHtml(["kitchie", "kitchie-day", "marmalade", "blueberry", "herb"], true) : ""}</div><p class="small" data-theme-name>${window.themeName ? esc(window.themeName()) : ""}</p>
+        <div class="srow plain"><span>Item name size</span><div class="seg2" role="radiogroup" aria-label="Item name size">${[["small", "Small"], ["normal", "Normal"], ["large", "Large"]].map(([k, l]) => `<button role="radio" aria-checked="${c.size === k}" class="${c.size === k ? "on" : ""}" data-act="cfgsize" data-p="${k}">${l}</button>`).join("")}</div></div>
+        ${sw("emoji", "Show emoji")}${sw("motion", "Reduce motion")}${sw("spot", "Show the spot")}${sw("amount", "Show the amount")}${sw("useby", "Show the use-by date")}${sw("activity", "Show household activity")}${sw("compact", "Compact rows")}
+        <button class="btn ghost" data-act="cfgreset">Reset to defaults</button></div></div>`;
   },
 
   stock: () => backHeader("Settings", "Stock checks") + `<div class="body">
