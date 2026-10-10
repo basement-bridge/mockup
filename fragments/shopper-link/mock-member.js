@@ -44,7 +44,7 @@
       var promised = Object.keys(srv.claims).filter(function (k) { return srv.claims[k] === id; }).length;
       var o = {
         id: id, slot: l.slot || (ix + 1), alive: alive, dead: !!l.dead, ended: !!l.ended, opened: l.opened === undefined ? "just now" : l.opened, hours: l.left === undefined ? 48 : l.left,
-        deadAgo: l.deadAgo || "just now", endedAgo: l.endedAgo || "just now", back: l.back || 0, promised: promised,
+        deadAgo: l.deadAgo || "just now", endedAgo: l.endedAgo || "just now", back: l.back || 0, promised: promised, committed: !!l.committed || promised > 0,
         pending: lines.filter(function (L) { return L.link === id; }),
         got: lines.filter(function (L) { return L.by === id && L.st === "got"; }),
         swapped: lines.filter(function (L) { return L.by === id && L.st === "swapped"; }),
@@ -87,7 +87,7 @@
       return '<li class="sl-lrow" data-sl-link="' + o.id + '" data-sl-state="' + o.state + '"><a class="sl-lrow-a" href="' + (o.state === "dead" ? href : "#") + '"><span class="sl-lk" data-n="x" aria-hidden="true">' + ico(P.link, 16) + '</span><span class="sl-lrow-t"><span class="sl-lrow-1"><b>' + what + '</b></span><span class="sl-lrow-2">' + sub + "</span></span>" + (o.state === "dead" ? ico(P.chev, 20, "sl-chev") : "") + "</a>" +
         '<form method="post" action="shopping/share/dismiss" data-sl-dismiss><input type="hidden" name="link" value="' + o.id + '"><button type="submit" class="sl-quiet">Dismiss</button></form></li>';
     }
-    var line2 = o.state === "unopened" ? "Not opened yet" : "Opened " + o.opened + " · " + (o.promised ? plural(o.promised, "line") + " promised" : "nothing promised yet");
+    var line2 = o.state === "unopened" ? "Not opened yet" : "Opened " + o.opened + " · " + (o.committed ? "has promised" : "nothing promised yet");
     return '<li class="sl-lrow" data-sl-link="' + o.id + '" data-sl-state="' + o.state + '"><a class="sl-lrow-a" href="' + href + '">' + badge(o.slot) + '<span class="sl-lrow-t"><span class="sl-lrow-1"><b>Link ' + o.slot + '</b><span class="sl-left">' + ico(P.clock, 16) + left(o.hours) + '</span></span><span class="sl-lrow-2">' + esc(line2) + "</span></span>" + ico(P.chev, 20, "sl-chev") + "</a>" +
       '<form method="post" action="shopping/share/cancel" data-sl-cancel><input type="hidden" name="link" value="' + o.id + '"><button type="submit" class="sl-quiet" aria-label="Cancel Link ' + o.slot + '">Cancel</button></form></li>';
   }
@@ -122,14 +122,14 @@
   }
 
   // ================================================================ link.html
-  var STATS = [["pending", "promised", "Promised"], ["got", "got", "Got"], ["swapped", "swapped", "Swapped"], ["notfound", "notfound", "Not found"]];
+  var STATS = [["got", "got", "Got"], ["swapped", "swapped", "Swapped"], ["notfound", "notfound", "Not found"]];
   function drawLink() {
     var m = model(), o = m.links.filter(function (l) { return l.id === (q.get("as") || "A"); })[0] || m.links[0];
     if (!o) { root.innerHTML = '<p class="note">No link here.</p>'; return; }
     var html = '<a class="sl-back" href="member-list.html?s=' + (o.state === "dead" ? "dead" : "states") + '">' + ico("M15 6l-6 6 6 6", 18) + "<span>Shopping</span></a>";
     if (o.state === "dead") {
       html += '<section class="sl-lc" data-sl-state="dead" aria-labelledby="sl-lc-t"><header class="sl-lc-h"><span class="sl-lk" data-n="x" aria-hidden="true">' + ico(P.link, 18) + '</span><span class="sl-lc-t"><b id="sl-lc-t">Turned down</b><span>' + o.deadAgo + '</span></span></header>' +
-        '<p class="sl-lc-p">The shopper said they won\'t do it. This link doesn\'t work any more, and its slot is free. Anything it had promised went back on the list.</p>' +
+        '<p class="sl-lc-p">The shopper said they won\'t do it, before touching the list. This link doesn\'t work any more, and its slot is free.</p>' +
         '<p class="note">It clears itself a day after it was turned down, or sooner when you dismiss it.</p>' +
         '<form method="post" action="shopping/share/dismiss" data-sl-dismiss><input type="hidden" name="link" value="' + o.id + '"><button type="submit" class="btn sl-dismiss">Dismiss</button></form></section>';
       root.innerHTML = html; return;
@@ -141,10 +141,11 @@
     var hrs = o.hours >= 1 ? Math.ceil(o.hours) : Math.max(1, Math.round(o.hours * 60)), unit = o.hours >= 1 ? (hrs === 1 ? "hour" : "hours") : (hrs === 1 ? "minute" : "minutes");
     html += '<div class="sl-time"><span class="sl-time-l">Time left to act</span><b class="sl-time-v">' + hrs + '</b><span class="sl-time-u">' + unit + " left</span></div>";
     if (open) {
-      var total = o.pending.length + o.got.length + o.swapped.length + o.notfound.length;
-      facts = '<ul class="sl-facts"><li>' + ico(P.eye, 18) + "<span>Opened " + o.opened + "</span></li><li>" + ico(P.bag, 18) + "<span>" + (o.promised ? "Promised " + plural(o.promised, "line") : "Nothing promised yet") + "</span></li></ul>";
+      var resolved = o.got.length + o.swapped.length + o.notfound.length;
+      facts = '<ul class="sl-facts"><li>' + ico(P.eye, 18) + "<span>Opened " + o.opened + "</span></li><li>" + ico(P.bag, 18) + "<span>" + (o.committed ? "Has promised" : "Nothing promised yet") + "</span></li></ul>";
       html += facts;
-      if (total) {
+      // The counts are resolved lines only: got, swapped, not found (SL-D35). A promised line nobody has touched is not a count; it is listed in its own claimed group below.
+      if (resolved) {
         html += '<div class="sl-stats" role="group" aria-label="What this link has done">' + STATS.map(function (S) {
           var n = o[S[0]].length; if (!n) return "";
           return '<button type="button" class="sl-stat" data-sl-stat="' + S[1] + '" aria-expanded="false" aria-controls="sl-d-' + S[1] + '"><b>' + n + "</b><span>" + S[2].toLowerCase() + "</span></button>";
@@ -153,13 +154,14 @@
           var arr = o[S[0]]; if (!arr.length) return "";
           return '<div class="sl-drill" id="sl-d-' + S[1] + '" data-sl-drill="' + S[1] + '" role="region" aria-label="' + S[2] + '" hidden><ul>' + arr.map(function (L) { return '<li><span class="em" aria-hidden="true">' + L.emoji + "</span><span><b>" + esc(L.name) + "</b>" + (S[1] === "swapped" ? "<small>Got instead: " + esc(L.words) + "</small>" : "") + "</span></li>"; }).join("") + "</ul></div>";
         }).join("");
-        // the lines it touched, with the same status look as the Shopping list (promised, got, swapped, not found); nothing that was never promised or answered is listed
-        var shown = m.lines.filter(function (L) { return (L.link === o.id) || (L.by === o.id && L.st !== "needed"); });
-        shown.forEach(function (L) { L.slot = o.slot; });
-        html += '<h2 class="sl-lc-h2">Lines on this link</h2><ul class="rows shop sl-lc-lines">' + shown.map(function (L) { return lineLi(L, "container"); }).join("") + "</ul>";
-      } else {
-        html += '<p class="sl-lc-p">Nothing promised yet. When the shopper promises or answers lines, they show up here.</p>';
       }
+      // The lines it touched, with the same status look as the Shopping list. Claimed and untouched lines are their own group (no number); answered lines follow. Nothing never promised or answered is listed.
+      var shown = m.lines.filter(function (L) { return (L.link === o.id) || (L.by === o.id && L.st !== "needed"); });
+      shown.forEach(function (L) { L.slot = o.slot; });
+      var claimed = shown.filter(function (L) { return L.st === "claimed"; }), answered = shown.filter(function (L) { return L.st !== "claimed"; });
+      if (claimed.length) html += '<h2 class="sl-lc-h2" data-sl-claimed-h>Promised, not touched yet</h2><ul class="rows shop sl-lc-lines" data-sl-claimed>' + claimed.map(function (L) { return lineLi(L, "container"); }).join("") + "</ul>";
+      if (answered.length) html += '<h2 class="sl-lc-h2">' + (claimed.length ? "Answered" : "Lines on this link") + '</h2><ul class="rows shop sl-lc-lines">' + answered.map(function (L) { return lineLi(L, "container"); }).join("") + "</ul>";
+      if (!shown.length) html += '<p class="sl-lc-p">Nothing promised yet. When the shopper promises or answers lines, they show up here.</p>';
     }
     html += "</section>";
     html += '<form class="sl-lc-cancel" method="post" action="shopping/share/cancel" data-sl-cancel><input type="hidden" name="link" value="' + o.id + '"><button type="submit" class="btn">Cancel this link</button></form>';

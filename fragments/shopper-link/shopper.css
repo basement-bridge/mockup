@@ -210,7 +210,6 @@ button.btn.sl-refuse{width:100%;min-height:48px;margin:0;background:var(--bg);co
 .sl-promised-t b{display:block;font-size:1.05rem}
 .sl-promised-t span{display:block;font-size:.9rem;color:var(--muted)}
 .sl-promised>p{margin:8px 0 0}
-.sl-promised .sl-refuse-wrap{margin-top:10px}
 /* A line another shopper has promised (SL-D26): it says so for a moment and leaves, like a line they got (SL-J20); nobody is named. */
 .sl-list li.shoprow[data-claim=other] .tick{pointer-events:none}
 .sl-list li.shoprow[data-claim=other] .tick span{border-style:dashed;border-color:var(--sage);color:var(--sage)}

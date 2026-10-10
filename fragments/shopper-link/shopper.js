@@ -10,8 +10,10 @@
 // "by" tells the page whether a line was answered on this link ("you") or on another one ("other"): the shopper never sees a name (kitchie#479 P6).
 // PROMISING (owner, voice, 11 October 2026, SL-D21 to SL-D28): the shopper first trims the list (swipe left = can't or won't get it), then says "I'll get these" (one request, `commit`), which
 // promises every line still open to this link. A promised line is hidden, live, from every other link's page (the snapshot says `claim: "other"`; it leaves like a line another shopper got).
-// "I won't do it" (`reject`, after a confirm) ends this link at once; it is offered only until the first line is swiped. Snapshot additions: `committed`, `gone`, and `claim: "you"|"other"|""` per line.
-// A line got or swapped on another link is locked here, so two shoppers cannot buy it twice.
+// "I won't do it" (`reject`, after a confirm) ends this link at once; it is offered only before the shopper has swiped any line AND before they have promised, and once either has happened it is gone
+// for good, even if Undo takes the swipe or the promise back (owner, 11 October 2026, SL-D34). Snapshot additions: `committed`, `refusable`, `gone`, and `claim: "you"|"other"|""` per line.
+// A line got, swapped or NOT FOUND on another link is locked here (owner, 11 October 2026, SL-D37: not found locks like got and swapped), so two shoppers cannot buy it twice and a line one shopper
+// passed on is not offered to the next; it comes back only when the household says "Still need it" (SL-D36).
 // AN ANSWERED LINE LEAVES THE LIST (owner's live test, 11 October 2026, SL-D18). The server draws every line and marks the answered ones data-sl-gone (display:none in
 // shopper.css), so the page is right before this file runs. Here a line that is answered holds for a moment (the tick, or the swipe's colour, is seen), folds away and the
 // rest move up; Undo, or a failed sync, takes the mark off and the line comes back in its place. A line is "answered" when this link got it, swapped it or could not find
@@ -39,7 +41,7 @@
   var MAX = 120, HOLD = 550, SVG = "http://www.w3.org/2000/svg";
   var ICONS = { swapped: "M5 9h12l-3-3M19 15H7l3 3", notgot: "M7 12h10", also: "M6 8h12l-1 12H7zM9 8V6.5a3 3 0 0 1 6 0V8", remove: "M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12M10 11v5M14 11v5" }; // also: the bag (it came home); remove: the bin (it really removes)
   var mode = "swipe";
-  var synced = { lines: {}, extras: [], last: null, hours: null, committed: false }; // the last snapshot the server gave
+  var synced = { lines: {}, extras: [], last: null, hours: null, committed: false, refusable: true }; // the last snapshot the server gave
   var plan = form.querySelector("[data-sl-plan]"), promisedEl = form.querySelector("[data-sl-promised]"), rejecting = false;
   var rev = -1, quiet = true; // quiet: nothing takes the keyboard while the page sets itself up
   var history = [], shadow = {}, pending = []; // multi-select only: undo steps, last known pick per line, extras not sent yet
@@ -82,7 +84,7 @@
       var w = words(li);
       li.querySelector("[data-sl-swap-label]").textContent = s === "swapped" && w ? "Got instead: " + w : "Got something else";
       if (claimedElsewhere(li)) { sub.textContent = "Someone else is getting this"; sub.hidden = false; }
-      else if (locked(li)) { sub.textContent = "Someone else got this"; sub.hidden = false; }
+      else if (locked(li)) { sub.textContent = li.getAttribute("data-sl-lock") === "passed" ? "Someone else has dealt with this" : "Someone else got this"; sub.hidden = false; }
       else if (s === "notgot" && mode === "swipe") { sub.textContent = "Couldn't find"; sub.hidden = false; }
       else { sub.textContent = ""; sub.hidden = true; }
     }
@@ -90,19 +92,17 @@
   // Put one line into a state. Used for the server's word and for the optimistic first guess. "how" is "swipe" when the line was swiped away, so it leaves from where it was
   // pulled to; anything else leaves the usual way (see leave).
   function set(li, state, by, w, how, claim) {
-    // A line another link could not find is still to do here ("didn't find" does not lock, SL-J4): for this shopper it is an ordinary open line.
-    if (by === "other" && state === "notgot") { state = "open"; by = ""; w = ""; }
-    // "other" only locks a line that was got or swapped there (SL-J4, confirmed by the owner 10 October 2026); the other shopper's words are never shown.
-    var lock = by === "other" && (state === "got" || state === "swapped");
+    // A line answered on another link (got, swapped or not found, owner 11 October 2026, SL-D37) is locked here; the other shopper's words, and which of the three it was, are never shown.
+    var lock = by === "other" && resolved(state);
     var cl = claim === "other" && state === "open"; // promised on another link
     if (cl) li.setAttribute("data-claim", "other"); else if (claim === "you" && state === "open") li.setAttribute("data-claim", "you"); else li.removeAttribute("data-claim");
-    if (lock) li.setAttribute("data-by", "other");
+    if (lock) { li.setAttribute("data-by", "other"); li.setAttribute("data-sl-lock", state === "notgot" ? "passed" : "got"); }
     else if (by === "you") li.setAttribute("data-by", "you");
     else li.removeAttribute("data-by");
     li.setAttribute("data-state", state);
     li.setAttribute("data-sl-w", state === "swapped" && !lock ? w || "" : "");
     box(li).checked = state === "got";
-    box(li).disabled = (lock && state === "got") || cl;
+    box(li).disabled = lock || cl;
     // A shopper who is typing "got something else" on a line another shopper has just got keeps what they typed until they finish: the line leaves after (see busy, flush).
     var typing = (lock || cl) && det(li).open;
     if (!typing) field(li).value = state === "swapped" && !lock ? (w || "") : "";
@@ -201,7 +201,9 @@
     // After the promise: a calm strip, and "I won't do it" there too while nothing has been swiped. Once any line is swiped the flat decline is gone; only the bottom button ends the rest.
     var acted = actedOn(), committed = synced.committed;
     plan.hidden = committed || n === 0; promisedEl.hidden = !committed || n === 0;
-    Array.prototype.forEach.call(form.querySelectorAll("[data-sl-refuse-wrap]"), function (w) { w.hidden = acted; if (acted) w.querySelector("[data-sl-refuse-ask]").hidden = true; });
+    // "I won't do it" (SL-D34): gone for good after the first swipe or the promise, even if Undo takes either back (the server says so in `refusable`; the page also stops offering it at once).
+    var refusable = synced.refusable !== false && !acted && !committed;
+    Array.prototype.forEach.call(form.querySelectorAll("[data-sl-refuse-wrap]"), function (w) { w.hidden = !refusable; if (!refusable) w.querySelector("[data-sl-refuse-ask]").hidden = true; });
     plan.querySelector("[data-sl-plan-t]").textContent = acted ? "Ready to promise the rest?" : "Will you do this trip?";
     plan.querySelector("[data-sl-plan-p]").textContent = acted ? "Press I'll get these and the household knows the lines below are yours. Nobody else is asked to buy them." : "Swipe left on anything you can't or won't get. Then promise the rest, so nobody else buys it.";
     plan.querySelector("[data-sl-promise-n]").textContent = acted ? plural(n, "line") + " left" : n === 1 ? "The one line" : "All " + n + " lines";
@@ -275,25 +277,27 @@
   function apply(snap) {
     if (!snap || typeof snap !== "object") return;
     if (typeof snap.rev === "number") { if (snap.rev < rev) return; rev = snap.rev; }
-    var fresh = [], taken = [];
+    var fresh = [], taken = [], passed = [];
     backed = [];
     if (snap.gone && !rejecting) { location.replace("finished.html"); return; } // this link has been ended or cancelled: the one neutral page
     if (typeof snap.committed === "boolean") synced.committed = snap.committed;
+    if (typeof snap.refusable === "boolean") synced.refusable = snap.refusable;
     Object.keys(snap.lines || {}).forEach(function (k) {
       var li = rowOf(k), L = snap.lines[k], was = synced.lines[k] || {};
       if (!li) return;
-      var other = L.by === "other" && L.state === "got";
-      if (other && !(was.by === "other" && was.state === "got")) { fresh.push(li); li.setAttribute("data-fresh", ""); setTimeout(function () { li.removeAttribute("data-fresh"); }, 2600); }
+      var other = L.by === "other" && (L.state === "got" || L.state === "notgot");
+      if (other && !(was.by === "other" && was.state === L.state)) { (L.state === "got" ? fresh : passed).push(li); li.setAttribute("data-fresh", ""); setTimeout(function () { li.removeAttribute("data-fresh"); }, 2600); }
       var cother = L.claim === "other" && L.state === "open";
       if (cother && was.claim !== "other") taken.push(li);
       if (mode === "swipe") set(li, L.state, L.by, L.words, undefined, L.claim);
-      else if (other) set(li, "got", "other", "");
+      else if (other) set(li, L.state, "other", "");
       else if (cother) set(li, "open", "", "", undefined, "other");
       else if (locked(li)) set(li, "open", "", "");
     });
-    synced = { lines: snap.lines || synced.lines, extras: snap.extras || [], last: snap.last || null, hours: snap.hours || synced.hours, committed: synced.committed };
+    synced = { lines: snap.lines || synced.lines, extras: snap.extras || [], last: snap.last || null, hours: snap.hours || synced.hours, committed: synced.committed, refusable: synced.refusable };
     drawExtras(); bar();
     if (fresh.length && !quiet) say("Someone else just got " + (fresh.length === 1 ? name(fresh[0]) : fresh.length + " more lines") + ".");
+    else if (passed.length && !quiet) say("Someone else has dealt with " + (passed.length === 1 ? name(passed[0]) : passed.length + " of these") + ".");
     else if (taken.length && !quiet) say("Someone else is getting " + (taken.length === 1 ? name(taken[0]) : taken.length + " of these") + ".");
     else if (backed.length && !quiet && !instant) { // Undo took an answer back: say where the line went, and bring it into view
       say(backed.length === 1 ? name(backed[0]) + " is back on your list." : backed.length + " lines are back on your list.");
@@ -306,7 +310,7 @@
   function readPage() {
     var lines = {};
     rows().forEach(function (li) { lines[keyOf(li)] = { state: li.getAttribute("data-state") || "open", words: words(li), by: li.getAttribute("data-by") || "", claim: li.getAttribute("data-claim") || "" }; });
-    synced = { lines: lines, extras: [], last: null, hours: null, committed: root.getAttribute("data-sl-committed") === "1" };
+    synced = { lines: lines, extras: [], last: null, hours: null, committed: root.getAttribute("data-sl-committed") === "1", refusable: root.getAttribute("data-sl-refusable") !== "0" };
   }
 
   // ---- swipe mode
@@ -317,12 +321,12 @@
     sync("line", { key: key, state: state === "swapped" ? "got" : state, swap: w || "" }, function () { set(li, before.state, before.by, before.words); bar(); });
   }
   function answer(li, target, how) {
-    if (locked(li)) { say(claimedElsewhere(li) ? "Someone else is getting this one." : "Someone else got this one already."); return; }
+    if (locked(li)) { say(claimedElsewhere(li) ? "Someone else is getting this one." : "Someone else has already answered this one."); return; }
     if (li.getAttribute("data-state") === target) return;
     commit(li, target, "", how);
   }
   function finishSwap(li) {
-    if (locked(li)) { field(li).value = ""; det(li).open = false; say("Someone else got this one already."); flush(li); return; }
+    if (locked(li)) { field(li).value = ""; det(li).open = false; say("Someone else has already answered this one."); flush(li); return; }
     var w = words(li), cur = li.getAttribute("data-sl-w") || "";
     field(li).value = w;
     det(li).open = false;
