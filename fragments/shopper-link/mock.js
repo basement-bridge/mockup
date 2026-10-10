@@ -2,7 +2,7 @@
 // Stands in for the Kitchie server on this fragment's pages: the shopper's requests (line, extra, unresolved, undo, batch), the live stream that tells every
 // open page what changed, a second shopper, and the member's Shopping screen following along. It also jumps a frame to the state named in its address,
 // so the fragment page can show every state side by side. Sample answers and sample outcomes live here, never in the stylesheets or in the files meant for the build.
-//   list.html            ?s=mid | drag | swap | also | multi | summary | none | wont | live | reopen | two        phase one (see seedFor below)
+//   list.html            ?s=mid | drag | drag-armed | drag-no | drag-no-armed | leave | done | done-none | swap | also | multi | summary | none | wont | live | reopen | two        phase one (see the seeds below)
 //                        ?s=p2 | p2-ask | p2-reading | p2-ok | p2-retry | p2-fallback   phase two (not built); ?p2=1 only shows the chooser
 //                        ?g=<group>&as=A|B   several frames in one group share one pretend server (A and B are two links; the member sees both)
 //   member.html          ?share=a | b | c   where the hand-off control sits      ?live=0 | 1 | 2 | 3 | unsent   which links are out
@@ -52,7 +52,7 @@
     var k, r, prev;
     if (path === "line") {
       k = d.get("key"); r = lineOf(k); prev = r;
-      if (r.state === "got" && r.by && r.by !== link) return 409;
+      if ((r.state === "got" || r.state === "swapped") && r.by && r.by !== link) return 409; // got or swapped on another link: locked (SL-J4, confirmed 10 October 2026)
       var w = (d.get("swap") || "").trim().slice(0, 120), st = d.get("state");
       var n = w ? { state: "swapped", words: w, by: link } : st === "open" ? { state: "open", words: "", by: "" } : { state: st, words: "", by: link };
       put(k, n); push(link, label(k, n), [{ k: k, prev: prev }]);
@@ -73,7 +73,7 @@
       var got = d.getAll("got"), undo2 = [];
       NAMES.forEach(function (n_, i) {
         var kk = "l" + i, cur = lineOf(kk), sw = (d.get("swap_" + kk) || "").trim().slice(0, 120);
-        if (cur.state === "got" && cur.by && cur.by !== link) return;
+        if ((cur.state === "got" || cur.state === "swapped") && cur.by && cur.by !== link) return;
         undo2.push({ k: kk, prev: cur });
         put(kk, sw ? { state: "swapped", words: sw, by: link } : got.indexOf(kk) !== -1 ? { state: "got", words: "", by: link } : { state: "notgot", words: "", by: link });
       });
@@ -122,15 +122,21 @@
   }
   var MID = { l0: ["got"], l1: ["got"], l2: ["got"], l3: ["notgot"], l4: ["got"], l5: ["got"], l8: ["swapped", "fusilli, same size"] };
   if (auto && !q.get("g")) {
-    if (s === "mid" || s === "drag" || s === "swap" || s === "also" || s === "live" || s === "reopen" || s === "wont") {
+    if (s === "done" || s === "done-none") {
+      // Nothing left (SL-D18). "done": 9 of 12 got, one swapped, two not found. "done-none": nothing was bought, every line not found; still a calm end, not an error.
+      var all = {};
+      NAMES.forEach(function (n_, i) { all["l" + i] = s === "done-none" ? ["notgot"] : [["l6", "l10"].indexOf("l" + i) !== -1 ? "notgot" : i === 8 ? "swapped" : "got", i === 8 ? "fusilli, same size" : ""]; });
+      seed(all, s === "done" ? ["2 cans of sparkling water"] : [], s === "done-none" ? "The rest, can't buy" : "Tomatoes, got it");
+    }
+    if (s === "mid" || s.indexOf("drag") === 0 || s === "leave" || s === "swap" || s === "also" || s === "live" || s === "reopen" || s === "wont") {
       var mid = {};
       Object.keys(MID).forEach(function (k) { mid[k] = MID[k]; });
-      if (s === "drag") mid = { l0: ["got"], l1: ["got"] };
+      if (s.indexOf("drag") === 0 || s === "leave") mid = { l0: ["got"], l1: ["got"] };
       if (s === "swap") mid = { l0: ["got"], l1: ["got"], l2: ["got"], l3: ["got"], l4: ["got"], l5: ["got"], l7: ["got"] };
       if (s === "live") { mid = { l0: ["got"], l1: ["got"], l5: ["got"], l10: ["got", "", "B"] }; }
       if (s === "also") mid = { l0: ["got"], l1: ["got"], l2: ["got"], l4: ["got"], l5: ["got"] };
       if (s === "reopen") { mid = { l0: ["got"], l1: ["got"], l2: ["got"], l3: ["got"], l4: ["got"], l5: ["got"], l6: ["notgot"], l8: ["swapped", "fusilli, same size"], l10: ["notgot"] }; }
-      seed(mid, s === "also" ? ["2 cans of sparkling water", "birthday candles"] : s === "mid" || s === "wont" ? ["2 cans of sparkling water"] : [], s === "also" ? "Also got: birthday candles" : s === "drag" ? "Bread, got it" : s === "swap" ? "Onions, got it" : s === "live" ? "Milk, got it" : s === "reopen" ? "Spinach, couldn't find" : "Penne, got fusilli, same size instead");
+      seed(mid, s === "also" ? ["2 cans of sparkling water", "birthday candles"] : s === "mid" || s === "wont" ? ["2 cans of sparkling water"] : [], s === "also" ? "Also got: birthday candles" : s.indexOf("drag") === 0 || s === "leave" ? "Bread, got it" : s === "swap" ? "Onions, got it" : s === "live" ? "Milk, got it" : s === "reopen" ? "Spinach, couldn't find" : "Penne, got fusilli, same size instead");
     }
     if (s === "two") {
       seed({ l0: ["got", "", "A"], l1: ["got", "", "A"], l2: ["got", "", "A"], l3: ["got", "", "A"], l4: ["got", "", "A"], l5: ["got", "", "A"], l6: ["notgot", "", "A"],
@@ -144,6 +150,22 @@
     if (auto && q.get("g")) { /* grouped frames keep the shared server */ }
   }
   srv.order = srv.order || [];
+
+  // ================================================================ list.html as the server would draw it (SL-D18)
+  // The real server draws every line with its state and marks the answered ones data-sl-gone, so the page is right before shopper.js runs and a second visit shows only what is left.
+  // Here the static file has twelve open lines, so this does what that server would have done, from the pretend server's state, before shopper.js reads the page.
+  if (page === "list" && list) {
+    Array.prototype.forEach.call(list.querySelectorAll("li[data-shop-row]"), function (li) {
+      var r = lineOf(li.getAttribute("data-key")), by = r.by ? (r.by === me ? "you" : "other") : "", st = r.state;
+      if (by === "other" && st === "notgot") { st = "open"; by = ""; } // not found on another link is still to do here
+      var lock = by === "other" && (st === "got" || st === "swapped");
+      li.setAttribute("data-state", st);
+      if (by === "you" || lock) li.setAttribute("data-by", by);
+      if (st === "swapped" && !lock) li.querySelector(".sl-swap input").value = r.words;
+      if (st === "got") li.querySelector('input[name="got"]').checked = true;
+      if (st !== "open") li.setAttribute("data-sl-gone", "");
+    });
+  }
 
   // ================================================================ sent.html: show what this frame's shopper really sent
   if (page === "sent" && q.get("from")) {
@@ -237,7 +259,7 @@
       });
       // the also-got section
       var also = document.querySelector("[data-sl-also]"), sect = document.querySelector(".sl-also-m");
-      if (also) { also.textContent = ""; srv.extras.forEach(function (x) { var li = document.createElement("li"), sp = document.createElement("span"), sm = document.createElement("small"); li.appendChild(icon("M12 5v14M5 12h14", 22)); sp.appendChild(document.createTextNode(x.text)); sm.textContent = pantryNote(x.text); sp.appendChild(sm); li.appendChild(sp); also.appendChild(li); }); sect.hidden = srv.extras.length === 0; }
+      if (also) { also.textContent = ""; srv.extras.forEach(function (x) { var li = document.createElement("li"), sp = document.createElement("span"), sm = document.createElement("small"); li.appendChild(icon("M6 8h12l-1 12H7zM9 8V6.5a3 3 0 0 1 6 0V8", 22)); sp.appendChild(document.createTextNode(x.text)); sm.textContent = pantryNote(x.text); sp.appendChild(sm); li.appendChild(sp); also.appendChild(li); }); sect.hidden = srv.extras.length === 0; }
       // one card per link that has answered
       var top = document.getElementById("sl-top"), tpl = top.querySelector(".sl-card");
       Array.prototype.slice.call(top.querySelectorAll(".sl-card")).forEach(function (c, i) { if (i > 0) c.remove(); });
@@ -294,15 +316,7 @@
   }, true);
   if (q.has("p2") || s.indexOf("p2") === 0) document.querySelector("[data-sl-modes]").hidden = false;
 
-  // ================================================================ list.html, a second visit: the server draws what is still to get first, what is bought after (SL-J9)
-  if (s === "reopen") {
-    var all = Array.prototype.slice.call(list.querySelectorAll("li[data-shop-row]")), todo = [], done_ = [];
-    all.forEach(function (li, i) { var r = lineOf("l" + i); (r.state === "got" || r.state === "swapped" ? done_ : todo).push(li); li.setAttribute("data-state", r.state); });
-    var mk = function (t) { var li = document.createElement("li"); li.className = "sl-divider"; li.setAttribute("role", "presentation"); li.textContent = t; return li; };
-    list.textContent = "";
-    list.appendChild(mk("Still to get")); todo.forEach(function (li) { list.appendChild(li); });
-    list.appendChild(mk("Bought already")); done_.forEach(function (li) { list.appendChild(li); });
-  }
+  // A second visit (?s=reopen) needs no code of its own: the server's drawing above leaves out everything that was answered, so the page shows only what is left (SL-D18).
   if (!auto) return;
 
   // ================================================================ jump to the state, after shopper.js has run, by doing what a shopper would do
@@ -315,7 +329,18 @@
     HTMLElement.prototype.focus = function () {};
     setTimeout(function () { HTMLElement.prototype.focus = focus; }, 900);
     var S = function () { return window.KitchieShopperLink; };
-    if (s === "drag") setTimeout(function () { var li = row("l5"); li.setAttribute("data-sl-drag", "got"); li.setAttribute("data-sl-armed", ""); li.querySelector(".swfg").style.setProperty("--dx", "150px"); window.scrollTo(0, topOf(row("l3")) - 90); }, 80);
+    // Mid-drag frames: the same attributes shopper.js sets while a finger moves (the reveal colour follows --sl-p, 0 to 1, and turns solid once armed).
+    var DRAGS = { "drag": ["l3", "got", 62, false], "drag-armed": ["l3", "got", 150, true], "drag-no": ["l3", "notgot", -62, false], "drag-no-armed": ["l3", "notgot", -150, true] };
+    if (DRAGS[s]) setTimeout(function () {
+      var d = DRAGS[s], li = row(d[0]), need = Math.max(80, li.querySelector(".swfg").offsetWidth * 0.3);
+      li.setAttribute("data-sl-drag", d[1]); if (d[3]) li.setAttribute("data-sl-armed", "");
+      li.style.setProperty("--sl-p", Math.min(1, Math.abs(d[2]) / need).toFixed(3));
+      li.querySelector(".swfg").style.setProperty("--dx", d[2] + "px");
+      window.scrollTo(0, topOf(li) - 150);
+    }, 80);
+    // The line leaves: after a moment the frame answers Cheddar by tapping its tick, so the hold, the fold and the lines moving up can be watched. Reload to see it again.
+    if (s === "leave") setTimeout(function () { window.scrollTo(0, topOf(row("l2")) - 100); }, 100);
+    if (s === "leave") setTimeout(function () { row("l2").querySelector('input[name="got"]').click(); }, 1500);
     if (s === "swap") setTimeout(function () { row("l8").querySelector("details").open = true; typed("l8", "fusilli, same size", false); window.scrollTo(0, topOf(row("l5")) - 76); }, 120);
     if (s === "also") setTimeout(function () { var i = document.getElementById("sl-also-in"); i.value = "2 litres of lemonade"; window.scrollTo(0, document.body.scrollHeight); }, 120);
     if (s === "mid" || s === "wont") setTimeout(function () { window.scrollTo(0, topOf(row("l3")) - 100); }, 120);
