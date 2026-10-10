@@ -17,9 +17,24 @@
 .wkh b{font:800 17px var(--head);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.wkh small{font-size:11px;color:var(--muted);font-weight:600}
 .ib{width:44px;height:44px;border-radius:50%;border:1px solid var(--border);background:var(--surface);display:inline-flex;align-items:center;justify-content:center;font-size:18px}
 .ib.sm{width:36px;height:44px;border-radius:var(--r-pill);font-size:20px}.ib:disabled{opacity:.35;cursor:default}.ib[aria-pressed=true]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
-.seg{display:flex;padding:3px;border-radius:var(--r-pill);background:var(--surface);border:1px solid var(--border);margin-bottom:10px}
-.seg button{flex:1;min-height:40px;border:0;border-radius:var(--r-pill);background:none;font-weight:700;font-size:13px}
-.seg button[aria-pressed=true]{background:var(--accent);color:var(--on-accent)}
+/* decision 48: one compact strip. Mine and Everyone, then every person as a chip, dotted dividers, scroll right; one chevron opens it into packed rows (at most 5). */
+.seg{--sh:36px;--sg:4px;display:flex;align-items:flex-start;gap:2px;margin-bottom:8px}
+.segl{flex:1;min-width:0;display:flex;align-items:center;gap:2px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;overscroll-behavior-x:contain}
+.segl::-webkit-scrollbar{display:none}
+.segl.fr{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 24px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 24px),transparent)}
+.segl.fl{-webkit-mask-image:linear-gradient(270deg,#000 calc(100% - 24px),transparent);mask-image:linear-gradient(270deg,#000 calc(100% - 24px),transparent)}
+.segl.fl.fr{-webkit-mask-image:linear-gradient(90deg,transparent,#000 24px,#000 calc(100% - 24px),transparent);mask-image:linear-gradient(90deg,transparent,#000 24px,#000 calc(100% - 24px),transparent)}
+.segl button{flex:none;min-height:var(--sh);max-width:9rem;padding:0 12px;border:0;border-radius:var(--r-pill);background:none;font-weight:700;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.segl button[aria-pressed=true]{background:var(--accent);color:var(--on-accent)}
+.segl .sd{flex:none;align-self:center;width:0;height:16px;margin:0 4px;border-left:1px dotted var(--muted)}
+.seg.open .segl{flex-wrap:wrap;gap:var(--sg) 2px;overflow-x:hidden;overflow-y:auto;max-height:calc(5*var(--sh) + 4*var(--sg))}
+.seg.open .segl button{flex:1 1 auto;max-width:none}
+.seg.open .segl .sd{flex:none}
+.segx{flex:none;width:36px;height:var(--sh);padding:0;border:0;border-radius:50%;background:none;color:var(--muted);display:inline-flex;align-items:center;justify-content:center}
+.segx[hidden]{display:none}
+.segx svg{width:18px;height:18px;transition:transform .15s}
+.seg.open .segx svg{transform:rotate(180deg)}
+@media(prefers-reduced-motion:reduce){.segx svg{transition:none}}
 .day{display:flex;gap:10px;padding:8px 0;border-top:1px solid var(--border)}
 .day:first-of-type{border-top:0}
 .day.over{background:color-mix(in srgb,var(--accent) 12%,transparent);border-radius:var(--r-ctl)}
@@ -157,7 +172,7 @@
 <li><b>The week title keeps one width, so the next-week arrow never moves.</b> The arrow sits right beside the title (copy and settings stay at the far right). The title is as wide as the widest of the weeks the plan covers (last week to four weeks ahead), so changing week never moves the arrow. Owner, typed, 10 Oct 2026. (Decision 46.)</li>
 <li><b>The week you were on is remembered.</b> The app keeps the Monday date of the week the person was viewing in the browser's own storage (localStorage), so a reload, refresh or later visit opens on that week instead of snapping back to this week. It is used only if it is a Monday inside the plan window (last week to four weeks ahead); anything else, or storage that is blocked, opens on this week. It is written whenever the week changes (arrows, title tap, long-press back to this week). Nothing is sent to the server. The view (Mine, Everyone, a person) is not remembered. Owner, typed, 10 Oct 2026. (Decision 47.)</li>
 <li><b>The button opens the person's default AI app.</b> It does nothing else: no in-app agent, no chat inside Kitchie. It opens whatever AI app the person has set as their default. The assistant sheet in this mockup is only a stand-in for that app. Settles decision 5.</li>
-<li><b>Data-model work is scoped to the plan's weeks.</b> Locked substitutions (7b) and per-person ingredient lists (10) are only built and stored for the weeks the plan covers: last week up to four weeks ahead. Nothing is stored or migrated outside that window.</li></li></ol></div>
+<li><b>Data-model work is scoped to the plan's weeks.</b> Locked substitutions (7b) and per-person ingredient lists (10) are only built and stored for the weeks the plan covers: last week up to four weeks ahead. Nothing is stored or migrated outside that window.</li><li><b>One compact strip replaces the Mine / Everyone / People pill.</b> The wide pill and its "People" dropdown are gone. One thin row holds Mine and Everyone (the two defaults, set apart by thin dotted dividers, little padding, not hard pipes) and then every household member as their own chip. Swipe the row to the right to reach more people. One chevron at the right end opens the strip into wrapped rows so everyone is visible at once, packed with no white gaps (each row stretches to the full width), at most five rows; past five the opened area scrolls. The chevron turns up and closes it. It shows only when the row cannot hold everyone. Same control, same behaviour, wherever the switch appears. Owner, voice, 10 Oct 2026 ("it's taking too much real estate"). Supersedes decision 18's picker for three or more people. (Decision 48.)</li></li></ol></div>
 
 <div class="perf"><b>Follow-up work beyond the mockup</b> (these touch the real Kitchie backend and app)<ul>
 <li><b>Decisions 5, 17, 42, 43 and 45.</b> No in-app agent (42). The button stays (43) and opens the person's default AI app (45); build it as a launch of that app. Nothing left open here.</li>
@@ -166,6 +181,7 @@
 
 <div class="perf"><b>Proposals</b> (owner silent)<ul>
 <li>Week shown Monday to Sunday, dinner only (as in the four-direction mockup).</li>
+<li>Strip details (decision 48), all <b>Proposal</b>: chips are 36px high (below the 44px touch guide, to save height; the row is the only thing that thin); a long name is cut at about 9rem with an ellipsis, its full name on the accessible label; picking anyone closes an opened strip and brings the chosen chip into view; the soft fade at an edge says there is more to scroll; the order after Everyone is the household's order; with one other person the strip simply has three chips and no chevron; the dividers are dotted, drawn after Mine and after Everyone only. The chevron opens only when the row cannot hold everyone.</li>
 <li>Mine / Everyone / Jane switch at the top of the grid (order is the owner's, 9 Oct): Mine is where blocking and the idle nudge apply; Jane (or any other member) shows just that person's plan, view-only; Everyone stacks all of them.</li>
 <li>Week header: the earlier fragment had no arrows, so small ‹ › buttons are drawn (greyed at the limits) and a small label under the title says This week, Next week, In 3 weeks. The sample plan exists only for this week; the Settings stencil applies to every week.</li>
 <li>Gestures: moving up or down drags to another day (a short press first on touch, so scrolling still works); sideways swipes. A swipe commits past about 90 px and tints the card with what it will do.</li>
@@ -193,8 +209,9 @@ var R={shak:{e:"🥚",n:"Shakshuka",ing:["eggs","tomatoes","onion","feta"]},rice
 var QPP={eggs:[1,""],tomatoes:[100,"g"],onion:[.5,""],feta:[30,"g"],rice:[75,"g"],pasta:[90,"g"],mushrooms:[60,"g"],cream:[30,"ml"],spinach:[50,"g"],"chicken thighs":[1,""],carrots:[1,""],stock:[250,"ml"],"soy sauce":[15,"ml"]};
 var ME="Sam",ALL=4,WMIN=-1,WMAX=4;
 var LAST=[["Mon","shak","Sam"],["Tue","rice","all"],["Wed","pasta","Sam",{mushrooms:"carrots"}],["Thu","fritt","Sam"],["Fri","soup","Sam"],["Sat","stir","Sam"]];
+var MANY=["Jane","Priya","Tom","Alexandra","Mohammed","Li","Sophie","Daniel","Aroha","Chen","Fatima","Maximilian"],MORE=["Ben","Zoe","Ola","Kwame","Ines","Hugo","Mei","Sven","Noor","Paz","Rhys","Una","Vik","Wren","Yara","Zed","Abe","Bea","Cy","Dot","Eli","Fay","Gus","Ivy","Jo","Kit","Lou","Max","Nia","Oz","Pip","Quin","Ravi","Sia","Tess"];
 var S;var GT=null,uid=0,DRAWT=0,LASTG=0,NT=null,TT=null,LP=null,G=null;
-function fresh(){return {gap:false,gapAnim:false,view:"mine",wk:0,cards:[],ov:{},stencil:{Sam:["Fri"],Jane:["Sun"]},sheet:null,chat:false,settings:false,toast:null,over:null,msgs:[],nudge:false,nudgeDone:false,copied:{}}}
+function fresh(){return {gap:false,gapAnim:false,view:"mine",wk:0,cards:[],ov:{},people:["Jane"],segOpen:false,segX:0,stencil:{Sam:["Fri"],Jane:["Sun"]},sheet:null,chat:false,settings:false,toast:null,over:null,msgs:[],nudge:false,nudgeDone:false,copied:{}}}
 S=fresh();
 function card(day,r,who,forw,mod){var f=forw||(who==="all"?"all":who);return {id:++uid,day:day,wk:S.wk,r:r,by:who,forw:f,n:f==="all"?ALL:1,res:false,mod:mod||null,fromCopy:false}}
 function me(c){return c.by===ME}
@@ -224,10 +241,11 @@ function setWk(n){S.wk=Math.max(WMIN,Math.min(WMAX,n));keepWk()}
 function isoW(w){var d=new Date(2026,9,12+7*w),m=d.getMonth()+1,n=d.getDate();return d.getFullYear()+"-"+(m<10?"0":"")+m+"-"+(n<10?"0":"")+n}
 function keepWk(){try{window.localStorage.setItem("pw-week",isoW(S.wk))}catch(e){}}
 function savedWk(){try{var v=window.localStorage.getItem("pw-week");if(v)for(var w=WMIN;w<=WMAX;w++)if(isoW(w)===v)return w}catch(e){}return 0}
-function av(w){return w==="Sam"?'<span class="av" title="Sam">S</span>':w==="Jane"?'<span class="av j" title="Jane">J</span>':'<span class="av all" title="Everyone">👥</span>'}
+function av(w){if(w!=="Sam"&&w!=="Jane"&&w!=="all"&&w)return '<span class="av j" title="'+esc(w)+'">'+esc(w.charAt(0))+'</span>';return w==="Sam"?'<span class="av" title="Sam">S</span>':w==="Jane"?'<span class="av j" title="Jane">J</span>':'<span class="av all" title="Everyone">👥</span>'}
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;")}
 function okey(day,p,wk){return (wk===undefined?S.wk:wk)+"|"+p+"|"+day}
-function isBlocked(day,p,wk){var k=okey(day,p,wk);if(k in S.ov)return S.ov[k];return S.stencil[p].indexOf(day)>-1}
+function isBlocked(day,p,wk){var k=okey(day,p,wk);if(k in S.ov)return S.ov[k];return (S.stencil[p]||[]).indexOf(day)>-1}
+function person(){return S.view!=="mine"&&S.view!=="all"}
 function pill(cls,ic,n,label){return '<span class="tg '+cls+'" role="img" aria-label="'+label+'">'+ic+(n===""?"":n)+'</span>'}
 function cardHtml(c){var r=R[c.r],m=missing(c),sh="",mine=me(c),sr=srcOf(c),nl=Object.keys(c).filter(function(k){return k.indexOf("l_")===0&&c[k]}).length;
  if(m.length)sh+=pill("miss",IMISS,m.length,m.length+" ingredients missing. Open to resolve");
@@ -235,7 +253,7 @@ function cardHtml(c){var r=R[c.r],m=missing(c),sh="",mine=me(c),sr=srcOf(c),nl=O
  if(c.res)sh+=pill("",IHELD,"","Held");
  var rw=ro();return '<button class="mc '+(rw?"ro":mine?"mine":"theirs")+'" data-card="'+c.id+'" aria-label="'+esc(r.n)+', '+c.day+', '+meta(c)+(rw?", last week, view only":mine?". Drag to another day. Swipe left to replan, right to mark not cooking.":", planned by Jane, view only")+'"><span class="e">'+r.e+'</span><span class="t"><b>'+esc(r.n)+'</b><small>'+meta(c)+'</small>'+(sh?'<span class="chips">'+sh+'</span>':'')+'</span>'+av(c.by)+((mine||rw)?'':'<span class="lock" aria-hidden="true">🔒</span>')+'</button>'}
 function dayHtml(d,i){
- var cs=S.cards.filter(function(c){return c.wk===S.wk&&c.day===d&&(S.view==="all"||(S.view==="Jane"?c.by==="Jane":me(c)))});
+ var cs=S.cards.filter(function(c){return c.wk===S.wk&&c.day===d&&(S.view==="all"||(person()?c.by===S.view:me(c)))});
  var h='<div class="day'+(S.over===d?" over":"")+'" data-day="'+d+'"><div class="dn">'+d+'<small>'+dateOf(i)+'</small></div><div class="stack">';
  var b=isBlocked(d,ME),rw=ro();
  if(S.view==="mine"&&!rw&&!b&&S.stencil.Sam.indexOf(d)>-1&&S.ov[okey(d,ME)]===false)h+='<div class="ovt">Usual day off, cooking this week</div>';
@@ -244,8 +262,8 @@ function dayHtml(d,i){
  else if(S.view==="mine"&&b)h+='<button class="blocked'+(once?' once':'')+'" data-unblock="'+d+'" aria-label="Not cooking '+d+(once?', this week only':', usual day off')+'. Tap to cook this week"><span>Not cooking</span></button>';
  else if(S.view==="all"&&b&&!cs.some(me))h+='<div class="blocked" style="min-height:36px"><span>'+av("Sam")+' Sam is out</span></div>';
  cs.forEach(function(c){h+=cardHtml(c)});
- var jb=isBlocked(d,"Jane");if((S.view==="all"||S.view==="Jane")&&jb&&!cs.some(function(c){return c.by==="Jane"}))h+='<div class="blocked" style="min-height:36px"><span>'+av("Jane")+' Jane is out</span></div>';
- if(S.view==="Jane"){if(!cs.length&&!jb)h+='<div class="blocked" style="min-height:36px;opacity:.7"><span>Nothing planned by Jane</span></div>'}
+ var pv=person()?S.view:"Jane",jb=isBlocked(d,pv);if((S.view==="all"||person())&&jb&&!cs.some(function(c){return c.by===pv}))h+='<div class="blocked" style="min-height:36px"><span>'+av(pv)+' '+esc(pv)+' is out</span></div>';
+ if(person()){if(!cs.length&&!jb)h+='<div class="blocked" style="min-height:36px;opacity:.7"><span>Nothing planned by '+esc(S.view)+'</span></div>'}
  else if(!cs.length&&!(S.view==="mine"&&b)&&rw)h+='<div class="slot" aria-hidden="true"></div>';
  else if(!cs.length&&!(S.view==="mine"&&b))h+='<button class="slot" data-blk="'+d+'" aria-label="Not cooking on '+d+', this week only"></button>';
  h+='</div>';
@@ -263,9 +281,9 @@ function headHtml(){var cp=!!S.copied[S.wk];
  +'<button class="ib sm" data-wk="1" aria-label="Next week"'+(S.wk>=WMAX?' disabled':'')+'>›</button>'
  +'<button class="ib" data-act="copy"'+(ro()?' disabled':'')+' aria-pressed="'+cp+'" aria-label="Copy last week'+(cp?' (applied, press again to clear)':'')+'" title="Copy last week">'+ICOPY+'</button>'
  +'<button class="ib" data-act="stencil" aria-label="Settings, usual days">'+ICOG+'</button></div>'
- +'<div class="seg" role="group" aria-label="View"><button data-view="mine" aria-pressed="'+(S.view==="mine")+'">Mine</button><button data-view="all" aria-pressed="'+(S.view==="all")+'">Everyone</button><button data-view="Jane" aria-pressed="'+(S.view==="Jane")+'">Jane</button></div>'
+ +segHtml()
  +slotHtml()
- +((S.view==="Jane"||ro())?'':'<div style="margin-bottom:6px"><button class="btn ghost" style="width:100%" data-act="chat">✦ Open your assistant</button></div>')}
+ +((person()||ro())?'':'<div style="margin-bottom:6px"><button class="btn ghost" style="width:100%" data-act="chat">✦ Open your assistant</button></div>')}
 function sheetHtml(){var c=S.cards.filter(function(x){return x.id===S.sheet})[0];if(!c)return"";var r=R[c.r],mine=me(c)&&!ro(),sr=srcOf(c);
  var h='<div class="scrim" data-close></div><div class="sheet" role="dialog" aria-label="'+esc(r.n)+'"><h4>'+r.e+' '+esc(r.n)+'</h4><p style="font-size:13px">'+c.day+' · '+meta(c)+'</p>';
  if(!mine)h+='<p class="tg" style="display:inline-block;margin-top:8px;border-color:var(--border);color:var(--muted)">'+(ro()?'🔒 Last week is read-only. You can look, not change.':'🔒 Jane planned this. You can look, not change.')+'</p>';
@@ -293,13 +311,25 @@ function hasOpenDay(){return DN.some(function(d){return !isBlocked(d,ME)&&!S.car
 function canNudge(){return S.view==="mine"&&!ro()&&!S.sheet&&!S.chat&&!S.settings&&!S.toast&&!S.nudge&&!S.nudgeDone&&hasOpenDay()}
 function armNudge(){clearTimeout(NT);if(canNudge())NT=setTimeout(function(){if(canNudge()){S.nudge=true;S.nudgeDone=true;draw()}},5000)}
 function closeNudge(){S.nudge=false;S.gap=true;S.gapAnim=true;clearTimeout(GT);GT=setTimeout(function(){if(S.gap){S.gap=false;draw()}},6000)}
+var ICHEV='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+/* decision 48. One component for every count of people: no dropdown. fit() shows the chevron only when the row cannot hold everyone. */
+function segHtml(){var h='<button data-view="mine" aria-pressed="'+(S.view==="mine")+'">Mine</button><i class="sd" aria-hidden="true"></i><button data-view="all" aria-pressed="'+(S.view==="all")+'">Everyone</button>';
+ if(S.people.length)h+='<i class="sd" aria-hidden="true"></i>';
+ S.people.forEach(function(n){h+='<button data-view="'+esc(n)+'" aria-pressed="'+(S.view===n)+'">'+esc(n)+'</button>'});
+ return '<div class="seg'+(S.segOpen?' open':'')+'" role="group" aria-label="View"><div class="segl">'+h+'</div><button class="segx" data-segx aria-expanded="'+S.segOpen+'" aria-label="'+(S.segOpen?'Show fewer':'Show everyone')+'" hidden>'+ICHEV+'</button></div>'}
+function fade(l){l.classList.toggle("fl",!S.segOpen&&l.scrollLeft>1);l.classList.toggle("fr",!S.segOpen&&l.scrollLeft+l.clientWidth<l.scrollWidth-1)}
+function fit(){var sg=document.querySelector("#ph .seg");if(!sg)return;var l=sg.querySelector(".segl"),x=sg.querySelector(".segx"),was=sg.classList.contains("open");
+ sg.classList.remove("open");var over=l.scrollWidth>l.clientWidth+1;if(was)sg.classList.add("open");
+ x.hidden=!over;if(!over&&was)sg.classList.remove("open");
+ if(!S.segOpen){l.scrollLeft=S.segX;if(S.segShow){var b=l.querySelector('[aria-pressed=true]');if(b){var a=b.offsetLeft-8,z=b.offsetLeft+b.offsetWidth+8;if(a<l.scrollLeft)l.scrollLeft=a;else if(z>l.scrollLeft+l.clientWidth)l.scrollLeft=z-l.clientWidth}}S.segX=l.scrollLeft}
+ S.segShow=false;fade(l);l.onscroll=function(){if(!S.segOpen)S.segX=l.scrollLeft;fade(l)}}
 function draw(){var ph=document.getElementById("ph");
- var scroll=ph.querySelector(".sc");var st=scroll?scroll.scrollTop:0;
+ var sl=ph.querySelector(".segl");if(sl&&!S.segOpen)S.segX=sl.scrollLeft;var scroll=ph.querySelector(".sc");var st=scroll?scroll.scrollTop:0;
  var over=!!(S.sheet||S.chat||S.settings);if(over)S.gap=false;
  ph.innerHTML='<div class="sc">'+headHtml()+DN.map(dayHtml).join("")+'</div>'+(S.sheet?sheetHtml():S.chat?chatHtml():S.settings?settingsHtml():"")+""+(S.toast?'<div class="toast" role="status">'+S.toast+'</div>':"");
  DRAWT=Date.now();S.gapAnim=false;
- var n=ph.querySelector(".sc");if(n)n.scrollTop=st;
- var jm={empty:"1 Empty",copy:"2 After copy",jane:"3 Jane planned too",sheet:"4 Lock in a meal",block:"5 Block a night",stencil:"6 Usual days",all:"7 Everyone view",sources:"8 Where a meal came from",nudge:"9 Idle nudge",weeks:"10 Week limits",override:"11 Usual day, cooked",past:"12 Last week"};
+ var n=ph.querySelector(".sc");if(n)n.scrollTop=st;fit();
+ var jm={empty:"1 Empty",copy:"2 After copy",jane:"3 Jane planned too",sheet:"4 Lock in a meal",block:"5 Block a night",stencil:"6 Usual days",all:"7 Everyone view",sources:"8 Where a meal came from",nudge:"9 Idle nudge",weeks:"10 Week limits",override:"11 Usual day, cooked",past:"12 Last week",people:"13 Many people",crowd:"14 Whole street"};
  document.getElementById("jump").innerHTML=Object.keys(jm).map(function(k){return '<button data-jump="'+k+'" aria-pressed="'+(S.at===k)+'">'+jm[k]+'</button>'}).join("");
  document.getElementById("say").innerHTML='<div class="say"><h2>'+(NOTE[S.at]||NOTE.x)[0]+'</h2><p>'+(NOTE[S.at]||NOTE.x)[1]+'</p></div>';
  armNudge()}
@@ -315,6 +345,8 @@ nudge:["Idle nudge","After about five seconds of nothing on a week with an open 
 weeks:["Week limits","Back as far as last week (read-only), ahead four weeks. Tap the title to step forward, hold it to jump to this week; the arrows still step. Settings stencil days apply in every week. The week you were on is remembered in this browser, so a reload opens on it (the jump buttons here still set their own week)."],
 override:["A usual day off, cooked this week","Friday is a usual day off, but this week it was opened by hand. A small line marks it as an exception to the usual pattern; next week it is blocked again. The stencil is a default, and a one-week override always wins."],
 past:["Last week is read-only","Meals planned last week can be opened and looked at, nothing more: no moving, removing, holding or editing. Empty days stay empty with no way to plan into them, and Copy last week and Open your assistant are off here."],
+people:["Many people, one row","Mine and Everyone first, split by a dotted divider, then each person as a chip. Swipe the row right to reach more; the soft edge shows there is more, and the chevron at the right opens them all as packed rows. Pick someone and the row closes again with their chip in view."],
+crowd:["A whole street (cap of five rows)","The chevron opens the row into wrapped, packed rows: each chip is only as wide as its name and the rows stretch to the full width, so no gaps. Five rows is the most it takes; past that the opened area scrolls. The chevron turns up to close it."],
 x:["Try it","Drag a card to another day, tap an empty night to mark it not cooking, swipe it left (replan) or right (not cooking), or tap it. Tap or hold the week title."]};
 function pushToast(t){S.toast=t;clearTimeout(TT);TT=setTimeout(function(){S.toast=null;draw()},3500)}
 function copyLast(){var sk=[];LAST.forEach(function(l){var w=l[2];if(w==="Sam"&&isBlocked(l[0],ME)){sk.push(l[0]);return}if(S.cards.some(function(c){return c.wk===S.wk&&c.day===l[0]&&c.r===l[1]&&c.by===ME}))return;var c=card(l[0],l[1],"Sam",w==="all"?"all":"Sam",l[3]);c.fromCopy=true;S.cards.push(c)});S.copied[S.wk]=true;S.at="copy";return sk}
@@ -329,6 +361,8 @@ function go(k){S=fresh();S.at=k;clearTimeout(TT);seedPast();
  if(k==="block"){S.ov[okey("Wed",ME,0)]=true;S.cards=S.cards.filter(function(c){return !(c.day==="Wed"&&me(c))});pushToast("Not cooking Wed, this week only. Usual days are set in Settings.")}
  if(k==="override"){S.ov[okey("Fri",ME,0)]=false;copyLast();S.at="override"}
  if(k==="past")S.wk=-1;
+ if(k==="people")S.people=MANY.slice(0,12);
+ if(k==="crowd"){S.people=MANY.concat(MORE);S.segOpen=true}
  if(k==="stencil")S.settings=true;
  if(k==="nudge"){S.nudge=true;S.nudgeDone=true}
  if(k==="weeks")S.wk=WMAX;
@@ -343,7 +377,8 @@ ph.addEventListener("click",function(e){var t=e.target;
  else{if(S.nudge)closeNudge();
  if(x=t.closest("[data-wk]")){S.gap=false;setWk(S.wk+Number(x.dataset.wk))}
  else if(t.closest("[data-wkhd]")){S.gap=false;setWk(S.wk+1)}
- else if(x=t.closest("[data-view]")){S.gap=false;S.view=x.dataset.view;S.at="x"}
+ else if(t.closest("[data-segx]")){S.gap=false;S.segOpen=!S.segOpen;S.segShow=!S.segOpen}
+ else if(x=t.closest("[data-view]")){S.gap=false;S.view=x.dataset.view;S.segOpen=false;S.segShow=true;S.at="x"}
  else if(x=t.closest("[data-card]")){S.sheet=Number(x.dataset.card);S.at="sheet"}
  else if(t.closest("[data-ask]")||(x=t.closest("[data-act=chat]"))){S.chat=true}
  else if(x=t.closest("[data-blk]")){var d=x.dataset.blk;S.ov[okey(d,ME)]=true;pushToast("Not cooking "+d+", this week only. Usual days are set in Settings.");S.at="block";S.cards=S.cards.filter(function(c){return !(c.wk===S.wk&&c.day===d&&me(c))})}
