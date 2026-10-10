@@ -91,6 +91,7 @@ ph.addEventListener("click",function(e){
     var vname=(r.vers.filter(function(x){return x.id===vid})[0]).name;
     var nb=(function(){var c=F.chain(r,vid);for(var i=c.length-2;i>=0;i--){var q=F.photos(r).filter(function(x){return x.k==="banner"&&x.v===c[i].id&&x.id!==p.id})[0];if(q)return c[i].name+"'s banner (marked)"}return null})();
     F.viewer(r,p,{vid:vid,viewing:vname,inheritedFrom:t.dataset.inh||"",nextBanner:nb||"no photo at the top",
+      onBanner:function(undo){draw(true);X.toast("This photo is now the banner of "+vname+". The old one stays in Photos.",function(){undo();draw(true)})},
       onRemove:function(p){draw(true);X.toast("Photo removed. Undo for 5 minutes.",function(){F.restore(p.id);draw(true)})}});}
   else if(t.hasAttribute("data-undo")){t.dataset.undo.split(",").forEach(F.restore);draw(true);X.toast("Photo back")}
   else if(t.hasAttribute("data-stepadd")){var full=F.stepCount(r,vid)>=10;

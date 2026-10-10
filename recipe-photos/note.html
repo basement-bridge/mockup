@@ -12,7 +12,8 @@
    it carries a reference to that cook, with no question. B: one question at the end of a cook, "Where?": this cook only, or the household's.
    Simple rich text: bold and list lines, plus one photo by reference (an id, never bytes). Kept as a tiny Markdown subset so the same
    text reads fine to an assistant over MCP and renders with PHO.noteHtml in the app. Any member, same controls (L5).
-   Build: a plain <textarea> and three buttons; no editor library. Its own route: none of this loads until Add a note is tapped (P-D14). */
+   Note length (owner, 11 Oct 2026): one cap, 4,000 characters (maxlength), no other limit; the box is bounded in height and scrolls inside itself;
+   a quiet counter shows only from 3,500. Build: a plain <textarea> and three buttons; no editor library. Its own route: none of this loads until Add a note is tapped (P-D14). */
 (function(){
 var X=RCP,F=PHO,ic=X.ic,esc=X.esc;
 var r=X.byId(X.Q.get("to")||"efr")||X.R[0];
@@ -50,12 +51,13 @@ function draw(){
       '<button type="button" data-fmt="b" aria-label="Bold"><b>B</b></button>'+
       '<button type="button" data-fmt="li" aria-label="List line">• List</button>'+
       '<button type="button" data-att aria-haspopup="dialog">'+ic("cam","s")+(att?'Change photo':'Photo')+'</button></div>'+
-    '<textarea class="field" id="nt" placeholder="e.g. Day-old rice really is better.">'+esc(text)+'</textarea>'+
+    '<textarea class="field nbox" id="nt" maxlength="4000" placeholder="e.g. Day-old rice really is better.">'+esc(text)+'</textarea><p class="ncount" data-ncount hidden aria-live="polite"></p>'+
     (att?'<div class="natt">'+'<span class="nph">'+F.frame(att,"t",{eager:1,alt:"Photo in this note"})+'</span><span style="flex:1;font-size:12.5px">One photo, kept by reference: removing the note never removes the photo.</span><button type="button" class="mini" data-unatt>'+ic("x","xs")+'Take out</button></div>':'')+
     '<div class="lblrow"><span class="lbl">How it will look</span></div><div class="nprev note ncard" id="prev"></div>'+
     '</div></div><div class="act"><button type="button" class="btn" data-save>'+ic("check","s")+'Save note</button></div>';
   ph.innerHTML=h;F.eager(ph);preview();
   document.getElementById("nt").addEventListener("input",function(e){text=e.target.value;preview()});
+  X.noteCap(document.getElementById("nt"),ph.querySelector("[data-ncount]"));
 }
 function body(){return text.trim()+(att?"\n[photo:"+att+"]":"")}
 function preview(){
@@ -64,7 +66,7 @@ function preview(){
     '<div class="nmeta"><span>'+esc(me)+' · today</span>'+(cook&&where==="household"?'<span class="tg">'+ic("flame")+'After '+cookWord()+' cook</span>':'')+(where==="cook"?'<span class="tg">'+ic("flame")+'This cook only</span>':'')+'</div>';
   F.eager(p);
 }
-function wrap(fn){var f=document.getElementById("nt"),a=f.selectionStart,b=f.selectionEnd;var r2=fn(text.slice(0,a),text.slice(a,b),text.slice(b));text=r2[0];f.value=text;f.focus();f.setSelectionRange(r2[1],r2[2]);preview()}
+function wrap(fn){var f=document.getElementById("nt"),a=f.selectionStart,b=f.selectionEnd;var r2=fn(text.slice(0,a),text.slice(a,b),text.slice(b));text=r2[0].slice(0,X.NOTE_MAX);f.value=text;f.dispatchEvent(new Event("input"));f.focus();f.setSelectionRange(r2[1],r2[2]);preview()}
 ph.addEventListener("click",function(e){
   var t=e.target.closest("button");if(!t)return;
   if(t.dataset.where){where=t.dataset.where;text=document.getElementById("nt").value;draw()}

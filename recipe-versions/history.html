@@ -53,7 +53,7 @@ function blame(){
     '<div class="lbl" style="margin-top:12px">Method</div>'+c.steps.map(function(t,k){return row((k+1)+". "+t,"","s"+k)}).join("");
 }
 function draw(){
-  ph.innerHTML='<div class="top"><a class="back" href="version.html?v='+v.id+'">'+ic("back","s")+esc(v.name)+'</a><span class="ttl"></span><span style="width:44px"></span></div>'+
+  ph.innerHTML='<div class="top"><a class="back" data-key="," href="version.html?v='+v.id+'">'+ic("back","s")+esc(v.name)+'</a><span class="ttl"></span><span style="width:44px"></span></div>'+
     '<nav class="jumps" role="tablist" aria-label="View"><a href="#" role="tab" data-tab="hist" aria-selected="'+(tab==="hist")+'" class="'+(tab==="hist"?"on":"")+'">History · '+v.revs.length+'</a><a href="#" role="tab" data-tab="who" aria-selected="'+(tab==="who")+'" class="'+(tab==="who"?"on":"")+'">Who changed what</a><a href="#" role="tab" data-tab="cmp" aria-selected="'+(tab==="cmp")+'" class="'+(tab==="cmp"?"on":"")+'">Compare</a></nav>'+
     '<div class="body"><div class="pad">'+(tab==="hist"?hist():tab==="who"?blame():compare())+'</div><div style="height:24px"></div></div>';
 }

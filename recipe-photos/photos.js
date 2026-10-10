@@ -73,7 +73,13 @@
 
   var photos = function (r) {
     if (state === "none") return [];
-    return (PH[r.id] || []).filter(function (p) { return !isRemoved(p.id); }).map(function (p) {
+    var ov = X.bannerOv(), live = (PH[r.id] || []).filter(function (p) { return !isRemoved(p.id); });
+    var chosen = function (v) { var id = ov[r.id + ":" + v]; return id && live.some(function (q) { return q.id === id; }) ? id : null; };
+    return live.map(function (p) {
+      /* Make banner: the version's old banner photo stays, as a plain gallery photo */
+      if (p.k === "banner" && chosen(p.v) && chosen(p.v) !== p.id) p = Object.assign({}, p, { k: "more" });
+      return p;
+    }).map(function (p) {
       /* "Being prepared" state: the banner and the step photos of this sample arrived without their sizes (an assistant upload). */
       return state === "prep" && (p.k === "banner" || p.k === "step") ? Object.assign({}, p, { prep: 1 }) : p;
     });
@@ -89,7 +95,16 @@
     for (var i = c.length - 1; i >= 0; i--) { var p = all.filter(function (x) { return x.v === c[i].id && test(x); })[0]; if (p) return { p: p, inherited: i < c.length - 1, from: c[i] }; }
     return null;
   };
-  var bannerFor = function (r, vid) { return inherit(r, vid, function (p) { return p.k === "banner"; }); };
+  /* the version's banner: its explicit Make banner choice if any (any photo of the recipe), else its own banner photo, else the nearest ancestor's */
+  var bannerFor = function (r, vid) {
+    var c = chain(r, vid), all = photos(r), ov = X.bannerOv();
+    for (var i = c.length - 1; i >= 0; i--) {
+      var id = ov[r.id + ":" + c[i].id], p = id && all.filter(function (x) { return x.id === id; })[0];
+      if (!p) p = all.filter(function (x) { return x.v === c[i].id && x.k === "banner"; })[0];
+      if (p) return { p: p, inherited: i < c.length - 1, from: c[i] };
+    }
+    return null;
+  };
   var coverFor = bannerFor; /* older name, kept for links in other slices */
   var stepFor = function (r, vid, k) { return inherit(r, vid, function (p) { return p.k === "step" && p.step === k; }); };
   var stepCount = function (r, vid) { return photos(r).filter(function (p) { return p.k === "step" && p.v === vid; }).length; };
@@ -181,24 +196,27 @@
     var ph = document.querySelector(".phone");
     var vname = (r.vers.filter(function (x) { return x.id === p.v; })[0] || {}).name || "";
     var d = document.createElement("div"); d.className = "pv"; d.setAttribute("role", "dialog"); d.setAttribute("aria-modal", "true"); d.setAttribute("aria-label", "Photo");
+    var cur = bannerFor(r, opts.vid || p.v), isBanner = !!cur && cur.p.id === p.id && !cur.inherited;
+    var canMake = !isBanner && !opts.inheritedFrom && opts.vid;
     var rep = p.k === "banner" ? "Replace banner" : p.k === "step" ? "Replace step photo" : "Replace";
     var kindQ = p.k === "banner" ? "banner" : p.k === "step" ? "step&sn=" + p.step : p.k === "cooked" ? "cooked&cook=" + encodeURIComponent(p.cook) : "more";
     var kb = META[p.id] ? Math.round((META[p.id].b[0] + (META[p.id].b[SZ[big(p)]] || 0)) / 1024 * 10) / 10 : 0;
     d.innerHTML = '<div class="top"><button type="button" class="ib bare" data-x aria-label="Close">' + X.ic("x") + '</button><span class="ttl">' + X.esc(r.name) + '</span><span style="width:44px"></span></div>' +
       '<div class="stagep">' + (p.prep ? frame(p.id, big(p), { prep: 1 }) : frame(p.id, big(p), { phase: "demand", alt: label(r, p) })) + "</div>" +
       '<div class="meta2"><b>' + X.esc(label(r, p)) + "</b>" + (p.k === "cooked" ? " · " + X.esc(vname) : " · added by " + X.esc(p.by) + ", " + p.when) + (p.line ? '<br>"' + X.esc(p.line) + '"' : "") +
-      (opts.inheritedFrom ? '<br><span class="pinl">' + X.ic("branch", "xs") + " This is " + X.esc(opts.inheritedFrom) + "'s photo. " + X.esc(opts.viewing) + " shows it until it has its own.</span>" : "") +
+      (isBanner ? '<br><span class="pinl">' + X.ic("img", "xs") + " This is the banner. A version always has one: replace it, or make another photo the banner.</span>" : "") + (opts.inheritedFrom ? '<br><span class="pinl">' + X.ic("branch", "xs") + " This is " + X.esc(opts.inheritedFrom) + "'s photo. " + X.esc(opts.viewing) + " shows it until it has its own.</span>" : "") +
       '<br><small>Kept as ' + KEEP[p.k].map(function (s) { return { l: "large", m: "medium", t: "square" }[s]; }).join(" and ") + (kb ? ", about " + kb + " KB on the server (mockup files)" : "") + "</small></div>" +
-      '<div class="acts">' +
+      '<div class="acts">' + (canMake ? '<button type="button" class="btn mb" data-mb>' + X.ic("img", "s") + "Make banner</button>" : "") +
         (opts.inheritedFrom ? '<a class="btn" href="add.html?to=' + r.id + "&kind=" + kindQ + "&v=" + opts.vid + '">' + X.ic("cam", "s") + "Add its own</a>" :
           '<a class="btn ghost" href="add.html?to=' + r.id + "&kind=" + kindQ + "&v=" + p.v + "&replace=" + p.id + '">' + X.ic("cam", "s") + rep + "</a>" +
-          '<button type="button" class="btn ghost" data-rm>' + X.ic("x", "s") + "Remove</button>") +
+          (isBanner ? "" : '<button type="button" class="btn ghost" data-rm>' + X.ic("x", "s") + "Remove</button>")) +
       "</div>";
     ph.appendChild(d); phase(d, "demand");
     var close = function () { d.remove(); };
     d.addEventListener("click", function (e) {
       var t = e.target.closest("button"); if (!t) return;
       if (t.hasAttribute("data-x")) close();
+      else if (t.hasAttribute("data-mb")) { var prev = X.setBanner(r, opts.vid, p.id); close(); if (opts.onBanner) opts.onBanner(function () { X.setBanner(r, opts.vid, prev); }); }
       else if (t.hasAttribute("data-rm")) X.sheet('<h3>Remove this photo?</h3><p style="font-size:13px">It disappears for everyone in the household now. You can undo it for <b>5 minutes</b>; after that it is gone for good. The recipe and its history stay as they are.</p>' +
           (p.k === "banner" ? '<p style="font-size:13px;margin-top:6px">It is the banner, so ' + X.esc(vname) + " will show " + (opts.nextBanner || "no photo at the top") + " instead.</p>" : "") +
           '<div style="display:flex;gap:8px;margin-top:14px"><button class="btn ghost" data-close>Keep it</button><button class="btn" data-close data-really>Remove</button></div>',

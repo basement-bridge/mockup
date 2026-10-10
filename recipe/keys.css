@@ -1,0 +1,22 @@
+/* Recipe screens: key hints and the shortcut list, on a keyboard device only (1024px and up). Fetched by recipe.js at that size, never on a phone.
+   Same classes and look as the Pantry (.kbd chip, .kb dialog, .kk kbd, .sw2 switch): fragments/desktop/desktop.css and fragments/item-edit-flyout/desktop.css. */
+.kbd{font:600 11px var(--body);border:1px solid var(--border);border-radius:6px;padding:1px 6px;color:var(--muted);background:var(--surface);white-space:nowrap}
+.nocues .kbd:not(.keep),.nocues .phint{display:none}
+.btn .kbd{margin-left:8px}.back .kbd{margin-left:6px}
+.btn.pri .kbd{color:var(--on-accent);border-color:currentColor;background:none;opacity:.85}
+.keyhint{position:fixed;left:16px;bottom:16px;z-index:5;min-height:36px;padding:0 12px;font-size:12px;cursor:pointer}
+.nocues .keyhint{display:inline-flex}
+.kb{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:var(--dim)}
+.kb[hidden]{display:none}
+.kbc{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-card);padding:22px 26px;width:min(520px,calc(100vw - 48px));max-height:calc(100vh - 48px);overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.kbh{display:flex;align-items:center;margin-bottom:12px}.kbh h2{margin:0}.kbh .x{margin-left:auto;width:44px;height:44px;border-radius:50%;border:1px solid var(--border);background:none;display:inline-flex;align-items:center;justify-content:center}
+.kbh .x svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.kbs h3{font:700 12px var(--body);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:14px 0 6px}
+.kbr{display:flex;justify-content:space-between;gap:14px;padding:6px 0;border-bottom:1px solid var(--border);font-size:14px}
+.kk{white-space:nowrap;flex:0 0 120px}
+.kk kbd{font:700 12px var(--body);border:1px solid var(--border);border-bottom-width:2px;border-radius:6px;padding:1px 7px;background:var(--surface)}
+.kk em{font-style:normal;color:var(--muted);font-size:12px;margin:0 2px}
+.kbr span:last-child{color:var(--muted);flex:1}
+.kbt{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:18px;padding-top:14px;border-top:1px solid var(--border);font-weight:600}
+.sw2{min-width:72px;min-height:36px;padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--bg);font-weight:700;text-align:center}
+.sw2[aria-checked="true"]{background:var(--accent);color:var(--on-accent);border-color:transparent}

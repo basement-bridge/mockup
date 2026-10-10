@@ -157,7 +157,12 @@
     for (var i = c.length - 1; i >= 0; i--) { var x = get(c[i].id); if (x) return { p: typeof x === "string" ? { id: x } : x, inherited: i < c.length - 1, from: c[i] }; }
     return null;
   };
-  var banner = function (r, vid) { var d = PHOTOS[r.id]; return photosOn() && d ? inherit(r, vid, function (id) { return d.banner[id]; }) : null; };
+  /* Make banner (owner, 11 Oct 2026): a cook photo or any recipe photo becomes a version's banner only by that explicit action. One banner per
+     version, always: setting one replaces the old (the old stays in Photos), and there is no way back to no banner. Kept per browser here
+     as { "<recipe>:<version>": "<photo id>" }; in the build it is the version's single banner reference. */
+  var bannerOv = function () { try { var o = JSON.parse(store.get("banner", "{}")); return o && typeof o === "object" ? o : {}; } catch (e) { return {}; } };
+  var setBanner = function (r, vid, id) { var o = bannerOv(), k = r.id + ":" + vid, prev = o[k] || null; if (id) o[k] = id; else delete o[k]; store.set("banner", JSON.stringify(o)); return prev; };
+  var banner = function (r, vid) { var d = PHOTOS[r.id], o = bannerOv(); return photosOn() && d ? inherit(r, vid, function (id) { return o[r.id + ":" + id] || d.banner[id]; }) : null; };
   /* one per step at most; at most 10 per version (Recipe refuses the 11th); a step need not have one */
   var stepPhoto = function (r, vid, k) { var d = PHOTOS[r.id]; return photosOn() && d ? inherit(r, vid, function (id) { return d.steps[id] && d.steps[id][k]; }) : null; };
   var morePhotos = function (r) {
@@ -320,5 +325,26 @@
     document.addEventListener("keydown", function (e) { if (e.key === "Escape") p.hidden = true; });
   };
 
-  window.RCP = { PHOTOS: PHOTOS, PC: PC, chainOf: chainOf, banner: banner, stepPhoto: stepPhoto, morePhotos: morePhotos, cookPhotos: cookPhotos, frame: frame, fetchPhoto: fetchPhoto, loadPhase: loadPhase, afterPaint: afterPaint, photosOn: photosOn, notesFor: notesFor, noteHtml: noteHtml, REACT: REACT, reactLine: reactLine, P: P, Q: Q, me: me, PERSONAS: PERSONAS, R: R, DRAFTS: DRAFTS, WEEK: WEEK, TODAY: TODAY, HELD: HELD, byId: byId, has: has, resolve: resolve, missing: missing, fmt: fmt, esc: esc, ic: ic, bar: bar, toast: toast, sheet: sheet, controls: controls, store: store, askAssistant: askAssistant };
+  /* Note box (owner, 11 Oct 2026): one cap, 4,000 characters, no other limit in the UI. The box is bounded in height and scrolls inside
+     itself, so the page never grows into a notebook. A quiet counter shows only near the cap (from 3,500); at the cap typing stops.
+     Markup the build uses: <textarea class="field nbox" maxlength="4000"> then <p class="ncount" data-ncount hidden>. */
+  var NOTE_MAX = 4000, NOTE_NEAR = 3500;
+  var noteCap = function (ta, out, after) {
+    var sync = function () {
+      var n = ta.value.length; if (after) after(n);
+      if (n >= NOTE_NEAR) { out.hidden = false; out.classList.toggle("full", n >= NOTE_MAX); out.textContent = n >= NOTE_MAX ? "4,000 of 4,000. That is the most a note holds." : n.toLocaleString("en-US") + " of 4,000"; }
+      else out.hidden = true;
+    };
+    ta.addEventListener("input", sync); sync();
+  };
+
+
+  /* Keys (owner, 11 Oct 2026): the app's own shortcuts on Recipe screens, keyboard devices only; fetched on engagement, never on a phone. */
+  if (window.matchMedia && matchMedia("(min-width:1024px) and (hover:hover)").matches) document.addEventListener("DOMContentLoaded", function () {
+    if (!document.querySelector(".phone")) return;
+    var l = document.createElement("link"); l.rel = "stylesheet"; l.href = BASE + "keys.css"; document.head.appendChild(l);
+    var j = document.createElement("script"); j.src = BASE + "keys.js"; document.head.appendChild(j);
+  });
+
+  window.RCP = { bannerOv: bannerOv, setBanner: setBanner, noteCap: noteCap, NOTE_MAX: NOTE_MAX, PHOTOS: PHOTOS, PC: PC, chainOf: chainOf, banner: banner, stepPhoto: stepPhoto, morePhotos: morePhotos, cookPhotos: cookPhotos, frame: frame, fetchPhoto: fetchPhoto, loadPhase: loadPhase, afterPaint: afterPaint, photosOn: photosOn, notesFor: notesFor, noteHtml: noteHtml, REACT: REACT, reactLine: reactLine, P: P, Q: Q, me: me, PERSONAS: PERSONAS, R: R, DRAFTS: DRAFTS, WEEK: WEEK, TODAY: TODAY, HELD: HELD, byId: byId, has: has, resolve: resolve, missing: missing, fmt: fmt, esc: esc, ic: ic, bar: bar, toast: toast, sheet: sheet, controls: controls, store: store, askAssistant: askAssistant };
 })();

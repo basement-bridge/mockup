@@ -139,7 +139,8 @@
 .ntool button{display:inline-flex;align-items:center;justify-content:center;gap:4px;min-height:44px;min-width:44px;padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-weight:700;font-size:13px}
 .ntool button b{font-weight:900}
 textarea.field{min-height:120px;padding:10px 12px;line-height:1.4;resize:vertical}
-.nprev{padding:var(--sp-3);border-radius:var(--r-ctl);border:1px dashed var(--border);font-size:14px}
+textarea.field.nbox{resize:none}
+.nprev{max-height:min(240px,34vh);overflow-y:auto;padding:var(--sp-3);border-radius:var(--r-ctl);border:1px dashed var(--border);font-size:14px}
 .natt{display:flex;align-items:center;gap:var(--sp-3);margin-top:var(--sp-2)}
 .natt .nph{margin-top:0;width:64px;height:64px}
 .where{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-2)}
@@ -181,3 +182,8 @@ textarea.field{min-height:120px;padding:10px 12px;line-height:1.4;resize:vertica
 .trace{display:block;margin-top:8px;padding:8px 10px;border-radius:10px;background:var(--bg);border:1px solid var(--border);font:12px/1.45 ui-monospace,Menlo,Consolas,monospace;color:var(--muted);white-space:pre-wrap;word-break:break-word}
 .trace b{color:var(--fg)}
 .bub.sys{align-self:center;max-width:94%;background:none;border-style:dashed;font-size:12.5px;color:var(--muted)}
+
+/* Make banner (owner, 11 Oct 2026): explicit action in the viewer and after a cook photo is saved */
+.pv .acts{flex-wrap:wrap}.pv .acts .btn.mb{flex:1 1 100%;font-size:14px}
+.saved .row.mbs{margin-top:var(--sp-2)}.saved .row.mbs .mini{min-height:44px;width:84px;justify-content:center;white-space:normal;text-align:center}
+.saved .row.mbs .mini[aria-pressed=true]{border-color:var(--accent);color:var(--accent)}

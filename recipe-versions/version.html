@@ -44,12 +44,12 @@ function noteSheet(){
      the lineage so it reaches them all; offered when this is not already the top, and never across a spin-off. */
   var root=V.root(),kids=F.versions.filter(function(x){return x.state!=="spun"&&x.state!=="put_away"}).length;
   var top=v.id===root.id;
-  X.sheet('<h3>Add a note</h3><p style="font-size:12.5px">Bold, lists and links work. Only what changed is stored.</p><textarea class="field" rows="4" style="padding:8px;margin-top:8px" aria-label="Note"></textarea>'+
+  X.sheet('<h3>Add a note</h3><p style="font-size:12.5px">Bold, lists and links work. Only what changed is stored.</p><textarea class="field nbox" rows="4" maxlength="4000" style="padding:8px;margin-top:8px" aria-label="Note"></textarea><p class="ncount" data-ncount hidden aria-live="polite"></p>'+
     '<div role="radiogroup" aria-label="Where the note goes">'+
     '<button type="button" class="ch" role="radio" data-nt="here" aria-pressed="true">'+ic("note")+'<span class="t"><b>'+esc(v.name)+(top?' and every version':'')+'</b><small>'+(top?'This is the first version, so all '+kids+' in use show it, and new ones made from it':'Shows here and on versions made from '+esc(v.name)+' later')+'.</small></span><span class="rad" aria-hidden="true"></span></button>'+
     (top||v.state==="spun"?'':'<button type="button" class="ch" role="radio" data-nt="all" aria-pressed="false">'+ic("branch")+'<span class="t"><b>Every version of '+esc(F.name)+'</b><small>Written on '+esc(root.name)+', so all '+kids+' versions in use show it. Not the spun-off recipe.</small></span><span class="rad" aria-hidden="true"></span></button>')+
     '</div><div style="display:flex;gap:8px;margin-top:12px"><button class="btn ghost" data-close>Cancel</button><button class="btn" data-nsave>Save note</button></div>',
-  function(s,close){s.addEventListener("click",function(e){var c=e.target.closest("[data-nt]");if(c){s.querySelectorAll("[data-nt]").forEach(function(b){b.setAttribute("aria-pressed",b===c)})}
+  function(s,close){X.noteCap(s.querySelector("textarea"),s.querySelector("[data-ncount]"));s.addEventListener("click",function(e){var c=e.target.closest("[data-nt]");if(c){s.querySelectorAll("[data-nt]").forEach(function(b){b.setAttribute("aria-pressed",b===c)})}
     if(e.target.closest("[data-nsave]")){var all=s.querySelector('[data-nt=all][aria-pressed=true]'),t=s.querySelector("textarea").value||"Sample note.";
       var on=all?root.id:v.id,id="n"+Date.now();(V.NOTES[on]=V.NOTES[on]||[]).push({op:"add",id:id,t:t,by:V.ME,when:"just now"});close();draw(1);
       X.toast(all?"Saved on every version":"Saved on "+v.name,function(){V.NOTES[on]=V.NOTES[on].filter(function(o){return o.id!==id});draw(1)})}})});
@@ -66,7 +66,7 @@ function draw(keep){
   /* L3 (locked): no chip. Several versions = the strip (its own row, docked above the jump row); one version = no row at all. */
   var strip=V.strip(v.id);
   var meta='<div class="meta"><span class="mc ro">'+ic("clock")+'20 min</span></div>';
-  var line='<p style="font-size:12.5px;margin-top:6px">'+(p?'From <a href="version.html?v='+p.id+'" style="color:var(--accent);font-weight:700">'+esc(p.name)+'</a> · ':'')+'Made by '+V.who(v.by)+(V.isAI(v.by)?' for '+V.who(V.WHO[v.by][2]):'')+', '+v.when+' · <a href="history.html?v='+v.id+'" style="color:var(--accent);font-weight:700">'+h.n+' revision'+(h.n>1?'s':'')+'</a></p>';
+  var line='<p style="font-size:12.5px;margin-top:6px">'+(p?'From <a href="version.html?v='+p.id+'" style="color:var(--accent);font-weight:700">'+esc(p.name)+'</a> · ':'')+'Made by '+V.who(v.by)+(V.isAI(v.by)?' for '+V.who(V.WHO[v.by][2]):'')+', '+v.when+' · <a data-key="," href="history.html?v='+v.id+'" style="color:var(--accent);font-weight:700">'+h.n+' revision'+(h.n>1?'s':'')+'</a></p>';
   /* V-D12: a child is pinned to the parent revision it was made from. A later fix to the parent is offered once, never applied silently. */
   var pf=p&&v.state!=="put_away"&&v.state!=="spun"?p.revs.filter(function(r){return r.kind==="fix"&&r.when==="21 Sep"&&v.id==="v1"})[0]:null;
   var pfix=pf&&!window._pfDone?'<div class="slim"><span class="e" aria-hidden="true">↧</span><span class="t"><b>'+esc(p.name)+' was fixed on '+pf.when+'</b><small>Step 4 now says cold rice. Yours still says the rice.</small></span><button type="button" class="mini" data-pf>Bring it in</button></div>':'';
@@ -89,7 +89,7 @@ function draw(keep){
     /* Owner's answer 2 (locked, typed, 10 Oct 2026): notes are a field of the version, inherited down the lineage and stored
        only where a version's notes differ (spec 9.4). The app writes notes and photos, never recipe content (L4). */
     notesSec()+'<div style="height:24px"></div></div>'+
-    '<div class="act">'+(v.state==="spun"?'':'<a class="btn ghost" href="change.html?v='+v.id+'">'+ic("pen","s")+'Change</a>')+
+    '<div class="act">'+(v.state==="spun"?'':'<a class="btn ghost" data-key="e" href="change.html?v='+v.id+'">'+ic("pen","s")+'Change</a>')+
     (v.state==="put_away"||v.state==="spun"?'':'<a class="btn" href="after-cook.html?v='+v.id+'">'+ic("flame","s")+'Cook it</a>')+'</div>';
   var b=document.getElementById("body");b.scrollTop=y;
   var vs=document.getElementById("vstrip"),jr=b.querySelector(".jumps"),vh=vs?vs.offsetHeight:0;

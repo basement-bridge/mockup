@@ -254,3 +254,8 @@ body:has(.phone .toast) .mockb{display:none} /* never cover a toast's Undo */
 .mockp .seg button[aria-pressed=true]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 .mockp a{color:var(--accent);font-weight:700}
 @media (prefers-reduced-motion:reduce){.rr,.body{transition:none;scroll-behavior:auto}}
+
+/* Note box: bounded height, scrolls inside; counter only near the 4,000 cap (owner, 11 Oct 2026) */
+textarea.nbox{display:block;min-height:120px;max-height:min(240px,34vh);overflow-y:auto;resize:none}
+.ncount{margin:var(--sp-1) 2px 0;font-size:12px;color:var(--muted);text-align:right}
+.ncount.full{color:var(--danger);font-weight:600}
