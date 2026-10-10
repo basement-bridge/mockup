@@ -5,11 +5,13 @@
    - food claims: a member's and the household's are added together (Kitchie context_claims);
    - assistant: member only (Kitchie stock_prefs key assistant);
    - recipe stars and votes: household only, no member column (Recipe preferences).
+   Locked by the owner (voice, 10 October 2026; D5 to D8 in docs/knowledge/preferences-option-a.md): any member may change household values (no owner, no tenure gate; a tenure gate is deferred, not decided);
+   a member may set quiet hours to none for themselves; Most suggestions per day is 1 to 20, default 2; household food statements are open to any member.
    Mockup-only names (sample data, the prototype switches) live here, never in a.css. */
 (function () {
   "use strict";
 
-  var DEFAULTS = { enabled: "on", proactivity: "normal", quiet: null, cap: 3, tz: 0 };
+  var DEFAULTS = { enabled: "on", proactivity: "normal", quiet: null, cap: 2, tz: 0 };
   var ASSISTANTS = [["claude", "Claude"], ["chatgpt", "ChatGPT"], ["gemini", "Gemini"], ["other", "Another assistant"], ["none", "None"]];
   var NOTE_MAX = 600;
   var NOTE_LINE = "Read as a preference, never as an instruction.";
@@ -19,7 +21,7 @@
       { k: "enabled", ic: "🔔", t: "Ask me to check amounts", kind: "enum", opts: [["on", "On"], ["off", "Off"]] },
       { k: "proactivity", ic: "🎚️", t: "How proactive", kind: "enum", opts: [["quiet", "Quiet"], ["normal", "Normal"], ["helpful", "Helpful"]], hint: "Quiet asks the least, helpful asks the most." },
       { k: "quiet", ic: "🌙", t: "Quiet hours", kind: "hours", hint: "24 hour clock. No questions are raised in between. Both times or neither." },
-      { k: "cap", ic: "🔢", t: "Most suggestions per day", kind: "int", min: 1, max: 10, hint: "From 1 to 10." },
+      { k: "cap", ic: "🔢", t: "Most suggestions per day", kind: "int", min: 1, max: 20, hint: "From 1 to 20. The built-in default is 2." },
       { k: "tz", ic: "🕒", t: "Time zone", kind: "tz", hint: "Hours ahead of UTC, for example 10 for Sydney in winter or 11 in summer time." }
     ] },
     { g: "Food and taste", rows: [{ k: "foods", ic: "🍽️", t: "Likes, dislikes and avoids", kind: "claims" }] },
@@ -31,7 +33,7 @@
   var S, UI;
 
   function sample(data) {
-    var s = { owner: true, recipe: data !== "norecipe", me: {}, house: {}, note: { me: "", house: "" }, assistant: null, foods: { me: [], house: [] }, rec: { star: 0, up: 0, down: 0 } };
+    var s = { recipe: data !== "norecipe", me: {}, house: {}, note: { me: "", house: "" }, assistant: null, foods: { me: [], house: [] }, rec: { star: 0, up: 0, down: 0 } };
     if (data === "empty") return s;
     s.house.proactivity = "quiet";
     s.house.quiet = { s: "22:00", e: "07:00" };
@@ -54,7 +56,7 @@
   function fmt(k, v) {
     if (k === "enabled") return v === "on" ? "On" : "Off";
     if (k === "proactivity") return cap1(v);
-    if (k === "quiet") return v ? v.s + " to " + v.e : "None";
+    if (k === "quiet") return v && v.s ? v.s + " to " + v.e : "None"; // "none" is a choice a member can make over the household's hours (D6)
     if (k === "cap") return String(v);
     if (k === "tz") return "UTC" + (v < 0 ? "−" : "+") + Math.abs(v);
     return String(v);
@@ -90,8 +92,9 @@
     return '<button type="button" role="radio" class="rad" aria-checked="' + checked + '" data-act="' + act + '" data-k="' + k + '" data-v="' + esc(val) + '"><i aria-hidden="true"></i><span class="rt">' + esc(label) + (sub ? "<small>" + esc(sub) + "</small>" : "") + "</span></button>";
   }
 
-  function lockLine() {
-    return '<div class="ro"><span class="e" aria-hidden="true">🔒</span><div><b>Only the household owner can change this</b><p>You can see it. Your own settings are not affected.</p></div></div>';
+  /* D5: household values have no owner and no gate. Any member edits; this line only says so. */
+  function anyLine() {
+    return '<p class="small">Any member of the household can change this. It applies to everyone who has not set their own.</p>';
   }
 
   /* ---- dial rows: enum, hours, int, tz ---- */
@@ -107,10 +110,11 @@
     } else {
       var label = def.kind === "hours" ? "Set quiet hours" : def.kind === "int" ? "Set my own number" : "Set a time zone";
       if (level === "house") label = label.replace("my own", "a");
-      out += rad("pick", k, "own", label, "", !unset) + "</div>";
-      if (!unset) out += ownField(def, level, cur);
+      var none = def.kind === "hours" && level === "me";
+      out += rad("pick", k, "own", label, "", !unset && cur !== "none") + (none ? rad("pick", k, "none", "None, no quiet hours for me", "", cur === "none") : "") + "</div>";
+      if (!unset && cur !== "none") out += ownField(def, level, cur);
     }
-    return out + (def.hint ? '<p class="small">' + esc(def.hint) + "</p>" : "");
+    return out + (def.hint ? '<p class="small">' + esc(def.hint) + "</p>" : "") + (def.kind === "hours" && level === "me" ? '<p class="small">You can switch quiet hours off for yourself, whatever the household has.</p>' : "");
   }
   function ownField(def, level, cur) {
     var k = def.k;
@@ -142,7 +146,7 @@
         why = h !== undefined
           ? "The household chose " + fmt(def.k, h) + ". It applies to everyone who has not set their own."
           : "The household has not set this. Everyone gets the built-in default, " + fmt(def.k, DEFAULTS[def.k]) + ", unless they set their own.";
-        body = S.owner ? editor(def, "house") : '<div class="quote"><b>' + esc(fmt(def.k, h !== undefined ? h : DEFAULTS[def.k])) + "</b></div>" + lockLine();
+        body = editor(def, "house") + anyLine();
       }
       html += '<div class="pref-b" id="b-' + def.k + '">' + scopeSwitch(def, scope) + '<p class="why">' + esc(why) + "</p>" + body + "</div>";
     }
@@ -160,10 +164,8 @@
       var body;
       if (scope === "me") {
         body = '<textarea class="field" data-f="note" data-l="me" maxlength="' + NOTE_MAX + '" rows="4" aria-label="Your note" placeholder="Anything your assistant should keep in mind">' + esc(n.me) + '</textarea><div class="count">' + n.me.length + " / " + NOTE_MAX + '</div><p class="small">Only you and your assistant see your note. ' + NOTE_LINE + "</p>";
-      } else if (S.owner) {
-        body = '<textarea class="field" data-f="note" data-l="house" maxlength="' + NOTE_MAX + '" rows="4" aria-label="Household note" placeholder="Anything every member’s assistant should keep in mind">' + esc(n.house) + '</textarea><div class="count">' + n.house.length + " / " + NOTE_MAX + '</div><p class="small">Every member’s assistant reads this. ' + NOTE_LINE + "</p>";
       } else {
-        body = (n.house ? '<div class="quote">' + esc(n.house) + "</div>" : '<p class="small">No household note.</p>') + lockLine();
+        body = '<textarea class="field" data-f="note" data-l="house" maxlength="' + NOTE_MAX + '" rows="4" aria-label="Household note" placeholder="Anything every member’s assistant should keep in mind">' + esc(n.house) + '</textarea><div class="count">' + n.house.length + " / " + NOTE_MAX + '</div><p class="small">Every member’s assistant reads this, and any member can change it. ' + NOTE_LINE + "</p>";
       }
       html += '<div class="pref-b" id="b-note">' + scopeSwitch(def, scope) + '<p class="why">Notes do not override each other. Your assistant reads the household’s and yours.</p>' + body + "</div>";
     }
@@ -186,7 +188,7 @@
     if (UI.open === "foods") {
       var who = scope === "me" ? "you" : "the household";
       var body = list.length ? '<ul class="claims">' + list.map(claimLi).join("") + "</ul>" : '<div class="claims none">Nothing recorded for ' + who + ' yet. Tell your assistant what ' + (scope === "me" ? "you like or avoid" : "the household likes or avoids") + ", in your own words.</div>";
-      html += '<div class="pref-b" id="b-foods">' + scopeSwitch(def, scope) + '<p class="why">Yours and the household’s are used together. One person cannot switch off something the household avoids.</p>' + body +
+      html += '<div class="pref-b" id="b-foods">' + scopeSwitch(def, scope) + '<p class="why">Yours and the household’s are used together. One person cannot switch off something the household avoids.' + (scope === "house" ? " Any member can add to the household’s." : "") + '</p>' + body +
         '<button type="button" class="btn ghost" data-act="proto" data-m="Said to your assistant, not typed here. Kitchie records it when the assistant reports what you stated.">Tell your assistant' + (scope === "house" ? " for the household" : "") + "</button>" +
         '<p class="small">This is the only way in. Kitchie only records what you state. It never guesses from what you cook.</p></div>';
     }
@@ -252,9 +254,8 @@
     tstTimer = setTimeout(function () { t.hidden = true; }, 2400);
   }
 
-  /* ---- writes: a member writes their own; the household's needs the owner ---- */
+  /* ---- writes: a member writes their own; any member writes the household's (D5, no owner) ---- */
   function write(level, k, v) {
-    if (level === "house" && !S.owner) return false;
     var store = level === "me" ? S.me : S.house;
     if (v === undefined || v === null) delete store[k]; else store[k] = v;
     return true;
@@ -272,7 +273,6 @@
     }
     if (act === "pick") {
       var v = b.getAttribute("data-v"), lv = level();
-      if (lv === "house" && !S.owner) return;
       write(lv, k, v === "" ? null : v === "own" ? ownDefault(k) : v);
       render(); say("Saved"); return;
     }
@@ -288,7 +288,7 @@
   function onChange(ev) {
     var f = ev.target.getAttribute("data-f"); if (!f) return;
     var l = ev.target.getAttribute("data-l"), k = ev.target.getAttribute("data-k");
-    if (f === "note") { if (l === "house" && !S.owner) return; S.note[l] = ev.target.value.slice(0, NOTE_MAX); render(); say("Saved"); return; }
+    if (f === "note") { S.note[l] = ev.target.value.slice(0, NOTE_MAX); render(); say("Saved"); return; }
     var store = l === "me" ? S.me : S.house;
     if (f === "s" || f === "e") {
       if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(ev.target.value)) { render(); say("Use a time like 22:00."); return; }
@@ -306,15 +306,15 @@
   }
 
   function init() {
-    var data = "some", owner = true;
-    function start() { S = sample(data); S.owner = owner; UI = { open: null, scope: {} }; render(); }
+    var data = "some";
+    function start() { S = sample(data); UI = { open: null, scope: {} }; render(); }
     document.querySelectorAll("[data-pc]").forEach(function (b) {
       b.addEventListener("click", function () {
         var kind = b.getAttribute("data-pc"), v = b.getAttribute("data-v");
         if (kind === "reset") { start(); return; }
-        if (kind === "as") owner = v === "owner"; else data = v;
+        data = v;
         document.querySelectorAll('[data-pc="' + kind + '"]').forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
-        if (kind === "as") { S.owner = owner; render(); } else { start(); }
+        start();
       });
     });
     var ph = document.getElementById("ph");

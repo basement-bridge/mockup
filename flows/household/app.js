@@ -534,7 +534,7 @@ const screens = {
   stock: () => backHeader("Settings", "Stock checks") + `<div class="body">
     <p>Stock checks ask "still about right?" about an item, only when you are already looking at it. Turning them off stops every question on the web and in chat. Estimates already stored stay, so the shopping list can still use them.</p>
     <div class="card sgroup"><button class="srow" role="switch" aria-checked="${S.stockChecks}" data-act="stocktoggle"><span>Ask me to check amounts</span><span class="swt" aria-hidden="true"></span></button></div>
-    <p class="small">Keeping it off is fine. We will check back less and less often. Some of this is the household's: only the household owner can change the shared settings.</p></div>`,
+    <p class="small">Keeping it off is fine. We will check back less and less often. Some of this is the household's: any member can change the shared settings.</p></div>`,
 
   cats: () => backHeader("Settings", "Categories") + `<div class="body">
     <p>Rename a category for every item at once. This is the household's, not just this device's.</p>

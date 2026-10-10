@@ -5,6 +5,9 @@
    - It is written DIRECTLY on that member's own personal list (owner = Sam), tagged "proposed by", pending Sam's acknowledgment. Never on the household list.
    - It takes effect IMMEDIATELY (planning and recipe building use it at once).
    - Sam gets a courtesy notice at the next login and can accept as is, edit, or reject. Not an approval gate.
+   Locked by the owner (voice, 10 October 2026, D5 to D14 in the notes): any member may propose for another member (D9); a later reject or edit never changes a meal already planned (D10);
+   the proposer is NEVER told what the subject decided (D11, so there is no outcome line or event list here); a pending proposal never expires or escalates (D12); the subject sees nothing of it
+   before the next-login notice (D13, so the subject never appears in the "Added for housemates" lines, and no badge or preview is drawn elsewhere); while pending it is fully reliable and in use at once (D14).
    Everything that the owner did not say is a reading, marked READING below and listed as an open question in the notes.
    Field names in claims follow the model they would need: owner (member_id), proposed_by, ack_state (pending, accepted, edited; a rejected record is retired).
    Nothing here is viewport specific: the wide layout lives in option-c-600.css and option-c-1024.css. */
@@ -37,10 +40,6 @@
         { id: "p1", owner: "sam", statement: "avoids", subject: "peanuts", severity: "hard", reason: "safety", said: "Sam avoids peanuts.", support: 1, proposed_by: "arjan", ack_state: "pending", at: "Today, 4:40 pm" },
         { id: "p2", owner: "sam", statement: "dislikes", subject: "olives", said: "Sam is not keen on olives.", support: 1, proposed_by: "jo", ack_state: "pending", at: "Today, 5:05 pm" },
         { id: "c7", owner: "arjan", statement: "likes", subject: "roast chicken", said: "Roast chicken is my favourite.", support: 1 }
-      ] : [],
-      /* what the proposer is told once the person has answered (READING: shown on the proposer's own list, not pushed) */
-      events: full ? [
-        { id: "e1", proposer: "arjan", about: "sam", outcome: "accepted", text: "Avoids shellfish", when: "Sat 3 Oct", seen: false }
       ] : []
     };
   }
@@ -88,7 +87,6 @@
     if (c.when) return "At the " + c.when;
     return "";
   }
-  function phrase(c) { return STATEMENT_WORD[c.statement].toLowerCase() + " " + c.subject + (c.statement === "avoids" ? "" : ""); }
   /* The attribution line under a proposed record, from the point of view of whoever is looking. */
   function attribution(c, viewer) {
     if (!c.proposed_by) return "";
@@ -145,22 +143,17 @@
   /* ---------- "added for housemates": what the proposer sees, and what other members see ---------- */
   function housemateCard(viewer) {
     var mine = M.claims.filter(function (c) { return c.proposed_by === viewer && c.owner !== viewer && c.ack_state === "pending"; });
+    /* D13: the subject never gets a line about their own pending record (c.owner !== viewer), so nothing of it shows before their next-login notice. */
     var theirs = M.claims.filter(function (c) { return c.proposed_by && c.proposed_by !== viewer && c.owner !== viewer && c.ack_state === "pending"; });
-    var evs = M.events.filter(function (e) { return e.proposer === viewer && !e.seen; });
     var out = "";
     mine.forEach(function (c) {
       out += '<div class="followup" data-row="mine:' + c.id + '"><span class="pt"><span class="fs">' + STATEMENT_WORD[c.statement] + " · for " + esc(name(c.owner)) + '</span><span class="pl">' + esc(c.subject) + '</span><span class="pw">Added ' + esc(c.at.toLowerCase()) + ". In use now. " + esc(name(c.owner)) + ' has not answered.</span><span class="rowlink">' + chip("wait", "Waiting for " + name(c.owner)) + '</span></span>' +
         '<button type="button" class="btn" data-act="takeback" data-id="' + c.id + '" aria-label="Take back ' + esc(c.subject) + ' from ' + esc(name(c.owner)) + '">Take back</button></div>';
     });
-    evs.forEach(function (e) {
-      var line = e.outcome === "accepted" ? name(e.about) + " kept it" : e.outcome === "edited" ? name(e.about) + " changed it" : name(e.about) + " removed it";
-      out += '<div class="followup" data-row="ev:' + e.id + '"><span class="pt"><span class="fs">' + esc(line) + '</span><span class="pl">' + esc(e.text) + '</span><span class="pw">' + esc(e.when) + (e.outcome === "removed" ? ". It is no longer used." : e.outcome === "edited" ? ". Their version is the one in use." : ". Still in use, now on their list as theirs.") + '</span></span>' +
-        '<button type="button" class="btn" data-act="seen" data-id="' + e.id + '">Got it</button></div>';
-    });
     theirs.forEach(function (c) {
       out += '<div class="followup" data-row="their:' + c.id + '"><span class="pt"><span class="fs">' + STATEMENT_WORD[c.statement] + " · for " + esc(name(c.owner)) + '</span><span class="pl">' + esc(c.subject) + '</span><span class="pw">Added by ' + esc(name(c.proposed_by)) + " " + esc(c.at.toLowerCase()) + ". In use now. Read only for you.</span><span class=\"rowlink\">" + chip("wait", "Waiting for " + name(c.owner)) + "</span></span></div>";
     });
-    if (!out) out = '<p class="note">Nothing waiting. What you add for a housemate, and what others add, is listed here until they have answered.</p>';
+    if (!out) out = '<p class="note">Nothing waiting. What you add for a housemate, and what others add, is listed here until it has been dealt with. You are not told what they decide.</p>';
     return '<span class="lbl">Added for housemates</span><div class="card sgroup">' + out + "</div>";
   }
 
@@ -207,7 +200,7 @@
     return '<div role="tabpanel" id="panel-hh" aria-labelledby="tab-hh" class="mbody2">' +
       '<p>Shared by everyone in Our kitchen.</p>' +
       '<p class="note ro">' + ICON.lock + "<span>Nothing a member adds for another member is kept here. It is written on that person's own list, so it never becomes a household rule.</span></p>" +
-      '<span class="lbl">Food for everyone</span><div class="card sgroup foodcard">' + foodList(S.as, "hh") + '<p class="note">Anyone in the kitchen can say these today. Unchanged from option B.</p></div>' +
+      '<span class="lbl">Food for everyone</span><div class="card sgroup foodcard">' + foodList(S.as, "hh") + '<p class="note">Any member of the kitchen can say or retire these. Unchanged from option B.</p></div>' +
       '<span class="lbl">Everything else</span><div class="card sgroup">' + navRow("Stock-check defaults, household note, names and places", "Exactly as in option B", "bi", "Unchanged", "Option B rows") + "</div></div>";
   }
 
@@ -257,7 +250,7 @@
     return '<div class="sp"><div class="mtop"><a class="back" href="#" data-act="go" data-id="main">&lsaquo; Preferences</a><h1 class="ttl">Added</h1><span style="width:64px" aria-hidden="true"></span></div>' +
       '<main class="mbody"><div class="empty">' + ICON.leaf + "<b>On " + esc(who) + "'s list, and in use now</b><p class=\"small\">" + esc(STATEMENT_WORD[c.statement]) + " " + esc(c.subject) + ". Recipes and plans use it already.</p></div>" +
       '<div class="card sgroup"><div class="prow static"><div class="pbtn"><span class="pt"><span class="fs">' + STATEMENT_WORD[c.statement] + " · for " + esc(who) + '</span><span class="pl">' + esc(c.subject) + '</span><span class="pv">' + esc(foodDetail(c)) + '</span><span class="pw">Proposed by you · ' + esc(c.at) + "</span></span>" + chip("wait", "Waiting for " + who) + "</div></div></div>" +
-      '<p class="small">' + esc(who) + " will see a note the next time they open Kitchie. You will see their answer under Added for housemates. You can take it back from there until they have answered.</p>" +
+      '<p class="small">' + esc(who) + " will see a note the next time they open Kitchie, and can keep it, change it or remove it. You are not told what they decide. You can take it back from Added for housemates until then.</p>" +
       '<div class="acts"><button type="button" class="btn" data-act="go" data-id="plan">See dinner ideas</button><button type="button" class="btn ghost" data-act="go" data-id="main">Back to Preferences</button><button type="button" class="btn ghost" data-act="go" data-id="propose" data-val="fill0">Add another</button></div></main></div>';
   }
 
@@ -274,7 +267,7 @@
       acts = '<div class="pacts">' +
         '<button type="button" class="pact go" data-act="accept" data-id="' + c.id + '">' + ICON.check + '<span class="pt"><span class="pl">Keep it as it is</span><span class="pv">Clears the waiting note. It stays on your list as yours, still tagged proposed by ' + esc(by) + ".</span></span></button>" +
         '<button type="button" class="pact" data-act="edit" data-id="' + c.id + '">' + ICON.pencil + '<span class="pt"><span class="pl">Change it</span><span class="pv">Fix the wording or how strict it is. Your version replaces ' + esc(by) + "'s and is the one in use.</span></span></button>" +
-        '<button type="button" class="pact danger" data-act="reject" data-id="' + c.id + '">' + ICON.bin + '<span class="pt"><span class="pl">Remove it</span><span class="pv">Takes it off your list. Recipes and plans stop using it.</span></span></button></div>';
+        '<button type="button" class="pact danger" data-act="reject" data-id="' + c.id + '">' + ICON.bin + '<span class="pt"><span class="pl">Remove it</span><span class="pv">Takes it off your list. New plans and recipes stop using it; a meal already planned stays as it was.</span></span></button></div>';
     }
     return '<div class="card" data-row="rv:' + c.id + '"><span class="pt">' + head + "</span>" + acts + "</div>";
   }
@@ -324,7 +317,7 @@
       : '<div class="sug"><span class="em" aria-hidden="true">🫒</span><span class="pt"><span class="pl">Greek chicken with olives</span><span class="fstat">Fits everyone</span></span></div>';
     var planned = peanut
       ? '<div class="sug"><span class="em" aria-hidden="true">🍜</span><span class="pt"><span class="fs">Planned earlier · Fri</span><span class="pl">Satay noodles</span><span class="hold">' + ICON.warn + "<span>Check this meal: contains peanuts. " + esc(whyLine(peanut)) + "</span></span></span></div>"
-      : '<div class="sug"><span class="em" aria-hidden="true">🍜</span><span class="pt"><span class="fs">Planned earlier · Fri</span><span class="pl">Satay noodles</span><span class="pw">Nothing flagged. Kitchie does not change a meal you already planned.</span></span></div>';
+      : '<div class="sug"><span class="em" aria-hidden="true">🍜</span><span class="pt"><span class="fs">Planned earlier · Fri</span><span class="pl">Satay noodles</span><span class="pw">Nothing flagged. A meal you already planned stays as it was; only new ideas follow the list.</span></span></div>';
     return '<div class="sp"><div class="mtop"><a class="back" href="#" data-act="go" data-id="main">&lsaquo; Preferences</a><h1 class="ttl">Dinner ideas</h1><span style="width:64px" aria-hidden="true"></span></div><main class="mbody">' +
       "<p>Tonight, for the kitchen. Planning reads Sam's own list the moment something is added to it, whether Sam has signed in or not.</p>" +
       '<span class="lbl">Ideas</span><div class="card sgroup">' + rows + '</div><span class="lbl">Already on the plan</span><div class="card sgroup">' + planned + "</div>" +
@@ -367,18 +360,13 @@
     render();
     var f = root.closest(".oc-frame"); if (f && f.getBoundingClientRect().top < 0) f.scrollIntoView({ block: "start" });
   }
-  function note(c, outcome, text) {
-    M.events.push({ id: "e" + (++seq), proposer: c.proposed_by, about: c.owner, outcome: outcome, text: text, when: "Today", seen: false });
-  }
   function doAccept(c) {
     c.ack_state = "accepted"; c.ack_when = "today";
-    note(c, "accepted", cap(phrase(c)));
     S.flash = "Kept. " + cap(c.subject) + " stays on your list as yours, still tagged proposed by " + name(c.proposed_by) + ".";
   }
   function doReject(c) {
     M.claims = M.claims.filter(function (x) { return x.id !== c.id; });
-    note(c, "removed", cap(phrase(c)));
-    S.flash = "Removed. " + cap(c.subject) + " is off your list, and recipes and plans stop using it.";
+    S.flash = "Removed. " + cap(c.subject) + " is off your list, and new plans and recipes stop using it. Meals already planned stay as they were.";
   }
   function doEdit(c) {
     var d = S.draft;
@@ -387,7 +375,6 @@
     c.reason = d.statement === "avoids" ? (d.reason || null) : undefined;
     c.said = "Changed by " + name(c.owner) + " from " + name(c.proposed_by) + "'s suggestion.";
     c.ack_state = "edited"; c.ack_when = "today";
-    note(c, "edited", cap(phrase(c)));
     S.flash = "Saved. Your version replaces " + name(c.proposed_by) + "'s and is the one in use. It stays tagged proposed by " + name(c.proposed_by) + ".";
   }
 
@@ -427,7 +414,6 @@
     }
     else if (act === "keepit") { S.confirm = null; S.focus = '[data-act="reject"][data-id="' + id + '"]'; render(); }
     else if (act === "takeback") { c = claim(id); if (c) { M.claims = M.claims.filter(function (x) { return x.id !== id; }); S.flash = "Taken back. " + cap(c.subject) + " is off " + name(c.owner) + "'s list and no longer used."; render(); } }
-    else if (act === "seen") { M.events.forEach(function (e) { if (e.id === id) e.seen = true; }); render(); }
     else if (act === "forget") { M.claims = M.claims.filter(function (x) { return x.id !== id; }); S.open = null; render(); }
     else if (act === "nav") { S.flash = id === "plan" ? "" : "Opens " + id + ". Not drawn in this option."; if (id === "plan") { go("plan"); return; } if (id === "review") { go("review"); return; } S.open = null; render(); }
   });
@@ -449,7 +435,7 @@
     if (tab === "mine" || tab === "hh") S.tab = tab; else S.tab = "mine";
     S.open = open ? "f:" + open : null; S.flash = ""; S.confirm = null; S.confirmEdit = false; S.target = null;
     if (q.get("later") === "1") S.noticeGone = true;
-    /* "do=accept:p1" and so on: the subject has already answered, so the proposer's view shows the result */
+    /* "do=reject:p1" and so on: the subject has already answered. The proposer is told nothing (D11): their view just no longer lists it. */
     if (act) { var p = act.split(":"), c = claim(p[1]); if (c && c.ack_state === "pending") { if (p[0] === "accept") doAccept(c); else if (p[0] === "reject") doReject(c); else if (p[0] === "edit") { S.draft = { who: c.owner, statement: "avoids", subject: "peanuts", severity: "soft", reason: "other" }; doEdit(c); } S.flash = ""; } }
     S.screen = ["main", "propose", "done", "review", "edit", "plan"].indexOf(screen) >= 0 ? screen : "main";
     if (S.screen === "propose") S.draft = newDraft(q.get("fill") === "1", null);

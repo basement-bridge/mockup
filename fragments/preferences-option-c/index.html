@@ -10,7 +10,7 @@
   <a class="back" href="../../">&lsaquo; All mockups</a><br>
   <span class="tag">Mockup, awaiting approval &middot; Option C</span>
   <h1>Proposing a preference for another member</h1>
-  <p class="oc-sub">One housemate notes something about another ("Sam avoids peanuts"). It goes straight onto Sam's own list, is used at once, and Sam is told at their next login and can keep it, change it or remove it. Not an approval gate. Built on option B's layout.</p>
+  <p class="oc-sub">One housemate notes something about another ("Sam avoids peanuts"). It goes straight onto Sam's own list, is used at once, and Sam is told at their next login and can keep it, change it or remove it. The person who proposed it is never told what Sam decided. Not an approval gate. Built on option B's layout.</p>
 
   <div class="oc-ctl">
     <div class="oc-g" role="group" aria-label="View as"><span class="oc-lab">View as</span><div class="oc-seg"><button type="button" data-pc="as" data-v="arjan" aria-pressed="false">Arjan, proposes</button><button type="button" data-pc="as" data-v="sam" aria-pressed="true">Sam, subject</button><button type="button" data-pc="as" data-v="jo" aria-pressed="false">Jo, another</button></div></div>
@@ -29,7 +29,7 @@
     <a href="?as=sam&amp;screen=edit&amp;id=p1">3 Change it</a>
     <a href="?as=sam&amp;open=a1">4 Accepted</a>
     <a href="?as=sam&amp;open=c4">4 Edited</a>
-    <a href="?as=arjan&amp;do=reject:p1">4 Rejected (proposer's view)</a>
+    <a href="?as=arjan&amp;do=reject:p1">4 Answered: the proposer is told nothing</a>
     <a href="?as=sam&amp;do=reject:p1&amp;screen=plan">4 Rejected, planning</a>
     <a href="?as=sam&amp;data=empty&amp;screen=review">4 Nothing waiting</a>
   </div>
@@ -41,12 +41,25 @@
     <div class="oc-notes">
       <div>
         <h2>What this option does</h2>
-        <p style="color:var(--muted)">The owner's shape (voice, 10 October 2026), recorded as C-D1 to C-D4. It is not a hard approval gate. Option C itself, and every open question below, is awaiting approval.</p>
+        <p style="color:var(--muted)">The owner's shape (voice, 10 October 2026), recorded as C-D1 to C-D4, and the ten decisions locked later that day, recorded as D5 to D14 below. It is not a hard approval gate. Option C itself, and every open question below, is awaiting approval.</p>
         <ul>
           <li><span class="qid">C-D1</span><b>Any member proposes for another member.</b> Preferences &gt; Mine &gt; Food &gt; <i>Add something for a housemate</i>. Pick the person, say what (avoids, dislikes, likes, usually) and the thing.</li>
           <li><span class="qid">C-D2</span><b>It is written on the subject's own list from the start.</b> Not on the household list and not in a shared bucket. The record belongs to Sam and is tagged <i>proposed by Arjan</i>, with a pending flag (chip <i>Waiting for you</i> on Sam's list).</li>
           <li><span class="qid">C-D3</span><b>It takes effect at once.</b> Recipe building and planning read it straight away, so an allergy does not wait for Sam to log in. The proposer's screen says so in three lines before the button, and again after.</li>
           <li><span class="qid">C-D4</span><b>Sam gets a courtesy notice at the next login</b> (a banner, plus a standing row <i>Added for you</i>). Three answers: <i>Keep it as it is</i> (clears the pending flag, keeps the attribution), <i>Change it</i> (Sam's version replaces the value), <i>Remove it</i> (the record is gone).</li>
+        </ul>
+      </div>
+      <div>
+        <h2>Locked decisions <span class="prop">Owner, voice, 10 Oct 2026</span></h2>
+        <p>Numbered D5 to D14 in the order given, continuing C-D1 to C-D4 (which are D1 to D4). The ones that change this screen:</p>
+        <ul>
+          <li><span class="qid">D9</span><b>Any household member may propose a preference for another member.</b> No restriction on who. (Resolves C-Q1.)</li>
+          <li><span class="qid">D10</span><b>A later reject or edit does not change meals or plans already made.</b> It only affects planning from then on. (Resolves C-Q2.)</li>
+          <li><span class="qid">D11</span><b>The proposer is never told what the subject decided</b> (accept, edit or reject). Silent. So there is no outcome line and no <i>Got it</i> on this screen. (Resolves C-Q3.)</li>
+          <li><span class="qid">D12</span><b>A pending proposal never expires or escalates.</b> It stays pending until the subject deals with it, on their own timing. (Resolves C-Q4.)</li>
+          <li><span class="qid">D13</span><b>The subject sees nothing of a pending proposal before their next login</b>: no badge or preview elsewhere. The next-login notice is the first they see. (Resolves C-Q5.)</li>
+          <li><span class="qid">D14</span><b>A pending proposal is fully reliable at once</b> (for example for allergy-safe recipe filtering), not downgraded to unconfirmed. (Resolves C-Q10.)</li>
+          <li><span class="qid">D5</span> and <span class="qid">D8</span> touch the Household tab: any member may edit household settings and household food statements. No owner, no tenure gate. A tenure-based gate was <b>deliberately deferred</b> by the owner, not forgotten.</li>
         </ul>
       </div>
       <div class="sec2">
@@ -57,7 +70,7 @@
         <h2>The four things to check</h2>
         <ol>
           <li><b>Proposer's flow.</b> <i>1 Propose for Sam</i>: who, what, how strict (avoids only), then three lines on what the button does, then <i>Add to Sam's list now</i>. <i>1 Added</i> confirms it is in use and on Sam's list. <i>1 Proposer's list</i> shows what is waiting, with <i>Take back</i> (a reading).</li>
-          <li><b>Pending look and use.</b> <i>2 Pending on Sam's list</i> puts waiting records first with the attribution line. <i>2 What another member sees</i> (Jo): a read-only line for each pending record, never the rest of Sam's list. <i>2 Planning uses it now</i>: the peanut noodles are left out for Sam before Sam has seen anything, and a meal already planned is flagged.</li>
+          <li><b>Pending look and use.</b> <i>2 Pending on Sam's list</i> puts waiting records first with the attribution line. <i>2 What another member sees</i> (Jo): a read-only line for each pending record, never the rest of Sam's list. Sam never gets such a line about their own record (D13): Sam first meets it in the next-login notice. <i>2 Planning uses it now</i>: the peanut noodles are left out for Sam before Sam has seen anything, and a meal already planned is flagged.</li>
           <li><b>Next login.</b> <i>3 Next-login notice</i> (banner, with Review or Later; Later does not clear the flag). <i>3 Keep, change or remove</i> shows what each answer leaves behind. <i>3 Remove asks once</i> is Kitchie's existing rule for a safety avoidance. <i>3 Change it</i> is Sam's edit.</li>
           <li><b>States.</b> Pending, accepted, edited, rejected and nothing waiting, in the table below.</li>
         </ol>
@@ -66,10 +79,10 @@
         <h2>States and what each leaves behind</h2>
         <div class="tblwrap"><table>
           <tr><th>State</th><th>On the subject's list</th><th>Used by plans and recipes</th><th>Proposer sees</th></tr>
-          <tr><td><b>Pending</b></td><td>Chip <i>Waiting for you</i>, "Proposed by Arjan", first in the list</td><td>Yes, from the moment it was added</td><td><i>Waiting for Sam</i>, with Take back</td></tr>
-          <tr><td><b>Accepted</b></td><td>Flag cleared, chip <i>Just you</i>, "Proposed by Arjan. You kept it" stays</td><td>Yes, unchanged</td><td>"Sam kept it" until dismissed</td></tr>
-          <tr><td><b>Edited</b></td><td>Value replaced by Sam's; flag cleared; "Proposed by Arjan. You changed it" stays</td><td>Yes, Sam's value</td><td>"Sam changed it"</td></tr>
-          <tr><td><b>Rejected</b></td><td>Record removed (the model retires it; the feedback rows stay as history)</td><td>No, from then on</td><td>"Sam removed it"</td></tr>
+          <tr><td><b>Pending</b></td><td>Chip <i>Waiting for you</i>, "Proposed by Arjan", first in the list</td><td>Yes, from the moment it was added, fully reliable (D14)</td><td><i>Waiting for Sam</i>, with Take back</td></tr>
+          <tr><td><b>Accepted</b></td><td>Flag cleared, chip <i>Just you</i>, "Proposed by Arjan. You kept it" stays</td><td>Yes, unchanged</td><td>Nothing. The waiting line is just gone (D11)</td></tr>
+          <tr><td><b>Edited</b></td><td>Value replaced by Sam's; flag cleared; "Proposed by Arjan. You changed it" stays</td><td>Yes, Sam's value, from then on (D10)</td><td>Nothing (D11)</td></tr>
+          <tr><td><b>Rejected</b></td><td>Record removed (the model retires it; the feedback rows stay as history)</td><td>No, from then on; meals already planned are not changed (D10)</td><td>Nothing (D11)</td></tr>
           <tr><td><b>Nothing waiting</b></td><td>No banner; <i>Added for you</i> reads "All clear"; the review screen is a leaf and one line</td><td>n/a</td><td>n/a</td></tr>
         </table></div>
       </div>
@@ -79,26 +92,21 @@
         <ul>
           <li><b>Today a member can only write their own record or the household's.</b> <code>give_feedback</code> takes <code>who</code> as "me" or "household", and the member always comes from the link, never an argument. There is no way to write on another member's list. <b>Change:</b> name the subject member, checked server side as a member of the same household.</li>
           <li><b>Person-level food statements exist</b> (<code>context_claims</code>, member_id set). <b>Change:</b> add <code>proposed_by</code>, <code>proposed_at</code>, an acknowledgment state (pending, accepted, edited) and when; rejected is the existing retired status.</li>
-          <li><b>Any member can already write a household claim</b> and nothing addresses a claim to a member. There is a household-changes banner (joins and removals, dismissed per member, deleted after 60 days) and "new" badges, but nothing to claim back. <b>Change:</b> the notice can be a query over pending records on the member's own list, so no queue table is needed; only the "Later" dismissal needs storing.</li>
+          <li><b>Any member can already write a household claim</b> (and D8 keeps it that way) and nothing addresses a claim to a member. There is a household-changes banner (joins and removals, dismissed per member, deleted after 60 days) and "new" badges, but nothing to claim back. <b>Change:</b> the notice can be a query over pending records on the member's own list, so no queue table is needed; only the "Later" dismissal needs storing.</li>
           <li><b>Reads stop at the caller.</b> <code>get_context</code> returns the caller's own and the household's; "another member's are never read", and plans carry <code>for_whom</code> but do not read anyone's claims. For "planning picks it up right away" to be true, the plan and recipe read must include the avoidances of each member the meal is for. That is a change to the visibility rule, and it also applies to Sam's own avoidances today.</li>
           <li><b>Accept, edit, remove map to existing feedback kinds</b> (<code>accepted</code>, <code>corrected</code>, a retire) but v1 only notes <code>accepted</code> and never acts on it; here it would clear the flag. Tool texts say everything returned was <i>stated</i> and Established: a proposal is stated by someone else, so it needs its own source.</li>
+          <li><b>No outcome goes back to the proposer</b> (D11), so no event, queue or table is needed for it, and nothing in the pending state expires or escalates (D12).</li>
           <li><b>Recipe stars and votes stay household only</b> and platform stores no preferences (its token carries <code>sub</code>, <code>household</code>, <code>products</code>, times): option C changes neither. It is a Kitchie change, plus a web page for food statements, which does not exist yet (option B proposed one).</li>
         </ul>
       </div>
       <div>
         <h2>Open questions <span class="prop">Awaiting approval</span></h2>
-        <p>The shape leaves these open. The mockup draws the reading given; a wrong guess costs a redraw, and where noted a data change.</p>
+        <p>C-Q1 to C-Q5 and C-Q10 are decided (D9 to D14, above) and are removed from this list; the other numbers are not renumbered. The mockup draws the reading given for each question still open; a wrong guess costs a redraw, and where noted a data change.</p>
         <ol>
-          <li><span class="qid">C-Q1</span><b>Who may propose?</b> Reading: any member, for any other member of the same household, from a personal link. Not for themselves, not from the shared link.</li>
-          <li><span class="qid">C-Q2</span><b>What does a reject do to plans already made?</b> Reading: Kitchie edits nothing. While the record is in force an earlier meal is flagged (<i>Check this meal</i>); after a reject the flag goes. A wrong guess on a safety item is the costly one.</li>
-          <li><span class="qid">C-Q3</span><b>Is the proposer told?</b> Reading: yes, quietly, as a line on their own list (<i>Sam kept it</i>, <i>changed it</i>, <i>removed it</i>) until they tap Got it. No push.</li>
-          <li><span class="qid">C-Q4</span><b>How long does the pending flag last?</b> Reading: until the subject answers, with no expiry, and dismissing the banner does not clear it. Household notices are deleted after 60 days today; the flag must not follow that. A member who never signs in (a child) would stay pending for good.</li>
-          <li><span class="qid">C-Q5</span><b>Can the subject see it before login?</b> Reading: no. But the assistant reads the record at once, so Sam's assistant could mention it in chat before Sam opens the app. Is that the notification, or should it stay quiet?</li>
-          <li><span class="qid">C-Q6</span><b>Who can see a pending record?</b> Reading: the subject sees it on their list; the proposer and every other member see a read-only line (person, thing, who proposed, status), and nothing else of the subject's list. Wrong guess: privacy of a personal list, or surprise at a meal being held back.</li>
+          <li><span class="qid">C-Q6</span><b>Who can see a pending record?</b> The subject's side is decided (D13: first seen in the next-login notice). Reading for the rest: the proposer and every other member see a read-only line (person, thing, who proposed, status), and nothing else of the subject's list. That line disappears once the subject has dealt with it, which is the only trace the proposer gets (D11). Wrong guess: privacy of a personal list, or surprise at a meal being held back.</li>
           <li><span class="qid">C-Q7</span><b>Can the proposer take it back or change it while pending?</b> Reading: take back only, until answered.</li>
           <li><span class="qid">C-Q8</span><b>If the subject already has a conflicting record</b> (Sam likes peanuts, Arjan proposes avoids peanuts)? Reading (not drawn): a proposal never retires the subject's own record; both stand and the stricter is used.</li>
           <li><span class="qid">C-Q9</span><b>Which statements can be proposed?</b> Reading: avoids, dislikes, likes, usually, all with the same immediate effect. Not <i>never suggest</i> or <i>fact</i>.</li>
-          <li><span class="qid">C-Q10</span><b>What grade is an unacknowledged proposal?</b> The evidence note says safety limits "come from what the person states". This one is stated by someone else. Reading: used at once (the safe direction for an avoidance), shown as <i>proposed</i>, never as the subject's own words, until answered.</li>
           <li><span class="qid">C-Q11</span><b>After an edit, does the attribution stay?</b> Reading: yes, "proposed by Arjan, changed by you", so provenance is not lost. Accepted keeps it, as the owner said.</li>
           <li><span class="qid">C-Q12</span><b>Does a safety avoidance ask twice?</b> Reading: yes, Kitchie's existing rule applies to Sam removing or softening it (one confirmation).</li>
           <li><span class="qid">C-Q13</span><b>Where does the entry live?</b> Reading: Mine &gt; Food. Alternative: from a member's row in Settings &gt; People.</li>
@@ -114,7 +122,7 @@
           <li><span class="qid">C-P4</span>Strictness and reason can be "Not sure"; the model then treats it as none at all and for safety until the subject says.</li>
           <li><span class="qid">C-P5</span>A standing row <i>Added for you</i> keeps the review reachable after the banner is dismissed.</li>
           <li><span class="qid">C-P6</span>Household tab says plainly that proposals never appear there.</li>
-          <li><span class="qid">C-P7</span>The planning stand-in flags a meal planned earlier while the record is in force.</li>
+          <li><span class="qid">C-P7</span>The planning stand-in flags a meal planned earlier while the record is in force. The meal itself is never edited (D10); whether the flag counts as altering it is the judgment call in P6.</li>
         </ul>
       </div>
       <div>

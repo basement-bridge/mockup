@@ -10,11 +10,10 @@
 <div class="own-words">The owner believes preferences are recorded per person (member) as well as per household. The model was read first (below), and this option is drawn from what it really holds.<small>Owner belief, relayed 10 October 2026. A design-options request, not a build. Awaiting the owner&rsquo;s approval; nothing here is decided.</small></div>
 
 <div class="pa-ctl">
-  <div class="g" role="group" aria-label="You are"><span class="lab">You are</span><div class="pa-seg"><button type="button" data-pc="as" data-v="owner" aria-pressed="true">Household owner</button><button type="button" data-pc="as" data-v="member" aria-pressed="false">A member</button></div></div>
   <div class="g" role="group" aria-label="Data"><span class="lab">Data</span><div class="pa-seg"><button type="button" data-pc="data" data-v="some" aria-pressed="true">Some set</button><button type="button" data-pc="data" data-v="empty" aria-pressed="false">Nothing set</button><button type="button" data-pc="data" data-v="norecipe" aria-pressed="false">No Recipe</button></div><button type="button" class="pa-rst" data-pc="reset">Reset</button></div>
 </div>
 <div class="ph" id="ph" aria-label="Preferences screen"><noscript><p class="small" style="padding:16px">This mockup needs script to draw the phone.</p></noscript></div>
-<p class="sm" style="margin-top:8px;text-align:center">Some set shows every state: built-in default, from household, your choice over the household, both read, household only. Nothing set is the first-time state. No Recipe hides the Recipes group, because the household is not entitled to it.</p>
+<p class="sm" style="margin-top:8px;text-align:center">Some set shows every state: built-in default, from household, your choice over the household (quiet hours can be set to none), both read, household only. Any member can change the Household side. Nothing set is the first-time state. No Recipe hides the Recipes group, because the household is not entitled to it.</p>
 
 <div class="panel">
   <b>Did the model hold what the owner believes?</b>
@@ -32,8 +31,8 @@
     <dl><dt>What</dt><dd>Ask to check amounts (<code>enabled</code>, on or off), How proactive (<code>proactivity</code>, quiet, normal or helpful), Quiet hours (<code>quiet_start</code> and <code>quiet_end</code>, HH:MM), Most suggestions per day (<code>daily_cap</code>), Time zone (<code>tz_offset_minutes</code>, -720 to 840).</dd>
     <dt>Kept</dt><dd><code>stock_prefs (scope, scope_id, key, value)</code>. Scope is <code>household</code> (the household id) or <code>member</code> (the member id). One row per key.</dd>
     <dt>Combine</dt><dd>Built-in default, then the household&rsquo;s value, then the member&rsquo;s own, key by key. The member wins. Clearing a key falls back one level. The store reports where each value came from (<code>dial_sources</code>: default, household or member).</dd>
-    <dt>Who changes</dt><dd>A member changes their own. A household value needs the household owner (the longest-standing member); anyone else is refused: &ldquo;Only the household owner can change a household-wide setting. Nothing was changed.&rdquo;</dd>
-    <dt>Surfaces</dt><dd>Settings &gt; Stock checks (one switch, then &ldquo;Your settings&rdquo; and &ldquo;Household settings&rdquo; forms; a non-owner sees the household values read-only). Chat: <code>stock_settings</code> (get, set_dial, set_note, stop, remove_stop, list_stops), personal link only, own settings only. Household values are changed in the app only.</dd></dl></div>
+    <dt>Who changes</dt><dd>A member changes their own. <b>Today</b> a household value needs the household owner (the longest-standing member); anyone else is refused: &ldquo;Only the household owner can change a household-wide setting. Nothing was changed.&rdquo; <b>Decided (D5, 10 Oct):</b> any member may change a household value; that check goes. No tenure gate for now, deliberately deferred.</dd>
+    <dt>Surfaces</dt><dd>Settings &gt; Stock checks (one switch, then &ldquo;Your settings&rdquo; and &ldquo;Household settings&rdquo; forms; <b>today</b> a non-owner sees the household values read-only). Chat: <code>stock_settings</code> (get, set_dial, set_note, stop, remove_stop, list_stops), personal link only, own settings only. Household values are changed in the app only.</dd></dl></div>
   <div class="fc"><h2>Notes <span class="chip both">Both levels, both read</span></h2>
     <dl><dt>What</dt><dd>One free-text note for the household and one per member, up to 600 characters, kept as data and read as a preference, never as an instruction.</dd>
     <dt>Kept</dt><dd><code>notes (scope, scope_id, text)</code>.</dd>
@@ -47,7 +46,7 @@
     <dl><dt>What</dt><dd>Claims the person stated: likes, dislikes, avoids, usually, fact, about an item, ingredient, recipe or cuisine. An avoid carries a severity (hard or soft) and a reason (safety or other). Optional meal time and weekday or weekend.</dd>
     <dt>Kept</dt><dd><code>context_claims</code>; an empty <code>member_id</code> means the whole household.</dd>
     <dt>Combine</dt><dd>No override. <code>get_context</code> for &ldquo;me&rdquo; returns the member&rsquo;s own and the household&rsquo;s together; for &ldquo;household&rdquo; only the household&rsquo;s. Avoids are always returned. Another member&rsquo;s own claims are never read.</dd>
-    <dt>Who changes</dt><dd>Only through the assistant (<code>give_feedback</code>, who is &ldquo;me&rdquo; or &ldquo;household&rdquo;). The code has no owner check for a household claim, so any member can record one.</dd>
+    <dt>Who changes</dt><dd>Only through the assistant (<code>give_feedback</code>, who is &ldquo;me&rdquo; or &ldquo;household&rdquo;). The code has no owner check for a household claim, so any member can record one; the owner decided that stays (D8).</dd>
     <dt>Surfaces</dt><dd>Chat only (<code>get_context</code>, <code>give_feedback</code>). There is no web page for it.</dd></dl></div>
   <div class="fc"><h2>My assistant <span class="chip member">Person only</span></h2>
     <dl><dt>What</dt><dd>Which AI app the person uses: Claude, ChatGPT, Gemini, another, or none.</dd>
@@ -66,14 +65,14 @@
 </div>
 
 <div class="panel">
-  <b>How option A uses it</b> <span class="sm">Every line is a <span class="prop">Proposal</span> unless marked as a model rule. Numbered A-1 to A-10 so they can be picked apart; none is an owner decision.</span>
+  <b>How option A uses it</b> <span class="sm">Every line is a <span class="prop">Proposal</span> unless marked as a model rule or as superseded. Numbered A-1 to A-10 so they can be picked apart. The owner's decisions are D5 to D8, in the next panel.</span>
   <ol>
     <li><b>A-1</b> One list, grouped by what the row is about (Stock checks, Food and taste, Notes, Assistant, Recipes), not by who owns it. The switch is how you see the other level.</li>
     <li><b>A-2</b> A closed row shows the value in force for the viewer and a chip for where it comes from: <i class="chip default">Built-in default</i> <i class="chip household">From household</i> <i class="chip member">Your choice</i>. A personal choice also says what it overrides (&ldquo;Overrides household: Quiet&rdquo;). Words carry the meaning; colour only backs it up.</li>
     <li><b>A-3</b> The You / Household switch lives inside the open row (one row open at a time), You first. Detail on demand, not a switch on every closed row.</li>
     <li><b>A-4</b> On You, the first choice is &ldquo;Same as household (value)&rdquo;, which clears the person&rsquo;s own value. On Household, the first choice is &ldquo;Built-in default (value)&rdquo;. Both mirror the existing Stock checks form.</li>
     <li><b>A-5</b> A pick saves at once and says &ldquo;Saved&rdquo;; there is no Save button. Today&rsquo;s forms have one, but the store already writes one key at a time.</li>
-    <li><b>A-6</b> <span class="fact">Model rule</span>Read-only: a member who is not the household owner sees the household value and a lock line on the Household side. This is the only read-only state the model has, so it is the only one drawn.</li>
+    <li><b>A-6</b> <span class="fact">Superseded by D5</span>This drew the model's one read-only state: a member who is not the household owner sees the household value and a lock line. The owner decided there is no owner and no gate, so the Household side is editable by any member and carries a line that says so. Nothing read-only is drawn.</li>
     <li><b>A-7</b> Rows that do not override get their own chip and a plain line: &ldquo;Both are read&rdquo; (notes), &ldquo;Added together&rdquo; (food), &ldquo;Household only&rdquo; (Recipe), and for My assistant the Household half of the switch is struck out. The switch never promises an override the model does not have.</li>
     <li><b>A-8</b> Food claims and Recipe stars are shown but not edited here. The assistant is the only way in for food; stars and votes are set on each recipe.</li>
     <li><b>A-9</b> The Recipes group is not drawn when the household has no Recipe (platform D6: no hint of a product the household does not have).</li>
@@ -81,18 +80,24 @@
   </ol>
 </div>
 
-<div class="panel dash">
-  <b>Open questions</b> <span class="sm">and what a wrong guess costs</span>
+<div class="panel">
+  <b>Locked decisions</b> <span class="sm">Owner, voice session, 10 October 2026. Numbered D5 to D14 across options A, B and C; the ones that apply to this option are D5 to D8 (the rest are Option C's).</span>
   <ul>
-    <li>Is the household owner Kitchie&rsquo;s longest-standing member, or platform&rsquo;s <code>owner_member_id</code> (the creator, "creator is owner for now")? They can differ in platform mode. A wrong guess lets the wrong person edit shared values.</li>
-    <li>A person cannot override household quiet hours with &ldquo;none&rdquo;: saying none clears their own value, so the household&rsquo;s applies. Intended? A wrong guess leaves someone unable to opt out of a household rule.</li>
-    <li>Most suggestions per day is 1 to 10 in the form and 0 to 20 in the store and in chat. Which is the rule?</li>
+    <li><b>D5</b> Household-level settings and edits: <b>any</b> household member may edit them. No owner concept, no tenure gate, no restriction. The owner explicitly deferred any earn-your-way, tenure-based gate to a later decision; it is deferred, not forgotten, and nothing here builds it in.</li>
+    <li><b>D6</b> Quiet hours: any member may override the household's quiet hours down to <i>none</i> for themselves. No restriction. (The quiet-hours editor on You has a <i>None</i> choice.)</li>
+    <li><b>D7</b> Most suggestions per day: 1 to 20, default 2. The web form (was 1 to 10) and the chat surface (was 0 to 20) both use it.</li>
+    <li><b>D8</b> Household-level food claims (for example &ldquo;we don&rsquo;t eat pork&rdquo;) are open to any member, consistent with D5. Person-level food statements stay unrestricted.</li>
+  </ul>
+</div>
+
+<div class="panel dash">
+  <b>Open questions</b> <span class="sm">and what a wrong guess costs. The questions that D5 to D8 settled are removed.</span>
+  <ul>
     <li>Quiet start and end are two keys that chat can set separately, so a person could have one from the household and one of their own. The form needs both. Treat the pair as one preference?</li>
-    <li>Any member can record a food claim for the whole household, and one person cannot switch off a household avoid. Intended, or should a household claim need the owner?</li>
+    <li>One person cannot switch off a household avoid for themselves (food is added together, with no override). Intended? (Who may record a household claim is decided, D8.)</li>
     <li>Should Recipe stars and votes get a person level (who starred it)? Today shared favourites hide individual taste, and a wrong guess means a Recipe schema change later.</li>
     <li>Does Preferences replace Settings &gt; Stock checks (it holds the same data), or sit above it? A wrong guess means two screens writing the same keys.</li>
     <li>Household-wide stops: the table allows them, nothing writes them. Needed?</li>
-    <li>Should a member who is not the owner see household values at all? Today they do, read-only.</li>
     <li>Which option leads, A or B?</li>
   </ul>
 </div>

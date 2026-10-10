@@ -2,7 +2,9 @@
    Mockup only: sample people, sample values and the little state machine live here, never in the stylesheet (AGENTS.md "Mockup and build stay close").
    The rules below are the ones the code holds today (see docs/knowledge/user-preferences/option-b-mine-and-household.md):
    - Stock-check dials resolve per key: built-in default, then the household's value, then the member's own (Kitchie store.ts dialsFor). Clearing a value falls back one level.
-   - Only the household owner (the founding member) may write household dials and the household note (web-stock.ts); a member writes their own.
+   - Kitchie today lets only the household owner (the longest-standing member) write household dials and the household note (web-stock.ts). LOCKED by the owner (voice, 10 October 2026, D5): any member may,
+     with no owner and no tenure gate; a tenure gate is deferred, not decided. So this mockup has no read-only state. A member may also set quiet hours to none for themselves (D6).
+     Most suggestions per day is 1 to 20, default 2 (D7). Household food statements are open to any member (D8).
    - Notes are NOT an override: the household note and the member's own note are both read.
    - Food statements are NOT an override either: a member sees their own plus the household's ("Everyone"). They are said to the assistant today; no web editor exists (Proposal here).
    - Nothing here is viewport specific: the wide layout lives in mine-household-600.css and mine-household-1024.css. */
@@ -10,14 +12,14 @@
   "use strict";
 
   /* ---------- the model's own vocabulary ---------- */
-  var DEFAULTS = { enabled: "on", proactivity: "normal", quiet_start: null, quiet_end: null, daily_cap: "3", tz_offset_minutes: "0" }; // DEFAULT_DIALS
+  var DEFAULTS = { enabled: "on", proactivity: "normal", quiet_start: null, quiet_end: null, daily_cap: "2", tz_offset_minutes: "0" }; // DEFAULT_DIALS
   var PROACTIVITY = ["quiet", "normal", "helpful"];
   var ASSISTANTS = [["claude", "Claude"], ["chatgpt", "ChatGPT"], ["gemini", "Gemini"], ["other", "Another assistant"], ["none", "None"]];
   var STATEMENT_WORD = { avoids: "Avoids", stop: "Never suggest", usually: "Usually", likes: "Likes", dislikes: "Dislikes" };
   var STATEMENT_ORDER = ["avoids", "stop", "usually", "likes", "dislikes"];
   var NOTE_MAX = 600;
 
-  var PEOPLE = { sam: { name: "Sam", founding: false }, arjan: { name: "Arjan", founding: true } };
+  var PEOPLE = { sam: { name: "Sam" }, arjan: { name: "Arjan" } };
 
   /* ---------- sample data (mockup only) ---------- */
   function seed(kind) {
@@ -76,10 +78,8 @@
   function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
   function who() { return PEOPLE[S.as]; }
   function mine() { return M.me[S.as]; }
-  function isOwner() { return who().founding; }
   var ICON = {
     chev: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>',
-    lock: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
     leaf: '<svg viewBox="0 0 48 48" width="44" height="44" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 38C8 22 18 10 38 9c1 20-9 30-26 29z"/><path d="M10 38c6-8 12-14 20-19"/></svg>',
     pot: '<svg viewBox="0 0 48 48" width="44" height="44" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21h30v13a6 6 0 0 1-6 6H15a6 6 0 0 1-6-6z"/><path d="M5 21h38M30 7l-6 14M16 9c0 3 3 3 3 6"/></svg>'
   };
@@ -105,6 +105,7 @@
   function quietText(start, end) { return start && end ? start + " to " + end : "None"; }
   function quietOf(scopeDials, fallback) {
     var s = scopeDials.quiet_start, e = scopeDials.quiet_end;
+    if (scopeDials.quiet_off) return { start: null, end: null, own: true }; // D6: a member's own "none" over the household's hours
     return s !== undefined || e !== undefined ? { start: s || null, end: e || null, own: true } : { start: fallback.start, end: fallback.end, own: false };
   }
 
@@ -161,7 +162,7 @@
     var inheritWord = scope === "me" ? "Same as household" : "Built-in default";
     var fallback = scope === "me" ? rowValue(row, "hh") : { text: row.id === "quiet" ? "None" : show(row.id, DEFAULTS[row.id]) };
     var inheritText = inheritWord + " (" + fallback.text + ")";
-    var set = row.keys.some(function (k) { return d[k] !== undefined; });
+    var set = row.keys.some(function (k) { return d[k] !== undefined; }) || !!d.quiet_off;
     out += '<div class="ped" id="ed-' + scope + "-" + row.id + '">';
     if (row.id === "enabled") {
       out += '<div role="radiogroup" aria-label="' + esc(row.label) + '" class="plist">' +
@@ -175,10 +176,11 @@
       out += '<fieldset class="two"><legend>Quiet hours</legend><div><label for="q-s-' + scope + '">From</label><input id="q-s-' + scope + '" type="time" data-act="quiet" data-id="' + id + '" data-end="start" value="' + esc(d.quiet_start || "") + '"></div>' +
         '<div><label for="q-e-' + scope + '">Until</label><input id="q-e-' + scope + '" type="time" data-act="quiet" data-id="' + id + '" data-end="end" value="' + esc(d.quiet_end || "") + '"></div></fieldset>';
       out += '<p class="note">24 hour clock, in the time zone below. No questions are raised in between. Quiet hours apply only when both are set.</p>';
-      out += '<div role="radiogroup" aria-label="Use the shared value" class="plist">' + optionBtn("pick", id, "", inheritText, !set) + "</div>";
+      out += '<div role="radiogroup" aria-label="Use the shared value" class="plist">' + optionBtn("pick", id, "", inheritText, !set) + (scope === "me" ? optionBtn("pick", id, "off", "None, no quiet hours for me", !!d.quiet_off) : "") + "</div>";
+      if (scope === "me") out += '<p class="note">You can switch quiet hours off for yourself, whatever the household has.</p>';
     } else if (row.id === "daily_cap") {
-      out += '<label for="cap-' + scope + '">Most suggestions per day</label><input id="cap-' + scope + '" class="fld" type="number" min="1" max="10" step="1" inputmode="numeric" data-act="field" data-id="' + id + '" value="' + esc(d.daily_cap || "") + '" placeholder="' + esc(fallback.text.replace(/\D.*/, "") || "3") + '">';
-      out += '<p class="note">From 1 to 10. Empty uses ' + (scope === "me" ? "the household\'s" : "the built-in default") + " (" + esc(fallback.text) + ").</p>";
+      out += '<label for="cap-' + scope + '">Most suggestions per day</label><input id="cap-' + scope + '" class="fld" type="number" min="1" max="20" step="1" inputmode="numeric" data-act="field" data-id="' + id + '" value="' + esc(d.daily_cap || "") + '" placeholder="' + esc(fallback.text.replace(/\D.*/, "") || "2") + '">';
+      out += '<p class="note">From 1 to 20. Empty uses ' + (scope === "me" ? "the household\'s" : "the built-in default") + " (" + esc(fallback.text) + ").</p>";
     } else if (row.id === "tz_offset_minutes") {
       out += '<label for="tz-' + scope + '">Time zone</label><input id="tz-' + scope + '" class="fld" type="text" inputmode="decimal" autocomplete="off" data-act="field" data-id="' + id + '" value="' + esc(d.tz_offset_minutes !== undefined ? Number(d.tz_offset_minutes) / 60 : "") + '" placeholder="' + esc(String(Number((scope === "me" ? effectiveHH() : DEFAULTS.tz_offset_minutes)) / 60)) + '">';
       out += '<p class="note">Hours ahead of UTC, for example 10 for Sydney in winter or 11 in summer time. It decides when a check date counts as today and when quiet hours fall. Empty uses ' + (scope === "me" ? "the household\'s" : "the built-in default") + " (" + esc(String(Number(scope === "me" ? effectiveHH() : DEFAULTS.tz_offset_minutes) / 60)) + ").</p>";
@@ -191,24 +193,13 @@
   }
   function effectiveHH() { return householdValue("tz_offset_minutes").v; }
 
-  /* Read-only (member looking at the household's dials): the same facts list the app shows a non-owner (web-stock.ts readonly()). */
-  function dialFacts() {
-    return '<dl class="facts">' + ROWS.map(function (row) {
-      var v = rowValue(row, "hh");
-      return '<div data-row="hh:' + row.id + '"><dt>' + esc(row.hhLabel) + "</dt><dd>" + esc(v.text) + " " + chipFor(v.from === "hh" ? "hh" : "bi") + "</dd></div>";
-    }).join("") + "</dl>";
-  }
-
   /* ---------- notes ---------- */
-  function noteRow(scope, canEdit) {
+  function noteRow(scope) {
     var text = scope === "me" ? mine().note : M.hh.note, id = scope + ":note", isOpen = S.open === id;
     var label = scope === "me" ? "Your note" : "Household note";
     var empty = text === "";
-    var preview = empty ? '<span class="pv">' + (canEdit ? "Add a note" : "No household note.") + "</span>" : '<span class="pv clamp">' + esc(text) + "</span>";
+    var preview = empty ? '<span class="pv">' + "Add a note" + "</span>" : '<span class="pv clamp">' + esc(text) + "</span>";
     var chipHtml = scope === "me" ? chip("you", "Only you") : chip("hh", "Household");
-    if (!canEdit) {
-      return '<div class="prow static"><div class="pbtn"><span class="pt"><span class="pl">' + label + "</span>" + preview + "</span>" + chipHtml + "</div></div>";
-    }
     return '<div class="prow" data-row="' + id + '"><button type="button" class="pbtn" data-act="toggle" data-id="' + id + '" aria-expanded="' + isOpen + '" aria-controls="ed-' + scope + '-note"><span class="pt"><span class="pl">' + label + "</span>" + preview + "</span>" +
       chipHtml + '<span class="chev" aria-hidden="true">' + ICON.chev + "</span></button>" +
       (isOpen ? '<div class="ped" id="ed-' + scope + '-note"><label for="n-' + scope + '">' + label + '</label><textarea id="n-' + scope + '" class="fld" maxlength="' + NOTE_MAX + '" rows="4" data-act="note" data-id="' + id + '">' + esc(text) + '</textarea>' +
@@ -290,7 +281,7 @@
       '<p>What you have chosen for yourself, and where everything else comes from.</p>' +
       '<p class="legend small"><span class="lg">' + chip("you", "Yours") + " you chose it</span><span class=\"lg\">" + chip("hh", "Household") + " the kitchen's value, as you have not chosen</span><span class=\"lg\">" + chip("bi", "Built-in") + " nobody has, so Kitchie's own</span></p>" +
       '<span class="lbl">Stock checks</span><div class="card sgroup">' + ROWS.map(function (r) { return dialRow(r, "me"); }).join("") + "</div>" +
-      '<span class="lbl">Notes</span><div class="card sgroup">' + noteRow("me", true) +
+      '<span class="lbl">Notes</span><div class="card sgroup">' + noteRow("me") +
       (M.hh.note ? '<div class="prow static household-note"><div class="pbtn"><span class="pt"><span class="pl">Household note</span><span class="pv clamp">' + esc(M.hh.note) + '</span><span class="pw">Read together with yours.</span><button type="button" class="lnk" data-act="goto" data-id="hh:note">Open in Household</button></span>' + chip("hh", "Household") + "</div></div>" : "") + "</div>" +
       '<span class="lbl">Food</span><div class="card sgroup foodcard">' + foodList("me") +
       '<p class="note">Your statements and the household\'s are added together, not swapped. Say new ones to your assistant.</p></div>' +
@@ -302,16 +293,14 @@
   }
 
   function householdScreen() {
-    var owner = isOwner(), only = M.only;
-    var head = owner
-      ? '<p class="note ro">' + ICON.lock + "<span>You can change these because you are the founding member, the one who has been here longest. They apply to everyone who has not chosen their own.</span></p>"
-      : '<p class="note ro">' + ICON.lock + "<span>Only the founding member (" + esc(PEOPLE.arjan.name) + ") can change these. You can read them, and set your own on Mine.</span></p><button type=\"button\" class=\"lnk\" data-act=\"tab\" data-id=\"mine\">Go to Mine</button>";
+    var only = M.only;
+    var head = '<p class="note">Any member of the kitchen can change these.</p>';
     return '<div role="tabpanel" id="panel-hh" aria-labelledby="tab-hh" class="mbody2">' +
       '<p>Shared by everyone in ' + esc(only.name) + ". Used for anyone who has not chosen their own.</p>" + head +
-      '<span class="lbl">Stock-check defaults</span><div class="card sgroup">' + (owner ? ROWS.map(function (r) { return dialRow(r, "hh"); }).join("") : dialFacts()) + "</div>" +
-      '<span class="lbl">Household note</span><div class="card sgroup">' + (owner ? noteRow("hh", true) : noteRow("hh", false)) + "</div>" +
+      '<span class="lbl">Stock-check defaults</span><div class="card sgroup">' + ROWS.map(function (r) { return dialRow(r, "hh"); }).join("") + "</div>" +
+      '<span class="lbl">Household note</span><div class="card sgroup">' + noteRow("hh") + "</div>" +
       '<span class="lbl">Food for everyone</span><div class="card sgroup foodcard">' + foodList("hh") +
-      '<p class="note">Anyone in the kitchen can say these today, not only the founding member. Safety ones ask twice before they are removed.</p></div>' +
+      '<p class="note">Any member can say or remove these. Safety ones ask twice before they are removed.</p></div>' +
       '<span class="lbl">Only the household has these</span><div class="card sgroup">' +
       navRow("Household name", only.name, "hh", "Household only", "Household name") +
       navRow("Categories", only.categories, "hh", "Household only", "Categories") +
@@ -338,7 +327,7 @@
       b.setAttribute("aria-pressed", String(S[k] === v));
     });
     var st = document.getElementById("mh-state");
-    if (st) st.textContent = who().name + (who().founding ? ", founding member" : ", member") + " · " + (S.tab === "mine" ? "Mine" : "Household") + " · " + (S.data === "empty" ? "nothing set yet" : "some set");
+    if (st) st.textContent = who().name + " · " + (S.tab === "mine" ? "Mine" : "Household") + " · " + (S.data === "empty" ? "nothing set yet" : "some set");
   }
 
   /* ---------- actions ---------- */
@@ -361,7 +350,7 @@
     else if (act === "toggle") { S.open = S.open === id ? null : id; S.saved = ""; S.confirm = null; S.flash = ""; S.focus = '[data-id="' + id + '"]'; render(); }
     else if (act === "pick") {
       var p = id.split(":"), row = p[1];
-      if (row === "quiet") { setDial(p[0], "quiet_start", ""); setDial(p[0], "quiet_end", ""); }
+      if (row === "quiet") { setDial(p[0], "quiet_start", ""); setDial(p[0], "quiet_end", ""); setDial(p[0], "quiet_off", val === "off" ? "1" : ""); }
       else setDial(p[0], row, val);
       saved(id); S.focus = '[data-act="pick"][data-id="' + id + '"][data-val="' + val + '"]'; render();
     }
@@ -386,13 +375,14 @@
     var act = t.getAttribute("data-act"), id = t.getAttribute("data-id");
     if (act === "quiet") {
       var p = id.split(":"), d = p[0] === "me" ? mine().dials : M.hh.dials;
+      delete d.quiet_off; // picking hours again drops the member's "none"
       d[t.getAttribute("data-end") === "start" ? "quiet_start" : "quiet_end"] = t.value || undefined;
       if (d.quiet_start === undefined && d.quiet_end === undefined) { delete d.quiet_start; delete d.quiet_end; }
       else { if (d.quiet_start === undefined) delete d.quiet_start; if (d.quiet_end === undefined) delete d.quiet_end; }
       saved(id); S.focus = "#" + t.id; render();
     } else if (act === "field") {
       var q = id.split(":"), key = q[1];
-      if (key === "daily_cap") { var n = parseInt(t.value, 10); setDial(q[0], key, isFinite(n) && n >= 1 && n <= 10 ? String(n) : ""); }
+      if (key === "daily_cap") { var n = parseInt(t.value, 10); setDial(q[0], key, isFinite(n) && n >= 1 && n <= 20 ? String(n) : ""); }
       else { var m2 = t.value.trim() === "" ? "" : parseHours(t.value); setDial(q[0], key, m2 === null ? "" : m2); }
       saved(id); S.focus = "#" + t.id; render();
     } else if (act === "note") {
