@@ -4,8 +4,8 @@
 <body data-no-theme-fab>
 <div class="stage"><div class="phone" id="ph"></div></div>
 <script>
-/* Add a recipe. Owner decision L4 (voice, 10 October 2026): recipes come in only through the person's own AI assistant, over Recipe's MCP tools.
-   No paste box, no link, no reading a photo, no "one box / four doors" (R-D13 options A and B are void). This screen only explains how, and
+/* Add a recipe. Owner decision L4 (voice, 10 October 2026): recipes are STARTED only through the person's own AI assistant, over Recipe's MCP tools.
+   No paste box, no link, no reading a photo, no "one box / four doors" (R-D13 options A and B are void). (11 Oct 2026: editing a recipe by hand is allowed after it exists, see edit.html; only creating stays assistant-only.) This screen only explains how, and
    points at any draft already waiting. The app's own jobs are adding photos (especially after cooking) and notes, on the recipe and at the end of a cook.
    Performance: no form, no reader, no upload code; the page is text and two links. */
 (function(){
@@ -25,7 +25,7 @@ ph.innerHTML='<div class="top"><a class="back" href="list.html">'+ic("back","s")
   '<div class="pad"><button type="button" class="mini" data-copy>'+ic("note","xs")+'Copy that</button></div>'+
   (waiting.length?'<div class="lblrow pad" style="padding-top:0;padding-bottom:0"><span class="lbl">Waiting for you · '+waiting.length+'</span></div>'+
     waiting.map(function(d){return '<a class="slim acc" href="review.html?from=assistant"><span class="e" aria-hidden="true">'+d.e+'</span><span class="t"><b>'+esc(d.name)+'</b><small>Suggested · '+esc(d.from)+'</small></span><span class="chev">'+ic("chev","s")+'</span></a>'}).join(""):'')+
-  '<div class="pad" style="margin-top:var(--sp-3)"><p style="font-size:13px">'+ic("cam","xs")+' <b style="color:var(--fg)">What you add here:</b> photos of what you made, and notes. Open any recipe, or finish a cook, and add them there.</p></div>'+
+  '<div class="pad" style="margin-top:var(--sp-3)"><p style="font-size:13px">'+ic("cam","xs")+' <b style="color:var(--fg)">Once it is in, it is yours to edit by hand:</b> name, ingredients, steps, notes, tags and photos (owner, 11 Oct 2026). Open any recipe and tap the pencil. Photos of what you made and notes are added there, or at the end of a cook.</p></div>'+
   '<div style="height:24px"></div></div>';
 ph.addEventListener("click",function(e){
   if(e.target.closest("[data-copy]")){try{navigator.clipboard&&navigator.clipboard.writeText(say)}catch(err){}X.toast("Copied. Paste it into your AI app.")}

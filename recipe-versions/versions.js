@@ -33,6 +33,7 @@
           { n: 1, by: "jane", when: "20 Sep", kind: "create", why: "Jane: \"kids like the peas, keep that one\"", d: [["add", "Frozen peas 80 g"]] },
           { n: 2, by: "jane", when: "29 Sep", kind: "fix", why: "Peas go in at step 4, not step 5", d: [["chg", "Step 4: …add the peas with the rice", "Step 5: …add the peas"]] },
           { n: 3, by: "ai_alex", when: "this morning", kind: "fix", why: "Alex: \"the peas were a bit sparse, bump them up, and say to thaw them\"", review: "rv1", d: [["chg", "Frozen peas 120 g", "80 g"], ["add", "Step 1: Thaw the peas in a sieve under the tap"]] }
+          ,{ n: 4, by: "sam", via: "hand", when: "today", kind: "edit", why: "Sam: fixed the wording in step 3, by hand", d: [["chg", "Step 3: Push the onion aside and pour in the eggs, stir until just set", "Push the onion aside, pour in the eggs and stir until just set"]] }
         ] },
       { id: "v2", name: "Less soy, more garlic", parent: "v1", state: "trying", by: "ai_alex", when: "5 Oct", cooked: 1, star: 0,
         revs: [
@@ -144,7 +145,7 @@
       return '<li class="' + r[0] + '"><span class="sym" aria-hidden="true">' + sym + '</span><span>' + X.esc(r[1]) + (r[2] ? ' <s>(' + X.esc(r[2]) + ")</s>" : "") + "</span></li>";
     }).join("") + "</ul>";
   };
-  V.kindWord = { create: "Made", fix: "Fixed", adjust: "Adjusted", restore: "Went back", revert: "Undid a change", spin: "Spun off" };
+  V.kindWord = { edit: "Edited", create: "Made", fix: "Fixed", adjust: "Adjusted", restore: "Went back", revert: "Undid a change", spin: "Spun off" };
   /* Review after (pick 4 B): what is still unreviewed on a version. */
   V.open = function (vid) { return (V.FAM.reviews || []).filter(function (r) { return r.target === vid && r.changes.some(function (c) { return !c.st; }); }); };
   V.rvBadge = function (vid) { return V.open(vid).length ? '<span class="st rvw">' + X.ic("spark", "xs") + "To review</span>" : ""; };

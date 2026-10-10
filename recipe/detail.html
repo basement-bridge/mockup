@@ -47,8 +47,8 @@ function draw(keepScroll){
       '<span class="serves" role="group" aria-label="'+(r.batch?"Portions":"Serves")+'"><button type="button" data-n="-1" aria-label="Fewer">−</button><span>'+(r.batch?n+" portion"+(n>1?"s":""):"Serves "+n)+'</span><button type="button" data-n="1" aria-label="More">+</button></span>'+
     '</div>'+vline+'</div>';
   /* sections */
-  var ingH='<div class="lblrow" style="margin-top:4px"><span class="lbl">Ingredients'+(miss.length?' · '+(ings.length-miss.length)+' of '+ings.length+' in':' · all in')+'</span>'+
-    (planned?'<button type="button" class="mini" data-holdall aria-pressed="'+heldAll+'">'+ic("hold","xs")+(heldAll?"Held for Tue":"Hold")+'</button>':'')+'</div>'+
+  var ingH='<div class="lblrow" style="margin-top:4px"><span class="lbl">Ingredients'+(miss.length?' · '+(ings.length-miss.length)+' of '+ings.length+' in':' · all in')+'</span><span style="display:flex;gap:6px;align-items:center">'+editLink("ing","ingredients")+
+    (planned?'<button type="button" class="mini" data-holdall aria-pressed="'+heldAll+'">'+ic("hold","xs")+(heldAll?"Held for Tue":"Hold")+'</button>':'')+'</span></div>'+
     (miss.length?'<p class="hint">Talk to your assistant about substitutes</p>':'')+
     ings.map(function(x){
       var i=x.i,ok=X.has(i[0]),q=fmt(i[2],i[3],mult);
@@ -79,7 +79,7 @@ function draw(keepScroll){
   /* R-O2 = A (locked): one continuous scroll. The jump row docks at the top while scrolling (under the versions strip when there is one).
      Nothing is hidden; the jump row saves the scrolling. Tabs (option 2 B) are dropped. */
   var bodyH=hero+head+vstrip+'<nav class="jumps" aria-label="Sections">'+SEC.map(function(s,i){return '<a href="#'+s[0]+'" class="'+(i?'':'on')+'">'+s[1]+(s[0]==="his"&&r.hist.length?' '+r.hist.length:'')+'</a>'}).join("")+'</nav>'+
-    SEC.map(function(s){return '<section class="sec" id="'+s[0]+'">'+(s[0]==="ing"?'':'<div class="lblrow"><span class="lbl">'+s[1]+'</span></div>')+s[2]+'</section>'}).join("")+'<div class="sec">'+src+'</div><div style="height:24px"></div>';
+    SEC.map(function(s){return '<section class="sec" id="'+s[0]+'">'+(s[0]==="ing"?'':'<div class="lblrow"><span class="lbl">'+s[1]+'</span>'+(s[0]==="his"?'':editLink(s[0],s[1].toLowerCase()))+'</div>')+s[2]+'</section>'}).join("")+'<div class="sec">'+src+'</div><div style="height:24px"></div>';
   /* R-D11 action bar: Cook it leads, Plan it beside it; everything else in the overflow. Same for every member (R-O5). */
   var act='<div class="act">'+
     '<button type="button" class="btn ghost" data-plan>'+ic("cal","s")+(planned?'Planned Tue':'Plan it')+'</button>'+
@@ -87,6 +87,8 @@ function draw(keepScroll){
   '</div>';
   ph.innerHTML='<div class="top"><a class="back" href="list.html">'+ic("back","s")+'Recipes</a><span class="ttl"></span>'+
     '<button type="button" class="ib bare" data-star aria-pressed="'+star+'" aria-label="'+(star?"Starred":"Star")+'">'+(star?'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true" style="fill:var(--accent);stroke:var(--accent)">'+'<path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8 6.8 19.6l1-5.8L3.5 9.7l5.9-.8z"/></svg>':ic("star"))+'</button>'+
+    '<a class="ib bare" data-key="," href="../recipe-versions/history.html?v='+v.id+'" aria-label="History">'+ic("clock")+'</a>'+
+    '<a class="ib bare" data-key="e" href="'+editHref()+'" aria-label="Edit '+esc(v.name)+'">'+ic("pen")+'</a>'+
     '<button type="button" class="ib bare" data-more aria-label="More" aria-haspopup="dialog">'+ic("dots")+'</button>'+
   '</div><div class="body'+(multi?' has-vers':'')+'" id="body">'+bodyH+'</div>'+act;
   var b=document.getElementById("body");b.scrollTop=y;
@@ -113,6 +115,9 @@ function draw(keepScroll){
   /* jump links scroll the body, not the window (the page itself never scrolls) */
   b.querySelectorAll(".jumps a").forEach(function(a){a.addEventListener("click",function(e){e.preventDefault();var el=document.getElementById(a.getAttribute("href").slice(1));if(el){picked=a.getAttribute("href").slice(1);b.scrollTop=el.offsetTop-dock;onScroll()}})});
 }
+/* Edit by hand (owner, 11 Oct 2026): a pencil in the top row (key E), and one beside each section opens the same edit screen at that section. History is the clock (key comma). */
+function editHref(sec){return "edit.html?id="+r.id+"&v="+vid+(sec?"&sec="+sec:"")}
+function editLink(sec,what){return '<a class="mini ico" href="'+editHref(sec)+'" aria-label="Edit '+what+'">'+ic("pen","s")+'</a>'}
 function noteHref(v){
   /* the photos slice's note screen. back brings the person here, with the saved note shown under Notes. */
   return "../recipe-photos/note.html?to="+r.id+"&from=recipe&v="+v.id+"&back="+encodeURIComponent("../recipe/detail.html?id="+r.id+"&v="+v.id+"#not");
@@ -135,14 +140,15 @@ function versSheet(){
   var res=X.resolve(r,vid);
   X.sheet('<h3>Versions</h3><p style="font-size:13px">Each version keeps what it changed and takes the rest from the one above. Nothing is overwritten.</p><div style="margin-top:8px">'+
     r.vers.map(function(x){return '<div class="'+(x.depth?'vtree':'')+'" style="margin-left:'+(x.depth>1?(x.depth-1)*14:0)+'px"><button type="button" class="opt'+(x.id===res.v.id?' on':'')+'" data-pick="'+x.id+'">'+ic(x.id===res.v.id?"check":"branch")+'<span class="t"><b>'+esc(x.name)+'</b><small>'+esc(x.by)+', '+x.when+' · cooked '+x.cooked+'×'+(x.def?' · our usual':'')+'</small>'+(x.why?'<small>'+esc(x.why)+'</small>':'')+'</span></button></div>'}).join("")+
-    '</div><a class="btn ghost" style="margin-top:12px;width:100%" href="edit.html?id='+r.id+'&v='+res.v.id+'">'+ic("spark","s")+'Change it with your assistant</a>',
+    '</div><a class="btn" style="margin-top:12px;width:100%" href="edit.html?id='+r.id+'&v='+res.v.id+'">'+ic("pen","s")+'Edit '+esc(res.v.name)+'</a><a class="btn ghost" style="margin-top:8px;width:100%" href="../recipe-versions/change.html?v='+res.v.id+'&step=chat">'+ic("spark","s")+'Change it with your assistant</a>',
   function(s,close){s.addEventListener("click",function(e){var b=e.target.closest("[data-pick]");if(b){vid=b.dataset.pick;close();draw(true)}})});
 }
 function moreSheet(){
   var res=X.resolve(r,vid);
   X.sheet('<h3>'+esc(r.name)+'</h3>'+
-    /* L4 (locked): recipe content changes only through the person's own AI app. Change it hands off to it, aimed at this version. */
-    '<a class="opt" href="edit.html?id='+r.id+'&v='+res.v.id+'">'+ic("spark")+'<span class="t"><b>Change it</b><small>With your AI app, aimed at '+esc(res.v.name)+'. A try takes the change in place; for a keeper it asks first.</small></span></a>'+
+    /* 11 Oct 2026 (owner, voice): a recipe is still STARTED by the assistant, but every part can now be edited by hand; the assistant stays a second way to change it. */
+    '<a class="opt" href="edit.html?id='+r.id+'&v='+res.v.id+'">'+ic("pen")+'<span class="t"><b>Edit</b><small>By hand: name, ingredients, steps, notes, tags and photos. A try takes it in place; for a keeper you choose where it goes.</small></span></a>'+
+    '<a class="opt" href="../recipe-versions/change.html?v='+res.v.id+'&step=chat">'+ic("spark")+'<span class="t"><b>Change it with your assistant</b><small>Say it in your own words. Its edits and yours share one History.</small></span></a>'+
     '<button class="opt" data-close>'+ic("branch")+'<span class="t"><b>Make it our usual</b><small>What Plan and Cook open for the household</small></span></button>'+
     '<button class="opt" data-close data-askabout>'+ic("spark")+'<span class="t"><b>Ask your assistant about it</b><small>Opens your AI app with this recipe</small></span></button>'+
     '<button class="opt" data-close>'+ic("spark")+'<span class="t"><b>Where it came from</b><small>'+esc(r.src)+'</small></span></button>'+
@@ -155,7 +161,8 @@ function moreSheet(){
 }
 draw();
 if(location.hash==="#not"){var nb=document.getElementById("not");if(nb){document.getElementById("body").scrollTop=nb.offsetTop-100}}
-if(X.Q.get("noted"))X.toast("Note saved. It shows on this version and every version below it.");
+if(X.Q.get("saved")){var sh=X.Q.get("how"),sn=X.Q.get("nm");X.toast(sh==="both"?'Saved as a new version, "'+esc(sn||"New version")+'", Trying. '+esc(X.resolve(r,vid).v.name)+' is unchanged.':sh==="own"?'Made "'+esc(sn||"New recipe")+'" as its own recipe, linked back.':'Saved as revision '+X.Q.get("saved")+', by you, by hand. Undo it any time in History.',function(){X.toast("Undone: saved as a new revision, History keeps both")})}
+else if(X.Q.get("noted"))X.toast("Note saved. It shows on this version and every version below it.");
 X.controls('<h4>Notes and photos (owner, 10 Oct)</h4><p><a href="?id=efr&v=v0">Original (own banner, own notes)</a> · <a href="?id=efr&v=v1">With peas (a parent note)</a> · <a href="?id=efr&v=v2">Less soy (inherited banner, a step photo being prepared)</a> · <a href="?id=rag">Ragù (cook photo only: no banner)</a> · <a href="?id=efr&v=v1&noted=**Brown%20rice%20works**%0A-%20fry%20it%20longer#not">A note just saved</a></p>');
 })();
 </script>

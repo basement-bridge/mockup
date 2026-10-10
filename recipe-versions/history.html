@@ -19,7 +19,7 @@ function hist(){
      reverting one change are new revisions; nothing is rewound. An assistant revision on a kept version shows "To review" (pick 4 B). */
   return '<p style="font-size:13px;margin:4px 0 8px">Every saved change to <b style="color:var(--fg)">'+esc(v.name)+'</b>. Nothing here is ever rewritten: going back saves a new revision.</p>'+
   r.map(function(x,k){return '<div class="rv'+(k===0?' head':'')+'"><span class="k">'+x.n+'</span>'+
-    '<b>'+V.kindWord[x.kind]+' by '+V.who(x.by)+'</b>'+(V.isAI(x.by)?' <span class="st ai">'+ic("spark","xs")+'assistant</span>':'')+(x.review&&V.open(v.id).length?' <span class="st rvw">'+ic("spark","xs")+'To review</span>':'')+
+    '<b>'+V.kindWord[x.kind]+' by '+V.who(x.by)+'</b>'+(V.isAI(x.by)?' <span class="st ai">'+ic("spark","xs")+'assistant</span>':x.via==="hand"?' <span class="st">'+ic("pen","xs")+'by hand</span>':'')+(x.review&&V.open(v.id).length?' <span class="st rvw">'+ic("spark","xs")+'To review</span>':'')+
     '<small>'+x.when+(k===0?' · what you see now':'')+'</small>'+(x.why?'<small style="color:var(--fg)">'+esc(x.why)+'</small>':'')+V.diff(x.d)+
     (x.review&&V.open(v.id).length?'<div class="acts"><a class="mini" href="suggestions.html?r='+x.review+'">Review this change</a></div>':'')+'<div class="acts">'+(k>0?'<button type="button" class="mini" data-see="'+x.n+'">See it as it was</button><button type="button" class="mini" data-restore="'+x.n+'">'+ic("undo","xs")+'Go back to this</button>':'')+(x.kind!=="create"&&!x.undone?'<button type="button" class="mini" data-undorev="'+x.n+'">'+ic("undo","xs")+'Undo this change</button>':'')+'</div></div>'}).join("")+
   /* Owner's answer 3 (locked, typed, 10 Oct 2026): nothing is deleted, and every change and every put-away can be undone at

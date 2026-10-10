@@ -89,7 +89,7 @@ function draw(keep){
     /* Owner's answer 2 (locked, typed, 10 Oct 2026): notes are a field of the version, inherited down the lineage and stored
        only where a version's notes differ (spec 9.4). The app writes notes and photos, never recipe content (L4). */
     notesSec()+'<div style="height:24px"></div></div>'+
-    '<div class="act">'+(v.state==="spun"?'':'<a class="btn ghost" data-key="e" href="change.html?v='+v.id+'">'+ic("pen","s")+'Change</a>')+
+    '<div class="act">'+(v.state==="spun"?'':'<a class="btn ghost" data-key="e" href="../recipe/edit.html?id=efr&v='+v.id+'">'+ic("pen","s")+'Edit</a>')+
     (v.state==="put_away"||v.state==="spun"?'':'<a class="btn" href="after-cook.html?v='+v.id+'">'+ic("flame","s")+'Cook it</a>')+'</div>';
   var b=document.getElementById("body");b.scrollTop=y;
   var vs=document.getElementById("vstrip"),jr=b.querySelector(".jumps"),vh=vs?vs.offsetHeight:0;
@@ -124,6 +124,7 @@ function more(){
   /* V-D9: every lifecycle action lives in one sheet, in the order people reach for them. Only the ones that apply show. */
   var o=[];
   if(F.usual!==v.id&&v.state!=="put_away"&&v.state!=="spun")o.push(['data-usual',"star","Make it our usual","Plan, Cook and Ideas open this one for everyone"]);
+  if(v.state!=="spun")o.push(['href="change.html?v='+v.id+'&step=chat"',"spark","Change it with your assistant","Say it in your own words. Edits by hand and by the assistant share one History"]);
   if(v.state!=="spun")o.push(['href="change.html?v='+v.id+'&new=1"',"branch","New version from this","Starts as Trying, with this one as its parent"]);
   if(v.state!=="spun")o.push(['data-spin',"spark","Make it its own recipe","For when it is a different dish now. The link back stays"]);
   o.push(['href="history.html?v='+v.id+'"',"undo","History","Every saved change, who made it, and going back"]);

@@ -28,9 +28,10 @@ function where(){
 function sheet(){
   ph.innerHTML='<div class="top"><a class="back" href="version.html?v='+v.id+'">'+ic("back","s")+esc(v.name)+'</a><span class="ttl">Change</span><span style="width:64px"></span></div>'+
   '<div class="body">'+where()+'<div class="pad"><h2>Change it with your assistant</h2>'+
-  '<p style="margin-top:6px">Recipes are written and changed by your own AI app, through Recipe\'s tools. Tell it what to change in your own words; it opens aimed at <b style="color:var(--fg)">'+esc(F.name)+', '+esc(v.name)+'</b>.</p>'+
-  '<p style="font-size:12.5px;margin-top:10px">Here in Recipes you can still add a note or photos. Nothing here edits the recipe itself.</p>'+
+  '<p style="margin-top:6px">Your own AI app changes recipes through Recipe\'s tools. Tell it what to change in your own words; it opens aimed at <b style="color:var(--fg)">'+esc(F.name)+', '+esc(v.name)+'</b>.</p>'+
+  '<p style="font-size:12.5px;margin-top:10px">Or change it yourself: every part of a version can be edited by hand in Recipes (owner, 11 Oct 2026). Both land in the same History, with who made each change.</p>'+
   '<div style="display:grid;gap:8px;margin-top:14px"><a class="btn" href="?v='+v.id+'&step=chat">'+ic("spark","s")+'Open my AI app</a>'+
+  '<a class="btn ghost" href="../recipe/edit.html?id=efr&v='+v.id+'">'+ic("pen","s")+'Edit it by hand instead</a>'+
   '<a class="btn ghost" href="version.html?v='+v.id+'#not">'+ic("note","s")+'Add a note instead</a>'+
   '<a class="btn ghost" href="../recipe-photos/add.html?to=efr">'+ic("cam","s")+'Add a photo</a></div></div><div style="height:24px"></div></div>';
 }

@@ -1,0 +1,88 @@
+/* Edit by hand (owner, 11 Oct 2026): everything in a version is editable in Kitchie. Phone first (390px); the desktop layout is
+   edit-desktop.css, fetched only at 1024px and up. Adds only what recipe.css and ../recipe-versions/versions.css do not have.
+   Theme tokens only, no raw colours. Class names are meant to be lifted into the build next to recipe.css. */
+
+/* a labelled field: label above, control below */
+.edf{display:block;margin-top:var(--sp-3)}
+.edf>span.edlab,.edlab{display:block;font-size:12.5px;font-weight:700;color:var(--muted);margin:0 2px 4px}
+.edf .hint{margin:4px 2px 0}
+textarea.field{min-height:44px;padding:10px var(--sp-3);line-height:1.4;resize:none;overflow:hidden;display:block}
+select.field{appearance:none;-webkit-appearance:none;padding-right:28px;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 17px) 19px,calc(100% - 12px) 19px;background-size:5px 5px;background-repeat:no-repeat}
+.ed2{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-2)}
+.edtags{display:flex;flex-wrap:wrap;gap:6px}
+.edtags .mini{min-height:44px;padding:0 14px;font-size:13px}
+.edtags input.field{width:130px;min-height:44px;border-radius:var(--r-pill);font-size:13px}
+
+/* ingredient and step rows. Markup: .edrow > .edmain (name or text), .edmeta (amount, unit, unknown; or timer and photo), .edact (move, remove) */
+.edrow{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"main main" "meta act";align-items:center;gap:6px var(--sp-2);padding:var(--sp-3) 0;border-top:1px solid var(--border)}
+.edrow:first-of-type{border-top:0}
+.edmain{grid-area:main;min-width:0;display:flex;gap:var(--sp-3);align-items:flex-start}
+.edmain .nb{margin-top:8px;width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--on-accent);font-weight:800;font-size:13px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.edmain .field{flex:1;min-width:0}
+.edmeta{grid-area:meta;display:flex;gap:6px;align-items:center;flex-wrap:wrap;min-width:0}
+.edmeta .field{width:76px;padding:0 10px}
+.edmeta select.field{width:92px}
+.edmeta .field.tm{width:68px}
+.edact{grid-area:act;display:flex;gap:2px;align-items:center}
+.edact .mini.ico{border-color:transparent}
+.edact .mv{display:none}
+.edrow.chg{background:color-mix(in srgb,var(--accent) 10%,transparent);border-radius:var(--r-ctl);padding-left:6px;padding-right:6px}
+.edrow .newtag{font-size:10.5px;font-weight:800;color:var(--accent);margin-left:2px}
+.edrow.rm .edmain .field,.edrow.rm .edmain p{text-decoration:line-through;opacity:.55}
+.edrow.rm .edmeta{display:none}
+.edrow .rmnote{grid-area:meta;font-size:12.5px;color:var(--muted)}
+/* Reorder mode (default pattern A): rows shrink to one line and show the move arrows; nothing else can be typed until you finish */
+.reord .edrow{grid-template-areas:"main act";min-height:56px;padding:var(--sp-2) 0}
+.reord .edrow .edmeta{display:none}
+.reord .edrow .edact .mv{display:inline-flex}
+.reord .edrow .edact .rmv{display:none}
+.reord .edmain .field{pointer-events:none;border-color:transparent;background:none;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;padding-left:0}
+.reord textarea.field{height:44px!important}
+.edadd{display:flex;align-items:center;gap:6px;min-height:48px;width:100%;color:var(--accent);font-weight:700;font-size:14px}
+.edadd .ic{width:18px;height:18px}
+.edsum{display:flex;align-items:center;gap:var(--sp-2);flex-wrap:wrap}
+.edsum .mini{margin-left:auto}
+
+/* step photo: the small square on a step row */
+.edph{width:44px;height:44px;border-radius:var(--r-ctl);overflow:hidden;border:1px solid var(--border);padding:0;flex:none;display:inline-flex;align-items:center;justify-content:center;color:var(--muted);background:var(--bg)}
+.edph.has{border-color:var(--accent)}
+.edph .rph{border-radius:0}
+.edph .ic{width:20px;height:20px}
+.edph .rph-inh{right:1px;top:1px;width:16px;height:16px}.edph .rph-inh .ic{width:10px;height:10px}
+.edph.dis{opacity:.45}
+
+/* notes in the editor */
+.ednote{padding:var(--sp-3);border-radius:var(--r-ctl);background:var(--surface);border:1px solid var(--border);margin-bottom:var(--sp-2)}
+.ednote.chg{border-color:var(--accent)}
+.ednote.rm .nbody{text-decoration:line-through;opacity:.55}
+.ednote .nbody p{color:var(--fg);font-size:14px}
+.ednote small{display:block;color:var(--muted);font-size:12px;margin-top:6px}
+.ednote .acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:var(--sp-2)}
+.ednote textarea.nbox{margin-top:var(--sp-2)}
+
+/* photos in the editor */
+.edban{border-radius:var(--r-ctl);overflow:hidden;border:1px solid var(--border);height:160px;position:relative;width:100%;display:block;padding:0}
+.edban .rph{border-radius:0}
+.edban.stock{display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--accent) 14%,var(--surface));color:var(--muted);font-size:13px;font-weight:700;gap:8px}
+.edpacts{display:flex;gap:6px;flex-wrap:wrap;margin-top:var(--sp-2)}
+.edpacts .mini{min-height:44px;padding:0 14px;font-size:13px}
+.edcnt{font-size:12.5px;color:var(--muted);margin-top:var(--sp-2)}
+.pgrid .rph{border-radius:0}
+
+/* where it lands: the save question inline (option B) and the live change count */
+.askin{flex:none;padding:var(--sp-2) var(--sp-3) 0;border-top:1px solid var(--border);background:var(--surface)}
+.askin b{font-size:13.5px}
+.askin .seg3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0 var(--sp-2)}
+.askin .seg3 button{min-height:56px;padding:6px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);font-size:12.5px;font-weight:800;text-align:center;line-height:1.2}
+.askin .seg3 button small{display:block;font-weight:600;font-size:11px;color:var(--muted);margin-top:2px}
+.askin .seg3 button[aria-pressed=true]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.sv{flex:1.4}
+.who{display:inline-flex;align-items:center;gap:4px}
+.saveq .row2{display:grid;gap:6px;margin-top:var(--sp-3)}
+.saveq .edf{margin-top:var(--sp-2)}
+.ednote .hint{display:block;margin:6px 2px 0}
+.ednone{padding:var(--sp-3);text-align:center;font-size:13px;color:var(--muted)}
+
+/* a 44px step thumbnail has no room for the words: the box keeps its colour and a dashed edge, and the sheet says it in full */
+.edph .rph-prep{display:none}
+.edph .rph.prep{outline:1.5px dashed var(--muted);outline-offset:-3px}

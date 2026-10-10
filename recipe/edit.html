@@ -1,42 +1,12 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Change it — Recipe tab mockup</title>
-<link rel="stylesheet" href="../theme.css"><link rel="stylesheet" href="recipe.css"><script src="../theme.js"></script><script src="recipe.js"></script></head>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Edit by hand — Recipe tab mockup</title>
+<link rel="stylesheet" href="../theme.css"><link rel="stylesheet" href="recipe.css"><link rel="stylesheet" href="../recipe-versions/versions.css"><link rel="stylesheet" href="edit.css">
+<script src="../theme.js"></script><script src="recipe.js"></script><script src="../recipe-versions/versions.js"></script></head>
 <body data-no-theme-fab>
 <div class="stage"><div class="phone" id="ph"></div></div>
-<script>
-/* Change it = the hand-off to the person's own AI assistant (L4, locked 10 Oct 2026; drawn in full by the versions slice,
-   ../recipe-versions/change.html). There is no in-app content editor: recipe content is created and changed only through the
-   assistant over Recipe's MCP tools. This screen says where the change will land, then opens the person's AI app aimed at this
-   version. What the app itself still adds is a note and photos, one tap away here.
-   Where the change lands (versions pick 2 C): a try takes the change in place as its next revision; for a keeper (or the usual) the
-   assistant asks first, in the chat: fix this one, keep both, or a different dish. Every member sees the same controls (L5); nothing
-   waits for an admin (L8). The editing screen itself is not drawn: the owner said "we'll do that later".
-   Performance: no editor code at all; one small inline script. */
-(function(){
-var X=RCP,ic=X.ic,esc=X.esc;
-var r=X.byId(X.Q.get("id")||"efr")||X.R[0];
-var v=X.resolve(r,X.Q.get("v")).v;
-var trying=v.state==="trying",usual=!!v.def;
-var ph=document.getElementById("ph");
-var back="detail.html?id="+r.id+"&v="+v.id;
-var noteHref="../recipe-photos/note.html?to="+r.id+"&from=recipe&v="+v.id+"&back="+encodeURIComponent("../recipe/detail.html?id="+r.id+"&v="+v.id+"#not");
-ph.innerHTML='<div class="top"><a class="back" href="'+back+'">'+ic("back","s")+esc(v.name)+'</a><span class="ttl">Change it</span><span style="width:64px"></span></div>'+
-  '<div class="body"><div class="pad">'+
-  '<div class="note" style="border-color:var(--accent)">'+ic("branch","xs")+' '+(trying
-    ?'<b>'+esc(v.name)+'</b> is a try: the change goes straight in. The old one stays in History.'
-    :'<b>'+esc(v.name)+'</b> is a keeper'+(usual?' and your usual':'')+': your assistant asks first, fix this one or keep both.')+'</div>'+
-  '<h2 style="margin-top:12px">Change it with your assistant</h2>'+
-  '<p style="margin-top:6px">Recipes are written and changed by your own AI app, through Recipe\'s tools. Say what to change in your own words; it opens aimed at <b style="color:var(--fg)">'+esc(r.name)+', '+esc(v.name)+'</b>.</p>'+
-  '<p style="font-size:12.5px;margin-top:10px">Here in Recipes you can add a note or photos. Nothing here edits the recipe itself.</p>'+
-  '<div style="display:grid;gap:8px;margin-top:14px">'+
-    '<button type="button" class="btn" data-ai>'+ic("spark","s")+'Open my AI app</button>'+
-    '<a class="btn ghost" href="'+noteHref+'">'+ic("note","s")+'Add a note instead</a>'+
-    '<a class="btn ghost" href="../recipe-photos/add.html?to='+r.id+'">'+ic("cam","s")+'Add a photo</a>'+
-  '</div>'+
-  '<p style="font-size:12.5px;margin-top:14px"><a href="../recipe-versions/change.html?v='+(v.id==="v0"?"v1":v.id)+'&step=chat" style="text-decoration:underline">See what the assistant does with it</a> (versions slice)</p>'+
-  '</div><div style="height:24px"></div></div>';
-ph.addEventListener("click",function(e){if(e.target.closest("[data-ai]"))X.askAssistant(r.name+", "+v.name)});
-X.controls('<h4>Change it (L4)</h4><p><a href="?id=efr&v=v1">A keeper, the usual</a> · <a href="?id=efr&v=v2">A try</a></p>');
-})();
-</script>
+<!-- Edit by hand (owner, voice, 11 Oct 2026: the earlier "the assistant is the only way to change a recipe" is reversed for editing; the assistant is still
+     how a recipe is started). One edit screen for the version, opened at the section you tapped (E-O1). All logic in edit.js; photo crop and rotate in
+     edit-photo.js (fetched on the first photo action); the desktop layout in edit-desktop.js and .css (fetched only at 1024px and up).
+     The old hand-off to the assistant is still drawn by ../recipe-versions/change.html and linked from the foot of this screen. -->
+<script src="edit.js"></script>
 </body></html>
