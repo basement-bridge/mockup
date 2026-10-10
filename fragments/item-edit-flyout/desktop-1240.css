@@ -1,0 +1,7 @@
+/* Desktop, 1240px and wider: the child opens as a fourth column beside the item flyout (the same slot the Pantry's History column uses), sliding out from beneath it.
+   The item flyout stays in front and casts a shadow over the child's edge, so the two read as one nested stack. The list gives up width to make room, as it does in the Pantry. */
+.app[data-child]{grid-template-columns:88px minmax(0,736px) 400px 360px}
+.ief-child{grid-area:1/4;top:0;margin-top:0;height:100vh;z-index:1;border-top:0;border-radius:0;box-shadow:none;padding:24px}
+.ief-child.enter{animation:slideout .24s ease-out}
+.app[data-child] .panel{overflow:auto;box-shadow:12px 0 24px -14px rgba(0,0,0,.45)}
+.app[data-child] .panel .tiles,.app[data-child] .panel .sacts,.app[data-child] .panel #ief-hintw{visibility:visible}

@@ -1,0 +1,46 @@
+/* Desktop (1024px and up): the Pantry's layout, left rail, off-centre column, item flyout in the right lane (docs/knowledge/desktop-layout.md). The child (Edit, History) nests with the item flyout:
+   from 1240px it slides out beside it, from beneath (desktop-1240.css); below 1240px it is tucked under the item's header inside the same lane (this file), so it never covers the list or the item it belongs to.
+   Close is Ctrl or Cmd plus Enter, then the x; plain Esc closes nothing. Key hints use the same .kbd chip as the Pantry. */
+.app{display:grid;grid-template-columns:88px minmax(0,736px) 400px;justify-content:start;min-height:100vh}
+.rail{border-right:1px solid var(--border);padding:16px 8px;display:flex;flex-direction:column;gap:6px;align-items:stretch;position:sticky;top:0;height:100vh}
+.rail .brand{font:700 13px var(--head);text-align:center;color:var(--muted);margin-bottom:10px}
+.nv{display:flex;flex-direction:column;align-items:center;gap:2px;min-height:var(--tap);padding:8px 2px;border-radius:var(--r-ctl);font-size:12px;font-weight:600;color:var(--muted)}
+.nv svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nv.on{color:var(--accent);background:var(--surface)}.nv:hover{background:var(--surface)}
+.rail .me{margin-top:auto;display:flex;flex-direction:column;gap:6px;align-items:stretch}
+.qk{width:24px;height:24px;border:1.8px solid currentColor;border-radius:7px;display:grid;place-items:center;font:700 14px var(--body)}
+.av{width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:var(--surface);display:inline-grid;place-items:center;font-weight:700;margin:0 auto}
+.main{padding:28px 48px 56px}
+.col{max-width:640px}
+/* the item flyout */
+.panel{grid-area:1/3;border-left:1px solid var(--border);padding:24px;position:sticky;top:0;height:100vh;overflow:auto;display:flex;flex-direction:column;gap:14px;z-index:2}
+.panel[data-mode=add]{gap:12px}
+.grab{display:none}
+.tiles4{grid-template-columns:1fr 1fr}
+.tl{min-height:72px}
+.sacts{flex-direction:column}
+.sacts .btn{justify-content:flex-start;padding:0 14px}
+.sacts .btn .kbd{margin-left:auto}
+.phint{margin-top:2px}
+/* the nested child, narrow desktop: tucked under the item's header in the same lane */
+.ief-child{grid-area:1/3;align-self:start;position:sticky;top:104px;margin-top:104px;height:calc(100vh - 104px);z-index:3;background:var(--surface);border-left:1px solid var(--border);border-top:1px solid var(--border);border-radius:var(--r-card) var(--r-card) 0 0;box-shadow:0 -10px 24px -12px rgba(0,0,0,.35);padding:18px 24px 16px;display:flex;flex-direction:column;gap:12px;overflow:hidden}
+.ief-child.enter{animation:tuckin .22s ease-out}
+.app[data-child] .panel{overflow:hidden}
+.app[data-child] .panel .tiles,.app[data-child] .panel .sacts,.app[data-child] .panel #ief-hintw{visibility:hidden}
+/* the shortcuts list and the cue switch */
+.kb{position:fixed;inset:0;z-index:50;display:grid;place-items:center;justify-items:start;padding-left:136px;background:var(--dim)}
+.kbc{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-card);padding:22px 26px;width:min(760px,calc(100vw - 184px));max-height:calc(100vh - 48px);overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.kbh{display:flex;align-items:center;margin-bottom:12px}.kbh .x{margin-left:auto}
+.x svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.x{width:var(--tap);height:var(--tap);border-radius:50%;border:1px solid var(--border);background:var(--bg);display:inline-grid;place-items:center}
+.kbg{display:grid;grid-template-columns:1fr 1fr;column-gap:40px;align-items:start}
+.kbs h3{font:700 12px var(--body);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:14px 0 6px}
+.kbr{display:flex;justify-content:space-between;gap:14px;padding:6px 0;border-bottom:1px solid var(--border);font-size:14px}
+.kk{white-space:nowrap;flex:0 0 150px}
+.kk kbd{font:700 12px var(--body);border:1px solid var(--border);border-bottom-width:2px;border-radius:6px;padding:1px 7px;background:var(--surface)}
+.kk em{font-style:normal;color:var(--muted);font-size:12px;margin:0 2px}
+.kbr span:last-child{color:var(--muted);flex:1}
+.kbt{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:18px;padding-top:14px;border-top:1px solid var(--border);font-weight:600}
+.sw2{min-width:72px;min-height:36px;padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--bg);font-weight:700;text-align:center}
+.sw2[aria-checked="true"]{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.toast{left:calc(88px + 48px);bottom:20px}

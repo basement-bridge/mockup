@@ -2,6 +2,8 @@
 
 Status: mockup for the owner to review (8 Oct 2026). Not built in Kitchie. Lines marked **Proposal** are mockup choices where the owner's words were silent; none of them is settled.
 
+Follow-up (10 Oct 2026, proposals): the full item screen behind "All fields" is replaced by a nested Edit flyout and a History flyout. See [jobs-to-be-done/item-edit-flyout.md](jobs-to-be-done/item-edit-flyout.md).
+
 Code: `flows/household/app.js` (`itemSheetHtml`, `acts.isheet`, `acts.itile`, `acts.sheetused`, `acts.sheetshop`, `acts.lvl`), `flows/household/styles.css` (`.sheet.half`, `.tiles3`, `.tl`). Options she chose from: `fragments/item-sheet/`.
 
 ## What the owner asked for
