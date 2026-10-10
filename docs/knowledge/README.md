@@ -14,6 +14,7 @@ What we have learned and decided about the product, written so it can be carried
 - `user-preferences/`: how the system learns about people and decides what to act on (evidence grades, thresholds). Start with `evidence-grading.md`; the tool contract is in `boundary-contract.md`.
 - `user-preferences/option-b-mine-and-household.md`: what the code records at person and household level (checked in Recipe, Kitchie and platform), open questions, and Option B (Mine and Household as two sections), awaiting approval.
 - `user-preferences/option-c-propose-for-another-member.md`: the owner's shape (10 Oct 2026) for a member proposing a preference for another member (written on the subject's own list, effective at once, courtesy notice, accept, edit or reject), what the code holds and would need, drawn on option B's layout; option C and its open questions are awaiting approval.
+- `preferences-principles.md`: the owner's six standing principles for preference and notification design (subject control, gating by level, propose is not finalise, safety first, acknowledgment on the subject's terms, forward-looking changes); check new preference work against it.
 
 Capture what the owner says. Do not add proposals of your own here. If something is a proposal, mark it as one and say who asked for it.
 
