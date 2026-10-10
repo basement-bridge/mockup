@@ -73,7 +73,7 @@ What changes in this option: in a row's You / Household switch, the Household si
 ### What D5 to D8 implied for the model and the code (not built; the household write rules in the next lines are replaced by D25 to D30)
 
 - **Kitchie, Stock checks form:** Most suggestions per day takes 1 to 20 (was 1 to 10); the built-in default becomes 2 (was 3).
-- **Kitchie, chat `stock_settings`:** the same range, 1 to 20 (was 0 to 20), default 2. 0 is no longer accepted.
+- **Kitchie, chat `stock_settings`:** the same range, 1 to 20 (was 0 to 20), default 3 (D20; the 2 planned by D7 was never built). 0 is no longer accepted.
 - **Kitchie, household writes:** ~~remove the household-owner check (`isHouseholdOwner`, the 403 and its message) from household stock settings and the household note; any member may write them~~ superseded: replace it with an admin check (D28), in the web page and in every tool that can write a household value. Do not add a tenure or two-week check. The role, the founding-member flag and grant and revoke are listed in option B's notes.
 - **Kitchie, quiet hours:** today "none" clears the member's value, so the household's applies. D6 needs a member's explicit "none" stored as a value that overrides the household's (for example a distinct stored value), and `dialsFor` / `dial_sources` must report it as the member's own choice.
 - **Household food claims:** ~~unchanged, open to any member (D8)~~ superseded: gated by the same admin check (D28), also in the chat tool (`give_feedback` with who = household).

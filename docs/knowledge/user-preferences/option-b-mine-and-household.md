@@ -15,7 +15,7 @@ Source: the owner believes preferences are recorded at the person (member) level
 
 F1. **Recipe** (`server/src/preferences.ts`, `schema.ts`, `mcp.ts`). A preference is `starred` (true or false), `vote` (-1, 0 or 1), `times_used` and `last_used`, keyed by (recipe or variation, id). The table has no household column and no member column: the household comes from the recipe's own row (plan Q32). One record per recipe per household. MCP tools `set_preference` (starred and vote) and `record_usage`; each write is re-checked live against platform. The session carries the person (`subject`) but nothing uses it for preferences. No web screen reads or writes them.
 
-F2. **Kitchie stock-check settings** (`store.ts` `stock_prefs`, `stock.ts`). Keys and values: `enabled` on or off; `proactivity` quiet, normal or helpful; `quiet_start` and `quiet_end` as HH:MM; `daily_cap` 0 to 20 in the store (the web form takes 1 to 10; D7 makes both 1 to 20, default 2); `tz_offset_minutes` -720 to 840. Stored at scope `household` or `member`. The value in force is resolved key by key: built-in default, then the household's, then the member's own (`dialsFor`), and the store says which one each came from (`dial_sources`). Clearing a value deletes the row, so the next level down applies.
+F2. **Kitchie stock-check settings** (`store.ts` `stock_prefs`, `stock.ts`). Keys and values: `enabled` on or off; `proactivity` quiet, normal or helpful; `quiet_start` and `quiet_end` as HH:MM; `daily_cap` 0 to 20 in the store (the web form takes 1 to 10; D7 makes both 1 to 20; the default stays 3, see D20); `tz_offset_minutes` -720 to 840. Stored at scope `household` or `member`. The value in force is resolved key by key: built-in default, then the household's, then the member's own (`dialsFor`), and the store says which one each came from (`dial_sources`). Clearing a value deletes the row, so the next level down applies.
 
 F3. **Notes** (`notes` table). A household note and a member note, up to 600 characters, kept as data and never read as an instruction. Both are read; neither replaces the other. A member's note is private: another member's is never read.
 
@@ -46,7 +46,7 @@ Meta-pattern (the owner's): person level, the person edits freely, no gate. Hous
 
 ### What D5 to D8 implied for the model and the code (not built; the household write rules are now replaced by D25 to D30, see the next section)
 
-- **Kitchie form and chat:** Most suggestions per day is 1 to 20 in both (was 1 to 10 in the form, 0 to 20 in the store and chat); the built-in default is 2 (was 3).
+- **Kitchie form and chat:** Most suggestions per day is 1 to 20 in both (was 1 to 10 in the form, 0 to 20 in the store and chat); the built-in default stays 3 (D20; the 2 that D7 planned was never built).
 - **Kitchie household writes:** ~~remove the household-owner check (`isHouseholdOwner`, the 403) from household stock settings and the household note; any member writes them~~ superseded: the owner check is replaced by an admin check (D28). No tenure check is added.
 - **Quiet hours:** a member's explicit "none" must be stored as a value that overrides the household's (today "none" clears the member's value, so the household's applies), and `dial_sources` must report it as the member's own.
 - **Household food claims:** ~~unchanged, open to any member~~ superseded: only admins record or retire them (D28).
