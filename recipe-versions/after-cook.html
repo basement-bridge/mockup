@@ -9,6 +9,10 @@
 var X=RCP,V=VER,ic=X.ic,esc=X.esc,F=V.FAM,O=V.O;
 var v=V.byId(X.Q.get("v")||"v2")||V.byId("v2");
 var verdict=null,tweak=false,mkUsual=false;
+/* Owner's answer 5 (locked, typed, 10 Oct 2026): after a cook each member who ate it can react: liked, not for me, or skip
+   (no answer stored). Prefilled: who usually eats with this household. The household line is derived, never voted. */
+var ate={};V.MEMBERS.forEach(function(m){ate[m]=m===V.ME||m==="jane"||m==="sam"?"":null});
+var rx={};
 var ph=document.getElementById("ph");
 /* The cook count after this one. The sample's Trying version has 1 cook logged; tonight is its 2nd. */
 var nth=v.cooked+1;
@@ -18,6 +22,15 @@ function ask(){return v.state==="trying"}
 /* Pick 4 B: this version has an assistant change nobody has reviewed. The cook went ahead on it (it is live); the cook entry
    records the revision it used. Build default: the review stays open, and the cook's line says it was cooked with the change. */
 var rv=V.open(v.id)[0];
+function whoAte(){
+  var rows=V.MEMBERS.filter(function(m){return ate[m]!==null}).map(function(m){var r=rx[m]||"";
+    return '<div class="ate">'+V.av(m)+'<span class="t">'+(m===V.ME?'You':V.who(m))+'</span><span class="rb" role="group" aria-label="'+(m===V.ME?'Your':V.who(m)+'\'s')+' reaction">'+
+      [["liked","😋","liked it"],["no","🙅","not for me"]].map(function(x){return '<button type="button" data-rx="'+x[0]+'" data-m="'+m+'" aria-pressed="'+(r===x[0])+'" aria-label="'+x[2]+'">'+x[1]+'</button>'}).join("")+'</span></div>'}).join("");
+  var more=V.MEMBERS.filter(function(m){return ate[m]===null});
+  return '<div class="lbl" style="margin-top:16px">Who ate it? Each says their own</div>'+rows+
+    (more.length?'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">'+more.map(function(m){return '<button type="button" class="mini" data-addm="'+m+'" style="min-height:44px">+ '+V.who(m)+'</button>'}).join("")+'</div>':'')+
+    '<p style="font-size:12px;margin-top:8px">Leave a face blank to skip. Each answer is that member\'s own; the household sees who liked it ("liked by 2 of 3"), worked out from these, never a separate vote. Someone not here can answer later from the recipe page.</p>';
+}
 function draw(){
   var head='<div class="pad"><p class="lbl" style="color:var(--accent)">Done · '+esc(F.name)+'</p><h1 style="margin-top:4px">How was it?</h1><p style="margin-top:6px">'+esc(v.name)+' · '+V.STATE[v.state][0].toLowerCase()+(v.state==="trying"?' · cook '+nth:'')+'</p></div>';
   /* The pantry and freezer questions of R-D19 come first in the real end-of-cook; this screen shows only the version part. */
@@ -29,16 +42,16 @@ function draw(){
       rv.changes.map(function(c){return '<div class="rvrow" data-row="'+c.id+'">'+V.diff([c.d])+'</div>'}).join("")+
       '<div class="row"><button type="button" class="btn ghost" data-rvlater>Later</button><button type="button" class="btn" data-rvok>'+ic("check","s")+'It was right</button></div>'+
       '<p style="font-size:12px;margin-top:8px">Either way, tonight\'s cook is logged against revision '+V.head(v).n+', the one you cooked. Undo a change from To review.</p></div>':'')+
-      '<label class="lbl" for="ln" style="display:block;margin-top:12px">A line for Cooked (optional)</label><input id="ln" class="field" style="margin-top:4px" placeholder="e.g. doubled it for lunches"></div>';
+      whoAte()+'<label class="lbl" for="ln" style="display:block;margin-top:12px">A line for Cooked (optional)</label><input id="ln" class="field" style="margin-top:4px" placeholder="e.g. doubled it for lunches"></div>';
   }else{
     /* Options A and B: three big answers. Only "Keep it" changes state; "Not for us" puts it away; "Needs work" leaves it trying. */
     body='<div class="pad"><div class="verd" role="group" aria-label="How was it">'+
       [["keep","😋","Keep it","a keeper"],["work","🤔","Needs work","try again"],["no","🙅","Not for us","put it away"]].map(function(x){return '<button type="button" data-vd="'+x[0]+'" aria-pressed="'+(verdict===x[0])+'"><span aria-hidden="true">'+x[1]+'</span>'+x[2]+'<small>'+x[3]+'</small></button>'}).join("")+'</div>'+
       (verdict==="keep"?'<button type="button" class="ch" data-u aria-pressed="'+mkUsual+'">'+ic("star")+'<span class="t"><b>Make it our usual</b><small>Instead of '+esc(V.byId(F.usual).name)+'. Plan and Cook open this one for everyone.</small></span><span class="rad" aria-hidden="true"></span></button>':'')+
       (verdict==="work"?'<button type="button" class="ch" data-tw aria-pressed="'+tweak+'">'+ic("pen")+'<span class="t"><b>Note what to change</b><small>Opens Change on this try. It saves straight in, as revision '+(V.head(v).n+1)+'.</small></span><span class="rad" aria-hidden="true"></span></button>':'')+
-      (verdict==="no"?'<p style="font-size:13px;margin-top:10px">It goes to Put away with tonight\'s date, at once, with Undo. Nothing is deleted; bring it back from Versions. <span style="color:var(--muted)">(Open: at once or wait for a second cook. Build default: at once.)</span></p>':'')+
-      '<label class="lbl" for="ln" style="display:block;margin-top:12px">A line for Cooked (optional)</label><input id="ln" class="field" style="margin-top:4px" placeholder="e.g. garlic was perfect this time">'+
-      '<p style="font-size:12px;margin-top:10px">'+ic("users","xs")+' Only this answer changes the version. Anyone in the household can answer; the first answer counts, later cooks can change it.</p></div>';
+      (verdict==="no"?'<p style="font-size:13px;margin-top:10px">It goes to Put away with tonight\'s date, <b style="color:var(--fg)">at once</b>, with Undo in the toast. Nothing is deleted: Bring back undoes it any time, from Versions. <span class="st kept">'+ic("check","xs")+'Locked</span></p>':'')+
+      whoAte()+'<label class="lbl" for="ln" style="display:block;margin-top:12px">A line for Cooked (optional)</label><input id="ln" class="field" style="margin-top:4px" placeholder="e.g. garlic was perfect this time">'+
+      '<p style="font-size:12px;margin-top:10px">'+ic("users","xs")+' The three big answers are the household\'s word on the try and change its state; the faces below are each person\'s own and change nothing on their own. Anyone can answer; the first answer counts, later cooks can change it.</p></div>';
   }
   ph.innerHTML='<div class="top"><a class="back" href="version.html?v='+v.id+'">'+ic("back","s")+'Back</a><span class="ttl">Cooked</span><span style="width:44px"></span></div>'+
     '<div class="body">'+head+pre+body+'<div style="height:24px"></div></div>'+
@@ -46,7 +59,9 @@ function draw(){
 }
 ph.addEventListener("click",function(e){
   var t=e.target.closest("button");if(!t)return;
-  if(t.dataset.vd){verdict=t.dataset.vd;draw()}
+  if(t.dataset.vd){verdict=t.dataset.vd;if(verdict!=="work"&&!rx[V.ME])rx[V.ME]=verdict==="keep"?"liked":"no";draw()}
+  else if(t.dataset.rx){var m=t.dataset.m;rx[m]=rx[m]===t.dataset.rx?"":t.dataset.rx;draw()}
+  else if(t.dataset.addm){ate[t.dataset.addm]="";draw()}
   else if(t.hasAttribute("data-u")){mkUsual=!mkUsual;draw()}
   else if(t.hasAttribute("data-tw")){tweak=!tweak;draw()}
   else if(t.hasAttribute("data-rvok")){rv.changes.forEach(function(c){c.st="kept"});X.toast("Reviewed. The badge is gone for everyone.");draw()}
@@ -54,7 +69,7 @@ ph.addEventListener("click",function(e){
   else if(t.hasAttribute("data-skip")){X.toast("Cook logged. "+esc(v.name)+" stays "+V.STATE[v.state][0].toLowerCase()+".")}
   else if(t.hasAttribute("data-done")){
     if(verdict==="keep"){v.state="kept";if(mkUsual)F.usual=v.id;X.toast("Kept"+(mkUsual?" and made our usual":"")+". Cook logged.");setTimeout(function(){location.href="version.html?v="+v.id},1300)}
-    else if(verdict==="no"){v.state="put_away";X.toast("Put away. Cook logged.",function(){v.state="trying"})}
+    else if(verdict==="no"){v.state="put_away";v.awayWhy="Not for us, after cook "+nth+" (tonight). Bring back undoes it.";X.toast("Put away at once. Cook logged.",function(){v.state="trying";X.toast("Back as a try. Saved as a new event; nothing was rewound.")})}
     else if(verdict==="work"&&tweak){location.href="change.html?v="+v.id}
     else X.toast("Cook logged. Still trying.");
   }

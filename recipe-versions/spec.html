@@ -46,29 +46,33 @@ pre code{border:0;padding:0;background:none;overflow-wrap:normal}
 <body><div class="wrap">
 <a class="back" href="index.html">&lsaquo; Recipe versions</a>
 <h1>Recipe versions: backend spec</h1>
-<p>What Recipe needs, as MCP tools, HTTP and storage, to support the <a href="index.html" style="color:var(--accent);font-weight:700">versions and lifecycle mockup</a> (V-D1 to V-D30). Written against Recipe's code as of 10 October 2026 (schema v5, 21 tools; <code>server/src/mcp.ts</code>, <code>domain.ts</code>, <code>resolve.ts</code>, <code>schema.ts</code>).</p>
-<div class="banner"><b>Backend rules: Proposal, to be filed as Recipe repo issues later.</b> Nothing here is filed or built. Recipe's <code>AGENTS.md</code> says "Recipes and persisted variations are immutable" and that a schema change is owner-reserved: this page proposes changing that rule (R-V1), which is the owner's call and must come first. Everything stays in UAT until the owner tags a release.</div>
+<p>What Recipe needs, as MCP tools, HTTP and storage, to support the <a href="index.html" style="color:var(--accent);font-weight:700">versions and lifecycle mockup</a> (V-D1 to V-D33). Written against Recipe's code as of 10 October 2026 (schema v5, 21 tools; <code>server/src/mcp.ts</code>, <code>domain.ts</code>, <code>resolve.ts</code>, <code>schema.ts</code>).</p>
+<div class="banner"><b>Backend rules: Proposal, to be filed as Recipe repo issues later.</b> Nothing here is filed or built. Recipe's <code>AGENTS.md</code> says "Recipes and persisted variations are immutable". <b>The owner approved reversing that rule (R-V1, typed, 10 Oct 2026)</b>; the edit to Recipe's own <code>AGENTS.md</code> and brief is the first Recipe-repo change when the build starts (issue, build, PR), with the exact wording in <a href="#issues" style="color:var(--accent);font-weight:700">section 8</a>. Everything stays in UAT until the owner tags a release.</div>
 <p style="margin-top:10px;padding:10px 12px;border:1px solid var(--sage);border-radius:var(--r-card);font-size:14px"><b>Updated 10 October 2026, late</b>, with the owner's locked decisions. Voice: <b>L3</b> versions strip only for several versions, <b>L4</b> recipe content only through the person's assistant over a very rich MCP surface (section 10), <b>L5</b> all members equal, <b>L8</b> putting away needs no approval. Typed: options <b>5 = A</b> frozen revisions under changeable versions and <b>6 = B</b> a revision stores only its change set, "something like git" (section 9, a new storage design). Pick 4 B (the assistant may edit a kept version or the usual; the household reviews after) replaces BR9's old "suggest only" rule. Build handoff: <a href="https://github.com/basement-bridge/mockup/blob/main/docs/knowledge/jobs-to-be-done/recipe-tab-handoff.md" style="color:var(--accent);font-weight:700">recipe-tab-handoff.md</a>.</p>
-<div class="toc"><a href="#rules">1 Rules</a><a href="#data">2 Data model</a><a href="#tools">3 Tools</a><a href="#errors">4 Errors</a><a href="#changed">5 Today's tools</a><a href="#http">6 HTTP</a><a href="#migrate">7 Migration</a><a href="#issues">8 Issues</a><a href="#storage">9 Revision storage</a><a href="#authoring">10 Assistant authoring</a><a href="#open">Open</a></div>
+<p style="margin-top:10px;padding:10px 12px;border:1px solid var(--sage);border-radius:var(--r-card);font-size:14px"><b>Updated again, 10 October 2026, with the owner's typed answers to the six open items</b> <span class="lk">Locked (owner, typed, 10 Oct 2026)</span>: <b>1</b> "Not for us" after a try's first cook puts it away at once, with undo (BR17). <b>2</b> notes are a field of the version, inherited from the parent and stored only where they differ (9.4, refines R-D24). <b>3</b> no hard delete: every change and every put-away is undoable at any time as a new revision or event (BR3, BR18; cost in 9.10). <b>4</b> a dismissed draft is visible only in that member's assistant history (BR10). <b>5</b> reactions per member, the household's derived (BR19, 2.1). <b>6</b> R-V1 approved: the immutability rule is reversed as the first Recipe-repo change (section 8). Also: step photos and per-version banner photos from the photos slice (9.5).</p>
+<div class="toc"><a href="#rules">1 Rules</a><a href="#data">2 Data model</a><a href="#tools">3 Tools</a><a href="#errors">4 Errors</a><a href="#changed">5 Today's tools</a><a href="#http">6 HTTP</a><a href="#migrate">7 Migration</a><a href="#issues">8 Issues</a><a href="#storage">9 Revision storage</a><a href="#authoring">10 Assistant authoring</a><a href="#answers">11 Answers</a><a href="#open">Open</a></div>
 
 <section class="sec" id="rules"><div class="lbl">1. Rules (replace "recipes and variations are immutable")</div>
 <ol>
 <li><b>BR1 Revisions are immutable.</b> <span class="lk">Locked 5 A</span> A revision's change set, author, channel, words and time never change and are never deleted (DB triggers, as today's <code>recipes_immutable</code>). The objects a revision points at are content-addressed and immutable too (BR14).</li>
-<li><b>BR2 Versions and families are changeable pointers.</b> <span class="lk">Locked 5 A</span> Allowed to change: version <code>name</code>, <code>state</code>, <code>head_revision_id</code>, <code>cover_photo_id</code> (P-D4); family <code>name</code>, <code>usual_version_id</code>, <code>put_away</code>, <code>notes_head</code>. Nothing else. Every change appends a journal event with actor and channel.</li>
-<li><b>BR3 Nothing a person made is deleted.</b> Put away (<code>state = put_away</code>) replaces disabled. No DELETE on families, versions, revisions, cooks, reviews. Unreferenced blobs and photo files are the only things ever removed, by compaction (section 9.9). <span class="opn">Open</span> hard delete of a try made by mistake: build default none (put away only).</li>
+<li><b>BR2 Versions and families are changeable pointers.</b> <span class="lk">Locked 5 A</span> Allowed to change: version <code>name</code>, <code>state</code>, <code>head_revision_id</code>, <code>notes_head_id</code> and <code>photos_head_id</code> (9.4, 9.5; they only move forward), <code>cover_photo_id</code> (P-D4), <code>dismissed_by</code>; family <code>name</code>, <code>usual_version_id</code>, <code>put_away</code>. Each member's own reaction (BR19). Nothing else. Every change appends a journal event with actor and channel.</li>
+<li><b>BR3 Nothing a person made is deleted.</b> <span class="lk">Locked (owner, typed, 10 Oct 2026)</span> Put away (<code>state = put_away</code>) replaces disabled. No DELETE on families, versions, revisions, notes, cooks, reactions, reviews, and <b>no delete tool</b>, not even for a try made by mistake: that try is put away, with undo. Owner: <i>"UNDO is needed, this is why I want you to be efficient in storage of diffs."</i> The only things ever removed are unreferenced objects (9.9) and <b>photo files</b>, which are the photos slice's (P-D17; the free-space flow, 9.5). Keeping a mistake costs about 1 to 2 KB (9.10). <span class="nc" style="display:block">Replaces: "Open: hard delete of a try made by mistake; build default none".</span></li>
 <li><b>BR4 One usual per family, always.</b> It must be a version in state <code>trying</code> or <code>kept</code>. Setting a <code>trying</code> version as usual also sets it <code>kept</code>. The usual cannot be put away until another is the usual.</li>
 <li><b>BR5 Parent is pinned.</b> A version records <code>parent_version_id</code> and <code>parent_revision_id</code>. Later revisions of the parent never change the child. "Bring in the parent's fix" is a normal revise by the caller. (With 6 B this matters more: a child's first revision is a change set against a pinned parent revision, and a pinned revision never moves.)</li>
 <li><b>BR6 Optimistic concurrency.</b> Every write to content names <code>base_revision_id</code>. If it is not the head the server never overwrites: it rebases when the two change sets touch different items, else it fails with <code>stale_base</code> (section 9.8).</li>
 <li><b>BR7 Author, channel and client on every write.</b> <code>actor_member_id</code> from the session (platform token; <code>legacy</code> in standalone); <code>channel</code> <code>app</code> (HTTP from Kitchie) or <code>assistant</code> (MCP); <code>client</code> the MCP client's name from the session handshake (e.g. "Claude"), for "which assistant". Set by the server; the caller cannot.</li>
 <li><b>BR8 Assistant writes carry the person's words.</b> On channel <code>assistant</code>, <code>user_intent</code> is required on every content or state write. On <code>app</code> it is optional (the tap is the intent). Same "never paraphrase into approval" wording as today's <code>create_variation</code>.</li>
 <li><b>BR9 Assistant scope.</b> <span class="lk">Locked 4 B</span> On channel <code>assistant</code>, with the person's words: create recipes (born <code>suggested</code>) and versions (born <code>trying</code>); revise any version, <b>kept versions and the usual included</b>; set state, set the usual, put away, spin off, rename, write notes. A revise of a <code>kept</code> version or the usual by an assistant opens a <b>review</b> (BR15). Not allowed to an assistant: resolve a review, accept its own draft (Suggested → Trying needs a person in the app or the person's words saying yes, BR10). <span class="nc" style="display:block">Not chosen: 4 A suggest only (needs_person on a kept version; propose_change and suggestions removed), 4 C trusted per member (assistant_trusted removed).</span></li>
-<li><b>BR10 Suggested is invisible to ordinary reads.</b> A family whose only version is <code>suggested</code> is a draft (R-D12, gap G3): excluded from list, search, what_can_i_cook and ideas unless <code>include_suggested</code>. Accepting it (the app, or the person's own words through their assistant: "yes, add it") moves it to <code>trying</code>.</li>
+<li><b>BR10 Suggested is invisible to ordinary reads.</b> A family whose only version is <code>suggested</code> is a draft (R-D12, gap G3): excluded from list, search, what_can_i_cook and ideas unless <code>include_suggested</code>. Accepting it (the app, or the person's own words through their assistant: "yes, add it") moves it to <code>trying</code>. <b>Dismissed</b> (Not for us on a draft) sets <code>state = put_away</code> with <code>dismissed_by</code>: it is then <b>visible only in that member's assistant history</b> (<code>list_my_drafts</code> for the member who made it, through their assistant), never under the household's Put away, never in lists or search. Undoable by that member at any time (accept or bring back). <span class="lk">Locked (owner, typed, 10 Oct 2026)</span> <span class="nc" style="display:block">Replaces: "Open: how long dismissed drafts stay visible; default in the member's assistant history only, a put-away draft shows under Put away".</span></li>
 <li><b>BR11 Temporary substitutions are still not persisted.</b> "I used pork tonight" is a cook-log line, not a revision, unless the person says keep it.</li>
 <li><b>BR12 Missing stays missing.</b> <code>basis</code>, <code>value: null</code>, no invented servings, times or amounts. Unknown is a real value and diffs like one.</li>
 <li><b>BR13 Reasoning stays with the caller.</b> The server never picks a version, never judges a substitution, never decides a try is good, never fetches a link or reads a photo (L4).</li>
 <li><b>BR14 Changes only, git-like.</b> <span class="lk">Locked 6 B</span> A revision stores a parent pointer and a small structured change set; content lives in content-addressed immutable objects; checkpoints bound rebuild cost. Section 9.</li>
 <li><b>BR15 Review after, for kept versions.</b> <span class="lk">Locked 4 B</span> Any assistant revision on a <code>kept</code> version or the usual creates one open review row listing its changes. The change is live at once. Any member (L5) can accept all, or revert one change (a new revision that reverses exactly that change, section 9.6). The review stays open until every change is accepted or reverted. A cook meanwhile is logged against the revision it used; the review is not closed by cooking. Tries are never reviewed.</li>
 <li><b>BR16 Everyone is equal.</b> <span class="lk">Locked L5, L8</span> No Recipe write is gated on a household role: making, fixing, keeping, putting away (whoever cooked it), changing the usual, removing photos, resolving reviews. <code>not_allowed</code> remains only for app-only tools called on the assistant channel. Authorship is still recorded on every write for attribution. Supersedes V-D23's admin rule and the old <code>set_usual</code> admin check.</li>
+<li><b>BR17 "Not for us" after a try's first cook puts it away at once.</b> <span class="lk">Locked (owner, typed, 10 Oct 2026)</span> <code>record_cook</code> with <code>verdict: "no"</code> on a <code>trying</code> version sets <code>put_away</code> in the same transaction, from the first cook, and returns <code>undo: {event_id}</code>; the app shows Undo in the toast and Bring back stays on the version for ever (BR18). The usual cannot be put away (BR4): the verdict is logged and the state is left, with <code>is_usual</code> as a warning. <span class="nc" style="display:block">Replaces: "Open: at once or wait for a second cook; build default at once".</span></li>
+<li><b>BR18 Undo any time, never a rewind.</b> <span class="lk">Locked (owner, typed, 10 Oct 2026)</span> Every content change can be undone (<code>revert_change</code>, <code>restore_revision</code>: a new revision) and every state or pointer change can be undone (<code>undo_event</code>: a new journal event that sets the previous value, provided the value is still the one the event set, else <code>stale_base</code>). No time limit, no "undo window"; the head and the journal only move forward. An undo can itself be undone.</li>
+<li><b>BR19 Reactions are per member; the household's view is derived.</b> <span class="lk">Locked (owner, typed, 10 Oct 2026)</span> Owner: <i>"both depending on the situation: if something was cooked it's possible everyone liked it or only some."</i> Each member has their own reaction to a version (<code>liked</code> or <code>no</code>; skip stores nothing), changeable any time, given after a cook or from the recipe page. "Starred" is that member's <code>liked</code>. The household level is <b>never stored</b> as a vote: "liked by 2 of 3", "household favourite" and the Starred filter are computed from the reactions and the cook log (2.1). <span class="nc" style="display:block">Replaces: V-D6's "Open, cross-feature X5" and R-V9's "household-wide until X5". Settles X5 for Recipe's side as "both, derived".</span></li>
 </ol>
 <p class="nc">Option 5, not chosen: <b>B</b> mutable rows with only the journal as history; <b>C</b> keep today's rule and add only states and the usual.</p>
 </section>
@@ -76,23 +80,26 @@ pre code{border:0;padding:0;background:none;overflow-wrap:normal}
 <section class="sec" id="data"><div class="lbl">2. Data model (schema v6) <span class="lk">Locked 5 A, 6 B</span></div>
 <p>The family, version and journal tables carry over from the earlier draft. Revisions change: no <code>content_json</code>; a revision is a parent pointer, a change set and (sometimes) a checkpoint pointer. Content lives in <code>objects</code>. Full reasoning in section 9; tables here.</p>
 <pre><code>families      id, household_id, name, usual_version_id, put_away (0|1),
-              notes_head NULL (hash of the notes document, 9.4),
               created_at, created_by
-              (changeable: name, usual_version_id, put_away, notes_head)
+              (changeable: name, usual_version_id, put_away)
 versions      id, family_id, household_id, name, state, head_revision_id,
               parent_version_id NULL, parent_revision_id NULL,
-              spun_to_family_id NULL, cover_photo_id NULL (P-D4),
+              spun_to_family_id NULL, cover_photo_id NULL (P-D4; the banner, one per version),
+              dismissed_by NULL (member, for a dismissed draft, BR10),
               created_at, created_by, created_channel
               state IN ('suggested','trying','kept','put_away','spun_off')
-              (changeable: name, state, head_revision_id, spun_to_family_id, cover_photo_id)
+              notes_head_id NULL, photos_head_id NULL (heads of the notes and photos lines, 9.4, 9.5)
+              (changeable: name, state, head_revision_id, notes_head_id, photos_head_id,
+               spun_to_family_id, cover_photo_id, dismissed_by)
 objects       hash (32-byte BLAKE3 or SHA-256 of kind+canonical JSON), household_id,
-              kind IN ('ingredient','step','tree','block','notes','text'),
+              kind IN ('ingredient','step','tree','block','text'),
               data (canonical JSON, BLOB; zlib when over 1 KB), size, created_at
               IMMUTABLE, no update; delete only by compaction (9.9)
 revisions     id, version_id, household_id, n (1,2,3 per version),
               parent_revision_id NULL (previous revision of this version, or the
                 pinned parent version's revision for n = 1),
-              kind IN ('create','fix','adjust','restore','revert','rebase','spin','migrated'),
+              line IN ('content','notes','photos') DEFAULT 'content',
+              kind IN ('create','fix','adjust','restore','revert','rebase','spin','migrated','note','photo'),
               change_set (canonical JSON, 9.3), tree_hash NULL (a checkpoint, 9.2),
               depth (change sets since the last checkpoint), reverts NULL (revision id + change ids),
               actor_member_id, channel, client NULL, user_intent NULL, note NULL,
@@ -106,12 +113,25 @@ reviews       id, household_id, version_id, revision_id, actor_member_id, client
               (content immutable; each change's state moves forward once)
 cooks         id, household_id, family_id, version_id, revision_id, member_id,
               servings, verdict NULL ('keep','work','no'), line NULL,
-              photo_ids_json NULL (0 to 3 photo ids, P-D13), cooked_at
+              photo_ids_json NULL (0 to 3 photo ids, P-D13), ate_json NULL (member ids who ate it),
+              cooked_at
               (append-only; gap G2)
-refs          household_id, name ('family/&lt;id&gt;/notes', 'version/&lt;id&gt;/head'), hash, updated_at
+reactions     household_id, version_id, member_id, value ('liked'|'no'), cook_id NULL,
+              set_at   PRIMARY KEY (version_id, member_id)
+              (changeable by that member only; every change is a journal event, BR18, BR19)
+refs          household_id, name ('version/&lt;id&gt;/head'), hash, updated_at
               (a view over families/versions for export and gc roots; no new truth)
 legacy_ids    old_kind ('recipe'|'variation'), old_id, version_id, revision_id</code></pre>
-<p>Triggers: <code>objects</code>, <code>revisions</code>, <code>cooks</code> no UPDATE; <code>revisions</code> and <code>cooks</code> no DELETE; <code>versions</code> UPDATE only of the changeable columns and <code>head_revision_id</code> must point to a revision of the same version with a higher <code>n</code> (a restore or revert is a new revision, so the head only moves forward); <code>families.usual_version_id</code> must be a version of the family in <code>trying</code>/<code>kept</code>; same-household checks as v5; a revision with <code>depth</code> 0 must carry a <code>tree_hash</code>. <code>search_text</code> moves to <code>head_cache</code> and is rebuilt when the head moves. Stars and votes stay household-wide (<code>preferences</code> keyed by family or version) until X5 is decided; no <code>member_prefs</code> table.</p>
+<p>Triggers: <code>objects</code>, <code>revisions</code>, <code>cooks</code> no UPDATE; <code>revisions</code> and <code>cooks</code> no DELETE; <code>versions</code> UPDATE only of the changeable columns and <code>head_revision_id</code> must point to a revision of the same version with a higher <code>n</code> (a restore or revert is a new revision, so the head only moves forward); <code>families.usual_version_id</code> must be a version of the family in <code>trying</code>/<code>kept</code>; same-household checks as v5; a revision with <code>depth</code> 0 must carry a <code>tree_hash</code>. <code>search_text</code> moves to <code>head_cache</code> and is rebuilt when the head moves. Stars are the per-member <code>reactions</code> table (BR19); today's household-wide <code>preferences.starred</code> migrates as a <code>liked</code> by the <code>legacy</code> member, and <code>vote</code> is read from reactions.</p>
+<h3 id="derived">2.1 The household's view is derived (BR19) <span class="lk">Locked 5</span></h3>
+<ul>
+<li><b>Liked by:</b> the members whose current reaction is <code>liked</code>, shown by name to everyone ("Liked by Sam and Jane"). <b>Of:</b> the members recorded as eating it in any cook of that version (<code>ate_json</code>), so "2 of 3 who ate it".</li>
+<li><b>Not for me:</b> shown by name only to the member who gave it ("not for you"); everyone else sees a count ("1 not keen"). Private to who gave it, visible as a count.</li>
+<li><b>Household favourite</b> <span class="rw">Proposal: the household rule</span>: a version is a household favourite when <b>more than half of the members who ate it liked it, and at least 2 liked it</b> (1 in a one-member household). It is a household setting (<code>favourite_rule: majority | anyone | everyone</code>, default <code>majority</code>), so a household can choose "anyone liked it" or "everyone who ate it liked it". Computed on read; nothing is stored.</li>
+<li><b>Starred filter</b> (R-D5): "Liked by me" for the member, and "Household favourites" for the household. Nothing ranks on another member's private "no".</li>
+<li><b>After a cook:</b> the end-of-cook asks each member who ate it (the cook records who; prefilled from who usually eats, editable): liked, not for me, or skip. The cook's <code>verdict</code> (Keep it, Needs work, Not for us, BR17) is a separate thing: the household's word on a <b>try's</b> state. A member who taps Keep it is prefilled as liked and Not for us as not for me; they can change it.</li>
+</ul>
+<p class="nc">What remains for the preferences feature (not edited here): its F1, Q1 and Q-R8 draw Recipe stars household-wide; they should read "per member reactions, household view derived" from Recipe, and decide whether its own person and household preference model (D25 to D30) shows "liked by" on Plan and Ideas, and whether a member's private "no" may lower a recipe's rank in that member's own Ideas only. Cross-feature X5 can be closed for Recipe's side.</p>
 <p>Nutrition: <code>nutrition_observations.target_kind</code> gains <code>'revision'</code>. <code>get_nutrition</code> on a version reads the head revision's figures, else the latest earlier revision's with <code>for_revision</code> and <code>stale: true</code> (V-D29). Nothing recomputed.</p>
 <p class="nc">Option 6, not chosen: <b>A</b> the whole resolved recipe stored in every revision. It is simpler to read but costs about 4 times the space (section 9.10) and stores every note and every unchanged line again on every save, which is what the owner asked not to do.</p>
 </section>
@@ -136,10 +156,13 @@ legacy_ids    old_kind ('recipe'|'variation'), old_id, version_id, revision_id</
 <tr><td><code>set_family_put_away</code> <span class="tag new">new</span></td><td>Put away or bring back a whole recipe. No admin check (L8).</td><td>both</td></tr>
 <tr><td><code>accept_suggested</code> <span class="tag new">new</span></td><td>A draft (Suggested) becomes Trying. App, or the assistant with the person's own "yes".</td><td>both</td></tr>
 <tr><td><code>rename</code> <span class="tag new">new</span></td><td>Family or version name. Journal only.</td><td>both</td></tr>
-<tr><td><code>write_notes</code> <span class="tag new">new</span></td><td>Rich-text notes on the family, patched per block (section 9.4).</td><td>both</td></tr>
+<tr><td><code>write_notes</code> <span class="tag new">new</span></td><td>Rich-text notes on a version, as a change to that version's notes (inherited by its children); or <code>scope: "every_version"</code>, written at the top of the lineage (section 9.4).</td><td>both</td></tr>
+<tr><td><code>react</code> <span class="tag new">new</span></td><td>This member's own reaction to a version: liked, no, or clear (BR19).</td><td>both</td></tr>
+<tr><td><code>undo_event</code> <span class="tag new">new</span></td><td>Undo a state or pointer change (put away, usual, rename, cover) as a new event, any time (BR18).</td><td>both</td></tr>
+<tr><td><code>list_my_drafts</code> <span class="tag new">new</span></td><td>The calling member's own drafts, dismissed ones included (BR10). Only that member.</td><td>assistant</td></tr>
 <tr><td><code>list_reviews</code> <span class="tag new">new</span></td><td>Open reviews for the household or a family (pick 4 B).</td><td>both</td></tr>
 <tr><td><code>resolve_review</code> <span class="tag new">new</span></td><td>Accept all, or keep / revert per change. App only.</td><td>app</td></tr>
-<tr><td><code>record_cook</code> <span class="tag new">new</span></td><td>A cook with version, revision, verdict (pick 3 A), line, up to 3 photo ids.</td><td>both</td></tr>
+<tr><td><code>record_cook</code> <span class="tag new">new</span></td><td>A cook with version, revision, verdict (pick 3 A; "no" puts a try away at once, BR17), who ate it, each eater's reaction, line, up to 3 photo ids.</td><td>both</td></tr>
 <tr><td><code>list_cooks</code> <span class="tag new">new</span></td><td>Cooked history, each with version and revision.</td><td>both</td></tr>
 <tr><td><code>request_photo_upload</code> <span class="tag new">new</span></td><td>The photos slice's one-time add link (P-D12 A, RP5). Not redesigned here.</td><td>assistant</td></tr>
 <tr><td><code>export_family</code> <span class="tag new">new</span></td><td>Human-readable revision log and current content (section 9.11).</td><td>both</td></tr>
@@ -173,9 +196,9 @@ legacy_ids    old_kind ('recipe'|'variation'), old_id, version_id, revision_id</
 <tr><td><code>list_recipes</code>, <code>search_recipes</code></td><td>One row per family, showing the usual; <code>include_put_away</code> replaces <code>include_disabled</code> (old flag accepted); suggested excluded unless <code>include_suggested</code>; <code>tags</code> filter. <span class="tag chg">changed</span></td></tr>
 <tr><td><code>create_variation</code></td><td>Alias of patch_version with <code>target: {new_version}</code>; today's ops map one to one (9.3); <code>user_intent</code> still required. <span class="tag dep">alias</span></td></tr>
 <tr><td><code>get_variation</code>, <code>list_variations</code>, <code>get_lineage</code></td><td>Aliases over versions. <span class="tag dep">alias</span></td></tr>
-<tr><td><code>set_recipe_status</code>, <code>set_variation_status</code></td><td>Aliases: disabled → put_away, active → kept. <span class="tag dep">alias</span></td></tr>
+<tr><td><code>set_recipe_status</code>, <code>set_variation_status</code></td><td>Aliases: disabled → put_away, active → kept. Neither ever deletes (BR3). <span class="tag dep">alias</span></td></tr>
 <tr><td><code>get_recipe_source</code></td><td>Reads the revision's <code>source</code> object plus the revision's author, client and words. <span class="tag chg">changed</span></td></tr>
-<tr><td><code>set_preference</code></td><td>Target accepts a version or family; household-wide until X5. <span class="tag chg">changed</span></td></tr>
+<tr><td><code>set_preference</code></td><td>Alias of <code>react</code> for the calling member (starred true = liked; vote up/down = liked/no). <span class="tag dep">alias</span></td></tr>
 <tr><td><code>record_usage</code></td><td>Alias of record_cook with no verdict. <span class="tag dep">alias</span></td></tr>
 <tr><td><code>what_can_i_cook</code>, <code>what_am_i_missing</code></td><td>Read the usual's head (head_cache); <code>version_id</code> optional. <span class="tag chg">changed</span></td></tr>
 <tr><td>Nutrition tools, <code>lookup_food_profile</code>, <code>format_recipes_table</code></td><td>Targets accept a revision or version (= its head); otherwise unchanged. <span class="tag chg">changed</span></td></tr>
@@ -193,7 +216,9 @@ GET    /compare?a=&amp;b=                   compare
 POST   /versions/:id/restore            restore_revision
 PATCH  /versions/:id                    set_version_state | rename
 PATCH  /families/:id                    set_usual | rename | set_family_put_away | accept_suggested
-PUT    /families/:id/notes              write_notes (block patch)
+PUT    /versions/:id/notes              write_notes (block patch; ?scope=every_version)
+PUT    /versions/:id/reaction           react (this member)
+POST   /events/:id/undo                 undo_event
 GET    /reviews?family=                 list_reviews
 POST   /reviews/:id                     resolve_review
 POST   /cooks   GET /cooks?family=      record_cook, list_cooks
@@ -207,7 +232,7 @@ GET    /families/:id/export             export_family</code></pre>
 <li>Each <code>recipes</code> row → one family + version "Original" + revision 1 (kind <code>migrated</code>, depth 0, a checkpoint). Its ingredients and steps become objects (their existing ids are kept: today's ids are already unique per family, which is exactly the stable item id 6 B needs). Scalars, metadata, tags and source go into the tree. Actor <code>legacy</code>; channel <code>assistant</code> if <code>source.kind</code> is <code>conversation</code> else <code>app</code>. State <code>kept</code> if active, <code>put_away</code> if disabled. It is the usual.</li>
 <li>Each <code>variations</code> row (oldest first) → a version in its root's family, name = title or "Version n". Its revision 1's <b>change set is today's stored <code>changes_json</code></b> mapped op for op (9.3), parent = its parent's revision 1, <code>user_intent</code> and <code>note</code> copied. Variations are already sparse change sets, so 6 B needs no re-diffing: the migration is a mapping, and <code>resolve()</code> of the new chain is tested equal to today's <code>resolveChain()</code> for every variation. A checkpoint is written for every migrated version (cheap, and it makes the head readable without walking old chains).</li>
 <li>A disabled root with active variations: the usual becomes the most-used active variation (times_used, then newest); if none is active, the root stays the usual and the whole family is put away. Owner to confirm.</li>
-<li><code>preferences</code> → the new household-wide preferences keyed by version; <code>times_used</code>/<code>last_used</code> become synthetic cook rows marked <code>migrated</code>.</li>
+<li><code>preferences</code> → <code>reactions</code> of the <code>legacy</code> member keyed by version (starred or vote up → liked, vote down → no); <code>times_used</code>/<code>last_used</code> become synthetic cook rows marked <code>migrated</code> with no <code>ate_json</code>. There are no notes today (G1 is not built), so nothing to migrate for 9.4.</li>
 <li><code>nutrition_observations</code> → re-pointed through <code>legacy_ids</code> to revision 1 (append a mapping, never update rows).</li>
 <li><code>legacy_ids</code> for every old id, so old ids in plans, chats and Kitchie keep resolving.</li>
 <li>Journal: one <code>migration.v6</code> event per family with counts and the hash of each migrated head. Test from a real v5 file database at each shape (root only, chain of three, disabled root, disabled middle, nutrition attached), run twice (idempotent).</li>
@@ -216,7 +241,18 @@ GET    /families/:id/export             export_family</code></pre>
 </section>
 
 <section class="sec" id="issues"><div class="lbl">8. Issues to file in basement-bridge/recipe (later, by the owner or on his say)</div>
-<div class="issue"><b>R-V1 Decision: relax immutability to revisions (BR1 to BR3, BR14)</b><p>Changes <code>AGENTS.md</code> "Recipes and persisted variations are immutable" and brief sections 6, 7, 14, 20. Owner-reserved; options 5 A and 6 B are now his picks, but the edit to Recipe's own <code>AGENTS.md</code> still goes through an issue, a PR and his yes. <span class="opn">Open: must come first</span></p></div>
+<div class="issue" id="rv1"><b>R-V1 Reverse "recipes and variations are immutable" (BR1 to BR3, BR14, BR18)</b> <span class="lk">Approved by owner (typed, 10 Oct 2026)</span>
+<p><b>Approved by the owner, to be done as the first Recipe-repo change when the build starts</b>: an issue in basement-bridge/recipe, the edit on a branch, a PR to <code>uat</code>, merged under Recipe's own rules. No agent edits Recipe's <code>AGENTS.md</code> before then (it is read-only from the mockup). <span class="nc" style="display:block">Replaces: "Open: must come first; nothing is built until he says yes on the issue".</span></p>
+<p><b>Proposed replacement wording.</b></p>
+<p><code>AGENTS.md</code>, Working rules, today: <i>"Recipes and persisted variations are immutable; prefer soft disable and reversible changes, and preserve provenance and lineage."</i> Becomes:</p>
+<pre><code>- Revisions are immutable and nothing a person made is deleted. A recipe (family) and its versions
+  may change name, state, usual and current revision; every content change is a new revision that
+  stores only what changed, and every change, put-away included, can be undone at any time as a new
+  revision or event, never by rewriting history. Put away (soft disable) replaces deletion; only
+  photo files and unreferenced storage objects are ever removed. Preserve provenance, authorship
+  and lineage. (Owner decision, 10 October 2026; replaces "Recipes and persisted variations are
+  immutable".)</code></pre>
+<p>Brief (<code>docs/requirements/recipe-mcp.md</code>), section 20's principle, today: <i>"persisted variations are immutable;"</i> becomes <i>"revisions are immutable; a version changes only by a new revision, and every change can be undone;"</i>. Section 7's title <i>"Variations are immutable atomic change sets"</i> becomes <i>"A revision is an immutable atomic change set"</i>, and its first line <i>"Recipes and persisted variations must not be silently rewritten."</i> becomes <i>"Nothing is silently rewritten: a change to a recipe is a new revision with its author and words."</i> Section 14's <i>"Because recipes and variations are immutable historical objects"</i> becomes <i>"Because revisions are immutable historical objects"</i>. The server instructions in <code>server/src/mcp.ts</code> (<i>"Canonical recipes and variations are immutable. Nothing is edited and nothing is deleted."</i>) become <i>"Revisions are immutable. Versions are changed only by new revisions, and any change can be undone. Nothing is deleted: put away instead."</i>, with the tool-description snapshot test updated in the same PR.</p></div>
 <div class="issue"><b>R-V2 Schema v6: objects, revisions as change sets, checkpoints, triggers, migration</b><p>Sections 2, 7, 9. Migration tests at every shape; property test: for random patch sequences, rebuild from any checkpoint equals the head cache.</p></div>
 <div class="issue"><b>R-V3 Content tools: get_family, get_version, patch_version, restore_revision, revert_change, list_revisions, compare, blame, set_version_state, set_usual, rename, accept_suggested</b><p>Sections 3, 4, 10, with acceptance tests (in-place fix keeps history; rebase vs stale_base; usual invariants; pinned parent; idempotent retries).</p></div>
 <div class="issue"><b>R-V4 Authorship, channel and client (BR7, BR8, BR16)</b><p>Member id from the session, channel from the transport, client from the MCP handshake; no role gate.</p></div>
@@ -224,9 +260,10 @@ GET    /families/:id/export             export_family</code></pre>
 <div class="issue"><b>R-V6 Cook log with version, revision and verdict (record_cook, list_cooks)</b><p>Closes gap G2 and pick 3 A's promote-after-cook.</p></div>
 <div class="issue"><b>R-V7 Aliases and discovery text for the old tools</b><p>Section 5, tool snapshot, descriptions.</p></div>
 <div class="issue"><b>R-V8 HTTP routes for Kitchie</b><p>Section 6.</p></div>
-<div class="issue"><b>R-V9 Per-member preferences</b><p><span class="opn">Open X5</span> Build default: household-wide stars, as preferences F1, Q1, Q-R8. Do not build per-member until the owner picks.</p></div>
+<div class="issue"><b>R-V9 Per-member reactions, household view derived (BR19, 2.1)</b><p><span class="lk">Locked 5 (owner, typed, 10 Oct 2026)</span> <code>reactions</code> table, <code>react</code>, <code>ate_json</code> on cooks, the derived "liked by n of m" and household favourite on reads, <code>set_preference</code> as an alias. Replaces "Open X5, household-wide stars".</p></div>
 <div class="issue"><b>R-V10 Assistant authoring surface (RT-R10)</b><p>Section 10: validate_recipe, the rich create_recipe, import_recipes, patch_version with targets and idempotency, write_notes, export_family; descriptions snapshot-tested.</p></div>
 <div class="issue"><b>R-V11 Compaction and export (9.9, 9.11)</b><p>Nightly gc of unreferenced objects past the retention window; export_family; backup runbook note.</p></div>
+<div class="issue"><b>R-V12 Notes per version, inherited (9.4) and undo of events (BR18)</b><p>The notes line per version, live inheritance, <code>write_notes</code> with scope, <code>undo_event</code>, <code>list_my_drafts</code>. Property test: resolved notes of every version equal a naive walk from the root.</p></div>
 </section>
 
 <!-- ================================================================== -->
@@ -256,11 +293,12 @@ GET    /families/:id/export             export_family</code></pre>
 
 <h3 id="s-model">9.1 Object model</h3>
 <ul>
-<li><b>Object</b> = <code>(hash, kind, data)</code>. <code>data</code> is canonical JSON (sorted keys, no whitespace, numbers as written); <code>hash</code> is a hash of <code>kind + "\n" + data</code>. Writing an object that exists is a no-op. Objects never change. Kinds: <code>ingredient</code>, <code>step</code>, <code>block</code> (one rich-text block), <code>tree</code> (one version's content at a checkpoint), <code>notes</code> (the list of block hashes of a family's notes), <code>text</code> (a long provenance text, stored once).</li>
+<li><b>Object</b> = <code>(hash, kind, data)</code>. <code>data</code> is canonical JSON (sorted keys, no whitespace, numbers as written); <code>hash</code> is a hash of <code>kind + "\n" + data</code>. Writing an object that exists is a no-op. Objects never change. Kinds: <code>ingredient</code>, <code>step</code>, <code>block</code> (one rich-text block of a note), <code>tree</code> (one version's content at a checkpoint), <code>text</code> (a long provenance text, stored once).</li>
 <li><b>Item ids are stable and are not hashes.</b> Each ingredient and step has an id (<code>i7</code>, <code>s3</code>; today's ids are already unique per family) that survives edits. The tree maps <i>position → (item id, object hash)</i>. The id says "the same line"; the hash says "its current wording". That split is what makes reorder, insert and delete tiny and what makes blame and three-way rebase possible.</li>
 <li><b>Tree</b> = <code>{title, servings, prep_minutes, cook_minutes, tags[], metadata{}, source_hash, ingredients: [[id, hash]...], steps: [[id, hash]...], photo_refs?: none}</code>. About 1.1 KB for a 12-ingredient, 8-step recipe.</li>
 <li><b>Revision</b> = <code>(id, parent_revision_id, change_set, tree_hash?, depth, author, channel, client, words, time)</code>. <code>parent_revision_id</code> is the previous revision of the same version; for a version's first revision it is the pinned revision of its parent version (BR5), so a new version costs one change set, not a copy.</li>
-<li><b>Ref</b> = a changeable name to a hash or revision: a version's head, a family's notes head. Refs are just the changeable columns of <code>versions</code> and <code>families</code> (BR2); the <code>refs</code> view exists for export and gc.</li>
+<li><b>Lines.</b> A version has up to three revision lines in the same table, told apart by <code>line</code>: <code>content</code> (the recipe, everything above), <code>notes</code> (9.4) and <code>photos</code> (9.5). Each has its own head and its own checkpoints; a note or photo change never creates a content revision or a review.</li>
+<li><b>Ref</b> = a changeable name to a hash or revision: a version's content, notes and photos heads. Refs are just the changeable columns of <code>versions</code> and <code>families</code> (BR2); the <code>refs</code> view exists for export and gc.</li>
 </ul>
 
 <h3 id="s-ckpt">9.2 Checkpoints and rebuild cost</h3>
@@ -286,37 +324,68 @@ GET    /families/:id/export             export_family</code></pre>
 <p><b>Callers never have to write splices.</b> <code>patch_version</code> accepts either ops, or a whole new value for an item (<code>{"op":"step.replace","id":"s4","text":"..."}</code>), and the server stores the smallest equivalent op. A whole new recipe body is accepted too and diffed by id on the server.</p>
 <div class="so"><b>Sub-option S2: text diff granularity in a step.</b> <b>Whole text per edit</b> (a step edit stores the new text, ~200 B; simplest; blame per step only). <b>Character splices</b> (Myers diff on characters; smallest; noisy blame on tiny edits). <b>Word splices</b> (Myers diff on word tokens, stored as character offsets). <span class="pk">Pick: word splices</span>, falling back to the whole text when the splice would be over half the text. Downside: a diff routine to maintain and test (a small, well-known algorithm; diff-match-patch semantics), and splices are only valid against the exact base text, which the pinned base guarantees.</div>
 
-<h3 id="s-rich">9.4 Rich-text notes</h3>
-<p>Notes belong to the family (open question: build default family only; see Open). A note document is a list of <b>blocks</b>; each block has a stable id, a type and a list of inline runs:</p>
-<pre><code>notes  = { blocks: [ ["b1", hash], ["b2", hash], ... ] }          (kind "notes")
-block  = { id: "b2", type: "p" | "h3" | "li" | "oli" | "quote" | "img",
-           indent: 0..3,                       (nested lists)
-           runs: [ { t: "Day-old rice is ", m: [] },
-                   { t: "really", m: ["b"] },            (bold)
+<h3 id="s-rich">9.4 Rich-text notes: a field of the version, inherited, changes only <span class="lk">Locked (owner, typed, 10 Oct 2026)</span></h3>
+<p>Owner (answer 2): <i>"Only if the notes lineage changed between versions; think about this the same way all other info is diffed between versions."</i> So notes are not family-level and not a copy per version. They are a <b>field of the version document</b>, inherited from the parent, and a version stores a notes change set <b>only when its notes differ</b> from what it inherits. A version that never changed its notes stores nothing for them. <span class="nc" style="display:block">Replaces: "Notes belong to the family (open question: build default family only)" and the family's <code>notes_head</code>.</span></p>
+<p><b>Block format</b> (unchanged). A note document is an ordered list of <b>blocks</b>; each block has a stable id, unique within the family, a type and inline runs:</p>
+<pre><code>block  = { id: "b2", type: "p" | "h3" | "li" | "oli" | "quote" | "img",
+           indent: 0..3,
+           runs: [ { t: "Day-old rice is ", m: [] }, { t: "really", m: ["b"] },
                    { t: " better. See ", m: [] },
                    { t: "the card", m: ["i"], link: { url: "https://…", label: "the card" } } ],
-           img: { photo_id: "ph_9f3a…", caption: "…" }   (only for type "img") }</code></pre>
+           img: { photo_id: "ph_9f3a…", caption: "…" },          (only for type "img")
+           cook_id: "ck_…" NULL,                                   (written after that cook, P-D29)
+           by: member, at: time }                                  (who wrote this wording)</code></pre>
+<p><b>Change set ops</b> on a version's <code>notes</code> line, each naming a block id, diffed per block and per run like 9.3:</p>
+<div class="tw"><table>
+<tr><th>Op</th><th>Meaning</th><th>Bytes</th></tr>
+<tr><td><code>note.add</code> {id, after, block}</td><td>A new note, written on this version</td><td>~120 + the block object (~100 to 300)</td></tr>
+<tr><td><code>note.update</code> {id, runs: splice, type?, indent?}</td><td>This version's wording of a block, its own or inherited (an inherited block becomes "reworded here")</td><td>~60 to 120 + one new block object</td></tr>
+<tr><td><code>note.hide</code> / <code>note.unhide</code> {id}</td><td>Hide an inherited block on this version and below it; or show it again</td><td>~30</td></tr>
+<tr><td><code>note.move</code> {id, after}</td><td>Reorder on this version</td><td>~40</td></tr>
+</table></div>
+<p><b>Resolving.</b> <code>notes(v) = apply(notes(parent(v)), v's notes change set)</code>, walking from the family's first version down to <code>v</code>, with a checkpoint (the resolved block list as a <code>tree</code>-like object) every 10 note revisions as in 9.2 and a cache beside <code>head_cache</code>. A note added on Original shows on Original, With peas and Less soy (they inherit it); a note added on With peas shows on With peas and Less soy, not on Original; a note Less soy reworded shows Less soy's wording on Less soy (and its children) and Original's wording everywhere else.</p>
+<div class="so"><b>Sub-option NA to NC: how a child follows its parent's notes.</b>
+<b>NA Live inheritance.</b> A child inherits its parent's notes at the parent's <b>current</b> notes head (not pinned like content, BR5). A tip added to Original later reaches every version below it at once, unless a version reworded or hid that block. <b>NB Pinned, like content.</b> A child inherits the parent's notes as they were when it was made; a later parent note is offered once ("Original has a new note · Bring it in"), like V-D12. <b>NC Two levels only.</b> Each note is either "every version" (family) or "this version only", ignoring the lineage in between.
+<span class="pk">Pick: NA, live inheritance.</span> Notes are advice about the dish, not the recipe itself: a tip should reach the versions it applies to without anyone carrying it across, and nothing a cook relies on (amounts, steps) changes silently, because those stay pinned (BR5). Downside of NA: a version's notes can change because someone edited a parent's note, and a version that reworded a block keeps its own wording when the parent's wording changes later (the page shows "Original changed this note since" on that block, with Use theirs). NB is safer but leaves every existing version without the new tip until someone taps on each; NC loses "this note is for the versions with peas".</div>
+<p><b>What a person sees</b> (<a href="version.html?v=v2" style="color:var(--accent);font-weight:700">mockup</a>):</p>
+<ul>
+<li>A note shows on every version that inherits it. On the version it was written on it has no label; below it, a small line says <b>"From Original"</b> (where it was first written). A block this version reworded says <b>"Reworded here, first written on With peas"</b>. A note written after a cook keeps its tag "after the 8 Oct cook".</li>
+<li>Hidden notes fold into one line, "1 note from Original hidden on this version · Show again" (<a href="version.html?v=v4" style="color:var(--accent)">mockup</a>). Hiding an inherited note never touches the parent.</li>
+<li>History's notes view (the versions slice's History, line <code>notes</code>) lists each note change with who and when, and each can be undone (BR18).</li>
+</ul>
+<p><b>What "Add a note" targets.</b> By default <b>the version in front of the person</b>, stored as a <code>note.add</code> in that version's notes change set, so it shows there and on versions made from it. The sheet offers <b>"Every version of Egg fried rice"</b> when the version is not the family's first: the note is then written on the first version (the root), so every version inherits it, except a version that hid it. On the first version the default already reaches every version, and the sheet says so. Never across a spin-off: a spun-off recipe takes a snapshot of the notes at the spin (one change set of <code>note.add</code>s pointing at the same block objects, so no block bytes are copied) and then has its own line. The assistant's <code>write_notes</code> has the same default and <code>scope: "every_version"</code>.</p>
+<p><b>R-D24</b> ("notes are the household's, on the recipe, on every version") is <b>refined, not dropped</b>: notes still belong to the household (any member writes, every member sees, L5), but "every version" becomes "every version below the one it was written on"; "for every version of this recipe" is the one-tap way to get R-D24's old behaviour. <b>Cook-attached notes</b> (P-D29): a note written at the end of a cook goes on the version that was cooked, carries the cook's id and its date tag, and inherits like any other note. A one-night remark still belongs in the cook's own line (P-D11), not in notes.</p>
 <ul>
 <li><b>Marks:</b> bold <code>b</code>, italics <code>i</code>, links as a structured mark <code>{url, label}</code>; headings, bulleted and numbered lists are block types with an indent. Nothing else: no colours, no fonts, no raw HTML. Input is a small Markdown subset (section 10.7), converted on the server.</li>
-<li><b>Diff is per block, then per run.</b> A notes change set is <code>note.add</code> {id, after, block}, <code>note.remove</code> {id}, <code>note.move</code> {id, after}, <code>note.update</code> {id, type?, indent?, runs: <i>splice over runs</i>, text: <i>word splices inside one run</i>}. Fixing a typo in one paragraph stores one tiny splice and one new block object (~200 B); the other blocks are not stored again. <b>A note is never stored whole a second time.</b></li>
-<li><b>Notes have their own revision line</b>: <code>notes_head</code> on the family points at a revision row with <code>version_id</code> null and <code>family_id</code> set (same table, same rules, same checkpoints), so recipe content and notes do not interleave and a note edit never creates a recipe revision or a review.</li>
-<li><b>Links:</b> a URL and a label, validated as <code>https?://</code> and length-capped. Recipe never fetches, previews or checks a link (L4); link rot is not ours.</li>
-<li><b>Inline images</b> are an <code>img</code> block holding a <code>photo_id</code> from the photos slice and a caption. Moving the image is <code>note.move</code>; a caption fix is a run splice. Bytes never enter a note.</li>
+<li><b>Cost:</b> a typo fix stores one splice and one new block object (~200 B); the other blocks are never stored again, and a version that inherits all its notes stores <b>0 bytes</b> for them. A note is never stored whole a second time.</li>
+<li><b>Links:</b> a URL and a label, validated as <code>https?://</code> and length-capped. Recipe never fetches, previews or checks a link (L4).</li>
+<li><b>Inline images</b> are an <code>img</code> block holding a <code>photo_id</code> from the photos slice and a caption. Bytes never enter a note.</li>
 </ul>
 
-<h3 id="s-img">9.5 Images and how photos relate to versions and cooks</h3>
+<h3 id="s-img">9.5 Images: banner, step photos and how photos relate to versions and cooks</h3>
+<p>The owner's photo decisions (10 October 2026; the photos slice owns the screens and the photo rows): <b>step photos exist now</b>, one per step, at most 10 per version, and a step does not need one; the <b>banner photo is one per version</b>; a photo is attached to a <b>version or a cook, never a revision</b> (P-D9 A); and the owner allows <b>deleting a version's images and uploading replacements</b>.</p>
 <ul>
-<li><b>Photos are owned by the photos slice</b> (P-D1, P-D2): files <code>photos/&lt;household&gt;/&lt;id&gt;-t|m|l.webp</code> beside <code>recipes.db</code> and one row each. This design only <b>references</b> them by <code>photo_id</code>. A revision, a tree and a note block never hold bytes, so a revision that changes a caption or reorders photos costs bytes, not megabytes.</li>
-<li><b>P-D9 stands:</b> photos belong to a version (its cover and gallery) or to a cook (up to 3, P-D13), never to a revision. A fix does not move or copy photos. With 6 B nothing changes for photos: the version's <code>cover_photo_id</code> is a pointer (BR2), and cooks point at the revision they used.</li>
-<li><b>P-D4 stands</b> with one addition for the photos agent (below): the photo row's <code>sha256</code> of the large size, so the same picture added twice in a household is stored once (content addressing, the same idea as objects here). Optional; a nice-to-have.</li>
-<li><b>Spin-off (P-D9)</b> copies the cover's files today. With content addressing it can instead point both rows at the same files and keep a reference count, which the photos gc already needs. Flagged, not decided.</li>
+<li><b>Photos are files owned by the photos slice</b> (P-D1, P-D2): <code>photos/&lt;household&gt;/&lt;id&gt;-t|m|l.webp</code> beside <code>recipes.db</code>, one row each. This design only <b>references</b> them by <code>photo_id</code>. No revision, tree, change set or note block ever holds bytes.</li>
+<li><b>A version's photo references are a third line, <code>photos</code></b> (9.1), next to <code>content</code> and <code>notes</code>, with the same inheritance as notes. Its resolved value is small:
+<pre><code>photos(v) = { banner: photo_id | null,
+              steps:  { "s1": photo_id, "s4": photo_id, ... }   (keyed by the content's stable step id, ≤ 10) }</code></pre>
+Ops: <code>photo.banner</code> {photo_id | null} · <code>photo.step</code> {step_id, photo_id | null} · <code>photo.unset</code> {step_id} (back to inheriting). Each is <b>~50 to 70 bytes</b>. Changing or removing a step photo is one of these ops; <b>replacing a photo never rewrites the recipe</b>: the content line, its revisions and any review are untouched, because a photo is never part of the content tree. <code>cover_photo_id</code> on the version row is the <code>photos</code> line's banner, cached for lists.</li>
+<li><b>By step id, not by number.</b> A step photo follows its step when steps are reordered or a step is inserted above it. If a content revision removes a step, its photo reference is dropped from the resolved view (the photo row stays, and Undo of that revision brings the step and its photo back). <code>step.add</code> never inherits a photo.</li>
+<li><b>Inheritance (photos P-D10 B).</b> A child version inherits its parent's banner and step photos until it has its own. The page shows an inherited photo with a small <b>branch icon</b> (and "Photo of With peas" for screen readers) until the child sets its own, at which point the icon goes. Setting one step's own photo does not stop the others inheriting. The 10-per-version cap counts the version's own step photos, not inherited ones.</li>
+<li><b>Cooks keep their own photos</b> (0 to 3, P-D13) on the cook row; a cook photo can be made a version's banner or a step photo with one op that references the same <code>photo_id</code> (nothing copied).</li>
+<li><b>Deleting a version's images and replacing them</b> is the photos slice's: the photo row is removed and its files go after the photos slice's window. On this side it is one <code>photo.banner</code> or <code>photo.step</code> op pointing at the new id (or <code>null</code>). An old revision's history still names the old id; a removed id renders as "photo removed".</li>
 </ul>
-<div class="so"><b>Flags for the photos agent (recipe-photos/, not edited here):</b> (1) P-D12's "later part" and P-D24 are void by L4; this spec's assistant surface (10.8) uses only P-D12 A, <code>request_photo_upload</code>. (2) P-D17's "whoever added it or a household admin" becomes "any member" (L5, BR16). (3) Optional: a <code>sha256</code> column on the photo row so the same photo is stored once per household, and spin-off can share files instead of copying (P-D9). (4) Photos gc (30-day purge) and object gc (9.9) should run in the same nightly job, database first, as P-D18. (5) Notes may hold an inline image block by <code>photo_id</code>; such a photo's "attached to" is the family, a third target next to version and cook. If the photos agent prefers, inline note images can be limited to photos already on a version or cook.</div>
+<div class="so"><b>The 2 GB household budget is photos.</b> Using 9.10's household (200 recipes, 1,000 versions, 20,000 revisions): all recipe history, notes and photo references together are about <b>30 MB</b>. At ~350 KB per photo (P-D3), 2 GB holds about <b>5,700 photos</b>; a household that gives 1,000 versions a banner and 3 step photos each has used 4,000 photos ≈ <b>1.4 GB</b>. So when a household nears the cap, text is never the problem and never needs trimming.<br><br>
+<b>"Free up space": search and remove unused versions' photos</b> (owner's wish; the photos slice draws it). It lists, largest first, photos that belong only to versions that are <b>put away, spun off, or not cooked for a long time</b> and are not the usual, with the space each would free; the person ticks and removes. What it does to versions: <b>the versions and all their text history stay</b>, states, notes, revisions, cooks and reactions included; only their <b>photo files</b> go. On this side each removal is a <code>photo.banner</code>/<code>photo.step</code> op to <code>null</code> on that version's <code>photos</code> line (a few bytes; children that inherited that photo fall back to their next ancestor's or to none). The removal is <b>undoable for 5 minutes</b> (photos P-D17 B), after which the files are deleted and an Undo of the op brings back the reference only, rendered as "photo removed". This is the one place in this design where something cannot be undone for ever, and it is files, not records (BR3).</div>
+<div class="so"><b>Flags for the photos agent (recipe-photos/, not edited here):</b> (1) P-D12's "later part" and P-D24 are void by L4; this spec's assistant surface (10.8) uses only P-D12 A, <code>request_photo_upload</code>. (2) P-D17's remover is "any member" (L5, BR16). (3) A <code>sha256</code> on the photo row lets a spin-off share files instead of copying (P-D9). (4) Photos gc and object gc (9.9) in the same nightly job, database first (P-D18). (5) P-D23 "step photos later" and the "6 per version" cap in P-D8 are superseded by the owner's step photos (one per step, ≤ 10 per version) and one banner per version; P-D4's "kind" gains <code>step</code> with the step <b>id</b> (not a number, so it survives reorders). (6) Notes are now per version (9.4): P-D26 and option N1's "household note, on the family, on every version" should read "on the version, inherited by its children; Every version on request". (7) P-D10's fallback to a parent's photo is this spec's <code>photos</code> line inheritance; the branch icon is the label.</div>
 
 <h3 id="s-revert">9.6 Revert and restore are new revisions</h3>
 <ul>
 <li><b>Restore</b> (Go back to revision n): the server rebuilds n, diffs it against the head by item id, and writes that diff as a new revision of kind <code>restore</code>, with a checkpoint. History moves forward; nothing is rewound.</li>
 <li><b>Revert one change</b> (review, pick 4 B): every op in a change set has an index; <code>revert_change</code> computes the inverse of that op against the current head (an <code>ing.update</code> inverse sets the old field values; a <code>step.text</code> splice inverts to the opposite splice; an add inverts to a remove) and writes it as a new revision of kind <code>revert</code> with <code>reverts = {revision, change ids}</code>. If a later revision already changed the same item, the inverse would clobber it: the call fails with <code>stale_base</code> listing the item, and the review screen says "changed again since; open History".</li>
+<li><b>Undo a whole revision</b> (History, "Undo this change"): <code>revert_change</code> with every change id of that revision. Same rules.</li>
+<li><b>Undo a state or pointer change</b> (BR18): put away, bring back, the usual, a rename, a banner: <code>undo_event</code> writes a new journal event setting the previous value. A mistaken try is "put away, with undo": the mockup's History lists state changes with their undo (<a href="history.html?v=v4" style="color:var(--accent)">put away try</a>).</li>
+<li><b>No time limit, no delete.</b> Every undo is itself a revision or an event, so it can be undone too. The cost of keeping everything undoable is in 9.10.</li>
 </ul>
 
 <h3 id="s-blame">9.7 Compare, blame and "what the assistant did"</h3>
@@ -337,7 +406,7 @@ block  = { id: "b2", type: "p" | "h3" | "li" | "oli" | "quote" | "img",
 
 <h3 id="s-gc">9.9 Compaction and garbage collection</h3>
 <ul>
-<li><b>Never deleted:</b> revisions, change sets, checkpoints' trees, objects reachable from any revision, cooks, reviews, the journal. That is the audit trail (V-D15).</li>
+<li><b>Never deleted:</b> revisions (all three lines), change sets, checkpoints' trees, objects reachable from any revision, cooks, reactions, reviews, the journal, put-away and dismissed versions. That is the audit trail (V-D15) and what makes undo possible at any time (BR18).</li>
 <li><b>Can become unreferenced:</b> objects written by a failed transaction or a dry run that slipped through, a <code>head_cache</code> row, a photo file after the photos slice's 30-day removal (P-D17).</li>
 <li><b>Nightly gc:</b> mark every object reachable from every revision's tree or change set, every notes line, and every review; delete unmarked objects older than <b>7 days</b> (the retention window, so an in-flight write is never collected). Same job runs the photos purge; database first, then files, as P-D18.</li>
 <li><b>Compaction:</b> optional and rare. A long-lived version's old checkpoints can be thinned (keep every 5th) because rebuild still works from an earlier one; never needed at the sizes below. <code>VACUUM</code> monthly.</li>
@@ -348,11 +417,24 @@ block  = { id: "b2", type: "p" | "h3" | "li" | "oli" | "quote" | "img",
 <div class="tw"><table>
 <tr><th>What</th><th>6 A whole recipe per revision</th><th>6 B changes only (picked)</th></tr>
 <tr><td>Recipe content</td><td>20,000 × (3.9 KB + 0.2 KB) ≈ <b>111 MB</b></td><td>change sets + rows 8.8 MB; new item objects 7.2 MB; first revisions 1.2 MB; checkpoints (K10) 3.0 MB ≈ <b>20 MB</b></td></tr>
-<tr><td>Notes (rich text)</td><td>whole note per edit ≈ 5 MB</td><td>per-block splices ≈ 1.6 MB</td></tr>
+<tr><td>Notes (rich text)</td><td>whole note per edit ≈ 5 MB</td><td>per-block splices ≈ 1.6 MB (per version, inherited: only versions whose notes differ store anything, so this does not grow with the number of versions)</td></tr>
+<tr><td>Photo references (banner + up to 10 step ids per version)</td><td>in every snapshot ≈ 9 MB</td><td><code>photos</code> line, 4 ops per version ≈ 0.4 MB</td></tr>
 <tr><td>Head cache (derived)</td><td>none needed</td><td>5.3 MB (droppable)</td></tr>
 <tr><td><b>Total database</b></td><td><b>≈ 117 MB</b> (35 MB if each snapshot is zlib-compressed)</td><td><b>≈ 27 MB</b> (22 MB without the cache)</td></tr>
 <tr><td>Photos (photos slice, P-D3)</td><td colspan="2">Separate files, never per revision. 350 KB per photo for 3 sizes: 1,000 photos ≈ 350 MB; the per-household cap (P-D8) is 2 GB. If photos were ever embedded per revision, 20,000 × 350 KB = 7 GB, which is why they are references.</td></tr>
 </table></div>
+<h4 id="undo-cost">What undo and keeping mistakes cost (answer 3) <span class="lk">Locked 3</span></h4>
+<p>Measured the same way (canonical JSON, real-length ids, ×1.35 SQLite overhead):</p>
+<div class="tw"><table>
+<tr><th>What is kept</th><th>Bytes</th></tr>
+<tr><td>A try made by mistake, put away (version row 0.42 KB, revision row + 1-op change set 0.46 KB, one new ingredient object 0.20 KB, the put-away journal event 0.24 KB)</td><td><b>≈ 1.8 KB</b></td></tr>
+<tr><td>Undoing one change (a revert revision + its inverse op + one object)</td><td>≈ 1.0 KB</td></tr>
+<tr><td>Undoing a put-away (one journal event)</td><td>≈ 0.33 KB</td></tr>
+<tr><td>Adding a note to a version (op + block object)</td><td>≈ 0.3 KB</td></tr>
+<tr><td>A household that makes <b>one mistaken try every day for 10 years</b> (3,650 tries)</td><td>≈ <b>6.6 MB</b>, 0.3% of the 2 GB budget</td></tr>
+<tr><td>For scale: one photo (three sizes, P-D3)</td><td>≈ 350 KB = about 190 kept mistakes</td></tr>
+</table></div>
+<p>So deleting a mistake would save about 1.8 KB, less than a hundredth of one photo, and would cost the one property that makes undo safe: every id that a plan, a cook, a chat or a review ever held still resolves. Keeping it, with undo, is the cheaper choice by far. The only deletes in the system are photo files (9.5).</p>
 <p><b>Reading it:</b> both models fit the 2 GB budget easily; photos, not recipes, are what fill a disk. 6 B is about <b>4× smaller</b> than 6 A (still ~1.3× smaller than compressed snapshots), and, more usefully, its cost grows with <i>how much people change</i>, not with <i>how big the recipe is</i>, so long notes and big recipes edited often stay cheap. Worst case for 6 B: a version rewritten wholesale on every save degrades to roughly 6 A plus ~10%.</p>
 
 <h3 id="s-export">9.11 Export and backup</h3>
@@ -468,16 +550,22 @@ Tag  closed: "batch" (cook big, eat through the week), "freezes" (portions freez
 <p class="nc">"Change how a recipe or version stands, only when the person asks: say yes to a draft, keep a try, put one away, make one 'our usual' (what Plan and Cook open for everyone), or rename. Putting away hides, never deletes; tell the person it can be brought back."</p>
 
 <h4><code>write_notes</code> (new)</h4>
-<p>In: <code>{family_id, base_notes_revision_id?, markdown?: string | ops?: NoteOp[], user_intent, idempotency_key}</code>. Out: <code>{notes_revision, blocks_changed}</code>. Errors: <code>stale_base</code>, <code>too_large</code>, <code>invalid</code> (unsupported Markdown). Section 10.7.</p>
-<p class="nc">"Add to or change the recipe's notes (tips, what the family likes, where it came from). Send Markdown: paragraphs, **bold**, *italics*, headings, lists, [links](https://…). Send the whole notes text you want; Recipe stores only what changed. Links are kept as text; Recipe never opens them. To put a photo in a note, the person adds the photo in Recipes first (request_photo_upload)."</p>
+<p>In: <code>{version_id, scope?: "this_version" | "every_version", base_notes_revision_id?, markdown?: string | ops?: NoteOp[], cook_id?, user_intent, idempotency_key}</code>. Out: <code>{notes_revision, written_on: version_id, blocks_changed, inherited_by: [version ids]}</code>. Errors: <code>stale_base</code>, <code>too_large</code>, <code>invalid</code> (unsupported Markdown). Sections 9.4, 10.7.</p>
+<p class="nc">"Add to or change a recipe version's notes (tips, what the family likes, where it came from). A note shows on the version it is written on and on every version made from it. By default write on the version the person is talking about; if they say it is for the dish in general ('always', 'for all of them'), pass scope 'every_version'. Send Markdown: paragraphs, **bold**, *italics*, headings, lists, [links](https://…). Send the whole notes text you want for this version; Recipe stores only what changed, and notes inherited from a parent that you did not change stay inherited. Links are kept as text; Recipe never opens them."</p>
+<h4><code>react</code> (new; set_preference is an alias)</h4>
+<p>In: <code>{version_id, value: "liked" | "no" | null}</code>. Out: <code>{reaction, household: {liked_by: [member ids], of: n, favourite}}</code>. Only for the calling member. No <code>user_intent</code> needed (it is the member's own opinion).</p>
+<p class="nc">"Record what THIS person thought of a version: liked, or not for them, or clear it. Never record a reaction for someone else, and never as the household's: the household view is worked out from everyone's own answers."</p>
+<h4><code>undo_event</code> (new)</h4>
+<p>In: <code>{event_id, user_intent}</code>. Out: the new event. Errors: <code>stale_base</code> (the value changed since), <code>not_found</code>.</p>
+<p class="nc">"Undo a put-away, a change of the usual, a rename or a photo choice. It saves a new event; nothing is deleted. There is no time limit."</p>
 
 <h4><code>restore_revision</code>, <code>revert_change</code>, <code>list_revisions</code>, <code>compare</code>, <code>blame</code></h4>
 <p>As section 3 and 9.6 to 9.7. <code>revert_change</code> In: <code>{revision_id, change_ids[], user_intent}</code>; Out: the new revision. <code>list_revisions</code> In: <code>{version_id, channel?, client?, limit?, before_n?}</code>.</p>
 <p class="nc">"Look back: list_revisions shows who changed what and when, including what assistants did; blame says who last changed a given line; compare shows two versions side by side. To undo, prefer revert_change for one change and restore_revision to go back to an earlier revision. Both save a new revision; nothing is erased."</p>
 
 <h4><code>record_cook</code> (new; record_usage is an alias)</h4>
-<p>In: <code>{version_id, revision_id?, servings?, verdict?: "keep"|"work"|"no", line?, photo_ids?[], user_intent?}</code>. Out: <code>{cook, version}</code>. A verdict on a try moves it (keep → kept, no → put away at once with undo; build default for an open question). Errors: <code>invalid</code>.</p>
-<p class="nc">"Log that the household cooked it. If it was a try, ask once at the end: keep it, needs work, or not for us, and pass the answer as verdict. Put a one-off swap in line ('used pork tonight'), not in the recipe."</p>
+<p>In: <code>{version_id, revision_id?, servings?, verdict?: "keep"|"work"|"no", ate?: [member ids], reactions?: {member_id: "liked"|"no"}, line?, photo_ids?[], user_intent?}</code>. Out: <code>{cook, version, undo?: {event_id}}</code>. A verdict on a try moves it: keep → kept; no → <b>put away at once, from the first cook</b>, with <code>undo</code> (BR17). Reactions set each member's own (BR19); on the assistant channel only the calling member's own reaction may be passed unless the person names the others' answers. Errors: <code>invalid</code>.</p>
+<p class="nc">"Log that the household cooked it. If it was a try, ask once at the end: keep it, needs work, or not for us, and pass the answer as verdict; 'not for us' puts it away straight away, and you can tell the person it can be undone any time. Ask who ate it and, only if they want to say, who liked it; never guess someone's reaction. Put a one-off swap in line ('used pork tonight'), not in the recipe."</p>
 
 <h4><code>request_photo_upload</code> (photos slice, RP5)</h4>
 <p>As P-D12 A: returns a one-time link (15 minutes, one use, aimed at the version or cook) that opens Kitchie's add screen; the person picks the photo. No picture bytes through MCP. Not redesigned here.</p>
@@ -495,7 +583,7 @@ Tag  closed: "batch" (cook big, eat through the week), "freezes" (portions freez
 
 <h3>10.5 Duplicates, idempotency and bulk</h3>
 <ul>
-<li><b>Duplicates:</b> as today's <code>duplicates.ts</code> (title, ingredient overlap; score 0..1 with reasons), returned by validate, create and import. Never merged. A duplicate draft can be put away by the person.</li>
+<li><b>Duplicates:</b> as today's <code>duplicates.ts</code> (title, ingredient overlap; score 0..1 with reasons), returned by validate, create and import. Never merged. A duplicate draft can be dismissed by the person (it then shows only in their assistant history, BR10), never deleted.</li>
 <li><b>Idempotency:</b> every write takes an <code>idempotency_key</code> (client-made, up to 80 chars), unique per household for 30 days. Same key + same body returns the stored result; same key + different body is <code>duplicate_key</code>. Chat clients retry on timeouts; this makes a retry safe.</li>
 <li><b>Bulk:</b> <code>import_recipes</code> up to 25 per call; rate-limited with the rest of the MCP boundary.</li>
 </ul>
@@ -533,16 +621,25 @@ Tag  closed: "batch" (cook big, eat through the week), "freezes" (portions freez
 <p><i>That evening, in Recipes, Jane opens Egg fried rice: the usual has a "To review" badge and a line "Alex's assistant changed this this morning". She opens To review: Alex's assistant (Claude, for Alex), his words, two rows. She keeps the peas and taps Undo on the thaw step; Recipe writes revision 4 (kind revert, reverts rev 3 change 2). The badge goes for everyone. Had Sam cooked it before she looked, his cook stays logged against revision 3, and the review stays open with a line saying so (<a href="suggestions.html?cooked=1" style="color:var(--accent)">mockup</a>).</i></p></div>
 </section>
 
+<section class="sec" id="answers"><div class="lbl">11. The owner's answers on the open items (typed, 10 October 2026)</div>
+<div class="tw"><table>
+<tr><th>#</th><th>Answer</th><th>Where</th><th>What it replaces</th></tr>
+<tr><td>1</td><td>"Not for us" after a try's first cook: put away at once, with undo. <span class="lk">Locked</span></td><td>BR17, record_cook, <a href="after-cook.html?v=v2">after-cook</a></td><td>Open: at once or wait for a second cook</td></tr>
+<tr><td>2</td><td>Notes inherited per version, stored only where they differ, diffed per block. Pick NA live inheritance. <span class="lk">Locked</span> (NA <span class="rw">Proposal</span>)</td><td>9.4, write_notes, <a href="version.html?v=v2">version</a></td><td>Open: family only or per version; refines R-D24</td></tr>
+<tr><td>3</td><td>No hard delete; undo any time as a new revision or event; a mistaken try is put away with undo. <span class="lk">Locked</span></td><td>BR3, BR18, 9.6, 9.10, <a href="history.html?v=v2">history</a></td><td>Open: hard delete of a try made by mistake</td></tr>
+<tr><td>4</td><td>Dismissed drafts: visible only in that member's assistant history. <span class="lk">Locked</span></td><td>BR10, list_my_drafts, <a href="suggestions.html">to review</a></td><td>Open: how long dismissed drafts stay visible (and "shows under Put away")</td></tr>
+<tr><td>5</td><td>Reactions per member; the household's view derived ("liked by 2 of 3"; favourite by the household's rule). <span class="lk">Locked</span> (the rule <span class="rw">Proposal</span>)</td><td>BR19, 2.1, react, <a href="family.html">versions</a></td><td>Open X5: stars per member or household-wide</td></tr>
+<tr><td>6</td><td>R-V1 approved: reverse the immutability rule as the first Recipe-repo change. <span class="lk">Approved</span></td><td>Section 8 R-V1 (exact wording)</td><td>Open: owner's call, must come first</td></tr>
+</table></div>
+</section>
+
 <div id="open" style="margin-top:18px;padding:14px;border:1px dashed var(--border);border-radius:var(--r-card)"><b>Still open (not decided here). Each has a build default; the mockup keeps its current behaviour.</b>
 <ul style="margin:6px 0 0 18px;color:var(--muted)">
-<li><b>R-V1</b>, reversing "immutable" in Recipe's <code>AGENTS.md</code>: owner's call, must come first. Default: nothing is built until he says yes.</li>
-<li><b>"Not for us" after a first cook</b>: put away at once with undo, or wait for a second cook. Default: at once, with undo.</li>
-<li><b>Notes on the family only, or also per version.</b> Default: family only (9.4 allows a per-version notes line later without migration: a revision line keyed by version).</li>
-<li><b>Hard delete of a try made by mistake.</b> Default: none; put away only.</li>
-<li><b>How long dismissed drafts stay visible.</b> Default: in the member's assistant history only; put-away drafts appear under Put away.</li>
-<li><b>Stars per member or household-wide</b> (preferences X5). Default: household-wide.</li>
+<li><b>Notes sub-option NA, NB or NC</b> (9.4). Default and mockup: NA, live inheritance.</li>
+<li><b>The household favourite rule</b> (2.1). Default: more than half of those who ate it liked it, at least 2.</li>
 <li><b>Tab bar items</b> (R-O6) and <b>who draws the Recipe tab</b> (X16): not this slice; unchanged.</li>
 <li>Migration step 4 (disabled root with active variations). Default: family-level put away.</li>
 <li>Member ids in standalone mode. Default: one <code>legacy</code> member.</li>
+<li>For the preferences feature (not edited here): F1, Q1, Q-R8 to read Recipe reactions as "per member, household derived" (2.1).</li>
 </ul></div>
 </div></body></html>

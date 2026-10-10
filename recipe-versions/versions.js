@@ -1,6 +1,6 @@
 /* Recipe versions slice: sample family, states and helpers. Sits on top of recipe/recipe.js (RCP: icons, sheet, toast,
    controls, persona) so the two slices stay one family. Sample names live here only (AGENTS.md).
-   Model (Proposal, see index.html V-D1 to V-D30):
+   Model (Proposal, see index.html V-D1 to V-D33):
      family   = what a person calls "the recipe" (one row in the list), named by its usual version
      version  = one way of making it; has a state (suggested, trying, kept, put_away) and a head revision
      revision = one saved edit of a version; immutable; the head moves forward, nothing is overwritten */
@@ -65,6 +65,66 @@
     v4: { ings: [["Eggs", "3"], ["Brown rice, cooked and cooled", "300 g"]].concat(base.slice(2)), steps: steps, chg: { "Brown rice, cooked and cooled": "Basmati rice" } }
   };
   V.byId = function (id) { return V.FAM.versions.filter(function (v) { return v.id === id; })[0]; };
+
+  /* Owner's answer 2 (typed, 10 Oct 2026): notes are a field of the version, inherited from the parent and stored as a change
+     set only where a version's notes differ (spec 9.4). Each entry is one op on a note block with a stable id:
+     add (new block here), update (this version's wording of an inherited block), hide (an inherited block hidden on this
+     version and the ones made from it). Notes inherit LIVE (sub-option NA): a note added on a parent later shows on its
+     children too, unless a child changed or hid that block. cook = the cook it was written after (P-D29). */
+  V.NOTES = {
+    v0: [{ op: "add", id: "n1", t: "Day-old rice really is better. Fresh rice goes mushy.", by: "sam", when: "12 Sep" }],
+    v1: [{ op: "add", id: "n2", t: "The kids eat the peas if they are the small ones (petits pois).", by: "jane", when: "22 Sep", cook: "22 Sep" }],
+    v2: [{ op: "update", id: "n2", t: "The kids eat the peas if they are the small ones. In this one they pick the garlic out, so slice it big.", by: "alex", when: "8 Oct" },
+         { op: "add", id: "n3", t: "Garlic burns fast: last minute only.", by: "alex", when: "8 Oct", cook: "8 Oct" }],
+    v4: [{ op: "hide", id: "n1", by: "sam", when: "22 Sep" }]
+  };
+  V.root = function () { return V.FAM.versions.filter(function (v) { return !v.parent; })[0]; };
+  V.chain = function (vid) { var c = [], v = V.byId(vid); while (v) { c.unshift(v); v = v.parent ? V.byId(v.parent) : null; } return c; };
+  /* Resolve a version's notes: walk from the root down to it, applying each version's note ops. In the build this is
+     get_version's notes, served from the head cache. */
+  V.notesFor = function (vid) {
+    var bl = [];
+    V.chain(vid).forEach(function (ver) {
+      (V.NOTES[ver.id] || []).forEach(function (o) {
+        var b = bl.filter(function (x) { return x.id === o.id; })[0];
+        if (o.op === "add") bl.push({ id: o.id, t: o.t, by: o.by, when: o.when, cook: o.cook, origin: ver.id, at: ver.id });
+        else if (b && o.op === "update") { b.prev = b.t; b.prevAt = b.at; b.t = o.t; b.by = o.by; b.when = o.when; b.at = ver.id; }
+        else if (b && o.op === "hide") { b.hidden = ver.id; }
+      });
+    });
+    return bl;
+  };
+
+  /* Owner's answer 5 (typed, 10 Oct 2026): every member has their own reaction to a version; the household's view is DERIVED,
+     never a separate vote. ate = who ate it, from the cook log (each cook records who ate). Reactions: liked, no (not for me).
+     Skip is no answer and is not stored. The star on a version is your own "liked". */
+  V.MEMBERS = ["sam", "jane", "alex", "priya"];
+  V.ME = { weeknight: "sam", batch: "priya", improviser: "alex", follower: "jane" }[X.P.persona] || "sam";
+  V.ATE = { v0: ["sam", "jane"], v1: ["sam", "jane", "alex"], v2: ["alex", "sam"], v4: ["sam", "priya"] };
+  V.REACT = { v0: { sam: "liked", jane: "liked" }, v1: { sam: "liked", jane: "liked", alex: "no" }, v2: { alex: "liked" }, v4: { sam: "no", priya: "no" } };
+  /* Household rule (Proposal, a household setting): "most of those who ate it liked it". Favourite when more than half of
+     the members who ate it liked it and at least 2 liked (1 in a household of one). "Not for me" is shown by name only to
+     the member who gave it; the household sees a count. */
+  V.liked = function (vid) {
+    var r = V.REACT[vid] || {}, ate = V.ATE[vid] || [];
+    var yes = Object.keys(r).filter(function (m) { return r[m] === "liked"; }), no = Object.keys(r).filter(function (m) { return r[m] === "no"; });
+    var need = V.MEMBERS.length > 1 ? 2 : 1;
+    return { yes: yes, no: no, ate: ate.length, fav: yes.length >= need && yes.length * 2 > ate.length };
+  };
+  V.names = function (ms) { var n = ms.map(function (m) { return m === V.ME ? "you" : V.WHO[m][0]; }); return n.length > 1 ? n.slice(0, -1).join(", ") + " and " + n[n.length - 1] : n.join(""); };
+  V.likedLine = function (vid) {
+    var L = V.liked(vid); if (!L.ate) return "";
+    return (L.fav ? '<span class="st kept">' + X.ic("star", "xs") + "Household favourite</span> " : "") +
+      (L.yes.length ? "Liked by " + X.esc(V.names(L.yes)) : "No likes yet") + " · " + L.yes.length + " of " + L.ate + " who ate it" +
+      (L.no.indexOf(V.ME) > -1 ? " · not for you" + (L.no.length > 1 ? " and " + (L.no.length - 1) + " more" : "") : L.no.length ? " · " + L.no.length + " not keen" : "");
+  };
+
+  /* Owner's answer 3 (typed, 10 Oct 2026): nothing is ever deleted; every change and every put-away can be undone at any
+     time, as a new event or revision (never a rewind). State and pointer events per version, newest last. */
+  V.EVENTS = {
+    v1: [{ when: "20 Sep", by: "jane", t: "Made our usual" }],
+    v4: [{ when: "29 Sep", by: "sam", t: "Put away: Not for us, after one cook", undo: "Bring back" }]
+  };
   V.head = function (v) { return v.revs[v.revs.length - 1]; };
 
   V.STATE = {
@@ -84,7 +144,7 @@
       return '<li class="' + r[0] + '"><span class="sym" aria-hidden="true">' + sym + '</span><span>' + X.esc(r[1]) + (r[2] ? ' <s>(' + X.esc(r[2]) + ")</s>" : "") + "</span></li>";
     }).join("") + "</ul>";
   };
-  V.kindWord = { create: "Made", fix: "Fixed", adjust: "Adjusted", restore: "Went back", revert: "Reverted one change", spin: "Spun off" };
+  V.kindWord = { create: "Made", fix: "Fixed", adjust: "Adjusted", restore: "Went back", revert: "Undid a change", spin: "Spun off" };
   /* Review after (pick 4 B): what is still unreviewed on a version. */
   V.open = function (vid) { return (V.FAM.reviews || []).filter(function (r) { return r.target === vid && r.changes.some(function (c) { return !c.st; }); }); };
   V.rvBadge = function (vid) { return V.open(vid).length ? '<span class="st rvw">' + X.ic("spark", "xs") + "To review</span>" : ""; };
@@ -104,6 +164,7 @@
   V.controls = function () {
     X.controls(
       "<h4>Versions options: locked</h4><p>" + V.LOCKED + ": 1 A grouped by state · 2 C a try takes edits in place, a keeper asks at save · 3 A ask after every cook · 4 B the assistant edits, a person reviews after · 5 A frozen revisions · 6 B changes only. Not chosen: 1 B tree; 2 A, B; 3 B, C; 4 A, C; 5 B, C; 6 A.</p>" +
+      "<h4>Open items answered: locked</h4><p>" + V.LOCKED + ": Not for us puts away at once, with undo · notes inherited per version, changes only · no hard delete, undo any time · dismissed drafts only in that member's assistant history · reactions per member, the household's derived · R-V1 approved.</p>" +
       V.links());
   };
   window.VER = V;

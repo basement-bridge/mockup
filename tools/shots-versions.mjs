@@ -12,7 +12,12 @@ const PAGES = [
   ["chat-keeper-fix", "change.html?v=v1&step=chat", "body", 0, "[data-p=fix]"], ["chat-try", "change.html?v=v2&step=chat", "body"],
   ["after-try", "after-cook.html?v=v2", "body", 0, "[data-vd=no]"], ["after-unreviewed", "after-cook.html?v=v1", "body"],
   ["history", "history.html?v=v1", "body"], ["blame", "history.html?v=v1", "body", 0, "[data-tab=who]"], ["compare", "history.html?v=v1&cmp=v2", "body"],
-  ["review", "suggestions.html", "body"], ["review-undo", "suggestions.html?cooked=1", "body", 0, "[data-undo=c2]"]
+  ["review", "suggestions.html", "body"], ["review-undo", "suggestions.html?cooked=1", "body", 0, "[data-undo=c2]"],
+  // Owner's answers, 10 Oct 2026: notes inherited per version (2), undo any time (3), reactions per member (5)
+  ["notes-child", "version.html?v=v2", "body", 4], ["notes-hidden", "version.html?v=v4", "body", 4],
+  ["add-note", "version.html?v=v2", "body", 0, "[data-note]"], ["after-try-keep", "after-cook.html?v=v2", "body", 4, "[data-vd=keep]"],
+  ["history-try", "history.html?v=v2", "body"], ["history-away", "history.html?v=v4", "body"],
+  ["undo-rev", "history.html?v=v2", "body", 0, "[data-undorev='2']"]
 ];
 const T = [["kitchie-day", "light"], ["kitchie", "dark"]];
 const b = await chromium.launch(); const problems = [];

@@ -18,7 +18,9 @@ function row(v){
   var what=v.state==="spun"?'Now its own recipe: '+esc(v.spunTo):(p?'From '+esc(p.name)+': '+esc(v.revs[0].d.map(function(d){return d[1]}).join(", ")):'The first one');
   return '<a class="vr'+(v.id===cur?' on':'')+(v.state==="put_away"||v.state==="spun"?' away':'')+'" href="version.html?v='+v.id+'">'+V.av(v.by)+
     '<span class="t"><b>'+esc(v.name)+'</b><small>'+what+'</small><small>'+V.who(v.by)+', '+v.when+' · cooked '+v.cooked+'× · rev '+h.n+(V.isAI(h.by)?' by '+V.who(h.by):'')+'</small>'+
-    '<span class="pills">'+(F.usual===v.id?V.usual:'')+V.pill(v.state)+V.rvBadge(v.id)+(v.star?'<span class="tg acc">'+ic("star","xs")+'you</span>':'')+'</span></span>'+
+    '<span class="pills">'+(F.usual===v.id?V.usual:'')+V.pill(v.state)+V.rvBadge(v.id)+'</span>'+
+    /* Owner's answer 5 (locked): who liked it, derived from each member's own reaction; never a household vote. */
+    (V.liked(v.id).ate?'<small class="react"><span style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">'+V.likedLine(v.id)+'</span></small>':'')+'</span>'+
     '<span class="chev">'+ic("chev","s")+'</span></a>';
 }
 function draw(){

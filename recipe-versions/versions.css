@@ -128,3 +128,24 @@
 
 /* "Not chosen" note on a locked option */
 .nc{margin-top:var(--sp-2);padding:6px 10px;border-radius:var(--r-ctl);border:1px dashed var(--border);font-size:12.5px;color:var(--muted)}
+
+/* Owner's answers, 10 Oct 2026. Notes are inherited per version (answer 2): a note from higher up the lineage says where
+   it was first written; hidden ones fold into one line. Tapping a note opens its sheet (hide on this version). */
+.note.vn{cursor:pointer}
+.nfrom{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:800;color:var(--muted);margin-bottom:4px}
+.nfrom .ic{width:12px;height:12px}
+.nhid{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin:var(--sp-2) 0 0}
+.nhid .ic{width:12px;height:12px}
+.lnk{min-height:var(--tap);padding:0 4px;color:var(--accent);font-weight:700;font-size:12.5px}
+/* Reactions per member (answer 5): your own answer, and the household line derived from everyone's. */
+.react{margin-top:var(--sp-2);font-size:12.5px;color:var(--muted)}
+.react p{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0}
+.react .rb{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.react .mini{min-height:var(--tap)}
+.mini[aria-pressed=true]{border-color:var(--accent);background:var(--accent);color:var(--on-accent)}
+/* After a cook: one row per member who ate it */
+.ate{display:flex;align-items:center;gap:var(--sp-2);min-height:56px;border-bottom:1px solid var(--border)}
+.ate .t{flex:1;min-width:0;font-weight:700;font-size:14px}
+.ate .rb{display:flex;gap:4px}
+.ate .rb button{min-width:var(--tap);min-height:var(--tap);border-radius:var(--r-pill);border:1px solid var(--border);font-size:18px;background:var(--bg)}
+.ate .rb button[aria-pressed=true]{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 18%,var(--bg))}
