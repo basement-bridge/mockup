@@ -54,7 +54,7 @@ function move(d) {
 }
 function useOne() {
   var it = IEF.cur(); if (!it || !IEF.counted(it) || !(it.amount > 0)) return;
-  var s = IEF.snap(), from = IEF.qtyText(it); it.amount -= 1; IEF.reviseQty(it); IEF.log(it, "Quantity", from, IEF.qtyText(it)); IEF.syncParent();
+  var s = IEF.snap(), from = IEF.qtyText(it); it.amount -= 1; IEF.log(it, "Quantity", from, IEF.qtyText(it)); IEF.syncParent();
   if (S.child === "edit") IEF.form.fill(it);
   IEF.toast(esc(it.name) + ": " + esc(IEF.qtyText(it) || "Out") + " left.", s);
 }

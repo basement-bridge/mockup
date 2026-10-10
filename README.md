@@ -16,7 +16,7 @@ The side panel (Controls button on a phone) switches who you are (owner or membe
 - `theme.css` + `theme.js` + `themes/`: the single token set and the theme picker (ten themes) used by every page. Only the two default themes (Kitchie Night and Day) live in `theme.css`; every other theme is one small file in `themes/`, loaded when chosen and warmed in the background once the person engages the picker (DESIGN.md section 6). `shared.css`: layout for the index and fragments.
 - `docs/handover/desktop.md`: master reference for the desktop mockups (start here to build them): decisions, requirements, open questions, live links, screenshots.
 - `docs/handover/plan-desktop.md`: handover for the desktop Plan mockup (four options, decisions 49 to 62 proposed and awaiting the owner, open questions, next steps, process notes).
-- `docs/handover/item-edit-flyout.md`: handover for the item edit flyout mockup (nested Edit and History flyouts under the Pantry item flyout; layout A confirmed 11 Oct 2026, decisions 63 to 93 with statuses, open questions, next steps, process notes).
+- `docs/handover/item-edit-flyout.md`: handover for the item edit flyout mockup (nested Edit and History flyouts under the Pantry item flyout; layout A and the round 3 voice answers confirmed 11 Oct 2026, decisions 63 to 101 with statuses, the battery spec for the build, open questions, next steps, process notes).
 - `docs/knowledge/`: what we've learned, per job to be done, for carrying into the implementation.
 - `tools/screenshots.mjs`: screenshots every screen at phone, tablet and desktop widths in light and dark, with layout checks (DESIGN.md section 7).
 - `DESIGN.md`: the design brief. Read it before changing anything.
@@ -63,7 +63,7 @@ Read first, tap to edit per field: every field production edits is a plain row (
 
 ## Item sheet (performance, DESIGN.md section 6)
 
-Tapping a pantry row opens a half-height bottom sheet above the tab bar (owner chose the tile grid from `fragments/item-sheet/`). Tiles show each value; tapping one opens its editor in the sheet with a back arrow; All fields opens the full item screen above. Counted items have an Amount tile; level-only items (weighed or measured) set Out, Low or Plenty. Used up and the Amount minus match the swipe: zero, Out, Undo toast. Spec and proposals: `docs/knowledge/item-sheet.md`.
+Tapping a pantry row opens a half-height bottom sheet above the tab bar (owner chose the tile grid from `fragments/item-sheet/`). Tiles show each value; tapping one opens its editor in the sheet with a back arrow; All fields opens the full item screen above. Counted items have an Amount tile; level-only items (weighed or measured) set Out, Low or Plenty. Used up and the Amount minus match the swipe: zero, Out, Undo toast. The level tile and picker draw the battery (four cells, same colour bands), not the drop (owner, 11 Oct 2026). Spec and proposals: `docs/knowledge/item-sheet.md`.
 
 - Default path (tap a row): the sheet is built from state already in memory. No request, no editor markup.
 - Deferred: each tile's editor (`fields/*.js`) on the first tap of that tile, cached after.

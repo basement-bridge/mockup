@@ -34,6 +34,7 @@ const RI = {
   knife: '<path d="M4 20L16 8c2-2 4-3 4-3s-1 3-3 5L9 18z"/><path d="M4 20l3-3"/>',
   shield: '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9.5 10.5h5V16h-5zM10 8.5h4"/>',
   fridge: '<rect x="6" y="3" width="12" height="18" rx="2.5"/><path d="M6 10h12M9 6v2M9 13v3"/>',
+  battery: '<rect x="2.5" y="7" width="16" height="10" rx="2.8"/><path d="M21 10.5v3"/><path d="M6 10.5v3M9.5 10.5v3"/>',
   drop: '<path d="M12 3c3.5 4.5 6 7.2 6 10.2a6 6 0 0 1-12 0C6 10.200 8.500 7.500 12 3z"/><path d="M9.500 14a2.500 2.500 0 0 0 2 2.300"/>',
   link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
   mail: '<rect x="3" y="5" width="18" height="14" rx="2.500"/><path d="M3 7l9 6 9-6"/>',
@@ -477,7 +478,7 @@ const screens = {
     return backHeader("Pantry", p.name) + downBanner() + `<div class="body">
       <div class="flist">
         ${fld("name", p, `<span class="ph" aria-hidden="true">${emo(p)}</span><span class="idt"><b data-fv="name">${VAL.name(p)}</b><span class="small">Added by ${esc(p.by)}</span></span>`, `Name and emoji: ${p.name}`)}
-        ${row("qty", "stack", "Quantity")}${row("level", "drop", "Level")}${row("loc", "fridge", "Location")}${row("spot", "jar", "Spot")}${row("cat", "basket", "Category")}${row("useby", "clock", "Use by")}${row("min", "shield", "Minimum")}
+        ${row("qty", "stack", "Quantity")}${row("level", "battery", "Level")}${row("loc", "fridge", "Location")}${row("spot", "jar", "Spot")}${row("cat", "basket", "Category")}${row("useby", "clock", "Use by")}${row("min", "shield", "Minimum")}
       </div>
       ${S.recipes && rs.length ? `<div style="display:flex;flex-direction:column;gap:10px"><span class="lbl">Cook it tonight</span>${rs.map((r) => `<button class="rc" data-go="recipe" data-p="${r.id}"><span class="ph">${r.emoji}</span><div style="flex:1"><b>${esc(r.name)}</b><p class="small">${can(r).length} of ${r.ings.length} ingredients · ${r.time} min</p></div></button>`).join("")}</div>` : ""}
       ${!S.recipes ? `<button class="card" data-go="upgrade"><b>Know what you can cook</b><p class="small">Recipes uses what's in your pantry.</p></button>` : ""}
@@ -598,13 +599,13 @@ const screens = {
    Counted = the unit is a count (reducible); anything weighed or measured is level-only. Used up = amount 0, shows Out, Undo toast. */
 const TILE_FIELDS = { amount: ["qty"], level: [], min: ["min"], where: ["loc", "spot"], useby: ["useby"], cat: ["cat"] };
 const TILE_TITLE = { amount: "Amount", level: "Level", min: "Minimum", where: "Where", useby: "Use by", cat: "Category" };
-/* level drop: fuller or emptier with the level. Plenty full (green), Some about half (amber), Running low about a quarter (red), Out an empty outline.
-   No level word is drawn; the name is screen-reader text only (.sr-only). */
-const LEVELS = { Plenty: [1, "plenty"], Some: [0.5, "some"], "Running low": [0.25, "low"], Out: [0, "out"] };
-const DROP = "M12 3c3.500 4.500 6 7.200 6 10.200a6 6 0 0 1-12 0C6 10.200 8.500 7.500 12 3z";
-function levelDrop(l, size = 26) {
-  const [f, k] = LEVELS[l], y = (19.2 - f * 16.2).toFixed(2);
-  return `<svg class="drop lv-${k}" width="${size}" height="${size}" viewBox="0 0 24 24" aria-hidden="true"><defs><clipPath id="dc-${k}-${size}"><path d="${DROP}"/></clipPath></defs>${f ? `<rect x="0" y="${y}" width="24" height="24" clip-path="url(#dc-${k}-${size})" fill="currentColor" fill-opacity=".9"/>` : ""}<path d="${DROP}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`;
+/* level icon: a BATTERY (owner, 11 Oct 2026, replaces the drop everywhere the level is drawn; item-edit-flyout decision 94). Four cells: Plenty 4 filled (green), Some 2 (amber), Running low 1 (red), Out none (black).
+   No level word is drawn; the name is screen-reader text only (.sr-only). Same markup and classes as fragments/item-edit-flyout (IEF.battery), so the build copies one icon. */
+const LEVELS = { Plenty: [4, "plenty"], Some: [2, "some"], "Running low": [1, "low"], Out: [0, "out"] };
+function levelBattery(l, width = 38) {
+  const [n, k] = LEVELS[l];
+  let cells = ""; for (let i = 0; i < n; i++) cells += `<rect x="${4 + i * 6}" y="5" width="5.2" height="10" rx="1.2" fill="currentColor" stroke="none"/>`;
+  return `<svg class="bat lv-${k}" width="${width}" height="${Math.round(width * 20 / 34)}" viewBox="0 0 34 20" aria-hidden="true" focusable="false"><rect x="1" y="2" width="29" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M31.4 7.5h.8a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-.8z" fill="currentColor" stroke="none"/>${cells}</svg>`;
 }
 const srOnly = (t) => `<span class="sr-only">${esc(t)}</span>`;
 function itemSheetHtml() {
@@ -624,8 +625,8 @@ function itemSheetHtml() {
     const place = p.area ? `<span class="small shw">${`<b>${esc(p.area)}</b>`}${spot ? " · " + spot : ""}</span>` : "";
     const more = `<button class="icon smore" data-act="itile" data-p="all" aria-label="All fields" title="All fields">${I.list}</button>`;
     const head = `<div class="shead"><span class="ph" aria-hidden="true">${emo(p)}</span><div class="sid"><b>${esc(p.name)}</b>${hasQty ? `<span class="small shq">${out ? "Out" : esc(fmtAmt(p))}</span>` : ""}${place}</div>${more}</div>`;
-    /* the Level tile is the drop; on a counted item it opens the quantity stepper, on a level-only item it opens the level choices */
-    const first = tile(cnt ? "amount" : "level", levelDrop(lv), "", srOnly((cnt ? "Quantity and level, " : "Level, ") + lv), "");
+    /* the Level tile is the battery; on a counted item it opens the quantity stepper, on a level-only item it opens the level choices */
+    const first = tile(cnt ? "amount" : "level", levelBattery(lv, 38), "", srOnly((cnt ? "Quantity and level, " : "Level, ") + lv), "");
     const minTile = tile("min", typeof I.down === "string" ? I.down.replace('width="22" height="22"', 'width="20" height="20"') : riSvg("alert", 20), p.min > 0 ? esc(fmtAmt({ n: p.min, unit: p.unit })) : null, "Minimum", "Add minimum");
     const tiles = `<div class="tiles4">${first}${tile("useby", riSvg("clock", 20), p.days === null ? null : esc(dayLabel(p.days)), "Use by", "Add use-by")}${minTile}${tile("cat", riSvg("basket", 20), p.cat ? esc(p.cat) : null, "", "Add category")}</div>`;
     const acts2 = `<div class="sacts">${out ? `<button class="btn ghost" disabled>${I.tick}<span>&nbsp;Marked Out</span></button>` : `<button class="btn ghost" data-act="sheetused">${I.tick}<span>&nbsp;Used up</span></button>`}${onList(p.id) ? `<button class="btn ghost" disabled>${I.tick}<span>&nbsp;On your list</span></button>` : `<button class="btn" data-act="sheetshop">${riSvg("cart", 20)}<span>&nbsp;Add to shopping</span></button>`}</div>`;
@@ -634,7 +635,7 @@ function itemSheetHtml() {
     const hd = `<div class="shead"><button class="icon" data-act="itile" data-p="tiles" aria-label="Back to ${esc(p.name)}" title="Back">${I.chev.replace("<svg", '<svg style="transform:scaleX(-1)"')}</button><div class="sid"><b>${TILE_TITLE[v]}</b><span class="small">${esc(p.name)}</span></div>${close}</div>`;
     let ed = "";
     if (v === "level") {
-      ed = `<div class="opts lvpick" role="radiogroup" aria-label="Level">${Object.keys(LEVELS).reverse().map((l) => `<button class="opt${l === lv ? " on" : ""}" role="radio" aria-checked="${l === lv}" data-act="lvl" data-p="${l}">${levelDrop(l, 40)}${srOnly(l)}</button>`).join("")}</div><p class="small">The drop empties as it runs down. An empty drop means none left. Nothing is deleted: it stays in the pantry.</p>`;
+      ed = `<div class="opts lvpick" role="radiogroup" aria-label="Level">${Object.keys(LEVELS).reverse().map((l) => `<button class="opt${l === lv ? " on" : ""}" role="radio" aria-checked="${l === lv}" data-act="lvl" data-p="${l}">${levelBattery(l, 35)}${srOnly(l)}</button>`).join("")}</div><p class="small">The battery empties as it runs down. An empty battery means none left. Nothing is deleted: it stays in the pantry.</p>`;
     } else if (v === "amount") ed = ITEM_FIELDS.qty.html(p);
     else if (v === "where") ed = TILE_FIELDS.where.map((k) => `<span class="lbl">${k === "loc" ? "Location" : "Spot"}</span>${ITEM_FIELDS[k].html(p)}`).join("");
     else ed = ITEM_FIELDS[TILE_FIELDS[v][0]].html(p);
