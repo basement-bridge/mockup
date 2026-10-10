@@ -2,9 +2,11 @@
    Mockup only: sample people, sample values and the little state machine live here, never in the stylesheet (AGENTS.md "Mockup and build stay close").
    The rules below are the ones the code holds today (see docs/knowledge/user-preferences/option-b-mine-and-household.md):
    - Stock-check dials resolve per key: built-in default, then the household's value, then the member's own (Kitchie store.ts dialsFor). Clearing a value falls back one level.
-   - Kitchie today lets only the household owner (the longest-standing member) write household dials and the household note (web-stock.ts). LOCKED by the owner (voice, 10 October 2026, D5): any member may,
-     with no owner and no tenure gate; a tenure gate is deferred, not decided. So this mockup has no read-only state. A member may also set quiet hours to none for themselves (D6).
-     Most suggestions per day is 1 to 20, default 2 (D7). Household food statements are open to any member (D8).
+   - Kitchie today lets only the household owner (the longest-standing member) write household dials and the household note (web-stock.ts). D5 (any member may) and D8 (any member may record household food claims)
+     are SUPERSEDED by D25 to D29 (owner, voice, 10 October 2026, later session): a binary household admin role. The founding member is admin by default and grants or revokes admin per person (D26, D27);
+     only admins change household-level values (D28), so a non-admin sees them read-only with "Only household admins can change this."; personal values are never gated (D29). Tenure gating and finer roles stay deferred.
+     A member may also set quiet hours to none for themselves (D6). Most suggestions per day is 1 to 20, default 2 (D7).
+   - Roles: the sample household has Arjan (founding member), Jo (an admin) and Sam (a plain member). "Household admin" is not "Kitchen role", which is a free label on the person's own profile (D30).
    - Notes are NOT an override: the household note and the member's own note are both read.
    - Food statements are NOT an override either: a member sees their own plus the household's ("Everyone"). They are said to the assistant today; no web editor exists (Proposal here).
    - Food rules (owner, voice, 10 October 2026; docs/knowledge/user-preferences/food-preferences.md F1 to F10): avoid is permanent and hard ("never suggest" is dropped); like and dislike are soft and may end;
@@ -25,7 +27,9 @@
   var RECIPES = { "r-fish": "Fish and chips", "r-chilli": "Chilli con carne", "r-laksa": "Prawn laksa", "r-green": "Thai green curry", "r-kimchi": "Kimchi fried rice", "r-tomyum": "Tom yum noodle soup", "r-dandan": "Dan dan noodles", "r-garlic": "Chilli garlic noodles" };
   var NOTE_MAX = 600;
 
-  var PEOPLE = { sam: { name: "Sam" }, arjan: { name: "Arjan" } };
+  var PEOPLE = { sam: { name: "Sam" }, arjan: { name: "Arjan" }, jo: { name: "Jo" } };
+  var ROLE_WORD = { founder: "Founding member", admin: "Admin", member: "Member" }; // D25 to D27: binary, so founder and admin may edit household values, a member may not
+  var ADMIN_WHY = "Only household admins can change this.";
 
   /* ---------- sample data (mockup only) ---------- */
   function seed(kind) {
@@ -35,7 +39,10 @@
         dials: full ? { proactivity: "quiet", quiet_start: "21:00", quiet_end: "07:00", tz_offset_minutes: "660" } : {},
         note: full ? "Nut-free kitchen. Check labels before anything goes on the list." : ""
       },
+      /* D25 to D27. The role is kept on the household member, not on a preference. The founding member is the person who first set the household up. */
+      members: [{ id: "arjan", role: "founder" }, { id: "jo", role: "admin" }, { id: "sam", role: "member" }],
       me: {
+        jo: { dials: {}, note: "", assistant: null, role: null, stops: [] },
         sam: {
           dials: full ? { proactivity: "helpful" } : {},
           note: full ? "Keep questions short. Tea before talk." : "",
@@ -81,7 +88,7 @@
   }
 
   /* ---------- state ---------- */
-  var S = { as: "sam", tab: "mine", data: "typical", open: null, flash: "", saved: "", confirm: null };
+  var S = { as: "sam", tab: "mine", view: null, data: "typical", open: null, flash: "", saved: "", confirm: null };
   var M = seed(S.data);
   var root = document.getElementById("app");
 
@@ -90,9 +97,19 @@
   function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
   function who() { return PEOPLE[S.as]; }
   function mine() { return M.me[S.as]; }
+  /* D28: this is the ONE place that decides who may change a household-level value. The screen, and every write below, ask it (in the build the web routes and the MCP tools call the same service check). Personal values never ask (D29). */
+  function roleOf(id) { return M.members.filter(function (m) { return m.id === id; })[0].role; }
+  function isAdmin(id) { var r = roleOf(id || S.as); return r === "founder" || r === "admin"; }
+  function canWrite(scope) { return scope !== "hh" || isAdmin(); }
+  function adminNames() { return M.members.filter(function (m) { return isAdmin(m.id); }).map(function (m) { return PEOPLE[m.id].name; }); }
+  function lockNote() { // a household value, seen by a member who is not an admin: read-only, with the reason
+    return '<p class="note ro">' + ICON.lock + "<span>" + ADMIN_WHY + " Admins: " + esc(adminNames().join(" and ")) + '.</span></p>' +
+      '<p class="small"><button type="button" class="lnk" data-act="view" data-id="members">See members and admins</button></p>';
+  }
   var ICON = {
     chev: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>',
     leaf: '<svg viewBox="0 0 48 48" width="44" height="44" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 38C8 22 18 10 38 9c1 20-9 30-26 29z"/><path d="M10 38c6-8 12-14 20-19"/></svg>',
+    lock: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
     spark: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 15l.7 2.1 2.1.7-2.1.7L19 20.6l-.7-2.1-2.1-.7 2.1-.7z"/></svg>',
     pot: '<svg viewBox="0 0 48 48" width="44" height="44" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21h30v13a6 6 0 0 1-6 6H15a6 6 0 0 1-6-6z"/><path d="M5 21h38M30 7l-6 14M16 9c0 3 3 3 3 6"/></svg>'
   };
@@ -171,6 +188,7 @@
   }
 
   function dialEditor(row, scope, v) {
+    if (!canWrite(scope)) return '<div class="ped" id="ed-' + scope + "-" + row.id + '"><p class="small">' + (row.id === "quiet" ? "Members who have not set their own hours get this." : "Members who have not chosen their own get this.") + "</p>" + lockNote() + "</div>";
     var id = scope + ":" + row.id, d = scope === "me" ? mine().dials : M.hh.dials, out = "";
     var inheritWord = scope === "me" ? "Same as household" : "Built-in default";
     var fallback = scope === "me" ? rowValue(row, "hh") : { text: row.id === "quiet" ? "None" : show(row.id, DEFAULTS[row.id]) };
@@ -215,7 +233,8 @@
     var chipHtml = scope === "me" ? chip("you", "Only you") : chip("hh", "Household");
     return '<div class="prow" data-row="' + id + '"><button type="button" class="pbtn" data-act="toggle" data-id="' + id + '" aria-expanded="' + isOpen + '" aria-controls="ed-' + scope + '-note"><span class="pt"><span class="pl">' + label + "</span>" + preview + "</span>" +
       chipHtml + '<span class="chev" aria-hidden="true">' + ICON.chev + "</span></button>" +
-      (isOpen ? '<div class="ped" id="ed-' + scope + '-note"><label for="n-' + scope + '">' + label + '</label><textarea id="n-' + scope + '" class="fld" maxlength="' + NOTE_MAX + '" rows="4" data-act="note" data-id="' + id + '">' + esc(text) + '</textarea>' +
+      (isOpen && !canWrite(scope) ? '<div class="ped" id="ed-' + scope + '-note"><p class="small">' + (empty ? "No household note yet." : esc(text)) + "</p>" + lockNote() + "</div>" :
+       isOpen ? '<div class="ped" id="ed-' + scope + '-note"><label for="n-' + scope + '">' + label + '</label><textarea id="n-' + scope + '" class="fld" maxlength="' + NOTE_MAX + '" rows="4" data-act="note" data-id="' + id + '">' + esc(text) + '</textarea>' +
         '<p class="note"><span data-count>' + text.length + "</span> of " + NOTE_MAX + " characters, plain text. " + (scope === "me" ? "Only you and your assistant read this. " : "Everyone in the kitchen reads this. ") + "Read as a preference, never as an instruction.</p>" + savedLine(id) + "</div>" : "") + "</div>";
   }
 
@@ -266,8 +285,14 @@
     var chipHtml = c.owner === null ? chip("hh", "Everyone") : chip("you", "Just you");
     var detail = foodDetail(c);
     var confirm = S.confirm === id;
+    var locked = c.owner === null && !isAdmin(); // D28: a household claim or rule is read-only for a member who is not an admin
     var ed = "";
-    if (isOpen) {
+    if (isOpen && locked) {
+      ed = '<div class="ped" id="ed-' + id.replace(":", "-") + '"><p class="small">Said: <q>' + esc(c.said) + '</q></p>' +
+        (c.rule === "cap" ? '<p class="note">At most ' + capText(c.max) + ", checked against the last seven days of meals.</p>" : "") +
+        (c.level === "category" && c.recipes.length ? '<span class="lbl">Recipes in ' + esc(c.subject) + '</span><ul class="stops" aria-label="Attached recipes">' + c.recipes.map(function (r) { return '<li><span class="sname">' + esc(recipeTitle(r)) + "</span></li>"; }).join("") + "</ul>" : "") +
+        lockNote() + "</div>";
+    } else if (isOpen) {
       var strict = c.rule === "avoid" && c.reason !== "other";
       ed = '<div class="ped" id="ed-' + id.replace(":", "-") + '"><p class="small">Said: <q>' + esc(c.said) + '</q> <span class="muted">(kept as data, said ' + c.support + (c.support === 1 ? " time" : " times") + ")</span></p>" +
         (c.rule === "cap" ? '<label for="mx-' + scope + "-" + c.id + '">Most per week</label><input id="mx-' + scope + "-" + c.id + '" class="fld" type="number" min="1" max="7" step="1" inputmode="numeric" data-act="cap" data-id="' + id + '" value="' + c.max + '"><p class="note">Checked against the meals planned and cooked in the last seven days, before a recipe here is suggested.</p>' : "") +
@@ -282,7 +307,7 @@
     var rows = visibleFood(scope);
     if (!rows.length) {
       return '<div class="empty">' + ICON.pot + "<b>" + (scope === "me" ? "Nothing remembered about you yet" : "Nothing for the whole kitchen yet") + "</b><p class=\"small\">" +
-        (scope === "me" ? "Tell your assistant what you like, dislike, cannot eat or want less often, and it shows up here." : "Allergies and house rules for everyone go here. Tell your assistant, and say it is for the household.") + "</p></div>";
+        (scope === "me" ? "Tell your assistant what you like, dislike, cannot eat or want less often, and it shows up here." : isAdmin() ? "Allergies and house rules for everyone go here. Tell your assistant, and say it is for the household." : "Allergies and house rules for everyone go here. Only household admins can add them.") + "</p></div>";
     }
     var out = "";
     RULE_ORDER.forEach(function (st) {
@@ -301,8 +326,8 @@
       }).join("") + "</div>";
   }
 
-  function navRow(label, value, kind, text, id) {
-    return '<button type="button" class="pbtn navrow" data-act="nav" data-id="' + esc(id) + '"><span class="pt"><span class="pl">' + esc(label) + '</span><span class="pv">' + esc(value) + "</span></span>" + chip(kind, text) + '<span class="chev" aria-hidden="true">' + ICON.chev + "</span></button>";
+  function navRow(label, value, kind, text, id, act) {
+    return '<button type="button" class="pbtn navrow" data-act="' + (act || "nav") + '" data-id="' + esc(id) + '"><span class="pt"><span class="pl">' + esc(label) + '</span><span class="pv">' + esc(value) + "</span></span>" + chip(kind, text) + '<span class="chev" aria-hidden="true">' + ICON.chev + "</span></button>";
   }
 
   function stopsList() {
@@ -329,7 +354,7 @@
       '<span class="lbl">Notes</span><div class="card sgroup">' + noteRow("me") +
       (M.hh.note ? '<div class="prow static household-note"><div class="pbtn"><span class="pt"><span class="pl">Household note</span><span class="pv clamp">' + esc(M.hh.note) + '</span><span class="pw">Read together with yours.</span><button type="button" class="lnk" data-act="goto" data-id="hh:note">Open in Household</button></span>' + chip("hh", "Household") + "</div></div>" : "") + "</div>" +
       '<span class="lbl">Food</span><div class="card sgroup foodcard">' + foodList("me") +
-      '<p class="note">Your statements and the household\'s are added together, not swapped. Say new ones, or a new category, to your assistant.</p></div>' +
+      '<p class="note">Your statements and the household\'s are added together, not swapped. Say new ones, or a new category, to your assistant. The household\'s can be changed by household admins only.</p></div>' +
       '<span class="lbl">Just for you</span><div class="card sgroup">' + assistantRow() +
       navRow("Kitchen role", m.role || "Pick a kitchen role", "you", "Only you", "Me") + "</div>" +
       '<span class="lbl">Not asking about</span><div class="card sgroup">' + stopsList() + "</div>" +
@@ -339,14 +364,16 @@
 
   function householdScreen() {
     var only = M.only;
-    var head = '<p class="note">Any member of the kitchen can change these.</p>';
+    var head = isAdmin() ? '<p class="note">' + (roleOf(S.as) === "founder" ? "You are the founding member, so you are an admin." : "You are a household admin.") + " Admins can change these. Other members can only look.</p>"
+      : '<p class="note ro">' + ICON.lock + "<span>" + ADMIN_WHY + " You can still change everything on Mine.</span></p>";
     return '<div role="tabpanel" id="panel-hh" aria-labelledby="tab-hh" class="mbody2">' +
       '<p>Shared by everyone in ' + esc(only.name) + ". Used for anyone who has not chosen their own.</p>" + head +
       '<span class="lbl">Stock-check defaults</span><div class="card sgroup">' + ROWS.map(function (r) { return dialRow(r, "hh"); }).join("") + "</div>" +
       '<span class="lbl">Household note</span><div class="card sgroup">' + noteRow("hh") + "</div>" +
       '<span class="lbl">Food for everyone</span><div class="card sgroup foodcard">' + foodList("hh") +
-      '<p class="note">Any member can say or remove these. Safety ones ask twice before they are removed.</p></div>' +
+      '<p class="note">' + (isAdmin() ? "Household admins can say or remove these. Safety ones ask twice before they are removed." : "Only household admins can say or remove these.") + "</p></div>" +
       '<span class="lbl">Only the household has these</span><div class="card sgroup">' +
+      navRow("Members and admins", M.members.length + " members, " + adminNames().length + " admins", "hh", "Household only", "members", "view") +
       navRow("Household name", only.name, "hh", "Household only", "Household name") +
       navRow("Categories", only.categories, "hh", "Household only", "Categories") +
       navRow("Locations and spots", only.locations, "hh", "Household only", "Locations and spots") +
@@ -354,9 +381,28 @@
       '<p class="small">These have no personal version, so there is nothing to override on Mine.</p></div>';
   }
 
+  /* Members and admins (D25 to D27). Every member can see it (READING: who may see who is admin is open); only the founding member gets the grant and revoke buttons (READING: whether admins share that right is open). */
+  function membersScreen(flash) {
+    var canGrant = roleOf(S.as) === "founder";
+    var WHAT = { founder: "Set the household up. Always an admin.", admin: "Can change household settings", member: "Can change their own preferences" };
+    var KIND = { founder: "you", admin: "hh", member: "bi" };
+    var li = M.members.map(function (m) {
+      var n = PEOPLE[m.id].name;
+      var btn = canGrant && m.role !== "founder"
+        ? '<button type="button" class="btn" data-act="' + (m.role === "admin" ? "revoke" : "grant") + '" data-id="' + m.id + '" aria-label="' + (m.role === "admin" ? "Remove " + esc(n) + " as admin" : "Make " + esc(n) + " an admin") + '">' + (m.role === "admin" ? "Remove admin" : "Make admin") + "</button>" : "";
+      return '<li><span class="sname">' + esc(n) + (m.id === S.as ? " (you)" : "") + '<span class="swhat">' + chip(KIND[m.role], ROLE_WORD[m.role]) + "<br>" + esc(WHAT[m.role]) + "</span></span>" + btn + "</li>";
+    }).join("");
+    return '<div class="sp"><div class="mtop"><a class="back" href="#" data-act="view" data-id="main">&lsaquo; Back</a><h1 class="ttl">Members and admins</h1><span style="width:64px" aria-hidden="true"></span></div>' +
+      '<main class="mbody">' + flash +
+      "<p>Admins can change what the whole household shares: its settings, notes and food rules. Everyone can always change their own preferences, whatever their role.</p>" +
+      '<span class="lbl">Members</span><div class="card sgroup"><ul class="stops" aria-label="Members and admins">' + li + "</ul></div>" +
+      '<p class="note">' + (canGrant ? "You set up the household. You choose who else is an admin, one person at a time, and you can take it back." : "Only the founding member can make someone an admin, or take it back.") + "</p></main></div>";
+  }
+
   function render() {
     var keepScroll = window.scrollY;
     var flash = S.flash ? '<div class="banner" role="status">' + esc(S.flash) + "</div>" : "";
+    if (S.view === "members") { root.innerHTML = membersScreen(flash); window.scrollTo(0, keepScroll); syncControls(); if (S.focus) { var fe = root.querySelector(S.focus); if (fe) fe.focus({ preventScroll: true }); S.focus = null; } return; }
     root.innerHTML = '<div class="sp"><div class="mtop"><a class="back" href="#" data-act="nav" data-id="Settings">&lsaquo; Settings</a><h1 class="ttl">Preferences</h1><span style="width:64px" aria-hidden="true"></span></div>' +
       '<main class="mbody">' + flash + seg() + (S.tab === "mine" ? mineScreen() : householdScreen()) + "</main></div>";
     var cur = document.activeElement;
@@ -372,7 +418,7 @@
       b.setAttribute("aria-pressed", String(S[k] === v));
     });
     var st = document.getElementById("mh-state");
-    if (st) st.textContent = who().name + " · " + (S.tab === "mine" ? "Mine" : "Household") + " · " + (S.data === "empty" ? "nothing set yet" : "some set");
+    if (st) st.textContent = who().name + " (" + ROLE_WORD[roleOf(S.as)].toLowerCase() + ") · " + (S.view === "members" ? "Members and admins" : S.tab === "mine" ? "Mine" : "Household") + " · " + (S.data === "empty" ? "nothing set yet" : "some set");
   }
 
   /* ---------- actions ---------- */
@@ -392,10 +438,17 @@
     if (!t || !root.contains(t) && !t.closest(".mh-jump")) return;
     var act = t.getAttribute("data-act"), id = t.getAttribute("data-id"), val = t.getAttribute("data-val");
     if (t.tagName === "A") ev.preventDefault();
-    if (act === "tab") { S.tab = id; S.open = null; S.flash = ""; S.saved = ""; S.confirm = null; render(); }
+    if (act === "view") { S.view = id === "main" ? null : id; S.open = null; S.flash = ""; S.saved = ""; S.confirm = null; S.focus = null; render(); var vf = root.closest(".mh-frame"); if (vf && vf.getBoundingClientRect().top < 0) vf.scrollIntoView({ block: "start" }); }
+    else if (act === "grant" || act === "revoke") { /* D27: the founding member's call, per person */
+      if (roleOf(S.as) !== "founder") return;
+      M.members.forEach(function (m) { if (m.id === id && m.role !== "founder") m.role = act === "grant" ? "admin" : "member"; });
+      S.flash = PEOPLE[id].name + (act === "grant" ? " is now a household admin." : " is no longer a household admin."); S.focus = '[data-act="' + (act === "grant" ? "revoke" : "grant") + '"][data-id="' + id + '"]'; render();
+    }
+    else if (act === "tab") { S.tab = id; S.open = null; S.flash = ""; S.saved = ""; S.confirm = null; render(); }
     else if (act === "toggle") { S.open = S.open === id ? null : id; S.saved = ""; S.confirm = null; S.flash = ""; S.focus = '[data-id="' + id + '"]'; render(); }
     else if (act === "pick") {
       var p = id.split(":"), row = p[1];
+      if (!canWrite(p[0])) return;
       if (row === "quiet") { setDial(p[0], "quiet_start", ""); setDial(p[0], "quiet_end", ""); setDial(p[0], "quiet_off", val === "off" ? "1" : ""); }
       else setDial(p[0], row, val);
       saved(id); S.focus = '[data-act="pick"][data-id="' + id + '"][data-val="' + val + '"]'; render();
@@ -406,6 +459,7 @@
     else if (act === "askagain") { var m = mine(); m.stops = m.stops.filter(function (x) { return x.id !== id; }); S.focus = null; render(); }
     else if (act === "attach" || act === "attachall" || act === "notthese" || act === "detach" || act === "clearend") {
       var f = foodById(id);
+      if (f.owner === null && !isAdmin()) return;
       if (act === "attach") { f.suggest = f.suggest.filter(function (x) { if (x[0] === val) { f.recipes.push(x[0]); return false; } return true; }); }
       else if (act === "attachall") { f.suggest.forEach(function (x) { f.recipes.push(x[0]); }); f.suggest = []; }
       else if (act === "notthese") { f.suggest = []; }
@@ -415,6 +469,7 @@
     }
     else if (act === "forget") {
       var c = foodById(id);
+      if (c.owner === null && !isAdmin()) return;
       var strict = c && c.rule === "avoid" && c.reason !== "other";
       if (strict && !t.getAttribute("data-confirmed")) { S.confirm = id; S.focus = '[data-act="forget"][data-id="' + id + '"]'; render(); return; }
       M.food = M.food.filter(function (x) { return x.id !== c.id; }); S.open = null; S.confirm = null; render();
@@ -430,6 +485,7 @@
     var act = t.getAttribute("data-act"), id = t.getAttribute("data-id");
     if (act === "quiet") {
       var p = id.split(":"), d = p[0] === "me" ? mine().dials : M.hh.dials;
+      if (!canWrite(p[0])) return;
       delete d.quiet_off; // picking hours again drops the member's "none"
       d[t.getAttribute("data-end") === "start" ? "quiet_start" : "quiet_end"] = t.value || undefined;
       if (d.quiet_start === undefined && d.quiet_end === undefined) { delete d.quiet_start; delete d.quiet_end; }
@@ -437,15 +493,18 @@
       saved(id); S.focus = "#" + t.id; render();
     } else if (act === "field") {
       var q = id.split(":"), key = q[1];
+      if (!canWrite(q[0])) return;
       if (key === "daily_cap") { var n = parseInt(t.value, 10); setDial(q[0], key, isFinite(n) && n >= 1 && n <= 20 ? String(n) : ""); }
       else { var m2 = t.value.trim() === "" ? "" : parseHours(t.value); setDial(q[0], key, m2 === null ? "" : m2); }
       saved(id); S.focus = "#" + t.id; render();
     } else if (act === "cap") {
       var fc = foodById(id), mx = parseInt(t.value, 10);
+      if (fc.owner === null && !isAdmin()) return;
       if (isFinite(mx) && mx >= 1 && mx <= 7) fc.max = mx;
       saved(id); S.focus = "#" + t.id; render();
     } else if (act === "note") {
       var s = id.split(":")[0], text = t.value.trim().slice(0, NOTE_MAX);
+      if (!canWrite(s)) return;
       if (s === "me") mine().note = text; else M.hh.note = text;
       saved(id); S.focus = "#" + t.id; render();
     }
@@ -457,9 +516,10 @@
 
   /* ---------- page controls (the prototype's own, not part of the screen) ---------- */
   function applyParams(q) {
-    var as = q.get("as"), data = q.get("data"), tab = q.get("tab"), open = q.get("open");
+    var as = q.get("as"), data = q.get("data"), tab = q.get("tab"), open = q.get("open"), view = q.get("view");
     if (as && PEOPLE[as]) S.as = as;
-    if (data && data !== S.data && (data === "typical" || data === "empty")) { S.data = data; M = seed(data); }
+    if (data && data !== S.data && (data === "typical" || data === "empty")) { S.data = data; var kept = M.members; M = seed(data); M.members = kept; }
+    S.view = view === "members" ? "members" : null;
     if (tab === "mine" || tab === "hh") S.tab = tab;
     S.open = open || null; S.saved = ""; S.flash = ""; S.confirm = null;
     render();
@@ -468,7 +528,7 @@
   document.querySelectorAll("[data-pc]").forEach(function (b) {
     b.addEventListener("click", function () {
       var k = b.getAttribute("data-pc"), v = b.getAttribute("data-v");
-      if (k === "data") { S.data = v; M = seed(v); } else if (k === "as") { S.as = v; }
+      if (k === "data") { S.data = v; var kept = M.members; M = seed(v); M.members = kept; } else if (k === "as") { S.as = v; }
       S.open = null; S.saved = ""; S.flash = ""; S.confirm = null; render();
     });
   });

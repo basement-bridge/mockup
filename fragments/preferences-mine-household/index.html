@@ -10,23 +10,29 @@
   <a class="back" href="../../">&lsaquo; All mockups</a><br>
   <span class="tag">Mockup, awaiting approval &middot; Option B</span>
   <h1>Mine and Household, two sections</h1>
-  <p class="mh-sub">One Preferences screen with two tabs. Mine is about you: every row shows the value in force and where it comes from. Household is the kitchen's own list, managed there and nowhere else, and any member can change it.</p>
+  <p class="mh-sub">One Preferences screen with two tabs. Mine is about you: every row shows the value in force and where it comes from. Household is the kitchen's own list, managed there and nowhere else, and only household admins can change it.</p>
 
   <div class="mh-ctl">
-    <div class="mh-g" role="group" aria-label="View as"><span class="mh-lab">View as</span><div class="mh-seg"><button type="button" data-pc="as" data-v="sam" aria-pressed="true">Sam</button><button type="button" data-pc="as" data-v="arjan" aria-pressed="false">Arjan</button></div></div>
+    <div class="mh-g" role="group" aria-label="View as"><span class="mh-lab">View as</span><div class="mh-seg"><button type="button" data-pc="as" data-v="sam" aria-pressed="true">Sam</button><button type="button" data-pc="as" data-v="arjan" aria-pressed="false">Arjan</button><button type="button" data-pc="as" data-v="jo" aria-pressed="false">Jo</button></div><span class="mh-state" style="margin:0">Arjan is the founding member, Jo an admin, Sam a member.</span></div>
     <div class="mh-g" role="group" aria-label="Data"><span class="mh-lab">Data</span><div class="mh-seg"><button type="button" data-pc="data" data-v="typical" aria-pressed="true">Some set</button><button type="button" data-pc="data" data-v="empty" aria-pressed="false">Nothing set yet</button></div></div>
   </div>
   <div class="mh-jump" aria-label="States to look at">
     <a href="?as=sam&amp;tab=mine&amp;open=me:proactivity">Overridden by you</a>
     <a href="?as=sam&amp;tab=mine&amp;open=me:quiet">Inherited from household</a>
     <a href="?as=sam&amp;tab=mine&amp;open=me:enabled">Built-in</a>
-    <a href="?as=sam&amp;tab=hh&amp;open=hh:proactivity">Household, any member edits</a>
+    <a href="?as=arjan&amp;tab=hh&amp;open=hh:proactivity">Household, an admin edits</a>
+    <a href="?as=sam&amp;tab=hh&amp;open=hh:proactivity">Household, read-only for a member</a>
+    <a href="?as=sam&amp;tab=hh&amp;open=hh:note">Household note, read-only</a>
+    <a href="?as=arjan&amp;view=members">Members and admins, founding member</a>
+    <a href="?as=jo&amp;view=members">Members and admins, an admin</a>
+    <a href="?as=sam&amp;view=members">Members and admins, a member</a>
     <a href="?as=sam&amp;tab=mine&amp;open=me:quiet">Quiet hours, none for me</a>
     <a href="?as=sam&amp;tab=mine&amp;data=empty">Nothing set yet</a>
     <a href="?as=sam&amp;tab=mine&amp;open=me:c9">Food: category with a limit and a suggestion</a>
     <a href="?as=sam&amp;tab=mine&amp;open=me:c10">Food: dislike that ends on its own</a>
     <a href="?as=sam&amp;tab=mine&amp;open=me:c1">Food: avoid, no end</a>
-    <a href="?as=sam&amp;tab=hh&amp;open=hh:c8">Food: household category</a>
+    <a href="?as=arjan&amp;tab=hh&amp;open=hh:c8">Food: household category, admin</a>
+    <a href="?as=sam&amp;tab=hh&amp;open=hh:c8">Food: household category, read-only</a>
   </div>
   <p class="mh-state" id="mh-state" aria-live="polite"></p>
 
@@ -39,26 +45,27 @@
         <ul>
           <li><b>Two places, one per scope.</b> Mine holds what you chose. Household holds what the kitchen chose. A value is never edited in the wrong place.</li>
           <li><b>Mine shows the value in force and where it comes from.</b> A chip on each row says <i>Yours</i>, <i>Household</i> or <i>Built-in</i>. An overridden row also says what the household has. Pick <i>Same as household</i> to drop your own choice (the code clears the value, so the next level applies).</li>
-          <li><b>Household is managed on its own tab.</b> Any member sees the same rows as editors (D5): there is no owner and no read-only list. A tenure-based gate was deliberately deferred by the owner, so none is drawn.</li>
+          <li><b>Household is managed on its own tab, by household admins.</b> An admin sees the rows as editors. A member who is not an admin sees the same rows read-only, with one line: <i>Only household admins can change this.</i> (D25 to D28; this replaces D5, which let any member edit.) Everything on Mine stays editable by everyone (D29).</li>
+          <li><b>Members and admins.</b> A small view under Household. The founding member (the person who set the household up) is an admin by default and can make another member an admin, or take it back, one person at a time (D26, D27).</li>
           <li><b>Things with one scope say so.</b> My assistant and kitchen role are only yours. Household name, categories, locations and Recipe stars and votes are only the household's, with no personal version to override.</li>
           <li><b>Notes and food are added together, not swapped.</b> Your note and the household note are both read. Your food statements and the household's are both used.</li>
         </ul>
       </div>
       <div class="sec2">
         <h2>Good for, and costs</h2>
-        <p><b>Good for:</b> "whose is this?" is answered by where you are, not by reading a chip. The household's rules can be looked at, and changed by any member, without any of your own choices in the way.</p>
+        <p><b>Good for:</b> "whose is this?" is answered by where you are, not by reading a chip. The household's rules can be looked at by everyone, and changed by admins, without any of your own choices in the way.</p>
         <p style="margin-top:8px"><b>Costs:</b> to see a household default while you are on Mine, you follow the link under the row or switch tab. Two tabs mean one more tap than a single list. The household tab repeats the five stock rows.</p>
       </div>
       <div>
         <h2>What the code really holds</h2>
         <div class="tblwrap"><table>
           <tr><th>Preference</th><th>Lives at</th><th>How it combines</th><th>Who changes it</th></tr>
-          <tr><td>Stock-check settings: on or off, how proactive, quiet hours, most per day, time zone</td><td>Person and household</td><td>Override, key by key: built-in, then household, then person</td><td>You change yours. Any member changes the household's (D5; today only the longest-standing member can, and that check goes).</td></tr>
+          <tr><td>Stock-check settings: on or off, how proactive, quiet hours, most per day, time zone</td><td>Person and household</td><td>Override, key by key: built-in, then household, then person</td><td>You change yours. Household admins change the household's (D28; today only the longest-standing member can, and that check is replaced by an admin check).</td></tr>
           <tr><td>Notes (up to 600 characters)</td><td>Person and household</td><td>Both read. Yours is private to you.</td><td>Same as above</td></tr>
-          <tr><td>Food: avoids, usually, likes, dislikes (plus "never suggest", which this option drops)</td><td>Person and household</td><td>Added together. Safety avoidances always shown. No end date and no frequency limit yet; no recipes attached.</td><td>Said to the assistant by any member, for self or for everyone (D8)</td></tr>
+          <tr><td>Food: avoids, usually, likes, dislikes (plus "never suggest", which this option drops)</td><td>Person and household</td><td>Added together. Safety avoidances always shown. No end date and no frequency limit yet; no recipes attached.</td><td>Said to the assistant: by you for yourself; for everyone, by a household admin only (D28, replaces D8)</td></tr>
           <tr><td>Stops and snoozes</td><td>Person (a stop on one item covers everyone)</td><td>None</td><td>The person</td></tr>
           <tr><td>My assistant, kitchen role</td><td>Person only</td><td>None</td><td>The person</td></tr>
-          <tr><td>Household name, categories, locations and spots</td><td>Household only</td><td>None</td><td>Members</td></tr>
+          <tr><td>Household name, categories, locations and spots</td><td>Household only</td><td>None</td><td>Household admins</td></tr>
           <tr><td>Recipe star, vote, times used</td><td>Household only, per recipe</td><td>None: one record per recipe, no member on it</td><td>Any member, through the assistant</td></tr>
           <tr><td>Theme, name size, display switches</td><td>This device only</td><td>None</td><td>The device</td></tr>
         </table></div>
@@ -68,10 +75,23 @@
         <h2>Locked decisions <span class="prop">Owner, voice, 10 Oct 2026</span></h2>
         <p>Numbered D5 to D14 across options A, B and C. The ones that apply here:</p>
         <ul>
-          <li><b>D5</b> Household-level settings and edits: <b>any</b> member may edit. No owner concept, no tenure gate, no restriction. The owner explicitly deferred any earn-your-way, tenure-based gating to a later decision; deferred, not forgotten, and not built in. (Settles the owner-in-platform-mode question: there is no owner.)</li>
+          <li><b>D5</b> <span class="prop">Superseded 10 Oct 2026 by D25 to D28</span> Household-level settings and edits: <b>any</b> member may edit. No owner concept, no tenure gate, no restriction. The owner explicitly deferred any earn-your-way, tenure-based gating to a later decision; deferred, not forgotten, and not built in. (Settles the owner-in-platform-mode question: there is no owner.)</li>
           <li><b>D6</b> A member may set quiet hours to <i>none</i> for themselves, over the household's. No restriction.</li>
           <li><b>D7</b> Most suggestions per day is 1 to 20, default 2, in the web form and in chat. (Settles the 0 to 20 against 1 to 10 question.)</li>
-          <li><b>D8</b> Household food statements are open to any member, as D5. Person-level statements stay unrestricted. (Settles the household-food-needs-an-owner question.)</li>
+          <li><b>D8</b> <span class="prop">Superseded 10 Oct 2026 by D28</span> Household food statements are open to any member, as D5. Person-level statements stay unrestricted. (Settles the household-food-needs-an-owner question.)</li>
+        </ul>
+        <p style="margin-top:8px">D5 and D8 are kept as given, with their history. The owner introduced the household admin role later on 10 October 2026, so household-level edits are no longer open to every member.</p>
+      </div>
+      <div>
+        <h2>Household admin <span class="prop">Owner, voice, 10 Oct 2026, later session</span></h2>
+        <p>The first roles. Recorded as D25 to D30 in <code>docs/knowledge/user-preferences/option-b-mine-and-household.md</code>.</p>
+        <ul>
+          <li><b>D25</b> A household admin role, binary for now: admin or not. Only admins change household-level things. Supersedes D5 and D8.</li>
+          <li><b>D26</b> The founding member (the person who first set up the household) is an admin by default.</li>
+          <li><b>D27</b> The founding member can grant admin to other members, per person, and revoke it.</li>
+          <li><b>D28</b> Only admins change household-level things: household settings, household-level food claims and rules, household notes, the household quiet-hours default and the like. Non-admins may not. A blanket rule, so the role can grow.</li>
+          <li><b>D29</b> Personal preferences are ungated for everyone, whatever their role, including setting quiet hours to <i>none</i> for yourself (D6). Proposing a preference for another member (D9) is unchanged: any member may propose.</li>
+          <li><b>D30</b> <i>Household admin</i> is not <i>Kitchen role</i>. Kitchen role stays a free label on the person's own profile (cook, shopper); the two use different names on screen. Tenure and earn-your-way gating, and finer roles, stay deferred.</li>
         </ul>
       </div>
       <div>
@@ -89,6 +109,12 @@
       <div>
         <h2>Open questions</h2>
         <ul>
+          <li><b>Admin rights.</b> Do admins have exactly the founding member's rights, or does the founding member keep some alone (granting and revoking admin, removing members)? The mockup gives grant and revoke to the founding member only.</li>
+          <li><b>The last admin.</b> Can the last admin be removed or step down? What if the founding member leaves?</li>
+          <li><b>What a member sees.</b> Read-only rows with <i>Only household admins can change this</i> is the reading drawn. Hidden rows would be the alternative.</li>
+          <li><b>Who can see who is admin.</b> Drawn: every member. The alternative is admins only.</li>
+          <li><b>Values already set.</b> What happens to household values that exist when roles arrive? Drawn: they stay as they are, now changed by admins only.</li>
+          <li><b>Quiet hours default.</b> Drawn as admin only, as the owner listed it with the household-level things; confirm it needs admin.</li>
           <li><b>Recipe stars and votes are household-wide.</b> There is no per-person star. If you want one, that is a change in Recipe's data (the token already says who is asking). A wrong guess costs a schema change.</li>
           <li><b>No lock.</b> A household value is a default; a member can always override it. Is there anything the household should be able to fix for everyone? (Quiet hours are decided: a member may set none for themselves, D6.)</li>
           <li><b>Where it lives:</b> as Settings > Preferences next to Stock checks, or replacing Stock checks.</li>
@@ -101,7 +127,8 @@
           <li>Two tabs, Mine first.</li>
           <li>Rows save the moment you choose (no Save button), like the item fields. Kitchie's page today has Save buttons.</li>
           <li>The chip words <i>Yours</i>, <i>Household</i>, <i>Built-in</i>, <i>Only you</i>, <i>Everyone</i>, <i>Household only</i>, <i>This device</i>.</li>
-          <li>"Founding member" (the People mockup's word). Superseded by D5: this screen has no owner, so it does not use the word.</li>
+          <li>"Founding member" (the People mockup's word) for the person who set the household up. B-P4 was superseded by D5 and the word is back, now as the default admin (D26).</li>
+          <li>Members and admins as a row under <i>Only the household has these</i>, opening a small view with one row per member and a Make admin or Remove admin button. Chip words <i>Founding member</i>, <i>Admin</i>, <i>Member</i>. A change shows at once, with no confirmation step.</li>
           <li>A web list of food statements with "Stop remembering this". Today there is no web page for them; they are said to the assistant.</li>
           <li>The household's value is never shown as a count of who overrides it: the code gives no way to ask, and another member's choices stay theirs.</li>
         </ul>
