@@ -1,6 +1,6 @@
 # Shopping without the app
 
-Status: owner direction by voice, 10 October 2026, and owner review of the mockup the same day (decisions SL-D1 to SL-D16 in `../shopper-link.md`). Captured; mockup drafted and revised: `fragments/shopper-link/`. Phase one is Kitchie issue `basement-bridge/kitchie#479`; phase two (the receipt) is deferred. The job's name is a Proposal (10 Oct 2026, from Claude): the owner described the person, not a title.
+Status: owner direction by voice, 10 October 2026, owner review of the mockup the same day (decisions SL-D1 to SL-D16 in `../shopper-link.md`), and the owner's live test of the built page, 11 October 2026 (SL-D17 to SL-D20). Captured; mockup drafted and revised: `fragments/shopper-link/`. Phase one is Kitchie issue `basement-bridge/kitchie#479`; phase two (the receipt) is deferred. The job's name is a Proposal (10 Oct 2026, from Claude): the owner described the person, not a title.
 
 ## Job
 
@@ -16,7 +16,7 @@ The link also bounds the job: it lasts 48 hours ("That's good enough"), plus a f
 
 ## What leads
 
-The list itself: what to get, and how much. Then one way to say "got it" per line (swipe right; left for "couldn't find it"), a small button to say what was got instead, a box for what was got that was not on the list, Undo always on screen, and one bottom button for the lines that cannot be bought (SL-D5 to SL-D10). Every action syncs at once; the household's list and Pantry follow as the shopper goes (SL-D2), and a second shopper on another link sees each answer, so nothing is bought twice (SL-D3). A long-press turns the list into checkboxes for the person who would rather tick everything and send once, with a confirm first (SL-D8).
+The list itself: what to get, and how much. Then one way to say "got it" per line (swipe right; left for "couldn't find it"), a small button to say what was got instead, a box for what was got that was not on the list, Undo always on screen, and one bottom button for the lines that cannot be bought (SL-D5 to SL-D10). The drag itself says what it will do: the row grows green to the right and red to the left, with the tick or the dash (SL-D17). An answered line then leaves the shopper's list, so the page only ever shows what is left, and says "All done" when nothing is (SL-D18); Undo and the server keep everything that left. Every action syncs at once; the household's list and Pantry follow as the shopper goes (SL-D2), and a second shopper on another link sees each answer, so nothing is bought twice (SL-D3). A long-press turns the list into checkboxes for the person who would rather tick everything and send once, with a confirm first (SL-D8).
 
 The owner: "we can just get that person to tick off what they bought, and make any substitutes that they made decisions on, and if they don't tick it off, we kind of know that. Get a confirmation, of course."
 
@@ -29,6 +29,7 @@ Two modes in the end, ticking first: "One is that they just tick off what's on t
 - Proposal (10 Oct 2026, kitchie#479 P6): the household's name and its members' names.
 - Proposal (10 Oct 2026, from Claude): what is left at home, who added a line.
 - (Swipes were on this list. The owner's review put them on the shopper's page: SL-D5.)
+- A trail of finished lines (owner, 11 Oct 2026: "don't need that", SL-D18), and any control that looks like delete unless it deletes (SL-D19).
 
 ## Mockup
 

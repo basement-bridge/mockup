@@ -8,7 +8,13 @@
 // The server owns the truth. Every answer from it, and every event on its stream, is a whole snapshot:
 //   { lines: { <key>: { state: "open"|"got"|"notgot"|"swapped", words: "", by: "you"|"other"|"" } }, extras: [{ id, text }], last: { label } | null, hours: 46 }
 // "by" tells the page whether a line was answered on this link ("you") or on another one ("other"): the shopper never sees a name (kitchie#479 P6).
-// A line answered on another link is locked here, so two shoppers cannot buy it twice. Requests (form-encoded POST, base = data-sl-api):
+// A line got or swapped on another link is locked here, so two shoppers cannot buy it twice.
+// AN ANSWERED LINE LEAVES THE LIST (owner's live test, 11 October 2026, SL-D18). The server draws every line and marks the answered ones data-sl-gone (display:none in
+// shopper.css), so the page is right before this file runs. Here a line that is answered holds for a moment (the tick, or the swipe's colour, is seen), folds away and the
+// rest move up; Undo, or a failed sync, takes the mark off and the line comes back in its place. A line is "answered" when this link got it, swapped it or could not find
+// it, or when another link got or swapped it (it says "Someone else got this" for a moment first). A line another link could not find is still to do here.
+// In multi-select nothing vanishes: lines stay as they are until the batch is sent. The drag colours (SL-D17) are the CSS's; this file only says how far the line is
+// pulled (--sl-p, 0 to 1) and whether letting go would answer it (data-sl-armed). Requests (form-encoded POST, base = data-sl-api):
 //   line (key, state, swap)   extra (text)   extra/remove (id)   unresolved   undo   batch (got..., swap_<key>..., also..., confirm=1)   GET events (stream)
 // A 404 is the one neutral answer for a link that has finished. Without this file the page is the multi-select form and still works.
 // Item text and the shopper's words only ever go into the page as text, never as HTML.
@@ -28,11 +34,12 @@
   var alsoIn = document.getElementById("sl-also-in");
   var API = root.getAttribute("data-sl-api") || "";
   var MAX = 120, HOLD = 550, SVG = "http://www.w3.org/2000/svg";
-  var ICONS = { swapped: "M5 9h12l-3-3M19 15H7l3 3", notgot: "M7 12h10", also: "M12 5v14M5 12h14" };
+  var ICONS = { swapped: "M5 9h12l-3-3M19 15H7l3 3", notgot: "M7 12h10", also: "M6 8h12l-1 12H7zM9 8V6.5a3 3 0 0 1 6 0V8", remove: "M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12M10 11v5M14 11v5" }; // also: the bag (it came home); remove: the bin (it really removes)
   var mode = "swipe";
   var synced = { lines: {}, extras: [], last: null, hours: null }; // the last snapshot the server gave
   var rev = -1, quiet = true; // quiet: nothing takes the keyboard while the page sets itself up
   var history = [], shadow = {}, pending = []; // multi-select only: undo steps, last known pick per line, extras not sent yet
+  var instant = false; // set while a whole batch comes back at once: lines then leave with no hold and no folding
 
   function rows() { return Array.prototype.slice.call(list.querySelectorAll("li[data-shop-row]")); }
   function rowOf(key) { return list.querySelector('li[data-key="' + key + '"]'); }
@@ -44,6 +51,11 @@
   function name(li) { return li.getAttribute("data-name") || ""; }
   function locked(li) { return li.getAttribute("data-by") === "other"; }
   function plural(n, word) { return n + " " + word + (n === 1 ? "" : "s"); }
+  function resolved(s) { return s === "got" || s === "swapped" || s === "notgot"; }
+  function reduced() { return window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches; }
+  function isGone(li) { return li.hasAttribute("data-sl-gone"); }
+  function isLeaving(li) { return li.hasAttribute("data-sl-leaving"); }
+  function visibleRows() { return rows().filter(function (li) { return !isGone(li); }); }
 
   var toastTimer = 0;
   function say(text) {
@@ -69,19 +81,80 @@
       else { sub.textContent = ""; sub.hidden = true; }
     }
   }
-  // Put one line into a state. Used for the server's word and for the optimistic first guess.
-  function set(li, state, by, w) {
-    // "other" only matters (and only locks the line) while the line is got: a not-found or a swap on another link can still be answered here.
-    if (by === "other" && state === "got") li.setAttribute("data-by", "other");
+  // Put one line into a state. Used for the server's word and for the optimistic first guess. "how" is "swipe" when the line was swiped away, so it leaves from where it was
+  // pulled to; anything else leaves the usual way (see leave).
+  function set(li, state, by, w, how) {
+    // A line another link could not find is still to do here ("didn't find" does not lock, SL-J4): for this shopper it is an ordinary open line.
+    if (by === "other" && state === "notgot") { state = "open"; by = ""; w = ""; }
+    // "other" only locks a line that was got or swapped there (SL-J4, confirmed by the owner 10 October 2026); the other shopper's words are never shown.
+    var lock = by === "other" && (state === "got" || state === "swapped");
+    if (lock) li.setAttribute("data-by", "other");
     else if (by === "you") li.setAttribute("data-by", "you");
     else li.removeAttribute("data-by");
     li.setAttribute("data-state", state);
-    li.setAttribute("data-sl-w", state === "swapped" ? w || "" : "");
+    li.setAttribute("data-sl-w", state === "swapped" && !lock ? w || "" : "");
     box(li).checked = state === "got";
-    box(li).disabled = by === "other" && state === "got";
-    field(li).value = state === "swapped" ? (w || "") : "";
-    if (state !== "swapped" && det(li).open) det(li).open = false;
+    box(li).disabled = lock && state === "got";
+    // A shopper who is typing "got something else" on a line another shopper has just got keeps what they typed until they finish: the line leaves after (see busy, flush).
+    var typing = lock && det(li).open;
+    if (!typing) field(li).value = state === "swapped" && !lock ? (w || "") : "";
+    if (state !== "swapped" && det(li).open && !typing) det(li).open = false;
     paint(li);
+    settle(li, lock ? "other" : state, how);
+  }
+
+  // ---- answered lines leave the list (SL-D18)
+  var STAY = { swipe: 0.14, tap: 0.45, other: 1.6 }; // seconds a line stays before it folds away; the swipe has already shown its colour
+  function busy(li) { return (drag && drag.li === li && drag.on) || det(li).open; } // being dragged, or its words are being typed
+  // Where the keyboard goes when the line it is on leaves: the next line, else the one before, else the end-state card.
+  function rehome(li) {
+    var a = document.activeElement;
+    if (!a || !li.contains(a)) return;
+    var vis = rows().filter(function (r) { return r !== li && !isGone(r) && !isLeaving(r); });
+    var next = vis.filter(function (r) { return li.compareDocumentPosition(r) & 4; })[0] || vis[vis.length - 1];
+    if (next) next.querySelector('input[name="got"]').focus({ preventScroll: true });
+    else setTimeout(function () { var c = form.querySelector("[data-sl-allset]"); if (c && !c.hidden) c.focus({ preventScroll: true }); }, 0);
+  }
+  function clearLeave(li) {
+    clearTimeout(li._slT);
+    ["data-sl-leaving", "data-sl-hold", "data-sl-drag", "data-sl-armed"].forEach(function (a) { li.removeAttribute(a); });
+    ["--sl-h", "--sl-hold", "--sl-p"].forEach(function (p) { li.style.removeProperty(p); });
+    li.querySelector(".swfg").style.removeProperty("--dx");
+  }
+  function goneNow(li) { rehome(li); clearLeave(li); li.setAttribute("data-sl-gone", ""); bar(); }
+  function leave(li, kind, how) {
+    if (isGone(li) || isLeaving(li)) return;
+    if (quiet || instant || reduced()) { goneNow(li); return; }
+    if (busy(li)) { li.setAttribute("data-sl-hold", ""); return; } // never pull a line away from under a finger or a keyboard: it leaves when they let go
+    rehome(li);
+    var hold = kind === "other" ? STAY.other : how === "swipe" ? STAY.swipe : STAY.tap;
+    li.style.setProperty("--sl-h", li.offsetHeight + "px");
+    li.style.setProperty("--sl-hold", hold + "s");
+    li.setAttribute("data-sl-leaving", kind);
+    li._slT = setTimeout(function () { goneNow(li); }, (hold + 0.22) * 1000 + 200); // animationend is the usual way; this is for a tab that is not drawing
+    li.addEventListener("animationend", function done(e) { if (e.animationName !== "sl-leave") return; li.removeEventListener("animationend", done); goneNow(li); });
+  }
+  // An answered line comes back (Undo, or a sync that failed). Returns true when it was already out of sight.
+  function back(li) {
+    var was = isGone(li);
+    clearLeave(li);
+    li.removeAttribute("data-sl-gone");
+    if (was && !quiet && !instant && !reduced()) { li.setAttribute("data-sl-back", ""); setTimeout(function () { li.removeAttribute("data-sl-back"); }, 400); }
+    return was;
+  }
+  var backed = []; // lines that came back during one snapshot, so the page can say so once
+  // After a line has been given its state: in swipe mode an answered line leaves and an open one is shown; in multi-select nothing moves (the batch is not sent yet).
+  function settle(li, kind, how) {
+    if (mode !== "swipe") return;
+    var s = li.getAttribute("data-state");
+    if (resolved(s)) leave(li, kind, instant ? "tap" : how);
+    else if (back(li)) backed.push(li);
+  }
+  // A line that was held back because it was being dragged or typed on leaves now, if it is still answered.
+  function flush(li) {
+    if (!li.hasAttribute("data-sl-hold") || busy(li)) return;
+    li.removeAttribute("data-sl-hold");
+    if (resolved(li.getAttribute("data-state"))) leave(li, locked(li) ? "other" : li.getAttribute("data-state"), "tap");
   }
 
   // ---- the top bar and the bottom bars
@@ -107,14 +180,21 @@
       return;
     }
     n = openCount(); last = synced.last && synced.last.label;
-    var nf = rows().filter(function (li) { return li.getAttribute("data-state") === "notgot"; }).length;
-    nEl.textContent = n === 0 ? "All answered" : n + " to go" + (nf ? " · " + nf + " not found" : "");
+    // Only what is left is counted (SL-D18): lines that were answered, found or not, are off the list and are not tallied.
+    nEl.textContent = n === 0 ? "All done" : n + " to go";
     lastEl.textContent = last ? "Undo takes back: " + last : (n === 0 ? "" : "Swipe a line to answer it.");
     lastEl.hidden = lastEl.textContent === "";
     undoBtn.disabled = !last;
     undoBtn.setAttribute("aria-label", last ? "Undo: " + last : "Undo");
     wont.hidden = n === 0; send.hidden = true;
-    allset.hidden = !(n === 0 && rows().length > 0);
+    // The end state shows once the last line has finished leaving, so the card and a half-folded line are never on screen together.
+    var done = n === 0 && rows().length > 0 && visibleRows().length === 0;
+    allset.hidden = !done;
+    form.querySelector("#shop-hint").hidden = done;
+    if (done) {
+      var bought = rows().some(function (li) { var L = synced.lines[keyOf(li)] || {}; return (L.state === "got" || L.state === "swapped") && L.by !== "other"; }) || synced.extras.length > 0;
+      allset.querySelector("[data-sl-fin-t]").textContent = bought ? "The household has your answers and their list is up to date. You can close this page." : "Nothing was bought on this link, and that's fine. The household has your answers. You can close this page.";
+    }
     var foot = form.querySelector("[data-sl-foot]");
     if (foot && synced.hours) foot.textContent = "No sign-in needed. This link works for another " + synced.hours + " hours.";
   }
@@ -138,8 +218,8 @@
       sp.textContent = x.text;
       if (x.id === undefined) { var sm = document.createElement("small"); sm.textContent = "Not sent yet"; sp.appendChild(sm); } else li.setAttribute("data-sent", "");
       x_.type = "button"; x_.className = "sl-x"; x_.setAttribute("data-sl-extra-x", x.id === undefined ? "p" + pending.indexOf(x) : String(x.id));
-      x_.setAttribute("aria-label", "Remove " + x.text);
-      x_.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+      x_.setAttribute("aria-label", "Remove " + x.text); x_.title = "Remove"; // this one really removes the line, so it is drawn as a bin (SL-D19); it was a cross
+      x_.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="' + ICONS.remove + '"/></svg>';
       li.appendChild(ic); li.appendChild(sp); li.appendChild(x_); extrasEl.appendChild(li);
     });
   }
@@ -174,6 +254,7 @@
     if (!snap || typeof snap !== "object") return;
     if (typeof snap.rev === "number") { if (snap.rev < rev) return; rev = snap.rev; }
     var fresh = [];
+    backed = [];
     Object.keys(snap.lines || {}).forEach(function (k) {
       var li = rowOf(k), L = snap.lines[k], was = synced.lines[k] || {};
       if (!li) return;
@@ -186,6 +267,12 @@
     synced = { lines: snap.lines || synced.lines, extras: snap.extras || [], last: snap.last || null, hours: snap.hours || synced.hours };
     drawExtras(); bar();
     if (fresh.length && !quiet) say("Someone else just got " + (fresh.length === 1 ? name(fresh[0]) : fresh.length + " more lines") + ".");
+    else if (backed.length && !quiet && !instant) { // Undo took an answer back: say where the line went, and bring it into view
+      say(backed.length === 1 ? name(backed[0]) + " is back on your list." : backed.length + " lines are back on your list.");
+      var first = backed[0], r = first.getBoundingClientRect(), bh = (form.querySelector(".sl-undo-bar") || { offsetHeight: 0 }).offsetHeight;
+      if (r.top < bh + 8 || r.bottom > window.innerHeight - 90) first.scrollIntoView({ block: "center", behavior: reduced() ? "auto" : "smooth" });
+    }
+    backed = [];
   }
   // What the page was drawn with (the server renders data-state, data-by and the swap words) is the first snapshot.
   function readPage() {
@@ -195,18 +282,19 @@
   }
 
   // ---- swipe mode
-  function commit(li, state, w) {
+  function commit(li, state, w, how) {
     var key = keyOf(li), before = { state: li.getAttribute("data-state"), by: li.getAttribute("data-by") || "", words: words(li) };
-    set(li, state, "you", w || "");
+    set(li, state, "you", w || "", how);
     bar();
     sync("line", { key: key, state: state === "swapped" ? "got" : state, swap: w || "" }, function () { set(li, before.state, before.by, before.words); bar(); });
   }
-  function answer(li, target) {
+  function answer(li, target, how) {
     if (locked(li)) { say("Someone else got this one already."); return; }
     if (li.getAttribute("data-state") === target) return;
-    commit(li, target, "");
+    commit(li, target, "", how);
   }
   function finishSwap(li) {
+    if (locked(li)) { field(li).value = ""; det(li).open = false; say("Someone else got this one already."); flush(li); return; }
     var w = words(li), cur = li.getAttribute("data-sl-w") || "";
     field(li).value = w;
     det(li).open = false;
@@ -217,7 +305,7 @@
 
   var drag = null, hold = 0, swallow = 0;
   function stopHold() { clearTimeout(hold); hold = 0; }
-  function endDrag(li) { li.removeAttribute("data-sl-drag"); li.removeAttribute("data-sl-armed"); li.querySelector(".swfg").style.removeProperty("--dx"); }
+  function endDrag(li) { li.removeAttribute("data-sl-drag"); li.removeAttribute("data-sl-armed"); li.style.removeProperty("--sl-p"); li.querySelector(".swfg").style.removeProperty("--dx"); }
   list.addEventListener("pointerdown", function (e) {
     if (e.button) return;
     var fg = e.target.closest && e.target.closest(".swfg");
@@ -236,8 +324,9 @@
       drag.on = true; try { drag.fg.setPointerCapture(e.pointerId); } catch (er) { /* the mouse may not allow it */ }
     }
     drag.dx = Math.max(-drag.w * 0.92, Math.min(drag.w * 0.92, dx));
-    var armed = Math.abs(drag.dx) >= Math.max(80, drag.w * 0.3);
+    var need = Math.max(80, drag.w * 0.3), armed = Math.abs(drag.dx) >= need;
     drag.li.setAttribute("data-sl-drag", dx > 0 ? "got" : "notgot");
+    drag.li.style.setProperty("--sl-p", Math.min(1, Math.abs(drag.dx) / need).toFixed(3)); // how far toward the point of no return: the colour grows with it (SL-D17)
     drag.li.toggleAttribute("data-sl-armed", armed);
     drag.fg.style.setProperty("--dx", drag.dx + "px");
   });
@@ -246,9 +335,16 @@
     var d = drag; drag = null; stopHold();
     if (!d.on) return;
     swallow = Date.now();
-    var armed = d.li.hasAttribute("data-sl-armed"), to = d.dx > 0 ? "got" : "notgot";
-    endDrag(d.li);
-    if (armed && !cancel) answer(d.li, to);
+    var armed = d.li.hasAttribute("data-sl-armed"), to = d.dx > 0 ? "got" : "notgot", li = d.li;
+    if (armed && !cancel && !locked(li) && li.getAttribute("data-state") !== to) {
+      // Let go past the line: it carries on out of the page in the colour it was pulled in, then folds away (leave). Reduced motion: it is simply gone.
+      li.querySelector(".swfg").style.setProperty("--dx", (to === "got" ? d.w : -d.w) + "px");
+      answer(li, to, "swipe");
+    } else {
+      endDrag(li);
+      if (armed && !cancel) answer(li, to);
+    }
+    flush(li);
   }
   list.addEventListener("pointerup", function (e) { release(e, false); });
   list.addEventListener("pointercancel", function (e) { release(e, true); });
@@ -287,7 +383,7 @@
     var d = e.target;
     if (!d.matches || !d.matches("details.sl-swap")) return;
     var li = d.closest("li[data-shop-row]");
-    if (d.open) { li.querySelector("[data-sl-swap-label]").textContent = "Got something else"; if (!quiet) field(li).focus(); } else paint(li);
+    if (d.open) { li.querySelector("[data-sl-swap-label]").textContent = "Got something else"; if (!quiet) field(li).focus(); } else { paint(li); flush(li); }
   }, true);
 
   // ---- the bottom button, undo, also-got
@@ -424,7 +520,8 @@
     });
     post("batch", data).then(function (snap) {
       sending = false; button.disabled = false;
-      exitMulti(true); show("list"); apply(snap); say("Sent. Thank you!");
+      instant = true; // the whole batch comes back at once: every line it answered is simply gone, nothing folds
+      exitMulti(true); show("list"); apply(snap); instant = false; say("Sent. Thank you!");
     }, function (err) { sending = false; button.disabled = false; if (!err || err.message !== "taken") say("That didn't send. Your picks are still here. Try again."); });
   }
   form.addEventListener("submit", function (e) {
