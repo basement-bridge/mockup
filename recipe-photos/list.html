@@ -4,32 +4,61 @@
 <body data-no-theme-fab>
 <div class="stage"><div class="phone" id="ph"></div></div>
 <script>
-/* The flow slice's list (recipe/list.html, option A) with only the photo change: the 56px tile shows the cover thumbnail
-   instead of the emoji (P-D21 A). No row gets taller. Rows without a photo keep their emoji: no grey placeholder (P-D19). */
+/* The flow slice's list (R-O1, one ranked list) with the photo rule the owner typed on 10 Oct 2026 (P-D21):
+   - Every row with a banner starts with a STOCK placeholder in its tile (no request), so the recipe content (names, times, pills)
+     is what paints first. A row whose recipe has no banner keeps its emoji (P-D19), never a cooked photo (P-D10 B).
+   - Then images load in place, in this order:
+       1. if this week's plan exists, the planned recipes' thumbnails first;
+       2. the rows on screen plus the next 5 in the shown category (the chip), whatever the layout;
+       3. everything else only when it scrolls into view (on demand).
+   - The default frame of the Recipes tab is lazy-fetched after the core of the page completes; the home screen never runs this loader
+     and never waits on it (one rule, stated once in the loading budget).
+   The Mockup panel's counter shows how many files each step loaded. */
 (function(){
 var X=RCP,F=PHO,ic=X.ic,esc=X.esc;
-var opt=X.Q.get("lt")||X.store.get("plt","A");X.store.set("plt",opt);
+var plan=X.Q.get("plan")||X.store.get("pplan","yes");X.store.set("pplan",plan);
+var chip=X.Q.get("chip")||"all";
 var ph=document.getElementById("ph");
-var ord=X.R.slice().sort(function(a,b){return X.missing(X.resolve(a).ings).length-X.missing(X.resolve(b).ings).length||a.last-b.last});
-var row=function(r){
-  var m=X.missing(X.resolve(r).ings),vc=r.vers.length,c=F.coverFor(r,(r.vers.filter(function(v){return v.def})[0]||r.vers[0]).id);
+var planned=plan==="yes"?X.WEEK.map(function(d){return d[2]}).filter(Boolean):[];
+var row=function(r,i){
+  var m=X.missing(X.resolve(r).ings),vc=r.vers.length,c=F.bannerFor(r,(r.vers.filter(function(v){return v.def})[0]||r.vers[0]).id);
   var pills=[];
   pills.push(m.length?'<span class="tg miss">'+m.length+' missing</span>':'<span class="tg">'+ic("check")+'All in</span>');
+  if(planned.indexOf(r.name)>-1)pills.push('<span class="tg acc">'+ic("cal")+'Planned</span>');
   if(r.star)pills.push('<span class="tg acc" aria-label="Starred">'+ic("star")+'</span>');
   if(vc>1)pills.push('<span class="tg mut" aria-label="'+vc+' versions">'+ic("branch")+vc+'</span>');
-  var thumb=opt==="B"?'':(c?'<span class="th ph"'+(opt==="C"?' style="width:40px;height:40px"':'')+'>'+F.frame(c.p.id,"t",{alt:""})+'</span>':'<span class="th"'+(opt==="C"?' style="width:40px;height:40px;font-size:20px"':'')+' aria-hidden="true">'+r.e+'</span>');
-  if(opt==="B")thumb='<span style="font-size:24px;width:32px;text-align:center" aria-hidden="true">'+r.e+'</span>';
+  var thumb=c?'<span class="th ph">'+F.frame(c.p.id,"t",{phase:"list",stock:1,prep:c.p.prep,small:1,alt:""})+'</span>':'<span class="th" aria-hidden="true">'+r.e+'</span>';
   var meta=r.min+" min · "+(r.batch?"makes "+r.serves:"serves "+r.serves);
-  return '<li><a class="rr" href="recipe.html?id='+r.id+'"'+(opt==="C"?' style="min-height:60px"':'')+'>'+thumb+'<span class="t"><b>'+esc(r.name)+'</b><small>'+meta+'</small>'+(opt==="C"?'':'<span class="pills">'+pills.join("")+'</span>')+'</span><span class="chev">'+ic("chev","s")+'</span></a></li>';
+  return '<li><a class="rr" href="recipe.html?id='+r.id+'" data-name="'+esc(r.name)+'">'+thumb+'<span class="t"><b>'+esc(r.name)+'</b><small>'+meta+'</small><span class="pills">'+pills.join("")+'</span></span><span class="chev">'+ic("chev","s")+'</span></a></li>';
 };
-/* sample: more rows than one screen, so lazy loading has something to skip. The tail repeats the sample recipes. */
-var rows=ord.concat(ord).concat(ord);
-ph.innerHTML='<div class="top" style="border-bottom:0"><label class="search">'+ic("search","s")+'<span class="vh">Search recipes</span><input type="search" placeholder="Search recipes or ingredients"></label><a class="ib acc" href="../recipe/add.html" aria-label="Add a recipe">'+ic("plus")+'</a></div>'+
-  '<div class="strip" role="group" aria-label="Show"><button type="button" aria-pressed="true">All</button><span class="sd" aria-hidden="true"></span><button type="button" aria-pressed="false">Ready now</button><button type="button" aria-pressed="false">Starred</button><button type="button" aria-pressed="false">Batch</button><button type="button" aria-pressed="false">Under 30</button></div>'+
-  '<div class="body" id="body"><ul class="rl" style="margin-top:4px">'+rows.map(row).join("")+'</ul><div style="height:24px"></div></div>'+X.bar().replace(/href="list\.html"/,'href="list.html"');
-F.load(ph);
-F.controls('<h4>Photos in the list (P-D21)</h4><div class="seg"><button type="button" data-lt="A" aria-pressed="'+(opt==="A")+'">A Thumb in the tile</button><button type="button" data-lt="B" aria-pressed="'+(opt==="B")+'">B No photos in lists</button><button type="button" data-lt="C" aria-pressed="'+(opt==="C")+'">C Small thumb, slim rows</button></div>');
-document.addEventListener("click",function(e){var b=e.target.closest("[data-lt]");if(b){X.store.set("plt",b.dataset.lt);var u=new URL(location.href);u.searchParams.delete("lt");location.href=u.toString()}});
+/* sample: more rows than one screen, so the "rest only on demand" step has something to skip. The tail repeats the sample recipes;
+   in the build every row is a different recipe. Batch chip = a category with fewer rows. */
+var base=X.R.slice().sort(function(a,b){return X.missing(X.resolve(a).ings).length-X.missing(X.resolve(b).ings).length||a.last-b.last});
+var rows=chip==="batch"?base.filter(function(r){return r.batch||r.id==="rag"}):base.concat(base).concat(base);
+ph.innerHTML='<div class="top" style="border-bottom:0"><label class="search">'+ic("search","s")+'<span class="vh">Search recipes</span><input type="search" placeholder="Search recipes or ingredients"></label><a class="ib acc" href="../recipe/list.html" aria-label="Ask your assistant to add a recipe">'+ic("plus")+'</a></div>'+
+  '<div class="strip" role="group" aria-label="Show"><button type="button" data-chip="all" aria-pressed="'+(chip==="all")+'">All</button><span class="sd" aria-hidden="true"></span><button type="button" data-chip="batch" aria-pressed="'+(chip==="batch")+'">Batch</button><button type="button" aria-pressed="false">Ready now</button><button type="button" aria-pressed="false">Starred</button><button type="button" aria-pressed="false">Under 30</button></div>'+
+  '<div class="body" id="body"><ul class="rl" style="margin-top:4px">'+rows.map(row).join("")+'</ul><div style="height:24px"></div></div>'+X.bar();
+var b=document.getElementById("body");
+/* The loader. Everything above has painted (text and stock tiles, 0 requests). Then: */
+F.afterPaint(function(){
+  var tiles=[].slice.call(b.querySelectorAll(".rr")),bt=b.getBoundingClientRect().bottom;
+  var tile=function(a){return a.querySelector('.pf[data-phase="list"]:not([data-go])')};
+  /* 1. planned this week first (one request per recipe: the same thumbnail serves every row of that recipe) */
+  var seenId={},uniq=function(el){if(!el)return null;if(seenId[el.dataset.pid])return null;seenId[el.dataset.pid]=1;return el};
+  var first=tiles.filter(function(a){return planned.indexOf(a.dataset.name)>-1}).map(tile).map(uniq).filter(Boolean);
+  Promise.all(first.map(function(el){return F.fetchOne(el,"plan")})).then(function(){
+    /* 2. on screen plus the next 5 in this category */
+    var on=tiles.filter(function(a){return a.getBoundingClientRect().top<bt}),last=on.length?tiles.indexOf(on[on.length-1]):-1;
+    return Promise.all(tiles.slice(0,last+1+5).map(tile).filter(Boolean).map(function(el){return F.fetchOne(el,"near")}));
+  }).then(function(){
+    /* 3. the rest: only as it scrolls into view */
+    tiles.map(tile).filter(Boolean).forEach(function(el){el.dataset.phase="scroll"});F.watch(ph,b);
+  });
+});
+F.prepWatch(ph);
+F.controls('<h4>This week\'s plan</h4><div class="seg"><button type="button" data-plan="yes" aria-pressed="'+(plan==="yes")+'">Plan exists (3 recipes)</button><button type="button" data-plan="no" aria-pressed="'+(plan==="no")+'">No plan yet</button></div>'+
+  '<p style="font-size:12px;margin-top:6px">P-D21 is locked: stock picture first, then planned, then on screen + 5 more in the category, the rest on demand. Option switches A to C were removed.</p>');
+document.addEventListener("click",function(e){var c=e.target.closest("[data-chip]");if(c){var u2=new URL(location.href);u2.searchParams.set("chip",c.dataset.chip);location.href=u2.toString();return}var x=e.target.closest("[data-plan]");if(x){X.store.set("pplan",x.dataset.plan);var u=new URL(location.href);u.searchParams.delete("plan");location.href=u.toString()}});
 })();
 </script>
 </body></html>

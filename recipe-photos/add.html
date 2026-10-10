@@ -12,8 +12,12 @@
    The cover of a version is the secondary path: a quiet link under the picker, and Replace cover in the viewer.
    Build: the entry is a <label> around a hidden <input type="file" accept="image/*" multiple> on the recipe page, so the phone's own
    picker (camera or library) opens on the first tap; the review screen and its shrinking code load only after a photo is picked (P-D14).
-   Params: to (recipe), kind (cooked | dish), cook (the cook's date in the sample, its id in the build), from (cook | recipe),
-   src (lib | cam), step, p (picked), replace (a cover being replaced). Any member, same controls (L5). */
+   Params: to (recipe), kind (cooked | banner | step | more; dish = banner), cook (the cook's date in the sample, its id in the build), from (cook | recipe),
+   src (lib | cam), step (screen: pick | edit | up), sn (step number for kind=step), v (version), p (picked), replace (a photo being replaced),
+   phone=raw (this phone could not shrink: P-D7 C, the server derives later). Any member, same controls (L5).
+   Owner's typed decisions, 10 Oct 2026: kinds banner (one per version, kept large + square), step (one per step, at most 10 per version,
+   kept medium + square), more and cooked (medium + square, 3 per cook). The phone shrinks first (P-D7 C); Replace makes a new photo
+   and removes the old one with the 5-minute undo (P-D17 B). */
 (function(){
 var X=RCP,F=PHO,ic=X.ic,esc=X.esc;
 var r=X.byId(X.Q.get("to")||"efr")||X.R[0];
@@ -21,7 +25,11 @@ var r=X.byId(X.Q.get("to")||"efr")||X.R[0];
    the build passes from=cook and the cook id explicitly). */
 var from=X.Q.get("from")||(/\/recipe\/cook\.html/.test(document.referrer)?"cook":"");
 var replace=X.Q.get("replace");
-var kind=replace?"dish":(X.Q.get("kind")==="dish"?"dish":"cooked");
+/* kind: cooked (default, P-D25) | banner (one per version) | step (one per step, sn = the step, at most 10 per version) | more (gallery).
+   "dish" is the older name for banner, kept for links from other slices. */
+var kind=(function(k){k=k==="dish"||k==="cover"?"banner":k;return ["banner","step","more","cooked"].indexOf(k)>-1?k:"cooked"})(X.Q.get("kind"));
+var sn=+(X.Q.get("sn")||0);
+var raw=X.Q.get("phone")==="raw"; /* P-D7 C: this phone could not make the sizes; the server makes them later */
 var cook=X.Q.get("cook")||(from==="cook"?"tonight":"");
 var askCook=kind==="cooked"&&!cook; /* the one question, only when the entry did not say which cook */
 if(!cook)cook="tonight";
@@ -29,66 +37,76 @@ var src=X.Q.get("src")||"lib";
 var step=X.Q.get("step")||(src==="cam"?"edit":"pick");
 var many={};(X.Q.get("p")||(src==="cam"?"efr-c2":"")).split(",").filter(Boolean).forEach(function(id){many[id]=1});
 if(step!=="pick"&&!Object.keys(many).length)many["efr-c2"]=1;
-var v=(r.vers.filter(function(x){return x.def})[0]||r.vers[0]);
+var v=r.vers.filter(function(x){return x.id===X.Q.get("v")})[0]||(r.vers.filter(function(x){return x.def})[0]||r.vers[0]);
 var ph=document.getElementById("ph");
 var me=X.me[2];
 var cookLabel=function(c){return c==="tonight"?"Tonight":"Cooked "+c};
 /* photos already on that cook count toward the 3 per cook (P-D8) */
 var onCook=function(c){return c==="tonight"?0:F.photos(r).filter(function(p){return p.k==="cooked"&&p.when===c}).length};
-var room=function(){return kind==="dish"?1:Math.max(0,3-onCook(cook))};
+var stepsFull=kind==="step"&&!replace&&F.stepCount(r,v.id)>=10;
+var room=function(){return kind==="cooked"?Math.max(0,3-onCook(cook)):kind==="more"?3:1};
 var backHref=from==="cook"?"../recipe/cook.html?id="+r.id+"&step=99":"recipe.html?id="+r.id;
 var picked=function(){return Object.keys(many)};
 function aim(){
   /* the target, said once at the top so nothing needs asking */
-  return kind==="dish"?
-    '<div class="aim">'+ic("img","s")+'<span><b>Cover of '+esc(v.name)+'</b><small>'+esc(r.name)+' · what the list and the top of the page show</small></span></div>':
-    '<div class="aim">'+ic("cam","s")+'<span><b>'+(cook==="tonight"?"What you made tonight":"Your cook of "+esc(cook))+'</b><small>'+esc(r.name)+' · into Cooked, with your name ('+esc(me)+')</small></span></div>';
+  if(kind==="banner")return '<div class="aim">'+ic("img","s")+'<span><b>'+(replace?'New banner':'Banner')+' of '+esc(v.name)+'</b><small>'+esc(r.name)+' · the top of the page and the list. One per version.</small></span></div>';
+  if(kind==="step")return '<div class="aim">'+ic("img","s")+'<span><b>Step '+(sn+1)+' of '+esc(v.name)+'</b><small>'+esc((r.steps[sn]||[""])[0]).slice(0,60)+' · one photo per step, '+F.stepCount(r,v.id)+' of 10 used</small></span></div>';
+  if(kind==="more")return '<div class="aim">'+ic("img","s")+'<span><b>A photo of '+esc(v.name)+'</b><small>'+esc(r.name)+' · into Photos</small></span></div>';
+  return '<div class="aim">'+ic("cam","s")+'<span><b>'+(cook==="tonight"?"What you made tonight":"Your cook of "+esc(cook))+'</b><small>'+esc(r.name)+' · into Cooked, with your name ('+esc(me)+')</small></span></div>';
+}
+/* what the phone makes before sending (P-D6 as locked: only the banner keeps the large size; everything else square + medium) */
+function shrinkLine(n){
+  if(raw)return '<div class="shrink">'+ic("img","s")+'<span>This phone could not make it smaller, so it goes as it is (<b>3.1 MB</b>). Recipe prepares it when the server is free; until then it shows as <b>"Photo is being prepared"</b>.</span></div>';
+  return '<div class="shrink">'+ic("check","s")+'<span>Made smaller on your phone first: <b>4.2 MB → '+(kind==="banner"?"about 260 KB":"about 87 KB")+(n>1?" each":"")+'</b> ('+(kind==="banner"?"large 1600 px and a square":"medium 960 px and a square")+'). Location removed.</span></div>';
 }
 function draw(){
-  var title=replace?"Replace the cover":kind==="dish"?"Add a cover":"Add a photo";
+  var title=replace?(kind==="banner"?"Replace the banner":kind==="step"?"Replace step photo":"Replace photo"):kind==="banner"?"Add a banner":kind==="step"?"Photo for a step":"Add a photo";
   var h='<div class="top"><a class="back" href="'+backHref+'">'+ic("back","s")+'Cancel</a><span class="ttl">'+title+'</span><span style="width:64px"></span></div>';
-  if(step==="pick"){
+  if(stepsFull){
+    h+='<div class="body">'+aim()+'<div class="pad"><div class="pempty"><span class="e" aria-hidden="true">🔟</span><span class="t"><b>10 step photos is the most for one version</b><small>Replace one of them instead: open it on the recipe page and tap Replace. A step does not need a photo.</small></span></div></div></div>'+
+      '<div class="act"><a class="btn" href="recipe.html?id='+r.id+'#met">Back to the method</a></div>';
+  }else if(step==="pick"){
     /* stands in for the phone's own picker (camera or library). The app never sees the library, only what the person picks. */
     var lib=["efr-c1","efr-c2","efr-c3","efr-1","sha-1","cur-1","len-1","rag-1","efr-2"];
     var n=picked().length,cap=room();
     h+='<div class="body">'+aim()+'<div class="mockmark">Your phone\'s own picker</div><div class="pad" style="padding-top:0"><div class="pgal">'+
       '<a class="addp" href="?'+qs({src:"cam",step:"edit",p:"efr-c2"})+'">'+ic("cam")+'Camera</a>'+
       lib.map(function(id){return '<button type="button" data-pk="'+id+'" aria-pressed="'+!!many[id]+'" aria-label="Photo">'+F.frame(id,"t",{alt:""})+(many[id]?'<span class="badge2">'+(picked().indexOf(id)+1)+'</span>':'')+'</button>'}).join("")+'</div>'+
-      '<p style="font-size:12.5px;margin-top:10px">'+(kind==="dish"?"Pick one.":cap<3?onCook(cook)+" already from this cook, "+cap+" more fit.":"Pick up to 3 from this cook.")+'</p>'+
-      (kind==="cooked"&&!replace?'<p style="margin-top:6px"><a class="back" style="font-size:13px" href="?'+qs({kind:"dish",step:"pick",p:""})+'">'+ic("img","s")+' Or a cover for '+esc(v.name)+'</a></p>':'')+
-      (kind==="dish"&&!replace?'<p style="margin-top:6px"><a class="back" style="font-size:13px" href="?'+qs({kind:"cooked",step:"pick",p:""})+'">'+ic("cam","s")+' Or a photo of a cook</a></p>':'')+
+      '<p style="font-size:12.5px;margin-top:10px">'+(kind!=="cooked"?(kind==="more"?"Pick up to 3.":"Pick one."):cap<3?onCook(cook)+" already from this cook, "+cap+" more fit.":"Pick up to 3 from this cook.")+'</p>'+
+      (kind==="cooked"&&!replace?'<p style="margin-top:6px"><a class="back" style="font-size:13px" href="?'+qs({kind:"banner",step:"pick",p:""})+'">'+ic("img","s")+' Or the banner of '+esc(v.name)+'</a></p>':'')+
+      (kind!=="cooked"&&!replace?'<p style="margin-top:6px"><a class="back" style="font-size:13px" href="?'+qs({kind:"cooked",step:"pick",p:""})+'">'+ic("cam","s")+' Or a photo of a cook</a></p>':'')+
       '</div></div>'+
       '<div class="act"><button type="button" class="btn" data-next'+(n?'':' disabled')+'>'+(n>1?'Add '+n+' photos':'Add')+'</button></div>';
   }else if(step==="edit"){
     var ps=picked();
     h+='<div class="body">'+aim()+
-      (kind==="dish"?'<div class="frame sq">'+F.frame(ps[0],"m",{eager:1,alt:"The photo you picked"})+'<span class="crop" aria-hidden="true"></span></div><p class="pad" style="font-size:12.5px;padding-bottom:0">Drag to choose the square the list shows. The page shows the whole photo.</p>':
+      (kind==="banner"?'<div class="frame sq">'+F.frame(ps[0],"m",{eager:1,alt:"The photo you picked"})+'<span class="crop" aria-hidden="true"></span></div><p class="pad" style="font-size:12.5px;padding-bottom:0">Drag to choose the square the list shows. The top of the page shows the whole photo.</p>':
         (ps.length>1?'<div class="pad"><div class="pgal">'+ps.map(function(id){return '<span class="pt">'+F.frame(id,"t",{eager:1,alt:""})+'</span>'}).join("")+'</div></div>':'<div class="frame">'+F.frame(ps[0],"m",{eager:1,alt:"The photo you picked"})+'</div>'))+
       (askCook?'<div class="pad" style="padding-bottom:0"><span class="lbl">Which cook?</span></div><div class="strip" role="group" aria-label="Which cook" style="padding-bottom:4px">'+
         ["tonight"].concat(r.hist.slice(0,2).map(function(x){return x[0]})).map(function(c){return '<button type="button" data-cook="'+c+'" aria-pressed="'+(cook===c)+'">'+esc(cookLabel(c))+'</button>'}).join("")+'</div>'+
         (cook==="tonight"?'<p class="pad" style="font-size:12px;padding-top:4px;padding-bottom:0">No cook recorded today, so this adds one to Cooked (no pantry change).</p>':''):'')+
       (kind==="cooked"?'<div class="pad"><label class="lbl" for="ln">A line (optional)</label><input id="ln" class="field" style="margin-top:6px" placeholder="e.g. Used brown rice, fine."></div>':'')+
-      '<div class="pad"><div class="shrink">'+ic("check","s")+'<span>Made smaller on your phone first: <b>4.2 MB → 190 KB</b>. Location removed.</span></div></div>'+
-      '</div><div class="act"><button type="button" class="btn" data-up>'+ic("check","s")+(replace?'Use as cover':kind==="dish"?'Save cover':ps.length>1?'Save '+ps.length+' photos':'Save photo')+'</button></div>';
+      '<div class="pad">'+shrinkLine(ps.length)+'</div>'+
+      '</div><div class="act"><button type="button" class="btn" data-up>'+ic("check","s")+(replace?(kind==="banner"?'Use as banner':'Use this one'):kind==="banner"?'Save banner':ps.length>1?'Save '+ps.length+' photos':'Save photo')+'</button></div>';
   }else{
     h+='<div class="body">'+aim()+'<div class="frame">'+F.frame(picked()[0],"m",{eager:1,alt:""})+'</div><div class="pad"><b id="upl">Sending…</b><div class="prog"><i id="bar"></i></div>'+
-      '<p style="font-size:12.5px;margin-top:8px">You can leave this screen. If the signal drops it tries again; nothing is lost.</p></div></div>';
+      '<p style="font-size:12.5px;margin-top:8px">You can leave this screen. If the signal drops it tries again; nothing is lost.</p>'+(raw?'<p style="font-size:12.5px;margin-top:6px">It will show as "Photo is being prepared" until the server has made its sizes.</p>':'')+'</div></div>';
   }
-  ph.innerHTML=h;F.load(ph);
-  if(step==="up"){var w=0,b=document.getElementById("bar");var t=setInterval(function(){w+=22;b.style.width=Math.min(w,100)+"%";if(w>=100){clearInterval(t);location.href="done.html?"+qs({p:picked().join(","),step:null,src:null})}},F.state==="slow"?600:220)}
+  ph.innerHTML=h;F.eager(ph);
+  if(step==="up"){var w=0,b=document.getElementById("bar");var t=setInterval(function(){w+=22;b.style.width=Math.min(w,100)+"%";if(w>=100){clearInterval(t);location.href="done.html?"+qs({p:picked().join(","),step:null,src:null,sn:null})}},F.state==="slow"?600:220)}
 }
 /* keep the current target in every link */
-function qs(o){var u=new URLSearchParams({to:r.id,kind:kind});if(cook!=="tonight"||from==="cook")u.set("cook",cook);if(from)u.set("from",from);if(replace)u.set("replace",replace);
+function qs(o){var u=new URLSearchParams({to:r.id,kind:kind});if(kind==="step")u.set("sn",sn);if(X.Q.get("v"))u.set("v",v.id);if(raw)u.set("phone","raw");if(cook!=="tonight"||from==="cook")u.set("cook",cook);if(from)u.set("from",from);if(replace)u.set("replace",replace);
   for(var k in o){if(o[k]===null||o[k]==="")u.delete(k);else u.set(k,o[k])}return u.toString()}
 ph.addEventListener("click",function(e){
   var t=e.target.closest("button");if(!t)return;
-  if(t.dataset.pk){var id=t.dataset.pk;if(many[id])delete many[id];else if(kind==="dish"){many={};many[id]=1}else if(picked().length<room())many[id]=1;else X.toast("Up to 3 from one cook");draw()}
+  if(t.dataset.pk){var id=t.dataset.pk;if(many[id])delete many[id];else if(room()===1){many={};many[id]=1}else if(picked().length<room())many[id]=1;else X.toast("Up to 3 from one cook");draw()}
   else if(t.hasAttribute("data-next")){step="edit";draw()}
   else if(t.dataset.cook){cook=t.dataset.cook;draw()}
   else if(t.hasAttribute("data-up")){step="up";draw()}
 });
 draw();
-F.controls('<h4>Jump to</h4><p><a href="?to=efr&kind=cooked&from=cook">End of a cook: tonight</a> · <a href="?to=efr&kind=cooked&cook=29 Sep">From a Cooked row (29 Sep)</a> · <a href="?to=efr&kind=cooked">From the top camera (asks which cook)</a> · <a href="?to=efr&kind=cooked&src=cam&from=cook">After the camera</a> · <a href="?to=efr&kind=dish">Cover (secondary)</a> · <a href="?to=efr&src=cam&kind=dish&replace=efr-1&p=efr-c2">Replace the cover</a></p>');
+F.controls('<h4>Jump to</h4><p><a href="?to=efr&kind=cooked&from=cook">End of a cook: tonight</a> · <a href="?to=efr&kind=cooked&cook=29 Sep">From a Cooked row (29 Sep)</a> · <a href="?to=efr&kind=cooked">From the top camera (asks which cook)</a> · <a href="?to=efr&kind=cooked&src=cam&from=cook">After the camera</a> · <a href="?to=efr&kind=banner">Banner (secondary)</a> · <a href="?to=efr&src=cam&kind=banner&replace=efr-1&p=efr-c2">Replace the banner</a> · <a href="?to=efr&kind=step&sn=2&src=cam">Photo for step 3</a> · <a href="?to=efr&kind=cooked&src=cam&from=cook&phone=raw">A phone that cannot shrink</a></p>');
 })();
 </script>
 </body></html>

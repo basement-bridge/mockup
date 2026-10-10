@@ -23,7 +23,12 @@ var where=from==="cook"&&opt==="B"?"cook":"household";
 var att=X.Q.get("att")||"";
 var ph=document.getElementById("ph");
 var me=X.me[2];
-var back=from==="cook"?"../recipe/cook.html?id="+r.id+"&step=99":"recipe.html?id="+r.id+"#not";
+/* back: the flow slice passes where to return (../recipe/detail.html or ../recipe/cook.html). Only same-site relative paths are honoured.
+   On save with a back link, the note returns as ?noted=<body> (and &v, &cook), which recipe.js's savedNotes reads; without one, Saved. */
+var backQ=X.Q.get("back")||"";
+var safeBack=/^(\.\.\/recipe(-photos)?\/|recipe\.html|done\.html)[\w.\-\/?=&%#]*$/.test(backQ)?backQ:"";
+var back=safeBack||(from==="cook"?"../recipe/cook.html?id="+r.id+"&step=99":"recipe.html?id="+r.id+"#not");
+var withNoted=function(u,body){var h=u.indexOf("#"),hash=h>-1?u.slice(h):"",base=h>-1?u.slice(0,h):u;return base+(base.indexOf("?")>-1?"&":"?")+"noted="+encodeURIComponent(body)+(X.Q.get("v")&&!/[?&]v=/.test(base)?"&v="+encodeURIComponent(X.Q.get("v")):"")+(cook&&!/[?&]cook=/.test(base)?"&cook="+encodeURIComponent(cook):"")+hash};
 var text=X.Q.get("t")||"";
 function draw(){
   var cookName=cook==="tonight"?"tonight's cook":"the "+cook+" cook";
@@ -41,7 +46,7 @@ function draw(){
     (att?'<div class="natt">'+'<span class="nph">'+F.frame(att,"t",{eager:1,alt:"Photo in this note"})+'</span><span style="flex:1;font-size:12.5px">One photo, kept by reference: removing the note never removes the photo.</span><button type="button" class="mini" data-unatt>'+ic("x","xs")+'Take out</button></div>':'')+
     '<div class="lblrow"><span class="lbl">How it will look</span></div><div class="nprev note ncard" id="prev"></div>'+
     '</div></div><div class="act"><button type="button" class="btn" data-save>'+ic("check","s")+'Save note</button></div>';
-  ph.innerHTML=h;F.load(ph);preview();
+  ph.innerHTML=h;F.eager(ph);preview();
   document.getElementById("nt").addEventListener("input",function(e){text=e.target.value;preview()});
 }
 function body(){return text.trim()+(att?"\n[photo:"+att+"]":"")}
@@ -49,7 +54,7 @@ function preview(){
   var p=document.getElementById("prev");
   p.innerHTML=(text.trim()||att?F.noteHtml(body()):'<p style="color:var(--muted)">Start typing.</p>')+
     '<div class="nmeta"><span>'+esc(me)+' · today</span>'+(cook&&where==="household"?'<span class="tg">'+ic("flame")+'After '+(cook==="tonight"?"tonight's":cook+"'s")+' cook</span>':'')+(where==="cook"?'<span class="tg">'+ic("flame")+'This cook only</span>':'')+'</div>';
-  F.load(p);
+  F.eager(p);
 }
 function wrap(fn){var f=document.getElementById("nt"),a=f.selectionStart,b=f.selectionEnd;var r2=fn(text.slice(0,a),text.slice(a,b),text.slice(b));text=r2[0];f.value=text;f.focus();f.setSelectionRange(r2[1],r2[2]);preview()}
 ph.addEventListener("click",function(e){
@@ -63,8 +68,9 @@ ph.addEventListener("click",function(e){
     var own=F.photos(r).slice(0,5);
     X.sheet('<h3>A photo in the note</h3><p style="font-size:13px">One per note. It is kept once and pointed to, never copied.</p><div class="pgal" style="margin-top:10px">'+
       '<button type="button" class="addp" data-new>'+ic("cam")+'New</button>'+own.map(function(p){return '<button type="button" data-pa="'+p.id+'" aria-label="'+(p.k==="cooked"?"Cooked "+p.when:"Photo of the recipe")+'">'+F.frame(p.id,"t",{eager:1,alt:""})+'</button>'}).join("")+'</div>',
-      function(s,close){s.addEventListener("click",function(ev){var b=ev.target.closest("[data-pa],[data-new]");if(!b)return;att=b.dataset.pa||"efr-c2";close();draw();if(b.hasAttribute("data-new"))X.toast(cook?"New photo added to "+(cook==="tonight"?"tonight's":cook+"'s")+" cook, and shown in the note":"New photo saved to Photos, and shown in the note")})});}
+      function(s,close){F.eager(s);s.addEventListener("click",function(ev){var b=ev.target.closest("[data-pa],[data-new]");if(!b)return;att=b.dataset.pa||"efr-c2";close();draw();if(b.hasAttribute("data-new"))X.toast(cook?"New photo added to "+(cook==="tonight"?"tonight's":cook+"'s")+" cook, and shown in the note":"New photo saved to Photos, and shown in the note")})});}
   else if(t.hasAttribute("data-save")){text=document.getElementById("nt").value;if(!text.trim()&&!att){X.toast("Write something first");return}
+    if(safeBack){location.href=withNoted(safeBack,body());return}
     var u=new URLSearchParams({to:r.id,kind:"note",where:where});if(from)u.set("from",from);if(cook)u.set("cook",cook);if(att)u.set("p",att);location.href="done.html?"+u.toString()}
 });
 draw();

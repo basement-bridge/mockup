@@ -4,42 +4,68 @@
 <body data-no-theme-fab>
 <div class="stage"><div class="phone" id="ph"></div></div>
 <script>
-/* How a photo the person gave their own AI app gets into Recipe (P-D12). The chat is a neutral stand-in, not any product's look:
-   there is no in-app agent (plan-week-ai decision 42). One scene: the person shows the assistant tonight's dish. The assistant
-   cannot carry the picture across; it asks Recipe for a one-time add link (request_photo_upload), and the person taps it:
-   Kitchie's add screen opens already aimed at the right recipe and cook.
-   Changed by owner decision L4, 10 Oct 2026: the second scene (a recipe from a web page with its photo, fetched by Recipe and shown
-   on Check it) is removed. Recipe content comes only through the assistant's MCP tools; nothing reads, scrapes or fetches a link
-   or a photo. The assistant still never sends picture bytes; it hands over a link and the person picks the photo. */
+/* How a photo the person gave their own AI app gets into Recipe: P-D12 A as refined by the owner (typed, 10 Oct 2026).
+   - The person is NOT involved in getting the link: the assistant's MCP call (request_photo_upload) obtains a one-time upload slot.
+   - The reply tells the assistant the upload is NOT a blocking step: it carries on with the recipe and reports the photo as pending.
+   - The assistant sends the picture to the slot (an HTTP PUT; the one-time secret goes in a header, never in the address).
+   - Recipe's acknowledgement carries verification: content hash, byte size, dimensions and the sizes it will keep, so the assistant
+     can confirm nothing was lost.
+   - Attempts are a setting, at most 3. Attempt 1 at 2000 px long edge (quality 85), then 1400 (80), then 1000 (75): each retry is
+     smaller. After the third failure the assistant stops and tells the person.
+   - The assistant can read a household photo back through MCP (get_photo), signed in the same way as the person on Kitchie.
+   Nothing fetches a web address (L4). The chat is a neutral stand-in, not any product's look (no in-app agent: plan-week-ai 42). */
 (function(){
 var X=RCP,F=PHO,ic=X.ic,esc=X.esc;
 var step=X.Q.get("step")||"chat";
 var r=X.byId(X.Q.get("to")||"rag")||X.byId("rag");
 var ph=document.getElementById("ph");
+var head='<div class="chathead"><span class="dotai" aria-hidden="true">'+ic("spark","s")+'</span>Your assistant<span style="flex:1"></span><span class="lbl">your AI app</span></div>';
+var tr=function(s){return '<span class="trace">'+s+'</span>'};
 function draw(){
   var h;
-  if(step!=="open"){
-    h='<div class="chathead"><span class="dotai" aria-hidden="true">'+ic("spark","s")+'</span>Your assistant<span style="flex:1"></span><span class="lbl">your AI app</span></div>'+
-      '<div class="body"><div class="mockmark">Stand-in for the person\'s own AI app</div><div class="chat">'+
-      '<div class="bub me"><span class="att">'+F.frame("rag-1","t",{eager:1,alt:"Photo of tonight's ragù"})+'</span>Made the ragù tonight, 10 portions. Can you save the photo to it?</div>'+
-      '<div class="bub">Looks great. I can\'t carry the picture across to Recipe myself, so here is a link that opens it ready to add: <b>Beef ragù, Cooked, today, by Priya</b>. It works once, for the next 15 minutes.'+
-        '<a class="lnk2" href="?step=open&to=rag">'+ic("img","s")+'Add the photo in Kitchie</a>'+
-        '<small>Recipe tool: request_photo_upload (recipe, kind: cooked). No picture data goes through the chat.</small></div>'+
-      '<div class="bub">I\'ve also noted the cook: 10 portions, with your line "10 portions."<small>record_cook. The photo joins this cook when you add it.</small></div>'+
+  if(step==="chat"){
+    h=head+'<div class="body"><div class="mockmark">Stand-in for the person\'s own AI app</div><div class="chat">'+
+      '<div class="bub me"><span class="att">'+F.frame("rag-1","t",{phase:"demand",alt:"Photo of tonight's ragù"})+'</span>Made the ragù tonight, 10 portions. Save the photo to it, and note we used half the wine.</div>'+
+      '<div class="bub">On it. The photo is uploading in the background; I\'ll carry on with the cook.'+
+        tr('<b>request_photo_upload</b> {version_id: ver_rag, kind: "cooked", cook: "tonight", filename: "ragu.jpg", width: 1500, height: 2000, bytes: 912 340, sha256: "9f3a…c71e"}\n→ {slot_id: "up_7Kq…", upload: {method: "PUT", url: "https://…/recipe/uploads/up_7Kq…", header: "Authorization: Upload ••••"}, expires_in: 900, max_bytes: 8 MB, attempts_left: 3, blocking: false,\n  instructions: "Not a blocking step: carry on with the recipe and report the photo as pending. Attempt 1 at 2000 px long edge, quality 85. On failure: 1400 px q80, then 1000 px q75. After the 3rd failure stop and tell the person."}')+'</div>'+
+      '<div class="bub">'+
+        tr('<b>record_cook</b> {version_id: ver_rag, servings: 10, line: "Half the wine.", photo_slots: ["up_7Kq…"]} → {cook: ck_19, photos: [{slot: "up_7Kq…", status: "pending"}]}')+
+        'Logged tonight\'s cook: 10 portions, "Half the wine." The photo is <b>on its way</b>; I\'ll confirm when Recipe has it.</div>'+
+      '<div class="bub sys">Attempt 1: ragu.jpg at 2000 px long edge, quality 85 (891 KB), PUT to the slot in the background</div>'+
+      '<div class="bub">'+
+        tr('→ 201 {photo_id: "ph_4c2e…", received: {sha256: "9f3a…c71e", bytes: 912 340, width: 1500, height: 2000, type: "image/jpeg"}, matches: true,\n   will_keep: [{size: "m", w: 720, h: 960}, {size: "t", w: 240, h: 240}], original: "deleted once the sizes are made", derive: "queued, low priority", attached_to: ck_19}')+
+        '<b>Photo saved</b> to tonight\'s cook. Recipe received exactly what I sent (same fingerprint, 891 KB, 1500 × 2000). It shows as "being prepared" in Kitchie for a little while, then the photo appears.</div>'+
+      '</div></div>';
+  }else if(step==="retry"){
+    h=head+'<div class="body"><div class="mockmark">When the upload fails</div><div class="chat">'+
+      '<div class="bub me"><span class="att">'+F.frame("efr-c1","t",{phase:"demand",alt:"Photo of the fried rice"})+'</span>Add this to the fried rice from tonight.</div>'+
+      '<div class="bub">Saving it in the background. Anything else for the recipe?'+tr('<b>request_photo_upload</b> {…, attempts_left: 3, blocking: false}')+'</div>'+
+      '<div class="bub sys">Attempt 1: 2000 px long edge, quality 85 (1.1 MB) · connection dropped</div>'+
+      '<div class="bub sys">Attempt 2: 1400 px, quality 80 (520 KB) · 503, server busy</div>'+
+      '<div class="bub sys">Attempt 3: 1000 px, quality 75 (260 KB) · timed out</div>'+
+      '<div class="bub">I couldn\'t save the photo after 3 tries; Recipe didn\'t get it, so nothing half-saved is there. The cook itself is logged. Want me to try again later, or would you rather add it in Kitchie (Cooked, tonight\'s row)?'+
+        tr('3 of 3 attempts used. Stopped, as the instructions say. No photo row was created (Recipe keeps a slot\'s bytes only when the hash and size check out).')+'</div>'+
+      '</div></div>';
+  }else if(step==="read"){
+    h=head+'<div class="body"><div class="mockmark">The assistant reads a household photo (P-D15 as locked)</div><div class="chat">'+
+      '<div class="bub me">What did the fried rice look like last time we made it?</div>'+
+      '<div class="bub">'+tr('<b>get_version</b> {family: egg fried rice} → {…, photos: [{id: "ph_efr_c1", kind: "cooked", cook: "8 Oct"}, …]}\n<b>get_photo</b> {photo_id: "ph_efr_c1", size: "t"} → image (240 × 240, 2 KB) · household checked, signed in as Sam')+
+        '<span class="att" style="margin-top:8px">'+F.frame("efr-c1","t",{phase:"demand",alt:"The 8 Oct fried rice"})+'</span>Sam made it on 8 October with brown rice. It looked a bit drier than usual, with lots of spring onion on top.</div>'+
       '</div></div>';
   }else{
-    /* Kitchie opens from the link: the target is already set; the person only picks the photo (the phone's picker), nothing else to choose. */
+    /* Fallback: an assistant that cannot send files itself gives the person the slot as a Kitchie link. The address carries only the
+       slot id; Kitchie checks the person's own sign-in and household. */
     h='<div class="top"><a class="back" href="recipe.html?id='+r.id+'">'+ic("back","s")+'Cancel</a><span class="ttl">Add a photo</span><span style="width:64px"></span></div>'+
       '<div class="body"><a class="slim acc" href="?step=chat"><span class="e" aria-hidden="true">'+ic("spark")+'</span><span class="t"><b>From your assistant</b><small>'+esc(r.name)+' · Cooked today · by Priya</small></span></a>'+
-      '<div class="pad"><p style="font-size:14px;color:var(--fg)">Pick the photo you showed your assistant.</p></div>'+
-      '<div class="pad" style="padding-top:0"><div class="pgal"><a href="done.html?to='+r.id+'&kind=cooked&p=rag-1&via=assistant" aria-label="The ragù photo">'+F.frame("rag-1","t",{alt:""})+'</a><button type="button" data-other aria-label="Another photo">'+F.frame("cur-1","t",{alt:""})+'</button><button type="button" data-other aria-label="Another photo">'+F.frame("sha-1","t",{alt:""})+'</button></div>'+
-      '<p style="font-size:12px;margin-top:10px">Signed in as Priya. The link only works for your household, once.</p></div></div>';
+      '<div class="pad"><p style="font-size:14px;color:var(--fg)">Your assistant could not send the photo itself. Pick the one you showed it.</p></div>'+
+      '<div class="pad" style="padding-top:0"><div class="pgal"><a href="done.html?to='+r.id+'&kind=cooked&p=rag-1&via=assistant" aria-label="The ragù photo">'+F.frame("rag-1","t",{phase:"demand",alt:""})+'</a><button type="button" data-other aria-label="Another photo">'+F.frame("cur-1","t",{phase:"demand",alt:""})+'</button><button type="button" data-other aria-label="Another photo">'+F.frame("sha-1","t",{phase:"demand",alt:""})+'</button></div>'+
+      '<p style="font-size:12px;margin-top:10px">Signed in as Priya. The link only works for your household, once, for 15 minutes.</p></div></div>';
   }
-  ph.innerHTML=h;F.load(ph);
+  ph.innerHTML=h;F.eager(ph);
 }
 ph.addEventListener("click",function(e){var t=e.target.closest("[data-other]");if(t)X.toast("In the build any photo can be picked; the mockup only has the ragù one.")});
 draw();
-F.controls('<h4>Steps</h4><p><a href="?step=chat">1 The chat: a cooked photo shown to the assistant</a><br><a href="?step=open">2 The link opens Kitchie\'s add screen</a></p><p style="font-size:12px;margin-top:6px">The web-recipe scene was removed by owner decision L4 (10 Oct 2026): no link or photo is ever fetched or read.</p>');
+F.controls('<h4>Scenes</h4><p><a href="?step=chat">1 The assistant saves a photo, not blocking</a><br><a href="?step=retry">2 Three smaller retries, then it tells the person</a><br><a href="?step=read">3 The assistant reads a household photo (get_photo)</a><br><a href="?step=open">4 Fallback: an assistant that cannot send files</a></p><p style="font-size:12px;margin-top:6px">No web address is ever fetched (L4).</p>');
 })();
 </script>
 </body></html>

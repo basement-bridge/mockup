@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Free up photo space — Recipe photos mockup</title>
+<link rel="stylesheet" href="../theme.css"><link rel="stylesheet" href="../recipe/recipe.css"><link rel="stylesheet" href="photos.css"><script src="../theme.js"></script><script src="../recipe/recipe.js"></script><script src="photos.js"></script></head>
+<body data-no-theme-fab>
+<div class="stage"><div class="phone" id="ph"></div></div>
+<script>
+/* Free up space (P-D8 as locked, owner, typed, 10 Oct 2026): 2 GB per household, and "encourage removing photos of recipe versions
+   they do not use with a simple search-and-remove flow". One screen: the household meter, a search, versions listed by photo size
+   (versions not cooked for a long time or put away first), open one to pick its photos, Remove. Only photos go: the version's text
+   and its history stay. Removal follows P-D17 B: hidden at once, Undo for 5 minutes, then gone for good.
+   Reached from: the slim warning at 80% (any recipe page), the recipe page's ... menu, and Photos on the recipe page.
+   Sizes are the server's numbers (bytes of the kept sizes, P-D6 as locked), sent with the list; nothing here loads a photo until a
+   version is opened (its squares only, about 2 to 5 KB each in the mockup, 12 KB for real photos). */
+(function(){
+var X=RCP,F=PHO,ic=X.ic,esc=X.esc;
+var ph=document.getElementById("ph");
+var q="",open=X.Q.get("open")||"",pick={};
+var to=X.Q.get("to");
+/* Sample household: the egg fried rice versions carry the mockup's real files; the rest are size-only rows standing in for a household
+   at 1.71 of 2 GB. Real sizes: banner (large + square) about 260 KB, any other photo (medium + square) about 87 KB (P-D3). */
+var vsize=function(list){return list.reduce(function(a,p){return a+(p.k==="banner"?260:87)},0)};
+var rows=[];
+X.R.forEach(function(r){r.vers.forEach(function(v){
+  var ps=F.photos(r).filter(function(p){return p.v===v.id});
+  if(!ps.length)return;
+  var last=(r.hist.filter(function(h){return h[2]===v.name})[0]||[])[0]||null;
+  rows.push({r:r,v:v,ps:ps,kb:vsize(ps),last:last,state:v.state||(v.def?"usual":"kept")});
+})});
+/* stand-ins: versions a household stopped using, larger galleries (sizes only) */
+var FAKE=[["Lamb tagine","Slow-cooker try","🍲",26,"put away","Mar"],["Banana bread","Too sweet","🍌",14,"kept","Jan"],["Pad thai","First go","🍜",11,"put away","Feb"],["Pizza dough","48-hour","🍕",9,"kept","May"]];
+var fake=FAKE.map(function(f){return {fake:1,name:f[0],vn:f[1],e:f[2],n:f[3],kb:f[3]*87+260,state:f[4],last:f[5]}});
+var USED=1.71*1024*1024, CAP=2*1024*1024; /* KB */
+function list(){
+  var all=rows.map(function(x){return {x:x,name:x.r.name,vn:x.v.name,kb:x.kb,n:x.ps.length,last:x.last,state:x.state}}).concat(fake.map(function(f){return {f:f,name:f.name,vn:f.vn,kb:f.kb,n:f.n,last:f.last,state:f.state}}));
+  if(q)all=all.filter(function(a){return (a.name+" "+a.vn).toLowerCase().indexOf(q.toLowerCase())>-1});
+  /* not used first: put away, then not cooked lately, then by size */
+  var rank=function(a){return (a.state==="put away"?0:a.state==="usual"?3:a.last&&/Oct|Sep/.test(a.last)?2:1)};
+  return all.sort(function(a,b){return rank(a)-rank(b)||b.kb-a.kb});
+}
+var fmt=function(kb){return kb>=1024*1024?(kb/1024/1024).toFixed(2)+" GB":kb>=1024?(kb/1024).toFixed(1)+" MB":Math.round(kb)+" KB"};
+function draw(){
+  var freed=Object.keys(pick).length;
+  var pct=Math.round(USED/CAP*100);
+  var h='<div class="top"><a class="back" href="'+(to?"recipe.html?id="+to:"list.html")+'">'+ic("back","s")+'Back</a><span class="ttl">Photo space</span><span style="width:64px"></span></div>'+
+    '<div class="body" id="body"><div class="pad">'+
+    '<b style="font-size:15px">Your household uses '+fmt(USED)+' of 2 GB</b><div class="qbar" role="img" aria-label="'+pct+' percent used"><i class="'+(pct>=80?'w':'')+'" style="width:'+pct+'%"></i></div>'+
+    '<p class="qnote">Photos of versions you do not cook any more are listed first. Removing photos never removes a recipe, a version or its history: only the pictures go.</p>'+
+    '<label class="search" style="margin-top:12px">'+ic("search","s")+'<span class="vh">Search versions</span><input type="search" id="q" placeholder="Search recipes or versions" value="'+esc(q)+'"></label>'+
+    '</div>'+F.undoBarAll()+
+    '<div class="pad" style="padding-top:0">'+list().map(function(a){
+      var id=a.x?a.x.r.id+":"+a.x.v.id:"f:"+a.name, isOpen=open===id;
+      var tag=a.state==="put away"?'<span class="tg mut">Put away</span>':a.state==="usual"?'<span class="tg">Usual</span>':'';
+      var h2='<div class="vrow"><button type="button" data-open="'+esc(id)+'" aria-expanded="'+isOpen+'"><span class="th" aria-hidden="true">'+(a.x?a.x.r.e:a.f.e)+'</span><span class="t"><b>'+esc(a.name)+' · '+esc(a.vn)+tag+'</b><small>'+a.n+' photo'+(a.n>1?'s':'')+' · '+(a.last?'cooked '+a.last:'never cooked')+'</small></span><span class="sz">'+fmt(a.kb)+'</span>'+ic(isOpen?"down":"chev","s")+'</button>';
+      if(isOpen){
+        if(a.x){h2+='<div class="vsel"><button type="button" class="mini" data-all="'+esc(id)+'">Select all '+a.n+'</button><button type="button" class="mini" data-none>Clear</button></div><div class="vpics">'+a.x.ps.map(function(p){var on=!!pick[p.id];return '<button type="button" data-pick="'+p.id+'" aria-pressed="'+on+'" aria-label="'+esc(F.label(a.x.r,p))+'">'+F.frame(p.id,"t",{phase:"demand",alt:""})+'<span class="ck">'+(on?ic("check","xs"):'')+'</span><span class="k">'+(p.k==="banner"?"Banner":p.k==="step"?"Step "+(p.step+1):p.k==="cooked"?p.when:"Photo")+'</span></button>'}).join("")+'</div>';}
+        else h2+='<p class="qnote" style="padding-bottom:12px">A stand-in row: in the build its '+a.n+' squares show here, ready to pick.</p>';
+      }
+      return h2+'</div>'}).join("")+'</div><div style="height:16px"></div></div>'+
+    '<div class="act"><button type="button" class="btn" data-remove'+(freed?'':' disabled')+'>'+ic("x","s")+(freed?'Remove '+freed+' photo'+(freed>1?'s':'')+' · frees about '+fmt(sel()):'Pick photos to remove')+'</button></div>';
+  ph.innerHTML=h;F.eager(ph);
+  var qi=document.getElementById("q");qi.addEventListener("input",function(){q=qi.value;var p=qi.selectionStart;draw();var n=document.getElementById("q");n.focus();n.setSelectionRange(p,p)});
+  F.tickUndo(ph,draw);
+}
+function sel(){var kb=0;rows.forEach(function(x){x.ps.forEach(function(p){if(pick[p.id])kb+=p.k==="banner"?260:87})});return kb}
+ph.addEventListener("click",function(e){
+  var t=e.target.closest("button");if(!t)return;
+  if(t.dataset.open){open=open===t.dataset.open?"":t.dataset.open;draw()}
+  else if(t.dataset.pick){if(pick[t.dataset.pick])delete pick[t.dataset.pick];else pick[t.dataset.pick]=1;draw()}
+  else if(t.dataset.all){var k=t.dataset.all.split(":");rows.filter(function(x){return x.r.id===k[0]&&x.v.id===k[1]})[0].ps.forEach(function(p){pick[p.id]=1});draw()}
+  else if(t.hasAttribute("data-none")){pick={};draw()}
+  else if(t.hasAttribute("data-remove")){var ids=Object.keys(pick),kb=sel();
+    X.sheet('<h3>Remove '+ids.length+' photo'+(ids.length>1?'s':'')+'?</h3><p style="font-size:13px">They disappear for everyone in the household now and free about '+fmt(kb)+'. The recipes, their versions and history stay. You can undo for <b>5 minutes</b>; after that they are gone for good.</p>'+
+      '<div style="display:flex;gap:8px;margin-top:14px"><button class="btn ghost" data-close>Keep them</button><button class="btn" data-close data-really>Remove</button></div>',
+      function(s){s.addEventListener("click",function(ev){if(ev.target.closest("[data-really]")){ids.forEach(F.remove);USED-=kb;rows.forEach(function(x){x.ps=x.ps.filter(function(p){return !pick[p.id]});x.kb=vsize(x.ps)});rows=rows.filter(function(x){return x.ps.length});pick={};open="";draw()}})});}
+  else if(t.dataset.undo){var back=t.dataset.undo.split(",");back.forEach(F.restore);location.reload()}
+});
+draw();
+F.controls('<h4>Jump to</h4><p><a href="?">The list</a> · <a href="?open=efr:v0">A version opened (Original)</a> · <a href="?removed=efr-3,efr-s1">Just removed (undo running)</a></p>');
+})();
+</script>
+</body></html>

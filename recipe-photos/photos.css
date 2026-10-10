@@ -10,20 +10,52 @@
 .pf.lq::before{content:"";position:absolute;inset:0;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 .pf .pi{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .25s}
 .pf.in .pi{opacity:1}
-.pf .spin{position:absolute;right:8px;bottom:8px;width:18px;height:18px;border-radius:50%;border:2px solid var(--bg);border-top-color:transparent;opacity:.8;animation:pfspin 1s linear infinite}
-.pf.in .spin{display:none}
-@keyframes pfspin{to{transform:rotate(360deg)}}
-@media (prefers-reduced-motion:reduce){.pf .pi{transition:none}.pf .spin{animation:none}}
+.pf .pi[src]{}
+@media (prefers-reduced-motion:reduce){.pf .pi{transition:none}}
+
+/* P-D7 C "being prepared": the photo is stored but its sizes are still being made on the server. Its own colour, one calm line,
+   no spinner (nothing that never ends). The box is already its final size, so nothing moves when the photo arrives. */
+.pf.prep{display:flex;align-items:flex-end;justify-content:flex-start}
+.pprep{display:inline-flex;align-items:center;gap:5px;margin:var(--sp-2);padding:3px 9px;border-radius:var(--r-pill);background:var(--bg);color:var(--muted);font-size:11.5px;font-weight:700;border:1px solid var(--border)}
+.th .pprep,.pgal .pprep{margin:4px;padding:2px 5px}
+.th .pprep span{display:none}
+
+/* P-D10 B: a version showing its parent's photo carries a small icon (with a title) until it has its own */
+.pinh{position:absolute;right:6px;top:6px;z-index:3;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:var(--bg);color:var(--muted);border:1px solid var(--border)}
+.th .pinh{right:2px;top:2px;width:18px;height:18px}
+.pinl{display:inline-flex;align-items:center;gap:4px;margin-top:4px;color:var(--muted)}
+
+/* P-D21: the list's stock placeholder, shown until that row's turn to load (a quiet tile with the chef icon, no request) */
+.pf.stock{background:color-mix(in srgb,var(--accent) 14%,var(--surface));display:flex;align-items:center;justify-content:center;color:var(--muted)}
+.pf.stock>.ic{opacity:.55}
+.pf.stock.in{background:var(--pc,var(--surface))}
+
+/* step photos (P-D8: one per step, at most 10 per version). Sized box, loaded in the "step" phase, before the banner. */
+.psp{display:block;width:100%;margin-top:var(--sp-2);height:150px;border-radius:var(--r-ctl);overflow:hidden;border:1px solid var(--border);padding:0;position:relative}
+.psp .pf{width:100%;height:100%}
+
+/* P-D17 B: removed photos can be undone for 5 minutes; one slim row says how long is left */
+.pundo{display:flex;align-items:center;gap:var(--sp-3);margin:var(--sp-2) var(--sp-3) 0;padding:var(--sp-2) var(--sp-3);border-radius:var(--r-ctl);border:1px solid var(--accent);background:var(--surface)}
+.pundo .t{flex:1;min-width:0}.pundo b{display:block;font-size:14px}.pundo small{display:block;color:var(--muted);font-size:12px}
+.pundo .ic{color:var(--accent)}
+.pundo .mini{min-height:44px;padding:0 14px;font-weight:800;color:var(--accent);border-color:var(--accent)}
+
+/* Mockup panel: loaded files by phase */
+.mphase{margin:6px 0 0;padding:0;list-style:none;display:grid;gap:2px}
+.mphase li{display:flex;justify-content:space-between;gap:8px;font-size:11.5px;color:var(--muted)}
+.mphase li b{color:var(--fg);white-space:nowrap}
 
 /* list thumbnail: the same 56px tile the list already has (R-D27 row); a photo replaces the emoji, no extra space (P-D21 A) */
 .th.ph{padding:0;overflow:hidden}
 .th.ph .pf{width:100%;height:100%}
 
 /* hero (P-D20). A: full-width 2:1 swipe, cover first. B: a small square beside the title. C: no top photo. */
-.hero2{position:relative;height:195px;display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;background:var(--surface)}
+.hero2{position:relative;height:200px;display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;background:var(--surface)}
 .hero2::-webkit-scrollbar{display:none}
 .hero2>.pf{flex:none;width:100%;height:100%;scroll-snap-align:start;border-radius:0}
 .pcap{position:absolute;left:var(--sp-3);top:var(--sp-3);z-index:2;font-size:11px;font-weight:700;padding:3px 8px;border-radius:var(--r-pill);background:var(--bg);color:var(--muted);border:1px solid var(--border)}
+.hero2.one .hb{display:block;flex:none;width:100%;height:100%;padding:0;border-radius:0}
+.hero2.one .hb .pf{width:100%;height:100%;border-radius:0}
 .hdots2{position:absolute;left:0;right:0;top:177px;display:flex;justify-content:center;gap:5px;pointer-events:none;z-index:2}
 .hdots2 i{width:6px;height:6px;border-radius:50%;background:var(--bg);opacity:.6}.hdots2 i.on{opacity:1;width:16px;border-radius:3px}
 .hbtn{position:absolute;right:var(--sp-3);bottom:var(--sp-3);z-index:3}
@@ -123,3 +155,29 @@ textarea.field{min-height:120px;padding:10px 12px;line-height:1.4;resize:vertica
 .saved .row{display:flex;justify-content:center;gap:var(--sp-2);margin-top:var(--sp-3)}
 .saved .row .pt{width:84px;height:84px;border-radius:var(--r-ctl);overflow:hidden;border:1px solid var(--border)}
 .saved .row .pt .pf{width:100%;height:100%}
+
+/* free up space (free.html): the household meter, versions by size, pick photos, remove (text and history stay) */
+.qbar{height:10px;border-radius:5px;background:var(--border);overflow:hidden;margin-top:var(--sp-2);display:flex}
+.qbar i{display:block;height:100%;background:var(--accent)}
+.qbar i.w{background:var(--danger)}
+.qnote{font-size:12.5px;color:var(--muted);margin-top:6px}
+.vrow{border-top:1px solid var(--border)}
+.vrow:first-of-type{border-top:0}
+.vrow>button{display:flex;align-items:center;gap:var(--sp-3);width:100%;min-height:60px;padding:var(--sp-2) 0;text-align:left}
+.vrow .th{width:44px;height:44px;font-size:20px}
+.vrow .t{flex:1;min-width:0}.vrow .t b{display:block;font-size:14px}.vrow .t small{display:block;color:var(--muted);font-size:12px}
+.vrow .sz{font-weight:800;font-size:13px;white-space:nowrap}
+.vrow .tg.mut{margin-left:4px}
+.vpics{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:0 0 var(--sp-3)}
+.vpics button{position:relative;aspect-ratio:1;border-radius:var(--r-ctl);overflow:hidden;border:1px solid var(--border);padding:0}
+.vpics button .pf{width:100%;height:100%}
+.vpics button[aria-pressed=true]{box-shadow:0 0 0 3px var(--accent);border-color:var(--accent)}
+.vpics .ck{position:absolute;right:4px;top:4px;z-index:3;width:22px;height:22px;border-radius:50%;background:var(--bg);border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center}
+.vpics button[aria-pressed=true] .ck{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.vpics .k{position:absolute;left:0;right:0;bottom:0;z-index:2;font-size:10px;font-weight:800;padding:8px 4px 3px;color:var(--fg);background:linear-gradient(transparent,var(--bg))}
+.vsel{display:flex;gap:var(--sp-2);flex-wrap:wrap;padding-bottom:var(--sp-2)}
+
+/* assistant: the tool trace under a reply (what the assistant called and what came back) */
+.trace{display:block;margin-top:8px;padding:8px 10px;border-radius:10px;background:var(--bg);border:1px solid var(--border);font:12px/1.45 ui-monospace,Menlo,Consolas,monospace;color:var(--muted);white-space:pre-wrap;word-break:break-word}
+.trace b{color:var(--fg)}
+.bub.sys{align-self:center;max-width:94%;background:none;border-style:dashed;font-size:12.5px;color:var(--muted)}

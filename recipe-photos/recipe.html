@@ -4,73 +4,68 @@
 <body data-no-theme-fab>
 <div class="stage"><div class="phone" id="ph"></div></div>
 <script>
-/* The recipe page (recipe/detail.html, R-O2 A) with the photo and note pieces in place: cover at the top, Notes (P-D26 to P-D29),
-   Cooked with "what you made" on each row (P-D25: the primary add-photo door besides the end of a cook), the photo gallery,
-   replace and remove (any member, L5). Ingredients and Method are kept short here: they belong to the flow slice. */
+/* The recipe page with the photo pieces (owner's typed decisions, 10 Oct 2026).
+   P-D20 A (Locked): a full-width banner at the top. Load order, also Locked: TEXT FIRST (the whole page's words paint before any
+   image request), THEN the step photos, THEN the banner LAST. Every other photo (the gallery, cook photos, a note's photo) only on
+   demand (a tap). The banner box is 200px tall from the first paint, filled with the photo's colour and its inline preview, so the page
+   never jumps when the banner arrives.
+   P-D10 B (Locked): only recipe photos are banners; a version showing its parent's banner or step photo carries a small icon with a
+   title until it has its own. No cooked photo ever stands in. P-D8: one banner per version, one photo per step, at most 10 step
+   photos per version. P-D17 B: remove is undoable for 5 minutes, then gone. P-D7 C: a photo whose sizes are not made yet shows
+   "Photo is being prepared" in its own colour, no spinner. Ingredients and Method are short here: they belong to the flow slice. */
 (function(){
 var X=RCP,F=PHO,ic=X.ic,esc=X.esc;
 var r=X.byId(X.Q.get("id")||"efr")||X.R[0];
 var vid=X.Q.get("v")||(r.vers.filter(function(v){return v.def})[0]||r.vers[0]).id;
-var hero=X.Q.get("hero")||X.store.get("phero","A");X.store.set("phero",hero);
-var removed={};
-var list=function(){return F.photos(r).filter(function(p){return !removed[p.id]})};
+var showMore=false;
 var ph=document.getElementById("ph");
-var me=X.me[2];
 
 function draw(keep){
   var y=keep&&document.getElementById("body")?document.getElementById("body").scrollTop:0;
   var res=X.resolve(r,vid),v=res.v,ings=res.ings,miss=X.missing(ings);
-  var all=list();
-  var cv=F.state==="none"?null:(function(){var c=F.coverFor(r,vid);return c&&!removed[c.p.id]?c:null})();
-  var dish=all.filter(function(p){return p.k==="dish"}),cooked=all.filter(function(p){return p.k==="cooked"});
-  /* P-D20: where the cover sits. A is the default. Only the cover loads up front; the others in the hero load on first swipe. */
-  var top="";
-  if(cv&&hero==="A"){
-    var others=dish.filter(function(p){return p.id!==cv.p.id}).slice(0,2);
-    var hs=[cv.p].concat(others);
-    top='<div style="position:relative"><div class="hero2" id="hero" aria-label="Photos, swipe for more">'+
-      hs.map(function(p,i){return F.frame(p.id,"m",{eager:i===0,lq:i===0,ondemand:i>0,alt:i===0?"Cover photo of "+r.name:"Photo of "+r.name})}).join("")+
-      '</div>'+(hs.length>1?'<div class="hdots2" aria-hidden="true">'+hs.map(function(_,i){return '<i class="'+(i?'':'on')+'"></i>'}).join("")+'</div>':'')+
-      (cv.inherited?'<span class="pcap">Photo of '+esc(cv.from.name)+'</span>':cv.cooked?'<span class="pcap">Cooked '+cv.p.when+'</span>':'')+
-      '</div>';
-  }
-  var titleRow='<div style="display:flex;gap:12px;align-items:flex-start">'+
-    (cv&&hero==="B"?'<button type="button" class="tthumb" data-open="'+cv.p.id+'" aria-label="Open the cover photo">'+F.frame(cv.p.id,"t",{eager:1,alt:""})+'</button>':(!cv||hero==="C"?'<span style="font-size:34px;line-height:1" aria-hidden="true">'+r.e+'</span>':''))+
-    '<div style="flex:1;min-width:0"><h1>'+esc(r.name)+'</h1>'+(cv&&hero==="B"&&cv.inherited?'<p style="font-size:12px;margin-top:2px">Photo is of '+esc(cv.from.name)+'</p>':'')+'</div></div>';
-  var head='<div class="pad" style="padding-top:'+(cv&&hero==="A"?12:16)+'px">'+titleRow+
+  var all=F.photos(r);
+  var bn=F.bannerFor(r,vid);
+  var cooked=all.filter(function(p){return p.k==="cooked"});
+  var more=all.filter(function(p){return p.k==="more"&&F.chain(r,vid).some(function(c){return c.id===p.v})});
+  /* Banner: sized box (200px), colour and 24px preview inline; image fetched in the "banner" phase, after the step photos. */
+  var top=bn?'<div class="hero2 one"><button type="button" class="hb" data-open="'+bn.p.id+'"'+(bn.inherited?' data-inh="'+esc(bn.from.name)+'"':'')+' aria-label="Open the banner photo">'+
+      F.frame(bn.p.id,"l",{phase:"banner",lq:1,prep:bn.p.prep,inh:bn.inherited?bn.from.name:"",alt:bn.inherited?"Photo of "+bn.from.name:"Photo of "+r.name+", "+v.name})+'</button></div>':'';
+  var head='<div class="pad" style="padding-top:'+(bn?12:16)+'px"><div style="display:flex;gap:12px;align-items:flex-start">'+(bn?'':'<span style="font-size:34px;line-height:1" aria-hidden="true">'+r.e+'</span>')+
+    '<div style="flex:1;min-width:0"><h1>'+esc(r.name)+'</h1>'+(bn&&bn.inherited?'<p style="font-size:12px;margin-top:2px;display:flex;align-items:center;gap:4px">'+ic("branch","xs")+'Photo of '+esc(bn.from.name)+' until this version has its own</p>':'')+'</div></div>'+
     '<div class="meta"><span class="mc ro">'+ic("clock")+r.min+' min</span><span class="mc ro">'+ic("users")+(r.batch?"makes "+r.serves:"serves "+r.serves)+'</span>'+
     (r.vers.length>1?'<button type="button" class="mc" data-vers>'+ic("branch")+esc(v.name)+' · '+r.vers.length+' versions'+ic("down")+'</button>':'')+'</div></div>';
   var ingH='<div class="lblrow" style="margin-top:4px"><span class="lbl">Ingredients'+(miss.length?' · '+(ings.length-miss.length)+' of '+ings.length+' in':' · all in')+'</span></div>'+
     ings.map(function(x){var i=x.i,ok=X.has(i[0]),q=X.fmt(i[2],i[3],r.batch?1:r.serves);return '<div class="ing'+(ok?'':' miss')+'"><span class="dot'+(ok?'':' no')+'" aria-hidden="true"></span><span class="nm">'+esc(i[1])+(q?'<span class="q">'+q+'</span>':' <span class="unk">amount?</span>')+'</span></div>'}).join("");
-  var met='<div class="lblrow"><span class="lbl">Method</span></div>'+r.steps.map(function(s,k){return '<div class="stp"><span class="nb">'+(k+1)+'</span><div style="flex:1"><p>'+esc(s[0])+'</p></div></div>'}).join("");
-  /* Notes (P-D26 to P-D29): the household's, on every version (R-D24). Rich notes from the photos slice first, then the flow slice's plain ones.
-     A note written after a cook carries that cook as a tag. Add a note opens note.html (its own route). */
-  var gone=removed;
-  var nts=(F.NOTES[r.id]||[]).map(function(n){return '<div class="note ncard">'+F.noteHtml(n.body,gone)+'<div class="nmeta"><span>'+esc(n.by)+' · '+n.when+'</span>'+(n.cook?'<span class="tg">'+ic("flame")+'After the '+n.cook+' cook</span>':'')+'</div></div>'}).join("")+
+  /* Method: a step photo where the version (or its parent) has one. A step need not have one. Loaded in the "step" phase. */
+  var nStep=F.stepCount(r,vid);
+  var met='<div class="lblrow"><span class="lbl">Method</span><button type="button" class="back" data-stepadd style="font-size:13px">'+ic("cam","s")+' Step photo <span style="color:var(--muted);font-weight:600;margin-left:4px">'+nStep+'/10</span></button></div>'+r.steps.map(function(s,k){var sp=F.stepFor(r,vid,k);
+    return '<div class="stp"><span class="nb">'+(k+1)+'</span><div style="flex:1;min-width:0"><p>'+esc(s[0])+'</p>'+
+      (sp?'<button type="button" class="psp" data-open="'+sp.p.id+'"'+(sp.inherited?' data-inh="'+esc(sp.from.name)+'"':'')+' aria-label="Photo of step '+(k+1)+'">'+F.frame(sp.p.id,"m",{phase:"step",prep:sp.p.prep,inh:sp.inherited?sp.from.name:"",alt:"Step "+(k+1)})+'</button>':'')+
+      '</div></div>'}).join("");
+  var nts=(F.NOTES[r.id]||[]).map(function(n){return '<div class="note ncard">'+F.noteHtml(n.body)+'<div class="nmeta"><span>'+esc(n.by)+' · '+n.when+'</span>'+(n.cook?'<span class="tg">'+ic("flame")+'After the '+n.cook+' cook</span>':'')+'</div></div>'}).join("")+
     r.notes.map(function(n){return '<div class="note ncard"><div class="nbody"><p>'+esc(n[0])+'</p></div><div class="nmeta"><span>'+esc(n[1])+' · '+n[2]+'</span></div></div>'}).join("");
   var notes=(nts||'<p style="font-size:13px">No notes yet.</p>')+'<a class="back" href="'+F.noteHref(r,{from:"recipe"})+'" style="font-size:14px">'+ic("note","s")+' Add a note</a>';
-  /* Cooked: one row per cook (gap G2). P-D25: each row is where "what you made" lives: its photos (tap to open) and, while it has
-     fewer than 3, a dashed camera that goes straight to the picker aimed at that cook. No question asked. */
-  var hist=r.hist.length?r.hist.map(function(h){var d=h[0].split(" ");var ps=cooked.filter(function(c){return c.when===h[0]});
+  /* Cooked: each row's photos are on demand. The row shows the photo's colour square (no request); a tap opens it. */
+  var hist=r.hist.length?r.hist.map(function(h){var d=h[0].split(" ");var ps=cooked.filter(function(c){return c.cook===h[0]});
     return '<div class="hist"><span class="d"><b>'+d[0]+'</b>'+d[1]+'</span><span class="t">'+esc(h[1])+' cooked <b>'+esc(h[2])+'</b>'+(h[3]?'<small>"'+esc(h[3])+'"</small>':'')+'</span>'+
-      ps.map(function(p){return '<button type="button" class="th ph" style="width:44px;height:44px" data-open="'+p.id+'" aria-label="Photo from '+h[0]+'">'+F.frame(p.id,"t",{alt:""})+'</button>'}).join("")+
+      ps.map(function(p){return '<button type="button" class="th ph" style="width:44px;height:44px" data-open="'+p.id+'" aria-label="Photo from '+h[0]+', tap to open">'+F.frame(p.id,"t",{phase:showMore?"scroll":"demand",alt:""})+'</button>'}).join("")+
       (ps.length<3?'<a class="addc" href="'+F.addHref(r,{cook:h[0]})+'" aria-label="Add a photo of the '+h[0]+' cook">'+ic("cam","s")+'</a>':'')+'</div>'}).join(""):'<p style="font-size:13px">Not cooked yet.</p>';
   hist='<a class="pempty" style="margin-bottom:8px" href="'+F.addHref(r,{cook:"tonight"})+'"><span class="e" aria-hidden="true">🍽️</span><span class="t"><b>Made it tonight?</b><small>Add a photo of what you made. Up to 3.</small></span>'+ic("cam")+'</a>'+hist;
-  /* Photos: the recipe's own (covers marked) then cooked-it photos, newest first; three across, thumbnails only. */
+  /* Photos: the version's other photos and the cooks' photos. Nothing loads until "Show" is tapped. */
+  var extra=more.concat(cooked);
   var gal;
   if(!all.length){
-    gal='<a class="pempty" href="'+F.addHref(r,{})+'"><span class="e" aria-hidden="true">📷</span><span class="t"><b>No photos yet</b><small>Snap it next time you cook it. The first photo becomes the cover.</small></span>'+ic("plus")+'</a>';
+    gal='<a class="pempty" href="'+F.addHref(r,{})+'"><span class="e" aria-hidden="true">📷</span><span class="t"><b>No photos yet</b><small>Snap it next time you cook it.</small></span>'+ic("plus")+'</a>'+
+      '<p style="font-size:12.5px;margin-top:8px"><a class="back" style="font-size:13px" href="'+F.addHref(r,{kind:"banner",v:vid})+'">'+ic("img","s")+' Or a banner for '+esc(v.name)+'</a></p>';
   }else{
-    var ord=dish.slice().sort(function(a,b){return (b.v===vid)-(a.v===vid)||(b.cover||0)-(a.cover||0)}).concat(cooked);
-    gal='<div class="pgal">'+ord.map(function(p){var vn=(r.vers.filter(function(x){return x.id===p.v})[0]||{}).name;
-      return '<button type="button" data-open="'+p.id+'" aria-label="'+(p.k==="cooked"?"Cooked "+p.when+" by "+esc(p.by):(p.cover?"Cover of ":"Photo of ")+esc(vn))+'">'+F.frame(p.id,"t",{alt:""})+
-        (p.cover&&p.v===vid?'<span class="badge2">Cover</span>':p.cover?'<span class="badge2" style="background:var(--surface);color:var(--fg)">'+esc(vn)+'</span>':'')+
-        (p.k==="cooked"?'<span class="when">'+p.when+' · '+esc(p.by)+'</span>':'')+'</button>'}).join("")+
-      '<a class="addp" href="'+F.addHref(r,{})+'">'+ic("cam")+'Add</a></div>'+
-      '<p style="font-size:12px;margin-top:8px">'+dish.length+' of 6 recipe photos · '+cooked.length+' from cooks</p>';
+    gal=(!showMore&&extra.length?'<button type="button" class="pempty" data-showmore style="margin-bottom:8px"><span class="e" aria-hidden="true">🖼️</span><span class="t"><b>Show '+extra.length+' more photo'+(extra.length>1?'s':'')+'</b><small>From cooks and the gallery. They load when you tap.</small></span>'+ic("down")+'</button>':'')+
+      (showMore?'<div class="pgal">'+extra.map(function(p){return '<button type="button" data-open="'+p.id+'" aria-label="'+esc(F.label(r,p))+'">'+F.frame(p.id,"t",{phase:"scroll",alt:""})+(p.k==="cooked"?'<span class="when">'+p.when+' · '+esc(p.by)+'</span>':'')+'</button>'}).join("")+
+        '<a class="addp" href="'+F.addHref(r,{})+'">'+ic("cam")+'Add</a></div>':'')+
+      '<p style="font-size:12px;margin-top:8px">'+(bn&&!bn.inherited?'Banner: 1 of 1':'Banner: none of its own')+' · step photos '+nStep+' of 10 · '+more.length+' more · '+cooked.length+' from cooks</p>'+
+      '<p style="margin-top:4px"><a class="back" style="font-size:13px" href="free.html?to='+r.id+'">'+ic("x","s")+' Free up space: photos of versions you do not use</a></p>';
   }
-  var SEC=[["ing","Ingredients",ingH],["met","Method",met],["not","Notes",'<div class="lblrow"><span class="lbl">Notes</span></div>'+notes],["his","Cooked",'<div class="lblrow"><span class="lbl">Cooked</span></div>'+hist],["pho","Photos",'<div class="lblrow"><span class="lbl">Photos</span>'+(all.length?'<span class="lbl">'+all.length+'</span>':'')+'</div>'+gal]];
-  var body=top+head+'<nav class="jumps" aria-label="Sections">'+SEC.map(function(s,i){return '<a href="#'+s[0]+'" class="'+(i?'':'on')+'">'+s[1]+(s[0]==="pho"&&all.length?' '+all.length:'')+'</a>'}).join("")+'</nav>'+
+  var SEC=[["ing","Ingredients",ingH],["met","Method",met],["not","Notes",'<div class="lblrow"><span class="lbl">Notes</span></div>'+notes],["his","Cooked",'<div class="lblrow"><span class="lbl">Cooked</span></div>'+hist],["pho","Photos",'<div class="lblrow"><span class="lbl">Photos</span>'+(extra.length?'<span class="lbl">'+extra.length+' more</span>':'')+'</div>'+gal]];
+  var body=top+F.undoBar(r)+head+'<nav class="jumps" aria-label="Sections">'+SEC.map(function(s,i){return '<a href="#'+s[0]+'" class="'+(i?'':'on')+'">'+s[1]+'</a>'}).join("")+'</nav>'+
     SEC.map(function(s){return '<section class="sec" id="'+s[0]+'">'+s[2]+'</section>'}).join("")+'<div style="height:24px"></div>';
   ph.innerHTML='<div class="top"><a class="back" href="list.html">'+ic("back","s")+'Recipes</a><span class="ttl"></span>'+
     '<a class="ib bare" href="'+F.addHref(r,{})+'" aria-label="Add a photo of what you made">'+ic("cam")+'</a>'+
@@ -78,30 +73,39 @@ function draw(keep){
     '<div class="body" id="body">'+body+'</div>'+
     '<div class="act"><button type="button" class="btn ghost">'+ic("cal","s")+'Plan it</button><a class="btn" href="../recipe/cook.html?id='+r.id+'">'+ic("flame","s")+'Cook it</a></div>';
   var b=document.getElementById("body");b.scrollTop=y;
-  F.load(ph);
-  var he=document.getElementById("hero");
-  if(he)he.addEventListener("scroll",function(){var k=Math.round(he.scrollLeft/he.clientWidth);document.querySelectorAll(".hdots2 i").forEach(function(d,j){d.classList.toggle("on",j===k)});
-    /* first swipe: now fetch the other hero photos (P-D14, nothing before the person asks) */
-    he.querySelectorAll(".pf[data-ondemand]").forEach(function(el){el.removeAttribute("data-ondemand")});F.load(he)},{passive:true});
+  /* Text has painted. Then step photos, then the banner. Anything shown by "Show more" loads as it scrolls in. */
+  /* "Step" phase = the step photos within the first two screens (up to 10 at medium size would otherwise hold the banner back by
+     most of a megabyte); then the banner; then any further step photo as it comes within 200px of the screen. */
+  F.afterPaint(function(){
+    var lim=b.getBoundingClientRect().top+2*b.clientHeight;
+    [].forEach.call(ph.querySelectorAll('.pf[data-phase="step"]'),function(el){if(el.getBoundingClientRect().top>lim)el.dataset.phase="scroll"});
+    F.phase(ph,"step").then(function(){return F.phase(ph,"banner")}).then(function(){F.watch(ph,b)});
+  });
+  F.prepWatch(ph,function(){location.href=location.href.replace(/state=prep/,"state=photos").replace(/&?arrive=1/,"")});
+  F.tickUndo(ph,function(){draw(true)});
   b.addEventListener("scroll",function(){var cur="ing";SEC.forEach(function(s){var el=document.getElementById(s[0]);if(el&&el.offsetTop-60<=b.scrollTop)cur=s[0]});document.querySelectorAll(".jumps a").forEach(function(a){a.classList.toggle("on",a.getAttribute("href")==="#"+cur)})},{passive:true});
 }
 ph.addEventListener("click",function(e){
   var t=e.target.closest("button,a");if(!t)return;
-  if(t.dataset.open){var p=F.photos(r).filter(function(x){return x.id===t.dataset.open})[0];
-    var nxt=F.photos(r).filter(function(x){return x.k==="dish"&&x.id!==p.id&&!removed[x.id]})[0];
-    F.viewer(r,p,{nextCover:nxt?"its other photo":"its parent version's cover, or no photo",
-      onCover:function(p){X.toast("Now the cover of "+esc((r.vers.filter(function(x){return x.id===vid})[0]).name)+" for the household")},
-      onRemove:function(p,now){removed[p.id]=1;draw(true);X.toast(now?"Deleted for good":"Photo removed",now?null:function(){delete removed[p.id];draw(true)})}});}
-  else if(t.hasAttribute("data-vers"))X.sheet('<h3>Versions</h3>'+r.vers.map(function(x){var c=F.coverFor(r,x.id);return '<button type="button" class="opt'+(x.id===vid?' on':'')+'" data-pick="'+x.id+'">'+
-      (c?'<span class="th ph" style="width:44px;height:44px">'+F.frame(c.p.id,"t",{eager:1,alt:""})+'</span>':'<span class="th" style="width:44px;height:44px;font-size:20px">'+r.e+'</span>')+
-      '<span class="t"><b>'+esc(x.name)+'</b><small>'+(c?(c.inherited?"Shows "+esc(c.from.name)+"'s photo":c.cooked?"Shows a cooked photo":"Has its own cover"):"No photo")+'</small></span></button>'}).join(""),
-    function(s,close){s.addEventListener("click",function(e){var b=e.target.closest("[data-pick]");if(b){vid=b.dataset.pick;close();draw()}})});
-  else if(t.hasAttribute("data-more"))X.sheet('<h3>'+esc(r.name)+'</h3><button class="opt" data-close>'+ic("pen")+'<span class="t"><b>Change it</b><small>Saves as a new version</small></span></button><button class="opt" data-close>'+ic("x")+'<span class="t"><b>Removed photos</b><small>Bring one back within 30 days</small></span></button>');
+  if(t.dataset.open){var p=F.photos(r).filter(function(x){return x.id===t.dataset.open})[0];if(!p)return;
+    var vname=(r.vers.filter(function(x){return x.id===vid})[0]).name;
+    var nb=(function(){var c=F.chain(r,vid);for(var i=c.length-2;i>=0;i--){var q=F.photos(r).filter(function(x){return x.k==="banner"&&x.v===c[i].id&&x.id!==p.id})[0];if(q)return c[i].name+"'s banner (marked)"}return null})();
+    F.viewer(r,p,{vid:vid,viewing:vname,inheritedFrom:t.dataset.inh||"",nextBanner:nb||"no photo at the top",
+      onRemove:function(p){draw(true);X.toast("Photo removed. Undo for 5 minutes.",function(){F.restore(p.id);draw(true)})}});}
+  else if(t.hasAttribute("data-undo")){t.dataset.undo.split(",").forEach(F.restore);draw(true);X.toast("Photo back")}
+  else if(t.hasAttribute("data-stepadd")){var full=F.stepCount(r,vid)>=10;
+    X.sheet('<h3>A photo for which step?</h3><p style="font-size:13px">One photo per step, up to 10 for this version. A step does not need one.'+(full?' <b>All 10 are used: replace one instead.</b>':'')+'</p>'+
+      r.steps.map(function(s,k){var sp=F.stepFor(r,vid,k),own=sp&&!sp.inherited;return '<a class="opt" href="'+(own?'#':F.addHref(r,{kind:"step",sn:k,v:vid}))+'"'+(own?' data-close':'')+'><span class="nb" style="width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--on-accent);font-weight:800;display:inline-flex;align-items:center;justify-content:center;flex:none">'+(k+1)+'</span><span class="t"><b>'+esc(s[0])+'</b><small>'+(own?'Has its photo: open it on the page to replace':sp?'Shows '+esc(sp.from.name)+'\'s photo: add its own':'No photo')+'</small></span>'+(own?ic("check","s"):ic("cam","s"))+'</a>'}).join(""))}
+  else if(t.hasAttribute("data-showmore")){showMore=true;draw(true)}
+  else if(t.hasAttribute("data-vers"))X.sheet('<h3>Versions</h3>'+r.vers.map(function(x){var c=F.bannerFor(r,x.id);return '<button type="button" class="opt'+(x.id===vid?' on':'')+'" data-pick="'+x.id+'">'+
+      (c?'<span class="th ph" style="width:44px;height:44px">'+F.frame(c.p.id,"t",{phase:"demand",prep:c.p.prep,small:1,inh:c.inherited?c.from.name:"",alt:""})+'</span>':'<span class="th" style="width:44px;height:44px;font-size:20px">'+r.e+'</span>')+
+      '<span class="t"><b>'+esc(x.name)+'</b><small>'+(c?(c.inherited?"Shows "+esc(c.from.name)+"'s photo":"Has its own banner"):"No photo")+'</small></span></button>'}).join(""),
+    function(s,close){F.eager(s);s.addEventListener("click",function(e){var b=e.target.closest("[data-pick]");if(b){vid=b.dataset.pick;close();showMore=false;draw()}})});
+  else if(t.hasAttribute("data-more"))X.sheet('<h3>'+esc(r.name)+'</h3><button class="opt" data-close>'+ic("pen")+'<span class="t"><b>Change it</b><small>Through your assistant</small></span></button><a class="opt" href="free.html?to='+r.id+'">'+ic("x")+'<span class="t"><b>Free up space</b><small>Remove photos of versions you do not use. Text and history stay.</small></span></a>');
 });
 draw();
-F.controls('<h4>Cover at the top (P-D20)</h4><div class="seg"><button type="button" data-hero="A" aria-pressed="'+(hero==="A")+'">A Full width</button><button type="button" data-hero="B" aria-pressed="'+(hero==="B")+'">B Small, by the title</button><button type="button" data-hero="C" aria-pressed="'+(hero==="C")+'">C None, gallery only</button></div>'+
-  '<h4>Recipe</h4><p><a href="?id=efr">Egg fried rice (3 versions)</a> · <a href="?id=efr&v=v2">Its newest version, no own photo</a> · <a href="?id=rag">Ragù (cooked photo only)</a> · <a href="?id=pas">Pasta (no photos)</a></p>');
-document.addEventListener("click",function(e){var b=e.target.closest("[data-hero]");if(b){X.store.set("phero",b.dataset.hero);var u=new URL(location.href);u.searchParams.delete("hero");location.href=u.toString()}});
+F.controls('<h4>Recipe</h4><p><a href="?id=efr">Egg fried rice (3 versions)</a> · <a href="?id=efr&v=v2">Its newest version, showing its parent\'s photos</a> · <a href="?id=rag">Ragù (cooked photo only: no banner)</a> · <a href="?id=pas">Pasta (no photos)</a> · <a href="?id=efr&state=prep">Photos being prepared</a> · <a href="?id=efr&state=prep&arrive=1">Being prepared, then arriving</a></p>'+
+  '<p style="font-size:12px;margin-top:6px">P-D20 is locked as A (full-width banner): the B and C switches were removed.</p>');
 })();
 </script>
 </body></html>
