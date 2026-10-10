@@ -26,7 +26,7 @@ function draw(){
       '<div class="act"><button type="button" class="btn ghost" data-prev>'+ic("back","s")+'Back</button><button type="button" class="btn" data-next>'+(step===r.steps.length-1?'Done':'Next')+ic("chev","s")+'</button></div>';
   }else{
     /* R-D19: the end asks once. What gets used from the pantry, and (only if something was swapped) whether to keep the change.
-       Keeping it needs the person's own words; Recipe rejects a version without them (create_variation user_intent). */
+       Keeping it makes a Trying version (V-D18; V-D17: the person's words are optional in the app and required from an assistant). A Trying version's own cook gets V-D18's three answers: recipe-versions/after-cook.html. */
     var sw=Object.keys(swapped);
     ph.innerHTML=head+'<div class="body"><div class="pad" style="text-align:center;padding-top:28px"><div style="font-size:52px">'+r.e+'</div><h2 style="margin-top:6px">Enjoy it</h2><p style="margin-top:4px">'+esc(res.v.name)+' · '+(r.batch?n+' portions':'serves '+n)+'</p></div>'+
       '<div class="pad"><div class="lblrow" style="margin-top:0"><span class="lbl">Take out of the pantry</span></div>'+
@@ -47,7 +47,7 @@ ph.addEventListener("click",function(e){
   else if(t.hasAttribute("data-prev")){step--;draw()}
   else if(t.hasAttribute("data-ings")){step=-1;draw()}
   else if(t.hasAttribute("data-just")){t.closest(".note").innerHTML="Kept for tonight only. The recipe is unchanged."}
-  else if(t.hasAttribute("data-keepv")){var note=t.closest(".note");X.sheet('<h3>Keep it as a version</h3><label class="lbl" for="w">In your words, why keep it?</label><input class="field" id="w" style="margin-top:4px" value="That worked well, save it"><p style="font-size:12px;margin-top:6px">Saved as your words. Recipe will not keep a version without them.</p><div style="display:flex;gap:8px;margin-top:12px"><button class="btn ghost" data-close>Back</button><button class="btn" data-ok>Keep it</button></div>',function(s,close){s.querySelector("[data-ok]").onclick=function(){close();note.innerHTML="Saved as a new version. It shows on the recipe under Versions."}})}
+  else if(t.hasAttribute("data-keepv")){var note=t.closest(".note");X.sheet('<h3>Keep it as a version</h3><label class="lbl" for="w">In your words, why keep it?</label><input class="field" id="w" style="margin-top:4px" value="That worked well, save it"><p style="font-size:12px;margin-top:6px">Saved as your words. It starts as a try (Trying) until someone keeps it.</p><div style="display:flex;gap:8px;margin-top:12px"><button class="btn ghost" data-close>Back</button><button class="btn" data-ok>Keep it</button></div>',function(s,close){s.querySelector("[data-ok]").onclick=function(){close();note.innerHTML="Saved as a new version to try. It shows on the recipe under Versions."}})}
 });
 draw();
 X.controls();

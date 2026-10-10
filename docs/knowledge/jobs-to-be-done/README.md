@@ -21,5 +21,5 @@ Every screen starts from what the person is here to do right now. Layout, and wh
 | Planning the week | [plan-week.md](plan-week.md), [plan-week-ai.md](plan-week-ai.md) | Named; AI-led direction chosen, 16 owner decisions captured (9 Oct 2026) |
 | Planning the week, on desktop | [plan-desktop.md](plan-desktop.md) | Four options drawn (10 Oct 2026); decisions 49 to 62 are proposals awaiting the owner |
 | Using things up | [use-up.md](use-up.md) | Named, options drafted, nothing else captured |
-| Recipe tab (find, plan, cook, add, change) | [recipe-tab.md](recipe-tab.md) | Drafted 10 Oct 2026 in slices, all Proposal; mockup `recipe/` |
+| Recipe tab (find, plan, cook, add, change) | [recipe-tab.md](recipe-tab.md), build handoff [recipe-tab-handoff.md](recipe-tab-handoff.md) | Drafted 10 Oct 2026 in four slices (flow, versions, photos, ideas), all Proposal, reconciled the same day; mockups `recipe/`, `recipe-versions/`, `recipe-photos/`, `recipe-ideas/`; tab bar order is the owner's call; nothing built or filed |
 | Cook from one main thing | – | Named, nothing captured yet |

@@ -100,15 +100,15 @@ ph.addEventListener("click",function(e){
 function versSheet(){
   var res=X.resolve(r,vid);
   X.sheet('<h3>Versions</h3><p style="font-size:13px">Each version keeps what it changed and takes the rest from the one above. Nothing is overwritten.</p><div style="margin-top:8px">'+
-    r.vers.map(function(x){return '<div class="'+(x.depth?'vtree':'')+'" style="margin-left:'+(x.depth>1?(x.depth-1)*14:0)+'px"><button type="button" class="opt'+(x.id===res.v.id?' on':'')+'" data-pick="'+x.id+'">'+ic(x.id===res.v.id?"check":"branch")+'<span class="t"><b>'+esc(x.name)+'</b><small>'+esc(x.by)+', '+x.when+' · cooked '+x.cooked+'×'+(x.def?' · household default':'')+'</small>'+(x.why?'<small>'+esc(x.why)+'</small>':'')+'</span></button></div>'}).join("")+
-    '</div>'+(follower?'':'<a class="btn ghost" style="margin-top:12px;width:100%" href="edit.html?id='+r.id+'&v='+res.v.id+'">'+ic("pen","s")+'Change it as a new version</a>'),
+    r.vers.map(function(x){return '<div class="'+(x.depth?'vtree':'')+'" style="margin-left:'+(x.depth>1?(x.depth-1)*14:0)+'px"><button type="button" class="opt'+(x.id===res.v.id?' on':'')+'" data-pick="'+x.id+'">'+ic(x.id===res.v.id?"check":"branch")+'<span class="t"><b>'+esc(x.name)+'</b><small>'+esc(x.by)+', '+x.when+' · cooked '+x.cooked+'×'+(x.def?' · our usual':'')+'</small>'+(x.why?'<small>'+esc(x.why)+'</small>':'')+'</span></button></div>'}).join("")+
+    '</div>'+(follower?'':'<a class="btn ghost" style="margin-top:12px;width:100%" href="edit.html?id='+r.id+'&v='+res.v.id+'">'+ic("pen","s")+'Change it</a>'),
   function(s,close){s.addEventListener("click",function(e){var b=e.target.closest("[data-pick]");if(b){vid=b.dataset.pick;close();draw(true)}})});
 }
 function moreSheet(){
   var res=X.resolve(r,vid);
   X.sheet('<h3>'+esc(r.name)+'</h3>'+
-    '<a class="opt" href="edit.html?id='+r.id+'&v='+res.v.id+'">'+ic("pen")+'<span class="t"><b>Change it</b><small>Saves as a new version. The one you have stays.</small></span></a>'+
-    '<button class="opt" data-close>'+ic("branch")+'<span class="t"><b>Make '+esc(res.v.name)+' the default</b><small>What Plan and Cook open for the household</small></span></button>'+
+    '<a class="opt" href="edit.html?id='+r.id+'&v='+res.v.id+'">'+ic("pen")+'<span class="t"><b>Change it</b><small>A try takes changes in place; for a keeper you choose Fix this one or Keep both.</small></span></a>'+
+    '<button class="opt" data-close>'+ic("branch")+'<span class="t"><b>Make it our usual</b><small>What Plan and Cook open for the household</small></span></button>'+
     '<button class="opt" data-close>'+ic("spark")+'<span class="t"><b>Ask your assistant about it</b><small>Opens your AI app with this recipe</small></span></button>'+
     '<button class="opt" data-close>'+ic("link")+'<span class="t"><b>Where it came from</b><small>'+esc(r.src)+'</small></span></button>'+
     '<button class="opt" data-close>'+ic("x")+'<span class="t"><b>Put away</b><small>Hides it from lists and ideas. Nothing is deleted; bring it back any time.</small></span></button>');
