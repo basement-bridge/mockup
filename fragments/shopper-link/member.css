@@ -71,3 +71,117 @@ li.shoprow[data-fresh]{animation:sl-fresh 2.4s ease-out}
 /* COMPARISON ONLY, NOT PROPOSED: option B (an icon in the header) and option C (the same form after the last line). */
 .appbar .hdr form{margin:0}
 .sl-share-end{margin:12px 0 0}
+
+/* ================================================================================================================================================================
+   Owner's second round, voice, 11 October 2026 (SL-D21 to SL-D33): what the household sees when someone on a link has promised lines, and the view of one link.
+   Three line states (SL-D25): needed (the row as it was), claimed ("Someone's getting this", grouped under the link that promised it, nobody named), bought (crossed out, as before).
+   A fourth, for what the shopper could not get: "Not bought", with what to do about it (SL-D28). Three links can be out at once; their groups are kept apart by number, shape, edge style
+   and colour together, so colour is never the only cue. Theme tokens only. */
+.sl-lk,.sl-group,.sl-lc,li.shoprow[data-link]{--c:var(--muted)}
+.sl-lk[data-n="1"],.sl-group[data-n="1"],.sl-lc[data-n="1"],li.shoprow[data-link="1"]{--c:var(--accent)}
+.sl-lk[data-n="2"],.sl-group[data-n="2"],.sl-lc[data-n="2"],li.shoprow[data-link="2"]{--c:var(--sage)}
+.sl-lk[data-n="3"],.sl-group[data-n="3"],.sl-lc[data-n="3"],li.shoprow[data-link="3"]{--c:var(--fg)}
+/* The link's marker: a number in a shape. Link 1 a circle, Link 2 a rounded square, Link 3 a leaf; a dead or ended link a dashed circle with the chain. */
+.sl-lk{display:inline-flex;align-items:center;justify-content:center;flex:none;width:32px;height:32px;border:2px solid var(--c);border-radius:50%;background:color-mix(in srgb,var(--c) 16%,var(--surface));color:var(--c);font:700 1rem/1 var(--head)}
+.sl-lk[data-n="2"]{border-radius:9px}
+.sl-lk[data-n="3"]{border-radius:16px 4px 16px 4px}
+.sl-lk[data-n="x"]{border-style:dashed}
+
+/* The links that are out: one row each, tap in. The time left is on the row, once (SL-D29). Cancel stays one tap, here as before (SL-D15). */
+.sl-links{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.sl-lrow{display:flex;align-items:center;min-height:64px;border:1px solid var(--border);border-radius:16px;background:var(--surface);overflow:hidden}
+.sl-lrow-a{flex:1 1 auto;min-width:0;display:flex;align-items:center;gap:10px;min-height:64px;padding:6px 4px 6px 10px;color:var(--fg);text-decoration:none;-webkit-tap-highlight-color:transparent}
+.sl-lrow-t{flex:1 1 auto;min-width:0;line-height:1.25}
+.sl-lrow-1{display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 10px}
+.sl-lrow-1 b{font-size:1rem}
+.sl-left{display:inline-flex;align-items:center;gap:4px;font-size:.9rem;font-weight:700;color:var(--fg);white-space:nowrap}
+.sl-left svg{color:var(--muted);align-self:center}
+.sl-lrow-2{display:block;font-size:.85rem;color:var(--muted)}
+.sl-chev{flex:none;color:var(--muted)}
+.sl-lrow form{flex:none;margin:0 2px 0 0}
+.sl-lrow[data-sl-state=unopened] .sl-lrow-2{font-weight:600}
+/* A link its shopper turned down, or one that ended: grey, dashed, no countdown, dismissible. It clears itself after a day (SL-D33, SL-J36). */
+.sl-lrow[data-sl-state=dead],.sl-lrow[data-sl-state=ended]{border-style:dashed;border-color:var(--out);background:var(--bg)}
+.sl-lrow[data-sl-state=dead] .sl-lrow-1 b,.sl-lrow[data-sl-state=ended] .sl-lrow-1 b{color:var(--muted)}
+
+/* Lines that still need sorting: nobody has them (SL-D28). The nudge in the slot, then the group at the top of the list with the choice on each line. */
+.sl-nudge{display:flex;align-items:center;gap:10px;min-height:60px;padding:8px 10px 8px 14px;border:2px solid var(--danger);border-radius:18px;background:color-mix(in srgb,var(--danger) 10%,var(--surface));color:var(--fg);text-decoration:none}
+.sl-nudge>svg:first-child{flex:none;color:var(--danger)}
+.sl-nudge>svg:last-child{flex:none;margin-left:auto;color:var(--muted)}
+.sl-nudge-t{flex:1 1 auto;min-width:0;line-height:1.25}
+.sl-nudge-t b{display:block;font-size:1rem}
+.sl-nudge-t span{display:block;font-size:.85rem;color:var(--muted)}
+.sl-sorting{margin:12px 0 4px;border:2px solid var(--danger);border-radius:18px;overflow:hidden;background:var(--surface)}
+.sl-gh{display:flex;align-items:center;gap:10px;min-height:56px;padding:8px 12px;background:color-mix(in srgb,var(--c,var(--muted)) 14%,var(--surface))}
+.sl-gh-sort{--c:var(--danger)}
+.sl-gh-sort>svg{flex:none;color:var(--danger)}
+.sl-gh-t{flex:1 1 auto;min-width:0;line-height:1.25}
+.sl-gh-t b{display:block;font-size:1.05rem}
+.sl-gh-t span{display:block;font-size:.85rem;color:var(--muted)}
+.sl-gh-a{flex:none;display:inline-flex;align-items:center;min-height:44px;padding:0 6px;color:var(--accent);font-size:.9rem;font-weight:700;text-decoration:none}
+.sl-sorting li.shoprow,.sl-group li.shoprow{background:var(--surface)}
+.sl-sorting li.shoprow .swfg,.sl-group li.shoprow .swfg,.sl-lc-lines li.shoprow .swfg{background:transparent}
+.sl-sorting li.shoprow:last-child,.sl-group li.shoprow:last-child{border-bottom:0}
+li.shoprow[data-sl=notbought]{box-shadow:inset 4px 0 0 var(--danger)}
+li.shoprow[data-sl=notbought] .tick{pointer-events:none}
+li.shoprow[data-sl=notbought] .tick span{border-style:dashed;border-color:var(--danger)}
+li.shoprow .sl-sort{display:flex;align-items:center;gap:5px;font-weight:700;color:var(--fg)}
+li.shoprow .sl-sort svg{flex:none;color:var(--danger)}
+.sl-cta{display:flex;gap:8px;padding:0 12px 12px 54px}
+.sl-cta form{flex:1 1 0;min-width:0;margin:0}
+.sl-cta .btn{width:100%;min-height:48px;margin:0;padding:0 8px;font-weight:600;line-height:1.2;text-align:center}
+.sl-cta button.btn[type=submit]{background:var(--bg);border:1px solid var(--border);color:var(--fg)}
+.sl-cta button.btn.sl-cta-need[type=submit]{background:var(--accent);border-color:var(--accent);color:var(--on-accent,var(--bg));font-weight:700}
+
+/* A line someone on a link has promised: grouped under that link (SL-D25). The group has the link's number and shape, its own edge and colour, and says how many lines. */
+.sl-group{margin:14px 0 0;border:2px solid var(--c);border-radius:18px;overflow:hidden;background:var(--surface)}
+.sl-group[data-n="2"]{border-style:dashed}
+.sl-group[data-n="3"]{border-style:dotted}
+li.shoprow[data-sl=claimed]{box-shadow:inset 4px 0 0 var(--c)}
+li.shoprow[data-sl=claimed] .tick span{border-style:dashed;border-color:var(--c)}
+li.shoprow[data-sl=claimed] .tick{pointer-events:none}
+li.shoprow .sl-claim{display:flex;align-items:center;gap:5px;font-weight:700;color:var(--c)}
+li.shoprow .sl-claim svg{flex:none}
+
+/* One link, tapped into (SL-D29 to SL-D32). The container: time left at the top, once; then what has happened; then the lines it touched. */
+.sl-back{display:inline-flex;align-items:center;gap:2px;min-height:44px;margin:0 0 4px -4px;padding:0 8px 0 0;color:var(--accent);font-weight:700;text-decoration:none}
+.sl-lc{margin:0 0 10px;padding:14px;border:2px solid var(--c);border-radius:20px;background:var(--surface)}
+.sl-lc[data-n="2"]{border-style:dashed}
+.sl-lc[data-n="3"]{border-style:dotted}
+.sl-lc-h{display:flex;align-items:center;gap:10px}
+.sl-lc-t{min-width:0;line-height:1.25}
+.sl-lc-t b{display:block;font-family:var(--head);font-size:1.4rem}
+.sl-lc-t span{display:block;font-size:.9rem;color:var(--muted)}
+.sl-time{display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 8px;margin:12px 0 0;padding:10px 12px;border-radius:14px;background:var(--bg);border:1px solid var(--border)}
+.sl-time-l{flex:1 0 100%;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.sl-time-v{font-family:var(--head);font-size:2.4rem;line-height:1;color:var(--fg)}
+.sl-time-u{font-size:1rem;font-weight:600;color:var(--fg)}
+.sl-facts{list-style:none;display:flex;flex-direction:column;gap:2px;margin:10px 0 0;padding:0}
+.sl-facts li{display:flex;align-items:center;gap:8px;min-height:32px;font-size:.95rem}
+.sl-facts svg{flex:none;color:var(--muted)}
+.sl-lc-p{margin:12px 0 0;font-size:.95rem;line-height:1.45;color:var(--muted)}
+.sl-lc>.note{margin:8px 0 0}
+.sl-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(70px,1fr));gap:6px;margin:12px 0 0}
+.sl-stat{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;min-height:64px;padding:8px 4px 10px;border:1px solid var(--border);border-radius:14px;background:var(--bg);color:var(--muted);font:inherit;font-size:.85rem;font-weight:600;line-height:1.2;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.sl-stat b{font-family:var(--head);font-size:1.6rem;line-height:1;color:var(--fg)}
+.sl-stat[data-sl-stat=promised] b{color:var(--c)}
+.sl-stat[data-sl-stat=got] b{color:var(--added,var(--cue))}
+.sl-stat[data-sl-stat=swapped] b{color:var(--accent)}
+.sl-stat::after{content:"";position:absolute;right:7px;bottom:7px;width:0;height:0;border:4px solid transparent;border-top-color:var(--muted);border-bottom-width:0}
+.sl-stat[aria-expanded=true]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);color:var(--fg)}
+.sl-stat[aria-expanded=true]::after{border-top-color:transparent;border-bottom-color:var(--accent);border-top-width:0;border-bottom-width:4px}
+.sl-drill{margin:8px 0 0;padding:4px 12px;border:1px solid var(--border);border-radius:14px;background:var(--bg)}
+.sl-drill ul{list-style:none;margin:0;padding:0}
+.sl-drill li{display:flex;align-items:center;gap:12px;min-height:48px;border-bottom:1px solid var(--border)}
+.sl-drill li:last-child{border-bottom:0}
+.sl-drill .em{flex:none;font-size:22px;line-height:1}
+.sl-drill b{display:block;font-weight:600}
+.sl-drill small{display:block;font-size:.85rem;color:var(--accent);font-weight:600}
+.sl-lc-h2{margin:16px 0 4px;font-family:var(--head);font-size:1.1rem;line-height:1.2}
+.sl-lc-lines li.shoprow{background:var(--surface)}
+.sl-lc-lines li.shoprow:last-child{border-bottom:0}
+.sl-lc-cancel{margin:6px 0 0}
+.sl-lc-cancel button.btn[type=submit],button.btn.sl-dismiss[type=submit]{width:100%;min-height:48px;margin:0;background:var(--bg);border:1px solid var(--border);color:var(--fg);font-weight:600}
+.sl-lc[data-sl-state=dead]{--c:var(--out);border-style:dashed;border-color:var(--out);background:var(--bg)}
+.sl-lc[data-sl-state=dead] .sl-lc-t b{color:var(--muted)}
+.sl-lc[data-sl-state=dead] .sl-dismiss{margin-top:12px}
