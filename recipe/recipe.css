@@ -194,6 +194,48 @@ h2{margin:0;font:800 1.15rem/1.2 var(--head)}
 .bigstep p{color:var(--fg);font-size:19px;line-height:1.4;margin-top:var(--sp-2)}
 .timer{display:inline-flex;align-items:center;gap:6px;margin-top:var(--sp-3);font-weight:800;color:var(--accent)}
 
+/* photos (owner, 10 Oct 2026). .rph is the photo frame: sized before any byte arrives, so nothing jumps.
+   Underneath: --pc, the photo's own dominant colour (data from Recipe, set inline; the one non-token colour, as in the photos slice).
+   .stock: the list's stock placeholder (a quiet tile with the chef icon) shown until that row's image is loaded. */
+.rph{position:relative;display:block;overflow:hidden;width:100%;height:100%;background:var(--pc,var(--surface));border-radius:inherit}
+.rph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .25s}
+.rph.in img{opacity:1}
+.rph.stock{background:color-mix(in srgb,var(--accent) 14%,var(--surface));display:flex;align-items:center;justify-content:center;color:var(--muted)}
+.rph.stock.in{background:var(--pc,var(--surface))}
+.rph.stock>.ic{opacity:.55}
+.rph.prep{display:flex;align-items:flex-end}
+.rph-prep{margin:var(--sp-2);padding:3px 8px;border-radius:var(--r-pill);background:var(--bg);color:var(--muted);font-size:11.5px;font-weight:700}
+.rph-inh{position:absolute;right:6px;top:6px;z-index:2;width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:var(--bg);color:var(--muted);border:1px solid var(--border)}
+.th .rph-inh{right:2px;top:2px;width:18px;height:18px}
+.th.ph{padding:0;overflow:hidden;font-size:0}
+.banner{height:200px;position:relative}
+.banner .rph{border-radius:0}
+.stp .sp2{margin-top:var(--sp-2);height:140px;border-radius:var(--r-ctl);overflow:hidden;border:1px solid var(--border)}
+.bigstep .sp2{margin:0 0 var(--sp-3);height:180px;border-radius:var(--r-ctl);overflow:hidden;border:1px solid var(--border)}
+.pgrid button{aspect-ratio:1;border-radius:var(--r-ctl);overflow:hidden;border:1px solid var(--border);padding:0;display:block}
+.pmore{display:flex;align-items:center;gap:var(--sp-2);width:100%;min-height:44px;padding:0 var(--sp-3);border-radius:var(--r-ctl);border:1px dashed var(--border);color:var(--accent);font-weight:700;font-size:14px;margin-bottom:var(--sp-2)}
+.pmore small{color:var(--muted);font-weight:600;font-size:12px;margin-left:auto}
+.hist .pt{width:44px;height:44px;flex:none;border-radius:var(--r-ctl);overflow:hidden;border:1px solid var(--border);padding:0}
+
+/* notes (inherited down the version lineage; a note from above is marked, lightly) */
+.note p{color:var(--fg);font-size:14px}
+.note ul{margin:4px 0 0 18px;padding:0;color:var(--fg)}
+.note .nph{display:block;width:96px;height:72px;margin-top:6px;border-radius:var(--r-ctl);overflow:hidden;border:1px solid var(--border);padding:0}
+.note .from{display:inline-flex;align-items:center;gap:3px;margin-left:6px;color:var(--muted);font-weight:700}
+.note.inh{background:none;border-style:dashed}
+
+/* after a cook: the try's three answers (.rx .seg3) and each member's reaction (.rxrow); the household line is derived */
+.rx{display:flex;align-items:center;gap:var(--sp-2);min-height:48px;border-top:1px solid var(--border)}
+.rx:first-of-type{border-top:0}
+.rx .who{flex:1;min-width:0;font-weight:700;font-size:14px}
+.rx .seg3{display:flex;gap:4px}
+.rx .seg3 button{min-height:40px;min-width:44px;padding:0 10px;border-radius:var(--r-pill);border:1px solid var(--border);font-size:12.5px;font-weight:700}
+.rx .seg3 button[aria-pressed=true]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.rxrow{display:flex;flex-wrap:wrap;gap:6px}
+.rxrow button{min-height:40px;padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--border);font-size:13px;font-weight:700;color:var(--muted)}
+.rxrow button.on{color:var(--fg);border-color:var(--accent)}
+.rxsum{font-size:12.5px;color:var(--muted);margin-top:4px}
+
 /* toast */
 .toast{position:absolute;left:var(--sp-3);right:var(--sp-3);bottom:84px;z-index:20;background:var(--fg);color:var(--bg);border-radius:var(--r-ctl);padding:12px 14px;font-weight:600;font-size:14px;display:flex;justify-content:space-between;align-items:center;gap:var(--sp-2)}
 .toast button{min-height:44px;padding:0 6px;color:var(--bg);font-weight:800;text-decoration:underline}
@@ -204,6 +246,7 @@ h2{margin:0;font:800 1.15rem/1.2 var(--head)}
 .mockp{position:fixed;right:10px;bottom:126px;z-index:61;width:min(340px,calc(100vw - 20px));max-height:70vh;overflow:auto;padding:var(--sp-3);border-radius:var(--r-card);border:1px solid var(--border);background:var(--bg);box-shadow:0 12px 40px rgba(0,0,0,.35);font-size:13px}
 @media(min-width:600px){.mockp{bottom:64px}}
 .mockp[hidden]{display:none}
+body:has(.phone .toast) .mockb{display:none} /* never cover a toast's Undo */
 .mockp h4{margin:var(--sp-3) 0 var(--sp-1);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .mockp h4:first-child{margin-top:0}
 .mockp .seg{display:flex;flex-wrap:wrap;gap:4px}

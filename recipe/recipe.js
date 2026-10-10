@@ -41,13 +41,13 @@
       src: "Sam's assistant, from Sam's kitchen notes, 3 Sep", srcKind: "conversation",
       ings: [["eggs", "Eggs", 1.5, ""], ["rice", "Basmati rice, cooked and cooled", 150, "g"], ["onion", "Onion", .5, ""], ["spring", "Spring onions", 1, ""], ["soy", "Soy sauce", 1, "tbsp"], ["oil", "Oil", .5, "tbsp"]],
       steps: [["Beat the eggs with a pinch of salt.", "🥚"], ["Chop the onion and fry it in the oil until soft.", "🧅", 3], ["Push the onion aside, pour in the eggs and stir until just set.", "🍳", 1], ["Tip in the cold rice and break up any lumps. Keep the heat high.", "🍚", 4], ["Splash in the soy sauce, toss in the spring onions and serve.", "🥢"]],
-      notes: [["Day-old rice really is better. Fresh rice goes mushy.", "Sam", "12 Sep"], ["Kids like it with frozen peas thrown in at step 4.", "Jane", "20 Sep"]],
+      notes: [["Day-old rice really is better. Fresh rice goes mushy.", "Sam", "12 Sep", "v0"], ["Kids like it with frozen peas thrown in at step 4.", "Jane", "20 Sep", "v1"]],
       photos: ["🍚", "🍳", "🥢"],
-      hist: [["8 Oct", "Sam", "With peas", "Used brown rice, fine.", "🍚"], ["29 Sep", "Jane", "With peas", "", ""], ["21 Sep", "Sam", "Original", "Doubled it for lunches.", "🍳"], ["12 Sep", "Sam", "Original", "", ""]],
+      hist: [["8 Oct", "Sam", "With peas", "Used brown rice, fine.", "🍚", { Sam: "liked", Jane: "liked", Alex: "no", Priya: "skip" }], ["29 Sep", "Jane", "With peas", "", "", { Jane: "liked", Sam: "liked" }], ["21 Sep", "Sam", "Original", "Doubled it for lunches.", "🍳"], ["12 Sep", "Sam", "Original", "", ""]],
       vers: [
         { id: "v0", name: "Original", by: "Sam", when: "3 Sep", cooked: 2, depth: 0 },
         { id: "v1", name: "With peas", by: "Jane", when: "20 Sep", cooked: 4, depth: 1, def: 1, chg: { add: [["peas", "Frozen peas", 40, "g"]], swap: {} }, why: "Kids like the peas. Jane: \"keep that one\"." },
-        { id: "v2", name: "Less soy, more garlic", by: "Alex", when: "5 Oct", cooked: 0, depth: 2, chg: { add: [["garlic", "Garlic cloves", 1, ""]], swap: { soy: ["soy", "Soy sauce", .5, "tbsp"] } }, why: "Alex: \"save this, less salty\"." }
+        { id: "v2", name: "Less soy, more garlic", by: "Alex", when: "5 Oct", cooked: 0, depth: 2, state: "trying", chg: { add: [["garlic", "Garlic cloves", 1, ""]], swap: { soy: ["soy", "Soy sauce", .5, "tbsp"] } }, why: "Alex: \"save this, less salty\"." }
       ] },
     { id: "cur", name: "Chickpea and spinach curry", e: "🍛", min: 40, serves: 8, batch: 1, freezes: 1, cooked: 3, last: 9, tags: ["Batch", "Freezes"],
       src: "Priya's assistant, from a magazine page Priya showed it, 14 Aug", srcKind: "conversation",
@@ -84,6 +84,21 @@
       steps: [["Beat the eggs.", "🥚"], ["Melt butter, pour in eggs, stir gently.", "🍳", 2], ["Add cheese, fold.", "🧀", 1]],
       notes: [], photos: [], hist: [], vers: [{ id: "v0", name: "Original", by: "Jane", when: "1 Aug", cooked: 9, depth: 0, def: 1 }] }
   ];
+  /* Photos (owner, 10 Oct 2026; the photos slice's sample files in ../recipe-photos/img, <id>-t|m|l.webp, are reused here).
+     banner: one per version. A version without its own shows its nearest ancestor's, with a small icon, until it has one.
+     steps: per version, at most one photo per step and at most 10 per version; a step need not have one; inherited the same way.
+     A value { id, prep: 1 } is a photo still being prepared (uploaded, sizes not made yet). more: the recipe's other photos;
+     cooks: the photos on each cook (up to 3). There is NO "newest cooked photo as cover" fallback: no banner means no banner.
+     PC: each photo's dominant colour, sent with the recipe so the placeholder paints with no request (P-D5). Sample data only. */
+  var PC = { "efr-1": "#ba976b", "efr-2": "#cba772", "efr-3": "#a67e62", "efr-c1": "#9aa87f", "efr-c2": "#8aad7b", "efr-c3": "#bc8b6c", "cur-1": "#c18e5b", "sha-1": "#b76f60", "rag-1": "#9e6452" };
+  var PHOTOS = {
+    efr: { banner: { v0: "efr-2", v1: "efr-1" }, steps: { v0: { 0: "efr-3", 2: "efr-2" }, v1: { 3: "efr-c1" }, v2: { 1: { id: "efr-c2", prep: 1 } } },
+      more: ["efr-3"], cooks: { "8 Oct": ["efr-c1"], "29 Sep": ["efr-c2"], "21 Sep": ["efr-c3"] } },
+    cur: { banner: { v0: "cur-1" }, steps: {}, more: [], cooks: {} },
+    sha: { banner: { v0: "sha-1" }, steps: { v0: { 2: "sha-1" } }, more: [], cooks: {} },
+    rag: { banner: {}, steps: {}, more: [], cooks: { "5 Sep": ["rag-1"] } }
+  };
+
   /* A draft the assistant wrote, waiting for a person to check it. Recipe has no draft state today (see notes, Recipe-side gap). */
   var DRAFTS = [{ id: "len", name: "Red lentil soup", e: "🍲", from: "Your assistant, from a chat with Alex this morning", min: 35, serves: 4 }];
 
@@ -119,6 +134,100 @@
   var askAssistant = function (about) {
     toast("Opening your AI app" + (about ? " with " + about : "") + ". It adds recipes through Recipe's tools.");
   };
+  /* ---- Photos: frames, the load order and the loaded counter (owner, 10 Oct 2026) ----
+     The page paints text first. Every photo box is sized before any byte arrives (no layout jump) and filled with the
+     photo's dominant colour, or a stock placeholder in lists. Then images load by phase, never all at once:
+       recipe page: "step" (step photos) first, "banner" last; "more" (other photos, cook photos, a note's photo) only on demand.
+       list: planned recipes first (if the week's plan exists), then rows on screen plus the next 5 in the shown chip; the rest
+       as they come on screen. The list's loader is the Recipe tab's own: the home screen never runs it and never waits for it.
+     A photo still being prepared (uploaded, its sizes not made yet) shows its colour and "Photo is being prepared", no spinner. */
+  var IMG = "../recipe-photos/img/"; /* the photos slice's sample files, used read-only */
+  var photosOn = function () { return P.photos !== "off"; };
+  var chainOf = function (r, vid) {
+    var v = r.vers.filter(function (x) { return x.id === vid; })[0] || r.vers.filter(function (x) { return x.def; })[0] || r.vers[0];
+    var c = []; for (var d = 0; d <= v.depth; d++) c.push(d === v.depth ? v : r.vers.filter(function (x) { return x.depth === d; })[0]);
+    return c;
+  };
+  /* nearest in the lineage: this version's own, else its parent's, and so on (marked inherited until it has its own) */
+  var inherit = function (r, vid, get) {
+    var c = chainOf(r, vid);
+    for (var i = c.length - 1; i >= 0; i--) { var x = get(c[i].id); if (x) return { p: typeof x === "string" ? { id: x } : x, inherited: i < c.length - 1, from: c[i] }; }
+    return null;
+  };
+  var banner = function (r, vid) { var d = PHOTOS[r.id]; return photosOn() && d ? inherit(r, vid, function (id) { return d.banner[id]; }) : null; };
+  /* one per step at most; at most 10 per version (Recipe refuses the 11th); a step need not have one */
+  var stepPhoto = function (r, vid, k) { var d = PHOTOS[r.id]; return photosOn() && d ? inherit(r, vid, function (id) { return d.steps[id] && d.steps[id][k]; }) : null; };
+  var morePhotos = function (r) {
+    var d = PHOTOS[r.id]; if (!photosOn() || !d) return [];
+    var out = d.more.slice(); Object.keys(d.cooks).forEach(function (k) { d.cooks[k].forEach(function (id) { if (out.indexOf(id) < 0) out.push(id); }); });
+    return out;
+  };
+  var cookPhotos = function (r, when) { var d = PHOTOS[r.id]; return photosOn() && d ? (d.cooks[when] || []) : []; };
+  var got = {}, meterN = 0, meterKB = 0;
+  var KB = { t: 2, m: 6.5, l: 13 }; /* average sample sizes, for the counter only */
+  var meter = function () { var m = document.getElementById("rmeter"); if (m) m.innerHTML = "<b>" + meterN + "</b> photo file" + (meterN === 1 ? "" : "s") + " loaded, about <b>" + meterKB.toFixed(1) + " KB</b>. Placeholders cost no request."; };
+  /* o: { phase: step | banner | more | list, inh: version the photo is inherited from, alt, stock: list placeholder } */
+  var frame = function (p, size, o) {
+    o = o || {}; var id = p.id, key = id + "-" + size, ok = !!got[key];
+    var inh = o.inh ? '<span class="rph-inh" title="Photo of ' + esc(o.inh) + ' until this version has its own"><svg class="ic xs" viewBox="0 0 24 24" aria-hidden="true">' + IC.branch + '</svg><span class="vh">Photo of ' + esc(o.inh) + ", until this version has its own</span></span>" : "";
+    if (p.prep) return '<span class="rph prep" style="--pc:' + (PC[id] || "") + '" role="img" aria-label="Photo is being prepared"><span class="rph-prep">Photo is being prepared</span>' + inh + "</span>";
+    return '<span class="rph' + (o.stock ? " stock" : "") + (ok ? " in" : "") + '" style="--pc:' + (PC[id] || "") + '" data-pid="' + id + '" data-size="' + size + '" data-phase="' + (o.phase || "more") + '"' + (ok ? ' data-go="1"' : "") + ">" +
+      (o.stock ? '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">' + IC.chef + "</svg>" : "") +
+      '<img alt="' + esc(o.alt || "") + '" decoding="async"' + (ok ? ' src="' + IMG + key + '.webp"' : "") + (size === "t" ? ' width="240" height="240"' : ' width="960" height="720"') + ">" + inh + "</span>";
+  };
+  var fetchPhoto = function (el) {
+    if (!el || el.dataset.go) return Promise.resolve(); el.dataset.go = "1";
+    var key = el.dataset.pid + "-" + el.dataset.size, img = el.querySelector("img");
+    return new Promise(function (done) {
+      img.onload = function () { el.classList.add("in"); if (!got[key]) { got[key] = 1; meterN++; meterKB += KB[el.dataset.size]; meter(); } done(); };
+      img.onerror = function () { done(); };
+      setTimeout(function () { img.src = IMG + key + ".webp"; }, P.photos === "slow" ? 1500 : 0);
+    });
+  };
+  var loadPhase = function (root, phase) { return Promise.all([].map.call((root || document).querySelectorAll('.rph[data-phase="' + phase + '"]:not([data-go])'), fetchPhoto)); };
+  /* after the text has painted: two frames later, so the text is on screen before the first image request */
+  var afterPaint = function (fn) { requestAnimationFrame(function () { requestAnimationFrame(function () { setTimeout(fn, 0); }); }); };
+
+  /* ---- Notes: inherited down the lineage (owner, 10 Oct 2026). A note is written on a version and shows on that version and every
+     version below it; a version carries notes of its own only where they differ. Viewing a child, a note from above is marked. ----
+     Saved notes come back from ../recipe-photos/note.html (key rcp-notes-<recipe id>, or ?noted= on return). */
+  var savedNotes = function (r) {
+    var out = [];
+    try { out = JSON.parse(localStorage.getItem("rcp-notes-" + r.id) || "[]") || []; } catch (e) {}
+    var q = Q.get("noted"); if (q) out.push({ body: q, by: me[2], when: "today", v: Q.get("v") || null, cook: Q.get("cook") || null });
+    return out;
+  };
+  var notesFor = function (r, vid) {
+    var c = chainOf(r, vid), ids = c.map(function (x) { return x.id; }), cur = c[c.length - 1];
+    var all = r.notes.map(function (n) { return { body: n[0], by: n[1], when: n[2], v: n[3] || r.vers[0].id }; }).concat(savedNotes(r));
+    return all.filter(function (n) { return ids.indexOf(n.v || cur.id) > -1; }).map(function (n) {
+      var v = n.v || cur.id, k = ids.indexOf(v);
+      return { body: n.body, by: n.by, when: n.when, cook: n.cook, from: v === cur.id ? null : c[k], parent: k === ids.length - 2 };
+    });
+  };
+  /* the note body: a tiny Markdown subset (bold, "- " lines), the same one the photos slice uses; a photo reference loads on demand */
+  var noteHtml = function (body) {
+    var out = [], li = [];
+    var flush = function () { if (li.length) { out.push("<ul>" + li.join("") + "</ul>"); li = []; } };
+    String(body).split("\n").forEach(function (ln) {
+      var m = ln.match(/^\[photo:([\w-]+)\]$/);
+      if (m) { flush(); if (photosOn() && PC[m[1]]) out.push('<button type="button" class="nph" data-load aria-label="Photo in this note, tap to load">' + frame({ id: m[1] }, "t", { phase: "more" }) + "</button>"); return; }
+      var t = esc(ln).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+      if (/^- /.test(ln)) { li.push("<li>" + t.slice(2) + "</li>"); return; }
+      flush(); if (ln.trim()) out.push("<p>" + t + "</p>");
+    });
+    flush(); return out.join("");
+  };
+
+  /* ---- Reactions after a cook (owner, 10 Oct 2026): each member liked / not for us / skip; the household result is derived. ---- */
+  var REACT = { liked: ["😋", "liked"], no: ["🙅", "not for us"], skip: ["–", "skipped"] };
+  var reactLine = function (rx) {
+    if (!rx) return "";
+    var k = Object.keys(rx), said = k.filter(function (m) { return rx[m] && rx[m] !== "skip"; }), liked = k.filter(function (m) { return rx[m] === "liked"; });
+    if (!said.length) return "";
+    return "Liked by " + liked.length + " of " + said.length;
+  };
+
   var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
 
   var IC = {
@@ -185,16 +294,17 @@
     var p = document.createElement("div"); p.className = "mockp"; p.hidden = true;
     p.innerHTML = "<h4>Who is using it</h4>" + seg("persona", PERSONAS.map(function (x) { return [x[0], x[1]]; })) +
       '<p style="margin-top:6px;font-size:12px">' + esc(me[3]) + " Everyone in the household has the same controls (R-O5).</p>" +
-      "<h4>Photos</h4>" + seg("photos", [["on", "Has photos"], ["off", "No photos"]]) +
+      "<h4>Photos</h4>" + seg("photos", [["on", "Has photos"], ["slow", "Slow network"], ["off", "No photos"]]) +
+      '<h4>What this screen loaded</h4><p id="rmeter" style="font-size:12px"></p>' +
       '<h4>Versions</h4><p><a href="detail.html?id=efr">Several versions (Egg fried rice)</a> · <a href="detail.html?id=cur">One version (Chickpea curry)</a></p>' +
       (extra || "") +
       '<h4>Theme</h4><div class="tgrid swatches">' + (window.themeHtml ? themeHtml(null, true) : "") + "</div>" +
-      '<h4>Screens</h4><p><a href="index.html">Overview and decisions</a> · <a href="list.html">List</a> · <a href="detail.html?id=efr">Recipe</a> · <a href="add.html">Add</a> · <a href="review.html">Review</a> · <a href="edit.html?id=efr">Edit</a> · <a href="cook.html?id=efr">Cook</a></p>';
-    document.body.appendChild(p); document.body.appendChild(b);
+      '<h4>Screens</h4><p><a href="index.html">Overview and decisions</a> · <a href="list.html">List</a> · <a href="detail.html?id=efr">Recipe</a> · <a href="add.html">Add</a> · <a href="review.html">Review</a> · <a href="edit.html?id=efr">Change it</a> · <a href="cook.html?id=efr">Cook</a></p>';
+    document.body.appendChild(p); document.body.appendChild(b); meter();
     b.addEventListener("click", function () { p.hidden = !p.hidden; b.setAttribute("aria-expanded", String(!p.hidden)); if (window.themeWarm) themeWarm(); });
     p.addEventListener("click", function (e) { var x = e.target.closest("[data-set]"); if (!x) return; store.set(x.dataset.set, x.dataset.v); var u = new URL(location.href); u.searchParams.delete(x.dataset.set); location.href = u.toString(); });
     document.addEventListener("keydown", function (e) { if (e.key === "Escape") p.hidden = true; });
   };
 
-  window.RCP = { P: P, Q: Q, me: me, PERSONAS: PERSONAS, R: R, DRAFTS: DRAFTS, WEEK: WEEK, TODAY: TODAY, HELD: HELD, byId: byId, has: has, resolve: resolve, missing: missing, fmt: fmt, esc: esc, ic: ic, bar: bar, toast: toast, sheet: sheet, controls: controls, store: store, askAssistant: askAssistant };
+  window.RCP = { PHOTOS: PHOTOS, PC: PC, chainOf: chainOf, banner: banner, stepPhoto: stepPhoto, morePhotos: morePhotos, cookPhotos: cookPhotos, frame: frame, fetchPhoto: fetchPhoto, loadPhase: loadPhase, afterPaint: afterPaint, photosOn: photosOn, notesFor: notesFor, noteHtml: noteHtml, REACT: REACT, reactLine: reactLine, P: P, Q: Q, me: me, PERSONAS: PERSONAS, R: R, DRAFTS: DRAFTS, WEEK: WEEK, TODAY: TODAY, HELD: HELD, byId: byId, has: has, resolve: resolve, missing: missing, fmt: fmt, esc: esc, ic: ic, bar: bar, toast: toast, sheet: sheet, controls: controls, store: store, askAssistant: askAssistant };
 })();

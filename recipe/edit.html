@@ -1,61 +1,42 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Change a recipe — Recipe tab mockup</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Change it — Recipe tab mockup</title>
 <link rel="stylesheet" href="../theme.css"><link rel="stylesheet" href="recipe.css"><script src="../theme.js"></script><script src="recipe.js"></script></head>
 <body data-no-theme-fab>
 <div class="stage"><div class="phone" id="ph"></div></div>
 <script>
-/* Change it. Not locked: the owner said "we'll do that later" (10 October 2026), so this screen stays as drawn.
-   Kept consistent with the locked decisions: L4, recipe content arrives through the person's assistant; this is the only in-app change and it never
-   creates a recipe. L5, every household member sees the same controls (no follower view). L8, nothing here waits for an admin's approval. */
+/* Change it = the hand-off to the person's own AI assistant (L4, locked 10 Oct 2026; drawn in full by the versions slice,
+   ../recipe-versions/change.html). There is no in-app content editor: recipe content is created and changed only through the
+   assistant over Recipe's MCP tools. This screen says where the change will land, then opens the person's AI app aimed at this
+   version. What the app itself still adds is a note and photos, one tap away here.
+   Where the change lands (versions pick 2 C): a try takes the change in place as its next revision; for a keeper (or the usual) the
+   assistant asks first, in the chat: fix this one, keep both, or a different dish. Every member sees the same controls (L5); nothing
+   waits for an admin (L8). The editing screen itself is not drawn: the owner said "we'll do that later".
+   Performance: no editor code at all; one small inline script. */
 (function(){
-var X=RCP,ic=X.ic,esc=X.esc,fmt=X.fmt;
+var X=RCP,ic=X.ic,esc=X.esc;
 var r=X.byId(X.Q.get("id")||"efr")||X.R[0];
-var res=X.resolve(r,X.Q.get("v"));
-var parent=res.v;
-/* Working copy. Each row remembers what it was, so the change set is visible and small (Recipe stores only what changed). */
-var rows=res.ings.map(function(x){return {i:x.i.slice(),orig:x.i.slice(),gone:false,added:false}});
-var steps=r.steps.map(function(s){return {t:s[0],orig:s[0]}});
-var n=r.batch?r.serves:r.serves;
+var v=X.resolve(r,X.Q.get("v")).v;
+var trying=v.state==="trying",usual=!!v.def;
 var ph=document.getElementById("ph");
-var changes=function(){
-  var c=[];
-  rows.forEach(function(x){if(x.added)c.push("Added "+x.i[1]);else if(x.gone)c.push("Removed "+x.orig[1]);else if(x.i[1]!==x.orig[1]||x.i[2]!==x.orig[2])c.push(x.orig[1]+" → "+x.i[1])});
-  steps.forEach(function(s,k){if(s.t!==s.orig)c.push("Step "+(k+1)+" changed")});
-  return c;
-};
-function draw(){
-  var c=changes();
-  ph.innerHTML='<div class="top"><a class="back" href="detail.html?id='+r.id+'">'+ic("back","s")+'Cancel</a><span class="ttl">Change it</span><span style="width:64px"></span></div>'+
+var back="detail.html?id="+r.id+"&v="+v.id;
+var noteHref="../recipe-photos/note.html?to="+r.id+"&from=recipe&v="+v.id+"&back="+encodeURIComponent("../recipe/detail.html?id="+r.id+"&v="+v.id+"#not");
+ph.innerHTML='<div class="top"><a class="back" href="'+back+'">'+ic("back","s")+esc(v.name)+'</a><span class="ttl">Change it</span><span style="width:64px"></span></div>'+
   '<div class="body"><div class="pad">'+
-  /* R-D16 is superseded by V-D10/V-D11: say up front where the change lands. This flow screen draws the keeper case (choose at save); recipe-versions/change.html draws every case. */
-  '<div class="note" style="border-color:var(--accent)">'+ic("branch","xs")+' Starting from <b>'+esc(parent.name)+'</b>. When you save you choose: fix this one, or keep both ('+esc(parent.name)+' stays as it is). <a href="../recipe-versions/change.html" style="text-decoration:underline">All cases</a></div>'+
-  '<h2>'+esc(r.name)+'</h2>'+
-  '<div class="lblrow"><span class="lbl">Ingredients</span><button type="button" class="back" style="font-size:13px" data-addi>'+ic("plus","xs")+' Add</button></div>'+
-  rows.map(function(x,k){var ch=x.added||x.gone||x.i[1]!==x.orig[1]||x.i[2]!==x.orig[2];var q=fmt(x.i[2],x.i[3],n);
-    return '<div class="erow'+(ch?' ing chg':'')+'" style="'+(x.gone?'opacity:.5':'')+'"><span class="nm">'+(x.gone?'<s>':'')+esc(x.i[1])+' <span class="q" style="color:var(--muted);font-size:13px">'+(q||'amount?')+'</span>'+(x.gone?'</s>':'')+(ch&&!x.added&&!x.gone?' <span class="was">(<s>'+esc(x.orig[1])+'</s>)</span>':'')+'</span>'+
-    (x.gone?'<button type="button" class="mini ico" data-undo="'+k+'" aria-label="Put back">'+ic("undo","s")+'</button>':'<button type="button" class="mini ico" data-swap="'+k+'" aria-label="Change '+esc(x.i[1])+'">'+ic("pen","s")+'</button><button type="button" class="mini ico" data-rm="'+k+'" aria-label="Remove '+esc(x.i[1])+'">'+ic("x","s")+'</button>')+'</div>'}).join("")+
-  '<div class="lblrow"><span class="lbl">Method</span></div>'+
-  steps.map(function(s,k){return '<div class="stp'+(s.t!==s.orig?' ing chg':'')+'"><span class="nb">'+(k+1)+'</span><textarea class="field" data-step="'+k+'" rows="2" style="padding:8px;min-height:60px;resize:vertical">'+esc(s.t)+'</textarea></div>'}).join("")+
-  '</div><div style="height:24px"></div></div>'+
-  '<div class="act"><span style="flex:1;font-size:12.5px;color:var(--muted);align-self:center">'+(c.length?c.length+' change'+(c.length>1?'s':''):'No changes yet')+'</span><button type="button" class="btn sm" data-save'+(c.length?'':' disabled')+'>'+ic("branch","s")+'Save as version</button></div>';
-}
-ph.addEventListener("click",function(e){
-  var t=e.target.closest("button");if(!t)return;
-  if(t.dataset.rm){rows[+t.dataset.rm].gone=true;draw()}
-  else if(t.dataset.undo){rows[+t.dataset.undo].gone=false;draw()}
-  else if(t.dataset.swap){var k=+t.dataset.swap,x=rows[k];
-    X.sheet('<h3>Change '+esc(x.i[1])+'</h3><label class="lbl" for="sn">Instead use</label><input id="sn" class="field" style="margin-top:4px" value="'+esc(x.i[1])+'"><label class="lbl" for="sq" style="display:block;margin-top:10px">Amount per serving</label><input id="sq" class="field" style="margin-top:4px" value="'+(x.i[2]==null?'':x.i[2])+'" placeholder="Leave blank if unknown"><div style="display:flex;gap:8px;margin-top:12px"><button class="btn ghost" data-close>Cancel</button><button class="btn" data-ok>Done</button></div>',
-    function(s,close){s.querySelector("[data-ok]").onclick=function(){x.i[1]=s.querySelector("#sn").value||x.i[1];var v=s.querySelector("#sq").value;x.i[2]=v===""?null:+v;close();draw()}})}
-  else if(t.hasAttribute("data-addi")){rows.push({i:["new","Garlic cloves",1,""],orig:["new","Garlic cloves",1,""],added:true,gone:false});draw()}
-  else if(t.hasAttribute("data-save")){var c=changes();
-    /* R-D17: name the version from the change; the person's own words are what Recipe keeps as the reason (user_intent). */
-    X.sheet('<h3>Keep both: save as a new version</h3><p style="font-size:12.5px;margin-top:2px">Fix this one instead is drawn in <a href="../recipe-versions/change.html" style="text-decoration:underline">recipe versions</a> (V-D10).</p><ul style="margin:6px 0 0 18px;color:var(--muted);font-size:13px">'+c.map(function(x){return '<li>'+esc(x)+'</li>'}).join("")+'</ul><label class="lbl" for="vn" style="display:block;margin-top:12px">Call it</label><input id="vn" class="field" style="margin-top:4px" value="'+esc(c[0].replace(/^Added /,"With ").replace(/^Removed /,"Without "))+'"><label class="lbl" for="vw" style="display:block;margin-top:10px">Why keep it? (optional)</label><input id="vw" class="field" style="margin-top:4px" placeholder="e.g. less salty, kids prefer it">'+
-      '<button type="button" class="opt" data-def aria-pressed="false" style="margin-top:6px">'+ic("star")+'<span class="t"><b>Also make it our usual</b><small>Plan and Cook open this one. Anyone in the household can switch it back.</small></span></button>'+
-      '<div style="display:flex;gap:8px;margin-top:12px"><button class="btn ghost" data-close>Back</button><a class="btn" href="detail.html?id='+r.id+'&v=v2">Save</a></div>',function(s){s.querySelector("[data-def]").onclick=function(){var b=this;var on=b.getAttribute("aria-pressed")!=="true";b.setAttribute("aria-pressed",on);b.classList.toggle("on",on)}})}
-});
-ph.addEventListener("input",function(e){var k=e.target.dataset.step;if(k!=null){steps[+k].t=e.target.value;var c=changes();var a=ph.querySelector(".act span");a.textContent=c.length?c.length+" change"+(c.length>1?"s":""):"No changes yet";ph.querySelector("[data-save]").disabled=!c.length;e.target.closest(".stp").classList.toggle("chg",steps[+k].t!==steps[+k].orig);e.target.closest(".stp").classList.toggle("ing",steps[+k].t!==steps[+k].orig)}});
-draw();
-X.controls();
+  '<div class="note" style="border-color:var(--accent)">'+ic("branch","xs")+' '+(trying
+    ?'<b>'+esc(v.name)+'</b> is a try: the change goes straight in. The old one stays in History.'
+    :'<b>'+esc(v.name)+'</b> is a keeper'+(usual?' and your usual':'')+': your assistant asks first, fix this one or keep both.')+'</div>'+
+  '<h2 style="margin-top:12px">Change it with your assistant</h2>'+
+  '<p style="margin-top:6px">Recipes are written and changed by your own AI app, through Recipe\'s tools. Say what to change in your own words; it opens aimed at <b style="color:var(--fg)">'+esc(r.name)+', '+esc(v.name)+'</b>.</p>'+
+  '<p style="font-size:12.5px;margin-top:10px">Here in Recipes you can add a note or photos. Nothing here edits the recipe itself.</p>'+
+  '<div style="display:grid;gap:8px;margin-top:14px">'+
+    '<button type="button" class="btn" data-ai>'+ic("spark","s")+'Open my AI app</button>'+
+    '<a class="btn ghost" href="'+noteHref+'">'+ic("note","s")+'Add a note instead</a>'+
+    '<a class="btn ghost" href="../recipe-photos/add.html?to='+r.id+'">'+ic("cam","s")+'Add a photo</a>'+
+  '</div>'+
+  '<p style="font-size:12.5px;margin-top:14px"><a href="../recipe-versions/change.html?v='+(v.id==="v0"?"v1":v.id)+'&step=chat" style="text-decoration:underline">See what the assistant does with it</a> (versions slice)</p>'+
+  '</div><div style="height:24px"></div></div>';
+ph.addEventListener("click",function(e){if(e.target.closest("[data-ai]"))X.askAssistant(r.name+", "+v.name)});
+X.controls('<h4>Change it (L4)</h4><p><a href="?id=efr&v=v1">A keeper, the usual</a> · <a href="?id=efr&v=v2">A try</a></p>');
 })();
 </script>
 </body></html>

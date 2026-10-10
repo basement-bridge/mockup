@@ -15,15 +15,18 @@ var star=!!r.star;
 var planned=fromPlan||r.id==="efr"; /* sample: egg fried rice is on Tuesday's plan */
 var heldAll=planned;
 var cart={};
+var showMore=false; /* the recipe's other photos: only on demand */
 var ph=document.getElementById("ph");
 
 function draw(keepScroll){
   var y=keepScroll&&document.getElementById("body")?document.getElementById("body").scrollTop:0;
   var res=X.resolve(r,vid),v=res.v,ings=res.ings,miss=X.missing(ings);
-  var photos=P.photos==="on"?r.photos:[];
+  var bn=X.banner(r,v.id);
   var mult=r.batch?n/r.serves*r.serves:n; /* per-serving quantities × servings */
-  /* hero: R-D9 photos swipe sideways; no photos means no hero at all (the title moves up, nothing pretends). */
-  var hero=photos.length?'<div style="position:relative"><div class="hero" id="hero" aria-label="Photos, swipe for more">'+photos.map(function(p,i){return '<div class="'+(i%2?"alt":"")+'" role="img" aria-label="Photo '+(i+1)+' of '+photos.length+'">'+p+'</div>'}).join("")+'</div>'+(photos.length>1?'<div class="hdots">'+photos.map(function(_,i){return '<i class="'+(i?"":"on")+'"></i>'}).join("")+'</div>':'')+'</div>':'';
+  /* Banner (owner, 10 Oct 2026): one per version. A version without its own shows its parent's (or a further ancestor's) with a small
+     icon until it has one. No banner anywhere up the line means no banner at all (R-D9): never a cooked photo standing in.
+     Load order: text first, then the step photos, the banner last. Its box is sized from the start, so nothing jumps when it arrives. */
+  var hero=bn?'<div class="banner">'+X.frame(bn.p,"m",{phase:"banner",inh:bn.inherited?bn.from.name:"",alt:bn.inherited?"Photo of "+bn.from.name:"Photo of "+r.name+", "+v.name})+'</div>':'';
   /* versions */
   /* R-O3 = B, varied (locked): one version means no versions row at all. Several versions are a strip that scrolls sideways,
      its own row between the title and the jump row; while the page scrolls it docks at the top, above the jump row.
@@ -34,9 +37,9 @@ function draw(keepScroll){
     r.vers.map(function(x,i){return (i?'<span class="sd" aria-hidden="true"></span>':'')+'<button type="button" data-v="'+x.id+'" aria-pressed="'+(x.id===v.id)+'"'+(x.def?' aria-label="'+esc(x.name)+', our usual"':'')+'>'+esc(x.name)+(x.def?' <span aria-hidden="true">★</span>':'')+'</button>'}).join("")+
     '<span class="sd" aria-hidden="true"></span><button type="button" class="more" data-vers aria-haspopup="dialog">All versions'+ic("down","xs")+'</button></div>':'';
   var vline=v.depth>0?'<p style="font-size:12.5px;margin-top:6px">'+esc(v.name)+' changes '+(v.chg.add.length+Object.keys(v.chg.swap).length)+' thing'+((v.chg.add.length+Object.keys(v.chg.swap).length)>1?"s":"")+' from '+esc(r.vers[v.depth-1].name)+'. Changed rows are tinted.</p>':'';
-  var head='<div class="pad" style="padding-top:'+(photos.length?12:16)+'px">'+
+  var head='<div class="pad" style="padding-top:'+(bn?12:16)+'px">'+
     (fromPlan?'<p class="lbl" style="color:var(--accent);margin-bottom:4px">Tonight · planned by Sam</p>':'')+
-    '<div style="display:flex;gap:8px;align-items:flex-start">'+(photos.length?'':'<span style="font-size:34px;line-height:1" aria-hidden="true">'+r.e+'</span>')+'<h1 style="flex:1">'+esc(r.name)+'</h1></div>'+
+    '<div style="display:flex;gap:8px;align-items:flex-start">'+(bn?'':'<span style="font-size:34px;line-height:1" aria-hidden="true">'+r.e+'</span>')+'<h1 style="flex:1">'+esc(r.name)+'</h1></div>'+
     '<div class="meta">'+
       '<span class="mc ro">'+ic("clock")+r.min+' min</span>'+
       /* R-D10: the serving stepper is the quantity control; on-hand and missing amounts follow it (plan-week-ai decision 10). */
@@ -52,13 +55,24 @@ function draw(keepScroll){
         (!ok?'<button type="button" class="mini ico" data-cart="'+i[0]+'" aria-pressed="'+!!cart[i[0]]+'" aria-label="'+(cart[i[0]]?"On the shopping list":"Add "+esc(i[1])+" to the shopping list")+'">'+ic(cart[i[0]]?"check":"cart","s")+'</button>':'')+'</div>';
     }).join("")+
     (miss.length>1?'<button type="button" class="back" data-cartall style="font-size:14px">'+ic("cart","s")+' Add all '+miss.length+' missing to shopping</button>':'');
-  var steps=r.steps.map(function(s,k){return '<div class="stp"><span class="nb">'+(k+1)+'</span><div style="flex:1"><p>'+esc(s[0])+'</p>'+(s[2]?'<span class="timer" style="margin-top:6px;font-size:13px">'+ic("clock","s")+s[2]+' min</span>':'')+(P.photos==="on"&&photos.length&&k<2?'<div class="sp" aria-hidden="true">'+s[1]+'</div>':'')+'</div></div>'}).join("");
-  var notes=(r.notes.length?r.notes.map(function(n){return '<div class="note">'+esc(n[0])+'<small>'+esc(n[1])+' · '+n[2]+'</small></div>'}).join(""):'<p style="font-size:13px">No notes yet.</p>')+
-    '<button type="button" class="back" data-addnote style="font-size:14px">'+ic("note","s")+' Add a note</button>';
+  /* Step photos (owner, 10 Oct 2026): at most one per step, at most 10 per version, a step need not have one. Inherited down the
+     lineage like the banner (same small icon). They load right after the text, before the banner. */
+  var steps=r.steps.map(function(s,k){var sp=X.stepPhoto(r,v.id,k);return '<div class="stp"><span class="nb">'+(k+1)+'</span><div style="flex:1;min-width:0"><p>'+esc(s[0])+'</p>'+(s[2]?'<span class="timer" style="margin-top:6px;font-size:13px">'+ic("clock","s")+s[2]+' min</span>':'')+(sp?'<div class="sp2">'+X.frame(sp.p,"m",{phase:"step",inh:sp.inherited?sp.from.name:"",alt:"Step "+(k+1)})+'</div>':'')+'</div></div>'}).join("");
+  /* Notes (owner, 10 Oct 2026): a note is written on a version and is inherited by every version below it; a version only carries
+     notes of its own where they differ. So each note shows once here, on every version that inherits it; viewing a child, a note
+     from above says where it came from, lightly. Add a note opens the photos slice's note screen (its own route). */
+  var nl=X.notesFor(r,v.id);
+  var notes=(nl.length?nl.map(function(n){return '<div class="note'+(n.from?' inh':'')+'">'+X.noteHtml(n.body)+'<small>'+esc(n.by)+' · '+n.when+(n.cook?' · after a cook':'')+(n.from?'<span class="from">'+ic("branch","xs")+(n.parent?'from the parent version':'from '+esc(n.from.name))+'</span>':'')+'</small></div>'}).join(""):'<p style="font-size:13px">No notes yet.</p>')+
+    '<a class="back" href="'+noteHref(v)+'" style="font-size:14px">'+ic("note","s")+' Add a note</a>';
   /* R-O4: after cooking, the app's job is the extra photo and the note. The photo flow is the photos slice's (recipe-photos/add.html). */
   var addCooked='<a class="back" href="../recipe-photos/add.html?to='+r.id+'&kind=cooked" style="font-size:14px">'+ic("cam","s")+' Add a photo of your cook</a>';
-  var hist=(r.hist.length?r.hist.map(function(h){var d=h[0].split(" ");return '<div class="hist"><span class="d"><b>'+d[0]+'</b>'+d[1]+'</span><span class="t">'+esc(h[1])+' cooked <b>'+esc(h[2])+'</b>'+(h[3]?'<small>"'+esc(h[3])+'"</small>':'')+'</span>'+(h[4]&&P.photos==="on"?'<span class="th" style="width:44px;height:44px;font-size:22px" aria-label="Photo from that night">'+h[4]+'</span>':'')+'</div>'}).join(""):'<p style="font-size:13px">Not cooked yet.</p>')+addCooked;
-  var ph2='<div class="pgrid">'+(P.photos==="on"?r.photos.concat(r.hist.filter(function(h){return h[4]}).map(function(h){return h[4]})).slice(0,5):[]).map(function(p){return '<div role="img" aria-label="Photo">'+p+'</div>'}).join("")+'<a class="add" href="../recipe-photos/add.html?to='+r.id+'" aria-label="Add a photo">'+ic("cam")+'<span>Add</span></a></div>';
+  /* Cooked: each cook's photos are its colour until tapped (on demand). Reactions (owner, 10 Oct 2026): each member who ate said
+     liked, not for us or skip; the household line is derived from them ("Liked by 2 of 3"), never typed. */
+  var hist=(r.hist.length?r.hist.map(function(h){var d=h[0].split(" "),cp=X.cookPhotos(r,h[0]),rl=X.reactLine(h[5]);return '<div class="hist"><span class="d"><b>'+d[0]+'</b>'+d[1]+'</span><span class="t">'+esc(h[1])+' cooked <b>'+esc(h[2])+'</b>'+(h[3]?'<small>"'+esc(h[3])+'"</small>':'')+(rl?'<small>'+rl+'</small>':'')+'</span>'+cp.slice(0,1).map(function(id){return '<button type="button" class="pt" data-load aria-label="Photo from '+h[0]+', tap to load">'+X.frame({id:id},"t",{phase:"more"})+'</button>'}).join("")+'</div>'}).join(""):'<p style="font-size:13px">Not cooked yet.</p>')+addCooked;
+  /* Photos: the recipe's other photos and the cooks' photos load only on demand. Until then one line says how many there are. */
+  var mp=X.morePhotos(r);
+  var ph2=(mp.length&&!showMore?'<button type="button" class="pmore" data-more-photos>'+ic("img","s")+'Show '+mp.length+' photo'+(mp.length>1?'s':'')+'<small>loads on tap</small></button>':'')+
+    '<div class="pgrid">'+(showMore?mp:[]).map(function(id){return '<button type="button" data-load aria-label="Photo">'+X.frame({id:id},"t",{phase:"more"})+'</button>'}).join("")+'<a class="add" href="../recipe-photos/add.html?to='+r.id+'" aria-label="Add a photo">'+ic("cam")+'<span>Add</span></a></div>';
   var src='<p class="src">'+ic("spark","xs")+' '+esc(r.src)+(v.depth?' · '+esc(v.name)+' by '+esc(v.by)+', '+v.when:'')+'</p>';
   var SEC=[["ing","Ingredients",ingH],["met","Method",steps],["not","Notes",notes],["his","Cooked",hist],["pho","Photos",ph2]];
   /* R-O2 = A (locked): one continuous scroll. The jump row docks at the top while scrolling (under the versions strip when there is one).
@@ -75,8 +89,9 @@ function draw(keepScroll){
     '<button type="button" class="ib bare" data-more aria-label="More" aria-haspopup="dialog">'+ic("dots")+'</button>'+
   '</div><div class="body'+(multi?' has-vers':'')+'" id="body">'+bodyH+'</div>'+act;
   var b=document.getElementById("body");b.scrollTop=y;
-  /* hero dots follow the swipe */
-  var he=document.getElementById("hero");if(he)he.addEventListener("scroll",function(){var k=Math.round(he.scrollLeft/he.clientWidth);document.querySelectorAll(".hdots i").forEach(function(d,j){d.classList.toggle("on",j===k)})});
+  /* text is painted; now step photos, then the banner last. "more" photos wait for a tap. */
+  X.afterPaint(function(){X.loadPhase(ph,"step").then(function(){return X.loadPhase(ph,"banner")})});
+  if(showMore)X.loadPhase(ph,"more");
   /* jump row highlights the section in view */
   var vs=document.getElementById("vstrip"),jr=b.querySelector(".jumps");
   var vh=vs?vs.offsetHeight:0,dock=vh+(jr?jr.offsetHeight:0); /* what is docked at the top: the strip (if any) plus the jump row */
@@ -97,8 +112,14 @@ function draw(keepScroll){
   /* jump links scroll the body, not the window (the page itself never scrolls) */
   b.querySelectorAll(".jumps a").forEach(function(a){a.addEventListener("click",function(e){e.preventDefault();var el=document.getElementById(a.getAttribute("href").slice(1));if(el){picked=a.getAttribute("href").slice(1);b.scrollTop=el.offsetTop-dock;onScroll()}})});
 }
+function noteHref(v){
+  /* the photos slice's note screen. back brings the person here, with the saved note shown under Notes. */
+  return "../recipe-photos/note.html?to="+r.id+"&from=recipe&v="+v.id+"&back="+encodeURIComponent("../recipe/detail.html?id="+r.id+"&v="+v.id+"#not");
+}
 ph.addEventListener("click",function(e){
   var t=e.target.closest("button,a");if(!t)return;
+  if(t.hasAttribute("data-load")){X.fetchPhoto(t.querySelector(".rph"));return}
+  if(t.hasAttribute("data-more-photos")){showMore=true;draw(true);return}
   if(t.dataset.n){n=Math.max(1,Math.min(r.batch?r.serves*3:12,n+(+t.dataset.n)*(r.batch?r.serves:1)));draw(true)}
   else if(t.dataset.cart){var k=t.dataset.cart;cart[k]=!cart[k];draw(true);if(cart[k])X.toast("Added to the shopping list",function(){cart[k]=0;draw(true)})}
   else if(t.hasAttribute("data-cartall")){X.missing(X.resolve(r,vid).ings).forEach(function(x){cart[x.i[0]]=1});draw(true);X.toast("Added the missing items to shopping",function(){cart={};draw(true)})}
@@ -108,31 +129,33 @@ ph.addEventListener("click",function(e){
   else if(t.hasAttribute("data-vers"))versSheet();
   else if(t.hasAttribute("data-more"))moreSheet();
   else if(t.hasAttribute("data-plan")){if(planned){X.toast("On the plan for Tuesday. Change it in Plan.")}else window.planSheet(r,{version:X.resolve(r,vid).v.name,onDone:function(){planned=true;draw(true)}})}
-  else if(t.hasAttribute("data-addnote"))X.sheet('<h3>Add a note</h3><p style="font-size:13px">Shows on every version. Notes never change the recipe.</p><textarea class="field" style="min-height:100px;padding:10px;margin-top:10px" placeholder="e.g. Use day-old rice"></textarea><div style="display:flex;gap:8px;margin-top:12px"><button class="btn ghost" data-close>Cancel</button><button class="btn" data-close>Save note</button></div>');
 });
 function versSheet(){
   var res=X.resolve(r,vid);
   X.sheet('<h3>Versions</h3><p style="font-size:13px">Each version keeps what it changed and takes the rest from the one above. Nothing is overwritten.</p><div style="margin-top:8px">'+
     r.vers.map(function(x){return '<div class="'+(x.depth?'vtree':'')+'" style="margin-left:'+(x.depth>1?(x.depth-1)*14:0)+'px"><button type="button" class="opt'+(x.id===res.v.id?' on':'')+'" data-pick="'+x.id+'">'+ic(x.id===res.v.id?"check":"branch")+'<span class="t"><b>'+esc(x.name)+'</b><small>'+esc(x.by)+', '+x.when+' · cooked '+x.cooked+'×'+(x.def?' · our usual':'')+'</small>'+(x.why?'<small>'+esc(x.why)+'</small>':'')+'</span></button></div>'}).join("")+
-    '</div><a class="btn ghost" style="margin-top:12px;width:100%" href="edit.html?id='+r.id+'&v='+res.v.id+'">'+ic("pen","s")+'Change it</a>',
+    '</div><a class="btn ghost" style="margin-top:12px;width:100%" href="edit.html?id='+r.id+'&v='+res.v.id+'">'+ic("spark","s")+'Change it with your assistant</a>',
   function(s,close){s.addEventListener("click",function(e){var b=e.target.closest("[data-pick]");if(b){vid=b.dataset.pick;close();draw(true)}})});
 }
 function moreSheet(){
   var res=X.resolve(r,vid);
   X.sheet('<h3>'+esc(r.name)+'</h3>'+
-    '<a class="opt" href="edit.html?id='+r.id+'&v='+res.v.id+'">'+ic("pen")+'<span class="t"><b>Change it</b><small>A try takes changes in place; for a keeper you choose Fix this one or Keep both.</small></span></a>'+
+    /* L4 (locked): recipe content changes only through the person's own AI app. Change it hands off to it, aimed at this version. */
+    '<a class="opt" href="edit.html?id='+r.id+'&v='+res.v.id+'">'+ic("spark")+'<span class="t"><b>Change it</b><small>With your AI app, aimed at '+esc(res.v.name)+'. A try takes the change in place; for a keeper it asks first.</small></span></a>'+
     '<button class="opt" data-close>'+ic("branch")+'<span class="t"><b>Make it our usual</b><small>What Plan and Cook open for the household</small></span></button>'+
     '<button class="opt" data-close data-askabout>'+ic("spark")+'<span class="t"><b>Ask your assistant about it</b><small>Opens your AI app with this recipe</small></span></button>'+
     '<button class="opt" data-close>'+ic("spark")+'<span class="t"><b>Where it came from</b><small>'+esc(r.src)+'</small></span></button>'+
     /* R-D31 (L8, locked): putting away is a plain action anyone in the household can take. No approval, no admin. */
-    '<button class="opt" data-close data-putaway>'+ic("x")+'<span class="t"><b>Put away</b><small>Hides it from lists and ideas. Nothing is deleted; bring it back any time.</small></span></button>',
+    '<button class="opt" data-close data-putaway>'+ic("x")+'<span class="t"><b>Put away</b><small>Hides it from lists and ideas. Nothing is ever deleted: Undo, or bring it back any time.</small></span></button>',
     function(sh){sh.addEventListener("click",function(e){
       if(e.target.closest("[data-askabout]"))X.askAssistant(r.name);
       else if(e.target.closest("[data-putaway]"))X.toast("Put away. It is out of lists and ideas.",function(){X.toast("Back in the list")});
     })});
 }
 draw();
-X.controls();
+if(location.hash==="#not"){var nb=document.getElementById("not");if(nb){document.getElementById("body").scrollTop=nb.offsetTop-100}}
+if(X.Q.get("noted"))X.toast("Note saved. It shows on this version and every version below it.");
+X.controls('<h4>Notes and photos (owner, 10 Oct)</h4><p><a href="?id=efr&v=v0">Original (own banner, own notes)</a> · <a href="?id=efr&v=v1">With peas (a parent note)</a> · <a href="?id=efr&v=v2">Less soy (inherited banner, a step photo being prepared)</a> · <a href="?id=rag">Ragù (cook photo only: no banner)</a> · <a href="?id=efr&v=v1&noted=**Brown%20rice%20works**%0A-%20fry%20it%20longer#not">A note just saved</a></p>');
 })();
 </script>
 <script src="plan-sheet.js"></script>

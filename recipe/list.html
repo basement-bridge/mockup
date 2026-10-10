@@ -33,8 +33,11 @@ var row=function(r){
   if(r.star)pills.push('<span class="tg acc" aria-label="Starred">'+ic("star")+'</span>');
   if(r.freezes)pills.push('<span class="tg mut">'+ic("snow")+'Freezes</span>');
   if(vc>1)pills.push('<span class="tg mut" aria-label="'+vc+' versions">'+ic("branch")+vc+'</span>');
-  /* R-O1 (locked): a thumbnail only where a photo exists. No photo, no tile and no stand-in: the name takes the space. */
-  var thumb=P.photos==="on"&&r.photos.length?'<span class="th" aria-hidden="true">'+r.photos[0]+'</span>':'';
+  /* R-O1 (locked): a thumbnail only where the recipe has a banner (its usual version's, or inherited from above). No banner, no tile:
+     the name takes the space. Never a cooked photo standing in (owner, 10 Oct 2026). The tile starts as a stock placeholder and
+     its image loads by the list's order below. */
+  var bn=X.banner(r,(r.vers.filter(function(v){return v.def})[0]||r.vers[0]).id);
+  var thumb=bn?'<span class="th ph" aria-hidden="true">'+X.frame(bn.p,"t",{phase:"list",stock:1})+'</span>':'';
   var meta=r.min+" min · "+(r.batch?"makes "+r.serves:"serves "+r.serves)+" · cooked "+(r.last<=7?r.last+" days ago":r.last<=21?Math.round(r.last/7)+" wk ago":"a while ago");
   return '<li><a class="rr'+(thumb?'':' nothumb')+'" href="detail.html?id='+r.id+'" data-id="'+r.id+'">'+thumb+'<span class="t"><b>'+esc(r.name)+'</b><small>'+meta+'</small><span class="pills">'+pills.join("")+'</span></span><span class="chev">'+ic("chev","s")+'</span></a></li>';
 };
@@ -65,7 +68,27 @@ var draw=function(){
   h+='<div style="height:24px"></div>';
   b.innerHTML=h;
   wireSwipe();
+  X.afterPaint(loadList);
 };
+/* List images (owner, 10 Oct 2026). Text and stock placeholders paint first; then, in this order:
+   1. if this week's plan exists, the planned recipes' photos (they are the likeliest next tap);
+   2. the rows on screen plus the next 5 in the chip being shown (the "category");
+   3. everything else only when it comes on screen (or never). Changing chip starts again from step 1 for that chip.
+   This loader belongs to the Recipe tab's list route. The home screen never runs it and never waits on it.
+   The sample has seven recipes, so the "next 5" covers the rest; the order is what the build copies. */
+var io=null;
+function loadList(){
+  var b=document.getElementById("body"),rows=[].slice.call(b.querySelectorAll(".rr")),bt=b.getBoundingClientRect().bottom;
+  var tile=function(a){return a.querySelector('.rph[data-phase="list"]')};
+  var planned=X.WEEK.map(function(d){return d[2]}).filter(Boolean);
+  var first=rows.filter(function(a){return planned.indexOf(a.querySelector("b").textContent)>-1}).map(tile);
+  var seen=rows.filter(function(a){return a.getBoundingClientRect().top<bt}),last=seen.length?rows.indexOf(seen[seen.length-1]):-1;
+  var next=rows.slice(0,last+1+5).map(tile);
+  Promise.all(first.filter(Boolean).map(X.fetchPhoto)).then(function(){next.filter(Boolean).forEach(X.fetchPhoto)});
+  if(io)io.disconnect();
+  if("IntersectionObserver" in window){io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){io.unobserve(e.target);X.fetchPhoto(e.target)}})},{root:b});
+    rows.map(tile).filter(function(t){return t&&!t.dataset.go}).forEach(function(t){io.observe(t)})}
+}
 var empty=function(){return '<div class="pad" style="text-align:center;padding-top:40px"><div style="font-size:44px">🍳</div><p style="margin-top:8px">Nothing here'+(q?' for "'+esc(q)+'"':'')+'.</p><p style="margin-top:12px"><button type="button" class="back" data-ask style="margin:0 auto">'+ic("spark","s")+' Ask your assistant to add one</button></p></div>'};
 /* R-O4: the only way a recipe gets in. Opens the person's own AI app; nothing else happens in Kitchie. */
 document.querySelector(".phone").addEventListener("click",function(e){if(e.target.closest("[data-ask]"))X.askAssistant()});

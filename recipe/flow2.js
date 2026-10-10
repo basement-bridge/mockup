@@ -1,5 +1,5 @@
 /* Recipe tab mockup, flow 2 helpers (owner's locked decisions, 10 October 2026): add by assistant (L4), cook-mode step labels and navigation (L7).
-   Loaded only by add.html, review.html, edit.html and cook.html, after recipe.js. No sample data here: the build can lift this file as it is.
+   Loaded only by add.html, review.html and cook.html (edit.html is now the hand-off to the assistant and needs none of it), after recipe.js. No sample data here: the build can lift this file as it is.
    Performance note: under 2 KB, no network, nothing runs until a screen calls it. */
 (function () {
   /* L7: a short label for a step, taken from its own words. First sentence, then the first clause; if still long, the part before " and ".
