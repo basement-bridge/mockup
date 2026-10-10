@@ -5,7 +5,7 @@
 //   list.html            ?s=mid | drag | drag-armed | drag-no | drag-no-armed | leave | done | done-none | swap | also | multi | summary | none | wont | live | reopen | two        phase one (see the seeds below)
 //                        ?s=p2 | p2-ask | p2-reading | p2-ok | p2-retry | p2-fallback   phase two (not built); ?p2=1 only shows the chooser
 //                        ?g=<group>&as=A|B   several frames in one group share one pretend server (A and B are two links; the member sees both)
-//                        SL-D21 on (11 October 2026, second round): ?s=fresh | trim | committed | committed-all | bailed | reject-ask | rejected | claimed-other | released
+//                        SL-D21 on (11 October 2026, second round): ?s=fresh | trim | committed | committed-all | bailed | reject-ask | rejected | claimed-other | released | notfound-other (SL-D37)
 //   member.html          ?share=a | b | c   where the hand-off control sits      ?live=0 | 1 | 2 | 3 | unsent   which links are out
 //   member-result.html   ?at=mid starts scrolled to the swapped line     ?s=two shows two links' cards     ?g=<group> follows that group live
 //   member-list.html    ?s=plain | states | three | sorting | dead | ended   the household's Shopping list with claims (SL-D21 on); ?g=<group> follows that group live (mock-member.js draws it)
@@ -51,6 +51,8 @@
   function put(k, r) { if (r.state === "open") delete srv.lines[k]; else srv.lines[k] = r; }
   function seen(link) { if (srv.order.indexOf(link) === -1) srv.order.push(link); }
   function linkOf(link) { return srv.links[link] || (srv.links[link] = { committed: false, dead: false }); }
+  // "I won't do it" is gone for good once the link has had any line answered or has promised, even if Undo takes either back (owner, 11 October 2026, SL-D34). The server answers reject with 409 after that.
+  function touch(link) { linkOf(link).touched = true; }
   function live(link) { var l = srv.links[link]; return !!l && !l.dead && !l.ended; }
   function claimOf(k) { var c = srv.claims[k]; return c && live(c) ? c : ""; } // who has promised this line, if that link is still alive
   // A link stops (turned down by its shopper, ended by its window, cancelled by a member): what it had promised and not answered goes back to the open pool (SL-D23, SL-D27).
@@ -66,18 +68,18 @@
       lines[k] = { state: r.state, words: r.words, by: r.by ? (r.by === link ? "you" : "other") : "", claim: c ? (c === link ? "you" : "other") : "" };
     });
     var h = srv.hist[link] || [];
-    return { rev: srv.rev, lines: lines, extras: srv.extras.filter(function (x) { return x.by === link; }).map(function (x) { return { id: x.id, text: x.text }; }), last: h.length ? { label: h[h.length - 1].label } : null, hours: srv.hours, committed: !!linkOf(link).committed, dead: !!linkOf(link).dead, gone: !live(link) };
+    return { rev: srv.rev, lines: lines, extras: srv.extras.filter(function (x) { return x.by === link; }).map(function (x) { return { id: x.id, text: x.text }; }), last: h.length ? { label: h[h.length - 1].label } : null, hours: srv.hours, committed: !!linkOf(link).committed, refusable: !linkOf(link).touched, dead: !!linkOf(link).dead, gone: !live(link) };
   }
   function push(link, label_, undo) { seen(link); (srv.hist[link] = srv.hist[link] || []).push({ label: label_, undo: undo }); }
   function act(path, d, link) {
     var k, r, prev;
     if (path === "line") {
       k = d.get("key"); r = lineOf(k); prev = r;
-      if ((r.state === "got" || r.state === "swapped") && r.by && r.by !== link) return 409; // got or swapped on another link: locked (SL-J4, confirmed 10 October 2026)
+      if (r.state !== "open" && r.by && r.by !== link) return 409; // got, swapped or not found on another link: locked (SL-J4; not found joins them by the owner's answer of 11 October 2026, SL-D37)
       if (r.state === "open" && claimOf(k) && claimOf(k) !== link) return 409; // promised on another link: locked too, so two people never buy the same line (SL-D26, extends SL-J4)
       var w = (d.get("swap") || "").trim().slice(0, 120), st = d.get("state");
       var n = w ? { state: "swapped", words: w, by: link } : st === "open" ? { state: "open", words: "", by: "" } : { state: st, words: "", by: link };
-      put(k, n); push(link, label(k, n), [{ k: k, prev: prev }]);
+      put(k, n); touch(link); push(link, label(k, n), [{ k: k, prev: prev }]);
     } else if (path === "extra") {
       var t = (d.get("text") || "").trim().slice(0, 120);
       if (t) { var x = { id: "x" + (srv.rev + 1), text: t, by: link }; srv.extras.push(x); push(link, "Also got: " + t, [{ extra: x.id }]); }
@@ -87,30 +89,31 @@
     } else if (path === "unresolved") {
       var undo = [];
       NAMES.forEach(function (n_, i) { var kk = "l" + i; if (lineOf(kk).state === "open" && (!claimOf(kk) || claimOf(kk) === link)) { undo.push({ k: kk, prev: lineOf(kk) }); put(kk, { state: "notgot", words: "", by: link }); } });
-      if (undo.length) push(link, "The rest, can't buy", undo);
+      if (undo.length) { touch(link); push(link, "The rest, can't buy", undo); }
     } else if (path === "undo") {
       var h = (srv.hist[link] || []).pop();
       if (h) h.undo.forEach(function (u) { if (u.k) put(u.k, u.prev); else if (u.claim) delete srv.claims[u.claim]; else if (u.committed) linkOf(link).committed = false; else if (u.extra) srv.extras = srv.extras.filter(function (v) { return v.id !== u.extra; }); else if (u.put) srv.extras.push(u.put); });
     } else if (path === "commit") {
       // "I'll get these" (SL-D21): every line still open and not promised elsewhere becomes this link's promise. Lines already answered are untouched.
-      var mine = [];
+      var mine = []; touch(link);
       NAMES.forEach(function (n_, i) { var kk = "l" + i; if (lineOf(kk).state === "open" && !claimOf(kk)) { srv.claims[kk] = link; mine.push({ claim: kk }); } });
       linkOf(link).committed = true;
       push(link, "Promised " + mine.length + (mine.length === 1 ? " line" : " lines"), mine.concat([{ committed: true }]));
     } else if (path === "reject") {
-      // "I won't do it" (SL-D23): the link is dead at once, its promise is cleared, and it cannot be undone.
+      // "I won't do it" (SL-D23): the link is dead at once, its promise is cleared, and it cannot be undone. After any swipe or a promise the server answers 409 and changes nothing (SL-D34).
+      if (linkOf(link).touched) return 409;
       endLink(link, "rejected");
     } else if (path === "batch") {
       var got = d.getAll("got"), undo2 = [];
       NAMES.forEach(function (n_, i) {
         var kk = "l" + i, cur = lineOf(kk), sw = (d.get("swap_" + kk) || "").trim().slice(0, 120);
-        if ((cur.state === "got" || cur.state === "swapped") && cur.by && cur.by !== link) return;
+        if (cur.state !== "open" && cur.by && cur.by !== link) return; // answered on another link (got, swapped or not found): left as it is
         if (cur.state === "open" && claimOf(kk) && claimOf(kk) !== link) return;
         undo2.push({ k: kk, prev: cur });
         put(kk, sw ? { state: "swapped", words: sw, by: link } : got.indexOf(kk) !== -1 ? { state: "got", words: "", by: link } : { state: "notgot", words: "", by: link });
       });
       d.getAll("also").forEach(function (t2) { t2 = t2.trim().slice(0, 120); if (t2) { var x2 = { id: "x" + (srv.rev + 1) + undo2.length, text: t2, by: link }; srv.extras.push(x2); undo2.push({ extra: x2.id }); } });
-      push(link, "Sent the whole list", undo2);
+      touch(link); push(link, "Sent the whole list", undo2);
     }
     save();
     return 200;
@@ -155,6 +158,7 @@
     (extras || []).forEach(function (t, i) { srv.extras.push({ id: "x" + (i + 1), text: t, by: "A" }); });
     if (last) srv.hist.A.push({ label: last, undo: [] });
     if (committed) { var l = linkOf("A"); l.committed = true; Object.keys(committed).forEach(function (k) { srv.claims[k] = "A"; }); }
+    if (committed || Object.keys(lines).some(function (k) { return (lines[k][2] || "A") === "A"; })) touch("A"); // this link has answered a line or promised: no "I won't do it" any more (SL-D34)
     srv.rev++;
   }
   // Link facts the member screens print (opened, hours left, slot); the shopper's page does not use them. Mockup only.
@@ -201,6 +205,10 @@
       // Another shopper (link B) promised the last five lines; they have dropped out of this shopper's list. "released": a moment after load that link is cancelled and they come back.
       meta("B", { slot: 2 }); claim("B", ["l7", "l8", "l9", "l10", "l11"]); srv.rev++;
     }
+    if (s === "notfound-other") {
+      // Another shopper (link B) could not find three lines (dish soap, olive oil, spinach). Like a line they got, they have dropped off this shopper's list, live (SL-D37).
+      meta("B", { slot: 2 }); seed({ l3: ["notgot", "", "B"], l6: ["notgot", "", "B"], l10: ["notgot", "", "B"] }, [], ""); touch("B");
+    }
     // ---- the household's view (SL-D25 on): member-list.html and link.html. The links' own facts (opened, hours left, slot) are mockup data; the lines and claims are the pretend server's.
     if (page === "member-list") {
       if (s === "states") {
@@ -221,7 +229,7 @@
         seed({ l0: ["got"], l1: ["got"], l2: ["got"], l4: ["got"], l5: ["got"], l8: ["swapped", "fusilli, same size"], l3: ["notgot"], l6: ["notgot"], l10: ["notgot"] }, [], "Spinach, couldn't find");
       }
       if (s === "dead") {
-        // Link 1 is out; Link 2's shopper turned the trip down an hour ago (grey, no countdown, Dismiss; its slot is free); Link 3 has not been opened. Link 2's promise has been cleared.
+        // Link 1 is out; Link 2's shopper turned the trip down an hour ago (grey, no countdown, Dismiss; its slot is free); Link 3 has not been opened. Link 2 turned the trip down before swiping or promising anything (SL-D34), so there is nothing of its to clear.
         meta("A", { slot: 1, opened: "3 hours ago", left: 45 }); claim("A", ["l0", "l1", "l2"]);
         meta("B", { slot: 2 }); endLink("B", "rejected"); linkOf("B").deadAgo = "1 hour ago";
         meta("C", { slot: 3, opened: false, left: 31 });
@@ -269,11 +277,11 @@
   if (page === "list" && list) {
     // A link that has been turned down, ended or cancelled answers with the neutral page, however it is opened again.
     if (srv.links[me] && (srv.links[me].dead || srv.links[me].ended)) { location.replace("finished.html"); return; }
-    root_ = document.getElementById("sl"); if (root_) { root_.setAttribute("data-sl-committed", linkOf(me).committed ? "1" : "0"); }
+    root_ = document.getElementById("sl"); if (root_) { root_.setAttribute("data-sl-committed", linkOf(me).committed ? "1" : "0"); root_.setAttribute("data-sl-refusable", linkOf(me).touched ? "0" : "1"); }
     Array.prototype.forEach.call(list.querySelectorAll("li[data-shop-row]"), function (li) {
       var r = lineOf(li.getAttribute("data-key")), by = r.by ? (r.by === me ? "you" : "other") : "", st = r.state;
-      if (by === "other" && st === "notgot") { st = "open"; by = ""; } // not found on another link is still to do here
-      var lock = by === "other" && (st === "got" || st === "swapped");
+      var lock = by === "other" && st !== "open"; // answered on another link (got, swapped or not found, SL-D37): locked here
+      if (lock) li.setAttribute("data-sl-lock", st === "notgot" ? "passed" : "got");
       var cl = st === "open" ? claimOf(li.getAttribute("data-key")) : "";
       if (cl) li.setAttribute("data-claim", cl === me ? "you" : "other");
       if (cl && cl !== me) li.setAttribute("data-sl-gone", "");
@@ -471,6 +479,7 @@
     if (s === "reject-ask" || s === "rejected") setTimeout(function () { document.querySelector("[data-sl-plan] [data-sl-refuse]").click(); }, 140);
     if (s === "rejected") setTimeout(function () { document.querySelector("[data-sl-plan] [data-sl-refuse-yes]").click(); }, 260);
     if (s === "claimed-other") setTimeout(function () { S().say("Someone else is getting 5 of these."); }, 140);
+    if (s === "notfound-other") setTimeout(function () { S().say("Someone else has dealt with 3 of these."); }, 140);
     // Link B ends (its member cancelled it; the same happens when it expires): what it had promised and not answered goes back to the open pool, live.
     if (s === "released") setTimeout(function () { endLink("B", "cancelled"); save(); ping(); }, 1500);
     if (s === "multi" || s === "summary" || s === "none") setTimeout(function () {

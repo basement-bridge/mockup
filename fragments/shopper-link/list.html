@@ -34,8 +34,8 @@
 <button type="button" class="sl-mode" data-sl-mode="receipt" aria-pressed="false"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Snap the receipt</button>
 </div>
 <!-- THE PROMISE (owner, voice, 11 October 2026, SL-D21 to SL-D24). Two wholesale actions at the very top. "I'll get these" promises every line still on the list to this link: the household sees them as
-     claimed, and they drop out of every other link's list, live. "I won't do it" turns the whole trip down: the link is dead at once and the household is told. The flat decline is offered only until the first
-     line has been swiped (either way); "I'll get these" stays until it has been pressed. Swiping left first trims the list, so "I'll get these" means "the ones that are left". Pressing it with nothing
+     claimed, and they drop out of every other link's list, live. "I won't do it" turns the whole trip down: the link is dead at once and the household is told. The flat decline is offered only while the shopper has neither swiped a line (either way) nor promised
+     (owner, 11 October 2026, SL-D34): once either has happened it is gone for good, Undo or not, and the promise strip has no decline. "I'll get these" stays until it has been pressed. Swiping left first trims the list, so "I'll get these" means "the ones that are left". Pressing it with nothing
      swiped means all of them. The server draws this block (data-sl-plan) while the link has no promise and some line is open; after the promise it draws the strip (data-sl-promised) instead. -->
 <section class="sl-plan" data-sl-plan aria-labelledby="sl-plan-t">
 <h2 id="sl-plan-t" data-sl-plan-t>Will you do this trip?</h2>
@@ -49,10 +49,6 @@
 <section class="sl-promised" data-sl-promised aria-labelledby="sl-promised-t" hidden>
 <div class="sl-promised-h"><span class="ric t3" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span class="sl-promised-t"><b id="sl-promised-t">You've said you'll get these</b><span data-sl-promised-n>12 lines still to get</span></span></div>
 <p>The household knows they're yours, and nobody else is asked to buy them. Swipe right as you buy each one. The promise lasts as long as this link does. Undo takes it back.</p>
-<div class="sl-refuse-wrap" data-sl-refuse-wrap>
-<button type="button" class="btn sl-refuse" data-sl-refuse>I won't do it</button>
-<div class="sl-ask" data-sl-refuse-ask role="group" aria-labelledby="sl-ask-t2" hidden><p id="sl-ask-t2"><b>Turn down this trip?</b> This link stops working for good, and the household is told. Undo can't bring it back.</p><div class="sl-ask-b"><button type="button" class="btn" data-sl-refuse-no>Keep the list</button><button type="button" class="btn sl-ask-yes" data-sl-refuse-yes>Yes, I won't do it</button></div></div>
-</div>
 </section>
 <p id="shop-hint" class="hint"><span data-sl-hint-swipe>Swipe right when you've got it. Swipe left if you can't find it or won't get it. A line you answer leaves the list. Press and hold a line to pick several at once.</span><span data-sl-hint-multi hidden>Tick what you got. Nothing is sent until you press Send.</span></p>
 <!-- The end state (SL-D18): nothing left to do. Every line has left the list, so this is what the page says. The server draws it (not hidden) when no line is open;
