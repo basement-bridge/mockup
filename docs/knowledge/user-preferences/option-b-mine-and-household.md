@@ -61,6 +61,20 @@ Old questions Q2, Q3 and Q5 are settled by D5, D8 and D7 and are removed. The ot
 - (Q6) **No operation moves a food statement between Just you and Everyone.** It is said again for the other scope.
 - (Q7) **Where the screen lives:** Settings > Preferences next to Stock checks, or in place of it.
 
+## Food statements: the 10 October 2026 rework, today's model and what would change
+
+Owner direction (voice, 10 October 2026) on how food preferences are shaped, with Option B chosen as the direction. The statements are recorded as **decided food F1 to F10**, and the shape, operations and open questions (Q-F1 on) are in [`food-preferences.md`](food-preferences.md). Those labels are a separate series from the data-model facts F1 to F10 above, so cite them as "food F3". Only Option B's mockup changed; Option A keeps the old statement words.
+
+Model facts today (Kitchie `context.ts`, read only, 10 October 2026), in addition to F6 above:
+
+- A claim is one row of `context_claims`: statement (likes, dislikes, avoids, usually, fact, stop), a subject kept as words and matched by words, `about_type` (item, ingredient, recipe, cuisine, other), `severity` and `reason` on avoids only, the person's own words, status active or retired.
+- **No end date, no frequency rule, no recipe attached.** Nothing lapses. The planner does not read claims; the AI is trusted to call `get_context`. Recipe holds no per-person food statement and its recipes never change in place (only status), so a title can be asked for live by recipe id.
+- "Never suggest" exists today as the `stop` statement (a `rejected` item with `stop: true`).
+
+What the owner's direction would change in code (not built): drop `stop` (it becomes an avoid, reason other); add a rule kind (avoid, like, dislike, cap), an end date on likes and dislikes, a cap, a category with attached recipe references and no stored titles; one service behind the port so the chat tools and the web routes share it; have the planner call an `evaluate` check; add the web Food card drawn in this option. Recipe changes nothing unless Q-F9 is answered the other way. Full list in `food-preferences.md`.
+
+What the mockup now draws in the Food card: a row per rule with the word Avoids, Limit, Usually, Likes or Dislikes; an end shown as "Until 24 Oct" with a Keep it for good button and no date field; a category (Spicy: at most twice a week) with the person's words, the cap, the assistant's suggestion of matching recipes ("these recipes seem to match, attach them?") and the attached recipes with titles read from Recipe; and the household's own category (Deep-fried). "Never suggest" is gone from the screen.
+
 ## Option B: Mine and Household as two sections (awaiting approval)
 
 What it draws. One Preferences screen with two tabs.

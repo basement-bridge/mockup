@@ -48,6 +48,8 @@
 .sp .note{color:var(--muted);font-size:.9rem}
 .sp .note.ro{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--surface);font-size:14px}
 .sp .note.ro svg{flex:none;margin-top:2px;color:var(--muted)}
+.sp .note.ro>div{flex:1;min-width:0}
+.sp .note.ro .acts{margin-top:10px}
 .sp .btn{display:flex;align-items:center;justify-content:center;min-height:52px;border-radius:var(--r-ctl);background:var(--accent);color:var(--on-accent);font-weight:700;width:100%;text-align:center;padding:0 16px;border:0;cursor:pointer}
 .sp .btn.ghost{background:none;border:1px solid var(--border);color:var(--fg);font-weight:600;min-height:52px;border-radius:18px}
 .sp .btn.ghost.danger{color:var(--danger);border-color:var(--danger)}
@@ -119,3 +121,4 @@
 .sp ul.stops .btn{width:auto;min-height:44px;padding:0 14px;border:1px solid var(--border);border-radius:99px;background:none;color:var(--fg);font-size:14px;font-weight:600;flex:none}
 @media (prefers-reduced-motion:no-preference){.sp .ped{animation:mhIn .14s ease-out}}
 @keyframes mhIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.sp .foodcard>.note{margin-top:8px}

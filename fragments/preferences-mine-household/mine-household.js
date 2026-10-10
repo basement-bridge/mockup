@@ -7,6 +7,8 @@
      Most suggestions per day is 1 to 20, default 2 (D7). Household food statements are open to any member (D8).
    - Notes are NOT an override: the household note and the member's own note are both read.
    - Food statements are NOT an override either: a member sees their own plus the household's ("Everyone"). They are said to the assistant today; no web editor exists (Proposal here).
+   - Food rules (owner, voice, 10 October 2026; docs/knowledge/user-preferences/food-preferences.md F1 to F10): avoid is permanent and hard ("never suggest" is dropped); like and dislike are soft and may end;
+     a limit caps how often; a category holds the rule, a note and recipes attached by reference whose titles are read from Recipe each time. The JSON shape and operations are a PROPOSAL (Q-F1 and on).
    - Nothing here is viewport specific: the wide layout lives in mine-household-600.css and mine-household-1024.css. */
 (function () {
   "use strict";
@@ -15,8 +17,12 @@
   var DEFAULTS = { enabled: "on", proactivity: "normal", quiet_start: null, quiet_end: null, daily_cap: "2", tz_offset_minutes: "0" }; // DEFAULT_DIALS
   var PROACTIVITY = ["quiet", "normal", "helpful"];
   var ASSISTANTS = [["claude", "Claude"], ["chatgpt", "ChatGPT"], ["gemini", "Gemini"], ["other", "Another assistant"], ["none", "None"]];
-  var STATEMENT_WORD = { avoids: "Avoids", stop: "Never suggest", usually: "Usually", likes: "Likes", dislikes: "Dislikes" };
-  var STATEMENT_ORDER = ["avoids", "stop", "usually", "likes", "dislikes"];
+  var RULE_WORD = { avoid: "Avoids", cap: "Limit", usually: "Usually", like: "Likes", dislike: "Dislikes" };
+  var RULE_ORDER = ["avoid", "cap", "usually", "like", "dislike"];
+  var TODAY = "2026-10-10"; // the mockup's own "today", so a rule that has lapsed can be shown
+  var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  /* Recipe's own titles. Mockup only: the screen asks for a title each time it draws and never keeps one (food-preferences F6). */
+  var RECIPES = { "r-fish": "Fish and chips", "r-chilli": "Chilli con carne", "r-laksa": "Prawn laksa", "r-green": "Thai green curry", "r-kimchi": "Kimchi fried rice", "r-tomyum": "Tom yum noodle soup", "r-dandan": "Dan dan noodles", "r-garlic": "Chilli garlic noodles" };
   var NOTE_MAX = 600;
 
   var PEOPLE = { sam: { name: "Sam" }, arjan: { name: "Arjan" } };
@@ -48,15 +54,21 @@
           stops: []
         }
       },
-      /* member_id null in the model means the household: here owner is null for "Everyone" */
+      /* member_id null in the model means the household: here owner is null for "Everyone".
+         level: ingredient (matched on what is in a recipe) or category (matched on the recipes attached to it, by reference).
+         ends: optional, only on like and dislike; the person's words gave it ("for the next two weeks"), there is no date field. */
       food: full ? [
-        { id: "c1", owner: null, statement: "avoids", subject: "peanuts", severity: "hard", reason: "safety", said: "We cannot have peanuts in the house.", support: 3 },
-        { id: "c2", owner: null, statement: "stop", subject: "liver", said: "Never suggest liver, nobody eats it.", support: 1 },
-        { id: "c3", owner: null, statement: "usually", subject: "pancakes", when: "weekend", said: "We usually do pancakes at the weekend.", support: 2 },
-        { id: "c4", owner: "sam", statement: "avoids", subject: "coriander", severity: "soft", reason: "other", said: "I do not like coriander, fine if it is a garnish.", support: 1 },
-        { id: "c5", owner: "sam", statement: "likes", subject: "spicy noodles", said: "I love spicy noodles.", support: 2 },
-        { id: "c6", owner: "sam", statement: "dislikes", subject: "mushrooms", said: "Not a fan of mushrooms.", support: 1 },
-        { id: "c7", owner: "arjan", statement: "likes", subject: "roast chicken", said: "Roast chicken is my favourite.", support: 1 }
+        { id: "c1", owner: null, level: "ingredient", rule: "avoid", subject: "peanuts", reason: "safety", said: "We cannot have peanuts in the house.", support: 3 },
+        { id: "c2", owner: null, level: "ingredient", rule: "avoid", subject: "liver", reason: "other", said: "Never suggest liver, nobody eats it.", support: 1 },
+        { id: "c3", owner: null, rule: "usually", subject: "pancakes", when: "weekend", said: "We usually do pancakes at the weekend.", support: 2 },
+        { id: "c8", owner: null, level: "category", rule: "cap", subject: "Deep-fried", max: 1, recipes: ["r-fish"], suggest: [], said: "Deep-fried dinners no more than once a week.", support: 1 },
+        { id: "c4", owner: "sam", level: "ingredient", rule: "dislike", subject: "coriander", said: "I do not like coriander, fine if it is a garnish.", support: 1 },
+        { id: "c5", owner: "sam", level: "ingredient", rule: "like", subject: "pumpkin", ends: "2026-10-31", said: "I am into pumpkin this month.", support: 1 },
+        { id: "c6", owner: "sam", level: "ingredient", rule: "dislike", subject: "mushrooms", said: "Not a fan of mushrooms.", support: 1 },
+        { id: "c9", owner: "sam", level: "category", rule: "cap", subject: "Spicy", max: 2, recipes: ["r-chilli", "r-laksa", "r-green"], suggest: [["r-kimchi", "Chilli paste in the sauce"], ["r-tomyum", "Hot and sour broth with chilli"]], said: "Spicy is fine, just no more than twice a week.", support: 1 },
+        { id: "c10", owner: "sam", level: "category", rule: "dislike", subject: "Spicy noodles", ends: "2026-10-24", recipes: ["r-dandan", "r-garlic"], suggest: [], said: "I cannot face spicy noodles for the next two weeks.", support: 1 },
+        { id: "c11", owner: "sam", level: "ingredient", rule: "dislike", subject: "lamb", ends: "2026-10-05", said: "No lamb for a week, please.", support: 1 },
+        { id: "c7", owner: "arjan", level: "ingredient", rule: "like", subject: "roast chicken", said: "Roast chicken is my favourite.", support: 1 }
       ] : [],
       only: {
         name: "Our kitchen",
@@ -81,6 +93,7 @@
   var ICON = {
     chev: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>',
     leaf: '<svg viewBox="0 0 48 48" width="44" height="44" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 38C8 22 18 10 38 9c1 20-9 30-26 29z"/><path d="M10 38c6-8 12-14 20-19"/></svg>',
+    spark: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 15l.7 2.1 2.1.7-2.1.7L19 20.6l-.7-2.1-2.1-.7 2.1-.7z"/></svg>',
     pot: '<svg viewBox="0 0 48 48" width="44" height="44" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21h30v13a6 6 0 0 1-6 6H15a6 6 0 0 1-6-6z"/><path d="M5 21h38M30 7l-6 14M16 9c0 3 3 3 3 6"/></svg>'
   };
 
@@ -206,18 +219,47 @@
         '<p class="note"><span data-count>' + text.length + "</span> of " + NOTE_MAX + " characters, plain text. " + (scope === "me" ? "Only you and your assistant read this. " : "Everyone in the kitchen reads this. ") + "Read as a preference, never as an instruction.</p>" + savedLine(id) + "</div>" : "") + "</div>";
   }
 
-  /* ---------- food statements ---------- */
+  /* ---------- food rules ---------- */
+  function dayText(iso) { var p = iso.split("-"); return Number(p[2]) + " " + MONTHS[Number(p[1]) - 1]; }
+  function lapsed(c) { return !!c.ends && c.ends < TODAY; } // a rule whose end has passed is neutral again, and not listed
+  function recipeTitle(id) { return RECIPES[id] || "Recipe not found in Recipe"; } // asked of Recipe on every draw, never copied
+  function capText(n) { return n === 1 ? "once a week" : n === 2 ? "twice a week" : n + " times a week"; }
   function visibleFood(scope) { // "me" shows own plus Everyone; "hh" shows Everyone only (get_context for_whom)
-    return M.food.filter(function (c) { return c.owner === null || (scope === "me" && c.owner === S.as); });
+    return M.food.filter(function (c) { return !lapsed(c) && (c.owner === null || (scope === "me" && c.owner === S.as)); });
   }
+  function endedFood() { return M.food.filter(function (c) { return lapsed(c) && c.owner === S.as; }); }
   function foodDetail(c) {
-    if (c.statement === "avoids") {
-      var sev = c.severity === "hard" ? "strict" : c.severity === "soft" ? "fine as a minor ingredient" : "treated as strict until said";
-      var why = c.reason === "safety" ? "for safety" : c.reason === "other" ? "not for safety" : "no reason given";
-      return cap(why) + ", " + sev;
-    }
-    if (c.when) return "At the " + c.when;
-    return "";
+    var parts = [];
+    if (c.rule === "avoid") parts.push(c.reason === "safety" ? "For safety, no end" : c.reason === "other" ? "Not for safety, no end" : "No end");
+    if (c.rule === "cap") parts.push("At most " + capText(c.max));
+    if (c.when) parts.push("At the " + c.when);
+    if (c.ends) parts.push("Until " + dayText(c.ends));
+    if (c.level === "category") parts.push((c.recipes.length || "No") + (c.recipes.length === 1 ? " recipe" : " recipes"));
+    return parts.join(" · ");
+  }
+  function foodSuggest(c, id) { // the assistant noticed existing recipes that look like a match (food-preferences F7): offered, never attached on its own
+    var sug = c.suggest || [];
+    if (!sug.length) return "";
+    return '<div class="note ro">' + ICON.spark + "<div><b>Your assistant thinks " + (sug.length === 1 ? "this recipe seems" : "these recipes seem") + " to match " + esc(c.subject) + ".</b> Attach " + (sug.length === 1 ? "it" : "them") + " so " + (c.rule === "avoid" || c.rule === "dislike" ? "they are left out?" : "they count?") +
+      '<ul class="stops" aria-label="Seem to match">' + sug.map(function (x) {
+        return '<li><span class="sname">' + esc(recipeTitle(x[0])) + '<span class="swhat">' + esc(x[1]) + '</span></span><button type="button" class="btn" data-act="attach" data-id="' + id + '" data-val="' + esc(x[0]) + '" aria-label="Attach ' + esc(recipeTitle(x[0])) + '">Attach</button></li>';
+      }).join("") + "</ul>" +
+      '<div class="acts">' + (sug.length > 1 ? '<button type="button" class="btn" data-act="attachall" data-id="' + id + '">Attach all ' + sug.length + "</button>" : "") + '<button type="button" class="btn ghost" data-act="notthese" data-id="' + id + '">Not ' + (sug.length === 1 ? "this one" : "these") + "</button></div></div></div>";
+  }
+  function foodRecipes(c, id) {
+    var out = '<span class="lbl">Recipes in ' + esc(c.subject) + "</span>";
+    if (!c.recipes.length) out += '<p class="note">No recipe is attached yet, so nothing is checked. Tell your assistant which recipes belong here.</p>';
+    else out += '<ul class="stops" aria-label="Attached recipes">' + c.recipes.map(function (r) {
+      return '<li><span class="sname">' + esc(recipeTitle(r)) + '</span><button type="button" class="btn" data-act="detach" data-id="' + id + '" data-val="' + esc(r) + '" aria-label="Take ' + esc(recipeTitle(r)) + ' out of ' + esc(c.subject) + '">Take out</button></li>';
+    }).join("") + "</ul>";
+    return out + '<p class="note">Titles are read from Recipe each time, so a rename shows here at once. Only attached recipes are checked.</p>';
+  }
+  function foodEnd(c, id) {
+    if (c.rule === "avoid") return '<p class="note">An avoid has no end. It stays, and a like never outweighs it, until you stop remembering it.</p>';
+    if (c.rule !== "like" && c.rule !== "dislike") return "";
+    if (!c.ends) return '<p class="note">No end, so it stands until you stop it. To give it a time, tell your assistant, for example “for the next two weeks”.</p>';
+    return '<p class="note">Ends on its own after ' + dayText(c.ends) + ", then goes back to neutral. That time came from what you said.</p>" +
+      '<button type="button" class="btn ghost" data-act="clearend" data-id="' + id + '">Keep it for good</button>';
   }
   function foodRow(c, scope) {
     var id = scope + ":" + c.id, isOpen = S.open === id;
@@ -226,26 +268,29 @@
     var confirm = S.confirm === id;
     var ed = "";
     if (isOpen) {
-      var strict = c.statement === "avoids" && c.reason !== "other";
+      var strict = c.rule === "avoid" && c.reason !== "other";
       ed = '<div class="ped" id="ed-' + id.replace(":", "-") + '"><p class="small">Said: <q>' + esc(c.said) + '</q> <span class="muted">(kept as data, said ' + c.support + (c.support === 1 ? " time" : " times") + ")</span></p>" +
+        (c.rule === "cap" ? '<label for="mx-' + scope + "-" + c.id + '">Most per week</label><input id="mx-' + scope + "-" + c.id + '" class="fld" type="number" min="1" max="7" step="1" inputmode="numeric" data-act="cap" data-id="' + id + '" value="' + c.max + '"><p class="note">Checked against the meals planned and cooked in the last seven days, before a recipe here is suggested.</p>' : "") +
+        foodEnd(c, id) + (c.level === "category" ? foodSuggest(c, id) + foodRecipes(c, id) : "") + savedLine(id) +
         (confirm ? '<p class="note">This is kept for safety. Remove it only if it is no longer true' + (c.owner === null ? ", for the whole household" : "") + '.</p><div class="acts"><button type="button" class="btn ghost danger" data-act="forget" data-id="' + id + '" data-confirmed="1">Yes, stop remembering</button><button type="button" class="btn ghost" data-act="keep" data-id="' + id + '">Keep it</button></div>'
           : '<button type="button" class="btn ghost danger" data-act="forget" data-id="' + id + '" data-strict="' + (strict ? 1 : 0) + '">Stop remembering this</button>' +
-            '<p class="note">To change it instead, tell your assistant. Moving a statement between Just you and Everyone has no operation today: say it again for the other one.</p>') + "</div>";
+            '<p class="note">To change the rule itself, tell your assistant. Moving a statement between Just you and Everyone has no operation today: say it again for the other one.</p>') + "</div>";
     }
-    return '<li class="frow prow" data-row="' + id + '"><button type="button" class="pbtn" data-act="toggle" data-id="' + id + '" aria-expanded="' + isOpen + '"><span class="pt"><span class="fs">' + STATEMENT_WORD[c.statement] + '</span><span class="pl">' + esc(c.subject) + "</span>" + (detail ? '<span class="pv">' + esc(detail) + "</span>" : "") + "</span>" + chipHtml + '<span class="chev" aria-hidden="true">' + ICON.chev + "</span></button>" + ed + "</li>";
+    return '<li class="frow prow" data-row="' + id + '"><button type="button" class="pbtn" data-act="toggle" data-id="' + id + '" aria-expanded="' + isOpen + '"><span class="pt"><span class="fs">' + RULE_WORD[c.rule] + '</span><span class="pl">' + esc(c.subject) + "</span>" + (detail ? '<span class="pv">' + esc(detail) + "</span>" : "") + "</span>" + chipHtml + '<span class="chev" aria-hidden="true">' + ICON.chev + "</span></button>" + ed + "</li>";
   }
   function foodList(scope) {
     var rows = visibleFood(scope);
     if (!rows.length) {
       return '<div class="empty">' + ICON.pot + "<b>" + (scope === "me" ? "Nothing remembered about you yet" : "Nothing for the whole kitchen yet") + "</b><p class=\"small\">" +
-        (scope === "me" ? "Tell your assistant what you like, dislike or cannot eat, and it shows up here." : "Allergies and house rules for everyone go here. Tell your assistant, and say it is for the household.") + "</p></div>";
+        (scope === "me" ? "Tell your assistant what you like, dislike, cannot eat or want less often, and it shows up here." : "Allergies and house rules for everyone go here. Tell your assistant, and say it is for the household.") + "</p></div>";
     }
     var out = "";
-    STATEMENT_ORDER.forEach(function (st) {
-      var g = rows.filter(function (c) { return c.statement === st; });
+    RULE_ORDER.forEach(function (st) {
+      var g = rows.filter(function (c) { return c.rule === st; });
       if (g.length) out += g.map(function (c) { return foodRow(c, scope); }).join("");
     });
-    return '<ul class="flist">' + out + "</ul>";
+    var ended = scope === "me" ? endedFood() : [];
+    return '<ul class="flist">' + out + "</ul>" + (ended.length ? '<p class="note">Ended on its own and back to neutral: ' + ended.map(function (c) { return esc(c.subject) + " (" + dayText(c.ends) + ")"; }).join(", ") + ".</p>" : "");
   }
 
   /* ---------- screens ---------- */
@@ -284,7 +329,7 @@
       '<span class="lbl">Notes</span><div class="card sgroup">' + noteRow("me") +
       (M.hh.note ? '<div class="prow static household-note"><div class="pbtn"><span class="pt"><span class="pl">Household note</span><span class="pv clamp">' + esc(M.hh.note) + '</span><span class="pw">Read together with yours.</span><button type="button" class="lnk" data-act="goto" data-id="hh:note">Open in Household</button></span>' + chip("hh", "Household") + "</div></div>" : "") + "</div>" +
       '<span class="lbl">Food</span><div class="card sgroup foodcard">' + foodList("me") +
-      '<p class="note">Your statements and the household\'s are added together, not swapped. Say new ones to your assistant.</p></div>' +
+      '<p class="note">Your statements and the household\'s are added together, not swapped. Say new ones, or a new category, to your assistant.</p></div>' +
       '<span class="lbl">Just for you</span><div class="card sgroup">' + assistantRow() +
       navRow("Kitchen role", m.role || "Pick a kitchen role", "you", "Only you", "Me") + "</div>" +
       '<span class="lbl">Not asking about</span><div class="card sgroup">' + stopsList() + "</div>" +
@@ -336,6 +381,7 @@
     var d = scope === "me" ? mine().dials : M.hh.dials;
     if (val === "" || val === null) delete d[key]; else d[key] = val;
   }
+  function foodById(id) { return M.food.filter(function (x) { return x.id === id.split(":")[1]; })[0]; }
   function parseHours(t) {
     var n = Number(String(t).replace(",", "."));
     return isFinite(n) && n >= -12 && n <= 14 ? String(Math.round(n * 60)) : null;
@@ -358,9 +404,18 @@
     else if (act === "goto") { var g = id.split(":"); S.tab = g[0]; S.open = g[1] === "recipes" ? null : g[0] + ":" + g[1]; S.saved = ""; S.flash = ""; render(); var target = root.querySelector(g[1] === "recipes" ? "#hh-recipes" : '[data-row="' + g[0] + ":" + g[1] + '"]'); if (target) { target.scrollIntoView({ block: "center" }); } }
     else if (act === "nav") { S.flash = "Opens " + id + ". Not drawn in this option."; S.open = null; render(); }
     else if (act === "askagain") { var m = mine(); m.stops = m.stops.filter(function (x) { return x.id !== id; }); S.focus = null; render(); }
+    else if (act === "attach" || act === "attachall" || act === "notthese" || act === "detach" || act === "clearend") {
+      var f = foodById(id);
+      if (act === "attach") { f.suggest = f.suggest.filter(function (x) { if (x[0] === val) { f.recipes.push(x[0]); return false; } return true; }); }
+      else if (act === "attachall") { f.suggest.forEach(function (x) { f.recipes.push(x[0]); }); f.suggest = []; }
+      else if (act === "notthese") { f.suggest = []; }
+      else if (act === "detach") { f.recipes = f.recipes.filter(function (r) { return r !== val; }); }
+      else if (act === "clearend") { delete f.ends; }
+      saved(id); S.focus = '[data-act="toggle"][data-id="' + id + '"]'; render();
+    }
     else if (act === "forget") {
-      var c = M.food.filter(function (x) { return x.id === id.split(":")[1]; })[0];
-      var strict = c && c.statement === "avoids" && c.reason !== "other";
+      var c = foodById(id);
+      var strict = c && c.rule === "avoid" && c.reason !== "other";
       if (strict && !t.getAttribute("data-confirmed")) { S.confirm = id; S.focus = '[data-act="forget"][data-id="' + id + '"]'; render(); return; }
       M.food = M.food.filter(function (x) { return x.id !== c.id; }); S.open = null; S.confirm = null; render();
     }
@@ -384,6 +439,10 @@
       var q = id.split(":"), key = q[1];
       if (key === "daily_cap") { var n = parseInt(t.value, 10); setDial(q[0], key, isFinite(n) && n >= 1 && n <= 20 ? String(n) : ""); }
       else { var m2 = t.value.trim() === "" ? "" : parseHours(t.value); setDial(q[0], key, m2 === null ? "" : m2); }
+      saved(id); S.focus = "#" + t.id; render();
+    } else if (act === "cap") {
+      var fc = foodById(id), mx = parseInt(t.value, 10);
+      if (isFinite(mx) && mx >= 1 && mx <= 7) fc.max = mx;
       saved(id); S.focus = "#" + t.id; render();
     } else if (act === "note") {
       var s = id.split(":")[0], text = t.value.trim().slice(0, NOTE_MAX);

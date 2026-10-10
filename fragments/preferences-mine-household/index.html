@@ -23,6 +23,10 @@
     <a href="?as=sam&amp;tab=hh&amp;open=hh:proactivity">Household, any member edits</a>
     <a href="?as=sam&amp;tab=mine&amp;open=me:quiet">Quiet hours, none for me</a>
     <a href="?as=sam&amp;tab=mine&amp;data=empty">Nothing set yet</a>
+    <a href="?as=sam&amp;tab=mine&amp;open=me:c9">Food: category with a limit and a suggestion</a>
+    <a href="?as=sam&amp;tab=mine&amp;open=me:c10">Food: dislike that ends on its own</a>
+    <a href="?as=sam&amp;tab=mine&amp;open=me:c1">Food: avoid, no end</a>
+    <a href="?as=sam&amp;tab=hh&amp;open=hh:c8">Food: household category</a>
   </div>
   <p class="mh-state" id="mh-state" aria-live="polite"></p>
 
@@ -51,7 +55,7 @@
           <tr><th>Preference</th><th>Lives at</th><th>How it combines</th><th>Who changes it</th></tr>
           <tr><td>Stock-check settings: on or off, how proactive, quiet hours, most per day, time zone</td><td>Person and household</td><td>Override, key by key: built-in, then household, then person</td><td>You change yours. Any member changes the household's (D5; today only the longest-standing member can, and that check goes).</td></tr>
           <tr><td>Notes (up to 600 characters)</td><td>Person and household</td><td>Both read. Yours is private to you.</td><td>Same as above</td></tr>
-          <tr><td>Food: avoids, never suggest, usually, likes, dislikes</td><td>Person and household</td><td>Added together. Safety avoidances always shown.</td><td>Said to the assistant by any member, for self or for everyone (D8)</td></tr>
+          <tr><td>Food: avoids, usually, likes, dislikes (plus "never suggest", which this option drops)</td><td>Person and household</td><td>Added together. Safety avoidances always shown. No end date and no frequency limit yet; no recipes attached.</td><td>Said to the assistant by any member, for self or for everyone (D8)</td></tr>
           <tr><td>Stops and snoozes</td><td>Person (a stop on one item covers everyone)</td><td>None</td><td>The person</td></tr>
           <tr><td>My assistant, kitchen role</td><td>Person only</td><td>None</td><td>The person</td></tr>
           <tr><td>Household name, categories, locations and spots</td><td>Household only</td><td>None</td><td>Members</td></tr>
@@ -69,6 +73,18 @@
           <li><b>D7</b> Most suggestions per day is 1 to 20, default 2, in the web form and in chat. (Settles the 0 to 20 against 1 to 10 question.)</li>
           <li><b>D8</b> Household food statements are open to any member, as D5. Person-level statements stay unrestricted. (Settles the household-food-needs-an-owner question.)</li>
         </ul>
+      </div>
+      <div>
+        <h2>Food rules <span class="prop">Owner, voice, 10 Oct 2026</span></h2>
+        <p>Decided as food F1 to F10 in <code>docs/knowledge/user-preferences/food-preferences.md</code>. What the Food card now draws:</p>
+        <ul>
+          <li><b>Avoid</b> is for good and a hard exclusion (no end date). "Never suggest" is gone as a separate kind; it was the same thing.</li>
+          <li><b>Likes and dislikes</b> are soft weighting. They may end on their own ("for the next two weeks", then neutral again); with no end they stand. The time comes from what was said, so the screen has no date field, only a <i>Keep it for good</i> button.</li>
+          <li><b>Limit</b> caps how often something may be suggested ("at most twice a week"), checked against recent meals.</li>
+          <li><b>A category</b> (Spicy) holds the rule, what the person said, and recipes attached by reference. Titles are read from Recipe each time. The assistant creates it, notices recipes that look like a match and offers them: open Spicy to see it.</li>
+          <li>Ingredient level (peanuts) and category level are not headed on the screen; a row is just a rule.</li>
+        </ul>
+        <p style="margin-top:8px"><span class="prop">Proposal</span> The data shape, the operations and the open questions (Q-F1 on) are in the same file, awaiting the owner. The sample "today" on this page is 10 October 2026.</p>
       </div>
       <div>
         <h2>Open questions</h2>
@@ -92,7 +108,7 @@
       </div>
       <div>
         <h2>Loads</h2>
-        <p>Default path: this page, <code>mine-household.css</code> and <code>mine-household.js</code> (about 53 KB together with this page, no images, no network). <code>mine-household-600.css</code> is for tablet and up and <code>mine-household-1024.css</code> for desktop; each is applied by a media attribute, so a phone does not use them. Nothing is stored. Deferred: nothing needed, the editors are drawn when a row is tapped.</p>
+        <p>Default path: this page, <code>mine-household.css</code> and <code>mine-household.js</code> (about 64 KB together with this page, no images, no network). <code>mine-household-600.css</code> is for tablet and up and <code>mine-household-1024.css</code> for desktop; each is applied by a media attribute, so a phone does not use them. Nothing is stored. Deferred: nothing needed, the editors are drawn when a row is tapped.</p>
       </div>
     </div>
   </div>
