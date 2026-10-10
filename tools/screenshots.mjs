@@ -21,6 +21,7 @@ const SCREENS = [
   ["mid-cook", "fragments/mid-cook/index.html"],
   ["plan-week", "fragments/plan-week/index.html"],
   ["pwa-cta", "fragments/pwa-cta/index.html"],
+  ["preferences-option-a", "fragments/preferences-option-a/index.html"],
   ["recipe-page", "fragments/recipe-page/index.html"],
   ["recipe-search", "fragments/recipe-search/index.html"],
   ["scan-in", "fragments/scan-in/index.html"],

@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Preferences, option A, fragment</title>
+<link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><link rel="stylesheet" href="a.css">
+<script src="../../theme.js"></script></head>
+<body>
+<div class="wrap">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Preferences, option A: one list</h1>
+<p>Fragment. Every preference in one list. Each row shows the value in force for you and where it comes from (built-in default, the household, or you). Open a row and a <b>You / Household</b> switch shows the other level. Fake data, tap everything. Option B is drawn separately.</p>
+<div class="own-words">The owner believes preferences are recorded per person (member) as well as per household. The model was read first (below), and this option is drawn from what it really holds.<small>Owner belief, relayed 10 October 2026. A design-options request, not a build. Awaiting the owner&rsquo;s approval; nothing here is decided.</small></div>
+
+<div class="pa-ctl">
+  <div class="g" role="group" aria-label="You are"><span class="lab">You are</span><div class="pa-seg"><button type="button" data-pc="as" data-v="owner" aria-pressed="true">Household owner</button><button type="button" data-pc="as" data-v="member" aria-pressed="false">A member</button></div></div>
+  <div class="g" role="group" aria-label="Data"><span class="lab">Data</span><div class="pa-seg"><button type="button" data-pc="data" data-v="some" aria-pressed="true">Some set</button><button type="button" data-pc="data" data-v="empty" aria-pressed="false">Nothing set</button><button type="button" data-pc="data" data-v="norecipe" aria-pressed="false">No Recipe</button></div><button type="button" class="pa-rst" data-pc="reset">Reset</button></div>
+</div>
+<div class="ph" id="ph" aria-label="Preferences screen"><noscript><p class="small" style="padding:16px">This mockup needs script to draw the phone.</p></noscript></div>
+<p class="sm" style="margin-top:8px;text-align:center">Some set shows every state: built-in default, from household, your choice over the household, both read, household only. Nothing set is the first-time state. No Recipe hides the Recipes group, because the household is not entitled to it.</p>
+
+<div class="panel">
+  <b>Did the model hold what the owner believes?</b>
+  <ul>
+    <li><span class="fact">Right</span>In <b>Kitchie</b>: stock-check settings, notes, stops and food likes and avoids are all kept for the household and for each member.</li>
+    <li><span class="fact">Not so</span>In <b>Recipe</b>: stars and votes are kept for the household only. There is no member column, and the signed-in person (<code>sub</code>) is not stored with them.</li>
+    <li><span class="fact">None</span>In <b>platform</b>: no preference is stored. Its session token carries <code>sub</code>, <code>household</code>, <code>products</code> and the times, no role and no owner.</li>
+    <li><span class="fact">Unclear</span>The two levels do not behave the same everywhere: stock-check settings <b>override</b> (member beats household), notes and food claims are <b>added together</b>, and Recipe has <b>one level only</b>. Option A needs a row style for each, not one rule.</li>
+  </ul>
+</div>
+
+<div class="panel">
+  <b>What the model holds</b> <span class="sm">(read from the code, 10 October 2026: Kitchie <code>main</code> at 9d1049c, Recipe at 5cec532, platform at 409f44f)</span>
+  <div class="fc"><h2>Stock-check settings <span class="chip household">Both levels, override</span></h2>
+    <dl><dt>What</dt><dd>Ask to check amounts (<code>enabled</code>, on or off), How proactive (<code>proactivity</code>, quiet, normal or helpful), Quiet hours (<code>quiet_start</code> and <code>quiet_end</code>, HH:MM), Most suggestions per day (<code>daily_cap</code>), Time zone (<code>tz_offset_minutes</code>, -720 to 840).</dd>
+    <dt>Kept</dt><dd><code>stock_prefs (scope, scope_id, key, value)</code>. Scope is <code>household</code> (the household id) or <code>member</code> (the member id). One row per key.</dd>
+    <dt>Combine</dt><dd>Built-in default, then the household&rsquo;s value, then the member&rsquo;s own, key by key. The member wins. Clearing a key falls back one level. The store reports where each value came from (<code>dial_sources</code>: default, household or member).</dd>
+    <dt>Who changes</dt><dd>A member changes their own. A household value needs the household owner (the longest-standing member); anyone else is refused: &ldquo;Only the household owner can change a household-wide setting. Nothing was changed.&rdquo;</dd>
+    <dt>Surfaces</dt><dd>Settings &gt; Stock checks (one switch, then &ldquo;Your settings&rdquo; and &ldquo;Household settings&rdquo; forms; a non-owner sees the household values read-only). Chat: <code>stock_settings</code> (get, set_dial, set_note, stop, remove_stop, list_stops), personal link only, own settings only. Household values are changed in the app only.</dd></dl></div>
+  <div class="fc"><h2>Notes <span class="chip both">Both levels, both read</span></h2>
+    <dl><dt>What</dt><dd>One free-text note for the household and one per member, up to 600 characters, kept as data and read as a preference, never as an instruction.</dd>
+    <dt>Kept</dt><dd><code>notes (scope, scope_id, text)</code>.</dd>
+    <dt>Combine</dt><dd>No override. Both are returned. A member&rsquo;s note is read for that member only; another member&rsquo;s is never read.</dd>
+    <dt>Who changes / surfaces</dt><dd>Same rule and same two forms as the settings above, and <code>stock_settings</code> set_note for the member&rsquo;s own.</dd></dl></div>
+  <div class="fc"><h2>Not asking about (stops and snoozes) <span class="chip member">Person</span></h2>
+    <dl><dt>What</dt><dd>Stop or snooze (a week) stock checks for one item, an area, a category, or everything. A stop gets a check-back later, with growing gaps.</dd>
+    <dt>Kept</dt><dd><code>stock_stops (household_id, member_id, target, target_key, mode)</code>. <code>member_id</code> may be empty in the table and reads count a household-wide stop, but every write today carries the member. A stop on one item covers every member.</dd>
+    <dt>Who changes / surfaces</dt><dd>The member, in the Not asking about list, on a check (Stop asking), or in chat. Not drawn here: it is a list of things, not a value.</dd></dl></div>
+  <div class="fc"><h2>Food likes, dislikes and avoids <span class="chip both">Both levels, added together</span></h2>
+    <dl><dt>What</dt><dd>Claims the person stated: likes, dislikes, avoids, usually, fact, about an item, ingredient, recipe or cuisine. An avoid carries a severity (hard or soft) and a reason (safety or other). Optional meal time and weekday or weekend.</dd>
+    <dt>Kept</dt><dd><code>context_claims</code>; an empty <code>member_id</code> means the whole household.</dd>
+    <dt>Combine</dt><dd>No override. <code>get_context</code> for &ldquo;me&rdquo; returns the member&rsquo;s own and the household&rsquo;s together; for &ldquo;household&rdquo; only the household&rsquo;s. Avoids are always returned. Another member&rsquo;s own claims are never read.</dd>
+    <dt>Who changes</dt><dd>Only through the assistant (<code>give_feedback</code>, who is &ldquo;me&rdquo; or &ldquo;household&rdquo;). The code has no owner check for a household claim, so any member can record one.</dd>
+    <dt>Surfaces</dt><dd>Chat only (<code>get_context</code>, <code>give_feedback</code>). There is no web page for it.</dd></dl></div>
+  <div class="fc"><h2>My assistant <span class="chip member">Person only</span></h2>
+    <dl><dt>What</dt><dd>Which AI app the person uses: Claude, ChatGPT, Gemini, another, or none.</dd>
+    <dt>Kept</dt><dd><code>stock_prefs</code>, scope <code>member</code>, key <code>assistant</code>, mirrored in a cookie on the device. No household value exists.</dd>
+    <dt>Surfaces</dt><dd>A card in Settings. No chat tool.</dd></dl></div>
+  <div class="fc"><h2>Recipe stars and votes <span class="chip only">Household only</span></h2>
+    <dl><dt>What</dt><dd>Starred (yes or no) and vote (-1, 0, 1) on a recipe or a variation, plus how many times it was used and when last.</dd>
+    <dt>Kept</dt><dd>Recipe <code>preferences (target_kind, target_id, starred, vote, times_used, last_used)</code>. The household comes only from the recipe row the preference points at. No member column.</dd>
+    <dt>Who changes</dt><dd>Anyone in a household with Recipe enabled; no owner rule. Every write re-checks the entitlement live.</dd>
+    <dt>Surfaces</dt><dd>Chat only (<code>set_preference</code>, <code>record_usage</code>). Recipe&rsquo;s web pages neither show nor set them.</dd></dl></div>
+  <div class="fc"><h2>Other person-level settings <span class="chip member">Person</span></h2>
+    <dl><dt>Plan the week</dt><dd>Usual days off cooking (<code>plan_stencil</code>) and one-off blocked days (<code>plan_blocks</code>) are per member. Already drawn in <code>fragments/plan-week-ai/</code>, so not repeated here.</dd>
+    <dt>Me screen</dt><dd>Name, picture and kitchen role are per member.</dd></dl></div>
+  <div class="fc"><h2>Not in the data model <span class="chip default">This device</span></h2>
+    <dl><dt>What</dt><dd>Theme (a cookie), item name size and the seven display switches (this browser). They follow the device, not the person, so they are not in this list.</dd></dl></div>
+</div>
+
+<div class="panel">
+  <b>How option A uses it</b> <span class="sm">Every line is a <span class="prop">Proposal</span> unless marked as a model rule. Numbered A-1 to A-10 so they can be picked apart; none is an owner decision.</span>
+  <ol>
+    <li><b>A-1</b> One list, grouped by what the row is about (Stock checks, Food and taste, Notes, Assistant, Recipes), not by who owns it. The switch is how you see the other level.</li>
+    <li><b>A-2</b> A closed row shows the value in force for the viewer and a chip for where it comes from: <i class="chip default">Built-in default</i> <i class="chip household">From household</i> <i class="chip member">Your choice</i>. A personal choice also says what it overrides (&ldquo;Overrides household: Quiet&rdquo;). Words carry the meaning; colour only backs it up.</li>
+    <li><b>A-3</b> The You / Household switch lives inside the open row (one row open at a time), You first. Detail on demand, not a switch on every closed row.</li>
+    <li><b>A-4</b> On You, the first choice is &ldquo;Same as household (value)&rdquo;, which clears the person&rsquo;s own value. On Household, the first choice is &ldquo;Built-in default (value)&rdquo;. Both mirror the existing Stock checks form.</li>
+    <li><b>A-5</b> A pick saves at once and says &ldquo;Saved&rdquo;; there is no Save button. Today&rsquo;s forms have one, but the store already writes one key at a time.</li>
+    <li><b>A-6</b> <span class="fact">Model rule</span>Read-only: a member who is not the household owner sees the household value and a lock line on the Household side. This is the only read-only state the model has, so it is the only one drawn.</li>
+    <li><b>A-7</b> Rows that do not override get their own chip and a plain line: &ldquo;Both are read&rdquo; (notes), &ldquo;Added together&rdquo; (food), &ldquo;Household only&rdquo; (Recipe), and for My assistant the Household half of the switch is struck out. The switch never promises an override the model does not have.</li>
+    <li><b>A-8</b> Food claims and Recipe stars are shown but not edited here. The assistant is the only way in for food; stars and votes are set on each recipe.</li>
+    <li><b>A-9</b> The Recipes group is not drawn when the household has no Recipe (platform D6: no hint of a product the household does not have).</li>
+    <li><b>A-10</b> One layout at every width. It is a Settings sub-screen, so on desktop it keeps the phone column like the rest of the household flow, and tablet only relaxes the page. No viewport-specific file was needed.</li>
+  </ol>
+</div>
+
+<div class="panel dash">
+  <b>Open questions</b> <span class="sm">and what a wrong guess costs</span>
+  <ul>
+    <li>Is the household owner Kitchie&rsquo;s longest-standing member, or platform&rsquo;s <code>owner_member_id</code> (the creator, "creator is owner for now")? They can differ in platform mode. A wrong guess lets the wrong person edit shared values.</li>
+    <li>A person cannot override household quiet hours with &ldquo;none&rdquo;: saying none clears their own value, so the household&rsquo;s applies. Intended? A wrong guess leaves someone unable to opt out of a household rule.</li>
+    <li>Most suggestions per day is 1 to 10 in the form and 0 to 20 in the store and in chat. Which is the rule?</li>
+    <li>Quiet start and end are two keys that chat can set separately, so a person could have one from the household and one of their own. The form needs both. Treat the pair as one preference?</li>
+    <li>Any member can record a food claim for the whole household, and one person cannot switch off a household avoid. Intended, or should a household claim need the owner?</li>
+    <li>Should Recipe stars and votes get a person level (who starred it)? Today shared favourites hide individual taste, and a wrong guess means a Recipe schema change later.</li>
+    <li>Does Preferences replace Settings &gt; Stock checks (it holds the same data), or sit above it? A wrong guess means two screens writing the same keys.</li>
+    <li>Household-wide stops: the table allows them, nothing writes them. Needed?</li>
+    <li>Should a member who is not the owner see household values at all? Today they do, read-only.</li>
+    <li>Which option leads, A or B?</li>
+  </ul>
+</div>
+
+<div class="panel">
+  <b>Performance note</b> (<a href="../../DESIGN.md" style="text-decoration:underline">DESIGN.md section 6</a>)
+  <ul>
+    <li><b>Default path loads</b>: this page, the shared theme and stylesheet, <code>a.css</code> (about 10 KB) and <code>a.js</code> (about 22 KB, before compression). No images and no icon files; the row icons are emoji.</li>
+    <li><b>Deferred until engaged</b>: in the real app a closed row needs only the values (the stock-check read is two small queries, one per level). A row&rsquo;s editor, the note text, the food claims and the Recipe counts load when the row is opened. Recipe counts are asked only for a household that has Recipe. Other themes are separate files fetched on choice (<code>theme.js</code>).</li>
+    <li><b>Why reasonable now</b>: it is a settings screen reached on purpose, so one small read on entry is enough.</li>
+  </ul>
+</div>
+</div>
+<script src="a.js"></script>
+</body>
+</html>

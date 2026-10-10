@@ -9,6 +9,7 @@ What we have learned and decided about the product, written so it can be carried
 - `people-settings.md`: Settings > People split into Me and Household: what is on each, removing people, leaving with a typed name.
 - `locations-spots.md`: Settings > Kitchen locations (parents) and spots (children): three management options, proposals, open questions.
 - `desktop-layout.md`: desktop (1024px and up) as a left rail, an off-centre column and a side panel that sits one gutter from the list; settled direction, proposals, open questions.
+- `preferences-option-a.md`: what the code holds for person and household preferences, and option A (one list, a You / Household switch per row); awaiting approval, A-1 to A-10 are proposals.
 - `user-preferences/`: how the system learns about people and decides what to act on (evidence grades, thresholds). Start with `evidence-grading.md`; the tool contract is in `boundary-contract.md`.
 
 Capture what the owner says. Do not add proposals of your own here. If something is a proposal, mark it as one and say who asked for it.

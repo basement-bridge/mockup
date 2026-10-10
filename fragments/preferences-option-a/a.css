@@ -1,0 +1,126 @@
+/* Preferences, option A: one list, a You / Household switch on each row.
+   Tokens only (theme.css). No viewport-specific rules: the screen is a Settings sub-screen, so it keeps the phone column at every width
+   (DESIGN.md section 7, household-flow frame). Control names follow the household flow where the control already exists (.seg2, .chip, .lbl, .small, .btn). */
+
+.pa-ctl{display:flex;flex-direction:column;gap:8px;margin:14px 0 8px}
+.pa-ctl .g{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pa-ctl .lab{font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted);min-width:64px}
+.pa-seg{display:inline-flex;flex-wrap:wrap;gap:4px;padding:3px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface)}
+.pa-seg button{min-height:var(--tap);padding:0 14px;border-radius:var(--r-pill);border:0;background:none;color:var(--fg);font:600 13px var(--body);cursor:pointer}
+.pa-seg button[aria-pressed=true]{background:var(--accent);color:var(--on-accent)}
+.pa-rst{min-height:var(--tap);min-width:var(--tap);padding:0 16px;border:1px solid var(--border);border-radius:var(--r-pill);background:var(--surface);color:var(--fg);font:600 13px var(--body);cursor:pointer}
+
+/* The phone */
+.ph{position:relative;width:100%;max-width:390px;height:720px;margin:0 auto;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-phone);overflow:hidden;font-size:15px;line-height:1.4;color:var(--fg)}
+.ph button,.ph input,.ph textarea{font-family:inherit}
+.scr{height:100%;overflow-y:auto;overscroll-behavior:contain;padding:12px 16px 96px;display:flex;flex-direction:column;gap:12px}
+.scr>*{flex:none}
+.hd{display:flex;align-items:center;gap:6px}
+.hd h3{font-family:var(--head);font-size:1.4rem;margin:0;flex:1;line-height:1.1}
+.bk{min-height:var(--tap);min-width:var(--tap);padding:0 10px 0 4px;background:none;border:0;color:var(--accent);font-weight:700;font-size:15px;cursor:pointer;text-align:left}
+.small{font-size:13px;color:var(--muted)}
+.lbl{font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted);margin-top:6px}
+.lbl small{text-transform:none;letter-spacing:0;font-weight:500;margin-left:6px}
+
+/* Source chips: the three places a value can come from. Words carry the meaning, colour only backs it up. */
+.chip{display:inline-flex;align-items:center;gap:4px;font-style:normal;font-size:12px;font-weight:700;padding:3px 9px;border-radius:var(--r-pill);background:var(--bg);border:1px solid var(--border);color:var(--fg);white-space:nowrap}
+.chip.default{color:var(--muted);border-style:dashed}
+.chip.household{color:var(--sage);border-color:var(--sage)}
+.chip.member{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.chip.both{color:var(--fg);border-color:var(--fg)}
+.chip.only{color:var(--sage);border-color:var(--sage);border-style:dashed}
+.legend{display:flex;gap:6px;flex-wrap:wrap}
+
+.pa-empty{display:flex;gap:12px;align-items:center;padding:14px;border:1px dashed var(--border);border-radius:var(--r-card)}
+.pa-empty .e{font-size:34px;line-height:1}
+.pa-empty b{display:block;font-size:15px}
+.pa-empty p{font-size:13px}
+
+/* The list */
+.prefs{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden}
+.pref{border-top:1px solid var(--border)}
+.pref:first-child{border-top:0}
+.pref-h{display:flex;align-items:center;gap:12px;width:100%;min-height:64px;padding:8px 12px 8px 14px;background:none;border:0;color:var(--fg);text-align:left;cursor:pointer}
+.pref-h .pi{font-size:22px;width:28px;text-align:center;flex:none}
+.pref-h .pt{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.pref-h .pt b{font-size:15px;line-height:1.2}
+.pref-h .ps{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.pref-h .pv{flex:none;max-width:42%;text-align:right;font-weight:700;font-size:14px;overflow-wrap:anywhere}
+.pref-h .chev{flex:none;color:var(--muted);transition:transform .15s}
+.pref[data-open=true] .chev{transform:rotate(90deg)}
+.pref-b{padding:4px 14px 16px;display:flex;flex-direction:column;gap:10px;border-top:1px dashed var(--border);background:var(--bg)}
+.pref-b[hidden]{display:none}
+.pref-b>p{font-size:13px;color:var(--muted)}
+.pref-b>p.why{color:var(--fg)}
+
+/* The scope switch */
+.seg2{display:flex;padding:3px;border-radius:.8rem;background:var(--surface);border:1px solid var(--border);margin-top:10px}
+.seg2 button{flex:1;min-height:var(--tap);padding:0 12px;border-radius:.65rem;border:0;background:none;font-weight:700;font-size:13px;color:var(--muted);cursor:pointer}
+.seg2 button.on{background:var(--accent);color:var(--on-accent)}
+.seg2 button[aria-disabled=true]{opacity:.45;cursor:not-allowed;text-decoration:line-through}
+
+/* Radios (same look as the other settings pickers) */
+.rads{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-ctl);overflow:hidden}
+.rad{display:flex;align-items:center;gap:10px;min-height:48px;width:100%;padding:6px 14px;border:0;border-top:1px solid var(--border);background:none;color:var(--fg);font-size:15px;text-align:left;cursor:pointer}
+.rad:first-child{border-top:0}
+.rad i{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);flex:none}
+.rad[aria-checked=true] i{border-color:var(--accent);background:radial-gradient(circle,var(--accent) 45%,transparent 50%)}
+.rad[aria-checked=true]{font-weight:700}
+.rad small{display:block;font-weight:400;font-size:12px;color:var(--muted)}
+.rad .rt{flex:1;min-width:0}
+
+/* Fields */
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fr label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:700;color:var(--muted)}
+.field{width:100%;min-height:48px;border-radius:var(--r-ctl);background:var(--surface);border:1px solid var(--border);padding:0 14px;color:var(--fg);font-size:16px}
+textarea.field{padding:12px 14px;min-height:88px;resize:none;font-size:15px}
+.step{display:flex;align-items:center;gap:10px}
+.step button{width:var(--tap);height:var(--tap);border-radius:50%;border:1px solid var(--border);background:var(--surface);color:var(--fg);font-size:20px;font-weight:700;cursor:pointer}
+.step button:disabled{opacity:.4;cursor:default}
+.step output{min-width:2ch;text-align:center;font-weight:800;font-size:18px}
+.own{padding:10px 14px 14px;display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--border)}
+.count{font-size:12px;color:var(--muted);text-align:right}
+
+/* Read-only */
+.ro{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border:1px dashed var(--border);border-radius:var(--r-ctl);background:var(--surface)}
+.ro .e{font-size:20px;line-height:1.2}
+.ro b{display:block}
+.ro p{font-size:13px;color:var(--muted)}
+.quote{padding:12px 14px;border-radius:var(--r-ctl);background:var(--surface);border:1px solid var(--border);color:var(--fg);white-space:pre-wrap;overflow-wrap:anywhere}
+
+/* Claims */
+.claims{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-ctl);overflow:hidden}
+.claims li{display:flex;align-items:center;gap:10px;min-height:48px;padding:6px 14px;border-top:1px solid var(--border)}
+.claims li:first-child{border-top:0}
+.claims .ct{flex:1;min-width:0}
+.claims small{display:block;color:var(--muted);font-size:12px}
+.claims.none{padding:14px;text-align:center;color:var(--muted);font-size:13px}
+
+.btn{display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:var(--r-ctl);background:var(--accent);color:var(--on-accent);font-weight:700;width:100%;text-align:center;padding:0 16px;border:0;cursor:pointer;font-size:15px}
+.btn.ghost{background:none;border:1px solid var(--border);color:var(--fg);font-weight:600}
+
+.tst{position:absolute;left:12px;right:12px;bottom:12px;z-index:7;display:flex;align-items:center;gap:8px;padding:4px 14px;min-height:52px;border-radius:var(--r-card);background:var(--fg);color:var(--bg);font-size:14px;font-weight:600}
+.tst[hidden]{display:none}
+
+/* Notes under the phone */
+.own-words{margin:14px 0 0;padding:12px 14px;border-left:4px solid var(--accent);background:var(--surface);border-radius:0 var(--r-card) var(--r-card) 0;color:var(--fg);font-size:14px}
+.own-words small{display:block;color:var(--muted);margin-top:4px;font-size:12px}
+.prop{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:1px 8px;border-radius:var(--r-pill);border:1px solid var(--accent);color:var(--accent);margin-right:6px;white-space:nowrap}
+.fact{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:1px 8px;border-radius:var(--r-pill);border:1px solid var(--sage);color:var(--sage);margin-right:6px;white-space:nowrap}
+.panel{margin-top:18px;padding:14px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface)}
+.panel.dash{background:none;border-style:dashed}
+.panel ul{margin:8px 0 0;padding:0;list-style:none}
+.panel li{margin:8px 0;font-size:14px;color:var(--fg)}
+.panel li b{color:var(--accent)}
+.panel code{font-size:12px;overflow-wrap:anywhere}
+.fc{margin-top:14px;padding-top:12px;border-top:1px solid var(--border)}
+.fc h2{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:1.05rem;margin:0 0 6px}
+.fc dl{margin:0;display:grid;gap:6px}
+.fc dt{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.fc dd{margin:0 0 4px;font-size:14px;color:var(--fg);overflow-wrap:anywhere}
+.panel ol{margin:8px 0 0;padding-left:18px}
+.panel ol li{margin:6px 0}
+.sm{font-size:12px;color:var(--muted)}
+.approve{display:inline-block;margin-top:8px}
+
+@media (prefers-reduced-motion:reduce){.pref-h .chev{transition:none}}
