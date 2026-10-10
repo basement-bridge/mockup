@@ -1,0 +1,121 @@
+/* Preferences, option B (Mine and Household). PHONE FIRST: this file is the phone and the shared base. Nothing here is tablet or desktop only.
+   Tablet and up is mine-household-600.css, desktop is mine-household-1024.css, each linked with a media attribute (AGENTS.md: viewport specific code in its own file).
+   Tokens only (theme.css); no raw colours. The screen rules (everything under .sp) copy Kitchie's sub-screen.ts SUB_CSS and layout.ts values so they can be lifted into the app.
+   Classes that are NEW to the family are marked "new control": .prow, .pbtn, .src (source chip), .popt, .ped, .frow, .empty. They go to the shared styles if the owner picks this option. */
+
+/* ---------- page chrome (mockup only, not part of the screen) ---------- */
+.mh-pg .tag{display:inline-block;margin-top:var(--sp-2)}
+.mh-sub{font-size:15px;margin-top:var(--sp-1)}
+.mh-ctl{display:flex;flex-direction:column;gap:var(--sp-3);margin:var(--sp-4) 0 var(--sp-2)}
+.mh-g{display:flex;flex-direction:column;gap:var(--sp-1)}
+.mh-lab{font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.mh-seg{display:flex;padding:3px;border-radius:.8rem;background:var(--surface);border:1px solid var(--border)}
+.mh-seg button{flex:1;min-height:var(--tap);padding:0 12px;border-radius:.65rem;font:700 13px var(--body);color:var(--muted);background:none;border:0;cursor:pointer}
+.mh-seg button[aria-pressed=true]{background:var(--accent);color:var(--on-accent)}
+.mh-jump{display:flex;gap:6px;flex-wrap:wrap;margin:var(--sp-2) 0 var(--sp-2)}
+.mh-jump a{display:inline-flex;align-items:center;min-height:var(--tap);padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font:600 13px var(--body)}
+.mh-state{font-size:13px;margin:var(--sp-2) 0 0}
+/* the screen sits full width of the page on a phone, edge to edge, so it is drawn at the true viewport width */
+.mh-frame{margin:var(--sp-3) calc(-1*var(--gutter)) 0;background:var(--bg);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.mh-notes{margin-top:var(--sp-5);display:flex;flex-direction:column;gap:var(--sp-4)}
+.mh-notes h2{font-size:1.1rem;margin:0 0 var(--sp-1)}
+.mh-notes p,.mh-notes li{font-size:14px;line-height:1.5}
+.mh-notes ul{margin:var(--sp-1) 0 0;padding-left:1.1rem;color:var(--muted)}
+.mh-notes li{margin:4px 0}
+.mh-notes code{font-size:12.5px}
+.mh-notes table{margin-top:var(--sp-2);font-size:13px}
+.mh-notes td,.mh-notes th{padding:6px 6px}
+.mh-notes .prop{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:1px 8px;border-radius:var(--r-pill);border:1px solid var(--accent);color:var(--accent);margin-right:6px;white-space:nowrap}
+.mh-notes .tblwrap{overflow-x:auto}
+.mh-notes .sec2{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:14px}
+
+/* ---------- the screen: Kitchie's sub-screen frame (sub-screen.ts SUB_CSS), values unchanged ---------- */
+.sp{--g:20px;position:relative;padding:20px var(--g) 28px;font-family:var(--body);color:var(--fg);background:var(--bg);font-size:16px;line-height:1.45}
+.sp *,.sp *::before,.sp *::after{box-sizing:border-box}
+.sp button,.sp input,.sp textarea,.sp select{font:inherit;color:inherit}
+.sp .mtop{height:60px;margin:-20px calc(-1*var(--g)) 20px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.sp .mtop .back{display:inline-flex;align-items:center;min-height:44px;min-width:64px;color:var(--accent);font-family:var(--body);font-size:15px;font-weight:600;text-decoration:none}
+.sp .mtop .ttl{margin:0;font-family:var(--body);font-weight:700;font-size:16px;line-height:1.2}
+.sp .mbody{display:flex;flex-direction:column;gap:16px}
+.sp .mbody>*{margin-top:0;margin-bottom:0}
+.sp .mbody2{display:flex;flex-direction:column;gap:16px}
+.sp p{margin:0;color:var(--muted);font-size:15px;line-height:1.45}
+.sp p.small,.sp .small{font-size:13px}
+.sp .lbl{margin:0;display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.sp .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:18px;display:flex;flex-direction:column;gap:8px;text-align:left;width:100%}
+.sp .sgroup{gap:2px}
+.sp .banner{padding:.7rem 1rem;border:1px solid var(--accent);border-radius:1rem;background:var(--surface);font-size:14px}
+.sp .note{color:var(--muted);font-size:.9rem}
+.sp .note.ro{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--surface);font-size:14px}
+.sp .note.ro svg{flex:none;margin-top:2px;color:var(--muted)}
+.sp .btn{display:flex;align-items:center;justify-content:center;min-height:52px;border-radius:var(--r-ctl);background:var(--accent);color:var(--on-accent);font-weight:700;width:100%;text-align:center;padding:0 16px;border:0;cursor:pointer}
+.sp .btn.ghost{background:none;border:1px solid var(--border);color:var(--fg);font-weight:600;min-height:52px;border-radius:18px}
+.sp .btn.ghost.danger{color:var(--danger);border-color:var(--danger)}
+.sp .lnk{display:inline-flex;align-items:center;min-height:44px;padding:0;background:none;border:0;color:var(--accent);font-weight:700;cursor:pointer;text-align:left;text-decoration:underline;text-underline-offset:3px}
+/* the two-segment switch: the app's .seg2 (here two tabs) */
+.sp .seg2{display:flex;padding:3px;border-radius:.8rem;background:var(--bg);border:1px solid var(--border);margin:0;min-width:0}
+.sp .seg2 button{flex:1;display:flex;align-items:center;justify-content:center;min-height:44px;padding:0 12px;border:0;border-radius:.65rem;background:none;font-weight:700;font-size:13px;color:var(--muted);cursor:pointer}
+.sp .seg2 button.on{background:var(--accent);color:var(--on-accent)}
+.sp .seg2.wide{width:100%}
+.sp :focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.sp .card :focus-visible{outline-offset:-3px}
+
+/* new control: a preference row. Same height and type as the app's .srow / .menu rows; the chip says where the value comes from. */
+.sp .prow{border-top:1px solid var(--border)}
+.sp .sgroup>.prow:first-child,.sp .sgroup>.frow:first-child{border-top:0}
+.sp .pbtn{display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:8px 0;text-align:left;background:none;border:0;color:var(--fg);cursor:pointer;font:inherit}
+.sp .prow.static .pbtn{cursor:default}
+.sp .pt{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.sp .pl{font-weight:600;font-size:16px;overflow-wrap:anywhere}
+.sp .pv{font-size:14px;color:var(--muted);overflow-wrap:anywhere}
+.sp .pv b{color:var(--fg);font-weight:600}
+.sp .pv.clamp{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.sp .pw{font-size:13px;color:var(--muted);line-height:1.35}
+.sp .chev{flex:none;color:var(--muted);display:inline-flex}
+.sp .fs{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.sp .muted{color:var(--muted)}
+/* new control: the source chip. Words carry the meaning; colour and border style only reinforce it. */
+.sp .src{flex:none;font-size:12px;font-weight:700;padding:4px 10px;border-radius:var(--r-pill);border:1px solid var(--border);white-space:nowrap;color:var(--fg);background:var(--bg)}
+.sp .src.you{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.sp .src.hh{color:var(--sage);border-color:var(--sage);background:none}
+.sp .src.bi{color:var(--muted);border-style:dashed;background:none}
+.sp .legend{display:flex;flex-direction:column;gap:6px}
+.sp .legend span.lg{display:flex;align-items:center;gap:8px}
+.sp .legend .src{padding:2px 8px;font-size:11px;min-width:74px;text-align:center}
+/* the inline editor under a row (item fields pattern: read first, tap to edit, saves as you choose) */
+.sp .ped{padding:2px 0 16px;display:flex;flex-direction:column;gap:10px}
+.sp .plist{display:flex;flex-direction:column;gap:8px}
+.sp .popt{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:48px;padding:0 14px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--bg);color:var(--fg);font-weight:600;font-size:15px;text-align:left;cursor:pointer}
+.sp .popt[aria-checked=true]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.sp .popt .ck{flex:none;width:20px;height:20px;border-radius:50%;border:2px solid var(--border)}
+.sp .popt[aria-checked=true] .ck{border-color:var(--accent);background:var(--accent);box-shadow:inset 0 0 0 3px var(--bg)}
+.sp .ped label{font-weight:600;font-size:14px}
+.sp .fld{min-height:52px;width:100%;border-radius:var(--r-ctl);background:var(--bg);border:1px solid var(--border);padding:0 14px;font-size:16px}
+.sp textarea.fld{padding:12px 14px;min-height:96px;resize:vertical;font-size:15px}
+.sp fieldset.two{display:grid;grid-template-columns:1fr 1fr;gap:0 .6rem;margin:0;padding:0;border:0;min-width:0}
+.sp fieldset.two legend{padding:0 0 4px;font-weight:600;font-size:14px}
+.sp fieldset.two label{display:block;margin-top:.25rem}
+.sp fieldset.two input{width:100%;min-height:52px;border-radius:var(--r-ctl);background:var(--bg);border:1px solid var(--border);padding:0 14px;font-size:16px}
+.sp .saved{color:var(--sage);font-weight:700}
+.sp .acts{display:flex;flex-direction:column;gap:8px}
+/* food statements */
+.sp .flist{list-style:none;margin:0;padding:0}
+.sp .frow{border-top:1px solid var(--border)}
+.sp .flist>.frow:first-child{border-top:0}
+.sp .empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:14px 8px;color:var(--muted)}
+.sp .empty b{color:var(--fg);font-size:16px}
+.sp .empty svg{color:var(--accent);margin-bottom:2px}
+/* read-only facts (layout.ts dl.facts) and the stops list (layout.ts ul.stops), values unchanged */
+.sp dl.facts{margin:.1rem 0 0}
+.sp dl.facts div{display:flex;justify-content:space-between;gap:1rem;min-height:48px;align-items:center;border-top:1px solid var(--border)}
+.sp dl.facts div:first-child{border-top:0}
+.sp dl.facts dt{color:var(--muted);font-size:15px;flex:none;white-space:nowrap}
+.sp dl.facts dd{margin:0;text-align:right;overflow-wrap:anywhere;display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;align-items:center;font-weight:600}
+.sp ul.stops{list-style:none;margin:.2rem 0 0;padding:0}
+.sp ul.stops li{display:flex;align-items:center;gap:.6rem;min-height:56px;padding:.3rem 0;border-top:1px solid var(--border)}
+.sp ul.stops li:first-child{border-top:0}
+.sp ul.stops .sname{flex:1 1 auto;min-width:0;overflow-wrap:anywhere;font-weight:600}
+.sp ul.stops .swhat{display:block;color:var(--muted);font-size:.85rem;font-weight:400}
+.sp ul.stops .btn{width:auto;min-height:44px;padding:0 14px;border:1px solid var(--border);border-radius:99px;background:none;color:var(--fg);font-size:14px;font-weight:600;flex:none}
+@media (prefers-reduced-motion:no-preference){.sp .ped{animation:mhIn .14s ease-out}}
+@keyframes mhIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}

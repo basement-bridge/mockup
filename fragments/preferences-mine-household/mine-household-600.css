@@ -1,0 +1,6 @@
+/* Preferences, option B: TABLET AND UP (600px and wider). Linked with media="(min-width:600px)", so a phone never applies it.
+   Tablet is the same single column, relaxed (DESIGN.md section 7): the screen is drawn as a centred phone-width card instead of edge to edge. */
+.mh-frame{margin:var(--sp-3) auto 0;max-width:390px;border:1px solid var(--border);border-radius:var(--r-phone);overflow:hidden}
+.mh-ctl{flex-direction:row;flex-wrap:wrap;gap:var(--sp-4) var(--sp-5)}
+.mh-g{min-width:240px}
+.mh-notes{max-width:640px;margin-left:auto;margin-right:auto}

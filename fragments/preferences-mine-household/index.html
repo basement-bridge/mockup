@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Preferences, option B, fragment</title>
+<link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><link rel="stylesheet" href="mine-household.css">
+<link rel="stylesheet" href="mine-household-600.css" media="(min-width:600px)">
+<link rel="stylesheet" href="mine-household-1024.css" media="(min-width:1024px)">
+<script src="../../theme.js"></script></head>
+<body>
+<div class="wrap mh-pg">
+  <a class="back" href="../../">&lsaquo; All mockups</a><br>
+  <span class="tag">Mockup, awaiting approval &middot; Option B</span>
+  <h1>Mine and Household, two sections</h1>
+  <p class="mh-sub">One Preferences screen with two tabs. Mine is about you: every row shows the value in force and where it comes from. Household is the kitchen's own list, managed there and nowhere else.</p>
+
+  <div class="mh-ctl">
+    <div class="mh-g" role="group" aria-label="View as"><span class="mh-lab">View as</span><div class="mh-seg"><button type="button" data-pc="as" data-v="sam" aria-pressed="true">Sam, a member</button><button type="button" data-pc="as" data-v="arjan" aria-pressed="false">Arjan, founding member</button></div></div>
+    <div class="mh-g" role="group" aria-label="Data"><span class="mh-lab">Data</span><div class="mh-seg"><button type="button" data-pc="data" data-v="typical" aria-pressed="true">Some set</button><button type="button" data-pc="data" data-v="empty" aria-pressed="false">Nothing set yet</button></div></div>
+  </div>
+  <div class="mh-jump" aria-label="States to look at">
+    <a href="?as=sam&amp;tab=mine&amp;open=me:proactivity">Overridden by you</a>
+    <a href="?as=sam&amp;tab=mine&amp;open=me:quiet">Inherited from household</a>
+    <a href="?as=sam&amp;tab=mine&amp;open=me:enabled">Built-in</a>
+    <a href="?as=sam&amp;tab=hh">Household, read-only for Sam</a>
+    <a href="?as=arjan&amp;tab=hh&amp;open=hh:proactivity">Household, Arjan edits</a>
+    <a href="?as=sam&amp;tab=mine&amp;data=empty">Nothing set yet</a>
+  </div>
+  <p class="mh-state" id="mh-state" aria-live="polite"></p>
+
+  <div class="mh-cols">
+    <div class="mh-frame"><div id="app" aria-live="polite"><noscript><p style="padding:20px">This mockup needs script to draw the screen.</p></noscript></div></div>
+
+    <div class="mh-notes">
+      <div>
+        <h2>What this option does</h2>
+        <ul>
+          <li><b>Two places, one per scope.</b> Mine holds what you chose. Household holds what the kitchen chose. A value is never edited in the wrong place.</li>
+          <li><b>Mine shows the value in force and where it comes from.</b> A chip on each row says <i>Yours</i>, <i>Household</i> or <i>Built-in</i>. An overridden row also says what the household has. Pick <i>Same as household</i> to drop your own choice (the code clears the value, so the next level applies).</li>
+          <li><b>Household is managed on its own tab.</b> The founding member sees the same rows as editors. Everyone else sees them as a read-only list, which is what Kitchie shows a non-owner today.</li>
+          <li><b>Things with one scope say so.</b> My assistant and kitchen role are only yours. Household name, categories, locations and Recipe stars and votes are only the household's, with no personal version to override.</li>
+          <li><b>Notes and food are added together, not swapped.</b> Your note and the household note are both read. Your food statements and the household's are both used.</li>
+        </ul>
+      </div>
+      <div class="sec2">
+        <h2>Good for, and costs</h2>
+        <p><b>Good for:</b> "whose is this?" is answered by where you are, not by reading a chip. The household's rules can be looked at, and changed by the right person, without any of your own choices in the way. The read-only state is a whole screen, so it is easy to explain.</p>
+        <p style="margin-top:8px"><b>Costs:</b> to see a household default while you are on Mine, you follow the link under the row or switch tab. Two tabs mean one more tap than a single list. The household tab repeats the five stock rows.</p>
+      </div>
+      <div>
+        <h2>What the code really holds</h2>
+        <div class="tblwrap"><table>
+          <tr><th>Preference</th><th>Lives at</th><th>How it combines</th><th>Who changes it</th></tr>
+          <tr><td>Stock-check settings: on or off, how proactive, quiet hours, most per day, time zone</td><td>Person and household</td><td>Override, key by key: built-in, then household, then person</td><td>You change yours. The founding member changes the household's.</td></tr>
+          <tr><td>Notes (up to 600 characters)</td><td>Person and household</td><td>Both read. Yours is private to you.</td><td>Same as above</td></tr>
+          <tr><td>Food: avoids, never suggest, usually, likes, dislikes</td><td>Person and household</td><td>Added together. Safety avoidances always shown.</td><td>Said to the assistant by any member, for self or for everyone</td></tr>
+          <tr><td>Stops and snoozes</td><td>Person (a stop on one item covers everyone)</td><td>None</td><td>The person</td></tr>
+          <tr><td>My assistant, kitchen role</td><td>Person only</td><td>None</td><td>The person</td></tr>
+          <tr><td>Household name, categories, locations and spots</td><td>Household only</td><td>None</td><td>Members</td></tr>
+          <tr><td>Recipe star, vote, times used</td><td>Household only, per recipe</td><td>None: one record per recipe, no member on it</td><td>Any member, through the assistant</td></tr>
+          <tr><td>Theme, name size, display switches</td><td>This device only</td><td>None</td><td>The device</td></tr>
+        </table></div>
+        <p style="margin-top:8px">Platform stores no preferences. Its session token carries only the person, the household and the enabled products.</p>
+      </div>
+      <div>
+        <h2>Open questions</h2>
+        <ul>
+          <li><b>Recipe stars and votes are household-wide.</b> There is no per-person star. If you want one, that is a change in Recipe's data (the token already says who is asking). A wrong guess costs a schema change.</li>
+          <li><b>Who is the owner in platform mode?</b> Kitchie treats the longest-standing member as owner. Platform records the household's creator. Kitchie does not read platform's field, and with Kitchie's own sign-in off I read it as no owner at all, so the household rows would be read-only for everyone. Not confirmed by running it.</li>
+          <li><b>Household food needs no owner today.</b> Any member can say or remove a household statement. Stock settings need the owner. Should food follow the same rule?</li>
+          <li><b>No lock.</b> A household value is a default; a member can always override it. Is there anything the household should be able to fix for everyone?</li>
+          <li><b>Most per day:</b> the code allows 0 to 20, the web form 1 to 10. This mockup follows the form.</li>
+          <li><b>Where it lives:</b> as Settings > Preferences next to Stock checks, or replacing Stock checks.</li>
+        </ul>
+      </div>
+      <div>
+        <h2>Proposals <span class="prop">Proposal</span></h2>
+        <p>The owner did not say these. A wrong guess costs a redraw.</p>
+        <ul>
+          <li>Two tabs, Mine first.</li>
+          <li>Rows save the moment you choose (no Save button), like the item fields. Kitchie's page today has Save buttons.</li>
+          <li>The chip words <i>Yours</i>, <i>Household</i>, <i>Built-in</i>, <i>Only you</i>, <i>Everyone</i>, <i>Household only</i>, <i>This device</i>.</li>
+          <li>"Founding member" (the People mockup's word). Kitchie's page says household owner.</li>
+          <li>A web list of food statements with "Stop remembering this". Today there is no web page for them; they are said to the assistant.</li>
+          <li>The household's value is never shown as a count of who overrides it: the code gives no way to ask, and another member's choices stay theirs.</li>
+        </ul>
+      </div>
+      <div>
+        <h2>Loads</h2>
+        <p>Default path: this page, <code>mine-household.css</code> and <code>mine-household.js</code> (about 53 KB together with this page, no images, no network). <code>mine-household-600.css</code> is for tablet and up and <code>mine-household-1024.css</code> for desktop; each is applied by a media attribute, so a phone does not use them. Nothing is stored. Deferred: nothing needed, the editors are drawn when a row is tapped.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="mine-household.js"></script>
+</body></html>

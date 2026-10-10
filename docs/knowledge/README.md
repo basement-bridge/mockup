@@ -11,6 +11,7 @@ What we have learned and decided about the product, written so it can be carried
 - `desktop-layout.md`: desktop (1024px and up) as a left rail, an off-centre column and a side panel that sits one gutter from the list; settled direction, proposals, open questions.
 - `preferences-option-a.md`: what the code holds for person and household preferences, and option A (one list, a You / Household switch per row); awaiting approval, A-1 to A-10 are proposals.
 - `user-preferences/`: how the system learns about people and decides what to act on (evidence grades, thresholds). Start with `evidence-grading.md`; the tool contract is in `boundary-contract.md`.
+- `user-preferences/option-b-mine-and-household.md`: what the code records at person and household level (checked in Recipe, Kitchie and platform), open questions, and Option B (Mine and Household as two sections), awaiting approval.
 
 Capture what the owner says. Do not add proposals of your own here. If something is a proposal, mark it as one and say who asked for it.
 

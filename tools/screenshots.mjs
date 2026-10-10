@@ -20,6 +20,7 @@ const SCREENS = [
   ["locations-spots", "fragments/locations-spots/index.html"],
   ["mid-cook", "fragments/mid-cook/index.html"],
   ["plan-week", "fragments/plan-week/index.html"],
+  ["preferences-mine-household", "fragments/preferences-mine-household/index.html"],
   ["pwa-cta", "fragments/pwa-cta/index.html"],
   ["preferences-option-a", "fragments/preferences-option-a/index.html"],
   ["recipe-page", "fragments/recipe-page/index.html"],

@@ -1,0 +1,5 @@
+/* Preferences, option B: DESKTOP (1024px and wider). Linked with media="(min-width:1024px)", loaded after mine-household-600.css.
+   The Preferences screen keeps its phone column on desktop (household-flow frame, AGENTS.md); only this page's notes move beside it. */
+.mh-cols{display:grid;grid-template-columns:390px minmax(0,1fr);gap:var(--sp-6);align-items:start;margin-top:var(--sp-3)}
+.mh-cols .mh-frame{margin:0;position:sticky;top:var(--sp-4);max-height:calc(100dvh - 32px);overflow:auto}
+.mh-cols .mh-notes{margin:0;max-width:none}
