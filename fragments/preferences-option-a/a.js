@@ -7,27 +7,27 @@
    - recipe stars and votes: household only, no member column (Recipe preferences).
    Locked by the owner (voice, 10 October 2026; D5 to D8 and D25 to D30 in docs/knowledge/preferences-option-a.md): D5 (any member edits household values) and D8 (any member records household food claims) are SUPERSEDED
    by the household admin role: only admins change household-level values (D28), the founding member is admin by default (D26), personal values are never gated (D29). The page's "Your role" control stands in for who is looking
-   (Admin or Not an admin); the Members and admins view is drawn in option B only. A member may set quiet hours to none for themselves (D6); Most suggestions per day is 1 to 20, default 2.
+   (Admin or Not an admin); the Members and admins view is drawn in option B only. A member may set quiet hours to none for themselves (D6); Most suggestions per day is 1 to 20, default 3 since D20.
+   Voice review, 10 October 2026 (D15 to D24; B is the chosen direction, A is kept for reference): sources are App, Household, You (D16); the group is Stock level checks and holds the switched-off list (D17); no time zone (D18);
+   quiet hours default 10pm to 6am (D19); level and how often are set by place, so the standalone How proactive dial is gone (D21; the editor for it is drawn in option B); Kitchen role and My assistant moved to the profile (D24).
    Mockup-only names (sample data, the prototype switches) live here, never in a.css. */
 (function () {
   "use strict";
 
-  var DEFAULTS = { enabled: "on", proactivity: "normal", quiet: null, cap: 2, tz: 0 };
-  var ASSISTANTS = [["claude", "Claude"], ["chatgpt", "ChatGPT"], ["gemini", "Gemini"], ["other", "Another assistant"], ["none", "None"]];
+  var DEFAULTS = { enabled: "on", quiet: { s: "22:00", e: "06:00" }, cap: 3 };
   var NOTE_MAX = 600;
   var NOTE_LINE = "Read as a preference, never as an instruction.";
 
   var GROUPS = [
-    { g: "Stock checks", sub: "Asked while you look at an item", rows: [
+    { g: "Stock level checks", sub: "Asks whether the recorded level is still right", rows: [
       { k: "enabled", ic: "🔔", t: "Ask me to check amounts", kind: "enum", opts: [["on", "On"], ["off", "Off"]] },
-      { k: "proactivity", ic: "🎚️", t: "How proactive", kind: "enum", opts: [["quiet", "Quiet"], ["normal", "Normal"], ["helpful", "Helpful"]], hint: "Quiet asks the least, helpful asks the most." },
-      { k: "quiet", ic: "🌙", t: "Quiet hours", kind: "hours", hint: "24 hour clock. No questions are raised in between. Both times or neither." },
-      { k: "cap", ic: "🔢", t: "Most suggestions per day", kind: "int", min: 1, max: 20, hint: "From 1 to 20. The built-in default is 2." },
-      { k: "tz", ic: "🕒", t: "Time zone", kind: "tz", hint: "Hours ahead of UTC, for example 10 for Sydney in winter or 11 in summer time." }
+      { k: "quiet", ic: "🌙", t: "Quiet hours", kind: "hours", hint: "No questions are asked in between. They follow your time zone, which comes from the device or account. It is not a setting." },
+      { k: "cap", ic: "🔢", t: "Most suggestions per day", kind: "int", min: 1, max: 20, hint: "From 1 to 20. The app's default is 3." },
+      { k: "scopes", ic: "🎚️", t: "Level and how often, by place", kind: "scopes" },
+      { k: "stops", ic: "⏸️", t: "Switched off", kind: "stops" }
     ] },
     { g: "Food and taste", rows: [{ k: "foods", ic: "🍽️", t: "Likes, dislikes and avoids", kind: "claims" }] },
     { g: "Notes", rows: [{ k: "note", ic: "📝", t: "Note for your assistant", kind: "note" }] },
-    { g: "Assistant", rows: [{ k: "assistant", ic: "🤖", t: "My assistant", kind: "assistant" }] },
     { g: "Recipes", needs: "recipe", rows: [{ k: "recipes", ic: "⭐", t: "Starred and voted recipes", kind: "recipes" }] }
   ];
 
@@ -37,16 +37,14 @@
   function isAdmin() { return role === "admin"; } // D28: the one place that decides who may change a household-level value; personal values never ask (D29)
 
   function sample(data) {
-    var s = { recipe: data !== "norecipe", me: {}, house: {}, note: { me: "", house: "" }, assistant: null, foods: { me: [], house: [] }, rec: { star: 0, up: 0, down: 0 } };
+    var s = { recipe: data !== "norecipe", me: {}, house: {}, note: { me: "", house: "" }, foods: { me: [], house: [] }, rec: { star: 0, up: 0, down: 0 }, stops: [] };
     if (data === "empty") return s;
-    s.house.proactivity = "quiet";
-    s.house.quiet = { s: "22:00", e: "07:00" };
-    s.house.tz = 10;
+    s.house.quiet = { s: "21:00", e: "07:00" };
     s.me.quiet = { s: "23:00", e: "06:30" };
     s.me.cap = 5;
-    s.note.house = "We cook mostly vegetarian on weekdays.";
-    s.note.me = "Keep questions short, I am usually mid-cook.";
-    s.assistant = "claude";
+    s.note.house = "Not a nut-free kitchen, check labels before anything goes on the list.";
+    s.note.me = "Tea before talk. Keep questions short.";
+    s.stops = [{ id: "st1", name: "Freezer", what: "Everything in this place. We check back after 2026-11-09" }, { id: "st2", name: "Oat milk", what: "Snoozed. Asks again after 2026-10-17" }];
     s.foods.me = [{ st: "avoids", subj: "shellfish", sev: "hard", why: "safety" }, { st: "likes", subj: "ginger" }];
     s.foods.house = [{ st: "dislikes", subj: "coriander" }];
     if (s.recipe) s.rec = { star: 6, up: 4, down: 2 };
@@ -59,22 +57,20 @@
   /* ---- the value rules (built-in default, then household, then member) ---- */
   function fmt(k, v) {
     if (k === "enabled") return v === "on" ? "On" : "Off";
-    if (k === "proactivity") return cap1(v);
-    if (k === "quiet") return v && v.s ? v.s + " to " + v.e : "None"; // "none" is a choice a member can make over the household's hours (D6)
-    if (k === "cap") return String(v);
-    if (k === "tz") return "UTC" + (v < 0 ? "−" : "+") + Math.abs(v);
+    if (k === "quiet") return v && v.s ? clock(v.s) + " to " + clock(v.e) : "None"; // "none" is a choice a member can make over the household's hours (D6, D19)
     return String(v);
   }
+  function clock(t) { var p = t.split(":"), h = Number(p[0]), h12 = h % 12 === 0 ? 12 : h % 12; return h12 + (p[1] === "00" ? "" : ":" + p[1]) + (h >= 12 ? "pm" : "am"); }
   function below(k) { return S.house[k] !== undefined ? { v: S.house[k], from: "household" } : { v: DEFAULTS[k], from: "default" }; }
   function eff(k) { return S.me[k] !== undefined ? { v: S.me[k], from: "member", below: below(k) } : { v: below(k).v, from: below(k).from, below: below(k) }; }
 
   /* ---- chips and summaries ---- */
   function chip(cls, text) { return '<i class="chip ' + cls + '">' + esc(text) + "</i>"; }
-  function srcChip(from) { return from === "member" ? chip("member", "Your choice") : from === "household" ? chip("household", "From household") : chip("default", "Built-in default"); }
-  function srcWords(e) {
-    if (e.from === "member") return "Overrides " + (e.below.from === "household" ? "household: " : "built-in default: ") + fmt(e.k, e.below.v);
-    if (e.from === "household") return "Same as the household";
-    return "Nobody has set this";
+  function srcChip(from) { return from === "member" ? chip("member", "You") : from === "household" ? chip("household", "Household") : chip("default", "App"); }
+  function srcWords(e) { // sources are App, Household, You (D16)
+    if (e.from === "member") return (e.below.from === "household" ? "Household" : "App") + " says " + fmt(e.k, e.below.v);
+    if (e.from === "household") return "Same as household";
+    return "Same as app default";
   }
 
   function head(def, pv, subHtml) {
@@ -106,15 +102,14 @@
   function editor(def, level) {
     var k = def.k, store = level === "me" ? S.me : S.house, cur = store[k];
     var inheritVal = level === "me" ? below(k).v : DEFAULTS[k];
-    var inheritLabel = (level === "me" ? "Same as household" : "Built-in default") + " (" + fmt(k, inheritVal) + ")";
+    var inheritLabel = (level === "me" && below(k).from === "household" ? "Same as household" : "Same as app default") + " (" + fmt(k, inheritVal) + ")";
     var unset = cur === undefined;
     var out = '<div class="rads" role="radiogroup" aria-label="' + esc(def.t) + '">' + rad("pick", k, "", inheritLabel, "", unset);
     if (def.kind === "enum") {
       def.opts.forEach(function (o) { out += rad("pick", k, o[0], o[1], "", cur === o[0]); });
       out += "</div>";
     } else {
-      var label = def.kind === "hours" ? "Set quiet hours" : def.kind === "int" ? "Set my own number" : "Set a time zone";
-      if (level === "house") label = label.replace("my own", "a");
+      var label = def.kind === "hours" ? (level === "me" ? "My own hours" : "Household hours") : (level === "me" ? "My own number" : "A number for the household");
       var none = def.kind === "hours" && level === "me";
       out += rad("pick", k, "own", label, "", !unset && cur !== "none") + (none ? rad("pick", k, "none", "None, no quiet hours for me", "", cur === "none") : "") + "</div>";
       if (!unset && cur !== "none") out += ownField(def, level, cur);
@@ -129,7 +124,6 @@
     if (def.kind === "int") {
       return '<div class="step" role="group" aria-label="' + esc(def.t) + '"><button type="button" data-act="step" data-k="' + k + '" data-d="-1" data-l="' + level + '" aria-label="One fewer"' + (cur <= def.min ? " disabled" : "") + '>−</button><output aria-live="polite">' + cur + '</output><button type="button" data-act="step" data-k="' + k + '" data-d="1" data-l="' + level + '" aria-label="One more"' + (cur >= def.max ? " disabled" : "") + ">+</button></div>";
     }
-    return '<label class="fr" style="grid-template-columns:1fr"><span class="small">Hours ahead of UTC</span><input class="field" type="text" inputmode="decimal" autocomplete="off" data-k="' + k + '" data-f="tz" data-l="' + level + '" value="' + esc(cur) + '"></label>';
   }
 
   function dialRow(def) {
@@ -141,16 +135,16 @@
       var why, body;
       if (scope === "me") {
         why = e.from === "member"
-          ? "You chose " + fmt(def.k, e.v) + ". " + (e.below.from === "household" ? "The household has " + fmt(def.k, e.below.v) + "." : "Without your choice you would get the built-in default, " + fmt(def.k, e.below.v) + ".")
+          ? "You chose " + fmt(def.k, e.v) + ". " + (e.below.from === "household" ? "The household has " + fmt(def.k, e.below.v) + "." : "Without your choice you would get the app default, " + fmt(def.k, e.below.v) + ".")
           : e.from === "household"
             ? "The household chose " + fmt(def.k, e.v) + ", so that is what you get. Pick one to use your own."
-            : "Nobody has set this, so the built-in default applies: " + fmt(def.k, e.v) + ". Pick one to use your own.";
+            : "Nobody has set this, so the app default applies: " + fmt(def.k, e.v) + ". Pick one to use your own.";
         body = editor(def, "me");
       } else {
         var h = S.house[def.k];
         why = h !== undefined
           ? "The household chose " + fmt(def.k, h) + ". It applies to everyone who has not set their own."
-          : "The household has not set this. Everyone gets the built-in default, " + fmt(def.k, DEFAULTS[def.k]) + ", unless they set their own.";
+          : "The household has not set this. Everyone gets the app default, " + fmt(def.k, DEFAULTS[def.k]) + ", unless they set their own.";
         body = isAdmin() ? editor(def, "house") + anyLine() : lockLine();
       }
       html += '<div class="pref-b" id="b-' + def.k + '">' + scopeSwitch(def, scope) + '<p class="why">' + esc(why) + "</p>" + body + "</div>";
@@ -202,14 +196,27 @@
     return html + "</li>";
   }
 
-  /* ---- assistant: a person's own choice, no household layer ---- */
-  function assistantRow(def) {
-    var a = S.assistant, label = a && a !== "none" ? ASSISTANTS.filter(function (x) { return x[0] === a; })[0][1] : "Not chosen";
-    var sub = a ? chip("member", "Your choice") + "<span>Only yours</span>" : chip("default", "Not set") + "<span>Only yours</span>";
-    var html = '<li class="pref" data-pref="assistant" data-src="member" data-open="' + (UI.open === "assistant") + '">' + head(def, label, sub);
-    if (UI.open === "assistant") {
-      html += '<div class="pref-b" id="b-assistant">' + scopeSwitch(def, "me", "house") + '<p class="why">Everyone picks their own app. There is no household version.</p><div class="rads" role="radiogroup" aria-label="My assistant">' +
-        ASSISTANTS.map(function (x) { return rad("assistant", "assistant", x[0], x[1], "", (a || "none") === x[0]); }).join("") + '</div><p class="small">The AI app you use with Kitchie. The plan’s button opens it with a starting message, and you take it from there.</p></div>';
+  /* ---- level and how often, by place (D21): drawn in full in option B, here as a read-only summary ---- */
+  function scopesRow(def) {
+    var sub = chip("member", "You") + "<span>Set by place, most specific wins</span>";
+    var html = '<li class="pref" data-pref="scopes" data-src="member" data-open="' + (UI.open === "scopes") + '">' + head(def, "Helpful", sub);
+    if (UI.open === "scopes") {
+      html += '<div class="pref-b" id="b-scopes"><p class="why">The old How proactive dial is gone. The same quiet, normal or helpful level, and how often to check, are set for the whole kitchen, a category, a location with a spot, or one item. The most specific one wins.</p>' +
+        '<ul class="claims"><li><span aria-hidden="true">🥛</span><span class="ct">Milk: once a week<small>Item, in Fridge (Door), Dairy</small></span></li><li><span aria-hidden="true">🥩</span><span class="ct">Proteins in Freezer: quiet<small>I do not need to know about it</small></span></li><li><span aria-hidden="true">🏠</span><span class="ct">Everything else: helpful<small>Household says quiet</small></span></li></ul>' +
+        '<p class="small">Option B draws the editor for these. Option A only shows the result.</p></div>';
+    }
+    return html + "</li>";
+  }
+
+  /* ---- switched-off list (the per-item stop-asking control), part of the same group (D17) ---- */
+  function stopsRow(def) {
+    var n = S.stops.length;
+    var sub = chip("member", "You") + "<span>" + (n ? "Things you told Kitchie to stop asking about" : "Nothing is switched off") + "</span>";
+    var html = '<li class="pref" data-pref="stops" data-src="member" data-open="' + (UI.open === "stops") + '">' + head(def, n ? n + " switched off" : "None", sub);
+    if (UI.open === "stops") {
+      html += '<div class="pref-b" id="b-stops"><p class="why">A switch-off always wins over a rule. A stop on one item covers every member.</p>' + (n ? '<ul class="claims">' + S.stops.map(function (x) {
+        return '<li><span class="ct">' + esc(x.name) + "<small>" + esc(x.what) + '</small></span><button type="button" class="btn ghost" data-act="askagain" data-id="' + x.id + '" aria-label="Ask again about ' + esc(x.name) + '">Ask again</button></li>';
+      }).join("") + "</ul>" : '<div class="claims none">Nothing is switched off. Use Stop asking on a check, or tell the assistant.</div>') + "</div>";
     }
     return html + "</li>";
   }
@@ -231,7 +238,7 @@
   }
 
   function nothingSet() {
-    return !Object.keys(S.me).length && !Object.keys(S.house).length && !S.note.me && !S.note.house && !S.assistant && !S.foods.me.length && !S.foods.house.length && !S.rec.star && !S.rec.down && !S.rec.up;
+    return !Object.keys(S.me).length && !Object.keys(S.house).length && !S.note.me && !S.note.house && !S.stops.length && !S.foods.me.length && !S.foods.house.length && !S.rec.star && !S.rec.down && !S.rec.up;
   }
 
   /* ---- the screen ---- */
@@ -239,13 +246,13 @@
     var scr = document.querySelector("#ph .scr"), top = scr ? scr.scrollTop : 0;
     var h = '<div class="scr"><div class="hd"><button type="button" class="bk" data-act="proto" data-m="Back to Settings">‹ Settings</button><h3>Preferences</h3></div>' +
       '<p class="small">Each row shows the value in force for you, and where it comes from. Open a row to see the household’s value, and to change it if you are a household admin.</p>' +
-      '<div class="legend" aria-label="Where a value comes from">' + chip("default", "Built-in default") + chip("household", "From household") + chip("member", "Your choice") + "</div>";
-    if (nothingSet()) h += '<div class="pa-empty"><span class="e" aria-hidden="true">🌱</span><div><b>Nothing set yet</b><p>Everything follows the built-in defaults. Change a row when you want it your way.</p></div></div>';
+      '<div class="legend" aria-label="Where a value comes from">' + chip("default", "App") + chip("household", "Household") + chip("member", "You") + "</div>";
+    if (nothingSet()) h += '<div class="pa-empty"><span class="e" aria-hidden="true">🌱</span><div><b>Nothing set yet</b><p>Everything follows the app defaults. Change a row when you want it your way.</p></div></div>';
     GROUPS.forEach(function (g) {
       if (g.needs === "recipe" && !S.recipe) return;
       h += '<span class="lbl">' + esc(g.g) + (g.sub ? "<small>" + esc(g.sub) + "</small>" : "") + '</span><ul class="prefs">';
       g.rows.forEach(function (d) {
-        h += d.kind === "note" ? noteRow(d) : d.kind === "claims" ? foodsRow(d) : d.kind === "assistant" ? assistantRow(d) : d.kind === "recipes" ? recipesRow(d) : dialRow(d);
+        h += d.kind === "note" ? noteRow(d) : d.kind === "claims" ? foodsRow(d) : d.kind === "scopes" ? scopesRow(d) : d.kind === "stops" ? stopsRow(d) : d.kind === "recipes" ? recipesRow(d) : dialRow(d);
       });
       h += "</ul>";
     });
@@ -268,7 +275,7 @@
     if (v === undefined || v === null) delete store[k]; else store[k] = v;
     return true;
   }
-  function ownDefault(k) { return k === "quiet" ? { s: "22:00", e: "07:00" } : k === "cap" ? 3 : 10; }
+  function ownDefault(k) { return k === "quiet" ? { s: "22:00", e: "06:00" } : 3; }
   function level() { return (UI.scope[UI.open] || "me"); }
 
   function onClick(ev) {
@@ -289,7 +296,7 @@
       var nv = Math.max(def.min, Math.min(def.max, cur + Number(b.getAttribute("data-d"))));
       write(l2, k, nv); render(); say("Saved"); return;
     }
-    if (act === "assistant") { S.assistant = b.getAttribute("data-v"); render(); say("Saved"); return; }
+    if (act === "askagain") { var sid = b.getAttribute("data-id"); S.stops = S.stops.filter(function (x) { return x.id !== sid; }); render(); return; }
     if (act === "proto") { say(b.getAttribute("data-m")); }
   }
 
@@ -301,11 +308,6 @@
     if (f === "s" || f === "e") {
       if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(ev.target.value)) { render(); say("Use a time like 22:00."); return; }
       store[k] = { s: store[k].s, e: store[k].e }; store[k][f] = ev.target.value; render(); say("Saved"); return;
-    }
-    if (f === "tz") {
-      var n = Number(ev.target.value.replace(",", "."));
-      if (!/^[+-]?\d{1,2}(\.\d{1,2})?$/.test(ev.target.value.trim()) || n < -12 || n > 14) { render(); say("Time zone is hours ahead of UTC, from -12 to 14."); return; }
-      store[k] = n; render(); say("Saved");
     }
   }
   function onInput(ev) {

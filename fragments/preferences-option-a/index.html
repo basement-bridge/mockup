@@ -6,7 +6,7 @@
 <div class="wrap">
 <a class="back" href="../../">&lsaquo; All mockups</a>
 <h1>Preferences, option A: one list</h1>
-<p>Fragment. Every preference in one list. Each row shows the value in force for you and where it comes from (built-in default, the household, or you). Open a row and a <b>You / Household</b> switch shows the other level. Fake data, tap everything. Option B is drawn separately.</p>
+<p>Fragment. Every preference in one list. Each row shows the value in force for you and where it comes from (the app, the household, or you). Open a row and a <b>You / Household</b> switch shows the other level. Fake data, tap everything. Option B is drawn separately and is the <b>chosen direction</b> (D15); this option is kept for reference.</p>
 <div class="own-words">The owner believes preferences are recorded per person (member) as well as per household. The model was read first (below), and this option is drawn from what it really holds.<small>Owner belief, relayed 10 October 2026. A design-options request, not a build. Awaiting the owner&rsquo;s approval; nothing here is decided.</small></div>
 
 <div class="pa-ctl">
@@ -14,7 +14,7 @@
   <div class="g" role="group" aria-label="Your role"><span class="lab">Your role</span><div class="pa-seg"><button type="button" data-pc="role" data-v="admin" aria-pressed="true">Household admin</button><button type="button" data-pc="role" data-v="member" aria-pressed="false">Not an admin</button></div></div>
 </div>
 <div class="ph" id="ph" aria-label="Preferences screen"><noscript><p class="small" style="padding:16px">This mockup needs script to draw the phone.</p></noscript></div>
-<p class="sm" style="margin-top:8px;text-align:center">Some set shows every state: built-in default, from household, your choice over the household (quiet hours can be set to none), both read, household only. Only a household admin can change the Household side; switch Your role to see the read-only version. Nothing set is the first-time state. No Recipe hides the Recipes group, because the household is not entitled to it.</p>
+<p class="sm" style="margin-top:8px;text-align:center">Some set shows every state: app default, household, your choice over the household (quiet hours can be set to none), both read, household only. Only a household admin can change the Household side; switch Your role to see the read-only version. Nothing set is the first-time state. No Recipe hides the Recipes group, because the household is not entitled to it.</p>
 
 <div class="panel">
   <b>Did the model hold what the owner believes?</b>
@@ -68,8 +68,8 @@
 <div class="panel">
   <b>How option A uses it</b> <span class="sm">Every line is a <span class="prop">Proposal</span> unless marked as a model rule or as superseded. Numbered A-1 to A-10 so they can be picked apart. The owner's decisions are D5 to D8, in the next panel.</span>
   <ol>
-    <li><b>A-1</b> One list, grouped by what the row is about (Stock checks, Food and taste, Notes, Assistant, Recipes), not by who owns it. The switch is how you see the other level.</li>
-    <li><b>A-2</b> A closed row shows the value in force for the viewer and a chip for where it comes from: <i class="chip default">Built-in default</i> <i class="chip household">From household</i> <i class="chip member">Your choice</i>. A personal choice also says what it overrides (&ldquo;Overrides household: Quiet&rdquo;). Words carry the meaning; colour only backs it up.</li>
+    <li><b>A-1</b> One list, grouped by what the row is about (Stock level checks, Food and taste, Notes, Recipes), not by who owns it. The switch is how you see the other level.</li>
+    <li><b>A-2</b> A closed row shows the value in force for the viewer and a chip for where it comes from: <i class="chip default">App</i> <i class="chip household">Household</i> <i class="chip member">You</i>. A personal choice also says what it overrides (&ldquo;Overrides household: Quiet&rdquo;). Words carry the meaning; colour only backs it up.</li>
     <li><b>A-3</b> The You / Household switch lives inside the open row (one row open at a time), You first. Detail on demand, not a switch on every closed row.</li>
     <li><b>A-4</b> On You, the first choice is &ldquo;Same as household (value)&rdquo;, which clears the person&rsquo;s own value. On Household, the first choice is &ldquo;Built-in default (value)&rdquo;. Both mirror the existing Stock checks form.</li>
     <li><b>A-5</b> A pick saves at once and says &ldquo;Saved&rdquo;; there is no Save button. Today&rsquo;s forms have one, but the store already writes one key at a time.</li>
@@ -86,7 +86,7 @@
   <ul>
     <li><b>D5</b> <span class="fact">Superseded by D25</span> (10 Oct 2026) Household-level settings and edits: <b>any</b> household member may edit them. No owner concept, no tenure gate, no restriction. The owner explicitly deferred any earn-your-way, tenure-based gate to a later decision; it is deferred, not forgotten, and nothing here builds it in.</li>
     <li><b>D6</b> Quiet hours: any member may override the household's quiet hours down to <i>none</i> for themselves. No restriction. (The quiet-hours editor on You has a <i>None</i> choice.)</li>
-    <li><b>D7</b> Most suggestions per day: 1 to 20, default 2. The web form (was 1 to 10) and the chat surface (was 0 to 20) both use it.</li>
+    <li><b>D7</b> Most suggestions per day: 1 to 20, default 2 (the default was later revised to 3, D20). The web form (was 1 to 10) and the chat surface (was 0 to 20) both use it.</li>
     <li><b>D8</b> <span class="fact">Superseded by D28</span> (10 Oct 2026) Household-level food claims (for example &ldquo;we don&rsquo;t eat pork&rdquo;) are open to any member, consistent with D5. Person-level food statements stay unrestricted.</li>
   </ul>
   <p class="sm">D5 and D8 are kept as given, with their history. The owner introduced the household admin role later on 10 October 2026.</p>
@@ -104,9 +104,23 @@
   </ul>
 </div>
 
+<div class="panel">
+  <b>Voice review, 10 October 2026</b> <span class="sm">Owner. Recorded as D15 to D24 in the option B notes. What changed in this option:</span>
+  <ul>
+    <li><b>D16</b> The sources are App, Household and You. The chips say so, and an open row's first choice reads &ldquo;Same as household (value)&rdquo; or &ldquo;Same as app default (value)&rdquo;. (A-2 and A-4 updated.)</li>
+    <li><b>D17</b> &ldquo;Stock checks&rdquo; is now <b>Stock level checks</b> and holds the switched-off list (the existing per-item stop-asking control).</li>
+    <li><b>D18</b> No time zone row: checks use the account or device time zone.</li>
+    <li><b>D19</b> Quiet hours: app default 10pm to 6am; the household may set its own; a person may set their own or None.</li>
+    <li><b>D20</b> Most suggestions per day is 1 to 20, default <b>3</b> (revises D7's default of 2; D7 stays on record).</li>
+    <li><b>D21</b> The standalone How proactive dial is removed. Level and how often are set by place (whole kitchen, category, location with spot, item; most specific wins). This option shows the result read-only; option B draws the editor.</li>
+    <li><b>D22</b> Ask me to check amounts is on by default. <b>D24</b> My assistant and kitchen role left Preferences for the profile, so the Assistant group is gone.</li>
+  </ul>
+</div>
+
 <div class="panel dash">
   <b>Open questions</b> <span class="sm">and what a wrong guess costs. The questions that D5 to D8 settled are removed.</span>
   <ul>
+    <li>The owner's voice review of 10 October 2026 (D15 to D24) changed this option too: see the panel above. Its open questions (Q-V1 to Q-V6) are in <code>docs/knowledge/user-preferences/option-b-mine-and-household.md</code>.</li>
     <li>Admin rights: do admins have exactly the founding member's rights, or does the founding member alone grant and revoke admin and remove members? Can the last admin be removed or step down?</li>
     <li>What a non-admin sees: read-only with &ldquo;Only household admins can change this&rdquo; (drawn here) or hidden? Who can see who is an admin (drawn in option B: everyone)?</li>
     <li>Household values already set when roles arrive (drawn: they stay, now changed by admins only). Does the household quiet-hours default need an admin (drawn: yes)?</li>

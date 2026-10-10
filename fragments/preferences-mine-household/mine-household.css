@@ -80,7 +80,7 @@
 .sp .src{flex:none;font-size:12px;font-weight:700;padding:4px 10px;border-radius:var(--r-pill);border:1px solid var(--border);white-space:nowrap;color:var(--fg);background:var(--bg)}
 .sp .src.you{background:var(--accent);color:var(--on-accent);border-color:transparent}
 .sp .src.hh{color:var(--sage);border-color:var(--sage);background:none}
-.sp .src.bi{color:var(--muted);border-style:dashed;background:none}
+.sp .src.app,.sp .src.dev{color:var(--muted);border-style:dashed;background:none}
 .sp .legend{display:flex;flex-direction:column;gap:6px}
 .sp .legend span.lg{display:flex;align-items:center;gap:8px}
 .sp .legend .src{padding:2px 8px;font-size:11px;min-width:74px;text-align:center}
@@ -121,4 +121,7 @@
 .sp ul.stops .btn{width:auto;min-height:44px;padding:0 14px;border:1px solid var(--border);border-radius:99px;background:none;color:var(--fg);font-size:14px;font-weight:600;flex:none}
 @media (prefers-reduced-motion:no-preference){.sp .ped{animation:mhIn .14s ease-out}}
 @keyframes mhIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
-.sp .foodcard>.note{margin-top:8px}
+.sp .foodcard>.note,.sp .notescard>.note{margin-top:8px}
+/* a heading line inside a card (the Stock level checks group), and the profile sketch beside the notes */
+.sp .prow.grp .pbtn{min-height:0;padding:14px 0 6px}
+.sp .prow.grp{border-top:1px solid var(--border)}

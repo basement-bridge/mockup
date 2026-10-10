@@ -124,3 +124,4 @@ textarea.field{padding:12px 14px;min-height:88px;resize:none;font-size:15px}
 .approve{display:inline-block;margin-top:8px}
 
 @media (prefers-reduced-motion:reduce){.pref-h .chev{transition:none}}
+.claims li .btn{width:auto;flex:none;min-height:44px;padding:0 14px}

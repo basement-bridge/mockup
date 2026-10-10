@@ -8,26 +8,33 @@
 <body>
 <div class="wrap mh-pg">
   <a class="back" href="../../">&lsaquo; All mockups</a><br>
-  <span class="tag">Mockup, awaiting approval &middot; Option B</span>
+  <span class="tag">Chosen direction &middot; Option B</span>
   <h1>Mine and Household, two sections</h1>
-  <p class="mh-sub">One Preferences screen with two tabs. Mine is about you: every row shows the value in force and where it comes from. Household is the kitchen's own list, managed there and nowhere else, and only household admins can change it.</p>
+  <p class="mh-sub">One Preferences screen with two tabs. Mine is about you: every row shows the value in force and where it comes from (App, Household or You). Household is the kitchen's own list, managed there and nowhere else, and only household admins can change it. <b>Chosen direction</b> (owner, 10 Oct 2026, D15): Option A stays for reference, Option C builds on this.</p>
 
   <div class="mh-ctl">
     <div class="mh-g" role="group" aria-label="View as"><span class="mh-lab">View as</span><div class="mh-seg"><button type="button" data-pc="as" data-v="sam" aria-pressed="true">Sam</button><button type="button" data-pc="as" data-v="arjan" aria-pressed="false">Arjan</button><button type="button" data-pc="as" data-v="jo" aria-pressed="false">Jo</button></div><span class="mh-state" style="margin:0">Arjan is the founding member, Jo an admin, Sam a member.</span></div>
     <div class="mh-g" role="group" aria-label="Data"><span class="mh-lab">Data</span><div class="mh-seg"><button type="button" data-pc="data" data-v="typical" aria-pressed="true">Some set</button><button type="button" data-pc="data" data-v="nosubs" aria-pressed="false">No substitutions</button><button type="button" data-pc="data" data-v="empty" aria-pressed="false">Nothing set yet</button></div></div>
   </div>
   <div class="mh-jump" aria-label="States to look at">
-    <a href="?as=sam&amp;tab=mine&amp;open=me:proactivity">Overridden by you</a>
-    <a href="?as=sam&amp;tab=mine&amp;open=me:quiet">Inherited from household</a>
-    <a href="?as=sam&amp;tab=mine&amp;open=me:enabled">Built-in</a>
-    <a href="?as=arjan&amp;tab=hh&amp;open=hh:proactivity">Household, an admin edits</a>
-    <a href="?as=sam&amp;tab=hh&amp;open=hh:proactivity">Household, read-only for a member</a>
+    <a href="?as=arjan&amp;tab=mine&amp;open=me:daily_cap">Yours over the household</a>
+    <a href="?as=sam&amp;tab=mine&amp;open=me:quiet">Same as household</a>
+    <a href="?as=sam&amp;tab=mine&amp;open=me:enabled">Same as app default</a>
+    <a href="?as=arjan&amp;tab=hh&amp;open=hh:quiet">Household, an admin edits</a>
+    <a href="?as=sam&amp;tab=hh&amp;open=hh:quiet">Household, read-only for a member</a>
     <a href="?as=sam&amp;tab=hh&amp;open=hh:note">Household note, read-only</a>
     <a href="?as=arjan&amp;view=members">Members and admins, founding member</a>
     <a href="?as=jo&amp;view=members">Members and admins, an admin</a>
     <a href="?as=sam&amp;view=members">Members and admins, a member</a>
     <a href="?as=sam&amp;tab=mine&amp;open=me:quiet">Quiet hours, none for me</a>
+    <a href="?as=sam&amp;tab=mine&amp;open=me:rule:ru2">Rule: milk once a week</a>
+    <a href="?as=sam&amp;tab=mine&amp;open=me:rule:ru3">Rule: proteins in the freezer, quiet</a>
+    <a href="?as=sam&amp;tab=mine&amp;open=me:probe">What applies to milk</a>
+    <a href="?as=sam&amp;tab=mine&amp;open=me:all">Everything else</a>
+    <a href="?as=sam&amp;tab=mine&amp;open=me:note">Notes, side by side</a>
     <a href="?as=sam&amp;tab=mine&amp;data=empty">Nothing set yet</a>
+    <a href="?as=sam&amp;tab=mine&amp;to=profile-demo">Profile: one assistant linked</a>
+    <a href="?as=arjan&amp;tab=mine&amp;to=profile-demo">Profile: two linked, choose a default</a>
     <a href="?as=sam&amp;tab=mine&amp;open=me:c9">Food: category with a limit and a suggestion</a>
     <a href="?as=sam&amp;tab=mine&amp;open=me:c10">Food: dislike that ends on its own</a>
     <a href="?as=sam&amp;tab=mine&amp;open=me:c1">Food: avoid, no end</a>
@@ -48,11 +55,12 @@
         <h2>What this option does</h2>
         <ul>
           <li><b>Two places, one per scope.</b> Mine holds what you chose. Household holds what the kitchen chose. A value is never edited in the wrong place.</li>
-          <li><b>Mine shows the value in force and where it comes from.</b> A chip on each row says <i>Yours</i>, <i>Household</i> or <i>Built-in</i>. An overridden row also says what the household has. Pick <i>Same as household</i> to drop your own choice (the code clears the value, so the next level applies).</li>
+          <li><b>Mine shows the value in force and where it comes from.</b> The sources are <i>App</i>, then <i>Household</i>, then <i>You</i> (D16), and a chip on each row says which one is in force. Open a row and its first choice reads <i>Same as household (value)</i>, or <i>Same as app default (value)</i> when the household has set nothing, with the real value in brackets. A line under it shows the chain. Picking that choice drops your own value (the code clears it, so the next level applies).</li>
+          <li><b>Stock level checks</b> (renamed, D17) ask whether the level Kitchie has recorded is still right; they are not about the amount. The group holds the switch, quiet hours, the daily limit, level and how often by place (D21), and the switched-off list. There is no time zone row (D18) and no separate &ldquo;How proactive&rdquo; dial.</li>
           <li><b>Household is managed on its own tab, by household admins.</b> An admin sees the rows as editors. A member who is not an admin sees the same rows read-only, with one line: <i>Only household admins can change this.</i> (D25 to D28; this replaces D5, which let any member edit.) Everything on Mine stays editable by everyone (D29).</li>
           <li><b>Members and admins.</b> A small view under Household. The founding member (the person who set the household up) is an admin by default and can make another member an admin, or take it back, one person at a time (D26, D27).</li>
-          <li><b>Things with one scope say so.</b> My assistant and kitchen role are only yours. Household name, categories, locations and Recipe stars and votes are only the household's, with no personal version to override.</li>
-          <li><b>Notes and food are added together, not swapped.</b> Your note and the household note are both read. Your food statements and the household's are both used.</li>
+          <li><b>Things with one scope say so.</b> Household name, categories, locations and Recipe stars and votes are only the household's, with no personal version to override. Kitchen role and the assistant moved out of Preferences into your profile (D24); the sketch at the end of this page shows both.</li>
+          <li><b>Notes and food are added together, not swapped.</b> Your note (chip <i>You</i>) and the household note (chip <i>Household</i>) sit side by side and are both read (D23). Your food statements and the household's are both used.</li>
         </ul>
       </div>
       <div class="sec2">
@@ -64,11 +72,11 @@
         <h2>What the code really holds</h2>
         <div class="tblwrap"><table>
           <tr><th>Preference</th><th>Lives at</th><th>How it combines</th><th>Who changes it</th></tr>
-          <tr><td>Stock-check settings: on or off, how proactive, quiet hours, most per day, time zone</td><td>Person and household</td><td>Override, key by key: built-in, then household, then person</td><td>You change yours. Household admins change the household's (D28; today only the longest-standing member can, and that check is replaced by an admin check).</td></tr>
+          <tr><td>Stock level check settings: on or off, quiet hours, most per day, and level and how often by place (D21). The code still stores how proactive and a time zone; this screen drops both (D18, D21)</td><td>Person and household</td><td>Override, key by key: built-in, then household, then person</td><td>You change yours. Household admins change the household's (D28; today only the longest-standing member can, and that check is replaced by an admin check).</td></tr>
           <tr><td>Notes (up to 600 characters)</td><td>Person and household</td><td>Both read. Yours is private to you.</td><td>Same as above</td></tr>
           <tr><td>Food: avoids, likes, dislikes; "usually" becomes substitutions (plus "never suggest", which this option drops)</td><td>Person and household</td><td>Added together. Safety avoidances always shown. No end date and no frequency limit yet; no recipes attached.</td><td>Said to the assistant: by you for yourself; for everyone, by a household admin only (D28, replaces D8)</td></tr>
           <tr><td>Stops and snoozes</td><td>Person (a stop on one item covers everyone)</td><td>None</td><td>The person</td></tr>
-          <tr><td>My assistant, kitchen role</td><td>Person only</td><td>None</td><td>The person</td></tr>
+          <tr><td>Kitchen role, and the assistant link (both moved to the profile, D24)</td><td>Person only</td><td>None</td><td>The person</td></tr>
           <tr><td>Household name, categories, locations and spots</td><td>Household only</td><td>None</td><td>Household admins</td></tr>
           <tr><td>Recipe star, vote, times used</td><td>Household only, per recipe</td><td>None: one record per recipe, no member on it</td><td>Any member, through the assistant</td></tr>
           <tr><td>Theme, name size, display switches</td><td>This device only</td><td>None</td><td>The device</td></tr>
@@ -81,7 +89,7 @@
         <ul>
           <li><b>D5</b> <span class="prop">Superseded 10 Oct 2026 by D25 to D28</span> Household-level settings and edits: <b>any</b> member may edit. No owner concept, no tenure gate, no restriction. The owner explicitly deferred any earn-your-way, tenure-based gating to a later decision; deferred, not forgotten, and not built in. (Settles the owner-in-platform-mode question: there is no owner.)</li>
           <li><b>D6</b> A member may set quiet hours to <i>none</i> for themselves, over the household's. No restriction.</li>
-          <li><b>D7</b> Most suggestions per day is 1 to 20, default 2, in the web form and in chat. (Settles the 0 to 20 against 1 to 10 question.)</li>
+          <li><b>D7</b> Most suggestions per day is 1 to 20, default 2, in the web form and in chat. (Settles the 0 to 20 against 1 to 10 question.) The default was later revised to 3 (D20); the range stands.</li>
           <li><b>D8</b> <span class="prop">Superseded 10 Oct 2026 by D28</span> Household food statements are open to any member, as D5. Person-level statements stay unrestricted. (Settles the household-food-needs-an-owner question.)</li>
         </ul>
         <p style="margin-top:8px">D5 and D8 are kept as given, with their history. The owner introduced the household admin role later on 10 October 2026, so household-level edits are no longer open to every member.</p>
@@ -137,6 +145,64 @@
           <li>A web list of food statements with "Stop remembering this". Today there is no web page for them; they are said to the assistant.</li>
           <li>The household's value is never shown as a count of who overrides it: the code gives no way to ask, and another member's choices stay theirs.</li>
         </ul>
+      </div>
+      <div>
+        <h2>Voice review, 10 Oct 2026 <span class="prop">Owner</span></h2>
+        <p>Recorded as <b>D15 to D24</b> in <code>docs/knowledge/user-preferences/option-b-mine-and-household.md</code>. What changed on this screen:</p>
+        <ul>
+          <li><b>D15</b> Option B is the chosen direction. A is kept for reference; C builds on B.</li>
+          <li><b>D16</b> The sources are App, Household and You. Chips say so, and an open row says &ldquo;Same as household (value)&rdquo; or &ldquo;Same as app default (value)&rdquo;.</li>
+          <li><b>D17</b> &ldquo;Stock checks&rdquo; is now <b>Stock level checks</b>, and the switched-off list sits inside it (it is the existing per-item stop-asking control).</li>
+          <li><b>D18</b> No time zone setting. Checks use the account or device time zone.</li>
+          <li><b>D19</b> Quiet hours: app default 10pm to 6am, the household may set its own, any person may set their own, including None (no quiet hours for them at all). A person's own row is always theirs to change.</li>
+          <li><b>D20</b> Most suggestions per day: 1 to 20, default <b>3</b> (revises D7's default of 2; D7 stays on record).</li>
+          <li><b>D21</b> Level (quiet, normal, helpful) and how often are set by place: the whole kitchen, a category, a location with a spot, or one item. The most specific wins. The standalone &ldquo;How proactive&rdquo; dial is removed.</li>
+          <li><b>D22</b> Ask me to check amounts is on by default.</li>
+          <li><b>D23</b> Household and personal notes sit side by side, both read, neither overriding. Mine and Household tabs, chips <i>You</i> and <i>Household</i>.</li>
+          <li><b>D24</b> Kitchen role and the assistant leave Preferences for the profile. Kitchen role stays a free label. One linked assistant is used automatically; with more than one the person picks a default.</li>
+        </ul>
+      </div>
+      <div class="sec2">
+        <h2>Worked example: milk <span class="prop">Sample data</span></h2>
+        <p>Milk is in the Fridge, on the Door spot, in the Dairy category. Sam's rules: <i>Milk, once a week</i> (item); <i>Proteins in Freezer, quiet</i> (category in a location); <i>Everything else, helpful</i>. The household's: <i>Everything else, quiet</i>. Use <b>What applies to an item</b> on Mine to try each item.</p>
+        <div class="tblwrap"><table>
+          <tr><th>Item</th><th>Rules that reach it</th><th>Level</th><th>How often</th></tr>
+          <tr><td>Milk (Fridge, Door, Dairy)</td><td>Milk (item), Everything (Sam), Everything (household)</td><td>Helpful, from Sam's everything</td><td>Once a week, from the item rule</td></tr>
+          <tr><td>Chicken thighs (Freezer, Proteins)</td><td>Proteins in Freezer, Everything</td><td>Quiet: &ldquo;I don't need to know about it&rdquo;</td><td>The app decides</td></tr>
+          <tr><td>Pasta (Pantry, Dry goods)</td><td>Everything only</td><td>Helpful</td><td>The app decides</td></tr>
+        </table></div>
+        <p style="margin-top:8px">Each of level and how often is picked on its own. The app's defaults stand until someone sets one: normal, and the app choosing when to ask about each item. No numbers are invented. The order is item, then category in a location, then category or location, then everything else. A switch-off always wins over any rule.</p>
+      </div>
+      <div>
+        <h2>Open questions, voice review <span class="prop">Open</span></h2>
+        <ul>
+          <li><b>Q-V1 Household name.</b> It is set-up, not a preference. Should it move out of Preferences? The owner's answer was unclear, so nothing moved. A wrong guess costs one row.</li>
+          <li><b>Q-V2 Your broad rule against the household's narrow one.</b> If the household says &ldquo;Fridge: every 3 days&rdquo; and you say &ldquo;Everything: helpful&rdquo;, the screen applies the narrow one first, and at the same place You win over Household. Is that right, or do your rules always win? A wrong guess changes the resolve order.</li>
+          <li><b>Q-V3 Category against location.</b> When Dairy says one thing and Fridge says another, which wins? Not stated. The screen shows a &ldquo;not decided&rdquo; line instead of picking.</li>
+          <li><b>Q-V4 Notes that disagree.</b> The owner wants the AI to surface it (&ldquo;your household wants this, you want this&rdquo;) but the rest was unclear: told to whom, and when? Nothing is drawn. The sample itself shows one: the household note says the kitchen is not nut-free while the food list avoids peanuts.</li>
+          <li><b>Q-V5 Household None.</b> A person may pick None for quiet hours. May the household too? Not said, so the household can only set hours.</li>
+          <li><b>Q-V6 &ldquo;Per day&rdquo; today.</b> The code applies the limit to each read of due checks (never more than 10), not over the whole day, so 11 to 20 has no effect yet. Count the day, or keep it per read?</li>
+        </ul>
+      </div>
+      <div>
+        <h2>What the code would change <span class="prop">Not built</span></h2>
+        <p>Read only, Kitchie 9d1049c, platform 409f44f, 10 Oct 2026.</p>
+        <ul>
+          <li><b>Chips and &ldquo;Same as&rdquo; (D16).</b> <code>dial_sources</code> already says default, household or member; the page maps them to App, Household, You and also needs the value of the level below. No data change.</li>
+          <li><b>Rename and stops (D17).</b> Copy only: Settings &gt; Stock checks becomes Stock level checks. The Not asking about list (<code>stock_stops</code>, unchanged) moves into the same card. A stop on one item still covers every member.</li>
+          <li><b>Time zone (D18).</b> Drop <code>tz_offset_minutes</code> from <code>DIAL_KEYS</code>, the form and the chat tool. Today it is a fixed offset, so it is wrong for half the year in a place with summer time. Keep each member's time zone name from the browser (<code>localtime.js</code> already reads the viewer's zone) and pass it to <code>localDate</code>, <code>inQuietHours</code> and <code>checkDue</code>; chat-only members use the last zone seen, then UTC. Inferred, not a preference.</li>
+          <li><b>Quiet hours (D19).</b> <code>DEFAULT_DIALS</code> gets 22:00 and 06:00 (today null, so no quiet hours). A member's None must be a stored value that beats the household's (today it clears the value); <code>dialsFor</code> reports it as the member's.</li>
+          <li><b>Daily limit (D20).</b> The code default is already 3 (D7's plan to make it 2 was never built, so nothing changes). The web form (max 10) and chat (0 to 20) both become 1 to 20.</li>
+          <li><b>Level and how often by place (D21).</b> A new table of rules (household or member, scope kind, category, area, spot or item, level, days) and one pure resolver next to <code>checkDue</code> that picks each key from the most specific rule, then the app. <code>proactivity</code> is stored today but nothing reads it, so it is migrated into a whole-kitchen rule and removed. Chat gets set, list and remove for rules. Stops are checked first.</li>
+          <li><b>Check amounts (D22).</b> <code>enabled</code> is already true in <code>DEFAULT_DIALS</code>. Nothing to build.</li>
+          <li><b>Notes (D23).</b> <code>getStockSettings</code> already returns both notes. The page shows them together; no data change.</li>
+          <li><b>Kitchen role and assistant (D24).</b> The role row is already on the Me page. The My assistant card (<code>stock_prefs</code> key <code>assistant</code>, cookie <code>kitchie_assistant</code>) moves there and is derived: platform's <code>/api/member</code> says only <code>ai_linked</code> (yes or no), so it must also return the names of the clients linked by sign-in (<code>oauth_grants.client_name</code>, active only; names, never ids or tokens). Paste-in links carry no client name and count as another assistant. No linked client: no app link; one: that app; more than one: the stored default, which must be one of them. Reset and link again already exist: Kitchie's own Revoke and Create link, or platform's connect page with a Disconnect for each assistant.</li>
+        </ul>
+      </div>
+      <div>
+        <h2>Where Kitchen role and the assistant went <span class="prop">Proposal</span></h2>
+        <p>A sketch of the profile (Me) rows, not a new screen: the household flow and the desktop profile already carry these two rows and keep their own mockups. Switch <i>View as</i>: Sam has one assistant linked and nothing to pick; Arjan has two and must choose a default.</p>
+        <div class="mh-frame mh-mini" id="profile-demo" aria-live="polite"></div>
       </div>
       <div>
         <h2>Loads</h2>
