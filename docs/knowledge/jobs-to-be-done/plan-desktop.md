@@ -1,5 +1,7 @@
 # Planning the week, on desktop
 
+Handover for whoever drives this next (status, open questions, next steps, process): [../../handover/plan-desktop.md](../../handover/plan-desktop.md).
+
 Mockup: `fragments/plan-desktop/index.html` (options A to D, each at 1024, 1280, 1366 x 768, 1440, 1920 and 2560). Builds on [plan-week-ai.md](plan-week-ai.md); decisions 1 to 48 there still stand. Everything below is a proposal until the owner confirms (numbers 49 to 62 continue that list).
 
 ## Job
