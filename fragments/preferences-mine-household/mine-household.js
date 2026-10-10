@@ -11,6 +11,9 @@
    - Food statements are NOT an override either: a member sees their own plus the household's ("Everyone"). They are said to the assistant today; no web editor exists (Proposal here).
    - Food rules (owner, voice, 10 October 2026; docs/knowledge/user-preferences/food-preferences.md F1 to F10): avoid is permanent and hard ("never suggest" is dropped); like and dislike are soft and may end;
      a limit caps how often; a category holds the rule, a note and recipes attached by reference whose titles are read from Recipe each time. The JSON shape and operations are a PROPOSAL (Q-F1 and on).
+   - Substitutions (owner, voice, 10 October 2026; food F11 and on): "usually" is no longer a kind of its own. A substitution says: when ingredient X is in a recipe, swap in Y (optionally with a reason),
+     or do Z to it (a cooking instruction, for example blanch frozen food). Household and person tiers like the other food rules, the person's over the household's, and NO end date. The record shape
+     (rule substitute, swap or instruction, why) is a PROPOSAL (Q-F13 and on). A past "usually" habit statement (pancakes at the weekend) is drawn here as a like with its day; that reading is also open.
    - Nothing here is viewport specific: the wide layout lives in mine-household-600.css and mine-household-1024.css. */
 (function () {
   "use strict";
@@ -19,8 +22,8 @@
   var DEFAULTS = { enabled: "on", proactivity: "normal", quiet_start: null, quiet_end: null, daily_cap: "2", tz_offset_minutes: "0" }; // DEFAULT_DIALS
   var PROACTIVITY = ["quiet", "normal", "helpful"];
   var ASSISTANTS = [["claude", "Claude"], ["chatgpt", "ChatGPT"], ["gemini", "Gemini"], ["other", "Another assistant"], ["none", "None"]];
-  var RULE_WORD = { avoid: "Avoids", cap: "Limit", usually: "Usually", like: "Likes", dislike: "Dislikes" };
-  var RULE_ORDER = ["avoid", "cap", "usually", "like", "dislike"];
+  var RULE_WORD = { avoid: "Avoids", cap: "Limit", substitute: "Substitution", like: "Likes", dislike: "Dislikes" };
+  var RULE_ORDER = ["avoid", "cap", "substitute", "like", "dislike"];
   var TODAY = "2026-10-10"; // the mockup's own "today", so a rule that has lapsed can be shown
   var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   /* Recipe's own titles. Mockup only: the screen asks for a title each time it draws and never keeps one (food-preferences F6). */
@@ -33,7 +36,7 @@
 
   /* ---------- sample data (mockup only) ---------- */
   function seed(kind) {
-    var full = kind !== "empty";
+    var full = kind !== "empty"; // "nosubs" is the same as typical without any substitution
     return {
       hh: {
         dials: full ? { proactivity: "quiet", quiet_start: "21:00", quiet_end: "07:00", tz_offset_minutes: "660" } : {},
@@ -67,7 +70,10 @@
       food: full ? [
         { id: "c1", owner: null, level: "ingredient", rule: "avoid", subject: "peanuts", reason: "safety", said: "We cannot have peanuts in the house.", support: 3 },
         { id: "c2", owner: null, level: "ingredient", rule: "avoid", subject: "liver", reason: "other", said: "Never suggest liver, nobody eats it.", support: 1 },
-        { id: "c3", owner: null, rule: "usually", subject: "pancakes", when: "weekend", said: "We usually do pancakes at the weekend.", support: 2 },
+        { id: "c3", owner: null, level: "ingredient", rule: "like", subject: "pancakes", when: "weekend", said: "We usually do pancakes at the weekend.", support: 2 },
+        /* substitutions: trigger in subject (words), then swap (a list, first is preferred) or instruction (one cooking instruction), optional why. No ends: they stand until changed or removed. */
+        { id: "c12", owner: null, level: "ingredient", rule: "substitute", subject: "frozen food", instruction: "Blanch it first", why: "Texture", said: "Wherever there is frozen food, blanch it first, otherwise it comes out rubbery.", support: 1 },
+        { id: "c15", owner: null, level: "ingredient", rule: "substitute", subject: "white bread", swap: ["wholegrain bread"], said: "We buy wholegrain, not white.", support: 1 },
         { id: "c8", owner: null, level: "category", rule: "cap", subject: "Deep-fried", max: 1, recipes: ["r-fish"], suggest: [], said: "Deep-fried dinners no more than once a week.", support: 1 },
         { id: "c4", owner: "sam", level: "ingredient", rule: "dislike", subject: "coriander", said: "I do not like coriander, fine if it is a garnish.", support: 1 },
         { id: "c5", owner: "sam", level: "ingredient", rule: "like", subject: "pumpkin", ends: "2026-10-31", said: "I am into pumpkin this month.", support: 1 },
@@ -75,8 +81,10 @@
         { id: "c9", owner: "sam", level: "category", rule: "cap", subject: "Spicy", max: 2, recipes: ["r-chilli", "r-laksa", "r-green"], suggest: [["r-kimchi", "Chilli paste in the sauce"], ["r-tomyum", "Hot and sour broth with chilli"]], said: "Spicy is fine, just no more than twice a week.", support: 1 },
         { id: "c10", owner: "sam", level: "category", rule: "dislike", subject: "Spicy noodles", ends: "2026-10-24", recipes: ["r-dandan", "r-garlic"], suggest: [], said: "I cannot face spicy noodles for the next two weeks.", support: 1 },
         { id: "c11", owner: "sam", level: "ingredient", rule: "dislike", subject: "lamb", ends: "2026-10-05", said: "No lamb for a week, please.", support: 1 },
-        { id: "c7", owner: "arjan", level: "ingredient", rule: "like", subject: "roast chicken", said: "Roast chicken is my favourite.", support: 1 }
-      ] : [],
+        { id: "c7", owner: "arjan", level: "ingredient", rule: "like", subject: "roast chicken", said: "Roast chicken is my favourite.", support: 1 },
+        { id: "c13", owner: "arjan", level: "ingredient", rule: "substitute", subject: "gluten-based pasta", swap: ["sourdough bread"], said: "Wherever there is gluten-based pasta I am happy to have sourdough bread instead.", support: 1 },
+        { id: "c14", owner: "arjan", level: "ingredient", rule: "substitute", subject: "white bread", swap: ["sourdough", "seeded sourdough"], said: "Wherever there is white bread, I would rather have sourdough or seeded sourdough.", support: 1 }
+      ].filter(function (c) { return kind !== "nosubs" || c.rule !== "substitute"; }) : [],
       only: {
         name: "Our kitchen",
         categories: full ? "11 categories" : "11 suggested categories",
@@ -247,8 +255,24 @@
     return M.food.filter(function (c) { return !lapsed(c) && (c.owner === null || (scope === "me" && c.owner === S.as)); });
   }
   function endedFood() { return M.food.filter(function (c) { return lapsed(c) && c.owner === S.as; }); }
-  function foodDetail(c) {
+  function sameWords(a, b) { return String(a).toLowerCase().replace(/\s+/g, " ").trim() === String(b).toLowerCase().replace(/\s+/g, " ").trim(); }
+  function overrideOf(c) { // the signed-in person's own substitution that comes before this household one (the person over the household)
+    if (c.rule !== "substitute" || c.owner !== null) return null;
+    return M.food.filter(function (x) { return x.rule === "substitute" && x.owner === S.as && sameWords(x.subject, c.subject); })[0] || null;
+  }
+  function overridesHousehold(c) { // this person's substitution has a household one for the same ingredient underneath it
+    return c.rule === "substitute" && c.owner !== null && M.food.some(function (x) { return x.rule === "substitute" && x.owner === null && sameWords(x.subject, c.subject); });
+  }
+  function orWords(list) { return list.join(" or "); }
+  function subThen(c) { return c.instruction ? c.instruction : "Swap in " + orWords(c.swap); }
+  function foodDetail(c, scope) {
     var parts = [];
+    if (c.rule === "substitute") {
+      parts.push(subThen(c));
+      if (c.why) parts.push(c.why);
+      if (scope === "me" && overrideOf(c)) parts.push("Not used for you, yours comes first");
+      return parts.join(" · ");
+    }
     if (c.rule === "avoid") parts.push(c.reason === "safety" ? "For safety, no end" : c.reason === "other" ? "Not for safety, no end" : "No end");
     if (c.rule === "cap") parts.push("At most " + capText(c.max));
     if (c.when) parts.push("At the " + c.when);
@@ -273,7 +297,17 @@
     }).join("") + "</ul>";
     return out + '<p class="note">Titles are read from Recipe each time, so a rename shows here at once. Only attached recipes are checked.</p>';
   }
+  function foodSub(c, scope) { // what the rule says, then where it stands against the other tier. Applying it never edits a recipe (Recipe's recipes are immutable).
+    if (c.rule !== "substitute") return "";
+    var out = '<dl class="facts"><div><dt>When a recipe has</dt><dd>' + esc(c.subject) + "</dd></div><div><dt>" + (c.instruction ? "Do this" : "Swap in") + "</dt><dd>" + esc(c.instruction ? c.instruction : orWords(c.swap)) + "</dd></div>" + (c.why ? "<div><dt>Why</dt><dd>" + esc(c.why) + "</dd></div>" : "") + "</dl>";
+    out += '<p class="note">Your assistant uses it when it plans or shows a recipe, and the shopping list follows. The recipe itself is never changed.</p>';
+    if (c.owner !== null && overridesHousehold(c)) out += '<p class="note">Used for you instead of the household\'s rule for ' + esc(c.subject) + ". It stays as it is for everyone else.</p>";
+    else if (c.owner === null && scope === "me" && overrideOf(c)) out += '<p class="note">Not used for you, because you have your own rule for ' + esc(c.subject) + ". It still applies to everyone else.</p>";
+    else if (c.owner === null && scope === "me") out += '<p class="note">To have something different for you, tell your assistant it is for you. Yours then comes first for you only.</p>';
+    return out;
+  }
   function foodEnd(c, id) {
+    if (c.rule === "substitute") return '<p class="note">A substitution has no end date. It stands until someone changes or removes it.</p>';
     if (c.rule === "avoid") return '<p class="note">An avoid has no end. It stays, and a like never outweighs it, until you stop remembering it.</p>';
     if (c.rule !== "like" && c.rule !== "dislike") return "";
     if (!c.ends) return '<p class="note">No end, so it stands until you stop it. To give it a time, tell your assistant, for example “for the next two weeks”.</p>';
@@ -283,7 +317,7 @@
   function foodRow(c, scope) {
     var id = scope + ":" + c.id, isOpen = S.open === id;
     var chipHtml = c.owner === null ? chip("hh", "Everyone") : chip("you", "Just you");
-    var detail = foodDetail(c);
+    var detail = foodDetail(c, scope);
     var confirm = S.confirm === id;
     var locked = c.owner === null && !isAdmin(); // D28: a household claim or rule is read-only for a member who is not an admin
     var ed = "";
@@ -291,12 +325,12 @@
       ed = '<div class="ped" id="ed-' + id.replace(":", "-") + '"><p class="small">Said: <q>' + esc(c.said) + '</q></p>' +
         (c.rule === "cap" ? '<p class="note">At most ' + capText(c.max) + ", checked against the last seven days of meals.</p>" : "") +
         (c.level === "category" && c.recipes.length ? '<span class="lbl">Recipes in ' + esc(c.subject) + '</span><ul class="stops" aria-label="Attached recipes">' + c.recipes.map(function (r) { return '<li><span class="sname">' + esc(recipeTitle(r)) + "</span></li>"; }).join("") + "</ul>" : "") +
-        lockNote() + "</div>";
+        foodSub(c, scope) + (c.rule === "substitute" ? foodEnd(c, id) : "") + lockNote() + "</div>";
     } else if (isOpen) {
       var strict = c.rule === "avoid" && c.reason !== "other";
       ed = '<div class="ped" id="ed-' + id.replace(":", "-") + '"><p class="small">Said: <q>' + esc(c.said) + '</q> <span class="muted">(kept as data, said ' + c.support + (c.support === 1 ? " time" : " times") + ")</span></p>" +
         (c.rule === "cap" ? '<label for="mx-' + scope + "-" + c.id + '">Most per week</label><input id="mx-' + scope + "-" + c.id + '" class="fld" type="number" min="1" max="7" step="1" inputmode="numeric" data-act="cap" data-id="' + id + '" value="' + c.max + '"><p class="note">Checked against the meals planned and cooked in the last seven days, before a recipe here is suggested.</p>' : "") +
-        foodEnd(c, id) + (c.level === "category" ? foodSuggest(c, id) + foodRecipes(c, id) : "") + savedLine(id) +
+        foodSub(c, scope) + foodEnd(c, id) + (c.level === "category" ? foodSuggest(c, id) + foodRecipes(c, id) : "") + savedLine(id) +
         (confirm ? '<p class="note">This is kept for safety. Remove it only if it is no longer true' + (c.owner === null ? ", for the whole household" : "") + '.</p><div class="acts"><button type="button" class="btn ghost danger" data-act="forget" data-id="' + id + '" data-confirmed="1">Yes, stop remembering</button><button type="button" class="btn ghost" data-act="keep" data-id="' + id + '">Keep it</button></div>'
           : '<button type="button" class="btn ghost danger" data-act="forget" data-id="' + id + '" data-strict="' + (strict ? 1 : 0) + '">Stop remembering this</button>' +
             '<p class="note">To change the rule itself, tell your assistant. Moving a statement between Just you and Everyone has no operation today: say it again for the other one.</p>') + "</div>";
@@ -307,7 +341,7 @@
     var rows = visibleFood(scope);
     if (!rows.length) {
       return '<div class="empty">' + ICON.pot + "<b>" + (scope === "me" ? "Nothing remembered about you yet" : "Nothing for the whole kitchen yet") + "</b><p class=\"small\">" +
-        (scope === "me" ? "Tell your assistant what you like, dislike, cannot eat or want less often, and it shows up here." : isAdmin() ? "Allergies and house rules for everyone go here. Tell your assistant, and say it is for the household." : "Allergies and house rules for everyone go here. Only household admins can add them.") + "</p></div>";
+        (scope === "me" ? "Tell your assistant what you like, dislike, cannot eat, want less often or want swapped for something else, and it shows up here." : isAdmin() ? "Allergies and house rules for everyone go here. Tell your assistant, and say it is for the household." : "Allergies and house rules for everyone go here. Only household admins can add them.") + "</p></div>";
     }
     var out = "";
     RULE_ORDER.forEach(function (st) {
@@ -315,7 +349,8 @@
       if (g.length) out += g.map(function (c) { return foodRow(c, scope); }).join("");
     });
     var ended = scope === "me" ? endedFood() : [];
-    return '<ul class="flist">' + out + "</ul>" + (ended.length ? '<p class="note">Ended on its own and back to neutral: ' + ended.map(function (c) { return esc(c.subject) + " (" + dayText(c.ends) + ")"; }).join(", ") + ".</p>" : "");
+    var noSubs = rows.some(function (c) { return c.rule === "substitute"; }) ? "" : '<p class="note">No substitutions ' + (scope === "me" ? "yet" : "for the whole kitchen yet") + ". Tell your assistant, for example: “whenever a recipe has white bread, use sourdough” or “frozen food always needs blanching first”.</p>";
+    return '<ul class="flist">' + out + "</ul>" + noSubs + (ended.length ? '<p class="note">Ended on its own and back to neutral: ' + ended.map(function (c) { return esc(c.subject) + " (" + dayText(c.ends) + ")"; }).join(", ") + ".</p>" : "");
   }
 
   /* ---------- screens ---------- */
@@ -418,7 +453,7 @@
       b.setAttribute("aria-pressed", String(S[k] === v));
     });
     var st = document.getElementById("mh-state");
-    if (st) st.textContent = who().name + " (" + ROLE_WORD[roleOf(S.as)].toLowerCase() + ") · " + (S.view === "members" ? "Members and admins" : S.tab === "mine" ? "Mine" : "Household") + " · " + (S.data === "empty" ? "nothing set yet" : "some set");
+    if (st) st.textContent = who().name + " (" + ROLE_WORD[roleOf(S.as)].toLowerCase() + ") · " + (S.view === "members" ? "Members and admins" : S.tab === "mine" ? "Mine" : "Household") + " · " + (S.data === "empty" ? "nothing set yet" : S.data === "nosubs" ? "some set, no substitutions" : "some set");
   }
 
   /* ---------- actions ---------- */
@@ -518,7 +553,7 @@
   function applyParams(q) {
     var as = q.get("as"), data = q.get("data"), tab = q.get("tab"), open = q.get("open"), view = q.get("view");
     if (as && PEOPLE[as]) S.as = as;
-    if (data && data !== S.data && (data === "typical" || data === "empty")) { S.data = data; var kept = M.members; M = seed(data); M.members = kept; }
+    if (data && data !== S.data && (data === "typical" || data === "empty" || data === "nosubs")) { S.data = data; var kept = M.members; M = seed(data); M.members = kept; }
     S.view = view === "members" ? "members" : null;
     if (tab === "mine" || tab === "hh") S.tab = tab;
     S.open = open || null; S.saved = ""; S.flash = ""; S.confirm = null;

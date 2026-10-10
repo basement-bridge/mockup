@@ -14,7 +14,7 @@
 
   <div class="mh-ctl">
     <div class="mh-g" role="group" aria-label="View as"><span class="mh-lab">View as</span><div class="mh-seg"><button type="button" data-pc="as" data-v="sam" aria-pressed="true">Sam</button><button type="button" data-pc="as" data-v="arjan" aria-pressed="false">Arjan</button><button type="button" data-pc="as" data-v="jo" aria-pressed="false">Jo</button></div><span class="mh-state" style="margin:0">Arjan is the founding member, Jo an admin, Sam a member.</span></div>
-    <div class="mh-g" role="group" aria-label="Data"><span class="mh-lab">Data</span><div class="mh-seg"><button type="button" data-pc="data" data-v="typical" aria-pressed="true">Some set</button><button type="button" data-pc="data" data-v="empty" aria-pressed="false">Nothing set yet</button></div></div>
+    <div class="mh-g" role="group" aria-label="Data"><span class="mh-lab">Data</span><div class="mh-seg"><button type="button" data-pc="data" data-v="typical" aria-pressed="true">Some set</button><button type="button" data-pc="data" data-v="nosubs" aria-pressed="false">No substitutions</button><button type="button" data-pc="data" data-v="empty" aria-pressed="false">Nothing set yet</button></div></div>
   </div>
   <div class="mh-jump" aria-label="States to look at">
     <a href="?as=sam&amp;tab=mine&amp;open=me:proactivity">Overridden by you</a>
@@ -33,6 +33,10 @@
     <a href="?as=sam&amp;tab=mine&amp;open=me:c1">Food: avoid, no end</a>
     <a href="?as=arjan&amp;tab=hh&amp;open=hh:c8">Food: household category, admin</a>
     <a href="?as=sam&amp;tab=hh&amp;open=hh:c8">Food: household category, read-only</a>
+    <a href="?as=arjan&amp;tab=mine&amp;open=me:c13">Food: substitution, a swap</a>
+    <a href="?as=sam&amp;tab=mine&amp;open=me:c12">Food: substitution, a cooking instruction</a>
+    <a href="?as=arjan&amp;tab=mine&amp;open=me:c14">Food: substitution, yours over the household's</a>
+    <a href="?as=sam&amp;tab=mine&amp;data=nosubs">Food: no substitutions yet</a>
   </div>
   <p class="mh-state" id="mh-state" aria-live="polite"></p>
 
@@ -62,7 +66,7 @@
           <tr><th>Preference</th><th>Lives at</th><th>How it combines</th><th>Who changes it</th></tr>
           <tr><td>Stock-check settings: on or off, how proactive, quiet hours, most per day, time zone</td><td>Person and household</td><td>Override, key by key: built-in, then household, then person</td><td>You change yours. Household admins change the household's (D28; today only the longest-standing member can, and that check is replaced by an admin check).</td></tr>
           <tr><td>Notes (up to 600 characters)</td><td>Person and household</td><td>Both read. Yours is private to you.</td><td>Same as above</td></tr>
-          <tr><td>Food: avoids, usually, likes, dislikes (plus "never suggest", which this option drops)</td><td>Person and household</td><td>Added together. Safety avoidances always shown. No end date and no frequency limit yet; no recipes attached.</td><td>Said to the assistant: by you for yourself; for everyone, by a household admin only (D28, replaces D8)</td></tr>
+          <tr><td>Food: avoids, likes, dislikes; "usually" becomes substitutions (plus "never suggest", which this option drops)</td><td>Person and household</td><td>Added together. Safety avoidances always shown. No end date and no frequency limit yet; no recipes attached.</td><td>Said to the assistant: by you for yourself; for everyone, by a household admin only (D28, replaces D8)</td></tr>
           <tr><td>Stops and snoozes</td><td>Person (a stop on one item covers everyone)</td><td>None</td><td>The person</td></tr>
           <tr><td>My assistant, kitchen role</td><td>Person only</td><td>None</td><td>The person</td></tr>
           <tr><td>Household name, categories, locations and spots</td><td>Household only</td><td>None</td><td>Household admins</td></tr>
@@ -103,8 +107,9 @@
           <li><b>Limit</b> caps how often something may be suggested ("at most twice a week"), checked against recent meals.</li>
           <li><b>A category</b> (Spicy) holds the rule, what the person said, and recipes attached by reference. Titles are read from Recipe each time. The assistant creates it, notices recipes that look like a match and offers them: open Spicy to see it.</li>
           <li>Ingredient level (peanuts) and category level are not headed on the screen; a row is just a rule.</li>
+          <li><b>Substitutions</b> replace what used to be <i>Usually</i> (food F11 to F14). When an ingredient is in a recipe, swap in something else, with a reason if there is one: gluten-based pasta to sourdough bread, white bread to sourdough or seeded sourdough. Household and person levels like the other food rules, the person's over the household's, and <b>no end date</b>. Open <i>Frozen food</i> (blanch it first), <i>Gluten-based pasta</i> and <i>White bread</i> (Arjan's own, over the household's) from the links above, or <i>No substitutions</i> for the empty state. Which tier each example sits in is sample data; the owner did not say.</li>
         </ul>
-        <p style="margin-top:8px"><span class="prop">Proposal</span> The data shape, the operations and the open questions (Q-F1 on) are in the same file, awaiting the owner. The sample "today" on this page is 10 October 2026.</p>
+        <p style="margin-top:8px"><span class="prop">Proposal</span> The data shape, the operations and the open questions (Q-F1 on) are in the same file, awaiting the owner. For substitutions that includes how one shape covers a swap and a cooking instruction (a rule says <i>when X, then swap in Y</i> or <i>then do Z</i>), how a person's rule overrides the household's, and how a substitution is applied at planning time without editing a recipe. The sample "today" on this page is 10 October 2026.</p>
       </div>
       <div>
         <h2>Open questions</h2>
