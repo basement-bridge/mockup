@@ -190,3 +190,84 @@ Full detail in [`recipe-versions/spec.html`](../../../recipe-versions/spec.html)
 
 - Default path: theme, `recipe/recipe.css`, `recipe/recipe.js`, `versions.css`, `versions.js`; one `get_version` call for the head revision. Everything else is a route or a sheet built on tap; history pages older revisions on scroll.
 - Classes to lift beside the flow slice's: `.st` (state pills), `.vr` (version row), `.tree`, `.band`, `.rv` (revision), `.df` (diff rows), `.ch` (choice cards), `.sug`, `.verd`, `.cmp`. Sample names only in `versions.js`.
+
+---
+
+## Slice: cooking ideas (the Home pane and its heuristics)
+
+Mockup: [`recipe-ideas/`](../../../recipe-ideas/index.html) (overview with decisions, `home.html` the pane in place on Home, `all.html` the full ranked list and Plan ahead; `ideas.js` holds the ranking and sample signals, `ideas.css` the classes). Reuses `recipe/recipe.css`, `recipe/recipe.js` and `recipe/plan-sheet.js`.
+
+### Job
+
+"What shall we cook next?" answered on Home in one glance, from the household's own recipes and what is actually in, with one tap to cook or plan it. It overlaps with using things up (use-up.md) and planning the week, but is neither: it is the next meal.
+
+### How we know the person is in this job
+
+They are on Home with Recipes in the household, and tonight is not cooked yet. The clock moves it to tomorrow after 8pm. A plan for tonight changes what leads (the plan, then "If plans change"). Not detected beyond that; the pane is always there for a household with Recipes.
+
+### What leads
+
+One idea with Cook now, Plan and Why, then two one-line rows (option 1 A). Each idea carries one line built from its reasons and what is missing.
+
+### What this job does not need
+
+Stock levels, locations, nutrition, the plan grid, version trees, method. Use-by appears only as a reason ("Uses spinach before it goes"), never as dates.
+
+### Signals and sources
+
+What is in and missing: Recipe `what_can_i_cook` / `what_am_i_missing` (stock from Kitchie's capability; "unknown" is never "missing"). Use-by: Kitchie items, joined on `matched_as`. Holds, this week's plan, who is eating, cooking history, freezer portions, food rules (avoid, like, dislike, cap), shopping list: Kitchie. Star, vote, version status, minutes, tags: Recipe. Time of day: the device. Seasonality: not used.
+
+### Decisions (all Proposal, I-D numbering)
+
+1. **I-D1 The pane answers one question: the next meal.** Tonight before 8pm, tomorrow after.
+2. **I-D2 Saved recipes and freezer portions only.** Nothing invented in the pane by default.
+3. **I-D3 Kitchie ranks; Recipe answers; deterministic,** so Why can say exactly why (option 4 A).
+4. **I-D4 Two passes: filter, then score.** Filters never score, scores never exclude.
+5. **I-D5 Filters, always listed under "Left out tonight" with the reason:** avoid of anyone eating, cap reached, already planned this week, cooked in the last two days, "Not tonight" today, put away.
+6. **I-D6 Score:** ready (all in +3, one missing +1, two ≈0, three or more −2; a missing item already on the list costs less); use it up (+2 due in 3 days, +3 due tomorrow, max +4); rotation (+2 a month, +1 two weeks, −2 within 4 days, +1.5 never cooked); trying a version +1.5 for its maker; favourite +1; quick weeknight +1, over an hour −2; dislike of someone eating −1.5, like +1. Ties: fewer missing, then longest since cooked. Starting numbers, tuned with use. A held item counts as not in.
+7. **I-D7 One knob, Lean towards:** Balanced, Use it up, Quick, Favourites, Something different, Batch. Doubles one family of reasons. Per person; the batch cooker starts on Batch.
+8. **I-D8 Who is eating** comes from tonight's plan, else everyone; changeable for tonight only. Filters and weights read the people eating, not the viewer.
+9. **I-D9 A freezer dish is offered as itself** ("Have it tonight"), and its recipe is not offered again. Needs K2.
+10. **I-D10 One line per idea:** strongest reason, then what is missing or a caveat for someone eating, else "all in".
+11. **I-D11 See all:** full ranked list, a reason tag per row, the lean as the shared chip strip, "Possible, not a great fit", then "Left out tonight (N)" folded.
+12. **I-D12 Why (ⓘ):** a sheet of + and − reasons with their source, and "Nothing here was guessed by an AI". Not tonight (snooze today) and Not for me (a dislike for the viewer in Kitchie food rules, with Undo).
+13. **I-D13 Acting uses existing Kitchie tools:** Cook now `start_cooking` (recipe id, resolved ingredients); Plan via the day picker then `plan_meal` and `plan_reserve` (Hold on by default); cart `plan_add_missing_to_list` or `shopping_add`; freezer `plan_meal` leftover; end of cook `cook_meal` and Recipe `record_usage`. Recipe holds no stock.
+14. **I-D14 Tonight planned leads,** then two "If plans change" rows (one for a follower).
+15. **I-D15 Plan ahead** pairs each empty night this week with the best idea left (use-it-up first), skipping days off and nights with a meal; one Plan per night. Not an auto-planner.
+16. **I-D16 States:** no recipes (Add, Ask your assistant); under five recipes (one line "ideas get better with more"); pantry unreadable (ranked on the rest, says so, nothing marked missing); nothing fits (freezer, Plan ahead, Ask your assistant); after 8pm (tomorrow); morning (take a freezer dish out).
+17. **I-D17 The assistant** is option 3; either way it reads the same ranking (K1), and anything it makes up is labelled "Made up by your assistant" (plan-week-ai 7c, 26).
+18. **I-D18 Three ideas on the pane, all on See all;** no scores or percentages on the face.
+19. **I-D19 Seasonality and nutrition left out** for now.
+20. **I-D20 Desktop:** the pane is the Home side panel, the lead card with all ideas below it, no carousel. Not drawn.
+
+### Options awaiting yay, nay or combine
+
+| # | Question | A | B | C | Recommended |
+|---|---|---|---|---|---|
+| I-O1 | The pane on Home | Lead idea and two rows | Swipe cards (today's carousel, richer) | Four rows with reason tags | A |
+| I-O2 | Tuning | Sliders icon opens a Tune sheet (lean, who is eating) | Chips on See all only; who is eating only from the plan | – | A |
+| I-O3 | Assistant | Opens your AI app; nothing of its own in the pane | It can also pin one idea for today, labelled | – | A |
+| I-O4 | Where ranking runs | Kitchie | Recipe "suggest" tool | Only the AI | A |
+
+### Gaps
+
+- **K1 Kitchie:** one ideas read (web route and a read-only MCP tool `cooking_ideas`: for, lean, date) returning ranked ideas, reasons and left-out, so pane and assistant agree.
+- **K2 Kitchie:** a freezer item linked to its recipe id (set at the end of a batch cook).
+- **K3 Kitchie:** "Not tonight", a one-day per-person snooze.
+- **G10 Recipe:** `what_can_i_cook` judges canonical recipes only; ideas need the household default version (G4), via a targets input.
+- **G11 Recipe:** star, vote, version status and default version returned in bulk with `list_recipes` or `what_can_i_cook` (today per target, and not a tool).
+- **G12 Recipe:** the "trying" version status (recipe-versions slice), readable in bulk.
+- **G13 Recipe:** keep `matched_as` on each verdict; Kitchie joins use-by on it.
+
+### Open questions
+
+- I-O1 to I-O4. A wrong I-O4 costs a rewrite across two repos.
+- Does Not for me write a dislike at once (person level, ungated) or ask? Mockup: writes, with Undo.
+- A household lean set by an admin? Mockup: no, per person.
+- Cooked in the last two days: filter, or just a strong negative? Mockup: filter.
+
+### For the implementation
+
+- Default path on Home: one K1 call after the stock tiles, never blocking them; only for a household with Recipes. Sheets (Why, Tune, Ask, day picker) build on tap; See all is its own route.
+- Ranking: one pass over at most 100 recipes, cached per household for a few minutes and dropped on any stock, plan or food-rule change.
+- Lift `.ideas`, `.idl`, `.idr`, `.why`, `.rtag` and the `rank()` shape from `recipe-ideas/ideas.js`; sample signals live only there.

@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Cooking ideas on Home — Recipe ideas mockup</title>
+<link rel="stylesheet" href="../theme.css"><link rel="stylesheet" href="../recipe/recipe.css"><link rel="stylesheet" href="ideas.css"><script src="../theme.js"></script><script src="../recipe/recipe.js"></script><script src="ideas.js"></script></head>
+<body data-no-theme-fab>
+<div class="stage"><div class="phone" id="ph">
+  <div class="body" id="body"></div>
+  <div id="bar"></div>
+</div></div>
+<script>
+(function(){
+var X=RCP,I=IDEAS,ic=X.ic,esc=X.esc,P=X.P;
+var hour=I.S.state==="late"?21:I.S.state==="morning"?8:17;
+var greet=hour<12?"Good morning":hour<18?"Good afternoon":"Good evening";
+/* Home's bottom bar, as in the household flow (Home, Pantry, Recipes, Shopping). The tab-bar order is the recipe-tab slice's option 6. */
+document.getElementById("bar").outerHTML='<nav class="bar" aria-label="Main"><a href="home.html" class="on" aria-current="page">'+ic("chef")+'<span>Home</span></a><a href="../flows/household/">'+ic("jar")+'<span>Pantry</span></a><a href="../recipe/list.html">'+ic("note")+'<span>Recipes</span></a><a href="../flows/household/">'+ic("cart")+'<span>Shopping</span></a></nav>';
+window.ideasRedraw=function(){
+  var b=document.getElementById("body");
+  /* The two existing tiles are drawn compact here so the ideas pane is seen in context. Unchanged from the household flow; not this slice. */
+  b.innerHTML='<h1 class="hi">'+greet+', '+esc(X.me[2])+'.</h1>'+
+    '<section class="tilec"><div class="th2"><span class="ric" aria-hidden="true">'+ic("clock","s")+'</span><h2>On the way out</h2><a class="va" href="../flows/household/">View all</a></div><div class="minis"><span><b>Spinach</b>Tomorrow</span><span><b>Mushrooms</b>in 2 days</span><span><b>Cream</b>in 3 days</span></div></section>'+
+    I.pane()+
+    '<section class="tilec"><div class="th2"><span class="ric t3" aria-hidden="true">'+ic("cart","s")+'</span><h2>Running low</h2><a class="va" href="../flows/household/">View all</a></div><div class="minis"><span><b>Milk</b>1 L left</span><span><b>Butter</b>a little</span></div></section>'+
+    '<div style="height:24px"></div>';
+  var sn=document.getElementById("isnap");
+  if(sn)sn.addEventListener("scroll",function(){var n=Math.round(sn.scrollLeft/sn.clientWidth);sn.parentNode.querySelectorAll(".idots i").forEach(function(d,k){d.classList.toggle("on",k===n)})});
+};
+ideasRedraw();
+X.controls(I.controlsHtml());
+})();
+</script>
+<script src="../recipe/plan-sheet.js"></script>
+</body></html>

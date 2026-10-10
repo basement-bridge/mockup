@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Cooking ideas</title>
+<link rel="stylesheet" href="../theme.css"><link rel="stylesheet" href="../shared.css"><script src="../theme.js"></script>
+<style>
+.d{list-style:none;margin:8px 0 0;padding:0}
+.d li{padding:10px 0;border-top:1px solid var(--border);font-size:14px;color:var(--muted)}
+.d li:first-child{border-top:0}
+.d li b{color:var(--fg)}
+.d .n{display:inline-block;min-width:52px;font-weight:800;color:var(--accent)}
+.prop{font-size:11px;font-weight:800;padding:1px 7px;border-radius:var(--r-pill);border:1px dashed var(--accent);color:var(--accent);margin-left:4px;white-space:nowrap}
+.gap{font-size:11px;font-weight:800;padding:1px 7px;border-radius:var(--r-pill);border:1px solid var(--danger);color:var(--danger);margin-left:4px;white-space:nowrap}
+.per{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.per a{display:inline-flex;align-items:center;min-height:var(--tap);padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-weight:700;font-size:14px}
+.per a:hover{border-color:var(--accent);color:var(--accent)}
+.opts .opt p{font-size:13px}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+th,td{text-align:left;padding:8px 6px;border-top:1px solid var(--border);vertical-align:top;color:var(--muted)}
+th{color:var(--fg);font-size:12px}
+td b{color:var(--fg)}
+.tw{overflow-x:auto}
+code{font-size:12.5px}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../recipe/">&lsaquo; Recipe tab</a>
+<h1>Cooking ideas</h1>
+<p>Draft for feedback, 10 October 2026. The "Cooking ideas" pane on Home was a title and a carousel sorted by "you have N of M". This slice decides <b>what fills it, in what order, and why</b>, how a person nudges it without a settings maze, what each idea says in one line, the empty and nothing-fits states, and how an idea becomes planned, held or cooked through Kitchie's existing tools. Sample data only; every phone is live. Open <b>Mockup</b> (bottom right) on any screen to switch person, option and state.</p>
+
+<section class="sec"><div class="lbl">Start here</div>
+<div class="per">
+<a href="home.html?persona=weeknight&state=normal">Home, weeknight cook (Sam)</a>
+<a href="home.html?persona=batch&state=normal">Home, batch cooker (Priya)</a>
+<a href="home.html?persona=improviser&state=normal">Home, improviser (Alex)</a>
+<a href="home.html?persona=follower&state=normal">Home, follows the plan (Jane)</a>
+<a href="all.html?persona=weeknight">See all (the full ideas screen)</a>
+<a href="all.html?lens=ahead">Plan ahead</a>
+</div>
+<p style="margin-top:12px">States: <a href="home.html?state=planned" style="text-decoration:underline">tonight already planned</a> · <a href="home.html?state=morning" style="text-decoration:underline">morning</a> · <a href="home.html?state=late" style="text-decoration:underline">after 8pm</a> · <a href="home.html?state=low" style="text-decoration:underline">only two recipes</a> · <a href="home.html?state=cold" style="text-decoration:underline">no recipes yet</a> · <a href="home.html?state=nostock" style="text-decoration:underline">pantry unreadable</a> · <a href="home.html?state=nothing" style="text-decoration:underline">nothing fits</a> · <a href="all.html?state=nothing" style="text-decoration:underline">nothing fits, full screen</a></p>
+</section>
+
+<section class="sec"><div class="lbl">Options for yay, nay or combine</div>
+<div class="opts two">
+<div class="opt"><h2><b>1</b>The pane on Home</h2><p><b>A Lead and two</b>: one big idea with Cook now, Plan and Why, then two one-line rows. Decides for you, still shows a choice. <b>B Swipe cards</b>: today's carousel, each card a full lead card. Closest to what is built; hides ideas 2 to 5 behind a swipe. <b>C Rows with tags</b>: four compact rows with a reason tag. Densest, no big button. Recommended: <b>A</b>, because the job on Home is "what's for dinner", which wants one answer you can act on in one tap, with a way out.</p><div class="per"><a href="home.html?pane=A">A</a><a href="home.html?pane=B">B</a><a href="home.html?pane=C">C</a></div></div>
+<div class="opt"><h2><b>2</b>How a person tunes it</h2><p><b>A Tune sheet</b>: a sliders icon in the pane header opens one sheet: Lean towards (one pick of six) and Who is eating tonight. <b>B Chips only</b>: no icon on Home; the lean is the chip strip on See all, and who is eating comes only from the plan. Recommended: <b>A</b>; the icon costs no row, and "who is eating" changes the answer more than anything else.</p><div class="per"><a href="home.html?tune=A">A</a><a href="home.html?tune=B">B</a></div></div>
+<div class="opt"><h2><b>3</b>The assistant</h2><p><b>A Opens your AI app</b>: a quiet "Ask your assistant for more" line; the assistant reads the same ranked ideas and reasons through Kitchie. Nothing it says appears in the pane. <b>B It can pin ideas</b>: the assistant may also leave up to one idea for today in the pane, labelled "From your assistant" with its one-line reason in quotes. Recommended: <b>A</b> now, B later if people ask the assistant and then want to find its answer in the app.</p><div class="per"><a href="home.html?ai=A">A</a><a href="home.html?ai=B">B</a></div></div>
+<div class="opt"><h2><b>4</b>Where the ranking runs</h2><p><b>A Kitchie</b> ranks: it already holds stock, use-by, plan, cooking history and food rules, and asks Recipe for recipes and matches. <b>B Recipe</b> gets a "suggest" tool. <b>C Only the AI</b> ranks, nothing in the app. Recommended: <b>A</b>. B breaks Recipe's rule that the caller reasons and would make Recipe read Kitchie's food rules; C leaves the pane empty for anyone not in a chat. Not drawn; it is an architecture choice.</p></div>
+</div>
+</section>
+
+<section class="sec"><div class="lbl">Signals: what it reads, and from where</div>
+<p>Every signal is read, never stored again (Recipe never keeps a stock table; Kitchie never copies a recipe). Cheap first; nothing that needs a new model.</p>
+<div class="tw"><table>
+<tr><th>Signal</th><th>Source today</th><th>Used for</th></tr>
+<tr><td><b>What is in, what is missing</b></td><td>Recipe <code>what_can_i_cook</code> (one call, all recipes) and <code>what_am_i_missing</code> (variations); stock read from Kitchie's inventory capability</td><td>Ready, missing count, "Needs feta"</td></tr>
+<tr><td><b>Use-by</b></td><td>Kitchie items (<code>use_by</code>). Not in the capability Recipe reads, by design; Kitchie joins it on <code>matched_as</code></td><td>Use it up</td></tr>
+<tr><td><b>Held for another meal</b></td><td>Kitchie plan holds (plan-week-ai 33)</td><td>Counts as not in, for ideas</td></tr>
+<tr><td><b>This week's plan</b></td><td>Kitchie <code>plan_view</code></td><td>Tonight planned, already planned this week, empty nights for Plan ahead, who is eating</td></tr>
+<tr><td><b>Cooked recently, how often</b></td><td>Kitchie cooking sessions and past plan entries (preferences Q-F9: Kitchie counts, not Recipe's <code>last_used</code>)</td><td>Rotation, "cooked yesterday", caps</td></tr>
+<tr><td><b>Star and vote</b></td><td>Recipe preferences (household-wide)</td><td>Favourite lift; a down vote sinks</td></tr>
+<tr><td><b>Trying a version</b></td><td>Recipe version status (recipe-versions slice) <span class="gap">Recipe gap</span></td><td>"You are trying With garlic", for its maker only</td></tr>
+<tr><td><b>Time to cook</b></td><td>Recipe <code>prep_minutes</code> + <code>cook_minutes</code> (unknown stays unknown, no lift and no penalty)</td><td>Quick on weeknights</td></tr>
+<tr><td><b>Batch, freezes; freezer portions</b></td><td>Recipe tags (R-D G9 vocabulary); Kitchie Pantry, Freezer item linked to the recipe <span class="gap">Kitchie gap</span></td><td>Batch lean; "3 portions in the freezer"</td></tr>
+<tr><td><b>Person and household food rules</b></td><td>Kitchie food rules (preferences option B, food F1 to F4): avoid, like, dislike, cap, substitution</td><td>Exclude, weigh, cap</td></tr>
+<tr><td><b>On the shopping list</b></td><td>Kitchie <code>shopping_list</code></td><td>A missing item already on the list costs less</td></tr>
+<tr><td><b>Time of day, weekday</b></td><td>The device clock</td><td>Tonight or tomorrow; weeknight time limit; morning freezer nudge</td></tr>
+<tr><td><b>Household size, who is cooking</b></td><td>Platform members; the viewer</td><td>Default "for 4"; the trying nudge and "Added by me" go to the right person</td></tr>
+<tr><td><b>Seasonality</b></td><td>Not used. Cheap only with a tag no recipe has yet</td><td>Left out (I-D19)</td></tr>
+</table></div>
+</section>
+
+<section class="sec"><div class="lbl">Decisions in this slice (all Proposal until the owner says)</div>
+<p>Numbered I-D so they do not clash with R-D (recipe tab), D and F (preferences) or plan-week-ai's numbers. The same list is in <code>docs/knowledge/jobs-to-be-done/recipe-tab.md</code>.</p>
+<ol class="d">
+<li><span class="n">I-D1</span><b>The pane answers one question: what to cook next.</b> Tonight before 8pm, tomorrow after. Breakfast and lunch are out of scope until the plan has them. <span class="prop">Proposal</span></li>
+<li><span class="n">I-D2</span><b>Ideas come from the household's own saved recipes only,</b> plus portions already in the freezer. Nothing invented appears in the pane by default (the assistant is option 3). <span class="prop">Proposal</span></li>
+<li><span class="n">I-D3</span><b>Kitchie ranks; Recipe answers; the AI explains nothing it did not do.</b> Ranking is a small pure function in Kitchie (option 4 A), deterministic, so the Why sheet can say exactly why. <span class="prop">Proposal</span></li>
+<li><span class="n">I-D4</span><b>Two passes: filter, then score.</b> Filters never score, scores never exclude. <span class="prop">Proposal</span></li>
+<li><span class="n">I-D5</span><b>Filters (left out tonight, always listed with the reason on See all):</b> an avoid of anyone eating; a cap already reached; already planned this week; cooked in the last two days; "Not tonight" today; put away. Never hidden silently. <span class="prop">Proposal</span></li>
+<li><span class="n">I-D6</span><b>Score, in this order of weight:</b> ready (all in +3, one missing +1, two ≈0, three or more −2); use it up (+2 an item due in 3 days, +3 due tomorrow, at most +4); rotation (+2 a month or more, +1 two weeks, −2 cooked in the last 4 days, +1.5 never cooked); trying a version +1.5 for its maker; favourite +1; quick on a weeknight +1, over an hour −2; a dislike of someone eating −1.5, a like +1. Ties: fewer missing, then longest since cooked. Numbers are a starting point, tuned with real use. <span class="prop">Proposal</span></li>
+<li><span class="n">I-D7</span><b>One knob: Lean towards.</b> Balanced (default), Use it up, Quick, Favourites, Something different, Batch. A lean doubles one family of reasons; nothing else changes. Batch cooker starts on Batch. Remembered per person (preferences, person level, P2: no gate). <span class="prop">Proposal</span></li>
+<li><span class="n">I-D8</span><b>Who is eating comes from tonight's plan,</b> or everyone in the household when nothing is planned. The person can change it for tonight only in the Tune sheet. Every filter and weight reads the people eating, not the viewer. <span class="prop">Proposal</span></li>
+<li><span class="n">I-D9</span><b>A dish already in the freezer is offered as itself</b> ("Have it tonight", reheat), not as cooking it again, and its recipe is not offered separately. <span class="prop">Proposal</span> <span class="gap">Kitchie gap</span></li>
+<li><span class="n">I-D10</span><b>Each idea shows one line, built from its reasons:</b> the strongest reason, then what is missing ("Needs feta, already on your list") or a caveat for someone eating ("Jane is not keen on mushrooms"), else "all in". Never two lines of reasons on the card. <span class="prop">Proposal</span></li>
+<li><span class="n">I-D11</span><b>See all is the full ranked list</b> with a reason tag per row, the lean as a chip strip (the shared strip, plan-week-ai 48), a "Possible, not a great fit" tail, and "Left out tonight (N)" folded at the bottom. <span class="prop">Proposal</span></li>
+<li><span class="n">I-D12</span><b>Why is one tap (ⓘ),</b> a sheet listing each reason as + or − with where it came from, and "Nothing here was guessed by an AI." Two quiet answers: Not tonight (off today's ideas) and Not for me (becomes a dislike for the viewer in Kitchie food rules, with Undo). <span class="prop">Proposal</span></li>
+<li><span class="n">I-D13</span><b>Acting on an idea uses Kitchie's existing tools only.</b> Cook now: <code>start_cooking</code> with the recipe id and resolved ingredients (cook mode, R-D18). Plan: the day picker (R-D28) then <code>plan_meal</code> (<code>meal_source</code> recipe), Hold on by default: <code>plan_reserve</code>. The cart: <code>plan_add_missing_to_list</code> after planning, or <code>shopping_add</code> for tonight. Have it tonight (freezer): <code>plan_meal</code> <code>leftover</code>. The end of a cook: <code>cook_meal</code> (stock out) and Recipe <code>record_usage</code>. Recipe holds no stock. <span class="prop">Proposal</span></li>
+<li><span class="n">I-D14</span><b>When tonight is already planned, the plan leads</b> ("Tonight: Egg fried rice"), with two "If plans change" rows under it. A follower sees one. <span class="prop">Proposal</span></li>
+<li><span class="n">I-D15</span><b>Plan ahead</b> (a chip on See all): pairs each empty night this week with the best idea left, use-it-up on the earliest night, skipping usual days off and nights with a meal. One Plan per night. Not an auto-planner. <span class="prop">Proposal</span></li>
+<li><span class="n">I-D16</span><b>States.</b> No recipes: "No recipes yet", Add a recipe and Ask your assistant. Under five recipes: ideas plus one line "Ideas get better with more". Pantry unreadable: ideas still ranked on everything else, one line says so, nothing is marked missing (Recipe's "unknown, not empty" rule). Nothing fits: the freezer if there is one, Plan ahead, Ask your assistant. After 8pm: Ideas for tomorrow. Morning: one line to take a freezer dish out. <span class="prop">Proposal</span></li>
+<li><span class="n">I-D17</span><b>The assistant path</b> is option 3. Either way it calls the same ranking (a read-only Kitchie tool, gap K1) so the chat and the pane never disagree, and anything it makes up is labelled "Made up by your assistant" (plan-week-ai 7c, 26). <span class="prop">Proposal</span></li>
+<li><span class="n">I-D18</span><b>The pane shows three ideas, See all shows every one.</b> No numbers, scores or percentages on the face; the Why sheet is the only place weights show, as + and −. <span class="prop">Proposal</span></li>
+<li><span class="n">I-D19</span><b>Seasonality is left out</b> until recipes carry a season tag; it is not cheap today. Nutrition is left out (another decision). <span class="prop">Proposal</span></li>
+<li><span class="n">I-D20</span><b>Desktop:</b> the pane is the Home side panel (desktop-layout.md), option A's lead card with all ideas below it, no carousel. Not drawn here. <span class="prop">Proposal</span></li>
+</ol>
+</section>
+
+<section class="sec"><div class="lbl">Gaps (solve where the data lives; Kitchie only renders)</div>
+<ol class="d">
+<li><span class="n">K1</span><b>Kitchie: one ideas read.</b> A web route and a read-only MCP tool (<code>cooking_ideas</code>: for, lean, date) returning ranked ideas with reasons and left-out, so the pane and the assistant share one answer.</li>
+<li><span class="n">K2</span><b>Kitchie: link a freezer item to the recipe it came from</b> (recipe id on the item at the end of a batch cook, R-D19). Today the item is a name only.</li>
+<li><span class="n">K3</span><b>Kitchie: "Not tonight"</b> as a one-day per-person snooze. Small, no history needed.</li>
+<li><span class="n">G10</span><b>Recipe: variations in what_can_i_cook.</b> It judges canonical recipes only; ideas should judge the household's default version (G4). Either a <code>targets</code> input, or Kitchie calls <code>what_am_i_missing</code> per default version (slower).</li>
+<li><span class="n">G11</span><b>Recipe: preferences on the list.</b> Star, vote, version status and the default version come back with <code>list_recipes</code> or <code>what_can_i_cook</code>, so ranking needs no call per recipe. Today <code>getPreference</code> is internal and not a tool.</li>
+<li><span class="n">G12</span><b>Recipe: a "trying" version status</b> (recipe-versions slice) readable in bulk.</li>
+<li><span class="n">G13</span><b>Recipe: matched name on each verdict.</b> Already there (<code>matched_as</code>); Kitchie needs it to join use-by. No change, noted so it is not removed.</li>
+<li><span class="n">G9</span><b>Batch facts</b> (existing gap): the closed tag words for freezes and portions.</li>
+</ol>
+</section>
+
+<section class="sec"><div class="lbl">What loads (DESIGN.md section 6)</div>
+<ol class="d">
+<li><b>Default path, Home:</b> the pane is drawn from one Kitchie call (K1) after the two stock tiles; it never blocks them. Only for a household with Recipes (product boundary); a household without it loads nothing of this.</li>
+<li><b>Deferred:</b> the Why, Tune, Ask and day-picker sheets build on tap (<code>plan-sheet.js</code> is shared with the Recipe tab). See all is its own route. Photos only for the lead and visible rows.</li>
+<li><b>Cost:</b> the ranking is one pass over the household's recipes (bounded by Recipe's 100 per <code>what_can_i_cook</code>), cached per household for a few minutes and dropped when stock, plan or food rules change.</li>
+<li><b>Close to the build:</b> classes <code>.ideas</code>, <code>.idl</code>, <code>.idr</code>, <code>.why</code>, <code>.rtag</code> and the <code>rank</code> function in <code>ideas.js</code> are meant to be lifted; sample signals are only in <code>ideas.js</code>.</li>
+</ol>
+</section>
+
+<div class="qs" style="margin-top:18px;padding:14px;border:1px dashed var(--border);border-radius:var(--r-card)"><b>Open questions</b>
+<ul style="margin:6px 0 0 18px;color:var(--muted)">
+<li>Options 1 to 4. A wrong pick on 4 (where ranking runs) costs a rewrite across two repos.</li>
+<li>Does "Not for me" write a dislike straight away (person level, ungated, P1), or ask first? Mockup: writes, with Undo.</li>
+<li>Should a household admin be able to set a household lean (for example Use it up for everyone)? Mockup: no, the lean is per person.</li>
+<li>Is "cooked in the last two days" a filter or just a strong negative? Mockup: filter.</li>
+<li>Should the pane appear on the Recipe tab too? The recipe-tab slice says no (R-D1); this slice agrees.</li>
+</ul></div>
+</div></body></html>
