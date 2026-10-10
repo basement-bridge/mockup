@@ -8,25 +8,27 @@
 (function(){
 var X=RCP,V=VER,ic=X.ic,esc=X.esc,F=V.FAM,O=V.O;
 var v=V.byId(X.Q.get("v")||"v2")||V.byId("v2");
-var follower=X.P.persona==="follower";
 var verdict=null,tweak=false,mkUsual=false;
 var ph=document.getElementById("ph");
 /* The cook count after this one. The sample's Trying version has 1 cook logged; tonight is its 2nd. */
 var nth=v.cooked+1;
-function ask(){
-  if(v.state!=="trying")return false;
-  if(O.cook==="C")return false;
-  if(O.cook==="B"&&nth<2)return false;
-  return true;
-}
+/* Pick 3 A (locked): every cook of a Trying version ends with Keep it, Needs work, Not for us. Kept versions are never asked.
+   Not chosen: 3 B (ask from the 2nd cook), 3 C (never ask). Any member who cooks it answers (L5); the first answer counts. */
+function ask(){return v.state==="trying"}
+/* Pick 4 B: this version has an assistant change nobody has reviewed. The cook went ahead on it (it is live); the cook entry
+   records the revision it used. Build default: the review stays open, and the cook's line says it was cooked with the change. */
+var rv=V.open(v.id)[0];
 function draw(){
   var head='<div class="pad"><p class="lbl" style="color:var(--accent)">Done · '+esc(F.name)+'</p><h1 style="margin-top:4px">How was it?</h1><p style="margin-top:6px">'+esc(v.name)+' · '+V.STATE[v.state][0].toLowerCase()+(v.state==="trying"?' · cook '+nth:'')+'</p></div>';
   /* The pantry and freezer questions of R-D19 come first in the real end-of-cook; this screen shows only the version part. */
   var pre='<div class="note" style="margin:0 var(--sp-4)">'+ic("check","xs")+' Pantry: 3 eggs, 300 g rice, 1 onion taken out. <span style="color:var(--muted)">(R-D19, the flow slice)</span></div>';
   var body;
   if(!ask()){
-    /* Option C or a kept version: no question. The cook is logged; promotion is only ever from the version page. */
-    body='<div class="pad">'+(v.state==="trying"?'<div class="band" style="margin:0">'+ic("flame","s")+'<span class="t"><b>Still trying</b><small>'+(O.cook==="B"?"We ask from the second cook.":"Keep it from the version page when you are ready.")+'</small></span></div>':'')+
+    /* A kept version: no question. The cook is logged. With an unreviewed assistant change, the one place it matters is asked here. */
+    body='<div class="pad">'+(rv?'<div class="rvc" style="margin:0"><div class="hd">'+V.av(rv.by)+'<span>You cooked it with <b>'+V.who(rv.by)+'\'s change</b> from '+rv.when+', not reviewed yet</span></div>'+
+      rv.changes.map(function(c){return '<div class="rvrow" data-row="'+c.id+'">'+V.diff([c.d])+'</div>'}).join("")+
+      '<div class="row"><button type="button" class="btn ghost" data-rvlater>Later</button><button type="button" class="btn" data-rvok>'+ic("check","s")+'It was right</button></div>'+
+      '<p style="font-size:12px;margin-top:8px">Either way, tonight\'s cook is logged against revision '+V.head(v).n+', the one you cooked. Undo a change from To review.</p></div>':'')+
       '<label class="lbl" for="ln" style="display:block;margin-top:12px">A line for Cooked (optional)</label><input id="ln" class="field" style="margin-top:4px" placeholder="e.g. doubled it for lunches"></div>';
   }else{
     /* Options A and B: three big answers. Only "Keep it" changes state; "Not for us" puts it away; "Needs work" leaves it trying. */
@@ -34,7 +36,7 @@ function draw(){
       [["keep","😋","Keep it","a keeper"],["work","🤔","Needs work","try again"],["no","🙅","Not for us","put it away"]].map(function(x){return '<button type="button" data-vd="'+x[0]+'" aria-pressed="'+(verdict===x[0])+'"><span aria-hidden="true">'+x[1]+'</span>'+x[2]+'<small>'+x[3]+'</small></button>'}).join("")+'</div>'+
       (verdict==="keep"?'<button type="button" class="ch" data-u aria-pressed="'+mkUsual+'">'+ic("star")+'<span class="t"><b>Make it our usual</b><small>Instead of '+esc(V.byId(F.usual).name)+'. Plan and Cook open this one for everyone.</small></span><span class="rad" aria-hidden="true"></span></button>':'')+
       (verdict==="work"?'<button type="button" class="ch" data-tw aria-pressed="'+tweak+'">'+ic("pen")+'<span class="t"><b>Note what to change</b><small>Opens Change on this try. It saves straight in, as revision '+(V.head(v).n+1)+'.</small></span><span class="rad" aria-hidden="true"></span></button>':'')+
-      (verdict==="no"?'<p style="font-size:13px;margin-top:10px">It goes to Put away with tonight\'s date. Nothing is deleted; bring it back from Versions.</p>':'')+
+      (verdict==="no"?'<p style="font-size:13px;margin-top:10px">It goes to Put away with tonight\'s date, at once, with Undo. Nothing is deleted; bring it back from Versions. <span style="color:var(--muted)">(Open: at once or wait for a second cook. Build default: at once.)</span></p>':'')+
       '<label class="lbl" for="ln" style="display:block;margin-top:12px">A line for Cooked (optional)</label><input id="ln" class="field" style="margin-top:4px" placeholder="e.g. garlic was perfect this time">'+
       '<p style="font-size:12px;margin-top:10px">'+ic("users","xs")+' Only this answer changes the version. Anyone in the household can answer; the first answer counts, later cooks can change it.</p></div>';
   }
@@ -47,6 +49,8 @@ ph.addEventListener("click",function(e){
   if(t.dataset.vd){verdict=t.dataset.vd;draw()}
   else if(t.hasAttribute("data-u")){mkUsual=!mkUsual;draw()}
   else if(t.hasAttribute("data-tw")){tweak=!tweak;draw()}
+  else if(t.hasAttribute("data-rvok")){rv.changes.forEach(function(c){c.st="kept"});X.toast("Reviewed. The badge is gone for everyone.");draw()}
+  else if(t.hasAttribute("data-rvlater")){X.toast("Left to review. Cook logged against revision "+V.head(v).n+".")}
   else if(t.hasAttribute("data-skip")){X.toast("Cook logged. "+esc(v.name)+" stays "+V.STATE[v.state][0].toLowerCase()+".")}
   else if(t.hasAttribute("data-done")){
     if(verdict==="keep"){v.state="kept";if(mkUsual)F.usual=v.id;X.toast("Kept"+(mkUsual?" and made our usual":"")+". Cook logged.");setTimeout(function(){location.href="version.html?v="+v.id},1300)}

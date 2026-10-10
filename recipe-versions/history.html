@@ -9,18 +9,19 @@
 var X=RCP,V=VER,ic=X.ic,esc=X.esc,F=V.FAM;
 var v=V.byId(X.Q.get("v")||"v0")||V.byId("v0");
 var cmp=X.Q.get("cmp");
-var follower=X.P.persona==="follower";
 var ph=document.getElementById("ph");
 var tab=cmp?"cmp":"hist";
 function hist(){
   var r=v.revs.slice().reverse();
   if(X.Q.get("just"))r.unshift({n:V.head(v).n+1,by:X.P.persona==="improviser"?"alex":"sam",when:"just now",kind:"fix",why:"",d:[["chg","Frozen peas 100 g","80 g"]],fresh:1});
   /* V-D13: a revision is one row: who (assistant marked), when, what kind, their words, and the diff. Newest first. */
+  /* Pick 5 A + 6 B (locked): each revision is frozen and stores only its change set (spec: Revision storage). Going back and
+     reverting one change are new revisions; nothing is rewound. An assistant revision on a kept version shows "To review" (pick 4 B). */
   return '<p style="font-size:13px;margin:4px 0 8px">Every saved change to <b style="color:var(--fg)">'+esc(v.name)+'</b>. Nothing here is ever rewritten: going back saves a new revision.</p>'+
   r.map(function(x,k){return '<div class="rv'+(k===0?' head':'')+'"><span class="k">'+x.n+'</span>'+
-    '<b>'+V.kindWord[x.kind]+' by '+V.who(x.by)+'</b>'+(V.isAI(x.by)?' <span class="st ai">'+ic("spark","xs")+'assistant</span>':'')+
+    '<b>'+V.kindWord[x.kind]+' by '+V.who(x.by)+'</b>'+(V.isAI(x.by)?' <span class="st ai">'+ic("spark","xs")+'assistant</span>':'')+(x.review&&V.open(v.id).length?' <span class="st rvw">'+ic("spark","xs")+'To review</span>':'')+
     '<small>'+x.when+(k===0?' · what you see now':'')+'</small>'+(x.why?'<small style="color:var(--fg)">'+esc(x.why)+'</small>':'')+V.diff(x.d)+
-    (k>0&&!follower?'<div class="acts"><button type="button" class="mini" data-see="'+x.n+'">See it as it was</button><button type="button" class="mini" data-restore="'+x.n+'">'+ic("undo","xs")+'Go back to this</button></div>':'')+'</div>'}).join("");
+    (x.review&&V.open(v.id).length?'<div class="acts"><a class="mini" href="suggestions.html?r='+x.review+'">Review this change</a></div>':'')+(k>0?'<div class="acts"><button type="button" class="mini" data-see="'+x.n+'">See it as it was</button><button type="button" class="mini" data-restore="'+x.n+'">'+ic("undo","xs")+'Go back to this</button></div>':'')+'</div>'}).join("");
 }
 function compare(){
   /* V-D14: compare is two columns, only the rows that differ, the rest folded into one line. */
@@ -36,12 +37,21 @@ function compare(){
     '<div class="cmp"><div class="h">'+esc(a.name)+' · usual</div><div class="h">'+esc(b.name)+'</div>'+
     diff.map(function(d){return '<div class="'+(d[1]?'':'x')+'">'+(d[1]?esc(d[0])+' '+esc(d[1]):'not in it')+'</div><div class="'+(d[2]?'d':'x')+'">'+(d[2]?esc(d[0])+' '+esc(d[2]):'not in it')+'</div>'}).join("")+
     '</div><p style="font-size:12.5px;margin-top:8px">'+same+' ingredients the same'+(sd?' · '+sd+' step'+(sd>1?'s':'')+' worded differently':' · method the same')+'.</p>'+
-    (follower?'':'<div style="display:flex;gap:8px;margin-top:12px"><a class="btn ghost" href="version.html?v='+b.id+'">Open '+esc(b.name)+'</a></div>');
+    ('<div style="display:flex;gap:8px;margin-top:12px"><a class="btn ghost" href="version.html?v='+b.id+'">Open '+esc(b.name)+'</a></div>');
+}
+function blame(){
+  /* "Who changed this line": each ingredient and step of the head, with the revision that last touched it. In the build this
+     comes from blame (spec 9.7): a walk back over the change sets by line id. The sample's attributions live in versions.js. */
+  var c=V.CONTENT[v.id],bl=c.bl||{};
+  var row=function(txt,q,key){var r=bl[key];return '<div class="ing"><span class="nm">'+esc(txt)+(q?'<span class="q">'+esc(q)+'</span>':'')+'</span><span style="font-size:11.5px;color:var(--muted);text-align:right;flex:none;max-width:42%">'+(r?'rev '+r[0]+' · '+V.who(r[1])+'<br>'+r[2]:'from '+esc(v.parent?V.byId(v.parent).name:"the start"))+'</span></div>'};
+  return '<p style="font-size:13px;margin:4px 0 8px">Which revision last changed each line of <b style="color:var(--fg)">'+esc(v.name)+'</b>, and who.</p>'+
+    '<div class="lbl" style="margin-top:8px">Ingredients</div>'+c.ings.map(function(i){return row(i[0],i[1],i[0])}).join("")+
+    '<div class="lbl" style="margin-top:12px">Method</div>'+c.steps.map(function(t,k){return row((k+1)+". "+t,"","s"+k)}).join("");
 }
 function draw(){
   ph.innerHTML='<div class="top"><a class="back" href="version.html?v='+v.id+'">'+ic("back","s")+esc(v.name)+'</a><span class="ttl"></span><span style="width:44px"></span></div>'+
-    '<nav class="jumps" role="tablist" aria-label="View"><a href="#" role="tab" data-tab="hist" aria-selected="'+(tab==="hist")+'" class="'+(tab==="hist"?"on":"")+'">History · '+v.revs.length+'</a><a href="#" role="tab" data-tab="cmp" aria-selected="'+(tab==="cmp")+'" class="'+(tab==="cmp"?"on":"")+'">Compare with our usual</a></nav>'+
-    '<div class="body"><div class="pad">'+(tab==="hist"?hist():compare())+'</div><div style="height:24px"></div></div>';
+    '<nav class="jumps" role="tablist" aria-label="View"><a href="#" role="tab" data-tab="hist" aria-selected="'+(tab==="hist")+'" class="'+(tab==="hist"?"on":"")+'">History · '+v.revs.length+'</a><a href="#" role="tab" data-tab="who" aria-selected="'+(tab==="who")+'" class="'+(tab==="who"?"on":"")+'">Who changed what</a><a href="#" role="tab" data-tab="cmp" aria-selected="'+(tab==="cmp")+'" class="'+(tab==="cmp"?"on":"")+'">Compare</a></nav>'+
+    '<div class="body"><div class="pad">'+(tab==="hist"?hist():tab==="who"?blame():compare())+'</div><div style="height:24px"></div></div>';
 }
 ph.addEventListener("click",function(e){
   var t=e.target.closest("button,a");if(!t)return;

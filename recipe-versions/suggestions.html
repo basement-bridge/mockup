@@ -1,50 +1,58 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Assistant suggestions — Recipe versions mockup</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>To review — Recipe versions mockup</title>
 <link rel="stylesheet" href="../theme.css"><link rel="stylesheet" href="../recipe/recipe.css"><link rel="stylesheet" href="versions.css">
 <script src="../theme.js"></script><script src="../recipe/recipe.js"></script><script src="versions.js"></script></head>
 <body data-no-theme-fab>
 <div class="stage"><div class="phone" id="ph"></div></div>
 <script>
+/* "To review" (pick 4 B, locked by the owner, typed, 10 Oct 2026): an assistant may edit a kept version or the usual directly.
+   The change is live at once (plans and cooks use it). A person reviews afterwards:
+   - what changed (the diff, one row per change), which assistant and for whom (member + client name), their words, when;
+   - Looks right (accept all) or Undo one change at a time (each undo is a NEW revision that reverses that change only);
+   - the "To review" badge shows on the version, its strip item, Versions and History for every member until someone reviews;
+   - cooked meanwhile: the cook entry already points at the revision cooked; the review stays open and says so.
+   Also here: whole new recipes an assistant made (Suggested, out of lists until a person says yes, V-D22).
+   Not chosen: 4 A suggest only (the old Apply / Keep both / Not now / No thanks card), 4 C trusted per member.
+   L5: any household member reviews; no admin. The file keeps its old name so links from other folders stay valid. */
 (function(){
-var X=RCP,V=VER,ic=X.ic,esc=X.esc,F=V.FAM,O=V.O;
+var X=RCP,V=VER,ic=X.ic,esc=X.esc,F=V.FAM;
 var ph=document.getElementById("ph");
-var decided={};
-function card(s){
-  var tv=V.byId(s.target);
-  if(decided[s.id])return '<div class="sug" style="border-style:solid"><div class="hd">'+ic("check","s")+'<b>'+esc(decided[s.id])+'</b></div></div>';
-  if(O.ai==="B"){
-    /* Option B: the assistant already saved into the kept version; a person reviews afterwards and can undo in one tap. */
-    return '<div class="sug"><div class="hd">'+V.av(s.by)+'<span><b>'+V.who(s.by)+'</b> changed <b>'+esc(tv.name)+'</b> · '+s.when+'</span></div>'+
-      '<p style="margin-top:8px;color:var(--fg);font-weight:700">'+esc(s.title)+'</p><q>'+esc(s.words)+'</q>'+V.diff(s.d)+
-      '<p style="font-size:12px;margin-top:8px">Already saved as revision '+(V.head(tv).n+1)+'. Plans and cooks use it now.</p>'+
-      '<div class="row"><button type="button" class="btn ghost" data-act="undo" data-s="'+s.id+'">'+ic("undo","s")+'Undo it</button><button type="button" class="btn" data-act="ok" data-s="'+s.id+'">'+ic("check","s")+'Looks right</button></div></div>';
-  }
-  /* Options A and C: a suggestion waits. Apply makes it the next revision; Keep both makes a new Trying version; Not now leaves it. */
-  return '<div class="sug"><div class="hd">'+V.av(s.by)+'<span><b>'+V.who(s.by)+'</b> suggests a change to <b>'+esc(tv.name)+'</b>'+(F.usual===tv.id?' (our usual)':'')+' · '+s.when+'</span></div>'+
-    '<p style="margin-top:8px;color:var(--fg);font-weight:700">'+esc(s.title)+'</p><q>'+esc(s.words)+'</q>'+V.diff(s.d)+
-    '<div class="row"><button type="button" class="btn" data-act="apply" data-s="'+s.id+'">'+ic("check","s")+'Apply to '+esc(tv.name)+'</button><button type="button" class="btn ghost" data-act="both" data-s="'+s.id+'">'+ic("branch","s")+'Keep both</button></div>'+
-    '<div class="row" style="margin-top:6px"><button type="button" class="btn ghost" data-act="later" data-s="'+s.id+'">Not now</button><button type="button" class="btn ghost" data-act="no" data-s="'+s.id+'">'+ic("x","s")+'No thanks</button></div></div>';
+var cooked=X.Q.get("cooked")==="1"; /* sample switch: someone cooked it before anyone reviewed */
+function card(r){
+  var tv=V.byId(r.target),left=r.changes.filter(function(c){return !c.st}).length,done=!left;
+  var who=V.WHO[r.by];
+  return '<div class="rvc'+(done?' done':'')+'" id="'+r.id+'"><div class="hd">'+V.av(r.by)+'<span><b>'+V.who(r.by)+'</b> ('+esc(r.client)+', for '+esc(V.WHO[who[2]][0])+') changed <b>'+esc(tv.name)+'</b>'+(F.usual===tv.id?' · our usual':'')+'<br>'+r.when+' · revision '+r.rev+' · in use now</span></div>'+
+    '<p style="margin-top:8px;color:var(--fg);font-weight:700">'+esc(r.title)+'</p><p class="wd">'+esc(r.words)+'</p>'+
+    '<p class="where">'+ic("pen","xs")+' Fixed in place: the assistant asked "fix this one or keep both?" and '+esc(V.WHO[who[2]][0])+' said fix (pick 2 C).</p>'+
+    (cooked?'<p class="where" style="color:var(--danger)">'+ic("flame","xs")+' Sam cooked it last night with this change. That cook stays logged against revision '+r.rev+'; undoing now changes the next cook, not that one.</p>':'')+
+    r.changes.map(function(c){return '<div class="rvrow'+(c.st?' '+c.st:'')+'">'+V.diff([c.d])+
+      (c.st?'<span class="tg '+(c.st==="kept"?'':'mut')+'">'+(c.st==="kept"?'kept':'undone')+'</span>':'<button type="button" class="mini" data-undo="'+c.id+'" data-r="'+r.id+'" aria-label="Undo this change">'+ic("undo","xs")+'Undo</button>')+'</div>'}).join("")+
+    (done?'<p style="font-size:12.5px;margin-top:8px">'+ic("check","xs")+' Reviewed by '+esc(X.me[2])+' just now. The badge is gone for everyone.</p>':
+    '<div class="row"><a class="btn ghost" href="history.html?v='+tv.id+'">'+ic("undo","s")+'History</a><button type="button" class="btn" data-all="'+r.id+'">'+ic("check","s")+'Looks right'+(left<r.changes.length?' (the rest)':'')+'</button></div>')+'</div>';
 }
 function draw(){
-  /* A second, already-applied example so the "who did what" mark is visible on something the assistant changed without asking (trying version). */
-  var auto='<div class="sug" style="border-style:solid"><div class="hd">'+V.av("ai_alex")+'<span><b>Alex\'s assistant</b> changed <b>Less soy, more garlic</b> · 5 Oct</span></div><p style="margin-top:6px;font-size:13px">It is a try, so the change went straight in. Shown here once so you know. <a href="history.html?v=v2" style="color:var(--accent);font-weight:700">History</a></p></div>';
-  var intro={A:"Your assistant can try anything, but it never changes a kept version or the usual on its own. It suggests; a person says yes.",
-    B:"Your assistant saves straight into any version. Changes to a kept version or the usual show here once, to check or undo.",
-    C:"Each member chooses: trusted, their assistant edits kept versions directly; not trusted, it suggests. Alex has not trusted theirs."}[O.ai];
-  ph.innerHTML='<div class="top"><a class="back" href="family.html">'+ic("back","s")+'Versions</a><span class="ttl">From assistants</span><span style="width:44px"></span></div>'+
-    '<div class="body"><div class="pad" style="padding-bottom:0"><p style="font-size:13px">'+intro+'</p>'+
-    (O.ai==="C"?'<button type="button" class="ch" data-trust aria-pressed="false" style="margin-top:8px">'+ic("spark")+'<span class="t"><b>Trust my assistant with kept versions</b><small>Your setting only (Alex). Its changes still show who made them.</small></span><span class="rad" aria-hidden="true"></span></button>':'')+
-    '</div>'+F.sugg.map(card).join("")+auto+'<div style="height:24px"></div></div>';
+  var rs=F.reviews||[],open=rs.filter(function(r){return r.changes.some(function(c){return !c.st})}).length;
+  var draft=F.drafts[0];
+  ph.innerHTML='<div class="top"><a class="back" href="family.html">'+ic("back","s")+'Versions</a><span class="ttl">To review</span><span style="width:44px"></span></div>'+
+    '<div class="body"><div class="pad" style="padding-bottom:0"><p style="font-size:13px">Assistants can change any version, keepers and our usual included. Their changes go in at once; here anyone in the household checks them'+(open?'. <b style="color:var(--fg)">'+open+' waiting.</b>':', all done.')+'</p></div>'+
+    rs.map(card).join("")+
+    /* A change to a try is not reviewed: it shows once here, then only in History. */
+    '<div class="sug" style="border-style:solid"><div class="hd">'+V.av("ai_alex")+'<span><b>Alex\'s assistant</b> changed <b>Less soy, more garlic</b> · 5 Oct</span></div><p style="margin-top:6px;font-size:13px">It is a try, so nothing to review. <a href="history.html?v=v2" style="color:var(--accent);font-weight:700">History</a></p></div>'+
+    '<div class="pad" style="padding-bottom:0"><div class="lbl" style="margin-top:8px">New recipes from assistants</div></div>'+
+    '<div class="sug"><div class="hd">'+V.av(draft.by)+'<span><b>'+V.who(draft.by)+'</b> made <b>'+esc(draft.name)+'</b> · '+draft.when+'</span></div><p class="wd">'+esc(draft.words)+'</p>'+
+    '<p style="font-size:12.5px;margin-top:6px">Suggested: not in lists, plans or ideas until someone says yes. '+draft.unknown+' amounts are unknown (the assistant did not guess).</p>'+
+    '<div class="row"><button type="button" class="btn ghost" data-draft="no">'+ic("x","s")+'Not for us</button><button type="button" class="btn" data-draft="yes">'+ic("check","s")+'Add to Recipes</button></div></div>'+
+    '<div style="height:24px"></div></div>';
 }
 ph.addEventListener("click",function(e){
   var t=e.target.closest("button");if(!t)return;
-  if(t.hasAttribute("data-trust")){t.setAttribute("aria-pressed",t.getAttribute("aria-pressed")!=="true");return}
-  var s=t.dataset.s,a=t.dataset.act;if(!s)return;
-  var tv=V.byId(F.sugg[0].target);
-  var msg={apply:"Applied to "+tv.name+" as revision "+(V.head(tv).n+1)+". Approved by "+X.me[2]+".",both:"Saved as a new version, Trying. "+tv.name+" unchanged.",later:"Left for later. It stays on the version page.",no:"Dismissed. Kept in the assistant's history, not in the recipe.",undo:"Undone: a new revision puts it back as it was.",ok:"Marked as checked."}[a];
-  decided[s]=msg;draw();X.toast(msg);
+  var r=(F.reviews||[]).filter(function(x){return x.id===t.dataset.r||x.id===t.dataset.all})[0];
+  if(t.dataset.undo){var c=r.changes.filter(function(x){return x.id===t.dataset.undo})[0];c.st="reverted";draw();X.toast("Undone: saved as a new revision that reverses only this change.",function(){c.st=null;draw()})}
+  else if(t.dataset.all){r.changes.forEach(function(c){if(!c.st)c.st="kept"});draw();X.toast("Reviewed. Nothing changes in the recipe; the badge goes.")}
+  else if(t.dataset.draft){X.toast(t.dataset.draft==="yes"?"Added as Trying. It shows in Recipes now.":"Put away. Your assistant's history keeps it.")}
 });
 draw();
+var q=X.Q.get("r");if(q){var el=document.getElementById(q);if(el)el.scrollIntoView()}
 V.controls();
 })();
 </script>

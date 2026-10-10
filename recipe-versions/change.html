@@ -5,82 +5,62 @@
 <body data-no-theme-fab>
 <div class="stage"><div class="phone" id="ph"></div></div>
 <script>
+/* Change, after the owner's locked decisions (10 Oct 2026).
+   L4: recipe content is created and edited ONLY through the person's own AI assistant over Recipe's MCP tools. The app has no
+   content editor: Change opens the person's AI app (plan-week-ai 45), aimed at this version. The app still adds photos and notes.
+   Pick 2 C: a try takes edits in place; a keeper asks at save: Fix this one, Keep both, or It is a different dish now. Through
+   the assistant "asks at save" means the assistant asks the person in the chat before it writes (spec: Assistant authoring).
+   Pick 4 B: on "Fix this one" the assistant may save into the kept version (or the usual) directly; the household reviews after.
+   The chat is a neutral stand-in for the person's own AI app, not any product's look. Steps: ?step=sheet (in Recipes) | chat. */
 (function(){
-var X=RCP,V=VER,ic=X.ic,esc=X.esc,F=V.FAM,O=V.O;
+var X=RCP,V=VER,ic=X.ic,esc=X.esc,F=V.FAM;
 var v=V.byId(X.Q.get("v")||F.usual)||V.byId(F.usual);
-var forceNew=X.Q.get("new")==="1";
-/* where: null until chosen; "fix" (new revision of this version), "new" (new version, parent = this), "own" (spin off) */
-var where=forceNew?"new":(O.save==="C"&&v.state==="trying"?"fix":null);
-var rows=V.CONTENT[v.id].ings.map(function(i){return {n:i[0],q:i[1],oq:i[1],on:i[0],gone:false,added:false}});
-var steps=V.CONTENT[v.id].steps.map(function(s){return {t:s,o:s}});
+var step=X.Q.get("step")||"sheet";
+var pick=null;
 var ph=document.getElementById("ph");
-function changes(){
-  var c=[];
-  rows.forEach(function(x){if(x.added)c.push(["add",x.n+" "+x.q]);else if(x.gone)c.push(["rm",x.on]);else if(x.q!==x.oq||x.n!==x.on)c.push(["chg",x.n+" "+x.q,x.on+" "+x.oq])});
-  steps.forEach(function(s,k){if(s.t!==s.o)c.push(["chg","Step "+(k+1)+" reworded"])});
-  return c;
+var keeper=v.state!=="trying";
+var usual=F.usual===v.id;
+function where(){
+  /* The band says, before anything happens, where the change will land (V-D11, pick 2 C). */
+  return keeper?'<div class="band sage">'+ic("check","s")+'<span class="t"><b>'+esc(v.name)+' is a keeper'+(usual?' and our usual':'')+'</b><small>Your assistant will ask first: fix this one, keep both, or a different dish.</small></span></div>'
+    :'<div class="band">'+ic("flame","s")+'<span class="t"><b>'+esc(v.name)+' is a try</b><small>Changes go straight in as revision '+(V.head(v).n+1)+'. The old one stays in History.</small></span></div>';
 }
-function intro(){
-  /* The line at the top says, before anything is touched, where these changes will land (R-D16 kept: never a surprise). */
-  if(where==="fix")return '<div class="band">'+ic("pen","s")+'<span class="t"><b>Saving into '+esc(v.name)+'</b><small>'+(v.state==="trying"?"It is a try, so changes go straight in. ":"")+'Revision '+(V.head(v).n+1)+'; the old one stays in History.</small></span>'+(O.save==="C"?'<button type="button" class="mini" data-swapto="new">New version instead</button>':'')+'</div>';
-  if(where==="new")return '<div class="band sage">'+ic("branch","s")+'<span class="t"><b>New version from '+esc(v.name)+'</b><small>'+esc(v.name)+' stays exactly as it is. The new one starts as Trying.</small></span></div>';
-  if(where==="own")return '<div class="band mut">'+ic("spark","s")+'<span class="t"><b>A new recipe, from '+esc(v.name)+'</b><small>Its own row in the list, linked back here.</small></span></div>';
-  return '<div class="band mut">'+ic("pen","s")+'<span class="t"><b>Changing '+esc(v.name)+'</b><small>'+V.STATE[v.state][0]+'. When you save, you choose: fix this one or keep both.</small></span></div>';
+function sheet(){
+  ph.innerHTML='<div class="top"><a class="back" href="version.html?v='+v.id+'">'+ic("back","s")+esc(v.name)+'</a><span class="ttl">Change</span><span style="width:64px"></span></div>'+
+  '<div class="body">'+where()+'<div class="pad"><h2>Change it with your assistant</h2>'+
+  '<p style="margin-top:6px">Recipes are written and changed by your own AI app, through Recipe\'s tools. Tell it what to change in your own words; it opens aimed at <b style="color:var(--fg)">'+esc(F.name)+', '+esc(v.name)+'</b>.</p>'+
+  '<p style="font-size:12.5px;margin-top:10px">Here in Recipes you can still add a note or photos. Nothing here edits the recipe itself.</p>'+
+  '<div style="display:grid;gap:8px;margin-top:14px"><a class="btn" href="?v='+v.id+'&step=chat">'+ic("spark","s")+'Open my AI app</a>'+
+  '<a class="btn ghost" href="version.html?v='+v.id+'#not">'+ic("note","s")+'Add a note instead</a>'+
+  '<a class="btn ghost" href="../recipe-photos/add.html?to=efr">'+ic("cam","s")+'Add a photo</a></div></div><div style="height:24px"></div></div>';
 }
-function draw(){
-  var c=changes();
-  if(O.save==="B"&&!where){askFirst();return}
-  ph.innerHTML='<div class="top"><a class="back" href="version.html?v='+v.id+'">'+ic("back","s")+'Cancel</a><span class="ttl">Change</span><span style="width:64px"></span></div>'+
-  '<div class="body">'+intro()+'<div class="pad"><h2>'+esc(F.name)+'</h2>'+
-  '<div class="lblrow"><span class="lbl">Ingredients · serves 2</span><button type="button" class="back" style="font-size:13px" data-addi>'+ic("plus","xs")+' Add</button></div>'+
-  rows.map(function(x,k){var ch=x.added||x.gone||x.q!==x.oq||x.n!==x.on;
-    return '<div class="erow'+(ch?' ing chg':'')+'" style="'+(x.gone?'opacity:.5':'')+'"><span class="nm">'+(x.gone?'<s>':'')+esc(x.n)+' <span style="color:var(--muted);font-size:13px">'+esc(x.q)+'</span>'+(x.gone?'</s>':'')+(ch&&!x.added&&!x.gone?' <span class="was">(<s>'+esc(x.oq)+'</s>)</span>':'')+(x.added?' <span class="was">added</span>':'')+'</span>'+
-    (x.gone?'<button type="button" class="mini ico" data-undo="'+k+'" aria-label="Put back">'+ic("undo","s")+'</button>':'<button type="button" class="mini ico" data-q="'+k+'" aria-label="Change amount of '+esc(x.n)+'">'+ic("pen","s")+'</button><button type="button" class="mini ico" data-rm="'+k+'" aria-label="Remove '+esc(x.n)+'">'+ic("x","s")+'</button>')+'</div>'}).join("")+
-  '<div class="lblrow"><span class="lbl">Method</span></div>'+
-  steps.map(function(s,k){return '<div class="stp'+(s.t!==s.o?' ing chg':'')+'"><span class="nb">'+(k+1)+'</span><textarea class="field" data-step="'+k+'" rows="2" aria-label="Step '+(k+1)+'" style="padding:8px;min-height:60px;resize:vertical">'+esc(s.t)+'</textarea></div>'}).join("")+
-  '</div><div style="height:24px"></div></div>'+
-  '<div class="act"><span style="flex:1;font-size:12.5px;color:var(--muted);align-self:center" id="cnt">'+(c.length?c.length+' change'+(c.length>1?'s':''):'No changes yet')+'</span><button type="button" class="btn sm" data-save'+(c.length?'':' disabled')+'>'+ic(where==="fix"?"check":"branch","s")+(where==="fix"?'Save':'Save…')+'</button></div>';
+function chat(){
+  var me=keeper?'Use 160 g of peas in '+v.name.toLowerCase()+', they still vanish':'Less garlic in this one, and only in the last minute';
+  var a1, tool;
+  if(!keeper){
+    /* Pick 2 C on a try: no question, the edit goes in place. */
+    a1='Done. <b>'+esc(v.name)+'</b> is a try, so I fixed it in place: revision '+(V.head(v).n+1)+'.'+V.diff([["chg","Garlic cloves 1","2"],["chg","Step 2: …add the garlic for the last minute","…for the last two minutes"]])+'<small>revise_version (version, base revision '+V.head(v).n+', kind fix, your words). Tell me if you want it as a separate version instead.</small>';
+    tool='';
+  }else{
+    a1=(usual?'<b>'+esc(v.name)+'</b> is your household\'s usual, so everyone cooks it. ':'<b>'+esc(v.name)+'</b> is a keeper. ')+'Where should this go?'+
+      '<div class="qa" role="group" aria-label="Where should it go">'+
+      [["fix","Fix "+esc(v.name),"Next revision of the same version"],["both","Keep both","A new version, starts as Trying"],["own","It is a different dish now","Its own recipe, linked back"]].map(function(o){return '<button type="button" data-p="'+o[0]+'" aria-pressed="'+(pick===o[0])+'">'+o[1]+'<br><small style="color:inherit;opacity:.8;margin:0">'+o[2]+'</small></button>'}).join("")+'</div>'+
+      '<small>Recipe asks the assistant to ask: pick 2 C. Nothing is saved yet.</small>';
+    tool=pick==="fix"?'<div class="vbub">Saved into <b>'+esc(v.name)+'</b> as revision '+(V.head(v).n+1)+'. It is live now.'+V.diff([["chg","Frozen peas 160 g","120 g"]])+
+        '<small>revise_version (target fix, base revision '+V.head(v).n+', your words). Because it is a keeper, Recipes shows it as "To review" until someone in the household checks it; anyone can undo each change.</small></div>'
+      :pick==="both"?'<div class="vbub">Saved as a new version, <b>Extra peas</b>, Trying. '+esc(v.name)+' is unchanged.<small>create_version (from '+esc(v.name)+' revision '+V.head(v).n+', your words). A try needs no review.</small></div>'
+      :pick==="own"?'<div class="vbub">Made <b>Pea fried rice</b> as its own recipe, Trying, linked back to '+esc(F.name)+'.<small>spin_off (your words). The cover photo comes along (P-D9).</small></div>':'';
+  }
+  ph.innerHTML='<div class="vhead"><span class="dotai" aria-hidden="true">'+ic("spark","s")+'</span>Your assistant<span style="flex:1"></span><span class="lbl">your AI app</span></div>'+
+    '<div class="body"><div class="mockmark">Stand-in for the person\'s own AI app</div><div class="vchat">'+
+    '<div class="vbub"><small style="margin:0">Opened from Recipes: '+esc(F.name)+', '+esc(v.name)+' ('+V.STATE[v.state][0].toLowerCase()+(usual?', our usual':'')+')</small></div>'+
+    '<div class="vbub me">'+esc(me)+'</div>'+
+    (pick&&keeper?'<div class="vbub">'+a1.replace(/<div class="qa"[\s\S]*<\/div>/,'')+'</div><div class="vbub me">'+({fix:"Fix this one",both:"Keep both",own:"It's a different dish now"}[pick])+'</div>'+tool:'<div class="vbub">'+a1+'</div>')+
+    '</div></div>'+
+    '<div class="act"><a class="btn ghost" href="?v='+v.id+'">Back to Recipes</a><a class="btn" href="'+(keeper&&pick==="fix"?'suggestions.html':'version.html?v='+v.id)+'">'+(keeper&&pick==="fix"?'See it in Recipes':'Open '+esc(v.name))+'</a></div>';
 }
-function askFirst(){
-  /* Option B: choose where the change goes before touching anything. */
-  ph.innerHTML='<div class="top"><a class="back" href="version.html?v='+v.id+'">'+ic("back","s")+'Cancel</a><span class="ttl">Change '+esc(v.name)+'</span><span style="width:64px"></span></div>'+
-  '<div class="body"><div class="pad"><h2>What are you doing?</h2><p style="margin-top:4px">'+esc(v.name)+' is '+V.STATE[v.state][0].toLowerCase()+'.</p>'+choices()+'</div></div>';
-}
-function choices(sel){
-  return '<button type="button" class="ch" data-w="fix" aria-pressed="'+(sel==="fix")+'">'+ic("pen")+'<span class="t"><b>Fix '+esc(v.name)+'</b><small>A mistake, a better amount, clearer words. Same version, next revision. Everyone using it gets the fix.</small></span><span class="rad" aria-hidden="true"></span></button>'+
-  '<button type="button" class="ch" data-w="new" aria-pressed="'+(sel==="new")+'">'+ic("branch")+'<span class="t"><b>Keep both</b><small>A new version with '+esc(v.name)+' as its parent. Starts as Trying. '+esc(v.name)+' does not change.</small></span><span class="rad" aria-hidden="true"></span></button>'+
-  '<button type="button" class="ch" data-w="own" aria-pressed="'+(sel==="own")+'">'+ic("spark")+'<span class="t"><b>It is a different dish now</b><small>Its own recipe in the list, linked back to '+esc(F.name)+'.</small></span><span class="rad" aria-hidden="true"></span></button>';
-}
-function saveSheet(){
-  var c=changes();
-  var nm=c[0][0]==="add"?"With "+c[0][1].split(" ")[0].toLowerCase():c[0][0]==="rm"?"Without "+c[0][1].toLowerCase():"More "+c[0][1].split(" ")[0].toLowerCase();
-  var pick=where;
-  var body=function(){return '<h3>Save '+c.length+' change'+(c.length>1?'s':'')+'</h3>'+V.diff(c)+
-    (O.save==="A"||(O.save==="C"&&v.state!=="trying"&&!forceNew)?choices(pick):'')+
-    (pick==="new"||pick==="own"?'<label class="lbl" for="vn" style="display:block;margin-top:12px">'+(pick==="own"?"Recipe name":"Call it")+'</label><input id="vn" class="field" style="margin-top:4px" value="'+esc(nm)+'">':'')+
-    '<label class="lbl" for="vw" style="display:block;margin-top:10px">'+(pick==="fix"?"What did you fix? (optional)":"Why keep it? (optional)")+'</label><input id="vw" class="field" style="margin-top:4px" placeholder="'+(pick==="fix"?"e.g. amount was per pot":"e.g. less salty, kids prefer it")+'">'+
-    '<div style="display:flex;gap:8px;margin-top:12px"><button class="btn ghost" data-close>Back</button><button class="btn" data-go'+(pick?'':' disabled')+'>'+(pick==="fix"?"Save into "+esc(v.name):pick==="own"?"Make the recipe":"Save version")+'</button></div>'};
-  X.sheet('<div id="sb">'+body()+'</div>',function(s,close){
-    s.addEventListener("click",function(e){var b=e.target.closest("[data-w]");if(b){pick=b.dataset.w;s.querySelector("#sb").innerHTML=body();return}
-      if(e.target.closest("[data-go]")){close();done(pick)}});
-  });
-}
-function done(pick){
-  if(pick==="fix"){X.toast("Saved into "+v.name+" as revision "+(V.head(v).n+1)+". Old one in History.",function(){});setTimeout(function(){location.href="history.html?v="+v.id+"&just=1"},1300)}
-  else if(pick==="new"){X.toast("New version saved as Trying. "+v.name+" is unchanged.");setTimeout(function(){location.href="version.html?v=v2"},1300)}
-  else{X.toast("New recipe made, linked back to "+F.name+".")}
-}
-ph.addEventListener("click",function(e){
-  var t=e.target.closest("button");if(!t)return;
-  if(t.dataset.w&&O.save==="B"&&!where){where=t.dataset.w;draw();return}
-  if(t.dataset.swapto){where=t.dataset.swapto;draw()}
-  else if(t.dataset.rm){rows[+t.dataset.rm].gone=true;draw()}
-  else if(t.dataset.undo){rows[+t.dataset.undo].gone=false;draw()}
-  else if(t.dataset.q){var x=rows[+t.dataset.q];X.sheet('<h3>'+esc(x.n)+'</h3><label class="lbl" for="aq">Amount for 2</label><input id="aq" class="field" style="margin-top:4px" value="'+esc(x.q)+'"><div style="display:flex;gap:8px;margin-top:12px"><button class="btn ghost" data-close>Cancel</button><button class="btn" data-ok>Done</button></div>',function(s,close){s.querySelector("[data-ok]").onclick=function(){x.q=s.querySelector("#aq").value||x.q;close();draw()}})}
-  else if(t.hasAttribute("data-addi")){rows.push({n:"Chilli flakes",q:"½ tsp",oq:"½ tsp",on:"Chilli flakes",added:true,gone:false});draw()}
-  else if(t.hasAttribute("data-save")){if(where==="fix"&&O.save==="C")done("fix");else saveSheet()}
-});
-ph.addEventListener("input",function(e){var k=e.target.dataset.step;if(k!=null){steps[+k].t=e.target.value;var c=changes();document.getElementById("cnt").textContent=c.length?c.length+" change"+(c.length>1?"s":""):"No changes yet";ph.querySelector("[data-save]").disabled=!c.length}});
+function draw(){if(step==="chat")chat();else sheet()}
+ph.addEventListener("click",function(e){var b=e.target.closest("[data-p]");if(b){pick=b.dataset.p;draw()}});
 draw();
 V.controls();
 })();

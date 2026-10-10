@@ -7,16 +7,15 @@
 (function () {
   var X = window.RCP;
   var V = {};
-  V.opt = function (k, d) { var q = X.Q.get(k); if (q) { X.store.set(k, q); return q; } return X.store.get(k, d); };
-  V.O = {
-    fam: V.opt("vfam", "A"),     /* family screen: A grouped by state, B tree by parent */
-    save: V.opt("vsave", "C"),   /* where a change goes: A ask at save, B ask first, C trying edits in place, kept asks */
-    cook: V.opt("vcook", "A"),   /* promote after a cook: A ask every cook, B ask from the 2nd cook, C never ask */
-    ai: V.opt("vai", "A")        /* assistant on a kept version: A always a suggestion, B edit then review, C trusted per member */
-  };
+  /* Options 1 to 6 are locked (owner, typed, 10 Oct 2026): 1 A grouped by state, 2 C a try takes edits in place and a keeper
+     asks at save, 3 A ask after every cook of a try, 4 B the assistant may edit a kept version or the usual and a person
+     reviews afterwards, 5 A frozen revisions under changeable versions, 6 B a revision stores only its change set (git-like).
+     They are no longer switches. V.O stays so the screens read the pick in one place. */
+  V.O = { fam: "A", save: "C", cook: "A", ai: "B" };
+  V.LOCKED = "Locked (owner, typed, 10 Oct 2026)";
 
   /* Members and the assistant. An assistant is never a member: it acts for one (on_behalf_of). */
-  V.WHO = { sam: ["Sam", "S"], jane: ["Jane", "J"], alex: ["Alex", "A"], priya: ["Priya", "P"], ai_alex: ["Alex's assistant", "✦", "alex"], ai_sam: ["Sam's assistant", "✦", "sam"], legacy: ["Before versions", "?"] };
+  V.WHO = { sam: ["Sam", "S"], jane: ["Jane", "J"], alex: ["Alex", "A"], priya: ["Priya", "P"], ai_alex: ["Alex's assistant", "✦", "alex"], ai_sam: ["Sam's assistant", "✦", "sam"], ai_priya: ["Priya's assistant", "✦", "priya"], legacy: ["Before versions", "?"] };
   V.isAI = function (w) { return /^ai_/.test(w); };
 
   /* Egg fried rice family. Revisions list what changed, in the R-D20 diff shape: [kind, text, was]. */
@@ -31,8 +30,9 @@
         ] },
       { id: "v1", name: "With peas", parent: "v0", state: "kept", by: "jane", when: "20 Sep", cooked: 4, star: 1,
         revs: [
-          { n: 1, by: "jane", when: "20 Sep", kind: "create", why: "Jane: \"kids like the peas, keep that one\"", d: [["add", "Frozen peas 40 g"]] },
-          { n: 2, by: "jane", when: "29 Sep", kind: "fix", why: "Peas go in at step 4, not step 5", d: [["chg", "Step 4: …add the peas with the rice", "Step 5: …add the peas"]] }
+          { n: 1, by: "jane", when: "20 Sep", kind: "create", why: "Jane: \"kids like the peas, keep that one\"", d: [["add", "Frozen peas 80 g"]] },
+          { n: 2, by: "jane", when: "29 Sep", kind: "fix", why: "Peas go in at step 4, not step 5", d: [["chg", "Step 4: …add the peas with the rice", "Step 5: …add the peas"]] },
+          { n: 3, by: "ai_alex", when: "this morning", kind: "fix", why: "Alex: \"the peas were a bit sparse, bump them up, and say to thaw them\"", review: "rv1", d: [["chg", "Frozen peas 120 g", "80 g"], ["add", "Step 1: Thaw the peas in a sieve under the tap"]] }
         ] },
       { id: "v2", name: "Less soy, more garlic", parent: "v1", state: "trying", by: "ai_alex", when: "5 Oct", cooked: 1, star: 0,
         revs: [
@@ -44,17 +44,22 @@
       { id: "v4", name: "Brown rice", parent: "v0", state: "put_away", by: "sam", when: "22 Sep", cooked: 1, star: 0, awayWhy: "Not for us, after one cook (29 Sep)",
         revs: [{ n: 1, by: "sam", when: "22 Sep", kind: "create", why: "Sam: \"try brown rice\"", d: [["chg", "Brown rice 150 g", "Basmati rice 150 g"]] }] }
     ],
-    /* An assistant change to a kept version waits for a person (V-D21). */
-    sugg: [{ id: "sg1", target: "v1", by: "ai_alex", when: "this morning", title: "More peas, thaw them first",
-      words: "Alex: \"the peas were a bit sparse, can you bump them up\"",
-      d: [["chg", "Frozen peas 60 g", "40 g"], ["add", "Step 1: Thaw the peas in a sieve under the tap"]] }]
+    /* Pick 4 B: an assistant saved straight into a kept version (here the usual). The change is live; a person reviews it
+       afterwards. Each change in the revision can be kept or reverted on its own (a revert is a new revision).
+       One review item per assistant revision on a kept version or the usual. Reviewed by any member (L5). */
+    reviews: [{ id: "rv1", target: "v1", rev: 3, by: "ai_alex", client: "Claude", when: "this morning", title: "More peas, thaw them first",
+      words: "Alex: \"the peas were a bit sparse, bump them up, and say to thaw them\"", where: "fix",
+      changes: [{ id: "c1", d: ["chg", "Frozen peas 120 g", "80 g"], st: null }, { id: "c2", d: ["add", "Step 1: Thaw the peas in a sieve under the tap"], st: null }] }],
+    /* A whole new recipe from an assistant is Suggested until a person says yes (V-D22). */
+    drafts: [{ id: "fam_dal", name: "Tarka dal", e: "🥣", by: "ai_priya", when: "yesterday", words: "Priya: \"save Mum's dal, she said about a cup of lentils\"", unknown: 2 }]
   };
   /* Each version's head content, resolved (for 2 servings). In the build this is get_resolved_recipe on the head revision. */
   var base = [["Eggs", "3"], ["Basmati rice, cooked and cooled", "300 g"], ["Onion", "1"], ["Spring onions", "2"], ["Soy sauce", "2 tbsp"], ["Oil", "1 tbsp"]];
   var steps = ["Beat the eggs with a pinch of salt.", "Chop the onion and fry it in the oil until soft.", "Push the onion aside, pour in the eggs and stir until just set.", "Tip in the cold rice and break up any lumps. Keep the heat high.", "Splash in the soy sauce, toss in the spring onions and serve."];
   V.CONTENT = {
-    v0: { ings: base.map(function (x) { return [x[0], x[1]]; }), steps: steps, chg: {} },
-    v1: { ings: base.concat([["Frozen peas", "80 g"]]), steps: steps.slice(0, 3).concat(["Tip in the cold rice and the peas, break up any lumps. Keep the heat high.", steps[4]]), chg: { "Frozen peas": "added" } },
+    v0: { ings: base.map(function (x) { return [x[0], x[1]]; }), steps: steps, chg: {}, bl: { "Basmati rice, cooked and cooled": [2, "sam", "12 Sep"], s3: [3, "ai_sam", "21 Sep"] } },
+    v1: { ings: base.concat([["Frozen peas", "120 g"]]), steps: ["Thaw the peas in a sieve under the tap."].concat(steps.slice(0, 3), ["Tip in the cold rice and the peas, break up any lumps. Keep the heat high.", steps[4]]), chg: { "Frozen peas": "80 g" }, rv: { ing: "Frozen peas", step: 0 },
+      bl: { "Frozen peas": [3, "ai_alex", "this morning"], s0: [3, "ai_alex", "this morning"], s4: [2, "jane", "29 Sep"] } },
     v2: { ings: base.slice(0, 4).concat([["Soy sauce", "1 tbsp"], ["Oil", "1 tbsp"], ["Frozen peas", "80 g"], ["Garlic cloves", "2"]]), steps: [steps[0], "Chop the onion and fry it in the oil until soft. Add the garlic for the last minute.", steps[2], "Tip in the cold rice and the peas, break up any lumps. Keep the heat high.", steps[4]], chg: { "Soy sauce": "2 tbsp", "Garlic cloves": "added" } },
     v3: { ings: base.slice(0, 4).concat([["Gochujang", "1 tbsp"], ["Oil", "1 tbsp"], ["Kimchi", "120 g"]]), steps: steps, chg: { "Gochujang": "Soy sauce", "Kimchi": "added" } },
     v4: { ings: [["Eggs", "3"], ["Brown rice, cooked and cooled", "300 g"]].concat(base.slice(2)), steps: steps, chg: { "Brown rice, cooked and cooled": "Basmati rice" } }
@@ -79,17 +84,26 @@
       return '<li class="' + r[0] + '"><span class="sym" aria-hidden="true">' + sym + '</span><span>' + X.esc(r[1]) + (r[2] ? ' <s>(' + X.esc(r[2]) + ")</s>" : "") + "</span></li>";
     }).join("") + "</ul>";
   };
-  V.kindWord = { create: "Made", fix: "Fixed", adjust: "Adjusted", restore: "Went back", spin: "Spun off" };
-  V.links = function () {
-    return '<h4>Versions slice</h4><p><a href="index.html">Overview and decisions</a> · <a href="family.html">Family</a> · <a href="version.html?v=v2">Trying</a> · <a href="version.html?v=v1">Kept</a> · <a href="change.html?v=v1">Change</a> · <a href="history.html?v=v0">History</a> · <a href="after-cook.html?v=v2">After a cook</a> · <a href="suggestions.html">Suggestions</a> · <a href="spec.html">Backend spec</a></p>';
+  V.kindWord = { create: "Made", fix: "Fixed", adjust: "Adjusted", restore: "Went back", revert: "Reverted one change", spin: "Spun off" };
+  /* Review after (pick 4 B): what is still unreviewed on a version. */
+  V.open = function (vid) { return (V.FAM.reviews || []).filter(function (r) { return r.target === vid && r.changes.some(function (c) { return !c.st; }); }); };
+  V.rvBadge = function (vid) { return V.open(vid).length ? '<span class="st rvw">' + X.ic("spark", "xs") + "To review</span>" : ""; };
+  V.strip = function (cur) {
+    /* L3 (R-O3 = B, varied, locked): no versions row for one version; several make a strip that scrolls sideways, its own row,
+       docked at the top above the section jump row. The last item opens the Versions screen (pick 1 A). */
+    var act = V.FAM.versions.filter(function (x) { return x.state !== "put_away" && x.state !== "spun"; });
+    if (act.length < 2) return "";
+    return '<div class="strip vstrip" id="vstrip" role="group" aria-label="Version, ' + act.length + ' versions">' +
+      '<span class="vlab" aria-hidden="true">' + X.ic("branch", "s") + act.length + "</span>" +
+      act.map(function (x, i) { return (i ? '<span class="sd" aria-hidden="true"></span>' : "") + '<a class="vs" href="version.html?v=' + x.id + '" aria-current="' + (x.id === cur) + '"' + (V.FAM.usual === x.id ? ' aria-label="' + X.esc(x.name) + ', our usual"' : "") + ">" + X.esc(x.name) + (V.FAM.usual === x.id ? ' <span aria-hidden="true">★</span>' : "") + (V.open(x.id).length ? ' <span class="dotrv" aria-label="has a change to review"></span>' : "") + "</a>"; }).join("") +
+      '<span class="sd" aria-hidden="true"></span><a class="vs more" href="family.html?v=' + cur + '">All versions' + X.ic("chev", "xs") + "</a></div>";
   };
-  V.seg = function (k, cur, opts) { return '<div class="seg" role="group">' + opts.map(function (o) { return '<button type="button" data-set="' + k + '" data-v="' + o[0] + '" aria-pressed="' + (cur === o[0]) + '">' + o[1] + "</button>"; }).join("") + "</div>"; };
+  V.links = function () {
+    return '<h4>Versions slice</h4><p><a href="index.html">Overview and decisions</a> · <a href="family.html">Versions</a> · <a href="version.html?v=v2">Trying</a> · <a href="version.html?v=v1">Our usual (to review)</a> · <a href="change.html?v=v1">Change a keeper</a> · <a href="change.html?v=v2">Change a try</a> · <a href="history.html?v=v1">History</a> · <a href="after-cook.html?v=v2">After a cook</a> · <a href="after-cook.html?v=v1">Cooked before review</a> · <a href="suggestions.html">To review</a> · <a href="spec.html">Backend spec</a> · <a href="spec.html#storage">Revision storage</a> · <a href="spec.html#authoring">Assistant tools</a></p>';
+  };
   V.controls = function () {
     X.controls(
-      "<h4>Family screen (V option 1)</h4>" + V.seg("vfam", V.O.fam, [["A", "A By state"], ["B", "B Family tree"]]) +
-      "<h4>Where a change goes (V option 2)</h4>" + V.seg("vsave", V.O.save, [["A", "A Ask at save"], ["B", "B Ask first"], ["C", "C By state"]]) +
-      "<h4>After a cook (V option 3)</h4>" + V.seg("vcook", V.O.cook, [["A", "A Every cook"], ["B", "B From 2nd cook"], ["C", "C Never ask"]]) +
-      "<h4>Assistant on a kept version (V option 4)</h4>" + V.seg("vai", V.O.ai, [["A", "A Suggest only"], ["B", "B Edit, review after"], ["C", "C Trusted per member"]]) +
+      "<h4>Versions options: locked</h4><p>" + V.LOCKED + ": 1 A grouped by state · 2 C a try takes edits in place, a keeper asks at save · 3 A ask after every cook · 4 B the assistant edits, a person reviews after · 5 A frozen revisions · 6 B changes only. Not chosen: 1 B tree; 2 A, B; 3 B, C; 4 A, C; 5 B, C; 6 A.</p>" +
       V.links());
   };
   window.VER = V;
