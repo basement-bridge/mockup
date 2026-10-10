@@ -1,0 +1,4 @@
+/* Option B, 1280 and up: pane 380. Row cards gain a little air. */
+:root{--lane:380px}
+.main{padding:24px 32px 48px}
+.arow{padding:12px 0}

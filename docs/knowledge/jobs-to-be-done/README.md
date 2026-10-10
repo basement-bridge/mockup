@@ -19,6 +19,7 @@ Every screen starts from what the person is here to do right now. Layout, and wh
 | Shopping without the app | [shopping-without-the-app.md](shopping-without-the-app.md) | Captured (owner, voice, 10 Oct 2026), mockup drafted; detected by arriving through the one-off link |
 | Scanning things in | [scan-in.md](scan-in.md) | Named, options drafted, nothing else captured |
 | Planning the week | [plan-week.md](plan-week.md), [plan-week-ai.md](plan-week-ai.md) | Named; AI-led direction chosen, 16 owner decisions captured (9 Oct 2026) |
+| Planning the week, on desktop | [plan-desktop.md](plan-desktop.md) | Four options drawn (10 Oct 2026); decisions 49 to 62 are proposals awaiting the owner |
 | Using things up | [use-up.md](use-up.md) | Named, options drafted, nothing else captured |
 | Recipe tab (find, plan, cook, add, change) | [recipe-tab.md](recipe-tab.md) | Drafted 10 Oct 2026 in slices, all Proposal; mockup `recipe/` |
 | Cook from one main thing | – | Named, nothing captured yet |

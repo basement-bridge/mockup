@@ -1,0 +1,3 @@
+/* Option D, 1280 and up: still overlaying (the lane is 380 and floats over the right of the sheet); the sheet gets a little more air and the ingredient column widens to 190. */
+:root{--lane:380px;--lab:190px}
+.main{padding:24px 28px 24px}

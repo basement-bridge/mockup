@@ -1,0 +1,10 @@
+/* Option A, 1440 and up: the inspector is always there (idle = week summary), 400 wide, so nothing shifts when a meal is picked. Compact cards show who and how many. */
+:root{--lane:400px}
+.main{padding:20px 28px 40px}
+.app:not(.lane-open){grid-template-columns:88px minmax(0,var(--main-max)) var(--lane)}
+.app:not(.lane-open) .panel{display:block}
+.board{gap:8px}
+.day{padding:8px}
+.mc{padding:9px;min-height:92px}
+.mc small{display:block;font-size:11px}
+.mc .t b{font-size:13.5px}

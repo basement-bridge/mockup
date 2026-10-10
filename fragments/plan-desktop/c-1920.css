@@ -1,0 +1,5 @@
+/* Option C, 1920 and up: the day gets a second column, Mise en place for the focused day (what to buy by when, what is past use-by, how many portions to cook), instead of the collapsed block under the cards. Flyout 440. */
+:root{--lane:440px;--main-max:1160px}
+.fwrap{display:grid;grid-template-columns:minmax(0,640px) 320px;column-gap:32px;align-items:start}
+.mise{margin-top:46px}
+.wstrip{max-width:640px}
