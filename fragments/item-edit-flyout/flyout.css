@@ -68,10 +68,11 @@ svg{flex:none}
 .tl b{max-width:100%;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;font-size:14px;line-height:1.2;color:var(--fg);word-break:break-word}
 .tl svg{color:var(--accent);fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .tl .drop{width:34px;height:34px;fill:none;stroke:none}
+.tl .bat{width:38px;height:22px;margin:6px 0}
 .tl.empty{background:none;border:2px dashed var(--border);color:var(--muted);font-weight:500}
 .tl.empty svg{color:var(--muted)}
 .tl:hover{border-color:var(--accent)}
-.drop{flex:none}.drop.lv-plenty{color:var(--cue)}.drop.lv-some{color:var(--accent)}.drop.lv-low{color:var(--danger)}.drop.lv-out{color:var(--out,var(--fg))}
+.drop,.bat{flex:none}.drop.lv-plenty,.bat.lv-plenty{color:var(--cue)}.drop.lv-some,.bat.lv-some{color:var(--accent)}.drop.lv-low,.bat.lv-low{color:var(--danger)}.drop.lv-out,.bat.lv-out{color:var(--out,var(--fg))}
 .sacts{display:flex;gap:8px}
 .sacts .btn{flex:1;min-height:48px;padding:0 10px;font-size:14px}
 .sacts .btn svg{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
@@ -87,7 +88,7 @@ svg{flex:none}
 .chd p{margin-top:2px;font-weight:600;font-size:14px}
 .saved{display:inline-flex;align-items:center;gap:4px;color:var(--cue);font-size:13px;font-weight:700}
 .saved svg{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
-.cbody{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;padding:4px;margin:-4px}
+.cbody{position:relative;flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;padding:4px;margin:-4px}
 .cft{display:grid;gap:8px;flex:none;padding-top:12px;border-top:1px solid var(--border)}
 .cft .btn{min-height:48px}
 .chd .x svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
@@ -96,8 +97,7 @@ svg{flex:none}
 .ef-sec{padding:16px 0 4px;border-top:1px solid var(--border)}
 .ef-sec:first-child{border-top:0;padding-top:4px}
 .ef-h{font:700 12px var(--body);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 12px}
-.ef-h1{margin-top:6px;font-size:14px;color:var(--fg);letter-spacing:.02em}
-.ef-w{display:grid;gap:8px;margin-bottom:16px;border-radius:var(--r-ctl);align-content:start}
+.ef-w{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;margin-bottom:16px;border-radius:var(--r-ctl);align-content:start}
 .ef-l{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
 .ef-in,.ef-sel,.ef-num,.ef-date input{min-height:var(--tap);padding:0 12px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);color:var(--fg);width:100%;min-width:0}
 .ef-in:focus,.ef-sel:focus,.ef-num:focus,.ef-date input:focus,.ef-big input:focus{outline:2px solid var(--accent);outline-offset:0;border-color:transparent}
@@ -109,10 +109,21 @@ svg{flex:none}
 .ef-emo[aria-expanded=true]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
 .ef-big{flex:1;min-width:0;display:block}
 .ef-big input{width:100%;min-height:56px;padding:0 14px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);font-size:20px;font-weight:700}
-.ef-emojis{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;padding:8px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--bg)}
-.ef-e{height:40px;border-radius:var(--r-ctl);border:1px solid transparent;font-size:22px;display:grid;place-items:center}
-.ef-e:hover{background:var(--surface)}.ef-e.on{border-color:var(--accent)}
-.ef-eno{grid-column:1/-1;min-height:36px;color:var(--muted);font-weight:600;text-decoration:underline;text-underline-offset:3px;text-align:center}
+/* the emoji picker: search, Recent, a scrolling grid of foods, "No emoji" */
+.ef-ep{display:grid;gap:10px;padding:10px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--bg)}
+.ef-eps{display:flex;align-items:center;gap:8px;min-height:var(--tap);padding:0 12px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--surface);color:var(--muted)}
+.ef-eps svg{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+.ef-eps:focus-within{outline:2px solid var(--accent);border-color:transparent}
+.ef-epi{flex:1;min-width:0;min-height:40px;border:0;background:none;color:var(--fg);outline:0;font:inherit}
+.ef-epi::placeholder{color:var(--muted)}
+.ef-epr,.ef-epa{display:grid;gap:4px}
+.ef-epa{max-height:236px;overflow:auto;overscroll-behavior:contain;align-content:start}
+.ef-eg{display:grid;grid-template-columns:repeat(auto-fill,minmax(40px,1fr));gap:2px}
+.ef-e{height:44px;border-radius:var(--r-ctl);border:1px solid transparent;font-size:24px;display:grid;place-items:center;line-height:1}
+.ef-e:hover{background:var(--surface)}.ef-e.on{border-color:var(--accent);background:var(--surface)}
+.ef-eno{min-height:var(--tap);color:var(--muted);font-weight:600;text-decoration:underline;text-underline-offset:3px;text-align:center}
+.ef-eno:hover{color:var(--accent)}
+.ef-row .btn.sm{min-height:var(--tap)}
 .ef-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .ef-step{display:inline-flex;align-items:center;border:1px solid var(--border);border-radius:var(--r-pill);background:var(--bg);height:48px;flex:none}
 .ef-step button{width:44px;height:46px;display:grid;place-items:center;border-radius:var(--r-pill);color:var(--fg)}
@@ -123,12 +134,20 @@ svg{flex:none}
 .ef-sel{width:auto;flex:1;min-width:110px}
 .ef-unit{font-weight:700}
 .ef-note{font-size:12px;color:var(--muted)}
+.ef-lh{display:flex;align-items:center;justify-content:space-between;min-height:20px}
+.ef-lh .ef-clear{margin:-12px 0 -12px auto}
 .ef-lvl{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:13px}
 .lvpick{display:flex;gap:8px}
 .lvpick .opt{min-width:56px;min-height:52px;display:inline-flex;align-items:center;justify-content:center;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);padding:0 10px}
 .lvpick .opt:hover{border-color:var(--accent)}
 .lvpick .opt.on{background:var(--surface);border:2px solid var(--accent)}
 .lvpick .drop{fill:none}
+.lvpick .opt{min-width:60px}
+.ef-lvm{display:flex;align-items:center;gap:2px;min-height:28px;margin:-2px 0 0}
+.ef-src{font-size:12px;font-weight:600;color:var(--muted)}.ef-src.set{color:var(--fg)}
+.ef-auto{width:var(--tap);height:var(--tap);margin:-8px 0;border-radius:50%;display:inline-grid;place-items:center;color:var(--muted)}
+.ef-auto:hover{color:var(--accent)}
+.ef-auto svg{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .ef-sug{display:flex;flex-wrap:wrap;gap:6px;padding:2px}
 .pill{flex:none;min-height:var(--tap);padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--bg);font-weight:600;font-size:13px;white-space:nowrap}
 .pill:hover{border-color:var(--accent)}
@@ -137,12 +156,12 @@ svg{flex:none}
 .ef-ub{font-weight:700;font-size:16px;color:var(--fg)}.ef-ub.none{color:var(--muted);font-weight:500}
 .ef-clear{color:var(--muted);font-weight:600;text-decoration:underline;text-underline-offset:3px;min-height:var(--tap);padding:0 8px}
 .ef-clear:hover{color:var(--accent)}
-.ef-date{display:block}
-.ef-date input{width:auto;min-width:180px}
-.ef-shop{border-radius:0;margin-top:22px;padding-top:20px;border-top:1px solid var(--border);gap:12px}
+.ef-datein{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;border:0;padding:0}
+.ef-shop{border-radius:0;margin-top:22px;padding-top:20px;border-top:1px solid var(--border);gap:14px}
 .ef-shop .ef-h{margin-bottom:0}
 .ef-f2{display:grid;gap:6px}
 .ef-onlist{display:flex;align-items:center;gap:8px;color:var(--fg);font-size:14px;flex-wrap:wrap}
+.ef-onlist.off{color:var(--muted)}
 .ef-onlist svg{color:var(--cue);fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
 .ef-onlist .link{min-height:36px}
 .ef-shopb svg{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
@@ -157,14 +176,28 @@ svg{flex:none}
 .ef-err .link{margin-left:auto;color:var(--danger);min-height:36px}
 .ef-w.hl{animation:efhl 1.6s ease-out}
 @keyframes efhl{0%,55%{background:color-mix(in srgb,var(--accent) 18%,transparent);box-shadow:0 0 0 6px color-mix(in srgb,var(--accent) 18%,transparent)}100%{background:transparent;box-shadow:0 0 0 6px transparent}}
-/* layout b: the two tabs kept */
-.ef-tabs{display:flex;gap:6px;padding:4px;border-radius:var(--r-pill);background:var(--bg);border:1px solid var(--border);margin-bottom:10px}
-.ef-tabs [role=tab]{flex:1;min-height:var(--tap);border-radius:var(--r-pill);font-weight:700;color:var(--muted);text-align:center}
-.ef-tabs [aria-selected=true]{background:var(--accent);color:var(--on-accent)}
-/* layout c: tiles, one field at a time */
-.ef-tiles{grid-template-columns:repeat(3,1fr);margin:6px 0 12px}
-.ef-back{display:inline-flex;align-items:center;gap:6px;min-height:var(--tap);color:var(--accent);font-weight:700;padding-right:12px}
-.ef-back svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* suggestion lists (Location, Spot, Category): the Add form's combobox in Kitchie uat (.combo-wrap, .combo, .hint) */
+.combo-wrap{position:relative}
+.combo{position:absolute;z-index:6;left:0;right:0;top:calc(100% + 6px);margin:0;padding:4px;list-style:none;overflow:auto;overscroll-behavior:contain;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--bg);box-shadow:0 10px 28px rgba(0,0,0,.35)}
+.combo.is-up{top:auto;bottom:calc(100% + 6px)}
+.combo li{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:var(--tap);padding:0 12px;border-radius:calc(var(--r-ctl) - 4px);cursor:pointer}
+.combo li:hover,.combo li[aria-selected=true]{background:var(--surface);box-shadow:inset 3px 0 0 var(--accent)}
+.combo .hint{color:var(--muted);font-size:12px;font-weight:600}
+/* the category chip row (proposed): the Pantry filter bar's tag icon, bare chips, the chosen one outlined, a chevron for the rest */
+.ef-cats{position:relative;display:flex;align-items:flex-start;gap:6px;padding:3px 6px 3px 6px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--bg)}
+.ef-ct{width:var(--tap);height:var(--tap);flex:none;display:grid;place-items:center;color:var(--sage)}
+.ef-ct svg{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ef-cl{flex:1;min-width:0;display:flex;flex-wrap:wrap;gap:0 2px;max-height:var(--tap);overflow:hidden}
+.ef-cats[data-open=true] .ef-cl{max-height:none}
+.ef-chip{min-height:var(--tap);padding:0 12px;border-radius:var(--r-pill);border:1.5px solid transparent;font-weight:700;color:var(--fg);white-space:nowrap}
+.ef-chip:hover{background:var(--surface)}
+.ef-chip.on{border-color:var(--sage);color:var(--sage)}
+.ef-cx{width:var(--tap);height:var(--tap);flex:none;display:grid;place-items:center;border-radius:50%;color:var(--muted)}
+.ef-cx:hover{color:var(--accent)}
+.ef-cx svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
+.ef-cats[data-open=true] .ef-cx svg{transform:rotate(180deg)}
+.ef-newcat{margin-top:-2px}
 
 /* ---- History: the same timeline as the desktop Pantry's History column ---- */
 .hist{list-style:none;margin:6px 0 0;padding:0 0 0 18px;border-left:2px solid var(--border)}
