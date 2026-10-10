@@ -2,6 +2,9 @@
    Sample names live here only (AGENTS.md: mockup-only data stays in the mockup's own script).
    Performance note: this file is the only shared script. Each screen adds its own small inline script. */
 (function () {
+  /* The recipe/ folder's own URL, from this script's src, so links and images work from any page that loads recipe.js
+     (recipe-versions/, recipe-ideas/, recipe-photos/ reuse it and its Mockup panel). */
+  var BASE = (function () { var s = document.currentScript && document.currentScript.src; return s ? s.replace(/[^\/]*$/, "") : ""; })();
   var Q = new URLSearchParams(location.search);
   var store = {
     get: function (k, d) { try { var v = localStorage.getItem("rcp-" + k); return v == null ? d : v; } catch (e) { return d; } },
@@ -90,12 +93,12 @@
      A value { id, prep: 1 } is a photo still being prepared (uploaded, sizes not made yet). more: the recipe's other photos;
      cooks: the photos on each cook (up to 3). There is NO "newest cooked photo as cover" fallback: no banner means no banner.
      PC: each photo's dominant colour, sent with the recipe so the placeholder paints with no request (P-D5). Sample data only. */
-  var PC = { "efr-1": "#ba976b", "efr-2": "#cba772", "efr-3": "#a67e62", "efr-c1": "#9aa87f", "efr-c2": "#8aad7b", "efr-c3": "#bc8b6c", "cur-1": "#c18e5b", "sha-1": "#b76f60", "rag-1": "#9e6452" };
+  var PC = { "efr-s1": "#bfa98c", "efr-s2": "#5e5855", "efr-s4": "#736b62", "efr-1": "#ba976b", "efr-2": "#cba772", "efr-3": "#a67e62", "efr-c1": "#9aa87f", "efr-c2": "#8aad7b", "efr-c3": "#bc8b6c", "cur-1": "#c18e5b", "sha-1": "#b76f60", "rag-1": "#9e6452" };
   var PHOTOS = {
-    efr: { banner: { v0: "efr-2", v1: "efr-1" }, steps: { v0: { 0: "efr-3", 2: "efr-2" }, v1: { 3: "efr-c1" }, v2: { 1: { id: "efr-c2", prep: 1 } } },
+    efr: { banner: { v0: "efr-2", v1: "efr-1" }, steps: { v0: { 0: "efr-s1", 1: "efr-s2" }, v1: { 3: "efr-s4" }, v2: { 2: { id: "efr-c2", prep: 1 } } },
       more: ["efr-3"], cooks: { "8 Oct": ["efr-c1"], "29 Sep": ["efr-c2"], "21 Sep": ["efr-c3"] } },
     cur: { banner: { v0: "cur-1" }, steps: {}, more: [], cooks: {} },
-    sha: { banner: { v0: "sha-1" }, steps: { v0: { 2: "sha-1" } }, more: [], cooks: {} },
+    sha: { banner: { v0: "sha-1" }, steps: {}, more: [], cooks: {} },
     rag: { banner: {}, steps: {}, more: [], cooks: { "5 Sep": ["rag-1"] } }
   };
 
@@ -141,7 +144,7 @@
        list: planned recipes first (if the week's plan exists), then rows on screen plus the next 5 in the shown chip; the rest
        as they come on screen. The list's loader is the Recipe tab's own: the home screen never runs it and never waits for it.
      A photo still being prepared (uploaded, its sizes not made yet) shows its colour and "Photo is being prepared", no spinner. */
-  var IMG = "../recipe-photos/img/"; /* the photos slice's sample files, used read-only */
+  var IMG = BASE + "../recipe-photos/img/"; /* the photos slice's sample files, used read-only */
   var photosOn = function () { return P.photos !== "off"; };
   var chainOf = function (r, vid) {
     var v = r.vers.filter(function (x) { return x.id === vid; })[0] || r.vers.filter(function (x) { return x.def; })[0] || r.vers[0];
@@ -164,8 +167,12 @@
   };
   var cookPhotos = function (r, when) { var d = PHOTOS[r.id]; return photosOn() && d ? (d.cooks[when] || []) : []; };
   var got = {}, meterN = 0, meterKB = 0;
-  var KB = { t: 2, m: 6.5, l: 13 }; /* average sample sizes, for the counter only */
-  var meter = function () { var m = document.getElementById("rmeter"); if (m) m.innerHTML = "<b>" + meterN + "</b> photo file" + (meterN === 1 ? "" : "s") + " loaded, about <b>" + meterKB.toFixed(1) + " KB</b>. Placeholders cost no request."; };
+  /* Kept sizes (owner, P3, typed 10 Oct 2026; P-D6): the banner keeps large (l, 1600px) + square (t, 240px); every other photo
+     keeps medium (m, 960px) + square. Shown: banner at l, step and other photos at m, list tiles at t. The counter uses the
+     photos slice's figures for real food photos (P-D3): l about 250 KB, m about 75, t about 12 (so 260 KB stored per banner, 87 per
+     other photo). The sample files themselves are much smaller. */
+  var KB = { t: 12, m: 75, l: 250 };
+  var meter = function () { var m = document.getElementById("rmeter"); if (m) m.innerHTML = "<b>" + meterN + "</b> photo file" + (meterN === 1 ? "" : "s") + " loaded, about <b>" + Math.round(meterKB) + " KB</b> for real photos (banner large 250, medium 75, square 12). Placeholders cost no request."; };
   /* o: { phase: step | banner | more | list, inh: version the photo is inherited from, alt, stock: list placeholder } */
   var frame = function (p, size, o) {
     o = o || {}; var id = p.id, key = id + "-" + size, ok = !!got[key];
@@ -173,7 +180,7 @@
     if (p.prep) return '<span class="rph prep" style="--pc:' + (PC[id] || "") + '" role="img" aria-label="Photo is being prepared"><span class="rph-prep">Photo is being prepared</span>' + inh + "</span>";
     return '<span class="rph' + (o.stock ? " stock" : "") + (ok ? " in" : "") + '" style="--pc:' + (PC[id] || "") + '" data-pid="' + id + '" data-size="' + size + '" data-phase="' + (o.phase || "more") + '"' + (ok ? ' data-go="1"' : "") + ">" +
       (o.stock ? '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">' + IC.chef + "</svg>" : "") +
-      '<img alt="' + esc(o.alt || "") + '" decoding="async"' + (ok ? ' src="' + IMG + key + '.webp"' : "") + (size === "t" ? ' width="240" height="240"' : ' width="960" height="720"') + ">" + inh + "</span>";
+      '<img alt="' + esc(o.alt || "") + '" decoding="async"' + (ok ? ' src="' + IMG + key + '.webp"' : "") + (size === "t" ? ' width="240" height="240"' : size === "l" ? ' width="1600" height="1200"' : ' width="960" height="720"') + ">" + inh + "</span>";
   };
   var fetchPhoto = function (el) {
     if (!el || el.dataset.go) return Promise.resolve(); el.dataset.go = "1";
@@ -270,10 +277,10 @@
   /* Bottom bar. Order is the brief's: Plan, Pantry, Recipes, Shopping (Proposal, see notes D2). */
   var bar = function () {
     return '<nav class="bar" aria-label="Main">' +
-      '<a href="../fragments/plan-week-ai/">' + ic("plan") + "<span>Plan</span></a>" +
-      '<a href="../flows/household/">' + ic("jar") + "<span>Pantry</span></a>" +
-      '<a href="list.html" class="on" aria-current="page">' + ic("chef") + "<span>Recipes</span></a>" +
-      '<a href="../flows/household/">' + ic("cart") + "<span>Shopping</span></a></nav>";
+      '<a href="' + BASE + '../fragments/plan-week-ai/">' + ic("plan") + "<span>Plan</span></a>" +
+      '<a href="' + BASE + '../flows/household/">' + ic("jar") + "<span>Pantry</span></a>" +
+      '<a href="' + BASE + 'list.html" class="on" aria-current="page">' + ic("chef") + "<span>Recipes</span></a>" +
+      '<a href="' + BASE + '../flows/household/">' + ic("cart") + "<span>Shopping</span></a></nav>";
   };
 
   var toastT;
@@ -303,10 +310,10 @@
       '<p style="margin-top:6px;font-size:12px">' + esc(me[3]) + " Everyone in the household has the same controls (R-O5).</p>" +
       "<h4>Photos</h4>" + seg("photos", [["on", "Has photos"], ["slow", "Slow network"], ["off", "No photos"]]) +
       '<h4>What this screen loaded</h4><p id="rmeter" style="font-size:12px"></p>' +
-      '<h4>Versions</h4><p><a href="detail.html?id=efr">Several versions (Egg fried rice)</a> · <a href="detail.html?id=cur">One version (Chickpea curry)</a></p>' +
+      '<h4>Versions</h4><p><a href="' + BASE + 'detail.html?id=efr">Several versions (Egg fried rice)</a> · <a href="' + BASE + 'detail.html?id=cur">One version (Chickpea curry)</a></p>' +
       (extra || "") +
       '<h4>Theme</h4><div class="tgrid swatches">' + (window.themeHtml ? themeHtml(null, true) : "") + "</div>" +
-      '<h4>Screens</h4><p><a href="index.html">Overview and decisions</a> · <a href="list.html">List</a> · <a href="detail.html?id=efr">Recipe</a> · <a href="add.html">Add</a> · <a href="review.html">Review</a> · <a href="edit.html?id=efr">Change it</a> · <a href="cook.html?id=efr">Cook</a></p>';
+      '<h4>Screens</h4><p><a href="' + BASE + 'index.html">Overview and decisions</a> · <a href="' + BASE + 'list.html">List</a> · <a href="' + BASE + 'detail.html?id=efr">Recipe</a> · <a href="' + BASE + 'add.html">Add</a> · <a href="' + BASE + 'review.html">Review</a> · <a href="' + BASE + 'edit.html?id=efr">Change it</a> · <a href="' + BASE + 'cook.html?id=efr">Cook</a></p>';
     document.body.appendChild(p); document.body.appendChild(b); meter();
     b.addEventListener("click", function () { p.hidden = !p.hidden; b.setAttribute("aria-expanded", String(!p.hidden)); if (window.themeWarm) themeWarm(); });
     p.addEventListener("click", function (e) { var x = e.target.closest("[data-set]"); if (!x) return; store.set(x.dataset.set, x.dataset.v); var u = new URL(location.href); u.searchParams.delete(x.dataset.set); location.href = u.toString(); });

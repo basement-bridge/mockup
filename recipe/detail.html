@@ -25,8 +25,9 @@ function draw(keepScroll){
   var mult=r.batch?n/r.serves*r.serves:n; /* per-serving quantities × servings */
   /* Banner (owner, 10 Oct 2026): one per version. A version without its own shows its parent's (or a further ancestor's) with a small
      icon until it has one. No banner anywhere up the line means no banner at all (R-D9): never a cooked photo standing in.
+     Sizes (owner, P3): the banner is shown at its large size (the only photo that keeps one); step photos at medium; list tiles square.
      Load order: text first, then the step photos, the banner last. Its box is sized from the start, so nothing jumps when it arrives. */
-  var hero=bn?'<div class="banner">'+X.frame(bn.p,"m",{phase:"banner",inh:bn.inherited?bn.from.name:"",alt:bn.inherited?"Photo of "+bn.from.name:"Photo of "+r.name+", "+v.name})+'</div>':'';
+  var hero=bn?'<div class="banner">'+X.frame(bn.p,"l",{phase:"banner",inh:bn.inherited?bn.from.name:"",alt:bn.inherited?"Photo of "+bn.from.name:"Photo of "+r.name+", "+v.name})+'</div>':'';
   /* versions */
   /* R-O3 = B, varied (locked): one version means no versions row at all. Several versions are a strip that scrolls sideways,
      its own row between the title and the jump row; while the page scrolls it docks at the top, above the jump row.

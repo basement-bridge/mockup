@@ -40,15 +40,19 @@ function draw(){
     '<div class="lblrow"><span class="lbl">Method · '+d.steps.length+' steps</span><button class="back" style="font-size:13px">'+ic("plus","xs")+' Add</button></div>'+
     d.steps.map(function(s,k){return '<button type="button" class="erow" style="align-items:flex-start;padding:10px 0"><span class="stp" style="padding:0;border:0"><span class="nb">'+(k+1)+'</span></span><span class="nm" style="font-size:14.5px">'+esc(s)+'</span>'+ic("pen","s")+'</button>'}).join("")+
   '</div><div style="height:24px"></div></div>'+
-  /* R-D15: Save is one tap. Not now keeps a draft. Discard is under Not now, not beside Save. */
-  '<div class="act"><button type="button" class="btn ghost" data-later>'+"Not now"+'</button><button type="button" class="btn" data-save>'+ic("check","s")+'Save recipe</button></div>';
+  /* R-D15 as reworded by the versions rule BR10: two answers. Add to Recipes makes the draft a try (Trying) for the household.
+     Not for us dismisses it: it leaves Recipes and stays only in this member's own assistant history. Undo in the toast; nothing is deleted.
+     Leaving without answering keeps it waiting in the drafts line. */
+  '<div class="act"><button type="button" class="btn ghost" data-notforus>Not for us</button><button type="button" class="btn" data-save>'+ic("check","s")+'Add to Recipes</button></div>';
 }
 ph.addEventListener("click",function(e){
   var t=e.target.closest("button");if(!t)return;
   if(t.hasAttribute("data-keep")){dupDone=true;draw()}
   else if(t.dataset.ing!=null){var i=d.ings[+t.dataset.ing];X.sheet('<h3>'+esc(i[0])+'</h3><label class="lbl" for="a1">Amount</label><input id="a1" class="field" style="margin-top:4px" value="'+esc(i[1])+'" placeholder="Leave blank if you don\'t know"><p style="font-size:12px;margin-top:6px">A blank amount is saved as unknown, never as a guess.</p><div style="display:flex;gap:8px;margin-top:12px"><button class="btn ghost" data-close>Remove</button><button class="btn" data-close>Done</button></div>')}
-  else if(t.hasAttribute("data-save")){ph.querySelector(".body").innerHTML='<div class="pad" style="text-align:center;padding-top:60px"><div style="font-size:56px">'+d.e+'</div><h2 style="margin-top:10px">Saved</h2><p style="margin-top:6px">'+esc(d.t)+' is in your recipes.</p><div style="display:flex;gap:8px;margin-top:20px"><a class="btn ghost" href="list.html">Back to recipes</a><a class="btn" href="detail.html?id=efr">Open it</a></div></div>';ph.querySelector(".act").remove()}
-  else if(t.hasAttribute("data-later")){location.href="list.html"}
+  else if(t.hasAttribute("data-save")){ph.querySelector(".body").innerHTML='<div class="pad" style="text-align:center;padding-top:60px"><div style="font-size:56px">'+d.e+'</div><h2 style="margin-top:10px">Added to Recipes</h2><p style="margin-top:6px">'+esc(d.t)+' is in your recipes as a try. Cook it, then keep it or not.</p><div style="display:flex;gap:8px;margin-top:20px"><a class="btn ghost" href="list.html">Back to recipes</a><a class="btn" href="detail.html?id=efr">Open it</a></div></div>';ph.querySelector(".act").remove()}
+  else if(t.hasAttribute("data-notforus")){var act=ph.querySelector(".act"),body=ph.querySelector(".body"),was=body.innerHTML;
+    body.innerHTML='<div class="pad" style="text-align:center;padding-top:60px"><div style="font-size:56px">🙅</div><h2 style="margin-top:10px">Not for us</h2><p style="margin-top:6px">'+esc(d.t)+' is out of Recipes. It stays only in your own assistant\'s history; nothing is deleted.</p><div style="margin-top:20px"><a class="btn ghost" href="list.html">Back to recipes</a></div></div>';act.style.display="none";
+    X.toast("Not for us. Only your assistant keeps it.",function(){body.innerHTML=was;act.style.display="";X.toast("Back as a draft to check")})}
 });
 draw();
 X.controls('<h4>Assistant draft (L4)</h4><p><a href="?from=assistant">Plain draft</a> · <a href="?from=dup">Duplicate found</a></p>');
