@@ -1,0 +1,10 @@
+/* Option A, short screens (height 800 and under, e.g. 1366 x 768): the header gives back height. The people strip and the week chips share one line, day columns stop forcing a full-height minimum, the lane scrolls on its own. */
+.main{padding-top:12px}
+.hrow{margin-bottom:8px}
+.hrow .seg{margin-top:4px}
+.wst{margin-top:4px}
+@media(min-width:1280px){.day{min-height:calc(100vh - 176px)}}
+.dh{padding-bottom:4px}
+.panel{padding:16px 20px}
+.panel .top{margin-bottom:8px}
+.ro-note,.offbar{margin-bottom:8px}

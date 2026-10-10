@@ -1,0 +1,7 @@
+/* Option D, short screens (800 and under): the sheet is already its own scroller with sticky header, so only chrome gives height back: tighter header, smaller day chips, one-line group bars. */
+.main{padding-top:10px;padding-bottom:12px}
+.hrow{margin-bottom:6px}
+.dcol{padding:4px 6px}
+.v-chip .mc{min-height:32px}
+.cs-cell,.cs-lab{min-height:38px}
+.panel{padding:16px 20px}

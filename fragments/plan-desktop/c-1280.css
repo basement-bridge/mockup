@@ -1,0 +1,3 @@
+/* Option C, 1280 and up: flyout 380, a little more side padding. */
+:root{--lane:380px}
+.main{padding:24px 32px 48px}

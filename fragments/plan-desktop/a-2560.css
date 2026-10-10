@@ -1,0 +1,6 @@
+/* Option A, 2200 and up (the 2560 case): the board stops growing at 1760 so cards and lines never sprawl, the inspector keeps 440, and the week summary gets its own 320 lane to the right, so it stays visible while a meal is open. Left-anchored, as Pantry: free space collects on the right. */
+:root{--main-max:1760px}
+.app.has-lane2{grid-template-columns:88px minmax(0,var(--main-max)) var(--lane) 320px}
+.app.has-lane2:not(.lane-open){grid-template-columns:88px minmax(0,var(--main-max)) var(--lane) 320px}
+.panel.p2{border-left:1px solid var(--border);background:var(--bg)}
+.mc .t b{font-size:15px}

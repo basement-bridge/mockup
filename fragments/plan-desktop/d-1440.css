@@ -1,0 +1,6 @@
+/* Option D, 1440 and up: the lane DOCKS (400) and pushes the sheet; the sheet's seven columns still fit without sideways scroll (label 190 + 7 x 96). */
+:root{--lane:400px;--lab:190px;--colmin:96px}
+.app{grid-template-columns:88px minmax(0,var(--main-max)) var(--lane)}
+.panel{display:block;position:sticky;right:auto;top:0;height:100vh;width:auto;box-shadow:none}
+.lane-open .cs{padding-right:0}
+.main{padding:24px 28px 24px}

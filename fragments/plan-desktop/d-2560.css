@@ -1,0 +1,3 @@
+/* Option D, 2200 and up (2560): the sheet stops at 1500 (cap), the lane keeps 440, and prep ahead / shop by day gets its own 340 lane, always visible. */
+.app.has-lane2{grid-template-columns:88px minmax(0,var(--main-max)) var(--lane) 340px}
+.app .panel.p2{display:block;position:sticky;width:auto;box-shadow:none;background:var(--bg);right:auto}
