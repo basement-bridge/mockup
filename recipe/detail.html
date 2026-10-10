@@ -62,7 +62,7 @@ function draw(keepScroll){
      notes of its own where they differ. So each note shows once here, on every version that inherits it; viewing a child, a note
      from above says where it came from, lightly. Add a note opens the photos slice's note screen (its own route). */
   var nl=X.notesFor(r,v.id);
-  var notes=(nl.length?nl.map(function(n){return '<div class="note'+(n.from?' inh':'')+'">'+X.noteHtml(n.body)+'<small>'+esc(n.by)+' · '+n.when+(n.cook?' · after a cook':'')+(n.from?'<span class="from">'+ic("branch","xs")+(n.parent?'from the parent version':'from '+esc(n.from.name))+'</span>':'')+'</small></div>'}).join(""):'<p style="font-size:13px">No notes yet.</p>')+
+  var notes=(nl.length?nl.map(function(n){return '<div class="note'+(n.from?' inh':'')+'">'+X.noteHtml(n.body)+'<small>'+esc(n.by)+' · '+n.when+(n.cook?' · after a cook':'')+(n.from?'<span class="from">'+ic("branch","xs")+(n.parent?'from the parent version':'from '+esc(n.from.name))+'</span>':n.changed?'<span class="from">'+ic("branch","xs")+'changed in this version</span>':'')+'</small></div>'}).join(""):'<p style="font-size:13px">No notes yet.</p>')+
     '<a class="back" href="'+noteHref(v)+'" style="font-size:14px">'+ic("note","s")+' Add a note</a>';
   /* R-O4: after cooking, the app's job is the extra photo and the note. The photo flow is the photos slice's (recipe-photos/add.html). */
   var addCooked='<a class="back" href="../recipe-photos/add.html?to='+r.id+'&kind=cooked" style="font-size:14px">'+ic("cam","s")+' Add a photo of your cook</a>';

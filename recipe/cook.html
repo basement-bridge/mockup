@@ -29,7 +29,7 @@ var cookId="tonight";
 /* a note saved from this cook comes back (from the note screen) and shows on the Add a note card */
 var noted=X.Q.get("noted")||(X.notesFor(r,res.v.id).filter(function(n){return n.cook===cookId})[0]||{}).body||"";
 var isTry=res.v.state==="trying",verdict=null,away=false;
-var rx={};X.PERSONAS.forEach(function(p){rx[p[2]]=null});rx[X.me[2]]="liked"; /* the cook's own answer starts as liked; one tap changes it */
+var rx={};X.PERSONAS.forEach(function(p){rx[p[2]]=null}); /* no answer = skip, not stored. Keep it or Not for us fills the cook's own (versions slice) */
 var step=Math.max(-1,Math.min(r.steps.length,+(X.Q.get("step")||-1)));
 var ph=document.getElementById("ph");
 var exitHref=fromPlan?"../fragments/plan-week-ai/":"detail.html?id="+r.id+(vq?"&v="+vq:"");
@@ -89,15 +89,16 @@ function noteHref(){
 /* A try (Trying version): every cook asks once. Not for us puts it away at once, with Undo (owner, 10 Oct 2026). */
 function verdictHtml(){
   if(!isTry)return "";
-  if(away)return '<div class="note" style="margin-top:12px">'+ic("x","xs")+' <b>'+esc(res.v.name)+'</b> is put away. Nothing is deleted. <button type="button" class="mini" data-unaway style="margin-left:4px">'+ic("undo","xs")+'Undo</button></div>';
+  if(away)return '<div class="note" style="margin-top:12px">'+ic("x","xs")+' <b>'+esc(res.v.name)+'</b> is put away. Nothing is deleted; bring it back any time from Versions. <button type="button" class="mini" data-unaway style="margin-left:4px">'+ic("undo","xs")+'Undo</button></div>';
   return '<div class="lblrow"><span class="lbl">'+esc(res.v.name)+' is a try. Keep it?</span></div>'+
     '<div class="rx" style="border:0"><div class="seg3" role="group" aria-label="Keep this version?" style="flex:1">'+
     [["keep","Keep it"],["work","Needs work"],["no","Not for us"]].map(function(x){return '<button type="button" data-vd="'+x[0]+'" aria-pressed="'+(verdict===x[0])+'" style="flex:1">'+x[1]+'</button>'}).join("")+'</div></div>'+
     (verdict==="keep"?'<p class="rxsum">Kept. Make it your usual from the recipe\'s ⋯ menu.</p>':verdict==="work"?'<p class="rxsum">Still a try. Tell your AI app what to change; it saves into this try.</p>':'');
 }
-/* Reactions: one pill per member in one wrapping row (the least screen space). A tap moves that member's answer on:
-   liked, not for us, skip, back to no answer. The household line is derived ("Liked by 2 of 3"); skip and no answer do not count. */
-var RXO=[null,"liked","no","skip"];
+/* Reactions: one pill per member in one wrapping row (the least screen space; the versions slice draws a row per member who ate,
+   recipe-versions/after-cook.html). A tap moves that member's answer on: liked it, not for me, back to no answer (skip, not stored).
+   The household line is derived ("Liked by 2 of 3"); no answer does not count. */
+var RXO=[null,"liked","no"];
 function reactHtml(){
   var k=Object.keys(rx),line=X.reactLine(rx);
   return '<div class="lblrow"><span class="lbl">How did it go down?</span>'+(line?'<span class="rxsum" style="margin:0">'+line+'</span>':'')+'</div>'+
@@ -120,7 +121,8 @@ ph.addEventListener("click",function(e){
   else if(t.hasAttribute("data-keepv")){var note=t.closest(".note");X.sheet('<h3>Keep it as a version</h3><label class="lbl" for="w">In your words, why keep it?</label><input class="field" id="w" style="margin-top:4px" value="That worked well, save it"><p style="font-size:12px;margin-top:6px">Saved as your words. It starts as a try (Trying) until someone keeps it.</p><div style="display:flex;gap:8px;margin-top:12px"><button class="btn ghost" data-close>Back</button><button class="btn" data-ok>Keep it</button></div>',function(s,close){s.querySelector("[data-ok]").onclick=function(){close();note.innerHTML="Saved as a new version to try. It shows on the recipe under Versions."}})}
   else if(t.dataset.rx){var m=t.dataset.rx;rx[m]=RXO[(RXO.indexOf(rx[m])+1)%RXO.length];keep()}
   else if(t.dataset.vd){verdict=t.dataset.vd;
-    if(verdict==="no"){away=true;keep();X.toast("Put away. Nothing is deleted.",function(){away=false;verdict=null;keep()})}else keep()}
+    if(verdict!=="work"&&!rx[X.me[2]])rx[X.me[2]]=verdict==="keep"?"liked":"no";
+    if(verdict==="no"){away=true;keep();X.toast("Put away at once. Nothing is deleted.",function(){away=false;verdict=null;keep()})}else keep()}
   else if(t.hasAttribute("data-unaway")){away=false;verdict=null;keep();X.toast("Back as a try")}
 });
 draw();

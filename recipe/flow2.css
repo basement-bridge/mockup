@@ -1,5 +1,5 @@
 /* Recipe tab mockup, flow 2 (owner's locked decisions, 10 October 2026). Theme tokens only, no raw colours.
-   Loaded after recipe.css by add.html, review.html, edit.html and cook.html. Class names are the ones the build should lift. */
+   Loaded after recipe.css by add.html, review.html and cook.html. Class names are the ones the build should lift. */
 
 /* L4: Add is "your assistant adds recipes" (add.html) */
 .how{list-style:none;margin:0;padding:0 var(--sp-4);counter-reset:how}

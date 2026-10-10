@@ -41,7 +41,7 @@
       src: "Sam's assistant, from Sam's kitchen notes, 3 Sep", srcKind: "conversation",
       ings: [["eggs", "Eggs", 1.5, ""], ["rice", "Basmati rice, cooked and cooled", 150, "g"], ["onion", "Onion", .5, ""], ["spring", "Spring onions", 1, ""], ["soy", "Soy sauce", 1, "tbsp"], ["oil", "Oil", .5, "tbsp"]],
       steps: [["Beat the eggs with a pinch of salt.", "🥚"], ["Chop the onion and fry it in the oil until soft.", "🧅", 3], ["Push the onion aside, pour in the eggs and stir until just set.", "🍳", 1], ["Tip in the cold rice and break up any lumps. Keep the heat high.", "🍚", 4], ["Splash in the soy sauce, toss in the spring onions and serve.", "🥢"]],
-      notes: [["Day-old rice really is better. Fresh rice goes mushy.", "Sam", "12 Sep", "v0"], ["Kids like it with frozen peas thrown in at step 4.", "Jane", "20 Sep", "v1"]],
+      notes: [["Day-old rice really is better. Fresh rice goes mushy.", "Sam", "12 Sep", "v0"], ["Kids like it with frozen peas thrown in at step 4.", "Jane", "20 Sep", "v1", "n2"], ["Kids like the peas. They pick the garlic out, so slice it big.", "Alex", "8 Oct", "v2", "n2"]],
       photos: ["🍚", "🍳", "🥢"],
       hist: [["8 Oct", "Sam", "With peas", "Used brown rice, fine.", "🍚", { Sam: "liked", Jane: "liked", Alex: "no", Priya: "skip" }], ["29 Sep", "Jane", "With peas", "", "", { Jane: "liked", Sam: "liked" }], ["21 Sep", "Sam", "Original", "Doubled it for lunches.", "🍳"], ["12 Sep", "Sam", "Original", "", ""]],
       vers: [
@@ -199,11 +199,17 @@
   };
   var notesFor = function (r, vid) {
     var c = chainOf(r, vid), ids = c.map(function (x) { return x.id; }), cur = c[c.length - 1];
-    var all = r.notes.map(function (n) { return { body: n[0], by: n[1], when: n[2], v: n[3] || r.vers[0].id }; }).concat(savedNotes(r));
-    return all.filter(function (n) { return ids.indexOf(n.v || cur.id) > -1; }).map(function (n) {
+    /* n[4]: the note's id. A later entry with the same id on a child version is that child's own wording of an inherited note
+       (the versions slice's "update" op); it replaces the parent's on that child and below, marked "changed here". */
+    var all = r.notes.map(function (n) { return { body: n[0], by: n[1], when: n[2], v: n[3] || r.vers[0].id, id: n[4] }; }).concat(savedNotes(r));
+    var out = [], byId = {};
+    all.filter(function (n) { return ids.indexOf(n.v || cur.id) > -1; }).sort(function (a, b) { return ids.indexOf(a.v || cur.id) - ids.indexOf(b.v || cur.id); }).forEach(function (n) {
       var v = n.v || cur.id, k = ids.indexOf(v);
-      return { body: n.body, by: n.by, when: n.when, cook: n.cook, from: v === cur.id ? null : c[k], parent: k === ids.length - 2 };
+      var o = { body: n.body, by: n.by, when: n.when, cook: n.cook, from: v === cur.id ? null : c[k], parent: k === ids.length - 2 };
+      if (n.id && byId[n.id]) { o.changed = true; out[out.indexOf(byId[n.id])] = o; } else out.push(o);
+      if (n.id) byId[n.id] = o;
     });
+    return out;
   };
   /* the note body: a tiny Markdown subset (bold, "- " lines), the same one the photos slice uses; a photo reference loads on demand */
   var noteHtml = function (body) {
@@ -219,8 +225,9 @@
     flush(); return out.join("");
   };
 
-  /* ---- Reactions after a cook (owner, 10 Oct 2026): each member liked / not for us / skip; the household result is derived. ---- */
-  var REACT = { liked: ["😋", "liked"], no: ["🙅", "not for us"], skip: ["–", "skipped"] };
+  /* ---- Reactions after a cook (owner, 10 Oct 2026; same model as recipe-versions/versions.js): each member who ate says liked or
+     not for me; skip is no answer and is not stored. The household line is derived ("Liked by 2 of 3"), never a separate vote. ---- */
+  var REACT = { liked: ["😋", "liked it"], no: ["🙅", "not for me"] };
   var reactLine = function (rx) {
     if (!rx) return "";
     var k = Object.keys(rx), said = k.filter(function (m) { return rx[m] && rx[m] !== "skip"; }), liked = k.filter(function (m) { return rx[m] === "liked"; });
