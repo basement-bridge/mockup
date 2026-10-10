@@ -1,35 +1,36 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Add a recipe — Recipe tab mockup</title>
-<link rel="stylesheet" href="../theme.css"><link rel="stylesheet" href="recipe.css"><script src="../theme.js"></script><script src="recipe.js"></script></head>
+<link rel="stylesheet" href="../theme.css"><link rel="stylesheet" href="recipe.css"><link rel="stylesheet" href="flow2.css"><script src="../theme.js"></script><script src="recipe.js"></script><script src="flow2.js"></script></head>
 <body data-no-theme-fab>
 <div class="stage"><div class="phone" id="ph"></div></div>
 <script>
+/* Add a recipe. Owner decision L4 (voice, 10 October 2026): recipes come in only through the person's own AI assistant, over Recipe's MCP tools.
+   No paste box, no link, no reading a photo, no "one box / four doors" (R-D13 options A and B are void). This screen only explains how, and
+   points at any draft already waiting. The app's own jobs are adding photos (especially after cooking) and notes, on the recipe and at the end of a cook.
+   Performance: no form, no reader, no upload code; the page is text and two links. */
 (function(){
-var X=RCP,ic=X.ic;
-var opt=X.Q.get("add")||X.store.get("add","A");X.store.set("add",opt);
+var X=RCP,ic=X.ic,esc=X.esc;
 var ph=document.getElementById("ph");
-var top='<div class="top"><a class="back" href="list.html">'+ic("back","s")+'Recipes</a><span class="ttl">Add a recipe</span><span style="width:64px"></span></div>';
-var aiTile='<a class="tile ai" href="review.html?from=assistant">'+ic("spark")+'<b>Ask your assistant</b><small>Opens your AI app. What it writes comes back here as a draft for you to check.</small></a>';
-var A=top+'<div class="body">'+
-  /* R-D13 option A: one box takes anything. Paste a recipe, a link, or type it in your own words; the reader sorts out which. */
-  '<div class="drop"><label class="vh" for="t">Paste or type a recipe</label><textarea id="t" placeholder="Paste a recipe or a link, or type it the way you would tell a friend.\n\ne.g. Egg fried rice for 2. 3 eggs, 300 g cold rice, an onion, soy sauce…"></textarea>'+
-  '<div class="row"><button type="button" class="ib" aria-label="Dictate">'+ic("mic","s")+'</button><button type="button" class="ib" aria-label="Take or choose a photo" data-photo>'+ic("cam","s")+'</button><span style="flex:1"></span><a class="btn sm" href="review.html?from=paste" id="go">Read it</a></div></div>'+
-  '<p class="pad" style="font-size:13px">Photos of a card, a book page or a screen work too: one recipe per photo, several photos if it runs over a page.</p>'+
-  '<div class="lblrow pad" style="padding-top:0;padding-bottom:0;margin-top:0"><span class="lbl">Or</span></div>'+
-  '<div class="tiles" style="grid-template-columns:1fr">'+aiTile+'</div>'+
-  '</div>';
-var B=top+'<div class="body">'+
-  /* R-D13 option B: four doors, one per way in. Clearer, one more tap. */
-  '<div class="tiles">'+
-  '<a class="tile" href="review.html?from=paste">'+ic("type")+'<b>Type or paste</b><small>A recipe in your own words, or copied from anywhere</small></a>'+
-  '<a class="tile" href="review.html?from=photo">'+ic("cam")+'<b>Photo</b><small>A card, a book page, a screenshot</small></a>'+
-  '<a class="tile" href="review.html?from=link">'+ic("link")+'<b>Link</b><small>A recipe web page</small></a>'+
-  aiTile.replace('tile ai','tile ai')+
-  '</div></div>';
-ph.innerHTML=(opt==="B"?B:A);
-ph.addEventListener("click",function(e){if(e.target.closest("[data-photo]"))X.sheet('<h3>Photo of a recipe</h3><button class="opt">'+ic("cam")+'<span class="t"><b>Take a photo</b><small>Hold it flat. Add the back of a card as a second photo.</small></span></button><a class="opt" href="review.html?from=photo">'+ic("img")+'<span class="t"><b>Choose from photos</b><small>Sample: a handwritten card</small></span></a>')});
-X.controls('<h4>Add screen, option</h4><div class="seg"><button type="button" data-addopt="A" aria-pressed="'+(opt==="A")+'">A One box</button><button type="button" data-addopt="B" aria-pressed="'+(opt==="B")+'">B Four doors</button></div>');
-document.addEventListener("click",function(e){var b=e.target.closest("[data-addopt]");if(b){X.store.set("add",b.dataset.addopt);location.href="add.html"}});
+var say="Add a recipe to Kitchie: egg fried rice for 2. 3 eggs, 300 g cold rice, an onion, soy sauce. Fry the onion, scramble the eggs, add the rice and soy.";
+var waiting=X.DRAFTS;
+ph.innerHTML='<div class="top"><a class="back" href="list.html">'+ic("back","s")+'Recipes</a><span class="ttl">Add a recipe</span><span style="width:64px"></span></div>'+
+  '<div class="body">'+
+  '<div class="add-hero"><span class="e" aria-hidden="true">✨</span><div><h2>Your assistant adds recipes</h2><p style="margin-top:2px">Recipes come in through your own AI app. You check them here before they count.</p></div></div>'+
+  '<ol class="how">'+
+    '<li><span class="n">'+ic("spark")+'</span><span><b>Open your AI app</b><p>The assistant you already use, connected to your household.</p></span></li>'+
+    '<li><span class="n">'+ic("note")+'</span><span><b>Ask it to add a recipe</b><p>Tell it the recipe in your own words, or the one you are cooking from. Partial is fine: it leaves blanks blank.</p></span></li>'+
+    '<li><span class="n">'+ic("check")+'</span><span><b>It arrives as Suggested</b><p>The draft waits at the top of Recipes. Open it on Check it, fix anything, then save. If it looks like one you have, you are told and nothing is merged.</p></span></li>'+
+  '</ol>'+
+  '<div class="say"><small>You could say</small>'+esc(say)+'</div>'+
+  '<div class="pad"><button type="button" class="mini" data-copy>'+ic("note","xs")+'Copy that</button></div>'+
+  (waiting.length?'<div class="lblrow pad" style="padding-top:0;padding-bottom:0"><span class="lbl">Waiting for you · '+waiting.length+'</span></div>'+
+    waiting.map(function(d){return '<a class="slim acc" href="review.html?from=assistant"><span class="e" aria-hidden="true">'+d.e+'</span><span class="t"><b>'+esc(d.name)+'</b><small>Suggested · '+esc(d.from)+'</small></span><span class="chev">'+ic("chev","s")+'</span></a>'}).join(""):'')+
+  '<div class="pad" style="margin-top:var(--sp-3)"><p style="font-size:13px">'+ic("cam","xs")+' <b style="color:var(--fg)">What you add here:</b> photos of what you made, and notes. Open any recipe, or finish a cook, and add them there.</p></div>'+
+  '<div style="height:24px"></div></div>';
+ph.addEventListener("click",function(e){
+  if(e.target.closest("[data-copy]")){try{navigator.clipboard&&navigator.clipboard.writeText(say)}catch(err){}X.toast("Copied. Paste it into your AI app.")}
+});
+X.controls('<h4>Add (L4, locked)</h4><p>One screen: the assistant adds recipes. <a href="review.html?from=assistant">Check an assistant draft</a> · <a href="review.html?from=dup">Duplicate found</a></p>');
 })();
 </script>
 </body></html>

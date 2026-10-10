@@ -4,6 +4,9 @@
 <body data-no-theme-fab>
 <div class="stage"><div class="phone" id="ph"></div></div>
 <script>
+/* Change it. Not locked: the owner said "we'll do that later" (10 October 2026), so this screen stays as drawn.
+   Kept consistent with the locked decisions: L4, recipe content arrives through the person's assistant; this is the only in-app change and it never
+   creates a recipe. L5, every household member sees the same controls (no follower view). L8, nothing here waits for an admin's approval. */
 (function(){
 var X=RCP,ic=X.ic,esc=X.esc,fmt=X.fmt;
 var r=X.byId(X.Q.get("id")||"efr")||X.R[0];
@@ -47,7 +50,7 @@ ph.addEventListener("click",function(e){
   else if(t.hasAttribute("data-save")){var c=changes();
     /* R-D17: name the version from the change; the person's own words are what Recipe keeps as the reason (user_intent). */
     X.sheet('<h3>Keep both: save as a new version</h3><p style="font-size:12.5px;margin-top:2px">Fix this one instead is drawn in <a href="../recipe-versions/change.html" style="text-decoration:underline">recipe versions</a> (V-D10).</p><ul style="margin:6px 0 0 18px;color:var(--muted);font-size:13px">'+c.map(function(x){return '<li>'+esc(x)+'</li>'}).join("")+'</ul><label class="lbl" for="vn" style="display:block;margin-top:12px">Call it</label><input id="vn" class="field" style="margin-top:4px" value="'+esc(c[0].replace(/^Added /,"With ").replace(/^Removed /,"Without "))+'"><label class="lbl" for="vw" style="display:block;margin-top:10px">Why keep it? (optional)</label><input id="vw" class="field" style="margin-top:4px" placeholder="e.g. less salty, kids prefer it">'+
-      '<button type="button" class="opt" data-def aria-pressed="false" style="margin-top:6px">'+ic("star")+'<span class="t"><b>Also make it our usual</b><small>Plan and Cook open this one. You can switch back.</small></span></button>'+
+      '<button type="button" class="opt" data-def aria-pressed="false" style="margin-top:6px">'+ic("star")+'<span class="t"><b>Also make it our usual</b><small>Plan and Cook open this one. Anyone in the household can switch it back.</small></span></button>'+
       '<div style="display:flex;gap:8px;margin-top:12px"><button class="btn ghost" data-close>Back</button><a class="btn" href="detail.html?id='+r.id+'&v=v2">Save</a></div>',function(s){s.querySelector("[data-def]").onclick=function(){var b=this;var on=b.getAttribute("aria-pressed")!=="true";b.setAttribute("aria-pressed",on);b.classList.toggle("on",on)}})}
 });
 ph.addEventListener("input",function(e){var k=e.target.dataset.step;if(k!=null){steps[+k].t=e.target.value;var c=changes();var a=ph.querySelector(".act span");a.textContent=c.length?c.length+" change"+(c.length>1?"s":""):"No changes yet";ph.querySelector("[data-save]").disabled=!c.length;e.target.closest(".stp").classList.toggle("chg",steps[+k].t!==steps[+k].orig);e.target.closest(".stp").classList.toggle("ing",steps[+k].t!==steps[+k].orig)}});

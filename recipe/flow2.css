@@ -1,0 +1,35 @@
+/* Recipe tab mockup, flow 2 (owner's locked decisions, 10 October 2026). Theme tokens only, no raw colours.
+   Loaded after recipe.css by add.html, review.html, edit.html and cook.html. Class names are the ones the build should lift. */
+
+/* L4: Add is "your assistant adds recipes" (add.html) */
+.how{list-style:none;margin:0;padding:0 var(--sp-4);counter-reset:how}
+.how li{display:flex;gap:var(--sp-3);align-items:flex-start;padding:var(--sp-3) 0;border-top:1px solid var(--border)}
+.how li:first-child{border-top:0}
+.how .n{width:32px;height:32px;border-radius:50%;flex:none;display:inline-flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--accent) 16%,var(--surface));color:var(--accent);border:1px solid var(--accent)}
+.how .n .ic{width:18px;height:18px}
+.how b{display:block;font-size:15px;color:var(--fg)}
+.how p{margin-top:2px;font-size:13.5px}
+.say{margin:var(--sp-2) var(--sp-4) 0;padding:var(--sp-3);border-radius:var(--r-card) var(--r-card) var(--r-card) 4px;background:var(--surface);border:1px solid var(--border);font-size:14.5px;line-height:1.4;color:var(--fg)}
+.say small{display:block;color:var(--muted);font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;margin-bottom:4px}
+.add-hero{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-4) var(--sp-4) var(--sp-2)}
+.add-hero .e{font-size:40px;line-height:1}
+.add-hero h2{font-size:1.25rem}
+.uijob{display:flex;gap:var(--sp-2);flex-wrap:wrap;margin-top:var(--sp-2)}
+
+/* L7: cook-mode step buttons labelled with where they go (cook.html) */
+.act.snavs{align-items:stretch}
+.btn.snav{min-height:56px;padding:6px 12px;gap:6px;min-width:0;justify-content:space-between;text-align:left}
+.btn.snav.prev{flex:0 1 42%}
+.btn.snav.next{flex:1 1 58%;text-align:right}
+.btn.snav .t{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.2}
+.btn.snav small{font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;opacity:.8}
+.btn.snav b{font-size:14px;font-weight:800;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.swipehint{font-size:12px;color:var(--muted);text-align:center;padding:0 var(--sp-4)}
+
+/* end of a cook: the UI's two jobs, a photo and a note (cook.html) */
+.endjobs{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-2)}
+.endjobs a,.endjobs button{display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-height:84px;padding:var(--sp-3);border-radius:var(--r-card);border:1px solid var(--border);background:var(--surface);text-align:left;color:var(--fg)}
+.endjobs .ic{color:var(--accent)}
+.endjobs b{font-size:14.5px}
+.endjobs small{font-size:12px;color:var(--muted);line-height:1.3}
+.endjobs .done{border-color:var(--accent)}

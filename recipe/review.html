@@ -1,37 +1,36 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Check a new recipe — Recipe tab mockup</title>
-<link rel="stylesheet" href="../theme.css"><link rel="stylesheet" href="recipe.css"><script src="../theme.js"></script><script src="recipe.js"></script></head>
+<link rel="stylesheet" href="../theme.css"><link rel="stylesheet" href="recipe.css"><link rel="stylesheet" href="flow2.css"><script src="../theme.js"></script><script src="recipe.js"></script><script src="flow2.js"></script></head>
 <body data-no-theme-fab>
 <div class="stage"><div class="phone" id="ph"></div></div>
 <script>
 (function(){
 var X=RCP,ic=X.ic,esc=X.esc;
+/* L4 (owner, 10 October 2026): every draft comes from the person's own AI assistant over Recipe's MCP tools. There is no paste, link or photo read,
+   so this screen has two cases only: an assistant draft, and an assistant draft whose create_recipe returned likely duplicates (never merged silently).
+   Old links (?from=paste, photo, link) open the duplicate or the plain draft, so nothing 404s. */
 var from=X.Q.get("from")||"assistant";
-/* Sample reads. basis: o = read from the source, g = a guess (inferred), u = the source did not say. Mirrors Recipe's quantity.basis. */
+if(from==="paste")from="dup";
+if(from!=="dup")from="assistant";
+/* Sample drafts. basis: o = said by the person or their source, g = the assistant's guess (inferred), u = not said. Mirrors Recipe's quantity.basis. */
 var D={
   assistant:{t:"Red lentil soup",e:"🍲",src:"Your assistant, from a chat with Alex this morning",kind:"conversation",serves:4,min:35,
     ings:[["Red lentils","200 g","o"],["Onion","1","o"],["Carrot","2","o"],["Vegetable stock","1 L","o"],["Cumin","1 tsp","o"],["Lemon","½","g"]],
     steps:["Soften the onion and carrot.","Add lentils, cumin and stock. Simmer 20 min.","Blend half, squeeze in the lemon."],dup:null},
-  paste:{t:"Egg fried rice",e:"🍚",src:"Pasted text",kind:"manual",serves:2,min:null,
+  dup:{t:"Egg fried rice",e:"🍚",src:"Your assistant, from a chat with Jane just now",kind:"conversation",serves:2,min:null,
     ings:[["Eggs","3","o"],["Cold rice","300 g","o"],["Onion","1","o"],["Soy sauce","","u"],["Spring onions","2","g"]],
-    steps:["Fry the onion.","Scramble the eggs.","Add the rice and soy sauce."],dup:"efr"},
-  photo:{t:"Nan's apple crumble",e:"🍎",src:"Photo of a handwritten card",kind:"photo_card",serves:null,min:45,
-    ings:[["Cooking apples","4","o"],["Flour","6 oz","o"],["Butter","3 oz","o"],["Sugar","","u"],["Cinnamon","a pinch","o"]],
-    steps:["Peel and slice the apples into a dish.","Rub butter into flour, add sugar.","Top the apples, bake until golden (smudged)."],dup:null},
-  link:{t:"Thai green curry",e:"🍛",src:"From a web page (link kept)",kind:"import",serves:4,min:30,
-    ings:[["Green curry paste","3 tbsp","o"],["Coconut milk","400 ml","o"],["Chicken thighs","500 g","o"],["Green beans","150 g","o"],["Fish sauce","1 tbsp","o"]],
-    steps:["Fry the paste.","Add coconut milk and chicken, simmer.","Add beans, season with fish sauce."],dup:null}
-}[from]||null;
+    steps:["Fry the onion.","Scramble the eggs.","Add the rice and soy sauce."],dup:"efr"}
+}[from];
 var d=D, ph=document.getElementById("ph"), dupDone=false;
-var miss=function(n){return /lentil|lemon|apple|curry paste|chicken|green beans|fish sauce|flour|cinnamon|spring/i.test(n)};
+var miss=function(n){return /lentil|lemon|spring/i.test(n)};
 function draw(){
   var guesses=d.ings.filter(function(i){return i[2]==="g"}).length, unk=d.ings.filter(function(i){return i[2]==="u"}).length+(d.serves?0:1)+(d.min?0:1);
-  ph.innerHTML='<div class="top"><a class="back" href="'+(from==="assistant"?"list.html":"add.html")+'">'+ic("back","s")+(from==="assistant"?"Recipes":"Add")+'</a><span class="ttl">Check it</span><span style="width:64px"></span></div>'+
+  ph.innerHTML='<div class="top"><a class="back" href="list.html">'+ic("back","s")+'Recipes</a><span class="ttl">Check it</span><span style="width:64px"></span></div>'+
   '<div class="body">'+
   /* R-D14: say where it came from and what we are unsure of, once, at the top. Then the recipe exactly as it will be saved. */
-  '<div class="pad"><span class="badge'+(from==="assistant"?'':' sage')+'">'+ic(from==="assistant"?"spark":from==="photo"?"cam":from==="link"?"link":"type","xs")+esc(d.src)+'</span>'+
-  '<p style="margin-top:10px;font-size:13px">'+(guesses||unk?(guesses?guesses+' guess'+(guesses>1?'es':'')+' marked <span class="unk" style="border-style:solid">guess</span>. ':'')+(unk?unk+' thing'+(unk>1?'s':'')+' the source did not say, marked <span class="unk">?</span>. Leave them blank or fill them in.':''):'Everything was read straight from the source.')+'</p></div>'+
-  (d.dup&&!dupDone?'<div class="warn"><b>You may already have this</b>'+esc(X.byId(d.dup).name)+', added by Sam on 3 Sep, cooked 6 times.<div class="row"><a class="mini" href="detail.html?id='+d.dup+'">Open that one</a><a class="mini" href="edit.html?id='+d.dup+'&from=paste">Save as a version of it</a><button type="button" class="mini" data-keep>Keep both</button></div></div>':'')+
+  '<div class="pad"><span class="badge">'+ic("spark","xs")+'Suggested · '+esc(d.src)+'</span>'+
+  '<p style="margin-top:10px;font-size:13px">'+(guesses||unk?(guesses?guesses+' guess'+(guesses>1?'es':'')+' marked <span class="unk" style="border-style:solid">guess</span>. ':'')+(unk?unk+' thing'+(unk>1?'s':'')+' nobody said, marked <span class="unk">?</span>. Leave them blank or fill them in.':''):'Nothing was guessed and nothing is missing.')+'</p></div>'+
+  (d.dup&&!dupDone?'<div class="warn"><b>You may already have this</b>Your assistant found '+esc(X.byId(d.dup).name)+', added by Sam on 3 Sep, cooked 6 times. Nothing is merged unless you say so.<div class="row"><a class="mini" href="detail.html?id='+d.dup+'">Open that one</a><a class="mini" href="edit.html?id='+d.dup+'&from=dup">Save as a version of it</a><button type="button" class="mini" data-keep>Keep both</button></div></div>':'')+
   '<div class="pad">'+
     '<label class="lbl" for="tt">Name</label><input id="tt" class="field" style="margin-top:4px;font-weight:700" value="'+esc(d.t)+'">'+
     '<div class="meta" style="margin-top:10px"><button class="mc'+(d.serves?'':' acc')+'">'+ic("users")+(d.serves?'Serves '+d.serves:'Serves <span class="unk">?</span>')+'</button><button class="mc'+(d.min?'':' acc')+'">'+ic("clock")+(d.min?d.min+' min':'Time <span class="unk">?</span>')+'</button></div>'+
@@ -40,10 +39,9 @@ function draw(){
     '<p style="font-size:12px;margin-top:4px">Dots show what is in your pantry now. Nothing is added to shopping until you plan or cook it.</p>'+
     '<div class="lblrow"><span class="lbl">Method · '+d.steps.length+' steps</span><button class="back" style="font-size:13px">'+ic("plus","xs")+' Add</button></div>'+
     d.steps.map(function(s,k){return '<button type="button" class="erow" style="align-items:flex-start;padding:10px 0"><span class="stp" style="padding:0;border:0"><span class="nb">'+(k+1)+'</span></span><span class="nm" style="font-size:14.5px">'+esc(s)+'</span>'+ic("pen","s")+'</button>'}).join("")+
-    (from==="photo"?'<div class="lblrow"><span class="lbl">Source photo</span></div><div class="pgrid"><div role="img" aria-label="The card">🗒️</div><button class="add" style="aspect-ratio:1;border-radius:var(--r-ctl);border:1px dashed var(--border);color:var(--muted);font-size:12px;font-weight:700">'+ic("cam")+'<br>Back of card</button></div>':'')+
   '</div><div style="height:24px"></div></div>'+
   /* R-D15: Save is one tap. Not now keeps a draft. Discard is under Not now, not beside Save. */
-  '<div class="act"><button type="button" class="btn ghost" data-later>'+(from==="assistant"?"Not now":"Discard")+'</button><button type="button" class="btn" data-save>'+ic("check","s")+'Save recipe</button></div>';
+  '<div class="act"><button type="button" class="btn ghost" data-later>'+"Not now"+'</button><button type="button" class="btn" data-save>'+ic("check","s")+'Save recipe</button></div>';
 }
 ph.addEventListener("click",function(e){
   var t=e.target.closest("button");if(!t)return;
@@ -53,7 +51,7 @@ ph.addEventListener("click",function(e){
   else if(t.hasAttribute("data-later")){location.href="list.html"}
 });
 draw();
-X.controls('<h4>Arrived from</h4><p><a href="?from=assistant">Assistant draft</a> · <a href="?from=paste">Paste (duplicate)</a> · <a href="?from=photo">Photo card</a> · <a href="?from=link">Link</a></p>');
+X.controls('<h4>Assistant draft (L4)</h4><p><a href="?from=assistant">Plain draft</a> · <a href="?from=dup">Duplicate found</a></p>');
 })();
 </script>
 </body></html>
