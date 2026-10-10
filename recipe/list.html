@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Recipes, the list — Recipe tab mockup</title>
+<link rel="stylesheet" href="../theme.css"><link rel="stylesheet" href="recipe.css"><script src="../theme.js"></script><script src="recipe.js"></script></head>
+<body data-no-theme-fab>
+<div class="stage"><div class="phone" id="ph">
+  <!-- R-D4: one top row only. Search is the row; Add is the one icon beside it. No page heading: the tab says where you are. -->
+  <div class="top" style="border-bottom:0">
+    <label class="search">__S__<span class="vh">Search recipes</span><input id="q" type="search" placeholder="Search recipes or ingredients" autocomplete="off"></label>
+    <a class="ib acc" href="add.html" aria-label="Add a recipe">__P__</a>
+  </div>
+  <div class="strip" id="strip" role="group" aria-label="Show"></div>
+  <div class="body" id="body"></div>
+  <div id="bar"></div>
+</div></div>
+<script>
+(function(){
+var X=RCP,P=X.P,ic=X.ic,esc=X.esc;
+document.getElementById("ph").innerHTML=document.getElementById("ph").innerHTML.replace("__S__",ic("search","s")).replace("__P__",ic("plus"));
+document.getElementById("bar").outerHTML=X.bar();
+/* R-D5: the strip is the plan-week-ai strip (decision 48). Ready leads; the remembered chip is per device. */
+var CH=[["all","All"],["ready","Ready now"],["star","Starred"],["batch","Batch"],["quick","Under 30"],["mine","Added by me"]];
+var defChip=P.persona==="batch"?"batch":"all";
+var chip=X.store.get("chip-"+P.persona,defChip);
+var q="";
+var score=function(r){var m=X.missing(X.resolve(r).ings).length;return m};
+var row=function(r){
+  var res=X.resolve(r),m=X.missing(res.ings),vc=r.vers.length;
+  var pills=[];
+  if(!m.length)pills.push('<span class="tg">'+ic("check")+'All in</span>');
+  else pills.push('<span class="tg miss" aria-label="'+m.length+' missing">'+m.length+' missing</span>');
+  if(r.star)pills.push('<span class="tg acc" aria-label="Starred">'+ic("star")+'</span>');
+  if(r.freezes)pills.push('<span class="tg mut">'+ic("snow")+'Freezes</span>');
+  if(vc>1)pills.push('<span class="tg mut" aria-label="'+vc+' versions">'+ic("branch")+vc+'</span>');
+  var thumb=P.photos==="on"&&r.photos.length?'<span class="th" aria-hidden="true">'+r.photos[0]+'</span>':'<span class="th" aria-hidden="true">'+r.e+'</span>';
+  var meta=r.min+" min · "+(r.batch?"makes "+r.serves:"serves "+r.serves)+" · cooked "+(r.last<=7?r.last+" days ago":r.last<=21?Math.round(r.last/7)+" wk ago":"a while ago");
+  return '<li><a class="rr" href="detail.html?id='+r.id+'" data-id="'+r.id+'">'+thumb+'<span class="t"><b>'+esc(r.name)+'</b><small>'+meta+'</small><span class="pills">'+pills.join("")+'</span></span><span class="chev">'+ic("chev","s")+'</span></a></li>';
+};
+var filt=function(){
+  var me=X.me[2];
+  return X.R.filter(function(r){
+    if(q){var s=q.toLowerCase();if(r.name.toLowerCase().indexOf(s)<0&&!r.ings.some(function(i){return i[1].toLowerCase().indexOf(s)>-1}))return false}
+    if(chip==="ready")return !score(r);
+    if(chip==="star")return r.star;
+    if(chip==="batch")return r.batch;
+    if(chip==="quick")return r.min<=30;
+    if(chip==="mine")return r.src.indexOf(me)>-1;
+    return true;
+  }).sort(function(a,b){return score(a)-score(b)||a.last-b.last});
+};
+var top=function(){
+  var h="";
+  /* R-D8 follower, option A: tonight's planned meal leads the tab for someone who cooks what was planned. */
+  if(P.persona==="follower"&&P.follow==="A")h+='<a class="slim acc" href="detail.html?id=efr&from=plan"><span class="e" aria-hidden="true">🍚</span><span class="t"><b>Tonight: Egg fried rice</b><small>Planned by Sam · serves 4 · everything is in</small></span><span class="chev">'+ic("chev","s")+'</span></a>';
+  if(P.persona==="follower"&&P.follow==="B")h+='<a class="slim acc" href="cook.html?id=efr&from=plan"><span class="e" aria-hidden="true">🔥</span><span class="t"><b>Cook tonight\'s: Egg fried rice</b><small>Opens straight into cook mode</small></span><span class="chev">'+ic("chev","s")+'</span></a>';
+  /* R-D12: assistant drafts wait at the top, one slim line, never a modal. Not shown to the follower (they did not ask for them). */
+  if(P.persona!=="follower"&&X.DRAFTS.length)h+='<a class="slim" href="review.html"><span class="e" aria-hidden="true">'+X.DRAFTS[0].e+'</span><span class="t"><b>'+X.DRAFTS.length+' draft to check</b><small>'+esc(X.DRAFTS[0].name)+', from your assistant</small></span><span class="tg acc">Check</span></a>';
+  return h;
+};
+var draw=function(){
+  var s=document.getElementById("strip");
+  s.innerHTML=CH.map(function(c,i){return (i===1?'<span class="sd" aria-hidden="true"></span>':'')+'<button type="button" data-chip="'+c[0]+'" aria-pressed="'+(chip===c[0])+'">'+c[1]+'</button>'}).join("");
+  var list=filt(),b=document.getElementById("body"),h=top();
+  if(P.list==="A"){
+    h+=list.length?'<ul class="rl" style="margin-top:4px">'+list.map(row).join("")+'</ul>':empty();
+  }else if(P.list==="B"){
+    var card=function(r){var m=X.missing(X.resolve(r).ings).length;return '<a class="card" href="detail.html?id='+r.id+'"><span class="th lg" aria-hidden="true">'+(P.photos==="on"&&r.photos[0]||r.e)+'</span><b>'+esc(r.name)+'</b><small>'+r.min+' min · '+(m?m+' missing':'all in')+'</small></a>'};
+    var shelf=function(t,arr){return arr.length?'<div class="shh"><span class="lbl">'+t+'</span><span class="lbl">'+arr.length+'</span></div><div class="shelf">'+arr.map(card).join("")+'</div>':""};
+    if(q||chip!=="all")h+=list.length?'<ul class="rl" style="margin-top:4px">'+list.map(row).join("")+'</ul>':empty();
+    else{
+      h+=shelf("Ready now",X.R.filter(function(r){return !score(r)}));
+      h+=shelf(P.persona==="batch"?"Batch and freeze":"Not cooked lately",P.persona==="batch"?X.R.filter(function(r){return r.batch}):X.R.filter(function(r){return r.last>=14}));
+      h+='<div class="shh"><span class="lbl">All, A to Z</span></div><ul class="rl">'+X.R.slice().sort(function(a,b){return a.name.localeCompare(b.name)}).map(row).join("")+'</ul>';
+    }
+  }else{
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px 12px">'+list.map(function(r){var m=X.missing(X.resolve(r).ings).length;return '<a class="card" style="width:auto" href="detail.html?id='+r.id+'"><span class="th lg" style="height:110px" aria-hidden="true">'+(P.photos==="on"&&r.photos[0]||r.e)+'</span><b>'+esc(r.name)+'</b><small>'+r.min+' min · '+(m?m+' missing':'all in')+'</small></a>'}).join("")+'</div>';
+  }
+  h+='<div style="height:24px"></div>';
+  b.innerHTML=h;
+  wireSwipe();
+};
+var empty=function(){return '<div class="pad" style="text-align:center;padding-top:40px"><div style="font-size:44px">🍳</div><p style="margin-top:8px">Nothing here'+(q?' for "'+esc(q)+'"':'')+'.</p><p style="margin-top:12px"><a href="add.html" style="color:var(--accent);font-weight:700">Add a recipe</a></p></div>'};
+document.getElementById("strip").addEventListener("click",function(e){var b=e.target.closest("[data-chip]");if(!b)return;chip=chip===b.dataset.chip&&chip!=="all"?"all":b.dataset.chip;X.store.set("chip-"+P.persona,chip);draw()});
+document.getElementById("q").addEventListener("input",function(e){q=e.target.value.trim();draw()});
+/* R-D6: swipe a row right to plan it (opens the day picker). Swipe left is not used: nothing is deleted in Recipe. */
+function wireSwipe(){
+  document.querySelectorAll(".rr").forEach(function(el){
+    var x0=null,dx=0,moved=false;
+    el.addEventListener("pointerdown",function(e){x0=e.clientX;dx=0;moved=false});
+    el.addEventListener("pointermove",function(e){if(x0==null)return;dx=e.clientX-x0;if(Math.abs(dx)>8)moved=true;if(dx>0){el.classList.add("sw");el.style.transform="translateX("+Math.min(dx,120)+"px)";if(dx>70){el.dataset.swipe="right";el.dataset.swipeLabel="Plan it"}else delete el.dataset.swipe}});
+    var end=function(){if(x0==null)return;el.classList.remove("sw");el.style.transform="";var go=dx>70;delete el.dataset.swipe;x0=null;if(go)window.planSheet(X.byId(el.dataset.id))};
+    el.addEventListener("pointerup",end);el.addEventListener("pointercancel",end);el.addEventListener("pointerleave",end);
+    el.addEventListener("click",function(e){if(moved){e.preventDefault();moved=false}});
+  });
+}
+draw();
+X.controls();
+})();
+</script>
+<script src="plan-sheet.js"></script>
+</body></html>

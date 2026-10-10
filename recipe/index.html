@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Recipe tab, end to end</title>
+<link rel="stylesheet" href="../theme.css"><link rel="stylesheet" href="../shared.css"><script src="../theme.js"></script>
+<style>
+.d{counter-reset:none;list-style:none;margin:8px 0 0;padding:0}
+.d li{padding:10px 0;border-top:1px solid var(--border);font-size:14px;color:var(--muted)}
+.d li:first-child{border-top:0}
+.d li b{color:var(--fg)}
+.d .n{display:inline-block;min-width:52px;font-weight:800;color:var(--accent)}
+.prop{font-size:11px;font-weight:800;padding:1px 7px;border-radius:var(--r-pill);border:1px dashed var(--accent);color:var(--accent);margin-left:4px;white-space:nowrap}
+.gap{font-size:11px;font-weight:800;padding:1px 7px;border-radius:var(--r-pill);border:1px solid var(--danger);color:var(--danger);margin-left:4px;white-space:nowrap}
+.per{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.per a{display:inline-flex;align-items:center;min-height:var(--tap);padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-weight:700;font-size:14px}
+.per a:hover{border-color:var(--accent);color:var(--accent)}
+.opts .opt p{font-size:13px}
+.opts .opt .per{margin-top:8px}
+code{font-size:12.5px}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../">&lsaquo; All mockups</a>
+<h1>Recipe tab, end to end</h1>
+<p>Draft for feedback. The whole Recipe tab for anyone arriving in recipe land: the list, a recipe, adding one by hand or with the assistant, changing it, moving between versions, and cooking it. Every screen is a live phone at phone width first. Sample data only. Open <b>Mockup</b> (bottom right on every screen) to switch who is using it and to flip between options.</p>
+
+<section class="sec"><div class="lbl">Start here</div>
+<p>Pick who you are. Each opens the list as that person sees it.</p>
+<div class="per">
+<a href="list.html?persona=weeknight">Weeknight cook (Sam)</a>
+<a href="list.html?persona=batch">Batch cooker (Priya)</a>
+<a href="list.html?persona=improviser">Improviser (Alex)</a>
+<a href="list.html?persona=follower">Follows the plan (Jane)</a>
+</div>
+<p class="q">Screens: <a href="list.html" style="text-decoration:underline">List</a> · <a href="detail.html?id=efr" style="text-decoration:underline">Recipe (with versions)</a> · <a href="detail.html?id=cur&persona=batch" style="text-decoration:underline">Batch recipe</a> · <a href="add.html" style="text-decoration:underline">Add</a> · <a href="review.html?from=assistant" style="text-decoration:underline">Check an assistant draft</a> · <a href="review.html?from=photo" style="text-decoration:underline">Check a photo read</a> · <a href="review.html?from=paste" style="text-decoration:underline">Duplicate found</a> · <a href="edit.html?id=efr" style="text-decoration:underline">Change it</a> · <a href="cook.html?id=efr" style="text-decoration:underline">Cook it</a></p>
+</section>
+
+<section class="sec"><div class="lbl">Options for yay, nay or combine</div>
+<p>Where the choice is real, both are built. Flip them from the Mockup button on any screen, or use these links.</p>
+<div class="opts two">
+<div class="opt"><h2><b>1</b>The list</h2><p><b>A One list</b>: rows ranked by what you can cook now, a chip strip on top. Densest. <b>B Shelves</b>: Ready now, Not cooked lately (Batch for Priya), then A to Z. Browsing. <b>C Photo grid</b>: two columns of pictures. Most appetising, fewest per screen. Recommended: <b>A</b>, with B's shelves as a later idea if people browse more than they search.</p><div class="per"><a href="list.html?list=A">A</a><a href="list.html?list=B">B</a><a href="list.html?list=C">C</a></div></div>
+<div class="opt"><h2><b>2</b>The recipe page</h2><p><b>A One scroll</b> with a sticky jump row (Ingredients, Method, Notes, Cooked, Photos). Nothing hidden, one thumb flick per section. <b>B Tabs</b> on the same row, one section at a time. Recommended: <b>A</b>; it carries over from the recipe-page fragment's option 1 and keeps Ingredients and Method one scroll apart while cooking from the page.</p><div class="per"><a href="detail.html?id=efr&detail=A">A</a><a href="detail.html?id=efr&detail=B">B</a></div></div>
+<div class="opt"><h2><b>3</b>Moving between versions</h2><p><b>A Chip and sheet</b>: one chip in the meta row ("With peas · 3 versions") opens the family tree. One row of space. <b>B Strip</b>: the versions as the plan-week-ai strip under the title, one tap to switch. Recommended: <b>A</b> for space; B if versions turn out to be switched often.</p><div class="per"><a href="detail.html?id=efr&vers=A">A</a><a href="detail.html?id=efr&vers=B">B</a></div></div>
+<div class="opt"><h2><b>4</b>Adding a recipe</h2><p><b>A One box</b>: paste text or a link, or type it, with camera and mic on the box; the assistant as a second door. <b>B Four doors</b>: Type or paste, Photo, Link, Ask your assistant. Recommended: <b>A</b>, it is one tap shorter and the reader works out what it was given.</p><div class="per"><a href="add.html?add=A">A</a><a href="add.html?add=B">B</a></div></div>
+<div class="opt"><h2><b>5</b>Someone who only follows the plan</h2><p><b>A Tonight leads</b>: a slim line at the top of the list opens tonight's planned recipe, sized for the plan; no Plan or Change on the page. <b>B Straight to cook</b>: the same line opens cook mode directly. Recommended: <b>A</b>; one more tap but they see what's missing before starting.</p><div class="per"><a href="list.html?persona=follower&follow=A">A</a><a href="list.html?persona=follower&follow=B">B</a></div></div>
+<div class="opt"><h2><b>6</b>Tab bar order</h2><p>The brief names Plan, Pantry and Shopping as the other tabs; the household flow has Home, Pantry, Recipes, Shopping. This mockup draws <b>Plan, Pantry, Recipes, Shopping</b>. <b>A</b> keep that. <b>B</b> Home stays first and Plan lives in Home. Needs the owner; it touches every tab.</p></div>
+</div>
+</section>
+
+<section class="sec"><div class="lbl">Decisions in this slice (all Proposal until the owner says)</div>
+<p>Numbered R-D so they do not clash with plan-week-ai's or preferences' numbers. The same list is in <code>docs/knowledge/jobs-to-be-done/recipe-tab.md</code>.</p>
+<ol class="d">
+<li><span class="n">R-D1</span><b>The tab opens on the list.</b> No dashboard above it. Ideas live on Home (the cooking-ideas pane, another slice); the tab is where you find, open, add and cook. <span class="prop">Proposal</span></li>
+<li><span class="n">R-D2</span><b>Tab bar: Plan, Pantry, Recipes, Shopping.</b> Same bar component as the household flow. Order is option 6 above. <span class="prop">Proposal</span></li>
+<li><span class="n">R-D3</span><b>Kitchie renders; Recipe owns.</b> Every value on these screens comes from a Recipe tool or Kitchie's own plan and stock. Where Recipe cannot hold something yet, it is listed under Recipe-side gaps, not faked in Kitchie.</li>
+<li><span class="n">R-D4</span><b>One top row on the list: search and Add.</b> No heading (the tab says where you are). Search matches names and ingredients. <span class="prop">Proposal</span></li>
+<li><span class="n">R-D5</span><b>One chip strip, the plan-week-ai strip (its decision 48).</b> All, then Ready now, Starred, Batch, Under 30, Added by me. Tap again to go back to All. The chosen chip is remembered per person on this device (localStorage, like <code>pw-week</code>). The batch cooker starts on Batch. <span class="prop">Proposal</span></li>
+<li><span class="n">R-D6</span><b>Swipe a row right to plan it.</b> Opens the day picker. There is no swipe left: Recipe never deletes. <span class="prop">Proposal</span></li>
+<li><span class="n">R-D7</span><b>Recipe page layout</b> is option 2 above (A one scroll with jump row, B tabs).</li>
+<li><span class="n">R-D8</span><b>The follower</b> is option 5 above. Either way they see no Plan button, no Change it, no drafts line. They can still star, add a note and a photo. <span class="prop">Proposal</span></li>
+<li><span class="n">R-D9</span><b>Photos only when there are photos.</b> The hero swipes sideways with dots; a recipe without photos has no hero and no placeholder: its emoji sits beside the title. Step pictures show only if the recipe has them. Storage: the photo-storage slice. <span class="prop">Proposal</span></li>
+<li><span class="n">R-D10</span><b>Serves is the quantity control.</b> The − / + pill scales every amount (plan-week-ai decision 10). Batch recipes step in whole batches (8, 16, 24 portions). An amount the source never gave stays "amount?" at every size. <span class="prop">Proposal</span></li>
+<li><span class="n">R-D11</span><b>Two actions at the bottom: Cook it (leads) and Plan it.</b> Star is an icon in the top row. Everything else is in ⋯: Change it, Make this version the default, Ask your assistant about it (opens the person's AI app, plan-week-ai decision 45), Where it came from, Put away. <span class="prop">Proposal</span></li>
+<li><span class="n">R-D12</span><b>Assistant drafts wait in one slim line at the top of the list</b> ("1 draft to check"). Never a pop-up, never on Home. <span class="prop">Proposal</span> <span class="gap">Recipe gap</span></li>
+<li><span class="n">R-D13</span><b>Adding</b> is option 4 above. Ask your assistant opens the person's own AI app (no in-app agent, plan-week-ai decision 42); what it writes comes back as a draft.</li>
+<li><span class="n">R-D14</span><b>Every new recipe goes through one Check it screen,</b> however it arrived. A badge says where it came from. Values read straight from the source are plain; a guess is marked <i>guess</i>; something the source did not say is marked <i>?</i> and saved as unknown, never invented (Recipe's <code>basis</code>: observed, inferred, unknown). <span class="prop">Proposal</span></li>
+<li><span class="n">R-D15</span><b>Save is one tap.</b> For an assistant draft the other button is Not now (it stays a draft); for anything you added yourself it is Discard. <span class="prop">Proposal</span></li>
+<li><span class="n">R-D16</span><b>Changing a recipe always makes a new version.</b> The screen says so before you start ("Starting from With peas… stays as it is"), and it counts your changes. Only what changed is saved (Recipe's variation change set). <span class="prop">Proposal</span></li>
+<li><span class="n">R-D17</span><b>A new version is named from its change</b> ("With garlic"), and the optional "why keep it" line is stored as the person's own words (Recipe's <code>user_intent</code>). Making it the household default is a separate, explicit tick. <span class="prop">Proposal</span></li>
+<li><span class="n">R-D18</span><b>Cook it opens on the ingredients,</b> then one step per screen with its timer (cooking-right-now: ingredients lead). Tap an ingredient to tick it; press and hold to say you used something else tonight. <span class="prop">Proposal</span></li>
+<li><span class="n">R-D19</span><b>The end of a cook asks once:</b> what to take out of the pantry, for a batch how many portions go in the freezer, and only if something was swapped, "Just tonight" or "Keep it as a version" (which asks for their words). An optional photo or line goes into Cooked. <span class="prop">Proposal</span></li>
+<li><span class="n">R-D20</span><b>Versions</b> are option 3 above. Either way, rows a version changed are tinted, with what they replaced struck through in brackets (plan-week-ai decision 30). <span class="prop">Proposal</span></li>
+<li><span class="n">R-D21</span><b>A likely duplicate is shown, never merged:</b> Open that one, Save as a version of it, or Keep both (Recipe's <code>potential_duplicates</code>). <span class="prop">Proposal</span></li>
+<li><span class="n">R-D22</span><b>Missing items:</b> a small cart icon per missing row, "Add all N missing to shopping" under the list, and the plain hint "Talk to your assistant about substitutes" (plan-week-ai decisions 11 and 29). <span class="prop">Proposal</span></li>
+<li><span class="n">R-D23</span><b>Hold shows only when the recipe is on the plan,</b> beside the Ingredients heading, and reads "Held for Tue" (plan-week-ai decisions 9 and 33). From the day picker, Hold is on by default. <span class="prop">Proposal</span></li>
+<li><span class="n">R-D24</span><b>Notes are the household's, on the recipe, shown on every version.</b> A note never changes the recipe; a change you want kept is a version. <span class="prop">Proposal</span> <span class="gap">Recipe gap</span></li>
+<li><span class="n">R-D25</span><b>Put away, not delete.</b> Hides it from lists and ideas; can be brought back (Recipe's disabled status). <span class="prop">Proposal</span></li>
+<li><span class="n">R-D26</span><b>Cooked is a short history:</b> date, who, which version, their line, and the night's photo if one was taken. <span class="prop">Proposal</span> <span class="gap">Recipe gap</span></li>
+<li><span class="n">R-D27</span><b>List order:</b> fewest missing first, then longest since cooked. Pills are symbols plus a number (plan-week-ai decision 27): all in, N missing, starred, freezes, versions. <span class="prop">Proposal</span></li>
+<li><span class="n">R-D28</span><b>The day picker</b> shows this week Monday first with what is already planned, past days greyed, a usual day off marked, up to four weeks ahead (plan-week-ai decision 1). Picking a day with a meal adds a second meal, it never replaces one. <span class="prop">Proposal</span></li>
+</ol>
+</section>
+
+<section class="sec"><div class="lbl">Recipe-side gaps (solve in Recipe, Kitchie only renders)</div>
+<ol class="d">
+<li><span class="n">G1</span><b>Notes.</b> Recipe has no note on a recipe family. Needs an append-only note list (text, who, when), immutable like everything else.</li>
+<li><span class="n">G2</span><b>Cook history.</b> <code>record_usage</code> keeps a count and a last date only. Cooked needs one entry per cook: when, who, which version, servings, an optional line and photo reference.</li>
+<li><span class="n">G3</span><b>Drafts.</b> Recipe has active and disabled only. An assistant draft needs a third status (draft) that lists, search and ideas skip, or a draft must live outside Recipe until saved. Recommended: a draft status in Recipe, so the assistant writes once.</li>
+<li><span class="n">G4</span><b>Household default version.</b> Not stored today. Needed so Plan and Cook open the right one.</li>
+<li><span class="n">G5</span><b>Who added it.</b> Only free text in <code>source.description</code>. Needs a member id for "Added by me".</li>
+<li><span class="n">G6</span><b>Step timers.</b> Steps are text only. A minutes value per step (optional, never invented) would drive the timer.</li>
+<li><span class="n">G7</span><b>Photos.</b> Only <code>source.image_refs</code>. Dish photos, step photos and cook photos: see the photo-storage slice.</li>
+<li><span class="n">G8</span><b>Reading a photo or a link.</b> Recipe has no parser. The reading is the caller's (the AI's) work; Kitchie needs a way to hand it the photo or link and get a draft back. Open: which side runs it.</li>
+<li><span class="n">G9</span><b>Batch facts.</b> Freezes and portions fit in <code>metadata.tags</code>; agree the tag words (closed vocabulary where logic acts).</li>
+</ol>
+</section>
+
+<section class="sec"><div class="lbl">Other slices of the Recipe tab</div>
+<p>Built by other agents at the same time; their folders sit next to this one (for example <code>../recipe-versions/</code>, <code>../recipe-photos/</code>, <code>../cooking-ideas/</code> if they used those names). Their sections are in <code>docs/knowledge/jobs-to-be-done/recipe-tab.md</code>. This slice draws versions, photos and ideas only as far as the flow needs them and defers to those slices.</p>
+</section>
+
+<section class="sec"><div class="lbl">What loads (DESIGN.md section 6)</div>
+<ol class="d">
+<li><b>Default path, the list:</b> theme, <code>recipe.css</code>, <code>recipe.js</code> (sample data, icons, bar), and the list's own script. Rows are thumbnails or emoji only; photos load lazily as rows come into view in the build.</li>
+<li><b>Deferred:</b> the day picker (<code>plan-sheet.js</code>) builds its markup only when opened; in the build, fetch it on first swipe or first focus of Plan. The Add, Check it, Change it and Cook screens are separate routes, loaded only when reached. The version tree, notes editor and photo picker are built on tap.</li>
+<li><b>Recipe page:</b> the first photo only; the others on first swipe. Cooked history and Photos render below the fold; in the build they can be fetched when their section nears the viewport.</li>
+<li><b>Entitlement:</b> the whole tab is the Recipes product boundary; a household without Recipes loads none of it (household flow's upgrade path).</li>
+<li><b>Stays close to the build:</b> class names (<code>.rr</code>, <code>.ing</code>, <code>.strip</code>, <code>.act</code>, <code>.sheet</code>) and tokens are meant to be lifted. Sample names live only in <code>recipe.js</code>.</li>
+</ol>
+</section>
+
+<div class="qs" style="margin-top:18px;padding:14px;border:1px dashed var(--border);border-radius:var(--r-card)"><b>Open questions</b>
+<ul style="margin:6px 0 0 18px;color:var(--muted)">
+<li>Tab bar order (option 6). A wrong guess costs every tab's bar.</li>
+<li>G3 drafts: a status in Recipe, or held in Kitchie until saved? Wrong guess: a migration later.</li>
+<li>G8 who reads a photo or a link. Wrong guess: the Add screen promises something nothing does.</li>
+<li>Can a follower change a recipe at all, or only add notes? The mockup says notes only.</li>
+<li>Should Ready now count held items as unavailable for other recipes? The mockup does not.</li>
+<li>Does Put away need anyone's agreement in a household with admins (preferences D25 to D30)?</li>
+</ul></div>
+</div></body></html>

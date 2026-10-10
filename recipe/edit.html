@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Change a recipe — Recipe tab mockup</title>
+<link rel="stylesheet" href="../theme.css"><link rel="stylesheet" href="recipe.css"><script src="../theme.js"></script><script src="recipe.js"></script></head>
+<body data-no-theme-fab>
+<div class="stage"><div class="phone" id="ph"></div></div>
+<script>
+(function(){
+var X=RCP,ic=X.ic,esc=X.esc,fmt=X.fmt;
+var r=X.byId(X.Q.get("id")||"efr")||X.R[0];
+var res=X.resolve(r,X.Q.get("v"));
+var parent=res.v;
+/* Working copy. Each row remembers what it was, so the change set is visible and small (Recipe stores only what changed). */
+var rows=res.ings.map(function(x){return {i:x.i.slice(),orig:x.i.slice(),gone:false,added:false}});
+var steps=r.steps.map(function(s){return {t:s[0],orig:s[0]}});
+var n=r.batch?r.serves:r.serves;
+var ph=document.getElementById("ph");
+var changes=function(){
+  var c=[];
+  rows.forEach(function(x){if(x.added)c.push("Added "+x.i[1]);else if(x.gone)c.push("Removed "+x.orig[1]);else if(x.i[1]!==x.orig[1]||x.i[2]!==x.orig[2])c.push(x.orig[1]+" → "+x.i[1])});
+  steps.forEach(function(s,k){if(s.t!==s.orig)c.push("Step "+(k+1)+" changed")});
+  return c;
+};
+function draw(){
+  var c=changes();
+  ph.innerHTML='<div class="top"><a class="back" href="detail.html?id='+r.id+'">'+ic("back","s")+'Cancel</a><span class="ttl">Change it</span><span style="width:64px"></span></div>'+
+  '<div class="body"><div class="pad">'+
+  /* R-D16: say up front that this makes a version, so nobody fears breaking the one the household likes. */
+  '<div class="note" style="border-color:var(--accent)">'+ic("branch","xs")+' Starting from <b>'+esc(parent.name)+'</b>. Your changes save as a new version; '+esc(parent.name)+' stays as it is.</div>'+
+  '<h2>'+esc(r.name)+'</h2>'+
+  '<div class="lblrow"><span class="lbl">Ingredients</span><button type="button" class="back" style="font-size:13px" data-addi>'+ic("plus","xs")+' Add</button></div>'+
+  rows.map(function(x,k){var ch=x.added||x.gone||x.i[1]!==x.orig[1]||x.i[2]!==x.orig[2];var q=fmt(x.i[2],x.i[3],n);
+    return '<div class="erow'+(ch?' ing chg':'')+'" style="'+(x.gone?'opacity:.5':'')+'"><span class="nm">'+(x.gone?'<s>':'')+esc(x.i[1])+' <span class="q" style="color:var(--muted);font-size:13px">'+(q||'amount?')+'</span>'+(x.gone?'</s>':'')+(ch&&!x.added&&!x.gone?' <span class="was">(<s>'+esc(x.orig[1])+'</s>)</span>':'')+'</span>'+
+    (x.gone?'<button type="button" class="mini ico" data-undo="'+k+'" aria-label="Put back">'+ic("undo","s")+'</button>':'<button type="button" class="mini ico" data-swap="'+k+'" aria-label="Change '+esc(x.i[1])+'">'+ic("pen","s")+'</button><button type="button" class="mini ico" data-rm="'+k+'" aria-label="Remove '+esc(x.i[1])+'">'+ic("x","s")+'</button>')+'</div>'}).join("")+
+  '<div class="lblrow"><span class="lbl">Method</span></div>'+
+  steps.map(function(s,k){return '<div class="stp'+(s.t!==s.orig?' ing chg':'')+'"><span class="nb">'+(k+1)+'</span><textarea class="field" data-step="'+k+'" rows="2" style="padding:8px;min-height:60px;resize:vertical">'+esc(s.t)+'</textarea></div>'}).join("")+
+  '</div><div style="height:24px"></div></div>'+
+  '<div class="act"><span style="flex:1;font-size:12.5px;color:var(--muted);align-self:center">'+(c.length?c.length+' change'+(c.length>1?'s':''):'No changes yet')+'</span><button type="button" class="btn sm" data-save'+(c.length?'':' disabled')+'>'+ic("branch","s")+'Save as version</button></div>';
+}
+ph.addEventListener("click",function(e){
+  var t=e.target.closest("button");if(!t)return;
+  if(t.dataset.rm){rows[+t.dataset.rm].gone=true;draw()}
+  else if(t.dataset.undo){rows[+t.dataset.undo].gone=false;draw()}
+  else if(t.dataset.swap){var k=+t.dataset.swap,x=rows[k];
+    X.sheet('<h3>Change '+esc(x.i[1])+'</h3><label class="lbl" for="sn">Instead use</label><input id="sn" class="field" style="margin-top:4px" value="'+esc(x.i[1])+'"><label class="lbl" for="sq" style="display:block;margin-top:10px">Amount per serving</label><input id="sq" class="field" style="margin-top:4px" value="'+(x.i[2]==null?'':x.i[2])+'" placeholder="Leave blank if unknown"><div style="display:flex;gap:8px;margin-top:12px"><button class="btn ghost" data-close>Cancel</button><button class="btn" data-ok>Done</button></div>',
+    function(s,close){s.querySelector("[data-ok]").onclick=function(){x.i[1]=s.querySelector("#sn").value||x.i[1];var v=s.querySelector("#sq").value;x.i[2]=v===""?null:+v;close();draw()}})}
+  else if(t.hasAttribute("data-addi")){rows.push({i:["new","Garlic cloves",1,""],orig:["new","Garlic cloves",1,""],added:true,gone:false});draw()}
+  else if(t.hasAttribute("data-save")){var c=changes();
+    /* R-D17: name the version from the change; the person's own words are what Recipe keeps as the reason (user_intent). */
+    X.sheet('<h3>Save as a new version</h3><ul style="margin:6px 0 0 18px;color:var(--muted);font-size:13px">'+c.map(function(x){return '<li>'+esc(x)+'</li>'}).join("")+'</ul><label class="lbl" for="vn" style="display:block;margin-top:12px">Call it</label><input id="vn" class="field" style="margin-top:4px" value="'+esc(c[0].replace(/^Added /,"With ").replace(/^Removed /,"Without "))+'"><label class="lbl" for="vw" style="display:block;margin-top:10px">Why keep it? (optional)</label><input id="vw" class="field" style="margin-top:4px" placeholder="e.g. less salty, kids prefer it">'+
+      '<button type="button" class="opt" data-def aria-pressed="false" style="margin-top:6px">'+ic("star")+'<span class="t"><b>Make it the household default</b><small>Plan and Cook open this one. You can switch back.</small></span></button>'+
+      '<div style="display:flex;gap:8px;margin-top:12px"><button class="btn ghost" data-close>Back</button><a class="btn" href="detail.html?id='+r.id+'&v=v2">Save</a></div>',function(s){s.querySelector("[data-def]").onclick=function(){var b=this;var on=b.getAttribute("aria-pressed")!=="true";b.setAttribute("aria-pressed",on);b.classList.toggle("on",on)}})}
+});
+ph.addEventListener("input",function(e){var k=e.target.dataset.step;if(k!=null){steps[+k].t=e.target.value;var c=changes();var a=ph.querySelector(".act span");a.textContent=c.length?c.length+" change"+(c.length>1?"s":""):"No changes yet";ph.querySelector("[data-save]").disabled=!c.length;e.target.closest(".stp").classList.toggle("chg",steps[+k].t!==steps[+k].orig);e.target.closest(".stp").classList.toggle("ing",steps[+k].t!==steps[+k].orig)}});
+draw();
+X.controls();
+})();
+</script>
+</body></html>
