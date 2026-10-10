@@ -38,7 +38,7 @@ code{font-size:12.5px}
 <li><span class="n">R-O1</span><b>The list: one ranked list</b> (option 1 A). <span class="lk">Locked (owner, voice, 10 Oct 2026)</span></li>
 <li><span class="n">R-O2</span><b>The recipe page: one continuous scroll,</b> jump row docked at the top (option 2 A). <span class="lk">Locked</span></li>
 <li><span class="n">R-O3</span><b>Versions: option B, varied.</b> No versions row for a recipe with one version; a horizontally scrolling strip when there are several; it docks as its own row above the jump row. <span class="lk">Locked</span></li>
-<li><span class="n">R-O4</span><b>Adding recipes, redefined.</b> No link paste, no scraping, no reading of photos or links, no "one box" and no "four doors". Recipe content comes only through the person's own AI assistant, over a very rich MCP surface. The app adds extra photos (especially after cooking) and notes. <span class="lk">Locked</span></li>
+<li><span class="n">R-O4</span><b>Adding recipes, redefined.</b> No link paste, no scraping, no reading of photos or links, no "one box" and no "four doors". Recipe content comes only through the person's own AI assistant, over a very rich MCP surface. The app adds extra photos (especially after cooking) and notes. <span class="lk">Locked</span> <span class="rw">Narrowed by T10 (11 Oct 2026): editing by hand is allowed; only starting a recipe stays assistant-only</span></li>
 <li><span class="n">R-O5</span><b>No follower.</b> The follower-versus-cook distinction is dropped (option 5 and R-D8 void): all members are equal with the same controls; restrictions later if ever needed. <span class="lk">Locked</span></li>
 <li><span class="n">R-D29</span><b>Plan tab: once a planned meal's items are sorted, tapping it goes straight into cook mode.</b> Plan-tab behaviour: asked of the Plan owners as XR1 and XR2 in the handoff. <span class="lk">Locked</span></li>
 <li><span class="n">R-D30</span><b>Cook-mode step buttons carry the destination step's content,</b> not Back and Next. <span class="lk">Locked</span></li>
@@ -77,7 +77,7 @@ code{font-size:12.5px}
 <li><span class="n">P12</span><b>Recipe page: text first, then step photos, then the banner last;</b> others on demand. <span class="lk">Locked</span></li>
 <li><span class="n">P13</span><b>List: a stock placeholder first;</b> planned recipes' photos first; then rows on screen plus 5 in that category; the rest on demand; Home never affected. <span class="lk">Locked</span></li>
 </ol></div>
-<p><b>Superseded by the third lot (T1 to T9, below):</b> the tab bar items (R-O6) and who draws the tab (X16), N1, the cook-photo banner and the household-favourite rule are now closed. Only the editing screen and the cross-feature and infra items stay open (listed after T9).</p>
+<p><b>Superseded by the third lot (T1 to T9, below):</b> the tab bar items (R-O6) and who draws the tab (X16), N1, the cook-photo banner and the household-favourite rule are now closed. The editing screen is now drawn (T10, fourth lot); only its options and the cross-feature and infra items stay open (listed after T9).</p>
 </section>
 
 <section class="sec"><div class="lbl">Locked by the owner, third lot (voice, 11 October 2026)</div>
@@ -93,7 +93,18 @@ code{font-size:12.5px}
 <li><span class="n">T8</span><b>The ideas pane stays in the Recipes tab.</b> Where ranking runs (I-O4) defaults to A = Kitchie; the owner delegated this and it can be corrected later. <span class="lk">Locked</span> <span class="sup">Delegated default</span></li>
 <li><span class="n">T9</span><b>Build authority:</b> agents merge into <code>uat</code> of any repo when done; never <code>main</code>, never tags; the owner deploys. <span class="lk">Locked</span></li>
 </ol></div>
-<p><b>Still open:</b> the editing screen (assistant hand-off, deferred: "we'll do that later"); cross-feature requests XR1 to XR3 (the Plan owners) and XR4 (the preferences chat); infra: free disk on the server and an off-server backup copy. The ideas pane as a whole is still not reviewed by the owner (only its place and I-O4 are settled, T8).</p>
+<p><b>Still open:</b> the editing screen's options (E-O1 to E-O5, fourth lot above: the screen is now drawn, hand editing is locked as T10); cross-feature requests XR1 to XR3 (the Plan owners) and XR4 (the preferences chat); infra: free disk on the server and an off-server backup copy. The ideas pane as a whole is still not reviewed by the owner (only its place and I-O4 are settled, T8).</p>
+</section>
+
+<section class="sec"><div class="lbl">Locked by the owner, fourth lot (voice, 11 October 2026): editing by hand</div>
+<p>Spoken by the owner after the third lot. It <b>reverses</b> the "assistant-only authoring" rule for <b>editing</b> (L4 and R-O4 stay true for <b>starting</b> a recipe). Each is <span class="lk">Locked (owner, voice, 11 Oct 2026)</span>. The data model does not change: the same version, revision and change-set model and the same Recipe service methods, so this is a UI and flow mockup. Drawn on <a href="edit.html?id=efr&v=v1" style="color:var(--accent);font-weight:700">edit.html</a> (phone and desktop); the choices still open are on <a href="edit-options.html" style="color:var(--accent);font-weight:700">edit-options.html</a> (E-O1 to E-O5, recommended defaults marked and used).</p>
+<div class="lock"><ol class="d">
+<li><span class="n">T10</span><b>Editing by hand is allowed for everything in a version:</b> title, ingredients, steps, notes, tags and other fields, and photos (add, replace, remove, make banner, crop, rotate). <b>The assistant remains the way to start or create a recipe.</b> <span class="lk">Locked</span> <span class="sup">Reverses: "assistant-only authoring" for editing (L4, R-O4, the "we'll do that later" editing screen); keeps it for creating</span></li>
+<li><span class="n">T10a</span><b>The version rules apply to hand edits unchanged:</b> a try edits in place; a keeper asks at save (fix this one, keep both, different dish; V2 C); every save is a revision with per-change undo; no hard delete, undo only; an assistant edit and a hand edit share one History with who made each shown. <span class="lk">Locked</span> <span class="sup">Confirms V2, V5, V6, V-D13, V-D32</span></li>
+<li><span class="n">T10b</span><b>Notes in the editor use the single 4,000 character scrolling box;</b> photo rules as locked (one banner per version, one photo per step up to 10, gallery 3; no originals kept, so crop and rotate act on the stored large or medium, said honestly on screen); a pending photo shows "Photo is being prepared". <span class="lk">Locked</span> <span class="sup">Applies T7, P3, P7, P9</span></li>
+<li><span class="n">T10c</span><b>New build slices:</b> RT-R12 (Recipe HTTP routes for hand editing, calling the same service methods), RT-R13 (photo transform route), RT-K12 (Kitchie edit screens, phone and desktop) and RT-K13 (photo crop and rotate). <span class="lk">Locked as slices</span> <span class="sup">Withdrawn RT-K5 "Change" stays withdrawn: its place is RT-K12</span></li>
+</ol></div>
+<p>Options for the owner's yay, nay or combine, each with a recommended default that the screens use: <b>E-O1</b> where you edit (one screen opened at the section tapped, over edit in place or a sheet per section), <b>E-O2</b> typing and reordering on a phone (Reorder mode with arrows, over a row menu or a drag handle), <b>E-O3</b> crop and rotate (rotate plus a fixed frame you move and zoom, over rotate only or a free crop), <b>E-O4</b> how the keeper question appears (a sheet at Save, over inline or before editing; on desktop a lane), <b>E-O5</b> the desktop layout (form plus changes lane). Smaller choices E-D1 to E-D9 are marked Proposal. <a href="edit-options.html" style="color:var(--accent);font-weight:700">Open the options</a>.</p>
 </section>
 
 <section class="sec"><div class="lbl">Start here</div>
@@ -104,7 +115,7 @@ code{font-size:12.5px}
 <a href="list.html?persona=improviser">Improviser (Alex)</a>
 
 </div>
-<p class="q">Screens: <a href="list.html" style="text-decoration:underline">List</a> · <a href="detail.html?id=efr" style="text-decoration:underline">Recipe (with versions)</a> · <a href="detail.html?id=cur&persona=batch" style="text-decoration:underline">Batch recipe</a> · <a href="add.html" style="text-decoration:underline">Add (through your assistant)</a> · <a href="review.html?from=assistant" style="text-decoration:underline">Check an assistant draft</a> · <a href="review.html?from=dup" style="text-decoration:underline">Duplicate found</a> · <a href="edit.html?id=efr" style="text-decoration:underline">Change it</a> · <a href="cook.html?id=efr" style="text-decoration:underline">Cook it</a></p>
+<p class="q">Screens: <a href="list.html" style="text-decoration:underline">List</a> · <a href="detail.html?id=efr" style="text-decoration:underline">Recipe (with versions)</a> · <a href="detail.html?id=cur&persona=batch" style="text-decoration:underline">Batch recipe</a> · <a href="add.html" style="text-decoration:underline">Add (through your assistant)</a> · <a href="review.html?from=assistant" style="text-decoration:underline">Check an assistant draft</a> · <a href="review.html?from=dup" style="text-decoration:underline">Duplicate found</a> · <a href="edit.html?id=efr&v=v1" style="text-decoration:underline">Edit by hand</a> (<a href="edit-options.html" style="text-decoration:underline">its options</a>) · <a href="cook.html?id=efr" style="text-decoration:underline">Cook it</a></p>
 </section>
 
 <section class="sec"><div class="lbl">Options: all six decided</div>
@@ -194,6 +205,6 @@ code{font-size:12.5px}
 <li>Should Ready now count held items as unavailable for other recipes? The mockup does not; the ideas slice (I-D6) does. Build default: held counts as not in, in both (handoff X8).</li>
 <li><s>Does Put away need anyone's agreement in a household with admins?</s> Closed by R-D31 (locked): no admin approval. Equal roles for now on the Recipe side; the preferences owner's admin role (D25 to D30) is untouched (handoff X3).</li>
 <li><s>Notes on the family or a version? Stars per member or household-wide? Any real delete?</s> Answered by the owner (typed, 10 Oct 2026): per version, inherited; per member, household derived; no delete, undo any time.</li>
-<li>Closed on 11 Oct 2026: the tab bar items (R-O6, T2) and who draws the tab (X16, T1). Still open: the editing screen ("we'll do that later"), what "sorted" means for R-D29 (handoff XR1).</li>
+<li>Closed on 11 Oct 2026: the tab bar items (R-O6, T2) and who draws the tab (X16, T1). Still open: the editing screen's options E-O1 to E-O5 (T10, fourth lot; the screen is drawn), what "sorted" means for R-D29 (handoff XR1).</li>
 </ul></div>
 </div></body></html>
