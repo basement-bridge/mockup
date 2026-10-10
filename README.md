@@ -16,7 +16,7 @@ The side panel (Controls button on a phone) switches who you are (owner or membe
 - `theme.css` + `theme.js` + `themes/`: the single token set and the theme picker (ten themes) used by every page. Only the two default themes (Kitchie Night and Day) live in `theme.css`; every other theme is one small file in `themes/`, loaded when chosen and warmed in the background once the person engages the picker (DESIGN.md section 6). `shared.css`: layout for the index and fragments.
 - `docs/handover/desktop.md`: master reference for the desktop mockups (start here to build them): decisions, requirements, open questions, live links, screenshots.
 - `docs/handover/plan-desktop.md`: handover for the desktop Plan mockup (four options, decisions 49 to 62 proposed and awaiting the owner, open questions, next steps, process notes).
-- `docs/handover/item-edit-flyout.md`: handover for the item edit flyout mockup (nested Edit and History flyouts under the Pantry item flyout; three layouts, decisions 63 to 81 proposed, open questions, next steps, process notes).
+- `docs/handover/item-edit-flyout.md`: handover for the item edit flyout mockup (nested Edit and History flyouts under the Pantry item flyout; layout A confirmed 11 Oct 2026, decisions 63 to 93 with statuses, open questions, next steps, process notes).
 - `docs/knowledge/`: what we've learned, per job to be done, for carrying into the implementation.
 - `tools/screenshots.mjs`: screenshots every screen at phone, tablet and desktop widths in light and dark, with layout checks (DESIGN.md section 7).
 - `DESIGN.md`: the design brief. Read it before changing anything.

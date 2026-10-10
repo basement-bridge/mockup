@@ -4,6 +4,8 @@ Status: mockup for the owner to review (8 Oct 2026). Not built in Kitchie. Lines
 
 Follow-up (10 Oct 2026, proposals): the full item screen behind "All fields" is replaced by a nested Edit flyout and a History flyout. See [jobs-to-be-done/item-edit-flyout.md](jobs-to-be-done/item-edit-flyout.md).
 
+Follow-up (11 Oct 2026, proposals; item-edit-flyout decisions 82 to 86): in the Edit flyout the level is always editable (a counted item is automatic by default, a pick wins until the quantity is next revised), drawn as a battery with the same colour bands. This is shown in the Edit flyout and the item flyout tile only; this sheet, the household flow and the list keep the drop until the owner confirms a change. It generalises the "no minimum" carve-out under Level rules (a hand-set label stays until the amount changes).
+
 Code: `flows/household/app.js` (`itemSheetHtml`, `acts.isheet`, `acts.itile`, `acts.sheetused`, `acts.sheetshop`, `acts.lvl`), `flows/household/styles.css` (`.sheet.half`, `.tiles3`, `.tl`). Options she chose from: `fragments/item-sheet/`.
 
 ## What the owner asked for

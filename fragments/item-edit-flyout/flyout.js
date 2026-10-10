@@ -20,7 +20,7 @@ IEF.todayIso = IEF.isoIn(0);
 
 /* ---------- items ---------- */
 function mk(id, emoji, name, area, spot, cat, amount, unit, text, useIn, min, level, x) {
-  var it = { id: id, emoji: emoji, name: name, area: area, spot: spot, cat: cat, amount: amount, unit: unit, text: text || "", useby: useIn === null ? "" : IEF.isoIn(useIn), min: min === null ? "" : String(min), level: level || "Plenty", list: null };
+  var it = { id: id, emoji: emoji, name: name, area: area, spot: spot, cat: cat, amount: amount, unit: unit, text: text || "", useby: useIn === null ? "" : IEF.isoIn(useIn), min: min === null ? "" : String(min), level: level || "Plenty", lvSet: null, list: null };
   if (x) for (var k in x) it[k] = x[k];
   return it;
 }
@@ -29,7 +29,7 @@ var ITEMS = IEF.items = [
   mk("carrots", "🥕", "carrots", "Fridge", "Crisper", "Vegetables", 1, "bag", "", null, null),
   mk("cheddar", "", "cheddar", "Fridge", "Top shelf", "Dairy and eggs", 200, "g", "", 12, null),
   mk("eggs", "🥚", "eggs", "Fridge", "Door", "Dairy and eggs", 12, "", "", 6, 4),
-  mk("yog", "", "greek yoghurt", "Fridge", "Top shelf", "Dairy and eggs", 500, "g", "", 7, null, "Some"),
+  mk("yog", "", "greek yoghurt", "Fridge", "Top shelf", "Dairy and eggs", 500, "g", "", 7, 250, "Some"),
   mk("milk", "🥛", "milk", "Fridge", "Door", "Dairy and eggs", 1, "L", "", 0, null, "Running low", { list: "2 L" }),
   mk("paneer", "", "paneer", "Fridge", "Top shelf", "Dairy and eggs", 50, "g", "", 3, null, "Running low"),
   mk("spinach", "🥬", "spinach", "Fridge", "Crisper", "Vegetables", null, "", "a big handful", 1, null, "Some"),
@@ -47,12 +47,26 @@ IEF.UNITS = ["g", "kg", "mL", "L"].concat(IEF.COUNT.filter(Boolean), [""]);
 IEF.STEP = { g: 50, mL: 50, kg: 0.5, L: 0.5 };
 IEF.cats = function () { var c = ["Dairy and eggs", "Vegetables", "Dry goods", "Cans", "Seasoning", "Dessert", "Meat and fish", "Bakery"]; ITEMS.forEach(function (i) { if (i.cat && c.indexOf(i.cat) < 0) c.push(i.cat); }); return c; };
 var counted = IEF.counted = function (it) { return it.amount !== null && IEF.COUNT.indexOf(it.unit) > -1; };
-/* the owner's locked level rules (item-sheet.md): a counted item's level is derived; a weighed, measured or worded one is the stored label; zero is Out */
+/* Level (owner's rules of 8 Oct 2026, item-sheet.md; override rule of 11 Oct 2026, decisions 82 to 86).
+   AUTOMATIC: a counted item, or any item with a number and a minimum, has its level worked out: more than twice the minimum is Plenty; more than the minimum and up to twice it is Some; at or under it is Running low; 0 is Out; a counted item with no minimum is Plenty until 0.
+   OVERRIDE: the person can always pick the level. The pick (lvSet) wins over the rules until the quantity is next revised; then it resets and the rules take over again, until the next pick.
+   NO RULES TO APPLY (a worded quantity, or a weighed one with no minimum): the level is the stored label the person picked (it.level), and there is nothing to be "automatic" or "set by you" about. */
+var minOf = function (it) { return parseFloat(it.min) || 0; };
+IEF.auto = function (it) { return it.amount !== null && (IEF.COUNT.indexOf(it.unit) > -1 || minOf(it) > 0); };
+IEF.autoLevel = function (it) {
+  if (it.amount === 0) return "Out";
+  var n = it.amount, m = minOf(it); if (!(m > 0)) return "Plenty";
+  return n <= m ? "Running low" : n <= 2 * m ? "Some" : "Plenty";
+};
 var level = IEF.level = function (it) {
   if (it.amount === 0) return "Out";
-  if (counted(it)) { var n = it.amount, m = parseFloat(it.min) || 0; if (!(m > 0)) return "Plenty"; return n <= m ? "Running low" : n <= 2 * m ? "Some" : "Plenty"; }
+  if (IEF.auto(it)) return it.lvSet || IEF.autoLevel(it);
   return it.level;
 };
+/* "set" = the person's pick is showing; "auto" = the rules are; "" = no rules apply, so there is no cue to draw */
+IEF.lvSource = function (it) { return !IEF.auto(it) ? "" : it.lvSet && it.amount !== 0 ? "set" : "auto"; };
+/* the quantity was revised (stepper, typed, unit changed, used one, used up, cleared): the person's pick is dropped and the rules take over again */
+IEF.reviseQty = function (it) { it.lvSet = null; };
 var round2 = IEF.round2 = function (n) { return Math.round(n * 100) / 100; };
 var qtyText = IEF.qtyText = function (it) { return it.amount !== null ? round2(it.amount) + (it.unit ? " " + it.unit : "") : it.text; };
 IEF.cur = function () { return ITEMS.filter(function (i) { return i.id === IEF.S.sel; })[0] || null; };
@@ -62,12 +76,12 @@ IEF.target = function () { return IEF.S.mode === "add" ? IEF.draft : IEF.cur(); 
 /* ---------- state (the URL carries it, so every state has a link) ---------- */
 var S = IEF.S = {
   sel: Q.get("sel") === "" ? null : (Q.get("sel") || "butter"),
-  opt: /^[abc]$/.test(Q.get("opt")) ? Q.get("opt") : "a",
   child: /^(edit|history)$/.test(Q.get("child")) ? Q.get("child") : null,
   mode: Q.get("mode") === "add" ? "add" : "item",
   hint: Q.get("hint") === "reveal" ? "reveal" : "show",
+  lv: Q.get("lv") === "drop" ? "drop" : "battery", cat: Q.get("cat") === "list" ? "list" : "chips",
   recipes: Q.get("recipes") !== "0", down: Q.get("down") === "1",
-  field: Q.get("field") || "", tab: Q.get("tab") === "stock" ? "stock" : "details", more: +Q.get("more") || 0
+  field: Q.get("field") || "", more: +Q.get("more") || 0
 };
 IEF.url = function () {
   try { var u = new URL(location.href); function set(k, v) { if (v) u.searchParams.set(k, v); else u.searchParams.delete(k); }
@@ -89,13 +103,15 @@ var IC = IEF.IC = {
   pot: '<path d="M5 11h14v6a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3z"/><path d="M3 11h18M15 3l-3 8"/>', alert: '<circle cx="12" cy="12" r="9"/><path d="M12 7.5v5M12 16v.5"/>',
   pin: '<path d="M12 21s-6-5.2-6-10a6 6 0 1 1 12 0c0 4.8-6 10-6 10z"/><circle cx="12" cy="11" r="2"/>',
   tag: '<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1"/>',
+  undo: '<path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>', search: '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>', chevd: '<path d="M7 10l5 5 5-5"/>',
   home: '<path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
   pantry: '<path d="M7 3h10v3H7zM6 6h12v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1zM9 11h6v5H9z"/>',
   recipes: '<path d="M7 14a4 4 0 1 1 2-7 4 4 0 0 1 6 0 4 4 0 1 1 2 7v6H7z"/>',
   cartnav: '<path d="M3 4h2l2.4 11h10l2-8H6.2M9 20h.01M17 20h.01"/>'
 };
 IEF.sv = sv;
-/* the level drop (same shape and colours as the household flow's item sheet): fuller or emptier with the level; the level name is screen-reader text only */
+/* The level icon. BATTERY (decision 83, proposed; the owner asked for it on 11 Oct 2026): four cells, 4 / 2 / 1 / 0 filled, in the same colour bands as the drop: Plenty green, Some amber, Running low red, Out black.
+   DROP (the 8 Oct 2026 rule, kept as ?lv=drop): the household flow's item sheet drop, fuller or emptier. Either way the level name is screen-reader text only. */
 var LV = { Plenty: [1, "plenty"], Some: [0.5, "some"], "Running low": [0.25, "low"], Out: [0, "out"] };
 var DROP = "M12 3c3.5 4.5 6 7.2 6 10.2a6 6 0 0 1-12 0C6 10.2 8.5 7.5 12 3z";
 var dropN = 0;
@@ -103,6 +119,13 @@ IEF.drop = function (l, size) {
   var a = LV[l], f = a[0], k = a[1], y = (19.2 - f * 16.2).toFixed(2), id = "dc" + (dropN++);
   return '<svg class="drop lv-' + k + '" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" aria-hidden="true"><defs><clipPath id="' + id + '"><path d="' + DROP + '"/></clipPath></defs>' + (f ? '<rect x="0" y="' + y + '" width="24" height="24" clip-path="url(#' + id + ')" fill="currentColor" fill-opacity=".9"/>' : "") + '<path d="' + DROP + '" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>';
 };
+var BAT = { Plenty: [4, "plenty"], Some: [2, "some"], "Running low": [1, "low"], Out: [0, "out"] };
+IEF.battery = function (l, size) {
+  var a = BAT[l], n = a[0], c = "";
+  for (var i = 0; i < n; i++) c += '<rect x="' + (4 + i * 6) + '" y="5" width="5.2" height="10" rx="1.2" fill="currentColor"/>';
+  return '<svg class="bat lv-' + a[1] + '" width="' + size + '" height="' + Math.round(size * 20 / 34) + '" viewBox="0 0 34 20" aria-hidden="true" focusable="false"><rect x="1" y="2" width="29" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M31.4 7.5h.8a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-.8z" fill="currentColor"/>' + c + "</svg>";
+};
+IEF.lvIcon = function (l, size) { return S.lv === "drop" ? IEF.drop(l, size) : IEF.battery(l, Math.round(size * 1.25)); };
 IEF.sr = function (t) { return '<span class="sr-only">' + esc(t) + "</span>"; };
 IEF.LEVELS = ["Plenty", "Some", "Running low", "Out"];
 
@@ -145,7 +168,7 @@ IEF.tilesHtml = function (it) {
       : '<button type="button" class="tl" data-ief="tile" data-k="' + k + '"' + (sr ? ' aria-label="' + esc(sr) + '"' : "") + ">" + ic + (val === "" ? "" : "<b>" + val + "</b>") + (cap ? "<span>" + cap + "</span>" : "") + "</button>";
   }
   var lv = level(it), d = IEF.daysTo(it.useby), t = [];
-  t.push(tl(counted(it) ? "qty" : "level", IEF.drop(lv, 30), "", "", "", "Level, " + lv + ". Opens the edit flyout"));
+  t.push(tl(counted(it) ? "qty" : "level", IEF.lvIcon(lv, 30), "", "", "", "Level, " + lv + ". Opens the edit flyout"));
   t.push(tl("useby", sv(IC.clock, "", 20), it.useby ? esc(d === 0 ? "Today" : d === 1 ? "1D" : d > 1 && d < 7 ? d + "D" : IEF.dayName(it.useby).replace(/^\w+ /, "")) : null, "Use by", "Add use-by", it.useby ? "Use by, " + IEF.rel(d) : ""));
   var third = false;
   if (it.unit || it.min) { t.push(tl("min", sv(IC.down, "", 20), it.min ? esc(it.min + (it.unit ? " " + it.unit : "")) : null, "Minimum", "Add minimum")); third = true; }
@@ -237,11 +260,11 @@ IEF.closeItem = function () {
   if (IEF.host.itemClosed) IEF.host.itemClosed(id);
 };
 
-/* close the top-most layer: Add, else the child, else the item. step = let layout c step back from one field to its tiles first. */
+/* close the top-most layer: Add, else the child, else the item. */
 IEF.closeTop = function (o) {
   o = o || {};
   if (S.mode === "add") { IEF.cancelAdd(); return true; }
-  if (S.child) { if (o.step && S.child === "edit" && IEF.form && IEF.form.back && IEF.form.back()) return true; IEF.closeChild(true); return true; }
+  if (S.child) { IEF.closeChild(true); return true; }
   if (S.sel) { IEF.closeItem(); return true; }
   return false;
 };
@@ -250,7 +273,7 @@ IEF.closeTop = function (o) {
 IEF.startAdd = function () {
   settle();
   if (S.child) IEF.setChild(null);
-  IEF.draft = { id: "new", emoji: "", name: "", area: "Unplaced", spot: "", cat: "", amount: null, unit: "", text: "", useby: "", min: "", level: "Plenty", list: null };
+  IEF.draft = { id: "new", emoji: "", name: "", area: "Unplaced", spot: "", cat: "", amount: null, unit: "", text: "", useby: "", min: "", level: "Plenty", lvSet: null, list: null };
   S.mode = "add"; S.field = ""; IEF.drawPanel(); IEF.drawList(); IEF.fillChild("add", function () { if (IEF.host.addReady) IEF.host.addReady(); }); IEF.url();
 };
 IEF.cancelAdd = function (quiet) {
@@ -299,7 +322,7 @@ IEF.undo = function () {
 /* ---------- actions from the item flyout (the form's own are in form.js) ---------- */
 function usedUp() {
   var it = IEF.cur(); if (!it || level(it) === "Out") return; var s = IEF.snap();
-  it.prev = it.amount; it.amount = it.amount === null ? null : 0; if (it.amount === null) it.level = "Out"; IEF.log(it, "Used up", "", "Used up"); IEF.setChild(null); IEF.syncParent();
+  it.prev = it.amount; it.amount = it.amount === null ? null : 0; IEF.reviseQty(it); if (it.amount === null) it.level = "Out"; IEF.log(it, "Used up", "", "Used up"); IEF.setChild(null); IEF.syncParent();
   IEF.toast(esc(it.name) + " is marked Out. It is in History.", s);
 }
 function shopQuick() { var it = IEF.cur(); if (!it || it.list !== null) return; var s = IEF.snap(); it.list = ""; IEF.log(it, "Shopping list", "not on it", "on it"); IEF.syncParent(); if (S.child === "edit" && IEF.form) IEF.form.refreshShop(); IEF.toast(esc(it.name) + " is on your shopping list.", s); }
@@ -328,7 +351,7 @@ document.addEventListener("click", function (e) {
 function boot() {
   var h = IEF.host;
   $("#root").innerHTML = h.shell({ list: IEF.listHtml() });
-  IEF.drawPanel(); attr("opt", S.opt); attr("hint", S.hint);
+  IEF.drawPanel(); attr("hint", S.hint);
   if (S.mode === "add") { IEF.startAdd(); }
   else if (S.sel && S.child) { var k = S.child; S.child = null; IEF.setChild(k, { field: S.field }); }
   if (h.booted) h.booted();

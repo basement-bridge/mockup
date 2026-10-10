@@ -1,6 +1,6 @@
 /* Phone and tablet host (under 1024px). Fetched only at these sizes; desktop.js is the other host. Everything here is about touch and the stacked sheets.
    The item flyout is a bottom sheet; the child (Edit, History) is a taller sheet stacked over it; Add is a tall sheet. Same behaviours as the household item sheet:
-   tap the dim to close, drag the grab handle down to close, Esc closes (and in layout c steps back from a field to the tiles first). Dragging uses pointer events, so a mouse drags exactly like a finger. */
+   tap the dim to close, drag the grab handle down to close, Esc closes the top layer. Dragging uses pointer events, so a mouse drags exactly like a finger. */
 (function () {
 "use strict";
 var IEF = window.IEF, $ = IEF.$, S = IEF.S, open = false;
@@ -33,7 +33,7 @@ if (S.sel || S.mode === "add") open = false;
 document.addEventListener("keydown", function (e) {
   if (e.key !== "Escape") return;
   var t = e.target; if (t.closest && t.closest("input,textarea,select") && t.type !== "date") { t.blur(); return; }
-  if (IEF.closeTop({ step: true })) e.preventDefault();
+  if (IEF.closeTop()) e.preventDefault();
 });
 
 /* Drag a grab handle (or the child's header) down to close that layer. Pointer events: touch and mouse behave the same. With a child open, the strip you can see belongs to the parent, but dragging it drags the child. */
