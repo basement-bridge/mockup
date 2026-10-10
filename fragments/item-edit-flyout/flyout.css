@@ -1,5 +1,5 @@
 /* Item edit flyout: shared styles. Tokens only (theme.css); no size rules (DESIGN.md section 7). Where a rule differs by screen size it is in phone.css, tablet.css, desktop.css or desktop-1240.css.
-   Class names follow the household flow's item sheet (.shead, .tl, .drop, .sacts, .grab, .lvpick) and the desktop Pantry (.panel, .x, .kbd, .phint, .hist, .hch, .trunc) so the build can lift them. New names are ef-* (the edit form) and ib (a header icon button). */
+   Class names follow the household flow's item sheet (.shead, .tl, .bat, .sacts, .grab, .lvpick) and the desktop Pantry (.panel, .x, .kbd, .phint, .hist, .hch, .trunc) so the build can lift them. New names are ef-* (the edit form) and ib (a header icon button). */
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);line-height:1.4;min-height:100vh}
 button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;padding:0;text-align:inherit}
@@ -67,12 +67,12 @@ svg{flex:none}
 .tl{min-height:72px;min-width:0;padding:6px;border-radius:var(--r-ctl);border:1px solid color-mix(in srgb,var(--accent) 40%,var(--border));background:color-mix(in srgb,var(--accent) 12%,var(--bg));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12px;font-weight:600;color:var(--muted);text-align:center}
 .tl b{max-width:100%;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;font-size:14px;line-height:1.2;color:var(--fg);word-break:break-word}
 .tl svg{color:var(--accent);fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.tl .drop{width:34px;height:34px;fill:none;stroke:none}
 .tl .bat{width:38px;height:22px;margin:6px 0}
 .tl.empty{background:none;border:2px dashed var(--border);color:var(--muted);font-weight:500}
 .tl.empty svg{color:var(--muted)}
 .tl:hover{border-color:var(--accent)}
-.drop,.bat{flex:none}.drop.lv-plenty,.bat.lv-plenty{color:var(--cue)}.drop.lv-some,.bat.lv-some{color:var(--accent)}.drop.lv-low,.bat.lv-low{color:var(--danger)}.drop.lv-out,.bat.lv-out{color:var(--out,var(--fg))}
+/* the level battery (decision 94): one icon everywhere the level is drawn; the colour is the level */
+.bat{flex:none}.bat.lv-plenty{color:var(--cue)}.bat.lv-some{color:var(--accent)}.bat.lv-low{color:var(--danger)}.bat.lv-out{color:var(--out,var(--fg))}
 .sacts{display:flex;gap:8px}
 .sacts .btn{flex:1;min-height:48px;padding:0 10px;font-size:14px}
 .sacts .btn svg{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
@@ -99,8 +99,8 @@ svg{flex:none}
 .ef-h{font:700 12px var(--body);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 12px}
 .ef-w{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;margin-bottom:16px;border-radius:var(--r-ctl);align-content:start}
 .ef-l{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
-.ef-in,.ef-sel,.ef-num,.ef-date input{min-height:var(--tap);padding:0 12px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);color:var(--fg);width:100%;min-width:0}
-.ef-in:focus,.ef-sel:focus,.ef-num:focus,.ef-date input:focus,.ef-big input:focus{outline:2px solid var(--accent);outline-offset:0;border-color:transparent}
+.ef-in,.ef-num,.ef-date input{min-height:var(--tap);padding:0 12px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);color:var(--fg);width:100%;min-width:0}
+.ef-in:focus,.ef-num:focus,.ef-date input:focus,.ef-big input:focus{outline:2px solid var(--accent);outline-offset:0;border-color:transparent}
 .ef-w.bad .ef-in,.ef-w.bad .ef-step,.ef-w.bad .ef-date input,.ef-w.bad .ef-big input{border-color:var(--danger);box-shadow:0 0 0 1px var(--danger)}
 .ef-nrow{display:flex;gap:10px;align-items:center}
 .ef-emo{width:56px;height:56px;border-radius:var(--r-card);border:1px dashed var(--border);background:var(--bg);font-size:28px;display:grid;place-items:center;flex:none;color:var(--muted)}
@@ -131,7 +131,7 @@ svg{flex:none}
 .ef-step svg{fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
 .ef-step .ef-num{width:76px;min-height:44px;border:0;background:none;text-align:center;font-weight:700;padding:0}
 .ef-step .ef-num:focus{outline:2px solid var(--accent);outline-offset:-2px;border-radius:var(--r-ctl)}
-.ef-sel{width:auto;flex:1;min-width:110px}
+.ef-unitin{width:auto;flex:1;min-width:110px}
 .ef-unit{font-weight:700}
 .ef-note{font-size:12px;color:var(--muted)}
 .ef-lh{display:flex;align-items:center;justify-content:space-between;min-height:20px}
@@ -141,7 +141,6 @@ svg{flex:none}
 .lvpick .opt{min-width:56px;min-height:52px;display:inline-flex;align-items:center;justify-content:center;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);padding:0 10px}
 .lvpick .opt:hover{border-color:var(--accent)}
 .lvpick .opt.on{background:var(--surface);border:2px solid var(--accent)}
-.lvpick .drop{fill:none}
 .lvpick .opt{min-width:60px}
 .ef-lvm{display:flex;align-items:center;gap:2px;min-height:28px;margin:-2px 0 0}
 .ef-src{font-size:12px;font-weight:600;color:var(--muted)}.ef-src.set{color:var(--fg)}
@@ -190,7 +189,7 @@ svg{flex:none}
 .ef-ct svg{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .ef-cl{flex:1;min-width:0;display:flex;flex-wrap:wrap;gap:0 2px;max-height:var(--tap);overflow:hidden}
 .ef-cats[data-open=true] .ef-cl{max-height:none}
-.ef-chip{min-height:var(--tap);padding:0 12px;border-radius:var(--r-pill);border:1.5px solid transparent;font-weight:700;color:var(--fg);white-space:nowrap}
+.ef-chip{min-height:var(--tap);min-width:var(--tap);padding:0 12px;border-radius:var(--r-pill);border:1.5px solid transparent;font-weight:700;color:var(--fg);white-space:nowrap}
 .ef-chip:hover{background:var(--surface)}
 .ef-chip.on{border-color:var(--sage);color:var(--sage)}
 .ef-cx{width:var(--tap);height:var(--tap);flex:none;display:grid;place-items:center;border-radius:50%;color:var(--muted)}

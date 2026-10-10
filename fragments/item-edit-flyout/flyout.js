@@ -27,11 +27,11 @@ function mk(id, emoji, name, area, spot, cat, amount, unit, text, useIn, min, le
 var ITEMS = IEF.items = [
   mk("butter", "🧈", "butter", "Fridge", "Door", "Dairy and eggs", 250, "g", "", null, null, "Plenty"),
   mk("carrots", "🥕", "carrots", "Fridge", "Crisper", "Vegetables", 1, "bag", "", null, null),
-  mk("cheddar", "", "cheddar", "Fridge", "Top shelf", "Dairy and eggs", 200, "g", "", 12, null),
+  mk("cheddar", "", "cheddar", "Fridge", "Top shelf", "Dairy and eggs", 200, "g", "", 12, 250),
   mk("eggs", "🥚", "eggs", "Fridge", "Door", "Dairy and eggs", 12, "", "", 6, 4),
   mk("yog", "", "greek yoghurt", "Fridge", "Top shelf", "Dairy and eggs", 500, "g", "", 7, 250, "Some"),
-  mk("milk", "🥛", "milk", "Fridge", "Door", "Dairy and eggs", 1, "L", "", 0, null, "Running low", { list: "2 L" }),
-  mk("paneer", "", "paneer", "Fridge", "Top shelf", "Dairy and eggs", 50, "g", "", 3, null, "Running low"),
+  mk("milk", "🥛", "milk", "Fridge", "Door", "Dairy and eggs", 1, "L", "", 0, null, "Plenty", { list: "2 L", lvSet: "Running low" }),
+  mk("paneer", "", "paneer", "Fridge", "Top shelf", "Dairy and eggs", 50, "g", "", 3, null, "Plenty", { lvSet: "Running low" }),
   mk("spinach", "🥬", "spinach", "Fridge", "Crisper", "Vegetables", null, "", "a big handful", 1, null, "Some"),
   mk("rice", "🍚", "Basmati rice", "Pantry", "Bottom shelf", "Dry goods", 5, "kg", "", null, null),
   mk("tom", "🥫", "Chopped tomatoes", "Pantry", "Top shelf", "Cans", 4, "tin", "", null, 4),
@@ -43,16 +43,21 @@ var ITEMS = IEF.items = [
 IEF.AREAS = ["Fridge", "Pantry", "Freezer", "Unplaced"];
 IEF.SPOTS = { Fridge: ["Door", "Top shelf", "Crisper", "Bottom shelf"], Pantry: ["Top shelf", "Bottom shelf", "Baskets", "Spice rack"], Freezer: ["Drawer 1", "Drawer 2", "Door"], Unplaced: [] };
 IEF.COUNT = ["", "pack", "tin", "jar", "bottle", "bag", "box", "carton", "bunch", "roll"];
-IEF.UNITS = ["g", "kg", "mL", "L"].concat(IEF.COUNT.filter(Boolean), [""]);
+/* the unit quick-picks: weight and volume, the count units, then any unit a household item already uses (typed once, offered after) */
+IEF.units = function () { var u = ["g", "kg", "mL", "L"].concat(IEF.COUNT.filter(Boolean)); ITEMS.forEach(function (i) { if (i.unit && u.indexOf(i.unit) < 0) u.push(i.unit); }); return u; };
 IEF.STEP = { g: 50, mL: 50, kg: 0.5, L: 0.5 };
 IEF.cats = function () { var c = ["Dairy and eggs", "Vegetables", "Dry goods", "Cans", "Seasoning", "Dessert", "Meat and fish", "Bakery"]; ITEMS.forEach(function (i) { if (i.cat && c.indexOf(i.cat) < 0) c.push(i.cat); }); return c; };
-var counted = IEF.counted = function (it) { return it.amount !== null && IEF.COUNT.indexOf(it.unit) > -1; };
-/* Level (owner's rules of 8 Oct 2026, item-sheet.md; override rule of 11 Oct 2026, decisions 82 to 86).
-   AUTOMATIC: a counted item, or any item with a number and a minimum, has its level worked out: more than twice the minimum is Plenty; more than the minimum and up to twice it is Some; at or under it is Running low; 0 is Out; a counted item with no minimum is Plenty until 0.
-   OVERRIDE: the person can always pick the level. The pick (lvSet) wins over the rules until the quantity is next revised; then it resets and the rules take over again, until the next pick.
-   NO RULES TO APPLY (a worded quantity, or a weighed one with no minimum): the level is the stored label the person picked (it.level), and there is nothing to be "automatic" or "set by you" about. */
+/* weighed or measured: g, kg, mL, L. Any other unit, including one the person typed ("punnet"), counts in whole steps like the count units. */
+IEF.WEIGHED = ["g", "kg", "mL", "L"];
+var counted = IEF.counted = function (it) { return it.amount !== null && IEF.WEIGHED.indexOf(it.unit) < 0; };
+/* Level (owner's rules of 8 Oct 2026, item-sheet.md; confirmed and refined by voice 11 Oct 2026, decisions 94 to 101 over 82 to 86).
+   AUTOMATIC: any item with a number (counted or weighed) has its level worked out.
+     WITH a minimum (decision 84, confirmed): more than twice the minimum is Plenty; more than the minimum and up to twice it is Some; at or under it but above 0 is Running low; 0 is Out.
+     With NO minimum (decision 95): Plenty while the amount is above 0, Out at 0, no bands in between. The person can hand-set Some or Running low.
+   HAND-SET: the person can always pick the level. The pick (lvSet) wins over the rules and looks the same as a calculated level everywhere. It is cleared only when the quantity next INCREASES (a restock); a decrease never clears it (decision 96, supersedes 85).
+   NO NUMBER (a worded quantity, or none): there are no rules to apply; the level is the stored label the person picked (it.level). */
 var minOf = function (it) { return parseFloat(it.min) || 0; };
-IEF.auto = function (it) { return it.amount !== null && (IEF.COUNT.indexOf(it.unit) > -1 || minOf(it) > 0); };
+IEF.auto = function (it) { return it.amount !== null; };
 IEF.autoLevel = function (it) {
   if (it.amount === 0) return "Out";
   var n = it.amount, m = minOf(it); if (!(m > 0)) return "Plenty";
@@ -65,8 +70,10 @@ var level = IEF.level = function (it) {
 };
 /* "set" = the person's pick is showing; "auto" = the rules are; "" = no rules apply, so there is no cue to draw */
 IEF.lvSource = function (it) { return !IEF.auto(it) ? "" : it.lvSet && it.amount !== 0 ? "set" : "auto"; };
-/* the quantity was revised (stepper, typed, unit changed, used one, used up, cleared): the person's pick is dropped and the rules take over again */
-IEF.reviseQty = function (it) { it.lvSet = null; };
+/* the quantity changed from `was` (a number or null): only an INCREASE (stock added) hands the level back to the rules. A decrease, a unit change or a minimum change keeps the pick. */
+IEF.qtyChanged = function (it, was) { if (it.amount !== null && was !== null && was !== undefined && it.amount > was) it.lvSet = null; };
+/* "go back to automatic" (the small icon beside "Set by you") */
+IEF.autoAgain = function (it) { it.lvSet = null; };
 var round2 = IEF.round2 = function (n) { return Math.round(n * 100) / 100; };
 var qtyText = IEF.qtyText = function (it) { return it.amount !== null ? round2(it.amount) + (it.unit ? " " + it.unit : "") : it.text; };
 IEF.cur = function () { return ITEMS.filter(function (i) { return i.id === IEF.S.sel; })[0] || null; };
@@ -79,7 +86,7 @@ var S = IEF.S = {
   child: /^(edit|history)$/.test(Q.get("child")) ? Q.get("child") : null,
   mode: Q.get("mode") === "add" ? "add" : "item",
   hint: Q.get("hint") === "reveal" ? "reveal" : "show",
-  lv: Q.get("lv") === "drop" ? "drop" : "battery", cat: Q.get("cat") === "list" ? "list" : "chips",
+  cat: Q.get("cat") === "list" ? "list" : "chips",
   recipes: Q.get("recipes") !== "0", down: Q.get("down") === "1",
   field: Q.get("field") || "", more: +Q.get("more") || 0
 };
@@ -103,6 +110,7 @@ var IC = IEF.IC = {
   pot: '<path d="M5 11h14v6a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3z"/><path d="M3 11h18M15 3l-3 8"/>', alert: '<circle cx="12" cy="12" r="9"/><path d="M12 7.5v5M12 16v.5"/>',
   pin: '<path d="M12 21s-6-5.2-6-10a6 6 0 1 1 12 0c0 4.8-6 10-6 10z"/><circle cx="12" cy="11" r="2"/>',
   tag: '<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1"/>',
+  ruler: '<path d="M3.5 15.5l12-12 5 5-12 12z"/><path d="M7 12l2.2 2.2M10 9l1.6 1.6M13 6l2.2 2.2"/>',
   undo: '<path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>', search: '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>', chevd: '<path d="M7 10l5 5 5-5"/>',
   home: '<path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
   pantry: '<path d="M7 3h10v3H7zM6 6h12v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1zM9 11h6v5H9z"/>',
@@ -110,22 +118,16 @@ var IC = IEF.IC = {
   cartnav: '<path d="M3 4h2l2.4 11h10l2-8H6.2M9 20h.01M17 20h.01"/>'
 };
 IEF.sv = sv;
-/* The level icon. BATTERY (decision 83, proposed; the owner asked for it on 11 Oct 2026): four cells, 4 / 2 / 1 / 0 filled, in the same colour bands as the drop: Plenty green, Some amber, Running low red, Out black.
-   DROP (the 8 Oct 2026 rule, kept as ?lv=drop): the household flow's item sheet drop, fuller or emptier. Either way the level name is screen-reader text only. */
-var LV = { Plenty: [1, "plenty"], Some: [0.5, "some"], "Running low": [0.25, "low"], Out: [0, "out"] };
-var DROP = "M12 3c3.5 4.5 6 7.2 6 10.2a6 6 0 0 1-12 0C6 10.2 8.5 7.5 12 3z";
-var dropN = 0;
-IEF.drop = function (l, size) {
-  var a = LV[l], f = a[0], k = a[1], y = (19.2 - f * 16.2).toFixed(2), id = "dc" + (dropN++);
-  return '<svg class="drop lv-' + k + '" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" aria-hidden="true"><defs><clipPath id="' + id + '"><path d="' + DROP + '"/></clipPath></defs>' + (f ? '<rect x="0" y="' + y + '" width="24" height="24" clip-path="url(#' + id + ')" fill="currentColor" fill-opacity=".9"/>' : "") + '<path d="' + DROP + '" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>';
-};
+/* The level icon is a BATTERY everywhere the level is drawn (decision 94, confirmed by the owner 11 Oct 2026; the drop is gone). Four cells: Plenty 4 filled and green, Some 2 amber, Running low 1 red, Out 0 and black.
+   Same colour tokens as the drop had: --cue, --accent, --danger, --out. The level name is screen-reader text only (.sr-only), never drawn. A hand-set level is drawn exactly like a calculated one. */
 var BAT = { Plenty: [4, "plenty"], Some: [2, "some"], "Running low": [1, "low"], Out: [0, "out"] };
-IEF.battery = function (l, size) {
+IEF.battery = function (l, width) {
   var a = BAT[l], n = a[0], c = "";
-  for (var i = 0; i < n; i++) c += '<rect x="' + (4 + i * 6) + '" y="5" width="5.2" height="10" rx="1.2" fill="currentColor"/>';
-  return '<svg class="bat lv-' + a[1] + '" width="' + size + '" height="' + Math.round(size * 20 / 34) + '" viewBox="0 0 34 20" aria-hidden="true" focusable="false"><rect x="1" y="2" width="29" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M31.4 7.5h.8a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-.8z" fill="currentColor"/>' + c + "</svg>";
+  for (var i = 0; i < n; i++) c += '<rect x="' + (4 + i * 6) + '" y="5" width="5.2" height="10" rx="1.2" fill="currentColor" stroke="none"/>';
+  return '<svg class="bat lv-' + a[1] + '" width="' + width + '" height="' + Math.round(width * 20 / 34) + '" viewBox="0 0 34 20" aria-hidden="true" focusable="false"><rect x="1" y="2" width="29" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M31.4 7.5h.8a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-.8z" fill="currentColor" stroke="none"/>' + c + "</svg>";
 };
-IEF.lvIcon = function (l, size) { return S.lv === "drop" ? IEF.drop(l, size) : IEF.battery(l, Math.round(size * 1.25)); };
+/* the width the tile and the picker draw it at: 38 in the item flyout's level tile, 35 on each picker button */
+IEF.lvIcon = function (l, size) { return IEF.battery(l, Math.round(size * 1.25)); };
 IEF.sr = function (t) { return '<span class="sr-only">' + esc(t) + "</span>"; };
 IEF.LEVELS = ["Plenty", "Some", "Running low", "Out"];
 
@@ -322,7 +324,7 @@ IEF.undo = function () {
 /* ---------- actions from the item flyout (the form's own are in form.js) ---------- */
 function usedUp() {
   var it = IEF.cur(); if (!it || level(it) === "Out") return; var s = IEF.snap();
-  it.prev = it.amount; it.amount = it.amount === null ? null : 0; IEF.reviseQty(it); if (it.amount === null) it.level = "Out"; IEF.log(it, "Used up", "", "Used up"); IEF.setChild(null); IEF.syncParent();
+  it.prev = it.amount; it.amount = it.amount === null ? null : 0; if (it.amount === null) it.level = "Out"; IEF.log(it, "Used up", "", "Used up"); IEF.setChild(null); IEF.syncParent();
   IEF.toast(esc(it.name) + " is marked Out. It is in History.", s);
 }
 function shopQuick() { var it = IEF.cur(); if (!it || it.list !== null) return; var s = IEF.snap(); it.list = ""; IEF.log(it, "Shopping list", "not on it", "on it"); IEF.syncParent(); if (S.child === "edit" && IEF.form) IEF.form.refreshShop(); IEF.toast(esc(it.name) + " is on your shopping list.", s); }
