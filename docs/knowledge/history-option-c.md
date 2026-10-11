@@ -1,89 +1,116 @@
+Revised to the owner's locked decisions H2, H5, H9, H10 (11 Oct 2026).
+
 # History, Option C: "History in context"
 
-Owner, by voice, 11 October 2026 (quoted closely): History should be searchable on mobile and on desktop, with separate layouts designed together in one pass so he can lock decisions in one go. It covers both Kitchie (inventory, shopping, plan, cooking, preferences) and Recipe (create, edit, versions, cook, star and vote). Think broadly about what people look for: things they did themselves, things other household members did (and the AI assistants, voice and MCP), specific items or recipes, time ranges, action types, places. Propose options, not decisions. Nothing is built into the real apps.
+Owner, by voice, 11 October 2026 (quoted closely): History should be searchable on mobile and on desktop, with separate layouts designed together in one pass so he can lock decisions in one go. It covers both Kitchie (inventory, shopping, plan, cooking, preferences) and Recipe (create, edit, versions, cook, star and vote). Think broadly about what people look for. Propose options, not decisions. Nothing is built into the real apps.
 
-This file is Option C of four parallel options. Mockup: `history/option-c/index.html` (overview), `mobile.html` (390 wide sheet), `desktop.html` (1440 wide column that grows). Code: `hc.js`, `hc.css`, `scn.js` (the scenario bar is mockup only). Screenshots: `docs/screenshots/history-option-c-*.png`. Everything below marked Proposal is a proposal; the owner has not chosen anything here.
+Locked decisions that apply here (`history-options.md`, owner by voice, 11 Oct 2026):
+- **H2.** "We're only going to do history for pantry and recipes... and also one for shopping." History stays in context. Pantry already has it (the item flyout's History) and stays as it is. Recipes already have a versions/history screen and a To review screen with per-change undo. Shopping is new and follows the same pattern. Each is its own concern, not a unified list.
+- **H5.** The detail view is the same whichever way you arrive. This flyout is what the catch-up feed (option D) opens.
+- **H9.** No "ask it" search anywhere. No typed question, no suggested questions, no natural-language entry.
+- **H10.** No Assistants category. "Assistant just represents the person": an assistant's action is shown as the person it acted for.
+
+Mockup: `history/option-c/index.html` (overview), `mobile.html` (390 wide sheet), `desktop.html` (the History column beside the list entry). Code: `hc.js`, `hc.css`, `scn.js` (the scenario bar is mockup only). Open with `?scope=shop:rice|shop:tea|list:|pantry:rice|recipes:fried-rice`, `&state=catchup|nomatch`, `&filters=1`, `&widen=1`. Screenshots: `docs/screenshots/history-option-c-*.png`.
+
+## What changed in this revision
+
+| Before | Now | Why |
+|---|---|---|
+| Doors on item, spot, recipe, member, plan day and Everything | Three concerns: Shopping (drawn), Pantry and Recipes (linked) | H2 |
+| Item history drawn in this option | A card linking to the Pantry item flyout's History (`fragments/item-edit-flyout/pantry.html?sel=rice&child=history`) | H2: keep pantry as it is |
+| Recipe and cooking rows drawn | A card linking to `recipe-versions/history.html` and `recipe-versions/suggestions.html` (To review, per-change undo) | H2 |
+| Scoped search box, `/` key, "Search Pantry" zero state | Removed | H9 |
+| Question chips and answer cards | Removed | H9 |
+| Who filter "Assistants and voice", spark and plug avatars, "Claude (for Priya)" | Removed. An assistant's row shows the person | H10 |
+| Widen to Pantry, then Everything, with a facet column | One widen: entry to the whole shopping list, a button | H2, H9 (Proposal) |
+| (none) | "Opened from the catch-up" state | H5 |
 
 ## Idea
 
-History lives where the thing lives. The item, the recipe, the spot, the member and the plan day each get a clock. It opens already scoped to that thing, with its own search box. A breadcrumb widens the scope one step at a time (this item, its place, Everything). A single "Everything" entry in Profile > History opens at the widest scope. Questions come first: a row of questions for the scope ("Where did it go?", "When did we last cook this?", "Who last edited it?") and the answer sits above the list as a sentence, so most people never read the list.
+History lives where the thing lives. A shopping list entry gets a clock. It opens already scoped to that entry: who added it, bought it, changed its amount or took it off, and when. One button widens it to the whole shopping list. The same flyout opens when someone taps a shopping entry in the catch-up feed (option D). Pantry and recipes keep the history they already have.
 
 ## Jobs this serves (DESIGN.md section 1)
 
-- "Where did the rice go?" (finding out why stock changed; an item's own history).
-- "When did we last cook this? Who last edited this recipe?" (recipe page).
-- "What did the assistant do while I was out?" (Everything, filter Assistants and voice).
-- "Who keeps moving things?" (place or spot).
-- "Why did Saturday's dinner change?" (plan day).
+- "Who put this on the list, and why?" (a list entry's own history).
+- "Did someone already buy it?" (about to go shopping).
 - "I did something by mistake" (undo, on the row).
+- "I have been away; what happened to the list?" (arrive from the catch-up, land on the same detail).
 
-## Field catalogue (Proposal)
+## Superseded proposals
 
-One history entry. Every field has a job; nothing is shown that a job does not need. Source: Kitchie's journal (`store.getHistory(id)`, MCP `item_history`) and Recipe's revisions and events (`list_revisions`, `undo_event`, `revert_change`). Fields marked new do not exist in one of the stores yet.
+Each is marked; the original text is kept in git history, not repeated here.
+
+- **C1 (one entry, many doors): superseded by H2.** Doors on spot, member and plan day are dropped; Profile > History (Everything) is dropped. Pantry and recipes keep their own doors.
+- **C2 (breadcrumb to Everything): superseded.** Replaced by C16.
+- **C3 (questions first): superseded by H9.**
+- **C4 (scoped search box): superseded by H9.**
+- **C5 (three filters): kept, changed.** Still picks, no typing. Values are now those of C21. The facet column is dropped with Everything.
+- **C6 (item to recipe, both ways): superseded by H2.** Cook rows and their used-item chips belong to the existing recipe screens. The one cross-link kept is C24.
+- **C8 (assistants and voice are people with a tag): superseded by H10.** See C19.
+- **C10 desktop "grows into a wide panel": superseded.** The column stays a column (C10's first half is kept: the existing History column, `,` opens and closes it).
+- **C11 (shortcuts): `/` removed (H9).** `,`, `W`, `Shift W`, `J`, `K`, `R`, Ctrl or Cmd Esc stay.
+- **C13 (empty and zero states): changed.** The quiet-item state goes. The zero state is now "Nothing matches these filters".
+- **C-O3 (fixed or typed questions): answered by H9.**
+- **Kept as they were:** C7 (undo on the row, an undo is a new entry), C9 (phone sheet layout), C12 (days load 3, then 5 per press), C14 (playful, one family).
+
+## Proposals for shopping history (all Proposals, marked; the owner was silent on each)
+
+- **C15. One clock per shopping list entry.** Phone: a clock in the entry sheet's header, opening a bottom sheet. Desktop: a clock beside the entry in the same place as Pantry's, key `,` opens and closes the History column (Ctrl or Cmd Esc closes; one parent flyout at a time). Same style as Pantry's History: this thing only, newest first by day.
+- **C16. Opens scoped to the entry, one pick widens to the whole list.** Crumbs: the entry, then "The shopping list". A dashed "Widen to The shopping list" button repeats the step. Desktop `W` widens, `Shift W` narrows. A pick, never typed (H9).
+- **C17. In the whole-list view an item's name is a link back to that entry's own history.**
+- **C18. What a shopping entry's history shows.** Four things only: added, amount changed, bought (ticked off), removed. Each row says what, who, when, and carries the net change (1 kg to 2 kg; on the list to bought). The person's own words stay in the row when there are some ("We are nearly out of rice").
+- **C19. An assistant's action shows as the person it acted for (H10).** The row carries that person's initial and name. A small tag "via assistant" is drawn next to the time, as "by voice" and "receipt import" already are. **Open (H10 left it open): whether any mark is wanted.** It is one tag, so removing it costs one line.
+- **C20. A tick-off on the shopper link shows as "Someone shopping"** with a link icon and a "shopper link" tag, matching option D's wording. No sign-in, so no name.
+- **C21. Filters are picks.** Who: Anyone, Me, Sam (a member per household member). What: Anything, Added, Amount, Bought, Removed. When: Any time, Today, This week. Behind one Filters button on phone and desktop. No custom date range.
+- **C22. Pantry and recipes are hand-offs.** Jumping to either shows a card with the existing screens' links and nothing redrawn. Pantry: the item flyout's History. Recipes: version history and To review.
+- **C23. "Opened from the catch-up".** The flyout is the same one (H5). Two additions only: a "Back to the catch-up" button above the crumbs (it returns to the feed; the X on desktop closes the flyout the same way), and the entry that was tapped outlined in the list. On a Pantry or Recipe entry the card in C22 opens in the same place with the same back button. The catch-up feed itself is option D and is not drawn here.
+- **C24. A shopping row that came from a recipe or plan says so** ("for Egg fried rice, on the plan") and the recipe name jumps to the Recipes hand-off.
+- **C25. Undo in the row's own words** (kept from C7): "Take it off the list", "Put it back on the list", "Set it back to 1 kg". Bought undoes to "on the list". An undo adds an entry "Undid: ..." and marks the original "Undone". Nothing is deleted.
+
+## Field catalogue for shopping events (Proposal)
+
+One shopping history entry. Source: the Kitchie journal and the MCP tools `shopping_add`, `shopping_remove`, `shopping_set_quantity`. Whether bought and the shopper link are journalled today has not been checked (C-O12).
 
 | Field | What it is for |
 |---|---|
-| `id` | Stable id so an undo can point at its original and a link can open one entry. |
-| `at` (date and time) | Day grouping, "when", the time filter, sorting. Shown as a day heading plus a time on the row. |
-| `who` | The member whose account made the change. Answers "who". Filter: Anyone, Me, a member. |
-| `for` (new) | When `who` is an assistant: the member it acted for. Shown as "Claude (for Priya)". Answers "whose assistant did this". |
-| `via` | How it was done: app, voice, assistant, MCP, import. Filter: Assistants and voice. Shown as a small tag only when not "app". Kitchie already stores `source`. |
-| `app` (new on Recipe side) | Kitchie or Recipe, so Everything can show both and a filter can split them. Not drawn as a column; it follows from the kind. |
-| `kind` | The action: added, used, level, moved, edit, used up, shopping, plan, cooked, recipe created, recipe edited, version, star, vote, preference, place. Grouped into the "What" filter: Stock, Shopping, Plan, Cooking, Recipes, Preferences, Places. |
-| `text` | One plain sentence of what happened, with the item and recipe names as links. This is what search matches first. |
-| `from` and `to` | The net change for one field (Some to Running low; Door to Top shelf; 1 tbsp to 2 tbsp). Shown as struck old value then new value. Not a diff dump. |
-| `detail` | The person's own words or the reason ("We are nearly out of rice", "After Saturday's cook (estimated)", "From a receipt import"). The reason is what people search for. |
-| `items[]`, `recipe`, `place`, `spot`, `planDay`, `person` | The things the entry touches. These are the scope keys: an entry shows in every scope that contains one of them. |
-| `cook` link (on a stock change) | The id of the cook that caused it. Gives the link between item history and recipe cooking events, both directions. |
-| `uses[]` (on a cook) | What the cook took off the shelf (2 cups rice, 3 eggs). Each is a link to that item's history. |
-| `undo` | Words for the undo ("Put the stock back"), present only when the entry can be reversed. Absent means no button. |
-| `undoOf` (new) | On the entry an undo creates: the id it reverses. The original is never edited or removed. |
+| `id` | Stable id so an undo can point at its original, and so the catch-up can open this entry (H5). |
+| `at` (day, time) | Day grouping, "when", the When filter, sorting. |
+| `who` | The member whose account made the change, or "Someone shopping" for a shopper link. For an assistant, the member it acted for (H10). |
+| `via` | app, voice, assistant, receipt import, shopper link. Shown as a small tag only when not "app". |
+| `kind` | `shop-add`, `shop-qty`, `shop-buy`, `shop-rem`. Drives the What filter. |
+| `items[]` | The list entry (the item). The scope key: an entry shows in its own history and in the whole list's. |
+| `text` | One plain sentence with the item name as a link in the whole-list view. |
+| `from` and `to` | Net change: 1 kg to 2 kg; on the list to bought. |
+| `detail` | The person's own words or the reason ("Already have some", "Ticked off from a receipt import"). |
+| `recipe` | When the line came from a recipe or the plan; drives C24. |
+| `undo` | Words for the undo, present only when it can be reversed. |
+| `undoOf` (new) | On the entry an undo creates: the id it reverses. |
 
-## What is searchable (Proposal)
-
-Free text matches `text`, `detail`, from and to values, member names, the via word (voice, assistant), the kind group, place and spot, recipe and item names, the amounts in a cook, and the day words today, yesterday and this week. Words are ANDed. Search only looks inside the current scope; a zero-result state offers one tap to widen and search again.
-
-## Proposals
-
-- **C1. One entry, many doors.** A clock on each of: item (sheet and flyout), spot or place card, recipe page, member card, plan day. Profile > History is the Everything door. Same sheet and the same words everywhere.
-- **C2. Open scoped, widen by breadcrumb.** The first crumb is the thing, then its place or parent, then Everything. Item: item, place, Everything. Spot: spot, place, Everything. Recipe: recipe, All recipes, Everything. Member: member, Everything. Plan day: day, the week's plan, Everything. A dashed "Widen to X" button repeats the next step. Desktop key `W` widens, `Shift W` narrows.
-- **C3. Questions first.** Each scope type has two or three questions. Choosing one shows a one-sentence answer above the list and filters the list to the entries behind it. The chip toggles off, and the answer card has a close x. The questions are drawn from the jobs above, not generated.
-- **C4. Scoped search box.** The placeholder names the scope ("Search Basmati rice"). Esc clears it. `/` focuses it on desktop. Typing does not leave the scope; the zero-result state says what scope was searched and offers "Search Pantry" (the next step) and "Clear search and filters".
-- **C5. Three filters, behind one button on phone, beside the list on desktop.** Who (Anyone, Me, Sam, Assistants and voice), What (the seven kind groups), When (Any time, Today, This week). On desktop the Everything layout shows them as a left facet column with counts that follow the search. No custom date range in the first pass (open question C-O5).
-- **C6. Item to recipe, both ways.** A cook is one row in recipe, plan and Everything scopes, with its used items as chips. In an item or place scope the same use appears as its own row ("Used 2 cups of Basmati rice, for Egg fried rice, cooked yesterday"). Every name inside a row is a link that moves the scope to that thing (a jump, shown in the breadcrumb). Child rows are hidden outside item and place scopes so Everything is not doubled.
-- **C7. Undo on the row.** Rows that can be reversed carry a button in the row's own words ("Take it off the list", "Put the stock back", "Undo this change"). Pressing it adds a new entry ("Undid: ..."), marks the original "Undone", and shows a toast. Nothing is deleted or rewritten, as in the Recipe versions rule (V-D13 and "any change can be undone"). Assistant and voice rows are undoable the same way. Child rows have no button; the undo is on the cook. Desktop: `R` on the focused row.
-- **C8. Assistants and voice are people with a tag.** An assistant row has a spark avatar, "Claude (for Priya)" and an "assistant" tag; MCP has a plug avatar and an "MCP" tag; voice has a microphone avatar and "by voice", and keeps the person's words in the row. This matches the "assistant" badge on Recipe revisions.
-- **C9. Phone layout.** A bottom sheet from the clock. Header, scope chips that scroll sideways, search with a Filters button, question chips, answer card, then days. Undo sits under the row text so text keeps the width. 44px targets throughout. The sheet is full height; it is not a page.
-- **C10. Desktop layout.** The History column that already exists for the item flyout (`,` opens and closes it, Ctrl or Cmd Esc closes it, one parent flyout at a time) with a scope box and questions added. Widening to Everything grows the same column into a wide panel with the facet column; narrowing shrinks it back. Below 1240px the panel overlays the right edge, as Sort does.
-- **C11. Shortcuts (shortcut-cues.md rules).** `,` open or close; `/` search; `W` widen; `Shift W` narrow; `J` and `K` move between rows; `R` undo the focused row; Ctrl or Cmd Esc closes (Ctrl or Cmd Enter stays a silent alias); all hints carry the `kbd` class and are hidden when cues are off; Shift+? lists them. Keys are ignored while typing in the search box, except Esc (clears) and the close chord. `R` and `W` could clash with future screen keys (see C-O6).
-- **C12. Days load progressively.** The last 3 days that have entries, then 5 more per "Show more" (the existing desktop rule, desktop.md section 5). Quiet days are skipped. The end line says "Nothing is ever deleted."
-- **C13. Empty and zero states.** A quiet item or place: a dashed circle, "Green tea has been quiet", one line, and "Look in Pantry" to widen. Zero results: the query and scope named, two buttons. A scope with only filtered-out rows says "Nothing matches these filters in X".
-- **C14. Playful, one family.** Dashed widen button and dashed empty circle (same dashed look as zero-count pills); round outline close; the pill and `‹ ›` language is not reused. Tokens from `theme.css` only.
-
-## What I did not draw
-
-No saved searches. No export of history (My data already exports inventory CSV). No cross-household history. No editing of an entry. No restore of a deleted thing, because nothing is deleted. No natural-language box that parses "what did Sam cook last week"; the questions are fixed chips and free text is plain matching (C-O3).
+Not in the shopping history: reads, and edits to a pantry item or a recipe (they have their own).
 
 ## Open questions (what a wrong guess costs)
 
-- **C-O1. One door or many?** Is a clock on every host right, or should there be one History and a scope picker? Wrong guess: if the owner wants one door, the in-context clocks become shortcuts into it (small); if he wants many and we ship one, every host loses its quick answer (rework of each host, medium).
-- **C-O2. Does Everything need its own screen?** Drawn as the same column grown wider on desktop and the same sheet on phone. If a person with a big household lives in Everything, it may want a real page with saved views. Cost: a new screen, not a rewrite of the rows.
-- **C-O3. Fixed questions or typed questions?** Drawn: fixed chips plus plain text match. If "ask in words" is wanted, it needs a parser or the assistant; cost is a server call per question and a "history by assistant" privacy rule. Getting it wrong either way is cheap to add later, expensive to remove.
-- **C-O4. Who may undo whose change?** Drawn: any member can undo any entry, and the undo is its own entry with their name. If only the author or an admin may undo, the button must hide or ask. Cost: a permission rule in Kitchie and Recipe and a message for refused undos.
-- **C-O5. Time range.** Drawn: Today and This week only. If "last month" or a date range is needed, a date control is a new component. Cost: one control, and loading more than the days already fetched.
+- **C-O1. One door or many?** Now narrowed by H2 to: is a clock on every shopping entry right, or is there also a door on the shopping list as a whole? Wrong guess: small, the whole-list view already exists as the widened step.
+- **C-O4. Who may undo whose change?** Drawn: any member. If only the author or an admin may, the button must hide or ask. Cost: a permission rule and a message for refused undos.
 - **C-O6. Key letters.** `W`, `R`, `J`, `K` inside the History column only. Pantry already uses U, D, S, Z, N, F, E, M. A clash means renaming keys in two places.
-- **C-O7. Do assistant "reads" count?** Drawn: only changes are in History. If the owner wants "what did Claude look at", it is a new, very noisy kind (cost: volume and storage, and a "reads" filter off by default).
-- **C-O8. Retention.** Drawn: everything is kept ("nothing is deleted"). If old entries age out of Everything, say so in the end line. A wrong guess costs trust more than storage.
-- **C-O9. Undoing a cook after the stock was changed again.** Drawn: the undo button always shows. Real behaviour needs a rule (put the stock back by amount, or ask). Cost: a wrong stock count, which Kitchie treats as a correction.
+- **C-O8. Retention.** Drawn: everything kept. If entries age out, the end line must say so.
+- **C-O9. Undoing a bought entry after the stock changed again.** Drawn: the button always shows. Real behaviour needs a rule. Cost: a wrong stock count.
+- **C-O10. Is a mark wanted when an assistant did it (H10, open)?** Drawn: the tag "via assistant". Cost of a wrong guess: one tag.
+- **C-O11. Is an entry the same entry after it is taken off and added again?** Drawn: one history per item name on the list. If each add is a new line, the entry history restarts and the whole-list view carries the story. Cost: the data model of a list line.
+- **C-O12. Does Kitchie record bought, removed and the shopper link today?** Not checked. If not, those rows are new events in the journal. Cost: backend work, and old entries would lack them.
+- **C-O13. Where does the shopping clock sit on a phone list row** (the entry sheet header, as drawn, or a swipe or long press)? Cost: the host screen, not the History sheet.
+- **C-O14. Is the whole-list view enough, or should shopping list history also show list-level actions** (cleared the bought lines, shared the shopper link)? Not drawn. Cost: two more kinds.
+- **C-O15. Five recent entries after the catch-up closes (H7b, "five" per area or in total)** is an option D and H7b question, not drawn here. The owner's unfinished "there's only two things in the mobile" is a phone question for option D, not for this option, and is not guessed here.
+- **Dropped with the Everything scope:** C-O2, C-O5 and C-O7 (a bigger Everything screen, a date range, reads). They return only if the owner brings an Everything view back.
 
 ## Load notes (DESIGN.md section 6)
 
-- **Default path:** each host screen as today. The clock is an icon with a key hint; no history data, no History JavaScript and no History CSS is loaded. Nothing is preloaded or refreshed by itself (desktop.md section 1).
-- **On first open of a clock:** one lazy chunk (`hc.js` about 33 KB, `hc.css` about 10 KB, unminified in the mockup; icons are inline) and one call for that scope's journal only (`item_history` for an item, the equivalent for a recipe, spot, member or plan day). The first 3 days that have entries are rendered; the rest of the loaded days wait behind "Show more".
-- **On engagement only:** Filters (phone) renders when the button is pressed; facet counts are computed from the loaded scope, no call. Questions run on the loaded scope, no call. Searching filters the loaded scope in the browser.
-- **Deferred with a reason:** widening to a bigger scope is a new call, made when the person widens, once, and cached for the visit. Everything is paged by day on the server (3 days, then 5 per press), not loaded whole. The facet column and its counts exist only in the wide desktop state. Undo is one write; the new entry is added to the open list from its response, no refetch.
-- **Mockup note:** data is a fixed sample of 22 entries (two people, one assistant, one household). The mockup holds it in the script; a build would never ship it.
+- **Default path:** each host screen as today. The clock is an icon with a key hint; no history data, no History JavaScript and no History CSS is loaded. Nothing is preloaded.
+- **On first open of a clock:** one lazy chunk (`hc.js` about 19 KB and `hc.css` about 9 KB, unminified; icons inline) and one call for that entry's journal. The first 3 days that have entries are rendered; the rest wait behind "Show more".
+- **On engagement only:** Filters render when the button is pressed. Filtering runs on the loaded entries, no call. Opened from the catch-up, the same chunk and the same call load; the catch-up passes the entry id so the entry can be outlined.
+- **Deferred with a reason:** widening to the whole list is one new call, once, cached for the visit. Pantry and recipe hand-offs load nothing: they are links.
+- **Mockup note:** data is a fixed sample of 10 shopping events in the script; a build would never ship it.
 
 ## Checked
 
-Screenshots at 390 (phone sheet) and 1280 and 1440 (desktop), light (`kitchie-day`) and dark (`kitchie`): `docs/screenshots/history-option-c-*.png`. No sideways scroll. Keys tested in Chromium: `,`, `/`, `W`, `Shift W`, `J`, `K`, `R`, Ctrl Esc.
+Chromium at 390 (phone sheet), 1280 and 1440 (desktop), light (`kitchie-day`) and dark (`kitchie`). No console errors, no sideways scroll. Keys tested: `W`, `Shift W`, `J`, `R`, `,`. Screenshots: `docs/screenshots/history-option-c-*.png` (obsolete item, recipe, question, quiet and Everything shots removed).

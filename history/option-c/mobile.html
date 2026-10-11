@@ -20,25 +20,27 @@
 <div class="wrap">
 <a class="back" href="index.html">Option C overview</a>
 <h1>History in context: phone</h1>
-<p>History opens as a bottom sheet from the clock on the thing you are looking at. It starts scoped to that thing. The breadcrumb widens it. Pick where you are:</p>
+<p>History stays in context (owner, H2): pantry, recipes and shopping, each its own concern. Shopping is drawn here as a bottom sheet from the clock on a list entry. Pantry and recipes already have theirs and are linked. The same sheet opens from the catch-up (H5). Pick where you are:</p>
 <div class="scn" id="scn" role="group" aria-label="Where History was opened from"></div>
 <div class="scn" id="sts" role="group" aria-label="States"></div>
 <div class="stagebox"><div class="phone"><div class="host" id="host"></div><div class="sheet" id="sheet"></div></div></div>
-<ul class="notes"><li><b>Default path loads</b> the host screen only. The clock is an icon with no data behind it.</li><li><b>Deferred</b>: the journal for that one scope is fetched on the first tap of the clock (this file, hc.js and hc.css are the lazy chunk, about 43 KB unminified). Search runs on what is already loaded for the scope. Widening fetches the wider scope once. Days load 3 at first, then 5 per tap.</li><li>Phone-only layout: sheet, scope chips scroll sideways, filters behind one button, undo under the row text.</li></ul>
+<ul class="notes"><li><b>Default path loads</b> the host screen only. The clock is an icon with no data behind it.</li><li><b>Deferred</b>: the journal for that one list entry is fetched on the first tap of the clock (hc.js and hc.css are the lazy chunk, about 19 KB unminified). Widening to the whole list fetches once. Days load 3 at first, then 5 per tap. Filters are picks, rendered when the button is pressed. No search box, no typing.</li><li>Phone-only layout: sheet, filters behind one button, undo under the row text.</li></ul>
 </div>
 <script src="hc.js"></script><script src="scn.js"></script>
 <script>
 (function(){
-var p=new URLSearchParams(location.search),first=p.get("scope")||"item:rice",inst;
-function host(s){var t=HC.parse(s),k=t.t==="spot"?"spot":t.t;var h=HOST[k]||HOST.item;if(t.t==="item"&&t.id==="tea")h=["🍵","Green tea","Pantry · Basket"];
- document.getElementById("host").innerHTML='<span class="em" aria-hidden="true">'+h[0]+'</span><div><h1>'+HC.esc(h[1])+'</h1><p>'+HC.esc(h[2])+'</p></div><span class="hb" aria-hidden="true">'+HC.ic("clock",20)+'</span>'}
+var p=new URLSearchParams(location.search),first=p.get("scope")||"shop:rice",st0=p.get("state")||"",inst;
+function hostKey(s){var t=HC.parse(s);return t.t==="shop"&&t.id==="tea"?"tea":t.t==="shop"?"shop":t.t}
+function host(k){var h=HOST[k]||HOST.shop;
+ document.getElementById("host").innerHTML='<span class="em" aria-hidden="true">'+h[0]+'</span><div><h1>'+HC.esc(h[1])+'</h1><p>'+HC.esc(h[2])+'</p></div><span class="hb" aria-hidden="true">'+HC.ic(k==="catchup"?"bell":"clock",20)+'</span>'}
 function mark(s,q){[].forEach.call(document.querySelectorAll("#scn button,#sts button"),function(b){b.setAttribute("aria-pressed",b.dataset.s===s&&(b.dataset.q||"")===(q||""))})}
-function go(s,q){host(s);inst=HC.create(document.getElementById("sheet"),{mode:"mobile",scope:s,onScope:function(e){var k=e.t+":"+e.id;host(k);mark("","")}});if(q)inst.setQuery(q);mark(s,q)}
-SCN.forEach(function(x){var b=document.createElement("button");b.type="button";b.dataset.s=x[0];b.textContent=x[1];b.title=x[2];b.onclick=function(){go(x[0])};document.getElementById("scn").appendChild(b)});
+function go(s,state){var cu=state==="catchup";host(cu?"catchup":hostKey(s));
+ inst=HC.create(document.getElementById("sheet"),{mode:"mobile",scope:s,from:cu?"catchup":"",focus:cu?(SCN_FOCUS[s]||""):"",onBack:function(){host("catchup");document.getElementById("sheet").innerHTML='<div class="hc-empty"><b>Back in the catch-up</b><p>The feed is behind the sheet. Pick a scenario to open History again.</p></div>';mark("","")},onScope:function(e){host(hostKey(e.t+":"+e.id));mark("","")}});
+ if(state==="nomatch")inst.setFilter({who:"sam",what:"buy"});mark(s,state)}
+SCN.forEach(function(x){var b=document.createElement("button");b.type="button";b.dataset.s=x[0];b.textContent=x[1];b.title=x[2];b.onclick=function(){go(x[0],"")};document.getElementById("scn").appendChild(b)});
 SCN_STATES.forEach(function(x){var b=document.createElement("button");b.type="button";b.className="st";b.dataset.s=x[0];b.dataset.q=x[1];b.textContent=x[2];b.onclick=function(){go(x[0],x[1])};document.getElementById("sts").appendChild(b)});
-go(first,p.get("q")||"");
+go(first,st0);
 if(p.get("filters"))inst.setFilt(true);
-if(p.get("widen")){inst.widenTo(+p.get("widen"))}
-if(p.get("qn")){inst.state.qn=+p.get("qn");inst.repaint()}
+if(p.get("widen"))inst.widenTo(+p.get("widen"));
 })();
 </script></body></html>

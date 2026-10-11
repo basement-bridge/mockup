@@ -14,11 +14,8 @@
 .hc-crumb{min-height:var(--tap);padding:0 12px;border-radius:var(--r-pill);border:1px solid transparent;background:none;font-weight:600;font-size:14px;color:var(--muted);white-space:nowrap}
 .hc-crumb[aria-current]{background:var(--accent);color:var(--on-accent)}
 .hc-sep{color:var(--muted);display:inline-flex}
-.hc-widen{align-self:flex-start;display:inline-flex;align-items:center;gap:8px;min-height:var(--tap);padding:0 14px;border-radius:var(--r-pill);border:1px dashed var(--accent);background:none;color:var(--accent);font-weight:700;font-size:14px}
-.hc-search{display:flex;gap:var(--sp-2)}
-.hc-sb{flex:1;display:flex;align-items:center;gap:var(--sp-2);min-height:var(--tap);padding:0 14px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);color:var(--muted)}
-.hc-sb:focus-within{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
-.hc-sb input{flex:1;min-width:0;background:none;border:0;outline:0;color:var(--fg);font:500 16px var(--body)}
+.hc-search{display:flex;gap:var(--sp-2);justify-content:space-between;align-items:center;flex-wrap:wrap}
+.hc-search .hc-fbtn{margin-left:auto}
 .hc-fbtn{display:inline-flex;align-items:center;gap:6px;min-height:var(--tap);padding:0 14px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--surface);font-weight:600;font-size:14px}
 .hc-fbtn[aria-expanded=true]{border-color:var(--accent)}
 .hc-fbtn i{font-style:normal;background:var(--accent);color:var(--on-accent);border-radius:var(--r-pill);font-size:11px;font-weight:700;padding:1px 7px}
@@ -27,13 +24,6 @@
 .hc-fl{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);width:48px}
 .hc-fg button{min-height:36px;padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--border);background:none;font-size:13px;font-weight:600}
 .hc-fg button[aria-pressed=true]{background:var(--accent);color:var(--on-accent);border-color:transparent}
-.hc-qs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
-.hc-q{flex:none;min-height:var(--tap);padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-weight:600;font-size:14px}
-.hc-q[aria-pressed=true]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);color:var(--accent)}
-.hc-ans{position:relative;background:var(--surface);border:1px solid var(--accent);border-radius:var(--r-card);padding:var(--sp-3) 48px var(--sp-3) var(--sp-4)}
-.hc-ans b{font-family:var(--head);font-size:15px}
-.hc-ans p{color:var(--fg);font-size:14.5px;margin-top:2px}
-.hc-x{position:absolute;right:4px;top:0;width:var(--tap);height:var(--tap);border:0;background:none;color:var(--muted);display:grid;place-items:center}
 .hc-scroll{flex:1;min-height:0;overflow-y:auto;padding:0 var(--sp-4) var(--sp-4)}
 .hc-day h3{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:var(--sp-4) 0 var(--sp-2);position:sticky;top:0;background:var(--surface);padding:4px 0;z-index:1}
 .hc-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
@@ -74,14 +64,6 @@
 @media(prefers-reduced-motion:reduce){.hc-toast{transition:none}}
 .kbd{font:600 11px var(--body);border:1px solid var(--border);border-radius:6px;padding:1px 6px;color:var(--muted);background:none}
 .nocues .kbd{display:none}
-/* Facets (desktop Everything) */
-.hc-wide{display:grid;grid-template-columns:220px 1fr;min-height:0;flex:1;border-top:1px solid var(--border)}
-.hc-facets{border-right:1px solid var(--border);padding:var(--sp-2) var(--sp-3) var(--sp-4);overflow-y:auto}
-.hc-facets h4{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:var(--sp-4) 0 4px}
-.hc-fa{width:100%;display:flex;justify-content:space-between;align-items:center;min-height:var(--tap);padding:0 10px;border:0;background:none;border-radius:var(--r-ctl);font-size:14px;font-weight:600;text-align:left}
-.hc-fa em{font-style:normal;font-size:12px;color:var(--muted)}
-.hc-fa[aria-pressed=true]{background:var(--bg);box-shadow:inset 3px 0 0 var(--accent)}
-.hc-fa.jump{color:var(--muted)}
 .hc-foot.keys{display:flex;gap:var(--sp-4);flex-wrap:wrap;justify-content:center;margin:0;padding:var(--sp-3) var(--sp-4);border-top:1px solid var(--border);color:var(--muted)}
 .hc-foot.keys .kbd{margin-right:4px}
 /* Phone sheet */
@@ -95,14 +77,18 @@
 /* Desktop panel */
 .hcd{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden;height:100%}
 .hcd .hc-head{padding:var(--sp-4) var(--sp-4) var(--sp-3)}
-.hcd.wide .hc-top{padding-top:var(--sp-3)}
-.hcd.wide .hc-fbtn{display:none}
 .hcd .hc-day h3{background:var(--surface)}
 .hcd .hc-row{padding:var(--sp-3) var(--sp-2);margin:0 calc(-1*var(--sp-2))}
 .hcd .hc-row:hover{background:var(--bg)}
-@media(max-width:1239px){.hc-wide{grid-template-columns:180px 1fr}}
-.hc-main,.hc-top,.hc-search{min-width:0}.hc-sb{min-width:0}.hc-fbtn{flex:none}
 .hcm .hc-body{flex:1 1 calc(100% - 44px)}
-.hcd:not(.wide) .hc-undo span{display:none}
-.hcd:not(.wide) .hc-undo{width:var(--tap);padding:0;justify-content:center;border-radius:50%}
+.hcd .hc-undo span{display:none}
+.hcd .hc-undo{width:var(--tap);padding:0;justify-content:center;border-radius:50%}
 .hcd .hc-foot.keys{gap:var(--sp-2) var(--sp-3);font-size:12px}
+
+.hc-main,.hc-top{min-width:0}.hc-fbtn{flex:none}
+a.hc-btn{text-decoration:none}
+/* Opened from the catch-up: same flyout, plus a way back */
+.hc-from{display:flex;align-items:center;gap:var(--sp-3);flex-wrap:wrap;margin:0 var(--sp-4) var(--sp-2)}
+.hc .hc-back{display:inline-flex;align-items:center;gap:6px;min-height:var(--tap);padding:0 14px;border-radius:var(--r-pill);border:0;background:var(--accent);color:var(--on-accent);font-weight:700;font-size:14px}
+.hc-fromtx{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+.hc-widen{align-self:flex-start;display:inline-flex;align-items:center;gap:8px;min-height:var(--tap);padding:0 14px;border-radius:var(--r-pill);border:1px dashed var(--accent);background:none;color:var(--accent);font-weight:700;font-size:14px}
