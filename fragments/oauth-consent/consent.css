@@ -31,6 +31,8 @@ body.consent{padding-bottom:calc(2rem + env(safe-area-inset-bottom))}
 .skin a.btn.ghost,.skin button.btn.ghost{align-self:center;min-height:44px;border:0;background:none;color:var(--muted);font-weight:500;padding:0 .9rem;text-decoration:underline;text-underline-offset:3px}
 .skin .btn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .skin .pill{display:inline-flex;align-items:center;gap:.4rem;min-height:28px;padding:0 .75rem;border-radius:999px;border:1px solid var(--accent);color:var(--accent);font-size:.75rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin:0 0 .6rem}
+.skin .banner{margin:0;padding:.6rem .8rem;border:1px solid var(--accent);border-radius:var(--r-ctl);background:color-mix(in srgb,var(--accent) 12%,var(--surface));color:var(--fg);font-size:.9rem}
+.skin .banner strong{display:block}
 .skin .ric{display:inline-flex;align-items:center;justify-content:center;flex:none;width:40px;height:40px;border-radius:50%;background:color-mix(in srgb,var(--c,var(--accent)) 20%,var(--surface));color:var(--c,var(--accent));border:1px solid color-mix(in srgb,var(--c,var(--accent)) 45%,var(--border))}
 .skin .ric.t2{--c:var(--sage)}
 /* The consent page */
