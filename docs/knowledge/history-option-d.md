@@ -18,7 +18,7 @@ Later locked decisions (owner, voice, 11 Oct 2026, `history-options.md`): H4 cat
 
 Job: "I have been away. What happened in our kitchen, who did it, and does it affect me?"
 
-- **Entry (H4, H6, H8):** the "Since you were last here" catch-up, grouped by day, then person. **At most three days** (today and the two before, a Proposal), even if the last visit was longer ago. When the cap cut the window the feed ends with "Showing the last 3 days. Search for older." and a Pick a filter button (Proposal wording from H6).
+- **Entry (H4, H6, H8):** the "Since you were last here" catch-up, grouped by day, then person. **At most three calendar days that each had a change** (owner, voice, 12 Oct 2026: "calendar days, so long as there was a change"): quiet days are skipped when counting, and the feed looks back until it has three active days, even if the last visit was longer ago. Not a rolling 72 hours, not simply the last three calendar days. When the cap cut the window the feed ends with "Showing the last 3 days with activity. Search for older." and a Pick a filter button (Proposal wording from H6).
 - **Tabs (H10):** My activity and Household only. An assistant's action is shown as the person it acted for, with no extra mark.
 - **The X (H7, H7b):** an X on the catch-up clears it and shows the **last five** entries, newest first, with Show more (five at a time, inside the cap).
 - **Phone (H7a):** after the X, a Filters icon and "Pick a filter" open a bottom sheet drawn like Pantry's Filters sheet (`.sheet.tall`, `.strow`, `.mc` classes): first a list of filter groups (When, Who, Area, Where, App, Touches me), then the options of the one picked. Nothing is typed.
@@ -57,7 +57,7 @@ Marked **Superseded** where an owner decision removed them. Everything else is a
 
 - **D1. Feed first, search second.** **Revised:** the catch-up feed is first; "search" past it is structured filters only (H9). No search field.
 - **D2. Three tabs.** **Superseded by H10:** two tabs, My activity and Household. Default Household; keys 1 and 2. Each tab shows a count of changes not seen.
-- **D3. The window rule.** **Superseded by H6:** the window is since the last visit, at most three days (today and the two before; a rolling 72 hours is the open alternative). "Show 5 more days" is gone; older is a filter (When: 7 or 30 days).
+- **D3. The window rule.** **Superseded by H6:** the window is since the last visit, at most the three most recent calendar days that each had a change (quiet days skipped; not a rolling 72 hours). "Show 5 more days" is gone; older is a filter (When: 7 or 30 days).
 - **D4. Day, then person.** Inside a day, one card per person (initial, name, count). "By time" is a switch for one flat list. My activity is always flat. **Revised:** assistants are not separate cards (H10).
 - **D5. "Since you were last here" is cleared by the X.** **Revised (H7b Proposal):** the X, or key C, counts as caught up, so a dismissed catch-up is the new "last seen". The old "Mark as caught up" button is gone.
 - **D6. Privacy: shared by default, personal stays personal.** Unchanged.
@@ -68,14 +68,14 @@ Marked **Superseded** where an owner decision removed them. Everything else is a
 - **D11. Assistants tab.** **Superseded by H10.** Removed, with its card and filter.
 - **D12. Affects me.** Unchanged: a chip, the catch-up card (up to 4, then "and n more") and a filter. Computed on the server when the event is written.
 - **D13. Search is a typeahead of tokens.** **Superseded by H9.** Removed.
-- **D14. One filters set.** **Revised:** When (Last 3 days, Today, 7 days, 30 days), Who (me, the other member, shopper link), Area, Where, App, Touches me. Same type combines with OR, different types with AND. Counts shown; zero is dashed (as Pantry Filters). Phone: bottom sheet in two steps (pick a group, then options). Desktop: panel in the lane.
+- **D14. One filters set.** **Revised:** When (Last 3 days with activity, Today, 7 days, 30 days), Who (me, the other member, shopper link), Area, Where, App, Touches me. Same type combines with OR, different types with AND. Counts shown; zero is dashed (as Pantry Filters). Phone: bottom sheet in two steps (pick a group, then options). Desktop: panel in the lane.
 - **D15. Desktop layout.** Rail, 640px column, 400px lane (360px below 1240px). The lane shows the catch-up card (with its X) or the filter panel (F). Detail is no longer drawn here (H5), so the lane never holds a detail.
 - **D16. Phone layout.** One column; catch-up card on top; X on the card; after the X a Filters icon in the header and a Pick a filter button under the list. No key hints on touch.
 - **D17. Only changes are history.** Unchanged.
 - **D18. Undo.** **Superseded here:** undo lives in option C's flyout (H5).
 - **D19. Keys.** `F` filters, `1 2` tabs, `J K` move between entries (Enter opens), `G` group (catch-up), `C` clear the catch-up, `M` show more (last five), Ctrl/Cmd+Esc closes the open panel, Shift+? lists them (`shortcut-cues.md`). Removed: `/` search, `3`, `Z` undo, plain Esc clears search. `,` is left alone (item History in the Pantry).
-- **D20. Empty and zero states are playful and honest.** New household: "A quiet kitchen so far". Nothing from me: "Nothing from you in the last 3 days". Nothing since the last visit: "Nothing since you were last here" with Show the last five. Loading: skeleton rows, this tab only. No results: names the filters, "Look back 30 days" and "Clear filters".
-- **D21. (new) Last five.** Five newest entries in total across pantry, recipes and shopping, newest first, inside the three-day cap, Show more adds five. Proposal; whether five is per area is open.
+- **D20. Empty and zero states are playful and honest.** New household: "A quiet kitchen so far". Nothing from me: "Nothing from you in the last 3 days with activity". Nothing since the last visit: "Nothing since you were last here" with Show the last five. Loading: skeleton rows, this tab only. No results: names the filters, "Look back 30 days" and "Clear filters".
+- **D21. (new) Last five.** Five newest entries in total across pantry, recipes and shopping, newest first, inside the cap (three days with activity), Show more adds five. Proposal; whether five is per area is open.
 - **D22. (new) Catch-up shows everything in the window.** The catch-up feed is not itself limited to five; only the list after the X is.
 
 ## Open questions (what a wrong guess costs)
@@ -84,16 +84,18 @@ Marked **Superseded** where an owner decision removed them. Everything else is a
 - **O2. "There's only two things in the mobile."** The owner did not finish. Not guessed: the mockup does not assume two filter groups or two views (the sheet lists six groups).
 - **O3. Does a mark show an entry was done through an assistant (voice, chat) (H10)?** None is drawn and none is invented. Wrong guess either way: one chip.
 - **O4. Is a plain keyword box that matches only item, recipe and member names still wanted (H9 open)?** Not drawn.
-- **O5. Is the three-day cap calendar days or 72 hours?** Drawn: calendar days.
+- **O5. Is the three-day cap calendar days or 72 hours?** Settled by the owner (12 Oct 2026): calendar days with a change; quiet days are skipped. Drawn.
 - **O6. Does the catch-up itself stop at five, or only the list after the X?** Drawn: only after the X.
 - **O7. Desktop uses a filter panel rather than the phone's sheet, and the last five apply after leaving the catch-up (H8 Proposals to confirm).**
 - **O8. Does the X count as caught up?** Drawn: yes (H7b Proposal).
 - **O9. Where do entries with no item, recipe or day (preferences, household, shopping lists) open in option C?** Drawn: Everything.
 - **O10. Are votes and stars personal (D6), may admins see personal entries (D7), is "last seen" per person on the server or per device, how long is history kept?** As before: shared questions in `history-options.md`.
 
+**Mockup note (cap, H6):** the sample (Sun 11 Oct) now demonstrates the rule: Today (Sun 11) and Yesterday (Sat 10) are active, Fri 9 Oct has no entries and is skipped, Thu 8 Oct is the third active day, and the entries on Wed 7 Oct and earlier do not show. The code counts active days (`capD()` in `option-d.js`), not calendar offsets.
+
 ## What the default path loads, and what waits (`DESIGN.md` section 6)
 
-- **Loads on open:** the page, `option-d.css` (about 15 KB) and `option-d.js` (about 40 KB, includes the sample data that the build replaces with a call), `theme.css`, `shared.css`, `cues.css`. One call: the **active tab only**, for the last 3 days at most, since the last visit, grouped on the server, with the catch-up line fields (`affects` for me) included. The other two tabs show only a count (a small count call, or one number in the same response).
-- **Deferred until asked:** the other tab; the last-five list (fetched when the X is pressed; it is inside the window already loaded, so no call is needed unless the catch-up was empty); anything wider than three days (a server window, only when a When filter is picked); filter counts (fetched on opening Filters); the entry itself (option C's flyout loads on tap, never preloaded); the shortcuts list (built on first Shift+?); other themes (theme.js).
+- **Loads on open:** the page, `option-d.css` (about 15 KB) and `option-d.js` (about 40 KB, includes the sample data that the build replaces with a call), `theme.css`, `shared.css`, `cues.css`. One call: the **active tab only**, for the last 3 days with activity at most, since the last visit, grouped on the server, with the catch-up line fields (`affects` for me) included. The other two tabs show only a count (a small count call, or one number in the same response).
+- **Deferred until asked:** the other tab; the last-five list (fetched when the X is pressed; it is inside the window already loaded, so no call is needed unless the catch-up was empty); anything wider than the last 3 days with activity (a server window, only when a When filter is picked); filter counts (fetched on opening Filters); the entry itself (option C's flyout loads on tap, never preloaded); the shortcuts list (built on first Shift+?); other themes (theme.js).
 - **Never loaded:** other people's personal entries (counted by the server, not sent), admin-only entries for members.
 - **Nothing refreshes by itself.** A "new since you opened" pill is a Proposal for later; the mockup does not poll.
