@@ -18,14 +18,14 @@ function build(){
  var brand=el("div","st-brand");brand.appendChild(glyph());brand.appendChild(el("span","","Kitchie"));root.appendChild(brand);
  var c=el("section","st-card");
  if(step==="landing"){
-  c.appendChild(el("p","st-pill","An invitation to a kitchen of your own"));
-  c.appendChild(el("h1","","Arjan set you up with a kitchen of your own"));
-  c.appendChild(el("p","st-lead","Keep track of what is in the fridge and pantry. Invite people in whenever you like."));
+  var iv=el("p","st-pill");iv.appendChild(el("i","","A"));iv.appendChild(el("span","","Arjan\u2019s kitchen is in order. Now it\u2019s your turn."));c.appendChild(iv);
+  c.appendChild(el("h1","","Your kitchen. Now your AI knows what\u2019s in\u00a0it."));
+  c.appendChild(el("p","st-lead","You can drive Kitchie on the web, or with your favourite AI."));
   var n=note(false);if(n)c.appendChild(n);
-  var b=el("a","st-btn","Start my kitchen with Google");b.href="?s=household"+(none?"&msg=none":"&m="+encodeURIComponent(msg));b.id="st-go";c.appendChild(b);
-  c.appendChild(el("p","st-small","You will sign in with Google. We never see your password."));
+  var b=el("a","st-btn","Start my kitchen");b.href="?s=household"+(none?"&msg=none":"&m="+encodeURIComponent(msg));b.id="st-go";c.appendChild(b);
+  c.appendChild(el("p","st-small","Free while we\u2019re building Kitchie. No name or email needed."));
   var dt=el("details","st-more");dt.appendChild(el("summary","","What you should know"));
-  var ul=el("ul");["This link works once. It is used up when you finish signing up, not when you open it.","It stops working a month after it was sent.","Your kitchen starts empty. Only the people you invite will see it.","Arjan will not be a member of it and cannot see your items."].forEach(function(t){ul.appendChild(el("li","",t))});dt.appendChild(ul);c.appendChild(dt)}
+  var ul=el("ul");["This link works once. It is used up when you finish signing up, not when you open it.","It stops working a month after it was sent.","Your kitchen starts empty. Only the people you invite will see it. Arjan won\u2019t be a member and can\u2019t see your items."].forEach(function(t){ul.appendChild(el("li","",t))});dt.appendChild(ul);c.appendChild(dt)}
  else if(step==="expired"||step==="used"){
   var ex=step==="expired";
   c.appendChild(el("p","st-pill gone",ex?"This invitation has expired":"This invitation has been used"));

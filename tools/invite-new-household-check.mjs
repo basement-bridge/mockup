@@ -144,8 +144,8 @@ for (const [w, h] of [[1024, 768], [1280, 860], [1440, 900]]) for (const mode of
   await t.ctx.close();
   /* recipient side */
   t = await open(`${START}?s=landing&m=${encodeURIComponent(MSG)}`, w, h, mode, ".st-card"); p = t.p;
-  ok(`${tag} recipient: lands on sign-up with the message visible`, (await p.locator("#st-note").innerText()).includes(MSG) && /note from arjan/i.test(await p.locator("#st-note").innerText()) && /Start my kitchen with Google/.test(await p.locator("#st-go").innerText()));
-  ok(`${tag} recipient: says it is their own kitchen`, /kitchen of your own/.test(await p.locator("h1").innerText()));
+  ok(`${tag} recipient: lands on sign-up with the message visible`, (await p.locator("#st-note").innerText()).includes(MSG) && /note from arjan/i.test(await p.locator("#st-note").innerText()) && /^Start my kitchen$/.test(await p.locator("#st-go").innerText()));
+  ok(`${tag} recipient: says it is their own kitchen`, /Your kitchen\./.test(await p.locator("h1").innerText()) && /your turn/.test(await p.locator(".st-pill").innerText()));
   ok(`${tag} recipient: the personal note sits directly above the sign-up button`, await p.evaluate(() => { const n = document.getElementById("st-note").getBoundingClientRect(), g = document.getElementById("st-go").getBoundingClientRect(); return n.bottom <= g.top && g.top - n.bottom < 40; }));
   await p.locator(".st-more summary").click();
   { const rt2 = await p.locator(".st-card").innerText();
