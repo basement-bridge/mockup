@@ -524,7 +524,8 @@ const screens = {
         <button data-go="looks">Looks <span class="chev" style="color:var(--muted)">${I.chev}</span></button>
         <span class="lbl sub">Kitchen setup</span>
         <button data-go="cats">Categories <span class="chev" style="color:var(--muted)">${I.chev}</span></button>
-        <button data-act="proto" data-p="Locations and spots">Locations and spots <span class="chev" style="color:var(--muted)">${I.chev}</span></button></div>
+        <button data-act="proto" data-p="Locations and spots">Locations and spots <span class="chev" style="color:var(--muted)">${I.chev}</span></button>
+        <button data-sheet="pwa">Install <span class="chev" style="color:var(--muted)">${I.chev}</span></button></div>
       <p class="small">Categories and Locations and spots are the household's, not just this device's.</p>
       ${left ? `<div><h2 style="font-size:1.1rem">Sample items</h2><p class="small" style="margin-top:4px">${left} sample item${left === 1 ? "" : "s"} left. They count toward nothing until you change one.</p><button class="btn ghost" data-act="proto" data-p="Clear sample items" style="margin-top:8px">Clear sample items</button></div>` : ""}
       <button class="btn ghost" data-act="back">Back to Kitchie</button>
