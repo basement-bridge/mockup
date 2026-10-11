@@ -44,7 +44,7 @@ The level icon is a battery everywhere (94, confirmed): the drop and the `lv=` o
 
 Nesting: from 1240 the child is a 360px column that slides out from beneath the item flyout; from 1024 it tucks under the item header in the same lane; below 1024 it is a stacked 84% sheet and the item shrinks to a strip. Add mode is the same form in the item flyout's place.
 
-## 4. Decisions 63 to 113
+## 4. Decisions 63 to 114
 
 Full wording and statuses in the job note (`docs/knowledge/jobs-to-be-done/item-edit-flyout.md`).
 
@@ -80,7 +80,7 @@ Full wording and statuses in the job note (`docs/knowledge/jobs-to-be-done/item-
 | 90 | proposed | Location and Spot: text inputs with suggestion lists, as the Add form |
 | 91 | **confirmed 11 Oct (voice)**, extended by 97 | Category: input with the filter bar's chip row |
 | 92 | **confirmed 11 Oct (voice)** | Use by: the Add form's +3 days, +5 days, +1 week, Pick date... in Edit and Add |
-| 93 | proposed | Emoji picker: search, Recent, about 126 foods, "No emoji"; Esc closes it only |
+| 93 | proposed | Emoji picker: search, Recent, about 133 foods, "No emoji"; Esc closes it only |
 | 94 | **confirmed 11 Oct (voice)** | Battery is the level icon everywhere; replaces the drop (confirms 83) |
 | 95 | **confirmed 11 Oct (voice)** | No minimum: Plenty above 0, Out at 0, no bands; Some or Running low by hand (refines 84) |
 | 96 | **confirmed 11 Oct (voice)** | A hand-set level clears only when the quantity next increases; a decrease never clears it (replaces 85) |
@@ -101,6 +101,7 @@ Full wording and statuses in the job note (`docs/knowledge/jobs-to-be-done/item-
 | 111 | owner, typed 12 Oct; refines 86; place **proposed** | "Set by you" plus a circular-arrow "Back to automatic" button on the Level label row, only while a hand-set level exists on an item with a number; "Automatic" with no control otherwise |
 | 112 | owner, typed 12 Oct | The button clears the override at once and the battery redraws; in the build the same service and route as the sheet's "Back to automatic" |
 | 113 | **proposed** | Interpretations of round 5 (pill count, strip under the box, arrow keys reveal, order of the first two) |
+| 114 | owner, voice 12 Oct; wording **proposed** | Emoji picker gains seven source animals beside the meat (cow, pig, chicken, sheep, duck, turkey, goat; fish was already there), searchable by beef, pork, lamb, mutton, poultry, goat, duck; same set and keywords in Kitchie `uat` |
 
 ## 5. Open questions
 
