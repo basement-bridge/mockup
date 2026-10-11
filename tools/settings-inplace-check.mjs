@@ -21,6 +21,51 @@ const shot = async (p, n) => { if (process.env.SHOTS) await p.screenshot({ path:
 const noNav = async (t, tag) => { ok(`${tag}: same page (no navigation, no reload)`, await t.p.evaluate(() => window.__same === 1) && t.navs.length === 1); ok(`${tag}: no script errors`, t.errs.length === 0, t.errs); };
 const sbs = (a, b) => a.l >= b.r - 2;
 
+
+/* ---------- AI assistants, connect in place (round 9, SW-63 to SW-72) ---------- */
+async function aiFlows(p, tag, narrowFly) {
+  /* where the panel covers the list (a page on a phone, the whole area from 901 to 1167px) it is closed first, as a person would */
+  const toList = async () => { if (narrowFly && await p.locator(".pf-fly, .pf-aipg").count()) await p.locator(".pf-flyback, .pf-aiback").first().click(); };
+  const txt = async () => (await p.locator("#pf-panel, .pf-fly, .pf-aipg").evaluateAll(ns => ns.map(n => n.innerText).join("\n")));
+  /* a connected row is never inert: its row opens the assistant, and Open in Claude is a button on it */
+  ok(`${tag} ai: every connected row has an Open button and a way in (not inert)`, await p.locator(".pf-ai [data-ai=open]").count() === 2 && await p.locator(".pf-aichev").count() === 2 && await p.locator(".pf-ai.off [data-sel^='ai:']").count() === 1);
+  await p.locator('.pf-ai [data-ai=open][data-id=claude]').click();
+  ok(`${tag} ai: Open in Claude is a real action (says it opens a Claude chat with the message filled in)`, /Claude chat/.test(await p.locator("#pf-toast").innerText()));
+  await p.locator('.pf-ai [data-ai=open][data-id=chatgpt]').click();
+  ok(`${tag} ai: Open ChatGPT says honestly that it copies the message`, /copies the starting message/.test(await p.locator("#pf-toast").innerText()));
+  await p.locator('.pf-aichev[data-sel="ai:claude"]').click(); await p.waitForSelector(".pf-fly, .pf-aipg");
+  ok(`${tag} ai: the connected row opens its panel (${narrowFly ? "page" : "flyout"}), with Open in Claude and Disconnect`, /Open in Claude/.test(await txt()) && await p.locator("[data-ai=disc]").count() === 1 && await p.locator(".pf-win").isVisible());
+  ok(`${tag} ai: the panel buttons are 44px or taller`, (await p.locator(".pf-fly button:not(.pf-x), .pf-aipg button").evaluateAll(ns => ns.filter(n => n.offsetParent && n.getBoundingClientRect().height < 43.5).map(n => n.textContent.trim()))).length === 0);
+  await p.locator("[data-ai=disc]").click();
+  ok(`${tag} ai: Disconnect asks once, in the panel, and says what it does (writes stop now, reads for a few minutes)`, /Disconnect Claude\?/.test(await txt()) && /read what Kitchie holds for a few minutes/.test(await txt()) && await p.locator("[data-ai=keep]").count() === 1);
+  await p.locator("[data-ai=keep]").click();
+  ok(`${tag} ai: Keep connected closes the question and changes nothing`, !/Disconnect Claude\?/.test(await txt()) && (narrowFly || await p.locator(".pf-ai .pf-chip.ok").count() === 2));
+  await p.locator("[data-ai=disc]").click(); await p.locator("[data-ai=discyes]").click();
+  ok(`${tag} ai: Disconnect is final in one step: Claude is Not connected, the row has Connect, the default moves to ChatGPT automatically`, (narrowFly || (await p.locator(".pf-ai.off [data-ai=connect][data-id=claude]").count() === 1 && /ChatGPT is the only one connected/.test(await p.locator("#pf-panel").innerText()) && !(await p.locator("#pf-panel [role=radio]").count()))));
+  ok(`${tag} ai: after Disconnect the panel offers Connect Claude (the way back in)`, await p.locator("[data-ai=connect][data-flyfocus]").count() === 1);
+  /* connect: waiting state is in Kitchie */
+  await p.locator("[data-ai=connect][data-flyfocus]").click();
+  ok(`${tag} ai: Connect Claude moves to the waiting state, in Kitchie (no navigation): waiting banner, steps, the page you will agree on, Stop waiting`, /Waiting for Claude/.test(await txt()) && await p.locator(".pf-wait[role=status]").count() === 1 && await p.locator(".pf-steps li").count() === 4 && await p.locator(".pf-prev").count() === 1 && await p.locator("[data-ai=stop]").count() === 1 && (narrowFly || await p.locator(".pf-ai.wait .pf-chip.acc").count() === 1));
+  ok(`${tag} ai: Claude waiting copy is the deep-link one (Add in Claude), not the ChatGPT one`, /press Add/.test(await txt()) && await p.locator(".pf-aaddr").count() === 0);
+  await p.locator("[data-ai=stop]").click();
+  ok(`${tag} ai: Stop waiting goes back to Not connected`, await p.locator("[data-ai=connect][data-flyfocus]").count() === 1 && (narrowFly || await p.locator(".pf-ai.off [data-ai=connect][data-id=claude]").count() === 1));
+  await p.locator("[data-ai=connect][data-flyfocus]").click(); await p.locator("[data-ai=sim][data-w=no]").click();
+  ok(`${tag} ai: cancelled: says so, nothing was connected, Try again (in the row and in the panel)`, /You pressed Cancel on the Kitchie page/.test(await txt()) && (narrowFly || (await p.locator(".pf-ai.bad [data-ai=connect]").count() === 1 && /Cancelled. Nothing was connected/.test(await p.locator("#pf-panel").innerText()))));
+  await p.locator("[data-ai=connect][data-flyfocus]").click(); await p.locator("[data-ai=sim][data-w=late]").click();
+  ok(`${tag} ai: failed (nothing came back): says it waited 3 minutes and nothing was connected`, /waited 3 minutes and nothing came back/.test(await txt()) && (narrowFly || /Did not finish/.test(await p.locator("#pf-panel").innerText())));
+  await p.locator("[data-ai=connect][data-flyfocus]").click(); await p.locator("[data-ai=sim][data-w=ok]").click();
+  ok(`${tag} ai: it connects: the row says Connected, and with two connected the default is to be chosen again`, (narrowFly || (await p.locator(".pf-ai .pf-chip.ok").count() === 2 && /choose a default/.test(await p.locator("#pf-panel").innerText()))));
+  ok(`${tag} ai: the connected panel offers Open in Claude and Make it the default`, await p.locator("[data-ai=open][data-flyfocus]").count() === 1 && await p.locator(".pf-aistat [data-ai=default]").count() === 1);
+  /* ChatGPT: no deep link, so the address and steps are in Kitchie */
+  await toList(); await p.locator('.pf-aichev[data-sel="ai:chatgpt"]').click();
+  ok(`${tag} ai: ChatGPT connected: says it cannot be opened with the message filled in; Open ChatGPT copies it`, /cannot be opened with a message already in the box/.test(await txt()));
+  await p.locator("[data-ai=disc]").click(); await p.locator("[data-ai=discyes]").click(); await p.locator("[data-ai=connect][data-flyfocus]").click();
+  ok(`${tag} ai: ChatGPT waiting: the address with Copy, four steps, an Open ChatGPT button, the page you will agree on`, await p.locator(".pf-aaddr code").count() === 1 && await p.locator("[data-ai=copy]").count() === 1 && await p.locator(".pf-steps li").count() === 4 && /Open ChatGPT/.test(await p.locator("[data-ai=reopen]").innerText()) && /ChatGPT \(chatgpt.com\)/.test(await txt()));
+  await p.locator("[data-ai=copy]").click();
+  ok(`${tag} ai: Copy says it copied the address (sample)`, /Copied Kitchie's address/.test(await p.locator("#pf-toast").innerText()));
+  ok(`${tag} ai: nothing scrolls sideways`, await p.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1));
+}
+
 /* ---------- desktop 1024, 1280, 1440, light and dark ---------- */
 for (const [w, h] of [[1024, 768], [1280, 800], [1440, 900]]) for (const mode of ["light", "dark"]) {
   const tag = `${w} ${mode}`;
@@ -302,7 +347,9 @@ for (const [w, h] of [[1024, 768], [1280, 800], [1440, 900]]) for (const mode of
   ok(`${tag} profile: saves automatically as you type (gutter says Aria, hint says Saved, no Save button)`, (await p.locator(".pf-nwho b").innerText()) === "Aria" && /Saved/.test(await p.locator("[data-namehint]").innerText()) && await p.locator("#pf-who2 button:has-text('Save')").count() === 0);
   await p.keyboard.press("Escape");
   ok(`${tag} profile: Esc only closes the box; the saved name stays and the window stays`, (await p.locator(".pf-nm").innerText()) === "Aria" && await p.locator(".pf-win").isVisible());
-  ok(`${tag} profile: connected assistants have chip and a radio, the unlinked one is greyed with Connect`, await p.locator(".pf-ai .pf-chip.ok").count() === 2 && await p.locator(".pf-ai [role=radio]").count() === 2 && await p.locator(".pf-ai.off [data-ai=connect]").count() === 1 && await p.locator(".pf-ai.off [role=radio]").count() === 0 && await p.locator("[data-ai=add]").count() === 1);
+  ok(`${tag} profile: connected assistants have chip and a radio, the unconnected one has Connect (not greyed out: it is a button)`, await p.locator(".pf-ai .pf-chip.ok").count() === 2 && await p.locator(".pf-ai [role=radio]").count() === 2 && await p.locator(".pf-ai.off [data-ai=connect]").count() === 1 && await p.locator(".pf-ai.off [role=radio]").count() === 0);
+  ok(`${tag} profile: Reset and link again, Link another assistant and Link your assistant are gone; only Connect and Disconnect are actions (SW-63)`, !/Reset and link again|Link another|Link your assistant|Reset/i.test(await p.locator("#ai-x, #pf-panel").first().innerText()) && await p.locator("[data-ai=add], [data-ai=relink]").count() === 0 && await p.locator("#pf-panel .pf-aibox .pf-btn:has-text('Disconnect')").count() === 0);
+  await aiFlows(p, tag, w < 1168);
   await shot(p, `profile-${w}-${mode}`);
   await noNav(t, tag + " profile"); await t.ctx.close();
   /* kitchen setup: Locations, one form for add and edit */
@@ -349,6 +396,18 @@ for (const [w, h] of [[1024, 768], [1280, 800], [1440, 900]]) for (const mode of
 /* ---------- phone and tablet: 360, 390, 768, no navigation, open in place ---------- */
 for (const [w, h] of [[360, 780], [390, 844], [768, 1024]]) for (const mode of ["light", "dark"]) {
   const tag = `${w} ${mode}`;
+  { /* AI assistants on a phone or tablet: a page with a back link, in place (SW-63 to SW-72) */
+    const ta = await open(w, h, mode, "open=me&ai=many"); const pa = ta.p;
+    ok(`${tag} ai: the list fits (rows wrap, nothing sideways), every Connect/Open/chevron is 44px`, await pa.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1) && (await pa.locator(".pf-ai button").evaluateAll(ns => ns.filter(n => n.offsetParent && n.getBoundingClientRect().height < 43.5).map(n => n.textContent.trim() || n.getAttribute("aria-label")))).length === 0);
+    await shot(pa, `m-ai-list-${w}-${mode}`);
+    await pa.locator('.pf-aichev[data-sel="ai:claude"]').click(); await pa.waitForSelector(".pf-aipg");
+    ok(`${tag} ai: the assistant opens as a page with a back link (no flyout, no sheet)`, await pa.locator(".pf-aipg .pf-aiback").isVisible() && await pa.locator(".pf-fly").count() === 0 && /Open in Claude/.test(await pa.locator(".pf-aipg").innerText()));
+    await shot(pa, `m-ai-claude-on-${w}-${mode}`);
+    await pa.locator(".pf-aiback").click();
+    ok(`${tag} ai: Back returns to the Profile list`, await pa.locator(".pf-aipg").count() === 0 && await pa.locator(".pf-aibox").isVisible());
+    await aiFlows(pa, tag, true);
+    await noNav(ta, tag + " ai"); await ta.ctx.close();
+  }
   let t = await open(w, h, mode, "open=settings"); let p = t.p;
   ok(`${tag}: strip across the top, no tree, no History dock`, await p.locator(".pf-kids").count() === 0 && !(await p.locator(".pf-dock").isVisible()));
   ok(`${tag}: Kitchen setup rows and Install are rows under the theme card, nothing else`, await p.locator('[data-acc]').count() === 3 && await p.locator("#pf-panel [data-sel]").count() === 0);

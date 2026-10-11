@@ -41,6 +41,7 @@ lock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 
 up:'<path d="M6 15l6-6 6 6"/>',
 downc:'<path d="M6 9l6 6 6-6"/>',
 check:'<path d="M5 12.500l4.500 4.500L19 7"/>',
+ext:'<path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
 sprout:'<path d="M12 21v-8"/><path d="M12 13c0-4 2.5-6.500 7-6.500 0 4-2.500 6.500-7 6.500z"/><path d="M12 15c0-3-2-5-6-5 0 3 2 5 6 5z"/>'
 };
 function ic(k,s){s=s||20;return '<svg class="pf-i" viewBox="0 0 24 24" width="'+s+'" height="'+s+'" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+P[k]+'</svg>'}
@@ -80,32 +81,55 @@ function paneMe(){
 function nameBtn(){return '<button type="button" class="pf-nameedit" data-act="editname" aria-label="Edit your name. Now '+esc(NAME)+'"><span class="pf-nm">'+esc(NAME)+'</span><span class="pf-nmp" aria-hidden="true">'+ic("pencil",16)+'</span></button>'}
 function nameInp(){return '<input class="pf-in pf-nameinp" type="text" value="'+esc(NAME)+'" maxlength="24" autocomplete="off" spellcheck="false" aria-label="Your name" data-nameinp><span class="pf-small pf-namehint" role="status" data-namehint>Saves automatically. 24 characters at most.</span>'}
 function esc(t){return String(t).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
-/* AI assistants (owner, 12 Oct 2026): a visual revamp of the existing block (uat: server/src/preferences/profile-assistant.ts). Same words and the same rules: "Linked through sign-in" once above the list; one linked is used automatically (no radio); two or more linked need a default, the row is the radio; none linked says so. New to the look only: each assistant is listed, connected ones with a Connected chip, the others greyed with Connect instead of a radio. Linking and unlinking happen on platform in the build, so here they only say so. */
-var AI={on:{claude:true,chatgpt:true,gemini:false},dflt:"claude"},AINAME={claude:"Claude",chatgpt:"ChatGPT",gemini:"Gemini"},AIIDS=["claude","chatgpt","gemini"];
-function aiSet(k){AI.on={claude:k!=="none",chatgpt:k==="many"||k==="choose",gemini:false};AI.dflt=k==="many"?"claude":null}
-function aiLinked(){return AIIDS.filter(function(i){return AI.on[i]})}
+/* AI assistants (owner, 12 Oct 2026, round 9: connect natively). Same rules as before (uat: server/src/preferences/profile-assistant.ts): one connected is used automatically (no radio), two or more need a default (the row is the radio), none connected says so. New in round 9 (SW-63 on): the only actions are Connect and Disconnect (Reset and link again, and Link another assistant, are gone: every assistant is listed, so connecting another is its own Connect); every row opens that assistant in place (a flyout beside the list, a page on a phone), so a connected row is never inert, and a connected row has a button that opens the assistant itself (Open in Claude is a real deep link; the others open the app and copy the message). Connect has four states per assistant: off, connecting (waiting for the assistant, in Kitchie), on, and failed (the person said No, or nothing came back). Drawn by profile-subs.js (the panel) and here (the list). Sample state only; nothing is sent. */
+var AI={st:{claude:"on",chatgpt:"on",gemini:"off"},dflt:"claude",conf:null},AINAME={claude:"Claude",chatgpt:"ChatGPT",gemini:"Gemini"},AIIDS=["claude","chatgpt","gemini"],AIOPEN={claude:"Open in Claude",chatgpt:"Open ChatGPT",gemini:"Open Gemini"};
+window.KProfileAIData={AI:AI,NAME:AINAME,IDS:AIIDS,OPEN:AIOPEN};
+function aiSet(k){AI.st={claude:k!=="none"?"on":"off",chatgpt:(k==="many"||k==="choose")?"on":"off",gemini:"off"};AI.dflt=k==="many"?"claude":null;AI.conf=null}
+function aiLinked(){return AIIDS.filter(function(i){return AI.st[i]==="on"})}
+/* &aic=claude:connecting,chatgpt:late (off|connecting|on|cancelled|late) and &aidc=claude (the Disconnect question is open) */
+function aiInit(I){
+ if(I.aic)I.aic.split(",").forEach(function(p){var a=p.split(":");if(AIIDS.indexOf(a[0])>-1&&/^(off|connecting|on|cancelled|late)$/.test(a[1]))AI.st[a[0]]=a[1]});
+ if(AIIDS.indexOf(I.aidc)>-1&&AI.st[I.aidc]==="on")AI.conf=I.aidc;
+ if(!aiLinked().length||aiLinked().length===1)AI.dflt=null;
+ else if(AI.dflt&&AI.st[AI.dflt]!=="on")AI.dflt=null}
+function aiRow(id,many){
+ var st=AI.st[id],nm=AINAME[id],d=AI.dflt===id;
+ var chev='<button type="button" class="pf-aichev" data-sel="ai:'+id+'" aria-pressed="false" aria-label="'+nm+': details">'+ic("chev",18)+'</button>';
+ if(st==="on"){
+  var main=many
+   ?'<button type="button" class="pf-arad" role="radio" aria-checked="'+d+'" data-ai="default" data-id="'+id+'"><span class="pf-ai-ck" aria-hidden="true"></span><span class="pf-t">'+nm+'<small>'+(d?'Your default':'Make it the default')+'</small></span></button>'
+   :'<button type="button" class="pf-arad" data-sel="ai:'+id+'" aria-pressed="false"><span class="pf-ai-ck none" aria-hidden="true"></span><span class="pf-t">'+nm+'<small>Used automatically</small></span></button>';
+  return '<li class="pf-ai'+(d?' dflt':'')+'"'+(many?' role="presentation"':'')+'>'+main+'<span class="pf-aiact"><span class="pf-chip ok">Connected</span><button type="button" class="pf-btn sm pf-aiopen" data-ai="open" data-id="'+id+'" aria-label="'+AIOPEN[id]+'">'+ic("ext",16)+'<span>'+AIOPEN[id]+'</span></button>'+chev+'</span></li>'}
+ if(st==="connecting")
+  return '<li class="pf-ai wait"><button type="button" class="pf-arad" data-sel="ai:'+id+'" aria-pressed="false"><span class="pf-ai-ck wait" aria-hidden="true"></span><span class="pf-t">'+nm+'<small>Waiting for '+nm+'</small></span></button><span class="pf-aiact"><span class="pf-chip acc">Connecting</span><button type="button" class="pf-btn sm" data-sel="ai:'+id+'" aria-pressed="false" aria-label="Continue connecting '+nm+'">Continue</button></span></li>';
+ if(st==="cancelled"||st==="late")
+  return '<li class="pf-ai bad"><button type="button" class="pf-arad" data-sel="ai:'+id+'" aria-pressed="false"><span class="pf-ai-ck off" aria-hidden="true"></span><span class="pf-t">'+nm+'<small class="pf-bad">'+(st==="cancelled"?'Cancelled. Nothing was connected':'Did not finish. Nothing was connected')+'</small></span></button><span class="pf-aiact"><button type="button" class="pf-btn sm pf-aigo" data-ai="connect" data-id="'+id+'" aria-label="Try connecting '+nm+' again">Try again</button></span></li>';
+ return '<li class="pf-ai off"><button type="button" class="pf-arad" data-sel="ai:'+id+'" aria-pressed="false"><span class="pf-ai-ck off" aria-hidden="true"></span><span class="pf-t">'+nm+'<small>Not connected</small></span></button><span class="pf-aiact"><button type="button" class="pf-btn sm pf-aigo" data-ai="connect" data-id="'+id+'" aria-label="Connect '+nm+'">Connect</button></span></li>'}
 function aiBlock(){
- var on=aiLinked(),many=on.length>1,body;
- var rows=AIIDS.map(function(id){
-  var c=AI.on[id],nm=AINAME[id];
-  if(!c)return '<li class="pf-ai off"><span class="pf-ai-ck off" aria-hidden="true"></span><span class="pf-t">'+nm+'<small>Not connected</small></span><button type="button" class="pf-btn sm" data-ai="connect" data-id="'+id+'" aria-label="Connect '+nm+'">Connect</button></li>';
-  var chip='<span class="pf-chip ok">Connected</span>',dis='<button type="button" class="pf-btn sm" data-ai="disconnect" data-id="'+id+'" aria-label="Disconnect '+nm+'">Disconnect</button>';
-  if(!many)return '<li class="pf-ai"><span class="pf-t">'+nm+'<small>Used automatically</small></span>'+chip+dis+'</li>';
-  var d=AI.dflt===id;
-  return '<li class="pf-ai'+(d?' dflt':'')+'" role="presentation"><button type="button" class="pf-arad" role="radio" aria-checked="'+d+'" data-ai="default" data-id="'+id+'"><span class="pf-ai-ck" aria-hidden="true"></span><span class="pf-t">'+nm+'<small>'+(d?'Your default':'Make it the default')+'</small></span></button>'+chip+dis+'</li>'}).join("");
- var note=!on.length?'<p class="pf-small">No assistant is linked yet. Link one and it is used automatically.</p>'
-  :!many?'<p class="pf-small">'+AINAME[on[0]]+' is the only one linked, so it is used automatically. There is nothing to pick.</p>'
+ var on=aiLinked(),many=on.length>1;
+ var rows=AIIDS.map(function(id){return aiRow(id,many)}).join("");
+ var note=!on.length?'<p class="pf-small">No assistant is connected yet. Connect one and it is used automatically.</p>'
+  :!many?'<p class="pf-small">'+AINAME[on[0]]+' is the only one connected, so it is used automatically. There is nothing to pick.</p>'
   :AI.dflt?'<p class="pf-small">The plan button opens '+AINAME[AI.dflt]+'.</p>'
-  :'<div class="pf-aihint" role="status">'+ic("spark",18)+' More than one is linked, so choose a default. The plan button opens it.</div>';
- return '<div><span class="pf-lbl">AI assistants</span><div class="pf-list pf-aibox"><p class="pf-ai-cap">Linked through sign-in</p><ul'+(many?' role="radiogroup" aria-label="Default assistant"':'')+'>'+rows+'</ul><div class="pf-ai-foot">'+note
-  +'<div class="pf-acts">'+(on.length?'<button type="button" class="pf-btn" data-ai="add">'+ic("plus",18)+' Link another assistant</button><button type="button" class="pf-btn" data-ai="relink">Reset and link again</button>':'<button type="button" class="pf-btn pri" data-ai="add">'+ic("plus",18)+' Link your assistant</button>')+'</div></div></div></div>'}
+  :'<div class="pf-aihint" role="status">'+ic("spark",18)+' More than one is connected, so choose a default. The plan button opens it.</div>';
+ return '<div><span class="pf-lbl">AI assistants</span><div class="pf-list pf-aibox"><p class="pf-ai-cap">Connected through sign-in</p><ul'+(many?' role="radiogroup" aria-label="Default assistant"':'')+'>'+rows+'</ul><div class="pf-ai-foot">'+note+'</div></div></div>'}
+/* The actions in the list and in the panel (data-ai). Connect and Disconnect are the only ones that change what is connected; the rest open an app, copy, or move through the waiting steps. */
+function aiShow(m,id){if(m.sel==="ai:"+id)paint(m,true);else openFly(m,"ai:"+id)}
 function aiClick(m,el){
- var k=el.dataset.ai,id=el.dataset.id;
+ var k=el.dataset.ai,id=el.dataset.id||(m.sel&&/^ai:/.test(m.sel)?m.sel.slice(3):"");
+ if(AIIDS.indexOf(id)<0&&k!=="copy")return false;
+ var nm=AINAME[id];
  if(k==="default"){AI.dflt=id;paint(m,false,'[data-ai="default"][data-id="'+id+'"]');return true}
- if(k==="connect"){AI.on[id]=true;if(aiLinked().length>1&&!AI.dflt)AI.dflt=null;toast("Mockup: the link is made on platform. Back here, "+AINAME[id]+" shows as Connected.");paint(m,false,'[data-ai="disconnect"][data-id="'+id+'"]');return true}
- if(k==="disconnect"){AI.on[id]=false;if(AI.dflt===id)AI.dflt=null;if(aiLinked().length===1)AI.dflt=null;toast("Mockup: the link is removed on platform. Back here, "+AINAME[id]+" shows as not connected.");paint(m,false,'[data-ai="connect"][data-id="'+id+'"]');return true}
- if(k==="add"){toast("Mockup: this opens your AI page on platform, where an assistant is linked through sign-in");return true}
- if(k==="relink"){toast("Mockup: this opens your AI page on platform, to reset and link again");return true}
+ if(k==="open"){toast(id==="claude"?"Mockup: opens a new Claude chat with the starting message filled in. It is copied too.":"Mockup: opens "+nm+" and copies the starting message. Paste it into "+nm+".");return true}
+ if(k==="connect"){AI.st[id]="connecting";AI.conf=null;aiShow(m,id);return true}
+ if(k==="stop"){AI.st[id]="off";paint(m,true,'[data-flyfocus]');return true}
+ if(k==="reopen"){toast(id==="claude"?"Mockup: opens Claude again, with Kitchie's address filled in.":"Mockup: opens "+nm+". Nothing can be filled in there.");return true}
+ if(k==="copy"){toast("Copied Kitchie's address. (Sample: nothing is copied.)");return true}
+ if(k==="sim"){var w=el.dataset.w;AI.st[id]=w==="ok"?"on":w==="no"?"cancelled":"late";if(w==="ok"){if(aiLinked().length<2)AI.dflt=null;toast(nm+" is connected.")}paint(m,true,'[data-flyfocus]');return true}
+ if(k==="disc"){AI.conf=id;paint(m,true,'[data-flyfocus]');return true}
+ if(k==="keep"){AI.conf=null;paint(m,true,'[data-flyfocus]');return true}
+ if(k==="discyes"){AI.st[id]="off";AI.conf=null;if(AI.dflt===id)AI.dflt=null;if(aiLinked().length<2)AI.dflt=null;toast(nm+" is disconnected. It can be connected again any time.");paint(m,true,'[data-flyfocus]');return true}
+ if(k==="close"){closeFly(m);return true}
  return false}
 function rowInv(icon,t,sub){return '<li><button type="button" class="pf-item" data-inv="open" aria-haspopup="dialog"><span class="pf-ico">'+ic(icon,18)+'</span><span class="pf-t">'+t+(sub?'<small>'+sub+'</small>':'')+'</span><span class="pf-chev">'+ic("chev",18)+'</span></button></li>'}
 function row(icon,t,sub,chip,toast){return '<li><button type="button" class="pf-item" data-toast="'+toast+'"><span class="pf-ico">'+ic(icon,18)+'</span><span class="pf-t">'+t+(sub?'<small>'+sub+'</small>':'')+'</span>'+chip+'<span class="pf-chev">'+ic("chev",18)+'</span></button></li>'}
@@ -153,8 +177,8 @@ var stack=[],home=null,gTimer=null,toastTimer=null,toastEl=null;
 /* Standalone mockup page only: the frame parameters (see the header). Used once, for the first window opened. */
 var INIT=null;
 function readInit(){var q=new URLSearchParams(location.search),g=function(k){return q.get(k)||""};
- INIT={sub:g("sub"),sel:g("sel"),pref:g("pref"),psub:g("psub"),ptab:g("ptab"),as:g("as"),os:g("os"),acc:g("acc"),done:g("done"),chg:g("chg"),ai:g("ai"),inv:g("inv")};
- if(/^(none|one|many|choose)$/.test(INIT.ai))aiSet(INIT.ai)}
+ INIT={sub:g("sub"),sel:g("sel"),pref:g("pref"),psub:g("psub"),ptab:g("ptab"),as:g("as"),os:g("os"),acc:g("acc"),done:g("done"),chg:g("chg"),ai:g("ai"),aic:g("aic"),aidc:g("aidc"),inv:g("inv")};
+ if(/^(none|one|many|choose)$/.test(INIT.ai))aiSet(INIT.ai);aiInit(INIT)}
 function newState(kind,view,root,opener){
  var m={kind:kind,view:view,sub:"looks",psub:"mine",ptab:"mine",pref:"today",sel:null,acc:null,as:"arjan",os:"",chg:"2",root:root,frame:root.firstChild,opener:opener};
  if(kind==="win"&&INIT){var I=INIT;INIT=null;
@@ -203,10 +227,12 @@ function winHtml(m,bodyHtml,flyHtml){
  return navHtml(m)+'<div class="pf-cont"><div class="pf-head"><div class="pf-who">'+(t[1]?'<span class="pf-crumb">'+t[1]+'</span>':'')+'<h2>'+t[0]+'</h2></div>'+xbtn()+'</div><div class="pf-row'+(flyHtml?' pf-hasfly':'')+'"><div class="pf-body'+(flush?' pf-flush':'')+'" id="pf-panel" role="tabpanel" aria-labelledby="pf-tab-'+view+(curSub(m)&&kids(m).length?'-'+curSub(m):'')+'" tabindex="0">'+bodyHtml+'</div>'+(flyHtml||'')+'</div><div class="pf-foot">'+FOOTS(m)+(X&&view==="preferences"?X.footCtl(m):'')+'</div></div>'}
 function renderWin(m){
  var X=window.KProfileSubs,body,fly="";
- if(m.view==="settings"&&!narrow()&&m.sub!=="looks")body=X.pane(m);
+ var aip=!!(m.sel&&/^ai:/.test(m.sel)&&narrow()&&X);
+ if(aip)body=X.aiPage(m);
+ else if(m.view==="settings"&&!narrow()&&m.sub!=="looks")body=X.pane(m);
  else if(m.view==="preferences"&&pref(m)!=="today")body=X.prefsPane(m);
  else body=PANE[m.view](m);
- if(m.sel&&X&&!phoneA(m))fly=X.fly(m);
+ if(m.sel&&X&&!phoneA(m)&&!aip)fly=X.fly(m);
  return winHtml(m,body,fly)}
 function renderShortcuts(){
  var rows=ORDER.map(function(k){return [k==="me"?"Profile":VIEWS[k].t,num(k)]});
@@ -242,7 +268,7 @@ function paint(m,focus,focusSel){
  m.frame.setAttribute("aria-label",label(m));
  if(window.themeApply&&m.view==="settings")window.themeApply();
  if(window.KProfileSubs&&m.kind==="win")window.KProfileSubs.after(m);
- if(focus){var f=(focusSel&&$(focusSel,m.frame))||(m.sel&&($(".pf-fly [data-flyfocus]",m.frame)||$(".pm-sub [data-flyfocus]",m.frame)))||(m.sel&&$(".pm-sub [data-subfocus]",m.frame))||$(".pm-sub [data-subfocus]",m.frame)||$("[data-focus]",m.frame)||focusables(m.frame)[0]||m.frame;f.focus()}}
+ if(focus){var f=(focusSel&&$(focusSel,m.frame))||(m.sel&&($(".pf-fly [data-flyfocus]",m.frame)||$(".pf-aipg [data-flyfocus]",m.frame)||$(".pm-sub [data-flyfocus]",m.frame)))||(m.sel&&$(".pm-sub [data-subfocus]",m.frame))||$(".pm-sub [data-subfocus]",m.frame)||$("[data-focus]",m.frame)||focusables(m.frame)[0]||m.frame;f.focus()}}
 function homeEl(){return home&&document.contains(home)?home:$("#pf-avatar")}
 function openModal(kind,view,opener){
  toastNode();
