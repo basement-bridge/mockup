@@ -117,7 +117,8 @@ Owner, voice, 10 October 2026: it is implemented **through multiple agents with 
 ## 11. File map (mockup)
 
 - `fragments/desktop/desktop.js`, `desktop.css`: the Pantry and Home screens (state, Filters, Sort, History, Add, shortcuts).
-- `fragments/desktop-profile/`: the Profile window.
+- `fragments/desktop-profile/`: the Profile window (round 6, 12 Oct 2026: dots and one proposal visual in Preferences, SW-37 to SW-46; the "set someone up with their own household" gutter entry and modal, `docs/knowledge/invite-new-household.md`).
+- `fragments/invite-new-household/`: the invited person's sign-up side and the notes for that feature.
 - `fragments/device.js`: the hidden Device control. `flows/household/`: the phone flow.
 - `docs/knowledge/desktop-layout.md`: decision record. `docs/handover/`: this file and its pictures.
 - To regenerate pictures, serve the folder (`python3 -m http.server`) and use Playwright at 1440 × 900.

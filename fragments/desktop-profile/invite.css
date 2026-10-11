@@ -1,0 +1,61 @@
+/* "Set someone up with their own household" modal (loaded with invite.js). Tokens from theme.css only. */
+.pf-inv{width:min(660px,100%)}
+.pf-inv .pf-head .pf-invcr{display:block;font:700 11px var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.pf-inv .pf-head .pf-ico{margin-right:2px}
+.pf-invb{gap:14px}
+.pf-invkick{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pf-invpill{display:inline-flex;align-items:center;gap:6px;font:700 12.5px var(--body);padding:4px 12px 4px 10px;border-radius:var(--r-pill);background:var(--accent);color:var(--on-accent)}
+.pf-invpill.ok{background:none;border:1px solid var(--sage);color:var(--sage)}
+.pf-invlead{color:var(--fg)!important;font-size:15.5px}
+.pf-invdia{display:flex;align-items:stretch;gap:10px;padding:12px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--bg)}
+.pf-invhh{flex:1 1 0;min-width:0;display:grid;gap:6px;align-content:start;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--r-ctl);background:var(--surface)}
+.pf-invhh b{font-size:14px}
+.pf-invhh small{color:var(--muted);font-size:12.5px}
+.pf-invhh.new{border:1.5px dashed var(--accent);background:var(--bg)}
+.pf-invppl{display:flex;gap:4px}
+.pf-invppl i{width:26px;height:26px;border-radius:50%;border:1px solid var(--border);background:var(--bg);display:grid;place-items:center;font:700 12px var(--body);font-style:normal;color:var(--fg)}
+.pf-invppl i.q{border-style:dashed;border-color:var(--accent);color:var(--accent)}
+.pf-invgap{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:64px}
+.pf-invgap span{flex:1;width:0;border-left:2px dashed var(--border);min-height:8px}
+.pf-invgap em{font:600 11px var(--body);color:var(--muted);font-style:normal;text-transform:uppercase;letter-spacing:.06em;text-align:center}
+.pf-invwrong{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 12px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--surface)}
+.pf-invwrong>.pf-i{color:var(--muted)}
+.pf-invwrong .pf-t{flex:1 1 14rem;font-weight:600}
+.pf-invwrong .pf-btn{white-space:normal}
+.pf-invmsg{display:grid;gap:4px}
+.pf-invmeta{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.pf-invcount{flex:none;white-space:nowrap}
+.pf-invlink{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pf-invlink .pf-in{flex:1 1 12rem;min-width:0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px}
+.pf-invcopied{margin:-6px 2px 0}
+.pf-invprev{display:grid;gap:8px;justify-items:start}
+.pf-invq{margin:0;display:flex;gap:10px;align-items:flex-start;width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--bg);color:var(--fg);font-size:15px}
+.pf-invq i{flex:none;width:30px;height:30px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;font:700 14px var(--body);font-style:normal}
+.pf-invnone{padding:10px 12px;border:1px dashed var(--border);border-radius:var(--r-ctl);width:100%}
+.pf-invfacts{display:grid;gap:8px}
+.pf-invfacts li{display:flex;gap:10px;align-items:flex-start;color:var(--fg);font-size:14.5px}
+.pf-invfacts .pf-i{margin-top:2px;color:var(--muted)}
+.pf-inv .pf-foot.pf-invf{display:flex;justify-content:space-between;gap:10px 16px}
+.pf-invbtns{display:inline-flex;gap:10px;flex-wrap:wrap;margin-left:auto;order:2}
+.pf-invf .pf-mockf{order:1}
+.pf-invf .pf-btn{min-height:var(--tap)}
+@media (max-width:600px){
+ .pf-inv{width:100%}
+ .pf-inv .pf-head{padding:14px 12px 8px 16px;gap:8px}
+ .pf-inv .pf-head>.pf-ico,.pf-inv .pf-hx kbd{display:none}
+ .pf-inv .pf-head h2{font-size:1.25rem}
+ .pf-invlink .pf-ico{display:none}
+ .pf-invlink .pf-in{flex:1 1 100%;font-size:13.5px}
+ .pf-invb{padding:4px 16px 14px}
+ .pf-invf{padding:10px 16px}
+ .pf-invdia{flex-direction:column}
+ .pf-invgap{flex-direction:row;min-width:0;min-height:28px}
+ .pf-invgap span{flex:1;width:auto;height:0;border-left:0;border-top:2px dashed var(--border)}
+ .pf-invbtns{width:100%;order:1}.pf-invbtns .pf-btn{flex:1}
+ .pf-invf .pf-mockf{display:none}
+}
+/* bits this file needs on its own (the modal can open before the other sub-screen styles are loaded) */
+.pf-inv .pf-mock{display:flex;gap:10px;align-items:center;flex-wrap:wrap;border:1px dashed var(--border);border-radius:var(--r-ctl);padding:4px 10px;color:var(--muted);font-size:12px}
+.pf-inv .pf-mock .pf-seg button{min-height:28px;padding:0 10px;font-size:12px}
+.pf-inv .pf-ta{min-height:7.5rem;padding:10px 14px;resize:vertical;font:inherit}
+.pf-inv .pf-lnk{border:0;background:none;padding:0;color:var(--accent);font-weight:700;text-decoration:underline;min-height:var(--tap);display:inline-flex;align-items:center}

@@ -110,16 +110,66 @@ for (const [w, h] of [[1024, 768], [1280, 800], [1440, 900]]) for (const mode of
   await p.locator('[data-as="sam"]').click(); await p.locator('[data-sel="a:d:hh:quiet"]').click();
   ok(`${tag} A: a member sees the household value read-only`, await p.locator(".pf-fly .pf-btn.pri").count() === 0 && /admin/i.test(await p.locator(".pf-fly").innerText()));
   await noNav(t, tag + " A"); await t.ctx.close();
-  /* A: changed since last seen, three variants */
-  for (const c of ["1", "2", "3"]) {
+  /* A: changed since last seen: the dot only (owner, 12 Oct 2026: SW-O13 resolved, option 2) */
+  t = await open(w, h, mode, "open=preferences&pref=a&psub=hh"); p = t.p;
+  let ht = await p.locator("#pf-panel").innerText();
+  ok(`${tag} A dot: default frame shows dots on the changed rows and the Household gutter entry`, await p.locator("#pf-panel .pf-unseen .pf-dot").count() === 2 && await p.locator("#pf-tab-preferences-hh .pf-dot").count() === 1);
+  ok(`${tag} A dot: no badge, no "changed this" line, no summary line`, await p.locator("#pf-panel .pf-chip.chg, #pf-panel .pf-chgline, #pf-panel .pf-sumbar, #pf-panel .pf-called").count() === 0 && !/changed since you last checked|changed this/.test(ht), ht.slice(0, 160));
+  ok(`${tag} A dot: footer switcher is the dot only (Show, All seen), no 1/2/3 variants`, (await p.locator("[data-chg]").allInnerTexts()).join("|") === "Show|All seen");
+  await shot(p, `pref-a-hh-dot-${w}-${mode}`);
+  await p.locator('[data-sel="a:d:hh:cap"]').click(); await p.waitForTimeout(250);
+  ok(`${tag} A dot: opening the row clears its dot; the other row and the gutter dot stay`, await p.locator('#pf-panel [data-sel="a:d:hh:cap"] .pf-dot').count() === 0 && await p.locator("#pf-panel .pf-unseen .pf-dot").count() === 1 && await p.locator("#pf-tab-preferences-hh .pf-dot").count() === 1);
+  await p.keyboard.press("Control+Escape"); await p.locator('[data-sel="a:f:h2"]').click(); await p.waitForTimeout(250);
+  ok(`${tag} A dot: opening the last changed row clears the gutter dot too`, await p.locator("#pf-panel .pf-dot").count() === 0 && await p.locator("#pf-tab-preferences-hh .pf-dot").count() === 0);
+  await noNav(t, `${tag} A dot`); await t.ctx.close();
+  for (const c of ["1", "3"]) {
     t = await open(w, h, mode, `open=preferences&pref=a&psub=hh&chg=${c}`); p = t.p;
-    const ht = await p.locator("#pf-panel").innerText();
-    if (c === "1") ok(`${tag} A chg1: Changed badge with who and when`, await p.locator("#pf-panel .pf-chip.chg").count() >= 1 && /Maya changed this/.test(ht), ht.slice(0, 120));
-    if (c === "2") ok(`${tag} A chg2: dot on the row, clears once opened`, await p.locator("#pf-panel .pf-unseen, #pf-panel .pf-dot").count() >= 1);
-    if (c === "3") ok(`${tag} A chg3: summary line with the rows called out`, /2 things changed since you last checked/.test(ht) && await p.locator("#pf-panel .pf-called").count() >= 1);
-    await shot(p, `pref-a-hh-chg${c}-${w}-${mode}`);
-    await noNav(t, `${tag} A chg${c}`); await t.ctx.close();
+    ok(`${tag} A chg=${c}: the old badge and summary links draw the dot`, await p.locator("#pf-panel .pf-unseen .pf-dot").count() === 2 && await p.locator("#pf-panel .pf-chip.chg, #pf-panel .pf-sumbar").count() === 0);
+    await t.ctx.close();
   }
+  t = await open(w, h, mode, "open=preferences&pref=a&psub=hh&chg=0"); p = t.p;
+  ok(`${tag} A chg=0: all seen, no dots anywhere`, await p.locator(".pf-win .pf-dot").count() === 0);
+  await t.ctx.close();
+  /* A: dots on housemate rows (owner, 12 Oct 2026) */
+  t = await open(w, h, mode, "open=preferences&pref=a&psub=mine"); p = t.p;
+  ok(`${tag} A member dots: Sam (changed something, proposed for me) and Maya (changed something) have the same dot as Household`, await p.locator("#pf-tab-preferences-sam .pf-dot").count() === 1 && await p.locator("#pf-tab-preferences-maya .pf-dot").count() === 1 && await p.locator("#pf-tab-preferences-hh .pf-dot").count() === 1);
+  await shot(p, `pref-a-member-dots-${w}-${mode}`);
+  await p.locator("#pf-tab-preferences-sam").click(); await p.waitForTimeout(250);
+  ok(`${tag} A member dots: opening Sam clears Sam's dot only`, await p.locator("#pf-tab-preferences-sam .pf-dot").count() === 0 && await p.locator("#pf-tab-preferences-maya .pf-dot").count() === 1 && await p.locator("#pf-tab-preferences-hh .pf-dot").count() === 1);
+  await p.locator('[data-chg="0"]').click(); await p.waitForTimeout(200);
+  ok(`${tag} A member dots: All seen leaves none`, await p.locator(".pf-nav .pf-dot").count() === 0);
+  await p.locator('[data-chg="2"]').click(); await p.waitForTimeout(200);
+  ok(`${tag} A member dots: Show brings them back (Sam is open, so Maya and Household)`, await p.locator("#pf-tab-preferences-maya .pf-dot").count() === 1 && await p.locator("#pf-tab-preferences-hh .pf-dot").count() === 1);
+  await noNav(t, `${tag} A member dots`); await t.ctx.close();
+  /* A: pending proposals: one visual both ways, controls differ, answered ones vanish at once */
+  t = await open(w, h, mode, "open=preferences&pref=a&psub=sam"); p = t.p;
+  const both = await p.locator("#pf-panel .pf-prop").evaluateAll(ns => ns.map(n => ({ cls: n.className, by: (n.querySelector(".pf-by") || {}).textContent, chip: (n.querySelector(".pf-chip.wait") || {}).textContent, chipCls: (n.querySelector(".pf-chip.wait") || {}).className, bs: [...n.querySelectorAll("button")].map(b => b.textContent.trim()).join("/"), bd: getComputedStyle(n).borderStyle })));
+  ok(`${tag} A proposals: both directions on Sam's row share class, dashed style and chip class`, both.length === 2 && both[0].cls === both[1].cls && both[0].bd === both[1].bd && both[0].bd === "dashed" && both[0].chipCls === both[1].chipCls, both);
+  ok(`${tag} A proposals: Proposed by you / Proposed by Sam, Waiting for Sam / Waiting for you`, both.some(x => x.by === "Proposed by you" && x.chip === "Waiting for Sam") && both.some(x => x.by === "Proposed by Sam" && x.chip === "Waiting for you"), both);
+  ok(`${tag} A proposals: Take back only on mine; Confirm and Reject only on the one for me`, both.some(x => x.by === "Proposed by you" && x.bs === "Take back") && both.some(x => x.by === "Proposed by Sam" && x.bs === "Confirm/Reject"), both);
+  await shot(p, `pref-a-proposals-both-${w}-${mode}`);
+  await p.locator("[data-pa=confirm]").click(); await p.waitForTimeout(250);
+  ok(`${tag} A proposals: Confirm makes it vanish at once; no answered state is drawn`, await p.locator("#pf-panel .pf-prop").count() === 1 && !/Confirmed|Answered|Kept|Rejected/.test(await p.locator("#pf-panel").innerText()));
+  await p.locator("[data-pa=takeback]").click(); await p.waitForTimeout(250);
+  ok(`${tag} A proposals: Take back makes it vanish at once; nothing waits on that row`, await p.locator("#pf-panel .pf-prop").count() === 0 && !/Taken back|Waiting for/.test(await p.locator("#pf-panel").innerText()));
+  await noNav(t, `${tag} A proposals`); await t.ctx.close();
+  t = await open(w, h, mode, "open=preferences&pref=a&psub=mine"); p = t.p;
+  const mi = await p.locator("#pf-panel .pf-prop").evaluateAll(ns => ns.map(n => (n.querySelector(".pf-by") || {}).textContent + "|" + [...n.querySelectorAll("button")].map(b => b.textContent.trim()).join("/")));
+  ok(`${tag} A proposals on Mine: for you Confirm/Reject, by you Take back, in the same row style`, mi.filter(x => x === "Proposed by Sam|Confirm/Reject").length === 1 && mi.filter(x => x === "Proposed by you|Take back").length === 2, mi);
+  await p.locator("[data-pa=reject]").click(); await p.waitForTimeout(250);
+  ok(`${tag} A proposals: rejecting a non-safety one vanishes at once`, (await p.locator("#pf-panel .pf-prop").count()) === 2);
+  await noNav(t, `${tag} A proposals on Mine`); await t.ctx.close();
+  t = await open(w, h, mode, "open=preferences&pref=a&psub=mine&as=sam"); p = t.p;
+  const asS = await p.locator("#pf-panel .pf-prop").evaluateAll(ns => ns.map(n => (n.querySelector(".pf-by") || {}).textContent + "|" + [...n.querySelectorAll("button")].map(b => b.textContent.trim()).join("/")));
+  ok(`${tag} A proposals as Sam: Arjan's proposal for Sam has Confirm/Reject and says Proposed by Arjan`, asS.includes("Proposed by Arjan|Confirm/Reject"), asS);
+  await p.locator("[data-pa=reject]").first().click(); await p.waitForTimeout(250);
+  ok(`${tag} A proposals: rejecting a safety avoid asks once more, inline`, await p.locator(".pf-propconf").count() === 1 && /kept for safety/.test(await p.locator(".pf-propconf").innerText()));
+  await p.locator("[data-pa=rejectyes]").click(); await p.waitForTimeout(250);
+  ok(`${tag} A proposals: after Yes, reject it, nothing of it is left`, !/peanuts/.test(await p.locator("#pf-panel").innerText()));
+  await noNav(t, `${tag} A proposals as Sam`); await t.ctx.close();
+  t = await open(w, h, mode, "open=preferences&pref=a&psub=mine&sel=a:added"); p = t.p;
+  ok(`${tag} A old link sel=a:added: opens Mine with no flyout`, await p.locator(".pf-fly").count() === 0 && await p.locator("#pf-panel .pf-prop").count() >= 1);
+  await t.ctx.close();
   /* A: a member row, own items and a proposal */
   t = await open(w, h, mode, "open=preferences&pref=a&psub=sam"); p = t.p;
   const st = await p.locator("#pf-panel").innerText();
@@ -136,6 +186,10 @@ for (const [w, h] of [[1024, 768], [1280, 800], [1440, 900]]) for (const mode of
   ok(`${tag} profile: no separate Name field, name sits where the picture hint was, with a pencil`, await p.locator("#pf-panel label:has-text('Name')").count() === 0 && await p.locator("[data-act=editname] .pf-nmp").count() === 1 && !/tap the picture/i.test(await p.locator("#pf-panel").innerText()));
   await p.locator("[data-act=editname]").click(); await p.keyboard.press("ControlOrMeta+a"); await p.keyboard.type("Ari"); await p.keyboard.press("Enter");
   ok(`${tag} profile: name edits in place`, (await p.locator(".pf-nm").innerText()) === "Ari" && await p.locator("[data-nameinp]").count() === 0);
+  await p.locator("[data-act=editname]").click(); await p.keyboard.press("ControlOrMeta+a"); await p.keyboard.type("Aria");
+  ok(`${tag} profile: saves automatically as you type (gutter says Aria, hint says Saved, no Save button)`, (await p.locator(".pf-nwho b").innerText()) === "Aria" && /Saved/.test(await p.locator("[data-namehint]").innerText()) && await p.locator("#pf-who2 button:has-text('Save')").count() === 0);
+  await p.keyboard.press("Escape");
+  ok(`${tag} profile: Esc only closes the box; the saved name stays and the window stays`, (await p.locator(".pf-nm").innerText()) === "Aria" && await p.locator(".pf-win").isVisible());
   ok(`${tag} profile: connected assistants have chip and a radio, the unlinked one is greyed with Connect`, await p.locator(".pf-ai .pf-chip.ok").count() === 2 && await p.locator(".pf-ai [role=radio]").count() === 2 && await p.locator(".pf-ai.off [data-ai=connect]").count() === 1 && await p.locator(".pf-ai.off [role=radio]").count() === 0 && await p.locator("[data-ai=add]").count() === 1);
   await shot(p, `profile-${w}-${mode}`);
   await noNav(t, tag + " profile"); await t.ctx.close();

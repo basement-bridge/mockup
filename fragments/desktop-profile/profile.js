@@ -6,7 +6,7 @@
    11 Oct 2026 (owner, round 4): History leaves the section list and is docked at the bottom of the left gutter, right above the keys line (behaviour pending the owner); Settings expands under itself in the gutter (Looks, Kitchen setup: Categories, Locations and spots, Install) and the detail of a row is a flyout in the main area; Install knows desktop from phone and tablet; Preferences has three desktop layouts to choose from (footer control, ?pref=a|b|c). The sub-screens are drawn by profile-subs.js, loaded on first need.
    ?open=settings&sub=looks|cats|locs|install, &sel=cat:dairy|loc:fridge|spot:fridge.door, &os=chrome|edge|safari|firefox|ios|android, &pref=a|b|c (&psub=mine|hh|members, &ptab=mine|hh, &as=arjan|sam).
    Preferences is drawn by the Preferences mockup itself (fragments/preferences-mine-household, embed mode), loaded in a frame only when the section is first shown.
-   12 Oct 2026 (owner, round 5, mockup only): Preferences layout A is the chosen one and is redrawn in profile-prefs.js (+ .css, loaded only for ?pref=a): Mine in full, Household, one gutter row per housemate who has food to show; ?psub=mine|hh|sam|maya|arjan, &chg=0|1|2|3 (Household, what changed since last seen), &sel=a:... for a flyout. Profile: the name edits in place; AI assistants show who is connected and the default (&ai=none|one|many|choose). Locations: rows are names only, one form to add and edit (&sel=loc:new). */
+   12 Oct 2026 (owner, round 5, mockup only): Preferences layout A is the chosen one and is redrawn in profile-prefs.js (+ .css, loaded only for ?pref=a): Mine in full, Household, one gutter row per housemate who has food to show; ?psub=mine|hh|sam|maya|arjan, &chg=0|2 (the dot for what changed since last seen; 0 = all seen; the old 1 and 3, badge and summary, now draw the dot too), &sel=a:... for a flyout. Profile: the name edits in place; AI assistants show who is connected and the default (&ai=none|one|many|choose). Locations: rows are names only, one form to add and edit (&sel=loc:new). */
 (function(){
 "use strict";
 var SELF=document.currentScript&&document.currentScript.src||"";
@@ -39,7 +39,8 @@ pin:'<path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.800 12 21 12 21z"/><circl
 lock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
 up:'<path d="M6 15l6-6 6 6"/>',
 downc:'<path d="M6 9l6 6 6-6"/>',
-check:'<path d="M5 12.500l4.500 4.500L19 7"/>'
+check:'<path d="M5 12.500l4.500 4.500L19 7"/>',
+sprout:'<path d="M12 21v-8"/><path d="M12 13c0-4 2.5-6.500 7-6.500 0 4-2.500 6.500-7 6.500z"/><path d="M12 15c0-3-2-5-6-5 0 3 2 5 6 5z"/>'
 };
 function ic(k,s){s=s||20;return '<svg class="pf-i" viewBox="0 0 24 24" width="'+s+'" height="'+s+'" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+P[k]+'</svg>'}
 /* The owner's badge: stacked layers with a letter on the top layer. Colours come from tokens in CSS. */
@@ -71,12 +72,12 @@ function paneMe(){
  return '<div class="pf-metop"><button type="button" class="pf-avedit" data-toast="Mockup: this opens the picture picker" aria-label="Change your picture"><span class="pf-badgewrap">'+badge(52)+'</span><span class="pe" aria-hidden="true">'+ic("pencil",14)+'</span></button><div class="pf-who2" id="pf-who2">'+nameBtn()+'</div></div>'
  +'<div><span class="pf-lbl">Yours</span><ul class="pf-list">'
  +row("hat","Kitchen role",SUB,'',"Mockup: this opens the role picker")
- +row("mail","Other households","Invite someone to a different household",'',"Mockup: this opens the invite sheet")
+ +rowInv("mail","Other households","Invite someone to a different household, set up with their own")
  +'</ul></div>'
  +aiBlock()}
 /* The name, in place (owner, 12 Oct 2026): the name sits where "tap the picture to change it" was, with a small pencil; pressing it turns it into a box right there, Enter or leaving the box keeps it. No separate Name field. */
 function nameBtn(){return '<button type="button" class="pf-nameedit" data-act="editname" aria-label="Edit your name. Now '+esc(NAME)+'"><span class="pf-nm">'+esc(NAME)+'</span><span class="pf-nmp" aria-hidden="true">'+ic("pencil",16)+'</span></button>'}
-function nameInp(){return '<input class="pf-in pf-nameinp" type="text" value="'+esc(NAME)+'" maxlength="24" autocomplete="off" spellcheck="false" aria-label="Your name" data-nameinp><span class="pf-small pf-namehint">Saves as you type. 24 characters at most.</span>'}
+function nameInp(){return '<input class="pf-in pf-nameinp" type="text" value="'+esc(NAME)+'" maxlength="24" autocomplete="off" spellcheck="false" aria-label="Your name" data-nameinp><span class="pf-small pf-namehint" role="status" data-namehint>Saves automatically. 24 characters at most.</span>'}
 function esc(t){return String(t).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 /* AI assistants (owner, 12 Oct 2026): a visual revamp of the existing block (uat: server/src/preferences/profile-assistant.ts). Same words and the same rules: "Linked through sign-in" once above the list; one linked is used automatically (no radio); two or more linked need a default, the row is the radio; none linked says so. New to the look only: each assistant is listed, connected ones with a Connected chip, the others greyed with Connect instead of a radio. Linking and unlinking happen on platform in the build, so here they only say so. */
 var AI={on:{claude:true,chatgpt:true,gemini:false},dflt:"claude"},AINAME={claude:"Claude",chatgpt:"ChatGPT",gemini:"Gemini"},AIIDS=["claude","chatgpt","gemini"];
@@ -105,6 +106,7 @@ function aiClick(m,el){
  if(k==="add"){toast("Mockup: this opens your AI page on platform, where an assistant is linked through sign-in");return true}
  if(k==="relink"){toast("Mockup: this opens your AI page on platform, to reset and link again");return true}
  return false}
+function rowInv(icon,t,sub){return '<li><button type="button" class="pf-item" data-inv="open" aria-haspopup="dialog"><span class="pf-ico">'+ic(icon,18)+'</span><span class="pf-t">'+t+(sub?'<small>'+sub+'</small>':'')+'</span><span class="pf-chev">'+ic("chev",18)+'</span></button></li>'}
 function row(icon,t,sub,chip,toast){return '<li><button type="button" class="pf-item" data-toast="'+toast+'"><span class="pf-ico">'+ic(icon,18)+'</span><span class="pf-t">'+t+(sub?'<small>'+sub+'</small>':'')+'</span>'+chip+'<span class="pf-chev">'+ic("chev",18)+'</span></button></li>'}
 function paneLooks(){
  return '<div><span class="pf-lbl">Looks</span><div class="pf-list"><div class="pf-themes"><b>Theme</b><div class="tgrid swatches" role="group" aria-label="Theme">'+(window.themeHtml?window.themeHtml(["kitchie","kitchie-day","marmalade","blueberry","herb"],true):"")+'</div><p class="pf-small" data-theme-name>'+(window.themeName?window.themeName():"")+'</p></div>'
@@ -130,7 +132,7 @@ function paneHousehold(){
  +mem("J","jo",ch("Member"),"Can change their own preferences",'<button type="button" class="pf-btn sm" data-toast="Mockup: jo is now an admin (only the founding member can do this)">Make admin</button>')
  +'</ul></div>'
  +'<div><span class="pf-lbl">Waiting to join</span><ul class="pf-list"><li><div class="pf-ev"><span class="pf-ico">'+ic("mail",18)+'</span><span class="pf-t"><span class="pf-code">482 913</span><small>Join Our kitchen, 20 hours left</small></span><button type="button" class="pf-btn sm" data-toast="Mockup: code copied">'+ic("copy",16)+' Copy</button><button type="button" class="pf-btn sm" data-toast="Mockup: invite cancelled">Cancel</button></div></li></ul></div>'
- +'<div><button type="button" class="pf-btn pri" data-toast="Mockup: this opens the invite sheet">'+ic("plus",18)+' Invite someone</button></div>'
+ +'<div><button type="button" class="pf-btn pri" data-hhinvite data-toast="Mockup: this opens the invite sheet (drawn in the household flow: Menu, Household, Invite someone)">'+ic("plus",18)+' Invite someone</button></div>'
  +'<div class="pf-danger"><b>Danger zone</b><p class="pf-small">You lose access to the pantry, shopping and recipes. Nothing is deleted. Someone has to invite you back.</p><button type="button" class="pf-btn dng" data-toast="Mockup: you would type your name to confirm">'+ic("door",18)+' Leave household</button></div>'}
 function paneData(){
  return '<div class="pf-card"><span class="pf-ico">'+ic("down",18)+'</span><span class="pf-t">Inventory CSV<small>One file, one row per item: name, amount, place, use-by. 16 items.</small></span><button type="button" class="pf-btn pri" data-act="download">Download '+keys("D")+'</button></div>'
@@ -148,10 +150,10 @@ var stack=[],home=null,gTimer=null,toastTimer=null,toastEl=null;
 /* Standalone mockup page only: the frame parameters (see the header). Used once, for the first window opened. */
 var INIT=null;
 function readInit(){var q=new URLSearchParams(location.search),g=function(k){return q.get(k)||""};
- INIT={sub:g("sub"),sel:g("sel"),pref:g("pref"),psub:g("psub"),ptab:g("ptab"),as:g("as"),os:g("os"),acc:g("acc"),done:g("done"),chg:g("chg"),ai:g("ai")};
+ INIT={sub:g("sub"),sel:g("sel"),pref:g("pref"),psub:g("psub"),ptab:g("ptab"),as:g("as"),os:g("os"),acc:g("acc"),done:g("done"),chg:g("chg"),ai:g("ai"),inv:g("inv")};
  if(/^(none|one|many|choose)$/.test(INIT.ai))aiSet(INIT.ai)}
 function newState(kind,view,root,opener){
- var m={kind:kind,view:view,sub:"looks",psub:"mine",ptab:"mine",pref:"today",sel:null,acc:null,as:"arjan",os:"",chg:"1",root:root,frame:root.firstChild,opener:opener};
+ var m={kind:kind,view:view,sub:"looks",psub:"mine",ptab:"mine",pref:"today",sel:null,acc:null,as:"arjan",os:"",chg:"2",root:root,frame:root.firstChild,opener:opener};
  if(kind==="win"&&INIT){var I=INIT;INIT=null;
   if(/^(looks|cats|locs|install)$/.test(I.sub))m.sub=I.sub;
   if(/^(a|b|c)$/.test(I.pref))m.pref=I.pref;
@@ -179,9 +181,10 @@ function navHtml(m){
   var h='<button type="button" class="pf-nvt'+(parent?' pf-par':'')+'" role="tab" id="pf-tab-'+k+'" data-view="'+k+'" aria-selected="'+(on&&!parent)+'" '+(!narrow()&&(kd.length||k==="settings"||(k==="preferences"&&pref(m)==="a"))?'aria-expanded="'+(!!parent)+'" ':'')+'aria-controls="pf-panel" tabindex="'+(on&&!parent?0:-1)+'"'+(on&&!parent?' data-focus':'')+'>'+ic(v.icon,20)+'<span class="pf-t">'+label+'</span>'+(!narrow()&&(k==="settings"||(k==="preferences"&&pref(m)==="a"))?'<span class="pf-tw" aria-hidden="true">'+ic(parent?"downc":"chev",16)+'</span>':'')+nkey(num(k))+'</button>';
   if(parent){var sub=curSub(m);h+='<div class="pf-kids" role="presentation">'+kd.map(function(c){
    if(c.g)return '<span class="pf-ngl" role="presentation">'+c.g+'</span>';
-   var cs=sub===c.k;return '<button type="button" class="pf-nvt pf-nvc" role="tab" id="pf-tab-'+k+'-'+c.k+'" data-view="'+k+'" data-sub="'+c.k+'" aria-selected="'+cs+'" aria-controls="pf-panel" tabindex="'+(cs?0:-1)+'"'+(cs?' data-focus':'')+'>'+(c.ini?'<span class="pf-ini sm" aria-hidden="true">'+c.ini+'</span>':ic(c.icon,18))+'<span class="pf-t">'+c.t+'</span>'+(c.dot?'<i class="pf-dot" role="img" aria-label="Changed since you last looked"></i>':'')+(c.note?'<span class="pf-cn">'+c.note+'</span>':'')+'</button>'}).join("")+'</div>'}
+   var cs=sub===c.k;return '<button type="button" class="pf-nvt pf-nvc" role="tab" id="pf-tab-'+k+'-'+c.k+'" data-view="'+k+'" data-sub="'+c.k+'" aria-selected="'+cs+'" aria-controls="pf-panel" tabindex="'+(cs?0:-1)+'"'+(cs?' data-focus':'')+'>'+(c.ini?'<span class="pf-ini sm" aria-hidden="true">'+c.ini+'</span>':ic(c.icon,18))+'<span class="pf-t">'+c.t+'</span>'+(c.dot?'<i class="pf-dot" role="img" aria-label="'+(c.dotLabel||'Changed since you last looked')+'"></i>':'')+(c.note?'<span class="pf-cn">'+c.note+'</span>':'')+'</button>'}).join("")+'</div>'}
   return h}).join("");
  return '<div class="pf-nav"><div class="pf-nwho">'+bw(48)+'<div><b>'+NAME+'</b><span class="pf-sub">'+SUB+'</span></div></div><div role="tablist" aria-orientation="vertical" aria-label="Profile sections">'+tabs+'</div><span class="pf-grow"></span>'
+ +'<button type="button" class="pf-nvt pf-invent" data-inv="open" aria-haspopup="dialog"><span class="pf-ico" aria-hidden="true">'+ic("sprout",16)+'</span><span class="pf-t">Set someone up<small>with their own household</small></span></button>'
  +'<button type="button" class="pf-nvt pf-dock" data-dock="history" aria-label="History (the owner will give instructions for it)">'+ic("clock",20)+'<span class="pf-t">History</span></button>'
  +'<p class="pf-small pf-keysl"><kbd>&uarr;</kbd> <kbd>&darr;</kbd> switch section</p></div>'}
 function titleOf(m){
@@ -207,8 +210,9 @@ function renderShortcuts(){
  return '<div class="pf-head"><span class="pf-ico">'+ic("kbd",18)+'</span><div class="pf-who"><h2 class="sm">Keyboard shortcuts</h2></div>'+xbtn()+'</div><div class="pf-body"><p class="pf-small">With the window open, press a number to jump to that section. They pause while you type in a box.</p><ul class="pf-list pf-sc">'
  +rows.map(function(r){return '<li><span>'+r[0]+'</span>'+nkey(r[1])+'</li>'}).join("")
  +'<li><span>Close the window</span><span class="pf-keys"><kbd>'+ESCL+'</kbd></span></li><li><span>Show this list</span><span class="pf-keys"><kbd>?</kbd></span></li></ul><p class="pf-small">On the page, with no window open, <kbd>G</kbd> then <kbd>P</kbd> opens the profile. <kbd>G</kbd> then <kbd>M</kbd>, <kbd>S</kbd>, <kbd>H</kbd> or <kbd>D</kbd> opens Me, Settings, Household or My data.</p></div><div class="pf-foot"><span>Press <kbd>'+ESCL+'</kbd> to go back</span></div>'}
-var RENDER={win:renderWin,s:renderShortcuts};
-function label(m){return m.kind==="s"?"Keyboard shortcuts":"Profile, "+(m.view==="me"?"Profile":VIEWS[m.view].t)}
+function renderInvite(m){return window.KProfileInvite?window.KProfileInvite.render(m):""}
+var RENDER={win:renderWin,s:renderShortcuts,inv:renderInvite};
+function label(m){return m.kind==="inv"?"Set someone up with their own household":m.kind==="s"?"Keyboard shortcuts":"Profile, "+(m.view==="me"?"Profile":VIEWS[m.view].t)}
 /* The sub-screens (Categories, Locations and spots, Install, the Preferences layouts, the open row on a phone) are drawn by profile-subs.js (+ .css), loaded the first time one is needed. Preferences layout A is drawn by profile-prefs.js (+ .css), loaded only when A is shown (after profile-subs.js, which hands it the work). */
 var loadQ={};
 function needsSubs(m){return m.kind==="win"&&((m.view==="settings"&&(narrow()||m.sub!=="looks"))||(m.view==="preferences"&&pref(m)!=="today")||!!m.sel)}
@@ -276,16 +280,29 @@ function openProfile(opener){
  openModal("win","me",homeEl()||document.activeElement)}
 function go(v){
  var top=stack[stack.length-1];
- if(top&&top.kind==="s")return;
+ if(top&&top.kind!=="win")return;
  var view=v==="profile"?"me":v;
  if(top)setView(top,view);else openModal("win",view,homeEl()||document.activeElement)}
+/* "Set someone up with their own household": a modal over the window (owner, 12 Oct 2026). The script and styles are fetched the first time it is opened. */
+function openInvite(opener,state){
+ if(stack.length&&stack[stack.length-1].kind==="inv")return;
+ loadMod("invite","KProfileInvite",function(){if(state)window.KProfileInvite.init(state);openModal("inv","list",opener||document.activeElement)})}
+/* the way back: close the modal, show Household with its existing "Invite someone" (join my household) button, and point at it */
+function inviteBack(){
+ closeTop();
+ var w=stack[stack.length-1];if(!w||w.kind!=="win")return;
+ setView(w,"household");
+ var b=$("[data-hhinvite]",w.frame);
+ if(b){b.focus();b.classList.remove("pf-flash");void b.offsetWidth;b.classList.add("pf-flash")}
+ toast("This is the invite for your own household: Invite someone, below. (Mockup: its sheet is drawn in the household flow.)")}
 function toggleShortcuts(){
  var top=stack[stack.length-1];
+ if(top&&top.kind==="inv")return;
  if(top&&top.kind==="s"){closeTop();return}
  openModal("s","list",document.activeElement)}
 
 /* What profile-subs.js may call. */
-var H={toast:toast,paint:paint,openFly:openFly,closeFly:closeFly,setSub:setSub,setView:setView,$:$,$$:$$,ic:ic,badge:badge};
+var H={toast:toast,paint:paint,openFly:openFly,closeFly:closeFly,setSub:setSub,setView:setView,$:$,$$:$$,ic:ic,badge:badge,xbtn:xbtn,closeTop:closeTop,inviteBack:inviteBack};
 window.KProfileH=H;
 if(window.matchMedia){var mq=window.matchMedia("(max-width:900px)"),onmq=function(){var t=stack[stack.length-1];if(t&&t.kind==="win"){if(!narrow()&&t.acc){t.sub=t.acc;t.acc=null}else if(narrow()&&t.view==="settings"&&/^(cats|locs|install)$/.test(t.sub)){t.acc=t.sub}paint(t,false)}};
  if(mq.addEventListener)mq.addEventListener("change",onmq)}
@@ -303,6 +320,8 @@ document.addEventListener("click",function(e){
  var top=stack[stack.length-1];
  if(!top)return;
  if(el.hasAttribute("data-close")){closeTop();return}
+ if(el.dataset.inv==="open"&&top.kind==="win"){openInvite(el);return}
+ if(top.kind==="inv"){if(window.KProfileInvite&&window.KProfileInvite.click(top,el,H))return;return}
  if(el.dataset.act==="download"){download();return}
  if(el.dataset.act==="editname"){var w=$("#pf-who2",top.frame);if(w){w.innerHTML=nameInp();var ni=$("[data-nameinp]",w);ni.focus();ni.select()}return}
  if(el.dataset.ai&&aiClick(top,el))return;
@@ -318,16 +337,16 @@ document.addEventListener("click",function(e){
  if(el.getAttribute("role")==="radio"){$$('[role=radio]',el.parentNode).forEach(function(b){b.setAttribute("aria-checked",String(b===el))});return}
 });
 
-/* the name box (Profile): live in the section list as you type; Enter or leaving the box keeps it, plain Esc puts the old name back (it closes nothing). */
+/* the name box (Profile): saves automatically as you type (owner, 12 Oct 2026: no Save button), live in the section list; a line under the box says Saved. Enter, Esc or leaving the box only close the box; the saved name stays. An emptied box keeps the last saved name. Plain Esc closes nothing else. */
 var nameWas="";
 function nameLive(){$$(".pf-nwho b").forEach(function(b){b.textContent=NAME})}
-function endName(inp,refocus){var w=inp.parentNode;if(!w||w.id!=="pf-who2")return;if(!inp.value.trim()){NAME=nameWas||NAME;nameLive()}w.innerHTML=nameBtn();if(refocus){var b=$(".pf-nameedit",w);if(b)b.focus()}}
-document.addEventListener("input",function(e){var t=e.target;if(t&&t.hasAttribute&&t.hasAttribute("data-nameinp")){var v=t.value.trim();if(v){NAME=t.value.trim();nameLive()}}});
+function endName(inp,refocus){var w=inp.parentNode;if(!w||w.id!=="pf-who2")return;w.innerHTML=nameBtn();if(refocus){var b=$(".pf-nameedit",w);if(b)b.focus()}}
+document.addEventListener("input",function(e){var t=e.target;if(t&&t.hasAttribute&&t.hasAttribute("data-nameinp")){var v=t.value.trim(),h=$("[data-namehint]");if(v){NAME=v;nameLive();if(h)h.textContent="Saved."}else if(h)h.textContent="A name cannot be empty. The saved name stays until you type one."}});
 document.addEventListener("focusin",function(e){var t=e.target;if(t&&t.hasAttribute&&t.hasAttribute("data-nameinp"))nameWas=NAME});
 document.addEventListener("focusout",function(e){var t=e.target;if(t&&t.hasAttribute&&t.hasAttribute("data-nameinp"))setTimeout(function(){if(t.parentNode&&document.activeElement!==t)endName(t,false)},0)});
 document.addEventListener("keydown",function(e){var t=e.target;if(!t||!t.hasAttribute||!t.hasAttribute("data-nameinp")||e.ctrlKey||e.metaKey)return;
  if(e.key==="Enter"){e.preventDefault();endName(t,true)}
- else if(e.key==="Escape"){e.preventDefault();NAME=nameWas||NAME;nameLive();endName(t,true)}});
+ else if(e.key==="Escape"){e.preventDefault();endName(t,true)}});
 
 document.addEventListener("keydown",function(e){
  var top=stack[stack.length-1],t=e.target;
@@ -347,7 +366,7 @@ document.addEventListener("keydown",function(e){
  if(e.ctrlKey||e.metaKey||e.altKey)return;
  if(t.matches&&t.matches("input,textarea,select,[contenteditable]"))return;
  if(e.key==="?"){e.preventDefault();toggleShortcuts();return}
- if(top&&top.kind==="s")return;
+ if(top&&top.kind!=="win")return;
  if(top&&NUM[e.key]){e.preventDefault();setView(top,NUM[e.key]);return}
  if(!top&&NUM[e.key]&&$(".pf-inline")){e.preventDefault();toast("Mockup: in the window, "+e.key+" jumps to "+(NUM[e.key]==="me"?"Profile":VIEWS[NUM[e.key]].t));return}
  if(gTimer){clearTimeout(gTimer);gTimer=null;toastNode().classList.remove("on");var v=KEYS[e.key.toLowerCase()];if(v){e.preventDefault();go(v)}return}
@@ -382,5 +401,6 @@ if($("#pf-app")){
  var op=new URLSearchParams(location.search).get("open");
  if(op==="shortcuts")toggleShortcuts();
  else if(op==="1")openProfile(avatar);
+ else if(op==="invite"){var iv=INIT&&INIT.inv;openProfile(avatar);openInvite(avatar,iv)}
  else if(op&&VIEWS[op])go(op)}
 })();

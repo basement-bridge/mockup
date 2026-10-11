@@ -9,11 +9,8 @@
 .pf-li-note{padding:10px 12px}
 .pf-clamp{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:500}
 .pf-chip.wait{border-style:dashed;border-color:var(--accent);color:var(--accent)}
-.pf-chip.chg{background:var(--accent);color:var(--on-accent);border-color:transparent}
-.pf-chgline{display:block;font-size:12.5px;color:var(--accent);font-weight:600;margin-top:2px}
-.pf-unseen .pf-item,.pf-called .pf-item{background:var(--surface)}
+.pf-unseen .pf-item{background:var(--surface)}
 .pf-unseen .pf-item{box-shadow:inset 3px 0 0 var(--accent)}
-.pf-called .pf-item{box-shadow:inset 3px 0 0 var(--accent),inset 0 0 0 1px var(--accent)}
 .pf-unseen .pf-dot{margin:0 -2px 0 0}
 .pf-addrow2 .pf-t{color:var(--accent)}
 .pf-ico.sm{width:28px;height:28px}
@@ -22,18 +19,14 @@
 .pf-lock{display:flex;gap:10px;align-items:flex-start;padding:10px 14px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--surface);color:var(--muted);font-size:14px}
 .pf-lock .pf-i{margin-top:2px;flex:none}
 .pf-lnk{border:0;background:none;padding:0;color:var(--accent);font-weight:700;text-decoration:underline;min-height:var(--tap)}
-/* housemate food, read only; what you proposed is dashed and carries Take back */
+/* housemate food, read only. A pending proposal is one dashed row in both directions (Proposed by <who>, Waiting for <name>); Take back on yours, Confirm and Reject on one made for you */
 .pf-ro .pf-item{min-height:56px}
 .pf-props{display:grid;gap:8px}
 .pf-prop{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 12px;border:1.5px dashed var(--accent);border-radius:var(--r-ctl);background:var(--bg)}
 .pf-prop .pf-t{flex:1 1 14rem}
+.pf-by{color:var(--fg);font-weight:700}
+.pf-propconf{flex:1 0 100%;display:grid;gap:8px;padding-top:6px;border-top:1px dashed var(--border)}
 .pf-hmates{display:grid;gap:14px}
-/* Household: what changed since you last looked (variant 3) */
-.pf-sumbar{border:1px solid var(--accent);border-radius:var(--r-ctl);background:var(--surface);padding:12px 14px;display:grid;gap:10px;justify-items:start}
-.pf-sumh{display:grid;gap:2px}
-.pf-sumbar ul{width:100%;display:grid;gap:6px}
-.pf-sumi{display:flex;align-items:center;gap:10px;width:100%;min-height:var(--tap);padding:6px 12px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);text-align:left}
-.pf-sumi:hover{border-color:var(--accent)}
 .pf-chgnote{display:flex;gap:8px;align-items:flex-start;padding:8px 12px;border-radius:var(--r-ctl);border:1px solid var(--accent);color:var(--fg)}
 .pf-chgnote .pf-i{color:var(--accent);margin-top:2px;flex:none}
 /* flyout bits */
