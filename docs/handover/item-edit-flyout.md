@@ -44,7 +44,7 @@ The level icon is a battery everywhere (94, confirmed): the drop and the `lv=` o
 
 Nesting: from 1240 the child is a 360px column that slides out from beneath the item flyout; from 1024 it tucks under the item header in the same lane; below 1024 it is a stacked 84% sheet and the item shrinks to a strip. Add mode is the same form in the item flyout's place.
 
-## 4. Decisions 63 to 114
+## 4. Decisions 63 to 115
 
 Full wording and statuses in the job note (`docs/knowledge/jobs-to-be-done/item-edit-flyout.md`).
 
@@ -102,6 +102,7 @@ Full wording and statuses in the job note (`docs/knowledge/jobs-to-be-done/item-
 | 112 | owner, typed 12 Oct | The button clears the override at once and the battery redraws; in the build the same service and route as the sheet's "Back to automatic" |
 | 113 | **proposed** | Interpretations of round 5 (pill count, strip under the box, arrow keys reveal, order of the first two) |
 | 114 | owner, voice 12 Oct; wording **proposed** | Emoji picker gains seven source animals beside the meat (cow, pig, chicken, sheep, duck, turkey, goat; fish was already there), searchable by beef, pork, lamb, mutton, poultry, goat, duck; same set and keywords in Kitchie `uat` |
+| 115 | owner, voice 12 Oct; wording **proposed** | Emoji picker shows one hint line, "Search, or type or paste your own emoji"; a typed or pasted emoji becomes the first tile ("Your emoji"), Enter or tap sets it; same wording in Kitchie `uat` |
 
 ## 5. Open questions
 
