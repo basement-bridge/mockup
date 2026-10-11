@@ -34,7 +34,7 @@ h1{font-family:var(--head);font-size:1.8rem;margin:0 0 6px}h2{font-family:var(--
 <div class="me"><button class="nv" data-cues="open" aria-label="Keyboard shortcuts"><span class="qk">?</span><br>Keys</button></div></nav>
 <main class="main">
 <section class="screen" id="s-pantry"><h1>Pantry</h1><p>Press Shift and ? anywhere on this page.</p>
-<div class="hd"><button class="btn" data-key="f">Filters <span class="kbd">F</span></button><button class="btn pri" id="addbtn" data-key="n">+ Add <span class="kbd">N</span></button><span class="sp"></span></div>
+<div class="hd"><button class="btn" data-key="f">Filters <span class="kbd">F</span></button><button class="btn pri" id="addbtn" data-key="n" aria-keyshortcuts="Plus N">+ Add <span class="kbd">+</span></button><span class="sp"></span></div>
 <ul class="rows"><li><button data-item="Butter">Butter</button></li><li><button data-item="Eggs">Eggs</button></li></ul>
 <p class="phint"><span class="kbd">&uarr;</span> <span class="kbd">&darr;</span> to move, <span class="kbd">?</span> for all shortcuts</p></section>
 <section class="screen" id="s-plan" hidden><h1>Plan</h1><p>The week. Moving a meal: lift with Space.</p><div class="hd"><button class="btn" data-key="t">Today <span class="kbd">T</span></button></div></section>
@@ -47,12 +47,12 @@ h1{font-family:var(--head);font-size:1.8rem;margin:0 0 6px}h2{font-family:var(--
 <aside class="fly" id="fly" hidden aria-label="Item"><h2 id="flyname">Item</h2><p>Open item flyout.</p><div class="acts"><button class="btn" data-key="e">Edit <span class="kbd">E</span></button><button class="btn" data-key=",">History <span class="kbd">,</span></button></div>
 <p class="phint"><span class="kbd" id="closek">Ctrl Esc</span> closes</p></aside>
 <div class="modal" id="modal" hidden><div role="dialog" aria-modal="true" aria-label="Add an item"><h2>Add an item</h2><input id="addname" placeholder="Name (type a ? here)" aria-label="Name"><label><input type="checkbox" id="chk" style="display:inline;width:auto;min-height:0"> Add and start another</label><div class="hd"><button class="btn pri" id="addok">Add <span class="kbd">Enter</span></button><button class="btn" id="addno">Cancel <span class="kbd">Ctrl Esc</span></button></div></div></div>
-<script src="cues.js"></script>
+<script src="cues.js"></script><script src="cue-key.js"></script>
 <script>
 (function(){
 var MAC=/Mac|iPhone|iPad/.test(navigator.platform||""),CK=MAC?"⌘ Esc":"Ctrl Esc",$=function(s){return document.querySelector(s)};
 document.querySelectorAll(".ck,#closek,#addno .kbd").forEach(function(k){k.textContent=CK});
-var KEYS={pantry:["Pantry",[["N","Add an item"],["F","Filters side panel"],["↑ or ↓","Move between items"]]],plan:["Plan",[["T","Go to today"],["Space","Lift or drop a meal"]]],history:["History",[]],settings:["Settings (full screen)",[["2","Household"],["3","Looks"]]],household:["Household (sub-screen of Settings)",[]]};
+var KEYS={pantry:["Pantry",[["+ or N","Add an item"],["F","Filters side panel"],["↑ or ↓","Move between items"]]],plan:["Plan",[["T","Go to today"],["Space","Lift or drop a meal"]]],history:["History",[]],settings:["Settings (full screen)",[["2","Household"],["3","Looks"]]],household:["Household (sub-screen of Settings)",[]]};
 var cur="pantry";
 function go(n){cur=n;document.querySelectorAll(".screen").forEach(function(s){s.hidden=s.id!=="s-"+n});document.querySelectorAll(".nv[data-go]").forEach(function(b){b.setAttribute("aria-current",b.dataset.go===(n==="household"?"settings":n)?"page":"false")});Cues.screen(KEYS[n][0],KEYS[n][1])}
 document.addEventListener("click",function(e){var g=e.target.closest("[data-go]");if(g)go(g.dataset.go);var s=e.target.closest("[data-sec]");if(s&&s.dataset.sec==="household")go("household");
@@ -63,8 +63,9 @@ function modal(on){$("#modal").hidden=!on;if(on){Cues.layer("add",[["Enter","Add
 document.addEventListener("keydown",function(e){
  if((e.ctrlKey||e.metaKey)&&e.key==="Escape"){if(!$("#modal").hidden){e.preventDefault();modal(false);return}if(!$("#fly").hidden){e.preventDefault();$("#fly").hidden=true;Cues.layer("item",null);return}if(cur==="household"){e.preventDefault();go("settings");return}if(cur==="settings"){e.preventDefault();go("pantry")}return}
  if(Cues.typing(e.target)||e.ctrlKey||e.metaKey||e.altKey)return;
- if(cur==="pantry"&&e.key.toLowerCase()==="n"){e.preventDefault();modal(true)}
+ if(cur==="pantry"&&(e.key.toLowerCase()==="n"||e.key==="+"||e.key==="=")){e.preventDefault();modal(true)}
 });
+CueKey.host={get:function(){return !document.body.classList.contains("nocues")},set:Cues.set};
 go("pantry");
 var q=new URLSearchParams(location.search);if(q.get("screen"))go(q.get("screen"));if(q.get("fly")){$("#flyname").textContent="Butter";$("#fly").hidden=false;Cues.layer("item",[["E","Edit the open item"],[",","History of the open item"],[CK,"Close the item"]])}if(q.get("add"))modal(true);
 })();

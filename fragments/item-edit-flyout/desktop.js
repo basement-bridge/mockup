@@ -1,5 +1,5 @@
 /* Desktop host (1024px and up). Fetched only at these sizes; phone.js is the other host. Everything here is about the keyboard and the pointer.
-   Keys follow the Pantry (docs/handover/desktop.md section 3): E edit, the comma History, U use one, D used up, S shopping list, Z undo, N add, M the first item in the main column, ? or H the list.
+   Keys follow the Pantry (docs/handover/desktop.md section 3): E edit, the comma History, U use one, D used up, S shopping list, Z undo, + add (N, and = for a keyboard where + needs Shift, do the same), Shift Space key hints on or off, M the first item in the main column, ? or H the list.
    Close is Ctrl or Cmd plus Enter: the edit or history first, then the item. Plain Esc closes nothing. Letters do nothing while you type in a box. */
 (function () {
 "use strict";
@@ -14,9 +14,9 @@ function G(t, rows) {
 }
 var HELP = '<div class="kb" id="ief-help" role="dialog" aria-modal="true" aria-label="Keyboard shortcuts" hidden><div class="kbc"><div class="kbh"><h2>Shortcuts</h2><button type="button" class="x" data-ief="closehelp" aria-label="Close the list" title="Close the list">' + IEF.sv(IEF.IC.x, "", 20) + '</button></div><div class="kbg">'
   + G("The open item", [["E", "Edit: opens the edit flyout under the item"], [",", "History: opens the history flyout (press again to close)"], ["U", "Use one (counted items)"], ["D", "Used up"], ["S", "Add to the shopping list"], ["Z", "Undo"]])
-  + G("Move", [["&uarr; &darr; or J K", "Previous or next item"], ["Enter", "Open the focused row"], ["M", "Focus the first item in the main column"], ["N", "Add an item"]])
+  + G("Move", [["&uarr; &darr; or J K", "Previous or next item"], ["Enter", "Open the focused row"], ["M", "Focus the first item in the main column"], ["+ or N", "Add an item"]])
   + G("Close", [["Ctrl Enter", "Close the edit or history, then the item. Cmd Enter on a Mac"], ["Esc", "Closes nothing; it only leaves a box you are typing in"]])
-  + G("General", [["? or H", "This list"]])
+  + G("General", [["? or H", "This list"], ["Shift Space", "Key hints on or off"]])
   + '</div><div class="kbt"><span>Show key hints on buttons and icons</span><button type="button" class="sw2" role="switch" aria-checked="true" data-ief="cues">On</button></div></div></div>';
 
 IEF.host = {
@@ -41,11 +41,17 @@ IEF.host = {
   },
   booted: function () { if (new URLSearchParams(location.search).get("help") === "1") help(true); }
 };
-if (new URLSearchParams(location.search).get("cues") === "0") document.body.classList.add("nocues");
+/* the key hints: shown by default; the person's choice is kept on this device ("desktop-cues", "0" is off, as in the app); ?cues=0 starts them off for a screenshot */
+var storedOff = false; try { storedOff = localStorage.getItem("desktop-cues") === "0"; } catch (e) { /* no storage: shown */ }
+if (storedOff || new URLSearchParams(location.search).get("cues") === "0") document.body.classList.add("nocues");
 
-function help(on) { var h = $("#ief-help"); on = on === undefined ? h.hidden : on; h.hidden = !on; if (on) { var b = $("#ief-help .x"); if (b) b.focus(); } }
-function cues() { var off = document.body.classList.toggle("nocues"), b = $('[data-ief="cues"]'); if (b) { b.setAttribute("aria-checked", !off); b.textContent = off ? "Off" : "On"; } }
+function syncCues() { var off = document.body.classList.contains("nocues"), b = $('[data-ief="cues"]'); if (b) { b.setAttribute("aria-checked", String(!off)); b.textContent = off ? "Off" : "On"; } }
+function help(on) { var h = $("#ief-help"); on = on === undefined ? h.hidden : on; h.hidden = !on; if (on) { syncCues(); var b = $("#ief-help .x"); if (b) b.focus(); } }
+function setCues(on) { document.body.classList.toggle("nocues", !on); try { localStorage.setItem("desktop-cues", on ? "1" : "0"); } catch (e) { /* no storage: lasts until the page closes */ } syncCues(); }
+function cues() { setCues(document.body.classList.contains("nocues")); }
 IEF.act.help = function () { help(); }; IEF.act.closehelp = function () { help(false); }; IEF.act.cues = cues;
+/* Shift + Space (cue-key.js, fetched here: desktop only) flips the same switch and says so in an aria-live status line */
+IEF.need("../shortcut-cues/cue-key.js", function () { window.CueKey.host = { get: function () { return !document.body.classList.contains("nocues"); }, set: setCues }; });
 
 function visible() { return Array.prototype.map.call(document.querySelectorAll("#ief-list .row"), function (r) { return r.dataset.id; }); }
 function move(d) {
@@ -72,7 +78,7 @@ document.addEventListener("keydown", function (e) {
   if (S.mode === "add") return;
   if (k === "ArrowDown" || kl === "j") { e.preventDefault(); move(1); }
   else if (k === "ArrowUp" || kl === "k") { e.preventDefault(); move(-1); }
-  else if (kl === "n") { e.preventDefault(); IEF.startAdd(); }
+  else if (kl === "n" || k === "+" || k === "=") { e.preventDefault(); IEF.startAdd(); }
   else if (kl === "m") { e.preventDefault(); var f = $("#ief-list .row"); if (f) f.focus(); }
   else if (!IEF.cur()) return;
   else if (kl === "e") { e.preventDefault(); IEF.toggleChild("edit", $('#ief-head [data-ief="edit"]')); }

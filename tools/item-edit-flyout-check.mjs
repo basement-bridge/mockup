@@ -617,6 +617,67 @@ for (const [w, h, kind] of SIZES) {
     else ok(`${tag} no key hints on a phone or tablet`, (await p.locator("#ief-head .kbd").count()) === 0);
     await p.close();
 
+    /* 9c. Add has a key: + (also = and the numpad +), shown on the button; Shift+Space turns the key hints on and off (decisions 120 to 124) */
+    p = await open("?sel=eggs");
+    if (kind === "desktop") {
+      const mode = () => p.evaluate(() => IEF.S.mode), nocues = () => p.evaluate(() => document.body.classList.contains("nocues"));
+      ok(`${tag} Add button shows + as its key hint, and names + and N for assistive tech`, (await p.locator(".hd [data-ief=add] .kbd").innerText()) === "+" && /Plus/.test(await p.getAttribute(".hd [data-ief=add]", "aria-keyshortcuts")));
+      for (const [label, press] of [["Shift+= (types +)", "Shift+Equal"], ["=", "Equal"], ["numpad +", "NumpadAdd"]]) {
+        await p.keyboard.press(press); await p.waitForSelector('#ief-panel [data-f="name"]', { timeout: 2000 }).catch(() => {});
+        ok(`${tag} ${label} opens Add`, (await mode()) === "add" && (await p.locator('#ief-panel [data-f="name"]').count()) === 1, await mode());
+        await p.keyboard.press("Control+Enter"); await p.waitForTimeout(80);
+        await p.evaluate(() => IEF.openItem("eggs", {})); await p.waitForTimeout(80);
+      }
+      await p.keyboard.press("Control+Equal"); await p.keyboard.press("Alt+Shift+Equal"); await p.keyboard.press("Meta+Equal");
+      ok(`${tag} + with Ctrl, Alt or Cmd held does not open Add`, (await mode()) !== "add", await mode());
+      await p.close();
+      p = await open("?sel=eggs&child=edit");
+      const nm = '#ief-child [data-f="name"]'; await p.focus(nm); await p.keyboard.press("End"); const before = await p.inputValue(nm);
+      await p.keyboard.type("+="); 
+      ok(`${tag} + and = type into a text box and do not open Add`, (await p.inputValue(nm)) === before + "+=" && (await mode()) !== "add", [await p.inputValue(nm), await mode()]);
+      /* Shift+Space: a space in the box, no toggle, and the press is not swallowed */
+      await p.keyboard.press("Shift+Space");
+      ok(`${tag} Shift+Space types a space in a text box and leaves the hints alone`, (await p.inputValue(nm)).endsWith("+= ") && !(await nocues()));
+      const swallowed = await p.evaluate(() => { const i = document.querySelector('#ief-child [data-f="name"]'); return !i.dispatchEvent(new KeyboardEvent("keydown", { key: " ", shiftKey: true, bubbles: true, cancelable: true })); });
+      ok(`${tag} Shift+Space in a text box is not preventDefault-ed`, swallowed === false);
+      await p.close();
+      /* the toggle itself */
+      p = await open("?sel=eggs");
+      await p.evaluate(() => { try { localStorage.removeItem("desktop-cues"); } catch (e) {} });
+      const hintsShown = () => p.evaluate(() => { const k = document.querySelector("#ief-head .ib .kbd.cap"); return !!k && k.offsetParent !== null; });
+      ok(`${tag} hints are shown by default (the existing look, decision 68)`, (await hintsShown()) && !(await nocues()));
+      await p.evaluate(() => document.activeElement && document.activeElement.blur());
+      const lost = await p.evaluate(() => !document.body.dispatchEvent(new KeyboardEvent("keydown", { key: " ", shiftKey: true, bubbles: true, cancelable: true })));
+      await p.waitForTimeout(120);
+      ok(`${tag} Shift+Space off: hints hidden, the press was handled (preventDefault), the choice kept on this device`, lost && !(await hintsShown()) && (await nocues()) && (await p.evaluate(() => localStorage.getItem("desktop-cues"))) === "0");
+      const st = p.locator("#cue-status");
+      ok(`${tag} status line is a polite live region and says "Key hints off"`, (await st.getAttribute("role")) === "status" && (await st.getAttribute("aria-live")) === "polite" && (await st.innerText()) === "Key hints off", await st.innerText());
+      await p.reload(); await p.waitForSelector("#ief-panel .shead", { timeout: 4000 }).catch(() => {}); await p.waitForTimeout(200);
+      ok(`${tag} the choice survives a reload`, (await nocues()) && !(await hintsShown()));
+      await p.keyboard.press("Shift+Space"); await p.waitForTimeout(120);
+      ok(`${tag} Shift+Space on: hints back, status says "Key hints on"`, (await hintsShown()) && !(await nocues()) && (await st.innerText()) === "Key hints on" && (await p.evaluate(() => localStorage.getItem("desktop-cues"))) === "1");
+      /* what it must not do */
+      const shiftSpace = (mods = {}) => p.evaluate((m) => { const t = document.activeElement || document.body; return !t.dispatchEvent(new KeyboardEvent("keydown", { key: " ", shiftKey: true, bubbles: true, cancelable: true, ...m })); }, mods);
+      await p.focus('#ief-head [data-ief="edit"]');
+      ok(`${tag} Shift+Space on a focused button does nothing (Space presses it)`, !(await shiftSpace()) && !(await nocues()));
+      await p.evaluate(() => document.activeElement.blur());
+      ok(`${tag} Shift+Space with Ctrl, Cmd or Alt held does nothing`, !(await shiftSpace({ ctrlKey: true })) && !(await shiftSpace({ metaKey: true })) && !(await shiftSpace({ altKey: true })) && !(await nocues()));
+      ok(`${tag} a held key does not flicker`, !(await shiftSpace({ repeat: true })) && !(await nocues()));
+      ok(`${tag} an IME that is composing is ignored`, !(await shiftSpace({ isComposing: true })) && !(await shiftSpace({ keyCode: 229 })) && !(await nocues()));
+      ok(`${tag} plain Space does nothing`, !(await p.evaluate(() => !document.body.dispatchEvent(new KeyboardEvent("keydown", { key: " ", bubbles: true, cancelable: true })))) && !(await nocues()));
+      await p.keyboard.press("?"); await p.waitForSelector("#ief-help:not([hidden])");
+      const list = await p.innerText("#ief-help");
+      ok(`${tag} the shortcuts list names + or N for Add and Shift Space for the hints`, /\+\s*or\s*N/i.test(list.replace(/\n/g, " ")) && /Shift\s+Space/i.test(list.replace(/\n/g, " ")), list.slice(0, 200));
+      await p.close();
+    } else {
+      ok(`${tag} no Add key hint on a phone or tablet`, (await p.locator(".hd [data-ief=add] .kbd").count()) === 0 && (await p.locator("#cue-status").count()) === 0);
+      await p.keyboard.press("Shift+Equal"); await p.waitForTimeout(100);
+      ok(`${tag} + opens nothing on a phone or tablet`, (await p.evaluate(() => IEF.S.mode)) !== "add");
+      const lost = await p.evaluate(() => !document.body.dispatchEvent(new KeyboardEvent("keydown", { key: " ", shiftKey: true, bubbles: true, cancelable: true })));
+      ok(`${tag} Shift+Space does nothing on a phone or tablet (no hints to switch)`, !lost && !(await p.evaluate(() => document.body.classList.contains("nocues"))));
+      await p.close();
+    }
+
     /* 6. keys (desktop only), layout and size */
     if (kind === "desktop") {
       p = await open("?sel=eggs");

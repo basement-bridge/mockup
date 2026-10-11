@@ -20,11 +20,11 @@ Known issues round 1 had to resolve: the Shopping list heading had no space abov
 |---|---|
 | Options page (options, field table, decisions, open questions, what loads) | `fragments/item-edit-flyout/index.html`; live (not verified from the sandbox, check it): <https://basement-bridge.github.io/mockup/fragments/item-edit-flyout/index.html> |
 | Live host (Pantry list, item flyout, edit, history, add) | `fragments/item-edit-flyout/pantry.html`, with URL options below |
-| Job note, decisions 63 to 93 | `docs/knowledge/jobs-to-be-done/item-edit-flyout.md` |
+| Job note, decisions 63 to 127 | `docs/knowledge/jobs-to-be-done/item-edit-flyout.md` |
 | Item sheet it extends | `docs/knowledge/item-sheet.md`, `fragments/item-sheet/` |
 | Pantry desktop rules it copies | `docs/knowledge/desktop-layout.md`, `docs/handover/desktop.md` |
 | Screenshot tool entries | `tools/screenshots.mjs` (`item-edit-flyout`, `item-edit-flyout-live`, `-level`, `-shop-qty`, `-shop-words`, `-add`); screenshots are not kept in the repo (`shots/` is gitignored) |
-| Behaviour and layout check | `tools/item-edit-flyout-check.mjs`: headless Chromium, 390, 768, 1024 and 1440 wide, light and dark, 2026 checks (the level bands as a table, increase-only reset, no-minimum bands, weighed with a minimum, no shopping group in Edit or Add, the how-much control by level and quantity kind with the default amounts and the plain add unchanged, no automatic shopping, category and unit free text, the battery drawings and no drop anywhere, hand-set looks the same as calculated, level override, suggestion lists, chip rows, emoji picker in Edit, Add and the item flyout header, keys, drag, console, sideways scroll). Run it before changing the fragment; `W=390,1440` limits the widths |
+| Behaviour and layout check | `tools/item-edit-flyout-check.mjs`: headless Chromium, 390, 768, 1024 and 1440 wide, light and dark, 2114 checks (the level bands as a table, increase-only reset, no-minimum bands, weighed with a minimum, no shopping group in Edit or Add, the how-much control by level and quantity kind with the default amounts and the plain add unchanged, no automatic shopping, category and unit free text, the battery drawings and no drop anywhere, hand-set looks the same as calculated, level override, suggestion lists, chip rows, emoji picker in Edit, Add and the item flyout header, keys, drag, console, sideways scroll). Run it before changing the fragment; `W=390,1440` limits the widths |
 
 **Open it and switch size.** Serve the repo (`python3 -m http.server`) and open the options page, or the Pages URL. Any `pantry.html` link accepts `?vp=390|768|1024|1280|1440|1920`, which frames it in an iframe at that width; move the pointer to the top edge or press backtick for a hidden size control.
 
@@ -44,7 +44,7 @@ The level icon is a battery everywhere (94, confirmed): the drop and the `lv=` o
 
 Nesting: from 1240 the child is a 360px column that slides out from beneath the item flyout; from 1024 it tucks under the item header in the same lane; below 1024 it is a stacked 84% sheet and the item shrinks to a strip. Add mode is the same form in the item flyout's place.
 
-## 4. Decisions 63 to 121
+## 4. Decisions 63 to 127
 
 Full wording and statuses in the job note (`docs/knowledge/jobs-to-be-done/item-edit-flyout.md`).
 
@@ -109,6 +109,12 @@ Full wording and statuses in the job note (`docs/knowledge/jobs-to-be-done/item-
 | 119 | owner, voice 12 Oct; placement **proposed** | Tiles stay and focus the box; the item flyout's box shows under the header and goes away after the tap that left it lands |
 | 120 | owner, voice 12 Oct; seed **proposed** | Unit can always be cleared; ONE matcher folds case, plurals and variants onto the household's own units (more used, then singular) |
 | 121 | owner, voice 12 Oct; test **proposed** | "2kg" in the quantity, unit or own-words box splits into 2 and kg only when unambiguous |
+| 122 | owner, voice 12 Oct; forms **proposed** | Add: + (also =, numpad +); N kept |
+| 123 | owner, voice 12 Oct; guards as said | + and = stay out of typing and Ctrl, Cmd, Alt chords |
+| 124 | owner, voice 12 Oct; chip **proposed** | Add button shows a "+" key cap; list row "+ or N" |
+| 125 | owner, voice 12 Oct; reading checked | Current cue look is shown (not hover); it stays the default |
+| 126 | owner, voice 12 Oct; storage **proposed** | Shift+Space toggles key hints; kept per device; status line |
+| 127 | owner, voice 12 Oct; set **proposed** | Shift+Space stays out of typing, buttons, links and chords; desktop only |
 
 ## 5. Open questions
 

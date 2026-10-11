@@ -23,7 +23,7 @@ function helpHtml() {
     + (open.length ? G("This version", open) : "")
     + G("Move", [["M", "Focus the first item on the page"]])
     + G("Close", [[CLOSE.replace("&#8984;", "Cmd"), "Close the sheet or photo, or go back one screen. Ctrl on Windows and Linux, Cmd on a Mac"], ["Esc", "Closes nothing; it only leaves a box you are typing in"]])
-    + G("General", [["? or H", "This list"]])
+    + G("General", [["? or H", "This list"], ["Shift Space", "Key hints on or off"]])
     + '<div class="kbt"><span>Show key hints on buttons and links</span><button type="button" class="sw2" role="switch" aria-checked="' + cues + '" data-rk="cues">' + (cues ? "On" : "Off") + "</button></div></div></div>";
 }
 function chips() {
@@ -70,6 +70,13 @@ document.addEventListener("keydown", function (e) {
   else if (k === ",") { el = $('[data-key=","]'); if (el) { e.preventDefault(); el.click(); } }
 });
 ensure();
+/* Shift + Space (fragments/shortcut-cues/cue-key.js, fetched here: this file only loads at 1024px and up) flips the same switch as the list's */
+(function () {
+  var me = document.currentScript, s = document.createElement("script");
+  s.src = ((me && me.src) ? me.src.replace(/recipe\/keys\.js.*$/, "") : "../") + "fragments/shortcut-cues/cue-key.js";
+  s.onload = function () { window.CueKey.host = { get: function () { return cues; }, set: function (on) { if (on !== cues) cuesToggle(); } }; };
+  document.head.appendChild(s);
+})();
 var ph = $(".phone"), raf;
 if (ph && window.MutationObserver) new MutationObserver(function () { cancelAnimationFrame(raf); raf = requestAnimationFrame(chips); }).observe(ph, { childList: true, subtree: true });
 })();

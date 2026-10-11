@@ -154,7 +154,7 @@ IEF.sr = function (t) { return '<span class="sr-only">' + esc(t) + "</span>"; };
 IEF.LEVELS = ["Plenty", "Some", "Running low", "Out"];
 
 /* ---------- key hints: the host says which keys exist at this size (none on a phone). The same .kbd chip the Pantry uses; the Pantry's cue switch hides it. ---------- */
-var KEYS = { edit: "E", history: ",", add: "N", used: "D", shop: "S", use: "U", undo: "Z", enter: "Enter" };
+var KEYS = { edit: "E", history: ",", add: "+", used: "D", shop: "S", use: "U", undo: "Z", enter: "Enter" };
 function hk(k) { return IEF.host && IEF.host.keys ? KEYS[k] || "" : ""; }
 function kbd(k, cls) { var c = hk(k); return c ? '<kbd class="kbd' + (cls ? " " + cls : "") + '">' + c + "</kbd>" : ""; }
 IEF.kbd = kbd;
@@ -170,7 +170,7 @@ function listInner() {
     .map(function (g) { return '<div class="grp"><h2>' + esc(g[0]) + '</h2><span class="kbd keep">' + g[1].length + '</span></div><ul class="rows">' + g[1].map(row).join("") + "</ul>"; }).join("");
 }
 IEF.listHtml = function () {
-  return '<div class="hd"><h1 class="sr-only">Pantry</h1><span class="count" id="ief-count">' + ITEMS.length + ' items</span><button type="button" class="btn pri" data-ief="add" aria-label="Add an item">+ Add ' + kbd("add") + '</button></div><div id="ief-list">' + listInner() + "</div>";
+  return '<div class="hd"><h1 class="sr-only">Pantry</h1><span class="count" id="ief-count">' + ITEMS.length + ' items</span><button type="button" class="btn pri" data-ief="add" aria-label="Add an item" aria-keyshortcuts="Plus N">+ Add ' + kbd("add") + '</button></div><div id="ief-list">' + listInner() + "</div>";
 };
 IEF.drawList = function () { var l = $("#ief-list"), c = $("#ief-count"); if (l) l.innerHTML = listInner(); if (c) c.textContent = ITEMS.length + " items"; };
 
