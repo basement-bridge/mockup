@@ -16,6 +16,19 @@ The options are not exclusive. A and B are two ways into one results list; C is 
 ## Owner direction (voice, 11 Oct 2026): Recipe history is pulled by Kitchie
 Kitchie, the main app, pulls Recipe's history when it needs to. That is not built now: "just plan for it". So every option keeps the door open: one event shape (who, area, action, subject, when, source) that Recipe can supply and Kitchie can merge into its own list, and Recipe rows that can be absent without the screen breaking. **Proposal:** screens show Recipe events in the same list when present and show nothing special when absent.
 
+## What is locked (owner, voice, 11 Oct 2026)
+**Locked:**
+- History stays in context on pantry, recipes and shopping; pantry as it is, shopping new (H2, H5).
+- Entry on phone and desktop is the "Since you were last here" catch-up, grouped by day and person, three days at most (H4, H6, H8).
+- Default shows the last five activities, with Show more (H7b; desktop the same).
+- The X on the catch-up leaves it; on phone, search is a filter sheet like the existing one, on desktop a filter panel (H7, H7a, H8).
+- No "ask it" or typed natural-language search anywhere (H9). No Assistants tab; an assistant shows as the person it acted for (H10).
+- Faceted filters as a standalone page (B), search-first (A) and the standalone feed-plus-search page are not used (H1, H4).
+
+**Still open:** five in total or per area; the "two things" on phone; a plain name keyword box; a mark for "done through an assistant"; calendar days or 72 hours for the cap; whether Kitchie records bought, removed and shopper-link events today; the eight shared questions below.
+
+Mockups revised to match: `history/option-d/` (entry, phone and desktop) and `history/option-c/` (in-context flyouts incl. shopping). Options A and B carry a "superseded" banner.
+
 ## Decisions (owner, voice, 11 Oct 2026)
 - **H1. Option B (faceted filters) is out.** "Too complicated"; "faceted filters is definitely not."
 - **H2. History stays in context and covers pantry, recipes and shopping.** Pantry already has it (the item flyout's History); recipes already have a versions/history screen and a To review screen with per-change undo. The owner: "we're only going to do history for pantry and recipes... and also one for shopping." Keep pantry as it is. Shopping is new and follows the same pattern. Each is its own concern, not a unified cross-service list.
