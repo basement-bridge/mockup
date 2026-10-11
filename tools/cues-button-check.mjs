@@ -51,7 +51,7 @@ for (const [w, h] of [[1024, 768], [1280, 800], [1440, 900]]) for (const mode of
     ok(`${tag}: Shift+Space turns cues back on`, !(await off()) && (await q.locator(".rail .cuesnv").getAttribute("aria-pressed")) === "true" && (await q.locator("#cue-status").innerText()) === "Key hints on");
     await q.keyboard.press("?"); await q.waitForTimeout(80);
     const txt = (await q.innerText("#kb")).replace(/\n/g, " ");
-    ok(`${tag}: ? list has "+ or N" for Add and "Shift Space"`, /\+\s*or\s*N\s*Add an item/.test(txt) && /Shift\s+Space/.test(txt), txt.slice(0, 160));
+    ok(`${tag}: ? list has "+ or N" for Add and the Cues button names Shift Space`, /\+\s*or\s*N\s*Add an item/.test(txt) && /Cues\s*Shift\s+Space/.test(txt), txt.slice(0, 160));
     await q.close();
   }
   await ctx.close();
