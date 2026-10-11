@@ -120,3 +120,43 @@ select.pf-in{appearance:auto}
 .pf-order .pf-btn{padding:0 12px}
 .pf-order>span:first-child{min-width:0}
 .pf-inst-m .pf-seg{justify-self:start}
+
+/* ---------- AI assistants: connect in place (round 9). Tokens only. ---------- */
+.pf-steps{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.pf-steps li{display:flex;gap:12px;align-items:flex-start}
+.pf-sn{flex:none;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--border);display:grid;place-items:center;font-size:13px;font-weight:700;color:var(--muted);background:var(--bg)}
+.pf-steps li.cur .pf-sn{border-color:var(--accent);background:var(--accent);color:var(--on-accent)}
+.pf-steps li.done .pf-sn{border-color:var(--sage);color:var(--sage)}
+.pf-steps li.done .pf-st{color:var(--muted)}
+.pf-st{padding-top:2px;min-width:0}
+.pf-wait{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border:1px solid var(--accent);border-radius:var(--r-ctl);background:var(--bg)}
+.pf-wait b{display:block}
+.pf-pulse{flex:none;width:12px;height:12px;margin-top:5px;border-radius:50%;background:var(--accent);animation:pf-pulse 1.4s ease-in-out infinite}
+@keyframes pf-pulse{0%,100%{box-shadow:0 0 0 0 var(--accent)}50%{box-shadow:0 0 0 6px transparent}}
+@media (prefers-reduced-motion:reduce){.pf-pulse{animation:none}}
+.pf-aaddr{display:grid;gap:4px}
+.pf-aaddr>div{display:flex;gap:8px;align-items:center}
+.pf-aaddr code{flex:1;min-width:0;overflow-wrap:anywhere;padding:10px 12px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--bg);font-size:13px}
+.pf-prev{display:grid;gap:6px}
+.pf-prev-l{font-size:13px;color:var(--muted)}
+.pf-prev-p{border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--bg);overflow:hidden}
+.pf-prev-p{padding:0 14px 12px}.pf-fly-b .pf-prev-p p,.pf-aipg-b .pf-prev-p p{margin:10px 0 0;font-size:14px}.pf-prev-p p.pf-small{font-size:13px;color:var(--muted)}
+.pf-prev-bar{margin:0 -14px;padding:8px 14px;border-bottom:1px solid var(--border);background:var(--surface)}
+.pf-prev-b{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.pf-prev-b .pf-btn{cursor:default}
+.pf-mock{border:1px dashed var(--muted);border-radius:var(--r-ctl);padding:10px 12px;display:grid;gap:8px;font-size:13px;color:var(--muted)}
+.pf-mock-b{display:flex;gap:8px;flex-wrap:wrap}
+.pf-mocknote{margin:0;font-size:12.5px;color:var(--muted)}
+.pf-mocknote code{overflow-wrap:anywhere}
+.pf-aistat{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.pf-quote{display:grid;gap:2px;padding:10px 12px;border-left:3px solid var(--accent);background:var(--bg);border-radius:0 var(--r-ctl) var(--r-ctl) 0}
+.pf-confirm,.pf-warn{padding:12px 14px;border-radius:var(--r-ctl);border:1px solid var(--danger);background:var(--bg)}
+.pf-confirm p,.pf-warn p{margin:4px 0 0}
+.pf-fly-b p{margin:0}
+.pf-aipg{display:grid;gap:14px;align-content:start}
+.pf-aiback{justify-self:start}
+.pf-aipg-t h3{font-size:1.4rem;line-height:1.15}
+.pf-aipg-b{display:grid;gap:16px}
+.pf-aipg-f{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;position:sticky;bottom:0;background:var(--bg);padding:10px 0;border-top:1px solid var(--border)}
+.pf-aipg-f .pf-btn{flex:1 1 11rem;min-width:11rem;padding:0 10px}
+.pf-fly-b>p,.pf-aipg-b>p{color:var(--fg)}

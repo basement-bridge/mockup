@@ -9,6 +9,7 @@
 var $=function(s,r){return(r||document).querySelector(s)};
 var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
 var P={
+ ext:'<path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
  chev:'<path d="M9 6l6 6-6 6"/>',close:'<path d="M6 6l12 12M18 6L6 18"/>',back:'<path d="M15 6l-6 6 6 6"/>',
  down:'<path d="M12 4v11M7 11l5 5 5-5M5 20h14"/>',lock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
  plus:'<path d="M12 5v14M5 12h14"/>',up:'<path d="M6 15l6-6 6 6"/>',dn:'<path d="M6 9l6 6 6-6"/>',tag:'<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.2"/>',
@@ -183,8 +184,57 @@ function footCtl(m){
  return '<span class="pf-mock pf-mockf"><span>Mockup only. Layout</span><span class="pf-seg" role="radiogroup" aria-label="Preferences layout">'+[["today","Today"],["a","A"],["b","B"],["c","C"]].map(function(x){return '<button type="button" role="radio" aria-checked="'+(o===x[0])+'" data-pref="'+x[0]+'">'+x[1]+'</button>'}).join("")+'</span>'+chg+'<span>Viewing as</span><span class="pf-seg" role="radiogroup" aria-label="Viewing as">'+[["arjan","Arjan (admin)"],["sam","Sam"]].map(function(x){return '<button type="button" role="radio" aria-checked="'+(m.as===x[0])+'" data-as="'+x[0]+'">'+x[1]+'</button>'}).join("")+'</span></span>'}
 
 /* ---------- the module's face ---------- */
+/* ---------- AI assistants: connect in place (round 9, SW-63 on). The panel is a flyout beside the list on desktop and a page with a back link on a phone or tablet. Four states per assistant (off, connecting, on, failed). Claude can be opened with Kitchie's address and a starting message filled in (documented links); ChatGPT and Gemini cannot, so Kitchie gives the address, the steps and an Open button. The page where you agree is Platform's and has to be: it is drawn here as a preview, in Kitchie's look. Sample address and message only. ---------- */
+var AIADDR="https://kitchie.example/mcp",AISTART="Help me with my kitchen in Kitchie.";
+function aiSteps(items,cur){return '<ol class="pf-steps">'+items.map(function(t,i){var c=i<cur?" done":i===cur?" cur":"";return '<li class="'+c.trim()+'"'+(i===cur?' aria-current="step"':'')+'><span class="pf-sn" aria-hidden="true">'+(i<cur?ic("check",14):(i+1))+'</span><span class="pf-st">'+t+'</span></li>'}).join("")+'</ol>'}
+function aiWait(nm){return '<div class="pf-wait" role="status"><span class="pf-pulse" aria-hidden="true"></span><div><b>Waiting for '+nm+'</b><span class="pf-small">Started a moment ago. This panel updates by itself when '+nm+' is connected. Kitchie stops waiting after 3 minutes.</span></div></div>'}
+function aiAgree(nm){var host=nm==="Claude"?"claude.ai":nm==="ChatGPT"?"chatgpt.com":"gemini.google.com";return '<div class="pf-prev"><span class="pf-prev-l">The page '+nm+' sends you to. It opens in its own tab and looks like Kitchie.</span><div class="pf-prev-p" role="img" aria-label="Preview of the agree page: '+nm+' wants to connect to Kitchie as Arjan, with Agree and connect and Cancel"><div class="pf-prev-bar"><b>Kitchie</b></div><p><b>'+nm+'</b> <span class="pf-small">('+host+')</span> wants to connect to <b>Kitchie</b> as Arjan.</p><p class="pf-small">If you agree, it can read and change what you can in Kitchie, for your household, until you disconnect it. It will not see your password or your sign-in.</p><div class="pf-prev-b"><span class="pf-btn pri">Agree and connect</span><span class="pf-btn">Cancel</span></div><p class="pf-small">Only agree if you started this from '+nm+' yourself.</p></div></div>'}
+function aiMock(id){return '<div class="pf-mock"><b>Mockup only: what happens next</b><div class="pf-mock-b"><button type="button" class="pf-btn sm" data-ai="sim" data-w="ok" data-id="'+id+'">It connects</button><button type="button" class="pf-btn sm" data-ai="sim" data-w="no" data-id="'+id+'">Person presses Cancel</button><button type="button" class="pf-btn sm" data-ai="sim" data-w="late" data-id="'+id+'">Nothing comes back</button></div></div>'}
+function aiParts(m){
+ var D=window.KProfileAIData,AI=D.AI,id=m.sel.slice(3),nm=D.NAME[id],st=AI.st[id],deep=id==="claude",many=D.IDS.filter(function(i){return AI.st[i]==="on"}).length>1;
+ var lead='<p>Connect '+nm+' and it can read and change what you can in Kitchie, for your household, until you disconnect it. It never sees your sign-in.</p>';
+ var body,foot;
+ if(st==="connecting"){
+  body=aiWait(nm)
+   +(deep
+    ?aiSteps(["Claude is open in another tab with Kitchie filled in.","In Claude, press <b>Add</b>.","Claude sends you to a Kitchie page. Press <b>Agree and connect</b>.","That is all. You can close the Claude tab or keep chatting there."],1)
+    :'<div class="pf-aaddr"><span class="pf-small">Kitchie\'s address</span><div><code>'+AIADDR+'</code><button type="button" class="pf-btn sm" data-ai="copy" data-id="'+id+'">'+ic("copy",16)+' Copy</button></div></div>'
+      +aiSteps(["Copy Kitchie's address (above).","Open "+nm+".","In "+nm+", add a custom connector: paste the address and choose <b>OAuth</b> to sign in. Its menus change; look for Apps or Connectors in its settings.","It sends you to a Kitchie page. Press <b>Agree and connect</b>."],1))
+   +aiAgree(nm)+aiMock(id);
+  foot='<button type="button" class="pf-btn" data-ai="stop" data-id="'+id+'" data-flyfocus>Stop waiting</button><button type="button" class="pf-btn pri" data-ai="reopen" data-id="'+id+'">'+ic("ext",16)+' '+(deep?"Open Claude again":"Open "+nm)+'</button>'}
+ else if(st==="on"){
+  var d=AI.dflt===id;
+  var line=many?(d?'Your default. The plan button opens '+nm+'.':'Not your default.'):'The only assistant connected, so Kitchie uses it automatically.';
+  body='<div class="pf-aistat"><span class="pf-chip ok">Connected</span><span>'+line+'</span>'+(many&&!d?'<button type="button" class="pf-btn sm" data-ai="default" data-id="'+id+'">Make it the default</button>':'')+'</div>'
+   +'<div><span class="pf-lbl">'+AIOPENL(id)+'</span>'
+   +(deep
+     ?'<p>Opens a new Claude chat in a new tab with this message already in the box. It is copied too, in case Claude does not fill it in.</p>'
+     :'<p>'+nm+' cannot be opened with a message already in the box. Kitchie opens '+nm+' and copies the message, so you paste it in.</p>')
+   +'<div class="pf-quote"><span class="pf-small">Starting message</span>'+AISTART+'</div>'
+   +'<p class="pf-mocknote">Mockup note: '+(deep?'opens <code>claude.ai/new?q=</code> followed by the message. The Plan button already does this.':'opens <code>'+(id==="chatgpt"?'chatgpt.com':'gemini.google.com')+'</code> only; nothing can be filled in.')+'</p></div>'
+   +(AI.conf===id?'<div class="pf-confirm" role="alert"><b>Disconnect '+nm+'?</b><p>'+nm+' stops changing anything in Kitchie at once. It may still read what Kitchie holds for a few minutes, until its short access ends. You can connect it again any time.</p></div>':'');
+  foot=AI.conf===id
+   ?'<button type="button" class="pf-btn" data-ai="keep" data-id="'+id+'" data-flyfocus>Keep connected</button><button type="button" class="pf-btn dng" data-ai="discyes" data-id="'+id+'">Disconnect '+nm+'</button>'
+   :'<button type="button" class="pf-btn dng" data-ai="disc" data-id="'+id+'">Disconnect '+nm+'</button><button type="button" class="pf-btn pri" data-ai="open" data-id="'+id+'" data-flyfocus>'+ic("ext",16)+' '+D.OPEN[id]+'</button>'}
+ else if(st==="cancelled"||st==="late"){
+  body='<div class="pf-warn" role="status"><b>'+(st==="cancelled"?'Not connected':nm+' did not finish connecting')+'</b><p>'+(st==="cancelled"
+    ?'You pressed Cancel on the Kitchie page, so '+nm+' was not connected and nothing changed.'
+    :'Kitchie waited 3 minutes and nothing came back from '+nm+'. Nothing was connected. '+(deep?'Usually Add was not pressed in Claude, or the Kitchie page was closed before Agree and connect.':'Usually the address was not added in '+nm+', or the Kitchie page was closed before Agree and connect.'))+'</p></div>'
+   +lead+'<p class="pf-small">Trying again starts from the beginning. Nothing is left over from this attempt.</p>';
+  foot='<button type="button" class="pf-btn" data-flyclose>Close</button><button type="button" class="pf-btn pri" data-ai="connect" data-id="'+id+'" data-flyfocus>Try again</button>'}
+ else{
+  body=lead+(deep
+   ?aiSteps(["Kitchie opens Claude with Kitchie already filled in.","In Claude, press <b>Add</b>.","Claude sends you to a Kitchie page. You are already signed in, so it is one press: <b>Agree and connect</b>.","This panel says Connected by itself."],-1)
+   :'<p>'+nm+' cannot be opened with Kitchie already filled in, so Kitchie gives you the address and the steps here.</p>'+aiSteps(["Copy Kitchie's address.","Open "+nm+" and add a custom connector with it.","It sends you to a Kitchie page. Press <b>Agree and connect</b>.","This panel says Connected by itself."],-1))
+   +'<p class="pf-mocknote">Mockup note: '+(deep?'Connect opens <code>claude.ai/customize/connectors?modal=add-custom-connector</code> with the name and address filled in (Anthropic documents this link; Claude asks the person to confirm).':'Connect opens '+nm+'. Nothing there can be filled in.')+'</p>';
+  foot='<button type="button" class="pf-btn" data-flyclose>Not now</button><button type="button" class="pf-btn pri" data-ai="connect" data-id="'+id+'" data-flyfocus>Connect '+nm+'</button>'}
+ return {title:nm,body:body,foot:foot}}
+function AIOPENL(id){return window.KProfileAIData.OPEN[id]}
+function aiFly(m){var p=aiParts(m);return flyShell(p.title,"AI assistants",p.body,p.foot,p.title+", AI assistant")}
+function aiPage(m){var p=aiParts(m);return '<div class="pf-aipg"><button type="button" class="pf-btn pf-aiback" data-flyclose>'+ic("back",16)+' Profile</button><div class="pf-aipg-t"><span class="pf-small">AI assistants</span><h3>'+p.title+'</h3></div><div class="pf-aipg-b">'+p.body+'</div><div class="pf-aipg-f">'+p.foot+'</div></div>'}
 function fly(m){
  var s=m.sel||"";
+ if(/^ai:/.test(s))return aiFly(m);
  if(/^cat:/.test(s))return catFly(s.slice(4));
  if(/^loc:/.test(s))return locFly(s.slice(4));
  if(/^spot:/.test(s))return spotFly(s.slice(5));
@@ -255,5 +305,5 @@ function click(m,el,H){
  return false}
 /* An open row on a phone or tablet is brought to the top of the page once, so a link to it shows it. */
 function after(m){if(m.view==='settings'&&narrow()&&m.acc&&m._sc!==m.acc&&!m.sel){m._sc=m.acc;var h=$('[data-acc="'+m.acc+'"]',m.frame);if(h&&h.scrollIntoView)h.scrollIntoView({block:'start'})}}
-window.KProfileSubs={shell:flyShell,pane:subPane,fly:fly,accs:accs,prefsPane:prefsPane,footCtl:footCtl,click:click,after:after};
+window.KProfileSubs={aiPage:aiPage,shell:flyShell,pane:subPane,fly:fly,accs:accs,prefsPane:prefsPane,footCtl:footCtl,click:click,after:after};
 })();
