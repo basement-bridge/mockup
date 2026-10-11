@@ -162,7 +162,7 @@ html.pf-lock{overflow:hidden;scrollbar-gutter:auto}
 .pf-dock:hover{background:var(--surface)}
 .pf-keysl{padding:6px 8px 0}
 /* the "set someone up with their own household" entry: last thing in the gutter before History (owner, 12 Oct 2026). Hidden on phone and tablet, where the Me row opens the same modal. */
-.pf-invent{margin-top:8px;padding:6px 10px;border:1.5px dashed var(--accent);color:var(--fg);align-items:center;min-height:56px}
+.pf-invent{margin-top:8px;padding:6px 10px;border:1.5px dashed var(--accent);color:var(--fg);align-items:center;min-height:44px}
 .pf-invent .pf-ico{width:30px;height:30px;color:var(--accent);border-color:var(--accent)}
 .pf-invent .pf-t{white-space:normal;line-height:1.2}
 .pf-invent .pf-t small{display:block;font-weight:500;color:var(--muted);font-size:12px}

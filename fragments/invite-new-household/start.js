@@ -1,7 +1,7 @@
 /* Sign-up side of "Set someone up with their own household" (mockup). Draws two steps from the address; the personal message is data and is set with textContent. */
 (function(){
 "use strict";
-var q=new URLSearchParams(location.search),step=q.get("s")==="household"?"household":"landing";
+var q=new URLSearchParams(location.search),step=/^(household|expired|used)$/.test(q.get("s"))?q.get("s"):"landing";
 var SAMPLE="Hi Priya, this is what I use to keep track of our fridge and what to cook. I thought you might like a kitchen of your own. It takes about two minutes to set up. Arjan";
 var none=q.get("msg")==="none",msg=none?"":(q.get("m")||SAMPLE).slice(0,280);
 var root=document.getElementById("st");
@@ -20,12 +20,19 @@ function build(){
  if(step==="landing"){
   c.appendChild(el("p","st-pill","An invitation to a kitchen of your own"));
   c.appendChild(el("h1","","Arjan set you up with a kitchen of your own"));
-  var n=note(false);if(n)c.appendChild(n);
   c.appendChild(el("p","st-lead","Keep track of what is in the fridge and pantry. Invite people in whenever you like."));
+  var n=note(false);if(n)c.appendChild(n);
   var b=el("a","st-btn","Start my kitchen with Google");b.href="?s=household"+(none?"&msg=none":"&m="+encodeURIComponent(msg));b.id="st-go";c.appendChild(b);
   c.appendChild(el("p","st-small","You will sign in with Google. We never see your password."));
   var dt=el("details","st-more");dt.appendChild(el("summary","","What you should know"));
-  var ul=el("ul");["This link works once and expires after 48 hours.","Your kitchen starts empty. Only the people you invite will see it.","Arjan will not be a member of it and cannot see your items."].forEach(function(t){ul.appendChild(el("li","",t))});dt.appendChild(ul);c.appendChild(dt)}
+  var ul=el("ul");["This link works once. It is used up when you finish signing up, not when you open it.","It stops working a month after it was sent.","Your kitchen starts empty. Only the people you invite will see it.","Arjan will not be a member of it and cannot see your items."].forEach(function(t){ul.appendChild(el("li","",t))});dt.appendChild(ul);c.appendChild(dt)}
+ else if(step==="expired"||step==="used"){
+  var ex=step==="expired";
+  c.appendChild(el("p","st-pill gone",ex?"This invitation has expired":"This invitation has been used"));
+  c.appendChild(el("h1","",ex?"This link has run out":"This link has already been used"));
+  c.appendChild(el("p","st-lead",ex?"An invitation stops working a month after it was sent. Ask Arjan to send you a new one and you can start your kitchen straight away.":"Each invitation works once, and this one was used when someone finished signing up. If that was you, sign in to carry on. If not, ask Arjan to send you a new one."));
+  var b3=el("a","st-btn"+(ex?" st-quiet":""),ex?"Go to Kitchie":"Sign in with Google");b3.href="#";b3.id="st-gone";b3.addEventListener("click",function(e){e.preventDefault();var t=document.getElementById("st-done");t.hidden=false;t.textContent="Mockup: this goes to the Kitchie sign-in page."});c.appendChild(b3);
+  var dn2=el("p","st-done");dn2.id="st-done";dn2.hidden=true;dn2.setAttribute("role","status");c.appendChild(dn2)}
  else{
   c.appendChild(el("p","st-pill ok","You are signed in. One last step"));
   c.appendChild(el("h1","","Your very own kitchen"));
@@ -39,8 +46,8 @@ function build(){
   c.appendChild(el("p","st-small","Arjan is not added to it."))}
  root.appendChild(c);
  var nav=el("p","st-mock");nav.appendChild(el("span","","Mockup only:"));
- [["landing","The link opens"],["household","After sign-in"]].forEach(function(s){var a=el("a","",s[1]);a.href="?s="+s[0]+(none?"&msg=none":"&m="+encodeURIComponent(msg));if(s[0]===step)a.setAttribute("aria-current","page");nav.appendChild(a)});
- var a2=el("a","",none?"With a message":"Without a message");a2.href="?s="+step+(none?"":"&msg=none");nav.appendChild(a2);
+ [["landing","The link opens"],["household","After sign-in"],["expired","Expired"],["used","Already used"]].forEach(function(s){var a=el("a","",s[1]);a.href="?s="+s[0]+(none?"&msg=none":"&m="+encodeURIComponent(msg));if(s[0]===step)a.setAttribute("aria-current","page");nav.appendChild(a)});
+ if(step==="landing"||step==="household"){var a2=el("a","",none?"With a message":"Without a message");a2.href="?s="+step+(none?"":"&msg=none");nav.appendChild(a2)}
  root.appendChild(nav)}
 build();
 })();

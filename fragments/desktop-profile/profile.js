@@ -42,6 +42,7 @@ up:'<path d="M6 15l6-6 6 6"/>',
 downc:'<path d="M6 9l6 6 6-6"/>',
 check:'<path d="M5 12.500l4.500 4.500L19 7"/>',
 ext:'<path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
+send:'<path d="M21.500 2.500L10.500 13.500"/><path d="M21.500 2.500l-7 19-4-8.500-8.500-4z"/>',
 sprout:'<path d="M12 21v-8"/><path d="M12 13c0-4 2.5-6.500 7-6.500 0 4-2.500 6.500-7 6.500z"/><path d="M12 15c0-3-2-5-6-5 0 3 2 5 6 5z"/>'
 };
 function ic(k,s){s=s||20;return '<svg class="pf-i" viewBox="0 0 24 24" width="'+s+'" height="'+s+'" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+P[k]+'</svg>'}
@@ -74,7 +75,7 @@ function paneMe(){
  return '<div class="pf-metop"><button type="button" class="pf-avedit" data-toast="Mockup: this opens the picture picker" aria-label="Change your picture"><span class="pf-badgewrap">'+badge(52)+'</span><span class="pe" aria-hidden="true">'+ic("pencil",14)+'</span></button><div class="pf-who2" id="pf-who2">'+nameBtn()+'</div></div>'
  +'<div><span class="pf-lbl">Yours</span><ul class="pf-list">'
  +row("hat","Kitchen role",SUB,'',"Mockup: this opens the role picker")
- +rowInv("mail","Other households","Invite someone to a different household, set up with their own")
+ +rowInv()
  +'</ul></div>'
  +aiBlock()}
 /* The name, in place (owner, 12 Oct 2026): the name sits where "tap the picture to change it" was, with a small pencil; pressing it turns it into a box right there, Enter or leaving the box keeps it. No separate Name field. */
@@ -131,7 +132,7 @@ function aiClick(m,el){
  if(k==="discyes"){AI.st[id]="off";AI.conf=null;if(AI.dflt===id)AI.dflt=null;if(aiLinked().length<2)AI.dflt=null;toast(nm+" is disconnected. It can be connected again any time.");paint(m,true,'[data-flyfocus]');return true}
  if(k==="close"){closeFly(m);return true}
  return false}
-function rowInv(icon,t,sub){return '<li><button type="button" class="pf-item" data-inv="open" aria-haspopup="dialog"><span class="pf-ico">'+ic(icon,18)+'</span><span class="pf-t">'+t+(sub?'<small>'+sub+'</small>':'')+'</span><span class="pf-chev">'+ic("chev",18)+'</span></button></li>'}
+function rowInv(){var L=invLbl();return '<li><button type="button" class="pf-item" data-inv="open" aria-haspopup="dialog" title="'+L.tip+'"><span class="pf-ico">'+ic("send",18)+'</span><span class="pf-t"><span data-invlbl>'+L.t+'</span><small data-invsub>'+L.sub+'</small></span><span class="pf-chev">'+ic("chev",18)+'</span></button></li>'}
 function row(icon,t,sub,chip,toast){return '<li><button type="button" class="pf-item" data-toast="'+toast+'"><span class="pf-ico">'+ic(icon,18)+'</span><span class="pf-t">'+t+(sub?'<small>'+sub+'</small>':'')+'</span>'+chip+'<span class="pf-chev">'+ic("chev",18)+'</span></button></li>'}
 function paneLooks(){
  return '<div><span class="pf-lbl">Looks</span><div class="pf-list"><div class="pf-themes"><b>Theme</b><div class="tgrid swatches" role="group" aria-label="Theme">'+(window.themeHtml?window.themeHtml(["kitchie","kitchie-day","marmalade","blueberry","herb"],true):"")+'</div><p class="pf-small" data-theme-name>'+(window.themeName?window.themeName():"")+'</p></div>'
@@ -175,9 +176,17 @@ function narrow(){return window.matchMedia&&window.matchMedia("(max-width:900px)
 /* ---------- state ---------- */
 var stack=[],home=null,gTimer=null,toastTimer=null,toastEl=null;
 /* Standalone mockup page only: the frame parameters (see the header). Used once, for the first window opened. */
+/* The invite entry is one dual-purpose button (owner, 12 Oct 2026): "Invite someone" until the person has sent an invite of any status, then "My invites". INVMODE is the mockup's sample: none | some | full (three pending). ?invs= sets it; the modal (invite.js) changes it. */
+var INVMODE="none";
+function invSent(){return INVMODE!=="none"}
+function invLbl(){return invSent()?{t:"My invites",sub:"Invites you have sent, and where they stand",tip:"My invites: the invites you have sent to people starting their own household"}:{t:"Invite someone",sub:"to set up their own household",tip:"Invite someone to set up their own household"}}
+function invSet(mode){INVMODE=mode;var L=invLbl();$$("[data-inv=open]").forEach(function(b){var a=$("[data-invlbl]",b),c=$("[data-invsub]",b);if(a)a.textContent=L.t;if(c)c.textContent=L.sub;b.title=L.tip})}
 var INIT=null;
 function readInit(){var q=new URLSearchParams(location.search),g=function(k){return q.get(k)||""};
- INIT={sub:g("sub"),sel:g("sel"),pref:g("pref"),psub:g("psub"),ptab:g("ptab"),as:g("as"),os:g("os"),acc:g("acc"),done:g("done"),chg:g("chg"),ai:g("ai"),aic:g("aic"),aidc:g("aidc"),inv:g("inv")};
+ INIT={sub:g("sub"),sel:g("sel"),pref:g("pref"),psub:g("psub"),ptab:g("ptab"),as:g("as"),os:g("os"),acc:g("acc"),done:g("done"),chg:g("chg"),ai:g("ai"),aic:g("aic"),aidc:g("aidc"),inv:g("inv"),invs:g("invs")};
+ if(/^(none|some|full)$/.test(INIT.invs))INVMODE=INIT.invs;
+ if(INIT.inv==="list"&&INVMODE==="none")INVMODE="some";
+ if(INIT.inv==="limit")INVMODE="full";
  if(/^(none|one|many|choose)$/.test(INIT.ai))aiSet(INIT.ai);aiInit(INIT)}
 function newState(kind,view,root,opener){
  var m={kind:kind,view:view,sub:"looks",psub:"mine",ptab:"mine",pref:"today",sel:null,acc:null,as:"arjan",os:"",chg:"2",root:root,frame:root.firstChild,opener:opener};
@@ -211,7 +220,7 @@ function navHtml(m){
    var cs=sub===c.k;return '<button type="button" class="pf-nvt pf-nvc" role="tab" id="pf-tab-'+k+'-'+c.k+'" data-view="'+k+'" data-sub="'+c.k+'" aria-selected="'+cs+'" aria-controls="pf-panel" tabindex="'+(cs?0:-1)+'"'+(cs?' data-focus':'')+'>'+(c.ini?'<span class="pf-ini sm" aria-hidden="true">'+c.ini+'</span>':ic(c.icon,18))+'<span class="pf-t">'+c.t+'</span>'+(c.dot?'<i class="pf-dot" role="img" aria-label="'+(c.dotLabel||'Changed since you last looked')+'"></i>':'')+(c.note?'<span class="pf-cn">'+c.note+'</span>':'')+'</button>'}).join("")+'</div>'}
   return h}).join("");
  return '<div class="pf-nav"><div class="pf-nwho">'+bw(48)+'<div><b>'+NAME+'</b><span class="pf-sub">'+SUB+'</span></div></div><div role="tablist" aria-orientation="vertical" aria-label="Profile sections">'+tabs+'</div><span class="pf-grow"></span>'
- +'<button type="button" class="pf-nvt pf-invent" data-inv="open" aria-haspopup="dialog"><span class="pf-ico" aria-hidden="true">'+ic("sprout",16)+'</span><span class="pf-t">Set someone up<small>with their own household</small></span></button>'
+ +'<button type="button" class="pf-nvt pf-invent" data-inv="open" aria-haspopup="dialog" title="'+invLbl().tip+'"><span class="pf-ico" aria-hidden="true">'+ic("send",16)+'</span><span class="pf-t" data-invlbl>'+invLbl().t+'</span></button>'
  +'<button type="button" class="pf-nvt pf-dock" data-dock="history" aria-label="History (the owner will give instructions for it)">'+ic("clock",20)+'<span class="pf-t">History</span></button>'
  +'<p class="pf-small pf-keysl"><kbd>&uarr;</kbd> <kbd>&darr;</kbd> switch section</p></div>'}
 function titleOf(m){
@@ -241,7 +250,7 @@ function renderShortcuts(){
  +'<li><span>Close the window</span><span class="pf-keys"><kbd>'+ESCL+'</kbd></span></li><li><span>Show this list</span><span class="pf-keys"><kbd>?</kbd></span></li></ul><p class="pf-small">On the page, with no window open, <kbd>G</kbd> then <kbd>P</kbd> opens the profile. <kbd>G</kbd> then <kbd>M</kbd>, <kbd>S</kbd>, <kbd>H</kbd> or <kbd>D</kbd> opens Me, Settings, Household or My data.</p></div><div class="pf-foot"><span>Press <kbd>'+ESCL+'</kbd> to go back</span></div>'}
 function renderInvite(m){return window.KProfileInvite?window.KProfileInvite.render(m):""}
 var RENDER={win:renderWin,s:renderShortcuts,inv:renderInvite};
-function label(m){return m.kind==="inv"?"Set someone up with their own household":m.kind==="s"?"Keyboard shortcuts":"Profile, "+(m.view==="me"?"Profile":VIEWS[m.view].t)}
+function label(m){return m.kind==="inv"?(window.KProfileInvite?window.KProfileInvite.title():"Invite someone"):m.kind==="s"?"Keyboard shortcuts":"Profile, "+(m.view==="me"?"Profile":VIEWS[m.view].t)}
 /* The sub-screens (Categories, Locations and spots, Install, the Preferences layouts, the open row on a phone) are drawn by profile-subs.js (+ .css), loaded the first time one is needed. Preferences layout A is drawn by profile-prefs.js (+ .css), loaded only when A is shown (after profile-subs.js, which hands it the work). */
 var loadQ={};
 function needsSubs(m){return m.kind==="win"&&((m.view==="settings"&&(narrow()||m.sub!=="looks"))||(m.view==="preferences"&&pref(m)!=="today")||!!m.sel)}
@@ -315,7 +324,7 @@ function go(v){
 /* "Set someone up with their own household": a modal over the window (owner, 12 Oct 2026). The script and styles are fetched the first time it is opened. */
 function openInvite(opener,state){
  if(stack.length&&stack[stack.length-1].kind==="inv")return;
- loadMod("invite","KProfileInvite",function(){if(state)window.KProfileInvite.init(state);openModal("inv","list",opener||document.activeElement)})}
+ loadMod("invite","KProfileInvite",function(){window.KProfileInvite.open(state);openModal("inv","list",opener||document.activeElement)})}
 /* the way back: close the modal, show Household with its existing "Invite someone" (join my household) button, and point at it */
 function inviteBack(){
  closeTop();
@@ -331,7 +340,7 @@ function toggleShortcuts(){
  openModal("s","list",document.activeElement)}
 
 /* What profile-subs.js may call. */
-var H={toast:toast,paint:paint,openFly:openFly,closeFly:closeFly,setSub:setSub,setView:setView,$:$,$$:$$,ic:ic,badge:badge,xbtn:xbtn,closeTop:closeTop,inviteBack:inviteBack};
+var H={toast:toast,paint:paint,openFly:openFly,closeFly:closeFly,setSub:setSub,setView:setView,$:$,$$:$$,ic:ic,badge:badge,xbtn:xbtn,closeTop:closeTop,inviteBack:inviteBack,invMode:function(){return INVMODE},invSet:invSet};
 window.KProfileH=H;
 if(window.matchMedia){var mq=window.matchMedia("(max-width:900px)"),onmq=function(){var t=stack[stack.length-1];if(t&&t.kind==="win"){if(!narrow()&&t.acc){t.sub=t.acc;t.acc=null}else if(narrow()&&t.view==="settings"&&/^(cats|locs|install)$/.test(t.sub)){t.acc=t.sub}paint(t,false)}};
  if(mq.addEventListener)mq.addEventListener("change",onmq)}

@@ -136,7 +136,7 @@ Owner, by voice, 12 October 2026: five locked decisions on the Preferences and P
 
 **SW-45. Loads.** Nothing new on the default path. `profile-prefs.js` shrank (the badge, summary and review-card code is gone) and loads only for `pref=a`, as before.
 
-**SW-46. Part B, a separate feature: "Set someone up with their own household".** Tracked in `invite-new-household.md` (INH-D, INH-J, INH-O), not here. In this window it adds one entry at the foot of the left gutter above History, a modal, and makes the Me row "Other households" open the same modal. Everything else about the window is unchanged.
+**SW-46. Part B, a separate feature: "Set someone up with their own household".** Tracked in `invite-new-household.md` (INH-D, INH-J, INH-O), not here. In this window it adds one entry at the foot of the left gutter above History, a modal, and makes the Me row "Other households" open the same modal. **Round 9 (12 Oct 2026, INH-D7 to INH-D18 in that file):** the entry is now one dual-purpose button, "Invite someone" until the person has sent an invite and "My invites" after, with a paper-plane icon; the Me row (the phone and tablet route, no gutter there) is renamed and switches the same way. Everything else about the window is unchanged.
 
 
 ### Round 7 notes (SW-47 on)
