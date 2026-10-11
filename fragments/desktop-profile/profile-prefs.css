@@ -87,3 +87,7 @@ p.pf-lock .pf-i{margin-top:2px;flex:none}
 .pf-facts dt{color:var(--muted);font-size:13px}
 .pf-facts dd{margin:0;display:flex;gap:8px;align-items:center;font-weight:600;text-align:right}
 .pf-fly .pf-field .pf-lbl{margin-top:0}
+/* Avoids: Hard or Soft and the Reason (SW-59): two mutually exclusive types side by side, and the consequence of the chosen one right under them */
+.pf-two{grid-template-columns:1fr 1fr}
+.pf-conseq{margin:2px 0 0;padding:10px 12px;border-left:3px solid var(--accent);background:var(--surface);border-radius:0 var(--r-ctl) var(--r-ctl) 0;color:var(--fg)}
+.pf-conseq b{margin-right:2px}
