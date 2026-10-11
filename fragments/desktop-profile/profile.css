@@ -142,3 +142,4 @@ html.pf-lock{overflow:hidden}
 /* The same window drawn in place (not a modal) on the Preferences mockup pages at desktop width. */
 .pf-scrim.pf-inline{position:static;inset:auto;z-index:auto;background:none;backdrop-filter:none;display:block;padding:0;animation:none}
 .pf-inline .pf-dlg{animation:none;box-shadow:none;margin:0 auto}
+.pf-list li:has(>.pf-item+.pf-btn){display:flex;align-items:center;gap:8px;padding-right:8px}

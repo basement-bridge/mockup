@@ -761,3 +761,15 @@ Real labels found first (live `kitchie/server/src/app.ts`, `renderSettingsPage`)
 | 3 | **Preferences is a top-level section of the mobile profile menu**, after the Settings section and before People, not under Settings or App. Same as the desktop gutter section (mockup 587d6d4). | Profile menu gets a "Preferences" group with one row. The screen's back link goes to the profile menu. `/settings/preferences` address unchanged. |
 
 Closes the "Stock checks beside Preferences" question from section 9 as no row. Not decided: the install row's label, and whether Preferences on phone wants a badge.
+
+### 11 Oct (3): Kitchen setup, Install, Household on mobile
+
+Owner, voice, 11 Oct 2026, third note. Drawn in `flows/household/app.js` (profile menu, Settings, Household, Install sheet), `fragments/desktop-profile/profile.js` and `fragments/locations-spots`.
+
+| # | Change | Build note |
+|---|---|---|
+| 1 | **App group on `/menu` reads: Settings, History, Looks, then a subgroup "Kitchen setup" (Categories, Locations and spots), then Install last.** Settings shows the same Kitchen setup subgroup; the desktop Settings App list labels it too. | A small "Kitchen setup" label over the two household rows. |
+| 2 | **"Install" replaces the "On this phone / Installed" row.** Always actionable: it never shows a permanent Installed state and can install or reinstall any number of times. Last in App. | Row label "Install". It opens the install steps every time. The once-only home-screen prompt rules (1 hour of use, then 1, 2, 1) are unchanged; they govern the card, not this row. |
+| 3 | **Household on mobile matches desktop and the admin mockup:** every member with a Founding member / Admin / Member chip, kitchen role, one-line rights; the founding member sees Make admin / Remove admin beside each other member. Others see no buttons. | Same rules as Members and admins (D25 to D27): the founding member is always an admin; only they grant and revoke (whether admins share that right stays open). Removing a member also drops their admin. |
+
+Not decided: whether admins may grant admin; whether Settings (not only `/menu`) should carry Install. No pull request, tag or deploy.

@@ -123,7 +123,7 @@ const initial = () => ({
   members: ["arjan", "sam"], invites: [{ code: "482913", hours: 20 }], codeState: "ok", codeTyped: "", codeMsg: null,
   roles: { arjan: { title: "Pantry Marshal", ic: "shield", desc: "Keeps order on the shelves and the fridge. Knows exactly where the cumin lives." }, sam: null },
   cfg: { size: "normal", emoji: true, motion: false, spot: true, amount: true, useby: true, activity: true, compact: false }, stockChecks: true,
-  day: 1, aiDone: false, inviteDone: false, cvOpt: "A", aiTab: "ChatGPT", aiLink: false, founder: "arjan", avatars: {}, bannerGot: false, pending: null, joined: false,
+  day: 1, aiDone: false, inviteDone: false, cvOpt: "A", aiTab: "ChatGPT", aiLink: false, founder: "arjan", admins: [], avatars: {}, bannerGot: false, pending: null, joined: false,
   /* pantry view */
   rmode: "loc", order: { loc: [...AREAS], cat: [...CATEGORIES] }, fa: null, fd: null, flast: null, fTab: "filters", seenP: 0, seenR: 0, view: "name", shop: ["milk", "carrots", "butter"], slx: { milk: { by: "arjan", want: "2 litres", tick: false }, carrots: { by: "sam", want: "", tick: false }, butter: { by: "arjan", want: "", tick: false } }, wantFor: null, sel: null, areaTab: "All", collapsed: {}, search: "", searchOpen: false, draft: { days: null },
   memberWho: null, existing: 1, own: false, rdraft: null, iconPick: false,
@@ -159,6 +159,7 @@ const starIc = ico('<path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8 6.8 19.
 const founderChip = (w) => (S.founder === w ? `<span class="chip fchip">${starIc}Founding member</span>` : "");
 const pays = () => S.persona === "arjan"; /* the billing contact; never shown as a rank */
 const role = (who) => S.roles[who];
+const isAdmin = (w) => w === S.founder || S.admins.includes(w); /* the founding member is always an admin; only they grant or revoke */
 const emojiOf = (n) => { const m = { milk: "🥛", egg: "🥚", rice: "🍚", bread: "🍞", cheese: "🧀", tomato: "🍅", apple: "🍎", banana: "🍌", butter: "🧈", onion: "🧅", carrot: "🥕", pasta: "🍝", chicken: "🍗", fish: "🐟" }; const k = Object.keys(m).find((x) => n.toLowerCase().includes(x)); return k ? m[k] : ""; };
 
 /* ---------- install prompt rules ---------- */
@@ -507,7 +508,7 @@ const screens = {
     return backHeader("Back", "") + `<div class="body">
     <div class="row"><span class="av" style="width:56px;height:56px;font-size:20px">${avt(S.persona, 30)}</span><div><b style="font-size:20px">${esc(me().name)}</b><p class="small">${role(S.persona) ? esc(role(S.persona).title) : "Our kitchen"}</p></div></div>
     ${strip.length ? `<div><span class="lbl">Get started</span><div class="menu card">${strip.map(([t, ic, l, k]) => `<button data-${k === "go" ? "go" : "sheet"}="${t}"><span class="row" style="gap:10px">${riSvg(ic, 20)}${l}</span><span class="chev" style="color:var(--muted)">${I.chev}</span></button>`).join("")}</div></div>` : ""}
-    ${seg("App", `<button data-go="settings">Settings</button><button data-act="proto" data-p="History">History</button><button data-go="looks">Looks <span class="chev" style="color:var(--muted)">${I.chev}</span></button><button data-go="cats">Categories <span class="chev" style="color:var(--muted)">${I.chev}</span></button><button data-act="proto" data-p="Locations and spots">Locations and spots <span class="chev" style="color:var(--muted)">${I.chev}</span></button>`)}
+    ${seg("App", `<button data-go="settings">Settings</button><button data-act="proto" data-p="History">History</button><button data-go="looks">Looks <span class="chev" style="color:var(--muted)">${I.chev}</span></button><span class="lbl sub">Kitchen setup</span><button data-go="cats">Categories <span class="chev" style="color:var(--muted)">${I.chev}</span></button><button data-act="proto" data-p="Locations and spots">Locations and spots <span class="chev" style="color:var(--muted)">${I.chev}</span></button><button data-sheet="pwa">Install <span class="chev" style="color:var(--muted)">${I.chev}</span></button>`)}
     ${seg("Preferences", `<button data-act="proto" data-p="Preferences">Preferences</button>`)}
     ${seg("People", `<button data-go="me">Me <span class="chip">${esc(me().name)}</span></button><button data-go="household">Household <span class="chip">${S.members.length}</span></button>${pays() ? `<button data-go="${S.recipes ? "household" : "upgrade"}">Plan and billing</button>` : ""}`)}
     ${seg("My data", `<button data-act="proto" data-p="Download inventory CSV">Download inventory CSV</button>`)}
@@ -521,6 +522,7 @@ const screens = {
     return backHeader("Back", "Settings") + `<div class="body">
       <span class="lbl">App</span><div class="menu card">
         <button data-go="looks">Looks <span class="chev" style="color:var(--muted)">${I.chev}</span></button>
+        <span class="lbl sub">Kitchen setup</span>
         <button data-go="cats">Categories <span class="chev" style="color:var(--muted)">${I.chev}</span></button>
         <button data-act="proto" data-p="Locations and spots">Locations and spots <span class="chev" style="color:var(--muted)">${I.chev}</span></button></div>
       <p class="small">Categories and Locations and spots are the household's, not just this device's.</p>
@@ -561,7 +563,7 @@ const screens = {
   /* People, part two: Household (members, pending invites, leave). Anyone can remove anyone and anyone can cancel an invite (owner, 8 Oct 2026). */
   household: () => backHeader("Back", "Household") + `<div class="body">
     <div><h1 style="font-size:2rem">Our kitchen</h1><p style="margin-top:4px">${S.members.length} member${S.members.length === 1 ? "" : "s"}</p></div>
-    <div><span class="lbl">Members</span>${S.members.map((w) => `<button class="m" data-sheet="member" data-p="${w}"><span class="avw"><span class="av">${avt(w)}</span>${role(w) ? `<span class="avbadge">${riSvg(role(w).ic, 13)}</span>` : ""}</span><div style="flex:1"><b>${esc(PEOPLE[w].name)}</b>${w === S.persona ? ' <span class="chip">You</span>' : ""} ${founderChip(w)}${role(w) ? `<p class="small">${esc(role(w).title)}</p>` : ""}</div><span class="chev" style="color:var(--muted)">${I.chev}</span></button>`).join("")}
+    <div><span class="lbl">Members</span>${S.members.map((w) => { const fo = S.founder === w, ad = isAdmin(w), canG = S.persona === S.founder && !fo; return `<div class="m"><button class="rowbtn" data-sheet="member" data-p="${w}" aria-label="${esc(PEOPLE[w].name)}, ${fo ? "founding member" : ad ? "admin" : "member"}" style="flex:1;display:flex;align-items:center;gap:10px;text-align:left;min-height:44px"><span class="avw"><span class="av">${avt(w)}</span>${role(w) ? `<span class="avbadge">${riSvg(role(w).ic, 13)}</span>` : ""}</span><div style="flex:1"><b>${esc(PEOPLE[w].name)}</b>${w === S.persona ? ' <span class="chip">You</span>' : ""} ${founderChip(w)}${fo ? "" : ` <span class="chip">${ad ? "Admin" : "Member"}</span>`}<p class="small">${role(w) ? esc(role(w).title) + " \u00b7 " : ""}${fo ? "Always an admin" : ad ? "Can change household settings" : "Can change their own preferences"}</p></div></button>${canG ? `<button data-act="${ad ? "revokeadmin" : "grantadmin"}" data-p="${w}" class="${ad ? "danger" : "link"}" aria-label="${ad ? "Remove " + esc(PEOPLE[w].name) + " as admin" : "Make " + esc(PEOPLE[w].name) + " an admin"}" style="font-size:14px;min-height:44px;padding:0 8px">${ad ? "Remove admin" : "Make admin"}</button>` : ""}</div>`; }).join("")}
       ${S.invites.map((i) => `<div class="m"><span class="av" style="border-style:dashed;color:var(--muted)">${riSvg("mail", 16)}</span><div style="flex:1"><b class="mono codeb">${fmtCode(i.code)}</b><p class="small">${i.own ? "Own household" : "Join Our kitchen"} \u00b7 expires in ${i.hours} hours \u00b7 works once</p></div><button data-act="copycode" data-p="${esc(i.code)}" class="link" aria-label="Copy code ${fmtCode(i.code)}" style="font-size:14px;min-height:44px;padding:0 8px">Copy</button><button data-act="revoke" data-p="${esc(i.code)}" class="danger" aria-label="Cancel code ${fmtCode(i.code)}" style="font-size:14px;min-height:44px;padding:0 8px">Cancel</button></div>`).join("")}</div>
     <button class="btn" data-sheet="invite" ${S.invites.length >= 3 ? "disabled" : ""}>Invite someone</button>${S.invites.length >= 3 ? `<p class="small">You have 3 unused codes, the most there can be. Cancel one or wait for one to be used or expire.</p>` : ""}
     <div class="dz"><span class="lbl danger">Danger zone</span><p class="small">Leave Our kitchen. You lose access until someone invites you back.</p><button class="btn ghost danger" data-act="leavestart">Leave household</button></div></div>`,
@@ -666,7 +668,7 @@ function sheetHtml() {
       <div class="fbody">${body}</div>
       <div class="ffoot"><div class="flinks"><button class="link" data-act="fclear">Clear</button><button class="link" data-act="fuselast" ${S.flast ? "" : "disabled"}>Use last filters</button></div><button class="btn" id="fshow" data-act="fshow" ${fItems(f).length === 0 ? "disabled" : ""}>${fShowText(f)}</button></div></div></div>`;
   }
-  if (sh === "pwa") return wrap(`<h2>Add it to your home screen</h2><p>On iPhone: tap Share, then Add to Home Screen.<br>On Android: tap the menu, then Add to Home screen.</p><button class="btn" data-act="pwadone">Done, I've added it</button><button class="btn ghost" data-act="closesheet">Not now</button>`);
+  if (sh === "pwa") return wrap(`<h2>Install Kitchie</h2><p>Add it to your home screen, or again if you removed it. You can do this as often as you like.</p><p>On iPhone: tap Share, then Add to Home Screen.<br>On Android: tap the menu, then Add to Home screen.</p><button class="btn" data-act="pwadone">Done, I've installed it</button><button class="btn ghost" data-act="closesheet">Not now</button>`);
   if (sh === "add") return wrap(`<h2>Add item</h2>
     <input class="field" id="f-name" placeholder="Name" autocomplete="off"><input class="field" id="f-amt" placeholder="Amount (e.g. 2, 500 g, 1 bag)" autocomplete="off">
     <select class="field" id="f-area">${AREAS.map((a) => `<option>${a}</option>`).join("")}</select><input class="field" id="f-spot" placeholder="Spot (optional)" autocomplete="off">
@@ -701,7 +703,7 @@ function sheetHtml() {
   if (sh === "role") return wrap(`<h2>Your kitchen role</h2><p>Optional. It sits beside your name.</p>${roleEditor("sheet")}`);
   if (sh === "member") {
     const w = S.memberWho, r = role(w), self = w === S.persona;
-    return wrap(`<div class="row"><span class="av" style="width:56px;height:56px;font-size:20px">${avt(w, 30)}</span><div><b style="font-size:20px">${esc(PEOPLE[w].name)}</b>${self ? ' <span class="chip">You</span>' : ""} ${founderChip(w)}</div></div>
+    return wrap(`<div class="row"><span class="av" style="width:56px;height:56px;font-size:20px">${avt(w, 30)}</span><div><b style="font-size:20px">${esc(PEOPLE[w].name)}</b>${self ? ' <span class="chip">You</span>' : ""} ${founderChip(w)}${S.founder === w ? "" : ` <span class="chip">${isAdmin(w) ? "Admin" : "Member"}</span>`}</div></div>
       ${r ? `<div class="row" style="gap:14px">${roleIc(r, 56)}<div><b style="font-size:17px">${esc(r.title)}</b>${r.desc ? `<p style="margin-top:4px">${esc(r.desc)}</p>` : ""}</div></div>` : `<p>${self ? "You haven't picked a kitchen role." : PEOPLE[w].name + " hasn't picked a kitchen role."}</p>`}
       ${self ? `<button class="btn" data-sheet="role">${r ? "Change role" : "Pick a role"}</button>` : S.founder === w ? `<p class="small">The founding member can't be removed.</p>` : `<button class="btn ghost danger" data-act="removestart">Remove ${esc(PEOPLE[w].name)} from household</button>`}<button class="btn ghost" data-act="closesheet">Close</button>`);
   }
@@ -896,8 +898,10 @@ const acts = {
   usecode() { const d = S.codeTyped.replace(/\D/g, ""); if (S.codeState === "locked") return render(); if (d.length !== 6) { S.codeState = "wrong"; return render(); } S.code = d; S.codeState = "ok"; go("invite", null, { replace: true }); },
   copyinvite2() { toast("Invite link copied"); },
   setavatar(a) { if (a) S.avatars[S.persona] = a; else delete S.avatars[S.persona]; S.sheet = null; render(); toast("Picture changed"); },
+  grantadmin(w) { S.admins.push(w); render(); toast(PEOPLE[w].name + " is now an admin"); },
+  revokeadmin(w) { S.admins = S.admins.filter((x) => x !== w); render(); toast(PEOPLE[w].name + " is no longer an admin"); },
   removestart() { S.sheet = "removing"; render(); },
-  removeconfirm() { const w = S.memberWho, n = PEOPLE[w].name; S.members = S.members.filter((x) => x !== w); S.sheet = null; render(); toast(n + " removed"); },
+  removeconfirm() { const w = S.memberWho, n = PEOPLE[w].name; S.members = S.members.filter((x) => x !== w); S.admins = S.admins.filter((x) => x !== w); S.sheet = null; render(); toast(n + " removed"); },
   leavestart() { S.sheet = "leave"; render(); },
   leaveconfirm() { const v = document.getElementById("leavename"); if (!v || v.value.trim().toLowerCase() !== me().name.toLowerCase()) return; S.members = S.members.filter((x) => x !== S.persona); S.sheet = null; S.stack = []; go("notmember", null, { replace: true }); toast("You left Our kitchen"); },
   aitab(t) { S.aiTab = t; render(); }, airevoke() { S.aiLink = false; S.sheet = null; render(); toast("Link revoked. No assistant can use it now"); },

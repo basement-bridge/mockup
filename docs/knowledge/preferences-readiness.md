@@ -154,3 +154,11 @@ Second owner note of 11 October 2026 (detail: `preferences-build-handoff.md`, "1
 - **Mobile:** Preferences becomes a top-level section of the profile menu, after Settings, matching the desktop gutter section. It leaves Settings > Kitchen, which also closes the open Stock checks question (no row).
 - **Profile menu:** the "Look and kitchen" group is renamed App (Settings, History, Looks, Categories, Locations and spots; Kitchie PR #586); Preferences stays its own group. Earlier note: the Kitchen group is renamed App and holds Looks, Categories, Locations and spots. Looks is the theme and display card as its own screen.
 - **Effect on this report:** verdict and the four decisions in section 7 stand. UAT checklist gains: profile menu shows Preferences as its own section; Settings shows App with three rows; Looks opens the theme screen.
+
+### 11 Oct (3)
+
+Third owner note of 11 October 2026 (detail: `preferences-build-handoff.md`, "11 Oct (3)"). **Not built or checked.**
+
+- **Profile menu:** App reads Settings, History, Looks, Kitchen setup (Categories, Locations and spots), Install. "Install" replaces On this phone / Installed and is always actionable, never a permanent Installed state.
+- **Household on mobile** shows members, chips (Founding member, Admin, Member), roles, and Make admin / Remove admin for the founding member, as on desktop.
+- **Effect on this report:** verdict and the four decisions in section 7 stand. UAT checklist gains: Kitchen setup subgroup; Install opens every time; Household as the founding member shows Make admin, as Sam shows none.
