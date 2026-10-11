@@ -14,8 +14,6 @@
 .panel[data-empty="1"]{display:none}
 .panel.rise{animation:sheetup .26s ease-out}
 .panel[data-mode=add]{height:88vh;max-height:88vh}
-/* the emoji picker is taller than the half sheet, so the sheet grows while it is open */
-.panel[data-emoji]{max-height:78vh}
 .panel .phint,.panel .kbd.cap{display:none}
 .hacts .x{display:none}
 .ief-child{z-index:32;height:84vh;box-shadow:0 -10px 28px rgba(0,0,0,.3)}

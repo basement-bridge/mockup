@@ -8,6 +8,8 @@
 // the use-by quick choices (same set in Edit and Add), a hand-set level drawn exactly like a calculated one, no automatic shopping, key hints shown on the icons.
 // Covers (owner, typed, 12 Oct 2026, decisions 102 to 107): NO shopping group in Edit or Add at any width; "How much to buy" in the item flyout only at Running low or Out (calculated or hand-set), a stepper for weighed or counted and the own-words box
 // for no exact quantity, the default per decision 99, the plain add unchanged at Plenty and Some, a level never adds anything, and the emoji tile in the item flyout header (opens the picker, picks, clears, Esc closes the picker only, History line).
+// Covers (owner, by voice, 12 Oct 2026, decisions 116 to 121): the emoji as a plain text box with the suggestion strip (no picker, placeholder and its size, one row while typing, highlight, own emoji kept at once,
+// the newest of two kept, words revert, clear saves no emoji, Esc closes the strip only, Shift+Enter left to Add), the item flyout's tile showing and focusing its box; units cleared, folded (kilos, Kg, boxes, ML) and "2kg" split.
 // Env: W=390,1440 limits the widths (a dev shortcut; the full run is all four).
 import { readFileSync } from "node:fs";
 import { chromium } from "playwright-core";
@@ -259,44 +261,86 @@ for (const [w, h, kind] of SIZES) {
     ok(`${tag} history lists the level and quantity edits under Today`, /today/i.test(hist) && /Level/.test(hist) && /Quantity/.test(hist), hist.slice(0, 160));
     await p.close();
 
-    /* 5. emoji, Edit and Add */
+    /* 5. emoji, Edit and Add (decisions 116 to 119): a plain text box with the suggestion strip under it; no picker, no panel, no popup */
     p = await open("?sel=butter&child=edit");
+    await p.waitForFunction(() => !!(window.IEF && IEF.emoji));
+    ok(`${tag} emoji: a plain box under the name holds the emoji, the hint is its placeholder, no picker anywhere`, (await p.inputValue("#ef-emoin")) === "🧈" && (await p.getAttribute("#ef-emoin", "placeholder")) === "Search, or type or paste your own emoji" && (await p.locator("#ef-emojis, .ef-ep, [data-epi], .ef-eph").count()) === 0);
+    ok(`${tag} emoji: the placeholder keeps the size rule (12 to 15px)`, await p.evaluate(() => { const f = parseFloat(getComputedStyle(document.querySelector("#ef-emoin"), "::placeholder").fontSize); return f >= 12 && f <= 15; }));
+    ok(`${tag} emoji: with an emoji set the strip shows nothing`, await p.locator("#sg-emo").isHidden());
     await p.click("#ef-emo");
-    await p.waitForSelector("#ef-emojis [data-epi]");
-    ok(`${tag} emoji picker opens with search, recent, grid`, (await p.locator("#ef-emojis .ef-epr .ef-e").count()) > 0 && (await p.locator("#ef-emojis .ef-epa .ef-e").count()) > 100);
-    await shot(p, "emoji-open");
-    await p.fill("[data-epi]", "chee");
-    ok(`${tag} emoji search finds cheese`, (await p.locator("#ef-emojis .ef-epa .ef-e").first().getAttribute("data-e")) === "🧀" && (await p.locator("#ef-emojis .ef-epr").isHidden()));
-    await p.fill("[data-epi]", "zzzz");
-    ok(`${tag} emoji search with no match says so`, !(await p.locator(".ef-epn").isHidden()));
-    /* decision 115: one hint line says own emoji are welcome; a typed or pasted emoji becomes the first tile and Enter sets it */
-    const hb = await p.locator("#ef-emojis .ef-eph").boundingBox(), sb = await p.locator("#ef-emojis .ef-eps").boundingBox();
-    ok(`${tag} emoji hint says "Search, or type or paste your own emoji", on one line`, (await p.innerText("#ef-emojis .ef-eph")) === "Search, or type or paste your own emoji" && hb && hb.height < 22 && hb.y >= sb.y + sb.height - 6);
-    const y0 = (await p.locator("#ef-emojis .ef-eph").boundingBox()).y;
-    await p.fill("[data-epi]", "mango \u{1F96D}");
-    ok(`${tag} a typed emoji is offered as the first tile; the hint stays put`, (await p.locator("#ef-emojis .ef-epa .ef-e").first().getAttribute("data-e")) === "\u{1F96D}" && Math.abs((await p.locator("#ef-emojis .ef-eph").boundingBox()).y - y0) < 1 && (await p.locator("#ef-emojis .ef-epa .ef-e").first().boundingBox()).height >= 44);
-    await p.fill("[data-epi]", "\u{1F99A}"); await p.press("[data-epi]", "Enter");
-    ok(`${tag} Enter on a pasted emoji outside the list sets the tile`, (await p.innerText("#ef-emo")) === "\u{1F99A}");
-    await p.click("#ef-emo"); await p.waitForSelector("#ef-emojis [data-epi]");
-    await p.fill("[data-epi]", "chee"); await p.locator("#ef-emojis .ef-epa .ef-e").first().click();
-    ok(`${tag} emoji picked: tile, header and list update`, (await p.innerText("#ef-emo")) === "🧀" && (await p.innerText("#ief-head .ph")) === "🧀" && /🧀 butter/.test(await p.innerText("#ief-list")) && (await p.locator("#ef-emojis:visible").count()) === 0);
-    await p.click("#ef-emo"); await p.waitForSelector("#ef-emojis [data-epi]");
-    ok(`${tag} recent now leads with the pick`, (await p.locator("#ef-emojis .ef-epr .ef-e").first().getAttribute("data-e")) === "🧀");
-    ok(`${tag} No emoji offered once one is set`, (await p.locator('#ef-emojis .ef-eno').count()) === 1);
+    ok(`${tag} emoji: the tile focuses the box (no panel opens)`, (await p.evaluate(() => document.activeElement && document.activeElement.id)) === "ef-emoin" && (await p.locator("#ief-child:visible").count()) === 1);
+    await p.keyboard.type("c");
+    const sh1 = (await p.locator("#sg-emo").boundingBox()).height, below1 = (await p.locator("#ef-s-qty").boundingBox()).y;
+    await p.keyboard.type("hee");
+    ok(`${tag} emoji: typing filters the list and highlights cheese`, /cheese/.test(await p.innerText("#sg-emo .ef-chip.hl")) && (await p.getAttribute("#ef-emoin", "aria-expanded")) === "true" && !!(await p.getAttribute("#ef-emoin", "aria-activedescendant")), await p.innerText("#sg-emo"));
+    ok(`${tag} emoji: one row of 44px pills, and typing does not move anything (same strip height)`, await p.evaluate(() => [...document.querySelectorAll("#sg-emo .ef-chip")].every(b => b.getBoundingClientRect().height >= 44)) && Math.abs((await p.locator("#sg-emo").boundingBox()).height - sh1) < 1 && Math.abs((await p.locator("#ef-s-qty").boundingBox()).y - below1) < 1 && sh1 < 60, sh1);
+    await shot(p, "emoji-typed");
+    await p.keyboard.type("zz");
+    ok(`${tag} emoji: no match says so, in the same row`, /No emoji matches/.test(await p.innerText("#sg-emo")) && Math.abs((await p.locator("#sg-emo").boundingBox()).height - sh1) < 1);
     await p.keyboard.press("Escape");
-    ok(`${tag} Esc closes the picker only`, (await p.locator("#ef-emojis:visible").count()) === 0 && (await p.locator("#ief-child:visible").count()) === 1);
-    await p.click("#ef-emo"); await p.waitForSelector("#ef-emojis .ef-eno"); await p.click("#ef-emojis .ef-eno");
-    ok(`${tag} No emoji clears it`, (await p.locator("#ef-emo svg").count()) === 1 && !/🧀 butter|🧈 butter/.test(await p.innerText("#ief-list")) && (await p.getAttribute("#ef-emo", "aria-label")) === "Add an emoji");
+    ok(`${tag} emoji: Esc closes the strip only (the edit flyout stays, the box keeps focus)`, (await p.locator("#sg-emo").isHidden()) && (await p.locator("#ief-child:visible").count()) === 1 && (await p.evaluate(() => document.activeElement.id)) === "ef-emoin");
+    await p.keyboard.press("Tab");
+    ok(`${tag} emoji: words that are no emoji and were not picked go back to what was there`, (await p.inputValue("#ef-emoin")) === "🧈" && (await p.innerText("#ef-emo")) === "🧈");
+    await p.fill("#ef-emoin", "chee"); await p.press("#ef-emoin", "Enter");
+    ok(`${tag} emoji: Enter takes the highlighted match: tile, box, header and list update`, (await p.innerText("#ef-emo")) === "🧀" && (await p.inputValue("#ef-emoin")) === "🧀" && (await p.innerText("#ief-head .ph")) === "🧀" && /🧀 butter/.test(await p.innerText("#ief-list")) && (await p.locator("#sg-emo").isHidden()));
+    ok(`${tag} emoji: the change is a History line`, await p.evaluate(() => (IEF.LOG.butter || []).some(e => e.field === "Emoji" && e.to === "🧀")));
+    await p.fill("#ef-emoin", "\u{1F99A}");
+    ok(`${tag} emoji: a typed or pasted emoji outside the list is kept at once`, (await p.innerText("#ef-emo")) === "\u{1F99A}" && (await p.inputValue("#ef-emoin")) === "\u{1F99A}");
+    await p.fill("#ef-emoin", "mango \u{1F96D}");
+    ok(`${tag} emoji: an emoji with words is the outlined first pill, highlighted`, (await p.locator("#sg-emo .ef-chip").first().getAttribute("class")).includes("add") && (await p.locator("#sg-emo .ef-chip.hl").first().innerText()).includes("\u{1F96D}"));
+    await p.press("#ef-emoin", "Enter");
+    ok(`${tag} emoji: Enter keeps that one emoji`, (await p.innerText("#ef-emo")) === "\u{1F96D}");
+    await p.fill("#ef-emoin", "\u{1F96D}\u{1F350}");
+    ok(`${tag} emoji: two emoji typed: the new one is kept, only one`, (await p.inputValue("#ef-emoin")) === "\u{1F350}" && (await p.innerText("#ef-emo")) === "\u{1F350}");
+    await p.fill("#ef-emoin", "");
+    ok(`${tag} emoji: a cleared box shows one row: one or two pills and the chevron`, !(await p.locator("#sg-emo").isHidden()) && (await p.locator("#sg-emo .ef-chip:visible").count()) >= 1 && (await p.locator("#sg-emo .ef-chip:visible").count()) <= 2 && (await p.locator("#sg-emo .ef-cx:visible").count()) === 1 && (await p.locator("#sg-emo").boundingBox()).height < 60);
+    ok(`${tag} emoji: Recent leads with the last pick`, (await p.locator("#sg-emo .ef-chip").first().innerText()).includes("\u{1F350}"), await p.innerText("#sg-emo"));
+    await shot(p, "emoji-empty");
+    await p.press("#ef-emoin", "Tab");
+    ok(`${tag} emoji: leaving the cleared box saves no emoji: neutral tile, list row without one`, (await p.locator("#ef-emo svg").count()) === 1 && (await p.getAttribute("#ef-emo", "aria-label")) === "Add an emoji" && (await p.evaluate(() => IEF.items.filter(i => i.id === "butter")[0].emoji)) === "" && !/\u{1F350} butter/u.test(await p.innerText("#ief-list")) && (await p.evaluate(() => (IEF.LOG.butter || []).some(e => e.field === "Emoji" && e.to === "not set"))));
+    await p.click("#ef-emoin"); await p.keyboard.type("ap");
+    const ad0 = await p.getAttribute("#ef-emoin", "aria-activedescendant"); await p.keyboard.press("ArrowDown");
+    ok(`${tag} emoji: arrow keys move the highlight`, (await p.getAttribute("#ef-emoin", "aria-activedescendant")) !== ad0);
+    await p.locator("#sg-emo .ef-chip").first().click();
+    ok(`${tag} emoji: a tapped pill is kept`, (await p.locator("#ef-emo svg").count()) === 0 && (await p.innerText("#ef-emo")).length > 0);
+    ok(`${tag} emoji: no sideways scroll`, await p.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth));
     ok(`${tag} no console errors (emoji)`, errs.length === 0, errs); errs.length = 0; await p.close();
 
     p = await open("?mode=add");
-    await p.click("#ef-emo"); await p.waitForSelector("#ef-emojis [data-epi]"); await p.fill("[data-epi]", "bread");
-    await p.locator("#ef-emojis .ef-epa .ef-e").first().click();
-    ok(`${tag} Add: emoji picked`, (await p.innerText("#ef-emo")) === "🍞");
+    await p.waitForFunction(() => !!(window.IEF && IEF.emoji));
+    ok(`${tag} Add: the empty emoji box shows its strip: one row, one or two pills, the chevron`, !(await p.locator("#sg-emo").isHidden()) && (await p.locator("#sg-emo .ef-chip:visible").count()) >= 1 && (await p.locator("#sg-emo .ef-chip:visible").count()) <= 2 && (await p.locator("#sg-emo .ef-cx:visible").count()) === 1);
+    await p.click("#ef-emoin"); await p.keyboard.type("bread"); await p.keyboard.press("Enter");
+    ok(`${tag} Add: emoji picked`, (await p.innerText("#ef-emo")) === "🍞" && (await p.locator("#ief-panel .ef, #ief-child .ef").count()) === 1);
     await p.fill('[data-f="name"]', "sourdough"); await p.click('[data-ef="addgo"]');
     await p.waitForTimeout(150);
     ok(`${tag} Add: the new item keeps its emoji and name`, /🍞 sourdough/.test(await p.innerText("#ief-list")), (await p.innerText("#ief-list")).slice(0, 80));
+    if (kind === "desktop") {
+      await p.click('[data-ief="add"]').catch(() => {}); await p.waitForSelector('[data-mode="add"] #ef-emoin');
+      await p.fill('[data-f="name"]', "croissant"); await p.click("#ef-emoin"); await p.keyboard.insertText("\u{1F950}"); await p.keyboard.press("Shift+Enter"); await p.waitForTimeout(150);
+      ok(`${tag} Add: Shift+Enter in the emoji box is left to the form (adds, with the emoji, and starts another)`, /\u{1F950} croissant/u.test(await p.innerText("#ief-list")) && (await p.inputValue('[data-f="name"]')) === "", (await p.innerText("#ief-list")).slice(0, 80));
+    }
     ok(`${tag} no console errors (add)`, errs.length === 0, errs); errs.length = 0; await p.close();
+
+    /* 5b. units (decisions 120 and 121): clearing is always allowed; typed units fold onto the household's own; "2kg" splits when it is unambiguous */
+    p = await open("?sel=carrots&child=edit");
+    const unitIs = async (typed, want, amt) => { await p.fill('[data-f="unit"]', typed); await p.press('[data-f="unit"]', "Enter"); await p.waitForTimeout(30); const it = await p.evaluate(() => { const i = IEF.items.filter(x => x.id === "carrots")[0]; return [i.unit, i.amount]; }); ok(`${tag} unit: "${typed}" is ${want || "no unit"}${amt === undefined ? "" : " and " + amt}`, it[0] === want && (amt === undefined || it[1] === amt), it); };
+    await unitIs("kilos", "kg"); await unitIs("Kg", "kg"); await unitIs("KILOGRAMS", "kg"); await unitIs("kilo", "kg");
+    await unitIs("boxes", "box"); await unitIs("ML", "mL"); await unitIs("litres", "L"); await unitIs("packets", "pack");
+    await unitIs("", "");
+    ok(`${tag} unit: cleared, the item has no unit and reads as a plain number`, (await p.evaluate(() => IEF.qtyText(IEF.items.filter(x => x.id === "carrots")[0]))) === "1");
+    await unitIs("2kg", "kg", 2);
+    await p.fill('[data-f="amount"]', "3 kilos"); await p.press('[data-f="amount"]', "Tab"); await p.waitForTimeout(30);
+    ok(`${tag} unit: "3 kilos" in the quantity box is 3 kg`, JSON.stringify(await p.evaluate(() => { const i = IEF.items.filter(x => x.id === "carrots")[0]; return [i.amount, i.unit]; })) === '[3,"kg"]');
+    await p.fill('[data-f="unit"]', "kilos");
+    ok(`${tag} unit: the note says what Enter will keep`, /Enter keeps it as kg/.test(await p.innerText("#ef-s-qty .ef-newunit")), await p.innerText("#ef-s-qty .ef-newunit"));
+    await p.press('[data-f="unit"]', "Escape"); await p.close();
+    p = await open("?sel=spinach&child=edit");
+    await p.fill('[data-f="text"]', "2 x 400 g"); await p.press('[data-f="text"]', "Tab"); await p.waitForTimeout(30);
+    ok(`${tag} unit: "2 x 400 g" in the own-words box stays words (not unambiguous)`, (await p.evaluate(() => { const i = IEF.items.filter(x => x.id === "spinach")[0]; return i.amount === null && i.text === "2 x 400 g"; })));
+    await p.fill('[data-f="text"]', "2 kilos"); await p.press('[data-f="text"]', "Tab"); await p.waitForTimeout(30);
+    ok(`${tag} unit: "2 kilos" in the own-words box becomes 2 kg`, JSON.stringify(await p.evaluate(() => { const i = IEF.items.filter(x => x.id === "spinach")[0]; return [i.amount, i.unit, i.text]; })) === '[2,"kg",""]');
+    ok(`${tag} unit: the matcher's table`, JSON.stringify(await p.evaluate(() => [IEF.splitQty("2kg"), IEF.splitQty("250ml"), IEF.splitQty("1,500 g"), IEF.splitQty("2 eggs"), IEF.splitQty("half a bag"), IEF.unitMatch("tsps"), IEF.unitMatch("Box"), IEF.unitMatch("punnet")])) === JSON.stringify([{ amount: 2, unit: "kg" }, { amount: 250, unit: "mL" }, null, null, null, "tsp", "box", "punnet"]));
+    ok(`${tag} no console errors (units)`, errs.length === 0, errs); errs.length = 0; await p.close();
 
     /* 7. the bands, as a table (decision 84 confirmed for counted AND weighed, 95 for no minimum) */
     p = await open("?sel=eggs");
@@ -502,80 +546,69 @@ for (const [w, h, kind] of SIZES) {
       ok(`${tag} no console errors (household)`, errs.length === 0, errs); errs.length = 0; await hp.close();
     }
 
-    /* 10. the emoji tile in the item flyout's header (decision 106): opens the picker, picks, clears, Esc closes the picker only; same save path as Edit */
+    /* 10. the emoji tile in the item flyout's header (decision 106, kept by 119): a tap shows the emoji box under the header and focuses it; same save path as Edit */
     p = await open("?sel=cheddar");
     ok(`${tag} sheet: no emoji shows the dashed "+" tile, labelled Add an emoji`, (await p.locator("#ief-emo svg").count()) === 1 && (await p.getAttribute("#ief-emo", "aria-label")) === "Add an emoji" && (await p.locator("#ief-emo.empty").count()) === 1);
     ok(`${tag} sheet: the tile is a 44px or larger target`, await p.evaluate(() => { const b = document.querySelector("#ief-emo").getBoundingClientRect(); return b.width >= 44 && b.height >= 44; }));
-    ok(`${tag} sheet: nothing else was fetched for the picker before the tap`, !(await p.evaluate(() => !!window.IEF.emoji)));
+    ok(`${tag} sheet: nothing was fetched for the emoji before the tap, and the box is not shown`, !(await p.evaluate(() => !!window.IEF.emoji)) && (await p.locator("#ief-emof").isHidden()));
     await shot(p, "sheet-emoji-tile");
-    await p.click("#ief-emo"); await p.waitForSelector("#ief-emojis [data-epi]");
-    ok(`${tag} sheet: the tap opens the picker with search, recent and the grid`, (await p.locator("#ief-emojis .ef-epr .ef-e").count()) > 0 && (await p.locator("#ief-emojis .ef-epa .ef-e").count()) > 100 && (await p.getAttribute("#ief-emo", "aria-expanded")) === "true");
-    ok(`${tag} sheet: while it is open the picker takes the place of the tiles and buttons`, (await p.locator("#ief-tiles:visible").count()) === 0 && (await p.locator("#ief-acts:visible").count()) === 0 && (await p.locator("#ief-head:visible").count()) === 1);
-    ok(`${tag} sheet: the picker fits the screen width (no sideways scroll)`, await p.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth));
-    ok(`${tag} sheet: No emoji is not offered while there is none`, (await p.locator("#ief-emojis .ef-eno").count()) === 0);
+    await p.click("#ief-emo"); await p.waitForSelector("#ief-emoin:visible");
+    ok(`${tag} sheet: the tap shows the box under the header and focuses it; the tiles and buttons stay (no panel)`, (await p.evaluate(() => document.activeElement.id)) === "ief-emoin" && (await p.locator("#ief-tiles:visible").count()) === 1 && (await p.locator("#ief-acts:visible").count()) === 1 && (await p.getAttribute("#ief-emo", "aria-expanded")) === "true" && (await p.getAttribute("#ief-emoin", "placeholder")) === "Search, or type or paste your own emoji");
+    ok(`${tag} sheet: the empty box shows one row: one or two pills and the chevron`, (await p.locator("#ief-sg-emo .ef-chip:visible").count()) >= 1 && (await p.locator("#ief-sg-emo .ef-chip:visible").count()) <= 2 && (await p.locator("#ief-sg-emo").boundingBox()).height < 60);
+    ok(`${tag} sheet: no sideways scroll`, await p.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth));
     await shot(p, "sheet-emoji-open");
-    await p.fill("#ief-emojis [data-epi]", "chee");
-    ok(`${tag} sheet: search finds cheese`, (await p.locator("#ief-emojis .ef-epa .ef-e").first().getAttribute("data-e")) === "🧀" && (await p.locator("#ief-emojis .ef-epr").isHidden()));
-    await p.fill("#ief-emojis [data-epi]", "zzzz");
-    ok(`${tag} sheet: no match says so`, !(await p.locator("#ief-emojis .ef-epn").isHidden()));
-    await p.fill("#ief-emojis [data-epi]", "chee"); await p.locator("#ief-emojis .ef-epa .ef-e").first().click();
-    ok(`${tag} sheet: picked, the tile, the list row and the tiles come back, the picker closes`, (await p.innerText("#ief-emo")) === "🧀" && /🧀 cheddar/.test(await p.innerText("#ief-list")) && (await p.locator("#ief-emojis:visible").count()) === 0 && (await p.locator("#ief-tiles:visible").count()) === 1 && (await p.getAttribute("#ief-emo", "aria-expanded")) === "false", await p.innerText("#ief-emo"));
+    await p.keyboard.type("chee");
+    ok(`${tag} sheet: typing highlights cheese`, /cheese/.test(await p.innerText("#ief-sg-emo .ef-chip.hl")));
+    await p.locator("#ief-sg-emo .ef-chip.hl").click();
+    ok(`${tag} sheet: picked: the tile and the list row follow, the box goes away`, (await p.innerText("#ief-emo")) === "🧀" && /🧀 cheddar/.test(await p.innerText("#ief-list")) && (await p.locator("#ief-emof").isHidden()) && (await p.locator("#ief-tiles:visible").count()) === 1 && (await p.getAttribute("#ief-emo", "aria-expanded")) === "false", await p.innerText("#ief-emo"));
     ok(`${tag} sheet: the toast says so, with Undo`, /emoji is 🧀/.test(await toast(p)) && /Undo/.test(await toast(p)), await toast(p));
     ok(`${tag} sheet: the change is in this item's History as an Emoji line`, await p.evaluate(() => (IEF.LOG.cheddar || []).some(e => e.field === "Emoji" && e.to === "🧀")));
-    await p.click("#ief-emo"); await p.waitForSelector("#ief-emojis [data-epi]");
-    ok(`${tag} sheet: Recent leads with the pick and No emoji is now offered`, (await p.locator("#ief-emojis .ef-epr .ef-e").first().getAttribute("data-e")) === "🧀" && (await p.locator("#ief-emojis .ef-eno").count()) === 1);
+    await p.click("#ief-emo"); await p.waitForSelector("#ief-emoin:visible");
+    ok(`${tag} sheet: with an emoji set the box holds it and the strip shows nothing`, (await p.inputValue("#ief-emoin")) === "🧀" && (await p.locator("#ief-sg-emo").isHidden()));
+    await p.keyboard.type("ch");
     await p.keyboard.press("Escape");
-    ok(`${tag} sheet: Esc closes the picker only (the sheet and the tiles stay)`, (await p.locator("#ief-emojis:visible").count()) === 0 && (await p.locator("#ief-panel .shead:visible").count()) === 1 && (await p.locator("#ief-tiles:visible").count()) === 1 && (await p.evaluate(() => document.activeElement && document.activeElement.id)) === "ief-emo");
+    ok(`${tag} sheet: Esc closes the strip only (box, sheet and tiles stay)`, (await p.locator("#ief-sg-emo").isHidden()) && (await p.locator("#ief-emof:visible").count()) === 1 && (await p.locator("#ief-panel .shead:visible").count()) === 1);
     await p.keyboard.press("Escape");
-    if (kind !== "desktop") ok(`${tag} sheet: a second Esc then closes the sheet (phone)`, (await p.locator("#ief-panel .shead").count()) === 0);
+    ok(`${tag} sheet: a second Esc puts the box away, keeps the emoji, focus back on the tile`, (await p.locator("#ief-emof").isHidden()) && (await p.innerText("#ief-emo")) === "🧀" && (await p.evaluate(() => document.activeElement && document.activeElement.id)) === "ief-emo" && (await p.locator("#ief-panel .shead:visible").count()) === 1);
+    await p.keyboard.press("Escape");
+    if (kind !== "desktop") ok(`${tag} sheet: a third Esc then closes the sheet (phone)`, (await p.locator("#ief-panel .shead").count()) === 0);
     await p.close();
     p = await open("?sel=butter");
     ok(`${tag} sheet: an emoji set shows in the tile, labelled so`, (await p.innerText("#ief-emo")) === "🧈" && /Emoji 🧈/.test(await p.getAttribute("#ief-emo", "aria-label")));
-    await p.click("#ief-emo"); await p.waitForSelector("#ief-emojis .ef-eno"); await p.click("#ief-emojis .ef-eno");
-    ok(`${tag} sheet: No emoji clears it (the "+" tile, the list row loses it)`, (await p.locator("#ief-emo svg").count()) === 1 && !/🧈 butter/.test(await p.innerText("#ief-list")) && (await p.getAttribute("#ief-emo", "aria-label")) === "Add an emoji" && (await p.locator("#ief-tiles:visible").count()) === 1);
+    await p.click("#ief-emo"); await p.waitForSelector("#ief-emoin:visible"); await p.fill("#ief-emoin", ""); await p.press("#ief-emoin", "Enter");
+    ok(`${tag} sheet: clearing the box saves no emoji (the "+" tile, the list row loses it)`, (await p.locator("#ief-emo svg").count()) === 1 && !/🧈 butter/.test(await p.innerText("#ief-list")) && (await p.getAttribute("#ief-emo", "aria-label")) === "Add an emoji" && (await p.locator("#ief-tiles:visible").count()) === 1);
     ok(`${tag} sheet: the clear is in History too`, await p.evaluate(() => (IEF.LOG.butter || []).some(e => e.field === "Emoji" && e.to === "not set")));
+    await p.click("#ief-emo"); await p.waitForSelector("#ief-emoin:visible"); await p.keyboard.insertText("\u{1F99A}");
+    ok(`${tag} sheet: an emoji typed or pasted from the device is kept at once`, (await p.innerText("#ief-emo")) === "\u{1F99A}" && /\u{1F99A} butter/u.test(await p.innerText("#ief-list")));
     await p.click('[data-ief="history"]'); await p.waitForSelector("#ief-child .hist");
     ok(`${tag} sheet: the History flyout shows the Emoji line`, /Emoji/.test(await p.innerText("#ief-cbody")), (await p.innerText("#ief-cbody")).slice(0, 120));
     ok(`${tag} no console errors (sheet emoji)`, errs.length === 0, errs); errs.length = 0; await p.close();
     p = await open("?sel=cheddar&down=1");
-    await p.click("#ief-emo"); await p.waitForSelector("#ief-emojis [data-epi]"); await p.locator("#ief-emojis .ef-epa .ef-e").first().click();
-    ok(`${tag} sheet: a failed save says so and keeps the old emoji and the picker`, /Not saved/.test(await toast(p)) && (await p.locator("#ief-emo.empty").count()) === 1 && (await p.locator("#ief-emojis:visible").count()) === 1, await toast(p));
+    await p.click("#ief-emo"); await p.waitForSelector("#ief-emoin:visible"); await p.locator("#ief-sg-emo .ef-chip").first().click();
+    ok(`${tag} sheet: a failed save says so and keeps the old emoji`, /Not saved/.test(await toast(p)) && (await p.locator("#ief-emo.empty").count()) === 1, await toast(p));
     await p.close();
     p = await open("?sel=cheddar&child=edit");
     if (kind === "phone") ok(`${tag} sheet: with Edit open over it the tile does not intercept the tap (it steps back)`, (await p.evaluate(() => getComputedStyle(document.querySelector("#ief-emo")).pointerEvents)) === "none");
     await p.close();
     if (kind === "desktop") {
       p = await open("?sel=cheddar&child=edit");
-      await p.click("#ief-emo"); await p.waitForSelector("#ief-emojis [data-epi]");
-      ok(`${tag} sheet: tapping the tile with Edit open steps Edit back so the picker has the place`, (await p.locator("#ief-child:visible").count()) === 0 && (await p.locator("#ief-emojis:visible").count()) === 1);
-      await p.fill("#ief-emojis [data-epi]", "bread"); await p.locator("#ief-emojis .ef-epa .ef-e").first().click();
+      await p.click("#ief-emo"); await p.waitForSelector("#ief-emoin:visible");
+      ok(`${tag} sheet: tapping the tile with Edit open steps Edit back and shows the box`, (await p.locator("#ief-child:visible").count()) === 0 && (await p.locator("#ief-emof:visible").count()) === 1);
+      await p.keyboard.type("bread"); await p.keyboard.press("Enter");
       await p.click('#ief-head [data-ief="edit"]'); await p.waitForSelector("#ief-child .ef");
-      ok(`${tag} sheet: reopening Edit shows the new emoji in its own tile`, (await p.innerText("#ef-emo")) === "🍞", await p.innerText("#ef-emo"));
+      ok(`${tag} sheet: reopening Edit shows the new emoji in its own tile and box`, (await p.innerText("#ef-emo")) === "🍞" && (await p.inputValue("#ef-emoin")) === "🍞", await p.innerText("#ef-emo"));
       await p.close();
       p = await open("?sel=cheddar");
-      await p.click("#ief-emo"); await p.waitForSelector("#ief-emojis [data-epi]"); await p.locator("#ief-emojis .ef-epa .ef-e").nth(3).focus();
-      await p.keyboard.press("d");
-      ok(`${tag} sheet: letter keys do nothing while the picker is focused (D does not mark it used up)`, (await p.locator("#ief-acts .btn:disabled:has-text('Marked Out')").count()) === 0 && (await p.evaluate(() => IEF.items.filter(i => i.id === "cheddar")[0].amount)) === 200);
-      const want = await p.locator("#ief-emojis .ef-epa .ef-e").nth(4).getAttribute("data-e");
-      await p.keyboard.press("ArrowRight"); await p.keyboard.press("Enter");
-      ok(`${tag} sheet: arrow keys and Enter on a grid emoji pick it`, (await p.innerText("#ief-emo")) === want, [await p.innerText("#ief-emo"), want]);
-      await p.close();
-      p = await open("?sel=cheddar");
-      await p.click("#ief-emo"); await p.waitForSelector("#ief-emojis [data-epi]"); await p.keyboard.type("bread");
-      await p.keyboard.press("Enter");
-      ok(`${tag} sheet: typing in the search then Enter picks the first match`, (await p.innerText("#ief-emo")) === "🍞", await p.innerText("#ief-emo"));
+      await p.click("#ief-emo"); await p.waitForSelector("#ief-emoin:visible"); await p.keyboard.press("d");
+      ok(`${tag} sheet: letter keys do nothing while typing in the box (D does not mark it used up)`, (await p.evaluate(() => IEF.items.filter(i => i.id === "cheddar")[0].amount)) === 200 && (await p.inputValue("#ief-emoin")) === "d");
       await p.close();
     }
-    p = await open("?sel=cheddar&child=edit");
-    await p.click("#ef-emo"); await p.waitForSelector("#ef-emojis [data-epi]");
-    ok(`${tag} Edit's own picker still opens from its tile, and it is a different box from the sheet's`, (await p.locator("#ef-emojis:visible").count()) === 1 && (await p.locator("#ief-emojis:visible").count()) === 0);
-    await p.close();
     p = await open("?sel=milk");
-    await p.click("#ief-emo"); await p.waitForSelector("#ief-emojis [data-epi]");
-    ok(`${tag} sheet: the opened picker marks the item's current emoji`, (await p.locator("#ief-emojis .ef-epa .ef-e.on").getAttribute("data-e")) === "🥛");
+    await p.click("#ief-emo"); await p.waitForSelector("#ief-emoin:visible"); await p.keyboard.type("milk");
+    ok(`${tag} sheet: the strip marks the item's current emoji`, (await p.locator("#ief-sg-emo .ef-chip.on").first().innerText()).includes("🥛"));
     await p.click('#ief-head [data-ief="edit"]');
     await p.waitForSelector("#ief-child .ef");
-    ok(`${tag} sheet: opening Edit closes the sheet's picker`, (await p.locator("#ief-emojis:visible").count()) === 0 && (await p.getAttribute("#ief-emo", "aria-expanded")) === "false");
+    ok(`${tag} sheet: opening Edit puts the sheet's box away`, (await p.locator("#ief-emof").isHidden()) && (await p.getAttribute("#ief-emo", "aria-expanded")) === "false" && (await p.locator("#ef-emoin").count()) === 1);
     await p.close();
 
     /* 9b. key hints are shown on the icons (decision 68, confirmed) */
@@ -589,9 +622,9 @@ for (const [w, h, kind] of SIZES) {
       p = await open("?sel=eggs");
       await p.keyboard.press("e"); await p.waitForSelector("#ief-child .ef");
       ok(`${tag} E opens the edit flyout`, (await p.locator("#ief-child:visible").count()) === 1);
-      await p.click("#ef-emo"); await p.waitForSelector("[data-epi]"); await p.keyboard.type("de");
-      ok(`${tag} letters do nothing while typing in the emoji search`, (await p.locator("#ief-child:visible").count()) === 1 && (await p.inputValue("[data-epi]")) === "de");
-      await p.keyboard.press("Escape"); await p.keyboard.press(",");
+      await p.click("#ef-emo"); await p.keyboard.type("de");
+      ok(`${tag} letters do nothing while typing in the emoji box`, (await p.locator("#ief-child:visible").count()) === 1 && (await p.inputValue("#ef-emoin")) === "de");
+      await p.keyboard.press("Escape"); await p.keyboard.press("Escape"); await p.keyboard.press(",");
       ok(`${tag} comma swaps to history`, (await p.getAttribute("#ief-child", "data-kind")) === "history");
       await p.keyboard.press("Control+Enter"); ok(`${tag} Ctrl Enter closes the child`, (await p.locator("#ief-child:visible").count()) === 0);
       await p.close();

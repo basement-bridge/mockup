@@ -3,10 +3,11 @@
    One layout (confirmed by the owner, 11 Oct 2026, decision 71): one scroll in five groups. The two tabs (B) and the tiles (C) were dropped and their code removed; they are in the git history (mockup PR 72).
    Each field is built once (INNER) and the layout only arranges them.
    11 Oct 2026 round: Location, Spot and Category are the same text-input-with-suggestions controls as the Add form in Kitchie uat (a list opens on focus, type to filter or add a new one); Category's suggestions are drawn as the chip row (proposed).
-   The emoji picker (search, recent, "No emoji") is the same for Edit and Add; its list of emoji is in emoji.js, fetched when the picker is first opened. Level is four battery icons, with an "Automatic" / "Set by you" cue (decisions 82 to 86, refined by 94 to 101).
+   The emoji is a plain text box under the name with the suggestion strip under it (decisions 116 to 119, owner by voice 12 Oct 2026; no picker, no panel); its code and list are in emoji.js, fetched when the form is drawn. Level is four battery icons, with an "Automatic" / "Set by you" cue (decisions 82 to 86, refined by 94 to 101).
    Round 3 (owner's voice answers of 11 Oct 2026, decisions 94 to 101): Category and Unit are a text box plus a row of quick-pick chips, free text for anything not in the list; a hand-set level goes back to automatic only when stock is added; with no minimum the level is Plenty until 0.
    Round 5 (owner, typed, 12 Oct 2026, decisions 108 to 113): Location, Spot and Category share ONE suggestion strip (strip* below; the Pantry filter bar's chips): a single row under the field, hidden while the field has a value, shown when it is empty or the person types or clears it; the level's "Set by you" cue gets a labelled "Back to automatic" button.
-   Round 4 (owner, typed, 12 Oct 2026, decisions 102 to 107): there is NO shopping group in Edit. "How much to buy" and the button live in the item flyout and show only at Running low or Out (flyout.js). The emoji picker's code moved to emoji.js so the item flyout's header tile shares it. */
+   Round 4 (owner, typed, 12 Oct 2026, decisions 102 to 107): there is NO shopping group in Edit. "How much to buy" and the button live in the item flyout and show only at Running low or Out (flyout.js). The emoji code is in emoji.js so the item flyout's header tile shares it.
+   Round 6 (owner, by voice 12 Oct 2026, decisions 116 to 121): the emoji field and its strip (emoji.js); a unit can always be cleared; a typed unit is matched to the household's own units (unitMatch below: "kilos", "Kg" and "kilogram" are kg, "boxes" is box) and "2kg" typed in the quantity, unit or own-words box splits into 2 and kg when that is unambiguous (splitQty). */
 (function () {
 "use strict";
 var IEF = window.IEF, $ = IEF.$, esc = IEF.esc, sv = IEF.sv, IC = IEF.IC, S = IEF.S, F = IEF.form = {};
@@ -23,8 +24,13 @@ function hasMin(it) { return !!(it.unit || it.min) || counted(it); }
 
 /* ---------- the field builders: the inner of each field's wrapper, rebuilt on its own when something it depends on changes ---------- */
 var unitsOpen = false;
+/* the emoji tile beside the name (kept, decision 119): the emoji, or the neutral "+" tile when none. A tap focuses the emoji box under the row (no picker any more). */
 function emoTile(it) {
-  return '<button type="button" class="ef-emo" id="ef-emo" data-ef="emoji" aria-expanded="' + !!(IEF.emoji && IEF.emoji.isOpen("edit")) + '" aria-controls="ef-emojis" aria-label="' + (it.emoji ? "Emoji " + it.emoji + ". Change it" : "Add an emoji") + '" title="' + (it.emoji ? "Change the emoji" : "Add an emoji") + '">' + (it.emoji ? it.emoji : sv(IC.plus, "", 22)) + "</button>";
+  return '<button type="button" class="ef-emo" id="ef-emo" data-ef="emoji" aria-controls="ef-emoin" aria-label="' + (it.emoji ? "Emoji " + it.emoji + ". Change it" : "Add an emoji") + '" title="' + (it.emoji ? "Change the emoji" : "Add an emoji") + '">' + (it.emoji ? it.emoji : sv(IC.plus, "", 22)) + "</button>";
+}
+/* the emoji box (decision 116): a plain text box, the hint as its placeholder, and the suggestion strip under it (emoji.js fills it). Not the name's combobox: its own. */
+function emoBox(it) {
+  return '<div class="ef-emof"><input class="ef-in ef-emoin" id="ef-emoin" data-emo="edit" type="text" value="' + esc(it.emoji || "") + '" placeholder="Search, or type or paste your own emoji" maxlength="40" autocomplete="off" autocapitalize="none" spellcheck="false" enterkeyhint="done" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="sg-emo" aria-label="Emoji"><div class="ef-cats ef-strip" id="sg-emo" data-kind="emo" data-open="false" data-n="0" hidden></div></div>';
 }
 /* a Location, Spot or Category box (decisions 108 to 110, owner 12 Oct 2026): the text box, and under it the ONE suggestion strip (stripBox) that all three share. The box is the combobox, the strip is its listbox. */
 function combo(key, lab, val, ph) {
@@ -56,7 +62,7 @@ var INNER = {
   name: function (it) {
     return '<div class="ef-nrow">' + emoTile(it)
       + '<label class="ef-big"><span class="sr-only">Name</span><input data-f="name" value="' + esc(it.name) + '" maxlength="60" autocomplete="off" placeholder="What is it?"></label></div>'
-      + '<div class="ef-ep" id="ef-emojis" role="group" aria-label="Pick an emoji" hidden></div>' + err("name");
+      + emoBox(it) + err("name");
   },
   qty: function (it) {
     if (it.amount === null) return L("Quantity") + '<div class="ef-row"><input class="ef-in" data-f="text" value="' + esc(it.text) + '" placeholder="In your own words, e.g. a handful" autocomplete="off" aria-label="Quantity"><button type="button" class="btn ghost sm" data-ef="addunit">Add unit</button></div>' + err("qty");
@@ -100,11 +106,11 @@ function layout(it) {
   if (add()) return sec("Item", field("name", it)) + sec("Amount", field("qty", it) + field("min", it)) + sec("Where", field("area", it) + field("spot", it) + field("cat", it)) + sec(null, field("useby", it));
   return sec("Item", field("name", it)) + sec("Amount", field("qty", it) + field("level", it) + field("min", it)) + sec("Where", field("area", it) + field("spot", it) + field("cat", it)) + sec(null, field("useby", it)) + recipe();
 }
-F.fill = function (it) { var b = $("#ief-cbody"); if (!b) return; if (IEF.emoji) IEF.emoji.reset("edit"); unitsOpen = false; STRIPS.forEach(function (k) { ST[k] = null; }); b.innerHTML = '<div class="ef">' + layout(it) + "</div>"; var t = $("#ief-ctitle h2"); if (t) t.textContent = "Edit item"; STRIPS.forEach(stripDraw); fitCats(); };
+F.fill = function (it) { var b = $("#ief-cbody"); if (!b) return; unitsOpen = false; STRIPS.forEach(function (k) { ST[k] = null; }); b.innerHTML = '<div class="ef">' + layout(it) + "</div>"; var t = $("#ief-ctitle h2"); if (t) t.textContent = "Edit item"; STRIPS.forEach(stripDraw); fitCats(); emoReady(); };
 F.fillAdd = function () {
-  var b = $("#ief-cbody"), it = IEF.draft, k = IEF.host.keys ? IEF.host : null; if (IEF.emoji) IEF.emoji.reset("edit"); unitsOpen = false; STRIPS.forEach(function (k) { ST[k] = null; });
+  var b = $("#ief-cbody"), it = IEF.draft, k = IEF.host.keys ? IEF.host : null; unitsOpen = false; STRIPS.forEach(function (k) { ST[k] = null; });
   b.innerHTML = '<div class="ef" data-mode="add">' + layout(it) + "</div>";
-  STRIPS.forEach(stripDraw); fitCats();
+  STRIPS.forEach(stripDraw); fitCats(); emoReady();
   $("#ief-cft").innerHTML = '<button type="button" class="btn pri" data-ef="addgo">Add item ' + IEF.kbd("enter", "keep") + '</button><button type="button" class="btn" data-ef="addmore">Add and start another ' + (k ? '<kbd class="kbd">&#8679; Enter</kbd>' : "") + '</button><button type="button" class="btn ghost" data-ief="addcancel">Cancel ' + (k ? '<kbd class="kbd">' + k.closeLabel + "</kbd>" : "") + "</button>";
 };
 F.nameError = function () { showErr("name", "A name is needed."); var i = $('[data-f="name"]'); if (i) i.focus(); };
@@ -144,6 +150,39 @@ function validate(f, v, it) {
   if (f === "useby" && v && IEF.daysTo(v) < 0) return "Pick today or later.";
   return "";
 }
+/* ---------- units: ONE matcher for the Unit box, the quantity box and the own-words box (decisions 120 and 121; Kitchie: quantity.ts matchUnit and splitAmountUnit, the same table) ----------
+   The seed is the usual ways of writing the common units, each folded to one spelling. The household's own units come first (IEF.units(): the quick-picks plus every unit an item uses), so a typed
+   unit takes the spelling the household already has. Case folds ("ML" is mL, "Kg" is kg: the case learning that was already here, canon() below), and so do plurals ("boxes" is box, "kilos" is kg).
+   If two of the household's units fold together ("box" and "boxes"), the more used one wins, then the singular. A word nobody has used and the seed does not know is kept as typed (a new unit, 98). */
+var SEED = { g: "gram grams gramme grammes gm gms gr grm", kg: "kgs kilo kilos kilogram kilograms kilogramme kilogrammes", mg: "mgs milligram milligrams", mL: "ml mls millilitre millilitres milliliter milliliters", L: "l lt ltr ltrs litre litres liter liters", tsp: "tsps teaspoon teaspoons", tbsp: "tbsps tbs tbl tblsp tablespoon tablespoons", cup: "cups", oz: "ozs ounce ounces", lb: "lbs pound pounds", pack: "packs packet packets pkt pkts pk", box: "boxes", tin: "tins", can: "cans", bottle: "bottles btl", jar: "jars", bag: "bags", loaf: "loaves", bunch: "bunches", carton: "cartons", roll: "rolls", dozen: "dozens doz", piece: "pieces pc pcs" };
+var SYN = {}; Object.keys(SEED).forEach(function (u) { SYN[u.toLowerCase()] = u; SEED[u].split(" ").forEach(function (w) { SYN[w] = u; }); });
+function singular(w) {
+  if (w.length > 4 && /ies$/.test(w)) return w.slice(0, -3) + "y";
+  if (w.length > 4 && /ves$/.test(w)) return w.slice(0, -3) + "f";
+  if (w.length > 4 && /(ches|shes|sses|xes|zes)$/.test(w)) return w.slice(0, -2);
+  if (w.length > 3 && /s$/.test(w) && !/ss$/.test(w)) return w.slice(0, -1);
+  return w;
+}
+function ukey(w) { var l = String(w).trim().replace(/\.$/, "").toLowerCase(); return (SYN[l] || SYN[singular(l)] || singular(l)).toLowerCase(); }
+function unitUse() { var n = {}; IEF.items.forEach(function (i) { if (i.unit) n[i.unit] = (n[i.unit] || 0) + 1; }); return n; }
+/* the unit a typed word stands for: { unit, known } (known: the household or the seed knows it). "" stays "" (no unit). */
+function unitOf(v) {
+  var t = String(v).trim().replace(/\s+/g, " ").replace(/\.$/, ""); if (!t) return { unit: "", known: true };
+  var k = ukey(t), use = unitUse();
+  var hit = IEF.units().filter(function (u) { return ukey(u) === k; })
+    .sort(function (a, b) { return (use[b] || 0) - (use[a] || 0) || (ukey(b) === b.toLowerCase()) - (ukey(a) === a.toLowerCase()) || a.length - b.length; });
+  if (hit.length) return { unit: hit[0], known: true };
+  var l = t.toLowerCase(), seed = SYN[l] || SYN[singular(l)];
+  return seed ? { unit: seed, known: true } : { unit: t, known: false };
+}
+IEF.unitMatch = function (v) { return unitOf(v).unit; };
+/* "2kg", "2 kg", "1.5 kilos", "250ml": a number and ONE unit the household or the seed knows. Anything else ("2 x 400 g", "half a bag", "2 eggs", "1,500 g") is left as typed. */
+function splitQty(v) {
+  var m = /^\s*(\d{1,4}(?:\.\d{1,3}|,\d{1,2})?)\s*([^\d\s.,][^\d\s]{0,19})\s*$/u.exec(String(v)); if (!m) return null;
+  var u = unitOf(m[2]); if (!u.known || !u.unit) return null;
+  return { amount: parseFloat(m[1].replace(",", ".")), unit: u.unit };
+}
+IEF.splitQty = splitQty;
 /* a typed word takes the household's own spelling when it matches one (the same folding Kitchie does for categories), else it is new */
 function canon(list, v) { v = String(v).trim(); var m = list.filter(function (x) { return x.toLowerCase() === v.toLowerCase(); })[0]; return m || v; }
 function apply(it, f, v) {
@@ -151,7 +190,7 @@ function apply(it, f, v) {
   if (f === "name") it.name = String(v).trim() || it.name;
   else if (f === "amount") { var w0 = it.amount; it.amount = round2(v); if (it.amount === 0 && w0 > 0) it.prev = w0; IEF.qtyChanged(it, w0); }
   /* a unit change is not a restock: the pick stays (decision 96). A typed unit takes the household's own spelling when it matches one. */
-  else if (f === "unit") it.unit = canon(IEF.units(), String(v).replace(/\s+/g, " "));
+  else if (f === "unit") it.unit = unitOf(v).unit;
   else if (f === "qclear") { it.amount = null; it.text = ""; it.unit = ""; it.prev = null; it.lvSet = null; }
   else if (f === "level") {
     /* a pick. Out is zero, always. Any other level brings back the amount from before it was Out, then is the person's: kept as the pick where rules can work the level out (until the quantity changes), or as the stored label where they cannot. */
@@ -208,6 +247,13 @@ function after(f, it) {
   else if (f === "useby") redraw([f], it);
   else if (f === "emoji") refreshEmoji(it);
 }
+/* an amount and a unit at once (a split "2kg", decision 121): one change, one History line */
+function setQty(it, a, u) {
+  if (!add() && S.down) { showErr("qty", "Not saved. We can't reach the platform."); return; }
+  var before = fmt(it, "amount"), w0 = it.amount; it.text = ""; it.amount = round2(a); it.unit = u; IEF.qtyChanged(it, w0); clearErr("qty");
+  if (!add()) { IEF.log(it, "Quantity", before, fmt(it, "amount")); IEF.say("Saved"); IEF.syncParent(); }
+  redraw(["qty", "level", "min"], it);
+}
 function num(s) { s = String(s).trim().replace(",", "."); return s === "" ? "" : (isFinite(s) ? parseFloat(s) : NaN); }
 function step(it, key, d) {
   var u = it.unit, st = counted(it) ? 1 : (IEF.STEP[u] || 1), cur = key === "min" ? (parseFloat(it.min) || 0) : (it.amount || 0), n = Math.max(0, round2(cur + d * st));
@@ -215,8 +261,9 @@ function step(it, key, d) {
   var i = $('[data-f="' + key + '"]'); if (i) i.value = key === "min" && n === 0 ? "" : n;
 }
 
-/* ---------- the emoji picker: its code is in emoji.js (shared with the item flyout's header tile), fetched the first time a picker opens. The tile here only asks for it. ---------- */
+/* ---------- the emoji field: its code is in emoji.js (shared with the item flyout's header tile), fetched when a form is drawn. The tile here only follows what is saved. ---------- */
 function refreshEmoji(it) { var t = $("#ef-emo"); if (t) t.outerHTML = emoTile(it); }
+function emoReady() { IEF.need("emoji.js", function () { IEF.emoji.drawEdit(); }); }
 
 /* ---------- the suggestion strip: Location, Spot and Category, one implementation (decisions 108 to 110, owner, typed 12 Oct 2026) ----------
    The strip is the Pantry filter bar's row (tag or pin icon, pills, a chevron for the rest), drawn UNDER the box. Rules:
@@ -319,7 +366,7 @@ document.addEventListener("click", function (e) {
   else if (k === "lvauto") { var l0 = level(it); IEF.autoAgain(it); if (!add()) { IEF.log(it, "Level", l0, level(it)); IEF.say("Saved"); IEF.syncParent(); } redraw(["level"], it); var ra = $('#ef-s-level [aria-checked="true"]'); if (ra) ra.focus({ preventScroll: true }); }
   else if (k === "qclear") save("qclear", "");
   else if (k === "addunit") { var t = parseFloat(it.text); it.amount = isFinite(t) ? t : 1; it.unit = ""; var tx = it.text; it.text = ""; if (it.level && it.level !== "Out" && it.level !== IEF.autoLevel(it)) it.lvSet = it.level; /* the label the person picked stays, as a hand-set level, so the level does not jump */ if (!add()) { IEF.log(it, "Quantity", tx || "not set", qtyText(it)); IEF.say("Saved"); IEF.syncParent(); } redraw(["qty", "level", "min"], it); var s = $('#ef-s-qty .ef-unitin'); if (s) s.focus(); }
-  else if (k === "emoji") IEF.need("emoji.js", function () { IEF.emoji.toggle("edit"); });
+  else if (k === "emoji") { var ei = $("#ef-emoin"); if (ei) { ei.scrollIntoView({ block: "nearest", behavior: "auto" }); ei.focus({ preventScroll: true }); } }
   else if (k === "sgpick") { var sk = el.closest(".ef-strip").dataset.kind; stripChoose(sk, st(sk).items[+el.dataset.i]); }
   else if (k === "sgmore") { var mk = el.closest(".ef-strip").dataset.kind; st(mk).open = !st(mk).open; stripDraw(mk, true); }
   else if (k === "unitchip") { var onu = el.getAttribute("aria-pressed") === "true"; save("unit", onu ? "" : el.dataset.v); }
@@ -332,10 +379,13 @@ document.addEventListener("click", function (e) {
 function onField(e, final) {
   var i = e.target.closest && e.target.closest("[data-f]"); if (!i || !i.isConnected || !i.closest(".ef")) return;
   var it = IEF.target(), f = i.dataset.f, v = i.value;
+  /* "2kg" in the quantity, unit or own-words box: 2 and kg, when it is unambiguous (121) */
+  if (f === "amount" || f === "unit" || f === "text") { var sp = splitQty(v); if (sp) { setQty(it, sp.amount, sp.unit); return; } }
   if (f === "amount" || f === "min") { var n = num(v); if (f === "min" && n === "") { save("min", ""); return; } if (f === "amount" && n === "") { showErr("amount", "Use a number from 0 up."); return; } v = n; if (n !== n) { showErr(f, f === "min" ? "Use a number, or clear it." : "Use a number from 0 up."); return; } }
   if (f === "text") { var b = it.text; it.text = v; if (!add()) { IEF.log(it, "Quantity", b || "not set", v || "not set"); IEF.say("Saved"); IEF.syncParent(); } return; }
   if (f === "name" && !add() && !String(v).trim()) { showErr("name", "A name is needed."); return; }
   if (f === "name" && add()) { it.name = v; clearErr("name"); return; }
+  if (f === "unit" && unitOf(v).unit === it.unit) { i.value = it.unit; return; }
   if (f === "area" || f === "spot" || f === "cat" || f === "unit") { if (String(v).trim() === String(f === "area" && it.area === "Unplaced" ? "" : it[f]).trim()) return; }
   save(f, v);
 }
@@ -345,12 +395,12 @@ document.addEventListener("input", function (e) {
     /* a box with a list of suggestions commits when you leave it or pick one, never while you are typing (half a word must not become a location) */
     if (i.dataset.cb) { if (e.isTrusted) { var sk = i.dataset.cb, ss = st(sk); ss.typed = true; ss.off = false; ss.force = false; ss.open = false; stripDraw(sk); } return; }
     /* Category and Unit: typing filters the quick-pick chips; a word that is not in the list is kept when you press Enter or leave the box */
-    if (i.dataset.cbq) { var kq = i.dataset.cbq, w = i.closest(".ef-w"), cl = w && w.querySelector(".ef-cl"), it0 = IEF.target(); if (cl) { cl.innerHTML = unitItems(it0, i.value); fitCats(); } var nn = w && w.querySelector(".ef-newunit"), tv = i.value.trim(); if (nn) { var known = IEF.units().some(function (c) { return c.toLowerCase() === tv.toLowerCase(); }); nn.hidden = !tv || known; nn.textContent = "Enter adds “" + tv + "” as a new unit."; } return; }
+    if (i.dataset.cbq) { var kq = i.dataset.cbq, w = i.closest(".ef-w"), cl = w && w.querySelector(".ef-cl"), it0 = IEF.target(); if (cl) { cl.innerHTML = unitItems(it0, i.value); fitCats(); } var nn = w && w.querySelector(".ef-newunit"), tv = i.value.trim(); if (nn) { var um = unitOf(tv), sq = splitQty(tv), known = IEF.units().indexOf(um.unit) > -1; nn.hidden = !tv || (known && !sq && um.unit === tv); nn.textContent = sq ? "Enter makes it " + sq.amount + " " + sq.unit + "." : known || um.known ? "Enter keeps it as " + um.unit + "." : "Enter adds “" + tv + "” as a new unit."; } return; }
     clearTimeout(deb); deb = setTimeout(function () { onField(e); }, 600); return;
   }
 });
 document.addEventListener("change", function (e) { clearTimeout(deb); onField(e, true); });
-/* Esc closes the strip first and goes no further (the phone's Esc would close the sheet, and a box's Esc would leave it). An open emoji picker does the same (emoji.js). */
+/* Esc closes the strip first and goes no further (the phone's Esc would close the sheet, and a box's Esc would leave it). The emoji box's strip does the same (emoji.js). */
 document.addEventListener("keydown", function (e) {
   if (e.key !== "Escape") return;
   var t = e.target, k = t && t.matches && t.matches("[data-cb]") ? t.dataset.cb : null;

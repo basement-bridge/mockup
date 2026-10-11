@@ -130,6 +130,7 @@ var IC = IEF.IC = {
   pot: '<path d="M5 11h14v6a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3z"/><path d="M3 11h18M15 3l-3 8"/>', alert: '<circle cx="12" cy="12" r="9"/><path d="M12 7.5v5M12 16v.5"/>',
   pin: '<path d="M12 21s-6-5.2-6-10a6 6 0 1 1 12 0c0 4.8-6 10-6 10z"/><circle cx="12" cy="11" r="2"/>',
   tag: '<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1"/>',
+  smile: '<circle cx="12" cy="12" r="8.5"/><path d="M8.6 14.2a4.6 4.6 0 0 0 6.8 0"/><path d="M9.3 9.7h.01M14.7 9.7h.01"/>',
   ruler: '<path d="M3.5 15.5l12-12 5 5-12 12z"/><path d="M7 12l2.2 2.2M10 9l1.6 1.6M13 6l2.2 2.2"/>',
   rotate: '<path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/>',
   undo: '<path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>', search: '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>', chevd: '<path d="M7 10l5 5 5-5"/>',
@@ -179,10 +180,10 @@ function ib(act, label, icon) {
   return '<button type="button" class="ib' + (on ? " on" : "") + '" data-ief="' + act + '" aria-label="' + label + '" aria-expanded="' + on + '" aria-controls="ief-child" aria-keyshortcuts="' + (act === "edit" ? "E" : ",") + '" title="' + label + (hk(act) ? " (" + hk(act) + ")" : "") + '">' + sv(icon, "", 20) + kbd(act, "cap") + "</button>";
 }
 IEF.closeBtn = function (label, attr) { return '<button type="button" class="x ib" ' + (attr || 'data-ief="closechild"') + ' aria-label="' + label + '" title="' + label + '">' + sv(IC.x, "", 20) + "</button>"; };
-/* the emoji tile in the header (decision 106): the emoji when set, a dashed "+" tile when none. It opens the same picker as the edit form (emoji.js, fetched on the first tap) and saves through IEF.saveEmoji. */
+/* the emoji tile in the header (decision 106, kept by 119): the emoji when set, a dashed "+" tile when none. A tap shows the emoji box under the header and focuses it (emoji.js, fetched on the first tap; decisions 116 to 119), saved through IEF.saveEmoji. */
 IEF.sheetEmo = false;
 IEF.emoTileHtml = function (it) {
-  return '<button type="button" class="ph' + (it.emoji ? "" : " empty") + '" id="ief-emo" data-ief="sheetemoji" aria-expanded="' + IEF.sheetEmo + '" aria-controls="ief-emojis" aria-label="' + (it.emoji ? "Emoji " + it.emoji + ". Change it" : "Add an emoji") + '" title="' + (it.emoji ? "Change the emoji" : "Add an emoji") + '">' + (it.emoji ? it.emoji : sv(IC.plus, "", 22)) + "</button>";
+  return '<button type="button" class="ph' + (it.emoji ? "" : " empty") + '" id="ief-emo" data-ief="sheetemoji" aria-expanded="' + IEF.sheetEmo + '" aria-controls="ief-emoin" aria-label="' + (it.emoji ? "Emoji " + it.emoji + ". Change it" : "Add an emoji") + '" title="' + (it.emoji ? "Change the emoji" : "Add an emoji") + '">' + (it.emoji ? it.emoji : sv(IC.plus, "", 22)) + "</button>";
 };
 IEF.headHtml = function (it) {
   var q = qtyText(it), out = level(it) === "Out", sp = it.spot && it.spot !== "Anywhere" ? " · " + esc(it.spot) : "";
@@ -224,7 +225,7 @@ IEF.hintHtml = function (it) {
   return '<p class="phint" id="ief-hint">' + (counted(it) ? '<span class="kbd">U</span> use one ' : "") + '<span class="kbd">D</span> used up <span class="kbd">S</span> shopping list <span class="kbd">E</span> edit <span class="kbd">,</span> history</p>';
 };
 IEF.parentInner = function (it) {
-  return '<span class="grab" data-grab aria-hidden="true"></span><div class="top shead" id="ief-head" data-ief="strip">' + IEF.headHtml(it) + '</div><div class="tiles tiles4" id="ief-tiles">' + IEF.tilesHtml(it) + '</div><div class="sbuyw" id="ief-buyw">' + IEF.buyHtml(it) + '</div><div class="sacts" id="ief-acts">' + IEF.actsHtml(it) + '</div><div id="ief-hintw">' + IEF.hintHtml(it) + '</div><div class="ef-ep" id="ief-emojis" role="group" aria-label="Pick an emoji" hidden></div>';
+  return '<span class="grab" data-grab aria-hidden="true"></span><div class="top shead" id="ief-head" data-ief="strip">' + IEF.headHtml(it) + '</div><div class="ef-emof" id="ief-emof" hidden><input class="ef-in ef-emoin" id="ief-emoin" data-emo="sheet" type="text" value="' + esc(it.emoji || "") + '" placeholder="Search, or type or paste your own emoji" maxlength="40" autocomplete="off" autocapitalize="none" spellcheck="false" enterkeyhint="done" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="ief-sg-emo" aria-label="Emoji"><div class="ef-cats ef-strip" id="ief-sg-emo" data-kind="emo" data-open="false" data-n="0" hidden></div></div><div class="tiles tiles4" id="ief-tiles">' + IEF.tilesHtml(it) + '</div><div class="sbuyw" id="ief-buyw">' + IEF.buyHtml(it) + '</div><div class="sacts" id="ief-acts">' + IEF.actsHtml(it) + '</div><div id="ief-hintw">' + IEF.hintHtml(it) + '</div>';
 };
 IEF.emptyHtml = function () { return '<div class="pick"><p>Pick an item to see it here.</p><p class="phint">' + (hk("edit") ? '<span class="kbd">&uarr;</span> <span class="kbd">&darr;</span> to move, <span class="kbd">?</span> for all shortcuts' : "") + "</p></div>"; };
 /* re-draw only what an edit can change in the item flyout, so nothing under the pointer or focus is replaced */
@@ -240,8 +241,8 @@ IEF.syncParent = function () {
 IEF.drawPanel = function () {
   var p = $("#ief-panel"), it = IEF.cur();
   attr("open", (S.mode === "add" || it) ? "1" : "");
-  if (S.mode === "add") { p.innerHTML = IEF.childInner("add"); p.dataset.mode = "add"; p.dataset.empty = ""; IEF.sheetEmo = false; p.removeAttribute("data-emoji"); return; }
-  p.dataset.mode = "item"; p.dataset.empty = it ? "" : "1"; IEF.sheetEmo = false; p.removeAttribute("data-emoji");
+  if (S.mode === "add") { p.innerHTML = IEF.childInner("add"); p.dataset.mode = "add"; p.dataset.empty = ""; IEF.sheetEmo = false; return; }
+  p.dataset.mode = "item"; p.dataset.empty = it ? "" : "1"; IEF.sheetEmo = false;
   p.innerHTML = it ? IEF.parentInner(it) : IEF.emptyHtml();
   p.setAttribute("aria-label", it ? it.name : "Item detail");
 };
@@ -270,7 +271,7 @@ function syncIcons() { ["edit", "history"].forEach(function (k) { var b = $('#ie
 IEF.setChild = function (kind, o) {
   o = o || {}; settle();
   if (S.mode === "add" || !IEF.cur()) return;
-  if (IEF.sheetEmo && IEF.emoji) IEF.emoji.open("sheet", false);
+  if (IEF.sheetEmo && IEF.emoji) IEF.emoji.sheet(false);
   var c = $("#ief-child"), prev = S.child; S.child = kind; S.field = o.field || ""; IEF.from = o.from || IEF.from || null;
   if (!kind) { c.hidden = true; c.innerHTML = ""; attr("child", ""); syncIcons(); IEF.url(); if (IEF.host.childClosed) IEF.host.childClosed(prev); return; }
   c.hidden = false; c.dataset.kind = kind; attr("child", kind);
@@ -381,8 +382,8 @@ IEF.act = {
     var it = IEF.cur(); if (!it) return; var n = Math.max(0, round2(IEF.buyVal(it) + (+el.dataset.d) * stepOf(it)));
     IEF.setBuy(it, n); var i = $('[data-buy="num"]'); if (i) i.value = n;
   },
-  /* the picker takes the place of the tiles and buttons, so a child (Edit, History) that is open steps back first: one thing at a time in the item flyout (decision 107) */
-  sheetemoji: function () { if (S.child) IEF.closeChild(false); IEF.need("emoji.js", function () { IEF.emoji.toggle("sheet"); }); },
+  /* the tile shows the emoji box under the header and focuses it (decision 119); an open child (Edit, History) steps back first, so the box is in view */
+  sheetemoji: function () { if (S.child) IEF.closeChild(false); IEF.need("emoji.js", function () { IEF.emoji.sheet(); }); },
   add: function () { IEF.startAdd(); },
   addcancel: function () { IEF.cancelAdd(); },
   undo: function () { IEF.undo(); },
