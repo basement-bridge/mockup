@@ -10,13 +10,13 @@
 .dim{position:fixed;inset:0;z-index:20;background:var(--dim)}
 .app:not([data-open]) .dim{display:none}
 .panel,.ief-child{position:fixed;left:0;right:0;bottom:0;display:flex;flex-direction:column;gap:12px;padding:8px 16px max(16px,env(safe-area-inset-bottom));background:var(--surface);border-top:1px solid var(--border);border-radius:var(--r-card) var(--r-card) 0 0;overflow:auto;touch-action:pan-y}
-.panel{z-index:30;max-height:54vh;transition:bottom .26s ease-out,max-height .26s ease-out,transform .26s ease-out,filter .26s}
+.panel{z-index:30;bottom:var(--kb,0px);max-height:min(54vh,calc(100vh - var(--kb,0px) - 8px));transition:bottom .26s ease-out,max-height .26s ease-out,transform .26s ease-out,filter .26s}
 .panel[data-empty="1"]{display:none}
 .panel.rise{animation:sheetup .26s ease-out}
-.panel[data-mode=add]{height:88vh;max-height:88vh}
+.panel[data-mode=add]{height:88vh;max-height:min(88vh,calc(100vh - var(--kb,0px) - 8px))}
 .panel .phint,.panel .kbd.cap{display:none}
 .hacts .x{display:none}
-.ief-child{z-index:32;height:84vh;box-shadow:0 -10px 28px rgba(0,0,0,.3)}
+.ief-child{z-index:32;bottom:var(--kb,0px);height:min(84vh,calc(100vh - var(--kb,0px) - 8px));box-shadow:0 -10px 28px rgba(0,0,0,.3)}
 .ief-child.enter{animation:sheetup .26s ease-out}
 .ief-child .chd{padding-top:2px}
 .ief-child .cbody{padding-bottom:8px}

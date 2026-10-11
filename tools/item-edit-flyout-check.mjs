@@ -10,7 +10,9 @@
 // for no exact quantity, the default per decision 99, the plain add unchanged at Plenty and Some, a level never adds anything, and the emoji tile in the item flyout header (opens the picker, picks, clears, Esc closes the picker only, History line).
 // Covers (owner, by voice, 12 Oct 2026, decisions 116 to 121): the emoji as a plain text box with the suggestion strip (no picker, placeholder and its size, one row while typing, highlight, own emoji kept at once,
 // the newest of two kept, words revert, clear saves no emoji, Esc closes the strip only, Shift+Enter left to Add), the item flyout's tile showing and focusing its box; units cleared, folded (kilos, Kg, boxes, ML) and "2kg" split.
-// Env: W=390,1440 limits the widths (a dev shortcut; the full run is all four).
+// Covers (owner, by voice and text, 12 Oct 2026, decisions 129 to 132): the emoji tile is the whole field until tapped (box and strip hidden when an emoji is set and when none), what opens and closes it (tile, pill, typed emoji, Enter, Esc, blur),
+// clearing keeps it open, keyboard-dismiss (blur) keeps a valid emoji, the phone sheet lifts above the keyboard, the input hints, Back to automatic as a 44px button on every viewport and no "Not set" on Level; plus a 360 wide pass.
+// Env: W=390,1440 limits (W=360 runs only the 360 pass) the widths (a dev shortcut; the full run is all four).
 import { readFileSync } from "node:fs";
 import { chromium } from "playwright-core";
 import { mkdirSync } from "node:fs";
@@ -51,6 +53,8 @@ for (const [w, h, kind] of SIZES) {
     await shot(p, "level-auto");
     await p.click('#ef-s-level [data-v="Running low"]');
     ok(`${tag} override: Running low, set by you`, (await lvl(p)) === "Running low" && (await cue(p)) === "Set by you", [await lvl(p), await cue(p)]);
+    ok(`${tag} "Back to automatic" is a labelled 44px circular-arrow button on every viewport (decision 128 over 111)`, await p.evaluate(() => { const b = document.querySelector("#ef-s-level .ef-auto"); if (!b) return false; const r = b.getBoundingClientRect(), c = getComputedStyle(b); return r.width >= 44 && r.height >= 44 && b.getAttribute("aria-label") === "Back to automatic" && !!b.querySelector("svg") && r.width > 0 && c.visibility !== "hidden" && c.display !== "none"; }));
+    ok(`${tag} the Level control never says "Not set" (Automatic or Set by you only)`, !/not set/i.test(await p.innerText("#ef-s-level")) && ["Automatic", "Set by you"].includes(await cue(p)));
     ok(`${tag} override shows in the item flyout tile`, /Running low/.test(await tileLv(p)), await tileLv(p));
     await shot(p, "level-set");
     await p.click('#ef-s-qty [data-key="amount"][data-d="-1"]');
@@ -94,8 +98,19 @@ for (const [w, h, kind] of SIZES) {
     ok(`${tag} clicking it redraws the battery and the item flyout tile`, (await lvl(p)) === "Plenty" && /Plenty/.test(await tileLv(p)), [await lvl(p), await tileLv(p)]);
     await p.close();
     p = await open("?sel=spinach&child=edit&field=level");
-    ok(`${tag} no number (worded quantity): no cue and no control`, (await p.locator("#ef-s-level .ef-lvm").count()) === 0 && (await p.locator("#ef-s-level .ef-auto").count()) === 0, await p.locator("#ef-s-level .ef-lvm").count());
+    ok(`${tag} no number (worded quantity), level picked (decision 128): "Set by you" and the Back to automatic button, like any other item`, (await cue(p)) === "Set by you" && (await p.locator("#ef-s-level .ef-lvm .ef-auto").count()) === 1 && (await lvl(p)) === "Some", [await cue(p), await lvl(p)]);
+    await p.click("#ef-s-level .ef-auto"); await p.waitForTimeout(150);
+    ok(`${tag} no number: Back to automatic leaves NO level picked, the muted "Automatic" and no control (never "Not set")`, (await cue(p)) === "Automatic" && (await lvl(p)) === null && (await p.locator("#ef-s-level .ef-auto").count()) === 0 && !/not set/i.test(await p.innerText("#ef-s-level")), [await cue(p), await lvl(p)]);
+    await p.click('#ef-s-level [data-v="Running low"]'); await p.waitForTimeout(150);
+    ok(`${tag} no number: picking one is "Set by you" again, with the button`, (await cue(p)) === "Set by you" && (await lvl(p)) === "Running low" && (await p.locator("#ef-s-level .ef-auto").count()) === 1, [await cue(p), await lvl(p)]);
     await p.close();
+    /* decision 128: on EVERY sample item the cue is one of the two states and the word "Not set" never appears in the Level control */
+    for (const id of ["butter", "carrots", "cheddar", "eggs", "yog", "milk", "paneer", "spinach", "rice", "tom", "onion", "garam", "peas", "ice"]) {
+      p = await open(`?sel=${id}&child=edit&field=level`);
+      const c = await cue(p), txt = await p.innerText("#ef-s-level");
+      ok(`${tag} ${id}: the Level control is Automatic or Set by you (never Not set)`, (c === "Automatic" || c === "Set by you") && !/not set/i.test(txt) && ((c === "Set by you") === ((await p.locator("#ef-s-level .ef-auto").count()) === 1)), [c, txt]);
+      await p.close();
+    }
 
     /* 2. weighed with a minimum: automatic; weighed without one and worded: four icons, no cue */
     p = await open("?sel=yog&child=edit");
@@ -131,7 +146,7 @@ for (const [w, h, kind] of SIZES) {
     for (const [a, want] of [["250", "Running low"], ["251", "Some"], ["500", "Some"], ["501", "Plenty"], ["0", "Out"], ["1", "Running low"]]) { await p.fill('[data-f="amount"]', a); await p.press('[data-f="amount"]', "Tab"); walk.push([a, await lvl(p)]); ok(`${tag} weighed with minimum 250: ${a} g is ${want}`, (await lvl(p)) === want, [a, await lvl(p)]); }
     await p.close();
     p = await open("?sel=spinach&child=edit");
-    ok(`${tag} worded: four icons, no cue`, (await p.locator("#ef-s-level .opt").count()) === 4 && (await cue(p)) === "");
+    ok(`${tag} worded: four icons and a cue (decision 128: two states on every item)`, (await p.locator("#ef-s-level .opt").count()) === 4 && ["Automatic", "Set by you"].includes(await cue(p)), await cue(p));
     await p.close();
 
     /* 3. no shopping group in Edit or Add (decision 102, owner 12 Oct 2026): not at any width, for any item */
@@ -261,14 +276,17 @@ for (const [w, h, kind] of SIZES) {
     ok(`${tag} history lists the level and quantity edits under Today`, /today/i.test(hist) && /Level/.test(hist) && /Quantity/.test(hist), hist.slice(0, 160));
     await p.close();
 
-    /* 5. emoji, Edit and Add (decisions 116 to 119): a plain text box with the suggestion strip under it; no picker, no panel, no popup */
+    /* 5. emoji, Edit and Add (decisions 116 to 119, 129 to 132): the tile is the field. Box and strip show only after a tap; no picker, no panel, no popup */
+    const emoOpen = async (p, tile, box) => { await p.click(tile); await p.waitForSelector(box + ":visible", { timeout: 3000 }); await p.waitForSelector((box === "#ef-emoin" ? "#sg-emo" : "#ief-sg-emo") + ":visible", { timeout: 3000 }); };
     p = await open("?sel=butter&child=edit");
-    await p.waitForFunction(() => !!(window.IEF && IEF.emoji));
-    ok(`${tag} emoji: a plain box under the name holds the emoji, the hint is its placeholder, no picker anywhere`, (await p.inputValue("#ef-emoin")) === "🧈" && (await p.getAttribute("#ef-emoin", "placeholder")) === "Search, or type or paste your own emoji" && (await p.locator("#ef-emojis, .ef-ep, [data-epi], .ef-eph").count()) === 0);
+    ok(`${tag} emoji: with an emoji set only the tile shows: no text box, no strip, nothing fetched yet`, (await p.locator("#ef-emoin").isHidden()) && (await p.locator("#sg-emo").isHidden()) && (await p.locator("#ef-emof").isHidden()) && !(await p.evaluate(() => !!window.IEF.emoji)) && (await p.innerText("#ef-emo")) === "🧈" && (await p.getAttribute("#ef-emo", "aria-expanded")) === "false");
+    ok(`${tag} emoji: the tile is a 44px or larger target`, await p.evaluate(() => { const b = document.querySelector("#ef-emo").getBoundingClientRect(); return b.width >= 44 && b.height >= 44; }));
+    await shot(p, "emoji-tile-only");
+    await emoOpen(p, "#ef-emo", "#ef-emoin");
+    ok(`${tag} emoji: the tile reveals the box and strip and focuses the box (no panel opens), the hint is its placeholder`, (await p.evaluate(() => document.activeElement && document.activeElement.id)) === "ef-emoin" && (await p.locator("#ief-child:visible").count()) === 1 && !(await p.locator("#sg-emo").isHidden()) && (await p.getAttribute("#ef-emoin", "placeholder")) === "Search, or type or paste your own emoji" && (await p.getAttribute("#ef-emo", "aria-expanded")) === "true" && (await p.locator("#ef-emojis, .ef-ep, [data-epi], .ef-eph").count()) === 0);
+    ok(`${tag} emoji: the box holds the emoji, selected, so typing replaces it`, (await p.inputValue("#ef-emoin")) === "🧈" && (await p.evaluate(() => { const i = document.querySelector("#ef-emoin"); return i.selectionStart === 0 && i.selectionEnd === i.value.length; })));
+    ok(`${tag} emoji: the box carries the input hints Kitchie uses and no emoji-keyboard claim`, await p.evaluate(() => { const i = document.querySelector("#ef-emoin"); return i.type === "text" && i.getAttribute("autocapitalize") === "none" && i.getAttribute("autocorrect") === "off" && i.getAttribute("spellcheck") === "false" && i.getAttribute("autocomplete") === "off" && i.getAttribute("enterkeyhint") === "done" && !i.getAttribute("inputmode"); }));
     ok(`${tag} emoji: the placeholder keeps the size rule (12 to 15px)`, await p.evaluate(() => { const f = parseFloat(getComputedStyle(document.querySelector("#ef-emoin"), "::placeholder").fontSize); return f >= 12 && f <= 15; }));
-    ok(`${tag} emoji: with an emoji set the strip shows nothing`, await p.locator("#sg-emo").isHidden());
-    await p.click("#ef-emo");
-    ok(`${tag} emoji: the tile focuses the box (no panel opens)`, (await p.evaluate(() => document.activeElement && document.activeElement.id)) === "ef-emoin" && (await p.locator("#ief-child:visible").count()) === 1);
     await p.keyboard.type("c");
     const sh1 = (await p.locator("#sg-emo").boundingBox()).height, below1 = (await p.locator("#ef-s-qty").boundingBox()).y;
     await p.keyboard.type("hee");
@@ -278,46 +296,56 @@ for (const [w, h, kind] of SIZES) {
     await p.keyboard.type("zz");
     ok(`${tag} emoji: no match says so, in the same row`, /No emoji matches/.test(await p.innerText("#sg-emo")) && Math.abs((await p.locator("#sg-emo").boundingBox()).height - sh1) < 1);
     await p.keyboard.press("Escape");
-    ok(`${tag} emoji: Esc closes the strip only (the edit flyout stays, the box keeps focus)`, (await p.locator("#sg-emo").isHidden()) && (await p.locator("#ief-child:visible").count()) === 1 && (await p.evaluate(() => document.activeElement.id)) === "ef-emoin");
-    await p.keyboard.press("Tab");
-    ok(`${tag} emoji: words that are no emoji and were not picked go back to what was there`, (await p.inputValue("#ef-emoin")) === "🧈" && (await p.innerText("#ef-emo")) === "🧈");
-    await p.fill("#ef-emoin", "chee"); await p.press("#ef-emoin", "Enter");
-    ok(`${tag} emoji: Enter takes the highlighted match: tile, box, header and list update`, (await p.innerText("#ef-emo")) === "🧀" && (await p.inputValue("#ef-emoin")) === "🧀" && (await p.innerText("#ief-head .ph")) === "🧀" && /🧀 butter/.test(await p.innerText("#ief-list")) && (await p.locator("#sg-emo").isHidden()));
+    ok(`${tag} emoji: Esc cancels: back to the tile, the emoji unchanged, the edit flyout stays, focus on the tile`, (await p.locator("#ef-emoin").isHidden()) && (await p.locator("#sg-emo").isHidden()) && (await p.locator("#ief-child:visible").count()) === 1 && (await p.evaluate(() => document.activeElement.id)) === "ef-emo" && (await p.innerText("#ef-emo")) === "🧈" && (await p.inputValue("#ef-emoin")) === "🧈");
+    await emoOpen(p, "#ef-emo", "#ef-emoin"); await p.keyboard.type("zz"); await p.keyboard.press("Tab"); await p.waitForSelector("#ef-emoin", { state: "hidden", timeout: 2500 }).catch(() => {});
+    ok(`${tag} emoji: blur with words that are no emoji goes back to what was there and collapses to the tile`, (await p.inputValue("#ef-emoin")) === "🧈" && (await p.innerText("#ef-emo")) === "🧈" && (await p.locator("#ef-emoin").isHidden()));
+    await emoOpen(p, "#ef-emo", "#ef-emoin"); await p.fill("#ef-emoin", "chee"); await p.press("#ef-emoin", "Enter");
+    ok(`${tag} emoji: Enter takes the highlighted match, collapses to the tile; header and list update`, (await p.innerText("#ef-emo")) === "🧀" && (await p.inputValue("#ef-emoin")) === "🧀" && (await p.innerText("#ief-head .ph")) === "🧀" && /🧀 butter/.test(await p.innerText("#ief-list")) && (await p.locator("#ef-emoin").isHidden()) && (await p.locator("#sg-emo").isHidden()));
     ok(`${tag} emoji: the change is a History line`, await p.evaluate(() => (IEF.LOG.butter || []).some(e => e.field === "Emoji" && e.to === "🧀")));
-    await p.fill("#ef-emoin", "\u{1F99A}");
-    ok(`${tag} emoji: a typed or pasted emoji outside the list is kept at once`, (await p.innerText("#ef-emo")) === "\u{1F99A}" && (await p.inputValue("#ef-emoin")) === "\u{1F99A}");
-    await p.fill("#ef-emoin", "mango \u{1F96D}");
-    ok(`${tag} emoji: an emoji with words is the outlined first pill, highlighted`, (await p.locator("#sg-emo .ef-chip").first().getAttribute("class")).includes("add") && (await p.locator("#sg-emo .ef-chip.hl").first().innerText()).includes("\u{1F96D}"));
+    await emoOpen(p, "#ef-emo", "#ef-emoin"); await p.fill("#ef-emoin", "\u{1F99A}");
+    ok(`${tag} emoji: a typed or pasted emoji outside the list is kept at once and the box collapses`, (await p.innerText("#ef-emo")) === "\u{1F99A}" && (await p.inputValue("#ef-emoin")) === "\u{1F99A}" && (await p.locator("#ef-emoin").isHidden()));
+    await emoOpen(p, "#ef-emo", "#ef-emoin"); await p.fill("#ef-emoin", "mango \u{1F96D}");
+    ok(`${tag} emoji: an emoji with words is the outlined first pill, highlighted (the box stays open)`, (await p.locator("#sg-emo .ef-chip").first().getAttribute("class")).includes("add") && (await p.locator("#sg-emo .ef-chip.hl").first().innerText()).includes("\u{1F96D}"));
     await p.press("#ef-emoin", "Enter");
-    ok(`${tag} emoji: Enter keeps that one emoji`, (await p.innerText("#ef-emo")) === "\u{1F96D}");
-    await p.fill("#ef-emoin", "\u{1F96D}\u{1F350}");
+    ok(`${tag} emoji: Enter keeps that one emoji`, (await p.innerText("#ef-emo")) === "\u{1F96D}" && (await p.locator("#ef-emoin").isHidden()));
+    await emoOpen(p, "#ef-emo", "#ef-emoin"); await p.fill("#ef-emoin", "\u{1F96D}\u{1F350}");
     ok(`${tag} emoji: two emoji typed: the new one is kept, only one`, (await p.inputValue("#ef-emoin")) === "\u{1F350}" && (await p.innerText("#ef-emo")) === "\u{1F350}");
-    await p.fill("#ef-emoin", "");
-    ok(`${tag} emoji: a cleared box shows one row: one or two pills and the chevron`, !(await p.locator("#sg-emo").isHidden()) && (await p.locator("#sg-emo .ef-chip:visible").count()) >= 1 && (await p.locator("#sg-emo .ef-chip:visible").count()) <= 2 && (await p.locator("#sg-emo .ef-cx:visible").count()) === 1 && (await p.locator("#sg-emo").boundingBox()).height < 60);
+    await emoOpen(p, "#ef-emo", "#ef-emoin"); await p.fill("#ef-emoin", "");
+    ok(`${tag} emoji: clearing leaves the box OPEN with one row: one or two pills and the chevron`, !(await p.locator("#ef-emoin").isHidden()) && !(await p.locator("#sg-emo").isHidden()) && (await p.locator("#sg-emo .ef-chip:visible").count()) >= 1 && (await p.locator("#sg-emo .ef-chip:visible").count()) <= 2 && (await p.locator("#sg-emo .ef-cx:visible").count()) === 1 && (await p.locator("#sg-emo").boundingBox()).height < 60);
     ok(`${tag} emoji: Recent leads with the last pick`, (await p.locator("#sg-emo .ef-chip").first().innerText()).includes("\u{1F350}"), await p.innerText("#sg-emo"));
     await shot(p, "emoji-empty");
-    await p.press("#ef-emoin", "Tab");
-    ok(`${tag} emoji: leaving the cleared box saves no emoji: neutral tile, list row without one`, (await p.locator("#ef-emo svg").count()) === 1 && (await p.getAttribute("#ef-emo", "aria-label")) === "Add an emoji" && (await p.evaluate(() => IEF.items.filter(i => i.id === "butter")[0].emoji)) === "" && !/\u{1F350} butter/u.test(await p.innerText("#ief-list")) && (await p.evaluate(() => (IEF.LOG.butter || []).some(e => e.field === "Emoji" && e.to === "not set"))));
-    await p.click("#ef-emoin"); await p.keyboard.type("ap");
+    await p.press("#ef-emoin", "Tab"); await p.waitForSelector("#ef-emoin", { state: "hidden", timeout: 2500 }).catch(() => {});
+    ok(`${tag} emoji: leaving the cleared box saves no emoji and collapses: neutral tile, list row without one`, (await p.locator("#ef-emoin").isHidden()) && (await p.locator("#ef-emo svg").count()) === 1 && (await p.getAttribute("#ef-emo", "aria-label")) === "Add an emoji" && (await p.evaluate(() => IEF.items.filter(i => i.id === "butter")[0].emoji)) === "" && !/\u{1F350} butter/u.test(await p.innerText("#ief-list")) && (await p.evaluate(() => (IEF.LOG.butter || []).some(e => e.field === "Emoji" && e.to === "not set"))));
+    await shot(p, "emoji-neutral-tile");
+    await emoOpen(p, "#ef-emo", "#ef-emoin");
+    ok(`${tag} emoji: the neutral tile opens the same box and strip`, !(await p.locator("#sg-emo").isHidden()) && (await p.inputValue("#ef-emoin")) === "" && (await p.locator("#sg-emo .ef-cx:visible").count()) === 1);
+    await p.keyboard.type("ap");
     const ad0 = await p.getAttribute("#ef-emoin", "aria-activedescendant"); await p.keyboard.press("ArrowDown");
     ok(`${tag} emoji: arrow keys move the highlight`, (await p.getAttribute("#ef-emoin", "aria-activedescendant")) !== ad0);
     await p.locator("#sg-emo .ef-chip").first().click();
-    ok(`${tag} emoji: a tapped pill is kept`, (await p.locator("#ef-emo svg").count()) === 0 && (await p.innerText("#ef-emo")).length > 0);
+    ok(`${tag} emoji: a tapped pill is kept and collapses to the tile`, (await p.locator("#ef-emo svg").count()) === 0 && (await p.innerText("#ef-emo")).length > 0 && (await p.locator("#ef-emoin").isHidden()) && (await p.locator("#sg-emo").isHidden()));
+    await emoOpen(p, "#ef-emo", "#ef-emoin"); await p.keyboard.press("Escape");
+    ok(`${tag} emoji: Esc with no change collapses to the tile`, (await p.locator("#ef-emoin").isHidden()) && (await p.locator("#ef-emo svg").count()) === 0);
+    await emoOpen(p, "#ef-emo", "#ef-emoin"); await p.click("#ef-emo");
+    ok(`${tag} emoji: a second tap on the tile puts the box away`, await p.locator("#ef-emoin").isHidden());
     ok(`${tag} emoji: no sideways scroll`, await p.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth));
     ok(`${tag} no console errors (emoji)`, errs.length === 0, errs); errs.length = 0; await p.close();
 
     p = await open("?mode=add");
-    await p.waitForFunction(() => !!(window.IEF && IEF.emoji));
-    ok(`${tag} Add: the empty emoji box shows its strip: one row, one or two pills, the chevron`, !(await p.locator("#sg-emo").isHidden()) && (await p.locator("#sg-emo .ef-chip:visible").count()) >= 1 && (await p.locator("#sg-emo .ef-chip:visible").count()) <= 2 && (await p.locator("#sg-emo .ef-cx:visible").count()) === 1);
-    await p.click("#ef-emoin"); await p.keyboard.type("bread"); await p.keyboard.press("Enter");
-    ok(`${tag} Add: emoji picked`, (await p.innerText("#ef-emo")) === "🍞" && (await p.locator("#ief-panel .ef, #ief-child .ef").count()) === 1);
+    ok(`${tag} Add: there is no Level control (so no "Not set" or "Back to automatic" either)`, (await p.locator("#ef-s-level, .ef-auto, .ef-lvm").count()) === 0);
+    ok(`${tag} Add: no emoji yet: the neutral tile only, no box, no strip`, (await p.locator("#ef-emoin").isHidden()) && (await p.locator("#sg-emo").isHidden()) && (await p.locator("#ef-emo svg").count()) === 1);
+    await emoOpen(p, "#ef-emo", "#ef-emoin");
+    ok(`${tag} Add: the tile opens the box with its strip: one row, one or two pills, the chevron`, !(await p.locator("#sg-emo").isHidden()) && (await p.locator("#sg-emo .ef-chip:visible").count()) >= 1 && (await p.locator("#sg-emo .ef-chip:visible").count()) <= 2 && (await p.locator("#sg-emo .ef-cx:visible").count()) === 1);
+    await p.keyboard.type("bread"); await p.keyboard.press("Enter");
+    ok(`${tag} Add: emoji picked, back to the tile only`, (await p.innerText("#ef-emo")) === "🍞" && (await p.locator("#ef-emoin").isHidden()) && (await p.locator("#ief-panel .ef, #ief-child .ef").count()) === 1);
     await p.fill('[data-f="name"]', "sourdough"); await p.click('[data-ef="addgo"]');
     await p.waitForTimeout(150);
     ok(`${tag} Add: the new item keeps its emoji and name`, /🍞 sourdough/.test(await p.innerText("#ief-list")), (await p.innerText("#ief-list")).slice(0, 80));
     if (kind === "desktop") {
-      await p.click('[data-ief="add"]').catch(() => {}); await p.waitForSelector('[data-mode="add"] #ef-emoin');
-      await p.fill('[data-f="name"]', "croissant"); await p.click("#ef-emoin"); await p.keyboard.insertText("\u{1F950}"); await p.keyboard.press("Shift+Enter"); await p.waitForTimeout(150);
-      ok(`${tag} Add: Shift+Enter in the emoji box is left to the form (adds, with the emoji, and starts another)`, /\u{1F950} croissant/u.test(await p.innerText("#ief-list")) && (await p.inputValue('[data-f="name"]')) === "", (await p.innerText("#ief-list")).slice(0, 80));
+      await p.click('[data-ief="add"]').catch(() => {}); await p.waitForSelector('[data-mode="add"] #ef-emo');
+      await p.fill('[data-f="name"]', "croissant"); await emoOpen(p, "#ef-emo", "#ef-emoin"); await p.keyboard.insertText("cro \u{1F950}"); await p.waitForTimeout(100);
+      await p.keyboard.press("Shift+Enter"); await p.waitForTimeout(150);
+      ok(`${tag} Add: Shift+Enter is left to the form (adds, with the emoji, and starts another with only the neutral tile)`, /\u{1F950} croissant/u.test(await p.innerText("#ief-list")) && (await p.inputValue('[data-f="name"]')) === "" && (await p.locator("#ef-emoin").isHidden()), (await p.innerText("#ief-list")).slice(0, 80));
     }
     ok(`${tag} no console errors (add)`, errs.length === 0, errs); errs.length = 0; await p.close();
 
@@ -552,7 +580,7 @@ for (const [w, h, kind] of SIZES) {
     ok(`${tag} sheet: the tile is a 44px or larger target`, await p.evaluate(() => { const b = document.querySelector("#ief-emo").getBoundingClientRect(); return b.width >= 44 && b.height >= 44; }));
     ok(`${tag} sheet: nothing was fetched for the emoji before the tap, and the box is not shown`, !(await p.evaluate(() => !!window.IEF.emoji)) && (await p.locator("#ief-emof").isHidden()));
     await shot(p, "sheet-emoji-tile");
-    await p.click("#ief-emo"); await p.waitForSelector("#ief-emoin:visible");
+    await p.click("#ief-emo"); await p.waitForSelector("#ief-emoin:visible"); await p.waitForSelector("#ief-sg-emo:visible", { timeout: 3000 });
     ok(`${tag} sheet: the tap shows the box under the header and focuses it; the tiles and buttons stay (no panel)`, (await p.evaluate(() => document.activeElement.id)) === "ief-emoin" && (await p.locator("#ief-tiles:visible").count()) === 1 && (await p.locator("#ief-acts:visible").count()) === 1 && (await p.getAttribute("#ief-emo", "aria-expanded")) === "true" && (await p.getAttribute("#ief-emoin", "placeholder")) === "Search, or type or paste your own emoji");
     ok(`${tag} sheet: the empty box shows one row: one or two pills and the chevron`, (await p.locator("#ief-sg-emo .ef-chip:visible").count()) >= 1 && (await p.locator("#ief-sg-emo .ef-chip:visible").count()) <= 2 && (await p.locator("#ief-sg-emo").boundingBox()).height < 60);
     ok(`${tag} sheet: no sideways scroll`, await p.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth));
@@ -563,28 +591,49 @@ for (const [w, h, kind] of SIZES) {
     ok(`${tag} sheet: picked: the tile and the list row follow, the box goes away`, (await p.innerText("#ief-emo")) === "🧀" && /🧀 cheddar/.test(await p.innerText("#ief-list")) && (await p.locator("#ief-emof").isHidden()) && (await p.locator("#ief-tiles:visible").count()) === 1 && (await p.getAttribute("#ief-emo", "aria-expanded")) === "false", await p.innerText("#ief-emo"));
     ok(`${tag} sheet: the toast says so, with Undo`, /emoji is 🧀/.test(await toast(p)) && /Undo/.test(await toast(p)), await toast(p));
     ok(`${tag} sheet: the change is in this item's History as an Emoji line`, await p.evaluate(() => (IEF.LOG.cheddar || []).some(e => e.field === "Emoji" && e.to === "🧀")));
-    await p.click("#ief-emo"); await p.waitForSelector("#ief-emoin:visible");
-    ok(`${tag} sheet: with an emoji set the box holds it and the strip shows nothing`, (await p.inputValue("#ief-emoin")) === "🧀" && (await p.locator("#ief-sg-emo").isHidden()));
+    await p.click("#ief-emo"); await p.waitForSelector("#ief-emoin:visible"); await p.waitForSelector("#ief-sg-emo:visible", { timeout: 3000 });
+    ok(`${tag} sheet: with an emoji set the tap opens the box holding it (selected) with the strip under it`, (await p.inputValue("#ief-emoin")) === "🧀" && !(await p.locator("#ief-sg-emo").isHidden()));
     await p.keyboard.type("ch");
     await p.keyboard.press("Escape");
-    ok(`${tag} sheet: Esc closes the strip only (box, sheet and tiles stay)`, (await p.locator("#ief-sg-emo").isHidden()) && (await p.locator("#ief-emof:visible").count()) === 1 && (await p.locator("#ief-panel .shead:visible").count()) === 1);
+    ok(`${tag} sheet: Esc cancels: only the tile shows, the emoji is kept, focus on the tile, sheet and tiles stay`, (await p.locator("#ief-emof").isHidden()) && (await p.locator("#ief-sg-emo").isHidden()) && (await p.innerText("#ief-emo")) === "🧀" && (await p.evaluate(() => document.activeElement && document.activeElement.id)) === "ief-emo" && (await p.locator("#ief-panel .shead:visible").count()) === 1 && (await p.locator("#ief-tiles:visible").count()) === 1);
     await p.keyboard.press("Escape");
-    ok(`${tag} sheet: a second Esc puts the box away, keeps the emoji, focus back on the tile`, (await p.locator("#ief-emof").isHidden()) && (await p.innerText("#ief-emo")) === "🧀" && (await p.evaluate(() => document.activeElement && document.activeElement.id)) === "ief-emo" && (await p.locator("#ief-panel .shead:visible").count()) === 1);
-    await p.keyboard.press("Escape");
-    if (kind !== "desktop") ok(`${tag} sheet: a third Esc then closes the sheet (phone)`, (await p.locator("#ief-panel .shead").count()) === 0);
+    if (kind !== "desktop") ok(`${tag} sheet: another Esc then closes the sheet (phone)`, (await p.locator("#ief-panel .shead").count()) === 0);
     await p.close();
     p = await open("?sel=butter");
     ok(`${tag} sheet: an emoji set shows in the tile, labelled so`, (await p.innerText("#ief-emo")) === "🧈" && /Emoji 🧈/.test(await p.getAttribute("#ief-emo", "aria-label")));
-    await p.click("#ief-emo"); await p.waitForSelector("#ief-emoin:visible"); await p.fill("#ief-emoin", ""); await p.press("#ief-emoin", "Enter");
-    ok(`${tag} sheet: clearing the box saves no emoji (the "+" tile, the list row loses it)`, (await p.locator("#ief-emo svg").count()) === 1 && !/🧈 butter/.test(await p.innerText("#ief-list")) && (await p.getAttribute("#ief-emo", "aria-label")) === "Add an emoji" && (await p.locator("#ief-tiles:visible").count()) === 1);
+    await p.close(); p = await open("?sel=butter");
+    ok(`${tag} sheet: with an emoji set ONLY the tile shows: no text box, no strip (the owner's phone screenshot)`, (await p.locator("#ief-emoin").isHidden()) && (await p.locator("#ief-sg-emo").isHidden()) && (await p.locator("#ief-emof").isHidden()));
+    await p.click("#ief-emo"); await p.waitForSelector("#ief-emoin:visible"); await p.waitForSelector("#ief-sg-emo:visible", { timeout: 3000 }); await p.fill("#ief-emoin", "");
+    ok(`${tag} sheet: clearing leaves the box open (no emoji is saved until it is left or Enter)`, !(await p.locator("#ief-emof").isHidden()) && !(await p.locator("#ief-sg-emo").isHidden()) && (await p.innerText("#ief-emo")) === "🧈");
+    await p.keyboard.press("Tab"); await p.waitForSelector("#ief-emoin", { state: "hidden", timeout: 2500 }).catch(() => {});
+    ok(`${tag} sheet: leaving the cleared box saves no emoji and collapses to the neutral tile`, (await p.locator("#ief-emof").isHidden()) && (await p.locator("#ief-emo svg").count()) === 1);
+    await p.click("#ief-emo"); await p.waitForSelector("#ief-emoin:visible"); await p.waitForSelector("#ief-sg-emo:visible", { timeout: 3000 }); await p.keyboard.insertText("mango \u{1F96D}");
+    ok(`${tag} sheet: keyboard-dismiss: an emoji with words is typed and the box is still open, nothing saved yet`, !(await p.locator("#ief-emof").isHidden()) && (await p.locator("#ief-emo svg").count()) === 1);
+    await p.evaluate(() => document.activeElement.blur()); await p.waitForSelector("#ief-emoin", { state: "hidden", timeout: 2500 }).catch(() => {});
+    ok(`${tag} sheet: keyboard-dismiss (blur) keeps the valid emoji, collapses to the tile, and the list row has it`, (await p.innerText("#ief-emo")) === "\u{1F96D}" && (await p.locator("#ief-emof").isHidden()) && /\u{1F96D} butter/u.test(await p.innerText("#ief-list")));
+    await p.click("#ief-emo"); await p.waitForSelector("#ief-emoin:visible"); await p.waitForSelector("#ief-sg-emo:visible", { timeout: 3000 }); await p.keyboard.type("zzz");
+    await p.evaluate(() => document.activeElement.blur()); await p.waitForSelector("#ief-emoin", { state: "hidden", timeout: 2500 }).catch(() => {});
+    ok(`${tag} sheet: keyboard-dismiss with only words (no emoji) puts back what was there and collapses`, (await p.innerText("#ief-emo")) === "\u{1F96D}" && (await p.locator("#ief-emof").isHidden()));
+    if (kind !== "desktop") {
+      await p.click("#ief-emo"); await p.waitForSelector("#ief-emoin:visible"); await p.waitForSelector("#ief-sg-emo:visible", { timeout: 3000 });
+      await p.evaluate(() => IEF.host.kb(300)); await p.waitForTimeout(350);
+      const vh = h, r = await p.evaluate(() => { const a = document.querySelector("#ief-panel").getBoundingClientRect(), b = document.querySelector("#ief-emoin").getBoundingClientRect(), t = document.querySelector("#ief-sg-emo").getBoundingClientRect(); return { pb: a.bottom, pt: a.top, bb: b.bottom, bt: b.top, sb: t.bottom }; });
+      ok(`${tag} sheet: with the keyboard up (300px) the sheet is lifted above it and the box and strip stay in view`, Math.abs(r.pb - (vh - 300)) <= 2 && r.bt >= 0 && r.sb <= vh - 300 + 1, r);
+      await shot(p, "sheet-emoji-keyboard");
+      await p.evaluate(() => IEF.host.kb(0)); await p.waitForTimeout(350);
+      ok(`${tag} sheet: keyboard gone: the sheet is back at the bottom`, Math.abs((await p.evaluate(() => document.querySelector("#ief-panel").getBoundingClientRect().bottom)) - vh) <= 2);
+    }
+    await p.close(); p = await open("?sel=butter");
+    await p.click("#ief-emo"); await p.waitForSelector("#ief-emoin:visible"); await p.waitForSelector("#ief-sg-emo:visible", { timeout: 3000 }); await p.fill("#ief-emoin", ""); await p.press("#ief-emoin", "Enter");
+    ok(`${tag} sheet: clearing the box and Enter saves no emoji (the "+" tile, the list row loses it, the box collapses)`, (await p.locator("#ief-emo svg").count()) === 1 && !/🧈 butter/.test(await p.innerText("#ief-list")) && (await p.getAttribute("#ief-emo", "aria-label")) === "Add an emoji" && (await p.locator("#ief-tiles:visible").count()) === 1);
     ok(`${tag} sheet: the clear is in History too`, await p.evaluate(() => (IEF.LOG.butter || []).some(e => e.field === "Emoji" && e.to === "not set")));
-    await p.click("#ief-emo"); await p.waitForSelector("#ief-emoin:visible"); await p.keyboard.insertText("\u{1F99A}");
+    await p.click("#ief-emo"); await p.waitForSelector("#ief-emoin:visible"); await p.waitForSelector("#ief-sg-emo:visible", { timeout: 3000 }); await p.keyboard.insertText("\u{1F99A}");
     ok(`${tag} sheet: an emoji typed or pasted from the device is kept at once`, (await p.innerText("#ief-emo")) === "\u{1F99A}" && /\u{1F99A} butter/u.test(await p.innerText("#ief-list")));
     await p.click('[data-ief="history"]'); await p.waitForSelector("#ief-child .hist");
     ok(`${tag} sheet: the History flyout shows the Emoji line`, /Emoji/.test(await p.innerText("#ief-cbody")), (await p.innerText("#ief-cbody")).slice(0, 120));
     ok(`${tag} no console errors (sheet emoji)`, errs.length === 0, errs); errs.length = 0; await p.close();
     p = await open("?sel=cheddar&down=1");
-    await p.click("#ief-emo"); await p.waitForSelector("#ief-emoin:visible"); await p.locator("#ief-sg-emo .ef-chip").first().click();
+    await p.click("#ief-emo"); await p.waitForSelector("#ief-emoin:visible"); await p.waitForSelector("#ief-sg-emo:visible", { timeout: 3000 }); await p.locator("#ief-sg-emo .ef-chip").first().click();
     ok(`${tag} sheet: a failed save says so and keeps the old emoji`, /Not saved/.test(await toast(p)) && (await p.locator("#ief-emo.empty").count()) === 1, await toast(p));
     await p.close();
     p = await open("?sel=cheddar&child=edit");
@@ -592,19 +641,19 @@ for (const [w, h, kind] of SIZES) {
     await p.close();
     if (kind === "desktop") {
       p = await open("?sel=cheddar&child=edit");
-      await p.click("#ief-emo"); await p.waitForSelector("#ief-emoin:visible");
+      await p.click("#ief-emo"); await p.waitForSelector("#ief-emoin:visible"); await p.waitForSelector("#ief-sg-emo:visible", { timeout: 3000 });
       ok(`${tag} sheet: tapping the tile with Edit open steps Edit back and shows the box`, (await p.locator("#ief-child:visible").count()) === 0 && (await p.locator("#ief-emof:visible").count()) === 1);
       await p.keyboard.type("bread"); await p.keyboard.press("Enter");
       await p.click('#ief-head [data-ief="edit"]'); await p.waitForSelector("#ief-child .ef");
       ok(`${tag} sheet: reopening Edit shows the new emoji in its own tile and box`, (await p.innerText("#ef-emo")) === "🍞" && (await p.inputValue("#ef-emoin")) === "🍞", await p.innerText("#ef-emo"));
       await p.close();
       p = await open("?sel=cheddar");
-      await p.click("#ief-emo"); await p.waitForSelector("#ief-emoin:visible"); await p.keyboard.press("d");
+      await p.click("#ief-emo"); await p.waitForSelector("#ief-emoin:visible"); await p.waitForSelector("#ief-sg-emo:visible", { timeout: 3000 }); await p.keyboard.press("d");
       ok(`${tag} sheet: letter keys do nothing while typing in the box (D does not mark it used up)`, (await p.evaluate(() => IEF.items.filter(i => i.id === "cheddar")[0].amount)) === 200 && (await p.inputValue("#ief-emoin")) === "d");
       await p.close();
     }
     p = await open("?sel=milk");
-    await p.click("#ief-emo"); await p.waitForSelector("#ief-emoin:visible"); await p.keyboard.type("milk");
+    await p.click("#ief-emo"); await p.waitForSelector("#ief-emoin:visible"); await p.waitForSelector("#ief-sg-emo:visible", { timeout: 3000 }); await p.keyboard.type("milk");
     ok(`${tag} sheet: the strip marks the item's current emoji`, (await p.locator("#ief-sg-emo .ef-chip.on").first().innerText()).includes("🥛"));
     await p.click('#ief-head [data-ief="edit"]');
     await p.waitForSelector("#ief-child .ef");
@@ -683,7 +732,7 @@ for (const [w, h, kind] of SIZES) {
       p = await open("?sel=eggs");
       await p.keyboard.press("e"); await p.waitForSelector("#ief-child .ef");
       ok(`${tag} E opens the edit flyout`, (await p.locator("#ief-child:visible").count()) === 1);
-      await p.click("#ef-emo"); await p.keyboard.type("de");
+      await p.click("#ef-emo"); await p.waitForSelector("#ef-emoin:visible"); await p.waitForSelector("#sg-emo:visible", { timeout: 3000 }); await p.keyboard.type("de");
       ok(`${tag} letters do nothing while typing in the emoji box`, (await p.locator("#ief-child:visible").count()) === 1 && (await p.inputValue("#ef-emoin")) === "de");
       await p.keyboard.press("Escape"); await p.keyboard.press("Escape"); await p.keyboard.press(",");
       ok(`${tag} comma swaps to history`, (await p.getAttribute("#ief-child", "data-kind")) === "history");
@@ -716,6 +765,29 @@ for (const [w, h, kind] of SIZES) {
     }
     await ctx.close();
   }
+}
+/* 360 wide (the narrowest phone): the emoji tile alone, the box open, the level cue, Add; no sideways scroll and 44px targets (decision 129 to 132) */
+if (!WANT.length || WANT.includes(360)) for (const [theme, mode] of [["kitchie", "dark"], ["kitchie-day", "light"]]) {
+  const tag = `360 ${mode}`, ctx = await browser.newContext({ viewport: { width: 360, height: 740 }, colorScheme: mode, hasTouch: true }), errs = [];
+  await ctx.addInitScript(t => { try { localStorage.setItem("theme", t); } catch (e) {} }, theme);
+  const open = async q => { const p = await ctx.newPage(); p.on("console", m => { if (m.type() === "error") errs.push(m.text()); }); p.on("pageerror", e => errs.push("PAGEERR " + e.message)); await p.goto(BASE + q, { waitUntil: "load" }); await p.waitForSelector(/child=|mode=add/.test(q) ? "#ief-child .ef, #ief-panel .ef" : "#ief-panel .shead", { timeout: 4000 }).catch(() => {}); await p.waitForTimeout(400); return p; };
+  const noScroll = p => p.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth);
+  const small = p => p.evaluate(() => [...document.querySelectorAll("#ief-child button,#ief-child input:not([type=date]),#ief-panel button,#ief-panel input")].filter(el => { const b = el.getBoundingClientRect(); return b.width > 0 && b.height > 0 && getComputedStyle(el).visibility !== "hidden" && (b.height < 43.5 || (b.width < 43.5 && !el.closest(".ef-clear,.ef-ubl"))) && !el.closest("[hidden]"); }).map(el => el.id || el.className || el.tagName));
+  let p = await open("?sel=butter");
+  ok(`${tag} sheet, emoji set: tile only, no sideways scroll`, (await p.locator("#ief-emof").isHidden()) && (await noScroll(p)));
+  await p.click("#ief-emo"); await p.waitForSelector("#ief-emoin:visible"); await p.waitForSelector("#ief-sg-emo:visible", { timeout: 3000 });
+  ok(`${tag} sheet, emoji box open: no sideways scroll, every target 44px`, (await noScroll(p)) && (await small(p)).length === 0, await small(p));
+  await p.close();
+  p = await open("?sel=eggs&child=edit");
+  await p.click('#ef-s-level [data-v="Running low"]');
+  ok(`${tag} edit: tile only, level "Set by you" with its 44px button, no sideways scroll`, (await p.locator("#ef-emoin").isHidden()) && (await p.locator("#ef-s-level .ef-auto").count()) === 1 && (await p.locator("#ef-s-level .ef-auto").evaluate(b => b.getBoundingClientRect().width >= 44 && b.getBoundingClientRect().height >= 44)) && (await noScroll(p)));
+  await p.click("#ef-emo"); await p.waitForSelector("#ef-emoin:visible"); await p.waitForSelector("#sg-emo:visible", { timeout: 3000 });
+  ok(`${tag} edit: emoji box open: no sideways scroll, strip pills 44px`, (await noScroll(p)) && (await p.evaluate(() => [...document.querySelectorAll("#sg-emo .ef-chip")].every(b => b.getBoundingClientRect().height >= 44))));
+  ok(`${tag} edit: nothing under 44px`, (await small(p)).length === 0, await small(p));
+  await p.close();
+  p = await open("?mode=add"); await p.click("#ef-emo"); await p.waitForSelector("#ef-emoin:visible"); await p.waitForSelector("#sg-emo:visible", { timeout: 3000 });
+  ok(`${tag} add: emoji box open: no sideways scroll`, await noScroll(p));
+  ok(`${tag} no console errors`, errs.length === 0, errs); errs.length = 0; await p.close(); await ctx.close();
 }
 await browser.close();
 console.log(fails ? `${fails} of ${total} checks FAILED` : `all ${total} checks passed`);
