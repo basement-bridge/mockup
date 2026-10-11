@@ -259,7 +259,9 @@ function stripDraw(k, keep) {
   var box = $("#sg-" + k), i = sgInput(k); if (!box || !i) return;
   var s = st(k), vis = sgVisible(k), def = SG[k];
   if (!vis) { box.hidden = true; box.innerHTML = ""; i.setAttribute("aria-expanded", "false"); i.removeAttribute("aria-activedescendant"); s.hl = -1; s.items = []; return; }
-  var m = sgModel(k, s.typed ? i.value : ""); s.items = m.items; s.hl = keep ? s.hl : (s.typed ? m.hl : -1); if (s.hl > m.items.length - 1) s.hl = -1;
+  var m = sgModel(k, s.typed ? i.value : "");
+  if (!m.items.length) { s.items = []; s.hl = -1; box.hidden = true; box.innerHTML = ""; i.setAttribute("aria-expanded", "false"); i.removeAttribute("aria-activedescendant"); return; }   /* nothing to suggest (a spot under a location that has no spots yet): no empty strip */
+  s.items = m.items; s.hl = keep ? s.hl : (s.typed ? m.hl : -1); if (s.hl > m.items.length - 1) s.hl = -1;
   var shownOpts = 0, html = "";
   /* collapsed: the typed pill and the first two options; expanded: all of them. The highlighted pill is always among the first two (best match first). */
   m.items.forEach(function (x, n) {
