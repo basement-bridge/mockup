@@ -31,6 +31,7 @@ Live mockup: <https://basement-bridge.github.io/mockup/fragments/desktop/pantry.
 - **Counted vs level-only items** (`docs/adr/pantry-item-sheet.md` in Kitchie): the **Use one** button and the `U` key exist only for counted items. Level-only items change by level (rules of levels still apply).
 - **Filters in use:** when any filter is picked the pill strip is replaced by removable tiles and "Clear all".
 - **Shortcuts** (the `?` list is a two-column grid, anchored to the left edge of the main column; one column below 760px): `?` or `H` list; ↑ ↓ or J K move; Enter or E edit; U use one; D used up; S shopping list; Z undo; N add; F Filters; `/` search; G then H, P, R, S go to a screen; **`,` (comma) opens or closes History for the open item** (owner, voice, 10 October 2026, Slack's convention; one press, not two); **M focuses the first item in the main column** (owner, 10 October 2026, from any panel; the panel stays open; ignored while typing in a box). (The Profile window has its own `G Y`.)
+- **Shift+? is global (owner, voice, 11 October 2026).** On every screen, flyout, modal and sub-screen it opens this list and brings the cues on for the visit; it never fires while typing; Ctrl/Cmd+Esc closes the list first. Full notes: `docs/knowledge/shortcut-cues.md`, prototype `fragments/shortcut-cues/demo.html`.
 
 ![Shortcuts list](img/04-shortcuts-help.png)
 

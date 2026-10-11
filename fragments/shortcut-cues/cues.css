@@ -1,0 +1,23 @@
+/* Global shortcut cues (owner, voice, 11 Oct 2026). One list and one switch for every screen. Same look as the Pantry's list: .kbd chip, .kb dialog, .kk kbd, .sw2 switch.
+   Lifted into the app as the base rules of keys-help.js (written with :where() so the rail layout's own rules still win on a desktop page). */
+.kbd{font:600 11px var(--body);border:1px solid var(--border);border-radius:6px;padding:1px 6px;color:var(--muted);background:var(--surface);white-space:nowrap}
+.nocues .kbd:not(.keep),.nocues .phint{display:none}
+.kb{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:var(--dim)}
+.kb[hidden]{display:none}
+.kbc{box-sizing:border-box;background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:var(--r-card);padding:22px 26px;width:min(640px,calc(100vw - 32px));max-height:calc(100vh - 32px);overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.kbh{display:flex;align-items:center;margin-bottom:6px}.kbh h2{margin:0;font-size:1.15rem}
+.kbh .x{margin-left:auto;width:44px;height:44px;border-radius:50%;border:1px solid var(--border);background:none;display:inline-flex;align-items:center;justify-content:center;font-size:20px}
+.kbg{display:grid;grid-template-columns:1fr 1fr;column-gap:40px;align-items:start}
+@media(max-width:640px){.kbg{grid-template-columns:1fr}}
+.kbs h3{font:700 12px var(--body);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:14px 0 6px}
+.kbr{display:flex;justify-content:space-between;gap:14px;padding:6px 0;border-bottom:1px solid var(--border);font-size:14px;line-height:1.4}
+.kk{white-space:nowrap;flex:0 0 130px}
+.kk kbd{font:700 12px var(--body);border:1px solid var(--border);border-bottom-width:2px;border-radius:6px;padding:1px 7px;background:var(--surface)}
+.kk em{font-style:normal;color:var(--muted);font-size:12px;margin:0 2px}
+.kbr span:last-child{flex:1;color:var(--muted)}
+.kbn{margin:10px 0 0;font-size:13px;color:var(--muted)}
+.kbn.peek{color:var(--fg);background:var(--surface);border:1px solid var(--border);border-radius:var(--r-ctl);padding:8px 12px}
+.kbt{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:18px;padding-top:14px;border-top:1px solid var(--border);font-weight:600}
+.sw2{min-width:72px;min-height:36px;padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--bg);color:inherit;font-weight:700;text-align:center}
+.sw2[aria-checked="true"]{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.kbf{margin:14px 0 0;font-size:12px;color:var(--muted)}
