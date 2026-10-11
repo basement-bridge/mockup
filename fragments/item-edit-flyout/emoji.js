@@ -1,7 +1,14 @@
-/* The emoji picker (Edit, Add and the item flyout's header tile): its list of emoji and its code. Fetched the first time any picker opens, never on page load (DESIGN.md section 6). No size rules here.
-   One picker, two homes (decision 106): "edit" is the tile in the edit form (#ef-emo, picker #ef-emojis); "sheet" is the tile in the item flyout's header (#ief-emo, picker #ief-emojis). Both draw the same markup (.ef-ep) and save through their own host: IEF.form.saveEmoji or IEF.saveEmoji.
-   Each entry is [emoji, name, search words]. The name is the accessible label; the words are what the search matches, with the name. About 130 foods, drinks and kitchen things, with a few source animals beside the meat (cow, pig, chicken, sheep, duck, turkey, goat; decision 114) so "beef" can wear a cow: not the whole emoji set (no photos, no flags, no faces).
-   "Recent" is the last 8 the person picked on this device (localStorage, best effort: a private window just has none). With nothing picked yet it starts from the emoji already on the household's items, so the row is never empty. Sample data only. */
+/* The emoji field (owner, by voice 12 Oct 2026, decisions 116 to 119; replaces the picker of 80, 93, 106, 107 and 115): a plain text box with the ONE suggestion strip under it, the same strip as
+   Location, Spot and Category (108 to 110: .ef-cats.ef-strip, .ef-chip, .hl, .add). No dropdown, popup, panel or modal. Fetched the first time an emoji field is drawn or the item flyout's tile is
+   tapped, never on page load (DESIGN.md section 6). No size rules here.
+   Two homes share this code: "edit" is the box in the Edit and Add form (#ef-emoin, strip #sg-emo), saved through IEF.form.saveEmoji; "sheet" is the box the item flyout's header tile shows and focuses
+   (#ief-emoin, strip #ief-sg-emo), saved through IEF.saveEmoji. The tiles stay: tapping one focuses its box.
+   The rules (116): an empty box shows one row with one or two pills (Recent, which starts from the household's own emoji) and the chevron for the rest. A box with an emoji in it shows nothing extra
+   until the person types or clears it. Typing filters the curated list by name and keyword and highlights the best match; any emoji typed or pasted from the device is always accepted (one is kept:
+   the newest one, the first that is not the item's emoji now) and is offered as the outlined first pill. A box holding only an emoji saves at once. Clearing the box saves "no emoji" when the person
+   leaves it or presses Enter. Words that are not an emoji and were not picked go back to what was there. Esc closes the strip only; Shift+Enter is left to the Add form.
+   Each entry is [emoji, name, search words]. The name is the accessible label; the words are what the search matches, with the name. 133 foods, drinks, source animals (decision 114) and kitchen things.
+   "Recent" is the last 8 the person picked on this device (localStorage, best effort: a private window just has none); with nothing picked yet it starts from the household's own emoji. Sample data only. */
 (function () {
 "use strict";
 var IEF = window.IEF, KEY = "ief.emoji.recent", mem = null;
@@ -24,15 +31,19 @@ var LIST = [
   ["🥂", "sparkling", "drink champagne glasses"], ["🍶", "sake", "drink bottle"], ["🍾", "bottle", "drink fizz"], ["💧", "water", "drink drop"], ["🧊", "ice", "frozen cube freezer"], ["🥶", "frozen", "freezer cold"],
   ["🍽️", "plate", "meal dinner dish"], ["🥄", "spoon", "cutlery"], ["🍴", "fork and knife", "cutlery meal"], ["🔪", "knife", "kitchen cutting"], ["🧽", "sponge", "cleaning kitchen washing"], ["🧴", "bottle (soap)", "cleaning dish soap lotion"], ["🧻", "paper towel", "kitchen roll tissue"], ["🛒", "shopping", "groceries cart trolley"]
 ];
-function find(ch) { for (var i = 0; i < LIST.length; i++) if (LIST[i][0] === ch) return LIST[i]; return ch ? [ch, "your emoji", ""] : null; }
-/* The person's own emoji (decision 115): typing or pasting one into the search box (from the keyboard or the system emoji palette) offers it as the first tile, and Enter takes it. Only the first emoji is kept, so the tile is always one emoji. The rest of the text still searches the list. */
+function find(ch) { for (var i = 0; i < LIST.length; i++) if (LIST[i][0] === ch) return LIST[i]; return null; }
+/* ---------- reading what was typed: the emoji in it and the words beside them ---------- */
 var PICT = /[\p{Extended_Pictographic}\p{Regional_Indicator}]/u;
-function own(q) {
-  var segs = [], m, out = { ch: "", rest: q };
-  try { if (window.Intl && Intl.Segmenter) segs = Array.from(new Intl.Segmenter(undefined, { granularity: "grapheme" }).segment(q), function (x) { return x.segment; }); else segs = q.match(/(?:\p{Regional_Indicator}{2}|\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic}|[\u{1F3FB}-\u{1F3FF}])*)|[\s\S]/gu) || []; } catch (e) { return out; }
-  var rest = [];
-  segs.forEach(function (g) { if (!out.ch && PICT.test(g) && !/^[0-9#*]/.test(g)) out.ch = g; else if (!PICT.test(g)) rest.push(g); });
-  out.rest = rest.join(""); return out;
+function graphemes(q) {
+  try { if (window.Intl && Intl.Segmenter) return Array.from(new Intl.Segmenter(undefined, { granularity: "grapheme" }).segment(q), function (x) { return x.segment; }); } catch (e) {}
+  return q.match(/(?:\p{Regional_Indicator}{2}|\p{Extended_Pictographic}(?:️|‍\p{Extended_Pictographic}|[\u{1F3FB}-\u{1F3FF}])*)|[\s\S]/gu) || [];
+}
+function isEmoji(g) { return PICT.test(g) && !/^[0-9#*]/.test(g); }
+/* { emoji: the one emoji to keep ("" when none), words: the search words } */
+function read(q, cur) {
+  var all = graphemes(String(q)), es = all.filter(isEmoji), rest = all.filter(function (g) { return !PICT.test(g); }).join("");
+  var keep = es.filter(function (g) { return g !== cur; })[0] || es[0] || "";
+  return { emoji: keep, words: rest.toLowerCase().split(/\s+/).filter(Boolean) };
 }
 function load() {
   if (mem) return mem;
@@ -40,78 +51,155 @@ function load() {
   if (!Array.isArray(r) || !r.length) { r = []; IEF.items.forEach(function (i) { if (i.emoji && r.indexOf(i.emoji) < 0 && r.length < 6) r.push(i.emoji); }); }
   mem = r; return mem;
 }
+function recent() { return load().map(function (ch) { return find(ch) || [ch, "your emoji", ""]; }).slice(0, 8); }
+function push(ch) { var r = load().filter(function (x) { return x !== ch; }); r.unshift(ch); mem = r.slice(0, 8); try { localStorage.setItem(KEY, JSON.stringify(mem)); } catch (e) {} }
 
+/* the pills for a box: [{kind: "free" | "opt", e: entry}], the highlighted one and how many list entries matched (the chevron shows when more than two) */
+function model(q, cur) {
+  var items = [];
+  if (!String(q).trim()) {
+    var seen = {}, rec = recent();
+    rec.concat(LIST).forEach(function (e) { if (!seen[e[0]]) { seen[e[0]] = 1; items.push({ kind: "opt", e: e, glyph: true }); } });
+    return { items: items, hl: -1, nopt: items.length, words: [] };
+  }
+  var r = read(q, cur);
+  if (r.emoji) items.push({ kind: "free", e: find(r.emoji) || [r.emoji, "your emoji", ""] });
+  var opts = [];
+  if (r.words.length) {
+    /* every word must be in the name or the search words; the best match first: the name itself, a name that starts with it, a word that starts with it, then anything that contains it */
+    var w0 = r.words.join(" ");
+    var rank = function (e) { var n = e[1].toLowerCase(), all = (n + " " + e[2]).split(/\s+/); return n === w0 ? 0 : n.indexOf(w0) === 0 ? 1 : all.some(function (x) { return x.indexOf(r.words[0]) === 0; }) ? 2 : 3; };
+    opts = LIST.filter(function (e) { var h = (e[1] + " " + e[2]).toLowerCase(); return r.words.every(function (w) { return h.indexOf(w) > -1; }); })
+      .map(function (e, n) { return { e: e, n: n }; }).sort(function (a, b) { return rank(a.e) - rank(b.e) || a.n - b.n; }).map(function (x) { return x.e; });
+  }
+  opts.forEach(function (e) { if (!r.emoji || e[0] !== r.emoji) items.push({ kind: "opt", e: e }); });
+  return { items: items, hl: items.length ? 0 : -1, nopt: opts.length, words: r.words, own: r.emoji };
+}
+
+/* ---------- one field: its box, its strip and its tile ---------- */
 var $ = IEF.$, esc = IEF.esc, sv = IEF.sv, IC = IEF.IC;
-var K = { edit: { box: "#ef-emojis", tile: "#ef-emo", on: false }, sheet: { box: "#ief-emojis", tile: "#ief-emo", on: false } };
-function kindOf(el) { var b = el && el.closest && el.closest(".ef-ep"); return b ? (b.id === "ief-emojis" ? "sheet" : "edit") : null; }
-function curEmoji(kind) { var it = kind === "sheet" ? IEF.cur() : IEF.target(); return it ? it.emoji : ""; }
-function eb(e, cur) { return '<button type="button" class="ef-e' + (e[0] === cur ? " on" : "") + '" data-ef="setemoji" data-e="' + e[0] + '" aria-label="' + esc(e[1]) + '" title="' + esc(e[1]) + '" aria-pressed="' + (e[0] === cur) + '">' + e[0] + "</button>"; }
-function fillGrid(kind, q) {
-  var p = $(K[kind].box); if (!p) return;
-  var mine = own(q), words = mine.rest.toLowerCase().split(/\s+/).filter(Boolean), cur = curEmoji(kind);
-  var hit = LIST.filter(function (e) { var h = (e[1] + " " + e[2]).toLowerCase(); return words.every(function (w) { return h.indexOf(w) > -1; }); });
-  var rec = p.querySelector(".ef-epr"), g = p.querySelector(".ef-epa .ef-eg"), n = p.querySelector(".ef-epn"), t = p.querySelector(".ef-ept"), r = words.length ? [] : IEF.emoji.recent();
-  rec.hidden = !r.length; rec.innerHTML = r.length ? '<span class="ef-l">Recent</span><div class="ef-eg" role="group" aria-label="Recent emoji">' + r.map(function (e) { return eb(e, cur); }).join("") + "</div>" : "";
-  g.innerHTML = (mine.ch ? eb([mine.ch, "your emoji " + mine.ch], cur) : "") + hit.map(function (e) { return eb(e, cur); }).join(""); n.hidden = hit.length > 0 || !!mine.ch; t.textContent = mine.ch ? "Your emoji" : words.length ? (hit.length ? "Matches" : "") : "Foods and kitchen";
+var K = {
+  edit: { box: "#ef-emoin", strip: "#sg-emo", tile: "#ef-emo", cur: function () { var it = IEF.target(); return it ? it.emoji || "" : ""; }, save: function (e) { return IEF.form.saveEmoji(e); } },
+  sheet: { box: "#ief-emoin", strip: "#ief-sg-emo", tile: "#ief-emo", cur: function () { var it = IEF.cur(); return it ? it.emoji || "" : ""; }, save: function (e) { return IEF.saveEmoji(e); } }
+};
+var ST = {};
+function st(k) { return ST[k] || (ST[k] = { typed: false, off: false, open: false, hl: -1, items: [] }); }
+function kindOf(el) { return el && el.matches && el.matches("[data-emo]") ? el.dataset.emo : null; }
+function visible(k) { var i = $(K[k].box), s = st(k); return !!i && !s.off && (s.typed || i.value.trim() === ""); }
+function hide(k) {
+  var box = $(K[k].strip), i = $(K[k].box), s = st(k); s.hl = -1; s.items = [];
+  if (box) { box.hidden = true; box.innerHTML = ""; }
+  if (i) { i.setAttribute("aria-expanded", "false"); i.removeAttribute("aria-activedescendant"); }
 }
-function draw(kind) {
-  var p = $(K[kind].box); if (!p) return;
-  p.innerHTML = '<label class="ef-eps">' + sv(IC.search, "", 18) + '<span class="sr-only">Search emoji</span><input type="search" class="ef-epi" data-epi aria-describedby="' + K[kind].box.slice(1) + '-h" placeholder="Search, e.g. cheese or herb" autocomplete="off" autocapitalize="none" enterkeyhint="search"></label><p class="ef-eph" id="' + K[kind].box.slice(1) + '-h">Search, or type or paste your own emoji</p>'
-    + '<div class="ef-epr" hidden></div><div class="ef-epa"><span class="ef-l ef-ept">Foods and kitchen</span><div class="ef-eg" role="group" aria-label="Emoji"></div><p class="ef-note ef-epn" hidden>No emoji matches. Try another word.</p></div>'
-    + (curEmoji(kind) ? '<button type="button" class="ef-eno" data-ef="setemoji" data-e="">No emoji</button>' : "");
-  fillGrid(kind, "");
+function draw(k, keep) {
+  var box = $(K[k].strip), i = $(K[k].box); if (!box || !i) return;
+  var s = st(k); if (!visible(k)) { hide(k); return; }
+  var m = model(s.typed ? i.value : "", K[k].cur());
+  s.items = m.items; s.hl = keep ? s.hl : (s.typed ? m.hl : -1); if (s.hl > m.items.length - 1) s.hl = -1;
+  var shown = 0, html = "", cur = K[k].cur();
+  m.items.forEach(function (x, n) {
+    if (x.kind === "opt") { shown++; if (!s.open && shown > 2 && n !== s.hl) return; }
+    var on = n === s.hl, mine = x.kind === "free";
+    html += '<button type="button" class="ef-chip ef-che' + (x.glyph ? " only" : "") + (mine ? " add" : "") + (on ? " hl" : "") + (x.e[0] === cur ? " on" : "") + '" role="option" id="' + K[k].strip.slice(1) + "-" + n + '" tabindex="-1" aria-selected="' + on + '" data-ef="emopick" data-i="' + n + '" aria-label="' + esc(mine ? "Use " + x.e[0] + ", your own emoji" : x.e[1]) + '" title="' + esc(mine ? "Your own emoji" : x.e[1]) + '"><span class="che" aria-hidden="true">' + x.e[0] + "</span>" + (x.glyph ? "" : esc(mine ? "Use this" : x.e[1])) + "</button>";
+  });
+  if (!m.items.length) html = '<span class="ef-sgn">No emoji matches. Type or paste your own.</span>';
+  box.innerHTML = '<span class="ef-ct" aria-hidden="true">' + sv(IC.smile, "", 20) + '</span><div class="ef-cl" role="listbox" aria-label="Emoji suggestions">' + html + '</div><button type="button" class="ef-cx" data-ef="emomore" aria-expanded="' + s.open + '" aria-label="' + (s.open ? "Show fewer emoji" : "Show all emoji") + '" tabindex="-1"' + (m.nopt > 2 || s.open ? "" : " hidden") + ">" + sv(IC.chevd, "", 18) + "</button>";
+  box.dataset.open = s.open; box.dataset.n = m.nopt; box.hidden = false; box.classList.toggle("more", m.nopt > 2 || s.open);
+  i.setAttribute("aria-expanded", "true");
+  if (s.hl >= 0) i.setAttribute("aria-activedescendant", K[k].strip.slice(1) + "-" + s.hl); else i.removeAttribute("aria-activedescendant");
 }
-/* open or close one picker; on omitted, toggle. The sheet's picker takes the place of its tiles and buttons (data-emoji on the panel). */
-function open(kind, on) {
-  var k = K[kind], p = $(k.box), t = $(k.tile); if (!p || !t) return;
-  if (on === undefined) on = p.hidden;
-  k.on = on; t.setAttribute("aria-expanded", on);
-  if (kind === "sheet") { IEF.sheetEmo = on; var pn = $("#ief-panel"); if (pn) { if (on) pn.setAttribute("data-emoji", "1"); else pn.removeAttribute("data-emoji"); } }
-  if (!on) { p.hidden = true; return; }
-  p.hidden = false; draw(kind);
-  /* a keyboard user lands in the search box; on a phone it is not focused, so the on-screen keyboard does not cover the grid */
-  var s = $(k.box + " [data-epi]"); if (s && IEF.host.keys) s.focus({ preventScroll: true });
-  if (kind === "edit") p.scrollIntoView({ block: "nearest", behavior: "auto" });
+function mark(k, n) {
+  var s = st(k); if (!s.items.length) return;
+  if (n >= 0 && s.items[n] && s.items[n].kind === "opt" && !s.open) { var c = 0; for (var j = 0; j <= n; j++) if (s.items[j].kind === "opt") c++; if (c > 2) s.open = true; }
+  s.hl = n; draw(k, true);
 }
-function pick(kind, e) {
-  var ok = kind === "sheet" ? IEF.saveEmoji(e) : IEF.form.saveEmoji(e);
-  if (ok) { if (e) IEF.emoji.push(e); open(kind, false); var t = $(K[kind].tile); if (t) t.focus({ preventScroll: true }); }
+/* save v ("" = no emoji); the box shows what is kept */
+function commit(k, v, quiet) {
+  var i = $(K[k].box), s = st(k), cur = K[k].cur(); s.typed = false; s.open = false; s.off = false;
+  if (i) i.value = v;
+  if (v === cur) { if (!quiet) draw(k); return true; }
+  var ok = K[k].save(v);
+  if (ok && v) push(v);
+  if (!ok && i) i.value = cur;
+  if (!quiet) draw(k); return ok;
 }
-/* arrows move through the recent row and the grid; up from the first row goes back to the search box */
-function nav(e, kind) {
-  var t = e.target, all = Array.prototype.slice.call(document.querySelectorAll(K[kind].box + " .ef-e")), i = all.indexOf(t); if (i < 0) return;
-  var k = e.key, to = null;
-  if (k === "ArrowRight") to = all[i + 1]; else if (k === "ArrowLeft") to = all[i - 1];
-  else if (k === "ArrowDown" || k === "ArrowUp") {
-    var r = t.getBoundingClientRect(), cx = r.left + r.width / 2, best = 1e9;
-    all.forEach(function (b) { var q = b.getBoundingClientRect(), dy = k === "ArrowDown" ? q.top - r.top : r.top - q.top; if (dy > 4) { var d = dy * 1000 + Math.abs(q.left + q.width / 2 - cx); if (d < best) { best = d; to = b; } } });
-    if (!to && k === "ArrowUp") to = $(K[kind].box + " [data-epi]");
-  } else return;
-  e.preventDefault(); if (to) to.focus();
+/* what leaving the box (or Enter with nothing highlighted) keeps: an emoji in it, nothing when it is empty, else what was there */
+function settle(k, quiet) {
+  var i = $(K[k].box); if (!i) return;
+  var r = read(i.value, K[k].cur());
+  if (!i.value.trim()) commit(k, "", quiet); else if (r.emoji) commit(k, r.emoji, quiet); else { i.value = K[k].cur(); st(k).typed = false; if (!quiet) draw(k); }
 }
-document.addEventListener("click", function (e) { var el = e.target.closest && e.target.closest('[data-ef="setemoji"]'); if (!el) return; var kind = kindOf(el); if (kind) pick(kind, el.dataset.e); });
-document.addEventListener("input", function (e) { var s = e.target.closest && e.target.closest("[data-epi]"); if (s) fillGrid(kindOf(s) || "edit", s.value); });
-/* Esc closes an open picker first and goes no further (the phone's Esc would close the sheet, and a box's Esc would leave it) */
+function choose(k, x) { if (x) commit(k, x.e[0]); }
+
+/* the item flyout's box: shown under the header when its tile is tapped, gone again when it is left */
+function sheetShow(on) {
+  var w = $("#ief-emof"), t = $("#ief-emo"); if (!w) return;
+  IEF.sheetEmo = on; w.hidden = !on; if (t) t.setAttribute("aria-expanded", on);
+  var i = $("#ief-emoin");
+  if (on && i) { i.value = K.sheet.cur(); st("sheet").typed = false; st("sheet").off = false; draw("sheet"); i.focus({ preventScroll: true }); try { i.select(); } catch (e) {} }
+  else hide("sheet");
+}
+
+document.addEventListener("pointerdown", function (e) { if (e.target.closest && e.target.closest("#sg-emo, #ief-sg-emo")) e.preventDefault(); });
+document.addEventListener("click", function (e) {
+  var el = e.target.closest && e.target.closest('[data-ef="emopick"], [data-ef="emomore"]'); if (!el) return;
+  var k = el.closest("#ief-sg-emo") ? "sheet" : "edit";
+  if (el.dataset.ef === "emomore") { st(k).open = !st(k).open; draw(k, true); return; }
+  choose(k, st(k).items[+el.dataset.i]);
+  if (k === "sheet") { sheetShow(false); var t = $("#ief-emo"); if (t) t.focus({ preventScroll: true }); }
+});
+document.addEventListener("focusin", function (e) { var k = kindOf(e.target); if (!k) return; var s = st(k); s.off = false; s.hl = -1; draw(k); try { e.target.select(); } catch (x) {} });
+/* leaving the box keeps what it holds at once, but the strip (and the item flyout's box) go away only after the tap that took the focus has landed: hiding a row first would move what is under the finger */
+var pressed = false;
+document.addEventListener("pointerdown", function () { pressed = true; }, true);
+document.addEventListener("pointerup", function () { setTimeout(function () { pressed = false; }, 0); }, true);
+document.addEventListener("pointercancel", function () { pressed = false; }, true);
+document.addEventListener("focusout", function (e) {
+  var k = kindOf(e.target); if (!k) return;
+  settle(k, true); st(k).open = false;
+  var tidy = function () { var i = $(K[k].box); if (i && document.activeElement === i) return; if (k === "sheet" && IEF.sheetEmo) sheetShow(false); else draw(k); };
+  if (!pressed) { setTimeout(tidy, 0); return; }
+  var done = false, once = function () { if (done) return; done = true; document.removeEventListener("click", once); setTimeout(tidy, 0); };
+  document.addEventListener("click", once); setTimeout(once, 600);
+});
+document.addEventListener("input", function (e) {
+  var k = kindOf(e.target); if (!k) return;
+  e.stopPropagation();
+  var s = st(k), i = e.target, r = read(i.value, K[k].cur());
+  s.typed = true; s.off = false; s.open = false;
+  /* a box that holds only an emoji (typed on the device's keyboard or pasted) is kept at once */
+  if (r.emoji && !r.words.length) { commit(k, r.emoji); return; }
+  draw(k);
+}, true);
+/* Esc closes the strip first and goes no further (the phone's Esc would close the sheet); with the strip already closed, the item flyout's box is put away */
 document.addEventListener("keydown", function (e) {
   if (e.key !== "Escape") return;
-  var kind = K.sheet.on ? "sheet" : K.edit.on ? "edit" : null; if (!kind) return;
-  var p = $(K[kind].box); if (!p || p.hidden) return;
-  e.preventDefault(); e.stopPropagation(); open(kind, false); var t = $(K[kind].tile); if (t) t.focus({ preventScroll: true });
+  var k = kindOf(e.target); if (!k) return;
+  if (visible(k) && $(K[k].strip) && !$(K[k].strip).hidden) { e.preventDefault(); e.stopPropagation(); st(k).off = true; hide(k); return; }
+  if (k === "sheet") { e.preventDefault(); e.stopPropagation(); var i = $("#ief-emoin"); if (i) i.value = K.sheet.cur(); st(k).typed = false; sheetShow(false); var t = $("#ief-emo"); if (t) t.focus({ preventScroll: true }); }
 }, true);
 document.addEventListener("keydown", function (e) {
-  var t = e.target, kind = kindOf(t); if (!kind) return;
-  if (t.matches("[data-epi]")) {
-    if (e.key === "ArrowDown") { e.preventDefault(); var f1 = $(K[kind].box + " .ef-epr:not([hidden]) .ef-e, " + K[kind].box + " .ef-eg .ef-e"); if (f1) f1.focus(); }
-    else if (e.key === "Enter") { e.preventDefault(); var first = $(K[kind].box + " .ef-epa .ef-e"); if (first) pick(kind, first.dataset.e); }
+  var k = kindOf(e.target); if (!k) return;
+  var s = st(k);
+  if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+    if (!visible(k)) { s.typed = true; s.off = false; draw(k); }
+    if (s.items.length) { e.preventDefault(); mark(k, s.hl < 0 ? (e.key === "ArrowDown" ? 0 : s.items.length - 1) : (s.hl + (e.key === "ArrowDown" ? 1 : -1) + s.items.length) % s.items.length); }
     return;
   }
-  if (t.matches(".ef-e") && /^Arrow/.test(e.key)) nav(e, kind);
-});
+  if (e.key !== "Enter") return;
+  /* Shift+Enter belongs to the Add form ("Add and start another"): keep what the box holds, then let it through */
+  if (e.shiftKey) { settle(k); return; }
+  e.preventDefault(); e.stopImmediatePropagation();
+  if (visible(k) && s.hl >= 0 && s.items[s.hl]) choose(k, s.items[s.hl]); else settle(k);
+  if (k === "sheet") { sheetShow(false); var t = $("#ief-emo"); if (t) t.focus({ preventScroll: true }); }
+}, true);
+
 IEF.emoji = {
-  list: LIST, open: open, toggle: function (kind) { open(kind); },
-  isOpen: function (kind) { return K[kind].on; }, reset: function (kind) { K[kind].on = false; },
-  /* the recent emoji as list entries (an emoji that is not in the list is left out) */
-  recent: function () { return load().map(find).filter(Boolean).slice(0, 8); },
-  push: function (ch) { var r = load().filter(function (x) { return x !== ch; }); r.unshift(ch); mem = r.slice(0, 8); try { localStorage.setItem(KEY, JSON.stringify(mem)); } catch (e) {} }
+  list: LIST, read: read, model: model, recent: recent, push: push,
+  /* the form draws its box; this fills its strip */
+  drawEdit: function () { ST.edit = null; draw("edit"); },
+  /* the item flyout's tile: show the box and focus it, or put it away */
+  sheet: function (on) { sheetShow(on === undefined ? !IEF.sheetEmo : on); },
+  isOpen: function () { return IEF.sheetEmo; }
 };
 })();
