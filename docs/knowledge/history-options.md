@@ -13,6 +13,9 @@ Landing page: `history/index.html`. Each option has its own spec with a field ca
 
 The options are not exclusive. A and B are two ways into one results list; C is where the entry points live; D is a different job (catch up) that could sit beside any of them.
 
+## Owner direction (voice, 11 Oct 2026): Recipe history is pulled by Kitchie
+Kitchie, the main app, pulls Recipe's history when it needs to. That is not built now: "just plan for it". So every option keeps the door open: one event shape (who, area, action, subject, when, source) that Recipe can supply and Kitchie can merge into its own list, and Recipe rows that can be absent without the screen breaking. **Proposal:** screens show Recipe events in the same list when present and show nothing special when absent.
+
 ## Questions that every option raises (decide once)
 1. **Is there a household-wide event feed today?** Kitchie history is per item and Recipe has version history; a single feed across both is a new service (B, D). Cost of a wrong guess: the whole feature changes from a screen to a backend.
 2. **Is the channel recorded** (app, voice, assistant, shopper link)? If not, "Source" and "what did Claude do" are empty for old rows (A, B, D).
