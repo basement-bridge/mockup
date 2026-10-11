@@ -121,7 +121,7 @@ p{margin:0;color:var(--muted)}
 @media (min-width:1024px){.kb,.scrim2{justify-items:start;padding-left:136px}}
 .kbc{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-card);padding:22px 26px;width:min(640px,calc(100vw - 48px));max-height:calc(100vh - 48px);overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.35)}
 .kbh{display:flex;align-items:center;margin-bottom:12px}
-.kbh .x{margin-left:auto;width:var(--tap);height:var(--tap);border-radius:50%;border:1px solid var(--border);background:var(--bg);font-size:20px}
+.kbh .x{width:var(--tap);height:var(--tap);border-radius:50%;border:1px solid var(--border);background:var(--bg);font-size:20px}
 .kbg{display:grid;grid-template-columns:1fr;gap:0}
 .kbs h3{font:700 12px var(--body);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:14px 0 6px}
 .kbr{display:flex;justify-content:space-between;gap:14px;padding:6px 0;border-bottom:1px solid var(--border);font-size:14px}
@@ -129,7 +129,6 @@ p{margin:0;color:var(--muted)}
 .kk kbd{font:700 12px var(--body);border:1px solid var(--border);border-bottom-width:2px;border-radius:6px;padding:1px 7px;background:var(--surface)}
 .kk em{font-style:normal;color:var(--muted);font-size:12px;margin:0 2px}
 .kbr span:last-child{text-align:left;color:var(--muted);flex:1}
-.kbf{font-size:12px;margin-top:14px}
 .toast{position:fixed;left:calc(88px + 48px);bottom:20px;z-index:40;display:flex;align-items:center;gap:14px;max-width:560px;padding:12px 16px;border-radius:var(--r-ctl);background:var(--fg);color:var(--bg);font-weight:600;box-shadow:0 8px 30px rgba(0,0,0,.3)}
 .toast a{color:inherit;text-decoration:underline}
 .toast button{border:0;background:none;color:var(--bg);font-weight:800;text-decoration:underline;padding:0}
@@ -215,10 +214,13 @@ p{margin:0;color:var(--muted)}
 .hist li::before{content:"";position:absolute;left:-25px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--accent)}
 .hist b{display:block}.hist span{color:var(--muted);font-size:13px}
 .panel .top .btn{min-height:40px;padding:0 14px}
-.kbt{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:18px;padding-top:14px;border-top:1px solid var(--border);font-weight:600}
-.sw2{min-width:72px;min-height:36px;padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--bg);font-weight:700}
-.sw2[aria-checked="true"]{background:var(--accent);color:var(--on-accent);border-color:transparent}
-.sw2:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* Cues button (rail beside Keys, and in the ? list header). On: every cue (key chips, hint lines) is drawn in the accent. Off: cues hidden. */
+.cuesb{margin-left:auto;margin-right:10px;min-width:72px;min-height:36px;padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--bg);color:inherit;font:700 14px var(--body)}
+.cuesb[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.cuesb:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.cuesnv[aria-pressed="true"]{color:var(--accent)}
+.kbd,.phint{color:var(--accent)}
+.kbd{border-color:var(--accent)}
 .nocues .kbd:not(.keep),.nocues .phint{display:none}
 .ft button,.ftclear{border:0;background:none}
 .ft button{border-radius:50%}
@@ -251,7 +253,7 @@ p{margin:0;color:var(--muted)}
 .fsrt svg{margin-left:auto;width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}.fsrt svg.flip{transform:rotate(180deg)}
 @media (prefers-reduced-motion:reduce){.fsrt svg{transition:none}}
 .kbc{width:min(980px,calc(100vw - 48px))}
-.kbg{grid-template-columns:1fr 1fr;column-gap:40px;align-items:start}
+.kbg{display:block;column-count:2;column-gap:40px}.kbs{break-inside:avoid}
 .kk{flex-basis:150px}
 @media (min-width:1024px){.kbc{width:min(980px,calc(100vw - 184px))}}
-@media (max-width:760px){.kbg{grid-template-columns:1fr}}
+@media (max-width:760px){.kbg{column-count:1}}
