@@ -1,6 +1,6 @@
 /* Profile window: two-pane, settings-style (owner decision, 9 October 2026). Static sample data, no storage, no libraries.
    Reusable: load profile.css + profile.js on any page and call window.KProfile.open(opener) / .close(). The window is built only when opened.
-   Modal rules: scrim covers the whole window, the page behind is inert, focus is trapped and handed back to the opener, Esc, the x button and a scrim click close.
+   Modal rules: scrim covers the whole window, the page behind is inert, focus is trapped and handed back to the opener; Ctrl/Cmd+Esc, the x button and a scrim click close (plain Esc closes nothing). Full screen with a small buffer (11 Oct 2026).
    Standalone page (the mockup Pantry): ?open=1|me|settings|preferences|history|household|data|shortcuts opens it at load.
    11 Oct 2026 (owner): Preferences is its own section, right after Settings, so the sections are numbered 1 to 6 and the number keys jump to them (the same keys the built window uses).
    Preferences is drawn by the Preferences mockup itself (fragments/preferences-mine-household, embed mode), loaded in a frame only when the section is first shown. */
@@ -53,7 +53,8 @@ var NUM={};ORDER.forEach(function(k,i){NUM[String(i+1)]=k});
 function num(k){return String(ORDER.indexOf(k)+1)}
 function keys(k){return '<span class="pf-keys" aria-label="shortcut: G then '+k+'"><kbd>G</kbd><kbd>'+k+'</kbd></span>'}
 function nkey(k){return '<span class="pf-keys" aria-label="shortcut: '+k+'"><kbd>'+k+'</kbd></span>'}
-var ESCL=/Mac|iPhone|iPad/.test(navigator.platform||"")?"\u2318 Enter":"Ctrl Enter";
+/* The one close key everywhere in Kitchie desktop: Ctrl+Esc, Cmd+Esc on a Mac (the build's platformKey()). Ctrl/Cmd+Enter is a silent alias, not shown anywhere. Plain Esc closes nothing. */
+var ESCL=/Mac|iPhone|iPad/.test(navigator.platform||"")?"\u2318 Esc":"Ctrl Esc";
 var FOOT='<span><kbd>'+ESCL+'</kbd> close</span><span><kbd>Tab</kbd> move</span><span><kbd>1</kbd> to <kbd>'+ORDER.length+'</kbd> jump to a section</span><span><kbd>?</kbd> shortcuts</span>';
 
 /* ---------- pane content (drawn on first view) ---------- */
@@ -99,11 +100,11 @@ var PANE={me:paneMe,settings:paneSettings,preferences:panePrefs,history:paneHist
 var stack=[],home=null,gTimer=null,toastTimer=null,toastEl=null;
 
 /* ---------- renderers ---------- */
-function xbtn(){return '<span class="pf-hx"><kbd>'+ESCL+'</kbd><button type="button" class="pf-x" data-close aria-label="Close">'+ic("close",20)+'</button></span>'}
+function xbtn(){return '<span class="pf-hx"><kbd>'+ESCL+'</kbd><button type="button" class="pf-x" data-close aria-label="Close" title="Close ('+ESCL+')">'+ic("close",20)+'</button></span>'}
 function navHtml(view){
  var tabs=ORDER.map(function(k){var v=VIEWS[k],on=view===k;
   var label=k==="me"?"Profile":v.t;
-  return '<button type="button" class="pf-nvt" role="tab" id="pf-tab-'+k+'" data-view="'+k+'" aria-selected="'+on+'" aria-controls="pf-panel" tabindex="'+(on?0:-1)+'"'+(on?' data-focus':'')+'>'+ic(v.icon,20)+'<span class="pf-t">'+label+'</span>'+(k==="household"?'<span class="pf-chip">2</span>':'')+nkey(num(k))+'</button>'}).join("");
+  return '<button type="button" class="pf-nvt" role="tab" id="pf-tab-'+k+'" data-view="'+k+'" aria-selected="'+on+'" aria-controls="pf-panel" tabindex="'+(on?0:-1)+'"'+(on?' data-focus':'')+'>'+ic(v.icon,20)+'<span class="pf-t">'+label+'</span>'+nkey(num(k))+'</button>'}).join("");
  return '<div class="pf-nav"><div class="pf-nwho">'+bw(48)+'<div><b>'+NAME+'</b><span class="pf-sub">'+SUB+'</span></div></div><div role="tablist" aria-orientation="vertical" aria-label="Profile sections">'+tabs+'</div><span class="pf-grow"></span><p class="pf-small"><kbd>&uarr;</kbd> <kbd>&darr;</kbd> switch section</p></div>'}
 function winHtml(view,bodyHtml){
  var title=view==="me"?"Profile":VIEWS[view].t;
@@ -191,7 +192,7 @@ document.addEventListener("click",function(e){
 
 document.addEventListener("keydown",function(e){
  var top=stack[stack.length-1],t=e.target;
- if(e.key==="Enter"&&(e.ctrlKey||e.metaKey)&&top){e.preventDefault();e.stopPropagation();closeTop();return}
+ if((e.key==="Escape"||e.key==="Enter")&&(e.ctrlKey||e.metaKey)&&top){e.preventDefault();e.stopPropagation();closeTop();return}
  if(e.key==="Tab"&&top){
   var f=focusables(top.frame);if(!f.length){e.preventDefault();return}
   var i=f.indexOf(document.activeElement);
@@ -214,12 +215,12 @@ document.addEventListener("keydown",function(e){
  if(e.key==="g"||e.key==="G"){gTimer=setTimeout(function(){gTimer=null;toastNode().classList.remove("on")},1500);toast("G, then P, M, S, Y, H or D")}
 },true);
 
-/* Keys pressed inside the embedded Preferences frame are passed up, so the window keeps its own keys (Ctrl or Cmd Enter, the numbers, ?). */
+/* Keys pressed inside the embedded Preferences frame are passed up, so the window keeps its own keys (Ctrl or Cmd Esc, the numbers, ?). */
 window.addEventListener("message",function(ev){
  var d=ev.data,top=stack[stack.length-1];
  if(!d||d.kind!=="pf-key"||!top||top.kind!=="win")return;
  var f=$("iframe.pf-frame",top.frame);if(!f||ev.source!==f.contentWindow)return;
- if(d.key==="Enter"&&(d.ctrl||d.meta)){closeTop();return}
+ if((d.key==="Escape"||d.key==="Enter")&&(d.ctrl||d.meta)){closeTop();return}
  if(d.key==="?"){toggleShortcuts();return}
  if(NUM[d.key])setView(top,NUM[d.key])});
 

@@ -124,7 +124,7 @@
     document.documentElement.classList.add("mh-embed");
     if (window.parent !== window) document.addEventListener("keydown", function (e) { /* hand the window's own keys up to the Settings window */
       var inField = /^(INPUT|TEXTAREA|SELECT)$/.test((e.target || {}).tagName || "");
-      if ((e.key === "Enter" && (e.ctrlKey || e.metaKey)) || (!inField && !e.ctrlKey && !e.metaKey && !e.altKey && /^[1-6?]$/.test(e.key))) { e.preventDefault(); window.parent.postMessage({ kind: "pf-key", key: e.key, ctrl: e.ctrlKey, meta: e.metaKey }, "*"); }
+      if (((e.key === "Escape" || e.key === "Enter") && (e.ctrlKey || e.metaKey)) || (!inField && !e.ctrlKey && !e.metaKey && !e.altKey && /^[1-6?]$/.test(e.key))) { e.preventDefault(); window.parent.postMessage({ kind: "pf-key", key: e.key, ctrl: e.ctrlKey, meta: e.metaKey }, "*"); }
     });
   } else if (INWIN) {
     var host = root.closest(".mh-frame");
@@ -641,13 +641,17 @@
     if (!host) return;
     var linked = M.linked[S.as], dflt = M.defaultAssistant[S.as], m = mine();
     var nameOf = function (id) { return ASSISTANTS.filter(function (x) { return x[0] === id; })[0][1]; };
+    /* Owner, 11 Oct 2026: no separate "Default assistant" widget. Each linked assistant is one row; with two or more, the row is also the radio that marks the default (the choice and its storage are unchanged). One linked: it is the default already, so no radio. "Linked through sign-in" is said once, above the list, not on every row. */
+    var many = linked.length > 1;
     var rows = linked.map(function (id) {
-      return '<li><span class="sname">' + esc(nameOf(id)) + '<span class="swhat">' + (linked.length > 1 && dflt === id ? "Linked through sign-in. Your default" : "Linked through sign-in") + '</span></span><button type="button" class="btn" data-act="pnav" data-id="Disconnect ' + esc(nameOf(id)) + '" aria-label="Disconnect ' + esc(nameOf(id)) + '">Disconnect</button></li>';
+      var disc = '<button type="button" class="btn" data-act="pnav" data-id="Disconnect ' + esc(nameOf(id)) + '" aria-label="Disconnect ' + esc(nameOf(id)) + '">Disconnect</button>';
+      if (!many) return '<li><span class="sname">' + esc(nameOf(id)) + "</span>" + disc + "</li>";
+      return '<li role="presentation"><button type="button" class="arad" role="radio" aria-checked="' + (dflt === id) + '" data-act="pdefault" data-id="pf" data-val="' + esc(id) + '"><span class="ck" aria-hidden="true"></span><span class="sname">' + esc(nameOf(id)) + (dflt === id ? '<span class="swhat">Your default</span>' : "") + "</span></button>" + disc + "</li>";
     }).join("");
     var body;
     if (!linked.length) body = '<p class="note">No assistant is linked yet. Link one and it is used automatically.</p><button type="button" class="btn" data-act="pnav" data-id="Link your assistant">Link your assistant</button>';
-    else if (linked.length === 1) body = '<ul class="stops" aria-label="Linked assistants">' + rows + '</ul><p class="note">' + esc(nameOf(linked[0])) + " is the only one linked, so it is used automatically. There is nothing to pick.</p>";
-    else body = '<ul class="stops" aria-label="Linked assistants">' + rows + '</ul><p class="pl">Default assistant</p><div role="radiogroup" aria-label="Default assistant" class="plist">' + linked.map(function (id) { return optionBtn("pdefault", "pf", id, nameOf(id) + (dflt === id ? ", my default" : ""), dflt === id); }).join("") + "</div>" +
+    else if (!many) body = '<p class="pl">Linked through sign-in</p><ul class="stops" aria-label="Linked assistants">' + rows + '</ul><p class="note">' + esc(nameOf(linked[0])) + " is the only one linked, so it is used automatically. There is nothing to pick.</p>";
+    else body = '<p class="pl">Linked through sign-in</p><ul class="stops" role="radiogroup" aria-label="Default assistant">' + rows + "</ul>" +
       (dflt ? '<p class="note">The plan button opens ' + esc(nameOf(dflt)) + ".</p>" : '<div class="note ro" role="status">' + ICON.spark + "<div>More than one is linked, so choose a default. The plan button opens it.</div></div>");
     host.innerHTML = '<div class="sp"><div class="mtop"><span style="width:64px" aria-hidden="true"></span><h3 class="ttl">Me</h3><span style="width:64px" aria-hidden="true"></span></div><div class="mbody">' +
       (S.pfmsg ? '<div class="banner" role="status">' + esc(S.pfmsg) + "</div>" : "") +
@@ -665,7 +669,7 @@
     window.scrollTo(0, keepScroll);
     syncControls();
     profileDemo();
-    if (S.focus) { var el = root.querySelector(S.focus); if (el) el.focus({ preventScroll: true }); S.focus = null; }
+    if (S.focus) { var el = root.querySelector(S.focus) || document.querySelector(S.focus); if (el) el.focus({ preventScroll: true }); S.focus = null; } /* the profile sketch sits outside #app, so the default radio finds its focus on the page */
     void cur;
   }
 

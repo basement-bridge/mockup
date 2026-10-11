@@ -1,7 +1,8 @@
 /* Profile window (reusable). Tokens from theme.css only (no raw colours). No framework, no storage.
    Everything is scoped under .pf-scrim so the file can be loaded on any page (Kitchie, the mockup Pantry) without touching it.
    Opened with window.KProfile.open(opener) from profile.js. */
-html.pf-lock{overflow:hidden}
+/* Full screen: no reserved scrollbar strip beside the window (the page behind may shift a scrollbar width under the scrim; the scrim hides it). */
+html.pf-lock{overflow:hidden;scrollbar-gutter:auto}
 .pf-scrim,.pf-scrim *{box-sizing:border-box}
 .pf-scrim{font-family:var(--body);line-height:1.4;color:var(--fg)}
 .pf-scrim :where(button,input){font:inherit;color:inherit}
@@ -14,9 +15,10 @@ html.pf-lock{overflow:hidden}
 .pf-scrim :where(kbd){font:600 11px/1.5 var(--body);border:1px solid var(--border);border-bottom-width:2px;border-radius:6px;padding:0 6px;min-width:20px;text-align:center;color:var(--muted);background:var(--bg);display:inline-block}
 
 /* ---------- scrim and dialogs ---------- */
-.pf-scrim{position:fixed;inset:0;z-index:100;background:var(--dim);backdrop-filter:blur(2px);display:grid;place-items:center;padding:24px;animation:pf-fade .14s ease-out}
-.pf-dlg{background:var(--surface);color:var(--fg);border:1px solid var(--border);border-radius:var(--r-card);box-shadow:0 24px 80px var(--dim);max-height:calc(100vh - 48px);display:flex;flex-direction:column;overflow:hidden;animation:pf-pop .16s ease-out;outline:0;min-width:0}
-.pf-win{width:min(900px,100%);height:min(620px,calc(100vh - 48px));flex-direction:row}
+.pf-scrim{--pf-gap:12px;position:fixed;inset:0;z-index:100;background:var(--dim);backdrop-filter:blur(2px);display:grid;place-items:center;padding:var(--pf-gap);animation:pf-fade .14s ease-out}
+.pf-dlg{background:var(--surface);color:var(--fg);border:1px solid var(--border);border-radius:var(--r-card);box-shadow:0 24px 80px var(--dim);max-height:calc(100vh - 2*var(--pf-gap));max-height:calc(100dvh - 2*var(--pf-gap));display:flex;flex-direction:column;overflow:hidden;animation:pf-pop .16s ease-out;outline:0;min-width:0}
+/* Full screen (owner, 11 Oct 2026): the window fills the scrim less a small buffer on every side; the section list keeps its width. The shortcuts list (.pf-s) stays a small centred dialog. */
+.pf-win{width:100%;height:100%;flex-direction:row}
 .pf-s{width:min(440px,100%)}
 @keyframes pf-fade{from{opacity:0}to{opacity:1}}
 @keyframes pf-pop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
@@ -58,7 +60,7 @@ html.pf-lock{overflow:hidden}
 .pf-i{flex:none}
 
 /* buttons, fields */
-.pf-btn{min-height:var(--tap);padding:0 18px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.pf-btn{white-space:nowrap;min-height:var(--tap);padding:0 18px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px}
 .pf-btn:hover{border-color:var(--accent)}
 .pf-btn.pri{background:var(--accent);color:var(--on-accent);border-color:transparent}
 .pf-btn.dng{color:var(--danger);border-color:var(--danger);background:none}
@@ -122,10 +124,10 @@ html.pf-lock{overflow:hidden}
 .pf-cont{flex:1;min-width:0;display:flex;flex-direction:column}
 .pf-cont .pf-head{padding-left:24px}
 .pf-cont .pf-body{padding-left:24px;padding-right:24px;outline-offset:-3px}
+.pf-cont .pf-body:not(.pf-flush)>*{max-width:var(--pf-measure,60rem)}
 .pf-cont .pf-foot{padding-left:24px}
 
 /* shortcuts list and toast */
-.pf-scrim{position:fixed;inset:0;z-index:100;background:var(--dim);backdrop-filter:blur(2px);display:grid;place-items:center;padding:24px;animation:pf-fade .14s ease-out}
 .pf-sc{display:grid;gap:0}
 .pf-sc li{display:flex;align-items:center;gap:12px;padding:10px 12px;min-height:44px}
 .pf-sc li+li{border-top:1px solid var(--border)}
@@ -133,13 +135,15 @@ html.pf-lock{overflow:hidden}
 .pf-toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:110;background:var(--fg);color:var(--bg);padding:10px 18px;border-radius:var(--r-pill);font-weight:600;font-size:14px;opacity:0;pointer-events:none;transition:opacity .15s;max-width:calc(100vw - 32px);text-align:center}
 .pf-toast.on{opacity:1}
 
-@media (max-width:900px){.pf-win{flex-direction:column}.pf-nav{width:auto;border-right:0;border-bottom:1px solid var(--border);flex-direction:row;flex-wrap:wrap}.pf-nwho,.pf-nav .pf-grow,.pf-nav>.pf-small{display:none}.pf-nvt{width:auto}.pf-nvt .pf-keys{display:none}}
+@media (max-width:600px){.pf-scrim{--pf-gap:8px}}
+@media (max-width:900px){.pf-win{flex-direction:column}.pf-nav{width:auto;border-right:0;border-bottom:1px solid var(--border);flex-direction:row;flex-wrap:nowrap;overflow-x:auto;padding:8px;gap:4px;flex:none;min-height:auto}.pf-nwho,.pf-nav .pf-grow,.pf-nav>.pf-small{display:none}.pf-nav [role=tablist]{display:flex;gap:4px}.pf-nvt{width:auto;flex:none}.pf-nvt .pf-t{flex:none}.pf-nvt .pf-keys{display:none}.pf-nvt[aria-selected=true]{box-shadow:inset 0 -3px 0 var(--accent)}.pf-cont .pf-head,.pf-cont .pf-body,.pf-cont .pf-foot{padding-left:16px;padding-right:16px}.pf-foot{display:none}}
 
 /* ---------- Preferences section (11 Oct 2026) ---------- */
 /* The body holds the Preferences screen itself, edge to edge, and scrolls inside it: no padding, one scroll box. */
 .pf-body.pf-flush{padding:0;gap:0;background:var(--bg)}
 .pf-frame{display:block;width:100%;flex:1;min-height:0;border:0;background:var(--bg)}
-/* The same window drawn in place (not a modal) on the Preferences mockup pages at desktop width. */
+/* The same window drawn in place (not a modal) on the Preferences mockup pages at desktop width: the old 900 by 620 size, not full screen. */
 .pf-scrim.pf-inline{position:static;inset:auto;z-index:auto;background:none;backdrop-filter:none;display:block;padding:0;animation:none}
 .pf-inline .pf-dlg{animation:none;box-shadow:none;margin:0 auto}
+.pf-inline .pf-win{width:min(900px,100%);height:620px}
 .pf-list li:has(>.pf-item+.pf-btn){display:flex;align-items:center;gap:8px;padding-right:8px}
