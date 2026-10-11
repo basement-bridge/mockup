@@ -179,7 +179,7 @@ function prefFly(m){
  return flyShell(esc(r[1]),id.split(":")[0]==="me"?"Mine":"Household",'<div class="pf-ed">'+prefEditor(m,id,true)+'</div>','<button type="button" class="pf-btn" data-flyclose>Close</button>',"Edit "+r[1])}
 function footCtl(m){
  if(narrow())return "";var o=m.pref||"today";
- var chg=o==="a"?'<span>Changed since last seen</span><span class="pf-seg" role="radiogroup" aria-label="Household changes since last seen, three ways to show it">'+[["0","None"],["1","1 Badge"],["2","2 Dot"],["3","3 Summary"]].map(function(x){return '<button type="button" role="radio" aria-checked="'+((m.chg||"1")===x[0])+'" data-chg="'+x[0]+'">'+x[1]+'</button>'}).join("")+'</span>':"";
+ var chg=o==="a"?'<span>Dots (changed since last seen)</span><span class="pf-seg" role="radiogroup" aria-label="Dots for what changed since you last looked">'+[["2","Show"],["0","All seen"]].map(function(x){return '<button type="button" role="radio" aria-checked="'+((m.chg==="0"?"0":"2")===x[0])+'" data-chg="'+x[0]+'">'+x[1]+'</button>'}).join("")+'</span>':"";
  return '<span class="pf-mock pf-mockf"><span>Mockup only. Layout</span><span class="pf-seg" role="radiogroup" aria-label="Preferences layout">'+[["today","Today"],["a","A"],["b","B"],["c","C"]].map(function(x){return '<button type="button" role="radio" aria-checked="'+(o===x[0])+'" data-pref="'+x[0]+'">'+x[1]+'</button>'}).join("")+'</span>'+chg+'<span>Viewing as</span><span class="pf-seg" role="radiogroup" aria-label="Viewing as">'+[["arjan","Arjan (admin)"],["sam","Sam"]].map(function(x){return '<button type="button" role="radio" aria-checked="'+(m.as===x[0])+'" data-as="'+x[0]+'">'+x[1]+'</button>'}).join("")+'</span></span>'}
 
 /* ---------- the module's face ---------- */
@@ -212,7 +212,7 @@ document.addEventListener("change",function(e){
 function click(m,el,H){
  var a=el.dataset.act;
  if(window.KProfilePrefs&&window.KProfilePrefs.click(m,el,H))return true;
- if(el.dataset.chg!==undefined){m.chg=el.dataset.chg;m.sel=null;H.paint(m,false,'[data-chg="'+el.dataset.chg+'"]');return true}
+ if(el.dataset.chg!==undefined){m.chg=el.dataset.chg==="0"?"0":"2";if(m.chg==="2"&&window.KProfilePrefs)window.KProfilePrefs.resetSeen();m.sel=null;H.paint(m,false,'[data-chg="'+el.dataset.chg+'"]');return true}
  if(el.dataset.ib){m.os=el.dataset.ib;m.idone=false;H.paint(m,false,'[data-ib="'+el.dataset.ib+'"]');return true}
  if(el.dataset.imob){m.os=el.dataset.imob;H.paint(m,false,'[data-imob="'+el.dataset.imob+'"]');return true}
  if(el.dataset.as){m.as=el.dataset.as;m.sel=null;H.paint(m,false,'[data-as="'+el.dataset.as+'"]');return true}

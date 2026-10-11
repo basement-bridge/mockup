@@ -1,7 +1,7 @@
 /* Settings window, Preferences layout A, redrawn (mockup, 12 Oct 2026, round 5). Loaded by profile.js only when ?pref=a is shown, after profile-subs.js.
    Owner (voice, 11-12 Oct 2026): layout A is the one. The gutter under Preferences is Mine, Household, and one row per housemate who has food to show. Mine holds everything uat's Mine screen holds
    (stock level checks, rules by place, the add-rule and what-applies pickers, switched off, notes, Added for you, Food, Substitutions, Add something for a housemate, Added for housemates). A housemate's row
-   is read-only and shows food only; what you proposed for them looks different (dashed, "Proposed by you", "Waiting for <name>") and carries Take back. Members and admins are not here: they live in the Household section.
+   is read-only and shows food only (plus the pending proposals between you and that person). 12 Oct 2026 (owner, round 6): one visual for a pending proposal in both directions ("Proposed by <who>", "Waiting for <name>", dashed); Take back only on what you proposed, Confirm and Reject on what was proposed for you; answered or taken-back proposals vanish at once; the Household "changed since last seen" is the dot, and the dot also marks a housemate's gutter row. Members and admins are not here: they live in the Household section.
    Words and rules are uat's (server/src/preferences/*, branch uat, read 12 Oct 2026): page-dials, rules-draw, stock-rules, food-card, web-notes, web-propose, web-page. Static sample data, no storage, no network.
    Everything opens in place: a row opens its flyout beside the list; nothing is a page of its own (in uat, Added for you and Add for a housemate are pages; here they are flyouts). */
 (function(){
@@ -83,29 +83,37 @@ var FOOD=[
  {id:"f3",o:"arjan",r:"dislike",s:"coriander",d:"Until 30 Nov · Ends by itself",said:"no coriander for the next few weeks",n:1,ends:"30 Nov"},{id:"f4",o:"arjan",r:"cap",s:"milk",d:"At most once in 7 days · A limit",said:"milk only once a week",n:1},
  {id:"s1",o:"arjan",r:"sub",s:"Butter for ghee",d:"A swap · Yours over the household’s",said:"use ghee instead of butter",n:1},
  {id:"h1",o:"hh",r:"avoid",s:"pork",d:"Not for safety, no end",said:"no pork in the house",n:1},{id:"h2",o:"hh",r:"avoid",s:"sesame",d:"For safety, no end",said:"nothing with sesame, one of us is allergic",n:1},
- {id:"x1",o:"sam",r:"avoid",s:"shellfish",d:"For safety, no end",said:"shellfish makes me ill",n:2},{id:"x2",o:"sam",r:"like",s:"mushrooms",d:"No end",said:"I love mushrooms",n:1},{id:"x3",o:"sam",r:"dislike",s:"olives",d:"Until 30 Nov · Ends by itself",said:"no olives for a while",n:1,ends:"30 Nov"}];
-/* proposals: something a housemate added to another's own list. Used straight away, tagged proposed by; the person has the last word (uat web-propose.ts). status: waiting, kept, removed, taken back. */
+ {id:"x1",o:"sam",r:"avoid",s:"shellfish",d:"For safety, no end",said:"shellfish makes me ill",n:2},{id:"x2",o:"sam",r:"like",s:"mushrooms",d:"No end",said:"I love mushrooms",n:1},{id:"x3",o:"sam",r:"dislike",s:"olives",d:"Until 30 Nov · Ends by itself",said:"no olives for a while",n:1,ends:"30 Nov"},
+ {id:"x4",o:"maya",r:"like",s:"lentils",d:"No end",said:"I like lentils",n:1}];
+/* proposals: something a housemate added to another's own list. Used straight away; the person it is for has the last word (uat web-propose.ts). Owner, 12 Oct 2026: answered (confirmed or rejected) and taken-back proposals vanish at once; nothing lingers. status: waiting, kept, removed, taken back (only "waiting" is ever drawn). */
 var PROPS=[{id:"p1",from:"arjan",to:"sam",r:"avoid",s:"peanuts",why:"safety",at:"yesterday, 4:40 pm",st:"waiting"},{id:"p2",from:"arjan",to:"maya",r:"avoid",s:"beans",why:"other",at:"today, 7:18 am",st:"waiting"},{id:"p3",from:"sam",to:"arjan",r:"like",s:"paneer",why:"",at:"today, 8:02 am",st:"waiting"}];
 function waiting(f){return PROPS.filter(function(p){return p.st==="waiting"&&f(p)})}
+/* every pending proposal between the viewer and one other person, in either direction */
+function between(v,id){return waiting(function(p){return (p.from===v&&p.to===id)||(p.from===id&&p.to===v)})}
 function propTime(p){return cap1(p.at)}
 function propDetail(p){return p.r==="avoid"?(p.why==="safety"?"For safety, none at all":p.why==="other"?"Not for safety, none at all":"Treated as safety until said"):""}
 function foodOf(who){return FOOD.filter(function(f){return f.o===who})}
 function sortFood(a){return a.slice().sort(function(x,y){return RORDER.indexOf(x.r)-RORDER.indexOf(y.r)})}
 
-/* ---------- Household: what changed since the viewer last looked (three ways to show it; owner has not chosen) ---------- */
-var LASTSEEN="Fri 9 Oct";
+/* ---------- what changed since the viewer last looked: the dot (owner, 12 Oct 2026, SW-O13 resolved) ----------
+   One way only. A dot on the changed Household row, and on the Household entry in the gutter while any is unseen; it clears once you open the row.
+   The same dot marks a housemate's row in the gutter: they changed something, or a proposal came from them to you. It clears once you open their row.
+   &chg=0 means everything has been seen (no dots). Any other &chg (including the old 1 and 3) draws the dots: the badge and the summary line were not chosen and are gone. */
 var CHG=[{id:"a:d:hh:cap",what:"Most suggestions per day",line:"8 to 5",by:"maya",when:"yesterday, 6:12 pm"},{id:"a:f:h2",what:"Avoids sesame",line:"Added for everyone",by:"maya",when:"today, 7:40 am"}];
-var SEEN={};
+var CHGM=[{who:"sam",what:"Dislikes olives",when:"today, 7:55 am"},{who:"maya",what:"Likes lentils",when:"yesterday, 5:30 pm"}];
+var SEEN={},SEENM={};
 function chgOf(id){return CHG.filter(function(c){return c.id===id})[0]}
 function unseen(){return CHG.filter(function(c){return !SEEN[c.id]})}
-function chgMode(m){return m.chg===undefined?"1":m.chg}
-/* what a changed row adds: variant 1 a badge and who and when; variant 2 a dot that clears once the row is opened; variant 3 a call-out (the summary above says which) */
+function chgMode(m){return m.chg==="0"?"0":"2"}
+function dotEl(label){return '<i class="pf-dot" role="img" aria-label="'+label+'"></i>'}
 function mark(m,id){
- var c=chgOf(id),md=chgMode(m);if(!c||md==="0")return{};
- if(md==="1")return{chip:'<span class="pf-chip chg">Changed</span>',x:'<span class="pf-chgline">'+PPL[c.by]+' changed this · '+c.when+(c.id==="a:d:hh:cap"?' · was 8':'')+'</span>'};
- if(SEEN[id])return{};
- if(md==="2")return{lead:'<i class="pf-dot" role="img" aria-label="Changed since you last looked"></i>',cls:"pf-unseen"};
- return{cls:"pf-called"}}
+ var c=chgOf(id);if(!c||chgMode(m)==="0"||SEEN[id])return{};
+ return{lead:dotEl("Changed since you last looked"),cls:"pf-unseen"}}
+/* a housemate's row: a change by them, or a proposal from them to the viewer, that the viewer has not yet opened */
+function memberDot(m,id){
+ var v=viewer(m);if(chgMode(m)==="0"||SEENM[v+":"+id])return false;
+ return CHGM.some(function(c){return c.who===id})||waiting(function(p){return p.from===id&&p.to===v}).length>0}
+function resetSeen(){SEEN={};SEENM={}}
 
 /* ---------- small pieces ---------- */
 function prow(m,sel,o){
@@ -146,9 +154,8 @@ function foodRow(m,f,scope,v){
  var who=f.o==="hh"?"hh":"you",tag=f.tag?(f.d?" · ":"")+f.tag:"",mk=scope==="hh"&&f.o==="hh"?mark(m,"a:f:"+f.id):{};
  return prow(m,"a:f:"+f.id,{kw:RW[f.r],t:f.s,w:f.d+tag,chip:(mk.chip||"")+'<span class="pf-chip '+(who==="hh"?"ok":"you")+'">'+(who==="hh"?"Everyone":"Just you")+'</span>',x:mk.x,lead:mk.lead,cls:mk.cls})}
 function myFood(m,v){
- var own=foodOf(v).filter(function(f){return f.r!=="sub"}),inc=waiting(function(p){return p.to===v}).map(function(p){return{id:p.id,o:v,r:p.r,s:p.s,d:propDetail(p),tag:"Proposed by "+PPL[p.from],prop:true}});
- var hh=FOOD.filter(function(f){return f.o==="hh"});
- return sortFood(own.concat(inc).concat(hh))}
+ var own=foodOf(v).filter(function(f){return f.r!=="sub"}),hh=FOOD.filter(function(f){return f.o==="hh"});
+ return sortFood(own.concat(hh))}
 
 function mine(m){
  var v=viewer(m),h=pbar(m)+'<p class="pf-small pf-intro">What you have chosen for yourself, and where everything else comes from.</p>'+legend();
@@ -157,9 +164,9 @@ function mine(m){
  var nt=NOTES[v];
  h+=card("Notes",prow(m,"a:n:me",{t:"Your note",v:nt||"Add a note",chip:chip("you")})
   +'<li><div class="pf-item pf-static"><span class="pf-t">Household note<small><b class="pf-val pf-clamp">'+esc(NOTES.hh||"Nobody has written one")+'</b></small></span><button type="button" class="pf-chipgo" data-pa="gohh" data-id="a:n:hh" aria-label="Household note, open it in Household">Household '+ic("chev",14)+'</button></div></li>',notep("Both notes are read. Neither replaces the other."));
- /* added for you */
- var inc=waiting(function(p){return p.to===v}).length;
- h+='<div><ul class="pf-list pf-picks">'+prow(m,"a:added",{t:"Added for you",v:inc?inc+(inc===1?" thing":" things")+" from housemates, in use now":"Nothing waiting",chip:inc?'<span class="pf-chip wait">Waiting for you</span>':'<span class="pf-chip">All clear</span>'})+'</ul></div>';
+ /* added for you: what housemates put on your list. Used already; you confirm or reject it. The same row, in the same styling, as what you proposed for them (owner, 12 Oct 2026). */
+ var inc=waiting(function(p){return p.to===v});
+ h+='<div><span class="pf-lbl">Added for you</span>'+(inc.length?'<ul class="pf-props">'+inc.map(function(p){return propRow(m,p,"in")}).join("")+'</ul><p class="pf-small pf-note2">Already in use. Confirm to keep it on your list, or reject to take it off. They are not told what you decide.</p>':'<p class="pf-small">Nothing waiting. When a housemate adds something to your list it shows here, in use, until you confirm or reject it.</p>')+'</div>';
  /* food */
  var fr=myFood(m,v).map(function(f){return foodRow(m,f,"me",v)}).join("");
  h+=card("Food",fr||'<li class="pf-li-note"><p class="pf-small">Nothing remembered about you yet. Tell your assistant what you like, dislike, cannot eat, want less often or want swapped for something else, and it shows up here.</p></li>');
@@ -169,18 +176,24 @@ function mine(m){
  /* housemates */
  var mineP=waiting(function(p){return p.from===v});
  h+='<div class="pf-hmates"><div><button type="button" class="pf-btn" data-sel="a:give" aria-pressed="'+(m.sel==="a:give")+'">'+ic("plus",18)+' Add something for a housemate</button></div>'
-  +'<div><span class="pf-lbl">Added for housemates</span>'+(mineP.length?'<ul class="pf-props">'+mineP.map(function(p){return propRow(p,true)}).join("")+'</ul>':'<p class="pf-small">Nothing waiting. What you add for a housemate, and what others add, is listed here until it has been dealt with. You are not told what they decide.</p>')+'</div></div>';
+  +'<div><span class="pf-lbl">Added for housemates</span>'+(mineP.length?'<ul class="pf-props">'+mineP.map(function(p){return propRow(m,p,"out")}).join("")+'</ul><p class="pf-small pf-note2">Already in use. You can take one back while it waits. You are not told what they decide, and it goes the moment they answer.</p>':'<p class="pf-small">Nothing waiting. What you add for a housemate shows here until they answer it, or you take it back.</p>')+'</div></div>';
  return h}
-/* one pending proposal, as the proposer sees it: the same thing on Mine and on the housemate's row. Dashed, "Proposed by you", "Waiting for <name>", Take back right on it. */
-function propRow(p,withFor){
- var to=PPL[p.to];
- return '<li class="pf-prop" data-prop="'+p.id+'"><span class="pf-t"><span class="pf-fs">'+RW[p.r]+(withFor?" · for "+to:"")+'</span>'+esc(p.s)+'<small>'+(withFor?'Added '+p.at+'. In use now. '+to+' has not answered.':'Proposed by you · Added '+p.at+'. In use now.')+'</small></span><span class="pf-chip wait">Waiting for '+to+'</span><button type="button" class="pf-btn sm" data-pa="takeback" data-id="'+p.id+'" aria-label="Take back '+esc(p.s)+' from '+to+'">Take back</button></li>'}
+/* One pending proposal, drawn the same in both directions (owner, 12 Oct 2026): dashed, "Proposed by <who>" ("you" for your own), "Waiting for <name>" ("you" when it is for you), in use now.
+   Only the controls differ: what you proposed has Take back; what was proposed for you has Confirm and Reject (no Take back). ctx: "out" on Mine (adds "for <name>"), "in" on Mine, "member" on a housemate's row. */
+function propRow(m,p,ctx){
+ var v=viewer(m),own=p.from===v,by=own?"you":PPL[p.from],to=p.to===v?"you":PPL[p.to],w=PPL[p.from===v?p.to:p.from];
+ var kw=RW[p.r]+(ctx==="out"?" · for "+to:""),det=p.r==="avoid"?propDetail(p):"";
+ var ctl,conf=PCONF===p.id&&!own;
+ if(own)ctl='<button type="button" class="pf-btn sm" data-pa="takeback" data-id="'+p.id+'" aria-label="Take back '+esc(p.s)+' from '+PPL[p.to]+'">Take back</button>';
+ else if(conf)ctl='';
+ else ctl='<button type="button" class="pf-btn sm pri" data-pa="confirm" data-id="'+p.id+'" aria-label="Confirm '+esc(p.s)+', proposed by '+PPL[p.from]+'">Confirm</button><button type="button" class="pf-btn sm" data-pa="reject" data-id="'+p.id+'" aria-label="Reject '+esc(p.s)+', proposed by '+PPL[p.from]+'">Reject</button>';
+ return '<li class="pf-prop" data-prop="'+p.id+'"><span class="pf-t"><span class="pf-fs">'+kw+'</span>'+esc(p.s)+'<small><b class="pf-by">Proposed by '+by+'</b> · Added '+p.at+'. In use now.'+(det?' '+det+'.':'')+'</small></span><span class="pf-chip wait">Waiting for '+to+'</span>'+ctl
+  +(conf?'<div class="pf-propconf"><p class="pf-small">This is kept for safety'+(p.why==="safety"?"":" (no reason was given, so it is treated as safety)")+'. Reject it only if it is no longer true.</p><div class="pf-acts"><button type="button" class="pf-btn dng sm" data-pa="rejectyes" data-id="'+p.id+'">Yes, reject it</button><button type="button" class="pf-btn sm" data-pa="keepit">Keep it for now</button></div></div>':"")+'</li>'}
 
 function hh(m){
  var v=viewer(m),adm=isAdmin(m),h=pbar(m)+'<p class="pf-small pf-intro">Shared by everyone in Our kitchen. Used for anyone who has not chosen their own.</p>';
  h+='<p class="pf-lock">'+ic("lock",16)+'<span>Nothing a member adds for another member is kept here. It is written on that person’s own list, so it never becomes a household rule.</span></p>';
  h+=adm?'<p class="pf-small pf-intro">'+(v==="arjan"?"You are the founding member, so you are an admin.":"You are a household admin.")+' Admins can change these. Other members can only look.</p>':lockNote()+'<p class="pf-small pf-intro">You can still change everything on Mine.</p>';
- if(chgMode(m)==="3"&&unseen().length)h+=summary(m);
  h+=card("Stock level check defaults",dialRows(m,"hh")+ruleRows(m,"hh"));
  h+=card("Household note",prow(m,"a:n:hh",{t:"Household note",v:NOTES.hh||"Add a note",chip:chip("hh")}),notep("Everyone’s assistant reads this next to their own note. It does not replace theirs."));
  var fr=sortFood(FOOD.filter(function(f){return f.o==="hh"})).map(function(f){return foodRow(m,f,"hh",v)}).join("");
@@ -193,39 +206,36 @@ function hh(m){
   +'<li><div class="pf-item pf-static"><span class="pf-t">Recipe stars and votes<small>One star and one vote per recipe, for the whole kitchen. Not per person.</small></span>'+chip("hh").replace("Household","Household only")+'</div></li>',
   notep("These have no personal version, so there is nothing to override on Mine."));
  return h}
-function summary(m){
- var u=unseen();
- return '<div class="pf-sumbar" role="status"><div class="pf-sumh"><b>'+u.length+(u.length===1?" thing":" things")+' changed since you last checked</b><span class="pf-small">You last looked on '+LASTSEEN+'. Admins changed these.</span></div><ul>'
-  +u.map(function(c){return '<li><button type="button" class="pf-sumi" data-sel="'+c.id+'"><span class="pf-t">'+esc(c.what)+'<small>'+esc(c.line)+' · '+PPL[c.by]+', '+c.when+'</small></span>'+CHEV+'</button></li>'}).join("")
-  +'</ul><button type="button" class="pf-btn sm" data-pa="seenall">Mark as seen</button></div>'}
-
-/* a housemate: food only, read-only */
+/* a housemate: their food, read-only, and the pending proposals between you and them in either direction (owner, 12 Oct 2026: still food only, nothing else about the person) */
 function memberPane(m,id){
- var v=viewer(m),nm=PPL[id],own=sortFood(foodOf(id).filter(function(f){return f.r!=="sub"})),props=waiting(function(p){return p.from===v&&p.to===id});
+ var v=viewer(m),nm=PPL[id],own=sortFood(foodOf(id).filter(function(f){return f.r!=="sub"})),props=between(v,id);
  var h='<p class="pf-small pf-intro">Food only. What '+nm+' has told Kitchie about food, to read. Only '+nm+' changes it; you can add something for '+nm+' from Mine.</p>';
- if(own.length)h+='<div><span class="pf-lbl">'+nm+'’s food</span><ul class="pf-list pf-ro">'+own.map(function(f){return '<li><div class="pf-item pf-static"><span class="pf-t"><span class="pf-fs">'+RW[f.r]+'</span>'+esc(f.s)+'<small>'+esc(f.d)+(f.tag?" · "+esc(f.tag.replace("Proposed by "+PPL[v],"Proposed by you")):"")+'</small></span><span class="pf-chip you">Just '+nm+'</span></div></li>'}).join("")+'</ul></div>';
+ if(own.length)h+='<div><span class="pf-lbl">'+nm+'’s food</span><ul class="pf-list pf-ro">'+own.map(function(f){return '<li><div class="pf-item pf-static"><span class="pf-t"><span class="pf-fs">'+RW[f.r]+'</span>'+esc(f.s)+'<small>'+esc(f.d)+'</small></span><span class="pf-chip you">Just '+nm+'</span></div></li>'}).join("")+'</ul></div>';
  else h+='<p class="pf-small pf-note2">Nothing of '+nm+'’s own yet.</p>';
- if(props.length)h+='<div><span class="pf-lbl">Proposed by you, waiting for '+nm+'</span><ul class="pf-props">'+props.map(function(p){return propRow(p,false)}).join("")+'</ul><p class="pf-small pf-note2">In use now. '+nm+' keeps it, changes it or removes it. You are not told what '+nm+' decides.</p></div>';
+ if(props.length)h+='<div><span class="pf-lbl">Proposals waiting</span><ul class="pf-props">'+props.map(function(p){return propRow(m,p,"member")}).join("")+'</ul><p class="pf-small pf-note2">In use now. The person it is for confirms or rejects it. Whoever proposed it is not told what they decide, and it goes the moment it is answered or taken back.</p></div>';
  return h}
 
 function pane(m){
  CUR=m;kids(m);
- if(!m.sel){m.saved=null;PK.key="";GV.key="";ED=null;CONF=null}
+ if(!m.sel){m.saved=null;PK.key="";GV.key="";CONF=null}
+ /* old links: the Added for you flyout and a proposal's flyout are gone (the row answers in place) */
+ if(m.sel==="a:added"||(/^a:f:/.test(m.sel||"")&&!FOOD.some(function(f){return "a:f:"+f.id===m.sel})))m.sel=null;
  if(m.psub==="hh"&&chgMode(m)==="2"){var s=m.sel;if(s&&chgOf(s))SEEN[s]=1}
+ if(m.psub!=="hh"&&m.psub!=="mine")SEENM[viewer(m)+":"+m.psub]=1;
  if(m.psub==="hh")return hh(m);
  if(m.psub==="mine")return mine(m);
  return memberPane(m,m.psub)}
 
 /* the gutter: Mine, Household, then one row for each housemate with something to show (own food, or a proposal from the viewer) */
-function memberIds(v){return Object.keys(PPL).filter(function(id){return id!==v&&(foodOf(id).filter(function(f){return f.r!=="sub"}).length>0||waiting(function(p){return p.from===v&&p.to===id}).length>0)})}
+function memberIds(v){return Object.keys(PPL).filter(function(id){return id!==v&&(foodOf(id).filter(function(f){return f.r!=="sub"}).length>0||between(v,id).length>0)})}
 function kids(m){
  var v=viewer(m),out=[{k:"mine",t:"Mine",icon:"user"},{k:"hh",t:"Household",icon:"people",dot:chgMode(m)==="2"&&unseen().length>0}],ms=memberIds(v);
- if(ms.length){out.push({g:"Housemates"});ms.forEach(function(id){var n=waiting(function(p){return p.from===v&&p.to===id}).length;out.push({k:id,t:PPL[id],ini:PPL[id].charAt(0),note:n?n+" waiting":""})})}
+ if(ms.length){out.push({g:"Housemates"});ms.forEach(function(id){var n=between(v,id).length;out.push({k:id,t:PPL[id],ini:PPL[id].charAt(0),note:n?n+" waiting":"",dot:memberDot(m,id),dotLabel:PPL[id]+" has something new"})})}
  if(!out.some(function(c){return c.k===m.psub}))m.psub="mine";
  return out}
 
 /* ---------- flyouts ---------- */
-var PK={key:"",q:"",scope:"all",pick:null,lv:undefined,ev:undefined},GV={key:"",who:"",st:"avoids",subj:"",why:"safety",err:""},ED=null,CONF=null;
+var PK={key:"",q:"",scope:"all",pick:null,lv:undefined,ev:undefined},GV={key:"",who:"",st:"avoids",subj:"",why:"safety",err:""},CONF=null,PCONF=null;
 function saved(m,sel){return m.saved===sel?'<p class="pf-saved" role="status">'+ic("check",16)+' Saved</p>':""}
 function radb(o){return '<button type="button" class="pf-radb" role="radio" aria-checked="'+o.on+'" data-pa="'+o.pa+'"'+(o.d||"")+'><span class="pf-ck" aria-hidden="true"></span><span>'+o.t+(o.s?'<small>'+o.s+'</small>':"")+'</span></button>'}
 function chain(parts){var last=-1;parts.forEach(function(p,i){if(p[1]!==null)last=i});return '<p class="pf-chain" aria-label="Where the value comes from">'+parts.map(function(p,i){return (i===last?"<b>":"")+p[0]+" "+(p[1]===null?"not set":esc(p[1]))+(i===last?"</b>":"")}).join(" › ")+'</p>'}
@@ -334,12 +344,11 @@ function noteFly(m,scope){
  return {t:lab,crumb:scope==="me"?"Mine › Notes":"Household",body:h,foot:"Close"}}
 
 function foodFly(m,id){
- var f=FOOD.filter(function(x){return x.id===id})[0],v=viewer(m),prop=null;
- if(!f){prop=PROPS.filter(function(p){return p.id===id})[0];if(!prop)return null;f={id:id,o:v,r:prop.r,s:prop.s,d:propDetail(prop),said:null,n:0,tag:"Proposed by "+PPL[prop.from]}}
+ var f=FOOD.filter(function(x){return x.id===id})[0];
+ if(!f)return null;
  var hhr=f.o==="hh",can=!hhr||isAdmin(m),c=hhr?chgOf("a:f:"+id):null;
  var h='';
  if(c)h+='<p class="pf-chgnote">'+ic("bell",16)+' Changed by '+PPL[c.by]+', '+c.when+'. '+c.line+'.</p>';
- if(prop){h+='<p>'+PPL[prop.from]+' added this to your list. It is in use now: recipes and plans '+(f.r==="avoid"?"leave it out":"take it into account")+'. You have the last word.</p><p><button type="button" class="pf-btn pri" data-sel="a:added">Review it in Added for you</button></p>';return {t:RW[f.r]+" "+f.s,crumb:"Mine › Food",body:h,foot:"Close"}}
  h+='<p class="pf-small">Said: <q>'+esc(f.said)+'</q> <span>(kept as data, said '+f.n+(f.n===1?" time":" times")+')</span></p>';
  if(f.r==="sub")h+='<p class="pf-small">A substitution has no end date. It stands until someone changes or removes it.</p>';
  else if(f.r==="avoid")h+='<p class="pf-small">An avoid has no end. It stays, and a like never outweighs it, until you stop remembering it.</p>';
@@ -348,22 +357,6 @@ function foodFly(m,id){
  else if(CONF===f.id)h+='<p class="pf-small">This is kept for safety. Remove it only if it is no longer true'+(hhr?", for the whole household":"")+'.</p><div class="pf-acts"><button type="button" class="pf-btn dng" data-pa="forget" data-id="'+f.id+'" data-ok="1">Yes, stop remembering</button><button type="button" class="pf-btn" data-pa="keepit">Keep it</button></div>';
  else h+='<button type="button" class="pf-btn dng" data-pa="forget" data-id="'+f.id+'">Stop remembering this</button><p class="pf-small">To change the rule itself, tell your assistant. Moving a statement between Just you and Everyone has no operation today: say it again for the other one.</p>';
  return {t:RW[f.r]+" "+f.s,crumb:hhr?"Household › Food for everyone":"Mine › Food",body:h,foot:"Close"}}
-
-/* Added for you: what housemates put on your list. Used already; you keep it, change it or remove it (uat reviewCard). */
-function addedFly(m){
- var v=viewer(m),ps=waiting(function(p){return p.to===v}),h;
- if(!ps.length)h='<div class="pf-empty">'+ic("check",28)+'<b>Nothing waiting</b><p class="pf-small">When a housemate adds something to your list, it shows up here the next time you open Kitchie. Until you answer, it is already in use.</p></div>';
- else h='<p>Housemates added '+(ps.length===1?"this to your own list":"these to your own list")+'. It is already in use. Nothing here needs your approval, and you have the last word.</p>'+ps.map(function(p){return reviewCard(p)}).join("");
- return {t:"Added for you",crumb:"Mine",body:h,foot:"Close"}}
-function reviewCard(p){
- var by=PPL[p.from],pv=propDetail(p),word=RW[p.r],confirming=CONF===p.id;
- var head='<span class="pf-t"><span class="pf-fs">'+by+' added</span>'+esc(word+" "+p.s)+(pv?'<small><b class="pf-val">'+pv+'</b></small>':"")+'<small>'+propTime(p)+'. In use now: recipes and plans '+(p.r==="avoid"?"leave it out":"take it into account")+'.</small></span>';
- if(ED===p.id)return '<div class="pf-rv" data-rv="'+p.id+'">'+head+'<label class="pf-field"><span class="pf-lbl">What is it?</span><input class="pf-in" type="text" data-edit-subj="'+p.id+'" value="'+esc(p.s)+'" maxlength="60" autocomplete="off"></label><div class="pf-acts"><button type="button" class="pf-btn pri" data-pa="ans" data-v="save" data-id="'+p.id+'">Save my version</button><button type="button" class="pf-btn" data-pa="ans" data-v="cancel" data-id="'+p.id+'">Cancel</button></div><p class="pf-small">Stays tagged <q>proposed by '+by+', changed by you</q>.</p></div>';
- if(confirming)return '<div class="pf-rv" data-rv="'+p.id+'">'+head+'<p class="pf-small">This is kept for safety'+(p.why==="safety"?"":" (no reason was given, so it is treated as safety)")+'. Remove it only if it is no longer true.</p><div class="pf-acts"><button type="button" class="pf-btn dng" data-pa="ans" data-v="rmyes" data-id="'+p.id+'">Yes, remove it</button><button type="button" class="pf-btn" data-pa="ans" data-v="keepit" data-id="'+p.id+'">Keep it for now</button></div></div>';
- return '<div class="pf-rv" data-rv="'+p.id+'">'+head+'<div class="pf-pacts">'
-  +'<button type="button" class="pf-pact go" data-pa="ans" data-v="keep" data-id="'+p.id+'">'+ic("check",22)+'<span class="pf-t">Keep it as it is<small>Clears the waiting note. It stays on your list as yours, still tagged proposed by '+by+'.</small></span></button>'
-  +'<button type="button" class="pf-pact" data-pa="ans" data-v="edit" data-id="'+p.id+'">'+ic("pencil",22)+'<span class="pf-t">Change it<small>Fix the wording or the reason. Your version replaces '+by+'’s and is the one in use.</small></span></button>'
-  +'<button type="button" class="pf-pact dng" data-pa="ans" data-v="rm" data-id="'+p.id+'">'+ic("bin",22)+'<span class="pf-t">Remove it<small>Takes it off your list. New plans and recipes stop using it; a meal already planned stays as it was.</small></span></button></div></div>'}
 
 /* Add something for a housemate (uat proposeScreenHtml), in place */
 function others(v){return Object.keys(PPL).filter(function(x){return x!==v})}
@@ -390,7 +383,6 @@ function fly(m){
  else if(p[1]==="add")o=addFly(m,p[2]);
  else if(p[1]==="probe")o=probeFly(m);
  else if(p[1]==="n")o=noteFly(m,p[2]);
- else if(p[1]==="added")o=addedFly(m);
  else if(p[1]==="f")o=foodFly(m,p[2]);
  else if(p[1]==="give")o=giveFly(m);
  if(!o)return "";
@@ -399,7 +391,7 @@ function fly(m){
 
 /* ---------- events ---------- */
 function say(t){H().toast(t)}
-function propSay(k,p){var s=cap1(p.s),by=PPL[p.from];return {kept:"Kept. "+s+" stays on your list as yours, still tagged proposed by "+by+".",removed:"Removed. "+s+" is off your list, and new plans and recipes stop using it. Meals already planned stay as they were.",saved:"Saved. Your version replaces "+by+"’s and is the one in use. It stays tagged proposed by "+by+".",takenback:"Taken back. "+s+" is off "+PPL[p.to]+"’s list and no longer used."}[k]}
+function propSay(k,p){var s=cap1(p.s);return {kept:"Confirmed. "+s+" stays on your list.",removed:"Rejected. "+s+" is off your list, and new plans and recipes stop using it. Meals already planned stay as they were.",takenback:"Taken back. "+s+" is off "+PPL[p.to]+"’s list and no longer used."}[k]}
 function click(m,el,H){
  CUR=m;var pa=el.dataset.pa;
  if(el.dataset.pgo)return false;
@@ -407,7 +399,6 @@ function click(m,el,H){
  var id=el.dataset.id,v=viewer(m);
  if(pa==="gohh"){H.setSub(m,"hh");if(/^a:(d|r|n|f)/.test(id))H.openFly(m,id);return true}
  if(pa==="goview"){H.setView(m,id);return true}
- if(pa==="seenall"){CHG.forEach(function(c){SEEN[c.id]=1});H.paint(m,false);return true}
  if(pa==="askagain"){STOPS=STOPS.filter(function(s){return s.id!==id});H.paint(m,false);say("Asking again. Stock level checks may ask about it from now on.");return true}
  if(pa==="takeback"){
   var p=PROPS.filter(function(x){return x.id===id})[0];if(!p)return true;p.st="taken back";
@@ -434,20 +425,16 @@ function click(m,el,H){
   var f=FOOD.filter(function(x){return x.id===id})[0];if(!f)return true;
   if(!el.dataset.ok&&f.r==="avoid"&&/safety/.test(f.d)){CONF=f.id;H.paint(m,false,'[data-pa="forget"]');return true}
   FOOD=FOOD.filter(function(x){return x.id!==id});CONF=null;m.sel=null;kids(m);H.paint(m,false);say("Stopped remembering "+f.s+".");return true}
- if(pa==="keepit"){CONF=null;H.paint(m,false);return true}
+ if(pa==="keepit"){CONF=null;PCONF=null;H.paint(m,false);return true}
  if(pa==="clearend"){var f2=FOOD.filter(function(x){return x.id===id})[0];if(f2){f2.ends=null;f2.d="No end"}H.paint(m,false);say("Kept for good.");return true}
- if(pa==="ans"){
-  var pp=PROPS.filter(function(x){return x.id===id})[0],a=el.dataset.v;if(!pp)return true;
-  if(a==="rm"){if(pp.r==="avoid"&&pp.why!=="other"){CONF=pp.id;H.paint(m,false,'[data-pa="ans"][data-v="rmyes"]');return true}a="rmyes"}
-  if(a==="keepit"){CONF=null;H.paint(m,false);return true}
-  if(a==="edit"){ED=pp.id;H.paint(m,false,"[data-edit-subj]");return true}
-  if(a==="cancel"){ED=null;H.paint(m,false);return true}
-  if(a==="keep"||a==="save"){
-   if(a==="save"){var ni=H.$("[data-edit-subj]",m.frame);if(ni&&ni.value.trim())pp.s=ni.value.trim()}
-   pp.st="kept";ED=null;FOOD.push({id:"k"+pp.id,o:pp.to,r:pp.r,s:pp.s,d:pp.r==="avoid"?(pp.why==="safety"?"For safety, no end":pp.why==="other"?"Not for safety, no end":"No end"):"No end",said:"added by "+PPL[pp.from],n:1,tag:"Proposed by "+PPL[pp.from]+(a==="save"?", changed by you":"")});
-   say(propSay(a==="save"?"saved":"kept",pp));kids(m);H.paint(m,false);return true}
-  if(a==="rmyes"){pp.st="removed";CONF=null;say(propSay("removed",pp));kids(m);H.paint(m,false);return true}
-  return true}
+ /* a proposal for you: Confirm or Reject. Either way it vanishes at once (owner, 12 Oct 2026); the proposer is not told. */
+ if(pa==="confirm"||pa==="reject"||pa==="rejectyes"){
+  var pp=PROPS.filter(function(x){return x.id===id})[0];if(!pp||pp.st!=="waiting")return true;
+  if(pa==="reject"&&pp.r==="avoid"&&pp.why!=="other"){PCONF=pp.id;H.paint(m,false,'[data-pa="rejectyes"]');return true}
+  PCONF=null;
+  if(pa==="confirm"){pp.st="kept";FOOD.push({id:"k"+pp.id,o:pp.to,r:pp.r,s:pp.s,d:pp.r==="avoid"?(pp.why==="safety"?"For safety, no end":pp.why==="other"?"Not for safety, no end":"No end"):"No end",said:"added by "+PPL[pp.from],n:1});say(propSay("kept",pp))}
+  else{pp.st="removed";say(propSay("removed",pp))}
+  kids(m);H.paint(m,false);return true}
  if(pa==="gwho"){GV.who=el.dataset.v;H.paint(m,false,'[data-pa="gwho"][data-v="'+GV.who+'"]');return true}
  if(pa==="gst"){GV.st=el.dataset.v;H.paint(m,false,'[data-pa="gst"][data-v="'+GV.st+'"]');return true}
  if(pa==="gwhy"){GV.why=el.dataset.v;H.paint(m,false,'[data-pa="gwhy"][data-v="'+GV.why+'"]');return true}
@@ -471,5 +458,5 @@ document.addEventListener("change",function(e){
  if(t.dataset.pq){var a=t.dataset.pq.split(":"),sc=a[0],i=Number(a[1]),k="quiet",tgt=sc==="me"?YOU[viewer(CUR)]:HHV,cur=(tgt[k]||HHV[k]||APP[k]).split(" to ");cur[i]=t.value.trim()||cur[i];tgt[k]=cur.join(" to ");CUR.saved="a:d:"+sc+":quiet";repaint();return}
 });
 
-window.KProfilePrefs={pane:pane,fly:fly,kids:kids,click:click};
+window.KProfilePrefs={pane:pane,fly:fly,kids:kids,click:click,resetSeen:resetSeen};
 })();
