@@ -154,11 +154,13 @@ svg{flex:none}
 .lvpick .opt:hover{border-color:var(--accent)}
 .lvpick .opt.on{background:var(--surface);border:2px solid var(--accent)}
 .lvpick .opt{min-width:60px}
-.ef-lvm{display:flex;align-items:center;gap:2px;min-height:28px;margin:-2px 0 0}
+.ef-lh .ef-lvm{margin:-12px 0 -12px auto}
+.ef-lvm{display:flex;align-items:center;gap:2px;min-height:var(--tap);margin:0}
 .ef-src{font-size:12px;font-weight:600;color:var(--muted)}.ef-src.set{color:var(--fg)}
-.ef-auto{width:var(--tap);height:var(--tap);margin:-8px 0;border-radius:50%;display:inline-grid;place-items:center;color:var(--muted)}
-.ef-auto:hover{color:var(--accent)}
-.ef-auto svg{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ef-auto{position:relative;width:var(--tap);height:var(--tap);flex:none;border-radius:50%;display:inline-grid;place-items:center;color:var(--fg)}
+.ef-auto::before{content:"";position:absolute;inset:6px;border:1.5px solid var(--border);border-radius:50%}
+.ef-auto:hover{color:var(--accent)}.ef-auto:hover::before{border-color:var(--accent)}
+.ef-auto svg{position:relative;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .ef-sug{display:flex;flex-wrap:wrap;gap:6px;padding:2px}
 .pill{flex:none;min-height:var(--tap);padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--bg);font-weight:600;font-size:13px;white-space:nowrap}
 .pill:hover{border-color:var(--accent)}
@@ -179,14 +181,7 @@ svg{flex:none}
 .ef-w.hl{animation:efhl 1.6s ease-out}
 @keyframes efhl{0%,55%{background:color-mix(in srgb,var(--accent) 18%,transparent);box-shadow:0 0 0 6px color-mix(in srgb,var(--accent) 18%,transparent)}100%{background:transparent;box-shadow:0 0 0 6px transparent}}
 
-/* suggestion lists (Location, Spot, Category): the Add form's combobox in Kitchie uat (.combo-wrap, .combo, .hint) */
-.combo-wrap{position:relative}
-.combo{position:absolute;z-index:6;left:0;right:0;top:calc(100% + 6px);margin:0;padding:4px;list-style:none;overflow:auto;overscroll-behavior:contain;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--bg);box-shadow:0 10px 28px rgba(0,0,0,.35)}
-.combo.is-up{top:auto;bottom:calc(100% + 6px)}
-.combo li{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:var(--tap);padding:0 12px;border-radius:calc(var(--r-ctl) - 4px);cursor:pointer}
-.combo li:hover,.combo li[aria-selected=true]{background:var(--surface);box-shadow:inset 3px 0 0 var(--accent)}
-.combo .hint{color:var(--muted);font-size:12px;font-weight:600}
-/* the category chip row (proposed): the Pantry filter bar's tag icon, bare chips, the chosen one outlined, a chevron for the rest */
+/* the suggestion strip under Location, Spot and Category (decisions 108 to 110): the .ef-cats row below, with .ef-strip, .ef-chip.add (the typed text) and .ef-chip.hl (the highlighted match) */
 .ef-cats{position:relative;display:flex;align-items:flex-start;gap:6px;padding:3px 6px 3px 6px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--bg)}
 .ef-ct{width:var(--tap);height:var(--tap);flex:none;display:grid;place-items:center;color:var(--sage)}
 .ef-ct svg{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
@@ -194,12 +189,15 @@ svg{flex:none}
 .ef-cats[data-open=true] .ef-cl{max-height:none}
 .ef-chip{min-height:var(--tap);min-width:var(--tap);padding:0 12px;border-radius:var(--r-pill);border:1.5px solid transparent;font-weight:700;color:var(--fg);white-space:nowrap}
 .ef-chip:hover{background:var(--surface)}
-.ef-chip.on{border-color:var(--sage);color:var(--sage)}
+.ef-chip.on,.ef-chip.add{border-color:var(--sage);color:var(--sage)}
+.ef-chip.hl{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent)}
+.ef-chip .hint{margin-left:6px;color:var(--muted);font-size:12px;font-weight:600}
+.ef-strip[hidden]{display:none}
 .ef-cx{width:var(--tap);height:var(--tap);flex:none;display:grid;place-items:center;border-radius:50%;color:var(--muted)}
 .ef-cx:hover{color:var(--accent)}
 .ef-cx svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
 .ef-cats[data-open=true] .ef-cx svg{transform:rotate(180deg)}
-.ef-newcat{margin-top:-2px}
+.ef-newunit{margin-top:-2px}
 
 /* ---- History: the same timeline as the desktop Pantry's History column ---- */
 .hist{list-style:none;margin:6px 0 0;padding:0 0 0 18px;border-left:2px solid var(--border)}

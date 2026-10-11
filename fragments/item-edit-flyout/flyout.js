@@ -72,7 +72,7 @@ var level = IEF.level = function (it) {
 IEF.lvSource = function (it) { return !IEF.auto(it) ? "" : it.lvSet && it.amount !== 0 ? "set" : "auto"; };
 /* the quantity changed from `was` (a number or null): only an INCREASE (stock added) hands the level back to the rules. A decrease, a unit change or a minimum change keeps the pick. */
 IEF.qtyChanged = function (it, was) { if (it.amount !== null && was !== null && was !== undefined && it.amount > was) it.lvSet = null; };
-/* "go back to automatic" (the small icon beside "Set by you") */
+/* "Back to automatic" (the button beside "Set by you" on the Level label row; decisions 111 to 113) */
 IEF.autoAgain = function (it) { it.lvSet = null; };
 var round2 = IEF.round2 = function (n) { return Math.round(n * 100) / 100; };
 var qtyText = IEF.qtyText = function (it) { return it.amount !== null ? round2(it.amount) + (it.unit ? " " + it.unit : "") : it.text; };
@@ -131,6 +131,7 @@ var IC = IEF.IC = {
   pin: '<path d="M12 21s-6-5.2-6-10a6 6 0 1 1 12 0c0 4.8-6 10-6 10z"/><circle cx="12" cy="11" r="2"/>',
   tag: '<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1"/>',
   ruler: '<path d="M3.5 15.5l12-12 5 5-12 12z"/><path d="M7 12l2.2 2.2M10 9l1.6 1.6M13 6l2.2 2.2"/>',
+  rotate: '<path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/>',
   undo: '<path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>', search: '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>', chevd: '<path d="M7 10l5 5 5-5"/>',
   home: '<path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
   pantry: '<path d="M7 3h10v3H7zM6 6h12v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1zM9 11h6v5H9z"/>',
