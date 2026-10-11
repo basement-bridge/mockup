@@ -24,7 +24,16 @@ var LIST = [
   ["🥂", "sparkling", "drink champagne glasses"], ["🍶", "sake", "drink bottle"], ["🍾", "bottle", "drink fizz"], ["💧", "water", "drink drop"], ["🧊", "ice", "frozen cube freezer"], ["🥶", "frozen", "freezer cold"],
   ["🍽️", "plate", "meal dinner dish"], ["🥄", "spoon", "cutlery"], ["🍴", "fork and knife", "cutlery meal"], ["🔪", "knife", "kitchen cutting"], ["🧽", "sponge", "cleaning kitchen washing"], ["🧴", "bottle (soap)", "cleaning dish soap lotion"], ["🧻", "paper towel", "kitchen roll tissue"], ["🛒", "shopping", "groceries cart trolley"]
 ];
-function find(ch) { for (var i = 0; i < LIST.length; i++) if (LIST[i][0] === ch) return LIST[i]; return null; }
+function find(ch) { for (var i = 0; i < LIST.length; i++) if (LIST[i][0] === ch) return LIST[i]; return ch ? [ch, "your emoji", ""] : null; }
+/* The person's own emoji (decision 115): typing or pasting one into the search box (from the keyboard or the system emoji palette) offers it as the first tile, and Enter takes it. Only the first emoji is kept, so the tile is always one emoji. The rest of the text still searches the list. */
+var PICT = /[\p{Extended_Pictographic}\p{Regional_Indicator}]/u;
+function own(q) {
+  var segs = [], m, out = { ch: "", rest: q };
+  try { if (window.Intl && Intl.Segmenter) segs = Array.from(new Intl.Segmenter(undefined, { granularity: "grapheme" }).segment(q), function (x) { return x.segment; }); else segs = q.match(/(?:\p{Regional_Indicator}{2}|\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic}|[\u{1F3FB}-\u{1F3FF}])*)|[\s\S]/gu) || []; } catch (e) { return out; }
+  var rest = [];
+  segs.forEach(function (g) { if (!out.ch && PICT.test(g) && !/^[0-9#*]/.test(g)) out.ch = g; else if (!PICT.test(g)) rest.push(g); });
+  out.rest = rest.join(""); return out;
+}
 function load() {
   if (mem) return mem;
   var r = null; try { r = JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) {}
@@ -39,15 +48,15 @@ function curEmoji(kind) { var it = kind === "sheet" ? IEF.cur() : IEF.target(); 
 function eb(e, cur) { return '<button type="button" class="ef-e' + (e[0] === cur ? " on" : "") + '" data-ef="setemoji" data-e="' + e[0] + '" aria-label="' + esc(e[1]) + '" title="' + esc(e[1]) + '" aria-pressed="' + (e[0] === cur) + '">' + e[0] + "</button>"; }
 function fillGrid(kind, q) {
   var p = $(K[kind].box); if (!p) return;
-  var words = q.toLowerCase().split(/\s+/).filter(Boolean), cur = curEmoji(kind);
+  var mine = own(q), words = mine.rest.toLowerCase().split(/\s+/).filter(Boolean), cur = curEmoji(kind);
   var hit = LIST.filter(function (e) { var h = (e[1] + " " + e[2]).toLowerCase(); return words.every(function (w) { return h.indexOf(w) > -1; }); });
   var rec = p.querySelector(".ef-epr"), g = p.querySelector(".ef-epa .ef-eg"), n = p.querySelector(".ef-epn"), t = p.querySelector(".ef-ept"), r = words.length ? [] : IEF.emoji.recent();
   rec.hidden = !r.length; rec.innerHTML = r.length ? '<span class="ef-l">Recent</span><div class="ef-eg" role="group" aria-label="Recent emoji">' + r.map(function (e) { return eb(e, cur); }).join("") + "</div>" : "";
-  g.innerHTML = hit.map(function (e) { return eb(e, cur); }).join(""); n.hidden = hit.length > 0; t.textContent = words.length ? (hit.length ? "Matches" : "") : "Foods and kitchen";
+  g.innerHTML = (mine.ch ? eb([mine.ch, "your emoji " + mine.ch], cur) : "") + hit.map(function (e) { return eb(e, cur); }).join(""); n.hidden = hit.length > 0 || !!mine.ch; t.textContent = mine.ch ? "Your emoji" : words.length ? (hit.length ? "Matches" : "") : "Foods and kitchen";
 }
 function draw(kind) {
   var p = $(K[kind].box); if (!p) return;
-  p.innerHTML = '<label class="ef-eps">' + sv(IC.search, "", 18) + '<span class="sr-only">Search emoji</span><input type="search" class="ef-epi" data-epi placeholder="Search, e.g. cheese or herb" autocomplete="off" autocapitalize="none" enterkeyhint="search"></label>'
+  p.innerHTML = '<label class="ef-eps">' + sv(IC.search, "", 18) + '<span class="sr-only">Search emoji</span><input type="search" class="ef-epi" data-epi aria-describedby="' + K[kind].box.slice(1) + '-h" placeholder="Search, e.g. cheese or herb" autocomplete="off" autocapitalize="none" enterkeyhint="search"></label><p class="ef-eph" id="' + K[kind].box.slice(1) + '-h">Search, or type or paste your own emoji</p>'
     + '<div class="ef-epr" hidden></div><div class="ef-epa"><span class="ef-l ef-ept">Foods and kitchen</span><div class="ef-eg" role="group" aria-label="Emoji"></div><p class="ef-note ef-epn" hidden>No emoji matches. Try another word.</p></div>'
     + (curEmoji(kind) ? '<button type="button" class="ef-eno" data-ef="setemoji" data-e="">No emoji</button>' : "");
   fillGrid(kind, "");

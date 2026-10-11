@@ -269,6 +269,15 @@ for (const [w, h, kind] of SIZES) {
     ok(`${tag} emoji search finds cheese`, (await p.locator("#ef-emojis .ef-epa .ef-e").first().getAttribute("data-e")) === "🧀" && (await p.locator("#ef-emojis .ef-epr").isHidden()));
     await p.fill("[data-epi]", "zzzz");
     ok(`${tag} emoji search with no match says so`, !(await p.locator(".ef-epn").isHidden()));
+    /* decision 115: one hint line says own emoji are welcome; a typed or pasted emoji becomes the first tile and Enter sets it */
+    const hb = await p.locator("#ef-emojis .ef-eph").boundingBox(), sb = await p.locator("#ef-emojis .ef-eps").boundingBox();
+    ok(`${tag} emoji hint says "Search, or type or paste your own emoji", on one line`, (await p.innerText("#ef-emojis .ef-eph")) === "Search, or type or paste your own emoji" && hb && hb.height < 22 && hb.y >= sb.y + sb.height - 6);
+    const y0 = (await p.locator("#ef-emojis .ef-eph").boundingBox()).y;
+    await p.fill("[data-epi]", "mango \u{1F96D}");
+    ok(`${tag} a typed emoji is offered as the first tile; the hint stays put`, (await p.locator("#ef-emojis .ef-epa .ef-e").first().getAttribute("data-e")) === "\u{1F96D}" && Math.abs((await p.locator("#ef-emojis .ef-eph").boundingBox()).y - y0) < 1 && (await p.locator("#ef-emojis .ef-epa .ef-e").first().boundingBox()).height >= 44);
+    await p.fill("[data-epi]", "\u{1F99A}"); await p.press("[data-epi]", "Enter");
+    ok(`${tag} Enter on a pasted emoji outside the list sets the tile`, (await p.innerText("#ef-emo")) === "\u{1F99A}");
+    await p.click("#ef-emo"); await p.waitForSelector("#ef-emojis [data-epi]");
     await p.fill("[data-epi]", "chee"); await p.locator("#ef-emojis .ef-epa .ef-e").first().click();
     ok(`${tag} emoji picked: tile, header and list update`, (await p.innerText("#ef-emo")) === "🧀" && (await p.innerText("#ief-head .ph")) === "🧀" && /🧀 butter/.test(await p.innerText("#ief-list")) && (await p.locator("#ef-emojis:visible").count()) === 0);
     await p.click("#ef-emo"); await p.waitForSelector("#ef-emojis [data-epi]");
