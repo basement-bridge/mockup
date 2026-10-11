@@ -2,7 +2,7 @@
 
 Owner, voice, 11 October 2026 (Arjan): a GLOBAL shortcut, Shift and question mark, that turns on the shortcut cues (the keyboard-shortcut hints) no matter where the user is. App-wide: every screen, flyout, modal and sub-screen of Kitchie, desktop and wherever keyboards apply, not just the screens that have a hint list today. Mockup first, then built in Kitchie `uat` to match.
 
-Prototype: `fragments/shortcut-cues/demo.html` (`?screen=pantry|plan|history|settings|household`, `&fly=1` item flyout open, `&add=1` Add modal open). Check: `node tools/shortcut-cues-check.mjs` (324 checks at 390, 1024 and 1440 px, light and dark). Reference code to lift: `fragments/shortcut-cues/cues.js`, `cues.css`.
+Prototype: `fragments/shortcut-cues/demo.html` (`?screen=pantry|plan|history|settings|household`, `&fly=1` item flyout open, `&add=1` Add modal open). Check: `node tools/shortcut-cues-check.mjs` (412 checks at 390, 1024 and 1440 px, light and dark). Reference code to lift: `fragments/shortcut-cues/cues.js`, `cues.css`, and `cue-key.js` (Shift+Space, below).
 
 ## What exists today (checked in the mockup and the build, 11 Oct 2026)
 
@@ -40,6 +40,15 @@ Prototype: `fragments/shortcut-cues/demo.html` (`?screen=pantry|plan|history|set
 - **SC-J6** AltGr (reported as Ctrl+Alt on Windows) is allowed for `?`; plain Ctrl, Cmd and Alt are not.
 - **SC-J7** Below 1024 px the list is a plain centred dialog; no hint chips are invented on phone screens (the cues there are the list).
 - **SC-J8** The shopper link page (a visitor, no sign-in, phone first) is included only if its tests allow one more script; see the build PR.
+
+## Shift+Space turns the cues on and off (owner, by voice, 12 Oct 2026; item flyout decisions 125 to 127)
+
+A second global key beside Shift+?: **Shift+Space** flips the key hints (the key caps) between shown and hidden. Shown is the default and is what the app does today (caps always drawn on desktop, not revealed on hover; decision 125). The choice is kept per device in the same `desktop-cues` key as the Cues button, so the rail's Cues button, the ? list's Cues button and the keys agree. A status line (`#cue-status`, `role="status"`, `aria-live="polite"`) says "Key hints on" or "Key hints off". Code: `cue-key.js` (every fragment loads it; a fragment with its own cue state registers a `CueKey.host`).
+
+- It stays out of typing (a space is typed), off buttons, links, checkboxes, radios, switches, tabs, menu items and summaries (Space presses those), off Ctrl, Cmd and Alt chords, key repeat and an IME that is composing; `preventDefault` only when it acts, so an ignored press still scrolls the page up.
+- It acts from 1024px up only, where the hints are drawn (the build puts it in `desktop-keys.js` beside the Cues button, so a phone downloads nothing for it). Unlike Shift+? it is not on every page.
+- Is it safe as a page key? Not reserved by Chrome, Firefox or Safari (all use it as "scroll up a screen", which a page may cancel), nor by macOS or GNOME input switching; the caveats are IMEs that use it (Microsoft Pinyin full/half width; Japanese IMEs while converting). Sources and the unconfirmed Windows and KDE items are in `jobs-to-be-done/item-edit-flyout.md`, "Shift+Space: what was checked".
+- Checks: `tools/shortcut-cues-check.mjs` (the demo, including a phone width where it does nothing), `tools/cues-button-check.mjs` (the Pantry fragment: rail button follows), `tools/item-edit-flyout-check.mjs` section 9c.
 
 ## Open questions
 

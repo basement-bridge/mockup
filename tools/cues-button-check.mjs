@@ -33,6 +33,27 @@ for (const [w, h] of [[1024, 768], [1280, 800], [1440, 900]]) for (const mode of
   ok(`${tag}: rail button turns cues back on`, await rail.getAttribute("aria-pressed") === "true" && await p.evaluate(() => !document.body.classList.contains("nocues")));
   await p.reload();
   ok(`${tag}: stored on survives`, await rail.getAttribute("aria-pressed") === "true");
+  { // Add key and Shift+Space on the Pantry fragment (decisions 120 to 124)
+    const q = await ctx.newPage(); await q.goto(BASE); await q.evaluate(() => localStorage.removeItem("desktop-cues")); await q.reload();
+    const off = () => q.evaluate(() => document.body.classList.contains("nocues")), add = () => q.locator("#af").count();
+    ok(`${tag}: Add button shows + as its hint`, (await q.locator("[data-add] .kbd").innerText()) === "+");
+    await q.keyboard.press("Shift+Equal"); await q.waitForTimeout(120);
+    ok(`${tag}: + opens the Add window`, (await add()) === 1);
+    await q.keyboard.type("a+b= "); 
+    ok(`${tag}: + = and a space type in the name box`, (await q.inputValue('#af [data-a="name"]')) === "a+b= " && !(await off()));
+    await q.keyboard.press("Shift+Space"); ok(`${tag}: Shift+Space in the box types a space, cues stay`, !(await off()));
+    await q.keyboard.press("Control+Enter"); await q.waitForTimeout(80);
+    await q.evaluate(() => document.activeElement && document.activeElement.blur());
+    await q.keyboard.press("Shift+Space"); await q.waitForTimeout(80);
+    ok(`${tag}: Shift+Space turns cues off; rail Cues button and stored value follow`, (await off()) && (await q.locator(".rail .cuesnv").getAttribute("aria-pressed")) === "false" && (await q.evaluate(() => localStorage.getItem("desktop-cues"))) === "0");
+    ok(`${tag}: status line says "Key hints off" in a live region`, (await q.locator("#cue-status").innerText()) === "Key hints off" && (await q.locator("#cue-status").getAttribute("aria-live")) === "polite");
+    await q.keyboard.press("Shift+Space"); await q.waitForTimeout(80);
+    ok(`${tag}: Shift+Space turns cues back on`, !(await off()) && (await q.locator(".rail .cuesnv").getAttribute("aria-pressed")) === "true" && (await q.locator("#cue-status").innerText()) === "Key hints on");
+    await q.keyboard.press("?"); await q.waitForTimeout(80);
+    const txt = (await q.innerText("#kb")).replace(/\n/g, " ");
+    ok(`${tag}: ? list has "+ or N" for Add and "Shift Space"`, /\+\s*or\s*N\s*Add an item/.test(txt) && /Shift\s+Space/.test(txt), txt.slice(0, 160));
+    await q.close();
+  }
   await ctx.close();
 }
 await browser.close();

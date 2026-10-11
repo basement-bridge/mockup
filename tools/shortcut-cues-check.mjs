@@ -70,6 +70,39 @@ for (const [w, h] of [[390, 844], [1024, 768], [1440, 900]]) for (const mode of 
     await p.keyboard.press("Control+Escape"); await p.reload(); await p.waitForTimeout(100);
     ok(`${tag} cues off: the switch turns them on for good`, await p.locator("#addbtn .kbd").isVisible());
     await p.evaluate(() => localStorage.removeItem("cues")); await p.close(); }
+  { // + opens Add (also = and the numpad +), Shift+Space turns the cues on and off (cue-key.js); neither fires where a person types or presses
+    const p = await open("?screen=pantry"), modalOpen = () => p.locator("#modal").isVisible(), off = () => p.evaluate(() => document.body.classList.contains("nocues"));
+    await p.evaluate(() => { localStorage.removeItem("cues"); localStorage.removeItem("desktop-cues"); }); await p.reload(); await p.waitForTimeout(100);
+    ok(`${tag} Add button shows + as its hint`, (await p.locator("#addbtn .kbd").innerText()) === "+");
+    for (const k of ["Shift+Equal", "Equal", "NumpadAdd"]) {
+      await p.keyboard.press(k); await p.waitForTimeout(80); ok(`${tag} ${k} opens Add`, await modalOpen());
+      await p.keyboard.press("Control+Escape"); await p.waitForTimeout(80); ok(`${tag} ${k}: Ctrl+Esc closes it`, !(await modalOpen()));
+    }
+    await p.keyboard.press("Control+Equal"); await p.keyboard.press("Alt+Shift+Equal");
+    ok(`${tag} + with Ctrl or Alt held does not open Add`, !(await modalOpen()));
+    await p.keyboard.press("Shift+Equal"); await p.waitForTimeout(80); await p.keyboard.type("a+b=");
+    ok(`${tag} + and = type in the Add name box`, (await p.inputValue("#addname")) === "a+b=" && await modalOpen());
+    await p.keyboard.press("Shift+Space"); ok(`${tag} Shift+Space types a space in the box and leaves the cues alone`, (await p.inputValue("#addname")) === "a+b= " && !(await off()));
+    await p.evaluate(() => document.getElementById("chk").focus());
+    await p.keyboard.press("Shift+Space"); await p.waitForTimeout(60);
+    ok(`${tag} Shift+Space on a checkbox ticks nothing for the cues (Space is the checkbox's)`, !(await off()));
+    await p.keyboard.press("Control+Escape");
+    await p.evaluate(() => document.activeElement && document.activeElement.blur());
+    if (w < 1024) { // a phone has no key hints: Shift+Space is the browser's (scroll up) and nothing is announced
+      const none = await p.evaluate(() => !document.body.dispatchEvent(new KeyboardEvent("keydown", { key: " ", shiftKey: true, bubbles: true, cancelable: true })));
+      ok(`${tag} below 1024px Shift+Space does nothing (not preventDefault-ed, no status line)`, !none && !(await off()) && (await p.locator("#cue-status").count()) === 0);
+      await p.evaluate(() => localStorage.removeItem("cues")); await p.close(); } else {
+    await p.keyboard.press("Shift+Space"); await p.waitForTimeout(100);
+    ok(`${tag} Shift+Space turns the cues off and saves it`, (await off()) && (await p.evaluate(() => localStorage.getItem("cues"))) === "off" && !(await p.locator("#addbtn .kbd").isVisible()));
+    ok(`${tag} the status line says so, in a polite live region`, (await p.locator("#cue-status").getAttribute("aria-live")) === "polite" && (await p.locator("#cue-status").innerText()) === "Key hints off");
+    await p.reload(); await p.waitForTimeout(100);
+    ok(`${tag} Shift+Space off survives a reload`, !(await p.locator("#addbtn .kbd").isVisible()));
+    await p.keyboard.press("Shift+Space"); await p.waitForTimeout(100);
+    ok(`${tag} Shift+Space turns them back on`, !(await off()) && (await p.locator("#addbtn .kbd").isVisible()) && (await p.locator("#cue-status").innerText()) === "Key hints on");
+    await p.focus("#addbtn");
+    const ignored = await p.evaluate(() => !document.activeElement.dispatchEvent(new KeyboardEvent("keydown", { key: " ", shiftKey: true, bubbles: true, cancelable: true })));
+    ok(`${tag} Shift+Space on a button is left alone (not preventDefault-ed, no toggle)`, !ignored && !(await off()));
+    await p.evaluate(() => localStorage.removeItem("cues")); await p.close(); } }
   ok(`${tag} no console errors`, errs.length === 0, errs);
   await ctx.close();
 }

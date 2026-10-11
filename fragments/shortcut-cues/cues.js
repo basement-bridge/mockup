@@ -36,7 +36,7 @@ function html() {
     + (st.peekNote ? '<p class="kbn peek">Cues were switched off. They are on for this visit; the switch below is what you saved.</p>' : "")
     + '<div class="kbg">'
     + (own.length ? sec("On this screen", own) : sec("On this screen", []) + '<section class="kbs"><h3>On this screen</h3><p class="kbn">No keys of its own here. The ones below work everywhere.</p></section>')
-    + sec("Anywhere", [["Shift ?", "This list (or H). Pressing it again closes it"], [CLOSE, "Close this list, then the open panel"], ["Tab", "Move to the next control; Shift Tab goes back"], ["Enter", "Press the control you are on"]])
+    + sec("Anywhere", [["Shift ?", "This list (or H). Pressing it again closes it"], ["Shift Space", "Key hints on or off (cue-key.js; not while you type, or on a button or link)"], [CLOSE, "Close this list, then the open panel"], ["Tab", "Move to the next control; Shift Tab goes back"], ["Enter", "Press the control you are on"]])
     + '</div><div class="kbt"><span id="cuel">Show shortcut cues on buttons and hints</span><button type="button" class="sw2" role="switch" aria-labelledby="cuel" aria-checked="' + stored() + '" data-cues="sw">' + (stored() ? "On" : "Off") + "</button></div>"
     + '<p class="kbf">Shortcuts pause while you type in a box, so ? still types a ?. Click outside the box or press Tab to leave it first.</p></div>';
 }
@@ -78,6 +78,7 @@ window.addEventListener("keydown", function (e) {
 window.Cues = {
   screen: function (name, rows) { st.screen = name; st.rows = rows || []; if (st.kb && !st.kb.hidden) st.kb.innerHTML = html(); },
   layer: function (id, rows) { if (rows) st.layers[id] = rows; else delete st.layers[id]; if (st.kb && !st.kb.hidden) st.kb.innerHTML = html(); },
+  set: function (on) { setStored(on); var b = st.kb && $('[data-cues="sw"]', st.kb); if (b) { b.setAttribute("aria-checked", String(on)); b.textContent = on ? "On" : "Off"; } },
   open: open, close: close, toggle: toggle, typing: typing, stored: stored
 };
 apply();
