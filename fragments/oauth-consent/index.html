@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Connect an assistant (consent) — fragment</title>
+<link rel="stylesheet" href="../../theme.css">
+<style>
+@font-face{font-family:"DM Sans";src:url(fonts/dm-sans.woff2) format("woff2");font-weight:100 1000;font-style:normal;font-display:swap}
+@font-face{font-family:"Bricolage Grotesque";src:url(fonts/bricolage-grotesque.woff2) format("woff2");font-weight:100 1000;font-style:normal;font-display:swap}
+</style>
+<link rel="stylesheet" href="consent.css">
+<link rel="stylesheet" href="consent-desktop.css" media="(min-width:64rem)">
+<script src="../../theme.js"></script>
+</head>
+<body class="skinpage consent">
+<div id="stage"></div>
+<script src="consent-sample.js"></script>
+<script>
+/* Mockup controls: ?p=kitchie|recipe  &a=claude|chatgpt|long  &env=uat|none. Light and dark are the theme picker (bottom right) or the phone's own setting. */
+(function(){
+  var q=new URLSearchParams(location.search);
+  var A={claude:{assistant:"Claude",host:"claude.ai"},chatgpt:{assistant:"ChatGPT",host:"chatgpt.com"},long:{assistant:"Marvellous Kitchen Helper For Households With Long Names",host:"assistant.example-long-hostname.example.org"}};
+  var a=A[q.get("a")]||A.claude, p=q.get("p")==="recipe"?"recipe":"kitchie";
+  document.getElementById("stage").outerHTML=window.consentMarkup({product:p,assistant:a.assistant,host:a.host,member:q.get("a")==="long"?"Test member with a rather long display name":"Test member B",household:"UAT household: two products",env:q.get("env")==="none"?"":"uat"});
+  document.title="Connect "+a.assistant+" to "+(p==="recipe"?"Recipe":"Kitchie");
+})();
+</script>
+</body></html>

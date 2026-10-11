@@ -1,0 +1,6 @@
+/* Desktop only (64rem and up). Its own file, linked with media="(min-width:64rem)", so phone and tablet never carry it (owner standing rule, 10 October 2026).
+   Tokens only; it changes how the same markup is framed, never what is in it. */
+body.consent main.skin{margin-top:1.5rem;padding:2rem 2rem 1.5rem;border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface)}
+body.consent .cn .facts{background:var(--bg)}
+body.consent .skin .ava{background:var(--bg)}
+body.consent .skin .ric{background:color-mix(in srgb,var(--c,var(--accent)) 20%,var(--bg))}
