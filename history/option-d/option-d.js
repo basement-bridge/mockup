@@ -1,4 +1,4 @@
-/* History, Option D (revised to the owner's locked decisions H4 to H10, 11 Oct 2026): catch-up feed, last five, structured filters. No typed search, no Assistants. Mockup data and rendering. Plain names that exist only for the sample live here, not in the stylesheet.
+/* History, Option D (revised to the owner's locked decisions H4 to H10, 11 Oct 2026, and H11 to H15, 12 Oct 2026): catch-up feed, recent history a day at a time, structured filters. No typed search, no Assistants. Mockup data and rendering. Plain names that exist only for the sample live here, not in the stylesheet.
    Markup uses the classes in option-d.css; lift those and the render functions, replace DATA with the lazy call (see docs/knowledge/history-option-d.md). */
 (function(){
 "use strict";
@@ -36,9 +36,12 @@ var ic=function(n,c){return '<svg viewBox="0 0 24 24" aria-hidden="true"'+(c?' c
 var NOW=9*60+15;
 var LASTV={wed:{v:-4*1440+18*60+40,t:"Wed 7 Oct, 6:40 pm"},sat:{v:-1440+18*60+40,t:"Sat 10 Oct, 6:40 pm"}};
 var CAPDAYS=3; /* H6 (owner, voice, 12 Oct 2026: "calendar days, so long as there was a change"): the feed shows the three most recent calendar days that each had at least one change. Quiet days are skipped when counting, so this is neither a rolling 72 hours nor the last three calendar days. capD() below turns it into a day offset. */
+/* H13 (owner, voice, 12 Oct 2026): the second tab is named for the other person when the household is exactly two people, "Others" when there are more. ?household=two|more switches the sample (default two; the Preview button has it too). */
+var HOUSE=Q.get("household")==="more"?"more":"two";
 var PEOPLE={arjan:{n:"Arjan",i:"A",admin:1},sam:{n:"Sam",i:"S"}};
+if(HOUSE==="more")PEOPLE.priya={n:"Priya",i:"P"};
 /* actor = a person (H10). An assistant's action is stored under the person it acted for. "shop" is the one-off shopper link: a visitor, not an assistant. */
-var ACT={arjan:{n:"Arjan",i:"A",k:"person"},sam:{n:"Sam",i:"S",k:"person"},shop:{n:"Shopper link",i:"L",k:"visitor"}};
+var ACT={arjan:{n:"Arjan",i:"A",k:"person"},sam:{n:"Sam",i:"S",k:"person"},priya:{n:"Priya",i:"P",k:"person"},shop:{n:"Shopper link",i:"L",k:"visitor"}};
 /* Event fields = the FIELD CATALOGUE in docs/knowledge/history-option-d.md:
    d day offset, t time, w actor (a person), x text (*bold* = the subject), ar area, app, pl place, sc h|a|p (scope), o owner of a personal event, to second person,
    aff {person: highlight line}, act highlight action label, rev needs review, go option C scope to open (history/option-c/?scope=). */
@@ -73,25 +76,53 @@ var MORE=[
 {id:"m4",d:7,t:"09:40",w:"arjan",x:"put *Egg fried rice* version 4 away",ar:"Versions",app:"recipe",sc:"h",go:"recipe:fried-rice"},
 {id:"m5",d:10,t:"20:10",w:"sam",x:"starred *Egg fried rice*",ar:"Stars and votes",app:"recipe",sc:"p",o:"sam",go:"recipe:fried-rice"}
 ];
+/* Third household member, only in the "more" sample (H13). */
+if(HOUSE==="more"){
+ EV.push(
+ {id:"p1",d:0,t:"08:40",w:"priya",x:"added *Soy sauce* to the Pantry",ar:"Pantry",app:"kitchie",pl:"Pantry",sc:"h",go:"item:soy"},
+ {id:"p2",d:1,t:"20:10",w:"priya",x:"cooked *Lemon dal*, used 3 items",ar:"Cooking",app:"kitchie",sc:"h",go:"recipe:dal"},
+ {id:"p3",d:1,t:"11:15",w:"priya",x:"voted down *Egg fried rice*",ar:"Stars and votes",app:"recipe",sc:"p",o:"priya",go:"recipe:fried-rice"},
+ {id:"p4",d:3,t:"16:20",w:"priya",x:"moved *Red lentils* to the Top shelf",ar:"Pantry",app:"kitchie",pl:"Pantry",sc:"h",go:"item:lentils"});
+ MORE.push({id:"pm1",d:6,t:"13:30",w:"priya",x:"added *Eggs* to the shopping list",ar:"Shopping",app:"kitchie",sc:"h",go:"item:eggs"});
+}
+/* H14 (owner, voice, 12 Oct 2026): recent history loads one calendar day with activity at a time and has no ceiling, so the sample has to run deep. DEEP is generated, not typed: about 40 active days behind the typed ones (Sat 3 Oct back to mid August), with quiet days left out so the loader has gaps to skip. */
+var DEEP=[];
+(function(){
+ var ws=HOUSE==="more"?["arjan","sam","priya"]:["arjan","sam"];
+ var T=[["added *Eggs* to the Fridge","Pantry","kitchie","Fridge","item:eggs"],["cooked *Egg fried rice*, used 5 items","Cooking","kitchie","","recipe:fried-rice"],["put *Soy sauce* on the shopping list","Shopping","kitchie","","item:soy"],["moved *Frozen peas* to Drawer 1","Pantry","kitchie","Freezer","item:peas"],["edited *Lemon dal*: more lemon","Versions","recipe","","recipe:dal"],["corrected *Basmati rice* to 900 g","Pantry","kitchie","Pantry","item:rice"],["planned *Lemon dal* for Thursday dinner","Plan","kitchie","","recipe:dal"],["set the use-by of *Green tea* to 30 Nov","Pantry","kitchie","Pantry","item:tea"]];
+ for(var d=11;d<=70;d++){
+  if(d%4===2||d%7===5)continue; /* quiet days: no entries */
+  var n=1+(d%3);
+  for(var j=0;j<n;j++){
+   var t=T[(d+j*3)%T.length],w=ws[(d+j)%ws.length],h=9+((d*3+j*5)%11),m=(d*7+j*13)%60;
+   var ev={id:"z"+d+"_"+j,d:d,t:(h<10?"0":"")+h+":"+(m<10?"0":"")+m,w:w,x:t[0],ar:t[1],app:t[2],sc:"h",go:t[4]};
+   if(t[3])ev.pl=t[3];
+   DEEP.push(ev)}
+  if(d%9===0)DEEP.push({id:"zp"+d,d:d,t:"08:05",w:ws[d%ws.length],x:"changed a personal preference: less salt",ar:"Preferences",app:"kitchie",sc:"p",o:ws[d%ws.length],go:"all:"})}
+})();
 var AREAS=["Pantry","Shopping","Plan","Cooking","Preferences","Versions","Stars and votes","Household"];
 var AREAICON={Pantry:"jar",Shopping:"cart",Plan:"cal",Cooking:"pot",Preferences:"sliders",Versions:"book","Stars and votes":"star",Household:"users"};
-var RANGES=[["3d","Last 3 days with activity"],["today","Today"],["week","7 days"],["month","30 days"]];
+var RANGES=[["any","Any time"],["today","Today"],["week","7 days"],["month","30 days"]];
 var GROUPS=[["when","When","clock"],["who","Who","users"],["area","Area","jar"],["place","Where","pin"],["app","App","book"],["aff","Touches me","bell"]];
 
 /* ---------- state ---------- */
 var LV=LASTV[Q.get("last")==="sat"?"sat":"wed"];
 var S={
- as:Q.get("as")==="sam"?"sam":"arjan", tab:Q.get("tab")==="mine"?"mine":"house", toks:[], range:/^(3d|today|week|month)$/.test(Q.get("range")||"")?Q.get("range"):"3d",
+ as:Q.get("as")==="sam"?"sam":"arjan", tab:Q.get("tab")==="mine"?"mine":"other", toks:[], range:/^(any|today|week|month)$/.test(Q.get("range")||"")?Q.get("range"):"any",
  group:Q.get("group")==="time"?"time":"person", state:Q.get("state")||"", seen:LV.v, lastTxt:LV.t, aff:false,
- view:(Q.get("view")==="list"||Q.get("filters")==="1")?"list":"catch", n:5, panel:Q.get("filters")==="1"?"filters":"", step:Q.get("step")||"", nocues:false
+ view:(Q.get("view")==="list"||Q.get("filters")==="1")?"list":"catch", days:1, person:/^(arjan|sam|priya|visitor)$/.test(Q.get("person")||"")?Q.get("person"):"", ticked:false, panel:Q.get("filters")==="1"?"filters":"", step:Q.get("step")||"", nocues:false
 };
 ["who","area","place","app"].forEach(function(k){if(Q.get(k))Q.get(k).split(",").forEach(function(v){S.toks.push({t:k,v:v})})});
 if(Q.get("aff")==="1")S.toks.push({t:"aff",v:"aff"});
-if(S.toks.length||S.range!=="3d")S.view="list";
+if(S.toks.length||S.range!=="any")S.view="list";
 if(S.state==="caught"){S.seen=NOW}
+if(S.state==="ticked"){S.seen=NOW;S.ticked=true}
+if(S.person&&S.person!=="visitor")S.tab=S.person===S.as?"mine":"other";else if(S.person)S.tab="other";
 var wide=function(){return matchMedia("(min-width:1024px)").matches};
 var me=function(){return S.as};
-var isFiltered=function(){return S.toks.length>0||S.range!=="3d"};
+var isFiltered=function(){return S.toks.length>0||S.range!=="any"};
+var others=function(){return Object.keys(PEOPLE).filter(function(k){return k!==S.as})};
+var otherName=function(){return others().length===1?PEOPLE[others()[0]].n:"Others"}; /* H13 */
 
 /* ---------- model ---------- */
 function absMin(e){var p=e.t.split(":");return -e.d*1440+(+p[0])*60+(+p[1])}
@@ -106,11 +137,11 @@ function capD(){
  EV.concat(MORE).forEach(function(e){if(visible(e,me())&&!seen[e.d]){seen[e.d]=1;days.push(e.d)}});
  days.sort(function(a,b){return a-b});
  return days.length?days[Math.min(CAPDAYS,days.length)-1]:0}
-function pool(){return EV.concat(S.range==="week"||S.range==="month"?MORE:[]).sort(function(a,b){return absMin(b)-absMin(a)})}
-function tabOK(e){
+function pool(){return EV.concat(MORE,DEEP).sort(function(a,b){return absMin(b)-absMin(a)})}
+function tabOK(e){ /* H13: My activity = what I did (and private things for me); the second tab = what the other people did, the shopper link included (Proposal) */
  var p=me();
  if(S.tab==="mine")return e.w===p||(e.sc==="p"&&(e.o===p||e.to===p));
- return e.sc!=="p"}
+ return e.w!==p&&e.sc!=="p"}
 function personKey(e){return ACT[e.w].k==="visitor"?"visitor":e.w}
 function tokOne(e,t){
  if(t.t==="who")return t.v==="me"?e.w===me():t.v==="visitor"?ACT[e.w].k==="visitor":e.w===t.v;
@@ -123,21 +154,24 @@ function tokOK(e,skip){ /* same filter type = OR, different types = AND */
  var types={};S.toks.forEach(function(t){if(t.t!==skip){(types[t.t]=types[t.t]||[]).push(t)}});
  return Object.keys(types).every(function(k){return types[k].some(function(t){return tokOne(e,t)})})}
 function rangeOK(e){
- if(S.range==="3d")return e.d<=capD();
+ if(S.range==="any")return true; /* H14: no ceiling; the three-day cap is only the catch-up (capD) */
  if(S.range==="today")return e.d===0;
  if(S.range==="week")return e.d<=7;
  return true}
 function list(){return pool().filter(function(e){return visible(e,me())&&tabOK(e)&&tokOK(e)&&rangeOK(e)})}
 function catchAll(){return pool().filter(function(e){return e.d<=capD()&&absMin(e)>S.seen&&visible(e,me())})}
 function catchPool(){return catchAll().filter(tabOK)}
-function catchList(){var L=catchPool();return S.aff?L.filter(function(e){return e.aff&&e.aff[me()]}):L}
+function catchList(){var L=catchPool();if(S.person)L=L.filter(function(e){return personKey(e)===S.person}); /* H12 */
+ return S.aff?L.filter(function(e){return e.aff&&e.aff[me()]}):L}
 function capCut(){return S.seen<-capD()*1440} /* the cap cut the window: the last visit is older than the start of the third active day */
 function hidden(){var o={};pool().forEach(function(e){if(e.d<=capD()&&e.sc==="p"&&e.o!==me()&&e.to!==me()){var k=e.d+"|"+e.o;o[k]=(o[k]||0)+1}});return o}
 function hiddenTotal(){var H=hidden();return Object.keys(H).reduce(function(s,k){return s+H[k]},0)}
 function hlList(){return EV.filter(function(e){return e.d<=capD()&&absMin(e)>S.seen&&visible(e,me())&&e.aff&&e.aff[me()]}).sort(function(a,b){return absMin(b)-absMin(a)})}
-function shortDay(d){return ["Sun","Sat","Fri","Thu","Wed","Tue","Mon","Sun","Sat","Fri","Thu"][d]}
-function dayLabel(d){var names=["Sun","Sat","Fri","Thu","Wed","Tue","Mon","Sun","Sat","Fri","Thu"];var dn=11-d;
- return {a:d===0?"Today":d===1?"Yesterday":names[d]+" "+dn+" Oct",b:d<2?names[d]+" "+dn+" Oct":""}}
+var DOW=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function dateOf(d){return new Date(Date.UTC(2026,9,11-d))} /* sample "today" is Sun 11 Oct 2026 */
+function shortDay(d){return DOW[dateOf(d).getUTCDay()]}
+function dayLabel(d){var x=dateOf(d),full=DOW[x.getUTCDay()]+" "+x.getUTCDate()+" "+MON[x.getUTCMonth()];
+ return {a:d===0?"Today":d===1?"Yesterday":full,b:d<2?full:""}}
 function fmt(t){var p=t.split(":"),h=+p[0];return (h%12||12)+":"+p[1]+(h<12?" am":" pm")}
 function sub(s){return esc(s).replace(/\*([^*]+)\*/g,"<b>$1</b>")}
 function who(e){var a=ACT[e.w];if(a.k==="visitor")return "Someone shopping";return e.w===me()?"You":a.n}
@@ -147,7 +181,7 @@ function avatar(e,small){var a=ACT[e.w];var cls="av"+(small?" sm":"")+(e.w===me(
 function href(e){return (wide()?"../option-c/desktop.html":"../option-c/mobile.html")+"?scope="+(e.go||"all:")}
 
 /* ---------- render ---------- */
-function evRow(e,flat){
+function evRow(e,flat,forceTime){
  var m=[];
  if(ACT[e.w].k==="visitor")m.push('<span class="chip">'+ic("link","sm")+'No sign-in</span>');
  if(e.sc==="p")m.push('<span class="chip">'+ic("lock","sm")+(e.o===me()?'Only you':'For you')+'</span>');
@@ -156,71 +190,87 @@ function evRow(e,flat){
  if(e.aff&&e.aff[me()]&&absMin(e)>S.seen)m.push('<span class="chip me">Affects you</span>');
  if(e.pl)m.push('<span class="chip">'+ic("pin","sm")+esc(e.pl)+'</span>');
  m.push('<span>'+ic(AREAICON[e.ar]||"clock","sm")+' '+esc(e.ar)+' · '+(e.app==="recipe"?"Recipe":"Kitchie")+'</span>');
- var byTime=flat||S.group==="time"||S.tab==="mine";
+ var byTime=flat||forceTime||S.group==="time"||S.tab==="mine";
  var t=sub(e.x);
  if(!byTime)t=t.charAt(0).toUpperCase()+t.slice(1);
  return '<a class="ev'+(S.view==="catch"&&absMin(e)>S.seen?" new":"")+'" data-id="'+e.id+'" href="'+href(e)+'">'+
   (byTime?avatar(e,1):"")+'<div class="tx">'+(byTime?'<b>'+esc(who(e))+'</b> ':"")+t+'<div class="meta">'+m.join("")+'</div></div><time>'+(flat?shortDay(e.d)+" ":"")+fmt(e.t)+'</time></a>'}
 function pgHead(evs,hid){
- var e=evs[0],a=ACT[e.w];
+ var e=evs[0],a=ACT[e.w],k=personKey(e);
  var name=a.k==="visitor"?"Someone shopping · link":(e.w===me()?"You":a.n);
- return '<div class="who">'+avatar(e)+'<div><b>'+esc(name)+'</b><br>'+evs.length+(evs.length===1?" thing":" things")+'</div>'+(hid?'<span class="priv">'+ic("lock","sm")+hid+' private, hidden</span>':'')+'</div>'}
+ var inner=avatar(e)+'<span><b>'+esc(name)+'</b><br>'+evs.length+(evs.length===1?" thing":" things")+'</span>';
+ /* H12 Proposal (placement): the avatar and name of each person group in the catch-up are the link. */
+ var head=(S.view==="catch"&&!S.person)?'<button type="button" class="plink" data-person="'+k+'" aria-label="Show only '+esc(name)+(name==="You"?"r":"\u2019s")+' changes in this catch-up">'+inner+'</button>':'<div class="plink">'+inner+'</div>';
+ return '<div class="who">'+head+(hid?'<span class="priv">'+ic("lock","sm")+hid+' private, hidden</span>':'')+'</div>'}
 function dayBlocks(L,byTimeAll){
  var H=hidden(),byDay={},order=[],out="";
  L.forEach(function(e){if(!byDay[e.d]){byDay[e.d]=[];order.push(e.d)}byDay[e.d].push(e)});
  order.forEach(function(d){
   var evs=byDay[d],lb=dayLabel(d),nc=S.view==="catch"?evs.filter(function(e){return absMin(e)>S.seen}).length:0;
   out+='<section class="day" aria-label="'+esc(lb.a)+'"><div class="lbl">'+esc(lb.a)+(lb.b?' <small>'+lb.b+'</small>':'')+(nc?' <small>· '+nc+' new</small>':'')+'</div>';
-  if(byTimeAll||S.group==="time"||S.tab==="mine"){out+='<div class="pg">'+evs.map(function(e){return evRow(e)}).join("")+'</div>'}
+  if(byTimeAll||S.group==="time"||S.tab==="mine"){out+='<div class="pg">'+evs.map(function(e){return evRow(e,false,byTimeAll)}).join("")+'</div>'}
   else{var gs={},go=[];evs.forEach(function(e){var k=personKey(e);if(!gs[k]){gs[k]=[];go.push(k)}gs[k].push(e)});
-   go.forEach(function(k){var h=(S.tab==="house"&&k!==me()&&k!=="visitor")?(H[d+"|"+k]||0):0;
+   go.forEach(function(k){var h=(S.tab==="other"&&k!==me()&&k!=="visitor")?(H[d+"|"+k]||0):0;
     out+='<div class="pg">'+pgHead(gs[k],h)+gs[k].map(function(e){return evRow(e)}).join("")+'</div>'})}
   out+='</section>'});
  return out}
-function olderLine(){ /* H6 Proposal: the cap cut the window */
- return '<div class="more cap"><p class="capline">'+ic("clock","sm")+'<span>Showing the last 3 days with activity. Search for older.</span></p><button type="button" class="sec2" data-pick>'+ic("sliders","sm")+' Pick a filter <span class="kbd">F</span></button></div>'}
-function skeleton(){var r='<div class="sk"><span class="av"></span><div><i></i><i class="s"></i></div></div>';return '<div aria-busy="true" aria-label="Loading history"><section class="day"><div class="lbl sklbl"><i></i></div><div class="pg">'+r+r+r+'</div></section><p class="note">Fetching the last 3 days with activity, this tab only.</p></div>'}
+function olderLine(){ /* H6 / H14: the cap governs only this catch-up; older days are in the recent history, one scroll at a time */
+ return '<div class="more cap"><p class="capline">'+ic("clock","sm")+'<span>That is the last 3 days with activity since you were last here.</span></p><button type="button" class="sec2" data-browse>'+ic("clock","sm")+' See what is recent</button></div>'}
+function skeleton(){var r='<div class="sk"><span class="av"></span><div><i></i><i class="s"></i></div></div>';return '<div aria-busy="true" aria-label="Loading history"><section class="day"><div class="lbl sklbl"><i></i></div><div class="pg">'+r+r+r+'</div></section><p class="note">Fetching recent activity, one day at a time, this tab only.</p></div>'}
+function personBar(){ /* H12: the way back to the full catch-up */
+ if(!S.person)return "";
+ var nm=S.person==="visitor"?"the shopper link":S.person===me()?"you":PEOPLE[S.person].n,n=catchList().length;
+ var av=S.person==="visitor"?'<span class="av sm" aria-hidden="true">'+ic("link","sm")+'</span>':'<span class="av sm'+(S.person===me()?" me":"")+'" aria-hidden="true">'+PEOPLE[S.person].i+'</span>';
+ return '<div class="pbar">'+av+'<span class="pt">Only changes by <b>'+esc(nm)+'</b> in this catch-up'+(S.aff?', touching you':'')+' · '+n+'</span><button type="button" class="lnk2" data-person="">Back to the full catch-up</button></div>'}
+function nextSentinel(){return '<div class="sentinel" id="sentinel" role="status"><span class="dots" aria-hidden="true"></span>Loading one more day with activity</div>'}
 function feed(){
  if(S.state==="loading")return skeleton();
  if(S.state==="empty")return emptyState("empty");
  if(S.view==="catch"){
   var C=catchList();
-  if(!catchPool().length)return emptyState("quiet");
-  if(!C.length)return emptyState("none");
-  return dayBlocks(C)+(capCut()?olderLine():"")}
+  if(!catchPool().length)return emptyState(S.ticked?"caught":"quiet");
+  if(!C.length)return personBar()+emptyState(S.person?"personNone":"none");
+  return personBar()+dayBlocks(C)+(capCut()&&!S.person?olderLine():"")}
  var L=list();
- if(!L.length)return isFiltered()?emptyState("zero"):emptyState(S.tab==="mine"?"mineEmpty":"empty");
- if(!isFiltered()){ /* H7b, H8: the last five, newest first, five in total across pantry, recipes and shopping (Proposal) */
-  var shown=L.slice(0,S.n),out='<p class="lastn">'+ic("clock","sm")+'<span>The last '+Math.min(S.n,L.length)+' things, newest first</span></p><div class="pg flatlist">'+shown.map(function(e){return evRow(e,true)}).join("")+'</div>';
-  if(L.length>S.n)out+='<div class="more"><button type="button" class="sec2" data-more>Show more <span class="kbd">M</span></button></div><p class="note">Five at a time, inside the last 3 days with activity.</p>';
-  else out+='<div class="more cap"><p class="capline">'+ic("clock","sm")+'<span>That is all of the last 3 days with activity. Pick a filter to look further back.</span></p><button type="button" class="sec2" data-pick>'+ic("sliders","sm")+' Pick a filter <span class="kbd">F</span></button></div>';
-  return out}
- return dayBlocks(L,true)}
-function rangeName(){return {"3d":"the last 3 days with activity",today:"today",week:"the last 7 days",month:"the last 30 days"}[S.range]}
+ if(!L.length)return isFiltered()?emptyState("zero"):emptyState(S.tab==="mine"?"mineEmpty":"otherEmpty");
+ /* H14: one calendar day with activity at a time, newest day first, quiet days skipped, no ceiling. Phone and desktop both load the next day when the end of the list scrolls into view (desktop also has the M key). */
+ var days=[];L.forEach(function(e){if(days.indexOf(e.d)<0)days.push(e.d)});
+ var shown=L.filter(function(e){return days.indexOf(e.d)<S.days});
+ var out=(isFiltered()?'':'<p class="lastn">'+ic("clock","sm")+'<span>Recent activity, one day at a time</span></p>')+dayBlocks(shown,true);
+ if(days.length>S.days)out+=nextSentinel();
+ else out+='<div class="more cap"><p class="capline">'+ic("clock","sm")+'<span>'+(isFiltered()?'That is every match.':'That is everything on record.')+' Pick a filter to look for something specific.</span></p><button type="button" class="sec2" data-pick>'+ic("sliders","sm")+' Pick a filter <span class="kbd">F</span></button></div>';
+ return out}
+function rangeName(){return {any:"the recent history",today:"today",week:"the last 7 days",month:"the last 30 days"}[S.range]}
 function emptyState(k){
  var m={
   empty:['bowl','A quiet kitchen so far','Add a jar of something or cook a meal and it lands here, with who did it.','<button class="pri" data-act="plain">See a lively kitchen</button>'],
-  mineEmpty:['bowl','Nothing from you in the last 3 days with activity','Your own changes and your votes show here.','<button class="sec2" data-tab="house">See the household</button>'],
-  quiet:['check','Nothing since you were last here','All quiet. The last five things are one tap away.','<button class="pri" data-closecatch>Show the last five</button>'],
+  mineEmpty:['bowl','Nothing from you recently','Your own changes and your votes show here.','<button class="sec2" data-tab="other">See '+(others().length===1?esc(otherName()):'others')+'</button>'],
+  otherEmpty:['bowl','Nothing from '+(others().length===1?esc(otherName()):'others')+' recently','Their changes show here, with who did what.','<button class="sec2" data-tab="mine">See my activity</button>'],
+  personNone:['bell','Nothing here for this person','Nothing in this catch-up matches.','<button class="sec2" data-person="">Back to the full catch-up</button>'],
+  caught:['check',"You\u2019re caught up",'Your next visit starts fresh from here.','<button class="sec2" data-browse>See what is recent</button>'],
+  quiet:['check','Nothing since you were last here','All quiet. What is recent is one tap away.','<button class="pri" data-browse>See what is recent</button>'],
   none:['bell','None of these touch you','Nothing in the catch-up affects you.','<button class="sec2" data-affoff>Show all changes</button>']
  }[k];
  if(k==="zero"){
   var what=S.toks.map(function(t){return esc(tokLabel(t))});
-  return '<div class="empty"><div class="big">'+ic("sliders")+'</div><h2>Nothing matches'+(what.length?" "+what.join(" + "):"")+'</h2><p>Nothing in '+rangeName()+'. Try a wider time range or fewer filters. Nothing is deleted; it may simply not have happened.</p><div class="acts">'+(S.range!=="month"?'<button class="pri" data-range="month">Look back 30 days</button>':'')+'<button class="sec2" data-clear>Clear filters</button></div><p class="searched">Filtered: '+esc(tabName(S.tab))+', '+rangeName()+', '+S.toks.length+' filter'+(S.toks.length===1?"":"s")+'. '+(S.tab==="house"?'Private changes are never included.':'')+'</p></div>'}
+  return '<div class="empty"><div class="big">'+ic("sliders")+'</div><h2>Nothing matches'+(what.length?" "+what.join(" + "):"")+'</h2><p>Nothing in '+rangeName()+'. Try a wider time range or fewer filters. Nothing is deleted; it may simply not have happened.</p><div class="acts">'+(S.range!=="month"?'<button class="pri" data-range="month">Look back 30 days</button>':'')+'<button class="sec2" data-clear>Clear filters</button></div><p class="searched">Filtered: '+esc(tabName(S.tab))+', '+rangeName()+', '+S.toks.length+' filter'+(S.toks.length===1?"":"s")+'. '+(S.tab==="other"?'Private changes are never included.':'')+'</p></div>'}
  return '<div class="empty"><div class="big">'+ic(m[0])+'</div><h2>'+m[1]+'</h2><p>'+m[2]+'</p><div class="acts">'+m[3]+'</div></div>'}
-function tabName(t){return {mine:"My activity",house:"Household"}[t]}
+function tabName(t){return {mine:"My activity",other:otherName()}[t]}
 function tokLabel(t){return {who:{visitor:"Shopper link",shop:"Shopper link",me:"You"}[t.v]||(PEOPLE[t.v]?PEOPLE[t.v].n:t.v),area:t.v,place:t.v,app:t.v==="recipe"?"Recipe":"Kitchie",aff:"Affects me"}[t.t]||t.v}
 function tokKind(t){return {who:"Who",area:"Area",place:"Where",app:"App",aff:""}[t.t]}
 
 function catchCard(){
  var hl=hlList(),all=catchAll();
- var by={};all.forEach(function(e){var k=e.w===me()?"you":ACT[e.w].k==="visitor"?"the shopper link":ACT[e.w].n;by[k]=(by[k]||0)+1});
- var parts=Object.keys(by).map(function(k){return by[k]+" by "+k});
- var x='<button type="button" class="ib xcatch" data-closecatch aria-label="Clear the catch-up and show the last five (C)">'+ic("x")+'</button>';
- if(!all.length)return '<section class="catch" aria-label="Since you were last here"><div class="chead"><h2>'+ic("check")+'You are all caught up</h2>'+x+'</div><p class="sum">Nothing new since '+(S.seen>=NOW?"you cleared it just now":esc(S.lastTxt))+'. Enjoy the quiet.</p></section>';
+ var by={},lab={},ord=[];all.forEach(function(e){var k=personKey(e);if(!by[k]){by[k]=0;ord.push(k);lab[k]=e.w===me()?"you":ACT[e.w].k==="visitor"?"the shopper link":ACT[e.w].n}by[k]++});
+ var parts=ord.map(function(k){return by[k]+' by '+(S.person?esc(lab[k]):'<button type="button" class="plink2" data-person="'+k+'">'+esc(lab[k])+'</button>')});
+ /* H11: the X leaves the catch-up and opens the filter search; the tick marks it caught up. Two separate controls. */
+ var x='<button type="button" class="ib xcatch" data-closecatch aria-label="Leave the catch-up and pick a filter (C). Does not mark it caught up">'+ic("x")+'</button>';
+ var tick='<button type="button" class="ib tickcatch" data-tick aria-label="Mark as caught up (T). Your next visit starts fresh from here">'+ic("check")+'</button>';
+ if(!all.length)return '<section class="catch" aria-label="Since you were last here"><div class="chead"><h2>'+ic("check")+'You\u2019re caught up</h2>'+x+'</div><p class="sum">'+(S.ticked?'Marked as caught up just now. Your next visit starts fresh from here.':'Nothing new since '+(S.seen>=NOW?'you cleared it just now':esc(S.lastTxt))+'. Enjoy the quiet.')+'</p></section>';
  var rows=hl.slice(0,4).map(function(e){
   return '<div class="hl"><span class="ico">'+ic(e.rev?"book":e.w==="shop"?"cart":"bell")+'</span><div class="tx">'+esc(e.aff[me()])+'<small>'+esc(who(e))+' · '+dayLabel(e.d).a.toLowerCase()+', '+fmt(e.t)+'</small></div>'+(e.act?'<a class="go" href="'+href(e)+'">'+esc(e.act)+'</a>':'')+'</div>'}).join("");
- return '<section class="catch" aria-label="Since you were last here"><div class="chead"><h2>'+ic("bell")+'Since you were last here</h2>'+x+'</div><p class="sum">'+esc(S.lastTxt)+' · '+all.length+' change'+(all.length===1?"":"s")+(capCut()?' in the last 3 days with activity':'')+(parts.length?': '+esc(parts.join(", ")):"")+'</p>'+
+ if(S.person)return '<section class="catch compact" aria-label="Since you were last here"><div class="chead"><h2>'+ic("bell")+'Since you were last here</h2>'+tick+x+'</div><p class="sum">'+esc(S.lastTxt)+' · '+all.length+' change'+(all.length===1?"":"s")+' in all, shown below for one person.</p></section>';
+ return '<section class="catch" aria-label="Since you were last here"><div class="chead"><h2>'+ic("bell")+'Since you were last here</h2>'+tick+x+'</div><p class="sum">'+esc(S.lastTxt)+' · '+all.length+' change'+(all.length===1?"":"s")+(capCut()?' in the last 3 days with activity':'')+(parts.length?': '+parts.join(", "):"")+'</p>'+
   (hl.length?'<div class="lbl2">Affects you · '+hl.length+'</div>'+rows+(hl.length>4?'<p class="note left">and '+(hl.length-4)+' more in the feed, marked Affects you.</p>':''):'<p class="sum">Nothing changed that touches you.</p>')+
   (hl.length?'<div class="foot"><button type="button" class="lnk2" data-aff>'+(S.aff?'Show all changes':'Show only these')+'</button></div>':'')+'</section>'}
 
@@ -232,7 +282,7 @@ function options(g){ /* [type, value, label, count, icon] */
  var cnt=function(f){return b.filter(f).length};
  if(g==="when")return RANGES.map(function(r){return ["range",r[0],r[1],null,"clock"]});
  if(g==="who"){rows.push(["who","me","Me",cnt(function(e){return e.w===me()}),"user"]);
-  rows.push(me()==="arjan"?["who","sam","Sam",cnt(function(e){return e.w==="sam"}),"user"]:["who","arjan","Arjan",cnt(function(e){return e.w==="arjan"}),"user"]);
+  others().forEach(function(k){rows.push(["who",k,PEOPLE[k].n,cnt(function(e){return e.w===k}),"user"])});
   rows.push(["who","visitor","Shopper link",cnt(function(e){return ACT[e.w].k==="visitor"}),"link"])}
  if(g==="area")AREAS.forEach(function(a){rows.push(["area",a,a,cnt(function(e){return e.ar===a}),AREAICON[a]])});
  if(g==="app")rows.push(["app","kitchie","Kitchie",cnt(function(e){return e.app==="kitchie"}),"jar"],["app","recipe","Recipe",cnt(function(e){return e.app==="recipe"}),"book"]);
@@ -243,86 +293,105 @@ function isOn(o){return o[0]==="range"?S.range===o[1]:has(o[0],o[1])}
 function chipSet(g,cls){return options(g).map(function(o){var on=isOn(o);var z=o[3]===0&&!on;
  return '<button type="button" class="'+cls+(on?' on':'')+(z?' zero':'')+'" aria-pressed="'+on+'" data-pick-opt="'+o[0]+'|'+esc(o[1])+'">'+(cls==="mc"?'<span class="mi">'+ic(o[4],"sm")+'</span>':ic(o[4],"sm"))+esc(o[2])+(o[3]===null?'':' <i>'+o[3]+'</i>')+'</button>'}).join("")}
 function filtersPanel(){ /* desktop lane: Proposal, H8 */
- var always=S.view==="list",n=S.toks.length+(S.range!=="3d"?1:0),cntAll=list().length;
+ var always=S.view==="list",n=S.toks.length+(S.range!=="any"?1:0),cntAll=list().length;
  var sec=function(g,sub){return '<section><h3>'+g[1]+(sub?' <small>'+sub+'</small>':'')+'</h3><div class="fchips">'+chipSet(g[0],"fpl")+'</div></section>'};
  return '<div class="fp"><div class="fph"><div><h2>Filters</h2><p>'+cntAll+' '+(cntAll===1?'entry':'entries')+' · '+esc(rangeName())+'</p></div>'+(always?'':'<button type="button" class="ib" data-closepanel aria-label="Close filters (Ctrl Esc)">'+ic("x")+'</button>')+'</div><div class="fpb">'+
   '<p class="fhint">Nothing is typed. Pick what you are looking for; the list updates as you pick.</p>'+
   GROUPS.map(function(g){return sec(g,g[0]==="who"||g[0]==="area"||g[0]==="place"?"pick several":"")}).join("")+
   '<div class="acts2"><button type="button" class="sec2" data-clear>Clear all'+(n?' ('+n+')':'')+'</button>'+(always?'':'<button type="button" class="pri" data-closepanel>'+ic("check")+' Done</button>')+'</div>'+
-  '<p class="rule">'+ic("info","sm")+'<span>Counts are of what is already loaded for this tab. A range wider than the last 3 days with activity asks the server for that window.</span></p></div></div>'}
+  '<p class="rule">'+ic("info","sm")+'<span>Counts are of what is already loaded for this tab. Older days load as you scroll.</span></p></div></div>'}
 function groupValue(g){
  if(g==="when")return RANGES.filter(function(r){return r[0]===S.range})[0][1];
  var v=S.toks.filter(function(t){return t.t===(g==="aff"?"aff":g)}).map(tokLabel);return v.length?v.join(", "):"Any"}
 function sheetHtml(){ /* phone: H7a. Modelled on Pantry's Filters sheet (.sheet.tall, .fhead, .fbody, .strow, .mc, .ffoot). Nothing is typed. */
  var n=list().length,step=S.step&&GROUPS.some(function(g){return g[0]===S.step})?S.step:"",g=GROUPS.filter(function(x){return x[0]===step})[0];
  var body;
- if(!step)body='<p class="fsub">Pick one to narrow the history. You can add more after.</p><div class="strows">'+GROUPS.map(function(x){var v=groupValue(x[0]);return '<button type="button" class="strow'+(v!=="Any"&&!(x[0]==="when"&&S.range==="3d")?' on':'')+'" data-step="'+x[0]+'"><span class="stt"><span class="dotc">'+ic(x[2],"sm")+'</span>'+x[1]+'</span><span class="sval">'+esc(v)+ic("chev","sm")+'</span></button>'}).join("")+'</div>';
+ if(!step)body='<p class="fsub">Pick one to narrow the history. You can add more after.</p><div class="strows">'+GROUPS.map(function(x){var v=groupValue(x[0]);return '<button type="button" class="strow'+(v!=="Any"&&!(x[0]==="when"&&S.range==="any")?' on':'')+'" data-step="'+x[0]+'"><span class="stt"><span class="dotc">'+ic(x[2],"sm")+'</span>'+x[1]+'</span><span class="sval">'+esc(v)+ic("chev","sm")+'</span></button>'}).join("")+'</div>';
  else body='<button type="button" class="back2" data-step="">'+ic("chev","sm")+' All filters</button><h3 class="fh">'+g[1]+(step==="who"||step==="area"||step==="place"?' <small>pick several</small>':'')+'</h3><div class="mcs">'+chipSet(step,"mc")+'</div>';
  return '<div class="sheet-dim" data-closepanel><div class="sheet tall" role="dialog" aria-modal="true" aria-label="Pick a filter" data-keep><div class="grab"></div><div class="fhead"><div class="ftabs"><button type="button" class="on">'+(step?g[1]:'Pick a filter')+'</button></div><button type="button" class="ib" data-closepanel aria-label="Close">'+ic("x")+'</button></div>'+
   '<div class="fbody">'+body+'</div><div class="ffoot"><button type="button" class="pri wide" data-closepanel>Show '+n+' '+(n===1?'entry':'entries')+'</button><div class="flinks"><button type="button" class="link" data-clear>Clear</button><span></span></div></div></div></div>'}
 function scopeCard(){
  var adm=PEOPLE[me()].admin,hn=hiddenTotal();
- return '<div class="rule">'+ic("lock","sm")+'<span>'+(adm?'You are an <b>admin</b>: you also see household admin items. ':'You see the household\'s changes. Admin-only items are not shown to you. ')+'Other people\'s personal changes ('+hn+' in the last 3 days with activity) stay private for everyone, admins too.</span></div>'}
+ return '<div class="rule">'+ic("lock","sm")+'<span>'+(adm?'You are an <b>admin</b>: you also see household admin items. ':'You see the household\'s changes. Admin-only items are not shown to you. ')+'Other people\'s personal changes ('+hn+' in this catch-up window) stay private for everyone, admins too.</span></div>'}
 
 function railHtml(){
  var it=[["home","Home"],["jar","Pantry"],["cal","Plan"],["book","Recipes"],["cart","Shopping"],["clock","History"]];
  return '<div class="brand">Kitchie</div>'+it.map(function(i){return '<a href="#" data-rail aria-label="'+i[1]+'"'+(i[1]==="History"?' aria-current="page"':'')+'>'+ic(i[0])+'<span>'+i[1]+'</span></a>'}).join("")}
 function sorterBar(){
  if(S.view!=="catch"||S.state==="loading"||S.state==="empty")return "";
- return '<div class="sorter"><span>'+(S.tab==="mine"?"Newest first":"Newest first, grouped by "+(S.group==="person"?"person":"time"))+'</span>'+(S.tab==="mine"?'':'<div class="seg" role="group" aria-label="Group by"><button type="button" aria-pressed="'+(S.group==="person")+'" data-group="person">By person</button><button type="button" aria-pressed="'+(S.group==="time")+'" data-group="time">By time</button></div>')+'</div>'}
+ return '<div class="sorter"><span>'+(S.tab==="mine"?"Recent":"Recent, grouped by "+(S.group==="person"?"person":"time"))+'</span>'+(S.tab==="mine"?'':'<div class="seg" role="group" aria-label="Group by"><button type="button" aria-pressed="'+(S.group==="person")+'" data-group="person">By person</button><button type="button" aria-pressed="'+(S.group==="time")+'" data-group="time">By time</button></div>')+'</div>'}
 function tokBar(){
- var h='';if(S.range!=="3d")h+='<button type="button" class="tok" data-range="3d"><i>When</i> '+RANGES.filter(function(r){return r[0]===S.range})[0][1]+'<span class="x">'+ic("x","sm")+'</span></button>';
+ var h='';if(S.range!=="any")h+='<button type="button" class="tok" data-range="any"><i>When</i> '+RANGES.filter(function(r){return r[0]===S.range})[0][1]+'<span class="x">'+ic("x","sm")+'</span></button>';
  S.toks.forEach(function(t,i){h+='<button type="button" class="tok" data-rm="'+i+'"><i>'+tokKind(t)+'</i> '+esc(tokLabel(t))+'<span class="x">'+ic("x","sm")+'</span></button>'});
  return h?'<div class="toks" aria-label="Active filters">'+h+'</div>':""}
-function counts(){var o={};["mine","house"].forEach(function(t){var keep=S.tab;S.tab=t;o[t]=catchPool().length;S.tab=keep});return o}
+function counts(){var o={};["mine","other"].forEach(function(t){var keep=S.tab;S.tab=t;o[t]=catchPool().length;S.tab=keep});return o}
 
 function render(){
- var c=S.view==="catch"?counts():{mine:0,house:0},root=$("#hx");
- var ntok=S.toks.length+(S.range!=="3d"?1:0);
+ var c=S.view==="catch"?counts():{mine:0,other:0},root=$("#hx");
+ var ntok=S.toks.length+(S.range!=="any"?1:0);
  var scopeTxt=PEOPLE[me()].admin?'You see <b>everything the household did</b>, plus admin items. Personal changes of others stay private.':'You see <b>what the household did</b>. Personal changes of others stay private.';
  var showFilterBtn=wide()?S.view==="catch":S.view!=="catch";
  var lane=S.view==="catch"&&S.panel!=="filters"?'<div class="grab"></div>'+catchCard()+scopeCard():filtersPanel();
  root.innerHTML='<nav class="hx-rail" aria-label="Main">'+railHtml()+'</nav>'+
  '<main class="hx-main"><header class="hx-head"><h1>History</h1>'+(showFilterBtn?'<button type="button" class="ib'+(S.panel==="filters"?" on":"")+'" data-filters aria-label="Filters (F)">'+ic("sliders")+(ntok?'<span class="n">'+ntok+'</span>':'')+'</button>':'')+'</header>'+
- '<div class="hx-tabs" role="tablist" aria-label="Whose activity">'+[["mine","My activity",ic("user","sm")],["house","Household",ic("users","sm")]].map(function(t){return '<button type="button" role="tab" aria-selected="'+(S.tab===t[0])+'" data-tab="'+t[0]+'">'+t[2]+t[1]+(c[t[0]]?' <span class="c">'+c[t[0]]+'</span>':'')+'</button>'}).join("")+'</div>'+
+ '<div class="hx-tabs" role="tablist" aria-label="Whose activity">'+[["mine","My activity",ic("user","sm")],["other",otherName(),ic(others().length===1?"user":"users","sm")]].map(function(t){return '<button type="button" role="tab" aria-selected="'+(S.tab===t[0])+'" data-tab="'+t[0]+'">'+t[2]+t[1]+(c[t[0]]?' <span class="c">'+c[t[0]]+'</span>':'')+'</button>'}).join("")+'</div>'+
  '<div class="scope">'+ic("lock","sm")+'<span>'+scopeTxt+'</span></div>'+
  (S.view==="catch"&&S.state!=="loading"&&S.state!=="empty"?'<div class="phonecatch">'+catchCard()+'</div>':'')+
  tokBar()+sorterBar()+'<div id="feed">'+feed()+'</div></main>'+
  '<aside class="hx-panel" id="panel" aria-label="'+(S.view==="catch"&&S.panel!=="filters"?"Catch-up":"Filters")+'">'+(wide()?lane:"")+'</aside>'+
  (!wide()&&S.panel==="filters"?sheetHtml():"");
+ watch();
  if(window.__pv)window.__pv.style.display=(!wide()&&S.panel==="filters")?'none':'';
 }
 
 /* ---------- behaviour ---------- */
 var tmr;
 function toast(t){var el=$("#toast");el.textContent=t;el.hidden=false;clearTimeout(tmr);tmr=setTimeout(function(){el.hidden=true},2400)}
-function closeCatch(why){S.view="list";S.seen=NOW;S.n=5;S.aff=false;render();toast(why||"Catch-up cleared. Counted as caught up (Proposal).")}
+/* H11. The X only leaves the catch-up. It does not mark it caught up (S.seen is untouched), so the next visit still starts from the same last visit. On phone it opens the filter sheet (H7a); on desktop the filter panel is already beside the list. */
+function leaveCatch(){S.view="list";S.days=1;S.aff=false;S.person=""}
+function closeCatch(){leaveCatch();if(!wide()){S.panel="filters";S.step=""}render();toast("Left the catch-up. Not marked as caught up.")}
+function browse(){leaveCatch();S.panel="";render()} /* "See what is recent": same as the X without opening the filter sheet */
+/* H11. The tick marks it caught up: the next visit starts fresh from this point. */
+function tick(){S.seen=NOW;S.ticked=true;S.aff=false;S.person="";render();toast("Marked as caught up. Your next visit starts from now.")}
+/* H12 */
+function setPerson(k){S.person=k||"";if(k)S.tab=k===me()?"mine":"other";S.aff=S.aff&&!!k?S.aff:false;render()}
+/* H14: load one more calendar day with activity when the end of the list scrolls into view */
+var io;
+function watch(){
+ if(io){io.disconnect();io=null}
+ var el=$("#sentinel");if(!el||!("IntersectionObserver" in window))return;
+ io=new IntersectionObserver(function(en){if(en[0].isIntersecting){io.disconnect();io=null;S.days++;refreshFeed()}},{rootMargin:"0px 0px 80px 0px"});
+ io.observe(el)}
+function refreshFeed(){var f=$("#feed");if(f){f.innerHTML=feed();watch()}}
+function moreDay(){S.days++;refreshFeed()}
 function openFilters(){S.panel="filters";S.step=wide()?"":S.step;render()}
 function pickOpt(t,v){
  if(t==="range"){S.range=v;}
  else{var i=S.toks.findIndex(function(x){return x.t===t&&x.v===v});if(i>=0)S.toks.splice(i,1);else S.toks.push({t:t,v:v})}
- S.view="list";S.seen=NOW;render()}
+ S.view="list";S.days=1;render()}
 document.addEventListener("click",function(ev){
  var t=ev.target.closest("button,a,[data-closepanel]");if(!t)return;
  var d=t.dataset;
  if(t.hasAttribute("data-rail")){ev.preventDefault();toast("Mockup: other screens are not drawn here");return}
- if(d.tab){S.tab=d.tab;render();return}
+ if(d.tab){S.tab=d.tab;S.person="";render();return}
  if(t.hasAttribute("data-closecatch")){closeCatch();return}
+ if(t.hasAttribute("data-tick")){tick();return}
+ if(t.hasAttribute("data-browse")){browse();return}
+ if(d.person!==undefined){setPerson(d.person);return}
  if(t.hasAttribute("data-closepanel")){if(ev.target.closest("[data-keep]")&&!t.closest(".fhead,.ffoot"))return;S.panel="";S.step="";render();return}
  if(t.hasAttribute("data-filters")){if(S.panel==="filters"){S.panel="";render()}else openFilters();return}
- if(t.hasAttribute("data-pick")){if(S.view==="catch")closeCatch("Catch-up cleared. Pick a filter to look further back.");S.panel="filters";S.step="";render();return}
+ if(t.hasAttribute("data-pick")){S.panel="filters";S.step="";render();return}
  if(d.step!==undefined){S.step=d.step;render();return}
  if(d.pickOpt){var p=d.pickOpt.split("|");pickOpt(p[0],p[1]);return}
- if(d.rm!==undefined){S.toks.splice(+d.rm,1);render();return}
- if(d.range){S.range=d.range;render();return}
+ if(d.rm!==undefined){S.toks.splice(+d.rm,1);S.days=1;render();return}
+ if(d.range){S.range=d.range;S.days=1;render();return}
  if(d.group){S.group=d.group;render();return}
- if(t.hasAttribute("data-clear")){S.toks=[];S.range="3d";render();return}
- if(t.hasAttribute("data-more")){S.n+=5;render();return}
+ if(t.hasAttribute("data-clear")){S.toks=[];S.range="any";S.days=1;render();return}
  if(t.hasAttribute("data-aff")){S.aff=!S.aff;render();return}
  if(t.hasAttribute("data-affoff")){S.aff=false;render();return}
  if(d.act==="plain"){location.search="?";return}
  if(t.hasAttribute("data-pv")){$(".pv").classList.toggle("open");return}
- if(d.pvset){var ix=d.pvset.indexOf("="),k=[d.pvset.slice(0,ix),d.pvset.slice(ix+1)];var u=new URLSearchParams(location.search);["view","filters","step","range","who","area","place","app","aff"].forEach(function(x){u.delete(x)});if(k[0]==="try"){k[1].split("&").forEach(function(kv){var a=kv.split("=");u.set(a[0],a[1])})}else if(k[1]==="")u.delete(k[0]);else u.set(k[0],k[1]);location.search=u.toString();return}
+ if(d.pvset){var ix=d.pvset.indexOf("="),k=[d.pvset.slice(0,ix),d.pvset.slice(ix+1)];var u=new URLSearchParams(location.search);["view","filters","step","range","who","area","place","app","aff","person"].forEach(function(x){u.delete(x)});if(k[0]==="try"){k[1].split("&").forEach(function(kv){var a=kv.split("=");u.set(a[0],a[1])})}else if(k[1]==="")u.delete(k[0]);else u.set(k[0],k[1]);location.search=u.toString();return}
 });
 /* keys (shortcut-cues.md): never while typing; Ctrl/Cmd+Esc closes the open panel; Shift+? opens the list */
 var isMac=/Mac|iPhone|iPad/.test(navigator.platform||"");
@@ -333,10 +402,11 @@ document.addEventListener("keydown",function(ev){
  var k=ev.key;
  if(k==="?"){$("#kb").hidden=!$("#kb").hidden;S.nocues=false;document.body.classList.remove("nocues");ev.preventDefault();return}
  if(k==="f"||k==="F"){if(S.panel==="filters"){S.panel="";S.step=""}else S.panel="filters";render();return}
- if(k==="1"||k==="2"){S.tab=["mine","house"][+k-1];render();return}
+ if(k==="1"||k==="2"){S.tab=["mine","other"][+k-1];render();return}
  if((k==="c"||k==="C")&&S.view==="catch"){closeCatch();return}
+ if((k==="t"||k==="T")&&S.view==="catch"&&catchAll().length){tick();return}
  if((k==="g"||k==="G")&&S.view==="catch"){S.group=S.group==="person"?"time":"person";render();return}
- if((k==="m"||k==="M")&&S.view==="list"&&!isFiltered()){S.n+=5;render();return}
+ if((k==="m"||k==="M")&&S.view==="list"&&$("#sentinel")){moreDay();return}
  if(k==="j"||k==="k"||k==="J"||k==="K"||k==="ArrowDown"||k==="ArrowUp"){
   var rows=$$(".ev"),i=rows.findIndex(function(r){return r===document.activeElement});
   var n=(k==="j"||k==="J"||k==="ArrowDown")?Math.min(rows.length-1,i+1):Math.max(0,i-1);
@@ -347,13 +417,14 @@ function pvHtml(){
  var opt=function(g,v,l,on){return '<button type="button" class="pl" aria-pressed="'+on+'" data-pvset="'+g+'='+v+'">'+l+'</button>'};
  return '<button type="button" data-pv>Preview</button><div class="pop"><h3>Viewing as</h3><div class="pills">'+opt("as","arjan","Arjan (admin)",S.as==="arjan")+opt("as","sam","Sam (member)",S.as==="sam")+'</div>'+
  '<h3>Last visit</h3><div class="pills">'+opt("last","wed","Wed 7 Oct (cap cuts)",LV===LASTV.wed)+opt("last","sat","Sat 10 Oct",LV===LASTV.sat)+'</div>'+
- '<h3>State</h3><div class="pills">'+opt("state","","Lively",!S.state)+opt("state","caught","Nothing since",S.state==="caught")+opt("state","empty","New household",S.state==="empty")+opt("state","loading","Loading",S.state==="loading")+'</div>'+
- '<h3>Try</h3><div class="pills">'+opt("try","view=list","Last five",false)+opt("try","range=month&area=Versions","30 days, Area: Versions",false)+opt("try","who=visitor&area=Plan","Filters: nothing found",false)+'</div></div>'}
+ '<h3>Household</h3><div class="pills">'+opt("household","two","Two people",HOUSE==="two")+opt("household","more","Three people",HOUSE==="more")+'</div>'+
+ '<h3>State</h3><div class="pills">'+opt("state","","Lively",!S.state)+opt("state","caught","Nothing since",S.state==="caught")+opt("state","ticked","Ticked: caught up",S.state==="ticked")+opt("state","empty","New household",S.state==="empty")+opt("state","loading","Loading",S.state==="loading")+'</div>'+
+ '<h3>Try</h3><div class="pills">'+opt("try","view=list","Recent",false)+opt("try","person=sam","Catch-up: Sam only",false)+opt("try","range=month&area=Versions","30 days, Area: Versions",false)+opt("try","who=visitor&area=Plan","Filters: nothing found",false)+'</div></div>'}
 var pv=document.createElement("div");pv.className="pv";pv.innerHTML=pvHtml();document.body.appendChild(pv);window.__pv=pv;
 var kb=document.createElement("div");kb.className="kb";kb.id="kb";kb.hidden=true;
 var M=isMac?"⌘":"Ctrl";
 kb.innerHTML='<div class="kbc" role="dialog" aria-label="Shortcuts"><div class="kbh"><h2>History shortcuts</h2><button class="x" type="button" onclick="document.getElementById(\'kb\').hidden=true" aria-label="Close">×</button></div><div class="kbg"><div class="kbs"><h3>On this screen</h3>'+
- [["F","Filters"],["1 2","My activity, Household"],["J K","Next, previous entry"],["Enter","Open the entry in context"],["G","Group by person or by time (catch-up)"],["C","Clear the catch-up, show the last five"],["M","Show more (last five)"]].map(function(r){return '<div class="kbr"><span class="kk"><kbd>'+r[0]+'</kbd></span><span>'+r[1]+'</span></div>'}).join("")+
+ [["F","Filters"],["1 2","My activity, "+otherName()],["J K","Next, previous entry"],["Enter","Open the entry in context"],["G","Group by person or by time (catch-up)"],["C","Leave the catch-up and pick a filter (not marked caught up)"],["T","Mark the catch-up as caught up"],["M","Load one more day (recent)"]].map(function(r){return '<div class="kbr"><span class="kk"><kbd>'+r[0]+'</kbd></span><span>'+r[1]+'</span></div>'}).join("")+
  '</div><div class="kbs"><h3>Anywhere</h3>'+[["Shift ?","This list"],[M+" Esc","Close the open panel"],["Tab","Move on"]].map(function(r){return '<div class="kbr"><span class="kk"><kbd>'+r[0]+'</kbd></span><span>'+r[1]+'</span></div>'}).join("")+'</div></div></div>';
 document.body.appendChild(kb);
 var to=document.createElement("div");to.className="toast";to.id="toast";to.hidden=true;to.setAttribute("role","status");document.body.appendChild(to);
