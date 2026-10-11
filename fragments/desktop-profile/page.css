@@ -61,3 +61,7 @@ kbd{font:600 11px/1.5 var(--body);border:1px solid var(--border);border-bottom-w
 .pf-notes b{color:var(--fg)}
 @media (max-width:1100px){.pf-hide-sm{display:none}}
 .pf-notes code{font-size:13px}
+
+.pf-frames{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-ctl);padding:12px 16px}
+.pf-frames ul{margin:6px 0 0;display:grid;gap:4px}
+.pf-frames a{color:var(--accent);font-weight:600;text-decoration:underline}

@@ -81,7 +81,7 @@ Owner, voice, 10 October 2026: "option A for add an item". A side panel in the r
 
 ## 7. Profile
 
-Option B only: a true modal window (scrim covers everything, page behind inert, focus trapped and returned). **11 Oct 2026 (owner): the window is full screen with a small backdrop buffer, close is Ctrl/Cmd Esc, no count chip beside the number keys, and each linked AI assistant row carries the default radio; see `docs/knowledge/settings-window.md` (SW-1 to SW-12).** Sections: Profile, Settings, History, Household, My data, each with a `G` then letter key. Source: `fragments/desktop-profile/`, exposed as `window.KProfile`.
+Option B only: a true modal window (scrim covers everything, page behind inert, focus trapped and returned). **11 Oct 2026 (owner): the window is full screen with a small backdrop buffer, close is Ctrl/Cmd Esc, no count chip beside the number keys, and each linked AI assistant row carries the default radio; see `docs/knowledge/settings-window.md` (SW-1 to SW-12).** **Round 4 (11 Oct 2026, mockup only, nothing built, owner reviews first): Settings opens under itself in the gutter and a row's detail is a flyout (nothing leaves the place; phone and tablet open rows in place with a sheet or drawer), Install is per device (desktop: gutter and main area), three Preferences layouts are drawn for choice, History is docked above the keys line (behaviour pending); SW-13 to SW-21, open questions SW-O4 to SW-O12.** Sections: Profile, Settings, History, Household, My data, each with a `G` then letter key. Source: `fragments/desktop-profile/`, exposed as `window.KProfile`.
 
 ![Profile](img/11-profile-window.png)
 

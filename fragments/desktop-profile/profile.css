@@ -121,7 +121,7 @@ html.pf-lock{overflow:hidden;scrollbar-gutter:auto}
 .pf-nvt .pf-keys kbd{font-size:10px;padding:0 5px;min-width:18px}
 .pf-nav .pf-grow{flex:1}
 .pf-nav .pf-small{padding:0 8px;font-size:12px}
-.pf-cont{flex:1;min-width:0;display:flex;flex-direction:column}
+.pf-cont{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column}
 .pf-cont .pf-head{padding-left:24px}
 .pf-cont .pf-body{padding-left:24px;padding-right:24px;outline-offset:-3px}
 .pf-cont .pf-body:not(.pf-flush)>*{max-width:var(--pf-measure,60rem)}
@@ -147,3 +147,18 @@ html.pf-lock{overflow:hidden;scrollbar-gutter:auto}
 .pf-inline .pf-dlg{animation:none;box-shadow:none;margin:0 auto}
 .pf-inline .pf-win{width:min(900px,100%);height:620px}
 .pf-list li:has(>.pf-item+.pf-btn){display:flex;align-items:center;gap:8px;padding-right:8px}
+
+/* ---------- Settings opens under itself; History docked; the row that holds the page and a flyout (owner, 11 Oct 2026, round 4) ---------- */
+.pf-row{flex:1;min-height:0;min-width:0;display:flex;position:relative}
+.pf-crumb{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted);margin-bottom:2px}
+.pf-tw{display:inline-flex;color:var(--muted);flex:none}
+.pf-nvt.pf-par{font-weight:700}
+.pf-nvt.pf-par .pf-i{color:var(--accent)}
+.pf-kids{display:flex;flex-direction:column;gap:1px;margin:0 0 6px 20px;padding-left:8px;border-left:1px solid var(--border)}
+.pf-nvc{padding:0 8px;font-size:14px}
+.pf-nvc .pf-t{font-weight:600}
+.pf-ngl{font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted);padding:10px 8px 2px}
+.pf-dock{margin-top:8px;border-top:1px solid var(--border);border-radius:0 0 var(--r-ctl) var(--r-ctl);padding-top:2px}
+.pf-dock:hover{background:var(--surface)}
+.pf-keysl{padding:6px 8px 0}
+@media (max-width:900px){.pf-kids,.pf-tw,.pf-dock,.pf-head .pf-crumb,.pf-ngl{display:none}.pf-nvt.pf-par{box-shadow:inset 0 -3px 0 var(--accent)}}
