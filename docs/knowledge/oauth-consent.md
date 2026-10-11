@@ -1,6 +1,6 @@
 # Connect an assistant: the consent page (Platform's OAuth screen in Kitchie's look)
 
-Mockup: `fragments/oauth-consent/` (`?p=kitchie|recipe`, `&a=claude|chatgpt|long`, `&env=none`). Owner request, Monday 12 October 2026 (task brief): rebuild Platform's OAuth consent page (`/platform-uat/oauth/authorize`, "Connect an assistant") so it matches Kitchie's look and feel; one consent page for both Kitchie and Recipe connections; follow the person's theme without a flash; phone and desktop. Today it is an unstyled page: a heading, one paragraph, two plain buttons and a safety line.
+Mockup: `fragments/oauth-consent/` (`?p=kitchie|recipe`, `&a=claude|chatgpt|long`, `&env=none`, `&dev=1`). Owner request, Monday 12 October 2026 (task brief): rebuild Platform's OAuth consent page (`/platform-uat/oauth/authorize`, "Connect an assistant") so it matches Kitchie's look and feel; one consent page for both Kitchie and Recipe connections; follow the person's theme without a flash; phone and desktop. Today it is an unstyled page: a heading, one paragraph, two plain buttons and a safety line.
 
 The owner's words that matter: "same look and feel as Kitchie", "one logo everywhere, brand bar on every page" (Kitchie v0.12.21, issue #145), "one consistent consent page for both Kitchie and Recipe", "keep the existing safety wording", "no hints or upsell for products not enabled" (Platform D6), "apply the theme before first paint", "viewport-specific code goes in its own file".
 
@@ -26,6 +26,7 @@ An AI assistant has sent a signed-in member here to ask: may it act as me in thi
 - **C12 One column on phone and tablet (34rem, the width Kitchie's sign-in card uses); on desktop (64rem and up) the same column sits in a bordered card.** The desktop framing is its own file (`consent-desktop.css`, linked with `media="(min-width:64rem)"`), so phone and tablet never carry it. Owner standing rule, 10 October 2026.
 - **C13 Long text never breaks the page.** A long assistant name, host, member or household wraps (`overflow-wrap:anywhere`); checked with `&a=long` at 360px.
 - **C14 Reduced motion.** The three dots between the tiles are the only animation; they stop with the phone's reduced-motion setting and with Kitchie's "calmer motion" setting.
+- **C16 The development sign-in warning.** While a deployment has test sign-in on, Platform shows one loud notice at the top of every page (`&dev=1`): an accent-bordered box on the surface, bold first line. It sits above the picture so it cannot be missed and is absent in production. Added 12 October after the build found the first mockup left it out.
 - **C15 Other Platform pages** (sign-in, home, connect, token, notices) take the same brand bar, tokens, fonts and buttons through the shared page shell, but keep their content. Only the consent page gets this new composition. **Proposal.**
 
 ## What the default path loads, and what is deferred (DESIGN.md section 6)

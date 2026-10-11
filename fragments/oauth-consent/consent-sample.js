@@ -19,6 +19,7 @@
     var env = d.env ? '<span class="envslug" style="flex:none;overflow:visible;font-weight:400;font-size:.8em;color:var(--muted)">(' + esc(d.env) + ")</span>" : "";
     return '<a class="brandbar" href="#">' + icon("kitchie", 24) + "<span>Kitchie</span>" + env + "</a>" +
       '<main class="skin cn" data-product="' + esc(d.product) + '">' +
+      (d.dev ? '<div class="banner" role="status"><strong>Development sign-in is on</strong>Anyone can sign in here as a test account, with no password and no identity provider. This deployment must never serve real people.</div>' : "") +
       '<div class="hero" aria-hidden="true"><div class="pair"><span class="ava who">' + esc(d.assistant.slice(0, 1)) + '</span><span class="wire"><i></i><i></i><i></i></span><span class="ava">' + icon(d.product, 30) + "</span></div></div>" +
       '<div class="hello"><span class="pill">' + icon("lock", 14) + "Connect an assistant</span><h1>Connect " + esc(d.assistant) + " to " + P + "?</h1><p>" + esc(d.assistant) + " is asking to connect to " + P + " as " + esc(d.member) + ".</p></div>" +
       '<dl class="facts"><div><dt>Assistant</dt><dd>' + esc(d.assistant) + "<small>" + esc(d.host) + "</small></dd></div><div><dt>Connecting to</dt><dd>" + P + "</dd></div><div><dt>As</dt><dd>" + esc(d.member) + "</dd></div><div><dt>Household</dt><dd>" + esc(d.household) + "</dd></div></dl>" +

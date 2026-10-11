@@ -20,6 +20,7 @@ const SCREENS = [
   ["oauth-consent-kitchie", "fragments/oauth-consent/index.html?p=kitchie"],
   ["oauth-consent-recipe", "fragments/oauth-consent/index.html?p=recipe"],
   ["oauth-consent-long", "fragments/oauth-consent/index.html?p=recipe&a=long"],
+  ["oauth-consent-dev", "fragments/oauth-consent/index.html?p=kitchie&dev=1"],
   ["invite-own-modal-empty", "fragments/desktop-profile/index.html?open=invite&inv=empty"],
   ["invite-own-modal-filled", "fragments/desktop-profile/index.html?open=invite&inv=filled"],
   ["invite-own-modal-created", "fragments/desktop-profile/index.html?open=invite&inv=created"],
