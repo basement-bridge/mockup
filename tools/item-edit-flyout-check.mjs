@@ -202,6 +202,9 @@ for (const [w, h, kind] of SIZES) {
     ok(`${tag} spot chosen`, (await p.inputValue('[data-f="spot"]')) === "Spice rack" && (await strip(p, "spot").isHidden()));
     await p.fill('[data-f="area"]', ""); await p.press('[data-f="area"]', "Tab"); await p.click('[data-f="spot"]'); await p.fill('[data-f="spot"]', "");
     const hint = await p.locator("#sg-spot .ef-chip .hint").count();
+    await p.fill('[data-f="area"]', "Annex"); await p.click('[data-f="spot"]'); await p.fill('[data-f="spot"]', "");
+    ok(`${tag} a new location has no spots to suggest: no empty strip under Spot`, await strip(p, "spot").isHidden());
+    await p.fill('[data-f="area"]', ""); await p.press('[data-f="area"]', "Tab"); await p.click('[data-f="spot"]'); await p.fill('[data-f="spot"]', "");
     ok(`${tag} with no location, the spot pills name each spot's location`, hint >= 2 && (await p.locator("#sg-spot .ef-chip").count()) === 2, hint);
     await p.click("#sg-spot .ef-cx");
     await p.locator('#sg-spot .ef-chip:has(.hint:text("Fridge"))').first().click();
