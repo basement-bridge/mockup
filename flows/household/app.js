@@ -507,10 +507,10 @@ const screens = {
     return backHeader("Back", "") + `<div class="body">
     <div class="row"><span class="av" style="width:56px;height:56px;font-size:20px">${avt(S.persona, 30)}</span><div><b style="font-size:20px">${esc(me().name)}</b><p class="small">${role(S.persona) ? esc(role(S.persona).title) : "Our kitchen"}</p></div></div>
     ${strip.length ? `<div><span class="lbl">Get started</span><div class="menu card">${strip.map(([t, ic, l, k]) => `<button data-${k === "go" ? "go" : "sheet"}="${t}"><span class="row" style="gap:10px">${riSvg(ic, 20)}${l}</span><span class="chev" style="color:var(--muted)">${I.chev}</span></button>`).join("")}</div></div>` : ""}
-    ${seg("Settings", `<button data-go="settings">Settings</button><button data-act="proto" data-p="History">History</button>`)}
+    ${seg("App", `<button data-go="looks">Looks <span class="chev" style="color:var(--muted)">${I.chev}</span></button><button data-go="cats">Categories <span class="chev" style="color:var(--muted)">${I.chev}</span></button><button data-act="proto" data-p="Locations and spots">Locations and spots <span class="chev" style="color:var(--muted)">${I.chev}</span></button>`)}
     ${seg("Preferences", `<button data-act="proto" data-p="Preferences">Preferences</button>`)}
     ${seg("People", `<button data-go="me">Me <span class="chip">${esc(me().name)}</span></button><button data-go="household">Household <span class="chip">${S.members.length}</span></button>${pays() ? `<button data-go="${S.recipes ? "household" : "upgrade"}">Plan and billing</button>` : ""}`)}
-    ${seg("My data", `<button data-act="proto" data-p="Download inventory CSV">Download inventory CSV</button>`)}
+    ${seg("My data", `<button data-act="proto" data-p="History">History</button><button data-act="proto" data-p="Download inventory CSV">Download inventory CSV</button>`)}
     <button data-act="signout" class="danger" style="text-align:left;min-height:48px">Sign out</button>
     <div class="srow plain"><span class="small">Prototype: member for</span><div class="seg2" role="radiogroup" aria-label="Member for">${[[1, "Day 1"], [3, "Day 3"], [6, "Day 6"]].map(([d, l]) => `<button role="radio" aria-checked="${S.day === d}" class="${S.day === d ? "on" : ""}" data-act="day" data-p="${d}">${l}</button>`).join("")}</div></div></div>`;
   },
@@ -532,7 +532,7 @@ const screens = {
   /* Looks: the existing theme and display screen (was the Look group on Settings, then "Look and display"). Mirrors Kitchie's browser-only display settings. */
   looks: () => {
     const c = S.cfg, sw = (k, l) => `<button class="srow" role="switch" aria-checked="${c[k]}" data-act="cfg" data-p="${k}"><span>${l}</span><span class="swt" aria-hidden="true"></span></button>`;
-    return backHeader("Settings", "Looks") + `<div class="body">
+    return backHeader("Back", "Looks") + `<div class="body">
       <p class="small">These stay on this device. Only your theme and the emoji setting also travel with you, so pages open in the right colours.</p>
       <div class="card sgroup"><span class="lbl">Theme</span><div class="tgrid swatches" role="group" aria-label="Theme">${window.themeHtml ? window.themeHtml(["kitchie", "kitchie-day", "marmalade", "blueberry", "herb"], true) : ""}</div><p class="small" data-theme-name>${window.themeName ? esc(window.themeName()) : ""}</p>
         <div class="srow plain"><span>Item name size</span><div class="seg2" role="radiogroup" aria-label="Item name size">${[["small", "Small"], ["normal", "Normal"], ["large", "Large"]].map(([k, l]) => `<button role="radio" aria-checked="${c.size === k}" class="${c.size === k ? "on" : ""}" data-act="cfgsize" data-p="${k}">${l}</button>`).join("")}</div></div>
@@ -545,7 +545,7 @@ const screens = {
     <div class="card sgroup"><button class="srow" role="switch" aria-checked="${S.stockChecks}" data-act="stocktoggle"><span>Ask me to check amounts</span><span class="swt" aria-hidden="true"></span></button></div>
     <p class="small">Keeping it off is fine. We will check back less and less often. Some of this is the household's: only household admins can change the shared settings.</p></div>`,
 
-  cats: () => backHeader("Settings", "Categories") + `<div class="body">
+  cats: () => backHeader("Back", "Categories") + `<div class="body">
     <p>Rename a category for every item at once. This is the household's, not just this device's.</p>
     <div class="menu card">${S.order.cat.map((c) => `<button data-act="proto" data-p="Rename ${esc(c)}">${EM[c] || ""} ${esc(c)} <span class="small">Rename</span></button>`).join("")}</div></div>`,
 
