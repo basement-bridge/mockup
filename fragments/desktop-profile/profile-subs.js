@@ -2,7 +2,8 @@
    the Preferences desktop layouts A, B and C, and the rows that open in place on a phone or tablet. Static sample data, no storage, no network.
    Rule for all of them (owner): nothing here is a page of its own. A group opens under its entry (desktop: in the left gutter; phone and tablet: under its row),
    and the detail of one row is a flyout in the main area (desktop, 1168px and up: beside the list; 901 to 1167px: it takes the main area; 600 to 900px: a drawer;
-   under 600px: a bottom sheet). The window never changes page, and the close chord closes the flyout first, then the window. */
+   under 600px: a bottom sheet). The window never changes page, and the close chord closes the flyout first, then the window.
+   12 Oct 2026 (round 5): a location's row is its name only and one form adds and edits it (spots are managed inside it); the category flyout no longer lists its items; Preferences layout A is drawn by profile-prefs.js (this file hands it the work). */
 (function(){
 "use strict";
 var $=function(s,r){return(r||document).querySelector(s)};
@@ -21,7 +22,9 @@ var ESCL=/Mac|iPhone|iPad/.test(navigator.platform||"")?"⌘ Esc":"Ctrl Esc";
 
 /* ---------- sample data (the household's; changed in this module only while the page is open) ---------- */
 var CATS=[["dairy","🥛","Dairy and eggs",["butter","eggs","greek yoghurt","milk","paneer","cream"]],["veg","🥕","Vegetables",["carrots","spinach","tomatoes","onions"]],["fruit","🍎","Fruits",["apples","lemons"]],["meat","🥩","Meat",["chicken thighs","mince","bacon"]],["dry","🌾","Dry goods",["rice","pasta","flour","oats","sugar","lentils","couscous","cornflour","noodles"]],["cans","🥫","Cans",["chickpeas","tomatoes (tin)","coconut milk","tuna"]],["season","🧂","Seasoning",["salt","pepper","cumin","paprika","turmeric","oregano","chilli flakes"]],["snack","🍿","Snacks",["crackers","nuts"]],["frozen","🧊","Frozen",["peas","fish fingers","berries","bread","ice"]],["other","📦","Other",["baking paper"]]];
-var LOCS=[["fridge","Fridge",[["door","Door",4],["top","Top shelf",3],["crisper","Crisper",3],["mid","Middle shelf",2]]],["pantry","Pantry",[["shelf1","Shelf 1",6],["shelf2","Shelf 2",5],["cupboard","Cupboard",4],["spice","Spice rack",7]]],["freezer","Freezer",[["d1","Drawer 1",3],["d2","Drawer 2",2],["fdoor","Door",1]]]];
+var LOCS=[["fridge","Fridge",[["door","Door",4],["top","Top shelf",3],["crisper","Crisper",3],["mid","Middle shelf",2]],""],["pantry","Pantry",[["shelf1","Shelf 1",6],["shelf2","Shelf 2",5],["cupboard","Cupboard",4],["spice","Spice rack",7]],""],["freezer","Freezer",[["d1","Drawer 1",3],["d2","Drawer 2",2],["fdoor","Door",1]],""]];
+/* the location being added (not in LOCS until Add location is pressed): the same shape as a row of LOCS */
+var NEWLOC={id:"new",name:"",icon:"",spots:[],pos:null};
 function cat(id){return CATS.filter(function(c){return c[0]===id})[0]}
 function loc(id){return LOCS.filter(function(l){return l[0]===id})[0]}
 function spot(ref){var p=ref.split("."),l=loc(p[0]);return l?{l:l,s:l[2].filter(function(s){return s[0]===p[1]})[0]}:null}
@@ -62,11 +65,11 @@ function installSteps(m){
 function catRows(){return CATS.map(function(c){return '<li><button type="button" class="pf-item" data-sel="cat:'+c[0]+'" aria-pressed="false"><span class="pf-ico">'+c[1]+'</span><span class="pf-t"><span class="pf-name">'+esc(c[2])+'</span><small>'+plural(c[3].length,"item")+'</small></span><span class="pf-chev">'+ic("chev",18)+'</span></button></li>'}).join("")}
 function catList(){return '<p class="pf-small pf-intro">Rename a category for every item at once. This is the household’s, not just this device’s.</p><ul class="pf-list pf-picks">'+catRows()+'</ul>'
  +'<div><button type="button" class="pf-btn" data-act="addcat">'+ic("plus",18)+' Add a category</button></div>'}
-function locBlock(l){return '<div class="pf-locg"><ul class="pf-list pf-picks"><li><button type="button" class="pf-item" data-sel="loc:'+l[0]+'" aria-pressed="false"><span class="pf-ico">'+ic("pin",18)+'</span><span class="pf-t"><span class="pf-name">'+esc(l[1])+'</span><small>'+plural(l[2].length,"spot")+' · '+plural(locCount(l),"item")+'</small></span><span class="pf-chev">'+ic("chev",18)+'</span></button></li></ul>'
-  +'<div class="pf-spots" role="group" aria-label="Spots in '+esc(l[1])+'">'+l[2].map(function(s){return '<button type="button" class="pf-spot" data-sel="spot:'+l[0]+'.'+s[0]+'" aria-pressed="false"><span class="pf-name">'+esc(s[1])+'</span> <em>'+s[2]+'</em></button>'}).join("")+'</div></div>'}
-function locList(){return '<p class="pf-small pf-intro">A location holds spots. Renaming or moving one updates every item stored there. This is the household’s, not just this device’s.</p>'
- +LOCS.map(locBlock).join("")+'<div><button type="button" class="pf-btn" data-act="addloc">'+ic("plus",18)+' Add a location</button></div>'}
-function subPane(m){return m.sub==="cats"?catList():m.sub==="locs"?locList():installDesktop(m)}
+function locRows(){return '<ul class="pf-list pf-picks">'+LOCS.map(function(l){return '<li><button type="button" class="pf-item" data-sel="loc:'+l[0]+'" aria-pressed="false"><span class="pf-ico">'+(l[3]?'<span class="pf-emo" aria-hidden="true">'+esc(l[3])+'</span>':ic("pin",18))+'</span><span class="pf-t"><span class="pf-name">'+esc(l[1])+'</span></span><span class="pf-chev">'+ic("chev",18)+'</span></button></li>'}).join("")+'</ul>'}
+function locAdd(){return '<div><button type="button" class="pf-btn" data-sel="loc:new" aria-pressed="false">'+ic("plus",18)+' Add a location</button></div>'}
+function locList(){return '<p class="pf-small pf-intro">A location holds spots. Renaming or moving one updates every item stored there. This is the household’s, not just this device’s.</p>'+locRows()+locAdd()}
+function resetNew(){NEWLOC.name="";NEWLOC.icon="";NEWLOC.spots=[];NEWLOC.pos=null}
+function subPane(m){if(m.sel!=="loc:new")resetNew();return m.sub==="cats"?catList():m.sub==="locs"?locList():installDesktop(m)}
 
 /* the flyout */
 function flyShell(title,sub,bodyHtml,foot,label){
@@ -78,17 +81,23 @@ function catFly(id){
  var c=cat(id);if(!c)return "";var i=CATS.indexOf(c),n=c[3].length;
  var others=CATS.filter(function(x){return x!==c}).map(function(x){return [x[0],x[2]]});
  var body='<label class="pf-field"><span class="pf-lbl">Name</span><input class="pf-in" type="text" data-rename="cat:'+id+'" data-flyfocus value="'+esc(c[2])+'" maxlength="24" autocomplete="off" spellcheck="false"><span class="pf-small pf-hint2">Renames it on '+(n===1?"the 1 item":"all "+n+" items")+' at once. 24 characters at most.</span></label>'
-  +'<div><span class="pf-lbl">In this category</span><div class="pf-tags">'+c[3].slice(0,8).map(function(t){return '<span class="pf-tag">'+esc(t)+'</span>'}).join("")+(n>8?'<span class="pf-tag more">+'+(n-8)+' more</span>':'')+'</div></div>'
   +'<div><span class="pf-lbl">Order in the Pantry</span>'+orderRow(i+1,CATS.length)+'</div>'
   +'<div class="pf-danger"><b>Remove or merge</b><p class="pf-small">Pick where its '+(n===1?"item goes":n+" items go")+'. Nothing is deleted. The button stays off until you pick.</p>'+moveSel(others,"Pick a category…")+rmBtn("rmcat","Move "+plural(n,"item"))+'</div>';
  return flyShell(c[1]+' <span data-flytitle>'+esc(c[2])+'</span>',"Kitchen setup › Categories",body,null,"Edit category "+c[2])}
+/* One form for Add location and Edit location (owner, 12 Oct 2026): name, icon, spots, order. An existing location also has Remove this location; a new one has not. Spots are managed inside it and open in place. */
 function locFly(id){
- var l=loc(id);if(!l)return "";var i=LOCS.indexOf(l),others=LOCS.filter(function(x){return x!==l}).map(function(x){return [x[0],x[1]]});
- var body='<label class="pf-field"><span class="pf-lbl">Name</span><input class="pf-in" type="text" data-rename="loc:'+id+'" data-flyfocus value="'+esc(l[1])+'" maxlength="24" autocomplete="off" spellcheck="false"><span class="pf-small pf-hint2">Renames it on all '+locCount(l)+' items stored here.</span></label>'
-  +'<div><span class="pf-lbl">Spots</span><ul class="pf-list">'+l[2].map(function(s){return '<li><button type="button" class="pf-item" data-sel="spot:'+id+'.'+s[0]+'"><span class="pf-t">'+esc(s[1])+'<small>'+plural(s[2],"item")+'</small></span><span class="pf-chev">'+ic("chev",18)+'</span></button></li>'}).join("")+'</ul><div class="pf-addrow"><input class="pf-in" type="text" placeholder="New spot, for example Top shelf" maxlength="24" aria-label="New spot name"><button type="button" class="pf-btn" data-act="addspot">'+ic("plus",18)+' Add</button></div></div>'
-  +'<div><span class="pf-lbl">Order</span>'+orderRow(i+1,LOCS.length)+'</div>'
-  +'<div class="pf-danger"><b>Remove this location</b><p class="pf-small">Its '+plural(locCount(l),"item")+' move to the location you pick. Its spots stay as spots there; the same names merge.</p>'+moveSel(others,"Pick a location…")+rmBtn("rmloc","Move "+plural(locCount(l),"item"))+'</div>';
- return flyShell(esc(l[1]),"Kitchen setup › Locations and spots",body,null,"Edit location "+l[1])}
+ var isNew=id==="new",l=isNew?[ "new",NEWLOC.name,NEWLOC.spots,NEWLOC.icon]:loc(id);if(!l)return "";
+ var i=isNew?(NEWLOC.pos===null?LOCS.length:NEWLOC.pos):LOCS.indexOf(l),n=isNew?LOCS.length+1:LOCS.length,nm=l[1];
+ var others=LOCS.filter(function(x){return x!==l}).map(function(x){return [x[0],x[1]]});
+ var spots=l[2];
+ var body='<label class="pf-field"><span class="pf-lbl">Name</span><input class="pf-in" type="text" data-rename="loc:'+id+'" data-flyfocus value="'+esc(nm)+'" maxlength="24" autocomplete="off" spellcheck="false"'+(isNew?' placeholder="e.g. Garage fridge"':'')+'><span class="pf-small pf-hint2">'+(isNew?'24 characters at most. Then add spots inside it, or leave it without.':'Renames it on all '+locCount(l)+' items stored here. 24 characters at most.')+'</span></label>'
+  +'<label class="pf-field"><span class="pf-lbl">Icon</span><input class="pf-in pf-emoin" type="text" data-icon="loc:'+id+'" value="'+esc(l[3]||"")+'" maxlength="4" size="4" autocomplete="off" aria-label="Icon, one emoji"><span class="pf-small pf-hint2">Optional. Type or paste one emoji.</span></label>'
+  +'<div><span class="pf-lbl">Spots</span>'+(spots.length?'<ul class="pf-list">'+spots.map(function(s){return (isNew?'<li><div class="pf-item pf-static"><span class="pf-t">'+esc(s[1])+'<small>New</small></span></div></li>':'<li><button type="button" class="pf-item" data-sel="spot:'+id+'.'+s[0]+'"><span class="pf-t">'+esc(s[1])+'<small>'+plural(s[2],"item")+'</small></span><span class="pf-chev">'+ic("chev",18)+'</span></button></li>')}).join("")+'</ul>':'<p class="pf-small">No spots yet. Items just go in '+(esc(nm)||'the location')+'. Add a spot to say which shelf.</p>')
+  +'<div class="pf-addrow"><input class="pf-in" type="text" data-newspot placeholder="New spot, for example Top shelf" maxlength="24" aria-label="New spot name"><button type="button" class="pf-btn" data-act="addspot">'+ic("plus",18)+' Add</button></div></div>'
+  +'<div><span class="pf-lbl">Order</span>'+orderRow(i+1,n)+'</div>'
+  +(isNew?'':'<div class="pf-danger"><b>Remove this location</b><p class="pf-small">Its '+plural(locCount(l),"item")+' move to the location you pick. Its spots stay as spots there; the same names merge.</p>'+moveSel(others,"Pick a location…")+rmBtn("rmloc","Move "+plural(locCount(l),"item"))+'</div>');
+ var foot=isNew?'<button type="button" class="pf-btn" data-flyclose>Cancel</button><button type="button" class="pf-btn pri" data-act="commitloc"'+(nm.trim()?'':' disabled')+'>Add location</button>':null;
+ return flyShell(isNew?'<span data-flytitle>'+(esc(nm)||'New location')+'</span>':(l[3]?esc(l[3])+' ':'')+'<span data-flytitle>'+esc(nm)+'</span>',"Kitchen setup › Locations and spots › "+(isNew?"Add location":"Edit location"),body,foot,(isNew?"Add location":"Edit location "+nm))}
 function spotFly(ref){
  var r=spot(ref);if(!r||!r.s)return "";var l=r.l,s=r.s,i=l[2].indexOf(s),others=[];
  LOCS.forEach(function(x){x[2].forEach(function(y){if(y!==s)others.push([x[0]+"."+y[0],x[1]+", "+y[1]])})});
@@ -96,16 +105,16 @@ function spotFly(ref){
   +'<label class="pf-field"><span class="pf-lbl">Lives in</span><select class="pf-in" aria-label="Lives in">'+LOCS.map(function(x){return '<option'+(x===l?' selected':'')+'>'+esc(x[1])+'</option>'}).join("")+'</select><span class="pf-small pf-hint2">Moving it takes its items with it.</span></label>'
   +'<div><span class="pf-lbl">Order in '+esc(l[1])+'</span>'+orderRow(i+1,l[2].length)+'</div>'
   +'<div class="pf-danger"><b>Remove or merge</b><p class="pf-small">Pick where its '+plural(s[2],"item")+' go. Picking an existing spot merges the two.</p>'+moveSel(others,"Pick a spot…")+rmBtn("rmspot","Move "+plural(s[2],"item"))+'</div>';
- return flyShell(esc(s[1]),"Locations and spots › "+esc(l[1]),body,null,"Edit spot "+s[1])}
+ return flyShell(esc(s[1]),"Locations and spots › "+esc(l[1]),body,'<button type="button" class="pf-btn" data-sel="loc:'+l[0]+'">'+ic("back",16)+' '+esc(l[1])+'</button><button type="button" class="pf-btn pri" data-flyclose>Done</button>',"Edit spot "+s[1])}
 
 /* ---------- phone and tablet: rows that open in place under themselves ---------- */
 var ACCL={cats:"Categories",locs:"Locations and spots",install:"Install Kitchie"};
 function accHead(key,icon,title,sub,open){return '<button type="button" class="pf-item pf-acch" data-acc="'+key+'" aria-expanded="'+open+'" aria-controls="pf-acc-'+key+'"><span class="pf-ico">'+ic(icon,18)+'</span><span class="pf-t">'+title+'<small>'+sub+'</small></span><span class="pf-chev pf-rot">'+ic("chev",18)+'</span></button>'}
 function accs(m){
- var a=m.acc;
+ var a=m.acc;if(m.sel!=="loc:new")resetNew();
  function panel(key,inner){return '<div class="pf-accp" id="pf-acc-'+key+'" role="region" aria-label="'+ACCL[key]+'"'+(a===key?'':' hidden')+'>'+(a===key?inner:'')+'</div>'}
  var cats='<ul class="pf-list pf-picks">'+catRows()+'</ul><div><button type="button" class="pf-btn" data-act="addcat">'+ic("plus",18)+' Add a category</button></div>';
- var locs=LOCS.map(locBlock).join("")+'<div><button type="button" class="pf-btn" data-act="addloc">'+ic("plus",18)+' Add a location</button></div>';
+ var locs=locRows()+locAdd();
  return '<div><span class="pf-lbl">Kitchen setup</span><ul class="pf-list pf-acc">'
   +'<li>'+accHead("cats","tag","Categories",CATS.length+" categories",a==="cats")+panel("cats",cats)+'</li>'
   +'<li>'+accHead("locs","pin","Locations and spots",plural(LOCS.length,"location")+", "+plural(LOCS.reduce(function(n,l){return n+l[2].length},0),"spot"),a==="locs")+panel("locs",locs)+'</li></ul>'
@@ -126,17 +135,13 @@ function prow(scope,r,sel,csel){
  return '<li><button type="button" class="pf-item" '+(csel?'data-csel="'+id+'"':'data-sel="pref:'+id+'"')+' aria-pressed="'+(sel===id)+'"><span class="pf-t">'+esc(r[1])+'<small><b class="pf-val">'+esc(r[2])+'</b>'+(r[4]?' · '+esc(r[4]):'')+'</small></span>'+(r[3]?chip(r[3]):'')+'<span class="pf-chev">'+ic("chev",18)+'</span></button></li>'}
 function plist(scope,data,sel,csel){return data.map(function(g){return '<div><span class="pf-lbl">'+g[0]+'</span><ul class="pf-list pf-picks">'+g[1].map(function(r){return prow(scope,r,sel,csel)}).join("")+'</ul></div>'}).join("")}
 function isAdmin(m){return m.as!=="sam"}
-function members(m){return '<p class="pf-small pf-intro">Only the founding member grants or removes admin. Admins change the household’s values.</p><ul class="pf-list"><li><div class="pf-ev"><span class="pf-ini me" aria-hidden="true">A</span><span class="pf-t">arjan <span class="pf-chip acc">Founding member</span><small>Always an admin</small></span></div></li><li><div class="pf-ev"><span class="pf-ini" aria-hidden="true">S</span><span class="pf-t">sam <span class="pf-chip">Member</span><small>Can change their own preferences</small></span>'+(m.as!=="sam"?'<button type="button" class="pf-btn sm" data-toast="Mockup: sam is now an admin">Make admin</button>':'')+'</div></li></ul>'}
 function pbar(m){return '<p class="pf-small pf-intro">You are viewing as <b>'+(isAdmin(m)?"Arjan, the founding member and an admin":"Sam, a member")+'</b>.'+(isAdmin(m)?"":" The household’s values are read-only for you.")+'</p>'}
 function cellBtn(m,scope,rr,rid,label,lock,sel){
  var on=rr&&sel===scope+":"+rr[0];
  return '<button type="button" class="pf-cell'+(rr?'':' empty')+'" '+(rr?'data-sel="pref:'+scope+':'+rr[0]+'"':'data-toast="Mockup: '+(scope==="hh"?(isAdmin(m)?"this would set a household value":"only an admin can set a household value"):"this would set your own value")+'"')+' aria-pressed="'+(!!on)+'"><span class="pf-cell-l">'+label+(lock?' '+ic("lock",12):'')+'</span><b>'+(rr?esc(rr[2]):'Not set')+'</b><small>'+(rr?esc(rr[4]):'Nobody has chosen')+'</small>'+(rr&&!(scope==="hh"&&rr[3]==="hh")?chip(rr[3]):'')+'</button>'}
 function prefsPane(m){
  var o=m.pref,sel=m.sel&&m.sel.replace(/^pref:/,"");
- if(o==="a"){
-  var sc=m.psub||"mine";
-  if(sc==="members")return members(m);
-  return pbar(m)+(sc==="mine"?'<p class="pf-small pf-intro">What you have chosen for yourself, and where everything else comes from.</p>'+plist("me",MINE,sel):'<p class="pf-small pf-intro">The kitchen’s own list. '+(isAdmin(m)?"You are an admin, so you can change these.":"Only an admin can change these.")+'</p>'+plist("hh",HH,sel))}
+ if(o==="a")return window.KProfilePrefs.pane(m);
  if(o==="b"){
   var groups=[0,1].map(function(gi){
    var mine=MINE[gi][1],hh=HH[gi][1],ids=mine.map(function(r){return r[0]});hh.forEach(function(r){if(ids.indexOf(r[0])<0)ids.push(r[0])});
@@ -174,7 +179,8 @@ function prefFly(m){
  return flyShell(esc(r[1]),id.split(":")[0]==="me"?"Mine":"Household",'<div class="pf-ed">'+prefEditor(m,id,true)+'</div>','<button type="button" class="pf-btn" data-flyclose>Close</button>',"Edit "+r[1])}
 function footCtl(m){
  if(narrow())return "";var o=m.pref||"today";
- return '<span class="pf-mock pf-mockf"><span>Mockup only. Layout</span><span class="pf-seg" role="radiogroup" aria-label="Preferences layout">'+[["today","Today"],["a","A"],["b","B"],["c","C"]].map(function(x){return '<button type="button" role="radio" aria-checked="'+(o===x[0])+'" data-pref="'+x[0]+'">'+x[1]+'</button>'}).join("")+'</span><span>Viewing as</span><span class="pf-seg" role="radiogroup" aria-label="Viewing as">'+[["arjan","Arjan (admin)"],["sam","Sam"]].map(function(x){return '<button type="button" role="radio" aria-checked="'+(m.as===x[0])+'" data-as="'+x[0]+'">'+x[1]+'</button>'}).join("")+'</span></span>'}
+ var chg=o==="a"?'<span>Changed since last seen</span><span class="pf-seg" role="radiogroup" aria-label="Household changes since last seen, three ways to show it">'+[["0","None"],["1","1 Badge"],["2","2 Dot"],["3","3 Summary"]].map(function(x){return '<button type="button" role="radio" aria-checked="'+((m.chg||"1")===x[0])+'" data-chg="'+x[0]+'">'+x[1]+'</button>'}).join("")+'</span>':"";
+ return '<span class="pf-mock pf-mockf"><span>Mockup only. Layout</span><span class="pf-seg" role="radiogroup" aria-label="Preferences layout">'+[["today","Today"],["a","A"],["b","B"],["c","C"]].map(function(x){return '<button type="button" role="radio" aria-checked="'+(o===x[0])+'" data-pref="'+x[0]+'">'+x[1]+'</button>'}).join("")+'</span>'+chg+'<span>Viewing as</span><span class="pf-seg" role="radiogroup" aria-label="Viewing as">'+[["arjan","Arjan (admin)"],["sam","Sam"]].map(function(x){return '<button type="button" role="radio" aria-checked="'+(m.as===x[0])+'" data-as="'+x[0]+'">'+x[1]+'</button>'}).join("")+'</span></span>'}
 
 /* ---------- the module's face ---------- */
 function fly(m){
@@ -182,18 +188,21 @@ function fly(m){
  if(/^cat:/.test(s))return catFly(s.slice(4));
  if(/^loc:/.test(s))return locFly(s.slice(4));
  if(/^spot:/.test(s))return spotFly(s.slice(5));
+ if(/^a:/.test(s))return window.KProfilePrefs?window.KProfilePrefs.fly(m):"";
  if(/^pref:/.test(s))return prefFly(m);
  return ""}
 
 function liveName(ref,val){
  var kind=ref.split(":")[0],id=ref.slice(kind.length+1);
+ if(kind==="loc"&&id==="new"){NEWLOC.name=val;var b=$('[data-act="commitloc"]');if(b)b.disabled=!val.trim();$$("[data-flytitle]").forEach(function(n){n.textContent=val.trim()||"New location"});return}
  if(!val)return;
  if(kind==="cat"){var c=cat(id);if(c)c[2]=val}
  else if(kind==="loc"){var l=loc(id);if(l)l[1]=val}
  else{var r=spot(id);if(r&&r.s)r.s[1]=val}
  $$('[data-sel="'+kind+":"+id+'"] .pf-name').forEach(function(n){n.textContent=val});
  $$("[data-flytitle]").forEach(function(n){n.textContent=val})}
-document.addEventListener("input",function(e){var t=e.target;if(t&&t.dataset&&t.dataset.rename)liveName(t.dataset.rename,t.value)});
+document.addEventListener("input",function(e){var t=e.target;if(!t||!t.dataset)return;if(t.dataset.rename)liveName(t.dataset.rename,t.value);
+ else if(t.dataset.icon){var id=t.dataset.icon.slice(4),v=t.value.trim();if(id==="new")NEWLOC.icon=v;else{var l=loc(id);if(l){l[3]=v;$$('[data-sel="loc:'+id+'"] .pf-ico').forEach(function(n){n.innerHTML=v?'<span class="pf-emo" aria-hidden="true">'+esc(v)+'</span>':ic("pin",18)})}}}});
 document.addEventListener("change",function(e){
  var t=e.target;if(!t||!t.matches||!t.matches("select[data-mv]"))return;
  var b=t.parentNode.querySelector("button[data-act^=rm]");if(!b)return;
@@ -202,6 +211,8 @@ document.addEventListener("change",function(e){
 
 function click(m,el,H){
  var a=el.dataset.act;
+ if(window.KProfilePrefs&&window.KProfilePrefs.click(m,el,H))return true;
+ if(el.dataset.chg!==undefined){m.chg=el.dataset.chg;m.sel=null;H.paint(m,false,'[data-chg="'+el.dataset.chg+'"]');return true}
  if(el.dataset.ib){m.os=el.dataset.ib;m.idone=false;H.paint(m,false,'[data-ib="'+el.dataset.ib+'"]');return true}
  if(el.dataset.imob){m.os=el.dataset.imob;H.paint(m,false,'[data-imob="'+el.dataset.imob+'"]');return true}
  if(el.dataset.as){m.as=el.dataset.as;m.sel=null;H.paint(m,false,'[data-as="'+el.dataset.as+'"]');return true}
@@ -212,9 +223,22 @@ function click(m,el,H){
  if(el.dataset.inst==="copy"){H.toast("Mockup: address copied. Paste it into Chrome, Edge or Safari.");return true}
  if(el.dataset.inst==="mdone"){m.acc=null;H.paint(m,false,'[data-acc="install"]');H.toast("Added. See you on the home screen.");return true}
  if(a==="addcat"){H.toast("Mockup: a new row appears here, ready to name");return true}
- if(a==="addloc"){H.toast("Mockup: a new location appears here, ready to name");return true}
- if(a==="addspot"){H.toast("Mockup: the spot is added to this location");return true}
+ if(a==="addspot"){
+  var inp=H.$("[data-newspot]",m.frame),nmv=inp&&inp.value.trim();
+  if(!nmv){H.toast("Type a name for the spot first");if(inp)inp.focus();return true}
+  var isn=m.sel==="loc:new",tl=isn?NEWLOC:loc((m.sel||"").slice(4));
+  var sp0=isn?tl.spots:tl[2];
+  if(sp0.some(function(x){return x[1].toLowerCase()===nmv.toLowerCase()})){H.toast("That location already has a spot called "+nmv);return true}
+  sp0.push([nmv.toLowerCase().replace(/[^a-z0-9]+/g,"")||"spot"+sp0.length,nmv,0]);
+  H.paint(m,false,"[data-newspot]");H.toast("Added "+nmv+(isn?" to the new location":""));return true}
+ if(a==="commitloc"){
+  if(!NEWLOC.name.trim())return true;
+  if(LOCS.some(function(x){return x[1].toLowerCase()===NEWLOC.name.trim().toLowerCase()})){H.toast("There is already a location called "+NEWLOC.name.trim());return true}
+  var nid=NEWLOC.name.trim().toLowerCase().replace(/[^a-z0-9]+/g,"")||"loc"+LOCS.length,nl=[nid,NEWLOC.name.trim(),NEWLOC.spots,NEWLOC.icon];
+  LOCS.splice(NEWLOC.pos===null?LOCS.length:NEWLOC.pos,0,nl);
+  var nmn=nl[1];resetNew();m.sel=null;H.paint(m,false,'[data-sel="loc:'+nid+'"]');H.toast("Added "+nmn+". Undo");return true}
  if(a==="earlier"||a==="later"){
+  if(m.sel==="loc:new"){var cur=NEWLOC.pos===null?LOCS.length:NEWLOC.pos;NEWLOC.pos=Math.max(0,Math.min(LOCS.length,cur+(a==="earlier"?-1:1)));H.paint(m,false,'[data-act="'+a+'"]');return true}
   var s=m.sel||"",k=s.split(":")[0],id=s.slice(k.length+1),r0=k==="spot"?spot(id):null,arr=k==="cat"?CATS:k==="loc"?LOCS:(r0?r0.l[2]:[]),it=k==="cat"?cat(id):k==="loc"?loc(id):(r0?r0.s:null),i=arr.indexOf(it),j=a==="earlier"?i-1:i+1;
   if(i<0||j<0||j>=arr.length)return true;
   arr.splice(i,1);arr.splice(j,0,it);
@@ -231,5 +255,5 @@ function click(m,el,H){
  return false}
 /* An open row on a phone or tablet is brought to the top of the page once, so a link to it shows it. */
 function after(m){if(m.view==='settings'&&narrow()&&m.acc&&m._sc!==m.acc&&!m.sel){m._sc=m.acc;var h=$('[data-acc="'+m.acc+'"]',m.frame);if(h&&h.scrollIntoView)h.scrollIntoView({block:'start'})}}
-window.KProfileSubs={pane:subPane,fly:fly,accs:accs,prefsPane:prefsPane,footCtl:footCtl,click:click,after:after};
+window.KProfileSubs={shell:flyShell,pane:subPane,fly:fly,accs:accs,prefsPane:prefsPane,footCtl:footCtl,click:click,after:after};
 })();
