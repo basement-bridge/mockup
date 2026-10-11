@@ -59,7 +59,7 @@ function useOne() {
   IEF.toast(esc(it.name) + ": " + esc(IEF.qtyText(it) || "Out") + " left.", s);
 }
 document.addEventListener("keydown", function (e) {
-  var t = e.target, typing = t.closest && t.closest("input,textarea,select,[contenteditable]");
+  var t = e.target, typing = t.closest && t.closest("input,textarea,select,[contenteditable],.ef-ep");
   if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
     e.preventDefault(); if (!$("#ief-help").hidden) { help(false); return; }
     IEF.closeTop(); return;

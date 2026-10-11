@@ -1,5 +1,5 @@
 /* Item edit flyout: shared core. No size rules in this file (DESIGN.md section 7): everything that differs by screen size lives in phone.* , tablet.css and desktop*.* .
-   Holds the sample items, the item flyout's header, tiles and actions, the nested child frame (Edit, History), Add mode, the history log of edits made here, the toast and the URL state.
+   Holds the sample items, the item flyout's header (with its emoji tile), tiles, the conditional "How much to buy" and the actions, the nested child frame (Edit, History), Add mode, the history log of edits made here, the toast and the URL state.
    The form (form.js) and the History view (history.js) are fetched on first use, not on page load (DESIGN.md section 6). Exactly one host file is fetched: phone.js below 1024px, desktop.js from 1024px.
    Sample data only, nothing is stored. Today is fixed at Sat 10 Oct 2026 so the dates in the sample never drift. */
 (function () {
@@ -76,6 +76,26 @@ IEF.qtyChanged = function (it, was) { if (it.amount !== null && was !== null && 
 IEF.autoAgain = function (it) { it.lvSet = null; };
 var round2 = IEF.round2 = function (n) { return Math.round(n * 100) / 100; };
 var qtyText = IEF.qtyText = function (it) { return it.amount !== null ? round2(it.amount) + (it.unit ? " " + it.unit : "") : it.text; };
+/* ---------- How much to buy (decisions 99, 103 to 105; the item flyout only, not the edit form) ----------
+   Shown only while the item's level is Running low or Out (calculated or hand-set: the one shared level() above) and it is not already on the list. It never decides anything: it is a number or some words for the explicit "Add to shopping" tap.
+   Weighed or counted (a number, 0 included): a stepper in the item's own unit. Decision 99: with a minimum the target is TWICE the minimum and the box starts at the DELTA to reach it; at or over the target one step; Out starts at the whole target. No minimum: what you have now (the amount, else the amount before it ran out, else 1).
+   No exact quantity (nothing, or words like "a big handful"): the own-words box. The level is never an input to the amount (decision 101). */
+var stepOf = function (it) { return counted(it) ? 1 : (IEF.STEP[it.unit] || 1); };
+var targetOf = function (it) { var m = minOf(it); return m > 0 ? round2(2 * m) : 0; };
+/* the amount typed or stepped is kept only while the numbers it was worked out from are the same; a new quantity, minimum or unit starts it again from the default */
+var buySig = function (it) { return [it.amount, it.min, it.unit].join("|"); };
+IEF.buyShows = function (it) { var l = level(it); return (l === "Running low" || l === "Out") && it.list === null; };
+IEF.buyVal = function (it) {
+  if (it.buy != null && it.buySig === buySig(it)) return it.buy;
+  var t = targetOf(it); if (t > 0) { var d = round2(t - (it.amount > 0 ? it.amount : 0)); return d > 0 ? d : stepOf(it); }
+  return it.amount > 0 ? it.amount : it.prev > 0 ? it.prev : 1;
+};
+IEF.buyText = function (it) { return round2(IEF.buyVal(it)) + (it.unit ? " " + it.unit : ""); };
+IEF.setBuy = function (it, n) { it.buy = n; it.buySig = buySig(it); };
+function buyNote(it) {
+  var t = targetOf(it), u = it.unit ? " " + esc(it.unit) : "";
+  return t > 0 ? (t > (it.amount > 0 ? it.amount : 0) ? "Starts at what tops you up to twice your minimum (" + t + u + ")." : "You already have twice your minimum, so it starts at one step.") : "Starts from what you have.";
+}
 IEF.cur = function () { return ITEMS.filter(function (i) { return i.id === IEF.S.sel; })[0] || null; };
 /* the item the open form edits: the item itself, or the draft in Add mode */
 IEF.target = function () { return IEF.S.mode === "add" ? IEF.draft : IEF.cur(); };
@@ -158,9 +178,14 @@ function ib(act, label, icon) {
   return '<button type="button" class="ib' + (on ? " on" : "") + '" data-ief="' + act + '" aria-label="' + label + '" aria-expanded="' + on + '" aria-controls="ief-child" aria-keyshortcuts="' + (act === "edit" ? "E" : ",") + '" title="' + label + (hk(act) ? " (" + hk(act) + ")" : "") + '">' + sv(icon, "", 20) + kbd(act, "cap") + "</button>";
 }
 IEF.closeBtn = function (label, attr) { return '<button type="button" class="x ib" ' + (attr || 'data-ief="closechild"') + ' aria-label="' + label + '" title="' + label + '">' + sv(IC.x, "", 20) + "</button>"; };
+/* the emoji tile in the header (decision 106): the emoji when set, a dashed "+" tile when none. It opens the same picker as the edit form (emoji.js, fetched on the first tap) and saves through IEF.saveEmoji. */
+IEF.sheetEmo = false;
+IEF.emoTileHtml = function (it) {
+  return '<button type="button" class="ph' + (it.emoji ? "" : " empty") + '" id="ief-emo" data-ief="sheetemoji" aria-expanded="' + IEF.sheetEmo + '" aria-controls="ief-emojis" aria-label="' + (it.emoji ? "Emoji " + it.emoji + ". Change it" : "Add an emoji") + '" title="' + (it.emoji ? "Change the emoji" : "Add an emoji") + '">' + (it.emoji ? it.emoji : sv(IC.plus, "", 22)) + "</button>";
+};
 IEF.headHtml = function (it) {
   var q = qtyText(it), out = level(it) === "Out", sp = it.spot && it.spot !== "Anywhere" ? " · " + esc(it.spot) : "";
-  return '<span class="ph" aria-hidden="true">' + (it.emoji || "🍽️") + '</span><div class="sid"><h2 class="nm2" title="' + esc(it.name) + '">' + esc(it.name) + "</h2>" + (q || out ? '<span class="shq">' + (out ? "Out" : esc(q)) + "</span>" : "") + (it.area ? '<span class="shw"><b>' + esc(it.area) + "</b>" + sp + "</span>" : "") + (it.list !== null ? '<span class="onl">On your list</span>' : "") + "</div>"
+  return IEF.emoTileHtml(it) + '<div class="sid"><h2 class="nm2" title="' + esc(it.name) + '">' + esc(it.name) + "</h2>" + (q || out ? '<span class="shq">' + (out ? "Out" : esc(q)) + "</span>" : "") + (it.area ? '<span class="shw"><b>' + esc(it.area) + "</b>" + sp + "</span>" : "") + (it.list !== null ? '<span class="onl">On your list</span>' : "") + "</div>"
     + '<div class="hacts" role="group" aria-label="Item actions">' + ib("edit", "Edit item", IC.edit) + ib("history", "History", IC.history) + IEF.closeBtn("Close", 'data-ief="closeitem"') + "</div>";
 };
 IEF.tilesHtml = function (it) {
@@ -185,21 +210,28 @@ IEF.actsHtml = function (it) {
   return (out ? '<button type="button" class="btn ghost" disabled>' + sv(IC.tick, "", 20) + "<span>Marked Out</span></button>" : '<button type="button" class="btn ghost" data-ief="usedup">' + sv(IC.tick, "", 20) + "<span>Used up</span>" + kbd("used") + "</button>")
     + (it.list !== null ? '<button type="button" class="btn ghost" disabled>' + sv(IC.tick, "", 20) + "<span>On your list</span></button>" : '<button type="button" class="btn pri" data-ief="shopquick">' + sv(IC.cart, "", 20) + "<span>Add to shopping</span>" + kbd("shop") + "</button>");
 };
+/* "How much to buy" (decisions 103 to 105): above the buttons, only at Running low or Out. A number stepper in the item's unit, or the own-words box when there is no exact quantity. */
+IEF.buyHtml = function (it) {
+  if (!IEF.buyShows(it)) return "";
+  if (it.amount === null) return '<div class="sbuy" id="ief-buy"><label class="sb-f"><span class="ef-l">How much to buy (optional, in your own words)</span><input class="ef-in" data-buy="words" value="' + esc(it.buyWords || "") + '" placeholder="1 kg, a packet, 3" maxlength="60" autocomplete="off" enterkeyhint="done"></label></div>';
+  function sb(d, label, ic) { return '<button type="button" data-ief="buystep" data-d="' + d + '" aria-label="' + label + '">' + sv(ic, "", 20) + "</button>"; }
+  return '<div class="sbuy" id="ief-buy"><span class="ef-l" id="ief-buyl">How much to buy</span><div class="ef-row"><div class="ef-step" role="group" aria-labelledby="ief-buyl">' + sb(-1, "Buy less", IC.minus) + '<input class="ef-num" data-buy="num" inputmode="decimal" value="' + round2(IEF.buyVal(it)) + '" aria-label="How much to buy" autocomplete="off">' + sb(1, "Buy more", IC.plus) + "</div>" + (it.unit ? '<span class="ef-unit">' + esc(it.unit) + "</span>" : "") + '</div><p class="ef-note">' + buyNote(it) + "</p></div>";
+};
 /* the shortcut part: the pattern is key, then a lower-case label, for every key. Edit keeps E, History is the comma. */
 IEF.hintHtml = function (it) {
   if (!hk("edit")) return "";
   return '<p class="phint" id="ief-hint">' + (counted(it) ? '<span class="kbd">U</span> use one ' : "") + '<span class="kbd">D</span> used up <span class="kbd">S</span> shopping list <span class="kbd">E</span> edit <span class="kbd">,</span> history</p>';
 };
 IEF.parentInner = function (it) {
-  return '<span class="grab" data-grab aria-hidden="true"></span><div class="top shead" id="ief-head" data-ief="strip">' + IEF.headHtml(it) + '</div><div class="tiles tiles4" id="ief-tiles">' + IEF.tilesHtml(it) + '</div><div class="sacts" id="ief-acts">' + IEF.actsHtml(it) + '</div><div id="ief-hintw">' + IEF.hintHtml(it) + "</div>";
+  return '<span class="grab" data-grab aria-hidden="true"></span><div class="top shead" id="ief-head" data-ief="strip">' + IEF.headHtml(it) + '</div><div class="tiles tiles4" id="ief-tiles">' + IEF.tilesHtml(it) + '</div><div class="sbuyw" id="ief-buyw">' + IEF.buyHtml(it) + '</div><div class="sacts" id="ief-acts">' + IEF.actsHtml(it) + '</div><div id="ief-hintw">' + IEF.hintHtml(it) + '</div><div class="ef-ep" id="ief-emojis" role="group" aria-label="Pick an emoji" hidden></div>';
 };
 IEF.emptyHtml = function () { return '<div class="pick"><p>Pick an item to see it here.</p><p class="phint">' + (hk("edit") ? '<span class="kbd">&uarr;</span> <span class="kbd">&darr;</span> to move, <span class="kbd">?</span> for all shortcuts' : "") + "</p></div>"; };
 /* re-draw only what an edit can change in the item flyout, so nothing under the pointer or focus is replaced */
 IEF.syncParent = function () {
   var it = IEF.cur(); if (!it || S.mode === "add") return;
-  var h = $("#ief-head"), t = $("#ief-tiles"), a = $("#ief-acts"), k = $("#ief-hintw");
+  var h = $("#ief-head"), t = $("#ief-tiles"), a = $("#ief-acts"), k = $("#ief-hintw"), b = $("#ief-buyw");
   var f = document.activeElement, keep = f && f.dataset && f.dataset.ief && h && h.contains(f) ? f.dataset.ief : null;
-  if (h) h.innerHTML = IEF.headHtml(it); if (t) t.innerHTML = IEF.tilesHtml(it); if (a) a.innerHTML = IEF.actsHtml(it); if (k) k.innerHTML = IEF.hintHtml(it);
+  if (h) h.innerHTML = IEF.headHtml(it); if (t) t.innerHTML = IEF.tilesHtml(it); if (a) a.innerHTML = IEF.actsHtml(it); if (b) b.innerHTML = IEF.buyHtml(it); if (k) k.innerHTML = IEF.hintHtml(it);
   if (keep) { var n = $('#ief-head [data-ief="' + keep + '"]'); if (n) n.focus(); }
   IEF.drawList();
 };
@@ -207,8 +239,8 @@ IEF.syncParent = function () {
 IEF.drawPanel = function () {
   var p = $("#ief-panel"), it = IEF.cur();
   attr("open", (S.mode === "add" || it) ? "1" : "");
-  if (S.mode === "add") { p.innerHTML = IEF.childInner("add"); p.dataset.mode = "add"; p.dataset.empty = ""; return; }
-  p.dataset.mode = "item"; p.dataset.empty = it ? "" : "1";
+  if (S.mode === "add") { p.innerHTML = IEF.childInner("add"); p.dataset.mode = "add"; p.dataset.empty = ""; IEF.sheetEmo = false; p.removeAttribute("data-emoji"); return; }
+  p.dataset.mode = "item"; p.dataset.empty = it ? "" : "1"; IEF.sheetEmo = false; p.removeAttribute("data-emoji");
   p.innerHTML = it ? IEF.parentInner(it) : IEF.emptyHtml();
   p.setAttribute("aria-label", it ? it.name : "Item detail");
 };
@@ -237,6 +269,7 @@ function syncIcons() { ["edit", "history"].forEach(function (k) { var b = $('#ie
 IEF.setChild = function (kind, o) {
   o = o || {}; settle();
   if (S.mode === "add" || !IEF.cur()) return;
+  if (IEF.sheetEmo && IEF.emoji) IEF.emoji.open("sheet", false);
   var c = $("#ief-child"), prev = S.child; S.child = kind; S.field = o.field || ""; IEF.from = o.from || IEF.from || null;
   if (!kind) { c.hidden = true; c.innerHTML = ""; attr("child", ""); syncIcons(); IEF.url(); if (IEF.host.childClosed) IEF.host.childClosed(prev); return; }
   c.hidden = false; c.dataset.kind = kind; attr("child", kind);
@@ -327,7 +360,13 @@ function usedUp() {
   it.prev = it.amount; it.amount = it.amount === null ? null : 0; if (it.amount === null) it.level = "Out"; IEF.log(it, "Used up", "", "Used up"); IEF.setChild(null); IEF.syncParent();
   IEF.toast(esc(it.name) + " is marked Out. It is in History.", s);
 }
-function shopQuick() { var it = IEF.cur(); if (!it || it.list !== null) return; var s = IEF.snap(); it.list = ""; IEF.log(it, "Shopping list", "not on it", "on it"); IEF.syncParent(); if (S.child === "edit" && IEF.form) IEF.form.refreshShop(); IEF.toast(esc(it.name) + " is on your shopping list.", s); }
+/* Add to shopping: at Plenty or Some it adds exactly as it always did (no amount). At Running low or Out it adds with the amount in the "How much to buy" control (a number in the item's unit, or the person's own words). Always an explicit tap; the level alone never adds anything (101). */
+function shopQuick() {
+  var it = IEF.cur(); if (!it || it.list !== null) return; var s = IEF.snap(), val = "";
+  if (IEF.buyShows(it)) val = it.amount !== null ? IEF.buyText(it) : String(it.buyWords || "").trim();
+  it.list = val; it.buyWords = ""; IEF.log(it, "Shopping list", "not on it", val || "on it"); IEF.syncParent();
+  IEF.toast(esc(it.name) + " is on your shopping list" + (val ? ": " + esc(val) : "") + ".", s);
+}
 IEF.usedUp = usedUp; IEF.shopQuick = shopQuick;
 IEF.act = {
   open: function (el) { IEF.openItem(el.dataset.id, { from: el }); },
@@ -337,6 +376,12 @@ IEF.act = {
   closeitem: function () { IEF.closeItem(); },
   tile: function (el) { IEF.setChild("edit", { field: el.dataset.k, from: el }); },
   usedup: usedUp, shopquick: shopQuick,
+  buystep: function (el) {
+    var it = IEF.cur(); if (!it) return; var n = Math.max(0, round2(IEF.buyVal(it) + (+el.dataset.d) * stepOf(it)));
+    IEF.setBuy(it, n); var i = $('[data-buy="num"]'); if (i) i.value = n;
+  },
+  /* the picker takes the place of the tiles and buttons, so a child (Edit, History) that is open steps back first: one thing at a time in the item flyout (decision 107) */
+  sheetemoji: function () { if (S.child) IEF.closeChild(false); IEF.need("emoji.js", function () { IEF.emoji.toggle("sheet"); }); },
   add: function () { IEF.startAdd(); },
   addcancel: function () { IEF.cancelAdd(); },
   undo: function () { IEF.undo(); },
@@ -349,9 +394,32 @@ document.addEventListener("click", function (e) {
   var f = IEF.act[el.dataset.ief]; if (f && !el.disabled) { if (el.tagName === "BUTTON") e.preventDefault(); f(el, e); }
 });
 
+/* the "How much to buy" boxes keep what is typed (nothing is saved until Add to shopping). A bad number is shown, not kept. */
+document.addEventListener("input", function (e) {
+  var i = e.target.closest && e.target.closest("[data-buy]"); if (!i) return; var it = IEF.cur(); if (!it) return;
+  if (i.dataset.buy === "words") { it.buyWords = i.value; return; }
+  var n = String(i.value).trim().replace(",", "."), v = n === "" ? NaN : +n, w = i.closest(".sbuy"), er = w && w.querySelector(".ef-err");
+  if (!(v >= 0) || !isFinite(v)) { if (w && !er) { er = document.createElement("p"); er.className = "ef-err"; er.setAttribute("role", "alert"); w.appendChild(er); } if (er) er.innerHTML = sv(IC.alert, "", 18) + "<span>Use a number from 0 up.</span>"; return; }
+  if (er) er.remove(); IEF.setBuy(it, v);
+});
+/* ---------- saving the emoji from the item flyout (decision 106): the same change the edit form makes, the same History line ---------- */
+IEF.saveEmoji = function (e) {
+  var it = IEF.cur(); if (!it || S.mode === "add") return false;
+  if (S.down) { IEF.toast("Not saved. We can't reach the platform."); return false; }
+  var s = IEF.snap(), before = it.emoji || "not set"; it.emoji = e || ""; IEF.log(it, "Emoji", before, it.emoji || "not set"); IEF.say("Saved"); IEF.syncParent();
+  IEF.toast(esc(it.name) + (it.emoji ? ": emoji is " + it.emoji + "." : ": emoji removed."), s);
+  return true;
+};
+
 /* ---------- boot: fetch the one host file for this size, draw the page, then apply the state in the URL ---------- */
 function boot() {
   var h = IEF.host;
+  /* ?lv=Running low (or Some, Plenty, Out) sets that level on the selected item before it is drawn, so every level can be linked to. Demo only, like the sample data. */
+  var lv0 = Q.get("lv"), it0 = lv0 && S.sel ? IEF.cur() : null;
+  if (it0 && IEF.LEVELS.indexOf(lv0) > -1) {
+    if (lv0 === "Out") { if (it0.amount !== null) { if (it0.amount > 0) it0.prev = it0.amount; it0.amount = 0; } else it0.level = "Out"; }
+    else if (IEF.auto(it0)) it0.lvSet = lv0; else it0.level = lv0;
+  }
   $("#root").innerHTML = h.shell({ list: IEF.listHtml() });
   IEF.drawPanel(); attr("hint", S.hint);
   if (S.mode === "add") { IEF.startAdd(); }
