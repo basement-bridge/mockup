@@ -31,10 +31,11 @@ var P={
 };
 var ic=function(n,c){return '<svg viewBox="0 0 24 24" aria-hidden="true"'+(c?' class="'+c+'"':'')+'>'+(P[n]||"")+'</svg>'};
 
-/* ---------- sample world (Sun 11 Oct 2026, 9:15 am) ---------- */
+/* ---------- sample world (Sun 11 Oct 2026, 9:15 am) ----------
+   Activity runs Sun 11, Sat 10, (quiet Fri 9: no entries), Thu 8, then Wed 7 and Tue 6 which the cap must NOT show. Offsets d: 0,1,3 shown; 2 has no entry; 5+ are beyond the third active day. */
 var NOW=9*60+15;
 var LASTV={wed:{v:-4*1440+18*60+40,t:"Wed 7 Oct, 6:40 pm"},sat:{v:-1440+18*60+40,t:"Sat 10 Oct, 6:40 pm"}};
-var CAP=2; /* H6: three days = today and the two days before (Proposal: calendar days, not 72 hours) */
+var CAPDAYS=3; /* H6 (owner, voice, 12 Oct 2026: "calendar days, so long as there was a change"): the feed shows the three most recent calendar days that each had at least one change. Quiet days are skipped when counting, so this is neither a rolling 72 hours nor the last three calendar days. capD() below turns it into a day offset. */
 var PEOPLE={arjan:{n:"Arjan",i:"A",admin:1},sam:{n:"Sam",i:"S"}};
 /* actor = a person (H10). An assistant's action is stored under the person it acted for. "shop" is the one-off shopper link: a visitor, not an assistant. */
 var ACT={arjan:{n:"Arjan",i:"A",k:"person"},sam:{n:"Sam",i:"S",k:"person"},shop:{n:"Shopper link",i:"L",k:"visitor"}};
@@ -54,27 +55,27 @@ var EV=[
 {id:"e9",d:1,t:"12:10",w:"arjan",x:"put *Soy sauce* on the shopping list",ar:"Shopping",app:"kitchie",sc:"h",go:"item:soy",aff:{sam:"Soy sauce is on the list. You corrected its amount on Wednesday."}},
 {id:"e10",d:1,t:"09:30",w:"sam",x:"voted up *Lemon dal*",ar:"Stars and votes",app:"recipe",sc:"p",o:"sam",go:"recipe:dal"},
 {id:"e11",d:1,t:"09:28",w:"sam",x:"changed a personal preference: less coriander",ar:"Preferences",app:"kitchie",sc:"p",o:"sam",go:"all:"},
-{id:"e12",d:2,t:"20:15",w:"arjan",x:"cooked *Lemon dal*, used 3 items",ar:"Cooking",app:"kitchie",sc:"h",go:"recipe:dal"},
-{id:"e13",d:2,t:"18:05",w:"arjan",x:"edited *Lemon dal*: more lemon",ar:"Versions",app:"recipe",sc:"h",go:"recipe:dal"},
-{id:"e14",d:2,t:"11:00",w:"sam",x:"proposed a preference for Arjan: *less spicy at dinner*",ar:"Preferences",app:"kitchie",sc:"p",o:"arjan",to:"arjan",go:"all:",aff:{arjan:"Sam proposed a preference for you: less spicy at dinner. Waiting for you."},act:"Look"},
-{id:"e15",d:2,t:"09:12",w:"arjan",x:"changed the household quiet hours to start at 10 pm",ar:"Preferences",app:"kitchie",sc:"h",go:"all:",aff:{sam:"The household quiet hours now start at 10 pm. Your own setting is unchanged."}},
-{id:"e16",d:3,t:"19:00",w:"arjan",x:"changed the use-by of *Frozen peas* to 14 Oct",ar:"Pantry",app:"kitchie",pl:"Freezer",sc:"h",go:"item:peas"},
-{id:"e17",d:3,t:"17:40",w:"sam",x:"corrected *Red lentils* to 400 g",ar:"Pantry",app:"kitchie",pl:"Pantry",sc:"h",go:"item:lentils"},
-{id:"e18",d:3,t:"14:10",w:"arjan",x:"added *Red lentils, 1 kg* to the shopping list",ar:"Shopping",app:"kitchie",sc:"h",go:"item:lentils"},
-{id:"e19",d:4,t:"21:00",w:"arjan",x:"changed Sam's role to Sous chef",ar:"Household",app:"kitchie",sc:"a",go:"all:"},
-{id:"e20",d:4,t:"18:30",w:"arjan",x:"checked the amount of *Basmati rice*: still about right",ar:"Pantry",app:"kitchie",pl:"Pantry",sc:"h",go:"item:rice"},
-{id:"e21",d:4,t:"12:00",w:"sam",x:"corrected *Eggs* to 6",ar:"Pantry",app:"kitchie",pl:"Fridge",sc:"h",go:"item:eggs"}
+{id:"e12",d:3,t:"20:15",w:"arjan",x:"cooked *Lemon dal*, used 3 items",ar:"Cooking",app:"kitchie",sc:"h",go:"recipe:dal"},
+{id:"e13",d:3,t:"18:05",w:"arjan",x:"edited *Lemon dal*: more lemon",ar:"Versions",app:"recipe",sc:"h",go:"recipe:dal"},
+{id:"e14",d:3,t:"11:00",w:"sam",x:"proposed a preference for Arjan: *less spicy at dinner*",ar:"Preferences",app:"kitchie",sc:"p",o:"arjan",to:"arjan",go:"all:",aff:{arjan:"Sam proposed a preference for you: less spicy at dinner. Waiting for you."},act:"Look"},
+{id:"e15",d:3,t:"09:12",w:"arjan",x:"changed the household quiet hours to start at 10 pm",ar:"Preferences",app:"kitchie",sc:"h",go:"all:",aff:{sam:"The household quiet hours now start at 10 pm. Your own setting is unchanged."}},
+{id:"e16",d:4,t:"19:00",w:"arjan",x:"changed the use-by of *Frozen peas* to 14 Oct",ar:"Pantry",app:"kitchie",pl:"Freezer",sc:"h",go:"item:peas"},
+{id:"e17",d:4,t:"17:40",w:"sam",x:"corrected *Red lentils* to 400 g",ar:"Pantry",app:"kitchie",pl:"Pantry",sc:"h",go:"item:lentils"},
+{id:"e18",d:4,t:"14:10",w:"arjan",x:"added *Red lentils, 1 kg* to the shopping list",ar:"Shopping",app:"kitchie",sc:"h",go:"item:lentils"},
+{id:"e19",d:5,t:"21:00",w:"arjan",x:"changed Sam's role to Sous chef",ar:"Household",app:"kitchie",sc:"a",go:"all:"},
+{id:"e20",d:5,t:"18:30",w:"arjan",x:"checked the amount of *Basmati rice*: still about right",ar:"Pantry",app:"kitchie",pl:"Pantry",sc:"h",go:"item:rice"},
+{id:"e21",d:5,t:"12:00",w:"sam",x:"corrected *Eggs* to 6",ar:"Pantry",app:"kitchie",pl:"Fridge",sc:"h",go:"item:eggs"}
 ];
 var MORE=[
-{id:"m1",d:5,t:"19:20",w:"arjan",x:"cooked *Lemon dal*, used 4 items",ar:"Cooking",app:"kitchie",sc:"h",go:"recipe:dal"},
-{id:"m2",d:5,t:"10:00",w:"sam",x:"added *Green tea* to the Basket",ar:"Pantry",app:"kitchie",pl:"Pantry",sc:"h",go:"item:tea"},
-{id:"m3",d:6,t:"18:00",w:"arjan",x:"saved *Lemon dal* with extra lemon as a try",ar:"Versions",app:"recipe",sc:"h",go:"recipe:dal"},
+{id:"m1",d:6,t:"19:20",w:"arjan",x:"cooked *Lemon dal*, used 4 items",ar:"Cooking",app:"kitchie",sc:"h",go:"recipe:dal"},
+{id:"m2",d:6,t:"10:00",w:"sam",x:"added *Green tea* to the Basket",ar:"Pantry",app:"kitchie",pl:"Pantry",sc:"h",go:"item:tea"},
+{id:"m3",d:7,t:"18:00",w:"arjan",x:"saved *Lemon dal* with extra lemon as a try",ar:"Versions",app:"recipe",sc:"h",go:"recipe:dal"},
 {id:"m4",d:7,t:"09:40",w:"arjan",x:"put *Egg fried rice* version 4 away",ar:"Versions",app:"recipe",sc:"h",go:"recipe:fried-rice"},
-{id:"m5",d:9,t:"20:10",w:"sam",x:"starred *Egg fried rice*",ar:"Stars and votes",app:"recipe",sc:"p",o:"sam",go:"recipe:fried-rice"}
+{id:"m5",d:10,t:"20:10",w:"sam",x:"starred *Egg fried rice*",ar:"Stars and votes",app:"recipe",sc:"p",o:"sam",go:"recipe:fried-rice"}
 ];
 var AREAS=["Pantry","Shopping","Plan","Cooking","Preferences","Versions","Stars and votes","Household"];
 var AREAICON={Pantry:"jar",Shopping:"cart",Plan:"cal",Cooking:"pot",Preferences:"sliders",Versions:"book","Stars and votes":"star",Household:"users"};
-var RANGES=[["3d","Last 3 days"],["today","Today"],["week","7 days"],["month","30 days"]];
+var RANGES=[["3d","Last 3 days with activity"],["today","Today"],["week","7 days"],["month","30 days"]];
 var GROUPS=[["when","When","clock"],["who","Who","users"],["area","Area","jar"],["place","Where","pin"],["app","App","book"],["aff","Touches me","bell"]];
 
 /* ---------- state ---------- */
@@ -99,6 +100,12 @@ function visible(e,p){ /* privacy and scope, D6 to D8 */
  if(e.sc==="a")return !!PEOPLE[p].admin;
  if(e.sc==="p")return e.o===p||e.to===p;
  return false}
+/* H6 cap: the day offset of the third most recent calendar day with a change the viewer can see. Counts active days, never calendar offsets; a quiet day adds nothing, so the feed looks further back until it has three. */
+function capD(){
+ var seen={},days=[];
+ EV.concat(MORE).forEach(function(e){if(visible(e,me())&&!seen[e.d]){seen[e.d]=1;days.push(e.d)}});
+ days.sort(function(a,b){return a-b});
+ return days.length?days[Math.min(CAPDAYS,days.length)-1]:0}
 function pool(){return EV.concat(S.range==="week"||S.range==="month"?MORE:[]).sort(function(a,b){return absMin(b)-absMin(a)})}
 function tabOK(e){
  var p=me();
@@ -116,18 +123,18 @@ function tokOK(e,skip){ /* same filter type = OR, different types = AND */
  var types={};S.toks.forEach(function(t){if(t.t!==skip){(types[t.t]=types[t.t]||[]).push(t)}});
  return Object.keys(types).every(function(k){return types[k].some(function(t){return tokOne(e,t)})})}
 function rangeOK(e){
- if(S.range==="3d")return e.d<=CAP;
+ if(S.range==="3d")return e.d<=capD();
  if(S.range==="today")return e.d===0;
  if(S.range==="week")return e.d<=7;
  return true}
 function list(){return pool().filter(function(e){return visible(e,me())&&tabOK(e)&&tokOK(e)&&rangeOK(e)})}
-function catchAll(){return pool().filter(function(e){return e.d<=CAP&&absMin(e)>S.seen&&visible(e,me())})}
+function catchAll(){return pool().filter(function(e){return e.d<=capD()&&absMin(e)>S.seen&&visible(e,me())})}
 function catchPool(){return catchAll().filter(tabOK)}
 function catchList(){var L=catchPool();return S.aff?L.filter(function(e){return e.aff&&e.aff[me()]}):L}
-function capCut(){return S.seen<-CAP*1440} /* the cap cut the window: last visit is older than the cap */
-function hidden(){var o={};pool().forEach(function(e){if(e.d<=CAP&&e.sc==="p"&&e.o!==me()&&e.to!==me()){var k=e.d+"|"+e.o;o[k]=(o[k]||0)+1}});return o}
+function capCut(){return S.seen<-capD()*1440} /* the cap cut the window: the last visit is older than the start of the third active day */
+function hidden(){var o={};pool().forEach(function(e){if(e.d<=capD()&&e.sc==="p"&&e.o!==me()&&e.to!==me()){var k=e.d+"|"+e.o;o[k]=(o[k]||0)+1}});return o}
 function hiddenTotal(){var H=hidden();return Object.keys(H).reduce(function(s,k){return s+H[k]},0)}
-function hlList(){return EV.filter(function(e){return e.d<=CAP&&absMin(e)>S.seen&&visible(e,me())&&e.aff&&e.aff[me()]}).sort(function(a,b){return absMin(b)-absMin(a)})}
+function hlList(){return EV.filter(function(e){return e.d<=capD()&&absMin(e)>S.seen&&visible(e,me())&&e.aff&&e.aff[me()]}).sort(function(a,b){return absMin(b)-absMin(a)})}
 function shortDay(d){return ["Sun","Sat","Fri","Thu","Wed","Tue","Mon","Sun","Sat","Fri","Thu"][d]}
 function dayLabel(d){var names=["Sun","Sat","Fri","Thu","Wed","Tue","Mon","Sun","Sat","Fri","Thu"];var dn=11-d;
  return {a:d===0?"Today":d===1?"Yesterday":names[d]+" "+dn+" Oct",b:d<2?names[d]+" "+dn+" Oct":""}}
@@ -171,8 +178,8 @@ function dayBlocks(L,byTimeAll){
   out+='</section>'});
  return out}
 function olderLine(){ /* H6 Proposal: the cap cut the window */
- return '<div class="more cap"><p class="capline">'+ic("clock","sm")+'<span>Showing the last 3 days. Search for older.</span></p><button type="button" class="sec2" data-pick>'+ic("sliders","sm")+' Pick a filter <span class="kbd">F</span></button></div>'}
-function skeleton(){var r='<div class="sk"><span class="av"></span><div><i></i><i class="s"></i></div></div>';return '<div aria-busy="true" aria-label="Loading history"><section class="day"><div class="lbl sklbl"><i></i></div><div class="pg">'+r+r+r+'</div></section><p class="note">Fetching the last 3 days, this tab only.</p></div>'}
+ return '<div class="more cap"><p class="capline">'+ic("clock","sm")+'<span>Showing the last 3 days with activity. Search for older.</span></p><button type="button" class="sec2" data-pick>'+ic("sliders","sm")+' Pick a filter <span class="kbd">F</span></button></div>'}
+function skeleton(){var r='<div class="sk"><span class="av"></span><div><i></i><i class="s"></i></div></div>';return '<div aria-busy="true" aria-label="Loading history"><section class="day"><div class="lbl sklbl"><i></i></div><div class="pg">'+r+r+r+'</div></section><p class="note">Fetching the last 3 days with activity, this tab only.</p></div>'}
 function feed(){
  if(S.state==="loading")return skeleton();
  if(S.state==="empty")return emptyState("empty");
@@ -185,15 +192,15 @@ function feed(){
  if(!L.length)return isFiltered()?emptyState("zero"):emptyState(S.tab==="mine"?"mineEmpty":"empty");
  if(!isFiltered()){ /* H7b, H8: the last five, newest first, five in total across pantry, recipes and shopping (Proposal) */
   var shown=L.slice(0,S.n),out='<p class="lastn">'+ic("clock","sm")+'<span>The last '+Math.min(S.n,L.length)+' things, newest first</span></p><div class="pg flatlist">'+shown.map(function(e){return evRow(e,true)}).join("")+'</div>';
-  if(L.length>S.n)out+='<div class="more"><button type="button" class="sec2" data-more>Show more <span class="kbd">M</span></button></div><p class="note">Five at a time, inside the last 3 days.</p>';
-  else out+='<div class="more cap"><p class="capline">'+ic("clock","sm")+'<span>That is all of the last 3 days. Pick a filter to look further back.</span></p><button type="button" class="sec2" data-pick>'+ic("sliders","sm")+' Pick a filter <span class="kbd">F</span></button></div>';
+  if(L.length>S.n)out+='<div class="more"><button type="button" class="sec2" data-more>Show more <span class="kbd">M</span></button></div><p class="note">Five at a time, inside the last 3 days with activity.</p>';
+  else out+='<div class="more cap"><p class="capline">'+ic("clock","sm")+'<span>That is all of the last 3 days with activity. Pick a filter to look further back.</span></p><button type="button" class="sec2" data-pick>'+ic("sliders","sm")+' Pick a filter <span class="kbd">F</span></button></div>';
   return out}
  return dayBlocks(L,true)}
-function rangeName(){return {"3d":"the last 3 days",today:"today",week:"the last 7 days",month:"the last 30 days"}[S.range]}
+function rangeName(){return {"3d":"the last 3 days with activity",today:"today",week:"the last 7 days",month:"the last 30 days"}[S.range]}
 function emptyState(k){
  var m={
   empty:['bowl','A quiet kitchen so far','Add a jar of something or cook a meal and it lands here, with who did it.','<button class="pri" data-act="plain">See a lively kitchen</button>'],
-  mineEmpty:['bowl','Nothing from you in the last 3 days','Your own changes and your votes show here.','<button class="sec2" data-tab="house">See the household</button>'],
+  mineEmpty:['bowl','Nothing from you in the last 3 days with activity','Your own changes and your votes show here.','<button class="sec2" data-tab="house">See the household</button>'],
   quiet:['check','Nothing since you were last here','All quiet. The last five things are one tap away.','<button class="pri" data-closecatch>Show the last five</button>'],
   none:['bell','None of these touch you','Nothing in the catch-up affects you.','<button class="sec2" data-affoff>Show all changes</button>']
  }[k];
@@ -213,7 +220,7 @@ function catchCard(){
  if(!all.length)return '<section class="catch" aria-label="Since you were last here"><div class="chead"><h2>'+ic("check")+'You are all caught up</h2>'+x+'</div><p class="sum">Nothing new since '+(S.seen>=NOW?"you cleared it just now":esc(S.lastTxt))+'. Enjoy the quiet.</p></section>';
  var rows=hl.slice(0,4).map(function(e){
   return '<div class="hl"><span class="ico">'+ic(e.rev?"book":e.w==="shop"?"cart":"bell")+'</span><div class="tx">'+esc(e.aff[me()])+'<small>'+esc(who(e))+' · '+dayLabel(e.d).a.toLowerCase()+', '+fmt(e.t)+'</small></div>'+(e.act?'<a class="go" href="'+href(e)+'">'+esc(e.act)+'</a>':'')+'</div>'}).join("");
- return '<section class="catch" aria-label="Since you were last here"><div class="chead"><h2>'+ic("bell")+'Since you were last here</h2>'+x+'</div><p class="sum">'+esc(S.lastTxt)+' · '+all.length+' change'+(all.length===1?"":"s")+(capCut()?' in the last 3 days':'')+(parts.length?': '+esc(parts.join(", ")):"")+'</p>'+
+ return '<section class="catch" aria-label="Since you were last here"><div class="chead"><h2>'+ic("bell")+'Since you were last here</h2>'+x+'</div><p class="sum">'+esc(S.lastTxt)+' · '+all.length+' change'+(all.length===1?"":"s")+(capCut()?' in the last 3 days with activity':'')+(parts.length?': '+esc(parts.join(", ")):"")+'</p>'+
   (hl.length?'<div class="lbl2">Affects you · '+hl.length+'</div>'+rows+(hl.length>4?'<p class="note left">and '+(hl.length-4)+' more in the feed, marked Affects you.</p>':''):'<p class="sum">Nothing changed that touches you.</p>')+
   (hl.length?'<div class="foot"><button type="button" class="lnk2" data-aff>'+(S.aff?'Show all changes':'Show only these')+'</button></div>':'')+'</section>'}
 
@@ -242,7 +249,7 @@ function filtersPanel(){ /* desktop lane: Proposal, H8 */
   '<p class="fhint">Nothing is typed. Pick what you are looking for; the list updates as you pick.</p>'+
   GROUPS.map(function(g){return sec(g,g[0]==="who"||g[0]==="area"||g[0]==="place"?"pick several":"")}).join("")+
   '<div class="acts2"><button type="button" class="sec2" data-clear>Clear all'+(n?' ('+n+')':'')+'</button>'+(always?'':'<button type="button" class="pri" data-closepanel>'+ic("check")+' Done</button>')+'</div>'+
-  '<p class="rule">'+ic("info","sm")+'<span>Counts are of what is already loaded for this tab. A range wider than 3 days asks the server for that window.</span></p></div></div>'}
+  '<p class="rule">'+ic("info","sm")+'<span>Counts are of what is already loaded for this tab. A range wider than the last 3 days with activity asks the server for that window.</span></p></div></div>'}
 function groupValue(g){
  if(g==="when")return RANGES.filter(function(r){return r[0]===S.range})[0][1];
  var v=S.toks.filter(function(t){return t.t===(g==="aff"?"aff":g)}).map(tokLabel);return v.length?v.join(", "):"Any"}
@@ -255,7 +262,7 @@ function sheetHtml(){ /* phone: H7a. Modelled on Pantry's Filters sheet (.sheet.
   '<div class="fbody">'+body+'</div><div class="ffoot"><button type="button" class="pri wide" data-closepanel>Show '+n+' '+(n===1?'entry':'entries')+'</button><div class="flinks"><button type="button" class="link" data-clear>Clear</button><span></span></div></div></div></div>'}
 function scopeCard(){
  var adm=PEOPLE[me()].admin,hn=hiddenTotal();
- return '<div class="rule">'+ic("lock","sm")+'<span>'+(adm?'You are an <b>admin</b>: you also see household admin items. ':'You see the household\'s changes. Admin-only items are not shown to you. ')+'Other people\'s personal changes ('+hn+' in the last 3 days) stay private for everyone, admins too.</span></div>'}
+ return '<div class="rule">'+ic("lock","sm")+'<span>'+(adm?'You are an <b>admin</b>: you also see household admin items. ':'You see the household\'s changes. Admin-only items are not shown to you. ')+'Other people\'s personal changes ('+hn+' in the last 3 days with activity) stay private for everyone, admins too.</span></div>'}
 
 function railHtml(){
  var it=[["home","Home"],["jar","Pantry"],["cal","Plan"],["book","Recipes"],["cart","Shopping"],["clock","History"]];
