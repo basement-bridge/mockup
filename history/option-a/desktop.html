@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>History search, desktop — Option A</title>
+<link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="history.css"><script src="../../theme.js"></script></head>
+<body data-no-theme-fab>
+<!-- Desktop, Option A "Search first". ?view=bar (command bar over the Pantry) | page (full History page)  &q=phrase  &sel=e1  &state=loading|empty
+     Ctrl/Cmd K opens the bar from anywhere; G then Y opens the page; Shift+Enter in the bar opens the page with the same chips;
+     plain Esc clears the box; Ctrl/Cmd Esc closes (settings-window.md SW-9).
+     Default path: the Pantry already on screen + history.css + history.js. Nothing about History is fetched until Ctrl/Cmd K, and the bar
+     fetches only after the first keystroke or a recent/suggestion pick. Deferred: the detail pane (built on first open), the page's facet counts (one extra aggregate call, after the list). -->
+<div id="root"></div>
+<script src="history.js"></script>
+<script>
+(function(){
+var H=window.HS,Q=new URLSearchParams(location.search),mac=/Mac|iPhone|iPad/.test(navigator.platform||""),MOD=mac?"⌘":"Ctrl",root=document.getElementById("root");
+var view=Q.get("view")||"bar",state=Q.get("state")||"",chips=null,M=null;
+var NAV=[["jar","Pantry",1],["pot","Recipes"],["list","Shopping"],["clock","Plan"]];
+function rail(){return'<nav class="hd-rail" aria-label="Main"><div class="brand">Our<br>kitchen</div>'+NAV.map(function(n){return'<button class="hd-nv'+(n[2]&&view==="bar"?" on":"")+'">'+H.ic(n[0])+'<span>'+n[1]+'</span></button>'}).join("")+'<div class="hd-me"><button class="hd-nv"><span class="kbd keep" style="font-size:14px">?</span><span>Keys</span></button><button class="hd-sx" aria-label="Profile and settings">P</button></div></nav>'}
+function behind(){return rail()+'<main class="hd-main hd-behind"><div class="hd-col"><div style="display:flex;gap:12px;align-items:center;margin-bottom:14px"><b style="color:var(--muted)">16 items</b><span style="flex:1"></span><span class="kbd">F</span><span class="kbd">N</span></div><h3>Fridge</h3><div class="row"><b>Eggs</b><span>12</span></div><div class="row"><b>Spinach</b><span>Crisper</span></div><div class="row"><b>Paneer</b><span>Freezer</span></div><h3>Pantry</h3><div class="row"><b>Rice</b><span>Some</span></div><div class="row"><b>Butter</b><span>Plenty</span></div><div class="row"><b>Sourdough</b><span>1 loaf</span></div></div></main><aside class="hd-side"><p>The current screen stays where it was. Pick a row and press <span class="kbd">,</span> for that one item\'s History as today.</p></aside>'}
+function bar(){view="bar";root.innerHTML='<div class="hd-app hd-behind-wrap" inert>'+behind()+'</div><div class="hd-scrim" id="scrim"><section class="hd-cmd" role="dialog" aria-modal="true" aria-label="Search History"><div class="hs" id="hs"></div><div class="hd-cmdf"><span><span class="kbd">↑</span> <span class="kbd">↓</span> move</span><span><span class="kbd">Enter</span> details</span><span><span class="kbd">Z</span> undo</span><span><span class="kbd">Esc</span> clear</span><span><span class="kbd">'+MOD+' Esc</span> close</span><a href="#" id="topage">Open full page <span class="kbd keep">⇧ Enter</span></a></div></section></div>';
+ var cmd=root.querySelector(".hd-cmd"),hs=document.getElementById("hs");
+ hs.innerHTML="";var body=document.createElement("div");
+ M=H.mount(hs,{q:Q.get("q")||"",state:state,sel:Q.get("sel"),kbd:MOD+" K",onShiftEnter:function(f){chips=f;page()},
+  onOpen:function(e){var d=cmd.querySelector(".hd-cmdd");if(!d){d=document.createElement("aside");d.className="hd-cmdd";d.setAttribute("aria-label","Entry details");var wrap=document.createElement("div");wrap.className="hd-cmdb two";hs.parentNode.insertBefore(wrap,hs);wrap.appendChild(hs);wrap.appendChild(d)}d.hidden=false;d.innerHTML=H.detail(e);cmd.style.width="min(1060px,calc(100vw - 168px))"}});
+ if(Q.get("sel")){var e=H.E.filter(function(x){return x.id===Q.get("sel")})[0];if(e){M.S.sel=e.id;M.draw(false);var evb=hs.querySelector('[data-open="'+e.id+'"]');if(evb)evb.click()}}
+ cmd.addEventListener("click",function(ev){var b=ev.target.closest(".hd-cmdd button");if(!b)return;if(b.dataset.undo){M.undo(b.dataset.undo);cmd.querySelector(".hd-cmdd").innerHTML=H.detail(H.E.filter(function(x){return x.id===b.dataset.undo})[0])}else if(b.dataset.add){M.S.f[b.dataset.add]=b.dataset.val;M.S.state="";M.draw(true)}});
+ document.getElementById("scrim").addEventListener("mousedown",function(ev){if(ev.target.id==="scrim")close()});
+ document.getElementById("topage").onclick=function(ev){ev.preventDefault();chips=H.merge(M.S.f,H.parse(M.S.draft));page()};
+ M.focus()}
+function close(){view="none";M=null;root.innerHTML='<div class="hd-app">'+behind()+'</div>'}
+function page(){view="page";var p=H.GROUPS;
+ root.innerHTML='<div class="hd-app hd-page">'+rail()+'<main class="hd-main"><div class="hd-col"><h1>History</h1><p style="margin-bottom:14px">Everything that happened in Our kitchen, Kitchie and Recipe together.</p><div class="hs" id="hs"></div></div></main><aside class="hd-side" id="side"></aside></div>';
+ var side=document.getElementById("side");
+ function facets(S,list){
+  var sel=S.sel&&H.E.filter(function(x){return x.id===S.sel})[0];
+  if(sel){side.innerHTML='<div style="display:flex;align-items:center"><h2>Details</h2><button type="button" class="hs-x" style="margin-left:auto" data-closed aria-label="Close details">'+H.ic("x")+'</button></div>'+H.detail(sel);return}
+  var cnt=function(fn){var m={};list.forEach(function(e){var k=fn(e);m[k]=(m[k]||0)+1});return m};
+  var w=cnt(function(e){return e.who}),a=cnt(function(e){return e.app}),v=cnt(function(e){return e.via==="mcp"?"claude":e.via==="sheet"?"app":e.via});
+  var btn=function(k,val,l,n){return'<button type="button" data-add="'+k+'" data-val="'+val+'"'+(n?"":" disabled")+'>'+l+' <small>'+n+'</small></button>'};
+  side.innerHTML='<h2>Narrow it down</h2><p>Counts for what you see now. Tap to add a chip. The chips in the box are the real filter.</p>'+
+   '<div class="hd-fac"><h3>Who</h3><div>'+btn("who","priya","You",w.priya||0)+btn("who","sam","Sam",w.sam||0)+btn("who","jo","Jo (shopper link)",w.jo||0)+'</div></div>'+
+   '<div class="hd-fac"><h3>How</h3><div>'+btn("via","app","In the app",v.app||0)+btn("via","voice","Voice",v.voice||0)+btn("via","assistant","An assistant",(v.claude||0))+btn("via","import","Import",v.import||0)+btn("via","shopper","Shopper link",v.shopper||0)+'</div></div>'+
+   '<div class="hd-fac"><h3>Where it happened</h3><div>'+btn("app","k","Kitchie",a.k||0)+btn("app","r","Recipe",a.r||0)+'</div></div>'+
+   '<p class="hd-hint"><span><span class="kbd">/</span> search</span><span><span class="kbd">↑</span><span class="kbd">↓</span> move</span><span><span class="kbd">Z</span> undo</span><span><span class="kbd">G</span> <span class="kbd">Y</span> here from anywhere</span></p>'}
+ M=H.mount(document.getElementById("hs"),{q:"",state:state,sel:Q.get("sel"),chips:chips||(Q.get("q")?null:null),recentOnEmpty:true,focus:false,
+  onDraw:function(S,list){facets(S,list)},onOpen:function(e){M.S.sel=e.id;facets(M.S,H.run(M.eff()))},onAdd:function(){M.S.sel=null}});
+ if(Q.get("q")&&!chips){M.setq(Q.get("q"))}
+ if(chips){M.S.f=chips;M.draw(true)}
+ if(Q.get("sel")){M.S.sel=Q.get("sel");M.draw(false)}
+ side.addEventListener("click",function(ev){var b=ev.target.closest("button");if(!b)return;if(b.dataset.closed!==undefined){M.S.sel=null;M.draw(false)}else if(b.dataset.undo){M.undo(b.dataset.undo);M.draw(false)}else if(b.dataset.add&&!b.disabled){M.S.f[b.dataset.add]=b.dataset.val;M.S.state="";M.S.sel=null;M.draw(true)}})}
+document.addEventListener("keydown",function(ev){var t=ev.target,typing=t.matches&&t.matches("input,textarea,[contenteditable]");
+ if((ev.metaKey||ev.ctrlKey)&&(ev.key==="k"||ev.key==="K")){ev.preventDefault();chips=null;bar();return}
+ if((ev.metaKey||ev.ctrlKey)&&ev.key==="Escape"){if(view==="bar"){ev.preventDefault();close()}return}
+ if(typing)return;
+ if(ev.key==="/"&&view==="page"){ev.preventDefault();setTimeout(M.focus,0)}
+ if(ev.key==="g"||ev.key==="G"){window._g=Date.now();return}
+ if((ev.key==="y"||ev.key==="Y")&&window._g&&Date.now()-window._g<1200){window._g=0;chips=null;page()}});
+if(view==="page")page();else bar();
+})();
+</script></body></html>
