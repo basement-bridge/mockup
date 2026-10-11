@@ -1,12 +1,17 @@
 /* The emoji field (owner, by voice 12 Oct 2026, decisions 116 to 119; replaces the picker of 80, 93, 106, 107 and 115): a plain text box with the ONE suggestion strip under it, the same strip as
-   Location, Spot and Category (108 to 110: .ef-cats.ef-strip, .ef-chip, .hl, .add). No dropdown, popup, panel or modal. Fetched the first time an emoji field is drawn or the item flyout's tile is
-   tapped, never on page load (DESIGN.md section 6). No size rules here.
-   Two homes share this code: "edit" is the box in the Edit and Add form (#ef-emoin, strip #sg-emo), saved through IEF.form.saveEmoji; "sheet" is the box the item flyout's header tile shows and focuses
-   (#ief-emoin, strip #ief-sg-emo), saved through IEF.saveEmoji. The tiles stay: tapping one focuses its box.
-   The rules (116): an empty box shows one row with one or two pills (Recent, which starts from the household's own emoji) and the chevron for the rest. A box with an emoji in it shows nothing extra
-   until the person types or clears it. Typing filters the curated list by name and keyword and highlights the best match; any emoji typed or pasted from the device is always accepted (one is kept:
-   the newest one, the first that is not the item's emoji now) and is offered as the outlined first pill. A box holding only an emoji saves at once. Clearing the box saves "no emoji" when the person
-   leaves it or presses Enter. Words that are not an emoji and were not picked go back to what was there. Esc closes the strip only; Shift+Enter is left to the Add form.
+   Location, Spot and Category (108 to 110: .ef-cats.ef-strip, .ef-chip, .hl, .add). No dropdown, popup, panel or modal. Fetched the first time the tile is tapped, never on page load (DESIGN.md section 6). No size rules here.
+   Two homes share this code: "edit" is the box in the Edit and Add form (#ef-emoin, strip #sg-emo, wrapper #ef-emof, tile #ef-emo), saved through IEF.form.saveEmoji; "sheet" is the box the item flyout's header tile shows
+   (#ief-emoin, strip #ief-sg-emo, wrapper #ief-emof, tile #ief-emo), saved through IEF.saveEmoji.
+   THE TILE IS THE FIELD (decisions 129 to 131, owner by voice and text 12 Oct 2026, after the phone screenshot with a text box under the name while an emoji was set). The emoji is only ever the tappable tile
+   (the emoji, or the neutral "+" tile when none): no text box, no strip, in every state of Add, Edit, the standalone edit and the item sheet. Tapping the tile reveals the box and the strip and focuses it
+   (an emoji already set is selected, so typing replaces it; a neutral tile opens the same box and strip). The box STAYS open while the person works: clearing it leaves "no emoji" (kept when they leave it or press Enter, 118)
+   and the box does not close. It collapses back to the tile when: a pill is chosen; an emoji is typed or pasted (kept at once); Enter; Esc (cancels: the box goes back to what was saved); or the box loses focus (blur keeps a valid emoji,
+   or an empty box as "no emoji", and drops words that are no emoji). Blur is also how the phone's keyboard-dismiss lands, so dismissing the keyboard never loses a valid emoji.
+   Rules inside the open box (116): an empty box shows one row with one or two pills (Recent, which starts from the household's own emoji) and the chevron for the rest. Typing filters the curated list by name and keyword and
+   highlights the best match; any emoji typed or pasted from the device is always accepted (one is kept: the newest one, the first that is not the item's emoji now) and is offered as the outlined first pill. A box holding only an
+   emoji saves at once. Words that are not an emoji and were not picked go back to what was there. Shift+Enter is left to the Add form.
+   Input hints (decision 132; the research is in docs/knowledge/jobs-to-be-done/item-edit-flyout.md): no web attribute selects the emoji panel, so the box carries only the harmless ones, the same in Kitchie:
+   autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off" enterkeyhint="done", the Search, or type or paste your own emoji placeholder.
    Each entry is [emoji, name, search words]. The name is the accessible label; the words are what the search matches, with the name. 133 foods, drinks, source animals (decision 114) and kitchen things.
    "Recent" is the last 8 the person picked on this device (localStorage, best effort: a private window just has none); with nothing picked yet it starts from the household's own emoji. Sample data only. */
 (function () {
@@ -79,13 +84,15 @@ function model(q, cur) {
 /* ---------- one field: its box, its strip and its tile ---------- */
 var $ = IEF.$, esc = IEF.esc, sv = IEF.sv, IC = IEF.IC;
 var K = {
-  edit: { box: "#ef-emoin", strip: "#sg-emo", tile: "#ef-emo", cur: function () { var it = IEF.target(); return it ? it.emoji || "" : ""; }, save: function (e) { return IEF.form.saveEmoji(e); } },
-  sheet: { box: "#ief-emoin", strip: "#ief-sg-emo", tile: "#ief-emo", cur: function () { var it = IEF.cur(); return it ? it.emoji || "" : ""; }, save: function (e) { return IEF.saveEmoji(e); } }
+  edit: { box: "#ef-emoin", strip: "#sg-emo", tile: "#ef-emo", wrap: "#ef-emof", flag: "efEmo", cur: function () { var it = IEF.target(); return it ? it.emoji || "" : ""; }, save: function (e) { return IEF.form.saveEmoji(e); } },
+  sheet: { box: "#ief-emoin", strip: "#ief-sg-emo", tile: "#ief-emo", wrap: "#ief-emof", flag: "sheetEmo", cur: function () { var it = IEF.cur(); return it ? it.emoji || "" : ""; }, save: function (e) { return IEF.saveEmoji(e); } }
 };
 var ST = {};
 function st(k) { return ST[k] || (ST[k] = { typed: false, off: false, open: false, hl: -1, items: [] }); }
 function kindOf(el) { return el && el.matches && el.matches("[data-emo]") ? el.dataset.emo : null; }
-function visible(k) { var i = $(K[k].box), s = st(k); return !!i && !s.off && (s.typed || i.value.trim() === ""); }
+/* the strip is drawn while the field is open (its box is shown) and Esc has not closed it */
+function isOn(k) { return !!IEF[K[k].flag]; }
+function visible(k) { var i = $(K[k].box), s = st(k); return !!i && isOn(k) && !s.off; }
 function hide(k) {
   var box = $(K[k].strip), i = $(K[k].box), s = st(k); s.hl = -1; s.items = [];
   if (box) { box.hidden = true; box.innerHTML = ""; }
@@ -131,25 +138,38 @@ function settle(k, quiet) {
 }
 function choose(k, x) { if (x) commit(k, x.e[0]); }
 
-/* the item flyout's box: shown under the header when its tile is tapped, gone again when it is left */
-function sheetShow(on) {
-  var w = $("#ief-emof"), t = $("#ief-emo"); if (!w) return;
-  IEF.sheetEmo = on; w.hidden = !on; if (t) t.setAttribute("aria-expanded", on);
-  var i = $("#ief-emoin");
-  if (on && i) { i.value = K.sheet.cur(); st("sheet").typed = false; st("sheet").off = false; draw("sheet"); i.focus({ preventScroll: true }); try { i.select(); } catch (e) {} }
-  else hide("sheet");
+/* open or put away a field's box. Open: the box and the strip show and the box is focused (what is set is selected). Away: only the tile shows; focus goes back to the tile when the box had it. */
+function show(k, on) {
+  var c = K[k], w = $(c.wrap), t = $(c.tile), i = $(c.box); if (!w || !i) return;
+  /* the first tap opens and focuses the box before this code has arrived (flyout.js / form.js: IEF.emoNow, so a phone raises its keyboard inside the tap); what was typed in the meantime is kept */
+  var early = on && !!IEF[c.flag] && !w.hidden, v0 = i.value;
+  IEF[c.flag] = on; var s = st(k); s.typed = false; s.off = false; s.open = false;
+  if (on) {
+    w.hidden = false; if (t) t.setAttribute("aria-expanded", "true");
+    if (early && v0 !== c.cur()) s.typed = true; else i.value = c.cur();
+    draw(k);
+    /* on a phone the keyboard rises over the lower half: keep the box in view (and the sheet above the keyboard: phone.js) */
+    try { w.scrollIntoView({ block: "nearest", behavior: "auto" }); } catch (e) {}
+    if (document.activeElement !== i) i.focus({ preventScroll: true });
+    if (!s.typed) { try { i.select(); } catch (e) {} }
+    return;
+  }
+  hide(k);
+  if (document.activeElement === i && t) t.focus({ preventScroll: true });
+  w.hidden = true; if (t) t.setAttribute("aria-expanded", "false");
 }
+/* a pill, Enter or a typed emoji has been kept: back to the tile */
+function away(k) { show(k, false); }
 
 document.addEventListener("pointerdown", function (e) { if (e.target.closest && e.target.closest("#sg-emo, #ief-sg-emo")) e.preventDefault(); });
 document.addEventListener("click", function (e) {
   var el = e.target.closest && e.target.closest('[data-ef="emopick"], [data-ef="emomore"]'); if (!el) return;
   var k = el.closest("#ief-sg-emo") ? "sheet" : "edit";
   if (el.dataset.ef === "emomore") { st(k).open = !st(k).open; draw(k, true); return; }
-  choose(k, st(k).items[+el.dataset.i]);
-  if (k === "sheet") { sheetShow(false); var t = $("#ief-emo"); if (t) t.focus({ preventScroll: true }); }
+  choose(k, st(k).items[+el.dataset.i]); away(k);
 });
 document.addEventListener("focusin", function (e) { var k = kindOf(e.target); if (!k) return; var s = st(k); s.off = false; s.hl = -1; draw(k); try { e.target.select(); } catch (x) {} });
-/* leaving the box keeps what it holds at once, but the strip (and the item flyout's box) go away only after the tap that took the focus has landed: hiding a row first would move what is under the finger */
+/* leaving the box keeps what it holds at once, but the strip and the box go away (back to the tile) only after the tap that took the focus has landed: hiding a row first would move what is under the finger */
 var pressed = false;
 document.addEventListener("pointerdown", function () { pressed = true; }, true);
 document.addEventListener("pointerup", function () { setTimeout(function () { pressed = false; }, 0); }, true);
@@ -157,7 +177,7 @@ document.addEventListener("pointercancel", function () { pressed = false; }, tru
 document.addEventListener("focusout", function (e) {
   var k = kindOf(e.target); if (!k) return;
   settle(k, true); st(k).open = false;
-  var tidy = function () { var i = $(K[k].box); if (i && document.activeElement === i) return; if (k === "sheet" && IEF.sheetEmo) sheetShow(false); else draw(k); };
+  var tidy = function () { var i = $(K[k].box); if (i && document.activeElement === i) return; if (isOn(k)) away(k); else draw(k); };
   if (!pressed) { setTimeout(tidy, 0); return; }
   var done = false, once = function () { if (done) return; done = true; document.removeEventListener("click", once); setTimeout(tidy, 0); };
   document.addEventListener("click", once); setTimeout(once, 600);
@@ -168,15 +188,15 @@ document.addEventListener("input", function (e) {
   var s = st(k), i = e.target, r = read(i.value, K[k].cur());
   s.typed = true; s.off = false; s.open = false;
   /* a box that holds only an emoji (typed on the device's keyboard or pasted) is kept at once */
-  if (r.emoji && !r.words.length) { commit(k, r.emoji); return; }
+  if (r.emoji && !r.words.length) { commit(k, r.emoji); away(k); return; }
   draw(k);
 }, true);
-/* Esc closes the strip first and goes no further (the phone's Esc would close the sheet); with the strip already closed, the item flyout's box is put away */
+/* Esc cancels: the box goes back to what was saved and only the tile shows. It goes no further (the phone's Esc would close the sheet). */
 document.addEventListener("keydown", function (e) {
   if (e.key !== "Escape") return;
   var k = kindOf(e.target); if (!k) return;
-  if (visible(k) && $(K[k].strip) && !$(K[k].strip).hidden) { e.preventDefault(); e.stopPropagation(); st(k).off = true; hide(k); return; }
-  if (k === "sheet") { e.preventDefault(); e.stopPropagation(); var i = $("#ief-emoin"); if (i) i.value = K.sheet.cur(); st(k).typed = false; sheetShow(false); var t = $("#ief-emo"); if (t) t.focus({ preventScroll: true }); }
+  e.preventDefault(); e.stopPropagation();
+  var i = $(K[k].box); if (i) i.value = K[k].cur(); st(k).typed = false; away(k);
 }, true);
 document.addEventListener("keydown", function (e) {
   var k = kindOf(e.target); if (!k) return;
@@ -191,15 +211,14 @@ document.addEventListener("keydown", function (e) {
   if (e.shiftKey) { settle(k); return; }
   e.preventDefault(); e.stopImmediatePropagation();
   if (visible(k) && s.hl >= 0 && s.items[s.hl]) choose(k, s.items[s.hl]); else settle(k);
-  if (k === "sheet") { sheetShow(false); var t = $("#ief-emo"); if (t) t.focus({ preventScroll: true }); }
+  away(k);
 }, true);
 
 IEF.emoji = {
   list: LIST, read: read, model: model, recent: recent, push: push,
-  /* the form draws its box; this fills its strip */
-  drawEdit: function () { ST.edit = null; draw("edit"); },
-  /* the item flyout's tile: show the box and focus it, or put it away */
-  sheet: function (on) { sheetShow(on === undefined ? !IEF.sheetEmo : on); },
+  /* a tile tap: open the field's box and strip and focus it, or put it away (a second tap). k = "edit" (Edit and Add) or "sheet" (the item flyout's header). */
+  toggle: function (k, on) { show(k, on === undefined ? !isOn(k) : on); },
+  sheet: function (on) { show("sheet", on === undefined ? !IEF.sheetEmo : on); },
   isOpen: function () { return IEF.sheetEmo; }
 };
 })();

@@ -3,7 +3,7 @@
    One layout (confirmed by the owner, 11 Oct 2026, decision 71): one scroll in five groups. The two tabs (B) and the tiles (C) were dropped and their code removed; they are in the git history (mockup PR 72).
    Each field is built once (INNER) and the layout only arranges them.
    11 Oct 2026 round: Location, Spot and Category are the same text-input-with-suggestions controls as the Add form in Kitchie uat (a list opens on focus, type to filter or add a new one); Category's suggestions are drawn as the chip row (proposed).
-   The emoji is a plain text box under the name with the suggestion strip under it (decisions 116 to 119, owner by voice 12 Oct 2026; no picker, no panel); its code and list are in emoji.js, fetched when the form is drawn. Level is four battery icons, with an "Automatic" / "Set by you" cue (decisions 82 to 86, refined by 94 to 101).
+   The emoji is a plain text box under the name with the suggestion strip under it (decisions 116 to 119, owner by voice 12 Oct 2026; no picker, no panel); its code and list are in emoji.js, fetched on the first tap of the tile (129). Level is four battery icons, with an "Automatic" / "Set by you" cue (decisions 82 to 86, refined by 94 to 101).
    Round 3 (owner's voice answers of 11 Oct 2026, decisions 94 to 101): Category and Unit are a text box plus a row of quick-pick chips, free text for anything not in the list; a hand-set level goes back to automatic only when stock is added; with no minimum the level is Plenty until 0.
    Round 5 (owner, typed, 12 Oct 2026, decisions 108 to 113): Location, Spot and Category share ONE suggestion strip (strip* below; the Pantry filter bar's chips): a single row under the field, hidden while the field has a value, shown when it is empty or the person types or clears it; the level's "Set by you" cue gets a labelled "Back to automatic" button.
    Round 4 (owner, typed, 12 Oct 2026, decisions 102 to 107): there is NO shopping group in Edit. "How much to buy" and the button live in the item flyout and show only at Running low or Out (flyout.js). The emoji code is in emoji.js so the item flyout's header tile shares it.
@@ -24,13 +24,13 @@ function hasMin(it) { return !!(it.unit || it.min) || counted(it); }
 
 /* ---------- the field builders: the inner of each field's wrapper, rebuilt on its own when something it depends on changes ---------- */
 var unitsOpen = false;
-/* the emoji tile beside the name (kept, decision 119): the emoji, or the neutral "+" tile when none. A tap focuses the emoji box under the row (no picker any more). */
+/* the emoji tile beside the name (decisions 119, 129): the emoji, or the neutral "+" tile when none. It is the whole field until tapped; a tap reveals the box and strip under the row and focuses it (emoji.js, fetched on that first tap). */
 function emoTile(it) {
-  return '<button type="button" class="ef-emo" id="ef-emo" data-ef="emoji" aria-controls="ef-emoin" aria-label="' + (it.emoji ? "Emoji " + it.emoji + ". Change it" : "Add an emoji") + '" title="' + (it.emoji ? "Change the emoji" : "Add an emoji") + '">' + (it.emoji ? it.emoji : sv(IC.plus, "", 22)) + "</button>";
+  return '<button type="button" class="ef-emo" id="ef-emo" data-ef="emoji" aria-expanded="' + !!IEF.efEmo + '" aria-controls="ef-emoin" aria-label="' + (it.emoji ? "Emoji " + it.emoji + ". Change it" : "Add an emoji") + '" title="' + (it.emoji ? "Change the emoji" : "Add an emoji") + '">' + (it.emoji ? it.emoji : sv(IC.plus, "", 22)) + "</button>";
 }
-/* the emoji box (decision 116): a plain text box, the hint as its placeholder, and the suggestion strip under it (emoji.js fills it). Not the name's combobox: its own. */
+/* the emoji box (decisions 116, 129): hidden until the tile is tapped; a plain text box, the hint as its placeholder, and the suggestion strip under it (emoji.js fills it). Not the name's combobox: its own. */
 function emoBox(it) {
-  return '<div class="ef-emof"><input class="ef-in ef-emoin" id="ef-emoin" data-emo="edit" type="text" value="' + esc(it.emoji || "") + '" placeholder="Search, or type or paste your own emoji" maxlength="40" autocomplete="off" autocapitalize="none" spellcheck="false" enterkeyhint="done" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="sg-emo" aria-label="Emoji"><div class="ef-cats ef-strip" id="sg-emo" data-kind="emo" data-open="false" data-n="0" hidden></div></div>';
+  return '<div class="ef-emof" id="ef-emof"' + (IEF.efEmo ? "" : " hidden") + '><input class="ef-in ef-emoin" id="ef-emoin" data-emo="edit" type="text" value="' + esc(it.emoji || "") + '" placeholder="Search, or type or paste your own emoji" maxlength="40" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="done" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="sg-emo" aria-label="Emoji"><div class="ef-cats ef-strip" id="sg-emo" data-kind="emo" data-open="false" data-n="0" hidden></div></div>';
 }
 /* a Location, Spot or Category box (decisions 108 to 110, owner 12 Oct 2026): the text box, and under it the ONE suggestion strip (stripBox) that all three share. The box is the combobox, the strip is its listbox. */
 function combo(key, lab, val, ph) {
@@ -52,10 +52,10 @@ function chipsRow(kind, icon, label, plural, chips, open) {
 /* The default for "how much to buy" (decision 99) moved with the control to the item flyout (flyout.js: IEF.buyVal) in round 4. */
 /* The level cue (decisions 111 to 113, owner 12 Oct 2026; refines 86): on the Level label's row, right-aligned. "Set by you" + a labelled, circular-arrow "Back to automatic" button (44px, focusable) only while a hand-set level exists on an item with a number; "Automatic" (muted, no control) while the rules decide; nothing where no rules apply. */
 function lvCue(it) {
-  var src = IEF.lvSource(it); if (!src) return "";
+  var src = IEF.lvSource(it);
   return '<p class="ef-lvm" id="ef-lvm">' + (src === "set"
-    ? '<span class="ef-src set" title="You picked this. It goes back to automatic when you add stock.">Set by you</span><button type="button" class="ef-auto" data-ef="lvauto" aria-label="Back to automatic" title="Back to automatic">' + sv(IC.rotate, "", 20) + "</button>"
-    : '<span class="ef-src" title="' + (minOf(it) > 0 ? "Worked out from the amount and the minimum." : "Plenty while some is left, Out at zero.") + ' Pick one to set it yourself.">Automatic</span>') + "</p>";
+    ? '<span class="ef-src set" title="' + (IEF.auto(it) ? "You picked this. It goes back to automatic when you add stock." : "You picked this. Back to automatic clears it.") + '">Set by you</span><button type="button" class="ef-auto" data-ef="lvauto" aria-label="Back to automatic" title="Back to automatic">' + sv(IC.rotate, "", 20) + "</button>"
+    : '<span class="ef-src" title="' + (!IEF.auto(it) ? "Nothing is picked. An item with no number has no level until you pick one." : minOf(it) > 0 ? "Worked out from the amount and the minimum." : "Plenty while some is left, Out at zero.") + ' Pick one to set it yourself.">Automatic</span>') + "</p>";
 }
 function minOf(it) { return parseFloat(it.min) || 0; }
 var INNER = {
@@ -106,9 +106,9 @@ function layout(it) {
   if (add()) return sec("Item", field("name", it)) + sec("Amount", field("qty", it) + field("min", it)) + sec("Where", field("area", it) + field("spot", it) + field("cat", it)) + sec(null, field("useby", it));
   return sec("Item", field("name", it)) + sec("Amount", field("qty", it) + field("level", it) + field("min", it)) + sec("Where", field("area", it) + field("spot", it) + field("cat", it)) + sec(null, field("useby", it)) + recipe();
 }
-F.fill = function (it) { var b = $("#ief-cbody"); if (!b) return; unitsOpen = false; STRIPS.forEach(function (k) { ST[k] = null; }); b.innerHTML = '<div class="ef">' + layout(it) + "</div>"; var t = $("#ief-ctitle h2"); if (t) t.textContent = "Edit item"; STRIPS.forEach(stripDraw); fitCats(); emoReady(); };
+F.fill = function (it) { var b = $("#ief-cbody"); if (!b) return; IEF.efEmo = false; unitsOpen = false; STRIPS.forEach(function (k) { ST[k] = null; }); b.innerHTML = '<div class="ef">' + layout(it) + "</div>"; var t = $("#ief-ctitle h2"); if (t) t.textContent = "Edit item"; STRIPS.forEach(stripDraw); fitCats(); emoReady(); };
 F.fillAdd = function () {
-  var b = $("#ief-cbody"), it = IEF.draft, k = IEF.host.keys ? IEF.host : null; unitsOpen = false; STRIPS.forEach(function (k) { ST[k] = null; });
+  var b = $("#ief-cbody"), it = IEF.draft, k = IEF.host.keys ? IEF.host : null; IEF.efEmo = false; unitsOpen = false; STRIPS.forEach(function (k) { ST[k] = null; });
   b.innerHTML = '<div class="ef" data-mode="add">' + layout(it) + "</div>";
   STRIPS.forEach(stripDraw); fitCats(); emoReady();
   $("#ief-cft").innerHTML = '<button type="button" class="btn pri" data-ef="addgo">Add item ' + IEF.kbd("enter", "keep") + '</button><button type="button" class="btn" data-ef="addmore">Add and start another ' + (k ? '<kbd class="kbd">&#8679; Enter</kbd>' : "") + '</button><button type="button" class="btn ghost" data-ief="addcancel">Cancel ' + (k ? '<kbd class="kbd">' + k.closeLabel + "</kbd>" : "") + "</button>";
@@ -135,7 +135,7 @@ function get(it, f) { return it[f]; }
 function fmt(it, f) {
   if (f === "amount" || f === "unit" || f === "text" || f === "qclear") return qtyText(it) || "not set";
   if (f === "useby") return it.useby ? IEF.dayName(it.useby) : "not set";
-  if (f === "level") return level(it);
+  if (f === "level") return level(it) || "Automatic"; /* never "not set": the control has two states (decision 128) */
   var v = get(it, f); return v === null || v === "" || v === undefined ? "not set" : String(v);
 }
 function showErr(g, msg, retry) {
@@ -186,16 +186,16 @@ IEF.splitQty = splitQty;
 /* a typed word takes the household's own spelling when it matches one (the same folding Kitchie does for categories), else it is new */
 function canon(list, v) { v = String(v).trim(); var m = list.filter(function (x) { return x.toLowerCase() === v.toLowerCase(); })[0]; return m || v; }
 function apply(it, f, v) {
-  var was = level(it);
+  var was = level(it), hand = false;
   if (f === "name") it.name = String(v).trim() || it.name;
   else if (f === "amount") { var w0 = it.amount; it.amount = round2(v); if (it.amount === 0 && w0 > 0) it.prev = w0; IEF.qtyChanged(it, w0); }
   /* a unit change is not a restock: the pick stays (decision 96). A typed unit takes the household's own spelling when it matches one. */
   else if (f === "unit") it.unit = unitOf(v).unit;
-  else if (f === "qclear") { it.amount = null; it.text = ""; it.unit = ""; it.prev = null; it.lvSet = null; }
+  else if (f === "qclear") { hand = IEF.lvSource(it) === "set"; it.amount = null; it.text = ""; it.unit = ""; it.prev = null; it.lvSet = null; }
   else if (f === "level") {
     /* a pick. Out is zero, always. Any other level brings back the amount from before it was Out, then is the person's: kept as the pick where rules can work the level out (until the quantity changes), or as the stored label where they cannot. */
-    if (v === "Out") { if (it.amount !== null) { if (it.amount > 0) it.prev = it.amount; it.amount = 0; } else it.level = "Out"; }
-    else { if (it.amount === 0 && it.prev) { it.amount = it.prev; it.prev = null; } if (IEF.auto(it)) it.lvSet = v; else it.level = v; }
+    if (v === "Out") { if (it.amount !== null) { if (it.amount > 0) it.prev = it.amount; it.amount = 0; } else { it.level = "Out"; it.lvSet = "Out"; } }
+    else { if (it.amount === 0 && it.prev) { it.amount = it.prev; it.prev = null; } if (IEF.auto(it)) it.lvSet = v; else { it.level = v; it.lvSet = v; } }
   } else if (f === "min") it.min = v === "" ? "" : String(v);
   else if (f === "area") {
     var na = canon(IEF.AREAS, v) || "Unplaced";
@@ -206,8 +206,8 @@ function apply(it, f, v) {
     if (it.spot && it.area !== "Unplaced" && sl.indexOf(it.spot) < 0) { sl.push(it.spot); IEF.SPOTS[it.area] = sl; }
   } else if (f === "cat") it.cat = canon(IEF.cats(), v);
   else it[f] = v;
-  /* the level never jumps: when the quantity is cleared there are no rules to work it out, so what was showing is kept as the stored label */
-  if (f === "qclear") it.level = was;
+  /* when the quantity is cleared there are no rules to work a level out: a level the person picked stays (still "Set by you"); one the rules showed is not carried over, so the item reads Automatic with nothing picked (decision 128) */
+  if (f === "qclear") { it.level = hand ? was : ""; it.lvSet = hand ? was : null; }
 }
 var lastTry = null;
 function save(f, v) {
@@ -261,9 +261,10 @@ function step(it, key, d) {
   var i = $('[data-f="' + key + '"]'); if (i) i.value = key === "min" && n === 0 ? "" : n;
 }
 
-/* ---------- the emoji field: its code is in emoji.js (shared with the item flyout's header tile), fetched when a form is drawn. The tile here only follows what is saved. ---------- */
+/* ---------- the emoji field: its code is in emoji.js (shared with the item flyout's header tile), fetched on the first tap of a tile (129). The tile here only follows what is saved. ---------- */
 function refreshEmoji(it) { var t = $("#ef-emo"); if (t) t.outerHTML = emoTile(it); }
-function emoReady() { IEF.need("emoji.js", function () { IEF.emoji.drawEdit(); }); }
+/* nothing is fetched or drawn for the emoji until its tile is tapped (decision 129); a fresh form starts with the box away */
+function emoReady() { IEF.efEmo = false; }
 
 /* ---------- the suggestion strip: Location, Spot and Category, one implementation (decisions 108 to 110, owner, typed 12 Oct 2026) ----------
    The strip is the Pantry filter bar's row (tag or pin icon, pills, a chevron for the rest), drawn UNDER the box. Rules:
@@ -363,10 +364,10 @@ document.addEventListener("click", function (e) {
   else if (k === "pickdate") { var di = $('#ef-s-useby [data-f="useby"]'); if (di) { try { di.showPicker(); } catch (x) { di.focus(); di.click(); } } }
   else if (k === "clearmin") { save("min", ""); redraw(["min"], it); }
   else if (k === "lvl") save("level", el.dataset.v);
-  else if (k === "lvauto") { var l0 = level(it); IEF.autoAgain(it); if (!add()) { IEF.log(it, "Level", l0, level(it)); IEF.say("Saved"); IEF.syncParent(); } redraw(["level"], it); var ra = $('#ef-s-level [aria-checked="true"]'); if (ra) ra.focus({ preventScroll: true }); }
+  else if (k === "lvauto") { var l0 = level(it); IEF.autoAgain(it); if (!add()) { IEF.log(it, "Level", l0 || "Automatic", level(it) || "Automatic"); IEF.say("Saved"); IEF.syncParent(); } redraw(["level"], it); var ra = $('#ef-s-level [aria-checked="true"]'); if (ra) ra.focus({ preventScroll: true }); }
   else if (k === "qclear") save("qclear", "");
-  else if (k === "addunit") { var t = parseFloat(it.text); it.amount = isFinite(t) ? t : 1; it.unit = ""; var tx = it.text; it.text = ""; if (it.level && it.level !== "Out" && it.level !== IEF.autoLevel(it)) it.lvSet = it.level; /* the label the person picked stays, as a hand-set level, so the level does not jump */ if (!add()) { IEF.log(it, "Quantity", tx || "not set", qtyText(it)); IEF.say("Saved"); IEF.syncParent(); } redraw(["qty", "level", "min"], it); var s = $('#ef-s-qty .ef-unitin'); if (s) s.focus(); }
-  else if (k === "emoji") { var ei = $("#ef-emoin"); if (ei) { ei.scrollIntoView({ block: "nearest", behavior: "auto" }); ei.focus({ preventScroll: true }); } }
+  else if (k === "addunit") { var t = parseFloat(it.text); it.amount = isFinite(t) ? t : 1; it.unit = ""; var tx = it.text; it.text = ""; if (it.lvSet === "Out") it.lvSet = null; /* a hand-set level stays hand-set when a number arrives; Out is zero, so it cannot stay */ if (!add()) { IEF.log(it, "Quantity", tx || "not set", qtyText(it)); IEF.say("Saved"); IEF.syncParent(); } redraw(["qty", "level", "min"], it); var s = $('#ef-s-qty .ef-unitin'); if (s) s.focus(); }
+  else if (k === "emoji") { if (IEF.emoji) IEF.emoji.toggle("edit"); else { IEF.emoNow("#ef-emof", "#ef-emoin", "#ef-emo", "efEmo"); IEF.need("emoji.js", function () { IEF.emoji.toggle("edit", true); }); } }
   else if (k === "sgpick") { var sk = el.closest(".ef-strip").dataset.kind; stripChoose(sk, st(sk).items[+el.dataset.i]); }
   else if (k === "sgmore") { var mk = el.closest(".ef-strip").dataset.kind; st(mk).open = !st(mk).open; stripDraw(mk, true); }
   else if (k === "unitchip") { var onu = el.getAttribute("aria-pressed") === "true"; save("unit", onu ? "" : el.dataset.v); }

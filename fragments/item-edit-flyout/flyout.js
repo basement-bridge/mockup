@@ -20,7 +20,7 @@ IEF.todayIso = IEF.isoIn(0);
 
 /* ---------- items ---------- */
 function mk(id, emoji, name, area, spot, cat, amount, unit, text, useIn, min, level, x) {
-  var it = { id: id, emoji: emoji, name: name, area: area, spot: spot, cat: cat, amount: amount, unit: unit, text: text || "", useby: useIn === null ? "" : IEF.isoIn(useIn), min: min === null ? "" : String(min), level: level || "Plenty", lvSet: null, list: null };
+  var it = { id: id, emoji: emoji, name: name, area: area, spot: spot, cat: cat, amount: amount, unit: unit, text: text || "", useby: useIn === null ? "" : IEF.isoIn(useIn), min: min === null ? "" : String(min), level: amount === null ? level || "" : level || "Plenty", lvSet: amount === null && level ? level : null, list: null };
   if (x) for (var k in x) it[k] = x[k];
   return it;
 }
@@ -55,7 +55,7 @@ var counted = IEF.counted = function (it) { return it.amount !== null && IEF.WEI
      WITH a minimum (decision 84, confirmed): more than twice the minimum is Plenty; more than the minimum and up to twice it is Some; at or under it but above 0 is Running low; 0 is Out.
      With NO minimum (decision 95): Plenty while the amount is above 0, Out at 0, no bands in between. The person can hand-set Some or Running low.
    HAND-SET: the person can always pick the level. The pick (lvSet) wins over the rules and looks the same as a calculated level everywhere. It is cleared only when the quantity next INCREASES (a restock); a decrease never clears it (decision 96, supersedes 85).
-   NO NUMBER (a worded quantity, or none): there are no rules to apply; the level is the stored label the person picked (it.level). */
+   NO NUMBER (a worded quantity, or none): there are no rules to work a level out, so "Automatic" means nothing is picked (no battery chosen) and "Set by you" means the person picked one (it.level, marked by it.lvSet). Decision 128: the control has these two states on EVERY item; there is no "Not set" third state. */
 var minOf = function (it) { return parseFloat(it.min) || 0; };
 IEF.auto = function (it) { return it.amount !== null; };
 IEF.autoLevel = function (it) {
@@ -68,12 +68,12 @@ var level = IEF.level = function (it) {
   if (IEF.auto(it)) return it.lvSet || IEF.autoLevel(it);
   return it.level;
 };
-/* "set" = the person's pick is showing; "auto" = the rules are; "" = no rules apply, so there is no cue to draw */
-IEF.lvSource = function (it) { return !IEF.auto(it) ? "" : it.lvSet && it.amount !== 0 ? "set" : "auto"; };
+/* Decision 128: exactly two states on every item. "set" = the person's pick is showing; "auto" = the rules are (or, with no number, nothing is picked). Never a third. */
+IEF.lvSource = function (it) { return it.lvSet && (!IEF.auto(it) || it.amount !== 0) ? "set" : "auto"; };
 /* the quantity changed from `was` (a number or null): only an INCREASE (stock added) hands the level back to the rules. A decrease, a unit change or a minimum change keeps the pick. */
 IEF.qtyChanged = function (it, was) { if (it.amount !== null && was !== null && was !== undefined && it.amount > was) it.lvSet = null; };
 /* "Back to automatic" (the button beside "Set by you" on the Level label row; decisions 111 to 113) */
-IEF.autoAgain = function (it) { it.lvSet = null; };
+IEF.autoAgain = function (it) { it.lvSet = null; if (!IEF.auto(it)) it.level = ""; /* no number: back to automatic is no level picked */ };
 var round2 = IEF.round2 = function (n) { return Math.round(n * 100) / 100; };
 var qtyText = IEF.qtyText = function (it) { return it.amount !== null ? round2(it.amount) + (it.unit ? " " + it.unit : "") : it.text; };
 /* ---------- How much to buy (decisions 99, 103 to 105; the item flyout only, not the edit form) ----------
@@ -142,7 +142,7 @@ var IC = IEF.IC = {
 IEF.sv = sv;
 /* The level icon is a BATTERY everywhere the level is drawn (decision 94, confirmed by the owner 11 Oct 2026; the drop is gone). Four cells: Plenty 4 filled and green, Some 2 amber, Running low 1 red, Out 0 and black.
    Same colour tokens as the drop had: --cue, --accent, --danger, --out. The level name is screen-reader text only (.sr-only), never drawn. A hand-set level is drawn exactly like a calculated one. */
-var BAT = { Plenty: [4, "plenty"], Some: [2, "some"], "Running low": [1, "low"], Out: [0, "out"] };
+var BAT = { Plenty: [4, "plenty"], Some: [2, "some"], "Running low": [1, "low"], Out: [0, "out"], "": [0, "out"] }; /* no level (an item with no number and nothing picked) reads as Out with no cells, as the app's battery does */
 IEF.battery = function (l, width) {
   var a = BAT[l], n = a[0], c = "";
   for (var i = 0; i < n; i++) c += '<rect x="' + (4 + i * 6) + '" y="5" width="5.2" height="10" rx="1.2" fill="currentColor" stroke="none"/>';
@@ -182,6 +182,7 @@ function ib(act, label, icon) {
 IEF.closeBtn = function (label, attr) { return '<button type="button" class="x ib" ' + (attr || 'data-ief="closechild"') + ' aria-label="' + label + '" title="' + label + '">' + sv(IC.x, "", 20) + "</button>"; };
 /* the emoji tile in the header (decision 106, kept by 119): the emoji when set, a dashed "+" tile when none. A tap shows the emoji box under the header and focuses it (emoji.js, fetched on the first tap; decisions 116 to 119), saved through IEF.saveEmoji. */
 IEF.sheetEmo = false;
+IEF.emoNow = function (wrap, box, tile, flag) { var w = $(wrap), i = $(box), t = $(tile); if (!w || !i) return; IEF[flag] = true; w.hidden = false; if (t) t.setAttribute("aria-expanded", "true"); try { i.focus({ preventScroll: true }); } catch (e) {} };
 IEF.emoTileHtml = function (it) {
   return '<button type="button" class="ph' + (it.emoji ? "" : " empty") + '" id="ief-emo" data-ief="sheetemoji" aria-expanded="' + IEF.sheetEmo + '" aria-controls="ief-emoin" aria-label="' + (it.emoji ? "Emoji " + it.emoji + ". Change it" : "Add an emoji") + '" title="' + (it.emoji ? "Change the emoji" : "Add an emoji") + '">' + (it.emoji ? it.emoji : sv(IC.plus, "", 22)) + "</button>";
 };
@@ -197,7 +198,7 @@ IEF.tilesHtml = function (it) {
       : '<button type="button" class="tl" data-ief="tile" data-k="' + k + '"' + (sr ? ' aria-label="' + esc(sr) + '"' : "") + ">" + ic + (val === "" ? "" : "<b>" + val + "</b>") + (cap ? "<span>" + cap + "</span>" : "") + "</button>";
   }
   var lv = level(it), d = IEF.daysTo(it.useby), t = [];
-  t.push(tl(counted(it) ? "qty" : "level", IEF.lvIcon(lv, 30), "", "", "", "Level, " + lv + ". Opens the edit flyout"));
+  t.push(tl(counted(it) ? "qty" : "level", IEF.lvIcon(lv, 30), "", "", "", "Level, " + (lv || "none") + ". Opens the edit flyout"));
   t.push(tl("useby", sv(IC.clock, "", 20), it.useby ? esc(d === 0 ? "Today" : d === 1 ? "1D" : d > 1 && d < 7 ? d + "D" : IEF.dayName(it.useby).replace(/^\w+ /, "")) : null, "Use by", "Add use-by", it.useby ? "Use by, " + IEF.rel(d) : ""));
   var third = false;
   if (it.unit || it.min) { t.push(tl("min", sv(IC.down, "", 20), it.min ? esc(it.min + (it.unit ? " " + it.unit : "")) : null, "Minimum", "Add minimum")); third = true; }
@@ -225,7 +226,7 @@ IEF.hintHtml = function (it) {
   return '<p class="phint" id="ief-hint">' + (counted(it) ? '<span class="kbd">U</span> use one ' : "") + '<span class="kbd">D</span> used up <span class="kbd">S</span> shopping list <span class="kbd">E</span> edit <span class="kbd">,</span> history</p>';
 };
 IEF.parentInner = function (it) {
-  return '<span class="grab" data-grab aria-hidden="true"></span><div class="top shead" id="ief-head" data-ief="strip">' + IEF.headHtml(it) + '</div><div class="ef-emof" id="ief-emof" hidden><input class="ef-in ef-emoin" id="ief-emoin" data-emo="sheet" type="text" value="' + esc(it.emoji || "") + '" placeholder="Search, or type or paste your own emoji" maxlength="40" autocomplete="off" autocapitalize="none" spellcheck="false" enterkeyhint="done" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="ief-sg-emo" aria-label="Emoji"><div class="ef-cats ef-strip" id="ief-sg-emo" data-kind="emo" data-open="false" data-n="0" hidden></div></div><div class="tiles tiles4" id="ief-tiles">' + IEF.tilesHtml(it) + '</div><div class="sbuyw" id="ief-buyw">' + IEF.buyHtml(it) + '</div><div class="sacts" id="ief-acts">' + IEF.actsHtml(it) + '</div><div id="ief-hintw">' + IEF.hintHtml(it) + '</div>';
+  return '<span class="grab" data-grab aria-hidden="true"></span><div class="top shead" id="ief-head" data-ief="strip">' + IEF.headHtml(it) + '</div><div class="ef-emof" id="ief-emof" hidden><input class="ef-in ef-emoin" id="ief-emoin" data-emo="sheet" type="text" value="' + esc(it.emoji || "") + '" placeholder="Search, or type or paste your own emoji" maxlength="40" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="done" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="ief-sg-emo" aria-label="Emoji"><div class="ef-cats ef-strip" id="ief-sg-emo" data-kind="emo" data-open="false" data-n="0" hidden></div></div><div class="tiles tiles4" id="ief-tiles">' + IEF.tilesHtml(it) + '</div><div class="sbuyw" id="ief-buyw">' + IEF.buyHtml(it) + '</div><div class="sacts" id="ief-acts">' + IEF.actsHtml(it) + '</div><div id="ief-hintw">' + IEF.hintHtml(it) + '</div>';
 };
 IEF.emptyHtml = function () { return '<div class="pick"><p>Pick an item to see it here.</p><p class="phint">' + (hk("edit") ? '<span class="kbd">&uarr;</span> <span class="kbd">&darr;</span> to move, <span class="kbd">?</span> for all shortcuts' : "") + "</p></div>"; };
 /* re-draw only what an edit can change in the item flyout, so nothing under the pointer or focus is replaced */
@@ -310,7 +311,7 @@ IEF.closeTop = function (o) {
 IEF.startAdd = function () {
   settle();
   if (S.child) IEF.setChild(null);
-  IEF.draft = { id: "new", emoji: "", name: "", area: "Unplaced", spot: "", cat: "", amount: null, unit: "", text: "", useby: "", min: "", level: "Plenty", lvSet: null, list: null };
+  IEF.draft = { id: "new", emoji: "", name: "", area: "Unplaced", spot: "", cat: "", amount: null, unit: "", text: "", useby: "", min: "", level: "", lvSet: null, list: null };
   S.mode = "add"; S.field = ""; IEF.drawPanel(); IEF.drawList(); IEF.fillChild("add", function () { if (IEF.host.addReady) IEF.host.addReady(); }); IEF.url();
 };
 IEF.cancelAdd = function (quiet) {
@@ -383,7 +384,12 @@ IEF.act = {
     IEF.setBuy(it, n); var i = $('[data-buy="num"]'); if (i) i.value = n;
   },
   /* the tile shows the emoji box under the header and focuses it (decision 119); an open child (Edit, History) steps back first, so the box is in view */
-  sheetemoji: function () { if (S.child) IEF.closeChild(false); IEF.need("emoji.js", function () { IEF.emoji.sheet(); }); },
+  sheetemoji: function () {
+    if (S.child) IEF.closeChild(false);
+    if (IEF.emoji) { IEF.emoji.sheet(); return; }
+    /* the first tap: open and focus the box NOW, inside the tap (a phone only raises the keyboard for a focus made in the gesture), then fetch the code that fills the strip */
+    IEF.emoNow("#ief-emof", "#ief-emoin", "#ief-emo", "sheetEmo"); IEF.need("emoji.js", function () { IEF.emoji.sheet(true); });
+  },
   add: function () { IEF.startAdd(); },
   addcancel: function () { IEF.cancelAdd(); },
   undo: function () { IEF.undo(); },
@@ -419,8 +425,8 @@ function boot() {
   /* ?lv=Running low (or Some, Plenty, Out) sets that level on the selected item before it is drawn, so every level can be linked to. Demo only, like the sample data. */
   var lv0 = Q.get("lv"), it0 = lv0 && S.sel ? IEF.cur() : null;
   if (it0 && IEF.LEVELS.indexOf(lv0) > -1) {
-    if (lv0 === "Out") { if (it0.amount !== null) { if (it0.amount > 0) it0.prev = it0.amount; it0.amount = 0; } else it0.level = "Out"; }
-    else if (IEF.auto(it0)) it0.lvSet = lv0; else it0.level = lv0;
+    if (lv0 === "Out") { if (it0.amount !== null) { if (it0.amount > 0) it0.prev = it0.amount; it0.amount = 0; } else { it0.level = "Out"; it0.lvSet = "Out"; } }
+    else if (IEF.auto(it0)) it0.lvSet = lv0; else { it0.level = lv0; it0.lvSet = lv0; }
   }
   $("#root").innerHTML = h.shell({ list: IEF.listHtml() });
   IEF.drawPanel(); attr("hint", S.hint);

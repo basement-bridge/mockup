@@ -29,6 +29,15 @@ IEF.host = {
 };
 if (S.sel || S.mode === "add") open = false;
 
+/* The on-screen keyboard (decision 131, owner by voice 12 Oct 2026). It covers the lower part of the screen without moving a bottom sheet, so while a box is focused the sheet is lifted by the keyboard's height (--kb, from the visual viewport:
+   iOS Safari and Android Chrome both report it there) and the emoji box is scrolled into view. When the keyboard is dismissed the box loses focus: emoji.js keeps a valid emoji (or an empty box as "no emoji") at that moment and puts the box away,
+   so nothing typed is lost. IEF.host.kb(px) sets the lift by hand (the check uses it: a headless browser has no keyboard). */
+function kb(px) { px = Math.max(0, Math.round(px)); document.documentElement.style.setProperty("--kb", px + "px"); var a = document.activeElement; if (px > 0 && a && a.matches && a.matches("[data-emo]")) { var w = a.closest(".ef-emof") || a; try { w.scrollIntoView({ block: "nearest", behavior: "auto" }); } catch (x) {} } }
+IEF.host.kb = kb;
+var vv = window.visualViewport;
+if (vv) vv.addEventListener("resize", function () { var a = document.activeElement, typing = a && a.matches && a.matches("input,textarea"); var px = innerHeight - vv.height - vv.offsetTop; kb(typing && px > 80 ? px : 0); });
+document.addEventListener("focusout", function () { setTimeout(function () { var a = document.activeElement; if (!(a && a.matches && a.matches("input,textarea"))) kb(0); }, 60); });
+
 /* Esc: the top layer first (Add, then the child, then the item). */
 document.addEventListener("keydown", function (e) {
   if (e.key !== "Escape") return;
