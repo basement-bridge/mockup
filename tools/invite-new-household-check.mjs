@@ -68,8 +68,7 @@ for (const [w, h] of [[1024, 768], [1280, 860], [1440, 900]]) for (const mode of
   ok(`${tag}: link ready: a sample link, says it works once, and says NOTHING about expiry`, (await p.locator("#inv-link").inputValue()) === "kitchie.example/start/sample-link" && /Works once/.test(ct) && !/expire|expiry|48|24 hours|month|days/i.test(ct), ct);
   ok(`${tag}: link ready: no line about the inviter not being a member`, !/not be a member|not a member|cannot see/i.test(ct)); }
   ok(`${tag}: what they will see shows the typed message`, (await p.locator(".pf-invq").innerText()).includes(MSG));
-  const href = await p.locator(".pf-inv a.pf-lnk").getAttribute("href");
-  ok(`${tag}: the sign-up link carries the message`, href.includes("start.html") && decodeURIComponent(href).includes(MSG), href);
+  ok(`${tag}: no "See their sign-up screen" link in the modal (INH-D20)`, await p.locator(".pf-inv a.pf-lnk").count() === 0 && !/sign-up screen/i.test(await p.locator(".pf-inv").innerText()));
   ok(`${tag}: the way back (one line) is still offered under the link`, await p.locator(".pf-inv [data-inv=back]").count() === 1);
   await shot(p, `invite-created-${w}-${mode}`);
   await p.locator("[data-inv=copy]").click();
