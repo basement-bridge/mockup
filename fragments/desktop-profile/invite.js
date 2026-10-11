@@ -54,7 +54,6 @@ function addNew(quiet){
  if(quiet&&its.some(function(x){return x._mine}))return;
  its.unshift({st:"pending",msg:INV.msg.trim(),sent:TODAY,exp:TODAY_EXP,_mine:true});sync()}
 function title(){return INV.state==="list"?"My invites":"Invite someone to a household of their own"}
-function recvHref(){return "../invite-new-household/start.html?s=landing"+(INV.msg.trim()?"&m="+encodeURIComponent(INV.msg.trim()):"&msg=none")}
 
 /* the way back: one plain, low-key line (owner, 12 Oct 2026). It is not a card. */
 function wrong(){
@@ -72,7 +71,7 @@ function created(copied){
   +'<div class="pf-invlink"><span class="pf-ico">'+ic("link",18)+'</span><input class="pf-in" id="inv-link" type="text" readonly value="'+LINK+'" aria-label="Their link (sample, not a real address)"><button type="button" class="pf-btn pri" data-focus data-inv="copy" aria-describedby="inv-copied">'+(copied?ic("check",18)+' Copied':ic("copy",18)+' Copy link')+'</button></div>'
   +'<p class="pf-small pf-invcopied" id="inv-copied" role="status">'+(copied?'Copied. Paste it into a message to them.':'Send it to them yourself, in whatever you already use.')+'</p>'
   +'<p class="pf-invonce">'+ic("lock",16)+'<span><b>Works once.</b> Opening it does not use it up; finishing sign-up does.</span></p>'
-  +'<div class="pf-invprev"><span class="pf-lbl">What they will see, next to the sign-up button</span>'+(has?'<blockquote class="pf-invq"><i aria-hidden="true">A</i><span>'+esc(INV.msg.trim())+'</span></blockquote>':'<p class="pf-small pf-invnone">No message. They see the standard invitation only.</p>')+'<a class="pf-lnk" href="'+recvHref()+'" target="_blank" rel="noopener">See their sign-up screen</a></div>'
+  +'<div class="pf-invprev"><span class="pf-lbl">What they will see, next to the sign-up button</span>'+(has?'<blockquote class="pf-invq"><i aria-hidden="true">A</i><span>'+esc(INV.msg.trim())+'</span></blockquote>':'<p class="pf-small pf-invnone">No message. They see the standard invitation only.</p>')+'</div>'
   +wrong()}
 
 /* My invites: a list of invites sent, each with a status. Used is a record only: no name, no link to their household (owner: a clean handoff). */
