@@ -89,15 +89,76 @@ for (const [w, h] of [[1024, 768], [1280, 800], [1440, 900]]) for (const mode of
   t = await open(w, h, mode, "open=preferences"); p = t.p;
   ok(`${tag}: Preferences today is still the embedded screen`, await p.locator("iframe.pf-frame").count() === 1);
   await t.ctx.close();
-  t = await open(w, h, mode, "open=preferences&pref=a&psub=mine&sel=pref:me:cap"); p = t.p;
-  ok(`${tag} A: Preferences opens under itself (Mine, Household, Members and admins)`, (await p.locator(".pf-kids .pf-nvc .pf-t").allInnerTexts()).join("|") === "Mine|Household|Members and admins");
-  ok(`${tag} A: edit is a flyout`, await p.locator(".pf-fly").isVisible() && await p.locator(".pf-fly input[type=radio]").count() === 3);
+  t = await open(w, h, mode, "open=preferences&pref=a&psub=mine&sel=a:d:me:cap"); p = t.p;
+  ok(`${tag} A: Preferences opens under itself (Mine, Household, one row per housemate with something to show)`, (await p.locator(".pf-kids .pf-nvc .pf-t").allInnerTexts()).join("|") === "Mine|Household|Sam|Maya", await p.locator(".pf-kids .pf-nvc .pf-t").allInnerTexts());
+  ok(`${tag} A: no Members and admins under Preferences`, !/members and admins/i.test(await p.locator(".pf-nav").innerText()));
+  ok(`${tag} A: edit is a flyout`, await p.locator(".pf-fly").isVisible() && await p.locator(".pf-fly input[type=radio], .pf-fly [role=radio]").count() >= 2);
+  await p.keyboard.press("Control+Escape");
+  const mt = await p.locator("#pf-panel").innerText();
+  ok(`${tag} A: Mine has the uat sections`, ["Ask me to check amounts", "Quiet hours", "Most suggestions per day", "Add a rule for a place or an item", "Switched off", "Your note", "Household note", "Added for you", "Add something for a housemate", "Added for housemates", "They are not about how much you have"].every(x => mt.toLowerCase().includes(x.toLowerCase())), mt.slice(0, 200));
+  ok(`${tag} A: Mine proposals are dashed, name who they wait for, and carry Take back`, await p.locator("#pf-panel .pf-prop").count() >= 1 && /Waiting for/.test(mt) && await p.locator("#pf-panel [data-pa=takeback]").count() >= 1);
   await shot(p, `pref-a-${w}-${mode}`);
-  await p.keyboard.press("Control+Escape"); await p.locator("#pf-tab-preferences-hh").click();
-  ok(`${tag} A: Household list`, (await p.locator(".pf-head h2").innerText()) === "Household" && await p.locator("#pf-panel [data-sel]").count() === 9);
-  await p.locator('[data-as="sam"]').click(); await p.locator('[data-sel="pref:hh:quiet"]').click();
-  ok(`${tag} A: a member sees the household value read-only`, await p.locator(".pf-fly .pf-btn.pri").count() === 0 && /Only an admin/.test(await p.locator(".pf-fly").innerText()));
+  await p.locator('[data-sel="a:add:me"]').click(); await p.waitForSelector(".pf-fly .pf-pk");
+  const pk0 = await p.locator(".pf-fly .pko, .pf-fly .pf-pko").count();
+  ok(`${tag} A: add-rule picker is scoped, not a dump of every item`, pk0 > 0 && pk0 <= 20, pk0);
+  await p.locator("#pk-q").fill("rice"); await p.waitForTimeout(150);
+  ok(`${tag} A: picker searches by item`, await p.locator(".pf-fly .pf-pko").count() >= 1 && /rice/i.test(await p.locator(".pf-fly .pf-pko").first().innerText()));
+  await shot(p, `pref-a-picker-${w}-${mode}`);
+  await p.keyboard.press("Control+Escape");
+  await p.locator("#pf-tab-preferences-hh").click();
+  ok(`${tag} A: Household pane`, (await p.locator(".pf-head h2").innerText()) === "Household" && /Stock level check defaults/i.test(await p.locator("#pf-panel").innerText()) && !/members and admins/i.test(await p.locator("#pf-panel").innerText()));
+  await p.locator('[data-as="sam"]').click(); await p.locator('[data-sel="a:d:hh:quiet"]').click();
+  ok(`${tag} A: a member sees the household value read-only`, await p.locator(".pf-fly .pf-btn.pri").count() === 0 && /admin/i.test(await p.locator(".pf-fly").innerText()));
   await noNav(t, tag + " A"); await t.ctx.close();
+  /* A: changed since last seen, three variants */
+  for (const c of ["1", "2", "3"]) {
+    t = await open(w, h, mode, `open=preferences&pref=a&psub=hh&chg=${c}`); p = t.p;
+    const ht = await p.locator("#pf-panel").innerText();
+    if (c === "1") ok(`${tag} A chg1: Changed badge with who and when`, await p.locator("#pf-panel .pf-chip.chg").count() >= 1 && /Maya changed this/.test(ht), ht.slice(0, 120));
+    if (c === "2") ok(`${tag} A chg2: dot on the row, clears once opened`, await p.locator("#pf-panel .pf-unseen, #pf-panel .pf-dot").count() >= 1);
+    if (c === "3") ok(`${tag} A chg3: summary line with the rows called out`, /2 things changed since you last checked/.test(ht) && await p.locator("#pf-panel .pf-called").count() >= 1);
+    await shot(p, `pref-a-hh-chg${c}-${w}-${mode}`);
+    await noNav(t, `${tag} A chg${c}`); await t.ctx.close();
+  }
+  /* A: a member row, own items and a proposal */
+  t = await open(w, h, mode, "open=preferences&pref=a&psub=sam"); p = t.p;
+  const st = await p.locator("#pf-panel").innerText();
+  ok(`${tag} A: member row is food only (Avoids, Likes) and read-only`, /avoids/i.test(st) && !/Quiet hours/.test(st) && await p.locator("#pf-panel [data-pa=dial]").count() === 0, st.slice(0, 160));
+  ok(`${tag} A: member row shows my proposal, dashed, Waiting for Sam, with Take back`, await p.locator("#pf-panel .pf-prop").count() >= 1 && /Waiting for Sam/.test(st) && await p.locator("#pf-panel [data-pa=takeback]").count() >= 1);
+  await shot(p, `pref-a-member-${w}-${mode}`);
+  await noNav(t, tag + " A member"); await t.ctx.close();
+  /* household: members and admins live in Household settings */
+  t = await open(w, h, mode, "open=household"); p = t.p;
+  ok(`${tag}: Household settings holds Members and admins`, /members and admins/i.test(await p.locator("#pf-panel").innerText()));
+  await t.ctx.close();
+  /* profile: name in place, AI assistants */
+  t = await open(w, h, mode, "open=me&ai=many"); p = t.p;
+  ok(`${tag} profile: no separate Name field, name sits where the picture hint was, with a pencil`, await p.locator("#pf-panel label:has-text('Name')").count() === 0 && await p.locator("[data-act=editname] .pf-nmp").count() === 1 && !/tap the picture/i.test(await p.locator("#pf-panel").innerText()));
+  await p.locator("[data-act=editname]").click(); await p.keyboard.press("ControlOrMeta+a"); await p.keyboard.type("Ari"); await p.keyboard.press("Enter");
+  ok(`${tag} profile: name edits in place`, (await p.locator(".pf-nm").innerText()) === "Ari" && await p.locator("[data-nameinp]").count() === 0);
+  ok(`${tag} profile: connected assistants have chip and a radio, the unlinked one is greyed with Connect`, await p.locator(".pf-ai .pf-chip.ok").count() === 2 && await p.locator(".pf-ai [role=radio]").count() === 2 && await p.locator(".pf-ai.off [data-ai=connect]").count() === 1 && await p.locator(".pf-ai.off [role=radio]").count() === 0 && await p.locator("[data-ai=add]").count() === 1);
+  await shot(p, `profile-${w}-${mode}`);
+  await noNav(t, tag + " profile"); await t.ctx.close();
+  /* kitchen setup: Locations, one form for add and edit */
+  t = await open(w, h, mode, "open=settings&sub=locs"); p = t.p;
+  const lt = await p.locator("#pf-panel").innerText();
+  ok(`${tag} locs: rows show the name only (no counts, no spots)`, !/\d+ (items?|spots?)/.test(lt) && !/Crisper|Top shelf/.test(lt), lt);
+  await p.locator('[data-sel="loc:fridge"]').click(); await p.waitForSelector(".pf-fly");
+  const ef = await p.locator(".pf-fly").evaluate(n => [...n.querySelectorAll("label,.pf-lbl")].map(x => x.textContent.trim().toLowerCase()));
+  ok(`${tag} locs: edit has Remove this location`, await p.locator(".pf-fly [data-act=rmloc]").count() === 1 && /Remove this location/.test(await p.locator(".pf-fly").innerText()));
+  await p.keyboard.press("Control+Escape"); await p.locator('[data-sel="loc:new"]').click(); await p.waitForSelector(".pf-fly");
+  const nf = await p.locator(".pf-fly").evaluate(n => [...n.querySelectorAll("label,.pf-lbl")].map(x => x.textContent.trim().toLowerCase()));
+  ok(`${tag} locs: add and edit use the same fields`, ["name", "icon", "spots", "order"].every(f => ef.some(x => x.startsWith(f)) && nf.some(x => x.startsWith(f))), [ef, nf]);
+  ok(`${tag} locs: add has no Remove, and Add stays off until a name`, await p.locator(".pf-fly [data-act=rmloc]").count() === 0 && await p.locator(".pf-fly [data-act=commitloc]").isDisabled());
+  await p.keyboard.type("Garage"); ok(`${tag} locs: Add turns on with a name`, !(await p.locator(".pf-fly [data-act=commitloc]").isDisabled()));
+  await p.locator(".pf-fly [data-act=commitloc]").click(); await p.waitForTimeout(200);
+  ok(`${tag} locs: added row shows in the list`, /Garage/.test(await p.locator("#pf-panel").innerText()));
+  await noNav(t, tag + " locs"); await t.ctx.close();
+  /* categories: no "In this category" chips, counts stay */
+  t = await open(w, h, mode, "open=settings&sub=cats&sel=cat:meat"); p = t.p;
+  const cf = await p.locator(".pf-fly").innerText();
+  ok(`${tag} cats: In this category block is gone, counts stay in rename hint and Remove or merge`, !/in this category/i.test(cf) && /3 items/.test(cf) && /Remove or merge/.test(cf), cf);
+  await t.ctx.close();
   t = await open(w, h, mode, "open=preferences&pref=b&sel=pref:hh:cap"); p = t.p;
   ok(`${tag} B: Mine and Household side by side on the same row`, await p.locator(".pf-sbs2").count() >= 6 && await p.locator(".pf-sbs2").first().evaluate(n => { const c = n.children; return c.length === 2 && c[1].getBoundingClientRect().left > c[0].getBoundingClientRect().right - 2; }));
   ok(`${tag} B: gutter stays flat (Preferences has no children)`, await p.locator(".pf-kids").count() === 0);

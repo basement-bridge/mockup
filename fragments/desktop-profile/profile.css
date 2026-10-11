@@ -162,3 +162,39 @@ html.pf-lock{overflow:hidden;scrollbar-gutter:auto}
 .pf-dock:hover{background:var(--surface)}
 .pf-keysl{padding:6px 8px 0}
 @media (max-width:900px){.pf-kids,.pf-tw,.pf-dock,.pf-head .pf-crumb,.pf-ngl{display:none}.pf-nvt.pf-par{box-shadow:inset 0 -3px 0 var(--accent)}}
+
+/* ---------- round 5 (12 Oct 2026): name in place, AI assistants, housemate rows in the gutter ---------- */
+.pf-who2{min-width:0;flex:1;display:grid;gap:6px;align-content:center}
+.pf-nameedit{display:inline-flex;align-items:center;gap:8px;min-height:var(--tap);padding:0 10px 0 4px;margin-left:-4px;border:1px solid transparent;border-radius:var(--r-ctl);background:none;font:700 1.5rem var(--head);line-height:1.1;text-align:left;max-width:100%}
+.pf-nameedit:hover{border-color:var(--border);background:var(--surface)}
+.pf-nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.pf-nmp{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--surface);border:1px solid var(--border);color:var(--accent);flex:none}
+.pf-nameinp{font:700 1.3rem var(--head);max-width:22rem}
+.pf-namehint{display:block}
+.pf-intro2{margin:0 2px 8px}
+.pf-aibox{padding:0}
+.pf-ai-cap{margin:0;padding:12px 14px 4px;font-weight:600;color:var(--fg)}
+.pf-aibox ul{padding:0 8px}
+.pf-ai{display:flex;align-items:center;gap:10px;min-height:60px;padding:6px 6px;border-radius:var(--r-ctl)}
+.pf-ai+.pf-ai{border-top:1px solid var(--border);border-radius:0}
+.pf-ai .pf-t{font-weight:600}
+.pf-arad{display:flex;align-items:center;gap:12px;flex:1;min-width:0;min-height:var(--tap);padding:0 4px;background:none;border:0;text-align:left;border-radius:var(--r-ctl)}
+.pf-arad:hover{background:var(--surface)}
+.pf-ai-ck{flex:none;width:20px;height:20px;border-radius:50%;border:2px solid var(--border);background:var(--bg)}
+.pf-ai.dflt .pf-ai-ck{border-color:var(--accent);background:var(--accent);box-shadow:inset 0 0 0 3px var(--bg)}
+.pf-ai.dflt .pf-t small{color:var(--accent);font-weight:600}
+.pf-ai:not(.dflt):not(.off) .pf-ai-ck{background:var(--bg)}
+.pf-ai.off{opacity:.62}
+.pf-ai.off .pf-t{color:var(--muted)}
+.pf-ai-ck.off{border-style:dashed;background:none;margin-left:4px}
+.pf-ai .pf-btn{font-weight:600}
+.pf-ai.off .pf-btn{opacity:1;border-color:var(--accent);color:var(--accent)}
+.pf-ai-foot{padding:10px 14px 14px;display:grid;gap:10px;border-top:1px solid var(--border)}
+.pf-aihint{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-ctl);padding:10px 14px;color:var(--fg);display:flex;gap:8px;align-items:flex-start}
+.pf-aihint .pf-i{color:var(--accent);margin-top:2px}
+.pf-ini.sm{width:24px;height:24px;font-size:12px;flex:none}
+.pf-nvc .pf-cn{margin-left:auto;font-size:11px;font-weight:600;color:var(--muted);white-space:nowrap}
+.pf-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--accent);flex:none;margin-left:2px}
+.pf-static{cursor:default}
+.pf-static:hover{background:none}
+.pf-emo{font-size:18px;line-height:1}

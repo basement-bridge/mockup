@@ -74,6 +74,40 @@ Owner, by voice, 11 October 2026 (one round of feedback on the Settings panel). 
 
 **SW-21. For the builder (not for now).** Same names as the mockup: `.pf-kids`, `.pf-nvc`, `.pf-ngl` (gutter tree), `.pf-dock` (History), `.pf-row` holding `.pf-body` and `.pf-fly` (flyout), `.pf-flybk` (dim), `.pf-acc`, `.pf-accp` (open row), `data-sub`, `data-sel`, `data-acc`, `data-flyclose`. The window's markup now has `.pf-row` between the header and footer. The mockup-only controls are marked `.pf-mock`; the built page leaves them out. Do not build before the owner has chosen.
 
+### Round 5 notes (SW-22 on)
+
+Owner, voice, 11 and 12 October 2026: "the entire mockup revised based on what we spoke about, and the notes captured". Preferences option A only (B and C untouched), the Profile screen, and Kitchen setup. Mockup only; the owner reviews before any build. Behaviour was read from kitchie `uat` (read-only).
+
+**SW-22. Standing rule: every flyout loads in place.** All flyouts (Preferences Mine, Household and member rows, Locations, Categories, and the rest) open inside the same screen and panel, never as a separate page load. In this mockup now and in the real kitchie build later. This echoes mockup PR #91.
+
+**SW-23. Preferences A: summary rows, flyout beside the list.** Rows in the gutter pane are read-only summaries; a click opens the editor in a flyout beside the list. Mine mirrors uat's Mine screen: Stock level checks (Ask me to check amounts, Quiet hours, Most suggestions per day) with value, a second line ("App says On", "Same as household", "Household says 5") and a source chip (App dashed, Household outlined green, You filled); "Level and how often, by place" (by location, by category, Everything else) with uat's "most specific place wins" explainer; Add a rule; "What applies to an item"; Switched off; the footer line that stock checks are not about how much you have; Your note and Household note ("both notes are read, neither replaces the other"); Added for you; food rows (Avoids, Likes with scope and timing); Substitutions; Add something for a housemate; Added for housemates. The resolver follows uat: all 1, category 2, location 2, category in a location 3, item 4; a tie between category and location applies the quieter level and longer interval and says so; dials resolve App, then Household, then You.
+
+**SW-24. The add-rule and "what applies" pickers are scoped and searchable.** A scope control (All, Items, Categories, Places), a search box (item, category or place) and a short quick-pick list (three categories, three places). They never list every item.
+
+**SW-25. Gutter under Preferences: Mine, Household, then one row per other household member.** Under a "Housemates" label, with "N waiting" when a proposal is pending.
+
+**SW-26. A member row is read-only and shows only that person's food preferences.** Avoids and Likes (and dislikes) with scope and timing. Nothing else about the person is shown.
+
+**SW-27. What Arjan proposes for a person looks different and can be taken back.** Dashed row, "Proposed by you", a "Waiting for <name>" chip, and "Take back" on the item itself. Mine's "Added for housemates" and the member row are two views of the same pending proposals (taking back in one clears the other). As in uat the proposal is in use at once; the recipient keeps, changes or removes it ("Keep it as it is", "Change it", "Remove it"; a safety avoid asks to confirm removal) and the proposer is not told what they decide. Taken-back outcomes show the uat flash texts.
+
+**SW-28. A member row exists only if there is something to show for that person.** The mockup draws Sam (own items and a proposal) and Maya (own items and a proposal). A member with no food items and no pending proposal has no row.
+
+**SW-29. Household keeps the shared defaults and food rules.** Stock check defaults, rules by place, household note and household food rules, editable by admins, read-only for members (verified against uat). Nothing a member adds for another member is kept here; it is written on that person's own list.
+
+**SW-30. Members and admins is not in Preferences.** It lives in Household settings (section 4), with the intro text moved there. Round 4's gutter had it under Preferences; that was misplaced and is removed. `psub=members` is still accepted and opens Household.
+
+**SW-31. Profile: name in place.** The separate Name field is gone. The name sits where "tap the picture to change" was, with a small pencil; tapping edits it in place (saves as you type, Enter or leaving the box keeps it, Esc reverts, 24 characters).
+
+**SW-32. Profile: AI assistants, visual revamp, same behaviour.** Per assistant: a "Connected" chip; with two or more connected, the existing default radio among the connected ones; not-connected assistants greyed with "Connect" instead of a radio; "Link another assistant" and "Reset and link again" (or "Link your assistant" when none). Copy and rules from uat `profile-assistant.ts`: linked through platform sign-in, one linked is used automatically, two or more need a default, Link, Disconnect and Reset happen on platform's page. States via `&ai=none|one|many|choose`.
+
+**SW-33. Locations: names only in the list; all editing in the flyout.** No counts, no spot chips on the rows. The flyout holds name, icon, spots (add, open, order) and order.
+
+**SW-34. Add location and Edit location are one form.** The same fields (Name, Icon, Spots, Order). An existing location also has "Remove this location"; a new one has none. A new one has Cancel and "Add location" (off until a name is typed).
+
+**SW-35. Categories: the "In this category" chips block is removed.** Item counts stay in the rename hint and in Remove or merge. Nothing else changed. Oddities seen and left alone: the rename hint and the remove text both say "3 items" (consistent); no other oddity found.
+
+**SW-36. Params added.** `&chg=1|2|3`, `&ai=none|one|many|choose`, `&psub=<member id>` (for example `sam`, `maya`). Existing ones unchanged. Load: `profile-prefs.js` and `.css` are fetched only for `pref=a`.
+
 ## Open questions
 
 - **SW-O1.** Which parts need more room? Done: the whole window and a 60rem content measure. Not done: widening the Preferences screen (kept at 640px). A wrong guess costs one CSS value.
@@ -86,8 +120,12 @@ Owner, by voice, 11 October 2026 (one round of feedback on the Settings panel). 
 - **SW-O8.** The built window numbers sections 1 to 6; the mockup now has 1 to 5 (History gone). Confirm the renumbering, and whether the old Y letter should be freed.
 - **SW-O9.** Install detection. The owner said "viewport". The mockup uses width (under 900px: phone and tablet steps) and the browser's name. The real rule should be the device first: touch and platform (an iPad's Safari reports itself as a Mac), width only as a tie-break, so a desktop browser dragged narrow keeps the desktop steps. OK to build it that way?
 - **SW-O10.** Apply the in-place rows and sheets to `flows/household` (Menu, Settings) too? Today the phone flow still opens pages for Looks, Categories and Locations and spots; only this window shows the new phone and tablet behaviour. Wrong guess costs one more mockup pass.
-- **SW-O11.** Other places that leave the place: Me > AI assistants "Your link" (own screen), Preferences > Household sub-screens (Members and admins and the rest), Household > member sheet (a sheet, already in place). Same treatment for the first two?
+- **SW-O11.** Other places that leave the place: Me > AI assistants "Your link" (own screen), Preferences > Household sub-screens (Members and admins now lives in Household settings, SW-30), Household > member sheet (a sheet, already in place). Same treatment for the first two?
 - **SW-O12.** Flyout width 400px (the Pantry panel's) and the 1168px line where it stops sitting beside the list. At 1024 should the flyout instead be narrower (about 340px) beside a shorter list rather than taking the area?
+- **SW-O13.** "Changed since last seen" on Household: three variants are drawn (1 a "Changed" badge with who and when, 2 a dot that clears once the row is opened, 3 a top line "2 things changed since you last checked" with the rows called out), switchable by `&chg=` or the footer. None is chosen. Which one, or a mix?
+- **SW-O14.** Member row contents: food only (SW-26). Should it also show that person's pending proposals from other members, or only mine? Drawn: only the ones I made.
+- **SW-O15.** How long does a withdrawn or answered proposal stay visible to the proposer? uat says the proposer is not told what the recipient decides, so only "Taken back" is drawn for the proposer.
+- **SW-O16.** Profile name editing: save as you type (drawn) or an explicit Save? uat saves on leave.
 
 ## Performance (DESIGN.md section 6)
 
