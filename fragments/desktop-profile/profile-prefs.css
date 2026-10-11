@@ -16,8 +16,8 @@
 .pf-ico.sm{width:28px;height:28px}
 .pf-chipgo{display:inline-flex;align-items:center;gap:2px;min-height:var(--tap);padding:0 10px 0 12px;border-radius:var(--r-pill);border:1px solid var(--sage);color:var(--sage);background:none;font:700 12px var(--body)}
 .pf-chipgo:hover{background:var(--surface)}
-.pf-lock{display:flex;gap:10px;align-items:flex-start;padding:10px 14px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--surface);color:var(--muted);font-size:14px}
-.pf-lock .pf-i{margin-top:2px;flex:none}
+p.pf-lock{display:flex;gap:10px;align-items:flex-start;padding:10px 14px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--surface);color:var(--muted);font-size:14px}
+p.pf-lock .pf-i{margin-top:2px;flex:none}
 .pf-lnk{border:0;background:none;padding:0;color:var(--accent);font-weight:700;text-decoration:underline;min-height:var(--tap)}
 /* housemate food, read only. A pending proposal is one dashed row in both directions (Proposed by <who>, Waiting for <name>); Take back on yours, Confirm and Reject on one made for you */
 .pf-ro .pf-item{min-height:56px}
@@ -26,7 +26,9 @@
 .pf-prop .pf-t{flex:1 1 14rem}
 .pf-by{color:var(--fg);font-weight:700}
 .pf-propconf{flex:1 0 100%;display:grid;gap:8px;padding-top:6px;border-top:1px dashed var(--border)}
-.pf-hmates{display:grid;gap:14px}
+.pf-memact{display:flex}
+.pf-propose{border-color:var(--accent);color:var(--accent)}
+.pf-propose[aria-pressed=true]{background:var(--surface);box-shadow:inset 0 0 0 1px var(--accent)}
 .pf-chgnote{display:flex;gap:8px;align-items:flex-start;padding:8px 12px;border-radius:var(--r-ctl);border:1px solid var(--accent);color:var(--fg)}
 .pf-chgnote .pf-i{color:var(--accent);margin-top:2px;flex:none}
 /* flyout bits */

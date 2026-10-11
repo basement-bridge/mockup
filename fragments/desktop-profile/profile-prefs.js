@@ -1,14 +1,14 @@
 /* Settings window, Preferences layout A, redrawn (mockup, 12 Oct 2026, round 5). Loaded by profile.js only when ?pref=a is shown, after profile-subs.js.
    Owner (voice, 11-12 Oct 2026): layout A is the one. The gutter under Preferences is Mine, Household, and one row per housemate who has food to show. Mine holds everything uat's Mine screen holds
-   (stock level checks, rules by place, the add-rule and what-applies pickers, switched off, notes, Added for you, Food, Substitutions, Add something for a housemate, Added for housemates). A housemate's row
-   is read-only and shows food only (plus the pending proposals between you and that person). 12 Oct 2026 (owner, round 6): one visual for a pending proposal in both directions ("Proposed by <who>", "Waiting for <name>", dashed); Take back only on what you proposed, Confirm and Reject on what was proposed for you; answered or taken-back proposals vanish at once; the Household "changed since last seen" is the dot, and the dot also marks a housemate's gutter row. Members and admins are not here: they live in the Household section.
+   (stock level checks, rules by place, the add-rule and what-applies pickers, switched off, notes, Added for you, Food, Substitutions). Round 7 (owner, 12 Oct 2026): Mine no longer has anything about proposing for someone else; that lives on the housemate's own row. A housemate's row
+   is read-only and shows food only (plus the pending proposals between you and that person), with Propose something for <name>. 12 Oct 2026 (owner, round 6): one visual for a pending proposal in both directions ("Proposed by <who>", "Waiting for <name>", dashed); Take back only on what you proposed, Confirm and Reject on what was proposed for you; answered or taken-back proposals vanish at once; the Household "changed since last seen" is the dot, and the dot also marks a housemate's gutter row. Members and admins are not here: they live in the Household section.
    Words and rules are uat's (server/src/preferences/*, branch uat, read 12 Oct 2026): page-dials, rules-draw, stock-rules, food-card, web-notes, web-propose, web-page. Static sample data, no storage, no network.
    Everything opens in place: a row opens its flyout beside the list; nothing is a page of its own (in uat, Added for you and Add for a housemate are pages; here they are flyouts). */
 (function(){
 "use strict";
 var $=function(s,r){return(r||document).querySelector(s)};
 var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
-var P={chev:'<path d="M9 6l6 6-6 6"/>',lock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',plus:'<path d="M12 5v14M5 12h14"/>',minus:'<path d="M5 12h14"/>',
+var P={back:'<path d="M15 6l-6 6 6 6"/>',chev:'<path d="M9 6l6 6-6 6"/>',lock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',plus:'<path d="M12 5v14M5 12h14"/>',minus:'<path d="M5 12h14"/>',
  check:'<circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16 9.5"/>',pencil:'<path d="M4 20l1-4L16.5 4.5a2.1 2.1 0 0 1 3 3L8 19z"/><path d="M14 7l3 3"/>',bin:'<path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12M10 11v5M14 11v5"/>',
  bolt:'<path d="M13 3L5 13.5h6L10 21l8-10.5h-6z"/>',person:'<circle cx="12" cy="8" r="3.6"/><path d="M5 20c.8-4 3.6-6 7-6s6.2 2 7 6"/>',bell:'<path d="M6 17V11a6 6 0 0 1 12 0v6l1.5 2h-15z"/><path d="M10 21h4"/>',
  search:'<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>',people:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17" cy="9" r="2.6"/><path d="M17 14c2.8 0 4.5 1.9 4.5 5"/>'};
@@ -173,10 +173,6 @@ function mine(m){
  /* substitutions */
  var subs=foodOf(v).filter(function(f){return f.r==="sub"});
  h+=card("Substitutions",subs.length?subs.map(function(f){return prow(m,"a:f:"+f.id,{kw:RW.sub,t:f.s,w:f.d,chip:'<span class="pf-chip you">Just you</span>'})}).join(""):'<li class="pf-li-note"><p class="pf-small">No substitutions yet. Tell your assistant, for example: “whenever a recipe has white bread, use sourdough” or “frozen food always needs blanching first”.</p></li>',notep("Your statements and the household’s are added together, not swapped. Say new ones, or a new category, to your assistant. The household’s can be changed by household admins only."));
- /* housemates */
- var mineP=waiting(function(p){return p.from===v});
- h+='<div class="pf-hmates"><div><button type="button" class="pf-btn" data-sel="a:give" aria-pressed="'+(m.sel==="a:give")+'">'+ic("plus",18)+' Add something for a housemate</button></div>'
-  +'<div><span class="pf-lbl">Added for housemates</span>'+(mineP.length?'<ul class="pf-props">'+mineP.map(function(p){return propRow(m,p,"out")}).join("")+'</ul><p class="pf-small pf-note2">Already in use. You can take one back while it waits. You are not told what they decide, and it goes the moment they answer.</p>':'<p class="pf-small">Nothing waiting. What you add for a housemate shows here until they answer it, or you take it back.</p>')+'</div></div>';
  return h}
 /* One pending proposal, drawn the same in both directions (owner, 12 Oct 2026): dashed, "Proposed by <who>" ("you" for your own), "Waiting for <name>" ("you" when it is for you), in use now.
    Only the controls differ: what you proposed has Take back; what was proposed for you has Confirm and Reject (no Take back). ctx: "out" on Mine (adds "for <name>"), "in" on Mine, "member" on a housemate's row. */
@@ -190,8 +186,8 @@ function propRow(m,p,ctx){
  return '<li class="pf-prop" data-prop="'+p.id+'"><span class="pf-t"><span class="pf-fs">'+kw+'</span>'+esc(p.s)+'<small><b class="pf-by">Proposed by '+by+'</b> · Added '+p.at+'. In use now.'+(det?' '+det+'.':'')+'</small></span><span class="pf-chip wait">Waiting for '+to+'</span>'+ctl
   +(conf?'<div class="pf-propconf"><p class="pf-small">This is kept for safety'+(p.why==="safety"?"":" (no reason was given, so it is treated as safety)")+'. Reject it only if it is no longer true.</p><div class="pf-acts"><button type="button" class="pf-btn dng sm" data-pa="rejectyes" data-id="'+p.id+'">Yes, reject it</button><button type="button" class="pf-btn sm" data-pa="keepit">Keep it for now</button></div></div>':"")+'</li>'}
 
-function hh(m){
- var v=viewer(m),adm=isAdmin(m),h=pbar(m)+'<p class="pf-small pf-intro">Shared by everyone in Our kitchen. Used for anyone who has not chosen their own.</p>';
+function hh(m,extra){
+ var v=viewer(m),adm=isAdmin(m),h=pbar(m)+'<p class="pf-small pf-intro">Shared by everyone in Our kitchen. Used for anyone who has not chosen their own.</p>'+(extra||"");
  h+='<p class="pf-lock">'+ic("lock",16)+'<span>Nothing a member adds for another member is kept here. It is written on that person’s own list, so it never becomes a household rule.</span></p>';
  h+=adm?'<p class="pf-small pf-intro">'+(v==="arjan"?"You are the founding member, so you are an admin.":"You are a household admin.")+' Admins can change these. Other members can only look.</p>':lockNote()+'<p class="pf-small pf-intro">You can still change everything on Mine.</p>';
  h+=card("Stock level check defaults",dialRows(m,"hh")+ruleRows(m,"hh"));
@@ -207,30 +203,50 @@ function hh(m){
   notep("These have no personal version, so there is nothing to override on Mine."));
  return h}
 /* a housemate: their food, read-only, and the pending proposals between you and them in either direction (owner, 12 Oct 2026: still food only, nothing else about the person) */
-function memberPane(m,id){
- var v=viewer(m),nm=PPL[id],own=sortFood(foodOf(id).filter(function(f){return f.r!=="sub"})),props=between(v,id);
- var h='<p class="pf-small pf-intro">Food only. What '+nm+' has told Kitchie about food, to read. Only '+nm+' changes it; you can add something for '+nm+' from Mine.</p>';
+function memberPane(m,id,inline){
+ var v=viewer(m),nm=PPL[id],own=sortFood(foodOf(id).filter(function(f){return f.r!=="sub"})),props=between(v,id),open=m.sel==="a:give";
+ var h='<p class="pf-small pf-intro">Food only. What '+nm+' has told Kitchie about food, to read. Only '+nm+' changes it. You can propose something for '+nm+' here.</p>';
+ h+='<div class="pf-memact"><button type="button" class="pf-btn pf-propose" data-sel="a:give" aria-pressed="'+open+'"'+(inline?' aria-expanded="'+open+'" aria-controls="pm-give"':'')+'>'+ic("plus",18)+' Propose something for '+nm+'</button></div>';
+ if(inline&&open){var g=giveParts(m);h+='<div class="pm-give" id="pm-give" role="region" aria-label="Propose something for '+nm+'"><div class="pf-ed">'+g.body+'</div><div class="pm-givef">'+g.foot+'</div></div>'}
  if(own.length)h+='<div><span class="pf-lbl">'+nm+'’s food</span><ul class="pf-list pf-ro">'+own.map(function(f){return '<li><div class="pf-item pf-static"><span class="pf-t"><span class="pf-fs">'+RW[f.r]+'</span>'+esc(f.s)+'<small>'+esc(f.d)+'</small></span><span class="pf-chip you">Just '+nm+'</span></div></li>'}).join("")+'</ul></div>';
- else h+='<p class="pf-small pf-note2">Nothing of '+nm+'’s own yet.</p>';
+ else h+='<div><span class="pf-lbl">'+nm+'’s food</span><p class="pf-small pf-note2 pf-memempty">Nothing of '+nm+'’s own yet. When '+nm+' tells Kitchie what they like, dislike or cannot eat, it shows here.</p></div>';
  if(props.length)h+='<div><span class="pf-lbl">Proposals waiting</span><ul class="pf-props">'+props.map(function(p){return propRow(m,p,"member")}).join("")+'</ul><p class="pf-small pf-note2">In use now. The person it is for confirms or rejects it. Whoever proposed it is not told what they decide, and it goes the moment it is answered or taken back.</p></div>';
  return h}
+/* Someone else: housemates who have nothing to show yet have no row of their own (SW-28). This is the way to one of them, to propose something for them (round 7). */
+function elseIds(v){var rows=memberIds(v);return Object.keys(PPL).filter(function(id){return id!==v&&rows.indexOf(id)<0})}
+function elsePane(m){
+ var v=viewer(m),ids=elseIds(v);
+ if(!ids.length)return '<p class="pf-small pf-intro">Everyone in Our kitchen has a row of their own.</p>';
+ return '<p class="pf-small pf-intro">These housemates have told Kitchie nothing about food yet, so they have no row of their own. Pick one to propose something for them.</p><div><span class="pf-lbl">Housemates with nothing to show yet</span><ul class="pf-list pf-picks">'+ids.map(function(id){return '<li><button type="button" class="pf-item" data-pa="gomember" data-id="'+id+'"><span class="pf-ini sm" aria-hidden="true">'+PPL[id].charAt(0)+'</span><span class="pf-t">'+PPL[id]+'<small>Nothing of their own yet</small></span>'+CHEV+'</button></li>'}).join("")+'</ul></div>'}
 
-function pane(m){
+/* what every layout does before it draws: old links, and what has now been seen */
+function prep(m){
  CUR=m;kids(m);
  if(!m.sel){m.saved=null;PK.key="";GV.key="";CONF=null}
- /* old links: the Added for you flyout and a proposal's flyout are gone (the row answers in place) */
+ /* old links: the Added for you flyout and a proposal's flyout are gone (the row answers in place); the give form belongs to a housemate's row (round 7) */
  if(m.sel==="a:added"||(/^a:f:/.test(m.sel||"")&&!FOOD.some(function(f){return "a:f:"+f.id===m.sel})))m.sel=null;
+ if(m.sel==="a:give"&&!isMember(m,m.psub))m.sel=null;
  if(m.psub==="hh"&&chgMode(m)==="2"){var s=m.sel;if(s&&chgOf(s))SEEN[s]=1}
- if(m.psub!=="hh"&&m.psub!=="mine")SEENM[viewer(m)+":"+m.psub]=1;
+ if(m.psub!=="hh"&&m.psub!=="mine"&&m.psub!=="else")SEENM[viewer(m)+":"+m.psub]=1}
+function isMember(m,id){return !!id&&id!==viewer(m)&&!!PPL[id]}
+function pane(m){
+ if(window.KProfileH&&window.matchMedia&&window.matchMedia("(max-width:900px)").matches&&window.KProfilePrefsM)return window.KProfilePrefsM.pane(m);
+ prep(m);
  if(m.psub==="hh")return hh(m);
  if(m.psub==="mine")return mine(m);
+ if(m.psub==="else")return elsePane(m);
  return memberPane(m,m.psub)}
 
 /* the gutter: Mine, Household, then one row for each housemate with something to show (own food, or a proposal from the viewer) */
 function memberIds(v){return Object.keys(PPL).filter(function(id){return id!==v&&(foodOf(id).filter(function(f){return f.r!=="sub"}).length>0||between(v,id).length>0)})}
 function kids(m){
  var v=viewer(m),out=[{k:"mine",t:"Mine",icon:"user"},{k:"hh",t:"Household",icon:"people",dot:chgMode(m)==="2"&&unseen().length>0}],ms=memberIds(v);
- if(ms.length){out.push({g:"Housemates"});ms.forEach(function(id){var n=between(v,id).length;out.push({k:id,t:PPL[id],ini:PPL[id].charAt(0),note:n?n+" waiting":"",dot:memberDot(m,id),dotLabel:PPL[id]+" has something new"})})}
+ /* a housemate with nothing to show has no row, unless you are looking at them (opened from Someone else, or a link): the row stays while it is open */
+ if(isMember(m,m.psub)&&ms.indexOf(m.psub)<0)ms.push(m.psub);
+ var more=elseIds(v).filter(function(id){return ms.indexOf(id)<0});
+ if(ms.length||more.length)out.push({g:"Housemates"});
+ ms.forEach(function(id){var n=between(v,id).length;out.push({k:id,t:PPL[id],ini:PPL[id].charAt(0),note:n?n+" waiting":"",dot:memberDot(m,id),dotLabel:PPL[id]+" has something new"})});
+ if(more.length)out.push({k:"else",t:"Someone else",icon:"plus"});
  if(!out.some(function(c){return c.k===m.psub}))m.psub="mine";
  return out}
 
@@ -358,34 +374,38 @@ function foodFly(m,id){
  else h+='<button type="button" class="pf-btn dng" data-pa="forget" data-id="'+f.id+'">Stop remembering this</button><p class="pf-small">To change the rule itself, tell your assistant. Moving a statement between Just you and Everyone has no operation today: say it again for the other one.</p>';
  return {t:RW[f.r]+" "+f.s,crumb:hhr?"Household › Food for everyone":"Mine › Food",body:h,foot:"Close"}}
 
-/* Add something for a housemate (uat proposeScreenHtml), in place */
-function others(v){return Object.keys(PPL).filter(function(x){return x!==v})}
-function giveFly(m){
- var v=viewer(m),os=others(v);
- if(GV.key!==m.sel+v){GV={key:m.sel+v,who:os[1]||os[0],st:"avoids",subj:"",why:"safety",err:""}}
- var nm=PPL[GV.who],av=GV.st==="avoids",verb=av?"leave out ":"take into account ";
- var opt=function(pa,val,t,on,lead){return '<button type="button" class="pf-radb" role="radio" aria-checked="'+on+'" data-pa="'+pa+'" data-v="'+val+'"><span class="pf-ck" aria-hidden="true"></span><span class="pf-whoopt">'+(lead||"")+t+'</span></button>'};
- var h=(GV.err?'<p class="pf-err" role="alert">'+esc(GV.err)+'</p>':"")+'<p>Tell Kitchie something about someone else in the kitchen. It goes on their own list and is used straight away. It does not wait for their approval.</p>'
-  +'<span class="pf-step1">1 · Who is it about?</span><div role="radiogroup" aria-label="Who is it about" class="pf-radios">'+os.map(function(id){return opt("gwho",id,PPL[id],GV.who===id,'<span class="pf-ini sm" aria-hidden="true">'+PPL[id][0]+'</span> ')}).join("")+'</div>'
-  +'<span class="pf-step1">2 · What about '+nm+'?</span><div role="radiogroup" aria-label="What about them" class="pf-radios">'+[["avoids","Avoids"],["dislikes","Dislikes"],["likes","Likes"]].map(function(s){return opt("gst",s[0],s[1],GV.st===s[0])}).join("")+'</div>'
-  +'<label class="pf-field"><span class="pf-step1">3 · What is it?</span><input class="pf-in" type="text" data-gsubj maxlength="60" autocomplete="off" placeholder="for example peanuts" value="'+esc(GV.subj)+'"></label>'
-  +(av?'<span class="pf-step1">4 · Why?</span><div role="radiogroup" aria-label="Why" class="pf-radios">'+[["safety","Safety (allergy, intolerance, medical)"],["other","Another reason"],["","Not sure"]].map(function(s){return opt("gwhy",s[0],s[1],GV.why===s[0])}).join("")+'</div><p class="pf-small">Not sure is fine. Kitchie then treats it as none at all and for safety until '+nm+' says otherwise.</p>':"")
-  +'<span class="pf-lbl">What happens when you press the button</span><ul class="pf-happens"><li>'+ic("bolt",22)+'<div><b>Used straight away</b><span>Recipes and plans '+verb+esc(GV.subj.trim()||"what you add")+' for '+nm+' from now. It does not wait for '+nm+' to sign in.</span></div></li>'
-  +'<li>'+ic("person",22)+'<div><b>Written on '+nm+'’s own list</b><span>It is '+nm+'’s record, tagged <q>proposed by '+PPL[v]+'</q>. It is not a household rule and is not under Household.</span></div></li>'
-  +'<li>'+ic("bell",22)+'<div><b>'+nm+' is told, and has the last word</b><span>Next time '+nm+' opens Kitchie, they can keep it, change it or remove it.</span></div></li></ul>';
- return {t:"Add for a housemate",crumb:"Mine",body:h,foot:'<button type="button" class="pf-btn" data-flyclose>Cancel</button><button type="button" class="pf-btn pri" data-pa="gsubmit">Add to '+nm+'’s list now</button>'}}
+/* Propose something for a housemate (uat proposeScreenHtml), in place, from that person's own row (round 7). The person is already known, so there is no "who" step. What can be proposed is uat's: avoids, dislikes, likes; what it is; for an avoid, why (safety, another reason, not sure).
+   Scope and timing are not choices in uat's form: it is always on that person's own list only, in use now, with no end date. They are said as facts, not offered as controls (SW-O22). */
+function giveParts(m){
+ var v=viewer(m),who=m.psub;
+ if(GV.key!==who+v){GV={key:who+v,who:who,st:"avoids",subj:"",why:"safety",err:""}}
+ GV.who=who;
+ var nm=PPL[who],av=GV.st==="avoids",verb=av?"leave out ":"take into account ";
+ var opt=function(pa,val,t,on){return '<button type="button" class="pf-radb" role="radio" aria-checked="'+on+'" data-pa="'+pa+'" data-v="'+val+'"><span class="pf-ck" aria-hidden="true"></span><span>'+t+'</span></button>'};
+ var h=(GV.err?'<p class="pf-err" role="alert">'+esc(GV.err)+'</p>':"")+'<p>Tell Kitchie something about '+nm+'. It goes on '+nm+'’s own list and is used straight away. It does not wait for their approval.</p>'
+  +'<span class="pf-step1">1 · What about '+nm+'?</span><div role="radiogroup" aria-label="What about '+nm+'" class="pf-radios">'+[["avoids","Avoids"],["dislikes","Dislikes"],["likes","Likes"]].map(function(s){return opt("gst",s[0],s[1],GV.st===s[0])}).join("")+'</div>'
+  +'<label class="pf-field"><span class="pf-step1">2 · What is it?</span><input class="pf-in" type="text" data-gsubj data-flyfocus maxlength="60" autocomplete="off" placeholder="for example peanuts" value="'+esc(GV.subj)+'"></label>'
+  +(av?'<span class="pf-step1">3 · Why?</span><div role="radiogroup" aria-label="Why" class="pf-radios">'+[["safety","Safety (allergy, intolerance, medical)"],["other","Another reason"],["","Not sure"]].map(function(s){return opt("gwhy",s[0],s[1],GV.why===s[0])}).join("")+'</div><p class="pf-small">Not sure is fine. Kitchie then treats it as none at all and for safety until '+nm+' says otherwise.</p>':"")
+  +'<span class="pf-lbl">What happens when you press the button</span><ul class="pf-happens"><li>'+ic("bolt",22)+'<div><b>Used straight away</b><span>Recipes and plans '+verb+esc(GV.subj.trim()||"what you add")+' for '+nm+' from now, with no end date. It does not wait for '+nm+' to sign in.</span></div></li>'
+  +'<li>'+ic("person",22)+'<div><b>Written on '+nm+'’s own list only</b><span>It is '+nm+'’s record, tagged <q>proposed by '+PPL[v]+'</q>. It is not a household rule and is not under Household.</span></div></li>'
+  +'<li>'+ic("bell",22)+'<div><b>'+nm+' is told, and has the last word</b><span>Next time '+nm+' opens Kitchie, they can confirm it or reject it. You see it here, waiting, until they do or you take it back.</span></div></li></ul>';
+ return {t:"Propose something for "+nm,crumb:"Housemates › "+nm,body:h,foot:'<button type="button" class="pf-btn" data-flyclose>Cancel</button><button type="button" class="pf-btn pri" data-pa="gsubmit">Add to '+nm+'’s list now</button>'}}
 
-function fly(m){
+/* ?pq=rice (mockup only) opens the picker with that search typed, once, so a link can show the results */
+var PQ=(function(){try{return new URLSearchParams(location.search).get("pq")||""}catch(e){return ""}})();
+function flyParts(m){
  CUR=m;var s=m.sel||"",o=null,p=s.split(":");
- if(PK.key!==s&&/^a:(add|probe)/.test(s)){PK={key:s,q:"",scope:"all",pick:null,lv:undefined,ev:undefined}}
+ if(PK.key!==s&&/^a:(add|probe)/.test(s)){PK={key:s,q:PQ,scope:"all",pick:null,lv:undefined,ev:undefined};PQ=""}
  if(p[1]==="d")o=dialFly(m,p[2],p[3]),o&&(o.t=DIAL.filter(function(d){return d[0]===p[3]})[0][p[2]==="me"?1:2],o.crumb=p[2]==="me"?"Mine › Stock level checks":"Household › Stock level check defaults");
  else if(p[1]==="r")o=ruleFly(m,p[2]==="all"?"all":p[2],p[3]||"me");
  else if(p[1]==="add")o=addFly(m,p[2]);
  else if(p[1]==="probe")o=probeFly(m);
  else if(p[1]==="n")o=noteFly(m,p[2]);
  else if(p[1]==="f")o=foodFly(m,p[2]);
- else if(p[1]==="give")o=giveFly(m);
- if(!o)return "";
+ else if(p[1]==="give")o=giveParts(m);
+ return o}
+function fly(m){
+ var o=flyParts(m);if(!o)return "";
  var foot=o.foot==="Close"?'<button type="button" class="pf-btn" data-flyclose>Close</button>':o.foot;
  return shell(esc(o.t),o.crumb,'<div class="pf-ed">'+o.body+'</div>',foot,o.t)}
 
@@ -397,6 +417,8 @@ function click(m,el,H){
  if(el.dataset.pgo)return false;
  if(!pa)return false;
  var id=el.dataset.id,v=viewer(m);
+ if(window.KProfilePrefsM&&window.KProfilePrefsM.click(m,el,H))return true;
+ if(pa==="gomember"){m.psub=id;m.sel=null;m.melse=false;H.paint(m,true,'.pf-propose');return true}
  if(pa==="gohh"){H.setSub(m,"hh");if(/^a:(d|r|n|f)/.test(id))H.openFly(m,id);return true}
  if(pa==="goview"){H.setView(m,id);return true}
  if(pa==="askagain"){STOPS=STOPS.filter(function(s){return s.id!==id});H.paint(m,false);say("Asking again. Stock level checks may ask about it from now on.");return true}
@@ -435,14 +457,13 @@ function click(m,el,H){
   if(pa==="confirm"){pp.st="kept";FOOD.push({id:"k"+pp.id,o:pp.to,r:pp.r,s:pp.s,d:pp.r==="avoid"?(pp.why==="safety"?"For safety, no end":pp.why==="other"?"Not for safety, no end":"No end"):"No end",said:"added by "+PPL[pp.from],n:1});say(propSay("kept",pp))}
   else{pp.st="removed";say(propSay("removed",pp))}
   kids(m);H.paint(m,false);return true}
- if(pa==="gwho"){GV.who=el.dataset.v;H.paint(m,false,'[data-pa="gwho"][data-v="'+GV.who+'"]');return true}
  if(pa==="gst"){GV.st=el.dataset.v;H.paint(m,false,'[data-pa="gst"][data-v="'+GV.st+'"]');return true}
  if(pa==="gwhy"){GV.why=el.dataset.v;H.paint(m,false,'[data-pa="gwhy"][data-v="'+GV.why+'"]');return true}
  if(pa==="gsubmit"){
   var inp=H.$("[data-gsubj]",m.frame);if(inp)GV.subj=inp.value;
   if(!GV.subj.trim()){GV.err="Say what it is first, for example peanuts.";H.paint(m,false,"[data-gsubj]");return true}
-  var np={id:"p"+(PROPS.length+1)+Date.now()%1000,from:v,to:GV.who,r:{avoids:"avoid",dislikes:"dislike",likes:"like"}[GV.st],s:GV.subj.trim(),why:GV.st==="avoids"?GV.why:"",at:"today, 9:41 am",st:"waiting"};
-  PROPS.push(np);GV.key="";m.sel=null;kids(m);H.paint(m,false);say("On "+PPL[np.to]+"’s list, and in use now. Waiting for "+PPL[np.to]+".");return true}
+  var np={id:"p"+(PROPS.length+1)+Date.now()%1000,from:v,to:m.psub,r:{avoids:"avoid",dislikes:"dislike",likes:"like"}[GV.st],s:GV.subj.trim(),why:GV.st==="avoids"?GV.why:"",at:"today, 9:41 am",st:"waiting"};
+  PROPS.push(np);GV.key="";m.sel=null;kids(m);H.paint(m,false,"[data-pa=takeback]");say("On "+PPL[np.to]+"’s list, and in use now. Waiting for "+PPL[np.to]+".");return true}
  return false}
 
 document.addEventListener("input",function(e){
@@ -458,5 +479,7 @@ document.addEventListener("change",function(e){
  if(t.dataset.pq){var a=t.dataset.pq.split(":"),sc=a[0],i=Number(a[1]),k="quiet",tgt=sc==="me"?YOU[viewer(CUR)]:HHV,cur=(tgt[k]||HHV[k]||APP[k]).split(" to ");cur[i]=t.value.trim()||cur[i];tgt[k]=cur.join(" to ");CUR.saved="a:d:"+sc+":quiet";repaint();return}
 });
 
-window.KProfilePrefs={pane:pane,fly:fly,kids:kids,click:click,resetSeen:resetSeen};
+window.KProfilePrefs={pane:pane,fly:fly,kids:kids,click:click,resetSeen:resetSeen,
+ /* what the phone layout (profile-prefs-m.js) borrows: the same data, rows and rules, drawn in its own chrome */
+ x:{prep:prep,mine:mine,hh:hh,memberPane:memberPane,flyParts:flyParts,memberIds:memberIds,elseIds:elseIds,memberDot:memberDot,unseen:unseen,chgMode:chgMode,between:between,foodOf:foodOf,viewer:viewer,PPL:PPL,ic:ic,esc:esc,CHEV:CHEV,isMember:isMember,dotEl:dotEl,mkHh:function(m,extra){return hh(m,extra)}}};
 })();

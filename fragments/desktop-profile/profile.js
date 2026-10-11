@@ -4,6 +4,7 @@
    Standalone page (the mockup Pantry): ?open=1|me|settings|preferences|household|data|shortcuts opens it at load.
    11 Oct 2026 (owner): Preferences is its own section, right after Settings, so the sections are numbered 1 to 6 and the number keys jump to them (the same keys the built window uses).
    11 Oct 2026 (owner, round 4): History leaves the section list and is docked at the bottom of the left gutter, right above the keys line (behaviour pending the owner); Settings expands under itself in the gutter (Looks, Kitchen setup: Categories, Locations and spots, Install) and the detail of a row is a flyout in the main area; Install knows desktop from phone and tablet; Preferences has three desktop layouts to choose from (footer control, ?pref=a|b|c). The sub-screens are drawn by profile-subs.js, loaded on first need.
+   12 Oct 2026 (owner, round 7, mockup only): proposing for a housemate lives on that housemate's row (Mine no longer has it); layout A has its own phone and tablet layout under 900px (profile-prefs-m.js + .css, loaded only then; ?pref=a, &pq=rice opens the picker with a search typed). Notes: docs/knowledge/settings-window.md SW-47 on.
    ?open=settings&sub=looks|cats|locs|install, &sel=cat:dairy|loc:fridge|spot:fridge.door, &os=chrome|edge|safari|firefox|ios|android, &pref=a|b|c (&psub=mine|hh|members, &ptab=mine|hh, &as=arjan|sam).
    Preferences is drawn by the Preferences mockup itself (fragments/preferences-mine-household, embed mode), loaded in a frame only when the section is first shown.
    12 Oct 2026 (owner, round 5, mockup only): Preferences layout A is the chosen one and is redrawn in profile-prefs.js (+ .css, loaded only for ?pref=a): Mine in full, Household, one gutter row per housemate who has food to show; ?psub=mine|hh|sam|maya|arjan, &chg=0|2 (the dot for what changed since last seen; 0 = all seen; the old 1 and 3, badge and summary, now draw the dot too), &sel=a:... for a flyout. Profile: the name edits in place; AI assistants show who is connected and the default (&ai=none|one|many|choose). Locations: rows are names only, one form to add and edit (&sel=loc:new). */
@@ -142,7 +143,9 @@ function panePrefs(){
  var src=SELF?new URL("../preferences-mine-household/index.html?embed=1&as=arjan&tab=mine",SELF).href:"";
  return '<iframe class="pf-frame" title="Preferences" src="'+src+'"></iframe>'}
 var PANE={me:paneMe,settings:paneSettings,preferences:panePrefs,household:paneHousehold,data:paneData};
-function pref(m){return narrow()?"today":(m.pref||"today")}
+/* phone and tablet keep the embedded Preferences screen, except layout A, which has its own phone layout (profile-prefs-m.js, round 7) */
+function pref(m){return narrow()?(m.pref==="a"?"a":"today"):(m.pref||"today")}
+function phoneA(m){return narrow()&&m.view==="preferences"&&m.pref==="a"}
 function narrow(){return window.matchMedia&&window.matchMedia("(max-width:900px)").matches}
 
 /* ---------- state ---------- */
@@ -190,7 +193,7 @@ function navHtml(m){
 function titleOf(m){
  if(m.view==="me")return ["Profile",""];
  if(m.view==="settings"&&!narrow()){var c=kids(m).filter(function(x){return x.k===m.sub})[0];if(c&&m.sub!=="looks")return [c.t,"Settings › "+(m.sub==="install"?"Install":"Kitchen setup")];return ["Settings",""]}
- if(m.view==="preferences"&&pref(m)==="a"){var c2=kids(m).filter(function(x){return x.k===m.psub})[0];return [c2?c2.t:"Preferences","Preferences"]}
+ if(m.view==="preferences"&&pref(m)==="a"&&!narrow()){var c2=kids(m).filter(function(x){return x.k===m.psub})[0];return [c2?c2.t:"Preferences","Preferences"]}
  return [VIEWS[m.view].t,""]}
 function FOOTS(m){return '<span><kbd>'+ESCL+'</kbd> close'+(m.sel?' this panel':'')+'</span><span><kbd>Tab</kbd> move</span><span><kbd>1</kbd> to <kbd>'+ORDER.length+'</kbd> jump to a section</span><span><kbd>?</kbd> shortcuts</span>'}
 function winHtml(m,bodyHtml,flyHtml){
@@ -203,7 +206,7 @@ function renderWin(m){
  if(m.view==="settings"&&!narrow()&&m.sub!=="looks")body=X.pane(m);
  else if(m.view==="preferences"&&pref(m)!=="today")body=X.prefsPane(m);
  else body=PANE[m.view](m);
- if(m.sel&&X)fly=X.fly(m);
+ if(m.sel&&X&&!phoneA(m))fly=X.fly(m);
  return winHtml(m,body,fly)}
 function renderShortcuts(){
  var rows=ORDER.map(function(k){return [k==="me"?"Profile":VIEWS[k].t,num(k)]});
@@ -224,8 +227,8 @@ function loadMod(base,flag,cb){
  var l=document.createElement("link");l.rel="stylesheet";l.href=new URL(base+".css",SELF).href;document.head.appendChild(l);
  var sc=document.createElement("script");sc.src=new URL(base+".js",SELF).href;
  sc.onload=function(){var q=loadQ[flag];loadQ[flag]=null;q.forEach(function(f){f()})};document.head.appendChild(sc)}
-function ready(m){return (!needsSubs(m)||!!window.KProfileSubs)&&(!needsPrefs(m)||!!window.KProfilePrefs)}
-function withMods(m,cb){loadMod("profile-subs","KProfileSubs",function(){if(needsPrefs(m))loadMod("profile-prefs","KProfilePrefs",cb);else cb()})}
+function ready(m){return (!needsSubs(m)||!!window.KProfileSubs)&&(!needsPrefs(m)||!!window.KProfilePrefs)&&(!phoneA(m)||!!window.KProfilePrefsM)}
+function withMods(m,cb){loadMod("profile-subs","KProfileSubs",function(){if(needsPrefs(m))loadMod("profile-prefs","KProfilePrefs",function(){if(phoneA(m))loadMod("profile-prefs-m","KProfilePrefsM",cb);else cb()});else cb()})}
 
 /* ---------- modal stack ---------- */
 function syncInert(){
@@ -239,7 +242,7 @@ function paint(m,focus,focusSel){
  m.frame.setAttribute("aria-label",label(m));
  if(window.themeApply&&m.view==="settings")window.themeApply();
  if(window.KProfileSubs&&m.kind==="win")window.KProfileSubs.after(m);
- if(focus){var f=(focusSel&&$(focusSel,m.frame))||(m.sel&&$(".pf-fly [data-flyfocus]",m.frame))||$("[data-focus]",m.frame)||focusables(m.frame)[0]||m.frame;f.focus()}}
+ if(focus){var f=(focusSel&&$(focusSel,m.frame))||(m.sel&&($(".pf-fly [data-flyfocus]",m.frame)||$(".pm-sub [data-flyfocus]",m.frame)))||(m.sel&&$(".pm-sub [data-subfocus]",m.frame))||$(".pm-sub [data-subfocus]",m.frame)||$("[data-focus]",m.frame)||focusables(m.frame)[0]||m.frame;f.focus()}}
 function homeEl(){return home&&document.contains(home)?home:$("#pf-avatar")}
 function openModal(kind,view,opener){
  toastNode();
@@ -257,8 +260,8 @@ function setView(m,view,sub){
 function setSub(m,sub){
  if(m.view==="preferences")m.psub=sub;else m.sub=sub;
  m.sel=null;m.acc=null;paint(m,true)}
-function openFly(m,sel){m.sel=sel;var body=$(".pf-body",m.frame),y=body?body.scrollTop:0;paint(m,true);var b2=$(".pf-body",m.frame);if(b2)b2.scrollTop=y}
-function closeFly(m){var was=m.sel;m.sel=null;var body=$(".pf-body",m.frame),y=body?body.scrollTop:0;paint(m,false);var b2=$(".pf-body",m.frame);if(b2)b2.scrollTop=y;
+function openFly(m,sel){var ph=phoneA(m);m.sel=sel;var body=$(".pf-body",m.frame),y=body?body.scrollTop:0;if(ph&&!m._pg)m._y=y;paint(m,true);var b2=$(".pf-body",m.frame);if(b2)b2.scrollTop=ph&&!m._pg?0:y}
+function closeFly(m){var was=m.sel,ph=phoneA(m);m.sel=null;var body=$(".pf-body",m.frame),y=ph&&m._y!=null?m._y:(body?body.scrollTop:0);if(ph)m._y=null;paint(m,false);var b2=$(".pf-body",m.frame);if(b2)b2.scrollTop=y;
  var o=$('[data-sel="'+was+'"]',m.frame);if(o)o.focus();else{var f=$("[data-focus]",m.frame);if(f)f.focus()}}
 function closeTop(){
  var m=stack.pop();if(!m)return;
