@@ -1,6 +1,6 @@
 # Item edit flyout: handover
 
-**Status: round 3 drawn 11 October 2026 (Sydney), for anyone to pick up cold.** The mockup is drawn and merged to mockup `main` (round 1: PR 72, 10 Oct; round 2: the PR titled "item edit flyout round 2", PR 74, squash 776e396, 11 Oct; round 3: PR 76, squash 9d7cf7b, 11 Oct). Nothing is built in the real app (a parallel build is in Kitchie `uat`; it must match this mockup exactly). Confirmed by the owner: layout A (71) and key hints shown (68) by typed note; and by voice on 11 Oct (round 3) the battery everywhere (94), the four bands for counted and weighed with a minimum (84), no-minimum rule (95), increase-only reset (96), category and unit chips plus free text (97, 98), the buy default aim (99), the use-by quick set (92), identical look everywhere and no shopping effect (100, 101). Still proposals: the rest of 63 to 93 that is not marked confirmed. Section 10 (new) is what the Kitchie build copies for the battery. Read `AGENTS.md` and `DESIGN.md` in this repo first (sections 6, 7, 9 and 10 bite most). Style follows `docs/handover/plan-desktop.md`.
+**Status: round 4 drawn 12 October 2026 (Sydney), for anyone to pick up cold.** Round 4 (owner, typed, after reviewing the built flyout in Kitchie `uat` PRs 556, 603 and 604): no shopping group in Edit (102); "How much to buy" with Add to shopping in the item flyout only at Running low or Out, stepper or own words by quantity kind (103 to 105); the item flyout header gets the emoji tile and picker (106, 107). See section 11. Earlier status: round 3 drawn 11 October 2026. The mockup is drawn and merged to mockup `main` (round 1: PR 72, 10 Oct; round 2: the PR titled "item edit flyout round 2", PR 74, squash 776e396, 11 Oct; round 3: PR 76, squash 9d7cf7b, 11 Oct). The build is in Kitchie `uat` (PRs 556, 603, 604, and the round 4 PR); it must match this mockup exactly. Confirmed by the owner: layout A (71) and key hints shown (68) by typed note; and by voice on 11 Oct (round 3) the battery everywhere (94), the four bands for counted and weighed with a minimum (84), no-minimum rule (95), increase-only reset (96), category and unit chips plus free text (97, 98), the buy default aim (99), the use-by quick set (92), identical look everywhere and no shopping effect (100, 101). Still proposals: the rest of 63 to 93 that is not marked confirmed. Section 10 (new) is what the Kitchie build copies for the battery. Read `AGENTS.md` and `DESIGN.md` in this repo first (sections 6, 7, 9 and 10 bite most). Style follows `docs/handover/plan-desktop.md`.
 
 ## 1. The ask, in the owner's words
 
@@ -12,6 +12,8 @@ Owner (voice session, 10 October 2026, relayed and kept close to the words): rep
 
 Known issues round 1 had to resolve: the Shopping list heading had no space above it and showed on both tabs; the "Level: plenty" word chip contradicts the 8 October rule (level is a drop, no visible name); no mockup existed for the two-tab form or the inline shopping block.
 
+**Round 4 (owner, typed, 12 October 2026).** Reviewed the built flyout: "this is good. The shopping list is not needed in the edit. How much to buy is conditional, with the add to shopping, only when the level is low. How much to buy is based on whether there is a weighed or counted quantity." And approved the item flyout's emoji tile ("this fine"). Detail in section 11 and decisions 102 to 107.
+
 ## 2. What exists and where
 
 | What | Where |
@@ -22,15 +24,15 @@ Known issues round 1 had to resolve: the Shopping list heading had no space abov
 | Item sheet it extends | `docs/knowledge/item-sheet.md`, `fragments/item-sheet/` |
 | Pantry desktop rules it copies | `docs/knowledge/desktop-layout.md`, `docs/handover/desktop.md` |
 | Screenshot tool entries | `tools/screenshots.mjs` (`item-edit-flyout`, `item-edit-flyout-live`, `-level`, `-shop-qty`, `-shop-words`, `-add`); screenshots are not kept in the repo (`shots/` is gitignored) |
-| Behaviour and layout check | `tools/item-edit-flyout-check.mjs`: headless Chromium, 390, 768, 1024 and 1440 wide, light and dark, 1056 checks (the level bands as a table, increase-only reset, no-minimum bands, weighed with a minimum, the buy default, category and unit free text, the battery drawings and no drop anywhere, hand-set looks the same as calculated, no automatic shopping, level override, both shopping states, suggestion lists, chip rows, emoji picker in Edit and Add, keys, drag, console, sideways scroll). Run it before changing the fragment |
+| Behaviour and layout check | `tools/item-edit-flyout-check.mjs`: headless Chromium, 390, 768, 1024 and 1440 wide, light and dark, 1574 checks (the level bands as a table, increase-only reset, no-minimum bands, weighed with a minimum, no shopping group in Edit or Add, the how-much control by level and quantity kind with the default amounts and the plain add unchanged, no automatic shopping, category and unit free text, the battery drawings and no drop anywhere, hand-set looks the same as calculated, level override, suggestion lists, chip rows, emoji picker in Edit, Add and the item flyout header, keys, drag, console, sideways scroll). Run it before changing the fragment; `W=390,1440` limits the widths |
 
 **Open it and switch size.** Serve the repo (`python3 -m http.server`) and open the options page, or the Pages URL. Any `pantry.html` link accepts `?vp=390|768|1024|1280|1440|1920`, which frames it in an iframe at that width; move the pointer to the top edge or press backtick for a hidden size control.
 
-**URL options** on `pantry.html`: `sel=<id>` (butter, carrots, cheddar, eggs, yog, milk, paneer, spinach, rice, tom, onion, garam, peas, ice), `child=edit|history`, `mode=add`, `hint=show|reveal`, `recipes=0` (no Recipes), `down=1` (a failed save), `field=<name>` (land on a field), `cat=chips|list` (Category suggestions; `list` is reference only now), `more=` (History pages), `cues=0` (hints off), `help=1` (shortcut list). `opt=` and `tab=` are gone with layouts B and C.
+**URL options** on `pantry.html`: `sel=<id>` (butter, carrots, cheddar, eggs, yog, milk, paneer, spinach, rice, tom, onion, garam, peas, ice), `child=edit|history`, `mode=add`, `hint=show|reveal`, `recipes=0` (no Recipes), `down=1` (a failed save), `field=<name>` (land on a field: name, qty, level, min, area, spot, cat, useby), `lv=Plenty|Some|Running low|Out` (set that level on the selected item, to link to every state), `cat=chips|list` (Category suggestions; `list` is reference only now), `more=` (History pages), `cues=0` (hints off), `help=1` (shortcut list). `opt=` and `tab=` are gone with layouts B and C.
 
 **File layout (viewport code in its own files, DESIGN.md section 7).**
 
-- Shared, no size rules: `flyout.css`, `flyout.js`, `frame.js`; fetched on engagement: `form.js` (first Edit or Add), `emoji.js` (first time the emoji picker opens), `history.js` (first History open).
+- Shared, no size rules: `flyout.css`, `flyout.js` (also holds "How much to buy" and the header emoji tile, round 4), `frame.js`; fetched on engagement: `form.js` (first Edit or Add), `emoji.js` (the emoji list and the picker's code, on the first tap of an emoji tile in the form or the item flyout header), `history.js` (first History open).
 - Per size: `phone.css` and `tablet.css` (media gated), `desktop.css` (min-width 1024) and `desktop-1240.css` (min-width 1240). One host script per size, fetched on demand: `phone.js` (touch, grab and drag, Esc) or `desktop.js` (rail, keys, shortcut list). A size change reloads the page.
 - No images in the default path.
 
@@ -42,7 +44,7 @@ The level icon is a battery everywhere (94, confirmed): the drop and the `lv=` o
 
 Nesting: from 1240 the child is a 360px column that slides out from beneath the item flyout; from 1024 it tucks under the item header in the same lane; below 1024 it is a stacked 84% sheet and the item shrinks to a strip. Add mode is the same form in the item flyout's place.
 
-## 4. Decisions 63 to 101
+## 4. Decisions 63 to 107
 
 Full wording and statuses in the job note (`docs/knowledge/jobs-to-be-done/item-edit-flyout.md`).
 
@@ -59,7 +61,7 @@ Full wording and statuses in the job note (`docs/knowledge/jobs-to-be-done/item-
 | 71 | **confirmed 11 Oct** | Layout A; tabs do not survive; tiles dropped |
 | 72 | **superseded 11 Oct** by 82 to 86, drop by 94 | (was) level is a drop, counted level read only |
 | 73 | proposed | Minimum under Quantity, only with a unit or minimum |
-| 74 | proposed (refined by 87 to 89) | Shopping list once, spaced, at the end; Used up and Add to shopping unchanged |
+| 74 | **superseded 12 Oct by 102** (its "Used up and Add to shopping unchanged" stands, 105) | (was) Shopping list once, spaced, at the end |
 | 75 | proposed | "Use in a recipe" a plain row at the bottom; hidden without Recipes |
 | 76 | proposed | Mark as used up not repeated in the form |
 | 77 | proposed | Autosave, "Saved", Try again on errors; name needed; no past use-by |
@@ -72,9 +74,9 @@ Full wording and statuses in the job note (`docs/knowledge/jobs-to-be-done/item-
 | 84 | **confirmed 11 Oct (voice)**, no-minimum part refined by 95 | Four bands for counted and weighed with a minimum |
 | 85 | **superseded 11 Oct by 96** | (was) any quantity change drops the pick |
 | 86 | **confirmed 11 Oct (voice)**, inside the flyout only (100) | Muted "Automatic" / "Set by you" cue, with a back-to-automatic icon |
-| 87 | proposed | Shopping group: status line, how much to buy, the button |
-| 88 | proposed; default superseded by 99 | With a quantity: a number stepper in the item's unit; own-words box hidden |
-| 89 | proposed | With no quantity: own-words box; a new Clear beside Quantity brings it back |
+| 87 | **superseded 12 Oct by 102** | (was) Shopping group: status line, how much to buy, the button |
+| 88 | **superseded 12 Oct by 102 and 104**; default was superseded by 99 | (was) With a quantity: a number stepper in the item's unit; own-words box hidden |
+| 89 | **superseded 12 Oct by 102 and 104** (the Clear beside Quantity stays) | (was) With no quantity: own-words box; a new Clear beside Quantity brings it back |
 | 90 | proposed | Location and Spot: text inputs with suggestion lists, as the Add form |
 | 91 | **confirmed 11 Oct (voice)**, extended by 97 | Category: input with the filter bar's chip row |
 | 92 | **confirmed 11 Oct (voice)** | Use by: the Add form's +3 days, +5 days, +1 week, Pick date... in Edit and Add |
@@ -84,24 +86,31 @@ Full wording and statuses in the job note (`docs/knowledge/jobs-to-be-done/item-
 | 96 | **confirmed 11 Oct (voice)** | A hand-set level clears only when the quantity next increases; a decrease never clears it (replaces 85) |
 | 97 | **confirmed 11 Oct (voice)** | Category: chips plus free text (extends 91) |
 | 98 | **confirmed 11 Oct (voice)** | Unit: quick-pick chips plus free text |
-| 99 | **confirmed 11 Oct (voice)**; delta is a judgment call | Buy default aims at twice the minimum, drawn as the delta (replaces 88's default) |
+| 99 | **confirmed 11 Oct (voice)**; delta is a judgment call; applies to the item flyout since 12 Oct (104) | Buy default aims at twice the minimum, drawn as the delta (replaces 88's default) |
 | 100 | **confirmed 11 Oct (voice)** | A hand-set level looks identical everywhere; the cue stays inside the edit flyout |
 | 101 | **confirmed 11 Oct (voice)** | A level never adds an item to the list and is not fed to the shopping logic |
+| 102 | **owner, typed 12 Oct**; supersedes 74, 87, 89 | No Shopping list group in Edit or the standalone edit page; Edit ends after Use by (and the recipe row) |
+| 103 | owner, typed 12 Oct; reading **proposed** | The item flyout shows "How much to buy" with Add to shopping only at Running low or Out (calculated or hand-set); at Plenty or Some the button adds as today. Proposed: hides once on the list |
+| 104 | owner, typed 12 Oct; reading **proposed** | Weighed or counted quantity: stepper in the unit, default per 99. No exact quantity: own-words box ("1 kg, a packet, 3"). Proposed: the amount resets to its default when quantity, minimum or unit changes |
+| 105 | owner, typed 12 Oct (unchanged buttons); rest **proposed**; confirms 101 | Used up and Add to shopping unchanged; adding is always an explicit tap; a hand-set level never adds |
+| 106 | **owner, 12 Oct ("this fine")**; refines 80, 93 | Tappable emoji tile in the item flyout header, same picker, same save path; widens the sheet's one-field save allow-list (build) |
+| 107 | **proposed** | The picker replaces the tiles and buttons while open; Esc closes it only; opening a child closes it |
 
 ## 5. Open questions
 
-Full text with what a wrong guess costs is in the job note. Answered by voice on 11 Oct: 1 (shown), 2 (battery everywhere), 3 (weighed with a minimum: automatic), 4 and 5 (a pick clears only on an increase), 6 (display only), 7 (the cue as built stays; the back-to-automatic icon is kept, not separately asked), 8 (aim at twice the minimum), 10 (chip row, with free text), 11 (the Add form's set only). Still open: 9 (a "say it in your own words" link), 12 (any emoji by typing or pasting), 13 (phone no-x), 14 (History column width), 15 (History on the phone), 16 (the "Estimated" flag), 17 (inline tile editor), 18 (where Open the list and Use in a recipe land), 19 (Add defaults to Unplaced); new: 20 (delta or target for the buy default), 21 (a typed unit with no way to remove its chip), 22 (any screen outside this repo that draws a level icon).
+Full text with what a wrong guess costs is in the job note. Answered by voice on 11 Oct: 1 (shown), 2 (battery everywhere), 3 (weighed with a minimum: automatic), 4 and 5 (a pick clears only on an increase), 6 (display only), 7 (the cue as built stays; the back-to-automatic icon is kept, not separately asked), 8 (aim at twice the minimum), 10 (chip row, with free text), 11 (the Add form's set only). Round 4 adds 23 ("low" is Running low or Out; should Some show it?), 24 (no way to update the amount once on the list), 25 (own words optional when empty), 26 (picker replaces the tiles vs over the sheet), 27 (the household flow's older item sheet was not redrawn). Still open: 9 (a "say it in your own words" link; reworded for round 4), 12 (any emoji by typing or pasting), 13 (phone no-x), 14 (History column width), 15 (History on the phone), 16 (the "Estimated" flag), 17 (inline tile editor), 18 (where Use in a recipe lands; Open the list went with the group), 19 (Add defaults to Unplaced); new: 20 (delta or target for the buy default), 21 (a typed unit with no way to remove its chip), 22 (any screen outside this repo that draws a level icon).
 
 ## 6. What is NOT decided or built
 
 - Nothing is built in Kitchie. No Kitchie issue was created or changed by this work (the owner's rule for this task).
+- Judgment calls in round 4: "low" is Running low or Out; the control hides once the item is on the list; the amount starts again from the default when the quantity, minimum or unit changes; the own-words box is optional; the picker replaces the tiles and buttons while open (all marked proposed in 103, 104, 107). The household flow's older item sheet was not redrawn.
 - Judgment calls in round 3: the buy default is drawn as the delta to twice the minimum (target shown in a note under it) (99); the unit chip row and the category chip row share one component; a unit typed once stays as a chip. Nothing else was left to guess.
 - Data and history are sample data. History mirrors the shape of `store.getHistory(id)` and the MCP `item_history` tool; the real field names and sources are to be checked at build time.
 - Phone, tablet and desktop were checked with headless Chromium only (`tools/item-edit-flyout-check.mjs`). Not checked: the Pages URL from the sandbox, a real touch device and its soft keyboard (the suggestion lists place themselves above the keyboard by measuring the visible area, untested on a device), screen readers, Safari and Firefox, the native date picker behind "Pick date...", the real app's form code. Kitchie `uat` was read, never run or changed.
 
 ## 7. Next steps once the owner confirms
 
-Proposal for slicing, not agreed: settle section 5 here and in the job note (mockup first if anything changes); the nested child slot and header icons; the form in layout A shared with Add through `formFields()`; the level control and override (82 to 86); the Shopping list group states (87 to 89); the Add form's combobox, chip row and use-by pills in the flyout (90 to 92); the emoji picker for Add and Edit (93, which also fixes the broken emoji); History; keyboard layer (E, comma, close); per-size files. Open Kitchie issues for slices from the confirmed decisions only. Build in the mockup-to-UAT order (Kitchie `uat`, never `main`). Screens must match the mockup exactly; list each difference in the PR. Chat tools and the UI call the same service methods. Headless screenshots at the bucket widths before asking the owner to look.
+Proposal for slicing, not agreed: settle section 5 here and in the job note (mockup first if anything changes); the nested child slot and header icons; the form in layout A shared with Add through `formFields()`; the level control and override (82 to 86); the item flyout's how-much-to-buy control (103 to 105, the Shopping list group is gone, 102) and header emoji tile (106, 107); the Add form's combobox, chip row and use-by pills in the flyout (90 to 92); the emoji picker for Add and Edit (93, which also fixes the broken emoji); History; keyboard layer (E, comma, close); per-size files. Open Kitchie issues for slices from the confirmed decisions only. Build in the mockup-to-UAT order (Kitchie `uat`, never `main`). Screens must match the mockup exactly; list each difference in the PR. Chat tools and the UI call the same service methods. Headless screenshots at the bucket widths before asking the owner to look.
 
 ## 8. Process notes
 
@@ -157,3 +166,15 @@ Cell `i` is `x = 4 + 6 * i`, `y = 5`, `width = 5.2`, `height = 10`, `rx = 1.2`. 
 **A hand-set level is drawn exactly like a calculated one.** The only place that says which it is, is the muted cue under the picker inside the edit flyout (`.ef-lvm`, `.ef-src`: "Automatic" or "Set by you", and `.ef-auto`, the back-to-automatic icon beside "Set by you").
 
 **Rules to implement with it** (all in the job note, 84 and 95 to 101): bands with a minimum (more than twice Plenty, above the minimum up to twice Some, at or under it above 0 Running low, 0 Out) for counted and weighed; no minimum is Plenty above 0 and Out at 0; a hand-set level (`by: user`) is cleared only by a quantity increase, from the UI and the chat tools through the same service call; it never adds the item to the shopping list; the buy default is the delta to twice the minimum (`buyVal` in `form.js`).
+
+## 11. Round 4 (12 October 2026): what changed and what the build copies
+
+Owner (typed, 12 Oct 2026): "this is good. The shopping list is not needed in the edit. How much to buy is conditional, with the add to shopping, only when the level is low. How much to buy is based on whether there is a weighed or counted quantity." And the item flyout's emoji tile: "this fine".
+
+| Change | Mockup | Files |
+|---|---|---|
+| No shopping group in Edit or the standalone edit page (102) | Groups are Item, Amount, Where, then Use by, then the "Use in a recipe" row. The status line, "How much to buy" and the button are gone; `?field=shop` is no longer a field | `form.js` (INNER.shop, the layout, `buyVal`, `step` for buy, the click and field handlers removed), `flyout.css` (`.ef-shop`, `.ef-f2`, `.ef-onlist`, `.ef-shopb` removed) |
+| "How much to buy" in the item flyout, only at Running low or Out (103 to 105) | `IEF.buyShows(it)`: level is Running low or Out and the item is not on the list. `IEF.buyHtml(it)`: stepper (`data-buy="num"`) for a number, own words (`data-buy="words"`) otherwise. `IEF.buyVal` is decision 99 moved. `shopQuick` adds with the amount only when the control shows; otherwise exactly as before | `flyout.js`, `flyout.css` (`.sbuyw`, `.sbuy`, `.sb-f`), the three size stylesheets (the control is hidden with the tiles and buttons when a child is open) |
+| Emoji tile in the item flyout header (106, 107) | `button.ph#ief-emo` (dashed "+" when none) opens `.ef-ep#ief-emojis` under the header; `IEF.saveEmoji(e)` saves, logs "Emoji", toasts with Undo. The picker's code moved from `form.js` to `emoji.js` so both homes share it | `flyout.js`, `emoji.js`, `form.js` (`F.saveEmoji`), `flyout.css`, `phone.css` (taller sheet while open, tile is part of the strip with a child open), `desktop.js` (keys ignored while the grid is focused) |
+
+**For the build.** The add-to-list service and route stay (the item flyout and the shopping page call them); Edit stops calling them. The default amount reuses the existing buy-amount logic and the one level function. The emoji from the item flyout is one more field the one-field save allow-list accepts: validate server-side (empty, or one emoji, else a friendly 400), keep every other field's rule, and test that the others are still rejected. Pinned MCP tool descriptions and `test/fixtures/shopping-contract.golden.json` are not touched by this round; changing them needs the owner's approval.

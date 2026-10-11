@@ -6,6 +6,9 @@
 // Covers (owner's voice answers of 11 Oct 2026, decisions 94 to 101): the battery everywhere (no drop is drawn), the four bands for counted AND weighed items with a minimum, no minimum = Plenty until 0 with Some / Running low by hand,
 // a hand-set level cleared ONLY by an increase (a decrease, a unit change and a minimum change keep it), the shopping amount that starts at the top-up to twice the minimum, Category and Unit as chips plus free text,
 // the use-by quick choices (same set in Edit and Add), a hand-set level drawn exactly like a calculated one, no automatic shopping, key hints shown on the icons.
+// Covers (owner, typed, 12 Oct 2026, decisions 102 to 107): NO shopping group in Edit or Add at any width; "How much to buy" in the item flyout only at Running low or Out (calculated or hand-set), a stepper for weighed or counted and the own-words box
+// for no exact quantity, the default per decision 99, the plain add unchanged at Plenty and Some, a level never adds anything, and the emoji tile in the item flyout header (opens the picker, picks, clears, Esc closes the picker only, History line).
+// Env: W=390,1440 limits the widths (a dev shortcut; the full run is all four).
 import { readFileSync } from "node:fs";
 import { chromium } from "playwright-core";
 import { mkdirSync } from "node:fs";
@@ -13,7 +16,8 @@ import { mkdirSync } from "node:fs";
 const BASE = process.env.BASE || "http://localhost:8123/fragments/item-edit-flyout/pantry.html";
 const shots = (process.argv.find(a => a.startsWith("--shots=")) || "").slice(8);
 if (shots) mkdirSync(shots, { recursive: true });
-const SIZES = [[390, 844, "phone"], [768, 1024, "tablet"], [1024, 768, "desktop"], [1440, 900, "desktop"]];
+const WANT = (process.env.W || "").split(",").filter(Boolean).map(Number);
+const SIZES = [[390, 844, "phone"], [768, 1024, "tablet"], [1024, 768, "desktop"], [1440, 900, "desktop"]].filter(z => !WANT.length || WANT.includes(z[0]));
 let fails = 0, total = 0;
 const ok = (name, cond, extra) => { total++; if (!cond) { fails++; console.log("FAIL", name, extra === undefined ? "" : JSON.stringify(extra)); } };
 
@@ -27,7 +31,7 @@ for (const [w, h, kind] of SIZES) {
     const open = async (q) => {
       const p = await ctx.newPage();
       p.on("console", m => { if (m.type() === "error") errs.push(m.text()); }); p.on("pageerror", e => errs.push("PAGEERR " + e.message));
-      await p.goto(BASE + q, { waitUntil: "networkidle" }); await p.waitForSelector("#ief-child .ef, #ief-panel .ef", { timeout: 4000 }).catch(() => {}); await p.waitForTimeout(150);
+      await p.goto(BASE + q, { waitUntil: "load" }); await p.waitForSelector(/child=|mode=add/.test(q) ? "#ief-child .ef, #ief-panel .ef, #ief-child .hist" : "#ief-panel .shead", { timeout: 4000 }).catch(() => {}); await p.waitForTimeout(150);
       return p;
     };
     const lvl = p => p.evaluate(() => { const c = document.querySelector('#ef-s-level [aria-checked="true"]'); return c ? c.querySelector(".sr-only").textContent : null; });
@@ -108,25 +112,20 @@ for (const [w, h, kind] of SIZES) {
     ok(`${tag} worded: four icons, no cue`, (await p.locator("#ef-s-level .opt").count()) === 4 && (await cue(p)) === "");
     await p.close();
 
-    /* 3. the two shopping states */
-    p = await open("?sel=eggs&child=edit&field=shop");
-    ok(`${tag} shop with a quantity: stepper, no own-words box`, (await p.locator('#ef-s-shop [data-f="buy"]').count()) === 1 && (await p.locator('#ef-s-shop [data-f="shop"]').count()) === 0);
-    await shot(p, "shop-quantity");
-    await p.click('#ef-s-shop [data-key="buy"][data-d="1"]'); await p.click('[data-ef="shopsave"]');
-    ok(`${tag} shop: Add saves the number in the item's unit`, /On the shopping list: 2\./.test(await p.innerText("#ef-s-shop")) && /Update the shopping list/.test(await p.innerText("#ef-s-shop")), await p.innerText("#ef-s-shop"));
-    await scrollTo(p, "#ef-s-qty"); await p.click('[data-ef="qclear"]');
-    ok(`${tag} clearing the quantity brings the own-words box`, (await p.locator('#ef-s-shop [data-f="shop"]').count()) === 1 && (await p.locator('#ef-s-shop [data-f="buy"]').count()) === 0);
-    await scrollTo(p, "#ef-s-shop"); await p.fill('#ef-s-shop [data-f="shop"]', "two trays"); await p.click('[data-ef="shopsave"]');
-    ok(`${tag} shop: own words saved`, /two trays/.test(await p.innerText("#ef-s-shop")), await p.innerText("#ef-s-shop"));
-    ok(`${tag} cleared quantity: level keeps what showed, no cue`, (await cue(p)) === "");
+    /* 3. no shopping group in Edit or Add (decision 102, owner 12 Oct 2026): not at any width, for any item */
+    for (const q of ["?sel=eggs&child=edit", "?sel=spinach&child=edit", "?sel=milk&child=edit", "?sel=tom&child=edit&lv=Out", "?sel=eggs&child=edit&field=shop", "?mode=add"]) {
+      p = await open(q);
+      const g = await p.evaluate(() => { const c = document.querySelector("#ief-child, #ief-panel[data-mode=add]"); const t = c ? c.innerText : ""; return { shop: !!c.querySelector("#ef-s-shop,.ef-shop,[data-ef=shopsave],[data-f=shop],[data-f=buy],[data-ef=openlist]"), words: /Shopping list|How much to buy|Add to shopping list|Update the shopping list|On the shopping list|Not on the shopping list/i.test(t), heads: [...c.querySelectorAll(".ef-h")].map(h => h.textContent) }; });
+      ok(`${tag} ${q} the form has no shopping group, no how-much box, no status line, no list button`, !g.shop && !g.words, g);
+      if (q.indexOf("mode=add") < 0) ok(`${tag} ${q} Edit's groups are Item, Amount, Where and then Use by`, g.heads.join("|") === "Item|Amount|Where", g.heads);
+      await p.close();
+    }
+    p = await open("?sel=eggs&child=edit");
+    const lastEl = await p.evaluate(() => { const e = document.querySelector("#ief-cbody .ef"); const k = [...e.children].map(c => c.id || c.className || c.tagName); return k; });
+    ok(`${tag} the last two blocks are the Use by group and the "Use in a recipe" row`, (await p.locator("#ief-cbody .ef > *:last-child.ef-go").count()) === 1 && (await p.locator("#ief-cbody .ef > section:nth-last-child(2) #ef-s-useby").count()) === 1);
     await p.close();
-    p = await open("?sel=spinach&child=edit&field=shop");
-    ok(`${tag} shop with no quantity: own-words box, no stepper`, (await p.locator('#ef-s-shop [data-f="shop"]').count()) === 1 && (await p.locator('#ef-s-shop [data-f="buy"]').count()) === 0);
-    ok(`${tag} status line says Not on the shopping list`, /Not on the shopping list/.test(await p.innerText("#ef-s-shop")));
-    await shot(p, "shop-words");
-    await p.close();
-    p = await open("?sel=milk&child=edit&field=shop");
-    ok(`${tag} on the list: status and Update`, /On the shopping list: 2 L/.test(await p.innerText("#ef-s-shop")) && /Update the shopping list/.test(await p.innerText("#ef-s-shop")), await p.innerText("#ef-s-shop"));
+    p = await open("?sel=eggs&child=edit&recipes=0");
+    ok(`${tag} without Recipes, Edit ends after Use by`, (await p.locator("#ief-cbody .ef > section:last-child #ef-s-useby").count()) === 1 && (await p.locator(".ef-go").count()) === 0);
     await p.close();
 
     /* 4. Location, Spot, Category */
@@ -234,46 +233,123 @@ for (const [w, h, kind] of SIZES) {
     ok(`${tag} the four-band rule for counted and weighed with a minimum, and Plenty-until-0 with none (${bands.length} cases)`, bands.every(b => b[3] === b[4]), bands.filter(b => b[3] !== b[4]));
     await p.close();
 
-    /* 8. the shopping list: default amount (decision 99), and the level never feeds it (101) */
-    const buyOf = async q => { const pg = await open(q); const v = await pg.inputValue('#ef-s-shop [data-f="buy"]'); const n = await pg.innerText("#ef-s-shop .ef-note"); return [pg, v, n]; };
-    let b;
-    b = await buyOf("?sel=tom&child=edit&field=shop"); p = b[0];
-    ok(`${tag} buy default with a minimum: 4 tin, minimum 4 starts at 4 (twice the minimum, 8, less the 4 held)`, b[1] === "4" && /twice your minimum \(8 tin\)/.test(b[2]), b.slice(1));
-    await shot(p, "buy-default");
-    await scrollTo(p, "#ef-s-level"); await p.click('#ef-s-level [data-v="Plenty"]'); await scrollTo(p, "#ef-s-shop");
-    ok(`${tag} a hand-set Plenty does not change the default (level is not an input)`, (await p.inputValue('#ef-s-shop [data-f="buy"]')) === "4");
-    await scrollTo(p, "#ef-s-min"); await p.click('#ef-s-min [data-key="min"][data-d="1"]'); await scrollTo(p, "#ef-s-shop");
-    ok(`${tag} raising the minimum to 5 moves the default to 6 (10 less 4)`, (await p.inputValue('#ef-s-shop [data-f="buy"]')) === "6", await p.inputValue('#ef-s-shop [data-f="buy"]'));
-    await p.fill('[data-f="amount"]', "0"); await p.press('[data-f="amount"]', "Tab"); await scrollTo(p, "#ef-s-shop");
-    ok(`${tag} Out with a minimum of 5 starts at the whole target, 10`, (await p.inputValue('#ef-s-shop [data-f="buy"]')) === "10", await p.inputValue('#ef-s-shop [data-f="buy"]'));
-    await p.click('#ef-s-shop [data-key="buy"][data-d="1"]');
-    ok(`${tag} the stepper moves it by one for a counted item`, (await p.inputValue('#ef-s-shop [data-f="buy"]')) === "11");
+    /* 8. "How much to buy" in the item flyout (decisions 99, 103 to 105): only at Running low or Out; the default amounts; the level is never an input */
+    const listOf = (pg, id) => pg.evaluate(i => IEF.items.filter(x => x.id === i)[0].list, id);
+    const buyBox = pg => pg.locator("#ief-buy");
+    const buyVal = pg => pg.inputValue('#ief-buy [data-buy="num"]');
+    const buyNote = pg => pg.innerText("#ief-buy .ef-note");
+    const toast = pg => pg.innerText("#ief-toast");
+    let pg0;
+    /* Plenty and Some: no control, and the plain add is exactly as today */
+    for (const [q, lvName] of [["?sel=eggs", "Plenty"], ["?sel=yog", "Some"], ["?sel=butter", "Plenty"], ["?sel=spinach", "Some"], ["?sel=rice", "Plenty"]]) {
+      p = await open(q); ok(`${tag} ${q} at ${lvName} no how-much control is drawn`, (await buyBox(p).count()) === 0 && (await p.locator('[data-ief="shopquick"]').count()) === 1);
+      await p.close();
+    }
+    p = await open("?sel=eggs");
+    await p.click('[data-ief="shopquick"]');
+    ok(`${tag} plain add at Plenty is unchanged: on the list with no amount, same toast`, (await listOf(p, "eggs")) === "" && /^eggs is on your shopping list\.\s*Undo/.test((await toast(p)).replace(/\s+/g, " ")), [await listOf(p, "eggs"), await toast(p)]);
+    ok(`${tag} after the add the button reads On your list and no control shows`, (await p.locator("#ief-acts .btn:disabled:has-text('On your list')").count()) === 1 && (await buyBox(p).count()) === 0);
     await p.close();
-    b = await buyOf("?sel=cheddar&child=edit&field=shop"); p = b[0];
-    ok(`${tag} weighed with a minimum: 200 g held, minimum 250 g, starts at 300 g`, b[1] === "300" && /\(500 g\)/.test(b[2]), b.slice(1));
-    await p.click('#ef-s-shop [data-key="buy"][data-d="1"]');
-    ok(`${tag} the weighed stepper moves it by 50`, (await p.inputValue('#ef-s-shop [data-f="buy"]')) === "350");
-    await p.click('[data-ef="shopsave"]');
-    ok(`${tag} the list stores the words "350 g"`, /On the shopping list: 350 g/.test(await p.innerText("#ef-s-shop")), await p.innerText("#ef-s-shop"));
+    p = await open("?sel=yog");
+    await p.click('[data-ief="shopquick"]');
+    ok(`${tag} plain add at Some is unchanged (no amount)`, (await listOf(p, "yog")) === "", await listOf(p, "yog"));
     await p.close();
-    b = await buyOf("?sel=eggs&child=edit&field=shop"); p = b[0];
-    ok(`${tag} at or over twice the minimum: starts at one step`, b[1] === "1" && /already have twice/.test(b[2]), b.slice(1));
+    /* counted, calculated Running low (tomatoes 4 tin, minimum 4) */
+    p = await open("?sel=tom");
+    ok(`${tag} counted, Running low: a stepper in the item's unit, no own-words box`, (await buyBox(p).count()) === 1 && (await p.locator('#ief-buy [data-buy="words"]').count()) === 0 && (await p.locator("#ief-buy .ef-unit").innerText()) === "tin");
+    ok(`${tag} counted default: 4 tin held, minimum 4 starts at 4 (twice the minimum, 8, less the 4 held)`, (await buyVal(p)) === "4" && /twice your minimum \(8 tin\)/.test(await buyNote(p)), [await buyVal(p), await buyNote(p)]);
+    ok(`${tag} the control sits above the buttons`, await p.evaluate(() => document.querySelector("#ief-buy").getBoundingClientRect().bottom <= document.querySelector("#ief-acts").getBoundingClientRect().top + 1));
+    await shot(p, "sheet-buy-counted");
+    await p.click('#ief-buy [data-d="1"]');
+    ok(`${tag} the stepper moves a counted item by one`, (await buyVal(p)) === "5");
+    await p.fill('#ief-buy [data-buy="num"]', "7");
+    await p.click('[data-ief="shopquick"]');
+    ok(`${tag} Add to shopping stores the number and unit: 7 tin`, (await listOf(p, "tom")) === "7 tin" && /on your shopping list: 7 tin/.test(await toast(p)), [await listOf(p, "tom"), await toast(p)]);
+    ok(`${tag} then the control is gone and the button reads On your list`, (await buyBox(p).count()) === 0 && (await p.locator("#ief-acts .btn:disabled:has-text('On your list')").count()) === 1);
     await p.close();
-    b = await buyOf("?sel=butter&child=edit&field=shop"); p = b[0];
-    ok(`${tag} no minimum keeps the fallback: what you have now (250 g)`, b[1] === "250" && /Starts from what you have/.test(b[2]), b.slice(1));
+    p = await open("?sel=tom&lv=Out");
+    ok(`${tag} Out starts at the whole target (8 tin)`, (await buyVal(p)) === "8", await buyVal(p));
+    ok(`${tag} Out: the button is still Add to shopping and Used up reads Marked Out`, (await p.locator('[data-ief="shopquick"]').count()) === 1 && (await p.locator("#ief-acts .btn:disabled:has-text('Marked Out')").count()) === 1);
     await p.close();
-    b = await buyOf("?sel=carrots&child=edit&field=shop"); p = b[0];
-    ok(`${tag} no minimum, one bag: starts at 1`, b[1] === "1", b.slice(1));
+    /* weighed, calculated Running low (cheddar 200 g, minimum 250 g) */
+    p = await open("?sel=cheddar");
+    ok(`${tag} weighed, Running low: 200 g held, minimum 250 g, starts at 300 g; unit g`, (await buyVal(p)) === "300" && /\(500 g\)/.test(await buyNote(p)) && (await p.locator("#ief-buy .ef-unit").innerText()) === "g", [await buyVal(p), await buyNote(p)]);
+    await p.click('#ief-buy [data-d="1"]');
+    ok(`${tag} the weighed stepper moves it by 50`, (await buyVal(p)) === "350");
+    await p.click('#ief-buy [data-d="-1"]'); await p.click('#ief-buy [data-d="-1"]');
+    ok(`${tag} and back down by 50`, (await buyVal(p)) === "250");
+    await p.fill('#ief-buy [data-buy="num"]', "abc");
+    ok(`${tag} a bad number says so and is not kept`, (await p.locator("#ief-buy .ef-err").count()) === 1 && /Use a number/.test(await p.innerText("#ief-buy .ef-err")));
+    await p.fill('#ief-buy [data-buy="num"]', "350");
+    ok(`${tag} a good number clears the message`, (await p.locator("#ief-buy .ef-err").count()) === 0);
+    await p.click('[data-ief="shopquick"]');
+    ok(`${tag} the list stores the words "350 g"`, (await listOf(p, "cheddar")) === "350 g", await listOf(p, "cheddar"));
     await p.close();
-
-    /* 8b. a hand-set level never adds the item to the list; the manual add stays an explicit action */
+    /* the tallest sheets (a stepper with its note, the own-words box with its two-line label, the Out state) still fit the half sheet with no scrolling: the buttons stay in view */
+    for (const q of ["?sel=tom", "?sel=tom&lv=Out", "?sel=spinach&lv=Running%20low", "?sel=cheddar"]) {
+      p = await open(q); await p.waitForTimeout(450);
+      const fit = await p.evaluate(() => { const e = document.querySelector("#ief-panel"), b = document.querySelector('[data-ief="shopquick"]').getBoundingClientRect(), r = e.getBoundingClientRect(); return { sh: e.scrollHeight, ch: e.clientHeight, btnIn: b.bottom <= innerHeight + 0.5 && b.bottom <= r.bottom + 0.5 }; });
+      ok(`${tag} ${q} the sheet fits its content: the buttons are in view with no scrolling`, fit.sh <= fit.ch + 1 && fit.btnIn, fit);
+      await p.close();
+    }
+    /* a hand-set Running low shows the control exactly like a calculated one (paneer 50 g, no minimum: what you have) */
+    p = await open("?sel=paneer");
+    ok(`${tag} hand-set Running low (paneer): the control shows, no minimum starts from what you have (50 g)`, (await buyVal(p)) === "50" && /Starts from what you have/.test(await buyNote(p)), [await buyBox(p).count(), await buyVal(p)]);
+    ok(`${tag} a hand-set level never added it to the list`, (await listOf(p, "paneer")) === null);
+    await p.close();
+    p = await open("?sel=milk");
+    ok(`${tag} hand-set Running low but already on the list (milk): no control, button reads On your list`, (await buyBox(p).count()) === 0 && (await p.locator("#ief-acts .btn:disabled:has-text('On your list')").count()) === 1);
+    await p.close();
+    p = await open("?sel=butter&lv=Running low");
+    ok(`${tag} hand-set Running low with no minimum (butter): control at what you have (250 g)`, (await buyVal(p)) === "250" && (await p.locator("#ief-tiles .tl:first-child .bat.lv-low").count()) === 1, await buyVal(p));
+    await p.close();
+    p = await open("?sel=carrots&lv=Running low");
+    ok(`${tag} counted with no minimum, hand-set Running low: starts at 1 bag`, (await buyVal(p)) === "1" && (await p.locator("#ief-buy .ef-unit").innerText()) === "bag", await buyVal(p));
+    await p.close();
+    p = await open("?sel=eggs&lv=Running low");
+    ok(`${tag} 12 eggs, minimum 4, hand-set Running low: already over twice the minimum, so one step`, (await buyVal(p)) === "1" && /already have twice/.test(await buyNote(p)), [await buyVal(p), await buyNote(p)]);
+    await p.close();
+    /* no exact quantity: own words */
+    p = await open("?sel=spinach&lv=Running low");
+    ok(`${tag} worded (no exact quantity), Running low: the own-words box, no stepper`, (await p.locator('#ief-buy [data-buy="words"]').count()) === 1 && (await p.locator('#ief-buy [data-buy="num"]').count()) === 0 && (await p.getAttribute('#ief-buy [data-buy="words"]', "placeholder")) === "1 kg, a packet, 3");
+    await shot(p, "sheet-buy-words");
+    await p.fill('#ief-buy [data-buy="words"]', "two big bags"); await p.click('[data-ief="shopquick"]');
+    ok(`${tag} own words are stored as typed`, (await listOf(p, "spinach")) === "two big bags", await listOf(p, "spinach"));
+    await p.close();
+    p = await open("?sel=spinach&lv=Out");
+    ok(`${tag} worded and Out: the own-words box too`, (await p.locator('#ief-buy [data-buy="words"]').count()) === 1);
+    await p.click('[data-ief="shopquick"]');
+    ok(`${tag} worded: an empty box adds with no words, as the plain add does`, (await listOf(p, "spinach")) === "", await listOf(p, "spinach"));
+    await p.close();
+    /* the control follows the level and the quantity as they change in the edit flyout; the amount is worked out again when the numbers change */
+    p = await open("?sel=tom&child=edit");
+    ok(`${tag} Edit open over the sheet: the sheet's how-much control is in step (4)`, (await buyVal(p)) === "4");
+    await scrollTo(p, "#ef-s-qty"); await p.fill('[data-f="amount"]', "2"); await p.press('[data-f="amount"]', "Tab");
+    ok(`${tag} a new quantity in Edit starts the amount again from the default (8 less 2 held = 6)`, (await buyVal(p)) === "6", await buyVal(p));
+    await scrollTo(p, "#ef-s-level"); await p.click('#ef-s-level [data-v="Plenty"]');
+    ok(`${tag} hand-setting Plenty in Edit takes the how-much control away from the sheet`, (await buyBox(p).count()) === 0 && (await listOf(p, "tom")) === null);
+    await p.click('#ef-s-level [data-v="Running low"]');
+    ok(`${tag} hand-setting Running low in Edit brings it back, and still adds nothing`, (await buyBox(p).count()) === 1 && (await listOf(p, "tom")) === null);
+    await p.click('#ef-s-level [data-v="Out"]');
+    ok(`${tag} hand-setting Out starts at the whole target (twice the minimum 4 is 8)`, (await buyVal(p)) === "8" && (await listOf(p, "tom")) === null, [await buyVal(p), await listOf(p, "tom")]);
+    ok(`${tag} no console errors (how much to buy)`, errs.length === 0, errs); errs.length = 0; await p.close();
+    if (kind === "desktop") {
+      p = await open("?sel=tom");
+      await p.keyboard.press("s");
+      ok(`${tag} S adds with the how-much amount (4 tin)`, (await listOf(p, "tom")) === "4 tin", await listOf(p, "tom"));
+      await p.close();
+    }
     p = await open("?sel=tom&child=edit&field=level");
     await p.click('#ef-s-level [data-v="Running low"]'); await p.click('#ef-s-level [data-v="Out"]');
-    ok(`${tag} picking Running low or Out does not put the item on the list`, (await p.evaluate(() => IEF.items.filter(i => i.id === "tom")[0].list)) === null && /Not on the shopping list/.test(await p.innerText("#ef-s-shop")));
+    ok(`${tag} picking Running low or Out in Edit does not put the item on the list`, (await listOf(p, "tom")) === null);
     await p.close();
     p = await open("?sel=tom");
+    ok(`${tag} Add to shopping is still the explicit way on`, (await listOf(p, "tom")) === null);
     await p.click('[data-ief="shopquick"]');
-    ok(`${tag} the item flyout's Add to shopping is still the explicit way on`, (await p.evaluate(() => IEF.items.filter(i => i.id === "tom")[0].list)) !== null);
+    ok(`${tag} ... and now it is on`, (await listOf(p, "tom")) !== null);
+    await p.close();
+    p = await open("?sel=tom");
+    ok(`${tag} the level itself reads from the one shared function (Running low shows the control, Plenty does not)`, await p.evaluate(() => { const t = IEF.items.filter(i => i.id === "tom")[0], was = JSON.stringify(t); const r = []; for (const a of [0, 3, 4, 5, 8, 9]) { t.amount = a; t.lvSet = null; r.push([a, IEF.level(t), IEF.buyShows(t)]); } Object.assign(t, JSON.parse(was)); return JSON.stringify(r) === JSON.stringify([[0, "Out", true], [3, "Running low", true], [4, "Running low", true], [5, "Some", false], [8, "Some", false], [9, "Plenty", false]]); }));
     await p.close();
 
     /* 8c. a hand-set level looks IDENTICAL to a calculated one everywhere outside the edit flyout's cue (decision 100); no drop is drawn anywhere */
@@ -350,6 +426,82 @@ for (const [w, h, kind] of SIZES) {
       ok(`${tag} no console errors (household)`, errs.length === 0, errs); errs.length = 0; await hp.close();
     }
 
+    /* 10. the emoji tile in the item flyout's header (decision 106): opens the picker, picks, clears, Esc closes the picker only; same save path as Edit */
+    p = await open("?sel=cheddar");
+    ok(`${tag} sheet: no emoji shows the dashed "+" tile, labelled Add an emoji`, (await p.locator("#ief-emo svg").count()) === 1 && (await p.getAttribute("#ief-emo", "aria-label")) === "Add an emoji" && (await p.locator("#ief-emo.empty").count()) === 1);
+    ok(`${tag} sheet: the tile is a 44px or larger target`, await p.evaluate(() => { const b = document.querySelector("#ief-emo").getBoundingClientRect(); return b.width >= 44 && b.height >= 44; }));
+    ok(`${tag} sheet: nothing else was fetched for the picker before the tap`, !(await p.evaluate(() => !!window.IEF.emoji)));
+    await shot(p, "sheet-emoji-tile");
+    await p.click("#ief-emo"); await p.waitForSelector("#ief-emojis [data-epi]");
+    ok(`${tag} sheet: the tap opens the picker with search, recent and the grid`, (await p.locator("#ief-emojis .ef-epr .ef-e").count()) > 0 && (await p.locator("#ief-emojis .ef-epa .ef-e").count()) > 100 && (await p.getAttribute("#ief-emo", "aria-expanded")) === "true");
+    ok(`${tag} sheet: while it is open the picker takes the place of the tiles and buttons`, (await p.locator("#ief-tiles:visible").count()) === 0 && (await p.locator("#ief-acts:visible").count()) === 0 && (await p.locator("#ief-head:visible").count()) === 1);
+    ok(`${tag} sheet: the picker fits the screen width (no sideways scroll)`, await p.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth));
+    ok(`${tag} sheet: No emoji is not offered while there is none`, (await p.locator("#ief-emojis .ef-eno").count()) === 0);
+    await shot(p, "sheet-emoji-open");
+    await p.fill("#ief-emojis [data-epi]", "chee");
+    ok(`${tag} sheet: search finds cheese`, (await p.locator("#ief-emojis .ef-epa .ef-e").first().getAttribute("data-e")) === "🧀" && (await p.locator("#ief-emojis .ef-epr").isHidden()));
+    await p.fill("#ief-emojis [data-epi]", "zzzz");
+    ok(`${tag} sheet: no match says so`, !(await p.locator("#ief-emojis .ef-epn").isHidden()));
+    await p.fill("#ief-emojis [data-epi]", "chee"); await p.locator("#ief-emojis .ef-epa .ef-e").first().click();
+    ok(`${tag} sheet: picked, the tile, the list row and the tiles come back, the picker closes`, (await p.innerText("#ief-emo")) === "🧀" && /🧀 cheddar/.test(await p.innerText("#ief-list")) && (await p.locator("#ief-emojis:visible").count()) === 0 && (await p.locator("#ief-tiles:visible").count()) === 1 && (await p.getAttribute("#ief-emo", "aria-expanded")) === "false", await p.innerText("#ief-emo"));
+    ok(`${tag} sheet: the toast says so, with Undo`, /emoji is 🧀/.test(await toast(p)) && /Undo/.test(await toast(p)), await toast(p));
+    ok(`${tag} sheet: the change is in this item's History as an Emoji line`, await p.evaluate(() => (IEF.LOG.cheddar || []).some(e => e.field === "Emoji" && e.to === "🧀")));
+    await p.click("#ief-emo"); await p.waitForSelector("#ief-emojis [data-epi]");
+    ok(`${tag} sheet: Recent leads with the pick and No emoji is now offered`, (await p.locator("#ief-emojis .ef-epr .ef-e").first().getAttribute("data-e")) === "🧀" && (await p.locator("#ief-emojis .ef-eno").count()) === 1);
+    await p.keyboard.press("Escape");
+    ok(`${tag} sheet: Esc closes the picker only (the sheet and the tiles stay)`, (await p.locator("#ief-emojis:visible").count()) === 0 && (await p.locator("#ief-panel .shead:visible").count()) === 1 && (await p.locator("#ief-tiles:visible").count()) === 1 && (await p.evaluate(() => document.activeElement && document.activeElement.id)) === "ief-emo");
+    await p.keyboard.press("Escape");
+    if (kind !== "desktop") ok(`${tag} sheet: a second Esc then closes the sheet (phone)`, (await p.locator("#ief-panel .shead").count()) === 0);
+    await p.close();
+    p = await open("?sel=butter");
+    ok(`${tag} sheet: an emoji set shows in the tile, labelled so`, (await p.innerText("#ief-emo")) === "🧈" && /Emoji 🧈/.test(await p.getAttribute("#ief-emo", "aria-label")));
+    await p.click("#ief-emo"); await p.waitForSelector("#ief-emojis .ef-eno"); await p.click("#ief-emojis .ef-eno");
+    ok(`${tag} sheet: No emoji clears it (the "+" tile, the list row loses it)`, (await p.locator("#ief-emo svg").count()) === 1 && !/🧈 butter/.test(await p.innerText("#ief-list")) && (await p.getAttribute("#ief-emo", "aria-label")) === "Add an emoji" && (await p.locator("#ief-tiles:visible").count()) === 1);
+    ok(`${tag} sheet: the clear is in History too`, await p.evaluate(() => (IEF.LOG.butter || []).some(e => e.field === "Emoji" && e.to === "not set")));
+    await p.click('[data-ief="history"]'); await p.waitForSelector("#ief-child .hist");
+    ok(`${tag} sheet: the History flyout shows the Emoji line`, /Emoji/.test(await p.innerText("#ief-cbody")), (await p.innerText("#ief-cbody")).slice(0, 120));
+    ok(`${tag} no console errors (sheet emoji)`, errs.length === 0, errs); errs.length = 0; await p.close();
+    p = await open("?sel=cheddar&down=1");
+    await p.click("#ief-emo"); await p.waitForSelector("#ief-emojis [data-epi]"); await p.locator("#ief-emojis .ef-epa .ef-e").first().click();
+    ok(`${tag} sheet: a failed save says so and keeps the old emoji and the picker`, /Not saved/.test(await toast(p)) && (await p.locator("#ief-emo.empty").count()) === 1 && (await p.locator("#ief-emojis:visible").count()) === 1, await toast(p));
+    await p.close();
+    p = await open("?sel=cheddar&child=edit");
+    if (kind === "phone") ok(`${tag} sheet: with Edit open over it the tile does not intercept the tap (it steps back)`, (await p.evaluate(() => getComputedStyle(document.querySelector("#ief-emo")).pointerEvents)) === "none");
+    await p.close();
+    if (kind === "desktop") {
+      p = await open("?sel=cheddar&child=edit");
+      await p.click("#ief-emo"); await p.waitForSelector("#ief-emojis [data-epi]");
+      ok(`${tag} sheet: tapping the tile with Edit open steps Edit back so the picker has the place`, (await p.locator("#ief-child:visible").count()) === 0 && (await p.locator("#ief-emojis:visible").count()) === 1);
+      await p.fill("#ief-emojis [data-epi]", "bread"); await p.locator("#ief-emojis .ef-epa .ef-e").first().click();
+      await p.click('#ief-head [data-ief="edit"]'); await p.waitForSelector("#ief-child .ef");
+      ok(`${tag} sheet: reopening Edit shows the new emoji in its own tile`, (await p.innerText("#ef-emo")) === "🍞", await p.innerText("#ef-emo"));
+      await p.close();
+      p = await open("?sel=cheddar");
+      await p.click("#ief-emo"); await p.waitForSelector("#ief-emojis [data-epi]"); await p.locator("#ief-emojis .ef-epa .ef-e").nth(3).focus();
+      await p.keyboard.press("d");
+      ok(`${tag} sheet: letter keys do nothing while the picker is focused (D does not mark it used up)`, (await p.locator("#ief-acts .btn:disabled:has-text('Marked Out')").count()) === 0 && (await p.evaluate(() => IEF.items.filter(i => i.id === "cheddar")[0].amount)) === 200);
+      const want = await p.locator("#ief-emojis .ef-epa .ef-e").nth(4).getAttribute("data-e");
+      await p.keyboard.press("ArrowRight"); await p.keyboard.press("Enter");
+      ok(`${tag} sheet: arrow keys and Enter on a grid emoji pick it`, (await p.innerText("#ief-emo")) === want, [await p.innerText("#ief-emo"), want]);
+      await p.close();
+      p = await open("?sel=cheddar");
+      await p.click("#ief-emo"); await p.waitForSelector("#ief-emojis [data-epi]"); await p.keyboard.type("bread");
+      await p.keyboard.press("Enter");
+      ok(`${tag} sheet: typing in the search then Enter picks the first match`, (await p.innerText("#ief-emo")) === "🍞", await p.innerText("#ief-emo"));
+      await p.close();
+    }
+    p = await open("?sel=cheddar&child=edit");
+    await p.click("#ef-emo"); await p.waitForSelector("#ef-emojis [data-epi]");
+    ok(`${tag} Edit's own picker still opens from its tile, and it is a different box from the sheet's`, (await p.locator("#ef-emojis:visible").count()) === 1 && (await p.locator("#ief-emojis:visible").count()) === 0);
+    await p.close();
+    p = await open("?sel=milk");
+    await p.click("#ief-emo"); await p.waitForSelector("#ief-emojis [data-epi]");
+    ok(`${tag} sheet: the opened picker marks the item's current emoji`, (await p.locator("#ief-emojis .ef-epa .ef-e.on").getAttribute("data-e")) === "🥛");
+    await p.click('#ief-head [data-ief="edit"]');
+    await p.waitForSelector("#ief-child .ef");
+    ok(`${tag} sheet: opening Edit closes the sheet's picker`, (await p.locator("#ief-emojis:visible").count()) === 0 && (await p.getAttribute("#ief-emo", "aria-expanded")) === "false");
+    await p.close();
+
     /* 9b. key hints are shown on the icons (decision 68, confirmed) */
     p = await open("?sel=eggs");
     if (kind === "desktop") ok(`${tag} key hints shown on the pencil and the clock`, (await p.evaluate(() => document.querySelector("#ief-app").dataset.hint)) === "show" && (await p.locator("#ief-head .ib .kbd.cap:visible").allInnerTexts()).join("|") === "E|,", await p.locator("#ief-head .ib .kbd.cap").allInnerTexts());
@@ -375,6 +527,7 @@ for (const [w, h, kind] of SIZES) {
       await p.keyboard.press("Escape"); ok(`${tag} Esc again closes the item`, (await p.locator("#ief-panel .shead").count()) === 0);
       await p.close();
       p = await open("?sel=eggs&child=edit");
+      await p.waitForTimeout(400); /* let the sheet finish rising */
       const g = await p.locator("#ief-child .chd").boundingBox();
       await p.mouse.move(g.x + 60, g.y + 12); await p.mouse.down(); await p.mouse.move(g.x + 60, g.y + 200, { steps: 8 }); await p.mouse.up(); await p.waitForTimeout(400);
       ok(`${tag} dragging the sheet's title bar down closes it (mouse, same as touch)`, (await p.locator("#ief-child:visible").count()) === 0);

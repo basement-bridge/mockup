@@ -4,4 +4,4 @@
 .ief-child{grid-area:1/4;top:0;margin-top:0;height:100vh;z-index:1;border-top:0;border-radius:0;box-shadow:none;padding:24px}
 .ief-child.enter{animation:slideout .24s ease-out}
 .app[data-child] .panel{overflow:auto;box-shadow:12px 0 24px -14px rgba(0,0,0,.45)}
-.app[data-child] .panel .tiles,.app[data-child] .panel .sacts,.app[data-child] .panel #ief-hintw{visibility:visible}
+.app[data-child] .panel .tiles,.app[data-child] .panel .sacts,.app[data-child] .panel .sbuy,.app[data-child] .panel #ief-hintw{visibility:visible}

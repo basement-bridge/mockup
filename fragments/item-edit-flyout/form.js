@@ -4,13 +4,14 @@
    Each field is built once (INNER) and the layout only arranges them.
    11 Oct 2026 round: Location, Spot and Category are the same text-input-with-suggestions controls as the Add form in Kitchie uat (a list opens on focus, type to filter or add a new one); Category's suggestions are drawn as the chip row (proposed).
    The emoji picker (search, recent, "No emoji") is the same for Edit and Add; its list of emoji is in emoji.js, fetched when the picker is first opened. Level is four battery icons, with an "Automatic" / "Set by you" cue (decisions 82 to 86, refined by 94 to 101).
-   Round 3 (owner's voice answers of 11 Oct 2026, decisions 94 to 101): Category and Unit are a text box plus a row of quick-pick chips, free text for anything not in the list; a hand-set level goes back to automatic only when stock is added; with no minimum the level is Plenty until 0; the shopping amount starts at the top-up to twice the minimum. */
+   Round 3 (owner's voice answers of 11 Oct 2026, decisions 94 to 101): Category and Unit are a text box plus a row of quick-pick chips, free text for anything not in the list; a hand-set level goes back to automatic only when stock is added; with no minimum the level is Plenty until 0.
+   Round 4 (owner, typed, 12 Oct 2026, decisions 102 to 107): there is NO shopping group in Edit. "How much to buy" and the button live in the item flyout and show only at Running low or Out (flyout.js). The emoji picker's code moved to emoji.js so the item flyout's header tile shares it. */
 (function () {
 "use strict";
 var IEF = window.IEF, $ = IEF.$, esc = IEF.esc, sv = IEF.sv, IC = IEF.IC, S = IEF.S, F = IEF.form = {};
 var counted = IEF.counted, level = IEF.level, qtyText = IEF.qtyText, round2 = IEF.round2;
-var LABEL = { name: "Name", emoji: "Emoji", buy: "Shopping list", amount: "Quantity", unit: "Quantity", text: "Quantity", qclear: "Quantity", level: "Level", min: "Minimum", area: "Location", spot: "Spot", cat: "Category", useby: "Use by", shop: "Shopping list" };
-var GROUP = { name: "name", emoji: "name", amount: "qty", unit: "qty", text: "qty", level: "level", min: "min", area: "area", spot: "spot", cat: "cat", useby: "useby", shop: "shop" };
+var LABEL = { name: "Name", emoji: "Emoji", amount: "Quantity", unit: "Quantity", text: "Quantity", qclear: "Quantity", level: "Level", min: "Minimum", area: "Location", spot: "Spot", cat: "Category", useby: "Use by" };
+var GROUP = { name: "name", emoji: "name", amount: "qty", unit: "qty", text: "qty", level: "level", min: "min", area: "area", spot: "spot", cat: "cat", useby: "useby" };
 
 function add() { return S.mode === "add"; }
 function L(t) { return '<span class="ef-l">' + t + "</span>"; }
@@ -20,9 +21,9 @@ function stepBtn(d, label, ic, key) { return '<button type="button" data-ef="ste
 function hasMin(it) { return !!(it.unit || it.min) || counted(it); }
 
 /* ---------- the field builders: the inner of each field's wrapper, rebuilt on its own when something it depends on changes ---------- */
-var emoOpen = false, catsOpen = false, unitsOpen = false;
+var catsOpen = false, unitsOpen = false;
 function emoTile(it) {
-  return '<button type="button" class="ef-emo" id="ef-emo" data-ef="emoji" aria-expanded="' + emoOpen + '" aria-controls="ef-emojis" aria-label="' + (it.emoji ? "Emoji " + it.emoji + ". Change it" : "Add an emoji") + '" title="' + (it.emoji ? "Change the emoji" : "Add an emoji") + '">' + (it.emoji ? it.emoji : sv(IC.plus, "", 22)) + "</button>";
+  return '<button type="button" class="ef-emo" id="ef-emo" data-ef="emoji" aria-expanded="' + !!(IEF.emoji && IEF.emoji.isOpen("edit")) + '" aria-controls="ef-emojis" aria-label="' + (it.emoji ? "Emoji " + it.emoji + ". Change it" : "Add an emoji") + '" title="' + (it.emoji ? "Change the emoji" : "Add an emoji") + '">' + (it.emoji ? it.emoji : sv(IC.plus, "", 22)) + "</button>";
 }
 /* a Location, Spot or Category box: a text input with a list of suggestions that opens on focus, filters as you type and takes a new word (the Add form in Kitchie uat: form.js combo) */
 function combo(key, lab, val, ph) {
@@ -49,20 +50,7 @@ function chipsRow(kind, icon, label, plural, chips, open) {
   return '<div class="ef-cats" data-kind="' + kind + '" data-open="' + open + '"><span class="ef-ct" aria-hidden="true">' + sv(icon, "", 20) + '</span><div class="ef-cl" role="group" aria-label="' + label + ' suggestions">' + chips + '</div><button type="button" class="ef-cx" data-ef="chipsmore" aria-expanded="' + open + '" aria-label="' + (open ? "Show fewer " : "Show all ") + plural + '" hidden>' + sv(IC.chevd, "", 18) + "</button></div>";
 }
 function chipRow(it) { return chipsRow("cat", IC.tag, "Category", "categories", chipItems(it, ""), catsOpen); }
-/* Decision 99 (owner, 11 Oct 2026; supersedes 88's default): with a minimum, the target is TWICE the minimum and "how much to buy" starts at the DELTA to reach it (what you need to buy, which is what a "buy" stepper means; the target itself would read as the amount to buy on top of what you have). At or over the target there is nothing to top up, so it starts at one step.
-   No minimum: the earlier fallback, what you have now (the amount, else the amount before it ran out, else 1). The level is never an input (decision 101): a hand-set level does not change this. */
-function stepOf(it) { return counted(it) ? 1 : (IEF.STEP[it.unit] || 1); }
-function target(it) { var m = minOf(it); return m > 0 ? round2(2 * m) : 0; }
-function buyVal(it) {
-  if (it.buy != null) return it.buy;
-  var t = target(it); if (t > 0) { var d = round2(t - (it.amount > 0 ? it.amount : 0)); return d > 0 ? d : stepOf(it); }
-  return it.amount > 0 ? it.amount : it.prev > 0 ? it.prev : 1;
-}
-function buyText(it) { return round2(buyVal(it)) + (it.unit ? " " + it.unit : ""); }
-function buyNote(it) {
-  var t = target(it), u = it.unit ? " " + esc(it.unit) : "";
-  return (t > 0 ? (t > (it.amount > 0 ? it.amount : 0) ? "Starts at what tops you up to twice your minimum (" + t + u + ")." : "You already have twice your minimum, so it starts at one step.") : "Starts from what you have.") + " Clear the quantity above to say it in your own words.";
-}
+/* The default for "how much to buy" (decision 99) moved with the control to the item flyout (flyout.js: IEF.buyVal) in round 4. */
 function lvCue(it) {
   var src = IEF.lvSource(it); if (!src) return "";
   return '<p class="ef-lvm">' + (src === "set"
@@ -78,7 +66,7 @@ var INNER = {
   },
   qty: function (it) {
     if (it.amount === null) return L("Quantity") + '<div class="ef-row"><input class="ef-in" data-f="text" value="' + esc(it.text) + '" placeholder="In your own words, e.g. a handful" autocomplete="off" aria-label="Quantity"><button type="button" class="btn ghost sm" data-ef="addunit">Add unit</button></div>' + err("qty");
-    return '<div class="ef-lh">' + L("Quantity") + '<button type="button" class="ef-clear" data-ef="qclear" title="No quantity. The shopping list can then take your own words.">Clear</button></div><div class="ef-row"><div class="ef-step" role="group" aria-label="Quantity">' + stepBtn(-1, "Less", IC.minus) + '<input class="ef-num" data-f="amount" inputmode="decimal" value="' + round2(it.amount) + '" aria-label="Quantity" autocomplete="off">' + stepBtn(1, "More", IC.plus) + "</div>"
+    return '<div class="ef-lh">' + L("Quantity") + '<button type="button" class="ef-clear" data-ef="qclear" title="No quantity. How much to buy can then be in your own words.">Clear</button></div><div class="ef-row"><div class="ef-step" role="group" aria-label="Quantity">' + stepBtn(-1, "Less", IC.minus) + '<input class="ef-num" data-f="amount" inputmode="decimal" value="' + round2(it.amount) + '" aria-label="Quantity" autocomplete="off">' + stepBtn(1, "More", IC.plus) + "</div>"
       + '<input class="ef-in ef-unitin" data-f="unit" data-cbq="unit" value="' + esc(it.unit) + '" placeholder="Unit" maxlength="20" autocomplete="off" autocapitalize="none" enterkeyhint="done" aria-label="Unit"></div>'
       + chipsRow("unit", IC.ruler, "Unit", "units", unitItems(it, ""), unitsOpen) + '<p class="ef-note ef-newunit" hidden></p>' + err("qty");
   },
@@ -106,20 +94,9 @@ var INNER = {
       + '<button type="button" class="pill" data-ef="pickdate">Pick date\u2026</button></div>'
       + '<input type="date" class="ef-datein" data-f="useby" value="' + it.useby + '" min="' + IEF.todayIso + '" aria-label="Pick a use-by date" tabindex="-1">' + err("useby");
   },
-  /* the Shopping list group (decisions 87 to 89): one heading, spaced and ruled off, once; a status line; how much to buy; the button.
-     The item has a weighed or counted quantity: "how much to buy" is a number in the item's own unit, starting from what the household has, and the own-words box stays out of the way.
-     The item has none (nothing, or words like "a big handful"): the own-words box is the way in. Clearing the quantity brings it back. */
-  shop: function (it) {
-    var on = it.list !== null, hasQ = it.amount !== null;
-    var status = on ? '<p class="ef-onlist">' + sv(IC.tick, "", 16) + "<span>On the shopping list" + (it.list ? ": <b>" + esc(it.list) + "</b>" : "") + '.</span><button type="button" class="link" data-ef="openlist">Open the list</button></p>' : '<p class="ef-onlist off"><span>Not on the shopping list.</span></p>';
-    var how = hasQ
-      ? '<div class="ef-f2"><span class="ef-l">How much to buy</span><div class="ef-row"><div class="ef-step" role="group" aria-label="How much to buy">' + stepBtn(-1, "Buy less", IC.minus, "buy") + '<input class="ef-num" data-f="buy" inputmode="decimal" value="' + round2(buyVal(it)) + '" aria-label="How much to buy" autocomplete="off">' + stepBtn(1, "Buy more", IC.plus, "buy") + "</div>" + (it.unit ? '<span class="ef-unit">' + esc(it.unit) + "</span>" : "") + '</div><p class="ef-note">' + buyNote(it) + "</p></div>"
-      : '<label class="ef-f2"><span class="ef-l">How much to buy (optional, in your own words)</span><input class="ef-in" data-f="shop" value="' + esc(it.list || "") + '" placeholder="1 kg, a packet, 3" autocomplete="off"></label>';
-    return '<h3 class="ef-h">Shopping list</h3>' + status + how
-      + '<button type="button" class="btn ' + (on ? "ghost" : "pri") + ' ef-shopb" data-ef="shopsave">' + sv(IC.cart, "", 20) + "<span>" + (on ? "Update the shopping list" : "Add to shopping list") + "</span></button>" + err("shop");
-  }
+  /* there is no Shopping list group in Edit any more (decision 102, owner 12 Oct 2026); see flyout.js for "How much to buy" */
 };
-function field(k, it) { var h = k === "shop" ? INNER.shop(it) : INNER[k](it); return k === "shop" ? '<div class="ef-w ef-shop" id="ef-s-shop" data-field="shop">' + h + "</div>" : wrap(k, h); }
+function field(k, it) { return wrap(k, INNER[k](it)); }
 function sec(h, body) { return '<section class="ef-sec">' + (h ? '<h3 class="ef-h">' + h + "</h3>" : "") + body + "</section>"; }
 function recipe() {
   if (!S.recipes || add()) return "";
@@ -127,23 +104,23 @@ function recipe() {
   return '<button type="button" class="ef-go" data-ef="recipe" data-from="recipe-manifest">' + sv(IC.pot, "", 22) + '<span class="ef-gol">Use in a recipe</span>' + sv(IC.chev, "", 18) + "</button>";
 }
 
-/* ---------- the layout: one scroll, five groups (Item, Amount, Where, Use by, Shopping list), then the recipe action ---------- */
+/* ---------- the layout: one scroll, four groups (Item, Amount, Where, Use by), then the recipe action (decision 102) ---------- */
 function layout(it) {
   if (add()) return sec("Item", field("name", it)) + sec("Amount", field("qty", it) + field("min", it)) + sec("Where", field("area", it) + field("spot", it) + field("cat", it)) + sec(null, field("useby", it));
-  return sec("Item", field("name", it)) + sec("Amount", field("qty", it) + field("level", it) + field("min", it)) + sec("Where", field("area", it) + field("spot", it) + field("cat", it)) + sec(null, field("useby", it)) + field("shop", it) + recipe();
+  return sec("Item", field("name", it)) + sec("Amount", field("qty", it) + field("level", it) + field("min", it)) + sec("Where", field("area", it) + field("spot", it) + field("cat", it)) + sec(null, field("useby", it)) + recipe();
 }
-F.fill = function (it) { var b = $("#ief-cbody"); if (!b) return; emoOpen = false; catsOpen = false; unitsOpen = false; b.innerHTML = '<div class="ef">' + layout(it) + "</div>"; var t = $("#ief-ctitle h2"); if (t) t.textContent = "Edit item"; fitCats(); };
+F.fill = function (it) { var b = $("#ief-cbody"); if (!b) return; if (IEF.emoji) IEF.emoji.reset("edit"); catsOpen = false; unitsOpen = false; b.innerHTML = '<div class="ef">' + layout(it) + "</div>"; var t = $("#ief-ctitle h2"); if (t) t.textContent = "Edit item"; fitCats(); };
 F.fillAdd = function () {
-  var b = $("#ief-cbody"), it = IEF.draft, k = IEF.host.keys ? IEF.host : null; emoOpen = false; catsOpen = false; unitsOpen = false;
+  var b = $("#ief-cbody"), it = IEF.draft, k = IEF.host.keys ? IEF.host : null; if (IEF.emoji) IEF.emoji.reset("edit"); catsOpen = false; unitsOpen = false;
   b.innerHTML = '<div class="ef" data-mode="add">' + layout(it) + "</div>";
   fitCats();
   $("#ief-cft").innerHTML = '<button type="button" class="btn pri" data-ef="addgo">Add item ' + IEF.kbd("enter", "keep") + '</button><button type="button" class="btn" data-ef="addmore">Add and start another ' + (k ? '<kbd class="kbd">&#8679; Enter</kbd>' : "") + '</button><button type="button" class="btn ghost" data-ief="addcancel">Cancel ' + (k ? '<kbd class="kbd">' + k.closeLabel + "</kbd>" : "") + "</button>";
 };
 F.nameError = function () { showErr("name", "A name is needed."); var i = $('[data-f="name"]'); if (i) i.focus(); };
-F.refreshShop = function () { var it = IEF.cur(), w = $("#ef-s-shop"); if (w && it) w.innerHTML = INNER.shop(it); };
+F.saveEmoji = function (e) { return save("emoji", e); };
 
 /* ---------- landing on a field (a tile in the item flyout was tapped, or ?field=) ---------- */
-var FWRAP = { qty: "qty", level: "level", min: "min", useby: "useby", cat: "cat", name: "name", area: "area", spot: "spot", shop: "shop" };
+var FWRAP = { qty: "qty", level: "level", min: "min", useby: "useby", cat: "cat", name: "name", area: "area", spot: "spot" };
 var quiet = false;
 F.focusField = function (k, inputs) {
   var it = IEF.target(); if (!it) return;
@@ -157,7 +134,7 @@ F.focusField = function (k, inputs) {
 };
 
 /* ---------- saving ---------- */
-function get(it, f) { return f === "shop" ? it.list : it[f]; }
+function get(it, f) { return it[f]; }
 function fmt(it, f) {
   if (f === "amount" || f === "unit" || f === "text" || f === "qclear") return qtyText(it) || "not set";
   if (f === "useby") return it.useby ? IEF.dayName(it.useby) : "not set";
@@ -184,7 +161,7 @@ function apply(it, f, v) {
   else if (f === "amount") { var w0 = it.amount; it.amount = round2(v); if (it.amount === 0 && w0 > 0) it.prev = w0; IEF.qtyChanged(it, w0); }
   /* a unit change is not a restock: the pick stays (decision 96). A typed unit takes the household's own spelling when it matches one. */
   else if (f === "unit") it.unit = canon(IEF.units(), String(v).replace(/\s+/g, " "));
-  else if (f === "qclear") { it.amount = null; it.text = ""; it.unit = ""; it.prev = null; it.buy = undefined; it.lvSet = null; }
+  else if (f === "qclear") { it.amount = null; it.text = ""; it.unit = ""; it.prev = null; it.lvSet = null; }
   else if (f === "level") {
     /* a pick. Out is zero, always. Any other level brings back the amount from before it was Out, then is the person's: kept as the pick where rules can work the level out (until the quantity changes), or as the stored label where they cannot. */
     if (v === "Out") { if (it.amount !== null) { if (it.amount > 0) it.prev = it.amount; it.amount = 0; } else it.level = "Out"; }
@@ -198,7 +175,6 @@ function apply(it, f, v) {
     var sl = IEF.SPOTS[it.area] || []; it.spot = canon(sl, v);
     if (it.spot && it.area !== "Unplaced" && sl.indexOf(it.spot) < 0) { sl.push(it.spot); IEF.SPOTS[it.area] = sl; }
   } else if (f === "cat") it.cat = canon(IEF.cats(), v);
-  else if (f === "shop") it.list = String(v);
   else it[f] = v;
   /* the level never jumps: when the quantity is cleared there are no rules to work it out, so what was showing is kept as the stored label */
   if (f === "qclear") it.level = was;
@@ -217,7 +193,7 @@ function redraw(ids, it) {
   ids.forEach(function (id) {
     var w = $("#ef-s-" + id); if (!w) return;
     var a = document.activeElement, fk = a && w.contains(a) ? (a.dataset.f ? '[data-f="' + a.dataset.f + '"]' : a.dataset.ef ? '[data-ef="' + a.dataset.ef + '"]' : "") : "";
-    w.innerHTML = id === "shop" ? INNER.shop(it) : INNER[id](it);
+    w.innerHTML = INNER[id](it);
     if (fk) { var n = id === "level" && fk.indexOf("lvl") > -1 ? w.querySelector('[aria-checked="true"]') : w.querySelector(fk); if (n) n.focus({ preventScroll: true }); }
   });
 }
@@ -231,70 +207,25 @@ function syncUnits(it) {
   var i = $('.ef [data-f="unit"]'); if (i && i.value !== it.unit) i.value = it.unit;
   var cl = $("#ef-s-qty .ef-cl"); if (cl) { cl.innerHTML = unitItems(it, ""); fitCats(); var n = $(".ef-newunit"); if (n) n.hidden = true; }
 }
-function refreshEmoji(it) { var t = $("#ef-emo"); if (t) t.outerHTML = emoTile(it); }
 function after(f, it) {
-  if (f === "amount") redraw(["level", "min", "shop"], it);
-  else if (f === "min") redraw(["level", "min", "shop"], it);
-  else if (f === "unit") { syncUnits(it); redraw(["level", "min", "shop"], it); }
-  else if (f === "qclear") redraw(["qty", "level", "min", "shop"], it);
-  else if (f === "level") redraw(["qty", "level", "shop"], it);
+  if (f === "amount") redraw(["level", "min"], it);
+  else if (f === "min") redraw(["level", "min"], it);
+  else if (f === "unit") { syncUnits(it); redraw(["level", "min"], it); }
+  else if (f === "qclear") redraw(["qty", "level", "min"], it);
+  else if (f === "level") redraw(["qty", "level"], it);
   else if (f === "area" || f === "spot" || f === "cat") syncWhere(it);
   else if (f === "useby") redraw([f], it);
   else if (f === "emoji") refreshEmoji(it);
 }
 function num(s) { s = String(s).trim().replace(",", "."); return s === "" ? "" : (isFinite(s) ? parseFloat(s) : NaN); }
 function step(it, key, d) {
-  var u = it.unit, st = counted(it) ? 1 : (IEF.STEP[u] || 1), cur = key === "min" ? (parseFloat(it.min) || 0) : key === "buy" ? buyVal(it) : (it.amount || 0), n = Math.max(0, round2(cur + d * st));
-  if (key === "buy") { it.buy = n; var bi = $('[data-f="buy"]'); if (bi) bi.value = n; return; }
+  var u = it.unit, st = counted(it) ? 1 : (IEF.STEP[u] || 1), cur = key === "min" ? (parseFloat(it.min) || 0) : (it.amount || 0), n = Math.max(0, round2(cur + d * st));
   save(key, key === "min" && n === 0 ? "" : n);
   var i = $('[data-f="' + key + '"]'); if (i) i.value = key === "min" && n === 0 ? "" : n;
 }
 
-/* ---------- the emoji picker (Edit and Add): the tile opens it; search, recent, a grid of foods, "No emoji". The emoji list is emoji.js, fetched the first time the picker opens. ---------- */
-function eb(e, cur) { return '<button type="button" class="ef-e' + (e[0] === cur ? " on" : "") + '" data-ef="setemoji" data-e="' + e[0] + '" aria-label="' + esc(e[1]) + '" title="' + esc(e[1]) + '" aria-pressed="' + (e[0] === cur) + '">' + e[0] + "</button>"; }
-function fillGrid(q) {
-  var it = IEF.target(), p = $("#ef-emojis"); if (!p || !IEF.emoji) return;
-  var E = IEF.emoji, words = q.toLowerCase().split(/\s+/).filter(Boolean), cur = it ? it.emoji : "";
-  var hit = E.list.filter(function (e) { var h = (e[1] + " " + e[2]).toLowerCase(); return words.every(function (w) { return h.indexOf(w) > -1; }); });
-  var rec = p.querySelector(".ef-epr"), g = p.querySelector(".ef-epa .ef-eg"), n = p.querySelector(".ef-epn"), t = p.querySelector(".ef-ept"), r = words.length ? [] : E.recent();
-  rec.hidden = !r.length; rec.innerHTML = r.length ? '<span class="ef-l">Recent</span><div class="ef-eg" role="group" aria-label="Recent emoji">' + r.map(function (e) { return eb(e, cur); }).join("") + "</div>" : "";
-  g.innerHTML = hit.map(function (e) { return eb(e, cur); }).join(""); n.hidden = hit.length > 0; t.textContent = words.length ? (hit.length ? "Matches" : "") : "Foods and kitchen";
-}
-function drawPicker() {
-  var it = IEF.target(), p = $("#ef-emojis"); if (!p) return;
-  p.innerHTML = '<label class="ef-eps">' + sv(IC.search, "", 18) + '<span class="sr-only">Search emoji</span><input type="search" class="ef-epi" data-epi placeholder="Search, e.g. cheese or herb" autocomplete="off" autocapitalize="none" enterkeyhint="search"></label>'
-    + '<div class="ef-epr" hidden></div><div class="ef-epa"><span class="ef-l ef-ept">Foods and kitchen</span><div class="ef-eg" role="group" aria-label="Emoji"></div><p class="ef-note ef-epn" hidden>No emoji matches. Try another word.</p></div>'
-    + (it && it.emoji ? '<button type="button" class="ef-eno" data-ef="setemoji" data-e="">No emoji</button>' : "");
-  fillGrid("");
-}
-function openEmoji(on) {
-  var p = $("#ef-emojis"), t = $("#ef-emo"); if (!p || !t) return;
-  if (on === undefined) on = p.hidden;
-  emoOpen = on; t.setAttribute("aria-expanded", on);
-  if (!on) { p.hidden = true; return; }
-  p.hidden = false; p.innerHTML = '<p class="ef-note">One moment.</p>';
-  IEF.need("emoji.js", function () {
-    if (!emoOpen) return; drawPicker();
-    /* a keyboard user lands in the search box; on a phone it is not focused, so the on-screen keyboard does not cover the grid */
-    var s = $("#ef-emojis [data-epi]"); if (s && IEF.host.keys) s.focus({ preventScroll: true });
-    p.scrollIntoView({ block: "nearest", behavior: "auto" });
-  });
-}
-function pickEmoji(e) {
-  if (save("emoji", e)) { if (e && IEF.emoji) IEF.emoji.push(e); openEmoji(false); var t = $("#ef-emo"); if (t) t.focus({ preventScroll: true }); }
-}
-/* arrows move through the recent row and the grid; up from the first row goes back to the search box */
-function emoNav(e) {
-  var t = e.target, all = Array.prototype.slice.call(document.querySelectorAll("#ef-emojis .ef-e")), i = all.indexOf(t); if (i < 0) return;
-  var k = e.key, to = null;
-  if (k === "ArrowRight") to = all[i + 1]; else if (k === "ArrowLeft") to = all[i - 1];
-  else if (k === "ArrowDown" || k === "ArrowUp") {
-    var r = t.getBoundingClientRect(), cx = r.left + r.width / 2, best = 1e9;
-    all.forEach(function (b) { var q = b.getBoundingClientRect(), dy = k === "ArrowDown" ? q.top - r.top : r.top - q.top; if (dy > 4) { var d = dy * 1000 + Math.abs(q.left + q.width / 2 - cx); if (d < best) { best = d; to = b; } } });
-    if (!to && k === "ArrowUp") to = $("#ef-emojis [data-epi]");
-  } else return;
-  e.preventDefault(); if (to) to.focus();
-}
+/* ---------- the emoji picker: its code is in emoji.js (shared with the item flyout's header tile), fetched the first time a picker opens. The tile here only asks for it. ---------- */
+function refreshEmoji(it) { var t = $("#ef-emo"); if (t) t.outerHTML = emoTile(it); }
 
 /* ---------- suggestion lists for Location, Spot and Category (the Add form's behaviour in Kitchie uat): opens on focus or click, filters as you type, Arrow keys and Enter pick, Esc closes the list only, a new word is allowed ---------- */
 var CB = { el: null, list: null, shown: [], active: -1, typed: false };
@@ -366,19 +297,11 @@ document.addEventListener("click", function (e) {
   else if (k === "lvl") save("level", el.dataset.v);
   else if (k === "lvauto") { var l0 = level(it); IEF.autoAgain(it); if (!add()) { IEF.log(it, "Level", l0, level(it)); IEF.say("Saved"); IEF.syncParent(); } redraw(["level"], it); var ra = $('#ef-s-level [aria-checked="true"]'); if (ra) ra.focus({ preventScroll: true }); }
   else if (k === "qclear") save("qclear", "");
-  else if (k === "addunit") { var t = parseFloat(it.text); it.amount = isFinite(t) ? t : 1; it.unit = ""; var tx = it.text; it.text = ""; if (it.level && it.level !== "Out" && it.level !== IEF.autoLevel(it)) it.lvSet = it.level; /* the label the person picked stays, as a hand-set level, so the level does not jump */ if (!add()) { IEF.log(it, "Quantity", tx || "not set", qtyText(it)); IEF.say("Saved"); IEF.syncParent(); } redraw(["qty", "level", "min", "shop"], it); var s = $('#ef-s-qty .ef-unitin'); if (s) s.focus(); }
-  else if (k === "emoji") openEmoji();
-  else if (k === "setemoji") pickEmoji(el.dataset.e);
+  else if (k === "addunit") { var t = parseFloat(it.text); it.amount = isFinite(t) ? t : 1; it.unit = ""; var tx = it.text; it.text = ""; if (it.level && it.level !== "Out" && it.level !== IEF.autoLevel(it)) it.lvSet = it.level; /* the label the person picked stays, as a hand-set level, so the level does not jump */ if (!add()) { IEF.log(it, "Quantity", tx || "not set", qtyText(it)); IEF.say("Saved"); IEF.syncParent(); } redraw(["qty", "level", "min"], it); var s = $('#ef-s-qty .ef-unitin'); if (s) s.focus(); }
+  else if (k === "emoji") IEF.need("emoji.js", function () { IEF.emoji.toggle("edit"); });
   else if (k === "catchip") { var on = el.getAttribute("aria-pressed") === "true"; save("cat", on ? "" : el.dataset.v); }
   else if (k === "unitchip") { var onu = el.getAttribute("aria-pressed") === "true"; save("unit", onu ? "" : el.dataset.v); }
   else if (k === "chipsmore") { var c = el.closest(".ef-cats"), nowOpen = c.dataset.open !== "true", kind = c.dataset.kind; if (kind === "unit") unitsOpen = nowOpen; else catsOpen = nowOpen; c.dataset.open = nowOpen; el.setAttribute("aria-expanded", nowOpen); el.setAttribute("aria-label", (nowOpen ? "Show fewer " : "Show all ") + (kind === "unit" ? "units" : "categories")); }
-  else if (k === "shopsave") {
-    var inp = $('[data-f="shop"]'), val = it.amount !== null ? buyText(it) : (inp ? inp.value.trim() : ""), was = it.list !== null, sn = IEF.snap();
-    if (!add() && S.down) { lastTry = ["shop", val]; showErr("shop", "Not saved. We can't reach the platform.", true); return; }
-    it.list = val; IEF.log(it, "Shopping list", was ? (it.list || "on it") : "not on it", val || "on it"); IEF.say("Saved"); IEF.syncParent(); redraw(["shop"], it);
-    IEF.toast(esc(it.name) + (was ? " is updated on your shopping list." : " is on your shopping list."), sn);
-  }
-  else if (k === "openlist") IEF.toast("Opens the Shopping list. Not drawn here.");
   else if (k === "recipe") IEF.toast("Opens Recipes with " + esc(it.name) + " as the ingredient. The label and the target come from the Recipe manifest. Not drawn here.");
   else if (k === "retry") { if (lastTry) { save(lastTry[0], lastTry[1]); } }
   else if (k === "addgo") IEF.commitAdd(false);
@@ -387,9 +310,7 @@ document.addEventListener("click", function (e) {
 function onField(e, final) {
   var i = e.target.closest && e.target.closest("[data-f]"); if (!i || !i.isConnected || !i.closest(".ef")) return;
   var it = IEF.target(), f = i.dataset.f, v = i.value;
-  if (f === "buy") { var bn = num(v); if (bn !== bn || bn === "" || bn < 0) { showErr("shop", "Use a number from 0 up."); return; } clearErr("shop"); it.buy = bn; return; }
   if (f === "amount" || f === "min") { var n = num(v); if (f === "min" && n === "") { save("min", ""); return; } if (f === "amount" && n === "") { showErr("amount", "Use a number from 0 up."); return; } v = n; if (n !== n) { showErr(f, f === "min" ? "Use a number, or clear it." : "Use a number from 0 up."); return; } }
-  if (f === "shop") { return; }
   if (f === "text") { var b = it.text; it.text = v; if (!add()) { IEF.log(it, "Quantity", b || "not set", v || "not set"); IEF.say("Saved"); IEF.syncParent(); } return; }
   if (f === "name" && !add() && !String(v).trim()) { showErr("name", "A name is needed."); return; }
   if (f === "name" && add()) { it.name = v; clearErr("name"); return; }
@@ -405,23 +326,15 @@ document.addEventListener("input", function (e) {
     if (i.dataset.cbq) { var kq = i.dataset.cbq, w = i.closest(".ef-w"), cl = w && w.querySelector(".ef-cl"), it0 = IEF.target(); if (cl) { cl.innerHTML = kq === "unit" ? unitItems(it0, i.value) : chipItems(it0, i.value); fitCats(); } var nn = w && w.querySelector(kq === "unit" ? ".ef-newunit" : ".ef-newcat"), tv = i.value.trim(); if (nn) { var known = (kq === "unit" ? IEF.units() : IEF.cats()).some(function (c) { return c.toLowerCase() === tv.toLowerCase(); }); nn.hidden = !tv || known; nn.textContent = "Enter adds “" + tv + "” as a new " + (kq === "unit" ? "unit" : "category") + "."; } return; }
     clearTimeout(deb); deb = setTimeout(function () { onField(e); }, 600); return;
   }
-  var s = e.target.closest && e.target.closest("[data-epi]"); if (s) fillGrid(s.value);
 });
 document.addEventListener("change", function (e) { clearTimeout(deb); onField(e, true); });
-/* Esc closes the open suggestion list or the emoji picker first and goes no further (the phone's Esc would close the sheet, and a box's Esc would leave it) */
+/* Esc closes the open suggestion list first and goes no further (the phone's Esc would close the sheet, and a box's Esc would leave it). An open emoji picker does the same (emoji.js). */
 document.addEventListener("keydown", function (e) {
   if (e.key !== "Escape") return;
-  if (CB.el) { e.preventDefault(); e.stopPropagation(); cbClose(); return; }
-  var p = $("#ef-emojis"); if (p && !p.hidden) { e.preventDefault(); e.stopPropagation(); openEmoji(false); var t = $("#ef-emo"); if (t) t.focus({ preventScroll: true }); }
+  if (CB.el) { e.preventDefault(); e.stopPropagation(); cbClose(); }
 }, true);
 document.addEventListener("keydown", function (e) {
   var t = e.target;
-  if (t.matches && t.matches("[data-epi]")) {
-    if (e.key === "ArrowDown") { e.preventDefault(); var f1 = $("#ef-emojis .ef-epr:not([hidden]) .ef-e, #ef-emojis .ef-eg .ef-e"); if (f1) f1.focus(); }
-    else if (e.key === "Enter") { e.preventDefault(); var first = $("#ef-emojis .ef-epa .ef-e"); if (first) pickEmoji(first.dataset.e); }
-    return;
-  }
-  if (t.matches && t.matches("#ef-emojis .ef-e") && /^Arrow/.test(e.key)) { emoNav(e); return; }
   if (t.matches && t.matches("[data-cb]") && CB.el) {
     if (e.key === "ArrowDown" || e.key === "ArrowUp") { if (CB.shown.length) { e.preventDefault(); cbMark((CB.active + (e.key === "ArrowDown" ? 1 : -1) + CB.shown.length) % CB.shown.length); } return; }
     if (e.key === "Enter" && CB.active >= 0) { e.preventDefault(); e.stopImmediatePropagation(); cbChoose(CB.shown[CB.active]); return; }
