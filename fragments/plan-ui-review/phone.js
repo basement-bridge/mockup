@@ -9,7 +9,7 @@
   function pick(k, ok, d) { var v = q.get(k); return ok.indexOf(v) > -1 ? v : d; }
   var S = {
     lay: pick('lay', ['rib', 'focus'], 'rib'), hd: pick('hd', ['shrink', 'fixed'], 'shrink'), f: pick('f', ['drop', 'seg', 'strip'], 'drop'), pc: pick('pc', ['step', 'drop'], 'step'),
-    nc: pick('nc', ['hide', 'show'], 'hide'), u: pick('u', ['day', 'flip', 'banner', 'pill'], 'day'), dt: pick('dt', ['stack', 'peek', 'strip', 'hide', 'sheet'], 'stack'), cw: pick('cw', ['menu', 'pair'], 'menu'), cl: pick('cl', ['meals', 'all'], 'meals'), long: pick('long', ['0', '1'], '0'), st: pick('st', ['plain', 'labels', 'badge', 'edge', 'progress'], 'plain'), gr: pick('gr', ['list', 'hand'], 'list'), hdl: pick('hdl', ['none', 'light'], 'none'), jig: pick('jig', ['1', '0', 'reset'], ''), ba: pick('ba', ['bar', 'list', 'both'], 'bar'), rb: pick('rb', ['detail', 'always'], 'detail'),
+    nc: pick('nc', ['hide', 'show'], 'hide'), u: pick('u', ['day', 'flip', 'banner', 'pill'], 'day'), dt: pick('dt', ['stack', 'peek', 'strip', 'hide', 'sheet'], 'stack'), cw: pick('cw', ['menu', 'pair'], 'menu'), cl: pick('cl', ['meals', 'all'], 'meals'), long: pick('long', ['0', '1'], '0'), st: pick('st', ['plain', 'labels', 'badge', 'edge', 'progress'], 'plain'), gr: pick('gr', ['list', 'hand'], 'list'), hdl: pick('hdl', ['none', 'light'], 'none'), jig: pick('jig', ['1', '0', 'reset'], ''), ba: pick('ba', ['bar', 'list', 'both'], 'bar'), rb: pick('rb', ['detail', 'always'], 'detail'), tear: pick('tear', ['detail', 'all'], 'detail'),
     cu: pick('cu', ['start', 'idle', 'off'], 'start'), sw: pick('sw', ['tint', 'buttons'], 'tint'),
     today: 'd13', cur: P.did(q.get('day'), 'd13'), view: q.get('who') || 'mine', hl: null, sel: q.get('sel'), snap: q.get('snap') === 'full' ? 'full' : 'half', expand: q.get('expand') === '1',
     dday: q.get('dock') || null, pop: null, opts: false, ustk: [], wkm: false, pickMove: false, note: null, carry: null, pickd: null, revealed: null, cuShown: false, cuDone: {}, cmp: false,
@@ -244,7 +244,7 @@
     var g = function (k, lab, vals) { return '<fieldset><legend>' + lab + '</legend>' + vals.map(function (v) { return '<label><input type="radio" name="' + k + '" value="' + v[0] + '"' + (S[k] === v[0] ? ' checked' : '') + '> ' + v[1] + '</label>'; }).join('') + '</fieldset>'; };
     if (!(window.top === window || q.get('opts') === '1')) return '';
     return '<button class="optfab" data-opts aria-expanded="' + S.opts + '">Mockup options</button>' + (S.opts ? '<div class="optpanel" role="dialog" aria-label="Mockup options"><p class="onote">Mockup-only switch. It is not part of the app.</p>' +
-      g('rb', 'Day ribbon (136, owner 13 Oct)', [['detail', 'Only while a detail is open (recommended)'], ['always', 'Always on, week view too (superseded 13 Oct, for comparison)']]) + g('lay', 'Layout', [['rib', 'Agenda across three weeks (recommended)'], ['focus', 'One day at a time (keeps the ribbon)']]) + g('hd', 'Header while a detail is open (91, revised by 136)', [['shrink', 'Compact (recommended)'], ['fixed', 'Full size']]) + g('f', 'Who filter (97)', [['drop', 'One dropdown (recommended)'], ['seg', 'Mine / Everyone + People dropdown'], ['strip', 'Old chips behind a chevron']]) +
+      g('rb', 'Day ribbon (136, owner 13 Oct)', [['detail', 'Only while a detail is open (recommended)'], ['always', 'Always on, week view too (superseded 13 Oct, for comparison)']]) + g('tear', 'Torn-paper edge (142, owner 13 Oct)', [['detail', 'Only on the tile pulled out of the docked detail (recommended). Everywhere else: the plain lifted, tilted, faded tile of before 118'], ['all', 'On every drag: detail and agenda (the 118 behaviour, for comparison)']]) + g('lay', 'Layout', [['rib', 'Agenda across three weeks (recommended)'], ['focus', 'One day at a time (keeps the ribbon)']]) + g('hd', 'Header while a detail is open (91, revised by 136)', [['shrink', 'Compact (recommended)'], ['fixed', 'Full size']]) + g('f', 'Who filter (97)', [['drop', 'One dropdown (recommended)'], ['seg', 'Mine / Everyone + People dropdown'], ['strip', 'Old chips behind a chevron']]) +
       g('pc', 'Number of people in the detail (98)', [['step', 'Stepper − 4 +'], ['drop', 'Dropdown']]) + g('nc', 'Not cooking days (93)', [['hide', 'Hidden, peek at the edge (recommended)'], ['show', 'Always shown']]) + g('u', 'Undo on a phone (101)', [['day', 'On the changed day (recommended)'], ['flip', 'Copy button flips to Undo'], ['banner', 'Banner under the ribbon'], ['pill', 'Pill under the ribbon']]) +
       g('dt', 'Meal detail (103, 107)', [['stack', 'Day on top, detail at the bottom, one locked stack (recommended)'], ['peek', 'Docked, neighbours peek'], ['strip', 'Docked, other days as one line each'], ['hide', 'Docked, other days hidden'], ['sheet', 'Two-stop bottom sheet (comparison)']]) + g('st', 'Status (121, supersedes 104)', [['plain', 'Plain red or green, no count (owner, 13 Oct)'], ['labels', 'a Labelled chips: rejected'], ['badge', 'b Icon + count: rejected'], ['edge', 'c Edge strip + dot: rejected'], ['progress', 'd Progress: rejected']]) + g('gr', 'Green means (122, open)', [['list', 'Dealt with: every missing item is on the list (recommended)'], ['hand', 'Everything is on hand']]) + g('hdl', 'Grey bar on the tab (128)', [['none', 'Removed (recommended)'], ['light', 'Much lighter']]) + g('jig', 'Wiggle hint (129)', [['', 'First 3 opens, 7 days, stops after a drag'], ['1', 'Always, for review'], ['0', 'Off'], ['reset', 'Reset the stored count']]) +
       g('cu', 'Ask AI to plan this curtain (96)', [['start', 'At the start of an empty week (default)'], ['idle', 'Idle, whole week empty'], ['off', 'Off']]) + g('sw', 'Swipe', [['tint', 'Tinted reveal, commits'], ['buttons', 'Buttons stay open']]) + g('cw', 'Clear week placement (109)', [['menu', 'Week actions menu, split Undo (recommended)'], ['pair', 'Two icon buttons next to each other']]) + g('cl', 'Clear week also clears (109, open)', [['meals', 'Meals only, Not cooking stays (recommended)'], ['all', 'Meals and this-week Not cooking marks']]) + g('ba', 'Bulk Hold and Add (134, open)', [['bar', 'Bottom bar only: Hold N, cart Add N (current)'], ['list', 'In the list only: Add all on the missing group, Hold all on the on-hand group'], ['both', 'Both']]) + g('long', 'Long ingredient list (107 demo)', [['0', 'Normal'], ['1', 'Long: 21 lines, the sheet scrolls']]) + '</div>' : '');
@@ -458,16 +458,22 @@
     if (!td.on) { if (Math.hypot(e.clientX - td.x, e.clientY - td.y) < 8) return; td.on = true; beginDrag(td.id, e.clientX, e.clientY, e.pointerId); }
     moveHand(e.clientX, e.clientY);
   });
-  function beginDrag(id, x, y, pid) {
-    var m = find(id); if (!m) return; S.carry = JSON.parse(JSON.stringify(m)); S.carry.move = true; S.carry.from = id; S.carry.drag = true; S.sel = null; S.dday = null; S.wkm = false;
+  /* Decisions 142 to 146 (owner-stated 13 Oct 2026, readings are Proposals): ONE carry for every lift-and-shift. o.src is 'detail' (the tile dragged out of the docked stack: the ONLY place the tear is drawn, 142; ?tear=all draws it everywhere, for comparison) or 'agenda' (held and dragged in the plain week view, 144). o.copy is a past tile lifted to copy forward (100 to 102): the original stays, the carry is a copy. */
+  var HAND_TILT = -1.5; /* the tilt of a tile in hand, as before 118 (119 keeps it) */
+  function beginDrag(id, x, y, pid, o) {
+    o = o || {}; var m = find(id); if (!m) return; var mc0 = o.src === 'agenda' ? document.querySelector('.pw-day .mc[data-id="' + id + '"]') : null, y0 = mc0 ? mc0.getBoundingClientRect().top : 0;
+    S.carry = JSON.parse(JSON.stringify(m)); if (!o.copy) { S.carry.move = true; S.carry.from = id; } S.carry.drag = true; S.carry.src = o.src || 'detail'; S.sel = null; S.dday = null; S.wkm = false;
     if (!td) td = { id: id, pid: pid, on: true, x: x, y: y, px: x, py: y }; td.on = true;
-    hand = document.createElement('div'); hand.className = 'hand'; hand.id = 'hand'; hand.innerHTML = '<div class="hand-p"><span class="em">' + m.em + '</span><div><b>' + esc(m.t) + '</b><small>from ' + dName(m.day) + '</small></div></div>'; tear = { edge: 'top', on: 0 }; document.body.appendChild(hand);
+    var torn = S.carry.src === 'detail' || S.tear === 'all';
+    hand = document.createElement('div'); hand.className = 'hand' + (torn ? ' torn' : ' plain'); hand.id = 'hand'; hand.dataset.src = S.carry.src; hand.innerHTML = '<div class="hand-p"><span class="em">' + m.em + '</span><div><b>' + esc(m.t) + '</b><small>' + (o.copy ? 'copy from ' : 'from ') + dName(m.day) + '</small></div></div>'; tear = torn ? { edge: 'top', on: 0 } : null; document.body.appendChild(hand);
     try { document.body.setPointerCapture(pid); } catch (z) { }
     render(false); S.cur = m.day;
-    var el = document.getElementById('d-' + m.day); if (el) window.scrollTo(0, Math.max(0, el.getBoundingClientRect().top + window.scrollY - stkH() - 4));
+    var el = document.getElementById('d-' + m.day);
+    if (o.src === 'agenda') { var mc1 = document.querySelector('.pw-day .mc[data-id="' + id + '"]'); if (mc1 && mc0) window.scrollBy(0, mc1.getBoundingClientRect().top - y0); }
+    else if (el) window.scrollTo(0, Math.max(0, el.getBoundingClientRect().top + window.scrollY - stkH() - 4));
     moveHand(x, y); autoT = requestAnimationFrame(auto);
   }
-  function moveHand(x, y) { if (!hand) return; td.px = x; td.py = y; tearUpdate(x, y); hand.style.transform = 'translate(' + Math.round(x - hand.offsetWidth / 2) + 'px,' + Math.round(y - hand.offsetHeight - 14) + 'px) rotate(-1.5deg)'; hov(x, y); }
+  function moveHand(x, y) { if (!hand) return; td.px = x; td.py = y; tearUpdate(x, y); hand.style.transform = 'translate(' + Math.round(x - hand.offsetWidth / 2) + 'px,' + Math.round(y - hand.offsetHeight - 14) + 'px) rotate(' + HAND_TILT + 'deg)'; hov(x, y); }
   /* Decision 118: the tear. Where the tile leaves the stack its edge is ragged like torn paper; the piece left behind (the dashed place-holder in the week) has the matching ragged edge.
      Cheap: no assets, one clip-path polygon per edge built once from a fixed row of tooth depths; --tz (0 to 1, grows over the first 36 px of the drag) scales the teeth.
      The torn edge is the one that faces where the tile came from (drag down: the tile's top edge, the place-holder's bottom edge). prefers-reduced-motion: full teeth at once, no growth. */
@@ -493,18 +499,44 @@
       tear.on = e; tear.edge = e; }
   }
   function secAt(x, y) { var el = document.elementFromPoint(x, y), sec = el && el.closest ? el.closest('.pw-day') : null; return sec && !sec.classList.contains('past') ? sec.dataset.d : null; }
-  function hov(x, y) { var d = secAt(x, y); document.querySelectorAll('.pw-day.over').forEach(function (e) { if (e.dataset.d !== d) e.classList.remove('over'); }); if (d && S.carry && d !== S.carry.day) { var s = document.getElementById('d-' + d); if (s) s.classList.add('over'); } }
-  function auto() { if (!hand || !td) return; var y = td.py, top = stkH() + 56, bot = innerHeight - 64 - 64; if (y > bot) window.scrollBy(0, Math.min(18, (y - bot) / 3 + 3)); else if (y < top) window.scrollBy(0, -Math.min(18, (top - y) / 3 + 3)); hov(td.px, td.py); autoT = requestAnimationFrame(auto); }
+  function hov(x, y) { var d = secAt(x, y), pe = document.elementFromPoint(x, y), ps = pe && pe.closest ? pe.closest('.pw-day.past') : null; document.querySelectorAll('.pw-day.nodrop').forEach(function (e) { if (e !== ps) e.classList.remove('nodrop'); }); if (ps && S.carry) ps.classList.add('nodrop'); document.querySelectorAll('.pw-day.over').forEach(function (e) { if (e.dataset.d !== d) e.classList.remove('over'); }); if (d && S.carry && d !== S.carry.day) { var s = document.getElementById('d-' + d); if (s) s.classList.add('over'); } }
+  var AUTO_TOP = 56, AUTO_BOT = 64, AUTO_MAX = 18; /* Proposal (146): the hot zones for edge scrolling while carrying, in px below the header and above the nav, and the top speed in px per frame; speed rises with depth into the zone. */
+  function auto() { if (!hand || !td) return; var y = td.py, top = stkH() + AUTO_TOP, bot = innerHeight - 64 - AUTO_BOT; if (y > bot) window.scrollBy(0, Math.min(AUTO_MAX, (y - bot) / 3 + 3)); else if (y < top) window.scrollBy(0, -Math.min(AUTO_MAX, (top - y) / 3 + 3)); hov(td.px, td.py); autoT = requestAnimationFrame(auto); }
   function endHand(x, y, cancelled, why) {
     var o = td; td = null; tear = null; cancelAnimationFrame(autoT); if (hand) { hand.remove(); hand = null; } supp = Date.now() + 400; document.querySelectorAll('.over').forEach(function (e) { e.classList.remove('over'); });
-    var d = cancelled ? null : secAt(x, y);
+    var d = cancelled ? null : secAt(x, y), pe = !cancelled && !d ? document.elementFromPoint(x, y) : null, ps = pe && pe.closest ? pe.closest('.pw-day.past') : null;
     if (d && S.carry && d !== S.carry.day) return drop(d);
-    var m = S.carry && find(S.carry.from); S.carry = null;
-    note((why || 'Dropped outside a day') + '. Not moved: ' + (m ? esc(m.t) + ' stays on ' + dName(m.day) : 'nothing changed'), { day: m ? m.day : S.cur }); render();
+    var cp = S.carry && !S.carry.move, m = S.carry && find(S.carry.from || S.carry.id); S.carry = null;
+    note((why || (ps ? 'Past days are read only, nothing can be dropped on ' + dName(ps.dataset.d) : 'Dropped outside a day')) + '. ' + (cp ? 'Not copied' : 'Not moved') + ': ' + (m ? esc(m.t) + ' stays on ' + dName(m.day) : 'nothing changed'), { day: m ? m.day : S.cur }); render();
   }
   function cancelDrag(why) { if (td) endHand(td.px, td.py, true, why); }
-  function upHand(e) { if (!td || e.pointerId !== td.pid) return; if (!td.on) { td = null; return; } endHand(e.clientX, e.clientY, e.type === 'pointercancel', e.type === 'pointercancel' ? 'Drag interrupted' : 'Dropped outside a day'); }
+  function upHand(e) { if (!td || e.pointerId !== td.pid) return; if (!td.on) { td = null; return; } endHand(e.clientX, e.clientY, e.type === 'pointercancel', e.type === 'pointercancel' ? 'Drag interrupted' : ''); }
   document.addEventListener('pointerup', upHand); document.addEventListener('pointercancel', upHand);
+
+  /* ---------- decisions 143 to 146: lift and shift straight from the plain week view, no detail first (owner-stated availability, 13 Oct 2026; the gesture is a Proposal) ----------
+     Press and hold a tile HOLD_MS without moving more than HOLD_SLOP px: it lifts (scale, shadow, tilt, one short buzz where the device has one). Then a move of DRAG_START px picks it up and the same carry as the detail drag-out runs (the hand, all days as targets incl. hidden Not cooking, edge scroll across the three weeks, Replaced label, pulse, Undo with expiry).
+     Moving more than HOLD_SLOP before the hold ends it, so a quick sideways swipe still reveals the swipe actions (the swipe code is untouched) and a vertical move scrolls. A mouse has no scroll to protect: a vertical press-and-drag lifts at once, a sideways one is the swipe, press-and-hold works as on touch.
+     A past tile lifts the same way but only to copy forward (100 to 102): the original stays. A tile in an other person's plan (data-ro="all") does not lift. */
+  var HOLD_MS = 350, HOLD_SLOP = 8, DRAG_START = 6, lf = null;
+  function lfEnd() { if (!lf) return; clearTimeout(lf.t); lf.mc.classList.remove('hold'); if (lf.pv) lf.mc.removeEventListener('touchmove', lf.pv); lf = null; }
+  function lfFire() {
+    if (!lf || lf.held) return; lf.held = true; drag = null; lf.mc.classList.add('hold'); try { if (navigator.vibrate) navigator.vibrate(8); } catch (z) { }
+    lf.pv = function (ev) { if (ev.cancelable) ev.preventDefault(); }; lf.mc.addEventListener('touchmove', lf.pv, { passive: false });
+  }
+  document.addEventListener('pointerdown', function (e) {
+    var mc = e.target.closest('.pw-day .mc'); lfEnd();
+    if (!mc || S.carry || td || e.target.closest('button') || e.target.closest('.stackw') || (e.pointerType === 'mouse' && e.button !== 0) || mc.dataset.ro === 'all' || mc.dataset.tile || mc.dataset.open || !mc.dataset.id) return;
+    lf = { mc: mc, id: mc.dataset.id, x: e.clientX, y: e.clientY, pid: e.pointerId, mouse: e.pointerType === 'mouse', held: false, on: false, past: mc.dataset.ro === 'past' };
+    lf.t = setTimeout(lfFire, HOLD_MS);
+  });
+  document.addEventListener('pointermove', function (e) {
+    if (!lf || e.pointerId !== lf.pid || lf.on) return; var dx = e.clientX - lf.x, dy = e.clientY - lf.y, dist = Math.hypot(dx, dy);
+    if (!lf.held) { if (lf.mouse && dist > DRAG_START && Math.abs(dy) > Math.abs(dx) * 1.4) lfFire(); else { if (dist > HOLD_SLOP) lfEnd(); return; } }
+    if (dist >= DRAG_START) { var o = lf; lf.on = true; td = { id: o.id, x: o.x, y: o.y, px: e.clientX, py: e.clientY, pid: o.pid, on: true }; beginDrag(o.id, e.clientX, e.clientY, o.pid, { src: 'agenda', copy: o.past }); }
+  });
+  function lfUp(e) { if (!lf || e.pointerId !== lf.pid) return; if (!lf.on && lf.held) supp = Date.now() + 400; lfEnd(); }
+  document.addEventListener('pointerup', lfUp); document.addEventListener('pointercancel', lfUp);
+  document.addEventListener('contextmenu', function (e) { if ((lf && lf.held) || hand) e.preventDefault(); });
 
   /* decision 108a: the handle (tongue) and a swipe down on the detail both close the stack and bring the week back */
   var tg = null, ts = null;
@@ -517,6 +549,10 @@
   document.addEventListener('touchstart', function (e) { var b = e.target.closest && e.target.closest('#sbody'); if (!b || b.scrollTop > 0 || e.touches.length !== 1) { ts = null; return; } ts = { y: e.touches[0].clientY, dy: 0 }; }, { passive: true });
   document.addEventListener('touchmove', function (e) { if (!ts) return; var dy = e.touches[0].clientY - ts.y; if (dy <= 0) { ts.dy = 0; stackReset(); return; } ts.dy = dy; if (dy > 12) stackShift(dy - 12); }, { passive: true });
   document.addEventListener('touchend', function () { if (!ts) return; var d = ts; ts = null; if (d.dy > 100) return closeDetail(); stackReset(); });
+  /* Gap fix (owner screenshot, 13 Oct): iOS Safari ends a swipe-down at the top of the sheet with touchcancel (edge gesture, rubber band, bottom bar), not touchend, so the pull-down offset stayed on .spiece and left a hole under the tongue. Every way a touch can end now resets it, and a new touch or a page return clears a stale one. */
+  document.addEventListener('touchcancel', function () { ts = null; stackReset(); });
+  document.addEventListener('touchstart', function () { if (!tg) stackReset(); }, { passive: true });
+  document.addEventListener('visibilitychange', function () { if (!tg) stackReset(); }); window.addEventListener('pagehide', stackReset); window.addEventListener('blur', function () { if (!tg) stackReset(); });
 
   /* sheet drag (comparison option) */
   var sd = null, lastMove = 0;
@@ -576,7 +612,7 @@
   document.addEventListener('keydown', function (e) {
     if ((e.target.tagName || '').toLowerCase() === 'input') { if (e.key === 'Escape') { S.pop = null; render(); } return; }
     if (e.metaKey || e.ctrlKey || e.altKey) return; var k = e.key;
-    if (k === 'Escape') { if (td && td.on) { cancelDrag('Cancelled with Esc'); } else if (S.carry) { S.carry = null; S.pickMove = false; render(); } else if (S.wkm) { S.wkm = false; render(); } else if (S.pickd || S.asheet || S.pop) { S.pickd = S.asheet = S.pop = null; S.pickMove = false; render(); } else if (S.sel || S.dday) closeDetail(); return; }
+    if (k === 'Escape') { if (lf && !lf.on) { lfEnd(); } else if (td && td.on) { cancelDrag('Cancelled with Esc'); } else if (S.carry) { S.carry = null; S.pickMove = false; render(); } else if (S.wkm) { S.wkm = false; render(); } else if (S.pickd || S.asheet || S.pop) { S.pickd = S.asheet = S.pop = null; S.pickMove = false; render(); } else if (S.sel || S.dday) closeDetail(); return; }
     var a = document.activeElement, id = a && a.classList.contains('mc') ? a.dataset.id : S.sel;
     if (k.toLowerCase() === 'z') { return doUndo(); }
     if (k.toLowerCase() === 'x' && id) { e.preventDefault(); return act(e.shiftKey ? 'nocook' : 'replan', id); }
@@ -588,7 +624,7 @@
   window.addEventListener('resize', function () { sizeStk(); placeMk(true); });
   function resetDemo() { if (hand) { hand.remove(); hand = null; } td = null; cancelAnimationFrame(autoT); S.meals = JSON.parse(JSON.stringify(P.meals)); S.blocked = JSON.parse(JSON.stringify(P.blocked)); S.sel = null; S.dday = null; S.carry = null; S.note = null; S.pulse = null; S.ustk = []; S.pop = null; S.asheet = null; S.wkm = false; S.cmp = true; }
   function showWeek(d) { S.sel = null; S.dday = null; S.carry = null; S.cur = d; S.cmp = true; render(false); var el = document.getElementById('d-' + d); if (el) window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - stkH() - 6); syncHead(); }
-  window.__plan = { resetDemo: resetDemo, showWeek: showWeek, find: find, stkH: stkH, openDetail: openDetail, closeDetail: closeDetail, beginDrag: beginDrag, moveHand: moveHand, endHand: endHand, clearWeek: clearWeek, S: S, act: act, goDay: goDay, drop: drop, startCarry: startCarry, surprise: surprise, copyLast: copyLast, render: render, syncHead: syncHead, follow: follow };
+  window.__plan = { HOLD_MS: HOLD_MS, resetDemo: resetDemo, showWeek: showWeek, find: find, stkH: stkH, openDetail: openDetail, closeDetail: closeDetail, beginDrag: beginDrag, moveHand: moveHand, endHand: endHand, clearWeek: clearWeek, S: S, act: act, goDay: goDay, drop: drop, startCarry: startCarry, surprise: surprise, copyLast: copyLast, render: render, syncHead: syncHead, follow: follow };
 
   if (S.sel && S.dt === 'stack') jigStart(find(S.sel));
   render(false);

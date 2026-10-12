@@ -438,3 +438,70 @@ Default path is the same five files (`theme.css`, `phone.css`, `data.js`, `statu
 ## Verification done (13 Oct later)
 
 Headless Chromium, 390 x 844, 360 x 740 and a 1280 window (the centred column), dark theme (some regenerated screenshots in the light theme to match their originals). No page errors and no sideways scroll on any variant tried. Week view: no ribbon, header 53 px; scrolling to next week changes the label to "Week of 19 Oct, Next week" and shows Today; Today returns. Detail: opening `?sel=wed-curry` or tapping a tile brings the ribbon in, the stack top does not move; ribbon taps swap to a two-meal day, an open night, a Not cooking day and a past day (the slot stays); x, Esc and the handle (Enter) close, the ribbon fades out (one copy, removed) and the agenda is back on that day; reduced motion: no fade and no copy. `?dock=d19`, `?dock=d17`, `?sel=wed-curry&long=1`, `?sel=wed-curry&dt=sheet` (no ribbon), `?dt=peek`, `?lay=focus`, `?rb=always` (old behaviour, with and without a detail), `?demo=1&frame=1..7`. Not verified: a real phone (touch feel and the fade), and the Pages URL from the sandbox.
+
+
+# Sixth revision, 13 October 2026 (01:44 Sydney): the tear only for the detail, lift and shift from the plain week (decisions 142 to 146)
+
+Owner, typed on his phone while testing, with a screenshot of the docked stack for Wed 14 Oct "Japanese golden curry" (ribbon, day card, tongue, sheet): **"Torn page behaviour is [on]ly for this. Now lifting and shifting the menu itself. Prior visual was Better. Also want that to be available even in Agenda view."** The word before "ly" was cut off in his message; read as "only". The note is terse, so every reading below is flagged and listed as an open question. **Owner-stated, 13 Oct 2026** marks his words; **Proposal** marks the design agent's choices. Cite as "Plan UI review 142".
+
+Mockups: [phone.html](../../../fragments/plan-ui-review/phone.html) (`?tear=detail|all`, default `detail`; `?demo=agenda` the seven-frame sequence, `?demo=agenda&frame=N`; `?demo=1` frame 4 is still the detail tear), [index](../../../fragments/plan-ui-review/index.html#lift142). Screenshots in `fragments/plan-ui-review/img/` (`p-ag-*`, `p-tear-detail-390`, `p-tear-all-390`, `p-gap-before-390`, `p-gap-after-390`).
+
+## Decisions
+
+142. **The tear is only for the tile pulled out of the docked detail (owner-stated, reading open).** "Torn page behaviour is [on]ly for this", "this" being the screenshot: the docked stack. The ragged edge (118) is drawn for that drag-out and nowhere else. Mockup option `?tear=detail|all` (default `detail`; `all` is the 118 behaviour on every drag, for comparison). Narrows 118; the opacity fade and the tilt stay on the detail drag-out too (119, which he repeated earlier).
+143. **Lifting and shifting a tile uses the prior visual (owner-stated "prior visual was better", reading open).** Read as: picking a meal tile up and moving it to another day, in every context except the detail drag-out (the tile in hand from a past day or from the week, whether it is dragged or carried). The look is the one before 118: a plain card in hand, the soft shadow (`0 16px 36px`), the -1.5 degree tilt, and the place-holder where it came from faded to 0.4 with a dashed outline. No ragged edge, no fibre fringe, no left-behind teeth. **Proposal (restoration details):** the press lift of 117 stays on press; a held tile goes further (scale 1.05, rotate -1.5 degrees, rise 4 px, deeper shadow, `.mc.hold`) so the hold reads as the pick-up; the tilt is one constant (`HAND_TILT`). The copy-forward bar ("In hand. Tap a day to drop it here", 100) was never torn and is unchanged.
+144. **Lift and shift works directly in the plain agenda, no detail first (owner-stated: "available even in Agenda view"; the gesture is a Proposal).** Before, the agenda only raised a pressed tile (117) and swipe was left and right for quick actions. Now: **press and hold** a tile `HOLD_MS` = 350 ms without moving more than `HOLD_SLOP` = 8 px and it lifts (a short buzz where the device has one); then a move of `DRAG_START` = 6 px picks it up and the same carry as the detail drag-out runs (108b: the tile in hand, the week compact under the finger, every day a drop target including hidden Not cooking days, a drop on a meal replaces it with "Replaced <meal> with <meal>", the day pulses, Undo on the day with the 14 s expiry, Esc or a cancelled touch moves nothing and says so). **Swipe and drag do not fight:** moving more than 8 px before the hold ends the hold, so a quick sideways swipe goes to the existing swipe code untouched (it commits at 10 px and horizontal dominance) and a vertical move scrolls; once the hold fires, the page is held still (`touchmove` is cancelled on the held tile) so the finger moves the tile, not the page. **Mouse:** a vertical press-and-drag lifts at once (a mouse has no scroll to protect), a sideways one is the swipe, press-and-hold works as on touch. Tiles in an other person's plan, tiles with their swipe actions open, buttons and the docked tile do not start a hold (the docked tile keeps its 8 px drag, 108b). The long-press menu and text selection are off on tiles. The viewport does not jump: the week is scrolled so the place-holder stays where the tile was.
+145. **Past days and past tiles (owner-stated rules 100 to 102, applied here).** Past days are read-only drop targets: a tile over one shows a red outline and a drop there is refused with "Past days are read only, nothing can be dropped on <day>. Not moved". A past tile can be lifted only to copy forward: the hand says "copy from <day>", the original stays (no fade), and the drop is the copy-forward drop (102: replaces a meal with "Replaced", or makes a Not cooking day a cooking day).
+146. **Carrying across the weeks (Proposal).** There is no ribbon in the week view (136), so the agenda scroll is the way across weeks: within `AUTO_TOP` = 56 px under the header or `AUTO_BOT` = 64 px above the nav the week scrolls, faster the deeper into the zone (up to `AUTO_MAX` = 18 px a frame, about 1000 px a second), over the three weeks and no further (last week's Monday to next week's Sunday). All days show while carrying, including hidden Not cooking days. Desktop week board: not changed.
+
+## Fix: the gap under the day card (found in the screenshot)
+
+The screenshot shows about 90 px between the tongue and the detail. It is a defect, not the tear and not the viewport: the detail follows a pull-down (a swipe down at the top of its scroll) through an offset, and iOS Safari ends such a gesture with `touchcancel` (edge gesture, rubber band, the bottom bar), which was not handled, so the offset and the fade stayed. Reproduced in Chromium (a cancelled pull leaves 83 px) and fixed: `touchcancel`, a new touch, `pagehide`, `blur` and returning to the page all reset it, and the detail has `overscroll-behavior-y: contain`. The static layout has no gap at 390 x 844, 390 x 760, 360 x 640 and with the long list (it is fixed between the header and the nav and uses no viewport-height units, so the 100vh quirk does not apply). Not verified on a real iPhone.
+
+## Supersession notes (13 Oct, 01:44)
+
+- **118** is narrowed by 142: the tear (hand fringe, left-behind teeth, growth over 36 px) exists for the detail drag-out only; the code is unchanged and `?tear=all` restores it everywhere.
+- **117** stands (press lifts); 143 adds the hold step. **119** (tilt and fade kept) stands for every carry.
+- **108b** (drag the docked tile out) is the same carry as 144, with `src: detail`.
+- **100** (copy forward by swipe right, picker, in-hand bar) is unchanged; 145 adds the direct lift.
+
+## Open questions (new, 13 Oct 01:44)
+
+- **Tear scope (142):** detail-only (drawn) or any drag-out, for example the tile in hand after "Move to another day"? Cost of a wrong guess: one flag; `?tear=all` already draws the other.
+- **Hold or handle (144):** hold-to-lift (drawn) or a drag handle on each tile in the week? Cost: medium (a handle changes every tile's face; hold costs discoverability, which the 129 wiggle could teach).
+- **Desktop week board:** does it follow? Not changed here. Cost: medium.
+- **Thresholds (144, 146):** hold 350 ms and 8 px, drag 6 px, edge zones 56 and 64 px, 18 px a frame. Cost: low, constants.
+- **The reading of the note as a whole (142, 143):** especially "this", "the menu itself" and what "prior visual" covers. Cost: low to medium, mostly CSS.
+
+Carried forward, untouched (the one list from 136 to 141, batch 2 and earlier, copied):
+
+From 136 to 141: Today button or the gutter Today pill scrolling into view on load (88); a date picker from the "Week of" label; how many weeks in the detail ribbon (all three drawn); desktop following the no-ribbon rule (not changed); sheet variant without a ribbon and `?lay=focus` with one.
+
+New from batch 2:
+- **Where the bulk actions live (134, 135):** bottom bar only (current), in-list "Add all" and "Hold all" only, or both? Cost of a wrong guess: low, a redraw (the handlers are shared; it is one switch in `ingList` and `footActions`). Also: should the in-list Hold all sit at the end or the start of the on-hand group (end drawn)?
+- **What green means (122):** dealt with (on the list, drawn) or all on hand? Cost: one function.
+- **Open night tap (125):** tapping now opens the day with Ask AI, Surprise me and Not cooking, instead of marking Not cooking. Confirm; cost of a wrong guess: the row's handler and one button. Also: after Not cooking from that day the stack stays docked (drawn); close instead?
+- **Counts on the bottom buttons (126):** are Hold 5 and Add 2 the right numbers (items touched) or should they read "Hold all" and "Add all"? They are not a second status count.
+- **Open recipe (127):** where a meal has no saved recipe (made up, Surprise me), hide the action, show a stub (drawn), or offer to save it? In the mockup only three sample meals have a recipe page.
+- **Week summary "to buy" (121, 132):** the strip still shows "N to buy" and "N use first" per week; the owner said the shopping list is the source of counts. Remove or keep?
+- **Use-by (123):** shown as plain text in the list only; is that enough, or also on the tile?
+- **Wiggle rule (129)** and **undo time (130)**: confirm 3 opens, 7 days, stop after a drag; confirm 14 s.
+- **Handle (128):** removed (recommended) or lighter.
+- **Desktop:** the same status, list, footer and open-night changes are not drawn on desktop.
+
+Carried forward from earlier revisions (not lost):
+- Which of desktop layouts A to D; fill the window (63) or left-anchored (56); Esc closing the flyout (66); leftover link as real data (77).
+- 3 weeks or 4 weeks forward in the ribbon (86).
+- Where a copied-forward or dropped meal lands: start of the day or of the week (102).
+- Person filter dropdown or people-count dropdown: both mocked, no pick (97, 98).
+- Curtain trigger for the week-level Ask AI: idle or start of the view (96).
+- Whether Clear week also clears Not cooking marks (109); undo depth (109, 101).
+- Batch 1: pipes between every pair of days or only the week boundary (113); UAT thumbnail and avatar or the mockup's emoji tile (110); Today pill or colour only (111); whether the other detail variants swap on a ribbon tap (115); after Not cooking or Replan from a docked meal, stay docked or close (115); tear on a sideways drag, and a tear on the swipe (118, now moot for the agenda: nothing there is torn unless `?tear=all`); past tile strength (114).
+
+## What loads (DESIGN.md section 6), 13 Oct 01:44
+
+Default path is the same five files (`theme.css`, `phone.css`, `data.js`, `status.js`, `phone.js`): measured 153.9 KB uncompressed, 44 KB gzipped, **up 7.3 KB** on #144 (about 6.8 KB script, 0.5 KB CSS). The earlier notes ("about 130 KB", "about 140 KB") undercounted: 146.6 KB was the real figure before this change. The hold-to-lift listeners are small and always on (the plain week has to be liftable without a detail); the tear polygons are still built on the first torn drag and not at all otherwise; no images, fonts or SVG. `demo.js` (8.4 KB) loads only with `?demo=`. Nothing is fetched.
+
+## Verification done (13 Oct 01:44)
+
+Headless Chromium with touch (CDP touch events) and mouse, 390 x 844, 360 x 740 and a 1280 x 900 window, dark theme, and a reduced-motion run. Scripted: hold lifts at 450 ms and not at 150 ms; hold then drag carries a plain hand; drop on a day with a meal ("Replaced", day highlighted, Undo restores); drop on a hidden Not cooking day (it shows while carrying, becomes a cooking day, the undo expires by itself with `?ut=4`); drop on a past day (red outline, refused with a note); Esc cancels; a quick sideways swipe reveals the swipe actions and never lifts; a vertical drag scrolls and never lifts; a past tile lifts to copy and the original stays, undo; mouse vertical drag lifts at once, mouse horizontal is the swipe, mouse hold then drag lifts; `?tear=all` tears the agenda drag; the detail drag-out is torn with the fringe; edge scroll runs to the end of the three weeks and back; `?long=1`; no page errors; no sideways scroll; the gap reproduced before and gone after. Not verified: a real phone (iOS Safari touch feel, the long-press callout, the buzz) and the Pages URL from the sandbox.
