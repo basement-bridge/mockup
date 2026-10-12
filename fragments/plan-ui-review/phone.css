@@ -325,7 +325,7 @@ select{font:inherit}
 .tongue{position:absolute;left:50%;bottom:-16px;transform:translateX(-50%);width:84px;height:32px;border:1.5px solid var(--accent);border-top:0;border-radius:0 0 18px 18px;background:var(--bg);display:grid;place-items:end center;padding-bottom:7px;touch-action:none;cursor:grab;z-index:3}
 .tongue::before{content:"";position:absolute;inset:-12px -14px -10px}
 .tongue i{width:30px;height:4px;border-radius:2px;background:var(--border)}
-.spiece .sbody{padding:24px 14px 8px;background:linear-gradient(var(--surface) 30%,transparent) top/100% 34px no-repeat local,linear-gradient(transparent,var(--surface) 70%) bottom/100% 34px no-repeat local,radial-gradient(farthest-side at 50% 0,color-mix(in srgb,var(--fg) 20%,transparent),transparent) top/100% 10px no-repeat scroll,radial-gradient(farthest-side at 50% 100%,color-mix(in srgb,var(--fg) 20%,transparent),transparent) bottom/100% 10px no-repeat scroll}
+.spiece .sbody{overscroll-behavior-y:contain;padding:24px 14px 8px;background:linear-gradient(var(--surface) 30%,transparent) top/100% 34px no-repeat local,linear-gradient(transparent,var(--surface) 70%) bottom/100% 34px no-repeat local,radial-gradient(farthest-side at 50% 0,color-mix(in srgb,var(--fg) 20%,transparent),transparent) top/100% 10px no-repeat scroll,radial-gradient(farthest-side at 50% 100%,color-mix(in srgb,var(--fg) 20%,transparent),transparent) bottom/100% 10px no-repeat scroll}
 .spiece .sfoot{padding:8px 14px 10px}
 .stst{padding:0 0 4px}
 .spiece{will-change:transform}
@@ -405,7 +405,7 @@ select{font:inherit}
 /* 114: past days are grey in the ribbon (kept) and now their tiles are grey too */
 .pw-day.past .mc{filter:grayscale(1);opacity:.62}
 /* 117: the lift. Shown on press for every tile (agenda, docked day); the same lift the tile has once it is picked up (.hand). scale and translate are their own properties, so the swipe's transform is untouched. */
-.mc{transition:transform .18s ease,scale .16s ease,translate .16s ease,filter .16s ease}
+.mc{transition:transform .18s ease,scale .16s ease,translate .16s ease,rotate .16s ease,filter .16s ease;-webkit-touch-callout:none}
 .mc:active,.mc.drag{scale:1.025;translate:0 -2px;z-index:3;filter:drop-shadow(0 8px 8px var(--dim))}
 .pw-day.past .mc:active,.pw-day.past .mc.drag{filter:grayscale(1) drop-shadow(0 8px 8px var(--dim))}
 .sw:has(>.mc:active):not(.l):not(.r){overflow:visible}
@@ -482,3 +482,15 @@ select{font:inherit}
 .rib-ghost{position:fixed;z-index:11;background:var(--bg);pointer-events:none;animation:ribout .18s ease-in both}
 @keyframes ribout{from{opacity:1;transform:none}to{opacity:0;transform:translateY(-8px)}}
 @media(prefers-reduced-motion:reduce){.rib-in,.rib-ghost{animation:none}.rib-ghost{display:none}}
+
+/* 142 to 146 (13 Oct 2026). 142: the tear is only for the tile pulled out of the docked stack (.hand.torn); everywhere else the tile in hand is the pre-118 look (.hand.plain): a plain card, the soft box shadow, the -1.5 degree tilt, the 0.4 fade and dashed outline on the place-holder. ?tear=all draws the tear everywhere (comparison). */
+.hand.plain{filter:none}
+.hand.plain .hand-p{box-shadow:0 16px 36px var(--dim)}
+.hand.plain::before{display:none}
+/* 143, 144: pressed and held in the plain week view. Press already rises a little (117); the hold is the full lift: bigger, tilted, deeper shadow. Same properties as 117, so the swipe's own movement is untouched. */
+.mc.hold{scale:1.05;rotate:-1.5deg;translate:0 -4px;z-index:5;filter:drop-shadow(0 14px 12px var(--dim))}
+.pw-day.past .mc.hold{filter:grayscale(1) drop-shadow(0 14px 12px var(--dim))}
+.sw:has(>.mc.hold){overflow:visible}
+/* 145: a past day is not a drop target; while a tile is over one it says so */
+.pw-day.nodrop{box-shadow:inset 0 0 0 2px var(--danger);background:color-mix(in srgb,var(--danger) 10%,transparent)}
+@media(prefers-reduced-motion:reduce){.mc.hold{transition:none}}
