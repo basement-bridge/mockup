@@ -878,7 +878,7 @@ Carried forward from earlier revisions (not lost):
 
 ## What loads (DESIGN.md section 6), 13 Oct indicators and Release
 
-Default path is the same five files (`theme.css`, `phone.css`, `data.js`, `status.js`, `phone.js`). Measured the same way on main (8e40d54) and on this branch, concatenated as served (`cat | wc -c`, `gzip -9`): main 176.3 KB uncompressed, 49.8 KB gzipped; this branch **180.5 KB, 51.1 KB gzipped, up 4.2 KB (1.3 KB gzipped)** (about 3.4 KB script, 0.8 KB CSS). Always on because the plain week must show the label row, the indicators and the buttons. No images, fonts or files added to the default path, nothing fetched. `demo.js` is 18.8 KB (was 16.5 KB) and loads only with `?demo=`. Deferred: the demo frames, the Mockup options panel (one `?rs=` group added), the tools checks, the `img/` screenshots (lazy in the index).
+Default path is the same five files (`theme.css`, `phone.css`, `data.js`, `status.js`, `phone.js`). Measured the same way on main (8e40d54) and on this branch, concatenated as served (`cat | wc -c`, `gzip -9`): main 176.3 KB uncompressed, 49.8 KB gzipped; this branch **180.8 KB, 51.1 KB gzipped, up 4.5 KB (1.3 KB gzipped)** (about 3.7 KB script, 0.8 KB CSS). Always on because the plain week must show the label row, the indicators and the buttons. No images, fonts or files added to the default path, nothing fetched. `demo.js` is 18.8 KB (was 16.5 KB) and loads only with `?demo=`. Deferred: the demo frames, the Mockup options panel (one `?rs=` group added), the tools checks, the `img/` screenshots (lazy in the index).
 
 ## Verification done (13 Oct, indicators and Release)
 
