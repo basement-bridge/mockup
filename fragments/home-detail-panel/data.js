@@ -29,6 +29,9 @@ window.HDP_DATA = {
       { n: "Egg noodles", need: "200 g", have: "400 g", s: "have" }, { n: "Crunchy peanut butter", need: "3 tbsp", have: "1 jar, nearly done", s: "short", item: "peanut-butter" }, { n: "Lime juice", need: "1 tbsp", have: "250 ml", s: "have", item: "lime-juice" },
       { n: "Spring onion stalks", need: "2", have: "1 bunch", s: "have", item: "spring-onion" }, { n: "Soy sauce", need: "2 tbsp", have: "1 bottle", s: "have" }], uses: ["peanut-butter", "spring-onion"] }
   ],
+  /* ?lead=planned: today's planned meal is the lead of the Cooking ideas card (decision 158, PROPOSED). An ad hoc meal, not a Recipe family (the owner's screenshot of UAT 0.101.x), so it has no recipe page: Open goes to the plan. mins null = unknown. */
+  plannedLead: { id: "lemon-pepper", planned: true, name: "Lemon pepper soy chicken with veg fried rice", emoji: "🍗", mins: null, serves: 2, why: "on the plan, nothing to decide", fit: "Only the chicken thighs are out.", lines: [
+    { n: "Chicken thighs", need: "500 g", have: "", s: "miss" }, { n: "Basmati rice", need: "300 g", have: "2 kg", s: "have" }, { n: "Soy sauce", need: "3 tbsp", have: "1 bottle", s: "have" }, { n: "Frozen peas", need: "1 cup", have: "1 bag", s: "have" }], uses: [] },
   days: ["Mon 12", "Tue 13", "Wed 14", "Thu 15", "Fri 16", "Sat 17", "Sun 18"],
   /* who: "" = the household plan, "me" = the viewer's own plan, otherwise the person whose individual plan it is (a key of people). The viewer is Sam. */
   people: { me: { name: "Sam", initial: "S" }, jo: { name: "Jo", initial: "J" }, priya: { name: "Priya", initial: "P" } },

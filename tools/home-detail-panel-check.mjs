@@ -20,8 +20,41 @@ async function page(w, h, q = "", theme = "kitchie") {
 const box = (p, s) => p.evaluate(s => { const r = document.querySelector(s).getBoundingClientRect(); return { l: r.left, r: r.right, w: r.width, t: r.top }; }, s);
 const snap = async (p, n) => { if (shots) await p.screenshot({ path: `${shots}/home-detail-panel-${n}.png` }); };
 
+let p;
+// 13 Oct 2026, decision 158 (PROPOSED; owner: "primary cooking idea recipe is not able to be driven to the flyout column.. other ideas are ok its just the primary cooking ideas"): the PRIMARY idea (the lead; here today's
+// planned meal, ?lead=planned) opens the same recipe view as the other ideas, by click and by keyboard, lights its row, switches with the other ideas without closing, says "Planned today" instead of Add to plan, and P plans nothing.
+p = await page(1440, 800, "lead=planned");
+ok(await p.locator(".lead[data-lead=planned] [data-open^='meal:']").count() === 1 && await p.locator(".ir [data-open^='recipe:']").count() === 2, "primary idea: the planned lead carries a panel hook, and there are two other ideas");
+await snap(p, "1440-primary-before-click");
+await p.click(".lead[data-lead=planned] [data-open]"); await p.waitForTimeout(300);
+ok(await p.locator("#d-title").textContent() === "Lemon pepper soy chicken with veg fried rice", "primary idea: a click opens the recipe view in the panel");
+ok(await p.locator(".lead .hrow.sel").count() === 1 && await p.locator(".lead .hrow[aria-current=true]").count() === 1, "primary idea: its row is lit");
+ok(await p.locator("#detail .sacts [data-act=plan]").count() === 0 && /Planned today/.test(await p.locator("#detail .sacts [data-act=planned]").textContent()), "primary idea: Planned today replaces Add to plan (no double-plan)");
+ok(/Open plan/.test(await p.locator("#detail .sacts [data-act=openrecipe]").textContent()) && /on the plan for today/i.test(await p.locator("#detail .fit").textContent()) && await p.locator("#detail .rl.miss").count() > 0, "primary idea: Open is kept, Why this fits says it is on the plan, the missing line is listed");
+await p.keyboard.press("p"); await p.waitForTimeout(150);
+ok(/already on the plan for today/.test(await p.locator(".toast").textContent()) && await p.locator("#week .wd.now").textContent().then(t => !/Lemon pepper.*Lemon pepper/.test(t)), "primary idea: P says it is already planned and plans nothing");
+await snap(p, "1440-primary-after-click");
+await p.click(".ir [data-open^='recipe:']"); await p.waitForTimeout(300);
+ok(await p.locator("#d-title").textContent() !== "Lemon pepper soy chicken with veg fried rice" && await p.locator("#detail .sacts [data-act=plan]").count() === 1 && await p.locator("#detail[hidden]").count() === 0, "switching: the other idea opens in place, with Add to plan, without closing");
+await p.keyboard.press("k"); await p.waitForTimeout(300);
+ok(await p.locator("#d-title").textContent() === "Lemon pepper soy chicken with veg fried rice" && await p.locator("#detail[hidden]").count() === 0, "keyboard: K moves from the first other idea back to the primary one, panel stays open");
+await p.keyboard.press("j"); await p.waitForTimeout(300);
+ok(await p.locator("#d-title").textContent() !== "Lemon pepper soy chicken with veg fried rice", "keyboard: J moves on to the other idea");
+await p.keyboard.press("Control+Escape"); await p.waitForTimeout(200);
+await p.locator(".lead [data-open]").focus(); await p.keyboard.press("Enter"); await p.waitForTimeout(300);
+ok(await p.locator("#d-title").textContent() === "Lemon pepper soy chicken with veg fried rice", "keyboard: Enter on the focused primary row opens it");
+await p.context().close();
+p = await page(1440, 800, "lead=planned");
+await p.click(".lead [data-act=planlink]"); await p.waitForTimeout(200);
+ok(await p.locator("#detail[hidden]").count() === 1 && /Plan it sheet/.test(await p.locator(".toast").textContent()), "the primary card's Plan button keeps its own action and does not open the panel");
+await p.context().close();
+p = await page(1440, 800);
+await p.click(".lead [data-open]"); await p.waitForTimeout(300);
+ok(await p.locator("#detail .sacts [data-act=plan]").count() === 1 && await p.locator("#detail .sacts [data-act=planned]").count() === 0, "default lead (the top idea, nothing planned today): opens the same view with Add to plan");
+await p.context().close();
+
 // 1. the four entry points, narrow (1440, option A: stack)
-let p = await page(1440, 800);
+p = await page(1440, 800);
 await p.click("#q"); await p.keyboard.type("jalap"); await p.waitForTimeout(200);
 ok(await p.locator("#sres .i").count() === 2 && await p.locator("#sres .g").count() === 2, "search: jalap finds the item and a recipe, grouped Pantry and Recipes (accent folded)");
 await snap(p, "1440-search-dropdown");
