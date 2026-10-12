@@ -28,7 +28,9 @@ window.HDP_DATA = {
       { n: "Spring onion stalks", need: "2", have: "1 bunch", s: "have", item: "spring-onion" }, { n: "Soy sauce", need: "2 tbsp", have: "1 bottle", s: "have" }], uses: ["peanut-butter", "spring-onion"] }
   ],
   days: ["Mon 12", "Tue 13", "Wed 14", "Thu 15", "Fri 16", "Sat 17", "Sun 18"],
-  planned: { 0: "Cheesy barramundi", 1: "Prawn curry", 2: "Not cooking", 4: "Egg fried rice" },
+  /* who: "" = the household plan, "me" = the viewer's own plan, otherwise the person whose individual plan it is (a key of people). The viewer is Sam. */
+  people: { me: { name: "Sam", initial: "S" }, jo: { name: "Jo", initial: "J" }, priya: { name: "Priya", initial: "P" } },
+  planned: { 0: [{ name: "Cheesy barramundi", who: "" }], 1: [{ name: "Prawn curry", who: "jo" }, { name: "Lamb curry", who: "" }], 2: [{ name: "Not cooking", off: true }], 4: [{ name: "Egg fried rice", who: "me" }], 6: [{ name: "Chilli noodles", who: "priya" }] },
   /* which pantry items each planned meal uses (for the "Used in" line). Lime chicken tacos and the other ideas use their own lists above */
-  planUses: { "Cheesy barramundi": [], "Prawn curry": ["spring-onion", "lime-juice"], "Egg fried rice": ["spring-onion"] }
+  planUses: { "Cheesy barramundi": [], "Prawn curry": ["spring-onion", "lime-juice"], "Lamb curry": ["spring-onion"], "Egg fried rice": ["spring-onion"], "Chilli noodles": ["lime-juice"] }
 };

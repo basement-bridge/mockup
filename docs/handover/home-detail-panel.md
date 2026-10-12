@@ -1,6 +1,6 @@
 # Home detail panel: handover
 
-**Status: drawn and merged 12 October 2026 (Sydney); the owner then confirmed all eight open decisions by voice the same day (decisions 133 to 153 are CONFIRMED). Nothing is built yet** and no Kitchie issues are filed. Style follows [plan-desktop.md](plan-desktop.md). Read `AGENTS.md` and `DESIGN.md` first.
+**Status: drawn and merged 12 October 2026 (Sydney); the owner then confirmed all eight open decisions by voice the same day (decisions 133 to 154 are CONFIRMED, 155 is a proposal). Nothing is built yet** and no Kitchie issues are filed. Style follows [plan-desktop.md](plan-desktop.md). Read `AGENTS.md` and `DESIGN.md` first.
 
 ## 1. The ask, in the owner's words (12 Oct 2026, from his message)
 
@@ -12,7 +12,7 @@ On the Kitchie desktop **Home** screen, when the user selects an item from the s
 |---|---|
 | Options page, width slider, states, notes | `fragments/home-detail-panel/index.html`; live <https://basement-bridge.github.io/mockup/fragments/home-detail-panel/index.html> |
 | The live Home screen | `fragments/home-detail-panel/home.html` (add `?opt=a|b|c`, `?open=item:cucumbers`, `?open=recipe:lime-tacos`, `?front=week`, `?child=edit|history`, `?q=lime&sres=1`, `?ideas=ok|loading|unavailable`, `?week=empty|planned`, `?detail=ok|loading|error`, `?peek=6`) |
-| Job note, decisions 133 to 153, options, open questions | `docs/knowledge/jobs-to-be-done/home-detail-panel.md` |
+| Job note, decisions 133 to 155, options, open questions | `docs/knowledge/jobs-to-be-done/home-detail-panel.md` |
 | Behaviour check | `node tools/home-detail-panel-check.mjs [--shots=dir]` |
 | Screenshots | `docs/screenshots/home-detail-panel-*.png` |
 | What it builds on | `fragments/desktop-home/` (the Home screen), `fragments/item-edit-flyout/` (the item flyout, its CSS is linked, not copied), `docs/knowledge/desktop-layout.md` |
@@ -33,7 +33,7 @@ On the Kitchie desktop **Home** screen, when the user selects an item from the s
 
 All four open the same panel. An item shows the Pantry flyout, byte for byte in markup and classes. An idea shows the recipe view. Clicking another row replaces the content in place. Close is the X or Ctrl or Cmd plus Escape. Keys: `/`, arrows or J K, M, E, comma, U D S Z, P O S, W, `?`.
 
-## 5. Decisions 133 to 153 in one line each
+## 5. Decisions 133 to 155 in one line each
 
 | # | Decision | Status |
 |---|---|---|
@@ -58,6 +58,8 @@ All four open the same panel. An item shows the Pantry flyout, byte for byte in 
 | 151 | "Missing" = completely out of stock; running low is not missing | Confirmed 12 Oct |
 | 152 | Edit and History swap the same panel's content in place | Confirmed 12 Oct |
 | 153 | "Used in" line on the item panel: ideas planned in the rolling next 7 days, by weekday first, then recipe ("Used in: Tuesday, prawn curry"), omitted if none | Confirmed 12 Oct |
+| 154 | "Used in": household and own-plan meals plain; someone else's individual plan gets their initial and avatar in brackets ("Tuesday, prawn curry (J)") | Confirmed 12 Oct |
+| 155 | Several meals the same day are grouped under one weekday: "Tuesday, prawn curry (J), lamb curry · Friday, egg fried rice" | **Proposal** |
 
 ## 6. Open questions
 
@@ -70,7 +72,7 @@ None from the first round: all eight were answered on 12 Oct 2026 (see the job n
 3. When the owner is ready, he converts this into Kitchie issues (AGENTS.md: a PR is not an issue yet). Draft issue text, **not filed** (Kitchie was not touched):
 
 > **Home (desktop): detail panel for items and Cooking ideas**
-> On desktop Home, selecting a search result, a Cooking idea, an item under On the way out or one under Running low opens a detail panel. If the window is at least 1624px wide (rail 88 + column 736 + panel 400 + This week 400) the panel takes the lane next to the column and This week shifts right. Below that the panel stacks over This week and leaves a 6px strip of This week showing; the strip is a button (and W) that swaps which one is in front. Items show the Pantry item flyout; Cooking ideas show a recipe view (time, serves, in stock, uses up, Add to plan, Open recipe, missing or short lines, in your pantry). Close is the X or Ctrl or Cmd plus Escape. Spec and decisions 133 to 153: `docs/knowledge/jobs-to-be-done/home-detail-panel.md` in basement-bridge/mockup. Live: <https://basement-bridge.github.io/mockup/fragments/home-detail-panel/index.html>. Layout A, 1624px and a 6px peek are confirmed. Close is Ctrl or Cmd plus Escape; plain Escape does not close. Missing means out of stock only; the recipe panel has a Why this fits blurb; the item panel has a Used in line (planned in the next 7 days, by weekday).
+> On desktop Home, selecting a search result, a Cooking idea, an item under On the way out or one under Running low opens a detail panel. If the window is at least 1624px wide (rail 88 + column 736 + panel 400 + This week 400) the panel takes the lane next to the column and This week shifts right. Below that the panel stacks over This week and leaves a 6px strip of This week showing; the strip is a button (and W) that swaps which one is in front. Items show the Pantry item flyout; Cooking ideas show a recipe view (time, serves, in stock, uses up, Add to plan, Open recipe, missing or short lines, in your pantry). Close is the X or Ctrl or Cmd plus Escape. Spec and decisions 133 to 155: `docs/knowledge/jobs-to-be-done/home-detail-panel.md` in basement-bridge/mockup. Live: <https://basement-bridge.github.io/mockup/fragments/home-detail-panel/index.html>. Layout A, 1624px and a 6px peek are confirmed. Close is Ctrl or Cmd plus Escape; plain Escape does not close. Missing means out of stock only; the recipe panel has a Why this fits blurb; the item panel has a Used in line (planned in the next 7 days, by weekday).
 
 ## 8. Process notes
 
