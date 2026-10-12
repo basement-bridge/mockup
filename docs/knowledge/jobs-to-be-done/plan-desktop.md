@@ -4,6 +4,8 @@ Handover for whoever drives this next (status, open questions, next steps, proce
 
 Mockup: `fragments/plan-desktop/index.html` (options A to D, each at 1024, 1280, 1366 x 768, 1440, 1920 and 2560). Builds on [plan-week-ai.md](plan-week-ai.md); decisions 1 to 48 there still stand. Everything below is a proposal until the owner confirms (numbers 49 to 62 continue that list).
 
+Follow-up review (12 Oct 2026): [plan-ui-review.md](plan-ui-review.md) refines these options (decisions 63 to 84, proposals).
+
 ## Job
 
 Same job as the phone: see the week, fix it, know what to buy and what to cook first. On a wide screen the person also wants the whole week at a glance, and a meal's detail beside the week, not on top of it.

@@ -1,0 +1,6 @@
+/* 1440 and up: the docked inspector is always there (idle = week summary) and the page makes room for it; a flyout pushes too. */
+:root{--pad:32px;--insp-w:400px}
+.insp-dock .insp{display:flex}
+.insp-dock .main,.insp-dock.has-sel .main,.insp-dock.idle .main{padding-right:calc(var(--insp-w) + var(--pad))}
+.insp-flyout.has-sel .main{padding-right:calc(var(--insp-w) + 24px + var(--pad))}
+.insp-flyout .fscrim{display:none}

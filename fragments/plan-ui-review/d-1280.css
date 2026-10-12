@@ -1,0 +1,6 @@
+/* 1280 and up: the board turns into seven columns; summary strip is one row. */
+:root{--pad:24px;--insp-w:380px}
+.wt h1{font-size:1.5rem}
+.sumstrip{grid-template-columns:repeat(4,minmax(0,1fr))}
+/* the week board's seven columns need about 1100px of main column: see d-1760.css; below that the board is the agenda rows */
+.pbtn .pre{display:inline}.pbtn .kbd{display:inline}.sync{display:inline-flex}.wt{min-width:11.5rem}
