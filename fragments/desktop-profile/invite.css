@@ -18,13 +18,31 @@
 .pf-invlist{display:grid;gap:8px;margin:0;padding:0;list-style:none}
 .pf-invrow{display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap;padding:10px 12px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--surface)}
 .pf-invrt{flex:1 1 14rem;min-width:0;display:grid;gap:2px}
-.pf-invmsgt{color:var(--fg);font-weight:600;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere}
-.pf-invmsgt i{color:var(--muted);font-weight:500}
+.pf-invmsgt{color:var(--muted);font-size:13.5px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow-wrap:anywhere}
+.pf-invmsgt i{font-style:italic}
 .pf-invfree{color:var(--fg)!important}
 .pf-invbadge{flex:none;display:inline-flex;align-items:center;gap:5px;font:700 12px var(--body);padding:3px 10px 3px 8px;border-radius:var(--r-pill);border:1px solid var(--border);color:var(--muted)}
 .pf-invbadge.pending{border-color:var(--accent);color:var(--accent)}
 .pf-invbadge.used{border-color:var(--sage);color:var(--sage)}
-.pf-invrow[data-st=expired] .pf-invmsgt{color:var(--muted)}
+.pf-invrow[data-st=expired] .pf-invtt{opacity:.75}
+.pf-invtt{display:flex;align-items:center;gap:2px 4px;flex-wrap:wrap;min-width:0}
+.pf-invlt{color:var(--fg);font-weight:700;font-size:15.5px;overflow-wrap:anywhere}
+.pf-invlt.none{color:var(--muted);font-weight:500;font-style:italic}
+.pf-invpen{flex:none;border:0;background:none;color:var(--muted);width:var(--tap);height:var(--tap);margin:-10px -6px -10px -4px;display:inline-grid;place-items:center;border-radius:var(--r-ctl);cursor:pointer}
+.pf-invpen:hover{color:var(--fg)}
+.pf-invpen:focus-visible{outline:3px solid var(--accent);outline-offset:-4px}
+.pf-invlabin{flex:1 1 12rem;min-width:0;max-width:20rem}
+.pf-invlabhint{flex-basis:100%}
+.pf-invact{flex:none;display:inline-flex;align-items:center;gap:4px 8px;flex-wrap:wrap}
+.pf-invsh{font-size:13px;margin:0;padding:0 8px}
+.pf-invrowc{flex-basis:100%;margin:-2px 0 0;color:var(--sage)}
+.pf-invshow{flex-basis:100%}
+.pf-invshow .pf-in{width:100%;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13.5px}
+.pf-invlab{display:grid;gap:4px}
+.pf-opt{text-transform:none;letter-spacing:0;font-weight:500}
+.pf-invlabh{margin:-8px 2px 0}
+.pf-invkept{margin:-4px 0 0;display:flex;gap:8px;align-items:flex-start}
+.pf-invkept .pf-i{flex:none;margin-top:2px}
 .pf-invrec{margin:0}
 .pf-inv .pf-btn[disabled]{opacity:.55;cursor:not-allowed}
 
@@ -51,6 +69,7 @@
  .pf-invlink .pf-in{flex:1 1 100%;font-size:13.5px}
  .pf-invb{padding:4px 16px 14px}
  .pf-invf{padding:10px 16px}
+ .pf-invact{width:100%}
  .pf-invbtns{width:100%;order:1}.pf-invbtns .pf-btn{flex:1}
  .pf-invf .pf-mockf{display:none}
 }

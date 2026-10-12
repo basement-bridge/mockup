@@ -1,5 +1,5 @@
-// Behaviour check for "Invite someone to a household of their own" (owner, 12 Oct 2026, round 9; mockup only): the dual-purpose gutter entry ("Invite someone" / "My invites"), the trimmed modal and its states
-// (empty, filled, link ready, copied, My invites, at three pending), the one-line way back to the existing join invite, the recipient sign-up pages (message, no message, expired, used), desktop and mobile widths, light and dark.
+// Behaviour check for "Invite someone to a household of their own" (owner, 12 Oct 2026, rounds 9 and 12; mockup only): the dual-purpose gutter entry ("Invite someone" / "My invites"), the trimmed modal and its states
+// (empty, filled, link ready, copied, My invites, at three pending), the one-line way back to the existing join invite, the label field and Copy link / Show link / editable label on My invites (round 12), the recipient sign-up pages (message, no message, expired, used), desktop and mobile widths, light and dark.
 // Usage:  python3 -m http.server 8124 &   then   node tools/invite-new-household-check.mjs   (SHOTS=dir saves a PNG of each frame; needs playwright-core and Chromium at PLAYWRIGHT_BROWSERS_PATH)
 import { chromium } from "playwright-core";
 const ROOT = process.env.ROOT || "http://localhost:8124/fragments/";
@@ -48,6 +48,8 @@ for (const [w, h] of [[1024, 768], [1280, 860], [1440, 900]]) for (const mode of
   ok(`${tag}: the window behind is inert`, await p.evaluate(() => [...document.querySelectorAll(".pf-scrim")].filter(s => !s.querySelector(".pf-inv")).every(s => s.inert)));
   ok(`${tag}: the title is exactly "Invite someone to a household of their own", one short line under it, nothing else explains at the top`, (await p.locator(".pf-inv h2").innerText()).trim() === "Invite someone to a household of their own" && (await p.locator(".pf-invone").innerText()).trim() === "They get their own brand new household" && await p.locator(".pf-invdia, .pf-invlead, .pf-invkick").count() === 0 && !/not a member|cannot see|not joining|not joined/i.test(tx), tx.slice(0, 300));
   ok(`${tag}: the first thing under the one-liner is the message field`, await p.evaluate(() => { const b = document.querySelector(".pf-invb"); return b.firstElementChild.classList.contains("pf-invmsg"); }));
+  ok(`${tag}: round 12: an optional "Who is this for?" field sits BELOW the message (not above it), says only the inviter sees it, and is light (one line)`, await p.evaluate(() => { const m = document.querySelector(".pf-invmsg").getBoundingClientRect(), l = document.querySelector("#inv-label"); if (!l) return false; const r = l.getBoundingClientRect(); return r.top >= m.bottom && r.height < 60 && l.maxLength === 40 && /Optional/.test(document.querySelector(".pf-invlab").textContent) && /Who is this for\?/.test(document.querySelector(".pf-invlab").textContent) && /Only you see this/.test(document.querySelector("#inv-labhelp").innerText); }));
+  ok(`${tag}: round 12: the way back is still the last line, the modal top has not grown (title and ONE line only)`, await p.evaluate(() => document.querySelector(".pf-invb").lastElementChild.classList.contains("pf-invwrong")) && await p.locator(".pf-inv .pf-who > *").count() === 2);
   ok(`${tag}: the way back is one plain low-key line, not a card`, await p.locator(".pf-inv [data-inv=back]").count() === 1 && (await p.locator(".pf-invwrong").innerText()).replace(/\s+/g, " ").trim() === "Want to invite them to your household instead? Click here" && await p.locator(".pf-invwrong .pf-btn").count() === 0 && await p.locator(".pf-invwrong").evaluate(n => getComputedStyle(n).backgroundColor === "rgba(0, 0, 0, 0)" && getComputedStyle(n).borderTopWidth === "0px"));
   ok(`${tag}: the send button is the paper plane`, await p.locator("[data-inv=create] svg path[d^='M21.5']").count() > 0);
   ok(`${tag}: focus is in the message field`, await p.evaluate(() => document.activeElement && document.activeElement.id === "inv-msg"));
@@ -58,6 +60,8 @@ for (const [w, h] of [[1024, 768], [1280, 860], [1440, 900]]) for (const mode of
   await p.locator("[data-inv=create]").focus(); await p.keyboard.press("4");
   ok(`${tag}: number keys do not move the window behind`, await p.locator(".pf-win .pf-head h2").innerText() === "Profile" && await p.locator(".pf-inv").isVisible());
   await p.keyboard.press("?"); ok(`${tag}: ? opens nothing on top of the modal`, await p.locator(".pf-scrim").count() === 2);
+  await p.locator("#inv-label").focus(); await p.keyboard.type("Mum's kitchen");
+  ok(`${tag}: typing a label stays in the modal and does not change the message counter`, await p.locator(".pf-inv").isVisible() && /0 of 280/.test(await p.locator("#inv-count").innerText()));
   await p.locator("#inv-msg").focus(); await p.keyboard.type(MSG);
   ok(`${tag}: typing counts and does not leave the modal`, new RegExp(`${MSG.length} of 280`).test(await p.locator("#inv-count").innerText()) && await p.locator(".pf-inv").isVisible());
   ok(`${tag}: the mockup switch follows the typing (Filled)`, await p.locator("[data-inv=state][aria-checked=true]").innerText() === "Filled");
@@ -67,6 +71,7 @@ for (const [w, h] of [[1024, 768], [1280, 860], [1440, 900]]) for (const mode of
   { const ct = await p.locator(".pf-inv").innerText();
   ok(`${tag}: link ready: a sample link, says it works once, and says NOTHING about expiry`, (await p.locator("#inv-link").inputValue()) === "kitchie.example/start/sample-link" && /Works once/.test(ct) && !/expire|expiry|48|24 hours|month|days/i.test(ct), ct);
   ok(`${tag}: link ready: no line about the inviter not being a member`, !/not be a member|not a member|cannot see/i.test(ct)); }
+  ok(`${tag}: round 12: link ready says it is saved under the label (only you see it), points to My invites for a lost link, and the recipient preview does not carry the label`, /Saved in My invites as Mum's kitchen/.test(await p.locator(".pf-invkept").innerText()) && /copy it again/.test(await p.locator(".pf-invkept").innerText()) && !(await p.locator(".pf-invq").innerText()).includes("Mum") && !(await p.locator("#inv-link").inputValue()).includes("Mum"));
   ok(`${tag}: what they will see shows the typed message`, (await p.locator(".pf-invq").innerText()).includes(MSG));
   ok(`${tag}: no "See their sign-up screen" link in the modal (INH-D20)`, await p.locator(".pf-inv a.pf-lnk").count() === 0 && !/sign-up screen/i.test(await p.locator(".pf-inv").innerText()));
   ok(`${tag}: the way back (one line) is still offered under the link`, await p.locator(".pf-inv [data-inv=back]").count() === 1);
@@ -87,6 +92,7 @@ for (const [w, h] of [[1024, 768], [1280, 860], [1440, 900]]) for (const mode of
   ok(`${tag}: Make another link starts again, empty`, (await p.locator("#inv-msg").inputValue()) === "" && /0 of 280/.test(await p.locator("#inv-count").innerText()));
   await p.locator("[data-inv=tolist]").click(); await p.waitForSelector(".pf-invlist");
   ok(`${tag}: Cancel (once something is sent) goes back to My invites, which lists the new link as Pending`, (await p.locator(".pf-inv h2").innerText()) === "My invites" && (await p.locator(".pf-invrow").first().innerText()).includes("Pending"));
+  ok(`${tag}: round 12: the new invite's row is titled with the label typed, and has Copy link`, (await p.locator(".pf-invrow").first().locator(".pf-invlt").innerText()) === "Mum's kitchen" && await p.locator(".pf-invrow").first().locator("[data-inv=copyrow]").count() === 1);
   await p.locator("[data-inv=new]").click(); await p.waitForSelector("#inv-msg");
   /* close keys */
   await p.keyboard.press("Escape"); ok(`${tag}: plain Esc closes nothing`, await p.locator(".pf-inv").isVisible());
@@ -109,6 +115,10 @@ for (const [w, h] of [[1024, 768], [1280, 860], [1440, 900]]) for (const mode of
       ok(`${tag} inv=${st}: no "withdrawn" (the mockup has no withdrawing) and no links to their households`, !/withdrawn/i.test(s) && !/\/start\//.test(s));
       ok(`${tag} inv=${st}: a "Send a new invite" action is there, with the plane`, await p.locator("[data-inv=new]").count() === 1 && await p.locator("[data-inv=new] svg path[d^='M21.5']").count() > 0);
       ok(`${tag} inv=${st}: Used is a record only`, /record only/i.test(s));
+      { const rr = await p.locator(".pf-invrow").evaluateAll(ns => ns.map(n => ({ st: n.dataset.st, title: n.querySelector(".pf-invlt").innerText, copy: n.querySelectorAll("[data-inv=copyrow]").length, show: n.querySelectorAll("[data-inv=showrow]").length, pen: n.querySelectorAll("[data-inv=editlabel]").length, links: n.querySelectorAll("input[readonly]").length })));
+        ok(`${tag} inv=${st}: round 12: Pending rows have Copy link and Show link; Used and Expired rows have neither; every row has a label title and a pencil`, rr.every(r => r.pen === 1 && r.copy === (r.st === "pending" ? 1 : 0) && r.show === (r.st === "pending" ? 1 : 0) && r.title.length > 0), rr);
+        ok(`${tag} inv=${st}: round 12: the label is the row title (Priya, Sam), and a row without one says "No label"`, rr.some(r => r.title === "Priya") && rr.some(r => r.title === "Sam") && (st === "limit" ? true : rr.some(r => r.title === "No label")), rr);
+        ok(`${tag} inv=${st}: round 12: links are hidden until Show link is pressed`, rr.every(r => r.links === 0)); }
       if (st === "list") { ok(`${tag} inv=list: one pending of three: the new-invite action is enabled`, await p.locator("[data-inv=new]").isEnabled() && /1 of 3 pending/.test(s)); }
       if (st === "limit") {
         ok(`${tag} inv=limit: three pending: the new-invite action is disabled, with a plain explanation that the button points to`, await p.locator("[data-inv=new]").isDisabled() && await p.locator("[data-inv=new]").getAttribute("aria-describedby") === "inv-lim" && /3 invites pending, the most at one time/.test(await p.locator("#inv-lim").innerText()) && /used or expires/.test(await p.locator("#inv-lim").innerText()), await p.locator("#inv-lim").innerText());
@@ -120,6 +130,50 @@ for (const [w, h] of [[1024, 768], [1280, 860], [1440, 900]]) for (const mode of
     ok(`${tag} inv=${st}: tap targets at least 44px`, small.length === 0, small);
     ok(`${tag} inv=${st}: nothing scrolls sideways and the buttons are on screen`, await noSide(p) && await p.locator(".pf-invbtns").isVisible() && (await box(p, ".pf-invbtns")).b <= h, await box(p, ".pf-invbtns"));
     await shot(p, `invite-state-${st}-${w}-${mode}`);
+    await noNav(t, `${tag} inv=${st}`); await t.ctx.close();
+  }
+  /* round 12: copy again, show the link, edit the label in place (desktop) */
+  t = await open(`${PROF}?open=invite&inv=limit`, w, h, mode, ".pf-inv"); p = t.p;
+  { const rows = p.locator(".pf-invrow[data-st=pending]");
+    await rows.nth(0).locator("[data-inv=copyrow]").click();
+    ok(`${tag} copy again: the row's button says Copied, a line says to paste it, the same Copied feel as Link ready; the other rows are unchanged`, /Copied/.test(await rows.nth(0).locator("[data-inv=copyrow]").innerText()) && /Copied. Paste it into a message to them/.test(await rows.nth(0).innerText()) && /Copy link/.test(await rows.nth(1).locator("[data-inv=copyrow]").innerText()) && await p.locator(".pf-inv").isVisible() && await p.evaluate(() => document.activeElement.dataset.inv === "copyrow"));
+    await shot(p, `invite-row-copied-${w}-${mode}`);
+    await rows.nth(1).locator("[data-inv=copyrow]").click();
+    ok(`${tag} copy again: only one row says Copied at a time`, await p.locator(".pf-invrow [data-inv=copyrow]:has-text('Copied')").count() === 1);
+    await rows.nth(0).locator("[data-inv=showrow]").click();
+    const shown = rows.nth(0).locator("input[readonly]");
+    ok(`${tag} show link: pressing Show link reveals the same sample link in a read-only box (never a real address), and the button says Hide link`, (await shown.inputValue()).startsWith("kitchie.example/start/sample-link") && !/https?:/.test(await shown.inputValue()) && /Hide link/.test(await rows.nth(0).locator("[data-inv=showrow]").innerText()) && await rows.nth(0).locator("[data-inv=showrow]").getAttribute("aria-expanded") === "true");
+    ok(`${tag} show link: the label is not part of the link`, !/jo|priya|mum/i.test((await shown.inputValue()).replace("kitchie.example", "")));
+    await rows.nth(0).locator("[data-inv=showrow]").click();
+    ok(`${tag} show link: Hide link puts it away`, await p.locator(".pf-invrow input[readonly]").count() === 0);
+    /* edit the label */
+    await p.locator(".pf-invrow").nth(0).locator("[data-inv=editlabel]").click();
+    const li = p.locator(".pf-invrow").nth(0).locator("[data-invlabin]");
+    ok(`${tag} edit label: the pencil turns the title into a box right there (no repaint of the list), focused, saying it saves automatically and only you see it`, await li.count() === 1 && await p.evaluate(() => document.activeElement.hasAttribute("data-invlabin")) && /Saves automatically. Only you see this/.test(await p.locator("[data-labhint]").innerText()) && await p.locator(".pf-inv h2").innerText() === "My invites");
+    await li.fill("Jo (work)");
+    ok(`${tag} edit label: saved as you type`, /Saved\./.test(await p.locator("[data-labhint]").innerText()));
+    await shot(p, `invite-row-edit-${w}-${mode}`);
+    await p.keyboard.press("Enter");
+    ok(`${tag} edit label: Enter closes the box, the new label is the title, focus returns to the pencil, the modal stays`, (await p.locator(".pf-invrow").nth(0).locator(".pf-invlt").innerText()) === "Jo (work)" && await p.evaluate(() => document.activeElement.dataset.inv === "editlabel") && await p.locator(".pf-inv").isVisible());
+    await p.locator(".pf-invrow").nth(3).locator("[data-inv=editlabel]").click();
+    await p.locator(".pf-invrow").nth(3).locator("[data-invlabin]").fill("");
+    await p.keyboard.press("Escape");
+    ok(`${tag} edit label: an emptied label becomes "No label" (allowed: it is optional), Esc only closes the box`, (await p.locator(".pf-invrow").nth(3).locator(".pf-invlt").innerText()) === "No label" && await p.locator(".pf-inv").isVisible());
+    await p.locator(".pf-invrow").nth(2).locator("[data-inv=editlabel]").click();
+    ok(`${tag} edit label: Used rows can be relabelled too`, await p.locator(".pf-invrow").nth(2).locator("[data-invlabin]").count() === 1);
+    await p.locator(".pf-invrow").nth(2).locator("[data-invlabin]").fill("Sam B");
+    await p.locator("[data-inv=showrow]").first().focus();
+    await p.waitForTimeout(100);
+    ok(`${tag} edit label: leaving the box keeps what was typed`, (await p.locator(".pf-invrow").nth(2).locator(".pf-invlt").innerText()) === "Sam B");
+    ok(`${tag} round 12: the label is never in the recipient copy (the modal's "what they will see" is not on My invites)`, await p.locator(".pf-invq").count() === 0);
+  }
+  await noNav(t, `${tag} round 12 rows`); await t.ctx.close();
+  /* the extra addresses */
+  for (const [st, sel] of [["listcopy", ".pf-invrowc"], ["listshow", ".pf-invshow input"], ["listedit", "[data-invlabin]"]]) {
+    t = await open(`${PROF}?open=invite&inv=${st}`, w, h, mode, ".pf-inv"); p = t.p;
+    ok(`${tag} inv=${st}: shows its state on the first pending row`, await p.locator(".pf-invrow[data-st=pending]").first().locator(sel).count() === 1 && (await p.locator(".pf-inv h2").innerText()) === "My invites");
+    await shot(p, `invite-state-${st}-${w}-${mode}`);
+    ok(`${tag} inv=${st}: nothing scrolls sideways, tap targets at least 44px`, await noSide(p) && (await p.locator(".pf-inv button:not(.pf-mock button), .pf-inv input").evaluateAll(ns => ns.filter(n => n.offsetParent && !n.closest(".pf-mock") && n.getBoundingClientRect().height < 43.5).length)) === 0);
     await noNav(t, `${tag} inv=${st}`); await t.ctx.close();
   }
   /* the Me row opens the same modal */
@@ -144,6 +198,7 @@ for (const [w, h] of [[1024, 768], [1280, 860], [1440, 900]]) for (const mode of
   /* recipient side */
   t = await open(`${START}?s=landing&m=${encodeURIComponent(MSG)}`, w, h, mode, ".st-card"); p = t.p;
   ok(`${tag} recipient: lands on sign-up with the message visible`, (await p.locator("#st-note").innerText()).includes(MSG) && /note from arjan/i.test(await p.locator("#st-note").innerText()) && /^Start my kitchen$/.test(await p.locator("#st-go").innerText()));
+  ok(`${tag} recipient: round 12: there is no label anywhere on the recipient page (the label is for the inviter only)`, !/who is this for|label|Priya's kitchen|Mum/i.test(await p.locator("body").innerText().then(x => x.replace(MSG, ""))));
   ok(`${tag} recipient: says it is their own kitchen`, /Your kitchen\./.test(await p.locator("h1").innerText()) && /your turn/.test(await p.locator(".st-pill").innerText()));
   ok(`${tag} recipient: the personal note sits directly above the sign-up button`, await p.evaluate(() => { const n = document.getElementById("st-note").getBoundingClientRect(), g = document.getElementById("st-go").getBoundingClientRect(); return n.bottom <= g.top && g.top - n.bottom < 40; }));
   await p.locator(".st-more summary").click();
@@ -190,12 +245,12 @@ for (const [w, h] of [[360, 780], [390, 844], [768, 1024]]) for (const mode of [
   await p.locator("#pf-panel [data-inv=open]").click(); await p.waitForSelector(".pf-inv");
   ok(`${tag}: ...and it opens My invites`, (await p.locator(".pf-inv h2").innerText()) === "My invites" && await p.locator(".pf-invrow").count() >= 3);
   await t.ctx.close();
-  for (const st of ["empty", "filled", "created", "copied", "list", "limit"]) {
+  for (const st of ["empty", "filled", "created", "copied", "list", "limit", "listcopy", "listshow", "listedit"]) {
     t = await open(`${PROF}?open=invite&inv=${st}`, w, h, mode, ".pf-inv"); p = t.p;
     const bx = await box(p, ".pf-inv");
     ok(`${tag} ${st}: the modal fits the screen`, bx.l >= 0 && bx.r <= w && bx.t >= 0 && bx.b <= h, bx);
     ok(`${tag} ${st}: nothing scrolls sideways`, await noSide(p));
-    const mb = st === "created" || st === "copied" ? "[data-inv=done]" : st === "list" || st === "limit" ? ".pf-invbtns [data-close]" : "[data-inv=create]";
+    const mb = st === "created" || st === "copied" ? "[data-inv=done]" : /^(list|limit)/.test(st) ? ".pf-invbtns [data-close]" : "[data-inv=create]";
     ok(`${tag} ${st}: the main button is visible and on screen`, await p.locator(mb).isVisible() && (await box(p, mb)).h > 30 && (await box(p, mb)).b <= h && (await box(p, mb)).t >= 0, await box(p, mb));
     await p.waitForTimeout(300);
     await p.waitForTimeout(300);
