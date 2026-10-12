@@ -5,7 +5,7 @@
                       5 a past tile lifted to copy forward and a past day refusing it, 6 the detail drag-out is the ONLY torn one, 7 a quick sideways swipe still reveals the swipe actions (no lift)
    ?demo=open         the open day, 4 frames (decisions 147 to 153, 154, 155): 1 the dashed open day, 2 right swipe reveals Not cooking, 3 Not cooking with Undo (3 s), 4 tap the Not cooking tile: the LIGHT panel (Ask AI, Surprise me, Mark as open)
    ?demo=nc           the 13 Oct live-test round (decisions 154 to 158), 7 frames: 1 a collapsed Not cooking day with the ECG marker on the divider line, 2 one tap opens it, 3 a gap of two days, 4 one tap opens both, 5 tap a Not cooking day: the light panel, 6 the open-day swipe and its 3 s Undo, 7 the tear in the plain agenda (top and bottom edges only)
-   ?demo=week         the week summary strip's two bulk actions (decisions 159 to 167), 7 frames: 1 the strip (Add to buy, Reserve, counts inside), 2 Add to buy with Undo in place, 3 Reserve with Undo in place, 4 both used: disabled, 5 next week (sample meals seeded for this frame only), 6 last week: read only, no strip, 7 the old strip (?ws=counts, superseded)
+   ?demo=week         the week header and bulk actions (decisions 159 to 177), 12 frames: 1 label row with nights, moon and open-box counts, buttons below, 2 Add to buy then Undo, 3 Add to buy gone, Reserve alone, 4 Reserve then Undo, 5 everything held: Release, 6 one meal held by itself: Reserve with the rest, 7 Release then Undo, 8 nothing missing and nothing on hand: no strip, 9 several Not cooking and several open nights, 10 the counts after a swipe, 11 next week with a long label (sample meals seeded for this frame only), 12 the old strip (?ws=counts, superseded). Last week (read only, no strip, no indicators) is in the screenshots
    Frames (?demo=1): 1 week plan, 2 tap a day: the day docks top and the sheet docks bottom, 3 tap another day in the ribbon: the contents of the stack swap, the slot stays (115),
            4 start dragging the tile and it tears off, a ragged edge on the tile and on the piece left behind (118), 5 dragged to a day, torn all the way, 6 let go on a day,
            7 alternative: close the stack, the ribbon goes and the week returns. It drives the same code a finger does (beginDrag, moveHand, endHand, closeDetail). */
@@ -45,15 +45,20 @@
     ['The tear in the plain agenda', 'Hold a tile and drag it: the torn edge shows on the top (dragging down) or bottom (dragging up) only, with the fade on the place-holder and the tilt of the tile in hand (158).']
   ];
   var CAPW = [
-    ['The week summary strip is two actions', 'Under "Week of 12 Oct" the passive to buy and use first counts are gone (159, owner-stated). Add to buy and Reserve act on the whole week; "5 of 7 nights" is quiet read-only text on the label row (165, Proposal: a reading of a cut-off sentence). The count in each button is what it will touch (Proposal).'],
-    ['Add to buy: everything missing, one tap', 'Every missing ingredient of this week from today on goes on the shopping list (160, owner-stated); the days turn green, the same as adding per meal (122). The button flips in place into Undo for 14 s (166, Proposal; 130). Past days are not touched.'],
-    ['Reserve: hold everything on hand, one tap', 'Every on-hand ingredient of this week from today on is held (161, owner-stated). Undo in place, the same as Add to buy. Held meals show Held in their detail.'],
-    ['Nothing left: disabled, and it says why', 'When Undo has expired and nothing applies, the button is dimmed and disabled with its reason in the label and tooltip (163, Proposal; 167). No count on a disabled button.'],
-    ['Next week works the same', 'Each strip sits under its own week and acts on that week only (164, Proposal). The sample has no meals next week, so this frame seeds copies of this week for the demo only. A week with no meals from today on shows no strip.'],
-    ['Last week: read only, no strip', 'Past weeks stay grey and read only (owner-stated: nothing to change); no actions are drawn there (162).'],
-    ['For comparison: the old strip', 'The old passive strip (4/7 nights, to buy, use first, with the highlight filter), still available as ?ws=counts. Superseded by 159 to 161.']
+    ['Label row: nights, moon, open box. Buttons below', 'On the right of "Week of 12 Oct  This week": "5 of 7 nights", then the moon with a number (Not cooking nights) and a tiny dashed box with a number (open nights), no words (168 to 170: owner-stated; the icon details are Proposals). Under the row, Add to buy and Reserve appear only because something is missing and something on hand can be reserved.'],
+    ['Add to buy, then Undo in place', 'One tap lists every missing item from today on (160). The button flips to Undo for 14 s (166, Proposal); Reserve stays because it still applies.'],
+    ['Add to buy has gone, Reserve is alone', 'After the Undo window nothing is missing, so Add to buy is not drawn, not dimmed (168, owner-stated; 172, Proposal). Reserve takes the row.'],
+    ['Reserve, then Undo in place', 'One tap holds everything on hand from today on, the same Held as the per-meal Hold (176). The button flips to Undo for 14 s; Add to buy stays.'],
+    ['Everything held: Reserve reads Release', 'When everything on hand this week is held, the button says Release and the number is the held items (173, owner-stated words; the state rule is a Proposal). It is in the held green, like the per-meal Release (174).'],
+    ['One meal held by itself: Reserve with the rest', 'Thu 15 Salmon patties was held with its own Hold (item level). The week button still reads Reserve, now with the smaller number of items not held yet (173, Proposal). ?rs=both draws Release beside it; ?rs=any makes any hold turn it into Release.'],
+    ['Release, then Undo in place', 'Release lets go of everything held this week. It flips to Undo for 14 s, then Reserve is back (173, 175, Proposals). Undo reverses the last action; Release is a state, so it stays after the window.'],
+    ['Nothing missing, nothing on hand: no strip', 'Every missing item is listed and nothing on hand is left to reserve or release, so there is no button row at all, only the label row with its indicators (168, owner-stated).'],
+    ['Several Not cooking and several open nights', 'Thu 15 and Sat 17 are Not cooking, Wed 14, Fri 16 and Sun 18 are open: the moon with 2 and a dashed box with 3, nothing for zero (169 to 171). Counts are nights from today on; a past day of this week is not counted (Proposal).'],
+    ['The counts follow the week', 'Sun 18 was just marked Not cooking: the dashed box goes from 3 to 2 and the moon from 2 to 3. Undo, Mark as open, a drop or a new meal change them the same way (171).'],
+    ['Next week, a long label', 'Next week has the same label row: "Week of 19 Oct  Next week", its nights and indicators on one line, no wrap (171). Each week counts its own nights. Last week has no indicators, as in #151.'],
+    ['For comparison: the old strip', 'The old passive strip (4/7 nights, to buy, use first, with the highlight filter), still available as ?ws=counts. Superseded by 159 to 161; it shows no moon or open-box indicators.']
   ];
-  var CAP = WKD ? CAPW : NC ? CAPN : OP ? CAPO : AG ? CAPA : CAPD; if (NC || WKD) N = 7;
+  var CAP = WKD ? CAPW : NC ? CAPN : OP ? CAPO : AG ? CAPA : CAPD; if (NC) N = 7; if (WKD) N = 12;
   function rect(sel) { var e = document.querySelector(sel); return e ? e.getBoundingClientRect() : null; }
   function buildA(n) {
     A.resetDemo(); A.showWeek('d14'); var S = A.S, tile = function (id) { var e = document.querySelector('.pw-day .mc[data-id="' + id + '"]'); return e ? e.getBoundingClientRect() : null; };
@@ -88,13 +93,19 @@
   }
   function buildW(n) {
     A.resetDemo(); var S = A.S, go = function (k) { S.cur = ['d05', 'd12', 'd19'][k]; var w = document.querySelectorAll('.wkd')[k]; if (w) window.scrollTo(0, w.getBoundingClientRect().top + scrollY - 70); A.syncHead(); setTimeout(A.syncHead, 150); }, tap = function (sel) { var b = document.querySelector(sel); if (b) b.click(); };
+    var seed = function () { S.meals.filter(function (m) { var d = +m.day.slice(1); return d >= 13 && d <= 18; }).forEach(function (m) { var c = JSON.parse(JSON.stringify(m)); c.id = 'n-' + m.id; c.day = 'd' + (+m.day.slice(1) + 7); c.held = 0; if (!S.blocked[c.day]) S.meals.push(c); }); };
+    var wk = function (m) { var d = +m.day.slice(1); return d >= 12 && d <= 18; };
     S.ws = 'actions'; A.render(false); go(1);
     if (n === 1) return;
     if (n === 2) { tap('.wact [data-wbuy="0"]'); go(1); return; }
-    if (n === 3) { tap('.wact [data-wbuy="0"]'); S.ustk = []; A.render(false); tap('.wact [data-wres="0"]'); go(1); return; }
-    if (n === 4) { tap('.wact [data-wbuy="0"]'); tap('.wact [data-wres="0"]'); S.ustk = []; A.render(false); go(1); return; }
-    if (n === 5) { S.meals.filter(function (m) { var d = +m.day.slice(1); return d >= 13 && d <= 18; }).forEach(function (m) { var c = JSON.parse(JSON.stringify(m)); c.id = 'n-' + m.id; c.day = 'd' + (+m.day.slice(1) + 7); c.held = 0; S.meals.push(c); }); A.render(false); go(2); return; }
-    if (n === 6) { window.scrollTo(0, 0); return; }
+    if (n === 3) { tap('.wact [data-wbuy="0"]'); S.ustk = []; A.render(false); go(1); return; }
+    if (n === 4) { tap('.wact [data-wres="0"]'); go(1); return; }
+    if (n === 5) { tap('.wact [data-wres="0"]'); S.ustk = []; A.render(false); go(1); return; }
+    if (n === 6) { S.meals.forEach(function (m) { if (m.id === 'thu-salmon') m.held = 1; }); A.render(false); go(1); return; }
+    if (n === 7) { tap('.wact [data-wres="0"]'); S.ustk = []; A.render(false); tap('.wact [data-wrel="0"]'); go(1); return; }
+    if (n === 8) { S.meals.forEach(function (m) { if (wk(m)) { m.have = []; m.held = 0; m.miss = m.miss.map(function (x) { return [x[0], x[1], 1]; }); m.list = m.miss.length; } }); A.render(false); go(1); return; }
+    if (n === 9 || n === 10) { S.blocked.d15 = 'once'; S.meals = S.meals.filter(function (m) { return ['d14', 'd15', 'd16', 'd18'].indexOf(m.day) < 0; }); if (n === 10) S.blocked.d18 = 'once'; A.render(false); go(1); return; }
+    if (n === 11) { seed(); A.render(false); go(2); return; }
     S.ws = 'counts'; A.render(false); go(1);
   }
   function build(n) {
