@@ -1,0 +1,48 @@
+/* Option B, Sort the pile. Three bold groups that shrink as you decide; Ready and Not added are folded. Tokens only. */
+.b-prog{display:flex;flex-direction:column;gap:8px;padding:12px 14px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface);margin-bottom:6px}
+.b-pt{display:flex;justify-content:space-between;align-items:baseline}.b-pt span{font-size:13px;color:var(--muted)}.b-pt b{font-size:1.1rem;font-family:var(--head)}
+.b-g{margin-top:20px}
+.b-gh{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:8px}
+.b-gh h2{font-size:1.3rem}.b-gh p{font-size:13.5px}
+.b-n{min-width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-weight:800;border:1.5px solid var(--border);flex:none}
+.b-g[data-g=check] .b-n{border-color:var(--accent);color:var(--accent)}
+.b-g[data-g=new] .b-n{border:1.5px dashed var(--danger);color:var(--danger)}
+.b-list{display:flex;flex-direction:column;gap:10px}
+.b-c{border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface);padding:12px;display:flex;flex-direction:column;gap:10px}
+.b-c[data-g=check]{border-left:4px solid var(--accent)}
+.b-c[data-g=new]{border:1px dashed var(--danger);border-left:4px solid var(--danger)}
+.b-c[data-g=ready],.b-c[data-g=skip]{padding:0;background:var(--bg)}
+.b-c[data-sel="1"]{box-shadow:0 0 0 2px var(--accent)}
+.b-top{display:flex;justify-content:space-between;gap:10px;width:100%;min-height:var(--tap);align-items:center}
+.b-raw{font:700 13px var(--body);letter-spacing:.06em;text-transform:uppercase;font-variant-numeric:tabular-nums}
+.b-pr{font:600 13px var(--body);color:var(--muted);font-variant-numeric:tabular-nums}
+.b-sug{display:flex;align-items:center;gap:10px}
+.b-arrow{color:var(--muted);font-size:1.2rem}
+.b-who{flex:1;min-width:0}
+.b-cf{display:flex;flex-direction:column;align-items:flex-end;gap:4px;font-size:12px;color:var(--muted);flex:none}.b-cf em{font-style:normal;font-weight:700}
+.b-nm{display:flex;flex-direction:column;gap:4px}
+.b-ln{width:100%;display:flex;align-items:center;gap:12px;padding:10px 12px;min-height:60px}
+.b-lt{flex:1;min-width:0;display:flex;flex-direction:column}.b-lt span{font-size:13px;color:var(--muted)}.b-lt b.mute{color:var(--muted);text-decoration:line-through}
+.b-lq{font-size:13px;color:var(--muted);white-space:nowrap}
+.b-empty{display:flex;gap:8px;align-items:center;padding:14px;border:1px dashed var(--border);border-radius:var(--r-card);color:var(--sage);font-weight:600}
+.b-fold{border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface)}
+.b-fold>summary{min-height:56px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 14px;cursor:pointer;list-style:none;font-size:14px;color:var(--muted)}
+.b-fold>summary::-webkit-details-marker{display:none}
+.b-fold>summary span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.b-fold[open]>summary svg{transform:rotate(180deg)}
+.b-fold .b-list{padding:0 10px 10px}
+/* the entry: a tile inside the Add flyout (RS-D1, option B) */
+.rs-scan-tile{display:flex;align-items:center;gap:14px;padding:14px;border:1.5px dashed var(--accent);border-radius:var(--r-card);background:var(--bg);width:100%;min-height:72px}
+.rs-st-ic{width:48px;height:48px;border-radius:var(--r-ctl);background:var(--accent);color:var(--on-accent);display:grid;place-items:center;flex:none}
+.rs-st-tx{flex:1;display:flex;flex-direction:column}.rs-st-tx small{color:var(--muted);font-size:13px}
+
+/* B's skin for the other steps: tiles and piles */
+.rs-tips{grid-template-columns:repeat(3,1fr);gap:8px}
+.rs-tips li{flex-direction:column;text-align:center;gap:6px;padding:12px 6px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--bg);font-size:12.5px}
+.rs-tips.tight{grid-template-columns:1fr 1fr}
+.cap2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cap2 .rs-b{flex-direction:column;min-height:104px;gap:8px;white-space:normal;text-align:center}
+.rs-piles{display:flex;margin:4px 0 2px}
+.rs-stack{display:flex}
+.rs-counts div{border-top-width:4px}
+.rs-counts [data-k=new]{border-top-color:var(--added-bg)}.rs-counts [data-k=top]{border-top-color:var(--sage)}.rs-counts [data-k=skip]{border-top-color:var(--border)}

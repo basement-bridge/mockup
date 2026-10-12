@@ -1,0 +1,8 @@
+/* Tablet (600 to 1023px): the phone layout, relaxed. The review page and the sheets take a readable width and centre; nothing is redrawn (DESIGN.md section 7). */
+.scr>.scr-body,.scr>.rs-rh{max-width:var(--content-max);margin-left:auto;margin-right:auto;width:100%}
+.rs-bar{justify-content:center}
+.rs-bar>*{max-width:calc(var(--content-max) - 32px)}
+.rs-bar{padding-left:calc(50% - var(--content-max)/2 + 16px);padding-right:calc(50% - var(--content-max)/2 + 16px)}
+.panel{left:50%;right:auto;width:min(640px,100%);transform:translateX(-50%)}
+@keyframes rs-up{from{transform:translate(-50%,24px);opacity:.6}to{transform:translate(-50%,0);opacity:1}}
+.main{max-width:var(--content-max);margin:0 auto}

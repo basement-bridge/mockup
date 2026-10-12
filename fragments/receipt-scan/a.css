@@ -1,0 +1,33 @@
+/* Option A, Receipt order. The list reads like the receipt: one row per printed line, state glyph left, confidence right. Tokens only. */
+.a-filt{display:flex;gap:6px;overflow-x:auto;padding:4px 0 10px;scrollbar-width:none}
+.a-filt::-webkit-scrollbar{display:none}
+.a-filt button{flex:none;min-height:var(--tap);padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:14px;background:var(--surface)}
+.a-filt button b{font-size:12px;color:var(--muted)}
+.a-filt button[aria-selected=true]{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.a-filt button[aria-selected=true] b{color:inherit}
+.a-list{list-style:none;margin:0;padding:0}
+.a-r{border-bottom:1px solid var(--border);position:relative}
+.a-main{width:100%;display:flex;align-items:center;gap:12px;padding:12px 6px;min-height:68px;border-radius:var(--r-ctl)}
+.a-r[data-sel="1"] .a-main{background:var(--surface);box-shadow:inset 3px 0 0 var(--accent),inset 0 0 0 1px var(--border)}
+.a-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.a-raw{font:600 11px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.a-nm{font-weight:700;font-size:1.05rem;line-height:1.2}
+.a-nm.mute{color:var(--muted);text-decoration:line-through;text-decoration-thickness:1.5px}
+.a-x2{font-size:11px;font-weight:700;color:var(--muted);border:1px solid var(--border);border-radius:var(--r-pill);padding:0 6px;margin-left:4px}
+.a-sub{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.a-side{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex:none}
+.a-q{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.a-acts{display:flex;gap:8px;flex-wrap:wrap;padding:0 6px 12px 52px}
+.a-more{padding:2px 6px 16px 6px}
+.a-r[data-k=skip] .a-g{opacity:.8}
+.a-r[data-st=skip] .a-main{opacity:.85}
+.a-none{padding:24px 8px;color:var(--muted);text-align:center}
+.a-ign{margin-top:14px;border:1px dashed var(--border);border-radius:var(--r-card);padding:0 12px;font-size:13px;color:var(--muted)}
+.a-ign summary{min-height:var(--tap);display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600}
+.a-ign ul{margin:0 0 10px;padding-left:34px}
+
+/* the entry: a two-way switch at the top of the Add flyout (RS-D1, option A) */
+.rs-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:var(--r-ctl);background:var(--bg);border:1px solid var(--border)}
+.rs-tabs button{min-height:var(--tap);display:flex;align-items:center;justify-content:center;gap:8px;border-radius:calc(var(--r-ctl) - 3px);font-weight:700}
+.rs-tabs button[aria-selected=true]{background:var(--accent);color:var(--on-accent)}
+.rs-tabs button:not([aria-selected=true]){color:var(--accent)}
