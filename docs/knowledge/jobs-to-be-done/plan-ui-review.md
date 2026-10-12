@@ -306,11 +306,11 @@ Default path unchanged: `theme.css`, `phone.css`, `data.js`, `status.js`, `phone
 Headless Chromium, dark theme, phone 390 x 844 and 360 x 740, and a desktop-width window (the centred 430 px column). Scripted: no page errors and no sideways scroll; tap a ribbon day with a meal, an open night, a Not cooking day, a past day with a meal and a past empty day while the stack is open (the slot stays, the contents swap, the title follows); Surprise me from the docked open night opens the new meal's detail; Esc and the x close to the week; a mouse drag from the docked tile after a swap brings the week back under the finger, the tear edge is set (down, up, right) and a drop replaces a meal; press shows the lift; a past tile is grey; pipes are visible beside a selected Sunday and Monday.
 
 
-# Fourth revision, 13 October 2026: batch 2 of the live phone test (decisions 120 to 133)
+# Fourth revision, 13 October 2026: batch 2 of the live phone test (decisions 120 to 135)
 
 Owner, by voice on 13 October 2026, same phone test as batch 1 ("get it out" for all batches). **Owner-stated, 13 Oct 2026** marks his words; **Proposal** marks the design agent filling a gap. Cite as "Plan UI review 121": `item-edit-flyout.md` reuses 120 to 128, `home-detail-panel.md` 133 and `plan-desktop.md` 110 to 120, so a bare number is ambiguous. Phone only; the desktop page got only the Total time line (124).
 
-Mockups: [phone.html](../../../fragments/plan-ui-review/phone.html) (`?sel=wed-curry`, `?sel=tue-pasta` no missing, `?sel=l-wed&day=wed` past, `?dock=d19` open night, `?sel=wed-curry&long=1`, `?gr=hand`, `?hdl=light`, `?jig=1|0|reset`, `?ut=4`), [index](../../../fragments/plan-ui-review/index.html#b2). Screenshots in `fragments/plan-ui-review/img/` (`p-stack-*`, `p-green-*`, `p-open-day-390`, `p-menu-390`, `p-stack-nomiss-390`, `p-stack-past-390`, `p-handle-light-390`, `p-seq-*`, `p-swap-*`, `p-st-*`).
+Mockups: [phone.html](../../../fragments/plan-ui-review/phone.html) (`?sel=wed-curry`, `?sel=tue-pasta` no missing, `?sel=l-wed&day=wed` past, `?dock=d19` open night, `?sel=wed-curry&long=1`, `?gr=hand`, `?hdl=light`, `?jig=1|0|reset`, `?ut=4`, `?ba=bar|list|both`), [index](../../../fragments/plan-ui-review/index.html#b2). Screenshots in `fragments/plan-ui-review/img/` (`p-stack-*`, `p-green-*`, `p-open-day-390`, `p-menu-390`, `p-stack-nomiss-390`, `p-stack-past-390`, `p-handle-light-390`, `p-ba-*` (134), `p-seq-*`, `p-swap-*`, `p-st-*`).
 
 ## Decisions
 
@@ -329,9 +329,16 @@ Mockups: [phone.html](../../../fragments/plan-ui-review/phone.html) (`?sel=wed-c
 132. **Owner notes recorded (no extra work):** the ribbon stays durable and docked while a detail is open (115); the gutter shows red or green under each date (121); the shopping list is the single source of truth for counts (so no count is repeated on tiles, 121 and 126).
 133. **Other proposals in this batch:** a Not cooking undo and notes show under the docked day tile; Open recipe on a made-up meal says so instead of failing.
 
+## Batch 2 follow-up, 13 October 2026: where the bulk actions live (decisions 134 and 135)
+
+Cite as "Plan UI review 134" (`home-detail-panel.md` also numbers from 133 on; the file name tells them apart).
+
+134. **Proposal: three placements of the bulk actions, switch `?ba=bar|list|both`, default `bar` (the PR #142 build).** The owner said "I'm just wondering if there's a way to do an add all or hold all" (13 Oct, voice) and later asked for the sheet bottom to be "Hold" with a number and a cart "Add" with a number. The coordinating brief asks for group-level "Add all" and "Hold all" in the list as well. The two readings conflict (see 126 and the conflict note below), so all three are drawn and the owner picks. (a) `bar`: the bottom bar only (Hold N, cart Add N), as built. (b) `list`: no bottom bar; a quiet "Add all" text action ends the missing group (right-aligned, with a small cart, no pill, no heading, no box; the missing group's closing line sits under it), and a quiet "Hold all" ends the on-hand group (bookmark mark; reads "Held" in green when held). (c) `both`. The owner was silent on which of the three.
+135. **Proposal: how the in-list actions behave.** Same handlers as the bar (`data-addall`, `data-hold`), so the same note, the same Undo flip and the same single expiry constant (14 s, `?ut=`) apply. "Add all" is hidden when nothing is missing or everything missing is already on the list; "Hold all" is hidden when nothing is on hand. They count the same items as the bar's numbers (the visible text has no number: it sits in the accessible name, for example "Add all 2 missing ingredients"). Past days and view-only plans show neither (Copy forward only on a past day, as before). Missing first in plain red, no headings or boxes, the cart tick for listed items: unchanged. Placement choice: both actions sit at the end of their group (not the first row), so Add all and Hold all are never adjacent and the per-row cart buttons stay in the right-hand column. Class names the build will use: `.ing.one.bulk`, `li.ga.ga-add`, `li.ga.ga-hold`, `button.gbtn` (`.on` when held).
+
 ## Conflicts between the batch text and the owner's voice, and how they were resolved
 
-- Batch item 9 asks for group-level "Add all" and "Hold all"; his later words remove the groups and put "Hold" and "Add" with a number in the bottom bar. Resolved: the bottom bar is the bulk action (126).
+- Batch item 9 asks for group-level "Add all" and "Hold all"; his later words remove the groups and put "Hold" and "Add" with a number in the bottom bar. First resolved as: the bottom bar is the bulk action (126). The coordinating brief then asked for the group actions as well, so both are drawn behind `?ba=bar|list|both` (134, 135) and the owner chooses.
 - Batch item 8 says the status "supersedes 104", while the week summary strip still says "N to buy". Kept and flagged (open question below).
 - "Gutter under each date" was in the ribbon in the batch text and in the agenda column in the owner note; both drawn.
 
@@ -346,6 +353,7 @@ Mockups: [phone.html](../../../fragments/plan-ui-review/phone.html) (`?sel=wed-c
 ## Open questions (everything still open, one list)
 
 New from batch 2:
+- **Where the bulk actions live (134, 135):** bottom bar only (current), in-list "Add all" and "Hold all" only, or both? Cost of a wrong guess: low, a redraw (the handlers are shared; it is one switch in `ingList` and `footActions`). Also: should the in-list Hold all sit at the end or the start of the on-hand group (end drawn)?
 - **What green means (122):** dealt with (on the list, drawn) or all on hand? Cost: one function.
 - **Open night tap (125):** tapping now opens the day with Ask AI, Surprise me and Not cooking, instead of marking Not cooking. Confirm; cost of a wrong guess: the row's handler and one button. Also: after Not cooking from that day the stack stays docked (drawn); close instead?
 - **Counts on the bottom buttons (126):** are Hold 5 and Add 2 the right numbers (items touched) or should they read "Hold all" and "Add all"? They are not a second status count.
@@ -372,3 +380,7 @@ Default path is the same five files: `theme.css`, `phone.css`, `data.js`, `statu
 ## Verification done (batch 2)
 
 Headless Chromium, 390 x 844 and 360 x 740, a 1280 window (phone page and the desktop page), dark theme. No page errors and no sideways scroll on the phone page at both widths across ten variants, on index.html and on desktop.html. Scripted: open night on the week (label only) and its day (Ask AI, Surprise me, Not cooking; Not cooking stays docked with Undo; Surprise me gives a meal with its time); Total time on every sample meal including past; the menu items and Open recipe (navigates for Shakshuka, stub for the made-up curry); long list (`?long=1`) scrolls with the footer pinned; a day with nothing missing (Hold only); a past day (Copy forward only); Add turns the tile green, removes the red names and the Add button, and `?gr=hand` keeps it red; Hold toggles; undo expiry for all four patterns and for a dragged drop (`?ut=3`); the wiggle on 3 opens then not, `?jig=1`, `?jig=0`, `?jig=reset`, none on a past tile, a still cue under reduced motion, the done flag after a drag; ribbon swaps to five kinds of day. Not verified: a real phone (touch feel of the wiggle), and the Pages URL from the sandbox.
+
+## What loads and verification (134, 135)
+
+Load: unchanged, the same five files; the in-list actions are a few lines in `ingList` and 10 lines of CSS, nothing deferred or fetched. Verified in headless Chromium at 390 x 844 and 360 x 740 for `ba=bar|list|both` on the Wednesday curry, `?long=1`, Tuesday pasta (nothing missing: Hold all only, no Add all), and a past day (Copy forward only): no page errors, no sideways scroll. Scripted: Add all flips to Undo and the buttons that no longer apply disappear, Undo restores, Hold all toggles to Held, the Undo expires on its own (`?ut=3`). Not verified: a real phone; the Pages URL from the sandbox.

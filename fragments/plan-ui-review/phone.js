@@ -8,7 +8,7 @@
   function pick(k, ok, d) { var v = q.get(k); return ok.indexOf(v) > -1 ? v : d; }
   var S = {
     lay: pick('lay', ['rib', 'focus'], 'rib'), hd: pick('hd', ['shrink', 'fixed'], 'shrink'), f: pick('f', ['drop', 'seg', 'strip'], 'drop'), pc: pick('pc', ['step', 'drop'], 'step'),
-    nc: pick('nc', ['hide', 'show'], 'hide'), u: pick('u', ['day', 'flip', 'banner', 'pill'], 'day'), dt: pick('dt', ['stack', 'peek', 'strip', 'hide', 'sheet'], 'stack'), cw: pick('cw', ['menu', 'pair'], 'menu'), cl: pick('cl', ['meals', 'all'], 'meals'), long: pick('long', ['0', '1'], '0'), st: pick('st', ['plain', 'labels', 'badge', 'edge', 'progress'], 'plain'), gr: pick('gr', ['list', 'hand'], 'list'), hdl: pick('hdl', ['none', 'light'], 'none'), jig: pick('jig', ['1', '0', 'reset'], ''),
+    nc: pick('nc', ['hide', 'show'], 'hide'), u: pick('u', ['day', 'flip', 'banner', 'pill'], 'day'), dt: pick('dt', ['stack', 'peek', 'strip', 'hide', 'sheet'], 'stack'), cw: pick('cw', ['menu', 'pair'], 'menu'), cl: pick('cl', ['meals', 'all'], 'meals'), long: pick('long', ['0', '1'], '0'), st: pick('st', ['plain', 'labels', 'badge', 'edge', 'progress'], 'plain'), gr: pick('gr', ['list', 'hand'], 'list'), hdl: pick('hdl', ['none', 'light'], 'none'), jig: pick('jig', ['1', '0', 'reset'], ''), ba: pick('ba', ['bar', 'list', 'both'], 'bar'),
     cu: pick('cu', ['start', 'idle', 'off'], 'start'), sw: pick('sw', ['tint', 'buttons'], 'tint'),
     today: 'd13', cur: P.did(q.get('day'), 'd13'), view: q.get('who') || 'mine', hl: null, sel: q.get('sel'), snap: q.get('snap') === 'full' ? 'full' : 'half', expand: q.get('expand') === '1',
     dday: q.get('dock') || null, pop: null, opts: false, ustk: [], wkm: false, pickMove: false, note: null, carry: null, pickd: null, revealed: null, cuShown: false, cuDone: {}, cmp: false,
@@ -82,11 +82,15 @@
   function ubTxt(m, r) { var ub = m.useby.filter(function (u) { return u[0] === r[0]; })[0]; return ub ? '<span class="ubt ' + P.status.urg(m, TODAYN) + '">use by ' + esc(ub[1]) + '</span>' : ''; }
   function ingList(m, lk) {
     var ms = m.miss.filter(function (x) { return !x[2]; }).concat(m.miss.filter(function (x) { return x[2]; })), hv = haveList(m);
+    /* Decision 134 (Proposal, ?ba=bar|list|both): group-level bulk actions in the list itself. They reuse the bottom bar's handlers (data-addall, data-hold), so the undo flip and its expiry are the same. */
+    var ga = !lk && !past(m.day) && !ro() && S.ba !== 'bar', un = unlisted(m).length;
+    var addRow = ga && un ? '<li class="ga ga-add"><button class="gbtn" data-addall aria-label="Add all ' + un + ' missing ' + (un === 1 ? 'ingredient' : 'ingredients') + ' to the shopping list">' + ic.cart + ' Add all</button></li>' : '';
+    var holdRow = ga && hv.length ? '<li class="ga ga-hold"><button class="gbtn' + (m.held ? ' on' : '') + '" data-hold aria-pressed="' + !!m.held + '" aria-label="' + (m.held ? 'Release the hold on ' : 'Hold all ') + hv.length + ' on-hand ingredients">' + ic.mark + (m.held ? ' Held' : ' Hold all') + '</button></li>' : '';
     var rows = ms.map(function (x, i) {
       var tail = lk ? '' : x[2] ? '<span class="onl" role="img" aria-label="On the shopping list" title="On the shopping list">' + ic.cart + '</span>' : '<button class="ib" data-addone="' + esc(x[0]) + '" aria-label="Add ' + esc(x[0]) + ' to the shopping list">' + ic.cart + '</button>';
-      return '<li class="m' + (isRed(x) ? ' red' : '') + (i === ms.length - 1 && hv.length ? ' mlast' : '') + '"><span class="in">' + esc(x[0]) + '</span><span class="qy">' + esc(x[1]) + '</span>' + tail + '</li>';
+      return '<li class="m' + (isRed(x) ? ' red' : '') + (i === ms.length - 1 && hv.length && !addRow ? ' mlast' : '') + '"><span class="in">' + esc(x[0]) + '</span><span class="qy">' + esc(x[1]) + '</span>' + tail + '</li>';
     }).join('');
-    return '<ul class="ing one">' + rows + hv.map(function (r) { return '<li><span class="in">' + esc(r[0]) + '</span><span class="qy">' + esc(r[1]) + '</span>' + ubTxt(m, r) + '</li>'; }).join('') + '</ul>';
+    return '<ul class="ing one' + (ga ? ' bulk' : '') + '">' + rows + addRow + hv.map(function (r) { return '<li><span class="in">' + esc(r[0]) + '</span><span class="qy">' + esc(r[1]) + '</span>' + ubTxt(m, r) + '</li>'; }).join('') + holdRow + '</ul>';
   }
   function lockEdit(m) { return ro() || past(m.day); }
   function pcount(m) {
@@ -102,7 +106,7 @@
      The number is what the button will touch (on-hand items to hold, missing items not yet on the list), Proposal; it is not a second status count. No missing items to add: no Add. */
   function footActions(m) {
     if (ro()) return; if (past(m.day)) return '<button class="b2" data-act="copyfwd" data-id="' + m.id + '">' + ic.cal + ' Copy forward</button>';
-    var hv = haveList(m).length, un = unlisted(m).length, o = '';
+    if (S.ba === 'list') return ''; var hv = haveList(m).length, un = unlisted(m).length, o = '';
     if (hv) o += '<button class="b2 hold' + (m.held ? ' on' : '') + '" data-hold aria-pressed="' + !!m.held + '" aria-label="' + (m.held ? 'Release the hold on ' : 'Hold all ') + hv + ' on-hand ingredients">' + ic.mark + (m.held ? ' Held' : ' Hold') + ' <b class="ct">' + hv + '</b></button>';
     if (un) o += '<button class="b2 add" data-addall aria-label="Add ' + un + ' missing ' + (un === 1 ? 'ingredient' : 'ingredients') + ' to the shopping list">' + ic.cart + ' Add <b class="ct">' + un + '</b></button>';
     return o;
@@ -237,7 +241,7 @@
       g('lay', 'Layout', [['rib', 'Day ribbon + agenda (recommended)'], ['focus', 'One day at a time']]) + g('hd', 'Header (decision 91)', [['shrink', 'Shrinks on scroll (recommended)'], ['fixed', 'Fixed']]) + g('f', 'Who filter (97)', [['drop', 'One dropdown (recommended)'], ['seg', 'Mine / Everyone + People dropdown'], ['strip', 'Old chips behind a chevron']]) +
       g('pc', 'Number of people in the detail (98)', [['step', 'Stepper − 4 +'], ['drop', 'Dropdown']]) + g('nc', 'Not cooking days (93)', [['hide', 'Hidden, peek at the edge (recommended)'], ['show', 'Always shown']]) + g('u', 'Undo on a phone (101)', [['day', 'On the changed day (recommended)'], ['flip', 'Copy button flips to Undo'], ['banner', 'Banner under the ribbon'], ['pill', 'Pill under the ribbon']]) +
       g('dt', 'Meal detail (103, 107)', [['stack', 'Day on top, detail at the bottom, one locked stack (recommended)'], ['peek', 'Docked, neighbours peek'], ['strip', 'Docked, other days as one line each'], ['hide', 'Docked, other days hidden'], ['sheet', 'Two-stop bottom sheet (comparison)']]) + g('st', 'Status (121, supersedes 104)', [['plain', 'Plain red or green, no count (owner, 13 Oct)'], ['labels', 'a Labelled chips: rejected'], ['badge', 'b Icon + count: rejected'], ['edge', 'c Edge strip + dot: rejected'], ['progress', 'd Progress: rejected']]) + g('gr', 'Green means (122, open)', [['list', 'Dealt with: every missing item is on the list (recommended)'], ['hand', 'Everything is on hand']]) + g('hdl', 'Grey bar on the tab (128)', [['none', 'Removed (recommended)'], ['light', 'Much lighter']]) + g('jig', 'Wiggle hint (129)', [['', 'First 3 opens, 7 days, stops after a drag'], ['1', 'Always, for review'], ['0', 'Off'], ['reset', 'Reset the stored count']]) +
-      g('cu', 'Ask AI to plan this curtain (96)', [['start', 'At the start of an empty week (default)'], ['idle', 'Idle, whole week empty'], ['off', 'Off']]) + g('sw', 'Swipe', [['tint', 'Tinted reveal, commits'], ['buttons', 'Buttons stay open']]) + g('cw', 'Clear week placement (109)', [['menu', 'Week actions menu, split Undo (recommended)'], ['pair', 'Two icon buttons next to each other']]) + g('cl', 'Clear week also clears (109, open)', [['meals', 'Meals only, Not cooking stays (recommended)'], ['all', 'Meals and this-week Not cooking marks']]) + g('long', 'Long ingredient list (107 demo)', [['0', 'Normal'], ['1', 'Long: 21 lines, the sheet scrolls']]) + '</div>' : '');
+      g('cu', 'Ask AI to plan this curtain (96)', [['start', 'At the start of an empty week (default)'], ['idle', 'Idle, whole week empty'], ['off', 'Off']]) + g('sw', 'Swipe', [['tint', 'Tinted reveal, commits'], ['buttons', 'Buttons stay open']]) + g('cw', 'Clear week placement (109)', [['menu', 'Week actions menu, split Undo (recommended)'], ['pair', 'Two icon buttons next to each other']]) + g('cl', 'Clear week also clears (109, open)', [['meals', 'Meals only, Not cooking stays (recommended)'], ['all', 'Meals and this-week Not cooking marks']]) + g('ba', 'Bulk Hold and Add (134, open)', [['bar', 'Bottom bar only: Hold N, cart Add N (current)'], ['list', 'In the list only: Add all on the missing group, Hold all on the on-hand group'], ['both', 'Both']]) + g('long', 'Long ingredient list (107 demo)', [['0', 'Normal'], ['1', 'Long: 21 lines, the sheet scrolls']]) + '</div>' : '');
   }
 
   /* ---------- render ---------- */

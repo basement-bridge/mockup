@@ -465,3 +465,12 @@ select{font:inherit}
 @media(prefers-reduced-motion:reduce){.dpiece .mc.jig{animation:jigstill 1.6s ease-out .4s 1 both}}
 @keyframes jigstill{0%,100%{filter:none;translate:0 0}20%,80%{filter:drop-shadow(0 8px 8px var(--dim));translate:0 -2px}}
 .dpiece .unote{margin:6px 0 0}
+
+/* 134 (Proposal): quiet group actions inside the one list: plain text, right-aligned, no pill, no heading, no box */
+.ing li.ga{min-height:44px;justify-content:flex-end}
+.ing li.ga-add{border-bottom:1px solid color-mix(in srgb,var(--muted) 55%,var(--border))}
+.ing li.ga-add:last-child{border-bottom:0}
+.ing .gbtn{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 4px;border:0;background:none;color:var(--muted);font:600 13px var(--body);text-decoration:underline;text-underline-offset:3px}
+.ing .gbtn svg{width:14px;height:14px}
+.ing .gbtn.on{color:var(--sage);text-decoration:none}
+.ing .gbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
