@@ -4,3 +4,4 @@
 .sumstrip{grid-template-columns:repeat(4,minmax(0,1fr))}
 /* the week board's seven columns need about 1100px of main column: see d-1760.css; below that the board is the agenda rows */
 .pbtn .pre{display:inline}.pbtn .kbd{display:inline}.sync{display:inline-flex}.wt{min-width:11.5rem}
+.wkacts .pbtn:not(.flip) b{display:inline}.wkacts .pbtn:not(.flip){padding:0 14px}

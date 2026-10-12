@@ -23,3 +23,5 @@
 .dc>.mc{flex:1 1 320px;min-width:0}
 .dc>.empty,.dc>.blk,.dc>.tipl,.dc>.dayprep{flex:0 0 100%}
 .focusday .dc{margin-top:12px}
+/* 109: at 1024 the two week actions are icon buttons with a tooltip; the label returns at 1280 */
+.wkacts .pbtn:not(.flip) b{display:none}.wkacts .pbtn:not(.flip){padding:0 12px}

@@ -1,4 +1,4 @@
-/* Plan UI review, phone (390 and 360). Day ribbon revision, 12 Oct 2026 (owner-stated decisions 85 to 106, see docs/knowledge/jobs-to-be-done/plan-ui-review.md).
+/* Plan UI review, phone (390 and 360). Day ribbon revision, 12 Oct 2026 (owner-stated decisions 85 to 109, see docs/knowledge/jobs-to-be-done/plan-ui-review.md).
    Swipes are pointer events, so a mouse drags exactly like a finger. Keyboard: focus a card, X replan, Shift X not cooking, H hold, E or Enter open, Z undo.
    Same service methods as the chat tools (plan_view, plan_update_meal, plan_remove_meal, plan_block_day, plan_reserve, plan_add_missing_to_list, plan_move_meal, plan_copy_last_week).
    Sample data is in data.js; status markup is in status.js. Nothing here is built in Kitchie. */
@@ -7,14 +7,15 @@
   function pick(k, ok, d) { var v = q.get(k); return ok.indexOf(v) > -1 ? v : d; }
   var S = {
     lay: pick('lay', ['rib', 'focus'], 'rib'), hd: pick('hd', ['shrink', 'fixed'], 'shrink'), f: pick('f', ['drop', 'seg', 'strip'], 'drop'), pc: pick('pc', ['step', 'drop'], 'step'),
-    nc: pick('nc', ['hide', 'show'], 'hide'), u: pick('u', ['day', 'flip', 'banner', 'pill'], 'day'), dt: pick('dt', ['peek', 'strip', 'hide', 'sheet'], 'peek'), st: pick('st', ['labels', 'badge', 'edge', 'progress'], 'labels'),
+    nc: pick('nc', ['hide', 'show'], 'hide'), u: pick('u', ['day', 'flip', 'banner', 'pill'], 'day'), dt: pick('dt', ['stack', 'peek', 'strip', 'hide', 'sheet'], 'stack'), cw: pick('cw', ['menu', 'pair'], 'menu'), cl: pick('cl', ['meals', 'all'], 'meals'), long: pick('long', ['0', '1'], '0'), st: pick('st', ['labels', 'badge', 'edge', 'progress'], 'labels'),
     cu: pick('cu', ['start', 'idle', 'off'], 'start'), sw: pick('sw', ['tint', 'buttons'], 'tint'),
     today: 'd13', cur: P.did(q.get('day'), 'd13'), view: q.get('who') || 'mine', hl: null, sel: q.get('sel'), snap: q.get('snap') === 'full' ? 'full' : 'half', expand: q.get('expand') === '1',
-    pop: null, opts: false, undo: null, note: null, carry: null, pickd: null, revealed: null, cuShown: false, cuDone: {}, cmp: false,
+    pop: null, opts: false, ustk: [], wkm: false, pickMove: false, note: null, carry: null, pickd: null, revealed: null, cuShown: false, cuDone: {}, cmp: false,
     meals: JSON.parse(JSON.stringify(P.meals)), blocked: JSON.parse(JSON.stringify(P.blocked))
   };
   var TODAYN = 13, root = document.getElementById('root'), nid = 0;
   if (!S.meals.some(function (m) { return m.id === S.sel; })) S.sel = null; else if (!q.get('day')) S.cur = S.meals.filter(function (m) { return m.id === S.sel; })[0].day;
+  if (S.sel && S.dt === 'stack' && S.hd === 'shrink') S.cmp = true;
   function di(d) { return DI.indexOf(d); } function info(d) { return RIB[di(d)]; } function past(d) { return di(d) < di(S.today); }
   function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
   function find(id) { return S.meals.filter(function (m) { return m.id === id; })[0]; }
@@ -31,14 +32,14 @@
   function isOpen(d) { return !on(d).length && !S.blocked[d]; }
 
   /* ---------- cards ---------- */
-  function card(m) {
-    var hl = S.hl === 'missing' ? m.miss.length : S.hl === 'useby' ? m.useby.length : 1, pst = past(m.day), lock = ro(), e = S.st === 'edge' ? ' e-' + P.status.edge(m, TODAYN) : '';
+  function card(m, lite) {
+    var lift = S.carry && S.carry.move && S.carry.from === m.id, hl = S.hl === 'missing' ? m.miss.length : S.hl === 'useby' ? m.useby.length : 1, pst = past(m.day), lock = ro(), e = S.st === 'edge' ? ' e-' + P.status.edge(m, TODAYN) : '';
     var who = lock ? 'all' : pst ? 'past' : 'edit';
     var hint = lock ? 'View only.' : pst ? 'Past, read only. Swipe right: copy forward.' : 'Swipe right: not cooking. Swipe left: replan. Or press X, Shift X.';
     return '<div class="sw' + (S.sw === 'buttons' ? ' btns' : '') + '" data-sw="' + m.id + '"><div class="und" aria-hidden="true"><span class="l">' + (pst ? ic.cal + ' Copy forward' : ic.moon + ' Not cooking') + '</span><span class="r">Replan ' + ic.swap + '</span></div>' +
-      '<article class="mc' + e + (S.sel === m.id ? ' sel' : '') + (hl ? '' : ' dim') + (pst ? ' past' : '') + '" tabindex="0" data-id="' + m.id + '" data-ro="' + who + '" aria-label="' + esc(m.t) + ', ' + dName(m.day) + '. ' + hint + '">' +
+      '<article class="mc' + e + (lift ? ' lifted' : '') + (lite ? ' lite' : '') + (S.sel === m.id ? ' sel' : '') + (hl ? '' : ' dim') + (pst ? ' past' : '') + '" tabindex="0" data-id="' + m.id + '"' + (lite && who === 'edit' ? ' data-tile="1"' : '') + ' data-ro="' + who + '" aria-label="' + esc(m.t) + ', ' + dName(m.day) + '. ' + hint + '">' +
       '<span class="em">' + m.em + '</span><div class="tx"><h3>' + esc(m.t) + '</h3><p>' + esc(P.whoLabel(m)) + '</p>' + (m.left ? '<p class="lf">' + ic.swap + ' Leftovers from ' + m.left + '</p>' : '') + '</div>' +
-      (S.st === 'edge' ? P.status.html(m, 'edge', TODAYN) : '') + '<button class="more" data-more="' + m.id + '" aria-label="Actions for ' + esc(m.t) + '">' + ic.more + '</button>' + (S.st === 'edge' ? '' : P.status.html(m, S.st, TODAYN)) + '</article></div>';
+      (S.st === 'edge' ? P.status.html(m, 'edge', TODAYN) : '') + '<button class="more" data-more="' + m.id + '" aria-label="Actions for ' + esc(m.t) + '">' + ic.more + '</button>' + (S.st === 'edge' || lite ? '' : P.status.html(m, S.st, TODAYN)) + '</article></div>';
   }
   function emptyHtml(d) {
     if (past(d)) return '<div class="empty past">Nothing was planned</div>';
@@ -54,7 +55,7 @@
   function noteHtml(d) { var n = S.note; if (!n || S.u !== 'day' || n.day !== d) return ''; return '<div class="unote" role="status"><span>' + n.msg + '</span>' + (n.undo ? '<button data-undo>' + ic.undo + ' Undo</button>' : '') + '</div>'; }
   function daySec(d, extra) {
     var x = info(d), tgt = S.carry && !past(d), hid = hidden(d);
-    return '<section class="dsec' + (past(d) ? ' past' : '') + (hid ? ' hid' : '') + (tgt ? ' target' : '') + (S.pulse && S.pulse.indexOf(d) > -1 ? ' pulse' : '') + '" id="d-' + d + '" data-d="' + d + '"' + (S.carry && past(d) ? ' aria-disabled="true"' : '') + '><div class="dsh"><b>' + x.dow + '</b><span>' + x.n + ' Oct</span>' + (d === S.today ? '<em>Today</em>' : '') + (S.blocked[d] && S.carry ? '<i class="ncl">Not cooking</i>' : '') + (tgt ? '<i class="drp">Tap to drop here</i>' : '') + '</div>' + noteHtml(d) + '<div class="cl">' + dayBody(d) + '</div></section>';
+    return '<section class="dsec' + (past(d) ? ' past' : '') + (hid ? ' hid' : '') + (tgt ? ' target' : '') + (S.pulse && S.pulse.indexOf(d) > -1 ? ' pulse' : '') + '" id="d-' + d + '" data-d="' + d + '"' + (S.carry && past(d) ? ' aria-disabled="true"' : '') + '><div class="dsh"><b>' + x.dow + '</b><span>' + x.n + ' Oct</span>' + (d === S.today ? '<em>Today</em>' : '') + (S.blocked[d] && S.carry ? '<i class="ncl">Not cooking</i>' : '') + (tgt ? '<i class="drp">' + (S.carry.drag ? (S.carry.day === d ? 'Lifted from here' : 'Drop here') : 'Tap to drop here') + '</i>' : '') + '</div>' + noteHtml(d) + '<div class="cl">' + dayBody(d) + '</div></section>';
   }
   function wkDiv(r) { return '<div class="wkd"><span>Week of ' + r.n + ' Oct</span><i>' + P.REL[r.wk] + (r.wk < 0 ? ' · read only' : '') + '</i></div>' + (r.wk >= 0 ? summary(r.wk) : ''); }
   function agenda() { return RIB.map(function (r) { return (r.dow === 'Mon' ? wkDiv(r) : '') + daySec(r.id); }).join('') + '<div class="endsp" aria-hidden="true"></div>'; }
@@ -67,10 +68,11 @@
     return '<div class="ppl"><span class="lbl">People</span><button class="ib" data-n="-1" aria-label="Fewer people"' + (lockEdit(m) ? ' disabled' : '') + '>−</button><b>' + m.n + '</b><button class="ib" data-n="1" aria-label="More people"' + (lockEdit(m) ? ' disabled' : '') + '>+</button></div>';
   }
   function detailBody(m) {
+    var have = S.long === '1' ? m.have.concat(P.LONG) : m.have;
     var src = m.src === 'made' ? '<p class="srcl">' + ic.spark + ' <b>Made up by your AI</b> · not saved as a recipe</p>' : m.src === 'surprise' ? '<p class="srcl">' + ic.dice + ' <b>Surprise me</b> · ' + esc(m.why || '') + '</p>' : '';
     var lk = lockEdit(m);
     return src + (m.note ? '<p class="nt">' + esc(m.note) + '</p>' : '') + (lk ? '<p class="nt ronote">' + ic.cal + (ro() ? ' ' + vlab(S.view) + "'s plan is view only." : ' Past: read only. Swipe the card right, or use Copy forward, to bring it into a coming day.') + '</p>' : '') + pcount(m) +
-      '<section class="isec"><div class="ish"><h3>On hand</h3>' + (lk ? '' : '<button class="hold' + (m.held ? ' on' : '') + '" data-hold aria-pressed="' + !!m.held + '">' + ic.mark + (m.held ? ' Held' : ' Hold') + '</button>') + '</div><ul class="ing">' + ingRows(m.have, 0, m) + '</ul></section>' +
+      '<section class="isec"><div class="ish"><h3>On hand</h3>' + (lk ? '' : '<button class="hold' + (m.held ? ' on' : '') + '" data-hold aria-pressed="' + !!m.held + '">' + ic.mark + (m.held ? ' Held' : ' Hold') + '</button>') + '</div><ul class="ing">' + ingRows(have, 0, m) + '</ul></section>' +
       (m.miss.length ? '<section class="isec"><div class="ish"><h3>Missing</h3>' + (lk ? '' : '<button class="addall" data-addall>' + ic.cart + ' Add all ' + m.miss.length + '</button>') + '</div>' + (lk ? '' : '<p class="hint">Ask AI about substitutes</p>') + '<ul class="ing miss">' + ingRows(m.miss, 1, m) + '</ul></section>' : '<p class="allgood">' + ic.check + ' Everything for this meal is on hand.</p>');
   }
   function footActions(m) {
@@ -88,6 +90,16 @@
     if (S.dt === 'peek') { var pv = DI[i - 1], nx = DI[i + 1]; before = pv ? mini(pv, 'peekm') : ''; after = nx ? mini(nx, 'peekm') : ''; }
     if (S.dt === 'strip') { after = '<div class="minis"><p class="lbl">Other days, ' + (wk === 0 ? 'this week' : P.REL[wk].toLowerCase()) + '</p>' + others.map(function (x) { return mini(x); }).join('') + '</div>'; }
     return before + '<section class="dock' + (S.pulse && S.pulse.indexOf(d) > -1 ? ' pulse' : '') + '" id="d-' + d + '" data-d="' + d + '" role="region" aria-labelledby="stt">' + inner + '</section>' + after;
+  }
+  /* Decision 107: the day card docks at the top, directly under the ribbon; the detail docks at the bottom; one locked stack. The day piece is pinned; only the detail scrolls. */
+  function stackHtml(m) {
+    var d = m.day, others = on(d).filter(function (x) { return x.id !== m.id; }), foot = footActions(m), lk = lockEdit(m);
+    var st = S.st === 'edge' ? '' : '<div class="stst">' + P.status.html(m, S.st, TODAYN) + '</div>';
+    var day = '<div class="dpiece"><div class="dkh"><h2 id="stt"><b>' + dLong(d) + '</b> ' + info(d).n + ' Oct' + (d === S.today ? ' <em>Today</em>' : '') + '</h2><button class="ib" data-close aria-label="Close detail (Esc)">' + ic.x + '</button></div>' +
+      '<div class="cl">' + card(m, true) + others.map(function (x) { return '<button class="mini oth" data-act="open" data-id="' + x.id + '"><b>Also</b><span>' + x.em + ' ' + esc(x.t) + '</span></button>'; }).join('') + '</div>' + (lk ? '' : '<p class="dhint">Drag the tile to move it to another day.</p>') +
+      '<button class="tongue" data-tongue aria-label="Drag down to close, or press Enter" aria-describedby="stt"><i></i></button></div>';
+    var sheet = '<div class="spiece"><div class="sbody" id="sbody">' + st + detailBody(m) + '</div>' + (foot ? '<footer class="sfoot">' + foot + '</footer>' : '') + '</div>';
+    return '<section class="stackw" id="d-' + d + '" data-d="' + d + '" role="region" aria-labelledby="stt">' + day + sheet + '</section>';
   }
   function sheetHtml() {
     var m = S.sel && find(S.sel); if (!m || S.dt !== 'sheet') return '<div class="sheet" id="sheet" aria-hidden="true"></div>';
@@ -120,15 +132,37 @@
     if (S.f === 'strip' && S.expand) { var ch = function (v, l, av) { return '<button class="ch' + (S.view === v ? ' on' : '') + '" data-view="' + v + '" role="radio" aria-checked="' + (S.view === v) + '">' + (av ? '<span class="av">' + av + '</span>' : '') + l + ' <i>' + cnt(v) + '</i></button>'; }; return '<div class="pp"><div class="pstrip open" role="radiogroup" aria-label="Whose meals">' + ch('mine', 'Mine') + ch('everyone', 'Everyone') + P.people.filter(function (p) { return !p.me; }).map(function (p) { return ch(p.id, p.n, p.n.charAt(0)); }).join('') + '</div></div>'; }
     return '';
   }
-  function copyBtn() {
-    var n = S.note, flip = n && n.undo && n.kind === 'copy' || (n && n.undo && S.u === 'flip');
-    if (flip) return '<button class="flipundo" data-undo aria-label="Undo: ' + esc(n.msg.replace(/<[^>]+>/g, '')) + '">' + ic.undo + ' Undo</button>';
-    var dis = ro() || weekOf(S.cur) < 0;
-    return '<button class="ib" data-copy aria-label="Copy last week into this one: fills open nights only, never overwrites"' + (dis ? ' disabled' : '') + ' title="' + (ro() ? vlab(S.view) + "'s plan is read only" : weekOf(S.cur) < 0 ? 'Last week is read only' : 'Copy last week: fills open nights only') + '">' + ic.copy + '</button>';
+  /* Copy last week (99) and Clear week (109): two week-level actions, one pattern. Each flips IN PLACE into Undo after use and names what it reverses ("Undo copy", "Undo clear").
+     Undo is a short stack (each step lives 14 s): the latest action's button shows Undo; undo it and the earlier one shows Undo again. */
+  var UW = 14000, ULAB = { copy: 'copy', clear: 'clear', drop: 'drop', move: 'move', edit: 'change' };
+  function pruneU() { var t = Date.now(); S.ustk = S.ustk.filter(function (u) { return t - u.at < UW; }); }
+  function topU() { pruneU(); return S.ustk[S.ustk.length - 1] || null; }
+  function plain(h) { return String(h).replace(/<[^>]+>/g, ''); }
+  function flipKind() { var u = topU(); if (!u) return null; if (u.k === 'copy' || u.k === 'clear') return u.k; return S.u === 'flip' ? 'copy' : null; }
+  function pill(u) { var l = ULAB[u.k] || 'change'; return '<button class="flipundo two" data-undo aria-label="Undo ' + l + ': ' + esc(plain(u.msg)) + (S.ustk.length > 1 ? '. One more step is available after this' : '') + '" title="Undo ' + l + '">' + ic.undo + '<span><b>Undo</b><small>' + l + '</small></span></button>'; }
+  function whyOff() { return ro() ? vlab(S.view) + "'s plan is view only" : weekOf(S.cur) < 0 ? 'Last week is read only' : ''; }
+  function wkCtl() {
+    var fk = flipKind(), u = topU(), why = whyOff(), cr = P.clearWeek(S.meals, S.blocked, S.view, weekOf(S.cur), S.today, S.cl), cdis = !!why || cr.why === 'none';
+    if (S.cw === 'pair') {
+      var cp = fk === 'copy' ? pill(u) : '<button class="ib" data-copy aria-label="Copy last week into this one: fills open nights only, never overwrites"' + (why ? ' disabled' : '') + ' title="' + (why || 'Copy last week: fills open nights only') + '">' + ic.copy + '</button>';
+      var cl = fk === 'clear' ? pill(u) : '<button class="ib" data-clearw aria-label="Clear week: removes this week\'s meals from today on, with Undo"' + (cdis ? ' disabled' : '') + ' title="' + (why || (cr.why === 'none' ? 'Nothing to clear from today on' : 'Clear week: removes meals from today on. Undo is one tap')) + '">' + ic.clear + '</button>';
+      return '<span class="cpy pair">' + cp + cl + '</span>';
+    }
+    return '<span class="cpy menu">' + (fk ? pill(u) : '') + '<button class="ib" data-wkmenu aria-haspopup="menu" aria-expanded="' + S.wkm + '" aria-label="Week actions: Copy last week, Clear week" title="Week actions">' + ic.more + '</button></span>';
+  }
+  function wkMenu() {
+    if (!S.wkm) return '';
+    var wk = weekOf(S.cur), scope = S.view === 'mine' ? 'my plan' : 'the household plan', why = whyOff(), cr = P.clearWeek(S.meals, S.blocked, S.view, wk, S.today, S.cl), cp = P.copyLast(S.meals, S.blocked, S.view, wk, S.today);
+    var csub = why || (cp.days.length ? 'Fills ' + cp.days.length + (cp.days.length === 1 ? ' open night' : ' open nights') + ' from ' + (wk - 1 === 0 ? 'this week' : 'last week') + ', never overwrites' : 'Nothing to fill: every open night has a plan');
+    var xsub = why || (cr.why === 'none' ? 'Nothing to clear from today on' : 'Removes ' + cr.rm.length + (cr.rm.length === 1 ? ' meal' : ' meals') + ' from today on in ' + scope + (S.cl === 'all' && cr.nc.length ? ' and ' + cr.nc.length + ' Not cooking mark' + (cr.nc.length > 1 ? 's' : '') : '. Not cooking days stay') + (cr.shared ? ' · includes ' + cr.shared + ' household ' + (cr.shared === 1 ? 'meal' : 'meals') : ''));
+    return '<div class="scrim2" data-closea></div><div class="dd wkm" role="menu" aria-label="Week actions" style="--ddt:' + (stkH() + 2) + 'px"><h2>Week of ' + info(info(S.cur).mon).n + ' Oct · ' + scope + '</h2>' +
+      '<button class="it" role="menuitem" data-wk="copy"' + (why ? ' disabled' : '') + '>' + ic.copy + '<span><b>Copy last week</b><small>' + esc(csub) + '</small></span></button>' +
+      '<button class="it" role="menuitem" data-wk="clear"' + (why || cr.why === 'none' ? ' disabled' : '') + '>' + ic.clear + '<span><b>Clear week</b><small>' + esc(xsub) + '</small></span></button>' +
+      '<p class="hint2">Both can be undone for 14 seconds (Z). Undo names the action it reverses.</p></div>';
   }
   function header() {
-    var r = info(S.cur), mn = info(r.mon), n = S.note, sub = (n && S.u === 'flip' && n.undo) ? (n.short || n.msg) : P.REL[r.wk];
-    var t = '<div class="hd"><div class="wt"><h1 id="wkt">Week of ' + mn.n + ' Oct</h1><small id="wks">' + sub + '</small></div><span class="sp"></span>' + (S.cur !== S.today ? '<button class="tdy" data-today aria-label="Jump to today">Today</button>' : '') + filterCtl() + '<span class="cpy">' + copyBtn() + '</span><button class="ib cog" aria-label="Plan settings" title="Plan settings (gear)">' + ic.cog + '</button></div>';
+    var r = info(S.cur), mn = info(r.mon), n = S.note, fk = flipKind(), tu = topU(), sub = (fk && tu) ? (tu.short || plain(tu.msg)) + (S.ustk.length > 1 ? ' · +' + (S.ustk.length - 1) + ' more' : '') : P.REL[r.wk];
+    var t = '<div class="hd' + (fk ? ' flipped' : '') + (S.cw === 'pair' ? ' pairm' : '') + '"><div class="wt"><h1 id="wkt">Week of ' + mn.n + ' Oct</h1><small id="wks" class="' + (fk ? 'fl' : '') + '">' + sub + '</small></div><span class="sp"></span>' + (S.cur !== S.today ? '<button class="tdy" data-today aria-label="Jump to today">Today</button>' : '') + filterCtl() + wkCtl() + '<button class="ib cog" aria-label="Plan settings" title="Plan settings (gear)">' + ic.cog + '</button></div>';
     var ex = '';
     if (n && S.u === 'banner') ex += '<div class="ubn" role="status"><span>' + n.msg + '</span>' + (n.undo ? '<button data-undo>' + ic.undo + ' Undo</button>' : '') + '</div>';
     if (n && S.u === 'pill') ex += '<div class="upill" role="status"><span>' + n.msg + '</span>' + (n.undo ? '<button data-undo>' + ic.undo + ' Undo</button>' : '') + '</div>';
@@ -144,47 +178,47 @@
   function actionSheet() {
     if (S.pickd) {
       var m = find(S.pickd), cells = RIB.filter(function (r) { return r.wk >= 0; }).map(function (r) { var dis = past(r.id); return (r.dow === 'Mon' ? '<p class="cwk">Week of ' + r.n + ' Oct · ' + P.REL[r.wk] + '</p>' : '') + '<button class="cd' + (r.id === S.today ? ' today' : '') + '" data-pickday="' + r.id + '"' + (dis ? ' disabled' : '') + '><small>' + r.dow + '</small><b>' + r.n + '</b></button>'; }).join('');
-      return '<div class="scrim2" data-closea></div><div class="asheet" role="dialog" aria-label="Copy forward: pick a date"><h2>Copy “' + esc(m.t) + '” forward</h2><p class="hint2">Pick a date to go to. Then the meal stays in your hand until you tap a day to drop it.</p><div class="cal">' + cells + '</div></div>';
+      return '<div class="scrim2" data-closea></div><div class="asheet" role="dialog" aria-label="Copy forward: pick a date"><h2>' + (S.pickMove ? 'Move “' + esc(m.t) + '” to another day' : 'Copy “' + esc(m.t) + '” forward') + '</h2><p class="hint2">Pick a date to go to. Then the meal stays in your hand until you tap a day to drop it.</p><div class="cal">' + cells + '</div></div>';
     }
     if (S.pop) return '';
     var a = S.asheet; if (!a) return '';
     var m2 = find(a.id), lock = ro(), pst = past(m2.day);
     var items = '<button class="it" role="menuitem" data-act="open" data-id="' + m2.id + '">' + ic.right + 'Open detail<span class="kbd">E</span></button>';
     if (pst && !lock) items += '<button class="it" role="menuitem" data-act="copyfwd" data-id="' + m2.id + '">' + ic.cal + 'Copy forward (swipe right)</button><p class="hint2">Past meals are read only: no delete, move or Not cooking.</p>';
-    else if (!lock) items += '<button class="it" role="menuitem" data-act="replan" data-id="' + m2.id + '">' + ic.swap + 'Replan (swipe left)<span class="kbd">X</span></button><button class="it" role="menuitem" data-act="nocook" data-id="' + m2.id + '">' + ic.moon + 'Not cooking (swipe right)<span class="kbd">⇧X</span></button><button class="it" role="menuitem" data-act="hold" data-id="' + m2.id + '">' + ic.mark + (m2.held ? 'Release hold' : 'Hold') + '<span class="kbd">H</span></button>' + (m2.miss.length ? '<button class="it" role="menuitem" data-act="list" data-id="' + m2.id + '">' + ic.cart + 'Add missing to list<span class="kbd">L</span></button>' : '');
+    else if (!lock) items += '<button class="it" role="menuitem" data-act="replan" data-id="' + m2.id + '">' + ic.swap + 'Replan (swipe left)<span class="kbd">X</span></button><button class="it" role="menuitem" data-act="moveto" data-id="' + m2.id + '">' + ic.cal + 'Move to another day<small class="kbd">or drag</small></button><button class="it" role="menuitem" data-act="nocook" data-id="' + m2.id + '">' + ic.moon + 'Not cooking (swipe right)<span class="kbd">⇧X</span></button><button class="it" role="menuitem" data-act="hold" data-id="' + m2.id + '">' + ic.mark + (m2.held ? 'Release hold' : 'Hold') + '<span class="kbd">H</span></button>' + (m2.miss.length ? '<button class="it" role="menuitem" data-act="list" data-id="' + m2.id + '">' + ic.cart + 'Add missing to list<span class="kbd">L</span></button>' : '');
     return '<div class="scrim2" data-closea></div><div class="asheet" role="menu" aria-label="Actions for ' + esc(m2.t) + '"><h2>' + esc(m2.t) + '</h2>' + items + '</div>';
   }
   function nav() {
     var n = function (l, d, on) { return '<button class="nv' + (on ? ' on' : '') + '" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>' + l + '</button>'; };
     return '<nav class="nav" aria-label="Kitchie">' + n('Home', '<path d="M4 11l8-7 8 7v9H4z"/>') + n('Pantry', '<rect x="6" y="3" width="12" height="18" rx="2"/><path d="M6 9h12"/>') + n('Plan', '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>', 1) + n('Recipes', '<path d="M6 14a4 4 0 1 1 2-7 4 4 0 0 1 8 0 4 4 0 1 1 2 7v5H6z"/>') + n('Shopping', '<circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.4 12h11l2-8H6"/>') + '</nav>';
   }
-  function carryBar() { if (!S.carry) return ''; var m = S.carry; return '<div class="carry" role="status"><span class="em">' + m.em + '</span><div><b>' + esc(m.t) + '</b><small>In hand. Tap a day to drop it here.</small></div><button data-cancelcarry>Cancel</button></div>'; }
+  function carryBar() { if (!S.carry || S.carry.drag) return ''; var m = S.carry; return '<div class="carry" role="status"><span class="em">' + m.em + '</span><div><b>' + esc(m.t) + '</b><small>In hand. Tap a day to drop it here.</small></div><button data-cancelcarry>Cancel</button></div>'; }
   function optionsPanel() {
     var g = function (k, lab, vals) { return '<fieldset><legend>' + lab + '</legend>' + vals.map(function (v) { return '<label><input type="radio" name="' + k + '" value="' + v[0] + '"' + (S[k] === v[0] ? ' checked' : '') + '> ' + v[1] + '</label>'; }).join('') + '</fieldset>'; };
     if (!(window.top === window || q.get('opts') === '1')) return '';
     return '<button class="optfab" data-opts aria-expanded="' + S.opts + '">Mockup options</button>' + (S.opts ? '<div class="optpanel" role="dialog" aria-label="Mockup options"><p class="onote">Mockup-only switch. It is not part of the app.</p>' +
       g('lay', 'Layout', [['rib', 'Day ribbon + agenda (recommended)'], ['focus', 'One day at a time']]) + g('hd', 'Header (decision 91)', [['shrink', 'Shrinks on scroll (recommended)'], ['fixed', 'Fixed']]) + g('f', 'Who filter (97)', [['drop', 'One dropdown (recommended)'], ['seg', 'Mine / Everyone + People dropdown'], ['strip', 'Old chips behind a chevron']]) +
       g('pc', 'Number of people in the detail (98)', [['step', 'Stepper − 4 +'], ['drop', 'Dropdown']]) + g('nc', 'Not cooking days (93)', [['hide', 'Hidden, peek at the edge (recommended)'], ['show', 'Always shown']]) + g('u', 'Undo on a phone (101)', [['day', 'On the changed day (recommended)'], ['flip', 'Copy button flips to Undo'], ['banner', 'Banner under the ribbon'], ['pill', 'Pill under the ribbon']]) +
-      g('dt', 'Meal detail (103)', [['peek', 'Docked, neighbours peek (recommended)'], ['strip', 'Docked, other days as one line each'], ['hide', 'Docked, other days hidden'], ['sheet', 'Two-stop bottom sheet (comparison)']]) + g('st', 'Status (104)', [['labels', 'a Labelled chips (recommended)'], ['badge', 'b Icon + count'], ['edge', 'c Edge strip + dot'], ['progress', 'd Progress']]) +
-      g('cu', 'Ask AI to plan this curtain (96)', [['start', 'At the start of an empty week (default)'], ['idle', 'Idle, whole week empty'], ['off', 'Off']]) + g('sw', 'Swipe', [['tint', 'Tinted reveal, commits'], ['buttons', 'Buttons stay open']]) + '</div>' : '');
+      g('dt', 'Meal detail (103, 107)', [['stack', 'Day on top, detail at the bottom, one locked stack (recommended)'], ['peek', 'Docked, neighbours peek'], ['strip', 'Docked, other days as one line each'], ['hide', 'Docked, other days hidden'], ['sheet', 'Two-stop bottom sheet (comparison)']]) + g('st', 'Status (104)', [['labels', 'a Labelled chips (recommended)'], ['badge', 'b Icon + count'], ['edge', 'c Edge strip + dot'], ['progress', 'd Progress']]) +
+      g('cu', 'Ask AI to plan this curtain (96)', [['start', 'At the start of an empty week (default)'], ['idle', 'Idle, whole week empty'], ['off', 'Off']]) + g('sw', 'Swipe', [['tint', 'Tinted reveal, commits'], ['buttons', 'Buttons stay open']]) + g('cw', 'Clear week placement (109)', [['menu', 'Week actions menu, split Undo (recommended)'], ['pair', 'Two icon buttons next to each other']]) + g('cl', 'Clear week also clears (109, open)', [['meals', 'Meals only, Not cooking stays (recommended)'], ['all', 'Meals and this-week Not cooking marks']]) + g('long', 'Long ingredient list (107 demo)', [['0', 'Normal'], ['1', 'Long: 21 lines, the sheet scrolls']]) + '</div>' : '');
   }
 
   /* ---------- render ---------- */
   function body() {
-    if (S.sel && S.dt !== 'sheet' && find(S.sel)) return dockHtml(find(S.sel));
+    if (S.sel && S.dt !== 'sheet' && find(S.sel)) return S.dt === 'stack' ? stackHtml(find(S.sel)) : dockHtml(find(S.sel));
     if (S.lay === 'focus') { var d = S.cur, ms = on(d), i = di(d), buy = [], ubn = []; ms.forEach(function (m) { m.miss.forEach(function (x) { buy.push(x[0]); }); m.useby.forEach(function (u) { ubn.push(u[0] + ' by ' + u[1]); }); });
       return '<h2 class="fh">' + dLong(d) + ' ' + info(d).n + ' Oct' + (d === S.today ? ' <em>Today</em>' : '') + '</h2>' + (ms.length ? '<div class="prep"><b>Before this night</b>' + (buy.length ? '<span class="m">Buy: ' + esc(buy.join(', ')) + '</span>' : '<span>Nothing to buy</span>') + (ubn.length ? '<span>Use first: ' + esc(ubn.join(', ')) + '</span>' : '') + '</div>' : '') + '<section class="dsec' + (S.carry && !past(d) ? ' target' : '') + '" data-d="' + d + '" id="d-' + d + '" style="padding-top:0">' + noteHtml(d) + '<div class="cl">' + dayBody(d) + '</div></section><div class="dnav"><button data-step="-1"' + (i > 0 ? '' : ' disabled') + '>' + ic.left + ' ' + (i > 0 ? RIB[i - 1].dow : '') + '</button><button data-step="1"' + (i < DI.length - 1 ? '' : ' disabled') + '>' + (i < DI.length - 1 ? RIB[i + 1].dow : '') + ' ' + ic.right + '</button></div>'; }
     return agenda();
   }
   function render(keep) {
     var sy = window.scrollY, rb = document.getElementById('rib'), rl = rb ? rb.scrollLeft : null;
-    root.innerHTML = '<div class="app' + (S.carry ? ' carrying' : '') + '">' + header() + '<main id="plan">' + body() + '</main></div>' + carryBar() + '<div class="peek t" id="peekT" hidden></div><div class="peek b" id="peekB" hidden></div>' + nav() + '<div class="scrim' + (S.sel && S.dt === 'sheet' ? ' on' : '') + '" data-close></div>' + sheetHtml() + '<div id="aw">' + popHtml() + actionSheet() + '</div>' + optionsPanel();
+    root.innerHTML = '<div class="app' + (S.carry ? ' carrying' : '') + (S.carry && S.carry.drag ? ' dragging' : '') + '">' + header() + '<main id="plan">' + body() + '</main></div>' + carryBar() + '<div class="peek t" id="peekT" hidden></div><div class="peek b" id="peekB" hidden></div>' + nav() + '<div class="scrim' + (S.sel && S.dt === 'sheet' ? ' on' : '') + '" data-close></div>' + sheetHtml() + '<div id="aw">' + popHtml() + wkMenu() + actionSheet() + '</div>' + optionsPanel();
     sizeStk(); if (keep !== false) window.scrollTo(0, sy);
     var rb2 = document.getElementById('rib'); if (rb2 && rl !== null) rb2.scrollLeft = rl; placeMk(true);
     var sh = document.getElementById('sheet'); if (sh && S.sel && S.dt === 'sheet') requestAnimationFrame(function () { setSnap(S.snap); });
     syncPeek();
   }
-  function sizeStk() { var s = document.getElementById('stk'), p = document.getElementById('stkp'); if (!s || !p) return; var c = s.classList.contains('cmp'); s.classList.remove('cmp'); p.style.height = s.offsetHeight + 'px'; if (c) s.classList.add('cmp'); }
+  function sizeStk() { var s = document.getElementById('stk'), p = document.getElementById('stkp'); if (!s || !p) return; document.documentElement.style.setProperty('--sth', s.offsetHeight + 'px'); var c = s.classList.contains('cmp'); s.classList.remove('cmp'); p.style.height = s.offsetHeight + 'px'; if (c) s.classList.add('cmp'); }
   function stkH() { var s = document.getElementById('stk'); return s ? s.offsetHeight : 120; }
   function placeMk(instant) {
     var rb = document.getElementById('rib'), mk = document.getElementById('mk'), c = rb && rb.querySelector('.dy[data-dy="' + S.cur + '"]'); if (!c || !mk) return;
@@ -197,21 +231,23 @@
   var noteT;
   function note(msg, o) { o = o || {}; S.note = { msg: msg, short: o.short, undo: !!o.undo, day: o.day, kind: o.kind || '', id: ++nid }; clearTimeout(noteT); var id = S.note.id; noteT = setTimeout(function () { if (S.note && S.note.id === id) { S.note = null; render(); } }, 14000); }
   function snapshot() { return JSON.stringify({ m: S.meals, b: S.blocked, sel: S.sel }); }
-  function mutate(fn, msg, day, kind, pulse, short) { S.undo = snapshot(); fn(); S.pulse = pulse || (day ? [day] : null); note(msg, { undo: 1, day: day, kind: kind, short: short }); render(); if (day && S.lay === 'rib' && !S.sel) ensureVisible(day); if (S.pulse) setTimeout(function () { S.pulse = null; document.querySelectorAll('.pulse').forEach(function (e) { e.classList.remove('pulse'); }); }, 2600); }
+  function mutate(fn, msg, day, kind, pulse, short) { var before = snapshot(); fn(); S.ustk.push({ k: kind || 'edit', s: before, at: Date.now(), msg: msg, short: short, day: day }); setTimeout(function () { if (!S.carry && !td) { pruneU(); render(); } }, UW + 50); S.pulse = pulse || (day ? [day] : null); note(msg, { undo: 1, day: day, kind: kind, short: short }); render(); if (day && S.lay === 'rib' && !S.sel) ensureVisible(day); if (S.pulse) setTimeout(function () { S.pulse = null; document.querySelectorAll('.pulse').forEach(function (e) { e.classList.remove('pulse'); }); }, 2600); }
   function ensureVisible(d) { var el = document.getElementById('d-' + d); if (!el) return; var r = el.getBoundingClientRect(), top = stkH() + 8; if (r.top < top || r.top > innerHeight - 220) { lockUntil = Date.now() + 700; window.scrollBy({ top: r.top - top - 4, behavior: 'smooth' }); } }
-  function doUndo() { if (!S.undo) return; var u = JSON.parse(S.undo); S.meals = u.m; S.blocked = u.b; S.sel = u.sel; S.undo = null; S.pulse = null; note('Undone'); render(); }
+  function doUndo() { var u = topU(); if (!u) return; S.ustk.pop(); var o = JSON.parse(u.s); S.meals = o.m; S.blocked = o.b; S.sel = o.sel; S.pulse = null; S.wkm = false; var nx = topU(); note('Undid ' + (ULAB[u.k] || 'change') + (nx ? '. Next undo: ' + ULAB[nx.k] : ''), { day: u.day }); render(); evalCurtain(); }
   function nextId(b) { return b + '-' + (++nid); }
 
   function act(a, id) {
     var m = find(id); if (!m) return;
-    if (a === 'open') { S.sel = id; S.pop = null; S.asheet = null; S.cur = m.day; S.snap = 'half'; render(false); if (S.dt !== 'sheet') window.scrollTo(0, 0); return; }
+    if (a === 'open') return openDetail(id);
     if (a === 'copyfwd') { S.asheet = null; S.pickd = id; S.sel = null; return render(); }
     if (ro()) return; if (past(m.day) && a !== 'hold') return;
+    if (a === 'moveto') { S.asheet = null; S.pickd = id; S.pickMove = true; S.sel = null; return render(); }
     if (a === 'hold') { if (past(m.day)) return; m.held = m.held ? 0 : 1; S.asheet = null; note(m.held ? 'Holding the ingredients' : 'Hold released'); return render(); }
     if (a === 'list') return mutate(function () { m.list += m.miss.length; S.asheet = null; }, 'Added ' + m.miss.length + ' to the shopping list', m.day);
     var nm = esc(m.t), dn = info(m.day).dow;
     mutate(function () { S.meals = S.meals.filter(function (x) { return x.id !== id; }); if (S.sel === id) S.sel = null; S.asheet = null; if (a === 'nocook') { S.blocked[m.day] = 'once'; S.revealed = m.day; } }, a === 'nocook' ? nm + ' removed. ' + dn + ' is Not cooking' : nm + ' removed. ' + dn + ' is an open night', m.day);
   }
+  function openDetail(id) { var m = find(id); if (!m) return; S.sel = id; S.pop = null; S.asheet = null; S.wkm = false; S.cur = m.day; S.snap = 'half'; if (S.dt === 'stack' && S.hd === 'shrink') S.cmp = true; render(false); if (S.dt !== 'sheet') window.scrollTo(0, 0); }
   function block(d) { mutate(function () { S.blocked[d] = 'once'; S.cur = d; S.revealed = d; }, dName(d) + ' is Not cooking (this week only)', d); }
   function unblock(d) { mutate(function () { delete S.blocked[d]; }, dName(d) + ' is open again', d); }
   /* Surprise me (owner-confirmed heuristics, decision 94): timing aware, and never a repeat of a recent meal. */
@@ -221,18 +257,35 @@
     mutate(function () { S.meals.push(nm); }, 'Surprise: ' + esc(c.t) + ' for ' + dName(d), d);
   }
   function copyLast() {
-    var wk = weekOf(S.cur), r = P.copyLast(S.meals, S.blocked, S.view, wk, S.today); if (r.why === 'readonly' || r.why === 'bounds') return;
-    if (!r.add.length) { note('Nothing to fill: every open night already has a plan, or is Not cooking.'); return render(); }
+    S.wkm = false; var wk = weekOf(S.cur), r = P.copyLast(S.meals, S.blocked, S.view, wk, S.today); if (r.why === 'readonly' || r.why === 'bounds') return;
+    if (!r.add.length) { note('Nothing to fill: every open night already has a plan, or is Not cooking.', { day: S.cur }); return render(); }
     var days = r.days, from = wk - 1 === 0 ? 'this week' : 'last week';
     mutate(function () { S.meals = S.meals.concat(r.add); }, 'Copied ' + days.length + (days.length === 1 ? ' night' : ' nights') + ' from ' + from + ' (' + (S.view === 'mine' ? 'my plan' : 'household plan') + '). Open nights only', days[0], 'copy', days, 'Copied ' + days.length + (days.length === 1 ? ' night' : ' nights'));
     if (S.u === 'day' || S.u === 'flip') goDay(days[0], true);
   }
-  function startCarry(id, d) { var m = find(id); S.carry = JSON.parse(JSON.stringify(m)); S.pickd = null; S.sel = null; S.cur = d; render(); goDay(d, true); }
+  /* Clear week (decision 109): the same scope as Copy last week. Meals only by default; no confirm because Undo is one tap, but never silent: the day says what went. */
+  function clearWeek() {
+    var wk = weekOf(S.cur), r = P.clearWeek(S.meals, S.blocked, S.view, wk, S.today, S.cl); S.wkm = false;
+    if (r.why === 'readonly' || r.why === 'bounds') return render();
+    if (r.why === 'none') { note('Nothing to clear from today on.', { day: S.cur }); return render(); }
+    var nm = r.rm.length, nc = r.nc.length, a = info(r.days[0]), b = info(r.days[r.days.length - 1]), scope = S.view === 'mine' ? 'my plan' : 'household plan';
+    var msg = 'Cleared ' + nm + (nm === 1 ? ' meal' : ' meals') + (nc ? ' and ' + nc + ' Not cooking mark' + (nc > 1 ? 's' : '') : '') + ', ' + a.dow + ' ' + a.n + (r.days.length > 1 ? ' to ' + b.dow + ' ' + b.n : '') + ' (' + scope + '). ' + (nc ? '' : 'Not cooking days stay.');
+    mutate(function () { S.meals = S.meals.filter(function (x) { return r.rm.indexOf(x.id) < 0; }); r.nc.forEach(function (d) { delete S.blocked[d]; }); if (S.sel && r.rm.indexOf(S.sel) > -1) S.sel = null; }, msg, r.days[0], 'clear', r.days, 'Cleared ' + nm + (nm === 1 ? ' meal' : ' meals'));
+    evalCurtain();
+  }
+  function startCarry(id, d) { var m = find(id); S.carry = JSON.parse(JSON.stringify(m)); if (S.pickMove) { S.carry.move = true; S.carry.from = id; } S.pickMove = false; S.pickd = null; S.sel = null; S.cur = d; render(); goDay(d, true); }
   function drop(d) {
-    if (!S.carry || past(d)) return; var src = S.carry, ms = S.meals.filter(function (x) { return x.day === d && P.match(x, S.view); }), wasNc = S.blocked[d], c = JSON.parse(JSON.stringify(src)); c.id = nextId('cf'); c.day = d; c.note = 'Copied from ' + dName(src.day); c.held = 0; c.list = 0; delete c.left; delete c.makes; delete c.usual;
-    var msg = ms.length ? 'Replaced ' + esc(ms[0].t) + ' with ' + esc(c.t) : wasNc ? esc(c.t) + ' dropped. ' + dName(d) + ' is a cooking day now' : esc(c.t) + ' dropped on ' + dName(d);
+    if (!S.carry || past(d)) return;
+    var src = S.carry, mv = !!src.move;
+    if (mv && d === src.day) { S.carry = null; note('Not moved. ' + esc(src.t) + ' stays on ' + dName(d), { day: d }); return render(); }
+    var ms = S.meals.filter(function (x) { return x.day === d && P.match(x, S.view) && (!mv || x.id !== src.from); }), wasNc = S.blocked[d], c = JSON.parse(JSON.stringify(src));
+    delete c.move; delete c.from; delete c.drag;
+    if (mv) c.day = d; else { c.id = nextId('cf'); c.day = d; c.note = 'Copied from ' + dName(src.day); c.held = 0; c.list = 0; delete c.left; delete c.makes; delete c.usual; }
+    var homeLeft = mv ? S.meals.filter(function (x) { return x.day === src.day && x.id !== src.from && P.match(x, S.view); }).length : 1;
+    var msg = ms.length ? 'Replaced ' + esc(ms[0].t) + ' with ' + esc(c.t) : wasNc ? esc(c.t) + (mv ? ' moved to ' : ' dropped. ') + (mv ? dName(d) + '. ' + info(d).dow + ' is a cooking day now' : dName(d) + ' is a cooking day now') : mv ? esc(c.t) + ' moved to ' + dName(d) : esc(c.t) + ' dropped on ' + dName(d);
+    if (mv && !homeLeft) msg += '. ' + info(src.day).dow + ' is an open night now';
     S.carry = null;
-    mutate(function () { if (ms.length) { var rid = ms[0].id; S.meals = S.meals.filter(function (x) { return x.id !== rid; }); } delete S.blocked[d]; S.meals.unshift(c); S.cur = d; }, msg, d, 'drop');
+    mutate(function () { if (mv) S.meals = S.meals.filter(function (x) { return x.id !== src.from; }); if (ms.length) { var rid = ms[0].id; S.meals = S.meals.filter(function (x) { return x.id !== rid; }); } delete S.blocked[d]; S.meals.unshift(c); S.cur = d; }, msg, d, mv ? 'move' : 'drop', mv ? [d, src.day] : [d]);
   }
 
   /* ---------- navigation: continuous ribbon, scroll-linked ---------- */
@@ -250,13 +303,13 @@
     var r = info(S.cur), t = document.getElementById('wkt'), s = document.getElementById('wks'); if (t) t.textContent = 'Week of ' + info(r.mon).n + ' Oct'; if (s && !(S.note && S.u === 'flip' && S.note.undo)) s.textContent = P.REL[r.wk];
     document.querySelectorAll('.dy').forEach(function (b) { var o = b.dataset.dy === S.cur; b.classList.toggle('on', o); b.setAttribute('aria-selected', o); }); placeMk(false);
     var hd = document.querySelector('.hd'), tdy = hd && hd.querySelector('.tdy'); if (hd && S.cur !== S.today && !tdy) { var b = document.createElement('button'); b.className = 'tdy'; b.dataset.today = ''; b.setAttribute('aria-label', 'Jump to today'); b.textContent = 'Today'; hd.insertBefore(b, hd.querySelector('.sp').nextSibling); } else if (tdy && S.cur === S.today) tdy.remove();
-    var cb = document.querySelector('.cpy'); if (cb && !(S.note && S.note.undo)) cb.innerHTML = copyBtn();
+    var cb = document.querySelector('.cpy'); if (cb && !flipKind() && !S.wkm) cb.outerHTML = wkCtl();
     evalCurtain();
   }
   var tick = 0, lastY = 0;
   function follow(force) {
     tick = 0; var y = window.scrollY;
-    if (S.hd === 'shrink') { var s = document.getElementById('stk'); if (s) { if (y > 70 && y > lastY + 4 && !S.cmp && !(S.note && S.u === 'flip')) { S.cmp = true; s.classList.add('cmp'); } else if ((y < lastY - 6 || y < 30) && S.cmp) { S.cmp = false; s.classList.remove('cmp'); } } } lastY = y;
+    if (S.hd === 'shrink' && !(S.sel && S.dt === 'stack') && !(S.carry && S.carry.drag)) { var s = document.getElementById('stk'); if (s) { if (y > 70 && y > lastY + 4 && !S.cmp && !(S.note && S.u === 'flip')) { S.cmp = true; s.classList.add('cmp'); } else if ((y < lastY - 6 || y < 30) && S.cmp) { S.cmp = false; s.classList.remove('cmp'); } } } lastY = y;
     if (S.lay !== 'rib' || S.sel && S.dt !== 'sheet') return syncPeek();
     if (!force && Date.now() < lockUntil) return syncPeek();
     var lim = stkH() + 24, cur = DI[0], secs = document.querySelectorAll('.dsec');
@@ -296,7 +349,7 @@
   var drag = null, TH = 88, OPEN = 150;
   document.addEventListener('pointerdown', function (e) {
     if (e.target.closest('#rib')) ribTouch = true;
-    var mc = e.target.closest('.mc'); if (!mc || S.carry || e.target.closest('button') || (e.pointerType === 'mouse' && e.button !== 0) || mc.dataset.ro === 'all') return;
+    var mc = e.target.closest('.mc'); if (!mc || S.carry || e.target.closest('button') || (e.pointerType === 'mouse' && e.button !== 0) || mc.dataset.ro === 'all' || mc.dataset.tile) return;
     drag = { mc: mc, sw: mc.parentNode, x: e.clientX, y: e.clientY, dx: 0, on: false, id: e.pointerId, base: +(mc.dataset.open || 0), past: mc.dataset.ro === 'past' };
   });
   document.addEventListener('pointermove', function (e) {
@@ -317,6 +370,53 @@
     if (sw && sw.querySelector('.mc').dataset.open && !e.target.closest('.mc')) { var id = sw.dataset.id, o = +sw.querySelector('.mc').dataset.open; return act(o > 0 ? sw.dataset.right : 'replan', id); }
   }, true);
 
+  /* ---------- decision 108b: start dragging the tile out of the stack and the week plan is back under the finger, tile in hand ---------- */
+  var td = null, hand = null, autoT = 0, supp = 0;
+  document.addEventListener('pointerdown', function (e) {
+    var t = e.target.closest('[data-tile]'); if (!t || e.target.closest('button') || (e.pointerType === 'mouse' && e.button !== 0) || S.carry) return;
+    td = { id: t.dataset.id, x: e.clientX, y: e.clientY, px: e.clientX, py: e.clientY, pid: e.pointerId, on: false };
+  });
+  document.addEventListener('pointermove', function (e) {
+    if (!td || e.pointerId !== td.pid) return;
+    if (!td.on) { if (Math.hypot(e.clientX - td.x, e.clientY - td.y) < 8) return; td.on = true; beginDrag(td.id, e.clientX, e.clientY, e.pointerId); }
+    moveHand(e.clientX, e.clientY);
+  });
+  function beginDrag(id, x, y, pid) {
+    var m = find(id); if (!m) return; S.carry = JSON.parse(JSON.stringify(m)); S.carry.move = true; S.carry.from = id; S.carry.drag = true; S.sel = null; S.wkm = false;
+    if (!td) td = { id: id, pid: pid, on: true, x: x, y: y, px: x, py: y }; td.on = true;
+    hand = document.createElement('div'); hand.className = 'hand'; hand.id = 'hand'; hand.innerHTML = '<span class="em">' + m.em + '</span><div><b>' + esc(m.t) + '</b><small>from ' + dName(m.day) + '</small></div>'; document.body.appendChild(hand);
+    try { document.body.setPointerCapture(pid); } catch (z) { }
+    render(false); S.cur = m.day;
+    var el = document.getElementById('d-' + m.day); if (el) window.scrollTo(0, Math.max(0, el.getBoundingClientRect().top + window.scrollY - stkH() - 4));
+    moveHand(x, y); autoT = requestAnimationFrame(auto);
+  }
+  function moveHand(x, y) { if (!hand) return; td.px = x; td.py = y; hand.style.transform = 'translate(' + Math.round(x - hand.offsetWidth / 2) + 'px,' + Math.round(y - hand.offsetHeight - 14) + 'px) rotate(-1.5deg)'; hov(x, y); }
+  function secAt(x, y) { var el = document.elementFromPoint(x, y), sec = el && el.closest ? el.closest('.dsec') : null; return sec && !sec.classList.contains('past') ? sec.dataset.d : null; }
+  function hov(x, y) { var d = secAt(x, y); document.querySelectorAll('.dsec.over').forEach(function (e) { if (e.dataset.d !== d) e.classList.remove('over'); }); if (d && S.carry && d !== S.carry.day) { var s = document.getElementById('d-' + d); if (s) s.classList.add('over'); } }
+  function auto() { if (!hand || !td) return; var y = td.py, top = stkH() + 56, bot = innerHeight - 64 - 64; if (y > bot) window.scrollBy(0, Math.min(18, (y - bot) / 3 + 3)); else if (y < top) window.scrollBy(0, -Math.min(18, (top - y) / 3 + 3)); hov(td.px, td.py); autoT = requestAnimationFrame(auto); }
+  function endHand(x, y, cancelled, why) {
+    var o = td; td = null; cancelAnimationFrame(autoT); if (hand) { hand.remove(); hand = null; } supp = Date.now() + 400; document.querySelectorAll('.over').forEach(function (e) { e.classList.remove('over'); });
+    var d = cancelled ? null : secAt(x, y);
+    if (d && S.carry && d !== S.carry.day) return drop(d);
+    var m = S.carry && find(S.carry.from); S.carry = null;
+    note((why || 'Dropped outside a day') + '. Not moved: ' + (m ? esc(m.t) + ' stays on ' + dName(m.day) : 'nothing changed'), { day: m ? m.day : S.cur }); render();
+  }
+  function cancelDrag(why) { if (td) endHand(td.px, td.py, true, why); }
+  function upHand(e) { if (!td || e.pointerId !== td.pid) return; if (!td.on) { td = null; return; } endHand(e.clientX, e.clientY, e.type === 'pointercancel', e.type === 'pointercancel' ? 'Drag interrupted' : 'Dropped outside a day'); }
+  document.addEventListener('pointerup', upHand); document.addEventListener('pointercancel', upHand);
+
+  /* decision 108a: the handle (tongue) and a swipe down on the detail both close the stack and bring the week back */
+  var tg = null, ts = null;
+  function stackShift(dy) { var sp = document.querySelector('.spiece'); if (!sp) return; sp.style.transition = 'none'; sp.style.transform = 'translateY(' + dy + 'px)'; sp.style.opacity = String(Math.max(.35, 1 - dy / 320)); }
+  function stackReset() { var sp = document.querySelector('.spiece'); if (sp) { sp.style.transition = ''; sp.style.transform = ''; sp.style.opacity = ''; } }
+  document.addEventListener('pointerdown', function (e) { var g = e.target.closest('[data-tongue]'); if (!g) return; tg = { y: e.clientY, id: e.pointerId, dy: 0, moved: 0 }; try { g.setPointerCapture(e.pointerId); } catch (x) { } });
+  document.addEventListener('pointermove', function (e) { if (!tg || e.pointerId !== tg.id) return; var dy = e.clientY - tg.y; tg.moved = Math.max(tg.moved, Math.abs(dy)); tg.dy = Math.max(0, dy); stackShift(tg.dy); });
+  function endTongue(e) { if (!tg || e.pointerId !== tg.id) return; var d = tg; tg = null; if (d.dy > 90) return closeDetail(); stackReset(); }
+  document.addEventListener('pointerup', endTongue); document.addEventListener('pointercancel', endTongue);
+  document.addEventListener('touchstart', function (e) { var b = e.target.closest && e.target.closest('#sbody'); if (!b || b.scrollTop > 0 || e.touches.length !== 1) { ts = null; return; } ts = { y: e.touches[0].clientY, dy: 0 }; }, { passive: true });
+  document.addEventListener('touchmove', function (e) { if (!ts) return; var dy = e.touches[0].clientY - ts.y; if (dy <= 0) { ts.dy = 0; stackReset(); return; } ts.dy = dy; if (dy > 12) stackShift(dy - 12); }, { passive: true });
+  document.addEventListener('touchend', function () { if (!ts) return; var d = ts; ts = null; if (d.dy > 100) return closeDetail(); stackReset(); });
+
   /* sheet drag (comparison option) */
   var sd = null, lastMove = 0;
   function setSnap(s) { var sh = document.getElementById('sheet'); if (!sh) return; S.snap = s; var H = innerHeight * 0.92, y = s === 'full' ? 0 : Math.round(H * 0.38); sh.style.setProperty('--y', y + 'px'); sh.classList.remove('drag'); }
@@ -324,10 +424,12 @@
   document.addEventListener('pointermove', function (e) { if (!sd || e.pointerId !== sd.id) return; var dy = e.clientY - sd.y; sd.moved = Math.max(sd.moved, Math.abs(dy)); var base = sd.s0 === 'full' ? 0 : Math.round(sd.h * .38); document.getElementById('sheet').style.setProperty('--y', Math.max(0, base + dy) + 'px'); sd.dy = dy; });
   function endSheet(e) { if (!sd || e.pointerId !== sd.id) return; var d = sd; sd = null; var dy = d.dy || 0; lastMove = d.moved > 5 ? Date.now() : 0; document.getElementById('sheet').classList.remove('drag'); if (d.moved < 6) return; if (d.s0 === 'half' && dy > 90) return closeDetail(); if (dy < -50) return setSnap('full'); if (dy > 60 && d.s0 === 'full') return setSnap('half'); setSnap(d.s0); }
   document.addEventListener('pointerup', endSheet); document.addEventListener('pointercancel', endSheet);
-  function closeDetail() { var d = S.sel && find(S.sel) ? find(S.sel).day : S.cur; S.sel = null; render(false); var el = document.getElementById('d-' + d); if (el) window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - stkH() - 6); S.cur = d; syncHead(); }
+  /* Decision 108a: closing the stack (x, Esc, handle down, swipe down) brings the week plan back, scrolled to that day. */
+  function closeDetail() { var d = S.sel && find(S.sel) ? find(S.sel).day : S.cur; S.sel = null; render(false); var el = document.getElementById('d-' + d); if (el) window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - stkH() - 6); S.cur = d; syncHead(); var pl = document.getElementById('plan'); if (pl) pl.classList.add('wk-in'); }
 
   /* ---------- events ---------- */
   document.addEventListener('click', function (e) {
+    if (Date.now() < supp) return;
     var t = e.target.closest('button,article,[data-closea],[data-close]'), d = t ? t.dataset : {};
     if (S.carry && !t) { var sc = e.target.closest('.dsec'); if (sc) return drop(sc.dataset.d); }
     if (S.carry && t && t.classList.contains('mc')) { var sc2 = t.closest('.dsec'); if (sc2) return drop(sc2.dataset.d); }
@@ -337,7 +439,11 @@
     if (t.classList.contains('mc') && t.dataset.moved) return;
     if (d.opts !== undefined) { S.opts = !S.opts; return render(); }
     if (d.more) { S.asheet = { k: 'm', id: d.more }; return render(); }
-    if (d.closea !== undefined) { S.asheet = null; S.pop = null; S.pickd = null; return render(); }
+    if (d.closea !== undefined) { S.asheet = null; S.pop = null; S.pickd = null; S.pickMove = false; S.wkm = false; return render(); }
+    if (d.wkmenu !== undefined) { S.wkm = !S.wkm; return render(); }
+    if (d.wk) { return d.wk === 'copy' ? copyLast() : clearWeek(); }
+    if (d.clearw !== undefined) return clearWeek();
+    if (d.tongue !== undefined) { if (e.detail === 0) closeDetail(); return; }
     if (d.act) return act(d.act, d.id);
     if (d.fmenu !== undefined) { S.pop = { k: 'f', q: '' }; render(); var f = document.getElementById('fq'); return; }
     if (d.view) { S.view = d.view; S.pop = null; S.asheet = null; if (S.sel && !P.match(find(S.sel), S.view)) S.sel = null; S.cuDone = {}; render(); return syncHead(); }
@@ -359,27 +465,31 @@
     if (d.ask) { note('Ask AI opens your default AI app, scoped to ' + dName(d.ask) + '. Nothing happens inside Kitchie.', { day: d.ask }); return render(); }
     if (d.surprise) return surprise(d.surprise);
     if (d.curtain !== undefined) { S.cuDone[weekOf(S.cur)] = true; showCurtain(false); note('Ask AI opens your default AI app with the week of ' + info(info(S.cur).mon).n + ' Oct. Nothing happens inside Kitchie.'); return render(); }
-    if (d.cancelcarry !== undefined) { S.carry = null; return render(); }
+    if (d.cancelcarry !== undefined) { S.carry = null; S.pickMove = false; return render(); }
     if (d.pickday) return startCarry(S.pickd, d.pickday);
-    if (t.classList.contains('mc')) { S.sel = t.dataset.id; S.cur = find(S.sel).day; S.snap = 'half'; render(false); if (S.dt !== 'sheet') window.scrollTo(0, 0); }
+    if (t.classList.contains('mc')) { if (t.dataset.tile) return; return openDetail(t.dataset.id); }
   });
   document.addEventListener('change', function (e) { if (e.target.dataset && e.target.dataset.pcsel !== undefined) { var m = find(S.sel); m.n = +e.target.value; return render(); } var n = e.target.name; if (n && S[n] !== undefined) { S[n] = e.target.value; S.hl = null; S.opts = true; if (n === 'cu') { S.cuDone = {}; S.cuShown = false; } render(); syncHead(); } });
-  document.addEventListener('input', function (e) { if (e.target.id === 'fq' && S.pop) { S.pop.q = e.target.value; var pos = e.target.selectionStart; document.getElementById('aw').innerHTML = popHtml() + actionSheet(); var f = document.getElementById('fq'); f.focus(); f.setSelectionRange(pos, pos); } });
+  document.addEventListener('input', function (e) { if (e.target.id === 'fq' && S.pop) { S.pop.q = e.target.value; var pos = e.target.selectionStart; document.getElementById('aw').innerHTML = popHtml() + wkMenu() + actionSheet(); var f = document.getElementById('fq'); f.focus(); f.setSelectionRange(pos, pos); } });
   document.addEventListener('keydown', function (e) {
     if ((e.target.tagName || '').toLowerCase() === 'input') { if (e.key === 'Escape') { S.pop = null; render(); } return; }
     if (e.metaKey || e.ctrlKey || e.altKey) return; var k = e.key;
-    if (k === 'Escape') { if (S.carry) { S.carry = null; render(); } else if (S.pickd || S.asheet || S.pop) { S.pickd = S.asheet = S.pop = null; render(); } else if (S.sel) closeDetail(); return; }
+    if (k === 'Escape') { if (td && td.on) { cancelDrag('Cancelled with Esc'); } else if (S.carry) { S.carry = null; S.pickMove = false; render(); } else if (S.wkm) { S.wkm = false; render(); } else if (S.pickd || S.asheet || S.pop) { S.pickd = S.asheet = S.pop = null; S.pickMove = false; render(); } else if (S.sel) closeDetail(); return; }
     var a = document.activeElement, id = a && a.classList.contains('mc') ? a.dataset.id : S.sel;
     if (k.toLowerCase() === 'z') { return doUndo(); }
     if (k.toLowerCase() === 'x' && id) { e.preventDefault(); return act(e.shiftKey ? 'nocook' : 'replan', id); }
     if (k.toLowerCase() === 'h' && id) return act('hold', id); if (k.toLowerCase() === 'l' && id) return act('list', id);
     if ((k.toLowerCase() === 'e' || (k === 'Enter' && a && a.classList.contains('mc'))) && id) { e.preventDefault(); return act('open', id); }
+    if (a && a.dataset && a.dataset.tongue !== undefined && (k === 'ArrowDown' || k === 'Enter')) { e.preventDefault(); return closeDetail(); }
     if (a && a.id === 'grab' && (k === 'ArrowUp' || k === 'ArrowDown')) { e.preventDefault(); return setSnap(k === 'ArrowUp' ? 'full' : 'half'); }
   });
   window.addEventListener('resize', function () { sizeStk(); placeMk(true); });
-  window.__plan = { S: S, act: act, goDay: goDay, drop: drop, startCarry: startCarry, surprise: surprise, copyLast: copyLast, render: render, syncHead: syncHead, follow: follow };
+  function resetDemo() { if (hand) { hand.remove(); hand = null; } td = null; cancelAnimationFrame(autoT); S.meals = JSON.parse(JSON.stringify(P.meals)); S.blocked = JSON.parse(JSON.stringify(P.blocked)); S.sel = null; S.carry = null; S.note = null; S.pulse = null; S.ustk = []; S.pop = null; S.asheet = null; S.wkm = false; S.cmp = true; }
+  function showWeek(d) { S.sel = null; S.carry = null; S.cur = d; S.cmp = true; render(false); var el = document.getElementById('d-' + d); if (el) window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - stkH() - 6); syncHead(); }
+  window.__plan = { resetDemo: resetDemo, showWeek: showWeek, find: find, stkH: stkH, openDetail: openDetail, closeDetail: closeDetail, beginDrag: beginDrag, moveHand: moveHand, endHand: endHand, clearWeek: clearWeek, S: S, act: act, goDay: goDay, drop: drop, startCarry: startCarry, surprise: surprise, copyLast: copyLast, render: render, syncHead: syncHead, follow: follow };
 
   render(false);
+  if (q.get('demo')) { document.body.classList.add('hasdemo'); var ds = document.createElement('script'); ds.src = 'demo.js'; document.body.appendChild(ds); }
   if (q.get('carry')) { var cm = find(q.get('carry')); if (cm) { S.carry = JSON.parse(JSON.stringify(cm)); render(false); } }
   if (q.get('pick')) { S.pickd = q.get('pick'); render(false); }
   if (S.lay === 'rib' && !S.sel && !q.get('top') || q.get('day')) { requestAnimationFrame(function () { var el = document.getElementById('d-' + S.cur); if (el && di(S.cur) > 0) { var y = el.getBoundingClientRect().top + window.scrollY - document.getElementById('stkp').offsetHeight - 4; window.scrollTo(0, Math.max(0, y)); } lastY = window.scrollY; follow(true); evalCurtain(); }); } else evalCurtain();

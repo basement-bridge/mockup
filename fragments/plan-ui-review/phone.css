@@ -314,3 +314,71 @@ select{font:inherit}
 .onote{font-size:12px;color:var(--muted);margin:0 0 8px}
 .optpanel{max-height:62vh;left:auto;right:8px;bottom:calc(64px + 130px)}
 .sheet:not([role]){display:none}
+
+/* ---- 12 Oct 2026, decisions 107 to 109 ---- */
+/* 107: the stack. Day card pinned at the top (directly under the ribbon), detail docked at the bottom, one locked vertical stack: no gap, a shared edge, a tongue that fits into the detail like a puzzle piece.
+   The stack fills the screen between the ribbon and the nav; only the detail scrolls. */
+.stackw{position:fixed;top:var(--sth,100px);bottom:calc(64px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:100%;max-width:430px;z-index:8;display:flex;flex-direction:column;padding:6px 8px 8px;animation:stackin .26s ease-out both}
+@keyframes stackin{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+.dpiece{position:relative;flex:none;background:var(--bg);border:1.5px solid var(--accent);border-bottom:1px solid var(--border);border-radius:var(--r-card) var(--r-card) 0 0;padding:2px 10px 20px}
+.dpiece .dkh{min-height:44px}
+.dpiece .dkh h2{font-size:1.15rem}
+.dpiece .cl{gap:6px}
+.dpiece .mc{cursor:default}
+.dpiece .mc[data-tile]{cursor:grab;touch-action:none}
+.dpiece .mc.sel{box-shadow:0 0 0 1px var(--accent)}
+.dhint{font-size:12px;padding:6px 2px 0;color:var(--muted)}
+.mini.oth{margin:0;width:100%;min-height:40px}
+.spiece{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;background:var(--surface);border:1.5px solid var(--accent);border-top:0;border-radius:0 0 var(--r-card) var(--r-card);overflow:hidden}
+.tongue{position:absolute;left:50%;bottom:-16px;transform:translateX(-50%);width:84px;height:32px;border:1.5px solid var(--accent);border-top:0;border-radius:0 0 18px 18px;background:var(--bg);display:grid;place-items:end center;padding-bottom:7px;touch-action:none;cursor:grab;z-index:3}
+.tongue::before{content:"";position:absolute;inset:-12px -14px -10px}
+.tongue i{width:30px;height:4px;border-radius:2px;background:var(--border)}
+.spiece .sbody{padding:24px 14px 8px;background:linear-gradient(var(--surface) 30%,transparent) top/100% 34px no-repeat local,linear-gradient(transparent,var(--surface) 70%) bottom/100% 34px no-repeat local,radial-gradient(farthest-side at 50% 0,color-mix(in srgb,var(--fg) 20%,transparent),transparent) top/100% 10px no-repeat scroll,radial-gradient(farthest-side at 50% 100%,color-mix(in srgb,var(--fg) 20%,transparent),transparent) bottom/100% 10px no-repeat scroll}
+.spiece .sfoot{padding:8px 14px 10px}
+.stst{padding:0 0 4px}
+.spiece{will-change:transform}
+.wk-in{animation:wkin .24s ease-out both}
+@keyframes wkin{from{opacity:.15;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.stackw,.wk-in{animation:none}}
+/* 108b: the tile in hand and a compact week under the finger, so all days are drop targets at once */
+.hand{position:fixed;left:0;top:0;z-index:40;width:min(270px,76vw);pointer-events:none;display:flex;align-items:center;gap:10px;padding:8px 14px 8px 8px;border-radius:var(--r-card);background:var(--surface);border:1.5px solid var(--accent);box-shadow:0 16px 36px var(--dim);will-change:transform}
+.hand .em{width:36px;height:36px;font-size:20px}
+.hand b{display:block;font-size:15px;line-height:1.2}.hand small{display:block;font-size:12px;color:var(--muted)}
+.dragging{cursor:grabbing}
+.dragging .chs,.dragging .names,.dragging .quiet,.dragging .prog,.dragging .tipl,.dragging .unote,.dragging .sum,.dragging .wkd i{display:none}
+.dragging .mc{padding:6px 4px 6px 8px;row-gap:0}
+.dragging .em{width:32px;height:32px;font-size:18px}
+.dragging .tx h3{font-size:15px}
+.dragging .dsh{margin-bottom:4px}
+.dragging .dsec{padding-top:6px}
+.dragging .dsec.target:not(.past) .blk{min-height:44px}
+.dragging .wkd{padding-top:10px}
+.mc.lifted{opacity:.4;border-style:dashed}
+.dsec.over{background:color-mix(in srgb,var(--accent) 18%,transparent);box-shadow:inset 0 0 0 2px var(--accent)}
+/* 109: Clear week, Undo that names its action, week actions menu */
+.flipundo.two{padding:0 12px 0 10px;gap:6px;min-height:44px}
+.flipundo.two span{display:flex;flex-direction:column;line-height:1.05;text-align:left}
+.flipundo.two b{font-size:13px}
+.flipundo.two small{font-size:10px;font-weight:700;opacity:.92}
+.cpy{align-items:center;gap:0}
+.cpy.menu .flipundo{margin-right:2px}
+.hd small.fl{color:var(--accent)}
+.hd .cpy.pair .ib{width:38px}
+@media(max-width:380px){.hd.flipped .fmenu{display:none}.hd.flipped .wt small{max-width:7.5rem}}
+.wkm .it:disabled{opacity:.45}
+.wkm .it{align-items:flex-start;padding-top:8px;padding-bottom:8px;min-height:56px}
+.wkm .it svg{margin-top:2px}
+.wkm .it small{margin-top:2px}
+.wkm .hint2{padding:4px 12px 4px}
+@media(max-height:760px){.dhint{display:none}.dpiece{padding-bottom:18px}.stackw{padding-top:4px}}
+.hd.flipped .tdy,.hd.flipped .cog{display:none}
+/* placement B (two icons): there is no room for Plan settings while the Today pill shows, one reason the menu placement is recommended */
+@media(max-width:440px){.hd.pairm:has(.tdy) .cog{display:none}}
+@media(max-width:380px){.hd.pairm:has(.tdy) .fmenu svg{display:none}.hd.pairm .wt h1{font-size:1rem}}
+/* scripted sequence (demo.js, only with ?demo=1) */
+.demobar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(64px + env(safe-area-inset-bottom));width:100%;max-width:430px;z-index:45;display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--fg);color:var(--bg);font-size:12px;line-height:1.3}
+.demobar .dtx{flex:1;min-width:0}.demobar b{display:block;font-size:13px}.demobar span{display:block;opacity:.92}
+.demobar .dbt{display:flex;gap:4px;flex:none}
+.demobar button{min-height:44px;min-width:44px;padding:0 10px;border-radius:var(--r-pill);border:1px solid var(--bg);color:var(--bg);font-weight:800;font-size:13px}
+.hasdemo .stackw{bottom:calc(64px + 84px + env(safe-area-inset-bottom))}
+.hasdemo .app{padding-bottom:calc(64px + 190px)}
