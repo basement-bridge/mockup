@@ -12,3 +12,4 @@
 .board .tipl,.board .dh,.agenda .tipl{overflow-wrap:anywhere}
 .board .dc>.tipl{order:9}
 .board .tx{grid-column:1/-1;grid-row:2}
+.sync{display:inline-flex}

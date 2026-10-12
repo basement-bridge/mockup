@@ -25,6 +25,8 @@ window.PUR = (function () {
     moon: I('<path d="M20 14A8 8 0 0 1 10 4a8 8 0 1 0 10 10z"/>'),
     swap: I('<path d="M4 8h13l-3-3M20 16H7l3 3"/>'),
     people: I('<circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 5a3 3 0 0 1 0 6M18 14c2 .7 3 2.8 3 6"/>'),
+    /* Clear week (decision 109): an eraser, not a bin. A bin says "delete for good"; the eraser says "wipe the board", and Undo is always there. */
+    clear: I('<path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/>'),
     leaf: I('<path d="M5 19c0-9 5-14 15-14 0 10-5 15-14 15"/><path d="M5 19c3-5 6-8 10-10"/>')
   };
   var people = [
@@ -90,5 +92,23 @@ window.PUR = (function () {
     });
     return { add: add, days: days, why: add.length ? '' : 'none' };
   }
-  return { surprise: surprise, copyLast: copyLast, icons: icons, people: people, DOW: DOW, RIB: RIB, DAYS: DAYS, REL: REL, did: did, dinfo: dinfo, meals: meals, blocked: blocked, tips: tips, SUR: SUR, match: match, inMine: inMine, whoLabel: whoLabel };
+  /* Clear week (owner-stated, decision 109): same scope rule as Copy last week. It acts on the active pill's own plan for the selected week; another member's plan is read only; past nights and past weeks are read only,
+     so it clears from today on. Meals only by default; mode 'all' (open question) also removes this-week-only Not cooking marks. A usual day off is a rule, not a week entry, so it always stays. */
+  function clearWeek(meals, blocked, view, wk, today, mode) {
+    var ids = RIB.map(function (r) { return r.id; }), di = function (x) { return ids.indexOf(x); }, out = { rm: [], days: [], nc: [], shared: 0, kept: [], why: '' };
+    if (view !== 'mine' && view !== 'everyone') { out.why = 'readonly'; return out; }
+    if (wk < 0) { out.why = 'bounds'; return out; }
+    RIB.filter(function (r) { return r.wk === wk; }).forEach(function (r) {
+      if (di(r.id) < di(today)) { if (meals.some(function (x) { return x.day === r.id && match(x, view); })) out.kept.push(r.id); return; }
+      var ms = meals.filter(function (x) { return x.day === r.id && match(x, view); });
+      ms.forEach(function (x) { out.rm.push(x.id); if (x.who === 'all' && view === 'mine') out.shared++; });
+      var nc = mode === 'all' && blocked[r.id] === 'once'; if (nc) out.nc.push(r.id);
+      if (ms.length || nc) out.days.push(r.id);
+    });
+    if (!out.rm.length && !out.nc.length) out.why = 'none';
+    return out;
+  }
+  /* a long ingredient list for the dock demo (?long=1): a real cook sheet can have 20 lines */
+  var LONG = [['garlic', '4 cloves'], ['ginger', '1 thumb'], ['cumin', '2 tsp'], ['coriander', '2 tsp'], ['turmeric', '1 tsp'], ['chilli flakes', '1 tsp'], ['stock cube', '2'], ['coconut milk', '1 tin'], ['apple', '1'], ['honey', '1 tbsp'], ['soy sauce', '2 tbsp'], ['peas', '1 cup'], ['sultanas', '1 handful'], ['spring onion', '1 bunch'], ['vegetable oil', '3 tbsp'], ['salt', 'to taste']];
+  return { clearWeek: clearWeek, LONG: LONG, surprise: surprise, copyLast: copyLast, icons: icons, people: people, DOW: DOW, RIB: RIB, DAYS: DAYS, REL: REL, did: did, dinfo: dinfo, meals: meals, blocked: blocked, tips: tips, SUR: SUR, match: match, inMine: inMine, whoLabel: whoLabel };
 })();

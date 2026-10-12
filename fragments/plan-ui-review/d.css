@@ -306,3 +306,7 @@ button.sumt:hover{border-color:var(--accent)}
 .pu{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--muted)}.pu svg{width:13px;height:13px}
 .pu.hot{color:var(--danger)}.pu.warm{color:var(--accent)}
 .optpanel{width:360px}
+/* 109: Copy last week and Clear week side by side; each flips in place into "Undo copy" or "Undo clear" */
+.wkacts{display:inline-flex;gap:8px;align-items:center}
+.pbtn.flip b{white-space:nowrap}
+.wkbar>.flt{flex:0 0 auto}

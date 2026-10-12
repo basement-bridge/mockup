@@ -6,9 +6,9 @@
   var S = {
     lay: pick('lay', ['board', 'agenda', 'focus'], 'board'), insp: pick('insp', ['dock', 'flyout'], 'dock'),
     f: pick('f', ['menu', 'seg', 'chips'], 'menu'), e: pick('e', ['ghost', 'slim'], 'ghost'), c: pick('c', ['labels', 'badge', 'edge', 'progress', 'line', 'icons'], 'labels'), pc: pick('pc', ['step', 'drop'], 'step'),
-    nc: pick('nc', ['slim', 'block'], 'slim'), cu: pick('cu', ['start', 'idle', 'off'], 'start'),
+    nc: pick('nc', ['slim', 'block'], 'slim'), cl: pick('cl', ['meals', 'all'], 'meals'), cu: pick('cu', ['start', 'idle', 'off'], 'start'),
     today: P.did(q.get('today'), 'd13'), sel: q.get('sel'), cur: P.did(q.get('day'), 'd14'), view: q.get('who') || 'mine', hl: null, pop: null, help: q.get('help') === '1',
-    meals: JSON.parse(JSON.stringify(P.meals)), blocked: JSON.parse(JSON.stringify(P.blocked)), undo: null, opts: false, copied: false, cuShown: false, cuNew: false, cuDone: {}, pulse: null
+    meals: JSON.parse(JSON.stringify(P.meals)), blocked: JSON.parse(JSON.stringify(P.blocked)), ustk: [], opts: false, cuShown: false, cuNew: false, cuDone: {}, pulse: null
   };
   if (S.c === 'icons') S.c = 'badge';
   if (!S.meals.some(function (m) { return m.id === S.sel; })) S.sel = null;
@@ -107,15 +107,29 @@
     }).join('');
     return '<div class="ribd" id="ribd" role="tablist" aria-label="Days: last week, this week, next week"><span class="rmk" id="rmk" aria-hidden="true"></span>' + groups + '</div>';
   }
+  /* Copy last week (99) and Clear week (109, owner-stated, 12 Oct 2026): side by side, one pattern. Each flips IN PLACE into Undo after use and says what it reverses.
+     Undo is a short stack, each step lives 14 s: the latest action's button shows Undo; undo it and the earlier one shows Undo again (recommended; one level versus a stack is an open question). */
+  var UW = 14000, ULAB = { copy: 'copy', clear: 'clear', edit: 'change' };
+  function pruneU() { var t = Date.now(); S.ustk = S.ustk.filter(function (u) { return t - u.at < UW; }); }
+  function topU() { pruneU(); return S.ustk[S.ustk.length - 1] || null; }
+  function pushU(k, before, msg) { S.ustk.push({ k: k, s: before, at: Date.now(), msg: msg }); setTimeout(function () { pruneU(); render(); }, UW + 50); }
+  function whyOff() { return ro() ? viewLabel(S.view) + "'s plan is read only" : wk() < 0 ? 'Last week is read only' : ''; }
+  function flipBtn(u) { var l = ULAB[u.k]; return '<button class="pbtn flip" data-undo title="Undo ' + l + ' (Z)" aria-label="Undo ' + l + (S.ustk.length > 1 ? '. One more step is available after this' : '') + '">' + ic.undo + ' <b>Undo ' + l + '</b> <span class="kbd">Z</span></button>'; }
   function copyBtn() {
-    if (S.copied) return '<button class="pbtn flip" data-undo title="Undo the copy (Z)">' + ic.undo + ' <b>Undo</b> <span class="kbd">Z</span></button>';
-    var dis = ro() || wk() < 0, tip = ro() ? viewLabel(S.view) + "'s plan is read only" : wk() < 0 ? 'Last week is read only' : 'Copy last week into this one. Fills open nights only, never overwrites. Acts on ' + (S.view === 'mine' ? 'my plan' : 'the household plan') + '.';
-    return '<button class="pbtn" data-copy ' + (dis ? 'disabled ' : '') + 'title="' + tip + '" aria-label="' + tip + '">' + ic.copy + ' <b>Copy last week</b></button>';
+    var u = topU(); if (u && u.k === 'copy') return flipBtn(u);
+    var why = whyOff(), tip = why || 'Copy last week into this one. Fills open nights only, never overwrites. Acts on ' + (S.view === 'mine' ? 'my plan' : 'the household plan') + '.';
+    return '<button class="pbtn" data-copy ' + (why ? 'disabled ' : '') + 'title="' + tip + '" aria-label="' + tip + '">' + ic.copy + ' <b>Copy last week</b></button>';
+  }
+  function clearBtn() {
+    var u = topU(); if (u && u.k === 'clear') return flipBtn(u);
+    var why = whyOff(), r = P.clearWeek(S.meals, S.blocked, S.view, wk(), S.today, S.cl), dis = !!why || r.why === 'none';
+    var tip = why || (r.why === 'none' ? 'Nothing to clear from today on.' : 'Clear week: removes ' + r.rm.length + (r.rm.length === 1 ? ' meal' : ' meals') + ' from today on in ' + (S.view === 'mine' ? 'my plan' : 'the household plan') + (S.cl === 'all' && r.nc.length ? ' and ' + r.nc.length + ' Not cooking mark(s)' : '. Not cooking days stay') + (r.shared ? ' (includes ' + r.shared + ' household meals)' : '') + '. Undo is one click.');
+    return '<button class="pbtn" data-clearw ' + (dis ? 'disabled ' : '') + 'title="' + tip + '" aria-label="' + tip + '">' + ic.clear + ' <b>Clear week</b></button>';
   }
   function header() {
     var mn = P.dinfo(P.dinfo(S.cur).mon).n, w = wk();
     return '<div class="top"><div class="wkbar"><div class="wt"><h1>Week of ' + mn + ' Oct</h1><span class="sub">' + P.REL[w] + (w < 0 ? ' · read only' : '') + '</span></div>' + (S.cur !== S.today ? '<button class="tdy" data-today title="Jump to today (T)">Today <span class="kbd">T</span></button>' : '') +
-      '<span class="sp"></span><span class="sync" title="Plan is live"><i></i>Live</span>' + (S.f === 'menu' ? filter() : '') + copyBtn() + '<button class="ib" aria-label="Plan settings (the gear)" title="Plan settings (the gear)">' + ic.cog + '</button></div>' + (S.f !== 'menu' ? '<div class="tools">' + filter() + '</div>' : '') + ribbon() + (ro() ? '<div class="rol">' + ic.people + ' ' + viewLabel(S.view) + "'s plan: view only. You can look, not change it.</div>" : '') +
+      '<span class="sp"></span><span class="sync" title="Plan is live"><i></i>Live</span>' + (S.f === 'menu' ? filter() : '') + '<span class="wkacts">' + copyBtn() + clearBtn() + '</span><button class="ib" aria-label="Plan settings (the gear)" title="Plan settings (the gear)">' + ic.cog + '</button></div>' + (S.f !== 'menu' ? '<div class="tools">' + filter() + '</div>' : '') + ribbon() + (ro() ? '<div class="rol">' + ic.people + ' ' + viewLabel(S.view) + "'s plan: view only. You can look, not change it.</div>" : '') +
       '<div class="cslot' + (S.cuShown ? ' in' : '') + '">' + (S.cuShown ? '<button class="curtain' + (S.cuNew ? ' drop' : '') + '" data-curtain>' + ic.spark + ' Ask AI to plan this</button>' : '') + '</div></div>';
   }
   function rail() {
@@ -195,7 +209,7 @@
       g('lay', 'Layout (decision 63 to 64, owner has not picked)', [['board', '1 Week board (recommended)'], ['agenda', '2 Agenda rows'], ['focus', '3 Day focus']]) + g('insp', 'Inspector', [['dock', 'Docked (recommended)'], ['flyout', 'Flyout']]) +
       g('f', 'Who filter (97)', [['menu', 'One dropdown (recommended)'], ['seg', 'Mine / Everyone + People dropdown'], ['chips', 'Chips + overflow (earlier)']]) + g('pc', 'Number of people in the detail (98)', [['step', 'Stepper − 4 +'], ['drop', 'Dropdown']]) +
       g('e', 'Open night', [['ghost', 'Quiet, Add by hand on hover (recommended)'], ['slim', 'Slim row']]) + g('nc', 'Not cooking (93, proposal for desktop)', [['slim', 'Slim line (recommended)'], ['block', 'Block with accent bar (earlier)']]) +
-      g('c', 'Status (104)', [['labels', 'a Labelled chips (recommended)'], ['badge', 'b Icon + count badge'], ['edge', 'c Edge strip + dot'], ['progress', 'd Progress, "5 of 7 ready"'], ['line', 'One status line (earlier)']]) + g('cu', 'Ask AI to plan this curtain (96)', [['start', 'At the start of an empty week (default)'], ['idle', 'Idle, whole week empty'], ['off', 'Off']]) +
+      g('cl', 'Clear week also clears (109, open)', [['meals', 'Meals only, Not cooking stays (recommended)'], ['all', 'Meals and this-week Not cooking marks']]) + g('c', 'Status (104)', [['labels', 'a Labelled chips (recommended)'], ['badge', 'b Icon + count badge'], ['edge', 'c Edge strip + dot'], ['progress', 'd Progress, "5 of 7 ready"'], ['line', 'One status line (earlier)']]) + g('cu', 'Ask AI to plan this curtain (96)', [['start', 'At the start of an empty week (default)'], ['idle', 'Idle, whole week empty'], ['off', 'Off']]) +
       '<p class="onote">Also in the URL: <code>?lay=&amp;insp=&amp;f=&amp;pc=&amp;e=&amp;nc=&amp;c=&amp;cu=&amp;sel=wed-curry&amp;day=d19&amp;who=mine</code></p></div>' : '');
   }
   /* Ask AI to plan this: the curtain (decision 96, prototype, not locked). Same drop as the phone and the idle nudge of decisions 15, 19, 20. */
@@ -241,9 +255,9 @@
 
   /* ---------- actions ---------- */
   function snap() { return JSON.stringify({ m: S.meals, b: S.blocked, sel: S.sel }); }
-  function doUndo() { if (!S.undo) return; var u = JSON.parse(S.undo); S.meals = u.m; S.blocked = u.b; S.sel = u.sel; S.undo = null; S.copied = false; S.pulse = null; render(); toast('Undone'); }
+  function doUndo() { var u = topU(); if (!u) return; S.ustk.pop(); var o = JSON.parse(u.s); S.meals = o.m; S.blocked = o.b; S.sel = o.sel; S.pulse = null; render(); var nx = topU(); toast('Undid ' + ULAB[u.k] + (nx ? '. Next undo: ' + ULAB[nx.k] : '')); }
   function pulseOff() { setTimeout(function () { S.pulse = null; document.querySelectorAll('.pulse').forEach(function (e) { e.classList.remove('pulse'); }); }, 2600); }
-  function change(fn, msg, days) { S.undo = snap(); S.copied = false; fn(); S.pulse = days || null; render(); toast(msg, 1); if (days) pulseOff(); }
+  function change(fn, msg, days, kind) { var before = snap(); fn(); pushU(kind || 'edit', before, msg); S.pulse = days || null; render(); toast(msg, kind !== 'copy' && kind !== 'clear'); if (days) pulseOff(); }
   function act(a, id) {
     var m = find(id); if (!m) return;
     if (a === 'open') { S.sel = id; S.cur = m.day; S.pop = null; render(); return; }
@@ -252,12 +266,18 @@
     if (a === 'list') { var n = m.miss.length; return change(function () { m.list += n; S.pop = null; }, 'Added ' + n + ' to the shopping list'); }
     change(function () { S.meals = S.meals.filter(function (x) { return x.id !== id; }); if (S.sel === id) S.sel = null; S.pop = null; if (a === 'nocook') S.blocked[m.day] = 'once'; }, a === 'nocook' ? esc(m.t) + ' removed, ' + P.dinfo(m.day).dow + ' is Not cooking' : esc(m.t) + ' removed, ' + P.dinfo(m.day).dow + ' is open to replan', [m.day]);
   }
-  var cpT;
   function copyLast() {
     var r = P.copyLast(S.meals, S.blocked, S.view, wk(), S.today); if (r.why === 'readonly' || r.why === 'bounds') return;
     if (!r.add.length) return toast('Nothing to fill: every open night already has a plan, or is Not cooking.');
-    S.undo = snap(); S.meals = S.meals.concat(r.add); S.copied = true; S.pulse = r.days; render(); pulseOff(); clearTimeout(cpT); cpT = setTimeout(function () { S.copied = false; render(); }, 14000);
-    toast('Copied ' + r.days.length + (r.days.length === 1 ? ' night' : ' nights') + ' from ' + (wk() - 1 === 0 ? 'this week' : 'last week') + ' (' + (S.view === 'mine' ? 'my plan' : 'household plan') + '). Open nights only', 0);
+    change(function () { S.meals = S.meals.concat(r.add); }, 'Copied ' + r.days.length + (r.days.length === 1 ? ' night' : ' nights') + ' from ' + (wk() - 1 === 0 ? 'this week' : 'last week') + ' (' + (S.view === 'mine' ? 'my plan' : 'household plan') + '). Open nights only', r.days, 'copy');
+  }
+  /* Clear week (109): same scope as Copy last week; meals only by default; no confirm because Undo is one click, but never silent. */
+  function clearWeek() {
+    var r = P.clearWeek(S.meals, S.blocked, S.view, wk(), S.today, S.cl); if (r.why === 'readonly' || r.why === 'bounds') return;
+    if (r.why === 'none') return toast('Nothing to clear from today on.');
+    var nm = r.rm.length, nc = r.nc.length, a = P.dinfo(r.days[0]), z = P.dinfo(r.days[r.days.length - 1]);
+    change(function () { S.meals = S.meals.filter(function (x) { return r.rm.indexOf(x.id) < 0; }); r.nc.forEach(function (d) { delete S.blocked[d]; }); if (S.sel && r.rm.indexOf(S.sel) > -1) S.sel = null; },
+      'Cleared ' + nm + (nm === 1 ? ' meal' : ' meals') + (nc ? ' and ' + nc + ' Not cooking mark' + (nc > 1 ? 's' : '') : '') + ', ' + a.dow + ' ' + a.n + (r.days.length > 1 ? ' to ' + z.dow + ' ' + z.n : '') + ' (' + (S.view === 'mine' ? 'my plan' : 'household plan') + '). ' + (nc ? '' : 'Not cooking days stay.'), r.days, 'clear');
   }
   function surprise(d) {
     var c = P.surprise(S.meals, d, S.today); if (!c) return toast('No fresh idea that is not a repeat. Try Ask AI.');
@@ -284,6 +304,7 @@
     if (d.day) return goDay(d.day);
     if (d.today !== undefined) return goDay(S.today);
     if (d.copy !== undefined) return copyLast();
+    if (d.clearw !== undefined) return clearWeek();
     if (d.ask) return toast('Ask AI opens your default AI app, scoped to ' + dayName(d.ask) + '. Nothing happens inside Kitchie.');
     if (d.surprise) return surprise(d.surprise);
     if (d.curtain !== undefined) { cuDismiss(); render(); return toast('Ask AI opens your default AI app with the week of ' + P.dinfo(P.dinfo(S.cur).mon).n + ' Oct. Nothing happens inside Kitchie.'); }

@@ -4,3 +4,5 @@
 .insp-dock .main,.insp-dock.has-sel .main,.insp-dock.idle .main{padding-right:calc(var(--insp-w) + var(--pad))}
 .insp-flyout.has-sel .main{padding-right:calc(var(--insp-w) + 24px + var(--pad))}
 .insp-flyout .fscrim{display:none}
+/* 1440 to 1759: the docked inspector takes 400px, so the Live dot goes to keep the week actions on one line */
+.sync{display:none}
