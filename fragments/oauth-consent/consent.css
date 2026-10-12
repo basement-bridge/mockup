@@ -1,0 +1,58 @@
+/* The consent page's own CSS. THE BUILD (platform apps/portal/src/consent-css.ts) CARRIES THIS TEXT UNCHANGED: same selectors, same tokens.
+   No raw colour: every colour is a theme token (theme.css here, Kitchie's PAGE_CSS tokens in the build). Everything shared by phone, tablet and
+   desktop is in this file; what only the desktop bucket needs is in consent-desktop.css (own file, linked with media="(min-width:64rem)").
+   The base block repeats Kitchie's page rules for the elements this page uses (body, headings, links, .brandbar, .btn) so the page reads as Kitchie. */
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:"DM Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;margin:0 auto;max-width:var(--content-max);padding:1.25rem var(--gutter) 3rem;line-height:1.5}
+h1{font-family:var(--head);font-size:2.1rem;line-height:1.05;font-weight:700;margin:0}
+h2{font-family:var(--head);font-size:1.2rem;line-height:1.2;font-weight:700;margin:0}
+a{color:var(--accent)}a:hover{text-decoration:none}
+.brandbar{display:inline-flex;align-items:center;gap:.45rem;min-height:44px;font-family:var(--head);font-weight:700;font-size:1.1rem;color:var(--fg);text-decoration:none;max-width:100%;min-width:0}
+.brandbar svg{color:var(--sage);flex:none}
+.brandbar span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+a.btn,button.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;margin:.25rem .25rem .25rem 0;padding:0 1rem;border:1px solid var(--border);border-radius:.8rem;background:var(--surface);color:var(--fg);font:inherit;text-decoration:none;cursor:pointer}
+a.btn:hover,button.btn:hover{border-color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+body.skinpage{padding-bottom:0;position:relative}
+body.consent{--content-max:34rem}
+main.skin{--r-ctl:.9rem;--r-card:1.2rem;display:flex;flex-direction:column;gap:.7rem}
+body.consent{padding-bottom:calc(2rem + env(safe-area-inset-bottom))}
+.skin p{margin:.4rem 0 0;color:var(--muted)}
+.skin .small{font-size:.88rem;text-align:center}
+.skin .hello{text-align:center}
+.skin .hello p{font-size:1.05rem}
+.skin .hero{display:flex;flex-direction:column;justify-content:center;gap:.7rem;flex:0 1 auto;min-height:0}
+/* Not sticky: the buttons sit after what the person is agreeing to, so nothing it says is hidden behind them (consent decision C7 in the notes). */
+.skin .acts{display:flex;flex-direction:column;gap:.4rem;flex:none;margin-top:.4rem}
+.skin .acts form{display:contents}
+.skin .btn{margin:0}
+.skin a.btn.primary,.skin button.btn.primary{width:100%;min-height:52px;gap:.5rem;background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700;border-radius:var(--r-ctl)}
+.skin a.btn.primary:hover,.skin button.btn.primary:hover{border-color:var(--fg)}
+.skin a.btn.ghost,.skin button.btn.ghost{align-self:center;min-height:44px;border:0;background:none;color:var(--muted);font-weight:500;padding:0 .9rem;text-decoration:underline;text-underline-offset:3px}
+.skin .btn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.skin .pill{display:inline-flex;align-items:center;gap:.4rem;min-height:28px;padding:0 .75rem;border-radius:999px;border:1px solid var(--accent);color:var(--accent);font-size:.75rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin:0 0 .6rem}
+.skin .banner{margin:0;padding:.6rem .8rem;border:1px solid var(--accent);border-radius:var(--r-ctl);background:color-mix(in srgb,var(--accent) 12%,var(--surface));color:var(--fg);font-size:.9rem}
+.skin .banner strong{display:block}
+.skin .ric{display:inline-flex;align-items:center;justify-content:center;flex:none;width:40px;height:40px;border-radius:50%;background:color-mix(in srgb,var(--c,var(--accent)) 20%,var(--surface));color:var(--c,var(--accent));border:1px solid color-mix(in srgb,var(--c,var(--accent)) 45%,var(--border))}
+.skin .ric.t2{--c:var(--sage)}
+/* The consent page */
+.cn .pair{display:flex;align-items:center;justify-content:center;gap:.9rem;padding:.4rem 0}
+.cn .ava{display:inline-flex;align-items:center;justify-content:center;flex:none;width:64px;height:64px;border-radius:var(--r-card);border:1px solid var(--border);background:var(--surface);color:var(--sage)}
+.cn .ava.who{font-family:var(--head);font-weight:700;font-size:1.7rem;color:var(--accent);text-transform:uppercase}
+.cn .wire{display:inline-flex;gap:.35rem;align-items:center}
+.cn .wire i{display:block;width:8px;height:8px;border-radius:50%;background:var(--accent);opacity:.35;animation:cn-hop 1.6s ease-in-out infinite}
+.cn .wire i:nth-child(2){animation-delay:.25s}.cn .wire i:nth-child(3){animation-delay:.5s}
+@keyframes cn-hop{0%,100%{opacity:.25;transform:scale(.8)}50%{opacity:1;transform:scale(1.15)}}
+:root[data-motion=reduce] .cn .wire i{animation:none}
+.cn .facts{display:grid;grid-template-columns:1fr;margin:0;border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface);overflow:hidden}
+.cn .facts div{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;padding:.65rem .9rem;border-top:1px solid var(--border);min-width:0}
+.cn .facts div:first-child{border-top:0}
+.cn .facts dt{color:var(--muted);font-size:.88rem;flex:none}
+.cn .facts dd{margin:0;font-weight:600;text-align:right;min-width:0;overflow-wrap:anywhere}
+.cn .facts dd small{display:block;font-weight:400;font-size:.8rem;color:var(--muted)}
+.cn .can{display:flex;flex-direction:column;gap:.5rem}
+.cn .cl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.6rem}
+.cn .cl li{display:flex;align-items:center;gap:.7rem;font-size:.95rem;line-height:1.35}
+.cn h1{overflow-wrap:anywhere}
+.cn .how{font-size:.92rem}
+.cn .how a{font-weight:600}

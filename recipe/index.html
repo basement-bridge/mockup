@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Recipe tab, end to end</title>
+<link rel="stylesheet" href="../theme.css"><link rel="stylesheet" href="../shared.css"><script src="../theme.js"></script>
+<style>
+.d{counter-reset:none;list-style:none;margin:8px 0 0;padding:0}
+.d li{padding:10px 0;border-top:1px solid var(--border);font-size:14px;color:var(--muted)}
+.d li:first-child{border-top:0}
+.d li b{color:var(--fg)}
+.d .n{display:inline-block;min-width:52px;font-weight:800;color:var(--accent)}
+.prop{font-size:11px;font-weight:800;padding:1px 7px;border-radius:var(--r-pill);border:1px dashed var(--accent);color:var(--accent);margin-left:4px;white-space:nowrap}
+.sup,.rw,.opn{font-size:11px;font-weight:800;padding:1px 7px;border-radius:var(--r-pill);margin-left:4px;white-space:normal;display:inline-block}
+.sup{border:1px solid var(--muted);color:var(--muted)}
+.rw{border:1px solid var(--sage);color:var(--sage)}
+.opn{border:1px solid var(--danger);color:var(--danger)}
+.d li.old>b{text-decoration:line-through}
+.lk{font-size:11px;font-weight:800;padding:1px 7px;border-radius:var(--r-pill);margin-left:4px;white-space:normal;display:inline-block;background:var(--accent);color:var(--on-accent)}
+.d li.void>b{text-decoration:line-through}
+.lock{margin-top:8px;border:1px solid var(--accent);border-radius:var(--r-card);padding:4px 14px}
+.gap{font-size:11px;font-weight:800;padding:1px 7px;border-radius:var(--r-pill);border:1px solid var(--danger);color:var(--danger);margin-left:4px;white-space:nowrap}
+.per{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.per a{display:inline-flex;align-items:center;min-height:var(--tap);padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-weight:700;font-size:14px}
+.per a:hover{border-color:var(--accent);color:var(--accent)}
+.opts .opt p{font-size:13px}
+.opts .opt .per{margin-top:8px}
+code{font-size:12.5px}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../">&lsaquo; All mockups</a>
+<h1>Recipe tab, end to end</h1>
+<p>Draft for feedback. The whole Recipe tab for anyone arriving in recipe land: the list, a recipe, recipes arriving from the person's own AI assistant, moving between versions, cooking it, and adding photos and notes. Every screen is a live phone at phone width first. Sample data only. Open <b>Mockup</b> (bottom right on every screen) to switch who is using it and to flip between options.</p>
+
+<section class="sec"><div class="lbl">Build handoff</div>
+<p>The four Recipe tab slices were reconciled on 10 October 2026. The owner locked nine decisions by voice the same evening, then a second lot by typing later that night: the versions picks, six open-item answers and the photo options (below). A third lot was spoken on 11 October 2026 (T1 to T9, below). One decision index across R, V, P and I, the owner's yay/nay list in the order to decide, open questions with build defaults, who owns what, the build slices and the cross-feature requests: <a href="https://github.com/basement-bridge/mockup/blob/main/docs/knowledge/jobs-to-be-done/recipe-tab-handoff.md" style="color:var(--accent);font-weight:700">recipe-tab-handoff.md</a>. <b>Nothing has been built, and nothing has been filed as an issue.</b> When it is built: the build matches this mockup exactly, performance first with lazy loading, and headless-browser screenshots before a screen is called done. Marks below: <span class="lk">Locked</span> <span class="sup">Superseded or void</span> <span class="rw">Reworded or narrowed</span> <span class="opn">Open</span>.</p>
+</section>
+
+<section class="sec"><div class="lbl">Locked by the owner, first lot (voice, 10 October 2026, about 22:00 to 22:30 Sydney)</div>
+<div class="lock"><ol class="d">
+<li><span class="n">R-O1</span><b>The list: one ranked list</b> (option 1 A). <span class="lk">Locked (owner, voice, 10 Oct 2026)</span></li>
+<li><span class="n">R-O2</span><b>The recipe page: one continuous scroll,</b> jump row docked at the top (option 2 A). <span class="lk">Locked</span></li>
+<li><span class="n">R-O3</span><b>Versions: option B, varied.</b> No versions row for a recipe with one version; a horizontally scrolling strip when there are several; it docks as its own row above the jump row. <span class="lk">Locked</span></li>
+<li><span class="n">R-O4</span><b>Adding recipes, redefined.</b> No link paste, no scraping, no reading of photos or links, no "one box" and no "four doors". Recipe content comes only through the person's own AI assistant, over a very rich MCP surface. The app adds extra photos (especially after cooking) and notes. <span class="lk">Locked</span> <span class="rw">Narrowed by T10 (11 Oct 2026): editing by hand is allowed; only starting a recipe stays assistant-only</span></li>
+<li><span class="n">R-O5</span><b>No follower.</b> The follower-versus-cook distinction is dropped (option 5 and R-D8 void): all members are equal with the same controls; restrictions later if ever needed. <span class="lk">Locked</span></li>
+<li><span class="n">R-D29</span><b>Plan tab: once a planned meal's items are sorted, tapping it goes straight into cook mode.</b> Plan-tab behaviour: asked of the Plan owners as XR1 and XR2 in the handoff. <span class="lk">Locked</span></li>
+<li><span class="n">R-D30</span><b>Cook-mode step buttons carry the destination step's content,</b> not Back and Next. <span class="lk">Locked</span></li>
+<li><span class="n">R-D31</span><b>Putting away needs no admin approval.</b> <span class="lk">Locked</span></li>
+<li><span class="n">R-D32</span><b>Navigation pattern unchanged:</b> left gutter (rail) on desktop, bottom nav on mobile. <span class="lk">Locked</span></li>
+</ol></div>
+<p class="q">The ids on the left are the ones used everywhere else; L1 to L9 are the owner's own order in that session.</p>
+</section>
+
+<section class="sec"><div class="lbl">Locked by the owner, second lot (typed, 10 October 2026, late)</div>
+<p>Typed by the owner after the voice session. Each is <span class="lk">Locked (owner, typed, 10 Oct 2026)</span>. Wording and ids follow the slice pages: <a href="../recipe-versions/" style="color:var(--accent);font-weight:700">versions</a>, its <a href="../recipe-versions/spec.html" style="color:var(--accent);font-weight:700">backend spec</a>, and <a href="../recipe-photos/" style="color:var(--accent);font-weight:700">photos</a>.</p>
+<div class="lock"><ol class="d">
+<li><span class="n">V1</span><b>Versions screen grouped by state</b> (A): our usual, Trying, Kept; put away folded; opened from the strip's last item, "All versions". <span class="lk">Locked</span> <span class="sup">Replaces: V1 open; the chip entry</span></li>
+<li><span class="n">V2</span><b>A try takes edits in place; a keeper or our usual asks at save</b> (C): fix this one, keep both, or a different dish. Under R-O4 the assistant asks in the chat. <span class="lk">Locked</span> <span class="sup">Replaces: V2 open; R-D16</span></li>
+<li><span class="n">V3</span><b>Ask after every cook of a try</b> (A): Keep it, Needs work, Not for us. <span class="lk">Locked</span></li>
+<li><span class="n">V4</span><b>The assistant edits a kept version or the usual directly; the household reviews afterwards</b> (B): the To review screen, a badge, per-change Undo. <span class="lk">Locked</span> <span class="sup">Replaces: suggest only and the suggestion cards</span></li>
+<li><span class="n">V5</span><b>Frozen revisions under changeable versions</b> (A). <span class="lk">Locked</span></li>
+<li><span class="n">V6</span><b>Only the changes are kept, git-like</b> (B): content-addressed pieces, change sets by item id, a checkpoint every 10th revision, rich-text note blocks with stable ids, images and links by reference. About 27 MB against 117 MB for whole copies (spec section 9). <span class="lk">Locked</span> <span class="sup">Replaces: whole recipe per revision</span></li>
+<li><span class="n">Ans 1</span><b>"Not for us" after a try's first cook puts it away at once,</b> with undo (BR17). <span class="lk">Locked</span></li>
+<li><span class="n">Ans 2</span><b>Notes are a field of the version,</b> inherited down the lineage, carried as a change only where a version differs (V-D31). <span class="lk">Locked</span> <span class="rw">Refines R-D24</span></li>
+<li><span class="n">Ans 3</span><b>No hard delete; undo at any time</b> as a new revision or event (BR3, BR18, V-D32, <code>undo_event</code>). <span class="lk">Locked</span></li>
+<li><span class="n">Ans 4</span><b>A dismissed draft shows only in that member's assistant history</b> (BR10, <code>list_my_drafts</code>). <span class="lk">Locked</span></li>
+<li><span class="n">Ans 5</span><b>Stars per member; the household level derived</b> (BR19, V-D33): "Liked by 2 of 3". Proposed household-favourite rule: more than half of those who ate it liked it, at least 2. <span class="lk">Locked</span> <span class="lk">Rule confirmed in the third lot (T6)</span></li>
+<li><span class="n">Ans 6</span><b>R-V1 approved:</b> reverse "immutable" in Recipe's AGENTS.md as the first Recipe-repo change when the build starts (issue, build, PR), wording in spec section 8. <span class="lk">Approved</span></li>
+<li><span class="n">P1</span><b>Recipe owns photos.</b> <span class="lk">Locked</span></li>
+<li><span class="n">P2</span><b>A blob-storage port; the files adapter now;</b> online storage a named future. <span class="lk">Locked</span> <span class="sup">Replaces: photos/&lt;household&gt;/ files</span></li>
+<li><span class="n">P3</span><b>Banner large + square; every other photo medium + square; no originals</b> (about 260 KB and 87 KB). <span class="lk">Locked</span> <span class="sup">Replaces: three sizes, about 350 KB a photo</span></li>
+<li><span class="n">P4</span><b>The phone shrinks first; a server derive queue runs when resources are free;</b> a third-party seam named; "Photo is being prepared". <span class="lk">Locked</span></li>
+<li><span class="n">P5</span><b>The assistant uploads the photo itself:</b> not blocking, a verified acknowledgement, up to 3 attempts each smaller. <span class="lk">Locked</span> <span class="sup">Replaces: a link the person taps</span></li>
+<li><span class="n">P6</span><b>A photo belongs to a version or a cook, never a revision;</b> per-version delete and replace. <span class="lk">Locked</span></li>
+<li><span class="n">P7</span><b>Only recipe photos are banners;</b> an inherited banner shows an icon. <span class="lk">Locked</span> <span class="lk">Cook photo as banner by explicit choice: locked (T5)</span></li>
+<li><span class="n">P8</span><b>Household only, plus the assistant reads a photo through MCP with the same sign-in</b> (<code>get_photo</code>). <span class="lk">Locked</span></li>
+<li><span class="n">P9</span><b>Limits:</b> one banner per version, one photo per step up to 10, gallery 3, 3 per cook, 2 GB per household with a search-and-remove Free up space flow. <span class="lk">Locked</span></li>
+<li><span class="n">P10</span><b>Removing: undo for 5 minutes only.</b> <span class="lk">Locked</span> <span class="sup">Replaces: a 30-day restore</span></li>
+<li><span class="n">P11</span><b>Backups: the database as today, only new photo files copied.</b> <span class="lk">Locked</span></li>
+<li><span class="n">P12</span><b>Recipe page: text first, then step photos, then the banner last;</b> others on demand. <span class="lk">Locked</span></li>
+<li><span class="n">P13</span><b>List: a stock placeholder first;</b> planned recipes' photos first; then rows on screen plus 5 in that category; the rest on demand; Home never affected. <span class="lk">Locked</span></li>
+</ol></div>
+<p><b>Superseded by the third lot (T1 to T9, below):</b> the tab bar items (R-O6) and who draws the tab (X16), N1, the cook-photo banner and the household-favourite rule are now closed. The editing screen is now drawn (T10, fourth lot); only its options and the cross-feature and infra items stay open (listed after T9).</p>
+</section>
+
+<section class="sec"><div class="lbl">Locked by the owner, third lot (voice, 11 October 2026)</div>
+<p>Spoken by the owner after the second lot. Each is <span class="lk">Locked (owner, voice, 11 Oct 2026)</span>. These close X16, R-O6, N1 and the small items, and they supersede any older line below that still says "open" for them.</p>
+<div class="lock"><ol class="d">
+<li><span class="n">T1</span><b>Kitchie draws the Recipe UI; Recipe is headless</b> (MCP and API only). <span class="lk">Locked</span> <span class="sup">Resolves X16</span></li>
+<li><span class="n">T2</span><b>Recipes stays a standalone tab:</b> bottom nav on mobile, left menu on desktop. <span class="lk">Locked</span> <span class="sup">Closes R-O6 (option 6); R-D2 stands</span></li>
+<li><span class="n">T3</span><b>Keyboard shortcuts:</b> Recipe screens map onto the existing app-level shortcut system, as built for Pantry. No Recipe-specific shortcut system. <span class="lk">Locked</span></li>
+<li><span class="n">T4</span><b>Notes live at recipe or version level,</b> inherited down the lineage (V-D31). No "this cook only" question at the end of a cook. <span class="lk">Locked</span> <span class="sup">Closes N1</span></li>
+<li><span class="n">T5</span><b>A cook photo may become the banner only by explicit choice; there is always exactly one banner per version.</b> Never automatic, never by fallback. <span class="lk">Locked</span> <span class="sup">Closes the open part of P7</span></li>
+<li><span class="n">T6</span><b>Household favourite rule confirmed:</b> more than half of those who ate it liked it, and at least 2. <span class="lk">Locked</span> <span class="sup">Confirms V-D33's rule</span></li>
+<li><span class="n">T7</span><b>Note limit: a single 4,000-character cap, everywhere</b> (app and assistant). The UI must not enforce a smaller cap; a long note scrolls inside a bounded note box and does not grow the page. <span class="lk">Locked</span> <span class="sup">Replaces: the 600-character app limit and the split limits (P-D27, spec 10.6)</span></li>
+<li><span class="n">T8</span><b>The ideas pane stays in the Recipes tab.</b> Where ranking runs (I-O4) defaults to A = Kitchie; the owner delegated this and it can be corrected later. <span class="lk">Locked</span> <span class="sup">Delegated default</span></li>
+<li><span class="n">T9</span><b>Build authority:</b> agents merge into <code>uat</code> of any repo when done; never <code>main</code>, never tags; the owner deploys. <span class="lk">Locked</span></li>
+</ol></div>
+<p><b>Still open:</b> the editing screen's options (E-O1 to E-O5, fourth lot above: the screen is now drawn, hand editing is locked as T10); cross-feature requests XR1 to XR3 (the Plan owners) and XR4 (the preferences chat); infra: free disk on the server and an off-server backup copy. The ideas pane as a whole is still not reviewed by the owner (only its place and I-O4 are settled, T8).</p>
+</section>
+
+<section class="sec"><div class="lbl">Locked by the owner, fourth lot (voice, 11 October 2026): editing by hand</div>
+<p>Spoken by the owner after the third lot. It <b>reverses</b> the "assistant-only authoring" rule for <b>editing</b> (L4 and R-O4 stay true for <b>starting</b> a recipe). Each is <span class="lk">Locked (owner, voice, 11 Oct 2026)</span>. The data model does not change: the same version, revision and change-set model and the same Recipe service methods, so this is a UI and flow mockup. Drawn on <a href="edit.html?id=efr&v=v1" style="color:var(--accent);font-weight:700">edit.html</a> (phone and desktop); the choices still open are on <a href="edit-options.html" style="color:var(--accent);font-weight:700">edit-options.html</a> (E-O1 to E-O5, recommended defaults marked and used).</p>
+<div class="lock"><ol class="d">
+<li><span class="n">T10</span><b>Editing by hand is allowed for everything in a version:</b> title, ingredients, steps, notes, tags and other fields, and photos (add, replace, remove, make banner, crop, rotate). <b>The assistant remains the way to start or create a recipe.</b> <span class="lk">Locked</span> <span class="sup">Reverses: "assistant-only authoring" for editing (L4, R-O4, the "we'll do that later" editing screen); keeps it for creating</span></li>
+<li><span class="n">T10a</span><b>The version rules apply to hand edits unchanged:</b> a try edits in place; a keeper asks at save (fix this one, keep both, different dish; V2 C); every save is a revision with per-change undo; no hard delete, undo only; an assistant edit and a hand edit share one History with who made each shown. <span class="lk">Locked</span> <span class="sup">Confirms V2, V5, V6, V-D13, V-D32</span></li>
+<li><span class="n">T10b</span><b>Notes in the editor use the single 4,000 character scrolling box;</b> photo rules as locked (one banner per version, one photo per step up to 10, gallery 3; no originals kept, so crop and rotate act on the stored large or medium, said honestly on screen); a pending photo shows "Photo is being prepared". <span class="lk">Locked</span> <span class="sup">Applies T7, P3, P7, P9</span></li>
+<li><span class="n">T10c</span><b>New build slices:</b> RT-R12 (Recipe HTTP routes for hand editing, calling the same service methods), RT-R13 (photo transform route), RT-K12 (Kitchie edit screens, phone and desktop) and RT-K13 (photo crop and rotate). <span class="lk">Locked as slices</span> <span class="sup">Withdrawn RT-K5 "Change" stays withdrawn: its place is RT-K12</span></li>
+</ol></div>
+<p>Options for the owner's yay, nay or combine, each with a recommended default that the screens use: <b>E-O1</b> where you edit (one screen opened at the section tapped, over edit in place or a sheet per section), <b>E-O2</b> typing and reordering on a phone (Reorder mode with arrows, over a row menu or a drag handle), <b>E-O3</b> crop and rotate (rotate plus a fixed frame you move and zoom, over rotate only or a free crop), <b>E-O4</b> how the keeper question appears (a sheet at Save, over inline or before editing; on desktop a lane), <b>E-O5</b> the desktop layout (form plus changes lane). Smaller choices E-D1 to E-D9 are marked Proposal. <a href="edit-options.html" style="color:var(--accent);font-weight:700">Open the options</a>.</p>
+</section>
+
+<section class="sec"><div class="lbl">Start here</div>
+<p>Pick who you are. Each opens the list as that person sees it. (The follower persona is gone: R-O5.)</p>
+<div class="per">
+<a href="list.html?persona=weeknight">Weeknight cook (Sam)</a>
+<a href="list.html?persona=batch">Batch cooker (Priya)</a>
+<a href="list.html?persona=improviser">Improviser (Alex)</a>
+
+</div>
+<p class="q">Screens: <a href="list.html" style="text-decoration:underline">List</a> · <a href="detail.html?id=efr" style="text-decoration:underline">Recipe (with versions)</a> · <a href="detail.html?id=cur&persona=batch" style="text-decoration:underline">Batch recipe</a> · <a href="add.html" style="text-decoration:underline">Add (through your assistant)</a> · <a href="review.html?from=assistant" style="text-decoration:underline">Check an assistant draft</a> · <a href="review.html?from=dup" style="text-decoration:underline">Duplicate found</a> · <a href="edit.html?id=efr&v=v1" style="text-decoration:underline">Edit by hand</a> (<a href="edit-options.html" style="text-decoration:underline">its options</a>) · <a href="cook.html?id=efr" style="text-decoration:underline">Cook it</a></p>
+</section>
+
+<section class="sec"><div class="lbl">Options: all six decided</div>
+<p>Options 1 to 5 were answered by the owner on 10 October 2026 (voice); option 6 was closed on 11 October 2026 (T2). The losing options are kept here for history; the screens are being redrawn to the locked answers.</p>
+<div class="opts two">
+<div class="opt"><h2><b>1</b>The list</h2><p><b>A One list</b>: rows ranked by what you can cook now, a chip strip on top. Densest. <b>B Shelves</b>: Ready now, Not cooked lately (Batch for Priya), then A to Z. Browsing. <b>C Photo grid</b>: two columns of pictures. Most appetising, fewest per screen. <span class="lk">Locked R-O1 = A</span></p><div class="per"><a href="list.html">Open the list</a></div></div>
+<div class="opt"><h2><b>2</b>The recipe page</h2><p><b>A One scroll</b> with a sticky jump row (Ingredients, Method, Notes, Cooked, Photos). Nothing hidden, one thumb flick per section. <b>B Tabs</b> on the same row, one section at a time. <span class="lk">Locked R-O2 = A</span>, jump row docked at the top.</p><div class="per"><a href="detail.html?id=efr">Open a recipe</a></div></div>
+<div class="opt"><h2><b>3</b>Moving between versions</h2><p><b>A Chip and sheet</b>: one chip in the meta row ("With peas · 3 versions") opens the family tree. One row of space. <b>B Strip</b>: the versions as the plan-week-ai strip under the title, one tap to switch. <span class="lk">Locked R-O3 = B, varied</span>: no row for a single version; a scrolling strip for several, docked as its own row above the jump row.</p><div class="per"><a href="detail.html?id=efr">Several versions</a><a href="detail.html?id=cur">One version</a></div></div>
+<div class="opt"><h2><b>4</b>Adding a recipe</h2><p><b>A One box</b>: paste text or a link, or type it, with camera and mic on the box; the assistant as a second door. <b>B Four doors</b>: Type or paste, Photo, Link, Ask your assistant. <span class="sup">Both void</span> <span class="lk">Locked R-O4 = redefined</span>: no paste, no link, no scraping, no photo reading. Recipe content comes only through the person's AI assistant over Recipe's MCP surface; the app adds photos and notes.</p><div class="per"><a href="add.html">Add, as redrawn</a></div></div>
+<div class="opt"><h2><b>5</b>Someone who only follows the plan</h2><p><b>A Tonight leads</b>: a slim line at the top of the list opens tonight's planned recipe, sized for the plan; no Plan or Change on the page. <b>B Straight to cook</b>: the same line opens cook mode directly. <span class="sup">Void</span> <span class="lk">Locked R-O5</span>: no follower distinction; all members equal, same controls. (B's "straight to cook" survives in another form on the Plan tab: R-D29.)</p></div>
+<div class="opt"><h2><b>6</b>Tab bar order</h2><p>The brief names Plan, Pantry and Shopping as the other tabs; the household flow has Home, Pantry, Recipes, Shopping. This mockup draws <b>Plan, Pantry, Recipes, Shopping</b>; production Kitchie and the desktop Plan rail have five (Home, Pantry, Plan, Recipes, Shopping). <b>A</b> keep that. <b>B</b> Home stays first and Plan lives in Home. Needs the owner; it touches every tab. <span class="lk">Closed (T2, owner, voice, 11 Oct 2026)</span> Recipes stays a standalone tab: bottom nav on mobile, left menu on desktop. (The earlier "locked as A" was an assistant's error; this is the owner's own answer.) The pattern is locked by R-D32.</p></div>
+</div>
+</section>
+
+<section class="sec"><div class="lbl">Decisions in this slice (Proposal unless marked Locked)</div>
+<p>Numbered R-D so they do not clash with plan-week-ai's or preferences' numbers. The same list is in <code>docs/knowledge/jobs-to-be-done/recipe-tab.md</code>.</p>
+<ol class="d">
+<li><span class="n">R-D1</span><b>The tab opens on the list.</b> No dashboard above it. Ideas: the cooking-ideas pane (another slice) stays in the Recipes tab (T8, third lot; earlier text said Home); the tab is where you find, open, add and cook. <span class="prop">Proposal</span></li>
+<li><span class="n">R-D2</span><b>Tab bar: Plan, Pantry, Recipes, Shopping.</b> Same bar component as the household flow. Order is option 6 above. <span class="lk">Closed (T2): Recipes is a standalone tab</span> Pattern locked by R-D32.</li>
+<li><span class="n">R-D3</span><b>Kitchie renders; Recipe owns (T1: Recipe is headless, MCP and API only).</b> Every value on these screens comes from a Recipe tool or Kitchie's own plan and stock. Where Recipe cannot hold something yet, it is listed under Recipe-side gaps, not faked in Kitchie.</li>
+<li><span class="n">R-D4</span><b>One top row on the list: search and Add.</b> No heading (the tab says where you are). Search matches names and ingredients. <span class="prop">Proposal</span> <span class="rw">Narrowed by R-O4: Add hands off to the person's AI app</span></li>
+<li><span class="n">R-D5</span><b>One chip strip, the plan-week-ai strip (its decision 48).</b> All, then Ready now, Starred, Batch, Under 30, Added by me. Tap again to go back to All. The chosen chip is remembered per person on this device (localStorage, like <code>pw-week</code>). The batch cooker starts on Batch. <span class="prop">Proposal</span></li>
+<li><span class="n">R-D6</span><b>Swipe a row right to plan it.</b> Opens the day picker. There is no swipe left: Recipe never deletes. <span class="prop">Proposal</span></li>
+<li><span class="n">R-D7</span><b>Recipe page layout</b> is option 2 above. <span class="lk">Locked R-O2 = A: one scroll, jump row docked at the top</span></li>
+<li class="void"><span class="n">R-D8</span><b>The follower</b> is option 5 above. Either way they see no Plan button, no Change it, no drafts line. They can still star, add a note and a photo. <span class="sup">Void by R-O5 (locked): all members equal</span></li>
+<li><span class="n">R-D9</span><b>Photos only when there are photos.</b> The hero swipes sideways with dots; a recipe without photos has no hero and no placeholder: its emoji sits beside the title. Step pictures show only if the recipe has them. Storage: the photo-storage slice. <span class="prop">Proposal</span> <span class="rw">Narrowed by P7, P12, P13 (locked): one banner per version, loaded last; stock tile in lists</span></li>
+<li><span class="n">R-D10</span><b>Serves is the quantity control.</b> The − / + pill scales every amount (plan-week-ai decision 10). Batch recipes step in whole batches (8, 16, 24 portions). An amount the source never gave stays "amount?" at every size. <span class="prop">Proposal</span></li>
+<li><span class="n">R-D11</span><b>Two actions at the bottom: Cook it (leads) and Plan it.</b> Star is an icon in the top row. Everything else is in ⋯: Change it, Make this version the default, Ask your assistant about it (opens the person's AI app, plan-week-ai decision 45), Where it came from, Put away. <span class="prop">Proposal</span> <span class="rw">Reworded by V-D9: "Make it our usual"</span></li>
+<li><span class="n">R-D12</span><b>Assistant drafts wait in one slim line at the top of the list</b> ("1 draft to check"). Never a pop-up, never on Home. <span class="prop">Proposal</span> <span class="rw">Answered by V-D22: a dismissed draft only in that member's assistant history (locked)</span></li>
+<li><span class="n">R-D13</span><b>Adding</b> is option 4 above. Ask your assistant opens the person's own AI app (no in-app agent, plan-week-ai decision 42); what it writes comes back as a draft. <span class="rw">Narrowed by R-O4 (locked): the assistant is the only way in; no one box, no four doors, no reading</span></li>
+<li><span class="n">R-D14</span><b>Every new recipe goes through one Check it screen,</b> however it arrived. A badge says where it came from. Values read straight from the source are plain; a guess is marked <i>guess</i>; something the source did not say is marked <i>?</i> and saved as unknown, never invented (Recipe's <code>basis</code>: observed, inferred, unknown; <code>entered</code>, typed by hand, shows plain). <span class="prop">Proposal</span> <span class="rw">Narrowed by R-O4: assistant drafts only; no photo or link reads</span></li>
+<li><span class="n">R-D15</span><b>Save is one tap.</b> For an assistant draft the other button is Not now (it stays a draft); for anything you added yourself it is Discard. <span class="prop">Proposal</span> <span class="rw">Reworded by V-D22: a draft is a Suggested family; Save makes it Trying. Narrowed by R-O4: Discard drops out</span></li>
+<li class="old"><span class="n">R-D16</span><b>Changing a recipe always makes a new version.</b> The screen says so before you start ("Starting from With peas… stays as it is"), and it counts your changes. Only what changed is saved (Recipe's variation change set). <span class="sup">Superseded by V-D10, V-D11 (V2 C, locked)</span> A try is fixed in place; a keeper asks Fix this one or Keep both; still said before you start.</li>
+<li><span class="n">R-D17</span><b>A new version is named from its change</b> ("With garlic"), and the optional "why keep it" line is stored as the person's own words (Recipe's <code>user_intent</code>). Making it the household default is a separate, explicit tick. <span class="prop">Proposal</span> <span class="rw">Reworded by V-D10, V-D17: for Keep both and spin off; a fix asks "what did you fix?"; the tick is "Also make it our usual"</span></li>
+<li><span class="n">R-D18</span><b>Cook it opens on the ingredients,</b> then one step per screen with its timer (cooking-right-now: ingredients lead). Tap an ingredient to tick it; press and hold to say you used something else tonight. <span class="prop">Proposal</span> <span class="rw">Reworded by R-D30 (locked): step buttons name the destination step</span></li>
+<li><span class="n">R-D19</span><b>The end of a cook asks once:</b> what to take out of the pantry, for a batch how many portions go in the freezer, and only if something was swapped, "Just tonight" or "Keep it as a version" (which asks for their words). An optional photo or line goes into Cooked. <span class="prop">Proposal</span> <span class="rw">Reworded by V-D18 (V3 A, locked): a try adds Keep it, Needs work, Not for us (Not for us puts it away at once, with undo); each eater's reaction (V-D33); up to 3 photos</span></li>
+<li><span class="n">R-D20</span><b>Versions</b> are option 3 above. Either way, rows a version changed are tinted, with what they replaced struck through in brackets (plan-week-ai decision 30). <span class="prop">Proposal</span> <span class="lk">Locked R-O3 = B, varied: no row for one version, a scrolling strip for several above the jump row</span> <span class="sup">The chip is gone; "All versions" opens Versions (V1 A)</span></li>
+<li><span class="n">R-D21</span><b>A likely duplicate is shown, never merged:</b> Open that one, Save as a version of it, or Keep both (Recipe's <code>potential_duplicates</code>). <span class="prop">Proposal</span> <span class="rw">Narrowed by R-O4: assistant drafts only</span></li>
+<li><span class="n">R-D22</span><b>Missing items:</b> a small cart icon per missing row, "Add all N missing to shopping" under the list, and the plain hint "Talk to your assistant about substitutes" (plan-week-ai decisions 11 and 29). <span class="prop">Proposal</span></li>
+<li><span class="n">R-D23</span><b>Hold shows only when the recipe is on the plan,</b> beside the Ingredients heading, and reads "Held for Tue" (plan-week-ai decisions 9 and 33). From the day picker, Hold is on by default. <span class="prop">Proposal</span></li>
+<li><span class="n">R-D24</span><b>Notes are the household's, on the recipe, shown on every version.</b> A note never changes the recipe; a change you want kept is a version. <span class="prop">Proposal</span> <span class="rw">Refined by V-D31 (locked): a field of the version, inherited down the lineage</span></li>
+<li><span class="n">R-D25</span><b>Put away, not delete.</b> Hides it from lists and ideas; can be brought back (Recipe's disabled status). <span class="prop">Proposal</span> <span class="rw">Reworded by V-D2: a version state; the usual cannot be put away</span> <span class="lk">R-D31 locked: no admin approval; undo any time (BR18)</span></li>
+<li><span class="n">R-D26</span><b>Cooked is a short history:</b> date, who, which version, their line, and the night's photo if one was taken. <span class="prop">Proposal</span> <span class="rw">Answered by V-D28, P-D13</span></li>
+<li><span class="n">R-D27</span><b>List order:</b> fewest missing first, then longest since cooked. Pills are symbols plus a number (plan-week-ai decision 27): all in, N missing, starred, freezes, versions. <span class="prop">Proposal</span></li>
+<li><span class="n">R-D28</span><b>The day picker</b> shows this week Monday first with what is already planned, past days greyed, a usual day off marked, up to four weeks ahead (plan-week-ai decision 1). Picking a day with a meal adds a second meal, it never replaces one. <span class="prop">Proposal</span></li>
+<li><span class="n">R-D29</span><b>Plan tab: a sorted meal taps straight into cook mode.</b> Plan-tab behaviour; cross-feature requests XR1 (phone Plan) and XR2 (desktop Plan) in the handoff. <span class="lk">Locked (owner, voice, 10 Oct 2026)</span></li>
+<li><span class="n">R-D30</span><b>Cook-mode step buttons name where they go:</b> the destination step's content, never Back and Next. <span class="lk">Locked</span></li>
+<li><span class="n">R-D31</span><b>Putting away needs no admin approval.</b> <span class="lk">Locked</span></li>
+<li><span class="n">R-D32</span><b>Navigation pattern unchanged:</b> rail on desktop, bottom nav on mobile. Recipes is a standalone tab (T2, closes R-O6). <span class="lk">Locked</span></li>
+</ol>
+</section>
+
+<section class="sec"><div class="lbl">Recipe-side gaps (solve in Recipe, Kitchie only renders)</div>
+<ol class="d">
+<li><span class="n">G1</span><b>Notes.</b> Recipe has no note on a recipe family. Needs an append-only note list (text, who, when), immutable like everything else. <span class="rw">Answered by V-D31: each version's inherited notes line</span></li>
+<li><span class="n">G2</span><b>Cook history.</b> <code>record_usage</code> keeps a count and a last date only. Cooked needs one entry per cook: when, who, which version, servings, an optional line and photo reference. <span class="rw">Answered: V-D28, P-D13 (<code>photo_ids</code>, up to 3)</span></li>
+<li><span class="n">G3</span><b>Drafts.</b> Recipe has active and disabled only. An assistant draft needs a third status (draft) that lists, search and ideas skip, or a draft must live outside Recipe until saved. Recommended: a draft status in Recipe, so the assistant writes once. <span class="rw">Answered by V-D22</span></li>
+<li><span class="n">G4</span><b>Household default version.</b> Not stored today. Needed so Plan and Cook open the right one. <span class="rw">Answered by V-D5: the usual</span></li>
+<li><span class="n">G5</span><b>Who added it.</b> Only free text in <code>source.description</code>. Needs a member id for "Added by me". <span class="rw">Answered by V-D20</span></li>
+<li><span class="n">G6</span><b>Step timers.</b> Steps are text only. A minutes value per step (optional, never invented) would drive the timer.</li>
+<li><span class="n">G7</span><b>Photos.</b> Only <code>source.image_refs</code>. Dish photos, step photos and cook photos: see the photo-storage slice. <span class="rw">Answered by P-D1 to P-D31 (P1 to P13 locked)</span></li>
+<li class="void"><span class="n">G8</span><b>Reading a photo or a link.</b> Recipe has no parser. The reading is the caller's (the AI's) work; Kitchie needs a way to hand it the photo or link and get a draft back. <span class="sup">Dropped by R-O4 (locked): nothing reads photos or links</span></li>
+<li><span class="n">G9</span><b>Batch facts.</b> Freezes and portions fit in <code>metadata.tags</code>; agree the tag words (closed vocabulary where logic acts).</li>
+</ol>
+</section>
+
+<section class="sec"><div class="lbl">Other slices of the Recipe tab</div>
+<p><a href="../recipe-versions/" style="color:var(--accent);font-weight:700">Recipe versions and lifecycle</a> (V-D1 to V-D33: usual, trying and kept, fix in place or keep both, history and undo, after-cook promotion, the assistant's changes reviewed after, notes per version, reactions, backend spec with git-like storage). <a href="../recipe-photos/" style="color:var(--accent);font-weight:700">Recipe photos</a> (P-D1 to P-D31: blob port, kept sizes, the derive queue, adding from the app and from an assistant, banners and step photos per version, cooked-it photos, notes, privacy, Free up space, loading; answers G7). Built by other agents at the same time; their folders sit next to this one (for example <code>../recipe-versions/</code>, <a href="../recipe-ideas/" style="text-decoration:underline"><code>../recipe-ideas/</code></a> for the cooking-ideas pane). Their sections are in <code>docs/knowledge/jobs-to-be-done/recipe-tab.md</code>. This slice draws versions, photos and ideas only as far as the flow needs them and defers to those slices.</p>
+</section>
+
+<section class="sec"><div class="lbl">What loads (DESIGN.md section 6)</div>
+<ol class="d">
+<li><b>Default path, the list:</b> theme, <code>recipe.css</code>, <code>recipe.js</code> (sample data, icons, bar), and the list's own script. Rows are thumbnails or emoji only; photos load lazily as rows come into view in the build.</li>
+<li><b>Deferred:</b> the day picker (<code>plan-sheet.js</code>) builds its markup only when opened; in the build, fetch it on first swipe or first focus of Plan. The Add, Check it, Change it and Cook screens are separate routes, loaded only when reached (under R-O4 the build has no Add, Check it or Change it screens; the handoff's section 7 has the UI scope). The version tree, notes editor and photo picker are built on tap.</li>
+<li><b>Recipe page:</b> the first photo only; the others on first swipe. Cooked history and Photos render below the fold; in the build they can be fetched when their section nears the viewport.</li>
+<li><b>Entitlement:</b> the whole tab is the Recipes product boundary; a household without Recipes loads none of it (household flow's upgrade path).</li>
+<li><b>Stays close to the build:</b> class names (<code>.rr</code>, <code>.ing</code>, <code>.strip</code>, <code>.act</code>, <code>.sheet</code>) and tokens are meant to be lifted. Sample names live only in <code>recipe.js</code>.</li>
+</ol>
+</section>
+
+<div class="qs" style="margin-top:18px;padding:14px;border:1px dashed var(--border);border-radius:var(--r-card)"><b>Open questions</b>
+<ul style="margin:6px 0 0 18px;color:var(--muted)">
+<li>Tab bar order (option 6). A wrong guess costs every tab's bar.</li>
+<li><s>G3 drafts: a status in Recipe, or held in Kitchie until saved?</s> Answered by V-D22: in Recipe.</li>
+<li><s>G8 who reads a photo or a link.</s> Closed by R-O4 (locked): nobody; no reading, no scraping, no link paste.</li>
+<li><s>Can a follower change a recipe at all, or only add notes?</s> Closed by R-O5 (locked): no followers; all members equal.</li>
+<li>Should Ready now count held items as unavailable for other recipes? The mockup does not; the ideas slice (I-D6) does. Build default: held counts as not in, in both (handoff X8).</li>
+<li><s>Does Put away need anyone's agreement in a household with admins?</s> Closed by R-D31 (locked): no admin approval. Equal roles for now on the Recipe side; the preferences owner's admin role (D25 to D30) is untouched (handoff X3).</li>
+<li><s>Notes on the family or a version? Stars per member or household-wide? Any real delete?</s> Answered by the owner (typed, 10 Oct 2026): per version, inherited; per member, household derived; no delete, undo any time.</li>
+<li>Closed on 11 Oct 2026: the tab bar items (R-O6, T2) and who draws the tab (X16, T1). Still open: the editing screen's options E-O1 to E-O5 (T10, fourth lot; the screen is drawn), what "sorted" means for R-D29 (handoff XR1).</li>
+</ul></div>
+</div></body></html>

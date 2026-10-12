@@ -1,0 +1,6 @@
+/* Option B, 1440 and up: pane 400, the Pantry width. Pills sit to the right of the name, so a row reads in one line: meal, who, what is wrong. */
+:root{--lane:400px}
+.mc .t{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:12px;align-items:center}
+.mc .t b,.mc .t small,.mc .t .ingl{grid-column:1}
+.mc .t .chips{grid-column:2;grid-row:1/4;margin:0;justify-content:flex-end;flex-wrap:nowrap}
+.mc{padding-right:44px}

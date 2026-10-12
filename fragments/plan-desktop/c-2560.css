@@ -1,0 +1,3 @@
+/* Option C, 2200 and up (2560): same as 1920 plus the week summary as its own 340 lane right of the flyout. The column does not grow past 640 (reading width), so this option leaves the most free space on the right: its honest weakness on an ultrawide. */
+.app.has-lane2{grid-template-columns:88px minmax(0,var(--main-max)) var(--lane) 340px}
+.panel.p2{background:var(--bg)}

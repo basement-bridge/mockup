@@ -1,0 +1,23 @@
+/* Not enough room: the panel stacks on top of This week and leaves its left edge showing (the peek, --peek, default 6px, about 1.6 mm at 96 dpi).
+   Both cards stay in the one lane, so the lane keeps its 400px and the column never moves. The front card is --peek narrower than the lane; the one behind is full width.
+   Option A below 1624px, option B at every width, option C below 1448px. */
+.app:not([data-open=none]) .detail{justify-self:end;width:calc(100% - var(--peek));z-index:4;box-shadow:-6px 0 10px -8px rgba(0,0,0,.5);transition:width .18s ease;animation:hdp-in .22s ease-out}
+.app:not([data-open=none]) .week{z-index:3;transition:width .18s ease}
+/* the strip that shows is tinted, so it reads as the edge of another card and not as a border */
+.app:not([data-open=none]):not([data-front=week]) .week{box-shadow:inset var(--peek) 0 0 color-mix(in srgb,var(--accent) 26%,var(--surface))}
+.app[data-front=week]:not([data-open=none]) .detail{box-shadow:inset calc(var(--peek) * -1) 0 0 color-mix(in srgb,var(--accent) 26%,var(--surface))}
+/* This week brought to the front: it is the narrower card now, the panel waits behind it and peeks on the right */
+.app[data-front=week]:not([data-open=none]) .week{justify-self:start;width:calc(100% - var(--peek));z-index:5;box-shadow:6px 0 10px -8px rgba(0,0,0,.5)}
+.app[data-front=week]:not([data-open=none]) .detail{justify-self:start;width:100%;z-index:4;animation:none}
+/* the peek: a button over the visible edge, a little wider than the strip so it can be hit; hover or focus widens the strip */
+.app:not([data-open=none]) .peek{display:block;grid-row:1;grid-column:3;justify-self:start;align-self:start;position:sticky;top:0;height:100vh;width:calc(var(--peek) + 8px);z-index:6;border-radius:0;cursor:pointer}
+.app[data-front=week]:not([data-open=none]) .peek{justify-self:end}
+.peek::before{content:"";position:absolute;top:50%;left:calc(var(--peek) / 2 - 1.5px);width:3px;height:44px;margin-top:-22px;border-radius:3px;background:var(--accent);opacity:.9}
+.app[data-front=week] .peek::before{left:auto;right:calc(var(--peek) / 2 - 1.5px)}
+.peek:hover::before,.peek:focus-visible::before{height:72px;margin-top:-36px;opacity:1}
+.app:not([data-open=none]):not([data-front=week]) .peek:hover ~ .detail,.app:not([data-open=none]):not([data-front=week]) .peek:focus-visible ~ .detail{width:calc(100% - var(--peek) - 8px)}
+.app[data-front=week]:not([data-open=none]) .peek:hover ~ .week,.app[data-front=week]:not([data-open=none]) .peek:focus-visible ~ .week{width:calc(100% - var(--peek) - 8px)}
+.peek.pulse::before{animation:hdp-pulse 1s ease-out 2}
+@keyframes hdp-in{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:none}}
+@keyframes hdp-pulse{0%{box-shadow:0 0 0 0 var(--accent)}100%{box-shadow:0 0 0 10px transparent}}
+@media (prefers-reduced-motion:reduce){.app .detail,.app .week{transition:none;animation:none}.peek.pulse::before{animation:none}}

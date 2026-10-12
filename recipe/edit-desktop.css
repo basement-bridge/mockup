@@ -1,0 +1,57 @@
+/* Edit by hand, desktop (1024px and up with a hover pointer). Fetched by edit.js at that size only; a phone never loads this file (owner: viewport
+   code in its own file). Same markup and classes as the phone; this file only re-lays them out: the form on the left, a lane on the right that
+   lists the changes as they are made and holds Save and the keeper question, so there is no bottom bar and no sheet for the question.
+   The Recipes tab is not drawn on desktop yet (handoff X13), so the window is a plain wide frame, not the Pantry's rail layout.
+   Sheets become centred dialogs. Theme tokens only. */
+.stage{padding:16px 16px 56px}
+.phone{width:min(1180px,calc(100vw - 48px));height:calc(100vh - 72px);max-height:none;display:grid;grid-template-columns:minmax(0,1fr) 380px;grid-template-rows:auto minmax(0,1fr);border-radius:var(--r-card)}
+.phone>.top{grid-column:1/-1;padding:var(--sp-2) var(--sp-5)}
+.phone>.body{grid-column:1;grid-row:2;padding:0 var(--sp-5)}
+.phone>.act,.phone>#askin{display:none}
+.body .sec{padding:0;max-width:760px}
+.body .band{margin:var(--sp-3) 0 0;max-width:760px}
+.jumps{padding:var(--sp-1) 0;max-width:none}
+.edlane{grid-column:2;grid-row:2;border-left:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;min-height:0;padding:var(--sp-4) var(--sp-4) var(--sp-3)}
+.edlane h2{display:flex;align-items:center;gap:8px}
+.edlane h2 .cnt{font:700 12px var(--body);min-width:24px;height:24px;border-radius:12px;display:inline-grid;place-items:center;background:var(--accent);color:var(--on-accent);padding:0 7px}
+.edlane .wh{font-size:12.5px;margin-top:2px}
+.edlane .ld{flex:1;min-height:0;overflow:auto;margin:var(--sp-2) 0}
+.edlane .ld .df{margin-top:0}
+.edlane .lq{flex:none;border-top:1px solid var(--border);padding-top:var(--sp-2)}
+.edlane .lq .ch{min-height:56px;padding:var(--sp-2) var(--sp-3);margin-top:6px}
+.edlane .lq .ch b{font-size:14px}
+.edlane .lq .edf{margin-top:var(--sp-2)}
+.edlane .lf{flex:none;display:grid;grid-template-columns:1fr 1.5fr;gap:var(--sp-2);margin-top:var(--sp-3)}
+.edlane .phint{font-size:12px;color:var(--muted);margin-top:var(--sp-2);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.edlane .ednone{padding:var(--sp-3) 0;text-align:left}
+
+/* ingredient and step rows sit on one line; move arrows and remove are always there, so there is no Reorder mode */
+.edrow{grid-template-columns:minmax(0,1fr) auto auto;grid-template-areas:"main meta act";gap:var(--sp-2) var(--sp-3)}
+.edmeta{flex-wrap:nowrap}
+.edact .mv,.reord .edrow .edact .mv{display:inline-flex}
+.edact .rmv,.reord .edrow .edact .rmv{display:inline-flex}
+[data-reord]{display:none!important}
+.edrow .rmnote{grid-area:meta}
+.edmeta .field{width:88px}
+.edmeta select.field{width:110px}
+.edmeta .field.tm{width:72px}
+.edmain .field{min-width:0}
+.edban{height:220px}
+.pgrid{grid-template-columns:repeat(6,1fr)}
+.edtags input.field{width:150px}
+.ednote textarea.nbox{max-height:200px}
+
+/* sheets become centred dialogs */
+.phone .scrim{z-index:40}
+.phone .sheet{left:50%;right:auto;bottom:auto;top:50%;transform:translate(-50%,-50%);width:min(520px,calc(100% - 48px));max-height:calc(100% - 64px);border:1px solid var(--border);border-radius:var(--r-card);z-index:41}
+.phone .sheet .grab{display:none}
+.toast{bottom:20px;left:auto;right:calc(var(--sp-5) + 380px);max-width:420px}
+/* crop and rotate: the photo on the left, the controls beside it */
+.phone .crop{display:grid;grid-template-columns:minmax(0,1fr) 340px;grid-template-rows:auto minmax(0,1fr)}
+.phone .crop>.top{grid-column:1/-1}
+.crop .cctl{border-top:0;border-left:1px solid var(--border);overflow:auto}
+.crop .cstage{padding:var(--sp-5)}
+.crop .cframe{max-height:100%;width:auto;height:100%;max-width:100%}
+
+/* the window leaves a strip at the bottom for the prototype's Mockup and Keys buttons, so they never cover the form or the lane */
+.mockb{right:10px;bottom:6px}.mockp{right:10px;bottom:56px}

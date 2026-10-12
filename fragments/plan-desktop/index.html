@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Plan on desktop, options</title><link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><script src="../../theme.js"></script>
+<style>
+.opt{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+.opt img{width:100%;height:auto;border-radius:12px;border:1px solid var(--border);display:block}
+.opt h3{margin:0 0 4px;font-size:18px}
+.opt .pitch{margin:0 0 8px;font-weight:600}
+.opt ul{margin:6px 0 10px;padding-left:18px;font-size:14px}
+.links{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.links a{display:inline-flex;align-items:center;min-height:36px;padding:0 12px;border-radius:99px;border:1px solid var(--border);background:var(--bg);font-size:13px;font-weight:600}
+.links a:hover{border-color:var(--accent)}
+.rec{border:2px solid var(--accent);border-radius:var(--r-card);padding:16px;background:var(--surface)}
+.decs li{margin-bottom:6px;font-size:14px}
+.tbl{overflow-x:auto}
+.tbl table{min-width:640px}
+@media(max-width:800px){.opt{grid-template-columns:1fr}}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Plan on desktop: four options</h1>
+<p>The desktop Plan page today is the phone layout stretched into a 60% column, with a big panel pinned bottom-right that covers the week it is about. These four options use the width instead. Same cards, same pills, same decisions as the phone Plan (<a href="../plan-week-ai/index.html">Planning the week, AI-led</a>); only the layout and the pointer and keyboard behaviour change. Mockup only: nothing is saved, nothing opens. Open any option, then press the backtick key at the top edge to pick a window size.</p>
+
+<div class="sec"><div class="lbl">Recommendation</div>
+<div class="rec">
+<p><b>Option A, the week board, as the default.</b> A cook planning a week needs all seven days on screen at once, and wants to know "can I cook this?" without opening it. A gives that: seven columns, drag between them, with an inspector that is always docked on the right from 1440 and never covers the board. When nothing is picked the inspector is the week summary (what to buy by when, use-by pressure, cook order), so the right side is never empty and nothing shifts when a meal is picked. Under 1280 it becomes an agenda, which is Option B's layout, so B is not lost, it is A's narrow form.</p>
+<p style="margin-top:8px"><b>Take from the others:</b> D's "Use first / To buy" grouping is already the summary's job; D itself is worth building later as a second view of the same week (a "Cook sheet" switch next to the week title), because it answers a different question (what do I prep and buy, by day). C's Mise en place block fits the summary lane as a per-day section. Picking C alone is the safe, small build but it shows one day at a time, which is the phone problem again.</p>
+<p style="margin-top:8px"><b>Fallback if the build must stay small:</b> B. One layout at every width, no collapse rule, the Pantry master-detail pattern the app already has.</p>
+</div></div>
+
+<div class="sec"><div class="lbl">The options</div>
+
+<div class="tile opt" style="margin-top:10px">
+<div><h3>A. Week board with a docked inspector</h3><p class="pitch">Seven days side by side, drag to move, and a side inspector that pushes the board instead of covering it.</p>
+<ul><li>1280 and up: seven columns. 1440 and up: inspector always docked (week summary when idle). 1920: cards show the missing or on-hand line. 2200 and up: the board stops at 1760 and the summary gets its own lane.</li><li>1024 to 1279: collapses to the agenda; the inspector appears when a meal is picked and pushes.</li></ul>
+<div class="links"><a href="a.html?sel=wed-curry">Open A</a><a href="a.html?sel=wed-curry&amp;vp=1920">1920</a><a href="a.html?sel=wed-curry&amp;vp=1366">1366 × 768</a><a href="a.html?vp=1024&amp;sel=wed-curry">1024</a><a href="a.html?vp=2560">2560</a></div></div>
+<img src="shots/a-1440.jpg" alt="Option A at 1440 wide: seven day columns with the Wednesday chicken curry picked and its inspector docked on the right" loading="lazy"></div>
+
+<div class="tile opt">
+<div><h3>B. Agenda with a detail pane</h3><p class="pitch">The phone list, kept to a readable width, with a permanent detail pane: the Pantry master-detail pattern.</p>
+<ul><li>Every size from 1024: agenda capped at 760 (820 at 1920), pane 340, 380, 400 and 440. No collapse rule. Pills move beside the name from 1440.</li><li>Idle pane is the week summary.</li></ul>
+<div class="links"><a href="b.html?sel=wed-curry">Open B</a><a href="b.html?sel=wed-curry&amp;vp=1920">1920</a><a href="b.html?sel=wed-curry&amp;vp=1366">1366 × 768</a><a href="b.html?vp=1024&amp;sel=wed-curry">1024</a><a href="b.html?vp=2560">2560</a></div></div>
+<img src="shots/b-1440.jpg" alt="Option B at 1440 wide: a day-by-day list on the left and the chicken curry detail pane on the right" loading="lazy"></div>
+
+<div class="tile opt">
+<div><h3>C. Week strip, one focused day</h3><p class="pitch">Seven day tabs on top, the chosen day in big cards with On hand and Missing beside each, and a Pantry-style flyout.</p>
+<ul><li>Group is rail 88 + column 736 + flyout 400, left-anchored like Pantry. At 1920 the day gets a second column for Mise en place (buy by, past use-by, cook for N).</li><li>Left and right arrows move between days.</li></ul>
+<div class="links"><a href="c.html?day=Wed&amp;sel=wed-curry">Open C</a><a href="c.html?day=Wed&amp;sel=wed-curry&amp;vp=1920">1920</a><a href="c.html?day=Wed&amp;sel=wed-curry&amp;vp=1366">1366 × 768</a><a href="c.html?vp=1024&amp;day=Wed&amp;sel=wed-curry">1024</a><a href="c.html?vp=2560">2560</a></div></div>
+<img src="shots/c-1440.jpg" alt="Option C at 1440 wide: a row of seven day tabs, Wednesday focused with a large chicken curry card and the flyout on the right" loading="lazy"></div>
+
+<div class="tile opt">
+<div><h3>D. Cook sheet</h3><p class="pitch">The week as a cook reads it: ingredients down the side, days across; use first, to buy by day, shared between meals, leftovers chain.</p>
+<ul><li>Sheet fills the width (min column 92 to 130, label 176 to 230). Lane overlays below 1440 (the sheet needs its width; it scrolls so the picked day stays visible), docks from 1440, and a second lane at 2200 holds "Prep ahead and shop by day".</li></ul>
+<div class="links"><a href="d.html?sel=wed-curry">Open D</a><a href="d.html?sel=wed-curry&amp;vp=1920">1920</a><a href="d.html?sel=wed-curry&amp;vp=1366">1366 × 768</a><a href="d.html?vp=1024&amp;sel=wed-curry">1024</a><a href="d.html?vp=2560">2560</a></div></div>
+<img src="shots/d-1440.jpg" alt="Option D at 1440 wide: an ingredients by day grid with use first and to buy groups, and the chicken curry inspector docked on the right" loading="lazy"></div>
+</div>
+
+<div class="sec"><div class="lbl">States a cook needs (open in any option; add &amp;vp=1440 for a fixed size)</div>
+<p>The links use Option A; swap <code>a.html</code> for <code>b.html</code>, <code>c.html</code> or <code>d.html</code>.</p>
+<div class="tbl"><table>
+<tr><th>State</th><th>Open</th><th>What to look for</th></tr>
+<tr><td>Empty week</td><td><a href="a.html?state=empty">?state=empty</a> · <a href="a.html?state=empty&amp;nudge=1">with the nudge</a></td><td>No copy on empty days (decision 14). After five seconds the idle curtain offers the assistant, once.</td></tr>
+<tr><td>Day with two meals</td><td><a href="a.html?sel=thu-patty">Thu: patties and tuna salad</a></td><td>Two cards stack in the day; the one-person tuna salad has its own audience.</td></tr>
+<tr><td>Missing ingredients</td><td><a href="a.html?sel=wed-curry">Wed chicken curry</a></td><td>Missing list with a cart button each, "Talk to your assistant about substitutes" (decision 11).</td></tr>
+<tr><td>At-risk (use-by)</td><td><a href="a.html?sel=wed-curry">Wed chicken curry</a> · <a href="d.html">Option D</a></td><td>Chicken thighs go off Tue 13, before Wed. Pill, summary, lane line, and drop hints "fixes use-by" or "after use-by".</td></tr>
+<tr><td>Made up by your assistant</td><td><a href="a.html?sel=wed-curry&amp;state=assistant">Wed, assistant just updated</a></td><td>Chip and "Not a saved recipe" in the inspector; sync pill says "Updated by your assistant".</td></tr>
+<tr><td>A hold</td><td><a href="a.html?sel=mon-shak">Mon shakshuka</a></td><td>Held state on the card; Hold toggles to Release (decision 9, 33).</td></tr>
+<tr><td>Blocked or usual day off</td><td><a href="a.html">Fri and Sat</a></td><td>Fri "Usual day off, cooking this week" with leftovers; Sat "Not cooking" (decisions 34 to 36).</td></tr>
+<tr><td>Drag in progress</td><td><a href="a.html?drag=wed-curry&amp;over=Tue">Drag Wed curry over Tue</a> · <a href="a.html?drag=wed-curry&amp;over=Thu&amp;copy=1">Alt copy</a></td><td>Ghost, dimmed original, drop targets green, amber ("after use-by") or red.</td></tr>
+<tr><td>Loading</td><td><a href="a.html?state=loading">?state=loading</a></td><td>Skeleton in the same shape as the page, no spinner.</td></tr>
+<tr><td>Offline</td><td><a href="a.html?state=offline">?state=offline</a></td><td>Bar says what is shown and from when; edits are paused, not lost.</td></tr>
+<tr><td>Realtime sync</td><td><a href="a.html?state=syncing">?state=syncing</a></td><td>Live, Syncing and Updated by your assistant sit in the header and replace pull-to-refresh with a Refresh control (key R).</td></tr>
+<tr><td>Today, and last week</td><td><a href="a.html?state=today">this week</a> · <a href="a.html?state=past">last week</a></td><td>Last week is read-only (decision 31).</td></tr>
+<tr><td>Context menu, toast, picker, keys</td><td><a href="a.html?menu=wed-curry">menu</a> · <a href="a.html?toast=1">undo toast</a> · <a href="a.html?picker=1">week picker</a> · <a href="a.html?help=1">keyboard list</a></td><td>Menu shows the key for each action. Every removal has an undo toast (Z).</td></tr>
+</table></div></div>
+
+<div class="sec"><div class="lbl">Touch behaviour, translated for pointer and keyboard</div>
+<div class="tbl"><table>
+<tr><th>On the phone</th><th>On desktop</th></tr>
+<tr><td>Swipe a meal: Replan, remove and not cooking (decisions 13, 25, 38)</td><td>Hover or focus shows Hold, Replan and More on the card. Right-click or the More button opens the same actions as a menu, each with its key. Keys: <b>X</b> Replan, <b>Shift X</b> remove and not cooking, <b>H</b> hold, <b>L</b> add missing to the list, <b>Z</b> undo.</td></tr>
+<tr><td>Drag a meal to another day (decision 6: drag only, no Move button)</td><td>Mouse drag with a ghost and drop targets on every day; hints on a target say what the move does to use-by. Alt or Option drag copies. Keyboard: <b>Space</b> lifts, left and right carry, Space drops, Esc cancels.</td></tr>
+<tr><td>Tap a meal opens a bottom sheet</td><td>Click, or Enter on a focused meal, fills the side inspector. Arrows move between meals and the inspector follows. Enter again moves focus into the inspector. <b>Ctrl or Cmd Enter</b> or the close button closes it (the Pantry rule); Esc only cancels a drag, lift, menu or picker.</td></tr>
+<tr><td>Swipe between weeks</td><td>The two arrows beside the title, <b>[</b> and <b>]</b> or Page Up and Down, two-finger sideways scroll on the header or board, click the title for the week picker (<b>W</b>), <b>T</b> for this week. The title keeps one width (decision 46).</td></tr>
+<tr><td>Pull to refresh</td><td>A Refresh control and <b>R</b>; the sync pill shows Live, Syncing, Offline or Updated by your assistant. Realtime changes arrive without asking.</td></tr>
+<tr><td>Long-press</td><td>Right-click, or hover for the quick buttons.</td></tr>
+<tr><td>Tap targets and states</td><td>Controls keep 44px hit areas; hover shows a lighter fill and a tooltip with the key (after 450 ms, never over the viewport edge); focus shows a clear ring; selected shows the outline and accent bar. Shortcut cues can be switched off in the keyboard list.</td></tr>
+<tr><td>Undo</td><td>Every removal, replan, move and copy shows a toast with Undo (Z), and Z works for a while after. No confirm dialogs.</td></tr>
+<tr><td>Missing items check to add to shopping</td><td>The same check button; with the keyboard, focus the item and Enter, or <b>L</b> for all missing on the meal.</td></tr>
+</table></div></div>
+
+<div class="sec"><div class="lbl">Breakpoint rules per option</div>
+<p>Viewport rules live in their own files, loaded by media query on the link tag (CSS) or fetched only when the query matches (JS). The shared files (<code>plan.css</code>, <code>plan.js</code>) have no size rules. Nothing under 1024 is in scope here: phone and tablet keep the phone Plan.</p>
+<div class="tbl"><table>
+<tr><th>Size</th><th>A. Board</th><th>B. Agenda + pane</th><th>C. Strip + day</th><th>D. Cook sheet</th></tr>
+<tr><td>1024 to 1279</td><td>Agenda; inspector 340 opens on a pick and pushes</td><td>Agenda max 760, pane 340 docked always</td><td>Column 736 max (about 550 at 1024), flyout 340 pushes</td><td>Sheet fills (label 176, columns 92 min); lane 340 overlays</td></tr>
+<tr><td>1280 to 1439</td><td>Seven columns; inspector 360 summoned, pushes, columns step to the mini card</td><td>Pane 380</td><td>Flyout 380</td><td>Lane 380 overlays, sheet scrolls to keep the picked day clear</td></tr>
+<tr><td>1440 to 1919</td><td>Inspector 400 always docked (idle = week summary)</td><td>Pane 400; pills beside the name</td><td>Flyout 400; group 1224, 216 free on the right</td><td>Lane 400 docks and pushes; label 190, columns 96</td></tr>
+<tr><td>1920 to 2199</td><td>Inspector 440; cards show ingredient line</td><td>Pane 440; agenda 820</td><td>Pane 440; second column holds Mise en place; day column to 1160</td><td>Lane 440; sheet to 1500, label 230, columns 130</td></tr>
+<tr><td>2200 and up (2560)</td><td>Board stops at 1760; summary gets its own 320 lane</td><td>Same as 1920, summary lane added; free space on the right</td><td>Same as 1920, summary lane added</td><td>Second lane: Prep ahead and shop by day</td></tr>
+<tr><td>Height 800 and under (1366 × 768)</td><td colspan="4">Header and people strip share one line, rows and cards tighten, the lane scrolls on its own. Each option has its own <code>-short.css</code>. Board columns keep a full-height drop area only from 1280 up.</td></tr>
+<tr><td>Max content width</td><td>1760</td><td>760 (820)</td><td>736 (1160)</td><td>1500</td></tr>
+</table></div></div>
+
+<div class="sec"><div class="lbl">Decisions I made, to confirm or overturn</div>
+<p>Numbers continue the Plan list (last owner decision was 48). All are proposals until the owner says yes. Recorded in <a href="https://github.com/basement-bridge/mockup/blob/main/docs/knowledge/jobs-to-be-done/plan-desktop.md">plan-desktop.md</a>.</p>
+<ol class="decs" start="49">
+<li><b>Desktop Plan is its own layout</b>, not the phone column stretched. Recommended: Option A.</li>
+<li><b>The inspector never covers the week it is about.</b> It docks and pushes. The one exception is Option D below 1440, where it overlays and the sheet scrolls to keep the picked day visible.</li>
+<li><b>Inspector widths</b> are 340, 380, 400, 440, matching Pantry's 400 at 1440.</li>
+<li><b>With nothing picked the inspector shows the week summary:</b> to buy (by day), use-by pressure, cook order. It is never empty.</li>
+<li><b>Close key is Ctrl or Cmd Enter, and Esc only cancels or closes menus,</b> as in Pantry. The inspector is also resizable (320 to 560) and dismissible, and a picked meal is in the URL (<code>?sel=</code>).</li>
+<li><b>No Move key.</b> Decision 6 stands: moving is dragging. Desktop adds a keyboard way to drag (Space to lift, arrows, Space to drop). The brief's "M to move" is not used because M is already "focus the main column" in Pantry.</li>
+<li><b>Replan is X, remove and not cooking is Shift X, Hold is H.</b> They carry decisions 13, 25 and 38 to the keyboard.</li>
+<li><b>Breakpoints:</b> board from 1280, agenda below, always-docked inspector from 1440, board capped at 1760, left-anchored (free space on the right).</li>
+<li><b>Week step by trackpad:</b> two-finger sideways on the header or board steps one week; the title opens a picker listing last week to four weeks ahead with meal counts (decision 44 window).</li>
+<li><b>Sync indicator:</b> Live, Syncing, Offline, Updated by your assistant, in the header. Offline pauses edits and says so; it does not queue them.</li>
+<li><b>Undo toast for every removal, replan, move, copy</b>; no confirm dialogs.</li>
+<li><b>Use-by is a drag hint:</b> dropping a meal later than an on-hand ingredient's use-by day says so on the target; it never blocks.</li>
+<li><b>Hover buttons are Hold, Replan, More,</b> and they are also reachable by focus, so keyboard and touch-screen laptops get them.</li>
+<li><b>Day-state looks</b> (decisions 34 to 36) and the stable week title (46) carry over unchanged. Decision 47 (week remembered) and decision 48 (people strip) are not drawn on desktop beyond reuse of the strip.</li>
+</ol></div>
+
+<div class="sec"><div class="lbl">Notes</div>
+<p><b>DESIGN.md applied.</b> Section 1 (the job: week at a glance, can I cook this), 2 (one token set, no raw colours in page CSS), 4 (same cards and pills as the phone), 5 (these are options, not one take-it-or-leave-it), 6 (the default path loads two shared files and that option's size files; the ultrawide lane script and Option D's overlay script are fetched only when their query matches; no images), 7 (form factors and loading; this is the desktop part, left-anchored rail 88 + column + side panel).</p>
+<p style="margin-top:8px"><b>Not drawn.</b> Phone and tablet Plan (unchanged), the assistant itself (opens the person's default AI app, decision 45; the mockup shows a toast instead), writing to any real data. Meals made up by the assistant are labelled "Made up by your assistant" and are not saved recipes.</p>
+</div>
+</div></body></html>

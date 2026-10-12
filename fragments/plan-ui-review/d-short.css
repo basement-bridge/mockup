@@ -1,0 +1,4 @@
+/* Short windows (height 800 or less): the summary strip gives up height first. */
+.sumt{min-height:52px;padding:6px 12px}
+.sumt .big{font-size:1.5rem}
+.board .day{min-height:0}

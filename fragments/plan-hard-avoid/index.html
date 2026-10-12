@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Plan it, Hard avoid guard</title><link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><script src="../../theme.js"></script>
+<style>
+.tbl{overflow-x:auto}.tbl table{min-width:640px}
+.decs li{margin-bottom:8px;font-size:14px}
+.q li{margin-bottom:8px;font-size:14px}
+.links{display:flex;flex-wrap:wrap;gap:6px}
+.links a{display:inline-flex;align-items:center;min-height:36px;padding:0 12px;border-radius:99px;border:1px solid var(--border);background:var(--bg);font-size:13px;font-weight:600}
+.links a:hover{border-color:var(--accent)}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Plan it: a Hard avoid guards a hand-planned meal</h1>
+<p>Mockup only, nothing is saved or sent. When a person plans a meal by hand, a Hard avoid stops it only if that person is part of the meal. Shopping is not stopped. The guard sits inside the Plan it panel, in place, in the Plan page's own look (the lane on a desktop, a bottom sheet on a phone). Decisions SW-74 to SW-82 and questions SW-O46 to SW-O56 in <code>docs/knowledge/settings-window.md</code> (round 10).</p>
+
+<div class="sec"><div class="lbl">Owner, 12 October 2026 (typed), answering SW-O30</div>
+<p>&ldquo;yes only meals if the person with the hard block is part of the meal (they themselves or the household itself) &hellip; if household, warn and ask the recipe to exclude the person with the hard block&rdquo;</p></div>
+
+<div class="sec"><div class="lbl">The states (open at full width, or add <code>&amp;vp=390</code> for a phone-width frame)</div>
+<div class="tbl"><table>
+<tr><th>State</th><th>Open</th><th>What to look for</th></tr>
+<tr><td>Single person blocked</td><td><a href="frame.html?state=stop">desktop</a> · <a href="frame.html?state=stop&amp;vp=390">phone</a></td><td>Meal for Jane alone, Jane has a Hard avoid on mushrooms. A hard stop: who and what, never her Reason. No Plan button, nothing to press to get past it. Ways out: Choose another meal, Cancel, or pick someone else above.</td></tr>
+<tr><td>Household meal warns</td><td><a href="frame.html?state=warn">desktop</a> · <a href="frame.html?state=warn&amp;vp=390">phone</a></td><td>Meal for Everyone includes Jane. Names her and the avoid, no Reason. One action: <b>Leave Jane out of this meal</b>, with what it does under it. Choose another meal and Cancel beside it. No Plan anyway.</td></tr>
+<tr><td>Household, two affected</td><td><a href="frame.html?state=warn2">desktop</a> · <a href="frame.html?state=warn2&amp;vp=390">phone</a></td><td>A third member, Kai, avoids cream. One list, one action: Leave Jane and Kai out of this meal.</td></tr>
+<tr><td>After leaving someone out</td><td><a href="frame.html?state=excluded">desktop</a> · <a href="frame.html?state=excluded&amp;vp=390">phone</a> · <a href="frame.html?state=excluded2">two</a></td><td>The meal on Saturday says who it is for (Sam) and carries &ldquo;Not for Jane&rdquo;. The lane lists Sam, then Jane muted, &ldquo;Left out: hard avoid on mushrooms&rdquo;. Toast with Undo; Undo asks again.</td></tr>
+<tr><td>Meal without the item</td><td><a href="frame.html?state=clear">desktop</a> · <a href="frame.html?state=clear&amp;vp=390">phone</a></td><td>Chicken curry for Everyone. No warning, a normal Plan button.</td></tr>
+<tr><td>Meal for other people only</td><td><a href="frame.html?state=others">desktop</a> · <a href="frame.html?state=others&amp;vp=390">phone</a></td><td>Mushroom pasta for Sam alone. Jane's Hard avoid is not involved, so nothing shows.</td></tr>
+<tr><td>Soft avoid</td><td><a href="frame.html?state=soft">desktop</a> · <a href="frame.html?state=soft&amp;vp=390">phone</a></td><td>Shakshuka for Everyone, Jane has a Soft avoid on onion. Not blocked; one quiet line, no guard colour, Plan is there.</td></tr>
+</table></div>
+<p style="margin-top:8px">Parameters: <code>state=stop|warn|warn2|excluded|excluded2|clear|others|soft</code>, then <code>r=pasta|curry|shak|stir</code>, <code>for=all|Sam|Jane|Kai</code>, <code>hh=2|3</code> (a household of two or three), <code>day=Mon..Sun</code>, <code>closed=1</code>. The day and For buttons work: change them and the guard re-checks in place. Pages: <code>?state=warn</code> on <code>frame.html</code> in this folder. Sample people: Sam (planning), Jane (Hard: mushrooms, &ldquo;Allergic, makes me ill&rdquo;; Soft: onion, &ldquo;don't like it&rdquo;), Kai (Hard: cream, &ldquo;Can't have dairy&rdquo;).</p></div>
+
+<div class="sec"><div class="lbl">What it does</div>
+<ul class="decs">
+<li><b>One rule, from the owner.</b> A Hard avoid blocks a hand-planned meal only when the person is part of that meal: a meal for them alone, or a household meal (which includes them). A meal for only other people is not touched. The shopping list is not blocked by Hard at all. Soft never blocks.</li>
+<li><b>Where.</b> In the Plan it panel (the day picker the Recipe tab already opens, R-D28), under the choice that causes it, in place (SW-22): no page, no extra dialog. It checks live, as soon as the recipe, day and &ldquo;Who it is for&rdquo; make a conflict, and says so to a screen reader (an alert).</li>
+<li><b>Single person: a hard stop.</b> &ldquo;Not for Jane&rdquo;, the recipe has mushrooms in it (the matched word is marked in the ingredient line), she has a hard avoid on mushrooms (no Reason shown, SW-O48). Hard means avoided completely, so there is no override and none is drawn (SW-O47).</li>
+<li><b>Household: warn and offer to leave her out.</b> Names everyone affected and the avoid, no Reason. The one action reads <b>Leave Jane out of this meal</b> (two: <b>Leave Jane and Kai out of this meal</b>) and says under it what it does: &ldquo;Plans Saturday for Sam only and marks it not for Jane. Quantities are worked out for Sam.&rdquo; Pressing it plans the meal in one step. There is no Plan anyway.</li>
+<li><b>After.</b> The card says who it is for and carries &ldquo;Not for Jane&rdquo;; the lane (desktop) lists who it is for and who it is not for with the avoid, not her Reason; Undo returns to the guard. Choosing Everyone again asks again: she is never quietly put back.</li>
+<li><b>Everyone left in the meal has a Hard avoid</b> (code path, not a state): a hard stop, &ldquo;Not for anyone in this meal&rdquo;, no leave out.</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">Proposals (the owner was silent)</div>
+<ul class="decs">
+<li><b>A &ldquo;Who it is for&rdquo; row in the panel</b>: Everyone, then each member, one chosen, in place of the old People counter. A Plan entry in the app is for everyone or for one member already (<code>for_whom</code>), and the Plan page's Mine, Everyone and per-member views (decision 48) read the same way. The people count is shown under it and follows the choice.</li>
+<li><b>Leave out plans the meal at once</b> (one press), with Undo, rather than only changing the selection and asking for a second press. Wrong guess: someone expected to review first; the toast and Undo are the safety.</li>
+<li><b>&ldquo;Leave out&rdquo; means: the plan entry is for the others and is marked not for them; the Recipe is not changed.</b> The owner said &ldquo;ask the recipe to exclude&rdquo;; uat says applying a rule never creates a Recipe variation, and Recipe has no such call (SW-O46).</li>
+<li><b>Resolved (SW-O48): name and avoid only.</b> Owner, by voice, 12 October 2026: no need to show the reasoning. A Hard avoid's Reason is shown only to the person whose avoid it is, never in the planner's warning or stop, nor on the planned meal. Open: the Soft line still quotes its Reason.</li>
+<li><b>Soft: one quiet line</b> in muted text with an info icon, no danger colour, no action. Wrong guess: noise; drop it (SW-O53).</li>
+<li><b>Sizes</b> follow the Plan page: from 1024 the rail, a left-anchored 736 column and a 400 lane that never covers the week; below 1024 a bottom sheet over the agenda (phone and tablet), toast along the bottom.</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">Open questions</div>
+<p>SW-O46 to SW-O56 are written in full in <code>docs/knowledge/settings-window.md</code> (Open questions). The ones that matter most: how &ldquo;leave out&rdquo; is stored and whether it changes the Recipe (46); whether an override is ever needed (47); (48 is resolved: name and avoid only, never the Reason to anyone but its owner); whether the AI planner should also leave people out instead of refusing the whole meal (49); the add paths this panel does not cover: copy last week, drag, editing who a meal is for, and a Hard avoid added after the meal is planned (50, 51).</p></div>
+
+<div class="sec"><div class="lbl">Loads (DESIGN.md section 6)</div>
+<p>Nothing is loaded by any existing page: this is a new fragment. Default path of <code>frame.html</code>: <code>theme.css</code>, <code>plan.css</code> (shared with Plan on desktop, no size rules), <code>guard.css</code> (about 5 KB, phone and tablet baseline), <code>guard-wide.css</code> (under 1 KB, fetched only from 1024 by media query), <code>guard.js</code> (about 19 KB, sample data and the check), the size picker script <code>frame.js</code> from the Plan fragment. No images, no fonts added, nothing deferred because nothing is optional: the guard is the screen. In the build the check is a call the server already makes for the assistant (<code>checkFoodRules</code>), so the panel adds one request when a conflict is possible, not a bundle. Check: <code>node tools/hard-avoid-plan-check.mjs</code>.</p></div>
+</div></body></html>

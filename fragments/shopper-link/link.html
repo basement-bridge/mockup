@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="robots" content="noindex">
+<title>Link</title>
+<!-- One link, tapped into (owner, voice, 11 October 2026, SL-D29 to SL-D33). The container: time left to act at the top, once; whether it has been opened and whether anything has been promised; counts you can tap to see the names; and the lines it touched, in the same look as the Shopping list. Three states: not opened yet (only the countdown), active, and turned down (grey, no countdown, dismissible).
+     Mockup only, not for the build: theme.css and theme.js (the mockup's tokens and theme choice), kitchie.css (rules the app already has), mock.js (the pretend server) and mock-member.js (draws
+     the markup the server would draw, from the pretend server, so every state can be framed). The build's server draws this markup itself; member.css styles it. -->
+<link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="kitchie.css"><link rel="stylesheet" href="member.css">
+<script src="../../theme.js"></script><script src="mock.js" defer></script><script src="mock-member.js" defer></script>
+</head><body data-no-theme-fab>
+<header class="appbar"><a class="brandbar" href="#" title="Our kitchen"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="6" y="2.5" width="12" height="19" rx="2.5"></rect><path d="M6 10h12M9 6v1.5M9 13v3"></path></svg><span>Our kitchen</span></a><div class="hdr"><a class="icon" href="#" aria-label="Profile"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 14a4 4 0 0 1-1-7.7 4.5 4.5 0 0 1 8.6-1.3 4 4 0 0 1 3.4 5.5A4 4 0 0 1 17 14v5H7z"/><path d="M7 17h10"/></svg></a></div></header>
+<h1 class="sr-only">Link</h1>
+<main id="sl-root"></main>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<nav class="bar" aria-label="Main">
+<a href="#"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 11l8-7 8 7v8.5a1.5 1.5 0 0 1-1.5 1.5h-3.5v-6h-6v6H5.5A1.5 1.5 0 0 1 4 19.5z"/></svg><span>Home</span></a>
+<a href="#"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="6" y="4" width="12" height="3.5" rx="1.5"/><path d="M7 7.5h10a2 2 0 0 1 2 2V18a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 5 18V9.5a2 2 0 0 1 2-2z"/><circle cx="12" cy="14" r="2.2"/></svg><span>Pantry</span></a>
+<a href="#"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 14a4 4 0 0 1-1-7.7 4.5 4.5 0 0 1 8.6-1.3 4 4 0 0 1 3.4 5.5A4 4 0 0 1 17 14v5H7z"/><path d="M7 17h10"/></svg><span>Recipes</span></a>
+<a href="#" aria-current="page"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M3 4h2.5l2.2 10.2a1 1 0 0 0 1 .8h8.8a1 1 0 0 0 1-.8L20 8H6.2"/></svg><span>Shopping</span><i class="badge" aria-hidden="true">12</i></a>
+</nav>
+</body></html>

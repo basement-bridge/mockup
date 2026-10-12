@@ -1,0 +1,161 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Shape E mockup</title><style>
+:root{color-scheme:dark;--bg:#0F1E19;--surface:#172A23;--border:#24403A;--fg:#F3EEE3;--muted:#A9B8AE;--accent:#F2B84B;--on-accent:#0F1E19;--danger:#FF9A8F;--sage:#9CCBA8;--added:#86D99B;--r-ctl:14px;--r-card:18px;--head:"Bricolage Grotesque","DM Sans",system-ui,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"DM Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.4;font-size:15px}
+.w{max-width:390px;margin:0 auto;padding:14px 16px 40px}
+h1{font-family:var(--head);font-size:26px;margin:4px 0 2px}
+.tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.sub{color:var(--muted);font-size:13px;margin:0 0 10px}
+.cap{margin:26px 0 8px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--accent)}
+.sc{margin:34px 0 0;padding-top:14px;border-top:2px solid var(--border);font-family:var(--head);font-size:21px}
+.sc small{display:block;font-family:inherit;font-size:13px;font-weight:400;color:var(--muted);margin:2px 0 6px}
+.area{margin:14px 0 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.list{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden}
+.row{display:flex;gap:10px;align-items:center;min-height:56px;padding:8px 12px;border-top:1px solid var(--border)}
+.row:first-child{border-top:0}
+.em{font-size:24px;width:36px;text-align:center}
+.nm{flex:1;min-width:0;font-weight:600}.nm small{display:block;font-weight:400;font-size:12px;color:var(--muted)}
+.amt{font-weight:700;text-align:right;font-size:14px}.amt small{display:block;font-weight:400;font-size:11px;color:var(--muted)}
+.pill{font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;border:1px solid var(--border);white-space:nowrap;color:var(--sage)}
+.pill.low{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.pill.out{color:var(--danger);border-color:var(--danger)}
+.pill.here{color:var(--muted);border-style:dashed;font-weight:600}
+.chip{display:inline-block;font-size:11px;font-weight:600;padding:1px 8px;border-radius:99px;border:1px dashed var(--muted);color:var(--muted);margin-top:3px}
+.chip b{color:var(--fg)}
+.sheet{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:8px 14px 14px}
+.grip{width:40px;height:5px;border-radius:3px;background:var(--border);margin:0 auto 10px}
+.top{display:flex;gap:10px;align-items:center}.top .em{background:var(--bg);border-radius:var(--r-ctl);height:44px;line-height:44px;font-size:28px;width:44px}
+.top b{font-size:19px;display:block}.top span{color:var(--muted);font-size:13px}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.tl{min-height:62px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;color:var(--muted);font-weight:600;text-align:center;padding:4px}
+.tl b{font-size:14px;color:var(--fg)}
+.lh{display:flex;justify-content:space-between;align-items:baseline;margin:14px 0 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.lh span{text-transform:none;letter-spacing:0;font-weight:600;color:var(--fg);font-size:12px}
+.rows2{border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--bg);overflow:hidden}
+.rw{display:flex;align-items:center;gap:8px;min-height:48px;padding:4px 10px;border-top:1px solid var(--border);font-size:14px}.rw:first-child{border-top:0}
+.rw.me{background:color-mix(in srgb,var(--accent) 7%,var(--bg))}
+.rw .l{flex:1;min-width:0}.rw .l small{display:block;font-size:11px;color:var(--muted)}
+.rw b{font-weight:700;font-size:13px;white-space:nowrap}
+.rk{width:22px;height:22px;border-radius:50%;border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--muted);flex:none}
+.sm{min-height:36px;min-width:44px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--fg);font:600 12px inherit;display:inline-flex;align-items:center;justify-content:center;padding:0 8px;flex:none}
+.sm.u{color:var(--muted)}
+.btn{min-height:44px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);color:var(--fg);font:700 13px inherit;display:inline-flex;align-items:center;justify-content:center;padding:0 12px;gap:6px}
+.btn.m{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.acts{display:flex;gap:8px;margin-top:10px}.acts .btn{flex:1}
+.note{margin-top:10px;padding:10px 12px;border-radius:var(--r-ctl);border:1px dashed var(--border);color:var(--muted);font-size:13px}
+.note i{color:var(--fg);font-style:normal;font-weight:600}
+.prompt{margin-top:10px;border:2px solid var(--accent);border-radius:var(--r-card);padding:12px 14px;background:var(--surface)}
+.prompt h3{margin:0 0 4px;font-family:var(--head);font-size:16px}.prompt p{margin:0 0 10px;color:var(--muted);font-size:13px}
+.prompt .acts{margin-top:0}
+.drain{margin-top:10px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--bg);padding:10px 12px;font-size:13px}
+.drain ol{margin:6px 0 0;padding-left:20px}.drain li{margin:3px 0}.drain li small{color:var(--muted)}
+.gap{margin-top:10px;padding:10px 12px;border-radius:var(--r-ctl);border:1px solid var(--danger);color:var(--fg);font-size:13px;background:color-mix(in srgb,var(--danger) 8%,var(--bg))}
+.gap b{color:var(--danger)}
+.ba{display:grid;grid-template-columns:1fr;gap:6px}
+.ba .t{font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--accent);margin-top:14px}
+.flaws{margin-top:26px;border:2px solid var(--danger);border-radius:var(--r-card);padding:12px 14px;background:color-mix(in srgb,var(--danger) 8%,var(--bg))}
+.flaws h2{font-family:var(--head);font-size:17px;margin:0 0 6px;color:var(--danger)}
+.flaws li{margin:6px 0;font-size:13.5px}.flaws ul{padding-left:18px;margin:0}
+.flaws .ok{color:var(--sage)}
+.rule{margin-top:14px;padding:10px 12px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--surface);font-size:13px}
+.rule b{color:var(--accent)}
+</style></head><body><div class="w">
+<span class="tag">Mockup, not decided &middot; Shape E</span><h1>Loose association</h1><p class="sub">Each record stays a real item. A confirmed link says they are the same stock. Unlink deletes the link, nothing else. Exploratory only: no decision has been made on shape E (issue #347).</p>
+
+<div class="rule"><b>Display rule used on every screen.</b> A row pill speaks only about that record. The dashed chip speaks only about the linked total. They never share a colour or a word, and a chip is never a pill. When a row is low but the total is fine, the row pill goes muted and says so.</div>
+
+<h2 class="sc">1. Olive oil<small>Counter bottle (level only) linked to 1 L bulk (counted)</small></h2>
+<div class="cap">Pantry list</div>
+<div class="area">Counter</div><div class="list">
+<div class="row"><span class="em">🫒</span><div class="nm">Olive oil<small>bottle by the stove</small><span class="chip">linked &middot; <b>1 L + bottle</b></span></div><div class="amt">level only<small>you set</small></div><span class="pill here">Low here</span></div></div>
+<div class="area">Under the sink</div><div class="list">
+<div class="row"><span class="em">🫒</span><div class="nm">Olive oil, bulk<small>sealed</small><span class="chip">linked &middot; with bottle</span></div><div class="amt">1 L<small>use by Mar</small></div><span class="pill">Plenty</span></div></div>
+<div class="note">The counter row is low but the group is fine, so its pill is muted ("Low here") and the chip says what is left overall. No red or amber on a row whose group has stock.</div>
+<div class="cap">Item sheet: counter bottle</div><div class="sheet"><div class="grip"></div><div class="top"><span class="em">🫒</span><div><b>Olive oil</b><span>Counter &middot; bottle by the stove</span></div></div><div class="tiles"><div class="tl"><b>Low</b>Level (you set)</div><div class="tl"><b>none</b>Amount</div><div class="tl"><b>1 L</b>Shared minimum</div></div>
+<div class="lh">Linked stock <span>Total: 1 L + bottle</span></div>
+<div class="rows2"><div class="rw me"><span class="rk">1</span><div class="l">Counter bottle <small>this record &middot; level only</small></div><b>Low</b><span class="sm">Edit</span></div><div class="rw"><span class="rk">2</span><div class="l">Under the sink <small>bulk &middot; counted</small></div><b>1 L</b><span class="sm">Edit</span><span class="sm u">Unlink</span></div></div>
+<div class="note">The bottle has no real amount, so it is listed beside the litre, not added to it. The minimum is on the group and carries a unit.</div>
+<div class="acts"><span class="btn">Link another&hellip;</span><span class="btn">Stop counting with group</span></div></div>
+<div class="cap">Add-time prompt</div><div class="prompt"><h3>Add "Olive oil"?</h3><p>You already have Olive oil, bulk (1 L, under the sink).</p><div class="acts"><span class="btn m">Same stock, link it</span><span class="btn">New, separate</span></div></div>
+<div class="gap"><b>Gap.</b> A level-only bottle next to a litre has no honest sum, so the total is a list. Shopping needs a stated rule for whether the bottle counts.</div>
+
+<h2 class="sc">2. Rice<small>5 kg garage bag linked to a dispenser container</small></h2>
+<div class="cap">Pantry list</div>
+<div class="area">Garage</div><div class="list">
+<div class="row"><span class="em">🍚</span><div class="nm">Rice, 5 kg bag<small>unopened</small><span class="chip">linked &middot; <b>5 kg + dispenser</b></span></div><div class="amt">5 kg<small></small></div><span class="pill">Plenty</span></div></div>
+<div class="area">Pantry</div><div class="list">
+<div class="row"><span class="em">🍚</span><div class="nm">Rice, dispenser<small>refilled from the bag</small><span class="chip">linked &middot; with garage bag</span></div><div class="amt">level only<small>you set</small></div><span class="pill here">Low here</span></div></div>
+<div class="note">Dispenser in cups, bag in kg: no sum without a stated conversion, so the chip lists both. The chip claims no overall level, and the dispenser pill is muted ("Low here") because the bag still has stock.</div>
+<div class="cap">Item sheet: dispenser</div><div class="sheet"><div class="grip"></div><div class="top"><span class="em">🍚</span><div><b>Rice, dispenser</b><span>Pantry</span></div></div><div class="tiles"><div class="tl"><b>Low</b>Level (you set)</div><div class="tl"><b>cups</b>Unit</div><div class="tl"><b>none</b>Minimum</div></div>
+<div class="lh">Linked stock <span>Mixed units, no sum</span></div>
+<div class="rows2"><div class="rw me"><span class="rk">1</span><div class="l">Dispenser <small>this record &middot; level only</small></div><b>Low</b><span class="sm">Edit</span></div><div class="rw"><span class="rk">2</span><div class="l">Garage bag <small>5 kg</small></div><b>5 kg</b><span class="sm">Edit</span><span class="sm u">Unlink</span></div></div>
+<div class="acts"><span class="btn">Refill from bag</span><span class="btn">Link another&hellip;</span></div></div>
+<div class="gap"><b>Gap.</b> Refilling the dispenser from the bag is a transfer. With no transfer operation, the bag's 5 kg drifts unless someone edits it by hand.</div>
+
+<h2 class="sc">3. Costco sauce<small>1 open jar and 2 sealed jars as one group</small></h2>
+<div class="cap">Pantry list</div>
+<div class="area">Cupboard</div><div class="list">
+<div class="row"><span class="em">🍝</span><div class="nm">Pasta sauce, open<small>opened Mon</small><span class="chip">linked &middot; <b>3 jars</b> overall</span></div><div class="amt">1 jar<small>use by Sun</small></div><span class="pill">Some</span></div>
+<div class="row"><span class="em">🍝</span><div class="nm">Pasta sauce, sealed<small>Costco 3-pack</small><span class="chip">linked &middot; with open jar</span></div><div class="amt">2 jars<small>use by 2027</small></div><span class="pill">Plenty</span></div></div>
+<div class="cap">Consume: use 1 jar</div><div class="drain"><b>Default drain order: earliest use-by first</b><ol><li>Open jar <small>use by Sun, 1 jar</small></li><li>Sealed jars <small>use by 2027, 2 jars</small></li></ol></div>
+<div class="acts"><span class="btn m">Use 1 jar</span><span class="btn">Choose which&hellip;</span></div>
+<div class="cap">Add-time prompt (buying another 3-pack)</div><div class="prompt"><h3>Add "Pasta sauce"?</h3><p>You have 3 jars in 2 records. Add to the sealed record or start a new one?</p><div class="acts"><span class="btn m">Add 3 to sealed</span><span class="btn">New linked record</span></div></div>
+<div class="gap"><b>Gap.</b> An opened jar usually has no use-by. If it is left null it sorts last, and the sealed jars are used first while the open jar lingers. The open jar needs a use-by set when it is opened, or null must sort first.</div>
+
+<h2 class="sc">4. Sugar<small>Three tiers linked: bowl, cupboard bag, garage sack</small></h2>
+<div class="cap">Pantry list</div>
+<div class="area">Counter</div><div class="list">
+<div class="row"><span class="em">🍬</span><div class="nm">Sugar, bowl<small>by the kettle</small><span class="chip">linked &middot; <b>11.2 kg + bowl</b></span></div><div class="amt">level only<small>you set</small></div><span class="pill here">Low here</span></div></div>
+<div class="area">Pantry</div><div class="list">
+<div class="row"><span class="em">🍬</span><div class="nm">Sugar, bag<small>cupboard</small><span class="chip">linked &middot; tier 2</span></div><div class="amt">1.2 kg<small></small></div><span class="pill">Plenty</span></div></div>
+<div class="area">Garage</div><div class="list">
+<div class="row"><span class="em">🍬</span><div class="nm">Sugar, sack<small>bulk</small><span class="chip">linked &middot; tier 3</span></div><div class="amt">10 kg<small></small></div><span class="pill">Plenty</span></div></div>
+<div class="cap">Item sheet: linked stock with refill order</div><div class="sheet"><div class="grip"></div><div class="top"><span class="em">🍬</span><div><b>Sugar, bowl</b><span>Counter</span></div></div>
+<div class="lh">Linked stock <span>Refill order</span></div>
+<div class="rows2"><div class="rw me"><span class="rk">1</span><div class="l">Bowl <small>this record &middot; level only</small></div><b>Low</b><span class="sm">&darr;</span></div><div class="rw"><span class="rk">2</span><div class="l">Cupboard bag</div><b>1.2 kg</b><span class="sm">&uarr;&darr;</span></div><div class="rw"><span class="rk">3</span><div class="l">Garage sack</div><b>10 kg</b><span class="sm">&uarr;</span></div></div>
+<div class="note">Sugar has no use-by, so the drain order falls back to the rank above. Refill goes 3 into 2, then 2 into 1.</div></div>
+<div class="gap"><b>Gap.</b> Rank is extra data the person must set and keep right. Without it the order is arbitrary.</div>
+
+<h2 class="sc">5. Ground beef<small>5 lb frozen and 1 lb thawed, earliest use-by first</small></h2>
+<div class="cap">Pantry list</div>
+<div class="area">Fridge</div><div class="list">
+<div class="row"><span class="em">🐄</span><div class="nm">Ground beef, thawed<small>3 meals</small><span class="chip">linked &middot; <b>6 lb</b> overall</span></div><div class="amt">1 lb<small>use by Fri</small></div><span class="pill">Some</span></div></div>
+<div class="area">Freezer</div><div class="list">
+<div class="row"><span class="em">🐄</span><div class="nm">Ground beef, frozen<small>Costco pack</small><span class="chip">linked &middot; with thawed</span></div><div class="amt">5 lb<small>use by 14 Jan</small></div><span class="pill">Plenty</span></div></div>
+<div class="cap">Consume: cook with 1 lb</div><div class="drain"><b>Drain order: earliest use-by first</b><ol><li>Thawed, fridge <small>use by Fri, 1 lb</small></li><li>Frozen, freezer <small>use by 14 Jan, 5 lb</small></li></ol></div>
+<div class="acts"><span class="btn m">Use thawed first</span><span class="btn">Choose which&hellip;</span></div>
+<div class="note"><i>Open question:</i> always use the earliest silently, or ask when the rows differ meaningfully (frozen against thawed)? This view shows the silent default with an override.</div>
+<div class="cap">Item sheet: frozen pack</div><div class="sheet"><div class="grip"></div><div class="top"><span class="em">🐄</span><div><b>Ground beef, frozen</b><span>Freezer</span></div></div>
+<div class="lh">Linked stock <span>Total: 6 lb</span></div>
+<div class="rows2"><div class="rw"><span class="rk">1</span><div class="l">Thawed <small>fridge &middot; use by Fri</small></div><b>1 lb</b><span class="sm">Edit</span><span class="sm u">Unlink</span></div><div class="rw me"><span class="rk">2</span><div class="l">Frozen <small>this record &middot; use by 14 Jan</small></div><b>5 lb</b><span class="sm">Edit</span></div></div>
+<div class="acts"><span class="btn m">Thaw 1 lb</span><span class="btn">Cook</span></div></div>
+<div class="gap"><b>Gap.</b> "Thaw 1 lb" must take 1 lb off the frozen record and create or raise the thawed one, with a new use-by and the link kept, in one step. No such transfer exists today, so this is two edits and a relink.</div>
+
+<h2 class="sc">6. Pasta<small>4 packets in the garage and 1 elsewhere, then split</small></h2>
+<div class="ba"><div class="t">Before: linked</div>
+<div class="area" style="margin-top:2px">Garage</div><div class="list">
+<div class="row"><span class="em">🍝</span><div class="nm">Pasta<small>garage shelf</small><span class="chip">linked &middot; <b>5 packets</b> overall</span></div><div class="amt">4 packs<small></small></div><span class="pill">Plenty</span></div></div>
+<div class="area">Pantry</div><div class="list">
+<div class="row"><span class="em">🍝</span><div class="nm">Pasta<small>cupboard</small><span class="chip">linked &middot; with garage</span></div><div class="amt">1 pack<small></small></div><span class="pill">Some</span></div></div></div>
+<div class="cap">Unlink</div><div class="sheet"><div class="grip"></div><div class="top"><span class="em">🍝</span><div><b>Pasta</b><span>Pantry &middot; cupboard</span></div></div>
+<div class="lh">Linked stock <span>Total: 5 packs</span></div>
+<div class="rows2"><div class="rw"><span class="rk">1</span><div class="l">Garage shelf</div><b>4 packs</b><span class="sm">Edit</span></div><div class="rw me"><span class="rk">2</span><div class="l">Cupboard <small>this record</small></div><b>1 pack</b><span class="sm">Edit</span><span class="sm u">Unlink</span></div></div></div>
+<div class="prompt"><h3>Stop counting this with Pasta (garage)?</h3><p>Each keeps its own amount, use-by and place. The shared minimum (2 packs) is copied to both. Shopping will then count them separately. You can link them again.</p><div class="acts"><span class="btn m">Unlink</span><span class="btn">Keep linked</span></div></div>
+<div class="ba"><div class="t">After: separate</div>
+<div class="area" style="margin-top:2px">Garage</div><div class="list">
+<div class="row"><span class="em">🍝</span><div class="nm">Pasta<small>garage shelf &middot; min 2</small></div><div class="amt">4 packs<small></small></div><span class="pill">Plenty</span></div></div>
+<div class="area">Pantry</div><div class="list">
+<div class="row"><span class="em">🍝</span><div class="nm">Pasta<small>cupboard &middot; min 2</small></div><div class="amt">1 pack<small></small></div><span class="pill low">Low</span></div></div></div>
+<div class="note">No chip on either row: they are independent records again. The cupboard row now reads Low on its own, and shopping will list it.</div>
+<div class="gap"><b>Gap.</b> Both rows are still named "Pasta", and shopping and the Running low filter group by name today, so they would merge again even after the unlink. Shopping has to read the link, with a "keep apart" verdict for same-name rows.</div>
+
+<div class="flaws"><h2>Flaws in this option</h2><ul>
+<li><b>Forgetting to link is silent.</b> Unlinked rows behave exactly like today: a false Running low and a wrong purchase. The add-time prompt helps only for items added after this exists.</li>
+<li><b>"Any row will do" is false.</b> Beef, thawed chicken and an opened jar differ in use-by and state. The drain order helps, but cook and swipe act on one record today, so a server-side consume is needed.</li>
+<li><b>Shopping groups by name, not by link.</b> This is a code change, not a screen change. Until shopping and the low filter read the link, no mockup above is true.</li>
+<li><b>Two truths on one screen.</b> A row can be Low while the total is fine. The rule above keeps the words and colours apart, but people may still read a muted "Low here" as a bug.</li>
+<li><b>Mixed units and level-only rows</b> have no number, so the total is a list. Minimums on a group need a unit; per-row minimums conflict.</li>
+<li><b>Thaw and decant are manual.</b> No transfer operation carries amount, use-by and link in one step.</li>
+<li><b>Wrong links look confident.</b> A suggested pair like caster and brown sugar totals as one number.</li>
+<li><b>Prompt fatigue.</b> Every add of a known name asks a question. It must be one line, once per pair.</li>
+<li><b class="ok">Wins:</b> unlink loses nothing, each record keeps its own use-by, place and unit, housemates' private stock stays out of the shared total, and no existing item ids change.</li></ul></div></div></body></html>

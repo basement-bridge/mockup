@@ -1,0 +1,18 @@
+/* Option B, base (1024 and up): agenda column capped at 760 so lines never sprawl; the detail pane is always docked, 340 at this size. Rows never turn into columns, so there is no collapse rule: narrower just means fewer pills per line. */
+:root{--lane:340px;--main-max:760px}
+.main{padding:20px 24px 40px}
+.agenda{display:flex;flex-direction:column}
+.arow{display:grid;grid-template-columns:74px minmax(0,1fr);column-gap:12px;padding:10px 0;border-top:1px solid var(--border);border-radius:0}
+.arow:first-child{border-top:0}
+.adate{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding-top:10px}
+.adate b{font-size:15px}
+.adate span{font-size:12px;color:var(--muted);font-weight:600}
+.arow.is-today .adate b{color:var(--accent)}
+.astack{display:flex;flex-direction:column;gap:6px;min-width:0}
+.mc .ingl{display:block}
+.mc{min-height:64px}
+.hl{background:color-mix(in srgb,var(--sage) 12%,transparent)}
+.slot{min-height:44px}
+.blocked{min-height:44px}
+.ra{bottom:auto;top:50%;transform:translateY(-50%);right:8px}
+.mc .chips{margin-top:4px}

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Invite someone to a household of their own — fragment</title><link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><script src="../../theme.js"></script>
+<style>.wrap{max-width:46rem}.wrap h2{margin-top:26px}.wrap p,.wrap li{color:var(--fg);font-size:15px}.wrap ul{padding-left:1.2rem;display:grid;gap:6px;margin:8px 0}.wrap a{color:var(--accent);font-weight:600;text-decoration:underline}.frames li{color:var(--fg)}.frames code,.wrap code{font-size:13px;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0 5px}.grow{border:1.5px dashed var(--accent);border-radius:var(--r-card);padding:14px 16px;background:var(--surface)}.grow b{color:var(--accent)}</style></head>
+<body><div class="wrap">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Invite someone to a household of their own</h1>
+<p>Fragment. Owner, by voice, 12 October 2026 (round 9, the same day: answers and a trim; round 12: Copy link and a private label). <b>Mockup only: nothing is built, and until it is, current behaviour stays as it is.</b></p>
+
+<div class="grow" style="margin-top:14px"><p><b>This is a growth feature.</b> It is a way to expand the product by getting new households set up, one invitation at a time. The entry is always at the foot of the left gutter, the inviter writes a personal note, and that note is what the new person sees next to the sign-up button and again while they sign up.</p></div>
+
+<h2>What it is</h2>
+<ul>
+<li><b>One dual-purpose entry</b> at the foot of the left gutter (above History) with a paper-plane icon. <a href="../desktop-profile/index.html?open=me">"Invite someone"</a> until you have sent an invite of any status, then <a href="../desktop-profile/index.html?open=me&amp;invs=some">"My invites"</a>. On phone and tablet there is no gutter: the Me row says the same.</li>
+<li><b>The modal</b> (a pop-up over the whole window). Title "Invite someone to a household of their own", one line ("They get their own brand new household"), the personal message, the send button. A plain line at the foot, "Want to invite them to your household instead? Click here", goes to the existing join invite.</li>
+<li><b>The link works once</b>, used when the invited person finishes sign-up (opening it does not use it), and <b>expires after a month</b> if unused. The Link ready screen says it works once and says nothing about expiry.</li>
+<li><b>My invites</b>: a list of what you have sent, each Pending, Used or Expired. <b>At most three pending</b> at a time: at three, the send action is disabled and the page says which invite frees a slot. A Used invite is a record only: no ongoing link to their household.</li>
+<li><b>Copy link, again, and a label</b> (round 12): every Pending invite in My invites has <b>Copy link</b> (it puts the same link back on the clipboard, same "Copied" feel as Link ready) and a quiet <b>Show link</b> for when the person lost it. Used and Expired invites have neither. Each invite can carry an optional private <b>label</b> ("Who is this for? Only you see this", for example "Priya" or "Mum's kitchen"): it is the row title, so you can tell who has used theirs and who has not, and a small pencil edits it in place (saves as you type). The label is for you only: it is never in the link and never shown to the person you invited.</li>
+<li><b>The invited person</b> sees your message next to the sign-up button, and on the last step; a link that has expired or been used lands on a plain page saying so.</li>
+</ul>
+
+<h2>Frames</h2>
+<p>Desktop frames are best at 1280 wide. Mobile width: open the same addresses at 360 or 390.</p>
+<ul class="frames">
+<li>Gutter entry, never sent (Invite someone): <a href="../desktop-profile/index.html?open=me">?open=me</a> &middot; after sending (My invites): <a href="../desktop-profile/index.html?open=me&amp;invs=some">?open=me&amp;invs=some</a></li>
+<li>Modal, empty: <a href="../desktop-profile/index.html?open=invite&amp;inv=empty">inv=empty</a> &middot; filled: <a href="../desktop-profile/index.html?open=invite&amp;inv=filled">inv=filled</a> &middot; link ready: <a href="../desktop-profile/index.html?open=invite&amp;inv=created">inv=created</a> &middot; copied: <a href="../desktop-profile/index.html?open=invite&amp;inv=copied">inv=copied</a></li>
+<li>My invites, Pending, Used and Expired: <a href="../desktop-profile/index.html?open=invite&amp;inv=list">inv=list</a> &middot; three pending, send disabled: <a href="../desktop-profile/index.html?open=invite&amp;inv=limit">inv=limit</a></li>
+<li>Round 12. Filled, with a label: <a href="../desktop-profile/index.html?open=invite&amp;inv=filled">inv=filled</a> &middot; link ready, saved under the label: <a href="../desktop-profile/index.html?open=invite&amp;inv=created">inv=created</a> &middot; a row copied again: <a href="../desktop-profile/index.html?open=invite&amp;inv=listcopy">inv=listcopy</a> &middot; a row's link shown: <a href="../desktop-profile/index.html?open=invite&amp;inv=listshow">inv=listshow</a> &middot; a label being edited: <a href="../desktop-profile/index.html?open=invite&amp;inv=listedit">inv=listedit</a> &middot; three pending, each with Copy link: <a href="../desktop-profile/index.html?open=invite&amp;inv=limit">inv=limit</a></li>
+<li>The way back, where it lands: <a href="../desktop-profile/index.html?open=household">?open=household</a> (press Click here in a modal frame to see it arrive and point at Invite someone)</li>
+<li>The existing join invite, not redrawn: <a href="../../flows/household/index.html">the household flow</a> (Menu, Household, Invite someone)</li>
+<li>Recipient, the link opens: <a href="start.html?s=landing">s=landing</a> &middot; no message: <a href="start.html?s=landing&amp;msg=none">&amp;msg=none</a> &middot; after sign-in: <a href="start.html?s=household">s=household</a> &middot; expired: <a href="start.html?s=expired">s=expired</a> &middot; already used: <a href="start.html?s=used">s=used</a></li>
+</ul>
+
+<h2>What already exists (so it is not drawn twice)</h2>
+<p>A thinner version is already in uat and in the phone flow: Me &gt; Other households &gt; "Invite someone to a different household" (a single-use link, 48 hours, and an "own" landing; no personal message, no gutter entry). This mockup does not change that behaviour. <b>What the build must change:</b> a one-month expiry (uat is 48 hours), consume the link when sign-up is finished (not when the page opens), a personal message, a cap of three outstanding, the My invites list with statuses, the dual-purpose entry. Details, and what is decided versus judgement, in <a href="../../docs/knowledge/invite-new-household.md">docs/knowledge/invite-new-household.md</a>.</p>
+
+<h2>Still open</h2>
+<ul>
+<li>Round 12: does anyone else in your household see your invites and labels, or only you (drawn: only you)? How long a label is kept, and its length (40 drawn). <b>Proposal for the build (not shown in the UI):</b> keeping the link recoverable means the server holds the raw token, encrypted at rest with a server key, never logged, never in a list response, returned only to the owner's own Copy action. See the notes file, INH-J29.</li>
+<li>The message: length (280 drawn, not decided), required or optional (optional drawn), editable after the link exists, plain text only.</li>
+<li>Abuse beyond the cap of three: a daily cap, a report route, whether messages are checked, how long a message is kept.</li>
+<li>Link or six-digit code by sign-in mode; the inviter's name on the landing; the reverse wrong-place route; who sees the entry; growth measures; other link problems (cancelled, wrong browser, sign-in refused). Resolved this round: expiry and reuse, one-time, what the inviter sees, the relationship (none), one entry or two. All in the notes file as INH-O1 to INH-O13.</li>
+</ul>
+
+<h2>Loads</h2>
+<p>The entry is one button in the gutter. The modal's script and styles are fetched only when it is pressed. The recipient page is one small page with theme tokens, no images, no libraries and no storage. Sample only: the link is not a real address, the dates are sample text, and nothing is copied, stored or sent.</p>
+</div></body></html>

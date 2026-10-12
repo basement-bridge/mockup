@@ -34,6 +34,7 @@ const RI = {
   knife: '<path d="M4 20L16 8c2-2 4-3 4-3s-1 3-3 5L9 18z"/><path d="M4 20l3-3"/>',
   shield: '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9.5 10.5h5V16h-5zM10 8.5h4"/>',
   fridge: '<rect x="6" y="3" width="12" height="18" rx="2.5"/><path d="M6 10h12M9 6v2M9 13v3"/>',
+  battery: '<rect x="2.5" y="7" width="16" height="10" rx="2.8"/><path d="M21 10.5v3"/><path d="M6 10.5v3M9.5 10.5v3"/>',
   drop: '<path d="M12 3c3.5 4.5 6 7.2 6 10.2a6 6 0 0 1-12 0C6 10.200 8.500 7.500 12 3z"/><path d="M9.500 14a2.500 2.500 0 0 0 2 2.300"/>',
   link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
   mail: '<rect x="3" y="5" width="18" height="14" rx="2.500"/><path d="M3 7l9 6 9-6"/>',
@@ -122,7 +123,7 @@ const initial = () => ({
   members: ["arjan", "sam"], invites: [{ code: "482913", hours: 20 }], codeState: "ok", codeTyped: "", codeMsg: null,
   roles: { arjan: { title: "Pantry Marshal", ic: "shield", desc: "Keeps order on the shelves and the fridge. Knows exactly where the cumin lives." }, sam: null },
   cfg: { size: "normal", emoji: true, motion: false, spot: true, amount: true, useby: true, activity: true, compact: false }, stockChecks: true,
-  day: 1, aiDone: false, inviteDone: false, cvOpt: "A", aiTab: "ChatGPT", aiLink: false, founder: "arjan", avatars: {}, bannerGot: false, pending: null, joined: false,
+  day: 1, aiDone: false, inviteDone: false, cvOpt: "A", aiTab: "ChatGPT", aiLink: false, founder: "arjan", admins: [], avatars: {}, bannerGot: false, pending: null, joined: false,
   /* pantry view */
   rmode: "loc", order: { loc: [...AREAS], cat: [...CATEGORIES] }, fa: null, fd: null, flast: null, fTab: "filters", seenP: 0, seenR: 0, view: "name", shop: ["milk", "carrots", "butter"], slx: { milk: { by: "arjan", want: "2 litres", tick: false }, carrots: { by: "sam", want: "", tick: false }, butter: { by: "arjan", want: "", tick: false } }, wantFor: null, sel: null, areaTab: "All", collapsed: {}, search: "", searchOpen: false, draft: { days: null },
   memberWho: null, existing: 1, own: false, rdraft: null, iconPick: false,
@@ -158,6 +159,7 @@ const starIc = ico('<path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8 6.8 19.
 const founderChip = (w) => (S.founder === w ? `<span class="chip fchip">${starIc}Founding member</span>` : "");
 const pays = () => S.persona === "arjan"; /* the billing contact; never shown as a rank */
 const role = (who) => S.roles[who];
+const isAdmin = (w) => w === S.founder || S.admins.includes(w); /* the founding member is always an admin; only they grant or revoke */
 const emojiOf = (n) => { const m = { milk: "🥛", egg: "🥚", rice: "🍚", bread: "🍞", cheese: "🧀", tomato: "🍅", apple: "🍎", banana: "🍌", butter: "🧈", onion: "🧅", carrot: "🥕", pasta: "🍝", chicken: "🍗", fish: "🐟" }; const k = Object.keys(m).find((x) => n.toLowerCase().includes(x)); return k ? m[k] : ""; };
 
 /* ---------- install prompt rules ---------- */
@@ -312,7 +314,8 @@ const sorters = {
 };
 function visibleItems() {
   const q = S.search.trim().toLowerCase();
-  return S.pantry.filter((i) => (S.areaTab === "All" || (S.rmode === "cat" ? i.cat : i.area) === S.areaTab) && (!q || i.name.toLowerCase().includes(q) || i.cat.toLowerCase().includes(q)));
+  /* Default view hides what is gone: level Out or quantity zero (kitchie #329). Search and filters still reach them. */
+  return S.pantry.filter((i) => (q || level(i) !== "Out") && (S.areaTab === "All" || (S.rmode === "cat" ? i.cat : i.area) === S.areaTab) && (!q || i.name.toLowerCase().includes(q) || i.cat.toLowerCase().includes(q)));
 }
 function rowHtml(i) {
   const hot = i.days !== null && i.days <= 1, c = S.cfg, out = i.n <= 0, cnt = reducible(i);
@@ -346,10 +349,10 @@ function listHtml() {
     const low = S.fa.st.low.on, onlyLow = low && !S.fa.st.soon.on && !S.fa.st.recent.on && !S.fa.locs.length && !S.fa.cats.length; /* with Running low on, rows swipe to the shopping list and press-and-hold picks several */
     return items.length ? `${low ? `<p class="hint">${S.sel ? "Tap to pick more, then add them together." : "Swipe a row to add it to your shopping list. Press and hold to pick several."}</p>` : ""}<ul class="rows">${items.map(low ? lowRowHtml : rowHtml).join("")}</ul>` : `<p style="padding:20px 4px">${onlyLow ? "Nothing is running low. Nice." : "Nothing matches these filters."}</p>`;
   }
-  const items = visibleItems().sort(sorters.name); /* no filters or sort chosen: A to Z, grouped */
+  const q0 = S.search.trim(), items = visibleItems().sort(sorters.name); /* no filters or sort chosen: A to Z, grouped */
   const gk = S.rmode === "cat" ? "cat" : "area";
   const groups = S.order[S.rmode].filter((a) => items.some((i) => i[gk] === a));
-  if (!groups.length) return `<p style="padding:20px 4px">${S.pantry.length ? "Nothing matches." : "Your pantry is empty. Add what you have."}</p>`;
+  if (!groups.length) return `<p style="padding:20px 4px">${!S.pantry.length ? "Your pantry is empty. Add what you have." : q0 ? "Nothing matches." : "Nothing in stock here. Search or use Filters to find what is out."}</p>`;
   return groups.map((a) => {
     const its = items.filter((i) => i[gk] === a); const shut = !!S.collapsed[a]; const nr = its.filter((i) => i.recent).length;
     return `<section class="group ${shut ? "shut" : ""}"><button class="grouphead" data-act="fold" data-p="${esc(a)}" data-fold="1" aria-expanded="${!shut}"><h2>${esc(a)}${shut ? `<small>${its.length}</small>` : ""}</h2><span class="ghmeta">${nr ? `<span class="added" role="img" aria-label="${nr} added in the last 24 hours">${I.up(12)}${nr}</span>` : ""}<span class="fold">${I.down}</span></span></button><ul class="rows">${its.map(rowHtml).join("")}</ul></section>`;
@@ -470,7 +473,7 @@ const screens = {
     <div class="prow" id="prow" data-state="${S.refresh ? "anim" : S.searchOpen ? "search" : "rest"}"><h1 class="vh">Pantry</h1>
       <div class="pl pl-msg" id="pmsg" ${S.refresh ? 'role="status"' : 'aria-hidden="true"'}>${S.refresh ? refreshHtml(S.refresh) : ""}</div>
       <div class="pl pl-search"><button class="link cancel" data-act="searchcancel">Cancel</button><div class="spill"><input class="field" id="search" placeholder="Search your pantry" value="${esc(S.search)}" autocomplete="off" aria-label="Search your pantry"><button class="icon" data-act="mic" aria-label="Search by voice" title="Voice">${riSvg("mic", 22)}</button><span class="mg" aria-hidden="true">${I.search}</span></div></div>
-      <div class="pl pl-front"><p class="count" aria-live="polite">${S.pantry.length} items</p><div class="pact">${deskSearchHtml()}${S.fa ? "" : `<button class="tbtn" data-sheet="filters" aria-label="Filters">${riSvg("funnel", 18)}<span>Filters</span></button>`}<button class="icon addbtn" data-sheet="add" aria-label="Add an item" title="Add an item" ${S.down ? "disabled" : ""}>${I.plus}</button></div></div>
+      <div class="pl pl-front"><p class="count" aria-live="polite">${S.fa || S.search.trim() ? S.pantry.length : S.pantry.filter((i) => level(i) !== "Out").length} items</p><div class="pact">${deskSearchHtml()}${S.fa ? "" : `<button class="tbtn" data-sheet="filters" aria-label="Filters">${riSvg("funnel", 18)}<span>Filters</span></button>`}<button class="icon addbtn" data-sheet="add" aria-label="Add an item" title="Add an item" ${S.down ? "disabled" : ""}>${I.plus}</button></div></div>
     </div>
     ${S.fa
       ? cvHtml()
@@ -486,7 +489,7 @@ const screens = {
     return backHeader("Pantry", p.name) + downBanner() + `<div class="body">
       <div class="flist">
         ${fld("name", p, `<span class="ph" aria-hidden="true">${emo(p)}</span><span class="idt"><b data-fv="name">${VAL.name(p)}</b><span class="small">Added by ${esc(p.by)}</span></span>`, `Name and emoji: ${p.name}`)}
-        ${row("qty", "stack", "Quantity")}${row("level", "drop", "Level")}${row("loc", "fridge", "Location")}${row("spot", "jar", "Spot")}${row("cat", "basket", "Category")}${row("useby", "clock", "Use by")}${row("min", "shield", "Minimum")}
+        ${row("qty", "stack", "Quantity")}${row("level", "battery", "Level")}${row("loc", "fridge", "Location")}${row("spot", "jar", "Spot")}${row("cat", "basket", "Category")}${row("useby", "clock", "Use by")}${row("min", "shield", "Minimum")}
       </div>
       ${S.recipes && rs.length ? `<div style="display:flex;flex-direction:column;gap:10px"><span class="lbl">Cook it tonight</span>${rs.map((r) => `<button class="rc" data-go="recipe" data-p="${r.id}"><span class="ph">${r.emoji}</span><div style="flex:1"><b>${esc(r.name)}</b><p class="small">${can(r).length} of ${r.ings.length} ingredients · ${r.time} min</p></div></button>`).join("")}</div>` : ""}
       ${!S.recipes ? `<button class="card" data-go="upgrade"><b>Know what you can cook</b><p class="small">Recipes uses what's in your pantry.</p></button>` : ""}
@@ -506,7 +509,7 @@ const screens = {
       <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px"><button class="btn" data-act="cook" data-p="${r.id}" ${S.down || !have.length ? "disabled" : ""}>Cook this</button><p class="small" style="text-align:center">Cooking takes the used items out of your pantry.</p></div></div>` + bar();
   },
 
-  /* Profile menu, grouped by job (Look and Kitchen live in Settings; People, Connect, My data here). A "Get started" strip is timed by how long you have been a member: AI link for the first 2 days, Invite for the first 5; each drops off when done and both settle into their segments afterwards. */
+  /* Profile menu, grouped by job (Settings holds the App list; Preferences is its own section, after Settings; People, Connect, My data here). A "Get started" strip is timed by how long you have been a member: AI link for the first 2 days, Invite for the first 5; each drops off when done and both settle into their segments afterwards. */
   menu: () => {
     const strip = [];
     if (S.day <= 2 && !S.aiDone) strip.push(["ai", "link", "Link your AI", "go"]);
@@ -515,38 +518,47 @@ const screens = {
     return backHeader("Back", "") + `<div class="body">
     <div class="row"><span class="av" style="width:56px;height:56px;font-size:20px">${avt(S.persona, 30)}</span><div><b style="font-size:20px">${esc(me().name)}</b><p class="small">${role(S.persona) ? esc(role(S.persona).title) : "Our kitchen"}</p></div></div>
     ${strip.length ? `<div><span class="lbl">Get started</span><div class="menu card">${strip.map(([t, ic, l, k]) => `<button data-${k === "go" ? "go" : "sheet"}="${t}"><span class="row" style="gap:10px">${riSvg(ic, 20)}${l}</span><span class="chev" style="color:var(--muted)">${I.chev}</span></button>`).join("")}</div></div>` : ""}
-    ${seg("Look and kitchen", `<button data-go="settings">Settings</button><button data-act="proto" data-p="History">History</button>`)}
+    ${seg("App", `<button data-go="settings">Settings</button><button data-act="proto" data-p="History">History</button><button data-go="looks">Looks <span class="chev" style="color:var(--muted)">${I.chev}</span></button><span class="lbl sub">Kitchen setup</span><button data-go="cats">Categories <span class="chev" style="color:var(--muted)">${I.chev}</span></button><button data-act="proto" data-p="Locations and spots">Locations and spots <span class="chev" style="color:var(--muted)">${I.chev}</span></button><button data-sheet="pwa">Install <span class="chev" style="color:var(--muted)">${I.chev}</span></button>`)}
+    ${seg("Preferences", `<button data-act="proto" data-p="Preferences">Preferences</button>`)}
     ${seg("People", `<button data-go="me">Me <span class="chip">${esc(me().name)}</span></button><button data-go="household">Household <span class="chip">${S.members.length}</span></button>${pays() ? `<button data-go="${S.recipes ? "household" : "upgrade"}">Plan and billing</button>` : ""}`)}
     ${seg("My data", `<button data-act="proto" data-p="Download inventory CSV">Download inventory CSV</button>`)}
     <button data-act="signout" class="danger" style="text-align:left;min-height:48px">Sign out</button>
     <div class="srow plain"><span class="small">Prototype: member for</span><div class="seg2" role="radiogroup" aria-label="Member for">${[[1, "Day 1"], [3, "Day 3"], [6, "Day 6"]].map(([d, l]) => `<button role="radio" aria-checked="${S.day === d}" class="${S.day === d ? "on" : ""}" data-act="day" data-p="${d}">${l}</button>`).join("")}</div></div></div>`;
   },
 
-  /* Mirrors Kitchie's Settings page (renderSettingsPage): browser-only display settings, then the household's pages, sample items, kitchen role. */
+  /* Settings (owner, 11 Oct 2026 (2)): the list is the App group. Looks (the theme and display screen), Categories, Locations and spots, flat. Stock checks is no longer a row (Preferences took its place, and is its own top-level section of the profile menu). Plan the week stays off the list. */
   settings: () => {
-    const c = S.cfg, sw = (k, l) => `<button class="srow" role="switch" aria-checked="${c[k]}" data-act="cfg" data-p="${k}"><span>${l}</span><span class="swt" aria-hidden="true"></span></button>`;
     const left = S.pantry.filter((i) => i.starter).length;
     return backHeader("Back", "Settings") + `<div class="body">
-      <p class="small">These stay on this device. Only your theme and the emoji setting also travel with you, so pages open in the right colours.</p>
-      <span class="lbl">Look</span><div class="card sgroup"><span class="lbl">Theme</span><div class="tgrid swatches" role="group" aria-label="Theme">${window.themeHtml ? window.themeHtml(["kitchie", "kitchie-day", "marmalade", "blueberry", "herb"], true) : ""}</div><p class="small" data-theme-name>${window.themeName ? esc(window.themeName()) : ""}</p>
-        <div class="srow plain"><span>Item name size</span><div class="seg2" role="radiogroup" aria-label="Item name size">${[["small", "Small"], ["normal", "Normal"], ["large", "Large"]].map(([k, l]) => `<button role="radio" aria-checked="${c.size === k}" class="${c.size === k ? "on" : ""}" data-act="cfgsize" data-p="${k}">${l}</button>`).join("")}</div></div>
-        ${sw("emoji", "Show emoji")}${sw("motion", "Reduce motion")}${sw("spot", "Show the spot")}${sw("amount", "Show the amount")}${sw("useby", "Show the use-by date")}${sw("activity", "Show household activity")}${sw("compact", "Compact rows")}
-        <button class="btn ghost" data-act="cfgreset">Reset to defaults</button></div>
-      <span class="lbl">Kitchen</span><div class="menu card">
-        <button data-go="stock">Stock checks <span class="chev" style="color:var(--muted)">${I.chev}</span></button>
-        <button data-go="cats">Categories <span class="chev" style="color:var(--muted)">${I.chev}</span></button></div>
-      <p class="small">Stock checks and Categories are the household's, not just this device's.</p>
+      <span class="lbl">App</span><div class="menu card">
+        <button data-go="looks">Looks <span class="chev" style="color:var(--muted)">${I.chev}</span></button>
+        <span class="lbl sub">Kitchen setup</span>
+        <button data-go="cats">Categories <span class="chev" style="color:var(--muted)">${I.chev}</span></button>
+        <button data-act="proto" data-p="Locations and spots">Locations and spots <span class="chev" style="color:var(--muted)">${I.chev}</span></button>
+        <button data-sheet="pwa">Install <span class="chev" style="color:var(--muted)">${I.chev}</span></button></div>
+      <p class="small">Categories and Locations and spots are the household's, not just this device's.</p>
       ${left ? `<div><h2 style="font-size:1.1rem">Sample items</h2><p class="small" style="margin-top:4px">${left} sample item${left === 1 ? "" : "s"} left. They count toward nothing until you change one.</p><button class="btn ghost" data-act="proto" data-p="Clear sample items" style="margin-top:8px">Clear sample items</button></div>` : ""}
       <button class="btn ghost" data-act="back">Back to Kitchie</button>
       <button data-act="signout" class="danger" style="text-align:left;min-height:48px">Sign out</button></div>`;
   },
 
+  /* Looks: the existing theme and display screen (was the Look group on Settings, then "Look and display"). Mirrors Kitchie's browser-only display settings. */
+  looks: () => {
+    const c = S.cfg, sw = (k, l) => `<button class="srow" role="switch" aria-checked="${c[k]}" data-act="cfg" data-p="${k}"><span>${l}</span><span class="swt" aria-hidden="true"></span></button>`;
+    return backHeader("Back", "Looks") + `<div class="body">
+      <p class="small">These stay on this device. Only your theme and the emoji setting also travel with you, so pages open in the right colours.</p>
+      <div class="card sgroup"><span class="lbl">Theme</span><div class="tgrid swatches" role="group" aria-label="Theme">${window.themeHtml ? window.themeHtml(["kitchie", "kitchie-day", "marmalade", "blueberry", "herb"], true) : ""}</div><p class="small" data-theme-name>${window.themeName ? esc(window.themeName()) : ""}</p>
+        <div class="srow plain"><span>Item name size</span><div class="seg2" role="radiogroup" aria-label="Item name size">${[["small", "Small"], ["normal", "Normal"], ["large", "Large"]].map(([k, l]) => `<button role="radio" aria-checked="${c.size === k}" class="${c.size === k ? "on" : ""}" data-act="cfgsize" data-p="${k}">${l}</button>`).join("")}</div></div>
+        ${sw("emoji", "Show emoji")}${sw("motion", "Reduce motion")}${sw("spot", "Show the spot")}${sw("amount", "Show the amount")}${sw("useby", "Show the use-by date")}${sw("activity", "Show household activity")}${sw("compact", "Compact rows")}
+        <button class="btn ghost" data-act="cfgreset">Reset to defaults</button></div></div>`;
+  },
+
   stock: () => backHeader("Settings", "Stock checks") + `<div class="body">
     <p>Stock checks ask "still about right?" about an item, only when you are already looking at it. Turning them off stops every question on the web and in chat. Estimates already stored stay, so the shopping list can still use them.</p>
     <div class="card sgroup"><button class="srow" role="switch" aria-checked="${S.stockChecks}" data-act="stocktoggle"><span>Ask me to check amounts</span><span class="swt" aria-hidden="true"></span></button></div>
-    <p class="small">Keeping it off is fine. We will check back less and less often. Some of this is the household's: only the household owner can change the shared settings.</p></div>`,
+    <p class="small">Keeping it off is fine. We will check back less and less often. Some of this is the household's: only household admins can change the shared settings.</p></div>`,
 
-  cats: () => backHeader("Settings", "Categories") + `<div class="body">
+  cats: () => backHeader("Back", "Categories") + `<div class="body">
     <p>Rename a category for every item at once. This is the household's, not just this device's.</p>
     <div class="menu card">${S.order.cat.map((c) => `<button data-act="proto" data-p="Rename ${esc(c)}">${EM[c] || ""} ${esc(c)} <span class="small">Rename</span></button>`).join("")}</div></div>`,
 
@@ -562,7 +574,7 @@ const screens = {
   /* People, part two: Household (members, pending invites, leave). Anyone can remove anyone and anyone can cancel an invite (owner, 8 Oct 2026). */
   household: () => backHeader("Back", "Household") + `<div class="body">
     <div><h1 style="font-size:2rem">Our kitchen</h1><p style="margin-top:4px">${S.members.length} member${S.members.length === 1 ? "" : "s"}</p></div>
-    <div><span class="lbl">Members</span>${S.members.map((w) => `<button class="m" data-sheet="member" data-p="${w}"><span class="avw"><span class="av">${avt(w)}</span>${role(w) ? `<span class="avbadge">${riSvg(role(w).ic, 13)}</span>` : ""}</span><div style="flex:1"><b>${esc(PEOPLE[w].name)}</b>${w === S.persona ? ' <span class="chip">You</span>' : ""} ${founderChip(w)}${role(w) ? `<p class="small">${esc(role(w).title)}</p>` : ""}</div><span class="chev" style="color:var(--muted)">${I.chev}</span></button>`).join("")}
+    <div><span class="lbl">Members</span>${S.members.map((w) => { const fo = S.founder === w, ad = isAdmin(w), canG = S.persona === S.founder && !fo; return `<div class="m"><button class="rowbtn" data-sheet="member" data-p="${w}" aria-label="${esc(PEOPLE[w].name)}, ${fo ? "founding member" : ad ? "admin" : "member"}" style="flex:1;display:flex;align-items:center;gap:10px;text-align:left;min-height:44px"><span class="avw"><span class="av">${avt(w)}</span>${role(w) ? `<span class="avbadge">${riSvg(role(w).ic, 13)}</span>` : ""}</span><div style="flex:1"><b>${esc(PEOPLE[w].name)}</b>${w === S.persona ? ' <span class="chip">You</span>' : ""} ${founderChip(w)}${fo ? "" : ` <span class="chip">${ad ? "Admin" : "Member"}</span>`}<p class="small">${role(w) ? esc(role(w).title) + " \u00b7 " : ""}${fo ? "Always an admin" : ad ? "Can change household settings" : "Can change their own preferences"}</p></div></button>${canG ? `<button data-act="${ad ? "revokeadmin" : "grantadmin"}" data-p="${w}" class="${ad ? "danger" : "link"}" aria-label="${ad ? "Remove " + esc(PEOPLE[w].name) + " as admin" : "Make " + esc(PEOPLE[w].name) + " an admin"}" style="font-size:14px;min-height:44px;padding:0 8px">${ad ? "Remove admin" : "Make admin"}</button>` : ""}</div>`; }).join("")}
       ${S.invites.map((i) => `<div class="m"><span class="av" style="border-style:dashed;color:var(--muted)">${riSvg("mail", 16)}</span><div style="flex:1"><b class="mono codeb">${fmtCode(i.code)}</b><p class="small">${i.own ? "Own household" : "Join Our kitchen"} \u00b7 expires in ${i.hours} hours \u00b7 works once</p></div><button data-act="copycode" data-p="${esc(i.code)}" class="link" aria-label="Copy code ${fmtCode(i.code)}" style="font-size:14px;min-height:44px;padding:0 8px">Copy</button><button data-act="revoke" data-p="${esc(i.code)}" class="danger" aria-label="Cancel code ${fmtCode(i.code)}" style="font-size:14px;min-height:44px;padding:0 8px">Cancel</button></div>`).join("")}</div>
     <button class="btn" data-sheet="invite" ${S.invites.length >= 3 ? "disabled" : ""}>Invite someone</button>${S.invites.length >= 3 ? `<p class="small">You have 3 unused codes, the most there can be. Cancel one or wait for one to be used or expire.</p>` : ""}
     <div class="dz"><span class="lbl danger">Danger zone</span><p class="small">Leave Our kitchen. You lose access until someone invites you back.</p><button class="btn ghost danger" data-act="leavestart">Leave household</button></div></div>`,
@@ -607,13 +619,13 @@ const screens = {
    Counted = the unit is a count (reducible); anything weighed or measured is level-only. Used up = amount 0, shows Out, Undo toast. */
 const TILE_FIELDS = { amount: ["qty"], level: [], min: ["min"], where: ["loc", "spot"], useby: ["useby"], cat: ["cat"] };
 const TILE_TITLE = { amount: "Amount", level: "Level", min: "Minimum", where: "Where", useby: "Use by", cat: "Category" };
-/* level drop: fuller or emptier with the level. Plenty full (green), Some about half (amber), Running low about a quarter (red), Out an empty outline.
-   No level word is drawn; the name is screen-reader text only (.sr-only). */
-const LEVELS = { Plenty: [1, "plenty"], Some: [0.5, "some"], "Running low": [0.25, "low"], Out: [0, "out"] };
-const DROP = "M12 3c3.500 4.500 6 7.200 6 10.200a6 6 0 0 1-12 0C6 10.200 8.500 7.500 12 3z";
-function levelDrop(l, size = 26) {
-  const [f, k] = LEVELS[l], y = (19.2 - f * 16.2).toFixed(2);
-  return `<svg class="drop lv-${k}" width="${size}" height="${size}" viewBox="0 0 24 24" aria-hidden="true"><defs><clipPath id="dc-${k}-${size}"><path d="${DROP}"/></clipPath></defs>${f ? `<rect x="0" y="${y}" width="24" height="24" clip-path="url(#dc-${k}-${size})" fill="currentColor" fill-opacity=".9"/>` : ""}<path d="${DROP}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`;
+/* level icon: a BATTERY (owner, 11 Oct 2026, replaces the drop everywhere the level is drawn; item-edit-flyout decision 94). Four cells: Plenty 4 filled (green), Some 2 (amber), Running low 1 (red), Out none (black).
+   No level word is drawn; the name is screen-reader text only (.sr-only). Same markup and classes as fragments/item-edit-flyout (IEF.battery), so the build copies one icon. */
+const LEVELS = { Plenty: [4, "plenty"], Some: [2, "some"], "Running low": [1, "low"], Out: [0, "out"] };
+function levelBattery(l, width = 38) {
+  const [n, k] = LEVELS[l];
+  let cells = ""; for (let i = 0; i < n; i++) cells += `<rect x="${4 + i * 6}" y="5" width="5.2" height="10" rx="1.2" fill="currentColor" stroke="none"/>`;
+  return `<svg class="bat lv-${k}" width="${width}" height="${Math.round(width * 20 / 34)}" viewBox="0 0 34 20" aria-hidden="true" focusable="false"><rect x="1" y="2" width="29" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M31.4 7.5h.8a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-.8z" fill="currentColor" stroke="none"/>${cells}</svg>`;
 }
 const srOnly = (t) => `<span class="sr-only">${esc(t)}</span>`;
 function itemSheetHtml() {
@@ -633,8 +645,8 @@ function itemSheetHtml() {
     const place = p.area ? `<span class="small shw">${`<b>${esc(p.area)}</b>`}${spot ? " · " + spot : ""}</span>` : "";
     const more = `<button class="icon smore" data-act="itile" data-p="all" aria-label="All fields" title="All fields">${I.list}</button>`;
     const head = `<div class="shead"><span class="ph" aria-hidden="true">${emo(p)}</span><div class="sid"><b>${esc(p.name)}</b>${hasQty ? `<span class="small shq">${out ? "Out" : esc(fmtAmt(p))}</span>` : ""}${place}</div>${more}</div>`;
-    /* the Level tile is the drop; on a counted item it opens the quantity stepper, on a level-only item it opens the level choices */
-    const first = tile(cnt ? "amount" : "level", levelDrop(lv), "", srOnly((cnt ? "Quantity and level, " : "Level, ") + lv), "");
+    /* the Level tile is the battery; on a counted item it opens the quantity stepper, on a level-only item it opens the level choices */
+    const first = tile(cnt ? "amount" : "level", levelBattery(lv, 38), "", srOnly((cnt ? "Quantity and level, " : "Level, ") + lv), "");
     const minTile = tile("min", typeof I.down === "string" ? I.down.replace('width="22" height="22"', 'width="20" height="20"') : riSvg("alert", 20), p.min > 0 ? esc(fmtAmt({ n: p.min, unit: p.unit })) : null, "Minimum", "Add minimum");
     const tiles = `<div class="tiles4">${first}${tile("useby", riSvg("clock", 20), p.days === null ? null : esc(dayLabel(p.days)), "Use by", "Add use-by")}${minTile}${tile("cat", riSvg("basket", 20), p.cat ? esc(p.cat) : null, "", "Add category")}</div>`;
     const acts2 = `<div class="sacts">${out ? `<button class="btn ghost" disabled>${I.tick}<span>&nbsp;Marked Out</span></button>` : `<button class="btn ghost" data-act="sheetused">${I.tick}<span>&nbsp;Used up</span></button>`}${onList(p.id) ? `<button class="btn ghost" disabled>${I.tick}<span>&nbsp;On your list</span></button>` : `<button class="btn" data-act="sheetshop">${riSvg("cart", 20)}<span>&nbsp;Add to shopping</span></button>`}</div>`;
@@ -643,7 +655,7 @@ function itemSheetHtml() {
     const hd = `<div class="shead"><button class="icon" data-act="itile" data-p="tiles" aria-label="Back to ${esc(p.name)}" title="Back">${I.chev.replace("<svg", '<svg style="transform:scaleX(-1)"')}</button><div class="sid"><b>${TILE_TITLE[v]}</b><span class="small">${esc(p.name)}</span></div>${close}</div>`;
     let ed = "";
     if (v === "level") {
-      ed = `<div class="opts lvpick" role="radiogroup" aria-label="Level">${Object.keys(LEVELS).reverse().map((l) => `<button class="opt${l === lv ? " on" : ""}" role="radio" aria-checked="${l === lv}" data-act="lvl" data-p="${l}">${levelDrop(l, 40)}${srOnly(l)}</button>`).join("")}</div><p class="small">The drop empties as it runs down. An empty drop means none left. Nothing is deleted: it stays in the pantry.</p>`;
+      ed = `<div class="opts lvpick" role="radiogroup" aria-label="Level">${Object.keys(LEVELS).reverse().map((l) => `<button class="opt${l === lv ? " on" : ""}" role="radio" aria-checked="${l === lv}" data-act="lvl" data-p="${l}">${levelBattery(l, 35)}${srOnly(l)}</button>`).join("")}</div><p class="small">The battery empties as it runs down. An empty battery means none left. Nothing is deleted: it stays in the pantry.</p>`;
     } else if (v === "amount") ed = ITEM_FIELDS.qty.html(p);
     else if (v === "where") ed = TILE_FIELDS.where.map((k) => `<span class="lbl">${k === "loc" ? "Location" : "Spot"}</span>${ITEM_FIELDS[k].html(p)}`).join("");
     else ed = ITEM_FIELDS[TILE_FIELDS[v][0]].html(p);
@@ -667,7 +679,7 @@ function sheetHtml() {
       <div class="fbody">${body}</div>
       <div class="ffoot"><div class="flinks"><button class="link" data-act="fclear">Clear</button><button class="link" data-act="fuselast" ${S.flast ? "" : "disabled"}>Use last filters</button></div><button class="btn" id="fshow" data-act="fshow" ${fItems(f).length === 0 ? "disabled" : ""}>${fShowText(f)}</button></div></div></div>`;
   }
-  if (sh === "pwa") return wrap(`<h2>Add it to your home screen</h2><p>On iPhone: tap Share, then Add to Home Screen.<br>On Android: tap the menu, then Add to Home screen.</p><button class="btn" data-act="pwadone">Done, I've added it</button><button class="btn ghost" data-act="closesheet">Not now</button>`);
+  if (sh === "pwa") return wrap(`<h2>Install Kitchie</h2><p>Add it to your home screen, or again if you removed it. You can do this as often as you like.</p><p>On iPhone: tap Share, then Add to Home Screen.<br>On Android: tap the menu, then Add to Home screen.</p><button class="btn" data-act="pwadone">Done, I've installed it</button><button class="btn ghost" data-act="closesheet">Not now</button>`);
   if (sh === "add") return wrap(`<h2>Add item</h2>
     <input class="field" id="f-name" placeholder="Name" autocomplete="off"><input class="field" id="f-amt" placeholder="Amount (e.g. 2, 500 g, 1 bag)" autocomplete="off">
     <select class="field" id="f-area">${AREAS.map((a) => `<option>${a}</option>`).join("")}</select><input class="field" id="f-spot" placeholder="Spot (optional)" autocomplete="off">
@@ -702,7 +714,7 @@ function sheetHtml() {
   if (sh === "role") return wrap(`<h2>Your kitchen role</h2><p>Optional. It sits beside your name.</p>${roleEditor("sheet")}`);
   if (sh === "member") {
     const w = S.memberWho, r = role(w), self = w === S.persona;
-    return wrap(`<div class="row"><span class="av" style="width:56px;height:56px;font-size:20px">${avt(w, 30)}</span><div><b style="font-size:20px">${esc(PEOPLE[w].name)}</b>${self ? ' <span class="chip">You</span>' : ""} ${founderChip(w)}</div></div>
+    return wrap(`<div class="row"><span class="av" style="width:56px;height:56px;font-size:20px">${avt(w, 30)}</span><div><b style="font-size:20px">${esc(PEOPLE[w].name)}</b>${self ? ' <span class="chip">You</span>' : ""} ${founderChip(w)}${S.founder === w ? "" : ` <span class="chip">${isAdmin(w) ? "Admin" : "Member"}</span>`}</div></div>
       ${r ? `<div class="row" style="gap:14px">${roleIc(r, 56)}<div><b style="font-size:17px">${esc(r.title)}</b>${r.desc ? `<p style="margin-top:4px">${esc(r.desc)}</p>` : ""}</div></div>` : `<p>${self ? "You haven't picked a kitchen role." : PEOPLE[w].name + " hasn't picked a kitchen role."}</p>`}
       ${self ? `<button class="btn" data-sheet="role">${r ? "Change role" : "Pick a role"}</button>` : S.founder === w ? `<p class="small">The founding member can't be removed.</p>` : `<button class="btn ghost danger" data-act="removestart">Remove ${esc(PEOPLE[w].name)} from household</button>`}<button class="btn ghost" data-act="closesheet">Close</button>`);
   }
@@ -901,8 +913,10 @@ const acts = {
   usecode() { const d = S.codeTyped.replace(/\D/g, ""); if (S.codeState === "locked") return render(); if (d.length !== 6) { S.codeState = "wrong"; return render(); } S.code = d; S.codeState = "ok"; go("invite", null, { replace: true }); },
   copyinvite2() { toast("Invite link copied"); },
   setavatar(a) { if (a) S.avatars[S.persona] = a; else delete S.avatars[S.persona]; S.sheet = null; render(); toast("Picture changed"); },
+  grantadmin(w) { S.admins.push(w); render(); toast(PEOPLE[w].name + " is now an admin"); },
+  revokeadmin(w) { S.admins = S.admins.filter((x) => x !== w); render(); toast(PEOPLE[w].name + " is no longer an admin"); },
   removestart() { S.sheet = "removing"; render(); },
-  removeconfirm() { const w = S.memberWho, n = PEOPLE[w].name; S.members = S.members.filter((x) => x !== w); S.sheet = null; render(); toast(n + " removed"); },
+  removeconfirm() { const w = S.memberWho, n = PEOPLE[w].name; S.members = S.members.filter((x) => x !== w); S.admins = S.admins.filter((x) => x !== w); S.sheet = null; render(); toast(n + " removed"); },
   leavestart() { S.sheet = "leave"; render(); },
   leaveconfirm() { const v = document.getElementById("leavename"); if (!v || v.value.trim().toLowerCase() !== me().name.toLowerCase()) return; S.members = S.members.filter((x) => x !== S.persona); S.sheet = null; S.stack = []; go("notmember", null, { replace: true }); toast("You left Our kitchen"); },
   aitab(t) { S.aiTab = t; render(); }, airevoke() { S.aiLink = false; S.sheet = null; render(); toast("Link revoked. No assistant can use it now"); },

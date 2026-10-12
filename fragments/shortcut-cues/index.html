@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Global shortcut cues</title>
+<link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><script src="../../theme.js"></script>
+<style>kbd{font:700 12px var(--body);border:1px solid var(--border);border-bottom-width:2px;border-radius:6px;padding:1px 7px;background:var(--surface)}.links{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}.links a{display:inline-flex;align-items:center;min-height:var(--tap);padding:0 14px;border-radius:99px;border:1px solid var(--border);background:var(--bg);font-size:13px;font-weight:600}li{margin-bottom:6px;font-size:14px}</style></head>
+<body><div class="wrap"><a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Global shortcut cues</h1>
+<p>Owner, 11 October 2026: <kbd>Shift</kbd> <kbd>?</kbd> turns on the shortcut cues from anywhere: every screen, flyout, modal and sub-screen. Mockup only; the notes are in <code>docs/knowledge/shortcut-cues.md</code>.</p>
+<div class="links"><a href="demo.html">Pantry</a><a href="demo.html?screen=pantry&amp;fly=1">With the item flyout</a><a href="demo.html?screen=pantry&amp;add=1">Inside the Add modal</a><a href="demo.html?screen=settings">Settings, full screen</a><a href="demo.html?screen=household">Household sub-screen</a><a href="demo.html?screen=history">History (no keys of its own)</a></div>
+<div class="sec"><div class="lbl">What it does</div><ul>
+<li><kbd>Shift</kbd> <kbd>?</kbd> (or <kbd>H</kbd>) opens the Shortcuts list on any layer; again closes it. With the cue switch Off the cues come on for this visit.</li>
+<li>Never fires in a text box: <kbd>?</kbd> types a <kbd>?</kbd>. Ignores IME composing, key repeat and Ctrl/Cmd chords; reads the character, so non-US layouts work.</li>
+<li><kbd>Ctrl</kbd> <kbd>Esc</kbd> (Cmd on a Mac) closes the list first, then the panel behind it.</li>
+<li>Owner, 12 October 2026: <kbd>Shift</kbd> <kbd>Space</kbd> turns the key hints on and off (kept per device, with a small "Key hints on / off" status line). It stays out of text boxes, buttons and links, acts from 1024px up, and is not reserved by Chrome, Firefox or Safari; some IMEs use it. <kbd>+</kbd> (also <kbd>=</kbd>) opens Add. Notes: <code>docs/knowledge/shortcut-cues.md</code>.</li></ul>
+<p>Default path loads: one small script per page that only listens for the key; the list is built on the first press. Nothing is stored except the existing cue switch.</p></div>
+</div></body></html>

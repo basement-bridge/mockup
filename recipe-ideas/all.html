@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>All cooking ideas — Recipe ideas mockup</title>
+<link rel="stylesheet" href="../theme.css"><link rel="stylesheet" href="../recipe/recipe.css"><link rel="stylesheet" href="ideas.css"><script src="../theme.js"></script><script src="../recipe/recipe.js"></script><script src="ideas.js"></script></head>
+<body data-no-theme-fab>
+<div class="stage"><div class="phone" id="ph">
+  <div class="top"><a class="back" href="home.html" id="bk"></a><span class="ttl" id="ttl">Ideas for tonight</span><span id="tn" style="width:44px"></span></div>
+  <div class="strip lens" id="strip" role="group" aria-label="Lean towards"></div>
+  <div class="body" id="body"></div>
+</div></div>
+<script>
+(function(){
+var X=RCP,I=IDEAS,ic=X.ic,esc=X.esc,S=I.S;
+document.getElementById("bk").innerHTML=ic("back","s")+"Home";
+/* I-D11: the lens strip is the same strip component as the recipe list (plan-week-ai decision 48). It IS the lean: picking a chip here
+   is the same setting the Tune sheet holds, so there is one setting, not two. "Plan ahead" is not a lean; it fills empty nights. */
+var lens=X.Q.get("lens")||S.lean;
+if(S.tune==="A")document.getElementById("tn").outerHTML='<button type="button" class="ib bare" data-act="tune" aria-label="Tune ideas">'+I.ix("sliders","s")+'</button>';
+var showOut=false;
+window.ideasRedraw=function(){
+  S.lean=I.S.lean;
+  if(lens!=="ahead")lens=S.lean;
+  var chips=I.LEANS.concat([["ahead","Plan ahead"]]);
+  document.getElementById("strip").innerHTML=chips.map(function(c,i){return (i===1||c[0]==="ahead"?'<span class="sd" aria-hidden="true"></span>':'')+'<button type="button" data-lens="'+c[0]+'" aria-pressed="'+(lens===c[0])+'">'+c[1]+'</button>'}).join("");
+  var R=I.rank({lean:lens==="ahead"?"balanced":lens}),h="";
+  document.getElementById("ttl").textContent=lens==="ahead"?"Plan ahead":R.hour>=20?"Ideas for tomorrow":"Ideas for tonight";
+  var who=I.eaters();
+  h+='<div class="pad" style="padding-bottom:0"><p style="font-size:13px">For '+(who.length===I.MEMBERS.length?"everyone (4)":I.list(who.map(function(k){return I.NAMES[k]})))+' · weeknight · '+(R.stockKnown?"checked against the pantry":"pantry not readable")+'</p></div>';
+  if(lens==="ahead"){
+    /* I-D15: Plan ahead pairs each empty night this week with the best idea left, so the pane also fills the plan. Writes a plan entry (plan_meal). */
+    var nights=[["Wed","8"],["Fri","10"],["Sat","11"]],pool=R.ideas.filter(function(i){return i.kind==="cook"});
+    h+='<div style="padding:0 12px">'+nights.map(function(n,k){var i=pool[k];if(!i)return"";return '<div class="idr" style="gap:12px;padding:8px 0"><span class="e" style="flex-direction:column;font-size:12px;font-weight:800;line-height:1.1">'+n[0]+'<small style="font-weight:600;color:var(--muted)">'+n[1]+'</small></span><span class="t"><b>'+esc(i.r.name)+'</b><span class="why"><span>'+esc(i.line)+'</span></span></span><button type="button" class="mini" style="min-height:44px" data-act="plan" data-id="'+i.r.id+'">Plan</button></div>'}).join("")+'</div>'+
+      '<p class="pad" style="font-size:12.5px">Thu is a usual day off and Sun already has a meal, so they are skipped. Use-it-up ideas go on the earliest night.</p>';
+  }else if(!R.ideas.length){
+    h+='<div class="empt" style="padding-top:32px"><div class="big">🤔</div><b>Nothing fits from what is in</b><p>See what was left out below, or plan ahead and shop.</p><div class="row"><button type="button" class="btn ghost sm" data-lens="ahead">Plan ahead</button><button type="button" class="btn ghost sm" data-act="askai">'+ic("spark","s")+'Ask your assistant</button></div></div>';
+  }else{
+    h+='<div style="padding:0 12px">'+(S.ai==="B"?I.aiRow():"")+R.ideas.map(function(i){return I.row(i,true)}).join("")+'</div>';
+    if(R.weak.length)h+='<p class="sub" style="padding:0 16px">Possible, but not a great fit</p><div style="padding:0 12px">'+R.weak.map(function(i){return I.row(i,true)}).join("")+'</div>';
+  }
+  if(R.out.length){
+    /* I-D5: what was left out, and why, one tap away. Never silently hidden. */
+    h+='<button type="button" class="hidrow" data-out aria-expanded="'+showOut+'"><span class="t">Left out tonight ('+R.out.length+')</span>'+ic(showOut?"down":"chev","s")+'</button>'+
+      (showOut?'<div class="hid">'+R.out.map(function(o){return '<div><span aria-hidden="true">'+o.r.e+'</span><span><b>'+esc(o.r.name)+'</b> · '+esc(o.why)+'</span></div>'}).join("")+'</div>':'');
+  }
+  h+='<div class="pad"><button type="button" class="btn ghost" data-act="askai" style="width:100%">'+ic("spark","s")+'Ask your assistant for something new</button></div><div style="height:24px"></div>';
+  document.getElementById("body").innerHTML=h;
+  var on=document.querySelector("#strip [aria-pressed=true]");if(on&&on.scrollIntoView)on.scrollIntoView({block:"nearest",inline:"nearest"});
+};
+document.addEventListener("click",function(e){
+  var b=e.target.closest("[data-lens]");
+  if(b){var v=b.dataset.lens;if(v==="ahead"){lens=lens==="ahead"?S.lean:"ahead"}else{lens=v;I.S.lean=v;X.store.set("i-lean-"+X.P.persona,v)}ideasRedraw();return}
+  if(e.target.closest("[data-out]")){showOut=!showOut;ideasRedraw()}
+});
+ideasRedraw();
+X.controls(I.controlsHtml());
+})();
+</script>
+<script src="../recipe/plan-sheet.js"></script>
+</body></html>

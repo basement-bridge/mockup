@@ -1,0 +1,54 @@
+/* Option D, base (1024 to 1439): the cook sheet fills the width; the lane OVERLAYS from the right (340, fixed, shadow) because the sheet cannot give up width. The sheet scrolls inside itself, sticky header and ingredient column, and takes right padding while the lane is open so every day stays reachable. */
+:root{--lane:340px;--main-max:1fr;--lab:176px;--colmin:92px}
+.main{padding:20px 24px 24px;display:flex;flex-direction:column;height:100vh}
+.app{grid-template-columns:88px minmax(0,1fr)}
+.panel{display:none;position:fixed;right:0;top:0;height:100vh;width:var(--lane);z-index:50;box-shadow:-14px 0 40px rgba(0,0,0,.35)}
+.app.lane-open .panel{display:block}
+.app .panel.p2{display:none}
+.cs-scroll{flex:1;min-height:0;overflow:auto;border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface);position:relative}
+.cs{display:grid;grid-template-columns:var(--lab) repeat(7,minmax(var(--colmin),1fr));min-width:calc(var(--lab) + 7*var(--colmin));width:100%}
+.lane-open .cs{padding-right:var(--lane)}
+.cs-corner{position:sticky;top:0;left:0;z-index:4;background:var(--surface);padding:10px 12px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);display:flex;flex-direction:column;justify-content:flex-end}
+.cs-corner small{color:var(--muted)}
+.dcol{position:sticky;top:0;z-index:3;background:var(--surface);border-bottom:1px solid var(--border);border-left:1px solid var(--border);padding:8px 6px 8px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.dhh{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.dhh b{font-size:14px}.dhh span{font-size:12px;color:var(--muted);font-weight:600}
+.dhh .today{color:var(--on-accent)}
+.dstack{display:flex;flex-direction:column;gap:4px;min-width:0}
+.dcol.is-today .dhh b{color:var(--accent)}
+.v-chip .mc{min-height:40px;padding:4px 16px 4px 6px;gap:6px;flex-direction:row;align-items:center}
+.v-chip .mc .e{font-size:16px}
+.v-chip .mc small,.v-chip .mc .ingl,.v-chip .mc .av,.v-chip .mc .lock{display:none}
+.v-chip .mc .t b{font-size:12px;line-height:1.2;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.v-chip .chips{display:none}
+.v-chip .ra{display:none}
+.v-chip .mc{position:relative}
+.v-chip.mcw:has(.tg.miss) .mc::after,.v-chip.mcw:has(.tg.soon) .mc::after{content:"";position:absolute;right:4px;top:4px;width:7px;height:7px;border-radius:50%;background:var(--danger)}
+.v-chip.mcw:has(.tg.soon) .mc::after{background:none;border:2px dashed var(--danger);width:9px;height:9px}
+.v-chip .slot{min-height:40px}.v-chip .blocked{min-height:40px;font-size:12px}.v-chip .ovt{font-size:10px}
+.cs-g{grid-column:1/-1;display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg);border-top:1px solid var(--border);border-bottom:1px solid var(--border);position:sticky;left:0}
+.cs-g h3{font:800 11px var(--body);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);display:flex;gap:6px;align-items:center}
+.cs-g h3 .n{background:var(--accent);color:var(--on-accent);border-radius:99px;padding:0 7px}
+.cs-g span:not(.n){font-size:12px;color:var(--muted)}
+.cs-g .mini{margin-left:auto;min-height:30px}
+.cs-lab{position:sticky;left:0;z-index:2;background:var(--surface);display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:0;padding:4px 12px;min-height:44px;border:0;border-right:1px solid var(--border);border-bottom:1px solid var(--border);text-align:left;min-width:0}
+.cs-lab b{font-size:14px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cs-lab small{font-size:11.5px;color:var(--muted);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+button.cs-lab:hover b{color:var(--accent)}
+.cs-lab.sel{box-shadow:inset 3px 0 0 var(--accent);background:var(--bg)}
+.cs-cell{min-width:0;display:flex;align-items:center;justify-content:center;gap:4px;flex-wrap:wrap;min-height:44px;padding:3px;border-left:1px solid var(--border);border-bottom:1px solid var(--border);position:relative}
+.cs-cell.after{background:color-mix(in srgb,var(--danger) 7%,transparent)}
+.use{min-height:30px;padding:0 10px;border-radius:var(--r-pill);border:1px solid var(--sage);color:var(--fg);background:var(--bg);font-weight:700;font-size:12px;white-space:nowrap}
+.use:hover{border-color:var(--accent)}
+.use.miss{border-style:dashed;border-color:var(--danger);color:var(--danger)}
+.use.bad{border-color:var(--danger);color:var(--danger)}
+.use.held{box-shadow:inset 0 0 0 1px var(--sage);background:color-mix(in srgb,var(--sage) 18%,var(--bg))}
+.use.sel{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.ubm,.buym{display:inline-flex;align-items:center;gap:3px;font-size:10.5px;font-weight:800;color:var(--danger);border:1px dashed var(--danger);border-radius:99px;padding:0 6px}
+.buym{color:var(--accent);border-color:var(--accent)}
+.ubm svg,.buym svg{width:11px;height:11px}
+.chain-l{background:var(--surface)}
+.chain{display:flex;text-overflow:ellipsis;align-items:center;gap:8px;margin:5px 4px;padding:0 12px;min-height:34px;border-radius:var(--r-pill);background:color-mix(in srgb,var(--sage) 16%,var(--surface));border:1px solid var(--sage);font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;min-width:0;border-bottom:1px solid var(--sage)}
+.chain i{font-style:normal;color:var(--sage)}
+.hl{background:color-mix(in srgb,var(--sage) 12%,var(--surface))}
+.dcol.drop-ok,.dcol.drop-fix,.cs-cell.drop-ok,.cs-cell.drop-fix{outline-offset:-2px}

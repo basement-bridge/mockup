@@ -13,7 +13,7 @@
   <section class="sec" aria-labelledby="j">
     <div class="lbl" id="j">Jobs we design for</div>
     <p>Every screen starts from what someone is here to do. Layout and what leads follow from that.</p>
-    <div class="jobs"><a href="fragments/mid-cook/">Cooking right now</a><span class="soon">About to shop</span><a href="fragments/scan-in/">Scanning things in</a><a href="fragments/plan-week/">Planning the week</a><a href="fragments/use-up/">Using things up</a><span class="soon">Cook from one main thing</span></div>
+    <div class="jobs"><a href="fragments/mid-cook/">Cooking right now</a><span class="soon">About to shop</span><a href="fragments/shopper-link/">Shopping without the app</a><a href="fragments/scan-in/">Scanning things in</a><a href="fragments/plan-week/">Planning the week</a><a href="fragments/use-up/">Using things up</a><span class="soon">Cook from one main thing</span></div>
     <p class="q" style="margin-top:10px">Linked jobs have a mockup. The rest are named, not yet explored. <a href="https://github.com/basement-bridge/platform-mockup/blob/prototype-v1/docs/knowledge/jobs-to-be-done/README.md" style="text-decoration:underline">Notes per job</a></p>
   </section>
 
@@ -50,10 +50,110 @@
       <p>Opening the app mid-cook lands on the ingredients. A saved recipe is a secondary action, and only if it's in the vault and unaltered.</p>
       <div class="q">Open: how the app learns you're mid-cook, from the conversation with the AI.</div>
     </a>
+    <a class="tile frag" href="fragments/shopper-link/">
+      <div class="row"><h2>Shopper link: someone else is shopping</h2><span class="tag">Fragment</span></div>
+      <p>A member hands the list to someone who is not in the app, with a one-off link and no sign-in. The shopper swipes what they got (or long-presses to tick several) and says what they got instead; the household's list and Pantry change as they go, and a second shopper sees each answer. Decisions SL-D1 to SL-D20 are the owner's (10 and 11 Oct 2026). Receipt scanning is drawn as phase two, deferred.</p>
+      <div class="q">Open: whether a got reaches the Pantry by itself (SL-J2), where the hand-off control sits (SL-J1, the owner did not pick), and what counts as a link being opened. Kitchie issue #479.</div>
+    </a>
     <a class="tile frag" href="fragments/multi-location/">
       <div class="row"><h2>One item, several places</h2><span class="tag">Fragment</span></div>
-      <p>Four ways to show sugar or ground beef kept in more than one place, each with its flaws listed.</p>
+      <p>Five ways to show sugar or ground beef kept in more than one place, each with its flaws listed. Option E (loose association) is new.</p>
       <div class="q">Open: nothing chosen. Kitchie issue #347.</div>
+    </a>
+    <a class="tile frag" href="fragments/multi-location/shape-E.html">
+      <div class="row"><h2>Option E: loose association</h2><span class="tag">Fragment</span></div>
+      <p>One item kept in several places as independent records joined by a confirmed link. Six scenarios, the add-time prompt, linked stock on the item sheet, the drain order, and its flaws.</p>
+      <div class="q">Exploratory, no decision made. Kitchie issue #347.</div>
+    </a>
+    <a class="tile frag" href="fragments/desktop/">
+      <div class="row"><h2>Desktop: locked decisions</h2><span class="tag">Fragment</span></div>
+      <p>Pantry and Home on a wide screen: left rail, off-centre column, side panel, live Filters, History column and a Profile window. A mode of the household flow: pick Phone, Tablet or a desktop size from the hidden control at the top edge.</p>
+      <div class="q">Locked (owner, 9 October). Not drawn: Recipes and Shopping on desktop, the Add form.</div>
+    </a>
+    <a class="tile frag" href="fragments/desktop-profile/">
+      <div class="row"><h2>Desktop: Profile window</h2><span class="tag">Fragment</span></div>
+      <p>Two-pane, settings-style window that blocks the page. Opens from the avatar on the desktop screens.</p>
+      <div class="q">Locked: two-pane (owner, 9 October).</div>
+    </a>
+    <a class="tile frag" href="fragments/profile-about/">
+      <div class="row"><h2>Profile: the quiet About line</h2><span class="tag">Fragment</span></div>
+      <p>A small, muted line at the foot of the profile with the release of Kitchie, Platform and Recipe. Shown on UAT and other non-production deployments, absent on production.</p>
+      <div class="q">Owner, 12 October (voice, garbled). Mockup only; SW-83 is PROPOSED, four open questions.</div>
+    </a>
+    <a class="tile frag" href="fragments/oauth-consent/">
+      <div class="row"><h2>Connect an assistant (consent page)</h2><span class="tag">Fragment</span></div>
+      <p>Platform's OAuth consent screen in Kitchie's look: one page for Kitchie and Recipe, names the assistant, product, member and household, what is allowed and how to disconnect. Light, dark, phone, desktop.</p>
+      <div class="q">Owner, 12 October. Mockup only; four open questions (theme storage path, disconnect link, Recipe-only brand, CSP).</div>
+    </a>
+    <a class="tile frag" href="fragments/invite-new-household/">
+      <div class="row"><h2>Set someone up with their own household</h2><span class="tag">Fragment</span></div>
+      <p>A growth entry at the foot of the settings gutter: a modal that makes an invitation link with a personal message, which the new person sees during sign-up. Not the join-my-household invite.</p>
+      <div class="q">Owner, 12 October. Mockup only; open questions listed.</div>
+    </a>
+    <a class="tile frag" href="fragments/plan-week-ai/">
+      <div class="row"><h2>Planning the week, AI-led</h2><span class="tag">Fragment</span></div>
+      <p>One live phone: empty state that points to the assistant, copy last week, drag between days, block a night with a Settings stencil, lock in and reserve, several people on one day.</p>
+      <div class="q">Open: nothing chosen. Owner direction, 9 October 2026.</div>
+    </a>
+    <a class="tile frag" href="fragments/plan-desktop/">
+      <div class="row"><h2>Plan on desktop: four options</h2><span class="tag">Fragment</span></div>
+      <p>The Plan page on a wide screen: a week board with a docked inspector, an agenda with a detail pane, a week strip with one focused day, and a cook sheet by ingredient. Hover, right-click, drag and keyboard in place of swipe; 1024 to 2560 and 1366 x 768. Pick a size from the hidden control at the top edge.</p>
+      <div class="q">Open: owner to pick. Recommendation: option A. Decisions 49 to 62 are proposals.</div>
+    </a>
+    <a class="tile frag" href="fragments/plan-ui-review/">
+      <div class="row"><h2>Plan UI review: desktop and phone</h2><span class="tag">Fragment</span></div>
+      <p>An analysis of the current Plan on desktop and phone and amended options: the week filling the window, a docked inspector that scrolls and closes, a clearer people filter, quieter open and Not cooking nights, chips with words, a week summary and today marker; on phone a sticky day strip, labelled swipes with mouse and keyboard equivalents and a two-stop bottom sheet.</p>
+      <div class="q">Open: owner to pick layout and confirm. Recommendation: board from 1760 and agenda below, docked inspector. Decisions 63 to 84 are proposals.</div>
+    </a>
+    <a class="tile frag" href="fragments/plan-hard-avoid/">
+      <div class="row"><h2>Plan it: a Hard avoid guards a meal</h2><span class="tag">Fragment</span></div>
+      <p>When a meal is planned by hand, a Hard avoid stops it only if that person is in the meal: a hard stop for one person, a warning with one action for a household meal (leave them out), nothing for other people, a meal without the item, or a Soft avoid. Shopping is not stopped. Desktop lane and phone sheet.</p>
+      <div class="q">Open: how leave out is stored, whether the AI planner leaves people out too, who may see another member's Reason. Owner, 12 October 2026 (SW-O30).</div>
+    </a>
+    <a class="tile frag" href="fragments/preferences-option-a/">
+      <div class="row"><h2>Preferences, option A: one list</h2><span class="tag">Fragment</span></div>
+      <p>Every preference in one list. Each row shows the value in force and where it comes from; a You / Household switch shows the other level. Drawn from what the code really holds. Kept for reference: the owner chose option B on 10 October. Chips say App, Household or You; Stock level checks; quiet hours default 10pm to 6am and can be set to none; most suggestions per day is 1 to 20, default 3. Only household admins can change the household's values.</p>
+      <div class="q">Kept for reference (option B chosen, D15). Open: whether Recipe stars get a person level, and whether Preferences replaces Stock level checks.</div>
+    </a>
+    <a class="tile frag" href="fragments/preferences-mine-household/">
+      <div class="row"><h2>Preferences, option B: Mine and Household</h2><span class="tag">Fragment</span></div>
+      <p>One Preferences screen, two tabs. Mine shows each value in force and where it comes from (App, Household or You). Stock level checks hold quiet hours, the daily limit, level and how often by place (milk once a week, proteins in the freezer quiet), and the switched-off list. Household and personal notes sit side by side. Kitchen role and assistant moved to the profile. Household is managed on its own tab, and only household admins can change it.</p>
+      <div class="q">Chosen direction (D15), 10 Oct. Open: which rule wins between category and location, a person's broad rule against the household's narrow one, notes that disagree, where the household name lives, what "per day" counts. Locked 10 Oct: household values are changed by household admins only (the founding member is admin and grants it), personal values are ungated, cap 1 to 20 (default 3, D20).</div>
+    </a>
+    <a class="tile frag" href="fragments/preferences-option-c/">
+      <div class="row"><h2>Preferences, option C: propose for another member</h2><span class="tag">Fragment</span></div>
+      <p>One housemate notes something about another ("Sam avoids peanuts"). It lands on Sam's own list, is used at once, and Sam keeps, changes or removes it at the next login. The proposer is never told what Sam decided, and nothing expires. Not an approval gate. Built on option B's layout.</p>
+      <div class="q">Awaiting approval. Locked 10 Oct: any member may propose (not gated by role), a reject never rewrites a meal already planned, the proposer is not told, nothing expires. Open: who sees a pending record, take back, a conflicting record, which statements, where the entry lives.</div>
+    </a>
+    <a class="tile frag" href="recipe/">
+      <div class="row"><h2>Recipe tab, end to end</h2><span class="tag">Fragment</span></div>
+      <p>The whole Recipes tab for four kinds of cook: the list, a recipe with versions, notes, photos and what was cooked, plan it, cook it, add one by hand or from the assistant, change it as a new version.</p>
+      <div class="q">Open: six options (list, page, versions, adding, follower, tab bar order) and nine Recipe-side gaps. Decisions R-D1 to R-D28, all Proposal.</div>
+    </a>
+    <a class="tile frag" href="recipe-versions/">
+      <div class="row"><h2>Recipe versions and lifecycle</h2><span class="tag">Fragment</span></div>
+      <p>What "the recipe" is (the household's usual), Trying, Kept and Put away, fixing a version in place or keeping both, history and going back, promoting a try after a cook, and what an assistant may change. Includes the Recipe backend spec.</p>
+      <div class="q">Open: six options (versions screen, where a change goes, after a cook, assistant on a keeper, immutability, revision storage). Decisions V-D1 to V-D30, all Proposal.</div>
+    </a>
+    <a class="tile frag" href="recipe-photos/">
+      <div class="row"><h2>Recipe photos</h2><span class="tag">Fragment</span></div>
+      <p>Photos for recipes: a cover per version, cooked-it photos from each cook, adding from the app or through your assistant, replace and remove, the empty and loading states. With the storage, privacy, size and loading decisions to lock before building.</p>
+      <div class="q">Open: thirteen options (owner, where bytes sit, sizes, who shrinks, assistant upload, attachment, cover fallback, privacy, limits, removal, backups, top of page, lists). Decisions P-D1 to P-D24, all Proposal.</div>
+    </a>
+    <a class="tile frag" href="recipe-ideas/">
+      <div class="row"><h2>Cooking ideas (Home pane)</h2><span class="tag">Fragment</span></div>
+      <p>What fills the Cooking ideas pane and why: what is in, what goes off, what was cooked lately, the plan, who is eating and their food rules. One idea leads with Cook now and Plan, each with a one-line reason and a Why sheet; one Lean towards knob; empty, nothing-fits and unreadable-pantry states.</p>
+      <div class="q">Open: four options (pane layout, tuning, assistant, where ranking runs). Decisions I-D1 to I-D20, all Proposal.</div>
+    </a>
+    <a class="tile frag" href="fragments/desktop-home/">
+      <div class="row"><h2>Desktop Home: Dashboard and Compact view</h2><span class="tag">Fragment</span></div>
+      <p>Chosen directions, drawn: Dashboard (ideas, on the way out and running low, week in the gutter) and Compact view (ask first), with one universal search and the mobile ideas card. The first five options are kept, marked superseded.</p>
+      <div class="q">Open: gutter in Compact view, search result taps, view persistence.</div>
+    </a>
+    <a class="tile frag" href="fragments/recipe-list-ideas/">
+      <div class="row"><h2>Recipes: the library</h2><span class="tag">Fragment</span></div>
+      <p>The Recipes tab is now only the library: search, filter chips, the list. Cooking ideas moved to Home. Mobile list confirmed; on desktop a row opens a flyout. The earlier pane-plus-list options are kept, marked superseded.</p>
+      <div class="q">Open: flyout width and whether it replaces the full recipe page.</div>
     </a>
     <a class="tile frag" href="fragments/recipe-page/">
       <div class="row"><h2>Recipe page, four layouts</h2><span class="tag">Fragment</span></div>
@@ -70,10 +170,34 @@
       <p>Tapping a Pantry item opens a bottom sheet to about half the screen. Four ways to lay out its details and edits. The owner chose the tile grid (option 2); it is now wired into the household flow.</p>
       <div class="q">Open: see docs/knowledge/item-sheet.md for the proposals the flow had to make.</div>
     </a>
+    <a class="tile frag" href="fragments/item-edit-flyout/">
+      <div class="row"><h2>Item edit flyout</h2><span class="tag">Fragment</span></div>
+      <p>Edit opens as a flyout nested under the open Pantry item, not a page. Pencil and clock icons in the header (E and comma), a History flyout, and Add as the same form. The item flyout carries the emoji tile and, when the level is low, how much to buy. Phone and desktop.</p>
+      <div class="q">Confirmed: layout A, shown key hints, the battery as the level icon everywhere, the level rules, category and unit chips with free text (decisions 94 to 101, 11 Oct voice). Round 4 (owner, 12 Oct 2026, decisions 102 to 107): no shopping list in Edit; "How much to buy" shows in the item flyout only at Running low or Out (stepper or own words); the item flyout gets the emoji tile. Round 5 (owner, 12 Oct 2026, decisions 108 to 113): Location, Spot and Category share one suggestion strip (hidden while the box has a value, one or two pills when empty, typing highlights the match, free text kept), and the level override shows "Set by you" with a "Back to automatic" button. Still open: how "low" is read, the emoji picker details, and the strip's pill count and Enter rule.</div>
+    </a>
+    <a class="tile frag" href="fragments/home-detail-panel/index.html">
+      <div class="row"><h2>Home detail panel</h2><span class="tag">Fragment</span></div>
+      <p>On desktop Home, picking a search result, a Cooking idea, an item going off or one running low opens its detail. Wide: the panel takes the lane and This week shifts right. Narrow: it stacks over This week and leaves a 6px peek. The Pantry item view, plus a recipe view for ideas. Three layouts.</p>
+      <div class="q">Confirmed 12 Oct (decisions 133 to 155): option A, breakpoint 1624px, 6px peek, close with Ctrl or Cmd plus Escape, missing means out of stock, a Used in line on items.</div>
+    </a>
+    <a class="tile frag" href="history/index.html">
+      <div class="row"><h2>History, four options</h2><span class="tag">Fragment</span></div>
+      <p>Searchable History for Kitchie and Recipe, phone and desktop side by side. A: search first (one box, phrases become chips). B: faceted filters and saved views. C: history in context, on each item, recipe, spot and member. D: people and catch-up feed. Open the landing page for all four.</p>
+      <div class="q">Decided 11 Oct: B out; history stays in context for pantry, recipes and shopping (H1, H2); fixed-rules search (H3); on phone and desktop the entry is D's "Since you were last here" feed, three days at most in the catch-up, no Assistants tab (H4 to H10); tick marks caught up, X only leaves (H11), person link (H12), second tab named for the other person or Others (H13), recent history loads a day at a time with no ceiling (H14, H15); no "ask it" typed search anywhere (H9); phone search is a filter sheet (H7a). Open: where the person link sits (H12), the "two things" on phone, a keyword box. Eight shared questions are in docs/knowledge/history-options.md. Kitchie will pull Recipe's history later; not built now.</div>
+    </a>
+    <a class="tile frag" href="fragments/shortcut-cues/">
+      <div class="row"><h2>Global shortcut cues (Shift ?)</h2><span class="tag">Fragment</span></div>
+      <p>One key, every screen, flyout and modal: opens the Shortcuts list and brings the cues on. Never fires while typing; works on non-US layouts; Ctrl/Cmd Esc closes the list first.</p>
+      <div class="q">Open: Q-SC1 to Q-SC4 in docs/knowledge/shortcut-cues.md (owner, 11 Oct 2026).</div>
+    </a>
     <a class="tile frag" href="fragments/locations-spots/">
       <div class="row"><h2>Locations and spots, three ways</h2><span class="tag">Fragment</span></div>
       <p>Settings > Kitchen: manage Fridge, Pantry and the spots inside them. A tree, drill in, or pick then act. Rename, add, remove or merge, reorder.</p>
       <div class="q">Open: which option leads, and whether a spot can have two parents. Not in the household flow yet.</div>
+    </a>
+    <a class="tile frag" href="fragments/receipt-scan/index.html">
+      <div class="row"><b>Receipt scan: bulk add to the Pantry</b><span class="tag">fragment</span></div>
+      <div class="q">Four directions, phone and desktop. Exact match first, top up or new item, confidence on close matches, unrecognised lines confirmed as new.</div>
     </a>
     <a class="tile frag" href="fragments/scan-in/">
       <div class="row"><h2>Scanning things in, four directions</h2><span class="tag">Fragment</span></div>

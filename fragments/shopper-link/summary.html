@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="robots" content="noindex">
+<title>Send this?</title>
+<!-- The shopper's confirm step when no script ran: the answer to POST <base>/list/<token> without confirm=1. No script on this page.
+     The form carries what was posted as hidden fields plus confirm=1, so Send is one more plain POST to the same address.
+     Mockup only, not for the build: theme.css and theme.js (the mockup's tokens and theme choice), kitchie.css (rules the app already has)
+     and mock.js (stands in for the server and jumps a frame to a state; see its first lines). -->
+<link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="kitchie.css"><link rel="stylesheet" href="shopper.css">
+<script src="../../theme.js"></script><script src="mock.js" defer></script>
+</head><body data-no-theme-fab>
+<main class="sl-page" id="sl">
+<span class="brandbar"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="6" y="2.5" width="12" height="19" rx="2.5"></rect><path d="M6 10h12M9 6v1.5M9 13v3"></path></svg><span>Kitchie</span></span>
+<form class="sl-form" id="sl-form" method="post" action="" data-sl-link="3f9a1c2e">
+<input type="hidden" name="got" value="l0"><input type="hidden" name="got" value="l1"><input type="hidden" name="got" value="l2"><input type="hidden" name="got" value="l3"><input type="hidden" name="got" value="l4"><input type="hidden" name="got" value="l5"><input type="hidden" name="got" value="l7"><input type="hidden" name="got" value="l9"><input type="hidden" name="got" value="l11"><input type="hidden" name="swap_l8" value="fusilli, same size"><input type="hidden" name="confirm" value="1">
+<section class="sl-view sl-summary" data-sl-view="summary">
+<h1>Send this?</h1>
+<p class="sl-sum">Got 9 of 12 · 1 swap · 2 not got.</p>
+<ul class="sl-tally">
+<li data-sl-tally="got" data-n="9"><b>9</b>got</li>
+<li data-sl-tally="swapped" data-n="1"><b>1</b>swapped</li>
+<li data-sl-tally="notgot" data-n="2"><b>2</b>not got</li>
+</ul>
+<ul class="sl-lines">
+<li data-sl-line="swapped"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 9h12l-3-3M19 15H7l3 3"/></svg><span><b>Penne</b><small>Got instead: fusilli, same size</small></span></li>
+<li data-sl-line="notgot"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 12h10"/></svg><span><b>Olive oil</b><small>Not got</small></span></li>
+<li data-sl-line="notgot"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 12h10"/></svg><span><b>Spinach</b><small>Not got</small></span></li>
+</ul>
+<p class="note sl-foot">Not right? Go back in your browser and change it.</p>
+<div class="selbar sl-send" role="region" aria-label="Send"><button type="submit" class="btn">Send</button></div>
+</section>
+</form>
+</main>
+</body></html>

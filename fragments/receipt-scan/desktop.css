@@ -1,0 +1,23 @@
+/* Desktop (1024px and up): the Pantry's layout. Left rail, an off-centre column, and the right lane (the flyout). The lane is the Add flyout, then the line inspector, then the summary; with nothing picked it is never empty.
+   docs/knowledge/desktop-layout.md. Loaded only from 1024px up. */
+.app{display:grid;grid-template-columns:88px minmax(0,736px) 400px;justify-content:start;min-height:100vh}
+.rail{border-right:1px solid var(--border);padding:16px 8px;display:flex;flex-direction:column;gap:6px;align-items:stretch;position:sticky;top:0;height:100vh;grid-row:1;grid-column:1}
+.rail .brand{font:700 13px var(--head);text-align:center;color:var(--muted);margin-bottom:10px}
+.rail .nv.on{background:var(--surface)}.rail .nv:hover{background:var(--surface)}
+.rail .me{margin-top:auto;display:flex;flex-direction:column;gap:6px;align-items:stretch}
+.qk{width:24px;height:24px;border:1.8px solid currentColor;border-radius:7px;display:grid;place-items:center;font:700 14px var(--body)}
+.av{width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:var(--surface);display:inline-grid;place-items:center;font-weight:700;margin:0 auto}
+.tabbar,.dim{display:none}
+.page{grid-column:2;grid-row:1;min-width:0}
+.main{padding:28px 48px 56px}
+.panel{grid-column:3;grid-row:1;border-left:1px solid var(--border);padding:24px;position:sticky;top:0;height:100vh;overflow:auto;z-index:2}
+.rs-bar{display:none}
+.scr{padding:12px 48px 56px}
+.scr .rs-rh{padding-left:0;padding-right:0;top:0;padding-top:24px}
+.scr .scr-body{padding:0}
+.toast{left:calc(88px + 48px);bottom:20px}
+.rs-acts.col .rs-b{justify-content:flex-start}
+.rs-acts.col .rs-b .kbd{margin-left:auto}
+.rs-thumb{flex-basis:140px;height:170px}
+.rs-seg .kbd{margin-left:4px}
+.rs-acts.stick{bottom:-24px;padding-bottom:20px;margin-bottom:-24px}

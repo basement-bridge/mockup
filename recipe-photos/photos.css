@@ -1,0 +1,189 @@
+/* Recipe photos slice. Loaded after ../recipe/recipe.css and uses its tokens and classes; adds only the photo pieces.
+   Theme tokens only (theme.css): no raw colours. The one exception is --pc, the photo's own dominant colour, which is data
+   from Recipe (P-D5), set inline per photo, never a theme colour.
+   Class names are meant to be lifted into Kitchie: .pf (photo frame), .pi (the img), .pf.in (loaded), .hero2, .pgal, .pv (viewer). */
+
+/* P-D14 photo frame: the box is sized before any byte arrives (width/height or aspect-ratio), so nothing jumps.
+   Underneath: the photo's dominant colour (7 characters of data, no request). On the hero only: a 24px blurred preview inline. */
+.pf{position:relative;display:block;overflow:hidden;background:var(--pc,var(--surface));border-radius:inherit}
+.pf.lq{background-image:var(--lq);background-size:cover;background-position:center}
+.pf.lq::before{content:"";position:absolute;inset:0;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.pf .pi{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .25s}
+.pf.in .pi{opacity:1}
+.pf .pi[src]{}
+@media (prefers-reduced-motion:reduce){.pf .pi{transition:none}}
+
+/* P-D7 C "being prepared": the photo is stored but its sizes are still being made on the server. Its own colour, one calm line,
+   no spinner (nothing that never ends). The box is already its final size, so nothing moves when the photo arrives. */
+.pf.prep{display:flex;align-items:flex-end;justify-content:flex-start}
+.pprep{display:inline-flex;align-items:center;gap:5px;margin:var(--sp-2);padding:3px 9px;border-radius:var(--r-pill);background:var(--bg);color:var(--muted);font-size:11.5px;font-weight:700;border:1px solid var(--border)}
+.th .pprep,.pgal .pprep{margin:4px;padding:2px 5px}
+.th .pprep span{display:none}
+
+/* P-D10 B: a version showing its parent's photo carries a small icon (with a title) until it has its own */
+.pinh{position:absolute;right:6px;top:6px;z-index:3;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:var(--bg);color:var(--muted);border:1px solid var(--border)}
+.th .pinh{right:2px;top:2px;width:18px;height:18px}
+.pinl{display:inline-flex;align-items:center;gap:4px;margin-top:4px;color:var(--muted)}
+
+/* P-D21: the list's stock placeholder, shown until that row's turn to load (a quiet tile with the chef icon, no request) */
+.pf.stock{background:color-mix(in srgb,var(--accent) 14%,var(--surface));display:flex;align-items:center;justify-content:center;color:var(--muted)}
+.pf.stock>.ic{opacity:.55}
+.pf.stock.in{background:var(--pc,var(--surface))}
+
+/* step photos (P-D8: one per step, at most 10 per version). Sized box, loaded in the "step" phase, before the banner. */
+.psp{display:block;width:100%;margin-top:var(--sp-2);height:150px;border-radius:var(--r-ctl);overflow:hidden;border:1px solid var(--border);padding:0;position:relative}
+.psp .pf{width:100%;height:100%}
+
+/* P-D17 B: removed photos can be undone for 5 minutes; one slim row says how long is left */
+.pundo{display:flex;align-items:center;gap:var(--sp-3);margin:var(--sp-2) var(--sp-3) 0;padding:var(--sp-2) var(--sp-3);border-radius:var(--r-ctl);border:1px solid var(--accent);background:var(--surface)}
+.pundo .t{flex:1;min-width:0}.pundo b{display:block;font-size:14px}.pundo small{display:block;color:var(--muted);font-size:12px}
+.pundo .ic{color:var(--accent)}
+.pundo .mini{min-height:44px;padding:0 14px;font-weight:800;color:var(--accent);border-color:var(--accent)}
+
+/* Mockup panel: loaded files by phase */
+.mphase{margin:6px 0 0;padding:0;list-style:none;display:grid;gap:2px}
+.mphase li{display:flex;justify-content:space-between;gap:8px;font-size:11.5px;color:var(--muted)}
+.mphase li b{color:var(--fg);white-space:nowrap}
+
+/* list thumbnail: the same 56px tile the list already has (R-D27 row); a photo replaces the emoji, no extra space (P-D21 A) */
+.th.ph{padding:0;overflow:hidden}
+.th.ph .pf{width:100%;height:100%}
+
+/* hero (P-D20). A: full-width 2:1 swipe, cover first. B: a small square beside the title. C: no top photo. */
+.hero2{position:relative;height:200px;display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;background:var(--surface)}
+.hero2::-webkit-scrollbar{display:none}
+.hero2>.pf{flex:none;width:100%;height:100%;scroll-snap-align:start;border-radius:0}
+.pcap{position:absolute;left:var(--sp-3);top:var(--sp-3);z-index:2;font-size:11px;font-weight:700;padding:3px 8px;border-radius:var(--r-pill);background:var(--bg);color:var(--muted);border:1px solid var(--border)}
+.hero2.one .hb{display:block;flex:none;width:100%;height:100%;padding:0;border-radius:0}
+.hero2.one .hb .pf{width:100%;height:100%;border-radius:0}
+.hdots2{position:absolute;left:0;right:0;top:177px;display:flex;justify-content:center;gap:5px;pointer-events:none;z-index:2}
+.hdots2 i{width:6px;height:6px;border-radius:50%;background:var(--bg);opacity:.6}.hdots2 i.on{opacity:1;width:16px;border-radius:3px}
+.hbtn{position:absolute;right:var(--sp-3);bottom:var(--sp-3);z-index:3}
+.tthumb{width:72px;height:72px;flex:none;border-radius:var(--r-ctl);overflow:hidden;border:1px solid var(--border)}
+.tthumb .pf{width:100%;height:100%}
+
+/* gallery: covers and cooked-it photos, square thumbnails, three across */
+.pgal{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.pgal>button,.pgal>a{position:relative;aspect-ratio:1;border-radius:var(--r-ctl);overflow:hidden;border:1px solid var(--border);padding:0;display:block}
+.pgal .pf{width:100%;height:100%}
+.pgal .badge2{position:absolute;left:4px;top:4px;z-index:2;font-size:10px;font-weight:800;padding:1px 6px;border-radius:var(--r-pill);background:var(--accent);color:var(--on-accent)}
+.pgal .when{position:absolute;left:0;right:0;bottom:0;z-index:2;font-size:10.5px;font-weight:700;padding:10px 6px 4px;color:var(--fg);background:linear-gradient(transparent,var(--bg))}
+.pgal .addp{border-style:dashed;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--muted);font-size:12px;font-weight:700}
+.pgal .addp .ic{color:var(--accent)}
+
+/* empty state (P-D19): no grey picture pretending to be a photo; a playful line and one way to add */
+.pempty{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-3);border-radius:var(--r-card);border:1.5px dashed var(--border);background:none;width:100%;text-align:left}
+.pempty .e{font-size:30px;line-height:1}
+.pempty b{display:block;font-size:14px}.pempty small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.pempty .t{flex:1;min-width:0}
+
+/* viewer (P-D14: the large size loads only here) */
+.pv{position:absolute;inset:0;z-index:30;background:var(--bg);display:flex;flex-direction:column}
+.pv .stagep{flex:1;position:relative;display:flex;align-items:center;justify-content:center;background:var(--stage)}
+.pv .stagep .pf{width:100%;aspect-ratio:4/3;border-radius:0}
+.pv .meta2{padding:var(--sp-3) var(--sp-4);font-size:13px;color:var(--muted)}
+.pv .meta2 b{color:var(--fg)}
+.pv .acts{display:flex;gap:var(--sp-2);padding:var(--sp-2) var(--sp-3) var(--sp-3);border-top:1px solid var(--border);background:var(--surface)}
+.pv .acts .btn{flex:1;font-size:13.5px;padding:0 8px}
+
+/* add flow */
+.frame{position:relative;margin:var(--sp-3) var(--sp-4) 0;border-radius:var(--r-card);overflow:hidden;border:1px solid var(--border)}
+.frame .pf{width:100%;aspect-ratio:4/3}
+.frame.sq .pf{aspect-ratio:1}
+.frame .crop{position:absolute;inset:0;z-index:2;pointer-events:none;box-shadow:inset 0 0 0 2px var(--accent)}
+.frame .crop::after{content:"";position:absolute;inset:0;background:linear-gradient(var(--accent),var(--accent)) 33.3% 0/1px 100% no-repeat,linear-gradient(var(--accent),var(--accent)) 66.6% 0/1px 100% no-repeat,linear-gradient(var(--accent),var(--accent)) 0 33.3%/100% 1px no-repeat,linear-gradient(var(--accent),var(--accent)) 0 66.6%/100% 1px no-repeat;opacity:.35}
+.kind{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-2);padding:0 var(--sp-4)}
+.kind button{display:flex;flex-direction:column;gap:4px;min-height:92px;padding:var(--sp-3);border-radius:var(--r-card);border:1px solid var(--border);background:var(--surface);text-align:left}
+.kind button b{font-size:14px}.kind button small{color:var(--muted);font-size:12px;line-height:1.3}
+.kind button .e{font-size:22px}
+.kind button[aria-pressed=true]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.prog{height:6px;border-radius:3px;background:var(--border);overflow:hidden;margin-top:var(--sp-2)}
+.prog i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+.shrink{display:flex;align-items:center;gap:var(--sp-2);font-size:13px;color:var(--muted);margin-top:var(--sp-2)}
+.shrink b{color:var(--fg)}
+
+/* assistant chat (a neutral stand-in for the person's own AI app; not any product's look) */
+.chat{padding:var(--sp-3) var(--sp-3) var(--sp-5);display:flex;flex-direction:column;gap:var(--sp-2)}
+.bub{max-width:86%;padding:10px 12px;border-radius:16px;font-size:14px;line-height:1.4;background:var(--surface);border:1px solid var(--border);color:var(--fg)}
+.bub.me{align-self:flex-end;background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.bub .att{display:block;width:120px;height:90px;border-radius:10px;overflow:hidden;margin-bottom:6px}
+.bub .att .pf{width:100%;height:100%}
+.bub .lnk2{display:flex;align-items:center;gap:8px;min-height:44px;margin-top:8px;padding:0 12px;border-radius:var(--r-ctl);border:1px solid var(--accent);color:var(--accent);font-weight:800;font-size:13.5px}
+.bub small{display:block;color:var(--muted);font-size:11.5px;margin-top:6px}
+.chathead{flex:none;display:flex;align-items:center;gap:var(--sp-2);min-height:56px;padding:0 var(--sp-3);border-bottom:1px solid var(--border);font-weight:700;font-size:14px}
+.chathead .dotai{width:28px;height:28px;border-radius:50%;background:var(--sage);display:inline-flex;align-items:center;justify-content:center;color:var(--bg)}
+.mockmark{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;text-align:center;padding:6px}
+
+/* loaded-bytes meter in the Mockup panel (prototype only, not lifted) */
+.meter{font-size:12px;color:var(--fg);padding:6px 10px;border-radius:var(--r-ctl);background:var(--surface);border:1px solid var(--border)}
+/* a sheet opened from the viewer sits above it (recipe.css sheets are z 10/11, the viewer is 30) */
+.pv~div>.scrim{z-index:40}.pv~div>.sheet{z-index:41}
+
+/* add: the target, said once at the top, so nothing needs asking (P-D25) */
+.aim{display:flex;align-items:center;gap:var(--sp-3);margin:var(--sp-3) var(--sp-4) 0;padding:var(--sp-2) var(--sp-3);border-radius:var(--r-ctl);border:1px solid var(--accent);background:var(--surface)}
+.aim .ic{color:var(--accent)}
+.aim b{display:block;font-size:14px}.aim small{display:block;color:var(--muted);font-size:12px}
+.pgal .pt{position:relative;aspect-ratio:1;border-radius:var(--r-ctl);overflow:hidden;border:1px solid var(--border);display:block}
+.pgal a.addp{text-decoration:none}
+
+/* notes (P-D26 to P-D29): simple rich text, a photo by reference. .nbody is the rendered note, the same markup everywhere. */
+.nbody p{margin:0 0 4px}.nbody p:last-child{margin-bottom:0}
+.nbody ul{margin:2px 0 4px;padding-left:20px}
+.nph{display:block;width:88px;height:88px;margin-top:var(--sp-2);border-radius:var(--r-ctl);overflow:hidden;border:1px solid var(--border);padding:0}
+.nph .pf{width:100%;height:100%}
+.ncard{position:relative}
+.ncard .nmeta{display:flex;align-items:center;gap:var(--sp-2);flex-wrap:wrap;margin-top:var(--sp-2);font-size:12px;color:var(--muted)}
+.ncard .nmeta .sp{flex:1}
+.ncard .nmeta .tg{border-color:var(--border);color:var(--muted)}
+.ntool{display:flex;gap:var(--sp-1);flex-wrap:wrap;padding:var(--sp-1) 0}
+.ntool button{display:inline-flex;align-items:center;justify-content:center;gap:4px;min-height:44px;min-width:44px;padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-weight:700;font-size:13px}
+.ntool button b{font-weight:900}
+textarea.field{min-height:120px;padding:10px 12px;line-height:1.4;resize:vertical}
+textarea.field.nbox{resize:none}
+.nprev{max-height:min(240px,34vh);overflow-y:auto;padding:var(--sp-3);border-radius:var(--r-ctl);border:1px dashed var(--border);font-size:14px}
+.natt{display:flex;align-items:center;gap:var(--sp-3);margin-top:var(--sp-2)}
+.natt .nph{margin-top:0;width:64px;height:64px}
+.where{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-2)}
+.where button{display:flex;flex-direction:column;gap:2px;min-height:72px;padding:var(--sp-2) var(--sp-3);border-radius:var(--r-card);border:1px solid var(--border);background:var(--surface);text-align:left}
+.where button b{font-size:13.5px}.where button small{color:var(--muted);font-size:11.5px;line-height:1.3}
+.where button[aria-pressed=true]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+
+/* the Cooked row's own add-photo button (P-D25): the row is where "what you made" lives */
+.hist .addc{flex:none;width:44px;height:44px;border-radius:var(--r-ctl);border:1.5px dashed var(--border);display:inline-flex;align-items:center;justify-content:center;color:var(--accent)}
+
+/* saved confirmation (done.html) */
+.saved{text-align:center;padding:32px var(--sp-4) var(--sp-2)}
+.saved .row{display:flex;justify-content:center;gap:var(--sp-2);margin-top:var(--sp-3)}
+.saved .row .pt{width:84px;height:84px;border-radius:var(--r-ctl);overflow:hidden;border:1px solid var(--border)}
+.saved .row .pt .pf{width:100%;height:100%}
+
+/* free up space (free.html): the household meter, versions by size, pick photos, remove (text and history stay) */
+.qbar{height:10px;border-radius:5px;background:var(--border);overflow:hidden;margin-top:var(--sp-2);display:flex}
+.qbar i{display:block;height:100%;background:var(--accent)}
+.qbar i.w{background:var(--danger)}
+.qnote{font-size:12.5px;color:var(--muted);margin-top:6px}
+.vrow{border-top:1px solid var(--border)}
+.vrow:first-of-type{border-top:0}
+.vrow>button{display:flex;align-items:center;gap:var(--sp-3);width:100%;min-height:60px;padding:var(--sp-2) 0;text-align:left}
+.vrow .th{width:44px;height:44px;font-size:20px}
+.vrow .t{flex:1;min-width:0}.vrow .t b{display:block;font-size:14px}.vrow .t small{display:block;color:var(--muted);font-size:12px}
+.vrow .sz{font-weight:800;font-size:13px;white-space:nowrap}
+.vrow .tg.mut{margin-left:4px}
+.vpics{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:0 0 var(--sp-3)}
+.vpics button{position:relative;aspect-ratio:1;border-radius:var(--r-ctl);overflow:hidden;border:1px solid var(--border);padding:0}
+.vpics button .pf{width:100%;height:100%}
+.vpics button[aria-pressed=true]{box-shadow:0 0 0 3px var(--accent);border-color:var(--accent)}
+.vpics .ck{position:absolute;right:4px;top:4px;z-index:3;width:22px;height:22px;border-radius:50%;background:var(--bg);border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center}
+.vpics button[aria-pressed=true] .ck{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.vpics .k{position:absolute;left:0;right:0;bottom:0;z-index:2;font-size:10px;font-weight:800;padding:8px 4px 3px;color:var(--fg);background:linear-gradient(transparent,var(--bg))}
+.vsel{display:flex;gap:var(--sp-2);flex-wrap:wrap;padding-bottom:var(--sp-2)}
+
+/* assistant: the tool trace under a reply (what the assistant called and what came back) */
+.trace{display:block;margin-top:8px;padding:8px 10px;border-radius:10px;background:var(--bg);border:1px solid var(--border);font:12px/1.45 ui-monospace,Menlo,Consolas,monospace;color:var(--muted);white-space:pre-wrap;word-break:break-word}
+.trace b{color:var(--fg)}
+.bub.sys{align-self:center;max-width:94%;background:none;border-style:dashed;font-size:12.5px;color:var(--muted)}
+
+/* Make banner (owner, 11 Oct 2026): explicit action in the viewer and after a cook photo is saved */
+.pv .acts{flex-wrap:wrap}.pv .acts .btn.mb{flex:1 1 100%;font-size:14px}
+.saved .row.mbs{margin-top:var(--sp-2)}.saved .row.mbs .mini{min-height:44px;width:84px;justify-content:center;white-space:normal;text-align:center}
+.saved .row.mbs .mini[aria-pressed=true]{border-color:var(--accent);color:var(--accent)}

@@ -1,0 +1,151 @@
+/* Recipe versions slice. Adds only what recipe/recipe.css does not have: state pills, revision timeline, diff rows,
+   the suggestion card and the save-choice cards. Theme tokens only, no raw colours (DESIGN.md section 2).
+   Class names are meant to be lifted into the build next to recipe.css. */
+
+/* state pills: Trying (dashed accent), Kept (sage), Put away (muted). "Our usual" is a mark, not a state. */
+.st{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:800;padding:1px 8px;border-radius:var(--r-pill);border:1px solid var(--border);color:var(--muted);white-space:nowrap;letter-spacing:.02em}
+.st .ic{width:12px;height:12px}
+.st.trying{border:1px dashed var(--accent);color:var(--accent)}
+.st.kept{border-color:var(--sage);color:var(--sage)}
+.st.away{border-color:var(--border);color:var(--muted)}
+.st.usual{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.st.ai{border-style:dashed;border-color:var(--muted);color:var(--fg)}
+
+/* version rows (family screen) */
+.vr{display:flex;align-items:flex-start;gap:var(--sp-3);min-height:64px;padding:var(--sp-3) var(--sp-1);border-bottom:1px solid var(--border);width:100%;text-align:left;color:var(--fg)}
+.vr .t{flex:1;min-width:0}
+.vr b{display:block;font-size:15.5px}
+.vr small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px;line-height:1.35}
+.vr .pills{margin-top:6px}
+.vr.on{background:color-mix(in srgb,var(--accent) 8%,transparent);border-radius:var(--r-ctl)}
+.vr.away{opacity:.62}
+.vav{width:36px;height:36px;border-radius:50%;flex:none;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;background:var(--surface);border:1px solid var(--border);color:var(--fg)}
+.vav.ai{border-style:dashed;color:var(--accent)}
+.grp{display:flex;align-items:center;justify-content:space-between;min-height:44px;margin-top:var(--sp-2)}
+.grp button{min-height:44px;min-width:44px;color:var(--accent);font-weight:700;font-size:13px}
+
+/* tree (family option B): dotted rails like the version sheet's .vtree */
+.tree{list-style:none;margin:0;padding:0}
+.tree ul{list-style:none;margin:0 0 0 17px;padding:0 0 0 var(--sp-3);border-left:2px dotted var(--border)}
+.tree .vr{border-bottom:0;min-height:56px;padding:var(--sp-2) var(--sp-1)}
+
+/* state banner on a version page */
+.band{display:flex;align-items:center;gap:var(--sp-3);margin:var(--sp-2) var(--sp-3) 0;padding:var(--sp-2) var(--sp-3);min-height:52px;border-radius:var(--r-ctl);border:1px dashed var(--accent);background:color-mix(in srgb,var(--accent) 7%,var(--surface));font-size:14px}
+.band .t{flex:1;min-width:0}.band small{display:block;color:var(--muted);font-size:12px}
+.band.sage{border:1px solid var(--sage);background:color-mix(in srgb,var(--sage) 8%,var(--surface))}
+.band.mut{border:1px solid var(--border);background:var(--surface)}
+.band .btn{flex:none}
+
+/* revision timeline */
+.rv{position:relative;padding:var(--sp-3) 0 var(--sp-3) 34px;border-left:2px solid var(--border);margin-left:13px}
+.rv:last-child{border-left-color:transparent}
+.rv .k{position:absolute;left:-14px;top:var(--sp-3);width:26px;height:26px;border-radius:50%;background:var(--surface);border:2px solid var(--border);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--muted)}
+.rv.head .k{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.rv b{font-size:14.5px}
+.rv small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.rv .acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:var(--sp-2)}
+
+/* diff rows: one line per change, reusing the R-D20 tint and struck-through brackets */
+.df{list-style:none;margin:var(--sp-2) 0 0;padding:0}
+.df li{display:flex;gap:var(--sp-2);align-items:flex-start;padding:6px 8px;border-radius:var(--r-ctl);font-size:13.5px;line-height:1.35;color:var(--fg)}
+.df li+li{margin-top:4px}
+.df li.add{background:color-mix(in srgb,var(--sage) 14%,transparent)}
+.df li.chg{background:color-mix(in srgb,var(--accent) 10%,transparent)}
+.df li.rm{background:color-mix(in srgb,var(--danger) 10%,transparent)}
+.df li .sym{flex:none;width:16px;font-weight:800;text-align:center}
+.df s{color:var(--muted)}
+
+/* choice cards (save sheet, after cook, suggestion) */
+.ch{display:flex;gap:var(--sp-3);align-items:flex-start;width:100%;min-height:64px;padding:var(--sp-3);margin-top:var(--sp-2);border-radius:var(--r-card);border:1px solid var(--border);background:var(--bg);text-align:left;color:var(--fg)}
+.ch .t{flex:1;min-width:0}.ch b{display:block;font-size:15px}.ch small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px;line-height:1.35}
+.ch .ic{color:var(--accent);margin-top:2px}
+.ch[aria-pressed=true]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.ch .rad{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);flex:none;margin-top:2px}
+.ch[aria-pressed=true] .rad{border:7px solid var(--accent)}
+
+/* suggestion card (assistant change waiting for a person) */
+.sug{margin:var(--sp-3) var(--sp-3) 0;padding:var(--sp-3);border-radius:var(--r-card);border:1px dashed var(--accent);background:var(--surface)}
+.sug .hd{display:flex;align-items:center;gap:var(--sp-2);font-size:13px;color:var(--muted)}
+.sug .hd b{color:var(--fg)}
+.sug q{display:block;margin-top:var(--sp-2);font-size:13px;color:var(--muted);font-style:italic}
+.sug .row{display:flex;gap:6px;flex-wrap:wrap;margin-top:var(--sp-3)}
+.sug .row .btn{flex:1 1 140px}
+
+/* big verdict buttons at the end of a cook */
+.verd{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--sp-2);margin-top:var(--sp-3)}
+.verd button{min-height:88px;border-radius:var(--r-card);border:1px solid var(--border);background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-weight:800;font-size:14px;color:var(--fg)}
+.verd button span{font-size:26px;line-height:1}
+.verd button small{font-weight:600;font-size:11px;color:var(--muted)}
+.verd button[aria-pressed=true]{border-color:var(--accent);background:var(--accent);color:var(--on-accent)}
+.verd button[aria-pressed=true] small{color:var(--on-accent)}
+
+/* compare two versions */
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:13px}
+.cmp>div{padding:6px 8px;border-radius:var(--r-ctl);background:var(--bg);border:1px solid var(--border);min-height:36px;color:var(--fg)}
+.cmp>div.h{background:none;border:0;font-weight:800;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.cmp>div.d{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--bg))}
+.cmp>div.x{border-style:dashed;color:var(--muted)}
+
+/* Locked picks, 10 Oct 2026. L3: the versions strip is links here (each version is its own page in this slice); same look as
+   recipe.css .strip buttons, so the build can use one component. */
+.vstrip a.vs{flex:none;display:inline-flex;align-items:center;gap:4px;min-height:40px;padding:0 12px;border-radius:var(--r-pill);font-weight:700;font-size:13px;white-space:nowrap;color:var(--fg);text-decoration:none}
+.vstrip a.vs[aria-current=true]{background:var(--accent);color:var(--on-accent)}
+.vstrip a.vs.more{color:var(--accent)}
+.dotrv{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--danger)}
+.vstrip a.vs[aria-current=true] .dotrv{background:var(--on-accent)}
+
+/* Pick 4 B: "To review" badge, visible to every member until someone reviews the assistant's change */
+.st.rvw{border:1px solid var(--danger);color:var(--danger)}
+.ing .rvm,.stp .rvm{display:inline-flex;align-items:center;gap:3px;margin-left:6px;font-size:10.5px;font-weight:800;color:var(--danger);white-space:nowrap}
+.rvm .ic{width:12px;height:12px}
+
+/* review card: one assistant revision, its changes one per row, keep or revert each */
+.rvc{margin:var(--sp-3) var(--sp-3) 0;padding:var(--sp-3);border-radius:var(--r-card);border:1px solid var(--danger);background:var(--surface)}
+.rvc.done{border-color:var(--border)}
+.rvc .hd{display:flex;align-items:flex-start;gap:var(--sp-2);font-size:13px;color:var(--muted);line-height:1.35}
+.rvc .hd b{color:var(--fg)}
+.rvc .wd,.sug .wd{display:block;margin-top:var(--sp-2);font-size:13px;color:var(--muted);font-style:italic}
+.rvc .where{margin-top:var(--sp-2);font-size:12.5px;color:var(--fg)}
+.rvrow{display:flex;align-items:center;gap:var(--sp-2);margin-top:var(--sp-2)}
+.rvrow .df{flex:1;min-width:0;margin:0}
+.rvrow .mini{flex:none}
+.rvrow.kept .df li{opacity:.85}
+.rvrow.reverted .df li{opacity:.5;text-decoration:line-through}
+.rvc .row{display:flex;gap:6px;flex-wrap:wrap;margin-top:var(--sp-3)}
+.rvc .row .btn{flex:1 1 140px}
+
+/* stand-in for the person's own AI app (no in-app agent, plan-week-ai 42): neutral, not any product's look */
+.vchat{padding:var(--sp-3) var(--sp-3) var(--sp-5);display:flex;flex-direction:column;gap:var(--sp-2)}
+.vbub{max-width:88%;padding:10px 12px;border-radius:16px;font-size:14px;line-height:1.4;background:var(--surface);border:1px solid var(--border);color:var(--fg)}
+.vbub.me{align-self:flex-end;background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.vbub small{display:block;color:var(--muted);font-size:11.5px;margin-top:6px}
+.vbub .qa{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.vbub .qa button{min-height:44px;padding:0 12px;border-radius:var(--r-ctl);border:1px solid var(--accent);color:var(--accent);font-weight:800;font-size:13.5px;text-align:left;background:var(--bg)}
+.vbub .qa button[aria-pressed=true]{background:var(--accent);color:var(--on-accent)}
+.vhead{flex:none;display:flex;align-items:center;gap:var(--sp-2);min-height:56px;padding:0 var(--sp-3);border-bottom:1px solid var(--border);font-weight:700;font-size:14px}
+.vhead .dotai{width:28px;height:28px;border-radius:50%;background:var(--sage);display:inline-flex;align-items:center;justify-content:center;color:var(--bg)}
+.mockmark{margin:var(--sp-2) var(--sp-3) 0;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:center}
+
+/* "Not chosen" note on a locked option */
+.nc{margin-top:var(--sp-2);padding:6px 10px;border-radius:var(--r-ctl);border:1px dashed var(--border);font-size:12.5px;color:var(--muted)}
+
+/* Owner's answers, 10 Oct 2026. Notes are inherited per version (answer 2): a note from higher up the lineage says where
+   it was first written; hidden ones fold into one line. Tapping a note opens its sheet (hide on this version). */
+.note.vn{cursor:pointer}
+.nfrom{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:800;color:var(--muted);margin-bottom:4px}
+.nfrom .ic{width:12px;height:12px}
+.nhid{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin:var(--sp-2) 0 0}
+.nhid .ic{width:12px;height:12px}
+.lnk{min-height:var(--tap);padding:0 4px;color:var(--accent);font-weight:700;font-size:12.5px}
+/* Reactions per member (answer 5): your own answer, and the household line derived from everyone's. */
+.react{margin-top:var(--sp-2);font-size:12.5px;color:var(--muted)}
+.react p{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0}
+.react .rb{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.react .mini{min-height:var(--tap)}
+.mini[aria-pressed=true]{border-color:var(--accent);background:var(--accent);color:var(--on-accent)}
+/* After a cook: one row per member who ate it */
+.ate{display:flex;align-items:center;gap:var(--sp-2);min-height:56px;border-bottom:1px solid var(--border)}
+.ate .t{flex:1;min-width:0;font-weight:700;font-size:14px}
+.ate .rb{display:flex;gap:4px}
+.ate .rb button{min-width:var(--tap);min-height:var(--tap);border-radius:var(--r-pill);border:1px solid var(--border);font-size:18px;background:var(--bg)}
+.ate .rb button[aria-pressed=true]{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 18%,var(--bg))}

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Edit by hand: options</title>
+<link rel="stylesheet" href="../theme.css"><link rel="stylesheet" href="../shared.css"><script src="../theme.js"></script>
+<style>
+.reco{font-size:11px;font-weight:800;padding:1px 8px;border-radius:var(--r-pill);background:var(--accent);color:var(--on-accent);margin-left:6px;white-space:nowrap}
+.alt{border-top:1px solid var(--border);padding:10px 0;font-size:14px;color:var(--muted)}
+.alt:first-of-type{border-top:0}
+.alt b{color:var(--fg)}
+.alt .cost{display:block;font-size:12.5px;margin-top:4px}
+.opt.rec{border-color:var(--accent)}
+.per{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.per a{display:inline-flex;align-items:center;min-height:var(--tap);padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-weight:700;font-size:14px}
+.per a:hover{border-color:var(--accent);color:var(--accent)}
+.d{list-style:none;margin:8px 0 0;padding:0}
+.d li{padding:10px 0;border-top:1px solid var(--border);font-size:14px;color:var(--muted)}
+.d li:first-child{border-top:0}
+.d li b{color:var(--fg)}
+.d .n{display:inline-block;min-width:52px;font-weight:800;color:var(--accent)}
+.prop{font-size:11px;font-weight:800;padding:1px 7px;border-radius:var(--r-pill);border:1px dashed var(--accent);color:var(--accent);margin-left:4px;white-space:nowrap}
+.lk{font-size:11px;font-weight:800;padding:1px 7px;border-radius:var(--r-pill);margin-left:4px;display:inline-block;background:var(--accent);color:var(--on-accent)}
+code{font-size:12.5px}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="index.html">&lsaquo; Recipe tab, end to end</a>
+<h1>Edit by hand: options</h1>
+<p>Owner, voice, 11 October 2026: <span class="lk">Locked</span> the earlier rule that only the assistant may author is <b>reversed for editing</b>. The assistant is still how a recipe is <b>started</b>; everything in a version can now be edited by hand in Kitchie: name, ingredients, steps, notes, tags and other fields, and photos (add, replace, remove, make banner, crop, rotate). The data model does not change: the same version, revision and change-set model, the same Recipe service methods. This is a flow and layout mockup.</p>
+<p class="q">Rules carried over, not reopened: a try edits in place; a keeper asks at save (fix this one, keep both, or a different dish; V2 C); every save is one revision with per-change undo; nothing is hard-deleted (undo only); an assistant edit and a hand edit land in the same History with who did it shown; one 4,000 character scrolling note box; one banner per version, one photo per step (at most 10), gallery 3; no originals kept; a pending photo shows "Photo is being prepared".</p>
+<p>Each option below is for you to say <b>yay, nay or combine</b>. The <span class="reco">Recommended</span> one is marked, and it is the one the built screens use. Open <a href="edit.html?id=efr&v=v1" style="color:var(--accent);font-weight:700">the edit screen</a> on a phone, or at 1280 wide for the desktop layout. The Mockup button on that screen switches the options that can be switched.</p>
+
+<section class="sec"><div class="lbl">E-O1 · Where you edit</div>
+<div class="opts"><div class="opt rec"><h2><b>1</b>One edit screen, opened at the section you tapped<span class="reco">Recommended</span></h2>
+<div class="alt"><b>A. One edit screen for the version.</b> Details, Ingredients, Method, Notes and Photos on one scrolling screen with a docked jump row, one Save. A pencil in the top row (key E) opens it at the top; a pencil beside each section on the recipe page opens it at that section. One change set, one revision, one keeper question. <span class="cost">Costs: a long screen on a phone; the jump row and the section pencils take the edge off.</span></div>
+<div class="alt"><b>B. Edit in place, field by field.</b> Tap any text on the recipe page and it becomes a box; it saves when you leave it. Fastest for a typo. <span class="cost">Costs: every field is its own revision (History fills with typo fixes) or the page needs a hidden "pending" state; a keeper would ask its question on every field; easy to edit by a stray tap while cooking.</span></div>
+<div class="alt"><b>C. A sheet per section.</b> The pencil beside Ingredients opens an Ingredients sheet with its own Save. <span class="cost">Costs: a change that touches an ingredient and its step is two saves, two revisions and two keeper questions; five save flows to build.</span></div>
+<div class="alt"><b>Combine.</b> A is the default. B could be added later for notes only, where one field per revision is natural.</div>
+<div class="per"><a href="edit.html?id=efr&v=v1">A: the edit screen</a><a href="edit.html?id=efr&v=v1&sec=met">A, opened at Method</a><a href="detail.html?id=efr&v=v1">The pencils on the recipe page</a></div></div></div></section>
+
+<section class="sec"><div class="lbl">E-O2 · Ingredients and steps on a phone: typing and reordering</div>
+<div class="opts"><div class="opt rec"><h2><b>2</b>Three fields per ingredient; Reorder mode with move arrows<span class="reco">Recommended</span></h2>
+<p class="note">Typing: every ingredient is a name, an amount and a unit (a plain list, or "(count)"), plus an "Amount?" switch for when the source did not say. Nothing is parsed from a sentence and no amount is guessed. Each row has its own remove button; a saved row you remove stays on screen, struck through, with Put back, and is a change in the revision (History can undo it). A row you added and never saved is just dropped.</p>
+<div class="alt"><b>A. Reorder mode, move arrows.</b> A "Reorder" button above the list turns every row into one short line with up and down arrows; "Done" goes back to editing. Big targets, nothing to drag, no accidental moves while you scroll. A step's photo moves with the step. <span class="cost">Costs: two taps to move a row a long way; fine for the 5 to 12 rows a recipe has.</span></div>
+<div class="alt"><b>B. A row menu.</b> A ⋯ button on each row: Move up, Move down, Remove. Leaves rows tall and tidy. <span class="cost">Costs: a sheet for every move.</span></div>
+<div class="alt"><b>C. Drag handle.</b> Press and hold a handle, drag the row. Quickest for a long list. <span class="cost">Costs: fights with scrolling on a touch screen, needs arrows as the keyboard and switch fallback anyway, and is the hardest to get right; not drawn.</span></div>
+<div class="alt"><b>D. One typed line per ingredient</b> ("300 g rice, cooked and cooled") that is parsed. <span class="cost">Nay by default: needs a parser, and parsing is the "inventing amounts" the model rules out. Not drawn.</span></div>
+<div class="alt"><b>Desktop</b> has room: one line per row, arrows and remove always visible, no Reorder mode.</div>
+<div class="per"><a href="edit.html?id=efr&v=v1&sec=ing&reorder=arrows">A: Reorder mode</a><a href="edit.html?id=efr&v=v1&sec=ing&reorder=menu">B: row menu</a><a href="edit.html?id=efr&v=v1&sec=met">Steps (timer, photo, arrows)</a></div></div></div></section>
+
+<section class="sec"><div class="lbl">E-O3 · Crop and rotate a photo</div>
+<div class="opts"><div class="opt rec"><h2><b>3</b>Rotate, and a fixed frame you move and zoom<span class="reco">Recommended</span></h2>
+<p class="note"><b>The honest part, shown on the screen itself:</b> Recipe keeps no original. The banner is stored at large (1600 px wide) and every other photo at medium (960 px) plus a square. So crop and rotate act on the stored copy: what you crop away is gone for good once the 5 minutes of undo end, a rotate re-encodes the file, and zooming in leaves fewer pixels. The screen shows the size it will save at, in plain words ("Sharp", "a little soft on a big screen", "small for a banner: it will look soft"). Like any photo change it applies at once and is not part of Save.</p>
+<div class="alt"><b>A. Rotate only</b> (two 90 degree buttons). Cannot lose pixels except by one re-encode. Covers the most common mistake, a sideways phone photo. <span class="cost">Cannot fix a badly framed shot.</span></div>
+<div class="alt"><b>B. Rotate plus a fixed-shape crop.</b> The frame is the shape the photo is stored in (4 to 3); you drag the photo under it and zoom with a slider; the square tile is made from the middle of what you keep. Works the same by touch, mouse and keyboard (arrow keys move, the slider zooms). <span class="cost">Costs: one more screen to build, and zoom can make a photo soft (hence the size line).</span></div>
+<div class="alt"><b>C. Free crop</b> (drag the corners to any shape). <span class="cost">Stored photos are all 4 to 3, so an odd crop would have to be padded or stretched. Nay by default; not drawn.</span></div>
+<div class="alt"><b>Combine.</b> B contains A. If you want the smaller build, take A first and add the frame later.</div>
+<div class="per"><a href="edit.html?id=efr&v=v1&sec=pho">Photos in the editor</a><a href="edit.html?id=efr&v=v2&sec=met">A photo still being prepared</a></div></div></div></section>
+
+<section class="sec"><div class="lbl">E-O4 · How the keeper question appears</div>
+<div class="opts"><div class="opt rec"><h2><b>4</b>A sheet when you tap Save<span class="reco">Recommended</span></h2>
+<div class="alt"><b>A. A sheet at Save.</b> Save lists what you changed (up to 4 rows, "and N more") above three cards: <i>Fix With peas</i> (revision N, everyone cooking it gets the fix), <i>Keep both</i> (a new version that starts as Trying; you name it) and <i>It is a different dish now</i> (its own recipe, linked back). Nothing is preselected; one optional line in your own words (stored as the revision's why, or user_intent for a new version). On a try there is no question: Save goes straight in as the next revision, with an Undo. <span class="cost">Costs: one extra layer on a keeper.</span></div>
+<div class="alt"><b>B. Inline above the Save bar.</b> Save first expands the three choices in the bar; pick one; Save again. Fewer layers. <span class="cost">Costs: cramped at 390 wide, and no room for the change list or the optional words.</span></div>
+<div class="alt"><b>C. Choose first, before editing.</b> "Editing: fix this one / make a copy". <span class="cost">Not "asks at save" (V2 C), and a wrong early pick means a lot to redo. Not drawn.</span></div>
+<div class="alt"><b>Desktop:</b> the question is already in the changes lane once there is a change, so no sheet at all; Save names the choice ("Save as revision 4").</div>
+<div class="per"><a href="edit.html?id=efr&v=v1&demo=ask">A: the sheet (keeper)</a><a href="edit.html?id=efr&v=v1&demo=changed&ask=inline">B: inline</a><a href="edit.html?id=efr&v=v2&demo=changed">A try: no question</a></div></div></div></section>
+
+<section class="sec"><div class="lbl">E-O5 · The desktop layout (1280)</div>
+<div class="opts"><div class="opt rec"><h2><b>5</b>The form with a changes lane beside it<span class="reco">Recommended</span></h2>
+<div class="alt"><b>A. Form on the left, a lane on the right</b> that lists each change as you make it, says who is saving ("Sam, by hand"), holds the keeper question and Save. Same markup and classes as the phone; one extra file, fetched only at 1024 px and up. Sheets become centred dialogs; crop shows the photo on the left and its controls on the right. <span class="cost">The Recipes tab is not drawn on desktop yet (handoff X13), so this is a plain wide window, not the Pantry's rail layout.</span></div>
+<div class="alt"><b>B. The phone column, centred.</b> Least to build, lots of empty screen, the change list hidden behind Save.</div>
+<div class="alt"><b>C. A nested flyout over the recipe page</b>, like the Pantry item edit. The best fit once desktop Recipes exists (X13); then the lane's content moves into the flyout. Not drawn yet.</div>
+<div class="per"><a href="edit.html?id=efr&v=v1&demo=changed&sec=ing">A at 1280: open this page wide</a></div></div></div></section>
+
+<section class="sec"><div class="lbl">Smaller choices I made where you were silent</div>
+<ol class="d">
+<li><span class="n">E-D1</span><b>A hand edit on a keeper needs no "To review".</b> A person made it with the change list in front of them; only assistant edits open a review (V4 B). Wrong guess: a review step on every hand edit, which is noisy. <span class="prop">Proposal</span></li>
+<li><span class="n">E-D2</span><b>The banner can be replaced or swapped for another photo, not removed</b> (the photos slice's existing rule: one banner per version, always). Alternative: allow remove, falling back to the parent's banner or the stock picture. <span class="prop">Proposal</span></li>
+<li><span class="n">E-D3</span><b>Photos apply at once and are not part of Save;</b> undo for 5 minutes (P6, P10). An inherited photo is the parent's: Replace or crop gives this version its own copy and the parent keeps its photo; there is no Remove for it. <span class="prop">Proposal</span></li>
+<li><span class="n">E-D4</span><b>Save does nothing until something changed; leaving with changes asks</b> (Keep editing, Discard). Ctrl or Cmd plus Enter closes the top layer as everywhere (T3); on this screen it asks the same question and never saves silently. <span class="prop">Proposal</span></li>
+<li><span class="n">E-D5</span><b>Amounts are typed for the recipe's own serving count;</b> Recipe stores them per serving (the build converts). A batch recipe is typed for the whole pot. <span class="prop">Proposal</span></li>
+<li><span class="n">E-D6</span><b>Editing a note that was written higher up rewords it for this version and below</b> (the versions slice's update op); the parent keeps its own. Taking a note off a version is a change in the revision, with Put back before Save and undo after. <span class="prop">Proposal</span></li>
+<li><span class="n">E-D7</span><b>Two people editing at once:</b> Save carries the revision you started from (<code>patch_version</code>'s base revision). If someone saved first the screen says so ("Jane saved revision 5 while you were editing") and offers Apply mine on top or Start again. Not drawn; a build rule. <span class="prop">Proposal</span></li>
+<li><span class="n">E-D8</span><b>One History, who is shown:</b> a hand edit reads "Edited by Sam" with a "by hand" mark; an assistant edit keeps its "assistant" mark and "on behalf of" name. <a href="../recipe-versions/history.html?v=v1" style="color:var(--accent);font-weight:700">See History</a> <span class="prop">Proposal</span></li>
+<li><span class="n">E-D9</span><b>Keys:</b> E opens Edit from the recipe and the version page, comma opens History (a pencil and a clock in the top row carry the hints), Ctrl or Cmd plus Enter closes. No Recipe-specific keys (T3). <span class="prop">Proposal</span></li>
+</ol></section>
+
+<section class="sec"><div class="lbl">What loads (DESIGN.md section 6)</div>
+<ol class="d">
+<li><b>Default path, the edit screen:</b> theme, <code>recipe.css</code>, <code>versions.css</code>, <code>edit.css</code>, <code>recipe.js</code>, <code>versions.js</code> (state and who), <code>edit.js</code>. Text paints first; step photos then the banner follow; the other photos load when the Photos section is reached.</li>
+<li><b>Deferred:</b> crop, rotate, replace and remove (<code>edit-photo.js</code>, <code>edit-photo.css</code>, <code>photos.css</code>) on the first photo action; the desktop lane (<code>edit-desktop.js</code>, <code>.css</code>) only at 1024 px and up with a hover pointer; <code>keys.js</code> as before.</li>
+</ol></section>
+</div></body></html>

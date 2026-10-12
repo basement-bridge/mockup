@@ -1,0 +1,4 @@
+/* Tablet (600 to 1023px): the same single column and the same sheets as the phone, relaxed wider (DESIGN.md section 7). The sheets stay a readable width and centre. */
+.main{max-width:720px;margin:0 auto;padding:24px 24px 96px}
+.panel,.ief-child{width:560px;max-width:100%;margin-inline:auto}
+.tabbar{justify-content:center;gap:24px}

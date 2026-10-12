@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Recipes, the list — Recipe tab mockup</title>
+<link rel="stylesheet" href="../theme.css"><link rel="stylesheet" href="recipe.css"><script src="../theme.js"></script><script src="recipe.js"></script></head>
+<body data-no-theme-fab>
+<div class="stage"><div class="phone" id="ph">
+  <!-- R-D4: one top row only. Search is the row; Ask your assistant is the one icon beside it. No page heading: the tab says where you are.
+       R-O4 (locked): there is no in-app add. New recipes come only through the person's own AI app over Recipe's MCP tools,
+       so the icon opens that app (plan-week-ai decisions 42 and 45: no in-app agent). -->
+  <div class="top" style="border-bottom:0">
+    <label class="search">__S__<span class="vh">Search recipes</span><input id="q" type="search" placeholder="Search recipes or ingredients" autocomplete="off"></label>
+    <button type="button" class="ib acc" data-ask aria-label="Ask your assistant (opens your AI app)">__P__</button>
+  </div>
+  <div class="strip" id="strip" role="group" aria-label="Show"></div>
+  <div class="body" id="body"></div>
+  <div id="bar"></div>
+</div></div>
+<script>
+(function(){
+var X=RCP,P=X.P,ic=X.ic,esc=X.esc;
+document.getElementById("ph").innerHTML=document.getElementById("ph").innerHTML.replace("__S__",ic("search","s")).replace("__P__",ic("spark"));
+document.getElementById("bar").outerHTML=X.bar();
+/* R-D5: the strip is the plan-week-ai strip (decision 48). Ready leads; the remembered chip is per device. */
+var CH=[["all","All"],["ready","Ready now"],["star","Starred"],["batch","Batch"],["quick","Under 30"],["mine","Added by me"]];
+var defChip=P.persona==="batch"?"batch":"all"; /* a habit picks the first chip; it never limits what a person can do */
+var chip=X.store.get("chip-"+P.persona,defChip);
+var q="";
+var score=function(r){var m=X.missing(X.resolve(r).ings).length;return m};
+var row=function(r){
+  var res=X.resolve(r),m=X.missing(res.ings),vc=r.vers.length;
+  var pills=[];
+  if(!m.length)pills.push('<span class="tg">'+ic("check")+'All in</span>');
+  else pills.push('<span class="tg miss" aria-label="'+m.length+' missing">'+m.length+' missing</span>');
+  if(r.star)pills.push('<span class="tg acc" aria-label="Starred">'+ic("star")+'</span>');
+  if(r.freezes)pills.push('<span class="tg mut">'+ic("snow")+'Freezes</span>');
+  if(vc>1)pills.push('<span class="tg mut" aria-label="'+vc+' versions">'+ic("branch")+vc+'</span>');
+  /* R-O1 (locked): a thumbnail only where the recipe has a banner (its usual version's, or inherited from above). No banner, no tile:
+     the name takes the space. Never a cooked photo standing in (owner, 10 Oct 2026). The tile starts as a stock placeholder and
+     its image loads by the list's order below. */
+  var bn=X.banner(r,(r.vers.filter(function(v){return v.def})[0]||r.vers[0]).id);
+  var thumb=bn?'<span class="th ph" aria-hidden="true">'+X.frame(bn.p,"t",{phase:"list",stock:1})+'</span>':'';
+  var meta=r.min+" min · "+(r.batch?"makes "+r.serves:"serves "+r.serves)+" · cooked "+(r.last<=7?r.last+" days ago":r.last<=21?Math.round(r.last/7)+" wk ago":"a while ago");
+  return '<li><a class="rr'+(thumb?'':' nothumb')+'" href="detail.html?id='+r.id+'" data-id="'+r.id+'">'+thumb+'<span class="t"><b>'+esc(r.name)+'</b><small>'+meta+'</small><span class="pills">'+pills.join("")+'</span></span><span class="chev">'+ic("chev","s")+'</span></a></li>';
+};
+var filt=function(){
+  var me=X.me[2];
+  return X.R.filter(function(r){
+    if(q){var s=q.toLowerCase();if(r.name.toLowerCase().indexOf(s)<0&&!r.ings.some(function(i){return i[1].toLowerCase().indexOf(s)>-1}))return false}
+    if(chip==="ready")return !score(r);
+    if(chip==="star")return r.star;
+    if(chip==="batch")return r.batch;
+    if(chip==="quick")return r.min<=30;
+    if(chip==="mine")return r.src.indexOf(me)>-1;
+    return true;
+  }).sort(function(a,b){return score(a)-score(b)||a.last-b.last});
+};
+var top=function(){
+  var h="";
+  /* R-D12: assistant drafts wait at the top, one slim line, never a modal. Everyone sees it: all members have the same controls (R-O5, locked). */
+  if(X.DRAFTS.length)h+='<a class="slim" href="review.html"><span class="e" aria-hidden="true">'+X.DRAFTS[0].e+'</span><span class="t"><b>'+X.DRAFTS.length+' draft to check</b><small>'+esc(X.DRAFTS[0].name)+', from your assistant</small></span><span class="tg acc">Check</span></a>';
+  return h;
+};
+var draw=function(){
+  var s=document.getElementById("strip");
+  s.innerHTML=CH.map(function(c,i){return (i===1?'<span class="sd" aria-hidden="true"></span>':'')+'<button type="button" data-chip="'+c[0]+'" aria-pressed="'+(chip===c[0])+'">'+c[1]+'</button>'}).join("");
+  var list=filt(),b=document.getElementById("body"),h=top();
+  /* R-O1 (locked): one ranked list. The shelves (1 B) and the photo grid (1 C) are dropped. */
+  h+=list.length?'<ul class="rl" style="margin-top:4px">'+list.map(row).join("")+'</ul>':empty();
+  h+='<div style="height:24px"></div>';
+  b.innerHTML=h;
+  wireSwipe();
+  X.afterPaint(loadList);
+};
+/* List images (owner, 10 Oct 2026). Text and stock placeholders paint first; then, in this order:
+   1. if this week's plan exists, the planned recipes' photos (they are the likeliest next tap);
+   2. the rows on screen plus the next 5 in the chip being shown (the "category");
+   3. everything else only when it comes on screen (or never). Changing chip starts again from step 1 for that chip.
+   This loader belongs to the Recipe tab's list route. The home screen never runs it and never waits on it.
+   The sample has seven recipes, so the "next 5" covers the rest; the order is what the build copies. */
+var io=null;
+function loadList(){
+  var b=document.getElementById("body"),rows=[].slice.call(b.querySelectorAll(".rr")),bt=b.getBoundingClientRect().bottom;
+  var tile=function(a){return a.querySelector('.rph[data-phase="list"]')};
+  var planned=X.WEEK.map(function(d){return d[2]}).filter(Boolean);
+  var first=rows.filter(function(a){return planned.indexOf(a.querySelector("b").textContent)>-1}).map(tile);
+  var seen=rows.filter(function(a){return a.getBoundingClientRect().top<bt}),last=seen.length?rows.indexOf(seen[seen.length-1]):-1;
+  var next=rows.slice(0,last+1+5).map(tile);
+  Promise.all(first.filter(Boolean).map(X.fetchPhoto)).then(function(){next.filter(Boolean).forEach(X.fetchPhoto)});
+  if(io)io.disconnect();
+  if("IntersectionObserver" in window){io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){io.unobserve(e.target);X.fetchPhoto(e.target)}})},{root:b});
+    rows.map(tile).filter(function(t){return t&&!t.dataset.go}).forEach(function(t){io.observe(t)})}
+}
+var empty=function(){return '<div class="pad" style="text-align:center;padding-top:40px"><div style="font-size:44px">🍳</div><p style="margin-top:8px">Nothing here'+(q?' for "'+esc(q)+'"':'')+'.</p><p style="margin-top:12px"><button type="button" class="back" data-ask style="margin:0 auto">'+ic("spark","s")+' Ask your assistant to add one</button></p></div>'};
+/* R-O4: the only way a recipe gets in. Opens the person's own AI app; nothing else happens in Kitchie. */
+document.querySelector(".phone").addEventListener("click",function(e){if(e.target.closest("[data-ask]"))X.askAssistant()});
+document.getElementById("strip").addEventListener("click",function(e){var b=e.target.closest("[data-chip]");if(!b)return;chip=chip===b.dataset.chip&&chip!=="all"?"all":b.dataset.chip;X.store.set("chip-"+P.persona,chip);draw()});
+document.getElementById("q").addEventListener("input",function(e){q=e.target.value.trim();draw()});
+/* R-D6: swipe a row right to plan it (opens the day picker). Swipe left is not used: nothing is deleted in Recipe. */
+function wireSwipe(){
+  document.querySelectorAll(".rr").forEach(function(el){
+    var x0=null,dx=0,moved=false;
+    el.addEventListener("pointerdown",function(e){x0=e.clientX;dx=0;moved=false});
+    el.addEventListener("pointermove",function(e){if(x0==null)return;dx=e.clientX-x0;if(Math.abs(dx)>8)moved=true;if(dx>0){el.classList.add("sw");el.style.transform="translateX("+Math.min(dx,120)+"px)";if(dx>70){el.dataset.swipe="right";el.dataset.swipeLabel="Plan it"}else delete el.dataset.swipe}});
+    var end=function(){if(x0==null)return;el.classList.remove("sw");el.style.transform="";var go=dx>70;delete el.dataset.swipe;x0=null;if(go)window.planSheet(X.byId(el.dataset.id))};
+    el.addEventListener("pointerup",end);el.addEventListener("pointercancel",end);el.addEventListener("pointerleave",end);
+    el.addEventListener("click",function(e){if(moved){e.preventDefault();moved=false}});
+  });
+}
+draw();
+X.controls();
+})();
+</script>
+<script src="plan-sheet.js"></script>
+</body></html>

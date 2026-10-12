@@ -1,0 +1,225 @@
+/* Profile window (reusable). Tokens from theme.css only (no raw colours). No framework, no storage.
+   Everything is scoped under .pf-scrim so the file can be loaded on any page (Kitchie, the mockup Pantry) without touching it.
+   Opened with window.KProfile.open(opener) from profile.js. */
+/* Full screen: no reserved scrollbar strip beside the window (the page behind may shift a scrollbar width under the scrim; the scrim hides it). */
+html.pf-lock{overflow:hidden;scrollbar-gutter:auto}
+.pf-scrim,.pf-scrim *{box-sizing:border-box}
+.pf-scrim{font-family:var(--body);line-height:1.4;color:var(--fg)}
+.pf-scrim :where(button,input){font:inherit;color:inherit}
+.pf-scrim :where(button){cursor:pointer}
+.pf-scrim :where(h2,h3){font-family:var(--head);margin:0}
+.pf-scrim :where(p){margin:0;color:var(--muted)}
+.pf-scrim :where(ul){list-style:none;margin:0;padding:0}
+.pf-scrim :where(:focus-visible){outline:3px solid var(--accent);outline-offset:2px}
+.pf-scrim [hidden]{display:none!important}
+.pf-scrim :where(kbd){font:600 11px/1.5 var(--body);border:1px solid var(--border);border-bottom-width:2px;border-radius:6px;padding:0 6px;min-width:20px;text-align:center;color:var(--muted);background:var(--bg);display:inline-block}
+
+/* ---------- scrim and dialogs ---------- */
+.pf-scrim{--pf-gap:12px;position:fixed;inset:0;z-index:100;background:var(--dim);backdrop-filter:blur(2px);display:grid;place-items:center;padding:var(--pf-gap);animation:pf-fade .14s ease-out}
+.pf-dlg{background:var(--surface);color:var(--fg);border:1px solid var(--border);border-radius:var(--r-card);box-shadow:0 24px 80px var(--dim);max-height:calc(100vh - 2*var(--pf-gap));max-height:calc(100dvh - 2*var(--pf-gap));display:flex;flex-direction:column;overflow:hidden;animation:pf-pop .16s ease-out;outline:0;min-width:0}
+/* Full screen (owner, 11 Oct 2026): the window fills the scrim less a small buffer on every side; the section list keeps its width. The shortcuts list (.pf-s) stays a small centred dialog. */
+.pf-win{width:100%;height:100%;flex-direction:row}
+.pf-s{width:min(440px,100%)}
+@keyframes pf-fade{from{opacity:0}to{opacity:1}}
+@keyframes pf-pop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.pf-scrim,.pf-dlg{animation:none}}
+
+.pf-head{display:flex;align-items:center;gap:12px;padding:16px 16px 12px 20px;flex:none}
+.pf-head .pf-who{flex:1;min-width:0}
+.pf-head h2{font-size:1.5rem;line-height:1.1}
+.pf-head h2.sm{font-size:1.2rem}
+.pf-sub{font-size:14px}
+.pf-hx{display:flex;align-items:center;gap:8px;flex:none}
+.pf-x{width:var(--tap);height:var(--tap);border-radius:50%;border:1px solid var(--border);background:var(--bg);font-size:20px;display:grid;place-items:center;padding:0;flex:none}
+.pf-x:hover{border-color:var(--accent)}
+.pf-body{padding:4px 20px 16px;overflow:auto;flex:1;min-height:0;display:flex;flex-direction:column;gap:16px}
+.pf-foot{flex:none;display:flex;gap:6px 16px;flex-wrap:wrap;align-items:center;padding:10px 20px;border-top:1px solid var(--border);font-size:12px;color:var(--muted)}
+.pf-foot span{display:inline-flex;gap:6px;align-items:center}
+.pf-lbl{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted);margin:0 0 6px 2px}
+.pf-badge{display:block}
+.pf-badge .l1{fill:var(--accent);stroke:var(--accent);stroke-width:1.6;stroke-linejoin:round}
+.pf-badge .l2,.pf-badge .l3{fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pf-badge .l2{opacity:.7}.pf-badge .l3{opacity:.4}
+.pf-badge text{fill:var(--on-accent);font:800 9px var(--head)}
+.pf-badgewrap{width:60px;height:60px;border-radius:50%;border:1px solid var(--border);background:var(--bg);display:grid;place-items:center;flex:none}
+
+/* lists and rows */
+.pf-list{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-ctl);overflow:hidden}
+.pf-list>li+li{border-top:1px solid var(--border)}
+.pf-item{display:flex;align-items:center;gap:12px;width:100%;min-height:52px;padding:8px 12px;background:none;border:0;text-align:left;border-radius:0}
+.pf-item:hover{background:var(--surface)}
+.pf-item:focus-visible{outline-offset:-3px}
+.pf-ico{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--surface);display:grid;place-items:center;flex:none;color:var(--accent)}
+.pf-t{flex:1;min-width:0;font-weight:600}
+.pf-t small{display:block;font-weight:400;color:var(--muted);font-size:13px}
+.pf-chip{font:700 12px var(--body);padding:2px 10px;border-radius:var(--r-pill);border:1px solid var(--border);color:var(--fg);white-space:nowrap}
+.pf-chip.acc{border-color:var(--accent);color:var(--accent)}
+.pf-chip.ok{border-color:var(--sage);color:var(--sage)}
+.pf-keys{display:inline-flex;gap:3px;flex:none}
+.pf-chev{color:var(--muted);flex:none}
+.pf-i{flex:none}
+
+/* buttons, fields */
+.pf-btn{white-space:nowrap;min-height:var(--tap);padding:0 18px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.pf-btn:hover{border-color:var(--accent)}
+.pf-btn.pri{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.pf-btn.dng{color:var(--danger);border-color:var(--danger);background:none}
+.pf-btn.sm{min-height:var(--tap);padding:0 14px}
+.pf-field{display:block}
+.pf-in{width:100%;min-height:var(--tap);padding:0 14px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);color:var(--fg)}
+.pf-in:focus-visible{outline-offset:0;border-color:var(--accent)}
+.pf-small{font-size:13px;color:var(--muted)}
+.pf-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-ctl);padding:14px;display:flex;gap:12px;align-items:center}
+.pf-card .pf-t{font-weight:700}
+
+/* settings controls */
+.pf-sw{display:flex;align-items:center;gap:12px;width:100%;min-height:var(--tap);padding:6px 12px;background:none;border:0;text-align:left}
+.pf-sw span{flex:1;font-weight:600}
+.pf-sw i{width:42px;height:24px;border-radius:99px;border:1px solid var(--border);background:var(--surface);position:relative;flex:none;transition:background .12s}
+.pf-sw i::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:var(--muted);transition:transform .12s}
+.pf-sw[aria-checked=true] i{background:var(--accent);border-color:var(--accent)}
+.pf-sw[aria-checked=true] i::after{transform:translateX(18px);background:var(--on-accent)}
+.pf-seg{display:inline-flex;border:1px solid var(--border);border-radius:var(--r-pill);padding:3px;background:var(--surface);gap:2px}
+.pf-seg button{min-height:36px;padding:0 14px;border-radius:var(--r-pill);border:0;background:none;font-weight:600;font-size:14px}
+.pf-seg button[aria-checked=true]{background:var(--accent);color:var(--on-accent)}
+.pf-row2{display:flex;align-items:center;gap:12px;padding:8px 12px;min-height:52px}
+.pf-row2>span:first-child{flex:1;font-weight:600}
+.pf-themes{padding:10px 12px 12px}
+.pf-themes .tgrid{margin:8px 0 6px}
+.pf-themes p{margin-top:2px}
+
+/* history / members */
+.pf-chips{display:flex;gap:6px}
+.pf-chips button{min-height:36px;padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:none;font-weight:600;font-size:14px}
+.pf-chips button[aria-pressed=true]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);color:var(--accent)}
+.pf-ev{display:flex;gap:12px;align-items:center;padding:10px 12px;min-height:52px}
+.pf-ev .pf-t{font-weight:500}
+.pf-ev .pf-t b{font-weight:700}
+.pf-ev time{font-size:12px;color:var(--muted);white-space:nowrap}
+.pf-ini{width:34px;height:34px;border-radius:50%;background:var(--surface);border:1px solid var(--border);display:grid;place-items:center;font-weight:700;flex:none}
+.pf-ini.me{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.pf-code{font:700 1.15rem var(--head);letter-spacing:.04em}
+.pf-danger{border:1px solid var(--danger);border-radius:var(--r-ctl);padding:14px;display:grid;gap:8px;justify-items:start}
+.pf-danger b{color:var(--danger)}
+.pf-h{font-size:1.2rem;line-height:1.1}
+.pf-avedit{position:relative;border:0;background:none;padding:0;border-radius:50%;flex:none;display:block;width:84px;height:84px}
+.pf-avedit .pf-badgewrap{width:84px;height:84px}
+.pf-avedit .pe{position:absolute;right:0;bottom:0;width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;border:2px solid var(--surface)}
+.pf-metop{display:flex;gap:16px;align-items:center}
+
+/* ---------- two-pane layout: sections left, page right ---------- */
+.pf-nav{width:244px;flex:none;border-right:1px solid var(--border);background:var(--bg);display:flex;flex-direction:column;padding:16px 10px 12px;gap:2px;min-height:0}
+.pf-nwho{display:flex;gap:12px;align-items:center;padding:0 8px 14px}
+.pf-nwho .pf-badgewrap{width:48px;height:48px}
+.pf-nwho b{font-family:var(--head);font-size:1.15rem;display:block;line-height:1.1}
+.pf-nwho .pf-sub{font-size:13px}
+.pf-nvt{display:flex;align-items:center;gap:8px;width:100%;min-height:var(--tap);padding:0 8px;border:0;background:none;border-radius:var(--r-ctl);text-align:left;font-weight:600;position:relative}
+.pf-nvt:hover{background:var(--surface)}
+.pf-nvt[aria-selected=true]{background:var(--surface);box-shadow:inset 3px 0 0 var(--accent)}
+.pf-nvt[aria-selected=true] .pf-i{color:var(--accent)}
+.pf-nvt .pf-t{font-weight:600;white-space:nowrap}
+.pf-nvt .pf-keys kbd{font-size:10px;padding:0 5px;min-width:18px}
+.pf-nav .pf-grow{flex:1}
+.pf-nav .pf-small{padding:0 8px;font-size:12px}
+.pf-cont{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column}
+.pf-cont .pf-head{padding-left:24px}
+.pf-cont .pf-body{padding-left:24px;padding-right:24px;outline-offset:-3px}
+.pf-cont .pf-body:not(.pf-flush)>*{max-width:var(--pf-measure,60rem)}
+.pf-cont .pf-foot{padding-left:24px}
+
+/* shortcuts list and toast */
+.pf-sc{display:grid;gap:0}
+.pf-sc li{display:flex;align-items:center;gap:12px;padding:10px 12px;min-height:44px}
+.pf-sc li+li{border-top:1px solid var(--border)}
+.pf-sc li span:first-child{flex:1}
+.pf-toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:110;background:var(--fg);color:var(--bg);padding:10px 18px;border-radius:var(--r-pill);font-weight:600;font-size:14px;opacity:0;pointer-events:none;transition:opacity .15s;max-width:calc(100vw - 32px);text-align:center}
+.pf-toast.on{opacity:1}
+
+@media (max-width:600px){.pf-scrim{--pf-gap:8px}}
+@media (max-width:900px){.pf-win{flex-direction:column}.pf-nav{width:auto;border-right:0;border-bottom:1px solid var(--border);flex-direction:row;flex-wrap:nowrap;overflow-x:auto;padding:8px;gap:4px;flex:none;min-height:auto}.pf-nwho,.pf-nav .pf-grow,.pf-nav>.pf-small{display:none}.pf-nav [role=tablist]{display:flex;gap:4px}.pf-nvt{width:auto;flex:none}.pf-nvt .pf-t{flex:none}.pf-nvt .pf-keys{display:none}.pf-nvt[aria-selected=true]{box-shadow:inset 0 -3px 0 var(--accent)}.pf-cont .pf-head,.pf-cont .pf-body,.pf-cont .pf-foot{padding-left:16px;padding-right:16px}.pf-foot{display:none}}
+
+/* ---------- Preferences section (11 Oct 2026) ---------- */
+/* The body holds the Preferences screen itself, edge to edge, and scrolls inside it: no padding, one scroll box. */
+.pf-body.pf-flush{padding:0;gap:0;background:var(--bg)}
+.pf-frame{display:block;width:100%;flex:1;min-height:0;border:0;background:var(--bg)}
+/* The same window drawn in place (not a modal) on the Preferences mockup pages at desktop width: the old 900 by 620 size, not full screen. */
+.pf-scrim.pf-inline{position:static;inset:auto;z-index:auto;background:none;backdrop-filter:none;display:block;padding:0;animation:none}
+.pf-inline .pf-dlg{animation:none;box-shadow:none;margin:0 auto}
+.pf-inline .pf-win{width:min(900px,100%);height:620px}
+.pf-list li:has(>.pf-item+.pf-btn){display:flex;align-items:center;gap:8px;padding-right:8px}
+
+/* ---------- Settings opens under itself; History docked; the row that holds the page and a flyout (owner, 11 Oct 2026, round 4) ---------- */
+.pf-row{flex:1;min-height:0;min-width:0;display:flex;position:relative}
+.pf-crumb{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted);margin-bottom:2px}
+.pf-tw{display:inline-flex;color:var(--muted);flex:none}
+.pf-nvt.pf-par{font-weight:700}
+.pf-nvt.pf-par .pf-i{color:var(--accent)}
+.pf-kids{display:flex;flex-direction:column;gap:1px;margin:0 0 6px 20px;padding-left:8px;border-left:1px solid var(--border)}
+.pf-nvc{padding:0 8px;font-size:14px}
+.pf-nvc .pf-t{font-weight:600}
+.pf-ngl{font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted);padding:10px 8px 2px}
+.pf-dock{margin-top:8px;border-top:1px solid var(--border);border-radius:0 0 var(--r-ctl) var(--r-ctl);padding-top:2px}
+.pf-dock:hover{background:var(--surface)}
+.pf-keysl{padding:6px 8px 0}
+/* the "set someone up with their own household" entry: last thing in the gutter before History (owner, 12 Oct 2026). Hidden on phone and tablet, where the Me row opens the same modal. */
+.pf-invent{margin-top:8px;padding:6px 10px;border:1.5px dashed var(--accent);color:var(--fg);align-items:center;min-height:44px}
+.pf-invent .pf-ico{width:30px;height:30px;color:var(--accent);border-color:var(--accent)}
+.pf-invent .pf-t{white-space:normal;line-height:1.2}
+.pf-invent .pf-t small{display:block;font-weight:500;color:var(--muted);font-size:12px}
+.pf-invent:hover{background:var(--surface);border-style:solid}
+.pf-invent+.pf-dock{margin-top:8px}
+.pf-flash{animation:pf-flash 1.4s ease-out 1}
+@keyframes pf-flash{0%,60%{box-shadow:0 0 0 3px var(--accent)}100%{box-shadow:0 0 0 0 transparent}}
+@media (prefers-reduced-motion:reduce){.pf-flash{animation:none;box-shadow:0 0 0 3px var(--accent)}}
+@media (max-width:900px){.pf-kids,.pf-tw,.pf-dock,.pf-invent,.pf-head .pf-crumb,.pf-ngl{display:none}.pf-nvt.pf-par{box-shadow:inset 0 -3px 0 var(--accent)}}
+
+/* ---------- round 5 (12 Oct 2026): name in place, AI assistants, housemate rows in the gutter ---------- */
+.pf-who2{min-width:0;flex:1;display:grid;gap:6px;align-content:center}
+.pf-nameedit{display:inline-flex;align-items:center;gap:8px;min-height:var(--tap);padding:0 10px 0 4px;margin-left:-4px;border:1px solid transparent;border-radius:var(--r-ctl);background:none;font:700 1.5rem var(--head);line-height:1.1;text-align:left;max-width:100%}
+.pf-nameedit:hover{border-color:var(--border);background:var(--surface)}
+.pf-nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.pf-nmp{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--surface);border:1px solid var(--border);color:var(--accent);flex:none}
+.pf-nameinp{font:700 1.3rem var(--head);max-width:22rem}
+.pf-namehint{display:block}
+.pf-intro2{margin:0 2px 8px}
+.pf-aibox{padding:0}
+.pf-ai-cap{margin:0;padding:12px 14px 4px;font-weight:600;color:var(--fg)}
+.pf-aibox ul{padding:0 8px}
+.pf-ai{display:flex;align-items:center;gap:10px;min-height:60px;padding:6px 6px;border-radius:var(--r-ctl)}
+.pf-ai+.pf-ai{border-top:1px solid var(--border);border-radius:0}
+.pf-ai .pf-t{font-weight:600}
+.pf-arad{display:flex;align-items:center;gap:12px;flex:1;min-width:0;min-height:var(--tap);padding:0 4px;background:none;border:0;text-align:left;border-radius:var(--r-ctl)}
+.pf-arad:hover{background:var(--surface)}
+.pf-ai-ck{flex:none;width:20px;height:20px;border-radius:50%;border:2px solid var(--border);background:var(--bg)}
+.pf-ai.dflt .pf-ai-ck{border-color:var(--accent);background:var(--accent);box-shadow:inset 0 0 0 3px var(--bg)}
+.pf-ai.dflt .pf-t small{color:var(--accent);font-weight:600}
+.pf-ai:not(.dflt):not(.off) .pf-ai-ck{background:var(--bg)}
+.pf-ai.off .pf-ai-cap{opacity:1}
+.pf-ai.off .pf-t{color:var(--muted)}
+.pf-ai-ck.off{border-style:dashed;background:none;margin-left:4px}
+.pf-ai .pf-btn{font-weight:600}
+.pf-ai .pf-aigo,.pf-ai.wait .pf-btn{border-color:var(--accent);color:var(--accent)}
+.pf-ai-foot{padding:10px 14px 14px;display:grid;gap:10px;border-top:1px solid var(--border)}
+.pf-aihint{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-ctl);padding:10px 14px;color:var(--fg);display:flex;gap:8px;align-items:flex-start}
+.pf-aihint .pf-i{color:var(--accent);margin-top:2px}
+.pf-ini.sm{width:24px;height:24px;font-size:12px;flex:none}
+.pf-nvc .pf-cn{margin-left:auto;font-size:11px;font-weight:600;color:var(--muted);white-space:nowrap}
+.pf-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--accent);flex:none;margin-left:2px}
+.pf-static{cursor:default}
+.pf-static:hover{background:none}
+.pf-emo{font-size:18px;line-height:1}
+
+/* ---------- round 9 (12 Oct 2026): connect an AI assistant in place. Each row opens the assistant; Connect and Disconnect are the only actions. ---------- */
+.pf-ai .pf-arad{min-height:var(--tap)}
+.pf-ai .pf-arad .pf-t{display:grid;gap:1px}
+.pf-aiact{display:flex;align-items:center;gap:8px;flex:none}
+.pf-aichev{display:grid;place-items:center;width:var(--tap);height:var(--tap);padding:0;border-radius:50%;border:0;background:none;color:var(--muted)}
+.pf-aichev:hover{background:var(--surface);color:var(--fg)}
+.pf-aichev[aria-pressed=true]{color:var(--accent)}
+.pf-aiopen span{white-space:nowrap}
+.pf-ai-ck.wait{border-color:var(--accent);border-top-color:transparent;background:none;animation:pf-spin 1s linear infinite}
+@keyframes pf-spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.pf-ai-ck.wait{animation:none;border-top-color:var(--accent)}}
+.pf-bad{color:var(--danger);font-weight:600}
+@media (max-width:599px){.pf-ai{flex-wrap:wrap}.pf-ai .pf-arad{flex:1 1 55%}.pf-aiact{flex:1 1 100%;justify-content:flex-end;padding:0 0 4px 30px}.pf-aiact .pf-chip{margin-right:auto}.pf-ai.off .pf-aiact,.pf-ai.bad .pf-aiact{flex:none;padding:0}}
+.pf-ai-ck.none{visibility:hidden}

@@ -1,0 +1,3 @@
+/* Option C, 1440 and up: flyout 400, the Pantry width; the group is 88 + 736 + 400 = 1224, left-anchored, 216px free on the right (the standing Pantry rule). */
+:root{--lane:400px}
+.main{padding:28px 48px 56px}

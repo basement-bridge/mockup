@@ -1,0 +1,14 @@
+/* 1760 and up: with the 400-440 inspector docked the main column is about 1150px or more, enough for seven day columns.
+   Below this width the Week board draws as the agenda rows (same cards). */
+.board{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;align-items:start}
+.board .day{align-items:stretch;display:flex;flex-direction:column;gap:0;padding:0;min-height:calc(100vh - 330px);overflow:visible}
+.board .dh{width:100%;flex-direction:row;align-items:baseline;gap:6px;position:sticky;top:132px;z-index:2;background:var(--surface);padding:12px 12px 8px;border-radius:var(--r-card) var(--r-card) 0 0;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.board .dh b{font-size:1.1rem}
+.board .dc>.mc{flex:0 0 auto}
+.board .dc{display:flex;flex-direction:column;flex-wrap:nowrap;padding:10px;margin:0}
+.board .dc>.empty.ghost{min-height:96px}
+.board .eacts{flex-direction:column;align-items:stretch}
+.board .mc{padding:10px}
+.board .tipl,.board .dh,.agenda .tipl{overflow-wrap:anywhere}
+.board .dc>.tipl{order:9}
+.board .tx{grid-column:1/-1;grid-row:2}

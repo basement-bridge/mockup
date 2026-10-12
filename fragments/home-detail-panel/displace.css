@@ -1,0 +1,9 @@
+/* The panel takes the lane next to the column; This week shifts one lane right and stays fully visible. Linked only when the window is wide enough:
+   option A from 1624px (rail 88 + column 736 + panel 400 + week 400), option C from 1448px (see push.css). */
+.app:not([data-open=none]){grid-template-columns:88px minmax(0,736px) 400px 400px}
+.app:not([data-open=none]) .detail{grid-column:3}
+.app:not([data-open=none]) .week{grid-column:4}
+.app .peek{display:none}
+.app:not([data-open=none]) .detail{animation:hdp-slide .22s ease-out}
+@keyframes hdp-slide{from{opacity:0;transform:translateX(-18px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.app:not([data-open=none]) .detail{animation:none}}

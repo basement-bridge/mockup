@@ -19,21 +19,21 @@ button{background:none;border:0;padding:0;cursor:pointer}
 .sw.on{background:var(--accent)}.sw.on::after{left:21px;background:var(--on-accent)}
 .gear{display:none}
 /* DESKTOP variant (DESIGN.md section 7). Own folder, own styles.css; the script (../app.js) is shared with mobile and tablet.
-   Owner decision: the phone-width frame stays on desktop. Phone (under 600px): full bleed. 600 to 1023px: the 390px frame centred,
-   Controls behind the button. 1024px and up: the frame centred beside the always-open Controls panel.
+   Owner decision: the phone-width frame stays on desktop. Phone (under 600px): full bleed. 600px and up: the 390px frame centred.
+   The Controls panel is hidden at every size (main): open it from the Device control (fragments/device.js).
    Desktop-only pieces (e.g. the docked pantry search, task for PR 2) are styled here and switch on at min-width 1024px. */
-@media (max-width:1023.98px){
+@media all{
   .stage{padding:var(--sp-4) var(--gutter);min-height:100%}
   .phone{max-height:calc(100dvh - 32px)}
-  .panel{display:none;position:fixed;right:var(--sp-3);bottom:calc(var(--sp-3) + var(--tap) + var(--sp-2));width:min(340px,calc(100vw - 24px));z-index:50;background:var(--stage);padding:var(--sp-3);border-radius:var(--r-card);border:1px solid var(--border);max-height:70vh}
+  .panel{display:none;position:fixed;right:var(--sp-3);top:var(--sp-3);width:min(340px,calc(100vw - 24px));z-index:50;background:var(--stage);padding:var(--sp-3);border-radius:var(--r-card);border:1px solid var(--border);max-height:70vh}
   .panel.open{display:flex}
-  .gear{display:inline-flex;align-items:center;min-height:var(--tap);position:fixed;right:var(--sp-3);bottom:var(--sp-3);z-index:60;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-pill);padding:0 var(--sp-4);font-size:12px;opacity:.92;font-weight:700;color:var(--accent)}
+  .gear{display:none;align-items:center;min-height:var(--tap);position:fixed;right:var(--sp-3);bottom:var(--sp-3);z-index:60;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-pill);padding:0 var(--sp-4);font-size:12px;opacity:.92;font-weight:700;color:var(--accent)}
 }
 @media (max-width:599.98px){
   .stage{padding:0;display:block}
   .phone{width:100%;height:100dvh;max-height:none;border-radius:0;border:0}
   .gear{bottom:78px;right:10px}
-  .panel{inset:auto 12px 128px 12px;width:auto}
+  .panel{inset:12px 12px auto 12px;width:auto}
 }
 .panel select,.panel .pb,.panel label{min-height:var(--tap)}
 
@@ -472,8 +472,10 @@ html,body{overflow-x:hidden}.phone,.body{overflow-x:hidden}.rscroll,.twoRow{over
 .tl.empty{background:none;border:2px dashed var(--border);color:var(--muted);font-weight:500}
 .tl.empty svg{color:var(--muted)}
 .tl.more{background:var(--bg);border-color:var(--border)}
-.drop{flex:none}.drop.lv-plenty{color:var(--cue)}.drop.lv-some{color:var(--accent)}.drop.lv-low{color:var(--danger)}.drop.lv-out{color:var(--out,var(--fg))}
-.tl .drop{width:34px;height:34px}
+/* the level battery (item-edit-flyout decision 94): the colour is the level; one icon everywhere the level is drawn */
+.bat{flex:none}.bat.lv-plenty{color:var(--cue)}.bat.lv-some{color:var(--accent)}.bat.lv-low{color:var(--danger)}.bat.lv-out{color:var(--out,var(--fg))}
+.tl .bat{width:38px;height:22px;margin:6px 0}
+.lvpick .opt .bat{width:35px;height:21px}
 .lvpick .opt{min-width:56px;justify-content:center;padding:0 10px}
 .lvpick .opt.on{background:var(--surface);border:2px solid var(--accent);color:inherit}
 .sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
@@ -511,6 +513,8 @@ html,body{overflow-x:hidden}.phone,.body{overflow-x:hidden}.rscroll,.twoRow{over
 .codeb{letter-spacing:.12em;font-size:17px}
 .codein{text-align:center;font-size:28px;letter-spacing:.18em;font-variant-numeric:tabular-nums}
 .center-t{justify-content:center;text-align:center;padding:0}
+
+.menu .lbl.sub{display:block;padding:12px 16px 4px}
 
 /* Desktop pantry (DESIGN.md section 7, "Desktop pantry"). Above 1024px only; phone and tablet widths keep the search tucked under Filters.
    A permanent search bar sits in the Pantry top row, docked left of Filters and Add. The visible item count is dropped (it stays for screen readers)

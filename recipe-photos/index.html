@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Recipe photos</title>
+<link rel="stylesheet" href="../theme.css"><link rel="stylesheet" href="../shared.css"><script src="../theme.js"></script>
+<style>
+.rw,.opn{font-size:11px;font-weight:800;padding:1px 7px;border-radius:var(--r-pill);margin-left:4px;display:inline-block}
+.rw{border:1px solid var(--sage);color:var(--sage)}
+.opn{border:1px solid var(--danger);color:var(--danger)}
+.d{list-style:none;margin:8px 0 0;padding:0}
+.d li{padding:10px 0;border-top:1px solid var(--border);font-size:14px;color:var(--muted)}
+.d li:first-child{border-top:0}
+.d li b{color:var(--fg)}
+.d .n{display:inline-block;min-width:52px;font-weight:800;color:var(--accent)}
+.prop{font-size:11px;font-weight:800;padding:1px 7px;border-radius:var(--r-pill);border:1px dashed var(--accent);color:var(--accent);margin-left:4px;white-space:nowrap}
+.per{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.per a{display:inline-flex;align-items:center;min-height:var(--tap);padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-weight:700;font-size:14px}
+.per a:hover{border-color:var(--accent);color:var(--accent)}
+.opts .opt p{font-size:13px;margin-top:6px}
+.opts .opt p.dn{color:var(--danger)}
+.opts .opt p.nc{color:var(--muted);font-size:12.5px}
+.opts .opt .rec{display:inline-block;margin-top:8px;font-size:12px;font-weight:800;padding:2px 9px;border-radius:var(--r-pill);background:var(--accent);color:var(--on-accent)}
+code{font-size:12.5px}
+.chg{font-size:11px;font-weight:800;padding:1px 7px;border-radius:var(--r-pill);border:1px solid var(--accent);background:var(--accent);color:var(--on-accent);margin-left:4px;white-space:nowrap;display:inline-block}
+.lk{font-size:11px;font-weight:800;padding:1px 7px;border-radius:var(--r-pill);border:1px solid var(--sage);background:var(--sage);color:var(--bg);margin-left:4px;white-space:normal;display:inline-block}
+s.void{color:var(--muted)}
+.opt h2 b{width:auto!important;min-width:26px;padding:0 7px;border-radius:13px!important}
+.opt.locked{border-color:var(--sage)}
+.flow{display:grid;gap:8px;margin-top:10px}
+.flow div{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--surface);font-size:13.5px;color:var(--muted)}
+.flow div b{color:var(--fg)}
+.flow .k{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--on-accent);font-weight:800;font-size:12px;display:inline-flex;align-items:center;justify-content:center}
+.budget td,.budget th{vertical-align:top}
+.budget td:last-child{white-space:normal;min-width:120px}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:8px}
+.tw table{min-width:520px}
+pre.port{white-space:pre-wrap;word-break:break-word;font-size:12.5px;line-height:1.45;padding:12px 14px;border-radius:var(--r-card);border:1px solid var(--border);background:var(--surface);margin-top:8px}
+.rule{margin-top:10px;padding:12px 14px;border:1.5px solid var(--sage);border-radius:var(--r-card);font-size:14px}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../recipe/index.html">&lsaquo; Recipe tab</a>
+<h1>Recipe photos</h1>
+<p>One slice of the Recipe tab (gap G7). Two halves: the <b>architecture decisions</b> (who owns the bytes, where they sit, sizes, who shrinks, uploads from the app and from an assistant, limits, privacy, caching, removal, backups, loading) and a <b>clickable phone mockup</b> of what a person sees. Everything not marked <span class="lk">Locked</span> is a <span class="prop">Proposal</span> until the owner says yay, nay or combine.</p>
+
+<div style="margin-top:10px;padding:12px 14px;border:1.5px solid var(--sage);border-radius:var(--r-card);font-size:14px"><b>Owner's decisions on this page (typed, 10 October 2026)</b> <span class="lk">Locked</span>
+<ul style="margin:6px 0 0 18px;color:var(--muted)">
+<li><b style="color:var(--fg)">P1 = A</b> Recipe owns the photos (P-D1).</li>
+<li><b style="color:var(--fg)">P2 = A plus a blob-storage port</b> with a files adapter now; online object storage is a named future adapter (option C), not built (P-D2).</li>
+<li><b style="color:var(--fg)">P3 = A, varied:</b> only the <b style="color:var(--fg)">banner</b> keeps the large size (plus its square); every other photo (step, cook, gallery) is square + medium. No originals (P-D6).</li>
+<li><b style="color:var(--fg)">P4 = C, in his words:</b> the phone shrinks first; the server derives only when resources are free, in a low-priority queue that backs off under load; later that work can go to a third-party service. Banner square first; then every other square; larger sizes later. Until then the UI says the photo is being prepared (P-D7).</li>
+<li><b style="color:var(--fg)">P5 = A, refined:</b> the assistant's MCP call gets the one-time upload itself (the person is not involved); not a blocking step; a verified acknowledgement; up to 3 attempts, each smaller (P-D12).</li>
+<li><b style="color:var(--fg)">P6 = A</b> a version or a cook, never a revision; the person can remove a version's photos and upload replacements (P-D9).</li>
+<li><b style="color:var(--fg)">P7 = B</b> only recipe photos are banners (a cook photo only by explicit choice, 11 Oct); a version showing its parent's photo carries a small icon until it has its own (P-D10).</li>
+<li><b style="color:var(--fg)">P8 = A plus</b> an assistant can fetch a photo over MCP, signed in the same way as the person on Kitchie. Future: expiring public share links (P-D15).</li>
+<li><b style="color:var(--fg)">Limits:</b> one banner per version; one photo per step, at most 10 per version; 3 per cook; 2 GB per household; a search-and-remove flow for photos of versions not used (P-D8).</li>
+<li><b style="color:var(--fg)">P10 = B</b> removing: undo for 5 minutes, then gone (P-D17). <b style="color:var(--fg)">P11 = B</b> backups: database as today, only new photo files copied (P-D18).</li>
+<li><b style="color:var(--fg)">P12 = A</b> full-width banner, loaded <b style="color:var(--fg)">after</b> the text and the step photos; other photos on demand; no layout jump (P-D20).</li>
+<li><b style="color:var(--fg)">Lists:</b> a stock placeholder first; the planned recipes' photos first; rows on screen plus 5 more in the category; the rest on demand; the Home experience is never affected (P-D21).</li>
+</ul>
+<p style="margin-top:6px;color:var(--muted)">Earlier locks stand: <b style="color:var(--fg)">L4</b> (content only through the person's assistant; the app adds photos and notes; nothing fetches a web address), <b style="color:var(--fg)">L5</b> (every member equal), <b style="color:var(--fg)">L8</b> (no approvals). <b style="color:var(--fg)">Third lot (owner, voice, 11 Oct 2026):</b> N1 closed (notes live at recipe or version level, inherited, V-D31; no "this cook only" question); a cook photo may become the banner only by explicit choice and there is always exactly one banner per version (P-D10); one 4,000-character note cap everywhere, the UI enforcing nothing smaller, long notes scrolling inside a bounded note box (P-D27); Kitchie draws the UI and Recipe is headless (T1). <b style="color:var(--fg)">Still open:</b> P-D3 free disk; off-server backup copy (infra); the editing UI (assistant hand-off, deferred).</p></div>
+<p style="margin-top:10px;padding:10px 12px;border:1px dashed var(--border);border-radius:var(--r-card);font-size:14px">Not filed, not built. Build handoff: <a href="https://github.com/basement-bridge/mockup/blob/main/docs/knowledge/jobs-to-be-done/recipe-tab-handoff.md" style="color:var(--accent);font-weight:700">recipe-tab-handoff.md</a> (the docs agent records this page's ledger there and in <code>recipe-tab.md</code>). Revision storage: <a href="../recipe-versions/spec.html#storage" style="color:var(--accent);font-weight:700">versions spec, section 9</a>: photos are referenced by id, never stored in revisions.</p>
+
+<section class="sec"><div class="lbl">Try it</div>
+<p>Every screen is a live phone. <b>Mockup</b> (bottom right) switches between Has photos, <b>Being prepared</b>, No photos yet and Slow network, and shows <b>which files loaded, in which phase</b>.</p>
+<p style="margin-top:8px"><b>The two UI jobs (L4)</b></p>
+<div class="per">
+<a href="add.html?to=efr&kind=cooked&from=cook">Photo of what you made tonight</a>
+<a href="add.html?to=efr&kind=cooked&cook=29%20Sep">Photo on a Cooked row</a>
+<a href="note.html?to=efr&from=recipe">Add a note</a>
+<a href="done.html?to=efr&kind=cooked&p=efr-c1,efr-c2&from=cook">Saved</a>
+</div>
+<p style="margin-top:8px"><b>Redrawn for the owner's decisions of 10 October</b></p>
+<div class="per">
+<a href="list.html">List: stock picture first, planned first</a>
+<a href="recipe.html?id=efr">Recipe page: text, step photos, banner last</a>
+<a href="recipe.html?id=efr&state=prep&arrive=1">Photo is being prepared (then arrives)</a>
+<a href="recipe.html?id=efr&v=v2">Version showing its parent's photos (icon)</a>
+<a href="recipe.html?id=rag">Only a cooked photo: no banner</a>
+<a href="add.html?to=efr&kind=step&sn=2">Photo for a step</a>
+<a href="add.html?to=efr&src=cam&kind=banner&replace=efr-1&p=efr-c2">Replace the banner</a>
+<a href="recipe.html?id=efr&removed=efr-3">Removed: undo for 5 minutes</a>
+<a href="free.html?to=efr">Free up space</a>
+<a href="add.html?to=efr&kind=cooked&src=cam&from=cook&phone=raw">A phone that cannot shrink</a>
+<a href="assistant.html?step=chat">Assistant: saves a photo, not blocking</a>
+<a href="assistant.html?step=retry">Assistant: 3 smaller retries</a>
+<a href="assistant.html?step=read">Assistant: reads a photo</a>
+</div>
+<p class="q">On the recipe page, tap the banner or a step photo to open it: <b>Replace</b> and <b>Remove</b> for every member (L5). A photo inherited from the parent version offers <b>Add its own</b> instead. Remove hides it at once with Undo for 5 minutes (a slim row counts down), then it is gone for good. "Delete it for good now" and "Removed photos" are gone with the 30-day restore.</p>
+</section>
+
+<section class="sec"><div class="lbl">Options and what the owner chose</div>
+<p>Thirteen options decided by the owner (typed, 10 October 2026). Each keeps a one-line "Not chosen" for the options he did not pick, and the downside of what he picked. N1 was closed by voice on 11 October 2026.</p>
+<div class="opts two">
+
+<div class="opt locked"><h2><b>P1</b>Who owns the photos (P-D1)</h2>
+<p><b>A Recipe owns them.</b> Bytes and their records live with Recipe's data; Kitchie only shows them by id.</p>
+<span class="lk">Locked A (owner, typed, 10 Oct 2026)</span>
+<p class="nc">Not chosen: B a shared photo service in Platform (a new service everyone depends on); C Kitchie stores them (Kitchie would own Recipe's data).</p>
+<p class="dn">Downside of A: Recipe, which today serves only JSON, gains file routes and a growing store. If Kitchie later wants item photos it reuses the port (P-D2), not Recipe's store.</p></div>
+
+<div class="opt locked"><h2><b>P2</b>Where the bytes sit (P-D2)</h2>
+<p><b>A Files in a folder next to Recipe's data,</b> behind a <b>blob-storage port</b>: Recipe's code talks only to the port; the files adapter is the one built now. Online object storage is <b>option C, as a future adapter</b>: named, not built.</p>
+<span class="lk">Locked A + port (owner, typed, 10 Oct 2026)</span>
+<p class="nc">Not chosen: B inside SQLite as blobs (bloats the database and every backup). C as the store today (metered; it stays a future adapter behind the port).</p>
+<p class="dn">Downside: a port is one more layer to write and test, and two things to keep in step (the row and the blob). Handled by writing the blob first, then the row, and a nightly sweep for strays (RP1).</p></div>
+
+<div class="opt locked"><h2><b>P3</b>What is kept per photo (P-D6)</h2>
+<p><b>A, varied by the owner:</b> the <b>banner</b> keeps large (1600px) + square (240px). <b>Every other photo</b> (step, cook, gallery) keeps medium (960px) + square. No originals. Colour and a 24px preview in the row.</p>
+<span class="lk">Locked A, varied (owner, typed, 10 Oct 2026)</span>
+<p class="nc">Not chosen: B A plus the original (3 to 6 MB each); C original only, resized on request (CPU on every view).</p>
+<p class="dn">Downside: a step or cook photo can never be shown bigger than 960px, and the banner never has a medium (the large size serves the top of the page, heavier than before: about 250 KB against 75).</p></div>
+
+<div class="opt locked"><h2><b>P4</b>Who shrinks the photo (P-D7)</h2>
+<p><b>C Both, the owner's way:</b> the phone shrinks first (the default path). When a photo arrives unshrunk (an assistant upload, a phone that could not), the <b>server derives the sizes in a background, low-priority queue that backs off under load</b>. Banner square first; then every other square; larger sizes later. When the system grows, that work moves to a third-party service through a seam (named, not built). Until a photo's sizes exist the UI says <b>"Photo is being prepared"</b>.</p>
+<span class="lk">Locked C (owner, typed, 10 Oct 2026)</span>
+<p class="nc">Not chosen: A phone only (an assistant's upload could never be shrunk); B server only (CPU spikes on every upload).</p>
+<p class="dn">Downside: the server now has an image library (a native dependency, a bigger container) and a queue to run, and a photo can sit "being prepared" for a while on a busy day.</p></div>
+
+<div class="opt locked"><h2><b>P5</b>How an assistant adds a photo (P-D12)</h2>
+<p><b>A one-time upload, refined:</b> the assistant's MCP call obtains it (the person is not involved). Not a blocking step: the assistant carries on and reports the photo as pending. Recipe's acknowledgement carries verification (hash, bytes, dimensions, the sizes it will keep). Up to 3 attempts (a setting), each smaller: 2000, 1400, 1000 px. After the third, stop and tell the person.</p>
+<span class="lk">Locked A, refined (owner, typed, 10 Oct 2026)</span>
+<p class="nc">Not chosen: B picture data in the tool call (base64: huge in tokens); C a web address (already removed by L4).</p>
+<p class="dn">Downside: an assistant that cannot send a file over HTTP falls back to giving the person a Kitchie link (drawn as scene 4); the assistant now sends picture bytes, so Recipe must check them strictly.</p></div>
+
+<div class="opt locked"><h2><b>P6</b>What a photo is attached to (P-D9)</h2>
+<p><b>A A version or a cook,</b> never a revision. Managed downside: anyone can remove a version's photos and upload replacements (viewer: Replace, Remove, 5-minute undo).</p>
+<span class="lk">Locked A (owner, typed, 10 Oct 2026)</span>
+<p class="nc">Not chosen: B the recipe as a whole (shows the wrong dish for a version that changed a lot); C a revision (a typo fix would lose its photos).</p>
+<p class="dn">Downside: a new version that looks different shows its parent's photos (with the icon) until someone adds its own.</p></div>
+
+<div class="opt locked"><h2><b>P7</b>When nothing has a banner (P-D10)</h2>
+<p><b>B Only recipe photos can be banners.</b> A cooked photo never leads. A version showing its <b>parent's</b> photo carries a small icon (with a title) until it has its own.</p>
+<span class="lk">Locked B (owner, typed, 10 Oct 2026)</span>
+<p class="nc">Not chosen: A parent's cover then the newest cooked photo (a messy dinner photo could lead); C no banners, newest photo of any kind.</p>
+<p class="dn">Downside: a recipe that has only cooked photos (Ragù in the mockup) has no banner and keeps the stock picture in lists.</p></div>
+
+<div class="opt locked"><h2><b>P8</b>Who can see a photo (P-D15)</h2>
+<p><b>A Same-site, household only</b>, checked against the Platform sign-in on every request, <b>plus</b> an MCP read tool, <code>get_photo</code>, so an assistant can see a household photo, signed in by the same SSO as the person on Kitchie. No tokens in addresses.</p>
+<span class="lk">Locked A + MCP read (owner, typed, 10 Oct 2026)</span>
+<p class="nc">Not chosen: B signed links that expire (leak through copy and paste, defeat the cache); C loaded by script with the token (defeats lazy loading).</p>
+<p class="dn">Downside: nobody can share a photo outside the household yet. <b>Named future: expiring public share links</b>, not designed now.</p></div>
+
+<div class="opt locked"><h2><b>P9</b>Limits (P-D8)</h2>
+<p><b>The owner's set:</b> one banner per version; one photo per step and at most 10 step photos per version (a step need not have one); 3 per cook; 2 GB per household; plus a simple <b>search-and-remove</b> flow for photos of versions not used. Kept from A where they do not conflict: up to 3 gallery photos per version, 8 MB per upload, 60 uploads an hour per member.</p>
+<span class="lk">Locked (owner, typed, 10 Oct 2026)</span>
+<p class="nc">Not chosen: A as written (6 recipe photos per version, 1 MB per upload); B roomy (20, 10, 5 GB); C only a household total.</p>
+<p class="dn">Downside: 2 GB holds about 8,000 to 23,000 photos depending on the mix; the free-space flow is how a household stays under it. All caps are settings.</p></div>
+
+<div class="opt locked"><h2><b>P10</b>Removing a photo (P-D17)</h2>
+<p><b>B Gone after an undo window of 5 minutes.</b> Hidden at once; Undo for 5 minutes (the row counts down); then the blobs are deleted.</p>
+<span class="lk">Locked B, 5 minutes (owner, typed, 10 Oct 2026)</span>
+<p class="nc">Not chosen: A hidden with a 30-day restore (files linger); C never deleted (photos can show people and homes).</p>
+<p class="dn">Downside: a removal noticed after 5 minutes cannot be undone; only a backup could bring it back.</p></div>
+
+<div class="opt locked"><h2><b>P11</b>Backups (P-D18)</h2>
+<p><b>B Database as today; photos copied as new files only</b> (a blob never changes, so only new ones are copied).</p>
+<span class="lk">Locked B (owner, typed, 10 Oct 2026)</span>
+<p class="nc">Not chosen: A the photo folder copied whole with every backup (grows fast); C no photo backups.</p>
+<p class="dn">Downside: both copies still sit on the same server; an off-server copy is infra's open question. A photo removed after 5 minutes stays in older backups until they roll over.</p></div>
+
+<div class="opt locked"><h2><b>P12</b>Top of the recipe page (P-D20)</h2>
+<p><b>A Full-width banner</b>, with the owner's loading order: <b>text first</b>, then <b>step photos</b>, then the <b>banner last</b>. Other photos only on demand. The banner's box is there from the first paint, so nothing jumps.</p>
+<span class="lk">Locked A (owner, typed, 10 Oct 2026)</span>
+<p class="nc">Not chosen: B a small square beside the title; C no photo at the top.</p>
+<p class="dn">Downside: the banner, the biggest picture on the page, is the last to appear; on a slow line the top shows its colour and blurred preview for a moment longer.</p></div>
+
+<div class="opt locked"><h2><b>P13</b>Photos in the list (P-D21)</h2>
+<p><b>The owner's order:</b> a <b>stock picture</b> first so recipe content is prioritised; then the <b>planned recipes'</b> photos if this week's plan exists; then rows on screen <b>plus 5 more</b> in the category; everything else on demand. The default frame is lazy-fetched after the core of the page completes; Home is never affected.</p>
+<span class="lk">Locked (owner, typed, 10 Oct 2026)</span>
+<p class="nc">Not chosen: B no photos in lists; C a smaller 40px thumbnail and slimmer rows. A's tile (56px, the banner's square) is kept as the place the picture loads into.</p>
+<p class="dn">Downside: for a moment every row shows the same stock picture; scrolling fast past row 13 shows stock tiles until they load.</p></div>
+
+<div class="opt locked"><h2><b>N1</b>Where a note lives (P-D26) <span class="lk">Closed (owner, voice, 11 Oct 2026)</span></h2>
+<p><b>Closed:</b> a note lives at recipe or version level, inherited down the lineage (V-D31). There is no "this cook only" question at the end of a cook, so B below is not taken. A note written after a cook still carries that cook as a tag (P-D29). The text below is kept for history.</p>
+<p><b>Settled underneath by the owner (typed, 10 Oct 2026; V-D31, versions spec 9.4), refining R-D24:</b> a note is a field of the <b>version</b>, inherited down the lineage: it shows on the version it was written on and every version made from it, and a version stores a notes change only where its notes differ. N1 is only about the end of a cook:</p>
+<p><b>A No question.</b> The note goes on the version being cooked (inherited as above), for the household. Written at the end of a cook it carries that cook as a tag (P-D29).</p>
+<p><b>B Ask at the end of a cook:</b> "This cook only" (shows on that night's row in Cooked) or "For next time" (on the version, as A). From the recipe page it is always A.</p>
+<span class="rec">Recommended A (now the rule)</span>
+<p class="dn">Downside of A: a note that only made sense that night ("ran out of soy, used fish sauce") sits among the lasting notes; the cook tag and the cook's own one-line comment (P-D11) soften that. B adds a question to the quickest moment, and two kinds of note to explain. Added for L4, 10 Oct 2026: notes are the second UI job.</p>
+<div class="per"><a href="note.html?to=efr&from=cook&n1=A">A</a><a href="note.html?to=efr&from=cook&n1=B">B</a></div></div>
+
+</div></section>
+
+<section class="sec"><div class="lbl">Decisions in this slice (P-D numbering)</div>
+<p>Locked items say so; the rest are Proposal. The docs agent copies this list to <code>docs/knowledge/jobs-to-be-done/recipe-tab.md</code> and the handoff ledger; this slice does not edit files outside <code>recipe-photos/</code>.</p>
+<ol class="d">
+<li><span class="n">P-D1</span><b>Recipe owns recipe photos;</b> Kitchie stores none and shows them by id. Across apps only ids and the P-D5 contract travel. <span class="lk">Locked A (owner, typed, 10 Oct 2026)</span> <span class="nc">Not chosen: B a Platform photo service, C Kitchie stores them.</span></li>
+<li><span class="n">P-D2</span><b>Blob port, files adapter now.</b> Recipe's code stores and reads photo bytes only through a <code>BlobStore</code> port (specified below). The files adapter keeps blobs in a folder next to Recipe's database: <code>&lt;data&gt;/blobs/</code>, content-addressed. Online object storage is the <b>future adapter</b> (old option C): named, not implemented. Swapping adapters needs no schema change: rows hold content hashes, never paths. <span class="lk">Locked A + port (owner, typed, 10 Oct 2026)</span> <span class="nc">Not chosen: B blobs in SQLite; C object storage as today's store.</span></li>
+<li><span class="n">P-D3</span><b>Disk budget</b> (sizes for real food photos, WebP quality about 75): banner = large (about 250 KB) + square (about 12 KB) ≈ <b>260 KB</b>; any other photo = medium (about 75 KB) + square ≈ <b>87 KB</b> (was 350 KB for every photo). A recipe with a banner, 5 step photos and 6 cook photos ≈ 1.2 MB. 2 GB holds about 23,000 photos of the second kind, or about 8,000 banners. Check free space on the data folder (<code>df -h</code>) before turning photos on; the Lighthouse disk size is not recorded anywhere this slice could read. <span class="prop">Proposal</span></li>
+<li><span class="n">P-D4</span><b>One row per photo:</b> random 128-bit id, household, family, version or cook, kind (<code>banner</code>, <code>step</code> with the step's stable item id, <code>more</code>, <code>cooked</code>), who added it and through which channel (app or assistant), width, height, the square crop, colour, the 24px preview, <b>the content hash of each kept size</b> (the blob keys), the bytes of each, state (<code>pending</code> while sizes are being made, <code>ready</code>, <code>removed</code>), added, removed at, and the hash of the received upload (to verify, then discarded with the upload). The id never changes and is the only way anything points at a photo: a cook's <code>photo_ids</code>; a version's <b><code>photos</code> line</b> in the versions spec (9.5: <code>{banner, steps: {step id → photo id}}</code>, changed by <code>photo.banner</code>, <code>photo.step</code>, <code>photo.unset</code> ops, inherited like notes; <code>cover_photo_id</code> on the version row is its banner, cached for lists); a note's <code>[photo:&lt;id&gt;]</code>. A revision never holds a photo (P-D9; versions spec 9.5). Same bytes in one household are stored once (the hash is the key). <span class="prop">Proposal</span></li>
+<li><span class="n">P-D5</span><b>The contract.</b> Replies carry photo ids plus colour, state and the preview (banner only); never bytes. HTTP for Kitchie: <code>GET /recipe/photos/&lt;id&gt;/t|m|l.webp</code> (404 for a size the photo does not keep), <code>POST /recipe/photos</code> (the phone's sizes, or one unshrunk file), <code>DELETE</code> and <code>POST …/restore</code> (within 5 minutes). For assistants: <code>request_photo_upload</code>, the upload slot (<code>PUT</code>), <code>get_photo</code> (below). No tool takes a link or an image address. <span class="prop">Proposal</span></li>
+<li><span class="n">P-D6</span><b>Kept sizes, no originals:</b> the <b>banner</b> keeps <code>l</code> 1600px long edge and <code>t</code> 240px square; <b>every other photo</b> keeps <code>m</code> 960px and <code>t</code>. WebP, quality about 75. An unshrunk upload is deleted once its sizes exist. Colour and preview computed once and stored. <span class="lk">Locked A, varied (owner, typed, 10 Oct 2026)</span> <span class="nc">Not chosen: B with originals; C original only.</span></li>
+<li><span class="n">P-D7</span><b>The phone shrinks first; the server derives when it is free.</b> Default path: Kitchie's add screen makes the kept sizes in the browser (also dropping location and camera data) and Recipe checks them (real WebP, right dimensions and size). When bytes arrive unshrunk (an assistant's upload; a phone that cannot), Recipe stores the upload, writes the row as <code>pending</code> and puts two jobs on the <b>derive queue</b> (below): the square first, the bigger size later. Location data is stripped by the derive step. Later the queue can hand jobs to a third-party image service through the <code>Deriver</code> seam (named, not built). <span class="lk">Locked C (owner, typed, 10 Oct 2026)</span> <span class="nc">Not chosen: A phone only; B server only.</span></li>
+<li><span class="n">P-D8</span><b>Limits (settings):</b> 1 banner per version; 1 photo per step, at most 10 step photos per version (a step need not have one; the 11th is refused with <code>limit</code>); up to 3 gallery photos per version; 3 per cook; 2 GB per household (a slim line at 80% links to Free up space); 8 MB per upload; 60 uploads an hour per member. <b>Free up space</b> (<code>free.html</code>): versions listed by photo size, the unused first (put away, then not cooked lately), with search; open one, pick its photos, Remove. Only photos go; the version's text and history stay. Undo as P-D17. <span class="lk">Locked (owner, typed, 10 Oct 2026)</span> <span class="nc">Not chosen: A's 6 per version and 1 MB per upload; B roomy; C household total only.</span></li>
+<li><span class="n">P-D9</span><b>Photos belong to a version or to a cook, never to a revision.</b> A fix keeps its photos. A new version starts with none and shows its parent's banner and step photos, marked (P-D10). The person manages a version that now looks different by removing its photos and adding replacements: the viewer has Replace and Remove for every member; Replace adds the new one and removes the old with the 5-minute undo. A spin-off (V-D25) can point at the same blobs (content addressing: nothing copied). <span class="lk">Locked A (owner, typed, 10 Oct 2026)</span> <span class="nc">Not chosen: B whole recipe; C per revision.</span></li>
+<li><span class="n">P-D10</span><b>Banner:</b> only a recipe photo can be a banner; a cooked photo never stands in. A version with no banner of its own shows its nearest ancestor's, with a small branch icon (title: "Photo of With peas, until this version has its own"); the same for an inherited step photo. No banner up the line: no banner on the page (P-D19). A cook photo becomes a banner only by a person's explicit choice (Replace banner, picking that photo); <span class="lk">Allowed (owner, voice, 11 Oct 2026)</span>: there is always exactly one banner per version (a version never has two; with none of its own or inherited, the one banner slot shows the stock picture, P-D19; reading to confirm with the owner). <span class="lk">Locked B (owner, typed, 10 Oct 2026)</span> <span class="nc">Not chosen: A newest cooked photo stands in; C no banners.</span></li>
+<li><span class="n">P-D11</span><b>Adding from the app:</b> after-cook photos lead (P-D25). Every add door opens the phone's own camera or picker on the first tap, aimed. Secondary paths: "Or the banner of …" on the add screen; <b>Step photo</b> beside Method (pick the step); Replace in the viewer. A banner gets a square crop. Up to 3 at once from one cook. Sending carries on in the background and retries. Any member (L5). <span class="prop">Proposal</span></li>
+<li><span class="n">P-D12</span><b>From an assistant:</b> the assistant calls <code>request_photo_upload</code> and gets a one-time upload slot itself (15 minutes, bound to the household, the target and the declared hash and size; the secret in a header, never in the address). The person is not asked. The reply says <code>blocking: false</code> and tells the assistant to carry on and report the photo as pending. The assistant <code>PUT</code>s the picture; Recipe answers with a <b>verified acknowledgement</b> (received hash, bytes, width, height, type, <code>matches</code>, the sizes it will keep, derive state). Attempts are a setting, at most 3, each smaller: <b>2000px long edge at quality 85, then 1400 at 80, then 1000 at 75</b>; after the third failure the assistant stops and tells the person. No web addresses (L4). An assistant that cannot send files may hand the person a Kitchie link to the same slot (fallback). <span class="lk">Locked A, refined (owner, typed, 10 Oct 2026)</span> <span class="nc">Not chosen: B base64 in the tool call; C web address (L4).</span></li>
+<li><span class="n">P-D13</span><b>Cooked-it photos</b> are part of the cook entry (the versions slice's <code>record_cook</code> with up to 3 <code>photo_ids</code>; an assistant may pass pending upload slots, which become ids when the upload lands). Shown on that night's Cooked row and under Photos, on demand. Never the banner (P-D10). <span class="prop">Proposal</span></li>
+<li><span class="n">P-D14</span><b>Nothing jumps, nothing loads early.</b> Every photo box has its size before a byte arrives and is filled with the photo's colour (no request). Loading is by phase (budget below). The add screen and its shrinking code are a separate route. <span class="prop">Proposal</span></li>
+<li><span class="n">P-D15</span><b>Private to the household.</b> Same-site addresses checked against the Platform sign-in cookie and household on every request; 404 for anyone else. An assistant reads a photo with the MCP tool <code>get_photo {photo_id, size: "t"|"m"|"l"}</code>, which runs the same household check against the same Platform sign-in (the assistant's MCP connection is the person's SSO session, as for every Recipe tool) and returns the image as MCP image content; no address, no token in an address. <b>Future, named only:</b> expiring public share links. <span class="lk">Locked A + MCP read (owner, typed, 10 Oct 2026)</span> <span class="nc">Not chosen: B signed links; C script-loaded with the token.</span></li>
+<li><span class="n">P-D16</span><b>Caching:</b> a size's bytes never change (replace makes a new photo), so the browser keeps it a year, privately (<code>private, max-age=31536000, immutable</code>). A pending photo's size answers 404 (not cached) until it exists. <span class="prop">Proposal</span></li>
+<li><span class="n">P-D17</span><b>Removing:</b> any member (L5). Hidden for everyone at once; a slim row on the page counts down <b>Undo for 5 minutes</b>; then the row keeps only that a photo was removed, by whom and when, and the blobs are deleted when nothing else points at them (same hash elsewhere in the household). A removed banner falls back as P-D10. A household that leaves takes all its photos with it. <span class="lk">Locked B, 5 minutes (owner, typed, 10 Oct 2026)</span> <span class="nc">Not chosen: A 30-day restore; C never deleted.</span></li>
+<li><span class="n">P-D18</span><b>Backups:</b> the database as today (SQLite online backup); then copy only <b>new blobs</b> (a blob never changes and its name is its hash, so "new" is "not in the backup yet"). Database first, so every blob the backed-up database names is copied. <span class="lk">Locked B (owner, typed, 10 Oct 2026)</span> <span class="nc">Not chosen: A whole folder every time; C none.</span></li>
+<li><span class="n">P-D19</span><b>No photo, no pretend photo.</b> No banner means no photo box on the recipe page (its emoji by the title), not a grey box. Photos shows "No photos yet: snap it next time you cook it". In lists every tile starts as the stock picture (P-D21); a recipe with no banner keeps it (it is plainly a stock picture, not a photo of the dish). On the recipe page no banner means no box at all. <span class="prop">Proposal</span></li>
+<li><span class="n">P-D20</span><b>Top of the recipe page:</b> full-width banner, 200px tall, the large size. Order: the page's text paints first; then the step photos within the first two screens; then the banner; further step photos as they near the screen; the gallery and cook photos only on a tap. The banner box carries the colour and the inline preview from the first paint, so it never jumps. <span class="lk">Locked A (owner, typed, 10 Oct 2026)</span> <span class="nc">Not chosen: B small square by the title; C no photo at the top.</span></li>
+<li><span class="n">P-D21</span><b>Lists:</b> the banner's 240px square in the existing 56px tile. A stock picture first in every tile (no request; a recipe with no banner keeps it) so names, times and pills paint first; then, if this week's plan exists, the planned recipes' squares; then the rows on screen plus 5 more in the shown category (the chip; any layout); then the rest only as they scroll in. One file serves every list (Recipes, Plan, the Versions sheet). <span class="lk">Locked (owner, typed, 10 Oct 2026)</span> <span class="nc">Not chosen: B no photos in lists; C 40px slim rows.</span></li>
+<li><span class="n">P-D22</span><b>Viewer:</b> tap a photo to see it at its kept big size (large for a banner, medium for the rest), with who, when and what it is kept as. Replace and Remove for every member; an inherited photo offers "Add its own" instead. <span class="prop">Proposal</span></li>
+<li><span class="n">P-D23</span><b>Step photos are in.</b> Kind <code>step</code>, keyed by the step's stable item id (versions spec 9.2 and 9.5), so a reworded or moved step keeps its photo. If a revision removes the step, the reference drops out of the resolved view but the photo row stays, so undoing that revision brings the step and its photo back (as the versions spec says). The 10-per-version cap counts the version's own step photos, not inherited ones. Shown under the step on the recipe page and in cook mode. <span class="chg">Changed by owner decision, 10 Oct 2026</span> (was "later"). <span class="prop">Proposal</span></li>
+<li><span class="n">P-D24</span><s class="void"><b>A photo from someone else's website.</b></s> Void by L4.</li>
+<li><span class="n">P-D25</span><b>After-cook photos are the star.</b> The primary add doors are the end of a cook ("Add a photo" on the end screen: <code>add.html?kind=cooked&amp;from=cook</code>) and each row in Cooked on the recipe page (a dashed camera on the row while it has fewer than 3 photos, plus "Made it tonight?" at the top of Cooked). The quickest path: one tap opens the phone's camera or picker, already aimed at that cook; pick up to 3; Save. No question when the entry knows the cook. From the top-row camera or the Photos Add tile, which do not, one question: "Which cook?" (Tonight preselected; a photo for tonight with no cook recorded adds one, with no pantry change). Then a "Saved" screen (<code>done.html</code>) that offers the other job, a note. <span class="prop">Proposal</span></li>
+<li><span class="n">P-D26</span><b>Notes are the UI's second job.</b> <code>note.html</code>, its own route, reached from Add a note under Notes on the recipe page and from the end of a cook. <b>Where a note lives</b> (owner, typed, 10 Oct 2026, recorded as V-D31 in the versions spec 9.4; <b>refines R-D24</b>): a note is a field of the version, written on the version being viewed or cooked, shown there and on every version made from it, and stored as a change only where a version's notes differ from what it inherits. N1 (closed 11 Oct 2026: it does not ask). Any member adds a note and removes their own, or any member's for now (L5). Notes never change the recipe. <b>Hand-off with the flow slice:</b> <code>note.html?to&amp;from=recipe|cook&amp;v&amp;cook&amp;back</code>; Save appends <code>{body, by, when, v, cook}</code> to <code>rcp-notes-&lt;recipe id&gt;</code> and opens Saved, whose Back goes to <code>back</code> when given. <span class="prop">Proposal</span></li>
+<li><span class="n">P-D27</span><b>Simple rich text, stored as text.</b> Bold and list lines (a tiny Markdown subset: <code>**bold**</code>, <code>- item</code>) and at most one photo, written in the body as <code>[photo:&lt;id&gt;]</code>. Up to <b>4,000 characters</b> of text, the one cap for the app and the assistant (<span class="lk">Locked, owner, voice, 11 Oct 2026</span>; replaces the 600-character cap and the split limits). The UI enforces nothing smaller; a long note scrolls inside a bounded note box and never grows the page. Stored as typed, never as HTML, so an assistant reads and writes the same body over MCP and the app renders it safely (text escaped first; only bold, lists and the photo reference become markup). A photo in a note is a normal photo row (P-D4): picked from the recipe's photos (a reference, nothing copied) or added new (stored like any photo, on the note's cook if it has one). A note never holds bytes or a link. <span class="prop">Proposal</span></li>
+<li><span class="n">P-D28</span><b>Removing a note</b> hides it with Undo; the photo it points to stays (a note is only a reference). Removing a photo that a note points to leaves the note's text and drops the picture from it (it renders nothing). <span class="prop">Proposal</span></li>
+<li><span class="n">P-D29</span><b>A note written after a cook</b> carries a reference to that cook and shows "After the 8 Oct cook" as a tag, so the household sees the context, without making the note belong to the cook (under N1 A). <span class="prop">Proposal</span></li>
+<li><span class="n">P-D30</span><b>"Photo is being prepared".</b> A <code>pending</code> photo draws its box at its final size, in its own colour (known from the upload), with one quiet line: "Photo is being prepared". No spinner. Kitchie checks back three times (after 30 seconds, 1 and 2 minutes); after that the line reads "Photo will appear later" and the page stops asking until it is next opened. When the size exists, the image fades in; nothing moves. In a list tile the line is just an icon. <span class="prop">Proposal</span> (draws P-D7 as locked)</li>
+<li><span class="n">P-D31</span><b>Notes and the 5-minute removal.</b> A note pointing at a removed photo renders nothing for it (P-D28), and keeps doing so after the 5 minutes; the note's text never changes. <span class="prop">Proposal</span></li>
+</ol>
+</section>
+
+<section class="sec" id="port"><div class="lbl">The blob-storage port (P-D2) <span class="lk">Locked: port + files adapter</span></div>
+<p>Recipe's photo code never touches a path or an SDK. It talks to one interface. Keys are content hashes, so the same bytes are one blob, a blob never changes, and backup and cache rules fall out of that.</p>
+<pre class="port">interface BlobStore {
+  // key = "sha256:" + 64 hex chars of the bytes; the caller computes it, the store re-checks it on put
+  put(key, bytes | stream, {contentType, owner: householdId}) → {key, bytes, created: bool}   // idempotent: an existing key is a no-op
+  get(key) → bytes                                    // small blobs (squares)
+  read(key, {start?, end?}) → ReadableStream          // streaming read, with ranges; what the photo route pipes out
+  exists(key) → bool
+  stat(key) → {bytes, contentType, owner, createdAt} | null
+  delete(key) → void                                  // only after the row says nothing points at it
+  listByOwner(householdId, {after?, limit}) → {keys: [{key, bytes}], next?}   // sweep, household leave, quota checks
+}</pre>
+<ul style="margin:8px 0 0 18px;font-size:14px;color:var(--muted)">
+<li><b style="color:var(--fg)">Files adapter (built now).</b> Root: Recipe's data folder, beside <code>recipes.db</code>. Layout: <code>blobs/&lt;household&gt;/&lt;aa&gt;/&lt;bb&gt;/&lt;64-hex&gt;</code> (two levels of fan-out by the hash's first four hex chars) plus <code>uploads/&lt;slot id&gt;</code> for unshrunk uploads waiting for the derive queue. <code>put</code> writes to <code>blobs/.tmp/</code>, fsyncs, checks the hash, then renames into place (atomic on one filesystem). Owner and content type live in the photo row; <code>stat</code> reads size and time from the file. <code>listByOwner</code> walks <code>blobs/&lt;household&gt;/</code>. Files are mode 0640, owned by the container's app user (1000:1000).</li>
+<li><b style="color:var(--fg)">Host folder.</b> The server's Docker is the snap package, which can bind-mount only under <code>/home</code>. So the data folder is a bind mount such as <code>/home/data/recipe</code> → <code>/data</code> in the container (as Kitchie's <code>/home/data/kitchie</code>), or stays the named <code>recipe-data</code> volume it is today; either way the blobs live next to <code>recipes.db</code>. Never a path outside <code>/home</code>. Moving from the volume to a bind mount is infra's step and carries <code>blobs/</code> with it.</li>
+<li><b style="color:var(--fg)">Future adapter: online object storage</b> (old option C; for example the cloud provider's object store). Named, <b>not implemented</b>. It would map <code>key</code> to an object name <code>&lt;household&gt;/&lt;64-hex&gt;</code>, <code>read</code> to a ranged GET, <code>listByOwner</code> to a prefix listing. It slots in by configuration (<code>RECIPE_BLOBS=files|object</code>) with <b>no schema change</b>: rows hold keys, never paths or URLs. Migration is a copy of every key (<code>listByOwner</code> then <code>put</code>) followed by a switch; bytes are still served by Recipe's photo route (P-D15), never by public object URLs.</li>
+<li><b style="color:var(--fg)">Conformance tests</b> run against every adapter: put twice is one blob; a wrong hash is refused; a partial write never becomes visible; delete then exists is false; a range read returns the right bytes.</li>
+</ul>
+</section>
+
+<section class="sec" id="derive"><div class="lbl">The background derive queue (P-D7 C) <span class="lk">Locked: phone first, server when free</span></div>
+<ul style="margin:6px 0 0 18px;font-size:14px;color:var(--muted)">
+<li><b style="color:var(--fg)">When it runs.</b> Only for uploads that arrived unshrunk (an assistant upload; a phone that could not shrink). A phone-made photo goes straight to <code>ready</code>.</li>
+<li><b style="color:var(--fg)">Jobs and order.</b> A job is <code>(photo id, size)</code> in a SQLite table, worked one at a time by a single worker inside Recipe's process. Priority, highest first: (1) a <b>banner's square</b>; (2) every other photo's <b>square</b>; (3) the banner's <b>large</b>; (4) every other <b>medium</b>. Within a priority, oldest first. The photo is <code>ready</code> for lists once its square exists and for the page once its big size exists.</li>
+<li><b style="color:var(--fg)">Only when resources are free.</b> The worker runs at the lowest CPU priority (<code>nice 19</code>), one image at a time, with the image library limited to one thread and about 256 MB. Before each job it checks load: it waits (backs off 30 s, doubling to 10 minutes) while the 1-minute load average is above 1.0 on the 2 vCPU server, or while Recipe has served a request in the last 2 seconds. It never runs inside a request.</li>
+<li><b style="color:var(--fg)">Done.</b> Each made size is <code>put</code> through the port, its hash recorded, then the upload is deleted once every kept size exists. A job that fails three times marks the photo <code>failed</code>; the UI then says "This photo could not be prepared" with Remove.</li>
+<li><b style="color:var(--fg)">The seam for later.</b> The worker calls a <code>Deriver</code> interface: <code>derive(uploadKey, {size, crop?}) → {bytes, width, height}</code>. Built now: a local adapter (sharp/libvips). Named for later, <b>not built</b>: a third-party image service adapter, chosen when the system scales. The queue, priorities and rows do not change.</li>
+</ul>
+</section>
+
+<section class="sec" id="mcp"><div class="lbl">MCP tools for photos (P-D12, P-D15) <span class="prop">Proposal</span></div>
+<p style="font-size:14px"><code>request_photo_upload</code> In: <code>{target: {version_id, kind: "banner"|"step"|"more"} | {cook_id | cook: "tonight", version_id}, step_id?, filename, content_type, width, height, bytes, sha256, replace_photo_id?}</code>. Out: <code>{slot_id, upload: {method: "PUT", url, header}, expires_in: 900, max_bytes, attempts_left, blocking: false, retry: [{long_edge: 2000, quality: 85}, {long_edge: 1400, quality: 80}, {long_edge: 1000, quality: 75}], instructions}</code>. Errors: <code>limit</code> (with which: <code>banner</code>, <code>step_10</code>, <code>cook_3</code>, <code>household_2gb</code>), <code>invalid</code>, <code>not_found</code>.</p>
+<p class="nc" style="font-size:13px;margin-top:6px">Description for the model: "Save a photo the person gave you to a recipe version, a step or a cook. You get an upload slot yourself; do not ask the person to do anything. This is NOT a blocking step: carry on with the recipe work and tell the person the photo is on its way. Send the picture with one HTTP PUT to upload.url with upload.header. First attempt: long edge 2000 px, JPEG or WebP quality 85. If it fails, try again smaller (1400 px, quality 80), then smaller again (1000 px, quality 75). Use at most attempts_left attempts. After the last failure stop, tell the person the photo was not saved and offer to try later or to add it in Kitchie. When the PUT succeeds, check the acknowledgement: received.sha256 and received.bytes must equal what you sent (matches: true). Tell the person in one line that it was saved. Never send a web address; Recipe never fetches one."</p>
+<p style="font-size:14px;margin-top:8px"><b>The acknowledgement</b> (the PUT's 201 body, also returned by <code>get_upload {slot_id}</code>): <code>{photo_id, received: {sha256, bytes, width, height, content_type}, matches: bool, will_keep: [{size, width, height}], derive: "queued"|"ready", attached_to, attempts_left}</code>. A mismatch is <code>422 mismatch</code> with both hashes, and nothing is stored.</p>
+<p style="font-size:14px;margin-top:8px"><code>get_photo</code> In: <code>{photo_id, size?: "t"|"m"|"l"}</code> (default the square; a size the photo does not keep falls back to the nearest kept). Out: MCP image content plus <code>{photo_id, kind, size, width, height, bytes, state, attached_to, added_by, added_at}</code>. Same household check as the app, through the same Platform sign-in as the person's Kitchie session; <code>pending</code> returns state only. Description: "See a photo of this household's recipe or cook. Use the square to identify it; ask for the big size only if the person wants detail."</p>
+<p style="font-size:14px;margin-top:8px"><b>Example</b> (assistant.html, scene 1): the person shows tonight's ragù → <code>request_photo_upload</code> (blocking false) → <code>record_cook</code> with the pending slot → the assistant says "the photo is on its way" → PUT 2000 px → 201 with <code>matches: true</code> → "Photo saved; Recipe received exactly what I sent". Scene 2 shows three smaller failures and the stop. Scene 3 shows <code>get_photo</code>.</p>
+</section>
+
+<section class="sec"><div class="lbl">How a photo travels</div>
+<div class="flow">
+<div><span class="k">1</span><span><b>Pick.</b> Phone camera or library in Kitchie's add screen (its own route), or the person shows it to their assistant.</span></div>
+<div><span class="k">2</span><span><b>Shrink on the phone</b> (the default): banner to 1600px + square, anything else to 960px + square; WebP; location gone. An assistant instead sends one picture at 2000px or less.</span></div>
+<div><span class="k">3</span><span><b>Send to Recipe</b> with the sign-in (app) or the one-time slot (assistant). Recipe checks household, limits, type, dimensions and the hash.</span></div>
+<div><span class="k">4</span><span><b>Store through the port.</b> Blobs first (by hash), then the row. Phone-made: <code>ready</code>. Unshrunk: <code>pending</code>, two derive jobs queued, square first.</span></div>
+<div><span class="k">5</span><span><b>Show.</b> Replies carry ids, colour and state. Text paints first; photos load by phase (below); a pending photo shows "Photo is being prepared".</span></div>
+</div></section>
+
+<section class="sec" id="budget"><div class="lbl">Loading budget (DESIGN.md section 6)</div>
+<div class="rule"><b>The Home rule (owner, 10 Oct 2026), stated once:</b> nothing in this slice runs on Home or delays it. The photo loader belongs to the Recipe tab's routes and starts only after that route's own text has painted; Home never imports it, never waits on it and never prefetches a recipe photo.</div>
+<div class="tw"><table class="budget"><tr><th>Screen</th><th>Order (each step starts when the one before has arrived)</th><th>Real photos, about</th></tr>
+<tr><td>List (Recipes tab)</td><td>1 text and <b>stock pictures</b> (0 requests) · 2 squares of <b>this week's planned recipes</b> (if a plan exists) · 3 squares of rows <b>on screen + the next 5</b> in the shown chip · 4 the rest only as they scroll in</td><td>0, then 3 × 12 KB, then about 10 × 12 KB; the rest 12 KB each on scroll</td></tr>
+<tr><td>Recipe page</td><td>1 <b>text</b> (all sections) with sized boxes in the photos' colours and the banner's inline preview (0 requests) · 2 <b>step photos</b> in the first two screens · 3 the <b>banner</b> (large) · 4 later step photos as they near the screen · 5 gallery, cook and note photos <b>only on a tap</b></td><td>0, then 2 to 3 × 75 KB, then 250 KB; 75 KB per further step; 12 KB per tapped square</td></tr>
+<tr><td>Viewer</td><td>The opened photo's big size only (large for a banner, medium for the rest)</td><td>250 or 75 KB</td></tr>
+<tr><td>Cook mode</td><td>The current step's photo, then the next step's; never the banner</td><td>75 KB per step</td></tr>
+<tr><td>Add</td><td>Its own route and script; nothing until a photo is picked</td><td>–</td></tr>
+<tr><td>Free up space</td><td>Sizes and names only (numbers from the server); a version's squares when it is opened</td><td>0, then 12 KB per photo</td></tr>
+<tr><td>Note, Saved</td><td>A plain text box; the attached square on a tap; Saved shows what was just added (cached)</td><td>a few KB</td></tr>
+<tr><td>A photo being prepared</td><td>Nothing: colour and one line; three cheap state checks, then stop</td><td>0</td></tr>
+</table></div>
+<p style="margin-top:8px;font-size:13px">Real sizes are estimates for food photos at WebP quality 75. The mockup's sample pictures are flat drawings and far smaller; the <b>Mockup panel</b> counts what each screen really fetched, <b>grouped by phase</b> (text and placeholders, planned this week, on screen + next 5, step photos, banner, scrolled into view, on demand). Measured in the mockup at 390px, image requests in order: list with a plan: <code>efr-1-t</code>, <code>cur-1-t</code> (both planned) then <code>sha-1-t</code>; recipe page: <code>efr-s1-m</code>, <code>efr-s2-m</code>, <code>efr-s4-m</code>, then <code>efr-1-l</code> last; a recipe with only a cooked photo: none; free-space list: none.</p>
+<p style="margin-top:6px;font-size:13px">Mockup files: <code>photos.css</code> and <code>photos.js</code> on top of the flow slice's <code>recipe.css</code> and <code>recipe.js</code>. Classes to lift: <code>.pf</code> (frame), <code>.pf.stock</code>, <code>.pf.prep</code> and <code>.pprep</code> (being prepared), <code>.pinh</code> (inherited icon), <code>.psp</code> (step photo), <code>.hero2.one</code> (banner), <code>.pundo</code> (5-minute undo), <code>.qbar</code>, <code>.vrow</code>, <code>.vpics</code> (free up space), <code>.pv</code> (viewer), <code>.aim</code>, <code>.addc</code>, the note classes; and <code>PHO.phase</code>, <code>PHO.watch</code>, <code>PHO.afterPaint</code> (the phased loader, about 40 lines).</p>
+</section>
+
+<section class="sec"><div class="lbl">Recipe-side work (to file as Recipe issues on the owner's say; not filed)</div>
+<ol class="d">
+<li><span class="n">RP1</span><b>Photos table</b> (P-D4): kinds banner, step, more, cooked; state pending, ready, removed, failed; content hashes per kept size; the version's <code>banner_photo_id</code> and step map. Blob first, row second; nightly sweep for stray blobs and for removals past 5 minutes.</li>
+<li><span class="n">RP2</span><b>Photo routes</b> (P-D5, P-D15, P-D16): upload (phone sizes, or one unshrunk file), serve through <code>BlobStore.read</code> with the household check and cache headers, remove, restore within 5 minutes.</li>
+<li><span class="n">RP3</span><b>Banner and step pointers</b> through the versions spec's <code>photos</code> line (9.5) with the parent fallback and the "inherited" flag in replies (P-D9, P-D10); photo ids and states in recipe, version and cook replies.</li>
+<li><span class="n">RP4</span><b>Sign-in cookie on photo routes:</b> Recipe verifies the Platform token from the cookie for <code>GET</code> of photos (today it reads the bearer header only).</li>
+<li><span class="n">RP5</span><b><code>request_photo_upload</code></b>, the upload slot (<code>PUT</code>, secret in a header, 15 minutes, declared hash and size), the <b>verified acknowledgement</b>, <code>get_upload</code>, attempts as a setting (max 3) and the retry ladder in the reply (P-D12).</li>
+<li><span class="n">RP6</span><b>Backups:</b> database first, then copy only new blobs (P-D18); the runbook says so.</li>
+<li><span class="n">RP7</span><s class="void">Photo from a web address.</s> Dropped by L4.</li>
+<li><span class="n">RP8</span><b>Notes body and photo references</b> (P-D27 to P-D29); belongs with the versions spec's notes. Flagged to it, not written there.</li>
+<li><span class="n">RP9</span><b>Blob-storage port and the files adapter</b> (P-D2): the <code>BlobStore</code> interface above, the files adapter under the data folder (<code>blobs/</code>, <code>uploads/</code>, atomic rename, hash check), the adapter conformance tests, and the <code>RECIPE_BLOBS</code> setting with only <code>files</code> accepted. The object-storage adapter is named in the code's docs, not written.</li>
+<li><span class="n">RP10</span><b>Background derive queue</b> (P-D7): jobs table, priority order (banner square, squares, banner large, mediums), single low-priority worker with load back-off, the local <code>Deriver</code> (sharp/libvips, one thread), <code>failed</code> after three tries, the upload deleted when done. The third-party <code>Deriver</code> is named, not written.</li>
+<li><span class="n">RP11</span><b><code>get_photo</code></b> MCP read tool with the same household check (P-D15).</li>
+<li><span class="n">RP12</span><b>Step photos</b> (P-D8, P-D23): one per step keyed by stable step id, 10 per version, refused with <code>limit: step_10</code>; hidden (not removed) when a revision removes the step, back with that revision's undo (versions spec 9.5).</li>
+<li><span class="n">RP13</span><b>Free up space</b> (P-D8): <code>GET /recipe/photos/usage</code> returning the household total and per-version photo bytes, last cooked and state; batch remove with one 5-minute undo.</li>
+</ol>
+<p style="margin-top:8px;font-size:13px">Kitchie's side: the add route and its in-browser shrinking, the phased loader and the frame markup, the "being prepared" checks, the free-space route, the viewer, the note route. Nothing stored.</p>
+</section>
+
+<div class="qs" style="margin-top:18px;padding:14px;border:1px dashed var(--border);border-radius:var(--r-card)"><b>Open questions</b>
+<ul style="margin:6px 0 0 18px;color:var(--muted)">
+<li>Server disk: how much is free on the data folder? P-D8's 2 GB household cap is the guard.</li>
+<li>An off-server copy of backups (all apps): infra's call.</li>
+<li><s class="void">Where a note lives: option N1</s> Closed 11 Oct 2026: recipe or version level, inherited.</li>
+<li>A photo for "tonight" when no cook was recorded: the mockup adds a cook with no pantry change.</li>
+<li>Can every assistant the household uses send a file over HTTP? If not, the fallback (scene 4, a Kitchie link to the same slot) puts the person back in the loop for that assistant. Wrong guess: an extra tap, nothing lost.</li>
+<li>Are Recipe and Kitchie always served from one site? P-D15's cookie check depends on it.</li>
+<li><s class="void">May a person explicitly make a cook photo a version's banner?</s> Closed 11 Oct 2026: yes, by explicit choice only; nothing ever happens automatically (P-D10 B), and there is always exactly one banner per version.</li>
+<li><b>Versions slice:</b> aligned as of <code>cf157a7</code> (spec 9.5 layout, 9.9 five-minute removal, 10.3 and 10.8 upload flow with <code>get_photo</code>; a cook photo as a banner by explicit choice is an open question there too).</li>
+<li>Named futures, not designed: expiring public share links (P-D15); the object-storage adapter (P-D2); a third-party image service (P-D7).</li>
+<li><s class="void">Does replacing a cover keep the old one in Photos?</s> Closed: Replace removes the old one with the 5-minute undo (P-D9, P-D17).</li>
+</ul></div>
+</div></body></html>

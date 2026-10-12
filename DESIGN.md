@@ -76,7 +76,7 @@ Owner decision, voice session, 8 October 2026. Extends section 6: the same "load
 2. **Layout per bucket.**
    - Phone is the baseline: a single-column flow at its natural width.
    - Tablet is the same single-column flow, relaxed wider to use more of the screen. Not two-pane, not a redesign.
-   - Desktop and laptop is the same single-column flow, capped at a max-width and centred (Twitter-classic-feed or Basecamp style). Deliberately not the full width of a laptop screen: leave breathing room on both sides.
+   - Desktop and laptop (1024px and up) is a left rail, an off-centre column and a side panel (owner decision, chat, 9 October 2026, after voice direction the same day that desktop was "a big phone version"; replaces the earlier centred single column). The bottom bar becomes a rail down the left edge. The main column sits beside the rail, not centred. Where a screen has a detail (Pantry: the item; Home: Cooking ideas) it opens in a side panel instead of the phone's bottom sheet. The rail, the column and the panel are one group anchored on the left: the panel starts where the column ends, so the space between the list and the panel is always one gutter (48px), on any window; free space collects to the right of the panel, never between the lanes (owner, 9 October 2026). Below about 1224px the column gives up width so the panel never covers it. The top-bar-and-drawer alternative was dropped. See `fragments/desktop/` and `docs/knowledge/desktop-layout.md`.
 3. **One shared responsive system.** The spacing scale and the content max-width per bucket are shared tokens (section 2), applied by default to every screen. Do not hand-craft layouts per screen or feature. A screen that earns an exception says so in its notes.
 4. **JS is CSS-first.** The default is one shared JS bundle for all form factors, because most responsive differences are CSS only. Split into per-form-factor bundles only for the rare screen whose interaction behaviour (not just layout) genuinely diverges by device. That is an explicit exception, not the default.
 5. **Where splitting is used.** Server-rendered first, with the small deferred vanilla JS already practised. The server reads a viewport or device hint from the request and serves the pre-built, already-minified bundle for that bucket. Bundling, minification and splitting happen at build or deploy time, never per request, so the only runtime cost is a cheap lookup.
@@ -89,8 +89,10 @@ Defined once, at the top of `theme.css`, so every page that loads the theme has 
 
 | Token | Phone (<600) | Tablet (600-1023) | Desktop (1024+) |
 |---|---|---|---|
-| `--content-max` | 100% | 720px | 840px |
+| `--content-max` | 100% | 720px | 840px (pages without the rail layout) |
 | `--gutter` | 16px | 24px | 32px |
+
+Desktop rail layout tokens (settled 9 October 2026; widths are proposals the owner did not object to): rail 88px, column 640px plus a 48px gutter each side (a 736px lane), panel 400px. They apply to screens with the rail; the gap rule is in section 7, item 2.
 
 Shared in every bucket: spacing scale `--sp-1..--sp-7` (4, 8, 12, 16, 24, 32, 48px) and `--tap` (44px, minimum height of any control). `.wrap` in `shared.css` uses them, so every index and fragment page gets the three buckets with no per-page CSS. A page that needs side by side options uses the shared `.grid` / `.opts.two` rule: one column on phone, two from 600px up.
 
@@ -98,7 +100,9 @@ Shared in every bucket: spacing scale `--sp-1..--sp-7` (4, 8, 12, 16, 24, 32, 48
 
 ### Screen exceptions
 
-- `flows/household/`: this screen is the phone app itself, so it keeps a phone frame instead of a flowing column. It is split by form factor, see "Household flow by form factor" below.
+- Desktop rail layout (1024px and up): not an exception any more, it is the desktop layout (item 2 above). The household flow below still keeps its phone frame.
+
+- `flows/household/`: this screen is the phone app itself, so it keeps a phone frame instead of a flowing column. It is split by form factor, see "Household flow by form factor" below. Phone: full bleed. Tablet and mobile at 600px and up: the app as a centred 390px frame (the tablet variant relaxes wider, see below). Desktop sizes (1024px and up) are the desktop screens in `fragments/desktop/`, reached as a mode with the hidden Device control (`fragments/device.js`: move to the top edge or press the backtick key; it lists Phone 390 × 844, Tablet 768 × 1024 and desktop 1024 × 768 up to 2560 × 1440). The prototype Controls panel is hidden at every size and opens from the Device control. Layout code is in each variant's `styles.css`.
 - Fragment pages draw their phone mockups at fixed widths (300 to 390px). That is the content being compared, not the page layout.
 
 ### Household flow by form factor (built 9 October 2026)
@@ -107,14 +111,15 @@ Owner decision, voice session, 9 October 2026. `flows/household/` was the start-
 
 | Folder | Behaviour | Controls panel |
 |---|---|---|
-| `flows/household/mobile/` | The original. Phone: full bleed. 600px and up: the 390px phone frame, centred. | Behind the Controls button; beside the frame from 1024px |
-| `flows/household/tablet/` | **Only tablet relaxes wider.** 600px and up: a centred column of `--content-max` (720px, 24px gutter; 840px, 32px gutter above 1024px), as tall as the window. Phone widths: full bleed. | Behind the Controls button |
-| `flows/household/desktop/` | The phone-width (390px) frame stays, centred. Phone widths: full bleed. 600 to 1023px: framed, Controls behind the button. | Always open beside the frame from 1024px |
+| `flows/household/mobile/` | The original. Phone: full bleed. 600px and up: the 390px phone frame, centred. | Hidden at every size; opened from the Device control (`fragments/device.js`) |
+| `flows/household/tablet/` | **Only tablet relaxes wider.** 600px and up: a centred column of `--content-max` (720px, 24px gutter; 840px, 32px gutter above 1024px), as tall as the window. Phone widths: full bleed. | Hidden at every size; opened from the Device control |
+| `flows/household/desktop/` | The phone-width (390px) frame stays, centred. Phone widths: full bleed. 600px and up: framed. | Hidden at every size; opened from the Device control |
 
 Kitchie app decision: the phone frame stays on phone and on desktop; only tablet is wider.
 
 - **One shared script.** `flows/household/app.js` (and its deferred `flows/household/fields/*.js`) is referenced by all three `index.html` files. No logic is copied. The script finds its `fields/` folder from its own URL, so it works from any variant folder. A variant tells the script which form factor it is with `data-form="mobile|tablet|desktop"` on `<body>`; the script reads that only for behaviour that genuinely differs (none yet).
 - **Own folder, own `styles.css`.** Each variant has its own `index.html` and `styles.css`. Today `mobile/styles.css` and `desktop/styles.css` match apart from their header comments (same frame, same Controls behaviour) and `tablet/styles.css` differs in the form-factor block at the top. They are copies on purpose: the owner expects each form factor may EVOLVE DIFFERENTLY later. Change a variant's file when only that form factor should change; if a change should apply to all three, make it in all three (or move the rule to a shared file when the three have settled).
+- **Device control.** Each variant page loads `fragments/device.js` (main), so the hidden Device control and its Prototype controls entry work from every variant.
 - **Shared tokens.** All three load `theme.css` for `--content-max`, `--gutter`, spacing and `--tap`, so the buckets above stay the single source for widths.
 - **Old address.** `flows/household/index.html` is a tiny redirect to `mobile/` (query string and hash kept), with links to all three, so older links keep working.
 - **Scope.** The household flow only. A global per-form-factor toggle is a separate, later idea and is not built.
@@ -134,7 +139,7 @@ Owner decision, voice session, 9 October 2026. Mock only (`flows/household/deskt
 - A query being typed is left alone and returns when the animation ends; typing focus is kept.
 - It runs only on Pantry, never under an open sheet, never while a refresh is already playing.
 - **Proposal:** a real focus or tab-visible event is ignored if the last refresh was under 10 seconds ago, so alt-tabbing back and forth does not flicker. Wrong guess costs: a quick return to the tab shows stale data for up to 10s; tune `FOCUS_GAP_MS` in `app.js`.
-- **To see it in the mock:** open `flows/household/desktop/` in a window wider than 1024px, go to Pantry (Controls > Jump to > Pantry), then either switch to another tab and come back, or press Controls > Desktop pantry > "Simulate tab focus". The button is only on the desktop page.
+- **To see it in the mock:** open `flows/household/desktop/` in a window wider than 1024px, go to Pantry (Device control > Prototype controls > Jump to > Pantry), then either switch to another tab and come back, or open the Device control > Prototype controls and press Desktop pantry > "Simulate tab focus". The button is only on the desktop page.
 - Where the code is: one shared script, `flows/household/app.js` (`isDesk`, `deskSearchHtml`, `playRefresh`, `tabFocusRefresh`; the refresh scenes already existed for the pull), styles in `flows/household/desktop/styles.css` (end of file). The script reads `<body data-form="desktop">` to render the bar, so mobile and tablet pages contain none of it.
 - Default path and deferred (section 6): no new request, no new file. The bar is part of the Pantry row markup on the desktop page only; the refresh scenes are the same inline SVG as the pull.
 
@@ -148,4 +153,4 @@ Owner decision, voice session, 9 October 2026. Mock only (`flows/household/deskt
 
 A new screen is added to the `SCREENS` list in the script. Output in `shots/` is git-ignored.
 
-**Keep in sync:** this file is the canonical copy of sections 6 and 7 while the mockup is the working copy. Kitchie carries a derived copy of the section 6 rules in its `AGENTS.md` ("Performance and regression guard", 7 October 2026), and this repo's `AGENTS.md` points here. Platform, Recipe and infra carry no copy yet (the section 6 migration TODO is still open). Section 7 has not been propagated to any repo yet. Propagate it with section 6 when the migration happens (issue #34).
+**Keep in sync:** this file is the canonical copy of sections 6 and 7 while the mockup is the working copy. Kitchie carries a derived copy of the section 6 rules in its `AGENTS.md` ("Performance and regression guard", 7 October 2026), and this repo's `AGENTS.md` points here. Platform, Recipe and infra carry no copy yet (the section 6 migration TODO is still open). Section 7 has not been propagated to any repo yet, and Kitchie's `AGENTS.md` "Form factors and responsive layout" still says desktop is one 840px column; it needs the owner's edit to match the desktop layout in item 2. Propagate it with section 6 when the migration happens (issue #34).

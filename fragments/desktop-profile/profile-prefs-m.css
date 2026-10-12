@@ -1,0 +1,72 @@
+/* Settings window, Preferences layout A on a phone or tablet (round 7). Loaded with profile-prefs-m.js, only under 900px with ?pref=a. Tokens from theme.css only. All targets 44px or more; nothing scrolls sideways at 360. */
+.pm-in{display:grid;gap:16px;min-width:0}
+.pm{max-width:40rem;width:100%}
+.pm-tag{margin:0 0 12px}
+.pm-tabs{display:flex;width:100%;padding:3px}
+.pm-tabs button{flex:1;min-height:var(--tap);display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:16px}
+.pm-tabs .pf-dot{background:var(--accent);box-shadow:0 0 0 2px var(--surface)}
+.pm-tabs button[aria-checked=true] .pf-dot{background:var(--on-accent);box-shadow:none}
+.pm-ctl{margin:12px 0 0;max-width:40rem}
+.pm-ctl .pf-seg button{min-height:var(--tap)}
+/* a sub-screen: back link, title, content, a Done bar that stays at the foot */
+.pm-back{display:inline-flex;align-items:center;gap:6px;justify-self:start;min-height:var(--tap);padding:0 14px 0 6px;margin-left:-6px;border:0;background:none;color:var(--accent);font-weight:700;font-size:16px}
+.pm-sub{display:flex;flex-direction:column;flex:1 0 auto;gap:16px}
+.pm-subh{display:grid;gap:2px}
+.pm-subh h3{margin:0;font:700 1.5rem var(--head);line-height:1.15;overflow-wrap:anywhere}
+.pm-subh .pf-crumb{display:block}
+.pm-foot{margin-top:auto;position:sticky;bottom:-16px;z-index:2;display:flex;gap:8px;margin:auto -20px -16px;padding:10px 20px calc(10px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:1px solid var(--border)}
+.pm-foot .pf-btn{flex:1}
+@media (max-width:900px){.pm-foot{margin-left:-16px;margin-right:-16px;padding-left:16px;padding-right:16px}}
+/* the housemate group */
+.pm-hm .pf-lbl{display:flex;align-items:center;gap:8px}
+.pm-mrow .pf-ini{width:36px;height:36px}
+.pm-mrow .pf-t{flex:1;min-width:0}
+.pm-mrow .pf-chip{flex:none}
+.pm-else{display:block}
+.pm-else>.pf-item{border-radius:0}
+.pm-elsep{padding:8px 12px 12px;display:grid;gap:8px;background:var(--surface)}
+.pm-elsep .pf-small{margin:0}
+.pm-elsep .pf-list{background:var(--bg)}
+.pm-else .pf-ico.sm{display:grid;place-items:center;border-radius:50%;border:1px solid var(--border)}
+/* propose in place, under its button */
+.pm .pf-memact .pf-btn{width:100%;min-height:48px}
+.pm-give{display:grid;gap:12px;padding:14px;border:1.5px solid var(--accent);border-radius:var(--r-ctl);background:var(--surface)}
+.pm-give .pf-ed{display:grid;gap:12px}
+.pm-givef{display:flex;gap:8px}
+.pm-givef .pf-btn{flex:1;white-space:normal}
+.pm-give .pf-in{font-size:16px}
+/* a pending proposal stacks: the thing on top, the chip under it, then the buttons on their own line */
+.pm .pf-prop{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:start}
+.pm .pf-prop>.pf-t{grid-column:1/-1;flex:none;min-width:0;overflow-wrap:anywhere}
+.pm .pf-prop>.pf-chip{grid-column:1/-1;justify-self:start;white-space:normal}
+.pm .pf-prop>.pf-btn{width:100%;min-height:var(--tap)}
+.pm .pf-prop>.pf-btn:nth-child(3):last-child{grid-column:1/-1}
+.pm .pf-prop>.pf-propconf{grid-column:1/-1}
+.pm .pf-propconf .pf-acts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pm .pf-propconf .pf-btn{white-space:normal}
+/* rows: long values wrap, chips never push the row sideways */
+.pm .pf-item .pf-t{min-width:0;overflow-wrap:anywhere}
+.pm .pf-item .pf-chip{flex:none}
+.pm .pf-legend{gap:6px 12px}
+/* the scoped, searchable picker, full width in its own page */
+.pm-sub .pf-pk{gap:12px}
+.pm-sub .pf-pkseg{display:flex;width:100%;justify-self:stretch}
+.pm-sub .pf-pkseg button{flex:1;min-height:var(--tap);padding:0 4px;font-size:15px}
+.pm-sub .pf-pk .pf-in,.pm-sub .pf-field .pf-in{font-size:16px}
+.pm-sub .pf-pkl{max-height:none;overflow:visible;border:0;padding:0;background:none;gap:12px}
+.pm-sub .pf-pkg{border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--bg);overflow:hidden;gap:0}
+.pm-sub .pf-pkgl{padding:10px 12px 4px}
+.pm-sub .pf-pko{min-height:48px;align-items:center;padding:6px 12px;border-radius:0;width:100%}
+.pm-sub .pf-pko+.pf-pko{border-top:1px solid var(--border)}
+.pm-sub .pf-pko span{min-width:0;overflow-wrap:anywhere}
+.pm-sub .pf-pko small{flex:none;max-width:48%}
+.pm-sub .pf-pkpick{flex-wrap:wrap}
+.pm-sub .pf-pkpick .pf-btn{flex:none}
+.pm-sub .pf-facts>div{flex-wrap:wrap}
+.pm-sub .pf-two{grid-template-columns:1fr 1fr}
+.pm-sub .pf-acts{display:grid;gap:8px}
+.pm-sub .pf-acts .pf-btn{white-space:normal}
+/* a household rule in Mine (chip and Open in Household): the words get a full line, the chip and the button wrap under them */
+.pm .pf-item.pf-static{flex-wrap:wrap}
+.pm .pf-item.pf-static>.pf-t{flex:1 1 10rem}
+.pm .pf-item.pf-static>.pf-btn{flex:none}

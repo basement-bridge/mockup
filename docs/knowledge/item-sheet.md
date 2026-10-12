@@ -2,6 +2,14 @@
 
 Status: mockup for the owner to review (8 Oct 2026). Not built in Kitchie. Lines marked **Proposal** are mockup choices where the owner's words were silent; none of them is settled.
 
+Follow-up (10 Oct 2026, proposals): the full item screen behind "All fields" is replaced by a nested Edit flyout and a History flyout. See [jobs-to-be-done/item-edit-flyout.md](jobs-to-be-done/item-edit-flyout.md).
+
+Follow-up (11 Oct 2026, proposals; item-edit-flyout decisions 82 to 86): in the Edit flyout the level is always editable (a counted item is automatic by default, a pick wins until the quantity is next revised), drawn as a battery with the same colour bands. (The "battery here only" caution in that note is replaced by the next follow-up: the owner confirmed the battery everywhere on 11 Oct 2026.) It generalises the "no minimum" carve-out under Level rules (a hand-set label stays until the amount changes).
+
+Follow-up (11 Oct 2026, owner's voice, confirmed; item-edit-flyout decisions 94 to 101): the level icon is a battery everywhere the level is drawn, not a drop. Wherever this note says "drop" below, read battery: four cells (Plenty 4, Some 2, Running low 1, Out 0), the same colours and tokens, no level word drawn, name as screen-reader text. The item sheet in `flows/household/` now draws it. The level rules are the owner's: with a minimum, more than twice is Plenty, above the minimum up to twice is Some, at or under it above zero is Running low, zero is Out, for counted AND weighed items; with no minimum it is Plenty until zero; a hand-set level (any item with a number) stays until the quantity next increases and never clears on a decrease; it looks the same as a calculated one everywhere and never adds the item to the shopping list. This supersedes the "level-only items are a stored label" and the "counted item with no minimum" carve-out below for items that have a number; a worded item with no number still keeps the label it was given.
+
+Follow-up (12 Oct 2026, owner, typed; item-edit-flyout decisions 102 to 107): the item sheet keeps Used up and Add to shopping exactly as above, and while the level is Running low or Out it also shows a "How much to buy" control above them (a stepper in the item's unit for a weighed or counted quantity, the own-words box otherwise; the Shopping list group is removed from Edit). The sheet header's emoji is a tappable tile that opens the Edit picker. See [jobs-to-be-done/item-edit-flyout.md](jobs-to-be-done/item-edit-flyout.md).
+
 Code: `flows/household/app.js` (`itemSheetHtml`, `acts.isheet`, `acts.itile`, `acts.sheetused`, `acts.sheetshop`, `acts.lvl`), `flows/household/{mobile,tablet,desktop}/styles.css` (`.sheet.half`, `.tiles3`, `.tl`). Options she chose from: `fragments/item-sheet/`.
 
 ## What the owner asked for

@@ -1,0 +1,3 @@
+/* Option B, 2200 and up (2560): the agenda keeps its 820 cap (reading width), the pane keeps 440, and the week summary gets its own 320 lane, so the whole page is: agenda, meal, summary. Left-anchored; free space collects on the right. */
+.app.has-lane2{grid-template-columns:88px minmax(0,var(--main-max)) var(--lane) 340px}
+.panel.p2{background:var(--bg)}

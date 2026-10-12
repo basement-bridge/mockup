@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Change a version — Recipe versions mockup</title>
+<link rel="stylesheet" href="../theme.css"><link rel="stylesheet" href="../recipe/recipe.css"><link rel="stylesheet" href="versions.css">
+<script src="../theme.js"></script><script src="../recipe/recipe.js"></script><script src="versions.js"></script></head>
+<body data-no-theme-fab>
+<div class="stage"><div class="phone" id="ph"></div></div>
+<script>
+/* Change, after the owner's locked decisions (10 Oct 2026).
+   L4: recipe content is created and edited ONLY through the person's own AI assistant over Recipe's MCP tools. The app has no
+   content editor: Change opens the person's AI app (plan-week-ai 45), aimed at this version. The app still adds photos and notes.
+   Pick 2 C: a try takes edits in place; a keeper asks at save: Fix this one, Keep both, or It is a different dish now. Through
+   the assistant "asks at save" means the assistant asks the person in the chat before it writes (spec: Assistant authoring).
+   Pick 4 B: on "Fix this one" the assistant may save into the kept version (or the usual) directly; the household reviews after.
+   The chat is a neutral stand-in for the person's own AI app, not any product's look. Steps: ?step=sheet (in Recipes) | chat. */
+(function(){
+var X=RCP,V=VER,ic=X.ic,esc=X.esc,F=V.FAM;
+var v=V.byId(X.Q.get("v")||F.usual)||V.byId(F.usual);
+var step=X.Q.get("step")||"sheet";
+var pick=null;
+var ph=document.getElementById("ph");
+var keeper=v.state!=="trying";
+var usual=F.usual===v.id;
+function where(){
+  /* The band says, before anything happens, where the change will land (V-D11, pick 2 C). */
+  return keeper?'<div class="band sage">'+ic("check","s")+'<span class="t"><b>'+esc(v.name)+' is a keeper'+(usual?' and our usual':'')+'</b><small>Your assistant will ask first: fix this one, keep both, or a different dish.</small></span></div>'
+    :'<div class="band">'+ic("flame","s")+'<span class="t"><b>'+esc(v.name)+' is a try</b><small>Changes go straight in as revision '+(V.head(v).n+1)+'. The old one stays in History.</small></span></div>';
+}
+function sheet(){
+  ph.innerHTML='<div class="top"><a class="back" href="version.html?v='+v.id+'">'+ic("back","s")+esc(v.name)+'</a><span class="ttl">Change</span><span style="width:64px"></span></div>'+
+  '<div class="body">'+where()+'<div class="pad"><h2>Change it with your assistant</h2>'+
+  '<p style="margin-top:6px">Your own AI app changes recipes through Recipe\'s tools. Tell it what to change in your own words; it opens aimed at <b style="color:var(--fg)">'+esc(F.name)+', '+esc(v.name)+'</b>.</p>'+
+  '<p style="font-size:12.5px;margin-top:10px">Or change it yourself: every part of a version can be edited by hand in Recipes (owner, 11 Oct 2026). Both land in the same History, with who made each change.</p>'+
+  '<div style="display:grid;gap:8px;margin-top:14px"><a class="btn" href="?v='+v.id+'&step=chat">'+ic("spark","s")+'Open my AI app</a>'+
+  '<a class="btn ghost" href="../recipe/edit.html?id=efr&v='+v.id+'">'+ic("pen","s")+'Edit it by hand instead</a>'+
+  '<a class="btn ghost" href="version.html?v='+v.id+'#not">'+ic("note","s")+'Add a note instead</a>'+
+  '<a class="btn ghost" href="../recipe-photos/add.html?to=efr">'+ic("cam","s")+'Add a photo</a></div></div><div style="height:24px"></div></div>';
+}
+function chat(){
+  var me=keeper?'Use 160 g of peas in '+v.name.toLowerCase()+', they still vanish':'Less garlic in this one, and only in the last minute';
+  var a1, tool;
+  if(!keeper){
+    /* Pick 2 C on a try: no question, the edit goes in place. */
+    a1='Done. <b>'+esc(v.name)+'</b> is a try, so I fixed it in place: revision '+(V.head(v).n+1)+'.'+V.diff([["chg","Garlic cloves 1","2"],["chg","Step 2: …add the garlic for the last minute","…for the last two minutes"]])+'<small>revise_version (version, base revision '+V.head(v).n+', kind fix, your words). Tell me if you want it as a separate version instead.</small>';
+    tool='';
+  }else{
+    a1=(usual?'<b>'+esc(v.name)+'</b> is your household\'s usual, so everyone cooks it. ':'<b>'+esc(v.name)+'</b> is a keeper. ')+'Where should this go?'+
+      '<div class="qa" role="group" aria-label="Where should it go">'+
+      [["fix","Fix "+esc(v.name),"Next revision of the same version"],["both","Keep both","A new version, starts as Trying"],["own","It is a different dish now","Its own recipe, linked back"]].map(function(o){return '<button type="button" data-p="'+o[0]+'" aria-pressed="'+(pick===o[0])+'">'+o[1]+'<br><small style="color:inherit;opacity:.8;margin:0">'+o[2]+'</small></button>'}).join("")+'</div>'+
+      '<small>Recipe asks the assistant to ask: pick 2 C. Nothing is saved yet.</small>';
+    tool=pick==="fix"?'<div class="vbub">Saved into <b>'+esc(v.name)+'</b> as revision '+(V.head(v).n+1)+'. It is live now.'+V.diff([["chg","Frozen peas 160 g","120 g"]])+
+        '<small>revise_version (target fix, base revision '+V.head(v).n+', your words). Because it is a keeper, Recipes shows it as "To review" until someone in the household checks it; anyone can undo each change.</small></div>'
+      :pick==="both"?'<div class="vbub">Saved as a new version, <b>Extra peas</b>, Trying. '+esc(v.name)+' is unchanged.<small>create_version (from '+esc(v.name)+' revision '+V.head(v).n+', your words). A try needs no review.</small></div>'
+      :pick==="own"?'<div class="vbub">Made <b>Pea fried rice</b> as its own recipe, Trying, linked back to '+esc(F.name)+'.<small>spin_off (your words). Its banner and step photos come along by reference, sharing the same files (P-D9).</small></div>':'';
+  }
+  ph.innerHTML='<div class="vhead"><span class="dotai" aria-hidden="true">'+ic("spark","s")+'</span>Your assistant<span style="flex:1"></span><span class="lbl">your AI app</span></div>'+
+    '<div class="body"><div class="mockmark">Stand-in for the person\'s own AI app</div><div class="vchat">'+
+    '<div class="vbub"><small style="margin:0">Opened from Recipes: '+esc(F.name)+', '+esc(v.name)+' ('+V.STATE[v.state][0].toLowerCase()+(usual?', our usual':'')+')</small></div>'+
+    '<div class="vbub me">'+esc(me)+'</div>'+
+    (pick&&keeper?'<div class="vbub">'+a1.replace(/<div class="qa"[\s\S]*<\/div>/,'')+'</div><div class="vbub me">'+({fix:"Fix this one",both:"Keep both",own:"It's a different dish now"}[pick])+'</div>'+tool:'<div class="vbub">'+a1+'</div>')+
+    '</div></div>'+
+    '<div class="act"><a class="btn ghost" href="?v='+v.id+'">Back to Recipes</a><a class="btn" href="'+(keeper&&pick==="fix"?'suggestions.html':'version.html?v='+v.id)+'">'+(keeper&&pick==="fix"?'See it in Recipes':'Open '+esc(v.name))+'</a></div>';
+}
+function draw(){if(step==="chat")chat();else sheet()}
+ph.addEventListener("click",function(e){var b=e.target.closest("[data-p]");if(b){pick=b.dataset.p;draw()}});
+draw();
+V.controls();
+})();
+</script>
+</body></html>

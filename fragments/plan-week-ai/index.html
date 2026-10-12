@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Planning the week, AI-led, fragment</title><link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><script src="../../theme.js"></script>
+<style>
+.jump{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0}
+.jump button{min-height:var(--tap);padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);color:var(--fg);font:600 13px var(--body);cursor:pointer}
+.jump button[aria-pressed=true]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);color:var(--accent)}
+.stage2{display:grid;gap:18px;align-items:start}
+@media(min-width:900px){.stage2{grid-template-columns:372px 1fr}}
+.say{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:14px}
+.say h2{font-size:1rem}.say p{font-size:14px;margin-top:4px}
+.ph{position:relative;width:100%;max-width:372px;height:720px;margin:0 auto;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden;font-size:14px;line-height:1.4;color:var(--fg)}
+.sc{height:100%;overflow-y:auto;padding:12px 14px 24px}
+:where(.ph) button{font-family:inherit;color:inherit;cursor:pointer}
+.top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.wkh{flex:0 1 auto;min-width:0;text-align:left;background:none;border:0;padding:0;min-height:44px;display:grid;justify-items:start;align-items:center;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.wkh>*{grid-area:1/1;display:flex;flex-direction:column;justify-content:center;min-width:0}.wkh .gh{visibility:hidden;pointer-events:none}.top .ib[data-act=copy]{margin-left:auto}
+.wkh b{font:800 17px var(--head);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.wkh small{font-size:11px;color:var(--muted);font-weight:600}
+.ib{width:44px;height:44px;border-radius:50%;border:1px solid var(--border);background:var(--surface);display:inline-flex;align-items:center;justify-content:center;font-size:18px}
+.ib.sm{width:36px;height:44px;border-radius:var(--r-pill);font-size:20px}.ib:disabled{opacity:.35;cursor:default}.ib[aria-pressed=true]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+/* decision 48: one compact strip. Mine and Everyone, then every person as a chip, dotted dividers, scroll right; one chevron opens it into packed rows (at most 5). */
+.seg{--sh:36px;--sg:4px;display:flex;align-items:flex-start;gap:2px;margin-bottom:8px}
+.segl{flex:1;min-width:0;display:flex;align-items:center;gap:2px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;overscroll-behavior-x:contain}
+.segl::-webkit-scrollbar{display:none}
+.segl.fr{-webkit-mask-image:linear-gradient(90deg,currentColor calc(100% - 24px),transparent);mask-image:linear-gradient(90deg,currentColor calc(100% - 24px),transparent)}
+.segl.fl{-webkit-mask-image:linear-gradient(270deg,currentColor calc(100% - 24px),transparent);mask-image:linear-gradient(270deg,currentColor calc(100% - 24px),transparent)}
+.segl.fl.fr{-webkit-mask-image:linear-gradient(90deg,transparent,currentColor 24px,currentColor calc(100% - 24px),transparent);mask-image:linear-gradient(90deg,transparent,currentColor 24px,currentColor calc(100% - 24px),transparent)}
+.segl button{flex:none;min-height:var(--sh);max-width:9rem;padding:0 12px;border:0;border-radius:var(--r-pill);background:none;font-weight:700;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.segl button[aria-pressed=true]{background:var(--accent);color:var(--on-accent)}
+.segl .sd{flex:none;align-self:center;width:0;height:16px;margin:0 4px;border-left:1px dotted var(--muted)}
+.seg.open .segl{flex-wrap:wrap;gap:var(--sg) 2px;overflow-x:hidden;overflow-y:auto;max-height:calc(5*var(--sh) + 4*var(--sg))}
+.seg.open .segl button{flex:1 1 auto;max-width:none}
+.seg.open .segl .sd{flex:none}
+.segx{flex:none;width:36px;height:var(--sh);padding:0;border:0;border-radius:50%;background:none;color:var(--muted);display:inline-flex;align-items:center;justify-content:center}
+.segx[hidden]{display:none}
+.segx svg{width:18px;height:18px;transition:transform .15s}
+.seg.open .segx svg{transform:rotate(180deg)}
+@media(prefers-reduced-motion:reduce){.segx svg{transition:none}}
+.day{display:flex;gap:10px;padding:8px 0;border-top:1px solid var(--border)}
+.day:first-of-type{border-top:0}
+.day.over{background:color-mix(in srgb,var(--accent) 12%,transparent);border-radius:var(--r-ctl)}
+.dn{width:38px;flex:none;font-weight:800;font-size:13px;color:var(--muted);padding-top:12px}
+.dn small{display:block;font-weight:600;font-size:11px}
+.stack{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.slot{min-height:56px;display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:var(--r-ctl);border:1px dashed var(--border);color:var(--muted);font-size:13px;background:none;text-align:left;width:100%}
+.slot b{color:var(--accent)}
+.blocked.once{background:color-mix(in srgb,var(--accent) 22%,var(--surface));border-color:var(--accent);color:var(--fg);font-weight:700}
+.blocked{min-height:56px;display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:var(--r-ctl);color:var(--muted);font-size:13px;border:1px solid var(--border);background:none;text-align:left;width:100%}
+.mc{display:flex;gap:10px;align-items:center;min-height:60px;padding:8px 10px;border-radius:var(--r-ctl);background:var(--surface);border:1px solid var(--border);text-align:left;width:100%;position:relative}
+.mc.mine{cursor:grab;touch-action:pan-y;user-select:none;-webkit-user-select:none;transition:transform .15s}
+.mc.theirs{background:color-mix(in srgb,var(--surface) 70%,var(--bg))}
+.mc.drag{opacity:.9;box-shadow:0 8px 20px rgba(0,0,0,.3);z-index:8;transition:none}.mc.sw{transition:none}
+.mc[data-swipe]::before{content:attr(data-swipe-label);position:absolute;inset:0;display:flex;align-items:center;justify-content:center;border-radius:inherit;font-weight:800;font-size:13px;color:#fff;z-index:2}
+.mc[data-swipe=left]::before{background:var(--danger)}.mc[data-swipe=right]::before{background:var(--accent);color:var(--on-accent)}
+.mc .e{font-size:24px;flex:none}
+.mc .t{min-width:0;flex:1}
+.mc b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mc small{display:block;color:var(--muted);font-size:11px}
+.chips{display:flex;gap:4px;flex-wrap:wrap;margin-top:3px}
+.tg{font-size:10.5px;font-weight:800;padding:1px 7px;border-radius:99px;border:1px solid var(--sage);color:var(--sage);white-space:nowrap}
+.tg{display:inline-flex;align-items:center;gap:3px}.tg svg{width:12px;height:12px;flex:none}
+.tg.miss{border-color:var(--danger);color:var(--danger)}
+.tg.also{border-color:var(--accent);color:var(--accent)}
+.av{width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex:none;border:2px solid var(--surface);background:var(--accent);color:var(--on-accent)}
+.av.j{background:var(--sage);color:var(--bg)}
+.av.all{background:var(--bg);color:var(--fg);border-color:var(--border);font-size:13px}
+.lock{position:absolute;right:8px;top:6px;font-size:11px;color:var(--muted)}
+.dots{margin-left:auto;width:36px;height:44px;border:0;background:none;color:var(--muted);font-size:18px;align-self:flex-start}
+.banner{display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:var(--r-card);border:1px solid var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--surface));margin-bottom:10px}
+.banner b{font-size:15px}.banner p{font-size:13px}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;min-height:var(--tap);padding:0 16px;border-radius:var(--r-pill);background:var(--accent);color:var(--on-accent);font-weight:800;border:0;font-size:14px}
+.btn.ghost{background:none;color:var(--fg);border:1px solid var(--border)}
+.row2{display:flex;gap:8px}.row2>*{flex:1}
+.sheet{position:absolute;left:0;right:0;bottom:0;max-height:88%;overflow:auto;background:var(--surface);border-top:1px solid var(--border);border-radius:var(--r-card) var(--r-card) 0 0;padding:16px 14px 18px;box-shadow:0 -10px 30px rgba(0,0,0,.25);z-index:5}
+.scrim{position:absolute;inset:0;background:var(--dim);z-index:4}
+.sheet h4{margin:0 0 2px;font:800 18px var(--head)}
+.lbl{font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:14px 0 4px}
+.ing{display:flex;align-items:center;gap:8px;min-height:44px;border-top:1px solid var(--border)}
+.ing:first-of-type{border-top:0}
+.ing.ind{padding-left:14px}.nm{flex:1;min-width:0;line-height:1.3}.ing.miss .nm{color:var(--danger)}.nm .q{color:var(--muted);font-size:13px;margin-left:4px}.was{color:var(--muted);font-size:13px}.was s{text-decoration-thickness:1.5px}.rt{margin-left:auto;display:flex;gap:6px;align-items:center}
+.mini{min-height:36px;min-width:36px;padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--border);background:none;font-size:12px;font-weight:700}
+.mini[aria-pressed=true]{border-color:var(--accent);color:var(--accent);box-shadow:0 0 0 1px var(--accent)}.mini.cart{padding:0;font-size:15px}.mini:disabled{opacity:.45;cursor:default}
+.ovt{font-size:11px;color:var(--muted);border-left:3px solid var(--accent);padding-left:6px;margin-bottom:2px}.mc.ro{cursor:default}.ib:disabled{opacity:.35}
+.lblrow{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;margin-top:14px}.lblrow .lbl{margin:0}
+.hint{font-size:12.5px;color:var(--muted);margin:2px 0 2px 14px}
+.srcbox{margin-top:10px;display:flex;flex-direction:column;gap:6px;align-items:flex-start}.lnk{background:none;border:0;padding:0;min-height:36px;color:var(--accent);font-weight:700;font-size:13px}
+.ppl{display:flex;align-items:center;gap:10px;margin-top:10px}.ppl b{min-width:18px;text-align:center}.ppl .mini{min-width:44px;min-height:44px;font-size:16px}
+.cslot{height:46px;margin-bottom:8px;overflow:hidden}
+.cslot.in{animation:push .4s ease-out both}
+@keyframes push{from{height:0;margin-bottom:0}to{height:46px;margin-bottom:8px}}
+.curtain{display:block;width:100%;height:46px;padding:0 14px;border:0;border-radius:var(--r-ctl);background:var(--accent);color:var(--on-accent);font-weight:800;font-size:14px;text-align:left}
+.cslot.in .curtain{animation:drop .4s ease-out both}
+.curtain.up{animation:lift .3s ease-in forwards}
+@keyframes drop{from{transform:translateY(-100%)}to{transform:none}}
+@keyframes lift{from{transform:none;opacity:1}to{transform:translateY(-100%);opacity:0}}
+@media(prefers-reduced-motion:reduce){.cslot.in,.cslot.in .curtain,.curtain.up{animation:none}.curtain.up{opacity:0}}
+.ib svg{width:20px;height:20px;display:block}
+.toast{position:absolute;left:10px;right:10px;bottom:12px;z-index:7;background:var(--fg);color:var(--bg);border-radius:var(--r-card);padding:12px 14px;font-size:13px}
+.toast .row2{margin-top:8px}.toast .btn{min-height:40px;background:var(--bg);color:var(--fg);font-size:13px}
+.toast .btn.ghost{background:none;color:var(--bg);border-color:var(--bg)}
+.bub{max-width:90%;padding:10px 12px;border-radius:var(--r-card);background:var(--bg);border:1px solid var(--border);margin:8px 0}
+.bub.me{margin-left:auto;background:var(--accent);color:var(--on-accent);border-color:var(--accent);font-weight:600}
+.cc{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.cc button{min-height:40px;padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--bg);font-weight:700;font-size:13px}
+.inp{display:flex;align-items:center;gap:8px;min-height:48px;padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--bg);color:var(--muted);margin-top:12px}.inp span{flex:1}
+.stl{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.stl button{min-width:44px;min-height:44px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-weight:700}
+.stl button[aria-pressed=true]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.perf{margin-top:18px;padding:14px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface)}.perf li,.qs li{margin:6px 0 6px 18px;color:var(--muted)}.perf b,.qs b{color:var(--fg)}
+.qs{margin-top:18px;padding:14px;border:1px dashed var(--border);border-radius:var(--r-card)}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Planning the week, AI-led</h1>
+<p>Fragment. One phone, several states, all live: tap a meal, drag it to another day, swipe it away, block a night, step through weeks. Sample data only. Nothing here is decided; every choice not spoken by the owner is marked <b>Proposal</b> below.</p>
+<div class="jump" id="jump" role="group" aria-label="Jump to a state"></div>
+<div class="stage2"><div class="ph" id="ph" aria-live="polite"></div><div id="say"></div></div>
+
+<div class="perf"><b>Owner's words (9 October 2026, voice)</b><ul>
+<li>Start phased: the first state is nothing. (Later the same day the owner dropped the permanent note in empty slots: decisions 14 and 15.)</li>
+<li><b>Copy last week</b> is something the assistant offers as an opening move, and (decision 16) a small icon beside the cog.</li>
+<li>Meals are <b>dragged between days</b>, and that is the only way to move one (decision 6). Days can be <b>blocked</b> (night out); a <b>Settings stencil</b> sets the usual days, and the grid only ever overrides one week (decision 4).</li>
+<li>Locking a meal ties it to a recipe: what is on hand can be <b>held</b> (a soft label, not stock maths); what is missing can go to the shopping list one item at a time, and the assistant is where a <b>substitute</b> is worked out (decisions 9, 11).</li>
+<li>A day holds <b>several meal cards</b> (one person on leftovers, another cooking). A whole-household meal is sized by the assistant for everyone; otherwise cards stack, told apart by <b>avatar</b>. Competing claims on one ingredient are made visible, not auto-resolved.</li>
+<li><b>Leftovers is a protected category.</b> People can rename it to whatever they like, but the app always knows it as Leftovers for its mechanics (no recipe, no reservation, no shopping), and it cannot be deleted.</li>
+<li><b>Nobody edits another person's plan.</b> Anyone can view anyone's, or focus on their own. Blocking is per person.</li>
+<li>A meal card shows <b>how many ingredients are missing</b> as a small count, enough to tap and sort out later (the card opens the split; the names are not on the card).</li></ul></div>
+
+<div class="perf" id="decisions"><b>Design decisions, 9 October 2026 (owner, by voice)</b> Applied to this mockup first; the live app follows once this is settled. Each is its own decision so it can be traced.<ol style="margin-left:18px">
+<li><b>Week limits.</b> Scrolling back stops at last week (nothing earlier is reachable). Planning ahead stops four weeks out from the current week.</li>
+<li><b>Week header gestures.</b> On the "Week of ..." header, a long-press jumps back to the current week and a tap steps forward one week. The left/right arrows stay alongside it.</li>
+<li><b>Not cooking, look.</b> Keep "Not cooking" (the moon was dropped later: decision 24). Remove the diagonal-slash fill; it was distracting.</li>
+<li><b>Blocking from the grid is one week only.</b> No "just this week or every Wednesday" choice on the grid. Repeating days are a Settings matter (the usual-days stencil).</li>
+<li><b>Open your assistant must open the app.</b> <i>Superseded by decision 17, which was withdrawn by decision 42; what the button does is open again.</i> (First said as a working deep link into the person's chosen assistant app, with no copy-to-clipboard fallback.)</li>
+<li><b>Moving a meal is drag only.</b> "Move to another day" and the day picker are gone from the meal sheet, on desktop and on touch alike, with no button fallback.</li>
+<li><b>Three meal-source states, labelled apart.</b> (a) An unmodified saved recipe: tap through to that recipe. (b) A saved recipe the assistant changed: labelled <b>Modified by assistant</b>; the substitution is locked to that plan entry, so on cook day the substitute is what is held, shown and shopped for. (c) A recipe invented on the fly with nothing saved behind it: labelled <b>Made up by your assistant</b>. <b>7(b) needs follow-up build work</b> (the entry carries its own ingredient list).</li>
+<li><b>Card meta line.</b> Just who and how many: "Everyone · 4 people". No "sized by your assistant" or "planned by you".</li>
+<li><b>Hold.</b> In the meal sheet the full-width "Reserve for Tuesday" button becomes a small <b>Hold</b> button to the right of the On hand heading. The on-hand items and their quantities are indented a little.</li>
+<li><b>Quantities follow the people count.</b> On-hand and missing quantities scale with the people count on the card. For assistant-made and modified entries the stored ingredient list must be per person (quantity per person) so it can scale later. <b>Data-model follow-up for the build</b>, not only a UI change.</li>
+<li><b>Missing ingredients.</b> No Substitute button. A plain hint line under the list: "Talk to your assistant about substitutes" (not tappable; the person is usually already talking to their assistant). Each missing item gets a small icon-only shopping-cart button, styled like Hold, to add just that item to the shopping list.</li>
+<li><b>Remove.</b> "Remove from the day" becomes "Remove"; the sheet already shows which meal and day.</li>
+<li><b>Swipe on a meal card.</b> Swipe left = Remove (the day stays open for replanning). Swipe right = Remove and mark the day Not cooking. Two different outcomes.</li>
+<li><b>Empty days carry no copy.</b> The permanent "speak to your assistant to lock something in" text is gone; the dashed outline is enough.</li>
+<li><b>Idle nudge.</b> After a stretch of doing nothing on a week with an empty day, a "curtain" drops and says <b>Plan with your AI assistant.</b> Never right when the plan opens. The owner's number: about five seconds.</li>
+<li><b>Copy last week is an icon.</b> A small persistent icon beside the settings cog, not a button in the main view. Pressing it again after it was applied clears what it copied.</li>
+<li><b>The assistant runs inside Kitchie.</b> <i>Withdrawn by decision 42.</i> "Open your assistant" is not an external deep link to a separate chat app; it is driven from inside Kitchie as an in-app agent. Supersedes decision 5. <b>Architecture note for the build</b>, beyond the mockup.</li>
+<li><b>View switch order.</b> Left to right: Mine, Everyone, then the named other person (Jane in the sample). Replaces Mine, Jane, Everyone.</li>
+<li><b>Nudge anchors below the switch.</b> The curtain drops from just under the Mine / Everyone / person row, not from the top of the screen.</li>
+<li><b>The curtain pushes the grid down.</b> It makes room for itself instead of covering the week.</li>
+<li><b>No jitter on the way out.</b> When the curtain lifts, the grid does not move back up with it; the space settles later (here: when the view or week changes, or after a pause).</li>
+<li><b>Modern Copy last week icon.</b> The old clipboard emoji ("1990s") is replaced with a clean line icon (two overlapping pages) drawn like the rest of the page's controls.</li>
+<li><b>Tap an empty night to mark it Not cooking.</b> On a night with no meal, a plain tap on the dashed slot sets Not cooking for this week; no menu needed. The three dots stay only on nights that already have a meal, where the swipe-right gesture also stays as it is.</li>
+<li><b>No moon.</b> The blocked night shows just the words "Not cooking", no icon. The swipe-right tint reads "Not cooking" (not "Remove and not cooking").</li>
+<li><b>Swipe left is Replan.</b> The word on the swipe-left tint is "Replan" instead of "Remove". The owner agreed it is the wording; the effect (meal removed, night stays open) is unchanged. Open: should Replan also open the assistant?</li>
+<li><b>Source labels only in the detail.</b> "Modified by assistant" and "Made up by your assistant" leave the card face and show only in the meal sheet; the card was too crowded.</li>
+<li><b>Symbolic pills.</b> The pills on a card are an icon plus a number, not words: missing (warning icon, count), on the shopping list (cart icon, count), held (bookmark). Same colours as before, from the theme. Full words stay in the accessible labels and the meal sheet.</li>
+<li><b>Item and quantity are one pair.</b> In On hand and Missing the quantity sits right after the item name, on the same line and baseline (no fixed column, which would jump around with name length). The vertical misalignment is fixed.</li>
+<li><b>Substitute hint under the Missing heading.</b> "Talk to your assistant about substitutes" sits directly under the heading, above the list.</li>
+<li><b>A substitution shows where the item is.</b> On a modified meal the substitute is the item on the row (on hand or missing), and what it replaced follows in brackets with a strike-through: carrots (<s>mushrooms</s>). This replaces the "mushrooms → carrots" line in the sheet. The quantity is the substitute's. The substitution is still locked to that plan entry (decision 7b).</li>
+<li><b>Last week is read-only.</b> A meal planned last week can be opened and looked at, not edited, moved, removed or held. Empty days there stay empty, with no way to plan into them. Settles the earlier open question ("yes, editable").</li>
+<li><b>A hold moves with its meal; removing the meal releases it.</b> Confirms what was drawn.</li>
+<li><b>A hold is a real claim.</b> Once one meal holds an ingredient, a second meal cannot hold it too (no double counting of what is on hand). Reverses the earlier drawn answer ("nobody is blocked; both cards show the tag"). Shown as a switched-off Hold button with a line naming what is already held, and a "held for Mon" tag on the row.</li>
+<li><b>A stencil day opened by hand shows it is an exception.</b> A usual day off that you cooked this week gets a small line, "Usual day off, cooking this week". The stencil is a default; a one-week override always wins and a planted card is never silently hidden. Reconfirmed.</li>
+<li><b>Three day states that cannot be mistaken for each other.</b> An empty night stays a dashed outline. A night blocked by hand for this week only is a solid filled block in the accent tint. A usual day off from the Settings stencil stays a plain outline with no fill. (A usual day cooked by hand keeps its small override line, decision 34.)</li>
+<li><b>This week's one-off block has its own colour.</b> It is filled, not dashed and not plain, so it reads at a glance as something done this week, not the recurring pattern.</li>
+<li><b>Edge cases kept.</b> Tapping a blocked night cooks it this week only (usual day: back to the override line; one-off block: back to dashed empty). The stencil is a default and a planted card is never hidden. Last week shows the same states but cannot be changed.</li>
+<li><b>Replan only removes the meal.</b> Swipe left removes the person's own meal and leaves the night open to plan again; it does not open the assistant. Other people's meals are locked and cannot be swiped.</li>
+<li><b>Modern settings icon.</b> The settings cog emoji becomes a line icon, matching the copy icon.</li>
+<li><b>No automatic household resizing.</b> A whole-household meal does not follow household size changes by itself. Changing who a meal is for is revised through the assistant (and the People stepper on the card), not automatically.</li>
+<li><b>Drag only is an accepted limitation.</b> People who cannot drag cannot move a meal; the owner accepts this for now.</li>
+<li><b>There is no in-app agent.</b> The product has no in-app agent any more. Decision 17 is withdrawn. The assistant is the person's own AI app, outside Kitchie, and the assistant sheet here is only a stand-in. Open: what "Open your assistant" does now (decision 43 keeps the button).</li>
+<li><b>The "Open your assistant" button stays.</b> The owner first said to remove it (superseded by the curtain nudge), then said keep it: the removal was a mistake. The button and the curtain nudge both stay. What the button does is decision 45.</li>
+<li><b>The week title keeps one width, so the next-week arrow never moves.</b> The arrow sits right beside the title (copy and settings stay at the far right). The title is as wide as the widest of the weeks the plan covers (last week to four weeks ahead), so changing week never moves the arrow. Owner, typed, 10 Oct 2026. (Decision 46.)</li>
+<li><b>The week you were on is remembered.</b> The app keeps the Monday date of the week the person was viewing in the browser's own storage (localStorage), so a reload, refresh or later visit opens on that week instead of snapping back to this week. It is used only if it is a Monday inside the plan window (last week to four weeks ahead); anything else, or storage that is blocked, opens on this week. It is written whenever the week changes (arrows, title tap, long-press back to this week). Nothing is sent to the server. The view (Mine, Everyone, a person) is not remembered. Owner, typed, 10 Oct 2026. (Decision 47.)</li>
+<li><b>The button opens the person's default AI app.</b> It does nothing else: no in-app agent, no chat inside Kitchie. It opens whatever AI app the person has set as their default. The assistant sheet in this mockup is only a stand-in for that app. Settles decision 5.</li>
+<li><b>Data-model work is scoped to the plan's weeks.</b> Locked substitutions (7b) and per-person ingredient lists (10) are only built and stored for the weeks the plan covers: last week up to four weeks ahead. Nothing is stored or migrated outside that window.</li><li><b>One compact strip replaces the Mine / Everyone / People pill.</b> The wide pill and its "People" dropdown are gone. One thin row holds Mine and Everyone (the two defaults, set apart by thin dotted dividers, little padding, not hard pipes) and then every household member as their own chip. Swipe the row to the right to reach more people. One chevron at the right end opens the strip into wrapped rows so everyone is visible at once, packed with no white gaps (each row stretches to the full width), at most five rows; past five the opened area scrolls. The chevron turns up and closes it. It shows only when the row cannot hold everyone. Same control, same behaviour, wherever the switch appears. Owner, voice, 10 Oct 2026 ("it's taking too much real estate"). Supersedes decision 18's picker for three or more people. (Decision 48.)</li></li></ol></div>
+
+<div class="perf"><b>Follow-up work beyond the mockup</b> (these touch the real Kitchie backend and app)<ul>
+<li><b>Decisions 5, 17, 42, 43 and 45.</b> No in-app agent (42). The button stays (43) and opens the person's default AI app (45); build it as a launch of that app. Nothing left open here.</li>
+<li><b>Decision 7(b).</b> A modified entry carries its own locked ingredient list; reservation and the shopping list read that list, not the recipe's. Only for the weeks the plan covers (44).</li>
+<li><b>Decision 10.</b> Store assistant-made and modified ingredient lists per person, so quantities scale when the people count changes. Only for the weeks the plan covers (44).</li></ul></div>
+
+<div class="perf"><b>Proposals</b> (owner silent)<ul>
+<li>Week shown Monday to Sunday, dinner only (as in the four-direction mockup).</li>
+<li>Strip details (decision 48), all <b>Proposal</b>: chips are 36px high (below the 44px touch guide, to save height; the row is the only thing that thin); a long name is cut at about 9rem with an ellipsis, its full name on the accessible label; picking anyone closes an opened strip and brings the chosen chip into view; the soft fade at an edge says there is more to scroll; the order after Everyone is the household's order; with one other person the strip simply has three chips and no chevron; the dividers are dotted, drawn after Mine and after Everyone only. The chevron opens only when the row cannot hold everyone.</li>
+<li>Mine / Everyone / Jane switch at the top of the grid (order is the owner's, 9 Oct): Mine is where blocking and the idle nudge apply; Jane (or any other member) shows just that person's plan, view-only; Everyone stacks all of them.</li>
+<li>Week header: the earlier fragment had no arrows, so small ‹ › buttons are drawn (greyed at the limits) and a small label under the title says This week, Next week, In 3 weeks. The sample plan exists only for this week; the Settings stencil applies to every week.</li>
+<li>Gestures: moving up or down drags to another day (a short press first on touch, so scrolling still works); sideways swipes. A swipe commits past about 90 px and tints the card with what it will do.</li>
+<li>Idle nudge: once per visit, only in Mine with an open night; it drops from under the switch and pushes the week down, any action dismisses it, tapping it opens the assistant. With reduced motion it simply appears.</li>
+<li>With the banner gone, the assistant has one full-width "Open your assistant" button under the switch, plus the curtain nudge. Tapping an empty night now marks it Not cooking.</li>
+<li>People count is a plain stepper in the meal sheet (owner earlier: editable per meal). The per-person quantities in the sample are invented.</li>
+<li>Hold is one tap for all on-hand ingredients and taps back off. The state word on cards and rows is "Held" (the owner said Hold for the button; the state word is mine).</li>
+<li>The indent applies to the Missing items too, so the two lists line up.</li>
+<li>Copy last week again removes only the cards it added and that have not been touched since.</li>
+<li>The conflict is shown on the on-hand row as an orange "held for Mon" tag, and Hold is switched off with a short line; no dialog. Holds count across weeks, and a Jane-planned meal holds the same way.</li>
+<li>Last week's sample plan (Monday to Thursday) exists so the read-only state can be seen; Copy last week and Open your assistant are switched off there.</li>
+<li>Blocked days still show others' cards in Everyone view, with a small "Sam is out" mark. Dropping a meal on a blocked day is refused with a short message; dropping on a day that already has a card stacks it.</li>
+<li>Settings stencil: seven day buttons per person, "Usual days off cooking".</li></ul></div>
+
+<div class="qs"><b>Open questions</b> (and what a wrong guess costs: a redraw, nothing built)<ul>
+</ul></div>
+
+<div class="perf"><b>Performance note</b> (DESIGN.md section 6). <b>Default path loads:</b> this page, the shared theme, no images (emoji stand in for pictures). <b>Deferred in the real app:</b> the recipe's ingredient list and the pantry match load when a meal sheet opens, not with the week; the assistant conversation loads when the person taps the prompt. <b>Why reasonable:</b> most visits just look at the week.</div>
+</div>
+<script>
+var DN=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+var PANTRY={eggs:1,tomatoes:1,onion:1,rice:1,pasta:1,mushrooms:1,cream:1,stock:1,carrots:1,"chicken thighs":1};
+var R={shak:{e:"🥚",n:"Shakshuka",ing:["eggs","tomatoes","onion","feta"]},rice:{e:"🍳",n:"Egg fried rice",ing:["eggs","rice","onion"]},pasta:{e:"🍝",n:"Mushroom pasta",ing:["pasta","mushrooms","cream"]},fritt:{e:"🥬",n:"Spinach frittata",ing:["eggs","spinach","onion"]},soup:{e:"🍲",n:"Chicken soup",ing:["chicken thighs","carrots","onion","stock"]},stir:{e:"🥘",n:"Fridge stir-fry",ing:["rice","carrots","onion","eggs","soy sauce"],src:"made"},left:{e:"♻️",n:"Leftovers: pasta",ing:[],src:"left"}};
+/* quantity per person (sample numbers). Real assistant-made entries must store this shape too (decision 10). */
+var QPP={eggs:[1,""],tomatoes:[100,"g"],onion:[.5,""],feta:[30,"g"],rice:[75,"g"],pasta:[90,"g"],mushrooms:[60,"g"],cream:[30,"ml"],spinach:[50,"g"],"chicken thighs":[1,""],carrots:[1,""],stock:[250,"ml"],"soy sauce":[15,"ml"]};
+var ME="Sam",ALL=4,WMIN=-1,WMAX=4;
+var LAST=[["Mon","shak","Sam"],["Tue","rice","all"],["Wed","pasta","Sam",{mushrooms:"carrots"}],["Thu","fritt","Sam"],["Fri","soup","Sam"],["Sat","stir","Sam"]];
+var MANY=["Jane","Priya","Tom","Alexandra","Mohammed","Li","Sophie","Daniel","Aroha","Chen","Fatima","Maximilian"],MORE=["Ben","Zoe","Ola","Kwame","Ines","Hugo","Mei","Sven","Noor","Paz","Rhys","Una","Vik","Wren","Yara","Zed","Abe","Bea","Cy","Dot","Eli","Fay","Gus","Ivy","Jo","Kit","Lou","Max","Nia","Oz","Pip","Quin","Ravi","Sia","Tess"];
+var S;var GT=null,uid=0,DRAWT=0,LASTG=0,NT=null,TT=null,LP=null,G=null;
+function fresh(){return {gap:false,gapAnim:false,view:"mine",wk:0,cards:[],ov:{},people:["Jane"],segOpen:false,segX:0,stencil:{Sam:["Fri"],Jane:["Sun"]},sheet:null,chat:false,settings:false,toast:null,over:null,msgs:[],nudge:false,nudgeDone:false,copied:{}}}
+S=fresh();
+function card(day,r,who,forw,mod){var f=forw||(who==="all"?"all":who);return {id:++uid,day:day,wk:S.wk,r:r,by:who,forw:f,n:f==="all"?ALL:1,res:false,mod:mod||null,fromCopy:false}}
+function me(c){return c.by===ME}
+function ings(c){var b=R[c.r].ing;return c.mod?b.map(function(i){return c.mod[i]||i}):b}
+function orig(c,i){if(!c.mod)return null;var k=Object.keys(c.mod).filter(function(x){return c.mod[x]===i})[0];return k||null}
+function nm(c,i){var o=orig(c,i);return '<span class="nm">'+esc(i)+(o?' <span class="was">(<s>'+esc(o)+'</s>)</span>':'')+' <span class="q">'+qty(i,c.n)+'</span></span>'}
+function srcOf(c){return c.mod?"mod":(R[c.r].src||"saved")}
+function missing(c){return ings(c).filter(function(i){return !PANTRY[i]})}
+function onhand(c){return ings(c).filter(function(i){return PANTRY[i]})}
+function ro(){return S.wk<0}
+function dateFor(wk,day){var d=new Date(2026,9,12+7*wk+DN.indexOf(day));return d.getDate()+" "+MON[d.getMonth()]}
+function heldBy(c,i){var o=S.cards.filter(function(x){return x.id!==c.id&&x.res&&ings(x).indexOf(i)>-1})[0];return o?(o.wk===c.wk?o.day:dateFor(o.wk,o.day)):null}
+function conflicts(c){return onhand(c).filter(function(i){return heldBy(c,i)})}
+function seedPast(){var w=S.wk;S.wk=-1;[["Mon","shak","Sam"],["Tue","rice","all"],["Wed","pasta","Sam"],["Thu","fritt","Sam"]].forEach(function(l){S.cards.push(card(l[0],l[1],"Sam",l[2]==="all"?"all":"Sam"))});S.wk=w}
+function also(c,ing){return S.cards.filter(function(o){return o.id!==c.id&&o.wk===c.wk&&o.res&&ings(o).indexOf(ing)>-1}).map(function(o){return o.day+", "+(o.by==="Jane"?"Jane":o.by==="Sam"?"you":"all")})}
+function qty(i,n){var p=QPP[i];if(!p)return"";var v=p[0]*n;if(p[1])return Math.round(v/5)*5+" "+p[1];var w=Math.floor(v),f=v-w;return (f>=.25&&f<.75)?(w?w+"½":"½"):String(Math.round(v))}
+function who(c){return c.forw==="all"?"Everyone":c.forw}
+function meta(c){return who(c)+" · "+c.n+(c.n===1?" person":" people")}
+function dateW(w,i){var d=new Date(2026,9,12+7*w+i);return d.getDate()+" "+MON[d.getMonth()]}
+function labelW(w){return w===0?"This week":w===-1?"Last week":w===1?"Next week":"In "+w+" weeks"}
+function dateOf(i){return dateW(S.wk,i)}
+function wkLabel(){return labelW(S.wk)}
+// decision 46: the title is as wide as the widest of the weeks the plan covers (hidden copies share its cell), so the right arrow beside it never moves.
+function ghosts(){var h="";for(var w=WMIN;w<=WMAX;w++)h+='<span class="gh" aria-hidden="true"><b>Week of '+dateW(w,0)+'</b><small>'+labelW(w)+'</small></span>';return h}
+function setWk(n){S.wk=Math.max(WMIN,Math.min(WMAX,n));keepWk()}
+// decision 47: the week the person was on is kept in this browser (localStorage) as its Monday date, so a reload opens on it. Every read and write is in try/catch (storage can be blocked: it then opens on this week). Nothing leaves the browser. The jump buttons below set their own week and do not write it.
+function isoW(w){var d=new Date(2026,9,12+7*w),m=d.getMonth()+1,n=d.getDate();return d.getFullYear()+"-"+(m<10?"0":"")+m+"-"+(n<10?"0":"")+n}
+function keepWk(){try{window.localStorage.setItem("pw-week",isoW(S.wk))}catch(e){}}
+function savedWk(){try{var v=window.localStorage.getItem("pw-week");if(v)for(var w=WMIN;w<=WMAX;w++)if(isoW(w)===v)return w}catch(e){}return 0}
+function av(w){if(w!=="Sam"&&w!=="Jane"&&w!=="all"&&w)return '<span class="av j" title="'+esc(w)+'">'+esc(w.charAt(0))+'</span>';return w==="Sam"?'<span class="av" title="Sam">S</span>':w==="Jane"?'<span class="av j" title="Jane">J</span>':'<span class="av all" title="Everyone">👥</span>'}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;")}
+function okey(day,p,wk){return (wk===undefined?S.wk:wk)+"|"+p+"|"+day}
+function isBlocked(day,p,wk){var k=okey(day,p,wk);if(k in S.ov)return S.ov[k];return (S.stencil[p]||[]).indexOf(day)>-1}
+function person(){return S.view!=="mine"&&S.view!=="all"}
+function pill(cls,ic,n,label){return '<span class="tg '+cls+'" role="img" aria-label="'+label+'">'+ic+(n===""?"":n)+'</span>'}
+function cardHtml(c){var r=R[c.r],m=missing(c),sh="",mine=me(c),sr=srcOf(c),nl=Object.keys(c).filter(function(k){return k.indexOf("l_")===0&&c[k]}).length;
+ if(m.length)sh+=pill("miss",IMISS,m.length,m.length+" ingredients missing. Open to resolve");
+ if(nl)sh+=pill("also",ICART,nl,nl+" on the shopping list");
+ if(c.res)sh+=pill("",IHELD,"","Held");
+ var rw=ro();return '<button class="mc '+(rw?"ro":mine?"mine":"theirs")+'" data-card="'+c.id+'" aria-label="'+esc(r.n)+', '+c.day+', '+meta(c)+(rw?", last week, view only":mine?". Drag to another day. Swipe left to replan, right to mark not cooking.":", planned by Jane, view only")+'"><span class="e">'+r.e+'</span><span class="t"><b>'+esc(r.n)+'</b><small>'+meta(c)+'</small>'+(sh?'<span class="chips">'+sh+'</span>':'')+'</span>'+av(c.by)+((mine||rw)?'':'<span class="lock" aria-hidden="true">🔒</span>')+'</button>'}
+function dayHtml(d,i){
+ var cs=S.cards.filter(function(c){return c.wk===S.wk&&c.day===d&&(S.view==="all"||(person()?c.by===S.view:me(c)))});
+ var h='<div class="day'+(S.over===d?" over":"")+'" data-day="'+d+'"><div class="dn">'+d+'<small>'+dateOf(i)+'</small></div><div class="stack">';
+ var b=isBlocked(d,ME),rw=ro();
+ if(S.view==="mine"&&!rw&&!b&&S.stencil.Sam.indexOf(d)>-1&&S.ov[okey(d,ME)]===false)h+='<div class="ovt">Usual day off, cooking this week</div>';
+ var once=b&&S.ov[okey(d,ME)]===true&&S.stencil.Sam.indexOf(d)<0;
+ if(S.view==="mine"&&b&&rw)h+='<div class="blocked'+(once?' once':'')+'"><span>Not cooking</span></div>';
+ else if(S.view==="mine"&&b)h+='<button class="blocked'+(once?' once':'')+'" data-unblock="'+d+'" aria-label="Not cooking '+d+(once?', this week only':', usual day off')+'. Tap to cook this week"><span>Not cooking</span></button>';
+ else if(S.view==="all"&&b&&!cs.some(me))h+='<div class="blocked" style="min-height:36px"><span>'+av("Sam")+' Sam is out</span></div>';
+ cs.forEach(function(c){h+=cardHtml(c)});
+ var pv=person()?S.view:"Jane",jb=isBlocked(d,pv);if((S.view==="all"||person())&&jb&&!cs.some(function(c){return c.by===pv}))h+='<div class="blocked" style="min-height:36px"><span>'+av(pv)+' '+esc(pv)+' is out</span></div>';
+ if(person()){if(!cs.length&&!jb)h+='<div class="blocked" style="min-height:36px;opacity:.7"><span>Nothing planned by '+esc(S.view)+'</span></div>'}
+ else if(!cs.length&&!(S.view==="mine"&&b)&&rw)h+='<div class="slot" aria-hidden="true"></div>';
+ else if(!cs.length&&!(S.view==="mine"&&b))h+='<button class="slot" data-blk="'+d+'" aria-label="Not cooking on '+d+', this week only"></button>';
+ h+='</div>';
+ if(S.view==="mine"&&!rw&&!b&&cs.length)h+='<button class="dots" data-blk="'+d+'" aria-label="Not cooking on '+d+', this week only">⋯</button>';
+ return h+'</div>'}
+var IMISS='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.3"/></svg>';
+var ICART='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M3 4h2.5l2.2 11h10.6l2-8H6.2"/></svg>';
+var IHELD='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v16l-5-3.5L7 20z"/></svg>';
+var ICOG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>';
+var ICOPY='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6.5A2.5 2.5 0 0 1 7.5 4H15"/></svg>';
+function slotHtml(){if(S.nudge)return '<div class="cslot in"><button class="curtain" data-nudge>✦ Plan with your AI assistant.</button></div>';if(S.gap)return '<div class="cslot">'+(S.gapAnim?'<button class="curtain up" tabindex="-1" aria-hidden="true">✦ Plan with your AI assistant.</button>':'')+'</div>';return ''}
+function headHtml(){var cp=!!S.copied[S.wk];
+ return '<div class="top"><button class="ib sm" data-wk="-1" aria-label="Previous week"'+(S.wk<=WMIN?' disabled':'')+'>‹</button>'
+ +'<button class="wkh" data-wkhd aria-label="Week of '+dateOf(0)+'. Tap for next week. Hold to return to this week."><span><b>Week of '+dateOf(0)+'</b><small>'+wkLabel()+'</small></span>'+ghosts()+'</button>'
+ +'<button class="ib sm" data-wk="1" aria-label="Next week"'+(S.wk>=WMAX?' disabled':'')+'>›</button>'
+ +'<button class="ib" data-act="copy"'+(ro()?' disabled':'')+' aria-pressed="'+cp+'" aria-label="Copy last week'+(cp?' (applied, press again to clear)':'')+'" title="Copy last week">'+ICOPY+'</button>'
+ +'<button class="ib" data-act="stencil" aria-label="Settings, usual days">'+ICOG+'</button></div>'
+ +segHtml()
+ +slotHtml()
+ +((person()||ro())?'':'<div style="margin-bottom:6px"><button class="btn ghost" style="width:100%" data-act="chat">✦ Open your assistant</button></div>')}
+function sheetHtml(){var c=S.cards.filter(function(x){return x.id===S.sheet})[0];if(!c)return"";var r=R[c.r],mine=me(c)&&!ro(),sr=srcOf(c);
+ var h='<div class="scrim" data-close></div><div class="sheet" role="dialog" aria-label="'+esc(r.n)+'"><h4>'+r.e+' '+esc(r.n)+'</h4><p style="font-size:13px">'+c.day+' · '+meta(c)+'</p>';
+ if(!mine)h+='<p class="tg" style="display:inline-block;margin-top:8px;border-color:var(--border);color:var(--muted)">'+(ro()?'🔒 Last week is read-only. You can look, not change.':'🔒 Jane planned this. You can look, not change.')+'</p>';
+ if(sr==="saved")h+='<div class="srcbox"><button class="lnk" data-act="viewrec">📖 View recipe ›</button></div>';
+ if(sr==="mod"){h+='<div class="srcbox"><span class="tg also">Modified by assistant</span><span style="font-size:13px">Swaps are kept with this meal on '+c.day+' and shown on the rows below.</span><button class="lnk" data-act="viewrec">📖 View original recipe ›</button></div>'}
+ if(sr==="made")h+='<div class="srcbox"><span class="tg also">Made up by your assistant</span><span style="font-size:13px">Not a saved recipe.</span></div>';
+ if(mine&&sr!=="left")h+='<div class="ppl"><span class="lbl" style="margin:0">People</span><button class="mini" data-act="ppl" data-d="-1" aria-label="Fewer people"'+(c.n<=1?' disabled':'')+'>−</button><b>'+c.n+'</b><button class="mini" data-act="ppl" data-d="1" aria-label="More people"'+(c.n>=8?' disabled':'')+'>+</button></div>';
+ var oh=onhand(c),ms=missing(c);
+ if(oh.length){h+='<div class="lblrow"><div class="lbl">On hand</div>'+(mine?'<button class="mini" data-act="hold" aria-pressed="'+!!c.res+'"'+((!c.res&&conflicts(c).length)?' disabled':'')+'>'+(c.res?"Held":"Hold")+'</button>':'')+'</div>'+((mine&&!c.res&&conflicts(c).length)?'<p class="hint">'+esc(conflicts(c).join(", "))+' already held for another meal.</p>':'');
+  oh.forEach(function(i){var a=heldBy(c,i);h+='<div class="ing ind">'+nm(c,i)+'<span class="rt">'+(a?'<span class="tg also">held for '+esc(a)+'</span>':'')+'</span></div>'})}
+ if(ms.length){h+='<div class="lbl">Missing</div><p class="hint">Talk to your assistant about substitutes</p>';ms.forEach(function(i){h+='<div class="ing ind miss">'+nm(c,i)+'<span class="rt">'+(mine?'<button class="mini cart" data-act="addlist" data-i="'+esc(i)+'" aria-pressed="'+!!c["l_"+i]+'" aria-label="'+(c["l_"+i]?esc(i)+' is on the shopping list':'Add '+esc(i)+' to the shopping list')+'">'+(c["l_"+i]?"✓":"🛒")+'</button>':'')+'</span></div>'});
+  }
+ if(sr==="left")h+='<p class="tg" style="display:inline-block;margin-top:8px;border-color:var(--border);color:var(--muted)">🔒 Category: Leftovers (protected)</p>';
+ if(!oh.length&&!ms.length)h+='<p style="margin-top:10px;font-size:13px">Leftovers need no shopping and no reservation.</p>';
+ if(mine)h+='<button class="btn ghost" style="width:100%;margin-top:14px" data-act="remove">Remove</button>';
+ return h+'</div>'}
+function chatHtml(){var h='<div class="scrim" data-close></div><div class="sheet" role="dialog" aria-label="Assistant"><h4>✦ Your assistant</h4><p style="font-size:12px;color:var(--muted)">Mockup stand-in for the person\'s own AI app, which lives outside Kitchie. There is no in-app agent.</p><div class="bub">Planning next week? Want me to start from last week\'s plan? I will leave your usual days off alone.</div>';
+ S.msgs.forEach(function(m){h+='<div class="bub'+(m[0]==="me"?" me":"")+'">'+esc(m[1])+'</div>'});
+ h+='<div class="cc"><button data-act="chatcopy">Yes, copy last week</button><button data-act="chatfresh">Start fresh</button><button data-act="chatjane">Jane is cooking Thursday, I will have leftovers</button></div><div class="inp"><span>Or say: "I am out Wednesday"</span>🎤</div></div>';return h}
+function settingsHtml(){var h='<div class="scrim" data-close></div><div class="sheet" role="dialog" aria-label="Usual days"><h4>Meal planning</h4><p style="font-size:13px">Usual days off cooking. Each week starts with these blocked. Repeating days are set only here; the grid changes one week at a time.</p>';
+ ["Sam","Jane"].forEach(function(p){h+='<div class="lbl">'+(p==="Sam"?"You (Sam)":"Jane")+(p!=="Sam"?" · only Jane can change":"")+'</div><div class="stl">'+DN.map(function(d){return '<button '+(p!=="Sam"?'disabled style="opacity:.55"':'data-stl="'+d+'"')+' aria-pressed="'+(S.stencil[p].indexOf(d)>-1)+'">'+d+'</button>'}).join("")+'</div>'});
+ h+='<div class="lbl">Categories</div><div class="ing"><span>🔒 Leftovers</span><button class="mini" disabled style="opacity:.6;margin-left:auto">Rename</button></div><p style="font-size:12px;color:var(--muted);margin-top:4px">Rename it to anything. It can never be deleted, and the app still treats it as Leftovers.</p>';
+ return h+'<button class="btn" style="width:100%;margin-top:10px" data-close>Done</button></div>'}
+function hasOpenDay(){return DN.some(function(d){return !isBlocked(d,ME)&&!S.cards.some(function(c){return c.wk===S.wk&&c.day===d&&me(c)})})}
+function canNudge(){return S.view==="mine"&&!ro()&&!S.sheet&&!S.chat&&!S.settings&&!S.toast&&!S.nudge&&!S.nudgeDone&&hasOpenDay()}
+function armNudge(){clearTimeout(NT);if(canNudge())NT=setTimeout(function(){if(canNudge()){S.nudge=true;S.nudgeDone=true;draw()}},5000)}
+function closeNudge(){S.nudge=false;S.gap=true;S.gapAnim=true;clearTimeout(GT);GT=setTimeout(function(){if(S.gap){S.gap=false;draw()}},6000)}
+var ICHEV='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+/* decision 48. One component for every count of people: no dropdown. fit() shows the chevron only when the row cannot hold everyone. */
+function segHtml(){var h='<button data-view="mine" aria-pressed="'+(S.view==="mine")+'">Mine</button><i class="sd" aria-hidden="true"></i><button data-view="all" aria-pressed="'+(S.view==="all")+'">Everyone</button>';
+ if(S.people.length)h+='<i class="sd" aria-hidden="true"></i>';
+ S.people.forEach(function(n){h+='<button data-view="'+esc(n)+'" aria-pressed="'+(S.view===n)+'">'+esc(n)+'</button>'});
+ return '<div class="seg'+(S.segOpen?' open':'')+'" role="group" aria-label="View"><div class="segl">'+h+'</div><button class="segx" data-segx aria-expanded="'+S.segOpen+'" aria-label="'+(S.segOpen?'Show fewer':'Show everyone')+'" hidden>'+ICHEV+'</button></div>'}
+function fade(l){l.classList.toggle("fl",!S.segOpen&&l.scrollLeft>1);l.classList.toggle("fr",!S.segOpen&&l.scrollLeft+l.clientWidth<l.scrollWidth-1)}
+function fit(){var sg=document.querySelector("#ph .seg");if(!sg)return;var l=sg.querySelector(".segl"),x=sg.querySelector(".segx"),was=sg.classList.contains("open");
+ sg.classList.remove("open");var over=l.scrollWidth>l.clientWidth+1;if(was)sg.classList.add("open");
+ x.hidden=!over;if(!over&&was)sg.classList.remove("open");
+ if(!S.segOpen){l.scrollLeft=S.segX;if(S.segShow){var b=l.querySelector('[aria-pressed=true]');if(b){var a=b.offsetLeft-8,z=b.offsetLeft+b.offsetWidth+8;if(a<l.scrollLeft)l.scrollLeft=a;else if(z>l.scrollLeft+l.clientWidth)l.scrollLeft=z-l.clientWidth}}S.segX=l.scrollLeft}
+ S.segShow=false;fade(l);l.onscroll=function(){if(!S.segOpen)S.segX=l.scrollLeft;fade(l)}}
+function draw(){var ph=document.getElementById("ph");
+ var sl=ph.querySelector(".segl");if(sl&&!S.segOpen)S.segX=sl.scrollLeft;var scroll=ph.querySelector(".sc");var st=scroll?scroll.scrollTop:0;
+ var over=!!(S.sheet||S.chat||S.settings);if(over)S.gap=false;
+ ph.innerHTML='<div class="sc">'+headHtml()+DN.map(dayHtml).join("")+'</div>'+(S.sheet?sheetHtml():S.chat?chatHtml():S.settings?settingsHtml():"")+""+(S.toast?'<div class="toast" role="status">'+S.toast+'</div>':"");
+ DRAWT=Date.now();S.gapAnim=false;
+ var n=ph.querySelector(".sc");if(n)n.scrollTop=st;fit();
+ var jm={empty:"1 Empty",copy:"2 After copy",jane:"3 Jane planned too",sheet:"4 Lock in a meal",block:"5 Block a night",stencil:"6 Usual days",all:"7 Everyone view",sources:"8 Where a meal came from",nudge:"9 Idle nudge",weeks:"10 Week limits",override:"11 Usual day, cooked",past:"12 Last week",people:"13 Many people",crowd:"14 Whole street"};
+ document.getElementById("jump").innerHTML=Object.keys(jm).map(function(k){return '<button data-jump="'+k+'" aria-pressed="'+(S.at===k)+'">'+jm[k]+'</button>'}).join("");
+ document.getElementById("say").innerHTML='<div class="say"><h2>'+(NOTE[S.at]||NOTE.x)[0]+'</h2><p>'+(NOTE[S.at]||NOTE.x)[1]+'</p></div>';
+ armNudge()}
+var NOTE={empty:["Nothing yet, no copy","Empty nights are only a dashed outline (owner, 9 Oct). Friday shows as a usual day off, from the Settings stencil. Ways in: Open your assistant and the curtain that drops after about five idle seconds (jump to 9)."],
+copy:["Copy last week","The clipboard icon beside the cog fills your unblocked days from last week, and pressing it again clears what it added. Friday's soup was skipped because Friday is your usual day off. The red count on a card is how many ingredients are missing."],
+jane:["Two people, one day","Jane's cards are view-only (lock mark) and carry her avatar. Thursday has two cards, her leftovers and your frittata; Everyone view shows them stacked."],
+sheet:["Locking in a meal","Hold is a small button beside On hand; it is a real claim, so it is switched off when another meal already holds the same ingredient (the frittata can't hold eggs or onion while Monday's shakshuka does). Each missing item has its own cart button, with a plain hint to talk to your assistant about substitutes. Quantities follow the people count. The orange tag on a row says which meal holds it."],
+block:["Blocking a night","A night blocked just for this week is a solid filled block (Wednesday here); a usual day off from Settings is a plain outline (Friday); an empty night is dashed. Tap an empty night to mark it Not cooking, or use the three dots or a swipe right on a night that has a meal. One week only. Repeating days are only in Settings. Block is yours only; Jane's days are untouched."],
+stencil:["Usual days off, in Settings","Per person. The same home as renaming categories. Jane's row is read-only for you."],
+all:["Everyone's plan","Same grid, all cards. Others' cards are marked and locked. Tap Jane to look at only her plan (also view-only), or Mine to plan and block."],
+sources:["Where a meal came from","Wednesday is a saved recipe the assistant changed: swaps are kept with that day's meal. Saturday was made up on the spot. Other cards link straight to their saved recipe. Open each to see the sheet."],
+nudge:["Idle nudge","After about five seconds of nothing on a week with an open night, a curtain drops from under the switch and pushes the week down: Plan with your AI assistant. It never shows on open, and only once per visit. Any action lifts it; the week stays put until the view or week changes, so nothing jitters."],
+weeks:["Week limits","Back as far as last week (read-only), ahead four weeks. Tap the title to step forward, hold it to jump to this week; the arrows still step. Settings stencil days apply in every week. The week you were on is remembered in this browser, so a reload opens on it (the jump buttons here still set their own week)."],
+override:["A usual day off, cooked this week","Friday is a usual day off, but this week it was opened by hand. A small line marks it as an exception to the usual pattern; next week it is blocked again. The stencil is a default, and a one-week override always wins."],
+past:["Last week is read-only","Meals planned last week can be opened and looked at, nothing more: no moving, removing, holding or editing. Empty days stay empty with no way to plan into them, and Copy last week and Open your assistant are off here."],
+people:["Many people, one row","Mine and Everyone first, split by a dotted divider, then each person as a chip. Swipe the row right to reach more; the soft edge shows there is more, and the chevron at the right opens them all as packed rows. Pick someone and the row closes again with their chip in view."],
+crowd:["A whole street (cap of five rows)","The chevron opens the row into wrapped, packed rows: each chip is only as wide as its name and the rows stretch to the full width, so no gaps. Five rows is the most it takes; past that the opened area scrolls. The chevron turns up to close it."],
+x:["Try it","Drag a card to another day, tap an empty night to mark it not cooking, swipe it left (replan) or right (not cooking), or tap it. Tap or hold the week title."]};
+function pushToast(t){S.toast=t;clearTimeout(TT);TT=setTimeout(function(){S.toast=null;draw()},3500)}
+function copyLast(){var sk=[];LAST.forEach(function(l){var w=l[2];if(w==="Sam"&&isBlocked(l[0],ME)){sk.push(l[0]);return}if(S.cards.some(function(c){return c.wk===S.wk&&c.day===l[0]&&c.r===l[1]&&c.by===ME}))return;var c=card(l[0],l[1],"Sam",w==="all"?"all":"Sam",l[3]);c.fromCopy=true;S.cards.push(c)});S.copied[S.wk]=true;S.at="copy";return sk}
+function clearCopied(){S.cards=S.cards.filter(function(c){return !(c.wk===S.wk&&c.fromCopy)});S.copied[S.wk]=false}
+function jane(){S.cards.push(card("Wed","pasta","Jane","Jane"));S.cards.push(card("Thu","left","Jane","Jane"))}
+function go(k){S=fresh();S.at=k;clearTimeout(TT);seedPast();
+ if(k==="copy"||k==="sheet"||k==="block"||k==="all"||k==="jane"||k==="sources"){copyLast()}
+ if(k==="jane"||k==="sheet"||k==="all")jane();
+ if(k==="jane"||k==="all")S.view="all";
+ if(k==="sheet"){var c=S.cards.filter(function(x){return x.wk===0&&x.r==="fritt"})[0];S.cards.filter(function(x){return x.wk===0&&x.r==="shak"})[0].res=true;S.sheet=c.id}
+ if(k==="sources"){S.at="sources";S.sheet=S.cards.filter(function(x){return x.wk===0&&x.r==="pasta"})[0].id}
+ if(k==="block"){S.ov[okey("Wed",ME,0)]=true;S.cards=S.cards.filter(function(c){return !(c.day==="Wed"&&me(c))});pushToast("Not cooking Wed, this week only. Usual days are set in Settings.")}
+ if(k==="override"){S.ov[okey("Fri",ME,0)]=false;copyLast();S.at="override"}
+ if(k==="past")S.wk=-1;
+ if(k==="people")S.people=MANY.slice(0,12);
+ if(k==="crowd"){S.people=MANY.concat(MORE);S.segOpen=true}
+ if(k==="stencil")S.settings=true;
+ if(k==="nudge"){S.nudge=true;S.nudgeDone=true}
+ if(k==="weeks")S.wk=WMAX;
+ draw()}
+document.getElementById("jump").addEventListener("click",function(e){var b=e.target.closest("[data-jump]");if(b)go(b.dataset.jump)});
+var ph=document.getElementById("ph");
+function curCard(){return S.cards.filter(function(c){return c.id===S.sheet})[0]}
+ph.addEventListener("click",function(e){var t=e.target;
+ if(Date.now()-LASTG<400)return;
+ var x,was=S.nudge;
+ if(x=t.closest("[data-nudge]")){S.nudge=false;S.gap=false;S.chat=true}
+ else{if(S.nudge)closeNudge();
+ if(x=t.closest("[data-wk]")){S.gap=false;setWk(S.wk+Number(x.dataset.wk))}
+ else if(t.closest("[data-wkhd]")){S.gap=false;setWk(S.wk+1)}
+ else if(t.closest("[data-segx]")){S.gap=false;S.segOpen=!S.segOpen;S.segShow=!S.segOpen}
+ else if(x=t.closest("[data-view]")){S.gap=false;S.view=x.dataset.view;S.segOpen=false;S.segShow=true;S.at="x"}
+ else if(x=t.closest("[data-card]")){S.sheet=Number(x.dataset.card);S.at="sheet"}
+ else if(t.closest("[data-ask]")||(x=t.closest("[data-act=chat]"))){S.chat=true}
+ else if(x=t.closest("[data-blk]")){var d=x.dataset.blk;S.ov[okey(d,ME)]=true;pushToast("Not cooking "+d+", this week only. Usual days are set in Settings.");S.at="block";S.cards=S.cards.filter(function(c){return !(c.wk===S.wk&&c.day===d&&me(c))})}
+ else if(x=t.closest("[data-unblock]")){var d2=x.dataset.unblock;S.ov[okey(d2,ME)]=false;pushToast("Cooking "+d2+", this week only.")}
+ else if(x=t.closest("[data-act]")){var a2=x.dataset.act;
+  if(a2==="copy"){if(S.copied[S.wk]){clearCopied();pushToast("Cleared the copied week.")}else{var sk=copyLast();pushToast("Copied last week."+(sk.length?" Skipped "+sk.join(", ")+", your usual day off.":"")+" Press again to clear.")}}
+  else if(a2==="stencil"){S.settings=true;S.at="stencil"}
+  else if(a2==="chatcopy"){S.msgs=[["me","Yes, copy last week"]];var sk2=copyLast();S.msgs.push(["a","Done. "+(sk2.length?"I left "+sk2.join(", ")+" empty, your usual day off. ":"")+"Tell me what to change."]);S.at="copy"}
+  else if(a2==="chatfresh"){S.msgs=[["me","Start fresh"],["a","Okay. Tell me what the week looks like, who is home, anything going on."]]}
+  else if(a2==="chatjane"){S.msgs=[["me","Jane is cooking Thursday, I will have leftovers"],["a","Thursday now has Jane's cooking and leftovers for you. I will size Jane's meal for 4 unless you say otherwise."]];S.cards.push(card("Thu","left","Sam","Sam"))}
+  else if(a2==="hold"){var c1=curCard();if(!c1.res&&conflicts(c1).length)return;c1.res=!c1.res;c1.fromCopy=false;S.at="sheet"}
+  else if(a2==="ppl"){var c4=curCard();c4.n=Math.max(1,Math.min(8,c4.n+Number(x.dataset.d)));c4.fromCopy=false}
+  else if(a2==="addlist"){var c2=curCard();c2["l_"+x.dataset.i]=!c2["l_"+x.dataset.i]}
+  else if(a2==="viewrec"){var c5=curCard();pushToast("Opens "+R[c5.r].n+" in your Recipe app.")}
+  else if(a2==="remove"){S.cards=S.cards.filter(function(c){return c.id!==S.sheet});S.sheet=null}}
+ else if(x=t.closest("[data-stl]")){var d4=x.dataset.stl,a4=S.stencil.Sam,ix=a4.indexOf(d4);if(ix>-1)a4.splice(ix,1);else a4.push(d4);Object.keys(S.ov).forEach(function(k){var p=k.split("|");if(p[1]==="Sam"&&p[2]===d4)delete S.ov[k]})}
+ else if(t.closest("[data-close]")){S.sheet=null;S.chat=false;S.settings=false;S.msgs=[]}
+ else{if(!was)return}}
+ draw()});
+/* Gestures on your own meal cards. Up or down drags to another day. Sideways swipes: left removes, right removes and marks the night not cooking.
+   Mouse: moves straight away. Touch: a short press picks the card up (so scrolling still works); sideways moves swipe. */
+function gEnd(){window.removeEventListener("pointermove",gm);window.removeEventListener("pointerup",gu);window.removeEventListener("pointercancel",gc);if(G&&G.timer)clearTimeout(G.timer)}
+function startDrag(){G.mode="drag";G.el.classList.add("drag");G.el.style.pointerEvents="none"}
+function gm(e){if(!G||e.pointerId!==G.pid)return;var dx=e.clientX-G.x,dy=e.clientY-G.y,ax=Math.abs(dx),ay=Math.abs(dy);
+ if(!G.mode){
+  if(G.type==="mouse"){if(ax>8&&ax>ay)G.mode="swipe";else if(ay>8)startDrag()}
+  else{if(ax>10&&ax>ay*1.2){clearTimeout(G.timer);G.mode="swipe"}else if(ax>10||ay>10){clearTimeout(G.timer)}}
+  if(G.mode==="swipe")G.el.classList.add("sw")}
+ if(G.mode==="swipe"){G.el.style.transform="translateX("+dx+"px)";var dir=dx<-40?"left":dx>40?"right":"";if(dir){G.el.dataset.swipe=dir;G.el.dataset.swipeLabel=dir==="left"?"Replan":"Not cooking"}else{delete G.el.dataset.swipe}}
+ else if(G.mode==="drag"){G.el.style.transform="translate("+dx+"px,"+dy+"px)";var el=document.elementFromPoint(e.clientX,e.clientY),dd=el&&el.closest("[data-day]");document.querySelectorAll(".day.over").forEach(function(n){n.classList.remove("over")});if(dd)dd.classList.add("over");G.over=dd?dd.dataset.day:null}}
+function gu(e){if(!G||e.pointerId!==G.pid)return;var g=G;G=null;gEnd();if(!g.mode)return;LASTG=Date.now();
+ var dx=e.clientX-g.x,c=S.cards.filter(function(x){return x.id===g.id})[0];S.over=null;
+ if(c&&g.mode==="swipe"&&Math.abs(dx)>90){var day=c.day;S.cards=S.cards.filter(function(x){return x.id!==c.id});
+  if(dx>0){S.ov[okey(day,ME)]=true;pushToast("Removed "+R[c.r].n+". Not cooking "+day+", this week only.")}else pushToast("Removed "+R[c.r].n+". "+day+" stays open.");S.at="x"}
+ else if(c&&g.mode==="drag"&&g.over&&g.over!==c.day){if(isBlocked(g.over,ME))pushToast("You are not cooking "+g.over+". Tap the night to cook it first.");else{c.day=g.over;c.fromCopy=false;S.at="x"}}
+ draw()}
+function gc(e){if(!G||e.pointerId!==G.pid)return;var g=G;G=null;gEnd();if(g.mode){LASTG=Date.now();S.over=null;draw()}}
+ph.addEventListener("pointerdown",function(e){
+ var h=e.target.closest("[data-wkhd]");
+ if(h){clearTimeout(LP);LP=setTimeout(function(){S.wk=0;keepWk();LASTG=Date.now();draw()},550);return}
+ var c=e.target.closest(".mc.mine");if(!c||G||(e.pointerType==="mouse"&&e.button!==0))return;
+ G={el:c,id:Number(c.dataset.card),x:e.clientX,y:e.clientY,mode:null,type:e.pointerType,pid:e.pointerId,over:null};
+ if(e.pointerType!=="mouse")G.timer=setTimeout(function(){if(G&&!G.mode)startDrag()},320);
+ window.addEventListener("pointermove",gm);window.addEventListener("pointerup",gu);window.addEventListener("pointercancel",gc)});
+["pointerup","pointercancel","pointerleave"].forEach(function(n){ph.addEventListener(n,function(e){if(e.target.closest&&e.target.closest("[data-wkhd]")||n==="pointerleave")clearTimeout(LP)})});
+document.addEventListener("touchmove",function(e){if(G&&G.mode)e.preventDefault()},{passive:false});
+ph.addEventListener("scroll",function(){if(Date.now()-DRAWT<200)return;if(S.nudge){closeNudge();draw()}else armNudge()},true);
+ph.addEventListener("pointerdown",armNudge);
+go("empty");
+S.wk=savedWk();draw();
+</script></body></html>

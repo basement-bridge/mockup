@@ -1,0 +1,93 @@
+/* Settings window, Preferences layout A (loaded with profile-prefs.js). Tokens from theme.css only. */
+.pf-fs{display:block;font:700 10.5px var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:1px}
+.pf-legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin:0 2px}
+.pf-legend span{display:inline-flex;gap:6px;align-items:center}
+.pf-note2{margin:6px 2px 0}
+.pf-gh{display:grid;gap:2px;padding:12px 12px 8px;background:var(--surface)}
+.pf-gh b{font:700 11px var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.pf-gh span{font-size:13px;color:var(--muted)}
+.pf-li-note{padding:10px 12px}
+.pf-clamp{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:500}
+.pf-chip.wait{border-style:dashed;border-color:var(--accent);color:var(--accent)}
+.pf-unseen .pf-item{background:var(--surface)}
+.pf-unseen .pf-item{box-shadow:inset 3px 0 0 var(--accent)}
+.pf-unseen .pf-dot{margin:0 -2px 0 0}
+.pf-addrow2 .pf-t{color:var(--accent)}
+.pf-ico.sm{width:28px;height:28px}
+.pf-chipgo{display:inline-flex;align-items:center;gap:2px;min-height:var(--tap);padding:0 10px 0 12px;border-radius:var(--r-pill);border:1px solid var(--sage);color:var(--sage);background:none;font:700 12px var(--body)}
+.pf-chipgo:hover{background:var(--surface)}
+p.pf-lock{display:flex;gap:10px;align-items:flex-start;padding:10px 14px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--surface);color:var(--muted);font-size:14px}
+p.pf-lock .pf-i{margin-top:2px;flex:none}
+.pf-lnk{border:0;background:none;padding:0;color:var(--accent);font-weight:700;text-decoration:underline;min-height:var(--tap)}
+/* housemate food, read only. A pending proposal is one dashed row in both directions (Proposed by <who>, Waiting for <name>); Take back on yours, Confirm and Reject on one made for you */
+.pf-ro .pf-item{min-height:56px}
+.pf-props{display:grid;gap:8px}
+.pf-prop{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 12px;border:1.5px dashed var(--accent);border-radius:var(--r-ctl);background:var(--bg)}
+.pf-prop .pf-t{flex:1 1 14rem}
+.pf-by{color:var(--fg);font-weight:700}
+.pf-propconf{flex:1 0 100%;display:grid;gap:8px;padding-top:6px;border-top:1px dashed var(--border)}
+.pf-memact{display:flex}
+.pf-propose{border-color:var(--accent);color:var(--accent)}
+.pf-propose[aria-pressed=true]{background:var(--surface);box-shadow:inset 0 0 0 1px var(--accent)}
+.pf-chgnote{display:flex;gap:8px;align-items:flex-start;padding:8px 12px;border-radius:var(--r-ctl);border:1px solid var(--accent);color:var(--fg)}
+.pf-chgnote .pf-i{color:var(--accent);margin-top:2px;flex:none}
+/* flyout bits */
+.pf-chain{font-size:13px;color:var(--muted)}
+.pf-chain b{color:var(--fg)}
+.pf-radios{display:grid;gap:6px}
+.pf-radb{display:flex;align-items:center;gap:12px;width:100%;min-height:var(--tap);padding:6px 12px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--bg);text-align:left;font-weight:600}
+.pf-radb small{display:block;font-weight:400;color:var(--muted);font-size:13px}
+.pf-radb:hover{border-color:var(--accent)}
+.pf-radb[aria-checked=true]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.pf-ck{flex:none;width:20px;height:20px;border-radius:50%;border:2px solid var(--border)}
+.pf-radb[aria-checked=true] .pf-ck{border-color:var(--accent);background:var(--accent);box-shadow:inset 0 0 0 3px var(--bg)}
+.pf-whoopt{display:inline-flex;gap:8px;align-items:center}
+.pf-two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pf-two label{display:grid;gap:4px;font-weight:600;font-size:13px}
+.pf-step{display:flex;gap:14px;align-items:center}
+.pf-step b{font-size:1.4rem;min-width:2ch;text-align:center}
+.pf-saved{display:flex;gap:6px;align-items:center;color:var(--sage);font-weight:600;font-size:13px}
+.pf-ta{min-height:7.5rem;padding:10px 14px;resize:vertical;font:inherit}
+.pf-err{padding:8px 12px;border:1px solid var(--danger);border-radius:var(--r-ctl);color:var(--danger)}
+.pf-step1{display:block;font:700 12px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.pf-happens{display:grid;gap:10px}
+.pf-happens li{display:flex;gap:12px;align-items:flex-start}
+.pf-happens .pf-i{color:var(--accent);margin-top:2px}
+.pf-happens b{display:block}
+.pf-happens span{color:var(--muted);font-size:14px}
+.pf-empty{display:grid;gap:6px;justify-items:center;text-align:center;padding:20px 8px;color:var(--accent)}
+.pf-empty b{color:var(--fg);font-size:1.05rem}
+.pf-rv{border:1px solid var(--border);border-radius:var(--r-ctl);padding:12px;display:grid;gap:10px;background:var(--bg)}
+.pf-pacts{display:grid;gap:8px}
+.pf-pact{display:flex;gap:12px;align-items:flex-start;text-align:left;padding:10px 12px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--bg);min-height:var(--tap)}
+.pf-pact:hover{border-color:var(--accent)}
+.pf-pact .pf-i{color:var(--accent);margin-top:2px}
+.pf-pact.go{border-color:var(--sage)}
+.pf-pact.go .pf-i{color:var(--sage)}
+.pf-pact.dng .pf-i{color:var(--danger)}
+.pf-ed{display:grid;gap:12px}
+/* the picker: scoped, searchable, never a list of every item */
+.pf-pk{display:grid;gap:10px}
+.pf-pkseg{justify-self:start}
+.pf-pkin{position:relative;display:block}
+.pf-pkin .pf-i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+.pf-pkin .pf-in{padding-left:38px}
+.pf-pkl{display:grid;gap:8px;max-height:min(30rem,55vh);overflow:auto;border:1px solid var(--border);border-radius:var(--r-ctl);padding:6px;background:var(--bg)}
+.pf-pkg{display:grid;gap:2px}
+.pf-pkgl{font:700 10.5px var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:6px 8px 2px}
+.pf-pko{display:flex;align-items:baseline;justify-content:space-between;gap:10px;min-height:var(--tap);padding:6px 10px;border:0;border-radius:var(--r-ctl);background:none;text-align:left;font-weight:600}
+.pf-pko small{color:var(--muted);font-weight:400;font-size:12.5px;text-align:right}
+.pf-pko:hover,.pf-pko:focus-visible{background:var(--surface)}
+.pf-pkmsg{padding:6px 8px;margin:0}
+.pf-pkpick{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--accent);border-radius:var(--r-ctl);background:var(--surface)}
+.pf-pkpick .pf-t{flex:1}
+.pf-facts{display:grid;gap:0;border:1px solid var(--border);border-radius:var(--r-ctl);overflow:hidden;background:var(--bg)}
+.pf-facts>div{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 12px;min-height:var(--tap)}
+.pf-facts>div+div{border-top:1px solid var(--border)}
+.pf-facts dt{color:var(--muted);font-size:13px}
+.pf-facts dd{margin:0;display:flex;gap:8px;align-items:center;font-weight:600;text-align:right}
+.pf-fly .pf-field .pf-lbl{margin-top:0}
+/* Avoids: Hard or Soft and the Reason (SW-59): two mutually exclusive types side by side, and the consequence of the chosen one right under them */
+.pf-two{grid-template-columns:1fr 1fr}
+.pf-conseq{margin:2px 0 0;padding:10px 12px;border-left:3px solid var(--accent);background:var(--surface);border-radius:0 var(--r-ctl) var(--r-ctl) 0;color:var(--fg)}
+.pf-conseq b{margin-right:2px}

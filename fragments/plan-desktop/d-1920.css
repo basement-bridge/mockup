@@ -1,0 +1,5 @@
+/* Option D, 1920 and up: lane 440; the sheet grows with the window up to 1500 so the day columns get roomy; bars show the quantity and the day's meal chip shows its name in two lines. */
+:root{--lane:440px;--main-max:1500px;--lab:230px;--colmin:130px}
+.v-chip .mc .t b{font-size:13px}
+.use{min-height:32px;font-size:13px}
+.cs-cell,.cs-lab{min-height:48px}

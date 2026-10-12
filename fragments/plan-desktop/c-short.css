@@ -1,0 +1,8 @@
+/* Option C, short screens (800 and under): the strip tabs lose a line, the day title shrinks, the flyout scrolls on its own. */
+.main{padding-top:12px}
+.dtab{min-height:76px}
+.dtab .dtd{display:none}
+.wstrip{margin-bottom:10px}
+.fh{margin-bottom:6px}.fh h2{font-size:1.25rem}
+.panel{padding:16px 20px}
+.bigw .mc .e{font-size:28px}

@@ -1,0 +1,7 @@
+/* Option B, short screens (800 and under): rows tighten, the people strip and chips pack up, the header stops being sticky-tall. */
+.main{padding-top:12px}
+.hrow{margin-bottom:6px}
+.arow{padding:6px 0}
+.adate{padding-top:6px}
+.mc{min-height:56px;padding-top:6px;padding-bottom:6px}
+.panel{padding:16px 20px}

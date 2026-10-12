@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Preferences, option A, fragment</title>
+<link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><link rel="stylesheet" href="a.css">
+<script src="../../theme.js"></script></head>
+<body>
+<div class="wrap">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Preferences, option A: one list</h1>
+<p>Fragment. Every preference in one list. Each row shows the value in force for you and where it comes from (the app, the household, or you). Open a row and a <b>You / Household</b> switch shows the other level. Fake data, tap everything. Option B is drawn separately and is the <b>chosen direction</b> (D15); this option is kept for reference.</p>
+<div class="own-words">The owner believes preferences are recorded per person (member) as well as per household. The model was read first (below), and this option is drawn from what it really holds.<small>Owner belief, relayed 10 October 2026. A design-options request, not a build. Awaiting the owner&rsquo;s approval; nothing here is decided.</small></div>
+
+<div class="pa-ctl">
+  <div class="g" role="group" aria-label="Data"><span class="lab">Data</span><div class="pa-seg"><button type="button" data-pc="data" data-v="some" aria-pressed="true">Some set</button><button type="button" data-pc="data" data-v="empty" aria-pressed="false">Nothing set</button><button type="button" data-pc="data" data-v="norecipe" aria-pressed="false">No Recipe</button></div><button type="button" class="pa-rst" data-pc="reset">Reset</button></div>
+  <div class="g" role="group" aria-label="Your role"><span class="lab">Your role</span><div class="pa-seg"><button type="button" data-pc="role" data-v="admin" aria-pressed="true">Household admin</button><button type="button" data-pc="role" data-v="member" aria-pressed="false">Not an admin</button></div></div>
+</div>
+<div class="ph" id="ph" aria-label="Preferences screen"><noscript><p class="small" style="padding:16px">This mockup needs script to draw the phone.</p></noscript></div>
+<p class="sm" style="margin-top:8px;text-align:center"><b>Kept for reference, not redrawn on 11 Oct 2026.</b> The owner's changes of that day (Preferences as its own section of the desktop Settings window, Plan the week off Settings &gt; Kitchen, the Household chip on the note, no On this device block, household-only rows on the Household tab only) are drawn in <a href="../preferences-mine-household/index.html">Option B</a> and Option C. This option has one list and no tabs, so its household-only Recipe stars row stays as it was.</p>
+<p class="sm" style="margin-top:8px;text-align:center">Some set shows every state: app default, household, your choice over the household (quiet hours can be set to none), both read, household only. Only a household admin can change the Household side; switch Your role to see the read-only version. Nothing set is the first-time state. No Recipe hides the Recipes group, because the household is not entitled to it.</p>
+
+<div class="panel">
+  <b>Did the model hold what the owner believes?</b>
+  <ul>
+    <li><span class="fact">Right</span>In <b>Kitchie</b>: stock-check settings, notes, stops and food likes and avoids are all kept for the household and for each member.</li>
+    <li><span class="fact">Not so</span>In <b>Recipe</b>: stars and votes are kept for the household only. There is no member column, and the signed-in person (<code>sub</code>) is not stored with them.</li>
+    <li><span class="fact">None</span>In <b>platform</b>: no preference is stored. Its session token carries <code>sub</code>, <code>household</code>, <code>products</code> and the times, no role and no owner.</li>
+    <li><span class="fact">Unclear</span>The two levels do not behave the same everywhere: stock-check settings <b>override</b> (member beats household), notes and food claims are <b>added together</b>, and Recipe has <b>one level only</b>. Option A needs a row style for each, not one rule.</li>
+  </ul>
+</div>
+
+<div class="panel">
+  <b>What the model holds</b> <span class="sm">(read from the code, 10 October 2026: Kitchie <code>main</code> at 9d1049c, Recipe at 5cec532, platform at 409f44f)</span>
+  <div class="fc"><h2>Stock-check settings <span class="chip household">Both levels, override</span></h2>
+    <dl><dt>What</dt><dd>Ask to check amounts (<code>enabled</code>, on or off), How proactive (<code>proactivity</code>, quiet, normal or helpful), Quiet hours (<code>quiet_start</code> and <code>quiet_end</code>, HH:MM), Most suggestions per day (<code>daily_cap</code>), Time zone (<code>tz_offset_minutes</code>, -720 to 840).</dd>
+    <dt>Kept</dt><dd><code>stock_prefs (scope, scope_id, key, value)</code>. Scope is <code>household</code> (the household id) or <code>member</code> (the member id). One row per key.</dd>
+    <dt>Combine</dt><dd>Built-in default, then the household&rsquo;s value, then the member&rsquo;s own, key by key. The member wins. Clearing a key falls back one level. The store reports where each value came from (<code>dial_sources</code>: default, household or member).</dd>
+    <dt>Who changes</dt><dd>A member changes their own. <b>Today</b> a household value needs the household owner (the longest-standing member); anyone else is refused: &ldquo;Only the household owner can change a household-wide setting. Nothing was changed.&rdquo; <b>Decided:</b> D5 (10 Oct) said any member may; the owner then replaced it with a household admin role (D25 to D28): the owner check becomes an admin check, the founding member being admin by default. No tenure gate, deferred.</dd>
+    <dt>Surfaces</dt><dd>Settings &gt; Stock checks (one switch, then &ldquo;Your settings&rdquo; and &ldquo;Household settings&rdquo; forms; <b>today</b> a non-owner sees the household values read-only). Chat: <code>stock_settings</code> (get, set_dial, set_note, stop, remove_stop, list_stops), personal link only, own settings only. Household values are changed in the app only.</dd></dl></div>
+  <div class="fc"><h2>Notes <span class="chip both">Both levels, both read</span></h2>
+    <dl><dt>What</dt><dd>One free-text note for the household and one per member, up to 600 characters, kept as data and read as a preference, never as an instruction.</dd>
+    <dt>Kept</dt><dd><code>notes (scope, scope_id, text)</code>.</dd>
+    <dt>Combine</dt><dd>No override. Both are returned. A member&rsquo;s note is read for that member only; another member&rsquo;s is never read.</dd>
+    <dt>Who changes / surfaces</dt><dd>Same rule and same two forms as the settings above, and <code>stock_settings</code> set_note for the member&rsquo;s own.</dd></dl></div>
+  <div class="fc"><h2>Not asking about (stops and snoozes) <span class="chip member">Person</span></h2>
+    <dl><dt>What</dt><dd>Stop or snooze (a week) stock checks for one item, an area, a category, or everything. A stop gets a check-back later, with growing gaps.</dd>
+    <dt>Kept</dt><dd><code>stock_stops (household_id, member_id, target, target_key, mode)</code>. <code>member_id</code> may be empty in the table and reads count a household-wide stop, but every write today carries the member. A stop on one item covers every member.</dd>
+    <dt>Who changes / surfaces</dt><dd>The member, in the Not asking about list, on a check (Stop asking), or in chat. Not drawn here: it is a list of things, not a value.</dd></dl></div>
+  <div class="fc"><h2>Food likes, dislikes and avoids <span class="chip both">Both levels, added together</span></h2>
+    <dl><dt>What</dt><dd>Claims the person stated: likes, dislikes, avoids, usually, fact, about an item, ingredient, recipe or cuisine. An avoid carries a severity (hard or soft) and a reason (safety or other). Optional meal time and weekday or weekend.</dd>
+    <dt>Kept</dt><dd><code>context_claims</code>; an empty <code>member_id</code> means the whole household.</dd>
+    <dt>Combine</dt><dd>No override. <code>get_context</code> for &ldquo;me&rdquo; returns the member&rsquo;s own and the household&rsquo;s together; for &ldquo;household&rdquo; only the household&rsquo;s. Avoids are always returned. Another member&rsquo;s own claims are never read.</dd>
+    <dt>Who changes</dt><dd>Only through the assistant (<code>give_feedback</code>, who is &ldquo;me&rdquo; or &ldquo;household&rdquo;). The code has no owner check for a household claim, so any member can record one today. D8 kept that, then D28 superseded it: only household admins record or retire a household claim, and the same check goes in front of the chat tool.</dd>
+    <dt>Surfaces</dt><dd>Chat only (<code>get_context</code>, <code>give_feedback</code>). There is no web page for it.</dd></dl></div>
+  <div class="fc"><h2>My assistant <span class="chip member">Person only</span></h2>
+    <dl><dt>What</dt><dd>Which AI app the person uses: Claude, ChatGPT, Gemini, another, or none.</dd>
+    <dt>Kept</dt><dd><code>stock_prefs</code>, scope <code>member</code>, key <code>assistant</code>, mirrored in a cookie on the device. No household value exists.</dd>
+    <dt>Surfaces</dt><dd>A card in Settings. No chat tool.</dd></dl></div>
+  <div class="fc"><h2>Recipe stars and votes <span class="chip only">Household only</span></h2>
+    <dl><dt>What</dt><dd>Starred (yes or no) and vote (-1, 0, 1) on a recipe or a variation, plus how many times it was used and when last.</dd>
+    <dt>Kept</dt><dd>Recipe <code>preferences (target_kind, target_id, starred, vote, times_used, last_used)</code>. The household comes only from the recipe row the preference points at. No member column.</dd>
+    <dt>Who changes</dt><dd>Anyone in a household with Recipe enabled; no owner rule. Every write re-checks the entitlement live.</dd>
+    <dt>Surfaces</dt><dd>Chat only (<code>set_preference</code>, <code>record_usage</code>). Recipe&rsquo;s web pages neither show nor set them.</dd></dl></div>
+  <div class="fc"><h2>Other person-level settings <span class="chip member">Person</span></h2>
+    <dl><dt>Plan the week</dt><dd>Usual days off cooking (<code>plan_stencil</code>) and one-off blocked days (<code>plan_blocks</code>) are per member. Already drawn in <code>fragments/plan-week-ai/</code>, so not repeated here.</dd>
+    <dt>Me screen</dt><dd>Name, picture and kitchen role are per member.</dd></dl></div>
+  <div class="fc"><h2>Not in the data model <span class="chip default">This device</span></h2>
+    <dl><dt>What</dt><dd>Theme (a cookie), item name size and the seven display switches (this browser). They follow the device, not the person, so they are not in this list.</dd></dl></div>
+</div>
+
+<div class="panel">
+  <b>How option A uses it</b> <span class="sm">Every line is a <span class="prop">Proposal</span> unless marked as a model rule or as superseded. Numbered A-1 to A-10 so they can be picked apart. The owner's decisions are D5 to D8, in the next panel.</span>
+  <ol>
+    <li><b>A-1</b> One list, grouped by what the row is about (Stock level checks, Food and taste, Notes, Recipes), not by who owns it. The switch is how you see the other level.</li>
+    <li><b>A-2</b> A closed row shows the value in force for the viewer and a chip for where it comes from: <i class="chip default">App</i> <i class="chip household">Household</i> <i class="chip member">You</i>. A personal choice also says what it overrides (&ldquo;Overrides household: Quiet&rdquo;). Words carry the meaning; colour only backs it up.</li>
+    <li><b>A-3</b> The You / Household switch lives inside the open row (one row open at a time), You first. Detail on demand, not a switch on every closed row.</li>
+    <li><b>A-4</b> On You, the first choice is &ldquo;Same as household (value)&rdquo;, which clears the person&rsquo;s own value. On Household, the first choice is &ldquo;Built-in default (value)&rdquo;. Both mirror the existing Stock checks form.</li>
+    <li><b>A-5</b> A pick saves at once and says &ldquo;Saved&rdquo;; there is no Save button. Today&rsquo;s forms have one, but the store already writes one key at a time.</li>
+    <li><b>A-6</b> <span class="fact">Superseded by D5</span>Back by D28. This drew a read-only state for a member who may not change the household value: the value and a lock line. D5 removed it (any member edits); the household admin role brings it back, for a member who is not an admin instead of one who is not the owner. The line reads &ldquo;Only household admins can change this.&rdquo;</li>
+    <li><b>A-7</b> Rows that do not override get their own chip and a plain line: &ldquo;Both are read&rdquo; (notes), &ldquo;Added together&rdquo; (food), &ldquo;Household only&rdquo; (Recipe), and for My assistant the Household half of the switch is struck out. The switch never promises an override the model does not have.</li>
+    <li><b>A-8</b> Food claims and Recipe stars are shown but not edited here. The assistant is the only way in for food; stars and votes are set on each recipe.</li>
+    <li><b>A-9</b> The Recipes group is not drawn when the household has no Recipe (platform D6: no hint of a product the household does not have).</li>
+    <li><b>A-10</b> One layout at every width. It is a Settings sub-screen, so on desktop it keeps the phone column like the rest of the household flow, and tablet only relaxes the page. No viewport-specific file was needed.</li>
+  </ol>
+</div>
+
+<div class="panel">
+  <b>Locked decisions</b> <span class="sm">Owner, voice session, 10 October 2026. Numbered D5 to D14 across options A, B and C; the ones that apply to this option are D5 to D8 (the rest are Option C's).</span>
+  <ul>
+    <li><b>D5</b> <span class="fact">Superseded by D25</span> (10 Oct 2026) Household-level settings and edits: <b>any</b> household member may edit them. No owner concept, no tenure gate, no restriction. The owner explicitly deferred any earn-your-way, tenure-based gate to a later decision; it is deferred, not forgotten, and nothing here builds it in.</li>
+    <li><b>D6</b> Quiet hours: any member may override the household's quiet hours down to <i>none</i> for themselves. No restriction. (The quiet-hours editor on You has a <i>None</i> choice.)</li>
+    <li><b>D7</b> Most suggestions per day: 1 to 20, default 2 (the default was later revised to 3, D20). The web form (was 1 to 10) and the chat surface (was 0 to 20) both use it.</li>
+    <li><b>D8</b> <span class="fact">Superseded by D28</span> (10 Oct 2026) Household-level food claims (for example &ldquo;we don&rsquo;t eat pork&rdquo;) are open to any member, consistent with D5. Person-level food statements stay unrestricted.</li>
+  </ul>
+  <p class="sm">D5 and D8 are kept as given, with their history. The owner introduced the household admin role later on 10 October 2026.</p>
+</div>
+
+<div class="panel">
+  <b>Household admin</b> <span class="sm">Owner, voice, 10 October 2026, later session. D25 to D30; the full text is in <code>docs/knowledge/preferences-option-a.md</code>.</span>
+  <ul>
+    <li><b>D25</b> A household admin role, binary: admin or not. Only admins change household-level things. Supersedes D5 and D8.</li>
+    <li><b>D26</b> The founding member (who first set up the household) is an admin by default.</li>
+    <li><b>D27</b> The founding member can grant admin to other members, per person, and revoke it. (Option B draws the view; this option has none.)</li>
+    <li><b>D28</b> Only admins change household settings, household-level food claims and rules, household notes, the household quiet-hours default and the like. Non-admins may not.</li>
+    <li><b>D29</b> Personal preferences are ungated for everyone, whatever the role, including quiet hours set to <i>none</i> for yourself (D6). Proposing for another member (D9) is unchanged.</li>
+    <li><b>D30</b> <i>Household admin</i> is not <i>Kitchen role</i> (a free label on the person's own profile). Tenure gating and finer roles stay deferred.</li>
+  </ul>
+</div>
+
+<div class="panel">
+  <b>Voice review, 10 October 2026</b> <span class="sm">Owner. Recorded as D15 to D24 in the option B notes. What changed in this option:</span>
+  <ul>
+    <li><b>D16</b> The sources are App, Household and You. The chips say so, and an open row's first choice reads &ldquo;Same as household (value)&rdquo; or &ldquo;Same as app default (value)&rdquo;. (A-2 and A-4 updated.)</li>
+    <li><b>D17</b> &ldquo;Stock checks&rdquo; is now <b>Stock level checks</b> and holds the switched-off list (the existing per-item stop-asking control).</li>
+    <li><b>D18</b> No time zone row: checks use the account or device time zone.</li>
+    <li><b>D19</b> Quiet hours: app default 10pm to 6am; the household may set its own; a person may set their own or None.</li>
+    <li><b>D20</b> Most suggestions per day is 1 to 20, default <b>3</b> (revises D7's default of 2; D7 stays on record).</li>
+    <li><b>D21</b> The standalone How proactive dial is removed. Level and how often are set by place (whole kitchen, category, location with spot, item; most specific wins). This option shows the result read-only; option B draws the editor.</li>
+    <li><b>D22</b> Ask me to check amounts is on by default. <b>D24</b> My assistant and kitchen role left Preferences for the profile, so the Assistant group is gone.</li>
+  </ul>
+</div>
+
+<div class="panel dash">
+  <b>Open questions</b> <span class="sm">and what a wrong guess costs. The questions that D5 to D8 settled are removed.</span>
+  <ul>
+    <li>The owner's voice review of 10 October 2026 (D15 to D24) changed this option too: see the panel above. Its open questions (Q-V1 to Q-V6) are in <code>docs/knowledge/user-preferences/option-b-mine-and-household.md</code>.</li>
+    <li>Admin rights: do admins have exactly the founding member's rights, or does the founding member alone grant and revoke admin and remove members? Can the last admin be removed or step down?</li>
+    <li>What a non-admin sees: read-only with &ldquo;Only household admins can change this&rdquo; (drawn here) or hidden? Who can see who is an admin (drawn in option B: everyone)?</li>
+    <li>Household values already set when roles arrive (drawn: they stay, now changed by admins only). Does the household quiet-hours default need an admin (drawn: yes)?</li>
+    <li>Quiet start and end are two keys that chat can set separately, so a person could have one from the household and one of their own. The form needs both. Treat the pair as one preference?</li>
+    <li>One person cannot switch off a household avoid for themselves (food is added together, with no override). Intended? (Who may record a household claim is decided, D8.)</li>
+    <li>Should Recipe stars and votes get a person level (who starred it)? Today shared favourites hide individual taste, and a wrong guess means a Recipe schema change later.</li>
+    <li>Does Preferences replace Settings &gt; Stock checks (it holds the same data), or sit above it? A wrong guess means two screens writing the same keys.</li>
+    <li>Household-wide stops: the table allows them, nothing writes them. Needed?</li>
+    <li>Which option leads, A or B?</li>
+  </ul>
+</div>
+
+<div class="panel">
+  <b>Performance note</b> (<a href="../../DESIGN.md" style="text-decoration:underline">DESIGN.md section 6</a>)
+  <ul>
+    <li><b>Default path loads</b>: this page, the shared theme and stylesheet, <code>a.css</code> (about 10 KB) and <code>a.js</code> (about 22 KB, before compression). No images and no icon files; the row icons are emoji.</li>
+    <li><b>Deferred until engaged</b>: in the real app a closed row needs only the values (the stock-check read is two small queries, one per level). A row&rsquo;s editor, the note text, the food claims and the Recipe counts load when the row is opened. Recipe counts are asked only for a household that has Recipe. Other themes are separate files fetched on choice (<code>theme.js</code>).</li>
+    <li><b>Why reasonable now</b>: it is a settings screen reached on purpose, so one small read on entry is enough.</li>
+  </ul>
+</div>
+</div>
+<script src="a.js"></script>
+</body>
+</html>

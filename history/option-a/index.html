@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>History, Option A: search first</title>
+<link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><script src="../../theme.js"></script></head>
+<body><p class="superseded" style="margin:0;padding:8px 16px;font:600 13px/1.4 var(--body,sans-serif);background:var(--surface);color:var(--fg);border-bottom:1px solid var(--border);text-align:center">Superseded by the owner's decisions, see docs/knowledge/history-options.md</p><div class="wrap">
+<a class="back" href="../../index.html">&larr; All mockups</a>
+<h1>History, Option A: search first</h1>
+<p>One search box that understands plain phrases and turns them into editable chips. Results are one timeline for Kitchie and Recipe together. Everything below is a <b>Proposal</b> until the owner picks. Spec: <code>docs/knowledge/history-option-a.md</code>.</p>
+<div class="sec"><div class="lbl">Phone</div><p>Full-screen search with recent searches and suggested questions.</p>
+<div class="jobs"><a href="mobile.html?state=entry">Settings row</a><a href="mobile.html?state=start">Start</a><a href="mobile.html?q=milk%20last%20week">Milk last week</a><a href="mobile.html?q=who%20moved%20the%20rice">Who moved the rice</a><a href="mobile.html?q=milk%20last%20week&sel=e28">Detail and undo</a><a href="mobile.html?q=quince%20last%20week">No results</a><a href="mobile.html?state=loading&q=sam%20cooked">Loading</a><a href="mobile.html?state=empty">Nothing yet</a></div></div>
+<div class="sec"><div class="lbl">Desktop</div><p>Command bar over the current screen (Ctrl or Cmd K), and the full History page (G then Y).</p>
+<div class="jobs"><a href="desktop.html?view=bar">Bar, start</a><a href="desktop.html?view=bar&q=what%20did%20Sam%20cook">Bar, what did Sam cook</a><a href="desktop.html?view=bar&q=milk%20last%20week&sel=e28">Bar with detail</a><a href="desktop.html?view=page&q=what%20did%20claude%20do">Page, what did Claude do</a><a href="desktop.html?view=page&q=sam%20used%20up&sel=e1">Page with detail</a><a href="desktop.html?view=page&q=quince">No results</a><a href="desktop.html?view=page&state=loading&q=sam">Loading</a><a href="desktop.html?view=page&state=empty">Nothing yet</a></div></div>
+<div class="sec"><div class="lbl">Try typing</div><p>milk last week · what did Sam cook · who moved the rice · what did Claude do · fridge since Thursday · what did I undo · starred recipes. Undo works on the sample (it marks the row Undone).</p></div>
+<div class="sec"><div class="lbl">Default path and deferred</div><p>Default: the page, <code>history.css</code>, <code>history.js</code>, no list request. Deferred: every result page until the first keystroke, the detail pane until a row is opened, facet counts after the list.</p></div>
+</div></body></html>

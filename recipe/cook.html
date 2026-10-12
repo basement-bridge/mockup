@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Cook it — Recipe tab mockup</title>
+<link rel="stylesheet" href="../theme.css"><link rel="stylesheet" href="recipe.css"><link rel="stylesheet" href="flow2.css"><script src="../theme.js"></script><script src="recipe.js"></script><script src="flow2.js"></script></head>
+<body data-no-theme-fab>
+<div class="stage"><div class="phone" id="ph"></div></div>
+<script>
+/* Cook mode. R-D18 (opens on the ingredients, one step per screen) and R-D19 (one ask at the end), with the owner's locked decisions of 10 October 2026:
+   L5 every household member sees the same screen and controls (no follower view, no roles).
+   L6 a planned meal whose items are sorted opens straight here from Plan: ?from=plan&id=..&v=..&n=.. (the Plan screens are drawn elsewhere;
+      this screen only needs the meal already chosen). Stop and Done then go back to Plan, not to the recipe page.
+   L7 the step buttons say where they go: the destination step's own words, never Back or Next. Edges: the first step's left button goes to the
+      ingredients, the last step's right button goes to finishing. Swipe sideways or press the arrow keys to do the same.
+   End of a cook: the UI's two jobs, a photo of what you made (the photos slice's add screen, Tonight's cook preselected) and a note
+   (the photos slice's note screen, ../recipe-photos/note.html, with from=cook and this cook's id; the saved note shows back here).
+   Owner, 10 Oct 2026: a step's photo shows on its step (one per step at most, inherited from the parent version with a small icon);
+   a cook of a try asks Keep it / Needs work / Not for us, and Not for us puts it away at once with Undo; each member can react
+   (liked / not for us / skip) and the household line is derived. Nothing is deleted anywhere.
+   Performance: one inline script plus flow2.js (under 2 KB). A step's photo loads after its words are on screen. The photo add and
+   note screens load only when tapped (separate routes). */
+(function(){
+var X=RCP,F=FLOW2,ic=X.ic,esc=X.esc,fmt=X.fmt;
+var r=X.byId(X.Q.get("id")||"efr")||X.R[0];
+var vq=X.Q.get("v"),res=X.resolve(r,vq),n=+(X.Q.get("n")||r.serves);
+var fromPlan=X.Q.get("from")==="plan";
+var mult=n;
+var got={},swapped={},photoAdded=false;
+/* the sample's id for this cook (the photos slice uses "tonight" for the newest cook; the build passes the real cook id) */
+var cookId="tonight";
+/* a note saved from this cook comes back (from the note screen) and shows on the Add a note card */
+var noted=X.Q.get("noted")||(X.notesFor(r,res.v.id).filter(function(n){return n.cook===cookId})[0]||{}).body||"";
+var isTry=res.v.state==="trying",verdict=null,away=false;
+var rx={};X.PERSONAS.forEach(function(p){rx[p[2]]=null}); /* no answer = skip, not stored. Keep it or Not for us fills the cook's own (versions slice) */
+var step=Math.max(-1,Math.min(r.steps.length,+(X.Q.get("step")||-1)));
+var ph=document.getElementById("ph");
+var exitHref=fromPlan?"../fragments/plan-week-ai/":"detail.html?id="+r.id+(vq?"&v="+vq:"");
+var tonight=X.WEEK[X.TODAY][0];
+var stepName=function(k){return F.stepLabel(r.steps[k][0])};
+/* where each edge leads (L7) */
+var prevBtn=function(){
+  if(step===0)return F.navBtn(ic,"prev","Before you start","Ingredients","data-prev",true);
+  return F.navBtn(ic,"prev","Step "+step,esc(stepName(step-1)),"data-prev",true);
+};
+var nextBtn=function(){
+  if(step<0)return F.navBtn(ic,"next","Step 1 of "+r.steps.length,esc(stepName(0)),"data-next");
+  if(step===r.steps.length-1)return F.navBtn(ic,"next","All cooked","Finish up","data-next");
+  return F.navBtn(ic,"next","Step "+(step+2),esc(stepName(step+1)),"data-next");
+};
+function draw(){
+  var head='<div class="top"><a class="back" href="'+exitHref+'">'+ic("x","s")+'Stop</a><span class="ttl">'+esc(r.name)+'</span><span style="width:64px"></span></div>';
+  if(step<0){
+    /* R-D18: cook mode opens on the ingredients (cooking-right-now.md: ingredients lead). Tap to tick, long-press to say you used something else. */
+    var m=X.missing(res.ings).length;
+    ph.innerHTML=head+'<div class="body"><div class="pad">'+
+      (fromPlan?'<p style="font-size:13px;margin-bottom:6px">'+ic("plan","xs")+' Planned for tonight, '+esc(tonight)+'. '+(res.v.name!=="Original"?esc(res.v.name)+'. ':'')+'Items sorted.</p>':'')+
+      '<p class="lbl" style="color:var(--accent)">Get it out · '+(r.batch?n+' portions':'serves '+n)+'</p>'+(m?'<p style="font-size:13px;margin-top:4px">'+m+' not in the pantry. Using something else tonight? Press and hold it.</p>':'')+'</div><div style="padding:0 12px">'+
+      res.ings.map(function(x,k){var q=fmt(x.i[2],x.i[3],mult);var s=swapped[k];return '<button type="button" class="ck" role="checkbox" aria-checked="'+!!got[k]+'" data-k="'+k+'"><span class="amt">'+(q||"–")+'</span><span class="nm">'+esc(s||x.i[1])+(s?' <span class="was">(<s>'+esc(x.i[1])+'</s>)</span>':'')+(!X.has(x.i[0])&&!s?' <span class="tg miss">missing</span>':'')+'</span><span class="bx">'+(got[k]?ic("check","xs"):"")+'</span></button>'}).join("")+
+      '</div><div style="height:24px"></div></div><div class="act snavs">'+nextBtn()+'</div>';
+  }else if(step<r.steps.length){
+    var s=r.steps[step];
+    var sp=X.stepPhoto(r,res.v.id,step);
+    ph.innerHTML=head+'<div class="body"><div class="bigstep">'+(sp?'<div class="sp2">'+X.frame(sp.p,"m",{phase:"step",inh:sp.inherited?sp.from.name:"",alt:"Step "+(step+1)})+'</div>':'')+'<span class="lbl">Step '+(step+1)+' of '+r.steps.length+'</span><p>'+esc(s[0])+'</p>'+(s[2]?'<button type="button" class="timer mini" style="min-height:44px;margin-top:12px">'+ic("clock","s")+'Start '+s[2]+' min timer</button>':'')+'</div>'+
+      '<div class="pad"><button type="button" class="back" data-ings style="font-size:14px">'+ic("back","s")+' Ingredients</button></div>'+
+      '<p class="swipehint">Swipe sideways to move between steps.</p></div>'+
+      '<div class="act snavs">'+prevBtn()+nextBtn()+'</div>';
+  }else{
+    /* R-D19 as reworded (handoff 5.1): one screen, one Done. Pantry, freezer (batch), a swap (Just tonight or Keep it as a version, which makes a Trying
+       version: V-D18, V-D17), then the UI's two jobs: a photo of what you made (P-D11, up to 3 on the cook: P-D13) and a note. Any member, same controls (L5). */
+    var sw=Object.keys(swapped);
+    ph.innerHTML=head+'<div class="body"><div class="pad" style="padding-bottom:0">'+F.navBtn(ic,"prev","Step "+r.steps.length,esc(stepName(r.steps.length-1)),"data-prev",true)+'</div><div class="pad" style="text-align:center;padding-top:12px"><div style="font-size:52px">'+r.e+'</div><h2 style="margin-top:6px">Enjoy it</h2><p style="margin-top:4px">'+esc(res.v.name)+' · '+(r.batch?n+' portions':'serves '+n)+'</p></div>'+
+      '<div class="pad"><div class="lblrow" style="margin-top:0"><span class="lbl">Take out of the pantry</span></div>'+
+      res.ings.filter(function(x){return X.has(x.i[0])}).map(function(x){return '<div class="ing"><span class="dot" aria-hidden="true"></span><span class="nm">'+esc(x.i[1])+'<span class="q">'+(fmt(x.i[2],x.i[3],mult)||"some")+'</span></span></div>'}).join("")+
+      (r.batch?'<div class="lblrow"><span class="lbl">Leftovers</span></div><button type="button" class="opt">'+ic("snow")+'<span class="t"><b>Put '+(n-2)+' portions in the freezer</b><small>Adds "'+esc(r.name)+'" to Pantry, Freezer</small></span></button>':'')+
+      (sw.length?'<div class="note" style="margin-top:12px;border-color:var(--accent)">You used <b>'+sw.map(function(k){return esc(swapped[k])}).join(", ")+'</b> instead of '+sw.map(function(k){return esc(res.ings[k].i[1])}).join(", ")+'.<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"><button type="button" class="mini" data-just>Just tonight</button><button type="button" class="mini" data-keepv>Keep it as a version</button></div></div>':'')+
+      verdictHtml()+reactHtml()+
+      '<div class="lblrow"><span class="lbl">Remember it (optional)</span></div>'+
+      '<div class="endjobs">'+
+        '<a href="../recipe-photos/add.html?to='+r.id+'&kind=cooked&from=cook&cook='+cookId+'"'+(photoAdded?' class="done"':'')+'>'+ic("cam")+'<b>Add a photo</b><small>Of what you made. Up to 3, into Cooked.</small></a>'+
+        '<a href="'+noteHref()+'"'+(noted?' class="done"':'')+'>'+ic("note")+'<b>'+(noted?'Note added':'Add a note')+'</b><small>'+(noted?esc(noted.replace(/\[photo:[\w-]+\]/g,"").replace(/\*\*/g,"").slice(0,80)):'For next time. Everyone in the household sees it.')+'</small></a>'+
+      '</div>'+
+      '</div><div style="height:24px"></div></div><div class="act"><a class="btn" href="'+exitHref+'">'+ic("check","s")+'Done, update the pantry</a></div>';
+  }
+  /* a step's photo loads only after its words are on screen */
+  X.afterPaint(function(){X.loadPhase(ph,"step")});
+}
+function noteHref(){
+  var back="../recipe/cook.html?id="+r.id+(vq?"&v="+vq:"")+"&n="+n+(fromPlan?"&from=plan":"")+"&step="+r.steps.length;
+  return "../recipe-photos/note.html?to="+r.id+"&from=cook&cook="+cookId+"&v="+res.v.id+"&back="+encodeURIComponent(back);
+}
+/* A try (Trying version): every cook asks once. Not for us puts it away at once, with Undo (owner, 10 Oct 2026). */
+function verdictHtml(){
+  if(!isTry)return "";
+  if(away)return '<div class="note" style="margin-top:12px">'+ic("x","xs")+' <b>'+esc(res.v.name)+'</b> is put away. Nothing is deleted; bring it back any time from Versions. <button type="button" class="mini" data-unaway style="margin-left:4px">'+ic("undo","xs")+'Undo</button></div>';
+  return '<div class="lblrow"><span class="lbl">'+esc(res.v.name)+' is a try. Keep it?</span></div>'+
+    '<div class="rx" style="border:0"><div class="seg3" role="group" aria-label="Keep this version?" style="flex:1">'+
+    [["keep","Keep it"],["work","Needs work"],["no","Not for us"]].map(function(x){return '<button type="button" data-vd="'+x[0]+'" aria-pressed="'+(verdict===x[0])+'" style="flex:1">'+x[1]+'</button>'}).join("")+'</div></div>'+
+    (verdict==="keep"?'<p class="rxsum">Kept. Make it your usual from the recipe\'s ⋯ menu.</p>':verdict==="work"?'<p class="rxsum">Still a try. Tell your AI app what to change; it saves into this try.</p>':'');
+}
+/* Reactions: one pill per member in one wrapping row (the least screen space; the versions slice draws a row per member who ate,
+   recipe-versions/after-cook.html). A tap moves that member's answer on: liked it, not for me, back to no answer (skip, not stored).
+   The household line is derived ("Liked by 2 of 3"); no answer does not count. */
+var RXO=[null,"liked","no"];
+function reactHtml(){
+  var k=Object.keys(rx),line=X.reactLine(rx);
+  return '<div class="lblrow"><span class="lbl">How did it go down?</span>'+(line?'<span class="rxsum" style="margin:0">'+line+'</span>':'')+'</div>'+
+    '<div class="rxrow" role="group" aria-label="Each person\'s reaction. Tap to change.">'+k.map(function(m){var a=rx[m];return '<button type="button" data-rx="'+esc(m)+'" class="'+(a?'on':'')+'" aria-label="'+esc(m)+': '+(a?X.REACT[a][1]:'no answer')+'. Tap to change.">'+esc(m)+' <span aria-hidden="true">'+(a?X.REACT[a][0]:'·')+'</span></button>'}).join("")+'</div>';
+}
+var keep=function(){var b=ph.querySelector(".body"),y=b?b.scrollTop:0;draw();b=ph.querySelector(".body");if(b)b.scrollTop=y};
+var go=function(d){var to=step+d;if(to<-1||to>r.steps.length)return;step=to;draw();var b=ph.querySelector(".body");if(b)b.scrollTop=0};
+var hold=null;
+ph.addEventListener("pointerdown",function(e){var b=e.target.closest("[data-k]");if(!b)return;hold=setTimeout(function(){hold="fired";var k=+b.dataset.k;X.sheet('<h3>Used something else?</h3><p style="font-size:13px">For tonight only. You will be asked at the end whether to keep it.</p><input class="field" id="sw" style="margin-top:10px" placeholder="e.g. Shallots" value="'+(res.ings[k].i[0]==="spring"?"Chives":"")+'"><div style="display:flex;gap:8px;margin-top:12px"><button class="btn ghost" data-close>Cancel</button><button class="btn" data-ok>Use it</button></div>',function(s,close){s.querySelector("[data-ok]").onclick=function(){var v=s.querySelector("#sw").value.trim();if(v)swapped[k]=v;got[k]=1;close();draw()}})},500)});
+["pointerup","pointerleave","pointercancel"].forEach(function(n){ph.addEventListener(n,function(){if(hold&&hold!=="fired")clearTimeout(hold)})});
+/* L7: swipe sideways and arrow keys move to the same places as the two buttons. Not on the end screen's form-like parts while a sheet is open. */
+F.stepNav(ph,function(){return hold!=="fired"},go);
+ph.addEventListener("click",function(e){
+  var t=e.target.closest("button");if(!t)return;
+  if(t.dataset.k!=null){if(hold==="fired"){hold=null;return}var k=+t.dataset.k;got[k]=!got[k];draw()}
+  else if(t.hasAttribute("data-next"))go(1);
+  else if(t.hasAttribute("data-prev"))go(-1);
+  else if(t.hasAttribute("data-ings")){step=-1;draw()}
+  else if(t.hasAttribute("data-just")){t.closest(".note").innerHTML="Kept for tonight only. The recipe is unchanged."}
+  else if(t.hasAttribute("data-keepv")){var note=t.closest(".note");X.sheet('<h3>Keep it as a version</h3><label class="lbl" for="w">In your words, why keep it?</label><input class="field" id="w" style="margin-top:4px" value="That worked well, save it"><p style="font-size:12px;margin-top:6px">Saved as your words. It starts as a try (Trying) until someone keeps it.</p><div style="display:flex;gap:8px;margin-top:12px"><button class="btn ghost" data-close>Back</button><button class="btn" data-ok>Keep it</button></div>',function(s,close){s.querySelector("[data-ok]").onclick=function(){close();note.innerHTML="Saved as a new version to try. It shows on the recipe under Versions."}})}
+  else if(t.dataset.rx){var m=t.dataset.rx;rx[m]=RXO[(RXO.indexOf(rx[m])+1)%RXO.length];keep()}
+  else if(t.dataset.vd){verdict=t.dataset.vd;
+    if(verdict!=="work"&&!rx[X.me[2]])rx[X.me[2]]=verdict==="keep"?"liked":"no";
+    if(verdict==="no"){away=true;keep();X.toast("Put away at once. Nothing is deleted.",function(){away=false;verdict=null;keep()})}else keep()}
+  else if(t.hasAttribute("data-unaway")){away=false;verdict=null;keep();X.toast("Back as a try")}
+});
+draw();
+if(X.Q.get("noted"))X.toast("Note saved to "+esc(r.name)+".");
+X.controls('<h4>Cook mode (L6, L7)</h4><p><a href="?id=efr">From the recipe</a> · <a href="?id=efr&v=v1&from=plan">Straight from Plan</a> · <a href="?id=efr&step=0">First step (photo)</a> · <a href="?id=efr&v=v2&step=1">A step photo being prepared</a> · <a href="?id=efr&step=4">Last step</a> · <a href="?id=efr&v=v2&step=5">End, a try (Keep it?)</a> · <a href="?id=cur&step=5">End, batch</a> · <a href="?id=efr&step=5&cook=tonight&noted=Day-old%20rice%20again">End, note saved</a></p>');
+})();
+</script>
+</body></html>

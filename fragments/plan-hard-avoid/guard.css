@@ -1,0 +1,73 @@
+/* Hard avoid guard on the Plan it panel (fragments/plan-hard-avoid/). Tokens only (theme.css); shared components come from
+   ../plan-desktop/plan.css (.mc .tg .btn .mini .panel .x .lbl .ing .toast .stl .ppl). NO viewport rules in this file: the phone and
+   tablet layout is the baseline (the panel is a bottom sheet), guard-wide.css is loaded only from 1024px (rail, column, lane). */
+body{overflow-x:hidden}
+.app{display:block;min-height:100vh}
+.rail{display:none}
+.main{padding:16px var(--gutter) 120px}
+.hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.hd .wk{flex:1;min-width:0}
+.hd .wk b{display:block;font:800 20px var(--head)}
+.hd .wk small{display:block;font-size:12px;color:var(--muted);font-weight:600}
+.board{display:flex;flex-direction:column;margin-top:10px}
+.day{display:grid;grid-template-columns:62px minmax(0,1fr);column-gap:10px;padding:10px 0;border-top:1px solid var(--border)}
+.day:first-child{border-top:0}
+.dh{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding-top:10px}
+.dn{font-weight:800;font-size:15px}
+.dd{font-size:12px;color:var(--muted);font-weight:600}
+.day.target .dn{color:var(--accent)}
+.stack{display:flex;flex-direction:column;gap:6px;min-width:0}
+.mcw .mc{cursor:default}
+.mc .chips .tg svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
+.mc .av.k{background:var(--accent);color:var(--on-accent)}
+.slot{cursor:default}
+
+/* the panel: a bottom sheet on a phone and a tablet, the lane on a desktop (guard-wide.css) */
+.sheet-dim{position:fixed;inset:0;background:var(--dim);z-index:40}
+.panel{position:fixed;left:0;right:0;bottom:0;top:auto;height:auto;max-height:92vh;z-index:41;border-left:0;border-top:1px solid var(--border);border-radius:var(--r-card) var(--r-card) 0 0;padding:18px var(--gutter) 22px;box-shadow:0 -14px 40px rgba(0,0,0,.35)}
+.panel .top{margin-bottom:6px}
+.panel .top h2{font-size:1.15rem}
+.panel .top p{font-size:13px}
+.panel .ph{width:44px;height:44px;font-size:22px}
+.ingl2{font-size:13px;color:var(--muted);margin:0 0 4px}
+.ingl2 em{font-style:normal;font-weight:800;color:var(--danger)}
+.days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px}
+.days button{min-height:var(--tap);min-width:0;padding:2px 0;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--surface);font-weight:700;font-size:13px;line-height:1.15;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.days button small{font-size:11px;font-weight:600;color:inherit;opacity:.8;display:block}
+.days button[aria-pressed=true]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.days button:hover:not([aria-pressed=true]){border-color:var(--accent)}
+.fors{display:flex;flex-wrap:wrap;gap:6px}
+.fors button{min-height:var(--tap);padding:0 16px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-weight:700;font-size:14px}
+.fors button[aria-pressed=true]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.fors button:hover:not([aria-pressed=true]){border-color:var(--accent)}
+.fors button small{font-weight:600;opacity:.8;margin-left:4px}
+.formeta{font-size:13px;color:var(--muted);margin-top:8px}
+
+/* the guard: in place, under the choice that caused it. Danger tint, an icon and words (never colour alone). */
+.guard{margin-top:14px;padding:14px 16px;border:1px solid var(--danger);border-radius:var(--r-ctl);background:color-mix(in srgb,var(--danger) 8%,var(--surface))}
+.guard .gh{display:flex;align-items:center;gap:8px;font:800 16px var(--head);color:var(--danger)}
+.guard .gh svg{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.guard p{color:var(--fg);font-size:14px;margin-top:6px}
+.guard em.hit{font-style:normal;font-weight:800;color:var(--danger)}
+.guard ul.who{list-style:none;margin:8px 0 0;padding:0}
+.guard ul.who li{padding:8px 0;border-top:1px solid color-mix(in srgb,var(--danger) 30%,var(--border));font-size:14px}
+.guard ul.who li:first-child{border-top:0}
+.guard .btn.pri{width:100%;margin-top:12px;white-space:normal;text-align:center;padding:8px 16px}
+.guard .after{font-size:13px;color:var(--muted);margin-top:8px}
+.softnote{display:flex;gap:8px;align-items:flex-start;margin-top:14px;font-size:13px;color:var(--muted)}
+.softnote svg{width:16px;height:16px;flex:none;margin-top:2px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.acts{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.acts .btn{flex:1 1 140px}
+
+/* after planning: who it is for, and who it is not for */
+.whorow{display:flex;align-items:center;gap:10px;min-height:48px;border-top:1px solid var(--border)}
+.whorow:first-of-type{border-top:0}
+.whorow .av{width:30px;height:30px;border-radius:50%;display:inline-grid;place-items:center;font-size:13px;font-weight:800;background:var(--accent);color:var(--on-accent);flex:none}
+.whorow .av.j{background:var(--sage);color:var(--bg)}
+.whorow.out .av{background:var(--bg);color:var(--muted);border:1px dashed var(--muted)}
+.whorow.out b{color:var(--muted)}
+.whorow small{display:block;color:var(--muted);font-size:12px}
+.whorow .nm small{margin-top:1px}
+.toast{left:16px;right:16px;bottom:16px;max-width:none;z-index:90}
+.toast span{flex:1}
+.panel.planned{display:none}

@@ -1,0 +1,100 @@
+/* Cooking ideas pane and the full ideas screen. Theme tokens only (theme.css); builds on ../recipe/recipe.css.
+   Class names are the ones the build should lift: .ideas (the pane), .idl (lead card), .idr (a compact idea row), .why (the one-line reason),
+   .lens (the ideas chip strip, same component as .strip), .rs (a reason row in the Why sheet). */
+
+/* Home screen frame bits (match the household flow's Home: greeting, tiles) */
+.hi{font:800 1.75rem/1.1 var(--head);margin:var(--sp-3) var(--sp-4) var(--sp-2);color:var(--fg)}
+.tilec{margin:var(--sp-2) var(--sp-3) 0;padding:var(--sp-3);border-radius:var(--r-card);background:var(--surface);border:1px solid var(--border)}
+.tilec .th2{display:flex;align-items:center;gap:var(--sp-2);min-height:36px}
+.tilec .th2 h2{flex:1;font-size:1.05rem}
+.ric{display:inline-flex;align-items:center;justify-content:center;flex:none;width:32px;height:32px;border-radius:50%;background:color-mix(in srgb,var(--c,var(--accent)) 20%,var(--surface));color:var(--c,var(--accent));border:1px solid color-mix(in srgb,var(--c,var(--accent)) 45%,var(--border))}
+.ric.t2{--c:var(--sage)}.ric.t3{--c:var(--cue)}
+.va{display:inline-flex;align-items:center;min-height:44px;padding:0 4px;color:var(--accent);font-weight:700;font-size:14px}
+.minis{display:flex;gap:6px;margin-top:6px}
+.minis span{flex:1;min-width:0;padding:6px 8px;border-radius:var(--r-ctl);border:1px solid var(--border);font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.minis b{display:block;color:var(--fg);font-size:13px}
+
+/* the pane */
+.ideas{margin:var(--sp-2) var(--sp-3) 0;padding:var(--sp-3);border-radius:var(--r-card);background:var(--surface);border:1px solid var(--border)}
+.ideas .th2{display:flex;align-items:center;gap:var(--sp-2);min-height:36px}
+.ideas .th2 h2{flex:1;font-size:1.05rem}
+.ideas .tonight{display:flex;align-items:center;gap:var(--sp-3);min-height:52px;margin-top:var(--sp-2);padding:var(--sp-2) var(--sp-3);border-radius:var(--r-ctl);border:1px solid var(--accent);width:100%;text-align:left}
+.ideas .tonight .t{flex:1;min-width:0}.ideas .tonight small{display:block;color:var(--muted);font-size:12px}
+.sub{font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:var(--sp-3) 0 2px}
+
+/* the lead idea */
+.idl{margin-top:var(--sp-2);border-radius:var(--r-ctl);background:var(--bg);border:1px solid var(--border);overflow:hidden}
+.idl .top2{display:flex;gap:var(--sp-3);align-items:center;padding:var(--sp-3);width:100%;text-align:left}
+.idl .ph{width:64px;height:64px;border-radius:var(--r-ctl);flex:none;display:flex;align-items:center;justify-content:center;font-size:34px;background:linear-gradient(160deg,color-mix(in srgb,var(--accent) 26%,var(--surface)),var(--surface));border:1px solid var(--border)}
+.idl .t{flex:1;min-width:0}
+.idl b{display:block;font-size:17px;line-height:1.2}
+.why{display:flex;align-items:flex-start;gap:5px;font-size:13px;line-height:1.35;color:var(--fg);margin-top:3px}
+.why .ic{width:15px;height:15px;margin-top:1px;color:var(--accent)}
+.idl .acts{display:flex;gap:var(--sp-2);padding:0 var(--sp-3) var(--sp-3)}
+.idl .acts .btn{min-height:44px;font-size:14px;padding:0 10px;white-space:nowrap}
+.idl .acts .ib{width:44px;height:44px}
+
+/* compact idea rows */
+.idr{display:flex;align-items:center;gap:var(--sp-1);min-height:60px;width:100%;border-top:1px solid var(--border)}
+.idr .go{flex:1;min-width:0;display:flex;align-items:center;gap:var(--sp-3);min-height:60px;padding:var(--sp-2) 0;text-align:left}
+.idr:first-of-type{border-top:0}
+.idr .e{width:40px;height:40px;border-radius:var(--r-ctl);flex:none;display:flex;align-items:center;justify-content:center;font-size:22px;background:var(--bg);border:1px solid var(--border)}
+.idr .t{flex:1;min-width:0}
+.idr b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.idr .why{color:var(--muted);font-size:12.5px;margin-top:1px}
+.idr .why .ic{display:none}
+.rtag{display:inline-flex;align-items:center;gap:3px;font-size:10.5px;font-weight:800;padding:1px 7px;border-radius:var(--r-pill);border:1px solid var(--sage);color:var(--sage);white-space:nowrap;margin-bottom:2px}
+.rtag.acc{border-color:var(--accent);color:var(--accent)}
+.rtag.dan{border-color:var(--danger);color:var(--danger)}
+
+/* option B carousel */
+.isnap{display:flex;align-items:flex-start;overflow-x:auto;scroll-snap-type:x mandatory;gap:var(--sp-2);scrollbar-width:none;margin-top:var(--sp-2)}
+.isnap::-webkit-scrollbar{display:none}
+.isnap .idl{flex:0 0 100%;scroll-snap-align:center;margin-top:0}
+.idots{display:flex;justify-content:center;gap:6px;margin-top:var(--sp-2)}
+.idots i{width:7px;height:7px;border-radius:50%;background:var(--border)}.idots i.on{background:var(--accent)}
+
+/* pane footer: one quiet line */
+.pfoot{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-2);margin-top:var(--sp-1)}
+.pfoot .lnk2{display:inline-flex;align-items:center;gap:6px;min-height:44px;color:var(--accent);font-weight:700;font-size:13.5px}
+.pfoot .lnk2.mut{color:var(--muted);font-weight:600}
+
+/* empty, cold start, nothing suitable */
+.empt{text-align:center;padding:var(--sp-3) var(--sp-2) var(--sp-1)}
+.empt .big{font-size:40px;line-height:1}
+.empt b{display:block;font-size:16px;margin-top:var(--sp-2)}
+.empt p{margin-top:4px;font-size:13.5px}
+.empt .row{display:flex;gap:var(--sp-2);justify-content:center;flex-wrap:wrap;margin-top:var(--sp-3)}
+.empt .btn{flex:none;min-height:44px;font-size:14px}
+.warnl{display:flex;gap:6px;align-items:flex-start;font-size:12.5px;color:var(--muted);margin-top:var(--sp-2);padding:var(--sp-2);border-radius:var(--r-ctl);border:1px dashed var(--border)}
+
+/* full ideas screen */
+.lens{padding-top:var(--sp-2)}
+.hidrow{display:flex;align-items:center;gap:var(--sp-2);min-height:48px;width:100%;padding:0 var(--sp-4);color:var(--muted);font-size:13.5px;font-weight:700;text-align:left;border-top:1px solid var(--border)}
+.hidrow .t{flex:1}
+.hid{padding:0 var(--sp-4) var(--sp-3)}
+.hid div{display:flex;gap:var(--sp-2);align-items:baseline;padding:6px 0;font-size:13.5px;color:var(--muted);border-top:1px dashed var(--border)}
+.hid div:first-child{border-top:0}
+.hid b{color:var(--fg);font-weight:700}
+
+/* why sheet */
+.rs{display:flex;align-items:flex-start;gap:var(--sp-2);padding:10px 0;border-top:1px solid var(--border);font-size:14px;color:var(--fg)}
+.rs:first-of-type{border-top:0}
+.rs .sg{width:22px;height:22px;border-radius:50%;flex:none;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;border:1px solid var(--sage);color:var(--sage)}
+.rs .sg.dn{border-color:var(--danger);color:var(--danger)}
+.rs .sg.nt{border-color:var(--border);color:var(--muted)}
+.rs small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.srcs{font-size:12.5px;color:var(--muted);margin-top:var(--sp-3);padding-top:var(--sp-2);border-top:1px dashed var(--border)}
+
+/* tune sheet */
+.tg2{display:flex;align-items:center;gap:var(--sp-3);min-height:56px;width:100%;border-top:1px solid var(--border);text-align:left}
+.tg2:first-of-type{border-top:0}
+.tg2 .t{flex:1;min-width:0}.tg2 small{display:block;color:var(--muted);font-size:12.5px}
+.sw2{width:46px;height:28px;border-radius:14px;border:1px solid var(--border);background:var(--bg);position:relative;flex:none}
+.sw2::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:var(--muted);transition:left .15s}
+[aria-checked=true] .sw2{background:var(--accent);border-color:var(--accent)}
+[aria-checked=true] .sw2::after{left:21px;background:var(--on-accent)}
+.segs{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+.segs button{min-height:44px;padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);font-weight:700;font-size:13px}
+.segs button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+@media (prefers-reduced-motion:reduce){.sw2::after{transition:none}}

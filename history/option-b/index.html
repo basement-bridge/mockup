@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>History, Option B: faceted filters</title>
+<link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="hist.css"><script src="../../theme.js"></script></head>
+<body data-no-theme-fab><p class="superseded" style="margin:0;padding:8px 16px;font:600 13px/1.4 var(--body,sans-serif);background:var(--surface);color:var(--fg);border-bottom:1px solid var(--border);text-align:center">Superseded by the owner's decisions, see docs/knowledge/history-options.md</p>
+<!-- History, Option B "Faceted filters" (mockup only, 11 Oct 2026). Spec: docs/knowledge/history-option-b.md.
+     Default path: this page, hist.css, hist.js, theme.css. Nothing else loads until the person engages (suggestions, one change's detail, CSV). -->
+<div class="hx-app">
+ <nav class="hx-rail" aria-label="Main"><div class="brand">Our<br>kitchen</div>
+  <a href="#"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</a>
+  <a href="#"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v3H7zM6 6h12v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1zM9 11h6v5H9z"/></svg>Pantry</a>
+  <a href="#"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 14a4 4 0 1 1 2-7 4 4 0 0 1 6 0 4 4 0 1 1 2 7v6H7z"/></svg>Recipes</a>
+  <a href="#"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.4 11h10l2-8H6.2M9 20h.01M17 20h.01"/></svg>Shopping</a>
+  <a href="#" aria-current="page"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>History</a>
+ </nav>
+
+ <aside class="hx-filters" id="hx-filters" aria-labelledby="hx-ft" role="region"></aside>
+ <div class="hx-scrim" id="hx-scrim" hidden></div>
+
+ <main class="hx-main" id="main">
+  <div class="hx-top"><h1>History</h1>
+   <button type="button" class="hx-btn ghost" id="hx-link" aria-label="Copy link to this view">Copy link</button>
+   <button type="button" class="hx-btn ghost hx-desk" id="hx-csv">Download CSV</button>
+  </div>
+  <div class="hx-find" role="search"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="hx-q" type="search" placeholder="Search items, recipes, people, words" aria-label="Search history" autocomplete="off"><button type="button" class="hx-clr" id="hx-qclr" aria-label="Clear search" hidden><svg class="ic s" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button><kbd class="kbd" aria-hidden="true">/</kbd></div>
+  <div class="hx-tools">
+   <button type="button" class="hx-btn" id="hx-open-f" aria-haspopup="dialog"></button>
+   <span class="grow"></span>
+   <label class="hx-sort"><span class="hx-sr">Sort</span><select id="hx-sort"><option value="new">Newest first</option><option value="old">Oldest first</option><option value="item">Item or recipe, A to Z</option><option value="who">Person, then newest</option></select><svg class="ic s" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></label>
+   <kbd class="kbd" aria-hidden="true">O</kbd>
+  </div>
+  <div class="hx-views" id="hx-views" role="group" aria-label="Saved views"></div>
+  <div class="hx-active" id="hx-active" role="group" aria-label="Active filters" hidden></div>
+  <div class="hx-count" id="hx-count" aria-hidden="true"></div>
+  <div id="hx-results"></div>
+  <p class="phint">J K move down and up the list. Enter opens a change. Z undoes it. / searches. F opens the filters. X clears them. <span class="hx-kk">Shift ?</span> shows every key.</p>
+  <div class="sr-only hx-sr" id="hx-live" aria-live="polite"></div>
+  <details class="hx-notes"><summary>Mockup notes</summary>
+   <p>Option B, faceted filters. Sample data only; nothing is saved or sent. Spec: <a href="../../docs/knowledge/history-option-b.md">docs/knowledge/history-option-b.md</a>.</p>
+   <p>States to look at:</p>
+   <ul>
+    <li><a href="index.html?demo=loading">Loading</a>, <a href="index.html?demo=empty">Nothing yet</a>, <a href="index.html?demo=error">Could not load</a></li>
+    <li><a href="index.html?who=guest&amp;area=Recipes">No results</a> (drop one filter to bring them back)</li>
+    <li><a href="index.html?view=sam-week">Saved view: What Sam changed this week</a>, <a href="index.html?view=review&amp;sel=10">Assistant idea to review, with detail</a>, <a href="index.html?via=voice&amp;sel=3">Said out loud</a></li>
+    <li><a href="index.html?sheet=1">Filters open</a> (phone: bottom sheet, 1024 to 1239: left flyout, 1240 up: always docked)</li>
+   </ul></details>
+ </main>
+
+ <aside class="hx-detail" id="hx-detail" aria-label="Change detail">
+  <div class="hx-grab" aria-hidden="true"></div>
+  <div class="hx-dh"><span id="hx-dav"></span><h2 id="hx-dtitle"></h2><button type="button" class="hx-x" id="hx-dclose" aria-label="Close ('Ctrl Esc')"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="hx-db" id="hx-dbody"></div>
+  <div class="hx-empty-d"><span class="big"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><b style="color:var(--fg)">Pick a change</b><span>It opens here with what changed, who did it, and how it got in.</span></div>
+ </aside>
+
+ <nav class="hx-bar" aria-label="Main">
+  <a href="#"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</a>
+  <a href="#"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v3H7zM6 6h12v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1zM9 11h6v5H9z"/></svg>Pantry</a>
+  <a href="#"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 14a4 4 0 1 1 2-7 4 4 0 0 1 6 0 4 4 0 1 1 2 7v6H7z"/></svg>Recipes</a>
+  <a href="#"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.4 11h10l2-8H6.2M9 20h.01M17 20h.01"/></svg>Shopping</a>
+  <a href="#" aria-current="page"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>History</a>
+ </nav>
+</div>
+<div class="hx-pop" id="hx-pop" role="dialog" aria-modal="true" aria-label="Save view" hidden></div>
+<div class="hx-toast" id="hx-toast" role="status" hidden></div>
+<script src="hist.js"></script>
+</body></html>

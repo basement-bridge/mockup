@@ -1,0 +1,16 @@
+/* Option A, base (1024 to 1279): the board collapses to the agenda. Seven day rows, each with its meals; the inspector docks at 340 and pushes; it is summoned (opens when a meal is picked, or from a week chip), so the rows keep the width when nothing is open. */
+:root{--lane:340px;--main-max:1fr}
+.app:not(.lane-open){grid-template-columns:88px minmax(0,var(--main-max))}
+.app:not(.lane-open) .panel{display:none}
+.main{padding:20px 24px 40px}
+.board{display:flex;flex-direction:column}
+.day{display:grid;grid-template-columns:70px minmax(0,1fr);column-gap:12px;padding:10px 0;border-top:1px solid var(--border)}
+.day:first-child{border-top:0}
+.dh{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding-top:10px}
+.dn{font-weight:800;font-size:15px;color:var(--fg)}
+.dd{font-size:12px;color:var(--muted);font-weight:600}
+.dh .today{margin-top:2px}
+.dh-hint{grid-column:1}
+.stack{display:flex;flex-direction:column;gap:6px;min-width:0}
+.day.is-today .dn{color:var(--accent)}
+.hl{outline:2px solid var(--sage);outline-offset:-2px;background:color-mix(in srgb,var(--sage) 12%,transparent)}

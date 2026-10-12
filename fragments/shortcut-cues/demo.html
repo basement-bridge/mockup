@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Shortcut cues, prototype</title>
+<link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="cues.css"><script src="../../theme.js"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);line-height:1.4;min-height:100vh}
+button,input{font:inherit;color:inherit}button{cursor:pointer}
+h1{font-family:var(--head);font-size:1.8rem;margin:0 0 6px}h2{font-family:var(--head);font-size:1.1rem;margin:0}p{margin:0;color:var(--muted)}
+.app{display:grid;grid-template-columns:88px minmax(0,1fr);min-height:100vh}
+.rail{border-right:1px solid var(--border);padding:16px 8px;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh}
+.rail .brand{font:700 13px var(--head);text-align:center;color:var(--muted);margin-bottom:10px}
+.nv{min-height:var(--tap);border:0;border-radius:var(--r-ctl);background:none;font-size:12px;font-weight:600;color:var(--muted);padding:8px 2px}
+.nv[aria-current=page]{color:var(--accent);background:var(--surface)}
+.rail .me{margin-top:auto}.qk{display:inline-grid;place-items:center;width:22px;height:22px;border:1.8px solid currentColor;border-radius:7px;font-weight:700;margin-bottom:2px}
+.main{padding:28px 40px 56px;max-width:760px}
+.btn{min-height:var(--tap);padding:0 18px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--surface);font-weight:600;display:inline-flex;align-items:center;gap:8px}
+.btn.pri{background:var(--accent);color:var(--on-accent);border-color:transparent}.btn .kbd{margin-left:4px}.btn.pri .kbd{color:var(--on-accent);border-color:currentColor;background:none}
+.hd{display:flex;gap:10px;align-items:center;margin:14px 0}.hd .sp{flex:1}
+.rows{list-style:none;margin:0;padding:0}.rows li{display:flex;align-items:center;gap:10px;min-height:56px;border-bottom:1px solid var(--border)}.rows li button{flex:1;text-align:left;background:none;border:0;min-height:56px}
+.screen[hidden],.fly[hidden],.modal[hidden]{display:none}
+.fly{position:fixed;right:0;top:0;bottom:0;width:360px;max-width:100vw;background:var(--surface);border-left:1px solid var(--border);padding:20px;z-index:20}
+.fly .acts{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.modal{position:fixed;inset:0;background:var(--dim);display:grid;place-items:center;z-index:30}
+.modal>div{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-card);padding:22px;width:min(420px,calc(100vw - 32px))}
+.modal input,.field input{display:block;width:100%;min-height:var(--tap);margin:10px 0;padding:0 12px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--surface)}
+.full{background:var(--bg);min-height:100vh;padding:28px 40px}
+.sections{display:grid;gap:8px;margin-top:14px;max-width:520px}.sections .btn{justify-content:space-between}
+.phint{font-size:13px;margin-top:12px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.log{position:fixed;left:104px;bottom:12px;font-size:12px;color:var(--muted)}
+</style></head><body>
+<div class="app" id="app">
+<nav class="rail" aria-label="Main"><div class="brand">Our<br>kitchen</div>
+<button class="nv" data-go="pantry" aria-current="page">Pantry</button><button class="nv" data-go="plan">Plan</button><button class="nv" data-go="history">History</button><button class="nv" data-go="settings">Settings</button>
+<div class="me"><button class="nv" data-cues="open" aria-label="Keyboard shortcuts"><span class="qk">?</span><br>Keys</button></div></nav>
+<main class="main">
+<section class="screen" id="s-pantry"><h1>Pantry</h1><p>Press Shift and ? anywhere on this page.</p>
+<div class="hd"><button class="btn" data-key="f">Filters <span class="kbd">F</span></button><button class="btn pri" id="addbtn" data-key="n" aria-keyshortcuts="Plus N">+ Add <span class="kbd">+</span></button><span class="sp"></span></div>
+<ul class="rows"><li><button data-item="Butter">Butter</button></li><li><button data-item="Eggs">Eggs</button></li></ul>
+<p class="phint"><span class="kbd">&uarr;</span> <span class="kbd">&darr;</span> to move, <span class="kbd">?</span> for all shortcuts</p></section>
+<section class="screen" id="s-plan" hidden><h1>Plan</h1><p>The week. Moving a meal: lift with Space.</p><div class="hd"><button class="btn" data-key="t">Today <span class="kbd">T</span></button></div></section>
+<section class="screen" id="s-history" hidden><h1>History</h1><p>A page with no keys of its own. Shift and ? still answers, and says so.</p></section>
+<section class="screen" id="s-household" hidden><div class="full" style="padding:0"><h1>Household</h1><p>A sub-screen of Settings. Ctrl or Cmd Esc goes back.</p><div class="hd"><button class="btn" id="hhback">Back to Settings</button></div></div></section>
+<section class="screen" id="s-settings" hidden><div class="full" style="padding:0"><h1>Settings</h1><p>Full screen. Close with Ctrl or Cmd Esc.</p>
+<div class="sections"><button class="btn" data-sec="household">Household <span class="kbd">2</span></button><button class="btn" data-sec="looks">Looks <span class="kbd">3</span></button></div>
+<div class="field"><label for="nm" class="sr">Household name</label><input id="nm" placeholder="Household name (type a ? here)"></div></div></section>
+</main></div>
+<aside class="fly" id="fly" hidden aria-label="Item"><h2 id="flyname">Item</h2><p>Open item flyout.</p><div class="acts"><button class="btn" data-key="e">Edit <span class="kbd">E</span></button><button class="btn" data-key=",">History <span class="kbd">,</span></button></div>
+<p class="phint"><span class="kbd" id="closek">Ctrl Esc</span> closes</p></aside>
+<div class="modal" id="modal" hidden><div role="dialog" aria-modal="true" aria-label="Add an item"><h2>Add an item</h2><input id="addname" placeholder="Name (type a ? here)" aria-label="Name"><label><input type="checkbox" id="chk" style="display:inline;width:auto;min-height:0"> Add and start another</label><div class="hd"><button class="btn pri" id="addok">Add <span class="kbd">Enter</span></button><button class="btn" id="addno">Cancel <span class="kbd">Ctrl Esc</span></button></div></div></div>
+<script src="cues.js"></script><script src="cue-key.js"></script>
+<script>
+(function(){
+var MAC=/Mac|iPhone|iPad/.test(navigator.platform||""),CK=MAC?"⌘ Esc":"Ctrl Esc",$=function(s){return document.querySelector(s)};
+document.querySelectorAll(".ck,#closek,#addno .kbd").forEach(function(k){k.textContent=CK});
+var KEYS={pantry:["Pantry",[["+ or N","Add an item"],["F","Filters side panel"],["↑ or ↓","Move between items"]]],plan:["Plan",[["T","Go to today"],["Space","Lift or drop a meal"]]],history:["History",[]],settings:["Settings (full screen)",[["2","Household"],["3","Looks"]]],household:["Household (sub-screen of Settings)",[]]};
+var cur="pantry";
+function go(n){cur=n;document.querySelectorAll(".screen").forEach(function(s){s.hidden=s.id!=="s-"+n});document.querySelectorAll(".nv[data-go]").forEach(function(b){b.setAttribute("aria-current",b.dataset.go===(n==="household"?"settings":n)?"page":"false")});Cues.screen(KEYS[n][0],KEYS[n][1])}
+document.addEventListener("click",function(e){var g=e.target.closest("[data-go]");if(g)go(g.dataset.go);var s=e.target.closest("[data-sec]");if(s&&s.dataset.sec==="household")go("household");
+ var it=e.target.closest("[data-item]");if(it){$("#flyname").textContent=it.dataset.item;$("#fly").hidden=false;Cues.layer("item",[["E","Edit the open item"],[",","History of the open item"],[CK,"Close the item"]])}
+ if(e.target.closest("#addbtn")||e.target.closest("#addno"))modal(e.target.closest("#addbtn")?true:false);if(e.target.closest("#addok"))modal(false);if(e.target.closest("#hhback"))go("settings")});
+function modal(on){$("#modal").hidden=!on;if(on){Cues.layer("add",[["Enter","Add the item"],["Shift Enter","Add and start another"],[CK,"Cancel"]]);$("#addname").focus()}else Cues.layer("add",null)}
+/* the page's own keys: they run first and call preventDefault, so Cues never sees the press */
+document.addEventListener("keydown",function(e){
+ if((e.ctrlKey||e.metaKey)&&e.key==="Escape"){if(!$("#modal").hidden){e.preventDefault();modal(false);return}if(!$("#fly").hidden){e.preventDefault();$("#fly").hidden=true;Cues.layer("item",null);return}if(cur==="household"){e.preventDefault();go("settings");return}if(cur==="settings"){e.preventDefault();go("pantry")}return}
+ if(Cues.typing(e.target)||e.ctrlKey||e.metaKey||e.altKey)return;
+ if(cur==="pantry"&&(e.key.toLowerCase()==="n"||e.key==="+"||e.key==="=")){e.preventDefault();modal(true)}
+});
+CueKey.host={get:function(){return !document.body.classList.contains("nocues")},set:Cues.set};
+go("pantry");
+var q=new URLSearchParams(location.search);if(q.get("screen"))go(q.get("screen"));if(q.get("fly")){$("#flyname").textContent="Butter";$("#fly").hidden=false;Cues.layer("item",[["E","Edit the open item"],[",","History of the open item"],[CK,"Close the item"]])}if(q.get("add"))modal(true);
+})();
+</script></body></html>

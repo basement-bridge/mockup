@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Check a new recipe — Recipe tab mockup</title>
+<link rel="stylesheet" href="../theme.css"><link rel="stylesheet" href="recipe.css"><link rel="stylesheet" href="flow2.css"><script src="../theme.js"></script><script src="recipe.js"></script><script src="flow2.js"></script></head>
+<body data-no-theme-fab>
+<div class="stage"><div class="phone" id="ph"></div></div>
+<script>
+(function(){
+var X=RCP,ic=X.ic,esc=X.esc;
+/* L4 (owner, 10 October 2026): every draft comes from the person's own AI assistant over Recipe's MCP tools. There is no paste, link or photo read,
+   so this screen has two cases only: an assistant draft, and an assistant draft whose create_recipe returned likely duplicates (never merged silently).
+   Old links (?from=paste, photo, link) open the duplicate or the plain draft, so nothing 404s. */
+var from=X.Q.get("from")||"assistant";
+if(from==="paste")from="dup";
+if(from!=="dup")from="assistant";
+/* Sample drafts. basis: o = said by the person or their source, g = the assistant's guess (inferred), u = not said. Mirrors Recipe's quantity.basis. */
+var D={
+  assistant:{t:"Red lentil soup",e:"🍲",src:"Your assistant, from a chat with Alex this morning",kind:"conversation",serves:4,min:35,
+    ings:[["Red lentils","200 g","o"],["Onion","1","o"],["Carrot","2","o"],["Vegetable stock","1 L","o"],["Cumin","1 tsp","o"],["Lemon","½","g"]],
+    steps:["Soften the onion and carrot.","Add lentils, cumin and stock. Simmer 20 min.","Blend half, squeeze in the lemon."],dup:null},
+  dup:{t:"Egg fried rice",e:"🍚",src:"Your assistant, from a chat with Jane just now",kind:"conversation",serves:2,min:null,
+    ings:[["Eggs","3","o"],["Cold rice","300 g","o"],["Onion","1","o"],["Soy sauce","","u"],["Spring onions","2","g"]],
+    steps:["Fry the onion.","Scramble the eggs.","Add the rice and soy sauce."],dup:"efr"}
+}[from];
+var d=D, ph=document.getElementById("ph"), dupDone=false;
+var miss=function(n){return /lentil|lemon|spring/i.test(n)};
+function draw(){
+  var guesses=d.ings.filter(function(i){return i[2]==="g"}).length, unk=d.ings.filter(function(i){return i[2]==="u"}).length+(d.serves?0:1)+(d.min?0:1);
+  ph.innerHTML='<div class="top"><a class="back" href="list.html">'+ic("back","s")+'Recipes</a><span class="ttl">Check it</span><span style="width:64px"></span></div>'+
+  '<div class="body">'+
+  /* R-D14: say where it came from and what we are unsure of, once, at the top. Then the recipe exactly as it will be saved. */
+  '<div class="pad"><span class="badge">'+ic("spark","xs")+'Suggested · '+esc(d.src)+'</span>'+
+  '<p style="margin-top:10px;font-size:13px">'+(guesses||unk?(guesses?guesses+' guess'+(guesses>1?'es':'')+' marked <span class="unk" style="border-style:solid">guess</span>. ':'')+(unk?unk+' thing'+(unk>1?'s':'')+' nobody said, marked <span class="unk">?</span>. Leave them blank or fill them in.':''):'Nothing was guessed and nothing is missing.')+'</p></div>'+
+  (d.dup&&!dupDone?'<div class="warn"><b>You may already have this</b>Your assistant found '+esc(X.byId(d.dup).name)+', added by Sam on 3 Sep, cooked 6 times. Nothing is merged unless you say so.<div class="row"><a class="mini" href="detail.html?id='+d.dup+'">Open that one</a><a class="mini" href="edit.html?id='+d.dup+'&from=dup">Save as a version of it</a><button type="button" class="mini" data-keep>Keep both</button></div></div>':'')+
+  '<div class="pad">'+
+    '<label class="lbl" for="tt">Name</label><input id="tt" class="field" style="margin-top:4px;font-weight:700" value="'+esc(d.t)+'">'+
+    '<div class="meta" style="margin-top:10px"><button class="mc'+(d.serves?'':' acc')+'">'+ic("users")+(d.serves?'Serves '+d.serves:'Serves <span class="unk">?</span>')+'</button><button class="mc'+(d.min?'':' acc')+'">'+ic("clock")+(d.min?d.min+' min':'Time <span class="unk">?</span>')+'</button></div>'+
+    '<div class="lblrow"><span class="lbl">Ingredients · '+d.ings.length+'</span><button class="back" style="font-size:13px">'+ic("plus","xs")+' Add</button></div>'+
+    d.ings.map(function(i,k){return '<button type="button" class="erow" data-ing="'+k+'"><span class="dot'+(miss(i[0])?' no':'')+'" aria-hidden="true"></span><span class="nm">'+esc(i[0])+' <span class="q" style="color:var(--muted);font-size:13px">'+esc(i[1])+'</span>'+(i[2]==="u"?' <span class="unk">amount?</span>':'')+(i[2]==="g"?' <span class="unk" style="border-style:solid">guess</span>':'')+'</span>'+ic("pen","s")+'</button>'}).join("")+
+    '<p style="font-size:12px;margin-top:4px">Dots show what is in your pantry now. Nothing is added to shopping until you plan or cook it.</p>'+
+    '<div class="lblrow"><span class="lbl">Method · '+d.steps.length+' steps</span><button class="back" style="font-size:13px">'+ic("plus","xs")+' Add</button></div>'+
+    d.steps.map(function(s,k){return '<button type="button" class="erow" style="align-items:flex-start;padding:10px 0"><span class="stp" style="padding:0;border:0"><span class="nb">'+(k+1)+'</span></span><span class="nm" style="font-size:14.5px">'+esc(s)+'</span>'+ic("pen","s")+'</button>'}).join("")+
+  '</div><div style="height:24px"></div></div>'+
+  /* R-D15 as reworded by the versions rule BR10: two answers. Add to Recipes makes the draft a try (Trying) for the household.
+     Not for us dismisses it: it leaves Recipes and stays only in this member's own assistant history. Undo in the toast; nothing is deleted.
+     Leaving without answering keeps it waiting in the drafts line. */
+  '<div class="act"><button type="button" class="btn ghost" data-notforus>Not for us</button><button type="button" class="btn" data-save>'+ic("check","s")+'Add to Recipes</button></div>';
+}
+ph.addEventListener("click",function(e){
+  var t=e.target.closest("button");if(!t)return;
+  if(t.hasAttribute("data-keep")){dupDone=true;draw()}
+  else if(t.dataset.ing!=null){var i=d.ings[+t.dataset.ing];X.sheet('<h3>'+esc(i[0])+'</h3><label class="lbl" for="a1">Amount</label><input id="a1" class="field" style="margin-top:4px" value="'+esc(i[1])+'" placeholder="Leave blank if you don\'t know"><p style="font-size:12px;margin-top:6px">A blank amount is saved as unknown, never as a guess.</p><div style="display:flex;gap:8px;margin-top:12px"><button class="btn ghost" data-close>Remove</button><button class="btn" data-close>Done</button></div>')}
+  else if(t.hasAttribute("data-save")){ph.querySelector(".body").innerHTML='<div class="pad" style="text-align:center;padding-top:60px"><div style="font-size:56px">'+d.e+'</div><h2 style="margin-top:10px">Added to Recipes</h2><p style="margin-top:6px">'+esc(d.t)+' is in your recipes as a try. Cook it, then keep it or not.</p><div style="display:flex;gap:8px;margin-top:20px"><a class="btn ghost" href="list.html">Back to recipes</a><a class="btn" href="detail.html?id=efr">Open it</a></div></div>';ph.querySelector(".act").remove()}
+  else if(t.hasAttribute("data-notforus")){var act=ph.querySelector(".act"),body=ph.querySelector(".body"),was=body.innerHTML;
+    body.innerHTML='<div class="pad" style="text-align:center;padding-top:60px"><div style="font-size:56px">🙅</div><h2 style="margin-top:10px">Not for us</h2><p style="margin-top:6px">'+esc(d.t)+' is out of Recipes. It stays only in your own assistant\'s history; nothing is deleted.</p><div style="margin-top:20px"><a class="btn ghost" href="list.html">Back to recipes</a></div></div>';act.style.display="none";
+    X.toast("Not for us. Only your assistant keeps it.",function(){body.innerHTML=was;act.style.display="";X.toast("Back as a draft to check")})}
+});
+draw();
+X.controls('<h4>Assistant draft (L4)</h4><p><a href="?from=assistant">Plain draft</a> · <a href="?from=dup">Duplicate found</a></p>');
+})();
+</script>
+</body></html>
