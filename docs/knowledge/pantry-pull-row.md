@@ -4,6 +4,8 @@ Status: mockup for the owner to review (7 Oct 2026). Not built in Kitchie. Sourc
 
 Code: `flows/household/app.js` (search for `PULL_SEARCH`, `prow`), `flows/household/{mobile,tablet,desktop}/styles.css` (`.prow`).
 
+> Desktop (above 1024px, mock only, 9 Oct 2026): the tucked search is replaced by a permanent docked search bar and a tab regaining focus plays the refresh animation over the bar. See "Desktop pantry" at the end of this file and DESIGN.md section 7.
+
 ## The row
 
 One row at the top of Pantry, fixed height 56px (it never changes height, so the list never jumps). Three layers share it:
@@ -92,3 +94,11 @@ Mouse drag works like touch (pointer events, same thresholds). Nothing else is a
 - The "Up to date" toast stays after a refresh.
 - Return to search or Filters after a refresh: does not apply, search and refresh are mutually exclusive. After a refresh the row returns to Filters + Add.
 - Only Cancel closes the search bar; tapping or scrolling the list does not.
+
+## Desktop pantry (owner, voice, 9 Oct 2026)
+
+Mock in `flows/household/desktop/` only. Not built in Kitchie. Full spec and proposals: DESIGN.md section 7, "Desktop pantry: docked search and refresh on tab focus". Summary:
+
+- Above 1024px the row is `[ search bar ] [ Filters ] [ + ]`, the search bar always visible. No pull gesture, no tucked magnifier. Phone and tablet keep everything above.
+- The tab regaining focus plays the same refresh scene over the search bar (the bar dims, Filters and Add stay), 2400 ms, then "Up to date". A typed query survives. Triggered in the mock by a real tab focus or Controls > "Simulate tab focus".
+- **Proposal:** item count hidden visually on desktop (room), no mic in the bar, repeat focus refreshes within 10 s ignored.

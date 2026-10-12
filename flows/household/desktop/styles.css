@@ -511,3 +511,31 @@ html,body{overflow-x:hidden}.phone,.body{overflow-x:hidden}.rscroll,.twoRow{over
 .codeb{letter-spacing:.12em;font-size:17px}
 .codein{text-align:center;font-size:28px;letter-spacing:.18em;font-variant-numeric:tabular-nums}
 .center-t{justify-content:center;text-align:center;padding:0}
+
+/* Desktop pantry (DESIGN.md section 7, "Desktop pantry"). Above 1024px only; phone and tablet widths keep the search tucked under Filters.
+   A permanent search bar sits in the Pantry top row, docked left of Filters and Add. The visible item count is dropped (it stays for screen readers)
+   because the 390px frame has no room for it, so the row stays 56px and nothing else moves. There is no pull gesture here, so the tucked search layer is off. A tab regaining focus plays the
+   existing refresh scene over the bar: the row's anim state (the same one the pull uses) now dims the bar and shows .dsrf instead of sliding the
+   whole row away, so Filters and Add stay put. */
+.dsrch{display:none}
+@media (min-width:1024px){
+  .pl-front .count{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .pl-front .pact{flex:1;min-width:0}
+  .pl-search{display:none}
+  .dsrch{position:relative;display:flex;align-items:center;flex:1;min-width:0;height:48px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--surface)}
+  .dsrch:focus-within{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+  .dsrch .mg{flex:none;width:40px;height:46px;display:inline-flex;align-items:center;justify-content:center;color:var(--muted)}
+  .dsrch:focus-within .mg{color:var(--accent)}
+  .dsrch .field{flex:1;min-width:0;border:0;background:none;min-height:46px;padding:0 10px 0 0;border-radius:0;transition:opacity .2s}
+  .dsrch .field:focus-visible{outline:none} /* the bar already shows the accent border */
+  .dsrf{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;border-radius:inherit;background:color-mix(in srgb,var(--bg) 92%,transparent);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .2s,visibility 0s .2s;overflow:hidden}
+  .dsrf .rf{gap:6px;padding:0 6px;max-width:100%}
+  .dsrf .rf svg{width:52px;height:36px;flex:none}
+  .dsrf .rf span{font-size:12px;line-height:1.15;text-align:left}
+  .prow[data-state=anim] .pl-front{transform:none;visibility:visible;transition-delay:0s} /* stays visible, so typing focus survives the refresh */
+  .prow[data-state=anim] .pl-msg{visibility:hidden}
+  .prow[data-state=anim] .dsrf{opacity:1;visibility:visible;transition-delay:0s}
+  .prow[data-state=anim] .dsrch .field{opacity:.35}
+  .prow[data-state=anim] .dsrch .field::-webkit-search-cancel-button{visibility:hidden}
+}
+@media (min-width:1024px) and (prefers-reduced-motion:reduce){.dsrf,.dsrch .field{transition:none}}

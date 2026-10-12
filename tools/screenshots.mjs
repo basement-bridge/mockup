@@ -19,6 +19,8 @@ const SCREENS = [
   ["household-mobile-pantry", "flows/household/mobile/index.html", "pantry"],
   ["household-tablet-pantry", "flows/household/tablet/index.html", "pantry"],
   ["household-desktop-pantry", "flows/household/desktop/index.html", "pantry"],
+  /* fourth item: a Controls button to press after the jump. Desktop only: "Simulate tab focus" plays the refresh animation over the docked search bar (above 1024px; below it the button says so). */
+  ["household-desktop-pantry-refresh", "flows/household/desktop/index.html", "pantry", "tabfocus"],
   ["inventory-home", "fragments/inventory-home/index.html"],
   ["item-row-axes", "fragments/item-row-axes/index.html"],
   ["item-sheet", "fragments/item-sheet/index.html"],
@@ -37,7 +39,7 @@ const THEMES = [["kitchie-day", "light"], ["kitchie", "dark"]];
 const browser = await chromium.launch();
 mkdirSync(out, { recursive: true });
 const problems = [];
-for (const [name, path, jump] of SCREENS) {
+for (const [name, path, jump, press] of SCREENS) {
   for (const [w, h, bucket] of WIDTHS) {
     for (const [theme, mode] of THEMES) {
       const ctx = await browser.newContext({ viewport: { width: w, height: h }, colorScheme: mode });
@@ -45,6 +47,7 @@ for (const [name, path, jump] of SCREENS) {
       const page = await ctx.newPage();
       await page.goto(BASE + path, { waitUntil: "networkidle" });
       if (jump) await page.evaluate(j => document.querySelector(`[data-act=jump][data-p=${j}]`).click(), jump);
+      if (press) { await page.evaluate(a => document.querySelector(`[data-act=${a}]`).click(), press); await page.waitForTimeout(600); }
       await page.waitForTimeout(250);
       const r = await page.evaluate(([w]) => {
         const de = document.documentElement;

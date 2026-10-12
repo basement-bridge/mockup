@@ -251,6 +251,12 @@ const roleChip = (who) => role(who) ? `<span class="chip rchip">${riSvg(role(who
    fetched once on that first tap and cached. The used-up confirm is built only when opened. README: "Item detail". */
 /* app.js is shared by the mobile, tablet and desktop pages, which sit one folder below it, so field files are found next to this script and not next to the page. */
 const APP_BASE = document.currentScript.src.replace(/[^/]*$/, "");
+/* Which form factor page this is (<body data-form>). The script is shared; it branches on this only where behaviour genuinely differs.
+   Desktop pantry (DESIGN.md section 7, "Desktop pantry"): above 1024px the desktop page docks a permanent search bar beside Filters and Add,
+   there is no pull gesture, and a tab regaining focus plays the refresh animation over the search bar. */
+const FORM = document.body.dataset.form || "mobile";
+const deskMQ = window.matchMedia("(min-width:1024px)");
+const isDesk = () => FORM === "desktop" && deskMQ.matches;
 const ITEM_FIELDS = {}; /* each fields/*.js adds { html(p), set: { op(p, value) -> patch | error text } } for its keys */
 const FIELD_FILE = { name: "name", qty: "amounts", min: "amounts", level: "flags", loc: "place", spot: "place", cat: "category", useby: "useby" };
 const fieldLoads = new Map();
@@ -360,6 +366,8 @@ const RF = [
   ["Timer's ticking. Nearly ready", `<svg viewBox="0 0 120 80" aria-hidden="true"><path class="rf-ph" d="M52 10h16M60 10v8"/><circle class="rf-e" cx="60" cy="46" r="26"/><g class="rf-hand2"><path class="rf-ph" d="M60 46V28"/></g><circle class="rf-eye" cx="60" cy="46" r="3"/></svg>`],
 ];
 let lastRF = -1;
+/* Desktop only (hidden by desktop/styles.css below 1024px; other pages render nothing). The bar shares S.search with the tucked search. The refresh overlay (#dsrf) sits over the bar and shows while the row is in the anim state. */
+const deskSearchHtml = () => FORM !== "desktop" ? "" : `<div class="dsrch" role="search"><span class="mg" aria-hidden="true">${I.search}</span><input class="field" id="dsearch" type="search" placeholder="Search pantry" value="${esc(S.search)}" autocomplete="off" aria-label="Search your pantry"><div class="dsrf" id="dsrf" ${S.refresh ? 'role="status"' : 'aria-hidden="true"'}>${S.refresh ? refreshHtml(S.refresh) : ""}</div></div>`;
 const refreshHtml = (r) => `<div class="rf">${reducedMotion() ? "" : r[1]}<span>${r[0]}</span></div>`;
 const reducedMotion = () => S.cfg.motion || (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
 /* ---------- screens ---------- */
@@ -462,7 +470,7 @@ const screens = {
     <div class="prow" id="prow" data-state="${S.refresh ? "anim" : S.searchOpen ? "search" : "rest"}"><h1 class="vh">Pantry</h1>
       <div class="pl pl-msg" id="pmsg" ${S.refresh ? 'role="status"' : 'aria-hidden="true"'}>${S.refresh ? refreshHtml(S.refresh) : ""}</div>
       <div class="pl pl-search"><button class="link cancel" data-act="searchcancel">Cancel</button><div class="spill"><input class="field" id="search" placeholder="Search your pantry" value="${esc(S.search)}" autocomplete="off" aria-label="Search your pantry"><button class="icon" data-act="mic" aria-label="Search by voice" title="Voice">${riSvg("mic", 22)}</button><span class="mg" aria-hidden="true">${I.search}</span></div></div>
-      <div class="pl pl-front"><p class="count" aria-live="polite">${S.pantry.length} items</p><div class="pact">${S.fa ? "" : `<button class="tbtn" data-sheet="filters" aria-label="Filters">${riSvg("funnel", 18)}<span>Filters</span></button>`}<button class="icon addbtn" data-sheet="add" aria-label="Add an item" title="Add an item" ${S.down ? "disabled" : ""}>${I.plus}</button></div></div>
+      <div class="pl pl-front"><p class="count" aria-live="polite">${S.pantry.length} items</p><div class="pact">${deskSearchHtml()}${S.fa ? "" : `<button class="tbtn" data-sheet="filters" aria-label="Filters">${riSvg("funnel", 18)}<span>Filters</span></button>`}<button class="icon addbtn" data-sheet="add" aria-label="Add an item" title="Add an item" ${S.down ? "disabled" : ""}>${I.plus}</button></div></div>
     </div>
     ${S.fa
       ? cvHtml()
@@ -715,6 +723,7 @@ function panelHtml() {
   <div class="grp"><h3>Household</h3>${sw("recipes", "Has Recipes")}${sw("down", "Platform is down")}${sw("expireNext", "Sign-in ends on next save")}</div>
   <div class="grp"><h3>Home-screen prompt</h3><div class="st" id="pwa-st">${esc(pwaStatus())}</div><button class="pb" data-act="usage">Add 30 min of use</button><button class="pb" data-act="week">Move on a week</button><p class="st">Nothing until 1 hour of use. Then once, twice, once over three weeks. Then never. Shows on Today.</p></div>
   <div class="grp"><h3>Jump to</h3><button class="pb" data-act="restart">Invite link opens</button><button class="pb" data-act="jump" data-p="today">Home</button><button class="pb" data-act="jump" data-p="pantry">Pantry</button><button class="pb" data-act="jump" data-p="household">Household</button><button class="pb" data-act="jump" data-p="notmember">Not a member</button><button class="pb" data-act="jump" data-p="entercode">Enter a code</button><button class="pb" data-act="reset">Reset everything</button></div>
+  ${FORM === "desktop" ? `<div class="grp"><h3>Desktop pantry</h3><button class="pb" data-act="tabfocus">Simulate tab focus</button><p class="st">Plays the refresh animation over the search bar, as when you come back to this tab. Needs the Pantry screen and a window wider than 1024px.</p></div>` : ""}
   <p class="st">Fake data. Nothing leaves your browser.</p>`;
 }
 
@@ -756,6 +765,7 @@ const sortTab = (f) => `<h3 class="fh">Sort by</h3><div class="seg2 wide" role="
 function fitRows() { document.querySelectorAll(".twoRow").forEach((g) => { g.style.gridTemplateRows = "auto"; if (g.scrollWidth > g.clientWidth + 1) g.style.gridTemplateRows = "repeat(2,auto)"; }); }
 function render() {
   const phone = document.getElementById("phone");
+  const ds = document.activeElement; const dsKeep = ds && ds.id === "dsearch" ? [ds.selectionStart, ds.selectionEnd] : null; /* a toast re-renders the page; keep typing where it was */
   const prev = phone.querySelector(".body"); const top = prev && lastScreen === S.screen ? prev.scrollTop : 0;
   if (S.screen === "pantry") S.seenP = S.pantry.filter((i) => i.recent).length;
   if (S.screen === "recipes") S.seenR = RECIPES.filter((r) => r.new).length;
@@ -768,6 +778,7 @@ function render() {
   if (!panel.dataset.ready || S.panelDirty) { panel.innerHTML = panelHtml(); panel.dataset.ready = "1"; S.panelDirty = false; }
   else { const st = document.getElementById("pwa-st"); if (st) st.textContent = pwaStatus(); }
   fitRows();
+  if (dsKeep) { const d = document.getElementById("dsearch"); if (d) { d.focus({ preventScroll: true }); d.setSelectionRange(dsKeep[0], dsKeep[1]); } }
   const s = document.getElementById("search"); if (s && S.searchFocus) { s.focus(); s.setSelectionRange(s.value.length, s.value.length); }
 }
 const refreshPanel = () => { S.panelDirty = true; };
@@ -796,6 +807,7 @@ const acts = {
     const r = new SR(); r.lang = "en-AU"; r.onresult = (e) => { S.search = e.results[0][0].transcript; S.searchFocus = true; render(); S.searchFocus = false; }; r.onerror = () => toast("Couldn't hear that. Try again"); r.start(); toast("Listening…");
   },
   searchcancel() { closeSearch(); },
+  tabfocus() { if (S.screen !== "pantry") { toast("Open Pantry first"); return; } if (!isDesk()) { toast("Needs a window wider than 1024px"); return; } tabFocusRefresh(true); document.getElementById("panel").classList.remove("open"); },
   useone(id) {
     if (S.down) return; const i = S.pantry.find((x) => x.id === id); if (!i) return;
     if (!reducible(i) || i.n <= 1) { markUsedUp(id); return; }
@@ -945,7 +957,7 @@ document.addEventListener("click", (e) => {
   if (t.dataset.go) { S.sheet = null; return go(t.dataset.go, ["item", "recipe"].includes(t.dataset.go) ? t.dataset.p : null); }
 });
 document.addEventListener("change", (e) => { const fin = e.target.dataset && e.target.dataset.fin; if (fin) { acts.fset(fin + "|" + e.target.value, e.target.type === "text"); return; } const c = e.target.dataset && e.target.dataset.ctl; if (e.target.id === "myname") { if (!e.target.value.trim()) e.target.value = me().name; S.nameDirty = false; return; } if (c === "persona") { S.persona = e.target.value; refreshPanel(); render(); } if (c === "existing") { S.existing = Number(e.target.value); render(); }  if (c === "codeState") { S.codeState = e.target.value; render(); } });
-document.addEventListener("input", (e) => { if (e.target.id === "codein") { const d = e.target.value.replace(/\D/g, "").slice(0, 6); S.codeTyped = d.length > 3 ? d.slice(0, 3) + " " + d.slice(3) : d; e.target.value = S.codeTyped; } if (e.target.id === "r-title" && S.rdraft) S.rdraft.title = e.target.value; if (e.target.id === "r-desc" && S.rdraft) S.rdraft.desc = e.target.value; if (e.target.id === "search") { S.search = e.target.value; document.getElementById("plist").innerHTML = listHtml(); }
+document.addEventListener("input", (e) => { if (e.target.id === "codein") { const d = e.target.value.replace(/\D/g, "").slice(0, 6); S.codeTyped = d.length > 3 ? d.slice(0, 3) + " " + d.slice(3) : d; e.target.value = S.codeTyped; } if (e.target.id === "r-title" && S.rdraft) S.rdraft.title = e.target.value; if (e.target.id === "r-desc" && S.rdraft) S.rdraft.desc = e.target.value; if (e.target.id === "search" || e.target.id === "dsearch") { S.search = e.target.value; document.getElementById("plist").innerHTML = listHtml(); }
   if (e.target.id === "myname") { const v = e.target.value.trim().slice(0, 24); if (v && v !== me().name) { PEOPLE[S.persona].name = v; PEOPLE[S.persona].initial = initials(S.persona); const big = document.querySelector(".avbig .av"); if (big && !S.avatars[S.persona]) big.textContent = PEOPLE[S.persona].initial; S.nameDirty = true; } } /* saves as you type: no Save button */
   if (e.target.id === "leavename") document.getElementById("leavego").disabled = e.target.value.trim().toLowerCase() !== me().name.toLowerCase(); });
 /* swipe a running-low row to add it; press and hold to start picking several */
@@ -1003,7 +1015,7 @@ function closeSearch() {
   setRow(row, S.refresh ? "anim" : "rest"); const l = document.getElementById("plist"); if (l) l.innerHTML = listHtml();
 }
 function pullStart(target, x, y) {
-  const b = target.closest && target.closest(".body.tight"); if (!b || S.screen !== "pantry" || S.sheet || S.refresh || S.searchOpen || b.scrollTop > 0 || target.closest("input")) return; /* search open: no pull at all, so a refresh can never start while it is held open */
+  const b = target.closest && target.closest(".body.tight"); if (isDesk() || !b || S.screen !== "pantry" || S.sheet || S.refresh || S.searchOpen || b.scrollTop > 0 || target.closest("input")) return; /* search open: no pull at all, so a refresh can never start while it is held open */
   pl = { x, y, dy: 0, b, row: b.querySelector("#prow"), st: null };
 }
 function pullMove(x, y, e) {
@@ -1024,13 +1036,33 @@ function pullShow(st, dy) {
   if (st === "let") { msg.innerHTML = `<div class="rf"><span>Let go to refresh</span></div>`; msg.removeAttribute("aria-hidden"); }
 }
 function pullCancel() { if (!pl) return; const x = pl; pl = null; setRow(x.row, rowState()); }
+/* One refresh, however it started: a deep pull (phone, tablet) or a tab regaining focus (desktop). Picks a scene, plays it, settles, toasts "Up to date". */
+function playRefresh(row) {
+  let n; do { n = Math.floor(Math.random() * RF.length); } while (n === lastRF); lastRF = n;
+  S.refresh = RF[n]; const msg = row.querySelector("#pmsg"); msg.innerHTML = refreshHtml(S.refresh); msg.setAttribute("role", "status");
+  const dr = row.querySelector("#dsrf"); if (dr) { dr.innerHTML = refreshHtml(S.refresh); dr.setAttribute("role", "status"); dr.removeAttribute("aria-hidden"); } /* desktop: the same scene over the docked search bar */
+  setRow(row, "anim"); row.dataset.scene = n;
+  clearTimeout(refreshTimer); refreshTimer = setTimeout(() => { refreshTimer = null; S.refresh = null; const r = document.getElementById("prow"); if (r) { setRow(r, "rest"); delete r.dataset.scene; } toast("Up to date"); }, reducedMotion() ? REFRESH_MS_REDUCED : REFRESH_MS);
+}
+/* Desktop: the tab regaining focus refreshes Pantry. Only on Pantry, never under a sheet or while a refresh is already playing, and a real focus event
+   is ignored if the last refresh was under 10 s ago (focus and visibilitychange fire together, and alt-tabbing back and forth should not flicker). The query in the bar is left alone. */
+const FOCUS_GAP_MS = 10000; let lastFocusRefresh = 0;
+function tabFocusRefresh(force) {
+  if (!isDesk() || S.screen !== "pantry" || S.sheet || S.refresh) return false;
+  if (!force && Date.now() - lastFocusRefresh < FOCUS_GAP_MS) return false;
+  const row = document.getElementById("prow"); if (!row) return false;
+  lastFocusRefresh = Date.now(); playRefresh(row); return true;
+}
+window.addEventListener("focus", () => tabFocusRefresh(false));
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") tabFocusRefresh(false); });
+/* leaving desktop width: the docked bar goes away, so a query typed in it must not keep filtering a list with no visible search */
+deskMQ.addEventListener("change", () => { if (FORM === "desktop" && !deskMQ.matches && S.search && !S.searchOpen) { S.search = ""; render(); } });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && e.target.id === "dsearch" && S.search) { e.target.value = ""; S.search = ""; document.getElementById("plist").innerHTML = listHtml(); } });
 function pullEnd() {
   if (!pl) return; const x = pl; pl = null; const row = x.row;
   if (x.dy > 8) lastGesture = Date.now();
   if (x.dy >= PULL_REFRESH) {
-    let n; do { n = Math.floor(Math.random() * RF.length); } while (n === lastRF); lastRF = n;
-    S.refresh = RF[n]; const msg = row.querySelector("#pmsg"); msg.innerHTML = refreshHtml(S.refresh); msg.setAttribute("role", "status"); setRow(row, "anim"); row.dataset.scene = n;
-    clearTimeout(refreshTimer); refreshTimer = setTimeout(() => { refreshTimer = null; S.refresh = null; const r = document.getElementById("prow"); if (r) { setRow(r, "rest"); delete r.dataset.scene; } toast("Up to date"); }, reducedMotion() ? REFRESH_MS_REDUCED : REFRESH_MS);
+    playRefresh(row);
   } else if (x.dy >= PULL_SEARCH) openSearch(row);
   else setRow(row, rowState());
 }
