@@ -102,9 +102,9 @@ function usedIn(it) {
   var out = [];
   D.days.forEach(function (d, i) {
     var name = S.plan[i] || (S.week === "planned" ? D.planned[i] : ""), u = name && D.planUses[name];
-    if (u && u.indexOf(it.id) > -1) out.push(name.charAt(0).toLowerCase() + name.slice(1) + " " + DAYNAME[d.split(" ")[0]]);
+    if (u && u.indexOf(it.id) > -1) out.push(DAYNAME[d.split(" ")[0]] + ", " + name.charAt(0).toLowerCase() + name.slice(1));
   });
-  return out.length ? '<p class="usedin" id="d-usedin"><b>Used in:</b> ' + esc(out.join(", ")) + "</p>" : "";
+  return out.length ? '<p class="usedin" id="d-usedin"><b>Used in:</b> ' + esc(out.join(" \u00b7 ")) + "</p>" : "";
 }
 HDP.usedIn = usedIn;
 function itemHtml(it) {
