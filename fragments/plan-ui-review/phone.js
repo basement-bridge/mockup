@@ -1,4 +1,5 @@
-/* Plan UI review, phone (390 and 360). 13 Oct 2026 01:55: the open day is UAT's dashed box with a right swipe for Not cooking (147 to 149, ?od=dash|text), a duller accent token (150, ?ac=dull|normal), the vanishing-options fix (151 to 153). 13 Oct 2026, later: the day ribbon shows ONLY while a detail is open (decision 136, owner-stated); ?rb=always restores the old always-on ribbon (superseded, for comparison).
+/* Plan UI review, phone (390 and 360). 13 Oct 2026, live test (decisions 154 to 158): a Not cooking day opens a light panel (154), the swipe's Not cooking Undo is 3 s (155), Not cooking is the muted grey of past days and the ?ac= switch is gone (156), an ECG marker on the divider line opens or closes the collapsed Not cooking days of a gap (157, ?gap=ecg|off), the tear is on every drag and only on the top and bottom edges (158, ?tear=all|detail, default all).
+   13 Oct 2026 01:55: the open day is UAT's dashed box with a right swipe for Not cooking (147 to 149, ?od=dash|text), a duller accent token (150, ?ac=dull|normal), the vanishing-options fix (151 to 153). 13 Oct 2026, later: the day ribbon shows ONLY while a detail is open (decision 136, owner-stated); ?rb=always restores the old always-on ribbon (superseded, for comparison).
    13 Oct 2026 batch 2 (decisions 120 to 133): plain red or green status, one combined ingredient list, Hold and Add at the bottom, total time, quiet open nights, first-run wiggle, auto-expiring undo, Open recipe.
    Batch 1: UAT day-row grid (.pw-day, .pw-dn, .pw-stack, verified against Kitchie uat), ribbon taps swap the docked stack, lift, tear. Day ribbon revision, 12 Oct 2026 (owner-stated decisions 85 to 119, see docs/knowledge/jobs-to-be-done/plan-ui-review.md).
    Swipes are pointer events, so a mouse drags exactly like a finger. Keyboard: focus a card, X replan, Shift X not cooking, H hold, E or Enter open, Z undo.
@@ -9,15 +10,15 @@
   function pick(k, ok, d) { var v = q.get(k); return ok.indexOf(v) > -1 ? v : d; }
   var S = {
     lay: pick('lay', ['rib', 'focus'], 'rib'), hd: pick('hd', ['shrink', 'fixed'], 'shrink'), f: pick('f', ['drop', 'seg', 'strip'], 'drop'), pc: pick('pc', ['step', 'drop'], 'step'),
-    nc: pick('nc', ['hide', 'show'], 'hide'), u: pick('u', ['day', 'flip', 'banner', 'pill'], 'day'), dt: pick('dt', ['stack', 'peek', 'strip', 'hide', 'sheet'], 'stack'), cw: pick('cw', ['menu', 'pair'], 'menu'), cl: pick('cl', ['meals', 'all'], 'meals'), long: pick('long', ['0', '1'], '0'), st: pick('st', ['plain', 'labels', 'badge', 'edge', 'progress'], 'plain'), gr: pick('gr', ['list', 'hand'], 'list'), hdl: pick('hdl', ['none', 'light'], 'none'), jig: pick('jig', ['1', '0', 'reset'], ''), ba: pick('ba', ['bar', 'list', 'both'], 'bar'), rb: pick('rb', ['detail', 'always'], 'detail'), tear: pick('tear', ['detail', 'all'], 'detail'),
-    cu: pick('cu', ['start', 'idle', 'off'], 'start'), od: pick('od', ['dash', 'text'], 'dash'), ac: pick('ac', ['dull', 'normal'], 'dull'), sw: pick('sw', ['tint', 'buttons'], 'tint'),
+    nc: pick('nc', ['hide', 'show'], 'hide'), u: pick('u', ['day', 'flip', 'banner', 'pill'], 'day'), dt: pick('dt', ['stack', 'peek', 'strip', 'hide', 'sheet'], 'stack'), cw: pick('cw', ['menu', 'pair'], 'menu'), cl: pick('cl', ['meals', 'all'], 'meals'), long: pick('long', ['0', '1'], '0'), st: pick('st', ['plain', 'labels', 'badge', 'edge', 'progress'], 'plain'), gr: pick('gr', ['list', 'hand'], 'list'), hdl: pick('hdl', ['none', 'light'], 'none'), jig: pick('jig', ['1', '0', 'reset'], ''), ba: pick('ba', ['bar', 'list', 'both'], 'bar'), rb: pick('rb', ['detail', 'always'], 'detail'), tear: pick('tear', ['detail', 'all'], 'all'), gap: pick('gap', ['ecg', 'off'], 'ecg'),
+    cu: pick('cu', ['start', 'idle', 'off'], 'start'), od: pick('od', ['dash', 'text'], 'dash'), sw: pick('sw', ['tint', 'buttons'], 'tint'),
     today: 'd13', cur: P.did(q.get('day'), 'd13'), view: q.get('who') || 'mine', hl: null, sel: q.get('sel'), snap: q.get('snap') === 'full' ? 'full' : 'half', expand: q.get('expand') === '1',
-    dday: q.get('dock') || null, pop: null, opts: false, ustk: [], wkm: false, pickMove: false, note: null, carry: null, pickd: null, revealed: null, cuShown: false, cuDone: {}, cmp: false,
+    dday: q.get('dock') || null, pop: null, opts: false, ustk: [], wkm: false, pickMove: false, note: null, carry: null, pickd: null, revealed: null, xp: {}, cuShown: false, cuDone: {}, cmp: false,
     meals: JSON.parse(JSON.stringify(P.meals)), blocked: JSON.parse(JSON.stringify(P.blocked))
   };
   var TODAYN = 13, root = document.getElementById('root'), nid = 0;
   if (!S.meals.some(function (m) { return m.id === S.sel; })) S.sel = null; else if (!q.get('day')) S.cur = S.meals.filter(function (m) { return m.id === S.sel; })[0].day;
-  var dd0 = S.dday ? P.did(S.dday, null) : null; S.dday = dd0 && S.dt === 'stack' && !S.sel ? dd0 : null;
+  var dd0 = S.dday ? P.did(S.dday, null) : null; S.dday = dd0 && S.dt === 'stack' && !S.sel ? dd0 : null; if (S.dday) { S.cur = S.dday; S.revealed = S.dday; }
   if ((S.sel || S.dday) && S.dt === 'stack' && S.hd === 'shrink') S.cmp = true;
   function di(d) { return DI.indexOf(d); } function info(d) { return RIB[di(d)]; } function past(d) { return di(d) < di(S.today); }
   function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
@@ -31,7 +32,7 @@
   function cnt(v) { return S.meals.filter(function (m) { return P.match(m, v); }).length; }
   function weekOf(d) { return info(d).wk; }
   function monN(d) { return info(info(d).mon).n; }
-  function hidden(d) { return S.nc === 'hide' && S.blocked[d] && !S.carry && d !== S.cur && d !== S.revealed; }
+  function hidden(d) { return S.nc === 'hide' && S.blocked[d] && !S.carry && d !== S.cur && d !== S.revealed && !S.xp[d]; }
   /* Plan UI review 136 (owner-stated, 13 Oct 2026: "Horizontal date slide only during the detail view"). The day ribbon exists only while a docked detail is open (the stack, the dock variants), where it swaps the day.
      In the plain week view it is gone; the agenda scrolls across the three weeks itself. ?rb=always brings the old always-on ribbon back for comparison (superseded). The two-stop sheet is an overlay on the week, so it has no ribbon;
      the one-day-at-a-time layout (?lay=focus) keeps it because there it is the only day picker. */
@@ -51,7 +52,7 @@
     var lift = S.carry && S.carry.move && S.carry.from === m.id, hl = S.hl === 'missing' ? m.miss.length : S.hl === 'useby' ? m.useby.length : 1, pst = past(m.day), lock = ro(), e = S.st === 'edge' ? ' e-' + P.status.edge(m, TODAYN) : '';
     var who = lock ? 'all' : pst ? 'past' : 'edit';
     var hint = lock ? 'View only.' : pst ? 'Past, read only. Swipe right: copy forward.' : 'Swipe right: not cooking. Swipe left: replan. Or press X, Shift X.';
-    return '<div class="sw' + (S.sw === 'buttons' ? ' btns' : '') + '" data-sw="' + m.id + '"><div class="und" aria-hidden="true"><span class="l">' + (pst ? ic.cal + ' Copy forward' : ic.moon + ' Not cooking') + '</span><span class="r">Replan ' + ic.swap + '</span></div>' +
+    return '<div class="sw' + (S.sw === 'buttons' ? ' btns' : '') + '" data-sw="' + m.id + '"><div class="und" aria-hidden="true"><span class="l' + (pst ? ' cf' : '') + '">' + (pst ? ic.cal + ' Copy forward' : ic.moon + ' Not cooking') + '</span><span class="r">Replan ' + ic.swap + '</span></div>' +
       '<article class="mc' + e + (lift ? ' lifted' : '') + (lite ? ' lite' : '') + (S.sel === m.id ? ' sel' : '') + (S.jigOn && lite && who === 'edit' ? ' jig' : '') + (hl ? '' : ' dim') + (pst ? ' past' : '') + '" tabindex="0" data-id="' + m.id + '"' + (lite && who === 'edit' ? ' data-tile="1"' : '') + ' data-ro="' + who + '" aria-label="' + esc(m.t) + ', ' + dName(m.day) + '. ' + hint + '">' +
       '<span class="em">' + m.em + '</span><div class="tx"><h3>' + esc(m.t) + '</h3><p>' + esc(P.whoLabel(m)) + '</p>' + (m.left ? '<p class="lf">' + ic.swap + ' Leftovers from ' + m.left + '</p>' : '') + '</div>' +
       (S.st === 'edge' ? P.status.html(m, 'edge', TODAYN) : S.st === 'plain' && !pst ? P.status.html(m, 'plain', TODAYN, !dealt(m)) : '') + '<button class="more" data-more="' + m.id + '" aria-label="Actions for ' + esc(m.t) + '">' + ic.more + '</button>' + (S.st === 'edge' || S.st === 'plain' || lite ? '' : P.status.html(m, S.st, TODAYN)) + '</article></div>';
@@ -60,7 +61,7 @@
      Other detail variants have no day detail, so they keep the buttons on the row. */
   function emptyHtml(d, full) {
     if (past(d)) return '<div class="empty past">Nothing was planned</div>';
-    if (S.blocked[d]) return '<button class="blk' + (S.blocked[d] === 'usual' ? ' usual' : '') + '" ' + (ro() ? 'disabled' : 'data-unblock="' + d + '"') + '><b>Not cooking</b><span>' + (S.blocked[d] === 'usual' ? 'Usual day off' : 'This week only') + (ro() ? '' : ' · tap to cook') + '</span></button>';
+    if (S.blocked[d]) return '<button class="blk' + (S.blocked[d] === 'usual' ? ' usual' : '') + '" ' + (ro() ? 'disabled' : S.dt === 'stack' ? 'data-openday="' + d + '"' : 'data-unblock="' + d + '"') + '><b>Not cooking</b><span>' + (S.blocked[d] === 'usual' ? 'Usual day off' : 'This week only') + (ro() ? '' : S.dt === 'stack' ? ' · tap for options' : ' · tap to cook') + '</span></button>';
     if (ro()) return S.dt === 'stack' && S.od === 'dash' && !full ? '<div class="sw od-sw ro"><div class="od" role="img" aria-label="Open night, view only"></div></div>' : '<div class="nite ro"><span class="ot">Open night</span></div>';
     var btns = '<div class="oa"><button data-ask="' + d + '">' + ic.spark + ' Ask AI</button><button data-surprise="' + d + '">' + ic.dice + ' Surprise me</button>' + (full ? '<button data-block="' + d + '">' + ic.moon + ' Not cooking</button>' : '') + '</div>';
     if (full) return '<div class="nite full"><span class="ot">Open night</span>' + btns + '</div>';
@@ -74,7 +75,7 @@
     if (!ms.length) return emptyHtml(d);
     return (ms.some(function (m) { return m.usual; }) ? '<p class="tipl">Usual day off, cooking this week</p>' : '') + ms.map(card).join('') + (P.tips[d] && !past(d) ? '<p class="tipl">' + ic.leaf + ' ' + esc(P.tips[d]) + '</p>' : '');
   }
-  function noteHtml(d) { var n = S.note; if (!n || S.u !== 'day' || n.day !== d) return ''; return '<div class="unote" role="status"><span>' + n.msg + '</span>' + (n.undo ? '<button data-undo>' + ic.undo + ' Undo</button>' : '') + '</div>'; }
+  function noteHtml(d, lite) { var n = S.note; if (!n || S.u !== 'day' || n.day !== d || (!lite && S.dday === d && S.blocked[d] && S.dt === 'stack' && !S.sel)) return ''; return '<div class="unote" role="status"><span>' + n.msg + '</span>' + (n.undo ? '<button data-undo>' + ic.undo + ' Undo</button>' : '') + '</div>'; }
   /* UAT stencil (decision 110): one row per day, a narrow left gutter with the weekday and the date, then the stack of meals. Class names are the ones Kitchie UAT draws
      (verified, basement-bridge/kitchie uat, server/src/web-plan.ts and assets/plan.js, 12 Oct 2026): .pw-day, .pw-dn, .pw-stack. Today and the carry labels are mockup additions (111). */
   function daySec(d, extra) {
@@ -141,6 +142,14 @@
     var sheet = '<div class="spiece"><div class="sbody" id="sbody">' + st + detailBody(m) + '</div>' + (foot ? '<footer class="sfoot">' + foot + '</footer>' : '') + '</div>';
     return '<section class="stackw pw hdl-' + S.hdl + (S.swap ? ' noin' : '') + '" id="d-' + d + '" data-d="' + d + '" role="region" aria-labelledby="stt">' + day + sheet + '</section>';
   }
+  /* Plan UI review 154 (owner-stated, 13 Oct 2026: tapping a Not cooking day opens "that detailed view that blocks"; he expects only Ask AI and Surprise me). A Not cooking day opens a LIGHT panel, docked under the ribbon like the stack (107) but one small card:
+     the day, one quiet line, Ask AI, Surprise me and Mark as open. No tile, no people, no ingredients, no time, no sheet, no tongue. The day stays Not cooking until Mark as open or Surprise me; the week stays under the panel. */
+  function liteHtml(d) {
+    var nc = S.blocked[d], x = info(d);
+    return '<section class="stackw lite pw' + (S.swap ? ' noin' : '') + (S.lay === 'focus' ? ' infl' : '') + '" id="lite" data-d="' + d + '" role="region" aria-labelledby="stt"><div class="lpiece"><div class="dkh"><h2 id="stt"><b>' + dLong(d) + '</b> ' + x.n + ' Oct' + (d === S.today ? ' <em>Today</em>' : '') + '</h2><button class="ib" data-close aria-label="Close">' + ic.x + '</button></div>' +
+      '<p class="lnote">' + ic.moon + ' ' + (nc === 'usual' ? 'Usual day off' : 'Not cooking, this week only') + '</p><div class="oa"><button data-ask="' + d + '">' + ic.spark + ' Ask AI</button><button data-surprise="' + d + '">' + ic.dice + ' Surprise me</button><button class="mko" data-unblock="' + d + '">Mark as open</button></div>' + noteHtml(d, true) + '</div></section>';
+  }
+  function isLite() { return S.dt === 'stack' && !S.sel && !!S.dday && !!S.blocked[S.dday] && !past(S.dday) && !ro() && !on(S.dday).length; }
   /* Decision 115, 116: tapping another day in the ribbon swaps the CONTENTS of the docked stack; the slot stays. A day with no meal shows its open-night, Not cooking or past state in the same two pieces. */
   function stackEmptyHtml(d) {
     var pst = past(d), nc = S.blocked[d], msg = pst ? 'Nothing was planned on this day.' : nc ? (nc === 'usual' ? 'Usual day off. ' : 'Not cooking, this week only. ') + (ro() ? '' : 'Tap the block above, or Mark as open, to plan this night.') : ro() ? vlab(S.view) + "'s plan is view only." : 'Nothing planned yet. Ask AI to plan it, try Surprise me, or mark it Not cooking.';
@@ -183,7 +192,9 @@
      Undo is a short stack (each step lives 14 s): the latest action's button shows Undo; undo it and the earlier one shows Undo again. */
   /* Decision 130 (owner: "not indefinitely, maybe"): every in-place Undo (the day note, the header flip, the banner, the pill, the drop undo) expires. 14 s, recommended 10 to 15 s; ?ut=4 shortens it for review. */
   var UW = (+q.get('ut') > 0 ? Math.min(60, +q.get('ut')) * 1000 : 14000), ULAB = { copy: 'copy', clear: 'clear', drop: 'drop', move: 'move', edit: 'change' };
-  function pruneU() { var t = Date.now(); S.ustk = S.ustk.filter(function (u) { return t - u.at < UW; }); }
+  /* Plan UI review 155 (owner-stated, 13 Oct 2026: "limit that to just three seconds"): the in-place Undo after the right swipe on an open day to Not cooking lives UNDO_NC_MS = 3000 ms, its own constant; every other undo keeps UW (14 s, decision 130). ?ut=N still shortens both for review. */
+  var UNDO_NC_MS = Math.min(3000, UW);
+  function pruneU() { var t = Date.now(); S.ustk = S.ustk.filter(function (u) { return t - u.at < (u.ms || UW); }); }
   function topU() { pruneU(); return S.ustk[S.ustk.length - 1] || null; }
   function plain(h) { return String(h).replace(/<[^>]+>/g, ''); }
   function flipKind() { var u = topU(); if (!u) return null; if (u.k === 'copy' || u.k === 'clear') return u.k; return S.u === 'flip' ? 'copy' : null; }
@@ -246,22 +257,23 @@
     var g = function (k, lab, vals) { return '<fieldset><legend>' + lab + '</legend>' + vals.map(function (v) { return '<label><input type="radio" name="' + k + '" value="' + v[0] + '"' + (S[k] === v[0] ? ' checked' : '') + '> ' + v[1] + '</label>'; }).join('') + '</fieldset>'; };
     if (!(window.top === window || q.get('opts') === '1')) return '';
     return '<button class="optfab" data-opts aria-expanded="' + S.opts + '">Mockup options</button>' + (S.opts ? '<div class="optpanel" role="dialog" aria-label="Mockup options"><p class="onote">Mockup-only switch. It is not part of the app.</p>' +
-      g('rb', 'Day ribbon (136, owner 13 Oct)', [['detail', 'Only while a detail is open (recommended)'], ['always', 'Always on, week view too (superseded 13 Oct, for comparison)']]) + g('tear', 'Torn-paper edge (142, owner 13 Oct)', [['detail', 'Only on the tile pulled out of the docked detail (recommended). Everywhere else: the plain lifted, tilted, faded tile of before 118'], ['all', 'On every drag: detail and agenda (the 118 behaviour, for comparison)']]) + g('lay', 'Layout', [['rib', 'Agenda across three weeks (recommended)'], ['focus', 'One day at a time (keeps the ribbon)']]) + g('hd', 'Header while a detail is open (91, revised by 136)', [['shrink', 'Compact (recommended)'], ['fixed', 'Full size']]) + g('f', 'Who filter (97)', [['drop', 'One dropdown (recommended)'], ['seg', 'Mine / Everyone + People dropdown'], ['strip', 'Old chips behind a chevron']]) +
+      g('rb', 'Day ribbon (136, owner 13 Oct)', [['detail', 'Only while a detail is open (recommended)'], ['always', 'Always on, week view too (superseded 13 Oct, for comparison)']]) + g('tear', 'Torn-paper edge, top and bottom only (158, owner 13 Oct)', [['all', 'On every lift-and-drag, agenda and detail, top and bottom edges only (recommended)'], ['detail', 'Only on the tile pulled out of the docked detail (142, superseded, for comparison)']]) + g('gap', 'Collapsed Not cooking gap (157, owner 13 Oct)', [['ecg', 'ECG marker at the start of the divider line: tap opens every hidden day in the gap (recommended)'], ['off', 'No marker, the peek at the edge only (96)']]) + g('lay', 'Layout', [['rib', 'Agenda across three weeks (recommended)'], ['focus', 'One day at a time (keeps the ribbon)']]) + g('hd', 'Header while a detail is open (91, revised by 136)', [['shrink', 'Compact (recommended)'], ['fixed', 'Full size']]) + g('f', 'Who filter (97)', [['drop', 'One dropdown (recommended)'], ['seg', 'Mine / Everyone + People dropdown'], ['strip', 'Old chips behind a chevron']]) +
       g('pc', 'Number of people in the detail (98)', [['step', 'Stepper − 4 +'], ['drop', 'Dropdown']]) + g('nc', 'Not cooking days (93)', [['hide', 'Hidden, peek at the edge (recommended)'], ['show', 'Always shown']]) + g('u', 'Undo on a phone (101)', [['day', 'On the changed day (recommended)'], ['flip', 'Copy button flips to Undo'], ['banner', 'Banner under the ribbon'], ['pill', 'Pill under the ribbon']]) +
       g('dt', 'Meal detail (103, 107)', [['stack', 'Day on top, detail at the bottom, one locked stack (recommended)'], ['peek', 'Docked, neighbours peek'], ['strip', 'Docked, other days as one line each'], ['hide', 'Docked, other days hidden'], ['sheet', 'Two-stop bottom sheet (comparison)']]) + g('st', 'Status (121, supersedes 104)', [['plain', 'Plain red or green, no count (owner, 13 Oct)'], ['labels', 'a Labelled chips: rejected'], ['badge', 'b Icon + count: rejected'], ['edge', 'c Edge strip + dot: rejected'], ['progress', 'd Progress: rejected']]) + g('gr', 'Green means (122, open)', [['list', 'Dealt with: every missing item is on the list (recommended)'], ['hand', 'Everything is on hand']]) + g('hdl', 'Grey bar on the tab (128)', [['none', 'Removed (recommended)'], ['light', 'Much lighter']]) + g('jig', 'Wiggle hint (129)', [['', 'First 3 opens, 7 days, stops after a drag'], ['1', 'Always, for review'], ['0', 'Off'], ['reset', 'Reset the stored count']]) +
-      g('cu', 'Ask AI to plan this curtain (96)', [['start', 'At the start of an empty week (default)'], ['idle', 'Idle, whole week empty'], ['off', 'Off']]) + g('od', 'Open day in the week (147, owner 13 Oct)', [['dash', 'UAT dashed box, no words, right swipe for Not cooking (recommended)'], ['text', 'Quiet "Open night" words (125, for comparison)']]) + g('ac', 'Accent on Not cooking, open day and selection (150, Proposal)', [['dull', 'A notch duller (default)'], ['normal', 'The normal accent']]) + g('sw', 'Swipe', [['tint', 'Tinted reveal, commits'], ['buttons', 'Buttons stay open']]) + g('cw', 'Clear week placement (109)', [['menu', 'Week actions menu, split Undo (recommended)'], ['pair', 'Two icon buttons next to each other']]) + g('cl', 'Clear week also clears (109, open)', [['meals', 'Meals only, Not cooking stays (recommended)'], ['all', 'Meals and this-week Not cooking marks']]) + g('ba', 'Bulk Hold and Add (134, open)', [['bar', 'Bottom bar only: Hold N, cart Add N (current)'], ['list', 'In the list only: Add all on the missing group, Hold all on the on-hand group'], ['both', 'Both']]) + g('long', 'Long ingredient list (107 demo)', [['0', 'Normal'], ['1', 'Long: 21 lines, the sheet scrolls']]) + '</div>' : '');
+      g('cu', 'Ask AI to plan this curtain (96)', [['start', 'At the start of an empty week (default)'], ['idle', 'Idle, whole week empty'], ['off', 'Off']]) + g('od', 'Open day in the week (147, owner 13 Oct)', [['dash', 'UAT dashed box, no words, right swipe for Not cooking (recommended)'], ['text', 'Quiet "Open night" words (125, for comparison)']]) + g('sw', 'Swipe', [['tint', 'Tinted reveal, commits'], ['buttons', 'Buttons stay open']]) + g('cw', 'Clear week placement (109)', [['menu', 'Week actions menu, split Undo (recommended)'], ['pair', 'Two icon buttons next to each other']]) + g('cl', 'Clear week also clears (109, open)', [['meals', 'Meals only, Not cooking stays (recommended)'], ['all', 'Meals and this-week Not cooking marks']]) + g('ba', 'Bulk Hold and Add (134, open)', [['bar', 'Bottom bar only: Hold N, cart Add N (current)'], ['list', 'In the list only: Add all on the missing group, Hold all on the on-hand group'], ['both', 'Both']]) + g('long', 'Long ingredient list (107 demo)', [['0', 'Normal'], ['1', 'Long: 21 lines, the sheet scrolls']]) + '</div>' : '');
   }
 
   /* ---------- render ---------- */
-  function body() {
-    if (S.dt === 'stack' && !S.sel && S.dday) { var dm = on(S.dday); if (dm.length) { S.sel = dm[0].id; S.dday = null; } else return stackEmptyHtml(S.dday); }
-    if (S.sel && S.dt !== 'sheet' && find(S.sel)) return S.dt === 'stack' ? stackHtml(find(S.sel)) : dockHtml(find(S.sel));
-    if (S.lay === 'focus') { var d = S.cur, ms = on(d), i = di(d), buy = [], ubn = []; ms.forEach(function (m) { m.miss.forEach(function (x) { buy.push(x[0]); }); m.useby.forEach(function (u) { ubn.push(u[0] + ' by ' + u[1]); }); });
+  function focusHtml() { var d = S.cur, ms = on(d), i = di(d), buy = [], ubn = []; ms.forEach(function (m) { m.miss.forEach(function (x) { buy.push(x[0]); }); m.useby.forEach(function (u) { ubn.push(u[0] + ' by ' + u[1]); }); });
       return '<h2 class="fh">' + dLong(d) + ' ' + info(d).n + ' Oct' + (d === S.today ? ' <em>Today</em>' : '') + '</h2>' + (ms.length ? '<div class="prep"><b>Before this night</b>' + (buy.length ? '<span class="m">Buy: ' + esc(buy.join(', ')) + '</span>' : '<span>Nothing to buy</span>') + (ubn.length ? '<span>Use first: ' + esc(ubn.join(', ')) + '</span>' : '') + '</div>' : '') + '<section class="pw-day' + (S.carry && !past(d) ? ' target' : '') + '" data-d="' + d + '" id="d-' + d + '" style="padding-top:0">' + noteHtml(d) + '<div class="pw-stack">' + dayBody(d) + '</div></section><div class="dnav"><button data-step="-1"' + (i > 0 ? '' : ' disabled') + '>' + ic.left + ' ' + (i > 0 ? RIB[i - 1].dow : '') + '</button><button data-step="1"' + (i < DI.length - 1 ? '' : ' disabled') + '>' + (i < DI.length - 1 ? RIB[i + 1].dow : '') + ' ' + ic.right + '</button></div>'; }
+  function body() {
+    if (S.dt === 'stack' && !S.sel && S.dday) { var dm = on(S.dday); if (dm.length) { S.sel = dm[0].id; S.dday = null; } else if (isLite()) return liteHtml(S.dday) + (S.lay === 'focus' ? focusHtml() : agenda()); else return stackEmptyHtml(S.dday); }
+    if (S.sel && S.dt !== 'sheet' && find(S.sel)) return S.dt === 'stack' ? stackHtml(find(S.sel)) : dockHtml(find(S.sel));
+    if (S.lay === 'focus') return focusHtml();
     return agenda();
   }
   function render(keep) {
-    document.body.dataset.ac = S.ac; var sy = window.scrollY, rb = document.getElementById('rib'), rl = rb ? rb.scrollLeft : null, gh = null;
+    var sy = window.scrollY, rb = document.getElementById('rib'), rl = rb ? rb.scrollLeft : null, gh = null;
     /* 136: the ribbon comes and goes with the detail. It fades in (and a copy of it fades out) over 0.2 s; the stack's slot is placed for the final header height at once, so nothing under it moves. Reduced motion: none. */
     if (rb && !REDUCE) { var gr = rb.getBoundingClientRect(); gh = rb.cloneNode(true); gh.removeAttribute('id'); gh.querySelectorAll('[id]').forEach(function (n) { n.removeAttribute('id'); }); gh.classList.add('rib-ghost'); gh.setAttribute('aria-hidden', 'true'); gh.style.cssText = 'top:' + gr.top + 'px;left:' + gr.left + 'px;width:' + gr.width + 'px'; gh.scrollLeft = rl; }
     root.innerHTML = '<div class="app' + (S.carry ? ' carrying' : '') + (S.carry && S.carry.drag ? ' dragging' : '') + '">' + header() + '<main id="plan" class="pw">' + body() + '</main></div>' + carryBar() + '<div class="peek t" id="peekT" hidden></div><div class="peek b" id="peekB" hidden></div>' + nav() + '<div class="scrim' + (S.sel && S.dt === 'sheet' ? ' on' : '') + '" data-close></div>' + sheetHtml() + '<div id="aw">' + popHtml() + wkMenu() + actionSheet() + '</div>' + optionsPanel();
@@ -269,7 +281,7 @@
     var rb2 = document.getElementById('rib'); if (rb2 && rl !== null) rb2.scrollLeft = rl; if (rb2 && !rb && !REDUCE) rb2.classList.add('rib-in'); placeMk(true);
     if (gh && !rb2) { document.body.appendChild(gh); gh.scrollLeft = rl; setTimeout(function () { gh.remove(); }, 230); }
     var sh = document.getElementById('sheet'); if (sh && S.sel && S.dt === 'sheet') requestAnimationFrame(function () { setSnap(S.snap); });
-    syncPeek();
+    syncPeek(); syncEcg();
   }
   function sizeStk() { var s = document.getElementById('stk'), p = document.getElementById('stkp'); if (!s || !p) return; document.documentElement.style.setProperty('--sth', s.offsetHeight + 'px'); var c = s.classList.contains('cmp'); s.classList.remove('cmp'); p.style.height = s.offsetHeight + 'px'; if (c) s.classList.add('cmp'); }
   function stkH() { var s = document.getElementById('stk'); return s ? s.offsetHeight : 120; }
@@ -282,9 +294,9 @@
 
   /* ---------- notes and undo (no bottom snackbar: owner did not like it) ---------- */
   var noteT;
-  function note(msg, o) { o = o || {}; S.note = { msg: msg, short: o.short, undo: !!o.undo, day: o.day, kind: o.kind || '', id: ++nid }; clearTimeout(noteT); var id = S.note.id; noteT = setTimeout(function () { if (S.note && S.note.id === id) { S.note = null; render(); } }, UW); }
+  function note(msg, o) { o = o || {}; S.note = { msg: msg, short: o.short, undo: !!o.undo, day: o.day, kind: o.kind || '', id: ++nid }; clearTimeout(noteT); var id = S.note.id; noteT = setTimeout(function () { if (S.note && S.note.id === id) { S.note = null; render(); } }, o.ms || UW); }
   function snapshot() { return JSON.stringify({ m: S.meals, b: S.blocked, sel: S.sel, dd: S.dday }); }
-  function mutate(fn, msg, day, kind, pulse, short) { var before = snapshot(); fn(); S.ustk.push({ k: kind || 'edit', s: before, at: Date.now(), msg: msg, short: short, day: day }); setTimeout(function expire() { if (S.carry || td) return setTimeout(expire, 1000); pruneU(); render(); }, UW + 50); S.pulse = pulse || (day ? [day] : null); note(msg, { undo: 1, day: day, kind: kind, short: short }); render(); if (day && S.lay === 'rib' && !S.sel) ensureVisible(day); if (S.pulse) setTimeout(function () { S.pulse = null; document.querySelectorAll('.pulse').forEach(function (e) { e.classList.remove('pulse'); }); }, 2600); }
+  function mutate(fn, msg, day, kind, pulse, short, ms) { var before = snapshot(); fn(); S.ustk.push({ k: kind || 'edit', s: before, at: Date.now(), msg: msg, short: short, day: day, ms: ms }); setTimeout(function expire() { if (S.carry || td) return setTimeout(expire, 1000); pruneU(); render(); }, (ms || UW) + 50); S.pulse = pulse || (day ? [day] : null); note(msg, { undo: 1, day: day, kind: kind, short: short, ms: ms }); render(); if (day && S.lay === 'rib' && !S.sel) ensureVisible(day); if (S.pulse) setTimeout(function () { S.pulse = null; document.querySelectorAll('.pulse').forEach(function (e) { e.classList.remove('pulse'); }); }, 2600); }
   function ensureVisible(d) { var el = document.getElementById('d-' + d); if (!el) return; var r = el.getBoundingClientRect(), top = stkH() + 8; if (r.top < top || r.top > innerHeight - 220) { lockUntil = Date.now() + 700; window.scrollBy({ top: r.top - top - 4, behavior: 'smooth' }); } }
   function doUndo() { var u = topU(); if (!u) return; S.ustk.pop(); var o = JSON.parse(u.s); S.meals = o.m; S.blocked = o.b; S.sel = o.sel; S.dday = o.dd || null; S.pulse = null; S.wkm = false; var nx = topU(); note('Undid ' + (ULAB[u.k] || 'change') + (nx ? '. Next undo: ' + ULAB[nx.k] : ''), { day: u.day }); render(); evalCurtain(); }
   function nextId(b) { return b + '-' + (++nid); }
@@ -317,18 +329,20 @@
   function jigDone() { if (S.jig === '1') return; var j = jget(); j.done = true; jset(j); }
   function openDetail(id) { var m = find(id); if (!m) return; jigStart(m); S.sel = id; S.dday = null; S.pop = null; S.asheet = null; S.wkm = false; S.cur = m.day; S.snap = 'half'; if (S.dt === 'stack' && S.hd === 'shrink') S.cmp = true; render(false); if (S.dt !== 'sheet') window.scrollTo(0, 0); }
   /* Decision 125: tapping an open night on the week opens that day's own detail (the docked stack), where Ask AI, Surprise me and Not cooking live. */
-  function openDay(d) { S.dday = d; S.sel = null; S.cur = d; S.revealed = d; S.pop = null; S.asheet = null; S.wkm = false; if (S.hd === 'shrink') S.cmp = true; render(false); window.scrollTo(0, 0); }
+  function openDay(d) { var lite = S.dt === 'stack' && S.blocked[d] && !past(d) && !ro() && !on(d).length; S.dday = d; S.sel = null; S.cur = d; S.revealed = d; S.pop = null; S.asheet = null; S.wkm = false; if (S.hd === 'shrink') S.cmp = true; if (lite) { render(); placeLite(d); } else { render(false); window.scrollTo(0, 0); } }
   /* Plan UI review 151 to 153 (owner-stated bug, 13 Oct 2026: "Clicking on the Not cooking tile brings up Surprise me and Ask AI options which then disappears").
      Cause found: (1) in the plain week the tile reopened the night but showed a quiet "Open night" only, so the options existed in one place (the docked detail) and not the other, and the next move on, a scroll, hid the day again; (2) in the docked detail the tile and the options sit in the same spot, with Not cooking the third button, so a second touch landing there (a double tap, a bounce) marked the day Not cooking again and the options vanished with it. Fix: a tap on the Not cooking tile (week or detail) reopens the night AND docks that day's detail, which stays until the person closes it, taps another day or acts (nothing on a timer or a scroll closes it); the opposite toggle on the same day is ignored for TOGGLE_GUARD ms. */
   var TOGGLE_GUARD = 450, tgDay = null, tgAt = 0;
   function guarded(d) { return tgDay === d && Date.now() - tgAt < TOGGLE_GUARD; }
-  function block(d) { if (guarded(d)) return; tgDay = d; tgAt = Date.now(); mutate(function () { S.blocked[d] = 'once'; S.cur = d; S.revealed = d; }, dName(d) + ' is Not cooking (this week only)', d); }
-  function unblock(d) { if (guarded(d)) return; tgDay = d; tgAt = Date.now(); mutate(function () { delete S.blocked[d]; if (S.dt === 'stack' && !past(d) && !ro()) { S.dday = d; S.sel = null; S.cur = d; S.revealed = d; S.pop = null; S.asheet = null; S.wkm = false; if (S.hd === 'shrink') S.cmp = true; } }, dName(d) + ' is open again', d); }
+  function block(d, ms) { if (guarded(d)) return; tgDay = d; tgAt = Date.now(); mutate(function () { S.blocked[d] = 'once'; delete S.xp[d]; S.cur = d; S.revealed = d; }, dName(d) + ' is Not cooking (this week only)', d, undefined, undefined, undefined, ms); }
+  /* 154: Mark as open (and a tile tap in the variants without a per-day detail) turns the night back into an open night. From the light panel the panel closes and the week is back on that day, with the Undo in place; the open night's own detail is one tap away. */
+  function unblock(d) { if (guarded(d)) return; tgDay = d; tgAt = Date.now(); var lite = isLite() && S.dday === d; mutate(function () { delete S.blocked[d]; delete S.xp[d]; if (lite) { S.dday = null; S.sel = null; S.cur = d; S.revealed = d; S.pop = null; } }, dName(d) + ' is open again', d); if (lite) { var el = document.getElementById('d-' + d); if (el) window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - stkH() - 6); syncHead(); } }
+  function placeLite(d) { var el = document.getElementById('d-' + d), pn = document.getElementById('lite'); if (!el || !pn) return; var r = el.getBoundingClientRect(), lim = stkH() + pn.offsetHeight + 12; window.scrollBy(0, r.top - lim - 4); }
   /* Surprise me (owner-confirmed heuristics, decision 94): timing aware, and never a repeat of a recent meal. */
   function surprise(d) {
     var c = P.surprise(S.meals, d, S.today); if (!c) return note('No fresh idea that is not a repeat. Try Ask AI.');
     var nm = c; nm.id = nextId('sur'); nm.day = d; nm.who = S.view === 'mine' ? ['sam'] : 'all'; nm.n = S.view === 'mine' ? 1 : 4; nm.src = 'surprise'; nm.note = ''; nm.held = 0; nm.useby = nm.useby || [];
-    mutate(function () { S.meals.push(nm); }, 'Surprise: ' + esc(c.t) + ' for ' + dName(d), d);
+    mutate(function () { S.meals.push(nm); delete S.blocked[d]; }, 'Surprise: ' + esc(c.t) + ' for ' + dName(d), d);
   }
   function copyLast() {
     S.wkm = false; var wk = weekOf(S.cur), r = P.copyLast(S.meals, S.blocked, S.view, wk, S.today); if (r.why === 'readonly' || r.why === 'bounds') return;
@@ -369,7 +383,7 @@
     S.cur = d; S.revealed = d; if (S.sel && S.dt !== 'sheet') { S.sel = null; render(false); }
     var el = document.getElementById('d-' + d); if (!el) { render(false); el = document.getElementById('d-' + d); } if (!el) return;
     if (S.lay === 'focus') { render(false); window.scrollTo(0, 0); return; }
-    if (el.classList.contains('hid')) el.classList.remove('hid');
+    if (el.classList.contains('hid')) { el.classList.remove('hid'); syncEcg(); }
     var y = el.getBoundingClientRect().top + window.scrollY, cmpH = 64, full = document.getElementById('stkp').offsetHeight, go = S.hd === 'shrink' && ribOn() && y - full > 40 && !(S.note && S.u === 'flip' && S.note.undo);
     S.cmp = go; document.getElementById('stk').classList.toggle('cmp', go && ribOn()); lockUntil = Date.now() + 800;
     window.scrollTo({ top: Math.max(0, y - (go ? stkH() : full) - 6), behavior: 'smooth' }); syncHead(); setTimeout(function () { follow(true); }, 850);
@@ -379,7 +393,7 @@
     var ms = on(d), keep = S.sel && find(S.sel) && find(S.sel).day === d ? find(S.sel) : ms[0];
     S.jigOn = false; if (S.jig === '1') jigStart(keep);
     S.cur = d; S.revealed = d; S.pop = null; S.asheet = null; S.wkm = false; S.snap = 'half'; S.sel = keep ? keep.id : null; S.dday = keep ? null : d; S.swap = true;
-    render(false); S.swap = false;
+    render(false); S.swap = false; if (isLite()) placeLite(d);
     var sb = document.querySelector('.stackw'); if (sb) { sb.classList.add('swapped'); setTimeout(function () { sb.classList.remove('swapped'); }, 400); }
   }
   function syncHead() {
@@ -402,8 +416,41 @@
   }
   function settleHidden() {
     if (S.nc !== 'hide' || S.carry) return;
-    Object.keys(S.blocked).forEach(function (d) { var el = document.getElementById('d-' + d); if (!el || el.classList.contains('hid') || d === S.cur || d === S.revealed) return; if (S.revealed === d) return; var r = el.getBoundingClientRect(), above = r.bottom <= stkH() + 4, h = el.offsetHeight + parseFloat(getComputedStyle(el).marginBottom || 0); if (r.bottom < 0 || r.top > innerHeight || above || r.top > innerHeight - 64) { el.classList.add('hid'); if (above) window.scrollBy(0, -h); } });
+    Object.keys(S.blocked).forEach(function (d) { var el = document.getElementById('d-' + d); if (!el || el.classList.contains('hid') || d === S.cur || d === S.revealed || S.xp[d]) return; if (S.revealed === d) return; var r = el.getBoundingClientRect(), above = r.bottom <= stkH() + 4, h = el.offsetHeight + parseFloat(getComputedStyle(el).marginBottom || 0); if (r.bottom < 0 || r.top > innerHeight || above || r.top > innerHeight - 64) { el.classList.add('hid'); if (above) window.scrollBy(0, -h); } });
     if (S.revealed && S.revealed !== S.cur) S.revealed = null;
+    syncEcg();
+  }
+  /* Plan UI review 157 (owner-stated, 13 Oct 2026: the first bit of the horizontal divider line carries "a squiggle, like flatlining someone's heart, starts beating, ECG kind of idea, and then goes flat"; tapping it opens what is hidden in that gap, "if multiple days ... it should open up all of them").
+     One small marker at the START of the divider line wherever one or more Not cooking days are collapsed in that gap. It is a real button. It beats once when its gap first appears and settles into a quiet flat stub; tap opens EVERY hidden day in that gap at once. Opened days (S.xp) stay open until the marker above them (a settled single beat) is tapped, which closes them again (Proposal, 157). The peek at the scroll edge (96) is unchanged.
+     Markers are rebuilt from the DOM (the hid class is also set by scrolling, settleHidden) and never drawn while a tile is carried. ?gap=off removes them for comparison. */
+  var ecgDone = {}, ECG_BEAT = 'M2 8H9l2-3 2 3h3l1.5 3 3-11 3 14 2-6h3l3-4 3 4H42';
+  function ecgBtn(ds, open) {
+    var key = ds.join(','), b = document.createElement('button'), n = ds.length, nm = ds.map(dName).join(', '), t = ecgDone[key];
+    b.type = 'button'; b.className = 'ecg' + (open ? ' open' : '') + (!open && !REDUCE && (!t || Date.now() - t < 2300) ? ' beat' : ''); if (!open && !t) ecgDone[key] = Date.now(); b.dataset.ecg = key; b.setAttribute('aria-expanded', open ? 'true' : 'false');
+    b.setAttribute('aria-label', open ? 'Hide the Not cooking ' + (n === 1 ? 'day' : 'days') + ': ' + nm : 'Show ' + n + ' hidden Not cooking ' + (n === 1 ? 'day' : 'days') + ': ' + nm);
+    b.innerHTML = '<svg viewBox="0 0 44 16" aria-hidden="true"><path class="fl" d="M2 8H42"/><path class="bt" pathLength="80" d="' + ECG_BEAT + '"/></svg>'; return b;
+  }
+  function syncEcg() {
+    var pl = document.getElementById('plan'), want = [], old = document.querySelectorAll('.ecg');
+    if (pl && S.gap !== 'off' && S.nc === 'hide' && !S.carry && S.lay === 'rib') {
+      var run = [], xr = [];
+      Array.prototype.forEach.call(pl.children, function (el) {
+        var isDay = el.classList.contains('pw-day'), d = isDay ? el.dataset.d : null;
+        if (isDay && el.classList.contains('hid')) { run.push(d); xr = []; return; }
+        if (run.length) { want.push([el, run, false]); run = []; }
+        if (isDay && S.xp[d] && S.blocked[d]) { if (!xr.length) { var all = [], n = el; while (n && n.classList && n.classList.contains('pw-day') && S.xp[n.dataset.d] && S.blocked[n.dataset.d]) { all.push(n.dataset.d); n = n.nextElementSibling; } want.push([el, all, true]); } xr.push(d); } else xr = [];
+      });
+      if (run.length) { var es = pl.querySelector('.endsp'); if (es) want.push([es, run, false]); }
+    }
+    /* unchanged since the last pass: leave the buttons alone, so a beat in progress is not restarted and focus stays */
+    if (old.length === want.length && want.every(function (w, i) { return old[i].parentNode === w[0] && old[i].dataset.ecg === w[1].join(',') && old[i].classList.contains('open') === w[2]; })) return;
+    old.forEach(function (e) { e.remove(); }); want.forEach(function (w) { w[0].appendChild(ecgBtn(w[1], w[2])); });
+  }
+  function toggleEcg(b) {
+    var ds = b.dataset.ecg.split(','), open = b.classList.contains('open'), kb = false; try { kb = b.matches(':focus-visible'); } catch (x) { }
+    ds.forEach(function (d) { var el = document.getElementById('d-' + d); if (!el) return; if (open) { delete S.xp[d]; if (S.revealed === d) S.revealed = null; el.classList.add('hid'); } else { S.xp[d] = 1; el.classList.remove('hid'); el.classList.add('xin'); setTimeout(function () { el.classList.remove('xin'); }, 300); } });
+    syncEcg(); if (open) follow(true);
+    var nb = [].filter.call(document.querySelectorAll('.ecg'), function (x) { return x.dataset.ecg.split(',').indexOf(ds[0]) > -1; })[0]; if (nb && kb) nb.focus({ preventScroll: true });
   }
   /* a hidden Not cooking day peeks from the edge it scrolls past, then is gone */
   function syncPeek() {
@@ -447,7 +494,7 @@
     if (!drag || e.pointerId !== drag.id) return; var d = drag; drag = null; if (!d.on) return; d.mc.classList.remove('drag'); d.mc.dataset.moved = '1'; setTimeout(function () { delete d.mc.dataset.moved; }, 50);
     var id = d.mc.dataset.id, t = d.dx, right = d.od ? 'odblock' : d.past ? 'copyfwd' : 'nocook';
     if (d.od) { /* Plan UI review 148: a right swipe on the dashed open day sets Not cooking; there is no left action */
-      if (S.sw === 'tint') { if (t > TH) return block(d.od); d.mc.style.transform = ''; d.sw.classList.remove('l', 'r', 'ready'); return; }
+      if (S.sw === 'tint') { if (t > TH) return block(d.od, UNDO_NC_MS); d.mc.style.transform = ''; d.sw.classList.remove('l', 'r', 'ready'); return; }
       var to0 = t > TH / 2 ? OPEN : 0; d.mc.style.transform = to0 ? 'translateX(' + to0 + 'px)' : ''; d.mc.dataset.open = to0; if (!to0) d.sw.classList.remove('l', 'ready'); else { d.sw.classList.add('l'); d.sw.dataset.id = d.od; d.sw.dataset.right = right; } return; }
     if (S.sw === 'tint') { if (t > TH) return act(right, id); if (t < -TH) return act('replan', id); d.mc.style.transform = ''; d.sw.classList.remove('l', 'r', 'ready'); return; }
     var to = t > TH / 2 ? OPEN : t < -TH / 2 ? -OPEN : 0; d.mc.style.transform = to ? 'translateX(' + to + 'px)' : ''; d.mc.dataset.open = to; if (!to) d.sw.classList.remove('l', 'r', 'ready'); else { d.sw.classList.add(to > 0 ? 'l' : 'r'); d.sw.dataset.id = id; d.sw.dataset.right = right; }
@@ -456,7 +503,7 @@
   document.addEventListener('click', function (e) {
     var sw = e.target.closest('.sw.btns');
     var tl = sw && sw.querySelector('.mc,.od');
-    if (sw && tl && tl.dataset.open && !e.target.closest('.mc,.od')) { var id = sw.dataset.id, o = +tl.dataset.open; if (sw.dataset.right === 'odblock') return block(id); return act(o > 0 ? sw.dataset.right : 'replan', id); }
+    if (sw && tl && tl.dataset.open && !e.target.closest('.mc,.od')) { var id = sw.dataset.id, o = +tl.dataset.open; if (sw.dataset.right === 'odblock') return block(id, UNDO_NC_MS); return act(o > 0 ? sw.dataset.right : 'replan', id); }
   }, true);
 
   /* ---------- decision 108b: start dragging the tile out of the stack and the week plan is back under the finger, tile in hand ---------- */
@@ -493,21 +540,21 @@
   function tearPts(edge, k, n) {
     var pts = [], i, t, v, vr;
     for (i = 0; i < n; i++) { t = (i / (n - 1) * 100).toFixed(1) + '%'; v = 'calc(var(--tz,1)*' + (TD[i % TD.length] * k).toFixed(1) + 'px)'; vr = 'calc(100% - var(--tz,1)*' + (TD[(i * 3 + 1) % TD.length] * k).toFixed(1) + 'px)';
-      pts.push(edge === 'top' ? t + ' ' + v : edge === 'bottom' ? t + ' ' + vr : edge === 'left' ? v + ' ' + t : vr + ' ' + t); }
+      pts.push(edge === 'top' ? t + ' ' + v : t + ' ' + vr); }
     return pts;
   }
-  function tearPoly(edge, k, n) { return 'polygon(' + tearPts(edge, k, n).concat(edge === 'top' ? ['100% 100%', '0 100%'] : edge === 'bottom' ? ['100% 0', '0 0'] : edge === 'left' ? ['100% 100%', '100% 0'] : ['0 100%', '0 0']).join(',') + ')'; }
+  function tearPoly(edge, k, n) { return 'polygon(' + tearPts(edge, k, n).concat(edge === 'top' ? ['100% 100%', '0 100%'] : ['100% 0', '0 0']).join(',') + ')'; }
   /* the pale fringe of torn fibre along the cut, as a band between the cut line and a smoother line outside it */
   function tearBand(edge, n) { return 'polygon(' + tearPts(edge, 1, n).concat(tearPts(edge, .4, n).reverse()).join(',') + ')'; }
-  var OPP = { top: 'bottom', bottom: 'top', left: 'right', right: 'left' };
+  var OPP = { top: 'bottom', bottom: 'top' };
   function tearUpdate(x, y) {
-    if (!tear || !td) return; var dx = x - td.x, dy = y - td.y, dist = Math.hypot(dx, dy), e = tear.edge, ne = Math.abs(dy) >= Math.abs(dx) ? (dy >= 0 ? 'top' : 'bottom') : (dx >= 0 ? 'left' : 'right');
-    if (dist > 14 && ne !== e && Math.abs(Math.abs(dx) - Math.abs(dy)) > 10) e = ne;
+    if (!tear || !td) return; var dx = x - td.x, dy = y - td.y, dist = Math.hypot(dx, dy), e = tear.edge, ne = dy >= 0 ? 'top' : 'bottom';
+    if (Math.abs(dy) > 10 && ne !== e) e = ne; /* 158: only the top and bottom edges tear, never a side: a sideways move keeps the edge it had */
     var tz = REDUCE ? 1 : Math.min(1, dist / 36), ph = document.querySelector('.mc.lifted');
     hand.style.setProperty('--tz', tz.toFixed(2)); if (ph) { ph.style.setProperty('--tz', tz.toFixed(2)); ph.parentNode.style.setProperty('--tz', tz.toFixed(2)); }
-    if (e !== tear.on) { var n = e === 'top' || e === 'bottom' ? 22 : 6;
+    if (e !== tear.on) { var n = 22;
       hand.dataset.tear = e; hand.style.setProperty('--tin', tearPoly(e, 1, n)); hand.style.setProperty('--tfib', tearPoly(e, .5, n));
-      if (ph) { var oe = OPP[e], pn = e === 'top' || e === 'bottom' ? 26 : 6; ph.dataset.tear = oe; ph.style.setProperty('--tpl', tearPoly(oe, 1, pn)); ph.parentNode.style.setProperty('--tfp', tearBand(oe, pn)); }
+      if (ph) { var oe = OPP[e], pn = 26; ph.dataset.tear = oe; ph.style.setProperty('--tpl', tearPoly(oe, 1, pn)); ph.parentNode.style.setProperty('--tfp', tearBand(oe, pn)); }
       tear.on = e; tear.edge = e; }
   }
   function secAt(x, y) { var el = document.elementFromPoint(x, y), sec = el && el.closest ? el.closest('.pw-day') : null; return sec && !sec.classList.contains('past') ? sec.dataset.d : null; }
@@ -586,6 +633,7 @@
     if (!t) { if (S.cuShown) idleReset(); return; }
     if (S.cuShown && d.curtain === undefined) idleReset();
     if ((t.classList.contains('mc') || t.classList.contains('od')) && t.dataset.moved) return;
+    if (d.ecg !== undefined) return toggleEcg(t);
     if (d.opts !== undefined) { S.opts = !S.opts; return render(); }
     if (d.more) { S.asheet = { k: 'm', id: d.more }; return render(); }
     if (d.closea !== undefined) { S.asheet = null; S.pop = null; S.pickd = null; S.pickMove = false; S.wkm = false; return render(); }
@@ -628,7 +676,7 @@
     var a = document.activeElement, id = a && a.classList.contains('mc') ? a.dataset.id : S.sel;
     if (k.toLowerCase() === 'z') { return doUndo(); }
     /* Plan UI review 148 (key equivalent of the right swipe): Shift X on a focused open day, or on the open day's detail, sets Not cooking, as it does on a meal tile (98: Shift X is Not cooking) */
-    if (k.toLowerCase() === 'x' && e.shiftKey) { var od1 = a && a.dataset && a.dataset.odB, d1 = od1 || (!S.sel && S.dday); if (d1 && !past(d1) && !ro() && isOpen(d1)) { e.preventDefault(); return block(d1); } }
+    if (k.toLowerCase() === 'x' && e.shiftKey) { var od1 = a && a.dataset && a.dataset.odB, d1 = od1 || (!S.sel && S.dday); if (d1 && !past(d1) && !ro() && isOpen(d1)) { e.preventDefault(); return block(d1, od1 ? UNDO_NC_MS : undefined); } }
     if (k.toLowerCase() === 'x' && id) { e.preventDefault(); return act(e.shiftKey ? 'nocook' : 'replan', id); }
     if (k.toLowerCase() === 'h' && id) return act('hold', id); if (k.toLowerCase() === 'l' && id) return act('list', id);
     if ((k.toLowerCase() === 'e' || (k === 'Enter' && a && a.classList.contains('mc'))) && id) { e.preventDefault(); return act('open', id); }
@@ -638,12 +686,12 @@
   window.addEventListener('resize', function () { sizeStk(); placeMk(true); });
   function resetDemo() { if (hand) { hand.remove(); hand = null; } td = null; cancelAnimationFrame(autoT); S.meals = JSON.parse(JSON.stringify(P.meals)); S.blocked = JSON.parse(JSON.stringify(P.blocked)); S.sel = null; S.dday = null; S.carry = null; S.note = null; S.pulse = null; S.ustk = []; S.pop = null; S.asheet = null; S.wkm = false; S.cmp = true; }
   function showWeek(d) { S.sel = null; S.dday = null; S.carry = null; S.cur = d; S.cmp = true; render(false); var el = document.getElementById('d-' + d); if (el) window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - stkH() - 6); syncHead(); }
-  window.__plan = { block: block, unblock: unblock, openDay: openDay, HOLD_MS: HOLD_MS, resetDemo: resetDemo, showWeek: showWeek, find: find, stkH: stkH, openDetail: openDetail, closeDetail: closeDetail, beginDrag: beginDrag, moveHand: moveHand, endHand: endHand, clearWeek: clearWeek, S: S, act: act, goDay: goDay, drop: drop, startCarry: startCarry, surprise: surprise, copyLast: copyLast, render: render, syncHead: syncHead, follow: follow };
+  window.__plan = { syncEcg: syncEcg, block: block, unblock: unblock, openDay: openDay, HOLD_MS: HOLD_MS, resetDemo: resetDemo, showWeek: showWeek, find: find, stkH: stkH, openDetail: openDetail, closeDetail: closeDetail, beginDrag: beginDrag, moveHand: moveHand, endHand: endHand, clearWeek: clearWeek, S: S, act: act, goDay: goDay, drop: drop, startCarry: startCarry, surprise: surprise, copyLast: copyLast, render: render, syncHead: syncHead, follow: follow };
 
   if (S.sel && S.dt === 'stack') jigStart(find(S.sel));
   render(false);
   if (q.get('demo')) { document.body.classList.add('hasdemo'); var ds = document.createElement('script'); ds.src = 'demo.js'; document.body.appendChild(ds); }
   if (q.get('carry')) { var cm = find(q.get('carry')); if (cm) { S.carry = JSON.parse(JSON.stringify(cm)); render(false); } }
   if (q.get('pick')) { S.pickd = q.get('pick'); render(false); }
-  if (S.lay === 'rib' && !S.sel && !q.get('top') || q.get('day')) { requestAnimationFrame(function () { var el = document.getElementById('d-' + S.cur); if (el && di(S.cur) > 0) { var y = el.getBoundingClientRect().top + window.scrollY - document.getElementById('stkp').offsetHeight - 4; window.scrollTo(0, Math.max(0, y)); } lastY = window.scrollY; follow(true); evalCurtain(); }); } else evalCurtain();
+  if (S.lay === 'rib' && !S.sel && !q.get('top') || q.get('day')) { requestAnimationFrame(function () { var el = document.getElementById('d-' + S.cur); if (el && di(S.cur) > 0) { var y = el.getBoundingClientRect().top + window.scrollY - document.getElementById('stkp').offsetHeight - 4; window.scrollTo(0, Math.max(0, y)); } lastY = window.scrollY; follow(true); evalCurtain(); if (isLite()) placeLite(S.dday); }); } else evalCurtain();
 })();
