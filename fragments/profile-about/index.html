@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Profile About line</title>
+<link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><link rel="stylesheet" href="frame.css"><link rel="stylesheet" href="about.css"><link rel="stylesheet" href="about-rail.css" media="(min-width:1024px)"><script src="../../theme.js"></script></head>
+<body><div class="pa-page"><a href="../../">&lsaquo; All mockups</a><h1>Profile: the quiet About line</h1>
+<p><b>Mockup only. Decision SW-83 is PROPOSED, awaiting the owner.</b> Owner, by voice, 12 October 2026 (the transcript is garbled; the words as received): <em>&ldquo;add abscured about in the profile some pretty. much insignificant to report the tag number of recipe, platform and kitchie only if the deployment is not prod. we have a ......slug somewhere we can use&rdquo;</em>. The agent&rsquo;s reading: one small, muted line at the very bottom of the profile that names the release of Kitchie, Platform and Recipe, shown on UAT and any other non-production deployment, and absent on production.</p>
+<h2>1. UAT, phone</h2><div class="pa-grid"><figure><figcaption>The profile menu (<code>/menu</code>) on UAT. The line sits under Sign out, centred, 11px, muted and softened, with dots between the three releases. It is not a link and not a button.</figcaption><div class="pa-phone pm"><div class="mtop"><a class="back" href="#">&lsaquo; Back</a><span class="ttl"></span><span style="width:64px"></span></div>
+<main class="mbody"><div class="who"><span class="av" aria-hidden="true">S</span><div><b class="nm">Sam</b><p class="small">Our kitchen</p></div></div>
+<div><span class="lbl">App</span><div class="menu card"><a href="#">Settings</a><a href="#">History</a></div></div>
+<div><span class="lbl">People</span><div class="menu card"><a href="#">Me <span class="chip">Sam</span></a><a href="#">Household <span class="chip">3</span></a></div></div>
+<div class="danger">Sign out</div>
+<p class="about" data-about><span>Kitchie v0.101.0</span><span>Platform v0.1.7</span><span>Recipe v1.1.0</span></p></main></div></figure>
+<figure><figcaption>2. Production, phone: nothing. No gap, no placeholder, no empty line. The server neither asks Platform nor draws the element, so the page ends at Sign out.</figcaption><div class="pa-phone pm"><div class="mtop"><a class="back" href="#">&lsaquo; Back</a><span class="ttl"></span><span style="width:64px"></span></div>
+<main class="mbody"><div class="who"><span class="av" aria-hidden="true">S</span><div><b class="nm">Sam</b><p class="small">Our kitchen</p></div></div>
+<div><span class="lbl">App</span><div class="menu card"><a href="#">Settings</a><a href="#">History</a></div></div>
+<div><span class="lbl">People</span><div class="menu card"><a href="#">Me <span class="chip">Sam</span></a><a href="#">Household <span class="chip">3</span></a></div></div>
+<div class="danger">Sign out</div>
+</main></div></figure></div>
+<h2>3. UAT, desktop Profile window</h2><div class="pa-grid"><figure><figcaption>Below the section list in the left gutter, left-aligned with the rows, one release per line (the lines are the same three <code>span</code>s; only the CSS differs). Needs the viewport at 1024px or more to switch to this arrangement; narrower, it falls back to the phone line.</figcaption><nav class="pf-nav pa-rail" aria-label="Profile sections (sample)"><div class="pf-nvt" aria-selected="true">Profile <kbd>1</kbd></div><div class="pf-nvt">Settings <kbd>2</kbd></div><div class="pf-nvt">Preferences <kbd>3</kbd></div><div class="pf-nvt">History <kbd>4</kbd></div><div class="pf-nvt">Household <kbd>5</kbd></div><div class="pf-nvt">My data <kbd>6</kbd></div><div class="pf-grow"></div><p class="about" data-about><span>Kitchie v0.101.0</span><span>Platform v0.1.7</span><span>Recipe v1.1.0</span></p></nav></figure>
+<figure><figcaption>4. Production, desktop: the gutter ends with the section list.</figcaption><nav class="pf-nav pa-rail" aria-label="Profile sections (sample)"><div class="pf-nvt" aria-selected="true">Profile <kbd>1</kbd></div><div class="pf-nvt">Settings <kbd>2</kbd></div><div class="pf-nvt">Preferences <kbd>3</kbd></div><div class="pf-nvt">History <kbd>4</kbd></div><div class="pf-nvt">Household <kbd>5</kbd></div><div class="pf-nvt">My data <kbd>6</kbd></div><div class="pf-grow"></div></nav></figure></div>
+<h2>5. A service that does not answer</h2><div class="pa-grid"><figure><figcaption>Recipe is not served, or does not say its version: it is simply missing from the line. No &ldquo;unknown&rdquo;, no dash, no error. Kitchie always knows its own version.</figcaption><div class="pa-phone pm"><div class="mtop"><a class="back" href="#">&lsaquo; Back</a><span class="ttl"></span><span style="width:64px"></span></div>
+<main class="mbody"><div class="who"><span class="av" aria-hidden="true">S</span><div><b class="nm">Sam</b><p class="small">Our kitchen</p></div></div>
+<div><span class="lbl">App</span><div class="menu card"><a href="#">Settings</a><a href="#">History</a></div></div>
+<div><span class="lbl">People</span><div class="menu card"><a href="#">Me <span class="chip">Sam</span></a><a href="#">Household <span class="chip">3</span></a></div></div>
+<div class="danger">Sign out</div>
+<p class="about" data-about><span>Kitchie v0.101.0</span><span>Platform v0.1.7</span></p></main></div></figure>
+<figure><figcaption>6. Platform cannot be reached: Kitchie shows only its own release (or, if you prefer, nothing; see SW-O58).</figcaption><div class="pa-phone pm"><div class="mtop"><a class="back" href="#">&lsaquo; Back</a><span class="ttl"></span><span style="width:64px"></span></div>
+<main class="mbody"><div class="who"><span class="av" aria-hidden="true">S</span><div><b class="nm">Sam</b><p class="small">Our kitchen</p></div></div>
+<div><span class="lbl">App</span><div class="menu card"><a href="#">Settings</a><a href="#">History</a></div></div>
+<div><span class="lbl">People</span><div class="menu card"><a href="#">Me <span class="chip">Sam</span></a><a href="#">Household <span class="chip">3</span></a></div></div>
+<div class="danger">Sign out</div>
+<p class="about" data-about><span>Kitchie v0.101.0</span></p></main></div></figure></div>
+<h2>Markup (the same in the build)</h2>
+<pre><code>&lt;p class="about" data-about&gt;&lt;span&gt;Kitchie v0.101.0&lt;/span&gt;&lt;span&gt;Platform v0.1.7&lt;/span&gt;&lt;span&gt;Recipe v1.1.0&lt;/span&gt;&lt;/p&gt;</code></pre>
+<h2>What is decided, what is not</h2>
+<div class="pa-states">
+<div><b>SW-83 (PROPOSED)</b>The About line: where, how quiet, when. Awaiting the owner. See <a href="../../docs/knowledge/profile-about.md">docs/knowledge/profile-about.md</a> for the full list, the open questions and the build contract.</div>
+<div><b>Which slug</b>Platform&rsquo;s <code>ENVIRONMENT_SLUG</code> (published at <code>/.well-known/platform-environment.json</code>; <code>null</code> is production). Kitchie already reads it. Nothing new is invented.</div>
+<div><b>Loads</b>Production: nothing extra, not even the element. Non-production: one small request to Platform when the profile opens, never on page load. See the notes file.</div>
+</div></div></body></html>

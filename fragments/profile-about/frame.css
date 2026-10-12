@@ -1,0 +1,29 @@
+/* Mockup scaffolding only: the page, the two frames and the sample menu around the line. The menu rules are copied from Kitchie profile-menu.ts (ROWS_CSS, MENU_CSS) at 0.100.1. */
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body)}
+.pa-page{max-width:1280px;margin:0 auto;padding:16px var(--gutter) 96px}
+.pa-page h1{font:700 1.7rem var(--head);margin:8px 0}.pa-page h2{font:700 1.15rem var(--head);margin:28px 0 8px}
+.pa-page p,.pa-page li{max-width:52rem;line-height:1.5}.pa-page a{color:var(--accent)}
+.pa-grid{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start;margin-top:16px}
+.pa-grid figure{margin:0}.pa-grid figcaption{font-size:14px;line-height:1.4;margin-bottom:8px;max-width:390px;min-height:3.2em}
+.pa-phone{width:min(390px,100%);box-sizing:border-box;border:1px solid var(--border);border-radius:18px;background:var(--bg);padding:0 var(--gutter) 20px;overflow:hidden}
+.pa-rail{width:244px;box-sizing:border-box;border:1px solid var(--border);border-radius:18px;background:var(--bg);display:flex;flex-direction:column;padding:16px 10px 12px;gap:2px;min-height:420px}
+.pa-rail .pf-nvt{display:flex;align-items:center;gap:8px;min-height:var(--tap);padding:0 8px;border-radius:var(--r-ctl);font-weight:600}
+.pa-rail .pf-nvt[aria-selected=true]{background:var(--surface);box-shadow:inset 3px 0 0 var(--accent)}
+.pa-rail .pf-grow{flex:1}
+.pa-rail .pf-nvt kbd{margin-left:auto;font-size:10px;padding:0 5px;border:1px solid var(--border);border-radius:5px;color:var(--muted)}
+.lbl{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.menu.card{display:flex;flex-direction:column;gap:8px;width:100%;box-sizing:border-box;margin:0;padding:18px;background:var(--surface);border:1px solid var(--border);border-radius:18px}
+.menu>a{display:flex;justify-content:space-between;align-items:center;min-height:56px;color:var(--fg);font:600 16px/1.5 var(--body);text-decoration:none}
+.menu.card>*+*{border-top:1px solid var(--border)}
+.menu .chip{font-size:12px;font-weight:700;padding:4px 10px;border-radius:99px;background:var(--bg);border:1px solid var(--border)}
+.pm .mtop{height:60px;margin:0 calc(-1 * var(--gutter)) 20px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);font-family:var(--head);font-weight:700;font-size:19px}
+.pm .back{color:var(--accent);font-size:15px;font-weight:600;text-decoration:none}
+.pm .mbody{display:flex;flex-direction:column;gap:16px}
+.pm .who{display:flex;gap:12px;align-items:center}.pm .av{width:56px;height:56px;border-radius:50%;background:var(--surface);border:1px solid var(--border);display:grid;place-items:center;font-weight:700;font-size:20px}
+.pm b.nm{font-size:20px}.pm .small{margin:0;font-size:13px;color:var(--muted)}
+.pm .danger{display:flex;align-items:center;min-height:48px;font:600 16px/1.5 var(--body);color:var(--danger)}
+.pa-none{margin:20px 0 4px;min-height:1px}
+.pa-states{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:12px}
+.pa-states>div{border:1px solid var(--border);border-radius:var(--r-ctl,12px);background:var(--surface);padding:12px 16px}
+.pa-states b{display:block;margin-bottom:4px}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;font-size:13px}

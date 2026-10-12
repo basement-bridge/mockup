@@ -1,0 +1,4 @@
+/* The same line in the desktop Profile window's left gutter (1024px and up). Its own file, as the build keeps desktop-only CSS apart (Kitchie desktop-css/profile.ts):
+   under the section list, left-aligned with the rows, one release per line. */
+.pf-nav .about{flex-direction:column;justify-content:flex-start;align-items:flex-start;gap:0;margin:12px 0 0;padding:0 8px}
+.pf-nav .about span+span::before{content:none}
