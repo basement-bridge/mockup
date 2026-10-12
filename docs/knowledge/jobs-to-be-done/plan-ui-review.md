@@ -668,3 +668,105 @@ Default path is the same five files (`theme.css`, `phone.css`, `data.js`, `statu
 ## Verification done (13 Oct live test)
 
 Headless Chromium, touch (CDP touch events) at 390 x 844 and 360 x 740, mouse at 1280 x 900, a reduced-motion run per width. `tools/plan-ui-not-cooking-check.mjs` (137 checks, all passing): the light panel shows Ask AI, Surprise me and Mark as open only, is under 200 px tall, has none of the recipe chrome (stepper, ingredients, total time, day piece, sheet, tongue, footer), keeps the day Not cooking and the week under it, swaps with a ribbon tap and closes with Esc; the open-day swipe sets Not cooking with the inline Undo, the entry carries 3000 ms, it is there at 2.4 s and gone at 3.7 s, the button in the day's detail keeps the longer undo; the Not cooking edge and the reveal equal `--muted`, no `--nc`, no `data-ac`, past tiles still greyscale at 0.62; a gap of one hidden day has one marker and a tap opens only that day, a gap of two has one marker and a tap opens both, they stay open after a scroll, the open marker closes both, Enter opens and Space closes from the keyboard, `?gap=off` draws none, the beat plays once and settles flat (the beat path is visible early and at 0 opacity later) and a re-draw does not replay it, the hit area is at least 44 px tall, the peek at the edge still shows; reduced motion: no beat class, beat path at 0 opacity, still tappable; the tear: a held tile dragged down in the plain agenda tears the top edge and the place-holder's bottom edge (the fade 0.4 with the dashed border and the -1.5 degree tilt still present), a sideways move never tears a side, dragging up tears the bottom edge, `?tear=detail` keeps the old scoping, the detail drag-out still tears the top, a mouse drag at 1280 tears top and bottom only; no page errors, no sideways scroll at 390, 360 and 1280. `tools/plan-ui-open-day-check.mjs` (70 checks) was updated for the light panel and passes (it includes hold-to-lift lifting a meal tile and doing nothing on an open day, a quick swipe not lifting, meal-tile swipe unchanged, and the double-tap guard). All demo frames (`?demo=1`, `agenda`, `open`, `nc`) load with no page errors at both widths. Light theme checked for the panel, the grey and the marker. Not verified: a real iPhone (touch feel, the beat on a real display), and the Pages URL from the sandbox (see the PR).
+
+# Ninth revision, 13 October 2026 (spoken, later): the week summary strip becomes two week-level bulk actions, Add to buy and Reserve (decisions 159 to 167)
+
+Owner (Arjan), spoken on 13 October 2026, verbatim fragments (voice, relayed by the voice session, so the intent is read carefully; **Owner-stated, 13 Oct 2026** marks his words, **Proposal** marks the design agent's choices where he was silent). Cite as "Plan UI review 159" to "Plan UI review 167" (`item-edit-flyout.md` also has a 159, so a bare number is ambiguous).
+
+- "where do I do a bulk action of hold everything that I have?" (Only the per-meal Hold all existed; there was no week-level action.)
+- "it says four out of seven nights" (the week summary strip) ... "that week summary does not have those dials for the current week ... that's fine."
+- "when I click on that 'use first' or whatever ... it's more like a filter ... but what I want, those two buttons ... there's no need for that, 'use first' or whatever, it's silly. ... I want that to be a bulk of anything that's missing."
+- "Add to buy as a bulk, is what I need. And the other one is, reserve." He confirmed ("Yeah") the reading: the strip becomes two meaningful week-level bulk actions instead of passive counts. **Add to buy** adds everything missing across the whole week to the shopping list in one tap. **Reserve** holds everything currently on hand across the whole week in one tap. "Use first" is dropped as a concept.
+- Last, a trailing sentence that may be cut off: "And the read-only labels there would be at the same level as this week, like week of whatever, this week, next week you have." (Read as: the remaining read-only text sits on the same row as the week label; see 165, a Proposal and an open question.)
+
+Mockups: [phone.html](../../../fragments/plan-ui-review/phone.html) (`?demo=week` seven frames, `?demo=week&frame=N`; `?ws=actions|bare|counts`, default `actions`), [index](../../../fragments/plan-ui-review/index.html#wk159). Screenshots `img/p-wk-*`. Scripted check: `tools/plan-ui-week-actions-check.mjs` (117 checks). Desktop is not changed (see the supersession notes).
+
+## Decisions
+
+159. **The week summary strip's passive "to buy" and "use first" counts are replaced by two week-level bulk actions (owner-stated, 13 Oct 2026).** The tiles, their counts and the highlight filter they drove ("more like a filter ... there's no need for that") are gone from the default view; **use first is dropped as a concept** on the phone strip. It stays reachable only as `?ws=counts`, the old strip, superseded, for comparison. This resolves the open question "Week summary 'to buy' (121, 132)".
+160. **Add to buy (owner-stated).** One tap puts every missing ingredient of the week that is not yet on the shopping list onto it. It uses the model the per-meal Add already has (each missing item gets its list flag, the meal's list count follows, the day dots turn green under 122 because the item is on the list), so the shopping-list effect is the same, just for the whole week. The note and the Undo name what happened ("Added 4 items for this week to the shopping list, across 3 meals").
+161. **Reserve (owner-stated).** One tap holds every on-hand ingredient of the week: each meal with something on hand that is not already held becomes Held, the same state the per-meal Hold sets (126), so the meal's detail then shows Held and releases it as before. Meals already held are left alone.
+162. **Past weeks and past days (owner-stated: past weeks need nothing changed; the drawing is a Proposal).** Last week has no actions drawn (it is grey and read only, 113, 114), and in this week the actions skip days before today (past tiles stay as they are, 114). Only the label row ("Week of 5 Oct, Last week, read only") shows for a past week.
+163. **Counts inside the buttons, disabled state, empty week (Proposal).** "Add to buy 4" and "Reserve 14": the number is what the button will touch (missing items not yet listed; on-hand items of meals not yet held), the same meaning as 126's counts, small and muted so the label leads. Counts are not a second status count, and `?ws=bare` removes them. When nothing applies the button is dimmed and disabled with no count and says why in its tooltip and its screen reader label ("Everything missing this week is already on the shopping list", "Everything on hand this week is already reserved", "Nothing on hand to reserve this week"). A week with no meals from today on (an empty next week) shows no strip at all rather than two dead buttons. Another person's plan (view only): disabled.
+164. **Scope of the week (Proposal).** Each strip acts on the week it sits under, the week named in the row just above it. When the header and the strip disagree during a scroll (the header changes week when the new week's first day passes), the strip wins, because it is what the finger is on. Nothing is applied to a week that is out of view. Meals shown depend on the person filter (Mine, Everyone), the same as every other action; Everyone acts on the household's meals.
+165. **The read-only text sits on the week label row (Proposal; the owner's last sentence may be cut off).** "5 of 7 nights" (was the "5/7 nights" tile, no dials) is quiet text at the right end of the row "WEEK OF 12 OCT  This week". It is not a button. The two actions sit on the line directly under it, full width, equal weight. If he meant the actions on the same line as the label, it is a flex change (open question).
+166. **Undo (Proposal; 130, 155).** Each action flips in place, in the strip, into an Undo button that names what it reverses ("Undo add to buy", "Undo reserve"), the same pattern as Copy last week and Clear week (99, 109), on the same short stack. It lives **14 s** (130), not 3 s: the 3 s of 155 was the owner's number for one specific gesture (the Not cooking swipe on an open day), and a week-wide action reverses many meals, so it deserves the longer window that Copy last week and Clear week have. `?ut=N` shortens it for review. After expiry the button is simply disabled with its reason (163). Recommendation: keep 14 s; if he wants one number for everything bulk, change the argument in `weekBulk`.
+167. **Screen reader and keyboard (Proposal).** The pair is a group named "Bulk actions for this week" (or "next week"); each is a real button, at least 44 px tall, with a focus ring. The label states the effect and the number ("Add to buy: put the 4 missing items for this week on the shopping list"); a disabled one says why. The Undo button's label names the action and repeats the note. There is no new keyboard shortcut. The strip does not collide with the Week actions menu in the header (Copy last week, Clear week), which is unchanged, nor with the day ribbon or the docked detail (the strip belongs to the plain week and agenda; the ribbon is there only with a detail open, 136).
+
+## Supersession notes (13 Oct, bulk actions)
+
+- **75** (week summary strip with nights, to buy and use first, tiles that toggle a highlight) is superseded on the phone by 159 to 161; **121** and **132** (the strip's "N to buy" count and its source of truth) are resolved by 159.
+- **126** (Hold and Add at the bottom of one meal) and **134** (bulk actions in the list itself) stand for one meal; 160 and 161 are the same two actions at week scope.
+- **130** (undo 14 s) stands and is the window for 166; **155** (3 s) stays for the open-day swipe only.
+- **Desktop is not changed.** `desktop.js` still draws the four-tile week strip ("to buy", "use first", the highlight) and the inspector's idle view still has "Buy by day" with Add all, and "Use first"; the new strip is **not yet drawn on desktop**. Cost of a wrong guess about whether desktop follows: one redraw of `.sumstrip`.
+- The per-meal Hold all and Add all (126, 134), the ECG markers (157), the Not cooking panel (154), the swipes (147 to 149, 155) and the tear (158) are unchanged.
+- Screenshots: the plain-week pictures were regenerated, so the old strip is gone from them; those not regenerated were drawn before 159 and can still show it. The index says so.
+
+## Open questions (new, 13 Oct, bulk actions)
+
+- **Week summary "to buy" (121, 132): resolved by 159.** Removed.
+- **Where the nights text and the buttons sit (165):** label row text plus buttons on the line under it (drawn), or the buttons on the label row itself? Cost of a wrong guess: low, flex and one row's width at 360 px.
+- **What Reserve means (161):** it sets the same Held state as the per-meal Hold (drawn). If "reserve" is a stronger idea than hold (for example it blocks substitution or cooking from stock), or if he wants a different word on the per-meal button, that is a copy change and a model question. Cost: low for copy, medium for the model (Kitchie `plan_reserve`).
+- **Add to buy when the same ingredient is missing in two meals (160):** drawn as each meal's own line, the count adds them (the list is not merged in the mockup). In the app it should merge into one list line with the larger quantity. Cost: the count in the button would read lower than the sum.
+- **Undo window (166):** 14 s (drawn) or the 3 s of 155 for all bulk actions? Cost: one constant; a 3 s window on a week-wide change is short.
+- **Counts inside the buttons (163):** keep, or plain words? `?ws=bare` shows the plain words. Cost: nothing.
+- **A week with no meals from today on (163):** the strip is hidden (drawn); or two disabled buttons? Cost: one condition.
+- **Scope when scrolling across a boundary (164):** the week the strip sits under (drawn) or the week the header shows? Cost: low; the header lags by a few rows.
+- **Past days in this week (162):** skipped (drawn); should Add to buy also cover a missing item for a meal already past (no)? Cost: one filter.
+- **Desktop:** does the strip follow? Not drawn.
+
+Carried forward, untouched (every earlier open question, copied from the live-test section, with only the week summary item removed because 159 resolved it):
+
+- **Panel after Mark as open (154):** the panel closes (drawn), or it switches to the open night's own Ask AI, Surprise me and Not cooking? And Surprise me on a Not cooking day opens the new meal's detail (drawn). Cost of a wrong guess: one handler.
+- **Where 3 seconds applies (155):** the open-day swipe and its Shift X (drawn) or also the Not cooking button, or a swipe on a meal tile (which removes a meal)? Cost: one argument per call; a wrong "yes" on the meal tile loses a meal after 3 s.
+- **How far the grey goes (156):** the tile edge, the reveal and the peek (drawn), or the whole Not cooking tile faded like a past day? Is the accent back on the selection and docked frames what he wants (it is the pre-#148 state)? Cost: CSS.
+- **The marker (157):** the look (a flat stub with one beat), once per gap, the closing form (the same marker as one settled beat above the opened days), and whether opened days stay open until closed (drawn) or re-collapse on scroll like the peek. Cost: CSS and one rule; the closing form could be a different control (for example a tap on the opened tile).
+- **Tear edges (158):** one edge at a time (drawn) or top and bottom together; does the past tile's copy drag tear too (drawn: yes)? Cost: one polygon pair.
+
+Carried forward, untouched (the 147 to 153 questions and everything beneath them, copied from the 01:55 section):
+
+- **The reading of "The open day with this visual is great" (147):** the dashed box with no words (drawn), or the dashed box with the words "Open night" inside? Cost of a wrong guess: low, CSS (`?od=text` already draws the words, a label inside the box is one line).
+- **Right swipe (148):** read as Not cooking on an open day, in the same direction as on a meal tile. If he meant a different direction or a different action (for example Surprise me), cost: one gesture. Should a left swipe on an open day do something (Ask AI)? Nothing drawn.
+- **"Slightly dull accent" (150):** which accent is meant (the mockup's green/gold, UAT's terracotta, or the Not cooking tint)? Drawn: the elements listed in 150 only, one token. Cost: low, one token or the `?ac` switch; if he meant the global accent it is a theme change, a different and larger decision.
+- **The vanishing options (151, 152):** is the reading right (the Not cooking tile, then the options), and did they disappear after a second tap or by themselves? If by themselves, the cause is not found and the exact steps are needed. Should a tap on the tile open the day (drawn) or only reopen the night? Cost: one handler.
+- **Guard time (152):** 450 ms. Cost: one constant.
+
+Carried forward, untouched (copied from the 01:44 section, which copied the earlier ones):
+
+- **Tear scope (142):** detail-only (drawn) or any drag-out, for example the tile in hand after "Move to another day"? Cost of a wrong guess: one flag; `?tear=all` already draws the other.
+- **Hold or handle (144):** hold-to-lift (drawn) or a drag handle on each tile in the week? Cost: medium (a handle changes every tile's face; hold costs discoverability, which the 129 wiggle could teach).
+- **Desktop week board:** does it follow? Not changed here. Cost: medium.
+- **Thresholds (144, 146):** hold 350 ms and 8 px, drag 6 px, edge zones 56 and 64 px, 18 px a frame. Cost: low, constants.
+- **The reading of the note as a whole (142, 143):** especially "this", "the menu itself" and what "prior visual" covers. Cost: low to medium, mostly CSS.
+
+Carried forward, untouched (the one list from 136 to 141, batch 2 and earlier, copied):
+
+From 136 to 141: Today button or the gutter Today pill scrolling into view on load (88); a date picker from the "Week of" label; how many weeks in the detail ribbon (all three drawn); desktop following the no-ribbon rule (not changed); sheet variant without a ribbon and `?lay=focus` with one.
+
+New from batch 2:
+- **Where the bulk actions live (134, 135):** bottom bar only (current), in-list "Add all" and "Hold all" only, or both? Cost of a wrong guess: low, a redraw (the handlers are shared; it is one switch in `ingList` and `footActions`). Also: should the in-list Hold all sit at the end or the start of the on-hand group (end drawn)?
+- **What green means (122):** dealt with (on the list, drawn) or all on hand? Cost: one function.
+- **Open night tap (125):** tapping now opens the day with Ask AI, Surprise me and Not cooking, instead of marking Not cooking. Confirm; cost of a wrong guess: the row's handler and one button. Also: after Not cooking from that day the stack stays docked (drawn); close instead?
+- **Counts on the bottom buttons (126):** are Hold 5 and Add 2 the right numbers (items touched) or should they read "Hold all" and "Add all"? They are not a second status count.
+- **Open recipe (127):** where a meal has no saved recipe (made up, Surprise me), hide the action, show a stub (drawn), or offer to save it? In the mockup only three sample meals have a recipe page.
+- **Use-by (123):** shown as plain text in the list only; is that enough, or also on the tile?
+- **Wiggle rule (129)** and **undo time (130)**: confirm 3 opens, 7 days, stop after a drag; confirm 14 s.
+- **Handle (128):** removed (recommended) or lighter.
+- **Desktop:** the same status, list, footer and open-night changes are not drawn on desktop.
+
+Carried forward from earlier revisions (not lost):
+- Which of desktop layouts A to D; fill the window (63) or left-anchored (56); Esc closing the flyout (66); leftover link as real data (77).
+- 3 weeks or 4 weeks forward in the ribbon (86).
+- Where a copied-forward or dropped meal lands: start of the day or of the week (102).
+- Person filter dropdown or people-count dropdown: both mocked, no pick (97, 98).
+- Curtain trigger for the week-level Ask AI: idle or start of the view (96).
+- Whether Clear week also clears Not cooking marks (109); undo depth (109, 101).
+- Batch 1: pipes between every pair of days or only the week boundary (113); UAT thumbnail and avatar or the mockup's emoji tile (110); Today pill or colour only (111); whether the other detail variants swap on a ribbon tap (115); after Not cooking or Replan from a docked meal, stay docked or close (115); tear on a sideways drag, and a tear on the swipe (118, now moot for the agenda: nothing there is torn unless `?tear=all`); past tile strength (114).
+
+## What loads (DESIGN.md section 6), 13 Oct bulk actions
+
+Default path is the same five files (`theme.css`, `phone.css`, `data.js`, `status.js`, `phone.js`). Measured on this branch against main (795fd9a), concatenated as served: **176.1 KB uncompressed, 49.7 KB gzipped, up 5.9 KB (1.4 KB gzipped)** on main's 170.2 KB, 48.3 KB gzipped (about 5.1 KB script, 0.8 KB CSS). It stays in the default path because the plain week must show the strip; the old strip's code is kept only for `?ws=counts`. No images, fonts or files added to the default path, nothing fetched. `demo.js` is 16.4 KB (was 13.2 KB) and loads only with `?demo=`. Deferred: the demo frames (`?demo=week`), the Mockup options panel, the tools checks, the `img/` screenshots (lazy in the index).
+
+## Verification done (13 Oct, bulk actions)
+
+Headless Chromium, touch at 390 x 844 and 360 x 740, mouse at 1280 x 900. `tools/plan-ui-week-actions-check.mjs` (117 checks, all passing) per width: one strip for this week (next week is empty in the sample, so it has none; none for last week); the old tiles and "use first" are gone; "n of 7 nights" is text on the label row; the group is named and the buttons are at least 44 px tall; Add to buy lists every missing item of this week from today on and nothing in last week or next week, flips in place to Undo, Undo restores exactly, the button returns; Reserve holds every on-hand meal from today on, leaves past meals and next week alone, shows Undo, undo unholds and leaves the list as it was; both are disabled, count-free and explain themselves once everything is listed and held; with copies of this week seeded into next week, both actions work there and are undoable; a Week actions menu still opens with its two items; Jane's plan (view only) has both disabled; `?ws=bare` has no counts; `?ws=counts` keeps the old strip; with `?ut=2` the Undo expires and the button goes disabled; Enter activates a focused button; a docked detail shows the ribbon and no strip; no page errors; no sideways scroll; the strip sits inside the viewport. `tools/plan-ui-not-cooking-check.mjs` (137) and `tools/plan-ui-open-day-check.mjs` (70) still pass, so the ECG markers, the Not cooking panel, the swipes and the tear are unaffected. All seven `?demo=week` frames load with no page errors at both widths. Light theme checked. Not verified: a real iPhone, and the Pages URL from the sandbox (see the PR).

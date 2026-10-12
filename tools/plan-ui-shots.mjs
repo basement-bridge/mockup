@@ -1,4 +1,4 @@
-// Regenerates the Plan UI review phone screenshots for decisions 154 to 158 (13 Oct 2026) into fragments/plan-ui-review/img/.
+// Regenerates the Plan UI review phone screenshots for decisions 154 to 165 (13 Oct 2026) into fragments/plan-ui-review/img/.
 // Usage:  python3 -m http.server 8123 &   then   NODE_PATH=/opt/node22/lib/node_modules node tools/plan-ui-shots.mjs [--only=substring]
 // Dark theme (the default), headless Chromium, 390 x 844 and 360 x 740, JPEG. The ECG strip freezes the beat with the Web Animations API, so it is deterministic.
 import { createRequire } from "module";
@@ -11,11 +11,13 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 const SZ = { 390: [390, 844], 360: [360, 740] };
 const cases = [];
 for (const w of [390, 360]) {
+  for (let n = 1; n <= 7; n++) cases.push([`p-wk-${n}-${w}`, `demo=week&frame=${n}&cap=0`, w, 700]);
   for (let n = 1; n <= 7; n++) cases.push([`p-nc-${n}-${w}`, `demo=nc&frame=${n}&cap=0`, w, n <= 2 ? 1000 : 600]);
   for (let n = 1; n <= 7; n++) { cases.push([`p-ag-${n}-${w}`, `demo=agenda&frame=${n}&cap=0`, w, 600]); cases.push([`p-seq-${n}-${w}`, `demo=1&frame=${n}&cap=0`, w, 600]); }
   cases.push([`p-od-${w}`, "demo=open&frame=1&cap=0", w, 700], [`p-od-swipe-${w}`, "demo=open&frame=2&cap=0", w, 700], [`p-od-nc-${w}`, "demo=open&frame=3&cap=0", w, 700], [`p-od-detail-${w}`, "demo=open&frame=4&cap=0", w, 700], [`p-grid-${w}`, "", w, 900]);
 }
 cases.push(["p-od-text-390", "od=text&demo=open&frame=1&cap=0", 390, 700], ["p-st-plain-390", "", 390, 900], ["p-tear-detail-390", "demo=1&frame=4&cap=0", 390, 600], ["p-tear-all-390", "demo=agenda&frame=3&cap=0", 390, 600]);
+cases.push(["p-wk-light-1-390", "demo=week&frame=1&cap=0", 390, 700, "light"], ["p-wk-light-2-390", "demo=week&frame=2&cap=0", 390, 700, "light"]);
 cases.push(["p-nc-light-1-390", "demo=nc&frame=1&cap=0", 390, 1000, "light"], ["p-nc-light-5-390", "demo=nc&frame=5&cap=0", 390, 600, "light"], ["p-nc-light-4-390", "demo=nc&frame=4&cap=0", 390, 600, "light"]);
 const browser = await chromium.launch();
 for (const [name, q, w, wait, scheme] of cases) {

@@ -5,11 +5,12 @@
                       5 a past tile lifted to copy forward and a past day refusing it, 6 the detail drag-out is the ONLY torn one, 7 a quick sideways swipe still reveals the swipe actions (no lift)
    ?demo=open         the open day, 4 frames (decisions 147 to 153, 154, 155): 1 the dashed open day, 2 right swipe reveals Not cooking, 3 Not cooking with Undo (3 s), 4 tap the Not cooking tile: the LIGHT panel (Ask AI, Surprise me, Mark as open)
    ?demo=nc           the 13 Oct live-test round (decisions 154 to 158), 7 frames: 1 a collapsed Not cooking day with the ECG marker on the divider line, 2 one tap opens it, 3 a gap of two days, 4 one tap opens both, 5 tap a Not cooking day: the light panel, 6 the open-day swipe and its 3 s Undo, 7 the tear in the plain agenda (top and bottom edges only)
+   ?demo=week         the week summary strip's two bulk actions (decisions 159 to 167), 7 frames: 1 the strip (Add to buy, Reserve, counts inside), 2 Add to buy with Undo in place, 3 Reserve with Undo in place, 4 both used: disabled, 5 next week (sample meals seeded for this frame only), 6 last week: read only, no strip, 7 the old strip (?ws=counts, superseded)
    Frames (?demo=1): 1 week plan, 2 tap a day: the day docks top and the sheet docks bottom, 3 tap another day in the ribbon: the contents of the stack swap, the slot stays (115),
            4 start dragging the tile and it tears off, a ragged edge on the tile and on the piece left behind (118), 5 dragged to a day, torn all the way, 6 let go on a day,
            7 alternative: close the stack, the ribbon goes and the week returns. It drives the same code a finger does (beginDrag, moveHand, endHand, closeDetail). */
 (function () {
-  var A = window.__plan, q = new URLSearchParams(location.search), AG = q.get('demo') === 'agenda', OP = q.get('demo') === 'open', NC = q.get('demo') === 'nc', N = OP ? 4 : 7, cur = 1, timer = null, playing = true;
+  var A = window.__plan, q = new URLSearchParams(location.search), AG = q.get('demo') === 'agenda', OP = q.get('demo') === 'open', NC = q.get('demo') === 'nc', WKD = q.get('demo') === 'week', N = OP ? 4 : 7, cur = 1, timer = null, playing = true;
   var CAPD = [
     ['Week plan, no ribbon', 'The week view has no day ribbon (136): a slim header, then the agenda across three weeks. Wed 14 has a meal. Tap it.'],
     ['Tap a day with a meal', 'The ribbon fades in, docked under the header, only now (136). The day docks directly under it and the detail at the bottom. One stack, no gap, no overlay; the stack does not move when the ribbon appears.'],
@@ -43,7 +44,16 @@
     ['Right swipe an open day', 'Not cooking, with the Undo in place on the tile. For this swipe the Undo lasts 3 seconds (155, owner-stated).'],
     ['The tear in the plain agenda', 'Hold a tile and drag it: the torn edge shows on the top (dragging down) or bottom (dragging up) only, with the fade on the place-holder and the tilt of the tile in hand (158).']
   ];
-  var CAP = NC ? CAPN : OP ? CAPO : AG ? CAPA : CAPD; if (NC) N = 7;
+  var CAPW = [
+    ['The week summary strip is two actions', 'Under "Week of 12 Oct" the passive to buy and use first counts are gone (159, owner-stated). Add to buy and Reserve act on the whole week; "5 of 7 nights" is quiet read-only text on the label row (165, Proposal: a reading of a cut-off sentence). The count in each button is what it will touch (Proposal).'],
+    ['Add to buy: everything missing, one tap', 'Every missing ingredient of this week from today on goes on the shopping list (160, owner-stated); the days turn green, the same as adding per meal (122). The button flips in place into Undo for 14 s (166, Proposal; 130). Past days are not touched.'],
+    ['Reserve: hold everything on hand, one tap', 'Every on-hand ingredient of this week from today on is held (161, owner-stated). Undo in place, the same as Add to buy. Held meals show Held in their detail.'],
+    ['Nothing left: disabled, and it says why', 'When Undo has expired and nothing applies, the button is dimmed and disabled with its reason in the label and tooltip (163, Proposal; 167). No count on a disabled button.'],
+    ['Next week works the same', 'Each strip sits under its own week and acts on that week only (164, Proposal). The sample has no meals next week, so this frame seeds copies of this week for the demo only. A week with no meals from today on shows no strip.'],
+    ['Last week: read only, no strip', 'Past weeks stay grey and read only (owner-stated: nothing to change); no actions are drawn there (162).'],
+    ['For comparison: the old strip', 'The old passive strip (4/7 nights, to buy, use first, with the highlight filter), still available as ?ws=counts. Superseded by 159 to 161.']
+  ];
+  var CAP = WKD ? CAPW : NC ? CAPN : OP ? CAPO : AG ? CAPA : CAPD; if (NC || WKD) N = 7;
   function rect(sel) { var e = document.querySelector(sel); return e ? e.getBoundingClientRect() : null; }
   function buildA(n) {
     A.resetDemo(); A.showWeek('d14'); var S = A.S, tile = function (id) { var e = document.querySelector('.pw-day .mc[data-id="' + id + '"]'); return e ? e.getBoundingClientRect() : null; };
@@ -76,7 +86,19 @@
     A.showWeek('d14'); var t = document.querySelector('.pw-day .mc[data-id="wed-curry"]').getBoundingClientRect(), x = t.left + t.width / 2, y = t.top + t.height / 2;
     A.beginDrag('wed-curry', x, y, 99, { src: 'agenda' }); A.moveHand(x + 6, y + 36);
   }
+  function buildW(n) {
+    A.resetDemo(); var S = A.S, go = function (k) { S.cur = ['d05', 'd12', 'd19'][k]; var w = document.querySelectorAll('.wkd')[k]; if (w) window.scrollTo(0, w.getBoundingClientRect().top + scrollY - 70); A.syncHead(); setTimeout(A.syncHead, 150); }, tap = function (sel) { var b = document.querySelector(sel); if (b) b.click(); };
+    S.ws = 'actions'; A.render(false); go(1);
+    if (n === 1) return;
+    if (n === 2) { tap('.wact [data-wbuy="0"]'); go(1); return; }
+    if (n === 3) { tap('.wact [data-wbuy="0"]'); S.ustk = []; A.render(false); tap('.wact [data-wres="0"]'); go(1); return; }
+    if (n === 4) { tap('.wact [data-wbuy="0"]'); tap('.wact [data-wres="0"]'); S.ustk = []; A.render(false); go(1); return; }
+    if (n === 5) { S.meals.filter(function (m) { var d = +m.day.slice(1); return d >= 13 && d <= 18; }).forEach(function (m) { var c = JSON.parse(JSON.stringify(m)); c.id = 'n-' + m.id; c.day = 'd' + (+m.day.slice(1) + 7); c.held = 0; S.meals.push(c); }); A.render(false); go(2); return; }
+    if (n === 6) { window.scrollTo(0, 0); return; }
+    S.ws = 'counts'; A.render(false); go(1);
+  }
   function build(n) {
+    if (WKD) return buildW(n);
     if (NC) return buildN(n);
     if (OP) return buildO(n);
     if (AG) return buildA(n);
