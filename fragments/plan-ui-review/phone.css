@@ -56,8 +56,6 @@ select{font:inherit}
 .dy{position:relative;z-index:1;flex:0 0 calc((min(100vw,430px) - 12px) / 7);scroll-snap-align:center;display:flex;flex-direction:column;align-items:center;gap:1px;min-height:56px;padding:4px 0;border-radius:14px;font-size:11px;font-weight:700;color:var(--muted)}
 .dy b{font:700 17px var(--head);color:var(--fg);line-height:1.2}
 .dy.today b{background:var(--accent);color:var(--on-accent);border-radius:50%;width:28px;height:28px;display:grid;place-items:center;font-size:15px}
-.dy.mon::before{content:"";position:absolute;left:-1px;top:10px;bottom:10px;border-left:1px solid var(--border)}
-.dy:first-of-type::before,.mk+.dy::before{display:none}
 .dy .st{display:flex;gap:3px;height:8px;align-items:center}
 .dy .st i{width:6px;height:6px;border-radius:50%;background:var(--sage)}
 .dy .st i.bad{background:var(--danger)}
@@ -66,7 +64,7 @@ select{font:inherit}
 .dy.past{opacity:.6}
 
 /* summary: one quiet line of three buttons, scrolls away with the page */
-.sum{display:flex;gap:6px;padding:10px 12px 4px;overflow-x:auto;scrollbar-width:none}
+.sum{display:flex;gap:6px;padding:10px 0 4px;overflow-x:auto;scrollbar-width:none}
 .sum::-webkit-scrollbar{display:none}
 .sb{display:inline-flex;align-items:baseline;gap:6px;min-height:44px;padding:0 12px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--surface);white-space:nowrap;align-items:center;flex:none}
 .sb b{font:700 18px var(--head)}
@@ -75,13 +73,11 @@ select{font:inherit}
 .sb svg{width:14px;height:14px}
 
 /* days and cards */
-.dsec{padding:10px 12px 0}
 .dsh{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}
 .dsh b{font:700 1.05rem var(--head)}
 .dsh span{color:var(--muted);font-size:14px}
 .dsh em,.fh em{font-style:normal;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:var(--accent);color:var(--on-accent);border-radius:var(--r-pill);padding:2px 8px}
-.dsec.past .dsh b,.dsec.past .dsh span{color:var(--muted)}
-.cl{display:flex;flex-direction:column;gap:8px}
+.pw-day.past .dsh b,.pw-day.past .dsh span{color:var(--muted)}
 .sw{position:relative;border-radius:var(--r-card);overflow:hidden;background:var(--surface)}
 .und{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;padding:0;font-weight:700;font-size:14px}
 .und .l,.und .r{display:flex;align-items:center;gap:8px;height:100%;padding:0 18px;min-width:90px}
@@ -202,17 +198,16 @@ select{font:inherit}
 
 /* ---- 12 Oct 2026 revision (decisions 85 to 106) ---- */
 /* week dividers, hidden Not cooking days, drop targets, pulse */
-.wkd{display:flex;align-items:baseline;gap:8px;padding:18px 12px 0;color:var(--muted);font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.wkd{display:flex;align-items:baseline;gap:8px;padding:18px 0 0;color:var(--muted);font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
 .wkd i{font-style:normal;font-weight:600;letter-spacing:0;text-transform:none;font-size:13px}
 .wkd:first-child{padding-top:6px}
-.dsec.hid{height:0;overflow:hidden;padding:0;margin:0;visibility:hidden}
-.dsec{transition:background .3s}
-.dsec.target{background:color-mix(in srgb,var(--accent) 7%,transparent);box-shadow:inset 3px 0 0 var(--accent);margin-top:2px}
-.dsec.target:not(.past) .cl{pointer-events:none}
+.pw-day.hid{height:0;overflow:hidden;padding:0;margin:0;border:0;visibility:hidden}
+.pw-day.target{background:color-mix(in srgb,var(--accent) 7%,transparent);box-shadow:inset 3px 0 0 var(--accent);margin-top:2px}
+.pw-day.target:not(.past) .pw-stack{pointer-events:none}
 .drp{margin-left:auto;font-style:normal;font-size:12px;font-weight:700;color:var(--accent)}
 .ncl{font-style:normal;font-size:12px;color:var(--muted);font-weight:600}
-.dsec.past.target{background:none;box-shadow:none}
-.carrying .dsec.past{opacity:.45}
+.pw-day.past.target{background:none;box-shadow:none}
+.carrying .pw-day.past{opacity:.45}
 @keyframes pulse{0%{background:color-mix(in srgb,var(--accent) 38%,transparent)}100%{background:transparent}}
 .pulse{animation:pulse 1.3s ease-out 2;border-radius:var(--r-card)}
 @media(prefers-reduced-motion:reduce){.pulse{animation:none;box-shadow:inset 0 0 0 2px var(--accent)}.mk{transition:none}}
@@ -323,7 +318,7 @@ select{font:inherit}
 .dpiece{position:relative;flex:none;background:var(--bg);border:1.5px solid var(--accent);border-bottom:1px solid var(--border);border-radius:var(--r-card) var(--r-card) 0 0;padding:2px 10px 20px}
 .dpiece .dkh{min-height:44px}
 .dpiece .dkh h2{font-size:1.15rem}
-.dpiece .cl{gap:6px}
+.dpiece .pw-stack{gap:6px}
 .dpiece .mc{cursor:default}
 .dpiece .mc[data-tile]{cursor:grab;touch-action:none}
 .dpiece .mc.sel{box-shadow:0 0 0 1px var(--accent)}
@@ -341,7 +336,9 @@ select{font:inherit}
 @keyframes wkin{from{opacity:.15;transform:translateY(8px)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){.stackw,.wk-in{animation:none}}
 /* 108b: the tile in hand and a compact week under the finger, so all days are drop targets at once */
-.hand{position:fixed;left:0;top:0;z-index:40;width:min(270px,76vw);pointer-events:none;display:flex;align-items:center;gap:10px;padding:8px 14px 8px 8px;border-radius:var(--r-card);background:var(--surface);border:1.5px solid var(--accent);box-shadow:0 16px 36px var(--dim);will-change:transform}
+/* the tile in hand: .hand is the lifted, tilted shadow carrier; .hand-p is the paper (decision 118 tears its edge) */
+.hand{position:fixed;left:0;top:0;z-index:40;width:min(270px,76vw);pointer-events:none;filter:drop-shadow(0 16px 14px var(--dim));will-change:transform}
+.hand-p{position:relative;display:flex;align-items:center;gap:10px;padding:8px 14px 8px 8px;border-radius:var(--r-card);background:var(--surface);border:1.5px solid var(--accent);clip-path:var(--tin,none)}
 .hand .em{width:36px;height:36px;font-size:20px}
 .hand b{display:block;font-size:15px;line-height:1.2}.hand small{display:block;font-size:12px;color:var(--muted)}
 .dragging{cursor:grabbing}
@@ -350,11 +347,11 @@ select{font:inherit}
 .dragging .em{width:32px;height:32px;font-size:18px}
 .dragging .tx h3{font-size:15px}
 .dragging .dsh{margin-bottom:4px}
-.dragging .dsec{padding-top:6px}
-.dragging .dsec.target:not(.past) .blk{min-height:44px}
+.dragging .pw-day{padding:6px 0}
+.dragging .pw-day.target:not(.past) .blk{min-height:44px}
 .dragging .wkd{padding-top:10px}
 .mc.lifted{opacity:.4;border-style:dashed}
-.dsec.over{background:color-mix(in srgb,var(--accent) 18%,transparent);box-shadow:inset 0 0 0 2px var(--accent)}
+.pw-day.over{background:color-mix(in srgb,var(--accent) 18%,transparent);box-shadow:inset 0 0 0 2px var(--accent)}
 /* 109: Clear week, Undo that names its action, week actions menu */
 .flipundo.two{padding:0 12px 0 10px;gap:6px;min-height:44px}
 .flipundo.two span{display:flex;flex-direction:column;line-height:1.05;text-align:left}
@@ -382,3 +379,51 @@ select{font:inherit}
 .demobar button{min-height:44px;min-width:44px;padding:0 10px;border-radius:var(--r-pill);border:1px solid var(--bg);color:var(--bg);font-weight:800;font-size:13px}
 .hasdemo .stackw{bottom:calc(64px + 84px + env(safe-area-inset-bottom))}
 .hasdemo .app{padding-bottom:calc(64px + 190px)}
+
+/* ---- 13 Oct 2026, batch 1 of the phone live test (decisions 110 to 119, owner-stated 13 Oct 2026) ---- */
+/* 110: the UAT stencil. The five rules below are Kitchie UAT's own (server/src/web-plan.ts PLAN_CSS, uat branch, read 13 Oct 2026), on the same tokens: a day is one row,
+   a 38 px gutter with the weekday and the date, then the stack of that day's meals, a solid hairline between days. The .pw scope is UAT's too (#plan and the stack carry it). */
+#plan{padding:0 var(--gutter)}
+.pw .pw-day{display:flex;gap:10px;padding:8px 0;border-top:1px solid var(--border)}
+.pw .pw-day:first-of-type{border-top:0}
+.pw .pw-dn{width:38px;flex:none;font-weight:800;font-size:13px;color:var(--muted);padding-top:12px}
+.pw .pw-dn small{display:block;font-weight:600;font-size:11px}
+.pw .pw-stack{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+/* mockup additions on that stencil (111, Proposal): today in the gutter, past days quiet, the card radius and height UAT uses */
+.pw .pw-day.today .pw-dn{color:var(--accent)}
+.pw .pw-dn em{display:block;margin-top:3px;font-style:normal;font-size:9px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;text-align:center;border-radius:var(--r-pill);padding:1px 0;background:var(--accent);color:var(--on-accent)}
+.pw .pw-day.past .pw-dn{opacity:.6}
+.pw .pw-stack .sw{border-radius:var(--r-ctl)}
+.pw .pw-stack .mc{border-radius:var(--r-ctl);min-height:60px}
+.pw .pw-stack .nite{border-bottom:0;padding-bottom:2px}
+.pw .pw-stack .dsh{margin:0;min-height:0}
+.pw .pw-stack .blk{border-radius:var(--r-ctl)}
+.pw .pw-stack .empty{border-radius:var(--r-ctl)}
+.pw .pw-day.over{border-radius:var(--r-ctl)}
+.fh{padding:14px 0 8px}.prep{margin:0 0 10px}.dnav{padding:12px 0}
+/* 112, 113: the week boundary in the ribbon is a wider gap with a stronger pipe; a faint pipe sits between every pair of days. The marker is inset 3 px each side so the pipes beside it stay visible. */
+.wsep{flex:0 0 22px;position:relative;z-index:2}
+.wsep::before{content:"";position:absolute;left:50%;top:6px;bottom:6px;border-left:2px solid var(--muted);opacity:.5;transform:translateX(-1px)}
+.dy+.dy::before{content:"";position:absolute;left:-1px;top:12px;bottom:12px;border-left:1px solid var(--border)}
+/* 114: past days are grey in the ribbon (kept) and now their tiles are grey too */
+.pw-day.past .mc{filter:grayscale(1);opacity:.62}
+/* 117: the lift. Shown on press for every tile (agenda, docked day); the same lift the tile has once it is picked up (.hand). scale and translate are their own properties, so the swipe's transform is untouched. */
+.mc{transition:transform .18s ease,scale .16s ease,translate .16s ease,filter .16s ease}
+.mc:active,.mc.drag{scale:1.025;translate:0 -2px;z-index:3;filter:drop-shadow(0 8px 8px var(--dim))}
+.pw-day.past .mc:active,.pw-day.past .mc.drag{filter:grayscale(1) drop-shadow(0 8px 8px var(--dim))}
+.sw:has(>.mc:active):not(.l):not(.r){overflow:visible}
+/* 115: swapping the contents of the docked stack; the slot itself does not move or fade */
+.stackw.noin{animation:none}
+.stackw.swapped .dkh h2,.stackw.swapped .dpiece>.pw-stack,.stackw.swapped .spiece .sbody{animation:swapin .22s ease-out both}
+@keyframes swapin{from{opacity:.15;transform:translateY(6px)}to{opacity:1;transform:none}}
+.emptyb .nt{font-size:14px;margin:6px 0 0}
+/* 118: the tear. The torn piece (.hand-p) and the piece left behind (.mc.lifted) get the same ragged edge (polygons built in phone.js, tooth size scaled by --tz). */
+.hand::before{content:"";position:absolute;inset:0;border-radius:var(--r-card);background:color-mix(in srgb,var(--fg) 24%,var(--surface));clip-path:var(--tfib,none);opacity:var(--tz,0);pointer-events:none}
+.hand[data-tear=top]::before{inset:-4px 0 0 0}.hand[data-tear=bottom]::before{inset:0 0 -4px 0}.hand[data-tear=left]::before{inset:0 0 0 -4px}.hand[data-tear=right]::before{inset:0 -4px 0 0}
+.mc.lifted[data-tear]{clip-path:var(--tpl,none)}
+@media(prefers-reduced-motion:reduce){.mc{transition:none}.stackw.swapped .dkh h2,.stackw.swapped .dpiece>.pw-stack,.stackw.swapped .spiece .sbody{animation:none}}
+.sw:has(>.mc.lifted[data-tear]){background:none}
+.sw:has(>.mc.lifted[data-tear])::after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:color-mix(in srgb,var(--fg) 24%,var(--surface));clip-path:var(--tfp,none);opacity:calc(var(--tz,0)*.6)}
+/* 112: the week boundary also reads in the agenda scroll: more air and a heavier line above the new week's header */
+.wkd:not(:first-child){margin-top:14px;border-top:2px solid var(--border)}
+.dpiece .mc.past{filter:grayscale(1)}
