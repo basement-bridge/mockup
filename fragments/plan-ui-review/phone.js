@@ -1,4 +1,4 @@
-/* Plan UI review, phone (390 and 360). 13 Oct 2026, later: the day ribbon shows ONLY while a detail is open (decision 136, owner-stated); ?rb=always restores the old always-on ribbon (superseded, for comparison).
+/* Plan UI review, phone (390 and 360). 13 Oct 2026 01:55: the open day is UAT's dashed box with a right swipe for Not cooking (147 to 149, ?od=dash|text), a duller accent token (150, ?ac=dull|normal), the vanishing-options fix (151 to 153). 13 Oct 2026, later: the day ribbon shows ONLY while a detail is open (decision 136, owner-stated); ?rb=always restores the old always-on ribbon (superseded, for comparison).
    13 Oct 2026 batch 2 (decisions 120 to 133): plain red or green status, one combined ingredient list, Hold and Add at the bottom, total time, quiet open nights, first-run wiggle, auto-expiring undo, Open recipe.
    Batch 1: UAT day-row grid (.pw-day, .pw-dn, .pw-stack, verified against Kitchie uat), ribbon taps swap the docked stack, lift, tear. Day ribbon revision, 12 Oct 2026 (owner-stated decisions 85 to 119, see docs/knowledge/jobs-to-be-done/plan-ui-review.md).
    Swipes are pointer events, so a mouse drags exactly like a finger. Keyboard: focus a card, X replan, Shift X not cooking, H hold, E or Enter open, Z undo.
@@ -10,7 +10,7 @@
   var S = {
     lay: pick('lay', ['rib', 'focus'], 'rib'), hd: pick('hd', ['shrink', 'fixed'], 'shrink'), f: pick('f', ['drop', 'seg', 'strip'], 'drop'), pc: pick('pc', ['step', 'drop'], 'step'),
     nc: pick('nc', ['hide', 'show'], 'hide'), u: pick('u', ['day', 'flip', 'banner', 'pill'], 'day'), dt: pick('dt', ['stack', 'peek', 'strip', 'hide', 'sheet'], 'stack'), cw: pick('cw', ['menu', 'pair'], 'menu'), cl: pick('cl', ['meals', 'all'], 'meals'), long: pick('long', ['0', '1'], '0'), st: pick('st', ['plain', 'labels', 'badge', 'edge', 'progress'], 'plain'), gr: pick('gr', ['list', 'hand'], 'list'), hdl: pick('hdl', ['none', 'light'], 'none'), jig: pick('jig', ['1', '0', 'reset'], ''), ba: pick('ba', ['bar', 'list', 'both'], 'bar'), rb: pick('rb', ['detail', 'always'], 'detail'), tear: pick('tear', ['detail', 'all'], 'detail'),
-    cu: pick('cu', ['start', 'idle', 'off'], 'start'), sw: pick('sw', ['tint', 'buttons'], 'tint'),
+    cu: pick('cu', ['start', 'idle', 'off'], 'start'), od: pick('od', ['dash', 'text'], 'dash'), ac: pick('ac', ['dull', 'normal'], 'dull'), sw: pick('sw', ['tint', 'buttons'], 'tint'),
     today: 'd13', cur: P.did(q.get('day'), 'd13'), view: q.get('who') || 'mine', hl: null, sel: q.get('sel'), snap: q.get('snap') === 'full' ? 'full' : 'half', expand: q.get('expand') === '1',
     dday: q.get('dock') || null, pop: null, opts: false, ustk: [], wkm: false, pickMove: false, note: null, carry: null, pickd: null, revealed: null, cuShown: false, cuDone: {}, cmp: false,
     meals: JSON.parse(JSON.stringify(P.meals)), blocked: JSON.parse(JSON.stringify(P.blocked))
@@ -61,9 +61,11 @@
   function emptyHtml(d, full) {
     if (past(d)) return '<div class="empty past">Nothing was planned</div>';
     if (S.blocked[d]) return '<button class="blk' + (S.blocked[d] === 'usual' ? ' usual' : '') + '" ' + (ro() ? 'disabled' : 'data-unblock="' + d + '"') + '><b>Not cooking</b><span>' + (S.blocked[d] === 'usual' ? 'Usual day off' : 'This week only') + (ro() ? '' : ' · tap to cook') + '</span></button>';
-    if (ro()) return '<div class="nite ro"><span class="ot">Open night</span></div>';
+    if (ro()) return S.dt === 'stack' && S.od === 'dash' && !full ? '<div class="sw od-sw ro"><div class="od" role="img" aria-label="Open night, view only"></div></div>' : '<div class="nite ro"><span class="ot">Open night</span></div>';
     var btns = '<div class="oa"><button data-ask="' + d + '">' + ic.spark + ' Ask AI</button><button data-surprise="' + d + '">' + ic.dice + ' Surprise me</button>' + (full ? '<button data-block="' + d + '">' + ic.moon + ' Not cooking</button>' : '') + '</div>';
     if (full) return '<div class="nite full"><span class="ot">Open night</span>' + btns + '</div>';
+    /* Plan UI review 147 to 149: the open day on the plain week is the UAT dashed slot, with the Not cooking swipe under it. ?od=text is the quiet "Open night" words of 125. Past days and other people's plans have no swipe (and a past day never gets here). */
+    if (S.dt === 'stack' && S.od === 'dash') return '<div class="sw od-sw' + (S.sw === 'buttons' ? ' btns' : '') + '" data-od="' + d + '"><div class="und" aria-hidden="true"><span class="l">' + ic.moon + ' Not cooking</span><span class="r"></span></div><button class="od" data-openday="' + d + '" data-od-b="' + d + '" aria-label="Open night, ' + dName(d) + '. Tap to plan it. Swipe right or press Shift X for Not cooking"><span class="sr">Open night</span></button></div>';
     if (S.dt === 'stack') return '<button class="nite quiet" data-openday="' + d + '" aria-label="Open night, ' + dName(d) + '. Tap to plan it"><span class="ot">Open night</span></button>';
     return '<div class="nite"><button class="ot" data-block="' + d + '" aria-label="Open night. Tap to mark Not cooking">Open night<small>tap if not cooking</small></button>' + btns + '</div>';
   }
@@ -141,9 +143,9 @@
   }
   /* Decision 115, 116: tapping another day in the ribbon swaps the CONTENTS of the docked stack; the slot stays. A day with no meal shows its open-night, Not cooking or past state in the same two pieces. */
   function stackEmptyHtml(d) {
-    var pst = past(d), nc = S.blocked[d], msg = pst ? 'Nothing was planned on this day.' : nc ? (nc === 'usual' ? 'Usual day off. ' : 'Not cooking, this week only. ') + (ro() ? '' : 'Tap the block above to cook this night.') : ro() ? vlab(S.view) + "'s plan is view only." : 'Nothing planned yet. Ask AI to plan it, try Surprise me, or mark it Not cooking.';
+    var pst = past(d), nc = S.blocked[d], msg = pst ? 'Nothing was planned on this day.' : nc ? (nc === 'usual' ? 'Usual day off. ' : 'Not cooking, this week only. ') + (ro() ? '' : 'Tap the block above, or Mark as open, to plan this night.') : ro() ? vlab(S.view) + "'s plan is view only." : 'Nothing planned yet. Ask AI to plan it, try Surprise me, or mark it Not cooking.';
     var day = '<div class="dpiece"><div class="dkh"><h2 id="stt"><b>' + dLong(d) + '</b> ' + info(d).n + ' Oct' + (d === S.today ? ' <em>Today</em>' : '') + '</h2><button class="ib" data-close aria-label="Close detail">' + ic.x + '</button></div><div class="pw-stack">' + emptyHtml(d, true) + noteHtml(d) + '</div><button class="tongue" data-tongue aria-label="Drag down to close, or press Enter" aria-describedby="stt"><i></i></button></div>';
-    var sheet = '<div class="spiece"><div class="sbody emptyb" id="sbody"><p class="nt">' + msg + '</p></div></div>';
+    var sheet = '<div class="spiece"><div class="sbody emptyb" id="sbody"><p class="nt">' + msg + '</p>' + (nc && !pst && !ro() ? '<button class="mko" data-unblock="' + d + '">Mark as open</button>' : '') + '</div></div>';
     return '<section class="stackw pw hdl-' + S.hdl + (S.swap ? ' noin' : '') + '" id="d-' + d + '" data-d="' + d + '" role="region" aria-labelledby="stt">' + day + sheet + '</section>';
   }
   function sheetHtml() {
@@ -247,7 +249,7 @@
       g('rb', 'Day ribbon (136, owner 13 Oct)', [['detail', 'Only while a detail is open (recommended)'], ['always', 'Always on, week view too (superseded 13 Oct, for comparison)']]) + g('tear', 'Torn-paper edge (142, owner 13 Oct)', [['detail', 'Only on the tile pulled out of the docked detail (recommended). Everywhere else: the plain lifted, tilted, faded tile of before 118'], ['all', 'On every drag: detail and agenda (the 118 behaviour, for comparison)']]) + g('lay', 'Layout', [['rib', 'Agenda across three weeks (recommended)'], ['focus', 'One day at a time (keeps the ribbon)']]) + g('hd', 'Header while a detail is open (91, revised by 136)', [['shrink', 'Compact (recommended)'], ['fixed', 'Full size']]) + g('f', 'Who filter (97)', [['drop', 'One dropdown (recommended)'], ['seg', 'Mine / Everyone + People dropdown'], ['strip', 'Old chips behind a chevron']]) +
       g('pc', 'Number of people in the detail (98)', [['step', 'Stepper − 4 +'], ['drop', 'Dropdown']]) + g('nc', 'Not cooking days (93)', [['hide', 'Hidden, peek at the edge (recommended)'], ['show', 'Always shown']]) + g('u', 'Undo on a phone (101)', [['day', 'On the changed day (recommended)'], ['flip', 'Copy button flips to Undo'], ['banner', 'Banner under the ribbon'], ['pill', 'Pill under the ribbon']]) +
       g('dt', 'Meal detail (103, 107)', [['stack', 'Day on top, detail at the bottom, one locked stack (recommended)'], ['peek', 'Docked, neighbours peek'], ['strip', 'Docked, other days as one line each'], ['hide', 'Docked, other days hidden'], ['sheet', 'Two-stop bottom sheet (comparison)']]) + g('st', 'Status (121, supersedes 104)', [['plain', 'Plain red or green, no count (owner, 13 Oct)'], ['labels', 'a Labelled chips: rejected'], ['badge', 'b Icon + count: rejected'], ['edge', 'c Edge strip + dot: rejected'], ['progress', 'd Progress: rejected']]) + g('gr', 'Green means (122, open)', [['list', 'Dealt with: every missing item is on the list (recommended)'], ['hand', 'Everything is on hand']]) + g('hdl', 'Grey bar on the tab (128)', [['none', 'Removed (recommended)'], ['light', 'Much lighter']]) + g('jig', 'Wiggle hint (129)', [['', 'First 3 opens, 7 days, stops after a drag'], ['1', 'Always, for review'], ['0', 'Off'], ['reset', 'Reset the stored count']]) +
-      g('cu', 'Ask AI to plan this curtain (96)', [['start', 'At the start of an empty week (default)'], ['idle', 'Idle, whole week empty'], ['off', 'Off']]) + g('sw', 'Swipe', [['tint', 'Tinted reveal, commits'], ['buttons', 'Buttons stay open']]) + g('cw', 'Clear week placement (109)', [['menu', 'Week actions menu, split Undo (recommended)'], ['pair', 'Two icon buttons next to each other']]) + g('cl', 'Clear week also clears (109, open)', [['meals', 'Meals only, Not cooking stays (recommended)'], ['all', 'Meals and this-week Not cooking marks']]) + g('ba', 'Bulk Hold and Add (134, open)', [['bar', 'Bottom bar only: Hold N, cart Add N (current)'], ['list', 'In the list only: Add all on the missing group, Hold all on the on-hand group'], ['both', 'Both']]) + g('long', 'Long ingredient list (107 demo)', [['0', 'Normal'], ['1', 'Long: 21 lines, the sheet scrolls']]) + '</div>' : '');
+      g('cu', 'Ask AI to plan this curtain (96)', [['start', 'At the start of an empty week (default)'], ['idle', 'Idle, whole week empty'], ['off', 'Off']]) + g('od', 'Open day in the week (147, owner 13 Oct)', [['dash', 'UAT dashed box, no words, right swipe for Not cooking (recommended)'], ['text', 'Quiet "Open night" words (125, for comparison)']]) + g('ac', 'Accent on Not cooking, open day and selection (150, Proposal)', [['dull', 'A notch duller (default)'], ['normal', 'The normal accent']]) + g('sw', 'Swipe', [['tint', 'Tinted reveal, commits'], ['buttons', 'Buttons stay open']]) + g('cw', 'Clear week placement (109)', [['menu', 'Week actions menu, split Undo (recommended)'], ['pair', 'Two icon buttons next to each other']]) + g('cl', 'Clear week also clears (109, open)', [['meals', 'Meals only, Not cooking stays (recommended)'], ['all', 'Meals and this-week Not cooking marks']]) + g('ba', 'Bulk Hold and Add (134, open)', [['bar', 'Bottom bar only: Hold N, cart Add N (current)'], ['list', 'In the list only: Add all on the missing group, Hold all on the on-hand group'], ['both', 'Both']]) + g('long', 'Long ingredient list (107 demo)', [['0', 'Normal'], ['1', 'Long: 21 lines, the sheet scrolls']]) + '</div>' : '');
   }
 
   /* ---------- render ---------- */
@@ -259,7 +261,7 @@
     return agenda();
   }
   function render(keep) {
-    var sy = window.scrollY, rb = document.getElementById('rib'), rl = rb ? rb.scrollLeft : null, gh = null;
+    document.body.dataset.ac = S.ac; var sy = window.scrollY, rb = document.getElementById('rib'), rl = rb ? rb.scrollLeft : null, gh = null;
     /* 136: the ribbon comes and goes with the detail. It fades in (and a copy of it fades out) over 0.2 s; the stack's slot is placed for the final header height at once, so nothing under it moves. Reduced motion: none. */
     if (rb && !REDUCE) { var gr = rb.getBoundingClientRect(); gh = rb.cloneNode(true); gh.removeAttribute('id'); gh.querySelectorAll('[id]').forEach(function (n) { n.removeAttribute('id'); }); gh.classList.add('rib-ghost'); gh.setAttribute('aria-hidden', 'true'); gh.style.cssText = 'top:' + gr.top + 'px;left:' + gr.left + 'px;width:' + gr.width + 'px'; gh.scrollLeft = rl; }
     root.innerHTML = '<div class="app' + (S.carry ? ' carrying' : '') + (S.carry && S.carry.drag ? ' dragging' : '') + '">' + header() + '<main id="plan" class="pw">' + body() + '</main></div>' + carryBar() + '<div class="peek t" id="peekT" hidden></div><div class="peek b" id="peekB" hidden></div>' + nav() + '<div class="scrim' + (S.sel && S.dt === 'sheet' ? ' on' : '') + '" data-close></div>' + sheetHtml() + '<div id="aw">' + popHtml() + wkMenu() + actionSheet() + '</div>' + optionsPanel();
@@ -316,8 +318,12 @@
   function openDetail(id) { var m = find(id); if (!m) return; jigStart(m); S.sel = id; S.dday = null; S.pop = null; S.asheet = null; S.wkm = false; S.cur = m.day; S.snap = 'half'; if (S.dt === 'stack' && S.hd === 'shrink') S.cmp = true; render(false); if (S.dt !== 'sheet') window.scrollTo(0, 0); }
   /* Decision 125: tapping an open night on the week opens that day's own detail (the docked stack), where Ask AI, Surprise me and Not cooking live. */
   function openDay(d) { S.dday = d; S.sel = null; S.cur = d; S.revealed = d; S.pop = null; S.asheet = null; S.wkm = false; if (S.hd === 'shrink') S.cmp = true; render(false); window.scrollTo(0, 0); }
-  function block(d) { mutate(function () { S.blocked[d] = 'once'; S.cur = d; S.revealed = d; }, dName(d) + ' is Not cooking (this week only)', d); }
-  function unblock(d) { mutate(function () { delete S.blocked[d]; }, dName(d) + ' is open again', d); }
+  /* Plan UI review 151 to 153 (owner-stated bug, 13 Oct 2026: "Clicking on the Not cooking tile brings up Surprise me and Ask AI options which then disappears").
+     Cause found: (1) in the plain week the tile reopened the night but showed a quiet "Open night" only, so the options existed in one place (the docked detail) and not the other, and the next move on, a scroll, hid the day again; (2) in the docked detail the tile and the options sit in the same spot, with Not cooking the third button, so a second touch landing there (a double tap, a bounce) marked the day Not cooking again and the options vanished with it. Fix: a tap on the Not cooking tile (week or detail) reopens the night AND docks that day's detail, which stays until the person closes it, taps another day or acts (nothing on a timer or a scroll closes it); the opposite toggle on the same day is ignored for TOGGLE_GUARD ms. */
+  var TOGGLE_GUARD = 450, tgDay = null, tgAt = 0;
+  function guarded(d) { return tgDay === d && Date.now() - tgAt < TOGGLE_GUARD; }
+  function block(d) { if (guarded(d)) return; tgDay = d; tgAt = Date.now(); mutate(function () { S.blocked[d] = 'once'; S.cur = d; S.revealed = d; }, dName(d) + ' is Not cooking (this week only)', d); }
+  function unblock(d) { if (guarded(d)) return; tgDay = d; tgAt = Date.now(); mutate(function () { delete S.blocked[d]; if (S.dt === 'stack' && !past(d) && !ro()) { S.dday = d; S.sel = null; S.cur = d; S.revealed = d; S.pop = null; S.asheet = null; S.wkm = false; if (S.hd === 'shrink') S.cmp = true; } }, dName(d) + ' is open again', d); }
   /* Surprise me (owner-confirmed heuristics, decision 94): timing aware, and never a repeat of a recent meal. */
   function surprise(d) {
     var c = P.surprise(S.meals, d, S.today); if (!c) return note('No fresh idea that is not a repeat. Try Ask AI.');
@@ -426,6 +432,8 @@
   var drag = null, TH = 88, OPEN = 150;
   document.addEventListener('pointerdown', function (e) {
     if (e.target.closest('#rib')) ribTouch = true;
+    var od0 = e.target.closest('.od[data-od-b]');
+    if (od0 && !S.carry && !(e.pointerType === 'mouse' && e.button !== 0)) { drag = { mc: od0, sw: od0.parentNode, x: e.clientX, y: e.clientY, dx: 0, on: false, id: e.pointerId, base: +(od0.dataset.open || 0), past: true, od: od0.dataset.odB }; return; }
     var mc = e.target.closest('.mc'); if (!mc || S.carry || e.target.closest('button') || (e.pointerType === 'mouse' && e.button !== 0) || mc.dataset.ro === 'all' || mc.dataset.tile) return;
     drag = { mc: mc, sw: mc.parentNode, x: e.clientX, y: e.clientY, dx: 0, on: false, id: e.pointerId, base: +(mc.dataset.open || 0), past: mc.dataset.ro === 'past' };
   });
@@ -437,14 +445,18 @@
   });
   function endDrag(e) {
     if (!drag || e.pointerId !== drag.id) return; var d = drag; drag = null; if (!d.on) return; d.mc.classList.remove('drag'); d.mc.dataset.moved = '1'; setTimeout(function () { delete d.mc.dataset.moved; }, 50);
-    var id = d.mc.dataset.id, t = d.dx, right = d.past ? 'copyfwd' : 'nocook';
+    var id = d.mc.dataset.id, t = d.dx, right = d.od ? 'odblock' : d.past ? 'copyfwd' : 'nocook';
+    if (d.od) { /* Plan UI review 148: a right swipe on the dashed open day sets Not cooking; there is no left action */
+      if (S.sw === 'tint') { if (t > TH) return block(d.od); d.mc.style.transform = ''; d.sw.classList.remove('l', 'r', 'ready'); return; }
+      var to0 = t > TH / 2 ? OPEN : 0; d.mc.style.transform = to0 ? 'translateX(' + to0 + 'px)' : ''; d.mc.dataset.open = to0; if (!to0) d.sw.classList.remove('l', 'ready'); else { d.sw.classList.add('l'); d.sw.dataset.id = d.od; d.sw.dataset.right = right; } return; }
     if (S.sw === 'tint') { if (t > TH) return act(right, id); if (t < -TH) return act('replan', id); d.mc.style.transform = ''; d.sw.classList.remove('l', 'r', 'ready'); return; }
     var to = t > TH / 2 ? OPEN : t < -TH / 2 ? -OPEN : 0; d.mc.style.transform = to ? 'translateX(' + to + 'px)' : ''; d.mc.dataset.open = to; if (!to) d.sw.classList.remove('l', 'r', 'ready'); else { d.sw.classList.add(to > 0 ? 'l' : 'r'); d.sw.dataset.id = id; d.sw.dataset.right = right; }
   }
   document.addEventListener('pointerup', function (e) { ribTouch = false; endDrag(e); }); document.addEventListener('pointercancel', function (e) { ribTouch = false; endDrag(e); });
   document.addEventListener('click', function (e) {
     var sw = e.target.closest('.sw.btns');
-    if (sw && sw.querySelector('.mc').dataset.open && !e.target.closest('.mc')) { var id = sw.dataset.id, o = +sw.querySelector('.mc').dataset.open; return act(o > 0 ? sw.dataset.right : 'replan', id); }
+    var tl = sw && sw.querySelector('.mc,.od');
+    if (sw && tl && tl.dataset.open && !e.target.closest('.mc,.od')) { var id = sw.dataset.id, o = +tl.dataset.open; if (sw.dataset.right === 'odblock') return block(id); return act(o > 0 ? sw.dataset.right : 'replan', id); }
   }, true);
 
   /* ---------- decision 108b: start dragging the tile out of the stack and the week plan is back under the finger, tile in hand ---------- */
@@ -573,7 +585,7 @@
     if (S.carry && t && !d.cancelcarry && !d.dy && !d.today && !d.opts && !d.undo && !t.closest('.nav') && t.closest('.pw-day')) { return drop(t.closest('.pw-day').dataset.d); }
     if (!t) { if (S.cuShown) idleReset(); return; }
     if (S.cuShown && d.curtain === undefined) idleReset();
-    if (t.classList.contains('mc') && t.dataset.moved) return;
+    if ((t.classList.contains('mc') || t.classList.contains('od')) && t.dataset.moved) return;
     if (d.opts !== undefined) { S.opts = !S.opts; return render(); }
     if (d.more) { S.asheet = { k: 'm', id: d.more }; return render(); }
     if (d.closea !== undefined) { S.asheet = null; S.pop = null; S.pickd = null; S.pickMove = false; S.wkm = false; return render(); }
@@ -615,6 +627,8 @@
     if (k === 'Escape') { if (lf && !lf.on) { lfEnd(); } else if (td && td.on) { cancelDrag('Cancelled with Esc'); } else if (S.carry) { S.carry = null; S.pickMove = false; render(); } else if (S.wkm) { S.wkm = false; render(); } else if (S.pickd || S.asheet || S.pop) { S.pickd = S.asheet = S.pop = null; S.pickMove = false; render(); } else if (S.sel || S.dday) closeDetail(); return; }
     var a = document.activeElement, id = a && a.classList.contains('mc') ? a.dataset.id : S.sel;
     if (k.toLowerCase() === 'z') { return doUndo(); }
+    /* Plan UI review 148 (key equivalent of the right swipe): Shift X on a focused open day, or on the open day's detail, sets Not cooking, as it does on a meal tile (98: Shift X is Not cooking) */
+    if (k.toLowerCase() === 'x' && e.shiftKey) { var od1 = a && a.dataset && a.dataset.odB, d1 = od1 || (!S.sel && S.dday); if (d1 && !past(d1) && !ro() && isOpen(d1)) { e.preventDefault(); return block(d1); } }
     if (k.toLowerCase() === 'x' && id) { e.preventDefault(); return act(e.shiftKey ? 'nocook' : 'replan', id); }
     if (k.toLowerCase() === 'h' && id) return act('hold', id); if (k.toLowerCase() === 'l' && id) return act('list', id);
     if ((k.toLowerCase() === 'e' || (k === 'Enter' && a && a.classList.contains('mc'))) && id) { e.preventDefault(); return act('open', id); }
@@ -624,7 +638,7 @@
   window.addEventListener('resize', function () { sizeStk(); placeMk(true); });
   function resetDemo() { if (hand) { hand.remove(); hand = null; } td = null; cancelAnimationFrame(autoT); S.meals = JSON.parse(JSON.stringify(P.meals)); S.blocked = JSON.parse(JSON.stringify(P.blocked)); S.sel = null; S.dday = null; S.carry = null; S.note = null; S.pulse = null; S.ustk = []; S.pop = null; S.asheet = null; S.wkm = false; S.cmp = true; }
   function showWeek(d) { S.sel = null; S.dday = null; S.carry = null; S.cur = d; S.cmp = true; render(false); var el = document.getElementById('d-' + d); if (el) window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - stkH() - 6); syncHead(); }
-  window.__plan = { HOLD_MS: HOLD_MS, resetDemo: resetDemo, showWeek: showWeek, find: find, stkH: stkH, openDetail: openDetail, closeDetail: closeDetail, beginDrag: beginDrag, moveHand: moveHand, endHand: endHand, clearWeek: clearWeek, S: S, act: act, goDay: goDay, drop: drop, startCarry: startCarry, surprise: surprise, copyLast: copyLast, render: render, syncHead: syncHead, follow: follow };
+  window.__plan = { block: block, unblock: unblock, openDay: openDay, HOLD_MS: HOLD_MS, resetDemo: resetDemo, showWeek: showWeek, find: find, stkH: stkH, openDetail: openDetail, closeDetail: closeDetail, beginDrag: beginDrag, moveHand: moveHand, endHand: endHand, clearWeek: clearWeek, S: S, act: act, goDay: goDay, drop: drop, startCarry: startCarry, surprise: surprise, copyLast: copyLast, render: render, syncHead: syncHead, follow: follow };
 
   if (S.sel && S.dt === 'stack') jigStart(find(S.sel));
   render(false);

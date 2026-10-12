@@ -52,7 +52,10 @@ select{font:inherit}
 .rib{overflow-x:auto;scrollbar-width:none;scroll-snap-type:x proximity;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;padding:0 0 6px}
 .rib::-webkit-scrollbar{display:none}
 .ribin{position:relative;display:flex;width:max-content;padding:0 6px}
-.mk{position:absolute;left:0;top:0;border-radius:14px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent);transition:transform .24s cubic-bezier(.2,.8,.2,1),width .2s;pointer-events:none;z-index:0}
+/* Plan UI review 150 (Proposal): the quieter accent. --nc is the one token for Not cooking, the open-day box and the selection edge in this fragment; ?ac=normal puts it back on --accent. Nothing outside this file reads it. */
+body{--accent-dull:color-mix(in srgb,var(--accent) 68%,var(--muted));--nc:var(--accent)}
+body[data-ac=dull]{--nc:var(--accent-dull)}
+.mk{position:absolute;left:0;top:0;border-radius:14px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--nc);transition:transform .24s cubic-bezier(.2,.8,.2,1),width .2s;pointer-events:none;z-index:0}
 .dy{position:relative;z-index:1;flex:0 0 calc((min(100vw,430px) - 12px) / 7);scroll-snap-align:center;display:flex;flex-direction:column;align-items:center;gap:1px;min-height:56px;padding:4px 0;border-radius:14px;font-size:11px;font-weight:700;color:var(--muted)}
 .dy b{font:700 17px var(--head);color:var(--fg);line-height:1.2}
 .dy.today b{background:var(--accent);color:var(--on-accent);border-radius:50%;width:28px;height:28px;display:grid;place-items:center;font-size:15px}
@@ -81,7 +84,7 @@ select{font:inherit}
 .sw{position:relative;border-radius:var(--r-card);overflow:hidden;background:var(--surface)}
 .und{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;padding:0;font-weight:700;font-size:14px}
 .und .l,.und .r{display:flex;align-items:center;gap:8px;height:100%;padding:0 18px;min-width:90px}
-.und .l{background:var(--accent);color:var(--on-accent)}
+.und .l{background:var(--nc);color:var(--on-accent)}
 .und .r{background:var(--danger);color:var(--bg);justify-content:flex-end;margin-left:auto}
 .und svg{width:18px;height:18px}
 .und .l,.und .r{opacity:0}
@@ -90,7 +93,7 @@ select{font:inherit}
 .btns .und .l,.btns .und .r{padding:0}
 .mc{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:10px 4px 10px 10px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;column-gap:10px;row-gap:8px;touch-action:pan-y;user-select:none;-webkit-user-select:none;transition:transform .18s ease;cursor:pointer;z-index:1}
 .mc.drag{transition:none}
-.mc.sel{border-color:var(--accent)}
+.mc.sel{border-color:var(--nc)}
 .mc.dim{opacity:.35}
 .em{width:40px;height:40px;border-radius:12px;background:var(--bg);display:grid;place-items:center;font-size:22px}
 .em.lg{width:48px;height:48px;font-size:26px}
@@ -119,7 +122,7 @@ select{font:inherit}
 .empty button{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);color:var(--fg);font-weight:600;font-size:13px}
 .empty svg{width:14px;height:14px;color:var(--accent)}
 .empty.past{border-style:solid;border-color:transparent;font-style:italic;opacity:.7;min-height:40px}
-.blk{display:flex;flex-direction:column;width:100%;min-height:56px;justify-content:center;padding:6px 14px;border-radius:var(--r-card);background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--accent);color:var(--muted)}
+.blk{display:flex;flex-direction:column;width:100%;min-height:56px;justify-content:center;padding:6px 14px;border-radius:var(--r-card);background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--nc);color:var(--muted)}
 .blk b{color:var(--fg);font-size:15px;font-weight:600}
 .blk span{font-size:12px}
 .blk.usual{border-left-color:var(--border)}
@@ -240,7 +243,7 @@ select{font:inherit}
 .cslot.in{height:54px}
 /* peek: a hidden Not cooking day shows at the edge it scrolls past, then is gone */
 .peek{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;z-index:9;pointer-events:none}
-.peek button{pointer-events:auto;display:flex;align-items:center;gap:8px;width:100%;min-height:32px;padding:0 14px;background:color-mix(in srgb,var(--surface) 92%,transparent);border-top:1px solid var(--border);border-bottom:1px solid var(--border);border-left:4px solid var(--accent);color:var(--muted);font-size:12px;font-weight:600;animation:peekin .2s ease-out}
+.peek button{pointer-events:auto;display:flex;align-items:center;gap:8px;width:100%;min-height:32px;padding:0 14px;background:color-mix(in srgb,var(--surface) 92%,transparent);border-top:1px solid var(--border);border-bottom:1px solid var(--border);border-left:4px solid var(--nc);color:var(--muted);font-size:12px;font-weight:600;animation:peekin .2s ease-out}
 .peek button b{color:var(--fg)}
 @keyframes peekin{from{opacity:0}to{opacity:1}}
 .endsp{height:62vh}
@@ -264,7 +267,7 @@ select{font:inherit}
 .dkh h2 b{font-weight:800}
 .dkh em{font-style:normal;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:var(--accent);color:var(--on-accent);border-radius:var(--r-pill);padding:2px 8px;vertical-align:middle}
 .dkb{padding:6px 2px 6px 4px}
-.dock .mc.sel{box-shadow:0 0 0 1px var(--accent)}
+.dock .mc.sel{box-shadow:0 0 0 1px var(--nc)}
 .dkf{position:sticky;bottom:calc(64px + env(safe-area-inset-bottom));margin:6px -12px 0;z-index:5}
 .mini{display:flex;align-items:center;gap:10px;width:calc(100% - 24px);margin:6px 12px 0;min-height:44px;padding:4px 12px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--surface);text-align:left;font-size:13px}
 .mini b{flex:none;min-width:4.4em;font-size:13px}.mini span{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
@@ -313,16 +316,16 @@ select{font:inherit}
    The stack fills the screen between the ribbon and the nav; only the detail scrolls. */
 .stackw{position:fixed;top:var(--sth,100px);bottom:calc(64px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:100%;max-width:430px;z-index:8;display:flex;flex-direction:column;padding:6px 8px 8px;animation:stackin .26s ease-out both}
 @keyframes stackin{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
-.dpiece{position:relative;flex:none;background:var(--bg);border:1.5px solid var(--accent);border-bottom:1px solid var(--border);border-radius:var(--r-card) var(--r-card) 0 0;padding:2px 10px 20px}
+.dpiece{position:relative;flex:none;background:var(--bg);border:1.5px solid var(--nc);border-bottom:1px solid var(--border);border-radius:var(--r-card) var(--r-card) 0 0;padding:2px 10px 20px}
 .dpiece .dkh{min-height:44px}
 .dpiece .dkh h2{font-size:1.15rem}
 .dpiece .pw-stack{gap:6px}
 .dpiece .mc{cursor:default}
 .dpiece .mc[data-tile]{cursor:grab;touch-action:none}
-.dpiece .mc.sel{box-shadow:0 0 0 1px var(--accent)}
+.dpiece .mc.sel{box-shadow:0 0 0 1px var(--nc)}
 .mini.oth{margin:0;width:100%;min-height:40px}
-.spiece{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;background:var(--surface);border:1.5px solid var(--accent);border-top:0;border-radius:0 0 var(--r-card) var(--r-card);overflow:hidden}
-.tongue{position:absolute;left:50%;bottom:-16px;transform:translateX(-50%);width:84px;height:32px;border:1.5px solid var(--accent);border-top:0;border-radius:0 0 18px 18px;background:var(--bg);display:grid;place-items:end center;padding-bottom:7px;touch-action:none;cursor:grab;z-index:3}
+.spiece{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;background:var(--surface);border:1.5px solid var(--nc);border-top:0;border-radius:0 0 var(--r-card) var(--r-card);overflow:hidden}
+.tongue{position:absolute;left:50%;bottom:-16px;transform:translateX(-50%);width:84px;height:32px;border:1.5px solid var(--nc);border-top:0;border-radius:0 0 18px 18px;background:var(--bg);display:grid;place-items:end center;padding-bottom:7px;touch-action:none;cursor:grab;z-index:3}
 .tongue::before{content:"";position:absolute;inset:-12px -14px -10px}
 .tongue i{width:30px;height:4px;border-radius:2px;background:var(--border)}
 .spiece .sbody{overscroll-behavior-y:contain;padding:24px 14px 8px;background:linear-gradient(var(--surface) 30%,transparent) top/100% 34px no-repeat local,linear-gradient(transparent,var(--surface) 70%) bottom/100% 34px no-repeat local,radial-gradient(farthest-side at 50% 0,color-mix(in srgb,var(--fg) 20%,transparent),transparent) top/100% 10px no-repeat scroll,radial-gradient(farthest-side at 50% 100%,color-mix(in srgb,var(--fg) 20%,transparent),transparent) bottom/100% 10px no-repeat scroll}
@@ -494,3 +497,16 @@ select{font:inherit}
 /* 145: a past day is not a drop target; while a tile is over one it says so */
 .pw-day.nodrop{box-shadow:inset 0 0 0 2px var(--danger);background:color-mix(in srgb,var(--danger) 10%,transparent)}
 @media(prefers-reduced-motion:reduce){.mc.hold{transition:none}}
+
+/* Plan UI review 147 to 149 (owner-stated, 13 Oct 2026: "The open day with this visual is great... Right swipe to making not cooking"). An open day in the plain week is the UAT slot: a faint dashed rounded box in the stack beside the day gutter, no words, no buttons (UAT .pw-slot: 56 px, 1px dashed var(--border), --r-ctl). The same tinted Not cooking reveal as a meal tile sits under it for a right swipe. */
+.sw.od-sw{background:none;border-radius:var(--r-ctl);overflow:hidden}
+.sw.od-sw .und{border-radius:var(--r-ctl)}
+.od{display:block;width:100%;min-height:56px;padding:6px 10px;border-radius:var(--r-ctl);border:1px dashed var(--border);background:var(--bg);color:var(--muted);text-align:left;touch-action:pan-y;user-select:none;-webkit-user-select:none;position:relative;z-index:1;transition:transform .18s ease,background-color .12s}
+.od.drag{transition:none}
+.od:active,.od.drag{background:color-mix(in srgb,var(--nc) 8%,var(--bg));border-color:var(--nc)}
+.od:focus-visible{outline:2px solid var(--nc);outline-offset:2px}
+.od .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.pw-day.target .od,.dragging .od{pointer-events:none}
+@media(prefers-reduced-motion:reduce){.od{transition:none}}
+/* 153: "Mark as open" under the Not cooking day's detail, the same as tapping the tile */
+.mko{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;margin-top:6px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);color:var(--fg);font-weight:600;font-size:13px}
