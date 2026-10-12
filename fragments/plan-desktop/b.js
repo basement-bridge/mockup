@@ -1,4 +1,4 @@
-/* Option B (refined 12 Oct 2026, decisions 110 to 120 in docs/knowledge/jobs-to-be-done/plan-desktop.md): agenda (main swim lane, one row per day) + meal detail + "This week at a glance".
+/* Option B (refined 12 Oct 2026, decisions 110 to 120 and 156 in docs/knowledge/jobs-to-be-done/plan-desktop.md): agenda (main swim lane, one row per day) + meal detail + "This week at a glance".
    Three columns from 1440 (b-three-1440.js), two below: the summary then tucks behind the meal detail. Sample data and sample-only logic stay in init() here; shared behaviour is in plan.js. */
 (function(){var P=PLAN,u=P.u,DN=u.DN,DF=u.DF,I=u.I,esc=u.esc,R=u.R,ME=u.ME;
 function svg(p){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+p+'</svg>'}
@@ -14,6 +14,12 @@ function names(l){return l.length>2?l.slice(0,2).join(", ")+" +"+(l.length-2):l.
 function pill(cls,ic,txt){return '<span class="tg '+cls+'">'+ic+'<span>'+esc(txt)+'</span></span>'}
 function btn(act,id,ic,label,tip,fk,o){o=o||{};return '<button class="rb" data-act="'+act+'" data-id="'+id+'"'+(o.pressed!==undefined?' aria-pressed="'+o.pressed+'"':'')+(o.dis?' disabled':'')+' aria-label="'+esc(label)+'" data-tip="'+esc(tip)+'" data-fk="'+fk+':'+id+'">'+ic+'</button>'}
 
+/* ---------- "just dropped in" cue (decision 156): any tile whose content changes (drag-drop, Replan then fill, Surprise me, Ask AI, undo, copy) shows a brief drop and wash. Sample-side detection: a tile is "new" when its key (card, day, meal) was not in the last render of the same week and tab. ---------- */
+var DROP={ctx:null,seen:{},t:{},n:[],tm:null},DROPMS=1500;
+function dropScan(){var S=P.S(),ctx=S.wk+"|"+S.view,cur={},now=Date.now(),fr=[];
+ DN.forEach(function(d){u.dayCards(d).forEach(function(c){var k=c.id+"|"+d+"|"+c.r;cur[k]=1;if(DROP.ctx===ctx&&!DROP.seen[k]){DROP.t[c.id]=now;fr.push(R[c.r].n+" on "+d)}})});
+ DROP.ctx=ctx;DROP.seen=cur;if(fr.length)DROP.n=fr}
+function dropAge(c){var t=DROP.t[c.id],a=t?Date.now()-t:DROPMS;return a<DROPMS?a:-1}
 /* ---------- the tile (decisions 112, 113): left = one status; right = persistent actions ---------- */
 function tile(c,v){var S=P.S(),r=R[c.r],m=u.missing(c),rk=u.risk(c),ro=u.roCard(c),mine=c.by===ME&&!ro,past=u.pastCard(c),sel=S.sel===c.id,off=u.offline(),left=u.srcOf(c)==="left",
  open=m.filter(function(i){return !u.onList(c,i)}),listed=m.filter(function(i){return u.onList(c,i)}),st="",sub="";
@@ -26,6 +32,7 @@ function tile(c,v){var S=P.S(),r=R[c.r],m=u.missing(c),rk=u.risk(c),ro=u.roCard(
  else st='<span class="stq">'+sm(TICK,13)+'All on hand</span>';
  if(!past&&!left&&open.length&&rk.length)sub='<span class="ubi">'+sm(I.clock,13)+esc(names(rk))+' use by '+u.ubText(rk[0])+'</span>';
  var cls="mcw "+(ro?"ro ":mine?"mine ":"theirs ")+(sel?"sel ":"")+(past?"past ":"")+(S.drag&&S.drag.id===c.id?"lifted ":"")+(S.fresh===c.id?"fresh ":"")+(v?"v-"+v:"");
+ var age=v==="ghost"?-1:dropAge(c);if(age>-1)cls+=" dropped";
  var lab=r.n+", "+c.day+", "+u.meta(c)+(open.length?", missing "+open.join(", "):listed.length&&!rk.length?", on the shopping list: "+listed.join(", "):"")+(rk.length?", use by "+u.ubText(rk[0])+": "+rk.join(", "):"")+(!open.length&&!listed.length&&!rk.length&&!left&&!past?", all on hand":"")+(c.res?", held":"")+(ro?", view only":mine?". Enter to open. Space to lift and move.":", planned by "+c.by+", view only");
  var A="";
  if(mine){var hd=!c.res&&u.conflicts(c).length,hl=c.res?"Release hold":"Hold";
@@ -34,7 +41,7 @@ function tile(c,v){var S=P.S(),r=R[c.r],m=u.missing(c),rk=u.risk(c),ro=u.roCard(
   +(!left?btn("hold",c.id,I.held,hl,hd?"Already held for another meal":hl+" (H)","h",{pressed:!!c.res,dis:hd||off}):'<span class="rb gap" aria-hidden="true"></span>')
   +btn("replan",c.id,I.refresh,"Replan: remove this meal, keep the night open","Replan (X)","r",{dis:off})
   +btn("notcooking",c.id,MOON,"Remove and mark the night not cooking","Not cooking (Shift X)","n",{dis:off})+'</div>'}
- return '<div class="'+cls+'" data-cw="'+c.id+'"><button class="mc" data-card="'+c.id+'" data-fk="card:'+c.id+'" aria-label="'+esc(lab)+'" aria-pressed="'+sel+'"><span class="e">'+r.e+'</span><span class="t"><b>'+esc(r.n)+'</b>'+(st?'<span class="stt">'+st+'</span>':"")
+ return '<div class="'+cls+'" data-cw="'+c.id+'"'+(age>-1?' style="--age:-'+age+'ms"':"")+'><button class="mc" data-card="'+c.id+'" data-fk="card:'+c.id+'" aria-label="'+esc(lab)+'" aria-pressed="'+sel+'"><span class="e">'+r.e+'</span><span class="t"><b>'+esc(r.n)+'</b>'+(st?'<span class="stt">'+st+'</span>':"")
   +'<small class="meta">'+u.avatar(c.by===ME&&c.forw==="all"?"all":c.by)+'<span>'+u.meta(c)+((mine||ro)?"":" · view only")+'</span>'+sub+'</small></span></button>'+A+'</div>'}
 
 /* ---------- a day's content: the four day states (decision 116) ---------- */
@@ -95,7 +102,11 @@ function glance(){var S=P.S(),pn;
  if(three()){pn=document.getElementById("panel2");if(pn)pn.focus();return}
  if(S.sel||S.ing){S.sumPeek=true;P.render();pn=document.getElementById("panel");if(pn)pn.focus();return}
  pn=document.getElementById("panel");if(pn)pn.focus()}
-function after(){var T=tally(),p=P._tl;P._tl=T;if(p&&(p.buy!==T.buy||p.list!==T.list||p.held!==T.held)){var l=document.getElementById("live");if(l)l.textContent="This week: "+T.buy+" to buy, "+T.list+" on the shopping list, "+T.held+" held"}}
+function after(){var dr=document.querySelectorAll(".mcw.dropped"),left=0;
+ if(DROP.n.length){var lv=document.getElementById("live");if(lv)lv.textContent="Dropped in: "+DROP.n.join(", ");DROP.n=[]}
+ [].forEach.call(dr,function(e){left=Math.max(left,DROPMS-(Date.now()-(DROP.t[e.dataset.cw]||0)))});clearTimeout(DROP.tm);
+ if(dr.length)DROP.tm=setTimeout(function(){[].forEach.call(document.querySelectorAll(".mcw.dropped"),function(e){e.classList.remove("dropped");e.removeAttribute("style")})},Math.max(left,50));
+ var T=tally(),p=P._tl;P._tl=T;if(p&&(p.buy!==T.buy||p.list!==T.list||p.held!==T.held)){var l=document.getElementById("live");if(l)l.textContent="This week: "+T.buy+" to buy, "+T.list+" on the shopping list, "+T.held+" held"}}
 
 /* sample-only set-up: the usual day (Fri) is drawn as a plain usual day off, Sat is a one-week Not cooking, Sun is open; ?fri=cook restores the leftovers meal and the "cooking this week" line */
 function init(S,Q){P.surpriseMode=Q.get("surprise")==="confirm"?"confirm":"lock";
@@ -108,7 +119,7 @@ function init(S,Q){P.surpriseMode=Q.get("surprise")==="confirm"?"confirm":"lock"
 P.start({name:"b",flat:true,v2:true,noAssistantBtn:true,moon:MOON,card:tile,lanes:lanes,peek:peek,glance:glance,after:after,init:init,
  words:{curtain:"Ask AI to plan this week.",menu:"Ask AI for this night",menuCard:"Ask AI",helpA:"Ask AI, for the night in view (opens your default AI app)"},
  skeleton:function(){var h='<div class="agenda">';DN.forEach(function(d){h+='<section class="arow"><div class="adate"><b>'+d+'</b></div><div class="astack"><div class="sk"></div></div></section>'});return h+'</div>'},
- main:function(){var h='<div class="agenda" role="list" aria-label="Week agenda">';
+ main:function(){dropScan();var h='<div class="agenda" role="list" aria-label="Week agenda">';
   DN.forEach(function(d){var hd=u.dayHeadTxt(d);h+='<section class="arow'+(hd.today?" is-today":"")+'" data-day="'+d+'" data-drop-day="'+d+'" aria-label="'+hd.full+' '+hd.date+'"><div class="adate"><b>'+d+'</b><span>'+hd.date+'</span>'+(hd.today?'<span class="today">Today</span>':"")+'<span class="dh-hint"></span></div><div class="astack">'+dayStack(d)+'</div></section>'});
   return h+'</div>'}});
 /* three columns only where there is room (1440 and up): the check lives in its own file, fetched only then */
