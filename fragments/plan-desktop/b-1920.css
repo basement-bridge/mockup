@@ -1,6 +1,6 @@
-/* Option B, 1920 and up: pane 440, agenda cap 820. Same row, larger type; nothing else is added so the list keeps its calm. */
-:root{--lane:440px;--main-max:820px}
+/* Option B, 1920 and up: agenda cap 820, detail 440, summary 360 (88 + 820 + 440 + 360 = 1708; the rest collects on the right, as in Pantry). Larger type; the tile keeps its calm. */
+:root{--lane:440px;--sum:360px;--main-max:820px}
 .main{padding:28px 40px 56px}
-.mc{min-height:72px;padding:10px 54px 10px 12px}
-.mc .t b{font-size:15.5px}
+.mc{min-height:76px}
+.mc .t b{font-size:16px}
 .mc .e{font-size:28px}

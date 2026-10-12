@@ -85,3 +85,48 @@ Viewport code: `plan.css` and `plan.js` have no size rules. Each option has `<op
 
 
 See also: Plan UI review decisions 85 to 106 (owner voice review, 12 Oct 2026) in `plan-ui-review.md`; options A to D here are linked from that review page.
+
+## Option B refined (12 Oct 2026, owner by voice): decisions 110 to 120
+
+Owner chose option B (agenda + detail pane) as the base to refine and gave the points below by voice. **owner, 12 Oct 2026** marks his words; **Proposal** marks a gap the design agent filled. Numbers continue after 109 in [plan-ui-review.md](plan-ui-review.md). Other job notes (`item-edit-flyout.md`, `home-detail-panel.md`) reuse 107 and up for their own lists (and 107 to 109 are Plan UI review phone decisions), so cite these as "Plan desktop 110" with this file name. Nothing is built in Kitchie.
+
+Mockup: `fragments/plan-desktop/b.html?sel=wed-curry` (links for every state on `fragments/plan-desktop/index.html`). Options A, C, D are untouched (the tile and summary changes are B only, through hooks in `plan.js`).
+
+110. **B is the base** (owner, 12 Oct 2026). Supersedes the recommendation of A in 49 for now; A, C, D stay drawn. Whether ideas from A or C (for example a week strip for at-a-glance) are folded in is **not decided** (open question).
+111. **Nothing picked: "This week at a glance"** (owner): what to buy, by day, and use-by pressure. **Cook order is removed** (the agenda shows it). "Add all N to the shopping list" stays in the summary (owner: "amazing"). Supersedes the cook-order part of 52.
+112. **The summary looks and feels different from the meal detail** (owner): overview versus drill-down; the agenda is the main swim lane, unchanged. Proposal for how: tinted ground and dashed left edge, no emoji header and no close button, a three-figure tally, a by-day ledger with day tags, dated use-by badges; the detail stays the flush surface panel with the emoji header, close x and ingredient rows.
+113. **Picking a meal does not replace the summary when there is room** (owner): agenda | detail | summary, the summary shifts right. With no room it tucks behind the detail: reachable, never both visible (Proposal for the mechanism: a "This week at a glance" bar at the top of the detail, "Back to <meal>" in the summary, key G, Ctrl or Cmd Enter returns). Widths (Proposal, existing breakpoints, size files own the numbers):
+
+| Viewport | State | Agenda | Detail | Summary |
+|---|---|---|---|---|
+| 1024 | tucked | fluid, about 596 | 340 | 340 (same lane) |
+| 1280 | tucked | fluid, cap 760 | 380 | 380 (same lane) |
+| 1366 x 768 | tucked, short rules | fluid, cap 760 | 380 | 380 (same lane) |
+| 1440 | three columns | 632 | 400 | 320 (88 + 632 + 400 + 320 = 1440) |
+| 1920 | three columns | cap 820 | 440 | 360 |
+| 2560 | three columns | cap 820 | 440 | 400 |
+
+   Nothing picked at 1440 and up: agenda | summary (320), the detail slot closed, free space to the right. Files: `b.css` (base, tucked), `b-1280.css`, `b-1440.css` (the `.three` grid), `b-1920.css`, `b-2560.css`, `b-short.css`; `b-three-1440.js` is fetched only at 1440 and up. Replaces the 2200 summary lane (`lane-summary-2200.js` stays for A and C). The header "to buy / use-by" chips are hidden when the summary is visible (Proposal).
+114. **The summary is a rolling tally** (owner): actions in the detail or on a tile (add missing via the cart, hold, replan and so on) update it live. Proposal: To buy, On the list and Meals held figures, the changed figure bumps once (not with reduced motion) and the change is announced politely.
+115. **Tile: status left, actions right** (owner). Left is one recognised status at a time; right are persistent action icons, no hover-only reveal: Hold or Release (toggle), Replan, Remove and not cooking, Add missing to list. Keys stay (X, Shift X, H, L, Z) and the icons are reachable by focus. Refines 55 and 61 (hover reveal is gone in B). Proposal for the icons: bookmark (Hold, filled when held), circular arrows (Replan), moon (Not cooking), cart (Add missing). A slot with nothing to do keeps its place, empty, so the icons line up down the list.
+116. **Missing splits in two** (owner): Missing (nothing actioned) and On the shopping list (actioned); a tile never shows both. The tile names the item ("Missing feta"). Use-by stays visible. A fully stocked tile (Mushroom pasta) stays quiet (a plain "All on hand", no chip). **Headline priority missing > use-by > all on hand is a PROPOSAL.** Proposal details: On the list ranks just above all on hand (once every missing item is actioned the tile drops to use-by or quiet); with some items actioned the tile shows Missing for the rest; when Missing is the headline a use-by line stays beside the who chip. Icon audit (Proposal): meal emoji (what), who chip with "Everyone · 2 people" on the meta line (who), one status chip (state), use-by clock line (time), action icons on the right (do). Revisits 72 and 104 for B.
+117. **Hold and Replan** (owner): Hold is a toggle. Replan (X) respects hold state, and replanning or releasing also releases the ingredients held for that meal. Proposal for wording: the undo toast names the ingredients released; the detail says "Replan also releases the hold on this meal". No confirm (undo exists, 59).
+118. **Unplanned day: "Surprise me" and "Ask AI"** (owner). The app proposes a meal from heuristics (94). On a planned meal these are not persistent buttons: Replan clears the meal, then the open night offers both ("Meal cleared. Fill this night?"). Ask AI follows 95's wording and is scoped to the night; Proposal: B drops the header "Open your assistant" button (95 votes against a persistent assistant control) and keeps key A scoped to the day in view. **Open question: does Surprise me lock the proposal in, or show it to confirm first?** Both are drawn (`?surprise=confirm`); lock-in with undo is the default. The mock heuristic is 94's (Proposal thresholds).
+119. **Four day states, each distinct** (owner). Unplanned: dashed outline (35) with Open night, Surprise me, Ask AI and a quiet Not cooking. Planned: tiles. Not cooking: one week only, set from the grid, no "just this week or every Wednesday" choice (4, 9 Oct decision), filled accent block with the **moon** (owner named the moon; revisits 24 "no moon") and "This week only". Usual day: the Settings stencil, plain outline without fill, a repeat glyph (Proposal) and "From Settings, every week"; a one-week override from the grid cooks it and keeps 34's line "Usual day off, cooking this week" (`?fri=cook`). Looks reuse 34 to 36. Dashed Open night revisits 92 and 70 (no dashed box) for desktop B because the owner said to reuse 34 to 36 (Proposal).
+120. **Wording** (Proposal): Ask AI replaces "Open your assistant" and "Plan with your AI assistant" in B's menus, curtain and key list.
+
+### Open questions (Plan desktop, B refined)
+
+- Fold ideas from A or C (for example a week strip) into B? Not decided (owner).
+- Surprise me: lock in (undo) or show to confirm first? (118)
+- Headline priority missing > use-by > on the list > all on hand is a proposal (116); partial actioning rule too.
+- Three columns from 1440 (113): is 632 for the agenda enough, or should three columns start later or earlier? Tucked below 1440 incl. 1366 x 768.
+- Moon on Not cooking (119) revisits 24; dashed Open night (119) revisits 92.
+- Does Replan on a held meal need to say more than the undo toast (117)?
+- Summary with nothing picked sits beside the agenda and leaves free space on the right at 1440 and up (113); acceptable?
+
+### For the implementation (B refined)
+
+- Shared `plan.js` has hooks (`layout.card`, `layout.lanes`, `layout.peek`, `layout.glance`, `layout.words`); B's tile, day states and summary are in `b.js`. No size rules in shared files; `b.css` has none.
+- Chat tools and the UI call the same service methods (`plan_remove_meal` Replan and release hold, `plan_block_day`, `plan_reserve`, `plan_add_missing_to_list`); Surprise me needs a service method (heuristics in 94) that does not exist yet.
+- Default path: `theme.css`, `plan.css`, `b.css`, `plan.js`, `b.js` plus the matching size files; `b-three-1440.js` only at 1440 and up. No images.

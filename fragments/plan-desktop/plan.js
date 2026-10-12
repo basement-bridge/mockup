@@ -38,7 +38,7 @@ function fmtN(v){var w=Math.floor(v+1e-9),f=v-w;if(f>=.25&&f<.75)return w?w+"½"
 function qty(i,n){var p=QPP[i];if(!p)return"";var v=p[0]*n,u=p[1];if(u==="g"||u==="ml")return Math.round(v/5)*5+" "+u;var s=fmtN(v);return s+(u?" "+u+((u==="tin"||u==="bag"||u==="cup")&&v>1.2?"s":""):"")}
 function mkCard(wk,day,r,by,forw,n,x){var c={id:(wk===1?"":"w"+(wk<0?"m"+(-wk):wk)+"-")+day.toLowerCase()+"-"+r,wk:wk,day:day,r:r,by:by,forw:forw,n:n,res:false,mod:null};if(x)for(var k in x)c[k]=x[k];return c}
 function fresh(){
- var s={wk:DEFWK,view:"mine",cards:[],ov:{},stencil:{Sam:["Fri"],Jane:[]},people:["Jane"],list:{},copied:{},sel:null,ing:null,cur:null,day:null,laneOpen:false,sync:"live",loading:false,menu:null,drag:null,toast:null,wkpick:false,help:false,settings:false,nudge:false,nudgeDone:false,fresh:null,undo:[],lastSync:"12:41",laneW:null,tip:null,demoNote:null};
+ var s={wk:DEFWK,view:"mine",cards:[],ov:{},stencil:{Sam:["Fri"],Jane:[]},people:["Jane"],list:{},copied:{},sel:null,ing:null,cur:null,day:null,laneOpen:false,sync:"live",loading:false,menu:null,drag:null,toast:null,wkpick:false,help:false,settings:false,nudge:false,nudgeDone:false,fresh:null,undo:[],lastSync:"12:41",laneW:null,tip:null,demoNote:null,sumPeek:false,just:null,prop:null};
  var C=s.cards;
  C.push(mkCard(1,"Mon","shak",ME,"all",2,{res:true,l_feta:true}),mkCard(1,"Tue","pasta",ME,"all",2,{mod:{mushrooms:"carrots"}}),mkCard(1,"Wed","curry",ME,"all",2),mkCard(1,"Thu","patty",ME,"all",2),mkCard(1,"Thu","tuna",ME,ME,1),mkCard(1,"Fri","left",ME,ME,1),mkCard(1,"Sun","stir","Jane","Jane",1));
  C.push(mkCard(0,"Mon","soup",ME,"all",2),mkCard(0,"Tue","rice",ME,"all",2),mkCard(0,"Wed","pasta",ME,ME,1),mkCard(0,"Thu","fritt",ME,"all",2),mkCard(0,"Sat","rice",ME,"all",2),mkCard(0,"Sun","fritt","Jane","Jane",1));
@@ -109,7 +109,7 @@ function avatar(w){if(w==="all")return '<span class="av all" title="Everyone">�
 
 /* ---------------- the meal card (one markup, three densities via the option's CSS) ---------------- */
 function nl(c){return Object.keys(c).filter(function(k){return k.indexOf("l_")===0&&c[k]}).length}
-function cardW(c,v){var r=R[c.r],m=missing(c),rk=risk(c),mine=me(c)&&!roCard(c),ro=roCard(c),past=pastCard(c),pills="",sel=S.sel===c.id;
+function cardW(c,v){if(P.layout&&P.layout.card)return P.layout.card(c,v);var r=R[c.r],m=missing(c),rk=risk(c),mine=me(c)&&!roCard(c),ro=roCard(c),past=pastCard(c),pills="",sel=S.sel===c.id;
  if(!past&&m.length)pills+=pill("miss",I.miss,m.length,m.length+" ingredients missing");
  if(!past&&rk.length)pills+=pill("soon",I.clock,rk.length,rk.length+" ingredients past use-by on the day");
  if(!past&&nl(c))pills+=pill("also",I.cart,nl(c),nl(c)+" on the shopping list");
@@ -159,7 +159,7 @@ P.sumHtml=function(){var sh=shopping(),rk=risks(),cs=scopeCards().filter(functio
 
 /* ---------------- the inspector for one meal ---------------- */
 P.mealHtml=function(c){var r=R[c.r],mine=me(c)&&!roCard(c),sr=srcOf(c),oh=onhand(c),ms=missing(c),rk=risk(c),h="",dis=offline();
- h+='<div class="top"><span class="ph">'+r.e+'</span><div><h2>'+esc(r.n)+'</h2><p>'+DF[DN.indexOf(c.day)].slice(0,3)+' '+dstr(c.wk,DN.indexOf(c.day))+' · '+meta(c)+'</p></div><button class="x" data-close aria-label="Close ('+P.mod+' Enter)" data-tip="Close ('+P.mod+' Enter)" data-fk="lane:x">&times;</button></div>';
+ h+=(P.layout.peek?P.layout.peek():"")+'<div class="top"><span class="ph">'+r.e+'</span><div><h2>'+esc(r.n)+'</h2><p>'+DF[DN.indexOf(c.day)].slice(0,3)+' '+dstr(c.wk,DN.indexOf(c.day))+' · '+meta(c)+'</p></div><button class="x" data-close aria-label="Close ('+P.mod+' Enter)" data-tip="Close ('+P.mod+' Enter)" data-fk="lane:x">&times;</button></div>';
  if(!mine)h+='<span class="tg mute lockline">🔒 '+(roCard(c)?(c.wk<0?"Last week is read-only. You can look, not change.":"This night has passed. You can look, not change."):esc(c.by)+" planned this. You can look, not change.")+'</span>';
  if(sr==="saved")h+='<div class="srcbox"><button class="lnk" data-act="viewrec" data-fk="lane:rec">📖 View recipe ›</button></div>';
  if(sr==="mod")h+='<div class="srcbox"><span class="tg also">Modified by assistant</span><span>Swaps are kept with this meal on '+c.day+' and shown on the rows below.</span><button class="lnk" data-act="viewrec" data-fk="lane:rec">📖 View original recipe ›</button></div>';
@@ -168,9 +168,10 @@ P.mealHtml=function(c){var r=R[c.r],mine=me(c)&&!roCard(c),sr=srcOf(c),oh=onhand
  if(mine&&sr!=="left")h+='<div class="ppl"><span class="lbl" style="margin:0">People</span><button class="mini" data-act="ppl" data-d="-1" aria-label="Fewer people" data-fk="lane:p-"'+(c.n<=1||dis?" disabled":"")+'>−</button><b>'+c.n+'</b><button class="mini" data-act="ppl" data-d="1" aria-label="More people" data-fk="lane:p+"'+(c.n>=8||dis?" disabled":"")+'>+</button></div>';
  if(oh.length){var hd=!c.res&&conflicts(c).length;h+='<div class="lblrow"><div class="lbl">On hand</div>'+(mine?'<button class="mini" data-act="hold" data-id="'+c.id+'" aria-pressed="'+!!c.res+'"'+((hd||dis)?" disabled":"")+' data-fk="lane:hold">'+I.held.replace("<svg","<svg width=\"15\" height=\"15\"")+(c.res?"Held":"Hold")+' <span class="kbd">H</span></button>':"")+'</div>'+((mine&&hd)?'<p class="hint">'+esc(conflicts(c).join(", "))+' already held for another meal.</p>':"");
   oh.forEach(function(i){var a=heldBy(c,i),al=also(c,i),bad=riskAt(c,cdate(c)).indexOf(i)>-1&&!roCard(c);h+='<div class="ing ind"><span class="nm">'+esc(i)+(orig(c,i)?' <span class="was">(<s>'+esc(orig(c,i))+'</s>)</span>':"")+' <span class="q">'+qty(i,c.n)+'</span>'+(STOCK[i].ub?'<span class="sub'+(bad?" bad":"")+'">use by '+ubText(i)+(bad?", before "+c.day:"")+'</span>':"")+(al.length?'<span class="sub">also '+al.join(", ")+'</span>':"")+'</span><span class="rt">'+(a?'<span class="tg also">held for '+esc(a)+'</span>':"")+(bad?'<span class="tg soon">'+I.clock+'use-by</span>':"")+'</span></div>'})}
- if(ms.length){h+='<div class="lbl">Missing</div><p class="hint">Talk to your assistant about substitutes</p>';ms.forEach(function(i){var al=also(c,i);h+='<div class="ing ind miss"><span class="nm">'+esc(i)+(orig(c,i)?' <span class="was">(<s>'+esc(orig(c,i))+'</s>)</span>':"")+' <span class="q">'+qty(i,c.n)+'</span>'+(al.length?'<span class="sub">also needed '+al.join(", ")+'</span>':"")+'</span><span class="rt">'+(mine?'<button class="mini cart" data-act="addlist" data-i="'+esc(i)+'" data-id="'+c.id+'" aria-pressed="'+onList(c,i)+'" aria-label="'+(onList(c,i)?esc(i)+" is on the shopping list":"Add "+esc(i)+" to the shopping list")+'" data-fk="lane:c:'+esc(i)+'"'+(dis?" disabled":"")+'>'+(onList(c,i)?"✓":I.cart)+'</button>':"")+'</span></div>'})}
+ if(ms.length){var mo=ms.filter(function(i){return !onList(c,i)});h+=(P.layout.v2?'<div class="lblrow"><div class="lbl">Missing</div>'+(mine&&mo.length?'<button class="mini" data-act="addmissing" data-id="'+c.id+'"'+(dis?" disabled":"")+' data-fk="lane:addall">'+I.cart.replace("<svg","<svg width=\"15\" height=\"15\"")+'Add '+mo.length+' to list <span class="kbd">L</span></button>':"")+'</div>':'<div class="lbl">Missing</div>')+'<p class="hint">Talk to your assistant about substitutes</p>';ms.forEach(function(i){var al=also(c,i);h+='<div class="ing ind miss"><span class="nm">'+esc(i)+(orig(c,i)?' <span class="was">(<s>'+esc(orig(c,i))+'</s>)</span>':"")+' <span class="q">'+qty(i,c.n)+'</span>'+(al.length?'<span class="sub">also needed '+al.join(", ")+'</span>':"")+'</span><span class="rt">'+(mine?'<button class="mini cart" data-act="addlist" data-i="'+esc(i)+'" data-id="'+c.id+'" aria-pressed="'+onList(c,i)+'" aria-label="'+(onList(c,i)?esc(i)+" is on the shopping list":"Add "+esc(i)+" to the shopping list")+'" data-fk="lane:c:'+esc(i)+'"'+(dis?" disabled":"")+'>'+(onList(c,i)?"✓":I.cart)+'</button>':"")+'</span></div>'})}
  if(!oh.length&&!ms.length)h+='<p style="margin-top:12px;font-size:13px">Leftovers need no shopping and no reservation.</p>';
- if(mine)h+='<button class="btn ghost rmbtn" data-act="replan" data-id="'+c.id+'" data-fk="lane:rm"'+(dis?" disabled":"")+'>Remove <span class="kbd">X</span></button>';
+ if(mine&&P.layout.v2)h+='<div class="foot"><button class="btn ghost" data-act="replan" data-id="'+c.id+'" data-fk="lane:rm"'+(dis?" disabled":"")+'>'+I.refresh.replace("<svg","<svg width=\"16\" height=\"16\"")+'Replan <span class="kbd">X</span></button><button class="btn ghost" data-act="notcooking" data-id="'+c.id+'" data-fk="lane:nc"'+(dis?" disabled":"")+'>'+(P.layout.moon||"")+'Not cooking <span class="kbd">Shift X</span></button></div>'+(c.res?'<p class="hint" style="margin-left:0">Replan also releases the hold on this meal.</p>':"");
+ else if(mine)h+='<button class="btn ghost rmbtn" data-act="replan" data-id="'+c.id+'" data-fk="lane:rm"'+(dis?" disabled":"")+'>Remove <span class="kbd">X</span></button>';
  return h};
 P.ingHtml=function(name){var st=STOCK[name],users=scopeCards().filter(function(c){return ings(c).indexOf(name)>-1&&!roCard(c)}).sort(function(a,b){return DN.indexOf(a.day)-DN.indexOf(b.day)}),h="";
  h+='<div class="top"><span class="ph">🧺</span><div><h2>'+esc(name)+'</h2><p>'+(st?"On hand: "+esc(st.q)+(st.ub?" · use by "+ubText(name):""):"Not in the pantry")+'</p></div><button class="x" data-close aria-label="Close ('+P.mod+' Enter)" data-tip="Close ('+P.mod+' Enter)" data-fk="lane:x">&times;</button></div>';
@@ -204,9 +205,9 @@ function headHtml(){var cp=!!S.copied[S.wk],h='';
  +'<span class="sp"></span>'+syncHtml()
  +'<button class="ib" data-act="copy" aria-pressed="'+cp+'" aria-label="Copy last week'+(cp?" (applied, press again to clear)":"")+'" data-tip="Copy last week (C)" data-fk="hdr:copy"'+((weekRo()||offline())?" disabled":"")+'>'+I.copy+'</button>'
  +'<button class="ib" data-act="settings" aria-label="Settings, usual days" data-tip="Usual days (S)" data-fk="hdr:cog">'+I.cog+'</button>'
- +((person()||weekRo())?"":'<button class="btn" data-act="assistant" data-fk="hdr:ai">'+I.spark.replace("<svg","<svg width=\"16\" height=\"16\"")+' Open your assistant <span class="kbd">A</span></button>')+'</div>';
+ +((person()||weekRo()||P.layout.noAssistantBtn)?"":'<button class="btn" data-act="assistant" data-fk="hdr:ai">'+I.spark.replace("<svg","<svg width=\"16\" height=\"16\"")+' Open your assistant <span class="kbd">A</span></button>')+'</div>';
  h+='<div class="hrow">'+segHtml()+chipsHtml()+'</div>';
- if(S.nudge)h+='<div class="cslot"><button class="curtain" data-act="assistant" data-fk="nudge">✦ Plan with your AI assistant. <span class="kbd">A</span></button></div>';
+ if(S.nudge)h+='<div class="cslot"><button class="curtain" data-act="assistant" data-fk="nudge">✦ '+W("curtain","Plan with your AI assistant.")+' <span class="kbd">A</span></button></div>';
  if(weekRo())h+='<div class="ro-note">🔒 Last week is read-only. You can look, not change.</div>';
  if(offline())h+='<div class="offbar" role="status">Offline. Showing the last plan saved here ('+S.lastSync+'). Changes are paused until you are back.</div>';
  return h}
@@ -221,7 +222,7 @@ function laneBody(){if(S.loading)return '<div class="sk" style="height:52px;marg
  return P.layout.idle?P.layout.idle():P.sumHtml()}
 function laneAria(){return S.sel?"Meal":S.ing?"Ingredient":P.layout.idleLabel||"Week summary"}
 function menuHtml(){var m=S.menu;if(!m)return "";var h='<div class="cm" role="menu" id="cm" style="left:'+(m.x||0)+'px;top:'+(m.y||0)+'px">';
- if(m.kind==="day"){var d=m.day;h+='<div class="cmh">'+DF[DN.indexOf(d)]+'</div><button role="menuitem" data-mi="block" data-fk="mi:b"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M6.3 6.3l11.4 11.4"/></svg>Not cooking, this week only<span class="kbd">B</span></button><button role="menuitem" data-mi="assistant" data-fk="mi:a">'+I.spark.replace("<svg","<svg style=\"fill:currentColor;stroke:none\"")+'Plan with your assistant<span class="kbd">A</span></button>';return h+'</div>'}
+ if(m.kind==="day"){var d=m.day;h+='<div class="cmh">'+DF[DN.indexOf(d)]+'</div><button role="menuitem" data-mi="block" data-fk="mi:b"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M6.3 6.3l11.4 11.4"/></svg>Not cooking, this week only<span class="kbd">B</span></button><button role="menuitem" data-mi="assistant" data-fk="mi:a">'+I.spark.replace("<svg","<svg style=\"fill:currentColor;stroke:none\"")+''+W("menu","Plan with your assistant")+'<span class="kbd">A</span></button>';return h+'</div>'}
  var c=card(m.id);if(!c)return "";var mine=me(c)&&!roCard(c),hd=!c.res&&conflicts(c).length,ms=missing(c).filter(function(i){return !onList(c,i)});
  h+='<div class="cmh">'+R[c.r].e+' '+esc(R[c.r].n)+' · '+c.day+'</div>'
  +'<button role="menuitem" data-mi="open" data-fk="mi:o"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>Open<span class="kbd">Enter</span></button>';
@@ -229,14 +230,14 @@ function menuHtml(){var m=S.menu;if(!m)return "";var h='<div class="cm" role="me
   +(ms.length?'<button role="menuitem" data-mi="addmissing" data-fk="mi:l"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M3 4h2.5l2.2 11h10.6l2-8H6.2"/></svg>Add '+ms.length+' missing to the list<span class="kbd">L</span></button>':"")
   +'<hr><button role="menuitem" data-mi="replan" data-fk="mi:r"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>Replan: remove, keep the night open<span class="kbd">X</span></button>'
   +'<button role="menuitem" data-mi="notcooking" data-fk="mi:n"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M6.3 6.3l11.4 11.4"/></svg>Remove and mark not cooking<span class="kbd">Shift X</span></button>'}
- h+='<hr><button role="menuitem" data-mi="assistant" data-fk="mi:a">'+I.spark.replace("<svg","<svg style=\"fill:currentColor;stroke:none\"")+'Open your assistant<span class="kbd">A</span></button>';
+ h+='<hr><button role="menuitem" data-mi="assistant" data-fk="mi:a">'+I.spark.replace("<svg","<svg style=\"fill:currentColor;stroke:none\"")+W("menuCard","Open your assistant")+'<span class="kbd">A</span></button>';
  return h+'</div>'}
 function G(t,rows){return '<section class="kbs"><h3>'+t+'</h3>'+rows.map(function(x){var k=x[0].charAt(0)==="~"?x[0].slice(1):x[0].split(" ").map(function(w){return /^(then|or|and|to|plus)$/.test(w)?'<em>'+w+'</em>':'<kbd>'+w+'</kbd>'}).join(" ");return '<div class="kbr"><span class="kk">'+k+'</span><span>'+x[1]+'</span></div>'}).join("")+'</section>'}
 function helpHtml(){var m=P.mod;return '<div class="kb" id="kb"><div class="kbc" role="dialog" aria-modal="true" aria-labelledby="kbt"><div class="kbh"><h2 id="kbt">Plan: keyboard and mouse</h2><button class="x" data-close aria-label="Close ('+m+' Enter)" data-fk="kb:x">&times;</button></div><div class="kbg">'
  +G("Move around",[["← → ↑ ↓","Between days and meals; the lane follows"],["J K","Next or previous meal (same as ↓ ↑)"],["Enter","Open the meal; again, move into the lane"],["M","Focus the first meal in the main column"],["Home End","First or last meal of the week"]])
  +G("The meal",[["H","Hold or release the hold"],["X","Replan: remove, keep the night open"],["Shift X","Remove and mark the night not cooking"],["B","Not cooking this night, this week only"],["L","Add this meal's missing items to the list"],["Space","Lift the meal, ← → to carry, Space to drop (Esc cancels)"],["Z","Undo the last change"]])
  +G("Weeks and people",[["[ ]","Previous or next week (also Page Up, Page Down)"],["T","Back to this week"],["W","Week picker"],["1 2 3","Mine, Everyone, then each person"],["C","Copy last week; again clears what it added"]])
- +G("General",[["A","Open your assistant (your default AI app)"],["R","Refresh now"],["S","Usual days (Settings)"],["?","This list"],["Shift Space","Key hints on or off (not while a meal or button is focused)"],[m+" Enter","Close the lane, menu, picker or this list"],["Esc","Cancel a drag or lift, close a menu or picker only"]])
+ +G("General",[["A",W("helpA","Open your assistant (your default AI app)")],].concat(P.layout.glance?[["G","This week at a glance: focus the summary, or bring it forward"]]:[]).concat([["R","Refresh now"],["S","Usual days (Settings)"],["?","This list"],["Shift Space","Key hints on or off (not while a meal or button is focused)"],[m+" Enter","Close the lane, menu, picker or this list"],["Esc","Cancel a drag or lift, close a menu or picker only"]]))
  +G("Mouse and trackpad",[["~Hover","Hold, Replan and More appear on the card"],["~Right-click","Same actions as a menu, with keys shown"],["~Drag","Move to another day. Alt or Option drag copies"],["~Two-finger swipe","Sideways on the header or board: previous or next week"],["~Click title","Week picker. ‹ › step one week"]])
  +'</div><div class="kbt" style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);font-weight:600"><span id="cuel">Show shortcut cues on buttons and hints</span><button type="button" class="mini" role="switch" aria-checked="'+(!P.nocues)+'" aria-labelledby="cuel" data-cues data-fk="kb:cues">'+(P.nocues?"Off":"On")+'</button></div><p class="kbf">Shortcuts pause while you type in a box. Moving a meal has no button: dragging, or lifting with Space (decision 6, with a keyboard way to drag).</p></div></div>'}
 function settingsHtml(){var h='<div class="kb" id="kb"><div class="kbc" role="dialog" aria-modal="true" aria-labelledby="kbt" style="width:min(560px,calc(100vw - 48px))"><div class="kbh"><h2 id="kbt">Meal planning</h2><button class="x" data-close aria-label="Close ('+P.mod+' Enter)" data-fk="kb:x">&times;</button></div><p>Usual days off cooking. Each week starts with these blocked. Repeating days are set only here; the board changes one week at a time.</p>';
@@ -244,15 +245,16 @@ function settingsHtml(){var h='<div class="kb" id="kb"><div class="kbc" role="di
  return h+'<div class="lbl">Categories</div><div class="ing"><span class="nm">🔒 Leftovers</span><button class="mini" disabled>Rename</button></div><p class="hint" style="margin-left:0">Rename it to anything. It can never be deleted, and the app still treats it as Leftovers.</p></div></div>'}
 function toastHtml(){return S.toast?'<div class="toast" role="status"><span>'+S.toast.msg+'</span>'+(S.toast.undo?'<button data-act="undo" data-fk="toast:undo">Undo <span class="kbd">Z</span></button>':"")+'</div>':""}
 
+function W(k,d){return(P.layout&&P.layout.words&&P.layout.words[k])||d}
 var TT=null,NT=null,SYT=null;
 function openLane(){return !!(S.sel||S.ing||S.laneOpen)}
 P.render=function(){var root=document.getElementById("root");if(!root)return;
  var ae=document.activeElement,fk=ae&&ae.closest?(ae.closest("[data-fk]")||{}).dataset:null;fk=fk&&fk.fk;
  var sy=window.scrollY,pn=q("#panel"),pt=pn?pn.scrollTop:0,hs=q("[data-hscroll]"),hl=hs?hs.scrollLeft:0;
- var L=P.layout,l2=L.lane2?L.lane2():"",lane=L.lane===false?"":'<aside class="panel" id="panel" aria-label="'+laneAria()+'" tabindex="-1"><div class="rz" id="rz" role="separator" aria-orientation="vertical" aria-label="Resize the side panel" tabindex="0" aria-valuenow="'+(laneW())+'" aria-valuemin="320" aria-valuemax="560" data-fk="rz"></div>'+laneBody()+'</aside>'+l2;
- var cls="app"+(l2?" has-lane2":"")+(openLane()?" lane-open":"")+(L.lane===false?" nolane":"")+(S.drag?" is-drag":"");
+ var L=P.layout,lns=L.lanes?L.lanes():null,pn2=q("#panel2"),pt2=pn2?pn2.scrollTop:0,l2=lns?"":(L.lane2?L.lane2():""),lane=lns?lns.html:L.lane===false?"":'<aside class="panel" id="panel" aria-label="'+laneAria()+'" tabindex="-1"><div class="rz" id="rz" role="separator" aria-orientation="vertical" aria-label="Resize the side panel" tabindex="0" aria-valuenow="'+(laneW())+'" aria-valuemin="320" aria-valuemax="560" data-fk="rz"></div>'+laneBody()+'</aside>'+l2;
+ var cls="app"+(lns?" "+lns.cls:"")+(l2?" has-lane2":"")+(openLane()?" lane-open":"")+(L.lane===false?" nolane":"")+(S.drag?" is-drag":"");
  root.innerHTML='<div class="'+cls+'" id="app"'+(S.laneW?' style="--lane:'+S.laneW+'px"':"")+'>'+railHtml()+'<main class="main" id="main" tabindex="-1">'+headHtml()+(S.loading?L.skeleton():L.main())+'</main>'+lane+'</div>'+menuHtml()+(S.help?helpHtml():S.settings?settingsHtml():"")+toastHtml()+'<div class="live" id="live" role="status" aria-live="polite"></div>';
- window.scrollTo(0,sy);pn=q("#panel");if(pn)pn.scrollTop=pt;hs=q("[data-hscroll]");if(hs)hs.scrollLeft=hl;
+ window.scrollTo(0,sy);pn=q("#panel");if(pn)pn.scrollTop=pt;pn2=q("#panel2");if(pn2)pn2.scrollTop=pt2;hs=q("[data-hscroll]");if(hs)hs.scrollLeft=hl;
  if(L.after)L.after();
  if(L.overlayAfter)L.overlayAfter();
   if(S.tip){var te=q(S.tip);if(te)te.classList.add("tipshow")}
@@ -261,6 +263,7 @@ P.render=function(){var root=document.getElementById("root");if(!root)return;
  if(fk&&!S._skipFocus){var el=q('[data-fk="'+fk.replace(/"/g,'\\"')+'"]');if(el&&el!==document.activeElement)el.focus({preventScroll:true})}
  S._skipFocus=false;
  syncUrl();armNudge()};
+P.laneBody=function(){return laneBody()};P.laneAria=function(){return laneAria()};P.laneW=function(){return laneW()};P.openLane=function(){return openLane()};
 function laneW(){return S.laneW||parseInt(getComputedStyle(document.documentElement).getPropertyValue("--lane"))||400}
 function say(t){var l=q("#live");if(l)l.textContent=t}
 function syncUrl(){try{var u=new URL(location.href);var set=function(k,v,d){if(v===null||v===undefined||v===d)u.searchParams.delete(k);else u.searchParams.set(k,v)};set("week",iso(dt(S.wk,0)),iso(dt(DEFWK,0)));set("view",S.view,"mine");set("sel",S.sel,null);set("ing",S.ing,null);set("day",P.layout.useDay?S.day:null,null);history.replaceState(null,"",u)}catch(e){}}
@@ -272,16 +275,17 @@ function pushUndo(){S.undo.push(snap());if(S.undo.length>20)S.undo.shift()}
 function toast(msg,undo){S.toast={msg:msg,undo:!!undo};clearTimeout(TT);TT=setTimeout(function(){S.toast=null;P.render()},6000)}
 function guard(){if(offline()){toast("Offline. Changes are paused until you are back.");P.render();return true}if(weekRo()){return true}return false}
 function pulseSync(){if(offline())return;S.sync="syncing";clearTimeout(SYT);SYT=setTimeout(function(){S.sync="live";S.lastSync="12:42";P.render()},1100)}
-function setWk(n){S.wk=Math.max(WMIN,Math.min(WMAX,n));S.sel=null;S.ing=null;S.menu=null;S.wkpick=false;S.nudge=false;S.nudgeDone=false;if(P.layout.onWeek)P.layout.onWeek();P.render();say("Week of "+dstr(S.wk,0)+", "+labelW(S.wk))}
-function select(id,opts){var c=card(id);if(!c)return;S.sel=id;S.ing=null;S.cur={day:c.day};S.day=c.day;S.menu=null;S.nudge=false;if(opts&&opts.focus)S._focusId=id;P.render();if(opts&&opts.say)say(R[c.r].n+", "+c.day+", "+meta(c))}
-function deselect(){S.sel=null;S.ing=null;S.laneOpen=false;S.menu=null;P.render()}
+function setWk(n){S.wk=Math.max(WMIN,Math.min(WMAX,n));S.sel=null;S.ing=null;S.menu=null;S.wkpick=false;S.nudge=false;S.nudgeDone=false;S.sumPeek=false;S.just=null;S.prop=null;if(P.layout.onWeek)P.layout.onWeek();P.render();say("Week of "+dstr(S.wk,0)+", "+labelW(S.wk))}
+function select(id,opts){var c=card(id);if(!c)return;S.sel=id;S.ing=null;S.sumPeek=false;S.just=null;S.cur={day:c.day};S.day=c.day;S.menu=null;S.nudge=false;if(opts&&opts.focus)S._focusId=id;P.render();if(opts&&opts.say)say(R[c.r].n+", "+c.day+", "+meta(c))}
+function deselect(){S.sel=null;S.ing=null;S.laneOpen=false;S.sumPeek=false;S.menu=null;P.render()}
 function setView(v){S.view=v;S.sel=null;S.ing=null;P.render();say("Showing "+(v==="mine"?"Mine":v==="all"?"Everyone":v))}
-function removeCard(id,block){var c=card(id);if(!c||!me(c)||guard())return;pushUndo();S.cards=S.cards.filter(function(x){return x.id!==id});if(block)S.ov[okey(c.day,ME,c.wk)]=true;if(S.sel===id)S.sel=null;toast((block?"Removed "+esc(lbl(c))+" and marked "+c.day+" not cooking.":"Replanned "+c.day+": "+esc(lbl(c))+" removed, the night is open.")+" ",true);pulseSync();P.render();say("Removed")}
-function holdCard(id){var c=card(id);if(!c||!me(c)||guard())return;if(!c.res&&conflicts(c).length)return;pushUndo();c.res=!c.res;toast((c.res?"Held ":"Released ")+esc(lbl(c))+" "+c.day+".",true);pulseSync();P.render()}
+function removeCard(id,block){var c=card(id);if(!c||!me(c)||guard())return;var rel=c.res?onhand(c):[];pushUndo();S.cards=S.cards.filter(function(x){return x.id!==id});if(block)S.ov[okey(c.day,ME,c.wk)]=true;if(S.sel===id)S.sel=null;S.sumPeek=false;S.prop=null;S.just=block?null:{wk:c.wk,day:c.day};
+ toast((block?"Removed "+esc(lbl(c))+" and marked "+c.day+" not cooking.":"Replanned "+c.day+": "+esc(lbl(c))+" removed, the night is open.")+(rel.length?" Its hold is released: "+esc(rel.join(", "))+" back in free stock.":"")+" ",true);pulseSync();P.render();say("Removed"+(rel.length?", hold released":""))}
+function holdCard(id){var c=card(id);if(!c||!me(c)||guard())return;if(!c.res&&conflicts(c).length)return;pushUndo();c.res=!c.res;var hl=onhand(c);toast((c.res?"Held ":"Released ")+esc(lbl(c))+" "+c.day+"."+(hl.length?(c.res?" Reserved: ":" Free again: ")+esc(hl.join(", "))+".":"")+" ",true);pulseSync();P.render()}
 function moveCard(id,d,copy){var c=card(id);if(!c||guard())return;pushUndo();var from=c.day;if(copy){var n=JSON.parse(JSON.stringify(c));n.day=d;n.id=c.id+"-copy"+Date.now()%1000;n.res=false;S.cards.push(n);S.sel=n.id}else{c.day=d;if(S.ov[okey(d,ME,c.wk)]===true||(isBlocked(d,ME,c.wk)&&S.view==="mine"))S.ov[okey(d,ME,c.wk)]=false;S.sel=c.id}
  S.cur={day:d};S.day=d;var fx=riskAt(c,cdate(c));toast((copy?"Copied ":"Moved ")+esc(lbl(c))+" "+(copy?"to ":"from "+from+" to ")+d+"."+(risk(c).length===0&&fx.length===0&&from!==d&&false?"":"")+" ",true);pulseSync();P.render();say((copy?"Copied":"Moved")+" to "+DF[DN.indexOf(d)])}
-function blockDay(d){if(guard())return;pushUndo();var cs=S.cards.filter(function(c){return c.wk===S.wk&&c.day===d&&me(c)});S.cards=S.cards.filter(function(c){return !(c.wk===S.wk&&c.day===d&&me(c))});S.ov[okey(d,ME)]=true;S.sel=null;toast("Not cooking "+DF[DN.indexOf(d)]+", this week only. Usual days are set in Settings. ",true);pulseSync();P.render()}
-function unblockDay(d){if(guard())return;pushUndo();var usual=S.stencil.Sam.indexOf(d)>-1;if(usual)S.ov[okey(d,ME)]=false;else delete S.ov[okey(d,ME)];toast(DF[DN.indexOf(d)]+": cooking this week. ",true);P.render()}
+function blockDay(d){if(guard())return;S.just=null;S.prop=null;pushUndo();var cs=S.cards.filter(function(c){return c.wk===S.wk&&c.day===d&&me(c)});S.cards=S.cards.filter(function(c){return !(c.wk===S.wk&&c.day===d&&me(c))});S.ov[okey(d,ME)]=true;S.sel=null;toast("Not cooking "+DF[DN.indexOf(d)]+", this week only. Usual days are set in Settings. ",true);pulseSync();P.render()}
+function unblockDay(d){if(guard())return;S.just=null;pushUndo();var usual=S.stencil.Sam.indexOf(d)>-1;if(usual)S.ov[okey(d,ME)]=false;else delete S.ov[okey(d,ME)];toast(DF[DN.indexOf(d)]+": cooking this week. ",true);P.render()}
 function addList(i,id){if(guard())return;var c=card(id);pushUndo();if(c&&c["l_"+i])delete c["l_"+i];else if(S.list[i])delete S.list[i];else{if(c)c["l_"+i]=true;else S.list[i]=true}P.render()}
 function addAll(){if(guard())return;pushUndo();var n=0;shopping().forEach(function(x){if(!x.list){S.list[x.name]=true;n++}});toast("Added "+n+" to the shopping list. ",true);pulseSync();P.render()}
 function addMissing(id){var c=card(id);if(!c||guard())return;pushUndo();missing(c).forEach(function(i){S.list[i]=true});toast("Added "+missing(c).length+" for "+esc(lbl(c))+" to the shopping list. ",true);P.render()}
@@ -289,7 +293,21 @@ function setPpl(id,d){var c=card(id);if(!c||guard())return;pushUndo();c.n=Math.m
 function undo(){var j=S.undo.pop();if(!j){toast("Nothing to undo.");P.render();return}restore(j);S.toast=null;if(S.sel&&!card(S.sel))S.sel=null;P.render();say("Undone")}
 function copyLast(){if(guard())return;pushUndo();if(S.copied[S.wk]){S.cards=S.cards.filter(function(c){return !(c.wk===S.wk&&c.fromCopy)});S.copied[S.wk]=false;toast("Cleared what Copy last week added. ",true)}else{var LAST=[["Mon","shak","all",2],["Tue","rice","all",2],["Wed","pasta","Sam",1],["Thu","fritt","all",2],["Fri","soup","all",2]],sk=[];LAST.forEach(function(l){if(isBlocked(l[0],ME)){sk.push(l[0]);return}if(S.cards.some(function(c){return c.wk===S.wk&&c.day===l[0]&&c.r===l[1]&&me(c)}))return;var n=mkCard(S.wk,l[0],l[1],ME,l[2]==="all"?"all":ME,l[3],{fromCopy:true});S.cards.push(n)});S.copied[S.wk]=true;toast("Copied last week."+(sk.length?" Skipped "+sk.join(", ")+" (usual day off). ":" "),true)}pulseSync();P.render()}
 function refresh(){if(offline()){S.sync="syncing";P.render();clearTimeout(SYT);SYT=setTimeout(function(){S.sync="offline";toast("Still offline.");P.render()},900);return}S.sync="syncing";P.render();clearTimeout(SYT);SYT=setTimeout(function(){S.sync="live";S.lastSync="12:42";P.render()},1000);say("Refreshing")}
-function assistant(){S.nudge=false;S.nudgeDone=true;toast("Opening your default AI app. (Mockup: nothing opens.) ");P.render()}
+function assistant(d){S.nudge=false;S.nudgeDone=true;toast("Opening your default AI app"+(d&&DN.indexOf(d)>-1?", for "+DF[DN.indexOf(d)]:"")+". (Mockup: nothing opens.) ");P.render()}
+/* Surprise me (decision 94 heuristics, mock thresholds are Proposals): on-hand if the night is today or tomorrow, or Fri to Sun of this week; otherwise something new; never a meal planned within 7 days. */
+var POOL=["shak","pasta","curry","patty","tuna","stir","soup","rice","fritt"];
+function pickSurprise(d,skip){var i=DN.indexOf(d),date=dt(S.wk,i),soon=(date-TODAYD)<=864e5||(S.wk===CURWK&&i>=4);
+ var recent={};S.cards.forEach(function(c){if(me(c)&&Math.abs(cdate(c)-date)<=7*864e5)recent[c.r]=1});(skip||[]).forEach(function(r){recent[r]=1});
+ var c1=POOL.filter(function(r){return !recent[r]}),hand=c1.filter(function(r){return R[r].ing.every(function(x){return STOCK[x]})});
+ var r=soon?(hand[0]||c1[0]):(c1.filter(function(r){return hand.indexOf(r)<0})[0]||c1[0]);
+ if(!r)r=POOL.filter(function(x){return (skip||[]).indexOf(x)<0})[0]||POOL[0];
+ return{r:r,soon:soon,why:soon?"Cooked from what is on hand.":"Something new, not cooked in the last 7 days."}}
+function surprise(d){if(!d||guard())return;var p=pickSurprise(d);S.just=null;
+ if(P.surpriseMode==="confirm"){S.prop={day:d,r:p.r,why:p.why,seen:[p.r]};P.render();say("Surprise proposal: "+R[p.r].n);return}
+ pushUndo();var n=mkCard(S.wk,d,p.r,ME,"all",2,{surp:true});S.cards.push(n);S.fresh=n.id;toast("Surprise: "+esc(R[p.r].n)+" on "+d+". "+p.why+" ",true);pulseSync();P.render();say("Planned "+R[p.r].n)}
+function propAct(a){var pr=S.prop;if(!pr)return;if(a==="no"){S.prop=null;P.render();return}
+ if(a==="next"){var p=pickSurprise(pr.day,pr.seen);pr.r=p.r;pr.why=p.why;pr.seen.push(p.r);P.render();return}
+ if(guard())return;pushUndo();var n=mkCard(S.wk,pr.day,pr.r,ME,"all",2,{surp:true});S.cards.push(n);S.fresh=n.id;S.prop=null;toast("Planned "+esc(R[pr.r].n)+" on "+pr.day+". ",true);pulseSync();P.render()}
 function canNudge(){return S.view==="mine"&&!weekRo()&&!S.sel&&!S.toast&&!S.nudge&&!S.nudgeDone&&!S.loading&&DN.some(function(d){return !isBlocked(d,ME)&&!S.cards.some(function(c){return c.wk===S.wk&&c.day===d&&me(c)})})&&S.cards.filter(function(c){return c.wk===S.wk}).length===0}
 function armNudge(){clearTimeout(NT);if(canNudge())NT=setTimeout(function(){if(canNudge()){S.nudge=true;S.nudgeDone=true;P.render()}},5000)}
 
@@ -352,9 +370,9 @@ document.addEventListener("click",function(e){var t=e.target,x;
  if(x=t.closest("[data-act]")){var a2=x.dataset.act,id=x.dataset.id;
   if(a2==="hold")holdCard(id||S.sel);else if(a2==="replan")removeCard(id||S.sel,false);else if(a2==="more"){var r=x.getBoundingClientRect();if(S.menu&&S.menu.id===id){S.menu=null;P.render()}else openMenuFor(id,r.left,r.bottom+4,true)}
   else if(a2==="addlist")addList(x.dataset.i,id||S.sel);else if(a2==="addall")addAll();else if(a2==="ppl")setPpl(S.sel,Number(x.dataset.d));
-  else if(a2==="undo")undo();else if(a2==="copy")copyLast();else if(a2==="refresh")refresh();else if(a2==="assistant")assistant();else if(a2==="help"){S.help=true;P.render()}
+  else if(a2==="undo")undo();else if(a2==="copy")copyLast();else if(a2==="refresh")refresh();else if(a2==="assistant")assistant(x.dataset.day||(P.layout.v2&&S.cur?S.cur.day:null));else if(a2==="askai")assistant(x.dataset.day);else if(a2==="addmissing")addMissing(id||S.sel);else if(a2==="notcooking")removeCard(id||S.sel,true);else if(a2==="surprise")surprise(x.dataset.day);else if(a2==="propyes"||a2==="propnext"||a2==="propno")propAct(a2.slice(4));else if(a2==="sumpeek"){S.sumPeek=true;P.render();var sp=q("#panel");if(sp)sp.focus()}else if(a2==="sumback"){S.sumPeek=false;P.render()}else if(a2==="help"){S.help=true;P.render()}
   else if(a2==="settings"){S.settings=true;P.render()}else if(a2==="wkpick"){S.wkpick=!S.wkpick;P.render();if(S.wkpick){var cur=q('.pop .wk[aria-current="true"]');if(cur)cur.focus()}}
-  else if(a2==="sum"){S.sel=null;S.ing=null;S.laneOpen=true;P.render()}else if(a2==="viewrec")toast("Opens the saved recipe. (Mockup: nothing opens.)");
+  else if(a2==="sum"){if(P.layout.v2&&(S.sel||S.ing)&&!(P.layout.three&&P.layout.three())){S.sumPeek=true;P.render()}else if(P.layout.glance&&P.layout.three&&P.layout.three())P.layout.glance();else{S.sel=null;S.ing=null;S.laneOpen=true;P.render()}}else if(a2==="viewrec")toast("Opens the saved recipe. (Mockup: nothing opens.)");
   if(a2!=="more"&&a2!=="wkpick"&&a2!=="help"&&a2!=="settings")return}
  if(x=t.closest("[data-ing]")){S.ing=x.dataset.ing;S.sel=null;S.menu=null;P.render();return}
  if(x=t.closest("[data-card]")){if(x.closest(".sumrow")||true){select(x.dataset.card)}return}
@@ -365,9 +383,10 @@ document.addEventListener("contextmenu",function(e){var x=e.target.closest&&e.ta
  if(x){e.preventDefault();openMenuFor(x.dataset.cw,e.clientX,e.clientY,true)}
  else if(sl&&!weekRo()&&sl.dataset.slot&&!sl.classList.contains("slot")===false){e.preventDefault();S.menu={kind:"day",day:sl.dataset.slot,x:e.clientX,y:e.clientY,focus:true};P.render()}});
 function menuAct(a){var m=S.menu;S.menu=null;if(!m){return}
- if(m.kind==="day"){if(a==="block")blockDay(m.day);else if(a==="assistant")assistant();else P.render();return}
- var id=m.id;if(a==="open"){select(id);var p=q("#panel");if(p)p.focus()}else if(a==="hold")holdCard(id);else if(a==="addmissing")addMissing(id);else if(a==="replan")removeCard(id,false);else if(a==="notcooking")removeCard(id,true);else if(a==="assistant")assistant();else P.render()}
+ if(m.kind==="day"){if(a==="block")blockDay(m.day);else if(a==="assistant")assistant(P.layout.v2?m.day:null);else if(a==="surprise")surprise(m.day);else P.render();return}
+ var id=m.id;if(a==="open"){select(id);var p=q("#panel");if(p)p.focus()}else if(a==="hold")holdCard(id);else if(a==="addmissing")addMissing(id);else if(a==="replan")removeCard(id,false);else if(a==="notcooking")removeCard(id,true);else if(a==="assistant")assistant(P.layout.v2?card(id).day:null);else P.render()}
 function closeTop(){var m=P.mod;if(S.help){S.help=false;P.render();return true}if(S.settings){S.settings=false;P.render();return true}if(S.menu){S.menu=null;P.render();return true}if(S.wkpick){S.wkpick=false;P.render();return true}
+ if(S.sumPeek){S.sumPeek=false;P.render();var pk=q('[data-fk="lane:peek"]');if(pk)pk.focus({preventScroll:true});return true}
  if(S.sel||S.ing||S.laneOpen){var back=S.sel?'card:'+S.sel:null;S.sel=null;S.ing=null;S.laneOpen=false;P.render();if(back){var el=q('[data-fk="'+back+'"]');if(el)el.focus({preventScroll:true})}return true}return false}
 document.addEventListener("keydown",function(e){var t=e.target,k=e.key,typing=t.closest&&t.closest("input,textarea,select,[contenteditable]");
  if(k==="Enter"&&(e.ctrlKey||e.metaKey)){if(closeTop()){e.preventDefault()}return}
@@ -413,7 +432,8 @@ document.addEventListener("keydown",function(e){var t=e.target,k=e.key,typing=t.
  if(k==="2"){setView("all");return}
  if(/^[3-9]$/.test(k)&&S.people[+k-3]){setView(S.people[+k-3]);return}
  if(k==="c"||k==="C"){copyLast();return}
- if(k==="a"||k==="A"){assistant();return}
+ if(k==="a"||k==="A"){assistant(P.layout.v2?(sel?sel.day:S.cur&&S.cur.day):null);return}
+ if((k==="g"||k==="G")&&P.layout.glance){P.layout.glance();return}
  if(k==="r"||k==="R"){refresh();return}
  if(k==="s"||k==="S"){S.settings=true;P.render();return}
  if(k==="m"||k==="M"){var f1=q("#main .mc");if(f1){e.preventDefault();f1.focus();f1.scrollIntoView({block:"nearest"})}return}
@@ -438,7 +458,7 @@ var LOADED={};
 P.vpScript=function(query,src){var m=window.matchMedia(query),go=function(){if(m.matches&&!LOADED[src]){LOADED[src]=1;var s=document.createElement("script");s.src=src;s.onload=function(){P.render()};document.head.appendChild(s)}else P.render()};m.addEventListener("change",go);if(m.matches)go()};
 P.sumLane=function(){return '<aside class="panel p2" id="panel2" aria-label="Week summary">'+P.sumHtml()+'</aside>'};
 /* ---------------- start ---------------- */
-P.S=function(){return S};P.u={dtEnd:function(){return dt(S.wk,6)},leftoverPortions:leftoverPortions,DN:DN,DF:DF,q:q,qa:qa,esc:esc,dstr:dstr,dt:dt,cardW:cardW,dayStack:dayStack,dayHeadTxt:dayHeadTxt,dayCards:dayCards,scopeCards:scopeCards,I:I,R:R,STOCK:STOCK,ings:ings,missing:missing,onhand:onhand,risk:risk,qty:qty,shopping:shopping,risks:risks,status:status,lbl:lbl,meta:meta,ubText:ubText,srcOf:srcOf,pill:pill,avatar:avatar,isBlocked:isBlocked,labelW:labelW,onList:onList,roCard:roCard,weekRo:weekRo,ME:ME,CURWK:CURWK,pastCard:pastCard,cdate:cdate,TODAYD:TODAYD,fmtN:fmtN,select:select,deselect:deselect};
+P.S=function(){return S};P.u={cardById:card,dtEnd:function(){return dt(S.wk,6)},leftoverPortions:leftoverPortions,DN:DN,DF:DF,q:q,qa:qa,esc:esc,dstr:dstr,dt:dt,cardW:cardW,dayStack:dayStack,dayHeadTxt:dayHeadTxt,dayCards:dayCards,scopeCards:scopeCards,I:I,R:R,STOCK:STOCK,ings:ings,missing:missing,onhand:onhand,risk:risk,qty:qty,shopping:shopping,risks:risks,status:status,lbl:lbl,meta:meta,ubText:ubText,srcOf:srcOf,pill:pill,avatar:avatar,isBlocked:isBlocked,labelW:labelW,onList:onList,roCard:roCard,weekRo:weekRo,ME:ME,CURWK:CURWK,pastCard:pastCard,cdate:cdate,TODAYD:TODAYD,fmtN:fmtN,select:select,deselect:deselect,okey:okey,conflicts:conflicts,offline:offline,heldBy:heldBy,DF:DF,MON:MON,iso:iso};
 P.start=function(layout){P.layout=layout;if(Q.get("vp")&&Q.get("embed")!=="1")return;
  var wk=Q.get("week");if(wk){for(var w=WMIN;w<=WMAX;w++)if(iso(dt(w,0))===wk)S.wk=w}
  var v=Q.get("view");if(v==="all"||v==="mine"||S.people.indexOf(v)>-1)S.view=v;

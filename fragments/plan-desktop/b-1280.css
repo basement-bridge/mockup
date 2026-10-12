@@ -1,4 +1,4 @@
-/* Option B, 1280 and up: pane 380. Row cards gain a little air. */
-:root{--lane:380px}
+/* Option B, 1280 and up: lane 380 (detail, or the summary when nothing is picked). Still two columns: the summary tucks behind the meal detail. */
+:root{--lane:380px;--sum:380px}
 .main{padding:24px 32px 48px}
 .arow{padding:12px 0}
