@@ -517,7 +517,7 @@ for (const [w, h, kind] of SIZES) {
     ok(`${tag} the picker batteries use the level colours`, await p.evaluate(() => { const c = l => getComputedStyle(document.querySelector(`#ef-s-level [data-v="${l}"] svg`)).color; const t = document.documentElement; const cols = ["Plenty", "Some", "Running low", "Out"].map(c); return new Set(cols).size === 4; }));
     await p.close();
     {
-      const src = ["flows/household/app.js", "flows/household/styles.css", "fragments/item-edit-flyout/flyout.js", "fragments/item-edit-flyout/flyout.css", "fragments/item-sheet/index.html"].map(f => readFileSync(new URL("../" + f, import.meta.url), "utf8")).join("\n");
+      const src = ["flows/household/app.js", "flows/household/mobile/styles.css", "flows/household/tablet/styles.css", "flows/household/desktop/styles.css", "fragments/item-edit-flyout/flyout.js", "fragments/item-edit-flyout/flyout.css", "fragments/item-sheet/index.html"].map(f => readFileSync(new URL("../" + f, import.meta.url), "utf8")).join("\n");
       ok(`${tag} no level drop is left in the household flow, the flyout or the item-sheet options`, !/levelDrop|class="drop|IEF\.drop|\.drop\.lv|clipPath id="dc/.test(src));
     }
 

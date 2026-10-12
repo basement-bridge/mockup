@@ -102,12 +102,50 @@ Shared in every bucket: spacing scale `--sp-1..--sp-7` (4, 8, 12, 16, 24, 32, 48
 
 - Desktop rail layout (1024px and up): not an exception any more, it is the desktop layout (item 2 above). The household flow below still keeps its phone frame.
 
-- `flows/household/`: this screen is the phone app itself, so it keeps a phone frame instead of a flowing column. Phone: full bleed. Tablet: the app as a centred 390px frame. Desktop sizes (1024px and up) are the desktop screens in `fragments/desktop/`, reached as a mode with the hidden Device control (`fragments/device.js`: move to the top edge or press the backtick key; it lists Phone 390 × 844, Tablet 768 × 1024 and desktop 1024 × 768 up to 2560 × 1440). The prototype Controls panel is hidden at every size and opens from the Device control. Layout code is in the flow's `styles.css`.
+- `flows/household/`: this screen is the phone app itself, so it keeps a phone frame instead of a flowing column. It is split by form factor, see "Household flow by form factor" below. Phone: full bleed. Tablet and mobile at 600px and up: the app as a centred 390px frame (the tablet variant relaxes wider, see below). Desktop sizes (1024px and up) are the desktop screens in `fragments/desktop/`, reached as a mode with the hidden Device control (`fragments/device.js`: move to the top edge or press the backtick key; it lists Phone 390 × 844, Tablet 768 × 1024 and desktop 1024 × 768 up to 2560 × 1440). The prototype Controls panel is hidden at every size and opens from the Device control. Layout code is in each variant's `styles.css`.
 - Fragment pages draw their phone mockups at fixed widths (300 to 390px). That is the content being compared, not the page layout.
+
+### Household flow by form factor (built 9 October 2026)
+
+Owner decision, voice session, 9 October 2026. `flows/household/` was the start-to-finish household flow and was in effect the phone version. It is now explicit, one folder per form factor:
+
+| Folder | Behaviour | Controls panel |
+|---|---|---|
+| `flows/household/mobile/` | The original. Phone: full bleed. 600px and up: the 390px phone frame, centred. | Hidden at every size; opened from the Device control (`fragments/device.js`) |
+| `flows/household/tablet/` | **Only tablet relaxes wider.** 600px and up: a centred column of `--content-max` (720px, 24px gutter; 840px, 32px gutter above 1024px), as tall as the window. Phone widths: full bleed. | Hidden at every size; opened from the Device control |
+| `flows/household/desktop/` | The phone-width (390px) frame stays, centred. Phone widths: full bleed. 600px and up: framed. | Hidden at every size; opened from the Device control |
+
+Kitchie app decision: the phone frame stays on phone and on desktop; only tablet is wider.
+
+- **One shared script.** `flows/household/app.js` (and its deferred `flows/household/fields/*.js`) is referenced by all three `index.html` files. No logic is copied. The script finds its `fields/` folder from its own URL, so it works from any variant folder. A variant tells the script which form factor it is with `data-form="mobile|tablet|desktop"` on `<body>`; the script reads that only for behaviour that genuinely differs (none yet).
+- **Own folder, own `styles.css`.** Each variant has its own `index.html` and `styles.css`. Today `mobile/styles.css` and `desktop/styles.css` match apart from their header comments (same frame, same Controls behaviour) and `tablet/styles.css` differs in the form-factor block at the top. They are copies on purpose: the owner expects each form factor may EVOLVE DIFFERENTLY later. Change a variant's file when only that form factor should change; if a change should apply to all three, make it in all three (or move the rule to a shared file when the three have settled).
+- **Device control.** Each variant page loads `fragments/device.js` (main), so the hidden Device control and its Prototype controls entry work from every variant.
+- **Shared tokens.** All three load `theme.css` for `--content-max`, `--gutter`, spacing and `--tap`, so the buckets above stay the single source for widths.
+- **Old address.** `flows/household/index.html` is a tiny redirect to `mobile/` (query string and hash kept), with links to all three, so older links keep working.
+- **Scope.** The household flow only. A global per-form-factor toggle is a separate, later idea and is not built.
+
+### Desktop pantry: docked search and refresh on tab focus (mock built 9 October 2026)
+
+Owner decision, voice session, 9 October 2026. Mock only (`flows/household/desktop/`), not built in Kitchie. Proposals are marked; the owner has not approved them. Phone and tablet are unchanged: search stays tucked under Filters (`docs/knowledge/pantry-pull-row.md`).
+
+**Search bar.** Above 1024px only, the Pantry top row (56px, unchanged height) has a permanent, always-visible search bar docked on the left, next to the Filters and Add (+) controls: `[ search ] [ Filters ] [ + ]`. It filters the list as you type, exactly as the tucked search does (same query, same fields), and Escape clears it.
+- There is no pull gesture on desktop: the pull-for-search layer is off and a mouse drag at the top of the list does nothing. Below 1024px the desktop page behaves like the others (tucked search, pull).
+- **Proposal:** the visible "16 items" count is dropped on desktop. The 390px frame leaves about 176px for the bar beside Filters (105px) and Add (48px), and the count would squeeze it to nothing. The count stays in the page for screen readers. Wrong guess costs: the person cannot see the item total on desktop; fix is a count inside the bar or above the list.
+- **Proposal:** no microphone button in the docked bar (no room, and a desktop is less likely to want voice). The browser's own clear (x) shows while there is text.
+- With a custom view active (Filters button absent, as on phone) the bar simply takes the space.
+
+**Refresh on tab focus.** When the browser tab regains focus on desktop, the existing mobile refresh animation plays over the search bar (the mock reuses the pull-to-refresh scenes `RF` and styles `.rf`, and the same refresh state, timing and "Up to date" toast; nothing new was drawn).
+- The bar dims and the scene (smaller: 52 x 36px icon, 12px text, up to three lines) plays on top of it for 2400ms (1600ms with reduced motion, icon omitted). Filters and Add stay put and usable; on phone the whole row slides away instead.
+- A query being typed is left alone and returns when the animation ends; typing focus is kept.
+- It runs only on Pantry, never under an open sheet, never while a refresh is already playing.
+- **Proposal:** a real focus or tab-visible event is ignored if the last refresh was under 10 seconds ago, so alt-tabbing back and forth does not flicker. Wrong guess costs: a quick return to the tab shows stale data for up to 10s; tune `FOCUS_GAP_MS` in `app.js`.
+- **To see it in the mock:** open `flows/household/desktop/` in a window wider than 1024px, go to Pantry (Device control > Prototype controls > Jump to > Pantry), then either switch to another tab and come back, or open the Device control > Prototype controls and press Desktop pantry > "Simulate tab focus". The button is only on the desktop page.
+- Where the code is: one shared script, `flows/household/app.js` (`isDesk`, `deskSearchHtml`, `playRefresh`, `tabFocusRefresh`; the refresh scenes already existed for the pull), styles in `flows/household/desktop/styles.css` (end of file). The script reads `<body data-form="desktop">` to render the bar, so mobile and tablet pages contain none of it.
+- Default path and deferred (section 6): no new request, no new file. The bar is part of the Pantry row markup on the desktop page only; the refresh scenes are the same inline SVG as the pull.
 
 ### Screenshot script
 
-`tools/screenshots.mjs`: captures every screen in the list at 360, 390, 768 and 1280, in both themes, full page, and prints checks (sideways scroll, controls under 44px, `.wrap` wider than `--content-max`, theme not applied). Inline text links are exempt from the 44px check. Run:
+`tools/screenshots.mjs`: captures every screen in the list (the household flow as its three variants, `household-mobile`, `household-tablet`, `household-desktop`) at 360, 390, 768 and 1280, in both themes, full page, and prints checks (sideways scroll, controls under 44px, `.wrap` wider than `--content-max`, theme not applied). Inline text links are exempt from the 44px check. Run:
 
     python3 -m http.server 8123 &
     npm i --no-save playwright-core@1.56.0

@@ -1,6 +1,7 @@
 // Reusable screenshot + layout check script (DESIGN.md section 7).
 // Usage:  python3 -m http.server 8123 &   then   node tools/screenshots.mjs [outDir] [--only=substring]
 // Needs playwright-core (npm i --no-save playwright-core@1.56.0) and Chromium at PLAYWRIGHT_BROWSERS_PATH (/opt/pw-browsers).
+// The three household variants (mobile, tablet, desktop) are listed separately; --only=household runs all six household entries.
 // Captures every screen at 360, 390 (phone), 768 (tablet), 1280 (desktop) in kitchie-day (light) and kitchie (dark),
 // and prints automatic checks: sideways scroll, tap targets under 44px, content edge-to-edge on desktop.
 import { chromium } from "playwright-core";
@@ -16,7 +17,15 @@ const SCREENS = [
   ["receipt-scan-b-review", "fragments/receipt-scan/b.html?step=review&pre=half"],
   ["receipt-scan-c-review", "fragments/receipt-scan/c.html?step=review&pre=half"],
   ["receipt-scan-d-review", "fragments/receipt-scan/d.html?step=review&pre=half"],
-  ["household", "flows/household/index.html"],
+  ["household-mobile", "flows/household/mobile/index.html"],
+  ["household-tablet", "flows/household/tablet/index.html"],
+  ["household-desktop", "flows/household/desktop/index.html"],
+  /* third item: a household Controls "Jump to" screen to open before the capture (the flow starts on the invite link) */
+  ["household-mobile-pantry", "flows/household/mobile/index.html", "pantry"],
+  ["household-tablet-pantry", "flows/household/tablet/index.html", "pantry"],
+  ["household-desktop-pantry", "flows/household/desktop/index.html", "pantry"],
+  /* fourth item: a Controls button to press after the jump. Desktop only: "Simulate tab focus" plays the refresh animation over the docked search bar (above 1024px; below it the button says so). */
+  ["household-desktop-pantry-refresh", "flows/household/desktop/index.html", "pantry", "tabfocus"],
   ["inventory-home", "fragments/inventory-home/index.html"],
   ["item-row-axes", "fragments/item-row-axes/index.html"],
   ["desktop", "fragments/desktop/index.html"],
@@ -146,13 +155,15 @@ const THEMES = [["kitchie-day", "light"], ["kitchie", "dark"]];
 const browser = await chromium.launch();
 mkdirSync(out, { recursive: true });
 const problems = [];
-for (const [name, path] of SCREENS) {
+for (const [name, path, jump, press] of SCREENS) {
   for (const [w, h, bucket] of WIDTHS) {
     for (const [theme, mode] of THEMES) {
       const ctx = await browser.newContext({ viewport: { width: w, height: h }, colorScheme: mode });
       await ctx.addInitScript(t => { try { localStorage.setItem("theme", t); } catch (e) {} }, theme);
       const page = await ctx.newPage();
       await page.goto(BASE + path, { waitUntil: "networkidle" });
+      if (jump) await page.evaluate(j => document.querySelector(`[data-act=jump][data-p=${j}]`).click(), jump);
+      if (press) { await page.evaluate(a => document.querySelector(`[data-act=${a}]`).click(), press); await page.waitForTimeout(600); }
       await page.waitForTimeout(250);
       const r = await page.evaluate(([w]) => {
         const de = document.documentElement;

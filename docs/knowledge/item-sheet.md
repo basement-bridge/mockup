@@ -10,7 +10,7 @@ Follow-up (11 Oct 2026, owner's voice, confirmed; item-edit-flyout decisions 94 
 
 Follow-up (12 Oct 2026, owner, typed; item-edit-flyout decisions 102 to 107): the item sheet keeps Used up and Add to shopping exactly as above, and while the level is Running low or Out it also shows a "How much to buy" control above them (a stepper in the item's unit for a weighed or counted quantity, the own-words box otherwise; the Shopping list group is removed from Edit). The sheet header's emoji is a tappable tile that opens the Edit picker. See [jobs-to-be-done/item-edit-flyout.md](jobs-to-be-done/item-edit-flyout.md).
 
-Code: `flows/household/app.js` (`itemSheetHtml`, `acts.isheet`, `acts.itile`, `acts.sheetused`, `acts.sheetshop`, `acts.lvl`), `flows/household/styles.css` (`.sheet.half`, `.tiles3`, `.tl`). Options she chose from: `fragments/item-sheet/`.
+Code: `flows/household/app.js` (`itemSheetHtml`, `acts.isheet`, `acts.itile`, `acts.sheetused`, `acts.sheetshop`, `acts.lvl`), `flows/household/{mobile,tablet,desktop}/styles.css` (`.sheet.half`, `.tiles3`, `.tl`). Options she chose from: `fragments/item-sheet/`.
 
 ## What the owner asked for
 
@@ -43,7 +43,7 @@ The minus on the Amount stepper is the left swipe: one off with an Undo toast, a
 | Running low | about a quarter | `--danger` (red) |
 | Out | empty outline | `--out` (new, see Proposals) |
 
-No level word is drawn anywhere in the sheet. Each level's name is screen-reader text only (`.sr-only`, now in `shared.css` and `flows/household/styles.css`). A counted item keeps its quantity ("2 bag") visible beside the drop. A level-only item shows the drop alone.
+No level word is drawn anywhere in the sheet. Each level's name is screen-reader text only (`.sr-only`, now in `shared.css` and `flows/household/{mobile,tablet,desktop}/styles.css`). A counted item keeps its quantity ("2 bag") visible beside the drop. A level-only item shows the drop alone.
 
 A tile with data is filled (tinted surface, accent border) and shows its value with a small label. A tile with no data (no use-by, no category) is empty: dashed outline, a plus and a quiet prompt ("Add use-by"). Tapping it opens the editor, which is how it gets filled. "All fields" is a plain tile (it is an action, not data).
 
