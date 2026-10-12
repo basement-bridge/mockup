@@ -3,17 +3,17 @@
    ?demo=1&frame=3    one frame, still (cap=0 hides the caption bar, used for the screenshots)
    Frames: 1 week plan, 2 tap a day: the day docks top and the sheet docks bottom, 3 tap another day in the ribbon: the contents of the stack swap, the slot stays (115),
            4 start dragging the tile and it tears off, a ragged edge on the tile and on the piece left behind (118), 5 dragged to a day, torn all the way, 6 let go on a day,
-           7 alternative: close the stack and the week returns. It drives the same code a finger does (beginDrag, moveHand, endHand, closeDetail). */
+           7 alternative: close the stack, the ribbon goes and the week returns. It drives the same code a finger does (beginDrag, moveHand, endHand, closeDetail). */
 (function () {
   var A = window.__plan, q = new URLSearchParams(location.search), N = 7, cur = 1, timer = null, playing = true;
   var CAP = [
-    ['Week plan', 'Wed 14 has a meal. Tap it.'],
-    ['Tap a day with a meal', 'The day docks at the top, directly under the ribbon. The detail docks at the bottom. One stack, no gap, no overlay; the other days are out of it.'],
+    ['Week plan, no ribbon', 'The week view has no day ribbon (136): a slim header, then the agenda across three weeks. Wed 14 has a meal. Tap it.'],
+    ['Tap a day with a meal', 'The ribbon fades in, docked under the header, only now (136). The day docks directly under it and the detail at the bottom. One stack, no gap, no overlay; the stack does not move when the ribbon appears.'],
     ['Tap another day in the ribbon', 'The ribbon stays docked and scrollable. The stack does not close and does not move: only what is in it swaps to Thu 15 (or to an open night, Not cooking or a past day).'],
     ['Start dragging: it tears', 'The tile comes off with a ragged, torn-paper edge, and the piece left behind has the matching edge. The tile fades and tilts as before. Reduced motion: the edge is there at once, no growth.'],
     ['Dragged to a day', 'The week plan is back under the finger, the tile in hand. Every day is a drop target, even a hidden Not cooking day (Sat).'],
     ['Let go on a day', 'Sat was Not cooking, so it is a cooking day now. Wed is an open night. The day says what happened, and Undo is on the day.'],
-    ['Or close instead', 'Close the stack (x, Esc, handle down, swipe down) and the week plan returns, scrolled to Wed.']
+    ['Or close instead', 'Close the stack (x, Esc, handle down, swipe down) and the ribbon fades out; the week plan returns, scrolled to Wed.']
   ];
   function rect(sel) { var e = document.querySelector(sel); return e ? e.getBoundingClientRect() : null; }
   function build(n) {

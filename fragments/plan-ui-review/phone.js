@@ -1,14 +1,15 @@
-/* Plan UI review, phone (390 and 360). 13 Oct 2026 batch 2 (decisions 120 to 133): plain red or green status, one combined ingredient list, Hold and Add at the bottom, total time, quiet open nights, first-run wiggle, auto-expiring undo, Open recipe.
+/* Plan UI review, phone (390 and 360). 13 Oct 2026, later: the day ribbon shows ONLY while a detail is open (decision 136, owner-stated); ?rb=always restores the old always-on ribbon (superseded, for comparison).
+   13 Oct 2026 batch 2 (decisions 120 to 133): plain red or green status, one combined ingredient list, Hold and Add at the bottom, total time, quiet open nights, first-run wiggle, auto-expiring undo, Open recipe.
    Batch 1: UAT day-row grid (.pw-day, .pw-dn, .pw-stack, verified against Kitchie uat), ribbon taps swap the docked stack, lift, tear. Day ribbon revision, 12 Oct 2026 (owner-stated decisions 85 to 119, see docs/knowledge/jobs-to-be-done/plan-ui-review.md).
    Swipes are pointer events, so a mouse drags exactly like a finger. Keyboard: focus a card, X replan, Shift X not cooking, H hold, E or Enter open, Z undo.
    Same service methods as the chat tools (plan_view, plan_update_meal, plan_remove_meal, plan_block_day, plan_reserve, plan_add_missing_to_list, plan_move_meal, plan_copy_last_week).
    Sample data is in data.js; status markup is in status.js. Nothing here is built in Kitchie. */
 (function () {
-  var P = window.PUR, ic = P.icons, q = new URLSearchParams(location.search), RIB = P.RIB, DI = RIB.map(function (r) { return r.id; });
+  var P = window.PUR, ic = P.icons, REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches), q = new URLSearchParams(location.search), RIB = P.RIB, DI = RIB.map(function (r) { return r.id; });
   function pick(k, ok, d) { var v = q.get(k); return ok.indexOf(v) > -1 ? v : d; }
   var S = {
     lay: pick('lay', ['rib', 'focus'], 'rib'), hd: pick('hd', ['shrink', 'fixed'], 'shrink'), f: pick('f', ['drop', 'seg', 'strip'], 'drop'), pc: pick('pc', ['step', 'drop'], 'step'),
-    nc: pick('nc', ['hide', 'show'], 'hide'), u: pick('u', ['day', 'flip', 'banner', 'pill'], 'day'), dt: pick('dt', ['stack', 'peek', 'strip', 'hide', 'sheet'], 'stack'), cw: pick('cw', ['menu', 'pair'], 'menu'), cl: pick('cl', ['meals', 'all'], 'meals'), long: pick('long', ['0', '1'], '0'), st: pick('st', ['plain', 'labels', 'badge', 'edge', 'progress'], 'plain'), gr: pick('gr', ['list', 'hand'], 'list'), hdl: pick('hdl', ['none', 'light'], 'none'), jig: pick('jig', ['1', '0', 'reset'], ''), ba: pick('ba', ['bar', 'list', 'both'], 'bar'),
+    nc: pick('nc', ['hide', 'show'], 'hide'), u: pick('u', ['day', 'flip', 'banner', 'pill'], 'day'), dt: pick('dt', ['stack', 'peek', 'strip', 'hide', 'sheet'], 'stack'), cw: pick('cw', ['menu', 'pair'], 'menu'), cl: pick('cl', ['meals', 'all'], 'meals'), long: pick('long', ['0', '1'], '0'), st: pick('st', ['plain', 'labels', 'badge', 'edge', 'progress'], 'plain'), gr: pick('gr', ['list', 'hand'], 'list'), hdl: pick('hdl', ['none', 'light'], 'none'), jig: pick('jig', ['1', '0', 'reset'], ''), ba: pick('ba', ['bar', 'list', 'both'], 'bar'), rb: pick('rb', ['detail', 'always'], 'detail'),
     cu: pick('cu', ['start', 'idle', 'off'], 'start'), sw: pick('sw', ['tint', 'buttons'], 'tint'),
     today: 'd13', cur: P.did(q.get('day'), 'd13'), view: q.get('who') || 'mine', hl: null, sel: q.get('sel'), snap: q.get('snap') === 'full' ? 'full' : 'half', expand: q.get('expand') === '1',
     dday: q.get('dock') || null, pop: null, opts: false, ustk: [], wkm: false, pickMove: false, note: null, carry: null, pickd: null, revealed: null, cuShown: false, cuDone: {}, cmp: false,
@@ -31,6 +32,11 @@
   function weekOf(d) { return info(d).wk; }
   function monN(d) { return info(info(d).mon).n; }
   function hidden(d) { return S.nc === 'hide' && S.blocked[d] && !S.carry && d !== S.cur && d !== S.revealed; }
+  /* Plan UI review 136 (owner-stated, 13 Oct 2026: "Horizontal date slide only during the detail view"). The day ribbon exists only while a docked detail is open (the stack, the dock variants), where it swaps the day.
+     In the plain week view it is gone; the agenda scrolls across the three weeks itself. ?rb=always brings the old always-on ribbon back for comparison (superseded). The two-stop sheet is an overlay on the week, so it has no ribbon;
+     the one-day-at-a-time layout (?lay=focus) keeps it because there it is the only day picker. */
+  function detailOpen() { return !!((S.sel && S.dt !== 'sheet' && find(S.sel)) || S.dday); }
+  function ribOn() { return S.rb === 'always' || S.lay === 'focus' || detailOpen(); }
   function isOpen(d) { return !on(d).length && !S.blocked[d]; }
   /* Plan UI review 121, 122 (owner: "green means it's been dealt with"). One rule for the tile, the ribbon dots, the gutter and the red names in the list.
      gr=list (recommended): a missing item is dealt with once it is on the shopping list. gr=hand: green only when everything is on hand. x[2] = on the list. */
@@ -207,7 +213,7 @@
     if (n && S.u === 'banner') ex += '<div class="ubn" role="status"><span>' + n.msg + '</span>' + (n.undo ? '<button data-undo>' + ic.undo + ' Undo</button>' : '') + '</div>';
     if (n && S.u === 'pill') ex += '<div class="upill" role="status"><span>' + n.msg + '</span>' + (n.undo ? '<button data-undo>' + ic.undo + ' Undo</button>' : '') + '</div>';
     if (ro()) ex += '<div class="rol">' + ic.people + ' ' + vlab(S.view) + "'s plan: view only. You can look, not change it.</div>";
-    return '<div class="stk' + (S.cmp && S.hd === 'shrink' ? ' cmp' : '') + '" id="stk">' + t + segRow() + ribbon() + ex + '<div class="cslot' + (S.cuShown ? ' in' : '') + '" id="cslot">' + (S.cuShown ? '<button class="curtain" data-curtain>' + ic.spark + ' Ask AI to plan this</button>' : '') + '</div></div><div class="stkp" id="stkp"></div>';
+    return '<div class="stk' + (S.cmp && S.hd === 'shrink' && ribOn() ? ' cmp' : '') + '" id="stk">' + t + segRow() + (ribOn() ? ribbon() : '') + ex + '<div class="cslot' + (S.cuShown ? ' in' : '') + '" id="cslot">' + (S.cuShown ? '<button class="curtain" data-curtain>' + ic.spark + ' Ask AI to plan this</button>' : '') + '</div></div><div class="stkp" id="stkp"></div>';
   }
   function popHtml() {
     if (!S.pop) return '';
@@ -238,7 +244,7 @@
     var g = function (k, lab, vals) { return '<fieldset><legend>' + lab + '</legend>' + vals.map(function (v) { return '<label><input type="radio" name="' + k + '" value="' + v[0] + '"' + (S[k] === v[0] ? ' checked' : '') + '> ' + v[1] + '</label>'; }).join('') + '</fieldset>'; };
     if (!(window.top === window || q.get('opts') === '1')) return '';
     return '<button class="optfab" data-opts aria-expanded="' + S.opts + '">Mockup options</button>' + (S.opts ? '<div class="optpanel" role="dialog" aria-label="Mockup options"><p class="onote">Mockup-only switch. It is not part of the app.</p>' +
-      g('lay', 'Layout', [['rib', 'Day ribbon + agenda (recommended)'], ['focus', 'One day at a time']]) + g('hd', 'Header (decision 91)', [['shrink', 'Shrinks on scroll (recommended)'], ['fixed', 'Fixed']]) + g('f', 'Who filter (97)', [['drop', 'One dropdown (recommended)'], ['seg', 'Mine / Everyone + People dropdown'], ['strip', 'Old chips behind a chevron']]) +
+      g('rb', 'Day ribbon (136, owner 13 Oct)', [['detail', 'Only while a detail is open (recommended)'], ['always', 'Always on, week view too (superseded 13 Oct, for comparison)']]) + g('lay', 'Layout', [['rib', 'Agenda across three weeks (recommended)'], ['focus', 'One day at a time (keeps the ribbon)']]) + g('hd', 'Header while a detail is open (91, revised by 136)', [['shrink', 'Compact (recommended)'], ['fixed', 'Full size']]) + g('f', 'Who filter (97)', [['drop', 'One dropdown (recommended)'], ['seg', 'Mine / Everyone + People dropdown'], ['strip', 'Old chips behind a chevron']]) +
       g('pc', 'Number of people in the detail (98)', [['step', 'Stepper − 4 +'], ['drop', 'Dropdown']]) + g('nc', 'Not cooking days (93)', [['hide', 'Hidden, peek at the edge (recommended)'], ['show', 'Always shown']]) + g('u', 'Undo on a phone (101)', [['day', 'On the changed day (recommended)'], ['flip', 'Copy button flips to Undo'], ['banner', 'Banner under the ribbon'], ['pill', 'Pill under the ribbon']]) +
       g('dt', 'Meal detail (103, 107)', [['stack', 'Day on top, detail at the bottom, one locked stack (recommended)'], ['peek', 'Docked, neighbours peek'], ['strip', 'Docked, other days as one line each'], ['hide', 'Docked, other days hidden'], ['sheet', 'Two-stop bottom sheet (comparison)']]) + g('st', 'Status (121, supersedes 104)', [['plain', 'Plain red or green, no count (owner, 13 Oct)'], ['labels', 'a Labelled chips: rejected'], ['badge', 'b Icon + count: rejected'], ['edge', 'c Edge strip + dot: rejected'], ['progress', 'd Progress: rejected']]) + g('gr', 'Green means (122, open)', [['list', 'Dealt with: every missing item is on the list (recommended)'], ['hand', 'Everything is on hand']]) + g('hdl', 'Grey bar on the tab (128)', [['none', 'Removed (recommended)'], ['light', 'Much lighter']]) + g('jig', 'Wiggle hint (129)', [['', 'First 3 opens, 7 days, stops after a drag'], ['1', 'Always, for review'], ['0', 'Off'], ['reset', 'Reset the stored count']]) +
       g('cu', 'Ask AI to plan this curtain (96)', [['start', 'At the start of an empty week (default)'], ['idle', 'Idle, whole week empty'], ['off', 'Off']]) + g('sw', 'Swipe', [['tint', 'Tinted reveal, commits'], ['buttons', 'Buttons stay open']]) + g('cw', 'Clear week placement (109)', [['menu', 'Week actions menu, split Undo (recommended)'], ['pair', 'Two icon buttons next to each other']]) + g('cl', 'Clear week also clears (109, open)', [['meals', 'Meals only, Not cooking stays (recommended)'], ['all', 'Meals and this-week Not cooking marks']]) + g('ba', 'Bulk Hold and Add (134, open)', [['bar', 'Bottom bar only: Hold N, cart Add N (current)'], ['list', 'In the list only: Add all on the missing group, Hold all on the on-hand group'], ['both', 'Both']]) + g('long', 'Long ingredient list (107 demo)', [['0', 'Normal'], ['1', 'Long: 21 lines, the sheet scrolls']]) + '</div>' : '');
@@ -253,10 +259,13 @@
     return agenda();
   }
   function render(keep) {
-    var sy = window.scrollY, rb = document.getElementById('rib'), rl = rb ? rb.scrollLeft : null;
+    var sy = window.scrollY, rb = document.getElementById('rib'), rl = rb ? rb.scrollLeft : null, gh = null;
+    /* 136: the ribbon comes and goes with the detail. It fades in (and a copy of it fades out) over 0.2 s; the stack's slot is placed for the final header height at once, so nothing under it moves. Reduced motion: none. */
+    if (rb && !REDUCE) { var gr = rb.getBoundingClientRect(); gh = rb.cloneNode(true); gh.removeAttribute('id'); gh.querySelectorAll('[id]').forEach(function (n) { n.removeAttribute('id'); }); gh.classList.add('rib-ghost'); gh.setAttribute('aria-hidden', 'true'); gh.style.cssText = 'top:' + gr.top + 'px;left:' + gr.left + 'px;width:' + gr.width + 'px'; gh.scrollLeft = rl; }
     root.innerHTML = '<div class="app' + (S.carry ? ' carrying' : '') + (S.carry && S.carry.drag ? ' dragging' : '') + '">' + header() + '<main id="plan" class="pw">' + body() + '</main></div>' + carryBar() + '<div class="peek t" id="peekT" hidden></div><div class="peek b" id="peekB" hidden></div>' + nav() + '<div class="scrim' + (S.sel && S.dt === 'sheet' ? ' on' : '') + '" data-close></div>' + sheetHtml() + '<div id="aw">' + popHtml() + wkMenu() + actionSheet() + '</div>' + optionsPanel();
     sizeStk(); if (keep !== false) window.scrollTo(0, sy);
-    var rb2 = document.getElementById('rib'); if (rb2 && rl !== null) rb2.scrollLeft = rl; placeMk(true);
+    var rb2 = document.getElementById('rib'); if (rb2 && rl !== null) rb2.scrollLeft = rl; if (rb2 && !rb && !REDUCE) rb2.classList.add('rib-in'); placeMk(true);
+    if (gh && !rb2) { document.body.appendChild(gh); gh.scrollLeft = rl; setTimeout(function () { gh.remove(); }, 230); }
     var sh = document.getElementById('sheet'); if (sh && S.sel && S.dt === 'sheet') requestAnimationFrame(function () { setSnap(S.snap); });
     syncPeek();
   }
@@ -355,8 +364,8 @@
     var el = document.getElementById('d-' + d); if (!el) { render(false); el = document.getElementById('d-' + d); } if (!el) return;
     if (S.lay === 'focus') { render(false); window.scrollTo(0, 0); return; }
     if (el.classList.contains('hid')) el.classList.remove('hid');
-    var y = el.getBoundingClientRect().top + window.scrollY, cmpH = 64, full = document.getElementById('stkp').offsetHeight, go = S.hd === 'shrink' && y - full > 40 && !(S.note && S.u === 'flip' && S.note.undo);
-    S.cmp = go; document.getElementById('stk').classList.toggle('cmp', go); lockUntil = Date.now() + 800;
+    var y = el.getBoundingClientRect().top + window.scrollY, cmpH = 64, full = document.getElementById('stkp').offsetHeight, go = S.hd === 'shrink' && ribOn() && y - full > 40 && !(S.note && S.u === 'flip' && S.note.undo);
+    S.cmp = go; document.getElementById('stk').classList.toggle('cmp', go && ribOn()); lockUntil = Date.now() + 800;
     window.scrollTo({ top: Math.max(0, y - (go ? stkH() : full) - 6), behavior: 'smooth' }); syncHead(); setTimeout(function () { follow(true); }, 850);
   }
   /* Decision 115: with the stack open a tap on the ribbon keeps the slot where it is and swaps only what is in it: that day's first meal and its detail, or its open-night, Not cooking or past state. */
@@ -377,7 +386,7 @@
   var tick = 0, lastY = 0;
   function follow(force) {
     tick = 0; var y = window.scrollY;
-    if (S.hd === 'shrink' && !((S.sel || S.dday) && S.dt === 'stack') && !(S.carry && S.carry.drag)) { var s = document.getElementById('stk'); if (s) { if (y > 70 && y > lastY + 4 && !S.cmp && !(S.note && S.u === 'flip')) { S.cmp = true; s.classList.add('cmp'); } else if ((y < lastY - 6 || y < 30) && S.cmp) { S.cmp = false; s.classList.remove('cmp'); } } } lastY = y;
+    if (S.hd === 'shrink' && ribOn() && !((S.sel || S.dday) && S.dt === 'stack') && !(S.carry && S.carry.drag)) { var s = document.getElementById('stk'); if (s) { if (y > 70 && y > lastY + 4 && !S.cmp && !(S.note && S.u === 'flip')) { S.cmp = true; s.classList.add('cmp'); } else if ((y < lastY - 6 || y < 30) && S.cmp) { S.cmp = false; s.classList.remove('cmp'); } } } lastY = y;
     if (S.lay !== 'rib' || (S.sel || S.dday) && S.dt !== 'sheet') return syncPeek();
     if (!force && Date.now() < lockUntil) return syncPeek();
     var lim = stkH() + 24, cur = DI[0], secs = document.querySelectorAll('.pw-day');
@@ -462,7 +471,7 @@
   /* Decision 118: the tear. Where the tile leaves the stack its edge is ragged like torn paper; the piece left behind (the dashed place-holder in the week) has the matching ragged edge.
      Cheap: no assets, one clip-path polygon per edge built once from a fixed row of tooth depths; --tz (0 to 1, grows over the first 36 px of the drag) scales the teeth.
      The torn edge is the one that faces where the tile came from (drag down: the tile's top edge, the place-holder's bottom edge). prefers-reduced-motion: full teeth at once, no growth. */
-  var tear = null, TD = [2.5, 5.5, 2, 7, 4, 6.5, 1.5, 5, 7, 3, 5.5, 2, 4, 7, 3.5, 5.5, 1.5, 6.5, 4, 7, 3, 5], REDUCE = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var tear = null, TD = [2.5, 5.5, 2, 7, 4, 6.5, 1.5, 5, 7, 3, 5.5, 2, 4, 7, 3.5, 5.5, 1.5, 6.5, 4, 7, 3, 5];
   function tearPts(edge, k, n) {
     var pts = [], i, t, v, vr;
     for (i = 0; i < n; i++) { t = (i / (n - 1) * 100).toFixed(1) + '%'; v = 'calc(var(--tz,1)*' + (TD[i % TD.length] * k).toFixed(1) + 'px)'; vr = 'calc(100% - var(--tz,1)*' + (TD[(i * 3 + 1) % TD.length] * k).toFixed(1) + 'px)';
