@@ -14,6 +14,8 @@ window.PUR = (function () {
     right: I('<path d="M9 5l7 7-7 7"/>'),
     down: I('<path d="M5 9l7 7 7-7"/>'),
     up: I('<path d="M5 15l7-7 7 7"/>'),
+    book: I('<path d="M5 4h10a4 4 0 0 1 4 4v12H9a4 4 0 0 1-4-4V4z"/><path d="M5 16a4 4 0 0 1 4-4h10"/>'),
+    bang: I('<path d="M12 6v7M12 17.5v.01"/>'),
     check: I('<path d="M5 12l5 5 9-10"/>'),
     spark: I('<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3z"/>'),
     copy: I('<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/>'),
@@ -44,31 +46,33 @@ window.PUR = (function () {
   var REL = { '-1': 'Last week', '0': 'This week', '1': 'Next week' };
   /* who: 'all' or list of ids. miss: missing items. have: on hand. useby: items with a use-by. list: on the shopping list. held: ingredient held. */
   var meals = [
-    { id: 'mon-shak', day: 'd12', em: '🍳', t: 'Shakshuka', who: 'all', n: 4, src: 'saved', miss: [['feta', '200 g']], have: [['eggs', '8'], ['tinned tomatoes', '2 tins'], ['onion', '2']], useby: [], list: 1, held: 1, note: 'Quick night: 25 min' },
-    { id: 'tue-pasta', day: 'd13', em: '🍝', t: 'Mushroom pasta', who: 'all', n: 4, src: 'saved', miss: [], have: [['pasta', '500 g'], ['mushrooms', '400 g'], ['cream', '1 tub']], useby: [['mushrooms', 'Wed 14']], list: 0, held: 0, note: 'Uses the mushrooms before they turn' },
-    { id: 'wed-curry', day: 'd14', em: '🍛', t: 'Japanese golden curry', who: 'all', n: 4, src: 'made', miss: [['curry roux', '1 block'], ['jasmine rice', '2 cups']], have: [['chicken thighs', '600 g'], ['veg bag', '1 bag'], ['onion', '2'], ['potatoes', '4'], ['carrots', '3']], useby: [['chicken thighs', 'Tue 13']], list: 1, held: 0, note: 'Cooks double: Friday leftovers', makes: 'fri-left' },
-    { id: 'thu-salmon', day: 'd15', em: '🐟', t: 'Salmon patties', who: 'all', n: 4, src: 'saved', miss: [['dill', '1 bunch'], ['lemon', '2']], have: [['salmon', '2 tins'], ['eggs', '2'], ['breadcrumbs', '1 cup']], useby: [['salmon', 'Thu 15']], list: 0, held: 0, note: '' },
-    { id: 'thu-tuna', day: 'd15', em: '🥗', t: 'Tuna salad', who: ['sam'], n: 1, src: 'saved', miss: [['lemon', '1']], have: [['tuna', '1 tin'], ['lettuce', '1']], useby: [], list: 0, held: 0, note: '' },
-    { id: 'fri-left', day: 'd16', em: '♻️', t: 'Leftover chicken curry', who: ['sam'], n: 1, src: 'saved', miss: [], have: [['curry, from Wednesday', '1 serve']], useby: [], list: 0, held: 0, note: 'Reheat; no shopping', left: 'Wed 14', usual: 1 },
+    { id: 'mon-shak', mins: 25, rid: 'sha', day: 'd12', em: '🍳', t: 'Shakshuka', who: 'all', n: 4, src: 'saved', miss: [['feta', '200 g', 1]], have: [['eggs', '8'], ['tinned tomatoes', '2 tins'], ['onion', '2']], useby: [], list: 1, held: 1, note: 'A quick night' },
+    { id: 'tue-pasta', mins: 30, rid: 'pas', day: 'd13', em: '🍝', t: 'Mushroom pasta', who: 'all', n: 4, src: 'saved', miss: [], have: [['pasta', '500 g'], ['mushrooms', '400 g'], ['cream', '1 tub']], useby: [['mushrooms', 'Wed 14']], list: 0, held: 0, note: 'Uses the mushrooms before they turn' },
+    { id: 'wed-curry', mins: 45, day: 'd14', em: '🍛', t: 'Japanese golden curry', who: 'all', n: 4, src: 'made', miss: [['curry roux', '1 block', 1], ['jasmine rice', '2 cups']], have: [['chicken thighs', '600 g'], ['veg bag', '1 bag'], ['onion', '2'], ['potatoes', '4'], ['carrots', '3']], useby: [['chicken thighs', 'Tue 13']], list: 1, held: 0, note: 'Cooks double: Friday leftovers', makes: 'fri-left' },
+    { id: 'thu-salmon', mins: 25, day: 'd15', em: '🐟', t: 'Salmon patties', who: 'all', n: 4, src: 'saved', miss: [['dill', '1 bunch'], ['lemon', '2']], have: [['salmon', '2 tins'], ['eggs', '2'], ['breadcrumbs', '1 cup']], useby: [['salmon', 'Thu 15']], list: 0, held: 0, note: '' },
+    { id: 'thu-tuna', mins: 10, day: 'd15', em: '🥗', t: 'Tuna salad', who: ['sam'], n: 1, src: 'saved', miss: [['lemon', '1']], have: [['tuna', '1 tin'], ['lettuce', '1']], useby: [], list: 0, held: 0, note: '' },
+    { id: 'fri-left', mins: 5, day: 'd16', em: '♻️', t: 'Leftover chicken curry', who: ['sam'], n: 1, src: 'saved', miss: [], have: [['curry, from Wednesday', '1 serve']], useby: [], list: 0, held: 0, note: 'Reheat; no shopping', left: 'Wed 14', usual: 1 },
     /* last week: past, read-only. Sources for "Copy last week" and for swipe right = copy forward. */
-    { id: 'l-mon', day: 'd05', em: '🍚', t: 'Egg fried rice', who: 'all', n: 4, src: 'saved', miss: [], have: [['rice', '3 cups'], ['eggs', '4'], ['peas', '1 bag']], useby: [], list: 0, held: 0, note: '' },
-    { id: 'l-tue', day: 'd06', em: '🌮', t: 'Taco night', who: 'all', n: 4, src: 'saved', miss: [], have: [['tortillas', '8'], ['mince', '500 g'], ['salsa', '1 jar']], useby: [], list: 0, held: 0, note: '' },
-    { id: 'l-wed', day: 'd07', em: '🍗', t: 'Roast chicken', who: 'all', n: 4, src: 'saved', miss: [], have: [['chicken', '1.6 kg'], ['potatoes', '6'], ['carrots', '4']], useby: [], list: 0, held: 0, note: '' },
-    { id: 'l-thu', day: 'd08', em: '🍳', t: 'Mushroom omelette', who: ['sam'], n: 1, src: 'saved', miss: [], have: [['eggs', '3'], ['mushrooms', '100 g']], useby: [], list: 0, held: 0, note: '' },
-    { id: 'l-thu2', day: 'd08', em: '🍜', t: 'Pad see ew', who: ['jane'], n: 1, src: 'saved', miss: [], have: [['noodles', '1 pack']], useby: [], list: 0, held: 0, note: '' },
-    { id: 'l-fri', day: 'd09', em: '🐟', t: 'Fish and chips', who: 'all', n: 4, src: 'saved', miss: [], have: [['fish', '4'], ['potatoes', '6']], useby: [], list: 0, held: 0, note: '' },
-    { id: 'l-sun', day: 'd11', em: '🥘', t: 'Roast veg and halloumi', who: 'all', n: 4, src: 'saved', miss: [], have: [['halloumi', '2 blocks'], ['veg bag', '1 bag']], useby: [], list: 0, held: 0, note: '' }
+    { id: 'l-mon', mins: 20, rid: 'efr', day: 'd05', em: '🍚', t: 'Egg fried rice', who: 'all', n: 4, src: 'saved', miss: [], have: [['rice', '3 cups'], ['eggs', '4'], ['peas', '1 bag']], useby: [], list: 0, held: 0, note: '' },
+    { id: 'l-tue', mins: 30, day: 'd06', em: '🌮', t: 'Taco night', who: 'all', n: 4, src: 'saved', miss: [], have: [['tortillas', '8'], ['mince', '500 g'], ['salsa', '1 jar']], useby: [], list: 0, held: 0, note: '' },
+    { id: 'l-wed', mins: 90, day: 'd07', em: '🍗', t: 'Roast chicken', who: 'all', n: 4, src: 'saved', miss: [], have: [['chicken', '1.6 kg'], ['potatoes', '6'], ['carrots', '4']], useby: [], list: 0, held: 0, note: '' },
+    { id: 'l-thu', mins: 10, day: 'd08', em: '🍳', t: 'Mushroom omelette', who: ['sam'], n: 1, src: 'saved', miss: [], have: [['eggs', '3'], ['mushrooms', '100 g']], useby: [], list: 0, held: 0, note: '' },
+    { id: 'l-thu2', mins: 15, day: 'd08', em: '🍜', t: 'Pad see ew', who: ['jane'], n: 1, src: 'saved', miss: [], have: [['noodles', '1 pack']], useby: [], list: 0, held: 0, note: '' },
+    { id: 'l-fri', mins: 40, day: 'd09', em: '🐟', t: 'Fish and chips', who: 'all', n: 4, src: 'saved', miss: [], have: [['fish', '4'], ['potatoes', '6']], useby: [], list: 0, held: 0, note: '' },
+    { id: 'l-sun', mins: 35, day: 'd11', em: '🥘', t: 'Roast veg and halloumi', who: 'all', n: 4, src: 'saved', miss: [], have: [['halloumi', '2 blocks'], ['veg bag', '1 bag']], useby: [], list: 0, held: 0, note: '' }
   ];
   /* Not cooking days. d10 last Sat (past), d17 this Sat, d22 and d25 next week (the usual days off). */
   var blocked = { d10: 'once', d17: 'once', d22: 'once', d25: 'usual' };
   var tips = { d14: 'Wednesday is the big cook: leftovers for Friday' };
   /* Surprise me (decision 94, owner-confirmed heuristics): candidates by kind. 'new' may need shopping (room to shop) and may use the shopping list; 'stock' is on hand. */
   var SUR = [
-    { id: 's1', kind: 'new', em: '🍋', t: 'Lemon chicken orzo', miss: [['orzo', '500 g']], have: [['chicken thighs', '600 g'], ['lemon', '2 (on your list)']], useby: [], list: 1, why: 'New to the plan, and the lemons are already on your shopping list.' },
-    { id: 's2', kind: 'new', em: '🌿', t: 'Thai basil stir-fry', miss: [['Thai basil', '1 bunch']], have: [['noodles', '1 pack'], ['veg bag', '1 bag']], useby: [], list: 0, why: 'Something you have not had lately; one item to buy.' },
-    { id: 's3', kind: 'stock', em: '🥚', t: 'Potato and egg frittata', miss: [], have: [['eggs', '8'], ['potatoes', '4'], ['onion', '2']], useby: [], list: 0, why: 'Late in the week, so it uses what is already in the house.' },
-    { id: 's4', kind: 'stock', em: '🍲', t: 'Pantry minestrone', miss: [], have: [['tinned tomatoes', '2 tins'], ['pasta', '200 g'], ['carrots', '3']], useby: [], list: 0, why: 'Late in the week, all on hand.' }
+    { id: 's1', mins: 35, kind: 'new', em: '🍋', t: 'Lemon chicken orzo', miss: [['orzo', '500 g']], have: [['chicken thighs', '600 g'], ['lemon', '2 (on your list)']], useby: [], list: 1, why: 'New to the plan, and the lemons are already on your shopping list.' },
+    { id: 's2', mins: 20, kind: 'new', em: '🌿', t: 'Thai basil stir-fry', miss: [['Thai basil', '1 bunch']], have: [['noodles', '1 pack'], ['veg bag', '1 bag']], useby: [], list: 0, why: 'Something you have not had lately; one item to buy.' },
+    { id: 's3', mins: 40, kind: 'stock', em: '🥚', t: 'Potato and egg frittata', miss: [], have: [['eggs', '8'], ['potatoes', '4'], ['onion', '2']], useby: [], list: 0, why: 'Late in the week, so it uses what is already in the house.' },
+    { id: 's4', mins: 45, kind: 'stock', em: '🍲', t: 'Pantry minestrone', miss: [], have: [['tinned tomatoes', '2 tins'], ['pasta', '200 g'], ['carrots', '3']], useby: [], list: 0, why: 'Late in the week, all on hand.' }
   ];
+  /* Total time (Plan UI review 124): ONE figure per meal, minutes; never a prep and cook split. */
+  function mins(m) { var n = m.mins; if (!n) return ''; return n < 60 ? n + ' min' : Math.floor(n / 60) + ' h' + (n % 60 ? ' ' + (n % 60) + ' min' : ''); }
   function inMine(m) { return m.who === 'all' || m.who.indexOf('sam') > -1; }
   function match(m, f) { if (f === 'everyone') return true; if (f === 'mine') return inMine(m); return m.who === 'all' || m.who.indexOf(f) > -1; }
   function whoLabel(m) { return m.who === 'all' ? 'Everyone · ' + m.n + ' people' : m.who.map(function (i) { return people.filter(function (p) { return p.id === i; })[0].n; }).join(', ') + ' · ' + m.n + ' ' + (m.n === 1 ? 'person' : 'people'); }
@@ -88,7 +92,7 @@ window.PUR = (function () {
     src.forEach(function (r, i) {
       var t = tgt[i].id; if (di(t) < di(today) || blocked[t] || meals.some(function (x) { return x.day === t && match(x, view); })) return;
       var ms = meals.filter(function (x) { return x.day === r.id && match(x, view); }); if (!ms.length) return;
-      ms.forEach(function (x) { var c = JSON.parse(JSON.stringify(x)); c.id = 'cp-' + (++n) + '-' + t; c.day = t; c.note = 'Copied from ' + dinfo(r.id).dow + ' ' + dinfo(r.id).n + ' Oct'; c.held = 0; c.list = 0; delete c.left; delete c.makes; delete c.usual; add.push(c); }); days.push(t);
+      ms.forEach(function (x) { var c = JSON.parse(JSON.stringify(x)); c.id = 'cp-' + (++n) + '-' + t; c.day = t; c.note = 'Copied from ' + dinfo(r.id).dow + ' ' + dinfo(r.id).n + ' Oct'; c.held = 0; c.list = 0; c.miss = c.miss.map(function (i) { return [i[0], i[1]]; }); delete c.left; delete c.makes; delete c.usual; add.push(c); }); days.push(t);
     });
     return { add: add, days: days, why: add.length ? '' : 'none' };
   }
@@ -110,5 +114,5 @@ window.PUR = (function () {
   }
   /* a long ingredient list for the dock demo (?long=1): a real cook sheet can have 20 lines */
   var LONG = [['garlic', '4 cloves'], ['ginger', '1 thumb'], ['cumin', '2 tsp'], ['coriander', '2 tsp'], ['turmeric', '1 tsp'], ['chilli flakes', '1 tsp'], ['stock cube', '2'], ['coconut milk', '1 tin'], ['apple', '1'], ['honey', '1 tbsp'], ['soy sauce', '2 tbsp'], ['peas', '1 cup'], ['sultanas', '1 handful'], ['spring onion', '1 bunch'], ['vegetable oil', '3 tbsp'], ['salt', 'to taste']];
-  return { clearWeek: clearWeek, LONG: LONG, surprise: surprise, copyLast: copyLast, icons: icons, people: people, DOW: DOW, RIB: RIB, DAYS: DAYS, REL: REL, did: did, dinfo: dinfo, meals: meals, blocked: blocked, tips: tips, SUR: SUR, match: match, inMine: inMine, whoLabel: whoLabel };
+  return { mins: mins, clearWeek: clearWeek, LONG: LONG, surprise: surprise, copyLast: copyLast, icons: icons, people: people, DOW: DOW, RIB: RIB, DAYS: DAYS, REL: REL, did: did, dinfo: dinfo, meals: meals, blocked: blocked, tips: tips, SUR: SUR, match: match, inMine: inMine, whoLabel: whoLabel };
 })();

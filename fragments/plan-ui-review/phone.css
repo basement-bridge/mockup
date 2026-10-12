@@ -162,10 +162,8 @@ select{font:inherit}
 .lbl,.isec h3{font:700 12px var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .ppl b{min-width:1.5ch;text-align:center;font-size:18px}
 .ppl .ib{border:1px solid var(--border);background:var(--bg)}
-.ish{display:flex;align-items:center;gap:8px;min-height:48px;border-bottom:1px solid var(--border)}
-.ish h3{flex:1}
-.hold,.addall{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);font-weight:700;font-size:13px;background:var(--bg)}
-.hold svg,.addall svg{width:14px;height:14px}
+.hold{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);font-weight:700;font-size:13px;background:var(--bg)}
+.hold svg{width:14px;height:14px}
 .hold.on{border-color:var(--sage);color:var(--sage)}
 .hint{font-size:13px;padding:8px 0 0 10px}
 .ing{padding-left:10px}
@@ -322,7 +320,6 @@ select{font:inherit}
 .dpiece .mc{cursor:default}
 .dpiece .mc[data-tile]{cursor:grab;touch-action:none}
 .dpiece .mc.sel{box-shadow:0 0 0 1px var(--accent)}
-.dhint{font-size:12px;padding:6px 2px 0;color:var(--muted)}
 .mini.oth{margin:0;width:100%;min-height:40px}
 .spiece{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;background:var(--surface);border:1.5px solid var(--accent);border-top:0;border-radius:0 0 var(--r-card) var(--r-card);overflow:hidden}
 .tongue{position:absolute;left:50%;bottom:-16px;transform:translateX(-50%);width:84px;height:32px;border:1.5px solid var(--accent);border-top:0;border-radius:0 0 18px 18px;background:var(--bg);display:grid;place-items:end center;padding-bottom:7px;touch-action:none;cursor:grab;z-index:3}
@@ -367,7 +364,7 @@ select{font:inherit}
 .wkm .it svg{margin-top:2px}
 .wkm .it small{margin-top:2px}
 .wkm .hint2{padding:4px 12px 4px}
-@media(max-height:760px){.dhint{display:none}.dpiece{padding-bottom:18px}.stackw{padding-top:4px}}
+@media(max-height:760px){.dpiece{padding-bottom:18px}.stackw{padding-top:4px}}
 .hd.flipped .tdy,.hd.flipped .cog{display:none}
 /* placement B (two icons): there is no room for Plan settings while the Today pill shows, one reason the menu placement is recommended */
 @media(max-width:440px){.hd.pairm:has(.tdy) .cog{display:none}}
@@ -427,3 +424,44 @@ select{font:inherit}
 /* 112: the week boundary also reads in the agenda scroll: more air and a heavier line above the new week's header */
 .wkd:not(:first-child){margin-top:14px;border-top:2px solid var(--border)}
 .dpiece .mc.past{filter:grayscale(1)}
+
+/* ---- 13 Oct 2026, batch 2 (decisions 120 to 133) ---- */
+/* 121: ONE plain signal on the tile, no count and no words: green = dealt with, red = something is missing. Shape differs too (tick or mark), so it is not colour alone. */
+.sig{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;flex:none;align-self:center}
+.sig svg{width:14px;height:14px;stroke-width:2.4}
+.sig.ok{color:var(--sage);background:color-mix(in srgb,var(--sage) 16%,transparent)}
+.sig.bad{color:var(--danger);background:color-mix(in srgb,var(--danger) 14%,transparent)}
+.mc:has(>.sig){grid-template-columns:auto minmax(0,1fr) auto auto}
+/* the same rule in the gutter under each date (agenda) and under each date in the ribbon (.dy .st i, already green or red) */
+.pw .pw-dn .gs{display:block;width:8px;height:8px;border-radius:50%;margin:5px 0 0 1px;background:var(--sage)}
+.pw .pw-dn .gs.bad{background:var(--danger)}
+/* 123: one ingredient list. Missing first, then on hand. A missing name is plain red text; nothing else tells them apart. No heading, no box, no pill. */
+.ing.one{padding-left:0;margin-top:2px}
+.ing.one li.m.red .in{color:var(--danger)}
+.ing.one li.mlast{border-bottom:1px solid color-mix(in srgb,var(--muted) 55%,var(--border))}
+.ing .onl{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;color:var(--sage)}
+.ing .onl svg{width:17px;height:17px}
+.ubt{font-size:12px;color:var(--muted);white-space:nowrap}
+.ubt.hot,.ubt.warm{color:var(--accent);font-weight:700}
+.tt{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--muted);margin:0 0 6px}
+.tt svg{width:15px;height:15px}.tt b{color:var(--fg)}
+/* 126: the bottom of the detail is Hold and Add, each with the number it will touch */
+.sfoot .b2.hold{padding:0 10px;border-radius:var(--r-ctl);min-height:48px;font-size:14px;gap:8px}
+.sfoot .b2.hold.on{border-color:var(--sage);color:var(--sage)}
+.sfoot .b2.add{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.b2 .ct{font:800 13px var(--body);min-width:22px;height:22px;padding:0 6px;border-radius:11px;display:inline-grid;place-items:center;background:color-mix(in srgb,currentColor 18%,transparent)}
+/* 125: an open night on the week is only quiet words; the day's own detail carries Ask AI, Surprise me and Not cooking */
+.nite.quiet{width:100%;display:flex;align-items:center;min-height:52px;padding:2px 2px 6px;border-bottom:0;text-align:left}
+.nite.quiet .ot{flex:none;min-height:44px;display:flex;align-items:center}
+.nite.full .oa{flex-wrap:wrap}
+.nite.full .oa button{border:1px solid var(--border);background:var(--surface)}
+.dpiece .nite.full{border-bottom:0;padding-bottom:6px}
+/* 128: the grey bar on the tab. Removed (recommended) or much lighter. The tab itself stays the drag target. */
+.hdl-none .tongue i{display:none}
+.hdl-light .tongue i{width:20px;height:2px;opacity:.45}
+/* 129: first-run wiggle on the draggable tile, once, a moment after the detail opens */
+@keyframes jig{0%,100%{rotate:0deg}12%{rotate:-2.2deg}28%{rotate:2.2deg}44%{rotate:-1.7deg}60%{rotate:1.7deg}76%{rotate:-.9deg}90%{rotate:.7deg}}
+.dpiece .mc.jig{animation:jig 1.3s ease-in-out .55s 1 both;transform-origin:50% 60%}
+@media(prefers-reduced-motion:reduce){.dpiece .mc.jig{animation:jigstill 1.6s ease-out .4s 1 both}}
+@keyframes jigstill{0%,100%{filter:none;translate:0 0}20%,80%{filter:drop-shadow(0 8px 8px var(--dim));translate:0 -2px}}
+.dpiece .unote{margin:6px 0 0}
