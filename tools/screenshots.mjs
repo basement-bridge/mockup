@@ -20,6 +20,7 @@ const SCREENS = [
   ["inventory-home", "fragments/inventory-home/index.html"],
   ["item-row-axes", "fragments/item-row-axes/index.html"],
   ["desktop", "fragments/desktop/index.html"],
+  ["recipe-browse-full", "fragments/recipe-browse-full/index.html"],
   ["desktop-profile", "fragments/desktop-profile/index.html"],
   ["invite-new-household", "fragments/invite-new-household/index.html"],
   ["oauth-consent-kitchie", "fragments/oauth-consent/index.html?p=kitchie"],
