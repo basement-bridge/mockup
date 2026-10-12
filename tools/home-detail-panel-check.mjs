@@ -133,5 +133,29 @@ p = await page(1280, 800, "open=recipe:lime-tacos&detail=error");
 ok(await p.locator("#detail [data-act=retry]").count() === 1, "panel error has Try again"); await snap(p, "1280-panel-error"); await p.context().close();
 p = await page(1280, 800, "open=item:limes&child=history"); await snap(p, "1280-history-tucked"); await p.context().close();
 p = await page(1440, 800, "open=recipe:lime-tacos", "kitchie-day"); await snap(p, "1440-stacked-recipe-light"); await p.context().close();
+// 13 Oct 2026, decision 157 (owner: "the title is buggered .. sort out the clash with item names and the E, , X buttons"): a long item name has its own full-width row (3 lines at most, then an ellipsis),
+// never meets the tile, the buttons or the E and comma key caps, and "quantity | place" sits right under it; stacked (1280, 1440, 1620) and displaced (1920).
+const LONG = (root => {
+  const q = s => document.querySelector(root + " " + s), box = e => { if (!e) return null; const r = e.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height }; };
+  const t = q(".shead .nm2"), cs = getComputedStyle(t), lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.2, panel = q(".shead").parentElement;
+  const hit = (a, b) => a.x < b.x + b.w - 0.5 && b.x < a.x + a.w - 0.5 && a.y < b.y + b.h - 0.5 && b.y < a.y + a.h - 0.5;
+  const title = box(t), tile = box(q(".shead .ph")), btns = [...document.querySelectorAll(root + " .shead .hacts .ib")].map(box), caps = [...document.querySelectorAll(root + " .shead .hacts .ib .cap")].map(box);
+  const subs = [...document.querySelectorAll(root + " .shead .shq, " + root + " .shead .shw")].filter(e => e.offsetHeight > 0).map(box);
+  const lines = Math.round(title.h / lh);
+  return { lines, btns: btns.length, caps: caps.length, titleAttr: t.getAttribute("title") === t.textContent, full: title.w, panel: panel.clientWidth,
+    clear: ![tile, ...btns, ...caps].some(b => hit(title, b)), subClear: !subs.some(s => caps.some(c => hit(s, c)) || hit(s, title)), subVisible: subs.length > 0 && subs.every(s => s.y >= title.y + title.h - 1),
+    subRight: subs.length > 0 && Math.min(...subs.map(s => s.y)) - (title.y + title.h) < 14, clipped: t.scrollHeight > t.clientHeight + 1, over: panel.scrollWidth - panel.clientWidth };
+});
+for (const w of [1280, 1440, 1620, 1920]) for (const id of ["ranch", "flour"]) {
+  p = await page(w, 900, "open=item:" + id); const m = await p.evaluate(LONG, "#detail");
+  const at = `${w} ${w >= 1624 ? "displaced" : "stacked"} ${id}`;
+  ok(m.btns === 3 && m.caps === 2, `long name ${at}: pencil, clock and x with the E and comma key caps`);
+  ok(m.clear && m.subClear, `long name ${at}: the title and the sub line never meet the tile, a button or a key cap`);
+  ok(m.lines >= 1 && m.lines <= 3 && m.full >= m.panel - 60, `long name ${at}: at most 3 lines (${m.lines}), full panel width (${Math.round(m.full)} of ${m.panel})`);
+  ok(m.subVisible && m.subRight, `long name ${at}: the quantity and place line is visible, right under the name`);
+  ok(m.titleAttr && m.over <= 0, `long name ${at}: the whole name is in the title attribute; no sideways scroll`);
+  if (id === "flour") ok(m.clipped && m.lines === 3, `long name ${at}: a name past 3 lines is cut with an ellipsis (${m.lines} lines)`);
+  await snap(p, `long-name-${id}-${w}`); await p.context().close();
+}
 await b.close();
 console.log(fails ? fails + " FAILED" : "ALL PASSED"); process.exit(fails ? 1 : 0);

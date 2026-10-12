@@ -37,6 +37,8 @@ var ITEMS = IEF.items = [
   mk("tom", "🥫", "Chopped tomatoes", "Pantry", "Top shelf", "Cans", 4, "tin", "", null, 4),
   mk("onion", "🧅", "Onions", "Pantry", "Baskets", "Vegetables", 6, "", "", null, null),
   mk("garam", "", "Garam masala", "Pantry", "Spice rack", "Seasoning", 1, "jar", "", null, null),
+  mk("ranch", "🐙", "blend - ranch dressing spices", "Pantry", "Shelf", "Seasoning", 1, "pack", "", null, null),
+  mk("flour", "🌾", "Organic stone-ground wholemeal spelt and rye flour blend with linseed, sunflower and pumpkin seeds and sea salt, 1 kg", "Pantry", "Bottom shelf", "Dry goods", 1, "pack", "", null, null),
   mk("peas", "", "peas", "Freezer", "Drawer 2", "Vegetables", 1, "kg", "", null, null),
   mk("ice", "🍨", "ice cream", "Freezer", "Door", "Dessert", 1, "box", "", null, null)
 ];
@@ -279,9 +281,12 @@ IEF.setChild = function (kind, o) {
   c.setAttribute("aria-label", kind === "history" ? "History" : "Edit item");
   c.classList.remove("enter"); if (!prev && !o.still) { void c.offsetWidth; c.classList.add("enter"); }
   c.innerHTML = IEF.childInner(kind);
+  IEF.tuck(c);
   syncIcons(); IEF.url();
   IEF.fillChild(kind, function () { if (IEF.host.childReady) IEF.host.childReady(kind, o); });
 };
+/* decision 157: the item header is a slim top row and the name on its own row, so its height depends on the name. Where the child is tucked under it (1024 to 1239px, desktop.css) it starts at the header's measured bottom, not a fixed 104px (the build does the same: --ief-top). */
+IEF.tuck = function (c) { var h = $("#ief-head"), p = $("#ief-panel"); if (!h || !p) return; c.style.setProperty("--ief-top", Math.round(h.getBoundingClientRect().bottom - p.getBoundingClientRect().top + 12) + "px"); };
 IEF.toggleChild = function (kind, from) { IEF.setChild(S.child === kind ? null : kind, { from: from || document.activeElement }); if (S.child === null) IEF.restoreFocus(kind); };
 IEF.restoreFocus = function (kind) { var b = $('#ief-head [data-ief="' + (kind || "edit") + '"]'); if (b) b.focus({ preventScroll: true }); };
 IEF.closeChild = function (refocus) { var k = S.child; if (!k) return false; IEF.setChild(null); if (refocus !== false) IEF.restoreFocus(k); return true; };
