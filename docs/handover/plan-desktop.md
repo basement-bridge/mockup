@@ -1,6 +1,6 @@
 # Plan on desktop: handover
 
-**Status: frozen 10 October 2026 (Sydney), for anyone to pick up cold.** The mockup is drawn and merged. Nothing is built in the real app. Nothing is approved: decisions 49 to 62 are proposals by the design agent and wait for the owner. This file is the one place to start; every other durable thing is linked from section 11.
+**Status update 12 October 2026: the owner chose option B as the base and gave direction by voice; option B is refined in PR (open, not merged, for the owner), decisions 110 to 120 (see section 12).** Original status, frozen 10 October 2026: the mockup is drawn and merged. Nothing is built in the real app. Decisions 49 to 62 are proposals by the design agent and wait for the owner. This file is the one place to start; every other durable thing is linked from section 11.
 
 Style follows `docs/handover/desktop.md` (the Pantry and Home desktop handover). Read `AGENTS.md` and `DESIGN.md` in this repo first; the rules that bite are in sections 9 and 10.
 
@@ -128,3 +128,13 @@ Only after the owner picks an option and confirms decisions. This is a **proposa
 - Pantry desktop: [`docs/knowledge/desktop-layout.md`](https://github.com/basement-bridge/mockup/blob/main/docs/knowledge/desktop-layout.md), [`docs/handover/desktop.md`](https://github.com/basement-bridge/mockup/blob/main/docs/handover/desktop.md).
 - Rules: [`AGENTS.md`](https://github.com/basement-bridge/mockup/blob/main/AGENTS.md) and [`DESIGN.md`](https://github.com/basement-bridge/mockup/blob/main/DESIGN.md). Learnings applied: 1 (start from the job), 2 (one token set), 4 (one visual family), 5 (options before decisions), 6 (load only what is needed now), 7 (form factors and responsive loading).
 - Format reference for a build handoff: [`docs/knowledge/preferences-build-handoff.md`](https://github.com/basement-bridge/mockup/blob/main/docs/knowledge/preferences-build-handoff.md).
+
+## 12. Option B refined (12 October 2026)
+
+**Status:** owner chose B as the base (voice). B is revised on branch `design/plan-desktop-b-refine-12oct`; the PR is left open for the owner (do not merge it for him). A, C, D are untouched. Nothing is built in Kitchie.
+
+**What changed** (decisions 110 to 120 in the job note): agenda | meal detail | "This week at a glance" (three columns from 1440, summary tucked behind the detail below it); summary = what to buy by day, use-by pressure, rolling tally, "Add all N" (cook order removed) with a distinct overview look; tile = one status on the left (Missing <item>, On the list, Use by, quiet All on hand) and persistent Hold, Replan, Not cooking, Add missing icons on the right; Hold toggle and Replan releasing holds; open night with Surprise me and Ask AI; four day states (unplanned, planned, Not cooking with the moon, usual day). Files: `b.js`, `b.css`, `b-<size>.css`, `b-three-1440.js`, hooks in `plan.js`. State links: `fragments/plan-desktop/index.html` ("Option B, refined"). Extra URL options: `?sum=1` (summary behind the detail), `?surprise=confirm&prop=Sun`, `?cleared=Mon`, `?listed=1`, `?fri=cook`.
+
+**Open questions:** fold ideas from A and C (for example a week strip) into B (not decided); Surprise me lock in or confirm first; headline priority (proposal); where three columns start and the 632 agenda width; moon (revisits 24) and dashed open night (revisits 92); Replan on a held meal wording. Full list in the job note.
+
+**Next steps:** owner reviews the PR and answers the open questions; settle them in the job note and this file; then slice a build for Kitchie `uat` as in section 8 (Surprise me needs a service method). Older sections 5 to 8 still describe A as the recommendation; decision 107 supersedes that for now.

@@ -1,7 +1,10 @@
-/* Option B, short screens (800 and under): rows tighten, the people strip and chips pack up, the header stops being sticky-tall. */
+/* Option B, short screens (800 and under): rows tighten, the header stops being tall. */
 .main{padding-top:12px}
 .hrow{margin-bottom:6px}
 .arow{padding:6px 0}
 .adate{padding-top:6px}
-.mc{min-height:56px;padding-top:6px;padding-bottom:6px}
+.mc{min-height:60px;padding-top:7px;padding-bottom:7px}
+.mc .t{gap:3px}
+.slot,.blocked{min-height:48px}
 .panel{padding:16px 20px}
+.tally .st b{font-size:26px}

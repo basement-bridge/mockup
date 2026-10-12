@@ -256,3 +256,5 @@ Default phone path is unchanged (theme.css, phone.css, data.js, status.js, phone
 ## Verification done
 
 Headless Chromium: phone 390 x 844 and 360 x 640 or 740, desktop 1024, 1280, 1440, 1920, dark theme. Scripted: open the stack by tapping a card and by `?sel=`; the day card stays pinned while a 21-line detail scrolls; Esc, x, handle drag (long drags close, short drags snap back), handle Enter, a touch swipe down close it; a mouse drag and a touch drag (CDP touch events) past the slop bring the week back under the pointer, hover marks the drop day, a drop on Not cooking, on a meal, outside a day, Esc and cancel behave as written, Undo restores; Clear week, Copy last week, the flip, clear then copy then Undo twice, expiry after 14 s, Jane and last week disabled with the reason; all earlier variants (`dt`, `st`, `hd`, `lay`, `pick`, `carry`, `u=flip`) load with no page errors and no sideways scroll. Not verified: a real phone (touch feel, momentum scroll) and the Pages URL from the sandbox.
+
+See also: Plan desktop decisions 110 to 120 (option B refined, owner voice 12 Oct 2026) in `plan-desktop.md`.
