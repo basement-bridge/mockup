@@ -25,6 +25,7 @@ From the owner's screenshot (10 October 2026, dark theme, about 1440 wide):
 | Mockup index (four options, states, size table, notes) | `fragments/plan-desktop/index.html`; live (not verified from the sandbox, check it): <https://basement-bridge.github.io/mockup/fragments/plan-desktop/index.html> |
 | Options | `a.html`, `b.html`, `c.html`, `d.html` in the same folder |
 | Job note with decisions 49 to 62 | `docs/knowledge/jobs-to-be-done/plan-desktop.md` |
+| Hard avoid guard on the Plan it panel (hand-planned meals; decisions SW-74 to SW-82) | `fragments/plan-hard-avoid/index.html`; `docs/knowledge/settings-window.md` round 10 |
 | Phone Plan it builds on | `fragments/plan-week-ai/index.html`; `docs/knowledge/jobs-to-be-done/plan-week-ai.md` (decisions 1 to 48) |
 | Pantry desktop rules it copies | `docs/knowledge/desktop-layout.md`, `docs/handover/desktop.md` |
 | Quick-look screenshots | `fragments/plan-desktop/shots/` (`a-1440.jpg` to `d-1440.jpg`) |
