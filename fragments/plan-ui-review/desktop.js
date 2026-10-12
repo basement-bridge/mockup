@@ -154,7 +154,7 @@
     var lk = ro() || isPast(m.day);
     var held = m.held ? '<button class="hold on" data-hold aria-pressed="true">' + ic.mark + ' Held <span class="kbd">H</span></button>' : '<button class="hold" data-hold aria-pressed="false">' + ic.mark + ' Hold <span class="kbd">H</span></button>';
     return '<header class="ih"><span class="em lg">' + m.em + '</span><div class="tx"><h2 id="ititle">' + esc(m.t) + '</h2><p>' + dayName(m.day) + ' · ' + esc(P.whoLabel(m)) + '</p></div><button class="ib" data-close aria-label="Close (Ctrl+Enter)" title="Close  Ctrl/Cmd Enter">' + ic.x + '</button></header>' +
-      '<div class="ibody">' + src + (m.note ? '<p class="nt">' + esc(m.note) + '</p>' : '') +
+      '<div class="ibody">' + src + (P.mins(m) ? '<p class="nt tt">' + ic.clock + ' Total time <b>' + P.mins(m) + '</b></p>' : '') + (m.note ? '<p class="nt">' + esc(m.note) + '</p>' : '') +
       (lk ? '<p class="nt ronote">' + ic.cal + (ro() ? ' ' + viewLabel(S.view) + "'s plan is view only." : ' Past: read only.') + '</p>' : '') + pcount(m, lk) +
       '<section class="isec"><div class="ish"><h3>On hand</h3>' + (m.have.length && !lk ? held : '') + '</div><ul class="ing">' + ingRows(m.have, 0, m) + '</ul></section>' +
       (m.miss.length ? '<section class="isec"><div class="ish"><h3>Missing</h3>' + (lk ? '' : '<button class="addall" data-addall>' + ic.cart + ' Add all ' + m.miss.length + ' <span class="kbd">L</span></button>') + '</div>' + (lk ? '' : '<p class="hint">Ask AI about substitutes</p>') + '<ul class="ing miss">' + ingRows(m.miss, 1, m) + '</ul></section>' : '<p class="allgood">' + ic.check + ' Everything for this meal is on hand.</p>') +

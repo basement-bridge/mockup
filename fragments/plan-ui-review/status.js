@@ -4,6 +4,7 @@
    badge    (b) icon plus count badge, words only in the tooltip and the screen-reader label
    edge     (c) one edge strip and one dot per card, specifics only in the detail
    progress (d) "5 of 7 ingredients ready" with a thin bar, plus one use-by line
+   plain        (13 Oct, the pick) one green or red signal, no count, no words
    line         one sentence (the earlier alternate, desktop)
    Urgency (use-by): today or overdue = hot (danger), within two days = warm (accent), later = calm (muted). */
 (function () {
@@ -24,7 +25,7 @@
     return a.join('; ');
   }
   function names(m) { return m.miss.length ? '<div class="names">Missing: ' + esc(m.miss.map(function (x) { return x[0]; }).join(', ')) + '</div>' : ''; }
-  function html(m, mode, today) {
+  function html(m, mode, today, bad) {
     var mc = m.miss.length, u = urg(m, today), ubt = m.useby.length ? m.useby[0][1] : '';
     function c(cls, i, t, tip) { return '<span class="tg ' + cls + '" title="' + esc(tip) + '" aria-label="' + esc(tip) + '">' + i + (t === '' ? '' : '<b>' + t + '</b>') + '</span>'; }
     if (mode === 'labels') {
@@ -39,6 +40,9 @@
       if (m.list) b += c('list', ic.cart, m.list, m.list + ' on the shopping list'); if (m.held) b += c('held', ic.mark, '', 'Held');
       return '<div class="chs badges">' + b + '</div>';
     }
+    /* Plan UI review 121 (owner-stated, 13 Oct 2026): ONE plain two-state signal, no counts, no words on the card. Green = dealt with, red = something is missing.
+       "bad" is decided by the caller (phone.js), because what counts as dealt with (on hand, or on the shopping list) is an open question; the markup is the same. */
+    if (mode === 'plain') return '<span class="sig ' + (bad ? 'bad' : 'ok') + '" role="img" aria-label="' + (bad ? 'Something is missing' : 'Dealt with') + '" title="' + (bad ? 'Something is missing' : 'Dealt with') + '">' + (bad ? ic.bang : ic.check) + '</span>';
     if (mode === 'edge') return '<span class="sdot ' + edge(m, today) + '" role="img" aria-label="' + esc(label(m, today)) + '" title="' + esc(label(m, today)) + '"></span>';
     if (mode === 'progress') {
       var t = total(m), r = m.have.length;
