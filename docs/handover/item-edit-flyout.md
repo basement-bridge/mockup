@@ -33,7 +33,7 @@ Known issues round 1 had to resolve: the Shopping list heading had no space abov
 **File layout (viewport code in its own files, DESIGN.md section 7).**
 
 - Shared, no size rules: `flyout.css`, `flyout.js` (also holds "How much to buy" and the header emoji tile, round 4), `frame.js`; fetched on engagement: `form.js` (first Edit or Add), `emoji.js` (the emoji list and the picker's code, on the first tap of an emoji tile in the form or the item flyout header), `history.js` (first History open).
-- Per size: `phone.css` and `tablet.css` (media gated), `desktop.css` (min-width 1024) and `desktop-1240.css` (min-width 1240). One host script per size, fetched on demand: `phone.js` (touch, grab and drag, Esc) or `desktop.js` (rail, keys, shortcut list). A size change reloads the page.
+- Per size: `phone.css` and `tablet.css` (media gated), `desktop.css` (min-width 1024; `desktop-1240.css` was removed by decision 159). One host script per size, fetched on demand: `phone.js` (touch, grab and drag, Esc) or `desktop.js` (rail, keys, shortcut list). A size change reloads the page.
 - No images in the default path.
 
 ## 3. The options and the recommendation
@@ -52,7 +52,8 @@ Full wording and statuses in the job note (`docs/knowledge/jobs-to-be-done/item-
 |---|---|---|
 | 63 | proposed | A flyout nested under the open item, never a page |
 | 64 | proposed | One child slot shared by Edit and History; toggle or swap |
-| 65 | proposed | Desktop: 360px column from 1240, tucked under the header from 1024; History 320 to 360 |
+| 65 | proposed, desktop superseded by 159 | Desktop: 360px column from 1240, tucked under the header from 1024; History 320 to 360 |
+| 159 | proposed | Desktop: Edit and History replace the simple view in the same lane at every width (no column, no tuck); phone and tablet unchanged |
 | 66 | proposed | Phone and tablet: stacked 84% sheet, item as a strip; step back by strip, dim, drag, Esc |
 | 67 | proposed | Header order pencil, clock, x; open child's icon filled; phone keeps no x |
 | 68 | **confirmed 11 Oct** | Key hints shown on the icons; "E edit", ", history"; cue switch; desktop only |

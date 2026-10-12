@@ -119,14 +119,13 @@ body{overflow-x:hidden}
 .chip:hover{border-color:var(--accent)}
 .rok{color:var(--cue);font-weight:700;font-size:13px}
 .rmiss{color:var(--danger);font-weight:700;font-size:13px}
-/* nested Edit and History: tucked under the header, in the panel's own lane */
-.child{display:flex;flex-direction:column;gap:12px;border-top:1px solid var(--border);padding-top:14px;min-height:0}
-.child>h3{font-family:var(--head);font-size:1.05rem;display:flex;align-items:center;gap:8px}
+/* Edit and History replace the simple view in the panel's own lane (decision 158): the header, tiles, buttons and hint are not shown while the child is open */
+.child{display:flex;flex-direction:column;gap:12px;min-height:0}
 .child .ef-w{display:grid;gap:6px}
 .child .chipset{display:flex;gap:8px;flex-wrap:wrap}
 .child .pill{min-height:40px}
 .child .note{font-size:12px;color:var(--muted)}
-.detail.hasChild>.tiles,.detail.hasChild>.sacts,.detail.hasChild>.sbuyw,.detail.hasChild>.hint{display:none}
+.detail.hasChild>:not(#d-child){display:none}
 /* toast, shortcut list */
 .toast{left:136px;bottom:20px}
 .kb{position:fixed;inset:0;z-index:50;display:grid;place-items:center;justify-items:start;padding-left:136px;background:var(--dim)}

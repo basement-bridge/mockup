@@ -227,8 +227,8 @@ function act(a, el) {
   var it = cur(), K = keyOf(S.open || ":");
   if (a === "close") close();
   else if (a === "peek") front();
-  else if (a === "edit" || a === "history") { if (!it) return; S.child = S.child === a ? "" : a; drawDetail(); sync(); var b = $('[data-act="' + a + '"].ib'); if (b) b.focus({ preventScroll: true }); }
-  else if (a === "childback") { S.child = ""; drawDetail(); sync(); }
+  else if (a === "edit" || a === "history") { if (!it) return; S.child = S.child === a ? "" : a; drawDetail(); sync(); var b = S.child ? $('#ief-child [data-act="childback"]') : $('[data-act="' + a + '"].ib'); if (b) b.focus({ preventScroll: true }); }
+  else if (a === "childback") { var was = S.child; S.child = ""; drawDetail(); sync(); var r = $('[data-act="' + was + '"].ib'); if (r) r.focus({ preventScroll: true }); }
   else if (a === "usedup") { if (!it || it.level === "Out") return; var s = JSON.stringify(it); it.level = "Out"; it.qty = ""; it.amount = 0; it.pill = "Out"; if (D.low.indexOf(it.id) < 0) D.low.push(it.id); drawIdeas(); drawSoon(); drawDetail(); toast(esc(it.name) + " is marked Out.", function () { Object.assign(it, JSON.parse(s)); drawIdeas(); drawSoon(); drawDetail(); }); }
   else if (a === "shop") { if (!it || it.list !== null) return; var l0 = it.list; it.list = 1; drawDetail(); toast(esc(it.name) + " is on your shopping list.", function () { it.list = l0; drawDetail(); }); }
   else if (a === "useone") { if (!it || !it.counted || !(it.amount > 0)) return; it.amount -= 1; it.qty = it.amount ? String(it.amount) : ""; if (!it.amount) it.level = "Out"; drawSoon(); drawDetail(); toast(esc(it.name) + ": " + (it.amount || "Out") + " left."); }
