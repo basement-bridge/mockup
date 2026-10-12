@@ -1,7 +1,7 @@
 /* Home with a detail panel (mockup). Shared behaviour for every size and option: no size rules here (the stylesheets decide stack or displace).
    Four ways in, one panel: a search result, a Cooking idea, an item under "On the way out", an item under "Running low".
    The recipe view (recipe.js) and the nested Edit and History (child.js) are fetched on first use, not on page load (DESIGN.md section 6).
-   State is in the URL: ?open=item:cucumbers  ?open=recipe:lime-tacos  ?front=week  ?child=edit|history  ?q=lime  ?ideas=ok|loading|unavailable  ?week=empty|planned  ?detail=ok|loading|error  ?opt=a|b|c  ?peek=6 */
+   State is in the URL: ?open=item:cucumbers  ?open=recipe:lime-tacos  ?front=week  ?child=edit|history  ?q=lime  ?ideas=ok|loading|unavailable  ?lead=planned (today's planned meal is the lead; default: the top idea)  ?week=empty|planned  ?detail=ok|loading|error  ?opt=a|b|c  ?peek=6 */
 (function () {
 "use strict";
 var D = window.HDP_DATA, Q = new URLSearchParams(location.search), HDP = window.HDP = {};
@@ -9,7 +9,7 @@ var $ = function (s, r) { return (r || document).querySelector(s); }, $$ = funct
 var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
 var norm = function (s) { return String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""); };
 var app = $("#app"), ITEMS = JSON.parse(JSON.stringify(D.items));
-var S = HDP.S = { open: Q.get("open") || "", front: Q.get("front") === "week" ? "week" : "detail", child: Q.get("child") || "", ideas: Q.get("ideas") || "ok", week: Q.get("week") || "empty", detail: Q.get("detail") || "ok", q: Q.get("q") || "", cur: -1, plan: {}, undo: null };
+var S = HDP.S = { open: Q.get("open") || "", front: Q.get("front") === "week" ? "week" : "detail", child: Q.get("child") || "", lead: Q.get("lead") === "planned" ? "planned" : "idea", ideas: Q.get("ideas") || "ok", week: Q.get("week") || "empty", detail: Q.get("detail") || "ok", q: Q.get("q") || "", cur: -1, plan: {}, undo: null };
 HDP.D = D; HDP.esc = esc; HDP.$ = $; HDP.items = ITEMS;
 if (/[?&]embed=1/.test(location.search)) document.body.setAttribute("data-no-theme-fab", "");
 
@@ -35,8 +35,9 @@ var MAC = /Mac|iPhone|iPad/.test(navigator.platform || ""), MOD = MAC ? "Cmd" : 
 HDP.kbd = kbd; HDP.battery = battery; HDP.MOD = MOD;
 
 var item = HDP.item = function (id) { return ITEMS.filter(function (i) { return i.id === id; })[0]; };
-var idea = HDP.idea = function (id) { return D.ideas.filter(function (r) { return r.id === id; })[0]; };
-function keyOf(s) { var p = s.split(":"); return { kind: p[0], id: p[1] }; }
+var idea = HDP.idea = function (id) { return D.plannedLead.id === id ? D.plannedLead : D.ideas.filter(function (r) { return r.id === id; })[0]; };
+/* "meal:<id>" is today's planned meal when it is not a Recipe family (the build's key for it); it opens the same recipe view, so its kind is "recipe" */
+function keyOf(s) { var p = s.split(":"); return { kind: p[0] === "meal" ? "recipe" : p[0], id: p[1] }; }
 function qtyOf(it) { return it.level === "Out" ? "Out" : it.qty; }
 
 /* ---------- the page: Cooking ideas, On the way out, Running low ---------- */
@@ -49,8 +50,9 @@ function drawIdeas() {
   if (S.ideas === "loading") h += '<div class="sk a" aria-hidden="true"></div><div class="sk b" aria-hidden="true"></div><div class="sk b" aria-hidden="true"></div><p class="sr-only" role="status">Loading ideas</p>';
   else if (S.ideas === "unavailable") h += '<div class="away" role="status"><span class="e" aria-hidden="true">🍳</span><div><b>Ideas are not available right now</b><span>Your pantry and plan are fine. Try again in a moment.</span></div><button type="button" class="btn sm" data-act="retryideas">Try again</button></div>';
   else {
-    var A = D.ideas, lead = A[0], rest = A.slice(1), lk = "recipe:" + lead.id;
-    h += '<div class="lead hl"><button type="button" class="hrow' + (S.open === lk ? " sel" : "") + '" data-open="' + lk + '"' + (S.open === lk ? ' aria-current="true"' : "") + '><span class="e" aria-hidden="true">' + lead.emoji + '</span><span class="t"><small class="k">Tonight &middot; leaning quick</small><b>' + esc(lead.name) + '</b><span class="why">' + miss(lead) + " &middot; " + lead.mins + " min &middot; " + esc(lead.why) + '</span></span></button><button type="button" class="btn sm" data-act="quickplan" data-id="' + lead.id + '">Plan</button></div><div class="sh2">Other ideas</div>';
+    var A = D.ideas, pl = S.lead === "planned", lead = pl ? D.plannedLead : A[0], rest = pl ? A.slice(0, 2) : A.slice(1), lk = (pl ? "meal:" : "recipe:") + lead.id;
+    if (pl) h += '<div class="lead hl" data-lead="planned"><button type="button" class="hrow' + (S.open === lk ? " sel" : "") + '" data-open="' + lk + '"' + (S.open === lk ? ' aria-current="true"' : "") + '><span class="e" aria-hidden="true">' + lead.emoji + '</span><span class="t"><small class="k planned">Planned for today &middot; Mon 12</small><b>' + esc(lead.name) + '</b><span class="why">' + esc(lead.why) + '</span></span></button><button type="button" class="btn sm" data-act="planlink">Plan</button></div><div class="sh2">Other ideas</div>';
+    else h += '<div class="lead hl"><button type="button" class="hrow' + (S.open === lk ? " sel" : "") + '" data-open="' + lk + '"' + (S.open === lk ? ' aria-current="true"' : "") + '><span class="e" aria-hidden="true">' + lead.emoji + '</span><span class="t"><small class="k">Tonight &middot; leaning quick</small><b>' + esc(lead.name) + '</b><span class="why">' + miss(lead) + " &middot; " + lead.mins + " min &middot; " + esc(lead.why) + '</span></span></button><button type="button" class="btn sm" data-act="quickplan" data-id="' + lead.id + '">Plan</button></div><div class="sh2">Other ideas</div>';
     h += rest.map(function (r) { var k = "recipe:" + r.id; return '<div class="ir"><button type="button" class="hrow' + (S.open === k ? " sel" : "") + '" data-open="' + k + '"' + (S.open === k ? ' aria-current="true"' : "") + '><span class="e s" aria-hidden="true">' + r.emoji + '</span><span class="t"><b>' + esc(r.name) + "</b><small>" + miss(r) + " &middot; " + r.mins + " min &middot; " + esc(r.why) + '</small></span></button><button type="button" class="btn sm" data-act="quickplan" data-id="' + r.id + '">Plan</button></div>'; }).join("");
   }
   $("#ideas").innerHTML = h;
@@ -236,7 +238,8 @@ function act(a, el) {
   else if (a === "retryideas") { S.ideas = "ok"; drawIdeas(); }
   else if (a === "seeall" || a === "day") toast(a === "day" ? "Opens the plan for " + D.days[+el.dataset.i] + " (not drawn here)." : "Opens all ideas in Recipes (not drawn here).");
   else if (a === "quickplan") planIdea(idea(el.dataset.id));
-  else if (a === "plan") { if (K.kind === "recipe") planIdea(idea(K.id)); }
+  else if (a === "plan" || a === "planned") { if (K.kind === "recipe") { var pr = idea(K.id); if (pr.planned) toast(esc(pr.name) + " is already on the plan for today."); else planIdea(pr); } }
+  else if (a === "planlink") toast("Opens the Plan it sheet (not drawn here).");
   else if (a === "openrecipe") toast("Opens the recipe in the Recipes tab (not drawn here).");
   else if (a === "addmissing") { var r = K.kind === "recipe" ? idea(K.id) : null; if (r) { var m = r.lines.filter(function (x) { return x.s === "miss"; }).length; if (m) { r.added = true; drawDetail(); toast(m + " missing " + (m === 1 ? "item is" : "items are") + " on your shopping list.", function () { r.added = false; drawDetail(); }); } } }
   else if (a === "addline") { var r2 = idea(K.id); var ln = r2.lines[+el.dataset.n]; ln.added = true; drawDetail(); toast(esc(ln.n) + " is on your shopping list.", function () { ln.added = false; drawDetail(); }); }
