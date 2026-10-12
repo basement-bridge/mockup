@@ -8,7 +8,9 @@ window.HDP_DATA = {
     { id: "spring-onion", name: "Spring onion stalks", emoji: "🌱", qty: "1 bunch", area: "Fridge", spot: "Crisper", level: "Some", days: 1, useLabel: "13 Oct", cat: "Vegetables", unit: "bunch", amount: 1, min: null, list: null, pill: "Tomorrow", hot: true },
     { id: "bueno", name: "Bueno chocolate", emoji: "🍫", qty: "", area: "Cabinet", spot: "Snacks", level: "Out", days: null, useLabel: "", cat: "Snacks", unit: "bar", amount: 0, min: 1, list: null, pill: "Out" },
     { id: "peanut-butter", name: "Crunchy peanut butter", emoji: "🥜", qty: "1 jar", area: "Cabinet", spot: "Spreads", level: "Running low", days: 90, useLabel: "10 Jan", cat: "Spreads", unit: "jar", amount: 1, min: null, list: 0, pill: "Running low" },
-    { id: "limes", name: "Limes", emoji: "🍋", qty: "1", area: "Fridge", spot: "Crisper", level: "Running low", days: 6, useLabel: "18 Oct", cat: "Fruit", unit: "", amount: 1, min: 3, counted: true, list: null, pill: "At or below minimum" }
+    { id: "limes", name: "Limes", emoji: "🍋", qty: "1", area: "Fridge", spot: "Crisper", level: "Running low", days: 6, useLabel: "18 Oct", cat: "Fruit", unit: "", amount: 1, min: 3, counted: true, list: null, pill: "At or below minimum" },
+    { id: "ranch", name: "blend - ranch dressing spices", emoji: "🐙", qty: "1 pack", area: "Pantry", spot: "Shelf", level: "Plenty", days: null, useLabel: "", cat: "Seasoning", unit: "pack", amount: 1, min: null, list: null },
+    { id: "flour", name: "Organic stone-ground wholemeal spelt and rye flour blend with linseed, sunflower and pumpkin seeds and sea salt, 1 kg", emoji: "🌾", qty: "1 pack", area: "Pantry", spot: "Bottom shelf", level: "Plenty", days: null, useLabel: "", cat: "Dry goods", unit: "pack", amount: 1, min: null, list: null }
   ],
   soon: ["cucumbers", "spring-onion"],
   low: ["bueno", "peanut-butter", "limes"],

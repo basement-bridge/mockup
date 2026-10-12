@@ -60,6 +60,7 @@ All four open the same panel. An item shows the Pantry flyout, byte for byte in 
 | 153 | "Used in" line on the item panel: ideas planned in the rolling next 7 days, by weekday first, then recipe ("Used in: Tuesday, prawn curry"), omitted if none | Confirmed 12 Oct |
 | 154 | "Used in": household and own-plan meals plain; someone else's individual plan gets their initial and avatar in brackets ("Tuesday, prawn curry (J)") | Confirmed 12 Oct |
 | 155 | Several meals the same day are grouped under one weekday: "Tuesday, prawn curry (J), lamb curry · Friday, egg fried rice" | **Proposal** |
+| 157 | A long item name has its own full-width row (3 lines, then an ellipsis) under a slim top row of tile and E, comma and x buttons; the key caps stay on their buttons; "quantity | place" right under the name; desktop only | **Proposal** (owner: "the title is buggered .. sort out the clash with item names and the E, , X buttons", 13 Oct 2026) |
 
 ## 6. Open questions
 

@@ -22,6 +22,17 @@ const shots = (process.argv.find(a => a.startsWith("--shots=")) || "").slice(8);
 if (shots) mkdirSync(shots, { recursive: true });
 const WANT = (process.env.W || "").split(",").filter(Boolean).map(Number);
 const SIZES = [[390, 844, "phone"], [768, 1024, "tablet"], [1024, 768, "desktop"], [1440, 900, "desktop"]].filter(z => !WANT.length || WANT.includes(z[0]));
+const LONG = (root => {
+  const q = s => document.querySelector(root + " " + s), box = e => { if (!e) return null; const r = e.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height }; };
+  const t = q(".shead .nm2"), cs = getComputedStyle(t), lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.2, panel = q(".shead").parentElement;
+  const hit = (a, b) => a.x < b.x + b.w - 0.5 && b.x < a.x + a.w - 0.5 && a.y < b.y + b.h - 0.5 && b.y < a.y + a.h - 0.5;
+  const title = box(t), tile = box(q(".shead .ph")), btns = [...document.querySelectorAll(root + " .shead .hacts .ib")].map(box), caps = [...document.querySelectorAll(root + " .shead .hacts .ib .cap")].map(box);
+  const subs = [...document.querySelectorAll(root + " .shead .shq, " + root + " .shead .shw")].filter(e => e.offsetHeight > 0).map(box);
+  const lines = Math.round(title.h / lh);
+  return { lines, btns: btns.length, caps: caps.length, titleAttr: t.getAttribute("title") === t.textContent, full: title.w, panel: panel.clientWidth,
+    clear: ![tile, ...btns, ...caps].some(b => hit(title, b)), subClear: !subs.some(s => caps.some(c => hit(s, c)) || hit(s, title)), subVisible: subs.length > 0 && subs.every(s => s.y >= title.y + title.h - 1),
+    subRight: subs.length > 0 && Math.min(...subs.map(s => s.y)) - (title.y + title.h) < 14, clipped: t.scrollHeight > t.clientHeight + 1, over: panel.scrollWidth - panel.clientWidth };
+});
 let fails = 0, total = 0;
 const ok = (name, cond, extra) => { total++; if (!cond) { fails++; console.log("FAIL", name, extra === undefined ? "" : JSON.stringify(extra)); } };
 
@@ -762,6 +773,18 @@ for (const [w, h, kind] of SIZES) {
       ok(`${tag} ${q} no sideways scroll`, r.sw <= r.cw, r);
       if (r.small.length) console.log("note small targets", tag, q, r.small.join("; "));
       ok(`${tag} ${q} no console errors`, errs.length === 0, errs); errs.length = 0; await p.close();
+    }
+    /* 13 Oct 2026, decision 157: a long item name has its own full-width row (3 lines at most, then an ellipsis), clear of the tile, the buttons and their key caps; the tucked child starts under it */
+    if (kind === "desktop") for (const id of ["ranch", "flour"]) {
+      const lp = await open("?sel=" + id); const m = await lp.evaluate(LONG, "#ief-panel");
+      ok(`${tag} long name ${id}: pencil, clock, x and two key caps; title and sub line clear of them`, m.btns === 3 && m.caps === 2 && m.clear && m.subClear, m);
+      ok(`${tag} long name ${id}: at most 3 lines (${m.lines}), the panel's full width, sub line visible right under it`, m.lines >= 1 && m.lines <= 3 && m.full >= m.panel - 60 && m.subVisible && m.subRight, m);
+      ok(`${tag} long name ${id}: the whole name in its title attribute; no sideways scroll`, m.titleAttr && m.over <= 0, m);
+      if (id === "flour") ok(`${tag} long name ${id}: past 3 lines it is cut with an ellipsis`, m.clipped && m.lines === 3, m);
+      await shot(lp, "long-name-" + id); await lp.close();
+      const cp = await open("?sel=" + id + "&child=history"); await cp.waitForTimeout(400);
+      ok(`${tag} long name ${id}: the History child starts at or under the header's bottom (tucked) or beside it (column)`, await cp.evaluate(() => { const h = document.querySelector("#ief-head").getBoundingClientRect(), c = document.querySelector("#ief-child").getBoundingClientRect(); return c.left >= h.right - 1 || c.top >= h.bottom - 1; }));
+      await shot(cp, "long-name-" + id + "-history"); await cp.close();
     }
     await ctx.close();
   }

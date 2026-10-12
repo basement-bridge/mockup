@@ -91,6 +91,12 @@ body{overflow-x:hidden}
 .shead .nm2{font-family:var(--head);font-weight:700}
 .shead .why2{font-size:13px;color:var(--muted)}
 .shead button.ph{cursor:pointer}
+/* The header with a long name (decision 157), the same rule as item-edit-flyout/desktop.css: tile and buttons in a slim top row, the name on its own full-width row, 3 lines then an ellipsis. */
+.shead{flex-wrap:wrap;gap:10px 14px}
+.shead>.ph{order:1}
+.shead>.hacts{order:2}
+.shead>.sid{order:3;flex:1 1 100%}
+.shead .nm2{-webkit-line-clamp:3;line-clamp:3;line-height:1.25}
 .detail .pick{margin-top:12vh}
 .detail .pick .btn{margin-top:12px}
 /* recipe variant */
