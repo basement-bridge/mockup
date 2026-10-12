@@ -1,0 +1,25 @@
+/* 1024 and up: header, agenda rows, inspector pushes the page. Loaded only when min-width:1024px. */
+:root{--pad:24px;--insp-w:380px}
+.has-sel .main{padding-right:calc(var(--insp-w) + var(--pad))}
+.agenda .day{display:grid;grid-template-columns:132px minmax(0,1fr);gap:16px;align-items:start}
+.agenda .dh{flex-direction:column;gap:2px;position:sticky;top:150px;align-items:flex-start}
+.agenda .dh b{font-size:1.4rem}
+.board .day{display:grid;grid-template-columns:132px minmax(0,1fr);gap:16px;align-items:start}
+.board .dh{flex-direction:column;gap:2px;align-items:flex-start}
+.board .dh b{font-size:1.4rem}
+.sumstrip{grid-template-columns:repeat(2,minmax(0,1fr))}
+.insp-flyout .insp{top:12px;right:12px;bottom:12px;border:1px solid var(--border);border-radius:var(--r-card);box-shadow:0 12px 40px var(--dim)}
+.insp-flyout.has-sel .main{padding-right:var(--pad)}
+.insp-flyout .fscrim{display:block;position:fixed;inset:0;z-index:5;background:var(--dim)}
+.optfab,.optpanel{left:100px}
+.pbtn .pre{display:none}.pbtn b::first-letter{text-transform:uppercase}.pbtn .kbd{display:none}.sync{display:none}.wt{min-width:10rem}
+.wt h1{white-space:nowrap;font-size:1.3rem}
+/* a card that spans the row reads as one line: who and what left, status right */
+@container (min-width:600px){
+  .chs,.stl{grid-column:3!important;grid-row:1;align-self:center;justify-content:flex-end}
+  .names{grid-column:2/-1!important;grid-row:2}
+}
+.dc{flex-direction:row;flex-wrap:wrap;margin-top:0}
+.dc>.mc{flex:1 1 320px;min-width:0}
+.dc>.empty,.dc>.blk,.dc>.tipl,.dc>.dayprep{flex:0 0 100%}
+.focusday .dc{margin-top:12px}

@@ -61,6 +61,8 @@ Status: decisions by the owner, by voice, 9 October 2026, applied to the mockup 
 
 49 to 62. **Desktop Plan.** Proposals only, not the owner's words, kept in [plan-desktop.md](plan-desktop.md): own desktop layout (recommended: option A, week board with a docked inspector), the inspector never covers the week, widths and breakpoints, the week summary as the idle inspector, Pantry's close key, no Move key (drag stays, with Space to lift), X, Shift X and H, trackpad and week picker, sync pill, undo toast for every removal, use-by as a drop hint. Mockup: `fragments/plan-desktop/index.html`.
 
+63 to 84. **Plan UI review.** Proposals only, kept in [plan-ui-review.md](plan-ui-review.md): window-filling desktop layout, a docked or flyout inspector that scrolls and closes, a clearer people filter, quieter open and Not cooking nights, chips with words, a week summary and today marker; on phone a sticky day strip, labelled swipes with mouse and keyboard equivalents and a two-stop bottom sheet. Mockup: `fragments/plan-ui-review/index.html`.
+
 (17 to 48: owner, typed, 10 October 2026 for 38 to 47, voice for 48; the rest by voice, 9 October 2026.)
 
 ## Follow-up work beyond the mockup

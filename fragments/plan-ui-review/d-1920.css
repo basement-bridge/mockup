@@ -1,0 +1,9 @@
+/* 1920 and up: more room, so more content per card and a wider inspector. Nothing is capped to a left column. */
+:root{--pad:40px;--insp-w:440px}
+.tx h3{font-size:16px}
+.tx p,.tg,.names{font-size:13px}
+.board{gap:14px}
+.board .dc{padding:12px;gap:10px}
+.focusday .dc{grid-template-columns:repeat(auto-fill,minmax(380px,1fr))}
+.agenda .dc,.board .dc{}
+.sumstrip{gap:14px}

@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Plan UI review, options</title>
+<link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><script src="../../theme.js"></script>
+<style>
+.opt3{display:grid;gap:14px;grid-template-columns:1fr}
+@media(min-width:900px){.opt3.two{grid-template-columns:1fr 1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:14px}
+.card.rec{border:2px solid var(--accent)}
+.card h3{margin:0 0 4px;font-size:17px;font-family:var(--head)}
+.card p,.card li{font-size:14px}
+.card ul{margin:6px 0 8px;padding-left:18px}
+.card img{width:100%;height:auto;border-radius:12px;border:1px solid var(--border);display:block;margin:6px 0 10px}
+.badge{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:var(--accent);color:var(--on-accent);border-radius:99px;padding:2px 8px;margin-left:6px;vertical-align:middle}
+.links{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.links a{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:99px;border:1px solid var(--border);background:var(--bg);font-size:13px;font-weight:600}
+.links a:hover{border-color:var(--accent)}
+.tbl{overflow-x:auto}.tbl table{border-collapse:collapse;min-width:620px;width:100%;font-size:14px}
+.tbl th,.tbl td{border-top:1px solid var(--border);padding:8px 10px;text-align:left;vertical-align:top}
+.tbl th{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.decs li{margin-bottom:6px;font-size:14px}
+.phones{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.phones img{margin:0}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Plan UI review: desktop and phone</h1>
+<p>Owner ask, 12 October 2026: analyse the Plan screens on desktop and phone and amend them with better choices, mockup first. Nothing here is built in Kitchie and nothing is confirmed: every number below (63 to 84) is a <b>proposal</b> by the design agent. Written analysis: <a href="../../docs/knowledge/jobs-to-be-done/plan-ui-review.md" style="color:var(--accent)">plan-ui-review.md</a>. Builds on decisions 1 to 48 (<a href="../plan-week-ai/" style="color:var(--accent)">phone Plan</a>) and the four desktop layouts A to D (<a href="../plan-desktop/" style="color:var(--accent)">plan-desktop</a>, decisions 49 to 62), which stay as drawn.</p>
+
+<div class="sec"><div class="lbl">Recommended default</div>
+<div class="card rec"><p><b>Desktop:</b> the week fills the window beside the rail (no left-anchored cap); a week summary strip and a today marker lead; the week is a <b>board of seven columns from 1760px and agenda rows below</b> (same cards); the inspector is <b>docked at the right edge</b>, full height, scrolls on its own, close x always visible, actions pinned in its footer; people as <b>Mine / Everyone plus member chips with a +N overflow</b>; status chips <b>with words</b>; open nights quiet, with the add actions on hover and focus.</p>
+<p style="margin-top:6px"><b>Phone:</b> a sticky week header, people strip and <b>day strip</b>; agenda cards with labelled swipe actions (mouse drag works too); detail in a <b>two-stop bottom sheet</b> (half, full) with actions pinned at the bottom; "Open your assistant" in the thumb zone.</p>
+<div class="links"><a href="desktop.html">Open desktop (recommended)</a><a href="phone.html">Open phone (recommended)</a></div>
+<p style="margin-top:8px;font-size:13px">In both pages, an <b>Options</b> button (bottom left on desktop; on phone when opened directly) switches every option below live. The theme picker on this page (bottom right) switches dark (kitchie) and light (kitchie-day); the two pages follow it.</p></div></div>
+
+<div class="sec"><div class="lbl">Desktop, layout</div>
+<div class="opt3 two">
+<div class="card rec"><h3>1 Week board + docked inspector <span class="badge">recommended</span></h3><p>Seven day columns with sticky day heads, the summary strip above, the inspector docked right. The board needs about 1150px of main column, so from 1760px; below that the same cards draw as agenda rows.</p><img src="shots/d-board-1920.jpg" alt="Board at 1920, dark" loading="lazy"><div class="links"><a href="desktop.html?lay=board&sel=wed-curry">1920 board</a></div></div>
+<div class="card"><h3>2 Agenda rows + docked inspector</h3><p>One row per day, big day label, a card that spans the row reads as one line (who and what left, status right). Works from 1024 and is the fallback of 1 below 1760.</p><img src="shots/d-agenda-1440.jpg" alt="Agenda at 1440" loading="lazy"><div class="links"><a href="desktop.html?lay=agenda&sel=wed-curry&today=wed">1440 agenda</a><a href="desktop.html?lay=agenda&sel=wed-curry&c=line">One-line status</a></div></div>
+<div class="card"><h3>3 Day focus <span class="badge" style="background:var(--border);color:var(--fg)">alternative</span></h3><p>Seven day tabs (meal count each), the chosen day large, a "Before this night" line (buy, use first). Good when the week is mostly one meal a night; less of the week at a glance.</p><img src="shots/d-focus-1440.jpg" alt="Day focus at 1440 with flyout" loading="lazy"><div class="links"><a href="desktop.html?lay=focus&day=wed&today=wed&insp=flyout&sel=wed-curry">Focus + flyout</a></div></div>
+<div class="card"><h3>Widths to check</h3><ul><li><b>1024</b>: agenda; inspector 380 pushes, never covers.</li><li><b>1280</b>: agenda; inspector 380 on demand.</li><li><b>1440</b>: inspector 400 docked always (idle = week summary).</li><li><b>1920</b>: board; inspector 440.</li></ul><img src="shots/d-agenda-1024.jpg" alt="Agenda at 1024" loading="lazy"><div class="links"></div></div>
+</div></div>
+
+<div class="sec"><div class="lbl">Desktop, inspector</div>
+<div class="opt3 two">
+<div class="card rec"><h3>Docked <span class="badge">recommended</span></h3><p>Fixed to the right edge, full height, header and footer pinned, only the middle scrolls (the cut-off On hand list is fixed). Pushes the page, so it never covers a day. Close: the x (44px, always in view) or Ctrl/Cmd Enter. Idle, from 1440, it shows the week: buy by day, use first, cook order.</p></div>
+<div class="card"><h3>Flyout</h3><p>Floating card, inset 12px, shadow. Opens only on a pick and returns the width when closed. Below 1440 it overlays the page with a scrim (Esc, x, Ctrl/Cmd Enter or a click on the scrim close it); from 1440 it pushes. Pantry-like.</p><img src="shots/d-flyout-1280.jpg" alt="Flyout at 1280" loading="lazy"><div class="links"><a href="desktop.html?lay=agenda&insp=flyout&sel=wed-curry">Flyout</a></div></div>
+</div></div>
+
+<div class="sec"><div class="lbl">Desktop, people filter, open night, status chips</div>
+<div class="opt3 two">
+<div class="card rec"><h3>Filter 1 Chips + overflow <span class="badge">recommended</span></h3><p>Mine and Everyone as a segmented pair with a check on the selected one; one thin divider; a chip with an initial for each member; what does not fit folds into "+N more", a popover with search when there are more than five. A selected person who is folded away keeps the +N button lit.</p></div>
+<div class="card"><h3>Filter 2 One menu / 3 Segment + People</h3><p>2: "Showing Mine v" opens one list with search (scales to any household size). 3: Mine / Everyone segment and one "People v" button. Both are switchable in Options.</p><div class="links"><a href="desktop.html?f=menu">Menu</a><a href="desktop.html?f=seg">Segment</a></div></div>
+<div class="card rec"><h3>Open night 1 Ghost <span class="badge">recommended</span></h3><p>No dashed box. "Open night" in quiet text; "Ask assistant" is always there, "Add by hand" and "Not cooking" appear on hover or focus. Past nights say "Nothing was planned".</p></div>
+<div class="card"><h3>Open night 2 Slim row</h3><p>All three actions visible all the time, one line high. Nothing to discover; a little busier over seven days.</p><div class="links"><a href="desktop.html?e=slim&lay=agenda">Slim</a></div></div>
+<div class="card rec"><h3>Status 1 Labelled chips <span class="badge">recommended</span></h3><p>"Missing 2", "On list 1", "Held", "Use by Tue 13", "All on hand", plus the missing names. Nothing cryptic, no tooltip needed.</p></div>
+<div class="card"><h3>Status 2 Icons + tooltips / 3 One line</h3><p>2: the old compact icons, but each with a tooltip and a label for screen readers. 3: one sentence: "Missing curry roux, jasmine rice" then "1 on list, use chicken thighs by Tue 13". Quietest.</p><div class="links"><a href="desktop.html?c=icons">Icons</a><a href="desktop.html?c=line&lay=agenda">One line</a></div></div>
+</div></div>
+
+<div class="sec"><div class="lbl">Phone</div>
+<div class="opt3 two">
+<div class="card rec"><h3>M1 Agenda + day strip <span class="badge">recommended</span></h3><p>Sticky: week header, people strip, day strip (state dots, today ringed, tap to jump, follows your scroll). Opens on today, past days above. The summary row scrolls away.</p><div class="phones"><img src="shots/p-agenda-390.jpg" alt="Phone agenda 390" loading="lazy"><img src="shots/p-agenda-360.jpg" alt="Phone agenda 360" loading="lazy"></div><div class="links"><a href="phone.html">390 agenda</a><a href="phone.html?sw=buttons">Swipe buttons</a></div></div>
+<div class="card"><h3>M2 One day at a time</h3><p>Big cards for the chosen day, "Before this night" line, previous and next day buttons at the bottom (thumb). No sideways page swipe, because it would fight the card swipe.</p><img src="shots/p-focus-360.jpg" alt="Phone one day at a time, 360" loading="lazy" style="max-width:260px"><div class="links"><a href="phone.html?lay=focus&day=wed">360 focus</a></div></div>
+<div class="card rec"><h3>Bottom sheet, two stops <span class="badge">recommended</span></h3><p>Half (card still visible above) and full. Drag the handle, or press it; Up and Down arrows on the handle; x at top right (44px); Esc closes. Replan and Not cooking are pinned at the bottom, in reach of the thumb. Hold sits in the On hand heading row.</p><img src="shots/p-sheet-390.jpg" alt="Phone sheet" loading="lazy" style="max-width:260px"><div class="links"><a href="phone.html?sel=wed-curry">Sheet</a><a href="phone.html?sel=wed-curry&snap=full">Full</a></div></div>
+<div class="card"><h3>Swipe and filter variants</h3><p><b>Swipe 1 (recommended)</b> tinted reveal with a word, commits past 88px, undo toast. <b>Swipe 2</b> two buttons stay open (tap to commit). <b>People 1 (recommended)</b> scroll strip with a chevron that expands rows (decision 48). <b>People 2</b> one "Showing Mine v" button opening a sheet with search, for big households.</p><div class="links"><a href="phone.html?sw=buttons">Swipe buttons</a><a href="phone.html?f=menu">People menu</a><a href="phone.html?expand=1">Expanded strip</a></div></div>
+</div></div>
+
+<div class="sec"><div class="lbl">Touch, mouse and keyboard</div>
+<div class="tbl"><table><thead><tr><th>Phone gesture</th><th>Phone, mouse or keyboard</th><th>Desktop</th></tr></thead><tbody>
+<tr><td>Swipe a card left: Replan</td><td>Mouse drag; focus a card and press X; or the ... button</td><td>X, the ... menu, or right-click</td></tr>
+<tr><td>Swipe right: Not cooking</td><td>Mouse drag; Shift X; or the ... button</td><td>Shift X, the ... menu</td></tr>
+<tr><td>Tap a card: bottom sheet</td><td>Click, Enter or E</td><td>Click, Enter or E fills the inspector</td></tr>
+<tr><td>Drag the sheet handle</td><td>Mouse drag; Enter on the handle; Up and Down</td><td>Not needed (inspector is docked)</td></tr>
+<tr><td>Close the sheet</td><td>x, Esc, tap the scrim, drag down</td><td>x or Ctrl/Cmd Enter (decision 53); Esc closes a flyout, menus, popovers</td></tr>
+<tr><td>Tap an open night</td><td>Tap the row, or its buttons</td><td>Buttons on hover or focus</td></tr>
+<tr><td>Any removal</td><td>Undo toast; Z</td><td>Undo toast; Z</td></tr></tbody></table></div>
+<p style="margin-top:8px">Every action maps to a service method the chat tools already call (<code>plan_remove_meal</code>, <code>plan_block_day</code>, <code>plan_reserve</code>, <code>plan_add_missing_to_list</code>, <code>plan_update_meal</code>, <code>plan_view</code>): UI and chat share them. Moving by drag is unchanged (decisions 6 and 54) and is not redrawn here.</p></div>
+
+<div class="sec"><div class="lbl">Decisions 63 to 84: proposed, not confirmed</div>
+<p>Full wording in <a href="../../docs/knowledge/jobs-to-be-done/plan-ui-review.md" style="color:var(--accent)">plan-ui-review.md</a>. Other job notes reuse some of these numbers for their own lists, so always cite them with the file.</p>
+<ol class="decs" start="63">
+<li>The desktop week fills the window beside the rail; the header rule, summary and week span the whole main column.</li>
+<li>The Week board is seven columns only from 1760px; below, the same cards draw as agenda rows.</li>
+<li>The inspector is docked or a flyout, fixed, full height, with its own scroll; it never covers the day it is about at 1440 and up.</li>
+<li>Inspector: close x always visible; Replan and Not cooking pinned in a footer; Ctrl/Cmd Enter closes; Esc closes only a flyout, menus and popovers.</li>
+<li>Hold sits in the On hand heading row (and Add all in Missing), on one baseline above one divider.</li>
+<li>People filter: Mine / Everyone segment, member chips with initials, "+N more" overflow with search.</li>
+<li>Day rows: a large day label, a Today pill and accent border, past days dimmed.</li>
+<li>Open night: no dashed box; Ask assistant visible, Add by hand and Not cooking on hover or focus (always on phone).</li>
+<li>Not cooking is a short quiet block with an accent bar (this week) or a plain bar (usual day off), not a filled tile.</li>
+<li>Status chips carry words; icon-only and one-line are alternatives; every icon has a label.</li>
+<li>The source line ("Made up by your assistant", "not saved as a recipe") is one plain line in the inspector, not a chip.</li>
+<li>Card titles wrap, never truncate; the ... button is 40px (44 on phone); right-click opens the same menu.</li>
+<li>A week summary strip: nights cooking n of 7 with a rhythm of seven dots, to buy, use first, leftover nights; tiles highlight cards.</li>
+<li>A today marker everywhere (pill, border, ringed date).</li>
+<li>Leftover chains are shown: "Cooks double: Friday leftovers" and "Leftovers from Wed 14".</li>
+<li>Keys: arrows, E or Enter, Ctrl/Cmd Enter, X, Shift X, H, L, Z, A, T, M, ?.</li>
+<li>Phone: a sticky stack of week header, people strip and day strip.</li>
+<li>Phone swipe: labelled tint, commit at 88px, undo; works with a mouse and with X and Shift X.</li>
+<li>Phone detail: a two-stop bottom sheet with a pinned footer and a button equivalent of the drag.</li>
+<li>Phone: "Open your assistant" sits in the thumb zone above the nav.</li>
+<li>Phone M2 has no sideways page swipe; day changes by strip or bottom buttons.</li>
+<li>Phone people strip stays decision 48; a searchable menu is offered for large households.</li>
+</ol></div>
+
+<div class="sec"><div class="lbl">Notes</div>
+<ul class="decs">
+<li><b>Open questions for the owner:</b> which layout; whether the full-width, window-filling desktop replaces "left-anchored, free space on the right" (DESIGN.md section 7 item 2 and decision 56) for Plan; whether the quiet Not cooking block replaces the filled one (35, 36); words on the chips; Esc closing a flyout.</li>
+<li><b>Sample data:</b> household members are invented (Sam, Jane, Kit, Arlo, Priya, Tom, Lee); the test labels in the owner's screenshot ("UUU", "Member no") are real-app test data, not a design.</li>
+<li><b>What loads:</b> desktop.html: theme.css, d.css, data.js, desktop.js (about 40 KB together) plus only the size files that match (d-1024, d-1280, d-1440, d-1760, d-1920, d-short). phone.html: theme.css, phone.css, data.js, phone.js. No images, no fonts beyond the theme; the screenshots on this page load lazily. Viewport code is only in the size files and phone.*; shared code has no size rules.</li>
+<li>Screenshots in <code>shots/</code> are quick looks (dark theme); the pages are the source of truth.</li>
+</ul></div>
+</div></body></html>
