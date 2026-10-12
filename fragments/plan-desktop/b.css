@@ -100,3 +100,12 @@
 .sumcol .sumrow .mini.cart svg{width:16px;height:16px}
 .ubd{flex:none;min-width:58px;text-align:center;font-size:12px;font-weight:800;padding:2px 6px;border-radius:8px;border:1px dashed var(--danger);color:var(--danger);margin-top:1px}
 .sumcol .sumcta{margin-top:10px}
+
+/* ---------- "just dropped in" (decision 156): the tile drops a few pixels into place and its card washes in the accent, then settles. Brief (1.5s), tokens only. Not on the ghost. b.js adds .dropped (and --age, so a re-render mid-cue does not restart it) and removes it after 1.5s. ---------- */
+@keyframes dropin{0%{transform:translateY(-14px);opacity:0}55%{transform:translateY(2px);opacity:1}100%{transform:none;opacity:1}}
+@keyframes dropwash{from{background:color-mix(in srgb,var(--accent) 22%,var(--surface));border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 40%,transparent)}}
+.mcw.dropped{animation:dropin .45s cubic-bezier(.2,.8,.3,1) both;animation-delay:var(--age,0ms)}
+.mcw.dropped .mc{animation:dropwash 1.5s ease-out both;animation-delay:var(--age,0ms)}
+@media(prefers-reduced-motion:reduce){
+ .mcw.dropped,.mcw.dropped .mc{animation:none}
+ .mcw.dropped .mc{background:color-mix(in srgb,var(--accent) 22%,var(--surface));border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 40%,transparent)}}
