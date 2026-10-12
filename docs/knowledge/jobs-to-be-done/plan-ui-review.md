@@ -1,6 +1,6 @@
 # Plan UI review: desktop and phone
 
-Owner ask, 12 October 2026 (voice or text): "Analyse the plan UI for desktop and mobile and amend with better UI choices/options, in mockup first." Everything below the owner's words is a **proposal** by the design agent. Nothing is built in Kitchie and nothing is confirmed. Decisions 63 to 84 continue the Plan list after 49 to 62 (other job notes reuse some of these numbers for their own lists, so always cite them with this file name).
+Owner ask, 12 October 2026 (voice or text): "Analyse the plan UI for desktop and mobile and amend with better UI choices/options, in mockup first." Everything below the owner's words is a **proposal** by the design agent. Nothing is built in Kitchie and nothing is confirmed. Decisions 63 to 84 continue the Plan list after 49 to 62 (proposals by the design agent). Decisions 85 to 106 (12 Oct 2026 revision, below) are mostly **owner-stated, 12 Oct 2026, by voice**. Other job notes reuse these numbers for their own lists (`item-edit-flyout.md` uses 85 to 104 and more), so always cite them as "Plan UI review 85" with this file name.
 
 Mockups: [`fragments/plan-ui-review/index.html`](../../../fragments/plan-ui-review/index.html) (links [`desktop.html`](../../../fragments/plan-ui-review/desktop.html) and [`phone.html`](../../../fragments/plan-ui-review/phone.html)). Builds on [plan-week-ai.md](plan-week-ai.md) (1 to 48, phone) and [plan-desktop.md](plan-desktop.md) (49 to 62, options A to D, still as drawn; the review layouts are refinements, not replacements).
 
@@ -120,3 +120,85 @@ Phone options: **M1 agenda + day strip** (recommended; opens on today, past days
 - Touch and pointer: swipes use pointer events (touch and mouse alike), `touch-action: pan-y` on cards; the sheet handle uses pointer capture. Respect reduced motion when built.
 - Accessibility: radiogroup on the people filter, `role="dialog"` on the sheet, labels on every icon-only button, 44px targets except the dense desktop chips (26px, not primary controls).
 - Verification done in this mockup: headless screenshots at 1024, 1280, 1440, 1920 (desktop) and 390, 360 (phone), in `kitchie` and `kitchie-day`; no sideways scroll; no page errors; keyboard and swipe paths exercised. Pages URL: <https://basement-bridge.github.io/mockup/fragments/plan-ui-review/index.html> (not checked from the sandbox).
+
+
+---
+
+# Revision, 12 October 2026: owner voice review (decisions 85 to 106)
+
+Owner opened the review page and gave feedback by voice. **Owner-stated, 12 Oct 2026** marks his words; **Proposal** marks the design agent filling a gap. Phone first, desktop equivalents are proposals. Nothing is built in Kitchie.
+
+Mockups: [index](../../../fragments/plan-ui-review/index.html), [phone.html](../../../fragments/plan-ui-review/phone.html) (rewritten: day ribbon), [desktop.html](../../../fragments/plan-ui-review/desktop.html) (ribbon, dropdown filter, Ask AI, copy and undo). Earlier options A to D are in [plan-desktop](../../../fragments/plan-desktop/index.html) and now linked from the review index.
+
+## Page fixes (same day)
+
+- **Images were missing** because the repo `.gitignore` contains `shots/`, so every `shots/` folder (review and plan-desktop PR #69) was never committed and the Pages site had no files to serve. Images now live in `img/` folders (not ignored) and every `img` on both index pages was checked to load.
+- "The bulb icon top right" is **Plan settings**, drawn as a sun-like cog. It is now a recognisable gear, labelled "Plan settings" on the page. The mockup-only **Options** button (now "Mockup options") is not part of the app.
+- "Bottom sheet, two stops" is the phone meal detail as a sheet that stops at half and full height. It is now explained on the page and kept as the comparison option.
+
+## Decisions
+
+Navigation (owner-stated, 12 Oct 2026)
+
+85. Replace discrete week jumps with a **continuous day ribbon**: scroll day by day, not week-snapped ("Sunday to Monday is one nudge, not a work calendar"). Desktop equivalent: Proposal, a 21-day ribbon in the header; the board stays one Monday-to-Sunday window.
+86. The ribbon is **bounded: last week, this week, next week**. AMBIGUOUS, see open questions (he first said "four weeks forward", then "last week, this week, next week, that's enough"). Three weeks drawn.
+87. The **"Week of" label stays** and follows the selected or centred day ("Week of <that week's Monday>"). "Last week / This week / Next week" shows under it when it applies. No fortnight wording.
+88. **Today is always highlighted** (filled date). A **jump to today** shortcut (assistant-proposed, owner accepted the ribbon direction) appears whenever the selected day is not today (phone pill in the header; desktop pill and key T).
+89. The **soft rectangle selection marker** that glides as you scroll the agenda: "fantastic", kept. Tapping a day in the ribbon brings it into focus in the agenda, whatever dots or leftover markers it carries (a hidden Not cooking day is revealed).
+90. **Space at the top is too expensive.** Person filter collapsed by default (97), prev/next week buttons replaced by the ribbon, Week-of label compact (one line plus the relative word).
+91. Header: **collapsible sticky header that shrinks on scroll down and returns on scroll up** (Proposal, recommended) versus **fixed**. Both in Options. Drawn as a fixed bar with an in-flow spacer so shrinking never moves the page.
+
+Open and Not cooking nights (owner-stated unless marked)
+
+92. An undecided day reads **"Open night"** (quiet text, no dashed box). Tapping "Open night" turns it into **Not cooking**, which then hides once you move on.
+93. **Not cooking is hidden by default** (phone). A hidden day scrolling into view **peeks** at the edge it passes (arrives from the bottom edge, leaves under the top edge), then is gone. Peek is a slim strip clipped by the header or nav. Tapping a ribbon day reveals it. Desktop: Proposal, a slim "Not cooking" line instead of the block (no scroll peek needed); "always shown" kept as an option.
+94. Open night offers **"Ask AI"** and **"Surprise me"**, scoped to that day. **Surprise me heuristics (owner-confirmed):** timing aware, early in the week or with room to shop it may suggest something new and may use items already on the shopping list or already being bought for planned meals; late in the week or when eating mostly from the house it favours reusing on-hand stock; always non-repetitive against recent meals. Explainer only, not UI copy. Mock rule (Proposal for the thresholds): on-hand if the night is today or tomorrow, or Fri to Sun of this week; otherwise new; "recent" is any planned meal within 7 days.
+95. Wording is **"Ask AI"**, not "Open your assistant". Owner votes against that wording and **against any floating or persistent assistant control**: the floating pill (phone) and the header button (desktop) are removed. Ask AI lives on open nights, in the curtain (96) and on key A (scoped to the day in view). Supersedes 82 and 70's "Ask assistant" wording of this note, and the "button stays" decision 43 of `plan-week-ai.md`. Not found anywhere in this repo: the existing "Ask AI" wording in the app; Kitchie was not reachable to copy it (open question).
+96. **Week-level "Ask AI to plan this" curtain** when everything in view is empty or Not cooking, dropping under the ribbon (same drop and push as the idle nudge, decisions 15, 19, 20 of `plan-week-ai.md`, desktop `plan.css` `.curtain`). Dismisses on any interaction. Trigger: owner first said idle-triggered, then that people look at the start of the week anyway, so "start with the start of the week and play with it". **Prototype, NOT locked**, two variants: (a) **start**: shows immediately when the first three non-past nights of the selected week are empty (default); (b) **idle**: the whole selected week empty and 5 s of no interaction. Off is also offered.
+
+People and filter
+
+97. The person filter must stop eating space: **collapsed by default into a dropdown** ("Showing Mine v"; Mine, Everyone, then other members, view only, with search). The "Everyone" part is kept as is for now with visual options for him to judge once built: (1) one dropdown (recommended), (2) Mine / Everyone segment plus a People dropdown, (3) earlier chips behind a chevron. AMBIGUOUS, see 98.
+98. AMBIGUOUS: he also said the "number of people / various different people" control should be a dropdown ("if we do it, that's a drop down"). Mocked both ways for the **people count in the meal detail**: stepper (current) or dropdown. See open questions.
+
+Copy, undo, drop
+
+99. **Copy last week** fills **only empty days and never overwrites** (no confirm). It acts on the plan of the **active pill**: Mine copies my last week into mine; Everyone (household) copies the household plan; **other members' plans are read only** and cannot be planned for (Copy disabled, banner "Jane's plan: view only"). Proposal details: Not cooking days count as decided and are not filled; past days are never filled; it copies the week before the selected week into it ("last week" when viewing this week, this week when viewing next week).
+100. **Phone, past is read only**: past meals have no delete, move or Not cooking. **Swipe right on a past meal = copy forward**: a date picker (today onward, this and next week) takes you to a date, then the meal is **in hand**, a floating bar above the nav, until you tap a day to drop it (or Cancel). While carrying, **all days show, including hidden Not cooking days**, each marked "Tap to drop here". Past days cannot be dropped on. The ... menu and the detail of a past meal offer the same "Copy forward".
+101. **Undo is a hard requirement everywhere something is copied, dropped or removed.** Desktop (owner): the Copy button **flips to Undo with the curly-arrow icon**; other changes keep the undo toast and Z. Phone: he did **not** like the snackbar ("give me options"). Four patterns drawn, **no bottom snackbar**: (1) **anchored on the changed day** (recommended), (2) the **Copy button flips to Undo** in the header, (3) **banner under the ribbon**, (4) **pill under the ribbon**. Recommendation (Proposal): pattern 1 for everything, plus pattern 2 for Copy last week, because Copy changes several days and the button is where the thumb already is. Undo is one level (latest change), Z on a keyboard, notes clear after 14 s.
+102. **Drop rules (owner-stated)**: dropping on a Not cooking day makes it a cooking day. Dropping on a day that already has a meal **replaces it with no confirm, because undo exists, but never silently**: the day says "Replaced <meal> with <meal>" and the changed day **pulses** (his chosen feedback, option 1; he will ask for another if he dislikes it). Proposal: with several meals on the day, the first is replaced. **Where the dropped meal lands in the day is AMBIGUOUS** ("start of the day" then "week"); verbatim in open questions; mock puts it first in the day.
+103. **Phone meal detail docks directly below the ribbon**, inline in the flow, not an overlay; **that day becomes the heading of the detail**; other days recede. What stays visible is deliberately OPEN (he does not want the cook-sheet "full" locked). Three variants plus the sheet: (1) **neighbours peek** (yesterday and tomorrow as one line each; Proposal, recommended: the ribbon already maps the week, neighbours add leftover and shopping context), (2) other days of the week as one line each, (3) all other days hidden, (4) the **two-stop bottom sheet** kept as the comparison. Close with x or Esc; the page returns to that day.
+104. **Missing and Use-by language is not landed.** Four options on both surfaces, each shown on a meal with missing items and a use-by warning (Wed curry: 2 missing, 5 of 7 ready, chicken by Tue 13): (a) labelled text chips ("Missing 2", "Use by Tue 13") coloured by urgency (use-by: today or overdue red, within two days amber, later quiet); on list and held become a quiet line; (b) icon plus count badge; (c) one edge strip and a status dot per card, specifics only in the detail; (d) progress, "5 of 7 ingredients ready" with a bar and one use-by line. **Recommendation (Proposal): (a)**, it is the only one that reads without learning anything and it carries the use-by day; (d) is the runner-up for phone.
+105. Desktop equivalents (all **Proposals**): ribbon of 21 days with week group labels and the gliding marker; the board and agenda show the Monday-to-Sunday week of the selected day; dropdown filter inline in the title row (the Keyboard link moves to the rail's Keys); Copy last week button with the flip; Ask AI and Surprise me on open nights; the curtain under the ribbon; slim Not cooking; past is read only; no copy-forward or in-hand on desktop (moving by drag stays as decisions 6 and 54, not redrawn). Continuous scrolling of agenda rows across weeks on desktop is not drawn.
+106. Supersessions: 72 (words on chips) is reopened by 104; 70 and 82 "Ask assistant" wording and the persistent button by 95; 79 and 83 week change by arrows and title long-press by 85; 71 (Not cooking block) by 93 for phone; 68 chips by 97 as the default.
+
+## Open questions (owner)
+
+Still unanswered from the first review:
+- Which desktop layout (board, agenda, day focus) and inspector style (docked, flyout). Options A to D of PR #69 are now linked from the index (note B).
+- Fill the window beside the rail (63) or left-anchored (`DESIGN.md` section 7 item 2, decision 56)?
+- Not cooking block replacement (71): partly answered by 93 (hidden on phone); desktop proposal is the slim line.
+- Chips versus symbols: now four options (104).
+- Esc closing a flyout inspector (66).
+- Leftover link as real data (77), and where it is stored.
+- Board only from 1760px (64).
+
+New from the voice review (record, do not guess):
+- **Weeks shown (86):** "four weeks forward" or "last week, this week, next week, that's enough"? Three weeks drawn; four forward would need a longer ribbon and more data (decision 44 window).
+- **Who control (97, 98):** is the dropdown the person filter (many people), the people-count in a meal, or both? Both mocked.
+- **Where a dropped meal lands (102):** verbatim, "start of the day" then "week". Probably day-start versus a week-level slot; mock puts it first in the day.
+- **Curtain trigger (96):** immediate at the start of an empty week or idle-delayed; or both; not locked.
+- **Surprise me (94):** thresholds for "late in the week" and "recent" are Proposals.
+- **Ask AI wording (95):** the existing app wording could not be checked (Kitchie not reachable); match it when built. Keep the header and floating controls off on desktop too?
+- **Undo pattern (101):** pick one of four; also whether undo is one level or a history.
+- **Detail on phone (103):** which of three docked variants (or the sheet).
+- **Status (104):** pick one of a to d.
+- **Header (91):** shrink or fixed.
+
+## Not done and blockers
+
+- `basement-bridge/kitchie` was not reachable from this session, so no Kitchie issue was filed. Issue text to file when reachable: **"Plan UI review: choose layout and confirm decisions 63 to 84 and 85+"**, body: links to the review index, `plan-ui-review.md` (this file), phone.html and desktop.html, the open questions above, "owner-stated 12 Oct 2026" for 85 to 99 except Proposal parts, and the standing rule that nothing is built before the owner picks.
+
+## What loads (DESIGN.md section 6)
+
+phone.html: theme.css, phone.css, data.js, status.js, phone.js (about 60 KB); no images, no fonts beyond the theme. desktop.html: theme.css, d.css, data.js, status.js, desktop.js plus only the size files that match. Deferred: none needed; the curtain, peek and date picker render on engagement. `status.js` and `data.js` have no viewport rules.

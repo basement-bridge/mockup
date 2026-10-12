@@ -6,41 +6,58 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
 h1,h2,h3{font-family:var(--head);margin:0}
 p{margin:0;color:var(--muted)}ul{list-style:none;margin:0;padding:0}
 [hidden]{display:none!important}
+select{font:inherit}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .kbd{font:600 11px var(--body);border:1px solid var(--border);border-radius:6px;padding:1px 6px;color:var(--muted)}
-.app{max-width:430px;min-height:100vh;margin:0 auto;background:var(--bg);position:relative;padding-bottom:calc(64px + 64px + env(safe-area-inset-bottom))}
+.app{max-width:430px;min-height:100vh;margin:0 auto;background:var(--bg);position:relative;padding-bottom:calc(64px + 90px + env(safe-area-inset-bottom))}
 
-/* sticky stack: week header, people strip, day strip (always visible, so the week never scrolls out of reach) */
-.stk{position:sticky;top:0;z-index:10;background:var(--bg);border-bottom:1px solid var(--border)}
-.hd{display:flex;align-items:center;gap:2px;padding:6px 8px 0 8px;min-height:52px}
-.hd h1{font-size:1.15rem;line-height:1.1;white-space:nowrap}
-.hd .wt{min-width:8.5rem;padding:0 4px}
-.hd .wt small{display:block;font-size:12px;color:var(--muted);font-weight:600}
+/* top stack: week header, day ribbon (fixed bar with an in-flow spacer so it can shrink on scroll without moving the page) */
+.stkp{height:120px}
+.stk{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;z-index:10;background:var(--bg);border-bottom:1px solid var(--border)}
+.hd{display:flex;align-items:center;gap:4px;padding:4px 6px 0 12px;min-height:52px}
+.hd h1{font-size:1.1rem;line-height:1.1;white-space:nowrap}
+.hd .wt{flex:none;padding:0 2px 0 0}
+.hd .wt small{display:block;font-size:12px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:11.5rem}
+.stk.cmp .hd{min-height:36px;padding-top:0}
+.stk.cmp .hd h1{font-size:.95rem;display:inline}
+.stk.cmp .hd .wt small{display:none}
+.stk.cmp .hd .cpy:has(.flipundo){display:inline-flex}
+.stk.cmp .hd .cpy,.stk.cmp .hd .cog{display:none}
+.stk.cmp .hd .ib,.stk.cmp .fmenu,.stk.cmp .tdy{min-height:32px;height:32px}
+.hd .ib{width:40px}
 .ib{width:44px;height:44px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:none;color:var(--fg)}
 .ib:active{background:var(--surface)}
 .ib:disabled{opacity:.3}
 .sp{flex:1}
-.pp{display:flex;align-items:center;gap:6px;padding:4px 8px}
-.pstrip{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;scroll-snap-type:x proximity;flex:1;min-width:0;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent)}
-.pstrip.open{flex-wrap:wrap;max-height:calc(5 * 44px);overflow-y:auto;-webkit-mask-image:none;mask-image:none}
-.pstrip::-webkit-scrollbar{display:none}
-.ch{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-weight:600;font-size:14px;white-space:nowrap;scroll-snap-align:start;flex:none}
+.cpy{display:inline-flex}
+.tdy,.fmenu,.flipundo{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 10px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-weight:700;font-size:13px;white-space:nowrap;flex:none}
+.tdy{color:var(--accent);border-color:var(--accent)}
+.tdy svg,.fmenu svg,.flipundo svg{width:15px;height:15px}
+.fmenu .av{width:22px;height:22px;font-size:11px;margin:0 -2px 0 -6px}.fmenu .av:empty{display:none}
+.fmenu b{font-weight:700}
+.flipundo{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.pp{display:flex;align-items:center;gap:6px;padding:0 8px 4px}
+.pstrip{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0}
+.pstrip.open{flex-wrap:wrap}
+.ch{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-weight:600;font-size:14px;white-space:nowrap;flex:none}
 .ch i{font-style:normal;font-size:12px;color:var(--muted)}
 .ch.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 .ch.on i{color:inherit}
+.ch svg{width:14px;height:14px}
 .ch .av{width:24px;height:24px;border-radius:50%;display:inline-grid;place-items:center;font-size:12px;font-weight:700;background:var(--bg);border:1px solid var(--border);color:var(--fg);margin-left:-6px}
 .ch.on .av{background:var(--on-accent);color:var(--accent);border-color:transparent}
-.ch.dv{margin-left:6px}
-.chev{width:40px;height:40px;border-radius:50%;border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;flex:none}
-.chev svg{width:16px;height:16px}
-.fmenu{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-weight:600;font-size:14px;margin:4px 8px}
-.fmenu span{color:var(--muted);font-weight:500}
-.fmenu svg{width:14px;height:14px}
-.days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px;padding:2px 6px 8px}
-.dy{display:flex;flex-direction:column;align-items:center;gap:1px;min-height:56px;padding:4px 0 4px;border-radius:14px;font-size:11px;font-weight:700;color:var(--muted);position:relative}
+.av{display:inline-grid;place-items:center;border-radius:50%;background:var(--bg);border:1px solid var(--border);color:var(--fg);font-weight:700}
+
+/* day ribbon: continuous, one day per nudge, three weeks (last, this, next). The soft rectangle marks the day in focus and glides as you scroll the agenda. */
+.rib{overflow-x:auto;scrollbar-width:none;scroll-snap-type:x proximity;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;padding:0 0 6px}
+.rib::-webkit-scrollbar{display:none}
+.ribin{position:relative;display:flex;width:max-content;padding:0 6px}
+.mk{position:absolute;left:0;top:0;border-radius:14px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent);transition:transform .24s cubic-bezier(.2,.8,.2,1),width .2s;pointer-events:none;z-index:0}
+.dy{position:relative;z-index:1;flex:0 0 calc((min(100vw,430px) - 12px) / 7);scroll-snap-align:center;display:flex;flex-direction:column;align-items:center;gap:1px;min-height:56px;padding:4px 0;border-radius:14px;font-size:11px;font-weight:700;color:var(--muted)}
 .dy b{font:700 17px var(--head);color:var(--fg);line-height:1.2}
 .dy.today b{background:var(--accent);color:var(--on-accent);border-radius:50%;width:28px;height:28px;display:grid;place-items:center;font-size:15px}
-.dy.on{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent)}
+.dy.mon::before{content:"";position:absolute;left:-1px;top:10px;bottom:10px;border-left:1px solid var(--border)}
+.dy:first-of-type::before,.mk+.dy::before{display:none}
 .dy .st{display:flex;gap:3px;height:8px;align-items:center}
 .dy .st i{width:6px;height:6px;border-radius:50%;background:var(--sage)}
 .dy .st i.bad{background:var(--danger)}
@@ -58,7 +75,7 @@ p{margin:0;color:var(--muted)}ul{list-style:none;margin:0;padding:0}
 .sb svg{width:14px;height:14px}
 
 /* days and cards */
-.dsec{padding:10px 12px 0;scroll-margin-top:170px}
+.dsec{padding:10px 12px 0}
 .dsh{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}
 .dsh b{font:700 1.05rem var(--head)}
 .dsh span{color:var(--muted);font-size:14px}
@@ -122,9 +139,7 @@ p{margin:0;color:var(--muted)}ul{list-style:none;margin:0;padding:0}
 .focuslay .mc{padding:14px 6px 14px 14px}
 .focuslay .tx h3{font-size:18px}
 
-/* bottom: assistant pill in the thumb zone, then the app nav */
-.ast{white-space:nowrap;position:fixed;left:50%;transform:translateX(-50%);bottom:calc(64px + 10px + env(safe-area-inset-bottom));z-index:12;display:inline-flex;align-items:center;gap:8px;min-height:48px;padding:0 18px;border-radius:var(--r-pill);background:var(--accent);color:var(--on-accent);font-weight:700;font-size:15px;box-shadow:0 6px 20px var(--dim)}
-.ast svg{width:16px;height:16px}
+/* bottom: the app nav (no floating assistant control: owner, 12 Oct 2026) */
 .nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:calc(64px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);display:grid;grid-template-columns:repeat(5,1fr);background:var(--surface);border-top:1px solid var(--border);z-index:11}
 .nv{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;font-weight:600;color:var(--muted)}
 .nv svg{width:24px;height:24px}
@@ -178,11 +193,124 @@ p{margin:0;color:var(--muted)}ul{list-style:none;margin:0;padding:0}
 .asheet .it.on svg{color:var(--accent)}
 .asheet input{width:calc(100% - 16px);margin:4px 8px 8px;min-height:44px;border-radius:12px;border:1px solid var(--border);background:var(--bg);color:var(--fg);padding:0 12px;font:inherit}
 .scrim2{position:fixed;inset:0;background:var(--dim);z-index:30}
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(64px + 70px + env(safe-area-inset-bottom));z-index:40;display:flex;gap:14px;align-items:center;background:var(--fg);color:var(--bg);padding:8px 8px 8px 16px;border-radius:var(--r-ctl);font-weight:600;font-size:14px;width:calc(100% - 24px);max-width:406px}
-.toast button{margin-left:auto;color:var(--bg);font-weight:800;min-height:44px;padding:0 12px;text-decoration:underline}
 .hintbar{margin:8px 12px 0;font-size:12px;color:var(--muted);display:flex;gap:6px;flex-wrap:wrap}
 .optfab{position:fixed;left:8px;bottom:calc(64px + 16px);z-index:13;min-height:44px;padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);color:var(--accent);font-weight:700;font-size:12px}
 .optpanel{position:fixed;left:8px;bottom:calc(64px + 58px);z-index:14;width:min(300px,calc(100vw - 16px));max-height:70vh;overflow:auto;padding:12px 14px;border-radius:var(--r-card);border:1px solid var(--border);background:var(--bg);box-shadow:0 12px 40px var(--dim)}
 .optpanel fieldset{border:0;padding:0;margin:0 0 8px}
 .optpanel legend{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
 .optpanel label{display:flex;gap:8px;align-items:center;min-height:36px;font-size:14px}
+
+/* ---- 12 Oct 2026 revision (decisions 85 to 106) ---- */
+/* week dividers, hidden Not cooking days, drop targets, pulse */
+.wkd{display:flex;align-items:baseline;gap:8px;padding:18px 12px 0;color:var(--muted);font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.wkd i{font-style:normal;font-weight:600;letter-spacing:0;text-transform:none;font-size:13px}
+.wkd:first-child{padding-top:6px}
+.dsec.hid{height:0;overflow:hidden;padding:0;margin:0;visibility:hidden}
+.dsec{transition:background .3s}
+.dsec.target{background:color-mix(in srgb,var(--accent) 7%,transparent);box-shadow:inset 3px 0 0 var(--accent);margin-top:2px}
+.dsec.target:not(.past) .cl{pointer-events:none}
+.drp{margin-left:auto;font-style:normal;font-size:12px;font-weight:700;color:var(--accent)}
+.ncl{font-style:normal;font-size:12px;color:var(--muted);font-weight:600}
+.dsec.past.target{background:none;box-shadow:none}
+.carrying .dsec.past{opacity:.45}
+@keyframes pulse{0%{background:color-mix(in srgb,var(--accent) 38%,transparent)}100%{background:transparent}}
+.pulse{animation:pulse 1.3s ease-out 2;border-radius:var(--r-card)}
+@media(prefers-reduced-motion:reduce){.pulse{animation:none;box-shadow:inset 0 0 0 2px var(--accent)}.mk{transition:none}}
+/* open night: quiet text, no dashed box. Tap the words to mark Not cooking. */
+.nite{display:flex;flex-wrap:wrap;align-items:center;gap:2px 10px;min-height:52px;padding:2px 2px 6px;border-bottom:1px solid var(--border)}
+.nite .ot{display:flex;flex-direction:column;justify-content:center;min-height:44px;flex:1 1 7rem;color:var(--muted);font-weight:600;font-size:15px;text-align:left}
+.nite .ot small{font-size:11px;font-weight:500;opacity:.8}
+.nite.ro .ot{opacity:.7}
+.oa{display:flex;gap:6px;flex:none}
+.oa button{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 10px;border-radius:var(--r-pill);color:var(--fg);font-weight:600;font-size:13px}
+.oa button:active{background:var(--surface)}
+.oa svg{width:15px;height:15px;color:var(--accent)}
+/* undo patterns (101): on the changed day (recommended), banner, pill; the copy button flips in the header */
+.unote,.ubn,.upill{display:flex;align-items:center;gap:8px;background:var(--fg);color:var(--bg);font-weight:600;font-size:13px;border-radius:var(--r-ctl)}
+.unote{margin:0 0 8px;padding:2px 4px 2px 12px;min-height:44px}
+.unote span,.ubn span,.upill span{flex:1;min-width:0;overflow-wrap:anywhere}
+.unote button,.ubn button,.upill button{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 12px;font-weight:800;color:var(--bg);border-radius:var(--r-pill)}
+.unote svg,.ubn svg,.upill svg{width:16px;height:16px}
+.ubn{margin:0 8px 6px;padding:0 4px 0 12px;min-height:44px}
+.upill{position:absolute;right:8px;top:calc(100% + 8px);max-width:calc(100% - 16px);padding:0 4px 0 14px;min-height:44px;border-radius:var(--r-pill);box-shadow:0 6px 20px var(--dim)}
+.rol{display:flex;align-items:center;gap:8px;margin:0 8px 6px;padding:6px 12px;border-radius:var(--r-ctl);background:var(--surface);border:1px dashed var(--border);font-size:13px;color:var(--muted)}
+.rol svg{width:15px;height:15px;flex:none}
+/* curtain: Ask AI to plan this (the same drop as the idle nudge, decisions 15, 19, 20); pushes the week down */
+.cslot{overflow:hidden}
+.cslot.in{animation:push .4s ease-out both}
+@keyframes push{from{height:0}to{height:54px}}
+.curtain{display:flex;align-items:center;gap:8px;width:calc(100% - 16px);margin:0 8px 8px;height:46px;padding:0 14px;border:0;border-radius:var(--r-ctl);background:var(--accent);color:var(--on-accent);font-weight:800;font-size:14px}
+.curtain svg{width:16px;height:16px}
+.cslot.in .curtain{animation:drop .4s ease-out both}
+@keyframes drop{from{transform:translateY(-100%)}to{transform:none}}
+@media(prefers-reduced-motion:reduce){.cslot.in,.cslot.in .curtain{animation:none}}
+.cslot.in{height:54px}
+/* peek: a hidden Not cooking day shows at the edge it scrolls past, then is gone */
+.peek{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;z-index:9;pointer-events:none}
+.peek button{pointer-events:auto;display:flex;align-items:center;gap:8px;width:100%;min-height:32px;padding:0 14px;background:color-mix(in srgb,var(--surface) 92%,transparent);border-top:1px solid var(--border);border-bottom:1px solid var(--border);border-left:4px solid var(--accent);color:var(--muted);font-size:12px;font-weight:600;animation:peekin .2s ease-out}
+.peek button b{color:var(--fg)}
+@keyframes peekin{from{opacity:0}to{opacity:1}}
+.endsp{height:62vh}
+.sum{padding-top:6px}
+/* in hand (copy forward) */
+.carry{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(64px + 10px + env(safe-area-inset-bottom));z-index:25;width:calc(100% - 20px);max-width:410px;display:flex;align-items:center;gap:12px;padding:8px 8px 8px 10px;border-radius:var(--r-card);background:var(--accent);color:var(--on-accent);box-shadow:0 8px 28px var(--dim)}
+.carry .em{background:var(--on-accent);width:40px;height:40px}
+.carry div{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.2}
+.carry b{font-size:15px}.carry small{font-size:12px;font-weight:600}
+.carry button{min-height:44px;padding:0 14px;border-radius:var(--r-pill);border:1.5px solid var(--on-accent);font-weight:800;color:var(--on-accent)}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;padding:4px 8px 8px}
+.cwk{grid-column:1/-1;font-size:12px;color:var(--muted);font-weight:700;margin:6px 0 0}
+.cd{display:flex;flex-direction:column;align-items:center;min-height:52px;border-radius:12px;border:1px solid var(--border);justify-content:center}
+.cd small{font-size:11px;color:var(--muted)}.cd b{font:700 17px var(--head)}
+.cd:disabled{opacity:.3}.cd.today{border-color:var(--accent)}
+.hint2{font-size:13px;padding:0 12px 8px}
+/* docked detail */
+.dock{padding:6px 12px 8px;background:var(--bg)}
+.dkh{display:flex;align-items:center;gap:8px;min-height:48px}
+.dkh h2{flex:1;font-size:1.25rem;line-height:1.2}
+.dkh h2 b{font-weight:800}
+.dkh em{font-style:normal;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:var(--accent);color:var(--on-accent);border-radius:var(--r-pill);padding:2px 8px;vertical-align:middle}
+.dkb{padding:6px 2px 6px 4px}
+.dock .mc.sel{box-shadow:0 0 0 1px var(--accent)}
+.dkf{position:sticky;bottom:calc(64px + env(safe-area-inset-bottom));margin:6px -12px 0;z-index:5}
+.mini{display:flex;align-items:center;gap:10px;width:calc(100% - 24px);margin:6px 12px 0;min-height:44px;padding:4px 12px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--surface);text-align:left;font-size:13px}
+.mini b{flex:none;min-width:4.4em;font-size:13px}.mini span{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.mini.peekm{opacity:.75}
+.minis .lbl{padding:14px 12px 0}
+.ronote{display:flex;gap:6px;align-items:flex-start}.ronote svg{width:14px;height:14px;margin-top:2px;flex:none}
+.pcs{min-height:44px;border-radius:12px;border:1px solid var(--border);background:var(--bg);color:var(--fg);padding:0 12px;font-weight:700}
+/* who dropdown (anchored under the header) */
+.dd{position:fixed;z-index:31;top:var(--ddt,56px);right:8px;width:min(300px,calc(100vw - 16px));max-height:70vh;overflow:auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:6px;box-shadow:0 12px 40px var(--dim)}
+.dd h2{font-size:.95rem;padding:6px 10px 2px}
+.dd .it{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:0 10px;border-radius:12px;font-weight:600;font-size:15px}
+.dd .it small{display:block;font-size:12px;color:var(--muted);font-weight:500}
+.dd .it span:nth-child(2){flex:1}
+.dd .it .av{width:26px;height:26px;font-size:12px}.dd .it svg{width:18px;height:18px;color:var(--accent)}
+.dd .it.on{color:var(--accent)}
+.dd hr{border:0;border-top:1px solid var(--border);margin:6px 0}
+.dd .lbl{padding:0 10px 4px}
+.dd input{width:calc(100% - 12px);margin:0 6px 6px;min-height:44px;border-radius:12px;border:1px solid var(--border);background:var(--bg);color:var(--fg);padding:0 12px;font:inherit}
+/* status options (104): urgency colours, badges, edge strip, progress */
+.tg.ub.hot{color:var(--on-accent);background:var(--danger);border-color:var(--danger);border-style:solid}
+.tg.ub.warm{color:var(--accent);border-color:var(--accent);border-style:solid}
+.tg.ub.calm{color:var(--muted);border-style:dashed;border-color:var(--border)}
+.quiet{grid-column:1/-1;font-size:12px;color:var(--muted)}
+.mc>.quiet,.mc>.prog{grid-column:1/-1}
+.badges .tg{padding:0 8px;min-height:28px}
+.badges .tg.ub.hot{color:var(--on-accent)}
+.sdot{width:12px;height:12px;border-radius:50%;background:var(--sage);align-self:center;margin-right:2px}
+.sdot.bad{background:var(--danger)}.sdot.warm{background:var(--accent)}
+.mc.e-bad{box-shadow:inset 4px 0 0 var(--danger)}.mc.e-warm{box-shadow:inset 4px 0 0 var(--accent)}.mc.e-ok{box-shadow:inset 4px 0 0 var(--sage)}
+.mc.e-bad.sel,.mc.e-warm.sel,.mc.e-ok.sel{border-color:var(--accent)}
+.mc:has(>.sdot){grid-template-columns:auto minmax(0,1fr) auto auto}
+.prog{display:flex;flex-direction:column;gap:4px}
+.pr{display:flex;align-items:center;gap:10px;font-size:13px}
+.pr b{font-weight:700;white-space:nowrap}
+.bar{flex:1;height:6px;border-radius:3px;background:var(--border);overflow:hidden;min-width:40px}
+.bar i{display:block;height:100%;border-radius:3px;background:var(--sage)}.bar i.bad{background:var(--danger)}
+.pu{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--muted)}.pu svg{width:13px;height:13px}
+.pu.hot{color:var(--danger)}.pu.warm{color:var(--accent)}
+.optfab{left:auto;right:8px;bottom:calc(64px + 84px)}
+.onote{font-size:12px;color:var(--muted);margin:0 0 8px}
+.optpanel{max-height:62vh;left:auto;right:8px;bottom:calc(64px + 130px)}
+.sheet:not([role]){display:none}

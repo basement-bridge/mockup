@@ -1,218 +1,386 @@
-/* Plan UI review, phone. Behaviour for 390 and 360 wide. Swipes are pointer events, so a mouse drags exactly like a finger;
-   keyboard: focus a card, X replan, Shift X not cooking, H hold, E or Enter open. Same service methods as the chat tools. */
+/* Plan UI review, phone (390 and 360). Day ribbon revision, 12 Oct 2026 (owner-stated decisions 85 to 106, see docs/knowledge/jobs-to-be-done/plan-ui-review.md).
+   Swipes are pointer events, so a mouse drags exactly like a finger. Keyboard: focus a card, X replan, Shift X not cooking, H hold, E or Enter open, Z undo.
+   Same service methods as the chat tools (plan_view, plan_update_meal, plan_remove_meal, plan_block_day, plan_reserve, plan_add_missing_to_list, plan_move_meal, plan_copy_last_week).
+   Sample data is in data.js; status markup is in status.js. Nothing here is built in Kitchie. */
 (function () {
-  var P = window.PUR, ic = P.icons, q = new URLSearchParams(location.search);
+  var P = window.PUR, ic = P.icons, q = new URLSearchParams(location.search), RIB = P.RIB, DI = RIB.map(function (r) { return r.id; });
   function pick(k, ok, d) { var v = q.get(k); return ok.indexOf(v) > -1 ? v : d; }
-  var S = { lay: pick('lay', ['agenda', 'focus'], 'agenda'), f: pick('f', ['strip', 'menu'], 'strip'), sw: pick('sw', ['tint', 'buttons'], 'tint'),
-    today: pick('today', ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'], 'tue'), day: q.get('day') || 'wed', view: q.get('who') || 'mine', hl: null, sel: q.get('sel'), snap: q.get('snap') === 'full' ? 'full' : 'half',
-    expand: q.get('expand') === '1', asheet: null, opts: false, undo: null, meals: JSON.parse(JSON.stringify(P.meals)), blocked: JSON.parse(JSON.stringify(P.blocked)) };
-  var root = document.getElementById('root'), DI = P.DAYS.map(function (d) { return d[0]; });
-  if (!S.meals.some(function (m) { return m.id === S.sel; })) S.sel = null;
-  function di(d) { return DI.indexOf(d); } function past(d) { return di(d) < di(S.today); }
+  var S = {
+    lay: pick('lay', ['rib', 'focus'], 'rib'), hd: pick('hd', ['shrink', 'fixed'], 'shrink'), f: pick('f', ['drop', 'seg', 'strip'], 'drop'), pc: pick('pc', ['step', 'drop'], 'step'),
+    nc: pick('nc', ['hide', 'show'], 'hide'), u: pick('u', ['day', 'flip', 'banner', 'pill'], 'day'), dt: pick('dt', ['peek', 'strip', 'hide', 'sheet'], 'peek'), st: pick('st', ['labels', 'badge', 'edge', 'progress'], 'labels'),
+    cu: pick('cu', ['start', 'idle', 'off'], 'start'), sw: pick('sw', ['tint', 'buttons'], 'tint'),
+    today: 'd13', cur: P.did(q.get('day'), 'd13'), view: q.get('who') || 'mine', hl: null, sel: q.get('sel'), snap: q.get('snap') === 'full' ? 'full' : 'half', expand: q.get('expand') === '1',
+    pop: null, opts: false, undo: null, note: null, carry: null, pickd: null, revealed: null, cuShown: false, cuDone: {}, cmp: false,
+    meals: JSON.parse(JSON.stringify(P.meals)), blocked: JSON.parse(JSON.stringify(P.blocked))
+  };
+  var TODAYN = 13, root = document.getElementById('root'), nid = 0;
+  if (!S.meals.some(function (m) { return m.id === S.sel; })) S.sel = null; else if (!q.get('day')) S.cur = S.meals.filter(function (m) { return m.id === S.sel; })[0].day;
+  function di(d) { return DI.indexOf(d); } function info(d) { return RIB[di(d)]; } function past(d) { return di(d) < di(S.today); }
   function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
   function find(id) { return S.meals.filter(function (m) { return m.id === id; })[0]; }
+  function ro() { return S.view !== 'mine' && S.view !== 'everyone'; }
   function vis() { return S.meals.filter(function (m) { return P.match(m, S.view); }); }
-  function dayName(d) { var x = P.DAYS[di(d)]; return x[1] + ' ' + x[2] + ' Oct'; }
+  function on(d) { return vis().filter(function (m) { return m.day === d; }); }
+  function dName(d) { var x = info(d); return x.dow + ' ' + x.n + ' Oct'; }
+  function dLong(d) { var x = info(d); return ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][x.i % 7]; }
   function vlab(v) { return v === 'mine' ? 'Mine' : v === 'everyone' ? 'Everyone' : P.people.filter(function (p) { return p.id === v; })[0].n; }
   function cnt(v) { return S.meals.filter(function (m) { return P.match(m, v); }).length; }
+  function weekOf(d) { return info(d).wk; }
+  function monN(d) { return info(info(d).mon).n; }
+  function hidden(d) { return S.nc === 'hide' && S.blocked[d] && !S.carry && d !== S.cur && d !== S.revealed; }
+  function isOpen(d) { return !on(d).length && !S.blocked[d]; }
 
-  function chips(m) {
-    var o = '', mc = m.miss.length;
-    function c(cls, i, t, tip) { return '<span class="tg ' + cls + '" aria-label="' + tip + '">' + i + t + '</span>'; }
-    o += mc ? c('bad', ic.warn, 'Missing ' + mc, mc + ' missing') : c('ok', ic.check, 'All on hand', 'All on hand');
-    if (m.list) o += c('list', ic.cart, 'On list ' + m.list, m.list + ' on list'); if (m.held) o += c('held', ic.mark, 'Held', 'Held');
-    if (m.useby.length) o += c('ub', ic.clock, 'Use by ' + esc(m.useby[0][1]), 'use-by');
-    return '<div class="chs">' + o + '</div>' + (mc ? '<div class="names">Missing: ' + esc(m.miss.map(function (x) { return x[0]; }).join(', ')) + '</div>' : '');
-  }
+  /* ---------- cards ---------- */
   function card(m) {
-    var hl = S.hl === 'missing' ? m.miss.length : S.hl === 'useby' ? m.useby.length : 1;
-    return '<div class="sw' + (S.sw === 'buttons' ? ' btns' : '') + '" data-sw="' + m.id + '"><div class="und" aria-hidden="true"><span class="l">' + ic.moon + ' Not cooking</span><span class="r">Replan ' + ic.swap + '</span></div>' +
-      '<article class="mc' + (S.sel === m.id ? ' sel' : '') + (hl ? '' : ' dim') + '" tabindex="0" data-id="' + m.id + '" aria-label="' + esc(m.t) + ', ' + dayName(m.day) + '. Swipe right: not cooking. Swipe left: replan. Or press X, Shift X.">' +
+    var hl = S.hl === 'missing' ? m.miss.length : S.hl === 'useby' ? m.useby.length : 1, pst = past(m.day), lock = ro(), e = S.st === 'edge' ? ' e-' + P.status.edge(m, TODAYN) : '';
+    var who = lock ? 'all' : pst ? 'past' : 'edit';
+    var hint = lock ? 'View only.' : pst ? 'Past, read only. Swipe right: copy forward.' : 'Swipe right: not cooking. Swipe left: replan. Or press X, Shift X.';
+    return '<div class="sw' + (S.sw === 'buttons' ? ' btns' : '') + '" data-sw="' + m.id + '"><div class="und" aria-hidden="true"><span class="l">' + (pst ? ic.cal + ' Copy forward' : ic.moon + ' Not cooking') + '</span><span class="r">Replan ' + ic.swap + '</span></div>' +
+      '<article class="mc' + e + (S.sel === m.id ? ' sel' : '') + (hl ? '' : ' dim') + (pst ? ' past' : '') + '" tabindex="0" data-id="' + m.id + '" data-ro="' + who + '" aria-label="' + esc(m.t) + ', ' + dName(m.day) + '. ' + hint + '">' +
       '<span class="em">' + m.em + '</span><div class="tx"><h3>' + esc(m.t) + '</h3><p>' + esc(P.whoLabel(m)) + '</p>' + (m.left ? '<p class="lf">' + ic.swap + ' Leftovers from ' + m.left + '</p>' : '') + '</div>' +
-      '<button class="more" data-more="' + m.id + '" aria-label="Actions for ' + esc(m.t) + '">' + ic.more + '</button>' + chips(m) + '</article></div>';
+      (S.st === 'edge' ? P.status.html(m, 'edge', TODAYN) : '') + '<button class="more" data-more="' + m.id + '" aria-label="Actions for ' + esc(m.t) + '">' + ic.more + '</button>' + (S.st === 'edge' ? '' : P.status.html(m, S.st, TODAYN)) + '</article></div>';
   }
   function emptyHtml(d) {
     if (past(d)) return '<div class="empty past">Nothing was planned</div>';
-    if (S.blocked[d]) return '<button class="blk' + (S.blocked[d] === 'usual' ? ' usual' : '') + '" data-unblock="' + d + '"><b>Not cooking</b><span>This week only · tap to cook</span></button>';
-    return '<div class="empty" data-blockrow="' + d + '"><span>Open night</span><span class="sp"></span><button data-assist>' + ic.spark + ' Ask assistant</button><button data-block="' + d + '">' + ic.moon + ' Not cooking</button></div>';
+    if (S.blocked[d]) return '<button class="blk' + (S.blocked[d] === 'usual' ? ' usual' : '') + '" ' + (ro() ? 'disabled' : 'data-unblock="' + d + '"') + '><b>Not cooking</b><span>' + (S.blocked[d] === 'usual' ? 'Usual day off' : 'This week only') + (ro() ? '' : ' · tap to cook') + '</span></button>';
+    if (ro()) return '<div class="nite ro"><span class="ot">Open night</span></div>';
+    return '<div class="nite"><button class="ot" data-block="' + d + '" aria-label="Open night. Tap to mark Not cooking">Open night<small>tap if not cooking</small></button><div class="oa"><button data-ask="' + d + '">' + ic.spark + ' Ask AI</button><button data-surprise="' + d + '">' + ic.dice + ' Surprise me</button></div></div>';
   }
   function dayBody(d) {
-    var ms = vis().filter(function (m) { return m.day === d; });
+    var ms = on(d);
     if (!ms.length) return emptyHtml(d);
     return (ms.some(function (m) { return m.usual; }) ? '<p class="tipl">Usual day off, cooking this week</p>' : '') + ms.map(card).join('') + (P.tips[d] && !past(d) ? '<p class="tipl">' + ic.leaf + ' ' + esc(P.tips[d]) + '</p>' : '');
   }
-  function stats() {
-    var ms = vis(), miss = 0, ub = 0, nights = {}; ms.forEach(function (m) { nights[m.day] = 1; miss += m.miss.length; ub += m.useby.length; }); return { miss: miss, ub: ub, nights: Object.keys(nights).length };
+  function noteHtml(d) { var n = S.note; if (!n || S.u !== 'day' || n.day !== d) return ''; return '<div class="unote" role="status"><span>' + n.msg + '</span>' + (n.undo ? '<button data-undo>' + ic.undo + ' Undo</button>' : '') + '</div>'; }
+  function daySec(d, extra) {
+    var x = info(d), tgt = S.carry && !past(d), hid = hidden(d);
+    return '<section class="dsec' + (past(d) ? ' past' : '') + (hid ? ' hid' : '') + (tgt ? ' target' : '') + (S.pulse && S.pulse.indexOf(d) > -1 ? ' pulse' : '') + '" id="d-' + d + '" data-d="' + d + '"' + (S.carry && past(d) ? ' aria-disabled="true"' : '') + '><div class="dsh"><b>' + x.dow + '</b><span>' + x.n + ' Oct</span>' + (d === S.today ? '<em>Today</em>' : '') + (S.blocked[d] && S.carry ? '<i class="ncl">Not cooking</i>' : '') + (tgt ? '<i class="drp">Tap to drop here</i>' : '') + '</div>' + noteHtml(d) + '<div class="cl">' + dayBody(d) + '</div></section>';
   }
-  function dayStrip() {
-    return '<div class="days" role="tablist" aria-label="Days">' + P.DAYS.map(function (x) {
-      var d = x[0], ms = vis().filter(function (m) { return m.day === d; }), dots = '';
-      if (ms.length) ms.slice(0, 3).forEach(function (m) { dots += '<i class="' + (m.miss.length ? 'bad' : '') + '"></i>'; });
-      else dots = S.blocked[d] ? '<i class="off"></i>' : '<i class="open"></i>';
-      var on = S.lay === 'focus' ? S.day === d : S.cur === d;
-      return '<button class="dy' + (d === S.today ? ' today' : '') + (on ? ' on' : '') + (past(d) ? ' past' : '') + '" data-dy="' + d + '" role="tab" aria-selected="' + on + '" aria-label="' + x[1] + ' ' + x[2] + ', ' + (ms.length ? ms.length + ' meals' : S.blocked[d] ? 'not cooking' : 'open') + '">' + x[1].charAt(0) + '<b>' + x[2] + '</b><span class="st">' + dots + '</span></button>';
-    }).join('') + '</div>';
+  function wkDiv(r) { return '<div class="wkd"><span>Week of ' + r.n + ' Oct</span><i>' + P.REL[r.wk] + (r.wk < 0 ? ' · read only' : '') + '</i></div>' + (r.wk >= 0 ? summary(r.wk) : ''); }
+  function agenda() { return RIB.map(function (r) { return (r.dow === 'Mon' ? wkDiv(r) : '') + daySec(r.id); }).join('') + '<div class="endsp" aria-hidden="true"></div>'; }
+
+  /* ---------- detail: docked below the ribbon (default) or the two-stop sheet ---------- */
+  function ingRows(list, miss, m) { return list.map(function (r) { var ub = m.useby.filter(function (u) { return u[0] === r[0]; })[0]; return '<li><span class="in">' + esc(r[0]) + '</span><span class="qy">' + esc(r[1]) + '</span>' + (miss && !lockEdit(m) ? '<button class="ib" data-addone="' + esc(r[0]) + '" aria-label="Add ' + esc(r[0]) + ' to the shopping list">' + ic.cart + '</button>' : (ub ? '<span class="tg ub small ' + P.status.urg(m, TODAYN) + '">' + ic.clock + 'by ' + esc(ub[1]) + '</span>' : '')) + '</li>'; }).join(''); }
+  function lockEdit(m) { return ro() || past(m.day); }
+  function pcount(m) {
+    if (S.pc === 'drop') { var o = ''; for (var i = 1; i <= 8; i++) o += '<option value="' + i + '"' + (m.n === i ? ' selected' : '') + '>' + i + (i === 1 ? ' person' : ' people') + '</option>'; return '<div class="ppl"><span class="lbl">People</span><select class="pcs" data-pcsel aria-label="Number of people"' + (lockEdit(m) ? ' disabled' : '') + '>' + o + '</select></div>'; }
+    return '<div class="ppl"><span class="lbl">People</span><button class="ib" data-n="-1" aria-label="Fewer people"' + (lockEdit(m) ? ' disabled' : '') + '>−</button><b>' + m.n + '</b><button class="ib" data-n="1" aria-label="More people"' + (lockEdit(m) ? ' disabled' : '') + '>+</button></div>';
   }
-  function people() {
-    var others = P.people.filter(function (p) { return !p.me; });
-    if (S.f === 'menu') return '<button class="fmenu" data-fmenu aria-haspopup="dialog"><span>Showing</span><b>' + vlab(S.view) + '</b>' + ic.down + '</button>';
-    var ch = function (v, l, av) { return '<button class="ch' + (S.view === v ? ' on' : '') + '" data-view="' + v + '" role="radio" aria-checked="' + (S.view === v) + '">' + (av ? '<span class="av">' + av + '</span>' : '') + l + ' <i>' + cnt(v) + '</i></button>'; };
-    return '<div class="pp"><div class="pstrip' + (S.expand ? ' open' : '') + '" id="pstrip" role="radiogroup" aria-label="Whose meals">' + ch('mine', 'Mine') + ch('everyone', 'Everyone') + others.map(function (p, i) { return ch(p.id, p.n, p.n.charAt(0)).replace('class="ch', 'class="ch' + (i === 0 ? ' dv' : '')); }).join('') + '</div><button class="chev" id="pchev" data-expand aria-label="' + (S.expand ? 'Collapse people' : 'Show everyone') + '" aria-expanded="' + S.expand + '" hidden>' + (S.expand ? ic.up : ic.down) + '</button></div>';
+  function detailBody(m) {
+    var src = m.src === 'made' ? '<p class="srcl">' + ic.spark + ' <b>Made up by your AI</b> · not saved as a recipe</p>' : m.src === 'surprise' ? '<p class="srcl">' + ic.dice + ' <b>Surprise me</b> · ' + esc(m.why || '') + '</p>' : '';
+    var lk = lockEdit(m);
+    return src + (m.note ? '<p class="nt">' + esc(m.note) + '</p>' : '') + (lk ? '<p class="nt ronote">' + ic.cal + (ro() ? ' ' + vlab(S.view) + "'s plan is view only." : ' Past: read only. Swipe the card right, or use Copy forward, to bring it into a coming day.') + '</p>' : '') + pcount(m) +
+      '<section class="isec"><div class="ish"><h3>On hand</h3>' + (lk ? '' : '<button class="hold' + (m.held ? ' on' : '') + '" data-hold aria-pressed="' + !!m.held + '">' + ic.mark + (m.held ? ' Held' : ' Hold') + '</button>') + '</div><ul class="ing">' + ingRows(m.have, 0, m) + '</ul></section>' +
+      (m.miss.length ? '<section class="isec"><div class="ish"><h3>Missing</h3>' + (lk ? '' : '<button class="addall" data-addall>' + ic.cart + ' Add all ' + m.miss.length + '</button>') + '</div>' + (lk ? '' : '<p class="hint">Ask AI about substitutes</p>') + '<ul class="ing miss">' + ingRows(m.miss, 1, m) + '</ul></section>' : '<p class="allgood">' + ic.check + ' Everything for this meal is on hand.</p>');
   }
-  function summary() {
-    var s = stats();
+  function footActions(m) {
+    if (ro()) return ''; if (past(m.day)) return '<button class="b2" data-act="copyfwd" data-id="' + m.id + '">' + ic.cal + ' Copy forward</button>';
+    return '<button class="b2" data-replan>Replan</button><button class="b2" data-nocook>' + ic.moon + ' Not cooking</button>';
+  }
+  function mini(d, cls) { var ms = on(d); return '<button class="mini ' + (cls || '') + '" data-dy="' + d + '"><b>' + info(d).dow + ' ' + info(d).n + '</b><span>' + (ms.length ? ms.map(function (m) { return m.em + ' ' + esc(m.t); }).join(' · ') : S.blocked[d] ? 'Not cooking' : 'Open night') + '</span></button>'; }
+  function dockHtml(m) {
+    var d = m.day, sibs = on(d);
+    var inner = '<div class="dkh"><h2 id="stt"><b>' + dLong(d) + '</b> ' + info(d).n + ' Oct' + (d === S.today ? ' <em>Today</em>' : '') + '</h2><button class="ib" data-close aria-label="Close detail (Esc)">' + ic.x + '</button></div>' +
+      '<div class="cl">' + sibs.map(function (x) { return x.id === m.id ? card(x) : card(x); }).join('') + '</div>' + '<div class="dkb">' + detailBody(m) + '</div>';
+    var foot = footActions(m); inner += foot ? '<footer class="sfoot dkf">' + foot + '</footer>' : '';
+    var i = di(d), wk = weekOf(d), others = RIB.filter(function (r) { return r.wk === wk && r.id !== d; }).map(function (r) { return r.id; });
+    var before = '', after = '';
+    if (S.dt === 'peek') { var pv = DI[i - 1], nx = DI[i + 1]; before = pv ? mini(pv, 'peekm') : ''; after = nx ? mini(nx, 'peekm') : ''; }
+    if (S.dt === 'strip') { after = '<div class="minis"><p class="lbl">Other days, ' + (wk === 0 ? 'this week' : P.REL[wk].toLowerCase()) + '</p>' + others.map(function (x) { return mini(x); }).join('') + '</div>'; }
+    return before + '<section class="dock' + (S.pulse && S.pulse.indexOf(d) > -1 ? ' pulse' : '') + '" id="d-' + d + '" data-d="' + d + '" role="region" aria-labelledby="stt">' + inner + '</section>' + after;
+  }
+  function sheetHtml() {
+    var m = S.sel && find(S.sel); if (!m || S.dt !== 'sheet') return '<div class="sheet" id="sheet" aria-hidden="true"></div>';
+    var foot = footActions(m);
+    return '<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="stt"><button class="grab" id="grab" aria-label="Drag to resize or close; press Enter to switch half and full" data-grab><i></i></button>' +
+      '<header class="shd"><span class="em lg">' + m.em + '</span><div class="tx"><h2 id="stt">' + esc(m.t) + '</h2><p>' + dName(m.day) + ' · ' + esc(P.whoLabel(m)) + '</p></div><button class="ib" data-close aria-label="Close (Esc)">' + ic.x + '</button></header>' +
+      '<div class="sbody">' + detailBody(m) + '</div>' + (foot ? '<footer class="sfoot">' + foot + '</footer>' : '') + '</div>';
+  }
+
+  /* ---------- header, ribbon, filter ---------- */
+  function stats(wk) { var ms = vis().filter(function (m) { return weekOf(m.day) === wk; }), miss = 0, ub = 0, nights = {}; ms.forEach(function (m) { nights[m.day] = 1; miss += m.miss.length; ub += m.useby.length; }); return { miss: miss, ub: ub, nights: Object.keys(nights).length }; }
+  function summary(wk) {
+    var s = stats(wk);
     return '<div class="sum"><span class="sb"><b>' + s.nights + '/7</b><span>nights</span></span><button class="sb' + (S.hl === 'missing' ? ' on' : '') + '" data-hl="missing" aria-pressed="' + (S.hl === 'missing') + '">' + ic.warn + '<b>' + s.miss + '</b><span>to buy</span></button><button class="sb' + (S.hl === 'useby' ? ' on' : '') + '" data-hl="useby" aria-pressed="' + (S.hl === 'useby') + '">' + ic.clock + '<b>' + s.ub + '</b><span>use first</span></button></div>';
   }
-  function body() {
-    if (S.lay === 'agenda') return P.DAYS.map(function (x) { var d = x[0]; return '<section class="dsec' + (past(d) ? ' past' : '') + '" id="d-' + d + '" data-d="' + d + '"><div class="dsh"><b>' + x[1] + '</b><span>' + x[2] + ' Oct</span>' + (d === S.today ? '<em>Today</em>' : '') + '</div><div class="cl">' + dayBody(d) + '</div></section>'; }).join('');
-    var d = S.day, ms = vis().filter(function (m) { return m.day === d; }), buy = [], ubn = [];
-    ms.forEach(function (m) { m.miss.forEach(function (x) { buy.push(x[0]); }); m.useby.forEach(function (u) { ubn.push(u[0] + ' by ' + u[1]); }); });
-    var i = di(d), prev = i > 0 ? P.DAYS[i - 1] : null, next = i < 6 ? P.DAYS[i + 1] : null;
-    return '<h2 class="fh">' + dayName(d) + (d === S.today ? ' <em>Today</em>' : '') + '</h2>' + (ms.length ? '<div class="prep"><b>Before this night</b>' + (buy.length ? '<span class="m">Buy: ' + esc(buy.join(', ')) + '</span>' : '<span>Nothing to buy</span>') + (ubn.length ? '<span>Use first: ' + esc(ubn.join(', ')) + '</span>' : '') + '</div>' : '') + '<div class="dsec" style="padding-top:0"><div class="cl">' + dayBody(d) + '</div></div>' +
-      '<div class="dnav"><button data-step="-1"' + (prev ? '' : ' disabled') + '>' + ic.left + ' ' + (prev ? prev[1] : '') + '</button><button data-step="1"' + (next ? '' : ' disabled') + '>' + (next ? next[1] : '') + ' ' + ic.right + '</button></div>';
+  function ribbon() {
+    return '<div class="rib" id="rib" role="tablist" aria-label="Days. Scroll sideways, one day at a time; tap a day to bring it into focus."><div class="ribin" id="ribin"><span class="mk" id="mk" aria-hidden="true"></span>' + RIB.map(function (r) {
+      var d = r.id, ms = on(d), dots = '';
+      if (ms.length) ms.slice(0, 3).forEach(function (m) { dots += '<i class="' + (m.miss.length ? 'bad' : '') + '"></i>'; }); else dots = S.blocked[d] ? '<i class="off"></i>' : '<i class="open"></i>';
+      return '<button class="dy' + (d === S.today ? ' today' : '') + (d === S.cur ? ' on' : '') + (past(d) ? ' past' : '') + (r.dow === 'Mon' ? ' mon' : '') + '" data-dy="' + d + '" role="tab" aria-selected="' + (d === S.cur) + '" aria-label="' + dName(d) + (d === S.today ? ', today' : '') + ', ' + (ms.length ? ms.length + ' meals' : S.blocked[d] ? 'not cooking' : 'open night') + '">' + r.dow.charAt(0) + '<b>' + r.n + '</b><span class="st">' + dots + '</span></button>';
+    }).join('') + '</div></div>';
+  }
+  function filterCtl() {
+    var lab = vlab(S.view);
+    if (S.f === 'seg') return '';
+    return '<button class="fmenu" data-fmenu aria-haspopup="listbox" aria-expanded="' + !!(S.pop && S.pop.k === 'f') + '"><span class="av">' + (ro() ? lab.charAt(0) : '') + '</span><b>' + lab + '</b>' + ic.down + '</button>';
+  }
+  function segRow() {
+    if (S.f === 'seg') { var o = function (v, l) { return '<button class="ch' + (S.view === v ? ' on' : '') + '" data-view="' + v + '" role="radio" aria-checked="' + (S.view === v) + '">' + l + ' <i>' + cnt(v) + '</i></button>'; }; var other = ro(); return '<div class="pp"><div class="pstrip" role="radiogroup" aria-label="Whose meals">' + o('mine', 'Mine') + o('everyone', 'Everyone') + '<button class="ch' + (other ? ' on' : '') + '" data-fmenu aria-haspopup="listbox">' + ic.people + (other ? vlab(S.view) : 'People') + ic.down + '</button></div></div>'; }
+    if (S.f === 'strip' && S.expand) { var ch = function (v, l, av) { return '<button class="ch' + (S.view === v ? ' on' : '') + '" data-view="' + v + '" role="radio" aria-checked="' + (S.view === v) + '">' + (av ? '<span class="av">' + av + '</span>' : '') + l + ' <i>' + cnt(v) + '</i></button>'; }; return '<div class="pp"><div class="pstrip open" role="radiogroup" aria-label="Whose meals">' + ch('mine', 'Mine') + ch('everyone', 'Everyone') + P.people.filter(function (p) { return !p.me; }).map(function (p) { return ch(p.id, p.n, p.n.charAt(0)); }).join('') + '</div></div>'; }
+    return '';
+  }
+  function copyBtn() {
+    var n = S.note, flip = n && n.undo && n.kind === 'copy' || (n && n.undo && S.u === 'flip');
+    if (flip) return '<button class="flipundo" data-undo aria-label="Undo: ' + esc(n.msg.replace(/<[^>]+>/g, '')) + '">' + ic.undo + ' Undo</button>';
+    var dis = ro() || weekOf(S.cur) < 0;
+    return '<button class="ib" data-copy aria-label="Copy last week into this one: fills open nights only, never overwrites"' + (dis ? ' disabled' : '') + ' title="' + (ro() ? vlab(S.view) + "'s plan is read only" : weekOf(S.cur) < 0 ? 'Last week is read only' : 'Copy last week: fills open nights only') + '">' + ic.copy + '</button>';
+  }
+  function header() {
+    var r = info(S.cur), mn = info(r.mon), n = S.note, sub = (n && S.u === 'flip' && n.undo) ? (n.short || n.msg) : P.REL[r.wk];
+    var t = '<div class="hd"><div class="wt"><h1 id="wkt">Week of ' + mn.n + ' Oct</h1><small id="wks">' + sub + '</small></div><span class="sp"></span>' + (S.cur !== S.today ? '<button class="tdy" data-today aria-label="Jump to today">Today</button>' : '') + filterCtl() + '<span class="cpy">' + copyBtn() + '</span><button class="ib cog" aria-label="Plan settings" title="Plan settings (gear)">' + ic.cog + '</button></div>';
+    var ex = '';
+    if (n && S.u === 'banner') ex += '<div class="ubn" role="status"><span>' + n.msg + '</span>' + (n.undo ? '<button data-undo>' + ic.undo + ' Undo</button>' : '') + '</div>';
+    if (n && S.u === 'pill') ex += '<div class="upill" role="status"><span>' + n.msg + '</span>' + (n.undo ? '<button data-undo>' + ic.undo + ' Undo</button>' : '') + '</div>';
+    if (ro()) ex += '<div class="rol">' + ic.people + ' ' + vlab(S.view) + "'s plan: view only. You can look, not change it.</div>";
+    return '<div class="stk' + (S.cmp && S.hd === 'shrink' ? ' cmp' : '') + '" id="stk">' + t + segRow() + ribbon() + ex + '<div class="cslot' + (S.cuShown ? ' in' : '') + '" id="cslot">' + (S.cuShown ? '<button class="curtain" data-curtain>' + ic.spark + ' Ask AI to plan this</button>' : '') + '</div></div><div class="stkp" id="stkp"></div>';
+  }
+  function popHtml() {
+    if (!S.pop) return '';
+    var it = function (v, l, sub) { return '<button class="it' + (S.view === v ? ' on' : '') + '" role="option" aria-selected="' + (S.view === v) + '" data-view="' + v + '">' + (S.view === v ? ic.check : '<span class="av">' + (v === 'mine' || v === 'everyone' ? '' : l.charAt(0)) + '</span>') + '<span>' + l + (sub ? '<small>' + sub + '</small>' : '') + '</span><span class="kbd">' + cnt(v) + '</span></button>'; };
+    var fq = (S.pop.q || '').toLowerCase();
+    return '<div class="scrim2" data-closea></div><div class="dd" role="listbox" aria-label="Whose meals"><h2>Showing</h2>' + it('mine', 'Mine', 'your plan: you can change it') + it('everyone', 'Everyone', 'the household plan: you can change it') + '<hr><p class="lbl">Other members: view only</p><input id="fq" placeholder="Find a person" aria-label="Find a person" value="' + esc(S.pop.q || '') + '">' + P.people.filter(function (p) { return !p.me && p.n.toLowerCase().indexOf(fq) > -1; }).map(function (p) { return it(p.id, p.n, ''); }).join('') + '</div>';
+  }
+  function actionSheet() {
+    if (S.pickd) {
+      var m = find(S.pickd), cells = RIB.filter(function (r) { return r.wk >= 0; }).map(function (r) { var dis = past(r.id); return (r.dow === 'Mon' ? '<p class="cwk">Week of ' + r.n + ' Oct · ' + P.REL[r.wk] + '</p>' : '') + '<button class="cd' + (r.id === S.today ? ' today' : '') + '" data-pickday="' + r.id + '"' + (dis ? ' disabled' : '') + '><small>' + r.dow + '</small><b>' + r.n + '</b></button>'; }).join('');
+      return '<div class="scrim2" data-closea></div><div class="asheet" role="dialog" aria-label="Copy forward: pick a date"><h2>Copy “' + esc(m.t) + '” forward</h2><p class="hint2">Pick a date to go to. Then the meal stays in your hand until you tap a day to drop it.</p><div class="cal">' + cells + '</div></div>';
+    }
+    if (S.pop) return '';
+    var a = S.asheet; if (!a) return '';
+    var m2 = find(a.id), lock = ro(), pst = past(m2.day);
+    var items = '<button class="it" role="menuitem" data-act="open" data-id="' + m2.id + '">' + ic.right + 'Open detail<span class="kbd">E</span></button>';
+    if (pst && !lock) items += '<button class="it" role="menuitem" data-act="copyfwd" data-id="' + m2.id + '">' + ic.cal + 'Copy forward (swipe right)</button><p class="hint2">Past meals are read only: no delete, move or Not cooking.</p>';
+    else if (!lock) items += '<button class="it" role="menuitem" data-act="replan" data-id="' + m2.id + '">' + ic.swap + 'Replan (swipe left)<span class="kbd">X</span></button><button class="it" role="menuitem" data-act="nocook" data-id="' + m2.id + '">' + ic.moon + 'Not cooking (swipe right)<span class="kbd">⇧X</span></button><button class="it" role="menuitem" data-act="hold" data-id="' + m2.id + '">' + ic.mark + (m2.held ? 'Release hold' : 'Hold') + '<span class="kbd">H</span></button>' + (m2.miss.length ? '<button class="it" role="menuitem" data-act="list" data-id="' + m2.id + '">' + ic.cart + 'Add missing to list<span class="kbd">L</span></button>' : '');
+    return '<div class="scrim2" data-closea></div><div class="asheet" role="menu" aria-label="Actions for ' + esc(m2.t) + '"><h2>' + esc(m2.t) + '</h2>' + items + '</div>';
   }
   function nav() {
     var n = function (l, d, on) { return '<button class="nv' + (on ? ' on' : '') + '" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>' + l + '</button>'; };
     return '<nav class="nav" aria-label="Kitchie">' + n('Home', '<path d="M4 11l8-7 8 7v9H4z"/>') + n('Pantry', '<rect x="6" y="3" width="12" height="18" rx="2"/><path d="M6 9h12"/>') + n('Plan', '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>', 1) + n('Recipes', '<path d="M6 14a4 4 0 1 1 2-7 4 4 0 0 1 8 0 4 4 0 1 1 2 7v5H6z"/>') + n('Shopping', '<circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.4 12h11l2-8H6"/>') + '</nav>';
   }
-  function ingRows(list, miss, m) { return list.map(function (r) { var ub = m.useby.filter(function (u) { return u[0] === r[0]; })[0]; return '<li><span class="in">' + esc(r[0]) + '</span><span class="qy">' + esc(r[1]) + '</span>' + (miss ? '<button class="ib" data-addone="' + esc(r[0]) + '" aria-label="Add ' + esc(r[0]) + ' to the shopping list">' + ic.cart + '</button>' : (ub ? '<span class="tg ub small">' + ic.clock + 'by ' + esc(ub[1]) + '</span>' : '')) + '</li>'; }).join(''); }
-  function sheet() {
-    var m = S.sel && find(S.sel); if (!m) return '<div class="sheet" id="sheet" aria-hidden="true"></div>';
-    var src = m.src === 'made' ? '<p class="srcl">' + ic.spark + ' <b>Made up by your assistant</b> · not saved as a recipe</p>' : '';
-    return '<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="stt"><button class="grab" id="grab" aria-label="Drag to resize or close; press Enter to switch half and full" data-grab><i></i></button>' +
-      '<header class="shd"><span class="em lg">' + m.em + '</span><div class="tx"><h2 id="stt">' + esc(m.t) + '</h2><p>' + dayName(m.day) + ' · ' + esc(P.whoLabel(m)) + '</p></div><button class="ib" data-close aria-label="Close (Esc)">' + ic.x + '</button></header>' +
-      '<div class="sbody">' + src + (m.note ? '<p class="nt">' + esc(m.note) + '</p>' : '') + '<div class="ppl"><span class="lbl">People</span><button class="ib" data-n="-1" aria-label="Fewer people">−</button><b>' + m.n + '</b><button class="ib" data-n="1" aria-label="More people">+</button></div>' +
-      '<section class="isec"><div class="ish"><h3>On hand</h3><button class="hold' + (m.held ? ' on' : '') + '" data-hold aria-pressed="' + !!m.held + '">' + ic.mark + (m.held ? ' Held' : ' Hold') + '</button></div><ul class="ing">' + ingRows(m.have, 0, m) + '</ul></section>' +
-      (m.miss.length ? '<section class="isec"><div class="ish"><h3>Missing</h3><button class="addall" data-addall>' + ic.cart + ' Add all ' + m.miss.length + '</button></div><p class="hint">Talk to your assistant about substitutes</p><ul class="ing miss">' + ingRows(m.miss, 1, m) + '</ul></section>' : '<p class="allgood">' + ic.check + ' Everything for this meal is on hand.</p>') + '</div>' +
-      '<footer class="sfoot"><button class="b2" data-replan>Replan</button><button class="b2" data-nocook>' + ic.moon + ' Not cooking</button></footer></div>';
-  }
-  function asheetHtml() {
-    var a = S.asheet; if (!a) return '';
-    if (a.k === 'f') {
-      var f = (a.q || '').toLowerCase();
-      var it = function (v, l) { return '<button class="it' + (S.view === v ? ' on' : '') + '" data-view="' + v + '">' + (S.view === v ? ic.check : ic.people) + l + '<span class="kbd">' + cnt(v) + '</span></button>'; };
-      return '<div class="scrim2" data-closea></div><div class="asheet" role="dialog" aria-label="Whose meals"><h2>Showing</h2><input id="fq" placeholder="Find a person" aria-label="Find a person" value="' + esc(a.q || '') + '">' + it('mine', 'Mine') + it('everyone', 'Everyone') + P.people.filter(function (p) { return !p.me && p.n.toLowerCase().indexOf(f) > -1; }).map(function (p) { return it(p.id, p.n); }).join('') + '</div>';
-    }
-    var m = find(a.id);
-    return '<div class="scrim2" data-closea></div><div class="asheet" role="menu" aria-label="Actions for ' + esc(m.t) + '"><h2>' + esc(m.t) + '</h2><button class="it" role="menuitem" data-act="open" data-id="' + m.id + '">' + ic.right + 'Open detail<span class="kbd">E</span></button><button class="it" role="menuitem" data-act="replan" data-id="' + m.id + '">' + ic.swap + 'Replan (swipe left)<span class="kbd">X</span></button><button class="it" role="menuitem" data-act="nocook" data-id="' + m.id + '">' + ic.moon + 'Not cooking (swipe right)<span class="kbd">⇧X</span></button><button class="it" role="menuitem" data-act="hold" data-id="' + m.id + '">' + ic.mark + (m.held ? 'Release hold' : 'Hold') + '<span class="kbd">H</span></button>' + (m.miss.length ? '<button class="it" role="menuitem" data-act="list" data-id="' + m.id + '">' + ic.cart + 'Add missing to list<span class="kbd">L</span></button>' : '') + '</div>';
-  }
+  function carryBar() { if (!S.carry) return ''; var m = S.carry; return '<div class="carry" role="status"><span class="em">' + m.em + '</span><div><b>' + esc(m.t) + '</b><small>In hand. Tap a day to drop it here.</small></div><button data-cancelcarry>Cancel</button></div>'; }
   function optionsPanel() {
     var g = function (k, lab, vals) { return '<fieldset><legend>' + lab + '</legend>' + vals.map(function (v) { return '<label><input type="radio" name="' + k + '" value="' + v[0] + '"' + (S[k] === v[0] ? ' checked' : '') + '> ' + v[1] + '</label>'; }).join('') + '</fieldset>'; };
-    return (window.top === window || q.get('opts') === '1') ? '<button class="optfab" data-opts>Options</button>' + (S.opts ? '<div class="optpanel">' + g('lay', 'Layout', [['agenda', 'M1 Agenda + day strip (recommended)'], ['focus', 'M2 One day at a time']]) + g('f', 'People filter', [['strip', 'Scroll strip + expand (recommended)'], ['menu', 'One menu with search']]) + g('sw', 'Swipe', [['tint', 'Tinted reveal, commits (recommended)'], ['buttons', 'Buttons stay open']]) + '</div>' : '') : '';
+    if (!(window.top === window || q.get('opts') === '1')) return '';
+    return '<button class="optfab" data-opts aria-expanded="' + S.opts + '">Mockup options</button>' + (S.opts ? '<div class="optpanel" role="dialog" aria-label="Mockup options"><p class="onote">Mockup-only switch. It is not part of the app.</p>' +
+      g('lay', 'Layout', [['rib', 'Day ribbon + agenda (recommended)'], ['focus', 'One day at a time']]) + g('hd', 'Header (decision 91)', [['shrink', 'Shrinks on scroll (recommended)'], ['fixed', 'Fixed']]) + g('f', 'Who filter (97)', [['drop', 'One dropdown (recommended)'], ['seg', 'Mine / Everyone + People dropdown'], ['strip', 'Old chips behind a chevron']]) +
+      g('pc', 'Number of people in the detail (98)', [['step', 'Stepper − 4 +'], ['drop', 'Dropdown']]) + g('nc', 'Not cooking days (93)', [['hide', 'Hidden, peek at the edge (recommended)'], ['show', 'Always shown']]) + g('u', 'Undo on a phone (101)', [['day', 'On the changed day (recommended)'], ['flip', 'Copy button flips to Undo'], ['banner', 'Banner under the ribbon'], ['pill', 'Pill under the ribbon']]) +
+      g('dt', 'Meal detail (103)', [['peek', 'Docked, neighbours peek (recommended)'], ['strip', 'Docked, other days as one line each'], ['hide', 'Docked, other days hidden'], ['sheet', 'Two-stop bottom sheet (comparison)']]) + g('st', 'Status (104)', [['labels', 'a Labelled chips (recommended)'], ['badge', 'b Icon + count'], ['edge', 'c Edge strip + dot'], ['progress', 'd Progress']]) +
+      g('cu', 'Ask AI to plan this curtain (96)', [['start', 'At the start of an empty week (default)'], ['idle', 'Idle, whole week empty'], ['off', 'Off']]) + g('sw', 'Swipe', [['tint', 'Tinted reveal, commits'], ['buttons', 'Buttons stay open']]) + '</div>' : '');
   }
-  var toastT;
-  function toast(msg, undo) { var t = document.getElementById('toast'); if (!t) return; t.innerHTML = '<span>' + msg + '</span>' + (undo ? '<button data-undo>Undo</button>' : ''); t.hidden = false; clearTimeout(toastT); toastT = setTimeout(function () { t.hidden = true; }, 6000); }
 
+  /* ---------- render ---------- */
+  function body() {
+    if (S.sel && S.dt !== 'sheet' && find(S.sel)) return dockHtml(find(S.sel));
+    if (S.lay === 'focus') { var d = S.cur, ms = on(d), i = di(d), buy = [], ubn = []; ms.forEach(function (m) { m.miss.forEach(function (x) { buy.push(x[0]); }); m.useby.forEach(function (u) { ubn.push(u[0] + ' by ' + u[1]); }); });
+      return '<h2 class="fh">' + dLong(d) + ' ' + info(d).n + ' Oct' + (d === S.today ? ' <em>Today</em>' : '') + '</h2>' + (ms.length ? '<div class="prep"><b>Before this night</b>' + (buy.length ? '<span class="m">Buy: ' + esc(buy.join(', ')) + '</span>' : '<span>Nothing to buy</span>') + (ubn.length ? '<span>Use first: ' + esc(ubn.join(', ')) + '</span>' : '') + '</div>' : '') + '<section class="dsec' + (S.carry && !past(d) ? ' target' : '') + '" data-d="' + d + '" id="d-' + d + '" style="padding-top:0">' + noteHtml(d) + '<div class="cl">' + dayBody(d) + '</div></section><div class="dnav"><button data-step="-1"' + (i > 0 ? '' : ' disabled') + '>' + ic.left + ' ' + (i > 0 ? RIB[i - 1].dow : '') + '</button><button data-step="1"' + (i < DI.length - 1 ? '' : ' disabled') + '>' + (i < DI.length - 1 ? RIB[i + 1].dow : '') + ' ' + ic.right + '</button></div>'; }
+    return agenda();
+  }
   function render(keep) {
-    var sy = window.scrollY;
-    root.innerHTML = '<div class="app ' + (S.lay === 'focus' ? 'focuslay' : '') + '"><div class="stk"><div class="hd"><button class="ib" disabled aria-label="Previous week (last week is read-only)">' + ic.left + '</button><div class="wt"><h1>Week of 12 Oct</h1><small>This week</small></div><button class="ib" data-wk aria-label="Next week">' + ic.right + '</button><span class="sp"></span><button class="ib" aria-label="Copy last week">' + ic.copy + '</button><button class="ib" aria-label="Plan settings">' + ic.cog + '</button></div>' + people() + dayStrip() + '</div>' + summary() + '<main id="plan">' + body() + '</main></div>' +
-      '<button class="ast" data-assist>' + ic.spark + ' Open your assistant</button>' + nav() + '<div class="scrim' + (S.sel ? ' on' : '') + '" data-close></div>' + sheet() + '<div id="aw">' + asheetHtml() + '</div><div class="toast" id="toast" role="status" hidden></div>' + optionsPanel();
-    if (keep !== false) window.scrollTo(0, sy);
-    var sh = document.getElementById('sheet'); if (sh && S.sel) { requestAnimationFrame(function () { setSnap(S.snap, true); var c = document.querySelector('.mc.sel'); if (c && S.lay === 'agenda') { var top = c.getBoundingClientRect().top - document.querySelector('.stk').offsetHeight - 8; if (top > 4 || top < -4) window.scrollBy(0, top); } }); }
-    var st = document.getElementById('pstrip'), ch = document.getElementById('pchev'); if (st && ch) ch.hidden = !(st.scrollWidth > st.clientWidth + 2 || S.expand);
+    var sy = window.scrollY, rb = document.getElementById('rib'), rl = rb ? rb.scrollLeft : null;
+    root.innerHTML = '<div class="app' + (S.carry ? ' carrying' : '') + '">' + header() + '<main id="plan">' + body() + '</main></div>' + carryBar() + '<div class="peek t" id="peekT" hidden></div><div class="peek b" id="peekB" hidden></div>' + nav() + '<div class="scrim' + (S.sel && S.dt === 'sheet' ? ' on' : '') + '" data-close></div>' + sheetHtml() + '<div id="aw">' + popHtml() + actionSheet() + '</div>' + optionsPanel();
+    sizeStk(); if (keep !== false) window.scrollTo(0, sy);
+    var rb2 = document.getElementById('rib'); if (rb2 && rl !== null) rb2.scrollLeft = rl; placeMk(true);
+    var sh = document.getElementById('sheet'); if (sh && S.sel && S.dt === 'sheet') requestAnimationFrame(function () { setSnap(S.snap); });
+    syncPeek();
   }
-  function setSnap(s, instant) {
-    var sh = document.getElementById('sheet'); if (!sh) return; S.snap = s; var H = innerHeight * 0.92, y = s === 'full' ? 0 : Math.round(H * 0.38);
-    sh.style.setProperty('--y', y + 'px'); sh.classList.remove('drag');
+  function sizeStk() { var s = document.getElementById('stk'), p = document.getElementById('stkp'); if (!s || !p) return; var c = s.classList.contains('cmp'); s.classList.remove('cmp'); p.style.height = s.offsetHeight + 'px'; if (c) s.classList.add('cmp'); }
+  function stkH() { var s = document.getElementById('stk'); return s ? s.offsetHeight : 120; }
+  function placeMk(instant) {
+    var rb = document.getElementById('rib'), mk = document.getElementById('mk'), c = rb && rb.querySelector('.dy[data-dy="' + S.cur + '"]'); if (!c || !mk) return;
+    if (instant) mk.style.transition = 'none'; mk.style.width = c.offsetWidth + 'px'; mk.style.height = c.offsetHeight + 'px'; mk.style.transform = 'translate(' + c.offsetLeft + 'px,0)'; if (instant) { void mk.offsetWidth; mk.style.transition = ''; }
+    if (!ribTouch) rb.scrollTo({ left: Math.max(0, c.offsetLeft - (rb.clientWidth - c.offsetWidth) / 2), behavior: instant ? 'auto' : 'smooth' });
   }
+  var ribTouch = false;
+
+  /* ---------- notes and undo (no bottom snackbar: owner did not like it) ---------- */
+  var noteT;
+  function note(msg, o) { o = o || {}; S.note = { msg: msg, short: o.short, undo: !!o.undo, day: o.day, kind: o.kind || '', id: ++nid }; clearTimeout(noteT); var id = S.note.id; noteT = setTimeout(function () { if (S.note && S.note.id === id) { S.note = null; render(); } }, 14000); }
   function snapshot() { return JSON.stringify({ m: S.meals, b: S.blocked, sel: S.sel }); }
+  function mutate(fn, msg, day, kind, pulse, short) { S.undo = snapshot(); fn(); S.pulse = pulse || (day ? [day] : null); note(msg, { undo: 1, day: day, kind: kind, short: short }); render(); if (day && S.lay === 'rib' && !S.sel) ensureVisible(day); if (S.pulse) setTimeout(function () { S.pulse = null; document.querySelectorAll('.pulse').forEach(function (e) { e.classList.remove('pulse'); }); }, 2600); }
+  function ensureVisible(d) { var el = document.getElementById('d-' + d); if (!el) return; var r = el.getBoundingClientRect(), top = stkH() + 8; if (r.top < top || r.top > innerHeight - 220) { lockUntil = Date.now() + 700; window.scrollBy({ top: r.top - top - 4, behavior: 'smooth' }); } }
+  function doUndo() { if (!S.undo) return; var u = JSON.parse(S.undo); S.meals = u.m; S.blocked = u.b; S.sel = u.sel; S.undo = null; S.pulse = null; note('Undone'); render(); }
+  function nextId(b) { return b + '-' + (++nid); }
+
   function act(a, id) {
     var m = find(id); if (!m) return;
-    if (a === 'open') { S.sel = id; S.asheet = null; S.snap = 'half'; return render(); }
-    if (a === 'hold') { m.held = m.held ? 0 : 1; S.asheet = null; render(); return toast(m.held ? 'Holding the ingredients' : 'Hold released'); }
-    if (a === 'list') { S.undo = snapshot(); m.list += m.miss.length; S.asheet = null; render(); return toast('Added ' + m.miss.length + ' to the shopping list', 1); }
-    S.undo = snapshot(); S.meals = S.meals.filter(function (x) { return x.id !== id; }); if (S.sel === id) S.sel = null; S.asheet = null; if (a === 'nocook') S.blocked[m.day] = 'once';
-    render(); toast(a === 'nocook' ? esc(m.t) + ' removed. ' + P.DAYS[di(m.day)][1] + ' is Not cooking' : esc(m.t) + ' removed. ' + P.DAYS[di(m.day)][1] + ' is open to replan', 1);
+    if (a === 'open') { S.sel = id; S.pop = null; S.asheet = null; S.cur = m.day; S.snap = 'half'; render(false); if (S.dt !== 'sheet') window.scrollTo(0, 0); return; }
+    if (a === 'copyfwd') { S.asheet = null; S.pickd = id; S.sel = null; return render(); }
+    if (ro()) return; if (past(m.day) && a !== 'hold') return;
+    if (a === 'hold') { if (past(m.day)) return; m.held = m.held ? 0 : 1; S.asheet = null; note(m.held ? 'Holding the ingredients' : 'Hold released'); return render(); }
+    if (a === 'list') return mutate(function () { m.list += m.miss.length; S.asheet = null; }, 'Added ' + m.miss.length + ' to the shopping list', m.day);
+    var nm = esc(m.t), dn = info(m.day).dow;
+    mutate(function () { S.meals = S.meals.filter(function (x) { return x.id !== id; }); if (S.sel === id) S.sel = null; S.asheet = null; if (a === 'nocook') { S.blocked[m.day] = 'once'; S.revealed = m.day; } }, a === 'nocook' ? nm + ' removed. ' + dn + ' is Not cooking' : nm + ' removed. ' + dn + ' is an open night', m.day);
   }
-  function closeSheet() { S.sel = null; render(); }
+  function block(d) { mutate(function () { S.blocked[d] = 'once'; S.cur = d; S.revealed = d; }, dName(d) + ' is Not cooking (this week only)', d); }
+  function unblock(d) { mutate(function () { delete S.blocked[d]; }, dName(d) + ' is open again', d); }
+  /* Surprise me (owner-confirmed heuristics, decision 94): timing aware, and never a repeat of a recent meal. */
+  function surprise(d) {
+    var c = P.surprise(S.meals, d, S.today); if (!c) return note('No fresh idea that is not a repeat. Try Ask AI.');
+    var nm = c; nm.id = nextId('sur'); nm.day = d; nm.who = S.view === 'mine' ? ['sam'] : 'all'; nm.n = S.view === 'mine' ? 1 : 4; nm.src = 'surprise'; nm.note = ''; nm.held = 0; nm.useby = nm.useby || [];
+    mutate(function () { S.meals.push(nm); }, 'Surprise: ' + esc(c.t) + ' for ' + dName(d), d);
+  }
+  function copyLast() {
+    var wk = weekOf(S.cur), r = P.copyLast(S.meals, S.blocked, S.view, wk, S.today); if (r.why === 'readonly' || r.why === 'bounds') return;
+    if (!r.add.length) { note('Nothing to fill: every open night already has a plan, or is Not cooking.'); return render(); }
+    var days = r.days, from = wk - 1 === 0 ? 'this week' : 'last week';
+    mutate(function () { S.meals = S.meals.concat(r.add); }, 'Copied ' + days.length + (days.length === 1 ? ' night' : ' nights') + ' from ' + from + ' (' + (S.view === 'mine' ? 'my plan' : 'household plan') + '). Open nights only', days[0], 'copy', days, 'Copied ' + days.length + (days.length === 1 ? ' night' : ' nights'));
+    if (S.u === 'day' || S.u === 'flip') goDay(days[0], true);
+  }
+  function startCarry(id, d) { var m = find(id); S.carry = JSON.parse(JSON.stringify(m)); S.pickd = null; S.sel = null; S.cur = d; render(); goDay(d, true); }
+  function drop(d) {
+    if (!S.carry || past(d)) return; var src = S.carry, ms = S.meals.filter(function (x) { return x.day === d && P.match(x, S.view); }), wasNc = S.blocked[d], c = JSON.parse(JSON.stringify(src)); c.id = nextId('cf'); c.day = d; c.note = 'Copied from ' + dName(src.day); c.held = 0; c.list = 0; delete c.left; delete c.makes; delete c.usual;
+    var msg = ms.length ? 'Replaced ' + esc(ms[0].t) + ' with ' + esc(c.t) : wasNc ? esc(c.t) + ' dropped. ' + dName(d) + ' is a cooking day now' : esc(c.t) + ' dropped on ' + dName(d);
+    S.carry = null;
+    mutate(function () { if (ms.length) { var rid = ms[0].id; S.meals = S.meals.filter(function (x) { return x.id !== rid; }); } delete S.blocked[d]; S.meals.unshift(c); S.cur = d; }, msg, d, 'drop');
+  }
 
-  /* swipe: pointer events for touch and mouse alike */
+  /* ---------- navigation: continuous ribbon, scroll-linked ---------- */
+  var lockUntil = 0;
+  function goDay(d, quiet) {
+    S.cur = d; S.revealed = d; if (S.sel && S.dt !== 'sheet') { S.sel = null; render(false); }
+    var el = document.getElementById('d-' + d); if (!el) { render(false); el = document.getElementById('d-' + d); } if (!el) return;
+    if (S.lay === 'focus') { render(false); window.scrollTo(0, 0); return; }
+    if (el.classList.contains('hid')) el.classList.remove('hid');
+    var y = el.getBoundingClientRect().top + window.scrollY, cmpH = 64, full = document.getElementById('stkp').offsetHeight, go = S.hd === 'shrink' && y - full > 40 && !(S.note && S.u === 'flip' && S.note.undo);
+    S.cmp = go; document.getElementById('stk').classList.toggle('cmp', go); lockUntil = Date.now() + 800;
+    window.scrollTo({ top: Math.max(0, y - (go ? stkH() : full) - 6), behavior: 'smooth' }); syncHead(); setTimeout(function () { follow(true); }, 850);
+  }
+  function syncHead() {
+    var r = info(S.cur), t = document.getElementById('wkt'), s = document.getElementById('wks'); if (t) t.textContent = 'Week of ' + info(r.mon).n + ' Oct'; if (s && !(S.note && S.u === 'flip' && S.note.undo)) s.textContent = P.REL[r.wk];
+    document.querySelectorAll('.dy').forEach(function (b) { var o = b.dataset.dy === S.cur; b.classList.toggle('on', o); b.setAttribute('aria-selected', o); }); placeMk(false);
+    var hd = document.querySelector('.hd'), tdy = hd && hd.querySelector('.tdy'); if (hd && S.cur !== S.today && !tdy) { var b = document.createElement('button'); b.className = 'tdy'; b.dataset.today = ''; b.setAttribute('aria-label', 'Jump to today'); b.textContent = 'Today'; hd.insertBefore(b, hd.querySelector('.sp').nextSibling); } else if (tdy && S.cur === S.today) tdy.remove();
+    var cb = document.querySelector('.cpy'); if (cb && !(S.note && S.note.undo)) cb.innerHTML = copyBtn();
+    evalCurtain();
+  }
+  var tick = 0, lastY = 0;
+  function follow(force) {
+    tick = 0; var y = window.scrollY;
+    if (S.hd === 'shrink') { var s = document.getElementById('stk'); if (s) { if (y > 70 && y > lastY + 4 && !S.cmp && !(S.note && S.u === 'flip')) { S.cmp = true; s.classList.add('cmp'); } else if ((y < lastY - 6 || y < 30) && S.cmp) { S.cmp = false; s.classList.remove('cmp'); } } } lastY = y;
+    if (S.lay !== 'rib' || S.sel && S.dt !== 'sheet') return syncPeek();
+    if (!force && Date.now() < lockUntil) return syncPeek();
+    var lim = stkH() + 24, cur = DI[0], secs = document.querySelectorAll('.dsec');
+    secs.forEach(function (el) { if (el.classList.contains('hid')) return; if (el.getBoundingClientRect().top <= lim) cur = el.dataset.d; });
+    if (S.carry === null && cur !== S.cur) { S.cur = cur; if (S.revealed && S.revealed !== cur) { } syncHead(); }
+    settleHidden(); syncPeek();
+  }
+  function settleHidden() {
+    if (S.nc !== 'hide' || S.carry) return;
+    Object.keys(S.blocked).forEach(function (d) { var el = document.getElementById('d-' + d); if (!el || el.classList.contains('hid') || d === S.cur || d === S.revealed) return; if (S.revealed === d) return; var r = el.getBoundingClientRect(), above = r.bottom <= stkH() + 4, h = el.offsetHeight + parseFloat(getComputedStyle(el).marginBottom || 0); if (r.bottom < 0 || r.top > innerHeight || above || r.top > innerHeight - 64) { el.classList.add('hid'); if (above) window.scrollBy(0, -h); } });
+    if (S.revealed && S.revealed !== S.cur) S.revealed = null;
+  }
+  /* a hidden Not cooking day peeks from the edge it scrolls past, then is gone */
+  function syncPeek() {
+    var t = document.getElementById('peekT'), b = document.getElementById('peekB'); if (!t || !b) return; var top = null, bot = null;
+    if (S.lay === 'rib' && !(S.sel && S.dt !== 'sheet')) { var sb = stkH(), nb = innerHeight - 64;
+      document.querySelectorAll('.dsec.hid').forEach(function (el) { var y = el.getBoundingClientRect().top; if (y >= sb && y <= sb + 40) top = { d: el.dataset.d, y: y - 32 }; else if (y <= nb && y >= nb - 40) bot = { d: el.dataset.d, y: y }; }); }
+    function set(el, o) { var d = o && o.d; if (o) el.style.top = o.y + 'px'; if (d) { el.hidden = false; el.dataset.peek = d; el.innerHTML = '<button data-peek="' + d + '"><b>' + dName(d) + '</b> Not cooking</button>'; } else el.hidden = true; }
+    set(t, top); set(b, bot);
+  }
+  window.addEventListener('scroll', function () { if (!tick) tick = requestAnimationFrame(function () { follow(); }); idleReset(true); }, { passive: true });
+
+  /* ---------- Ask AI to plan this: the curtain (decision 96, prototype, not locked) ---------- */
+  var cuT, cuAt = 0;
+  function cuWeekEmpty() { var wk = weekOf(S.cur), days = RIB.filter(function (r) { return r.wk === wk && !past(r.id); }); return days.length && days.every(function (r) { return !on(r.id).length; }); }
+  function cuStartEmpty() { var wk = weekOf(S.cur), days = RIB.filter(function (r) { return r.wk === wk && !past(r.id); }).slice(0, 3); return days.length && days.every(function (r) { return !on(r.id).length; }); }
+  function showCurtain(v) { var slot = document.getElementById('cslot'); if (!slot) return; S.cuShown = v; if (v) { cuAt = Date.now(); slot.className = 'cslot in'; slot.innerHTML = '<button class="curtain" data-curtain>' + ic.spark + ' Ask AI to plan this</button>'; } else { slot.className = 'cslot'; slot.innerHTML = ''; } sizeStk(); }
+  function evalCurtain() {
+    clearTimeout(cuT); if (S.cu === 'off' || S.carry || S.sel) return showCurtain(false); var wk = weekOf(S.cur);
+    if (S.cuDone[wk]) return S.cuShown && showCurtain(false);
+    if (S.cu === 'start') { if (cuStartEmpty()) { if (!S.cuShown) showCurtain(true); } else if (S.cuShown) showCurtain(false); return; }
+    if (S.cuShown && !cuWeekEmpty()) showCurtain(false); if (cuWeekEmpty() && !S.cuShown) cuT = setTimeout(function () { if (cuWeekEmpty() && !S.cuDone[weekOf(S.cur)]) showCurtain(true); }, 5000);
+  }
+  function idleReset(fromScroll) { if (fromScroll && Date.now() - cuAt < 900) return; if (S.cuShown && !(fromScroll && Date.now() - cuAt < 900)) { S.cuDone[weekOf(S.cur)] = true; showCurtain(false); } else if (S.cu === 'idle') evalCurtain(); }
+
+  /* ---------- swipe: pointer events for touch and mouse alike ---------- */
   var drag = null, TH = 88, OPEN = 150;
   document.addEventListener('pointerdown', function (e) {
-    var mc = e.target.closest('.mc'); if (!mc || e.target.closest('button') || (e.pointerType === 'mouse' && e.button !== 0)) return;
-    drag = { mc: mc, sw: mc.parentNode, x: e.clientX, y: e.clientY, dx: 0, on: false, id: e.pointerId, base: +(mc.dataset.open || 0) };
+    if (e.target.closest('#rib')) ribTouch = true;
+    var mc = e.target.closest('.mc'); if (!mc || S.carry || e.target.closest('button') || (e.pointerType === 'mouse' && e.button !== 0) || mc.dataset.ro === 'all') return;
+    drag = { mc: mc, sw: mc.parentNode, x: e.clientX, y: e.clientY, dx: 0, on: false, id: e.pointerId, base: +(mc.dataset.open || 0), past: mc.dataset.ro === 'past' };
   });
   document.addEventListener('pointermove', function (e) {
     if (!drag || e.pointerId !== drag.id) return; var dx = e.clientX - drag.x, dy = e.clientY - drag.y;
     if (!drag.on) { if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) * 1.4) { drag.on = true; drag.mc.classList.add('drag'); try { drag.mc.setPointerCapture(e.pointerId); } catch (x) { } } else if (Math.abs(dy) > 10) { drag = null; return; } else return; }
-    var t = Math.max(-OPEN - 20, Math.min(OPEN + 20, drag.base + dx)); drag.dx = t; drag.mc.style.transform = 'translateX(' + t + 'px)';
+    var lo = drag.past ? 0 : -OPEN - 20, t = Math.max(lo, Math.min(OPEN + 20, drag.base + dx)); drag.dx = t; drag.mc.style.transform = 'translateX(' + t + 'px)';
     drag.sw.classList.toggle('l', t > 0); drag.sw.classList.toggle('r', t < 0); drag.sw.classList.toggle('ready', Math.abs(t) > TH);
   });
   function endDrag(e) {
     if (!drag || e.pointerId !== drag.id) return; var d = drag; drag = null; if (!d.on) return; d.mc.classList.remove('drag'); d.mc.dataset.moved = '1'; setTimeout(function () { delete d.mc.dataset.moved; }, 50);
-    var id = d.mc.dataset.id, t = d.dx;
-    if (S.sw === 'tint') { if (t > TH) return act('nocook', id); if (t < -TH) return act('replan', id); d.mc.style.transform = ''; d.sw.classList.remove('l', 'r', 'ready'); return; }
-    var to = t > TH / 2 ? OPEN : t < -TH / 2 ? -OPEN : 0; d.mc.style.transform = to ? 'translateX(' + to + 'px)' : ''; d.mc.dataset.open = to; if (!to) d.sw.classList.remove('l', 'r', 'ready'); else { d.sw.classList.add(to > 0 ? 'l' : 'r'); d.sw.dataset.id = id; }
+    var id = d.mc.dataset.id, t = d.dx, right = d.past ? 'copyfwd' : 'nocook';
+    if (S.sw === 'tint') { if (t > TH) return act(right, id); if (t < -TH) return act('replan', id); d.mc.style.transform = ''; d.sw.classList.remove('l', 'r', 'ready'); return; }
+    var to = t > TH / 2 ? OPEN : t < -TH / 2 ? -OPEN : 0; d.mc.style.transform = to ? 'translateX(' + to + 'px)' : ''; d.mc.dataset.open = to; if (!to) d.sw.classList.remove('l', 'r', 'ready'); else { d.sw.classList.add(to > 0 ? 'l' : 'r'); d.sw.dataset.id = id; d.sw.dataset.right = right; }
   }
-  document.addEventListener('pointerup', endDrag); document.addEventListener('pointercancel', endDrag);
+  document.addEventListener('pointerup', function (e) { ribTouch = false; endDrag(e); }); document.addEventListener('pointercancel', function (e) { ribTouch = false; endDrag(e); });
   document.addEventListener('click', function (e) {
     var sw = e.target.closest('.sw.btns');
-    if (sw && sw.querySelector('.mc').dataset.open && !e.target.closest('.mc')) { var id = sw.dataset.id, o = +sw.querySelector('.mc').dataset.open; return act(o > 0 ? 'nocook' : 'replan', id); }
+    if (sw && sw.querySelector('.mc').dataset.open && !e.target.closest('.mc')) { var id = sw.dataset.id, o = +sw.querySelector('.mc').dataset.open; return act(o > 0 ? sw.dataset.right : 'replan', id); }
   }, true);
 
-  /* sheet drag */
+  /* sheet drag (comparison option) */
   var sd = null, lastMove = 0;
-  document.addEventListener('pointerdown', function (e) {
-    var g = e.target.closest('[data-grab]'); if (!g) return; var sh = document.getElementById('sheet'); sd = { y: e.clientY, id: e.pointerId, h: innerHeight * 0.92, s0: S.snap, moved: 0 }; sh.classList.add('drag'); try { g.setPointerCapture(e.pointerId); } catch (x) { }
-  });
-  document.addEventListener('pointermove', function (e) {
-    if (!sd || e.pointerId !== sd.id) return; var dy = e.clientY - sd.y; sd.moved = Math.max(sd.moved, Math.abs(dy)); var base = sd.s0 === 'full' ? 0 : Math.round(sd.h * .38); document.getElementById('sheet').style.setProperty('--y', Math.max(0, base + dy) + 'px'); sd.dy = dy;
-  });
-  function endSheet(e) {
-    if (!sd || e.pointerId !== sd.id) return; var d = sd; sd = null; var dy = d.dy || 0; lastMove = d.moved > 5 ? Date.now() : 0; var sh = document.getElementById('sheet'); sh.classList.remove('drag');
-    if (d.moved < 6) return; if (d.s0 === 'half' && dy > 90) return closeSheet(); if (dy < -50) return setSnap('full'); if (dy > 60 && d.s0 === 'full') return setSnap('half'); setSnap(d.s0);
-  }
+  function setSnap(s) { var sh = document.getElementById('sheet'); if (!sh) return; S.snap = s; var H = innerHeight * 0.92, y = s === 'full' ? 0 : Math.round(H * 0.38); sh.style.setProperty('--y', y + 'px'); sh.classList.remove('drag'); }
+  document.addEventListener('pointerdown', function (e) { var g = e.target.closest('[data-grab]'); if (!g) return; var sh = document.getElementById('sheet'); sd = { y: e.clientY, id: e.pointerId, h: innerHeight * 0.92, s0: S.snap, moved: 0 }; sh.classList.add('drag'); try { g.setPointerCapture(e.pointerId); } catch (x) { } });
+  document.addEventListener('pointermove', function (e) { if (!sd || e.pointerId !== sd.id) return; var dy = e.clientY - sd.y; sd.moved = Math.max(sd.moved, Math.abs(dy)); var base = sd.s0 === 'full' ? 0 : Math.round(sd.h * .38); document.getElementById('sheet').style.setProperty('--y', Math.max(0, base + dy) + 'px'); sd.dy = dy; });
+  function endSheet(e) { if (!sd || e.pointerId !== sd.id) return; var d = sd; sd = null; var dy = d.dy || 0; lastMove = d.moved > 5 ? Date.now() : 0; document.getElementById('sheet').classList.remove('drag'); if (d.moved < 6) return; if (d.s0 === 'half' && dy > 90) return closeDetail(); if (dy < -50) return setSnap('full'); if (dy > 60 && d.s0 === 'full') return setSnap('half'); setSnap(d.s0); }
   document.addEventListener('pointerup', endSheet); document.addEventListener('pointercancel', endSheet);
+  function closeDetail() { var d = S.sel && find(S.sel) ? find(S.sel).day : S.cur; S.sel = null; render(false); var el = document.getElementById('d-' + d); if (el) window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - stkH() - 6); S.cur = d; syncHead(); }
 
+  /* ---------- events ---------- */
   document.addEventListener('click', function (e) {
-    var t = e.target.closest('button,article,[data-closea],[data-close],[data-blockrow]'); if (!t) return; var d = t.dataset;
+    var t = e.target.closest('button,article,[data-closea],[data-close]'), d = t ? t.dataset : {};
+    if (S.carry && !t) { var sc = e.target.closest('.dsec'); if (sc) return drop(sc.dataset.d); }
+    if (S.carry && t && t.classList.contains('mc')) { var sc2 = t.closest('.dsec'); if (sc2) return drop(sc2.dataset.d); }
+    if (S.carry && t && !d.cancelcarry && !d.dy && !d.today && !d.opts && !d.undo && !t.closest('.nav') && t.closest('.dsec')) { return drop(t.closest('.dsec').dataset.d); }
+    if (!t) { if (S.cuShown) idleReset(); return; }
+    if (S.cuShown && d.curtain === undefined) idleReset();
     if (t.classList.contains('mc') && t.dataset.moved) return;
     if (d.opts !== undefined) { S.opts = !S.opts; return render(); }
     if (d.more) { S.asheet = { k: 'm', id: d.more }; return render(); }
-    if (d.closea !== undefined) { S.asheet = null; return render(); }
+    if (d.closea !== undefined) { S.asheet = null; S.pop = null; S.pickd = null; return render(); }
     if (d.act) return act(d.act, d.id);
-    if (d.fmenu !== undefined) { S.asheet = { k: 'f', q: '' }; render(); var f = document.getElementById('fq'); if (f) f.focus(); return; }
-    if (d.view) { S.view = d.view; S.asheet = null; if (S.sel && !P.match(find(S.sel), S.view)) S.sel = null; return render(); }
+    if (d.fmenu !== undefined) { S.pop = { k: 'f', q: '' }; render(); var f = document.getElementById('fq'); return; }
+    if (d.view) { S.view = d.view; S.pop = null; S.asheet = null; if (S.sel && !P.match(find(S.sel), S.view)) S.sel = null; S.cuDone = {}; render(); return syncHead(); }
     if (d.expand !== undefined) { S.expand = !S.expand; return render(); }
     if (d.hl) { S.hl = S.hl === d.hl ? null : d.hl; return render(); }
-    if (d.dy) { if (S.lay === 'focus') { S.day = d.dy; return render(false); } var el = document.getElementById('d-' + d.dy); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); S.cur = d.dy; return; }
-    if (d.step) { S.day = P.DAYS[di(S.day) + (+d.step)][0]; return render(false); }
-    if (d.close !== undefined) return closeSheet();
+    if (d.dy !== undefined) return goDay(d.dy);
+    if (d.peek) return goDay(d.peek);
+    if (d.today !== undefined) return goDay(S.today);
+    if (d.step) { S.cur = DI[di(S.cur) + (+d.step)]; S.revealed = S.cur; render(false); return syncHead(); }
+    if (d.copy !== undefined) return copyLast();
+    if (d.undo !== undefined) return doUndo();
+    if (d.close !== undefined) return closeDetail();
     if (d.grab !== undefined) { if (Date.now() - lastMove < 150) return; return setSnap(S.snap === 'half' ? 'full' : 'half'); }
     if (d.hold !== undefined) return act('hold', S.sel); if (d.replan !== undefined) return act('replan', S.sel); if (d.nocook !== undefined) return act('nocook', S.sel); if (d.addall !== undefined) return act('list', S.sel);
-    if (d.addone) { var m = find(S.sel); S.undo = snapshot(); m.miss = m.miss.filter(function (x) { return x[0] !== d.addone; }); m.list++; var st = S.snap; render(); return toast(esc(d.addone) + ' added to the shopping list', 1); }
+    if (d.addone) { var m = find(S.sel); return mutate(function () { m.miss = m.miss.filter(function (x) { return x[0] !== d.addone; }); m.list++; }, esc(d.addone) + ' added to the shopping list', m.day); }
     if (d.n) { var mm = find(S.sel); mm.n = Math.max(1, mm.n + (+d.n)); return render(); }
-    if (d.block) { S.undo = snapshot(); S.blocked[d.block] = 'once'; render(); return toast(P.DAYS[di(d.block)][1] + ' is Not cooking (this week only)', 1); }
-    if (d.blockrow) { if (e.target.closest('button')) return; S.undo = snapshot(); S.blocked[d.blockrow] = 'once'; render(); return toast(P.DAYS[di(d.blockrow)][1] + ' is Not cooking (this week only)', 1); }
-    if (d.unblock) { S.undo = snapshot(); delete S.blocked[d.unblock]; render(); return toast(P.DAYS[di(d.unblock)][1] + ' is open again', 1); }
-    if (d.assist !== undefined) return toast('Opens your default AI app (decision 45).');
-    if (d.wk !== undefined) return toast('Next week is not drawn: one sample week.');
-    if (d.undo !== undefined) { if (!S.undo) return; var u = JSON.parse(S.undo); S.meals = u.m; S.blocked = u.b; S.sel = u.sel; S.undo = null; render(); return toast('Restored'); }
-    if (t.classList.contains('mc')) { S.sel = t.dataset.id; S.snap = 'half'; render(); }
+    if (d.block) return block(d.block);
+    if (d.unblock) return unblock(d.unblock);
+    if (d.ask) { note('Ask AI opens your default AI app, scoped to ' + dName(d.ask) + '. Nothing happens inside Kitchie.', { day: d.ask }); return render(); }
+    if (d.surprise) return surprise(d.surprise);
+    if (d.curtain !== undefined) { S.cuDone[weekOf(S.cur)] = true; showCurtain(false); note('Ask AI opens your default AI app with the week of ' + info(info(S.cur).mon).n + ' Oct. Nothing happens inside Kitchie.'); return render(); }
+    if (d.cancelcarry !== undefined) { S.carry = null; return render(); }
+    if (d.pickday) return startCarry(S.pickd, d.pickday);
+    if (t.classList.contains('mc')) { S.sel = t.dataset.id; S.cur = find(S.sel).day; S.snap = 'half'; render(false); if (S.dt !== 'sheet') window.scrollTo(0, 0); }
   });
-  document.addEventListener('change', function (e) { var n = e.target.name; if (n && S[n] !== undefined) { S[n] = e.target.value; S.hl = null; S.opts = true; render(); } });
-  document.addEventListener('input', function (e) { if (e.target.id === 'fq' && S.asheet) { S.asheet.q = e.target.value; var pos = e.target.selectionStart; document.getElementById('aw').innerHTML = asheetHtml(); var f = document.getElementById('fq'); f.focus(); f.setSelectionRange(pos, pos); } });
+  document.addEventListener('change', function (e) { if (e.target.dataset && e.target.dataset.pcsel !== undefined) { var m = find(S.sel); m.n = +e.target.value; return render(); } var n = e.target.name; if (n && S[n] !== undefined) { S[n] = e.target.value; S.hl = null; S.opts = true; if (n === 'cu') { S.cuDone = {}; S.cuShown = false; } render(); syncHead(); } });
+  document.addEventListener('input', function (e) { if (e.target.id === 'fq' && S.pop) { S.pop.q = e.target.value; var pos = e.target.selectionStart; document.getElementById('aw').innerHTML = popHtml() + actionSheet(); var f = document.getElementById('fq'); f.focus(); f.setSelectionRange(pos, pos); } });
   document.addEventListener('keydown', function (e) {
-    if ((e.target.tagName || '').toLowerCase() === 'input') { if (e.key === 'Escape') { S.asheet = null; render(); } return; }
+    if ((e.target.tagName || '').toLowerCase() === 'input') { if (e.key === 'Escape') { S.pop = null; render(); } return; }
     if (e.metaKey || e.ctrlKey || e.altKey) return; var k = e.key;
-    if (k === 'Escape') { if (S.asheet) { S.asheet = null; render(); } else if (S.sel) closeSheet(); return; }
+    if (k === 'Escape') { if (S.carry) { S.carry = null; render(); } else if (S.pickd || S.asheet || S.pop) { S.pickd = S.asheet = S.pop = null; render(); } else if (S.sel) closeDetail(); return; }
     var a = document.activeElement, id = a && a.classList.contains('mc') ? a.dataset.id : S.sel;
+    if (k.toLowerCase() === 'z') { return doUndo(); }
     if (k.toLowerCase() === 'x' && id) { e.preventDefault(); return act(e.shiftKey ? 'nocook' : 'replan', id); }
     if (k.toLowerCase() === 'h' && id) return act('hold', id); if (k.toLowerCase() === 'l' && id) return act('list', id);
     if ((k.toLowerCase() === 'e' || (k === 'Enter' && a && a.classList.contains('mc'))) && id) { e.preventDefault(); return act('open', id); }
-    if (k.toLowerCase() === 'z' && S.undo) { var u = JSON.parse(S.undo); S.meals = u.m; S.blocked = u.b; S.sel = u.sel; S.undo = null; render(); return toast('Restored'); }
     if (a && a.id === 'grab' && (k === 'ArrowUp' || k === 'ArrowDown')) { e.preventDefault(); return setSnap(k === 'ArrowUp' ? 'full' : 'half'); }
   });
-  /* the day strip follows the page in the agenda layout: the day whose heading last passed under the sticky stack */
-  var tick = 0;
-  function follow() {
-    tick = 0; if (S.lay !== 'agenda') return; var stk = document.querySelector('.stk'); if (!stk) return; var lim = stk.offsetHeight + 24, cur = DI[0];
-    DI.forEach(function (d) { var s = document.getElementById('d-' + d); if (s && s.getBoundingClientRect().top <= lim) cur = d; });
-    if (cur !== S.cur) { S.cur = cur; document.querySelectorAll('.dy').forEach(function (b) { var on = b.dataset.dy === cur; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); }); }
-  }
-  window.addEventListener('scroll', function () { if (!tick) tick = requestAnimationFrame(follow); }, { passive: true });
-  window.addEventListener('resize', function () { var st = document.getElementById('pstrip'), ch = document.getElementById('pchev'); if (st && ch) ch.hidden = !(st.scrollWidth > st.clientWidth + 2 || S.expand); });
-  S.cur = S.today;
+  window.addEventListener('resize', function () { sizeStk(); placeMk(true); });
+  window.__plan = { S: S, act: act, goDay: goDay, drop: drop, startCarry: startCarry, surprise: surprise, copyLast: copyLast, render: render, syncHead: syncHead, follow: follow };
+
   render(false);
-  if (S.lay === 'agenda' && di(S.today) > 0 && !q.get('top')) { var el = document.getElementById('d-' + S.today); if (el) window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - document.querySelector('.stk').offsetHeight - 4); follow(); }
+  if (q.get('carry')) { var cm = find(q.get('carry')); if (cm) { S.carry = JSON.parse(JSON.stringify(cm)); render(false); } }
+  if (q.get('pick')) { S.pickd = q.get('pick'); render(false); }
+  if (S.lay === 'rib' && !S.sel && !q.get('top') || q.get('day')) { requestAnimationFrame(function () { var el = document.getElementById('d-' + S.cur); if (el && di(S.cur) > 0) { var y = el.getBoundingClientRect().top + window.scrollY - document.getElementById('stkp').offsetHeight - 4; window.scrollTo(0, Math.max(0, y)); } lastY = window.scrollY; follow(true); evalCurtain(); }); } else evalCurtain();
 })();

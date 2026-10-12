@@ -17,7 +17,11 @@ window.PUR = (function () {
     check: I('<path d="M5 12l5 5 9-10"/>'),
     spark: I('<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3z"/>'),
     copy: I('<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/>'),
-    cog: I('<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>'),
+    cog: I('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>'),
+    undo: I('<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>'),
+    dice: I('<rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9" r="1"/><circle cx="15" cy="15" r="1"/><circle cx="15" cy="9" r="1"/><circle cx="9" cy="15" r="1"/>'),
+    hand: I('<path d="M8 12V6a1.5 1.5 0 0 1 3 0v5M11 11V4.5a1.5 1.5 0 0 1 3 0V11M14 11V6a1.5 1.5 0 0 1 3 0v8c0 4-2.5 6-5.5 6S7 18 6 15l-1.6-3.3a1.5 1.5 0 0 1 2.6-1.4L8 12"/>'),
+    cal: I('<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>'),
     moon: I('<path d="M20 14A8 8 0 0 1 10 4a8 8 0 1 0 10 10z"/>'),
     swap: I('<path d="M4 8h13l-3-3M20 16H7l3 3"/>'),
     people: I('<circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 5a3 3 0 0 1 0 6M18 14c2 .7 3 2.8 3 6"/>'),
@@ -27,20 +31,64 @@ window.PUR = (function () {
     { id: 'sam', n: 'Sam', me: 1 }, { id: 'jane', n: 'Jane' }, { id: 'kit', n: 'Kit' }, { id: 'arlo', n: 'Arlo' },
     { id: 'priya', n: 'Priya' }, { id: 'tom', n: 'Tom' }, { id: 'lee', n: 'Lee' }
   ];
-  var DAYS = [['mon', 'Mon', 12], ['tue', 'Tue', 13], ['wed', 'Wed', 14], ['thu', 'Thu', 15], ['fri', 'Fri', 16], ['sat', 'Sat', 17], ['sun', 'Sun', 18]];
+  /* Three weeks, bounded: last, this, next (owner-stated 12 Oct 2026, decision 86; "four weeks forward" is an open question).
+     A day id is "d" + the date in October 2026 (d12 = Mon 12 Oct). Today in the sample is Tue 13 Oct. */
+  var DOW = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  var RIB = []; for (var n = 5; n <= 25; n++) { var k = n - 5; RIB.push({ id: 'd' + (n < 10 ? '0' + n : n), dow: DOW[k % 7], n: n, i: k, wk: Math.floor(k / 7) - 1, mon: 'd' + (5 + 7 * Math.floor(k / 7)).toString().replace(/^(\d)$/, '0$1') }); }
+  var SHORT = { mon: 'd12', tue: 'd13', wed: 'd14', thu: 'd15', fri: 'd16', sat: 'd17', sun: 'd18' };
+  function did(v, d) { if (!v) return d; if (SHORT[v]) return SHORT[v]; return RIB.some(function (r) { return r.id === v; }) ? v : d; }
+  function dinfo(id) { return RIB.filter(function (r) { return r.id === id; })[0]; }
+  var DAYS = RIB.filter(function (r) { return r.wk === 0; }).map(function (r) { return [r.id, r.dow, r.n]; });
+  var REL = { '-1': 'Last week', '0': 'This week', '1': 'Next week' };
   /* who: 'all' or list of ids. miss: missing items. have: on hand. useby: items with a use-by. list: on the shopping list. held: ingredient held. */
   var meals = [
-    { id: 'mon-shak', day: 'mon', em: '🍳', t: 'Shakshuka', who: 'all', n: 4, src: 'saved', miss: [['feta', '200 g']], have: [['eggs', '8'], ['tinned tomatoes', '2 tins'], ['onion', '2']], useby: [], list: 1, held: 1, note: 'Quick night: 25 min' },
-    { id: 'tue-pasta', day: 'tue', em: '🍝', t: 'Mushroom pasta', who: 'all', n: 4, src: 'saved', miss: [], have: [['pasta', '500 g'], ['mushrooms', '400 g'], ['cream', '1 tub']], useby: [['mushrooms', 'Wed 14']], list: 0, held: 0, note: 'Uses the mushrooms before they turn' },
-    { id: 'wed-curry', day: 'wed', em: '🍛', t: 'Japanese golden curry', who: 'all', n: 4, src: 'made', miss: [['curry roux', '1 block'], ['jasmine rice', '2 cups']], have: [['chicken thighs', '600 g'], ['veg bag', '1 bag'], ['onion', '2'], ['potatoes', '4'], ['carrots', '3']], useby: [['chicken thighs', 'Tue 13']], list: 1, held: 0, note: 'Cooks double: Friday leftovers' , makes: 'fri-left'},
-    { id: 'thu-salmon', day: 'thu', em: '🐟', t: 'Salmon patties', who: 'all', n: 4, src: 'saved', miss: [['dill', '1 bunch'], ['lemon', '2']], have: [['salmon', '2 tins'], ['eggs', '2'], ['breadcrumbs', '1 cup']], useby: [['salmon', 'Thu 15']], list: 0, held: 0, note: '' },
-    { id: 'thu-tuna', day: 'thu', em: '🥗', t: 'Tuna salad', who: ['sam'], n: 1, src: 'saved', miss: [['lemon', '1']], have: [['tuna', '1 tin'], ['lettuce', '1']], useby: [], list: 0, held: 0, note: '' },
-    { id: 'fri-left', day: 'fri', em: '♻️', t: 'Leftover chicken curry', who: ['sam'], n: 1, src: 'saved', miss: [], have: [['curry, from Wednesday', '1 serve']], useby: [], list: 0, held: 0, note: 'Reheat; no shopping', left: 'Wed 14', usual: 1 }
+    { id: 'mon-shak', day: 'd12', em: '🍳', t: 'Shakshuka', who: 'all', n: 4, src: 'saved', miss: [['feta', '200 g']], have: [['eggs', '8'], ['tinned tomatoes', '2 tins'], ['onion', '2']], useby: [], list: 1, held: 1, note: 'Quick night: 25 min' },
+    { id: 'tue-pasta', day: 'd13', em: '🍝', t: 'Mushroom pasta', who: 'all', n: 4, src: 'saved', miss: [], have: [['pasta', '500 g'], ['mushrooms', '400 g'], ['cream', '1 tub']], useby: [['mushrooms', 'Wed 14']], list: 0, held: 0, note: 'Uses the mushrooms before they turn' },
+    { id: 'wed-curry', day: 'd14', em: '🍛', t: 'Japanese golden curry', who: 'all', n: 4, src: 'made', miss: [['curry roux', '1 block'], ['jasmine rice', '2 cups']], have: [['chicken thighs', '600 g'], ['veg bag', '1 bag'], ['onion', '2'], ['potatoes', '4'], ['carrots', '3']], useby: [['chicken thighs', 'Tue 13']], list: 1, held: 0, note: 'Cooks double: Friday leftovers', makes: 'fri-left' },
+    { id: 'thu-salmon', day: 'd15', em: '🐟', t: 'Salmon patties', who: 'all', n: 4, src: 'saved', miss: [['dill', '1 bunch'], ['lemon', '2']], have: [['salmon', '2 tins'], ['eggs', '2'], ['breadcrumbs', '1 cup']], useby: [['salmon', 'Thu 15']], list: 0, held: 0, note: '' },
+    { id: 'thu-tuna', day: 'd15', em: '🥗', t: 'Tuna salad', who: ['sam'], n: 1, src: 'saved', miss: [['lemon', '1']], have: [['tuna', '1 tin'], ['lettuce', '1']], useby: [], list: 0, held: 0, note: '' },
+    { id: 'fri-left', day: 'd16', em: '♻️', t: 'Leftover chicken curry', who: ['sam'], n: 1, src: 'saved', miss: [], have: [['curry, from Wednesday', '1 serve']], useby: [], list: 0, held: 0, note: 'Reheat; no shopping', left: 'Wed 14', usual: 1 },
+    /* last week: past, read-only. Sources for "Copy last week" and for swipe right = copy forward. */
+    { id: 'l-mon', day: 'd05', em: '🍚', t: 'Egg fried rice', who: 'all', n: 4, src: 'saved', miss: [], have: [['rice', '3 cups'], ['eggs', '4'], ['peas', '1 bag']], useby: [], list: 0, held: 0, note: '' },
+    { id: 'l-tue', day: 'd06', em: '🌮', t: 'Taco night', who: 'all', n: 4, src: 'saved', miss: [], have: [['tortillas', '8'], ['mince', '500 g'], ['salsa', '1 jar']], useby: [], list: 0, held: 0, note: '' },
+    { id: 'l-wed', day: 'd07', em: '🍗', t: 'Roast chicken', who: 'all', n: 4, src: 'saved', miss: [], have: [['chicken', '1.6 kg'], ['potatoes', '6'], ['carrots', '4']], useby: [], list: 0, held: 0, note: '' },
+    { id: 'l-thu', day: 'd08', em: '🍳', t: 'Mushroom omelette', who: ['sam'], n: 1, src: 'saved', miss: [], have: [['eggs', '3'], ['mushrooms', '100 g']], useby: [], list: 0, held: 0, note: '' },
+    { id: 'l-thu2', day: 'd08', em: '🍜', t: 'Pad see ew', who: ['jane'], n: 1, src: 'saved', miss: [], have: [['noodles', '1 pack']], useby: [], list: 0, held: 0, note: '' },
+    { id: 'l-fri', day: 'd09', em: '🐟', t: 'Fish and chips', who: 'all', n: 4, src: 'saved', miss: [], have: [['fish', '4'], ['potatoes', '6']], useby: [], list: 0, held: 0, note: '' },
+    { id: 'l-sun', day: 'd11', em: '🥘', t: 'Roast veg and halloumi', who: 'all', n: 4, src: 'saved', miss: [], have: [['halloumi', '2 blocks'], ['veg bag', '1 bag']], useby: [], list: 0, held: 0, note: '' }
   ];
-  var blocked = { sat: 'once' };
-  var tips = { wed: 'Wednesday is the big cook: leftovers for Friday' };
+  /* Not cooking days. d10 last Sat (past), d17 this Sat, d22 and d25 next week (the usual days off). */
+  var blocked = { d10: 'once', d17: 'once', d22: 'once', d25: 'usual' };
+  var tips = { d14: 'Wednesday is the big cook: leftovers for Friday' };
+  /* Surprise me (decision 94, owner-confirmed heuristics): candidates by kind. 'new' may need shopping (room to shop) and may use the shopping list; 'stock' is on hand. */
+  var SUR = [
+    { id: 's1', kind: 'new', em: '🍋', t: 'Lemon chicken orzo', miss: [['orzo', '500 g']], have: [['chicken thighs', '600 g'], ['lemon', '2 (on your list)']], useby: [], list: 1, why: 'New to the plan, and the lemons are already on your shopping list.' },
+    { id: 's2', kind: 'new', em: '🌿', t: 'Thai basil stir-fry', miss: [['Thai basil', '1 bunch']], have: [['noodles', '1 pack'], ['veg bag', '1 bag']], useby: [], list: 0, why: 'Something you have not had lately; one item to buy.' },
+    { id: 's3', kind: 'stock', em: '🥚', t: 'Potato and egg frittata', miss: [], have: [['eggs', '8'], ['potatoes', '4'], ['onion', '2']], useby: [], list: 0, why: 'Late in the week, so it uses what is already in the house.' },
+    { id: 's4', kind: 'stock', em: '🍲', t: 'Pantry minestrone', miss: [], have: [['tinned tomatoes', '2 tins'], ['pasta', '200 g'], ['carrots', '3']], useby: [], list: 0, why: 'Late in the week, all on hand.' }
+  ];
   function inMine(m) { return m.who === 'all' || m.who.indexOf('sam') > -1; }
   function match(m, f) { if (f === 'everyone') return true; if (f === 'mine') return inMine(m); return m.who === 'all' || m.who.indexOf(f) > -1; }
   function whoLabel(m) { return m.who === 'all' ? 'Everyone · ' + m.n + ' people' : m.who.map(function (i) { return people.filter(function (p) { return p.id === i; })[0].n; }).join(', ') + ' · ' + m.n + ' ' + (m.n === 1 ? 'person' : 'people'); }
-  return { icons: icons, people: people, DAYS: DAYS, meals: meals, blocked: blocked, tips: tips, match: match, inMine: inMine, whoLabel: whoLabel };
+  /* Surprise me (owner-confirmed heuristics, decision 94): timing aware, never a repeat of a recent meal. Returns a copy of a candidate. */
+  function surprise(meals, d, today) {
+    var di = function (x) { return RIB.map(function (r) { return r.id; }).indexOf(x); }, r = dinfo(d), du = di(d) - di(today), late = r.wk === 0 && r.i % 7 >= 4, kind = (du <= 1 || late) ? 'stock' : 'new';
+    var recent = meals.filter(function (x) { return Math.abs(di(x.day) - di(d)) <= 7; }).map(function (x) { return x.t; });
+    var c = SUR.filter(function (x) { return x.kind === kind && recent.indexOf(x.t) < 0; })[0] || SUR.filter(function (x) { return recent.indexOf(x.t) < 0; })[0];
+    return c ? JSON.parse(JSON.stringify(c)) : null;
+  }
+  /* Copy last week (owner-stated, decision 99): fills open nights only, never overwrites, acts on the active pill; another member's plan is read only. */
+  function copyLast(meals, blocked, view, wk, today) {
+    var ids = RIB.map(function (r) { return r.id; }), di = function (x) { return ids.indexOf(x); };
+    var src = RIB.filter(function (r) { return r.wk === wk - 1; }), tgt = RIB.filter(function (r) { return r.wk === wk; }), add = [], days = [], n = 0;
+    if (view !== 'mine' && view !== 'everyone') return { add: add, days: days, why: 'readonly' };
+    if (wk < 0 || !src.length) return { add: add, days: days, why: 'bounds' };
+    src.forEach(function (r, i) {
+      var t = tgt[i].id; if (di(t) < di(today) || blocked[t] || meals.some(function (x) { return x.day === t && match(x, view); })) return;
+      var ms = meals.filter(function (x) { return x.day === r.id && match(x, view); }); if (!ms.length) return;
+      ms.forEach(function (x) { var c = JSON.parse(JSON.stringify(x)); c.id = 'cp-' + (++n) + '-' + t; c.day = t; c.note = 'Copied from ' + dinfo(r.id).dow + ' ' + dinfo(r.id).n + ' Oct'; c.held = 0; c.list = 0; delete c.left; delete c.makes; delete c.usual; add.push(c); }); days.push(t);
+    });
+    return { add: add, days: days, why: add.length ? '' : 'none' };
+  }
+  return { surprise: surprise, copyLast: copyLast, icons: icons, people: people, DOW: DOW, RIB: RIB, DAYS: DAYS, REL: REL, did: did, dinfo: dinfo, meals: meals, blocked: blocked, tips: tips, SUR: SUR, match: match, inMine: inMine, whoLabel: whoLabel };
 })();
