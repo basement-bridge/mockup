@@ -88,7 +88,7 @@ See also: Plan UI review decisions 85 to 106 (owner voice review, 12 Oct 2026) i
 
 ## Option B refined (12 Oct 2026, owner by voice): decisions 110 to 120
 
-Owner chose option B (agenda + detail pane) as the base to refine and gave the points below by voice. **owner, 12 Oct 2026** marks his words; **Proposal** marks a gap the design agent filled. Numbers continue after 106 in [plan-ui-review.md](plan-ui-review.md). Other job notes (`item-edit-flyout.md`, `home-detail-panel.md`) reuse 107 and up for their own lists, so cite these as "Plan desktop 110" with this file name. Nothing is built in Kitchie.
+Owner chose option B (agenda + detail pane) as the base to refine and gave the points below by voice. **owner, 12 Oct 2026** marks his words; **Proposal** marks a gap the design agent filled. Numbers continue after 109 in [plan-ui-review.md](plan-ui-review.md). Other job notes (`item-edit-flyout.md`, `home-detail-panel.md`) reuse 107 and up for their own lists (and 107 to 109 are Plan UI review phone decisions), so cite these as "Plan desktop 110" with this file name. Nothing is built in Kitchie.
 
 Mockup: `fragments/plan-desktop/b.html?sel=wed-curry` (links for every state on `fragments/plan-desktop/index.html`). Options A, C, D are untouched (the tile and summary changes are B only, through hooks in `plan.js`).
 
