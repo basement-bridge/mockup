@@ -79,3 +79,4 @@ Viewport code: `plan.css` and `plan.js` have no size rules. Each option has `<op
 - Keep one set of class names with the phone Plan and Pantry (`.mc .tg .blocked .slot`, `.rail .panel .toast .kbd`) so the built app matches the mockup.
 - Realtime: the sync pill reads the same stream the phone uses; offline shows the last saved plan with its time.
 - DESIGN.md learnings applied: 1 (start from the job), 2 (one token set), 4 (one visual family), 5 (options), 6 (load only what is needed now), 7 (form factors).
+- Hand-planned meals and Hard avoids (owner, 12 October 2026): a Hard avoid blocks a meal planned by hand only when that person is in the meal; the guard is drawn in the Plan it panel in `fragments/plan-hard-avoid/` (decisions SW-74 to SW-82 in `docs/knowledge/settings-window.md`). The Plan options above draw no add control (the Plan is assistant-led); the panel is the hand-add path.

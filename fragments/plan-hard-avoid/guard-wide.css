@@ -1,0 +1,13 @@
+/* From 1024px: rail, a left-anchored column and the lane (the Pantry group, DESIGN.md section 7 item 2). The panel is the lane: it
+   never covers the week it is about. Below about 1224px the column gives up width. */
+.app{display:grid;grid-template-columns:88px minmax(0,736px) 400px;justify-content:start}
+.app.nolane{grid-template-columns:88px minmax(0,736px)}
+.rail{display:flex}
+.main{padding:20px 32px 48px}
+.sheet-dim{display:none}
+.panel{position:sticky;top:0;left:auto;right:auto;bottom:auto;height:100vh;max-height:none;z-index:auto;border-top:0;border-left:1px solid var(--border);border-radius:0;padding:22px 24px;box-shadow:none;overflow:auto}
+.panel .top h2{font-size:1.25rem}
+.toast{left:136px;right:auto;bottom:20px;max-width:560px}
+.panel.planned{display:block}
+.days{gap:4px}
+.rail .av{width:var(--tap);height:var(--tap)}
