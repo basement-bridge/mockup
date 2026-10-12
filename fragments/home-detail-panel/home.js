@@ -60,10 +60,14 @@ HDP.missText = miss;
 function drawSoon() {
   $("#soon").innerHTML = '<div class="sh">On the way out</div>' + D.soon.map(itemRow).join("") + '<div class="sh">Running low</div>' + D.low.map(itemRow).join("");
 }
+/* the meals on a day: the household plan and the viewer's own plan show plainly; someone else's individual plan carries that person's initial (decision 154) */
+function mealsOn(i) { return (S.week === "planned" && D.planned[i] ? D.planned[i] : []).concat(S.plan[i] || []); }
+function other(m) { return m.who && m.who !== "me" && D.people[m.who] ? D.people[m.who] : null; }
+function chip(p) { return ' (<span class="av" title="' + esc(p.name) + '\'s plan">' + esc(p.initial) + "</span>)"; }
 function drawWeek() {
   var days = D.days.map(function (d, i) {
-    var v = S.plan[i] || (S.week === "planned" ? D.planned[i] : "");
-    return '<button type="button" class="wd' + (i === 0 ? " now" : "") + (v ? " set" : "") + '" data-act="day" data-i="' + i + '"><b>' + d + "</b><span>" + (v ? esc(v) : "Nothing planned") + "</span></button>";
+    var ms = mealsOn(i), v = ms.map(function (m) { var o = other(m); return esc(m.name) + (o ? chip(o) : ""); }).join(", ");
+    return '<button type="button" class="wd' + (i === 0 ? " now" : "") + (v ? " set" : "") + '" data-act="day" data-i="' + i + '"><b>' + d + "</b><span>" + (v || "Nothing planned") + "</span></button>";
   }).join("");
   $("#week").innerHTML = '<h2>This week</h2><p class="sub">Live from the plan</p><div>' + days + '</div><p class="pn">Tap a day to open the plan.</p>';
 }
@@ -96,15 +100,17 @@ HDP.closeBtn = closeBtn;
 function tile(ic, val, cap, prompt, sr) {
   return val === null ? '<button type="button" class="tl empty" data-act="tile">' + sv(IC.plus, 20) + "<span>" + prompt + "</span></button>" : '<button type="button" class="tl" data-act="tile"' + (sr ? ' aria-label="' + esc(sr) + '"' : "") + ">" + ic + (val === "" ? "" : "<b>" + val + "</b>") + (cap ? "<span>" + cap + "</span>" : "") + "</button>";
 }
-/* "Used in": only ideas actually planned in the rolling next 7 days (today and the six days after), by day of the week, never a date. A rolling week cannot hold two of the same weekday. None planned: no line. */
+/* "Used in": only ideas actually planned in the rolling next 7 days (today and the six days after), weekday first then the recipe, never a date. A rolling week cannot hold two of the same weekday.
+   Same day, more than one meal: grouped under the one weekday, "Tuesday, prawn curry (J), lamb curry" (decision 155, proposal). Days are joined by a middle dot, in day order.
+   A meal on the household plan or the viewer's own plan is plain; one on someone else's individual plan carries their initial in brackets (decision 154). None planned: no line. */
 var DAYNAME = { Mon: "Monday", Tue: "Tuesday", Wed: "Wednesday", Thu: "Thursday", Fri: "Friday", Sat: "Saturday", Sun: "Sunday" };
 function usedIn(it) {
   var out = [];
   D.days.forEach(function (d, i) {
-    var name = S.plan[i] || (S.week === "planned" ? D.planned[i] : ""), u = name && D.planUses[name];
-    if (u && u.indexOf(it.id) > -1) out.push(DAYNAME[d.split(" ")[0]] + ", " + name.charAt(0).toLowerCase() + name.slice(1));
+    var hit = mealsOn(i).filter(function (m) { var u = D.planUses[m.name]; return u && u.indexOf(it.id) > -1; });
+    if (hit.length) out.push(esc(DAYNAME[d.split(" ")[0]]) + ", " + hit.map(function (m) { var o = other(m); return esc(m.name.charAt(0).toLowerCase() + m.name.slice(1)) + (o ? chip(o) : ""); }).join(", "));
   });
-  return out.length ? '<p class="usedin" id="d-usedin"><b>Used in:</b> ' + esc(out.join(" \u00b7 ")) + "</p>" : "";
+  return out.length ? '<p class="usedin" id="d-usedin"><b>Used in:</b> ' + out.join(" \u00b7 ") + "</p>" : "";
 }
 HDP.usedIn = usedIn;
 function itemHtml(it) {
@@ -210,9 +216,9 @@ HDP.toast = toast;
 function cur() { var K = keyOf(S.open || ":"); return K.kind === "item" ? item(K.id) : null; }
 function pulse() { var p = $("#peek"); if (app.dataset.mode === "stack" && S.front === "detail" && S.open) { p.classList.remove("pulse"); void p.offsetWidth; p.classList.add("pulse"); } }
 function planIdea(r) {
-  var i = 0; while (i < 7 && (S.plan[i] || (S.week === "planned" && D.planned[i]))) i++;
+  var i = 0; while (i < 7 && mealsOn(i).length) i++;
   if (i > 6) { toast("The week is full. Open the plan to swap a day."); return; }
-  S.plan[i] = r.name; D.planUses[r.name] = r.uses; drawWeek(); if (cur()) drawDetail(); pulse(); toast(esc(r.name) + " is on the plan for " + D.days[i] + ".", function () { delete S.plan[i]; drawWeek(); });
+  S.plan[i] = [{ name: r.name, who: "" }]; D.planUses[r.name] = r.uses; drawWeek(); if (cur()) drawDetail(); pulse(); toast(esc(r.name) + " is on the plan for " + D.days[i] + ".", function () { delete S.plan[i]; drawWeek(); });
 }
 HDP.planIdea = planIdea;
 function act(a, el) {

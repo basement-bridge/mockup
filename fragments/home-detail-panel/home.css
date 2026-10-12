@@ -133,6 +133,7 @@ body{overflow-x:hidden}
 .x svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
 .x{width:var(--tap);height:var(--tap);border-radius:50%;border:1px solid var(--border);background:var(--bg);display:inline-grid;place-items:center}
 
+.av{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--accent);color:var(--on-accent);font:800 11px var(--body);vertical-align:1px;margin:0 1px}
 .usedin{margin:0;font-size:14px;color:var(--fg)}.usedin b{color:var(--muted);font-weight:700}
 .fit{margin:0;padding:10px 12px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);color:var(--fg);font-size:14px}.fit b{display:block;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
 .rl.have small em{font-style:normal;color:var(--accent);font-weight:700}
