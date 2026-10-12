@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Home detail panel, options and notes</title>
+<link rel="stylesheet" href="../../theme.css"><script src="../../theme.js"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);line-height:1.45}
+.wrap{max-width:1180px;margin:0 auto;padding:16px var(--gutter) 96px}
+.back{color:var(--accent);font-weight:700;display:inline-flex;align-items:center;min-height:var(--tap)}
+h1,h2,h3{font-family:var(--head);margin:0}h1{margin:0 0 6px}h2{font-size:1.25rem;margin:36px 0 6px}h3{font-size:1.02rem;margin:0 0 4px}
+p{color:var(--muted);max-width:78ch;margin:6px 0}p b,li b{color:var(--fg)}
+a{color:var(--accent)}
+.tag{display:inline-block;padding:2px 10px;border-radius:var(--r-pill);border:1px solid var(--accent);color:var(--accent);font-size:12px;font-weight:800;margin-left:8px;vertical-align:middle}
+.bar{display:grid;gap:10px;margin:14px 0;padding:14px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.row>.lb{flex:0 0 92px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.chp{min-height:40px;padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--bg);color:var(--fg);font:600 13px var(--body);cursor:pointer}
+.chp:hover{border-color:var(--accent)}.chp[aria-pressed=true]{border-color:var(--accent);color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.chp small{font-weight:500;color:var(--muted)}
+input[type=range]{flex:1;min-width:200px;accent-color:var(--accent);min-height:var(--tap)}
+.out{font-weight:700;font-variant-numeric:tabular-nums;min-width:70px}
+.read{margin:0 0 10px;padding:10px 14px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);color:var(--fg)}
+.read b.m{color:var(--accent)}
+.stage{border:1px solid var(--border);border-radius:var(--r-card);background:var(--stage);overflow:hidden;position:relative}
+.stage iframe{border:0;display:block;transform-origin:0 0;background:var(--bg)}
+.cap{font-size:13px;color:var(--muted);margin-top:6px}
+table{border-collapse:collapse;width:100%;max-width:880px;margin:10px 0}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top;font-size:14px}th{font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}td.n{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}tr.tot td{font-weight:800;border-top:2px solid var(--border)}
+.opts{display:grid;gap:16px;grid-template-columns:1fr}@media(min-width:900px){.opts{grid-template-columns:repeat(3,1fr)}}
+.opt{border:1px solid var(--border);border-radius:var(--r-card);padding:14px;background:var(--surface);display:flex;flex-direction:column;gap:8px}
+.opt.rec{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.opt p{margin:0;font-size:14px}.opt ul{margin:0;padding-left:18px;color:var(--muted);font-size:14px}
+.wf{display:flex;gap:3px;height:74px;align-items:stretch;margin:2px 0}.wf>i{display:block;border-radius:5px;background:var(--bg);border:1px solid var(--border);font:700 10px var(--body);font-style:normal;color:var(--muted);display:grid;place-items:center;min-width:0;overflow:hidden}
+.wf .rl{flex:0 0 8%}.wf .cl{flex:1 1 40%}.wf .pn{flex:0 0 20%;background:color-mix(in srgb,var(--accent) 22%,var(--bg));border-color:var(--accent);color:var(--fg)}.wf .wk{flex:0 0 20%}
+.wf .ln{flex:0 0 20%;position:relative;border:0;background:none;overflow:visible}.wf .ln .wk,.wf .ln .pn{position:absolute;top:0;bottom:0;display:grid;place-items:center;border:1px solid var(--border);border-radius:5px}.wf .ln .wk{left:0;right:0;background:var(--bg)}.wf .ln .pn{left:9px;right:0;background:color-mix(in srgb,var(--accent) 22%,var(--bg));border-color:var(--accent);box-shadow:-3px 0 6px rgba(0,0,0,.35)}
+.wfl{font-size:11px;color:var(--muted);margin:6px 0 0;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.kb td:first-child{white-space:nowrap}kbd{font:700 12px var(--body);border:1px solid var(--border);border-bottom-width:2px;border-radius:6px;padding:1px 7px;background:var(--surface)}
+ol.dec,ul.q{max-width:92ch;color:var(--muted);padding-left:22px}ol.dec li,ul.q li{margin:6px 0}
+.sl{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.sl a{min-height:40px;display:inline-flex;align-items:center;padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);text-decoration:none;font-weight:600;font-size:13px}
+</style></head>
+<body><div class="wrap"><a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Home: the detail panel <span class="tag">Fragment, proposals</span></h1>
+<p>Owner, 12 Oct 2026: on the desktop Home screen, picking an item from the search results, a Cooking idea, an item under <b>On the way out</b> or one under <b>Running low</b> should show its detail. If there is room, the detail <b>displaces This week to the right</b>. If there is not, it <b>stacks on top of This week</b> and leaves 1 to 2 mm of This week showing so it can still be found. The detail is the <b>simple view</b>, like the Pantry item flyout, with a recipe-specific variant for Cooking ideas. Mockup first: the owner confirms before anything is built. Every number and rule below is a <b>proposal</b>. Notes and decisions 133 to 148: <a href="https://github.com/basement-bridge/mockup/blob/main/docs/knowledge/jobs-to-be-done/home-detail-panel.md">job note</a>, <a href="https://github.com/basement-bridge/mockup/blob/main/docs/handover/home-detail-panel.md">handover</a>.</p>
+
+<h2>Try it</h2>
+<p>Click any of the four ways in, inside the window below. Drag the width slider across the breakpoint to watch the panel switch between displacing and stacking. Keys work inside the window (press <kbd>?</kbd> there).</p>
+<div class="bar" id="bar">
+  <div class="row"><span class="lb">Layout</span><span class="row" id="g-opt"><button class="chp" data-opt="a" aria-pressed="true">A &middot; displace, then stack <small>(recommended)</small></button><button class="chp" data-opt="b" aria-pressed="false">B &middot; always stack</button><button class="chp" data-opt="c" aria-pressed="false">C &middot; narrow the column, then stack</button></span></div>
+  <div class="row"><span class="lb">Window</span><input type="range" id="w" min="1024" max="2560" step="1" value="1440" aria-label="Window width in pixels"><span class="out" id="wo">1440 px</span></div>
+  <div class="row"><span class="lb"></span><span class="row" id="g-w"></span></div>
+  <div class="row"><span class="lb">Open</span><span class="row"><button class="chp" data-do="search">Search &ldquo;lime&rdquo;</button><button class="chp" data-do="idea">Cooking idea</button><button class="chp" data-do="soon">On the way out: Cucumbers</button><button class="chp" data-do="low">Running low: Bueno chocolate</button><button class="chp" data-do="close">Close</button></span></div>
+  <div class="row"><span class="lb">States</span><span class="row" id="g-st"></span></div>
+  <div class="row"><span class="lb">Peek</span><span class="row" id="g-pk"></span><span class="cap" style="margin:0">how much of This week shows when stacked (6 px is about 1.6 mm at 96 dpi)</span></div>
+</div>
+<p class="read" id="read" role="status">Loading the window&hellip;</p>
+<div class="stage" id="stage"><iframe id="f" title="Home screen at the chosen width" src="home.html?embed=1"></iframe></div>
+<p class="cap">The window is the real page in a frame of the width you pick, so its own media queries run. Shown scaled down when wider than this page. Open it on its own: <a href="home.html">home.html</a> (resize your browser instead).</p>
+
+<h2>The rule and the breakpoint</h2>
+<p>Home on desktop is rail, an off-centre column, then the right lane (<a href="https://github.com/basement-bridge/mockup/blob/main/docs/knowledge/desktop-layout.md">desktop layout</a>). The detail panel takes the right lane's slot, so it is where the Pantry's flyout is. This week is displaced one lane right <b>only if all four pieces fit side by side</b>:</p>
+<table><thead><tr><th>Piece</th><th class="n">Width (px)</th><th>Where it comes from</th></tr></thead><tbody>
+<tr><td>Rail</td><td class="n">88</td><td>Desktop layout, settled 9 Oct</td></tr>
+<tr><td>Main column</td><td class="n">736</td><td>640 column + a 48 gutter each side</td></tr>
+<tr><td>Detail panel</td><td class="n">400</td><td>The Pantry item flyout's width</td></tr>
+<tr><td>This week</td><td class="n">400</td><td>The right lane today</td></tr>
+<tr class="tot"><td>Needed to displace</td><td class="n">1624</td><td>Proposed breakpoint for option A</td></tr></tbody></table>
+<p><b>Assumptions:</b> the column keeps its full 736 (below 1224 it already gives up width, as in the Pantry); free space collects on the right, never between lanes; the browser's width includes any scrollbar, which is what a media query reads. <b>What it means in practice:</b> a 1440 or 1536 laptop is always in the stacked case, 1680 and 1920 and up displace. So the stacked case is the everyday case on laptops, and the peek matters more than the displace rule does. Below 1624 the lane stays at 400 and the column never moves; the panel is just <i>peek</i> narrower than the lane.</p>
+<p><b>The peek:</b> 6 px by default (the owner said 1 to 2 mm, which is 4 to 8 CSS pixels at 96 dpi; real millimetres depend on the screen). It is the edge of the This week card with a small grip, and it is a button: click it, hover it (it widens by 8 px), or press <kbd>W</kbd>, and This week comes to the front while the panel waits behind it with its own peek on the right. Nothing is closed and nothing is lost.</p>
+
+<h2>Three layouts</h2>
+<div class="opts">
+<div class="opt rec"><h3>A &middot; Displace, then stack <span class="tag" style="margin:0">Recommended</span></h3>
+<div class="wfl">1624 px and wider</div><div class="wf"><i class="rl">rail</i><i class="cl">column</i><i class="pn">panel</i><i class="wk">week</i></div>
+<div class="wfl">Under 1624</div><div class="wf"><i class="rl">rail</i><i class="cl">column</i><i class="ln"><i class="wk">week</i><i class="pn">panel</i></i></div>
+<p>The owner's ask as written. The column never reflows: lists stay where they are. Cost: on a 1440 laptop the week is always behind the panel.</p><ul><li>Files: <code>displace.css</code> (min 1624), <code>stack.css</code> (max 1623.98)</li></ul></div>
+<div class="opt"><h3>B &middot; Always stack</h3>
+<div class="wfl">Every width</div><div class="wf"><i class="rl">rail</i><i class="cl">column</i><i class="ln"><i class="wk">week</i><i class="pn">panel</i></i></div>
+<div class="wfl">&nbsp;</div><div class="wf" style="height:6px;visibility:hidden"></div>
+<p>One behaviour everywhere, nothing shifts, even on a 4K screen. Cost: wide monitors have room that is not used, and This week is hidden when it could be seen.</p><ul><li>Files: <code>stack.css</code> only</li></ul></div>
+<div class="opt"><h3>C &middot; Narrow the column, then stack</h3>
+<div class="wfl">1448 px and wider</div><div class="wf"><i class="rl">rail</i><i class="cl" style="flex-basis:32%">column</i><i class="pn">panel</i><i class="wk">week</i></div>
+<div class="wfl">Under 1448</div><div class="wf"><i class="rl">rail</i><i class="cl">column</i><i class="ln"><i class="wk">week</i><i class="pn">panel</i></i></div>
+<p>Displaces on a 1440 to 1600 laptop too, by letting the column shrink from 736 to 560 while the panel is open. Cost: the lists reflow each time the panel opens, and the search box gets short.</p><ul><li>Files: <code>displace.css</code> and <code>push.css</code> (min 1448), <code>stack.css</code> (max 1447.98)</li></ul></div>
+</div>
+<p><b>Recommendation: A.</b> It matches the ask, keeps the page still, and the stack is simple to explain. If the owner wants the week visible on 1440 laptops, C is the answer and its cost is the reflow. B is the fallback if the shifting between modes feels busy.</p>
+
+<h2>Keyboard (inside the window)</h2>
+<table class="kb"><tbody>
+<tr><td><kbd>/</kbd></td><td>Search. Arrow keys through results, Enter opens one, Esc closes the list.</td></tr>
+<tr><td><kbd>&uarr;</kbd> <kbd>&darr;</kbd> or <kbd>J</kbd> <kbd>K</kbd></td><td>Move through the rows (ideas, on the way out, running low) and open each one, as in the Pantry.</td></tr>
+<tr><td><kbd>E</kbd> &nbsp; <kbd>,</kbd></td><td>Edit and History of the item, opened under its header inside the panel. Press again to go back.</td></tr>
+<tr><td><kbd>U</kbd> <kbd>D</kbd> <kbd>S</kbd> <kbd>Z</kbd></td><td>Use one, Used up, Add to shopping, Undo (items).</td></tr>
+<tr><td><kbd>P</kbd> <kbd>O</kbd> <kbd>S</kbd></td><td>Add to plan, Open recipe, Add the missing to the list (ideas).</td></tr>
+<tr><td><kbd>W</kbd></td><td>Bring This week forward, or the panel back. Only when stacked.</td></tr>
+<tr><td><kbd>Ctrl</kbd>/<kbd>Cmd</kbd> + <kbd>Enter</kbd></td><td>Close the panel (the X does the same). Plain Esc closes nothing, as everywhere on desktop (see open question).</td></tr>
+<tr><td><kbd>M</kbd> &nbsp; <kbd>?</kbd></td><td>Back to the first row; the list of keys.</td></tr></tbody></table>
+
+<h2>States</h2>
+<p>Each state has a link (they load the window above at 1440 wide, in option A). Cooking ideas: loading, unavailable (what the owner sees today), ok. Panel: loading, could not load, an item, an idea. This week: nothing planned, planned.</p>
+<div class="sl">
+<a href="home.html?ideas=unavailable">Ideas not available</a><a href="home.html?ideas=loading">Ideas loading</a>
+<a href="home.html?open=item:cucumbers&detail=loading">Panel loading</a><a href="home.html?open=recipe:lime-tacos&detail=error">Idea could not load</a>
+<a href="home.html?open=item:cucumbers&week=planned">Item, week planned</a><a href="home.html?open=recipe:cuke-salad">Idea, all in</a>
+<a href="home.html?open=item:bueno">Out item</a><a href="home.html?open=item:limes&child=edit">Edit tucked in</a><a href="home.html?open=item:limes&child=history">History tucked in</a>
+<a href="home.html?open=item:cucumbers&front=week&week=planned">Stacked, week in front</a><a href="home.html?q=jalap&sres=1">Search: jalape&ntilde;o</a><a href="home.html?opt=b&open=recipe:lime-tacos">Option B</a><a href="home.html?opt=c&open=item:bueno">Option C</a>
+</div>
+
+<h2>What this loads</h2>
+<p>Default path of Home: <code>theme.css</code>, <code>flyout.css</code> (the item flyout's styles, already shared), <code>home.css</code>, <code>data.js</code>, <code>home.js</code>, plus <b>one</b> size file chosen by media query (<code>stack.css</code> or <code>displace.css</code>; <code>push.css</code> only for C). No images. <b>Deferred:</b> <code>recipe.js</code> on the first Cooking idea opened, <code>child.js</code> on the first E or comma. A real build would also fetch an item's or idea's detail only when it is opened, never with the list (the owner's rule for desktop). <code>layout.js</code> exists only so one page can show three options; the build drops it.</p>
+
+<h2>Open questions for the owner</h2>
+<ul class="q">
+<li><b>Breakpoint.</b> 1624 (A) means a 1440 or 1536 laptop always stacks. Is that fine, or is 1448 (C, with the column narrowing) better? A wrong guess costs one number and, for C, a reflow.</li>
+<li><b>Peek width.</b> 6 px proposed (4 to 8 is 1 to 2 mm). Larger is easier to hit; smaller looks tidier.</li>
+<li><b>Panel and the search dropdown.</b> The dropdown lives inside the column, so the panel never sits over it. Proposed: choosing a result closes the dropdown and opens the panel, the box keeps what was typed. Alternative: the dropdown stays open so the next result is one click away.</li>
+<li><b>Recipe variant content.</b> Proposed: title, time and serves, how many are in stock, uses up, Add to plan, Open recipe, then missing or short lines with Add to list, then what is in the pantry. Is "uses up" the right fourth tile? Should the steps be here?</li>
+<li><b>Esc.</b> You wrote Esc to close. Desktop closes with Ctrl or Cmd + Enter and the X, because plain Esc leaves full screen. Keep that here too, or let Esc close the panel on Home only?</li>
+<li><b>Edit and History</b> open tucked under the header inside the panel, never as a fourth column, so the layout never needs a fourth lane. OK?</li>
+<li><b>Phone and tablet</b> keep the bottom sheet; this is desktop only.</li>
+</ul>
+</div>
+<script>
+(function(){
+var f=document.getElementById("f"),stage=document.getElementById("stage"),H=820,P=new URLSearchParams(location.search);
+var W=+P.get("w")||1440,opt=(P.get("opt")||"a"),peek=+P.get("peek")||6;
+var st={ideas:"ok",week:"empty",detail:"ok"};
+var rng=document.getElementById("w"),wo=document.getElementById("wo");
+var PRE=[[1024,""],[1280,""],[1440,""],[1536,""],[1623,"just under A"],[1624,"A switches"],[1920,""],[2560,""]];
+document.getElementById("g-w").innerHTML=PRE.map(function(p){return '<button class="chp" data-w="'+p[0]+'">'+p[0]+(p[1]?' <small>'+p[1]+'</small>':'')+'</button>'}).join("");
+document.getElementById("g-pk").innerHTML=[4,6,8].map(function(n){return '<button class="chp" data-pk="'+n+'">'+n+' px</button>'}).join("");
+var SG=[["ideas","Ideas",[["ok","ok"],["loading","loading"],["unavailable","not available"]]],["week","Week",[["empty","nothing planned"],["planned","planned"]]],["detail","Panel",[["ok","ok"],["loading","loading"],["error","could not load"]]]];
+document.getElementById("g-st").innerHTML=SG.map(function(g){return '<span class="row"><small style="color:var(--muted);font-weight:700">'+g[1]+'</small>'+g[2].map(function(o){return '<button class="chp" data-st="'+g[0]+'" data-v="'+o[0]+'">'+o[1]+'</button>'}).join("")+'</span>'}).join("");
+function url(extra){var q=new URLSearchParams({embed:"1",opt:opt,peek:peek,ideas:st.ideas,week:st.week,detail:st.detail});try{var c=new URLSearchParams(f.contentWindow.location.search);["open","front","child","q","sres"].forEach(function(k){if(c.get(k))q.set(k,c.get(k))})}catch(e){}
+ if(extra)Object.keys(extra).forEach(function(k){if(extra[k]===null)q.delete(k);else q.set(k,extra[k])});return "home.html?"+q.toString()}
+function reload(extra){f.contentWindow.location.replace(url(extra))}
+function fit(){var sw=stage.clientWidth,s=Math.min(1,sw/W);f.style.width=W+"px";f.style.height=H+"px";f.style.transform="scale("+s+")";stage.style.height=Math.round(H*s)+"px";rng.value=W;wo.textContent=W+" px";
+ [].forEach.call(document.querySelectorAll("[data-w]"),function(b){b.setAttribute("aria-pressed",String(+b.dataset.w===W))})}
+function pressed(){[].forEach.call(document.querySelectorAll("[data-opt]"),function(b){b.setAttribute("aria-pressed",String(b.dataset.opt===opt))});
+ [].forEach.call(document.querySelectorAll("[data-pk]"),function(b){b.setAttribute("aria-pressed",String(+b.dataset.pk===peek))});
+ [].forEach.call(document.querySelectorAll("[data-st]"),function(b){b.setAttribute("aria-pressed",String(st[b.dataset.st]===b.dataset.v))})}
+document.getElementById("bar").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;
+ if(b.dataset.opt){opt=b.dataset.opt;pressed();reload()}
+ else if(b.dataset.w){W=+b.dataset.w;fit()}
+ else if(b.dataset.pk){peek=+b.dataset.pk;pressed();reload()}
+ else if(b.dataset.st){st[b.dataset.st]=b.dataset.v;pressed();reload()}
+ else if(b.dataset.do){var h=f.contentWindow.HDP;if(!h)return;var d=b.dataset.do;
+  if(d==="search")h.search("lime");else if(d==="idea")h.open("recipe:lime-tacos");else if(d==="soon")h.open("item:cucumbers");else if(d==="low")h.open("item:bueno");else if(d==="close")h.close()}});
+rng.addEventListener("input",function(){W=+rng.value;fit()});
+addEventListener("resize",fit);
+addEventListener("message",function(e){var d=e.data;if(!d||d.hdp!=="state")return;
+ var m=d.mode==="displace",bp=d.bp?d.bp+" px":"never (always stacked)";
+ document.getElementById("read").innerHTML='<b>'+d.w+' px wide, option '+d.opt.toUpperCase()+':</b> <b class="m">'+(m?'Displace':'Stack')+'.</b> '+(d.open?(m?'The panel takes the lane and This week sits to its right, fully visible.':(d.front==="week"?'This week is in front; the panel waits behind it and shows '+peek+' px on the right.':'The panel is over This week; '+peek+' px of This week shows on the left.')):(m?'Nothing open: This week has its usual place. When something opens it will be displaced.':'Nothing open: This week has its usual place. When something opens the panel will stack over it.'))+' Breakpoint: '+bp+'.'});
+document.addEventListener("click",function(e){if(e.target.closest("[data-theme-pick]"))setTimeout(function(){try{f.contentWindow.location.reload()}catch(x){}},400)});
+pressed();fit();f.src=url();
+})();
+</script></body></html>

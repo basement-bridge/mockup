@@ -67,6 +67,8 @@ const SCREENS = [
   ["profile-ai-gemini-off", "fragments/desktop-profile/index.html?open=me&sel=ai:gemini&aic=claude:on"],
   ["profile-ai-gemini-connecting", "fragments/desktop-profile/index.html?open=me&sel=ai:gemini&aic=gemini:connecting,claude:on"],
   ["item-sheet", "fragments/item-sheet/index.html"],
+  ["home-detail-panel", "fragments/home-detail-panel/index.html"],
+  ["home-detail-panel-live", "fragments/home-detail-panel/home.html?open=recipe:lime-tacos"],
   ["item-edit-flyout", "fragments/item-edit-flyout/index.html"],
   ["item-edit-flyout-live", "fragments/item-edit-flyout/pantry.html?sel=butter&child=edit"],
   ["item-edit-flyout-level", "fragments/item-edit-flyout/pantry.html?sel=eggs&child=edit&field=level"],

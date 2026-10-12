@@ -1,0 +1,3 @@
+/* Option C only, 1448px and wider: to make room for the panel the main column gives up width (736 down to 560, its content 640 down to 464) instead of This week stacking.
+   Loaded after displace.css; same selector, so it wins. Lists in the column reflow when the panel opens: that is the cost of C. */
+.app:not([data-open=none]){grid-template-columns:88px minmax(560px,736px) 400px 400px}
