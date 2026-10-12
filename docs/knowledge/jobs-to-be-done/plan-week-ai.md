@@ -84,3 +84,6 @@ Marked on the fragment page: arrows and a small week label in the header, idle t
 - Strip (decision 48), all marked Proposal on the fragment: chip height 36px (under the 44px guide), name cut at about 9rem, picking anyone closes an opened strip, chip order after Everyone is the household's order. A wrong guess costs a redraw.
 
 
+
+
+See also: Plan UI review decisions 85 to 106 in `plan-ui-review.md` (owner-stated 12 Oct 2026): continuous day ribbon, Ask AI wording and no floating assistant control (supersedes 43 and 45 wording), hidden Not cooking, undo patterns.
