@@ -2,7 +2,7 @@
 // Usage:  python3 -m http.server 8123 &   then   node tools/hard-avoid-plan-check.mjs [--shots=docs/screenshots]
 // Needs playwright-core and Chromium at PLAYWRIGHT_BROWSERS_PATH (/opt/pw-browsers).
 // Covers (owner, 12 Oct 2026, SW-O30): a Hard avoid guards a hand-planned meal only when the person is in the meal. A meal for that person
-// alone is a hard stop with their Reason and no way past it; a household meal warns, names everyone affected, and offers one action,
+// alone is a hard stop (name and avoid, never the Reason, SW-O48) and no way past it; a household meal warns, names everyone affected, and offers one action,
 // "Leave <names> out of this meal"; a meal for other people, a meal without the item and a Soft avoid are not guarded. After leaving
 // someone out the meal says who it is for and not for, and Undo returns to the guard. Desktop (1280, 1024) and phone (390, 360), both themes.
 import { chromium } from "playwright-core";
@@ -32,7 +32,7 @@ for (const theme of ["kitchie", "kitchie-day"]) for (const [w, h] of [[1280, 800
   ok(await mode(p) === "stop", "stop: a meal for Jane alone with her Hard avoid is a hard stop" + tag);
   let g = await txt(p, "#guard");
   ok(/Not for Jane/.test(g) && /Mushroom pasta has mushrooms in it/.test(g) && /hard avoid on mushrooms/.test(g), "stop: says who, what and why in plain words" + tag);
-  ok(/Allergic, makes me ill/.test(g), "stop: shows her Reason text as she wrote it" + tag);
+  ok(!/Allergic|reason/i.test(g), "stop: name and avoid only, no Reason text (SW-O48)" + tag);
   ok(await n(p, "[data-plan]") === 0 && await n(p, "[data-leave]") === 0, "stop: no Plan button and no Leave out button, nothing to press to get past it" + tag);
   ok(!/anyway|override|ignore|skip|continue|allow/i.test(await txt(p, "#panel")), "stop: no override wording anywhere in the panel" + tag);
   ok(await n(p, "[data-other]") === 1 && await n(p, ".acts [data-cancel]") === 1, "stop: Choose another meal and Cancel are the two ways out" + tag);
@@ -50,7 +50,7 @@ for (const theme of ["kitchie", "kitchie-day"]) for (const [w, h] of [[1280, 800
   p = await page(w, h, "state=warn", theme);
   ok(await mode(p) === "warn", "warn: a household meal that includes Jane warns" + tag);
   g = await txt(p, "#guard");
-  ok(/Jane is part of this meal/.test(g) && /This meal is for everyone, so it includes Jane/.test(g) && /Allergic, makes me ill/.test(g), "warn: names the person, why she is in it, and her Reason" + tag);
+  ok(/Jane is part of this meal/.test(g) && /This meal is for everyone, so it includes Jane/.test(g) && !/Allergic|reason/i.test(g), "warn: names the person and why she is in it, no Reason (SW-O48)" + tag);
   ok(await txt(p, "[data-leave]") === "Leave Jane out of this meal", "warn: the one action reads exactly 'Leave Jane out of this meal'" + tag);
   ok(await n(p, "[data-plan]") === 0, "warn: no way to plan it with Jane in it" + tag);
   ok(/Plans Saturday for Sam only and marks it not for Jane/.test(g), "warn: says what the action does before it is pressed" + tag);
@@ -75,13 +75,13 @@ for (const theme of ["kitchie", "kitchie-day"]) for (const [w, h] of [[1280, 800
   p = await page(w, h, "state=warn2", theme);
   ok(await txt(p, "[data-leave]") === "Leave Jane and Kai out of this meal", "warn2: one action names both" + tag);
   g = await txt(p, "#guard");
-  ok(/Jane and Kai are part of this meal/.test(g) && /mushrooms/.test(g) && /cream/.test(g) && /Can't have dairy/.test(g) && /Allergic, makes me ill/.test(g), "warn2: each person, each avoid, each Reason" + tag);
+  ok(/Jane and Kai are part of this meal/.test(g) && /mushrooms/.test(g) && /cream/.test(g) && !/Can't have dairy|Allergic|reason/i.test(g), "warn2: each person and each avoid, no Reason (SW-O48)" + tag);
   await snap(p, `warn2-${w}-${theme}`);
   await p.click("[data-leave]"); await p.waitForTimeout(100);
   ok(/Not for Jane and Kai/.test(await txt(p, '.day[data-day="Sat"] [data-notfor]')), "warn2: planned as not for Jane and Kai" + tag);
   await snap(p, `excluded2-${w}-${theme}`);
   p = await page(w, h, "state=warn2&for=Kai", theme);
-  ok(await mode(p) === "stop" && /Not for Kai/.test(await txt(p, "#guard")) && /Can't have dairy/.test(await txt(p, "#guard")), "warn2: a meal for Kai alone is his own hard stop, with his Reason" + tag);
+  ok(await mode(p) === "stop" && /Not for Kai/.test(await txt(p, "#guard")) && !/Can't have dairy|reason/i.test(await txt(p, "#guard")), "warn2: a meal for Kai alone is his own hard stop, no Reason" + tag);
 
   // 4. not guarded
   p = await page(w, h, "state=clear", theme);

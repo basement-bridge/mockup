@@ -19,7 +19,7 @@
     rice: { e: "🍳", n: "Egg fried rice", ing: ["eggs", "rice", "spring onion"] },
     patty: { e: "🐟", n: "Salmon patties", ing: ["canned salmon", "potatoes", "eggs", "dill", "lemon"] }
   };
-  /* what each person has chosen (type is Hard or Soft, reason is their own words; SW-59) */
+  /* what each person has chosen (type is Hard or Soft, reason is their own words; SW-59). SW-O48 resolved: a Hard avoid's reason is never drawn here (the viewer is Sam, never the owner); only the Soft line quotes it */
   var AVOIDS = {
     Jane: [{ item: "mushrooms", type: "hard", reason: "Allergic, makes me ill" }, { item: "onion", type: "soft", reason: "don't like it" }],
     Kai: [{ item: "cream", type: "hard", reason: "Can't have dairy" }]
@@ -125,7 +125,6 @@
       if (one) {
         var m = c.hard[0];
         h += "<p>" + esc(rec.n) + ' has <em class="hit">' + esc(m.ing) + "</em> in it. " + esc(S.f) + " has a hard avoid on " + esc(m.item) + ".</p>"
-          + '<p class="why">' + esc(S.f) + "&rsquo;s reason: " + (m.reason ? "&ldquo;" + esc(m.reason) + "&rdquo;" : "none given") + "</p>"
           + "<p>A hard avoid is avoided completely, so this meal cannot be planned for " + esc(S.f) + ". Pick someone else above, or choose another meal.</p>";
       } else {
         h += "<p>Everyone in this meal has a hard avoid on something in " + esc(rec.n) + ".</p>" + whoList(c) + "<p>Choose another meal.</p>";
@@ -136,7 +135,7 @@
       var n = c.blocked, left = c.who.filter(function (p) { return n.indexOf(p) < 0; });
       var h2 = '<div class="guard warn" id="guard" role="alert" data-mode="warn"><div class="gh">' + I.warn + "<b>" + esc(join(n)) + (n.length === 1 ? " is" : " are") + " part of this meal</b></div>"
         + "<p>This meal is for everyone, so it includes " + esc(join(n)) + ". " + esc(rec.n) + " has " + (n.length === 1 ? "<em class=\"hit\">" + esc(c.hard[0].ing) + "</em> in it, and " + esc(n[0]) + " has a hard avoid on " + esc(c.hard[0].item) + "." : "things " + esc(join(n)) + " avoid completely.") + "</p>"
-        + (n.length === 1 ? '<p class="why">' + esc(n[0]) + "&rsquo;s reason: " + (c.hard[0].reason ? "&ldquo;" + esc(c.hard[0].reason) + "&rdquo;" : "none given") + "</p>" : whoList(c));
+        + (n.length === 1 ? "" : whoList(c));
       return h2 + '<button type="button" class="btn pri" data-leave>Leave ' + esc(join(n)) + " out of this meal</button>"
         + '<p class="after">Plans ' + esc(DF[DN.indexOf(S.day)]) + " for " + esc(join(left)) + " only and marks it not for " + esc(join(n)) + ". Quantities are worked out for " + esc(join(left)) + ".</p></div>";
     }
@@ -150,7 +149,7 @@
     var seen = [], h = '<ul class="who">';
     c.hard.forEach(function (m) {
       if (seen.indexOf(m.p) > -1) return; seen.push(m.p);
-      h += "<li><b>" + esc(m.p) + "</b>: hard avoid on " + esc(m.item) + "<span>Reason: " + (m.reason ? "&ldquo;" + esc(m.reason) + "&rdquo;" : "none given") + "</span></li>";
+      h += "<li><b>" + esc(m.p) + "</b>: hard avoid on " + esc(m.item) + "</li>";
     });
     return h + "</ul>";
   }

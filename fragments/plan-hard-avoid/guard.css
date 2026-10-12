@@ -48,12 +48,10 @@ body{overflow-x:hidden}
 .guard .gh{display:flex;align-items:center;gap:8px;font:800 16px var(--head);color:var(--danger)}
 .guard .gh svg{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .guard p{color:var(--fg);font-size:14px;margin-top:6px}
-.guard p.why{color:var(--muted)}
 .guard em.hit{font-style:normal;font-weight:800;color:var(--danger)}
 .guard ul.who{list-style:none;margin:8px 0 0;padding:0}
 .guard ul.who li{padding:8px 0;border-top:1px solid color-mix(in srgb,var(--danger) 30%,var(--border));font-size:14px}
 .guard ul.who li:first-child{border-top:0}
-.guard ul.who li span{display:block;color:var(--muted);font-size:13px}
 .guard .btn.pri{width:100%;margin-top:12px;white-space:normal;text-align:center;padding:8px 16px}
 .guard .after{font-size:13px;color:var(--muted);margin-top:8px}
 .softnote{display:flex;gap:8px;align-items:flex-start;margin-top:14px;font-size:13px;color:var(--muted)}
