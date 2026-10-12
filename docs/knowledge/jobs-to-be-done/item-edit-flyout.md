@@ -115,7 +115,7 @@ Status in brackets. Confirmed means the owner, 11 Oct 2026 (the first lot by typ
 
 63. (proposed) Editing is a flyout nested under the open item flyout, never a page. The item stays open, in front and live.
 64. (proposed) One child slot: Edit and History share it. Pencil/E and clock/comma toggle their child; opening one while the other is open swaps.
-65. (proposed) Desktop from 1240: a 360px column beside the item flyout, sliding out from beneath it. From 1024: tucked under the item's header in the lane. It never covers the list or the item. History's slot goes from 320 to 360.
+65. (proposed; on a desktop superseded by 159) Desktop from 1240: a 360px column beside the item flyout, sliding out from beneath it. From 1024: tucked under the item's header in the lane. It never covers the list or the item. History's slot goes from 320 to 360.
 66. (proposed) Phone and tablet: a stacked 84% sheet over the half sheet; the item collapses to a strip. Tap the strip or dim, drag a handle or title bar down, or Esc to step back.
 67. (proposed) Header order: pencil, turned-back clock, round x. The open child's icon is filled. The phone sheet keeps the no-x rule of 8 October.
 68. (**confirmed 11 Oct 2026**, owner: key hints shown on the icons; re-confirmed by voice the same day, checked in the fragment: `data-hint="show"`, E and the comma on the icons, desktop only) A key cap on each icon; shortcut line reads "E edit" and ", history"; the cue switch hides all; desktop only. The reveal look is no longer the plan.
@@ -223,6 +223,8 @@ The owner asked for "the same input hints" so the emoji field opens the emoji ke
 **Which platforms work.** Where a web page can choose the emoji panel: none that I could confirm. iOS (Safari and installed web apps), Android (Chrome, Gboard, Samsung Keyboard), Windows and macOS: the emoji panel is opened by the person, never by the page. **Unconfirmed:** whether a particular keyboard remembers the last panel it showed for a field (so that an emoji-heavy field tends to reopen on emoji); whether `autocorrect="off"` and `enterkeyhint="done"` change the key on every Android keyboard (they are standard hints, and I expect iOS Safari and Chrome Android to honour them, but I did not test a device); whether iOS or Android treats `lang` as a layout hint. **Checked here:** the attributes are on the box in headless Chromium (the check asserts them); nothing else about a keyboard can be checked there.
 
 **What carries the job instead.** The suggestion strip (Recent, search by name) is the emoji picker, so a person never needs the OS panel to choose; and an emoji typed or pasted from any keyboard is accepted at once (117). If the owner wants the OS panel one tap away, the honest option is a hint line or the placeholder ("Search, or type or paste your own emoji") saying so, not an attribute.
+
+159. (**PROPOSED**, 13 Oct 2026, owner: "in the edit it should replace the simple view otherwise it's duplicate info") On a desktop (1024 and up) Edit and History replace the item's simple view in the item flyout's own lane: no column beside it (65), nothing tucked under the header; one title row, one close, the name once (Edit: the field; History: "name only"); the x or the key returns to the item and focus goes to the pencil or clock. Phone and tablet are unchanged (66). Full text and the Home side: `home-detail-panel.md` decision 159. Check: `tools/item-edit-flyout-check.mjs`.
 
 ## Open questions
 

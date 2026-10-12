@@ -1,5 +1,5 @@
-/* Desktop (1024px and up): the Pantry's layout, left rail, off-centre column, item flyout in the right lane (docs/knowledge/desktop-layout.md). The child (Edit, History) nests with the item flyout:
-   from 1240px it slides out beside it, from beneath (desktop-1240.css); below 1240px it is tucked under the item's header inside the same lane (this file), so it never covers the list or the item it belongs to.
+/* Desktop (1024px and up): the Pantry's layout, left rail, off-centre column, item flyout in the right lane (docs/knowledge/desktop-layout.md). The child (Edit, History) REPLACES the simple view in the same lane
+   at every desktop width (decision 159, owner 13 Oct 2026: "in the edit it should replace the simple view otherwise it's duplicate info"): no fourth column, nothing tucked under the header.
    Close is Ctrl or Cmd plus Enter, then the x; plain Esc closes nothing. Key hints use the same .kbd chip as the Pantry. */
 .app{display:grid;grid-template-columns:88px minmax(0,736px) 400px;justify-content:start;min-height:100vh}
 .rail{border-right:1px solid var(--border);padding:16px 8px;display:flex;flex-direction:column;gap:6px;align-items:stretch;position:sticky;top:0;height:100vh}
@@ -22,11 +22,13 @@
 .sacts .btn{justify-content:flex-start;padding:0 14px}
 .sacts .btn .kbd{margin-left:auto}
 .phint{margin-top:2px}
-/* the nested child, narrow desktop: tucked under the item's header in the same lane */
-.ief-child{grid-area:1/3;align-self:start;position:sticky;top:var(--ief-top,104px);margin-top:var(--ief-top,104px);height:calc(100vh - var(--ief-top,104px));z-index:3;background:var(--surface);border-left:1px solid var(--border);border-top:1px solid var(--border);border-radius:var(--r-card) var(--r-card) 0 0;box-shadow:0 -10px 24px -12px rgba(0,0,0,.35);padding:18px 24px 16px;display:flex;flex-direction:column;gap:12px;overflow:hidden}
+/* the child, desktop (decision 159): it takes the item flyout's own cell and covers it, with its own title row (title, Saved, x). The item's header, tiles, buttons and hint are hidden while it is open (not tucked, not
+   left showing), so the name, the tile and the close appear once. Closing returns to the simple view of the same item. */
+.ief-child{grid-area:1/3;align-self:start;position:sticky;top:0;height:100vh;z-index:3;background:var(--surface);border-left:1px solid var(--border);padding:24px;display:flex;flex-direction:column;gap:12px;overflow:hidden}
 .ief-child.enter{animation:tuckin .22s ease-out}
-.app[data-child] .panel{overflow:hidden}
-.app[data-child] .panel .tiles,.app[data-child] .panel .sacts,.app[data-child] .panel .sbuy,.app[data-child] .panel #ief-hintw{visibility:hidden}
+.app[data-child] .panel{visibility:hidden;overflow:hidden}
+/* Edit's name is the field right below, so the title row does not repeat it (History keeps "name only"); the phone sheet, which shows the item's strip above, is unchanged */
+.ief-child[data-kind=edit] .chd p{display:none}
 /* the shortcuts list and the cue switch */
 .kb{position:fixed;inset:0;z-index:50;display:grid;place-items:center;justify-items:start;padding-left:136px;background:var(--dim)}
 .kbc{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-card);padding:22px 26px;width:min(760px,calc(100vw - 184px));max-height:calc(100vh - 48px);overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.35)}

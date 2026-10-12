@@ -21,7 +21,7 @@ const box = (p, s) => p.evaluate(s => { const r = document.querySelector(s).getB
 const snap = async (p, n) => { if (shots) await p.screenshot({ path: `${shots}/home-detail-panel-${n}.png` }); };
 
 let p;
-// 13 Oct 2026, decision 158 (PROPOSED; owner: "primary cooking idea recipe is not able to be driven to the flyout column.. other ideas are ok its just the primary cooking ideas"): the PRIMARY idea (the lead; here today's
+// 13 Oct 2026, decision 159 (PROPOSED; owner: "primary cooking idea recipe is not able to be driven to the flyout column.. other ideas are ok its just the primary cooking ideas"): the PRIMARY idea (the lead; here today's
 // planned meal, ?lead=planned) opens the same recipe view as the other ideas, by click and by keyboard, lights its row, switches with the other ideas without closing, says "Planned today" instead of Add to plan, and P plans nothing.
 p = await page(1440, 800, "lead=planned");
 ok(await p.locator(".lead[data-lead=planned] [data-open^='meal:']").count() === 1 && await p.locator(".ir [data-open^='recipe:']").count() === 2, "primary idea: the planned lead carries a panel hook, and there are two other ideas");
@@ -74,8 +74,8 @@ await p.click("[data-open='item:cucumbers']"); ok(await p.locator("#d-title").te
 await p.click("[data-open='item:bueno']"); ok(await p.locator("#d-title").textContent() === "Bueno chocolate", "entry 4 (Running low) switches in place");
 ok(await p.locator("#detail[hidden]").count() === 0, "never closed while switching");
 // keys
-await p.keyboard.press("e"); ok(await p.locator("#ief-child h3").first().textContent().then(t => /Edit/.test(t)), "E opens Edit under the header");
-await p.keyboard.press(","); ok(await p.locator("#ief-child h3").first().textContent().then(t => /History/.test(t)), "comma switches to History");
+await p.keyboard.press("e"); ok(await p.locator("#ief-child h2").first().textContent().then(t => /Edit item/.test(t)), "E opens Edit (replaces the simple view, decision 159)");
+await p.keyboard.press(","); ok(await p.locator("#ief-child h2").first().textContent().then(t => /History/.test(t)), "comma switches to History");
 await p.keyboard.press(","); ok(await p.locator("#ief-child").count() === 0, "comma again returns to the item");
 await p.keyboard.press("w"); await p.waitForTimeout(300);
 ok(await p.evaluate(() => document.getElementById("app").dataset.front) === "week", "W brings This week forward");
@@ -164,7 +164,7 @@ ok(await p.locator("#ideas .sk").count() > 0 && await p.locator("#detail .sk").c
 await snap(p, "1280-loading"); await p.context().close();
 p = await page(1280, 800, "open=recipe:lime-tacos&detail=error");
 ok(await p.locator("#detail [data-act=retry]").count() === 1, "panel error has Try again"); await snap(p, "1280-panel-error"); await p.context().close();
-p = await page(1280, 800, "open=item:limes&child=history"); await snap(p, "1280-history-tucked"); await p.context().close();
+p = await page(1280, 800, "open=item:limes&child=history"); await snap(p, "1280-history-replaces"); await p.context().close();
 p = await page(1440, 800, "open=recipe:lime-tacos", "kitchie-day"); await snap(p, "1440-stacked-recipe-light"); await p.context().close();
 // 13 Oct 2026, decision 157 (owner: "the title is buggered .. sort out the clash with item names and the E, , X buttons"): a long item name has its own full-width row (3 lines at most, then an ellipsis),
 // never meets the tile, the buttons or the E and comma key caps, and "quantity | place" sits right under it; stacked (1280, 1440, 1620) and displaced (1920).
@@ -189,6 +189,26 @@ for (const w of [1280, 1440, 1620, 1920]) for (const id of ["ranch", "flour"]) {
   ok(m.titleAttr && m.over <= 0, `long name ${at}: the whole name is in the title attribute; no sideways scroll`);
   if (id === "flour") ok(m.clipped && m.lines === 3, `long name ${at}: a name past 3 lines is cut with an ellipsis (${m.lines} lines)`);
   await snap(p, `long-name-${id}-${w}`); await p.context().close();
+}
+
+// 13 Oct 2026, decision 159 (owner, with a screenshot: "in the edit it should replace the simple view otherwise it's duplicate info"): Edit and History REPLACE the simple view in the same panel (header, tiles, hint, buttons are
+// not shown), one title and one close, the name once; the x or the key again returns to the simple view of the same item with focus on the pencil or clock. Stacked (1280, 1440, 1620), displaced (1920), This week in front.
+for (const [w, q, label] of [[1280, "", "1280-stacked"], [1440, "", "1440-stacked"], [1620, "", "1620-stacked"], [1920, "", "1920-displaced"], [1440, "&front=week", "1440-week-in-front"]]) {
+  for (const kind of ["edit", "history"]) {
+    const p2 = await page(w, 900, "open=item:limes" + q); await p2.keyboard.press(kind === "edit" ? "e" : ","); await p2.waitForTimeout(450);
+    const vis = sel => p2.evaluate(s => [...document.querySelectorAll(s)].filter(e => { const r = e.getBoundingClientRect(); const c = getComputedStyle(e); return r.width > 0 && r.height > 0 && c.visibility !== "hidden" && c.display !== "none"; }).length, sel);
+    ok(await vis("#detail .shead, #detail .tiles, #detail .sacts, #detail .hint, #detail #d-title") === 0, `${label} ${kind}: the simple header, tiles, buttons and hint are not shown`);
+    ok(await vis("#detail .x") === 1 && await vis("#detail .chd h2") === 1, `${label} ${kind}: one title row and one close`);
+    const name = await p2.evaluate(() => { const d = document.getElementById("detail"), shown = e => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(e).visibility !== "hidden"; }; const vals = [...d.querySelectorAll("input")].filter(shown).map(i => i.value); const txt = [...d.querySelectorAll("*")].filter(e => e.children.length === 0 && shown(e) && e.textContent.trim().replace(" only", "") === "Limes").length; return vals.filter(v => v === "Limes").length + txt; });
+    ok(kind === "edit" ? name === 1 : name <= 1, `${label} ${kind}: the name appears once (${name})`);
+    const dl = await p2.evaluate(() => { const d = document.getElementById("detail").getBoundingClientRect(), c = document.getElementById("ief-child").getBoundingClientRect(); return { dw: d.width, cw: c.width, ct: c.top - d.top, dl: d.left, cl: c.left }; });
+    ok(dl.cl - dl.dl >= 0 && dl.cl - dl.dl <= 30 && dl.cw > dl.dw - 60 && dl.ct <= 30, `${label} ${kind}: it sits in the panel's own lane, at the top, not beside it`);
+    await snap(p2, `${label}-${kind}-replaces`);
+    await p2.evaluate(() => document.querySelector("#ief-child .x").click()); await p2.waitForTimeout(300);
+    ok(await p2.locator("#ief-child").count() === 0 && await vis("#detail .shead") === 1 && await vis("#detail .tiles") === 1, `${label} ${kind}: the x returns to the simple view of the same item`);
+    ok(await p2.evaluate(k => document.activeElement && document.activeElement.getAttribute("data-act") === k, kind), `${label} ${kind}: focus returns to the ${kind === "edit" ? "pencil" : "clock"}`);
+    await p2.context().close();
+  }
 }
 await b.close();
 console.log(fails ? fails + " FAILED" : "ALL PASSED"); process.exit(fails ? 1 : 0);

@@ -282,7 +282,9 @@ for (const [w, h, kind] of SIZES) {
     /* 4c. History carries the edits made here, under Today */
     p = await open("?sel=eggs&child=edit");
     await p.click('#ef-s-level [data-v="Some"]'); await p.click('[data-ef="qclear"]');
-    await p.click('#ief-head [data-ief="history"]'); await p.waitForSelector("#ief-child .hist");
+    if (kind === "desktop") { await p.click("#ief-child .chd h2"); await p.keyboard.press(","); } /* decision 159: on a desktop Edit replaces the item's header, so the comma is the way to History */
+    else await p.click('#ief-head [data-ief="history"]');
+    await p.waitForSelector("#ief-child .hist");
     const hist = await p.innerText("#ief-cbody");
     ok(`${tag} history lists the level and quantity edits under Today`, /today/i.test(hist) && /Level/.test(hist) && /Quantity/.test(hist), hist.slice(0, 160));
     await p.close();
@@ -311,7 +313,7 @@ for (const [w, h, kind] of SIZES) {
     await emoOpen(p, "#ef-emo", "#ef-emoin"); await p.keyboard.type("zz"); await p.keyboard.press("Tab"); await p.waitForSelector("#ef-emoin", { state: "hidden", timeout: 2500 }).catch(() => {});
     ok(`${tag} emoji: blur with words that are no emoji goes back to what was there and collapses to the tile`, (await p.inputValue("#ef-emoin")) === "🧈" && (await p.innerText("#ef-emo")) === "🧈" && (await p.locator("#ef-emoin").isHidden()));
     await emoOpen(p, "#ef-emo", "#ef-emoin"); await p.fill("#ef-emoin", "chee"); await p.press("#ef-emoin", "Enter");
-    ok(`${tag} emoji: Enter takes the highlighted match, collapses to the tile; header and list update`, (await p.innerText("#ef-emo")) === "🧀" && (await p.inputValue("#ef-emoin")) === "🧀" && (await p.innerText("#ief-head .ph")) === "🧀" && /🧀 butter/.test(await p.innerText("#ief-list")) && (await p.locator("#ef-emoin").isHidden()) && (await p.locator("#sg-emo").isHidden()));
+    ok(`${tag} emoji: Enter takes the highlighted match, collapses to the tile; header and list update`, (await p.innerText("#ef-emo")) === "🧀" && (await p.inputValue("#ef-emoin")) === "🧀" && (await p.textContent("#ief-head .ph")) === "🧀" && /🧀 butter/.test(await p.innerText("#ief-list")) && (await p.locator("#ef-emoin").isHidden()) && (await p.locator("#sg-emo").isHidden()));
     ok(`${tag} emoji: the change is a History line`, await p.evaluate(() => (IEF.LOG.butter || []).some(e => e.field === "Emoji" && e.to === "🧀")));
     await emoOpen(p, "#ef-emo", "#ef-emoin"); await p.fill("#ef-emoin", "\u{1F99A}");
     ok(`${tag} emoji: a typed or pasted emoji outside the list is kept at once and the box collapses`, (await p.innerText("#ef-emo")) === "\u{1F99A}" && (await p.inputValue("#ef-emoin")) === "\u{1F99A}" && (await p.locator("#ef-emoin").isHidden()));
@@ -546,9 +548,9 @@ for (const [w, h, kind] of SIZES) {
     await shot(p, "unit-chips");
     ok(`${tag} unit chips fold to one line with a chevron`, (await p.locator("#ef-s-qty .ef-cx:visible").count()) === 1);
     await chipPick(p, "#ef-s-qty", "jar");
-    ok(`${tag} a unit chip sets the unit (12 jar in the item flyout)`, (await p.inputValue('[data-f="unit"]')) === "jar" && /12 jar/.test(await p.innerText("#ief-panel")), await p.inputValue('[data-f="unit"]'));
+    ok(`${tag} a unit chip sets the unit (12 jar in the item flyout)`, (await p.inputValue('[data-f="unit"]')) === "jar" && /12 jar/.test(await p.textContent("#ief-panel")), await p.inputValue('[data-f="unit"]'));
     await p.fill('[data-f="unit"]', "punnet"); await p.press('[data-f="unit"]', "Enter");
-    ok(`${tag} a unit not in the list is kept (free text): 12 punnet`, (await p.inputValue('[data-f="unit"]')) === "punnet" && /12 punnet/.test(await p.innerText("#ief-panel")), await p.inputValue('[data-f="unit"]'));
+    ok(`${tag} a unit not in the list is kept (free text): 12 punnet`, (await p.inputValue('[data-f="unit"]')) === "punnet" && /12 punnet/.test(await p.textContent("#ief-panel")), await p.inputValue('[data-f="unit"]'));
     ok(`${tag} the typed unit is a chip from then on, chosen`, (await p.locator("#ef-s-qty .ef-chip.on").innerText()) === "punnet");
     await p.click('#ef-s-qty [data-key="amount"][data-d="1"]');
     ok(`${tag} a typed unit steps by one`, (await p.inputValue('[data-f="amount"]')) === "13");
@@ -652,8 +654,10 @@ for (const [w, h, kind] of SIZES) {
     await p.close();
     if (kind === "desktop") {
       p = await open("?sel=cheddar&child=edit");
+      ok(`${tag} sheet: with Edit open the item's own tile is not showing (decision 159: Edit replaces the simple view and has its own tile)`, (await p.locator("#ief-emo:visible").count()) === 0 && (await p.locator("#ef-emo:visible").count()) === 1);
+      await p.click('#ief-child [data-ief="closechild"]'); await p.waitForSelector("#ief-emo:visible");
       await p.click("#ief-emo"); await p.waitForSelector("#ief-emoin:visible"); await p.waitForSelector("#ief-sg-emo:visible", { timeout: 3000 });
-      ok(`${tag} sheet: tapping the tile with Edit open steps Edit back and shows the box`, (await p.locator("#ief-child:visible").count()) === 0 && (await p.locator("#ief-emof:visible").count()) === 1);
+      ok(`${tag} sheet: with Edit closed the tile shows the box`, (await p.locator("#ief-child:visible").count()) === 0 && (await p.locator("#ief-emof:visible").count()) === 1);
       await p.keyboard.type("bread"); await p.keyboard.press("Enter");
       await p.click('#ief-head [data-ief="edit"]'); await p.waitForSelector("#ief-child .ef");
       ok(`${tag} sheet: reopening Edit shows the new emoji in its own tile and box`, (await p.innerText("#ef-emo")) === "🍞" && (await p.inputValue("#ef-emoin")) === "🍞", await p.innerText("#ef-emo"));
@@ -783,7 +787,7 @@ for (const [w, h, kind] of SIZES) {
       if (id === "flour") ok(`${tag} long name ${id}: past 3 lines it is cut with an ellipsis`, m.clipped && m.lines === 3, m);
       await shot(lp, "long-name-" + id); await lp.close();
       const cp = await open("?sel=" + id + "&child=history"); await cp.waitForTimeout(400);
-      ok(`${tag} long name ${id}: the History child starts at or under the header's bottom (tucked) or beside it (column)`, await cp.evaluate(() => { const h = document.querySelector("#ief-head").getBoundingClientRect(), c = document.querySelector("#ief-child").getBoundingClientRect(); return c.left >= h.right - 1 || c.top >= h.bottom - 1; }));
+      ok(`${tag} long name ${id}: the History child replaces the simple view (decision 159): from the top of the lane, the item's header not showing`, await cp.evaluate(() => { const h = document.querySelector("#ief-panel"), c = document.querySelector("#ief-child").getBoundingClientRect(); return getComputedStyle(h).visibility === "hidden" && c.top <= 1; }));
       await shot(cp, "long-name-" + id + "-history"); await cp.close();
     }
     await ctx.close();
