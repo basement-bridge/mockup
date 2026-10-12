@@ -1,4 +1,4 @@
-// Behaviour check for the Plan UI phone mockup, open day (Plan UI review 147 to 153), headless Chromium, touch and mouse.
+// Behaviour check for the Plan UI phone mockup, open day (Plan UI review 147 to 153, updated for 154 to 156), headless Chromium, touch and mouse.
 // Usage:  python3 -m http.server 8123 &   then   node tools/plan-ui-open-day-check.mjs      (BASE=... to point elsewhere)
 // Needs playwright or playwright-core on the module path (NODE_PATH=/opt/node22/lib/node_modules works in the agent sandbox).
 import { createRequire } from "module";
@@ -46,43 +46,42 @@ for (const [w, h] of [[390, 844], [360, 740]]) {
     c = await center(p, '.mc[data-id="fri-left"]'); await touchSwipe(ctx, p, c.x - 60, c.y, 170);
     ok(`${tag} B: right swipe on a meal tile is still Not cooking`, await blocked(p, "d16"));
     await p.close(); }
-  // auto expiry and moving on
-  { const p = await open(ctx, "ut=3", errs); const c = await center(p, '.od[data-od-b="d18"]'); await touchSwipe(ctx, p, c.x - 60, c.y, 160);
-    ok(`${tag} B: blocked`, await blocked(p, "d18")); await sleep(3600);
-    ok(`${tag} B: the Undo expires by itself`, (await p.locator("[data-undo]").count()) === 0 && await blocked(p, "d18"));
+  // auto expiry (155: 3 s for this swipe) and moving on
+  { const p = await open(ctx, "", errs); const c = await center(p, '.od[data-od-b="d18"]'); await touchSwipe(ctx, p, c.x - 60, c.y, 160);
+    ok(`${tag} B: blocked`, await blocked(p, "d18")); await sleep(2300);
+    ok(`${tag} B: the Undo is still there at 2.3 s`, (await p.locator("#d-d18 [data-undo]").count()) === 1); await sleep(1400);
+    ok(`${tag} B: the Undo expires by itself at 3 s`, (await p.locator("[data-undo]").count()) === 0 && await blocked(p, "d18"));
     await S(p, "window.scrollTo(0, 0)"); await sleep(600); await S(p, "window.__plan.follow(true)"); await sleep(100);
     ok(`${tag} B: the Not cooking tile hides once you move on (92, 96)`, await p.locator("#d-d18.hid").count() === 1);
     await p.close(); }
-  // D. the bug: tapping the Not cooking tile
-  { const p = await open(ctx, "", errs); const oa = () => p.locator(".oa").count();
+  // D. tapping a Not cooking day opens the LIGHT panel only (154), the day stays Not cooking
+  { const p = await open(ctx, "", errs); const oa = () => p.locator("#lite .oa button").count();
     await p.locator('.od[data-od-b="d18"]').scrollIntoViewIfNeeded(); await p.locator('.od[data-od-b="d18"]').tap(); await sleep(300);
-    ok(`${tag} D: tapping an open day opens its detail with Ask AI, Surprise me, Not cooking`, (await oa()) === 1 && (await p.locator(".oa button").count()) === 3);
+    ok(`${tag} D: tapping an open day opens its detail with Ask AI, Surprise me, Not cooking`, (await p.locator(".oa").count()) === 1 && (await p.locator(".oa button").count()) === 3);
     await p.locator('[data-block="d18"]').tap(); await sleep(300); ok(`${tag} D: Not cooking from the detail`, await blocked(p, "d18"));
-    ok(`${tag} D: Mark as open is offered under the Not cooking day`, (await p.locator(".mko").count()) === 1);
-    await sleep(500); await p.locator('[data-unblock="d18"]').first().tap(); await sleep(300);
-    ok(`${tag} D: tapping the tile reopens the night and shows the options`, !(await blocked(p, "d18")) && (await oa()) === 1);
-    // a second touch on the same spot straight away must not toggle it back
-    await p.locator('[data-block="d18"]').tap(); await sleep(300);
-    ok(`${tag} D: a double tap does not mark it Not cooking again (guard)`, !(await blocked(p, "d18")) && (await oa()) === 1);
-    for (let i = 0; i < 6; i++) { await sleep(3000); if ((await oa()) !== 1) break; if (i === 2) { await S(p, "window.dispatchEvent(new Event('resize')); window.scrollBy(0, 40)"); } }
-    ok(`${tag} D: the options are still there after 18 s, a resize and a scroll, past the undo expiry`, (await oa()) === 1 && (await S(p, "window.__plan.S.ustk.length")) === 0, await S(p, "window.__plan.S.dday"));
-    await p.locator('[data-close]').first().tap(); await sleep(300); ok(`${tag} D: the x closes it`, (await oa()) === 0);
+    ok(`${tag} D: it is the light panel with Ask AI, Surprise me, Mark as open`, (await p.locator("#lite").count()) === 1 && (await oa()) === 3 && (await p.locator("#lite .mko").count()) === 1);
+    ok(`${tag} D: no recipe chrome: no stepper, ingredients, total time, day piece, sheet or tongue`, (await p.locator(".ppl, .ing, .tt, .dpiece, .spiece, .tongue, .sfoot").count()) === 0);
+    await sleep(500); await p.locator('#lite [data-unblock="d18"]').tap(); await sleep(300);
+    ok(`${tag} D: Mark as open turns it into an open night and closes the panel`, !(await blocked(p, "d18")) && (await p.locator("#lite").count()) === 0 && (await p.locator("[data-undo]").count()) >= 1);
     await p.close(); }
-  // D2. from the plain week: swipe, tap the revealed tile
+  // D2. from the plain week: swipe, tap the revealed Not cooking tile
   { const p = await open(ctx, "", errs); let c = await center(p, '.od[data-od-b="d18"]'); await touchSwipe(ctx, p, c.x - 60, c.y, 160);
-    await sleep(500); await p.locator('#d-d18 [data-unblock]').tap(); await sleep(300);
-    ok(`${tag} D: the Not cooking tile in the plain week reopens the night and docks the day with its options`, !(await blocked(p, "d18")) && (await p.locator(".oa").count()) === 1 && (await S(p, "window.__plan.S.dday")) === "d18");
-    await sleep(15500); ok(`${tag} D: and they stay`, (await p.locator(".oa").count()) === 1);
-    await p.keyboard.press("Shift+X"); await sleep(200); ok(`${tag} D: Shift X from the day's detail sets Not cooking`, await blocked(p, "d18"));
+    await sleep(500); await p.locator('#d-d18 .blk').tap(); await sleep(300);
+    ok(`${tag} D: tapping the Not cooking tile opens the light panel and the day stays Not cooking`, (await blocked(p, "d18")) && (await p.locator("#lite").count()) === 1 && (await S(p, "window.__plan.S.dday")) === "d18");
+    ok(`${tag} D: and no full detail: nothing of the recipe stack`, (await p.locator(".stackw:not(.lite), .dpiece, .spiece, .ing").count()) === 0);
+    await sleep(500); await p.locator('#lite [data-surprise]').tap(); await sleep(300);
+    ok(`${tag} D: Surprise me on a Not cooking day makes it a cooking day`, !(await blocked(p, "d18")) && (await S(p, "window.__plan.S.meals.some(m => m.day === 'd18')")));
     await p.close(); }
+  { const p = await open(ctx, "", errs); let c = await center(p, '.od[data-od-b="d18"]'); await touchSwipe(ctx, p, c.x - 60, c.y, 160); await sleep(500); await p.locator('#d-d18 .blk').tap(); await sleep(300);
+    await sleep(15500); ok(`${tag} D: the panel stays 15 s (nothing on a timer closes it)`, (await p.locator("#lite .oa button").count()) === 3);
+    await p.locator('#lite [data-close]').tap(); await sleep(300); ok(`${tag} D: the x closes it`, (await p.locator("#lite").count()) === 0); await p.close(); }
+
   // reduced motion, long list, past day, view only, ac
   { const c2 = await browser.newContext({ viewport: { width: w, height: h }, hasTouch: true, isMobile: true, reducedMotion: "reduce" }); const p = await open(c2, "long=1", errs);
     const c = await center(p, '.od[data-od-b="d18"]'); await touchSwipe(c2, p, c.x - 60, c.y, 160); ok(`${tag} reduced motion + long=1: swipe works`, await blocked(p, "d18"));
     ok(`${tag} long=1: no sideways scroll`, await S(p, "document.documentElement.scrollWidth <= innerWidth")); await c2.close(); }
   { const p = await open(ctx, "who=priya", errs); ok(`${tag} view only: dashed slot with no swipe or tap`, (await p.locator(".od[data-od-b]").count()) === 0 && (await p.locator(".od.ro, .sw.ro .od").count()) > 0); await p.close(); }
-  { const a = await open(ctx, "ac=dull", errs), n = await open(ctx, "ac=normal", errs);
-    const v = async p => p.evaluate(() => getComputedStyle(document.body).getPropertyValue("--nc").trim());
-    const dv = await v(a), nv = await v(n); ok(`${tag} ac: dull and normal differ`, dv !== nv && dv.includes("color-mix"), [dv, nv]); await a.close(); await n.close(); }
+  { const p = await open(ctx, "ac=dull", errs); ok(`${tag} colour (156): the ?ac= switch and --nc are gone, the Not cooking edge is the muted grey of past days`, await p.evaluate(() => !document.body.dataset.ac && getComputedStyle(document.body).getPropertyValue("--nc").trim() === "" && (() => { const t = document.createElement("i"); t.style.color = "var(--muted)"; document.body.appendChild(t); const m = getComputedStyle(t).color; t.remove(); return [...document.querySelectorAll(".blk, .peek button")].length ? getComputedStyle(document.querySelector(".blk")).borderLeftColor === m : false; })())); await p.close(); }
   ok(`${tag}: no page errors`, errs.length === 0, errs); await ctx.close();
 }
 // mouse at 1280

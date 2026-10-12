@@ -3,17 +3,18 @@
    ?demo=1&frame=3    one frame, still (cap=0 hides the caption bar, used for the screenshots)
    ?demo=agenda       the lift and shift straight from the plain week view, 7 frames (decisions 142 to 146): 1 week, 2 press and hold lifts the tile, 3 picked up and carried (plain, no tear), 4 dropped on a day with a meal (Replaced, pulse, Undo),
                       5 a past tile lifted to copy forward and a past day refusing it, 6 the detail drag-out is the ONLY torn one, 7 a quick sideways swipe still reveals the swipe actions (no lift)
-   ?demo=open         the open day, 4 frames (decisions 147 to 153): 1 the dashed open day, 2 right swipe reveals Not cooking, 3 Not cooking with Undo, 4 tap the Not cooking tile: the night reopens and its detail stays docked with the options
+   ?demo=open         the open day, 4 frames (decisions 147 to 153, 154, 155): 1 the dashed open day, 2 right swipe reveals Not cooking, 3 Not cooking with Undo (3 s), 4 tap the Not cooking tile: the LIGHT panel (Ask AI, Surprise me, Mark as open)
+   ?demo=nc           the 13 Oct live-test round (decisions 154 to 158), 7 frames: 1 a collapsed Not cooking day with the ECG marker on the divider line, 2 one tap opens it, 3 a gap of two days, 4 one tap opens both, 5 tap a Not cooking day: the light panel, 6 the open-day swipe and its 3 s Undo, 7 the tear in the plain agenda (top and bottom edges only)
    Frames (?demo=1): 1 week plan, 2 tap a day: the day docks top and the sheet docks bottom, 3 tap another day in the ribbon: the contents of the stack swap, the slot stays (115),
            4 start dragging the tile and it tears off, a ragged edge on the tile and on the piece left behind (118), 5 dragged to a day, torn all the way, 6 let go on a day,
            7 alternative: close the stack, the ribbon goes and the week returns. It drives the same code a finger does (beginDrag, moveHand, endHand, closeDetail). */
 (function () {
-  var A = window.__plan, q = new URLSearchParams(location.search), AG = q.get('demo') === 'agenda', OP = q.get('demo') === 'open', N = OP ? 4 : 7, cur = 1, timer = null, playing = true;
+  var A = window.__plan, q = new URLSearchParams(location.search), AG = q.get('demo') === 'agenda', OP = q.get('demo') === 'open', NC = q.get('demo') === 'nc', N = OP ? 4 : 7, cur = 1, timer = null, playing = true;
   var CAPD = [
     ['Week plan, no ribbon', 'The week view has no day ribbon (136): a slim header, then the agenda across three weeks. Wed 14 has a meal. Tap it.'],
     ['Tap a day with a meal', 'The ribbon fades in, docked under the header, only now (136). The day docks directly under it and the detail at the bottom. One stack, no gap, no overlay; the stack does not move when the ribbon appears.'],
     ['Tap another day in the ribbon', 'The ribbon stays docked and scrollable. The stack does not close and does not move: only what is in it swaps to Thu 15 (or to an open night, Not cooking or a past day).'],
-    ['Start dragging: it tears', 'The tile comes off the docked detail with a ragged, torn-paper edge, and the piece left behind has the matching edge. This is the only tear (142): a tile lifted in the plain week is not torn (see ?demo=agenda). The tile fades and tilts as before. Reduced motion: the edge is there at once, no growth.'],
+    ['Start dragging: it tears', 'The tile comes off the docked detail with a ragged, torn-paper edge on its top (or bottom) edge, and the piece left behind has the matching edge. The tear is on every lift-and-drag now (158) but only ever on the top and bottom edge, never a side. The tile fades and tilts as before. Reduced motion: the edge is there at once, no growth.'],
     ['Dragged to a day', 'The week plan is back under the finger, the tile in hand. Every day is a drop target, even a hidden Not cooking day (Sat).'],
     ['Let go on a day', 'Sat was Not cooking, so it is a cooking day now. Wed is an open day (the dashed box). The day says what happened, and Undo is on the day.'],
     ['Or close instead', 'Close the stack (x, Esc, handle down, swipe down) and the ribbon fades out; the week plan returns, scrolled to Wed.']
@@ -21,19 +22,28 @@
   var CAPA = [
     ['Week plan, nothing open', 'The plain week view. No detail is open. Wed 14 has the curry; Thu has two meals. Every tile can be lifted from here (143, 144).'],
     ['Press and hold: it lifts', 'Hold a tile about a third of a second without moving more than 8 px: it rises, grows, tilts and casts a deeper shadow. A quick sideways swipe still reveals the swipe actions (frame 7); a vertical move scrolls.'],
-    ['Pick it up and carry it', 'Move and it is in hand: the plain lifted, tilted tile of before the tear, no ragged edge (142). The week shows every day, even Sat, which is Not cooking. The week scrolls near the top and bottom edge and across the three weeks.'],
+    ['Pick it up and carry it', 'Move and it is in hand, with the torn top edge (158, owner-stated: the same tear in the agenda, top and bottom edges only), the opacity fade on the place-holder and the tilt. The week shows every day, even Sat, which is Not cooking. The week scrolls near the top and bottom edge and across the three weeks.'],
     ['Drop on a day with a meal', 'Let go on Thu: the curry replaces Salmon patties and the day says so, pulses and offers Undo, which expires on its own. Wed is an open day (the dashed box). Dropping outside a day, Esc or a cancelled touch moves nothing and says so.'],
     ['A past tile: copy forward only', 'A past meal lifts the same way but only copies: the original stays. Past days are read only, so a tile over one shows a red outline and a drop there is refused with a note.'],
-    ['The tear is only for the detail', 'Dragging the tile out of the docked detail is the one place with the torn-paper edge (142, owner-stated, 13 Oct). Everything else is the plain lift. ?tear=all draws it everywhere for comparison.'],
+    ['The tear on every drag', 'Dragging the tile out of the docked detail has the same torn top or bottom edge as the plain week (158, owner-stated 13 Oct; this reverses 142). Never a side edge. ?tear=detail restores the old detail-only scoping for comparison.'],
     ['A swipe is still a swipe', 'A quick sideways move reveals the swipe actions (Replan, Not cooking) and never lifts. The hold has to start before any real movement, so the two gestures cannot fight.']
   ];
   var CAPO = [
     ['The open day, UAT\'s dashed box', 'An open day on the plain week is the faint dashed rounded box beside the day label (Sun 18 and the days below), no words and no buttons (147, owner-stated: "The open day with this visual is great"). Tap it for that day\'s detail.'],
     ['Right swipe: Not cooking', 'A right swipe on the open day shows the tinted Not cooking reveal, the same as on a meal tile (148, owner-stated: "Right swipe to making not cooking"). Past days and other people\'s plans have no swipe. Keys: Shift X.'],
-    ['Not cooking, with Undo', 'The day is Not cooking (this week only) with Undo in place; the Undo expires by itself and the tile hides once you move on (92, 96, 130). The accent is a notch duller (150, Proposal; ?ac=normal for the old one).'],
-    ['Tap the Not cooking tile', 'The tile reopens the night and docks that day\'s detail with Ask AI, Surprise me and Not cooking. They stay until you close the detail, tap another day or act (151 to 153, owner-stated bug fixed: they used to vanish).']
+    ['Not cooking, with Undo', 'The day is Not cooking (this week only), in the muted grey of the past days (156), with Undo in place on the tile. For this swipe the Undo lasts 3 seconds (155, owner-stated); other undos keep 14 s (130). The tile then hides once you move on (92, 96).'],
+    ['Tap a Not cooking day', 'A light panel docks under the ribbon: the day, Ask AI, Surprise me and Mark as open. No tile, people, ingredients or time, and the week stays under it (154, owner-stated: the full detail "blocks"). The day stays Not cooking until you mark it open or pick Surprise me.']
   ];
-  var CAP = OP ? CAPO : AG ? CAPA : CAPD;
+  var CAPN = [
+    ['A collapsed Not cooking day', 'Sat 17 is Not cooking and collapsed, so the week reads quietly. The start of the divider line above Sun carries a small ECG marker: it beats once and goes flat (157, owner-stated). The peek at the scroll edge is unchanged (96).'],
+    ['Tap the marker: the day opens', 'One tap opens what is hidden in that gap, here just Saturday. Not cooking is the muted grey of last week (156). The marker is now one settled beat; tap it to close the day again (Proposal).'],
+    ['A gap of two days', 'Mon 19 and Tue 20 are both Not cooking and collapsed: one marker, at the start of the line above Wed 21.'],
+    ['One tap opens all of them', 'Both days open at once (owner-stated: "if multiple days ... it should open up all of them"). Tapping the marker above them closes both.'],
+    ['Tap a Not cooking day', 'The light panel: day, Ask AI, Surprise me, Mark as open (154). The week stays under it and the day stays Not cooking.'],
+    ['Right swipe an open day', 'Not cooking, with the Undo in place on the tile. For this swipe the Undo lasts 3 seconds (155, owner-stated).'],
+    ['The tear in the plain agenda', 'Hold a tile and drag it: the torn edge shows on the top (dragging down) or bottom (dragging up) only, with the fade on the place-holder and the tilt of the tile in hand (158).']
+  ];
+  var CAP = NC ? CAPN : OP ? CAPO : AG ? CAPA : CAPD; if (NC) N = 7;
   function rect(sel) { var e = document.querySelector(sel); return e ? e.getBoundingClientRect() : null; }
   function buildA(n) {
     A.resetDemo(); A.showWeek('d14'); var S = A.S, tile = function (id) { var e = document.querySelector('.pw-day .mc[data-id="' + id + '"]'); return e ? e.getBoundingClientRect() : null; };
@@ -52,10 +62,22 @@
     A.resetDemo(); A.showWeek('d17'); var S = A.S, sw = document.querySelector('#d-d18 .sw.od-sw'), od = sw && sw.querySelector('.od');
     if (n === 1) return;
     if (n === 2) { if (od) { sw.classList.add('l', 'ready'); od.style.transform = 'translateX(150px)'; } return; }
-    if (n === 3) { A.block('d18'); return; }
-    S.blocked.d18 = 'once'; A.render(false); A.unblock('d18');
+    if (n === 3) { A.block('d18', 3000); return; }
+    S.blocked.d18 = 'once'; A.render(false); A.openDay('d18');
+  }
+  function buildN(n) {
+    A.resetDemo(); var S = A.S, ec = function (k) { var b = document.querySelector('.ecg[data-ecg="' + k + '"]'); if (b) b.click(); };
+    if (n >= 3 && n <= 4) { S.blocked.d19 = 'once'; S.blocked.d20 = 'once'; }
+    A.showWeek(n >= 3 && n <= 4 ? 'd21' : n === 5 ? 'd17' : 'd16'); var el;
+    if (n === 1) return; if (n === 2) { ec('d17'); return; }
+    if (n === 3 || n === 4) { A.render(false); el = document.getElementById('d-d21'); window.scrollTo(0, el.getBoundingClientRect().top + scrollY - A.stkH() - 110); if (n === 4) ec('d19,d20'); return; }
+    if (n === 5) { ec('d17'); A.openDay('d17'); return; }
+    if (n === 6) { A.block('d18', 3000); return; }
+    A.showWeek('d14'); var t = document.querySelector('.pw-day .mc[data-id="wed-curry"]').getBoundingClientRect(), x = t.left + t.width / 2, y = t.top + t.height / 2;
+    A.beginDrag('wed-curry', x, y, 99, { src: 'agenda' }); A.moveHand(x + 6, y + 36);
   }
   function build(n) {
+    if (NC) return buildN(n);
     if (OP) return buildO(n);
     if (AG) return buildA(n);
     A.resetDemo(); A.showWeek('d14');

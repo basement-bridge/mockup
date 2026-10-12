@@ -52,10 +52,8 @@ select{font:inherit}
 .rib{overflow-x:auto;scrollbar-width:none;scroll-snap-type:x proximity;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;padding:0 0 6px}
 .rib::-webkit-scrollbar{display:none}
 .ribin{position:relative;display:flex;width:max-content;padding:0 6px}
-/* Plan UI review 150 (Proposal): the quieter accent. --nc is the one token for Not cooking, the open-day box and the selection edge in this fragment; ?ac=normal puts it back on --accent. Nothing outside this file reads it. */
-body{--accent-dull:color-mix(in srgb,var(--accent) 68%,var(--muted));--nc:var(--accent)}
-body[data-ac=dull]{--nc:var(--accent-dull)}
-.mk{position:absolute;left:0;top:0;border-radius:14px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--nc);transition:transform .24s cubic-bezier(.2,.8,.2,1),width .2s;pointer-events:none;z-index:0}
+/* Plan UI review 156 (owner-stated, 13 Oct 2026): Not cooking is the same muted grey as last week's days (--muted, 113, 114). #148's separate duller accent (--nc, --accent-dull, ?ac=) is removed: no new colour, the selection, the docked frames and the open day are back on --accent. */
+.mk{position:absolute;left:0;top:0;border-radius:14px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--accent);transition:transform .24s cubic-bezier(.2,.8,.2,1),width .2s;pointer-events:none;z-index:0}
 .dy{position:relative;z-index:1;flex:0 0 calc((min(100vw,430px) - 12px) / 7);scroll-snap-align:center;display:flex;flex-direction:column;align-items:center;gap:1px;min-height:56px;padding:4px 0;border-radius:14px;font-size:11px;font-weight:700;color:var(--muted)}
 .dy b{font:700 17px var(--head);color:var(--fg);line-height:1.2}
 .dy.today b{background:var(--accent);color:var(--on-accent);border-radius:50%;width:28px;height:28px;display:grid;place-items:center;font-size:15px}
@@ -84,7 +82,8 @@ body[data-ac=dull]{--nc:var(--accent-dull)}
 .sw{position:relative;border-radius:var(--r-card);overflow:hidden;background:var(--surface)}
 .und{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;padding:0;font-weight:700;font-size:14px}
 .und .l,.und .r{display:flex;align-items:center;gap:8px;height:100%;padding:0 18px;min-width:90px}
-.und .l{background:var(--nc);color:var(--on-accent)}
+.und .l{background:var(--muted);color:var(--on-accent)}
+.und .l.cf{background:var(--accent)}
 .und .r{background:var(--danger);color:var(--bg);justify-content:flex-end;margin-left:auto}
 .und svg{width:18px;height:18px}
 .und .l,.und .r{opacity:0}
@@ -93,7 +92,7 @@ body[data-ac=dull]{--nc:var(--accent-dull)}
 .btns .und .l,.btns .und .r{padding:0}
 .mc{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:10px 4px 10px 10px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;column-gap:10px;row-gap:8px;touch-action:pan-y;user-select:none;-webkit-user-select:none;transition:transform .18s ease;cursor:pointer;z-index:1}
 .mc.drag{transition:none}
-.mc.sel{border-color:var(--nc)}
+.mc.sel{border-color:var(--accent)}
 .mc.dim{opacity:.35}
 .em{width:40px;height:40px;border-radius:12px;background:var(--bg);display:grid;place-items:center;font-size:22px}
 .em.lg{width:48px;height:48px;font-size:26px}
@@ -122,7 +121,7 @@ body[data-ac=dull]{--nc:var(--accent-dull)}
 .empty button{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);color:var(--fg);font-weight:600;font-size:13px}
 .empty svg{width:14px;height:14px;color:var(--accent)}
 .empty.past{border-style:solid;border-color:transparent;font-style:italic;opacity:.7;min-height:40px}
-.blk{display:flex;flex-direction:column;width:100%;min-height:56px;justify-content:center;padding:6px 14px;border-radius:var(--r-card);background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--nc);color:var(--muted)}
+.blk{display:flex;flex-direction:column;width:100%;min-height:56px;justify-content:center;padding:6px 14px;border-radius:var(--r-card);background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--muted);color:var(--muted)}
 .blk b{color:var(--fg);font-size:15px;font-weight:600}
 .blk span{font-size:12px}
 .blk.usual{border-left-color:var(--border)}
@@ -243,7 +242,7 @@ body[data-ac=dull]{--nc:var(--accent-dull)}
 .cslot.in{height:54px}
 /* peek: a hidden Not cooking day shows at the edge it scrolls past, then is gone */
 .peek{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;z-index:9;pointer-events:none}
-.peek button{pointer-events:auto;display:flex;align-items:center;gap:8px;width:100%;min-height:32px;padding:0 14px;background:color-mix(in srgb,var(--surface) 92%,transparent);border-top:1px solid var(--border);border-bottom:1px solid var(--border);border-left:4px solid var(--nc);color:var(--muted);font-size:12px;font-weight:600;animation:peekin .2s ease-out}
+.peek button{pointer-events:auto;display:flex;align-items:center;gap:8px;width:100%;min-height:32px;padding:0 14px;background:color-mix(in srgb,var(--surface) 92%,transparent);border-top:1px solid var(--border);border-bottom:1px solid var(--border);border-left:4px solid var(--muted);color:var(--muted);font-size:12px;font-weight:600;animation:peekin .2s ease-out}
 .peek button b{color:var(--fg)}
 @keyframes peekin{from{opacity:0}to{opacity:1}}
 .endsp{height:62vh}
@@ -267,7 +266,7 @@ body[data-ac=dull]{--nc:var(--accent-dull)}
 .dkh h2 b{font-weight:800}
 .dkh em{font-style:normal;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:var(--accent);color:var(--on-accent);border-radius:var(--r-pill);padding:2px 8px;vertical-align:middle}
 .dkb{padding:6px 2px 6px 4px}
-.dock .mc.sel{box-shadow:0 0 0 1px var(--nc)}
+.dock .mc.sel{box-shadow:0 0 0 1px var(--accent)}
 .dkf{position:sticky;bottom:calc(64px + env(safe-area-inset-bottom));margin:6px -12px 0;z-index:5}
 .mini{display:flex;align-items:center;gap:10px;width:calc(100% - 24px);margin:6px 12px 0;min-height:44px;padding:4px 12px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--surface);text-align:left;font-size:13px}
 .mini b{flex:none;min-width:4.4em;font-size:13px}.mini span{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
@@ -316,16 +315,16 @@ body[data-ac=dull]{--nc:var(--accent-dull)}
    The stack fills the screen between the ribbon and the nav; only the detail scrolls. */
 .stackw{position:fixed;top:var(--sth,100px);bottom:calc(64px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:100%;max-width:430px;z-index:8;display:flex;flex-direction:column;padding:6px 8px 8px;animation:stackin .26s ease-out both}
 @keyframes stackin{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
-.dpiece{position:relative;flex:none;background:var(--bg);border:1.5px solid var(--nc);border-bottom:1px solid var(--border);border-radius:var(--r-card) var(--r-card) 0 0;padding:2px 10px 20px}
+.dpiece{position:relative;flex:none;background:var(--bg);border:1.5px solid var(--accent);border-bottom:1px solid var(--border);border-radius:var(--r-card) var(--r-card) 0 0;padding:2px 10px 20px}
 .dpiece .dkh{min-height:44px}
 .dpiece .dkh h2{font-size:1.15rem}
 .dpiece .pw-stack{gap:6px}
 .dpiece .mc{cursor:default}
 .dpiece .mc[data-tile]{cursor:grab;touch-action:none}
-.dpiece .mc.sel{box-shadow:0 0 0 1px var(--nc)}
+.dpiece .mc.sel{box-shadow:0 0 0 1px var(--accent)}
 .mini.oth{margin:0;width:100%;min-height:40px}
-.spiece{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;background:var(--surface);border:1.5px solid var(--nc);border-top:0;border-radius:0 0 var(--r-card) var(--r-card);overflow:hidden}
-.tongue{position:absolute;left:50%;bottom:-16px;transform:translateX(-50%);width:84px;height:32px;border:1.5px solid var(--nc);border-top:0;border-radius:0 0 18px 18px;background:var(--bg);display:grid;place-items:end center;padding-bottom:7px;touch-action:none;cursor:grab;z-index:3}
+.spiece{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;background:var(--surface);border:1.5px solid var(--accent);border-top:0;border-radius:0 0 var(--r-card) var(--r-card);overflow:hidden}
+.tongue{position:absolute;left:50%;bottom:-16px;transform:translateX(-50%);width:84px;height:32px;border:1.5px solid var(--accent);border-top:0;border-radius:0 0 18px 18px;background:var(--bg);display:grid;place-items:end center;padding-bottom:7px;touch-action:none;cursor:grab;z-index:3}
 .tongue::before{content:"";position:absolute;inset:-12px -14px -10px}
 .tongue i{width:30px;height:4px;border-radius:2px;background:var(--border)}
 .spiece .sbody{overscroll-behavior-y:contain;padding:24px 14px 8px;background:linear-gradient(var(--surface) 30%,transparent) top/100% 34px no-repeat local,linear-gradient(transparent,var(--surface) 70%) bottom/100% 34px no-repeat local,radial-gradient(farthest-side at 50% 0,color-mix(in srgb,var(--fg) 20%,transparent),transparent) top/100% 10px no-repeat scroll,radial-gradient(farthest-side at 50% 100%,color-mix(in srgb,var(--fg) 20%,transparent),transparent) bottom/100% 10px no-repeat scroll}
@@ -419,7 +418,7 @@ body[data-ac=dull]{--nc:var(--accent-dull)}
 .emptyb .nt{font-size:14px;margin:6px 0 0}
 /* 118: the tear. The torn piece (.hand-p) and the piece left behind (.mc.lifted) get the same ragged edge (polygons built in phone.js, tooth size scaled by --tz). */
 .hand::before{content:"";position:absolute;inset:0;border-radius:var(--r-card);background:color-mix(in srgb,var(--fg) 24%,var(--surface));clip-path:var(--tfib,none);opacity:var(--tz,0);pointer-events:none}
-.hand[data-tear=top]::before{inset:-4px 0 0 0}.hand[data-tear=bottom]::before{inset:0 0 -4px 0}.hand[data-tear=left]::before{inset:0 0 0 -4px}.hand[data-tear=right]::before{inset:0 -4px 0 0}
+.hand[data-tear=top]::before{inset:-4px 0 0 0}.hand[data-tear=bottom]::before{inset:0 0 -4px 0}
 .mc.lifted[data-tear]{clip-path:var(--tpl,none)}
 @media(prefers-reduced-motion:reduce){.mc{transition:none}.stackw.swapped .dkh h2,.stackw.swapped .dpiece>.pw-stack,.stackw.swapped .spiece .sbody{animation:none}}
 .sw:has(>.mc.lifted[data-tear]){background:none}
@@ -503,10 +502,39 @@ body[data-ac=dull]{--nc:var(--accent-dull)}
 .sw.od-sw .und{border-radius:var(--r-ctl)}
 .od{display:block;width:100%;min-height:56px;padding:6px 10px;border-radius:var(--r-ctl);border:1px dashed var(--border);background:var(--bg);color:var(--muted);text-align:left;touch-action:pan-y;user-select:none;-webkit-user-select:none;position:relative;z-index:1;transition:transform .18s ease,background-color .12s}
 .od.drag{transition:none}
-.od:active,.od.drag{background:color-mix(in srgb,var(--nc) 8%,var(--bg));border-color:var(--nc)}
-.od:focus-visible{outline:2px solid var(--nc);outline-offset:2px}
+.od:active,.od.drag{background:color-mix(in srgb,var(--accent) 8%,var(--bg));border-color:var(--accent)}
+.od:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .od .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .pw-day.target .od,.dragging .od{pointer-events:none}
 @media(prefers-reduced-motion:reduce){.od{transition:none}}
 /* 153: "Mark as open" under the Not cooking day's detail, the same as tapping the tile */
 .mko{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;margin-top:6px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);color:var(--fg);font-weight:600;font-size:13px}
+
+/* Plan UI review 154 (owner-stated, 13 Oct 2026): a Not cooking day opens a LIGHT panel, docked under the ribbon (107) but one small card in the muted grey: the day, one quiet line, Ask AI, Surprise me, Mark as open. No tile, people, ingredients, time, sheet or tongue. It does not stretch to the nav; the week stays under it. */
+.stackw.lite{bottom:auto;padding:6px 8px 0;pointer-events:none}
+.stackw.lite.infl{position:static;transform:none;max-width:none;animation:none;padding:0 0 10px;pointer-events:auto}
+.lpiece{pointer-events:auto;background:var(--bg);border:1.5px solid var(--muted);border-radius:var(--r-card);padding:2px 12px 12px;box-shadow:0 10px 22px var(--dim)}
+.lpiece .dkh{min-height:44px}
+.lpiece .dkh h2{font-size:1.1rem}
+.lnote{display:flex;align-items:center;gap:6px;margin:0 0 8px;color:var(--muted);font-size:13px}
+.lnote svg{width:14px;height:14px}
+.lpiece .oa{margin:0;display:flex;flex-wrap:wrap;gap:6px}
+.lpiece .oa button{border:1px solid var(--border);background:var(--surface)}
+.lpiece .mko{margin-top:0;padding:0 12px;font-size:13px}
+.lpiece .unote{margin:8px 0 0}
+/* 157 (owner-stated; the look and timing are Proposals): the ECG marker at the start of the divider line over collapsed Not cooking days. A real button, 56 x 44 hit area, the line drawn through it. Collapsed: a quiet flat stub, with one beat that draws once when its gap first appears (.beat). Open: the settled single beat, tap to close. Reduced motion: flat at once, still tappable. */
+.pw-day,.wkd,.endsp{position:relative}
+.ecg{position:absolute;left:0;top:-10px;width:56px;height:44px;display:grid;place-items:start;padding:2px 0 0 2px;background:none;border:0;color:var(--muted);z-index:4;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.ecg svg{display:block;width:44px;height:16px;overflow:visible}
+.ecg path{fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round}
+.ecg .fl{stroke-width:2;opacity:.75}
+.ecg .bt{stroke-width:1.7;stroke-dasharray:80;stroke-dashoffset:80;opacity:0}
+.ecg.beat .bt{animation:ecgb 2.2s ease-out 1 both}
+.ecg.open .bt{stroke-dashoffset:0;opacity:.9}
+.ecg:active svg{opacity:.6}
+.ecg:focus-visible{outline:2px solid var(--accent);outline-offset:-6px;border-radius:12px}
+@keyframes ecgb{0%{opacity:1;stroke-dashoffset:80}38%{opacity:1;stroke-dashoffset:0}72%{opacity:1;stroke-dashoffset:0}100%{opacity:0;stroke-dashoffset:0}}
+.pw-day.xin{animation:xin .22s ease-out}
+@keyframes xin{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.ecg.beat .bt{animation:none;opacity:0}.pw-day.xin{animation:none}}
+.dragging .ecg,.carrying .ecg{display:none}
