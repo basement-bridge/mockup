@@ -38,13 +38,13 @@ ol.dec,ul.q{max-width:92ch;color:var(--muted);padding-left:22px}ol.dec li,ul.q l
 .sl a{min-height:40px;display:inline-flex;align-items:center;padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);text-decoration:none;font-weight:600;font-size:13px}
 </style></head>
 <body><div class="wrap"><a class="back" href="../../">&lsaquo; All mockups</a>
-<h1>Home: the detail panel <span class="tag">Fragment, proposals</span></h1>
-<p>Owner, 12 Oct 2026: on the desktop Home screen, picking an item from the search results, a Cooking idea, an item under <b>On the way out</b> or one under <b>Running low</b> should show its detail. If there is room, the detail <b>displaces This week to the right</b>. If there is not, it <b>stacks on top of This week</b> and leaves 1 to 2 mm of This week showing so it can still be found. The detail is the <b>simple view</b>, like the Pantry item flyout, with a recipe-specific variant for Cooking ideas. Mockup first: the owner confirms before anything is built. Every number and rule below is a <b>proposal</b>. Notes and decisions 133 to 148: <a href="https://github.com/basement-bridge/mockup/blob/main/docs/knowledge/jobs-to-be-done/home-detail-panel.md">job note</a>, <a href="https://github.com/basement-bridge/mockup/blob/main/docs/handover/home-detail-panel.md">handover</a>.</p>
+<h1>Home: the detail panel <span class="tag">Fragment, confirmed 12 Oct</span></h1>
+<p>Owner, 12 Oct 2026: on the desktop Home screen, picking an item from the search results, a Cooking idea, an item under <b>On the way out</b> or one under <b>Running low</b> should show its detail. If there is room, the detail <b>displaces This week to the right</b>. If there is not, it <b>stacks on top of This week</b> and leaves 1 to 2 mm of This week showing so it can still be found. The detail is the <b>simple view</b>, like the Pantry item flyout, with a recipe-specific variant for Cooking ideas. Mockup first: the owner confirms before anything is built. <b>The owner confirmed decisions 133 to 148 on 12 Oct 2026</b> (by voice; the changed rules are 149 to 153). Notes: <a href="https://github.com/basement-bridge/mockup/blob/main/docs/knowledge/jobs-to-be-done/home-detail-panel.md">job note</a>, <a href="https://github.com/basement-bridge/mockup/blob/main/docs/handover/home-detail-panel.md">handover</a>.</p>
 
 <h2>Try it</h2>
 <p>Click any of the four ways in, inside the window below. Drag the width slider across the breakpoint to watch the panel switch between displacing and stacking. Keys work inside the window (press <kbd>?</kbd> there).</p>
 <div class="bar" id="bar">
-  <div class="row"><span class="lb">Layout</span><span class="row" id="g-opt"><button class="chp" data-opt="a" aria-pressed="true">A &middot; displace, then stack <small>(recommended)</small></button><button class="chp" data-opt="b" aria-pressed="false">B &middot; always stack</button><button class="chp" data-opt="c" aria-pressed="false">C &middot; narrow the column, then stack</button></span></div>
+  <div class="row"><span class="lb">Layout</span><span class="row" id="g-opt"><button class="chp" data-opt="a" aria-pressed="true">A &middot; displace, then stack <small>(chosen)</small></button><button class="chp" data-opt="b" aria-pressed="false">B &middot; always stack <small>(not chosen)</small></button><button class="chp" data-opt="c" aria-pressed="false">C &middot; narrow the column, then stack <small>(not chosen)</small></button></span></div>
   <div class="row"><span class="lb">Window</span><input type="range" id="w" min="1024" max="2560" step="1" value="1440" aria-label="Window width in pixels"><span class="out" id="wo">1440 px</span></div>
   <div class="row"><span class="lb"></span><span class="row" id="g-w"></span></div>
   <div class="row"><span class="lb">Open</span><span class="row"><button class="chp" data-do="search">Search &ldquo;lime&rdquo;</button><button class="chp" data-do="idea">Cooking idea</button><button class="chp" data-do="soon">On the way out: Cucumbers</button><button class="chp" data-do="low">Running low: Bueno chocolate</button><button class="chp" data-do="close">Close</button></span></div>
@@ -62,26 +62,26 @@ ol.dec,ul.q{max-width:92ch;color:var(--muted);padding-left:22px}ol.dec li,ul.q l
 <tr><td>Main column</td><td class="n">736</td><td>640 column + a 48 gutter each side</td></tr>
 <tr><td>Detail panel</td><td class="n">400</td><td>The Pantry item flyout's width</td></tr>
 <tr><td>This week</td><td class="n">400</td><td>The right lane today</td></tr>
-<tr class="tot"><td>Needed to displace</td><td class="n">1624</td><td>Proposed breakpoint for option A</td></tr></tbody></table>
+<tr class="tot"><td>Needed to displace</td><td class="n">1624</td><td>Breakpoint for option A (confirmed)</td></tr></tbody></table>
 <p><b>Assumptions:</b> the column keeps its full 736 (below 1224 it already gives up width, as in the Pantry); free space collects on the right, never between lanes; the browser's width includes any scrollbar, which is what a media query reads. <b>What it means in practice:</b> a 1440 or 1536 laptop is always in the stacked case, 1680 and 1920 and up displace. So the stacked case is the everyday case on laptops, and the peek matters more than the displace rule does. Below 1624 the lane stays at 400 and the column never moves; the panel is just <i>peek</i> narrower than the lane.</p>
 <p><b>The peek:</b> 6 px by default (the owner said 1 to 2 mm, which is 4 to 8 CSS pixels at 96 dpi; real millimetres depend on the screen). It is the edge of the This week card with a small grip, and it is a button: click it, hover it (it widens by 8 px), or press <kbd>W</kbd>, and This week comes to the front while the panel waits behind it with its own peek on the right. Nothing is closed and nothing is lost.</p>
 
 <h2>Three layouts</h2>
 <div class="opts">
-<div class="opt rec"><h3>A &middot; Displace, then stack <span class="tag" style="margin:0">Recommended</span></h3>
+<div class="opt rec"><h3>A &middot; Displace, then stack <span class="tag" style="margin:0">Chosen</span></h3>
 <div class="wfl">1624 px and wider</div><div class="wf"><i class="rl">rail</i><i class="cl">column</i><i class="pn">panel</i><i class="wk">week</i></div>
 <div class="wfl">Under 1624</div><div class="wf"><i class="rl">rail</i><i class="cl">column</i><i class="ln"><i class="wk">week</i><i class="pn">panel</i></i></div>
 <p>The owner's ask as written. The column never reflows: lists stay where they are. Cost: on a 1440 laptop the week is always behind the panel.</p><ul><li>Files: <code>displace.css</code> (min 1624), <code>stack.css</code> (max 1623.98)</li></ul></div>
-<div class="opt"><h3>B &middot; Always stack</h3>
+<div class="opt"><h3>B &middot; Always stack <span class="tag" style="margin:0">Not chosen</span></h3>
 <div class="wfl">Every width</div><div class="wf"><i class="rl">rail</i><i class="cl">column</i><i class="ln"><i class="wk">week</i><i class="pn">panel</i></i></div>
 <div class="wfl">&nbsp;</div><div class="wf" style="height:6px;visibility:hidden"></div>
 <p>One behaviour everywhere, nothing shifts, even on a 4K screen. Cost: wide monitors have room that is not used, and This week is hidden when it could be seen.</p><ul><li>Files: <code>stack.css</code> only</li></ul></div>
-<div class="opt"><h3>C &middot; Narrow the column, then stack</h3>
+<div class="opt"><h3>C &middot; Narrow the column, then stack <span class="tag" style="margin:0">Not chosen</span></h3>
 <div class="wfl">1448 px and wider</div><div class="wf"><i class="rl">rail</i><i class="cl" style="flex-basis:32%">column</i><i class="pn">panel</i><i class="wk">week</i></div>
 <div class="wfl">Under 1448</div><div class="wf"><i class="rl">rail</i><i class="cl">column</i><i class="ln"><i class="wk">week</i><i class="pn">panel</i></i></div>
 <p>Displaces on a 1440 to 1600 laptop too, by letting the column shrink from 736 to 560 while the panel is open. Cost: the lists reflow each time the panel opens, and the search box gets short.</p><ul><li>Files: <code>displace.css</code> and <code>push.css</code> (min 1448), <code>stack.css</code> (max 1447.98)</li></ul></div>
 </div>
-<p><b>Recommendation: A.</b> It matches the ask, keeps the page still, and the stack is simple to explain. If the owner wants the week visible on 1440 laptops, C is the answer and its cost is the reflow. B is the fallback if the shifting between modes feels busy.</p>
+<p><b>Chosen: A</b> (owner, 12 Oct 2026). B and C stay here as alternatives that were not chosen.</p>
 
 <h2>Keyboard (inside the window)</h2>
 <table class="kb"><tbody>
@@ -91,7 +91,7 @@ ol.dec,ul.q{max-width:92ch;color:var(--muted);padding-left:22px}ol.dec li,ul.q l
 <tr><td><kbd>U</kbd> <kbd>D</kbd> <kbd>S</kbd> <kbd>Z</kbd></td><td>Use one, Used up, Add to shopping, Undo (items).</td></tr>
 <tr><td><kbd>P</kbd> <kbd>O</kbd> <kbd>S</kbd></td><td>Add to plan, Open recipe, Add the missing to the list (ideas).</td></tr>
 <tr><td><kbd>W</kbd></td><td>Bring This week forward, or the panel back. Only when stacked.</td></tr>
-<tr><td><kbd>Ctrl</kbd>/<kbd>Cmd</kbd> + <kbd>Enter</kbd></td><td>Close the panel (the X does the same). Plain Esc closes nothing, as everywhere on desktop (see open question).</td></tr>
+<tr><td><kbd>Ctrl</kbd>/<kbd>Cmd</kbd> + <kbd>Esc</kbd></td><td>Close the panel (the X does the same). Plain Esc stays reserved for leaving full screen and closes nothing; this is the item edit flyout's shortcut.</td></tr>
 <tr><td><kbd>M</kbd> &nbsp; <kbd>?</kbd></td><td>Back to the first row; the list of keys.</td></tr></tbody></table>
 
 <h2>States</h2>
@@ -99,7 +99,7 @@ ol.dec,ul.q{max-width:92ch;color:var(--muted);padding-left:22px}ol.dec li,ul.q l
 <div class="sl">
 <a href="home.html?ideas=unavailable">Ideas not available</a><a href="home.html?ideas=loading">Ideas loading</a>
 <a href="home.html?open=item:cucumbers&detail=loading">Panel loading</a><a href="home.html?open=recipe:lime-tacos&detail=error">Idea could not load</a>
-<a href="home.html?open=item:cucumbers&week=planned">Item, week planned</a><a href="home.html?open=recipe:cuke-salad">Idea, all in</a>
+<a href="home.html?open=item:spring-onion&week=planned">Used in line (week planned)</a><a href="home.html?open=item:jalapeno&week=planned">No Used in line</a><a href="home.html?open=recipe:cuke-salad">Idea, all in</a>
 <a href="home.html?open=item:bueno">Out item</a><a href="home.html?open=item:limes&child=edit">Edit tucked in</a><a href="home.html?open=item:limes&child=history">History tucked in</a>
 <a href="home.html?open=item:cucumbers&front=week&week=planned">Stacked, week in front</a><a href="home.html?q=jalap&sres=1">Search: jalape&ntilde;o</a><a href="home.html?opt=b&open=recipe:lime-tacos">Option B</a><a href="home.html?opt=c&open=item:bueno">Option C</a>
 </div>
@@ -107,16 +107,16 @@ ol.dec,ul.q{max-width:92ch;color:var(--muted);padding-left:22px}ol.dec li,ul.q l
 <h2>What this loads</h2>
 <p>Default path of Home: <code>theme.css</code>, <code>flyout.css</code> (the item flyout's styles, already shared), <code>home.css</code>, <code>data.js</code>, <code>home.js</code>, plus <b>one</b> size file chosen by media query (<code>stack.css</code> or <code>displace.css</code>; <code>push.css</code> only for C). No images. <b>Deferred:</b> <code>recipe.js</code> on the first Cooking idea opened, <code>child.js</code> on the first E or comma. A real build would also fetch an item's or idea's detail only when it is opened, never with the list (the owner's rule for desktop). <code>layout.js</code> exists only so one page can show three options; the build drops it.</p>
 
-<h2>Open questions for the owner</h2>
+<h2>Confirmed by the owner (12 Oct 2026, by voice)</h2>
 <ul class="q">
-<li><b>Breakpoint.</b> 1624 (A) means a 1440 or 1536 laptop always stacks. Is that fine, or is 1448 (C, with the column narrowing) better? A wrong guess costs one number and, for C, a reflow.</li>
-<li><b>Peek width.</b> 6 px proposed (4 to 8 is 1 to 2 mm). Larger is easier to hit; smaller looks tidier.</li>
-<li><b>Panel and the search dropdown.</b> The dropdown lives inside the column, so the panel never sits over it. Proposed: choosing a result closes the dropdown and opens the panel, the box keeps what was typed. Alternative: the dropdown stays open so the next result is one click away.</li>
-<li><b>Recipe variant content.</b> Proposed: title, time and serves, how many are in stock, uses up, Add to plan, Open recipe, then missing or short lines with Add to list, then what is in the pantry. Is "uses up" the right fourth tile? Should the steps be here?</li>
-<li><b>Esc.</b> You wrote Esc to close. Desktop closes with Ctrl or Cmd + Enter and the X, because plain Esc leaves full screen. Keep that here too, or let Esc close the panel on Home only?</li>
-<li><b>Edit and History</b> open tucked under the header inside the panel, never as a fourth column, so the layout never needs a fourth lane. OK?</li>
-<li><b>Phone and tablet</b> keep the bottom sheet; this is desktop only.</li>
+<li><b>Breakpoint 1624 px</b>, peek <b>6 px</b>, layout A the default.</li>
+<li><b>Search:</b> choosing a result closes the dropdown and opens the panel at once.</li>
+<li><b>Recipe panel:</b> &ldquo;missing&rdquo; means completely out of stock; &ldquo;running low&rdquo; is not missing. A short &ldquo;Why this fits&rdquo; blurb, no recipe steps.</li>
+<li><b>Close is Ctrl or Cmd + Esc</b>; plain Esc stays for leaving full screen and does not close the panel. <b>W</b> brings This week forward.</li>
+<li><b>Edit and History</b> swap the same panel's content in place; no fourth column.</li>
+<li><b>&ldquo;Used in&rdquo;</b> on the item panel: only ideas planned in the rolling next 7 days, by weekday (&ldquo;Used in: prawn curry Tuesday&rdquo;), omitted if none. Try <a href="home.html?open=item:spring-onion&amp;week=planned">Spring onion stalks with a planned week</a> and <a href="home.html?open=item:jalapeno&amp;week=planned">Jalape&ntilde;o peppers</a> (no line).</li>
 </ul>
+<p><b>Still open:</b> nothing from the first round. Not drawn: Shopping results in the search dropdown, and the real Edit and History forms (stand-ins; the real ones are in the item edit flyout mockup).</p>
 </div>
 <script>
 (function(){
