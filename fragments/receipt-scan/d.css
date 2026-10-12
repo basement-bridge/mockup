@@ -1,0 +1,69 @@
+/* Option D, One at a time. A deck: one big card per doubtful line, the exact matches folded into one card above it. Tokens only. */
+.d-ready{border:1px solid var(--sage);border-radius:var(--r-card);background:var(--surface);margin-bottom:14px}
+.d-ready>summary,.d-dec>summary{list-style:none;cursor:pointer}
+.d-ready>summary::-webkit-details-marker,.d-dec>summary::-webkit-details-marker{display:none}
+.d-ready>summary{display:flex;align-items:center;gap:12px;padding:12px 14px;min-height:64px}
+.d-rg{width:40px;height:40px;border-radius:50%;background:var(--added-bg);color:var(--added-fg);display:grid;place-items:center;flex:none}
+.d-rt{flex:1;display:flex;flex-direction:column;min-width:0}.d-rt small{color:var(--muted);font-size:13px}
+.d-em{font-size:18px;letter-spacing:2px;white-space:nowrap;overflow:hidden;max-width:96px}
+.d-ready[open]>summary svg:last-child,.d-dec[open]>summary svg{transform:rotate(180deg)}
+.d-rl{list-style:none;margin:0;padding:0 14px 8px}
+.d-rl li{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--border)}
+.d-rl li button:not(.rs-b):not(.rs-b *){display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;width:100%;min-height:var(--tap)}
+.d-rl span{font-size:13px;color:var(--muted);display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap}.d-rl b.mute{color:var(--muted);text-decoration:line-through}
+.d-rl li>div{display:flex;flex-direction:column;gap:3px;min-width:0}
+.d-deck{display:flex;flex-direction:column;gap:12px;align-items:stretch;margin-top:4px}
+.d-dots{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.d-dot{width:var(--tap);height:var(--tap);position:relative;margin:-12px 0}
+.d-dot::after{content:"";position:absolute;left:50%;top:50%;width:10px;height:10px;border-radius:50%;border:2px solid var(--border);transform:translate(-50%,-50%);background:var(--bg)}
+.d-dot[data-k=top]::after,.d-dot[data-k=newb]::after,.d-dot[data-k=new]::after{background:var(--sage);border-color:var(--sage)}
+.d-dot[data-k=skip]::after{border-style:dotted}
+.d-dot[data-cur=true]::after{width:16px;height:16px;border-color:var(--accent);background:var(--accent)}
+.d-card{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:calc(var(--r-card) + 6px);padding:18px;display:flex;flex-direction:column;gap:14px;box-shadow:0 14px 34px -18px rgba(0,0,0,.5);touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.d-card.drag{transition:none;cursor:grabbing}
+.d-card[data-dir=yes]{border-color:var(--sage)}.d-card[data-dir=no]{border-color:var(--accent)}
+.d-sw{position:absolute;top:14px;display:flex;align-items:center;gap:6px;font-weight:800;opacity:0;pointer-events:none}
+.d-yes{left:16px;color:var(--sage)}.d-no{right:16px;color:var(--accent)}
+.d-card[data-dir=yes] .d-yes,.d-card[data-dir=no] .d-no{opacity:1}
+.d-cnt{font-size:13px;color:var(--muted)}.d-cnt b{color:var(--fg);font-size:15px}
+.d-print{position:relative;padding:14px 16px;background:var(--bg);border:1px dashed var(--border);border-radius:var(--r-ctl);font:700 18px var(--body);letter-spacing:.06em;text-transform:uppercase;font-variant-numeric:tabular-nums}
+.d-pr{position:absolute;right:14px;top:14px;font:600 14px var(--body);color:var(--muted)}
+.d-how{display:flex;gap:8px;font-size:13px;margin-top:-6px}.d-how svg{margin-top:2px}
+.d-lead{display:flex;flex-direction:column;gap:8px;padding:14px;border:1.5px solid var(--border);border-radius:var(--r-card)}
+.d-card[data-st=fuzzy] .d-lead{border-color:var(--accent)}
+.d-lead.none{border:1.5px dashed var(--danger)}
+.d-who .rs-em{width:52px;height:52px;font-size:26px}.d-who .rs-itx b{font-size:1.2rem}
+.d-cf{display:flex;align-items:center;gap:10px;font-weight:700;font-size:14px}.d-cf em{font-style:normal}
+.d-cf .cf.pips i{width:13px;height:13px}
+.d-or{display:flex;flex-direction:column;gap:2px}
+.d-q{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.d-two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.d-swipe{text-align:center;font-size:13px}
+.d-dec{border:1px solid var(--border);border-radius:var(--r-card);margin-top:12px;background:var(--surface)}
+.d-dec>summary{min-height:var(--tap);display:flex;align-items:center;justify-content:space-between;padding:0 14px;font-weight:600}
+.d-all{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:28px 16px;border:1px dashed var(--sage);border-radius:var(--r-card)}
+.d-all .rs-b{align-self:stretch}
+.d-big{width:64px;height:64px;border-radius:50%;background:var(--added-bg);color:var(--added-fg);display:grid;place-items:center}
+.d-q2{list-style:none;margin:0 0 6px;padding:0}
+.d-q2 li{border-bottom:1px solid var(--border)}
+.d-q2 li[data-cur=true]{background:var(--bg);box-shadow:inset 3px 0 0 var(--accent)}
+.d-q2 button{width:100%;display:flex;align-items:center;gap:10px;padding:8px 6px;min-height:56px}
+.d-qt{flex:1;display:flex;flex-direction:column;min-width:0}.d-qt small{font:600 11px var(--body);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+/* the entry: a camera in the item box (RS-D1, option D) */
+.rs-cam{height:44px;min-width:44px;padding:0 10px;border-radius:var(--r-ctl);border:1px solid var(--accent);color:var(--accent);display:inline-flex;align-items:center;justify-content:center;gap:6px}
+
+/* D's skin for the other steps: big cards */
+.cap2 .rs-b.big{min-height:132px;flex-direction:column;gap:10px;font-size:1.15rem}
+.cap2 .rs-b.big svg{width:40px;height:40px}
+.cap2 .rs-b:not(.pri){min-height:var(--tap);font-size:15px}
+.cap2 .rs-b:not(.pri) svg{width:20px;height:20px}
+.rs-tips li{font-size:13px}
+.rs-paper.big{box-shadow:10px 10px 0 -3px var(--surface),10px 10px 0 -2px var(--border),20px 20px 0 -6px var(--surface),20px 20px 0 -5px var(--border);margin-bottom:22px}
+.rs-counts{grid-template-columns:1fr;gap:10px}
+.rs-counts div{flex-direction:row;align-items:center;gap:14px;padding:14px 16px;border-radius:var(--r-card)}
+.rs-counts b{font-size:2.2rem;min-width:56px}
+.rs-counts [data-k=new]{background:var(--added-bg)}.rs-counts [data-k=new] b,.rs-counts [data-k=new] span{color:var(--added-fg)}
+.rs-counts [data-k=top]{border-color:var(--sage)}
+.rs-drop{min-height:260px;border-width:3px}
+.cap2 .rs-b:not(.pri){flex-direction:row}
+.rs-counts span{flex:1}
