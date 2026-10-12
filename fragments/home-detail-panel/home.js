@@ -55,7 +55,7 @@ function drawIdeas() {
   }
   $("#ideas").innerHTML = h;
 }
-function miss(r) { var n = r.lines.filter(function (l) { return l.s !== "have"; }).length; return n ? '<span class="rmiss">' + n + " missing</span>" : '<span class="rok">&#10003; All in</span>'; }
+function miss(r) { var n = r.lines.filter(function (l) { return l.s === "miss"; }).length; return n ? '<span class="rmiss">' + n + " missing</span>" : '<span class="rok">&#10003; All in</span>'; }
 HDP.missText = miss;
 function drawSoon() {
   $("#soon").innerHTML = '<div class="sh">On the way out</div>' + D.soon.map(itemRow).join("") + '<div class="sh">Running low</div>' + D.low.map(itemRow).join("");
@@ -91,11 +91,22 @@ function ib(act, label, icon, key, on) {
   return '<button type="button" class="ib' + (on ? " on" : "") + '" data-act="' + act + '" aria-label="' + label + '"' + (on ? ' aria-expanded="true"' : "") + ' title="' + label + (key ? " (" + key + ")" : "") + '">' + sv(icon, 20) + (key ? kbd(key, "cap") : "") + "</button>";
 }
 HDP.ib = ib;
-function closeBtn() { return '<button type="button" class="x ib" data-act="close" aria-label="Close" title="Close (' + MOD + ' Enter)">' + sv(IC.x, 20) + "</button>"; }
+function closeBtn() { return '<button type="button" class="x ib" data-act="close" aria-label="Close" title="Close (' + MOD + ' Esc)">' + sv(IC.x, 20) + "</button>"; }
 HDP.closeBtn = closeBtn;
 function tile(ic, val, cap, prompt, sr) {
   return val === null ? '<button type="button" class="tl empty" data-act="tile">' + sv(IC.plus, 20) + "<span>" + prompt + "</span></button>" : '<button type="button" class="tl" data-act="tile"' + (sr ? ' aria-label="' + esc(sr) + '"' : "") + ">" + ic + (val === "" ? "" : "<b>" + val + "</b>") + (cap ? "<span>" + cap + "</span>" : "") + "</button>";
 }
+/* "Used in": only ideas actually planned in the rolling next 7 days (today and the six days after), by day of the week, never a date. A rolling week cannot hold two of the same weekday. None planned: no line. */
+var DAYNAME = { Mon: "Monday", Tue: "Tuesday", Wed: "Wednesday", Thu: "Thursday", Fri: "Friday", Sat: "Saturday", Sun: "Sunday" };
+function usedIn(it) {
+  var out = [];
+  D.days.forEach(function (d, i) {
+    var name = S.plan[i] || (S.week === "planned" ? D.planned[i] : ""), u = name && D.planUses[name];
+    if (u && u.indexOf(it.id) > -1) out.push(name.charAt(0).toLowerCase() + name.slice(1) + " " + DAYNAME[d.split(" ")[0]]);
+  });
+  return out.length ? '<p class="usedin" id="d-usedin"><b>Used in:</b> ' + esc(out.join(", ")) + "</p>" : "";
+}
+HDP.usedIn = usedIn;
 function itemHtml(it) {
   var out = it.level === "Out", sp = it.spot && it.spot !== "Anywhere" ? " &middot; " + esc(it.spot) : "";
   var head = '<div class="top shead" id="d-head"><button type="button" class="ph" data-act="edit" aria-label="Emoji ' + it.emoji + '. Change it in Edit" title="Change the emoji (in Edit)">' + it.emoji + '</button><div class="sid"><h2 class="nm2" id="d-title" tabindex="-1" title="' + esc(it.name) + '">' + esc(it.name) + "</h2>" + (qtyOf(it) ? '<span class="shq">' + esc(qtyOf(it)) + "</span>" : "") + '<span class="shw"><b>' + esc(it.area) + "</b>" + sp + "</span>" + (it.list !== null ? '<span class="onl">On your list</span>' : "") + '</div><div class="hacts" role="group" aria-label="Item actions">' + ib("edit", "Edit item", IC.edit, "E", S.child === "edit") + ib("history", "History", IC.history, ",", S.child === "history") + closeBtn() + "</div></div>";
@@ -108,7 +119,7 @@ function itemHtml(it) {
   var acts = (out ? '<button type="button" class="btn ghost" disabled>' + sv(IC.tick) + "<span>Marked Out</span></button>" : '<button type="button" class="btn ghost" data-act="usedup">' + sv(IC.tick) + "<span>Used up</span>" + kbd("D") + "</button>")
     + (it.list !== null ? '<button type="button" class="btn ghost" disabled>' + sv(IC.tick) + "<span>On your list</span></button>" : '<button type="button" class="btn pri" data-act="shop">' + sv(IC.cart) + "<span>Add to shopping</span>" + kbd("S") + "</button>");
   var hint = '<p class="phint hint">' + (it.counted ? kbd("U") + " use one " : "") + kbd("D") + " used up " + kbd("S") + " shopping list " + kbd("E") + " edit " + kbd(",") + " history</p>";
-  return head + '<div class="tiles tiles4">' + t.join("") + "</div>" + buy + '<div class="sacts">' + acts + "</div>" + hint + '<div id="d-child"></div>';
+  return head + '<div class="tiles tiles4">' + t.join("") + "</div>" + buy + '<div class="sacts">' + acts + "</div>" + usedIn(it) + hint + '<div id="d-child"></div>';
 }
 function skeleton() {
   return '<div class="top shead"><span class="ph sk" style="border:0"></span><div class="sid"><span class="sk" style="height:20px;width:70%"></span><span class="sk" style="height:14px;width:40%;margin-top:8px"></span></div><div class="hacts">' + closeBtn() + '</div></div><div class="tiles tiles4"><span class="sk" style="height:72px"></span><span class="sk" style="height:72px"></span><span class="sk" style="height:72px"></span><span class="sk" style="height:72px"></span></div><span class="sk" style="height:48px"></span><span class="sk" style="height:48px"></span><p class="sr-only" role="status">Loading</p>';
@@ -201,7 +212,7 @@ function pulse() { var p = $("#peek"); if (app.dataset.mode === "stack" && S.fro
 function planIdea(r) {
   var i = 0; while (i < 7 && (S.plan[i] || (S.week === "planned" && D.planned[i]))) i++;
   if (i > 6) { toast("The week is full. Open the plan to swap a day."); return; }
-  S.plan[i] = r.name; drawWeek(); pulse(); toast(esc(r.name) + " is on the plan for " + D.days[i] + ".", function () { delete S.plan[i]; drawWeek(); });
+  S.plan[i] = r.name; D.planUses[r.name] = r.uses; drawWeek(); if (cur()) drawDetail(); pulse(); toast(esc(r.name) + " is on the plan for " + D.days[i] + ".", function () { delete S.plan[i]; drawWeek(); });
 }
 HDP.planIdea = planIdea;
 function act(a, el) {
@@ -221,7 +232,7 @@ function act(a, el) {
   else if (a === "quickplan") planIdea(idea(el.dataset.id));
   else if (a === "plan") { if (K.kind === "recipe") planIdea(idea(K.id)); }
   else if (a === "openrecipe") toast("Opens the recipe in the Recipes tab (not drawn here).");
-  else if (a === "addmissing") { var r = K.kind === "recipe" ? idea(K.id) : null; if (r) { var m = r.lines.filter(function (x) { return x.s !== "have"; }).length; if (m) { r.added = true; drawDetail(); toast(m + " missing " + (m === 1 ? "item is" : "items are") + " on your shopping list.", function () { r.added = false; drawDetail(); }); } } }
+  else if (a === "addmissing") { var r = K.kind === "recipe" ? idea(K.id) : null; if (r) { var m = r.lines.filter(function (x) { return x.s === "miss"; }).length; if (m) { r.added = true; drawDetail(); toast(m + " missing " + (m === 1 ? "item is" : "items are") + " on your shopping list.", function () { r.added = false; drawDetail(); }); } } }
   else if (a === "addline") { var r2 = idea(K.id); var ln = r2.lines[+el.dataset.n]; ln.added = true; drawDetail(); toast(esc(ln.n) + " is on your shopping list.", function () { ln.added = false; drawDetail(); }); }
   else if (a === "undo") { if (S.undo) { var u = S.undo; S.undo = null; u(); var t = $(".toast"); if (t) t.remove(); } }
   else if (a === "help") help(true);
@@ -244,17 +255,17 @@ qin.addEventListener("blur", function () { setTimeout(function () { if (document
 qin.addEventListener("keydown", function (e) {
   if (e.key === "ArrowDown" || e.key === "ArrowUp") { if (!flat.length) return; e.preventDefault(); S.cur = (S.cur + (e.key === "ArrowDown" ? 1 : -1) + flat.length) % flat.length; drawSearch(); }
   else if (e.key === "Enter" && !(e.ctrlKey || e.metaKey)) { var k = flat[S.cur >= 0 ? S.cur : 0]; if (k) { e.preventDefault(); open(k); qin.blur(); } }
-  else if (e.key === "Escape") { if (S.q && !$("#sres").hidden) { closeSearch(); } else { qin.value = ""; S.q = ""; qin.blur(); } }
+  else if (e.key === "Escape" && !(e.ctrlKey || e.metaKey)) { if (S.q && !$("#sres").hidden) { closeSearch(); } else { qin.value = ""; S.q = ""; qin.blur(); } }
 });
 
-/* ---------- keyboard (the item edit flyout's keys; close is Ctrl or Cmd plus Enter) ---------- */
+/* ---------- keyboard (the item edit flyout's keys; close is Ctrl or Cmd plus Esc; plain Esc closes nothing) ---------- */
 function rows() { return $$("#main .hrow"); }
 function move(d) {
   var r = rows(), keys = r.map(function (b) { return b.dataset.open; }), i = keys.indexOf(S.open);
   var n = i < 0 ? (d > 0 ? 0 : keys.length - 1) : Math.max(0, Math.min(keys.length - 1, i + d));
   open(keys[n], { focusRow: true }); var b = $('[data-open="' + keys[n] + '"]', $("#main")); if (b) b.scrollIntoView({ block: "nearest" });
 }
-var HELP = [["/", "Search"], ["↑ ↓  or  J K", "Move through the rows and open each one"], ["M", "Back to the first row in the column"], ["E", "Edit the item (opens under the header)"], [",", "History of the item"], ["U  D  S", "Use one, Used up, Add to shopping (items)"], ["P  O  S", "Add to plan, Open recipe, Add the missing to the list (ideas)"], ["W", "Bring This week forward, or the panel back (when stacked)"], ["Z", "Undo"], [MOD + " Enter", "Close the panel (plain Esc closes nothing)"], ["?  or  H", "This list"]];
+var HELP = [["/", "Search"], ["↑ ↓  or  J K", "Move through the rows and open each one"], ["M", "Back to the first row in the column"], ["E", "Edit the item (opens under the header)"], [",", "History of the item"], ["U  D  S", "Use one, Used up, Add to shopping (items)"], ["P  O  S", "Add to plan, Open recipe, Add the missing to the list (ideas)"], ["W", "Bring This week forward, or the panel back (when stacked)"], ["Z", "Undo"], [MOD + " Esc", "Close the panel (plain Esc stays for leaving full screen and closes nothing)"], ["?  or  H", "This list"]];
 function help(on) {
   var k = $("#kb"); if (!on) { k.hidden = true; return; }
   k.innerHTML = '<div class="kbc"><div class="kbh"><h2>Shortcuts on Home</h2><button type="button" class="x ib" id="kbx" aria-label="Close the list">' + sv(IC.x, 20) + "</button></div>" + HELP.map(function (r) { return '<div class="kbr"><span class="kk">' + r[0].split(/\s{2}or\s{2}|\s{2}/).map(function (x) { return "<kbd>" + esc(x) + "</kbd>"; }).join(" ") + "</span><span>" + r[1] + "</span></div>"; }).join("") + "</div>";
@@ -262,7 +273,7 @@ function help(on) {
 }
 document.addEventListener("keydown", function (e) {
   var t = e.target, typing = t.closest && t.closest("input,textarea,select,[contenteditable]");
-  if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); if (!$("#kb").hidden) help(false); else close(); return; }
+  if (e.key === "Escape" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); if (!$("#kb").hidden) help(false); else close(); return; }
   if (e.ctrlKey || e.metaKey || e.altKey) return;
   if (typing) return;
   if (!$("#kb").hidden) { if (e.key === "?" || e.key.toLowerCase() === "h") { e.preventDefault(); help(false); } return; }

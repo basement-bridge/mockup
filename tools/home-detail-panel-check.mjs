@@ -1,8 +1,9 @@
 // Behaviour and layout check for fragments/home-detail-panel (headless Chromium). Prints PASS or FAIL per check; optional screenshots.
 // Usage:  python3 -m http.server 8123 &   then   node tools/home-detail-panel-check.mjs [--shots=docs/screenshots]
 // Needs playwright-core and Chromium at PLAYWRIGHT_BROWSERS_PATH (/opt/pw-browsers).
+// Covers (owner confirmed 12 Oct 2026): close is Ctrl or Cmd plus Escape, plain Escape closes nothing; the dropdown closes on select; missing = out of stock only; Why this fits; the Used in line (weekday, rolling 7 days, absent when none).
 // Covers: the four entry points open one panel; wide = panel in the lane and This week shifted right and fully visible; narrow = panel over This week with the peek (default 6 px) showing and clickable;
-// the breakpoints of options A (1624), B (never), C (1448); switching item to item without closing; close by X and Ctrl+Enter, plain Esc closes nothing; E, comma, W, P keys; recipe view; states; no console errors; no sideways scroll.
+// the breakpoints of options A (1624), B (never), C (1448); switching item to item without closing; close by X and Ctrl+Escape, plain Esc closes nothing; E, comma, W, P keys; recipe view; states; no console errors; no sideways scroll.
 import { chromium } from "playwright-core";
 import { mkdirSync } from "node:fs";
 const BASE = process.env.BASE || "http://localhost:8123/fragments/home-detail-panel/home.html";
@@ -25,6 +26,7 @@ await p.click("#q"); await p.keyboard.type("jalap"); await p.waitForTimeout(200)
 ok(await p.locator("#sres .i").count() === 2 && await p.locator("#sres .g").count() === 2, "search: jalap finds the item and a recipe, grouped Pantry and Recipes (accent folded)");
 await snap(p, "1440-search-dropdown");
 await p.click("#sres .i"); await p.waitForTimeout(300);
+ok(await p.locator("#sres[hidden]").count() === 1 && await p.locator("#detail[hidden]").count() === 0, "selecting a result closes the dropdown and opens the panel at once");
 ok(await p.locator("#d-title").textContent() === "Jalapeño peppers", "entry 1 (search result) opens the item");
 ok(await p.evaluate(() => document.getElementById("app").dataset.mode) === "stack", "1440 is stack in option A");
 let wk = await box(p, "#week"), dt = await box(p, "#detail");
@@ -49,9 +51,9 @@ ok(wk.w < dt.w && Math.abs(dt.r - wk.r - 6) < 1.5, "week in front: it is 6 px na
 await snap(p, "1440-week-in-front");
 await p.click("#peek"); await p.waitForTimeout(300);
 ok(await p.evaluate(() => document.getElementById("app").dataset.front) === "detail", "clicking the peek sends it back");
-await p.keyboard.press("Escape"); ok(await p.locator("#detail[hidden]").count() === 0, "plain Esc closes nothing");
-await p.keyboard.press("Control+Enter"); await p.waitForTimeout(200);
-ok(await p.locator("#detail[hidden]").count() === 1, "Ctrl+Enter closes the panel");
+await p.keyboard.press("Escape"); ok(await p.locator("#detail[hidden]").count() === 0, "plain Escape closes nothing (kept for leaving full screen)");
+await p.keyboard.press("Control+Escape"); await p.waitForTimeout(200);
+ok(await p.locator("#detail[hidden]").count() === 1, "Ctrl+Escape closes the panel");
 await p.click("[data-open='item:limes']"); await p.click("#detail .x"); ok(await p.locator("#detail[hidden]").count() === 1, "the X closes the panel");
 ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth), "no sideways scroll at 1440");
 ok(p.errs.length === 0, "no console errors (" + p.errs.join("|") + ")");
@@ -59,6 +61,36 @@ ok(p.errs.length === 0, "no console errors (" + p.errs.join("|") + ")");
 await p.click("[data-open='recipe:lime-tacos']"); await p.keyboard.press("p"); await p.waitForTimeout(200);
 ok(await p.locator(".toast").textContent().then(t => /Mon 12/.test(t)), "P adds the idea to the first empty day (Mon 12 when nothing is planned) with an Undo toast");
 await p.keyboard.press("z"); ok(await p.locator("#week .wd").nth(0).textContent().then(t => /Nothing planned/.test(t)), "Z undoes it");
+await p.context().close();
+
+
+// 1b. confirmed 12 Oct: Meta+Escape too, missing means out of stock only, why-this-fits, Used in
+p = await page(1440, 800, "open=recipe:lime-tacos");
+await p.keyboard.press("Meta+Escape"); await p.waitForTimeout(200);
+ok(await p.locator("#detail[hidden]").count() === 1, "Cmd+Escape closes the panel too");
+await p.click("#q"); await p.keyboard.press("Escape"); await p.click("[data-open='item:limes']"); await p.keyboard.press("Escape");
+ok(await p.locator("#detail[hidden]").count() === 0, "plain Escape (outside the box) leaves the panel open");
+await p.keyboard.press("Control+Escape"); ok(await p.locator("#detail[hidden]").count() === 1, "Ctrl+Escape closes an item panel");
+await p.click("[data-open='recipe:lime-tacos']"); await p.waitForTimeout(300);
+ok(await p.locator("#ideas").textContent().then(t => /1 missing/.test(t)), "lime tacos: 1 missing (coriander); the running-low limes do not count");
+ok(await p.locator("#detail .rl.miss").count() === 1 && await p.locator("#detail .rl.short").count() === 1, "recipe panel: one missing line, the limes line is in stock and marked running low");
+ok(await p.locator("#detail .rsec").first().textContent().then(t => /Missing/.test(t) && !/short/i.test(t)), "section is called Missing, not Missing or short");
+ok(await p.locator("#detail .fit").textContent().then(t => /Why this fits/.test(t) && t.length < 260), "short Why this fits blurb");
+ok(await p.locator("#detail").textContent().then(t => !/Step 1|Method|Instructions/.test(t)), "no recipe steps in the panel");
+await p.keyboard.press("s"); ok(await p.locator(".toast").textContent().then(t => /1 missing item is/.test(t)), "S adds only the missing line to the list");
+await p.context().close();
+p = await page(1440, 800, "open=item:spring-onion&week=planned");
+ok(await p.locator("#d-usedin").textContent().then(t => t === "Used in: prawn curry Tuesday, egg fried rice Friday"), "Used in line by weekday for a planned item: " + await p.locator("#d-usedin").textContent());
+ok(await p.locator("#d-usedin").textContent().then(t => !/\d/.test(t)), "Used in has no dates");
+await snap(p, "1440-used-in"); 
+await p.evaluate(() => window.HDP.open("item:jalapeno")); ok(await p.locator("#d-usedin").count() === 0, "no Used in line for an item no planned meal uses");
+await p.click("[data-open='item:cucumbers']"); ok(await p.locator("#d-usedin").count() === 0, "no Used in line for cucumbers (only an unplanned idea uses them)");
+await p.context().close();
+p = await page(1440, 800, "open=item:spring-onion");
+ok(await p.locator("#d-usedin").count() === 0, "nothing planned: no Used in line");
+await p.click("[data-open='recipe:cuke-salad']"); await p.keyboard.press("p"); await p.click("[data-open='item:spring-onion']"); await p.waitForTimeout(200);
+ok(await p.locator("#d-usedin").textContent().then(t => /cucumber and spring onion salad Monday/.test(t)), "planning an idea adds it to Used in (Monday)");
+await p.keyboard.press("e"); await p.waitForTimeout(400); ok(await p.locator("#detail #ief-child").count() === 1 && await p.locator("#detail").count() === 1, "Edit swaps in the same panel (same slot)");
 await p.context().close();
 
 // 2. wide: displace

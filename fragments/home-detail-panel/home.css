@@ -103,8 +103,8 @@ body{overflow-x:hidden}
 .hrow .t,.rl .t{min-width:0}
 .rl .mk{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;flex:none;color:var(--on-accent);background:var(--cue)}
 .rl .mk svg{fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
-.rl.short .mk{background:var(--accent)}.rl.miss .mk{background:none;border:2px dashed var(--danger);color:var(--danger)}
-.rl.short small,.rl.miss small{color:var(--danger)}
+.rl.miss .mk{background:none;border:2px dashed var(--danger);color:var(--danger)}
+.rl.miss small{color:var(--danger)}
 .rl .go{color:var(--accent);font-weight:700;font-size:13px;min-height:var(--tap);padding:0 6px}
 .rsec{display:flex;align-items:center;justify-content:space-between;margin-top:4px}
 .rsec .link{font-size:13px}
@@ -132,3 +132,7 @@ body{overflow-x:hidden}
 .kbr span:last-child{color:var(--muted);flex:1}
 .x svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
 .x{width:var(--tap);height:var(--tap);border-radius:50%;border:1px solid var(--border);background:var(--bg);display:inline-grid;place-items:center}
+
+.usedin{margin:0;font-size:14px;color:var(--fg)}.usedin b{color:var(--muted);font-weight:700}
+.fit{margin:0;padding:10px 12px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);color:var(--fg);font-size:14px}.fit b{display:block;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.rl.have small em{font-style:normal;color:var(--accent);font-weight:700}
