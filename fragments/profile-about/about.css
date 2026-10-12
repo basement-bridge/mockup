@@ -1,5 +1,6 @@
 /* The obscured About line (decision SW-83, PROPOSED). Written as the build has it: lift this block into Kitchie's profile menu CSS (profile-menu.ts MENU_CSS) as is.
-   Theme tokens only. Deliberately quiet: small, muted, softened, tucked at the very bottom, no link, no button. */
-.about{display:flex;flex-wrap:wrap;justify-content:center;gap:2px 0;margin:20px 0 4px;padding:0;font-size:11px;line-height:1.6;letter-spacing:.04em;color:var(--muted);opacity:.7}
-.about span{white-space:nowrap}
-.about span+span::before{content:"\00b7";margin:0 .6em}
+   Theme tokens only. Deliberately quiet: small, muted, softened, tucked at the very bottom, no link, no button. `.pm` is the profile screen's own wrapper, so the line
+   outranks the screen's `.pm p` text size. */
+.pm .about{display:flex;flex-wrap:wrap;justify-content:center;gap:2px 0;margin:20px 0 4px;padding:0;font-size:11px;line-height:1.6;letter-spacing:.04em;color:var(--muted);opacity:.7}
+.pm .about span{white-space:nowrap}
+.pm .about span+span::before{content:"\00b7";margin:0 .6em}

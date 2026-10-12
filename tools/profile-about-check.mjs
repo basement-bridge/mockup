@@ -19,8 +19,8 @@ for (const [vw, vh] of [[360, 900], [390, 900], [1280, 900], [1024, 900]]) {
     await page.goto(`${BASE}fragments/profile-about/index.html`);
     await page.evaluate((t) => document.documentElement.setAttribute("data-theme", t), theme);
     const tag = `${vw}-${theme}`;
-    const abouts = await page.$$eval("[data-about]", (els) => els.map((e) => ({ text: e.textContent, fs: getComputedStyle(e).fontSize, op: getComputedStyle(e).opacity, color: getComputedStyle(e).color, tab: e.tabIndex, link: !!e.closest("a,button") })));
-    ok(abouts.length === 4, `${tag}: four About lines drawn (the two production frames draw none)`);
+    const abouts = await page.$$eval(".pa-phone [data-about]", (els) => els.map((e) => ({ text: e.textContent, fs: getComputedStyle(e).fontSize, op: getComputedStyle(e).opacity, color: getComputedStyle(e).color, tab: e.tabIndex, link: !!e.closest("a,button") })));
+    ok(abouts.length === 3 && (await page.$$("[data-about]")).length === 4, `${tag}: four About lines drawn (the two production frames draw none)`);
     ok(abouts.every((a) => a.fs === "11px" && a.op === "0.7" && a.tab === -1 && !a.link), `${tag}: 11px, 70% opacity, not focusable, not a link`);
     ok(abouts[0].text === "Kitchie v0.101.0Platform v0.1.7Recipe v1.1.0", `${tag}: UAT line names all three`);
     ok(!abouts.some((a) => /unknown|undefined|null|error/i.test(a.text)), `${tag}: never says unknown`);

@@ -20,6 +20,7 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body)}
 .pm .back{color:var(--accent);font-size:15px;font-weight:600;text-decoration:none}
 .pm .mbody{display:flex;flex-direction:column;gap:16px}
 .pm .who{display:flex;gap:12px;align-items:center}.pm .av{width:56px;height:56px;border-radius:50%;background:var(--surface);border:1px solid var(--border);display:grid;place-items:center;font-weight:700;font-size:20px}
+.pm p{margin:0;color:var(--muted);font-size:15px;line-height:1.45}.pm .small{font-size:13px}
 .pm b.nm{font-size:20px}.pm .small{margin:0;font-size:13px;color:var(--muted)}
 .pm .danger{display:flex;align-items:center;min-height:48px;font:600 16px/1.5 var(--body);color:var(--danger)}
 .pa-none{margin:20px 0 4px;min-height:1px}

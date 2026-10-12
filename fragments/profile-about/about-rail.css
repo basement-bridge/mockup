@@ -1,4 +1,4 @@
 /* The same line in the desktop Profile window's left gutter (1024px and up). Its own file, as the build keeps desktop-only CSS apart (Kitchie desktop-css/profile.ts):
-   under the section list, left-aligned with the rows, one release per line. */
-.pf-nav .about{flex-direction:column;justify-content:flex-start;align-items:flex-start;gap:0;margin:12px 0 0;padding:0 8px}
-.pf-nav .about span+span::before{content:none}
+   under the section list, left-aligned with the rows, one release per line, no dots. The window is not inside `.pm`, so this is the whole rule, not an override. */
+.pf-nav .about{display:flex;flex-direction:column;align-items:flex-start;gap:0;margin:12px 0 0;padding:0 8px;font-size:11px;line-height:1.6;letter-spacing:.04em;color:var(--muted);opacity:.7}
+.pf-nav .about span{white-space:nowrap}
