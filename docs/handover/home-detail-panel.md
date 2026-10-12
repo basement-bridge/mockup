@@ -57,7 +57,7 @@ All four open the same panel. An item shows the Pantry flyout, byte for byte in 
 | 150 | Recipe panel: a short "Why this fits" blurb, no steps | Confirmed 12 Oct |
 | 151 | "Missing" = completely out of stock; running low is not missing | Confirmed 12 Oct |
 | 152 | Edit and History swap the same panel's content in place | Confirmed 12 Oct |
-| 153 | "Used in" line on the item panel: ideas planned in the rolling next 7 days, by weekday, omitted if none | Confirmed 12 Oct |
+| 153 | "Used in" line on the item panel: ideas planned in the rolling next 7 days, by weekday first, then recipe ("Used in: Tuesday, prawn curry"), omitted if none | Confirmed 12 Oct |
 
 ## 6. Open questions
 

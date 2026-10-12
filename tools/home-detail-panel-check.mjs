@@ -80,7 +80,7 @@ ok(await p.locator("#detail").textContent().then(t => !/Step 1|Method|Instructio
 await p.keyboard.press("s"); ok(await p.locator(".toast").textContent().then(t => /1 missing item is/.test(t)), "S adds only the missing line to the list");
 await p.context().close();
 p = await page(1440, 800, "open=item:spring-onion&week=planned");
-ok(await p.locator("#d-usedin").textContent().then(t => t === "Used in: prawn curry Tuesday, egg fried rice Friday"), "Used in line by weekday for a planned item: " + await p.locator("#d-usedin").textContent());
+ok(await p.locator("#d-usedin").textContent().then(t => t === "Used in: Tuesday, prawn curry \u00b7 Friday, egg fried rice"), "Used in line by weekday for a planned item: " + await p.locator("#d-usedin").textContent());
 ok(await p.locator("#d-usedin").textContent().then(t => !/\d/.test(t)), "Used in has no dates");
 await snap(p, "1440-used-in"); 
 await p.evaluate(() => window.HDP.open("item:jalapeno")); ok(await p.locator("#d-usedin").count() === 0, "no Used in line for an item no planned meal uses");
@@ -89,7 +89,7 @@ await p.context().close();
 p = await page(1440, 800, "open=item:spring-onion");
 ok(await p.locator("#d-usedin").count() === 0, "nothing planned: no Used in line");
 await p.click("[data-open='recipe:cuke-salad']"); await p.keyboard.press("p"); await p.click("[data-open='item:spring-onion']"); await p.waitForTimeout(200);
-ok(await p.locator("#d-usedin").textContent().then(t => /cucumber and spring onion salad Monday/.test(t)), "planning an idea adds it to Used in (Monday)");
+ok(await p.locator("#d-usedin").textContent().then(t => t === "Used in: Monday, cucumber and spring onion salad"), "planning an idea adds it to Used in, weekday first (Monday)");
 await p.keyboard.press("e"); await p.waitForTimeout(400); ok(await p.locator("#detail #ief-child").count() === 1 && await p.locator("#detail").count() === 1, "Edit swaps in the same panel (same slot)");
 await p.context().close();
 
