@@ -15,7 +15,6 @@
 .sh-seg{display:flex;gap:var(--sp-1);flex-wrap:wrap}
 .sh-seg button{min-height:var(--tap);padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--bg);font-weight:700;font-size:13px;white-space:nowrap}
 .sh-seg button[aria-pressed=true]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
-.sh-date{max-width:220px}
 
 /* a row with an icon and two lines: what they see, keep as it is */
 .sh-row{display:flex;align-items:center;gap:var(--sp-3);min-height:56px;padding:var(--sp-2) 0;border-top:1px solid var(--border)}
@@ -79,3 +78,13 @@
 .trunc{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .sh .sw2{min-height:var(--tap)}
 .sh-h .kbd{align-self:center}
+
+/* C: the optional invite. Same wording and ticket as the manage slice's allowance ("2 of 3 invites left") and invite line. */
+.sh-inv{border-top:1px solid var(--border);align-items:flex-start;padding:var(--sp-3) 0}
+.sh-inv .sh-ri{margin-top:2px}
+.sh-inv .sw2{flex:none;align-self:center}
+.sh-inv .sh-cnt{margin-top:2px;font-weight:700;color:var(--accent)}
+.sh-inv[data-state=limit] .sh-ri,.sh-inv[data-state=limit] b{color:var(--muted)}
+.sh-inv .sw2[disabled]{opacity:.5;cursor:not-allowed}
+.sh-invm{display:flex;align-items:flex-start;gap:var(--sp-2);font-size:13px;font-weight:700;color:var(--accent)}
+.sh-invm .ic{margin-top:1px;flex:none}

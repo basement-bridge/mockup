@@ -164,3 +164,28 @@ button.rb-rr{cursor:pointer}
 @media (prefers-reduced-motion:reduce){.rb-fly{transition-duration:0s!important;transition-delay:0s!important}}
 .fl-share .rb-fb{padding-top:var(--sp-3)}
 .fl-share .fl-lead{margin-top:0}
+
+/* ---- invites (13 Oct 2026): the allowance card and invite line are manage's (rs-allow, rs-inv); the opt-in row, count, invite note and error box are the sheet's (sh-inv, sh-cnt, sh-invm, sh-err) ---- */
+.rs-inv{display:flex;align-items:center;gap:6px;min-height:var(--tap);font-size:13px;font-weight:700;color:var(--accent)}
+.rs-inv .ic{width:16px;height:16px}
+.rs-inv>span{flex:1;min-width:0}
+.rs-inv[data-inv=claimed]{color:var(--sage)}
+.rs-inv[data-inv=ended],.rs-inv[data-inv=withdrawn]{color:var(--muted);font-weight:600}
+.rs-allow{display:flex;flex-wrap:wrap;align-items:center;gap:2px 8px;margin:0 0 var(--sp-3);padding:var(--sp-2) var(--sp-3);border-radius:var(--r-ctl);background:var(--bg);border:1px solid var(--border);font-size:13px}
+.rs-allow .ic{width:18px;height:18px;color:var(--accent)}
+.rs-allow b{font-size:14px}
+.rs-allow span{flex:1 1 12rem;color:var(--muted)}
+.rs-allow[data-allow="0"] b{color:var(--accent)}
+.sh-inv{align-items:flex-start;padding:var(--sp-3) 0}
+.sh-inv .sh-ri{margin-top:2px}
+.sh-inv .sw2{flex:none;align-self:center}
+.sh-cnt{margin-top:2px;font-weight:700;color:var(--accent)!important}
+.sh-inv[data-state=limit] .sh-ri,.sh-inv[data-state=limit] b{color:var(--muted)}
+.fl-frame .sw2[disabled]{opacity:.5;cursor:not-allowed}
+.sh-invm{display:flex;align-items:flex-start;gap:var(--sp-2);font-size:13px;font-weight:700;color:var(--accent)}
+.sh-invm .ic{margin-top:1px;flex:none}
+.sh-err{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-3);border:2px solid var(--danger);border-radius:var(--r-card);background:color-mix(in srgb,var(--danger) 10%,var(--surface))}
+.sh-err .sh-ri{color:var(--danger);border-color:var(--danger)}
+.sh-err small{display:block;color:var(--muted);font-size:12.5px;line-height:1.35}
+.sh-err b{display:block;font-size:14.5px}
+.sh-err .btn{flex:none;min-height:var(--tap)}
