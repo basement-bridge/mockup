@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Recipe share links, manage</title>
+<link rel="stylesheet" href="../../../theme.css"><link rel="stylesheet" href="../../../shared.css"><link rel="stylesheet" href="manage.css">
+<script src="../../../theme.js"></script><script src="manage.js" defer></script>
+</head>
+<body><div class="wrap">
+<a class="back" href="../../../">&lsaquo; All mockups</a>
+<h1>Recipe share links: manage</h1>
+<p>Fragment, mockup only: nothing is sent or saved, every link is a placeholder at kitchie.example. One slice of sharing a recipe: <b>seeing, renaming and cancelling</b> the links a recipe has out. Where the Share button sits, the create sheet and the recipient's page are other slices.</p>
+<p style="margin-top:8px;font-size:14px"><b style="color:var(--fg)">Owner, voice, 13 October 2026:</b> "Somewhere in the recipe there should be information about the pending URLs that people can go and cancel." Links can be renamed, like the shopping link. No sign-in for the recipient, multi-use, expiring; the intent is growth, so show that a link is being used. Full words, rationale and open questions in <a href="notes.md" style="color:var(--accent);font-weight:700;text-decoration:underline">notes.md</a>.</p>
+
+<div class="rs-controls">
+  <div><div class="rs-lab">Where the links live</div><div class="rs-seg" role="group" aria-label="Option">
+    <button type="button" data-opt="A" aria-pressed="true">A · Section</button><button type="button" data-opt="B" aria-pressed="false">B · Share panel</button><button type="button" data-opt="C" aria-pressed="false">C · Card</button></div></div>
+  <div><div class="rs-lab">State</div><div class="rs-seg" id="rs-states" role="group" aria-label="State"></div></div>
+  <div><div class="rs-lab">Drawn on</div><div class="rs-seg" role="group" aria-label="Form factor">
+    <button type="button" data-form="phone" aria-pressed="false">Phone</button><button type="button" data-form="desktop" aria-pressed="false">Desktop</button></div></div>
+</div>
+
+<section class="rs-why" data-why="A"><h2>A · A Shared section in the scroll <span class="rs-rec">Recommended</span></h2>
+<p><b>Where:</b> a section after Photos in the continuous scroll, with a "Shared 3" chip in the jump row. Both appear only when the recipe has a link to show; with none, the page is exactly as it is today.</p>
+<p><b>Why:</b> it is literally "somewhere in the recipe", it costs the cooking job nothing (it is at the end, and absent for most recipes), and the list is a plain page section that needs no new container on phone or desktop. The chip is the way in when links exist.</p>
+<p><b>Trade-off:</b> you scroll or tap the chip to reach it, and nothing on the page top says links are out (the chip count is the only cue).</p></section>
+<section class="rs-why" data-why="B" hidden><h2>B · A panel from the Share button</h2>
+<p><b>Where:</b> the Share button carries a count badge; tapping it opens a bottom sheet on phone and a side panel on desktop (the Pantry item panel's lane), with "New link" and the list. The Share button would then be the one door for making and managing.</p>
+<p><b>Why:</b> zero cost on the page, one place for create and manage, and the only option with a real empty state ("Not shared with anyone yet").</p>
+<p><b>Trade-off:</b> one tap deeper, and the information is not in the recipe until you open it; on desktop the panel takes the width the column was using.</p></section>
+<section class="rs-why" data-why="C" hidden><h2>C · A card in the recipe's details</h2>
+<p><b>Where:</b> a card between the title block and the ingredients: "Shared outside the household, 3 links out", opening in place into the list. Absent when nothing is shared.</p>
+<p><b>Why:</b> always seen, so the sender notices a link is about to end without looking for it.</p>
+<p><b>Trade-off:</b> it pushes Ingredients down in the cooking job even when closed, for a feature used once in a while. This is the one that fights DESIGN.md section 1.</p></section>
+
+<div class="rs-stagebox"><div id="rs-stage" style="width:100%;display:flex;justify-content:center"></div></div>
+<p class="rs-cap" id="rs-cap" role="status"></p>
+
+<section class="sec"><div class="lbl">What is drawn</div>
+<p>Every control is live in the frame. <b>Tap a name</b> (pencil) to rename: Enter or Save keeps it, Escape or Keep leaves it. <b>Copy link</b> copies the placeholder. <b>Cancel link</b> is one tap, no confirm; the row becomes an Undo line for 5 minutes (the repo's photo removal pattern, P-D17), then the link stays cancelled and leaves the list. <b>Ended</b> links are greyed: Renew gives the same link another 7 days; Remove from view hides it, with the same Undo. Nothing is ever hard deleted.</p></section>
+<section class="sec"><div class="lbl">Default path and deferred</div>
+<p>Default path loads the theme, <code>shared.css</code>, <code>manage.css</code> and <code>manage.js</code>, no images, no network. Only the form factor on screen is fetched: <code>phone.js</code> or <code>desktop.js</code> is requested on first show, the other never (DESIGN.md sections 6 and 7). A cancel, rename or renew changes the row in place; the page never reloads (section 6a).</p></section>
+</div></body></html>
