@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex">
+<title>Recipe page with Share, desktop</title>
+<!-- Desktop host (1024px and up): left rail, the recipe page as the off-centre column, the flyout lane on the right, as in the Pantry
+     (fragments/item-edit-flyout/desktop.css). The Recipes tab is not drawn on desktop yet (handoff X13), so the column is the real recipe page
+     (recipe/detail.html) widened to the column; desktop.js adds the Share entry for the chosen option and opens the stub in the lane. -->
+<link rel="stylesheet" href="../../../theme.css"><link rel="stylesheet" href="share.css"><link rel="stylesheet" href="desktop.css">
+<script src="../../../theme.js"></script>
+</head><body data-no-theme-fab>
+<div class="app">
+<nav class="rail" aria-label="Main"><span class="brand">Kitchie</span>
+<a class="nv" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4M8 14h3"/></svg>Plan</a>
+<a class="nv" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="4" width="12" height="3.5" rx="1.5"/><path d="M7 7.5h10a2 2 0 0 1 2 2V18a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 5 18V9.5a2 2 0 0 1 2-2z"/></svg>Pantry</a>
+<a class="nv on" href="#" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 14a4 4 0 0 1-1-7.7 4.5 4.5 0 0 1 8.6-1.3 4 4 0 0 1 3.4 5.5A4 4 0 0 1 17 14v5H7z"/><path d="M7 17h10"/></svg>Recipes</a>
+<a class="nv" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="19" r="1.4"/><circle cx="17" cy="19" r="1.4"/><path d="M3 4h2l2.4 11h10.2L20 8H6.2"/></svg>Shopping</a>
+</nav>
+<main class="col"><iframe id="f" title="Recipe page" src=""></iframe></main>
+<aside class="panel" id="lane" aria-label="Flyout"><p class="idle">Share, Edit and History open here.</p></aside>
+</div>
+<script src="share.js"></script><script src="desktop.js"></script>
+</body></html>

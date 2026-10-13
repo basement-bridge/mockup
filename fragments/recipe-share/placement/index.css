@@ -1,0 +1,22 @@
+/* Share placement: this fragment page's own layout only. Nothing here is for the build. Frames are the real pages in this folder. */
+.shr-opts{margin-top:var(--sp-4)}
+.shr-opt-sec{margin-top:var(--sp-6);padding-top:var(--sp-4);border-top:1px solid var(--border)}
+.shr-opt-sec>h2{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-family:var(--head);font-size:1.4rem;margin:0}
+.shr-opt-sec>h2 b{display:inline-grid;place-items:center;width:36px;height:36px;border-radius:50%;background:var(--accent);color:var(--on-accent);font-size:1rem}
+.shr-opt-sec .why{margin-top:var(--sp-2);font-size:14px;color:var(--fg)}
+.shr-opt-sec .why b{color:var(--fg)}
+.shr-opt-sec ul{margin:6px 0 0;padding-left:18px;font-size:14px}.shr-opt-sec li{margin:4px 0}
+.shr-states{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,390px),390px));gap:var(--sp-4) var(--sp-3);margin-top:var(--sp-3);justify-content:start}
+.shr-states figure{margin:0}
+.shr-states figcaption,.shr-dt-cap{font-size:12.5px;font-weight:700;color:var(--muted);margin:0 0 6px}
+.shr-states iframe{display:block;width:100%;max-width:390px;height:720px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--bg)}
+.shr-dt-cap{margin-top:var(--sp-4)}
+.shr-dt{position:relative;width:100%;aspect-ratio:1280/720;overflow:hidden;border:1px solid var(--border);border-radius:var(--r-card)}
+.shr-dt iframe{position:absolute;left:0;top:0;width:1280px;height:720px;border:0;transform-origin:0 0;background:var(--bg)}
+.shr-links{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:6px;font-size:13px}.shr-links a{text-decoration:underline;text-underline-offset:3px;color:var(--accent);font-weight:600}
+.shr-said{margin-top:var(--sp-4);padding:14px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface)}
+.shr-said ul{margin:6px 0 0;padding-left:18px}.shr-said li{margin:6px 0;font-size:14px}
+.shr-rec{margin-top:var(--sp-4);padding:14px;border:2px solid var(--accent);border-radius:var(--r-card)}
+.shr-tbl{width:100%;border-collapse:collapse;font-size:13px;margin-top:var(--sp-2)}
+.shr-tbl th,.shr-tbl td{padding:6px 8px;border-top:1px solid var(--border);text-align:left;vertical-align:top}
+.shr-tbl-wrap{overflow-x:auto}

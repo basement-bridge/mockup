@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Recipe share, where the button lives</title>
+<link rel="stylesheet" href="../../../theme.css"><link rel="stylesheet" href="../../../shared.css"><link rel="stylesheet" href="index.css"><script src="../../../theme.js"></script>
+</head><body>
+<div class="wrap">
+<a class="back" href="../../../">&lsaquo; All mockups</a>
+<h1>Recipe share: where the Share button lives</h1>
+<p>Fragment, one slice of recipe sharing. The job: <b>send a recipe I am happy with to someone outside the household</b>, with an expiring link they can open without signing in. This slice answers one question only: where does the entry point sit on the recipe page. The links panel (active links, rename, cancel) and the create sheet are other slices; here tapping the entry opens a labelled stub.</p>
+<div class="shr-said"><b>The owner's words</b> <span class="tag">voice, 13 October 2026</span>
+<ul>
+<li>A recipe he is happy with can be shared with people outside the household through an expiring signed link, in spirit like the shopping-list link.</li>
+<li>Recipients need no sign-in to view, and it works the same if they are signed in. Links are multi-use, not single-use, and they expire. &ldquo;The intent is growth.&rdquo;</li>
+<li>&ldquo;Find the best place to put a share button&rdquo; at the top of the recipe, and mock up a couple of ways to share it.</li>
+<li>Links can be renamed. Pending and active links are visible inside the recipe, where they can be cancelled.</li>
+</ul></div>
+<div class="shr-rec"><b>Recommendation: A, the icon in the top row.</b> It is the top of the recipe, it joins the recipe's other actions, it carries the count of live links, and on desktop it earns a word and a key (S). B is the louder alternative if growth matters more than a tidy top row. C is shown as the baseline of doing nothing loud.</div>
+<p class="q">The frames are the real recipe page (<code>recipe/detail.html</code>) with only the Share entry added by script, so every other pixel is the settled page. Three states in every option: no links, two active links (the count), and a recipe with several versions (the versions strip docks above the jump row). Egg fried rice has three versions; Chickpea curry has one. All links are placeholders (kitchie.example).</p>
+<section class="shr-opt-sec" id="opt-a" aria-labelledby="h-a">
+<h2 id="h-a"><b>A</b>Icon in the top row <span class="tag new">Recommended default</span></h2>
+<p class="why">Phone: a share icon sits with the star, History and Edit, with the count of active links on it. Desktop: the same slot has room for a word, so it reads Share with a count and the key hint S.</p>
+<ul><li>It is the top of the recipe, where the owner asked for it, and it reads as an action on this recipe like Star, History and Edit.</li><li>Same family as the item flyout's pencil and clock icons; tapping it opens in place (sheet on phone, flyout lane on desktop).</li><li>The count on the icon answers 'is this recipe out there?' without opening anything, and the row is the same with one version or several.</li><li><b>Trade-off.</b> The top row is now five controls on a phone (Recipes, star, clock, pencil, share, dots). It fits at 390px because the title is empty there; 360px needs checking.</li><li>An icon alone is easy to miss for a growth feature; the desktop word and the count help, the phone relies on the count and the icon being familiar.</li></ul>
+<h3 style="margin-top:18px;font-size:1rem">Phone, 390px</h3>
+<div class="shr-states">
+<figure><figcaption>No links yet, three versions</figcaption><iframe loading="lazy" src="phone.html?opt=a&links=0" title="No links yet, three versions, option A"></iframe></figure>
+<figure><figcaption>Two active links, three versions</figcaption><iframe loading="lazy" src="phone.html?opt=a&links=2" title="Two active links, three versions, option A"></iframe></figure>
+<figure><figcaption>Two active links, one version</figcaption><iframe loading="lazy" src="phone.html?opt=a&links=2&id=cur" title="Two active links, one version, option A"></iframe></figure>
+<figure><figcaption>Tapped: the stub it opens</figcaption><iframe loading="lazy" src="phone.html?opt=a&links=2&open=1" title="Tapped: the stub it opens, option A"></iframe></figure>
+</div>
+<p class="shr-dt-cap">Desktop, 1280px (two links, three versions). Scaled down here; open it full size and press S to open the flyout.</p>
+<div class="shr-dt" data-dt><iframe loading="lazy" src="desktop.html?opt=a&links=2" title="Desktop, option A, two links"></iframe></div>
+<div class="shr-links"><a href="desktop.html?opt=a&links=0">Desktop, no links</a><a href="desktop.html?opt=a&links=2&open=1">Desktop, flyout open</a><a href="desktop.html?opt=a&links=2&id=cur">Desktop, one version</a><a href="phone.html?opt=a&links=2">Phone full size</a></div>
+</section>
+<section class="shr-opt-sec" id="opt-b" aria-labelledby="h-b">
+<h2 id="h-b"><b>B</b>Chip in the title block </h2>
+<p class="why">A labelled Share chip joins the time and serves controls under the title, with the count on it. Same chip on phone and desktop (desktop adds the key hint).</p>
+<ul><li>Says the word Share, so it is the easiest to find and the best for growth.</li><li>Sits next to Serves, so it reads as one of the recipe's own settings and is close to the thumb on a phone.</li><li><b>Trade-off.</b> It scrolls away with the title; the top row is where the other actions stay put.</li><li>Third item in a row that already holds time and the serving stepper, so a long time or portions label wraps it to a second line on a narrow phone.</li><li>It is not in the top row, so it does not match the owner's 'at the top' as literally as A.</li></ul>
+<h3 style="margin-top:18px;font-size:1rem">Phone, 390px</h3>
+<div class="shr-states">
+<figure><figcaption>No links yet, three versions</figcaption><iframe loading="lazy" src="phone.html?opt=b&links=0" title="No links yet, three versions, option B"></iframe></figure>
+<figure><figcaption>Two active links, three versions</figcaption><iframe loading="lazy" src="phone.html?opt=b&links=2" title="Two active links, three versions, option B"></iframe></figure>
+<figure><figcaption>Two active links, one version</figcaption><iframe loading="lazy" src="phone.html?opt=b&links=2&id=cur" title="Two active links, one version, option B"></iframe></figure>
+<figure><figcaption>Tapped: the stub it opens</figcaption><iframe loading="lazy" src="phone.html?opt=b&links=2&open=1" title="Tapped: the stub it opens, option B"></iframe></figure>
+</div>
+<p class="shr-dt-cap">Desktop, 1280px (two links, three versions). Scaled down here; open it full size and press S to open the flyout.</p>
+<div class="shr-dt" data-dt><iframe loading="lazy" src="desktop.html?opt=b&links=2" title="Desktop, option B, two links"></iframe></div>
+<div class="shr-links"><a href="desktop.html?opt=b&links=0">Desktop, no links</a><a href="desktop.html?opt=b&links=2&open=1">Desktop, flyout open</a><a href="desktop.html?opt=b&links=2&id=cur">Desktop, one version</a><a href="phone.html?opt=b&links=2">Phone full size</a></div>
+</section>
+<section class="shr-opt-sec" id="opt-c" aria-labelledby="h-c">
+<h2 id="h-c"><b>C</b>Quiet: More menu and a status line </h2>
+<p class="why">No new button. Share is the first row in the More menu, and a line under the title (Shared with 2 links) appears only when links are out, opening the same panel.</p>
+<ul><li>Keeps the top row exactly as settled and adds no weight when nobody shares.</li><li>The status line shows up when it matters (links are live and can be cancelled).</li><li><b>Trade-off.</b> Hidden behind the three dots for the first share: worst for the owner's goal of growth.</li><li>With no links yet, nothing on the page hints that sharing exists.</li></ul>
+<h3 style="margin-top:18px;font-size:1rem">Phone, 390px</h3>
+<div class="shr-states">
+<figure><figcaption>No links yet, three versions</figcaption><iframe loading="lazy" src="phone.html?opt=c&links=0" title="No links yet, three versions, option C"></iframe></figure>
+<figure><figcaption>Two active links, three versions</figcaption><iframe loading="lazy" src="phone.html?opt=c&links=2" title="Two active links, three versions, option C"></iframe></figure>
+<figure><figcaption>Two active links, one version</figcaption><iframe loading="lazy" src="phone.html?opt=c&links=2&id=cur" title="Two active links, one version, option C"></iframe></figure>
+<figure><figcaption>Tapped More: the new row</figcaption><iframe loading="lazy" src="phone.html?opt=c&links=2&open=more" title="Tapped More: the new row, option C"></iframe></figure>
+</div>
+<p class="shr-dt-cap">Desktop, 1280px (two links, three versions). Scaled down here; open it full size and press S to open the flyout.</p>
+<div class="shr-dt" data-dt><iframe loading="lazy" src="desktop.html?opt=c&links=2" title="Desktop, option C, two links"></iframe></div>
+<div class="shr-links"><a href="desktop.html?opt=c&links=0">Desktop, no links</a><a href="desktop.html?opt=c&links=2&open=1">Desktop, flyout open</a><a href="desktop.html?opt=c&links=2&id=cur">Desktop, one version</a><a href="phone.html?opt=c&links=2">Phone full size</a></div>
+</section>
+
+<section class="shr-opt-sec" id="loads"><h2>What loads</h2>
+<p class="why">Default path: the recipe page as it is today plus one 2 KB stylesheet and a small script for the entry. The stub (links list, sheet or lane) is built only when the entry is tapped, in place with no navigation (DESIGN.md 6a). The desktop host, its stylesheet and the key handler are fetched only at 1024px and up; a phone never loads them. No images, no network.</p></section>
+<p class="q" style="margin-top:var(--sp-4)">Written notes, proposals and open questions: <a href="notes.md" style="text-decoration:underline">notes.md</a>.</p>
+</div>
+<script>
+/* scale the desktop frames to the width they are drawn in */
+(function(){var fit=function(el){var f=el.querySelector("iframe");f.style.transform="scale("+el.clientWidth/1280+")"};
+var els=[].slice.call(document.querySelectorAll("[data-dt]"));var go=function(){els.forEach(fit)};go();
+if(window.ResizeObserver)els.forEach(function(e){new ResizeObserver(go).observe(e)});else addEventListener("resize",go)})();
+</script>
+</body></html>
