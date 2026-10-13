@@ -24,20 +24,20 @@ for (const [scheme, w, h, touch] of [["dark", 390, 844, true], ["dark", 360, 740
     await S(p, "window.__plan.showWeek('d13')"); await sleep(600);
     await tap(p.locator(".hd [data-clearw]")); await sleep(500);
     const b1 = await blocked(p), md = await mealDays(p);
-    ok(`${tag} C: Clear week removes the planned meals from today on (past Mon 12 stays)`, md.filter(d => d >= "d13" && d <= "d18").length === 0 && md.includes("d12") && md.filter(d => d < "d12").length === mealsBefore.filter(d => d < "d12").length, md);
-    ok(`${tag} C: it removes the one-off Not cooking mark (Sat 17 is open again)`, !b1.d17, b1);
+    ok(`${tag} C: Clear week with Mine removes my own planned meals from today on (Thu 15 Tuna salad, Fri 16 leftovers), keeps the household's dinners (Tue 13, Wed 14, Thu 15) and the past (Mon 12) (203)`, md.filter(d => d === "d16").length === 0 && md.filter(d => d === "d15").length === 1 && md.includes("d13") && md.includes("d14") && md.includes("d12") && md.filter(d => d < "d12").length === mealsBefore.filter(d => d < "d12").length, md);
+    ok(`${tag} C: Mine leaves a household mark alone (Sat 17 stays Not cooking)`, b1.d17 === "once", b1);
     ok(`${tag} C: a usual day opened this week goes back to Not cooking every week (Fri 16, Sun 18)`, b1.d16 === "usual" && b1.d18 === "usual", b1);
     ok(`${tag} C: next week and the routine itself are untouched (Thu 22 one-off, Sun 25 usual, later usual days)`, b1.d22 === "once" && b1.d25 === "usual" && b1.d30 === "usual" && b1.n01 === "usual" && b1.n08 === "usual" && !b1.d23, b1);
-    const msg = await S(p, "window.__plan.S.note && window.__plan.S.note.msg"); ok(`${tag} C: the day says what went, including the household meals and that usual days stay`, /Cleared \d+ meals? \(\d+ household\)/.test(msg) && /Not cooking change/.test(msg) && /Usual days off stay/.test(msg), msg);
-    ok(`${tag} C: the Clear icon is Undo in place for the window`, (await p.locator(".hd .flipundo").count()) === 1 && /clear/i.test(await p.locator(".hd .flipundo").innerText()));
+    const msg = await S(p, "window.__plan.S.note && window.__plan.S.note.msg"); ok(`${tag} C: the day says what went (my plan), that usual days stay and that household meals stay`, /Cleared 2 meals and 2 Not cooking changes/.test(msg) && /my plan/.test(msg) && /Usual days off stay/.test(msg) && /3 household meals stay/.test(msg), msg);
+    ok(`${tag} C: the Clear icon is Undo in place for the window`, (await p.locator(".hd .flipundo").count()) === 1 && /clear, mine/i.test(await p.locator(".hd .flipundo").innerText()));
     await tap(p.locator(".hd .flipundo")); await sleep(400);
     ok(`${tag} C: Undo restores meals and Not cooking exactly`, (await state(p)) === pre);
     await tap(p.locator(".hd [data-clearw]")); await sleep(2800);
-    ok(`${tag} C: after the window nothing is left to clear: the icon is dimmed and says so`, (await p.locator(".hd [data-clearw]").isDisabled()) && /Nothing to clear/.test(await p.locator(".hd [data-clearw]").getAttribute("title")));
+    ok(`${tag} C: after the window nothing of mine is left to clear: the icon is dimmed and says so`, (await p.locator(".hd [data-clearw]").isDisabled()) && /Nothing of mine to clear/.test(await p.locator(".hd [data-clearw]").getAttribute("title")));
     ok(`${tag} C: no page errors`, errs.length === 0, errs); await p.close(); }
   // next week: one-off removed, the opened Friday goes back, the usual Sunday stays
   { const p = await open(ctx, "", errs); await S(p, "window.__plan.showWeek('d19')"); await sleep(700);
-    await S(p, "(function () { var A = window.__plan, S = A.S; var c = JSON.parse(JSON.stringify(S.meals[1])); c.id = 'n-x'; c.day = 'd20'; S.meals.push(c); A.render(false); })()");
+    await S(p, "(function () { var A = window.__plan, S = A.S; var c = JSON.parse(JSON.stringify(S.meals[4])); c.id = 'n-x'; c.day = 'd20'; S.meals.push(c); A.render(false); })()");
     await tap(p.locator(".hd [data-clearw]")); await sleep(500); const b = await blocked(p), md = await mealDays(p);
     ok(`${tag} C: next week: meal gone, Thu 22 one-off gone, opened Fri 23 back to usual, Sun 25 stays usual`, !md.includes("d20") && !b.d22 && b.d23 === "usual" && b.d25 === "usual", [md, b]);
     ok(`${tag} C: this week was not touched by clearing next week`, md.includes("d14") && b.d17 === "once"); await p.close(); }
@@ -55,7 +55,7 @@ for (const [scheme, w, h, touch] of [["dark", 390, 844, true], ["dark", 360, 740
     await S(p, "window.__plan.showWeek('d13')"); await sleep(600); await tap(p.locator(".hd [data-clearw]")); await sleep(400); ok(`${tag} C: Clear week resets it to the routine (usual)`, (await blocked(p)).d16 === "usual"); await p.close(); }
   // the tip under a routine day that has a meal is derived, not stored
   { const p = await open(ctx, "", errs); ok(`${tag} C: Fri 16 (usual day off, cooking this week) keeps its line, and only in Mine`, /Usual day off, cooking this week/.test(await p.locator("#d-d16").innerText())); await p.close();
-    const q = await open(ctx, "who=everyone", errs); ok(`${tag} C: not shown in Everyone`, !/Usual day off, cooking this week/.test(await q.locator("#d-d16").innerText())); await q.close(); }
+    const q = await open(ctx, "who=household", errs); ok(`${tag} C: not shown in Household`, !/Usual day off, cooking this week/.test(await q.locator("#d-d16").innerText())); await q.close(); }
   // Copy last week respects the routine
   { const p = await open(ctx, "", errs); await S(p, "window.__plan.showWeek('d19')"); await sleep(700); await tap(p.locator(".hd [data-copy]")); await sleep(500); const md = await mealDays(p), b = await blocked(p);
     ok(`${tag} C: Copy last week fills open nights only: not Thu 22 (one-off), not Sun 25 (usual day off)`, !md.includes("d22") && !md.includes("d25") && b.d25 === "usual" && md.includes("d20"), md);

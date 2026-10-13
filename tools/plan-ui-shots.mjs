@@ -1,4 +1,4 @@
-// Regenerates the Plan UI review phone screenshots for decisions 154 to 199 (13 Oct 2026; 190 to 199 are the scope, counts, header and routine batch, p-sc-*) into fragments/plan-ui-review/img/.
+// Regenerates the Plan UI review phone screenshots for decisions 154 to 205 (13 Oct 2026; 190 to 205 are the scope, counts, header, routine, Household, Clear scope and read-only detail batch, p-sc-*) into fragments/plan-ui-review/img/.
 // Usage:  python3 -m http.server 8123 &   then   NODE_PATH=/opt/node22/lib/node_modules node tools/plan-ui-shots.mjs [--only=substring]
 // Dark theme (the default), headless Chromium, 390 x 844 and 360 x 740, JPEG. The ECG strip freezes the beat with the Web Animations API, so it is deterministic.
 import { createRequire } from "module";
@@ -22,9 +22,9 @@ for (const w of [390, 360]) cases.push([`p-open-card-${w}`, "demo=open&frame=5&c
 cases.push(["p-open-card-light-390", "demo=open&frame=5&cap=0", 390, 700, "light"], ["p-open-swipe-light-390", "demo=open&frame=6&cap=0", 390, 700, "light"], ["p-open-day-390", "dock=d19", 390, 700]);
 cases.push(["p-wk-light-1-390", "demo=week&frame=1&cap=0", 390, 700, "light"], ["p-wk-light-5-390", "demo=week&frame=5&cap=0", 390, 700, "light"], ["p-wk-light-9-390", "demo=week&frame=9&cap=0", 390, 700, "light"]);
 cases.push(["p-nc-light-1-390", "demo=nc&frame=1&cap=0", 390, 1000, "light"], ["p-nc-light-5-390", "demo=nc&frame=5&cap=0", 390, 600, "light"], ["p-nc-light-4-390", "demo=nc&frame=4&cap=0", 390, 600, "light"]);
-// 190 to 197: ?demo=scope, 7 frames (header; Priya view-only; count jump; Clear week; usual day card; far weeks; long hold to today)
-for (const w of [390, 360]) for (let n = 1; n <= 7; n++) cases.push([`p-sc-${n}-${w}`, `demo=scope&frame=${n}&cap=0`, w, n === 3 || n === 7 ? 3200 : 800]);
-cases.push(["p-sc-light-1-390", "demo=scope&frame=1&cap=0", 390, 800, "light"], ["p-sc-light-2-390", "demo=scope&frame=2&cap=0", 390, 800, "light"]);
+// 190 to 205: ?demo=scope, 11 frames (header; Priya view-only; count jump; Clear week with Mine (203); usual day card; far weeks; long hold to today (202); Clear week with Household (203); Priya's meal detail, read only (204); after Hold and Add there; long hold with a detail docked (202))
+for (const w of [390, 360]) for (let n = 1; n <= 11; n++) cases.push([`p-sc-${n}-${w}`, `demo=scope&frame=${n}&cap=0`, w, n === 3 || n === 7 || n === 11 ? 3200 : 800]);
+cases.push(["p-sc-light-1-390", "demo=scope&frame=1&cap=0", 390, 800, "light"], ["p-sc-light-2-390", "demo=scope&frame=2&cap=0", 390, 800, "light"], ["p-sc-light-8-390", "demo=scope&frame=8&cap=0", 390, 800, "light"], ["p-sc-light-10-390", "demo=scope&frame=10&cap=0", 390, 800, "light"]);
 const browser = await chromium.launch();
 for (const [name, q, w, wait, scheme] of cases) {
   if (only && !name.includes(only)) continue;

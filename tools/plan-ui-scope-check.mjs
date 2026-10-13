@@ -27,9 +27,9 @@ const contrast = (p, sel) => p.evaluate(sel => {
 for (const scheme of ["dark", "light"]) for (const [w, h, touch] of scheme === "dark" ? [[390, 844, true], [360, 740, true], [1280, 900, false]] : [[390, 844, true], [1280, 900, false]]) {
   const ctx = await browser.newContext({ viewport: { width: w, height: h }, hasTouch: touch, isMobile: touch, colorScheme: scheme }); const errs = []; const tag = `${scheme} ${touch ? "touch" : "mouse"} ${w}`;
   const tap = loc => touch ? loc.tap() : loc.click();
-  // Mine and Everyone (the household plan): open nights and Not cooking nights are interactive
-  for (const who of ["mine", "everyone"]) {
-    const p = await open(ctx, who === "mine" ? "" : "who=everyone", errs);
+  // Mine and Household (the household plan): open nights and Not cooking nights are interactive
+  for (const who of ["mine", "household"]) {
+    const p = await open(ctx, who === "mine" ? "" : "who=household", errs);
     ok(`${tag} ${who}: no eye, no dim on the person's own or the household plan`, (await p.locator(".vo, .vonly").count()) === 0);
     const od = p.locator('.od[data-od-b="d18"]'); await od.scrollIntoViewIfNeeded(); await tap(od); await sleep(450);
     ok(`${tag} ${who}: an open night opens the light card (Ask AI and Surprise me)`, (await p.locator("#lite [data-ask]").count()) === 1 && (await p.locator("#lite [data-surprise]").count()) === 1);
@@ -37,7 +37,7 @@ for (const scheme of ["dark", "light"]) for (const [w, h, touch] of scheme === "
     const c = await center(p, '.od[data-od-b="d18"]'); await swipe(ctx, p, touch, c.x - 60, c.y, 160); await sleep(250);
     ok(`${tag} ${who}: the right swipe marks an open night Not cooking`, await S(p, "!!window.__plan.S.blocked.d18"));
     await p.keyboard.press("z"); await sleep(150);
-    await p.close(); const p2 = await open(ctx, "nc=show" + (who === "mine" ? "" : "&who=everyone"), errs); const blk = p2.locator('.blk[data-openday="d17"]'); await blk.scrollIntoViewIfNeeded(); await tap(blk); await sleep(450);
+    await p.close(); const p2 = await open(ctx, "nc=show" + (who === "mine" ? "" : "&who=household"), errs); const blk = p2.locator('.blk[data-openday="d17"]'); await blk.scrollIntoViewIfNeeded(); await tap(blk); await sleep(450);
     ok(`${tag} ${who}: a Not cooking night opens the light card too (same rule)`, (await p2.locator("#lite .mko").count()) === 1);
     ok(`${tag} ${who}: Copy last week and Clear week are offered`, (await p2.locator(".hd [data-copy]").count()) === 1 && (await p2.locator(".hd [data-clearw]").count()) === 1);
     ok(`${tag} ${who}: no sideways scroll`, await S(p2, "document.documentElement.scrollWidth <= innerWidth")); await p2.close();
@@ -70,8 +70,8 @@ for (const scheme of ["dark", "light"]) for (const [w, h, touch] of scheme === "
     await hold(ctx, p, touch, c.x, c.y, 700); await sleep(200);
     ok(`${tag} ${who}: press and hold does not lift the tile`, (await p.locator(".mc.hold, .hand, .lifted").count()) === 0 && (await S(p, "!window.__plan.S.carry")) && (await snap(p)) === before);
     await p.keyboard.press("Escape"); await sleep(250); await tl.scrollIntoViewIfNeeded();
-    await tl.focus(); await p.keyboard.press("Shift+X"); await p.keyboard.press("x"); await p.keyboard.press("h"); await sleep(200);
-    ok(`${tag} ${who}: X, Shift X and H on a tile do nothing`, (await snap(p)) === before);
+    await tl.focus(); await p.keyboard.press("Shift+X"); await p.keyboard.press("x"); await sleep(200);
+    ok(`${tag} ${who}: X and Shift X on a tile do nothing (H is a hold, my own, and is checked in plan-ui-household-check.mjs)`, (await snap(p)) === before);
     ok(`${tag} ${who}: Copy last week, Clear week and the bulk strip are not drawn`, (await p.locator(".hd [data-copy], .hd [data-clearw], .hd .cpy, .wact").count()) === 0);
     ok(`${tag} ${who}: the view-only banner is still there`, (await p.locator(".rol").innerText()).includes(`${name}'s plan: view only`));
     const eyeBox = await p.locator(".pw-day:not(.past) .mc.vonly .vo").first().boundingBox(), tb = await tl.boundingBox(); ok(`${tag} ${who}: the eye sits inside its tile and is at least 14 px`, eyeBox.x >= tb.x && eyeBox.x + eyeBox.width <= tb.x + tb.width && eyeBox.y >= tb.y && eyeBox.width >= 14, [eyeBox, tb]);
@@ -88,9 +88,9 @@ for (const scheme of ["dark", "light"]) for (const [w, h, touch] of scheme === "
     // copy forward from a past tile is the one thing kept: it makes a new meal on a coming day, it does not change the past
     ok(`${tag} past: past tiles keep the grey and the copy-forward hint only`, (await tl.getAttribute("aria-label")).includes("Past, read only. Swipe right: copy forward."));
     await p.close(); }
-  // the filter: Mine, Everyone (the household plan) and named members; there is no option called Household
+  // the filter: Mine, Household (the household plan, was "Everyone", owner-stated 13 Oct 2026, decision 201) and named members
   { const p = await open(ctx, "", errs); await tap(p.locator("[data-fmenu]")); await sleep(250); const items = await p.locator(".dd .it").allInnerTexts();
-    ok(`${tag} filter: Mine and Everyone (sub-label "the household plan") exist; no option is literally called Household`, items.some(t => /^Mine/.test(t)) && items.some(t => /^Everyone/.test(t) && /household plan/.test(t)) && !items.some(t => /^Household/.test(t)), items);
+    ok(`${tag} filter: Mine and Household (sub-label "the household plan") exist; nothing is called Everyone any more`, items.some(t => /^Mine/.test(t)) && items.some(t => /^Household/.test(t) && /household plan/.test(t)) && !items.some(t => /Everyone/.test(t)), items);
     ok(`${tag} filter: named members are labelled view only`, /other members: view only/i.test(await p.locator(".dd").innerText())); await p.close(); }
   ok(`${tag}: no page errors`, errs.length === 0, errs); await ctx.close();
 }

@@ -81,8 +81,10 @@ window.PUR = (function () {
   /* Total time (Plan UI review 124): ONE figure per meal, minutes; never a prep and cook split. */
   function mins(m) { var n = m.mins; if (!n) return ''; return n < 60 ? n + ' min' : Math.floor(n / 60) + ' h' + (n % 60 ? ' ' + (n % 60) + ' min' : ''); }
   function inMine(m) { return m.who === 'all' || m.who.indexOf('sam') > -1; }
-  function match(m, f) { if (f === 'everyone') return true; if (f === 'mine') return inMine(m); return m.who === 'all' || m.who.indexOf(f) > -1; }
-  function whoLabel(m) { return m.who === 'all' ? 'Everyone · ' + m.n + ' people' : m.who.map(function (i) { return people.filter(function (p) { return p.id === i; })[0].n; }).join(', ') + ' · ' + m.n + ' ' + (m.n === 1 ? 'person' : 'people'); }
+  /* Plan UI review 201 (owner-stated, 13 Oct 2026: "Household"): the person filter option that was "Everyone" is "Household". Its id is 'household' on the phone; 'everyone' is the old id and still means the same (desktop keeps it, and old links work). */
+  function isHH(v) { return v === 'household' || v === 'everyone'; }
+  function match(m, f) { if (isHH(f)) return true; if (f === 'mine') return inMine(m); return m.who === 'all' || m.who.indexOf(f) > -1; }
+  function whoLabel(m, hh) { return m.who === 'all' ? (hh ? 'Household' : 'Everyone') + ' · ' + m.n + ' people' : m.who.map(function (i) { return people.filter(function (p) { return p.id === i; })[0].n; }).join(', ') + ' · ' + m.n + ' ' + (m.n === 1 ? 'person' : 'people'); }
   /* Surprise me (owner-confirmed heuristics, decision 94): timing aware, never a repeat of a recent meal. Returns a copy of a candidate. */
   function surprise(meals, d, today) {
     var di = function (x) { return RIB.map(function (r) { return r.id; }).indexOf(x); }, r = dinfo(d), du = di(d) - di(today), late = r.wk === 0 && r.i % 7 >= 4, kind = (du <= 1 || late) ? 'stock' : 'new';
@@ -94,7 +96,7 @@ window.PUR = (function () {
   function copyLast(meals, blocked, view, wk, today) {
     var ids = RIB.map(function (r) { return r.id; }), di = function (x) { return ids.indexOf(x); };
     var src = RIB.filter(function (r) { return r.wk === wk - 1; }), tgt = RIB.filter(function (r) { return r.wk === wk; }), add = [], days = [], n = 0;
-    if (view !== 'mine' && view !== 'everyone') return { add: add, days: days, why: 'readonly' };
+    if (view !== 'mine' && !isHH(view)) return { add: add, days: days, why: 'readonly' };
     if (wk < 0 || !src.length) return { add: add, days: days, why: 'bounds' };
     src.forEach(function (r, i) {
       var t = tgt[i].id; if (di(t) < di(today) || blocked[t] || meals.some(function (x) { return x.day === t && match(x, view); })) return;
@@ -126,23 +128,33 @@ window.PUR = (function () {
   var ROUTINE = { off: ['Fri', 'Sun'], opened: ['d16', 'd18', 'd23'] };
   function routineDefault(d, today) { var r = dinfo(d); return r && r.i >= dinfo(today).i && ROUTINE.off.indexOf(r.dow) > -1 ? 'usual' : null; }
   function baseBlocked(today) { var o = JSON.parse(JSON.stringify(blocked)); RIB.forEach(function (r) { if (!o[r.id] && ROUTINE.opened.indexOf(r.id) < 0 && routineDefault(r.id, today)) o[r.id] = 'usual'; }); return o; }
-  /* Clear week, two layers (decision 195): from today on, in the selected week and the active person's plan, it removes the planned meals AND this week's overrides of the routine: a one-off Not cooking mark goes (nc), a routine day that was opened goes
-     back to Not cooking every week (back). It never touches the routine itself. Past nights are read only. Returns what changed so the message and Undo can say it. */
-  function clearWeek2(meals, blocked, view, wk, today) {
-    var out = { rm: [], days: [], nc: [], back: [], shared: 0, kept: [], why: '' };
-    if (view !== 'mine' && view !== 'everyone') { out.why = 'readonly'; return out; }
+  /* Clear week acts on the CURRENT FILTER SCOPE (Plan UI review 203, owner-stated 13 Oct 2026: "depending on what is chosen - mine or household. Can't clear the past"). Two layers as before (195): the planned meals, and this week's overrides of the routine; the routine itself is never touched.
+     Mine clears my own planned meals and the overrides I made; Household clears the household's planned meals and the overrides the household made. Past days are never cleared (read only): in the current week only today and later days. Another person's plan has no Clear (190).
+     Proposal (narrow choice): a shared household meal (who: 'all') shows in Mine but is the household's, so Mine's Clear leaves it and Household's Clear removes it; a meal that is only in someone's own plan (who: a list of ids) is theirs, so Household's Clear leaves it. The two scopes never overlap.
+     Overrides carry the scope that made them (owners[d] = 'mine' | 'household'; the routine itself is the person's own, set in Plan settings). Returns what changed so the message and Undo can say it. mode 'visible' (?cs=visible, the other reading) clears every meal the scope shows, shared ones included. */
+  var OWNERS = { d16: 'mine', d17: 'household', d18: 'mine', d22: 'mine', d23: 'mine' };
+  function baseOwners() { return JSON.parse(JSON.stringify(OWNERS)); }
+  function scopeOf(view) { return view === 'mine' ? 'mine' : 'household'; }
+  function ownsMeal(x, view) { return view === 'mine' ? (x.who !== 'all' && x.who.indexOf('sam') > -1) : x.who === 'all'; }
+  function clearWeek2(meals, blocked, view, wk, today, owners, mode) {
+    var sc = scopeOf(view), out = { rm: [], days: [], nc: [], back: [], keep: 0, keepNc: 0, kept: [], scope: sc, why: '' };
+    if (view !== 'mine' && !isHH(view)) { out.why = 'readonly'; return out; }
     if (wk < 0) { out.why = 'bounds'; return out; }
+    owners = owners || {};
     RIB.filter(function (r) { return r.wk === wk; }).forEach(function (r) {
       var ms = meals.filter(function (x) { return x.day === r.id && match(x, view); });
       if (r.i < dinfo(today).i) { if (ms.length) out.kept.push(r.id); return; }
-      ms.forEach(function (x) { out.rm.push(x.id); if (x.who === 'all' && view === 'mine') out.shared++; });
-      var want = routineDefault(r.id, today), cur = blocked[r.id] || null, ch = cur !== want; if (ch) (want ? out.back : out.nc).push(r.id);
-      if (ms.length || ch) out.days.push(r.id);
+      var own = ms.filter(function (x) { return mode === 'visible' || ownsMeal(x, view); }), left = ms.length - own.length; out.keep += left;
+      own.forEach(function (x) { out.rm.push(x.id); });
+      var want = routineDefault(r.id, today), cur = blocked[r.id] || null, ch = cur !== want, mine = (owners[r.id] || 'household') === sc;
+      if (ch && !mine) out.keepNc++;
+      if (ch && mine && !(want && left)) (want ? out.back : out.nc).push(r.id); else ch = false;
+      if (own.length || ch) out.days.push(r.id);
     });
     if (!out.days.length) out.why = 'none';
     return out;
   }
   /* a long ingredient list for the dock demo (?long=1): a real cook sheet can have 20 lines */
   var LONG = [['garlic', '4 cloves'], ['ginger', '1 thumb'], ['cumin', '2 tsp'], ['coriander', '2 tsp'], ['turmeric', '1 tsp'], ['chilli flakes', '1 tsp'], ['stock cube', '2'], ['coconut milk', '1 tin'], ['apple', '1'], ['honey', '1 tbsp'], ['soy sauce', '2 tbsp'], ['peas', '1 cup'], ['sultanas', '1 handful'], ['spring onion', '1 bunch'], ['vegetable oil', '3 tbsp'], ['salt', 'to taste']];
-  return { mins: mins, clearWeek: clearWeek, clearWeek2: clearWeek2, routineDefault: routineDefault, baseBlocked: baseBlocked, ROUTINE: ROUTINE, useRange: useRange, LONG: LONG, surprise: surprise, copyLast: copyLast, icons: icons, people: people, DOW: DOW, RIB: RIB, DAYS: DAYS, REL: REL, did: did, dinfo: dinfo, meals: meals, blocked: blocked, tips: tips, SUR: SUR, match: match, inMine: inMine, whoLabel: whoLabel };
+  return { mins: mins, clearWeek: clearWeek, clearWeek2: clearWeek2, baseOwners: baseOwners, scopeOf: scopeOf, isHH: isHH, routineDefault: routineDefault, baseBlocked: baseBlocked, ROUTINE: ROUTINE, useRange: useRange, LONG: LONG, surprise: surprise, copyLast: copyLast, icons: icons, people: people, DOW: DOW, RIB: RIB, DAYS: DAYS, REL: REL, did: did, dinfo: dinfo, meals: meals, blocked: blocked, tips: tips, SUR: SUR, match: match, inMine: inMine, whoLabel: whoLabel };
 })();
