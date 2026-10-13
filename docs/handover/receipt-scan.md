@@ -48,7 +48,7 @@ File layout: shared `rs.css`, `rs-core.js` (state, the one line rule `RS.out`, s
 
 ## 4. Not decided
 
-Whether Exact lines start accepted (RS-71); purchase date to use-by (no rule exists). Where brand-new items go is decided: Unplaced (RS-70). Chat bulk add (RS-77): merge of the MCP contract change, the 24 hour repeat window, and whether an Exact line kept as a separate item should ask first. The rest of the earlier list is settled by RS-55 onward. See the job note's open questions.
+Whether Exact lines start accepted (RS-71); purchase date to use-by (no rule exists). Where brand-new items go is decided: Unplaced (RS-70). Chat bulk add (RS-77): only the merge of the MCP contract change is open; a line with no clear amount asks for it (owner confirmed). The rest of the earlier list is settled by RS-55 onward. See the job note's open questions.
 
 ## 5. Not done
 
