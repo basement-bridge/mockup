@@ -19,7 +19,7 @@
     rice: { e: "🍳", n: "Egg fried rice", ing: ["eggs", "rice", "spring onion"] },
     patty: { e: "🐟", n: "Salmon patties", ing: ["canned salmon", "potatoes", "eggs", "dill", "lemon"] }
   };
-  /* what each person has chosen (type is Hard or Soft, reason is their own words; SW-59). SW-O48 resolved: a Hard avoid's reason is never drawn here (the viewer is Sam, never the owner); only the Soft line quotes it */
+  /* what each person has chosen (type is Hard or Soft, reason is their own words; SW-59). SW-O48 and SW-O61 resolved: a person's reason, Hard or Soft, is never drawn here (the viewer is Sam, never the owner); a household reason would be drawn to anyone (no household rule is in this sample) */
   var AVOIDS = {
     Jane: [{ item: "mushrooms", type: "hard", reason: "Allergic, makes me ill" }, { item: "onion", type: "soft", reason: "don't like it" }],
     Kai: [{ item: "cream", type: "hard", reason: "Can't have dairy" }]
@@ -141,7 +141,7 @@
     }
     if (c.soft.length) {
       var s = c.soft[0];
-      return '<p class="softnote" id="guard" role="status" data-mode="soft">' + I.soft + "<span>" + esc(s.p) + " would rather avoid " + esc(s.item) + " (soft: &ldquo;" + esc(s.reason) + "&rdquo;). " + esc(rec.n) + " has it, and that does not stop the meal.</span></p>";
+      return '<p class="softnote" id="guard" role="status" data-mode="soft">' + I.soft + "<span>" + esc(s.p) + " would rather avoid " + esc(s.item) + " (soft). " + esc(rec.n) + " has it, and that does not stop the meal.</span></p>";
     }
     return '<span id="guard" data-mode="ok"></span>';
   }
