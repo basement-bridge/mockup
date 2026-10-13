@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Live receipt scan, phone</title>
+<link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><link rel="stylesheet" href="cam.css"><script src="../../theme.js"></script></head>
+<body><div class="wrap"><a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Live receipt scan, phone</h1>
+<p class="cs-lead">Fragment, mockup only, phone only, no app build. This shows what <b>Kitchie v0.103.0</b> (kitchie PR #695) already does, so the owner (Arjan) can see it before it goes to production. Open the camera from the basket bar, point at a receipt, watch the boxes and prompts, and let it take the photo. Sample data, an invented receipt, no camera is ever opened. Use the Theme button (bottom right) for light and dark.</p>
+
+<div class="cs-box"><b class="t">Notes: what the default path loads, and what is deferred</b>
+<ul>
+<li><b>This page</b> loads the shared <code>theme.css</code>, <code>shared.css</code>, <code>theme.js</code> and two small files of its own (<code>cam.css</code>, <code>cam.js</code>, under 20 KB together). No images, no fonts beyond the theme, no libraries. It draws everything with markup and inline icons. It never calls <code>getUserMedia</code>, never reads a file and never touches the network.</li>
+<li><b>In the build</b> nothing new loads on page load. The scan code arrives only after a shop has begun, as in v0.91.0. The camera stream, the looking and the reader's worker start on engagement: the person taps <b>Scan</b>. On a slow or metered connection with the engine not yet downloaded, the viewfinder opens as a plain camera (shutter only, no looking, nothing downloaded) and the existing download question comes after the photo.</li>
+<li><b>Deferred here, on purpose:</b> desktop and tablet (the build shares one viewfinder, a webcam on desktop; not drawn here), the shopper-link version, and the existing "Done shopping" flow behind the other button.</li>
+<li><b>Mockup and build stay close.</b> Markup is shaped like the build's: a Basket region holding the buttons, a status line with <code>role=status</code>, a <code>progressbar</code> for steadiness, three counted chips, tokens only. Class names here use a <code>cs-</code> prefix for the page; the build keeps its own names. Not copied from the build's source, so differences are not listed yet.</li>
+</ul></div>
+
+<h2 class="cs-h">1. Try it</h2>
+<p class="cs-lead">Tap <b>Scan</b> in the phone. With <b>Receipt in view</b> it plays the happy path: looking, found, steady for 1.2 s, photo, review. The other conditions hold one state still so you can look at it; the shutter and <b>Choose a photo</b> work in all of them. Nothing is saved.</p>
+<div id="proto-ctl">
+<div class="cs-grp">Jump to</div>
+<div class="cs-chips"><button type="button" class="cs-chip" data-go="basket" aria-pressed="true">Basket</button><button type="button" class="cs-chip" data-go="view" aria-pressed="false">Viewfinder</button><button type="button" class="cs-chip" data-go="review" aria-pressed="false">Review</button><button type="button" class="cs-chip" data-go="refused" aria-pressed="false">Camera refused</button></div>
+<div class="cs-grp">What the camera sees</div>
+<div class="cs-chips"><button type="button" class="cs-chip" data-cond="auto" aria-pressed="true">Receipt in view</button><button type="button" class="cs-chip" data-cond="blur" aria-pressed="false">Blurry</button><button type="button" class="cs-chip" data-cond="wall" aria-pressed="false">Held at a wall</button><button type="button" class="cs-chip" data-cond="rest" aria-pressed="false">Resting</button></div>
+<div class="cs-grp">Camera permission</div>
+<div class="cs-chips"><button type="button" class="cs-chip" data-perm="allowed" aria-pressed="true">Allowed</button><button type="button" class="cs-chip" data-perm="refused" aria-pressed="false">Refused</button></div>
+</div>
+<div class="cs-demo"><div class="cs-ph" id="proto" aria-label="Phone prototype"></div></div>
+
+<h2 class="cs-h">2. The three overlay treatments</h2>
+<p class="cs-lead">Colour is never the only cue. Each treatment has its own icon, its own word and its own line style, and the three counted chips under the picture repeat all three.</p>
+<div class="cs-key">
+<div><span class="sw d"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Milk</span><p><b>On your list.</b> Tick, the list item's name, solid thick filled box. The strongest. <em>Direct match to the shopping list.</em></p></div>
+<div><span class="sw s"><svg viewBox="0 0 24 24"><path d="M4 8h14M14 4l4 4-4 4M20 16H6M10 12l-4 4 4 4"/></svg>Swap?</span><p><b>Usual swap.</b> Arrows, "Swap for Butter?", dashed box with a light fill. <em>A known stand-in, such as margarine for butter. It is a guess and writes nothing.</em></p></div>
+<div><span class="sw o"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Other</span><p><b>Other things bought.</b> Plus, "Other", dotted hairline box, no fill. <em>Not on the list, not a swap. Lines that are not items (totals, dates) get a hairline only.</em></p></div>
+</div>
+
+<h2 class="cs-h">3. Every state, side by side</h2>
+<p class="cs-lead">Same phone frame, one state each, in the order a scan goes. On a wide screen they sit in a grid.</p>
+<div class="cs-strip">
+<figure class="cs-fig"><h3><b>1</b>Entry: the basket bar</h3><div class="cs-ph" data-static data-screen="basket" data-callout></div><figcaption class="cs-cap">A camera button, <b>Scan</b>, sits in the basket bar to the left of <b>Done shopping</b>. Icon and word, 44px tall. It is outlined here only to point at it.</figcaption></figure>
+<figure class="cs-fig"><h3><b>2</b>Looking</h3><div class="cs-ph" data-static data-screen="view" data-state="look"></div><figcaption class="cs-cap">The camera is open and no receipt has been read yet. No boxes, counts all zero. The shutter and <b>Choose a photo</b> are there from the first frame.</figcaption></figure>
+<figure class="cs-fig"><h3><b>3</b>Receipt found</h3><div class="cs-ph" data-static data-screen="view" data-state="found" data-tick></div><figcaption class="cs-cap">Every read line gets a box. 4 on the list, 1 usual swap, 3 other. Prompt reads <b>Receipt found. Hold steady...</b> with the steadiness bar starting. The first time a list line is a direct match two looks running, the phone ticks (15 ms, if it has a motor); the pill is only a hint for this page.</figcaption></figure>
+<figure class="cs-fig"><h3><b>4</b>Holding steady</h3><div class="cs-ph" data-static data-screen="view" data-state="hold"></div><figcaption class="cs-cap">Same prompt, the bar fills. Text says how long in seconds, so it is not the bar alone. The shutter ring fills too. Auto-capture needs the last 4 looks to read as a receipt, in nearly the same place, none blurry, over at least 1.2 s.</figcaption></figure>
+<figure class="cs-fig"><h3><b>5</b>Taking the photo</h3><div class="cs-ph" data-static data-screen="view" data-state="take"></div><figcaption class="cs-cap">Steady for 1.2 s: <b>Steady. Taking the photo...</b> A full-size frame is grabbed (30 ms tick) and goes straight into the review. Pressing the shutter yourself does the same at any moment.</figcaption></figure>
+<figure class="cs-fig"><h3><b>6</b>Blurry</h3><div class="cs-ph" data-static data-screen="view" data-state="blur"></div><figcaption class="cs-cap">Confident warning: solid thick outline, warning icon, bold. <b>Hold steady, the image is blurry.</b> The last boxes stay while the text underneath is smeared. A negative prompt needs two looks in a row, so it does not flicker.</figcaption></figure>
+<figure class="cs-fig"><h3><b>7</b>Not a receipt</h3><div class="cs-ph" data-static data-screen="view" data-state="wall"></div><figcaption class="cs-cap">Little text, flat view (a wall, a table). A softer prompt: dashed outline, muted, italic, and it says <b>best guess</b>. No boxes, nothing claimed. The shutter and photo picker still work.</figcaption></figure>
+<figure class="cs-fig"><h3><b>8</b>Resting</h3><div class="cs-ph" data-static data-screen="view" data-state="rest"></div><figcaption class="cs-cap">After 150 s without a photo the camera and the looking stop to save battery, with <b>Resume</b>. The stream is also released on Done, Escape, a photo or an error.</figcaption></figure>
+<figure class="cs-fig"><h3><b>9</b>Review (the existing one)</h3><div class="cs-ph" data-static data-screen="review" data-pre="part"></div><figcaption class="cs-cap">Unchanged by the live mode. Matches are ticked. Doubtful ones need a Confirm. Everything not on the list must be answered (add as bought, substitute, skip) before the button works. Shown part way through.</figcaption></figure>
+<figure class="cs-fig"><h3><b>10</b>Camera refused or missing</h3><div class="cs-ph" data-static data-screen="refused"></div><figcaption class="cs-cap">No camera, blocked, or the browser cannot give one. A screen with one clear next step: <b>Take or choose a photo</b>. Back to the list is always there.</figcaption></figure>
+<figure class="cs-fig"><h3><b>11</b>Photo picker</h3><div class="cs-ph" data-static data-screen="picker"></div><figcaption class="cs-cap">The phone's own picker opens (on a quick refusal it opens by itself; after a slow one it waits for the tap, because browsers block a picker nobody asked for). The photo then goes into the same review.</figcaption></figure>
+</div>
+
+<div class="cs-box"><b class="t">Decisions recorded (as built in kitchie PR #695, v0.103.0; owner voice, 12 October 2026: "best effort, sensible decisions, I'll check before productionization")</b>
+<ol>
+<li><b>CS-D1</b> Entry is a camera button in the shopping basket bar, next to Done shopping.</li>
+<li><b>CS-D2</b> A live viewfinder (rear camera preferred) reads the receipt as you hold it. Boxes on read lines: on your list (solid thick filled, tick, list name), usual swap (dashed, arrows, "Swap for X?"), other things bought (dotted, plus, "Other"), non-item lines (hairline).</li>
+<li><b>CS-D3</b> Three counted chips repeat the signs and words, so colour is never the only cue.</li>
+<li><b>CS-D4</b> Prompts: "Hold steady, the image is blurry." (confident); "Can't find a receipt (best guess): ..." (softer, for very little text, a flat view or text that is not items and prices); "Receipt found. Hold steady..." with a progress bar; "Steady. Taking the photo...". A negative prompt needs two looks in a row.</li>
+<li><b>CS-D5</b> Auto-capture when steady (last 4 looks read as a receipt, same words in nearly the same places, none blurry, over at least 1.2 s). The manual shutter is always there.</li>
+<li><b>CS-D6</b> Haptics: 15 ms the first time a list line is a direct match two looks running, once per line per viewfinder; 30 ms on the photo.</li>
+<li><b>CS-D7</b> The review is the existing one, unchanged: matches ticked, doubtful ones need a Confirm, leftovers must be answered (add as bought, substitute, skip) before the single write.</li>
+<li><b>CS-D8</b> Fallbacks: no camera API gives the old one-tap picker; a refused or missing camera gives a screen with "Take or choose a photo"; <b>Choose a photo</b> is on the viewfinder at all times.</li>
+<li><b>CS-D9</b> The camera and looking stop after 150 s without a photo, until Resume. The stream is released on Done, Escape, a photo, an error or that rest.</li>
+</ol>
+<p><b>Proposal</b> (this page's own choices, the owner was silent): the sample receipt and list; where the status line, steadiness bar and chips sit in the frame; the exact words on the refused screen and the Review buttons ("Back", "Save to the list"); the hint pill for the haptic tick; the resting overlay's look; the sample photo picker. The build's pixels may differ; the page is for seeing how it behaves.</p></div>
+
+<div class="cs-box"><b class="t">Not verified without a real phone</b>
+<ul>
+<li>How the camera really behaves: focus, exposure, noise, rotation, frame rate, iOS Safari <code>playsinline</code> and autoplay.</li>
+<li>How the blur number and the steadiness tolerance feel in a shaking hand, on a real printed receipt (only a synthetic one has been used).</li>
+<li>Speed on a phone's CPU, and battery and heat over a long scan. Live reading ran at roughly 0.3 to 1 look a second on a loaded sandbox, below the 2 to 4 the ceiling allows.</li>
+<li>The vibration motor (some phones and browsers have none; the tick is optional) and the real permission prompt.</li>
+<li>The usual-swap list on real receipts.</li>
+<li>Everything on this page: the animation timing here is a stand-in for the real thing.</li></ul></div>
+
+<div class="cs-box"><b class="t">Still open</b>
+<ul>
+<li><b>Blur threshold.</b> Set at 0.10 on a synthetic receipt at a 720 px frame (crisp reads 0.5 to 1.5, 3 px blur 0.01). It depends on text size and camera noise, so it needs a real phone before it is right.</li>
+<li><b>Steady tolerance.</b> 4 looks over 1.2 s, with 75% of boxes within 0.6 of a line height. Too tight and it never fires; too loose and it takes a smear.</li>
+<li><b>Swap list.</b> A built-in short guess (butter, margarine, spread; milks; mince; chicken, turkey, duck; cheeses; oils; bread; pasta; rice; fruit; greens; fish; cereal; coffee, tea). The household's own substitution rules are not used. Wiring them in means the server sending them to the page. Who owns the list, and whether the household can edit it, is the owner's call.</li>
+<li><b>Low-confidence matches.</b> The overlay does not claim a "low" match as a direct hit; it draws a swap if the item is in a family, else "other". The review still says Check.</li>
+<li><b>Haptics.</b> Direct matches only, or swaps too? Off by a setting?</li>
+<li><b>Prefill.</b> A live swap is not carried into the review's "Instead of..." answer; it stays the person's own choice. Should it be offered as the first choice?</li>
+<li><b>Long receipts.</b> One frame holds one screenful. Nothing here scans a long receipt in several parts.</li></ul></div>
+</div>
+<script src="cam.js"></script></body></html>
