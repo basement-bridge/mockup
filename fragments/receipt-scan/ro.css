@@ -1,0 +1,79 @@
+/* Receipt scan, chosen flow (Option A, Receipt order, live). Tokens only (theme.css); NO size or viewport rules here (DESIGN.md section 7): those are in ro.phone.css and ro.desktop.css (and the lv.* files for the camera).
+   `rl-*` is the Shopping live viewfinder's own set (lv.css), `ro-*` is new, the Pantry's row names (.row .rmain .nm .mt) are kept so the build lifts it. --cue here is --added in Kitchie's stylesheet. */
+
+/* ---- the confidence mark: three dots, 3 high, 2 medium, 1 low (RS-57). Never the battery (RS-13): dots cannot be read as a stock level. ---- */
+.cf[data-n="3"]{color:var(--sage)}.cf[data-n="2"]{color:var(--accent)}.cf[data-n="1"]{color:var(--danger)}
+.cf.pips i{width:8px;height:8px}
+
+/* ---- the progress readout and the filter (RS-64) ---- */
+.ro-head{flex:none;display:flex;flex-direction:column;gap:8px;margin:.5rem .75rem 0}
+.ro-prog{display:flex;align-items:center;gap:10px}
+.ro-pn{font-weight:800;white-space:nowrap}
+.ro-pb{flex:1;height:8px;border-radius:99px;background:var(--surface);border:1px solid var(--border);overflow:hidden}
+.ro-pb i{display:block;height:100%;background:var(--sage);border-radius:99px;transition:width .3s ease}
+.ro-fs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.ro-f{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:44px;padding:2px 4px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);font-size:12px;font-weight:700;color:var(--muted);line-height:1.15}
+.ro-f b{font-size:15px;color:var(--fg)}
+.ro-f[aria-selected=true]{border:2px solid var(--fg);color:var(--fg);background:var(--surface)}
+.ro-f[data-zero] b{color:var(--muted);font-weight:600}
+.ro-f[data-zero]:not([aria-selected=true]){opacity:.7}
+
+/* ---- the list: the Pantry's own rows, in print order (RS-55) ---- */
+.ro-list{list-style:none;margin:.4rem .75rem 0;padding:0;flex:1 1 auto;min-height:0;overflow:auto;border-top:1px solid var(--border)}
+.ro-li{position:relative;overflow:hidden;border-bottom:1px solid var(--border)}
+.ro-li:last-child{border-bottom:0}
+.ro-li .ro-row{position:relative;z-index:1;background:var(--bg);align-items:flex-start;padding:10px 8px 6px;transition:transform .18s ease;touch-action:pan-y}
+.ro-li .ro-row.ro-drag{transition:none}
+.ro-li .ro-row:focus-visible{outline-offset:-2px}
+.ro-li .rmain{gap:1px}
+.ro-li .nm{font-size:1rem}
+.ro-li .mt{font-size:.82rem;text-transform:none}
+.ro-li.on{background:var(--surface);border-radius:var(--r-ctl);outline:2px solid var(--fg);outline-offset:-2px}
+.ro-li.on .ro-row{background:var(--surface)}
+.ro-out{display:flex;align-items:flex-start;gap:5px;margin-top:2px;font-size:.85rem;font-weight:700;line-height:1.3;white-space:normal;overflow-wrap:anywhere}
+.ro-out svg{margin-top:2px}
+.ro-out[data-k=top]{color:var(--sage)}
+.ro-out[data-k=new]{color:var(--added-fg)}
+.ro-out[data-k=check]{color:var(--fg)}
+.ro-out[data-k=unsure]{color:var(--danger);font-weight:600}
+.ro-out[data-k=ignored]{color:var(--muted);font-weight:600}
+.ro-st{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex:none;padding-top:2px}
+.ro-chip{display:inline-flex;align-items:center;gap:5px;padding:2px 9px 2px 6px;border-radius:var(--r-pill);border:1px solid var(--border);font-size:12px;color:var(--muted);white-space:nowrap}
+.ro-chip b{font-weight:800}
+.ro-chip[data-k=top]{color:var(--sage);border:2px solid var(--sage)}
+.ro-chip[data-k=new]{background:var(--added-bg);color:var(--added-fg);border-color:transparent}
+.ro-chip[data-k=check]{color:var(--accent);border:2px dashed var(--accent)}
+.ro-chip[data-k=unsure]{color:var(--danger);border:2px dotted var(--danger)}
+.ro-chip[data-k=ignored]{color:var(--muted);border-style:solid}
+.ro-li .rs-g[data-k=top]{border-color:var(--sage);color:var(--sage)}
+.ro-li .rs-g[data-k=new]{background:var(--added-bg);color:var(--added-fg);border-color:transparent}
+.ro-li .rs-g[data-k=check]{border:1.5px dashed var(--accent);color:var(--accent)}
+.ro-li .rs-g[data-k=unsure]{border:1.5px dotted var(--danger);color:var(--danger)}
+.ro-li .rs-g[data-k=ignored]{color:var(--muted);border-color:var(--border)}
+.ro-li[data-k=check] .rs-g,.ro-li[data-k=unsure] .rs-g{animation:lv-pulse 1.8s ease-in-out infinite}
+.ro-li[data-k=ignored] .nm,.ro-li[data-k=ignored] .mt{color:var(--muted)}
+.ro-scr{left:44px;width:calc(100% - 150px);top:24px;pointer-events:none;z-index:2}
+/* the explicit actions, always visible on the line (RS-60) */
+.ro-acts{position:relative;z-index:1;display:flex;gap:6px;flex-wrap:wrap;padding:0 8px 10px 52px}
+.ro-acts .rs-b{min-height:var(--tap);padding:0 12px}
+.ro-li.on .ro-acts{background:var(--surface)}
+/* the swipe: what the row reveals as it moves (RS-59) */
+.ro-sw{position:absolute;inset:0 0 auto 0;height:calc(100% - 0px);display:flex;justify-content:space-between;align-items:flex-start;z-index:0;font-weight:800}
+.ro-swr,.ro-swl{display:none;align-items:center;gap:8px;padding:0 18px;min-height:64px;color:var(--on-accent);width:50%}
+.ro-swr{background:var(--sage);justify-content:flex-start}
+.ro-swl{background:var(--accent);justify-content:flex-end;margin-left:auto}
+.ro-li[data-swipe=r] .ro-swr,.ro-li[data-swipe=l] .ro-swl{display:flex}
+.ro-li[data-swipe=r] .ro-sw{justify-content:flex-start}
+/* the opened row */
+.ro-more{position:relative;z-index:1;display:flex;flex-direction:column;gap:10px;padding:2px 10px 12px;background:var(--surface)}
+/* the picker: search the Pantry and pick an existing item (RS-62) */
+.ro-pick{position:relative;z-index:1;display:flex;flex-direction:column;gap:8px;padding:2px 10px 12px;background:var(--surface);border-top:1px dashed var(--border)}
+.ro-pk-in{display:flex;align-items:center;gap:8px}
+.ro-pk-in>svg{color:var(--muted)}
+.ro-pk-in .rs-in{flex:1}
+.ro-pk-l{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.ro-pk-b{width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:var(--tap);padding:6px 10px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--bg);text-align:left}
+.ro-pk-b:hover{border-color:var(--fg)}
+.ro-pk-none{color:var(--muted);padding:8px 4px;font-size:14px}
+/* progress and filter sit under the picture; the list scrolls, the camera does not */
+.ro-rl .lv-empty{padding:12px 4px}

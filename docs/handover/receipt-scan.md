@@ -1,12 +1,16 @@
 # Receipt scan: handover
 
-**Status: revision 2 (live viewfinder) drawn 14 October 2026 (Sydney); revision 1 (12 October) archived. For anyone to pick up cold.** Nothing is built in the real app. Nothing is approved. Start here; the durable links are in section 3.
+**Status: revision 3 (Receipt order, live) drawn 14 October 2026 (Sydney); owner chose Option A on the live camera flow. Revisions 1 and 2 are archived, not chosen. For anyone to pick up cold.** The build into Kitchie `uat` follows this page (tracking issue #674). Start here; the durable links are in section 3.
 
 ## 1. The ask, in the owner's words
 
 Owner (Arjan), voice, 12 October 2026, tidied: mockup first in `basement-bridge/mockup` (not `kitchie`, not `kitchie-mockup`): a receipt scan to bulk-add Pantry items. Match each line to an existing item exactly first; show for an exact match whether it will add a new item or revise the quantity; show confidence for close matches (he floated dots: one, three, five; compact) with confirm or override (override makes a new item); flag unrecognised lines distinctly and require the person to confirm each as new ("cross it out"). Client-side OCR. Hands-off: decisions are proposals. Owner reviews and picks, then confirms before any build.
 
-## 1a. Revision 2, 14 October 2026
+## 1b. Revision 3, 14 October 2026: the chosen flow
+
+Owner, voice: Option A, Receipt order, a plain list in print order in the Pantry's row style, on the live camera flow. Decisions RS-55 to RS-73 in the job note (several earlier ones marked superseded). In short: an exact match tops up the single latest record, no batches (RS-56); no use-by exception; confidence is dots 3-2-1 (RS-57); every line says its outcome, "New item" or "Updates existing (5 kg to 10 kg)" (RS-58); swipe right accepts a recommended line, "Pick another item" and "New" always visible, swipe left is the override, desktop has equivalents (RS-59, RS-60); states Exact, Check, Unsure, and Ignored; an Unsure line has Add as new, Match to existing, Ignore (RS-61 to RS-63); filter and a progress readout "9 of 14" at the top (RS-64); discount, bag and non-food lines stay out with a reason, one tap to put back (RS-65); no AI calls, deterministic scoring with thresholds and examples in the job note (RS-66); reuse of the Add/Edit unit parsing and the Shopping reader, chat tools and UI on the same service methods (RS-67); price and store are not captured because no such fields exist (RS-68); undo 9 seconds on screen and 5 minutes in history, duplicate lines combined (RS-69). **Proposed, not decided:** new items with no place go to Unplaced (RS-70); Exact lines start accepted (RS-71). Hub: `fragments/receipt-scan/index.html`; flow `ro.html` (`?step=entry|view|done|refused`, `&phase=`, `&cond=`, `&pre=half|all|resolved|part`, `&filter=`, `&sel=`, `&pick=`, `&sheet=summary`, `&vp=`); code `ro-core.js` (`RO.out`), `ro-run.js`, `ro.phone.js`, `ro.desktop.js`, css `ro.css`, `ro.phone.css`, `ro.desktop.css`; check `tools/receipt-scan-ro-check.mjs`. The old hub is `archive.html`; directions `live-a.html` to `live-d.html` are archived.
+
+## 1a. Revision 2, 14 October 2026 (archived)
 
 Owner, voice: rebuild around a live viewfinder like Shopping's (Kitchie #695, #697). Matching logic unchanged; resolution moves onto the live view. Four live directions: **A Tap the paper** (recommended), **B Freeze and walk**, **C Cards under the camera**, **D Camera and list**. Decisions RS-29 to RS-54 in the job note; RS-2, RS-19, RS-24 superseded, RS-25 and RS-26 amended. Hub: `fragments/receipt-scan/index.html`; directions `live-a.html` to `live-d.html` (`?step=entry|view|done|refused`, `&phase=`, `&cond=`, `&pre=`, `&sel=`, `&walk=1`, `&sheet=summary`, `&conf=`, `&vp=`); check `tools/receipt-scan-live-check.mjs`; viewport code `lv.phone.js`, `lv.desktop.js`. Revision 1 is at `v1.html`. Sections 2 to 4 below describe revision 1 and the open questions still stand.
 
@@ -18,8 +22,8 @@ Four options for the whole flow, phone, tablet and desktop: **A Receipt order** 
 
 | What | Where |
 |---|---|
-| Index (options, states, sizes, decisions, open questions) | `fragments/receipt-scan/index.html`; https://basement-bridge.github.io/mockup/fragments/receipt-scan/index.html (not verified from the sandbox) |
-| Options | `a.html`, `b.html`, `c.html`, `d.html` (`?step=entry|capture|reading|review|summary|done`, `&state=`, `&pre=half|resolved`, `&sel=`, `&open=`, `&filter=`, `&conf=pips|bars|ring`, `&vp=`) |
+| Hub (the chosen flow, states, decisions, scoring, open questions) | `fragments/receipt-scan/index.html`; flow `ro.html`; https://basement-bridge.github.io/mockup/fragments/receipt-scan/index.html (not verified from the sandbox) |
+| Archived revision 1 hub and options | `archive.html` (live revision), `v1.html`, `a.html`, `b.html`, `c.html`, `d.html` (`?step=entry|capture|reading|review|summary|done`, `&state=`, `&pre=half|resolved`, `&sel=`, `&open=`, `&filter=`, `&conf=pips|bars|ring`, `&vp=`) |
 | Job note and decisions | `docs/knowledge/jobs-to-be-done/receipt-scan.md` |
 | How the read works | `docs/knowledge/jobs-to-be-done/edge-ocr.md` |
 | Check script | `tools/receipt-scan-check.mjs` |
@@ -28,11 +32,11 @@ File layout: shared `rs.css`, `rs-core.js` (state, the one line rule `RS.out`, s
 
 ## 4. Not decided
 
-Which live direction; RS-5 (batches), RS-18 (price), RS-22 (undo window), RS-23 (where new items go), the confidence look. See the job note's open questions.
+Where brand-new items go (RS-70, proposed Unplaced); whether Exact lines start accepted (RS-71); purchase date to use-by (no rule exists). The rest of the earlier list is settled by RS-55 onward. See the job note's open questions.
 
 ## 5. Not done
 
-- Nothing is built. The engine, matching and hosting slices are in `edge-ocr.md` section 7.
+- The build is in progress in Kitchie `uat` (PRs listed on #674). The engine, matching and hosting slices are in `edge-ocr.md` section 7.
 - Kitchie tracking issue #674 is updated with the revision 2 links (comment).
 
 ## 6. Next steps once the owner confirms

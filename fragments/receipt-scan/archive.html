@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Receipt scan, live revision (archived)</title>
+<link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><link rel="stylesheet" href="lv.css"><script src="../../theme.js"></script>
+<style>
+.cols{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+@media(min-width:760px){.cols.two{grid-template-columns:1fr 1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:16px}
+.card h3{margin:0 0 4px;font-size:18px;font-family:var(--head)}.card .pitch{font-weight:600;margin:0 0 8px;color:var(--fg)}
+.card ul{margin:6px 0 10px;padding-left:18px;font-size:14px}.card li{margin-bottom:3px}
+.rec{border:2px solid var(--accent)}
+.links{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.links a{display:inline-flex;align-items:center;min-height:var(--tap);padding:0 14px;border-radius:99px;border:1px solid var(--border);background:var(--bg);font-size:13px;font-weight:600}
+.links a.pri{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.tbl{overflow-x:auto}.tbl table{min-width:640px;border-collapse:collapse;width:100%;font-size:14px}.tbl th,.tbl td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid var(--border)}.tbl th{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.decs{padding-left:0;list-style:none;font-size:14px}.decs li{margin-bottom:9px;padding-left:58px;position:relative;max-width:90ch}
+.decs li b.n{position:absolute;left:0;top:0;color:var(--accent)}
+.mini2{font-size:13px}code{font-size:13px;overflow-wrap:anywhere}
+.warnbox{border:2px dashed var(--accent);border-radius:var(--r-card);padding:12px 16px;margin:12px 0}
+.strip{display:flex;gap:14px;overflow-x:auto;padding:6px 2px 14px;scroll-snap-type:x proximity}
+.fr{margin:0;flex:none;scroll-snap-align:start;width:390px}
+.fr figcaption{font-size:13px;font-weight:700;margin:0 0 6px}
+.ph{width:390px;height:760px;border:1px solid var(--border);border-radius:var(--r-phone);overflow:hidden;background:var(--bg)}
+.ph iframe{width:390px;height:760px;border:0;display:block}
+.fr.crop .ph{height:300px}.fr.crop iframe{margin-top:-140px;height:760px}
+.dfr{width:min(100%,704px);height:440px;border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden;background:var(--bg)}
+.dfr iframe{width:1280px;height:800px;border:0;transform:scale(.55);transform-origin:0 0;display:block}
+.key{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:10px 0}
+@media(max-width:900px){.key{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.key>div{border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface);padding:10px;display:flex;flex-direction:column;gap:6px;font-size:13px}
+.sw{display:flex;align-items:center;justify-content:center;gap:5px;min-height:44px;border-radius:8px;font:700 12px var(--body);padding:0 6px}
+.sw svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.sw.top,.sw.nb{border:3px solid var(--cue);background:color-mix(in srgb,var(--cue) 26%,transparent)}
+.sw.nb{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--cue);margin:4px}
+.sw.ck{border:2px dashed var(--accent);background:color-mix(in srgb,var(--accent) 14%,transparent)}
+.sw.nm{border:2px dotted var(--muted)}
+.sw.na{border:1px solid var(--muted);color:var(--muted)}
+.key p{font-size:13px;color:var(--fg)}.key em{color:var(--muted);font-style:normal}
+.stand{border:1px solid var(--border);border-radius:var(--r-card);padding:12px 16px;margin:12px 0;background:var(--surface)}
+.sup{opacity:.9}.sup td:first-child{text-decoration:line-through;text-decoration-thickness:1px}
+.tag2{display:inline-block;font-size:11px;font-weight:800;padding:1px 8px;border-radius:99px;border:1px solid var(--border);color:var(--muted)}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<div class="warnbox"><b>Archived 14 October 2026: not chosen.</b> The owner chose Option A, Receipt order, built out on the live camera flow. See <a href="index.html">the current hub</a> and <a href="ro.html?step=entry">ro.html</a>. The four live directions below are kept as the record of what was weighed; the decisions that replace them are RS-55 to RS-73 in the job note. Revision 1 is at <a href="v1.html">v1.html</a>.</div>
+<h1>Receipt scan, live revision: bulk add to the Pantry (archived)</h1>
+<p>Revision 2, <b>14 October 2026</b>. Kitchie's Shopping tab now scans <b>live</b>: the camera stays open, boxes are drawn on the receipt as it is read, it takes the picture when the view holds steady. This rebuilds the Pantry scan the same way: <b>the matching is unchanged (RS-1 to RS-28); what changes is where and when it is answered</b>, on the viewfinder with the same box language. Four directions, phone and desktop. Mockup only: nothing is built, nothing is confirmed, no camera is opened, the sample receipt is invented. Every new decision (RS-29 on) is a <b>proposal</b>.</p>
+<div class="links"><a class="pri" href="live-a.html?vp=390">A on a phone</a><a class="pri" href="live-a.html?vp=1280">A on a desktop</a><a href="live-b.html?vp=390">B phone</a><a href="live-c.html?vp=390">C phone</a><a href="live-d.html?vp=390">D phone</a><a href="live-b.html?vp=1280">B desktop</a><a href="live-c.html?vp=1280">C desktop</a><a href="live-d.html?vp=1280">D desktop</a></div>
+<div class="links"><a href="https://github.com/basement-bridge/mockup/blob/main/docs/knowledge/jobs-to-be-done/receipt-scan.md">Job note</a><a href="https://github.com/basement-bridge/mockup/blob/main/docs/handover/receipt-scan.md">Handover</a><a href="../receipt-live/index.html">Shopping live scan (as built, phone)</a><a href="v1.html">Revision 1, capture then review (archived)</a><a href="https://github.com/basement-bridge/kitchie/issues/674">Kitchie issue #674</a></div>
+<p class="mini2" style="margin-top:8px">Open a direction, then use the pointer at the top edge or the backtick key for the size and theme panel. It also holds this revision's controls: what the camera sees (blurry, not a receipt, too dark, glare, cut off, resting), camera permission, and the confidence look. Add <code>&amp;vp=390</code> or <code>&amp;vp=1280</code> to see a size in a window. Nothing is saved.</p>
+
+<div class="sec"><div class="lbl">The owner's direction (voice, 12 to 14 Oct 2026, tidied)</div>
+<div class="card"><ul>
+<li><b>Correction.</b> Shopping moved from "snap a photo, then review" to a live camera, already merged to <code>uat</code> (kitchie #695 v0.103.0, #697 v0.103.1): the viewfinder stays open, boxes are drawn live (green sure, amber known swap, grey everything else read, with a legend), auto-capture when steady, manual shutter as a fallback, a confident blur toast and a softer not-a-receipt one.</li>
+<li><b>Confirmed: the matching logic stands.</b> Exact, close (with a confidence rating) or no match. Exact says whether it will <b>add as new</b> or <b>revise the quantity</b>. Close needs a confirm, or an override that makes a new item. No match needs an active confirm as new, in a cross-off style. Discount, plastic bag and non-food lines are <b>deliberately left out</b>, listed with a reason, never matched (reconfirmed).</li>
+<li><b>What changes is where and when</b>: live on the viewfinder with the same colour-coded boxes, not on a separate review screen after a photo. Reuse Shopping's visual language so it feels like one feature; justify any deviation. Hands-off: sensible decisions, recorded and numbered on from RS-28.</li></ul></div></div>
+
+<div class="sec"><div class="lbl">One language with Shopping: three boxes become five states</div>
+<p>Shopping draws three things. The Pantry has one more case (revise the quantity) and its grey needs an answer, so each Shopping drawing is kept and extended by <b>sign, word and edge</b>, never by a new colour. Colour is never the only cue.</p>
+<div class="key">
+<div><span class="sw top"><svg viewBox="0 0 24 24"><path d="M12 19V6M6 11l6-6 6 6"/></svg>Rice +5 kg</span><p><b>Top up.</b> Green, solid, thick, filled: Shopping's "On your list". Up arrow and the amount. <em>Exact match that revises an existing item.</em></p></div>
+<div><span class="sw nb"><svg viewBox="0 0 24 24"><path d="M12 4l8 4-8 4-8-4zM4 12l8 4 8-4"/></svg>New eggs</span><p><b>New item.</b> Same green, plus a <b>doubled edge</b>: a new one beside the old one. <em>Exact match kept as its own item (it has a use-by), or a confirmed new item.</em></p></div>
+<div><span class="sw ck"><svg viewBox="0 0 24 24"><path d="M5 9c2-2 4-2 7 0s5 2 7 0M5 15c2-2 4-2 7 0s5 2 7 0"/></svg>Cheddar? <span class="cf pips" data-b="hi"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></span><p><b>Check.</b> Amber, dashed, light fill: Shopping's "Usual swap" slot. Wave sign, the suggestion, the confidence. <em>Close match; pulses until you answer.</em></p></div>
+<div><span class="sw nm"><svg viewBox="0 0 24 24"><path d="M9.5 9.5a2.5 2.5 0 115 0c0 2-2.5 2.2-2.5 4.2"/><path d="M12 17.3v.4"/></svg>New? Salmon</span><p><b>New?</b> Grey, dotted (2 px, not Shopping's 1 px), question mark. <em>No match. Pulses. Never added unless you say so.</em></p></div>
+<div><span class="sw na"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg>Discount</span><p><b>Not added.</b> Hairline, minus, the reason in one word. <em>Discount, bag, non-food; or crossed off by you. Never matched.</em></p></div></div>
+<div class="stand"><b>What the person sees besides the box:</b> a small tick in a circle at the corner of any line <b>they</b> answered (read and decided are different things); four counted chips under the picture that repeat the signs and words (<b>Ready</b> with "n top up, n new", <b>Check</b>, <b>New?</b>, <b>Not added</b>), tappable, counting everything read so far; and <b>Add N</b> in the control row's empty right slot. The prompt, the steadiness bar and the shutter ring, the flash and the haptics are Shopping's, unchanged.</div>
+<p class="mini2"><b>Deviations from Shopping, and why.</b> (1) A fourth chip and a split of green: Shopping has no "revise quantity" and no excluded-with-reason list. (2) Dotted is 2 px, not 1 px, and pulses: in Shopping "Other" is optional, here "New?" blocks nothing but is never added unasked, so it must not read as background. (3) Chips are buttons: counts open the Last look. (4) The right control slot is Add N, not empty. (5) The tag sits at the right end of the line, as built in #697, not straddling the top edge as the mockup drew it. (6) A tick-in-circle for answered lines: Shopping has no per-line answer on the picture.</p></div>
+
+<div class="sec"><div class="lbl">Four directions at a glance</div>
+<div class="tbl card"><table><tr><th></th><th>A Tap the paper</th><th>B Freeze and walk</th><th>C Cards under the camera</th><th>D Camera and list</th></tr>
+<tr><td><b>Where you answer</b></td><td>On the box you tap</td><td>On a held photo, one line at a time</td><td>A dock of cards above the shutter</td><td>A live list under the picture</td></tr>
+<tr><td><b>Camera while answering</b></td><td>Holds that frame, resumes after</td><td>Stopped (held photo)</td><td>Never stops</td><td>Never stops</td></tr>
+<tr><td><b>Confidence look</b></td><td>Five dots</td><td>Three rising bars</td><td>Ring</td><td>Five dots and a word</td></tr>
+<tr><td><b>No match</b></td><td>Flagged live; answered from its card or in the Last look</td><td>Crossed off on the photo itself</td><td>A card; cross off by swipe or button</td><td>A row; quick buttons, swipe</td></tr>
+<tr><td><b>Auto-capture means</b></td><td>Bank the screenful, slide on</td><td>Freeze the frame</td><td>Bank the screenful, slide on</td><td>Bank the screenful, slide on</td></tr>
+<tr><td><b>Desktop lane</b></td><td>Card of the line you picked, else the summary</td><td>The walk</td><td>The queue of cards</td><td>The list</td></tr>
+<tr><td><b>Strongest at</b></td><td>Most "live"; the answer is where you look</td><td>Shaky hands; the literal cross-off</td><td>One hand, thumb reach</td><td>Receipts you want to see as a list; desktop</td></tr>
+<tr><td><b>Risk</b></td><td>Tapping a moving paper (the held frame is the cure)</td><td>Least live; answering is after the capture</td><td>The dock takes picture height</td><td>A small picture, small boxes</td></tr></table></div>
+<p class="mini2" style="margin-top:10px"><b>Recommended default (a proposal, RS-43): A.</b> It is Shopping's own boxes made into the controls, so the answer lands where the eye already is and it is the least new vocabulary. The Last look (B's walk) is its safety net, so nothing is left unanswered. If a real phone shows that tapping a paper held in one hand is too fiddly, swap to C. B and D stay as drawn.</p></div>
+
+<div class="sec"><div class="lbl">Direction A: Tap the paper (recommended default)</div>
+<div class="cols two"><div class="card rec"><h3>The boxes are the controls</h3><p class="pitch">Tap a box on the live picture. The frame holds, the line comes up to the top of the picture, its card opens at the bottom. Answer it and the camera carries on.</p><ul>
+<li><b>Boxes:</b> the five drawings above. Ready lines need nothing; Check and New? pulse until answered.</li>
+<li><b>Confidence:</b> five dots (5, 3, 1) in the Check tag, on an opaque pill so they survive glare and motion. The card repeats them with the word.</li>
+<li><b>Confirm or override:</b> the card says <b>Yes, it's Cheddar</b> or <b>Not this one, new item</b>; <b>Pick another item</b> chips stay beside it (open question 8); on an exact line a <b>Top up | New item</b> switch (T) and an amount stepper.</li>
+<li><b>No match:</b> flagged live (dotted, pulsing, counted). It can be answered live from its card; the <b>Last look</b> (from the chip or the summary) walks every one left, so none is forgotten.</li>
+<li><b>Auto-capture:</b> unchanged. It <b>banks</b> each screenful and the receipt slides on, so a long receipt works. It waits while a card is open.</li></ul></div>
+<div class="card"><h3>Commit, undo, leave</h3><ul><li>Add N (right of the shutter) opens the summary: new items, topped up, left out, anything still unanswered with a Last look link, one button.</li><li>Then the Pantry with the changes marked and a toast: <b>Undo</b> with a 9 second countdown; the Pantry history keeps it for 5 minutes (RS-22, the window is open).</li><li>Done closes the camera and drops the read. Nothing was written.</li></ul><h3 style="margin-top:12px">Desktop</h3><p class="mini2">Rail, the 736 px column with the webcam (or a dropped photo), the 400 px lane. Click a box or press <b>J K</b>: the lane shows its card; with nothing picked the lane is the summary. Keys: <b>Y N X T 1 to 3 Z</b>, <b>Space</b> takes it now, <b>L</b> Last look, <b>Shift+Enter</b> adds. Escape lets go of a held line; it never closes the scan.</p></div></div>
+<div class="strip" data-strip="a" aria-label="Direction A, phone states"></div>
+<div data-desk="a" aria-label="Direction A, desktop"></div></div>
+
+<div class="sec"><div class="lbl">Direction B: Freeze and walk</div>
+<div class="cols two"><div class="card"><h3>Live to read, still to answer</h3><p class="pitch">The picture only reads: boxes and counts, nothing to tap. When it holds steady it is captured and the frame stays on screen as a held photo. The open lines are walked one at a time, the rest dimmed.</p><ul>
+<li><b>Boxes:</b> same drawings; on the held photo the current line has a ring and the others fade.</li>
+<li><b>Confidence:</b> three rising bars (the second look from RS-12). Walk card repeats it with the word.</li>
+<li><b>Confirm or override:</b> Yes / New on the card, <b>More</b> for Pick another item and the amount; Next, Back.</li>
+<li><b>No match:</b> crossed out <b>on the paper itself</b>: the scribble is drawn over the printed line, on the photo and on the card. This is the closest reading of "cross each one off". Add as new is the tick.</li>
+<li><b>Auto-capture:</b> unchanged; a capture freezes. <b>Scan the rest</b> goes back to live for the other half.</li></ul></div>
+<div class="card"><h3>Why it is here</h3><p class="mini2">It is the nearest to what Shopping did before, and the easiest with a shaky hand or a receipt held in the other hand: you never tap a moving target. It is also the least "live". The same walk is the Last look in A, C and D.</p><h3 style="margin-top:12px">Desktop</h3><p class="mini2">The column keeps the held photo and the shutter; the lane is the walk card. Keys as in A, with J K moving through the queue.</p></div></div>
+<div class="strip" data-strip="b" aria-label="Direction B, phone states"></div>
+<div data-desk="b" aria-label="Direction B, desktop"></div></div>
+
+<div class="sec"><div class="lbl">Direction C: Cards under the camera</div>
+<div class="cols two"><div class="card"><h3>The camera never stops</h3><p class="pitch">Nothing on the picture has to be tapped. Lines that need you drop into a dock of cards between the picture and the shutter, in the thumb's reach, and leave it when answered.</p><ul>
+<li><b>Boxes:</b> same drawings, read-only; tapping a box finds its card.</li>
+<li><b>Confidence:</b> a ring (thirds) in the tag and on the card.</li>
+<li><b>Confirm or override:</b> Yes / New on the card; More opens Pick another and the amount in place.</li>
+<li><b>No match:</b> a card with the printed line on it: tick to add as new, swipe across the line or Not an item to cross off. <b>Last look</b> is the dock made full size.</li>
+<li><b>Auto-capture:</b> banks and slides on, as A. The dock keeps its cards across screenfuls.</li></ul></div>
+<div class="card"><h3>Cost</h3><p class="mini2">The dock takes about 200 px of the picture, so the stage is smaller than A's. More on screen at once. It is the best for one-handed use. Desktop: the lane is the queue of cards, ready lines open in the lane when tapped.</p></div></div>
+<div class="strip" data-strip="c" aria-label="Direction C, phone states"></div>
+<div data-desk="c" aria-label="Direction C, desktop"></div></div>
+
+<div class="sec"><div class="lbl">Direction D: Camera and list</div>
+<div class="cols two"><div class="card"><h3>The paper printing out below the lens</h3><p class="pitch">The top half is the picture. The bottom half is a live list: one row per line, in receipt order, appearing as lines are read. The list is where decisions are made.</p><ul>
+<li><b>Boxes:</b> same drawings on the picture; tapping a box finds its row.</li>
+<li><b>Confidence:</b> five dots and the word on the row.</li>
+<li><b>Confirm or override:</b> open rows carry the quick answer (Yes / New, Add as new / Not an item); tap a row for the full card.</li>
+<li><b>No match:</b> a dotted row with its two quick buttons; the list is the queue, so there is no separate Last look.</li>
+<li><b>Auto-capture:</b> banks and slides on. Nothing needs the picture to hold still.</li></ul></div>
+<div class="card"><h3>Desktop is where it shines</h3><p class="mini2">Webcam in the column, the list is the whole lane, with the summary under it. On a phone the picture is small (262 px), so the boxes are small. It is revision 1's "Receipt order" with a camera above it.</p></div></div>
+<div class="strip" data-strip="d" aria-label="Direction D, phone states"></div>
+<div data-desk="d" aria-label="Direction D, desktop"></div></div>
+
+<div class="sec"><div class="lbl">Confidence over live video: dots, bars or ring (RS-12, RS-13, RS-37)</div>
+<p>Same three bands as before (85 and up, 60 to 84, under 60), never a percentage, never drawn like the Pantry's battery. What is new is the video: marks sit on an <b>opaque pill</b> so they survive glare and a busy background, they are small (5 px dots, 4 px bars, an 18 px ring), and a band changes only after <b>two looks agree</b> so it does not flicker. While the frame is blurry the boxes freeze with their last band. In low light the score is lowered 15%, so a borderline line reads lower, never wrongly higher. On the card it is bigger, with its word. <b>Not decided:</b> dots, bars or ring, and how it reads over live video against a static card (open question 6). Each direction defaults to a different look so they can be compared; any direction takes any look with <code>?conf=pips|bars|ring</code> or the panel.</p>
+<div class="strip" data-conf="1" aria-label="Three confidence looks over the live picture"></div></div>
+
+<div class="sec"><div class="lbl">Edge states (shared by every direction; shown on A)</div>
+<p>Shopping's prompts and tones are reused: a confident, outlined warning for blur; a softer, dashed, italic "best guess" for not-a-receipt, which looks different on purpose. A negative prompt needs two looks in a row. New here: too dark (with a light button when the phone has one), glare (a hatched patch over the washed-out lines), cut-off lines (a dashed open box and an arrow toward the edge; not matched until whole), "seen again" (a line read twice is counted once), and the desktop's dropped photo. Counts of lines already read are kept when the camera sees a wall.</p>
+<div class="strip" data-edge="1" aria-label="Edge states"></div></div>
+
+<div class="sec"><div class="lbl">Default path and what is deferred (DESIGN.md section 6)</div>
+<div class="card"><ul>
+<li><b>This index</b> loads <code>theme.css</code>, <code>shared.css</code>, <code>lv.css</code>, <code>theme.js</code> and <code>lv-hub.js</code>. The frames are the real pages and load lazily as they scroll into view.</li>
+<li><b>A direction page</b> loads <code>theme.css</code>, <code>rs.css</code>, <code>lv.css</code>, the Pantry shell for its width (<code>phone.css</code> or <code>desktop.css</code>, plus <code>tablet.css</code>), <code>rs-data.js</code>, <code>lv-core.js</code>, its own <code>lv-x.js</code>, <code>lv-run.js</code>, and only the viewport's own <code>lv.phone.js</code> or <code>lv.desktop.js</code>. It never calls <code>getUserMedia</code>; a clock plays the camera.</li>
+<li><b>In the build</b> nothing loads on page load. The camera, the looking and the reader's worker start when the person chooses Scan a receipt in Add; the reader is the existing one (the worker's <code>frame</code> message from #695), about 16 MB on first use, the same download question as before on a metered connection. No new engine.</li>
+<li><b>Deferred here on purpose:</b> the real read, hosting and the write path (edge-ocr.md sections 4 to 7); a real phone.</li></ul></div></div>
+
+<div class="sec"><div class="lbl">Not verified without a real phone</div>
+<div class="card"><ul><li>Whether tapping a box on a paper held in one hand is practical, even with the frame held (A); whether the dock (C) or the held photo (B) is better in a shaking hand. The owner's call after trying it.</li><li>Real focus, exposure, noise, rotation and frame rate; the blur and steadiness numbers (Shopping's, still open); the light button (not every phone or browser exposes it); speed and battery with the Pantry's matching on top of the read.</li><li>How the amber and green read in sunlight over a real feed. Everything here is on a drawn stand-in for the camera.</li></ul></div></div>
+
+<div class="sec"><div class="lbl">Open for the owner (carried forward, not resolved)</div>
+<ol class="decs"><li><b class="n">1</b>Which direction (recommended default A).</li>
+<li><b class="n">2</b>Does Kitchie keep separate batches of one item (RS-5)? If not, every exact match is a top up and the New item look disappears from the green.</li>
+<li><b class="n">3</b>Is price stored (RS-18)? The mockup shows it only to check (printed beside each line and on the card).</li>
+<li><b class="n">4</b>Where do no-match new items go (RS-23)? The mockup puts them under "Where do these go?" with no place yet.</li>
+<li><b class="n">5</b>The undo window (RS-22): 9 seconds on screen plus 5 minutes in history here.</li>
+<li><b class="n">6</b>Confidence as dots, bars or ring (RS-12), and how it renders over live video against a static card.</li>
+<li><b class="n">7</b>Combine duplicate lines by default (RS-16, RS-35)?</li>
+<li><b class="n">8</b>Keep "Pick another item" beside the owner's override-to-new (RS-8)?</li></ol>
+<p class="mini2">New with this revision, my own: whether a live Check should use the household's substitution rules or the Pantry's names and learned aliases (Shopping uses a built-in swap list); whether a no-match answered live is acceptable or the Last look is the only place (RS-33); haptics on answers (RS-51); what Done does with answers already given (RS-49).</p></div>
+
+<div class="sec"><div class="lbl">Decisions RS-29 to RS-54 (proposed, none confirmed). RS-1 to RS-28 stand unless listed as superseded below.</div>
+<ol class="decs" style="list-style:none">
+<li><b class="n">RS-29</b><b>The matching logic stands.</b> Exact, close, none; exact says Top up or New item (RS-5); a close match is never pre-confirmed (RS-8); no match is never added unasked (RS-10); discount, bag and non-food lines are left out with a reason and never matched (RS-14, reconfirmed by the owner 14 Oct). The mockup's rule is the same function as revision 1's. Only where and when it is answered moves.</li>
+<li><b class="n">RS-30</b><b>Live boxes keep Shopping's drawings and extend them by sign, word and edge.</b> Top up: green, up arrow, amount. New item: the same green, layers sign, a doubled edge. Check: amber dashed, wave, suggestion, confidence. New?: grey dotted 2 px, question mark, pulses. Not added: hairline, minus, a one-word reason. A tick in a circle marks a line the person answered.</li>
+<li><b class="n">RS-31</b><b>Four counted chips, tappable.</b> Ready (n top up, n new), Check, New?, Not added. They count everything read on this scan, not only what is in view. Check, New? and Not added open the Last look on those lines; Ready opens the summary.</li>
+<li><b class="n">RS-32</b><b>Add N takes the control row's empty right slot</b> (dashed and disabled at 0 ready). The commit is where the thumb already is.</li>
+<li><b class="n">RS-33</b><b>No match is flagged live and answered actively.</b> "Cross each one off" needs a still page, so: live, a pulsing dotted "?" box and the New? chip; the answer is a tick (Add as new) or a cross-off (Not an item) from the line's card, live in A, C and D, and always available in the <b>Last look</b>, which walks every line left on a held frame. In B the cross-off is drawn on the held photo itself. Unanswered lines are never added; the summary says how many. A wrong guess costs a redraw of where the answer lives.</li>
+<li><b class="n">RS-34</b><b>Auto-capture and steadiness are Shopping's, unchanged</b> (4 looks, 1.2 s, 75% within 0.6 of a line height, none blurry; the ring, the bar, the flash; haptics 15 and 30 ms). What a capture does changes: it banks the screenful (A, C, D) or freezes the frame (B). The manual shutter does the same. In A it waits while a card is open.</li>
+<li><b class="n">RS-35</b><b>A long receipt is read in screenfuls, each line counted once.</b> A line is tracked by its words and place; a line seen again after the paper slides is "Seen again, not counted twice". Two real identical lines combine into one box "x2" (RS-16 stands; Keep separate on the card). This answers Shopping's open "long receipts in several parts" for the Pantry.</li>
+<li><b class="n">RS-36</b><b>Cut-off lines are not read.</b> A line cut by the frame edge gets a dashed open box and "Cut off" with an arrow; it is not matched, counted or tagged until whole. A soft prompt says so.</li>
+<li><b class="n">RS-37</b><b>Confidence on a live box.</b> On Check boxes only (exact lines are certain, no-match has nothing to rate). The three bands of RS-12 on an opaque pill; a band changes after two looks agree; frozen while blurry; lowered 15% in the dark. The card shows the same mark with its word.</li>
+<li><b class="n">RS-38</b><b>The card is the line detail, unchanged.</b> The printed text and price (shown to check, RS-18), how the amount was read (RS-17), Yes or Not this one, Pick another item, the Top up | New item switch, the amount stepper, Combined from 2 lines. Used as a sheet, a lane, a dock card, a walk step or an open list row.</li>
+<li><b class="n">RS-39</b><b>Direction A.</b> Tap a box: the frame holds, the line comes up to the top third of the picture, the card opens (a sheet on a phone, the lane on a desktop). Answering an open line closes it and the camera carries on. Auto-capture waits while a card is open.</li>
+<li><b class="n">RS-40</b><b>Direction B.</b> Live boxes are read-only. A capture freezes the frame (a held photo, a solid outline). The open lines are walked one at a time, the others dimmed. A no-match line is crossed out on the paper by drawing Shopping's scribble over it (danger tone, the five hand-drawn paths). Scan the rest returns to live.</li>
+<li><b class="n">RS-41</b><b>Direction C.</b> The camera never stops. Open lines are cards in a dock above the shutter, Check first. An answered card leaves. Tapping a box finds its card; tapping a Ready box opens a sheet. The Last look is the dock made full size.</li>
+<li><b class="n">RS-42</b><b>Direction D.</b> A live list in receipt order under a shorter picture. Open rows have quick answers; a row opens to the card; tapping a box finds its row. The list is the queue; on desktop it is the lane.</li>
+<li><b class="n">RS-43</b><b>Recommended default: A</b> (a proposal). Fewest new ideas; the answer is where the eye is. Swap to C if a real phone says tapping is too fiddly.</li>
+<li><b class="n">RS-44</b><b>Desktop layout and keys.</b> Rail 88, column 736 with the webcam, lane 400 (RS-25 amended: the lane is per direction). Keys as RS-26 plus Space (take it now), L (Last look), Shift+Enter (add). Escape lets go of a held line only; Ctrl or Cmd+Enter or Done closes (the Pantry's rule). Viewport code in <code>lv.desktop.js</code> and <code>lv.desktop.css</code>.</li>
+<li><b class="n">RS-45</b><b>On a desktop a photo is a first-class path.</b> Webcams are poor at receipts. Drop, paste or choose draws the same boxes on a still (no steadiness ring; a "Photo" read) and a second photo adds the other half (RS-2's rule, kept for photos).</li>
+<li><b class="n">RS-46</b><b>Edge prompts.</b> Blur (confident outline, boxes freeze at the last good read, no capture); not a receipt (soft, dashed, italic; counts kept); too dark (outline, a light button if the phone has one); glare (outline, a hatched patch); cut off (soft); resting after 150 s (Resume); camera refused (one screen, Take or choose a photo). Shopping's wording and tones are kept; a negative prompt needs two looks.</li>
+<li><b class="n">RS-47</b><b>Light button.</b> Appears in the top bar only when it is dark and the phone exposes a torch; otherwise the prompt says what to do.</li>
+<li><b class="n">RS-48</b><b>Commit, summary, undo.</b> Add N opens the RS-21 summary as a sheet (phone) or the lane (desktop), with the unanswered reminder and a Last look link. Add N to the Pantry releases the camera and shows the Pantry with the changes marked and a toast: Undo with a 9 second countdown, 5 minutes in history (RS-22 stands, window open).</li>
+<li><b class="n">RS-49</b><b>Done leaves without adding.</b> It closes the camera and drops the read. Proposal: ask first if any line was answered; the mockup does not.</li>
+<li><b class="n">RS-50</b><b>Entry is inside Add (RS-1 stands).</b> The live revision draws the tile ("Scan a receipt"). Choosing it opens the camera at once; there is no capture sheet between. Revision 1's other entries (switch, caret, camera in the item box) are untouched and still open as presentation.</li>
+<li><b class="n">RS-51</b><b>Haptics.</b> 15 ms the first time a line becomes Ready two looks running (once per line); 30 ms on a capture; 10 ms on an answer. Nothing when a Check or New? line appears (it would buzz all the time).</li>
+<li><b class="n">RS-52</b><b>Tag position as built.</b> At the right end of the line, centred on it, as in #697; the box edge is drawn outside the text so a tight line is not covered.</li>
+<li><b class="n">RS-53</b><b>Viewport code in its own files</b> (RS-27 extended): <code>lv.phone.js</code> and <code>lv.phone.css</code>, <code>lv.tablet.css</code>, <code>lv.desktop.js</code> and <code>lv.desktop.css</code>; the shared <code>lv.css</code>, <code>lv-core.js</code>, <code>lv-run.js</code> carry no size rules. The Pantry shell (<code>phone.css</code>, <code>tablet.css</code>, <code>desktop.css</code>) is revision 1's, reused.</li>
+<li><b class="n">RS-54</b><b>For the build.</b> Reuse the existing worker (the <code>frame</code> message from #695) and the browser's <code>matching.ts</code>; no new engine. Match a tracked line once and again only if its text changes (cost). Class names: Shopping's <code>rl-*</code> for the shared drawings, <code>lv-*</code> for the Pantry's own. The mockup's <code>LV.out</code> equals revision 1's <code>RS.out</code>. <code>--cue</code> here is <code>--added</code> in Kitchie's stylesheet.</li></ol>
+
+<div class="lbl" style="margin-top:16px">Superseded by this revision (the old text stays in the job note, marked)</div>
+<div class="tbl card"><table class="sup"><tr><th>Decision</th><th>What replaced it, and why</th></tr>
+<tr><td>RS-2 capture: the phone's own camera, no live preview; up to three photos</td><td>The live viewfinder is the capture (RS-34, RS-35). Photo thrown away and the picker as a fallback stand. Shopping moved to live; the Pantry should feel the same.</td></tr>
+<tr><td>RS-19 bad reads: a banner on a review, a retake link, a dark-photo warning</td><td>Live prompts (RS-46). The "nothing found" empty state stays for the photo path.</td></tr>
+<tr><td>RS-24 the review as a full page with a sticky bar</td><td>There is no review page: the viewfinder is the review. The summary stays a sheet (RS-48).</td></tr>
+<tr><td>"What this job does not need: no live camera preview"</td><td>Reversed by the owner's correction.</td></tr>
+<tr><td>RS-25 desktop lane (Add flyout, inspector, summary)</td><td>Amended (RS-44): the lane is the direction's own.</td></tr>
+<tr><td>RS-26 keys</td><td>Amended (RS-44): added Space, L, Shift+Enter; Escape only lets go.</td></tr>
+<tr><td>Revision 1's options A to D (Receipt order, Sort the pile, The paper page, One at a time)</td><td>Archived as capture-then-review. Reachable at <a href="v1.html" style="text-decoration:underline">v1.html</a>. D's "Receipt order" idea lives on as live direction D.</td></tr></table></div>
+<p class="mini2" style="margin-top:8px">Stand unchanged: RS-1 (entry inside Add), RS-3 to RS-18, RS-20 (first use download, offline), RS-21 (commit is a summary), RS-22, RS-23, RS-27, RS-28.</p></div>
+
+<div class="sec"><div class="lbl">Sizes and files</div>
+<div class="tbl card"><table><tr><th>Size</th><th>Layout</th><th>Files</th></tr>
+<tr><td>Phone, under 600</td><td>A full-screen viewfinder, as Shopping; the Pantry's tab bar and sheets for the entry, summary and card</td><td><code>lv.phone.js</code>, <code>lv.phone.css</code></td></tr>
+<tr><td>Tablet, 600 to 1023</td><td>The phone layout, centred and wider</td><td>also <code>lv.tablet.css</code></td></tr>
+<tr><td>Desktop, 1024 and up</td><td>Rail 88, column 736 (webcam or dropped photo), right lane 400; keyboard, drop and paste</td><td><code>lv.desktop.js</code>, <code>lv.desktop.css</code></td></tr></table></div>
+<p class="mini2" style="margin-top:8px">Check: <code>node tools/receipt-scan-live-check.mjs</code> (456 pages at 390, 768 and 1280, light and dark, then a click-through of the whole flow in every direction, then the clock).</p></div>
+</div>
+<script src="lv-hub.js"></script></body></html>
