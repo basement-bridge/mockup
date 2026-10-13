@@ -80,11 +80,27 @@ window.PUR = (function () {
   ];
   /* Total time (Plan UI review 124): ONE figure per meal, minutes; never a prep and cook split. */
   function mins(m) { var n = m.mins; if (!n) return ''; return n < 60 ? n + ' min' : Math.floor(n / 60) + ' h' + (n % 60 ? ' ' + (n % 60) + ' min' : ''); }
-  function inMine(m) { return m.who === 'all' || m.who.indexOf('sam') > -1; }
+  /* Plan UI review 208 (owner-stated, 13 Oct 2026): a household meal (who: 'all') may carry NAMED PARTICIPANTS (part: a list of ids). No part = everyone in the household (the default); a part = only those people. A person's own meal (who: a list) is theirs and is not a household meal.
+     A named-subset meal shows in the plan of each person named and in Household, not in the plan of someone who is not named (Proposal, 210). Mine means Sam (the signed-in sample person). */
+  function inPart(m, id) { return !m.part || m.part.indexOf(id) > -1; }
+  function inMine(m) { return m.who === 'all' ? inPart(m, 'sam') : m.who.indexOf('sam') > -1; }
   /* Plan UI review 201 (owner-stated, 13 Oct 2026: "Household"): the person filter option that was "Everyone" is "Household". Its id is 'household' on the phone; 'everyone' is the old id and still means the same (desktop keeps it, and old links work). */
   function isHH(v) { return v === 'household' || v === 'everyone'; }
-  function match(m, f) { if (isHH(f)) return true; if (f === 'mine') return inMine(m); return m.who === 'all' || m.who.indexOf(f) > -1; }
-  function whoLabel(m, hh) { return m.who === 'all' ? (hh ? 'Household' : 'Everyone') + ' · ' + m.n + ' people' : m.who.map(function (i) { return people.filter(function (p) { return p.id === i; })[0].n; }).join(', ') + ' · ' + m.n + ' ' + (m.n === 1 ? 'person' : 'people'); }
+  function match(m, f) { if (isHH(f)) return true; if (f === 'mine') return inMine(m); return m.who === 'all' ? inPart(m, f) : m.who.indexOf(f) > -1; }
+  function pname(i) { return people.filter(function (p) { return p.id === i; })[0].n; }
+  /* 209 (Proposal): the audience line of a household meal. Everyone: "Household". Named subset: the names in order, three at most ("Sam, Jane, Priya"), more than three: the first two and "+N" ("Sam, Jane +2"), so it stays one line at 360 wide. The line never carries the servings count (the stepper in the detail does). The desktop call (hh false) keeps its old line. */
+  function whoLabel(m, hh) {
+    if (m.who === 'all') { if (!hh) return 'Everyone · ' + m.n + ' people'; if (!m.part) return 'Household'; var nm = m.part.map(pname); return nm.length > 3 ? nm.slice(0, 2).join(', ') + ' +' + (nm.length - 2) : nm.join(', '); }
+    return m.who.map(pname).join(', ') + ' · ' + m.n + ' ' + (m.n === 1 ? 'person' : 'people');
+  }
+  function whoFull(m) { return m.who === 'all' && m.part ? 'for ' + m.part.map(pname).join(', ').replace(/, ([^,]*)$/, ' and $1') + ', ' + m.part.length + ' of the household' : ''; }
+  /* The phone's copy of the sample meals: the same list plus the participants overlay (208), so the desktop file, which reads P.meals, is not changed: Salmon patties is for Sam, Jane and Priya; Veggie dumplings (Fri 16) is for Jane, Priya and Kit, so it is in Household but not in Mine. */
+  function phoneMeals() {
+    var o = JSON.parse(JSON.stringify(meals));
+    o.forEach(function (m) { if (m.id === 'thu-salmon') { m.part = ['sam', 'jane', 'priya']; m.n = 3; } });
+    o.push({ id: 'fri-dump', mins: 30, day: 'd16', em: '🥟', t: 'Veggie dumplings', who: 'all', part: ['jane', 'priya', 'kit'], n: 3, src: 'saved', miss: [['wonton wrappers', '1 pack']], have: [['cabbage', '1/2'], ['spring onion', '1 bunch']], useby: [], list: 0, held: 0, note: '' });
+    return o;
+  }
   /* Surprise me (owner-confirmed heuristics, decision 94): timing aware, never a repeat of a recent meal. Returns a copy of a candidate. */
   function surprise(meals, d, today) {
     var di = function (x) { return RIB.map(function (r) { return r.id; }).indexOf(x); }, r = dinfo(d), du = di(d) - di(today), late = r.wk === 0 && r.i % 7 >= 4, kind = (du <= 1 || late) ? 'stock' : 'new';
@@ -156,5 +172,5 @@ window.PUR = (function () {
   }
   /* a long ingredient list for the dock demo (?long=1): a real cook sheet can have 20 lines */
   var LONG = [['garlic', '4 cloves'], ['ginger', '1 thumb'], ['cumin', '2 tsp'], ['coriander', '2 tsp'], ['turmeric', '1 tsp'], ['chilli flakes', '1 tsp'], ['stock cube', '2'], ['coconut milk', '1 tin'], ['apple', '1'], ['honey', '1 tbsp'], ['soy sauce', '2 tbsp'], ['peas', '1 cup'], ['sultanas', '1 handful'], ['spring onion', '1 bunch'], ['vegetable oil', '3 tbsp'], ['salt', 'to taste']];
-  return { mins: mins, clearWeek: clearWeek, clearWeek2: clearWeek2, baseOwners: baseOwners, scopeOf: scopeOf, isHH: isHH, routineDefault: routineDefault, baseBlocked: baseBlocked, ROUTINE: ROUTINE, useRange: useRange, LONG: LONG, surprise: surprise, copyLast: copyLast, icons: icons, people: people, DOW: DOW, RIB: RIB, DAYS: DAYS, REL: REL, did: did, dinfo: dinfo, meals: meals, blocked: blocked, tips: tips, SUR: SUR, match: match, inMine: inMine, whoLabel: whoLabel };
+  return { mins: mins, clearWeek: clearWeek, clearWeek2: clearWeek2, baseOwners: baseOwners, scopeOf: scopeOf, isHH: isHH, routineDefault: routineDefault, baseBlocked: baseBlocked, ROUTINE: ROUTINE, useRange: useRange, LONG: LONG, surprise: surprise, copyLast: copyLast, icons: icons, people: people, DOW: DOW, RIB: RIB, DAYS: DAYS, REL: REL, did: did, dinfo: dinfo, meals: meals, phoneMeals: phoneMeals, whoFull: whoFull, blocked: blocked, tips: tips, SUR: SUR, match: match, inMine: inMine, whoLabel: whoLabel };
 })();

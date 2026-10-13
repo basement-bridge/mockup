@@ -1,5 +1,5 @@
 // Behaviour check for the Plan UI phone mockup, the follow-up of 13 Oct 2026 (Plan UI review 201 to 205, owner-stated, typed): the person filter option is "Household" (201), the long hold on "Week of ..." moves the LIST to today (202),
-// Clear week acts on the current filter scope and never on the past (203), another person's meal opens a read-only detail where Hold and Add still work (204, 205). Headless Chromium, touch and mouse, dark and light, reduced motion.
+// Clear week acts on the current filter scope and never on the past (203), another person's meal opens a read-only detail with nothing to hold or add (204, then 206). Headless Chromium, touch and mouse, dark and light, reduced motion.
 // Usage:  python3 -m http.server 8123 &   then   NODE_PATH=/opt/node22/lib/node_modules node tools/plan-ui-household-check.mjs      (BASE=... to point elsewhere)
 import { createRequire } from "module";
 const req = createRequire(import.meta.url); let pw; try { pw = req("playwright-core"); } catch (e) { pw = req("playwright"); }
@@ -31,7 +31,7 @@ for (const [scheme, reduced, w, h, touch] of [["dark", false, 390, 844, true], [
     ok(`${tag} A: the dropdown lists Mine, Household (sub-label "the household plan: you can change it") and the other members; nothing says Everyone`, items.some(t => /^Mine/.test(t)) && items.some(t => /^Household/.test(t) && /the household plan: you can change it/.test(t)) && !items.some(t => /Everyone/.test(t)), items);
     await tap(p.locator('.dd [data-view="household"]')); await sleep(300);
     ok(`${tag} A: choosing it shows Household on the filter button and as the view id`, /Household/.test(await p.locator(".fmenu").innerText()) && (await S(p, "window.__plan.S.view")) === "household");
-    ok(`${tag} A: a shared meal reads "Household · 4 people" in its tile`, /Household · 4 people/.test(await p.locator(".pw-day .mc").first().innerText()));
+    ok(`${tag} A: a household meal reads "Household" in its tile (no people count on the line)`, /^Household$/m.test(await p.locator(".pw-day .mc").first().innerText()));
     const txt = await S(p, "document.body.innerText + ' ' + [].map.call(document.querySelectorAll('[aria-label],[title]'), function (e) { return (e.getAttribute('aria-label') || '') + ' ' + (e.title || ''); }).join(' ')");
     ok(`${tag} A: no text, aria-label or title anywhere on the page says Everyone`, !/Everyone/i.test(txt));
     await tap(p.locator("[data-opts]")); await sleep(250); ok(`${tag} A: the Options panel does not say Everyone`, !/Everyone/.test(await p.locator(".optpanel").innerText()));
@@ -87,13 +87,13 @@ for (const [scheme, reduced, w, h, touch] of [["dark", false, 390, 844, true], [
     ok(`${tag} C: Household: the Clear button names its scope`, /Clear week, household/.test(await p.locator(".hd [data-clearw]").getAttribute("aria-label")));
     await tap(p.locator(".hd [data-clearw]")); await sleep(500);
     const after = await ids(p), b = await S(p, "window.__plan.S.blocked"), msg = await S(p, "window.__plan.S.note.msg");
-    ok(`${tag} C: Household clears the household's planned meals, today included (Tue 13, Wed 14, Thu 15 Salmon)`, ["tue-pasta", "wed-curry", "thu-salmon"].every(i => !after.includes(i)), after);
+    ok(`${tag} C: Household clears the household's planned meals, today included (Tue 13, Wed 14, Thu 15 Salmon, Fri 16 dumplings, the last two for named people)`, ["tue-pasta", "wed-curry", "thu-salmon", "fri-dump"].every(i => !after.includes(i)), after);
     ok(`${tag} C: it leaves the meals that are only in my own plan (Tuna salad, Fri 16 leftovers) and the changes I made (Fri 16, Sun 18 stay opened)`, after.includes("thu-tuna") && after.includes("fri-left") && !b.d16 && !b.d18, [after, b]);
     ok(`${tag} C: it clears the household's own mark (Sat 17 is open again)`, !b.d17, b);
     ok(`${tag} C: today is cleared, the past is not (Mon 12 Shakshuka and last week stay)`, ["mon-shak", "l-mon", "l-tue", "l-wed", "l-fri", "l-sun"].every(i => after.includes(i)) && b.d10 === "once", after);
     ok(`${tag} C: next week is untouched (Thu 22 mark, Fri 23 opened, Sun 25 usual)`, b.d22 === "once" && !b.d23 && b.d25 === "usual", b);
-    ok(`${tag} C: the day says it was the household plan and that 2 personal meals stay`, /\(household plan\)/.test(msg) && /2 personal meals stay/.test(msg) && /Cleared 3 meals and 1 Not cooking change/.test(msg), msg);
-    ok(`${tag} C: the Undo flip names the scope (clear, household) and the sub line starts with Household`, /clear, household/i.test(await p.locator(".hd .flipundo").innerText()) && /^Household: cleared 3 meals and 1 change/.test(await p.locator("#wks").innerText()));
+    ok(`${tag} C: the day says it was the household plan and that 2 personal meals stay`, /\(household plan\)/.test(msg) && /2 personal meals stay/.test(msg) && /Cleared 4 meals and 1 Not cooking change/.test(msg), msg);
+    ok(`${tag} C: the Undo flip names the scope (clear, household) and the sub line starts with Household`, /clear, household/i.test(await p.locator(".hd .flipundo").innerText()) && /^Household: cleared 4 meals and 1 change/.test(await p.locator("#wks").innerText()));
     ok(`${tag} C: the header fits with the Undo showing, and no sideways scroll`, await fits(p));
     await tap(p.locator(".hd .flipundo")); await sleep(400); ok(`${tag} C: Undo restores exactly what Household cleared`, (await snapAll(p)) === pre); await p.close(); }
   { const p = await open(ctx, "who=priya", errs); const pre = await snapAll(p); ok(`${tag} C: another person's plan: no Clear button at all`, (await p.locator(".hd [data-clearw]").count()) === 0);
@@ -111,7 +111,7 @@ for (const [scheme, reduced, w, h, touch] of [["dark", false, 390, 844, true], [
   { const p = await open(ctx, "", errs); await S(p, "window.__plan.showWeek('d05')"); await sleep(600); ok(`${tag} C: last week (past): Clear is disabled in Mine`, await p.locator(".hd [data-clearw]").isDisabled()); await p.close();
     const q = await open(ctx, "who=household", errs); await S(q, "window.__plan.showWeek('d05')"); await sleep(600); ok(`${tag} C: last week (past): Clear is disabled in Household too`, await q.locator(".hd [data-clearw]").isDisabled()); await q.close(); }
 
-  // ---------- D. another person's meal: read only, but Hold and Add work (204) ----------
+  // ---------- D. another person's meal: read only, nothing to hold or add (204, superseded by 206; the full sweep is in plan-ui-readonly-check.mjs) ----------
   { const p = await open(ctx, "who=priya", errs); await S(p, "window.__plan.showWeek('d14')"); await sleep(500);
     const tile = p.locator('.mc[data-id="wed-curry"]'); await tile.scrollIntoViewIfNeeded(); await tap(tile); await sleep(900);
     const planBefore = await snapPlan(p);
@@ -119,9 +119,8 @@ for (const [scheme, reduced, w, h, touch] of [["dark", false, 390, 844, true], [
     ok(`${tag} D: it says so with the eye and "View only, Priya's plan" (no other words)`, norm(await p.locator(".ronote").innerText()) === "View only, Priya's plan" && (await p.locator(".ronote svg").count()) === 1 && (await p.locator(".ronote svg path").first().getAttribute("d")) === (await p.locator(".vo svg path").first().getAttribute("d")));
     const html = await p.locator("main").innerHTML(); ok(`${tag} D: no plan-changing control is in the detail or the tiles (no replan, Not cooking, move, copy forward)`, !FRAGILE.test(html), (html.match(FRAGILE) || [])[0]);
     ok(`${tag} D: the people stepper is disabled`, await p.locator(".dkb [data-n], .sbody [data-n]").evaluateAll(es => es.length === 2 && es.every(e => e.disabled)));
-    const foot = (await p.locator(".sfoot button").allInnerTexts()).map(norm); ok(`${tag} D: the footer has Hold 5 and Add 1, nothing else`, foot.length === 2 && foot[0] === "Hold 5" && foot[1] === "Add 1", foot);
-    ok(`${tag} D: the missing ingredient has its cart (1), the other missing one is already on the list`, (await p.locator(".ing [data-addone]").count()) === 1 && (await p.locator(".ing .onl").count()) === 1);
-    const hb = await p.locator(".sfoot [data-hold]").boundingBox(), ab = await p.locator(".sfoot [data-addall]").boundingBox(); ok(`${tag} D: Hold and Add are 44 px targets`, hb.height >= 43.5 && ab.height >= 43.5, [hb, ab]);
+    ok(`${tag} D: there is no footer at all (no Hold 5, no Add 1)`, (await p.locator(".sfoot").count()) === 0);
+    ok(`${tag} D: no cart on the missing ingredient; the one already on the list keeps its quiet mark (status, not a control)`, (await p.locator(".ing [data-addone], .ing .ib").count()) === 0 && (await p.locator(".ing .onl").count()) === 1);
     await tap(p.locator("[data-more]").first()); await sleep(300); const items = (await p.locator(".asheet .it").allInnerTexts()).map(norm);
     ok(`${tag} D: the ... menu offers Open recipe only`, items.length === 1 && /Open recipe/.test(items[0]), items); await p.keyboard.press("Escape"); await sleep(300);
     await S(p, "document.activeElement && document.activeElement.blur()"); await p.keyboard.press("x"); await p.keyboard.press("Shift+X"); await sleep(250); ok(`${tag} D: X and Shift X change nothing and the detail stays`, (await snapPlan(p)) === planBefore && (await S(p, "window.__plan.S.sel")) === "wed-curry");
@@ -129,39 +128,30 @@ for (const [scheme, reduced, w, h, touch] of [["dark", false, 390, 844, true], [
     await holdAt(ctx, p, touch, c.x + c.width / 2, c.y + c.height / 2, 750); await sleep(250); ok(`${tag} D: swipes and a long press on the tile do nothing (no lift, no drag)`, (await snapPlan(p)) === planBefore && (await S(p, "!window.__plan.S.carry")) && (await p.locator(".mc.hold, .hand, .lifted, .mc.drag").count()) === 0);
     await S(p, "window.__plan.S.note = null; window.__plan.render(false)"); const ctl = await p.locator("main button, main select, main [tabindex='0']").evaluateAll(es => es.filter(e => !e.disabled && e.offsetParent !== null).map(e => [...e.attributes].map(a => a.name).join(" ")));
     ok(`${tag} D: no control reachable by touch, mouse or Tab is a plan-changing one`, ctl.length > 3 && !ctl.some(t => /data-(act|replan|nocook|moveto|copy|n|pcsel|block|openday|unblock|od-b)\b/.test(t)), ctl.slice(0, 14));
-    const held0 = await S(p, "window.__plan.find('wed-curry').held");
-    await tap(p.locator(".sfoot [data-hold]")); await sleep(350); ok(`${tag} D: Hold works in their plan: it sets my hold on that meal and the button reads Release 5`, (await S(p, "window.__plan.find('wed-curry').held")) === 1 - held0 && norm(await p.locator(".sfoot [data-hold]").innerText()) === "Release 5", await p.locator(".sfoot [data-hold]").innerText());
-    ok(`${tag} D: Hold says what it did`, /Holding the ingredients/.test(await S(p, "window.__plan.S.note.msg")));
-    await tap(p.locator(".sfoot [data-hold]")); await sleep(350); ok(`${tag} D: Release works too (back to Hold 5)`, (await S(p, "window.__plan.find('wed-curry').held")) === held0 && norm(await p.locator(".sfoot [data-hold]").innerText()) === "Hold 5");
-    const listed0 = await S(p, "window.__plan.find('wed-curry').miss.filter(function (x) { return x[2]; }).length");
-    await tap(p.locator(".ing [data-addone]").first()); await sleep(350);
-    ok(`${tag} D: the cart on one ingredient adds it to MY shopping list (listed ${listed0} to ${listed0 + 1}), and Add 1 is gone from the footer`, (await S(p, "window.__plan.find('wed-curry').miss.filter(function (x) { return x[2]; }).length")) === listed0 + 1 && (await p.locator(".sfoot [data-addall]").count()) === 0 && (await p.locator(".ing .onl").count()) === 2);
+    const held0 = await S(p, "window.__plan.find('wed-curry').held"), snap0 = await snapAll(p);
+    await p.keyboard.press("h"); await p.keyboard.press("l"); await S(p, "window.__plan.act('hold', 'wed-curry'); window.__plan.act('list', 'wed-curry')"); await sleep(300);
+    ok(`${tag} D: the H and L keys and the handlers do nothing in their plan (hold stays ${held0}, nothing added, no toast)`, (await snapAll(p)) === snap0 && !(await S(p, "!!window.__plan.S.note")));
     ok(`${tag} D: the plan itself did not change (meals, days, people, Not cooking)`, (await snapPlan(p)) === planBefore); await p.close(); }
-  { const p = await open(ctx, "who=priya", errs); await S(p, "window.__plan.showWeek('d15')"); await sleep(400); await S(p, "window.__plan.openDetail('thu-salmon')"); await sleep(800);
-    const un = await S(p, "window.__plan.find('thu-salmon').miss.filter(function (x) { return !x[2]; }).length"); await tap(p.locator(".sfoot [data-addall]")); await sleep(400);
-    const m = await S(p, "window.__plan.find('thu-salmon')"); ok(`${tag} D: Add all adds every missing ingredient (${un}) to my list, the note says so, with Undo`, m.miss.every(x => x[2]) && /Added \d items? to the shopping list/.test(await S(p, "window.__plan.S.note.msg")) && (await S(p, "window.__plan.S.note.undo")), m.miss);
-    await p.keyboard.press("z"); await sleep(350); ok(`${tag} D: Undo takes the Add back`, (await S(p, "window.__plan.find('thu-salmon').miss.filter(function (x) { return !x[2]; }).length")) === un);
-    await S(p, "window.__plan.closeDetail()"); await sleep(500);
-    const tile = p.locator('.mc[data-id="thu-salmon"]'); await tile.scrollIntoViewIfNeeded(); await tile.focus(); await p.keyboard.press("h"); await sleep(300); ok(`${tag} D: the H key on a focused tile holds it (my hold)`, (await S(p, "window.__plan.find('thu-salmon').held")) === 1);
-    const tile2 = p.locator('.mc[data-id="thu-salmon"]'); await tile2.focus(); await p.keyboard.press("l"); await sleep(300); ok(`${tag} D: the L key adds its missing items to my list`, await S(p, "window.__plan.find('thu-salmon').miss.every(function (x) { return x[2]; })")); await p.close(); }
-  { // a hold is one shared state: what I hold in their plan is held in mine
-    const p = await open(ctx, "who=priya", errs); await S(p, "window.__plan.act('hold', 'wed-curry')"); await sleep(200); const heldIn = await S(p, "window.__plan.find('wed-curry').held");
+  { // what I hold in my own plan stays mine, and is not touched from theirs
+    const p = await open(ctx, "", errs); await S(p, "window.__plan.act('hold', 'wed-curry')"); await sleep(200); const heldIn = await S(p, "window.__plan.find('wed-curry').held");
+    await tap(p.locator("[data-fmenu]")); await sleep(250); await tap(p.locator('.dd [data-view="priya"]')); await sleep(350); await S(p, "window.__plan.openDetail('wed-curry')"); await sleep(800);
+    ok(`${tag} D: my own hold is still mine; in Priya's plan the meal shows no Hold or Release button, only the view-only note`, heldIn === 1 && (await p.locator(".sfoot, [data-hold]").count()) === 0 && (await p.locator(".ronote").count()) === 1);
     await tap(p.locator("[data-fmenu]")); await sleep(250); await tap(p.locator('.dd [data-view="mine"]')); await sleep(350); await S(p, "window.__plan.openDetail('wed-curry')"); await sleep(800);
-    ok(`${tag} D: switching to Mine, the meal I held in Priya's plan reads Release (one hold state, 176) and there is no view-only note`, heldIn === 1 && /^Release/.test(norm(await p.locator(".sfoot [data-hold]").innerText())) && (await p.locator(".ronote").count()) === 0, heldIn); await p.close(); }
-  { // a past meal in their plan: read only, nothing to hold or add (Proposal)
+    ok(`${tag} D: back in Mine the footer reads Release 5 (my hold, unchanged)`, /^Release/.test(norm(await p.locator(".sfoot [data-hold]").innerText())) && (await p.locator(".ronote").count()) === 0); await p.close(); }
+  { // a past meal in their plan: read only
     const q = await open(ctx, "who=priya&sel=l-wed", errs); await sleep(400);
-    ok(`${tag} D: a past meal in their plan: the detail opens, says view only, and offers no Hold, Add, cart or Copy forward`, (await S(q, "window.__plan.S.sel")) === "l-wed" && /View only, Priya's plan/.test(await q.locator(".ronote").innerText()) && (await q.locator(".sfoot button, .sfoot button, .ing [data-addone], [data-hold], [data-addall], [data-act=copyfwd]").count()) === 0);
-    await S(q, "window.__plan.act('hold', 'l-wed'); window.__plan.act('list', 'l-wed')"); ok(`${tag} D: and a hold or add sent to it anyway changes nothing`, (await S(q, "window.__plan.find('l-wed').held")) === 0); await q.close(); }
-  { // the in-list variant (?ba=list) works the same way in their plan
-    const p = await open(ctx, "who=priya&sel=wed-curry&ba=list", errs); await sleep(500); ok(`${tag} D: ?ba=list: Add all and Hold all are in the list in their plan, and there is no footer`, (await p.locator(".ing .ga-add [data-addall], .ing .ga-hold [data-hold]").count()) === 2 && (await p.locator(".sfoot").count()) === 0); await p.close(); }
+    ok(`${tag} D: a past meal in their plan: the detail opens, says view only, and offers no Hold, Add, cart or Copy forward`, (await S(q, "window.__plan.S.sel")) === "l-wed" && /View only, Priya's plan/.test(await q.locator(".ronote").innerText()) && (await q.locator(".sfoot button, .ing [data-addone], [data-hold], [data-addall], [data-act=copyfwd]").count()) === 0); await q.close(); }
+  { // the in-list variant (?ba=list) draws nothing in their plan, and Mine still has it
+    const p = await open(ctx, "who=priya&sel=wed-curry&ba=list", errs); await sleep(500); ok(`${tag} D: ?ba=list: no Add all, no Hold all and no footer in their plan`, (await p.locator(".ing .ga, .ing .gbtn, .sfoot").count()) === 0); await p.close();
+    const m = await open(ctx, "sel=wed-curry&ba=list", errs); await sleep(500); ok(`${tag} D: ?ba=list in Mine still draws Add all and Hold all`, (await m.locator(".ing .ga-add [data-addall], .ing .ga-hold [data-hold]").count()) === 2); await m.close(); }
   { // Mine is unchanged: the plan controls are all there
     const p = await open(ctx, "sel=wed-curry", errs); await sleep(500); ok(`${tag} D: in Mine the detail still has the stepper, Hold, Add and the ... menu, and no view-only note`, (await p.locator(".dkb [data-n], .sbody [data-n]").count()) === 2 && (await p.locator(".sfoot [data-hold]").count()) === 1 && (await p.locator(".ronote").count()) === 0 && (await p.locator("[data-more]").count()) >= 1);
     await tap(p.locator("[data-more]").first()); await sleep(300); const items = (await p.locator(".asheet .it").allInnerTexts()).map(norm); ok(`${tag} D: and its ... menu still has Open recipe, Replan, Move and Not cooking`, items.length === 4, items); await p.close(); }
 
-  // ---------- E. the week buttons on another person's plan (205, Proposal) ----------
-  { const p = await open(ctx, "who=priya", errs); ok(`${tag} E: another person's plan: the week buttons are not drawn (default, simplest)`, (await p.locator(".wact").count()) === 0); await p.close();
-    const q = await open(ctx, "who=priya&wo=show", errs); ok(`${tag} E: ?wo=show draws them (Add to buy, Reserve) for comparison`, (await q.locator(".wact [data-wbuy], .wact [data-wres], .wact [data-wrel]").count()) >= 1);
-    const before = await snapPlan(q); await tap(q.locator(".wact [data-wbuy]").first()); await sleep(400); ok(`${tag} E: and Add to buy there adds to my list without changing the plan`, (await snapPlan(q)) === before && /Added \d+ items?/.test(await S(q, "window.__plan.S.note.msg"))); await q.close(); }
+  // ---------- E. the week buttons on another person's plan (205, resolved by 206: never drawn, no switch) ----------
+  { const p = await open(ctx, "who=priya", errs); ok(`${tag} E: another person's plan: the week buttons are not drawn`, (await p.locator(".wact").count()) === 0); await p.close();
+    const q = await open(ctx, "who=priya&wo=show", errs); ok(`${tag} E: the old ?wo=show link is ignored (still no week buttons)`, (await q.locator(".wact, [data-wbuy], [data-wres], [data-wrel]").count()) === 0);
+    const before = await snapPlan(q); await S(q, "window.__plan.showWeek('d14')"); await sleep(300); ok(`${tag} E: the Options panel has no switch for them`, (await S(q, "document.body.innerHTML.indexOf('name=\"wo\"')")) === -1 && (await snapPlan(q)) === before); await q.close(); }
   ok(`${tag}: no page errors`, errs.length === 0, errs); await ctx.close();
 }
 console.log(`${total - fails}/${total} checks pass`); await browser.close(); process.exit(fails ? 1 : 0);
