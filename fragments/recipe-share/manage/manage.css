@@ -1,0 +1,94 @@
+/* Recipe share links, management view (mockup). Tokens only (theme.css); no raw colours; no size rules by viewport (those are in phone.css and desktop.css).
+   Names are rs-*. The list row (.rs-row and its parts) is the piece a build lifts; the frames (.rs-frame, .rs-page) only draw a recipe page around it. */
+.rs-controls{display:flex;flex-direction:column;gap:var(--sp-3);margin-top:var(--sp-4)}
+.rs-seg{display:flex;gap:6px;padding:4px;border-radius:var(--r-pill);background:var(--surface);border:1px solid var(--border);width:max-content;max-width:100%;overflow-x:auto;scrollbar-width:none}
+.rs-seg button{flex:none;min-height:var(--tap);padding:0 16px;border-radius:var(--r-pill);font-weight:700;font-size:14px;color:var(--fg);white-space:nowrap}
+.rs-seg button[aria-pressed=true]{background:var(--accent);color:var(--on-accent)}
+.rs-lab{font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted);margin-bottom:4px}
+.rs-why{margin-top:var(--sp-4);padding:var(--sp-3) var(--sp-4);border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface)}
+.rs-why h2{display:flex;gap:8px;align-items:center}
+.rs-why p{font-size:14px;margin-top:6px}.rs-why p b{color:var(--fg)}
+.rs-rec{display:inline-block;font-size:12px;font-weight:800;padding:2px 9px;border-radius:var(--r-pill);background:var(--accent);color:var(--on-accent)}
+.rs-stagebox{margin-top:var(--sp-4);display:flex;justify-content:center;padding:var(--sp-4) 0;border-radius:var(--r-card);background:var(--stage)}
+.rs-cap{margin-top:var(--sp-2);font-size:13px;color:var(--muted);text-align:center}
+.rs-ic{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.rs-frame button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-align:inherit}
+
+/* ---- the recipe page drawn around the list (context only; another slice owns the Share button) ---- */
+.rs-frame{position:relative;background:var(--bg);color:var(--fg);font-size:14px;line-height:1.4;overflow:hidden;border:1px solid var(--border)}
+.rs-scroll{overflow-y:auto;overflow-x:hidden;height:100%}
+.rs-bar{display:flex;align-items:center;gap:var(--sp-2);padding:var(--sp-2) var(--sp-3);min-height:56px}
+.rs-bar h3{flex:1;min-width:0;margin:0;font-family:var(--head);font-size:1.15rem;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rs-iconbtn{display:inline-flex;align-items:center;justify-content:center;min-width:var(--tap);min-height:var(--tap);border-radius:var(--r-pill);color:var(--fg)}
+.rs-sharebtn{position:relative;display:inline-flex;align-items:center;gap:6px;min-height:var(--tap);padding:0 14px;border-radius:var(--r-pill);border:1px dashed var(--accent);color:var(--accent);font-weight:700}
+.rs-sharebtn .rs-n{min-width:20px;height:20px;padding:0 6px;border-radius:var(--r-pill);background:var(--accent);color:var(--on-accent);font-size:12px;font-weight:800;display:inline-flex;align-items:center;justify-content:center}
+.rs-meta-chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 var(--sp-3)}
+.rs-meta-chips span{display:inline-flex;align-items:center;min-height:30px;padding:0 10px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-size:12px;font-weight:700;color:var(--muted)}
+.rs-jumps{position:sticky;top:0;z-index:2;display:flex;gap:2px;padding:var(--sp-1) var(--sp-3);background:var(--bg);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}
+.rs-jumps::-webkit-scrollbar{display:none}
+.rs-jumps a{flex:none;min-height:40px;display:inline-flex;align-items:center;gap:5px;padding:0 12px;border-radius:var(--r-pill);font-size:13px;font-weight:700;color:var(--muted)}
+.rs-jumps a.on{color:var(--fg);background:var(--surface)}
+.rs-jumps a .rs-n{min-width:18px;height:18px;padding:0 5px;border-radius:var(--r-pill);background:var(--accent);color:var(--on-accent);font-size:11px;font-weight:800;display:inline-flex;align-items:center;justify-content:center}
+.rs-stub{padding:var(--sp-3);color:var(--muted)}
+.rs-stub b{display:block;font-size:12px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+.rs-stub i{display:block;height:10px;border-radius:5px;background:var(--border);margin:9px 0;opacity:.7}
+.rs-sec{padding:var(--sp-4) var(--sp-3) var(--sp-5)}
+.rs-sec-h{display:flex;align-items:baseline;gap:var(--sp-2);margin-bottom:2px}
+.rs-sec-h h4{margin:0;font-family:var(--head);font-size:1.15rem}
+.rs-sec-h span{font-size:13px;color:var(--muted)}
+.rs-help{font-size:13px;color:var(--muted);margin:0 0 var(--sp-2)}
+
+/* ---- the list (the piece to lift) ---- */
+.rs-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:var(--sp-2);container-type:inline-size}
+.rs-row{display:flex;flex-direction:column;gap:2px;padding:var(--sp-2) var(--sp-3) var(--sp-1);border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface)}
+.rs-top{display:flex;align-items:center;gap:var(--sp-2);min-height:var(--tap)}
+.rs-name{flex:1;min-width:0;display:inline-flex;align-items:center;gap:6px;min-height:var(--tap);font-weight:700;font-size:1rem;color:var(--fg)}
+.rs-name span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rs-name .rs-ic{color:var(--muted);width:16px;height:16px}
+.rs-name:hover .rs-ic{color:var(--accent)}
+.rs-left{flex:none;display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:700;color:var(--sage);white-space:nowrap}
+.rs-left .rs-ic{width:16px;height:16px}
+.rs-row[data-kind=soon] .rs-left{color:var(--accent)}
+.rs-row[data-kind=soon]{border-color:var(--accent)}
+.rs-stats{font-size:13px;color:var(--muted)}
+.rs-acts{display:flex;align-items:center;gap:var(--sp-1);margin:0 calc(var(--sp-2) * -1) 0 -10px}
+.rs-act{display:inline-flex;align-items:center;gap:6px;min-height:var(--tap);padding:0 10px;border-radius:var(--r-ctl);font-weight:700;font-size:14px;color:var(--accent)}
+.rs-act:hover{background:var(--bg)}
+.rs-act.rs-end{margin-left:auto;color:var(--danger)}
+.rs-act.rs-quiet{color:var(--muted)}
+.rs-row[data-kind=expired] .rs-name,.rs-row[data-kind=expired] .rs-stats{color:var(--muted)}
+.rs-row[data-kind=expired]{background:var(--bg);border-style:dashed}
+.rs-row[data-kind=expired] .rs-left{color:var(--muted)}
+.rs-edit{display:flex;align-items:center;gap:var(--sp-1);flex:1;min-width:0}
+.rs-edit input{flex:1;min-width:0;min-height:var(--tap);padding:0 12px;border:1px solid var(--accent);border-radius:var(--r-ctl);background:var(--bg);color:var(--fg);font-size:1rem;font-weight:700}
+.rs-edit .rs-save{display:inline-flex;align-items:center;gap:5px;min-height:var(--tap);padding:0 14px;border-radius:var(--r-ctl);background:var(--accent);color:var(--on-accent);font-weight:800}
+.rs-edit .rs-keep{min-height:var(--tap);padding:0 8px;font-weight:700;color:var(--muted)}
+.rs-undo{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-2) var(--sp-3);border-radius:var(--r-ctl);border:1px solid var(--accent);background:var(--surface)}
+.rs-undo .rs-ic{color:var(--accent)}
+.rs-undo .t{flex:1;min-width:0}.rs-undo b{display:block;font-size:14px}.rs-undo small{display:block;color:var(--muted);font-size:12px}
+.rs-undo .rs-mini{min-height:var(--tap);padding:0 14px;border:1px solid var(--accent);border-radius:var(--r-ctl);font-weight:800;color:var(--accent)}
+.rs-empty{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:var(--sp-5) var(--sp-4);border:1px dashed var(--border);border-radius:var(--r-card)}
+.rs-empty .rs-ic{width:34px;height:34px;color:var(--accent)}
+.rs-empty b{font-size:1rem}.rs-empty p{font-size:13px}
+.rs-toast{position:absolute;left:var(--sp-3);right:var(--sp-3);bottom:var(--sp-3);z-index:9;padding:10px 14px;border-radius:var(--r-ctl);background:var(--fg);color:var(--bg);font-weight:700;font-size:14px;text-align:center}
+.rs-new{display:inline-flex;align-items:center;gap:6px;min-height:var(--tap);padding:0 16px;border-radius:var(--r-ctl);background:var(--accent);color:var(--on-accent);font-weight:800}
+
+/* ---- option B: the Share button's panel (sheet on phone, side panel on desktop) ---- */
+.rs-dim{position:absolute;inset:0;background:var(--dim);z-index:3}
+.rs-panel{background:var(--bg);display:flex;flex-direction:column;min-height:0}
+.rs-panel-h{display:flex;align-items:center;gap:var(--sp-2);padding:var(--sp-2) var(--sp-3);min-height:56px}
+.rs-panel-h h4{flex:1;margin:0;font-family:var(--head);font-size:1.15rem}
+.rs-panel-b{overflow-y:auto;padding:0 var(--sp-3) var(--sp-4);min-height:0}
+
+/* ---- option C: the card inside the recipe's details ---- */
+.rs-card{margin:var(--sp-3);border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface)}
+.rs-card>button{display:flex;align-items:center;gap:var(--sp-3);width:100%;min-height:56px;padding:var(--sp-2) var(--sp-3)}
+.rs-card>button .t{flex:1;min-width:0;line-height:1.25}.rs-card>button b{display:block}
+.rs-card>button small{display:block;color:var(--muted);font-size:12.5px}
+.rs-card>button small.hot{color:var(--accent);font-weight:700}
+.rs-card .rs-chev{transition:transform .15s}
+.rs-card[data-open=true] .rs-chev{transform:rotate(180deg)}
+.rs-card-b{padding:0 var(--sp-3) var(--sp-3)}
+.rs-card .rs-row{background:var(--bg)}
+@media (prefers-reduced-motion:reduce){.rs-card .rs-chev{transition:none}}
+.rs-seg button{font-family:var(--body);background:none;border:0;cursor:pointer}
