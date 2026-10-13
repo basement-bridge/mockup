@@ -1,0 +1,15 @@
+/* Receipt scan, live: phone and tablet (under 1024px). The viewfinder is a full-screen layer, as in Shopping. The Pantry's tab bar, sheets and dim come from phone.css. Loaded only below 1024px. */
+.lv-rl{position:fixed;inset:0;z-index:20;overflow:hidden}
+.lv-rl .rl-stage{margin-left:.75rem;margin-right:.75rem}
+.lv-rl[data-dir=d] .rl-stage.lv-short{flex:0 0 auto;height:262px}
+.lv-rl[data-dir=d] .rl-legend .rl-chip{min-height:44px}
+.lv-rl[data-dir=d] .rl-panel{padding-top:.4rem;gap:.3rem}
+.lv-rl[data-dir=d] .rl-shutter{width:3.9rem;height:3.9rem}
+.lv-rl[data-dir=d] .rl-status{margin-top:.4rem}
+.lv-rl[data-dir=d] .rl-bar{min-height:3rem}
+.lv-rl[data-dir=c] .rl-stage{min-height:120px}
+.lv-rl[data-dir=c] .rl-panel{padding-top:.4rem}
+.app[data-step=entry] .tabbar{z-index:10}
+.panel[data-mode=add],.panel[data-mode=sum]{min-height:0}
+.lv-hint{display:block}
+.toast{top:auto;bottom:72px}

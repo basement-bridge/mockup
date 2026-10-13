@@ -1,0 +1,16 @@
+/* Receipt scan, live: desktop (1024px and up). The Pantry's layout: rail, a 736px column, a 400px lane. The viewfinder is the column (a webcam, or a dropped photo); what the direction needs beside it is the lane. Loaded only from 1024px up. */
+.page .rl{height:100vh;max-width:736px;padding:0 48px;box-sizing:border-box;position:relative}
+.page .rl .rl-bar,.page .rl .rl-status,.page .rl .rl-prog,.page .rl .rl-stage,.page .rl .rl-panel{margin-left:0;margin-right:0;padding-left:0;padding-right:0}
+.page .rl .rl-bar{border-bottom:0;padding-top:20px}
+.page .rl .rl-status{padding-left:.75rem;padding-right:.75rem}
+.page .rl .rl-stage{border-radius:var(--r-card)}
+.page .rl .lv-paper{max-width:400px}
+.page .rl .rl-panel{padding-bottom:24px}
+.page .rl .rl-actions .rl-side .kbd{margin-left:6px}
+.lv-hint{display:none}
+.panel .lv-list{margin:0;overflow:visible;flex:none}
+.panel .lv-dc{padding:12px}
+.panel .lv-lr.on,.panel .lv-dc.on{scroll-margin-bottom:96px;scroll-margin-top:12px}
+.panel .rs-acts .kbd{margin-left:auto}
+.rl-actions .kbd{font-size:11px}
+.lv-sheet{display:none}
