@@ -14,7 +14,8 @@
     copy: '<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/>',
     eye: '<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/>',
     pin: '<path d="M9 4h6l-1 6 3 3H7l3-3z"/><path d="M12 13v7"/>',
-    warn: '<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.5"/>'
+    warn: '<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.5"/>',
+    ticket: '<path d="M4 8.5a2 2 0 0 1 0 4v0a2 2 0 0 1 0 4V18h16v-1.5a2 2 0 0 1 0-4v0a2 2 0 0 1 0-4V6H4z"/><path d="M14 6.5v11" stroke-dasharray="1.8 2.2"/>'
   };
   var ic = function (n, c) { return IC2[n] ? '<svg class="ic' + (c ? " " + c : "") + '" viewBox="0 0 24 24" aria-hidden="true">' + IC2[n] + "</svg>" : X.ic(n, c); };
 
@@ -25,24 +26,31 @@
   var plus = function (n) { var d = new Date(NOW); d.setDate(d.getDate() + n); return d; };
   var endLabel = function () {
     if (S.exp === "24h") return "Ends tomorrow, 9:41 am";
-    if (S.exp === "custom") return "Ends " + dlab(new Date(S.date + "T12:00:00"));
     return "Ends " + dlab(plus(S.exp === "7d" ? 7 : 30));
   };
-  var expWords = function () { return S.exp === "custom" ? "until " + dlab(new Date(S.date + "T12:00:00")) : EXP.filter(function (e) { return e[0] === S.exp; })[0][1]; };
+  var expWords = function () { return EXP.filter(function (e) { return e[0] === S.exp; })[0][1]; };
 
-  var O = (Q.get("o") || "a").toLowerCase();
+  var O = (Q.get("o") || "c").toLowerCase();   /* C is the owner's choice (13 Oct 2026); A and B stay on the options page, not chosen */
   var ST = Q.get("s") || "";                     /* default | created | copied | error | done | "" (live) */
   var FROZEN = !!ST;                              /* a pinned state never runs timers, so a screenshot is steady */
+  var MAXINV = 3;                                 /* the member's maximum-invites limit (sample; the same 3 as the manage slice's allowance) */
+  var IV = Q.get("inv") || "off";                 /* off | on | limit : the invite control's state */
+  var VERS = Q.get("ver") === "1" ? [DEFVER] : R.vers;   /* ver=1: a recipe with one version (no picker) */
+  var USED = IV === "limit" ? MAXINV : 1;         /* invites already spoken for: waiting plus claimed */
   var S = {
     o: O, open: ST !== "done", phase: "form", err: false, copied: false, copyFail: false, live: false,
-    name: R.name, exp: "7d", date: "2026-11-03", pin: true, ver: DEFVER.id, edit: null, toast: "", failNext: Q.get("fail") === "1"
+    name: R.name, exp: "7d", pin: true, ver: "usual", inv: IV === "on", edit: null, toast: "", failNext: Q.get("fail") === "1"
   };
   if (O === "b") S.phase = "making";
   if (ST === "created" || ST === "copied" || ST === "done") S.phase = "created";
   if (ST === "copied") S.copied = true;
   if (ST === "error") { S.err = true; if (O === "b") S.phase = "making"; }
-  if (ST === "done") S.toast = "Link ready. Anyone with it can view " + R.name + " until " + dlab(plus(7)) + ".";
-  var ver = function () { return R.vers.filter(function (v) { return v.id === S.ver; })[0]; };
+  var doneToast = function () {
+    return "Link ready. Anyone with it can view " + R.name + " until " + (S.exp === "24h" ? "tomorrow" : dlab(plus(S.exp === "7d" ? 7 : 30))) + "." + (S.inv && USED < MAXINV ? " Its invite is waiting for the first person to use it." : "");
+  };
+  if (ST === "done") S.toast = doneToast();
+  var ver = function () { return S.ver === "usual" ? DEFVER : R.vers.filter(function (v) { return v.id === S.ver; })[0]; };
+  var left = function () { return MAXINV - USED - (S.inv && USED < MAXINV ? 1 : 0); };
   var URL_ = "https://kitchie.example/s/efr-7Hq2xK9mPz";
   var HAS_SHARE = function () { return SH.layout && SH.layout.native; };
 
@@ -56,11 +64,9 @@
     return '<div class="sh-f"><label class="sh-lbl" for="sh-name">Link name</label><input id="sh-name" class="field" maxlength="60" autocomplete="off" value="' + esc(S.name) + '">' +
       '<p class="sh-help">For you. It tells your links apart. The people you send it to do not see it.</p></div>';
   };
-  var expiry = function (custom) {
+  var expiry = function () {
     var items = EXP.map(function (e) { return [e[0], e[1]]; });
-    if (custom) items.push(["custom", "Pick a date"]);
     return '<div class="sh-f"><span class="sh-lbl" id="sh-el">Link works for</span>' + seg("exp", items, S.exp, "Link works for") +
-      (S.exp === "custom" ? '<input type="date" class="field sh-date" id="sh-date" value="' + S.date + '" min="2026-10-14" max="2027-01-11" aria-label="Last day the link works">' : "") +
       '<p class="sh-end">' + ic("clock", "s") + endLabel() + "</p></div>";
   };
   var pinRow = function () {
@@ -72,7 +78,7 @@
     return '<div class="sh-row"><span class="sh-ri">' + ic("eye") + '</span><div class="t"><b>Anyone with the link can look</b><small>View only. No sign-in. ' + esc(R.name) + ", " + esc(ver().name) + ".</small></div></div>";
   };
   var errBox = function () {
-    return '<div class="sh-err" role="alert"><span class="sh-ri">' + ic("warn") + '</span><div class="t"><b>Link not made</b><small>Nothing was shared. Check your connection.</small></div>' +
+    return '<div class="sh-err" role="alert"><span class="sh-ri">' + ic("warn") + '</span><div class="t"><b>Link not made</b><small>Nothing was shared' + (S.inv ? ", and no invite was used" : "") + '. Check your connection.</small></div>' +
       '<button type="button" class="btn sm" data-act="retry">Try again</button></div>';
   };
   var createBtn = function () { return '<button type="button" class="btn sh-go" data-act="create"' + (S.phase === "creating" ? " disabled" : "") + ">" + ic("link") + (S.phase === "creating" ? "Making the link" : "Create link") + "</button>"; };
@@ -90,13 +96,14 @@
   };
   var doneBtn = function () { return '<button type="button" class="btn ghost sh-done" data-act="done">Done</button>'; };
   var summary = function () {
+    if (S.o === "c") return '<p class="sh-sum">' + ic("eye", "s") + "<span>View only, no sign-in. " + esc(R.name) + ", " + esc(ver().name) + (S.ver === "usual" && VERS.length > 1 ? " (the usual)" : "") + ".</span></p>";
     return '<p class="sh-sum">' + ic("eye", "s") + "<span>View only, no sign-in. " + esc(ver().name) + (S.pin ? ", as it is today." : ", always the newest.") + "</span></p>";
   };
 
   /* ---------- Option A: one screen, three choices ---------- */
   function bodyA() {
     if (S.phase === "created") return okRow() + linkBox() + acts() + summary() + doneBtn();
-    return (S.err ? errBox() : "") + nameField() + expiry(false) + seeRow() + pinRow() + createBtn();
+    return (S.err ? errBox() : "") + nameField() + expiry() + seeRow() + pinRow() + createBtn();
   }
 
   /* ---------- Option B: the link exists the moment the sheet opens; the choices are edits ---------- */
@@ -114,19 +121,26 @@
     return okRow() + linkBox() + acts() + '<div class="sh-list">' + nm + ex + seeRow().replace('<div class="sh-row">', '<div class="sh-row sh-ro">').replace("</small>", (S.pin ? " Kept as it is today." : " Follows your edits.") + "</small>") + "</div>" + doneBtn();
   }
 
-  /* ---------- Option C: pick exactly what they will get, with a preview ---------- */
+  /* ---------- Option C (chosen, 13 Oct 2026): "the usual" by default, a version picker only with 2+ versions, an optional invite ---------- */
+  var invNote = function () {
+    return S.inv ? '<p class="sh-invm" data-inv="unclaimed">' + ic("ticket", "s") + "<span>Invite included. Only the first person to use it starts a household.</span></p>" : "";
+  };
+  var invRow = function () {
+    var out = USED >= MAXINV, on = S.inv && !out;
+    return '<div class="sh-row sh-inv" data-state="' + (out ? "limit" : on ? "on" : "off") + '"><span class="sh-ri">' + ic("ticket") + '</span><div class="t"><b>Include an invite</b>' +
+      '<small id="sh-inv-why">' + (out ? "All " + MAXINV + " are in use. Cancel a link or withdraw an invite to free one." : "One person starts a household of their own. Only the first to use the link.") + "</small>" +
+      '<small class="sh-cnt">' + left() + " of " + MAXINV + " invites left" + (on ? " after this" : "") + "</small></div>" +
+      '<button type="button" class="sw2" role="switch" aria-checked="' + on + '" aria-label="Include an invite"' + (out ? ' disabled aria-describedby="sh-inv-why"' : "") + ' data-act="inv">' + (on ? "On" : "Off") + "</button></div>";
+  };
   function bodyC() {
-    if (S.phase === "created") return okRow() + linkBox() + acts() + summary() + doneBtn();
-    var v = ver();
-    var prev = '<div class="sh-prev" aria-label="What they will see"><span class="sh-pe" aria-hidden="true">' + R.e + '</span><div class="t"><b>' + esc(R.name) + "</b><small>" + esc(v.name) + " · " + R.min + ' min</small></div><span class="badge sage">' + ic("eye", "xs") + "View only</span></div>";
-    var vers = '<div class="sh-f"><span class="sh-lbl">Which version</span><div class="sh-radios" role="radiogroup" aria-label="Which version">' + R.vers.map(function (x) {
-      return '<button type="button" role="radio" class="sh-rad" data-act="ver" data-v="' + x.id + '" aria-checked="' + (S.ver === x.id) + '"><span class="sh-dotr"></span><span class="t"><b>' + esc(x.name) + "</b><small>" + (x.def ? "Your usual" : x.state === "trying" ? "Still a try" : "First version") + "</small></span></button>";
-    }).join("") + "</div></div>";
-    var mode = '<div class="sh-f"><span class="sh-lbl">If you change it later</span><div class="sh-radios" role="radiogroup" aria-label="If you change it later">' +
-      [[true, "They keep today's copy", "Your later edits stay private."], [false, "They get your edits", "They see the newest " + esc(v.name) + "."]].map(function (m) {
-        return '<button type="button" role="radio" class="sh-rad" data-act="mode" data-v="' + m[0] + '" aria-checked="' + (S.pin === m[0]) + '"><span class="sh-dotr"></span><span class="t"><b>' + m[1] + "</b><small>" + m[2] + "</small></span></button>";
-      }).join("") + "</div></div>";
-    return (S.err ? errBox() : "") + prev + vers + mode + expiry(true) + nameField() + createBtn();
+    if (S.phase === "created") return okRow() + linkBox() + acts() + invNote() + summary() + doneBtn();
+    var usual = DEFVER, picker = "";
+    if (VERS.length > 1) {
+      var items = [["usual", "The usual"]].concat(VERS.filter(function (x) { return !x.def; }).map(function (x) { return [x.id, x.name]; }));
+      picker = '<div class="sh-f"><span class="sh-lbl">Which version</span>' + seg("ver", items, S.ver, "Which version") +
+        '<p class="sh-help">' + (S.ver === "usual" ? "The usual is " + esc(usual.name) + "." : "Fixed to " + esc(ver().name) + ", not your usual.") + "</p></div>";
+    }
+    return (S.err ? errBox() : "") + nameField() + picker + expiry() + invRow() + summary() + createBtn();
   }
 
   var BODY = { a: bodyA, b: bodyB, c: bodyC };
@@ -168,14 +182,15 @@
     var act = a.dataset.act, v = a.dataset.v;
     if (act === "open") { S.open = true; S.toast = ""; S.phase = S.o === "b" ? "making" : "form"; S.err = false; S.copied = false; draw("#sh-name"); if (S.o === "b") make(); }
     else if (act === "close" || act === "done") {
-      S.open = false; S.toast = act === "done" ? "Link ready. Anyone with it can view " + R.name + " until " + (S.exp === "24h" ? "tomorrow" : S.exp === "custom" ? dlab(new Date(S.date + "T12:00:00")) : dlab(plus(S.exp === "7d" ? 7 : 30))) + "." : "";
+      S.open = false; S.toast = act === "done" ? doneToast() : "";
       draw("[data-act=open]"); if (S.toast) later(function () { S.toast = ""; draw(); }, 4000);
     }
     else if (act === "undo-toast") { S.toast = ""; draw(); }
-    else if (act === "exp") { S.exp = v; if (v === "custom") S.edit = S.edit; draw(); }
+    else if (act === "exp") { S.exp = v; draw("[data-act=exp][aria-pressed=true]"); }
+    else if (act === "inv") { S.inv = !S.inv; draw("[data-act=inv]"); }
     else if (act === "pin") { S.pin = !S.pin; draw("[data-act=pin]"); }
     else if (act === "mode") { S.pin = v === "true"; draw("[data-act=mode][aria-checked=true]"); }
-    else if (act === "ver") { S.ver = v; draw("[data-act=ver][aria-checked=true]"); }
+    else if (act === "ver") { S.ver = v; draw("[data-act=ver][aria-pressed=true]"); }
     else if (act === "create" || act === "retry") make();
     else if (act === "copy") copy();
     else if (act === "share") { try { navigator.share({ title: R.name, text: R.name + " on Kitchie", url: URL_ }).catch(function () {}); } catch (x) { S.toast = "The phone's share sheet opens here."; draw(); later(function () { S.toast = ""; draw(); }, 2500); } }
@@ -184,7 +199,6 @@
   });
   document.addEventListener("input", function (e) {
     if (e.target.id === "sh-name") S.name = e.target.value;
-    else if (e.target.id === "sh-date") { S.date = e.target.value || S.date; var el = document.querySelector(".sh-end"); if (el) el.innerHTML = ic("clock", "s") + endLabel(); }
   });
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape" && S.open) { S.open = false; S.live = true; draw("[data-act=open]"); }

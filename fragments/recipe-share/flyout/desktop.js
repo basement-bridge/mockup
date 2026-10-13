@@ -70,12 +70,13 @@
     else if (a === "remove") { l.cancelLeft = FL.UNDO_S; l.removed = true; draw(); }
     else if (a === "undo") { l.cancelLeft = 0; l.removed = false; draw(); }
     else if (a === "renew") { l.hours = 168; say("Renewed for 7 days. The same link works again."); }
-    else if (a === "make") { S.step = "form"; S.form = { name: "Link " + (S.links.length + 1), exp: "7d", pin: true }; S.creating = false; draw("#fl-name"); var i = document.getElementById("fl-name"); if (i) i.select(); }
+    else if (a === "make") { S.step = "form"; S.form = { name: "Link " + (S.links.length + 1), exp: "7d", pin: true }; S.creating = false; S.err = false; S.inv = false; S.ver = "usual"; draw("#fl-name"); var i = document.getElementById("fl-name"); if (i) i.select(); }
     else if (a === "exp") { S.form.exp = b.dataset.v; draw('[data-act="exp"][aria-pressed="true"]'); }
-    else if (a === "pin") { S.form.pin = !S.form.pin; draw('[data-act="pin"]'); }
+    else if (a === "inv") { S.inv = !S.inv; draw('[data-act="inv"]'); }
+    else if (a === "ver") { S.ver = b.dataset.v; draw('[data-act="ver"][aria-pressed="true"]'); }
     else if (a === "copynew") { copyText(FL.URLS + "Hq2xK9mPz"); S.copied = true; draw("#fl-copy"); clearTimeout(tt); if (!FL.freeze) tt = setTimeout(function () { S.copied = false; draw(); }, 2600); }
     else if (a === "sharenew") { try { navigator.share({ title: FL.RECIPE.short, url: FL.URLS + "Hq2xK9mPz" }).catch(function () {}); } catch (x) { say("The browser's share sheet opens here."); } }
-    else if (a === "done") { var m = S.links[S.links.length - 1]; S.step = "list"; S.copied = false; say("Link ready. Anyone with it can view " + FL.RECIPE.short + " until " + FL.dlab(FL.plus(Math.round(m.hours / 24))) + "."); }
+    else if (a === "done") { var m = S.links[S.links.length - 1]; S.step = "list"; S.copied = false; say("Link ready. Anyone with it can view " + FL.RECIPE.short + " until " + FL.dlab(FL.plus(Math.round(m.hours / 24))) + "." + (m.inv ? " Its invite is waiting for the first person to use it." : "")); }
     else if (a === "cues") { S.cues = !S.cues; draw('[data-act="cues"]'); }
     else if (a === "helpclose") { S.help = false; draw(); }
   });
@@ -85,8 +86,12 @@
       var l = find(f.dataset.id), v = f.n.value.trim(); if (v) l.name = v; S.editing = null; say(v ? "Renamed." : "A link needs a name, so the old one stays.");
     } else if (f.dataset.act === "create") {
       if (S.creating) return;
-      S.form.name = f.n.value.trim() || "Link " + (S.links.length + 1); S.creating = true; draw();
-      var go = function () { var id = S.nextId++; S.links.push({ id: id, name: S.form.name, hours: FL.expOf()[2], opens: 0, last: null, cancelLeft: 0, gone: false }); S.made = id; S.step = "created"; S.creating = false; draw("#fl-copy"); };
+      S.form.name = f.n.value.trim() || "Link " + (S.links.length + 1); S.err = false; S.creating = true; draw();
+      var go = function () {
+        if (S.failNext) { S.failNext = false; S.err = true; S.creating = false; draw('[data-act="create"] .sh-err .btn'); return; }
+        var id = S.nextId++, inv = S.inv && FL.used(S) < FL.MAXINV;
+        S.links.push({ id: id, name: S.form.name, hours: FL.expOf()[2], opens: 0, last: null, cancelLeft: 0, gone: false, inv: inv ? { s: "unclaimed" } : null }); S.made = id; S.step = "created"; S.creating = false; draw("#fl-copy");
+      };
       if (FL.freeze) go(); else setTimeout(go, 650);
     }
   });
@@ -113,5 +118,5 @@
     S.links.forEach(function (l) { if (l.cancelLeft > 0) { l.cancelLeft--; if (l.cancelLeft === 0) { l.gone = true; ch = true; } else { var s = frame.querySelector('[data-left="' + l.id + '"]'); if (s) s.textContent = FL.mmss(l.cancelLeft); } } });
     if (ch) draw();
   }, 1000);
-  FL.load(start); draw();
+  FL.load(start); S.failNext = FL.failParam; draw();
 })();

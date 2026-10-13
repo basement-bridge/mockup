@@ -6,7 +6,7 @@ Mockup only, nothing built. Fragment: `fragments/recipe-share/flyout/index.html`
 
 - Mobile sharing: placement option A. Desktop: placement option A on the main page of the fully opened recipe (already built).
 - New: in the desktop recipe summary flyout (the lane that opens when a recipe row is clicked: photo banner, title, "20 min · serves 2", close X, HOUSEHOLD SAYS tiles, members row, NOTES, INGREDIENTS with the Stock-unknown chip, the green "Cook now" and "Plan", the centred "Open full recipe" link with its "O" hint, the footer "Esc to close, ? for all shortcuts"), put a Share button "right next to the Open full recipe link". "Use a sensible visual."
-- Tapping it "flies out a share panel like this", in the SAME flyout lane the summary uses, not a popup. The panel is the stub from the placement slice (share icon, "Share this recipe", the one-line explanation, link rows with Cancel, a big green "Make another link", "The household sees every link here and can cancel it."), but here with the real content: the manage slice's links list (option A) and the sheet slice's create form (option A).
+- Tapping it "flies out a share panel like this", in the SAME flyout lane the summary uses, not a popup. The panel is the stub from the placement slice (share icon, "Share this recipe", the one-line explanation, link rows with Cancel, a big green "Make another link", "The household sees every link here and can cancel it."), but here with the real content: the manage slice's links list (option A) and the sheet slice's create form (option A; now option C, see the update below).
 - Mobile has no summary flyout (a row tap opens the full recipe page), so this slice is desktop only.
 
 ## What is drawn
@@ -55,6 +55,32 @@ A compact **secondary pill**: share icon, the word **Share**, a count badge when
 - **Create form** (`sheet`): `sh-*` copied, `btn`, `field` and `sw2` scoped under `.fl-frame` instead of loading `recipe.css`. Changed: the name defaults to "Link N"; the custom date, version radios, error box and options B and C are not drawn; the title is "Make a link" and "Your link" (the stub says "Share this recipe" for the list).
 - **Stub** (`placement`): replaced. Its "STUB" tag is gone; the stub's wording is kept as it was (the intro line, "Make another link", "The household sees every link here and can cancel it.").
 - **Shortcuts list** (`item-edit-flyout`, `desktop`): the `kb` list is copied and drawn inside the frame instead of over the page; rows for S and the panel's keys added.
+
+## Update 13 October 2026: the create form is the sheet's option C, with an optional invite
+
+### Owner's words (13 October 2026)
+
+- The create-link sheet is option C: it shares "the usual" version by default, a version choice only when the recipe has other versions. The sender can optionally include an invite (single-purpose: only the first person to activate the link claims it; it sets up a new household, never joins one; it respects the member's maximum-invites limit). The count lives in the usual place of the existing invite functionality; no new allowance UI. The share panel is the links view (manage option B), and the panel and the sheet read as one flow.
+
+### What changed
+
+- **Make a link** is now the sheet's C form: Link name ("Link N", as before), Which version (only when the recipe has other versions; this recipe has one, so the default drawing has none, and the "Form, versions" state shows it with The usual preselected), Link works for, **Include an invite** (off by default), one line of what they see, Create link. The pinned switch and the custom date are gone (see `../sheet/notes.md`).
+- **Links list** now carries manage's invite parts: the allowance card above the list ("2 of 3 invites left. Cancel a link and its unused invite comes back."), and a quiet invite line on a row ("Invite waiting", "Invite claimed Sun 11 Oct", "Invite ended with the link"). The allowance is derived from the rows (waiting plus claimed), as in manage.
+- **Link made** shows an invite line under the link when one was included; the new row in the list carries "Invite waiting"; Done's toast adds "Its invite is waiting for the first person to use it."
+- **New states** in the strip: Make a link, Invite on, Invite limit (3 of 3 in use: switch disabled with its reason), Form with versions, Link made, Made with invite, Copied, Error (nothing made, no invite used; Try again). `?fail=1` makes the first Create fail live.
+- Copied: `sh-inv`, `sh-cnt`, `sh-invm`, `sh-err` from the sheet; `rs-allow` and `rs-inv` from manage (the card's background is `--bg` here because the lane is `--surface`).
+
+### Proposed decisions (unnumbered; the owner was silent)
+
+- Same proposals as the sheet: invite off by default; one helper line; the switch disabled at the limit with a one-line reason; the count always visible; no pinned control; a version row only with 2 or more versions.
+- The allowance card shows whenever the list does, even at "3 of 3", so the limit is known before Make another link. It is not repeated in the form (the form shows only the count beside the switch).
+- Cancelling a link whose invite is waiting returns it to the allowance at once (the card moves live); a claimed invite stays spent. Same as manage.
+- A new link with an invite appears in the list with "Invite waiting" straight away.
+
+### Open questions
+
+- The same as the sheet's (does the link follow the usual; off by default; add an invite later; per member or per household). The flyout adds none of its own.
+- Cost of a wrong guess on the allowance card showing at "3 of 3" with nothing out: one extra line in the panel for members who never share an invite.
 
 ## What the default path loads and what is deferred (DESIGN.md section 6)
 
