@@ -1,6 +1,6 @@
 # Sharing a recipe outside the household
 
-Handover for whoever drives this next: [../../handover/recipe-share.md](../../handover/recipe-share.md). Mockup hub: `fragments/recipe-share/index.html` (live: https://basement-bridge.github.io/mockup/fragments/recipe-share/index.html). Mockup only; nothing is built. Everything numbered below is **PROPOSED** unless marked **CONFIRMED** (206, 209, 243, 247, 248, 250, 252 and 253 so far, 13 October 2026, see "Owner picks"). Decision numbers continue after 205 (the last in [plan-ui-review.md](plan-ui-review.md)).
+Handover for whoever drives this next: [../../handover/recipe-share.md](../../handover/recipe-share.md). Mockup hub: `fragments/recipe-share/index.html` (live: https://basement-bridge.github.io/mockup/fragments/recipe-share/index.html). Mockup done; the real feature is to be built and merged into `uat` (decision 258, process). Everything numbered below is **PROPOSED** unless marked **CONFIRMED** (206, 209, 243, 247, 248, 250, 252, 253 and 254 to 257 so far, 13 October 2026, see "Owner picks"; 258 is a process decision). Decision numbers continue after 205 (the last in [plan-ui-review.md](plan-ui-review.md)).
 
 ## Job
 
@@ -43,10 +43,10 @@ Hub: `fragments/recipe-share/index.html`. Four slices, merged separately (PRs #1
 |---|---|---|---|
 | Placement | `fragments/recipe-share/placement/` | Where does the Share button live? | A: icon in the top row, count of active links on it; labelled pill and key S on desktop |
 | Create sheet | `fragments/recipe-share/sheet/` | What do you choose before the link exists? | C, CONFIRMED (247): shares the usual version; a version choice only when others exist (was A) |
-| Manage | `fragments/recipe-share/manage/` | Where do pending links show, and how are they renamed and cancelled? | A: a Shared section after Photos with a chip in the jump row |
-| Recipient | `fragments/recipe-share/recipient/` | What does the person with the link see? | A: quiet top strip, one invitation card after the last note |
+| Manage | `fragments/recipe-share/manage/` | Where do pending links show, and how are they renamed and cancelled? | B, CONFIRMED (254): the share panel opened from the Share button (was A) |
+| Recipient | `fragments/recipe-share/recipient/` | What does the person with the link see? | B, CONFIRMED (256): bottom bar after reading starts, only when the sender attached an unclaimed invite (was A) |
 
-Recommended path: placement A, sheet C (confirmed), manage A, recipient A. Other options are kept drawn for comparison; none is rejected by the owner.
+Picked path: placement A, flyout Share button, sheet C, manage B, recipient B (conditional on an unclaimed invite). All five are confirmed. Other options are kept drawn for comparison.
 
 ## Owner picks (13 October 2026, voice and typed)
 
@@ -55,9 +55,14 @@ Recommended path: placement A, sheet C (confirmed), manage A, recipient A. Other
 3. **CONFIRMED:** the desktop recipe summary flyout (opened by clicking a row in the Recipes list) also gets a Share button next to the "Open full recipe" link, opening the share panel as a drill-in in the same flyout lane. Desktop only: mobile has no summary flyout (a row tap opens the full recipe page). Decision 243. Its visual and wording are proposed by the flyout slice and stay PROPOSED (244 to 246).
 4. **CONFIRMED:** the create sheet is option C. It shares "the usual" version by default; a version choice appears only when other versions are available. Decision 247.
 5. **CONFIRMED:** the sender may attach an invite to a link (opt-in), single-claim, setting up a new household, within the member's maximum-invites limit. Decisions 248, 250, 252, 253; 249 and 251 PROPOSED.
-6. **Not yet confirmed:** whether "A" also covers the links list and recipient page. Those A options stay PROPOSED (recommended). See open question O12.
+6. **CONFIRMED:** the manage (links) view is option B: the share panel opened from the Share button (bottom sheet on phone, side panel on desktop). Decision 254.
+7. **CONFIRMED:** an invite attached to a share link counts in the usual place of the existing invite functionality; no new allowance UI. Decision 255.
+8. **CONFIRMED:** the recipient page's growth invitation is option B (bottom bar after reading starts), shown only when the sharing member attached an invite and it has not been taken up. In all other cases the recipient page has no growth invitation. Decision 256.
+9. **CONFIRMED:** a person with an account can also sign in from the recipient page; a person without one is handled by the usual invite-only flow elsewhere. Decision 257.
+10. **PROCESS (not a product decision):** build the real feature with sensible defaults and merge into `uat` automatically (never `main`, never tags). Decision 258.
+11. The earlier question (O12, whether "A" covered the links list and recipient page) is answered: the owner picked B for both, so neither A stays recommended.
 
-## Decisions (206, 209, 243, 247, 248, 250, 252, 253 CONFIRMED; the rest PROPOSED)
+## Decisions (206, 209, 243, 247, 248, 250, 252, 253, 254 to 257 CONFIRMED; 258 process; the rest PROPOSED)
 
 Merged from the four slices' unnumbered proposals. Where two slices said the same thing it is here once. Where they disagreed it is not decided here; it is an open question (O1 to O5). "Source" names the slice or slices.
 
@@ -84,7 +89,7 @@ Merged from the four slices' unnumbered proposals. Where two slices said the sam
 
 ### Seeing and managing links
 
-221. **Links are listed where the recipe is:** a Shared section after Photos with a "Shared N" chip in the jump row, both present only while a listed link exists; the empty state is absence. Recommended: manage A. B (panel from the Share button) and C (a card above the ingredients) stay drawn. Source: manage. The seam with placement is O3.
+221. **SUPERSEDED by 254 (manage B confirmed; A is no longer recommended). Links are listed where the recipe is:** a Shared section after Photos with a "Shared N" chip in the jump row, both present only while a listed link exists; the empty state is absence. Was recommended: manage A. B (panel from the Share button) is now the pick; C (a card above the ingredients) stays drawn. Source: manage. The seam with placement (O3) is answered by 254.
 222. **A row per link:** its name (tap or the pencil to rename in place), time left in words, opens count and last opened ("4 opens, last 2 h ago" or "Not opened yet"), Copy link and Cancel link. Active first, ended last. No URL text, no detail view, no bulk actions, no sort. Source: manage.
 223. **Rename in place:** Enter or Save keeps it, Escape or Keep leaves it, an empty name keeps the old one. Maximum length is open (O2). The Keep button is a word, not a cross (SL-D19). Source: manage.
 224. **Cancel is one tap with Undo for 5 minutes,** the recipe photos pattern (P-D17), no confirm dialog. Undo puts the same link back; after 5 minutes it stays cancelled. Nothing is hard deleted. A recipient who opens a cancelled link sees the "run out" page (decision 235). Source: manage.
@@ -96,11 +101,11 @@ Merged from the four slices' unnumbered proposals. Where two slices said the sam
 
 ### The recipient's page
 
-230. **One public page for everyone.** Signed in changes only the invitation slot, which becomes "Save to my recipes". Signed-in viewers see the same recipe. Source: recipient; the owner's words.
+230. **One public page for everyone.** AFFECTED by 256 and 257: signed in changes only what sits in the bottom bar and the sign-in entry; with no unclaimed invite there is no growth invitation at all. Was: the invitation slot becomes "Save to my recipes" (see O24 on Save). Signed-in viewers see the same recipe. Source: recipient; the owner's words.
 231. **What it shows:** banner photo, title, one-line description, time and servings, ingredients, method with step photos, notes without names. Print button, and a print stylesheet that drops every invitation. **Never:** stock or what is missing, reactions, cook counts, member names, who cooked, version history. The shared version is the one the sender chose. Source: recipient.
 232. **No names anywhere, not even the sender's.** The page says it is from a Kitchie kitchen. Cost: less personal. Sender first name is open (O9). Source: recipient.
-233. **Recommended invitation: a quiet top strip (logo, Sign in) that scrolls away, then one card after the last note** ("Liked it? Keep it in Kitchie.", Try Kitchie, I have an account). Rule used: nothing covers the recipe, moves it or sits ahead of it. B (slim bottom bar after about 35% scroll, dismiss lasts the visit) and C (banner above the recipe) stay drawn. Source: recipient.
-234. **Signed in with Recipes: Save to my recipes** makes a copy that is theirs to change (the shared version only; it says "Saved. Open in Recipes" in place). **Signed in without Recipes: no invitation and no Save, no hint** (the no-hints rule). Source: recipient.
+233. **SUPERSEDED by 256 (recipient B confirmed, shown only with an unclaimed invite; there is no generic growth invitation any more). Was the recommended invitation: a quiet top strip (logo, Sign in) that scrolls away, then one card after the last note** ("Liked it? Keep it in Kitchie.", Try Kitchie, I have an account). Rule used: nothing covers the recipe, moves it or sits ahead of it. B (slim bottom bar after about 35% scroll, dismiss lasts the visit) and C (banner above the recipe) stay drawn. Source: recipient.
+234. **AFFECTED by 256 (no growth invitation unless an unclaimed invite exists; whether Save to my recipes stays is open, O24).** Signed in with Recipes: Save to my recipes makes a copy that is theirs to change (the shared version only; it says "Saved. Open in Recipes" in place). **Signed in without Recipes: no invitation and no Save, no hint** (the no-hints rule). Source: recipient.
 235. **Expired and cancelled links show one identical page,** "This link has run out", without the recipe name, so nothing leaks and a cancel says nothing about the sender's choice. Cost: a recipient cannot tell "turned off" from "timed out". Source: recipient.
 236. **Ask for a new link drafts a message in the person's own messages app** (`sms:` link and Copy message). Kitchie never sees it and needs no sender contact. Source: recipient.
 237. **An expiring notice in the last 24 hours,** small, in the flow, with the time in the viewer's own zone and a Print suggestion for people without an account. Source: recipient.
@@ -109,7 +114,7 @@ Merged from the four slices' unnumbered proposals. Where two slices said the sam
 
 ### Cross-cutting
 
-240. **Recommended path:** placement A, sheet C (confirmed by 247), manage A, recipient A (the hub). Source: all four.
+240. **SUPERSEDED by the picks 206, 243, 247, 254 and 256.** Was the recommended path: placement A, sheet C, manage A, recipient A (the hub). Now: placement A, flyout Share button, sheet C, manage B, recipient B conditional. Source: all four.
 241. **A link is a Recipe entitlement concern; there is no per-feature flag.** Whoever has Recipes has sharing; the recipient's page needs no entitlement. Source: integration brief (owner), not in the voice note. Treat as PROPOSED until the owner restates it.
 242. **Default path loads one small stylesheet and script per slice;** the create sheet, links list and desktop host load on engagement, and viewport code lives in its own files (phone under 1024px, desktop from 1024px). Everything changes in place, no reload (DESIGN.md 6 and 6a). Source: all four.
 
@@ -132,7 +137,15 @@ Slice: `fragments/recipe-share/flyout/`. Desktop only.
 252. **CONFIRMED. An invite sets up a NEW household;** it never joins an existing household.
 253. **CONFIRMED. Sending an invite respects the member's maximum-invites limit.** Where the limit lives and its value are OPEN (unknown, not invented; O14).
 
-Decision numbers 206 to 253. Confirmed: 206, 209, 243, 247, 248, 250, 252, 253. The rest are proposals.
+### Manage, invite allowance, recipient and sign-in (13 Oct 2026, owner, voice and typed)
+
+254. **CONFIRMED. The manage (links) view is option B: the share panel opened from the Share button** (bottom sheet on phone, side panel on desktop). It lists the links with rename, Copy and Cancel. Supersedes 221 and answers O3 (one place to see links, the panel). Affects 207 and O5: the count on the button and the list in the panel come from the same set. The Shared section after Photos and its jump-row chip are not built.
+255. **CONFIRMED. An invite attached to a share link counts in the usual place of the existing invite functionality.** No new allowance UI, no new counter for sharing. Affects 253: the limit is read from the usual place (O21, how, is open). The manage slice (#169) draws a sender's allowance line above the list ("1 of 3 invites left"); that line is a new allowance UI and is superseded by this decision. The sheet's invite row follows the same rule.
+256. **CONFIRMED. The recipient page's growth invitation is option B: a bottom bar after reading starts, shown only when the member who shared attached an invite and it has not been taken up.** In every other case (no invite attached, invite already claimed, invite withdrawn) the recipient page has no growth invitation. Supersedes 233 (top strip plus card, generic "Liked it? Keep it in Kitchie.") and, in the invite slice (#169), the claim card after the last note and the "invite already used" line inside the growth card; those lines are not shown, because a claimed or absent invite means no invitation. The mockup has not been redrawn yet: the recipient slice still draws option B with the generic wording and draws the invite claim (states `invite`, `claimed`, `memberinvite`, `withdrawn`) as the card in option A, so the build carries the claim copy and three-step flow in the bar, and drops the claimed, withdrawn and member lines. The bar's trigger point (the mockup drew about 35% scroll) and dismiss rule are the recipient slice's proposal, PROPOSED.
+257. **CONFIRMED. A person with an account can also sign in from the recipient page.** A person without an account is handled by the usual invite-only flow elsewhere; the recipient page does not open sign-up to them. Where the sign-in entry sits when there is no invitation is open (O22).
+258. **PROCESS decision, not a product decision (13 Oct 2026, owner, voice and typed). Build the real feature with sensible defaults and merge into `uat` automatically.** Never `main`, never tags. "Sensible defaults" means the proposals in this note stand as defaults where the owner was silent, and the open questions are answered by reading the real services, not guessed. Nothing here changes what the mockup repo does (mockups still go straight to its `main`, AGENTS.md).
+
+Decision numbers 206 to 258. Confirmed: 206, 209, 243, 247, 248, 250, 252, 253, 254, 255, 256, 257. Process: 258. The rest are proposals.
 
 ## Open questions
 
@@ -142,13 +155,13 @@ Where two slices answered the same thing differently the contradiction is stated
 
 - **O1. Does Esc close the Share flyout on desktop?** Placement: plain Esc closes nothing, Ctrl or Cmd Enter closes (Pantry's rule, decision 53). Sheet: Esc or the x closes. Leaning (not a decision): follow Pantry, so the sheet's desktop flyout should change; the phone sheet keeps its x. Wrong guess: one key handler.
 - **O2. The default name and its length.** Sheet: prefilled with the recipe title, 60 characters. Manage: a link without a name is called by its date ("Link, 13 Oct"), rename limit 40. A title prefill makes every link for one recipe look the same in the list; a date tells links apart but says nothing about who it is for; "For Mum" (sheet question 6) is the alternative. Wrong guess: the names column of the list is useless until renamed.
-- **O3. Where the link list lives.** Placement's tap on the Share icon opens a stub that lists the links with Cancel (no Undo) and Make a link. Manage recommends the list as a section in the page, and its own option B is that panel. With both recommended, links would be listed in two places. Possible glue (not drawn): the icon opens the create sheet, and when links exist it also scrolls to the Shared section. Wrong guess: a rework of one slice's entry point.
+- **O3. ANSWERED by 254: the list lives in the share panel.** Was: where the link list lives. Placement's tap on the Share icon opens a stub that lists the links with Cancel (no Undo) and Make a link. Manage recommends the list as a section in the page, and its own option B is that panel. With both recommended, links would be listed in two places. Possible glue (not drawn): the icon opens the create sheet, and when links exist it also scrolls to the Shared section. Wrong guess: a rework of one slice's entry point.
 - **O4. Is a link for the recipe or for one version?** Placement puts the entry on the recipe, not a version. Sheet pins the version on screen. Recipient shows the one the sender chose. A recipe with versions needs an answer: the version on screen, the household's usual, or a choice in the sheet. Wrong guess: someone shares "With peas" and the recipient sees the Original.
 - **O5. What the count means.** Placement's badge counts active links; manage's "Shared N" chip appears while a *listed* link exists, which includes ended ones. They could show different numbers on one recipe. Pick one meaning.
 
 **Owner follow-up**
 
-- **O12. Did "A" also mean the links list and recipient page?** The owner confirmed placement A on mobile and desktop and, separately, sheet C (247). Manage A and recipient A stay PROPOSED (recommended) until he says.
+- **O12. ANSWERED (13 Oct 2026):** the owner picked manage B (254) and recipient B conditional (256). Neither A is recommended any more.
 - **O13. In sheet C, are the pinned-or-follows radios and the "Pick a date" chip kept?** Sheet C as drawn has both; the owner confirmed only the usual default and the conditional version choice. Affects 213 and 216.
 
 **Invite (decisions 248 to 253)**
@@ -160,6 +173,14 @@ Where two slices answered the same thing differently the contradiction is stated
 - **O18. What does the new household start with?** Empty, or defaults. Does the claimer get the Recipe entitlement?
 - **O19. Is the shared recipe copied into the new household** (as Save does, decision 234), or only the invite is claimed?
 - **O20. Abuse limits on claiming:** attempts per link, rate per address or device, and what the claimer sees on failure.
+
+**Invite and recipient (decisions 254 to 257)**
+
+- **O21. How is the invite allowance read from the usual place?** 255 says the usual invite functionality counts it. Which service holds it, how the share sheet reads the remaining count and what the sender sees at zero are unknown (Platform owns households and invites). Not invented here. Subsumes the "where" half of O14.
+- **O22. Sign-in return path.** With no growth invitation in most cases, where does the recipient page offer "Sign in" (the quiet top strip of the old A, a link in the bar, a footer link)? After signing in, does the person return to the same recipe, and does the page then offer Save to my recipes? Wrong guess: a member signs in and lands on Home, losing the recipe.
+- **O23. Does a claimed invite's new household get the shared recipe copied?** Restates O19 in light of 256. Drawn: no copy; only the invite is claimed. Copying would need Recipe to write into the new household (Recipe owns the data).
+- **O24. Does "Save to my recipes" (234) stay** for a signed-in member with Recipes now that there is no generic invitation? It is a feature, not a growth invitation, but 256 says no invitation in other cases. Leaning: keep it as a quiet action on the recipe, not in the bar.
+- **O25. The bar's rules (256):** the scroll point, whether dismissing lasts the visit, and what it says when a signed-in member opens a link that carries an unclaimed invite (the mockup drew a one-line note, state 3 in the invite slice).
 
 **Questions several slices asked**
 
@@ -182,8 +203,10 @@ Where two slices answered the same thing differently the contradiction is stated
 
 ## For the implementation
 
-- **Mockup first, then Kitchie `uat`.** Never `main`, never tags. The built app matches the mockup exactly: copy the mockup's markup and CSS first and list each difference in the PR (AGENTS.md).
+- **Build it, merge into `uat` (258, process).** Never `main`, never tags. The built app matches the mockup exactly: copy the mockup's markup and CSS first and list each difference in the PR (AGENTS.md). Ownership: Recipe owns the data (links, versions, recipes), Kitchie renders, Platform owns households and invites.
+- **Reuse the existing trust mechanism** between Platform and the products for anything that proves an invite or its claim. No new token type, no per-feature flags; features follow Recipe entitlement (241).
 - **One service, two doors.** Chat tools and the UI call the same service methods for create, list, rename, cancel, renew and remove-from-view. Nothing is reimplemented in the UI.
+- **Invite allowance:** read from the usual place of the existing invite functionality (255); no new allowance UI.
 - **Entitlement:** a link is a Recipe concern; no per-feature flag (decision 241). Nothing about stock or the household is loaded on the public page.
 - **Lifted names:** the manage row classes (`rs-row`, `rs-name`, `rs-left`, `rs-stats`, `rs-acts`, `rs-undo`) and the create sheet's `sh-*` are what a build lifts. Sample data and `kitchie.example` links stay in the mockup scripts.
 - **Unknown, not to be guessed:** how a signed URL is made and checked, where links are stored, how opens are counted without counting crawlers, whether Recipe or Kitchie serves the public page, and how a banner is fetched through a signed link. Nothing in the mockup answers these.
