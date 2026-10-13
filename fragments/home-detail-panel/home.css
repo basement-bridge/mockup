@@ -21,7 +21,7 @@ body{overflow-x:hidden}
 .us input{flex:1;min-width:0;border:0;background:none;outline:0;color:var(--fg);min-height:42px}
 .us input::placeholder{color:var(--muted)}
 .seg{display:inline-flex;flex:none;padding:3px;border-radius:var(--r-pill);background:var(--surface);border:1px solid var(--border);flex:none}
-.seg span{min-height:34px;line-height:34px;padding:0 14px;border-radius:var(--r-pill);font-weight:700;font-size:13px;color:var(--muted)}
+.seg span,.seg button{border:0;background:none;cursor:pointer;font-family:inherit;min-height:34px;line-height:34px;padding:0 14px;border-radius:var(--r-pill);font-weight:700;font-size:13px;color:var(--muted)}
 .seg .on{background:var(--accent);color:var(--on-accent)}
 .sres{position:absolute;left:0;right:0;top:100%;margin-top:6px;z-index:8;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:10px 14px;box-shadow:0 12px 32px rgba(0,0,0,.25)}
 .sres .g{font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:8px 0 2px}
@@ -142,3 +142,26 @@ body{overflow-x:hidden}
 .usedin{margin:0;font-size:14px;color:var(--fg)}.usedin b{color:var(--muted);font-weight:700}
 .fit{margin:0;padding:10px 12px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);color:var(--fg);font-size:14px}.fit b{display:block;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
 .rl.have small em{font-style:normal;color:var(--accent);font-weight:700}
+/* ---- A recipe search result opens the Recipes summary flyout (decisions 187 to 190). Host rules for the flyout itself are in flyout.css (loaded on first use). ---- */
+/* Dashboard: the flyout takes the lane and covers This week (opaque, no peek, no displace, at every width); closing it shows This week again (188) */
+.app[data-open=fly]:not([data-view=compact]){grid-template-columns:88px minmax(0,736px) 400px}
+.app[data-open=fly]:not([data-view=compact]) .week{grid-column:3}
+.app[data-open=fly] .detail{grid-column:3;justify-self:stretch;width:100%;z-index:5;box-shadow:none}
+#app[data-open=fly] .peek{display:none}
+/* Compact: no gutter, no stack, no This week, no detail panel (133). The column is centred; while the flyout is open the page reserves the lane, so the column steps left and the flyout never covers it (189) */
+.app[data-view=compact]{grid-template-columns:88px minmax(0,1fr)}
+#app[data-view=compact] #soon,#app[data-view=compact] .week,#app[data-view=compact] .peek{display:none}
+.app[data-view=compact] .col{margin:0 auto}
+.app[data-view=compact]:not([data-open=none]){grid-template-columns:88px minmax(0,736px) 400px}
+.app[data-view=compact]:not([data-open=none]) .col{margin:0}
+.app[data-view=compact] .detail{grid-column:3;justify-self:stretch;width:100%;z-index:5;box-shadow:none}
+.compact{margin-top:18px;display:flex;flex-direction:column;gap:14px;align-items:center}
+.compact .ask{margin:6px 0 0;text-align:center}
+.compact .lean{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.compact .lean span{min-height:30px;display:inline-flex;align-items:center;padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-weight:600;font-size:13px;color:var(--muted)}
+.compact .lead{align-self:stretch;display:flex;align-items:center;gap:12px;margin:0;padding:12px;border:2px solid var(--accent);border-radius:var(--r-card);background:var(--surface)}
+.compact .lead .e{width:56px;height:56px;border-radius:var(--r-ctl);font-size:28px;background:var(--bg);border:1px solid var(--border)}
+.compact .lead .t{flex:1;min-width:0;display:flex;flex-direction:column}.compact .lead .t small{color:var(--muted)}
+.compact a{text-decoration:none;color:inherit}.compact a.pri{color:var(--on-accent)}.compact .lead .btn{display:inline-flex;align-items:center;justify-content:center}
+.compact .glance{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.compact .glance a{min-height:var(--tap);display:inline-flex;align-items:center;padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-weight:600;font-size:13px}

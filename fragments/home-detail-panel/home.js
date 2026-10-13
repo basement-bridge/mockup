@@ -9,7 +9,7 @@ var $ = function (s, r) { return (r || document).querySelector(s); }, $$ = funct
 var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
 var norm = function (s) { return String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""); };
 var app = $("#app"), ITEMS = JSON.parse(JSON.stringify(D.items));
-var S = HDP.S = { open: Q.get("open") || "", front: Q.get("front") === "week" ? "week" : "detail", child: Q.get("child") || "", lead: Q.get("lead") === "planned" ? "planned" : "idea", ideas: Q.get("ideas") || "ok", week: Q.get("week") || "empty", detail: Q.get("detail") || "ok", q: Q.get("q") || "", cur: -1, plan: {}, undo: null };
+var S = HDP.S = { open: Q.get("open") || "", front: Q.get("front") === "week" ? "week" : "detail", child: Q.get("child") || "", lead: Q.get("lead") === "planned" ? "planned" : "idea", view: Q.get("view") === "compact" ? "compact" : "dash", ideas: Q.get("ideas") || "ok", week: Q.get("week") || "empty", detail: Q.get("detail") || "ok", q: Q.get("q") || "", cur: -1, plan: {}, undo: null };
 HDP.D = D; HDP.esc = esc; HDP.$ = $; HDP.items = ITEMS;
 if (/[?&]embed=1/.test(location.search)) document.body.setAttribute("data-no-theme-fab", "");
 
@@ -37,6 +37,7 @@ HDP.kbd = kbd; HDP.battery = battery; HDP.MOD = MOD;
 var item = HDP.item = function (id) { return ITEMS.filter(function (i) { return i.id === id; })[0]; };
 var idea = HDP.idea = function (id) { return D.plannedLead.id === id ? D.plannedLead : D.ideas.filter(function (r) { return r.id === id; })[0]; };
 /* "meal:<id>" is today's planned meal when it is not a Recipe family (the build's key for it); it opens the same recipe view, so its kind is "recipe" */
+/* "fly:<id>" is a recipe SEARCH RESULT: it opens the Recipes summary flyout (flyout.js), not the idea view (decision 187) */
 function keyOf(s) { var p = s.split(":"); return { kind: p[0] === "meal" ? "recipe" : p[0], id: p[1] }; }
 function qtyOf(it) { return it.level === "Out" ? "Out" : it.qty; }
 
@@ -46,6 +47,8 @@ function itemRow(id, withPill) {
   return '<div class="or"><button type="button" class="hrow' + (S.open === k ? " sel" : "") + '" data-open="' + k + '"' + (S.open === k ? ' aria-current="true"' : "") + '><span class="e s" aria-hidden="true">' + it.emoji + '</span><span class="t"><b>' + esc(it.name) + '</b></span>' + (it.pill ? '<span class="pl' + (it.hot ? " hot" : "") + '">' + esc(it.pill) + "</span>" : "") + "</button></div>";
 }
 function drawIdeas() {
+  if (S.view === "compact") { drawCompact(); return; }
+  $("#ideas").className = "card";
   var h = '<div class="th"><h2>Cooking ideas</h2><a href="#" data-act="seeall">See all</a></div>';
   if (S.ideas === "loading") h += '<div class="sk a" aria-hidden="true"></div><div class="sk b" aria-hidden="true"></div><div class="sk b" aria-hidden="true"></div><p class="sr-only" role="status">Loading ideas</p>';
   else if (S.ideas === "unavailable") h += '<div class="away" role="status"><span class="e" aria-hidden="true">🍳</span><div><b>Ideas are not available right now</b><span>Your pantry and plan are fine. Try again in a moment.</span></div><button type="button" class="btn sm" data-act="retryideas">Try again</button></div>';
@@ -56,6 +59,14 @@ function drawIdeas() {
     h += rest.map(function (r) { var k = "recipe:" + r.id; return '<div class="ir"><button type="button" class="hrow' + (S.open === k ? " sel" : "") + '" data-open="' + k + '"' + (S.open === k ? ' aria-current="true"' : "") + '><span class="e s" aria-hidden="true">' + r.emoji + '</span><span class="t"><b>' + esc(r.name) + "</b><small>" + miss(r) + " &middot; " + r.mins + " min &middot; " + esc(r.why) + '</small></span></button><button type="button" class="btn sm" data-act="quickplan" data-id="' + r.id + '">Plan</button></div>'; }).join("");
   }
   $("#ideas").innerHTML = h;
+}
+/* Compact view (the build's desktop-home Compact): ask first, the lean chips, the lead idea, a glance row. No stack card, no This week, no detail panel (133). Drawn here only so the flyout has a page to sit beside (189). */
+function drawCompact() {
+  var A = D.ideas, pl = S.lead === "planned", lead = pl ? D.plannedLead : A[0];
+  var h = '<h2 class="ask">What are we eating?</h2><div class="lean" role="group" aria-label="Tune ideas"><span>Quick</span><span>Use up</span><span>Something new</span><span>Comfort</span></div>';
+  h += '<div class="lead hl"><span class="e" aria-hidden="true">' + lead.emoji + '</span><span class="t"><span class="k' + (pl ? " planned" : "") + '">' + (pl ? "Planned today" : "Tonight") + "</span><b>" + esc(lead.name) + "</b><small>" + miss(lead).replace(/<[^>]+>/g, "") + (lead.mins ? " \u00b7 " + lead.mins + " min" : "") + '</small></span><a class="btn pri" href="#" data-act="cook">Cook now</a><a class="btn" href="#" data-act="planlink">Plan</a></div>';
+  h += '<div class="glance"><a href="#" data-act="glance">' + D.soon.length + ' going off</a><a href="#" data-act="glance">' + D.low.length + ' running low</a><a href="#" data-act="glance">' + (mealsOn(0).length ? "Today planned" : "Nothing planned today") + "</a></div>";
+  var el = $("#ideas"); el.className = "compact"; el.innerHTML = h;
 }
 function miss(r) { var n = r.lines.filter(function (l) { return l.s === "miss"; }).length; return n ? '<span class="rmiss">' + n + " missing</span>" : '<span class="rok">&#10003; All in</span>'; }
 HDP.missText = miss;
@@ -85,7 +96,7 @@ function drawSearch() {
   if (!S.q.trim() || document.activeElement !== q && !HDP.forceSearch) { box.hidden = true; q.setAttribute("aria-expanded", "false"); return; }
   var h = "";
   if (r.items.length) { h += '<div class="g">Pantry</div>'; r.items.forEach(function (i) { flat.push("item:" + i.id); h += '<button type="button" class="i" role="option" data-open="item:' + i.id + '" data-from="search"><span class="e s" aria-hidden="true">' + i.emoji + "</span><b>" + esc(i.name) + "</b><small>" + esc((qtyOf(i) ? qtyOf(i) + " \u00b7 " : "") + i.area) + "</small></button>"; }); }
-  if (r.ideas.length) { h += '<div class="g">Recipes</div>'; r.ideas.forEach(function (i) { flat.push("recipe:" + i.id); h += '<button type="button" class="i" role="option" data-open="recipe:' + i.id + '" data-from="search"><span class="e s" aria-hidden="true">' + i.emoji + "</span><b>" + esc(i.name) + "</b><small>" + miss(i).replace(/<[^>]+>/g, "") + "</small></button>"; }); }
+  if (r.ideas.length) { h += '<div class="g">Recipes</div>'; r.ideas.forEach(function (i) { flat.push("fly:" + i.id); h += '<button type="button" class="i" role="option" data-open="fly:' + i.id + '" data-from="search"><span class="e s" aria-hidden="true">' + i.emoji + "</span><b>" + esc(i.name) + "</b><small>" + miss(i).replace(/<[^>]+>/g, "") + "</small></button>"; }); }
   if (!flat.length) h = '<div class="none">Nothing in your pantry or recipes matches &ldquo;' + esc(S.q.trim()) + "&rdquo;.</div>";
   box.innerHTML = h; box.hidden = false; q.setAttribute("aria-expanded", "true");
   if (S.cur >= flat.length) S.cur = flat.length - 1;
@@ -141,11 +152,16 @@ function drawDetail(opts) {
   if (!k) { d.hidden = true; d.innerHTML = ""; app.dataset.open = "none"; app.dataset.front = "detail"; panelKey = ""; return; }
   var K = keyOf(k), kind = K.kind;
   app.dataset.open = kind; app.dataset.front = S.front; d.hidden = false;
-  d.setAttribute("aria-label", kind === "recipe" ? "Idea" : "Item");
+  d.setAttribute("aria-label", kind === "fly" ? "Recipe summary" : kind === "recipe" ? "Idea" : "Item");
   var fresh = panelKey !== k; panelKey = k;
   if (S.detail === "loading") { d.innerHTML = skeleton(); return; }
-  if (S.detail === "error") { d.innerHTML = errorHtml(kind === "recipe" ? (idea(K.id) || {}).name : (item(K.id) || {}).name); return; }
-  if (kind === "item") { d.innerHTML = itemHtml(item(K.id)); d.className = "panel detail" + (S.child ? " hasChild" : ""); drawChild(); }
+  if (S.detail === "error") { d.className = "panel detail"; d.innerHTML = errorHtml(kind === "item" ? (item(K.id) || {}).name : (idea(K.id) || {}).name); return; }
+  if (kind === "fly") {
+    d.className = "panel detail";
+    if (window.HDP.flyHtml) { d.className = "panel detail rbhost"; d.innerHTML = window.HDP.flyHtml(idea(K.id)); }
+    else { d.innerHTML = skeleton(); load("flyout.js", function () { if (S.open === k) drawDetail(); }); }
+  }
+  else if (kind === "item") { d.innerHTML = itemHtml(item(K.id)); d.className = "panel detail" + (S.child ? " hasChild" : ""); drawChild(); }
   else {
     d.className = "panel detail";
     if (window.HDP.recipeHtml) d.innerHTML = window.HDP.recipeHtml(idea(K.id));
@@ -174,7 +190,7 @@ function drawChild() {
 function sync() {
   var u = new URL(location.href), p = u.searchParams;
   function set(k, v, d) { if (v && v !== d) p.set(k, v); else p.delete(k); }
-  set("open", S.open); set("front", S.front, "detail"); set("child", S.child);
+  set("open", S.open); set("front", S.front, "detail"); set("child", S.child); set("view", S.view, "dash"); app.dataset.view = S.view; $$(".seg button").forEach(function (b) { var on = b.dataset.v === S.view; b.classList.toggle("on", on); b.setAttribute("aria-pressed", on ? "true" : "false"); });
   try { history.replaceState(null, "", u.pathname + (p.toString() ? "?" + p.toString() : "") + u.hash); } catch (e) {}
   mode();
   var pk = $("#peek"), t = S.front === "week" ? (S.open ? $("#d-title") && $("#d-title").textContent || "the panel" : "") : "This week";
@@ -189,6 +205,8 @@ function drawAll() { drawIdeas(); drawSoon(); drawWeek(); drawDetail(); sync(); 
 function open(k, o) {
   o = o || {}; if (!k) return;
   var K = keyOf(k); if (K.kind === "item" ? !item(K.id) : !idea(K.id)) return;
+  /* Compact has no gutter and no detail panel (decision 133, unchanged); only a recipe search result gets the flyout there (189). Everything else follows its link, as the build does. */
+  if (S.view === "compact" && K.kind !== "fly") { closeSearch(); toast(K.kind === "item" ? "Opens the item in the Pantry (not drawn here)." : "Opens the recipe in the Recipes tab (not drawn here)."); return; }
   if (S.open !== k) S.child = "";
   S.open = k; S.front = "detail"; closeSearch();
   drawIdeas(); drawSoon(); drawDetail(); sync();
@@ -198,7 +216,8 @@ function open(k, o) {
 function close() {
   if (!S.open) return; var was = S.open; S.open = ""; S.child = ""; S.front = "detail";
   drawIdeas(); drawSoon(); drawDetail(); sync();
-  var r = $('[data-open="' + was + '"]', $("#main")); if (r) r.focus({ preventScroll: true });
+  if (keyOf(was).kind === "fly") { HDP.quiet = true; $("#q").focus({ preventScroll: true }); HDP.quiet = false; }
+  else { var r = $('[data-open="' + was + '"]', $("#main")); if (r) r.focus({ preventScroll: true }); }   /* a search result is not a row: focus goes back to the box, and the list does not reopen (190) */
 }
 function front(f) { if (!S.open) return; if (app.dataset.mode === "displace") return; S.front = f || (S.front === "week" ? "detail" : "week"); app.dataset.front = S.front; sync(); }
 function closeSearch() { var q = $("#q"); HDP.forceSearch = false; $("#sres").hidden = true; q.setAttribute("aria-expanded", "false"); S.cur = -1; }
@@ -226,6 +245,9 @@ HDP.planIdea = planIdea;
 function act(a, el) {
   var it = cur(), K = keyOf(S.open || ":");
   if (a === "close") close();
+  else if (a === "view") { S.view = el.dataset.v === "compact" ? "compact" : "dash"; if (S.view === "compact" && S.open && keyOf(S.open).kind !== "fly") { S.open = ""; S.child = ""; } drawAll(); }
+  else if (a === "glance") toast("Opens that list (not drawn here).");
+  else if (a === "cook") toast("Opens Cook now for this recipe (not drawn here).");
   else if (a === "peek") front();
   else if (a === "edit" || a === "history") { if (!it) return; S.child = S.child === a ? "" : a; drawDetail(); sync(); var b = S.child ? $('#ief-child [data-act="childback"]') : $('[data-act="' + a + '"].ib'); if (b) b.focus({ preventScroll: true }); }
   else if (a === "childback") { var was = S.child; S.child = ""; drawDetail(); sync(); var r = $('[data-act="' + was + '"].ib'); if (r) r.focus({ preventScroll: true }); }
@@ -259,7 +281,7 @@ $("#sres").addEventListener("mousedown", function (e) { e.preventDefault(); });
 /* ---------- the search box ---------- */
 var qin = $("#q");
 qin.addEventListener("input", function () { S.q = qin.value; S.cur = -1; HDP.forceSearch = false; drawSearch(); });
-qin.addEventListener("focus", function () { drawSearch(); });
+qin.addEventListener("focus", function () { if (!HDP.quiet) drawSearch(); });
 qin.addEventListener("blur", function () { setTimeout(function () { if (document.activeElement !== qin && !HDP.forceSearch) closeSearch(); }, 120); });
 qin.addEventListener("keydown", function (e) {
   if (e.key === "ArrowDown" || e.key === "ArrowUp") { if (!flat.length) return; e.preventDefault(); S.cur = (S.cur + (e.key === "ArrowDown" ? 1 : -1) + flat.length) % flat.length; drawSearch(); }
@@ -298,6 +320,8 @@ document.addEventListener("keydown", function (e) {
   else if (keyOf(S.open).kind === "item") {
     if (kl === "e") { e.preventDefault(); act("edit"); } else if (k === ",") { e.preventDefault(); act("history"); }
     else if (kl === "u") { e.preventDefault(); act("useone"); } else if (kl === "d") { e.preventDefault(); act("usedup"); } else if (kl === "s") { e.preventDefault(); act("shop"); }
+  } else if (keyOf(S.open).kind === "fly") {
+    if (kl === "o") { e.preventDefault(); act("openrecipe"); }
   } else {
     if (kl === "p") { e.preventDefault(); act("plan"); } else if (kl === "o") { e.preventDefault(); act("openrecipe"); } else if (kl === "s") { e.preventDefault(); act("addmissing"); }
   }
