@@ -107,7 +107,12 @@ for (const [scheme, reduced] of [["dark", false], ["light", false], ["dark", tru
     // Copy flips in place
     const c0 = (await p.locator(".hd [data-copy]").boundingBox()); await tap(p.locator(".hd [data-copy]")); await sleep(400);
     const u1 = await p.locator(".hd .flipundo").boundingBox();
-    ok(`${tag} E: Copy last week flips to Undo in the same place (left edge within 4 px)`, (await p.locator(".hd .flipundo").count()) === 1 && Math.abs(u1.x - c0.x) <= 4 && /copy/i.test(await p.locator(".hd .flipundo").innerText()) && (await p.locator(".hd [data-copy]").count()) === 0, [c0, u1]);
+    /* Plan UI review 214 (owner-stated, 14 Oct 2026: the in-place Undo is too big/fat): the visible chip is at most 32 px high (the icon button stays 44), and the touch target is still 44 px high and 44 px wide at its edges (invisible hit area), in the same green */
+    ok(`${tag} E214: the Undo chip is visibly smaller (height <= 32, icon button still 44 high and 38 wide)`, u1.height <= 32 && c0.height === 44 && c0.width === 38, [c0, u1]);
+    ok(`${tag} E214: the Undo keeps a 44 px touch target (hit-tests inside it, 21 px above and below the centre)`, await p.evaluate(([x, y]) => [[x, y - 21], [x, y + 21]].every(([a, b]) => { const e = document.elementFromPoint(a, b); return !!(e && e.closest(".flipundo")); }), [u1.x + u1.width / 2, u1.y + u1.height / 2]));
+    ok(`${tag} E214: the Undo is still the accent green`, await p.evaluate(() => { const t = document.createElement("i"); t.style.background = "var(--accent)"; document.body.appendChild(t); const a = getComputedStyle(t).backgroundColor; t.remove(); return getComputedStyle(document.querySelector(".hd .flipundo")).backgroundColor === a; }));
+    ok(`${tag} E214: no horizontal overflow with the Undo showing`, await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth && document.querySelector(".hd").scrollWidth <= document.querySelector(".hd").clientWidth));
+    ok(`${tag} E: Copy last week flips to Undo in the same place (left edge within 16 px: the chip is right-anchored and is 12 px narrower since 214; centred on the icon row)`, (await p.locator(".hd .flipundo").count()) === 1 && Math.abs(u1.x - c0.x) <= 16 && Math.abs((u1.y + u1.height / 2) - (c0.y + c0.height / 2)) <= 1 && /copy/i.test(await p.locator(".hd .flipundo").innerText()) && (await p.locator(".hd [data-copy]").count()) === 0, [c0, u1]);
     ok(`${tag} E: the Clear icon is still there beside it`, (await p.locator(".hd [data-clearw]").count()) === 1);
     await fits("Undo copy");
     await tap(p.locator(".hd .flipundo")); await sleep(300); const c1 = await p.locator(".hd [data-copy]").boundingBox();
