@@ -16,7 +16,7 @@
 
   /* ---------- the clock that plays the camera ---------- */
   function begin() {
-    clear(); if (S.step !== "view" || S.fixed) return;
+    clear(); if (S.step !== "view" || S.fixed || RO.vp.noCamera) return;   /* no camera on the desktop (RS-76): nothing looks, a photo is given */
     if (S.cond !== "auto") { S.phase = S.cond === "partial" || S.cond === "blur" || S.cond === "dark" || S.cond === "glare" ? "found" : "look"; render(); return; }
     look();
   }
@@ -70,7 +70,7 @@
     switch (a) {
       case "add": S.sheet = "add"; render(); break;
       case "closesheet": S.sheet = ""; render(); break;
-      case "scan": reset(false); S.sheet = ""; S.step = S.perm === "refused" ? "refused" : "view"; S.cond = "auto"; render(); if (S.step === "view") begin(); break;
+      case "scan": reset(false); S.sheet = ""; S.step = S.perm === "refused" && !RO.vp.noCamera ? "refused" : "view"; S.cond = "auto"; render(); if (S.step === "view") begin(); break;
       case "leave": clear(); S.step = "entry"; S.sheet = ""; S.sel = null; S.pick = null; if (!S.fixed) reset(true); render(); break;
       case "torch": S.torch = !S.torch; render(); break;
       case "resume": S.cond = "auto"; S.phase = ""; begin(); break;
@@ -108,6 +108,8 @@
   /* ---------- the preset states: a page can open at any moment (?pre=, ?phase=, ?pos=) ---------- */
   function preset() {
     var pre = RO.Q.get("pre") || "";
+    /* the desktop has no camera (RS-76): every state that has read lines is a photo that was read; a camera condition or a refused permission does not exist there, so it is a drop zone */
+    if (RO.vp.noCamera) { S.cond = "auto"; S.perm = "allowed"; if (S.step === "refused") S.step = "view"; if (S.step === "view" && !S.still && ((S.phase && S.phase !== "look") || pre || RO.Q.get("pos"))) { S.still = true; S.phase = "still"; S.fixed = true; } }
     if (S.step === "view" || S.step === "done") {
       S.scroll = RO.scrollFor(S.pos);
       var all = pre === "all" || pre === "resolved" || pre === "half" || S.step === "done";
@@ -131,6 +133,7 @@
   }
   function lane() { var t = RO.tally(); return '<div class="rs-sh"><h2>Lines read</h2><span class="tag">' + (t.total + t.left) + "</span></div>" + RO.head() + RO.list(); }
   function screen() {
+    if (S.step === "refused" && RO.vp.noCamera) S.step = "view";
     var s = { step: S.step };
     if (S.step === "entry" || S.step === "done") { s.main = RO.pantry(); s.sheet = S.step === "entry" && S.sheet === "add" ? RO.addSheet() : ""; }
     else if (S.step === "refused") s.html = RO.refused();
@@ -182,16 +185,16 @@
 
   /* ---------- the prototype controls: added to the size and theme panel (backtick) ---------- */
   var ctl;
-  function syncCtl() { if (!ctl) return; $$("[data-cond]", ctl).forEach(function (x) { x.setAttribute("aria-pressed", String(x.dataset.cond === S.cond)); }); $$("[data-perm]", ctl).forEach(function (x) { x.setAttribute("aria-pressed", String(x.dataset.perm === S.perm)); }); }
+  function syncCtl() { if (!ctl) return; $$(".ro-camctl", ctl).forEach(function (x) { x.hidden = !!RO.vp.noCamera; }); $$("[data-cond]", ctl).forEach(function (x) { x.setAttribute("aria-pressed", String(x.dataset.cond === S.cond)); }); $$("[data-perm]", ctl).forEach(function (x) { x.setAttribute("aria-pressed", String(x.dataset.perm === S.perm)); }); }
   function addControls() {
     var p = $(".dvp"); if (!p) return;
     ctl = document.createElement("div");
-    ctl.innerHTML = '<h3>What the camera sees</h3><div class="dvc">' + [["auto", "Receipt in view"], ["blur", "Blurry"], ["wall", "Not a receipt"], ["dark", "Too dark"], ["glare", "Glare"], ["partial", "Cut off"], ["rest", "Resting"]].map(function (c) { return '<button type="button" data-cond="' + c[0] + '">' + c[1] + "</button>"; }).join("") + '</div><h3>Camera permission</h3><div class="dvc"><button type="button" data-perm="allowed">Allowed</button><button type="button" data-perm="refused">Refused</button></div><h3>Start</h3><div class="dvc"><button type="button" data-go="entry">Pantry</button><button type="button" data-go="scan">Scan again</button></div>';
+    ctl.innerHTML = '<div class="ro-camctl"><h3>What the camera sees</h3><div class="dvc">' + [["auto", "Receipt in view"], ["blur", "Blurry"], ["wall", "Not a receipt"], ["dark", "Too dark"], ["glare", "Glare"], ["partial", "Cut off"], ["rest", "Resting"]].map(function (c) { return '<button type="button" data-cond="' + c[0] + '">' + c[1] + "</button>"; }).join("") + '</div><h3>Camera permission</h3><div class="dvc"><button type="button" data-perm="allowed">Allowed</button><button type="button" data-perm="refused">Refused</button></div></div><h3>Start</h3><div class="dvc"><button type="button" data-go="entry">Pantry</button><button type="button" data-go="scan">Scan again</button></div>';
     p.insertBefore(ctl, p.firstChild);
     ctl.addEventListener("click", function (e) {
       var b = e.target.closest("button"); if (!b) return;
       if (b.dataset.cond) { reset(false); S.step = "view"; S.fixed = false; S.sheet = ""; S.cond = b.dataset.cond; if (S.cond === "partial") { S.scroll = RO.scrollFor(3); } if (S.perm === "refused") S.perm = "allowed"; render(); begin(); if (S.cond === "partial") { S.scroll = RO.scrollFor(3); markSeen(); render(); } }
-      else if (b.dataset.perm) { S.perm = b.dataset.perm; if (S.step === "view" || S.step === "refused") { reset(false); S.step = S.perm === "refused" ? "refused" : "view"; render(); begin(); } }
+      else if (b.dataset.perm) { S.perm = b.dataset.perm; if (S.step === "view" || S.step === "refused") { reset(false); S.step = S.perm === "refused" && !RO.vp.noCamera ? "refused" : "view"; render(); begin(); } }
       else if (b.dataset.go === "entry") { clear(); reset(true); S.step = "entry"; S.sheet = "add"; render(); }
       else if (b.dataset.go === "scan") RO.act("scan");
       syncCtl();

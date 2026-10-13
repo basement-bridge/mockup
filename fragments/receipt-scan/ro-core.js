@@ -154,20 +154,21 @@
     return h + "</div>";
   }
   RO.stageHtml = function () {
-    var c = S.cond, cl = "rl-stage lv-stage lv-live lv-short";
+    /* No webcam on the desktop (RS-76): until a photo is given the stage is a drop zone; after, the photo (the paper) as before. The conditions of a live camera (blur, dark, glare, rest) do not exist there. */
+    if (RO.vp.noCamera && !S.still) return '<div class="rl-stage lv-stage rl-drop" data-act="photos" data-over="0" data-busy="0"><div class="rl-drop-in"><span class="ic" aria-hidden="true">' + ic("image", 34) + '</span><h2>Drop a photo of the receipt here</h2><p>Or paste it, or choose a file. A flat, sharp, well-lit photo reads best. Lines collect in the list as they are read.</p><button type="button" class="rs-b pri big" data-act="photos">' + ic("image", 20) + "<span>Choose a photo</span></button></div></div>";
+    var c = RO.vp.noCamera ? "auto" : S.cond, cl = "rl-stage lv-stage lv-live lv-short";
     if (c === "blur") cl += " lv-blur"; if (c === "dark" && !S.torch) cl += " lv-dark"; if (c === "glare") cl += " lv-glare";
     var h = '<div class="' + cl + '" data-cond="' + c + '">';
     h += c === "wall" ? '<div class="lv-wall"><i></i></div>' : paperHtml();
     if (c === "glare") h += '<div class="lv-gl" aria-hidden="true"></div>';
     h += '<div class="rl-flash" aria-hidden="true"></div>';
-    if (DESK() && !S.still && S.cond !== "rest") h += '<span class="lv-pill lv-cam">' + ic("camera", 14) + "Webcam</span>";
-    if (S.cond === "rest") h += '<div class="rl-rest"><p>Looking has stopped to save battery.</p><button type="button" class="rl-go" data-act="resume">' + ic("camera", 18) + "Resume</button></div>";
+    if (S.cond === "rest" && !RO.vp.noCamera) h += '<div class="rl-rest"><p>Looking has stopped to save battery.</p><button type="button" class="rl-go" data-act="resume">' + ic("camera", 18) + "Resume</button></div>";
     return h + "</div>";
   };
 
   /* ---------- the prompt, as Shopping's (CS-D4) ---------- */
   function promptFor() {
-    var c = S.cond, t = tally(), n = t.total + t.left, ph = S.phase, need = t.check + t.unsure;
+    var c = RO.vp.noCamera ? "auto" : S.cond, t = tally(), n = t.total + t.left, ph = S.phase, need = t.check + t.unsure;
     if (c === "rest") return { tone: "info", ic: "pause", text: "Camera resting", sub: "Stopped after 150 s without a photo" };
     if (c === "blur") return { tone: "warn", ic: "warn", text: "Hold steady, the image is blurry." };
     if (c === "wall") return { tone: "soft", ic: "eye", text: "Can't find a receipt (best guess): very little text.", sub: n ? n + " lines already read are kept" : "" };
@@ -180,10 +181,12 @@
     if (ph === "again") return { tone: "info", ic: "eye", text: "Seen again: Butter. Not counted twice." };
     if (ph === "found" || ph === "hold") return { tone: "ok", ic: "hold", text: "Receipt found. Hold steady...", sub: n + " lines read" + (need ? ", " + need + " to settle" : "") };
     if (S.still) return { tone: "ok", ic: "image", text: "Photo read: " + n + " lines.", sub: need ? need + " to settle" : "" };
+    if (RO.vp.noCamera) return { tone: "info", ic: "image", text: "No photo yet", sub: "Drop, paste or choose a photo of the receipt" };
     return { tone: "info", ic: "eye", text: "Looking for a receipt...", sub: "Point the camera at it" };
   }
   function promptHtml() { var s = promptFor(); return '<p class="rl-status" data-tone="' + s.tone + '" role="status" aria-live="polite"><span class="rl-sign" aria-hidden="true">' + ic(s.ic, 20) + '</span><span class="rl-say">' + s.text + (s.sub ? "<small>" + s.sub + "</small>" : "") + "</span></p>"; }
   function progHtml() {
+    if (RO.vp.noCamera) return "";
     var on = (S.phase === "found" || S.phase === "hold" || S.phase === "take") && !/blur|wall|dark|glare|rest|partial/.test(S.cond) && !S.still, p = on ? (S.phase === "take" ? 1 : S.p) : 0;
     return '<div class="rl-prog"' + (on ? "" : " data-idle") + '><span class="rl-steady" role="progressbar" aria-label="Steady" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + Math.round(p * 100) + '"><i style="width:' + Math.round(p * 100) + '%"></i></span><span class="rl-held">' + (on ? "Steady " + Math.min(RO.HOLD, p * RO.HOLD).toFixed(1) + " of " + RO.HOLD.toFixed(1) + " s" : "") + "</span></div>";
   }
@@ -194,10 +197,10 @@
   }
   function actionsHtml() {
     var t = tally(), w = RO.vp.words || {}, key = DESK() && S.keys;
-    return '<div class="rl-actions"><button type="button" class="rl-side" data-act="photos">' + ic("image", 18) + (w.photo || "Choose a photo") + "</button>" + shutterHtml() +
+    return '<div class="rl-actions"' + (RO.vp.noCamera ? ' data-nocam="1"' : "") + '><button type="button" class="rl-side" data-act="photos">' + ic("image", 18) + (w.photo || "Choose a photo") + "</button>" + (RO.vp.noCamera ? "" : shutterHtml()) +
       '<button type="button" class="rl-side lv-add" data-act="summary"' + (t.ready ? "" : " disabled") + ' aria-label="Add ' + t.ready + ' to the Pantry">' + ic("check", 18) + "Add " + t.ready + (key ? '<span class="kbd">⇧↵</span>' : "") + "</button></div>";
   }
-  function barHtml() { return '<div class="rl-bar"><button type="button" class="rl-done" data-act="leave" aria-label="Done, close the camera">' + ic("x", 18) + "Done</button><h2 id=\"rl-title\">Scan receipt</h2>" + (S.cond === "dark" ? '<button type="button" class="rl-torch" data-act="torch" aria-pressed="' + S.torch + '" aria-label="Light on">' + ic("sun", 18) + "</button>" : '<span class="rl-bar-gap" aria-hidden="true"></span>') + "</div>"; }
+  function barHtml() { return '<div class="rl-bar"><button type="button" class="rl-done" data-act="leave" aria-label="Done, close the camera">' + ic("x", 18) + "Done</button><h2 id=\"rl-title\">Scan receipt</h2>" + (S.cond === "dark" && !RO.vp.noCamera ? '<button type="button" class="rl-torch" data-act="torch" aria-pressed="' + S.torch + '" aria-label="Light on">' + ic("sun", 18) + "</button>" : '<span class="rl-bar-gap" aria-hidden="true"></span>') + "</div>"; }
   RO.parts = function () { return { bar: barHtml(), status: promptHtml(), prog: progHtml(), actions: actionsHtml() }; };
 
   /* ---------- the progress readout and the filter (RS-64) ---------- */
@@ -308,7 +311,7 @@
   };
   RO.addSheet = function () {
     var d = DESK(), w = RO.vp.words || {};
-    return '<div class="rs-sh"><h2>Add an item</h2><button type="button" class="x ib" data-act="closesheet" aria-label="Close">' + ic("x", 20) + '</button></div><button type="button" class="rs-scan-tile" data-act="scan"><span class="rs-st-ic">' + ic("camera", 26) + '</span><span class="rs-st-tx"><b>Scan a receipt</b><small>' + (w.entry || "Point the camera at it. Lines collect in a list as they are read") + "</small></span>" + (d ? '<span class="kbd">R</span>' : ic("chev", 18)) + '</button><p class="rs-or">or add one item</p><div class="rs-form" aria-hidden="true"><span class="rs-lbl">Item</span><div class="rs-frow"><span class="rs-emt">+</span><span class="rs-fld">What is it?</span></div><span class="rs-lbl">Amount</span><span class="rs-fld">In your own words, e.g. a handful</span></div>';
+    return '<div class="rs-sh"><h2>Add an item</h2><button type="button" class="x ib" data-act="closesheet" aria-label="Close">' + ic("x", 20) + '</button></div><button type="button" class="rs-scan-tile" data-act="scan"><span class="rs-st-ic">' + ic(RO.vp.noCamera ? "image" : "camera", 26) + '</span><span class="rs-st-tx"><b>Scan a receipt</b><small>' + (w.entry || "Point the camera at it. Lines collect in a list as they are read") + "</small></span>" + (d ? '<span class="kbd">R</span>' : ic("chev", 18)) + '</button><p class="rs-or">or add one item</p><div class="rs-form" aria-hidden="true"><span class="rs-lbl">Item</span><div class="rs-frow"><span class="rs-emt">+</span><span class="rs-fld">What is it?</span></div><span class="rs-lbl">Amount</span><span class="rs-fld">In your own words, e.g. a handful</span></div>';
   };
   RO.nav = function () { return [["home", "Home"], ["pantry", "Pantry"], ["cook", "Recipes"], ["cart", "Shopping"]].map(function (n) { return '<a class="nv' + (n[0] === "pantry" ? " on" : "") + '" href="#" tabindex="-1">' + ic(n[0], 24) + "<span>" + n[1] + "</span></a>"; }).join(""); };
   RO.refused = function () {

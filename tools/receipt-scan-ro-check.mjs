@@ -71,4 +71,15 @@ for (const [w, h] of [[390, 844], [1280, 800]]) {
   const ok = got === "end" && !errs.length; if (!ok) { bad++; console.log("CLOCK", got, errs.join("|")); } else console.log("clock ok", got);
   await p.close();
 }
+/* RS-76: the desktop never offers a webcam. From 1024px up the scan opens on a drop zone, there is no viewfinder, shutter, Webcam pill, camera-condition state or permission state, and a photo (drop, paste, choose) reads the receipt. The phone keeps its viewfinder. */
+for (const [w, h, cam] of [[1280, 800, false], [390, 844, true]]) {
+  const p = await b.newPage({ viewport: { width: w, height: h } }); const errs = []; p.on("pageerror", e => errs.push(e.message));
+  await p.goto(`${BASE}ro.html?step=entry`); await p.waitForTimeout(300); await p.evaluate(() => RO.act("add")); await p.evaluate(() => RO.act("scan")); await p.waitForTimeout(300);
+  const q = () => p.evaluate(() => ({ drop: !!document.querySelector(".rl-drop"), shutter: !!document.querySelector(".rl-shutter"), pill: /Webcam/.test(document.body.innerText), steady: !!document.querySelector(".rl-steady"), still: RO.S.still }));
+  const a = await q(); let ok = a.drop === !cam && a.shutter === cam && !a.pill && a.steady === cam;
+  if (!cam) { await p.evaluate(() => RO.act("photos")); await p.waitForTimeout(200); const c = await q(); ok = ok && c.still && !c.drop && !c.shutter && !c.pill && (await p.evaluate(() => RO.tally().total)) > 0; }
+  for (const st of ["step=view&cond=blur&phase=found&pre=half", "step=refused", "step=view&cond=rest"]) { await p.goto(`${BASE}ro.html?${st}`); await p.waitForTimeout(300); const d = await q(); if (!cam && (d.shutter || d.pill || !(await p.evaluate(() => !!document.querySelector(".rl-drop,.lv-paper"))))) ok = false; }
+  if (!ok || errs.length) { bad++; console.log("NOCAM", w, JSON.stringify(a), errs.join("|")); } else console.log("no-webcam", cam ? "phone keeps the viewfinder" : "desktop is a drop zone", "ok");
+  await p.close();
+}
 console.log(n + " pages checked, " + bad + " problems"); await b.close();
