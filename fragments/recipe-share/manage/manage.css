@@ -92,3 +92,17 @@
 .rs-card .rs-row{background:var(--bg)}
 @media (prefers-reduced-motion:reduce){.rs-card .rs-chev{transition:none}}
 .rs-seg button{font-family:var(--body);background:none;border:0;cursor:pointer}
+
+/* ---- invites on a link (13 Oct 2026): the invite line, the version tag, the allowance ---- */
+.rs-ver{display:inline-flex;align-items:center;min-height:20px;margin-right:6px;padding:0 8px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--bg);font-size:12px;font-weight:700;color:var(--fg)}
+.rs-inv{display:flex;align-items:center;gap:6px;min-height:var(--tap);font-size:13px;font-weight:700;color:var(--accent)}
+.rs-inv .rs-ic{width:16px;height:16px}
+.rs-inv>span{flex:1;min-width:0}
+.rs-inv .rs-act{margin-left:auto;min-height:var(--tap)}
+.rs-inv[data-inv=claimed]{color:var(--sage)}
+.rs-inv[data-inv=ended],.rs-inv[data-inv=withdrawn]{color:var(--muted);font-weight:600}
+.rs-allow{display:flex;flex-wrap:wrap;align-items:center;gap:2px 8px;margin:0 0 var(--sp-3);padding:var(--sp-2) var(--sp-3);border-radius:var(--r-ctl);background:var(--surface);border:1px solid var(--border);font-size:13px}
+.rs-allow .rs-ic{width:18px;height:18px;color:var(--accent)}
+.rs-allow b{font-size:14px}
+.rs-allow span{flex:1 1 12rem;color:var(--muted)}
+.rs-allow[data-allow="0"] b{color:var(--accent)}

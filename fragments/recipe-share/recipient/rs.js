@@ -2,8 +2,9 @@
    The markup and class names (rs-*) are what the build's server would draw; the loading phases and the bar are the only script the page needs. */
 (function(){
 var q=new URLSearchParams(location.search);
-var opt=/^[abc]$/.test(q.get("opt"))?q.get("opt"):"a";
-var st=/^(anon|member|norecipes|expiring|expired|cancelled|loading|preview)$/.test(q.get("s"))?q.get("s"):"anon";
+var st=/^(anon|member|norecipes|expiring|expired|cancelled|loading|preview|invite|claimed|withdrawn|memberinvite)$/.test(q.get("s"))?q.get("s"):"anon";
+var invs=/^(invite|claimed|withdrawn|memberinvite)$/.test(st); /* a link that carried an invite: placement is option A (the recommended one) */
+var opt=invs?"a":/^[abc]$/.test(q.get("opt"))?q.get("opt"):"a";
 var IMG="../../../recipe-photos/img/";
 var LINK="https://kitchie.example/s/k7Qm-sample";
 var R={title:"Egg fried rice (with peas)",min:20,serves:2,
@@ -24,18 +25,23 @@ var P={
  check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',
  pot:'<path d="M4 11h16v5a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z"/><path d="M2.5 11h19M9 7c0-1.5 1-1.5 1-3M14 7c0-1.5 1-1.5 1-3"/>',
  chat:'<path d="M4 5h16v11H9l-5 4z"/>',
+ ticket:'<path d="M4 8.5a2 2 0 0 1 0 4v0a2 2 0 0 1 0 4V18h16v-1.5a2 2 0 0 1 0-4v0a2 2 0 0 1 0-4V6H4z"/><path d="M14 6.5v11" stroke-dasharray="1.8 2.2"/>',
  copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>'
 };
 var ic=function(n,s){s=s||20;return '<svg width="'+s+'" height="'+s+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">'+P[n]+'</svg>'};
-var member=st==="member",gone=st==="expired"||st==="cancelled",pf=function(p,sz,cls,alt){return '<span class="pf '+(cls||'')+'" style="--pc:'+p.pc+'" data-img="'+IMG+p.id+'-'+sz+'.webp" data-alt="'+E(alt)+'" role="img" aria-label="'+E(alt)+'"></span>'};
+var member=st==="member"||st==="memberinvite",gone=st==="expired"||st==="cancelled",pf=function(p,sz,cls,alt){return '<span class="pf '+(cls||'')+'" style="--pc:'+p.pc+'" data-img="'+IMG+p.id+'-'+sz+'.webp" data-alt="'+E(alt)+'" role="img" aria-label="'+E(alt)+'"></span>'};
 
+/* The invite on the link (13 Oct 2026). One quiet line inside the card when the invite is not the viewer's to claim; the claim card itself is only for the first person with an unclaimed invite. */
+var note=function(t){return '<p class="rs-inote">'+ic("ticket",16)+'<span>'+t+'</span></p>'};
+var ex=st==="claimed"?note("The invite that came with this link has already been used."):st==="withdrawn"?note("The invite that came with this link is no longer available."):st==="memberinvite"?note("This link also came with an invite to start a new household. You already have one, so the invite stays unused."):"";
 /* The invitation or the save, per option. Member sees Save instead; a member without Recipes sees nothing (no upsell to someone signed in). */
 var slot=(function(){
  if(st==="norecipes"||st==="preview")return "";
+ if(st==="invite")return '<aside class="rs-end rs-claim" aria-labelledby="rs-endh"><span class="rs-eic">'+ic("ticket",28)+'</span><div><h2 id="rs-endh">Start your own household</h2><p>Whoever sent you this recipe included an invite. Set up a Kitchie household of your own: it takes a minute and it is yours, not theirs.</p></div><div class="rs-acts"><button type="button" class="rs-btn" data-claim>'+ic("logo")+'<span>Start my household</span></button><a class="rs-lnk" href="#">I have an account</a></div></aside>';
  var mem=member||st==="norecipes";
  if(opt==="a")return mem
-  ?'<aside class="rs-end" aria-labelledby="rs-endh"><span class="rs-eic">'+ic("save",28)+'</span><div><h2 id="rs-endh">Want this one in your kitchen?</h2><p>Saved as your own copy. Change it however you like; the original stays as it is.</p></div><button type="button" class="rs-btn" data-save>'+ic("save")+'<span>Save to my recipes</span></button></aside>'
-  :'<aside class="rs-end" aria-labelledby="rs-endh"><span class="rs-eic">'+ic("logo",28)+'</span><div><h2 id="rs-endh">Liked it? Keep it in Kitchie.</h2><p>Kitchie is a kitchen notebook for your household: your recipes, what you have in, and a shopping list that follows.</p></div><div class="rs-acts"><a class="rs-btn" href="#">Try Kitchie</a><a class="rs-lnk" href="#">I have an account</a></div></aside>';
+  ?'<aside class="rs-end" aria-labelledby="rs-endh"><span class="rs-eic">'+ic("save",28)+'</span><div><h2 id="rs-endh">Want this one in your kitchen?</h2><p>Saved as your own copy. Change it however you like; the original stays as it is.</p>'+ex+'</div><button type="button" class="rs-btn" data-save>'+ic("save")+'<span>Save to my recipes</span></button></aside>'
+  :'<aside class="rs-end" aria-labelledby="rs-endh"><span class="rs-eic">'+ic("logo",28)+'</span><div><h2 id="rs-endh">Liked it? Keep it in Kitchie.</h2><p>Kitchie is a kitchen notebook for your household: your recipes, what you have in, and a shopping list that follows.</p>'+ex+'</div><div class="rs-acts"><a class="rs-btn" href="#">Try Kitchie</a><a class="rs-lnk" href="#">I have an account</a></div></aside>';
  if(opt==="b")return '<aside class="rs-bar" data-bar hidden aria-label="Kitchie">'+(mem
   ?'<span class="rs-bt"><b>Want it in your kitchen?</b></span><button type="button" class="rs-btn" data-save>'+ic("save")+'<span>Save to my recipes</span></button>'
   :'<span class="rs-bt"><b>Keep this recipe in Kitchie</b><small>Free to try. No card.</small></span><a class="rs-btn" href="#">Try Kitchie</a>')+'<button type="button" class="rs-x" data-dismiss aria-label="Dismiss">'+ic("x",18)+'</button></aside>';
@@ -94,9 +100,19 @@ root.addEventListener("click",function(e){
  var b=e.target.closest("button,a");if(!b)return;
  if(b.hasAttribute("data-save")){var done=b.getAttribute("data-done")!=="1";b.setAttribute("data-done",done?"1":"0");b.querySelector("span").textContent=done?"Saved. Open in Recipes":"Save to my recipes";var svg=b.querySelector("svg");if(svg)svg.outerHTML=ic(done?"check":"save");b.classList.toggle("done",done)}
  if(b.hasAttribute("data-dismiss")){var bx=b.closest("[data-bar],[data-ban]");if(bx){bx.hidden=true;bx.setAttribute("data-gone","1");try{sessionStorage.setItem("rs-dismiss","1")}catch(x){}}}
+ if(b.hasAttribute("data-claim")){flow(1)}
  if(b.hasAttribute("data-ask")){var d=document.getElementById("rs-draft"),o=d.hidden;d.hidden=!o;b.setAttribute("aria-expanded",String(o))}
  if(b.hasAttribute("data-copy")){var s=b.querySelector("span");s.textContent="Copied";setTimeout(function(){s.textContent="Copy message"},1500)}
 });
+/* The claim flow is a separate file, fetched only when the person taps Start my household (DESIGN.md 6): claim.js and claim.css. It replaces the recipe in place. */
+var cl=null;
+root.addEventListener("rs-restored",function(){load("step");load("banner")});
+function flow(n){
+ if(cl){cl.show(n);return}
+ var l=document.createElement("link");l.rel="stylesheet";l.href="claim.css";document.head.appendChild(l);
+ var sc=document.createElement("script");sc.src="claim.js";sc.onload=function(){cl=window.RSClaim.init({root:root,ic:ic,E:E,title:R.title,page:page,top:top});cl.show(n)};document.head.appendChild(sc);
+}
+if(st==="invite"&&/^[123]$/.test(q.get("flow")))flow(+q.get("flow"));
 if(q.get("ask")==="1"){var ab=document.querySelector("[data-ask]");if(ab)ab.click()}
 
 /* Option B: the bar waits until the person has read the ingredients (scrolled past 35%), never before. A dismiss lasts the visit. */

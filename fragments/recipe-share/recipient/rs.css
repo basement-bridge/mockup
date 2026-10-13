@@ -88,3 +88,8 @@ body[data-opt=b] .rs-page{padding-bottom:calc(var(--sp-7) + 56px)}
 
 @media (prefers-reduced-motion:reduce){.pf .pi{transition:none}}
 @media print{.rs-top,.rs-end,.rs-bar,.rs-ban,.rs-note,.rs-ghost{display:none!important}}
+
+/* The invite on the link: the claim card (quiet: the same card as the growth invitation, with a solid edge instead of a dashed one) and the one-line note. */
+.rs-claim{border-style:solid;border-color:var(--accent)}
+.rs-inote{display:flex;gap:6px;align-items:flex-start;margin-top:var(--sp-2);font-size:13px;color:var(--muted)!important}
+.rs-inote svg{flex:none;margin-top:2px;color:var(--muted)}
