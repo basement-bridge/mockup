@@ -210,7 +210,9 @@ select{font:inherit}
 .wnc,.wop{display:inline-flex;align-items:center;justify-content:center;gap:3px;min-width:44px;min-height:44px;margin:-11px 0;font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--muted);line-height:1;background:none;border:0;padding:0;font-family:inherit}
 .wnc:focus-visible,.wop:focus-visible{outline:2px solid var(--accent);outline-offset:-3px;border-radius:10px}
 .wnc svg{width:13px;height:13px;flex:none}
-.wop b{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:22px;padding:0 5px;border:1.5px dashed var(--muted);border-radius:7px;background:var(--bg);color:var(--fg);font-size:13px;font-weight:800}
+.wop b{font-weight:800}
+.wop svg{width:14px;height:14px;flex:none}
+/* 215 (owner, 14 Oct 2026): the open-night count glyph is the open padlock, not the dashed box; same weight as the moon beside it, muted like it. */
 .wnc b{font-weight:800}
 /* week bulk actions (159 to 165): two quiet outlined buttons under the week label, whole week in view */
 .wact{display:flex;flex-wrap:wrap;gap:8px;padding:8px 0 2px}
@@ -517,10 +519,12 @@ select{font:inherit}
 /* Plan UI review 147 to 149 (owner-stated, 13 Oct 2026: "The open day with this visual is great... Right swipe to making not cooking"). An open day in the plain week is the UAT slot: a faint dashed rounded box in the stack beside the day gutter, no words, no buttons (UAT .pw-slot: 56 px, 1px dashed var(--border), --r-ctl). The same tinted Not cooking reveal as a meal tile sits under it for a right swipe. */
 .sw.od-sw{background:none;border-radius:var(--r-ctl);overflow:hidden}
 .sw.od-sw .und{border-radius:var(--r-ctl)}
-.od{display:block;width:100%;min-height:56px;padding:6px 10px;border-radius:var(--r-ctl);border:1px dashed var(--border);background:var(--bg);color:var(--muted);text-align:left;touch-action:pan-y;user-select:none;-webkit-user-select:none;position:relative;z-index:1;transition:transform .18s ease,background-color .12s}
+.od{display:flex;align-items:center;gap:8px;width:100%;min-height:56px;padding:6px 10px;border-radius:var(--r-ctl);border:1px solid transparent;background:var(--bg);color:var(--muted);text-align:left;touch-action:pan-y;user-select:none;-webkit-user-select:none;position:relative;z-index:1;transition:transform .18s ease,background-color .12s}
 .od.drag{transition:none}
 .od:active,.od.drag{background:color-mix(in srgb,var(--accent) 8%,var(--bg));border-color:var(--accent)}
 .od:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.od>svg{width:22px;height:22px;flex:none}
+/* 215 (owner, 14 Oct 2026, voice): an open night is one open padlock on its slot, no dashed box and no words. Line icon in --muted, so light and dark follow the theme. The slot keeps its 56 px height, the swipe and the drop look (the row tint on .pw-day.target). */
 .od .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .pw-day.target .od,.dragging .od{pointer-events:none}
 @media(prefers-reduced-motion:reduce){.od{transition:none}}
@@ -534,7 +538,7 @@ select{font:inherit}
 .lpiece .dkh{min-height:44px}
 .lpiece .dkh h2{font-size:1.1rem}
 .lnote{display:flex;align-items:center;gap:6px;margin:0 0 8px;color:var(--muted);font-size:13px}
-.lnote svg{width:14px;height:14px}
+.lnote svg{width:14px;height:14px;flex:none}
 .lpiece .oa{margin:0;display:flex;flex-wrap:wrap;gap:6px}
 .lpiece .oa button{border:1px solid var(--border);background:var(--surface)}
 .lpiece .mko{margin-top:0;padding:0 12px;font-size:13px}
@@ -567,6 +571,6 @@ select{font:inherit}
 .vo svg{width:15px;height:15px}
 .mc.vonly,.blk.vonly,.od.vonly,.nite.vonly{opacity:.8}
 .blk.vonly,.nite.vonly{position:relative}
-.od.vonly{display:flex;align-items:center;justify-content:center;cursor:default}
-.od.vonly .vo{position:static}
+.od.vonly{cursor:default}
+/* 215: the padlock stays on the left (open night), the eye stays top right (view only): two glyphs, two places, two shapes */
 .dy .mo{position:absolute;top:2px;right:2px;font:700 8px var(--head);font-style:normal;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}

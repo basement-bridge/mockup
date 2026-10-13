@@ -17,10 +17,11 @@ const center = async (p, sel) => { await p.locator(sel).scrollIntoViewIfNeeded()
 
 for (const [w, h] of [[390, 844], [360, 740]]) {
   const ctx = await browser.newContext({ viewport: { width: w, height: h }, hasTouch: true, isMobile: true }); const errs = []; const tag = `touch ${w}`;
-  // A. the dashed open day
+  // A. the open day (open padlock, 215)
   { const p = await open(ctx, "", errs); const od = p.locator('.od[data-od-b="d18"]');
-    ok(`${tag} A: open day is the dashed slot`, await od.evaluate(e => getComputedStyle(e).borderTopStyle === "dashed"));
-    ok(`${tag} A: no visible words and no buttons on an open day in the week`, (await od.evaluate(e => [...e.children].every(c => c.classList.contains("sr")))) && (await p.locator(".pw-day .oa").count()) === 0);
+    ok(`${tag} A: open day is a slot with one open padlock svg (215), no dashed border, at least 44 px tall`, await od.evaluate(e => { const c = getComputedStyle(e), s = e.querySelectorAll("svg"); return c.borderTopStyle !== "dashed" && s.length === 1 && s[0].getAttribute("stroke") === "currentColor" && e.getBoundingClientRect().height >= 44; }));
+    ok(`${tag} A: one padlock per open night, none on a planned or Not cooking day`, await p.evaluate(() => { return document.querySelectorAll(".pw-day .od").length === document.querySelectorAll(".pw-day .od > svg").length && [...document.querySelectorAll(".pw-day")].every(d => d.querySelectorAll(".od").length <= 1 && (!d.querySelector(".od") || !d.querySelector(".mc,.blk"))); }));
+    ok(`${tag} A: no visible words and no buttons on an open day in the week`, (await od.evaluate(e => [...e.children].every(c => c.classList.contains("sr") || c.tagName.toLowerCase() === "svg"))) && (await p.locator(".pw-day .oa").count()) === 0);
     ok(`${tag} A: open day is labelled for screen readers`, (await od.getAttribute("aria-label")).includes("Open night"));
     ok(`${tag} A: past days have no swipe slot`, (await p.locator('.pw-day.past .od').count()) === 0);
     ok(`${tag} A: no sideways scroll`, await S(p, "document.documentElement.scrollWidth <= innerWidth"));
@@ -80,7 +81,7 @@ for (const [w, h] of [[390, 844], [360, 740]]) {
   { const c2 = await browser.newContext({ viewport: { width: w, height: h }, hasTouch: true, isMobile: true, reducedMotion: "reduce" }); const p = await open(c2, "long=1", errs);
     const c = await center(p, '.od[data-od-b="d18"]'); await touchSwipe(c2, p, c.x - 60, c.y, 160); ok(`${tag} reduced motion + long=1: swipe works`, await blocked(p, "d18"));
     ok(`${tag} long=1: no sideways scroll`, await S(p, "document.documentElement.scrollWidth <= innerWidth")); await c2.close(); }
-  { const p = await open(ctx, "who=priya", errs); ok(`${tag} view only: dashed slot with no swipe or tap`, (await p.locator(".od[data-od-b]").count()) === 0 && (await p.locator(".od.ro, .sw.ro .od").count()) > 0); await p.close(); }
+  { const p = await open(ctx, "who=priya", errs); ok(`${tag} view only: padlock slot (and the eye) with no swipe or tap`, (await p.locator(".od[data-od-b]").count()) === 0 && (await p.locator(".od.ro, .sw.ro .od").count()) > 0); await p.close(); }
   { const p = await open(ctx, "ac=dull", errs); ok(`${tag} colour (156): the ?ac= switch and --nc are gone, the Not cooking edge is the muted grey of past days`, await p.evaluate(() => !document.body.dataset.ac && getComputedStyle(document.body).getPropertyValue("--nc").trim() === "" && (() => { const t = document.createElement("i"); t.style.color = "var(--muted)"; document.body.appendChild(t); const m = getComputedStyle(t).color; t.remove(); return [...document.querySelectorAll(".blk, .peek button")].length ? getComputedStyle(document.querySelector(".blk")).borderLeftColor === m : false; })())); await p.close(); }
   ok(`${tag}: no page errors`, errs.length === 0, errs); await ctx.close();
 }
