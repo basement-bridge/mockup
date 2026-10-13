@@ -1,6 +1,6 @@
 # Sharing a recipe outside the household
 
-Handover for whoever drives this next: [../../handover/recipe-share.md](../../handover/recipe-share.md). Mockup hub: `fragments/recipe-share/index.html` (live: https://basement-bridge.github.io/mockup/fragments/recipe-share/index.html). Mockup only; nothing is built. Everything numbered below is **PROPOSED**; the owner has confirmed none of it. Decision numbers continue after 205 (the last in [plan-ui-review.md](plan-ui-review.md)).
+Handover for whoever drives this next: [../../handover/recipe-share.md](../../handover/recipe-share.md). Mockup hub: `fragments/recipe-share/index.html` (live: https://basement-bridge.github.io/mockup/fragments/recipe-share/index.html). Mockup only; nothing is built. Everything numbered below is **PROPOSED** unless marked **CONFIRMED** (206, 209 and 243 so far, 13 October 2026, see "Owner picks"). Decision numbers continue after 205 (the last in [plan-ui-review.md](plan-ui-review.md)).
 
 ## Job
 
@@ -48,16 +48,23 @@ Hub: `fragments/recipe-share/index.html`. Four slices, merged separately (PRs #1
 
 Recommended path: A in each. Slices B and C are kept drawn for comparison; none is rejected by the owner.
 
-## Decisions (all PROPOSED; none confirmed)
+## Owner picks (13 October 2026, voice and typed)
+
+1. **CONFIRMED:** mobile sharing is placement option A (share icon in the top row with an active-links badge). Decision 206.
+2. **CONFIRMED:** desktop sharing is placement option A on the main page of the fully opened recipe (Share pill with the S key hint). Decisions 206 and 209.
+3. **CONFIRMED:** the desktop recipe summary flyout (opened by clicking a row in the Recipes list) also gets a Share button next to the "Open full recipe" link, opening the share panel as a drill-in in the same flyout lane. Desktop only: mobile has no summary flyout (a row tap opens the full recipe page). Decision 243. Its visual and wording are proposed by the flyout slice and stay PROPOSED (244 to 246).
+4. **Not yet confirmed:** whether "A" also covers the create sheet, links list and recipient page. Those A options stay PROPOSED (recommended). See open question O12.
+
+## Decisions (206, 209 and 243 CONFIRMED; the rest PROPOSED)
 
 Merged from the four slices' unnumbered proposals. Where two slices said the same thing it is here once. Where they disagreed it is not decided here; it is an open question (O1 to O5). "Source" names the slice or slices.
 
 ### Entry and placement
 
-206. **Share is a recipe action in the top row.** Icon on phone (between Edit and More), labelled pill on desktop, with the count of active links on it. Recommended: placement A. B (chip under the title) and C (More menu plus a status line) stay drawn. Source: placement.
+206. **CONFIRMED (13 Oct 2026, owner, voice; mobile and desktop placement A). Share is a recipe action in the top row.** Icon on phone (between Edit and More), labelled pill on desktop, with the count of active links on it. Recommended: placement A. B (chip under the title) and C (More menu plus a status line) stay drawn. Source: placement.
 207. **The count is of active links only** (not expired, not cancelled), and nothing shows at zero. Source: placement.
 208. **Share opens in place:** a bottom sheet on phone, the right flyout lane on desktop, no navigation (DESIGN.md 6a). Source: placement, sheet.
-209. **Desktop key S opens Share**, shown as a key hint like E and the comma. Not on phone. Source: placement. See O1 for how it closes.
+209. **CONFIRMED (13 Oct 2026, owner, voice; desktop pill with S key hint). Desktop key S opens Share**, shown as a key hint like E and the comma. Not on phone. Source: placement. See O1 for how it closes.
 210. **Every household member** can see, create, rename and cancel any link, not only its maker (as the shopping links, and R-O5 for recipe actions). Source: placement, manage.
 
 ### Creating a link
@@ -104,7 +111,16 @@ Merged from the four slices' unnumbered proposals. Where two slices said the sam
 241. **A link is a Recipe entitlement concern; there is no per-feature flag.** Whoever has Recipes has sharing; the recipient's page needs no entitlement. Source: integration brief (owner), not in the voice note. Treat as PROPOSED until the owner restates it.
 242. **Default path loads one small stylesheet and script per slice;** the create sheet, links list and desktop host load on engagement, and viewport code lives in its own files (phone under 1024px, desktop from 1024px). Everything changes in place, no reload (DESIGN.md 6 and 6a). Source: all four.
 
-Decision numbers 206 to 242. None is confirmed.
+### Share in the desktop recipe summary flyout
+
+Slice: `fragments/recipe-share/flyout/`. Desktop only.
+
+243. **CONFIRMED (13 Oct 2026, owner, typed and voice). The summary flyout has a Share button right next to the "Open full recipe" link.** It opens the share panel as a drill-in in the same flyout lane the summary uses, no navigation. Mobile has no summary flyout, so nothing changes there. Source: owner pick 3.
+244. **The button's visual and wording are the flyout slice's proposal.** PROPOSED. The slice shows it and its notes say why.
+245. **Whether key S also works while the summary flyout is focused,** and what the active-links badge shows there. PROPOSED, left to the flyout slice.
+246. **Back behaviour of the drill-in:** how the person returns from the share panel to the summary (back control, Esc, or the lane's usual close), and whether the summary keeps its scroll. PROPOSED, left to the flyout slice; see also O1.
+
+Decision numbers 206 to 246. Confirmed: 206, 209, 243. The rest are proposals.
 
 ## Open questions
 
@@ -117,6 +133,10 @@ Where two slices answered the same thing differently the contradiction is stated
 - **O3. Where the link list lives.** Placement's tap on the Share icon opens a stub that lists the links with Cancel (no Undo) and Make a link. Manage recommends the list as a section in the page, and its own option B is that panel. With both recommended, links would be listed in two places. Possible glue (not drawn): the icon opens the create sheet, and when links exist it also scrolls to the Shared section. Wrong guess: a rework of one slice's entry point.
 - **O4. Is a link for the recipe or for one version?** Placement puts the entry on the recipe, not a version. Sheet pins the version on screen. Recipient shows the one the sender chose. A recipe with versions needs an answer: the version on screen, the household's usual, or a choice in the sheet. Wrong guess: someone shares "With peas" and the recipient sees the Original.
 - **O5. What the count means.** Placement's badge counts active links; manage's "Shared N" chip appears while a *listed* link exists, which includes ended ones. They could show different numbers on one recipe. Pick one meaning.
+
+**Owner follow-up**
+
+- **O12. Did "A" also mean the create sheet, links list and recipient page?** The owner confirmed placement A on mobile and desktop. Sheet A, manage A and recipient A stay PROPOSED (recommended) until he says. Wrong guess: if he meant placement only, three slices are treated as settled when they are not.
 
 **Questions several slices asked**
 
