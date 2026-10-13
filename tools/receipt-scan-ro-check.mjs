@@ -27,6 +27,20 @@ for (const [w, h] of [[390, 844], [1280, 800]]) {
   await p.goto(`${BASE}ro.html?step=view&phase=end&pre=all`); await p.waitForTimeout(400);
   const act = async (a, id, v) => { await p.evaluate(([a, id, v]) => RO.act(a, id, v), [a, id, v]); await p.waitForTimeout(60); };
   const t0 = await p.evaluate(() => RO.tally());
+  // the controls on each line, read from the closed list (RS-59, RS-74): Exact and Check have Pick another item and New (Check also Accept, Exact no Accept), Unsure has Add as new, Match to existing, Ignore, Ignored has Put back
+  const WANT = { "top": ["Pick another item", "New"], "check": ["Accept", "Pick another item", "New"], "unsure": ["Add as new", "Match to existing", "Ignore"], "ignored": ["Put back"], "new/exact": ["Pick another item", "Ignore"], "new/check": ["Pick another item", "Ignore"], "new/unsure": ["Match to existing", "Ignore"] };
+  const controls = () => p.evaluate(() => [...document.querySelectorAll(".ro-li")].map(li => ({ k: li.dataset.k, st: li.dataset.st, open: li.classList.contains("on"), l: [...li.querySelectorAll(".ro-acts .rs-b")].map(b => b.querySelector("span").textContent.trim()), vis: [...li.querySelectorAll(".ro-acts .rs-b")].every(b => { const r = b.getBoundingClientRect(); return r.width > 0 && r.height > 0; }) })));
+  const wrong = async (what) => { const bad = (await controls()).filter(r => r.open || !r.vis || JSON.stringify(r.l) !== JSON.stringify(WANT[r.k === "new" ? "new/" + r.st : r.k])); if (bad.length) { console.log("CONTROLS", w, what, JSON.stringify(bad.slice(0, 3))); return 1; } return 0; };
+  bad += await wrong("as read");
+  {
+    // a recommended line sent to New keeps Pick another item; an Unsure line sent to New keeps Match to existing; an Ignored line has Put back
+    const ids = await p.evaluate(() => ({ rec: (RO.D.lines.find(l => RO.out(l).k === "top" || RO.out(l).k === "check") || {}).id, uns: (RO.D.lines.find(l => RO.out(l).k === "unsure") || {}).id }));
+    if (ids.rec) await act("new", ids.rec); if (ids.uns) await act("new", ids.uns);
+    bad += await wrong("after New");
+    if (ids.uns) { await act("ignore", ids.uns); bad += await wrong("after Ignore"); await act("restore", ids.uns); }
+    if (ids.rec) await act("undo", ids.rec);
+    bad += await wrong("after Undo");
+  }
   // the buttons are really on the rows: click one with the pointer
   await act("filter", null, "check");
   const clicked = await p.$('[data-act=accept]'); if (clicked) { await clicked.click({ force: true }).catch(() => {}); await p.waitForTimeout(100); }
