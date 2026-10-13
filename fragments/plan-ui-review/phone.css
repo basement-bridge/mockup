@@ -474,9 +474,6 @@ select{font:inherit}
 /* 125: an open night on the week is only quiet words; the day's own detail carries Ask AI, Surprise me and Not cooking */
 .nite.quiet{width:100%;display:flex;align-items:center;min-height:52px;padding:2px 2px 6px;border-bottom:0;text-align:left}
 .nite.quiet .ot{flex:none;min-height:44px;display:flex;align-items:center}
-.nite.full .oa{flex-wrap:wrap}
-.nite.full .oa button{border:1px solid var(--border);background:var(--surface)}
-.dpiece .nite.full{border-bottom:0;padding-bottom:6px}
 /* 128: the grey bar on the tab. Removed (recommended) or much lighter. The tab itself stays the drag target. */
 .hdl-none .tongue i{display:none}
 .hdl-light .tongue i{width:20px;height:2px;opacity:.45}
