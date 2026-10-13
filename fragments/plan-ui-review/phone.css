@@ -23,16 +23,15 @@ select{font:inherit}
 .stk.cmp .hd .wt small{display:none}
 .stk.cmp .hd .cpy:has(.flipundo){display:inline-flex}
 .stk.cmp .hd .cpy,.stk.cmp .hd .cog{display:none}
-.stk.cmp .hd .ib,.stk.cmp .fmenu,.stk.cmp .tdy{min-height:32px;height:32px}
+.stk.cmp .hd .ib,.stk.cmp .fmenu{min-height:32px;height:32px}
 .hd .ib{width:40px}
 .ib{width:44px;height:44px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:none;color:var(--fg)}
 .ib:active{background:var(--surface)}
 .ib:disabled{opacity:.3}
 .sp{flex:1}
 .cpy{display:inline-flex}
-.tdy,.fmenu,.flipundo{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 10px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-weight:700;font-size:13px;white-space:nowrap;flex:none}
-.tdy{color:var(--accent);border-color:var(--accent)}
-.tdy svg,.fmenu svg,.flipundo svg{width:15px;height:15px}
+.fmenu,.flipundo{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 10px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-weight:700;font-size:13px;white-space:nowrap;flex:none}
+.fmenu svg,.flipundo svg{width:15px;height:15px}
 .fmenu .av{width:22px;height:22px;font-size:11px;margin:0 -2px 0 -6px}.fmenu .av:empty{display:none}
 .fmenu b{font-weight:700}
 .flipundo{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
@@ -198,17 +197,19 @@ select{font:inherit}
 
 /* ---- 12 Oct 2026 revision (decisions 85 to 106) ---- */
 /* week dividers, hidden Not cooking days, drop targets, pulse */
-.wkd{display:flex;align-items:baseline;gap:8px;padding:18px 0 0;color:var(--muted);font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.wkd{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px;padding:18px 0 0;color:var(--muted);font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
 .wkd i{font-style:normal;font-weight:600;letter-spacing:0;text-transform:none;font-size:13px}
 .wkd:first-child{padding-top:6px}
 .wkd .wr{margin-left:auto;display:inline-flex;align-items:center;gap:8px;min-width:0;white-space:nowrap}
 .wkd i.wn{font-weight:500;font-size:12px}
-/* 168 to 172: the Not cooking moon with a number, and a miniature of the dashed open-night box (.od, UAT .pw-slot) with a number. No words; aria-label and title carry them. */
-.wi{display:inline-flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0}
-.wnc,.wop{display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--muted);line-height:1}
+/* 168 to 172, 191, 192: the Not cooking moon with a number and the open-night box with a number, no words, both real buttons that jump to the first such night (191). Each button is 44 x 44 (pulled back with a negative margin so the row stays slim) around the small glyph.
+   192 (owner: the dotted ones are "a bit hard to read up close"): the open-night box is larger (26 x 22), 1.5 px dashed in the muted line colour, with a solid bold numeral in the full text colour; the moon is unchanged. */
+.wi{display:inline-flex;align-items:center;gap:0;text-transform:none;letter-spacing:0}
+.wnc,.wop{display:inline-flex;align-items:center;justify-content:center;gap:3px;min-width:44px;min-height:44px;margin:-11px 0;font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--muted);line-height:1;background:none;border:0;padding:0;font-family:inherit}
+.wnc:focus-visible,.wop:focus-visible{outline:2px solid var(--accent);outline-offset:-3px;border-radius:10px}
 .wnc svg{width:13px;height:13px;flex:none}
-.wop{min-width:20px;height:18px;padding:0 4px;justify-content:center;border:1px dashed var(--border);border-radius:6px;background:var(--bg)}
-.wop b,.wnc b{font-weight:700}
+.wop b{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:22px;padding:0 5px;border:1.5px dashed var(--muted);border-radius:7px;background:var(--bg);color:var(--fg);font-size:13px;font-weight:800}
+.wnc b{font-weight:800}
 /* week bulk actions (159 to 165): two quiet outlined buttons under the week label, whole week in view */
 .wact{display:flex;flex-wrap:wrap;gap:8px;padding:8px 0 2px}
 .wab{flex:1 1 140px;min-width:0;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 12px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--surface);color:var(--fg);font:600 14px var(--body, inherit);white-space:nowrap}
@@ -376,20 +377,13 @@ select{font:inherit}
 .flipundo.two b{font-size:13px}
 .flipundo.two small{font-size:10px;font-weight:700;opacity:.92}
 .cpy{align-items:center;gap:0}
-.cpy.menu .flipundo{margin-right:2px}
 .hd small.fl{color:var(--accent)}
 .hd .cpy.pair .ib{width:38px}
-@media(max-width:380px){.hd.flipped .fmenu{display:none}.hd.flipped .wt small{max-width:7.5rem}}
-.wkm .it:disabled{opacity:.45}
-.wkm .it{align-items:flex-start;padding-top:8px;padding-bottom:8px;min-height:56px}
-.wkm .it svg{margin-top:2px}
-.wkm .it small{margin-top:2px}
-.wkm .hint2{padding:4px 12px 4px}
+/* 194: the flipped button is Undo in the slot of the icon that did it, and the header must not overflow: the sub line gives way first (it is the short form of the day note), then at 380 and under the Mine dropdown. */
+.hd.flipped .wt small{max-width:calc(100vw - 244px)}
+@media(max-width:380px){.hd.flipped .fmenu{display:none}.hd.flipped .wt small{max-width:calc(100vw - 168px)}}
 @media(max-height:760px){.dpiece{padding-bottom:18px}.stackw{padding-top:4px}}
-.hd.flipped .tdy,.hd.flipped .cog{display:none}
-/* placement B (two icons): there is no room for Plan settings while the Today pill shows, one reason the menu placement is recommended */
-@media(max-width:440px){.hd.pairm:has(.tdy) .cog{display:none}}
-@media(max-width:380px){.hd.pairm:has(.tdy) .fmenu svg{display:none}.hd.pairm .wt h1{font-size:1rem}}
+.hd.flipped .cog{display:none}
 /* scripted sequence (demo.js, only with ?demo=1) */
 .demobar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(64px + env(safe-area-inset-bottom));width:100%;max-width:430px;z-index:45;display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--fg);color:var(--bg);font-size:12px;line-height:1.3}
 .demobar .dtx{flex:1;min-width:0}.demobar b{display:block;font-size:13px}.demobar span{display:block;opacity:.92}
@@ -553,3 +547,19 @@ select{font:inherit}
 @keyframes xin{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){.ecg.beat .bt{animation:none;opacity:0}.pw-day.xin{animation:none}}
 .dragging .ecg,.carrying .ecg{display:none}
+
+/* 193: the week label is a button (long hold or T goes to today), styled as the plain title it was. No hover or pressed look on a tap; a slight settle while the hold runs; one pulse when it fires. */
+.wkl{font:inherit;color:inherit;letter-spacing:inherit;text-align:left;background:none;border:0;padding:6px 4px;margin:-6px -4px;white-space:nowrap;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;border-radius:8px;cursor:default}
+.wkl:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.wkl.arm{opacity:.72}
+.wkl-pulse{animation:wklp 1.2s ease-out 1}
+@keyframes wklp{0%{background:color-mix(in srgb,var(--accent) 38%,transparent)}100%{background:transparent}}
+@media(prefers-reduced-motion:reduce){.wkl-pulse{animation:none;box-shadow:0 0 0 2px var(--accent)}.wkl.arm{opacity:1}}
+/* 190: another person's plan is view only. A small eye drawn like the moon and cog glyphs, and a slight dim; the past keeps its grey and has no eye. */
+.vo{position:absolute;top:6px;right:9px;display:inline-flex;color:var(--muted);pointer-events:none;z-index:1}
+.vo svg{width:15px;height:15px}
+.mc.vonly,.blk.vonly,.od.vonly,.nite.vonly{opacity:.8}
+.blk.vonly,.nite.vonly{position:relative}
+.od.vonly{display:flex;align-items:center;justify-content:center;cursor:default}
+.od.vonly .vo{position:static}
+.dy .mo{position:absolute;top:2px;right:2px;font:700 8px var(--head);font-style:normal;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}

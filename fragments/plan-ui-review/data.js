@@ -29,21 +29,28 @@ window.PUR = (function () {
     people: I('<circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 5a3 3 0 0 1 0 6M18 14c2 .7 3 2.8 3 6"/>'),
     /* Clear week (decision 109): an eraser, not a bin. A bin says "delete for good"; the eraser says "wipe the board", and Undo is always there. */
     clear: I('<path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/>'),
+    /* Plan UI review 190: view only. An eye in the same line language as the moon, cog and ask-AI glyphs (24 grid, 2 px stroke, round caps); never an emoji. */
+    eye: I('<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>'),
     leaf: I('<path d="M5 19c0-9 5-14 15-14 0 10-5 15-14 15"/><path d="M5 19c3-5 6-8 10-10"/>')
   };
   var people = [
     { id: 'sam', n: 'Sam', me: 1 }, { id: 'jane', n: 'Jane' }, { id: 'kit', n: 'Kit' }, { id: 'arlo', n: 'Arlo' },
     { id: 'priya', n: 'Priya' }, { id: 'tom', n: 'Tom' }, { id: 'lee', n: 'Lee' }
   ];
-  /* Three weeks, bounded: last, this, next (owner-stated 12 Oct 2026, decision 86; "four weeks forward" is an open question).
-     A day id is "d" + the date in October 2026 (d12 = Mon 12 Oct). Today in the sample is Tue 13 Oct. */
-  var DOW = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  var RIB = []; for (var n = 5; n <= 25; n++) { var k = n - 5; RIB.push({ id: 'd' + (n < 10 ? '0' + n : n), dow: DOW[k % 7], n: n, i: k, wk: Math.floor(k / 7) - 1, mon: 'd' + (5 + 7 * Math.floor(k / 7)).toString().replace(/^(\d)$/, '0$1') }); }
+  /* The ribbon range. Desktop keeps three weeks (last, this, next; owner-stated 12 Oct 2026, decision 86). The phone calls useRange(3) before it reads RIB: one week back and, counting this one, four forward
+     (owner-stated 13 Oct 2026, decision 197: "four forward, one backward"), so last, this, next, in 2 weeks, in 3 weeks. The array is changed in place, so every function here sees the new range.
+     A day id is "d" + the date in October 2026 (d12 = Mon 12 Oct), "n" + the date in November (n02 = Mon 2 Nov). Today in the sample is Tue 13 Oct. */
+  var DOW = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], RIB = [];
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function dayId(k) { var n = 5 + k; return n <= 31 ? 'd' + pad(n) : 'n' + pad(n - 31); }
+  function mkRib(to) { var out = []; for (var k = 0; k < (to + 2) * 7; k++) { var n = 5 + k; out.push({ id: dayId(k), dow: DOW[k % 7], n: n <= 31 ? n : n - 31, mo: n <= 31 ? 'Oct' : 'Nov', i: k, wk: Math.floor(k / 7) - 1, mon: dayId(7 * Math.floor(k / 7)) }); } return out; }
+  RIB.push.apply(RIB, mkRib(1));
+  function useRange(to) { RIB.length = 0; RIB.push.apply(RIB, mkRib(to)); }
   var SHORT = { mon: 'd12', tue: 'd13', wed: 'd14', thu: 'd15', fri: 'd16', sat: 'd17', sun: 'd18' };
   function did(v, d) { if (!v) return d; if (SHORT[v]) return SHORT[v]; return RIB.some(function (r) { return r.id === v; }) ? v : d; }
   function dinfo(id) { return RIB.filter(function (r) { return r.id === id; })[0]; }
   var DAYS = RIB.filter(function (r) { return r.wk === 0; }).map(function (r) { return [r.id, r.dow, r.n]; });
-  var REL = { '-1': 'Last week', '0': 'This week', '1': 'Next week' };
+  var REL = { '-1': 'Last week', '0': 'This week', '1': 'Next week', '2': 'In 2 weeks', '3': 'In 3 weeks' };
   /* who: 'all' or list of ids. miss: missing items. have: on hand. useby: items with a use-by. list: on the shopping list. held: ingredient held. */
   var meals = [
     { id: 'mon-shak', mins: 25, rid: 'sha', day: 'd12', em: '🍳', t: 'Shakshuka', who: 'all', n: 4, src: 'saved', miss: [['feta', '200 g', 1]], have: [['eggs', '8'], ['tinned tomatoes', '2 tins'], ['onion', '2']], useby: [], list: 1, held: 1, note: 'A quick night' },
@@ -92,7 +99,7 @@ window.PUR = (function () {
     src.forEach(function (r, i) {
       var t = tgt[i].id; if (di(t) < di(today) || blocked[t] || meals.some(function (x) { return x.day === t && match(x, view); })) return;
       var ms = meals.filter(function (x) { return x.day === r.id && match(x, view); }); if (!ms.length) return;
-      ms.forEach(function (x) { var c = JSON.parse(JSON.stringify(x)); c.id = 'cp-' + (++n) + '-' + t; c.day = t; c.note = 'Copied from ' + dinfo(r.id).dow + ' ' + dinfo(r.id).n + ' Oct'; c.held = 0; c.list = 0; c.miss = c.miss.map(function (i) { return [i[0], i[1]]; }); delete c.left; delete c.makes; delete c.usual; add.push(c); }); days.push(t);
+      ms.forEach(function (x) { var c = JSON.parse(JSON.stringify(x)); c.id = 'cp-' + (++n) + '-' + t; c.day = t; c.note = 'Copied from ' + dinfo(r.id).dow + ' ' + dinfo(r.id).n + ' ' + dinfo(r.id).mo; c.held = 0; c.list = 0; c.miss = c.miss.map(function (i) { return [i[0], i[1]]; }); delete c.left; delete c.makes; delete c.usual; add.push(c); }); days.push(t);
     });
     return { add: add, days: days, why: add.length ? '' : 'none' };
   }
@@ -112,7 +119,30 @@ window.PUR = (function () {
     if (!out.rm.length && !out.nc.length) out.why = 'none';
     return out;
   }
+  /* Two layers (Plan UI review 195, owner-stated 13 Oct 2026; the model is a Proposal). ROUTINE is the person's usual days off, set in Plan settings (UAT: Settings, "Usual days", the stencil; Kitchie plan_block_day usual: true): each week starts with these blocked.
+     A one-week override sits on top: a one-off Not cooking mark on any other day, or a routine day opened for this week ("Usual day off, cooking this week" in UAT). Nothing is stored for the override: it is whatever differs from the routine default, so
+     blocked[d] is the effective state ('usual' = Not cooking every week, 'once' = Not cooking this week only, none = open or cooking), and the routine default of a day is 'usual' on a routine weekday from today on, none otherwise.
+     Sample: Fri and Sun are the usual days off; Fri 16, Sun 18 and Fri 23 are opened for their week (Fri 16 has the leftovers meal), Sun 25 and every Fri and Sun after it are Not cooking, every week. */
+  var ROUTINE = { off: ['Fri', 'Sun'], opened: ['d16', 'd18', 'd23'] };
+  function routineDefault(d, today) { var r = dinfo(d); return r && r.i >= dinfo(today).i && ROUTINE.off.indexOf(r.dow) > -1 ? 'usual' : null; }
+  function baseBlocked(today) { var o = JSON.parse(JSON.stringify(blocked)); RIB.forEach(function (r) { if (!o[r.id] && ROUTINE.opened.indexOf(r.id) < 0 && routineDefault(r.id, today)) o[r.id] = 'usual'; }); return o; }
+  /* Clear week, two layers (decision 195): from today on, in the selected week and the active person's plan, it removes the planned meals AND this week's overrides of the routine: a one-off Not cooking mark goes (nc), a routine day that was opened goes
+     back to Not cooking every week (back). It never touches the routine itself. Past nights are read only. Returns what changed so the message and Undo can say it. */
+  function clearWeek2(meals, blocked, view, wk, today) {
+    var out = { rm: [], days: [], nc: [], back: [], shared: 0, kept: [], why: '' };
+    if (view !== 'mine' && view !== 'everyone') { out.why = 'readonly'; return out; }
+    if (wk < 0) { out.why = 'bounds'; return out; }
+    RIB.filter(function (r) { return r.wk === wk; }).forEach(function (r) {
+      var ms = meals.filter(function (x) { return x.day === r.id && match(x, view); });
+      if (r.i < dinfo(today).i) { if (ms.length) out.kept.push(r.id); return; }
+      ms.forEach(function (x) { out.rm.push(x.id); if (x.who === 'all' && view === 'mine') out.shared++; });
+      var want = routineDefault(r.id, today), cur = blocked[r.id] || null, ch = cur !== want; if (ch) (want ? out.back : out.nc).push(r.id);
+      if (ms.length || ch) out.days.push(r.id);
+    });
+    if (!out.days.length) out.why = 'none';
+    return out;
+  }
   /* a long ingredient list for the dock demo (?long=1): a real cook sheet can have 20 lines */
   var LONG = [['garlic', '4 cloves'], ['ginger', '1 thumb'], ['cumin', '2 tsp'], ['coriander', '2 tsp'], ['turmeric', '1 tsp'], ['chilli flakes', '1 tsp'], ['stock cube', '2'], ['coconut milk', '1 tin'], ['apple', '1'], ['honey', '1 tbsp'], ['soy sauce', '2 tbsp'], ['peas', '1 cup'], ['sultanas', '1 handful'], ['spring onion', '1 bunch'], ['vegetable oil', '3 tbsp'], ['salt', 'to taste']];
-  return { mins: mins, clearWeek: clearWeek, LONG: LONG, surprise: surprise, copyLast: copyLast, icons: icons, people: people, DOW: DOW, RIB: RIB, DAYS: DAYS, REL: REL, did: did, dinfo: dinfo, meals: meals, blocked: blocked, tips: tips, SUR: SUR, match: match, inMine: inMine, whoLabel: whoLabel };
+  return { mins: mins, clearWeek: clearWeek, clearWeek2: clearWeek2, routineDefault: routineDefault, baseBlocked: baseBlocked, ROUTINE: ROUTINE, useRange: useRange, LONG: LONG, surprise: surprise, copyLast: copyLast, icons: icons, people: people, DOW: DOW, RIB: RIB, DAYS: DAYS, REL: REL, did: did, dinfo: dinfo, meals: meals, blocked: blocked, tips: tips, SUR: SUR, match: match, inMine: inMine, whoLabel: whoLabel };
 })();

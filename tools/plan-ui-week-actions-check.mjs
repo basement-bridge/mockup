@@ -73,15 +73,14 @@ for (const [w, h, touch] of [[390, 844, true], [360, 740, true], [1280, 900, fal
     const bs = await p.locator(WA1).boundingBox(); ok(`${tag}: strip inside viewport`, bs.x >= 0 && bs.x + bs.width <= w, bs);
     await p.close();
   }
-  // does not collide with Week actions menu
-  { const p = await open(ctx, "", errs); await tap(p.locator("[data-wkmenu]")); await sleep(150);
-    ok(`${tag}: Week actions menu still opens with Copy last week and Clear week`, (await p.locator(".wkm .it").count()) === 2);
-    await p.keyboard.press("Escape"); await p.close(); }
+  // 194: the Week actions menu is gone; Copy last week and Clear week are two header icon buttons
+  { const p = await open(ctx, "", errs); ok(`${tag}: no Week actions menu button any more`, (await p.locator("[data-wkmenu]").count()) === 0);
+    ok(`${tag}: Copy last week and Clear week are header icon buttons`, (await p.locator(".hd [data-copy]").count()) === 1 && (await p.locator(".hd [data-clearw]").count()) === 1); await p.close(); }
   // view only
   { const p = await open(ctx, "who=jane", errs); ok(`${tag}: other person's plan, no bulk strip at all (view only)`, (await p.locator(".wact").count()) === 0); await p.close(); }
   // variants
   { const p = await open(ctx, "ws=bare", errs); ok(`${tag}: ?ws=bare has no counts`, (await p.locator(".wact .ct").count()) === 0 && (await p.locator(".wact button").count()) === 2); await p.close(); }
-  { const p = await open(ctx, "ws=counts", errs); ok(`${tag}: ?ws=counts keeps the old strip`, (await p.locator(".sum [data-hl]").count()) === 4 && (await p.locator(".wact").count()) === 0); await p.close(); }
+  { const p = await open(ctx, "ws=counts", errs); ok(`${tag}: ?ws=counts keeps the old strip`, (await p.locator(".sum [data-hl]").count()) === 2 * (await p.locator(".sum").count()) && (await p.locator(".sum").count()) >= 2 && (await p.locator(".wact").count()) === 0); await p.close(); }
   // undo expiry
   { const p = await open(ctx, "ut=2", errs); const bt = p.locator(WA0).locator("button[data-wbuy]"); await bt.scrollIntoViewIfNeeded(); await tap(bt); await sleep(300);
     ok(`${tag}: Undo present`, (await p.locator(".wact button.undo").count()) === 1); await sleep(2300);

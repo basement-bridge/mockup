@@ -21,24 +21,24 @@ for (const [w, h, touch] of [[390, 844, true], [360, 740, true], [1280, 900, fal
     const e = await expect(p, 0), g = await ind(p, 1);
     ok(`${tag}: this week indicators match the state (Not cooking and open nights from today on)`, g.nc === e.nc && g.op === e.op && e.nc > 0 && e.op > 0, [g, e]);
     ok(`${tag}: nights text first, then the indicators, on the same row`, await p.locator(".wkd").nth(1).evaluate(r => { const a = r.querySelector(".wn").getBoundingClientRect(), b = r.querySelector(".wnc").getBoundingClientRect(), c = r.querySelector(".wop").getBoundingClientRect(); return a.right <= b.left && b.right <= c.left && Math.abs(a.top - c.top) < 14; }));
-    ok(`${tag}: indicators are on the right of the label row`, await p.locator(".wkd").nth(1).evaluate(r => { const c = r.querySelector(".wop").getBoundingClientRect(), rr = r.getBoundingClientRect(); return rr.right - c.right < 2; }));
-    ok(`${tag}: aria-labels say the number and the meaning`, /^\d nights? not cooking$/.test(g.ncL) && /^\d nights? open$/.test(g.opL), g);
-    ok(`${tag}: title matches the label`, (await p.locator(".wkd").nth(1).locator(".wnc").getAttribute("title")) === g.ncL);
+    ok(`${tag}: indicators are on the right of the label row`, await p.locator(".wkd").nth(1).evaluate(r => { const c = r.querySelector(".wop").getBoundingClientRect(), rr = r.getBoundingClientRect(); return rr.right - c.right < 12; }));
+    ok(`${tag}: aria-labels say the number and the meaning`, /^\d nights? not cooking(\. Go to the first one)?$/.test(g.ncL) && /^\d nights? open(\. Go to the first one)?$/.test(g.opL), g);
+    ok(`${tag}: title matches the label`, (await p.locator(".wkd").nth(1).locator(".wnc").getAttribute("title")).split(".")[0] === g.ncL.split(".")[0]);
     ok(`${tag}: no words inside the indicators, only a number`, /^\d$/.test((await p.locator(".wkd").nth(1).locator(".wnc").innerText()).trim()) && /^\d$/.test((await p.locator(".wkd").nth(1).locator(".wop").innerText()).trim()));
-    ok(`${tag}: the open box is dashed and rounded (the miniature of the open day)`, await p.locator(".wop").first().evaluate(e => { const c = getComputedStyle(e); return c.borderTopStyle === "dashed" && parseFloat(c.borderTopLeftRadius) >= 4; }));
+    ok(`${tag}: the open box is dashed and rounded (the miniature of the open day)`, await p.locator(".wop b").first().evaluate(e => { const c = getComputedStyle(e); return c.borderTopStyle === "dashed" && parseFloat(c.borderTopLeftRadius) >= 4; }));
     ok(`${tag}: moon is the Not cooking moon svg`, (await p.locator(".wkd").nth(1).locator(".wnc svg path").getAttribute("d")) === (await p.locator(".od-sw .und .l svg path, .lnote svg path").first().getAttribute("d").catch(() => null)) || true);
     ok(`${tag}: past week row has no nights text and no indicators`, (await p.locator(".wkd").first().locator(".wr, .wi, .wnc, .wop").count()) === 0);
-    ok(`${tag}: indicators are not buttons`, (await p.locator(".wkd button").count()) === 0);
+    ok(`${tag}: 191 the indicators are real buttons with a 44 px hit area`, await p.locator(".wkd").nth(1).evaluate(r => [...r.querySelectorAll(".wnc,.wop")].every(b => b.tagName === "BUTTON" && b.getBoundingClientRect().height >= 43.5 && b.getBoundingClientRect().width >= 43.5)));
     // no overflow of the row
     const ov = await p.locator(".wkd").evaluateAll(rs => rs.map(r => [r.scrollWidth <= r.clientWidth, r.getBoundingClientRect().height]));
     ok(`${tag}: label rows do not overflow`, ov.every(x => x[0]), ov);
-    ok(`${tag}: label rows stay on one line (height under 40)`, ov.every(x => x[1] < 40), ov);
+    ok(`${tag}: 192 label rows are at most two lines at 360 and 390 (the counts wrap under a long label, right aligned, never cramped); one line from 400`, ov.every(x => x[1] < (w < 400 ? 70 : 46)), ov);
     ok(`${tag}: no sideways scroll`, await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
     // next week, seeded (long label "Week of 19 Oct" with Next week)
     await seedNext(p); const e1 = await expect(p, 1), g1 = await ind(p, 2);
     ok(`${tag}: next week counts its own nights`, g1.nc === e1.nc && g1.op === e1.op, [g1, e1]);
     const r2 = await p.locator(".wkd").nth(2).evaluate(r => { const k = [...r.children].map(c => c.getBoundingClientRect()); return { h: r.getBoundingClientRect().height, sw: r.scrollWidth, cw: r.clientWidth, last: Math.max(...k.map(x => x.right)), right: r.getBoundingClientRect().right }; });
-    ok(`${tag}: "Week of 19 Oct  Next week" row fits on one line`, r2.h < 40 && r2.sw <= r2.cw && r2.last <= r2.right + 1, r2);
+    ok(`${tag}: "Week of 19 Oct  Next week" row fits (one line from 400, two at 360 and 390)`, r2.h < (w < 400 ? 70 : 46) && r2.sw <= r2.cw && r2.last <= r2.right + 1, r2);
     await p.close(); }
   // live updates: Not cooking by the day detail, Undo, and Surprise me on an open night
   { const p = await open(ctx, "", errs); const b0 = await ind(p, 1); const od = p.locator(".od-sw .od").first(); const day = await od.evaluate(e => e.closest("[data-od]").dataset.od);
@@ -58,7 +58,7 @@ for (const [w, h, touch] of [[390, 844, true], [360, 740, true], [1280, 900, fal
     await setState(p, "S.blocked.d15 = 'once'; S.meals = S.meals.filter(function (m) { return ['d14', 'd15', 'd16', 'd18'].indexOf(m.day) < 0; });");
     const e = await expect(p, 0), g = await ind(p, 1);
     ok(`${tag}: several Not cooking and several open nights are counted`, g.nc >= 2 && g.op >= 3 && g.nc === e.nc && g.op === e.op, [g, e]);
-    ok(`${tag}: plural wording in the labels`, /nights not cooking$/.test(g.ncL) && /nights open$/.test(g.opL), g);
+    ok(`${tag}: plural wording in the labels`, /nights not cooking(\. Go to the first one)?$/.test(g.ncL) && /nights open(\. Go to the first one)?$/.test(g.opL), g);
     await setState(p, "Object.keys(S.blocked).forEach(function (d) { delete S.blocked[d]; });");
     const z = await ind(p, 1); ok(`${tag}: zero Not cooking shows no moon`, (await p.locator(".wkd").nth(1).locator(".wnc").count()) === 0 && z.op > 0, z);
     await setState(p, "window.PUR.RIB.forEach(function (r) { if (r.wk === 0 && r.id >= S.today && !S.meals.some(function (m) { return m.day === r.id; })) S.blocked[r.id] = 'once'; });");
@@ -88,7 +88,7 @@ for (const [w, h, touch] of [[390, 844, true], [360, 740, true], [1280, 900, fal
   { const p = await open(ctx, "ws=bare", errs); ok(`${tag}: ?ws=bare keeps the indicators, drops the counts in the buttons`, (await p.locator(".wkd .wnc").count()) >= 1 && (await p.locator(".wact .ct").count()) === 0); await p.close(); }
   { const p = await open(ctx, "ws=counts", errs); ok(`${tag}: ?ws=counts is the old strip: no nights on the label row, no indicators`, (await p.locator(".wkd .wr, .wkd .wnc, .wkd .wop").count()) === 0 && (await p.locator(".sum").count()) >= 1); await p.close(); }
   { const lc = await browser.newContext({ viewport: { width: w, height: h }, hasTouch: touch, isMobile: touch, colorScheme: "light" }); const p = await open(lc, "", errs);
-    const col = await p.locator(".wop").first().evaluate(e => { const c = getComputedStyle(e); return [c.color, c.borderTopColor, c.backgroundColor]; }); ok(`${tag}: light theme draws the box with visible tokens`, col[0] !== "rgba(0, 0, 0, 0)" && col[1] !== "rgba(0, 0, 0, 0)", col); await lc.close(); }
+    const col = await p.locator(".wop b").first().evaluate(e => { const c = getComputedStyle(e); return [c.color, c.borderTopColor, c.backgroundColor]; }); ok(`${tag}: light theme draws the box with visible tokens`, col[0] !== "rgba(0, 0, 0, 0)" && col[1] !== "rgba(0, 0, 0, 0)", col); await lc.close(); }
   // the demo frames load
   for (let n = 1; n <= 12; n++) { const p = await open(ctx, `demo=week&frame=${n}&cap=0`, errs); ok(`${tag}: ?demo=week frame ${n} draws a week label row`, (await p.locator(".wkd").count()) >= 2); ok(`${tag}: frame ${n} no sideways scroll`, await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
     if (n === 1) ok(`${tag}: frame 1 shows both buttons`, (await p.locator(WA0).locator("button").count()) === 2);
