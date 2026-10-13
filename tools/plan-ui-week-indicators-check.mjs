@@ -25,7 +25,7 @@ for (const [w, h, touch] of [[390, 844, true], [360, 740, true], [1280, 900, fal
     ok(`${tag}: aria-labels say the number and the meaning`, /^\d nights? not cooking(\. Go to the first one)?$/.test(g.ncL) && /^\d nights? open(\. Go to the first one)?$/.test(g.opL), g);
     ok(`${tag}: title matches the label`, (await p.locator(".wkd").nth(1).locator(".wnc").getAttribute("title")).split(".")[0] === g.ncL.split(".")[0]);
     ok(`${tag}: no words inside the indicators, only a number`, /^\d$/.test((await p.locator(".wkd").nth(1).locator(".wnc").innerText()).trim()) && /^\d$/.test((await p.locator(".wkd").nth(1).locator(".wop").innerText()).trim()));
-    ok(`${tag}: the open box is dashed and rounded (the miniature of the open day)`, await p.locator(".wop b").first().evaluate(e => { const c = getComputedStyle(e); return c.borderTopStyle === "dashed" && parseFloat(c.borderTopLeftRadius) >= 4; }));
+    ok(`${tag}: the open count carries the open padlock (215), drawn as an svg line icon in currentColor and not a dashed box`, await p.locator(".wop").first().evaluate(e => { const s = e.querySelector("svg"), c = getComputedStyle(e.querySelector("b")); return !!s && s.getAttribute("stroke") === "currentColor" && s.getAttribute("fill") === "none" && c.borderTopStyle === "none" && !e.textContent.match(/[a-z]/i); }));
     ok(`${tag}: moon is the Not cooking moon svg`, (await p.locator(".wkd").nth(1).locator(".wnc svg path").getAttribute("d")) === (await p.locator(".od-sw .und .l svg path, .lnote svg path").first().getAttribute("d").catch(() => null)) || true);
     ok(`${tag}: past week row has no nights text and no indicators`, (await p.locator(".wkd").first().locator(".wr, .wi, .wnc, .wop").count()) === 0);
     ok(`${tag}: 191 the indicators are real buttons with a 44 px hit area`, await p.locator(".wkd").nth(1).evaluate(r => [...r.querySelectorAll(".wnc,.wop")].every(b => b.tagName === "BUTTON" && b.getBoundingClientRect().height >= 43.5 && b.getBoundingClientRect().width >= 43.5)));
@@ -62,7 +62,7 @@ for (const [w, h, touch] of [[390, 844, true], [360, 740, true], [1280, 900, fal
     await setState(p, "Object.keys(S.blocked).forEach(function (d) { delete S.blocked[d]; });");
     const z = await ind(p, 1); ok(`${tag}: zero Not cooking shows no moon`, (await p.locator(".wkd").nth(1).locator(".wnc").count()) === 0 && z.op > 0, z);
     await setState(p, "window.PUR.RIB.forEach(function (r) { if (r.wk === 0 && r.id >= S.today && !S.meals.some(function (m) { return m.day === r.id; })) S.blocked[r.id] = 'once'; });");
-    ok(`${tag}: zero open shows no dashed box`, (await p.locator(".wkd").nth(1).locator(".wop").count()) === 0 && (await p.locator(".wkd").nth(1).locator(".wnc").count()) === 1);
+    ok(`${tag}: zero open shows no padlock`, (await p.locator(".wkd").nth(1).locator(".wop").count()) === 0 && (await p.locator(".wkd").nth(1).locator(".wnc").count()) === 1);
     await setState(p, "S.meals = S.meals.filter(function (m) { return m.day < 'd13'; }); window.PUR.RIB.forEach(function (r) { if (r.wk === 0 && r.id >= S.today) S.blocked[r.id] = 'once'; });");
     ok(`${tag}: a week of only Not cooking shows the moon, no box, no strip`, (await p.locator(".wkd").nth(1).locator(".wop").count()) === 0 && (await p.locator(WA0).count()) === 0);
     await p.close(); }
@@ -88,7 +88,7 @@ for (const [w, h, touch] of [[390, 844, true], [360, 740, true], [1280, 900, fal
   { const p = await open(ctx, "ws=bare", errs); ok(`${tag}: ?ws=bare keeps the indicators, drops the counts in the buttons`, (await p.locator(".wkd .wnc").count()) >= 1 && (await p.locator(".wact .ct").count()) === 0); await p.close(); }
   { const p = await open(ctx, "ws=counts", errs); ok(`${tag}: ?ws=counts is the old strip: no nights on the label row, no indicators`, (await p.locator(".wkd .wr, .wkd .wnc, .wkd .wop").count()) === 0 && (await p.locator(".sum").count()) >= 1); await p.close(); }
   { const lc = await browser.newContext({ viewport: { width: w, height: h }, hasTouch: touch, isMobile: touch, colorScheme: "light" }); const p = await open(lc, "", errs);
-    const col = await p.locator(".wop b").first().evaluate(e => { const c = getComputedStyle(e); return [c.color, c.borderTopColor, c.backgroundColor]; }); ok(`${tag}: light theme draws the box with visible tokens`, col[0] !== "rgba(0, 0, 0, 0)" && col[1] !== "rgba(0, 0, 0, 0)", col); await lc.close(); }
+    const col = await p.locator(".wop b").first().evaluate(e => { const c = getComputedStyle(e); return [getComputedStyle(e.parentElement.querySelector("svg") || e).color, c.color]; }); ok(`${tag}: light theme draws the padlock count with visible tokens`, col[0] !== "rgba(0, 0, 0, 0)" && col[1] !== "rgba(0, 0, 0, 0)" && col[0] !== "rgb(255, 255, 255)", col); await lc.close(); }
   // the demo frames load
   for (let n = 1; n <= 12; n++) { const p = await open(ctx, `demo=week&frame=${n}&cap=0`, errs); ok(`${tag}: ?demo=week frame ${n} draws a week label row`, (await p.locator(".wkd").count()) >= 2); ok(`${tag}: frame ${n} no sideways scroll`, await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
     if (n === 1) ok(`${tag}: frame 1 shows both buttons`, (await p.locator(WA0).locator("button").count()) === 2);

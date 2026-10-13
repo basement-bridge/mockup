@@ -32,7 +32,7 @@ for (const [scheme, reduced] of [["dark", false], ["light", false], ["dark", tru
     if (!reduced) {
       let r = await hit(p, 1, "nc", tap); ok(`${tag} B: the moon count goes to the first Not cooking night of this week from today on (Sat 17), opened and pulsed`, r.cur === "d17" && r.pulse.includes("d17") && !r.hidden.includes("d17"), r);
       ok(`${tag} B: the target sits just under the header`, Math.abs(await topOf(p, "d17") - 6) < 60, await topOf(p, "d17"));
-      r = await hit(p, 1, "op", tap); ok(`${tag} B: the dashed-box count goes to the first open night (Sun 18)`, r.cur === "d18" || r.pulse.includes("d18"), r);
+      r = await hit(p, 1, "op", tap); ok(`${tag} B: the open-padlock count goes to the first open night (Sun 18)`, r.cur === "d18" || r.pulse.includes("d18"), r);
       r = await hit(p, 2, "nc", tap); ok(`${tag} B: next week's moon goes to its first Not cooking night (Thu 22)`, r.pulse.includes("d22"), r);
       r = await hit(p, 2, "nc", tap); ok(`${tag} B: tapping again goes to the same first night (always the first, as he said)`, r.pulse.includes("d22") && r.cur === "d22", r);
       r = await hit(p, 2, "op", tap); ok(`${tag} B: next week's box goes to Mon 19`, r.pulse.includes("d19"), r);
@@ -54,7 +54,8 @@ for (const [scheme, reduced] of [["dark", false], ["light", false], ["dark", tru
   // 192: legibility
   { const p = await open(ctx, "", errs);
     await p.locator(".wkd").nth(1).scrollIntoViewIfNeeded(); const bx = await p.locator(".wkd").nth(1).locator(".wop b").boundingBox();
-    ok(`${tag} B: the open-night box is larger than before (26 x 22) with a dashed border`, bx.width >= 25.5 && bx.height >= 21.5 && await p.locator(".wop b").first().evaluate(e => { const c = getComputedStyle(e); return c.borderTopStyle === "dashed" && parseFloat(c.borderTopWidth) >= 1 && parseFloat(c.fontSize) >= 13 && parseInt(c.fontWeight) >= 700; }), bx);
+    // 215: the count glyph is the open padlock (an inline svg line icon), not the dashed box; the numeral stays solid and bold
+    ok(`${tag} B: the open-night count is a bold numeral and an open padlock svg, no dashed box`, bx.height >= 12 && await p.locator(".wop").first().evaluate(e => { const b = e.querySelector("b"), s = e.querySelector("svg"), c = getComputedStyle(b); return !!s && s.getBoundingClientRect().width >= 13 && c.borderTopStyle === "none" && parseFloat(c.fontSize) >= 12 && parseInt(c.fontWeight) >= 700; }), bx);
     ok(`${tag} B: the numeral is solid and 4.5:1 or better against the box (light and dark)`, (await contrast(p, ".wkd .wop b")) >= 4.5, await contrast(p, ".wkd .wop b"));
     ok(`${tag} B: the moon is unchanged (13 px moon, 12 px muted number)`, await p.locator(".wnc").first().evaluate(e => { const s = e.querySelector("svg"), c = getComputedStyle(e); return s.getBoundingClientRect().width === 13 && c.fontSize === "12px" && s.querySelector("path").getAttribute("d") === "M20 14A8 8 0 0 1 10 4a8 8 0 1 0 10 10z"; }));
     ok(`${tag} B: the moon number is 3:1 or better`, (await contrast(p, ".wkd .wnc")) >= 3, await contrast(p, ".wkd .wnc"));

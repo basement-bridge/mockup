@@ -31,6 +31,8 @@ window.PUR = (function () {
     clear: I('<path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/>'),
     /* Plan UI review 190: view only. An eye in the same line language as the moon, cog and ask-AI glyphs (24 grid, 2 px stroke, round caps); never an emoji. */
     eye: I('<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>'),
+    /* Plan UI review 215: the open night. An open padlock in the same line language (24 grid, 2 px stroke, round caps), never an emoji. The shackle is lifted off the body and open on the right; it is nothing like the eye (view only). */
+    unlock: I('<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.6-1.7"/><path d="M12 15.5v1.5"/>'),
     leaf: I('<path d="M5 19c0-9 5-14 15-14 0 10-5 15-14 15"/><path d="M5 19c3-5 6-8 10-10"/>')
   };
   var people = [
