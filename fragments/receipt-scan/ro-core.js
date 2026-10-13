@@ -50,6 +50,7 @@
   /* ---------- quantities (RS-17 unchanged) ---------- */
   var fmtN = function (n) { return String(Math.round(n * 1000) / 1000); };
   var fmt = function (n, u) { return fmtN(n) + (u ? " " + u : ""); };
+  /* STAND-IN ONLY (RS-74): the build has no unit table here. The screen's add-up preview and its outcome text use KitchieQuantity (quantity.js) and the same rule as the server's inUnit; this four-entry table only lets the sample data show a figure. */
   var toU = function (q, u, to) { if (!to || u === to) return q; var m = { "kg>g": 1000, "L>mL": 1000, "g>kg": .001, "mL>L": .001 }[u + ">" + to]; return m ? q * m : q; };
   var qOf = function (l) { return S.q[l.id] != null ? S.q[l.id] : l.q; };
   var money = function (n) { return (n < 0 ? "-$" : "$") + Math.abs(n).toFixed(2); };
@@ -213,7 +214,8 @@
     var o = out(l), k = o.k, id = l.id, key = DESK() && S.keys;
     if (k === "ignored") return btn("restore", id, "Put back", "sm", "undo", key && "Z");
     if (k === "unsure") return btn("new", id, "Add as new", "pri sm", "plus", key && "N") + btn("pickopen", id, "Match to existing", "sm", "search", key && "M") + btn("ignore", id, "Ignore", "sm", "x", key && "X");
-    if (k === "new") return btn("pickopen", id, "Match to existing", "sm", "search", key && "M") + btn("ignore", id, "Ignore", "sm", "x", key && "X");
+    // a recommended line (Exact or Check) the person sent to New keeps its way back: Pick another item (RS-74); a New line that began as Unsure keeps Match to existing
+    if (k === "new") { var recd = l.st === "exact" || l.st === "check"; return btn("pickopen", id, recd ? "Pick another item" : "Match to existing", "sm", recd ? "swap" : "search", key && (recd ? "P" : "M")) + btn("ignore", id, "Ignore", "sm", "x", key && "X"); }
     return (k === "check" ? btn("accept", id, "Accept", "pri sm", "check", key && "Y") : "") + btn("pickopen", id, "Pick another item", "sm", "swap", key && "P") + btn("new", id, "New", "sm", "plus", key && "N");
   };
   function itemTile(p) { return '<span class="rs-itile"><span class="rs-em">' + (p.em || ic("pantry", 20)) + '</span><span class="rs-itx"><b>' + esc(p.name) + "</b><small>" + (p.out ? "Out, " : "") + fmt(p.q, p.u) + " · " + p.place + "</small></span></span>"; }
