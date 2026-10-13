@@ -22,6 +22,10 @@ Owner (Arjan): receipt-scan item matching must be DETERMINISTIC and LOCAL. No AI
 
 Owner (Arjan), by voice: receipt scan on a DESKTOP must NOT offer a live webcam. A desktop person drops an image of the receipt on the page (or clicks to choose a file); it is read by the same client-side OCR path as a captured photo. The phone keeps the live viewfinder unchanged. Job note: RS-76 (amends RS-44, RS-45, RS-72). Built in Kitchie 0.107.2 (ADR decision 10). The mockup fragment `ro.desktop.js` still draws the revision 3 webcam column and has not been redrawn: follow RS-76 until it is.
 
+## 1f. Chat can bulk-add a receipt, 14 October 2026 (RS-77)
+
+Owner (Arjan), by voice: expose receipt bulk-add through MCP so an AI assistant can bulk-add Pantry items from a receipt. No image reaches MCP; the assistant sends text lines. Job note: RS-77. Kitchie: `receipt_add` (Exact written at once; Check and Unsure returned for the person; discount, bag and non-food returned Ignored, recoverable) and `receipt_resolve` (the person's answers: accept, pick, new, ignore), stateless between the two calls, repeat-safe for 24 hours, Undo from History, amounts `model_inference` unless the person said them. One implementation: the server runs the page's own matcher files and `pantryReceiptCommit` (ADR decision 11, built in Kitchie 0.110.0 as pull request #726 into `uat`, NOT merged: an MCP contract change, which the owner reserves). No mockup screen changed: there is no new screen, so no genuine UX decision was open (the assistant asks in its own chat). Follow RS-77 for anything the mockup says about chat.
+
 ## 1a. Revision 2, 14 October 2026 (archived)
 
 Owner, voice: rebuild around a live viewfinder like Shopping's (Kitchie #695, #697). Matching logic unchanged; resolution moves onto the live view. Four live directions: **A Tap the paper** (recommended), **B Freeze and walk**, **C Cards under the camera**, **D Camera and list**. Decisions RS-29 to RS-54 in the job note; RS-2, RS-19, RS-24 superseded, RS-25 and RS-26 amended. Hub: `fragments/receipt-scan/index.html`; directions `live-a.html` to `live-d.html` (`?step=entry|view|done|refused`, `&phase=`, `&cond=`, `&pre=`, `&sel=`, `&walk=1`, `&sheet=summary`, `&conf=`, `&vp=`); check `tools/receipt-scan-live-check.mjs`; viewport code `lv.phone.js`, `lv.desktop.js`. Revision 1 is at `v1.html`. Sections 2 to 4 below describe revision 1 and the open questions still stand.
@@ -44,7 +48,7 @@ File layout: shared `rs.css`, `rs-core.js` (state, the one line rule `RS.out`, s
 
 ## 4. Not decided
 
-Where brand-new items go (RS-70, proposed Unplaced); whether Exact lines start accepted (RS-71); purchase date to use-by (no rule exists). The rest of the earlier list is settled by RS-55 onward. See the job note's open questions.
+Whether Exact lines start accepted (RS-71); purchase date to use-by (no rule exists). Where brand-new items go is decided: Unplaced (RS-70). Chat bulk add (RS-77): merge of the MCP contract change, the 24 hour repeat window, and whether an Exact line kept as a separate item should ask first. The rest of the earlier list is settled by RS-55 onward. See the job note's open questions.
 
 ## 5. Not done
 
