@@ -98,3 +98,36 @@ Default path: one HTML page, `rs.css`, `rs.js`, the shared theme file. Text and 
 ### Default path and deferred (DESIGN.md sections 6 and 6a)
 
 Default path unchanged plus a few lines in `rs.js` and `rs.css` for the card and note. Deferred: `claim.js` and `claim.css`, fetched only when "Start my household" is tapped (or `flow=` is in the address); not loaded for any other state or for anyone who does not claim. The flow's three screens swap the page's content in place; "Back to the recipe" restores it and refetches nothing but the photos.
+
+## Update 14 October 2026: one invitation, only with an unclaimed invite
+
+### Owner's words (voice and typed, 13 October 2026)
+
+- Growth invitation = **option B, the bottom bar that appears after reading starts**, shown **only when the member who shared attached an invite and it has not been taken up**. In every other case (no invite, claimed, withdrawn, expired) **no growth invitation at all**: a clean recipe page. The generic invitation is removed.
+- A person with an account can sign in from the page; once signed in it shows **Save to my recipes**, no household claim (an invite never joins an existing household). A person without an account who claims the invite goes to the usual invite-only flow. An invite is single-purpose (the first person to activate it claims it) and sets up a new household.
+
+### What changed
+
+- Options A (end card) and C (banner) and the generic "Liked it? Keep it in Kitchie." card are removed. The only invitation is the bar: "You have a Kitchie invite / A household of your own, free. Have an account? Sign in", button **Claim invite**, an x. It waits for about 35% scroll; the x lasts the visit. Desktop: small card bottom right.
+- The usual flow exists, so my own claim stub is deleted (`claim.js`, `claim.css`). **Claim invite** goes to `fragments/invite-new-household/start.html?s=landing&msg=none` (the invite-only sign-up, INH-D18/D19).
+- Sign in: the top strip's Sign in (and the link in the bar) goes to the signed-in sample. Signed in, the meta row gets **Save to my recipes** (tap: "Saved. Open in Recipes"). Even with an unclaimed invite on the link, a signed-in viewer gets no bar and no claim. A household without Recipes gets no Save.
+- `page.html` parameters: `s=anon|member|norecipes|expiring|expired|cancelled|loading|preview` plus `inv=unclaimed|claimed|withdrawn|none`. Old `s=invite|claimed|withdrawn|memberinvite` still map. `index.html` is rewritten around the picks.
+- States drawn: unclaimed (bar after reading), no invite, claimed, withdrawn, signed in, signed in with invite, expiring (notice, plus bar if an unclaimed invite rides), expired and cancelled (identical, no invitation, even with an invite attached), loading, link preview. Print drops the bar.
+
+### Proposed decisions (unnumbered)
+
+- **Proposal:** the "invite already used" line is removed. It does not earn its place: the page is for reading, the sender's message (not the page) is what promised an invite, and a note about someone else's claim tells the reader nothing to act on. The sender sees the claim in the manage panel.
+- **Proposal:** the bar offers no "I have an account" button; a Sign in link inside it covers that.
+- **Proposal:** Save to my recipes sits in the meta row beside Print, because it is a function of the account, not an invitation.
+- **Proposal:** the bar never says who sent it or how many invites remain.
+- **Proposal:** the invite is claimed only when the usual flow's sign-up completes (INH-D7), so opening the page or tapping Claim invite spends nothing.
+
+### Open questions
+
+1. The usual landing greets with the inviter's name ("Arjan's kitchen is in order") and has its own personal message; a share-link invite has neither. Drawn with `msg=none`. Does the share link get a name-free variant of that landing? A wrong guess: the landing reads wrong for a stranger who got a recipe.
+2. Signed in with an account but no household: can they claim? Drawn: treated as signed in (Save only).
+3. With the invite claimed or withdrawn, a person on the page gets no pointer to Kitchie anywhere. Accepted as the owner asked.
+
+### Default path and deferred
+
+Nothing new loads: `rs.js` and `rs.css` only; the claim files are gone. The bar exists in the markup hidden and shows on scroll; the usual sign-up page loads only on tap.
