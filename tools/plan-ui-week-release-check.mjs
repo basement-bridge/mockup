@@ -9,12 +9,12 @@ const ok = (name, cond, extra) => { total++; if (!cond) { fails++; console.log("
 const browser = await chromium.launch(); const sleep = ms => new Promise(r => setTimeout(r, ms));
 async function open(ctx, q, errs) { const p = await ctx.newPage(); p.on("pageerror", e => errs.push(e.message)); p.on("console", m => { if (m.type() === "error") errs.push(m.text()); }); await p.goto(BASE + (q ? "?" + q : "")); await p.addStyleTag({ content: ".optfab{display:none!important}" }); await sleep(500); return p; }
 const WA0 = '.wact[aria-label="Bulk actions for this week"]', WA1 = '.wact[aria-label="Bulk actions for next week"]';
-const held = p => p.evaluate(() => window.__plan.S.meals.filter(m => +m.day.slice(1) >= 12 && +m.day.slice(1) <= 18).map(m => [m.id, !!m.held]));
+const held = p => p.evaluate(() => window.__plan.S.meals.filter(m => window.PUR.match(m, window.__plan.S.view) && +m.day.slice(1) >= 12 && +m.day.slice(1) <= 18).map(m => [m.id, !!m.held]));
 const ct = async (loc) => loc.locator(".ct").count() ? +(await loc.locator(".ct").innerText()) : null;
 const setState = (p, fn) => p.evaluate(fn => { const A = window.__plan; new Function("S", "A", fn)(A.S, A); A.render(); }, fn);
 const names = async (p) => (await p.locator(WA0).locator("button").evaluateAll(bs => bs.map(b => b.querySelector("span") ? b.querySelector("span").textContent : b.textContent)));
 // on-hand items of this week from today, held and not held
-const sums = p => p.evaluate(() => { const S = window.__plan.S; let h = 0, n = 0; S.meals.filter(m => +m.day.slice(1) >= 13 && +m.day.slice(1) <= 18).forEach(m => { if (m.held) h += m.have.length; else n += m.have.length; }); return { held: h, free: n }; });
+const sums = p => p.evaluate(() => { const S = window.__plan.S; let h = 0, n = 0; S.meals.filter(m => window.PUR.match(m, S.view) && +m.day.slice(1) >= 13 && +m.day.slice(1) <= 18).forEach(m => { if (m.held) h += m.have.length; else n += m.have.length; }); return { held: h, free: n }; });
 for (const [w, h, touch] of [[390, 844, true], [360, 740, true], [1280, 900, false]]) {
   const ctx = await browser.newContext({ viewport: { width: w, height: h }, hasTouch: touch, isMobile: touch }); const errs = []; const tag = `${touch ? "touch" : "mouse"} ${w}`;
   const tap = (loc) => touch ? loc.tap() : loc.click();
@@ -77,7 +77,7 @@ for (const [w, h, touch] of [[390, 844, true], [360, 740, true], [1280, 900, fal
   // view only: neither
   { const p = await open(ctx, "who=jane", errs); ok(`${tag}: other person's plan: no Reserve or Release`, (await p.locator("[data-wres],[data-wrel]").count()) === 0); await p.close(); }
   // next week acts on its own meals (seeded)
-  { const p = await open(ctx, "", errs); await p.evaluate(() => { const A = window.__plan, S = A.S; S.meals.filter(m => +m.day.slice(1) >= 13 && +m.day.slice(1) <= 18).forEach(m => { const c = JSON.parse(JSON.stringify(m)); c.id = "n-" + m.id; c.day = "d" + (+m.day.slice(1) + 7); c.held = 1; if (!S.blocked[c.day]) S.meals.push(c); }); A.render(); });
+  { const p = await open(ctx, "", errs); await p.evaluate(() => { const A = window.__plan, S = A.S; S.meals.filter(m => window.PUR.match(m, S.view) && +m.day.slice(1) >= 13 && +m.day.slice(1) <= 18).forEach(m => { const c = JSON.parse(JSON.stringify(m)); c.id = "n-" + m.id; c.day = "d" + (+m.day.slice(1) + 7); c.held = 1; if (!S.blocked[c.day]) S.meals.push(c); }); A.render(); });
     ok(`${tag}: next week all held: Release there, Reserve this week`, (await p.locator(`${WA1} [data-wrel]`).count()) === 1 && (await p.locator(`${WA0} [data-wres]`).count()) === 1);
     const before = await held(p); const nb = p.locator(`${WA1} [data-wrel]`); await nb.scrollIntoViewIfNeeded(); await tap(nb); await sleep(200);
     ok(`${tag}: releasing next week leaves this week alone`, JSON.stringify(await held(p)) === JSON.stringify(before));

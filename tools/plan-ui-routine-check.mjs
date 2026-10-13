@@ -24,7 +24,7 @@ for (const [scheme, w, h, touch] of [["dark", 390, 844, true], ["dark", 360, 740
     await S(p, "window.__plan.showWeek('d13')"); await sleep(600);
     await tap(p.locator(".hd [data-clearw]")); await sleep(500);
     const b1 = await blocked(p), md = await mealDays(p);
-    ok(`${tag} C: Clear week with Mine removes my own planned meals from today on (Thu 15 Tuna salad, Fri 16 leftovers), keeps the household's dinners (Tue 13, Wed 14, Thu 15) and the past (Mon 12) (203)`, md.filter(d => d === "d16").length === 0 && md.filter(d => d === "d15").length === 1 && md.includes("d13") && md.includes("d14") && md.includes("d12") && md.filter(d => d < "d12").length === mealsBefore.filter(d => d < "d12").length, md);
+    ok(`${tag} C: Clear week with Mine removes my own planned meals from today on (Thu 15 Tuna salad, Fri 16 leftovers), keeps the household's dinners (Tue 13, Wed 14, Thu 15) and the past (Mon 12) (203); Fri 16 keeps only Veggie dumplings, a household meal Sam is not named in (209)`, md.filter(d => d === "d16").length === 1 && md.filter(d => d === "d15").length === 1 && md.includes("d13") && md.includes("d14") && md.includes("d12") && md.filter(d => d < "d12").length === mealsBefore.filter(d => d < "d12").length, md);
     ok(`${tag} C: Mine leaves a household mark alone (Sat 17 stays Not cooking)`, b1.d17 === "once", b1);
     ok(`${tag} C: a usual day opened this week goes back to Not cooking every week (Fri 16, Sun 18)`, b1.d16 === "usual" && b1.d18 === "usual", b1);
     ok(`${tag} C: next week and the routine itself are untouched (Thu 22 one-off, Sun 25 usual, later usual days)`, b1.d22 === "once" && b1.d25 === "usual" && b1.d30 === "usual" && b1.n01 === "usual" && b1.n08 === "usual" && !b1.d23, b1);

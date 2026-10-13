@@ -9,9 +9,9 @@ const ok = (name, cond, extra) => { total++; if (!cond) { fails++; console.log("
 const browser = await chromium.launch(); const sleep = ms => new Promise(r => setTimeout(r, ms));
 async function open(ctx, q, errs) { const p = await ctx.newPage(); p.on("pageerror", e => errs.push(e.message)); p.on("console", m => { if (m.type() === "error") errs.push(m.text()); }); await p.goto(BASE + (q ? "?" + q : "")); await sleep(500); return p; }
 const WA0 = '.wact[aria-label="Bulk actions for this week"]', WA1 = '.wact[aria-label="Bulk actions for next week"]';
-const WK = (p, wk) => p.evaluate(wk => { const A = window.__plan, S = A.S, P = window.PUR; const ms = S.meals.filter(m => P.RIB[P.RIB.findIndex(r => r.id === m.day)].wk === wk); return ms.map(m => ({ id: m.id, day: m.day, miss: m.miss.filter(x => !x[2]).length, held: !!m.held, have: m.have.length })); }, wk);
+const WK = (p, wk) => p.evaluate(wk => { const A = window.__plan, S = A.S, P = window.PUR; const ms = S.meals.filter(m => P.match(m, S.view) && P.RIB[P.RIB.findIndex(r => r.id === m.day)].wk === wk); return ms.map(m => ({ id: m.id, day: m.day, miss: m.miss.filter(x => !x[2]).length, held: !!m.held, have: m.have.length })); }, wk);
 // The sample has no meals next week (the "Ask AI to plan this" curtain depends on that), so the check copies this week's coming meals seven days on.
-const seedNext = p => p.evaluate(() => { const A = window.__plan, S = A.S; S.meals.filter(m => +m.day.slice(1) >= 13 && +m.day.slice(1) <= 18).forEach(m => { const c = JSON.parse(JSON.stringify(m)); c.id = "n-" + m.id; c.day = "d" + (+m.day.slice(1) + 7); c.held = 0; S.meals.push(c); }); A.render(); });
+const seedNext = p => p.evaluate(() => { const A = window.__plan, S = A.S; S.meals.filter(m => window.PUR.match(m, S.view) && +m.day.slice(1) >= 13 && +m.day.slice(1) <= 18).forEach(m => { const c = JSON.parse(JSON.stringify(m)); c.id = "n-" + m.id; c.day = "d" + (+m.day.slice(1) + 7); c.held = 0; S.meals.push(c); }); A.render(); });
 for (const [w, h, touch] of [[390, 844, true], [360, 740, true], [1280, 900, false]]) {
   const ctx = await browser.newContext({ viewport: { width: w, height: h }, hasTouch: touch, isMobile: touch }); const errs = []; const tag = `${touch ? "touch" : "mouse"} ${w}`;
   const tap = (loc) => touch ? loc.tap() : loc.click();
