@@ -515,3 +515,8 @@ html,body{overflow-x:hidden}.phone,.body{overflow-x:hidden}.rscroll,.twoRow{over
 .center-t{justify-content:center;text-align:center;padding:0}
 
 .menu .lbl.sub{display:block;padding:12px 16px 4px}
+
+/* The Shopping sheet's unit (owner, 13 Oct 2026, "less forceful"): the item's Pantry unit sits quietly inside the box, small and plain; the x gives the box back to free text. */
+.wantbox{position:relative}.wantbox.hasunit .field{padding-right:78px}
+.wunit{position:absolute;right:8px;top:50%;transform:translateY(-50%);display:inline-flex;align-items:center;gap:4px;min-height:32px;padding:0 10px;border-radius:var(--r-pill);background:transparent;border:1px solid var(--border);color:var(--muted);font-size:13px;font-weight:600}
+.wunit .wx{font-size:15px;line-height:1;opacity:.8}.wunit:hover,.wunit:focus-visible{color:var(--fg);border-color:var(--muted)}

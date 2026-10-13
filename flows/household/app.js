@@ -688,9 +688,11 @@ function sheetHtml() {
     <button class="btn" data-act="additem">Save</button>`);
   if (sh === "want" && S.wantFor) {
     const p = S.pantry.find((q) => q.id === S.wantFor.id); if (!p) return "";
-    const buy = S.wantFor.buy;
+    const w = S.wantFor, buy = w.buy;
+    /* Unit (owner, 13 Oct 2026, less forceful, the same everywhere): the item's own Pantry unit is the default and sits quietly inside the box; x takes it off and the box is free text again. */
+    const chip = w.unit ? `<button type="button" class="wunit" id="wantunit" data-act="wantunit" aria-label="Unit ${esc(w.unit)}. Remove the unit and keep your own words">${esc(w.unit)}<span class="wx" aria-hidden="true">×</span></button>` : "";
     return wrap(`<h2>${buy ? `How much did you buy?` : `How much ${esc(p.name)}?`}</h2><p>Your own words. One kilo, a packet, two bunches.</p>
-      <input class="field" id="wantin" value="${esc(S.wantFor.text)}" placeholder="${buy ? "For example: 1 packet" : "Optional"}" autocomplete="off" aria-label="How much">
+      <div class="wantbox${w.unit ? " hasunit" : ""}"><input class="field" id="wantin" value="${esc(w.text)}" placeholder="${w.unit ? "How many" : buy ? "For example: 1 packet" : "Optional"}" autocomplete="off" aria-label="How much"${w.unit ? ' inputmode="decimal"' : ""}>${chip}</div>
       <button class="btn" data-act="wantsave">${buy ? "Bought it" : "Save"}</button>`, true, true);
   }
   if (sh === "usedup") {
@@ -748,6 +750,26 @@ const UNITS = [
   ["kg", /^(kg|kgs|kilos?|kilograms?|kilogrammes?)$/], ["g", /^(g|gm|gms|grams?|grammes?)$/],
   ["lb", /^(lb|lbs|pounds?)$/], ["oz", /^(oz|ounces?)$/],
 ];
+/* The Shopping sheet's unit (owner, 13 Oct 2026). Three states, as in the Edit flyout: (a) the item's Pantry unit is the default, nothing is read while the box is untouched; (b) after the unit is cleared, typed words
+   are read when the box is left (one number and one known unit, "2 kilos" is 2 and kg); (c) after the unit is cleared and the words are left alone they stay the person's words, even when a unit could be read. */
+const WUNITS = ["g", "kg", "mL", "L", "lb", "oz"];
+function readWords(t) { const m = String(t).trim().match(/^(\d{1,4}(?:[.,]\d{1,3})?)\s*([a-z]+)$/i); if (!m) return null; const u = tidyQty("1 " + m[2]).slice(2); return WUNITS.includes(u) ? { number: m[1], unit: u } : null; }
+function wantState(id, text, buy) {
+  const p = S.pantry.find((q) => q.id === id), t = String(text || "").trim();
+  const own = p && p.unit ? p.unit : "";
+  const r = t ? readWords(t) : null;
+  if (r) return { id, text: r.number, unit: r.unit, buy, typed: false, free: false, said: null };
+  if (!t) return { id, text: "", unit: own, buy, typed: false, free: false, said: null };
+  return { id, text, unit: "", buy, typed: false, free: true, said: null };   /* the line already has its own words: shown as they are, never read again */
+}
+document.addEventListener("input", (e) => { if (e.target && e.target.id === "wantin" && S.wantFor) { S.wantFor.typed = true; S.wantFor.said = null; S.wantFor.text = e.target.value; } });
+document.addEventListener("change", (e) => {
+  if (!e.target || e.target.id !== "wantin" || !S.wantFor) return;
+  const w = S.wantFor; if (w.unit || !w.typed) return;
+  const r = readWords(e.target.value); if (!r) return;
+  w.said = { words: e.target.value.trim(), number: r.number, unit: r.unit }; w.text = r.number; w.unit = r.unit; w.typed = false; w.free = false; render();
+  setTimeout(() => { const g = document.getElementById("wantin"); if (g) g.focus(); });
+});
 function tidyQty(text) {
   const t = String(text).trim(); if (!t) return t;
   const m = t.match(/^(\d+(?:[.,]\d+)?|\d+\/\d+|\d*\s?[½¼¾]|a|an|one|two|three|four|five|six|seven|eight|nine|ten|half|quarter)\s*(.+)$/i); if (!m) return t;
@@ -895,10 +917,11 @@ const acts = {
   shopadd(id) { const i = S.pantry.find((x) => x.id === id); if (!i) return; addToList(id); toast(i.name + " added to your shopping list"); },
   shopdone(id) { S.shop = S.shop.filter((x) => x !== id); render(); },
   shoptick(id) { const x = sx(id); x.tick = !x.tick; render(); },
-  shopwant(id) { const x = sx(id); S.wantFor = { id, text: x.want, buy: false }; S.sheet = "want"; render(); setTimeout(() => { const f = document.getElementById("wantin"); if (f) f.focus(); }); },
+  shopwant(id) { const x = sx(id); S.wantFor = wantState(id, x.want, false); S.sheet = "want"; render(); setTimeout(() => { const f = document.getElementById("wantin"); if (f) f.focus(); }); },
   shoprm(id) { const i = S.pantry.find((q) => q.id === id), was = S.slx[id]; S.shop = S.shop.filter((x) => x !== id); delete S.slx[id]; toast((i ? i.name : "Item") + " taken off your list", () => { S.shop.push(id); S.slx[id] = was; render(); }); },
-  shopbuy(id) { const x = sx(id); if (!x.want.trim()) { S.wantFor = { id, text: "", buy: true }; S.sheet = "want"; render(); setTimeout(() => { const f = document.getElementById("wantin"); if (f) f.focus(); }); return; } commitBought([id]); },
-  wantsave() { const w = S.wantFor; if (!w) return; const t = (document.getElementById("wantin") || {}).value || ""; S.wantFor = null; S.sheet = null; sx(w.id).want = tidyQty(t); if (w.buy) { if (!t.trim()) { render(); return; } commitBought([w.id]); } else render(); },
+  shopbuy(id) { const x = sx(id); if (!x.want.trim()) { S.wantFor = wantState(id, "", true); S.sheet = "want"; render(); setTimeout(() => { const f = document.getElementById("wantin"); if (f) f.focus(); }); return; } commitBought([id]); },
+  wantunit() { const w = S.wantFor; if (!w || !w.unit) return; const f = document.getElementById("wantin"); w.text = w.said && w.said.number === (f ? f.value.trim() : "") && w.said.unit === w.unit ? w.said.words : (f ? f.value : ""); w.unit = ""; w.free = true; w.said = null; render(); setTimeout(() => { const g = document.getElementById("wantin"); if (g) g.focus(); }); },
+  wantsave() { const w = S.wantFor; if (!w) return; const t0 = (document.getElementById("wantin") || {}).value || ""; const t = w.unit && t0.trim() ? t0.trim() + " " + w.unit : t0; const keep = w.free && !w.typed; S.wantFor = null; S.sheet = null; sx(w.id).want = keep ? t.trim() : tidyQty(t); if (w.buy) { if (!t.trim()) { render(); return; } commitBought([w.id]); } else render(); },
   shopfinish() { const ids = S.shop.filter((id) => sx(id).tick); if (ids.length) commitBought(ids); },
   rowtap(id) { if (S.sel) { S.sel = S.sel.includes(id) ? S.sel.filter((x) => x !== id) : [...S.sel, id]; if (!S.sel.length) S.sel = null; render(); } else go("item", id); },
   selstart(id) { S.sel = [id]; render(); },
