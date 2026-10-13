@@ -20,7 +20,7 @@ Owner (Arjan): receipt-scan item matching must be DETERMINISTIC and LOCAL. No AI
 
 ## 1e. Desktop has no webcam, 14 October 2026 (RS-76)
 
-Owner (Arjan), by voice: receipt scan on a DESKTOP must NOT offer a live webcam. A desktop person drops an image of the receipt on the page (or clicks to choose a file); it is read by the same client-side OCR path as a captured photo. The phone keeps the live viewfinder unchanged. Job note: RS-76 (amends RS-44, RS-45, RS-72). Built in Kitchie 0.109.1 (PR #724) (ADR decision 10). The mockup fragment `ro.desktop.js` still draws the revision 3 webcam column and has not been redrawn: follow RS-76 until it is.
+Owner (Arjan), by voice: receipt scan on a DESKTOP must NOT offer a live webcam. A desktop person drops an image of the receipt on the page (or clicks to choose a file); it is read by the same client-side OCR path as a captured photo. The phone keeps the live viewfinder unchanged. Job note: RS-76 (amends RS-44, RS-45, RS-72). Built in Kitchie 0.109.1 (PR #724) (ADR decision 10). The mockup fragments are redrawn to match (`ro.desktop.js` sets `RO.vp.noCamera`; `ro-core.js`, `ro-run.js` and `ro.desktop.css` draw the drop zone and drop the webcam pill, shutter, steadiness bar and camera/permission states on a desktop; the phone is untouched), checked by `tools/receipt-scan-ro-check.mjs`. Kitchie's source guard is `server/test/pantry-receipt-no-desktop-camera.test.ts` (0.110.1, PR #731).
 
 ## 1f. Chat can bulk-add a receipt, 14 October 2026 (RS-77)
 

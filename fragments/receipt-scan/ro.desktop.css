@@ -1,4 +1,4 @@
-/* Receipt scan, chosen flow: desktop (1024px and up). The Pantry's layout: rail, a 736px column, a 400px lane. The viewfinder is the column (a webcam, or a dropped photo); the lane holds the receipt-order list, with the progress and the filter at its top. Loaded only from 1024px up. */
+/* Receipt scan, chosen flow: desktop (1024px and up). The Pantry's layout: rail, a 736px column, a 400px lane. The column is a drop zone for a photo of the receipt (no webcam, RS-76); the lane holds the receipt-order list, with the progress and the filter at its top. Loaded only from 1024px up. */
 .panel .ro-head{margin:0}
 .panel .ro-list{margin:0;overflow:visible;flex:none}
 .panel .ro-li.on,.panel .ro-li:focus-within{scroll-margin-bottom:96px;scroll-margin-top:12px}
@@ -9,3 +9,12 @@
 .panel .ro-acts .rs-b{padding:0 10px;font-size:14px}
 .panel .ro-acts .rs-b .kbd{margin-left:4px}
 .panel .ro-li .row{padding-left:6px}
+.ro-rl .rl-actions[data-nocam]{grid-template-columns:minmax(0,1fr) auto}
+.ro-rl .rl-drop{display:flex;align-items:center;justify-content:center;border:2px dashed var(--border);background:var(--surface);cursor:pointer;transition:border-color .12s,background .12s}
+.ro-rl .rl-drop[data-over="1"]{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--surface))}
+.ro-rl .rl-drop-in{display:flex;flex-direction:column;align-items:center;gap:12px;padding:24px;text-align:center;max-width:44ch}
+.ro-rl .rl-drop-in>.ic{width:72px;height:72px;border-radius:50%;border:2px dashed var(--muted);display:flex;align-items:center;justify-content:center;color:var(--muted)}
+.ro-rl .rl-drop-in>.ic svg{width:34px;height:34px}
+.ro-rl .rl-drop-in h2{font:700 20px var(--head);margin:0}
+.ro-rl .rl-drop-in p{margin:0;color:var(--muted)}
+.ro-rl .rl-drop-in .rs-b{width:100%;max-width:300px}
