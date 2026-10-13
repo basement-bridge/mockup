@@ -63,14 +63,18 @@
   ];
   var CAPS = [
     ['Header: Copy and Clear next to the cogwheel, no Today pill', 'The Today pill is gone (193) and the ... menu is gone: Copy last week and Clear week are two icon buttons beside Plan settings (194, owner-stated). Back to today is a long hold on "Week of 12 Oct" or the T key. Nothing else changed in the header.'],
-    ['Another person\'s plan: an eye and a slight dim', 'Priya\'s plan is view only (190, owner-stated: "I cannot change anybody else\'s plan"). Each tile, the Not cooking tile and the dashed open nights carry a small eye in the same line style as the moon and cog, and are dimmed a little. No swipe, no card, no lift, no Copy or Clear. Past days keep their grey and have no eye. Mine and Everyone are fully interactive.'],
+    ['Another person\'s plan: an eye and a slight dim', 'Priya\'s plan is view only (190, owner-stated: "I cannot change anybody else\'s plan"). Each tile, the Not cooking tile and the dashed open nights carry a small eye in the same line style as the moon and cog, and are dimmed a little. No swipe, no card, no lift, no Copy or Clear. Past days keep their grey and have no eye. Mine and Household are fully interactive. Their meals still open a read-only detail (frames 9 and 10).'],
     ['Tap the open-night count: jump to the first open night', 'The dashed-box count on "Week of 19 Oct" is a button (191, owner-stated: "I like that"): it scrolled to the first open night of that week from today on and pulsed it once. The moon count does the same for the first Not cooking night. The box is larger with a solid numeral (192).'],
-    ['Clear week: meals and this week\'s changes, the routine stays', 'Clear week removed the planned meals, the one-off Not cooking mark (Sat 17) and the usual days off that had been opened this week (Fri 16, Sun 18 are Not cooking every week again). The usual days themselves were not touched (195). The button is Undo in place for 14 s.'],
+    ['Clear week, Mine: my meals and my changes, today on', 'Owner-stated (203): "depending on what is chosen - mine or household. Can\'t clear the past." With Mine, Clear week removed my own meals from today on (Thu 15 Tuna salad, Fri 16 leftovers) and the changes I made to the routine (Fri 16 and Sun 18 are Not cooking every week again). The household\'s dinners and Sat 17 (a household mark) stay; Mon 12 is past and untouched. The button is Undo in place and says "clear, mine".'],
     ['A usual day off reads "every week"', 'Sun 25 is a usual day off, set in Plan settings in UAT (Settings, Usual days). The card says "Not cooking, every week (usual day off)"; a one-off mark says "this week only" (196). Mark as open opens it for this week only.'],
     ['Four weeks forward, one back', 'The agenda and the ribbon now run from last week to three weeks ahead (197, owner-stated: "four forward, one backward"; five weeks counting this one). Weeks beyond next are empty; their usual days off are Not cooking.'],
-    ['Long hold on the label goes to today', 'Scrolled away to the week of 2 Nov, a hold of half a second on "Week of ..." jumped to today and the label pulsed once (193). No hint is drawn. The T key and Enter on the focused label do the same.']
+    ['Long hold on the label goes to today', 'Scrolled away to the week of 2 Nov, a hold of half a second on "Week of ..." moved the LIST to today, not only the header (193, 202: owner-stated "make list move to today"), and the label pulsed once. No hint is drawn. The T key and Enter on the focused label do the same. A plain tap on the label means nothing (202).'],
+    ['Clear week, Household: the household\'s meals and marks', 'With Household chosen (203), Clear week removed the household\'s dinners from today on (Tue 13 Mushroom pasta, Wed 14, Thu 15) and its mark on Sat 17. Mon 12 is past and stays; the meals that are only in my own plan stay (Proposal). The button is Undo in place and says "clear, household". Another person\'s plan has no Clear at all.'],
+    ['Another person\'s meal: read only, but Hold and Add work', 'Owner-stated (204): "Can open read only but can\'t do change. But can hold items and add to shop." Priya\'s meal opens a read-only detail marked with the eye and "View only, Priya\'s plan": no swap, no replan, no Not cooking, no drag, no people stepper. The footer still has Hold and Add, and each missing ingredient its cart, because they act on my hold and my shopping list.'],
+    ['Hold and Add in Priya\'s plan did their job', 'Hold became Release (the same held state as in my plan) and Add added the missing items to my shopping list, with Undo. The plan itself did not change. A past meal has neither (Proposal): nothing to hold or buy for a night that has gone.'],
+    ['Long hold with a detail docked', 'With a detail docked, the hold swaps the docked day to today (the list is behind the stack); closing the detail leaves the list on today, just under the header (202).']
   ];
-  var CAP = SC ? CAPS : WKD ? CAPW : NC ? CAPN : OP ? CAPO : AG ? CAPA : CAPD; if (NC) N = 8; if (WKD) N = 12; if (SC) N = 7;
+  var CAP = SC ? CAPS : WKD ? CAPW : NC ? CAPN : OP ? CAPO : AG ? CAPA : CAPD; if (NC) N = 8; if (WKD) N = 12; if (SC) N = 11;
   function rect(sel) { var e = document.querySelector(sel); return e ? e.getBoundingClientRect() : null; }
   function buildA(n) {
     A.resetDemo(); A.showWeek('d14'); var S = A.S, tile = function (id) { var e = document.querySelector('.pw-day .mc[data-id="' + id + '"]'); return e ? e.getBoundingClientRect() : null; };
@@ -124,7 +128,7 @@
     S.ws = 'counts'; A.render(false); go(1);
   }
   function buildS(n) {
-    A.resetDemo(); var S = A.S; S.view = n === 2 ? 'priya' : 'mine'; S.hl = null; A.render(false);
+    A.resetDemo(); var S = A.S; S.view = n === 2 || n === 9 || n === 10 ? 'priya' : n === 8 ? 'household' : 'mine'; S.hl = null; A.render(false);
     var wkRow = function (k, off) { var w = document.querySelectorAll('.wkd')[k]; if (w) window.scrollTo(0, w.getBoundingClientRect().top + scrollY - (off || 70)); A.syncHead(); setTimeout(A.syncHead, 150); };
     if (n === 1) { A.showWeek('d13'); return; }
     if (n === 2) { A.showWeek('d14'); return; }
@@ -132,6 +136,9 @@
     if (n === 4) { A.showWeek('d13'); A.clearWeek(); return; }
     if (n === 5) { S.cur = 'd25'; wkRow(2, 70); A.openDay('d25'); return; }
     if (n === 6) { wkRow(4, 60); return; }
+    if (n === 8) { A.showWeek('d13'); A.clearWeek(); return; }
+    if (n === 9 || n === 10) { A.showWeek('d14'); A.openDetail('wed-curry'); if (n === 10) { A.act('hold', 'wed-curry'); A.act('list', 'wed-curry'); } return; }
+    if (n === 11) { A.openDetail('thu-salmon'); setTimeout(function () { A.goToday(); }, 500); return; }
     wkRow(4, 60); setTimeout(function () { A.goToday(); }, 600);
   }
   function build(n) {
