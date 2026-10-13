@@ -110,12 +110,13 @@ P.sumHtml=function(){var S=P.S(),pv=u.person(),sh=shop(),rk=u.risks(),T=tally(),
 
 /* ---------- columns: agenda | detail | summary (decision 110) ---------- */
 function three(){return !!(P.layout.three&&P.layout.three())}
+/* gut-on = the week-at-a-glance gutter is on screen AND its rendered body carries the Week actions group (Copy last week, Clear week; an empty week, last week and another person's plan do not draw it); then the top copies in the header and the empty-week card are hidden by CSS (decision 287). Only a class; the actions have one code path. */
 function lanes(){var S=P.S(),tr=three(),picked=!!((S.sel&&u.cardById(S.sel))||S.ing),rz='<div class="rz" id="rz" role="separator" aria-orientation="vertical" aria-label="Resize the side panel" tabindex="0" aria-valuenow="'+P.laneW()+'" aria-valuemin="320" aria-valuemax="560" data-fk="rz"></div>';
- var sumBody=S.loading?P.laneBody():P.sumHtml();
- if(tr)return{cls:"three "+(picked?"has-detail":"no-detail"),html:(picked?'<aside class="panel detail" id="panel" aria-label="'+P.laneAria()+'" tabindex="-1">'+rz+P.laneBody()+'</aside>':"")+'<aside class="panel sumcol" id="panel2" aria-label="This week at a glance" tabindex="-1">'+sumBody+'</aside>'};
- if(picked&&S.sumPeek){var c=u.cardById(S.sel);return{cls:"tucked peeking",html:'<aside class="panel sumcol" id="panel" aria-label="This week at a glance" tabindex="-1">'+rz+'<button class="btn ghost back" data-act="sumback" data-fk="lane:back">'+sm(BACK,16)+' Back to '+(c?esc(u.lbl(c)):"the meal")+'</button>'+sumBody+'</aside>'}}
- if(picked)return{cls:"tucked",html:'<aside class="panel detail" id="panel" aria-label="'+P.laneAria()+'" tabindex="-1">'+rz+P.laneBody()+'</aside>'};
- return{cls:"tucked",html:'<aside class="panel sumcol" id="panel" aria-label="This week at a glance" tabindex="-1">'+rz+sumBody+'</aside>'}}
+ var sumBody=S.loading?P.laneBody():P.sumHtml(),g=(!S.loading&&sumBody.indexOf('aria-label="Week actions"')>-1)?" gut-on":" gut-off";
+ if(tr)return{cls:"three"+g+" "+(picked?"has-detail":"no-detail"),html:(picked?'<aside class="panel detail" id="panel" aria-label="'+P.laneAria()+'" tabindex="-1">'+rz+P.laneBody()+'</aside>':"")+'<aside class="panel sumcol" id="panel2" aria-label="This week at a glance" tabindex="-1">'+sumBody+'</aside>'};
+ if(picked&&S.sumPeek){var c=u.cardById(S.sel);return{cls:"tucked peeking"+g,html:'<aside class="panel sumcol" id="panel" aria-label="This week at a glance" tabindex="-1">'+rz+'<button class="btn ghost back" data-act="sumback" data-fk="lane:back">'+sm(BACK,16)+' Back to '+(c?esc(u.lbl(c)):"the meal")+'</button>'+sumBody+'</aside>'}}
+ if(picked)return{cls:"tucked gut-off",html:'<aside class="panel detail" id="panel" aria-label="'+P.laneAria()+'" tabindex="-1">'+rz+P.laneBody()+'</aside>'};
+ return{cls:"tucked"+g,html:'<aside class="panel sumcol" id="panel" aria-label="This week at a glance" tabindex="-1">'+rz+sumBody+'</aside>'}}
 function peek(){if(three())return "";var n=tally().buy,l=tally().list;return '<button class="peekbar" data-act="sumpeek" aria-label="This week at a glance: '+missWords(n)+', '+l+' in the cart" data-tip="This week at a glance (G)" data-fk="lane:peek">'+sm(CALW,16)+'<span>This week at a glance</span>'+(n?'<span class="n">'+n+' missing</span>':'')+'<span class="chev">'+sm(OPEN,14)+'</span></button>'}
 function glance(){var S=P.S(),pn;
  if(three()){pn=document.getElementById("panel2");if(pn)pn.focus();return}
