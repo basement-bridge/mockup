@@ -1,0 +1,50 @@
+/* The Recipes summary flyout (browse flyout, option A, RB-D1 and RB-D2) as Home draws it for a recipe search result. The rules are lifted from ../recipe-browse-full/styles.css unchanged (the build's recipes.ts carries the same rb- classes); only the host rules at the foot are new. Loaded on the first recipe result chosen, never on page load. No size rules. */
+.rb-e{width:44px;height:44px;border-radius:var(--r-ctl);flex:none;display:flex;align-items:center;justify-content:center;font-size:24px;background:color-mix(in srgb,var(--accent) 18%,var(--surface))}
+.rb-e.big{width:56px;height:56px;font-size:30px}.rb-e.big svg{width:26px;height:26px;fill:none;stroke:var(--accent);stroke-width:1.8;stroke-linejoin:round}
+.rb-e.xl{width:72px;height:72px;font-size:40px;border-radius:var(--r-card)}
+.rb-e.hero{width:168px;height:168px;font-size:92px;border-radius:var(--r-card);align-self:flex-start}
+.rb-t small{display:block;color:var(--muted);font-size:12px}
+.rb-tg{display:inline-block;margin-top:2px;font-size:11px;font-weight:800;padding:1px 8px;border-radius:var(--r-pill);border:1px solid var(--sage);color:var(--sage)}
+.rb-tg.miss{border-color:var(--accent);color:var(--accent)}
+.rb-btn{min-height:44px;padding:0 16px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--surface);color:var(--fg);font:700 14px var(--body);cursor:pointer}
+.rb-btn.pri{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.rb-acts{display:flex;gap:8px}.rb-acts .rb-btn{flex:1}
+.rb-x{margin-left:auto;flex:none;width:44px;height:44px;border-radius:50%;border:1px solid var(--border);background:var(--bg);color:var(--fg);font-size:22px;cursor:pointer}
+.rb-av{width:28px;height:28px;flex:none;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;border:1px solid var(--border);background:color-mix(in srgb,var(--accent) 24%,var(--surface))}
+.rb-av.m2{background:color-mix(in srgb,var(--sage) 28%,var(--surface))}.rb-av.m3{background:color-mix(in srgb,var(--muted) 24%,var(--surface))}
+.rb-th{width:30px;height:30px;flex:none;border-radius:50%;border:1.5px solid var(--border);display:inline-flex;align-items:center;justify-content:center}
+.rb-th svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round;stroke-linecap:round}
+.rb-th.up{color:var(--sage);border-color:var(--sage)}.rb-th.dn{color:var(--danger);border-color:var(--danger)}.rb-th.no{border-style:dashed;color:var(--muted)}
+.rb-mem{display:flex;align-items:center;gap:10px;min-height:44px;border-top:1px solid var(--border)}
+.rb-mem b{flex:1}.rb-lbl{font-size:12px;color:var(--muted)}
+.rb-q{margin:0;display:flex;gap:10px;padding:10px 0;border-top:1px solid var(--border)}.rb-q p{margin:2px 0 0;color:var(--fg)}.rb-q small{color:var(--muted);font-size:12px}
+.rb-fh{display:flex;align-items:center;gap:12px;padding:18px 20px 12px}.rb-ft h3{margin:0;font-family:var(--head);font-size:1.15rem;line-height:1.15}.rb-ft small{color:var(--muted)}
+.rb-fh .rb-open{margin-left:auto;font-size:13px}.rb-fh .rb-open+.rb-x{margin-left:0}
+.rb-fb{flex:1;min-height:0;overflow:auto;padding:0 20px}
+.rb-ff{padding:12px 20px 14px;border-top:1px solid var(--border)}
+.rb-sec{padding:6px 0 10px}
+.rb-h4{margin:10px 0 4px;font-size:12px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);display:flex;gap:8px;align-items:center}.rb-h4 .n{color:var(--fg)}.rb-h4.sub{margin-top:14px}.rb-h4 .rb-tg{margin:0;text-transform:none;letter-spacing:0}
+.rb-open{color:var(--accent);font-weight:700;display:inline-flex;align-items:center;gap:8px;min-height:44px}.rb-open.c{display:flex;justify-content:center;margin-top:2px}
+.rb-more{color:var(--accent);font-weight:700;display:inline-flex;min-height:44px;align-items:center}
+.rb-cooked{display:grid;grid-template-columns:auto 1fr;gap:12px;margin:4px 0 8px}.rb-cooked>div{padding:10px 14px;border-radius:var(--r-ctl);background:var(--bg);border:1px solid var(--border)}
+.rb-cooked small,.rb-score small{display:block;color:var(--muted);font-size:12px}.rb-big{font:800 1.9rem var(--head);display:block;line-height:1.1}.rb-big.s{font-size:1.25rem;padding-top:8px}
+.rb-score{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0 4px}.rb-score>div{padding:10px;border-radius:var(--r-ctl);background:var(--bg);border:1px solid var(--border)}.rb-score b{font:800 1.4rem var(--head);display:block}.rb-score b.g{color:var(--sage)}
+.rb-voice{padding:10px 12px;border-radius:var(--r-ctl);background:var(--bg);border:1px solid var(--border);margin:6px 0}.rb-voice.dn{border-color:var(--danger)}.rb-voice.up{border-color:var(--border)}
+.rb-vh{display:flex;align-items:center;gap:8px}.rb-vh b{margin-right:auto}.rb-voice p{margin:6px 0 0}.rb-voice p.none{color:var(--muted)}
+.rb-empty{display:flex;gap:12px;align-items:center;padding:12px;border-radius:var(--r-ctl);border:1px dashed var(--border);margin:6px 0}.rb-empty small{display:block;color:var(--muted)}
+.rb-chipsm{display:flex;align-items:center;gap:6px;margin-top:8px}.rb-chipsm small{color:var(--muted);margin-left:6px}
+.rb-ing{list-style:none;margin:4px 0;padding:0}.rb-ing li{display:flex;gap:10px;align-items:center;min-height:34px;border-top:1px solid var(--border)}
+.rb-ing li span:first-child{width:16px;color:var(--sage);font-weight:800}.rb-ing li span:nth-child(2){flex:1}.rb-ing li b{font-weight:600;color:var(--muted)}
+.rb-ing li.no span:first-child{color:var(--accent)}.rb-ing li.no span:nth-child(2){font-weight:700}.rb-ing em{font-style:normal;font-size:11px;font-weight:800;color:var(--accent);border:1px solid var(--accent);border-radius:var(--r-pill);padding:0 7px}
+.rb-icl{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.rb-ic{display:inline-flex;gap:6px;align-items:center;min-height:32px;padding:0 10px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--bg);font-size:13px;font-weight:600}.rb-ic i{font-style:normal;color:var(--muted);font-weight:500}.rb-ic.no{border-color:var(--accent);color:var(--accent);border-style:dashed}.rb-ic.no::after{content:"missing";font-size:11px;font-weight:800}
+.rb-tl{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}.rb-tl div{padding:10px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);font-size:12px;color:var(--muted)}.rb-tl b{display:block;color:var(--fg);font-size:14px}
+.rb-score.three{margin:14px 0 10px}.rb-hacts{display:flex;flex-direction:column;gap:8px;width:150px;flex:none}
+.rb-open.s{min-height:32px;font-size:13px;margin-top:2px}
+.rb-ing.two{display:grid;grid-template-columns:1fr 1fr;column-gap:16px}.rb-ing.two li{min-height:32px;gap:6px;font-size:13px}.rb-ing.two li span:first-child{width:12px}.rb-ing.two em{display:none}.rb-ing.two li.no span:nth-child(2)::after{content:" (missing)";font-weight:600}
+.rb-more{font-size:13px;min-height:36px}
+/* host: the flyout is the panel itself (#detail.rbhost), drawn in the lane over This week. No padding of its own, the flyout carries it */
+.detail.rbhost{padding:0;gap:0;overflow:hidden}
+.detail.rbhost>.rb-fly{position:static;flex:1;min-height:0;display:flex;flex-direction:column;border:0;background:none;transform:none;opacity:1;visibility:visible}
+.rb-x{display:inline-flex;align-items:center;justify-content:center;line-height:1}
+.detail.rbhost .phint{margin:10px 0 0;text-align:left}
+.detail.rbhost .rb-ff .rb-open.c{margin-top:2px}
