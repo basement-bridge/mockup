@@ -100,9 +100,15 @@ window.PUR = (function () {
   function phoneMeals() {
     var o = JSON.parse(JSON.stringify(meals));
     o.forEach(function (m) { if (m.id === 'thu-salmon') { m.part = ['sam', 'jane', 'priya']; m.n = 3; } });
+    /* Replan cleanup sample (owner-stated direction, 14 Oct 2026): lemon is on the shopping list for BOTH Thursday meals (2 for Salmon patties, 1 for Tuna salad: one line of 3), and curry roux is on it for Wednesday's curry alone (a single-use line).
+       Chicken thighs were bought on Friday for the curry: see phoneBought. Replan takes only the removed meal's own amount off its lines. */
+    o.forEach(function (m) { if (m.id === 'thu-salmon' || m.id === 'thu-tuna') { m.miss = m.miss.map(function (x) { return x[0] === 'lemon' ? [x[0], x[1], 1] : x; }); m.list = m.miss.filter(function (x) { return x[2]; }).length; } });
     o.push({ id: 'fri-dump', mins: 30, day: 'd16', em: '🥟', t: 'Veggie dumplings', who: 'all', part: ['jane', 'priya', 'kit'], n: 3, src: 'saved', miss: [['wonton wrappers', '1 pack']], have: [['cabbage', '1/2'], ['spring onion', '1 bunch']], useby: [], list: 0, held: 0, note: '' });
     return o;
   }
+  /* Bought items are in Pantry, off the list, and never touched by a replan (owner, 14 Oct 2026). 'for' names the meals the item was bought for. extras: lines added by hand, with no meal behind them. */
+  function phoneBought() { return { 'chicken thighs': { day: 'Fri 9 Oct', q: '600 g', 'for': ['wed-curry'] } }; }
+  function phoneExtras() { return [{ name: 'milk', q: '2 L' }]; }
   /* Surprise me (owner-confirmed heuristics, decision 94): timing aware, never a repeat of a recent meal. Returns a copy of a candidate. */
   function surprise(meals, d, today) {
     var di = function (x) { return RIB.map(function (r) { return r.id; }).indexOf(x); }, r = dinfo(d), du = di(d) - di(today), late = r.wk === 0 && r.i % 7 >= 4, kind = (du <= 1 || late) ? 'stock' : 'new';
@@ -174,5 +180,5 @@ window.PUR = (function () {
   }
   /* a long ingredient list for the dock demo (?long=1): a real cook sheet can have 20 lines */
   var LONG = [['garlic', '4 cloves'], ['ginger', '1 thumb'], ['cumin', '2 tsp'], ['coriander', '2 tsp'], ['turmeric', '1 tsp'], ['chilli flakes', '1 tsp'], ['stock cube', '2'], ['coconut milk', '1 tin'], ['apple', '1'], ['honey', '1 tbsp'], ['soy sauce', '2 tbsp'], ['peas', '1 cup'], ['sultanas', '1 handful'], ['spring onion', '1 bunch'], ['vegetable oil', '3 tbsp'], ['salt', 'to taste']];
-  return { mins: mins, clearWeek: clearWeek, clearWeek2: clearWeek2, baseOwners: baseOwners, scopeOf: scopeOf, isHH: isHH, routineDefault: routineDefault, baseBlocked: baseBlocked, ROUTINE: ROUTINE, useRange: useRange, LONG: LONG, surprise: surprise, copyLast: copyLast, icons: icons, people: people, DOW: DOW, RIB: RIB, DAYS: DAYS, REL: REL, did: did, dinfo: dinfo, meals: meals, phoneMeals: phoneMeals, whoFull: whoFull, blocked: blocked, tips: tips, SUR: SUR, match: match, inMine: inMine, whoLabel: whoLabel };
+  return { mins: mins, clearWeek: clearWeek, clearWeek2: clearWeek2, baseOwners: baseOwners, scopeOf: scopeOf, isHH: isHH, routineDefault: routineDefault, baseBlocked: baseBlocked, ROUTINE: ROUTINE, useRange: useRange, LONG: LONG, surprise: surprise, copyLast: copyLast, icons: icons, people: people, DOW: DOW, RIB: RIB, DAYS: DAYS, REL: REL, did: did, dinfo: dinfo, meals: meals, phoneMeals: phoneMeals, phoneBought: phoneBought, phoneExtras: phoneExtras, whoFull: whoFull, blocked: blocked, tips: tips, SUR: SUR, match: match, inMine: inMine, whoLabel: whoLabel };
 })();
