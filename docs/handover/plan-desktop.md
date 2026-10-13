@@ -1,6 +1,6 @@
 # Plan on desktop: handover
 
-**Status update 14 October 2026: option B is realigned with the phone Plan (PR open, not merged, for the owner), decisions 259 to 275, section 13.** Options A, C and D are unchanged.
+**Status update 14 October 2026 (latest): empty week asks once, hold everything and week tools in the gutter, decisions 282 to 286, section 15 (same PR #184, open).** **Status update 14 October 2026 (later): replan cleanup, one detail order and less red, decisions 276 to 281, section 14 (PR open, not merged).** **Status update 14 October 2026: option B is realigned with the phone Plan (PR open, not merged, for the owner), decisions 259 to 275, section 13.** Options A, C and D are unchanged.
 
 **Status update 12 October 2026: the owner chose option B as the base and gave direction by voice; option B is refined in PR (open, not merged, for the owner), decisions 110 to 120 (see section 12).** Original status, frozen 10 October 2026: the mockup is drawn and merged. Nothing is built in the real app. Decisions 49 to 62 are proposals by the design agent and wait for the owner. This file is the one place to start; every other durable thing is linked from section 11.
 
@@ -152,3 +152,24 @@ Only after the owner picks an option and confirms decisions. This is a **proposa
 - **Files:** new `b-week.js`, `b-detail.js`, `b-hand.js`; shared `plan.js` gained flags and hooks only; `tools/plan-desktop-b-check.mjs` runs 108 headless checks at 1440 and 1280.
 - **Open questions:** blocked hold, 121 and 122 vs 115 and 116, 156 vs 119, discoverability of Not cooking, folding Not cooking days, reds. Costs are in the knowledge note.
 - **Next steps:** owner reads the PR and answers the open questions; then the build copies the mockup's CSS and markup first.
+
+
+## 14. Replan cleanup, one detail order, less red (14 October 2026, decisions 276 to 281)
+
+- **Status update:** PR open, not merged, for the owner (branch `design/plan-replan-cleanup-reds-14oct`). Applies to desktop option B and the phone Plan together.
+- **Ask:** owner, voice, 14 Oct 2026: six decisions (hold never blocks and Replan releases it; Replan undoes the meal's footprint on the unbought shopping list; less red on both; one detail order; plain grey is for past days only; desktop keeps Not cooking days full size).
+- **What changed in B:** Replan, Not cooking and Clear take the meal's own amounts off the list (reduced line, removed line, bought item untouched), shown in the undo toast; a Shopping list stand-in (rail Shopping, `?shop=1`) with Bought; the detail follows the phone's order (status added at the top, Total time after the source, hold hint above the footer); a refused drop is red again; A, C, D untouched. Sample: lemon on the list for both Thursday meals, bought chicken thighs, milk by hand.
+- **Record corrected:** the PR #180 audit's row 31 was a misread (decision 280); counts are 14, 9, 6, 1 conflict, 1 misread. Open questions 1, 3 and 5 of section 13 are closed (276, 280, 281).
+- **Still open:** how a mouse user reaches Not cooking from an open night; which reds the owner wants back (both platforms); rows 30 (words vs circle); phone Not cooking colour (280); Open recipe placement; hand-edited line amounts.
+- **Next steps:** owner reads the PR; then the build copies the mockup's CSS and markup first. The real shopping list must remember which meal caused each amount.
+- **Check:** `tools/plan-desktop-b-check.mjs` 154 checks at 1440 and 1280.
+
+
+## 15. An empty week asks once; hold everything and week tools in the gutter (14 October 2026, decisions 282 to 286)
+
+- **Status:** added to PR #184 (open, not merged), desktop B only.
+- **Ask:** owner, voice, 14 Oct 2026: hold everything in the gutter as on the phone; one whole-week Surprise me and Ask AI on an empty week, per-night lines once any night has a meal, never Not cooking or usual days; Copy last week, its Undo chip and Clear week by scope in the gutter; the drop-in cue stays.
+- **What changed:** hold everything is the existing Reserve and Release (269), now labelled in its tooltip; the empty-week card with Surprise me, Ask AI and Copy last week (`?wkfill=card|header|gutter`); per-night pairs hidden only while the week is empty; a Week actions group in the gutter with Copy last week and Clear week (scope in words) sharing the Undo chip with the header icons.
+- **Still open:** what "a cog for selecting which of the ..." selects (not drawn); the word Reserve against "hold everything"; placement; keep both header icons and gutter buttons.
+- **Next steps:** owner picks the placement; then the build copies the CSS and markup (`.wkfill`, `.wkacts`). The whole-week fill needs a service call that plans many nights in one undoable step and skips blocked days.
+- **Check:** `tools/plan-desktop-b-check.mjs`, 220 checks at 1440 and 1280.

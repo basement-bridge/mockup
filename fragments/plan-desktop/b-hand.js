@@ -28,10 +28,11 @@ function cfAct(m,a){var p=a.split("|"),S=P.S();if(p[0]!=="cf")return;var wk=+p[1
 document.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("[data-act=cfwd]");if(!b)return;e.stopPropagation();var S=P.S(),r=b.getBoundingClientRect();S.menu=S.menu&&S.menu.id===b.dataset.id&&S.menu.kind==="cf"?null:{kind:"cf",id:b.dataset.id,x:r.left-200,y:r.bottom+4,focus:true};P.render()},true);
 /* ---------- Ask AI ---------- */
 var AT=null;
+function skipNote(){var W=P.bWeek,e=W&&W.empty();return e&&e.on?" Open nights only."+(e.nc.length?" "+W.skipText(e):""):""}
 function askNote(d){var S=P.S();S.aiNote={wk:S.wk,day:d||null,t:Date.now()};S.aiSay=d?"Ask AI opens your default AI app for "+DF[DN.indexOf(d)]+". Nothing happens inside Kitchie.":"Ask AI opens your default AI app with the week of "+u.dstr(S.wk,0)+". Nothing happens inside Kitchie.";
  clearTimeout(AT);AT=setTimeout(function(){S.aiNote=null;P.render()},9000)}
 function noteHtml(d){var S=P.S(),n=S.aiNote;if(!n||n.wk!==S.wk||n.day!==(d||null))return "";
- return '<div class="ainote" role="status">'+sm(BI.SPARK,16)+'<span>'+(d?'<b>Ask AI</b> opens your default AI app, for '+DF[DN.indexOf(d)]+'.':'<b>Ask AI</b> opens your default AI app with the week of '+u.dstr(S.wk,0)+'.')+' Nothing happens inside Kitchie.</span></div>'}
+ return '<div class="ainote" role="status">'+sm(BI.SPARK,16)+'<span>'+(d?'<b>Ask AI</b> opens your default AI app, for '+DF[DN.indexOf(d)]+'.':'<b>Ask AI</b> opens your default AI app with the week of '+u.dstr(S.wk,0)+'.')+' Nothing happens inside Kitchie.'+(d?"":skipNote())+'</span></div>'}
 function weekNote(){var h=noteHtml(null);return h?'<div class="cslot">'+h+'</div>':""}
 /* ---------- today ---------- */
 function onToday(){var S=P.S();if(S.wk!==u.CURWK)return;var el=u.q(".arow.is-today");if(!el)return;

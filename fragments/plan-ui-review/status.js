@@ -6,7 +6,7 @@
    progress (d) "5 of 7 ingredients ready" with a thin bar, plus one use-by line
    plain        (13 Oct, the pick) one green or red signal, no count, no words
    line         one sentence (the earlier alternate, desktop)
-   Urgency (use-by): today or overdue = hot (danger), within two days = warm (accent), later = calm (muted). */
+   Urgency (use-by): today or overdue = hot, within two days = warm (both accent, 14 Oct 2026: use-by is soon, not blocking, so not red), later = calm (muted). */
 (function () {
   var P = window.PUR, ic = P.icons;
   function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }

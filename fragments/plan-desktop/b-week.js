@@ -51,14 +51,14 @@ function planClear(apply){var s=S(),hh=s.view==="all",o={meals:0,marks:0,usual:0
  u.scopeCards().forEach(function(c){if(today(DN.indexOf(c.day))&&gone.indexOf(c)<0)o.stay++});
  var keys=[];
  if(!hh)DN.forEach(function(d,i){if(!today(i))return;var k=u.okey(d,ME),usual=s.stencil.Sam.indexOf(d)>-1;if(k in s.ov){if(!usual&&s.ov[k]===true){o.marks++;keys.push(k)}else if(usual&&s.ov[k]===false){o.usual++;keys.push(k)}}});
- if(apply){s.cards=s.cards.filter(function(c){return gone.indexOf(c)<0});keys.forEach(function(k){delete s.ov[k]});if(s.sel&&!u.cardById(s.sel))s.sel=null}
+ o.gone=gone;if(apply){s.cards=s.cards.filter(function(c){return gone.indexOf(c)<0});keys.forEach(function(k){delete s.ov[k]});if(s.sel&&!u.cardById(s.sel))s.sel=null}
  return o}
 function clearWeek(){var s=S();if(u.guard()||person()||u.weekRo())return;
  var o=planClear(false);if(!o.meals&&!o.marks&&!o.usual){u.toast("Nothing to clear from today on.",false);P.render();return}
- u.pushUndo();planClear(true);s.just=null;s.prop=null;setFlip("clear");
+ var cb=u.cartLines();u.pushUndo();planClear(true);s.just=null;s.prop=null;setFlip("clear");
  var ch=o.marks+o.usual,hh=s.view==="all";
  u.toast("Cleared "+plural(o.meals,"meal")+(ch?" and "+plural(ch,"Not cooking change"):"")+", "+u.dstr(s.wk,o.firstI)+" to "+u.dstr(s.wk,6)+(hh?" (household)":" (my plan)")+". "
-  +(o.stay?plural(o.stay,hh?"personal meal":"household meal")+" stay"+(o.stay===1?"s":"")+". ":"")+(hh?"":"Usual days off stay."),false);
+  +(o.stay?plural(o.stay,hh?"personal meal":"household meal")+" stay"+(o.stay===1?"s":"")+". ":"")+(hh?"":"Usual days off stay.")+u.cartDiff(cb,o.gone),false);
  u.pulseSync();P.render();u.say("Cleared the week from today on")}
 function headTools(){var s=S(),off=u.offline(),ro=u.weekRo()||off;
  if(person())return "";
@@ -77,11 +77,49 @@ function chips(){var c=counts(),h='<div class="wki" role="group" aria-label="Thi
  h+='<span class="wkn" title="Nights with a meal this week">'+c.n+' of 7 nights</span>';
  if(c.nc.length)h+='<button class="wkc" data-jump="nc" aria-label="'+plural(c.nc.length,"night")+" not cooking. Go to the first one: "+c.nc[0]+'" data-tip="'+plural(c.nc.length,"night")+' not cooking. Go to the first" data-fk="hdr:nc"><b>'+c.nc.length+'</b>'+sm(BI.MOON,14)+'</button>';
  if(c.op.length)h+='<button class="wkc" data-jump="open" aria-label="'+plural(c.op.length,"night")+" open. Go to the first one: "+c.op[0]+'" data-tip="'+plural(c.op.length,"night")+' open. Go to the first" data-fk="hdr:open"><b>'+c.op.length+'</b>'+sm(BI.UNLOCK,14)+'</button>';
- return h+'</div>'}
+ return h+fillBar()+'</div>'}
 document.addEventListener("click",function(e){var j=e.target.closest&&e.target.closest("[data-jump]");if(!j)return;var c=counts(),d=(j.dataset.jump==="nc"?c.nc:c.op)[0];if(!d)return;
  var el=u.q('.arow[data-day="'+d+'"]');if(!el)return;var red=window.matchMedia("(prefers-reduced-motion:reduce)").matches;
  el.scrollIntoView({block:"center",behavior:red?"auto":"smooth"});el.classList.remove("pulse");void el.offsetWidth;el.classList.add("pulse");setTimeout(function(){el.classList.remove("pulse")},2600);
  var f=u.q('[data-fk="slot:'+d+'"]',el);if(f)f.focus({preventScroll:true});u.say("Went to "+u.DF[DN.indexOf(d)])});
+
+/* ---------- an empty week (decisions 282 to 284): ONE whole-week Surprise me and Ask AI instead of the pair on every night ----------
+   Empty = no meal at all in the week as the person filter shows it (a week with only Not cooking nights is empty too, as in 96). The moment even one night has a meal,
+   by any route, the per-night Surprise me and Ask AI come back for the nights still open. The whole-week fill plans only nights from today on that are not Not cooking
+   (a one-off mark or a usual day off from Settings): those are never included. Placement is switchable: ?wkfill=card (default) | header | gutter. */
+function fillMode(){var m=new URLSearchParams(location.search).get("wkfill");return m==="header"||m==="gutter"?m:"card"}
+function emptyWeek(){var s=S(),o={on:false,days:[],nc:[],past:0};
+ if(person()||u.weekRo()||s.loading)return o;
+ if(DN.some(function(d){return u.dayCards(d).length}))return o;
+ DN.forEach(function(d,i){if(!today(i)){o.past++;return}if(u.isBlocked(d,ME))o.nc.push(d);else o.days.push(d)});
+ o.on=o.days.length>0;return o}
+function skipText(e){if(!e.nc.length)return "";var s=S();
+ return e.nc.map(function(d){return d+(s.stencil.Sam.indexOf(d)>-1&&s.ov[u.okey(d,ME)]!==false?" (usual day off)":"")}).join(", ")+(e.nc.length===1?" is":" are")+" Not cooking, so left out."}
+function fillWeek(){var s=S();if(u.guard()||person())return;var e=emptyWeek();if(!e.on)return;
+ u.pushUndo();s.just=null;s.prop=null;
+ e.days.forEach(function(d){var p=u.pickSurprise(d),n=u.mkCard(s.wk,d,p.r,ME,"all",2,{surp:true});s.cards.push(n);u.lf(n)});
+ setFlip("fill");
+ u.toast("Surprise me planned "+plural(e.days.length,"night")+" ("+e.days.join(", ")+"). "+skipText(e),true);
+ u.pulseSync();P.render();u.say("Planned "+plural(e.days.length,"night"))}
+function fillBtns(e,cls){var n=e.days.length;
+ return '<button class="mini cta" data-act="weekfill" data-fk="wk:sp" data-tip="Surprise me: the app proposes a meal for each open night" aria-label="Surprise me: plan the '+plural(n,"open night")+' of this week">'+sm(BI.SURP,15)+'Surprise me</button>'
+ +'<button class="mini cta" data-act="assistant" data-week="1" data-fk="wk:ai" aria-pressed="'+!!(S().aiNote&&!S().aiNote.day&&S().aiNote.wk===S().wk)+'" data-tip="Ask AI: hands off to your default AI app, for the whole week" aria-label="Ask AI: plan the '+plural(n,"open night")+' of this week">'+sm(BI.SPARK,14)+'Ask AI</button>'}
+function fillCard(){var e=emptyWeek();if(!e.on||fillMode()!=="card")return "";var ro=u.offline();
+ return '<section class="wkfill" aria-label="Plan the whole week">'+sm(BI.CALW,22)
+  +'<div class="wf"><b>Nothing planned this week</b><small>'+plural(e.days.length,"open night")+": "+e.days.join(", ")+". "+skipText(e)+'</small></div>'
+  +'<span class="ctas">'+fillBtns(e)+(ro?"":'<button class="mini quiet" data-act="copy" data-fk="wk:copy" data-tip="Copy last week (C): fills open nights only, never overwrites">'+sm(u.I.copy,15)+'Copy last week</button>')+'</span></section>'}
+function fillBar(){var e=emptyWeek();if(!e.on||fillMode()!=="header")return "";return '<span class="wkfillbar" role="group" aria-label="Plan the whole week">'+fillBtns(e)+'</span>'}
+function fillGutter(){var e=emptyWeek();if(!e.on||fillMode()!=="gutter")return "";
+ return '<section class="sumsec wkfill gut" aria-label="Plan the whole week"><div class="wf"><b>Plan the whole week</b><small>'+plural(e.days.length,"open night")+". "+skipText(e)+'</small></div><span class="ctas">'+fillBtns(e)+'</span></section>'}
+document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest("[data-act=weekfill]");if(a)fillWeek()});
+
+/* ---------- week tools in the summary (phone 99, 109, 194, 195, 203, 211, 214; decision 285): Copy last week and Clear week, labelled, with the scope in words, flipping in place to the same Undo chip ---------- */
+function weekToolsHtml(){var s=S();if(person()||u.weekRo())return "";var off=u.offline(),hh=s.view==="all",o=planClear(false),none=!o.meals&&!o.marks&&!o.usual,wide=function(h){return h.replace('class="flipundo"','class="flipundo wide"')},h="";
+ h+=flipOn("copy")?wide(chip("copy","sum:copy","copy last week","copy")):'<button class="btn" data-act="copy" data-fk="sum:copy" data-tip="Copy last week (C): fills open nights only, never overwrites"'+(off?" disabled":"")+' aria-label="Copy last week: fill the open nights of this week from today on, nothing is overwritten">'+sm(u.I.copy,17)+'<span class="bl"><b>Copy last week</b><small>open nights only</small></span></button>';
+ if(flipOn("clear"))h+=wide(chip("clear","sum:clear","clear week","clear"));
+ else if(!none)h+='<button class="btn" data-act="clearwk" data-fk="sum:clear" data-tip="Clear week from today on (Shift C)"'+(off?" disabled":"")+' aria-label="Clear week, '+(hh?"household":"my plan")+': remove this week\'s planned meals from today on">'+sm(BI.ERASE,17)+'<span class="bl"><b>Clear week</b><small>'+(hh?"household":"my plan")+', from today</small></span></button>';
+ if(flipOn("fill"))h+=wide(chip("fill","sum:fill","the whole-week Surprise me","whole week"));
+ return '<section class="sumsec" aria-label="Week actions"><h3>Week actions</h3><div class="wkacts">'+h+'</div></section>'}
 
 /* ---------- bulk actions in the summary (phone 159 to 177, 180) ---------- */
 function mineCards(){return u.scopeCards().filter(function(c){return u.me(c)&&!u.roCard(c)})}
@@ -94,10 +132,10 @@ function bulkHtml(){var s=S();if(person()||u.weekRo())return "";var b=bulk(),h="
  else if(b.addN)h+='<button class="btn pri" data-act="bulkadd" data-fk="addall" aria-label="Add to the shopping list: the '+plural(b.addN,"missing item")+' for this week">'+sm(u.I.cart,18)+'Add '+b.addN+' to the shopping list</button>';
  if(flipOn("reserve"))h+=chip("reserve","sum:res","reserve","reserve").replace('class="flipundo"','class="flipundo wide"');
  else if(flipOn("release"))h+=chip("release","sum:res","release","release").replace('class="flipundo"','class="flipundo wide"');
- else if(b.res==="reserve")h+='<button class="btn" data-act="reserve" data-fk="sum:res" aria-label="Reserve: hold the '+plural(b.resN,"on-hand item")+' for this week">'+sm(u.I.held,17)+'Reserve '+b.resN+'</button>';
+ else if(b.res==="reserve")h+='<button class="btn" data-act="reserve" data-fk="sum:res" data-tip="Hold everything on hand this week (same as the phone\'s Reserve)" aria-label="Reserve, hold everything: hold the '+plural(b.resN,"on-hand item")+' for this week">'+sm(u.I.held,17)+'Reserve '+b.resN+'</button>';
  else if(b.res==="release")h+='<button class="btn held" data-act="release" data-fk="sum:res" aria-label="Release: let go of the '+plural(b.resN,"held on-hand item")+' for this week">'+sm(u.I.held,17)+'Release '+b.resN+'</button>';
  return h?'<div class="bulk" role="group" aria-label="Bulk actions for this week">'+h+'</div>':""}
-function bulkAdd(){var s=S();if(u.guard()||person())return;var b=bulk();if(!b.addN)return;u.pushUndo();var cards={};b.add.forEach(function(x){s.list[x.name]=true;x.cards.forEach(function(id){cards[id]=1})});
+function bulkAdd(){var s=S();if(u.guard()||person())return;var b=bulk();if(!b.addN)return;u.pushUndo();var cards={};b.add.forEach(function(x){u.listAdd(x.name,x.cards.map(u.cardById));x.cards.forEach(function(id){cards[id]=1})});
  setFlip("add");u.toast("Added "+plural(b.addN,"item")+" for this week to the shopping list, across "+plural(Object.keys(cards).length,"meal")+".",false);u.pulseSync();P.render()}
 function reserve(){var s=S();if(u.guard()||person())return;var b=bulk();if(b.res!=="reserve")return;u.pushUndo();b.nh.forEach(function(c){c.res=true});
  setFlip("reserve");u.toast("Reserved "+plural(b.resN,"on-hand item")+" across "+plural(b.nh.length,"meal")+" for this week.",false);u.pulseSync();P.render()}
@@ -106,5 +144,5 @@ function release(){var s=S();if(u.guard()||person())return;var b=bulk();if(b.res
 document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest("[data-act]");if(!a)return;var k=a.dataset.act;
  if(k==="clearwk")clearWeek();else if(k==="bulkadd")bulkAdd();else if(k==="reserve")reserve();else if(k==="release")release();else if(k==="flipundo"){u.undo();S().flip=null;P.render()}});
 
-P.bWeek={headTools:headTools,chips:chips,bulkHtml:bulkHtml,bulk:bulk,copy:copyWeek,clearWeek:clearWeek,counts:counts};
+P.bWeek={empty:emptyWeek,fillCard:fillCard,fillBar:fillBar,fillGutter:fillGutter,fillMode:fillMode,skipText:skipText,tools:weekToolsHtml,headTools:headTools,chips:chips,bulkHtml:bulkHtml,bulk:bulk,copy:copyWeek,clearWeek:clearWeek,counts:counts};
 })();
