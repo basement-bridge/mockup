@@ -73,3 +73,43 @@ Default path: `theme.css`, `shared.css`, `manage.css`, `manage.js`; no images, n
 ## Files
 
 `index.html` (page and controls), `manage.css` and `manage.js` (list, rows, interactions, states), `phone.css` / `phone.js`, `desktop.css` / `desktop.js` (the drawings of A, B and C). The row and its classes (`rs-row`, `rs-name`, `rs-left`, `rs-stats`, `rs-acts`, `rs-undo`) are what a build lifts; the frame classes only draw a recipe page around it.
+
+## Update 13 October 2026: invites and versions on a link
+
+### Owner's words (voice and typed, 13 October 2026)
+
+- A share link can optionally carry an invite (the sender opts in on the create sheet: "Include an invite", "2 of 3 invites left"). An invite is single-purpose: if the link is passed around, only the first person to activate it claims the invite. It sets up a new household and never joins an existing one. Sending invites respects the member's maximum-invites limit.
+- The create sheet is option C (the usual version by default, a version choice only when other versions exist), so a link may point at the usual version or a chosen one.
+- Ask: show the invite state on each row (none, unclaimed, claimed with date, expired or withdrawn), the sender's remaining invites near the list, what cancel does to an unclaimed invite, and the version only when it is not the usual. Option A stays the recommended layout.
+
+### What changed
+
+- Row: a quiet invite line under the numbers, with a small ticket icon. Four states: **Invite waiting** (with a quiet Withdraw), **Invite claimed Mon 12 Oct**, **Invite ended with the link**, **Invite withdrawn**. No invite: no line, the row is as before.
+- Version tag: a small pill before the opens count ("With peas"), shown only when the link points at a version other than the usual. Usual links look exactly as before.
+- Allowance: one card above the list, "1 of 3 invites left. Cancel a link and its unused invite comes back." Same in options A, B and C (above the list in each). It counts invites waiting plus invites claimed; it is derived from the rows, so it moves live as you cancel, withdraw, undo or renew.
+- Cancel on a link with an unclaimed invite: the Undo line adds "Its invite is withdrawn and back with you." On a claimed invite it says "Its invite stays claimed." Undo puts the invite back with the link.
+- New sample states: Invites, Cancel invite, Invite ended, None left. The earlier five states are untouched and still work (they show "3 of 3 invites left").
+- Desktop wide rows: the invite line sits under the numbers, the actions keep their right-hand place.
+
+### Proposed decisions (unnumbered; the owner was silent)
+
+- **Proposal:** a household member sees only the date a link's invite was claimed. No name, email or household name of the person who claimed it. Reason: they are a new household and have not agreed to be named; the sender can ask them. Open question below.
+- **Proposal:** cancelling the link withdraws an unclaimed invite and returns it to the allowance at once; a claimed invite stays claimed and is not returned (the household already exists).
+- **Proposal:** Withdraw (invite only) is a one-tap quiet button on a waiting invite. The link keeps working as an ordinary share link; the invite returns to the allowance and cannot be re-attached (make a new link to send another). No confirm, because the allowance comes back.
+- **Proposal:** an unclaimed invite ends with its link when the link expires, and returns to the allowance. Renew brings the invite back if an invite is left; if not, Renew still works and the link opens the recipe only (the toast says so).
+- **Proposal:** the allowance counts a waiting invite as spent, so the sender cannot promise more invites than they have. Claimed invites stay spent.
+- **Proposal:** the allowance is shown whenever the list is, even for a member with no invites in use, so the sender sees the limit without opening the create sheet. With none left it turns accent and the text is unchanged; making a link without an invite is still possible (the create sheet's slice).
+- **Proposal:** the version pill appears only for a non-usual version, using the version's own name. If the usual later changes, a link made to "the usual" follows the create sheet's pinned-or-follows rule.
+- **Proposal:** an invite can only be on a new link; a link made without one cannot get one later (so the claim rule stays on a link the sender chose at creation).
+
+### Open questions (and what a wrong guess costs)
+
+1. Should the sender see who claimed it, for instance the new household's name? Drawn: no, date only. Cost of a wrong guess: a sender who wants to know it worked has to ask, or a privacy surprise if it were shown.
+2. Can a link get an invite after it was made? Drawn: no. Cost: a rework of the row (an "Add invite" action) and of the single-purpose rule.
+3. Does the allowance return when an unclaimed invite's link expires (drawn: yes) or only when the sender withdraws or cancels? Cost: a constant and one line of copy.
+4. Is the limit per member (drawn: "your allowance") or per household? The owner said "the member's maximum-invites limit"; the wording follows him. Cost: the card says "your" or "the household's".
+5. If a claim is started but not finished, does the invite stay held for that person (see the recipient notes)? The row would show "Invite waiting" while it is held; a distinct "being claimed" state is not drawn.
+
+### Default path and deferred (unchanged)
+
+No new file is loaded: the invite line, the version pill and the allowance are in `manage.js` and `manage.css`, and the desktop row rule is in `desktop.css`. In place (6a): withdraw, cancel, undo and renew change the row and the allowance where they are.

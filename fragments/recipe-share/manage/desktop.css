@@ -16,4 +16,9 @@
   .rs-top{grid-column:1/-1}
   .rs-acts{margin:0 -6px 0 0}
   .rs-act.rs-end{margin-left:0}
+  .rs-stats{grid-column:1;grid-row:2}
+  .rs-inv{grid-column:1;grid-row:3;min-height:36px}
+  .rs-inv>span{flex:none}
+  .rs-inv .rs-act{margin-left:var(--sp-2);min-height:36px}
+  .rs-acts{grid-column:2;grid-row:2/4}
 }

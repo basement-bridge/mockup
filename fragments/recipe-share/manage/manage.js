@@ -4,7 +4,7 @@
    (DESIGN.md section 6: load on engagement). Cancel follows the photos pattern (P-D17): hidden at once, Undo for 5 minutes, then gone from view. */
 (function () {
   "use strict";
-  var UNDO_S = 300, SOON_H = 24, RENEW_H = 168;
+  var UNDO_S = 300, SOON_H = 24, RENEW_H = 168, MAXINV = 3; /* the member's maximum-invites limit (sample) */
   var ICONS = {
     link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
     copy: '<rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6.5A2.5 2.5 0 0 0 13.5 4h-7A2.5 2.5 0 0 0 4 6.5v7A2.5 2.5 0 0 0 6.5 16H8"/>',
@@ -21,21 +21,31 @@
     eyeoff: '<path d="M3 12s3.500-6 9-6 9 6 9 6-3.500 6-9 6-9-6-9-6z"/><circle cx="12" cy="12" r="2.500"/>',
     home: '<path d="M4 11l8-7 8 7v8.500a1.500 1.500 0 0 1-1.500 1.500H15v-6H9v6H5.500A1.500 1.500 0 0 1 4 19.500z"/>',
     book: '<path d="M7 14a4 4 0 0 1-1-7.700 4.500 4.500 0 0 1 8.600-1.300 4 4 0 0 1 3.400 5.500A4 4 0 0 1 17 14v5H7z"/>',
+    ticket: '<path d="M4 8.500a2 2 0 0 1 0 4v0a2 2 0 0 1 0 4V18h16v-1.500a2 2 0 0 1 0-4v0a2 2 0 0 1 0-4V6H4z"/><path d="M14 6.500v11" stroke-dasharray="1.800 2.200"/>',
     cart: '<circle cx="9" cy="20" r="1.500"/><circle cx="18" cy="20" r="1.500"/><path d="M3 4h2.500l2.200 10.200a1 1 0 0 0 .8.8h8.800a1 1 0 0 0 1-.8L20 8H6.200"/>'
   };
   function ic(n, c) { return '<svg class="rs-ic' + (c ? " " + c : "") + '" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' + ICONS[n] + "</svg>"; }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
 
   /* The sample recipe's links. hours = hours until it ends (negative: ended that long ago); last = hours since it was last opened (null: never). */
-  function L(id, name, hours, opens, last) { return { id: id, name: name, hours: hours, opens: opens, last: last, cancelLeft: 0, gone: false }; }
+  /* x = { inv: { s: "unclaimed" | "claimed" | "withdrawn", d: "Mon 12 Oct" }, ver: "With peas" }. No inv: the link carries no invite. No ver: it points at the usual version. */
+  function L(id, name, hours, opens, last, x) { x = x || {}; return { id: id, name: name, hours: hours, opens: opens, last: last, cancelLeft: 0, gone: false, inv: x.inv || null, ver: x.ver || null }; }
   var STATES = {
     empty: { label: "Empty", cap: "No links yet.", make: function () { return []; } },
     three: { label: "3 active", cap: "Three links out, none close to ending.", make: function () { return [L(1, "For Mum", 140, 4, 2), L(2, "Book club", 71, 12, 26), L(3, "Work lunch group", 310, 0, null)]; } },
     soon: { label: "Ends soon", cap: "One link ends in under a day (the threshold is a proposal).", make: function () { return [L(1, "For Mum", 140, 4, 2), L(2, "Neighbours", 9, 1, 7), L(3, "Work lunch group", 310, 0, null)]; } },
     expired: { label: "One expired", cap: "An ended link stays, greyed, until it is renewed or removed from view.", make: function () { return [L(1, "For Mum", 140, 4, 2), L(2, "Book club", 71, 12, 26), L(3, "Work lunch group", 310, 0, null), L(4, "Sam's flat", -52, 7, 540)]; } },
+    invites: { label: "Invites", cap: "Three links: one with an unclaimed invite (pointing at a chosen version), one whose invite was claimed, one with no invite. Two of three invites are spoken for.", make: function () { return [L(1, "For Mum", 140, 4, 2, { inv: { s: "unclaimed" }, ver: "With peas" }), L(2, "Book club", 71, 12, 26, { inv: { s: "claimed", d: "Mon 12 Oct" } }), L(3, "Work lunch group", 310, 0, null)]; } },
+    invcancel: { label: "Cancel, invite", cap: "A link with an unclaimed invite was just cancelled: the invite is withdrawn and back in the allowance (undo takes it back). Cancelling a link whose invite was claimed leaves it claimed.", make: function () { var a = [L(1, "For Mum", 140, 4, 2, { inv: { s: "claimed", d: "Mon 12 Oct" } }), L(2, "Neighbours", 9, 1, 7, { inv: { s: "unclaimed" } }), L(3, "Work lunch group", 310, 0, null)]; a[1].cancelLeft = 252; return a; } },
+    invend: { label: "Invite ended", cap: "An invite withdrawn by hand on a live link, and an invite that ended with its expired link (back in the allowance; Renew brings it back if one is left).", make: function () { return [L(1, "For Mum", 140, 4, 2, { inv: { s: "withdrawn" } }), L(2, "Book club", 71, 12, 26, { inv: { s: "claimed", d: "Mon 12 Oct" } }), L(3, "Sam's flat", -52, 7, 540, { inv: { s: "unclaimed" }, ver: "Less soy more garlic" })]; } },
+    invnone: { label: "None left", cap: "All three invites are spoken for (two waiting, one claimed). The list still works; a new link can be made without an invite.", make: function () { return [L(1, "For Mum", 140, 4, 2, { inv: { s: "unclaimed" } }), L(2, "Book club", 71, 12, 26, { inv: { s: "claimed", d: "Mon 12 Oct" } }), L(3, "Neighbours", 200, 0, null, { inv: { s: "unclaimed" }, ver: "With peas" }), L(4, "Work lunch group", 310, 0, null)]; } },
     cancelled: { label: "Cancelled, undo", cap: "A link was just cancelled: its row is an Undo line for 5 minutes.", make: function () { var a = [L(1, "For Mum", 140, 4, 2), L(2, "Neighbours", 9, 1, 7), L(3, "Work lunch group", 310, 0, null)]; a[1].cancelLeft = 252; return a; } }
   };
 
+  /* The invite's state as the sender sees it. An unclaimed invite on an ended link has ended with it. */
+  function inv(l) { if (!l.inv) return null; if (l.inv.s === "claimed" || l.inv.s === "withdrawn") return l.inv.s; return l.hours < 0 ? "ended" : "unclaimed"; }
+  function held(l) { var v = inv(l); return v === "claimed" || (v === "unclaimed" && !(l.cancelLeft > 0) && !l.gone); } // counts against the allowance
+  function left(st) { return MAXINV - st.links.filter(held).length; }
   function kind(l) { return l.hours < 0 ? "expired" : l.hours < SOON_H ? "soon" : "live"; }
   function plural(n, w) { return n + " " + w + (n === 1 ? "" : "s"); }
   function ago(h) { // hours ago, in the words a person says
@@ -58,17 +68,23 @@
   /* ---- rows ---- */
   function row(l, st) {
     var k = kind(l), editing = st.editing === l.id, name = esc(l.name);
-    if (l.cancelLeft > 0) return '<li class="rs-undo" role="status" data-id="' + l.id + '">' + ic("undo") + '<span class="t"><b>' + (l.removed ? "Removed from view" : "Link cancelled") + '</b><small>' + (l.removed ? "“" + name + "” is out of this list." : "“" + name + "” no longer opens.") + ' Undo for <span data-left="' + l.id + '">' + mmss(l.cancelLeft) + '</span>, then it stays ' + (l.removed ? "removed" : "cancelled") + '</small></span><button type="button" class="rs-mini" data-act="undo" data-id="' + l.id + '">Undo</button></li>';
+    if (l.cancelLeft > 0) return '<li class="rs-undo" role="status" data-id="' + l.id + '">' + ic("undo") + '<span class="t"><b>' + (l.removed ? "Removed from view" : "Link cancelled") + '</b><small>' + (l.removed ? "“" + name + "” is out of this list." : "“" + name + "” no longer opens." + (inv(l) === "unclaimed" ? " Its invite is withdrawn and back with you." : inv(l) === "claimed" ? " Its invite stays claimed." : "")) + ' Undo for <span data-left="' + l.id + '">' + mmss(l.cancelLeft) + '</span>, then it stays ' + (l.removed ? "removed" : "cancelled") + '</small></span><button type="button" class="rs-mini" data-act="undo" data-id="' + l.id + '">Undo</button></li>';
     if (l.gone) return "";
     var top = editing
       ? '<form class="rs-edit" data-act="save" data-id="' + l.id + '"><input name="n" value="' + name + '" maxlength="40" aria-label="Link name" autocomplete="off"><button type="submit" class="rs-save">' + ic("check") + 'Save</button><button type="button" class="rs-keep" data-act="keep" aria-label="Keep the old name">Keep</button></form>'
       : '<button type="button" class="rs-name" data-act="rename" data-id="' + l.id + '" aria-label="Rename ' + name + '"><span>' + name + '</span>' + ic("pencil") + '</button>' +
         (k === "expired" ? '<span class="rs-left" title="Ended ' + when(l) + '">' + ic("clock") + 'Ended ' + ago(-l.hours) + '</span>' : '<span class="rs-left" title="Ends ' + when(l) + '">' + ic("clock") + leftText(l.hours) + '</span>');
-    var stats = l.opens === 0 ? "Not opened yet" : plural(l.opens, "open") + " · last " + ago(l.last);
+    var stats = (l.ver ? '<span class="rs-ver">' + esc(l.ver) + "</span>" : "") + (l.opens === 0 ? "Not opened yet" : plural(l.opens, "open") + " · last " + ago(l.last));
+    var v = inv(l), iv = "";
+    if (v) {
+      var IT = { unclaimed: "Invite waiting. The first person to open the link can claim it.", claimed: "Invite claimed " + (l.inv.d || "") + ". A new household started from it.", ended: "Invite ended with the link.", withdrawn: "Invite withdrawn." };
+      var short = { unclaimed: "Invite waiting", claimed: "Invite claimed " + (l.inv.d || ""), ended: "Invite ended with the link", withdrawn: "Invite withdrawn" };
+      iv = '<div class="rs-inv" data-inv="' + v + '" title="' + IT[v] + '">' + ic("ticket") + '<span>' + short[v] + "</span>" + (v === "unclaimed" ? '<button type="button" class="rs-act rs-quiet" data-act="withdraw" data-id="' + l.id + '" aria-label="Withdraw the invite on ' + name + '">Withdraw</button>' : "") + "</div>";
+    }
     var acts = k === "expired"
       ? '<button type="button" class="rs-act" data-act="renew" data-id="' + l.id + '" aria-label="Renew ' + name + '">' + ic("renew") + 'Renew</button><button type="button" class="rs-act rs-quiet rs-end" data-act="remove" data-id="' + l.id + '" aria-label="Remove ' + name + ' from view">' + ic("eyeoff") + 'Remove from view</button>'
       : '<button type="button" class="rs-act" data-act="copy" data-id="' + l.id + '" aria-label="Copy link ' + name + '">' + ic("copy") + 'Copy link</button><button type="button" class="rs-act rs-end" data-act="cancel" data-id="' + l.id + '" aria-label="Cancel link ' + name + '">Cancel link</button>';
-    return '<li class="rs-row" data-kind="' + k + '" data-id="' + l.id + '"><div class="rs-top">' + top + '</div><div class="rs-stats">' + stats + '</div><div class="rs-acts">' + acts + '</div></li>';
+    return '<li class="rs-row" data-kind="' + k + '" data-id="' + l.id + '"><div class="rs-top">' + top + '</div><div class="rs-stats">' + stats + "</div>" + iv + '<div class="rs-acts">' + acts + '</div></li>';
   }
   function shown(st) { return st.links.filter(function (l) { return !l.gone || l.cancelLeft > 0; }); }
   function counts(st) {
@@ -84,7 +100,10 @@
   function empty() {
     return '<div class="rs-empty">' + ic("link") + '<b>Not shared with anyone yet</b><p>Links you make with Share show up here, with who opened them.</p></div>';
   }
-  function help() { return '<p class="rs-help">Anyone with a link can open this recipe, no sign-in. Each link ends by itself.</p>'; }
+  function help(st) {
+    var n = st ? left(st) : MAXINV;
+    return '<p class="rs-help">Anyone with a link can open this recipe, no sign-in. Each link ends by itself.</p><p class="rs-allow" data-allow="' + n + '">' + ic("ticket") + "<b>" + n + " of " + MAXINV + " invites left</b><span>Cancel a link and its unused invite comes back.</span></p>";
+  }
 
   /* ---- a frame: one drawing of the recipe page with its own copy of the sample state ---- */
   var frames = [], tick = 0;
@@ -115,7 +134,12 @@
     else if (a === "cancel") { l.cancelLeft = UNDO_S; l.removed = false; f.st.editing = null; render(f); }
     else if (a === "remove") { l.cancelLeft = UNDO_S; l.removed = true; render(f); }
     else if (a === "undo") { l.cancelLeft = 0; l.removed = false; render(f); }
-    else if (a === "renew") { l.hours = RENEW_H; say(f, "Renewed for 7 days. The same link works again."); }
+    else if (a === "withdraw") { l.inv.s = "withdrawn"; render(f); say(f, "Invite withdrawn. It is back in your allowance. The link still opens the recipe."); }
+    else if (a === "renew") {
+      var had = inv(l) === "ended"; l.hours = RENEW_H;
+      if (had && left(f.st) < 0) { l.inv.s = "withdrawn"; say(f, "Renewed for 7 days. No invite left to bring back, so the link opens the recipe only."); }
+      else say(f, had ? "Renewed for 7 days. The invite is waiting again." : "Renewed for 7 days. The same link works again.");
+    }
     else if (a === "new") say(f, "Making a link is the create sheet (another slice).");
   });
   document.addEventListener("submit", function (e) {
@@ -163,14 +187,14 @@
   function toast(st) { return st.toast ? '<div class="rs-toast" role="status">' + esc(st.toast) + "</div>" : ""; }
   function sectionA(st) { // option A's section
     var c = counts(st);
-    return '<section class="rs-sec" id="shared" aria-labelledby="shared-h"><div class="rs-sec-h"><h4 id="shared-h">Shared</h4><span>' + (c.live ? plural(c.live, "link") + " out" : "none out") + "</span></div>" + help() + list(st) + "</section>";
+    return '<section class="rs-sec" id="shared" aria-labelledby="shared-h"><div class="rs-sec-h"><h4 id="shared-h">Shared</h4><span>' + (c.live ? plural(c.live, "link") + " out" : "none out") + "</span></div>" + help(st) + list(st) + "</section>";
   }
   function cardC(st) {
     var c = counts(st), x = shown(st).length, ended = c.listed - c.live;
     var sub = (c.live ? plural(c.live, "link") + " out" : "None out") + (ended ? " · " + ended + " ended" : "");
-    return '<section class="rs-card" data-open="' + st.open + '" aria-label="Shared outside the household"><button type="button" data-toggle="open" aria-expanded="' + st.open + '">' + ic("link") + '<span class="t"><b>Shared outside the household</b><small>' + sub + "</small>" + (c.soon ? '<small class="hot">' + c.soon + " ends within a day</small>" : "") + "</span>" + ic("chev", "rs-chev") + "</button>" + (st.open ? '<div class="rs-card-b">' + help() + list(st) + "</div>" : "") + "</section>";
+    return '<section class="rs-card" data-open="' + st.open + '" aria-label="Shared outside the household"><button type="button" data-toggle="open" aria-expanded="' + st.open + '">' + ic("link") + '<span class="t"><b>Shared outside the household</b><small>' + sub + "</small>" + (c.soon ? '<small class="hot">' + c.soon + " ends within a day</small>" : "") + "</span>" + ic("chev", "rs-chev") + "</button>" + (st.open ? '<div class="rs-card-b">' + help(st) + list(st) + "</div>" : "") + "</section>";
   }
-  function panelBody(st) { return (shown(st).length ? help() + list(st) : empty()); }
+  function panelBody(st) { return (shown(st).length ? help(st) + list(st) : empty()); }
   function panelHead(title) { return '<div class="rs-panel-h"><h4>' + title + '</h4><button type="button" class="rs-new" data-act="new">' + ic("plus") + 'New link</button><button type="button" class="rs-iconbtn" data-toggle="open" aria-label="Close shared links">' + ic("close") + "</button></div>"; }
 
   window.RS = { bar: bar, shareBtn: shareBtn, chips: chips, jumps: jumps, stub: stub, toast: toast, sectionA: sectionA, cardC: cardC, panelBody: panelBody, panelHead: panelHead, ic: ic, esc: esc, STATES: STATES, row: row, list: list, empty: empty, help: help, counts: counts, shown: shown, mount: mount, render: render, forms: {}, SOON_H: SOON_H, leftText: leftText };

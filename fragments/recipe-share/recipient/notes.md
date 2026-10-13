@@ -55,3 +55,46 @@ Default path: one HTML page, `rs.css`, `rs.js`, the shared theme file. Text and 
 - Link lifetime and the 24-hour notice threshold depend on what the create sheet offers; the notice reads the time left, whatever it is.
 - Does Save keep the shared version only, or the whole family? Assumed the shared version only.
 - Tracking: how the owner will know the invitation works (clicks on Try Kitchie by option). Nothing is measured in the mockup, and any measuring must not be a cookie banner problem on a no-sign-in page.
+
+## Update 13 October 2026: a link that carries an invite
+
+### Owner's words (voice and typed, 13 October 2026)
+
+- A share link can optionally carry an invite (the sender opts in on the create sheet). An invite is single-purpose: if the link is passed around, only the first person to activate it claims the invite. It sets up a new household and never joins an existing one. Sending invites respects the member's maximum-invites limit.
+- The create sheet is option C (usual version by default), so the link may show the usual or a chosen version; the recipient page shows whichever the link points at, as before.
+- Ask: the claim experience, four states, and the claim-then-set-up-household stub screens in one compact flow.
+
+### What changed
+
+- New states in `page.html` (`s=` parameter): `invite`, `claimed`, `memberinvite`, `withdrawn`. `flow=1|2|3` with `s=invite` freezes a screen of the claim flow. Placement is always option A, the recommended one (the card after the last note); the invite states ignore `opt=`. Phone and desktop.
+- **1. First person, invite unclaimed:** the recipe reads as before. After the last note a card with a solid accent edge (the growth card has a dashed one): ticket icon, "Start your own household", "Whoever sent you this recipe included an invite. Set up a Kitchie household of your own: it takes a minute and it is yours, not theirs.", a button "Start my household" and the text link "I have an account". Nothing above it changes; no bar, no banner.
+- **2. Invite already claimed by someone else:** the recipe opens, no claim card, the normal "Liked it? Keep it in Kitchie." invitation stays, with one line inside it: "The invite that came with this link has already been used."
+- **3. Signed in with a household:** they cannot claim. The card is the usual Save to my recipes, plus one line: "This link also came with an invite to start a new household. You already have one, so the invite stays unused." The invite is not spent, so someone else can still claim it.
+- **4. Invite withdrawn, link still live:** same as state 2 with the line "The invite that came with this link is no longer available." **Link expired or cancelled:** unchanged ("This link has run out"); the invite goes with the link, nothing is said about it.
+- **Claim flow (compact, in place, three screens):** 1 Create your account (one email field, "Create my account", the line "Once you continue, the invite is yours and nobody else can use it."), 2 Name your household (one field, a default name, "Create household"), 3 Done ("The Naidoo kitchen is ready", two ticks, Open my kitchen). A "Back to the recipe" button on step 1 restores the page.
+- Everything earlier still works: the three invitation options, signed in, no Recipes, expiring, expired, cancelled, loading, preview.
+
+### Proposed decisions (unnumbered; the owner was silent)
+
+- **Proposal:** the claim card is quiet by placement, not by hiding: it sits where the growth card sits, after the recipe, and replaces it for the first person (one invitation at a time, never two cards). Its solid edge and ticket icon make it read as "this one is for you".
+- **Proposal:** wording is "Start your own household" / "Start my household" / "I have an account". The card never says who sent it and never says how many invites the sender has left.
+- **Proposal:** the invite is claimed when step 1 is passed (the account exists), not when the page is opened and not on step 3. Opening the page claims nothing, so link-preview crawlers and people who just read cannot burn the invite. Once claimed, a second person who opens the link sees state 2 at once.
+- **Proposal:** the claimed and withdrawn lines differ ("already been used" and "no longer available"), and neither names anyone. The claimed line is the one the owner asked for.
+- **Proposal:** a signed-in viewer is told about the invite in one line rather than left to wonder why there is no claim card; the invite stays unspent.
+- **Proposal:** the flow replaces the recipe in place and is a separate file (`claim.js`, `claim.css`) fetched only on tap, so the page for everyone who does not claim loads nothing extra (DESIGN.md sections 6 and 6a).
+- **Proposal:** the new household starts empty except for this recipe as the person's own copy (drawn on the Done screen). Open question below.
+- **Proposal:** the stub asks for an email only, so a real sign-up replaces step 1 with whatever Kitchie uses (platform's decision); the mockup does not decide credentials.
+
+### Open questions (and what a wrong guess costs)
+
+1. What can an already-signed-in person without a household do? Drawn: nothing special (treated as state 3, Save to my recipes). If such an account exists, it could claim without a new sign-up. Cost: a fifth state.
+2. What does the new household start with? Drawn: empty, plus the shared recipe. Does it get Recipes only, or Pantry and Plan too? Cost of a wrong guess: the Done screen's second tick and the first-run experience.
+3. Is the shared recipe copied into the new household (drawn) or only viewable through the link? Copying matches the signed-in Save (their own copy). Cost: the Done line, and the recipe page's version rule (shared version only, as in Save).
+4. If someone starts the claim and stops after step 1 (account made, no household named), what happens? Drawn: the invite is theirs and they land on step 2 next time. Cost: if the invite were released after a time, a sender's allowance could return and a second person claim it.
+5. Should a person who already has an account but is signed out ("I have an account") be told, after signing in, that the invite cannot be used? Drawn: they sign in and see state 3.
+6. Does the page tell a first-time visitor how many people can use the invite? Drawn: no, "yours, not theirs" only.
+7. If the sender cancels the link after someone has begun claiming, does the claim finish? Drawn: yes, a claimed invite stays claimed.
+
+### Default path and deferred (DESIGN.md sections 6 and 6a)
+
+Default path unchanged plus a few lines in `rs.js` and `rs.css` for the card and note. Deferred: `claim.js` and `claim.css`, fetched only when "Start my household" is tapped (or `flow=` is in the address); not loaded for any other state or for anyone who does not claim. The flow's three screens swap the page's content in place; "Back to the recipe" restores it and refetches nothing but the photos.
