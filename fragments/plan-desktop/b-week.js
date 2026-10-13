@@ -67,7 +67,7 @@ function headTools(){var s=S(),off=u.offline(),ro=u.weekRo()||off;
  var o=planClear(false),none=!o.meals&&!o.marks&&!o.usual,
  cl=flipOn("clear")?chip("clear","hdr:clear","clear week","clear")
   :'<button class="ib" data-act="clearwk" aria-label="Clear week: remove this week\'s planned meals from today on" data-tip="Clear week from today on (Shift C)" data-fk="hdr:clear"'+((ro||none)?" disabled":"")+'>'+BI.ERASE+'</button>';
- return cp+cl}
+ return '<span class="wktop">'+cp+cl+'</span>'}
 
 /* ---------- week indicators (phone 165, 169 to 171, 181, 191, 192, 215d): "5 of 7 nights", the moon count, the open-padlock count; the two counts jump ---------- */
 function counts(){var s=S(),v=s.view,pv=person(),who=pv?v:ME,n=0,nc=[],op=[];
@@ -107,7 +107,7 @@ function fillBtns(e,cls){var n=e.days.length;
 function fillCard(){var e=emptyWeek();if(!e.on||fillMode()!=="card")return "";var ro=u.offline();
  return '<section class="wkfill" aria-label="Plan the whole week">'+sm(BI.CALW,22)
   +'<div class="wf"><b>Nothing planned this week</b><small>'+plural(e.days.length,"open night")+": "+e.days.join(", ")+". "+skipText(e)+'</small></div>'
-  +'<span class="ctas">'+fillBtns(e)+(ro?"":'<button class="mini quiet" data-act="copy" data-fk="wk:copy" data-tip="Copy last week (C): fills open nights only, never overwrites">'+sm(u.I.copy,15)+'Copy last week</button>')+'</span></section>'}
+  +'<span class="ctas">'+fillBtns(e)+(ro?"":'<button class="mini quiet wktop" data-act="copy" data-fk="wk:copy" data-tip="Copy last week (C): fills open nights only, never overwrites">'+sm(u.I.copy,15)+'Copy last week</button>')+'</span></section>'}
 function fillBar(){var e=emptyWeek();if(!e.on||fillMode()!=="header")return "";return '<span class="wkfillbar" role="group" aria-label="Plan the whole week">'+fillBtns(e)+'</span>'}
 function fillGutter(){var e=emptyWeek();if(!e.on||fillMode()!=="gutter")return "";
  return '<section class="sumsec wkfill gut" aria-label="Plan the whole week"><div class="wf"><b>Plan the whole week</b><small>'+plural(e.days.length,"open night")+". "+skipText(e)+'</small></div><span class="ctas">'+fillBtns(e)+'</span></section>'}

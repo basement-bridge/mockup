@@ -519,3 +519,17 @@ html,body{overflow-x:hidden}.phone,.body{overflow-x:hidden}.rscroll,.twoRow{over
 .wantbox{position:relative}.wantbox.hasunit .field{padding-right:78px}
 .wunit{position:absolute;right:8px;top:50%;transform:translateY(-50%);display:inline-flex;align-items:center;gap:4px;min-height:32px;padding:0 10px;border-radius:var(--r-pill);background:transparent;border:1px solid var(--border);color:var(--muted);font-size:13px;font-weight:600}
 .wunit .wx{font-size:15px;line-height:1;opacity:.8}.wunit:hover,.wunit:focus-visible{color:var(--fg);border-color:var(--muted)}
+
+/* Make admin and Remove admin on a Household member row (SW-85): the confirm is a <details> under the row, so it needs no script in the build. */
+.mm{flex-wrap:wrap}
+.adm{flex:0 0 auto}
+.adm>summary{list-style:none;display:inline-flex;align-items:center;min-height:44px;padding:0 8px;font-size:14px;font-weight:600;cursor:pointer;background:none;border:0}
+.adm>summary::-webkit-details-marker{display:none}
+.adm>summary.link{color:var(--accent)}
+.adm>summary.danger{color:var(--danger)}
+.adm>summary .c,.adm[open]>summary .o{display:none}
+.adm[open]>summary .c{display:inline}
+.adm[open]{flex:0 0 100%}
+.adm[open]>summary{justify-content:flex-end;width:100%}
+.admbox{display:flex;flex-direction:column;gap:8px;padding:12px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface)}
+.admbox p{margin:0}

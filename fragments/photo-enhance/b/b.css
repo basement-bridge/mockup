@@ -1,0 +1,85 @@
+/* Option B: the dedicated Enhance step. Loaded after recipe/recipe.css and recipe-photos/photos.css (sheet, .btn, .mini, .aim, .shrink, .prog, .pundo, .cstage, .cframe come from there).
+   Theme tokens only. Class names meant to be lifted into Kitchie: .epick .eprev .ec .etag .eprep .ehold .elv .ewhat .egood .enote .pqpill. */
+
+/* just picked */
+.epick{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:var(--sp-3) var(--sp-4) 0}
+.epick>button,.epick>label{position:relative;aspect-ratio:1;border-radius:var(--r-ctl);overflow:hidden;border:1px solid var(--border);padding:0;display:flex;align-items:flex-end;background:var(--surface);cursor:pointer}
+.epick img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.epick .flaw{position:relative;z-index:1;width:100%;font-size:10.5px;font-weight:700;padding:12px 6px 4px;color:var(--fg);background:linear-gradient(transparent,var(--bg));text-align:left}
+.epick .own{border-style:dashed;background:none;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--muted);font-size:12px;font-weight:700;text-align:center}
+.epick .own .ic{color:var(--accent)}
+.epick input[type=file]{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer}
+.epick>*:has(input:focus-visible){outline:3px solid var(--accent);outline-offset:2px}
+.local{display:flex;align-items:center;gap:6px;margin:var(--sp-3) var(--sp-4) 0;font-size:12.5px;color:var(--muted)}
+.local .ic{color:var(--accent)}
+.kinds{display:flex;gap:4px;flex-wrap:wrap;padding:var(--sp-2) var(--sp-4) 0}
+.kinds button{min-height:44px;padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);font-weight:700;font-size:13px}
+.kinds button[aria-pressed=true]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+
+/* the preview: sized before any byte arrives, original underneath, canvases on top */
+.eprev{position:relative;margin:var(--sp-3) var(--sp-4) 0;border-radius:var(--r-card);overflow:hidden;border:1px solid var(--border);background:var(--surface);max-height:44dvh;aspect-ratio:var(--ar,4/3);width:calc(100% - 2*var(--sp-4));touch-action:pan-y;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.eprev .eimg,.eprev .ec{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;pointer-events:none}
+.eprev .ec{opacity:0}
+.eprev .ec.in{opacity:1}
+.eprev #eorig{z-index:3;opacity:0}
+.eprev.holding .ec,.eprev.latched .ec{opacity:0}
+.eprev.holding #eorig.in,.eprev.latched #eorig.in{opacity:1}
+.etag{position:absolute;left:var(--sp-2);top:var(--sp-2);z-index:5;display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:var(--r-pill);background:var(--bg);color:var(--fg);border:1px solid var(--border);font-size:12px;font-weight:800}
+.eprev.holding .etag,.eprev.latched .etag{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.eprep{position:absolute;right:var(--sp-2);top:var(--sp-2);z-index:5;display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:var(--r-pill);background:var(--bg);color:var(--muted);border:1px solid var(--border);font-size:12px;font-weight:700}
+.eprep[hidden]{display:none}
+.eprep i{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:epulse 1.1s ease-in-out infinite}
+@keyframes epulse{50%{opacity:.25}}
+@media (prefers-reduced-motion:reduce){.eprep i{animation:none}.prog i{transition:none}.indet i{animation:none!important;width:100%!important;opacity:.5}}
+
+/* press and hold */
+.ehrow{display:flex;gap:var(--sp-2);margin:var(--sp-3) var(--sp-4) 0}
+.ehold{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--surface);font-weight:800;font-size:14px;color:var(--fg);touch-action:none;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+.ehold[aria-pressed=true],.ehold.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.ehrow .ib[aria-pressed=true]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+
+/* levels */
+.elv{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:var(--sp-3) var(--sp-4) 0;padding:3px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface)}
+.elv button{min-height:44px;border-radius:var(--r-pill);font-weight:700;font-size:13px;text-align:center;color:var(--fg)}
+.elv button[aria-checked=true]{background:var(--accent);color:var(--on-accent)}
+.elv button:disabled{opacity:.45}
+
+/* what changed */
+.ewhat{margin:var(--sp-3) var(--sp-4) 0;border-top:1px solid var(--border)}
+.ewhat summary{display:flex;align-items:center;gap:var(--sp-2);min-height:48px;cursor:pointer;font-weight:700;font-size:14px;list-style:none}
+.ewhat summary::-webkit-details-marker{display:none}
+.ewhat summary .ic{color:var(--accent)}
+.ewhat summary .n{margin-left:auto;font-size:12px;color:var(--muted);font-weight:700}
+.ewhat summary .chev{transition:transform .15s;color:var(--muted)}
+.ewhat[open] summary .chev{transform:rotate(90deg)}
+.ewhat ul{list-style:none;margin:0 0 var(--sp-2);padding:0}
+.ewhat li{display:flex;align-items:center;gap:var(--sp-2);min-height:36px;font-size:13.5px}
+.ewhat li .ic{color:var(--muted)}
+.ewhat li span{color:var(--muted)}
+.ewhat li b{color:var(--fg)}
+.ewhat .scale{font-size:12px;color:var(--muted);margin:0 0 var(--sp-2)}
+
+.egood,.enote{display:flex;gap:var(--sp-2);align-items:flex-start;margin:var(--sp-3) var(--sp-4) 0;padding:var(--sp-2) var(--sp-3);border-radius:var(--r-ctl);border:1px dashed var(--accent);font-size:13px;color:var(--fg)}
+.egood .ic,.enote .ic{color:var(--accent);margin-top:1px}
+.egood[hidden],.enote[hidden]{display:none}
+.efoot{margin:var(--sp-2) var(--sp-4) var(--sp-4);font-size:12px;color:var(--muted);display:flex;gap:6px;align-items:flex-start}
+.efoot .ic{margin-top:1px}
+.act .btn.ghost{flex:none;min-width:96px}
+
+/* making it, and the hand-off */
+.indet{height:6px;border-radius:3px;background:var(--border);overflow:hidden;margin-top:var(--sp-2);position:relative}
+.indet i{position:absolute;top:0;bottom:0;width:35%;background:var(--accent);border-radius:3px;animation:eslide 1.1s ease-in-out infinite}
+@keyframes eslide{from{left:-35%}to{left:100%}}
+.eout{margin:var(--sp-3) var(--sp-4) 0;display:grid;gap:var(--sp-1);font-size:13px;color:var(--muted)}
+.eout b{color:var(--fg)}
+.eout .row{display:flex;gap:var(--sp-2);align-items:flex-start}
+.eout .ic{color:var(--accent);margin-top:1px}
+.eframe{margin:var(--sp-3) var(--sp-4) 0;border-radius:var(--r-card);overflow:hidden;border:1px solid var(--border);background:var(--surface)}
+.eframe img,.eframe canvas{display:block;width:100%;max-height:34dvh;object-fit:contain}
+.sqs{display:inline-block;width:48px;height:48px;border-radius:var(--r-ctl);overflow:hidden;border:1px solid var(--border);vertical-align:middle}
+.sqs img{width:100%;height:100%;display:block;object-fit:cover}
+
+/* the existing queue's status chip on a photo frame (photo-queue.css .pf>.pq), same wording as photo-queue.js: Waiting, Uploading n%, Done */
+.eframe{position:relative}
+.eframe .pq{position:absolute;left:var(--sp-2);bottom:var(--sp-2);z-index:2;padding:3px 8px;border-radius:999px;font-size:11.5px;font-weight:800;color:var(--fg);background:var(--surface);border:1px solid var(--border)}
+.eframe[hidden]{display:none}

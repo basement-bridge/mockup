@@ -1,0 +1,99 @@
+/* Option C, Enhance on the Add / Replace photo screen: AUTO-ON. Theme tokens only (theme.css); no raw colours.
+   Loaded AFTER recipe/recipe.css and recipe-photos/photos.css, which supply .phone .top .body .act .btn .aim .frame .prog .shrink .pf .pq-like pieces.
+   Class names starting pe- are the new ones the build lifts into recipes-edit-photo.css (prefixed .rtab there). */
+
+/* the preview: the whole picture, contained in a 4:3 stage. Two canvases are stacked (original, enhanced); showing one or the other is a visibility flip, so hold-to-compare is instant. */
+.pe-stage{position:relative;margin:var(--sp-3) var(--sp-4) 0;border-radius:var(--r-card);overflow:hidden;border:1px solid var(--border);background:var(--surface);aspect-ratio:4/3;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.pe-cv,.pe-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;pointer-events:none}
+.pe-cv[hidden],.pe-img[hidden],.pe-pill[hidden],.pe-line[hidden],.pe-notes[hidden],.pe-menu[hidden]{display:none}
+/* the whole photo is the hold target: touch-action pan-y lets the page still scroll with a vertical drag (that cancels the hold), pointer capture keeps the release */
+.pe-hold{position:absolute;inset:0;z-index:1;width:100%;height:100%;touch-action:pan-y;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;cursor:pointer;border-radius:inherit}
+.pe-hold:focus-visible{outline:3px solid var(--accent);outline-offset:-3px}
+.pe-wait{position:absolute;inset:auto 0 0 0;z-index:2;text-align:center;font-size:12.5px;font-weight:700;color:var(--muted);padding:6px;pointer-events:none}
+
+/* the pill: [toggle][levels]. One pill, top left of the photo, state in words. */
+.pe-pill{position:absolute;left:var(--sp-2);top:var(--sp-2);z-index:3;display:flex;align-items:stretch;border-radius:var(--r-pill);background:var(--surface);color:var(--fg);border:1px solid var(--border);overflow:hidden;max-width:calc(100% - 2 * var(--sp-2))}
+.pe-pill[data-view=enhanced]{border-color:var(--accent)}
+.pe-pill button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;min-width:44px;padding:0 12px;font-size:13px;font-weight:800;color:inherit;white-space:nowrap}
+.pe-pill [data-pe-toggle] .ic{color:var(--accent);width:18px;height:18px}
+.pe-pill [data-pe-toggle][aria-pressed=false] .ic{color:var(--muted)}
+.pe-pill [data-pe-levels]{padding:0;border-left:1px solid var(--border)}
+.pe-pill [data-pe-levels] .ic{width:16px;height:16px;transform:rotate(90deg)}
+.pe-pill [data-pe-levels][aria-expanded=true] .ic{transform:rotate(-90deg)}
+.pe-pill [disabled]{cursor:default}
+.pe-pill[data-view=busy] [data-pe-toggle]{color:var(--muted)}
+.pe-pill[data-view=busy] [data-pe-toggle] .ic{animation:pe-pulse 1.1s ease-in-out infinite}
+@keyframes pe-pulse{50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.pe-pill[data-view=busy] [data-pe-toggle] .ic{animation:none}}
+/* while the original is held it says so, in the same spot */
+.pe-stage[data-shown=o] .pe-pill{border-style:dashed;border-color:var(--fg)}
+
+/* levels, tucked behind the pill */
+.pe-menu{position:absolute;left:var(--sp-2);top:calc(var(--sp-2) + 48px);z-index:4;min-width:200px;max-width:calc(100% - 2 * var(--sp-2));background:var(--surface);color:var(--fg);border:1px solid var(--border);border-radius:var(--r-card);padding:var(--sp-1);box-shadow:0 10px 28px rgba(0,0,0,.28)}
+.pe-menu[hidden]{display:none}
+.pe-menu h4{margin:0;padding:var(--sp-2) var(--sp-3) 2px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.pe-menu button{display:flex;align-items:center;gap:var(--sp-3);width:100%;min-height:44px;padding:0 var(--sp-3);border-radius:var(--r-ctl);font-size:14px;font-weight:700;text-align:left}
+.pe-menu button small{margin-left:auto;color:var(--muted);font-size:12px;font-weight:600}
+.pe-menu button .ic{width:16px;height:16px;color:var(--accent);visibility:hidden;flex:none}
+.pe-menu button[aria-checked=true] .ic{visibility:visible}
+.pe-menu button[aria-checked=true]{color:var(--accent)}
+
+/* the line under the photo: what happened, and the one-tap way out */
+.pe-line{display:flex;align-items:center;gap:var(--sp-2);margin:var(--sp-2) var(--sp-4) 0;min-height:44px;font-size:13.5px}
+.pe-line>.ic{color:var(--accent);flex:none}
+.pe-line .t{flex:1;min-width:0;line-height:1.35}
+.pe-line .t small{display:block;color:var(--muted);font-size:12px}
+.pe-line .mini{min-height:44px;padding:0 14px;font-weight:800;color:var(--accent);border-color:var(--accent);flex:none}
+.pe-line[data-view=good]>.ic{color:var(--muted)}
+
+/* what changed: collapsed, plain words */
+.pe-notes{margin:0 var(--sp-4);border-top:1px solid var(--border)}
+.pe-notes summary{display:flex;align-items:center;gap:var(--sp-2);min-height:44px;cursor:pointer;font-size:13px;font-weight:700;color:var(--muted);list-style:none}
+.pe-notes summary::-webkit-details-marker{display:none}
+.pe-notes summary .ic{width:14px;height:14px;transition:transform .15s}
+.pe-notes[open] summary .ic{transform:rotate(90deg)}
+@media (prefers-reduced-motion:reduce){.pe-notes summary .ic{transition:none}}
+.pe-notes ul{list-style:none;margin:0 0 var(--sp-2);padding:0;font-size:13px}
+.pe-notes li{display:flex;justify-content:space-between;gap:var(--sp-3);padding:6px 0;border-top:1px dashed var(--border)}
+.pe-notes li:first-child{border-top:0}
+.pe-notes li span:last-child{color:var(--muted);text-align:right}
+.pe-hint{margin:0 var(--sp-4);font-size:12px;color:var(--muted);line-height:1.4}
+.pe-hint+.shrink,.pe-wrap .shrink{margin-left:var(--sp-4);margin-right:var(--sp-4)}
+
+/* confirm: the only moment anything is encoded */
+.pe-make{margin:var(--sp-3) var(--sp-4) 0;padding:var(--sp-3);border-radius:var(--r-card);border:1px solid var(--accent);background:var(--surface);font-size:13px}
+.pe-make b{display:block;font-size:14px}
+.pe-make small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.pe-make .prog i{width:40%}
+.pe-make .prog.ind i{animation:pe-ind 1.2s ease-in-out infinite alternate}
+@keyframes pe-ind{from{margin-left:0}to{margin-left:60%}}
+@media (prefers-reduced-motion:reduce){.pe-make .prog.ind i{animation:none;width:100%}}
+.pe-res{display:grid;grid-template-columns:1fr auto;gap:2px var(--sp-3);margin:var(--sp-3) var(--sp-4) 0;padding:var(--sp-3);border-radius:var(--r-card);border:1px solid var(--border);background:var(--surface);font-size:13px}
+.pe-res b{font-weight:800}.pe-res span{color:var(--muted);text-align:right}
+.pe-res .sq{display:flex;align-items:center;gap:var(--sp-2)}
+.pe-res canvas,.pe-res img.sqt{width:40px;height:40px;border-radius:var(--r-ctl);border:1px solid var(--border);display:block;object-fit:cover}
+.cerr{margin:var(--sp-3) var(--sp-4) 0;font-size:13px;line-height:1.4;color:var(--fg);border-left:3px solid var(--accent);padding-left:var(--sp-2)}
+.cerr[hidden]{display:none}
+
+/* the existing queue: tile chip (.pf>.pq) and floating pill (.pqpill), copied from Kitchie photo-queue.css, drawn inside the phone frame */
+.pf>.pq{position:absolute;left:4px;bottom:4px;z-index:2;max-width:calc(100% - 8px);padding:3px 8px;border-radius:999px;font-size:11.5px;font-weight:800;line-height:1.3;color:var(--fg);background:var(--surface);border:1px solid var(--border)}
+.pf>.pq[data-q=failed]{border-style:dashed;border-color:var(--fg)}
+.pqpill{position:absolute;z-index:12;left:50%;transform:translateX(-50%);bottom:84px;max-width:min(92%,28rem);display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:700;line-height:1.3;color:var(--fg);background:var(--surface);border:1px solid var(--border);box-shadow:0 4px 18px rgba(0,0,0,.18)}
+.pqpill[data-q=failed]{border-style:dashed;border-color:var(--fg)}
+.pqpill .pqt{min-width:0}
+.pe-keep{margin:var(--sp-3) var(--sp-4) 0;font-size:12.5px;color:var(--muted)}
+.pe-keep summary{min-height:44px;display:flex;align-items:center;cursor:pointer;font-weight:700;color:var(--fg)}
+.pe-keep p{margin:0 0 var(--sp-2);line-height:1.45}
+
+/* pick step: the phone's own picker, drawn */
+.pe-pick{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.pe-pick>button,.pe-pick>label{position:relative;aspect-ratio:1;border-radius:var(--r-ctl);overflow:hidden;border:1px solid var(--border);padding:0;display:block;cursor:pointer;background:var(--surface)}
+.pe-pick img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.pe-pick .addp{border-style:dashed;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--muted);font-size:12px;font-weight:700;text-align:center}
+.pe-pick .addp .ic{color:var(--accent)}
+.pe-pick .cap{position:absolute;left:0;right:0;bottom:0;z-index:2;font-size:10.5px;font-weight:700;padding:10px 6px 4px;color:var(--fg);background:linear-gradient(transparent,var(--bg));text-align:left}
+.pe-kinds{display:flex;gap:6px;flex-wrap:wrap;margin:var(--sp-2) 0}
+.pe-kinds button{min-height:44px;padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);font-size:13px;font-weight:700}
+.pe-kinds button[aria-pressed=true]{border-color:var(--accent);color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.mockp .pe-jump a{display:inline-block;min-height:32px;line-height:32px;margin-right:8px;text-decoration:underline}
+.pe-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}

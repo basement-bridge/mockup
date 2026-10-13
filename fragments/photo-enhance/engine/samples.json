@@ -1,0 +1,32 @@
+[
+  {
+    "file": "dark.jpg",
+    "label": "Dark and flat",
+    "flaw": "Under-exposed (about 1.4 stops) and low contrast"
+  },
+  {
+    "file": "warm.jpg",
+    "label": "Warm yellow cast",
+    "flaw": "Indoor light: red up, blue down"
+  },
+  {
+    "file": "blown.jpg",
+    "label": "Blown highlights",
+    "flaw": "Over-exposed; the plate and sky-bright background clip to white"
+  },
+  {
+    "file": "noisy.jpg",
+    "label": "Noisy low light",
+    "flaw": "Dim kitchen, high ISO: grain and colour speckle"
+  },
+  {
+    "file": "good.jpg",
+    "label": "Already good",
+    "flaw": "Nothing to fix; Enhance should say so"
+  },
+  {
+    "file": "large.jpg",
+    "label": "Large photo (4800 px)",
+    "flaw": "Big phone-camera sized photo, a bit dark and warm; tests the large-photo path"
+  }
+]

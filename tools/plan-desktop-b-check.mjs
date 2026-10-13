@@ -1,4 +1,4 @@
-// Behaviour check for Plan desktop option B, realigned with the phone Plan (14 Oct 2026, decisions 259 to 275; replan cleanup, detail order and reds 276 to 281; empty week, week tools, hold everything 282 to 286), headless Chromium.
+// Behaviour check for Plan desktop option B, realigned with the phone Plan (14 Oct 2026, decisions 259 to 275; replan cleanup, detail order and reds 276 to 281; empty week, week tools, hold everything 282 to 286; top copies only when the gutter is not seen 287), headless Chromium.
 // Usage:  python3 -m http.server 8123 &   then   node tools/plan-desktop-b-check.mjs      (BASE=... to point elsewhere)
 // Needs playwright or playwright-core on the module path (NODE_PATH=/opt/node22/lib/node_modules works in the agent sandbox).
 import { createRequire } from "module";
@@ -42,25 +42,25 @@ for (const [w, h] of [[1440, 900], [1280, 800]]) {
     await p.close(); }
   // F. header tools: Copy and Clear flip to an in-place Undo
   { const p = await open(ctx, "week=2026-10-19", errs);   // week 2 is empty
-    await p.locator('[data-fk="hdr:copy"]').click(); await sleep(300);
+    await p.locator(':is([data-fk="hdr:copy"],[data-fk="sum:copy"]):visible').click(); await sleep(300);
     ok(tag + " F: Copy last week fills empty nights", (await p.locator('.mcw').count()) === 4, await p.locator('.mcw').count());   // Mon to Thu; Friday is the usual day off
-    ok(tag + " F: Copy button flips to Undo chip in place", (await p.locator('[data-fk="hdr:copy"].flipundo').count()) === 1);
-    await p.locator('[data-fk="hdr:copy"].flipundo').click(); await sleep(250);
-    ok(tag + " F: Undo restores the empty week and the icon returns", (await p.locator('.mcw').count()) === 0 && (await p.locator('[data-fk="hdr:copy"]').count()) === 1);
+    ok(tag + " F: Copy button flips to Undo chip in place", (await p.locator(':is([data-fk="hdr:copy"],[data-fk="sum:copy"]):visible.flipundo').count()) === 1);
+    await p.locator(':is([data-fk="hdr:copy"],[data-fk="sum:copy"]):visible.flipundo').click(); await sleep(250);
+    ok(tag + " F: Undo restores the empty week and the icon returns", (await p.locator('.mcw').count()) === 0 && (await p.locator(':is([data-fk="hdr:copy"],[data-fk="sum:copy"]):visible').count()) === 1);
     await p.close(); }
   { const p = await open(ctx, "", errs);
     const before = await p.locator('.mcw').count();
-    await p.locator('[data-fk="hdr:clear"]').click(); await sleep(300);
+    await p.locator(':is([data-fk="hdr:clear"],[data-fk="sum:clear"]):visible').click(); await sleep(300);
     const t = await T(p);
     ok(tag + " G: Mine clears only individual meals and the one-off Not cooking", (await p.locator('.mcw').count()) === before - 1 && (await p.locator('.blocked.once').count()) === 0, [before, await p.locator('.mcw').count()]);
     ok(tag + " G: the note says what stays", /household meals? stay/.test(t) && /Usual days off stay/.test(t), t.slice(0, 80));
     ok(tag + " G: usual day off (Fri) is still there", (await p.locator('.blocked.usual').count()) === 1);
-    ok(tag + " G: Clear button flips to Undo", (await p.locator('[data-fk="hdr:clear"].flipundo').count()) === 1);
-    await p.locator('[data-fk="hdr:clear"].flipundo').click(); await sleep(250);
+    ok(tag + " G: Clear button flips to Undo", (await p.locator(':is([data-fk="hdr:clear"],[data-fk="sum:clear"]):visible.flipundo').count()) === 1);
+    await p.locator(':is([data-fk="hdr:clear"],[data-fk="sum:clear"]):visible.flipundo').click(); await sleep(250);
     ok(tag + " G: Undo brings everything back", (await p.locator('.mcw').count()) === before && (await p.locator('.blocked.once').count()) === 1);
     await p.locator('[data-view=all]').click(); await sleep(250);
     const b2 = await p.locator('.mcw').count();
-    await p.locator('[data-fk="hdr:clear"]').click(); await sleep(300);
+    await p.locator(':is([data-fk="hdr:clear"],[data-fk="sum:clear"]):visible').click(); await sleep(300);
     ok(tag + " G: Household clears the household meals and leaves personal ones", (await p.locator('.mcw').count()) < b2 && (await p.locator('.mcw').count()) >= 3, [b2, await p.locator('.mcw').count()]);
     await p.close(); }
   // H. bulk actions in the summary
@@ -276,6 +276,27 @@ for (const [w, h] of [[1440, 900], [1280, 800]]) {
     await p.close(); }
   { const p = await open(ctx, "state=past", errs);
     ok(tag + " V: last week (read only) draws no whole-week card and no Week actions", (await p.locator(".wkfill").count()) === 0 && (await p.locator('.wkacts').count()) === 0);
+    await p.close(); }
+  // W. top Copy last week and Clear week show ONLY when the gutter is not seen (owner, 14 Oct 2026, decision 287)
+  { const vis = (p, sel) => p.locator(sel).evaluateAll(es => es.filter(e => e.offsetParent !== null).length);
+    const top = p => vis(p, '[data-fk="hdr:copy"], [data-fk="hdr:clear"], .wkfill [data-fk="wk:copy"]');
+    const gut = p => vis(p, '[data-fk="sum:copy"], [data-fk="sum:clear"]');
+    let p = await open(ctx, "", errs);
+    ok(tag + " W: gutter seen (summary, nothing picked): top copies hidden, gutter has both", (await top(p)) === 0 && (await gut(p)) === 2, [await top(p), await gut(p)]);
+    await p.locator('[data-card]').first().click(); await sleep(250);
+    const three = w >= 1440;
+    ok(tag + " W: meal picked: " + (three ? "gutter still seen, top hidden" : "gutter tucked, top copies shown"), three ? (await top(p)) === 0 && (await gut(p)) === 2 : (await top(p)) === 2 && (await gut(p)) === 0, [await top(p), await gut(p)]);
+    if (!three) {
+      await p.locator('[data-fk="hdr:copy"]').click(); await sleep(250);
+      ok(tag + " W: tucked: the top Copy runs the same action (its toast)", /Copied last week|Nothing to fill/.test(await T(p)));
+      await p.locator('[data-act=sumpeek]').click(); await sleep(250);
+      ok(tag + " W: peeking the summary behind a meal: gutter seen, top hidden", (await top(p)) === 0 && (await gut(p)) === 2, [await top(p), await gut(p)]);
+    }
+    await p.close();
+    p = await open(ctx, "week=2026-10-19", errs);
+    ok(tag + " W: empty week (gutter carries no week actions): top Copy and Clear stay", (await vis(p, '[data-fk="hdr:copy"]')) === 1 && (await gut(p)) === 0);
+    await p.keyboard.press("c"); await sleep(250);
+    ok(tag + " W: key C copies either way", (await p.locator('.mcw').count()) === 4);
     await p.close(); }
   await ctx.close();
 }
