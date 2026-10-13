@@ -14,7 +14,7 @@
     cu: pick('cu', ['start', 'idle', 'off'], 'start'), od: pick('od', ['dash', 'text'], 'dash'), sw: pick('sw', ['tint', 'buttons'], 'tint'), ws: pick('ws', ['actions', 'bare', 'counts'], 'actions'), rs: pick('rs', ['all', 'both', 'any'], 'all'), cs: pick('cs', ['own', 'visible'], 'own'),
     today: 'd13', cur: P.did(q.get('day'), 'd13'), view: (q.get('who') === 'everyone' ? 'household' : q.get('who')) || 'mine', hl: null, sel: q.get('sel'), snap: q.get('snap') === 'full' ? 'full' : 'half', expand: q.get('expand') === '1',
     dday: q.get('dock') || null, pop: null, opts: false, ustk: [], pickMove: false, note: null, carry: null, pickd: null, revealed: null, xp: {}, cuShown: false, cuDone: {}, cmp: false,
-    meals: P.phoneMeals(), blocked: P.baseBlocked('d13'), bown: P.baseOwners()
+    meals: P.phoneMeals(), blocked: P.baseBlocked('d13'), bown: P.baseOwners(), bought: P.phoneBought(), extras: P.phoneExtras()
   };
   var TODAYN = 13, root = document.getElementById('root'), nid = 0;
   if (!S.meals.some(function (m) { return m.id === S.sel; })) S.sel = null; else if (!q.get('day')) S.cur = S.meals.filter(function (m) { return m.id === S.sel; })[0].day;
@@ -44,6 +44,46 @@
   function isRed(x) { return S.gr === 'hand' || !x[2]; }
   function dealt(m) { return !m.miss.some(isRed); }
   function dayDealt(d) { return on(d).every(dealt); }
+  /* ---------- the shopping list, as the cart sees it (owner, 14 Oct 2026: Replan also undoes that meal's own footprint) ----------
+     A line is derived, never stored: every ingredient a meal needs, is missing and was added for that meal (the third value of the miss row) puts the meal's own amount on the line for that ingredient.
+     Removing the meal takes exactly that amount off; a line nothing else needs goes. A bought item is in Pantry (S.bought), is not on the list, and a replan never touches it. Lines count my plan only, from today on. */
+  function parseQ(s) { var m = /^\s*(\d+\s*\/\s*\d+|\d+(?:\.\d+)?|\u00bd)?\s*(.*)$/.exec(String(s || '')), n = m[1], v = 0; if (n) { if (n === '\u00bd') v = .5; else if (n.indexOf('/') > -1) { var f = n.split('/'); v = f[0] / f[1]; } else v = +n; } return { v: v, u: m[2] }; }
+  function fmtV(v) { var w = Math.floor(v + 1e-9), f = v - w; if (f >= .25 && f < .75) return w ? w + '\u00bd' : '\u00bd'; return String(Math.round(v)); }
+  function fmtQ(v, u) { if (!v) return u || ''; return (u === 'g' || u === 'ml' ? Math.round(v / 5) * 5 : fmtV(v)) + (u ? ' ' + u : ''); }
+  function shopLines(skip) {
+    var map = {}, order = [];
+    S.meals.filter(function (m) { return !past(m.day) && P.match(m, 'mine') && !(skip && skip.indexOf(m.id) > -1); }).sort(function (a, b) { return di(a.day) - di(b.day); }).forEach(function (m) {
+      m.miss.forEach(function (x) { if (!x[2]) return; var q = parseQ(x[1]), l = map[x[0]]; if (!l) { l = map[x[0]] = { name: x[0], tot: 0, u: q.u, from: [] }; order.push(x[0]); } l.tot += q.v; l.from.push({ m: m, q: x[1] }); });
+    });
+    return order.map(function (n) { var l = map[n]; l.qty = fmtQ(l.tot, l.u); return l; });
+  }
+  function shopCount() { return shopLines().length + S.extras.length; }
+  /* what removing a meal does to the list, in words: lines reduced, lines taken off, bought items it left alone */
+  function cartNote(ms) {
+    var ids = ms.map(function (m) { return m.id; }), b = shopLines(), a = shopLines(ids), am = {}, parts = [], kept = [];
+    a.forEach(function (l) { am[l.name] = l; });
+    b.forEach(function (l) { var x = am[l.name]; if (!x) parts.push(esc(l.name) + (l.qty ? ' ' + esc(l.qty) : '') + ' taken off, nothing else needs it'); else if (x.tot < l.tot - 1e-9) parts.push(esc(l.name) + ' ' + esc(l.qty) + ' down to ' + esc(x.qty || 'less')); });
+    Object.keys(S.bought).forEach(function (i) { if (ids.some(function (id) { return (S.bought[i]['for'] || []).indexOf(id) > -1; })) kept.push(i); });
+    return (parts.length ? 'Shopping list: ' + parts.join('; ') + '.' : '') + (kept.length ? (parts.length ? ' ' : '') + 'Already bought, left alone: ' + esc(kept.join(', ')) + '.' : '');
+  }
+  function holdNote(ms) { var n = []; ms.forEach(function (m) { if (m.held) haveList(m).forEach(function (r) { n.push(r[0]); }); }); return n.length ? 'Hold released: ' + esc(n.join(', ')) + '.' : ''; }
+  function buyLine(name) {
+    var l = shopLines().filter(function (x) { return x.name === name; })[0]; if (!l) return;
+    var ids = l.from.map(function (f) { return f.m.id; });
+    mutate(function () {
+      S.meals.forEach(function (m) { if (ids.indexOf(m.id) < 0) return; var r = m.miss.filter(function (x) { return x[0] === name; })[0]; if (!r) return; m.miss = m.miss.filter(function (x) { return x[0] !== name; }); m.have.push([r[0], r[1]]); m.list = m.miss.filter(function (x) { return x[2]; }).length; });
+      S.bought[name] = { day: 'Sat 10 Oct', q: l.qty, 'for': ids };
+    }, 'Bought ' + esc(name) + (l.qty ? ' ' + esc(l.qty) : '') + '. It is in Pantry now, so every meal counts it as on hand. Replanning will not touch it', null, 'buy', null, 'Bought ' + esc(name));
+  }
+  function shopSheet() {
+    var L = shopLines(), B = Object.keys(S.bought), h = '<div class="scrim2" data-closea></div><div class="asheet shopsh" role="dialog" aria-label="Shopping list"><h2>Shopping list <span class="nbd">' + shopCount() + '</span></h2><p class="hint2">Stand-in for the Shopping tab in this mockup. Each line is what the meals behind it need. Replan takes only that meal\u2019s amount off; a line nothing needs any more goes. Bought items are in Pantry and are never touched.</p><ul class="shl">';
+    L.forEach(function (l) { h += '<li data-line="' + esc(l.name) + '"><span class="sn"><span class="ln"><b>' + esc(l.name) + '</b>' + (l.qty ? ' <i>' + esc(l.qty) + '</i>' : '') + '</span><small>' + l.from.map(function (f) { return esc(f.m.t) + ' (' + dName(f.m.day).split(' ')[0] + (f.q ? ', ' + esc(f.q) : '') + ')'; }).join(' \u00b7 ') + '</small></span><button class="bt" data-buy="' + esc(l.name) + '" aria-label="Mark ' + esc(l.name) + ' as bought">Bought</button></li>'; });
+    S.extras.forEach(function (x) { h += '<li data-line="' + esc(x.name) + '"><span class="sn"><span class="ln"><b>' + esc(x.name) + '</b> <i>' + esc(x.q) + '</i></span><small>Added by hand, no meal behind it</small></span></li>'; });
+    if (!L.length && !S.extras.length) h += '<li class="none">Nothing on the list.</li>';
+    h += '</ul>';
+    if (B.length) { h += '<p class="lbl">Bought, in Pantry</p><ul class="shl bought">'; B.forEach(function (n) { var b = S.bought[n]; h += '<li data-line="' + esc(n) + '"><span class="sn"><span class="ln"><b>' + esc(n) + '</b>' + (b.q ? ' <i>' + esc(b.q) + '</i>' : '') + '</span><small>Bought ' + esc(b.day) + '</small></span><span class="tk" aria-hidden="true">' + ic.check + '</span></li>'; }); h += '</ul>'; }
+    return h + '</div>';
+  }
   function unlisted(m) { return m.miss.filter(function (x) { return !x[2]; }); }
   function haveList(m) { return S.long === '1' ? m.have.concat(P.LONG) : m.have; }
 
@@ -109,10 +149,13 @@
     if (S.pc === 'drop') { var o = ''; for (var i = 1; i <= 8; i++) o += '<option value="' + i + '"' + (m.n === i ? ' selected' : '') + '>' + i + (i === 1 ? ' person' : ' people') + '</option>'; return '<div class="ppl"><span class="lbl">People</span><select class="pcs" data-pcsel aria-label="Number of people"' + (lockEdit(m) ? ' disabled' : '') + '>' + o + '</select></div>'; }
     return '<div class="ppl"><span class="lbl">People</span><button class="ib" data-n="-1" aria-label="Fewer people"' + (lockEdit(m) ? ' disabled' : '') + '>−</button><b>' + m.n + '</b><button class="ib" data-n="1" aria-label="More people"' + (lockEdit(m) ? ' disabled' : '') + '>+</button></div>';
   }
+  /* ORDER of the detail (owner, 14 Oct 2026: the same order on phone and desktop; this is the phone's, since 123, 124, 126 and 127 fixed most of it, and the desktop now follows it): 1 who and when with close, and the tile (the meal, who, the one status glyph, the ... menu with Open recipe);
+     2 where it comes from (made up, Surprise me); 3 Total time, then the meal's note; 4 a view-only or past line; 5 who is eating (People); 6 one ingredient list (missing first, red until it is on the list, then on hand with use-by);
+     7 the hold hint, only while held; 8 the footer, Hold N and Add N (past: Copy forward). Replan and Not cooking are not in the detail (126). */
   function detailBody(m) {
     var src = m.src === 'made' ? '<p class="srcl">' + ic.spark + ' <b>Made up by your AI</b> · not saved as a recipe</p>' : m.src === 'surprise' ? '<p class="srcl">' + ic.dice + ' <b>Surprise me</b> · ' + esc(m.why || '') + '</p>' : '';
     var lk = lockEdit(m);
-    return src + '<p class="tt">' + ic.clock + ' Total time <b>' + P.mins(m) + '</b></p>' + (m.note ? '<p class="nt">' + esc(m.note) + '</p>' : '') + (lk ? '<p class="nt ronote">' + (ro() ? ic.eye + ' ' + esc(voLab().charAt(0).toUpperCase() + voLab().slice(1)) : ic.cal + ' Past: read only. Swipe the card right, or use Copy forward, to bring it into a coming day.') + '</p>' : '') + pcount(m) + ingList(m, past(m.day));
+    return src + '<p class="tt">' + ic.clock + ' Total time <b>' + P.mins(m) + '</b></p>' + (m.note ? '<p class="nt">' + esc(m.note) + '</p>' : '') + (lk ? '<p class="nt ronote">' + (ro() ? ic.eye + ' ' + esc(voLab().charAt(0).toUpperCase() + voLab().slice(1)) : ic.cal + ' Past: read only. Swipe the card right, or use Copy forward, to bring it into a coming day.') + '</p>' : '') + pcount(m) + ingList(m, past(m.day)) + (m.held && !lk ? '<p class="nt holdhint">Replan or Not cooking also releases this hold.</p>' : '');
   }
   /* Decision 126 (owner-stated): the bottom of the detail is "Hold" plus the number and a cart "Add" plus the number, nothing else. Replan and Not cooking live in the ... menu and in dragging the tile out.
      The number is what the button will touch (on-hand items to hold, missing items not yet on the list), Proposal; it is not a second status count. No missing items to add: no Add.
@@ -287,6 +330,7 @@
     }
     if (S.pop) return '';
     var a = S.asheet; if (!a) return '';
+    if (a.k === 'shop') return shopSheet();
     var m2 = find(a.id), lock = ro(), pst = past(m2.day);
     /* Decision 127 (owner-stated): no gesture hints in brackets ("People know how to do it"), no key badges on the phone, Hold and Add missing live at the bottom of the detail now. */
     var items = '<button class="it" role="menuitem" data-act="recipe" data-id="' + m2.id + '">' + ic.book + 'Open recipe</button>';
@@ -295,8 +339,8 @@
     return '<div class="scrim2" data-closea></div><div class="asheet" role="menu" aria-label="Actions for ' + esc(m2.t) + '"><h2>' + esc(m2.t) + '</h2>' + items + '</div>';
   }
   function nav() {
-    var n = function (l, d, on) { return '<button class="nv' + (on ? ' on' : '') + '" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>' + l + '</button>'; };
-    return '<nav class="nav" aria-label="Kitchie">' + n('Home', '<path d="M4 11l8-7 8 7v9H4z"/>') + n('Pantry', '<rect x="6" y="3" width="12" height="18" rx="2"/><path d="M6 9h12"/>') + n('Plan', '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>', 1) + n('Recipes', '<path d="M6 14a4 4 0 1 1 2-7 4 4 0 0 1 8 0 4 4 0 1 1 2 7v5H6z"/>') + n('Shopping', '<circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.4 12h11l2-8H6"/>') + '</nav>';
+    var n = function (l, d, on, shop) { return '<button class="nv' + (on ? ' on' : '') + '"' + (shop ? ' data-shop aria-haspopup="dialog" aria-label="Shopping list, ' + shopCount() + ' lines"' : ' tabindex="-1"') + '>' + (shop ? '<i class="nb">' + shopCount() + '</i>' : '') + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>' + l + '</button>'; };
+    return '<nav class="nav" aria-label="Kitchie">' + n('Home', '<path d="M4 11l8-7 8 7v9H4z"/>') + n('Pantry', '<rect x="6" y="3" width="12" height="18" rx="2"/><path d="M6 9h12"/>') + n('Plan', '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>', 1) + n('Recipes', '<path d="M6 14a4 4 0 1 1 2-7 4 4 0 0 1 8 0 4 4 0 1 1 2 7v5H6z"/>') + n('Shopping', '<circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.4 12h11l2-8H6"/>', 0, 1) + '</nav>';
   }
   function carryBar() { if (!S.carry || S.carry.drag) return ''; var m = S.carry; return '<div class="carry" role="status"><span class="em">' + m.em + '</span><div><b>' + esc(m.t) + '</b><small>In hand. Tap a day to drop it here.</small></div><button data-cancelcarry>Cancel</button></div>'; }
   function optionsPanel() {
@@ -341,10 +385,10 @@
   /* ---------- notes and undo (no bottom snackbar: owner did not like it) ---------- */
   var noteT;
   function note(msg, o) { o = o || {}; S.note = { msg: msg, short: o.short, undo: !!o.undo, day: o.day, kind: o.kind || '', id: ++nid }; clearTimeout(noteT); var id = S.note.id; noteT = setTimeout(function () { if (S.note && S.note.id === id) { S.note = null; render(); } }, o.ms || UW); }
-  function snapshot() { return JSON.stringify({ m: S.meals, b: S.blocked, o: S.bown, sel: S.sel, dd: S.dday }); }
+  function snapshot() { return JSON.stringify({ m: S.meals, b: S.blocked, o: S.bown, bt: S.bought, sel: S.sel, dd: S.dday }); }
   function mutate(fn, msg, day, kind, pulse, short, ms) { var before = snapshot(); fn(); var ue = { k: kind || 'edit', s: before, at: Date.now(), msg: msg, short: short, day: day, ms: ms }; if (S.ux) { ue.wk = S.ux.wk; ue.lab = S.ux.lab; S.ux = null; } S.ustk.push(ue); setTimeout(function expire() { if (S.carry || td) return setTimeout(expire, 1000); pruneU(); render(); }, (ms || UW) + 50); S.pulse = pulse || (day ? [day] : null); note(msg, { undo: 1, day: day, kind: kind, short: short, ms: ms }); render(); if (day && S.lay === 'rib' && !S.sel) ensureVisible(day); if (S.pulse) setTimeout(function () { S.pulse = null; document.querySelectorAll('.pulse').forEach(function (e) { e.classList.remove('pulse'); }); }, 2600); }
   function ensureVisible(d) { var el = document.getElementById('d-' + d); if (!el) return; var r = el.getBoundingClientRect(), top = stkH() + 8; if (r.top < top || r.top > innerHeight - 220) { lockUntil = Date.now() + 700; window.scrollBy({ top: r.top - top - 4, behavior: 'smooth' }); } }
-  function doUndo() { var u = topU(); if (!u) return; S.ustk.pop(); var o = JSON.parse(u.s); S.meals = o.m; S.blocked = o.b; S.bown = o.o || {}; S.sel = o.sel; S.dday = o.dd || null; S.pulse = null; var nx = topU(); note('Undid ' + (ULAB[u.k] || 'change') + (nx ? '. Next undo: ' + ULAB[nx.k] : ''), { day: u.day }); render(); evalCurtain(); }
+  function doUndo() { var u = topU(); if (!u) return; S.ustk.pop(); var o = JSON.parse(u.s); S.meals = o.m; S.blocked = o.b; S.bown = o.o || {}; S.bought = o.bt || {}; S.sel = o.sel; S.dday = o.dd || null; S.pulse = null; var nx = topU(); note('Undid ' + (ULAB[u.k] || 'change') + (nx ? '. Next undo: ' + ULAB[nx.k] : ''), { day: u.day }); render(); evalCurtain(); }
   function nextId(b) { return b + '-' + (++nid); }
 
   function act(a, id) {
@@ -358,8 +402,9 @@
     if (a === 'list') { if (ro() || past(m.day)) return; var un = unlisted(m).length; if (!un) return; return mutate(function () { m.miss = m.miss.map(function (x) { return [x[0], x[1], 1]; }); m.list = m.miss.length; S.asheet = null; }, 'Added ' + un + (un === 1 ? ' item' : ' items') + ' to the shopping list', m.day); }
     if (ro() || past(m.day)) return;
     if (a === 'moveto') { S.asheet = null; S.pickd = id; S.pickMove = true; S.sel = null; return render(); }
-    var nm = esc(m.t), dn = info(m.day).dow;
-    mutate(function () { S.meals = S.meals.filter(function (x) { return x.id !== id; }); if (S.sel === id) S.sel = null; S.asheet = null; if (a === 'nocook') { setMark(m.day); S.revealed = m.day; } }, a === 'nocook' ? nm + ' removed. ' + dn + ' is Not cooking' : nm + ' removed. ' + dn + ' is an open night', m.day);
+    var nm = esc(m.t), dn = info(m.day).dow, rn = [holdNote([m]), cartNote([m])].filter(Boolean).join(' ');
+    /* owner, 14 Oct 2026: a hold never blocks anything, and replanning a held meal lets the hold go entirely (the held ingredients are released); Replan also takes the meal's own amounts off the shopping list while they are unbought */
+    mutate(function () { S.meals = S.meals.filter(function (x) { return x.id !== id; }); if (S.sel === id) S.sel = null; S.asheet = null; if (a === 'nocook') { setMark(m.day); S.revealed = m.day; } }, (a === 'nocook' ? nm + ' removed. ' + dn + ' is Not cooking' : nm + ' removed. ' + dn + ' is an open night') + (rn ? '. ' + rn : ''), m.day);
   }
   /* Decision 129 (owner: "for the first week, this is part of training the user. For a few days, you can kind of make it jiggle so that people know"): the instruction line is gone; the draggable tile wiggles once when
      the detail opens. RECOMMENDED rule (his wording was loose): the first 3 opens within 7 days of the first one, and never again after the first successful drag. Stored per browser (localStorage; if blocked it just
@@ -412,7 +457,7 @@
     var nm = r.rm.length, no = r.nc.length, bk = r.back.length, a = info(r.days[0]), b = info(r.days[r.days.length - 1]), scope = mine ? 'my plan' : 'household plan', ml = nm + (nm === 1 ? ' meal' : ' meals');
     /* 203 (Proposal): what stays because it belongs to the other scope is said quietly at the end. */
     var stay = r.keep ? ' ' + r.keep + (mine ? ' household ' : ' personal ') + (r.keep === 1 ? 'meal stays.' : 'meals stay.') : '';
-    var msg = 'Cleared ' + (nm ? ml + (no + bk ? ' and ' : '') : '') + (no + bk ? (no + bk) + ' Not cooking ' + (no + bk === 1 ? 'change' : 'changes') + ' (' + [no ? no + (no === 1 ? ' mark removed' : ' marks removed') : '', bk ? bk + (bk === 1 ? ' usual day' : ' usual days') + ' back to Not cooking' : ''].filter(Boolean).join(', ') + ')' : '') + ', ' + a.dow + ' ' + a.n + (r.days.length > 1 ? ' to ' + b.dow + ' ' + b.n : '') + ' (' + scope + '). Usual days off stay.' + stay;
+    var msg = 'Cleared ' + (nm ? ml + (no + bk ? ' and ' : '') : '') + (no + bk ? (no + bk) + ' Not cooking ' + (no + bk === 1 ? 'change' : 'changes') + ' (' + [no ? no + (no === 1 ? ' mark removed' : ' marks removed') : '', bk ? bk + (bk === 1 ? ' usual day' : ' usual days') + ' back to Not cooking' : ''].filter(Boolean).join(', ') + ')' : '') + ', ' + a.dow + ' ' + a.n + (r.days.length > 1 ? ' to ' + b.dow + ' ' + b.n : '') + ' (' + scope + '). Usual days off stay.' + stay + (function () { var g = S.meals.filter(function (x) { return r.rm.indexOf(x.id) > -1; }), c = [holdNote(g), cartNote(g)].filter(Boolean).join(' '); return c ? ' ' + c : ''; })();
     var short = (mine ? 'Mine' : 'Household') + ': cleared ' + (nm ? ml : '') + (nm && no + bk ? ' and ' : '') + (no + bk ? (no + bk) + (no + bk === 1 ? ' change' : ' changes') : '');
     S.ux = { lab: 'clear, ' + (mine ? 'mine' : 'household') };
     mutate(function () { S.meals = S.meals.filter(function (x) { return r.rm.indexOf(x.id) < 0; }); r.nc.forEach(function (d) { delete S.blocked[d]; delete S.bown[d]; }); r.back.forEach(function (d) { S.blocked[d] = 'usual'; delete S.bown[d]; }); if (S.sel && r.rm.indexOf(S.sel) > -1) S.sel = null; }, msg, r.days[0], 'clear', r.days, short);
@@ -729,6 +774,8 @@
     if (d.wkl !== undefined) { if (e.detail === 0) goToday(); return; }
     if (d.ecg !== undefined) return toggleEcg(t);
     if (d.opts !== undefined) { S.opts = !S.opts; return render(); }
+    if (d.shop !== undefined) { S.asheet = { k: 'shop' }; S.pop = null; return render(); }
+    if (d.buy !== undefined) { return buyLine(d.buy); }
     if (d.more) { S.asheet = { k: 'm', id: d.more }; return render(); }
     if (d.closea !== undefined) { S.asheet = null; S.pop = null; S.pickd = null; S.pickMove = false; return render(); }
     if (d.clearw !== undefined) return clearWeek();
@@ -778,7 +825,7 @@
     if (a && a.id === 'grab' && (k === 'ArrowUp' || k === 'ArrowDown')) { e.preventDefault(); return setSnap(k === 'ArrowUp' ? 'full' : 'half'); }
   });
   window.addEventListener('resize', function () { sizeStk(); placeMk(true); });
-  function resetDemo() { if (hand) { hand.remove(); hand = null; } td = null; cancelAnimationFrame(autoT); S.meals = P.phoneMeals(); S.blocked = P.baseBlocked('d13'); S.bown = P.baseOwners(); S.sel = null; S.dday = null; S.carry = null; S.note = null; S.pulse = null; S.ustk = []; S.pop = null; S.asheet = null; S.cmp = true; }
+  function resetDemo() { if (hand) { hand.remove(); hand = null; } td = null; cancelAnimationFrame(autoT); S.meals = P.phoneMeals(); S.blocked = P.baseBlocked('d13'); S.bown = P.baseOwners(); S.bought = P.phoneBought(); S.extras = P.phoneExtras(); S.sel = null; S.dday = null; S.carry = null; S.note = null; S.pulse = null; S.ustk = []; S.pop = null; S.asheet = null; S.cmp = true; }
   function showWeek(d) { S.sel = null; S.dday = null; S.carry = null; S.cur = d; S.cmp = true; render(false); var el = document.getElementById('d-' + d); if (el) window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - stkH() - 6); syncHead(); }
   window.__plan = { goToday: goToday, jumpTo: jumpTo, LABEL_HOLD_MS: LABEL_HOLD_MS, syncEcg: syncEcg, block: block, unblock: unblock, openDay: openDay, HOLD_MS: HOLD_MS, resetDemo: resetDemo, showWeek: showWeek, find: find, stkH: stkH, openDetail: openDetail, closeDetail: closeDetail, beginDrag: beginDrag, moveHand: moveHand, endHand: endHand, clearWeek: clearWeek, S: S, act: act, goDay: goDay, drop: drop, startCarry: startCarry, surprise: surprise, copyLast: copyLast, render: render, syncHead: syncHead, follow: follow };
 

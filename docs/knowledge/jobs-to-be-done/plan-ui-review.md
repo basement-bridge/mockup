@@ -1259,3 +1259,28 @@ Same default files, concatenated as served, `gzip -9`, KB = 1000 bytes: main (8d
 ## Verification done (14 Oct, open padlock)
 
 Headless Chromium, touch at 390 x 844 and 360 x 740, mouse at 1280 x 900, light and dark, reduced motion. Looked at the open day, the week header with the count, the light card, another person's plan and the drop target in both schemes at both widths. Serial runs: `plan-ui-header-check.mjs` 432 (the old dashed-box count check is now a padlock-and-numeral check), `plan-ui-open-day-check.mjs` 72 (new: padlock svg on the slot, no dashed border, 44 px or more, one per open night), `plan-ui-week-indicators-check.mjs` 204 (the count carries a currentColor line icon, no dashed box), `plan-ui-not-cooking-check.mjs` 251, `plan-ui-readonly-check.mjs` 605, `plan-ui-scope-check.mjs` 310, `plan-ui-household-check.mjs` 409, `plan-ui-routine-check.mjs` 169, `plan-ui-week-actions-check.mjs` 117, `plan-ui-week-release-check.mjs` 126. 119 pictures regenerated with `tools/plan-ui-shots.mjs`; one that differed only in JPEG bytes (`p-wk-12-390.jpg`) was reverted.
+
+
+# Nineteenth revision, 14 October 2026 (voice): Replan cleans the shopping list, a hold never blocks, one detail order, less red on the phone too (decisions 276 to 281)
+
+Owner (Arjan), by voice, 14 October 2026. **Owner, 14 Oct 2026** marks his decisions; **Proposal** marks the design agent's choices where he was silent. Cite as "Plan UI review 276" to "281". The same six decisions are recorded for desktop option B in [plan-desktop.md](plan-desktop.md) (section "Replan cleanup, one detail order, less red on both platforms"); the full wording is there, this is the phone's view. Kitchie is not modified.
+
+Mockup: [phone.html](../../../fragments/plan-ui-review/phone.html) (sample lines: curry roux for Wednesday's curry alone, lemon for both Thursday meals, chicken thighs bought, milk by hand; `data.js` `phoneMeals()`, `phoneBought()`, `phoneExtras()`). Screenshots: `docs/screenshots/plan-replan-cleanup-14oct/`. Check: `tools/plan-ui-replan-cleanup-check.mjs`.
+
+## Decisions
+
+276. **A hold never blocks; Replan releases it entirely (owner).** Confirms 207 and 213 and settles the "blocked hold" conflict of the desktop audit in favour of the phone. The Replan note names what was released ("Hold released: salmon, eggs, breadcrumbs."). Proposal: the detail shows "Replan or Not cooking also releases this hold." under the list while a meal is held (the same line as desktop).
+277. **Replan undoes the meal's own footprint on the shopping list while unbought (owner).** Only that meal's amount comes off a line; a line that reaches zero goes; a bought item (in Pantry) is never touched. Shown in the day note with Undo, e.g. "Tuna salad removed. Thu is an open night. Shopping list: lemon 3 down to 2.", "curry roux 1 block taken off, nothing else needs it", "Already bought, left alone: chicken thighs." Proposals: lines are derived from the meals' added flags (third value of a missing row) and their own quantities, for my plan from today on; Not cooking on a meal and Clear week do the same; the nav Shopping button opens a stand-in list (lines with the meals behind them, a Bought button, a Bought, in Pantry group) and carries a badge of the line count; Bought moves the line's items from missing to on hand on every meal behind it. Sample change: lemon is now on the list for Salmon patties and Tuna salad, so Tuna salad's circle is green. Open: hand-edited line amounts (not drawn).
+278. **Red only for urgent or blocking states, phone too (owner).** Changed from red: the swipe-left Replan reveal (now the accent), and, in the alternate `?st=` modes, the filled "use by today" chip and the "use first" text (now accent; `status.js` comment updated). Deliberately left red: the missing dot under a date and in the ribbon (121), the tile's circle (122), the missing ingredient name (123), the refused-drop outline, the alternate modes' missing markers. Desktop: see plan-desktop.md 278.
+279. **One detail order, shared with desktop (owner direction).** The phone's order stands (see plan-desktop.md 279 for the nine-step order and the reasons); the phone gained only the hold hint (276). Open: Open recipe stays in the ... menu (127) while desktop shows a link in the top block.
+280. **Plain grey is for past days only (owner clarified).** Desktop's accent Not cooking block stands (119); the phone look is not changed. Open (not asked): 156's text says the phone's Not cooking is the past-day grey; should it follow desktop? One token swap in `phone.css`.
+281. **Desktop does not fold Not cooking days (owner).** The phone's fold-away (178 to 182) is unchanged.
+
+## Supersession notes (14 Oct, replan cleanup)
+- **207 and 213:** confirmed by 276. **156:** not superseded; see 280. **132** (the shopping list is the single source of truth for counts): the nav badge and the stand-in list now show it.
+
+## What loads (DESIGN.md section 6), 14 Oct, replan cleanup
+Phone default files (`theme.css`, `phone.css`, `theme.js`, `data.js`, `status.js`, `phone.js`), concatenated, gzip -9, KB = 1000 bytes: main (a051384) 207.24 KB raw, 60.37 KB gzipped; this branch 217.28 KB, 63.41 KB (up 10.0 raw, 3.0 gzipped). The stand-in sheet is built only when Shopping is tapped; lines are derived on use.
+
+## Verification done (14 Oct, replan cleanup)
+Headless Chromium, touch at 390 and 360, mouse at 1280, light and dark. `plan-ui-replan-cleanup-check.mjs` 66 (new); serial runs of the other `plan-ui-*` checks all pass (header 432, open-day 72, not-cooking 251, readonly 605, routine 169, scope 310, household 409, week-actions 117, week-indicators 204, week-release 126). Running them in parallel makes the timing-based ones flaky; run them one at a time.

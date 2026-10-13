@@ -83,7 +83,7 @@ select{font:inherit}
 .und .l,.und .r{display:flex;align-items:center;gap:8px;height:100%;padding:0 18px;min-width:90px}
 .und .l{background:var(--muted);color:var(--on-accent)}
 .und .l.cf{background:var(--accent)}
-.und .r{background:var(--danger);color:var(--bg);justify-content:flex-end;margin-left:auto}
+.und .r{background:var(--accent);color:var(--on-accent);justify-content:flex-end;margin-left:auto} /* Replan is routine and one tap to undo, so it is not red (owner, 14 Oct 2026: red only for urgent or blocking) */
 .und svg{width:18px;height:18px}
 .und .l,.und .r{opacity:0}
 .sw.l .und .l,.sw.r .und .r{opacity:1}
@@ -140,7 +140,7 @@ select{font:inherit}
 
 /* bottom: the app nav (no floating assistant control: owner, 12 Oct 2026) */
 .nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:calc(64px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);display:grid;grid-template-columns:repeat(5,1fr);background:var(--surface);border-top:1px solid var(--border);z-index:11}
-.nv{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;font-weight:600;color:var(--muted)}
+.nv{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;font-weight:600;color:var(--muted)}
 .nv svg{width:24px;height:24px}
 .nv.on{color:var(--accent)}
 
@@ -310,7 +310,7 @@ select{font:inherit}
 .dd .lbl{padding:0 10px 4px}
 .dd input{width:calc(100% - 12px);margin:0 6px 6px;min-height:44px;border-radius:12px;border:1px solid var(--border);background:var(--bg);color:var(--fg);padding:0 12px;font:inherit}
 /* status options (104): urgency colours, badges, edge strip, progress */
-.tg.ub.hot{color:var(--on-accent);background:var(--danger);border-color:var(--danger);border-style:solid}
+.tg.ub.hot{color:var(--on-accent);background:var(--accent);border-color:var(--accent);border-style:solid} /* use-by today is soon, not blocking: accent, as the desktop (275) */
 .tg.ub.warm{color:var(--accent);border-color:var(--accent);border-style:solid}
 .tg.ub.calm{color:var(--muted);border-style:dashed;border-color:var(--border)}
 .quiet{grid-column:1/-1;font-size:12px;color:var(--muted)}
@@ -328,7 +328,7 @@ select{font:inherit}
 .bar{flex:1;height:6px;border-radius:3px;background:var(--border);overflow:hidden;min-width:40px}
 .bar i{display:block;height:100%;border-radius:3px;background:var(--sage)}.bar i.bad{background:var(--danger)}
 .pu{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--muted)}.pu svg{width:13px;height:13px}
-.pu.hot{color:var(--danger)}.pu.warm{color:var(--accent)}
+.pu.hot,.pu.warm{color:var(--accent)}
 .optfab{left:auto;right:8px;bottom:calc(64px + 84px)}
 .onote{font-size:12px;color:var(--muted);margin:0 0 8px}
 .optpanel{max-height:62vh;left:auto;right:8px;bottom:calc(64px + 130px)}
@@ -574,3 +574,18 @@ select{font:inherit}
 .od.vonly{cursor:default}
 /* 215: the padlock stays on the left (open night), the eye stays top right (view only): two glyphs, two places, two shapes */
 .dy .mo{position:absolute;top:2px;right:2px;font:700 8px var(--head);font-style:normal;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+
+/* Shopping list stand-in (owner, 14 Oct 2026: replan cleans the list) and the nav badge. Tokens only. */
+.nv .nb{position:absolute;top:6px;left:calc(50% + 6px);min-width:16px;padding:0 4px;border-radius:99px;background:var(--accent);color:var(--on-accent);font:700 10px/16px var(--body);font-style:normal;text-align:center}
+.shopsh{max-height:78vh;overflow:auto}
+.shopsh h2 .nbd{margin-left:6px;padding:0 7px;border-radius:99px;background:var(--accent);color:var(--on-accent);font:700 11px/18px var(--body);vertical-align:2px}
+.shopsh .hint2{margin:0 12px 6px;font-size:12px;color:var(--muted)}
+.shopsh .lbl{margin:10px 12px 0;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:800}
+.shl{list-style:none;margin:0 4px;padding:0}
+.shl li{display:flex;align-items:center;gap:10px;min-height:52px;padding:6px 8px;border-top:1px solid var(--border)}
+.shl .sn{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;font-size:16px}
+.shl .sn b{font-weight:700}.shl .sn i{font-style:normal;color:var(--muted);font-size:14px;margin-left:4px}
+.shl .sn small{font-size:12px;color:var(--muted)}
+.shl.bought .sn b{color:var(--muted);font-weight:600}
+.shl .tk{color:var(--sage);display:inline-flex}.shl .tk svg{width:18px;height:18px}
+.shl .bt{flex:none;min-height:44px;padding:0 16px;border-radius:99px;border:1px solid var(--border);background:var(--bg);color:var(--fg);font:600 14px var(--body)}
