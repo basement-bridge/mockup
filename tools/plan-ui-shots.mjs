@@ -1,4 +1,4 @@
-// Regenerates the Plan UI review phone screenshots for decisions 154 to 178 (13 Oct 2026) into fragments/plan-ui-review/img/.
+// Regenerates the Plan UI review phone screenshots for decisions 154 to 183 (13 Oct 2026) into fragments/plan-ui-review/img/.
 // Usage:  python3 -m http.server 8123 &   then   NODE_PATH=/opt/node22/lib/node_modules node tools/plan-ui-shots.mjs [--only=substring]
 // Dark theme (the default), headless Chromium, 390 x 844 and 360 x 740, JPEG. The ECG strip freezes the beat with the Web Animations API, so it is deterministic.
 import { createRequire } from "module";
@@ -17,6 +17,9 @@ for (const w of [390, 360]) {
   cases.push([`p-od-${w}`, "demo=open&frame=1&cap=0", w, 700], [`p-od-swipe-${w}`, "demo=open&frame=2&cap=0", w, 700], [`p-od-nc-${w}`, "demo=open&frame=3&cap=0", w, 700], [`p-od-detail-${w}`, "demo=open&frame=4&cap=0", w, 700], [`p-grid-${w}`, "", w, 900]);
 }
 cases.push(["p-od-text-390", "od=text&demo=open&frame=1&cap=0", 390, 700], ["p-st-plain-390", "", 390, 900], ["p-tear-detail-390", "demo=1&frame=4&cap=0", 390, 600], ["p-tear-all-390", "demo=agenda&frame=3&cap=0", 390, 600]);
+// 183: an open night opens the same light card as a Not cooking day (frames 5 and 6 of ?demo=open); p-swap-open-* and p-open-day-390 were the old big empty detail and are regenerated (dock=d19 is Mon 19, an open night)
+for (const w of [390, 360]) cases.push([`p-open-card-${w}`, "demo=open&frame=5&cap=0", w, 700], [`p-open-card-nc-${w}`, "demo=open&frame=6&cap=0", w, 700], [`p-swap-open-${w}`, "dock=d19", w, 700]);
+cases.push(["p-open-card-light-390", "demo=open&frame=5&cap=0", 390, 700, "light"], ["p-open-card-nc-light-390", "demo=open&frame=6&cap=0", 390, 700, "light"], ["p-open-day-390", "dock=d19", 390, 700]);
 cases.push(["p-wk-light-1-390", "demo=week&frame=1&cap=0", 390, 700, "light"], ["p-wk-light-5-390", "demo=week&frame=5&cap=0", 390, 700, "light"], ["p-wk-light-9-390", "demo=week&frame=9&cap=0", 390, 700, "light"]);
 cases.push(["p-nc-light-1-390", "demo=nc&frame=1&cap=0", 390, 1000, "light"], ["p-nc-light-5-390", "demo=nc&frame=5&cap=0", 390, 600, "light"], ["p-nc-light-4-390", "demo=nc&frame=4&cap=0", 390, 600, "light"]);
 const browser = await chromium.launch();

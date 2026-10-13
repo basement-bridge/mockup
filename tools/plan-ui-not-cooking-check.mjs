@@ -1,4 +1,4 @@
-// Behaviour check for Plan UI review 154 to 158 and 178 (13 Oct 2026 live test): light Not cooking panel, 3 s swipe undo, muted Not cooking colour,
+// Behaviour check for Plan UI review 154 to 158, 178 and 183 (13 Oct 2026 live test): light Not cooking panel, 3 s swipe undo, muted Not cooking colour,
 // ECG marker on the divider line (only where days are hidden, 178), tear on every drag (top and bottom only). Headless Chromium, touch and mouse.
 // Usage:  python3 -m http.server 8123 &   then   NODE_PATH=/opt/node22/lib/node_modules node tools/plan-ui-not-cooking-check.mjs
 import { createRequire } from "module";
@@ -127,6 +127,40 @@ for (const [w, h, touch] of [[390, 844, true], [360, 740, true], [1280, 900, fal
     await p.mouse.move(c.x + 200, c.y + 30, { steps: 8 }); e = await tearEdges(p); ok(`${tag} 158: a sideways mouse move never tears a side`, e && ["top", "bottom"].includes(e.edge), e);
     await p.mouse.up(); await sleep(300); await p.keyboard.press("Escape"); await p.close();
   }
+  // 183 an open night opens the SAME light card (owner-stated, 13 Oct 2026): Ask AI, Surprise me, Not cooking; no tongue, no empty sheet
+  { const p = await open(ctx, "", errs); const od = '.od[data-od-b="d21"]'; await p.locator(od).scrollIntoViewIfNeeded(); await tap(p, od); await sleep(400);
+    const lite = await S(p, "(() => { const e = document.getElementById('lite'); const r = e && e.querySelector('.lpiece').getBoundingClientRect(); return e ? { h: Math.round(r.height), t: [...e.querySelectorAll('.oa button')].map(b => b.textContent.trim()), line: e.querySelector('.lnote').textContent.trim(), x: !!e.querySelector('[data-close]'), head: e.querySelector('h2').textContent.trim() } : null; })()");
+    ok(`${tag} 183: tapping an open night shows the light card`, !!lite && lite.t.join("|") === "Ask AI|Surprise me|Not cooking" && lite.line === "Open night" && lite.x, lite);
+    ok(`${tag} 183: heading names the day`, !!lite && /Wed.*21 Oct/.test(lite.head), lite);
+    ok(`${tag} 183: small (under 200 px), the same size class as the Not cooking card`, lite && lite.h < 200, lite);
+    ok(`${tag} 183: no tongue, no sheet, no day piece, no footer, no full stack, no 'Nothing planned yet' text`, (await p.locator(".tongue, .spiece, .dpiece, .sfoot, .emptyb, .stackw:not(.lite)").count()) === 0 && !(await S(p, "document.body.textContent.includes('Nothing planned yet')")));
+    ok(`${tag} 183: the week stays visible under it`, (await p.locator("#plan .pw-day").count()) > 20 && (await p.locator("#rib").count()) === 1);
+    await sleep(2500); await S(p, "window.scrollBy(0, 30)"); await sleep(300); ok(`${tag} 183: stays open (no timer, small scroll)`, (await p.locator("#lite").count()) === 1);
+    await tap(p, '#lite [data-ask="d21"]'); await sleep(300);
+    ok(`${tag} 183: Ask AI keeps the card and says so inside it, once`, (await p.locator("#lite").count()) === 1 && (await p.locator("#lite .unote").count()) === 1 && (await p.locator("#d-d21 .unote").count()) === 0);
+    await tap(p, '#lite [data-block="d21"]'); await sleep(350);
+    ok(`${tag} 183: Not cooking from the card marks the night and swaps the card to the Not cooking version in place`, (await blocked(p, "d21")) && (await p.locator("#lite").count()) === 1 && (await p.locator("#lite .mko[data-unblock]").count()) === 1 && /Not cooking/.test(await p.locator("#lite .lnote").textContent()));
+    ok(`${tag} 183: with the in-place Undo, 14 s (not the 3 s of the swipe)`, (await p.locator("#lite [data-undo]").count()) === 1 && (await S(p, "window.__plan.S.ustk[window.__plan.S.ustk.length - 1].ms === undefined")));
+    await tap(p, "#lite [data-undo]"); await sleep(300);
+    ok(`${tag} 183: Undo brings the open night card back`, !(await blocked(p, "d21")) && (await p.locator("#lite .lnote").textContent()).trim() === "Open night" && (await p.locator("#lite [data-block]").count()) === 1);
+    await tap(p, '.dy[data-dy="d15"]'); await sleep(300); ok(`${tag} 183: ribbon to a meal day swaps to the full detail`, (await p.locator("#lite").count()) === 0 && (await p.locator(".stackw .spiece").count()) === 1);
+    await tap(p, '.dy[data-dy="d21"]'); await sleep(300); ok(`${tag} 183: ribbon back to the open night swaps to the card`, (await p.locator("#lite").count()) === 1 && (await p.locator(".spiece").count()) === 0);
+    await p.keyboard.press("Escape"); await sleep(250); ok(`${tag} 183: Esc closes it`, (await p.locator("#lite").count()) === 0);
+    await p.locator(od).scrollIntoViewIfNeeded(); await tap(p, od); await sleep(300); await tap(p, "#lite [data-close]"); await sleep(250); ok(`${tag} 183: the close button closes it`, (await p.locator("#lite").count()) === 0);
+    await p.locator(od).scrollIntoViewIfNeeded(); await tap(p, od); await sleep(300); await tap(p, '#lite [data-surprise="d21"]'); await sleep(400);
+    ok(`${tag} 183: Surprise me gives a real meal and its full detail`, (await S(p, "window.__plan.S.meals.some(m => m.day === 'd21' && m.src === 'surprise')")) && (await p.locator("#lite").count()) === 0 && (await p.locator(".stackw .spiece").count()) === 1);
+    ok(`${tag} 183: no sideways scroll`, await S(p, "document.documentElement.scrollWidth <= innerWidth")); await p.close(); }
+  // 183 keyboard: Enter opens the card from the dashed box, Tab reaches the buttons, Enter on Not cooking marks it
+  { const p = await open(ctx, "", errs); const od = '.od[data-od-b="d21"]'; await p.locator(od).scrollIntoViewIfNeeded(); await p.locator(od).focus(); await p.keyboard.press("Enter"); await sleep(350);
+    ok(`${tag} 183 keyboard: Enter on the open night opens the card`, (await p.locator("#lite").count()) === 1);
+    await p.locator('#lite [data-block="d21"]').focus(); await p.keyboard.press("Enter"); await sleep(350);
+    ok(`${tag} 183 keyboard: Enter on Not cooking marks the night, card swaps in place`, (await blocked(p, "d21")) && (await p.locator("#lite .mko[data-unblock]").count()) === 1);
+    await p.keyboard.press("Escape"); await sleep(250); ok(`${tag} 183 keyboard: Esc closes the swapped card`, (await p.locator("#lite").count()) === 0); await p.close(); }
+  // 183 ?lay=focus and the other detail variants
+  { const p = await open(ctx, "lay=focus&day=d21", errs); await p.locator('.od[data-od-b="d21"]').scrollIntoViewIfNeeded(); await tap(p, '.od[data-od-b="d21"]'); await sleep(350);
+    ok(`${tag} 183 ?lay=focus: the card is drawn in flow above the day, no big sheet`, (await p.locator("#lite.infl").count()) === 1 && (await p.locator(".spiece, .tongue").count()) === 0 && (await S(p, "document.documentElement.scrollWidth <= innerWidth"))); await p.close(); }
+  for (const dt of ["peek", "strip", "hide", "sheet"]) { const p = await open(ctx, "dt=" + dt, errs);
+    ok(`${tag} 183 ?dt=${dt}: no per-day card, the open night keeps its row with Ask AI and Surprise me (unchanged)`, (await p.locator("#lite").count()) === 0 && (await p.locator('[data-ask="d21"]').count()) >= 1 && (await p.locator('.od[data-od-b="d21"]').count()) === 0); await p.close(); }
   // reduced motion
   { const c2 = await browser.newContext(touch ? { viewport: { width: w, height: h }, hasTouch: true, isMobile: true, reducedMotion: "reduce" } : { viewport: { width: w, height: h }, reducedMotion: "reduce" }); const p = await open(c2, "", errs);
     ok(`${tag} 157 reduced motion: flat at once (no beat class, beat path invisible)`, (await p.locator(".ecg.beat").count()) === 0 && (await S(p, "parseFloat(getComputedStyle(document.querySelector('.ecg .bt')).opacity)")) === 0 && (await S(p, "getComputedStyle(document.querySelector('.ecg .bt')).animationName")) === "none");
