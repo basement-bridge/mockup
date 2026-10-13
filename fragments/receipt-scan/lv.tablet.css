@@ -1,0 +1,3 @@
+/* Receipt scan, live: tablet (600 to 1023px). The phone layout, centred and a little wider (DESIGN.md section 7). Loaded only on those widths. */
+.lv-rl{left:50%;right:auto;width:min(var(--content-max),100%);margin-left:calc(min(var(--content-max),100%) / -2);border-left:1px solid var(--border);border-right:1px solid var(--border)}
+.lv-rl .lv-paper{max-width:420px}
