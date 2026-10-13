@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Photo enhance, Option A (inside Crop and rotate)</title>
+<link rel="stylesheet" href="../../../theme.css"><link rel="stylesheet" href="../../../recipe/recipe.css"><link rel="stylesheet" href="../../../recipe-photos/photos.css"><link rel="stylesheet" href="a.css">
+<script src="../../../theme.js"></script></head>
+<body data-no-theme-fab>
+<!-- Option A: Enhance is a second tab INSIDE the existing Crop and rotate sheet. One sheet, crop and enhance together; enhance is applied to the cropped result.
+     Default path loads: this page, a.css, a.js. Nothing else. The engine (../engine/enhance.js) is injected the first time a person points at, focuses or taps the
+     Enhance tab, its Worker starts on open(), the sample list and sample photos load when the source sheet opens. See NOTES.md. -->
+<div class="aside" id="aside"></div>
+<div class="stage"><div class="phone" id="ph"></div></div>
+<script src="a.js"></script>
+</body></html>
