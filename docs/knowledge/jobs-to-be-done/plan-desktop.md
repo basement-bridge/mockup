@@ -133,3 +133,82 @@ Mockup: `fragments/plan-desktop/b.html?sel=wed-curry` (links for every state on 
 - Chat tools and the UI call the same service methods (`plan_remove_meal` Replan and release hold, `plan_block_day`, `plan_reserve`, `plan_add_missing_to_list`); Surprise me needs a service method (heuristics in 94) that does not exist yet.
 - Drop-in cue (156): CSS-only animation on `.mcw.dropped` plus a few lines in `b.js`. Default path adds no files, no images and no timers until a tile changes; the one timeout (1.5s) runs only while a cue shows. Deferred: nothing needed.
 - Default path: `theme.css`, `plan.css`, `b.css`, `plan.js`, `b.js` plus the matching size files; `b-three-1440.js` only at 1440 and up. No images.
+
+
+## Option B realigned with the phone Plan (14 October 2026, decisions 259 to 275)
+
+Owner, 14 Oct 2026, typed: "given the changes to mobile ... realign the web now based on the key decisions and overall desktop design language". Kept from desktop: agenda | detail | week at a glance, persistent right-hand icons, one status per tile, Pantry master-detail, desktop breakpoints, key shortcuts. Not copied: swipe, bottom sheet, long hold (translated per the touch-to-pointer table, or marked not applicable). Options A, C and D are untouched; every B-only behaviour sits behind `layout` flags and hooks in `plan.js` or in B's own files.
+
+### Carry-over audit (phone decisions 153 to 215)
+
+Counts: **14 carry over, 9 translate, 6 not applicable, 2 conflict** (31 rows).
+
+| # | Phone decision | Class | On desktop B |
+|---|---|---|---|
+| 1 | Who can act; another person's plan fully view only (190, 205, 206) | Carry over | Eye glyph, tiles dimmed, no icons, no Hold, Add or stepper, no week buttons (260) |
+| 2 | Blocked hold dropped (207, 213) | Carry over | Hold never shows a blocked state (261); open question 1 |
+| 3 | Household meals can name participants (208 to 211) | Carry over | `part` field; audience line says Household or the names; third member Priya (262) |
+| 4 | "Household" replaces "Everyone" (201) | Carry over | Tab, tiles, picker (262) |
+| 5 | Count buttons and labelled hold: Hold N, Add N, Release once held (126, 163, 174) | Carry over | Detail footer (268) |
+| 6 | One combined ingredient list, Total time, Open recipe real (123, 124, 127) | Carry over | Detail (268) |
+| 7 | Five weeks visible: last week and the next four (197, 200; owner confirmed) | Carry over | WMAX 3 (265) |
+| 8 | Open night is an open padlock, not a dashed box (215) | Carry over | Supersedes 92 and the dashed outline B drew (266) |
+| 9 | Open night offers only Ask AI and Surprise me, no Not cooking button (187 to 189) | Carry over | Shift X and the menu reach Not cooking (266) |
+| 10 | Week-level Add / Reserve / Release (159 to 161, 172 to 177) | Carry over | Summary buttons, in-place Undo (269) |
+| 11 | Week indicators: moon and padlock counts jump to the first night (169 to 171, 181, 191) | Carry over | `N of 7 nights`, moon and padlock counts (269) |
+| 12 | Meal lands first in its day (198) | Carry over | Move, Surprise me, proposal (269) |
+| 13 | Not cooking toast lasts 3 s (155) | Carry over | `ncMs` 3000 (267) |
+| 14 | Bulk buttons hidden when they do not apply (168) | Carry over | (269) |
+| 15 | Header icons Copy and Clear, one tidy row (194) | Translate | Icons with tooltips, no sheet (263) |
+| 16 | In-place Undo chip after a header or bulk action (214) | Translate | Button flips to Undo for 14 s or until the next change (263) |
+| 17 | Routine and usual days: Clear keeps them, wording (195, 196) | Translate | "Usual days off stay" (264) |
+| 18 | Clear week by scope (203) | Translate | Mine clears own meals, Household clears household meals, never the past or another's plan (264) |
+| 19 | Copy last week (99, 194) | Translate | Header icon; fills only empty future nights (263) |
+| 20 | Right swipe to Not cooking (148) | Translate | Right-click menu, B, Shift X (266) |
+| 21 | Light card opened from an open night or Not cooking day (154, 183 to 186) | Translate | Inline strip: Not cooking day gets Surprise me, Ask AI, Mark as open (267) |
+| 22 | Long hold on "Household" / "Week of" moves the list (193, 202) | Translate | T key and "This week" in the picker, today row pulses (270) |
+| 23 | Copy forward from a past meal (100 to 102, 190a) | Translate | Persistent icon on past tiles, menu of the coming 14 days (271) |
+| 24 | Tear on lift and drag (118, 142, 158) | Translate | Ghost and placeholder get torn top and bottom edges (271) |
+| 25 | ECG marker over hidden Not cooking days; opened days fold back (178 to 182) | Not applicable | B draws all 7 days of one week; nothing is hidden |
+| 26 | Grey lip, date ribbon, auto-scroll across weeks (128, 136 to 141, 146) | Not applicable | One week at a time |
+| 27 | `?ba=` switches, touch vanish bug (134, 135, 151 to 153) | Not applicable | Phone only |
+| 28 | Read-only meals can be held and added (204) | Not applicable | Withdrawn by 206 the same night |
+| 29 | Fragments (212), phone-width wrap (192) | Not applicable | No equivalent |
+| 30 | Plain red or green circle with no words (121, 122) | Conflict | Desktop 115, 116 (owner): "Missing feta", Missing vs On the list, headline priority. Kept desktop; open question 2 |
+| 31 | Not cooking in muted grey (156) | Conflict | Desktop 119 (owner): filled accent block with moon. Kept desktop; open question 3 |
+
+Judged not a conflict: 187 (no Not cooking button on an open night). The quiet Not cooking button was a design-agent Proposal in 119; the owner confirmed only Surprise me and Ask AI (118).
+
+### Decisions
+
+259. **Realign B with the phone Plan** (owner, 14 Oct 2026). The audit above; rows 1 to 24 applied, 25 to 29 not applicable, 30 and 31 left as they were.
+260. **Another person's plan is fully view only** (owner on phone 190, 205, 206; carried). In a person tab every tile is read-only even for household meals planned by Sam; eye glyph, dimmed to 0.8, no lock emoji; Add, Hold, cart, stepper, Copy and Clear are not drawn; the cart and bulk figures count only the viewer's own meals.
+261. **No blocked hold** (owner on phone 207, 213; carried). A held meal no longer shows a "blocked" state because another meal wants the same ingredient. Desktop's blocked hold came from plan-week-ai 33 (same person). Open question 1.
+262. **Household and participants** (owner on phone 201, 208 to 211; carried). Household meals can name who eats them (Salmon patties: Sam, Jane); the audience line reads Household or the names. Proposal: visibility of subset meals (Priya does not see Salmon patties); phone 210 is itself a Proposal.
+263. **Header: Copy last week and Clear week as icons, and an in-place Undo chip** (translated from 194, 214; owner on phone). After Copy, Clear, Add or Reserve the button flips to Undo for 14 s, or until something else changes. Proposal: the 14 s.
+264. **Clear week by scope** (translated from 195, 196, 203). Mine clears individual meals and one-off Not cooking nights; Household clears household meals. Usual days off stay. Never the past, never another person's plan. Undo.
+265. **Five weeks** (owner confirmed on phone, 200). Last week, this week, then three more (next week is where the page opens).
+266. **Open night is an open padlock with Ask AI and Surprise me** (owner on phone 187 to 189, 215; carried). Supersedes decision 92 and the dashed outline in 119; only past empty boxes stay dashed. Not cooking is reached by right-click, B or Shift X on the focused night (`aria-keyshortcuts`).
+267. **Not cooking day** (translated from 183 to 186). Stays the filled accent block with moon (119, owner). It now also offers Surprise me and Ask AI; Mark as open turns it back into an open night. Surprise me on it cooks the night and removes the block. The Not cooking toast lasts 3 s (155).
+268. **Detail, as the phone** (owner on phone 123, 124, 126, 127, 174). One ingredient list (missing first, then on hand), Total time once, Replan and Not cooking not repeated, footer Hold N and Add N with H and L badges, Release once held, Open recipe opens the recipe for the three sample meals. Desktop keeps its key badges.
+269. **Week-level actions and indicators** (owner on phone 159 to 161, 168 to 177, 181, 191, 198). Summary: Add N to the shopping list, Reserve N, Release N, each hidden when it does not apply. Under the week title: N of 7 nights, moon count, padlock count; each jumps to its first night and pulses it. A meal that lands in a day lands first.
+270. **Today** (translated from 193, 202). T key and "This week" in the week picker scroll to today and pulse it once.
+271. **Copy forward and the tear** (translated from 100 to 102, 190a, 118, 158). Past own tiles show one Copy forward icon that opens a menu of the coming 14 days (the original stays). A lifted tile tears its top edge when pulled down and bottom when pulled up; the place it left has the matching edge; reduced motion keeps a fixed tear.
+272. **The count is what is in the cart** (owner, 12 to 13 Oct 2026: "it's pretty much what's in the shopping cart"). Tally: Missing (nothing actioned), In the cart, Meals held. Zero missing reads "Nothing missing", never "0 to buy".
+273. **One palette for the glance column** (owner, 12 to 13 Oct 2026: the second palette felt jarring). Same tokens as the page, set apart by a border and a 3 px accent top rule. Decision 111 still stands (it reads as a different kind of thing). Proposal: the accent rule.
+274. **Ask AI visibly does something** (owner, 12 to 13 Oct 2026: "does nothing when clicked"). A click shows an inline note in the day (or the week slot) that it opens the default AI app and nothing happens inside Kitchie, for 9 s, with a live-region line; the button reads pressed. Proposal: the wording and 9 s. Supersedes the bottom toast.
+275. **Less red** (Proposal; owner: "too many reds"). Red now means only: Missing with nothing actioned (tile pill, red names in the detail list, the Missing figure when above 0), the offline sync pill and offline bar. Changed from red to the accent token: tile use-by line, the soon pill, summary use-by badges, "use by ... before Wed" text, drop hints and the soon chip. Summary numerals are neutral; only Missing is red. A missing item already on the list is not red (muted, tick).
+
+### Open questions (realign)
+
+1. Blocked hold (261): desktop's came from plan-week-ai 33. If it should stay on desktop, one flag brings it back (`noBlockedHold`). A wrong guess costs a real double-hold of the same ingredient with no warning.
+2. 121 and 122 vs 115 and 116: the phone draws a plain red or green circle; desktop says "Missing feta". Kept desktop. A wrong guess costs retiring the words from the tiles and the headline rules.
+3. 156 vs 119: phone Not cooking is muted grey; desktop is the accent block with moon. Kept desktop. Cost: one token swap in `b.css`.
+4. The only pointer route from an open night to Not cooking is now the right-click menu and keys (no button, 189). Is that discoverable enough? Cost: a quiet button back is one line.
+5. Should B fold Not cooking days away as the phone does (178 to 182)? B draws seven days, so not applied. Cost: a rework of the day stack.
+6. Subset-meal visibility (210) is only a Proposal on the phone; B follows it.
+7. Reds (275): which of the changed items does the owner want red again?
+
+### What loads (DESIGN.md section 6)
+
+Default path: `theme.css`, `plan.css`, `b.css`, `plan.js`, `b-week.js`, `b-detail.js`, `b-hand.js`, `b.js`, the matching size file; `b-three-1440.js` only at 1440 and up. No images. The Copy forward menu, the tear, the Ask AI note and the jump pulse are built only on use (event handlers, one 9 s timer while a note shows, a 14 s flip timer after an action). Deferred: nothing beyond what was already deferred. Check script: `tools/plan-desktop-b-check.mjs` (108 checks, headless).

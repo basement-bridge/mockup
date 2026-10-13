@@ -4,4 +4,4 @@
 .main{padding:24px 24px 48px}
 .app.three{grid-template-columns:88px minmax(0,var(--main-max)) var(--sum)}
 .app.three.has-detail{grid-template-columns:88px minmax(0,var(--main-max)) var(--lane) var(--sum)}
-.wst{display:none}
+
