@@ -29,7 +29,7 @@
 .mc .meta{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;white-space:normal;overflow:visible;color:var(--muted);font-size:12px}
 .mc .meta .av{width:20px;height:20px;font-size:11px;border-width:1px}
 .mc .meta>span:not(.av){display:inline-flex;align-items:center;gap:5px}
-.mc .ubi{display:inline-flex;align-items:center;gap:4px;color:var(--danger);font-weight:700}
+.mc .ubi{display:inline-flex;align-items:center;gap:4px;color:var(--accent);font-weight:700}
 .mc .ubi svg{flex:none}
 .mcw .ra.persist{opacity:1;pointer-events:auto;background:none;padding:0;right:10px;top:50%;bottom:auto;transform:translateY(-50%);gap:4px}
 .mcw .ra.persist .rb{width:38px;min-width:38px;height:38px;padding:0}
@@ -41,9 +41,17 @@
 .dragghost .stt,.dragghost .meta>span:not(.av){display:none}
 
 /* ---------- the four day states (decision 116) ---------- */
-.slot{min-height:56px;justify-content:space-between;flex-wrap:wrap;gap:8px 12px;padding:8px 10px 8px 14px;cursor:default}
+.slot{position:relative;min-height:56px;justify-content:space-between;flex-wrap:wrap;gap:8px 12px;padding:8px 10px 8px 14px;cursor:default}
 .slot:hover{border-color:var(--border)}
 .slot .ol{font-size:13px;font-weight:600;color:var(--muted)}
+/* an open night is an open padlock, not a dashed box (owner, phone 215; supersedes desktop 92 and the dashed outline B drew, 119); the past "Nothing was planned" keeps its dashed box (215h, not an open night) */
+.slot.open{border:1px solid transparent;background:none}
+.slot.open:hover{border-color:transparent}
+.slot.open .ol{display:inline-flex;align-items:center;gap:10px}
+.slot.open .ol svg{flex:none;color:var(--muted)}
+.slot.past{border:1px dashed var(--border)}
+.slot.vo,.blocked.vo{opacity:.8}
+.slot.vo{justify-content:flex-start}
 .slot .ctas{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
 .mini.cta{min-height:38px;padding:0 14px;background:var(--surface);font-size:13px}
 .mini.cta svg{flex:none}
@@ -52,10 +60,10 @@
 .mini.quiet:hover:not(:disabled){color:var(--fg);border-color:var(--border)}
 .slot.prop{border-style:solid;border-color:var(--accent);background:color-mix(in srgb,var(--accent) 6%,var(--surface));justify-content:flex-start}
 .slot.prop .e{font-size:24px}.slot.prop .pt{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 180px}.slot.prop .pt b{color:var(--fg);font-size:15px}.slot.prop .pt small{color:var(--muted);font-size:12px}
-.blocked{min-height:56px;padding:8px 12px;gap:12px}
+.blocked{position:relative;min-height:56px;padding:8px 12px;gap:8px 12px;flex-wrap:wrap}
+.blocked .ctas{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
 .blocked svg{width:22px;height:22px;flex:none}
 .blocked .bt{display:flex;flex-direction:column;gap:1px}.blocked .bt b{font-size:14px}.blocked .bt small{font-size:12px;color:var(--muted);font-weight:600}
-.blocked .bh{margin-left:auto;font-size:12px;font-weight:600;color:var(--muted)}
 .blocked.once{background:color-mix(in srgb,var(--accent) 22%,var(--surface));border-color:var(--accent);color:var(--fg)}
 .blocked.once svg{color:var(--accent)}
 .blocked.once .bt small{color:var(--fg);opacity:.8}
@@ -66,13 +74,13 @@
 
 /* ---------- right column: the detail is a drill-down panel, the summary is an overview (decision 109) ---------- */
 .panel.detail{background:var(--surface);border-left:1px solid var(--border)}
-.peekbar{display:flex;align-items:center;gap:8px;width:100%;min-height:40px;margin:0 0 16px;padding:0 10px 0 12px;border-radius:var(--r-ctl);border:1px dashed var(--border);background:color-mix(in srgb,var(--accent) 6%,var(--bg));font-weight:700;font-size:13px;color:var(--fg);text-align:left}
+.peekbar{display:flex;align-items:center;gap:8px;width:100%;min-height:40px;margin:0 0 16px;padding:0 10px 0 12px;border-radius:var(--r-ctl);border:1px solid var(--border);border-top:3px solid var(--accent);background:var(--bg);font-weight:700;font-size:13px;color:var(--fg);text-align:left}
 .peekbar:hover{border-color:var(--accent)}
 .peekbar svg{flex:none;color:var(--accent)}
 .peekbar>span:first-of-type{flex:1;min-width:0}
 .peekbar .n,.sumsec h3 .n{background:var(--accent);color:var(--on-accent);border-radius:99px;padding:0 6px;font-size:11px;line-height:1.5}
 .peekbar .chev{display:inline-flex;color:var(--muted)}
-.panel.sumcol{background:color-mix(in srgb,var(--accent) 6%,var(--bg));border-left:1px dashed var(--border);padding:22px 22px 28px}
+.panel.sumcol{background:var(--bg);border-left:1px solid var(--border);border-top:3px solid var(--accent);padding:19px 22px 28px}
 .sumcol .back{width:100%;justify-content:flex-start;margin-bottom:14px}
 .sumhead{display:flex;align-items:center;gap:10px;margin-bottom:14px}
 .sumhead h2{font-size:1.05rem}
@@ -84,7 +92,9 @@
 .tally .st:first-child{border-left:0;padding-left:0}
 .tally .st b{font:800 30px/1 var(--head);font-variant-numeric:tabular-nums}
 .tally .st span{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
-.tally .st.miss b{color:var(--danger)}.tally .st.also b{color:var(--accent)}.tally .st.held b{color:var(--sage)}
+.tally .st.miss:not(.zero) b{color:var(--danger)}
+.tally .st.zero b{font:700 14px/1.25 var(--body);color:var(--muted);align-self:flex-start;padding-top:2px}
+.tally.one{grid-template-columns:1fr}
 .tally .st.bump b{animation:bump .5s ease-out}
 @keyframes bump{30%{transform:scale(1.35)}}
 @media(prefers-reduced-motion:reduce){.tally .st.bump b{animation:none}}
@@ -95,11 +105,13 @@
 .dgh span{font-size:12px;color:var(--muted);font-weight:600}
 .sumcol .sumrow{min-height:40px;padding:2px 0 2px 2px}
 .sumcol .sumrow.listed .nm{color:var(--muted)}
+.sumcol .sub.soonish,.sub.soonish{color:var(--accent);font-weight:700}
 .sumcol .sumrow.listed .mini.cart{border-color:var(--accent);color:var(--accent)}
 .sumcol .sumrow.ub{align-items:flex-start;padding:8px 0}
 .sumcol .sumrow .mini.cart svg{width:16px;height:16px}
-.ubd{flex:none;min-width:58px;text-align:center;font-size:12px;font-weight:800;padding:2px 6px;border-radius:8px;border:1px dashed var(--danger);color:var(--danger);margin-top:1px}
+.ubd{flex:none;min-width:58px;text-align:center;font-size:12px;font-weight:800;padding:2px 6px;border-radius:8px;border:1px dashed var(--accent);color:var(--accent);margin-top:1px}
 .sumcol .sumcta{margin-top:10px}
+.bulk{display:flex;flex-direction:column;gap:8px;margin-top:12px}.bulk .btn{width:100%}.btn.held{border-color:var(--sage);color:var(--sage)}
 
 /* ---------- "just dropped in" (decision 156): the tile drops a few pixels into place and its card washes in the accent, then settles. Brief (1.5s), tokens only. Not on the ghost. b.js adds .dropped (and --age, so a re-render mid-cue does not restart it) and removes it after 1.5s. ---------- */
 @keyframes dropin{0%{transform:translateY(-14px);opacity:0}55%{transform:translateY(2px);opacity:1}100%{transform:none;opacity:1}}
@@ -109,3 +121,54 @@
 @media(prefers-reduced-motion:reduce){
  .mcw.dropped,.mcw.dropped .mc{animation:none}
  .mcw.dropped .mc{background:color-mix(in srgb,var(--accent) 22%,var(--surface));border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 40%,transparent)}}
+
+/* ---------- realigned with the phone Plan (14 Oct 2026, decisions 259 to 275) ---------- */
+/* view only is an eye in the line language, never an emoji or a padlock (phone 190); the tile is dimmed a little */
+.eye{position:absolute;top:8px;right:10px;display:inline-flex;color:var(--muted);pointer-events:none}
+.mcw.theirs{opacity:.85}
+.mcw.theirs .mc{padding-right:36px}
+.lockline.vo{gap:6px;padding:3px 10px 3px 8px;white-space:normal;line-height:1.35;border-radius:var(--r-ctl)}
+.lockline.vo svg{margin-top:1px}
+/* a past tile offers one thing, Copy forward */
+.mcw.cf{--acts:48px}
+.mcw.cf .mc{padding-right:60px}
+.mcw.cf .ra.persist{right:10px}
+/* the detail: Total time, one list, Hold N and Add N */
+.tt{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);margin:0 0 8px}
+.tt svg{flex:none}.tt b{color:var(--fg);margin-left:2px}
+.ings{margin-top:12px}
+.isep{border:0;border-top:1px solid var(--border);margin:6px 0}
+.ing.miss.listed .nm{color:var(--muted)}
+.ing .lm{display:inline-flex;color:var(--muted)}
+.ing .lm svg{width:16px;height:16px}
+.foot .btn.held{border-color:var(--sage);color:var(--sage)}
+/* in-place Undo chip: the button that did the work turns into Undo for 14 s (phone 194, 214: smaller chip, same accent) */
+.flipundo{display:inline-flex;align-items:center;gap:5px;min-height:34px;padding:0 11px 0 9px;border-radius:var(--r-pill);border:1px solid var(--accent);background:var(--accent);color:var(--on-accent);font-weight:700;font-size:12px;white-space:nowrap;flex:none}
+.flipundo svg{width:14px;height:14px}
+.flipundo span{display:flex;flex-direction:column;line-height:1.05;text-align:left}
+.flipundo b{font-size:12px}.flipundo small{font-size:9.5px;font-weight:700;opacity:.92}
+.flipundo.wide{width:100%;justify-content:center;min-height:40px;border-radius:var(--r-ctl)}
+.flipundo.wide span{flex-direction:row;gap:6px;align-items:baseline}.flipundo.wide small{font-size:12px}
+/* week indicators on the header row: nights, the moon count, the open-padlock count (phone 165, 169 to 171, 192, 215d) */
+.wki{display:flex;align-items:center;gap:4px;margin:0;flex:0 0 100%;flex-wrap:wrap;min-height:36px}
+.wkn{font-size:12px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums;margin-right:6px;white-space:nowrap}
+.wkc{display:inline-flex;align-items:center;gap:5px;min-height:36px;padding:0 10px;border-radius:var(--r-pill);border:1px solid transparent;background:none;color:var(--muted);font-weight:700;font-size:13px}
+.wkc b{color:var(--fg);font-variant-numeric:tabular-nums}
+.wkc:hover{border-color:var(--border);background:var(--surface)}
+@keyframes arpulse{0%,100%{box-shadow:inset 0 0 0 0 transparent}25%{box-shadow:inset 0 0 0 2px var(--accent)}}
+.arow.pulse{animation:arpulse 2.6s ease-out;border-radius:var(--r-ctl)}
+@media(prefers-reduced-motion:reduce){.arow.pulse{animation:none;box-shadow:inset 0 0 0 2px var(--accent)}}
+/* Ask AI says what it does, in place (the click used to do nothing visible) */
+.ainote{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--r-ctl);border:1px solid var(--accent);background:var(--surface);font-size:13px;color:var(--fg);animation:ainote .25s ease-out}
+.ainote svg{flex:none;color:var(--accent)}
+@keyframes ainote{from{opacity:0;transform:translateY(-4px)}}
+.cslot .ainote{margin:0}
+@media(prefers-reduced-motion:reduce){.ainote{animation:none}}
+/* the tear (phone 118, 158): ragged top or bottom edge, never a side */
+.mc.torn{clip-path:var(--tpl,none)}
+/* too many reds (owner, 12 to 13 Oct): red now means one thing, missing with nothing done about it, plus offline. Use-by and drop hints take the accent. */
+.tg.soon{border-color:var(--accent);color:var(--accent)}
+.sub.bad,.dh-hint.bad{color:var(--accent)}
+.chipb.soon{border-color:var(--accent);color:var(--accent)}
+.isep+.ing{border-top:0}
+.sumhead+.lockline{margin:-2px 0 14px}

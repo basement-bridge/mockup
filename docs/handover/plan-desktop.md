@@ -1,5 +1,7 @@
 # Plan on desktop: handover
 
+**Status update 14 October 2026: option B is realigned with the phone Plan (PR open, not merged, for the owner), decisions 259 to 275, section 13.** Options A, C and D are unchanged.
+
 **Status update 12 October 2026: the owner chose option B as the base and gave direction by voice; option B is refined in PR (open, not merged, for the owner), decisions 110 to 120 (see section 12).** Original status, frozen 10 October 2026: the mockup is drawn and merged. Nothing is built in the real app. Decisions 49 to 62 are proposals by the design agent and wait for the owner. This file is the one place to start; every other durable thing is linked from section 11.
 
 Style follows `docs/handover/desktop.md` (the Pantry and Home desktop handover). Read `AGENTS.md` and `DESIGN.md` in this repo first; the rules that bite are in sections 9 and 10.
@@ -140,3 +142,13 @@ Only after the owner picks an option and confirms decisions. This is a **proposa
 **Open questions:** fold ideas from A and C (for example a week strip) into B (not decided); Surprise me lock in or confirm first; headline priority (proposal); where three columns start and the 632 agenda width; moon (revisits 24) and dashed open night (revisits 92); Replan on a held meal wording. Full list in the job note.
 
 **Next steps:** owner reviews the PR and answers the open questions; settle them in the job note and this file; then slice a build for Kitchie `uat` as in section 8 (Surprise me needs a service method). Older sections 5 to 8 still describe A as the recommendation; decision 107 supersedes that for now.
+
+
+## 13. Realigned with the phone Plan (14 October 2026)
+
+- **Ask:** owner, typed, 14 Oct: "given the changes to mobile ... realign the web now based on the key decisions and overall desktop design language".
+- **What changed in B:** view-only other people with an eye; Household and participants (new member Priya); Copy and Clear icons with in-place Undo; Clear week by scope; five weeks; open night as an open padlock with Ask AI and Surprise me only (Shift X for Not cooking); Not cooking day offers Surprise me, Ask AI and Mark as open; detail with one list, Total time, Hold N and Add N, real Open recipe; week-level Add, Reserve, Release; moon and padlock counts that jump; T for today; Copy forward on past tiles; the tear on drag; "in the cart" wording and "Nothing missing"; one palette for the glance column; Ask AI leaves a visible note; fewer reds.
+- **Audit:** 14 carry over, 9 translate, 6 not applicable, 2 conflict; table in `docs/knowledge/jobs-to-be-done/plan-desktop.md`.
+- **Files:** new `b-week.js`, `b-detail.js`, `b-hand.js`; shared `plan.js` gained flags and hooks only; `tools/plan-desktop-b-check.mjs` runs 108 headless checks at 1440 and 1280.
+- **Open questions:** blocked hold, 121 and 122 vs 115 and 116, 156 vs 119, discoverability of Not cooking, folding Not cooking days, reds. Costs are in the knowledge note.
+- **Next steps:** owner reads the PR and answers the open questions; then the build copies the mockup's CSS and markup first.
