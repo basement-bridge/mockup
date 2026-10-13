@@ -68,6 +68,15 @@ For a mockup screen, say in its notes what the default path loads and what is de
 
 **Migration TODO (do not lose):** this section lives here only while the mockup is the working copy. When the mockup is migrated into the real repos, copy it into every repo's own design doc (platform, Kitchie, Recipe). Tracked in issue #34.
 
+## 6a. In place, not a refresh
+
+Owner direction, 13 October 2026 (voice): "as a design team, wherever possible, we're trying to do in-place loading of things rather than like refresh. It's more of a user experience thing."
+
+Where feasible, a change shows up where the person is looking: a panel, flyout or list is filled or swapped in place, and the page does not reload or navigate. A full navigation is the fallback for a failed read, never the first choice. Applies to every screen, not only the Home flyouts.
+
+- Mockups show the in-place version, and say in the fragment's notes what is fetched and where it lands.
+- Pairs with section 6: load on engagement, and put the result in place.
+
 ## 7. Form factors and responsive loading
 
 Owner decision, voice session, 8 October 2026. Extends section 6: the same "load only what this person needs now" rule, applied to screen size.
