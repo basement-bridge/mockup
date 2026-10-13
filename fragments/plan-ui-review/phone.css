@@ -374,10 +374,13 @@ select{font:inherit}
 .mc.lifted{opacity:.4;border-style:dashed}
 .pw-day.over{background:color-mix(in srgb,var(--accent) 18%,transparent);box-shadow:inset 0 0 0 2px var(--accent)}
 /* 109: Clear week, Undo that names its action, week actions menu */
-.flipundo.two{padding:0 12px 0 10px;gap:6px;min-height:44px}
+.flipundo.two{padding:0 9px 0 7px;gap:4px;min-height:30px;position:relative}
+.flipundo.two svg{width:13px;height:13px}
 .flipundo.two span{display:flex;flex-direction:column;line-height:1.05;text-align:left}
-.flipundo.two b{font-size:13px}
-.flipundo.two small{font-size:10px;font-weight:700;opacity:.92}
+.flipundo.two b{font-size:12px}
+.flipundo.two small{font-size:9.5px;font-weight:700;opacity:.92}
+/* Plan UI review 214 (owner-stated, 14 Oct 2026: the in-place Undo is too big/fat): the visible chip is 30 px high (was 44) in the same green; the 44 px touch target stays, as an invisible hit area around it. */
+.flipundo.two::before{content:"";position:absolute;left:0;right:0;top:50%;height:44px;min-width:44px;transform:translateY(-50%)}
 .cpy{align-items:center;gap:0}
 .hd small.fl{color:var(--accent)}
 .hd .cpy.pair .ib{width:38px}
