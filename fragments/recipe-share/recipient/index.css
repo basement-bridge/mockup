@@ -1,0 +1,21 @@
+/* Fragment page for the recipient side of recipe sharing. Tokens from theme.css, layout classes from shared.css; only the frames are new (ri-*). */
+.ri-lead{font-size:15px;margin:var(--sp-2) 0}
+.ri-box{border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface);padding:var(--sp-4);margin:var(--sp-4) 0}
+.ri-box ul{margin:var(--sp-2) 0 0;padding-left:1.1rem;color:var(--muted);font-size:14px}
+.ri-box li{margin:4px 0}
+.ri-h{display:flex;gap:var(--sp-2);align-items:center;margin:var(--sp-6) 0 var(--sp-1)}
+.ri-h b{width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:inline-grid;place-items:center;font-size:14px}
+.ri-h em{font-style:normal;font-size:12px;font-weight:700;padding:2px 8px;border-radius:var(--r-pill);background:var(--accent);color:var(--on-accent)}
+.ri-h em.alt{background:none;border:1px solid var(--border);color:var(--muted)}
+.ri-row{display:flex;gap:var(--sp-5);flex-wrap:wrap;align-items:flex-start;margin-top:var(--sp-3)}
+.ri-fig{margin:0;display:grid;gap:var(--sp-2);justify-items:start}
+.ri-fig figcaption{font-size:12.5px;color:var(--muted);max-width:390px}
+.ri-ph{width:100%;max-width:390px;border:1px solid var(--border);border-radius:var(--r-phone);overflow:hidden;background:var(--bg)}
+.ri-ph iframe,.ri-dk iframe{display:block;border:0;width:100%;background:var(--bg)}
+.ri-dkw{max-width:100%;overflow:hidden}
+.ri-dk{width:1280px;border:1px solid var(--border);border-radius:var(--r-ctl);overflow:hidden;transform-origin:0 0}
+.ri-trade{font-size:14px;color:var(--muted);margin:var(--sp-1) 0}
+.ri-trade b{color:var(--fg)}
+.ri-nav{display:flex;gap:var(--sp-2);flex-wrap:wrap;margin-top:var(--sp-3)}
+.ri-nav a{display:inline-flex;align-items:center;min-height:var(--tap);padding:0 14px;border:1px solid var(--border);border-radius:var(--r-pill);background:var(--surface);font-weight:600;font-size:14px}
+.ri-fig{max-width:100%;min-width:0}.ri-fig:has(.ri-ph){width:min(390px,100%)}
