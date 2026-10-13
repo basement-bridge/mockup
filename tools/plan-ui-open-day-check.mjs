@@ -57,8 +57,8 @@ for (const [w, h] of [[390, 844], [360, 740]]) {
   // D. tapping a Not cooking day opens the LIGHT panel only (154), the day stays Not cooking
   { const p = await open(ctx, "", errs); const oa = () => p.locator("#lite .oa button").count();
     await p.locator('.od[data-od-b="d18"]').scrollIntoViewIfNeeded(); await p.locator('.od[data-od-b="d18"]').tap(); await sleep(300);
-    ok(`${tag} D: tapping an open day opens its detail with Ask AI, Surprise me, Not cooking`, (await p.locator(".oa").count()) === 1 && (await p.locator(".oa button").count()) === 3);
-    await p.locator('[data-block="d18"]').tap(); await sleep(300); ok(`${tag} D: Not cooking from the detail`, await blocked(p, "d18"));
+    ok(`${tag} D: tapping an open day opens its card with Ask AI and Surprise me only (187)`, (await p.locator(".oa").count()) === 1 && (await p.locator(".oa button").count()) === 2);
+    await p.locator('#lite [data-ask="d18"]').focus(); await p.keyboard.press("Shift+X"); await sleep(300); ok(`${tag} D: Not cooking from the detail`, await blocked(p, "d18"));
     ok(`${tag} D: it is the light panel with Ask AI, Surprise me, Mark as open`, (await p.locator("#lite").count()) === 1 && (await oa()) === 3 && (await p.locator("#lite .mko").count()) === 1);
     ok(`${tag} D: no recipe chrome: no stepper, ingredients, total time, day piece, sheet or tongue`, (await p.locator(".ppl, .ing, .tt, .dpiece, .spiece, .tongue, .sfoot").count()) === 0);
     await sleep(500); await p.locator('#lite [data-unblock="d18"]').tap(); await sleep(300);

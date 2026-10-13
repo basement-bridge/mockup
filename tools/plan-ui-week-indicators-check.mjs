@@ -42,8 +42,8 @@ for (const [w, h, touch] of [[390, 844, true], [360, 740, true], [1280, 900, fal
     await p.close(); }
   // live updates: Not cooking by the day detail, Undo, and Surprise me on an open night
   { const p = await open(ctx, "", errs); const b0 = await ind(p, 1); const od = p.locator(".od-sw .od").first(); const day = await od.evaluate(e => e.closest("[data-od]").dataset.od);
-    await od.scrollIntoViewIfNeeded(); await tap(od); await sleep(400); const blk = p.locator(`[data-block="${day}"]`).first();
-    if (await blk.count()) { await tap(blk); await sleep(300); const a = await ind(p, 1);
+    await od.scrollIntoViewIfNeeded(); await tap(od); await sleep(400); const blk = p.locator(`#lite [data-ask="${day}"]`).first();
+    if (await blk.count()) { await blk.focus(); await p.keyboard.press("Shift+X"); await sleep(300); const a = await ind(p, 1);
       ok(`${tag}: marking an open night as Not cooking: open down by one, moon up by one`, a.op === b0.op - 1 && a.nc === b0.nc + 1, [b0, a]);
       const und = p.locator("[data-undo]").first(); if (await und.count()) { await tap(und); await sleep(300); await p.keyboard.press("Escape"); await sleep(400); const c = await ind(p, 1); ok(`${tag}: Undo puts the counts back`, c.op === b0.op && c.nc === b0.nc, [b0, c]); } else ok(`${tag}: an Undo is offered`, false); }
     else ok(`${tag}: open night detail offers Not cooking`, false);
