@@ -1,6 +1,6 @@
 /* Recipient page, desktop only (1024px and up). Loaded with media="(min-width:1024px)" so phones and tablets never fetch it.
-   Wide banner, ingredients beside the method (ingredients stay in view while reading steps), the option B bar becomes a small card bottom right. */
-.rs-top,.rs-page,.rs-ban{max-width:1040px}
+   Wide banner, ingredients beside the method (ingredients stay in view while reading steps), the invitation bar becomes a small card bottom right. */
+.rs-top,.rs-page{max-width:1040px}
 .rs-top{padding-top:var(--sp-3)}
 .rs-hero{height:340px}
 .rs-page h1{font-size:2.5rem}
@@ -11,10 +11,7 @@
 .rs-met li{font-size:1.05rem}
 .rs-sp{height:220px;max-width:420px}
 .rs-nts{margin-top:var(--sp-6);max-width:46rem}
-.rs-end{grid-template-columns:auto 1fr auto;align-items:center;justify-items:stretch;margin-top:var(--sp-6)}
-.rs-end .rs-acts{flex-direction:column;align-items:stretch;text-align:center}
 .rs-bar{left:auto;right:var(--sp-5);bottom:var(--sp-5);width:400px;border:1px solid var(--border);border-radius:var(--r-card);padding:var(--sp-3) var(--sp-2) var(--sp-3) var(--sp-4)}
-body[data-opt=b] .rs-page{padding-bottom:var(--sp-7)}
-.rs-ban{border:1px solid var(--border);border-radius:var(--r-card);margin-bottom:var(--sp-4);width:calc(100% - 2 * var(--gutter))}
+body[data-offer] .rs-page{padding-bottom:var(--sp-7)}
 .rs-gc{max-width:36rem;margin:0 auto}
 .rs-gone{padding-top:var(--sp-6)}

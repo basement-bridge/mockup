@@ -113,3 +113,33 @@ Default path: `theme.css`, `shared.css`, `manage.css`, `manage.js`; no images, n
 ### Default path and deferred (unchanged)
 
 No new file is loaded: the invite line, the version pill and the allowance are in `manage.js` and `manage.css`, and the desktop row rule is in `desktop.css`. In place (6a): withdraw, cancel, undo and renew change the row and the allowance where they are.
+
+## Update 14 October 2026: option B is the main view
+
+### Owner's words (voice and typed, 13 October 2026)
+
+- Manage (links view) is **option B**: the share panel opened from the Share button (bottom sheet on phone, side panel on desktop; on the desktop summary flyout it is the same lane). A and C stay on the page, marked "not chosen". Rows keep rename, copy, cancel with undo, expiry countdown, opens and the invite state.
+- An invite attached to a link counts **in the usual place of the existing invite functionality**. Do not invent or duplicate an allowance UI; the panel may show a small pointer to it.
+
+### What changed
+
+- `index.html` opens on B ("B · Share panel (chosen)"); A and C carry a "Not chosen" pill. All states still work on phone and desktop (empty, 3 active, ends soon, one expired, cancelled with undo, Invites, Cancel invite, Invite ended).
+- The allowance card ("1 of 3 invites left") and the "None left" state are removed. The usual place is **My invites** (`fragments/desktop-profile/invite.js`, INH-D10 to INH-D12: at most three pending per person, a slot frees when an invite is used or expires). While any listed link carries an invite, the panel shows one quiet line, "Invites on links count in My invites", linking there.
+- Cancel undo line now says "Its unused invite is withdrawn." (claimed: "stays claimed", unchanged). Withdraw and Renew toasts no longer talk about an allowance.
+- Earlier text above (the "Update 13 October" allowance card and the recommendation of A) is superseded by this section.
+
+### Proposed decisions (unnumbered)
+
+- **Proposal:** a claimed invite does not hold a slot (INH-D12: outstanding means unused and unexpired). The earlier card counted claimed ones as spent; that contradicted the existing rule, so it is dropped.
+- **Proposal:** the pointer shows only while a listed link carries an invite, and carries no number (the count is My invites' to show).
+- **Proposal:** on the desktop summary flyout the panel opens in the flyout's lane; the flyout slice draws that, not this one.
+
+### Open questions
+
+1. Does an invite on a share link appear as a row in My invites (label = the link's name), or only count toward its cap? Cost of a wrong guess: the pointer wording and one row type there.
+2. Renew on a link whose invite ended: it comes back only if a slot is free in My invites (not drawn, the toast assumes it does).
+3. Panel on desktop opens in a 320px lane in this drawing; the build uses the flyout's own width.
+
+### Default path (unchanged)
+
+No new file; the pointer is in `manage.js` and `manage.css`. `phone.js`/`desktop.js` still load on demand.

@@ -2,9 +2,11 @@
    The markup and class names (rs-*) are what the build's server would draw; the loading phases and the bar are the only script the page needs. */
 (function(){
 var q=new URLSearchParams(location.search);
-var st=/^(anon|member|norecipes|expiring|expired|cancelled|loading|preview|invite|claimed|withdrawn|memberinvite)$/.test(q.get("s"))?q.get("s"):"anon";
-var invs=/^(invite|claimed|withdrawn|memberinvite)$/.test(st); /* a link that carried an invite: placement is option A (the recommended one) */
-var opt=invs?"a":/^[abc]$/.test(q.get("opt"))?q.get("opt"):"a";
+/* State (s=) and the invite on the link (inv=) are separate. Old addresses still work: s=invite, claimed, withdrawn, memberinvite. */
+var S0=q.get("s")||"anon";
+var st=/^(anon|member|norecipes|expiring|expired|cancelled|loading|preview)$/.test(S0)?S0:S0==="invite"||S0==="claimed"||S0==="withdrawn"?"anon":S0==="memberinvite"?"member":"anon";
+var inv=/^(unclaimed|claimed|withdrawn|none)$/.test(q.get("inv"))?q.get("inv"):q.get("inv")==="1"?"unclaimed":S0==="invite"?"unclaimed":S0==="claimed"||S0==="withdrawn"?S0:S0==="memberinvite"?"unclaimed":"none";
+var offer=inv==="unclaimed"&&st!=="member"&&st!=="norecipes"&&st!=="expired"&&st!=="cancelled"&&st!=="preview"; /* the one growth invitation: only an unclaimed invite, only a viewer who could claim it */
 var IMG="../../../recipe-photos/img/";
 var LINK="https://kitchie.example/s/k7Qm-sample";
 var R={title:"Egg fried rice (with peas)",min:20,serves:2,
@@ -29,52 +31,38 @@ var P={
  copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>'
 };
 var ic=function(n,s){s=s||20;return '<svg width="'+s+'" height="'+s+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">'+P[n]+'</svg>'};
-var member=st==="member"||st==="memberinvite",gone=st==="expired"||st==="cancelled",pf=function(p,sz,cls,alt){return '<span class="pf '+(cls||'')+'" style="--pc:'+p.pc+'" data-img="'+IMG+p.id+'-'+sz+'.webp" data-alt="'+E(alt)+'" role="img" aria-label="'+E(alt)+'"></span>'};
+var member=st==="member",gone=st==="expired"||st==="cancelled",pf=function(p,sz,cls,alt){return '<span class="pf '+(cls||'')+'" style="--pc:'+p.pc+'" data-img="'+IMG+p.id+'-'+sz+'.webp" data-alt="'+E(alt)+'" role="img" aria-label="'+E(alt)+'"></span>'};
 
-/* The invite on the link (13 Oct 2026). One quiet line inside the card when the invite is not the viewer's to claim; the claim card itself is only for the first person with an unclaimed invite. */
-var note=function(t){return '<p class="rs-inote">'+ic("ticket",16)+'<span>'+t+'</span></p>'};
-var ex=st==="claimed"?note("The invite that came with this link has already been used."):st==="withdrawn"?note("The invite that came with this link is no longer available."):st==="memberinvite"?note("This link also came with an invite to start a new household. You already have one, so the invite stays unused."):"";
-/* The invitation or the save, per option. Member sees Save instead; a member without Recipes sees nothing (no upsell to someone signed in). */
-var slot=(function(){
- if(st==="norecipes"||st==="preview")return "";
- if(st==="invite")return '<aside class="rs-end rs-claim" aria-labelledby="rs-endh"><span class="rs-eic">'+ic("ticket",28)+'</span><div><h2 id="rs-endh">Start your own household</h2><p>Whoever sent you this recipe included an invite. Set up a Kitchie household of your own: it takes a minute and it is yours, not theirs.</p></div><div class="rs-acts"><button type="button" class="rs-btn" data-claim>'+ic("logo")+'<span>Start my household</span></button><a class="rs-lnk" href="#">I have an account</a></div></aside>';
- var mem=member||st==="norecipes";
- if(opt==="a")return mem
-  ?'<aside class="rs-end" aria-labelledby="rs-endh"><span class="rs-eic">'+ic("save",28)+'</span><div><h2 id="rs-endh">Want this one in your kitchen?</h2><p>Saved as your own copy. Change it however you like; the original stays as it is.</p>'+ex+'</div><button type="button" class="rs-btn" data-save>'+ic("save")+'<span>Save to my recipes</span></button></aside>'
-  :'<aside class="rs-end" aria-labelledby="rs-endh"><span class="rs-eic">'+ic("logo",28)+'</span><div><h2 id="rs-endh">Liked it? Keep it in Kitchie.</h2><p>Kitchie is a kitchen notebook for your household: your recipes, what you have in, and a shopping list that follows.</p>'+ex+'</div><div class="rs-acts"><a class="rs-btn" href="#">Try Kitchie</a><a class="rs-lnk" href="#">I have an account</a></div></aside>';
- if(opt==="b")return '<aside class="rs-bar" data-bar hidden aria-label="Kitchie">'+(mem
-  ?'<span class="rs-bt"><b>Want it in your kitchen?</b></span><button type="button" class="rs-btn" data-save>'+ic("save")+'<span>Save to my recipes</span></button>'
-  :'<span class="rs-bt"><b>Keep this recipe in Kitchie</b><small>Free to try. No card.</small></span><a class="rs-btn" href="#">Try Kitchie</a>')+'<button type="button" class="rs-x" data-dismiss aria-label="Dismiss">'+ic("x",18)+'</button></aside>';
- return '<aside class="rs-ban" data-ban aria-label="Kitchie">'+(mem
-  ?'<span class="rs-eic">'+ic("save",24)+'</span><p><b>Want this one in your kitchen?</b> Save it as your own copy.</p><button type="button" class="rs-btn" data-save>'+ic("save")+'<span>Save to my recipes</span></button>'
-  :'<span class="rs-eic">'+ic("logo",24)+'</span><p><b>New to Kitchie?</b> It keeps your recipes, pantry and shopping list in one place.</p><a class="rs-btn" href="#">Take a look</a>')+'<button type="button" class="rs-x" data-dismiss aria-label="Dismiss">'+ic("x",18)+'</button></aside>';
-})();
+/* The one invitation (owner, 13 Oct 2026, option B): a bottom bar after reading starts, only when the member who shared attached an invite and nobody has taken it up.
+   In every other case (no invite, claimed, withdrawn, expired, cancelled, signed in) the page has no growth invitation at all. "Claim invite" hands over to the usual invite-only sign-up (fragments/invite-new-household/start.html). */
+var SIGNIN="?s=member&inv="+inv; /* sample: signing in is not drawn, the signed-in page is */
+var CLAIM="../../invite-new-household/start.html?s=landing&msg=none";
+var slot=offer?'<aside class="rs-bar" data-bar hidden aria-label="Invite to Kitchie"><span class="rs-bt"><b>You have a Kitchie invite</b><small>A household of your own, free. Have an account? <a href="'+SIGNIN+'">Sign in</a></small></span><a class="rs-btn" href="'+CLAIM+'" data-claim>Claim invite</a><button type="button" class="rs-x" data-dismiss aria-label="Dismiss">'+ic("x",18)+'</button></aside>':"";
 
-var top='<header class="rs-top"><a class="rs-brand" href="#">'+ic("logo",24)+'<span>Kitchie</span></a>'+(member||st==="norecipes"?'<a class="rs-lnk" href="#">Open my kitchen</a>':'<a class="rs-lnk" href="#">Sign in</a>')+'</header>';
+var top='<header class="rs-top"><a class="rs-brand" href="#">'+ic("logo",24)+'<span>Kitchie</span></a>'+(member||st==="norecipes"?'<a class="rs-lnk" href="#">Open my kitchen</a>':'<a class="rs-lnk" href="'+SIGNIN+'">Sign in</a>')+'</header>';
 
 function page(){
  var note=st==="expiring"?'<p class="rs-note" role="status">'+ic("bell",18)+'<span>This link stops working in 5 hours (9:00 pm tonight). Print the recipe if you want to keep a copy.</span></p>':'';
  var ings=R.ings.map(function(i){return '<li><span>'+E(i[0])+'</span><b>'+E(i[1])+'</b></li>'}).join("");
  var steps=R.steps.map(function(s,k){return '<li><span class="rs-n">'+(k+1)+'</span><div><p>'+E(s[0])+'</p>'+(s[1]?'<div class="rs-sp">'+pf(s[1],"m","","Photo of step "+(k+1))+'</div>':'')+'</div></li>'}).join("");
  var notes=R.notes.map(function(n){return '<li>'+E(n)+'</li>'}).join("");
- return top+(opt==="c"?slot:'')+'<main class="rs-page" id="rs-main">'+note+
+ return top+'<main class="rs-page" id="rs-main">'+note+
   '<div class="rs-hero">'+pf(R.banner,"l","lq","Photo of the finished dish")+'</div>'+
-  '<div class="rs-head"><h1>'+E(R.title)+'</h1><p class="rs-bl">'+E(R.blurb)+'</p><div class="rs-meta"><span>'+ic("clock",18)+R.min+' min</span><span>'+ic("users",18)+'serves '+R.serves+'</span><button type="button" class="rs-ghost" onclick="window.print&&window.print()">'+ic("print",18)+'Print</button></div></div>'+
+  '<div class="rs-head"><h1>'+E(R.title)+'</h1><p class="rs-bl">'+E(R.blurb)+'</p><div class="rs-meta"><span>'+ic("clock",18)+R.min+' min</span><span>'+ic("users",18)+'serves '+R.serves+'</span><button type="button" class="rs-ghost" onclick="window.print&&window.print()">'+ic("print",18)+'Print</button>'+(member?'<button type="button" class="rs-btn rs-save" data-save>'+ic("save")+'<span>Save to my recipes</span></button>':'')+'</div></div>'+
   '<div class="rs-cols"><section class="rs-ing" aria-labelledby="h-ing"><h2 id="h-ing">Ingredients</h2><ul>'+ings+'</ul></section>'+
   '<section class="rs-met" aria-labelledby="h-met"><h2 id="h-met">Method</h2><ol>'+steps+'</ol></section></div>'+
   '<section class="rs-nts" aria-labelledby="h-nts"><h2 id="h-nts">Notes from the cook</h2><ul>'+notes+'</ul></section>'+
-  (opt==="a"?slot:'')+
-  '<footer class="rs-foot"><p>Shared with you from a Kitchie kitchen. This link works until Fri 16 Oct, 9:00 pm.</p></footer></main>'+(opt==="b"?slot:'');
+  '<footer class="rs-foot"><p>Shared with you from a Kitchie kitchen. This link works until Fri 16 Oct, 9:00 pm.</p></footer></main>'+slot;
 }
 
 function goneView(){
  var msg=encodeURIComponent("Hi! The recipe link you sent me has stopped working. Could you send me a fresh one? "+LINK);
- return top+(opt==="c"?slot:'')+'<main class="rs-page rs-gone" id="rs-main"><div class="rs-gc"><span class="rs-pot">'+ic("pot",44)+'</span><h1>This link has run out</h1>'+
+ return top+'<main class="rs-page rs-gone" id="rs-main"><div class="rs-gc"><span class="rs-pot">'+ic("pot",44)+'</span><h1>This link has run out</h1>'+
   '<p>Links to shared recipes stop working after a while, or when the sender turns them off. That keeps a recipe from staying open to everyone for ever.</p>'+
   '<p>The recipe is still with whoever sent it. Ask them for a fresh link.</p>'+
   '<button type="button" class="rs-btn" data-ask aria-expanded="false" aria-controls="rs-draft">'+ic("chat")+'<span>Ask for a new link</span></button>'+
   '<div class="rs-draft" id="rs-draft" hidden><p class="rs-dl">This message is ready to send from your own messages app:</p><blockquote>Hi! The recipe link you sent me has stopped working. Could you send me a fresh one? '+LINK+'</blockquote><div class="rs-acts"><a class="rs-btn" href="sms:?&body='+msg+'">'+ic("chat")+'<span>Open messages</span></a><button type="button" class="rs-ghost" data-copy>'+ic("copy",18)+'<span>Copy message</span></button></div><p class="rs-sm">Kitchie does not see this message or know who sent the link.</p></div></div>'+
-  (opt==="a"?slot:'')+'</main>'+(opt==="b"?slot:'');
+  '</main>';
 }
 
 function previewView(){
@@ -86,7 +74,7 @@ function previewView(){
 
 var root=document.getElementById("rs-root");
 root.innerHTML=st==="preview"?previewView():gone?goneView():page();
-document.body.setAttribute("data-s",st);document.body.setAttribute("data-opt",opt);
+document.body.setAttribute("data-s",st);document.body.setAttribute("data-inv",inv);if(offer)document.body.setAttribute("data-offer","1");
 
 /* Loading order (decided: text first, then step photos, then the banner last). The words are already on the page; boxes are sized and coloured from the first paint. */
 function load(kind){document.querySelectorAll(".rs-"+(kind==="step"?"sp":"hero")+" .pf").forEach(function(f){var s=f.getAttribute("data-img");if(!s)return;var i=new Image();i.className="pi";i.alt="";i.onload=function(){f.classList.add("in")};i.src=s;f.appendChild(i)})}
@@ -100,25 +88,15 @@ root.addEventListener("click",function(e){
  var b=e.target.closest("button,a");if(!b)return;
  if(b.hasAttribute("data-save")){var done=b.getAttribute("data-done")!=="1";b.setAttribute("data-done",done?"1":"0");b.querySelector("span").textContent=done?"Saved. Open in Recipes":"Save to my recipes";var svg=b.querySelector("svg");if(svg)svg.outerHTML=ic(done?"check":"save");b.classList.toggle("done",done)}
  if(b.hasAttribute("data-dismiss")){var bx=b.closest("[data-bar],[data-ban]");if(bx){bx.hidden=true;bx.setAttribute("data-gone","1");try{sessionStorage.setItem("rs-dismiss","1")}catch(x){}}}
- if(b.hasAttribute("data-claim")){flow(1)}
  if(b.hasAttribute("data-ask")){var d=document.getElementById("rs-draft"),o=d.hidden;d.hidden=!o;b.setAttribute("aria-expanded",String(o))}
  if(b.hasAttribute("data-copy")){var s=b.querySelector("span");s.textContent="Copied";setTimeout(function(){s.textContent="Copy message"},1500)}
 });
-/* The claim flow is a separate file, fetched only when the person taps Start my household (DESIGN.md 6): claim.js and claim.css. It replaces the recipe in place. */
-var cl=null;
-root.addEventListener("rs-restored",function(){load("step");load("banner")});
-function flow(n){
- if(cl){cl.show(n);return}
- var l=document.createElement("link");l.rel="stylesheet";l.href="claim.css";document.head.appendChild(l);
- var sc=document.createElement("script");sc.src="claim.js";sc.onload=function(){cl=window.RSClaim.init({root:root,ic:ic,E:E,title:R.title,page:page,top:top});cl.show(n)};document.head.appendChild(sc);
-}
-if(st==="invite"&&/^[123]$/.test(q.get("flow")))flow(+q.get("flow"));
 if(q.get("ask")==="1"){var ab=document.querySelector("[data-ask]");if(ab)ab.click()}
 
 /* Option B: the bar waits until the person has read the ingredients (scrolled past 35%), never before. A dismiss lasts the visit. */
 var bar=document.querySelector("[data-bar]");
 if(bar){var off=false;try{off=sessionStorage.getItem("rs-dismiss")==="1"}catch(x){}
- var chk=function(){if(off||bar.getAttribute("data-gone"))return;var h=document.documentElement.scrollHeight-innerHeight;bar.hidden=!(gone||q.get("bar")==="1"||(h>0&&scrollY/h>.35))};
+ var chk=function(){if(off||bar.getAttribute("data-gone"))return;var h=document.documentElement.scrollHeight-innerHeight;bar.hidden=!(q.get("bar")==="1"||(h>0&&scrollY/h>.35))};
  addEventListener("scroll",chk,{passive:true});chk()}
 if(q.get("scroll")==="mid")setTimeout(function(){scrollTo(0,(document.documentElement.scrollHeight-innerHeight)*.5)},40);
 if(q.get("scroll")==="end")setTimeout(function(){scrollTo(0,1e6)},40);

@@ -4,7 +4,7 @@
 body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);line-height:1.5}
 [hidden]{display:none!important}
 a{color:inherit}.rs-brand{text-decoration:none}
-.rs-top,.rs-page,.rs-ban{max-width:var(--content-max)}
+.rs-top,.rs-page{max-width:var(--content-max)}
 .rs-top{margin:0 auto;display:flex;align-items:center;justify-content:space-between;min-height:var(--tap);padding:var(--sp-1) var(--gutter)}
 .rs-brand{display:inline-flex;align-items:center;gap:var(--sp-2);min-height:var(--tap);font:700 1.05rem var(--head);color:var(--accent)}
 .rs-lnk{display:inline-flex;align-items:center;min-height:var(--tap);font-weight:600;font-size:14px;color:var(--muted)}
@@ -50,23 +50,14 @@ a{color:inherit}.rs-brand{text-decoration:none}
 .rs-btn.done{background:none;color:var(--sage);box-shadow:inset 0 0 0 1px var(--sage)}
 .rs-acts{display:flex;flex-wrap:wrap;gap:var(--sp-2) var(--sp-4);align-items:center}
 .rs-x{flex:none;width:var(--tap);height:var(--tap);display:inline-grid;place-items:center;border:0;background:none;color:var(--muted);border-radius:50%;cursor:pointer}
-.rs-eic{flex:none;width:48px;height:48px;border-radius:50%;background:var(--bg);border:1px solid var(--border);color:var(--accent);display:inline-grid;place-items:center}
 
-/* Option A: end-of-recipe card, after the last note. */
-.rs-end{margin-top:var(--sp-5);display:grid;gap:var(--sp-3);justify-items:start;padding:var(--sp-4);border:1px dashed var(--border);border-radius:var(--r-card);background:var(--surface)}
-.rs-end h2{margin:0 0 4px}.rs-end p{color:var(--muted)!important;font-size:14.5px}
-
-/* Option B: bar fixed to the bottom, only after reading has begun. */
+/* The invitation (owner pick, option B): a bar fixed to the bottom, only after reading has begun and only when an unclaimed invite came with the link. */
 .rs-bar{position:fixed;left:0;right:0;bottom:0;z-index:5;display:flex;align-items:center;gap:var(--sp-2);padding:var(--sp-2) var(--sp-2) max(var(--sp-2),env(safe-area-inset-bottom)) var(--gutter);background:var(--surface);border-top:1px solid var(--border)}
 .rs-bt{flex:1;min-width:0;line-height:1.25}.rs-bt b{display:block;font-size:14.5px}.rs-bt small{color:var(--muted);font-size:12px}
 .rs-bar .rs-btn{padding:10px 14px;white-space:nowrap}
-body[data-opt=b] .rs-page{padding-bottom:calc(var(--sp-7) + 56px)}
-
-/* Option C: banner above the recipe. */
-.rs-ban{margin:0 auto var(--sp-3);display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-3) var(--sp-2) var(--sp-3) var(--sp-3);background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);flex-wrap:wrap}
-.rs-ban p{flex:1 1 12rem;font-size:14.5px;color:var(--muted)!important}.rs-ban p b{color:var(--fg)}
-.rs-ban .rs-btn{flex:none}
-.rs-ban .rs-x{margin-left:auto}
+body[data-offer] .rs-page{padding-bottom:calc(var(--sp-7) + 72px)}
+.rs-bt small a{color:var(--accent);font-weight:700;text-decoration:underline}
+.rs-save{min-height:36px;padding:6px 14px;font-size:14px}
 
 /* Expired and cancelled: one page, on purpose (a cancelled link gives nothing away). */
 .rs-gone{padding-top:var(--sp-5)}
@@ -87,9 +78,4 @@ body[data-opt=b] .rs-page{padding-bottom:calc(var(--sp-7) + 56px)}
 .rs-cb small{color:var(--muted);font-size:12px}.rs-cb b{font-size:1rem}.rs-cb span{color:var(--muted);font-size:13.5px}
 
 @media (prefers-reduced-motion:reduce){.pf .pi{transition:none}}
-@media print{.rs-top,.rs-end,.rs-bar,.rs-ban,.rs-note,.rs-ghost{display:none!important}}
-
-/* The invite on the link: the claim card (quiet: the same card as the growth invitation, with a solid edge instead of a dashed one) and the one-line note. */
-.rs-claim{border-style:solid;border-color:var(--accent)}
-.rs-inote{display:flex;gap:6px;align-items:flex-start;margin-top:var(--sp-2);font-size:13px;color:var(--muted)!important}
-.rs-inote svg{flex:none;margin-top:2px;color:var(--muted)}
+@media print{.rs-top,.rs-bar,.rs-note,.rs-ghost{display:none!important}}

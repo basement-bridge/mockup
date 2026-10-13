@@ -4,7 +4,8 @@
    (DESIGN.md section 6: load on engagement). Cancel follows the photos pattern (P-D17): hidden at once, Undo for 5 minutes, then gone from view. */
 (function () {
   "use strict";
-  var UNDO_S = 300, SOON_H = 24, RENEW_H = 168, MAXINV = 3; /* the member's maximum-invites limit (sample) */
+  var UNDO_S = 300, SOON_H = 24, RENEW_H = 168;
+  var MYINV = "../../desktop-profile/index.html?open=invite&inv=list"; /* the existing My invites list (INH-D10, INH-D12): the allowance lives there, not here */
   var ICONS = {
     link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
     copy: '<rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6.5A2.5 2.5 0 0 0 13.5 4h-7A2.5 2.5 0 0 0 4 6.5v7A2.5 2.5 0 0 0 6.5 16H8"/>',
@@ -35,17 +36,14 @@
     three: { label: "3 active", cap: "Three links out, none close to ending.", make: function () { return [L(1, "For Mum", 140, 4, 2), L(2, "Book club", 71, 12, 26), L(3, "Work lunch group", 310, 0, null)]; } },
     soon: { label: "Ends soon", cap: "One link ends in under a day (the threshold is a proposal).", make: function () { return [L(1, "For Mum", 140, 4, 2), L(2, "Neighbours", 9, 1, 7), L(3, "Work lunch group", 310, 0, null)]; } },
     expired: { label: "One expired", cap: "An ended link stays, greyed, until it is renewed or removed from view.", make: function () { return [L(1, "For Mum", 140, 4, 2), L(2, "Book club", 71, 12, 26), L(3, "Work lunch group", 310, 0, null), L(4, "Sam's flat", -52, 7, 540)]; } },
-    invites: { label: "Invites", cap: "Three links: one with an unclaimed invite (pointing at a chosen version), one whose invite was claimed, one with no invite. Two of three invites are spoken for.", make: function () { return [L(1, "For Mum", 140, 4, 2, { inv: { s: "unclaimed" }, ver: "With peas" }), L(2, "Book club", 71, 12, 26, { inv: { s: "claimed", d: "Mon 12 Oct" } }), L(3, "Work lunch group", 310, 0, null)]; } },
-    invcancel: { label: "Cancel, invite", cap: "A link with an unclaimed invite was just cancelled: the invite is withdrawn and back in the allowance (undo takes it back). Cancelling a link whose invite was claimed leaves it claimed.", make: function () { var a = [L(1, "For Mum", 140, 4, 2, { inv: { s: "claimed", d: "Mon 12 Oct" } }), L(2, "Neighbours", 9, 1, 7, { inv: { s: "unclaimed" } }), L(3, "Work lunch group", 310, 0, null)]; a[1].cancelLeft = 252; return a; } },
-    invend: { label: "Invite ended", cap: "An invite withdrawn by hand on a live link, and an invite that ended with its expired link (back in the allowance; Renew brings it back if one is left).", make: function () { return [L(1, "For Mum", 140, 4, 2, { inv: { s: "withdrawn" } }), L(2, "Book club", 71, 12, 26, { inv: { s: "claimed", d: "Mon 12 Oct" } }), L(3, "Sam's flat", -52, 7, 540, { inv: { s: "unclaimed" }, ver: "Less soy more garlic" })]; } },
-    invnone: { label: "None left", cap: "All three invites are spoken for (two waiting, one claimed). The list still works; a new link can be made without an invite.", make: function () { return [L(1, "For Mum", 140, 4, 2, { inv: { s: "unclaimed" } }), L(2, "Book club", 71, 12, 26, { inv: { s: "claimed", d: "Mon 12 Oct" } }), L(3, "Neighbours", 200, 0, null, { inv: { s: "unclaimed" }, ver: "With peas" }), L(4, "Work lunch group", 310, 0, null)]; } },
+    invites: { label: "Invites", cap: "Three links: one with an unclaimed invite (pointing at a chosen version), one whose invite was claimed, one with no invite. ", make: function () { return [L(1, "For Mum", 140, 4, 2, { inv: { s: "unclaimed" }, ver: "With peas" }), L(2, "Book club", 71, 12, 26, { inv: { s: "claimed", d: "Mon 12 Oct" } }), L(3, "Work lunch group", 310, 0, null)]; } },
+    invcancel: { label: "Cancel, invite", cap: "A link with an unclaimed invite was just cancelled: the invite is withdrawn and its slot is free again in My invites (undo takes it back). Cancelling a link whose invite was claimed leaves it claimed.", make: function () { var a = [L(1, "For Mum", 140, 4, 2, { inv: { s: "claimed", d: "Mon 12 Oct" } }), L(2, "Neighbours", 9, 1, 7, { inv: { s: "unclaimed" } }), L(3, "Work lunch group", 310, 0, null)]; a[1].cancelLeft = 252; return a; } },
+    invend: { label: "Invite ended", cap: "An invite withdrawn by hand on a live link, and an invite that ended with its expired link (Renew brings it back).", make: function () { return [L(1, "For Mum", 140, 4, 2, { inv: { s: "withdrawn" } }), L(2, "Book club", 71, 12, 26, { inv: { s: "claimed", d: "Mon 12 Oct" } }), L(3, "Sam's flat", -52, 7, 540, { inv: { s: "unclaimed" }, ver: "Less soy more garlic" })]; } },
     cancelled: { label: "Cancelled, undo", cap: "A link was just cancelled: its row is an Undo line for 5 minutes.", make: function () { var a = [L(1, "For Mum", 140, 4, 2), L(2, "Neighbours", 9, 1, 7), L(3, "Work lunch group", 310, 0, null)]; a[1].cancelLeft = 252; return a; } }
   };
 
   /* The invite's state as the sender sees it. An unclaimed invite on an ended link has ended with it. */
   function inv(l) { if (!l.inv) return null; if (l.inv.s === "claimed" || l.inv.s === "withdrawn") return l.inv.s; return l.hours < 0 ? "ended" : "unclaimed"; }
-  function held(l) { var v = inv(l); return v === "claimed" || (v === "unclaimed" && !(l.cancelLeft > 0) && !l.gone); } // counts against the allowance
-  function left(st) { return MAXINV - st.links.filter(held).length; }
   function kind(l) { return l.hours < 0 ? "expired" : l.hours < SOON_H ? "soon" : "live"; }
   function plural(n, w) { return n + " " + w + (n === 1 ? "" : "s"); }
   function ago(h) { // hours ago, in the words a person says
@@ -68,7 +66,7 @@
   /* ---- rows ---- */
   function row(l, st) {
     var k = kind(l), editing = st.editing === l.id, name = esc(l.name);
-    if (l.cancelLeft > 0) return '<li class="rs-undo" role="status" data-id="' + l.id + '">' + ic("undo") + '<span class="t"><b>' + (l.removed ? "Removed from view" : "Link cancelled") + '</b><small>' + (l.removed ? "“" + name + "” is out of this list." : "“" + name + "” no longer opens." + (inv(l) === "unclaimed" ? " Its invite is withdrawn and back with you." : inv(l) === "claimed" ? " Its invite stays claimed." : "")) + ' Undo for <span data-left="' + l.id + '">' + mmss(l.cancelLeft) + '</span>, then it stays ' + (l.removed ? "removed" : "cancelled") + '</small></span><button type="button" class="rs-mini" data-act="undo" data-id="' + l.id + '">Undo</button></li>';
+    if (l.cancelLeft > 0) return '<li class="rs-undo" role="status" data-id="' + l.id + '">' + ic("undo") + '<span class="t"><b>' + (l.removed ? "Removed from view" : "Link cancelled") + '</b><small>' + (l.removed ? "“" + name + "” is out of this list." : "“" + name + "” no longer opens." + (inv(l) === "unclaimed" ? " Its unused invite is withdrawn." : inv(l) === "claimed" ? " Its invite stays claimed." : "")) + ' Undo for <span data-left="' + l.id + '">' + mmss(l.cancelLeft) + '</span>, then it stays ' + (l.removed ? "removed" : "cancelled") + '</small></span><button type="button" class="rs-mini" data-act="undo" data-id="' + l.id + '">Undo</button></li>';
     if (l.gone) return "";
     var top = editing
       ? '<form class="rs-edit" data-act="save" data-id="' + l.id + '"><input name="n" value="' + name + '" maxlength="40" aria-label="Link name" autocomplete="off"><button type="submit" class="rs-save">' + ic("check") + 'Save</button><button type="button" class="rs-keep" data-act="keep" aria-label="Keep the old name">Keep</button></form>'
@@ -101,8 +99,9 @@
     return '<div class="rs-empty">' + ic("link") + '<b>Not shared with anyone yet</b><p>Links you make with Share show up here, with who opened them.</p></div>';
   }
   function help(st) {
-    var n = st ? left(st) : MAXINV;
-    return '<p class="rs-help">Anyone with a link can open this recipe, no sign-in. Each link ends by itself.</p><p class="rs-allow" data-allow="' + n + '">' + ic("ticket") + "<b>" + n + " of " + MAXINV + " invites left</b><span>Cancel a link and its unused invite comes back.</span></p>";
+    var any = st && st.links.some(function (l) { return l.inv && !l.gone; });
+    // The invite allowance is not drawn here: it already lives in My invites (INH-D12). The panel only points there while a link carries an invite.
+    return '<p class="rs-help">Anyone with a link can open this recipe, no sign-in. Each link ends by itself.</p>' + (any ? '<p class="rs-ptr">' + ic("ticket") + '<span>Invites on links count in <a href="' + MYINV + '" target="_blank" rel="noopener">My invites</a>.</span></p>' : "");
   }
 
   /* ---- a frame: one drawing of the recipe page with its own copy of the sample state ---- */
@@ -134,11 +133,10 @@
     else if (a === "cancel") { l.cancelLeft = UNDO_S; l.removed = false; f.st.editing = null; render(f); }
     else if (a === "remove") { l.cancelLeft = UNDO_S; l.removed = true; render(f); }
     else if (a === "undo") { l.cancelLeft = 0; l.removed = false; render(f); }
-    else if (a === "withdraw") { l.inv.s = "withdrawn"; render(f); say(f, "Invite withdrawn. It is back in your allowance. The link still opens the recipe."); }
+    else if (a === "withdraw") { l.inv.s = "withdrawn"; render(f); say(f, "Invite withdrawn. The link still opens the recipe."); }
     else if (a === "renew") {
       var had = inv(l) === "ended"; l.hours = RENEW_H;
-      if (had && left(f.st) < 0) { l.inv.s = "withdrawn"; say(f, "Renewed for 7 days. No invite left to bring back, so the link opens the recipe only."); }
-      else say(f, had ? "Renewed for 7 days. The invite is waiting again." : "Renewed for 7 days. The same link works again.");
+      say(f, had ? "Renewed for 7 days. The invite is waiting again." : "Renewed for 7 days. The same link works again.");
     }
     else if (a === "new") say(f, "Making a link is the create sheet (another slice).");
   });
@@ -201,8 +199,8 @@
 
   /* ---- the page chrome ---- */
   var q = new URLSearchParams(location.search);
-  var cur = { opt: ["A", "B", "C"].indexOf(q.get("opt")) >= 0 ? q.get("opt") : "A", state: STATES[q.get("state")] ? q.get("state") : "three", form: q.get("form") || (matchMedia("(min-width:1024px)").matches ? "desktop" : "phone") };
-  var CAPS = { A: "Egg fried rice, scrolled to the end: the Shared section and its jump-row chip.", B: "Egg fried rice with the Share button's panel open.", C: "Egg fried rice, top of the page: the card in its details, open." };
+  var cur = { opt: ["A", "B", "C"].indexOf(q.get("opt")) >= 0 ? q.get("opt") : "B", state: STATES[q.get("state")] ? q.get("state") : "three", form: q.get("form") || (matchMedia("(min-width:1024px)").matches ? "desktop" : "phone") };
+  var CAPS = { A: "Not chosen. Egg fried rice, scrolled to the end: the Shared section and its jump-row chip.", B: "Chosen. Egg fried rice with the Share button's panel open.", C: "Not chosen. Egg fried rice, top of the page: the card in its details, open." };
   function pressed(attr, val) { [].forEach.call(document.querySelectorAll("[data-" + attr + "]"), function (b) { b.setAttribute("aria-pressed", String(b.dataset[attr] === val)); }); }
   function show() {
     pressed("opt", cur.opt); pressed("state", cur.state); pressed("form", cur.form);
