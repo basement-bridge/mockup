@@ -185,3 +185,19 @@
 .shl .sub{font-size:12px;color:var(--muted)}
 .shl.bought .nm b{color:var(--muted);font-weight:600}
 .shl .lm{display:inline-flex;color:var(--sage)}.shl .lm svg{width:18px;height:18px}
+
+/* ---------- an empty week asks once (decisions 282 to 285, 14 Oct 2026) ---------- */
+.wkfill{display:flex;align-items:center;flex-wrap:wrap;gap:10px 14px;margin:2px 0 8px;padding:14px 16px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--surface)}
+.wkfill>svg{flex:none;color:var(--accent)}
+.wkfill .wf{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1 1 220px}
+.wkfill .wf b{font-size:15px}
+.wkfill .wf small{font-size:12px;color:var(--muted);font-weight:600;line-height:1.35}
+.wkfill .ctas{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+.wkfill.gut{flex-direction:column;align-items:stretch;margin:0 0 18px}
+.wkfill.gut .ctas{margin-left:0}.wkfill.gut .wf{flex:0 0 auto}
+.wkfillbar{display:inline-flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+.wkacts{display:grid;grid-template-columns:repeat(auto-fit,minmax(138px,1fr));gap:8px}
+.wkacts .btn{width:100%;justify-content:flex-start;gap:8px;padding:6px 12px;min-height:46px;text-align:left}
+.wkacts .btn svg{flex:none}
+.wkacts .bl{display:flex;flex-direction:column;line-height:1.15}.wkacts .bl small{font-size:11px;font-weight:600;color:var(--muted)}
+.wkacts .flipundo.wide{min-height:46px}

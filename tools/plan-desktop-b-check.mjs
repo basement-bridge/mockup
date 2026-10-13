@@ -1,4 +1,4 @@
-// Behaviour check for Plan desktop option B, realigned with the phone Plan (14 Oct 2026, decisions 259 to 275; replan cleanup, detail order and reds 276 to 281), headless Chromium.
+// Behaviour check for Plan desktop option B, realigned with the phone Plan (14 Oct 2026, decisions 259 to 275; replan cleanup, detail order and reds 276 to 281; empty week, week tools, hold everything 282 to 286), headless Chromium.
 // Usage:  python3 -m http.server 8123 &   then   node tools/plan-desktop-b-check.mjs      (BASE=... to point elsewhere)
 // Needs playwright or playwright-core on the module path (NODE_PATH=/opt/node22/lib/node_modules works in the agent sandbox).
 import { createRequire } from "module";
@@ -42,15 +42,15 @@ for (const [w, h] of [[1440, 900], [1280, 800]]) {
     await p.close(); }
   // F. header tools: Copy and Clear flip to an in-place Undo
   { const p = await open(ctx, "week=2026-10-19", errs);   // week 2 is empty
-    await p.locator('[data-act=copy]').click(); await sleep(300);
+    await p.locator('[data-fk="hdr:copy"]').click(); await sleep(300);
     ok(tag + " F: Copy last week fills empty nights", (await p.locator('.mcw').count()) === 4, await p.locator('.mcw').count());   // Mon to Thu; Friday is the usual day off
     ok(tag + " F: Copy button flips to Undo chip in place", (await p.locator('[data-fk="hdr:copy"].flipundo').count()) === 1);
     await p.locator('[data-fk="hdr:copy"].flipundo').click(); await sleep(250);
-    ok(tag + " F: Undo restores the empty week and the icon returns", (await p.locator('.mcw').count()) === 0 && (await p.locator('[data-act=copy]').count()) === 1);
+    ok(tag + " F: Undo restores the empty week and the icon returns", (await p.locator('.mcw').count()) === 0 && (await p.locator('[data-fk="hdr:copy"]').count()) === 1);
     await p.close(); }
   { const p = await open(ctx, "", errs);
     const before = await p.locator('.mcw').count();
-    await p.locator('[data-act=clearwk]').click(); await sleep(300);
+    await p.locator('[data-fk="hdr:clear"]').click(); await sleep(300);
     const t = await T(p);
     ok(tag + " G: Mine clears only individual meals and the one-off Not cooking", (await p.locator('.mcw').count()) === before - 1 && (await p.locator('.blocked.once').count()) === 0, [before, await p.locator('.mcw').count()]);
     ok(tag + " G: the note says what stays", /household meals? stay/.test(t) && /Usual days off stay/.test(t), t.slice(0, 80));
@@ -60,7 +60,7 @@ for (const [w, h] of [[1440, 900], [1280, 800]]) {
     ok(tag + " G: Undo brings everything back", (await p.locator('.mcw').count()) === before && (await p.locator('.blocked.once').count()) === 1);
     await p.locator('[data-view=all]').click(); await sleep(250);
     const b2 = await p.locator('.mcw').count();
-    await p.locator('[data-act=clearwk]').click(); await sleep(300);
+    await p.locator('[data-fk="hdr:clear"]').click(); await sleep(300);
     ok(tag + " G: Household clears the household meals and leaves personal ones", (await p.locator('.mcw').count()) < b2 && (await p.locator('.mcw').count()) >= 3, [b2, await p.locator('.mcw').count()]);
     await p.close(); }
   // H. bulk actions in the summary
@@ -80,7 +80,7 @@ for (const [w, h] of [[1440, 900], [1280, 800]]) {
   { const p = await open(ctx, "view=Jane", errs);
     ok(tag + " I: no action icons on any tile", (await p.locator('.mcw .ra').count()) === 0);
     ok(tag + " I: eye glyph on every view-only tile and open night", (await p.locator('.mcw .eye').count()) === (await p.locator('.mcw').count()) && (await p.locator('.slot.open.vo .eye').count()) >= 1);
-    ok(tag + " I: no Copy, no Clear in the header", (await p.locator('[data-act=copy]').count()) === 0 && (await p.locator('[data-act=clearwk]').count()) === 0);
+    ok(tag + " I: no Copy, no Clear in the header", (await p.locator('[data-fk="hdr:copy"]').count()) === 0 && (await p.locator('[data-fk="hdr:clear"]').count()) === 0);
     ok(tag + " I: no bulk buttons, no cart buttons in the summary", (await p.locator('.bulk').count()) === 0 && (await p.locator('.sumrow .mini.cart').count()) === 0);
     await p.locator('.mcw .mc').first().click(); await sleep(250);
     const panel = await p.locator('#panel').innerText();
@@ -146,7 +146,7 @@ for (const [w, h] of [[1440, 900], [1280, 800]]) {
     await p.close(); }
   // P. replan cleans the shopping list (owner, 14 Oct 2026): reduce, remove, bought untouched, undo, tally live; a hold never blocks
   { const p = await open(ctx, "", errs);
-    const toast = async () => (await p.locator(".toast span").first().innerText().catch(() => ""));
+    const toast = async () => (await p.locator(".toast > span").first().innerText().catch(() => ""));
     const cart = async () => +(await p.locator(".tally .st.also b").innerText());
     const lines = async () => p.evaluate(() => PLAN.u.cartLines().map(l => l.name + ":" + l.qty).join("|"));
     ok(tag + " P: the sample list is feta, lemon (shared by two meals), nothing else from meals", (await lines()) === "feta:100 g|lemon:1½", await lines());
@@ -204,6 +204,78 @@ for (const [w, h] of [[1440, 900], [1280, 800]]) {
     ok(tag + " R: the Missing pill is red (nothing actioned)", (await col(".tg.miss")) === dg);
     ok(tag + " R: the use-by (soon) pill is not red", (await col(".tg.soon")) !== dg);
     ok(tag + " R: the On the list pill is not red", (await col(".tg.also")) !== dg);
+    await p.close(); }
+  // S. an empty week asks once (owner, 14 Oct 2026): one whole-week Surprise me and Ask AI, none on the nights
+  { const p = await open(ctx, "state=empty", errs);
+    ok(tag + " S: an empty week draws ONE whole-week card with Surprise me and Ask AI", (await p.locator(".wkfill").count()) === 1 && (await p.locator('.wkfill [data-act=weekfill]').count()) === 1 && (await p.locator('.wkfill [data-act=assistant][data-week]').count()) === 1);
+    ok(tag + " S: no per-night Surprise me or Ask AI anywhere (open nights and the Not cooking night)", (await p.locator('[data-act=surprise]').count()) === 0 && (await p.locator('.arow [data-act=askai]').count()) === 0);
+    ok(tag + " S: the Not cooking night keeps Mark as open", (await p.locator('.blocked [data-unblock]').count()) === 1);
+    ok(tag + " S: the card names the nights it will fill and what it leaves out", /6 open nights/.test(await p.locator(".wkfill").innerText()) && /Fri \(usual day off\) is Not cooking, so left out/.test(await p.locator(".wkfill").innerText()), await p.locator(".wkfill").innerText());
+    ok(tag + " S: Copy last week sits in the card as the quiet alternative", (await p.locator('.wkfill [data-act=copy]').count()) === 1);
+    await p.locator('.wkfill [data-act=assistant]').click(); await sleep(250);
+    ok(tag + " S: the whole-week Ask AI hands off for the week and says open nights only", /week of 19 Oct/.test(await p.locator(".ainote").innerText()) && /left out/.test(await p.locator(".ainote").innerText()) && (await p.locator("[data-act=weekfill]").count()) === 1);
+    await p.locator('.wkfill [data-act=weekfill]').click(); await sleep(300);
+    const days = await p.evaluate(() => PLAN.S().cards.filter(c => c.wk === 2).map(c => c.day).sort().join(","));
+    ok(tag + " S: the whole-week Surprise me plans every open night and skips the usual day off", days === "Mon,Sat,Sun,Thu,Tue,Wed", days);
+    ok(tag + " S: the meals differ from night to night", await p.evaluate(() => { const r = PLAN.S().cards.filter(c => c.wk === 2).map(c => c.r); return new Set(r).size === r.length; }));
+    ok(tag + " S: the toast names the nights, the skipped night and offers Undo", /Surprise me planned 6 nights/.test(await p.locator(".toast > span").innerText()) && /Fri \(usual day off\) is Not cooking/.test(await p.locator(".toast > span").innerText()) && (await p.locator(".toast [data-act=undo]").count()) === 1);
+    ok(tag + " S: once planned the card is gone and the Not cooking night offers its own Surprise me and Ask AI again", (await p.locator(".wkfill").count()) === 0 && (await p.locator('.blocked [data-act=surprise]').count()) === 1);
+    ok(tag + " S: the 'just dropped in' cue fires on every tile the fill added (156 unchanged)", (await p.locator(".mcw.dropped").count()) === 6, await p.locator(".mcw.dropped").count());
+    ok(tag + " S: an in-place Undo chip appears in the gutter", (await p.locator(".wkacts .flipundo").count()) === 1);
+    await p.keyboard.press("z"); await sleep(300);
+    ok(tag + " S: Z undoes the whole fill in one step and the card is back", (await p.locator(".wkfill").count()) === 1 && (await p.evaluate(() => PLAN.S().cards.filter(c => c.wk === 2).length)) === 0);
+    await p.close(); }
+  { const p = await open(ctx, "state=empty&wkfill=header", errs);
+    ok(tag + " S: ?wkfill=header puts the pair in the week-title row and no card", (await p.locator(".wki .wkfillbar [data-act=weekfill]").count()) === 1 && (await p.locator(".wkfill").count()) === 0);
+    await p.close(); }
+  { const p = await open(ctx, "state=empty&wkfill=gutter", errs);
+    ok(tag + " S: ?wkfill=gutter puts the pair in the gutter and no card above the nights", (await p.locator("#main .wkfill").count()) === 0 && (await p.locator(".sumcol .wkfill [data-act=weekfill]").count() + await p.locator("#panel .wkfill [data-act=weekfill]").count()) >= 1);
+    await p.close(); }
+  // T. a partly filled week goes back to the per-night lines
+  { const p = await open(ctx, "", errs);
+    ok(tag + " T: a week with meals draws no whole-week card and keeps per-night Surprise me and Ask AI", (await p.locator(".wkfill").count()) === 0 && (await p.locator('.slot.open [data-act=surprise]').count()) === 1 && (await p.locator('.slot.open [data-act=askai]').count()) === 1);
+    await p.close(); }
+  { const p = await open(ctx, "state=empty", errs);
+    await p.locator('.wkfill [data-act=copy]').click(); await sleep(300);
+    ok(tag + " T: Copy last week from the empty card fills the empty nights and the per-night lines return for the rest", (await p.locator(".wkfill").count()) === 0 && (await p.locator(".mcw").count()) === 4 && (await p.locator('.slot.open [data-act=surprise]').count()) === 2, [await p.locator(".mcw").count(), await p.locator('.slot.open [data-act=surprise]').count()]);
+    ok(tag + " T: the copied tiles get the 'just dropped in' cue", (await p.locator(".mcw.dropped").count()) === 4, await p.locator(".mcw.dropped").count());
+    ok(tag + " T: Copy last week flips to Undo in the header AND in the gutter together", (await p.locator('.flipundo[data-fk="hdr:copy"]').count()) === 1 && (await p.locator('.flipundo[data-fk="sum:copy"]').count()) === 1);
+    await p.locator('.flipundo[data-fk="sum:copy"]').click(); await sleep(300);
+    ok(tag + " T: the gutter Undo restores the empty week and the card", (await p.locator(".wkfill").count()) === 1 && (await p.locator(".mcw").count()) === 0);
+    await p.close(); }
+  { const p = await open(ctx, "state=empty", errs);
+    await p.locator('.slot.open').nth(2).focus(); await p.keyboard.press("Shift+X"); await sleep(250);
+    ok(tag + " T: marking one night Not cooking keeps the week empty (still one whole-week action)", (await p.locator(".wkfill").count()) === 1 && /5 open nights/.test(await p.locator(".wkfill").innerText()), await p.locator(".wkfill").innerText());
+    await p.locator('.wkfill [data-act=weekfill]').click(); await sleep(300);
+    const d2 = await p.evaluate(() => PLAN.S().cards.filter(c => c.wk === 2).map(c => c.day).sort().join(","));
+    ok(tag + " U: the fill skips a one-off Not cooking night as well as the usual day off", d2 === "Mon,Sat,Sun,Thu,Tue", d2);
+    await p.keyboard.press("z"); await sleep(250); await p.keyboard.press("z"); await sleep(250);
+    await p.evaluate(() => { PLAN.S().stencil.Sam.push("Tue"); PLAN.render(); }); await sleep(200);
+    await p.locator('.wkfill [data-act=weekfill]').click(); await sleep(300);
+    const d3 = await p.evaluate(() => PLAN.S().cards.filter(c => c.wk === 2).map(c => c.day).sort().join(","));
+    ok(tag + " U: a usual day added in Settings is skipped too", d3 === "Mon,Sat,Sun,Thu,Wed", d3);
+    await p.close(); }
+  // V. the gutter: hold everything (Reserve), Add all, Copy last week, Clear week by scope
+  { const p = await open(ctx, "", errs);
+    ok(tag + " V: the gutter has Add to the shopping list and Reserve (hold everything) side by side in one group", (await p.locator('.bulk [data-act=bulkadd]').count()) === 1 && (await p.locator('.bulk [data-act=reserve]').count()) === 1 && /Hold everything/.test(await p.locator('.bulk [data-act=reserve]').getAttribute("data-tip")));
+    const nh = await p.evaluate(() => PLAN.S().cards.filter(c => c.res).length), want = await p.evaluate(() => PLAN.bWeek.bulk().nh.length);
+    await p.locator('.bulk [data-act=reserve]').click(); await sleep(300);
+    ok(tag + " V: Reserve holds every meal with something on hand, like the phone", (await p.evaluate(() => PLAN.S().cards.filter(c => c.res).length)) === nh + want && (await p.locator('.bulk .flipundo').count()) === 1);
+    ok(tag + " V: holding does not trigger the 'just dropped in' cue (no tile content changed)", (await p.locator(".mcw.dropped").count()) === 0);
+    await p.keyboard.press("z"); await sleep(250);
+    ok(tag + " V: Undo returns the holds exactly", (await p.evaluate(() => PLAN.S().cards.filter(c => c.res).length)) === nh);
+    ok(tag + " V: Week actions in the gutter: Copy last week and Clear week with the scope in words", (await p.locator('.wkacts [data-act=copy]').count()) === 1 && /my plan, from today/.test(await p.locator('.wkacts [data-act=clearwk]').innerText()));
+    await p.locator('.wkacts [data-act=clearwk]').click(); await sleep(300);
+    ok(tag + " V: Clear week from the gutter clears my own meals only and flips to the same Undo chip in the gutter and the header", (await p.locator('.flipundo[data-fk="sum:clear"]').count()) === 1 && (await p.locator('.flipundo[data-fk="hdr:clear"]').count()) === 1);
+    await p.locator('.flipundo[data-fk="sum:clear"]').click(); await sleep(300);
+    ok(tag + " V: Undo restores the cleared meals and they drop in (156)", (await p.locator(".mcw.dropped").count()) > 0 && (await p.locator('.flipundo').count()) === 0);
+    await p.keyboard.press("2"); await sleep(250);
+    ok(tag + " V: in Household the gutter Clear says household", /household, from today/.test(await p.locator('.wkacts [data-act=clearwk]').innerText().catch(() => "")), await p.locator('.wkacts').innerText().catch(() => ""));
+    await p.keyboard.press("3"); await sleep(250);
+    ok(tag + " V: another person's plan (view only) has no Week actions and no bulk group", (await p.locator('.wkacts').count()) === 0 && (await p.locator('.bulk').count()) === 0);
+    await p.close(); }
+  { const p = await open(ctx, "state=past", errs);
+    ok(tag + " V: last week (read only) draws no whole-week card and no Week actions", (await p.locator(".wkfill").count()) === 0 && (await p.locator('.wkacts').count()) === 0);
     await p.close(); }
   await ctx.close();
 }

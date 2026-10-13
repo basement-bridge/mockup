@@ -51,7 +51,10 @@ function tile(c,v){var S=P.S(),r=R[c.r],m=u.missing(c),rk=u.risk(c),ro=u.roCard(
   +(vo?'<span class="eye" aria-hidden="true" title="View only">'+sm(EYE,15)+'</span>':"")+'</div>'}
 
 /* ---------- a day's content: the day states (decisions 116, 119; phone 183, 187, 190, 196, 215) ---------- */
-function ctas(d,more){return '<span class="ctas"><button class="mini cta" data-act="surprise" data-day="'+d+'" data-fk="sp:'+d+'" data-tip="Surprise me: the app proposes a meal">'+sm(SURP,15)+'Surprise me</button>'
+function ctas(d,more){var S0=P.S(),jd=S0.just&&S0.just.day===d&&S0.just.wk===S0.wk;
+ /* an empty week asks once, for the whole week (decisions 282, 283): no Surprise me or Ask AI on every night, except the night that was just cleared, which keeps its own prompt */
+ if(!jd&&WK.empty().on)return more?'<span class="ctas">'+more+'</span>':"";
+ return '<span class="ctas"><button class="mini cta" data-act="surprise" data-day="'+d+'" data-fk="sp:'+d+'" data-tip="Surprise me: the app proposes a meal">'+sm(SURP,15)+'Surprise me</button>'
  +'<button class="mini cta" data-act="askai" data-day="'+d+'" aria-pressed="'+!!(P.S().aiNote&&P.S().aiNote.day===d&&P.S().aiNote.wk===P.S().wk)+'" data-fk="ai:'+d+'" data-tip="Ask AI (A): hands off to your default AI app">'+sm(BI.SPARK,14)+'Ask AI</button>'+(more||"")+'</span>'}
 function dayStack(d){var S=P.S(),cs=u.dayCards(d),view=S.view,pv=u.person(),who=pv?view:ME,b=u.isBlocked(d,who),rw=u.weekRo(),i=DN.indexOf(d),dd=u.dt(S.wk,i),pastD=dd<u.TODAYD&&!rw,ro=rw||pastD,h="",
  stencil=(S.stencil[who]||[]).indexOf(d)>-1,ov=S.ov[u.okey(d,who)],once=b&&ov===true&&!stencil;
@@ -84,7 +87,9 @@ P.sumHtml=function(){var S=P.S(),pv=u.person(),sh=shop(),rk=u.risks(),T=tally(),
  h+='<div class="sumhead"><span class="sumic">'+CALW+'</span><div><h2>This week at a glance</h2><p>Week of '+u.dstr(S.wk,0)+' · '+scope+'</p></div></div>';
  if(pv&&!u.weekRo())h+='<span class="tg mute lockline vo">'+sm(EYE,14)+'<span>View only, '+esc(S.view)+'\'s plan</span></span>';
  if(u.weekRo())return h+'<p class="hint" style="margin-left:0">Last week is view only. Open a meal to look at it.</p>';
- if(!cs.length)return h+'<p class="hint" style="margin-left:0">Nothing planned yet. Pick a night, then Surprise me or Ask AI.</p>';
+ if(!cs.length){var E=WK.empty(),fm=WK.fillMode();
+  if(E.on)return h+'<p class="hint" style="margin-left:0">Nothing planned yet.'+(fm==="card"?" Surprise me and Ask AI for the whole week are above the nights.":fm==="header"?" Surprise me and Ask AI for the whole week are under the week title.":"")+'</p>'+WK.fillGutter();
+  return h+'<p class="hint" style="margin-left:0">Nothing planned yet. Pick a night, then Surprise me or Ask AI.</p>'+WK.tools()}
  function cell(k,n,lab,key,zero){return '<div class="st '+k+(prev&&prev[key]!==n?" bump":"")+(zero?" zero":"")+'">'+(zero?'<b>'+zero+'</b>':'<b>'+n+'</b><span>'+lab+'</span>')+'</div>'}
  /* the count is labelled by what it counts: the items on the shopping list, "in the cart" (owner, 12 to 13 Oct); zero missing reads "Nothing missing", never "0 to buy"; Missing (nothing actioned) stays apart from the cart */
  h+='<div class="tally'+(pv?" one":"")+'" role="group" aria-label="Tally: '+missWords(T.buy)+(pv?"":", "+T.list+" in the shopping cart, "+T.held+(T.held===1?" meal":" meals")+" held")+'">'+cell("miss",T.buy,"Missing","buy",T.buy?0:"Nothing missing")
@@ -98,7 +103,7 @@ P.sumHtml=function(){var S=P.S(),pv=u.person(),sh=shop(),rk=u.risks(),T=tally(),
    h+='<div class="sumrow'+(x.list?" listed":"")+'"><span class="nm">'+esc(x.name)+(x.qty?' <span class="q">'+esc(x.qty)+'</span>':"")+(later.length?'<span class="sub">also '+later.join(", ")+'</span>':"")+'</span>'
    +(pv?"":'<button class="mini cart" data-act="addlist" data-all="1" data-i="'+esc(x.name)+'" data-id="'+x.cards[0]+'" aria-pressed="'+x.list+'" aria-label="'+(x.list?esc(x.name)+" is in the shopping cart. Press to take it out":"Add "+esc(x.name)+" to the shopping list")+'" data-fk="s:'+esc(x.name)+'">'+(x.list?TICK:I.cart)+'</button>')+'</div>'});
   h+='</div>'});
- h+=WK.bulkHtml()+'</section><section class="sumsec"><h3>Use-by pressure '+(rk.length?'<span class="n">'+rk.length+'</span>':"")+'</h3>';
+ h+=WK.bulkHtml()+'</section>'+WK.tools()+'<section class="sumsec"><h3>Use-by pressure '+(rk.length?'<span class="n">'+rk.length+'</span>':"")+'</h3>';
  if(!rk.length)h+='<div class="sumok">Nothing will pass its use-by before it is cooked.</div>';
  rk.forEach(function(x){h+='<button class="sumrow ub" data-card="'+x.c.id+'" data-hl="'+x.days.join(",")+'" data-fk="u:'+x.c.id+x.ing+'"><span class="ubd">'+esc(x.ub)+'</span><span class="nm">'+esc(x.ing)+'<span class="sub soonish">'+esc(u.lbl(x.c))+' is planned '+x.c.day+'. '+(x.days.length?"Cook it by "+x.days[x.days.length-1]+".":"Already past.")+'</span></span></button>'});
  return h+'</section>'};
@@ -148,7 +153,7 @@ P.start({name:"b",flat:true,v2:true,noAssistantBtn:true,moon:MOON,card:tile,lane
   weeks:[["[ ]","Previous or next week (also Page Up, Page Down)"],["T","Back to this week; today's night pulses once"],["W","Week picker"],["1 2 3","Mine, Household, then each person (view only)"],["C","Copy last week into empty nights; the button turns into Undo for 14 s"],["Shift C","Clear the week from today on (mine, or the household's, by what is chosen)"]],
   mouse:[["~Persistent icons","Add missing, Hold, Replan and Not cooking sit at the right of each tile; a past tile has Copy forward"],["~Right-click","Same actions as a menu, with keys shown. On an open night: Surprise me, Ask AI, Not cooking"],["~Drag","Move to another day; the torn edge shows what you pulled out. Alt or Option drag copies"],["~Click a count","The moon count and the padlock count jump to the first night of that kind"],["~Two-finger swipe","Sideways on the header or board: previous or next week"],["~Click title","Week picker. ‹ › step one week"]]},
  skeleton:function(){var h='<div class="agenda">';DN.forEach(function(d){h+='<section class="arow"><div class="adate"><b>'+d+'</b></div><div class="astack"><div class="sk"></div></div></section>'});return h+'</div>'},
- main:function(){dropScan();var h='<div class="agenda" role="list" aria-label="Week agenda">';
+ main:function(){dropScan();var h=WK.fillCard()+'<div class="agenda" role="list" aria-label="Week agenda">';
   DN.forEach(function(d){var hd=u.dayHeadTxt(d);h+='<section class="arow'+(hd.today?" is-today":"")+'" data-day="'+d+'" data-drop-day="'+d+'" aria-label="'+hd.full+' '+hd.date+'"><div class="adate"><b>'+d+'</b><span>'+hd.date+'</span>'+(hd.today?'<span class="today">Today</span>':"")+'<span class="dh-hint"></span></div><div class="astack">'+dayStack(d)+'</div></section>'});
   return h+'</div>'}});
 /* three columns only where there is room (1440 and up): the check lives in its own file, fetched only then */
