@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Recipe share, all slices</title>
+<link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><link rel="stylesheet" href="index.css"><script src="../../theme.js"></script></head>
+<body><div class="wrap">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Share a recipe outside the household</h1>
+<p>Fragment, four slices tied together. The job: <b>send a recipe you are happy with to someone outside the household</b>, with a link that expires and needs no sign-in, so it can also bring people to Kitchie. Each slice has three options and a recommended one (A). Mockup only: nothing is created, sent or saved. <span class="tag">Options awaiting owner pick</span></p>
+
+<div class="hub-said"><b>The owner's words</b> <span class="tag">voice, 13 October 2026</span>
+<ul>
+<li>Share a recipe he is happy with outside the household, like the shopping-list link: an expiring signed URL.</li>
+<li>No sign-in needed to view, and the same if signed in. Multi-use, not single-use, but it expires.</li>
+<li>The intent is growth hacking.</li>
+<li>A share button at the top of the recipe, with a couple of placement options.</li>
+<li>Pending URLs are visible inside the recipe, where they can be cancelled. Links can be renamed, like the shopping link.</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">Recommended path</div>
+<div class="hub-rec">
+<p><b>Option A in every slice.</b> Together they make one short story, and none of them covers the recipe or asks the cook a question they cannot already answer.</p>
+<ol class="hub-path">
+<li><span><b>Share icon in the top row</b> with a count of active links, opening in place (sheet on phone, flyout on desktop).</span></li>
+<li><span><b>One create screen</b>: a name, how long it works (7 days chosen), and a switch that keeps it as it is today.</span></li>
+<li><span><b>A Shared section</b> after Photos lists every link with its countdown, opens, Copy, Rename and Cancel (Undo for 5 minutes).</span></li>
+<li><span><b>A quiet recipient page</b>: the recipe first, one invitation card after the last note, a Save button if they are signed in.</span></li>
+</ol>
+<p style="margin-top:var(--sp-3)">The slices were drawn separately, so a few seams are not settled (where the link list lives, Esc, the default name). They are listed as open questions in the <a href="https://github.com/basement-bridge/mockup/blob/main/docs/knowledge/jobs-to-be-done/recipe-share.md" style="text-decoration:underline">job note</a>, and every decision there is <b>proposed</b>, none confirmed.</p>
+</div></div>
+
+<div class="sec"><div class="lbl">The four slices</div>
+
+<div class="hub-slice"><h2><a href="placement/index.html">1. Where the Share button lives</a> <span class="tag">Fragment</span></h2>
+<p class="one">Three places for the entry point, with the count of active links on it.</p>
+<p class="recd"><b>Recommended: A.</b> An icon in the top row (a labelled pill with key S on desktop). B is a chip under the title; C hides it in More.</p>
+<div class="hub-links"><a href="placement/index.html">All options</a><a href="placement/phone.html?opt=a&amp;links=2">A on phone</a><a href="placement/desktop.html?opt=a&amp;links=2&amp;open=1">A on desktop, open</a><a href="placement/notes.md">Notes</a></div></div>
+
+<div class="hub-slice"><h2><a href="sheet/index.html">2. Create the link</a> <span class="tag">Fragment</span></h2>
+<p class="one">What you choose before the link exists: name, how long, and which copy they see.</p>
+<p class="recd"><b>Recommended: A.</b> One screen with three answers already filled in; default 7 days, kept as it is today. B makes the link on open; C adds a version list and a date picker.</p>
+<div class="hub-links"><a href="sheet/index.html">All options</a><a href="sheet/screen.html?o=a&amp;s=default">A, the form</a><a href="sheet/screen.html?o=a&amp;s=created">A, link ready</a><a href="sheet/notes.md">Notes</a></div></div>
+
+<div class="hub-slice"><h2><a href="manage/index.html">3. See, rename and cancel links</a> <span class="tag">Fragment</span></h2>
+<p class="one">Where the pending links show inside the recipe and how they are changed.</p>
+<p class="recd"><b>Recommended: A.</b> A Shared section after Photos with a chip in the jump row, only while links exist. B is a panel from the Share button; C is a card above the ingredients.</p>
+<div class="hub-links"><a href="manage/index.html">All options</a><a href="manage/index.html?opt=A">A, in the recipe</a><a href="manage/notes.md">Notes</a></div></div>
+
+<div class="hub-slice"><h2><a href="recipient/index.html">4. What the recipient sees</a> <span class="tag">Fragment</span></h2>
+<p class="one">The public page: a good read on its own, with an invitation that stays out of the way.</p>
+<p class="recd"><b>Recommended: A.</b> A quiet top strip, then one card after the last note. B is a slim bottom bar; C is a banner above the recipe.</p>
+<div class="hub-links"><a href="recipient/index.html">All options</a><a href="recipient/page.html?opt=a&amp;s=anon">A, not signed in</a><a href="recipient/page.html?opt=a&amp;s=member">A, signed in</a><a href="recipient/page.html?opt=a&amp;s=expired">Link has run out</a><a href="recipient/notes.md">Notes</a></div></div>
+</div>
+
+<div class="sec"><div class="lbl">Where the slices disagree</div>
+<p>Not settled; the owner or the next driver picks. Detail and the cost of a wrong guess are in the job note.</p>
+<ul class="hub-list">
+<li><b>Where the link list lives.</b> The Share icon opens a small list (placement), while the recommended manage option is a section in the page. Both can stay if the icon scrolls to the section.</li>
+<li><b>Esc.</b> Placement closes the flyout only with Ctrl or Cmd Enter, as Pantry does; the create sheet also closes with Esc.</li>
+<li><b>The default name.</b> The recipe title, up to 60 characters (create), or "Link, 13 Oct", up to 40 (manage).</li>
+<li><b>One recipe or one version.</b> The icon belongs to the recipe; the create sheet pins the version on screen.</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">Notes for whoever builds it</div>
+<ul class="hub-list">
+<li><a href="https://github.com/basement-bridge/mockup/blob/main/docs/knowledge/jobs-to-be-done/recipe-share.md" style="text-decoration:underline">Job note</a>: the owner's words, decisions 206 onward (all proposed), open questions.</li>
+<li><a href="https://github.com/basement-bridge/mockup/blob/main/docs/handover/recipe-share.md" style="text-decoration:underline">Handover</a>: where everything lives, decided or proposed, what to ask the owner, how to build later.</li>
+</ul></div>
+</div></body></html>
