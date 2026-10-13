@@ -1,0 +1,5 @@
+/* Phone and tablet (under 1024px): the share sheet is a bottom sheet over a dim, in the recipe tab's own .sheet. Close: the x, the dim, Esc, or Done. */
+.sh-h .kbd.cap{display:none}
+.sheet.sh{max-height:90%;padding-bottom:max(var(--sp-5),env(safe-area-inset-bottom))}
+.sheet.sh[data-o=c] .sh-go{position:sticky;bottom:calc(var(--sp-5) * -1);box-shadow:0 0 0 var(--sp-3) var(--surface)}
+.sh-toast{bottom:var(--sp-5)}
