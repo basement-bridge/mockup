@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Photo Enhance engine</title>
+<link rel="stylesheet" href="../../../theme.css"><script src="../../../theme.js"></script>
+<style>
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.4 var(--body);padding:var(--gutter)}
+h1{font:700 22px var(--head);margin:0 0 4px}.sub{color:var(--muted);margin:0 0 var(--sp-4)}
+.row{display:flex;flex-wrap:wrap;gap:var(--sp-2);margin-bottom:var(--sp-3)}
+button,select{min-height:var(--tap);padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);color:var(--fg);font:600 14px var(--body)}
+button[aria-pressed=true]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+canvas{display:block;width:100%;max-width:640px;height:auto;border-radius:var(--r-card);border:1px solid var(--border);background:var(--surface)}
+pre{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-ctl);padding:var(--sp-3);overflow:auto;font-size:12px;max-width:640px}
+</style></head><body>
+<h1>Photo Enhance engine</h1>
+<p class="sub">Shared by all options. Nothing loads until you pick a photo. Stays in this browser.</p>
+<div class="row"><select id="pick" aria-label="Sample photo"></select><input id="own" type="file" accept="image/*" aria-label="Try your own photo"></div>
+<div class="row" id="lv" role="group" aria-label="Level"></div>
+<canvas id="cv" width="16" height="12"></canvas>
+<pre id="info">Pick a photo.</pre>
+<script src="enhance.js"></script>
+<script>
+var cv = document.getElementById("cv"), info = document.getElementById("info"), lv = document.getElementById("lv"), sel = document.getElementById("pick"), sess = null, cur = "balanced";
+PhotoEnhance.LEVELS.forEach(function (L) { var b = document.createElement("button"); b.textContent = L.label; b.dataset.l = L.id; b.setAttribute("aria-pressed", "false"); lv.appendChild(b); });
+lv.onclick = function (e) { var id = e.target.dataset && e.target.dataset.l; if (id && sess) show(id); };
+function show(id) {
+  cur = id; [].forEach.call(lv.children, function (b) { b.setAttribute("aria-pressed", String(b.dataset.l === id)); });
+  var t = performance.now();
+  sess.render(id, cv).then(function () { info.textContent = text(id, performance.now() - t); });
+}
+function text(id, ms) { return sess.width + " x " + sess.height + "  (" + sess.megapixels + " MP)\nlevel " + id + " drawn in " + ms.toFixed(0) + " ms\nnotes: " + JSON.stringify(sess.notesFor(id).map(function (n) { return n.text; })); }
+function load(src) {
+  if (sess) sess.close();
+  PhotoEnhance.open(src).then(function (s) { sess = s; show(PhotoEnhance.DEFAULT); s.prefetch(["light", "balanced", "full"]); }, function (e) { info.textContent = "Cannot open: " + e.code; });
+}
+fetch("samples/samples.json").then(function (r) { return r.json(); }).then(function (list) {
+  list.forEach(function (s) { var o = document.createElement("option"); o.value = "samples/" + s.file; o.textContent = s.label + " (" + s.flaw + ")"; sel.appendChild(o); });
+  sel.onchange = function () { load(sel.value); }; load(sel.value);
+});
+document.getElementById("own").onchange = function (e) { if (e.target.files[0]) load(e.target.files[0]); };
+</script></body></html>
