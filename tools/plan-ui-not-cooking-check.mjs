@@ -1,5 +1,5 @@
-// Behaviour check for Plan UI review 154 to 158 (13 Oct 2026 live test): light Not cooking panel, 3 s swipe undo, muted Not cooking colour,
-// ECG marker on the divider line, tear on every drag (top and bottom only). Headless Chromium, touch and mouse.
+// Behaviour check for Plan UI review 154 to 158 and 178 (13 Oct 2026 live test): light Not cooking panel, 3 s swipe undo, muted Not cooking colour,
+// ECG marker on the divider line (only where days are hidden, 178), tear on every drag (top and bottom only). Headless Chromium, touch and mouse.
 // Usage:  python3 -m http.server 8123 &   then   NODE_PATH=/opt/node22/lib/node_modules node tools/plan-ui-not-cooking-check.mjs
 import { createRequire } from "module";
 const req = createRequire(import.meta.url); let pw; try { pw = req("playwright-core"); } catch (e) { pw = req("playwright"); }
@@ -65,21 +65,33 @@ for (const [w, h, touch] of [[390, 844, true], [360, 740, true], [1280, 900, fal
     await S(p, "window.__plan.render()"); ok(`${tag} 157: a re-render does not replay the beat`, (await p.locator(".ecg.beat").count()) === 0);
     await p.locator('.ecg[data-ecg="d17"]').scrollIntoViewIfNeeded(); await tap(p, '.ecg[data-ecg="d17"]'); await sleep(300);
     ok(`${tag} 157: tap opens just that one day, Sun 18 (open) and the others are untouched`, (await hidCount(p, ["d17"])) === 0 && (await p.locator("#d-d17 .blk").count()) === 1 && (await hidCount(p, ["d22", "d25", "d10"])) === 3);
-    ok(`${tag} 157: the marker is now the open one and says Hide`, (await p.locator('.ecg.open[data-ecg="d17"]').count()) === 1 && /^Hide/.test(await p.locator('.ecg.open').first().getAttribute("aria-label")));
-    await tap(p, '.ecg.open[data-ecg="d17"]'); await sleep(300); ok(`${tag} 157: tapping again closes it`, (await hidCount(p, ["d17"])) === 1 && (await p.locator('.ecg[data-ecg="d17"]:not(.open)').count()) === 1);
+    ok(`${tag} 178: the opened day carries NO marker (no open marker, none for d17, none inside or on it)`, (await p.locator('.ecg.open, .ecg[data-ecg*="d17"], #d-d17 .ecg').count()) === 0);
+    ok(`${tag} 178: every marker left is over days that are really hidden, and collapsed (aria-expanded false)`, await S(p, "[...document.querySelectorAll('.ecg')].every(b => b.getAttribute('aria-expanded') === 'false' && b.dataset.ecg.split(',').every(d => document.getElementById('d-' + d).classList.contains('hid')))"));
+    await sleep(1300); await S(p, "window.scrollBy(0, 30)"); await sleep(400);
+    ok(`${tag} 178: still on screen after 1.3 s and a small scroll, it stays open`, (await hidCount(p, ["d17"])) === 0);
+    await S(p, "window.scrollTo(0, document.getElementById('d-d17').getBoundingClientRect().top + window.scrollY + 700)"); await sleep(500);
+    ok(`${tag} 178: scrolled well past, the opened day folds back by the peek rule (96)`, (await hidCount(p, ["d17"])) === 1);
+    ok(`${tag} 178: and the flat marker is back in its gap, one only`, (await p.locator('.ecg[data-ecg="d17"]').count()) === 1 && (await p.locator('.ecg').count()) === (await S(p, "new Set([...document.querySelectorAll('.ecg')].map(b => b.dataset.ecg)).size")));
+    await p.locator('.ecg[data-ecg="d17"]').scrollIntoViewIfNeeded(); await tap(p, '.ecg[data-ecg="d17"]'); await sleep(300); ok(`${tag} 178: it opens again from the marker`, (await hidCount(p, ["d17"])) === 0);
+    ok(`${tag}: no sideways scroll`, await S(p, "document.documentElement.scrollWidth <= innerWidth"));
     await p.close(); }
   { const p = await open(ctx, "", errs); await twoGap(p);
     ok(`${tag} 157: two hidden days in one gap give ONE marker`, (await p.locator('.ecg[data-ecg="d19,d20"]').count()) === 1 && (await p.locator('.ecg[data-ecg*="d19"]').count()) === 1);
     await p.locator('.ecg[data-ecg="d19,d20"]').scrollIntoViewIfNeeded(); await tap(p, '.ecg[data-ecg="d19,d20"]'); await sleep(350);
     ok(`${tag} 157: one tap opens ALL of them`, (await hidCount(p, ["d19", "d20"])) === 0 && (await p.locator("#d-d19 .blk, #d-d20 .blk").count()) === 2);
-    ok(`${tag} 157: they stay open after a scroll (not re-hidden by scrolling)`, await (async () => { await S(p, "window.scrollBy(0, 400)"); await sleep(400); await S(p, "window.scrollBy(0, -400)"); await sleep(400); return (await hidCount(p, ["d19", "d20"])) === 0; })());
-    ok(`${tag} 157: one open marker above them closes both`, (await p.locator('.ecg.open[data-ecg="d19,d20"]').count()) === 1);
-    await tap(p, '.ecg.open[data-ecg="d19,d20"]'); await sleep(300); ok(`${tag} 157: and closing hides both again`, (await hidCount(p, ["d19", "d20"])) === 2);
+    ok(`${tag} 178: no marker on either opened day`, (await p.locator('.ecg.open, .ecg[data-ecg*="d19"], .ecg[data-ecg*="d20"]').count()) === 0);
+    await sleep(1300); await S(p, "window.scrollTo(0, document.getElementById('d-d19').getBoundingClientRect().top + window.scrollY + 700)"); await sleep(500);
+    ok(`${tag} 178: scrolled on, BOTH fold back together and one marker returns for the pair`, (await hidCount(p, ["d19", "d20"])) === 2 && (await p.locator('.ecg[data-ecg="d19,d20"]').count()) === 1);
     await p.close(); }
   { const p = await open(ctx, "", errs); await twoGap(p);   // keyboard
     await p.locator('.ecg[data-ecg="d19,d20"]').focus(); ok(`${tag} 157: the marker is focusable`, await S(p, "document.activeElement.classList.contains('ecg')"));
-    await p.keyboard.press("Enter"); await sleep(300); ok(`${tag} 157: Enter opens the gap`, (await hidCount(p, ["d19", "d20"])) === 0 && await S(p, "document.activeElement.classList.contains('ecg') && document.activeElement.classList.contains('open')"));
-    await p.keyboard.press("Space"); await sleep(300); ok(`${tag} 157: Space closes it`, (await hidCount(p, ["d19", "d20"])) === 2);
+    await p.keyboard.press("Enter"); await sleep(300); ok(`${tag} 157: Enter opens the gap`, (await hidCount(p, ["d19", "d20"])) === 0);
+    ok(`${tag} 178: focus moves to the first opened day (not lost) and no marker is left on it`, await S(p, "document.activeElement && document.activeElement.closest('#d-d19') !== null && !!document.activeElement.classList.contains('blk')") && (await p.locator('.ecg[data-ecg*="d19"]').count()) === 0);
+    await sleep(1300); await S(p, "window.scrollTo(0, document.getElementById('d-d19').getBoundingClientRect().top + window.scrollY + 700)"); await sleep(500);
+    ok(`${tag} 178: while focus is still inside an opened day it is not pulled away`, (await hidCount(p, ["d19", "d20"])) === 0);
+    await S(p, "document.activeElement.blur()"); await S(p, "window.scrollBy(0, -40)"); await sleep(500);
+    ok(`${tag} 178: once focus has left it folds back`, (await hidCount(p, ["d19", "d20"])) === 2);
+    await p.locator('.ecg[data-ecg="d19,d20"]').focus(); await p.keyboard.press("Space"); await sleep(300); ok(`${tag} 157: Space opens the gap too`, (await hidCount(p, ["d19", "d20"])) === 0);
     await p.close(); }
   { const p = await open(ctx, "gap=off", errs); ok(`${tag} 157: ?gap=off draws no marker`, (await p.locator(".ecg").count()) === 0); await p.close(); }
   { const p = await open(ctx, "", errs); await S(p, "window.scrollTo(0, 0)"); await sleep(200);
@@ -119,7 +131,10 @@ for (const [w, h, touch] of [[390, 844, true], [360, 740, true], [1280, 900, fal
   { const c2 = await browser.newContext(touch ? { viewport: { width: w, height: h }, hasTouch: true, isMobile: true, reducedMotion: "reduce" } : { viewport: { width: w, height: h }, reducedMotion: "reduce" }); const p = await open(c2, "", errs);
     ok(`${tag} 157 reduced motion: flat at once (no beat class, beat path invisible)`, (await p.locator(".ecg.beat").count()) === 0 && (await S(p, "parseFloat(getComputedStyle(document.querySelector('.ecg .bt')).opacity)")) === 0 && (await S(p, "getComputedStyle(document.querySelector('.ecg .bt')).animationName")) === "none");
     await p.locator('.ecg[data-ecg="d17"]').scrollIntoViewIfNeeded(); await (touch ? p.locator('.ecg[data-ecg="d17"]').tap() : p.locator('.ecg[data-ecg="d17"]').click()); await sleep(200);
-    ok(`${tag} 157 reduced motion: still tappable`, (await hidCount(p, ["d17"])) === 0); await c2.close(); }
+    ok(`${tag} 157 reduced motion: still tappable`, (await hidCount(p, ["d17"])) === 0);
+    ok(`${tag} 178 reduced motion: opened day has no marker, no entrance animation`, (await p.locator('.ecg[data-ecg*="d17"], .ecg.open').count()) === 0 && (await S(p, "getComputedStyle(document.getElementById('d-d17')).animationName")) === "none");
+    await sleep(1300); await S(p, "window.scrollTo(0, document.getElementById('d-d17').getBoundingClientRect().top + window.scrollY + 700)"); await sleep(500);
+    ok(`${tag} 178 reduced motion: folds back when scrolled on, flat marker returns`, (await hidCount(p, ["d17"])) === 1 && (await p.locator('.ecg[data-ecg="d17"]').count()) === 1); await c2.close(); }
   ok(`${tag}: no page errors`, errs.length === 0, errs); await ctx.close();
 }
 await browser.close();
