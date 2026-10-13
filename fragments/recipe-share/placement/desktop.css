@@ -1,0 +1,24 @@
+/* Share placement, desktop host (1024px and up). Rail, column and lane use the Pantry's measures (rail 88px, 736px lane for the column, flyout 400px);
+   the rail and flyout rules are the Pantry's (fragments/item-edit-flyout/desktop.css), repeated here only because this page does not load that file. */
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font-family:var(--body)}
+a{color:inherit;text-decoration:none}button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+.app{display:grid;grid-template-columns:88px minmax(0,736px) 400px;justify-content:start;height:100vh;overflow:hidden}
+.rail{border-right:1px solid var(--border);padding:16px 8px;display:flex;flex-direction:column;gap:6px;align-items:stretch}
+.rail .brand{font:700 13px var(--head);text-align:center;color:var(--muted);margin-bottom:10px}
+.nv{display:flex;flex-direction:column;align-items:center;gap:2px;min-height:var(--tap);padding:8px 2px;border-radius:var(--r-ctl);font-size:12px;font-weight:600;color:var(--muted)}
+.nv svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nv.on{color:var(--accent);background:var(--surface)}.nv:hover{background:var(--surface)}
+.col{min-width:0}.col iframe{display:block;width:100%;height:100vh;border:0}
+.panel{border-left:1px solid var(--border);padding:24px;height:100vh;overflow:auto;display:flex;flex-direction:column;gap:14px;background:var(--surface)}
+.panel .idle{margin:auto 0;text-align:center;color:var(--muted);font-size:14px}
+.panel .hd{display:flex;align-items:center;gap:8px}
+.panel .hd .x{margin-left:auto;width:var(--tap);height:var(--tap);border-radius:50%;border:1px solid var(--border);background:var(--bg);display:inline-grid;place-items:center}
+.panel .hd .x svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.panel .hd .kbd{font:600 11px var(--body);border:1px solid var(--border);border-radius:6px;padding:1px 6px;color:var(--muted);background:var(--bg)}
+.panel .ic{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.panel h3{margin:0;font:800 18px var(--head)}
+.panel p{margin:0;color:var(--muted);font-size:14px;line-height:1.45}
+.panel .mini{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--border);background:none;font-size:12px;font-weight:700}
+.panel .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 16px;border-radius:var(--r-ctl);background:var(--accent);color:var(--on-accent);font-weight:800;font-size:15px;border:1px solid var(--accent)}
+.toast{position:fixed;left:calc(88px + 48px);bottom:20px;z-index:20;background:var(--fg);color:var(--bg);border-radius:var(--r-ctl);padding:12px 14px;font-weight:600;font-size:14px}

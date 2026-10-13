@@ -1,0 +1,35 @@
+/* Recipe share, placement slice. Entry points and the stub of what they open. Prefix shr- so nothing leaks; theme tokens only (theme.css),
+   no raw colours. Reuses the recipe page's own classes (.ib, .mc, .mini, .opt, .sheet, .btn, .kbd). Both viewports use this file;
+   anything that differs by viewport is in phone.js / desktop.js / desktop.css. */
+
+/* A: the icon in the top row, with the count of active links on it */
+.shr-ic{position:relative}
+.shr-ic .shr-n,.shr-chip .shr-n{min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--accent);color:var(--on-accent);font:800 11px/18px var(--body);text-align:center}
+.shr-ic .shr-n{position:absolute;top:3px;right:1px;box-shadow:0 0 0 2px var(--bg)}
+.shr-ic.on{color:var(--accent)}
+
+/* B: a labelled chip in the title block's meta row */
+.shr-chip{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-size:13px;font-weight:700;color:var(--fg)}
+.shr-chip.on{border-color:var(--accent);color:var(--accent)}
+.shr-chip .ic{width:16px;height:16px}
+
+/* C: a status line under the title (only when links are out) and a row in the More sheet */
+.shr-line{display:flex;align-items:center;gap:8px;min-height:44px;margin-top:var(--sp-1);padding:0;color:var(--accent);font-size:13px;font-weight:700;text-align:left}
+.shr-line .ic{width:16px;height:16px}
+.shr-line span{color:var(--muted);font-weight:600}
+.opt.shr-opt .shr-n{margin-left:auto;min-width:22px;height:22px;padding:0 6px;border-radius:11px;background:var(--accent);color:var(--on-accent);font:800 12px/22px var(--body);text-align:center}
+
+/* the stub of what tapping the entry opens (the links panel and the create sheet are another slice's) */
+.shr-stub h3{display:flex;align-items:center;gap:8px}
+.shr-stub .shr-sub{font-size:13px;margin-top:2px}
+.shr-stubtag{display:inline-block;margin-top:var(--sp-2);padding:2px 10px;border:1px dashed var(--border);border-radius:var(--r-pill);font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.shr-ls{list-style:none;margin:var(--sp-3) 0 0;padding:0}
+.shr-ls li{display:flex;align-items:center;gap:var(--sp-3);min-height:60px;padding:var(--sp-2) 0;border-top:1px solid var(--border)}
+.shr-ls .ic{color:var(--accent)}
+.shr-ls .t{flex:1;min-width:0}
+.shr-ls b{display:block;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.shr-ls small{display:block;color:var(--muted);font-size:12.5px}
+.shr-ls .mini{min-height:44px}
+.shr-none{margin-top:var(--sp-3);padding:var(--sp-3);border:1px dashed var(--border);border-radius:var(--r-card);font-size:13px}
+.shr-stub .btn{width:100%;margin-top:var(--sp-3);flex:none}
+.shr-stub .shr-fine{margin-top:var(--sp-2);font-size:12.5px;text-align:center}
