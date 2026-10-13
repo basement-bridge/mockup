@@ -3,7 +3,7 @@
    ?demo=1&frame=3    one frame, still (cap=0 hides the caption bar, used for the screenshots)
    ?demo=agenda       the lift and shift straight from the plain week view, 7 frames (decisions 142 to 146): 1 week, 2 press and hold lifts the tile, 3 picked up and carried (plain, no tear), 4 dropped on a day with a meal (Replaced, pulse, Undo),
                       5 a past tile lifted to copy forward and a past day refusing it, 6 the detail drag-out is the ONLY torn one, 7 a quick sideways swipe still reveals the swipe actions (no lift)
-   ?demo=open         the open day, 6 frames (decisions 147 to 153, 154, 155, 183): 1 the dashed open day, 2 right swipe reveals Not cooking, 3 Not cooking with Undo (3 s), 4 tap the Not cooking tile: the LIGHT panel (Ask AI, Surprise me, Mark as open), 5 tap an open night: the SAME card (Ask AI, Surprise me, Not cooking), 6 Not cooking from that card: the card swaps in place, Undo inside it (14 s)
+   ?demo=open         the open day, 6 frames (decisions 147 to 153, 154, 155, 183, 187, 188): 1 the dashed open day, 2 right swipe reveals Not cooking, 3 Not cooking with Undo (3 s), 4 tap the Not cooking tile: the LIGHT panel (Ask AI, Surprise me, Mark as open), 5 tap an open night: the SAME card, Ask AI and Surprise me only (187), 6 after a right swipe on that open night: Not cooking with the 3 s Undo on the tile, no card (188)
    ?demo=nc           the 13 Oct live-test round (decisions 154 to 158), 8 frames: 1 a collapsed Not cooking day with the ECG marker on the divider line, 2 one tap opens it (no marker on the opened day, 178), 3 a gap of two days, 4 one tap opens both, 5 tap a Not cooking day: the light panel, 6 the open-day swipe and its 3 s Undo, 7 the tear in the plain agenda (top and bottom edges only), 8 scroll on and the opened days fold back, the flat marker returns (178, Proposal)
    ?demo=week         the week header and bulk actions (decisions 159 to 177), 12 frames: 1 label row with nights, moon and open-box counts, buttons below, 2 Add to buy then Undo, 3 Add to buy gone, Reserve alone, 4 Reserve then Undo, 5 everything held: Release, 6 one meal held by itself: Reserve with the rest, 7 Release then Undo, 8 nothing missing and nothing on hand: no strip, 9 several Not cooking and several open nights, 10 the counts after a swipe, 11 next week with a long label (sample meals seeded for this frame only), 12 the old strip (?ws=counts, superseded). Last week (read only, no strip, no indicators) is in the screenshots
    Frames (?demo=1): 1 week plan, 2 tap a day: the day docks top and the sheet docks bottom, 3 tap another day in the ribbon: the contents of the stack swap, the slot stays (115),
@@ -34,15 +34,15 @@
     ['Right swipe: Not cooking', 'A right swipe on the open day shows the tinted Not cooking reveal, the same as on a meal tile (148, owner-stated: "Right swipe to making not cooking"). Past days and other people\'s plans have no swipe. Keys: Shift X.'],
     ['Not cooking, with Undo', 'The day is Not cooking (this week only), in the muted grey of the past days (156), with Undo in place on the tile. For this swipe the Undo lasts 3 seconds (155, owner-stated); other undos keep 14 s (130). The tile then hides once you move on (92, 96).'],
     ['Tap a Not cooking day', 'A light panel docks under the ribbon: the day, Ask AI, Surprise me and Mark as open. No tile, people, ingredients or time, and the week stays under it (154, owner-stated: the full detail "blocks"). The day stays Not cooking until you mark it open or pick Surprise me.'],
-    ['Tap an open night: the same card', 'Wed 21 opens the same light card as a Not cooking day (183, owner-stated: "Open night should behaviour like not cooking night. No need for empty area"): the day, a quiet "Open night", Ask AI, Surprise me and Not cooking, the mirror of Mark as open. No tongue and no empty sheet; the week stays under it. It stays until closed, another day is tapped, or you act.'],
-    ['Not cooking from the card', 'The night is marked and the card swaps to the Not cooking version in place (Proposal, 183): moon line, Mark as open, and the Undo inside the card for 14 s. The 3 s Undo is only for the right swipe (155).']
+    ['Tap an open night: the same card', 'Wed 21 opens the same light card as a Not cooking day (183, owner-stated: "Open night should behaviour like not cooking night. No need for empty area"): the day, a quiet "Open night", Ask AI and Surprise me. No Not cooking button (187, owner-stated: "not cooking can just be swapped out ... people can swipe it"). No tongue and no empty sheet; the week stays under it. It stays until closed, another day is tapped, or you act.'],
+    ['Not cooking is a swipe', 'Wed 21 after a right swipe on its dashed box (or Shift X): Not cooking, in the muted grey, with the Undo on the tile for 3 s (155). The card offers no Not cooking button (187), so there is nothing to swap or close (184 is resolved).']
   ];
   var CAPN = [
     ['A collapsed Not cooking day', 'Sat 17 is Not cooking and collapsed, so the week reads quietly. The start of the divider line above Sun carries a small ECG marker: it beats once and goes flat (157, owner-stated). The peek at the scroll edge is unchanged (96).'],
     ['Tap the marker: the day opens', 'One tap opens what is hidden in that gap, here just Saturday. Not cooking is the muted grey of last week (156). The opened day has no marker (178, owner-stated: the ECG is "for when the cooking is hidden"); it folds back by itself when you scroll on.'],
     ['A gap of two days', 'Mon 19 and Tue 20 are both Not cooking and collapsed: one marker, at the start of the line above Wed 21.'],
     ['One tap opens all of them', 'Both days open at once (owner-stated: "if multiple days ... it should open up all of them"). No marker on them now (178).'],
-    ['Tap a Not cooking day', 'The light panel: day, Ask AI, Surprise me, Mark as open (154). The week stays under it and the day stays Not cooking. An open night opens the same card with Not cooking as the third button (183).'],
+    ['Tap a Not cooking day', 'The light panel: day, Ask AI, Surprise me, Mark as open (154). The week stays under it and the day stays Not cooking. An open night opens the same card with Ask AI and Surprise me only (183, 187).'],
     ['Right swipe an open day', 'Not cooking, with the Undo in place on the tile. For this swipe the Undo lasts 3 seconds (155, owner-stated).'],
     ['The tear in the plain agenda', 'Hold a tile and drag it: the torn edge shows on the top (dragging down) or bottom (dragging up) only, with the fade on the place-holder and the tilt of the tile in hand (158).'],
     ['Scroll on: the opened days fold back', 'Mon 19 and Tue 20 were opened, then scrolled out of view. They are hidden again and the flat marker is back in the gap, the same as the peek rule (96) always did for a revealed day. Nothing to tap to close (178, Proposal; the cost is that a day you want to keep open folds back when you scroll past it).']
@@ -81,7 +81,8 @@
     if (n === 1) return;
     if (n === 2) { if (od) { sw.classList.add('l', 'ready'); od.style.transform = 'translateX(150px)'; } return; }
     if (n === 3) { A.block('d18', 3000); return; }
-    if (n >= 5) { A.openDay('d21'); if (n === 6) A.block('d21'); return; }
+    if (n === 5) { A.openDay('d21'); return; }
+    if (n === 6) { A.block('d21', 3000); return; }
     S.blocked.d18 = 'once'; A.render(false); A.openDay('d18');
   }
   function buildN(n) {
