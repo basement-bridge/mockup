@@ -223,3 +223,15 @@ html.pf-lock{overflow:hidden;scrollbar-gutter:auto}
 .pf-bad{color:var(--danger);font-weight:600}
 @media (max-width:599px){.pf-ai{flex-wrap:wrap}.pf-ai .pf-arad{flex:1 1 55%}.pf-aiact{flex:1 1 100%;justify-content:flex-end;padding:0 0 4px 30px}.pf-aiact .pf-chip{margin-right:auto}.pf-ai.off .pf-aiact,.pf-ai.bad .pf-aiact{flex:none;padding:0}}
 .pf-ai-ck.none{visibility:hidden}
+/* Make admin and Remove admin on a Household row (SW-85): the confirm is a <details> under the row; the summary reads Cancel while open. */
+.pf-list li:has(>.pf-item+.pf-adm){display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding-right:8px}
+.pf-adm{flex:0 0 auto}
+.pf-adm[open]{flex:0 0 100%;padding:0 0 10px 8px}
+.pf-adm>summary{list-style:none;cursor:pointer}
+.pf-adm>summary::-webkit-details-marker{display:none}
+.pf-adm>summary .c,.pf-adm[open]>summary .o{display:none}
+.pf-adm[open]>summary .c{display:inline}
+.pf-adm[open]>summary{margin-left:auto;display:flex;width:max-content}
+.pf-admbox{display:flex;flex-direction:column;align-items:flex-start;gap:8px;margin-top:6px;padding:12px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--surface)}
+.pf-admbox p{margin:0}
+.pf-list li:has(>.pf-item+.pf-adm)>.pf-item{width:auto;flex:1 1 0;min-width:0}

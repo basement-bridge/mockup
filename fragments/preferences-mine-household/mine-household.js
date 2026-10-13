@@ -615,14 +615,14 @@
       '<p class="small">These have no personal version, so there is nothing to override on Mine.</p></div>';
   }
 
-  /* Members and admins (D25 to D27). Every member can see it (READING: who may see who is admin is open); only the founding member gets the grant and revoke buttons (READING: whether admins share that right is open). */
+  /* Members and admins (D25 to D27). Every member can see it (READING: who may see who is admin is open); any admin gets the grant and revoke buttons for everyone but the founding member and themselves (owner, typed, 14 Oct 2026, SW-85; it was the founding member alone, Q-R1). */
   function membersScreen(flash) {
-    var canGrant = roleOf(S.as) === "founder";
+    var canGrant = roleOf(S.as) !== "member";
     var WHAT = { founder: "Set the household up. Always an admin.", admin: "Can change household settings", member: "Can change their own preferences" };
     var KIND = { founder: "you", admin: "hh", member: "app" };
     var li = M.members.map(function (m) {
       var n = PEOPLE[m.id].name;
-      var btn = canGrant && m.role !== "founder"
+      var btn = canGrant && m.role !== "founder" && m.id !== S.as
         ? '<button type="button" class="btn" data-act="' + (m.role === "admin" ? "revoke" : "grant") + '" data-id="' + m.id + '" aria-label="' + (m.role === "admin" ? "Remove " + esc(n) + " as admin" : "Make " + esc(n) + " an admin") + '">' + (m.role === "admin" ? "Remove admin" : "Make admin") + "</button>" : "";
       return '<li><span class="sname">' + esc(n) + (m.id === S.as ? " (you)" : "") + '<span class="swhat">' + chip(KIND[m.role], ROLE_WORD[m.role]) + "<br>" + esc(WHAT[m.role]) + "</span></span>" + btn + "</li>";
     }).join("");
@@ -630,7 +630,7 @@
       '<main class="mbody">' + flash +
       "<p>Admins can change what the whole household shares: its settings, notes and food rules. Everyone can always change their own preferences, whatever their role.</p>" +
       '<span class="lbl">Members</span><div class="card sgroup"><ul class="stops" aria-label="Members and admins">' + li + "</ul></div>" +
-      '<p class="note">' + (canGrant ? "You set up the household. You choose who else is an admin, one person at a time, and you can take it back." : "Only the founding member can make someone an admin, or take it back.") + "</p></main></div>";
+      '<p class="note">' + (canGrant ? "Admins can make someone an admin, or take it back. The founding member is always an admin." : "Only household admins can make someone an admin, or take it back. Admins: " + M.members.filter(function (m) { return m.role !== "member"; }).map(function (m) { return PEOPLE[m.id].name; }).join(" and ") + ".") + "</p></main></div>";
   }
 
   /* ---------- the profile, where Kitchen role and the assistant went (D24) ----------
@@ -696,8 +696,8 @@
     var act = t.getAttribute("data-act"), id = t.getAttribute("data-id"), val = t.getAttribute("data-val");
     if (t.tagName === "A") ev.preventDefault();
     if (act === "view") { S.view = id === "main" ? null : id; S.open = null; S.flash = ""; S.saved = ""; S.confirm = null; S.focus = null; render(); var vf = root.closest(".mh-frame"); if (vf && vf.getBoundingClientRect().top < 0) vf.scrollIntoView({ block: "start" }); }
-    else if (act === "grant" || act === "revoke") { /* D27: the founding member's call, per person */
-      if (roleOf(S.as) !== "founder") return;
+    else if (act === "grant" || act === "revoke") { /* D27, widened by SW-85: any admin's call, per person */
+      if (roleOf(S.as) === "member" || id === S.as) return;
       M.members.forEach(function (m) { if (m.id === id && m.role !== "founder") m.role = act === "grant" ? "admin" : "member"; });
       S.flash = PEOPLE[id].name + (act === "grant" ? " is now a household admin." : " is no longer a household admin."); S.focus = '[data-act="' + (act === "grant" ? "revoke" : "grant") + '"][data-id="' + id + '"]'; render();
     }
