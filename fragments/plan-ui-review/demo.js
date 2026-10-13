@@ -10,9 +10,9 @@
            4 start dragging the tile and it tears off, a ragged edge on the tile and on the piece left behind (118), 5 dragged to a day, torn all the way, 6 let go on a day,
            7 alternative: close the stack, the ribbon goes and the week returns. It drives the same code a finger does (beginDrag, moveHand, endHand, closeDetail). */
 (function () {
-  var A = window.__plan, q = new URLSearchParams(location.search), AG = q.get('demo') === 'agenda', OP = q.get('demo') === 'open', NC = q.get('demo') === 'nc', WKD = q.get('demo') === 'week', N = OP ? 6 : 7, cur = 1, timer = null, playing = true;
+  var A = window.__plan, q = new URLSearchParams(location.search), AG = q.get('demo') === 'agenda', OP = q.get('demo') === 'open', NC = q.get('demo') === 'nc', WKD = q.get('demo') === 'week', SC = q.get('demo') === 'scope', N = OP ? 6 : 7, cur = 1, timer = null, playing = true;
   var CAPD = [
-    ['Week plan, no ribbon', 'The week view has no day ribbon (136): a slim header, then the agenda across three weeks. Wed 14 has a meal. Tap it.'],
+    ['Week plan, no ribbon', 'The week view has no day ribbon (136): a slim header, then the agenda across five weeks (197). Wed 14 has a meal. Tap it.'],
     ['Tap a day with a meal', 'The ribbon fades in, docked under the header, only now (136). The day docks directly under it and the detail at the bottom. One stack, no gap, no overlay; the stack does not move when the ribbon appears.'],
     ['Tap another day in the ribbon', 'The ribbon stays docked and scrollable. The stack does not close and does not move: only what is in it swaps to Thu 15 (or to an open night, Not cooking or a past day).'],
     ['Start dragging: it tears', 'The tile comes off the docked detail with a ragged, torn-paper edge on its top (or bottom) edge, and the piece left behind has the matching edge. The tear is on every lift-and-drag now (158) but only ever on the top and bottom edge, never a side. The tile fades and tilts as before. Reduced motion: the edge is there at once, no growth.'],
@@ -61,7 +61,16 @@
     ['Next week, a long label', 'Next week has the same label row: "Week of 19 Oct  Next week", its nights and indicators on one line, no wrap (171). Each week counts its own nights. Last week has no indicators, as in #151.'],
     ['For comparison: the old strip', 'The old passive strip (4/7 nights, to buy, use first, with the highlight filter), still available as ?ws=counts. Superseded by 159 to 161; it shows no moon or open-box indicators.']
   ];
-  var CAP = WKD ? CAPW : NC ? CAPN : OP ? CAPO : AG ? CAPA : CAPD; if (NC) N = 8; if (WKD) N = 12;
+  var CAPS = [
+    ['Header: Copy and Clear next to the cogwheel, no Today pill', 'The Today pill is gone (193) and the ... menu is gone: Copy last week and Clear week are two icon buttons beside Plan settings (194, owner-stated). Back to today is a long hold on "Week of 12 Oct" or the T key. Nothing else changed in the header.'],
+    ['Another person\'s plan: an eye and a slight dim', 'Priya\'s plan is view only (190, owner-stated: "I cannot change anybody else\'s plan"). Each tile, the Not cooking tile and the dashed open nights carry a small eye in the same line style as the moon and cog, and are dimmed a little. No swipe, no card, no lift, no Copy or Clear. Past days keep their grey and have no eye. Mine and Everyone are fully interactive.'],
+    ['Tap the open-night count: jump to the first open night', 'The dashed-box count on "Week of 19 Oct" is a button (191, owner-stated: "I like that"): it scrolled to the first open night of that week from today on and pulsed it once. The moon count does the same for the first Not cooking night. The box is larger with a solid numeral (192).'],
+    ['Clear week: meals and this week\'s changes, the routine stays', 'Clear week removed the planned meals, the one-off Not cooking mark (Sat 17) and the usual days off that had been opened this week (Fri 16, Sun 18 are Not cooking every week again). The usual days themselves were not touched (195). The button is Undo in place for 14 s.'],
+    ['A usual day off reads "every week"', 'Sun 25 is a usual day off, set in Plan settings in UAT (Settings, Usual days). The card says "Not cooking, every week (usual day off)"; a one-off mark says "this week only" (196). Mark as open opens it for this week only.'],
+    ['Four weeks forward, one back', 'The agenda and the ribbon now run from last week to three weeks ahead (197, owner-stated: "four forward, one backward"; five weeks counting this one). Weeks beyond next are empty; their usual days off are Not cooking.'],
+    ['Long hold on the label goes to today', 'Scrolled away to the week of 2 Nov, a hold of half a second on "Week of ..." jumped to today and the label pulsed once (193). No hint is drawn. The T key and Enter on the focused label do the same.']
+  ];
+  var CAP = SC ? CAPS : WKD ? CAPW : NC ? CAPN : OP ? CAPO : AG ? CAPA : CAPD; if (NC) N = 8; if (WKD) N = 12; if (SC) N = 7;
   function rect(sel) { var e = document.querySelector(sel); return e ? e.getBoundingClientRect() : null; }
   function buildA(n) {
     A.resetDemo(); A.showWeek('d14'); var S = A.S, tile = function (id) { var e = document.querySelector('.pw-day .mc[data-id="' + id + '"]'); return e ? e.getBoundingClientRect() : null; };
@@ -114,7 +123,19 @@
     if (n === 11) { seed(); A.render(false); go(2); return; }
     S.ws = 'counts'; A.render(false); go(1);
   }
+  function buildS(n) {
+    A.resetDemo(); var S = A.S; S.view = n === 2 ? 'priya' : 'mine'; S.hl = null; A.render(false);
+    var wkRow = function (k, off) { var w = document.querySelectorAll('.wkd')[k]; if (w) window.scrollTo(0, w.getBoundingClientRect().top + scrollY - (off || 70)); A.syncHead(); setTimeout(A.syncHead, 150); };
+    if (n === 1) { A.showWeek('d13'); return; }
+    if (n === 2) { A.showWeek('d14'); return; }
+    if (n === 3) { wkRow(2); var b = document.querySelector('.wkd:nth-of-type(1)'); var rows = document.querySelectorAll('.wkd'); var op = rows[2] && rows[2].querySelector('.wop'); if (op) setTimeout(function () { op.click(); }, 400); return; }
+    if (n === 4) { A.showWeek('d13'); A.clearWeek(); return; }
+    if (n === 5) { S.cur = 'd25'; wkRow(2, 70); A.openDay('d25'); return; }
+    if (n === 6) { wkRow(4, 60); return; }
+    wkRow(4, 60); setTimeout(function () { A.goToday(); }, 600);
+  }
   function build(n) {
+    if (SC) return buildS(n);
     if (WKD) return buildW(n);
     if (NC) return buildN(n);
     if (OP) return buildO(n);
