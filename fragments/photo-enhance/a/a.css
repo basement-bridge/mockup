@@ -1,0 +1,114 @@
+/* Photo enhance, Option A. Lives in the Crop and rotate sheet as a second tab. Theme tokens only (theme.css): no raw colours.
+   Class names follow Kitchie's recipes-edit-photo.css (.cstage .cframe .crow .cinfo .cnote .cerr .cbar .pbar) so this can be lifted into the app (prefix with `.rtab ` there).
+   New pieces: .etabs (the tab row), .ecv/.ocv (the two preview layers), .echip (what you are looking at), .ehold (press and hold), .elev (levels), .enotes (what changed).
+   .pq and .pqpill are Kitchie's photo-queue.css, copied so the queue looks as it does today (the pill is position:absolute inside the phone here, fixed in the app). */
+body{background:var(--stage);overflow:auto}
+html,body{height:auto;min-height:100%}
+.aside{max-width:880px;margin:0 auto;padding:var(--sp-4) var(--gutter) 0;font-size:13px;color:var(--muted)}
+.aside h1{font-family:var(--head);font-size:1.35rem;line-height:1.15;margin:4px 0 6px;color:var(--fg)}
+.aside a{color:var(--accent);font-weight:700}
+.aside .chips2{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px;align-items:center}
+.aside .chips2 b{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-right:2px}
+.aside .chips2 a{display:inline-flex;align-items:center;min-height:36px;padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);color:var(--fg);font-weight:700;font-size:12.5px}
+.aside .chips2 a[aria-current=true]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.aside details{margin:6px 0}.aside summary{cursor:pointer;min-height:36px;display:flex;align-items:center;font-weight:700;color:var(--fg)}
+.aside .log{font:12px/1.5 ui-monospace,Menlo,monospace;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-ctl);padding:var(--sp-2) var(--sp-3);margin-top:6px;color:var(--fg);white-space:pre-wrap;overflow-wrap:anywhere}
+.stage{min-height:0}
+.phone{width:var(--pw,390px);height:780px}
+@media (max-width:599.98px){.phone{width:100%;height:100dvh}}
+
+/* the fake recipe edit screen, just enough to show where the sheet opens from */
+.pbody{flex:1;overflow:auto;padding:var(--sp-3) var(--sp-4) var(--sp-5)}
+.pbody h2{font:800 15px var(--head);margin:var(--sp-4) 0 var(--sp-2);display:flex;align-items:center;gap:var(--sp-2)}
+.pbody h2 small{font:600 12px var(--body);color:var(--muted)}
+.pbody .edpv{width:100%;aspect-ratio:4/3;max-height:220px;border-radius:var(--r-ctl);overflow:hidden;border:1px solid var(--border);position:relative;margin:0}
+.pbody .edpv img.pimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.prow{display:flex;gap:var(--sp-2);align-items:center;margin-top:var(--sp-2);flex-wrap:wrap}
+.prow .mini{min-height:44px;padding:0 14px;font-size:13px;background:var(--surface)}
+.prow .mini.pri{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.thumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.thumbs .pth{aspect-ratio:1;border-radius:var(--r-ctl);overflow:hidden;border:1px solid var(--border);position:relative;background:var(--surface)}
+.thumbs .pth img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.stepcard{border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface);padding:var(--sp-3)}
+.stepcard p{color:var(--fg);font-size:14px}
+.cookcard{border:1px dashed var(--border);border-radius:var(--r-card);padding:var(--sp-3);margin-top:var(--sp-4);background:var(--surface)}
+.cookcard p{font-size:13px;color:var(--muted);margin-bottom:var(--sp-2)}.cookcard .thumbs{margin-bottom:var(--sp-2)}.cookcard .thumbs:empty{display:none}
+.kindtag{font-size:11px;font-weight:800;padding:2px 8px;border-radius:var(--r-pill);border:1px solid var(--border);color:var(--muted);background:var(--bg)}
+
+/* sheet pieces from the app */
+.sheet{padding-bottom:var(--sp-4)}
+.sheet .hrow{display:flex;align-items:center;gap:var(--sp-2);justify-content:space-between}
+.sheet .hrow h3{margin:0}
+.sheet .hrow .mini{min-height:44px;padding:0 12px;font-size:12.5px;white-space:nowrap}
+.sheet p{margin:0}
+.sheet .sub{font-size:12.5px;color:var(--muted);margin-top:2px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.cstage{display:flex;align-items:center;justify-content:center;padding:var(--sp-2) 0}
+.cframe{position:relative;width:100%;aspect-ratio:4/3;overflow:hidden;border-radius:var(--r-ctl);border:2px solid var(--accent);touch-action:none;cursor:grab;background:var(--bg);-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.cframe:active{cursor:grabbing}
+.cframe canvas{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}
+.cframe[data-tab=enhance]{cursor:default;border-style:solid;touch-action:none}
+.cframe[data-tab=enhance]:active{cursor:default}
+.cframe[data-tab=crop] .ocv,.cframe[data-tab=crop] .ecv,.cframe[data-tab=crop] .echip,.cframe[data-tab=crop] .ehold{display:none}
+.cframe[data-tab=enhance] #ccv{display:none}
+.cframe .ecv{transition:opacity .12s}
+.cframe.peek .ecv{opacity:0}
+.cframe[data-tab=crop]::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(to right,transparent calc(33.33% - .5px),color-mix(in srgb,var(--fg) 45%,transparent) calc(33.33% - .5px),color-mix(in srgb,var(--fg) 45%,transparent) calc(33.33% + .5px),transparent calc(33.33% + .5px),transparent calc(66.66% - .5px),color-mix(in srgb,var(--fg) 45%,transparent) calc(66.66% - .5px),color-mix(in srgb,var(--fg) 45%,transparent) calc(66.66% + .5px),transparent calc(66.66% + .5px)),linear-gradient(to bottom,transparent calc(33.33% - .5px),color-mix(in srgb,var(--fg) 45%,transparent) calc(33.33% - .5px),color-mix(in srgb,var(--fg) 45%,transparent) calc(33.33% + .5px),transparent calc(33.33% + .5px),transparent calc(66.66% - .5px),color-mix(in srgb,var(--fg) 45%,transparent) calc(66.66% - .5px),color-mix(in srgb,var(--fg) 45%,transparent) calc(66.66% + .5px),transparent calc(66.66% + .5px))}
+.crow{display:flex;align-items:center;gap:var(--sp-2)}
+.crow input[type=range]{flex:1;min-height:44px;accent-color:var(--accent)}
+.sheet .mini.ico{padding:0;width:44px;min-height:44px}
+.cinfo{margin-top:var(--sp-2);font-size:13px;color:var(--fg);display:flex;gap:6px;align-items:flex-start}
+.cnote{margin-top:6px;font-size:12px;color:var(--muted);line-height:1.4}
+.cnote b{color:var(--fg)}
+.cerr{margin-top:var(--sp-2);font-size:13px;line-height:1.4;color:var(--fg);border-left:3px solid var(--accent);padding-left:var(--sp-2)}
+.cbar{display:grid;grid-template-columns:1fr 1.4fr;gap:var(--sp-2);margin-top:var(--sp-3)}
+.cbar .btn{flex:none}
+.pbar{height:6px;border-radius:3px;background:var(--border);overflow:hidden;margin-top:var(--sp-2)}
+.pbar>i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s}
+.pbar.run>i{width:40%;animation:pbar 1.1s ease-in-out infinite alternate}
+@keyframes pbar{from{margin-left:0}to{margin-left:60%}}
+[data-rot="90"] .ic{transform:scaleX(-1)}
+
+/* the tab row: two tabs, 44 px, the same pill look as .mini */
+.etabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:var(--sp-2) 0 0;padding:3px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--bg)}
+.etabs button{min-height:44px;border-radius:calc(var(--r-ctl) - 3px);display:flex;align-items:center;justify-content:center;gap:6px;font-weight:800;font-size:13.5px;color:var(--muted)}
+.etabs button[aria-selected=true]{background:var(--accent);color:var(--on-accent)}
+.etabs .dot2{width:7px;height:7px;border-radius:50%;background:var(--accent);flex:none}
+.etabs button[aria-selected=true] .dot2{background:var(--on-accent)}
+
+/* enhance preview */
+.echip{position:absolute;left:var(--sp-2);top:var(--sp-2);z-index:2;font-size:11.5px;font-weight:800;padding:3px 9px;border-radius:var(--r-pill);background:var(--bg);color:var(--fg);border:1px solid var(--border);pointer-events:none}
+.echip[data-s=prep]{color:var(--muted);border-style:dashed}
+.ehold{position:absolute;right:var(--sp-2);bottom:var(--sp-2);z-index:3;min-height:44px;padding:0 14px;border-radius:var(--r-pill);background:var(--bg);color:var(--fg);border:1px solid var(--border);display:inline-flex;align-items:center;gap:6px;font-weight:800;font-size:12.5px;touch-action:none;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+.ehold[aria-pressed=true]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.elev{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:var(--sp-2)}
+.elev button{min-height:48px;padding:4px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);font-size:12.5px;font-weight:800;text-align:center;line-height:1.2;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.elev button small{font-weight:600;font-size:10.5px;color:var(--muted)}
+.elev button[aria-pressed=true]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.enotes{margin-top:var(--sp-2);border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--bg)}
+.enotes summary{min-height:44px;display:flex;align-items:center;gap:6px;padding:0 var(--sp-3);font-weight:700;font-size:13px;cursor:pointer;list-style:none}
+.enotes summary::-webkit-details-marker{display:none}
+.enotes summary::after{content:"";margin-left:auto;width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .15s}
+.enotes[open] summary::after{transform:rotate(225deg)}
+.enotes ul{margin:0;padding:0 var(--sp-3) var(--sp-3) calc(var(--sp-3) + 18px);font-size:13px;line-height:1.5}
+.enotes li{margin:2px 0}
+.egood{display:flex;gap:6px;align-items:flex-start;font-size:12.5px;color:var(--muted);margin-top:var(--sp-2)}
+.peek-hint{font-size:11.5px;color:var(--muted)}
+
+/* source sheet */
+.srcgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:var(--sp-2) 0}
+.srcgrid button{display:block;border-radius:var(--r-ctl);overflow:hidden;border:1px solid var(--border);padding:0;background:var(--surface);position:relative}
+.srcgrid img{display:block;width:100%;aspect-ratio:1;object-fit:cover;background:var(--surface)}
+.srcgrid span{display:block;font-size:11.5px;font-weight:700;padding:3px 4px 4px;line-height:1.2;min-height:30px}
+.ownpick{display:flex;align-items:center;gap:var(--sp-2);min-height:56px;border-top:1px solid var(--border);padding:var(--sp-2) 0;width:100%}
+.ownpick input{position:absolute;opacity:0;width:1px;height:1px}
+.ownpick:has(input:focus-visible){outline:3px solid var(--accent);outline-offset:2px}
+.ownpick small{display:block;color:var(--muted);font-size:12.5px}
+
+/* Kitchie photo-queue.css (copied) */
+.pf>.pq,.edpv>.pq,.pth>.pq{position:absolute;left:4px;bottom:4px;z-index:2;max-width:calc(100% - 8px);padding:3px 8px;border-radius:999px;font-size:11.5px;font-weight:800;line-height:1.3;color:var(--fg);background:var(--surface);border:1px solid var(--border)}
+.pqpill{position:absolute;z-index:60;left:50%;transform:translateX(-50%);bottom:var(--sp-4);max-width:92%;display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:700;line-height:1.3;color:var(--fg);background:var(--surface);border:1px solid var(--border);box-shadow:0 4px 18px rgba(0,0,0,.25)}
+.pqpill .pqt{min-width:0}
+@media (prefers-reduced-motion:reduce){.cframe .ecv{transition:none}.pbar>i{transition:none}.pbar.run>i{animation:none;width:100%}.etabs *,.enotes summary::after{transition:none}}
+
+[hidden]{display:none!important}
+body:has(.phone .sheet) .mockb{display:none}
