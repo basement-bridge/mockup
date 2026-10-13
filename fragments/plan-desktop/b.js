@@ -20,16 +20,20 @@ function dropScan(){var S=P.S(),ctx=S.wk+"|"+S.view,cur={},now=Date.now(),fr=[];
  DN.forEach(function(d){u.dayCards(d).forEach(function(c){var k=c.id+"|"+d+"|"+c.r;cur[k]=1;if(DROP.ctx===ctx&&!DROP.seen[k]){DROP.t[c.id]=now;fr.push(R[c.r].n+" on "+d)}})});
  DROP.ctx=ctx;DROP.seen=cur;if(fr.length)DROP.n=fr}
 function dropAge(c){var t=DROP.t[c.id],a=t?Date.now()-t:DROPMS;return a<DROPMS?a:-1}
+/* ---------- the one status of a meal (decisions 112, 116): the tile and the top of the detail say it the same way (14 Oct 2026, same order on phone and desktop) ---------- */
+/* headline priority is a Proposal: missing (nothing actioned) > use-by > on the list > all on hand (quiet). A tile never shows missing and on the list together. */
+function stat(c){var m=u.missing(c),rk=u.risk(c),past=u.pastCard(c),left=u.srcOf(c)==="left",open=m.filter(function(i){return !u.onList(c,i)}),listed=m.filter(function(i){return u.onList(c,i)});
+ if(left)return '<span class="stq">Reheat, no shopping</span>';
+ if(past)return "";
+ if(open.length)return pill("miss",I.miss,"Missing "+names(open));
+ if(rk.length)return pill("soon",I.clock,"Use by "+u.ubText(rk[0])+": "+names(rk));
+ if(listed.length)return pill("also",I.cart,"On the list: "+names(listed));
+ return '<span class="stq">'+sm(TICK,13)+'All on hand</span>'}
+P.bStatus=stat;
 /* ---------- the tile (decisions 112, 113): left = one status; right = persistent actions ---------- */
 function tile(c,v){var S=P.S(),r=R[c.r],m=u.missing(c),rk=u.risk(c),ro=u.roCard(c),act=u.can(c)&&!ro,past=u.pastCard(c),sel=S.sel===c.id,off=u.offline(),left=u.srcOf(c)==="left",pv=u.person(),
  open=m.filter(function(i){return !u.onList(c,i)}),listed=m.filter(function(i){return u.onList(c,i)}),st="",sub="",cf=past&&u.can(c)&&!off;
- /* headline priority is a Proposal: missing (nothing actioned) > use-by > on the list > all on hand (quiet). A tile never shows missing and on the list together. */
- if(left)st='<span class="stq">Reheat, no shopping</span>';
- else if(past)st="";
- else if(open.length)st=pill("miss",I.miss,"Missing "+names(open));
- else if(rk.length)st=pill("soon",I.clock,"Use by "+u.ubText(rk[0])+": "+names(rk));
- else if(listed.length)st=pill("also",I.cart,"On the list: "+names(listed));
- else st='<span class="stq">'+sm(TICK,13)+'All on hand</span>';
+ st=stat(c);
  if(!past&&!left&&open.length&&rk.length)sub='<span class="ubi">'+sm(I.clock,13)+esc(names(rk))+' use by '+u.ubText(rk[0])+'</span>';
  var vo=!ro&&!act,cls="mcw "+(ro?"ro ":act?"mine ":"theirs ")+(cf?"cf ":"")+(sel?"sel ":"")+(past?"past ":"")+(S.drag&&S.drag.id===c.id?"lifted ":"")+(S.fresh===c.id?"fresh ":"")+(v?"v-"+v:"");
  var age=v==="ghost"?-1:dropAge(c);if(age>-1)cls+=" dropped";
@@ -92,7 +96,7 @@ P.sumHtml=function(){var S=P.S(),pv=u.person(),sh=shop(),rk=u.risks(),T=tally(),
   h+='<div class="dayg"><div class="dgh"><b>'+d+'</b><span>'+u.dstr(S.wk,+k)+'</span></div>';
   groups[k].forEach(function(x){var later=x.days.filter(function(dy,j){return x.days.indexOf(dy)===j&&dy!==d});
    h+='<div class="sumrow'+(x.list?" listed":"")+'"><span class="nm">'+esc(x.name)+(x.qty?' <span class="q">'+esc(x.qty)+'</span>':"")+(later.length?'<span class="sub">also '+later.join(", ")+'</span>':"")+'</span>'
-   +(pv?"":'<button class="mini cart" data-act="addlist" data-i="'+esc(x.name)+'" data-id="'+x.cards[0]+'" aria-pressed="'+x.list+'" aria-label="'+(x.list?esc(x.name)+" is in the shopping cart. Press to take it out":"Add "+esc(x.name)+" to the shopping list")+'" data-fk="s:'+esc(x.name)+'">'+(x.list?TICK:I.cart)+'</button>')+'</div>'});
+   +(pv?"":'<button class="mini cart" data-act="addlist" data-all="1" data-i="'+esc(x.name)+'" data-id="'+x.cards[0]+'" aria-pressed="'+x.list+'" aria-label="'+(x.list?esc(x.name)+" is in the shopping cart. Press to take it out":"Add "+esc(x.name)+" to the shopping list")+'" data-fk="s:'+esc(x.name)+'">'+(x.list?TICK:I.cart)+'</button>')+'</div>'});
   h+='</div>'});
  h+=WK.bulkHtml()+'</section><section class="sumsec"><h3>Use-by pressure '+(rk.length?'<span class="n">'+rk.length+'</span>':"")+'</h3>';
  if(!rk.length)h+='<div class="sumok">Nothing will pass its use-by before it is cooked.</div>';
@@ -128,11 +132,14 @@ function init(S,Q){P.surpriseMode=Q.get("surprise")==="confirm"?"confirm":"lock"
  if(Q.get("sum")==="1")S.sumPeek=true;
  if(Q.get("prop")&&DN.indexOf(Q.get("prop"))>-1&&P.surpriseMode==="confirm"){S.prop={day:Q.get("prop"),r:"stir",why:"Something new, not cooked in the last 7 days.",seen:["stir"]}}
  if(Q.get("cleared")&&DN.indexOf(Q.get("cleared"))>-1){var cd=Q.get("cleared");S.cards=S.cards.filter(function(c){return !(c.wk===S.wk&&c.day===cd&&c.by===ME)});S.just={wk:S.wk,day:cd}}
- if(Q.get("listed")==="1"){S.list["curry sauce"]=true;S.list["jasmine rice"]=true;S.list.lemon=true}
+ /* the shopping list sample (14 Oct 2026, replan cleanup): feta is on the list for Shakshuka alone (a single-use line); lemon is on the list for BOTH Thursday meals (1 for Salmon patties + 1/2 for Tuna salad, a shared line); chicken thighs were bought on Friday for Chicken curry (in Pantry, never touched); milk was added by hand. */
+ S.cards.forEach(function(c){if(c.wk===1&&c.day==="Thu"&&(c.r==="patty"||c.r==="tuna"))c.l_lemon=true});
+ S.bought["chicken thighs"]={day:"Fri 9 Oct",cards:["wed-curry"]};S.extras=[{name:"milk",q:"2 L"}];
+ if(Q.get("listed")==="1"){["curry sauce","jasmine rice","lemon"].forEach(function(i){S.cards.forEach(function(c){if(u.me(c)&&!u.roCard(c)&&u.missing(c).indexOf(i)>-1)c["l_"+i]=true})})}
  if(Q.get("ask")&&DN.indexOf(Q.get("ask"))>-1)H.askNote(Q.get("ask"))}
 
 P.start({name:"b",flat:true,v2:true,noAssistantBtn:true,moon:MOON,card:tile,lanes:lanes,peek:peek,glance:glance,after:after,init:init,
- wmax:3,actOnly:true,readOnlyPeople:true,noBlockedHold:true,landFirst:true,surpriseNeedsOpen:true,ncMs:3000,
+ wmax:3,cart:true,actOnly:true,readOnlyPeople:true,noBlockedHold:true,landFirst:true,surpriseNeedsOpen:true,ncMs:3000,
  who:who,vis:vis,openNight:openNight,headTools:WK.headTools,chips:WK.chips,copy:WK.copy,clearWeek:WK.clearWeek,
  askNote:H.askNote,weekNote:H.weekNote,onToday:H.onToday,dragMove:H.dragMove,cfMenu:H.cfMenu,cfAct:H.cfAct,
  words:{curtain:"Ask AI to plan this week.",menu:"Ask AI for this night",menuCard:"Ask AI",helpA:"Ask AI, for the night in view (hands off to your default AI app)",everyone:"Household",pickHead:"Planning window: last week and the next four weeks, five in all"},

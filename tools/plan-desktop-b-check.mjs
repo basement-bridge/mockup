@@ -1,4 +1,4 @@
-// Behaviour check for Plan desktop option B, realigned with the phone Plan (14 Oct 2026, decisions 259 to 275), headless Chromium.
+// Behaviour check for Plan desktop option B, realigned with the phone Plan (14 Oct 2026, decisions 259 to 275; replan cleanup, detail order and reds 276 to 281), headless Chromium.
 // Usage:  python3 -m http.server 8123 &   then   node tools/plan-desktop-b-check.mjs      (BASE=... to point elsewhere)
 // Needs playwright or playwright-core on the module path (NODE_PATH=/opt/node22/lib/node_modules works in the agent sandbox).
 import { createRequire } from "module";
@@ -143,6 +143,67 @@ for (const [w, h] of [[1440, 900], [1280, 800]]) {
     ok(tag + " O: dragging down tears the top edge of the tile in hand and the bottom edge of the place it left", await p.evaluate(() => { const g = document.querySelector("#ghost .mc"), o = document.querySelector('.mcw.lifted .mc'); return !!g && g.classList.contains("torn") && /polygon/.test(getComputedStyle(g).clipPath) && !!o && o.classList.contains("torn") && g.style.getPropertyValue("--tpl") !== o.style.getPropertyValue("--tpl"); }));
     await p.mouse.up(); await sleep(150);
     ok(tag + " O: the dropped tile carries the just-dropped cue and no tear is left", (await p.locator('.mcw.dropped').count()) >= 1 && (await p.locator('.mc.torn').count()) === 0);
+    await p.close(); }
+  // P. replan cleans the shopping list (owner, 14 Oct 2026): reduce, remove, bought untouched, undo, tally live; a hold never blocks
+  { const p = await open(ctx, "", errs);
+    const toast = async () => (await p.locator(".toast span").first().innerText().catch(() => ""));
+    const cart = async () => +(await p.locator(".tally .st.also b").innerText());
+    const lines = async () => p.evaluate(() => PLAN.u.cartLines().map(l => l.name + ":" + l.qty).join("|"));
+    ok(tag + " P: the sample list is feta, lemon (shared by two meals), nothing else from meals", (await lines()) === "feta:100 g|lemon:1½", await lines());
+    ok(tag + " P: the cart tally starts at 2 and the rail badge at 3 (milk was added by hand)", (await cart()) === 2 && (await p.locator('.rail .nv .n').last().innerText()) === "3");
+    await p.locator('[data-cw="thu-tuna"] [data-act=replan]').click(); await sleep(300);
+    ok(tag + " P: replan Tuna salad reduces lemon from 1½ to 1 and says so", (await lines()) === "feta:100 g|lemon:1" && /lemon 1½ down to 1/.test(await toast()), [await lines(), await toast()]);
+    ok(tag + " P: the cart tally stays 2 (the line stays, only smaller)", (await cart()) === 2, await cart());
+    await p.keyboard.press("z"); await sleep(250);
+    ok(tag + " P: Z undoes it, lemon is 1½ again", (await lines()) === "feta:100 g|lemon:1½");
+    await p.locator('[data-cw="thu-patty"] [data-act=replan]').click(); await sleep(300);
+    ok(tag + " P: replan Salmon patties takes only its own 1 lemon off (1½ down to ½)", (await lines()) === "feta:100 g|lemon:½" && /lemon 1½ down to ½/.test(await toast()), [await lines(), await toast()]);
+    await p.locator('[data-cw="thu-tuna"] [data-act=replan]').click(); await sleep(300);
+    ok(tag + " P: replanning the last meal that needs lemon takes the line off", (await lines()) === "feta:100 g" && /lemon ½ taken off, nothing else needs it/.test(await toast()), [await lines(), await toast()]);
+    ok(tag + " P: the cart tally dropped to 1", (await cart()) === 1, await cart());
+    await p.keyboard.press("z"); await p.keyboard.press("z"); await sleep(250);
+    ok(tag + " P: two undos bring the whole list back", (await lines()) === "feta:100 g|lemon:1½" && (await cart()) === 2);
+    // a held, single-use line: Shakshuka is held and its feta is on the list; replan releases the hold AND takes feta off
+    await p.locator('[data-cw="mon-shak"] [data-act=replan]').click(); await sleep(300);
+    const t1 = await toast();
+    ok(tag + " P: replan a held meal: the hold is released, named, and its single-use line is taken off", /hold is released: eggs, tomatoes, onion/.test(t1) && /feta 100 g taken off, nothing else needs it/.test(t1), t1);
+    ok(tag + " P: no meal is held now and the held tally reads 0", (await p.evaluate(() => PLAN.S().cards.filter(c => c.res).length)) === 0);
+    await p.keyboard.press("z"); await sleep(250);
+    // bought: Chicken curry's thighs are in Pantry; replan never touches them
+    await p.locator('[data-cw="wed-curry"] [data-act=replan]').click(); await sleep(300);
+    const t2 = await toast();
+    ok(tag + " P: replan a meal with a bought item leaves it alone and says so", /Already bought, left alone: chicken thighs/.test(t2) && !/Shopping list:/.test(t2), t2);
+    await p.locator('.nv[data-act=shop]').click(); await sleep(250);
+    ok(tag + " P: the Shopping list stand-in still shows the bought thighs", /Bought, in Pantry/i.test(await p.locator(".shopc").innerText()) && (await p.locator('.shopc .shl.bought').count()) === 1);
+    ok(tag + " P: it lists feta, lemon and milk on the list with the meals behind them", /Salmon patties \(Thu, 1\)/.test(await p.locator(".shopc").innerText()) && /Tuna salad \(Thu, ½\)/.test(await p.locator(".shopc").innerText()));
+    await p.locator('.shopc [data-act=buyline][data-i=lemon]').click(); await sleep(300);
+    ok(tag + " P: Bought moves lemon off the list into Pantry and every meal counts it on hand", await p.evaluate(() => !PLAN.u.cartLines().some(l => l.name === "lemon") && PLAN.u.boughtLines().some(b => b.name === "lemon") && PLAN.S().cards.filter(c => c.r === "tuna" || c.r === "patty").every(c => PLAN.u.missing(c).indexOf("lemon") < 0)));
+    await p.keyboard.press("Control+Enter"); await sleep(200);
+    await p.locator('[data-cw="thu-patty"] [data-act=replan]').click(); await sleep(300);
+    ok(tag + " P: replan after it was bought does not touch the list", !/Shopping list:/.test(await toast()) && /Already bought, left alone: lemon/.test(await toast()), await toast());
+    await p.close(); }
+  { const p = await open(ctx, "", errs);
+    // a hold never blocks: hold Salmon patties (eggs are already held by Shakshuka)
+    await p.locator('[data-cw="thu-patty"] [data-act=hold]').click(); await sleep(250);
+    ok(tag + " P: holding a meal that shares eggs with a held meal is allowed (no block, no guard)", (await p.evaluate(() => PLAN.S().cards.filter(c => c.res).length)) === 2);
+    await p.close(); }
+  // Q. the detail has one order, the phone's (owner, 14 Oct 2026)
+  { const p = await open(ctx, "sel=wed-curry", errs);
+    const order = await p.evaluate(() => ["#panel .top", "#panel .dstat", "#panel .srcbox", "#panel .tt", "#panel .ppl", "#panel .ings", "#panel .foot"].map(s => { const e = document.querySelector(s); return e ? e.getBoundingClientRect().top : -1; }));
+    ok(tag + " Q: detail order is who and when, status, where from, total time, people, one list, footer", order.every(x => x >= 0) && order.every((x, i) => i === 0 || x > order[i - 1]), order);
+    ok(tag + " Q: the status at the top says what the tile says", (await p.locator("#panel .dstat").innerText()).trim() === (await p.locator('[data-cw="wed-curry"] .stt').innerText()).trim());
+    await p.close(); }
+  { const p = await open(ctx, "sel=mon-shak", errs);
+    const order = await p.evaluate(() => ["#panel .ings", "#panel .holdhint", "#panel .foot"].map(s => { const e = document.querySelector(s); return e ? e.getBoundingClientRect().top : -1; }));
+    ok(tag + " Q: while held, the hint sits between the list and the footer", order.every(x => x >= 0) && order[0] < order[1] && order[1] < order[2], order);
+    await p.close(); }
+  // R. reds: red is for missing with nothing done, and the offline states only
+  { const p = await open(ctx, "", errs);
+    const dg = await p.evaluate(() => { const t = document.createElement("i"); t.style.color = "var(--danger)"; document.body.appendChild(t); const c = getComputedStyle(t).color; t.remove(); return c; });
+    const col = async sel => p.locator(sel).first().evaluate(e => getComputedStyle(e).color);
+    ok(tag + " R: the Missing pill is red (nothing actioned)", (await col(".tg.miss")) === dg);
+    ok(tag + " R: the use-by (soon) pill is not red", (await col(".tg.soon")) !== dg);
+    ok(tag + " R: the On the list pill is not red", (await col(".tg.also")) !== dg);
     await p.close(); }
   await ctx.close();
 }

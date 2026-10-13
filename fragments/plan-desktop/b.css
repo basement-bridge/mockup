@@ -169,6 +169,19 @@
 /* too many reds (owner, 12 to 13 Oct): red now means one thing, missing with nothing done about it, plus offline. Use-by and drop hints take the accent. */
 .tg.soon{border-color:var(--accent);color:var(--accent)}
 .sub.bad,.dh-hint.bad{color:var(--accent)}
+.dh-hint.no{color:var(--danger)} /* a refused drop is blocking, so it is red on desktop as on the phone (14 Oct 2026); "after use-by" is only a warning and stays accent */
 .chipb.soon{border-color:var(--accent);color:var(--accent)}
 .isep+.ing{border-top:0}
 .sumhead+.lockline{margin:-2px 0 14px}
+
+/* Detail order and the shopping list stand-in (14 Oct 2026). Tokens only, no size rules. */
+.dstat{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
+.holdhint{font-size:12px;color:var(--muted)}
+.shopc{width:min(520px,calc(100vw - 48px))}
+.shopc .kbs h3 .n{background:var(--accent);color:var(--on-accent);border-radius:99px;padding:0 7px;font-size:11px;line-height:1.5;margin-left:6px}
+.shl{display:flex;align-items:center;gap:10px;min-height:48px;padding:8px 0;border-top:1px solid var(--border)}
+.shl .nm{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;font-size:15px}
+.shl .nm b{font-weight:700}.shl .q{color:var(--muted);font-weight:400;font-size:13px;margin-left:4px}
+.shl .sub{font-size:12px;color:var(--muted)}
+.shl.bought .nm b{color:var(--muted);font-weight:600}
+.shl .lm{display:inline-flex;color:var(--sage)}.shl .lm svg{width:18px;height:18px}

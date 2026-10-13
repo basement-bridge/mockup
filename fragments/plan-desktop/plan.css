@@ -153,7 +153,7 @@ button.blocked:hover{border-color:var(--accent)}
 [data-drop-day].drop-no{opacity:.45;cursor:not-allowed}
 .dh-hint{display:none;font-size:11px;font-weight:700;color:var(--muted)}
 .dragging .dh-hint{display:block}
-.dh-hint.fix{color:var(--sage)}.dh-hint.bad{color:var(--danger)}
+.dh-hint.fix{color:var(--sage)}.dh-hint.bad,.dh-hint.no{color:var(--danger)}
 
 /* ---------- lane: the inspector / flyout, same panel as Pantry ---------- */
 .panel{background:var(--surface);border-left:1px solid var(--border);padding:22px 24px;position:sticky;top:0;height:100vh;overflow:auto;min-width:0}

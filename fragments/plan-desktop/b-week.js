@@ -51,14 +51,14 @@ function planClear(apply){var s=S(),hh=s.view==="all",o={meals:0,marks:0,usual:0
  u.scopeCards().forEach(function(c){if(today(DN.indexOf(c.day))&&gone.indexOf(c)<0)o.stay++});
  var keys=[];
  if(!hh)DN.forEach(function(d,i){if(!today(i))return;var k=u.okey(d,ME),usual=s.stencil.Sam.indexOf(d)>-1;if(k in s.ov){if(!usual&&s.ov[k]===true){o.marks++;keys.push(k)}else if(usual&&s.ov[k]===false){o.usual++;keys.push(k)}}});
- if(apply){s.cards=s.cards.filter(function(c){return gone.indexOf(c)<0});keys.forEach(function(k){delete s.ov[k]});if(s.sel&&!u.cardById(s.sel))s.sel=null}
+ o.gone=gone;if(apply){s.cards=s.cards.filter(function(c){return gone.indexOf(c)<0});keys.forEach(function(k){delete s.ov[k]});if(s.sel&&!u.cardById(s.sel))s.sel=null}
  return o}
 function clearWeek(){var s=S();if(u.guard()||person()||u.weekRo())return;
  var o=planClear(false);if(!o.meals&&!o.marks&&!o.usual){u.toast("Nothing to clear from today on.",false);P.render();return}
- u.pushUndo();planClear(true);s.just=null;s.prop=null;setFlip("clear");
+ var cb=u.cartLines();u.pushUndo();planClear(true);s.just=null;s.prop=null;setFlip("clear");
  var ch=o.marks+o.usual,hh=s.view==="all";
  u.toast("Cleared "+plural(o.meals,"meal")+(ch?" and "+plural(ch,"Not cooking change"):"")+", "+u.dstr(s.wk,o.firstI)+" to "+u.dstr(s.wk,6)+(hh?" (household)":" (my plan)")+". "
-  +(o.stay?plural(o.stay,hh?"personal meal":"household meal")+" stay"+(o.stay===1?"s":"")+". ":"")+(hh?"":"Usual days off stay."),false);
+  +(o.stay?plural(o.stay,hh?"personal meal":"household meal")+" stay"+(o.stay===1?"s":"")+". ":"")+(hh?"":"Usual days off stay.")+u.cartDiff(cb,o.gone),false);
  u.pulseSync();P.render();u.say("Cleared the week from today on")}
 function headTools(){var s=S(),off=u.offline(),ro=u.weekRo()||off;
  if(person())return "";
@@ -97,7 +97,7 @@ function bulkHtml(){var s=S();if(person()||u.weekRo())return "";var b=bulk(),h="
  else if(b.res==="reserve")h+='<button class="btn" data-act="reserve" data-fk="sum:res" aria-label="Reserve: hold the '+plural(b.resN,"on-hand item")+' for this week">'+sm(u.I.held,17)+'Reserve '+b.resN+'</button>';
  else if(b.res==="release")h+='<button class="btn held" data-act="release" data-fk="sum:res" aria-label="Release: let go of the '+plural(b.resN,"held on-hand item")+' for this week">'+sm(u.I.held,17)+'Release '+b.resN+'</button>';
  return h?'<div class="bulk" role="group" aria-label="Bulk actions for this week">'+h+'</div>':""}
-function bulkAdd(){var s=S();if(u.guard()||person())return;var b=bulk();if(!b.addN)return;u.pushUndo();var cards={};b.add.forEach(function(x){s.list[x.name]=true;x.cards.forEach(function(id){cards[id]=1})});
+function bulkAdd(){var s=S();if(u.guard()||person())return;var b=bulk();if(!b.addN)return;u.pushUndo();var cards={};b.add.forEach(function(x){u.listAdd(x.name,x.cards.map(u.cardById));x.cards.forEach(function(id){cards[id]=1})});
  setFlip("add");u.toast("Added "+plural(b.addN,"item")+" for this week to the shopping list, across "+plural(Object.keys(cards).length,"meal")+".",false);u.pulseSync();P.render()}
 function reserve(){var s=S();if(u.guard()||person())return;var b=bulk();if(b.res!=="reserve")return;u.pushUndo();b.nh.forEach(function(c){c.res=true});
  setFlip("reserve");u.toast("Reserved "+plural(b.resN,"on-hand item")+" across "+plural(b.nh.length,"meal")+" for this week.",false);u.pulseSync();P.render()}
