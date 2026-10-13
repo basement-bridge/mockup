@@ -12,11 +12,11 @@ async function fresh(sample) {
   await p.goto(URL); await p.waitForSelector("#smp button"); await p.waitForFunction(() => window.PhotoEnhance && window.EnhanceSplit);
   await p.evaluate(() => { const o = PhotoEnhance.open; window.__enc = 0; PhotoEnhance.open = function () { return o.apply(this, arguments).then(s => { const e = s.encode; s.encode = function () { window.__enc++; return e.apply(s, arguments); }; return s; }); }; });
   await p.click(`#smp button[data-s="${sample}"]`); await p.waitForSelector(".enhv[data-ready=yes]");
-  await p.waitForFunction(() => document.querySelector("#epq").hidden && PEDemo.session.ready("balanced"));
+  await p.waitForFunction(() => document.querySelector("#ev").dataset.shown === "balanced", null, { timeout: 20000 });
   return { ctx, p };
 }
 const hash = (p, sel) => p.evaluate(s => { const c = document.querySelector(s), d = c.getContext("2d").getImageData(0, 0, c.width, c.height).data; let h = 2166136261; for (let i = 0; i < d.length; i += 7) { h ^= d[i]; h = Math.imul(h, 16777619); } return c.width + "x" + c.height + ":" + (h >>> 0); }, sel);
-const setLevel = async (p, i) => { await p.evaluate(i => { const r = document.querySelector("#el"); r.value = i; r.dispatchEvent(new Event("input", { bubbles: true })); }, i); await p.waitForFunction(() => document.querySelector("#epq").hidden); await p.waitForTimeout(150); };
+const setLevel = async (p, i) => { await p.evaluate(i => { const r = document.querySelector("#el"); r.value = i; r.dispatchEvent(new Event("input", { bubbles: true })); }, i); await p.waitForFunction(i => document.querySelector("#ev").dataset.shown === ["off", "light", "balanced", "full"][i], i, { timeout: 20000 }); await p.waitForTimeout(100); };
 const origHash = p => p.evaluate(() => { const s = PEDemo.session, c = document.createElement("canvas"); c.width = s.width; c.height = s.height; c.getContext("2d").drawImage(s.original, 0, 0); const d = c.getContext("2d").getImageData(0, 0, c.width, c.height).data; let h = 2166136261; for (let i = 0; i < d.length; i += 13) { h ^= d[i]; h = Math.imul(h, 16777619); } return h >>> 0; });
 
 { // 1, 3, 4: levels, original, encode

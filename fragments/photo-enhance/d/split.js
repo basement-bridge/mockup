@@ -56,13 +56,13 @@ function open(o) {
       var w = sess.width, h = sess.height, mp = w * h, long = Math.max(w, h);
       v.style.setProperty("--arn", (w / h).toFixed(4));
       if (mp >= BIG_MP) { var e = $("emp"); e.hidden = false; e.textContent = (mp / 1e6).toFixed(0) + " MP"; }
-      S.big = mp >= BIG_MP; S.small = long < SMALL_EDGE;
+      S.big = mp >= BIG_MP; S.small = sess.small === true || long < SMALL_EDGE;
       return sess.render("off", ca).then(function () {
         if (S.closed) return;
         v.dataset.ready = "yes"; $("esk").remove(); hb.disabled = false; $("eskip").disabled = false;
         setPos(S.small ? 100 : 100); paintNotes();
         if (S.small) {
-          sl.disabled = true; sl.value = 0; v.dataset.lock = "yes"; $("elr").textContent = "Original"; hb.disabled = true; $("eskip").hidden = true;
+          S.level = "off"; sl.disabled = true; sl.value = 0; v.dataset.lock = "yes"; $("elr").textContent = "Original"; hb.disabled = true; $("eskip").hidden = true;
           $("esmall").hidden = false; $("esmall").innerHTML = '<p class="enhgood">' + ic("info") + "<span><b>This photo is small (" + w + " × " + h + ").</b> Enhancing would not help, so it goes up as it is and may look soft at " + K.edge + " px.</span></p>";
           $("euse").disabled = false; $("euse").lastChild.textContent = "Add it as it is"; paintTicks(); return;
         }
@@ -83,12 +83,13 @@ function open(o) {
   /* ---- a level: always rendered from the original by the engine; instant when cached, a quiet Preparing otherwise ---- */
   function show(id, sweep) {
     var my = ++S.tok, sess = S.sess, ready = sess.ready(id), t = null, pq = $("epq");
+    if (ready) { /* a cached level is drawn in the same frame */ }
     S.level = id; paintTicks();
     $("elr").textContent = id === "off" ? "No change" : lvl(id).label;
     if (!ready) t = setTimeout(function () { if (my === S.tok) pq.hidden = false; }, 120);
     return sess.render(id, cb).then(function () {
       clearTimeout(t); if (my !== S.tok || S.closed) return;
-      pq.hidden = true; paintNotes();
+      pq.hidden = true; v.dataset.shown = id; paintNotes();
       if (sweep && id !== "off") sweepTo(50); else if (sweep) setPos(50);
       say(id === "off" ? "Original" : lvl(id).label + " ready");
     }, function () {
@@ -159,14 +160,16 @@ function open(o) {
 
   /* ---- what changed, in plain words (the engine's own notes), collapsed ---- */
   function paintNotes() {
-    var sess = S.sess, notes = (sess && sess.notes) || [], good = notes.some(function (n) { return /looks good already/i.test((n.text || "") + " " + (n.label || "")); });
-    var n = $("en"); n.hidden = S.small || !notes.length; if (n.hidden) return;
+    var sess = S.sess; if (!sess) return;
+    var good = sess.good === true || (sess.notes || []).some(function (n) { return /looks good already/i.test((n.text || "") + " " + (n.label || "")); });
+    var notes = S.level === "off" ? [] : (sess.notesFor ? sess.notesFor(S.level) : sess.notes || []);
+    var n = $("en"); n.hidden = S.small; if (n.hidden) return;
     var l = lvl(S.level), k = l ? Math.round(l.k * 100) : 0;
-    $("ens").textContent = S.level === "off" ? "Nothing yet" : (good ? "Barely anything" : notes.length + " tweaks · " + k + "%");
     var rows = notes.filter(function (x) { return !/looks good already/i.test((x.text || "") + " " + (x.label || "")); });
+    $("ens").textContent = S.level === "off" ? "Nothing yet" : good ? "Barely anything" : rows.length ? rows.length + (rows.length > 1 ? " tweaks" : " tweak") + " · " + k + "%" : "Nothing at this strength";
     $("enb").innerHTML = (S.level === "off" ? "<p>Original is showing. Nothing is changed.</p>" : "") +
-      (rows.length ? "<ul>" + rows.map(function (x) { return "<li><b>" + esc(x.label || x.key) + "</b><span>" + esc(x.text || "") + "</span></li>"; }).join("") + "</ul>" : "") +
-      "<p>" + (S.level === "off" ? "" : lvl(S.level).label + " applies each tweak at " + k + " percent of its full size, worked out from your original every time.") + "</p>";
+      (rows.length ? "<ul>" + rows.map(function (x) { return "<li><b>" + esc(x.label || x.key) + "</b><span>" + esc(x.text || "") + "</span></li>"; }).join("") + "</ul>" : (S.level !== "off" ? "<p>" + (good ? "Your photo needed nothing." : "Nothing is big enough to change at this strength.") + "</p>" : "")) +
+      (S.level === "off" ? "" : "<p>" + l.label + " applies each tweak at " + k + " percent of its full size, worked out from your original every time.</p>");
     var g = $("egood"); g.hidden = !good;
     if (good) g.innerHTML = '<p class="enhgood">' + ic("check") + "<span><b>Looks good already.</b> Balanced hardly changes it. Slide the divider to check, or Skip.</span></p>";
   }
@@ -187,7 +190,7 @@ function open(o) {
     if (S.small || S.level === "off") { skip(); return; } // Original (or too small to help) is exactly today's flow
     S.busy = true; err(""); var b = $("euse"), sess = S.sess, level = S.level, t0 = performance.now();
     b.disabled = true; $("eskip").disabled = true; sl.disabled = true; hb.disabled = true;
-    b.innerHTML = '<i class="pqs"></i>Making your photo…';
+    b.innerHTML = '<i class="pqs"></i>Making…';
     var m = $("emade"); m.hidden = false;
     m.innerHTML = '<div class="enhmade"><b>' + (S.big ? "Making the full-size photo" : "Making your photo") + '</b><small>' + (S.big ? "A big picture takes a few seconds. You can keep using Kitchie once it is sent." : "Full size from your original, then one copy.") + '</small><div class="pbar" aria-hidden="true"><i></i></div></div>';
     m.scrollIntoView({ block: "nearest" }); D.encodes++; D.tell("encode(" + level + ") called, once");

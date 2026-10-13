@@ -34,3 +34,7 @@ Pick (camera or photos) -> **Enhance sheet** -> shrink (banner 1600 px, others 9
 
 ## Deliberately not done
 No separate before/after toggle (the split is the comparison); no per-tweak sliders (one strength only); no crop in this step.
+
+## Verified and not verified
+Verified in headless Chromium (software rendering) at 360 and 390, light and dark, with the real engine: `tools/photo-enhance-d-check.mjs` passes 22 checks (original pixels unchanged after switching levels; Balanced, Light, Full, Balanced identical; hold by pointer, Space and tap-latch; arrow keys on the divider; zero `encode` calls before Use photo, exactly one after; zero on Skip and Cancel). Not verified: a real phone (iOS long-press callout, Safari WebP fallback to PNG, pointer capture on touch), screen reader speech, and the engine's speed on a mid phone (the engine notes measured 0.2 to 1.0 s per cold level on this machine).
+Engine extras used (all optional in the contract): `session.notesFor(levelId)` for per-level notes, `session.good`, `session.small`.

@@ -108,3 +108,7 @@
 @media (prefers-reduced-motion:reduce){.enhsk,.pqs,.pbar>i{animation:none}.pqs{border-right-color:var(--accent)}}
 @media (max-width:359.98px){.enhbar{grid-template-columns:1fr}}
 body:has(.phone .sheet) .mockb{display:none} /* the Mockup button never covers a sheet */
+.btn[hidden],.enhmade[hidden]{display:none}
+#emade{scroll-margin-bottom:96px}
+.sheet [hidden]{display:none!important}
+.enhbar:has(#eskip[hidden]){grid-template-columns:1fr}
