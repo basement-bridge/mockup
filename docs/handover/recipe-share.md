@@ -1,6 +1,6 @@
 # Sharing a recipe outside the household: handover
 
-**Status, 13 October 2026:** mockup only, four slices drawn and merged (placement #161, manage #162, recipient #163, sheet #164) and tied together by a hub page. Nothing is built in Kitchie, Recipe or platform. Every decision (206 to 242) is **proposed**; the owner has confirmed none. This file is the place to start; the job note holds the wording.
+**Status, 13 October 2026:** mockup only, four slices drawn and merged (placement #161, manage #162, recipient #163, sheet #164) and tied together by a hub page. Nothing is built in Kitchie, Recipe or platform. Decisions 206 to 246: 206, 209 and 243 are **confirmed** (13 October 2026), the rest **proposed**. A fifth slice, the Share button in the desktop recipe summary flyout (`fragments/recipe-share/flyout/`), was added the same day. This file is the place to start; the job note holds the wording.
 
 Read `AGENTS.md` and `DESIGN.md` in this repo first. Style follows `docs/handover/plan-desktop.md`.
 
@@ -26,6 +26,7 @@ The repo for this is `mockup` (basement-bridge/mockup), not `kitchie`.
 | Placement: where the Share button lives | `fragments/recipe-share/placement/` (`index.html`, `phone.html`, `desktop.html`, `notes.md`), PR #161 |
 | Manage: see, rename, cancel links | `fragments/recipe-share/manage/` (`index.html`, `notes.md`), PR #162 |
 | Recipient: the public page | `fragments/recipe-share/recipient/` (`index.html`, `page.html`, `notes.md`), PR #163 |
+| Summary flyout (desktop) | `fragments/recipe-share/flyout/` (Share next to Open full recipe, drill-in in the same lane) |
 | Create sheet | `fragments/recipe-share/sheet/` (`index.html`, `screen.html?o=a|b|c`, `notes.md`), PR #164 |
 | Job note: owner's words, decisions 206 to 242, open questions | `docs/knowledge/jobs-to-be-done/recipe-share.md` |
 | This handover | `docs/handover/recipe-share.md` |
@@ -46,9 +47,13 @@ Option A is recommended in every slice. B and C stay drawn.
 
 ## 4. Decided versus proposed
 
-**Decided by the owner (the voice note):** the seven points in section 1. Nothing else.
+**Decided by the owner:** the seven points in section 1, plus the picks of 13 October 2026 (voice and typed):
 
-**Proposed, not confirmed:** decisions 206 to 242 in the job note, including the recommended option in each slice. They were filled in by the design agents where the owner was silent. Grouped: entry and placement (206 to 210), creating a link (211 to 220), seeing and managing links (221 to 229), the recipient's page (230 to 239), and cross-cutting (240 to 242: the recommended path, entitlement, loading).
+- Mobile sharing is placement A: share icon in the top row with an active-links badge (decision 206).
+- Desktop sharing is placement A on the main page of the fully opened recipe: Share pill with the S key hint (206, 209).
+- The desktop summary flyout (click a row in the Recipes list) gets a Share button next to "Open full recipe", opening the share panel as a drill-in in the same lane. Desktop only, since mobile has no summary flyout (243).
+
+**Proposed, not confirmed:** everything else in decisions 206 to 246, including the recommended option in the sheet, manage and recipient slices (the owner has not said whether "A" covered them, see question 1) and the flyout button's visual, S shortcut and back behaviour (244 to 246). They were filled in by the design agents where the owner was silent. Grouped: entry and placement (206 to 210), creating a link (211 to 220), seeing and managing links (221 to 229), the recipient's page (230 to 239), and cross-cutting (240 to 242: the recommended path, entitlement, loading).
 
 Two of the proposals come from the integration brief rather than a slice: that a link is a Recipe entitlement concern with no per-feature flag (241), and the recommended path itself (240).
 
@@ -56,7 +61,8 @@ Two of the proposals come from the integration brief rather than a slice: that a
 
 In rough order of what a wrong guess costs. Detail and cost are in the job note's open questions.
 
-1. **Pick an option per slice** (or confirm A in each).
+1. **Did "A" also mean the create sheet, links list and recipient page?** Placement A is confirmed; those three stay proposed until he says. (O12)
+1a. **Look at the flyout slice** (`fragments/recipe-share/flyout/`): the button's look and wording, S key, and how Back works. (244 to 246)
 2. **Where does the link list live?** The Share icon opens a small list (placement) while manage recommends a section in the page. Both, with the icon scrolling to the section when links exist? (O3)
 3. **A link for the recipe or for one version?** And pinned or following by default (decision 216, drawn pinned). (O4)
 4. **Default and longest expiry.** 7 days drawn; 24 hours and 30 days offered. (O6)
@@ -99,7 +105,7 @@ This is a proposal for slicing, not a plan the owner agreed. Only start after th
 
 - Branch from `origin/main`, rebase before you push, read `git diff --stat` for anything outside your scope, merge your own PR (squash) into mockup `main`. Never touch `uat`, Kitchie code or tags from this repo.
 - `gh pr create` can fail from Claude Code sessions (GraphQL 403). Create the PR with REST: `gh api repos/basement-bridge/mockup/pulls --input <json>` (JSON with `title`, `head`, `base`, `body`). Merge with `gh api -X PUT repos/basement-bridge/mockup/pulls/N/merge -f merge_method=squash`.
-- Decision numbers here (206 to 242) continued the highest in the job notes at the time (205, Plan UI review). Other branches may take numbers too; check the highest before adding more, and renumber the proposals here if they clash.
+- Decision numbers here (206 to 246) continued the highest in the job notes at the time (205, Plan UI review). Other branches may take numbers too; check the highest before adding more, and renumber the proposals here if they clash.
 - The Pages URL was not verified from the sandbox; open it once and fix this file if it differs.
 
 ## 10. Links to every related durable thing
