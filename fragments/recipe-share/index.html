@@ -4,7 +4,7 @@
 <body><div class="wrap">
 <a class="back" href="../../">&lsaquo; All mockups</a>
 <h1>Share a recipe outside the household</h1>
-<p>Fragment, slices tied together. The job: <b>send a recipe you are happy with to someone outside the household</b>, with a link that expires and needs no sign-in, so it can also bring people to Kitchie. Each slice has three options and a recommended one (A). Mockup only: nothing is created, sent or saved. <span class="tag">Placement picked; rest awaiting pick</span></p>
+<p>Fragment, slices tied together. The job: <b>send a recipe you are happy with to someone outside the household</b>, with a link that expires and needs no sign-in, so it can also bring people to Kitchie. Each slice has three options and a recommended one (A, except the create sheet: C confirmed). Mockup only: nothing is created, sent or saved. <span class="tag">Placement, sheet and invite picked; rest awaiting pick</span></p>
 
 <div class="hub-said"><b>The owner's words</b> <span class="tag">voice, 13 October 2026</span>
 <ul>
@@ -20,20 +20,22 @@
 <ul>
 <li><b>Confirmed:</b> Share placement A on mobile (icon in the top row with an active-links badge) and on desktop (Share pill with key S on the full recipe page).</li>
 <li><b>Confirmed:</b> the desktop recipe summary flyout also gets a Share button next to "Open full recipe". <b>Proposed:</b> its design.</li>
-<li><b>Awaiting pick:</b> the create sheet, links list and recipient page. Did "A" cover them too? A stays recommended meanwhile.</li>
+<li><b>Confirmed:</b> the create sheet is option C. It shares "the usual" version by default; a version choice appears only when other versions are available.</li>
+<li><b>Confirmed:</b> the sender can optionally attach an invite to a link. It is single-claim (only the first person to activate it claims it), sets up a new household, never joins an existing one, and respects the member's maximum-invites limit. <b>Proposed:</b> the invite switch is off by default, and later openers still read the recipe. <b>Open:</b> where the limit lives and its value.</li>
+<li><b>Awaiting pick:</b> the links list and recipient page. Did "A" cover them too? A stays recommended meanwhile.</li>
 </ul>
 <div class="hub-links"><a href="flyout/index.html">Share in the recipe summary flyout (desktop)</a></div></div></div>
 
 <div class="sec"><div class="lbl">Recommended path</div>
 <div class="hub-rec">
-<p><b>Option A in every slice.</b> Together they make one short story, and none of them covers the recipe or asks the cook a question they cannot already answer.</p>
+<p><b>Option A in every slice except the create sheet, where C is confirmed.</b> Together they make one short story, and none of them covers the recipe or asks the cook a question they cannot already answer.</p>
 <ol class="hub-path">
 <li><span><b>Share icon in the top row</b> with a count of active links, opening in place (sheet on phone, flyout on desktop).</span></li>
-<li><span><b>One create screen</b>: a name, how long it works (7 days chosen), and a switch that keeps it as it is today.</span></li>
+<li><span><b>The create sheet (option C, confirmed)</b>: shares the usual version, a version choice only when others exist, and an optional invite.</span></li>
 <li><span><b>A Shared section</b> after Photos lists every link with its countdown, opens, Copy, Rename and Cancel (Undo for 5 minutes).</span></li>
 <li><span><b>A quiet recipient page</b>: the recipe first, one invitation card after the last note, a Save button if they are signed in.</span></li>
 </ol>
-<p style="margin-top:var(--sp-3)">The slices were drawn separately, so a few seams are not settled (where the link list lives, Esc, the default name). They are listed as open questions in the <a href="https://github.com/basement-bridge/mockup/blob/main/docs/knowledge/jobs-to-be-done/recipe-share.md" style="text-decoration:underline">job note</a>, and decisions there are <b>proposed</b> unless marked confirmed (placement and the flyout button so far).</p>
+<p style="margin-top:var(--sp-3)">The slices were drawn separately, so a few seams are not settled (where the link list lives, Esc, the default name). They are listed as open questions in the <a href="https://github.com/basement-bridge/mockup/blob/main/docs/knowledge/jobs-to-be-done/recipe-share.md" style="text-decoration:underline">job note</a>, and decisions there are <b>proposed</b> unless marked confirmed (placement, the flyout button, the create sheet and the invite rules so far).</p>
 </div></div>
 
 <div class="sec"><div class="lbl">The four slices</div>
@@ -45,8 +47,8 @@
 
 <div class="hub-slice"><h2><a href="sheet/index.html">2. Create the link</a> <span class="tag">Fragment</span></h2>
 <p class="one">What you choose before the link exists: name, how long, and which copy they see.</p>
-<p class="recd"><b>Recommended: A.</b> One screen with three answers already filled in; default 7 days, kept as it is today. B makes the link on open; C adds a version list and a date picker.</p>
-<div class="hub-links"><a href="sheet/index.html">All options</a><a href="sheet/screen.html?o=a&amp;s=default">A, the form</a><a href="sheet/screen.html?o=a&amp;s=created">A, link ready</a><a href="sheet/notes.md">Notes</a></div></div>
+<p class="recd"><b>Confirmed: C.</b> Shares the usual version; a version list only when other versions exist; optional invite. A (one screen, three answers) and B (link made on open) stay drawn.</p>
+<div class="hub-links"><a href="sheet/index.html">All options</a><a href="sheet/screen.html?o=c&amp;s=default">C, the form</a><a href="sheet/screen.html?o=a&amp;s=default">A, the form</a><a href="sheet/notes.md">Notes</a></div></div>
 
 <div class="hub-slice"><h2><a href="manage/index.html">3. See, rename and cancel links</a> <span class="tag">Fragment</span></h2>
 <p class="one">Where the pending links show inside the recipe and how they are changed.</p>
@@ -70,7 +72,7 @@
 
 <div class="sec"><div class="lbl">Notes for whoever builds it</div>
 <ul class="hub-list">
-<li><a href="https://github.com/basement-bridge/mockup/blob/main/docs/knowledge/jobs-to-be-done/recipe-share.md" style="text-decoration:underline">Job note</a>: the owner's words, decisions 206 onward (206, 209 and 243 confirmed, the rest proposed), open questions.</li>
+<li><a href="https://github.com/basement-bridge/mockup/blob/main/docs/knowledge/jobs-to-be-done/recipe-share.md" style="text-decoration:underline">Job note</a>: the owner's words, decisions 206 onward (206, 209, 243, 247, 248, 250, 252 and 253 confirmed, the rest proposed), open questions.</li>
 <li><a href="https://github.com/basement-bridge/mockup/blob/main/docs/handover/recipe-share.md" style="text-decoration:underline">Handover</a>: where everything lives, decided or proposed, what to ask the owner, how to build later.</li>
 </ul></div>
 </div></body></html>

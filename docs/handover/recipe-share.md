@@ -1,6 +1,6 @@
 # Sharing a recipe outside the household: handover
 
-**Status, 13 October 2026:** mockup only, four slices drawn and merged (placement #161, manage #162, recipient #163, sheet #164) and tied together by a hub page. Nothing is built in Kitchie, Recipe or platform. Decisions 206 to 246: 206, 209 and 243 are **confirmed** (13 October 2026), the rest **proposed**. A fifth slice, the Share button in the desktop recipe summary flyout (`fragments/recipe-share/flyout/`), was added the same day. This file is the place to start; the job note holds the wording.
+**Status, 13 October 2026:** mockup only, four slices drawn and merged (placement #161, manage #162, recipient #163, sheet #164) and tied together by a hub page. Nothing is built in Kitchie, Recipe or platform. Decisions 206 to 253: 206, 209, 243, 247, 248, 250, 252 and 253 are **confirmed** (13 October 2026), the rest **proposed**. Later the same day the owner confirmed the create sheet as option C and an optional single-claim invite that sets up a new household (section 4a). A fifth slice, the Share button in the desktop recipe summary flyout (`fragments/recipe-share/flyout/`), was added the same day. This file is the place to start; the job note holds the wording.
 
 Read `AGENTS.md` and `DESIGN.md` in this repo first. Style follows `docs/handover/plan-desktop.md`.
 
@@ -36,12 +36,12 @@ Each slice's `notes.md` is its own full spec: options, states, default path and 
 
 ## 3. The slices and their options
 
-Option A is recommended in every slice. B and C stay drawn.
+Option A is recommended in every slice except the create sheet, where the owner confirmed C. The other options stay drawn.
 
 | Slice | A (recommended) | B | C |
 |---|---|---|---|
 | Placement | Icon in the top row with a count; labelled pill and key S on desktop | Chip under the title | More menu row plus a status line |
-| Create sheet | One screen: name, 24 hours / 7 days / 30 days (7 default), pinned switch | The link is made on open; name and expiry are rows to change | Preview, version list, date picker |
+| Create sheet | One screen: name, 24 hours / 7 days / 30 days (7 default), pinned switch (no longer recommended) | The link is made on open; name and expiry are rows to change | **Confirmed (247):** preview, version list shown only when other versions exist, usual by default; plus the invite opt-in (248) |
 | Manage | A Shared section after Photos, chip in the jump row | Panel from the Share button | Card above the ingredients |
 | Recipient | Quiet top strip, then one card after the last note | Slim bottom bar after about 35% scroll | Banner above the recipe |
 
@@ -53,18 +53,32 @@ Option A is recommended in every slice. B and C stay drawn.
 - Desktop sharing is placement A on the main page of the fully opened recipe: Share pill with the S key hint (206, 209).
 - The desktop summary flyout (click a row in the Recipes list) gets a Share button next to "Open full recipe", opening the share panel as a drill-in in the same lane. Desktop only, since mobile has no summary flyout (243).
 
-**Proposed, not confirmed:** everything else in decisions 206 to 246, including the recommended option in the sheet, manage and recipient slices (the owner has not said whether "A" covered them, see question 1) and the flyout button's visual, S shortcut and back behaviour (244 to 246). They were filled in by the design agents where the owner was silent. Grouped: entry and placement (206 to 210), creating a link (211 to 220), seeing and managing links (221 to 229), the recipient's page (230 to 239), and cross-cutting (240 to 242: the recommended path, entitlement, loading).
+**Proposed, not confirmed:** everything else in decisions 206 to 253, including the recommended option in the manage and recipient slices (the owner has not said whether "A" covered them, see question 1) and the flyout button's visual, S shortcut and back behaviour (244 to 246). They were filled in by the design agents where the owner was silent. Grouped: entry and placement (206 to 210), creating a link (211 to 220), seeing and managing links (221 to 229), the recipient's page (230 to 239), and cross-cutting (240 to 242: the recommended path, entitlement, loading).
 
 Two of the proposals come from the integration brief rather than a slice: that a link is a Recipe entitlement concern with no per-feature flag (241), and the recommended path itself (240).
+
+## 4a. Invite on a share link (owner, 13 October 2026)
+
+Confirmed:
+
+- The sender may optionally attach an **invite** to a share link, by an opt-in click (248).
+- An invite is **single-purpose**: if the link is passed around, only the **first person to activate it claims the invite** (250).
+- An invite sets up a **new household**; it never joins an existing one (252).
+- Sending an invite respects the member's **maximum-invites limit** (253). Where the limit lives and its value are unknown; do not invent them.
+
+Proposed: the switch defaults off (249); later openers of the link still read the recipe (251).
+
+**Platform and trust.** The invite touches Platform: households, entitlements and member limits all belong there (see `platform-context` and Kitchie issue #127), not in Recipe or Kitchie. Whatever proves an invite or its claim must **reuse the trust mechanism already in place between Platform and the products, with no new token type just for this feature** (standing rule). What that mechanism is, and how a signed share URL relates to it, must be read from the real services, not guessed here.
 
 ## 5. What to ask Arjan
 
 In rough order of what a wrong guess costs. Detail and cost are in the job note's open questions.
 
-1. **Did "A" also mean the create sheet, links list and recipient page?** Placement A is confirmed; those three stay proposed until he says. (O12)
+1. **Did "A" also mean the links list and recipient page?** Placement A and sheet C are confirmed; those two stay proposed until he says. (O12)
+1b. **Invite questions** (O14 to O20): where the maximum-invites limit lives and its value; whether the invite switch defaults off (proposed); what happens to an unclaimed invite when the link expires or is cancelled; what a signed-in person without a household can do; what the new household starts with; whether the shared recipe is copied into it; abuse limits on claiming. Also whether sheet C keeps the pinned radios and the date chip (O13).
 1a. **Look at the flyout slice** (`fragments/recipe-share/flyout/`): the button's look and wording, S key, and how Back works. (244 to 246)
 2. **Where does the link list live?** The Share icon opens a small list (placement) while manage recommends a section in the page. Both, with the icon scrolling to the section when links exist? (O3)
-3. **A link for the recipe or for one version?** And pinned or following by default (decision 216, drawn pinned). (O4)
+3. **Pinned or following by default** (decision 216, drawn pinned; open again under sheet C, O13). The version question is answered for the default: the usual, with a choice only when others exist (247). (O4)
 4. **Default and longest expiry.** 7 days drawn; 24 hours and 30 days offered. (O6)
 5. **The default name,** recipe title or date or "For ...", and its length (60 or 40). (O2)
 6. **Esc on the desktop flyout:** Pantry's rule (Ctrl or Cmd Enter) or Esc as the create sheet draws it. (O1)
@@ -77,7 +91,7 @@ In rough order of what a wrong guess costs. Detail and cost are in the job note'
 
 - Nothing is built. No Kitchie, Recipe or platform issue is approved for this. Whether an issue exists is unknown to this file.
 - Unknown, to be answered by reading the real services, not guessed: how a signed URL is made and verified, where links and their counts are stored, which service serves the public page, how opens are counted without link-preview crawlers, how a banner is fetched through a signed link, and whether the existing shopping-link code can be reused. The slices use fictional data and placeholder links at `kitchie.example`.
-- No data model, API or tool names are proposed here on purpose.
+- No data model, API or tool names are proposed here on purpose. The invite adds nothing to that: no limit value, no claim endpoint, no token.
 - Measuring the invitation, and any sender notice when a recipient asks for a new link, are not designed.
 
 ## 7. How to build it later
@@ -105,7 +119,7 @@ This is a proposal for slicing, not a plan the owner agreed. Only start after th
 
 - Branch from `origin/main`, rebase before you push, read `git diff --stat` for anything outside your scope, merge your own PR (squash) into mockup `main`. Never touch `uat`, Kitchie code or tags from this repo.
 - `gh pr create` can fail from Claude Code sessions (GraphQL 403). Create the PR with REST: `gh api repos/basement-bridge/mockup/pulls --input <json>` (JSON with `title`, `head`, `base`, `body`). Merge with `gh api -X PUT repos/basement-bridge/mockup/pulls/N/merge -f merge_method=squash`.
-- Decision numbers here (206 to 246) continued the highest in the job notes at the time (205, Plan UI review). Other branches may take numbers too; check the highest before adding more, and renumber the proposals here if they clash.
+- Decision numbers here (206 to 253) continued the highest in the job notes at the time (205, Plan UI review). Other branches may take numbers too; check the highest before adding more, and renumber the proposals here if they clash.
 - The Pages URL was not verified from the sandbox; open it once and fix this file if it differs.
 
 ## 10. Links to every related durable thing

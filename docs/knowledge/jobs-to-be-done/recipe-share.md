@@ -1,6 +1,6 @@
 # Sharing a recipe outside the household
 
-Handover for whoever drives this next: [../../handover/recipe-share.md](../../handover/recipe-share.md). Mockup hub: `fragments/recipe-share/index.html` (live: https://basement-bridge.github.io/mockup/fragments/recipe-share/index.html). Mockup only; nothing is built. Everything numbered below is **PROPOSED** unless marked **CONFIRMED** (206, 209 and 243 so far, 13 October 2026, see "Owner picks"). Decision numbers continue after 205 (the last in [plan-ui-review.md](plan-ui-review.md)).
+Handover for whoever drives this next: [../../handover/recipe-share.md](../../handover/recipe-share.md). Mockup hub: `fragments/recipe-share/index.html` (live: https://basement-bridge.github.io/mockup/fragments/recipe-share/index.html). Mockup only; nothing is built. Everything numbered below is **PROPOSED** unless marked **CONFIRMED** (206, 209, 243, 247, 248, 250, 252 and 253 so far, 13 October 2026, see "Owner picks"). Decision numbers continue after 205 (the last in [plan-ui-review.md](plan-ui-review.md)).
 
 ## Job
 
@@ -42,20 +42,22 @@ Hub: `fragments/recipe-share/index.html`. Four slices, merged separately (PRs #1
 | Slice | Folder | Question | Recommended |
 |---|---|---|---|
 | Placement | `fragments/recipe-share/placement/` | Where does the Share button live? | A: icon in the top row, count of active links on it; labelled pill and key S on desktop |
-| Create sheet | `fragments/recipe-share/sheet/` | What do you choose before the link exists? | A: one screen (name, 24 hours / 7 days / 30 days, pinned switch), 7 days by default |
+| Create sheet | `fragments/recipe-share/sheet/` | What do you choose before the link exists? | C, CONFIRMED (247): shares the usual version; a version choice only when others exist (was A) |
 | Manage | `fragments/recipe-share/manage/` | Where do pending links show, and how are they renamed and cancelled? | A: a Shared section after Photos with a chip in the jump row |
 | Recipient | `fragments/recipe-share/recipient/` | What does the person with the link see? | A: quiet top strip, one invitation card after the last note |
 
-Recommended path: A in each. Slices B and C are kept drawn for comparison; none is rejected by the owner.
+Recommended path: placement A, sheet C (confirmed), manage A, recipient A. Other options are kept drawn for comparison; none is rejected by the owner.
 
 ## Owner picks (13 October 2026, voice and typed)
 
 1. **CONFIRMED:** mobile sharing is placement option A (share icon in the top row with an active-links badge). Decision 206.
 2. **CONFIRMED:** desktop sharing is placement option A on the main page of the fully opened recipe (Share pill with the S key hint). Decisions 206 and 209.
 3. **CONFIRMED:** the desktop recipe summary flyout (opened by clicking a row in the Recipes list) also gets a Share button next to the "Open full recipe" link, opening the share panel as a drill-in in the same flyout lane. Desktop only: mobile has no summary flyout (a row tap opens the full recipe page). Decision 243. Its visual and wording are proposed by the flyout slice and stay PROPOSED (244 to 246).
-4. **Not yet confirmed:** whether "A" also covers the create sheet, links list and recipient page. Those A options stay PROPOSED (recommended). See open question O12.
+4. **CONFIRMED:** the create sheet is option C. It shares "the usual" version by default; a version choice appears only when other versions are available. Decision 247.
+5. **CONFIRMED:** the sender may attach an invite to a link (opt-in), single-claim, setting up a new household, within the member's maximum-invites limit. Decisions 248, 250, 252, 253; 249 and 251 PROPOSED.
+6. **Not yet confirmed:** whether "A" also covers the links list and recipient page. Those A options stay PROPOSED (recommended). See open question O12.
 
-## Decisions (206, 209 and 243 CONFIRMED; the rest PROPOSED)
+## Decisions (206, 209, 243, 247, 248, 250, 252, 253 CONFIRMED; the rest PROPOSED)
 
 Merged from the four slices' unnumbered proposals. Where two slices said the same thing it is here once. Where they disagreed it is not decided here; it is an open question (O1 to O5). "Source" names the slice or slices.
 
@@ -69,12 +71,12 @@ Merged from the four slices' unnumbered proposals. Where two slices said the sam
 
 ### Creating a link
 
-211. **One create screen, three answers, link made in place.** Name, how long it works, and "Keep it as it is today", then Create; the result replaces the form in the same sheet. Closing before Create makes nothing. Recommended: sheet A. B (link made on open) and C (version list, date picker) stay drawn. Source: sheet.
+211. **SUPERSEDED by 247 (sheet option C confirmed; A is no longer recommended). One create screen, three answers, link made in place.** Name, how long it works, and "Keep it as it is today", then Create; the result replaces the form in the same sheet. Closing before Create makes nothing. Was recommended: sheet A. B (link made on open) stays drawn. Source: sheet.
 212. **The name is for the household only.** The recipient never sees it. It can be renamed later in the links list. Its default text and length are open (O2). Source: sheet, manage.
-213. **Expiry: 24 hours, 7 days or 30 days, 7 days by default.** The end is written plainly under the chips ("Ends Tue 20 Oct"). No custom date and no "never expires" (the owner said links expire). Source: sheet.
+213. **Expiry (AFFECTED by 247: option C as drawn adds a "Pick a date" chip, which the owner has not confirmed; see O13): 24 hours, 7 days or 30 days, 7 days by default.** The end is written plainly under the chips ("Ends Tue 20 Oct"). No custom date and no "never expires" (the owner said links expire). Source: sheet.
 214. **Links are multi-use and expire.** Said once in the created state's line, not a control. Source: sheet; the owner's words.
-215. **The link shows one version, the one on screen when Share was tapped** (on opening, the household's usual). It is stated as text in sheet A and B, a choice only in C. Whether a link belongs to the recipe or a version is open (O4). Source: sheet, recipient.
-216. **Pinned by default: the link shows the recipe as it is today.** Later edits stay private. The switch "Keep it as it is today" (on) turned off makes the link follow the newest copy of that version. Reason: he shares a recipe he is happy with. Wrong guess: the recipient sees an old copy after he fixes a typo. Source: sheet.
+215. **SUPERSEDED by 247 (usual by default, a choice only when other versions are available). The link shows one version, the one on screen when Share was tapped** (on opening, the household's usual). It is stated as text in sheet A and B, a choice only in C. Whether a link belongs to the recipe or a version is open (O4). Source: sheet, recipient.
+216. **AFFECTED by 247, still PROPOSED and now open (see O13). Pinned by default: the link shows the recipe as it is today.** Later edits stay private. The switch "Keep it as it is today" (on) turned off makes the link follow the newest copy of that version. Reason: he shares a recipe he is happy with. Wrong guess: the recipient sees an old copy after he fixes a typo. Source: sheet.
 217. **Copy link everywhere; the phone's own Share sheet on phone only.** The link is a read-only, selectable field. Source: sheet.
 218. **A failed Create makes nothing,** says so, and offers one Try again; the form stays filled in. Source: sheet.
 219. **After Done a toast** gives the end date ("Link ready. Anyone with it can view Egg fried rice until Tue 20 Oct."). The link then lives in the links list. Source: sheet.
@@ -107,7 +109,7 @@ Merged from the four slices' unnumbered proposals. Where two slices said the sam
 
 ### Cross-cutting
 
-240. **Recommended path:** placement A, sheet A, manage A, recipient A (the hub). Source: all four.
+240. **Recommended path:** placement A, sheet C (confirmed by 247), manage A, recipient A (the hub). Source: all four.
 241. **A link is a Recipe entitlement concern; there is no per-feature flag.** Whoever has Recipes has sharing; the recipient's page needs no entitlement. Source: integration brief (owner), not in the voice note. Treat as PROPOSED until the owner restates it.
 242. **Default path loads one small stylesheet and script per slice;** the create sheet, links list and desktop host load on engagement, and viewport code lives in its own files (phone under 1024px, desktop from 1024px). Everything changes in place, no reload (DESIGN.md 6 and 6a). Source: all four.
 
@@ -120,7 +122,17 @@ Slice: `fragments/recipe-share/flyout/`. Desktop only.
 245. **Whether key S also works while the summary flyout is focused,** and what the active-links badge shows there. PROPOSED, left to the flyout slice.
 246. **Back behaviour of the drill-in:** how the person returns from the share panel to the summary (back control, Esc, or the lane's usual close), and whether the summary keeps its scroll. PROPOSED, left to the flyout slice; see also O1.
 
-Decision numbers 206 to 246. Confirmed: 206, 209, 243. The rest are proposals.
+### Create sheet and invite (13 Oct 2026, owner, voice and typed)
+
+247. **CONFIRMED. The create-link sheet is option C.** It shares "the usual" version by default, and a version choice appears only when other versions are available (a recipe with one version shows none). Supersedes 211 and 215; affects 213 and 216 (the date chip and the pinned choice are drawn in C but not confirmed, O13); answers O4 for the default.
+248. **CONFIRMED. The sender may optionally attach an invite to a share link,** by an opt-in click in the sheet.
+249. **PROPOSED. The invite switch defaults off,** so a plain share stays a plain share. Wrong guess: a sender who wanted invites must click each time, or one who did not sends an invite by accident.
+250. **CONFIRMED. An invite is single-purpose:** if the link is passed around, only the first person to activate it claims the invite.
+251. **PROPOSED. Later openers of the link still read the recipe** (the link stays multi-use and unchanged for reading); they simply have no invite to claim and see no invitation to it. Wrong guess: they get an error instead of the recipe.
+252. **CONFIRMED. An invite sets up a NEW household;** it never joins an existing household.
+253. **CONFIRMED. Sending an invite respects the member's maximum-invites limit.** Where the limit lives and its value are OPEN (unknown, not invented; O14).
+
+Decision numbers 206 to 253. Confirmed: 206, 209, 243, 247, 248, 250, 252, 253. The rest are proposals.
 
 ## Open questions
 
@@ -136,7 +148,18 @@ Where two slices answered the same thing differently the contradiction is stated
 
 **Owner follow-up**
 
-- **O12. Did "A" also mean the create sheet, links list and recipient page?** The owner confirmed placement A on mobile and desktop. Sheet A, manage A and recipient A stay PROPOSED (recommended) until he says. Wrong guess: if he meant placement only, three slices are treated as settled when they are not.
+- **O12. Did "A" also mean the links list and recipient page?** The owner confirmed placement A on mobile and desktop and, separately, sheet C (247). Manage A and recipient A stay PROPOSED (recommended) until he says.
+- **O13. In sheet C, are the pinned-or-follows radios and the "Pick a date" chip kept?** Sheet C as drawn has both; the owner confirmed only the usual default and the conditional version choice. Affects 213 and 216.
+
+**Invite (decisions 248 to 253)**
+
+- **O14. Where does the maximum-invites limit live, and what is its value?** Unknown; not invented. Owner or Platform to say. Also: what the sender sees at the limit.
+- **O15. Default of the invite switch** (249 proposes off).
+- **O16. What happens to an unclaimed invite when the link expires or is cancelled?** Voided, or kept claimable? Does the invite slot come back to the sender's limit?
+- **O17. What can an already-signed-in person without a household do** with an invite: claim it and get a new household, or only sign up fresh?
+- **O18. What does the new household start with?** Empty, or defaults. Does the claimer get the Recipe entitlement?
+- **O19. Is the shared recipe copied into the new household** (as Save does, decision 234), or only the invite is claimed?
+- **O20. Abuse limits on claiming:** attempts per link, rate per address or device, and what the claimer sees on failure.
 
 **Questions several slices asked**
 
