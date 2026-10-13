@@ -1,0 +1,9 @@
+/* Receipt scan, chosen flow: phone and tablet (under 1024px). The viewfinder is a full-screen layer, as in Shopping; the picture is short and the list under it is the review. Loaded only below 1024px. */
+.ro-rl .rl-stage.lv-short{flex:0 0 auto;height:150px}
+.ro-rl .rl-status{margin-top:.4rem;min-height:44px;padding-top:.3rem;padding-bottom:.3rem}
+.ro-rl .rl-bar{min-height:3rem}
+.ro-rl .rl-prog{margin-top:.35rem}
+.ro-rl .rl-panel{padding-top:.4rem;gap:.3rem}
+.ro-rl .rl-shutter{width:3.9rem;height:3.9rem}
+.ro-rl .rl-stage{margin-left:.75rem;margin-right:.75rem}
+.ro-list{overscroll-behavior:contain}

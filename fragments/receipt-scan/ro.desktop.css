@@ -1,0 +1,11 @@
+/* Receipt scan, chosen flow: desktop (1024px and up). The Pantry's layout: rail, a 736px column, a 400px lane. The viewfinder is the column (a webcam, or a dropped photo); the lane holds the receipt-order list, with the progress and the filter at its top. Loaded only from 1024px up. */
+.panel .ro-head{margin:0}
+.panel .ro-list{margin:0;overflow:visible;flex:none}
+.panel .ro-li.on,.panel .ro-li:focus-within{scroll-margin-bottom:96px;scroll-margin-top:12px}
+.panel .ro-acts .kbd{margin-left:6px}
+.ro-rl .rl-stage.lv-short{flex:1 1 auto}
+.ro-rl .rl-actions .rl-side .kbd{margin-left:6px}
+.panel .ro-acts{padding-left:8px;padding-right:8px}
+.panel .ro-acts .rs-b{padding:0 10px;font-size:14px}
+.panel .ro-acts .rs-b .kbd{margin-left:4px}
+.panel .ro-li .row{padding-left:6px}
