@@ -1,4 +1,4 @@
-// Regenerates the Plan UI review phone screenshots for decisions 154 to 176 (13 Oct 2026) into fragments/plan-ui-review/img/.
+// Regenerates the Plan UI review phone screenshots for decisions 154 to 178 (13 Oct 2026) into fragments/plan-ui-review/img/.
 // Usage:  python3 -m http.server 8123 &   then   NODE_PATH=/opt/node22/lib/node_modules node tools/plan-ui-shots.mjs [--only=substring]
 // Dark theme (the default), headless Chromium, 390 x 844 and 360 x 740, JPEG. The ECG strip freezes the beat with the Web Animations API, so it is deterministic.
 import { createRequire } from "module";
@@ -12,7 +12,7 @@ const SZ = { 390: [390, 844], 360: [360, 740] };
 const cases = [];
 for (const w of [390, 360]) {
   for (let n = 1; n <= 12; n++) cases.push([`p-wk-${n}-${w}`, `demo=week&frame=${n}&cap=0`, w, 700]);
-  for (let n = 1; n <= 7; n++) cases.push([`p-nc-${n}-${w}`, `demo=nc&frame=${n}&cap=0`, w, n <= 2 ? 1000 : 600]);
+  for (let n = 1; n <= 8; n++) cases.push([`p-nc-${n}-${w}`, `demo=nc&frame=${n}&cap=0`, w, n === 8 ? 3800 : n <= 2 ? 1000 : 600]);
   for (let n = 1; n <= 7; n++) { cases.push([`p-ag-${n}-${w}`, `demo=agenda&frame=${n}&cap=0`, w, 600]); cases.push([`p-seq-${n}-${w}`, `demo=1&frame=${n}&cap=0`, w, 600]); }
   cases.push([`p-od-${w}`, "demo=open&frame=1&cap=0", w, 700], [`p-od-swipe-${w}`, "demo=open&frame=2&cap=0", w, 700], [`p-od-nc-${w}`, "demo=open&frame=3&cap=0", w, 700], [`p-od-detail-${w}`, "demo=open&frame=4&cap=0", w, 700], [`p-grid-${w}`, "", w, 900]);
 }

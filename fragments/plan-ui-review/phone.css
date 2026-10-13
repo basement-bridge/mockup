@@ -541,7 +541,7 @@ select{font:inherit}
 .lpiece .oa button{border:1px solid var(--border);background:var(--surface)}
 .lpiece .mko{margin-top:0;padding:0 12px;font-size:13px}
 .lpiece .unote{margin:8px 0 0}
-/* 157 (owner-stated; the look and timing are Proposals): the ECG marker at the start of the divider line over collapsed Not cooking days. A real button, 56 x 44 hit area, the line drawn through it. Collapsed: a quiet flat stub, with one beat that draws once when its gap first appears (.beat). Open: the settled single beat, tap to close. Reduced motion: flat at once, still tappable. */
+/* 157 (owner-stated; the look and timing are Proposals): the ECG marker at the start of the divider line over collapsed Not cooking days. A real button, 56 x 44 hit area, the line drawn through it. Collapsed: a quiet flat stub, with one beat that draws once when its gap first appears (.beat). Only on collapsed days (178): an opened day has no marker. Reduced motion: flat at once, still tappable. */
 .pw-day,.wkd,.endsp{position:relative}
 .ecg{position:absolute;left:0;top:-10px;width:56px;height:44px;display:grid;place-items:start;padding:2px 0 0 2px;background:none;border:0;color:var(--muted);z-index:4;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .ecg svg{display:block;width:44px;height:16px;overflow:visible}
@@ -549,7 +549,6 @@ select{font:inherit}
 .ecg .fl{stroke-width:2;opacity:.75}
 .ecg .bt{stroke-width:1.7;stroke-dasharray:80;stroke-dashoffset:80;opacity:0}
 .ecg.beat .bt{animation:ecgb 2.2s ease-out 1 both}
-.ecg.open .bt{stroke-dashoffset:0;opacity:.9}
 .ecg:active svg{opacity:.6}
 .ecg:focus-visible{outline:2px solid var(--accent);outline-offset:-6px;border-radius:12px}
 @keyframes ecgb{0%{opacity:1;stroke-dashoffset:80}38%{opacity:1;stroke-dashoffset:0}72%{opacity:1;stroke-dashoffset:0}100%{opacity:0;stroke-dashoffset:0}}

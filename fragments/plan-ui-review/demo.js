@@ -4,7 +4,7 @@
    ?demo=agenda       the lift and shift straight from the plain week view, 7 frames (decisions 142 to 146): 1 week, 2 press and hold lifts the tile, 3 picked up and carried (plain, no tear), 4 dropped on a day with a meal (Replaced, pulse, Undo),
                       5 a past tile lifted to copy forward and a past day refusing it, 6 the detail drag-out is the ONLY torn one, 7 a quick sideways swipe still reveals the swipe actions (no lift)
    ?demo=open         the open day, 4 frames (decisions 147 to 153, 154, 155): 1 the dashed open day, 2 right swipe reveals Not cooking, 3 Not cooking with Undo (3 s), 4 tap the Not cooking tile: the LIGHT panel (Ask AI, Surprise me, Mark as open)
-   ?demo=nc           the 13 Oct live-test round (decisions 154 to 158), 7 frames: 1 a collapsed Not cooking day with the ECG marker on the divider line, 2 one tap opens it, 3 a gap of two days, 4 one tap opens both, 5 tap a Not cooking day: the light panel, 6 the open-day swipe and its 3 s Undo, 7 the tear in the plain agenda (top and bottom edges only)
+   ?demo=nc           the 13 Oct live-test round (decisions 154 to 158), 8 frames: 1 a collapsed Not cooking day with the ECG marker on the divider line, 2 one tap opens it (no marker on the opened day, 178), 3 a gap of two days, 4 one tap opens both, 5 tap a Not cooking day: the light panel, 6 the open-day swipe and its 3 s Undo, 7 the tear in the plain agenda (top and bottom edges only), 8 scroll on and the opened days fold back, the flat marker returns (178, Proposal)
    ?demo=week         the week header and bulk actions (decisions 159 to 177), 12 frames: 1 label row with nights, moon and open-box counts, buttons below, 2 Add to buy then Undo, 3 Add to buy gone, Reserve alone, 4 Reserve then Undo, 5 everything held: Release, 6 one meal held by itself: Reserve with the rest, 7 Release then Undo, 8 nothing missing and nothing on hand: no strip, 9 several Not cooking and several open nights, 10 the counts after a swipe, 11 next week with a long label (sample meals seeded for this frame only), 12 the old strip (?ws=counts, superseded). Last week (read only, no strip, no indicators) is in the screenshots
    Frames (?demo=1): 1 week plan, 2 tap a day: the day docks top and the sheet docks bottom, 3 tap another day in the ribbon: the contents of the stack swap, the slot stays (115),
            4 start dragging the tile and it tears off, a ragged edge on the tile and on the piece left behind (118), 5 dragged to a day, torn all the way, 6 let go on a day,
@@ -37,12 +37,13 @@
   ];
   var CAPN = [
     ['A collapsed Not cooking day', 'Sat 17 is Not cooking and collapsed, so the week reads quietly. The start of the divider line above Sun carries a small ECG marker: it beats once and goes flat (157, owner-stated). The peek at the scroll edge is unchanged (96).'],
-    ['Tap the marker: the day opens', 'One tap opens what is hidden in that gap, here just Saturday. Not cooking is the muted grey of last week (156). The marker is now one settled beat; tap it to close the day again (Proposal).'],
+    ['Tap the marker: the day opens', 'One tap opens what is hidden in that gap, here just Saturday. Not cooking is the muted grey of last week (156). The opened day has no marker (178, owner-stated: the ECG is "for when the cooking is hidden"); it folds back by itself when you scroll on.'],
     ['A gap of two days', 'Mon 19 and Tue 20 are both Not cooking and collapsed: one marker, at the start of the line above Wed 21.'],
-    ['One tap opens all of them', 'Both days open at once (owner-stated: "if multiple days ... it should open up all of them"). Tapping the marker above them closes both.'],
+    ['One tap opens all of them', 'Both days open at once (owner-stated: "if multiple days ... it should open up all of them"). No marker on them now (178).'],
     ['Tap a Not cooking day', 'The light panel: day, Ask AI, Surprise me, Mark as open (154). The week stays under it and the day stays Not cooking.'],
     ['Right swipe an open day', 'Not cooking, with the Undo in place on the tile. For this swipe the Undo lasts 3 seconds (155, owner-stated).'],
-    ['The tear in the plain agenda', 'Hold a tile and drag it: the torn edge shows on the top (dragging down) or bottom (dragging up) only, with the fade on the place-holder and the tilt of the tile in hand (158).']
+    ['The tear in the plain agenda', 'Hold a tile and drag it: the torn edge shows on the top (dragging down) or bottom (dragging up) only, with the fade on the place-holder and the tilt of the tile in hand (158).'],
+    ['Scroll on: the opened days fold back', 'Mon 19 and Tue 20 were opened, then scrolled out of view. They are hidden again and the flat marker is back in the gap, the same as the peek rule (96) always did for a revealed day. Nothing to tap to close (178, Proposal; the cost is that a day you want to keep open folds back when you scroll past it).']
   ];
   var CAPW = [
     ['Label row: nights, moon, open box. Buttons below', 'On the right of "Week of 12 Oct  This week": "5 of 7 nights", then the moon with a number (Not cooking nights) and a tiny dashed box with a number (open nights), no words (168 to 170: owner-stated; the icon details are Proposals). Under the row, Add to buy and Reserve appear only because something is missing and something on hand can be reserved.'],
@@ -58,7 +59,7 @@
     ['Next week, a long label', 'Next week has the same label row: "Week of 19 Oct  Next week", its nights and indicators on one line, no wrap (171). Each week counts its own nights. Last week has no indicators, as in #151.'],
     ['For comparison: the old strip', 'The old passive strip (4/7 nights, to buy, use first, with the highlight filter), still available as ?ws=counts. Superseded by 159 to 161; it shows no moon or open-box indicators.']
   ];
-  var CAP = WKD ? CAPW : NC ? CAPN : OP ? CAPO : AG ? CAPA : CAPD; if (NC) N = 7; if (WKD) N = 12;
+  var CAP = WKD ? CAPW : NC ? CAPN : OP ? CAPO : AG ? CAPA : CAPD; if (NC) N = 8; if (WKD) N = 12;
   function rect(sel) { var e = document.querySelector(sel); return e ? e.getBoundingClientRect() : null; }
   function buildA(n) {
     A.resetDemo(); A.showWeek('d14'); var S = A.S, tile = function (id) { var e = document.querySelector('.pw-day .mc[data-id="' + id + '"]'); return e ? e.getBoundingClientRect() : null; };
@@ -87,6 +88,7 @@
     if (n === 1) return; if (n === 2) { ec('d17'); return; }
     if (n === 3 || n === 4) { A.render(false); el = document.getElementById('d-d21'); window.scrollTo(0, el.getBoundingClientRect().top + scrollY - A.stkH() - 110); if (n === 4) ec('d19,d20'); return; }
     if (n === 5) { ec('d17'); A.openDay('d17'); return; }
+    if (n === 8) { S.blocked.d19 = 'once'; S.blocked.d20 = 'once'; A.showWeek('d21'); A.render(false); el = document.getElementById('d-d21'); window.scrollTo(0, el.getBoundingClientRect().top + scrollY - A.stkH() - 110); ec('d19,d20'); setTimeout(function () { window.scrollBy(0, 900); setTimeout(function () { var e = document.getElementById('d-d21'); window.scrollTo(0, e.getBoundingClientRect().top + scrollY - A.stkH() - 110); }, 600); }, 1500); return; }
     if (n === 6) { A.block('d18', 3000); return; }
     A.showWeek('d14'); var t = document.querySelector('.pw-day .mc[data-id="wed-curry"]').getBoundingClientRect(), x = t.left + t.width / 2, y = t.top + t.height / 2;
     A.beginDrag('wed-curry', x, y, 99, { src: 'agenda' }); A.moveHand(x + 6, y + 36);
