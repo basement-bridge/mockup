@@ -209,7 +209,7 @@
       }
       decode(ctx.source || ctx.url).then(function (im) {
         img = im; sv.disabled = false; pb.classList.remove("run"); pb.hidden = true; redraw();
-        var d = dims(im); log("decoded " + d.w + "x" + d.h + " (" + (d.w * d.h / 1e6).toFixed(1) + " MP)");
+        var d = dims(im); if (d.w * d.h > 12e6) { big = true; infoLine(); } log("decoded " + d.w + "x" + d.h + " (" + (d.w * d.h / 1e6).toFixed(1) + " MP)");
         if (P.tab === "enhance" && featOK && !ctx.autoDone) { ctx.autoDone = true; setTab("enhance"); }
       }, function () { close(); bad(); });
 
@@ -254,7 +254,7 @@
         }).catch(function (e) { if (e && e.code === "unsupported" || !window.PhotoEnhance) noEnhance(); else { setChip("prep", "Enhance did not start"); err.textContent = "Enhance did not start. You can still use the photo as it is."; err.hidden = false; log("enhance error " + (e && (e.code || e.message))); } });
       }
       function notes(ses) {
-        var n = ses.notes || [], good = !n.length || n.some(function (x) { return /looks good already/i.test(x.text || ""); }), ul = $("#enotel"), eg = $("#egood");
+        var n = ses.notes || [], good = ses.good === true || !n.length || n.some(function (x) { return /looks good already/i.test(x.text || ""); }), ul = $("#enotel"), eg = $("#egood");
         ul.innerHTML = n.filter(function (x) { return !/looks good already/i.test(x.text || ""); }).map(function (x) { return "<li>" + esc(x.text) + "</li>"; }).join("") || "<li>Nothing to change.</li>";
         $("#enotesum").textContent = good ? "Nothing needed" : "What changed";
         eg.hidden = !good; if (good) eg.querySelector("span").textContent = "Looks good already. Balanced barely changes this one, so Original may be all you need.";
