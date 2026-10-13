@@ -201,3 +201,6 @@
 .wkacts .btn svg{flex:none}
 .wkacts .bl{display:flex;flex-direction:column;line-height:1.15}.wkacts .bl small{font-size:11px;font-weight:600;color:var(--muted)}
 .wkacts .flipundo.wide{min-height:46px}
+/* Copy last week and Clear week at the top (decision 287): shown only while the gutter does not carry them. .gut-on is set by lanes() in b.js when the glance gutter is on screen with the week actions; no size rule here. */
+.wktop{display:contents}
+.app.gut-on .wktop{display:none}

@@ -1,6 +1,6 @@
 # Plan on desktop: handover
 
-**Status update 14 October 2026 (latest): empty week asks once, hold everything and week tools in the gutter, decisions 282 to 286, section 15 (same PR #184, open).** **Status update 14 October 2026 (later): replan cleanup, one detail order and less red, decisions 276 to 281, section 14 (PR open, not merged).** **Status update 14 October 2026: option B is realigned with the phone Plan (PR open, not merged, for the owner), decisions 259 to 275, section 13.** Options A, C and D are unchanged.
+**Status update 14 October 2026 (latest, later again): top Copy last week and Clear week only when the gutter is not seen, decision 287, section 16.** **Status update 14 October 2026 (earlier): empty week asks once, hold everything and week tools in the gutter, decisions 282 to 286, section 15 (same PR #184, open).** **Status update 14 October 2026 (later): replan cleanup, one detail order and less red, decisions 276 to 281, section 14 (PR open, not merged).** **Status update 14 October 2026: option B is realigned with the phone Plan (PR open, not merged, for the owner), decisions 259 to 275, section 13.** Options A, C and D are unchanged.
 
 **Status update 12 October 2026: the owner chose option B as the base and gave direction by voice; option B is refined in PR (open, not merged, for the owner), decisions 110 to 120 (see section 12).** Original status, frozen 10 October 2026: the mockup is drawn and merged. Nothing is built in the real app. Decisions 49 to 62 are proposals by the design agent and wait for the owner. This file is the one place to start; every other durable thing is linked from section 11.
 
@@ -173,3 +173,12 @@ Only after the owner picks an option and confirms decisions. This is a **proposa
 - **Still open:** what "a cog for selecting which of the ..." selects (not drawn); the word Reserve against "hold everything"; placement; keep both header icons and gutter buttons.
 - **Next steps:** owner picks the placement; then the build copies the CSS and markup (`.wkfill`, `.wkacts`). The whole-week fill needs a service call that plans many nights in one undoable step and skips blocked days.
 - **Check:** `tools/plan-desktop-b-check.mjs`, 220 checks at 1440 and 1280.
+
+
+## 16. Top Copy and Clear only when the gutter is not seen (14 October 2026, decision 287)
+
+- **Ask:** owner, voice, 14 Oct 2026: Copy last week and Clear week are in the gutter, so the top copies show only when the gutter is not seen.
+- **What changed (desktop B):** header icons and the empty-week card's Copy are wrapped as `.wktop`; `lanes()` sets `gut-on` or `gut-off` on `.app`; one CSS rule hides `.wktop` under `gut-on`. Same actions, Undo chip and keys. Hidden at 1440 and up always; below 1440 shown only when a meal is open and the summary is tucked. Where the gutter has no Week actions (empty week, last week, another person) the top copies stay.
+- **Tile audit:** all four icons present (Hold or Release, Replan, Remove and not cooking, Add missing when something is missing); none dropped.
+- **Check:** `tools/plan-desktop-b-check.mjs`, 230 checks at 1440 and 1280 (F and G now click whichever copy is visible).
+
