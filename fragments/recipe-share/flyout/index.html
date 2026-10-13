@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Recipe share, summary flyout</title>
+<link rel="stylesheet" href="../../../theme.css"><link rel="stylesheet" href="../../../shared.css"><link rel="stylesheet" href="flyout.css"><link rel="stylesheet" href="index.css">
+<script src="../../../theme.js"></script><script src="flyout.js" defer></script>
+</head>
+<body><div class="wrap fl-wide">
+<a class="back" href="../">&lsaquo; Recipe share</a>
+<h1>Recipe share: Share in the summary flyout</h1>
+<p>Fragment, mockup only: nothing is sent or saved, every link is a placeholder at kitchie.example. <b style="color:var(--fg)">Desktop only.</b> On the Recipes list, clicking a recipe row opens the summary flyout in the right lane. A <b>Share</b> button now sits right next to <b>Open full recipe</b>; it drills the share panel into the same lane, with the real links list and create form. Mobile has no summary flyout (a row tap opens the full recipe page, where Share is placement option A), so there is nothing to draw there.</p>
+<p style="margin-top:8px;font-size:14px"><b style="color:var(--fg)">Owner, 13 October 2026:</b> a Share button "right next to the Open full recipe link"; tapping it "flies out a share panel" in "the same flyout lane" as the summary, not a popup. Full words, the chosen look, one alternative, proposals and open questions in <a class="fl-link" href="notes.md">notes.md</a>.</p>
+
+<div class="rs-controls"><div><div class="rs-lab">State (every control in the frame is live; these just jump there)</div><div class="rs-seg" id="fl-states" role="group" aria-label="State"></div></div></div>
+<div class="fl-stagebox"><div id="fl-stage"></div></div>
+<p class="fl-cap" id="fl-cap" role="status"></p>
+
+<div class="fl-box"><h2>Keys (focus anywhere in the window)</h2>
+<p><b>S</b> opens Share from the summary. <b>Esc</b> goes back one step (cancels a rename first; from the form or the link made it returns to the links, from the links to the summary). <b>Cmd or Ctrl + Esc</b> (or Enter) closes the whole flyout. <b>O</b> is Open full recipe. <b>?</b> or <b>H</b> lists the shortcuts, and S is on that list. Plain Esc on the summary does nothing, as everywhere on desktop.</p></div>
+<div class="fl-box"><h2>What the panel does</h2>
+<p><b>Links:</b> tap a name (pencil) to rename; Copy link copies the placeholder; Cancel link is one tap and the row becomes an Undo line for 5 minutes (manage, option A). <b>Make another link:</b> name, 24 hours / 7 days / 30 days, keep-it-as-it-is-today switch, Create; then the link with Copy link and Share, and Done (sheet, option A). The Share button's count is the number of links still working.</p></div>
+<div class="fl-box"><h2>Default path and deferred</h2>
+<p>Default path loads the theme, <code>flyout.css</code> and <code>flyout.js</code>, no images, no network. The window and the keys are <code>desktop.css</code> and <code>desktop.js</code>, fetched only at 1024px and up; under 1024px nothing else is loaded (DESIGN.md sections 6 and 7). The panel is drawn with the summary and shown by a class here so opening is instant; in the build its code's code should load on the first Share press. Opening, going back, renaming, cancelling and creating change the lane in place; the page never reloads (section 6a).</p></div>
+</div></body></html>

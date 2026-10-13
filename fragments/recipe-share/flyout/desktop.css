@@ -1,0 +1,7 @@
+/* Desktop only (1024px and up): the frame is the desktop group, rail 88 | list column | flyout lane 400 (docs/knowledge/desktop-layout.md).
+   Mobile has no summary flyout (a row tap opens the full recipe page), so this slice draws nothing under 1024px. Fetched only at 1024px and up. */
+.fl-stagewrap{width:100%;overflow-x:auto}
+.rb-lane[data-open=false][data-layer] .rb-fly{transform:translateX(24px);opacity:0;visibility:hidden}
+.rb-lane[data-open=true] .rb-lane-idle{display:none}
+.rb-lane[data-open=false] .rb-lane-idle{display:flex}
+.fl-frame{min-width:1024px}

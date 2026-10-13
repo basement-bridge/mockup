@@ -1,0 +1,166 @@
+/* Recipe share, summary-flyout slice. Tokens only (theme.css); no raw colours; no size rules by viewport (desktop.css carries those).
+   Copied first, then trimmed, from earlier slices (differences are listed in notes.md):
+   rb-*   fragments/recipe-browse-full/styles.css (the recipe summary flyout: header, Household says, Ingredients, Cook now / Plan, Open full recipe)
+   shr-*  fragments/recipe-share/placement/share.css (the labelled Share chip and its count)
+   rs-*   fragments/recipe-share/manage/manage.css (option A, the links list: rename, copy, cancel with Undo)
+   sh-*   fragments/recipe-share/sheet/share.css (option A, the create form and the link-made state)
+   btn, field, sw2, ic, kbd: recipe/recipe.css and recipe/keys.css, scoped to .fl-frame so nothing leaks. New names are fl-*, for this slice only. */
+.fl-frame,.fl-frame *{box-sizing:border-box}
+:where(.fl-frame) button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-align:inherit}
+:where(.fl-frame) a{color:inherit;text-decoration:none}
+:where(.fl-frame) :is(h3,h4,p){margin:0}
+.fl-frame :focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.fl-frame [hidden]{display:none!important}
+.fl-frame .ic{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.fl-frame .ic.s{width:18px;height:18px}.fl-frame .ic.xs{width:14px;height:14px}
+.fl-frame .kbd{font:600 11px var(--body);border:1px solid var(--border);border-radius:6px;padding:1px 6px;color:var(--muted);background:var(--bg);white-space:nowrap}
+.fl-frame .nocues .kbd:not(.keep),.fl-frame.nocues .kbd:not(.keep),.fl-frame.nocues .phint{display:none}
+.fl-frame .phint{font-size:12px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;justify-content:center;margin-top:4px}
+.fl-frame .trunc{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+
+/* ---- the desktop group (rb-frame, rb-rail, rb-stage, rb-col, rb-lane) ---- */
+.rb-frame{position:relative;display:flex;width:100%;max-width:1224px;height:820px;flex:none;border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden;background:var(--bg);color:var(--fg);font-size:14px;line-height:1.4}
+.rb-rail{width:88px;flex:none;border-right:1px solid var(--border);padding:14px 8px;display:flex;flex-direction:column;gap:6px}
+.rb-brand{font:700 13px var(--head);text-align:center;color:var(--muted);margin-bottom:10px}
+.rb-nv{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px;border-radius:var(--r-ctl);font-size:12px;font-weight:600;color:var(--muted)}
+.rb-nv svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.rb-nv.on{color:var(--accent);background:var(--surface)}
+.rb-stage{position:relative;flex:1;min-width:0;overflow:hidden}
+.rb-col{position:absolute;left:0;top:0;bottom:0;right:400px;max-width:736px;padding:24px 48px}
+.rb-lane{position:absolute;right:0;top:0;bottom:0;width:400px}
+.rb-lane-idle{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;color:var(--muted);border-left:1px solid var(--border)}
+.rb-sb{display:flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border-radius:var(--r-pill);background:var(--surface);border:1px solid var(--border);color:var(--muted)}
+.rb-chips{display:flex;gap:6px;margin:10px 0;overflow:hidden}
+.rb-chips span{flex:none;min-height:36px;display:inline-flex;align-items:center;padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--border);font-weight:600;font-size:13px}
+.rb-chips .on{border-color:var(--accent);color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.rb-h3{font-size:12px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:14px 0 2px}.rb-h3 .n{color:var(--fg);margin-left:4px}
+.rb-rr{display:flex;gap:10px;align-items:center;min-height:68px;padding:6px 0;border-top:1px solid var(--border);width:100%;text-align:left}
+button.rb-rr{cursor:pointer}
+.rb-rr.sel{background:var(--surface);box-shadow:inset 3px 0 0 var(--accent);border-radius:var(--r-ctl);padding-left:8px}
+.rb-rr.sel b{color:var(--accent)}
+.rb-e{width:44px;height:44px;border-radius:var(--r-ctl);flex:none;display:flex;align-items:center;justify-content:center;font-size:24px;background:color-mix(in srgb,var(--accent) 18%,var(--surface))}
+.rb-t{min-width:0}.rb-t b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rb-t small{display:block;color:var(--muted);font-size:12px}
+.rb-tg{display:inline-block;margin-top:2px;font-size:11px;font-weight:800;padding:1px 8px;border-radius:var(--r-pill);border:1px solid var(--sage);color:var(--sage)}
+.rb-tg.miss{border-color:var(--accent);color:var(--accent)}
+
+/* ---- flyout (rb-fly): two of them share the lane; the share panel drills in over the summary ---- */
+.rb-fly{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--surface);border-left:1px solid var(--border);transform:translateX(24px);opacity:0;visibility:hidden;transition:transform .14s ease,opacity .14s ease,visibility 0s .14s}
+.rb-lane[data-layer=summary] .fl-sum,.rb-lane[data-layer=share] .fl-share{transform:none;opacity:1;visibility:visible;transition:transform .2s ease-out,opacity .2s ease-out}
+.rb-lane[data-layer=share] .fl-sum{transform:translateX(-24px)}
+.rb-fh{display:flex;align-items:center;gap:12px;padding:18px 20px 12px}.rb-ft{min-width:0;flex:1}.rb-ft h3{font-family:var(--head);font-size:1.15rem;line-height:1.15}.rb-ft small{color:var(--muted)}
+.rb-x{margin-left:auto;flex:none;width:44px;height:44px;border-radius:50%;border:1px solid var(--border)!important;background:var(--bg)!important;color:var(--fg);display:inline-flex;align-items:center;justify-content:center}
+.rb-fb{flex:1;min-height:0;overflow:auto;padding:0 20px}
+.rb-ff{padding:12px 20px 14px;border-top:1px solid var(--border)}
+.rb-sec{padding:6px 0 10px}
+.rb-h4{margin:10px 0 4px;font-size:12px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);display:flex;gap:8px;align-items:center}.rb-h4 .n{color:var(--fg)}.rb-h4.sub{margin-top:14px}.rb-h4 .rb-tg{margin:0;text-transform:none;letter-spacing:0}
+.rb-btn{min-height:44px;padding:0 16px;border-radius:var(--r-ctl);border:1px solid var(--border)!important;background:var(--surface)!important;color:var(--fg);font:700 14px var(--body);display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.rb-btn.pri{background:var(--accent)!important;color:var(--on-accent);border-color:transparent!important}
+.rb-acts{display:flex;gap:8px}.rb-acts .rb-btn{flex:1}
+.rb-open{color:var(--accent);font-weight:700;display:inline-flex;align-items:center;gap:8px;min-height:44px}
+.rb-cooked{display:grid;grid-template-columns:auto 1fr;gap:12px;margin:4px 0 8px}.rb-cooked>div{padding:10px 14px;border-radius:var(--r-ctl);background:var(--bg);border:1px solid var(--border)}
+.rb-cooked small{display:block;color:var(--muted);font-size:12px}.rb-big{font:800 1.9rem var(--head);display:block;line-height:1.1}.rb-big.s{font-size:1.25rem;padding-top:8px}
+.rb-av{width:28px;height:28px;flex:none;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;border:1px solid var(--border);background:color-mix(in srgb,var(--accent) 24%,var(--surface))}
+.rb-th{width:30px;height:30px;flex:none;border-radius:50%;border:1.5px solid var(--border);display:inline-flex;align-items:center;justify-content:center}
+.rb-th.no{border-style:dashed;color:var(--muted)}
+.rb-mem{display:flex;align-items:center;gap:10px;min-height:44px;border-top:1px solid var(--border)}.rb-mem b{flex:1}.rb-lbl{font-size:12px;color:var(--muted)}
+.rb-q{margin:0;display:flex;gap:10px;padding:10px 0;border-top:1px solid var(--border)}.rb-q p{margin:2px 0 0;color:var(--fg)}.rb-q small{color:var(--muted);font-size:12px}
+.rb-ing{list-style:none;margin:4px 0;padding:0}.rb-ing li{display:flex;gap:10px;align-items:center;min-height:34px;border-top:1px solid var(--border)}
+.rb-ing li span:first-child{width:16px;color:var(--sage);font-weight:800}.rb-ing li span:nth-child(2){flex:1}.rb-ing li b{font-weight:600;color:var(--muted)}
+.rb-ing.two{display:grid;grid-template-columns:1fr 1fr;column-gap:16px}.rb-ing.two li{min-height:32px;gap:6px;font-size:13px}.rb-ing.two li span:first-child{width:12px}
+
+/* summary banner (the app shows the recipe's photo here; the mockup draws a placeholder) */
+.fl-banner{flex:none;height:120px;display:flex;align-items:center;justify-content:center;font-size:64px;background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 34%,var(--surface)),color-mix(in srgb,var(--sage) 34%,var(--surface)));border-bottom:1px solid var(--border)}
+.fl-sum .rb-fh{padding-top:14px;align-items:flex-start}
+
+/* the new part: Open full recipe and Share on one row (the Share chip is placement option A's, with its key hint) */
+.fl-ofrow{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:2px}
+.shr-chip{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--bg);font-size:13px;font-weight:700;color:var(--fg)}
+.shr-chip.on{border-color:var(--accent);color:var(--accent)}
+.shr-chip .ic{width:16px;height:16px}
+.shr-chip .shr-n{min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--accent);color:var(--on-accent);font:800 11px/18px var(--body);text-align:center}
+.shr-chip:hover{border-color:var(--accent)}
+
+/* the share panel's header: Back, title, the same close x */
+.fl-share .rb-fh{align-items:center;padding-bottom:6px}
+.fl-share .rb-fh .rb-x{margin-left:0}
+.fl-share .rb-ft{display:flex;align-items:center;gap:8px}
+.fl-share .rb-ft h3{font:800 1.15rem/1.2 var(--head)}
+.fl-share .rb-ft .ic{color:var(--accent)}
+.fl-lead{font-size:13px;color:var(--muted);margin:var(--sp-2) 0 var(--sp-3)}
+.fl-foot{font-size:12.5px;color:var(--muted);text-align:center;margin-top:var(--sp-2)}
+.fl-make{width:100%;min-height:48px;margin-top:var(--sp-3);font-size:15px}
+.fl-toast{position:absolute;left:calc(88px + 24px);bottom:20px;z-index:9;max-width:calc(100% - 88px - 400px - 48px);padding:10px 14px;border-radius:var(--r-ctl);background:var(--fg);color:var(--bg);font-weight:700;font-size:14px}
+
+/* ---- the links list (manage option A): rs-* ---- */
+.rs-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:var(--sp-2);container-type:inline-size}
+.rs-row{display:flex;flex-direction:column;gap:2px;padding:var(--sp-2) var(--sp-3) var(--sp-1);border:1px solid var(--border);border-radius:var(--r-card);background:var(--bg)}
+.rs-top{display:flex;align-items:center;gap:var(--sp-2);min-height:var(--tap)}
+.rs-name{flex:1;min-width:0;display:inline-flex;align-items:center;gap:6px;min-height:var(--tap);font-weight:700;font-size:1rem;color:var(--fg)}
+.rs-name span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rs-name .ic{color:var(--muted);width:16px;height:16px}.rs-name:hover .ic{color:var(--accent)}
+.rs-left{flex:none;display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:700;color:var(--sage);white-space:nowrap}.rs-left .ic{width:16px;height:16px}
+.rs-row[data-kind=soon] .rs-left{color:var(--accent)}.rs-row[data-kind=soon]{border-color:var(--accent)}
+.rs-stats{font-size:13px;color:var(--muted)}
+.rs-acts{display:flex;align-items:center;gap:var(--sp-1);margin:0 calc(var(--sp-2) * -1) 0 -10px}
+.rs-act{display:inline-flex;align-items:center;gap:6px;min-height:var(--tap);padding:0 10px;border-radius:var(--r-ctl);font-weight:700;font-size:14px;color:var(--accent)}
+.rs-act:hover{background:var(--surface)}
+.rs-act.rs-end{margin-left:auto;color:var(--danger)}.rs-act.rs-quiet{color:var(--muted)}
+.rs-row[data-kind=expired]{background:var(--surface);border-style:dashed}
+.rs-row[data-kind=expired] .rs-name,.rs-row[data-kind=expired] .rs-stats,.rs-row[data-kind=expired] .rs-left{color:var(--muted)}
+.rs-edit{display:flex;align-items:center;gap:var(--sp-1);flex:1;min-width:0}
+.rs-edit input{flex:1;min-width:0;min-height:var(--tap);padding:0 12px;border:1px solid var(--accent);border-radius:var(--r-ctl);background:var(--bg);color:var(--fg);font:700 1rem var(--body)}
+.rs-edit .rs-save{display:inline-flex;align-items:center;gap:5px;min-height:var(--tap);padding:0 14px;border-radius:var(--r-ctl);background:var(--accent);color:var(--on-accent);font-weight:800}
+.rs-edit .rs-keep{min-height:var(--tap);padding:0 8px;font-weight:700;color:var(--muted)}
+.rs-undo{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-2) var(--sp-3);border-radius:var(--r-ctl);border:1px solid var(--accent);background:var(--bg)}
+.rs-undo .ic{color:var(--accent)}.rs-undo .t{flex:1;min-width:0}.rs-undo b{display:block;font-size:14px}.rs-undo small{display:block;color:var(--muted);font-size:12px}
+.rs-undo .rs-mini{min-height:var(--tap);padding:0 14px;border:1px solid var(--accent);border-radius:var(--r-ctl);font-weight:800;color:var(--accent)}
+.rs-empty{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:var(--sp-5) var(--sp-4);border:1px dashed var(--border);border-radius:var(--r-card)}
+.rs-empty .ic{width:34px;height:34px;color:var(--accent)}.rs-empty b{font-size:1rem}.rs-empty p{font-size:13px;color:var(--muted)}
+
+/* ---- the create form and the link made (sheet option A): sh-* ---- */
+.sh-body{display:flex;flex-direction:column;gap:var(--sp-4)}
+.sh-f{display:flex;flex-direction:column;gap:var(--sp-2)}
+.sh-lbl{font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.sh-help{font-size:12.5px;color:var(--muted)}
+.sh-end{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--fg)}.sh-end .ic{color:var(--muted)}
+.sh-seg{display:flex;gap:var(--sp-1);flex-wrap:wrap}
+.sh-seg button{min-height:var(--tap);padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--bg);font-weight:700;font-size:13px;white-space:nowrap}
+.sh-seg button[aria-pressed=true]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.sh-row{display:flex;align-items:center;gap:var(--sp-3);min-height:56px;padding:var(--sp-2) 0;border-top:1px solid var(--border)}
+.sh-row b{display:block;font-size:14.5px}.sh-row small,.sh-ok small{display:block;color:var(--muted);font-size:12.5px;line-height:1.35}
+.sh .t,.sh-row .t,.sh-ok .t{min-width:0;flex:1}
+.sh-ri{width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:var(--bg);display:inline-flex;align-items:center;justify-content:center;flex:none;color:var(--accent)}
+.sh-go{width:100%;flex:none}
+.sh-ok{display:flex;align-items:center;gap:var(--sp-3)}
+.sh-okic{width:40px;height:40px;border-radius:50%;background:var(--added-bg);color:var(--added-fg);display:inline-flex;align-items:center;justify-content:center;flex:none}
+.sh-ok b{font:800 1.05rem var(--head)}
+.sh-url{font-size:14px;color:var(--fg);text-overflow:ellipsis}
+.sh-acts{display:flex;gap:var(--sp-2)}.sh-acts .btn{flex:1}
+.sh-live{min-height:1.2em;font-size:12.5px;color:var(--sage);margin-top:calc(var(--sp-2) * -1)}
+.sh-sum{display:flex;align-items:flex-start;gap:var(--sp-2);font-size:13px;color:var(--muted)}.sh-sum .ic{margin-top:1px}
+.fl-frame .btn{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 16px;border-radius:var(--r-ctl);background:var(--accent);color:var(--on-accent);font-weight:800;font-size:15px;border:1px solid var(--accent)}
+.fl-frame .btn.ghost{background:var(--bg);color:var(--fg);border-color:var(--border)}
+.fl-frame .btn[disabled]{opacity:.45;cursor:default}
+.fl-frame .field{width:100%;min-height:44px;padding:0 var(--sp-3);border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);font-size:15px;color:var(--fg)}
+.fl-frame .sw2{min-width:72px;min-height:36px;padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--bg);font-weight:700;text-align:center}
+.fl-frame .sw2[aria-checked="true"]{background:var(--accent);color:var(--on-accent);border-color:transparent}
+
+/* ---- the shortcuts list (the Pantry's .kb), drawn inside the frame ---- */
+.kb{position:absolute;inset:0;z-index:50;display:grid;place-items:center;padding:24px;background:var(--dim)}
+.kbc{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-card);padding:22px 26px;width:min(760px,100%);max-height:100%;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.kbh{display:flex;align-items:center;margin-bottom:12px}.kbh h3{font:800 1.15rem var(--head)}.kbh .rb-x{margin-left:auto}
+.kbg{display:grid;grid-template-columns:1fr 1fr;column-gap:40px;align-items:start}
+.kbs h4{font:700 12px var(--body);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:14px 0 6px}
+.kbr{display:flex;justify-content:space-between;gap:14px;padding:6px 0;border-bottom:1px solid var(--border);font-size:14px}
+.kk{white-space:nowrap;flex:0 0 120px}
+.kk kbd{font:700 12px var(--body);border:1px solid var(--border);border-bottom-width:2px;border-radius:6px;padding:1px 7px;background:var(--surface)}
+.kk em{font-style:normal;color:var(--muted);font-size:12px;margin:0 2px}
+.kbr span:last-child{color:var(--muted);flex:1}
+.kbr.new{background:color-mix(in srgb,var(--accent) 12%,var(--bg))}.kbr.new span:last-child{color:var(--fg)}
+.kbnew{font-size:11px;font-weight:800;color:var(--accent);border:1px solid var(--accent);border-radius:var(--r-pill);padding:0 7px;margin-left:6px}
+.kbt{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:18px;padding-top:14px;border-top:1px solid var(--border);font-weight:600}
+
+@media (prefers-reduced-motion:reduce){.rb-fly{transition-duration:0s!important;transition-delay:0s!important}}
+.fl-share .rb-fb{padding-top:var(--sp-3)}
+.fl-share .fl-lead{margin-top:0}
