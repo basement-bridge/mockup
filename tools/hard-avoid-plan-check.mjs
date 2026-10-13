@@ -3,7 +3,7 @@
 // Needs playwright-core and Chromium at PLAYWRIGHT_BROWSERS_PATH (/opt/pw-browsers).
 // Covers (owner, 12 Oct 2026, SW-O30): a Hard avoid guards a hand-planned meal only when the person is in the meal. A meal for that person
 // alone is a hard stop (name and avoid, never the Reason, SW-O48) and no way past it; a household meal warns, names everyone affected, and offers one action,
-// "Leave <names> out of this meal"; a meal for other people, a meal without the item and a Soft avoid are not guarded. After leaving
+// "Leave <names> out of this meal"; a meal for other people, a meal without the item and a Soft avoid are not guarded (the Soft line never quotes another person's Reason, SW-84). After leaving
 // someone out the meal says who it is for and not for, and Undo returns to the guard. Desktop (1280, 1024) and phone (390, 360), both themes.
 import { chromium } from "playwright-core";
 import { mkdirSync } from "node:fs";
@@ -95,6 +95,7 @@ for (const theme of ["kitchie", "kitchie-day"]) for (const [w, h] of [[1280, 800
   p = await page(w, h, "state=soft", theme);
   ok(await mode(p) === "soft" && await n(p, "[data-plan]") === 1 && await n(p, "[data-leave]") === 0 && await n(p, ".guard") === 0, "soft: a Soft avoid does not block: Plan is there, no guard, no leave out" + tag);
   ok(/Jane would rather avoid onion/.test(await txt(p, "#guard")) && /does not stop the meal/.test(await txt(p, "#guard")), "soft: one quiet line, says it does not stop the meal" + tag);
+  ok((await txt(p, "#guard")).replace(/\s+/g, " ").trim() === "Jane would rather avoid onion (soft). Shakshuka has it, and that does not stop the meal." && !/don't like it|reason/i.test(await txt(p, "#guard")), "soft: no quoted Reason: Sam is not Jane (SW-O61, SW-84)" + tag);
   await snap(p, `soft-${w}-${theme}`);
   ok(await noScroll(p), "soft: no sideways scroll" + tag);
   // household of two: Kai absent, so his avoid does not apply
