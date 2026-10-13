@@ -147,16 +147,21 @@ function paneSettings(m){
  else h+='<div><button type="button" class="pf-btn" data-toast="Mockup: back to defaults">Reset to defaults</button></div>';
  return h}
 function accHeads(m){return ''}
-function paneHousehold(){
+function paneHousehold(m){
+ var who=m&&/^(admin|member)$/.test(m.hhrole)?m.hhrole:"founder"; /* who is looking: the founding member (default), a granted admin (maya) or a member (sam). Mockup only: ?open=household&hhrole=admin|member (SW-85) */
  var ch=function(t,c){return ' <span class="pf-chip'+(c?' '+c:'')+'">'+t+'</span>'};
  var mem=function(ini,nm,chips,sub,btn,me){return '<li><button type="button" class="pf-item" data-toast="Mockup: this opens the member sheet"><span class="pf-ini'+(me?' me':'')+'" aria-hidden="true">'+ini+'</span><span class="pf-t">'+nm+chips+'<small>'+sub+'</small></span><span class="pf-chev">'+ic("chev",18)+'</span></button>'+(btn||'')+'</li>'};
+ /* Make admin and Remove admin carry their confirm in a <details> under the row (no script in the build); the summary reads Cancel while it is open */
+ var adm=function(n,ad){var q=ad?"Remove "+n+" as admin?":"Make "+n+" an admin?";return '<details class="pf-adm"><summary class="pf-btn sm" aria-label="'+(ad?"Remove "+n+" as admin":"Make "+n+" an admin")+'"><span class="o">'+(ad?"Remove admin":"Make admin")+'</span><span class="c">Cancel</span></summary><div class="pf-admbox"><b>'+q+'</b><p class="pf-small">'+(ad?n+" stays in Our kitchen and keeps their own preferences. They can no longer change what the household shares.":"Admins can change what the whole household shares: its settings, notes and food rules, and who else is an admin. You can take it back.")+'</p><button type="button" class="pf-btn'+(ad?"":" pri")+' sm" data-toast="Mockup: '+n+(ad?" is no longer an admin":" is now an admin")+'">'+(ad?"Remove admin":"Make "+n+" an admin")+'</button></div></details>'};
+ var canG=who!=="member";
+ var note=canG?"Admins can make someone an admin, or take it back. The founding member is always an admin.":"Only household admins can make someone an admin, or take it back. Admins: "+NAME+(who==="founder"?"":" and maya")+".";
  return '<div><h3 class="pf-h">Our kitchen</h3><p>4 members</p></div>'
- +'<div><span class="pf-lbl">Members and admins</span><p class="pf-small pf-intro2">Admins can change what the whole household shares: its settings, notes and food rules. Everyone can always change their own preferences, whatever their role. Only the founding member can make someone an admin, or take it back.</p><ul class="pf-list">'
- +mem("P",NAME,ch("You")+ch("Founding member","acc"),SUB+" \u00b7 Always an admin","",true)
- +mem("M","maya",ch("Admin","acc"),"Kitchen helper \u00b7 Can change the household\u2019s values",'<button type="button" class="pf-btn sm" data-toast="Mockup: maya is a member again (only the founding member can do this)">Remove admin</button>')
- +mem("S","sam",ch("Member"),"Sous chef \u00b7 Can change their own preferences",'<button type="button" class="pf-btn sm" data-toast="Mockup: sam is now an admin (only the founding member can do this)">Make admin</button>')
- +mem("J","jo",ch("Member"),"Can change their own preferences",'<button type="button" class="pf-btn sm" data-toast="Mockup: jo is now an admin (only the founding member can do this)">Make admin</button>')
- +'</ul></div>'
+ +'<div><span class="pf-lbl">Members and admins</span><p class="pf-small pf-intro2">Admins can change what the whole household shares: its settings, notes and food rules. Everyone can always change their own preferences, whatever their role.</p><ul class="pf-list">'
+ +mem("P",NAME,(who==="founder"?ch("You"):"")+ch("Founding member","acc"),SUB+" \u00b7 Always an admin","",who==="founder")
+ +mem("M","maya",(who==="admin"?ch("You"):"")+ch("Admin","acc"),"Kitchen helper \u00b7 Can change the household\u2019s values",canG&&who!=="admin"?adm("maya",true):"",who==="admin")
+ +mem("S","sam",(who==="member"?ch("You"):"")+ch("Member"),"Sous chef \u00b7 Can change their own preferences",canG?adm("sam",false):"",who==="member")
+ +mem("J","jo",ch("Member"),"Can change their own preferences",canG?adm("jo",false):"")
+ +'</ul><p class="pf-small" style="margin:8px 2px 0">'+note+'</p></div>'
  +'<div><span class="pf-lbl">Waiting to join</span><ul class="pf-list"><li><div class="pf-ev"><span class="pf-ico">'+ic("mail",18)+'</span><span class="pf-t"><span class="pf-code">482 913</span><small>Join Our kitchen, 20 hours left</small></span><button type="button" class="pf-btn sm" data-toast="Mockup: code copied">'+ic("copy",16)+' Copy</button><button type="button" class="pf-btn sm" data-toast="Mockup: invite cancelled">Cancel</button></div></li></ul></div>'
  +'<div><button type="button" class="pf-btn pri" data-hhinvite data-toast="Mockup: this opens the invite sheet (drawn in the household flow: Menu, Household, Invite someone)">'+ic("plus",18)+' Invite someone</button></div>'
  +'<div class="pf-danger"><b>Danger zone</b><p class="pf-small">You lose access to the pantry, shopping and recipes. Nothing is deleted. Someone has to invite you back.</p><button type="button" class="pf-btn dng" data-toast="Mockup: you would type your name to confirm">'+ic("door",18)+' Leave household</button></div>'}
@@ -183,7 +188,7 @@ function invLbl(){return invSent()?{t:"My invites",sub:"Invites you have sent, a
 function invSet(mode){INVMODE=mode;var L=invLbl();$$("[data-inv=open]").forEach(function(b){var a=$("[data-invlbl]",b),c=$("[data-invsub]",b);if(a)a.textContent=L.t;if(c)c.textContent=L.sub;b.title=L.tip})}
 var INIT=null;
 function readInit(){var q=new URLSearchParams(location.search),g=function(k){return q.get(k)||""};
- INIT={sub:g("sub"),sel:g("sel"),pref:g("pref"),psub:g("psub"),ptab:g("ptab"),as:g("as"),os:g("os"),acc:g("acc"),done:g("done"),chg:g("chg"),ai:g("ai"),aic:g("aic"),aidc:g("aidc"),inv:g("inv"),invs:g("invs")};
+ INIT={sub:g("sub"),sel:g("sel"),pref:g("pref"),psub:g("psub"),ptab:g("ptab"),as:g("as"),os:g("os"),acc:g("acc"),done:g("done"),chg:g("chg"),ai:g("ai"),aic:g("aic"),aidc:g("aidc"),inv:g("inv"),invs:g("invs"),hhrole:g("hhrole")};
  if(/^(none|some|full)$/.test(INIT.invs))INVMODE=INIT.invs;
  if(INIT.inv==="list"&&INVMODE==="none")INVMODE="some";
  if(INIT.inv==="limit")INVMODE="full";
@@ -197,6 +202,7 @@ function newState(kind,view,root,opener){
   if(/^[0-3]$/.test(I.chg))m.chg=I.chg;
   if(/^(mine|hh)$/.test(I.ptab))m.ptab=I.ptab;
   if(/^(arjan|sam)$/.test(I.as))m.as=I.as;
+  if(/^(admin|member)$/.test(I.hhrole))m.hhrole=I.hhrole;
   m.os=I.os;m.idone=I.done==="1";m.sel=I.sel||null;m.acc=/^(cats|locs|install)$/.test(I.acc)?I.acc:null;
   if(narrow()&&/^(cats|locs|install)$/.test(I.sub)&&!m.acc)m.acc=I.sub}
  return m}

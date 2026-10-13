@@ -177,7 +177,7 @@ All eleven are already recorded in the notes, so no extra line is added. Where e
 
 | ID | Open question | Build default (pending owner review) | Where it bites if wrong |
 |---|---|---|---|
-| Q-R1 | Do admins have exactly the founding member's rights? | As drawn: grant and revoke are the founding member's alone. Admins make every other household-level write. Removing members stays as it is today (Platform: owner only). | Platform rule and Members view |
+| Q-R1 | Do admins have exactly the founding member's rights? | **Answered by the owner, typed, 14 October 2026 (SW-85): any admin grants and revokes admin for others; the founding member stays an admin and cannot be revoked.** Was: grant and revoke are the founding member's alone. Admins make every other household-level write. Removing members stays as it is today (Platform: owner only). | Platform rule and Members view |
 | Q-R2 | Last admin; founding member leaves. | The founding member cannot step down or be removed. A household always keeps at least one admin (a revoke that would leave none is refused). If the founding member leaves, the successor is the longest-standing remaining member (Platform's `householdOwnerId` fallback), and they are an admin at once. | Locked-out household; decide before cutover |
 | Q-R3 | What does a non-admin see? | The household value read-only with "Only household admins can change this." (as drawn). | Redraw |
 | Q-R4 | Who can see who is an admin? | Every member (as drawn). | Redraw and one filter |
