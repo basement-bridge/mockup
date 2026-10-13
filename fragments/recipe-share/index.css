@@ -1,0 +1,20 @@
+/* Hub page for the recipe-share feature. Page chrome only, tokens only (DESIGN.md section 2). Nothing here is loaded by the slices. */
+.hub-said{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:var(--sp-4);margin-top:var(--sp-4)}
+.hub-said ul{margin:var(--sp-2) 0 0;padding-left:18px;font-size:14px}
+.hub-said li{margin-bottom:6px}
+.hub-rec{border:2px solid var(--accent);border-radius:var(--r-card);padding:var(--sp-4);background:var(--surface)}
+.hub-rec p{color:var(--fg)}
+.hub-path{display:grid;gap:var(--sp-2);margin:var(--sp-3) 0 0;padding:0;list-style:none;counter-reset:hub}
+.hub-path li{counter-increment:hub;display:flex;gap:10px;align-items:flex-start;font-size:14px}
+.hub-path li::before{content:counter(hub);flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+.hub-slice{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:var(--sp-4);margin-bottom:var(--sp-3)}
+.hub-slice:hover{border-color:var(--accent)}
+.hub-slice h2{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.hub-slice h2 a{display:inline-flex;align-items:center;min-height:var(--tap);text-decoration:underline;text-underline-offset:3px}
+.hub-slice .one{margin:4px 0 0;color:var(--fg);font-weight:600}
+.hub-slice .recd{margin:6px 0 0;font-size:14px}
+.hub-slice .recd b{color:var(--accent)}
+.hub-links{display:flex;flex-wrap:wrap;gap:6px;margin-top:var(--sp-3)}
+.hub-links a{display:inline-flex;align-items:center;min-height:var(--tap);padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--bg);font-size:13px;font-weight:600}
+.hub-links a:hover{border-color:var(--accent)}
+.hub-list li{margin-bottom:6px;font-size:14px}
