@@ -158,8 +158,9 @@
   };
   var head1 = RO.head;
   RO.head = function () {
-    if (S.filter === "all") S.filter = "exact";
-    var t = RO.tally(), n = RO.seenLines().filter(function (l) { return pillOf(l) === "exact"; }).length, f = S.filter, nt = tickables().length, hold = RO.Q.get("hold") === "1";
+    /* RS-98: the list opens on whichever pill needs the person: Check when any line needs a check, otherwise Exact. Chosen once the receipt is read (not while lines are still arriving, so the tab does not jump under the camera); an explicit ?filter= or a tap on a pill wins. */
+    if (S.filter === "all" && (S.fixed || S.still || S.phase === "end" || S.step === "done")) S.filter = RO.seenLines().some(function (l) { return pillOf(l) === "check"; }) ? "check" : "exact";
+    var t = RO.tally(), n = RO.seenLines().filter(function (l) { return pillOf(l) === "exact"; }).length, f = S.filter === "all" ? "exact" : S.filter, nt = tickables().length, hold = RO.Q.get("hold") === "1";
     var h = head1().replace(/<button[^>]*data-v="all"[\s\S]*?<\/button>/, '<button type="button" class="ro-f' + (hold ? " qu-hold qu-held" : "") + '" role="tab" aria-selected="' + (f === "exact") + '" data-act="filter" data-v="exact" data-hold="1" aria-describedby="qu-hint"><span>Exact</span><b>' + n + "</b></button>");
     if (f === "exact" && (nt || hold)) h = h.replace(/<\/div>$/, '<div class="qu-hintrow" id="qu-hint"><span>' + (hold ? "Keep holding Exact to tick all " + nt : "Hold Exact to tick all " + nt) + '</span><button type="button" class="rs-b sm" data-act="exall">' + ic("check", 16) + "<span>Tick all " + nt + "</span>" + (RO.DESK() && S.keys ? '<span class="kbd cap">A</span>' : "") + "</button></div></div>");
     return h;
