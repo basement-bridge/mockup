@@ -13,6 +13,8 @@
   var esc = function (s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;"); };
   var DESK = function () { return matchMedia("(min-width:1024px)").matches; };
   var RO = window.RO = { D: D, Q: Q, vp: {}, $: $, $$: $$, P: P, L: L, esc: esc, DESK: DESK, HOLD: 1.2 };
+  /* Revision 4 (two steps): the page ro2.html (body data-flow="two") on a phone or tablet. opt a = Read, then sort only what needs you; b = Read, then the whole list; c = the paper stays above the list, bigger. Empty everywhere else: the chosen flow is untouched. */
+  RO.opt = document.body.getAttribute("data-flow") === "two" && !DESK() ? (Q.get("opt") || "a") : "";
 
   /* ---------- state ---------- */
   var S = RO.S = {
@@ -115,7 +117,7 @@
   var order = function () { return seenLines().sort(function (a, b) { return RO.ORDER.indexOf(a.id) - RO.ORDER.indexOf(b.id); }); };
   RO.inFilter = function (l, f) {
     var k = out(l).k;
-    return f === "all" || (f === "check" && k === "check") || (f === "unsure" && k === "unsure") || (f === "ignored" && k === "ignored");
+    return f === "all" || (f === "check" && k === "check") || (f === "unsure" && k === "unsure") || (f === "ignored" && k === "ignored") || (f === "todo" && (k === "check" || k === "unsure")) || (f === "ready" && (k === "top" || k === "new"));
   };
   RO.visible = function () { return order().filter(function (l) { return RO.inFilter(l, S.filter); }); };
 
@@ -156,12 +158,13 @@
   RO.stageHtml = function () {
     /* No webcam on the desktop (RS-76): until a photo is given the stage is a drop zone; after, the photo (the paper) as before. The conditions of a live camera (blur, dark, glare, rest) do not exist there. */
     if (RO.vp.noCamera && !S.still) return '<div class="rl-stage lv-stage rl-drop" data-act="photos" data-over="0" data-busy="0"><div class="rl-drop-in"><span class="ic" aria-hidden="true">' + ic("image", 34) + '</span><h2>Drop a photo of the receipt here</h2><p>Or paste it, or choose a file. A flat, sharp, well-lit photo reads best. Lines collect in the list as they are read.</p><button type="button" class="rs-b pri big" data-act="photos">' + ic("image", 20) + "<span>Choose a photo</span></button></div></div>";
-    var c = RO.vp.noCamera ? "auto" : S.cond, cl = "rl-stage lv-stage lv-live lv-short";
+    var c = RO.vp.noCamera ? "auto" : S.cond, cl = "rl-stage lv-stage lv-live" + (RO.opt && S.step === "view" ? " lv-tall" : RO.opt === "c" ? " lv-mid" : " lv-short");
     if (c === "blur") cl += " lv-blur"; if (c === "dark" && !S.torch) cl += " lv-dark"; if (c === "glare") cl += " lv-glare";
     var h = '<div class="' + cl + '" data-cond="' + c + '">';
     h += c === "wall" ? '<div class="lv-wall"><i></i></div>' : paperHtml();
     if (c === "glare") h += '<div class="lv-gl" aria-hidden="true"></div>';
     h += '<div class="rl-flash" aria-hidden="true"></div>';
+    if (RO.opt && S.step === "view" && (S.phase === "end" || S.still)) h += '<div class="ro2-stamp" role="status">' + ic("check", 22) + "<b>Read</b><span>" + (RO.tally().total + RO.tally().left) + " lines</span></div>";
     if (S.cond === "rest" && !RO.vp.noCamera) h += '<div class="rl-rest"><p>Looking has stopped to save battery.</p><button type="button" class="rl-go" data-act="resume">' + ic("camera", 18) + "Resume</button></div>";
     return h + "</div>";
   };
@@ -177,7 +180,7 @@
     if (c === "partial") return { tone: "soft", ic: "hold", text: "Some lines are cut off at the edge.", sub: "Slide the receipt so whole lines show" };
     if (ph === "take") return { tone: "take", ic: "camera", text: "Steady. Taking the photo..." };
     if (ph === "banked") return { tone: "ok", ic: "check", text: "Got " + S.banked + " lines.", sub: S.pos < 2 ? "Slide the receipt up for the rest" : "" };
-    if (ph === "end") return { tone: "ok", ic: "check", text: "That is the whole receipt: " + n + " lines.", sub: need ? need + " to settle, in the list below" : "Everything is settled" };
+    if (ph === "end") return { tone: "ok", ic: "check", text: "That is the whole receipt: " + n + " lines.", sub: RO.opt ? (need ? need + " to settle in the next step" : "Everything is settled") : need ? need + " to settle, in the list below" : "Everything is settled" };
     if (ph === "again") return { tone: "info", ic: "eye", text: "Seen again: Butter. Not counted twice." };
     if (ph === "found" || ph === "hold") return { tone: "ok", ic: "hold", text: "Receipt found. Hold steady...", sub: n + " lines read" + (need ? ", " + need + " to settle" : "") };
     if (S.still) return { tone: "ok", ic: "image", text: "Photo read: " + n + " lines.", sub: need ? need + " to settle" : "" };
@@ -196,11 +199,33 @@
     return '<button type="button" class="rl-shutter" data-act="shutter" aria-label="Take the photo now"><svg class="rl-ring" viewBox="0 0 76 76" aria-hidden="true"><circle class="rl-ring-bg" cx="38" cy="38" r="34"/><circle class="rl-ring-pg" cx="38" cy="38" r="34" stroke-dasharray="' + RING.toFixed(1) + '" stroke-dashoffset="' + (RING * (1 - p)).toFixed(1) + '"/></svg><span class="rl-core"></span></button>';
   }
   function actionsHtml() {
+    if (RO.opt && S.step === "view") return twoActions();
+    return actionsHtml0();
+  }
+  /* Revision 4, step 1: the right-hand button is Sort, not Add. It wakes when the receipt has been read (the whole receipt, or a photo). */
+  function twoActions() {
+    var t = tally(), ready = S.phase === "end" || S.still || S.fixed, n = t.total + t.left, w = RO.vp.words || {};
+    return '<div class="rl-actions"><button type="button" class="rl-side" data-act="photos">' + ic("image", 18) + (w.photo || "Choose a photo") + '</button>' + shutterHtml() +
+      '<button type="button" class="rl-side lv-add ro2-sort" data-act="sort"' + (ready ? "" : " disabled") + ' aria-label="Sort the ' + n + ' lines read">' + ic("list", 18) + "Sort " + (ready ? n : "") + (ready ? " lines" : "") + "</button></div>";
+  }
+  function actionsHtml0() {
     var t = tally(), w = RO.vp.words || {}, key = DESK() && S.keys;
     return '<div class="rl-actions"' + (RO.vp.noCamera ? ' data-nocam="1"' : "") + '><button type="button" class="rl-side" data-act="photos">' + ic("image", 18) + (w.photo || "Choose a photo") + "</button>" + (RO.vp.noCamera ? "" : shutterHtml()) +
       '<button type="button" class="rl-side lv-add" data-act="summary"' + (t.ready ? "" : " disabled") + ' aria-label="Add ' + t.ready + ' to the Pantry">' + ic("check", 18) + "Add " + t.ready + (key ? '<span class="kbd">⇧↵</span>' : "") + "</button></div>";
   }
   function barHtml() { return '<div class="rl-bar"><button type="button" class="rl-done" data-act="leave" aria-label="Done, close the camera">' + ic("x", 18) + "Done</button><h2 id=\"rl-title\">Scan receipt</h2>" + (S.cond === "dark" && !RO.vp.noCamera ? '<button type="button" class="rl-torch" data-act="torch" aria-pressed="' + S.torch + '" aria-label="Light on">' + ic("sun", 18) + "</button>" : '<span class="rl-bar-gap" aria-hidden="true"></span>') + "</div>"; }
+  /* Revision 4, step 1: what was read, counted, under the picture. Large, one line, the same four words as the list. */
+  RO.readout = function () {
+    var t = tally(), n = t.total + t.left, chip = function (k, g, w, c) { return '<span class="ro-chip ro2-c" data-k="' + k + '">' + ic(g, 14) + "<b>" + c + "</b><span>" + w + "</span></span>"; };
+    if (!n) return '<p class="ro2-read ro2-none">' + ic("receipt", 18) + "Lines appear here as they are read.</p>";
+    return '<div class="ro2-read" role="status"><b class="ro2-n">' + n + " lines read</b><span class=\"ro2-chips\">" + chip("top", "check", "sure", t.exact) + chip("check", "approx", "check", t.check) + chip("unsure", "q", "unsure", t.unsure) + chip("ignored", "x", "left out", t.ignored) + "</span></div>";
+  };
+  /* Revision 4, step 2: its own top bar. Back goes to the receipt (the paper as it was read), not to the camera. */
+  RO.sortBar = function () { return '<div class="rl-bar"><button type="button" class="rl-done" data-act="seepaper" aria-label="Back to the receipt">' + ic("up", 18) + 'Receipt</button><h2 id="rl-title">Sort the lines</h2></div>'; };
+  RO.sortActions = function () {
+    var t = tally();
+    return '<div class="rl-actions ro2-sortbar"><button type="button" class="rl-side" data-act="seepaper">' + ic("receipt", 18) + 'See the receipt</button><button type="button" class="rl-side lv-add" data-act="summary"' + (t.ready ? "" : " disabled") + ' aria-label="Add ' + t.ready + ' to the Pantry">' + ic("check", 18) + "Add " + t.ready + "</button></div>";
+  };
   RO.parts = function () { return { bar: barHtml(), status: promptHtml(), prog: progHtml(), actions: actionsHtml() }; };
 
   /* ---------- the progress readout and the filter (RS-64) ---------- */
@@ -208,7 +233,7 @@
     var t = tally(), pct = t.total ? Math.round(t.resolved / t.total * 100) : 0, f = S.filter;
     var tab = function (k, w, n) { return '<button type="button" class="ro-f" role="tab" aria-selected="' + (f === k) + '" data-act="filter" data-v="' + k + '"' + (k !== "all" && !n ? ' data-zero="1"' : "") + "><span>" + w + "</span><b>" + n + "</b></button>"; };
     return '<div class="ro-head"><div class="ro-prog"><b class="ro-pn" aria-live="polite">' + t.resolved + " of " + t.total + ' resolved</b><span class="ro-pb" role="progressbar" aria-valuemin="0" aria-valuemax="' + t.total + '" aria-valuenow="' + t.resolved + '" aria-label="Lines resolved"><i style="width:' + pct + '%"></i></span></div>' +
-      '<div class="ro-fs" role="tablist" aria-label="Show">' + tab("all", "All", t.total + t.left) + tab("check", "Check", t.check) + tab("unsure", "Unsure", t.unsure) + tab("ignored", "Ignored", t.ignored) + "</div></div>";
+      '<div class="ro-fs" role="tablist" aria-label="Show"' + (RO.opt === "a" ? ' data-n="3"' : "") + ">" + (RO.opt === "a" ? tab("todo", "To settle", t.check + t.unsure) + tab("ignored", "Left out", t.ignored) + tab("ready", "Ready", t.ready) : tab("all", "All", t.total + t.left) + tab("check", "Check", t.check) + tab("unsure", "Unsure", t.unsure) + tab("ignored", "Ignored", t.ignored)) + "</div></div>";
   };
 
   /* ---------- the receipt-order list: Pantry rows (RS-55, RS-58 to RS-63) ---------- */
@@ -261,7 +286,7 @@
   RO.list = function () {
     var ls = RO.visible();
     if (!seenLines().length) return '<div class="lv-list ro-list lv-keep" role="list"><p class="lv-empty">' + ic("receipt", 18) + "Lines appear here as they are read, in receipt order.</p></div>";
-    if (!ls.length) return '<div class="lv-list ro-list lv-keep" role="list"><p class="lv-empty">' + ic("check", 18) + (S.filter === "check" ? "Nothing left to check." : S.filter === "unsure" ? "Nothing unsure." : "Nothing ignored.") + ' <button type="button" class="rs-lk" data-act="filter" data-v="all">Show all</button></p></div>';
+    if (!ls.length) return '<div class="lv-list ro-list lv-keep" role="list"><p class="lv-empty">' + ic("check", 18) + (S.filter === "todo" ? "Nothing left to settle. Everything is ready to add." : S.filter === "ready" ? "Nothing is ready yet." : S.filter === "check" ? "Nothing left to check." : S.filter === "unsure" ? "Nothing unsure." : "Nothing ignored.") + ' <button type="button" class="rs-lk" data-act="filter" data-v="all">Show all</button></p></div>';
     return '<ul class="rows lv-list ro-list lv-keep" role="list" aria-label="Lines read, in receipt order">' + ls.map(RO.row).join("") + "</ul>";
   };
 

@@ -1,0 +1,18 @@
+/* Receipt scan, revision 4 (Read, then Sort): phone and tablet only (under 1024px), loaded by ro2.html. Everything uses the shared tokens; the chosen flow (ro.html) does not load this file.
+   Step 1 is the paper, large, with what was read counted under it. Step 2 is its own screen. Option a sorts only what needs the person, b sorts all lines, c keeps a bigger paper above the list. */
+.ro-rl .rl-stage.lv-tall{flex:1 1 auto;min-height:280px;height:auto}
+.ro-rl .rl-stage.lv-mid{flex:0 0 auto;height:230px}
+.ro2-stamp{position:absolute;left:50%;bottom:.7rem;transform:translateX(-50%);display:inline-flex;align-items:center;gap:.4rem;padding:.35rem .9rem .35rem .7rem;border-radius:var(--r-pill);background:var(--accent);color:var(--on-accent);box-shadow:0 2px 10px rgba(0,0,0,.25);font-size:15px;white-space:nowrap;animation:ro2-pop .35s cubic-bezier(.3,1.5,.5,1) both}
+.ro2-stamp b{font-size:17px;font-weight:800;letter-spacing:.02em}
+.ro2-stamp span{font-size:13px;opacity:.9}
+@keyframes ro2-pop{from{transform:translateX(-50%) scale(.6);opacity:0}to{transform:translateX(-50%) scale(1);opacity:1}}
+@media (prefers-reduced-motion:reduce){.ro2-stamp{animation:none}}
+.ro2-read{flex:none;display:flex;flex-direction:column;gap:.35rem;margin:.55rem .75rem 0;padding:.5rem .75rem;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--surface)}
+.ro2-n{font-size:17px;font-weight:800;color:var(--fg)}
+.ro2-chips{display:flex;flex-wrap:wrap;gap:6px}
+.ro2-c{font-size:13px;padding:3px 10px 3px 7px}
+.ro2-c b{font-size:15px;color:var(--fg)}
+.ro2-none{flex-direction:row;align-items:center;gap:.5rem;color:var(--muted);font-size:14px;min-height:44px}
+.ro-rl .ro2-sort:not(:disabled){background:var(--accent);color:var(--on-accent);border-color:var(--accent);font-weight:800}
+.ro-fs[data-n="3"]{grid-template-columns:repeat(3,1fr)}
+.ro-rl .ro2-sortbar{padding-top:.3rem}
