@@ -1,6 +1,6 @@
 /* Receipt scan, quantity with a unit (Kitchie issue 754): sample data. Mockup only (DESIGN.md: plain names that exist only for sample data stay in the mockup's own script).
-   Same invented receipt and Pantry as ro-data.js (the chosen flow), with five lines changed to show how a quantity is read: MILK 2L, 2 x EGGS, 2 KILOS, a line with no number, and a size that is not an amount.
-   rd = how the amount was read: "unit" (a number and a unit in the name, read by the shopping list's reader), "count" (a printed count, as today), "weight" (a weight line, unchanged), "size" (a size in the name, not an amount), "none" (nothing read).
+   Same invented receipt and Pantry as ro-data.js (the chosen flow), with five lines changed to show how a quantity is read: MILK 2L, 2 x EGGS, 2 KILOS, a line with no number, and a weight in the name read as the amount (RS-100: 400G is an amount, as 2L on milk is).
+   rd = how the amount was read: "unit" (a number and a unit in the name, read by the shopping list's reader), "count" (a printed count, as today), "weight" (a weight line, unchanged), "none" (nothing read).
    Synthetic: no real shop, receipt or card digits. */
 window.ROD = (function () {
   /* The household's Pantry. place = "Area · Spot". Kitchie keeps ONE record per item (no batches, RS-56): a match tops that record up. */
@@ -27,8 +27,8 @@ window.ROD = (function () {
     { id: "l1", raw: ["BASMATI RICE 2KILO"], price: 9.9, st: "exact", m: "rice", q: 2, u: "kg", rd: "unit", note: "2KILO read as 2 kg. The shopping list reads kilo, kilos and kg as one unit" },
     { id: "l2", raw: ["2 x EGGS"], price: 7.5, st: "exact", m: "eggs", q: 2, u: "", rd: "count", note: "2 x read as a count of 2. No unit, as today" },
     { id: "l3", raw: ["MILK 2L"], price: 4.2, st: "exact", m: "milk", q: 2, u: "L", rd: "unit", note: "2L read as 2 L, by the same reader as the shopping list" },
-    { id: "l4", raw: ["CHOPPED TOMATOES 400G", "4 @ 1.10"], price: 4.4, st: "exact", m: "tom", rd: "count", q: 4, u: "tin", note: "4 @ 1.10 read as 4 units. 400G is the tin size, not the amount, so it is dropped" },
-    { id: "l5", raw: ["TUNA 425G", "3 @ 1.15"], price: 3.45, st: "exact", m: "tuna", rd: "count", q: 3, u: "tin", note: "3 @ 1.15 read as 3 tins" },
+    { id: "l4", raw: ["CHOPPED TOMATOES 400G", "4 @ 1.10"], price: 4.4, st: "exact", m: "tom", rd: "count", q: 4, u: "tin", note: "4 @ 1.10 read as a count of 4 tins, as today: the line prints its own count and the Pantry counts tomatoes in tins. 400G is a weight, not a size note, and is not shown as one" },
+    { id: "l5", raw: ["TUNA 425G", "3 @ 1.15"], price: 3.45, st: "exact", m: "tuna", rd: "count", q: 3, u: "tin", note: "3 @ 1.15 read as a count of 3 tins, as today (425G is not shown as a size)" },
     { id: "l6", raw: ["SLCD CHEDDAR 500G"], price: 9.8, st: "check", m: "cheddar", score: 0.8, cand: ["butter"], rd: "unit", q: 500, u: "g", guess: "Sliced cheddar", note: "500G read as 500 g. The receipt also says sliced" },
     { id: "l7", raw: ["BABY SPINACH"], price: 3.5, st: "check", m: "spin", score: 0.8, cand: [], q: 0, u: "bag", rd: "none", guess: "Baby spinach", note: "No amount on the line: the amount is left blank for you to type (never counted as 1)" },
     { id: "l8", raw: ["BTR SLTD 250G"], price: 6.2, st: "check", m: "butter", score: 0.8, cand: ["cheddar"], rd: "unit", q: 250, u: "g", guess: "Salted butter", note: "BTR is a short form of butter. The receipt also says salted" },
@@ -36,7 +36,7 @@ window.ROD = (function () {
     { id: "l10", raw: ["GV EVOO 1L"], price: 12.5, st: "check", m: "oil", score: 0.65, cand: [], rd: "unit", q: 1, u: "L", guess: "Extra virgin olive oil", note: "EVOO is a short form of extra virgin olive oil. 1 L becomes 1000 mL" },
     { id: "l11", raw: ["KS CHKN BRST 2.1KG"], price: 17.3, st: "check", m: "chk", score: 0.5, cand: ["spin"], rd: "unit", q: 2.1, u: "kg", guess: "Chicken breast", note: "2.1KG read as 2.1 kg. Only the word chicken matches" },
     { id: "l12", raw: ["ORG BANANAS", "1.204 kg @ 2.90/kg"], price: 3.49, st: "unsure", q: 1.2, u: "kg", rd: "weight", guess: "Bananas", note: "The weight line belongs to the item above it: 1.204 kg" },
-    { id: "l13", raw: ["KS SMKD SLMN 400G"], price: 11, st: "check", m: "salmon", score: 0.8, cand: [], q: 1, u: "pack", rd: "size", guess: "Smoked salmon", note: "SMKD SLMN read as smoked salmon. 400G is the pack size, not an amount: your Pantry counts salmon in packs, so 1 pack" },
+    { id: "l13", raw: ["KS SMKD SLMN 400G"], price: 11, st: "check", m: "salmon", score: 0.8, cand: [], q: 400, u: "g", rd: "unit", guess: "Smoked salmon", note: "SMKD SLMN read as smoked salmon. 400G read as 400 g, the amount, the same as 2L on milk. Your Pantry counts salmon in packs, so 400 g cannot be added to 2 packs and is kept as a separate item" },
     { id: "l14", raw: ["XJ4 B1U 3PK"], price: 6, st: "unsure", q: 3, u: "", guess: "", unclear: true, note: "The text is unclear (blur). 3PK read as 3 in a pack" },
     { id: "s1", raw: ["INSTANT SAVINGS -3.00"], price: -3, st: "left", why: "Discount, not an item", short: "Discount" },
     { id: "s2", raw: ["PLASTIC BAG 0.15"], price: 0.15, st: "left", why: "Bag charge, not food", short: "Not food" }

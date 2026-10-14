@@ -28,7 +28,7 @@ Owner (Arjan), by voice: expose receipt bulk-add through MCP so an AI assistant 
 
 ## 1h. Revision 3, 15 October 2026 (RS-92 to RS-97)
 
-Same fragment (`quantity-unit.html`, `qu.js`, `qu.css`; check `tools/receipt-scan-qu-check.mjs`). First pill Exact in place of All, terse reason text, long-press Exact to accept all exact lines, the whole-receipt viewer, a draggable receipt/list handle (remembered per device), and a bottom row tight to the edge. Small hooks added to the shared `ro-core.js` (`RO.adjTally`, `RO.adjEntries`) and the terse reason text applies to the chosen flow too. Decisions in the job note. Revision 3 follow-up (RS-98): the list opens on Check when any line needs a check, otherwise Exact.
+Same fragment (`quantity-unit.html`, `qu.js`, `qu.css`; check `tools/receipt-scan-qu-check.mjs`). First pill Exact in place of All, terse reason text, long-press Exact to accept all exact lines, the whole-receipt viewer, a draggable receipt/list handle (remembered per device), and a bottom row tight to the edge. Small hooks added to the shared `ro-core.js` (`RO.adjTally`, `RO.adjEntries`) and the terse reason text applies to the chosen flow too. Decisions in the job note. Follow-up (RS-101, proposed, not confirmed by the owner): the list opens on Check when any line needs a check, otherwise Exact. The remembered handle value is clamped on read and on resize or rotation (the list is never left 1 px high), and the resting handle bar is 3:1 or better in the day theme.
 
 ## 1g. A quantity with a unit, 15 October 2026 (RS-78 to RS-86)
 
