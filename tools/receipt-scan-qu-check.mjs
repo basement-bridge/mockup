@@ -53,18 +53,30 @@ for (const [w, h] of [[390, 844], [1280, 800]]) {
   await p.click('.ro-f[data-v="unsure"]'); t = await p.textContent(".ro-list");
   if (/No recommendation|looks like it/.test(t) || !/Nothing matches/.test(t) || !/Text unclear/.test(t)) say("unsure row text: " + t.slice(0, 120));
   await p.click('.ro-f[data-v="ignored"]'); t = await p.textContent(".ro-list"); if (/It will not be added|takes \$3|a bag charge/.test(t) || !/Discount, not an item/.test(t)) say("ignored reasons not terse");
-  // RS-94: long press on Exact ticks every exact line for Add; Undo; a short tap only filters
+  // RS-98: Exact lines count toward Add by themselves; the long press (and Mark all reviewed, key A) only marks them reviewed
   await p.goto(`${BASE}qu-a.html?${base}`); await p.waitForTimeout(300);
   const addN = async () => +(/Add (\d+)/.exec(await p.textContent(".lv-add"))[1]);
-  const before = await addN(); if (!(await p.$(".qu-hintrow"))) say("RS-94: no hint under Exact");
-  await p.click('.ro-f[data-v="exact"]'); if ((await addN()) !== before) say("RS-94: a short tap changed the count");
+  const before = await addN(); if (!(await p.$(".qu-hintrow"))) say("RS-98: no hint under Exact");
+  const nEx = +(await p.textContent('.ro-f[data-v="exact"] b'));
+  if (before !== nEx || nEx < 5) say(`RS-98: Add starts at ${before}, wanted every exact line (${nEx}) with no tap`);
+  if (!/mark all \d+ reviewed/i.test(await p.textContent(".qu-hintrow"))) say("RS-98: hint does not say reviewed: " + await p.textContent(".qu-hintrow"));
+  await p.click('.ro-f[data-v="exact"]'); if ((await addN()) !== before) say("RS-98: a short tap changed the count");
   const bb = await p.locator('.ro-f[data-v="exact"]').boundingBox(); await p.mouse.move(bb.x + bb.width / 2, bb.y + bb.height / 2); await p.mouse.down(); await p.waitForTimeout(250);
-  if (!(await p.$(".ro-f.qu-hold"))) say("RS-94: no pressed state"); await p.waitForTimeout(600); await p.mouse.up(); await p.waitForTimeout(200);
-  const after = await addN(); if (after - before !== 5) say(`RS-94: long press added ${after - before}, wanted 5`);
-  if (!/ticked for Add/.test(await p.textContent(".toast")) || await p.$(".qu-hintrow")) say("RS-94: no toast or hint still showing");
-  if ((await p.$$(".ro-li[data-tick]")).length !== 5) say("RS-94: rows not marked ready");
-  await p.click('.toast [data-act="excfundo"]'); await p.waitForTimeout(100); if ((await addN()) !== before) say("RS-94: Undo did not restore the count");
-  await p.click('[data-act="exall"]'); await p.waitForTimeout(100); if ((await addN()) - before !== 5) say("RS-94: Tick all button");
+  if (!(await p.$(".ro-f.qu-hold"))) say("RS-98: no pressed state"); await p.waitForTimeout(600); await p.mouse.up(); await p.waitForTimeout(200);
+  if ((await addN()) !== before) say(`RS-98: the long press changed the count (${before} to ${await addN()})`);
+  if (!/marked reviewed/.test(await p.textContent(".toast")) || await p.$(".qu-hintrow")) say("RS-98: no toast or hint still showing");
+  if ((await p.$$(".ro-li[data-tick]")).length !== nEx) say("RS-98: rows not marked reviewed");
+  if (!/Reviewed/.test(await p.textContent(".ro-li[data-tick]"))) say("RS-98: reviewed rows do not say Reviewed");
+  await p.click('.toast [data-act="excfundo"]'); await p.waitForTimeout(100); if ((await p.$$(".ro-li[data-tick]")).length !== 0 || (await addN()) !== before) say("RS-98: Undo did not clear the reviewed state");
+  await p.click('[data-act="exall"]'); await p.waitForTimeout(100); if ((await p.$$(".ro-li[data-tick]")).length !== nEx || (await addN()) !== before) say("RS-98: Mark all reviewed button");
+  // RS-100: a weight in the name is an amount (a pill), never a pack size
+  await p.goto(`${BASE}qu-a.html?${base}&filter=check&sel=l13`); await p.waitForTimeout(300);
+  if ((await p.inputValue("#qb-l13")) !== "400" || !/^g/.test(await p.textContent("#qb-l13u"))) say("RS-100: SMKD SLMN 400G is not the amount 400 g with a g pill");
+  t = await p.textContent(".ro-li.on .ro-out"); if (!/Kept separate: 400 g cannot join 2 pack/.test(t)) say("RS-100: l13 outcome: " + t);
+  const allText = await p.evaluate(async () => (await (await fetch("qu-data.js")).text()));
+  if (/pack size|tin size|is the .{0,8}size|rd: "size"/.test(allText)) say("RS-100: the data still calls a weight a size");
+  await p.goto(`${BASE}qu-a.html?${base}&filter=check`); await p.waitForTimeout(300);
+  if (/pack size|tin size/i.test(await p.textContent("body"))) say("RS-100: a size note is still shown");
   // RS-96: the handle between the receipt and the list (phone: picture height; desktop: lane width), kept on this device, with a keyboard way
   const kind = w >= 1024 ? "lane" : "stage";
   await p.goto(`${BASE}qu-a.html?${base}`); await p.waitForTimeout(400);
@@ -79,6 +91,15 @@ for (const [w, h] of [[390, 844], [1280, 800]]) {
   await p.focus(".qu-split"); await p.keyboard.press(kind === "lane" ? "ArrowRight" : "ArrowUp"); await p.waitForTimeout(150); const s3 = await sz(); if (s3 >= s2) say(`RS-96: keyboard did not move the handle (${s2} to ${s3})`);
   await p.click('.ro-f[data-v="check"]'); if (!(await p.$(".ro-li"))) say("RS-96: pills stop working after a drag");
   if (kind === "stage") { const f1 = await p.evaluate(() => (document.querySelector(".qu-track") || {}).dataset?.id || ""); await p.evaluate(() => { document.querySelector(".ro-list").scrollTop = 1e5; }); await p.waitForTimeout(400); const f2 = await p.evaluate(() => (document.querySelector(".qu-track") || {}).dataset?.id || ""); if (!f1 || !f2 || f1 === f2) say("RS-96: photo no longer follows the list after a drag " + f1 + "/" + f2); }
+  // RS-99: client-side only: the value is in localStorage, and no request ever carries it or is anything but a static GET
+  const stored = await p.evaluate(() => Object.keys(localStorage).filter(k => /split/.test(k)).map(k => k + "=" + localStorage.getItem(k)));
+  if (!stored.length) say("RS-99: the handle position is not in localStorage");
+  const reqs = []; p.on("request", r => reqs.push(r.method() + " " + r.url()));
+  await p.focus(".qu-split"); await p.keyboard.press(kind === "lane" ? "ArrowRight" : "ArrowUp"); await p.waitForTimeout(150);
+  await p.reload(); await p.waitForTimeout(400); await p.goto(`${BASE}qu-a.html?${base}&phase=end&filter=check`); await p.waitForTimeout(300);
+  const bad99 = reqs.filter(r => !r.startsWith("GET ") || /split|stage|lane/i.test(r.replace(/qu-a\.html.*/, "")));
+  if (bad99.length) say("RS-99: a request that is not a static GET: " + bad99.join(" | "));
+  if (/fetch\(|XMLHttpRequest|sendBeacon|WebSocket/.test(await (await fetch(`${BASE}qu.js`)).text())) say("RS-99: qu.js talks to a server");
   await p.evaluate(() => localStorage.clear());
   // RS-95: the whole receipt, full size, with boxes; tap a box for its line; a way back
   await p.goto(`${BASE}qu-a.html?${base}`); await p.waitForTimeout(400);
