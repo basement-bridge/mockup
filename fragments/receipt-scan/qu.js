@@ -159,8 +159,9 @@
   };
   var head1 = RO.head;
   RO.head = function () {
-    if (S.filter === "all") S.filter = "exact";
-    var t = RO.tally(), n = RO.seenLines().filter(function (l) { return pillOf(l) === "exact"; }).length, f = S.filter, nt = tickables().length, hold = RO.Q.get("hold") === "1";
+    /* RS-101 (proposed, not confirmed): the list opens on whichever pill needs the person: Check when any line needs a check, otherwise Exact. Chosen once the receipt is read (not while lines are still arriving, so the tab does not jump under the camera); an explicit ?filter= or a tap on a pill wins, and a line already selected (an older link with ?sel=) opens on the pill that holds it. */
+    if (S.filter === "all" && (S.fixed || S.still || S.phase === "end" || S.step === "done")) S.filter = S.sel && L(S.sel) ? pillOf(L(S.sel)) : RO.seenLines().some(function (l) { return pillOf(l) === "check"; }) ? "check" : "exact";
+    var t = RO.tally(), n = RO.seenLines().filter(function (l) { return pillOf(l) === "exact"; }).length, f = S.filter === "all" ? "exact" : S.filter, nt = tickables().length, hold = RO.Q.get("hold") === "1";
     var h = head1().replace(/<button[^>]*data-v="all"[\s\S]*?<\/button>/, '<button type="button" class="ro-f' + (hold ? " qu-hold qu-held" : "") + '" role="tab" aria-selected="' + (f === "exact") + '" data-act="filter" data-v="exact" data-hold="1" aria-describedby="qu-hint"><span>Exact</span><b>' + n + "</b></button>");
     if (f === "exact" && (nt || hold)) h = h.replace(/<\/div>$/, '<div class="qu-hintrow" id="qu-hint"><span>' + (hold ? "Keep holding Exact to mark all " + nt + " reviewed" : "Hold Exact to mark all " + nt + " reviewed") + '</span><button type="button" class="rs-b sm" data-act="exall">' + ic("check", 16) + "<span>Mark all reviewed</span>" + (RO.DESK() && S.keys ? '<span class="kbd cap">A</span>' : "") + "</button></div></div>");
     return h;
@@ -187,7 +188,7 @@
   var store = { get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
   var root0 = document.documentElement, SPLIT = { stage: 150, lane: 400 };
   function applySplit(kind, px, keep) {
-    SPLIT[kind] = Math.round(px); root0.style.setProperty(kind === "lane" ? "--qu-lane" : "--qu-stage", SPLIT[kind] + "px");
+    SPLIT[kind] = Math.round(px); WANT[kind] = SPLIT[kind]; root0.style.setProperty(kind === "lane" ? "--qu-lane" : "--qu-stage", SPLIT[kind] + "px");
     if (kind === "stage") { var st = $(".lv-stage"); S.stageH = st && st.clientHeight ? st.clientHeight : SPLIT.stage; if (S.step === "view") mark(); }
     place(); var h = $(".qu-split"); if (h) h.setAttribute("aria-valuenow", String(SPLIT[kind]));
     if (!keep) store.set(KEY(), String(SPLIT[kind]));
@@ -195,12 +196,36 @@
   var rangeOf = function () {
     if (RO.DESK()) return { kind: "lane", min: 320, max: 560, step: 24 };
     var list = $(".ro-list"), st = $(".lv-stage"), cur = st ? st.getBoundingClientRect().height : SPLIT.stage;
-    return { kind: "stage", min: 64, max: Math.max(120, Math.round(cur + (list ? list.clientHeight : 200) - 120)), step: 24 };
+    return { kind: "stage", min: 64, max: Math.max(64, Math.round(cur + (list ? list.clientHeight : 200) - 120)), step: 24 };
   };
-  var q96 = parseInt(RO.Q.get("split") || "", 10), saved = parseInt(store.get("rs754.split.stage") || "", 10), savedL = parseInt(store.get("rs754.split.lane") || "", 10);
-  if (q96) root0.style.setProperty(RO.DESK() ? "--qu-lane" : "--qu-stage", q96 + "px");
-  else { if (saved >= 64) root0.style.setProperty("--qu-stage", saved + "px"); if (savedL >= 320) root0.style.setProperty("--qu-lane", savedL + "px"); }
-  if (q96) SPLIT[RO.DESK() ? "lane" : "stage"] = q96; else { if (saved >= 64) SPLIT.stage = saved; if (savedL >= 320) SPLIT.lane = savedL; }
+  /* H2: a remembered value is only a wish. It is read as a number (anything else is ignored), then clamped to what this screen can hold right now (phone: leave at least 120 px for the list; desktop: 320 to 560), on read, on every render, and on resize and rotation, so a value saved in one orientation or window never leaves the list 1 px high in another. The stored value itself is kept (turning back may make it fit again); only what is applied is clamped. */
+  var WANT = {}, LANE_MIN = 320, LANE_MAX = 560, STAGE_MIN = 64;
+  var num = function (v) { var n = parseInt(v, 10); return isFinite(n) && n > 0 && n < 1e6 ? n : NaN; };
+  var stageMax = function () {
+    var st = $(".lv-stage"), list = $(".ro-list"); if (!st || !list || !st.classList.contains("lv-short")) return null;
+    var had = root0.style.getPropertyValue("--qu-stage"); root0.style.setProperty("--qu-stage", STAGE_MIN + "px");
+    var m = st.getBoundingClientRect().height + list.clientHeight - 120;
+    if (had) root0.style.setProperty("--qu-stage", had); else root0.style.removeProperty("--qu-stage");
+    return Math.max(STAGE_MIN, Math.round(m));
+  };
+  var clampSplit = function (kind, v) {
+    if (kind === "lane") return Math.max(LANE_MIN, Math.min(LANE_MAX, v));
+    var mx = stageMax(); if (mx == null) mx = Math.max(STAGE_MIN, Math.round(window.innerHeight - 260));
+    return Math.max(STAGE_MIN, Math.min(mx, v));
+  };
+  var drag = null;
+  function fitSplit() {
+    if (drag) return;
+    ["stage", "lane"].forEach(function (kind) {
+      if (WANT[kind] == null || (kind === "lane") !== RO.DESK()) return;
+      var c = clampSplit(kind, WANT[kind]), v = kind === "lane" ? "--qu-lane" : "--qu-stage";
+      if (SPLIT[kind] !== c || root0.style.getPropertyValue(v) !== c + "px") { SPLIT[kind] = c; root0.style.setProperty(v, c + "px"); var h = $(".qu-split"); if (h) h.setAttribute("aria-valuenow", String(c)); }
+    });
+  }
+  var q96 = num(RO.Q.get("split")), saved = num(store.get("rs754.split.stage")), savedL = num(store.get("rs754.split.lane"));
+  if (q96) WANT[RO.DESK() ? "lane" : "stage"] = q96; else { if (saved) WANT.stage = saved; if (savedL) WANT.lane = savedL; }
+  if (WANT.stage == null) WANT.stage = 150;   /* the default is a wish too: on a short landscape phone 150 px of picture also left the list 1 px high */
+  fitSplit();
   function handleHtml() { var r = rangeOf(); return '<div class="qu-split" role="separator" tabindex="0" aria-orientation="' + (RO.DESK() ? "vertical" : "horizontal") + '" aria-label="Resize: receipt and list" aria-valuemin="' + r.min + '" aria-valuemax="' + r.max + '" aria-valuenow="' + SPLIT[r.kind] + '"><i aria-hidden="true"></i></div>'; }
   var stage0 = RO.stageHtml;
   RO.stageHtml = function () {
@@ -213,7 +238,6 @@
     if (!h) { var d = document.createElement("div"); d.innerHTML = handleHtml(); h = d.firstChild; document.getElementById("app").appendChild(h); }
     h.style.left = Math.round(lane.getBoundingClientRect().left - 8) + "px";
   }
-  var drag = null;
   document.addEventListener("pointerdown", function (e) {
     var h = e.target.closest && e.target.closest(".qu-split"); if (!h || e.button) return; var r = rangeOf();
     drag = { r: r, x: e.clientX, y: e.clientY, v: SPLIT[r.kind] === 150 && r.kind === "stage" && $(".lv-stage") ? Math.round($(".lv-stage").getBoundingClientRect().height) : SPLIT[r.kind] }; h.classList.add("qu-drag"); try { h.setPointerCapture(e.pointerId); } catch (x) {} e.preventDefault();
@@ -231,9 +255,9 @@
     else if (a === "PageDown") nv = v + r.step * 4; else if (a === "PageUp") nv = v - r.step * 4; else if (a === "Home") nv = r.min; else if (a === "End") nv = r.max; else if (a === "Enter" || a === " ") { applySplit(r.kind, r.kind === "lane" ? 400 : 150); e.preventDefault(); return; }
     if (nv == null) return; e.preventDefault(); e.stopPropagation(); applySplit(r.kind, Math.max(r.min, Math.min(r.max, nv)));
   }, true);
-  window.addEventListener("resize", place);
-  new MutationObserver(function () { place(); }).observe(document.getElementById("app"), { childList: true });
-  setTimeout(place, 0);
+  window.addEventListener("resize", function () { fitSplit(); place(); }); window.addEventListener("orientationchange", function () { setTimeout(function () { fitSplit(); place(); }, 200); });
+  new MutationObserver(function () { fitSplit(); place(); }).observe(document.getElementById("app"), { childList: true });
+  setTimeout(function () { fitSplit(); place(); }, 0);
 
   /* ---- RS-95: the whole receipt. Tap the picture (or its corner button) and it opens full size with the boxes drawn on it; tap a box and it says which line it is; Back (or Escape) returns. A tap on a box in the small picture still finds its row, as before. ---- */
   S.qv = RO.Q.get("view") === "1"; S.vl = RO.Q.get("vline") || null;

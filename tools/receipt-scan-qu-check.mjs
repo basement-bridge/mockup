@@ -53,8 +53,12 @@ for (const [w, h] of [[390, 844], [1280, 800]]) {
   await p.click('.ro-f[data-v="unsure"]'); t = await p.textContent(".ro-list");
   if (/No recommendation|looks like it/.test(t) || !/Nothing matches/.test(t) || !/Text unclear/.test(t)) say("unsure row text: " + t.slice(0, 120));
   await p.click('.ro-f[data-v="ignored"]'); t = await p.textContent(".ro-list"); if (/It will not be added|takes \$3|a bag charge/.test(t) || !/Discount, not an item/.test(t)) say("ignored reasons not terse");
+  // RS-101: with nothing chosen the list opens on Check when any line needs a check (this receipt has some); an explicit filter or a selected line wins
+  { await p.goto(`${BASE}qu-a.html?${base}`); await p.waitForTimeout(300); const on = await p.getAttribute('.ro-f[aria-selected="true"]', "data-v"); if (on !== "check") say("RS-101: opened on " + on + ", wanted check");
+    await p.goto(`${BASE}qu-a.html?${base}&filter=exact`); await p.waitForTimeout(300); if ((await p.getAttribute('.ro-f[aria-selected="true"]', "data-v")) !== "exact") say("RS-101: an explicit filter did not win");
+    await p.goto(`${BASE}qu-a.html?${base}&sel=l3`); await p.waitForTimeout(300); if ((await p.getAttribute('.ro-f[aria-selected="true"]', "data-v")) !== "exact") say("RS-101: a selected exact line did not open its pill"); }
   // RS-98: Exact lines count toward Add by themselves; the long press (and Mark all reviewed, key A) only marks them reviewed
-  await p.goto(`${BASE}qu-a.html?${base}`); await p.waitForTimeout(300);
+  await p.goto(`${BASE}qu-a.html?${base}&filter=exact`); await p.waitForTimeout(300);
   const addN = async () => +(/Add (\d+)/.exec(await p.textContent(".lv-add"))[1]);
   const before = await addN(); if (!(await p.$(".qu-hintrow"))) say("RS-98: no hint under Exact");
   const nEx = +(await p.textContent('.ro-f[data-v="exact"] b'));
@@ -101,8 +105,33 @@ for (const [w, h] of [[390, 844], [1280, 800]]) {
   if (bad99.length) say("RS-99: a request that is not a static GET: " + bad99.join(" | "));
   if (/fetch\(|XMLHttpRequest|sendBeacon|WebSocket/.test(await (await fetch(`${BASE}qu.js`)).text())) say("RS-99: qu.js talks to a server");
   await p.evaluate(() => localStorage.clear());
+  // H2: a remembered handle value is clamped on read and on resize/rotation; the list is never left 1 px high, a non-number is ignored
+  { const listH = () => p.evaluate(() => Math.round(document.querySelector(".ro-list").getBoundingClientRect().height));
+    const key = kind === "lane" ? "rs754.split.lane" : "rs754.split.stage";
+    for (const bigV of ["900", "99999", "500", "abc", "-40", "0"]) {
+      await p.evaluate(([k, v]) => localStorage.setItem(k, v), [key, bigV]); await p.reload(); await p.waitForTimeout(500);
+      if (kind === "stage") { const lh = await listH(); if (lh < (h >= 600 ? 110 : 40)) say(`H2: saved ${bigV} leaves the list ${lh} px high at ${w}x${h}`); }
+      else { const lw = await p.evaluate(() => Math.round(document.querySelector(".panel[data-mode=lane]").getBoundingClientRect().width)); if (lw < 320 || lw > 561) say(`H2: saved ${bigV} gives a ${lw}px lane`); }
+      if (await p.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)) say("H2: sideways scroll with saved " + bigV);
+    }
+    if (kind === "stage") {   // rotate with a big value kept: portrait then landscape then back
+      await p.evaluate(([k, v]) => localStorage.setItem(k, v), [key, "500"]); await p.reload(); await p.waitForTimeout(400);
+      await p.setViewportSize({ width: h, height: w }); await p.waitForTimeout(500); const lh2 = await listH(); if (lh2 < (w >= 600 ? 110 : 40)) say(`H2: after rotating to ${h}x${w} the list is ${lh2} px high`);
+      await p.setViewportSize({ width: w, height: h }); await p.waitForTimeout(500); const lh3 = await listH(); if (lh3 < (h >= 600 ? 110 : 40)) say(`H2: after rotating back the list is ${lh3} px high`);
+      if (await p.evaluate(() => localStorage.getItem("rs754.split.stage")) !== "500") say("H2: the stored value was overwritten by the clamp");
+    }
+    await p.evaluate(() => localStorage.clear()); await p.reload(); await p.waitForTimeout(300); }
+  // H13: the resting handle bar reaches 3:1 against the page (non-text contrast)
+  for (const th of ["kitchie", "kitchie-day"]) { await p.evaluate(t => localStorage.setItem("theme", t), th); await p.goto(`${BASE}qu-a.html?${base}`); await p.waitForTimeout(400);
+    const cr = await p.evaluate(() => {
+      const rgb = c => (c.match(/[\d.]+/g) || []).map(Number), lin = v => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); }, L = c => .2126 * lin(c[0]) + .7152 * lin(c[1]) + .0722 * lin(c[2]);
+      const h = document.querySelector(".qu-split"); if (!h) return null; const i = h.querySelector("i"), cs = getComputedStyle(i), op = +cs.opacity, fg = rgb(cs.backgroundColor);
+      let bgEl = h, bg = [0, 0, 0, 0]; while (bgEl) { const c = rgb(getComputedStyle(bgEl).backgroundColor); if (c.length >= 3 && (c[3] === undefined || c[3] > 0.99)) { bg = c; break; } bgEl = bgEl.parentElement; }
+      const mix = fg.slice(0, 3).map((v, k) => v * op + bg[k] * (1 - op)), a = L(mix), b2 = L(bg); return (Math.max(a, b2) + .05) / (Math.min(a, b2) + .05); });
+    if (cr === null) say("H13: no handle to measure in " + th); else if (cr < 3) say("H13: handle contrast " + cr.toFixed(2) + ":1 in " + th); }
+  await p.evaluate(() => localStorage.clear());
   // RS-95: the whole receipt, full size, with boxes; tap a box for its line; a way back
-  await p.goto(`${BASE}qu-a.html?${base}`); await p.waitForTimeout(400);
+  await p.goto(`${BASE}qu-a.html?${base}&filter=exact`); await p.waitForTimeout(400);
   await p.click(".qu-expand"); await p.waitForTimeout(200);
   if (!(await p.$(".qu-viewer .lv-ln"))) say("RS-95: the whole receipt did not open with its boxes");
   const nb = await p.$$eval(".qu-viewer .lv-ln[data-id]", e => e.length); if (nb !== 16) say("RS-95: boxes drawn " + nb + ", wanted 16");
@@ -114,7 +143,7 @@ for (const [w, h] of [[390, 844], [1280, 800]]) {
   // RS-97: the bottom row is tight to the bottom edge (phone)
   if (w < 600) { const gap = await p.evaluate(() => { const bs = [...document.querySelectorAll(".rl-actions button")].map(e => e.getBoundingClientRect().bottom); return innerHeight - Math.max(...bs); }); if (gap > 8) say("RS-97: gap under the bottom row " + Math.round(gap) + "px"); const css = await (await fetch(`${BASE}qu.css`)).text(); if (!/safe-area-inset-bottom/.test(css.split("RS-97")[1] || "")) say("RS-97: safe-area inset not kept"); }
   // B is kept: its sheet saves
-  await p.goto(`${BASE}qu-b.html?${base}&qs=l3`); await p.waitForTimeout(500);
+  await p.goto(`${BASE}qu-b.html?${base}&filter=exact&qs=l3`); await p.waitForTimeout(500);
   const f = (await p.$$("input[data-qu]")).pop(); await f.fill("3"); await f.press("Enter"); await p.waitForTimeout(100);
   t = await p.textContent('.ro-li[data-id="l3"] .ro-out'); if (!/1 L to 4 L/.test(t)) say("B save: " + t);
   if (errs.length) { bad++; console.log(errs); }

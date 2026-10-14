@@ -61,6 +61,8 @@ span.wunit{border-color:transparent;padding:0 6px}
 .qu-split::before{content:"";position:absolute;left:0;right:0;top:-11px;bottom:-11px}
 .qu-split i{display:block;width:44px;height:5px;border-radius:99px;background:var(--muted);opacity:.55;transition:opacity .12s,width .12s}
 .qu-split:hover i,.qu-split:focus-visible i,.qu-split.qu-drag i{opacity:1;width:64px;background:var(--fg)}
+/* H13: in the day theme the resting bar was 2.28:1 on the page; .8 of the muted colour is 3.6:1 (needs 3:1 for a control). Dark was 3.45:1 and is unchanged. */
+:root[data-theme=kitchie-day] .qu-split:not(:hover):not(:focus-visible):not(.qu-drag) i{opacity:.8}
 .qu-split:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;border-radius:8px}
 @media (max-width:1023.98px){.ro-rl .rl-stage.lv-short{height:var(--qu-stage,150px)}}
 @media (min-width:1024px){
