@@ -301,10 +301,26 @@ for (const [w, h] of [[1440, 900], [1280, 800]]) {
   // U. Surprise me is the Home cooking-ideas engine (decision 292): no week-position switch, no repeat of what is on the plan, a different idea for each night of the whole-week fill, and the no-idea state
   { const p = await open(ctx, "state=empty", errs);
     ok(tag + " U: the pick does not depend on the night's place in the week (no early-week or late-week switch; weeknights compared)", await p.evaluate(() => { const r = ["Mon", "Tue", "Wed", "Thu"].map(d => PLAN.u.pickSurprise(d).r); return new Set(r).size === 1; }));
-    ok(tag + " U: the reason is Home's one line", await p.evaluate(() => /^(Uses .* before (it goes|they go)|Everything is in|Needs \d+ things?|A household favourite|\d+ minutes|Not had for)/.test(PLAN.u.pickSurprise("Tue").why)), await p.evaluate(() => PLAN.u.pickSurprise("Tue").why));
+    ok(tag + " U: the reason is one plain sentence derived from the Home factors", await p.evaluate(() => /^(Uses up your .* before (it goes|they go) off|You have everything for it|Only one thing to buy|A favourite|A quick one for a weeknight|Not cooked in a while)/.test(PLAN.u.pickSurprise("Tue").why)), await p.evaluate(() => PLAN.u.pickSurprise("Tue").why));
     ok(tag + " U: the shopping list is not read (listing every ingredient does not change the pick)", await p.evaluate(() => { const a = PLAN.u.pickSurprise("Tue").r; const S = PLAN.S(); S.list = { eggs: 1, lemon: 1, feta: 1, mushrooms: 1, dill: 1 }; return PLAN.u.pickSurprise("Tue").r === a; }));
     ok(tag + " U: something already on the plan this week is not picked again", await p.evaluate(() => { const S = PLAN.S(), a = PLAN.u.pickSurprise("Tue").r; S.cards.push(PLAN.u.mkCard(S.wk, "Mon", a, "Sam", "all", 2)); return PLAN.u.pickSurprise("Tue").r !== a; }));
     ok(tag + " U: nothing is offered unless it scores above 0, and the whole-week fill never reaches past the ideas (no repeats, none planned for nothing)", await p.evaluate(() => { PLAN.S().cards = []; const f = PLAN.u.planAhead(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]); return f.length > 0 && new Set(f.map(x => x.r)).size === f.length; }));
+    await p.close(); }
+  // V2. the plain-words reason on a Surprise me tile (decision 292, Proposal): data-why, focusable tooltip, survives the toast, goes when the meal is changed by hand; no technical words
+  { const p = await open(ctx, "", errs);
+    await p.locator('.slot.open [data-act=surprise]').first().click(); await sleep(300);
+    const w = p.locator(".mcw .why[data-why]");
+    ok(tag + " V2: a Surprise me tile carries .why[data-why] with a button and a role=tooltip", (await w.count()) === 1 && (await w.locator("button.why-btn[aria-describedby]").count()) === 1 && (await w.locator(".why-tip[role=tooltip]").count()) === 1);
+    const txt = await w.getAttribute("data-why");
+    ok(tag + " V2: the reason is one plain sentence, never scores, weights or signal names", /^[A-Z][^.]*\.$/.test(txt) && !/\d|score|point|weight|signal|rank|useby|use-by|k:|pts/i.test(txt.replace(/one thing|two things/g, "")), txt);
+    ok(tag + " V2: tooltip is hidden until the button is focused (not hover only)", !(await w.locator(".why-tip").isVisible()));
+    await w.locator(".why-btn").focus(); await sleep(100);
+    ok(tag + " V2: keyboard focus shows the tooltip with the same sentence", (await w.locator(".why-tip").isVisible()) && (await w.locator(".why-tip").innerText()) === txt);
+    await p.keyboard.press("Escape"); await p.locator("body").click({ position: { x: 5, y: 5 } }).catch(() => {});
+    await sleep(6500);
+    ok(tag + " V2: the reason stays after the toast has gone", (await p.locator(".toast").count()) === 0 && (await p.locator(".mcw .why[data-why]").count()) === 1);
+    await p.evaluate(() => { const S = PLAN.S(), c = S.cards.filter(x => x.why).pop(); c.n = c.n + 1; PLAN.render(); });
+    ok(tag + " V2: changing the meal by hand (people) clears the reason", (await p.locator(".mcw .why").count()) === 0);
     await p.close(); }
   { const p = await open(ctx, "surprise=none", errs);
     const n0 = await p.evaluate(() => PLAN.S().cards.length), u0 = await p.evaluate(() => PLAN.S().undo.length);

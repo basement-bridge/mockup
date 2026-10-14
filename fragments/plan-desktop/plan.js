@@ -344,28 +344,35 @@ function lastCooked(){var m={};S.cards.forEach(function(c){var k=Math.round((TOD
 function rankIdeas(d,skip){var date=dt(S.wk,DN.indexOf(d)),wkn=date.getDay()>0&&date.getDay()<6,planned={},last=lastCooked(),out=[];
  S.cards.forEach(function(c){if(c.wk===S.wk&&cdate(c)>=TODAYD)planned[c.r]=1});
  POOL.forEach(function(r){if((skip||[]).indexOf(r)>-1||planned[r]||(last[r]!==undefined&&last[r]<=2))return;
-  var g=SIG[r]||{},ing=R[r].ing,miss=ing.filter(function(i){return !has(i)}).length,w=[],add=function(k,pts,t){w.push({k:k,pts:pts,t:t})};
-  if(miss===0)add("ready",3,"Everything is in");else if(miss===1)add("ready",1,"Needs 1 thing");else if(miss===2)add("ready",.01,"Needs 2 things");else add("ready",-2,"Needs "+miss+" things");
-  var due=[],up=0;ing.forEach(function(i){var k=has(i)?ubDays(i):null;if(k!==null&&k<=3){up+=k<=1?3:2;due.push(i)}});if(up)add("useup",Math.min(up,4),"Uses "+due.join(due.length>1?" and ":"")+" before "+(due.length>1?"they go":"it goes"));
-  var l=last[r];if(l!==undefined){if(l>=30)add("rot",2,"Not had for a month");else if(l>=14)add("rot",1,"Not had for "+Math.round(l/7)+" weeks");else if(l<=4)add("rot",-2,"Had "+l+" days ago")}
-  if(g.star)add("fav",1,"A household favourite");
-  if(wkn&&g.min<=30)add("time",1,g.min+" minutes");if(wkn&&g.min>60)add("time",-2,g.min+" minutes, long for a weeknight");
+  var g=SIG[r]||{},ing=R[r].ing,miss=ing.filter(function(i){return !has(i)}).length,w=[],add=function(k,pts,t,h){w.push({k:k,pts:pts,t:t,h:h||""})};
+  if(miss===0)add("ready",3,"Everything is in","You have everything for it");else if(miss===1)add("ready",1,"Needs 1 thing","Only one thing to buy");else if(miss===2)add("ready",.01,"Needs 2 things");else add("ready",-2,"Needs "+miss+" things");
+  var due=[],up=0;ing.forEach(function(i){var k=has(i)?ubDays(i):null;if(k!==null&&k<=3){up+=k<=1?3:2;due.push(i)}});if(up)add("useup",Math.min(up,4),"Uses "+due.join(due.length>1?" and ":"")+" before "+(due.length>1?"they go":"it goes"),"Uses up your "+due.join(due.length>1?" and ":"")+" before "+(due.length>1?"they go":"it goes")+" off");
+  var l=last[r];if(l!==undefined){if(l>=30)add("rot",2,"Not had for a month","Not cooked in a while");else if(l>=14)add("rot",1,"Not had for "+Math.round(l/7)+" weeks","Not cooked in a while");else if(l<=4)add("rot",-2,"Had "+l+" days ago")}
+  if(g.star)add("fav",1,"A household favourite","A favourite");
+  if(wkn&&g.min<=30)add("time",1,g.min+" minutes","A quick one for a weeknight");if(wkn&&g.min>60)add("time",-2,g.min+" minutes, long for a weeknight");
   var sc=w.reduce(function(a,x){return a+x.pts},0),pos=w.filter(function(x){return x.pts>.5&&x.k!=="ready"}).sort(function(a,b){return b.pts-a.pts}),rd=w[0],
    a=pos[0]?pos[0].t:rd.t,b=miss>0?rd.t:pos[0]?"all in":pos[1]?pos[1].t.toLowerCase():"";
-  out.push({r:r,score:sc,miss:miss,last:l===undefined?99:l,line:a+(b&&b!==a?" \u00b7 "+b:"")})});
+  out.push({r:r,score:sc,miss:miss,last:l===undefined?99:l,hum:human(w),line:a+(b&&b!==a?" \u00b7 "+b:"")})});
  out.sort(function(a,b){return b.score-a.score||a.miss-b.miss||b.last-a.last});
  return out.filter(function(x){return x.score>0})}
+/* The two layers (decision 292): the person sees ONE plain sentence (hum -> card.why); the technical line (reasons, points, signal names: "line") is provenance for the server response only and is never drawn. At most two reasons, joined naturally. */
+function human(w){var p=w.filter(function(x){return x.pts>.5&&x.h}).sort(function(a,b){return (b.pts+(b.k==="ready"?-.1:0))-(a.pts+(a.k==="ready"?-.1:0))}).slice(0,2);
+ return p.length?p[0].h+(p[1]?", and "+second(p[1]):"")+".":""}
+function second(x){var l=x.h.charAt(0).toLowerCase()+x.h.slice(1);return x.k==="ready"?(x.pts>=3?l:"there is "+l):x.k==="fav"?"it is "+l:x.k==="time"?"it is "+l:x.k==="rot"?"it has "+l.replace("Not cooked","not been cooked").replace("not cooked","not been cooked"):"it "+l}
+function whyKey(c){return[c.wk,c.day,c.r,c.n,c.forw,JSON.stringify(c.mod||null)].join("|")}
+/* a Surprise me card: why is the sentence; whyk pins it to the meal as dropped in, so any hand change (moved, people, a swap) makes the key differ and the chip goes */
+function surpCard(wk,day,r,hum){var n=mkCard(wk,day,r,ME,"all",2,{surp:true});if(hum){n.why=hum;n.whyk=whyKey(n)}return n}
 var NOIDEA="Nothing fits from what is in. Try Ask AI.";
-function pickSurprise(d,skip){if(P.surpriseNone)return null;var t=rankIdeas(d,skip)[0];return t?{r:t.r,why:t.line}:null}
+function pickSurprise(d,skip){if(P.surpriseNone)return null;var t=rankIdeas(d,skip)[0];return t?{r:t.r,why:t.hum,prov:t.line}:null}
 /* the whole-week fill is the Home "Plan ahead" lens: one pool, a different idea for each open night, use-it-up ideas on the earliest nights; a night with no idea left stays open */
 function planAhead(days){if(P.surpriseNone||!days.length)return[];var rk=rankIdeas(days[0]),up=rk.filter(function(x){return /^Uses /.test(x.line)}),pool=up.concat(rk.filter(function(x){return up.indexOf(x)<0}));
- return days.slice(0,pool.length).map(function(d,k){return{d:d,r:pool[k].r,why:pool[k].line}})}
+ return days.slice(0,pool.length).map(function(d,k){return{d:d,r:pool[k].r,why:pool[k].hum}})}
 function surprise(d){if(!d||guard())return;var p=pickSurprise(d);if(!p){toast(NOIDEA);P.render();say(NOIDEA);return}S.just=null;if(P.layout.openNight&&P.layout.surpriseNeedsOpen&&isBlocked(d,ME)&&P.surpriseMode==="confirm"){pushUndo();P.layout.openNight(d)}
  if(P.surpriseMode==="confirm"){S.prop={day:d,r:p.r,why:p.why,seen:[p.r]};P.render();say("Surprise proposal: "+R[p.r].n);return}
- pushUndo();if(P.layout.openNight)P.layout.openNight(d);var n=mkCard(S.wk,d,p.r,ME,"all",2,{surp:true});S.cards.push(n);lf(n);S.fresh=n.id;toast("Surprise: "+esc(R[p.r].n)+" on "+d+". "+p.why+" ",true);pulseSync();P.render();say("Planned "+R[p.r].n)}
+ pushUndo();if(P.layout.openNight)P.layout.openNight(d);var n=surpCard(S.wk,d,p.r,p.why);S.cards.push(n);lf(n);S.fresh=n.id;toast("Surprise: "+esc(R[p.r].n)+" on "+d+". "+p.why+" ",true);pulseSync();P.render();say("Planned "+R[p.r].n)}
 function propAct(a){var pr=S.prop;if(!pr)return;if(a==="no"){S.prop=null;P.render();return}
  if(a==="next"){var p=pickSurprise(pr.day,pr.seen);if(!p){toast("No other idea fits from what is in. Try Ask AI.");P.render();return}pr.r=p.r;pr.why=p.why;pr.seen.push(p.r);P.render();return}
- if(guard())return;pushUndo();if(P.layout.openNight)P.layout.openNight(pr.day);var n=mkCard(S.wk,pr.day,pr.r,ME,"all",2,{surp:true});S.cards.push(n);lf(n);S.fresh=n.id;S.prop=null;toast("Planned "+esc(R[pr.r].n)+" on "+pr.day+". ",true);pulseSync();P.render()}
+ if(guard())return;pushUndo();if(P.layout.openNight)P.layout.openNight(pr.day);var n=surpCard(S.wk,pr.day,pr.r,pr.why);S.cards.push(n);lf(n);S.fresh=n.id;S.prop=null;toast("Planned "+esc(R[pr.r].n)+" on "+pr.day+". ",true);pulseSync();P.render()}
 function canNudge(){return S.view==="mine"&&!weekRo()&&!S.sel&&!S.toast&&!S.nudge&&!S.nudgeDone&&!S.loading&&DN.some(function(d){return !isBlocked(d,ME)&&!S.cards.some(function(c){return c.wk===S.wk&&c.day===d&&me(c)})})&&S.cards.filter(function(c){return c.wk===S.wk}).length===0}
 function armNudge(){clearTimeout(NT);if(canNudge())NT=setTimeout(function(){if(canNudge()){S.nudge=true;S.nudgeDone=true;P.render()}},5000)}
 
@@ -518,7 +525,7 @@ var LOADED={};
 P.vpScript=function(query,src){var m=window.matchMedia(query),go=function(){if(m.matches&&!LOADED[src]){LOADED[src]=1;var s=document.createElement("script");s.src=src;s.onload=function(){P.render()};document.head.appendChild(s)}else P.render()};m.addEventListener("change",go);if(m.matches)go()};
 P.sumLane=function(){return '<aside class="panel p2" id="panel2" aria-label="Week summary">'+P.sumHtml()+'</aside>'};
 /* ---------------- start ---------------- */
-P.S=function(){return S};P.u={pickSurprise:pickSurprise,planAhead:planAhead,NOIDEA:NOIDEA,cartLines:cartLines,boughtLines:boughtLines,cartCount:cartCount,cartDiff:cartDiff,listAdd:listAdd,fmtQ:fmtQ,amt:amt,has:has,can:can,also:also,orig:orig,pushUndo:pushUndo,toast:toast,guard:guard,say:say,pulseSync:pulseSync,undo:undo,mkCard:mkCard,lf:lf,setWk:setWk,me:me,person:person,W:W,WMIN:function(){return WMIN},WMAX:function(){return WMAX},cardById:card,dtEnd:function(){return dt(S.wk,6)},leftoverPortions:leftoverPortions,DN:DN,DF:DF,q:q,qa:qa,esc:esc,dstr:dstr,dt:dt,cardW:cardW,dayStack:dayStack,dayHeadTxt:dayHeadTxt,dayCards:dayCards,scopeCards:scopeCards,I:I,R:R,STOCK:STOCK,ings:ings,missing:missing,onhand:onhand,risk:risk,qty:qty,shopping:shopping,risks:risks,status:status,lbl:lbl,meta:meta,ubText:ubText,srcOf:srcOf,pill:pill,avatar:avatar,isBlocked:isBlocked,labelW:labelW,onList:onList,roCard:roCard,weekRo:weekRo,ME:ME,CURWK:CURWK,pastCard:pastCard,cdate:cdate,TODAYD:TODAYD,fmtN:fmtN,select:select,deselect:deselect,okey:okey,conflicts:conflicts,offline:offline,heldBy:heldBy,DF:DF,MON:MON,iso:iso};
+P.S=function(){return S};P.u={whyKey:whyKey,surpCard:surpCard,pickSurprise:pickSurprise,planAhead:planAhead,NOIDEA:NOIDEA,cartLines:cartLines,boughtLines:boughtLines,cartCount:cartCount,cartDiff:cartDiff,listAdd:listAdd,fmtQ:fmtQ,amt:amt,has:has,can:can,also:also,orig:orig,pushUndo:pushUndo,toast:toast,guard:guard,say:say,pulseSync:pulseSync,undo:undo,mkCard:mkCard,lf:lf,setWk:setWk,me:me,person:person,W:W,WMIN:function(){return WMIN},WMAX:function(){return WMAX},cardById:card,dtEnd:function(){return dt(S.wk,6)},leftoverPortions:leftoverPortions,DN:DN,DF:DF,q:q,qa:qa,esc:esc,dstr:dstr,dt:dt,cardW:cardW,dayStack:dayStack,dayHeadTxt:dayHeadTxt,dayCards:dayCards,scopeCards:scopeCards,I:I,R:R,STOCK:STOCK,ings:ings,missing:missing,onhand:onhand,risk:risk,qty:qty,shopping:shopping,risks:risks,status:status,lbl:lbl,meta:meta,ubText:ubText,srcOf:srcOf,pill:pill,avatar:avatar,isBlocked:isBlocked,labelW:labelW,onList:onList,roCard:roCard,weekRo:weekRo,ME:ME,CURWK:CURWK,pastCard:pastCard,cdate:cdate,TODAYD:TODAYD,fmtN:fmtN,select:select,deselect:deselect,okey:okey,conflicts:conflicts,offline:offline,heldBy:heldBy,DF:DF,MON:MON,iso:iso};
 P.start=function(layout){P.layout=layout;if(Q.get("vp")&&Q.get("embed")!=="1")return;if(layout.wmax!==undefined)WMAX=layout.wmax;
  var wk=Q.get("week");if(wk){for(var w=WMIN;w<=WMAX;w++)if(iso(dt(w,0))===wk)S.wk=w}
  var v=Q.get("view");if(v==="household")v="all";if(v==="all"||v==="mine"||S.people.indexOf(v)>-1)S.view=v;

@@ -150,7 +150,7 @@
     return '<div class="ppl"><span class="lbl">People</span><button class="ib sm" data-n="-1" aria-label="Fewer people"' + (lk ? ' disabled' : '') + '>−</button><b>' + m.n + '</b><button class="ib sm" data-n="1" aria-label="More people"' + (lk ? ' disabled' : '') + '>+</button></div>';
   }
   function inspMeal(m) {
-    var src = m.src === 'made' ? '<p class="srcl">' + ic.spark + ' <b>Made up by your AI</b> · not saved as a recipe</p>' : m.src === 'surprise' ? '<p class="srcl">' + ic.dice + ' <b>Surprise me</b> · ' + esc(m.why || '') + '</p>' : '';
+    var src = m.src === 'made' ? '<p class="srcl">' + ic.spark + ' <b>Made up by your AI</b> · not saved as a recipe</p>' : m.src === 'surprise' ? '<p class="srcl">' + ic.dice + ' <b>Surprise me</b>' + (m.why && m.whyk === P.whyKey(m) ? ' · ' + esc(m.why) : '') + '</p>' : '';
     var lk = ro() || isPast(m.day);
     var held = m.held ? '<button class="hold on" data-hold aria-pressed="true">' + ic.mark + ' Held <span class="kbd">H</span></button>' : '<button class="hold" data-hold aria-pressed="false">' + ic.mark + ' Hold <span class="kbd">H</span></button>';
     return '<header class="ih"><span class="em lg">' + m.em + '</span><div class="tx"><h2 id="ititle">' + esc(m.t) + '</h2><p>' + dayName(m.day) + ' · ' + esc(P.whoLabel(m)) + '</p></div><button class="ib" data-close aria-label="Close (Ctrl+Enter)" title="Close  Ctrl/Cmd Enter">' + ic.x + '</button></header>' +
@@ -281,7 +281,7 @@
   }
   function surprise(d) {
     var c = P.surprise(S.meals, d, S.today); if (!c) return toast('Nothing fits from what is in. Try Ask AI.');
-    c.id = 'sur-' + Date.now(); c.day = d; c.who = S.view === 'mine' ? ['sam'] : 'all'; c.n = S.view === 'mine' ? 1 : 4; c.src = 'surprise'; c.note = ''; c.held = 0; c.useby = c.useby || [];
+    c.id = 'sur-' + Date.now(); c.day = d; c.who = S.view === 'mine' ? ['sam'] : 'all'; c.n = S.view === 'mine' ? 1 : 4; c.src = 'surprise'; c.note = ''; c.held = 0; c.useby = c.useby || []; c.whyk = P.whyKey(c);
     change(function () { S.meals.push(c); }, 'Surprise: ' + esc(c.t) + ' for ' + dayName(d), [d]);
   }
   function goDay(d) { S.cur = d; if (S.sel && find(S.sel) && find(S.sel).day !== d) S.sel = null; render(); var el = document.getElementById('day-' + d); if (el && S.lay === 'agenda') el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }

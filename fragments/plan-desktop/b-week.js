@@ -98,7 +98,7 @@ function skipText(e){if(!e.nc.length)return "";var s=S();
 function fillWeek(){var s=S();if(u.guard()||person())return;var e=emptyWeek();if(!e.on)return;
  var pl=u.planAhead(e.days);if(!pl.length){u.toast(u.NOIDEA);P.render();u.say(u.NOIDEA);return}
  u.pushUndo();s.just=null;s.prop=null;
- pl.forEach(function(x){var n=u.mkCard(s.wk,x.d,x.r,ME,"all",2,{surp:true});s.cards.push(n);u.lf(n)});
+ pl.forEach(function(x){var n=u.surpCard(s.wk,x.d,x.r,x.why);s.cards.push(n);u.lf(n)});
  setFlip("fill");var left=e.days.filter(function(d){return !pl.some(function(x){return x.d===d})});
  u.toast("Surprise me planned "+plural(pl.length,"night")+" ("+pl.map(function(x){return x.d}).join(", ")+"). "+(left.length?left.join(", ")+(left.length>1?" stay":" stays")+" open: nothing else fits from what is in. ":"")+skipText(e),true);
  u.pulseSync();P.render();u.say("Planned "+plural(pl.length,"night"))}

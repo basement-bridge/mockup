@@ -31,6 +31,10 @@ function stat(c){var m=u.missing(c),rk=u.risk(c),past=u.pastCard(c),left=u.srcOf
  return '<span class="stq">'+sm(TICK,13)+'All on hand</span>'}
 P.bStatus=stat;
 /* ---------- the tile (decisions 112, 113): left = one status; right = persistent actions ---------- */
+/* the Surprise me reason, in plain words (decision 292, Proposal): the markup the app can lift. data-why carries the sentence; the tooltip is focusable through its button, not hover only */
+function whyChip(c){return '<span class="why" data-why="'+esc(c.why)+'"><button type="button" class="why-btn" aria-expanded="false" aria-describedby="why-'+c.id+'">'+sm(BI.SURP,12)+'Why this</button><span class="why-tip" id="why-'+c.id+'" role="tooltip">'+esc(c.why)+'</span></span>'}
+document.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest(".why-btn");[].forEach.call(document.querySelectorAll(".why-btn[aria-expanded=true]"),function(x){if(x!==b)x.setAttribute("aria-expanded","false")});if(b){b.setAttribute("aria-expanded",b.getAttribute("aria-expanded")==="true"?"false":"true");e.stopPropagation()}},true);
+document.addEventListener("keydown",function(e){if(e.key==="Escape"){var o=document.querySelector(".why-btn[aria-expanded=true]");if(o){o.setAttribute("aria-expanded","false");e.stopPropagation()}}},true);
 function tile(c,v){var S=P.S(),r=R[c.r],m=u.missing(c),rk=u.risk(c),ro=u.roCard(c),act=u.can(c)&&!ro,past=u.pastCard(c),sel=S.sel===c.id,off=u.offline(),left=u.srcOf(c)==="left",pv=u.person(),
  open=m.filter(function(i){return !u.onList(c,i)}),listed=m.filter(function(i){return u.onList(c,i)}),st="",sub="",cf=past&&u.can(c)&&!off;
  st=stat(c);
@@ -48,7 +52,7 @@ function tile(c,v){var S=P.S(),r=R[c.r],m=u.missing(c),rk=u.risk(c),ro=u.roCard(
  else if(cf)A='<div class="ra persist" role="toolbar" aria-label="Actions for '+esc(r.n)+'">'+btn("cfwd",c.id,I.copy,"Copy forward: put a copy on a coming day","Copy forward","cf")+'</div>';
  return '<div class="'+cls+'" data-cw="'+c.id+'"'+(age>-1?' style="--age:-'+age+'ms"':"")+'><button class="mc" data-card="'+c.id+'" data-fk="card:'+c.id+'" aria-label="'+esc(lab)+'" aria-pressed="'+sel+'"><span class="e">'+r.e+'</span><span class="t"><b>'+esc(r.n)+'</b>'+(st?'<span class="stt">'+st+'</span>':"")
   +'<small class="meta">'+u.avatar(c.by===ME&&c.forw==="all"?"all":c.by)+'<span>'+esc(u.meta(c))+'</span>'+sub+'</small></span></button>'+A
-  +(vo?'<span class="eye" aria-hidden="true" title="View only">'+sm(EYE,15)+'</span>':"")+'</div>'}
+  +(c.why&&c.whyk===u.whyKey(c)?whyChip(c):"")+(vo?'<span class="eye" aria-hidden="true" title="View only">'+sm(EYE,15)+'</span>':"")+'</div>'}
 
 /* ---------- a day's content: the day states (decisions 116, 119; phone 183, 187, 190, 196, 215) ---------- */
 function ctas(d,more){var S0=P.S(),jd=S0.just&&S0.just.day===d&&S0.just.wk===S0.wk;
@@ -136,7 +140,7 @@ function init(S,Q){P.surpriseMode=Q.get("surprise")==="confirm"?"confirm":"lock"
  S.people.push("Priya");S.stencil.Priya=[];S.cards.push(u.mkCard(1,"Wed","rice","Priya","Priya",1));
  S.cards.forEach(function(c){if(c.wk===1&&c.day==="Thu"&&c.r==="patty")c.part=["Sam","Jane"]});
  if(Q.get("sum")==="1")S.sumPeek=true;
- if(Q.get("prop")&&DN.indexOf(Q.get("prop"))>-1&&P.surpriseMode==="confirm"){S.prop={day:Q.get("prop"),r:"stir",why:"Everything is in \u00b7 20 minutes",seen:["stir"]}}
+ if(Q.get("prop")&&DN.indexOf(Q.get("prop"))>-1&&P.surpriseMode==="confirm"){S.prop={day:Q.get("prop"),r:"stir",why:"You have everything for it, and a quick one for a weeknight.",seen:["stir"]}}
  if(Q.get("cleared")&&DN.indexOf(Q.get("cleared"))>-1){var cd=Q.get("cleared");S.cards=S.cards.filter(function(c){return !(c.wk===S.wk&&c.day===cd&&c.by===ME)});S.just={wk:S.wk,day:cd}}
  /* the shopping list sample (14 Oct 2026, replan cleanup): feta is on the list for Shakshuka alone (a single-use line); lemon is on the list for BOTH Thursday meals (1 for Salmon patties + 1/2 for Tuna salad, a shared line); chicken thighs were bought on Friday for Chicken curry (in Pantry, never touched); milk was added by hand. */
  S.cards.forEach(function(c){if(c.wk===1&&c.day==="Thu"&&(c.r==="patty"||c.r==="tuna"))c.l_lemon=true});
