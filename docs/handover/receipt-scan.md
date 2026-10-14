@@ -28,7 +28,7 @@ Owner (Arjan), by voice: expose receipt bulk-add through MCP so an AI assistant 
 
 ## 1g. Revision 4, 15 October 2026 (proposed, awaiting the owner): Read, then Sort
 
-Owner (Arjan), by voice, on Kitchie #750: the phone scan crams the receipt into a thin slice (150 px of the screen), so what was read cannot be read; he wants the receipt shown large and called "read" once steady, and a second step to sort the Check, Unsure and Ignored lines. Three options on the same engine: **A** Read then sort only what needs you (recommended), **B** Read then the whole list, **C** the paper stays above the list. Page `fragments/receipt-scan/ro2.html`, decisions RS-78 to RS-87 in the job note, check `tools/receipt-scan-two-step-check.mjs`. Phone and tablet only; the desktop is unchanged. Nothing is built from this until the owner picks; the matcher and everything under it is unchanged.
+Owner (Arjan), by voice, on Kitchie #750: the phone scan crams the receipt into a thin slice (150 px of the screen), so what was read cannot be read; he wants the receipt shown large and called "read" once steady, and a second step to sort the Check, Unsure and Ignored lines. Three options on the same engine: **A** Read then sort only what needs you (recommended), **B** Read then the whole list, **C** the paper stays above the list. Page `fragments/receipt-scan/ro2.html`, decisions RS-87 to RS-96 in the job note, check `tools/receipt-scan-two-step-check.mjs`. Phone and tablet only; the desktop is unchanged. Nothing is built from this until the owner picks; the matcher and everything under it is unchanged.
 
 ## 1a. Revision 2, 14 October 2026 (archived)
 
