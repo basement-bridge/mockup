@@ -33,3 +33,12 @@ span.wunit{border-color:transparent;padding:0 6px}
 
 /* the read line in the opened row: what was printed became what amount (Empty is absent: drawn only when a unit was read) */
 .qu-read{display:flex;gap:6px;align-items:center;font-size:13px;font-weight:700}
+
+/* RS-90: the slim top line (progress as one line under the title) and one-line filter tabs; RS-89: the photo's tracked line is ringed like a selected one (lv.css .lv-sel) */
+.qu-top{flex:none;display:flex;align-items:center;gap:10px;margin:.4rem .75rem 0;min-height:28px}
+.qu-top .ro-pn{font-size:14px}
+.ro-rl .ro-fs{gap:4px}
+.ro-rl .ro-f{flex-direction:row;gap:6px;font-size:13px}
+.lv-ln.qu-track::after{content:"";position:absolute;inset:-9px -10px;border:2px solid var(--fg);border-radius:10px;pointer-events:none;z-index:2}
+.lv-ln.qu-track{z-index:2}
+.rs-step button[disabled]{opacity:.4}

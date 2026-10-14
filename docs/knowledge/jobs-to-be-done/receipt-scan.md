@@ -128,12 +128,17 @@ Owner (Arjan), voice, 14 October 2026 (tidied): Option A, Receipt order, built o
 | RS-78 | **A scanned quantity may carry a unit**, read with the shopping list's own reader (kilo and kg are one form, 2 litres is 2 L; weight and volume only). *Owner (Arjan), by voice, 14 October 2026, Kitchie #754.* | **Owner, locked** |
 | RS-79 | **Scope:** a unit in the name (`MILK 2L`) is in; weight lines (`1.234 kg @ $x/kg`) are out for now and keep their handling and their row. *Owner, 14 October 2026.* | **Owner, locked** |
 | RS-80 | The unit is drawn only on a line whose unit was read from its name; a number-only line, no number, a size and a weight line keep today's row (Empty is absent). | **Proposal** |
-| RS-81 | Two options, `fragments/receipt-scan/quantity-unit.html`: **A** plain text in the row, the shopping list's box and unit pill in the opened row (recommended); **B** an amount pill in the row opening the shopping list's quantity sheet. B is kept. | **Proposal; owner picks** |
+| RS-81 | Two options, `fragments/receipt-scan/quantity-unit.html`: **A** plain text in the row, the shopping list's box and unit pill in the opened row (recommended); **B** an amount pill in the row opening the shopping list's quantity sheet. B is kept. | Chosen: A (RS-87) |
 | RS-82 | Correction reuses the shopping list's box and pill (PR 157): the x takes the unit off, a unit typed after the number is read on leaving the box; g, kg, mL, L only; a counted Pantry unit is plain text. | Owner for the pill; **Proposal** for counted units |
 | RS-83 | A weight or volume in the name is an amount when the Pantry item holds that kind of unit and a size when it is counted (400G onto packs is 1 pack); an amount the item cannot take reads "Kept as a separate item" (RS-74). A New item reads the unit as the amount. | **Proposal** |
 | RS-84 | A receipt line that differs from the shopping list's words exists only in Shopping's review (`quantityFor`); the box starts with the receipt's reading, the note names both when they differ and is silent when the folded forms are equal. | **Proposal** |
-| RS-85 | A line with no number stays as built (counted as 1, said in the opened row only); chat never defaults to 1 (RS-77). Should the screen match chat? | **Open** |
+| RS-85 | A line with no number stays as built (counted as 1, said in the opened row only); chat never defaults to 1 (RS-77). Answered by RS-88. | **Superseded by RS-88** |
 | RS-86 | Phone leads, desktop drawn too (a near-direct port: the same row in the lane; B's sheet is inline). | **Proposal** |
+| RS-87 | **Option A is chosen:** the unit is plain inline text in the row. B stays in the fragment (`qu-b.html`) as the alternative not chosen. *Owner (Arjan), by voice, 15 October 2026, live review of the #754 mockup.* | **Owner, locked** |
+| RS-88 | **A line with no quantity read shows blank, not 1** (Empty is absent): "blank where people need to type in". The screen does not count a missing quantity as 1. *Owner, 15 October 2026.* Answers RS-85. | **Owner, locked** |
+| RS-89 | **The receipt photo tracks the list:** scrolling the parsed lines moves the photo to the first line in view and highlights it (synced, not static). *Owner, 15 October 2026.* | **Owner, locked** |
+| RS-90 | **A slim header:** the "x of 16" summary strip is pulled to the top; the status card is dropped once the receipt is read. Economise vertical space. *Owner, 15 October 2026.* | **Owner, locked** |
+| RS-91 | **Editing a quantity is the shopping list's quantity sheet, exactly:** free text, the unit inferred and folded (2 litres, 2L become 2 L), the pill's x takes the unit off and the box is the person's own words again, read when the box is left. Not digits-only with a separate unit picker. *Owner, 15 October 2026 (clearing the L pill on a milk line let him type only numbers).* | **Owner, locked** |
 
 ### How a line is scored against the Pantry (RS-66)
 
