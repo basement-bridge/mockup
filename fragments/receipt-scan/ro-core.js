@@ -111,7 +111,7 @@
       t.total++; if (k === "top" && l.st === "exact" && !o.picked) t.exact++;
       if (k === "top" || k === "new" || (k === "ignored" && !o.auto)) t.resolved++;
     });
-    if (RO.adjTally) RO.adjTally(t);   /* a page may hold some lines back from the count (quantity-unit.js: Exact lines waiting for a tick, RS-94) */
+    if (RO.adjTally) RO.adjTally(t);   /* a page may hold some lines back from the count (quantity-unit.js: Exact lines with a blank amount, RS-88; since RS-98 reviewing an Exact line never changes the count) */
     t.ready = t.top + t.new; return t;
   }
   RO.tally = tally; RO.seenLines = seenLines;
