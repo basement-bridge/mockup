@@ -204,3 +204,12 @@
 /* Copy last week and Clear week at the top (decision 287): shown only while the gutter does not carry them. .gut-on is set by lanes() in b.js when the glance gutter is on screen with the week actions; no size rule here. */
 .wktop{display:contents}
 .app.gut-on .wktop{display:none}
+
+/* Surprise me reason (decision 292, Proposal): .why > .why-btn + .why-tip[role=tooltip]. Same rules in the phone's phone.css. Shown on hover, on focus (keyboard) and when the button is open; Escape closes. */
+.why{position:absolute;right:10px;bottom:4px;z-index:3}
+.why-btn{display:inline-flex;align-items:center;gap:4px;min-height:24px;padding:0 8px;border:1px solid var(--border);border-radius:999px;background:var(--surface);color:var(--muted);font:600 11.5px/1 var(--body);cursor:pointer}
+.why-btn svg{width:12px;height:12px;fill:currentColor;stroke:none}
+.why-btn:hover,.why-btn:focus-visible,.why-btn[aria-expanded=true]{color:var(--accent);border-color:var(--accent)}
+.why-tip{display:none;position:absolute;right:0;bottom:calc(100% + 6px);width:max-content;max-width:min(260px,70vw);padding:8px 10px;border:1px solid var(--accent);border-radius:var(--r-card);background:var(--surface);color:var(--fg);font:500 12.5px/1.35 var(--body);box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.why:hover .why-tip,.why:focus-within .why-tip,.why-btn[aria-expanded=true]+.why-tip{display:block}
+@media (prefers-reduced-motion:no-preference){.why-tip{animation:whyin .12s ease-out}@keyframes whyin{from{opacity:0;transform:translateY(2px)}}}

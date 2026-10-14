@@ -73,12 +73,13 @@ window.PUR = (function () {
   /* Not cooking days. d10 last Sat (past), d17 this Sat, d22 and d25 next week (the usual days off). */
   var blocked = { d10: 'once', d17: 'once', d22: 'once', d25: 'usual' };
   var tips = { d14: 'Wednesday is the big cook: leftovers for Friday' };
-  /* Surprise me (decision 94, owner-confirmed heuristics): candidates by kind. 'new' may need shopping (room to shop) and may use the shopping list; 'stock' is on hand. */
+  /* Surprise me uses the Home cooking-ideas engine (decision 292; kitchie server/src/recipe-tab/ideas.ts rank()). The four meals below are SAMPLE DATA only, with the sample signals the engine reads: last (days since cooked, where known), star,
+     ubd (days until the soonest use-by among the on-hand things it uses), mins, miss (what is missing: the count is Recipe's readiness). The shopping list is not a signal (Home gathers it and never scores it), and the week's position is not either. */
   var SUR = [
-    { id: 's1', mins: 35, kind: 'new', em: '🍋', t: 'Lemon chicken orzo', miss: [['orzo', '500 g']], have: [['chicken thighs', '600 g'], ['lemon', '2 (on your list)']], useby: [], list: 1, why: 'New to the plan, and the lemons are already on your shopping list.' },
-    { id: 's2', mins: 20, kind: 'new', em: '🌿', t: 'Thai basil stir-fry', miss: [['Thai basil', '1 bunch']], have: [['noodles', '1 pack'], ['veg bag', '1 bag']], useby: [], list: 0, why: 'Something you have not had lately; one item to buy.' },
-    { id: 's3', mins: 40, kind: 'stock', em: '🥚', t: 'Potato and egg frittata', miss: [], have: [['eggs', '8'], ['potatoes', '4'], ['onion', '2']], useby: [], list: 0, why: 'Late in the week, so it uses what is already in the house.' },
-    { id: 's4', mins: 45, kind: 'stock', em: '🍲', t: 'Pantry minestrone', miss: [], have: [['tinned tomatoes', '2 tins'], ['pasta', '200 g'], ['carrots', '3']], useby: [], list: 0, why: 'Late in the week, all on hand.' }
+    { id: 's1', mins: 35, last: 21, ubd: null, em: '🍋', t: 'Lemon chicken orzo', miss: [['orzo', '500 g']], have: [['chicken thighs', '600 g'], ['lemon', '2']], useby: [], list: 0 },
+    { id: 's2', mins: 20, last: 40, ubd: null, em: '🌿', t: 'Thai basil stir-fry', miss: [['Thai basil', '1 bunch']], have: [['noodles', '1 pack'], ['veg bag', '1 bag']], useby: [], list: 0 },
+    { id: 's3', mins: 40, last: 9, ubd: 2, ubn: 'eggs', em: '🥚', t: 'Potato and egg frittata', miss: [], have: [['eggs', '8'], ['potatoes', '4'], ['onion', '2']], useby: [], list: 0 },
+    { id: 's4', mins: 45, last: 3, ubd: null, em: '🍲', t: 'Pantry minestrone', miss: [], have: [['tinned tomatoes', '2 tins'], ['pasta', '200 g'], ['carrots', '3']], useby: [], list: 0 }
   ];
   /* Total time (Plan UI review 124): ONE figure per meal, minutes; never a prep and cook split. */
   function mins(m) { var n = m.mins; if (!n) return ''; return n < 60 ? n + ' min' : Math.floor(n / 60) + ' h' + (n % 60 ? ' ' + (n % 60) + ' min' : ''); }
@@ -109,12 +110,38 @@ window.PUR = (function () {
   /* Bought items are in Pantry, off the list, and never touched by a replan (owner, 14 Oct 2026). 'for' names the meals the item was bought for. extras: lines added by hand, with no meal behind them. */
   function phoneBought() { return { 'chicken thighs': { day: 'Fri 9 Oct', q: '600 g', 'for': ['wed-curry'] } }; }
   function phoneExtras() { return [{ name: 'milk', q: '2 L' }]; }
-  /* Surprise me (owner-confirmed heuristics, decision 94): timing aware, never a repeat of a recent meal. Returns a copy of a candidate. */
+  /* Surprise me = the Home engine (decision 292): FILTER (already on the plan from today on in that week; cooked 2 days ago or less), then SCORE (readiness: all in +3, needs 1 +1, needs 2 +0.01, 3 or more -2; use-by within 3 days +3 at 1 day or less else +2;
+     last cooked a month +2, 2 weeks +1, 4 days or less -2; star +1; weeknight minutes 30 or less +1, over 60 -2). Only a score above 0 is offered; the pick is the top one. Returns a copy of the meal with why (Home's one line), or null. */
+  /* The two layers (decision 292): the person sees one plain sentence (c.why); the technical line (c.prov: reasons and signal names) belongs to the server response and is never drawn. At most two reasons, joined naturally. */
+  function human(w) {
+    var p = w.filter(function (x) { return x.pts > 0.5 && x.h; }).sort(function (a, b) { return (b.pts + (b.k === 'ready' ? -0.1 : 0)) - (a.pts + (a.k === 'ready' ? -0.1 : 0)); }).slice(0, 2);
+    return p.length ? p[0].h + (p[1] ? ', and ' + second(p[1]) : '') + '.' : '';
+  }
+  function second(x) {
+    var l = x.h.charAt(0).toLowerCase() + x.h.slice(1);
+    return x.k === 'ready' ? (x.pts >= 3 ? l : 'there is ' + l) : x.k === 'fav' || x.k === 'time' ? 'it is ' + l : x.k === 'rot' ? 'it has ' + l.replace('not cooked', 'not been cooked') : 'it ' + l;
+  }
+  /* why is pinned to the meal as dropped in: a hand change (moved, people, servings) changes the key and the chip goes */
+  function whyKey(m) { return [m.day, m.t, m.n, JSON.stringify(m.who)].join('|'); }
   function surprise(meals, d, today) {
-    var di = function (x) { return RIB.map(function (r) { return r.id; }).indexOf(x); }, r = dinfo(d), du = di(d) - di(today), late = r.wk === 0 && r.i % 7 >= 4, kind = (du <= 1 || late) ? 'stock' : 'new';
-    var recent = meals.filter(function (x) { return Math.abs(di(x.day) - di(d)) <= 7; }).map(function (x) { return x.t; });
-    var c = SUR.filter(function (x) { return x.kind === kind && recent.indexOf(x.t) < 0; })[0] || SUR.filter(function (x) { return recent.indexOf(x.t) < 0; })[0];
-    return c ? JSON.parse(JSON.stringify(c)) : null;
+    var r = dinfo(d), wkn = ['Sat', 'Sun'].indexOf(r.dow) < 0, di = function (x) { return RIB.map(function (q) { return q.id; }).indexOf(x); };
+    var planned = meals.filter(function (x) { return dinfo(x.day).wk === r.wk && di(x.day) >= di(today); }).map(function (x) { return x.t; }), out = [];
+    SUR.forEach(function (x) {
+      if (planned.indexOf(x.t) > -1 || (x.last != null && x.last <= 2)) return;
+      var n = x.miss.length, w = [], add = function (k, pts, t, h) { w.push({ k: k, pts: pts, t: t, h: h || '' }); };
+      if (n === 0) add('ready', 3, 'Everything is in', 'You have everything for it'); else if (n === 1) add('ready', 1, 'Needs 1 thing', 'Only one thing to buy'); else if (n === 2) add('ready', 0.01, 'Needs 2 things'); else add('ready', -2, 'Needs ' + n + ' things');
+      if (x.ubd != null && x.ubd <= 3) add('useup', x.ubd <= 1 ? 3 : 2, 'Uses what is due before it goes', 'Uses up your ' + x.ubn + ' before it goes off');
+      if (x.last != null) { if (x.last >= 30) add('rot', 2, 'Not had for a month', 'Not cooked in a while'); else if (x.last >= 14) add('rot', 1, 'Not had for ' + Math.round(x.last / 7) + ' weeks', 'Not cooked in a while'); else if (x.last <= 4) add('rot', -2, 'Had ' + x.last + ' days ago'); }
+      if (x.star) add('fav', 1, 'A household favourite', 'A favourite');
+      if (wkn && x.mins <= 30) add('time', 1, x.mins + ' minutes', 'A quick one for a weeknight'); if (wkn && x.mins > 60) add('time', -2, x.mins + ' minutes, long for a weeknight');
+      var sc = w.reduce(function (a, y) { return a + y.pts; }, 0), pos = w.filter(function (y) { return y.pts > 0.5 && y.k !== 'ready'; }).sort(function (a, b) { return b.pts - a.pts; }), rd = w[0],
+        a1 = pos[0] ? pos[0].t : rd.t, b1 = n > 0 ? rd.t : pos[0] ? 'all in' : pos[1] ? pos[1].t.toLowerCase() : '';
+      out.push({ x: x, sc: sc, n: n, last: x.last == null ? 99 : x.last, line: a1 + (b1 && b1 !== a1 ? ' \u00b7 ' + b1 : ''), hum: human(w) });
+    });
+    out.sort(function (a, b) { return b.sc - a.sc || a.n - b.n || b.last - a.last; });
+    var top = out.filter(function (o) { return o.sc > 0; })[0];
+    if (!top) return null;
+    var c = JSON.parse(JSON.stringify(top.x)); c.why = top.hum; c.prov = top.line; return c;
   }
   /* Copy last week (owner-stated, decision 99): fills open nights only, never overwrites, acts on the active pill; another member's plan is read only. */
   function copyLast(meals, blocked, view, wk, today) {
@@ -180,5 +207,5 @@ window.PUR = (function () {
   }
   /* a long ingredient list for the dock demo (?long=1): a real cook sheet can have 20 lines */
   var LONG = [['garlic', '4 cloves'], ['ginger', '1 thumb'], ['cumin', '2 tsp'], ['coriander', '2 tsp'], ['turmeric', '1 tsp'], ['chilli flakes', '1 tsp'], ['stock cube', '2'], ['coconut milk', '1 tin'], ['apple', '1'], ['honey', '1 tbsp'], ['soy sauce', '2 tbsp'], ['peas', '1 cup'], ['sultanas', '1 handful'], ['spring onion', '1 bunch'], ['vegetable oil', '3 tbsp'], ['salt', 'to taste']];
-  return { mins: mins, clearWeek: clearWeek, clearWeek2: clearWeek2, baseOwners: baseOwners, scopeOf: scopeOf, isHH: isHH, routineDefault: routineDefault, baseBlocked: baseBlocked, ROUTINE: ROUTINE, useRange: useRange, LONG: LONG, surprise: surprise, copyLast: copyLast, icons: icons, people: people, DOW: DOW, RIB: RIB, DAYS: DAYS, REL: REL, did: did, dinfo: dinfo, meals: meals, phoneMeals: phoneMeals, phoneBought: phoneBought, phoneExtras: phoneExtras, whoFull: whoFull, blocked: blocked, tips: tips, SUR: SUR, match: match, inMine: inMine, whoLabel: whoLabel };
+  return { mins: mins, clearWeek: clearWeek, clearWeek2: clearWeek2, baseOwners: baseOwners, scopeOf: scopeOf, isHH: isHH, routineDefault: routineDefault, baseBlocked: baseBlocked, ROUTINE: ROUTINE, useRange: useRange, LONG: LONG, surprise: surprise, whyKey: whyKey, copyLast: copyLast, icons: icons, people: people, DOW: DOW, RIB: RIB, DAYS: DAYS, REL: REL, did: did, dinfo: dinfo, meals: meals, phoneMeals: phoneMeals, phoneBought: phoneBought, phoneExtras: phoneExtras, whoFull: whoFull, blocked: blocked, tips: tips, SUR: SUR, match: match, inMine: inMine, whoLabel: whoLabel };
 })();

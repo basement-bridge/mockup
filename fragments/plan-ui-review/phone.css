@@ -589,3 +589,12 @@ select{font:inherit}
 .shl.bought .sn b{color:var(--muted);font-weight:600}
 .shl .tk{color:var(--sage);display:inline-flex}.shl .tk svg{width:18px;height:18px}
 .shl .bt{flex:none;min-height:44px;padding:0 16px;border-radius:99px;border:1px solid var(--border);background:var(--bg);color:var(--fg);font:600 14px var(--body)}
+
+/* Surprise me reason (decision 292, Proposal): .why > .why-btn + .why-tip[role=tooltip]; the same class names as the desktop's b.css. On hover, on focus and when open; Escape closes. */
+.why{position:relative;display:inline-block;margin-top:4px}
+.why-btn{position:relative;display:inline-flex;align-items:center;gap:4px;min-height:26px;padding:0 9px;border:1px solid var(--border);border-radius:999px;background:var(--surface);color:var(--muted);font:600 12px/1 var(--body);cursor:pointer}
+.why-btn::after{content:"";position:absolute;inset:-9px -6px}
+.why-btn svg{width:13px;height:13px}
+.why-btn:hover,.why-btn:focus-visible,.why-btn[aria-expanded=true]{color:var(--accent);border-color:var(--accent)}
+.why-tip{display:none;position:absolute;left:0;bottom:calc(100% + 6px);z-index:5;width:max-content;max-width:min(260px,72vw);padding:8px 10px;border:1px solid var(--accent);border-radius:var(--r-card);background:var(--surface);color:var(--fg);font:500 12.5px/1.35 var(--body);box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.why:hover .why-tip,.why:focus-within .why-tip,.why-btn[aria-expanded=true]+.why-tip{display:block}

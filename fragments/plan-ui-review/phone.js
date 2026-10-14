@@ -92,13 +92,17 @@
      person's plan carries a small eye drawn like the moon, cog and spark glyphs (ic.eye), and the tile is dimmed a little. Past days keep their grey and get no eye. The eye is aria-hidden: the tile or box says "view only, Priya's plan" in its own label. Size and place are a Proposal. */
   function voLab() { return 'view only, ' + vlab(S.view) + "'s plan"; }
   function voHtml() { return '<span class="vo" aria-hidden="true" title="View only, ' + esc(vlab(S.view)) + "'s plan\">" + ic.eye + '</span>'; }
+  /* The Surprise me reason in plain words (decision 292, Proposal); the markup the app can lift. data-why carries the sentence; focusable through its button, not hover only. */
+  function whyChip(m) { return '<span class="why" data-why="' + esc(m.why) + '"><button type="button" class="why-btn" aria-expanded="false" aria-describedby="why-' + m.id + '">' + ic.dice + ' Why this</button><span class="why-tip" id="why-' + m.id + '" role="tooltip">' + esc(m.why) + '</span></span>'; }
+  document.addEventListener('click', function (e) { var b = e.target.closest && e.target.closest('.why-btn'); [].forEach.call(document.querySelectorAll('.why-btn[aria-expanded=true]'), function (x) { if (x !== b) x.setAttribute('aria-expanded', 'false'); }); if (b) { b.setAttribute('aria-expanded', b.getAttribute('aria-expanded') === 'true' ? 'false' : 'true'); e.stopPropagation(); } }, true);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { var o = document.querySelector('.why-btn[aria-expanded=true]'); if (o) { o.setAttribute('aria-expanded', 'false'); e.stopPropagation(); } } }, true);
   function card(m, lite) {
     var lift = S.carry && S.carry.move && S.carry.from === m.id, hl = S.hl === 'missing' ? m.miss.length : S.hl === 'useby' ? m.useby.length : 1, pst = past(m.day), lock = ro(), e = S.st === 'edge' ? ' e-' + P.status.edge(m, TODAYN) : '';
     var who = lock ? 'all' : pst ? 'past' : 'edit';
     var hint = lock ? (pst ? 'Past, read only.' : voLab().charAt(0).toUpperCase() + voLab().slice(1) + '.') : pst ? 'Past, read only. Swipe right: copy forward.' : 'Swipe right: not cooking. Swipe left: replan. Or press X, Shift X.';
     return '<div class="sw' + (S.sw === 'buttons' ? ' btns' : '') + '" data-sw="' + m.id + '"><div class="und" aria-hidden="true"><span class="l' + (pst ? ' cf' : '') + '">' + (pst ? ic.cal + ' Copy forward' : ic.moon + ' Not cooking') + '</span><span class="r">Replan ' + ic.swap + '</span></div>' +
       '<article class="mc' + e + (lift ? ' lifted' : '') + (lite ? ' lite' : '') + (S.sel === m.id ? ' sel' : '') + (lock && !pst ? ' vonly' : '') + (S.jigOn && lite && who === 'edit' ? ' jig' : '') + (hl ? '' : ' dim') + (pst ? ' past' : '') + '" tabindex="0" data-id="' + m.id + '"' + (lite && who === 'edit' ? ' data-tile="1"' : '') + ' data-ro="' + who + '" aria-label="' + esc(m.t) + ', ' + dName(m.day) + (m.part ? ', ' + P.whoFull(m) : '') + '. ' + hint + '">' + (lock && !pst ? voHtml() : '') +
-      '<span class="em">' + m.em + '</span><div class="tx"><h3>' + esc(m.t) + '</h3><p' + (m.part ? ' class="aud" title="' + esc(P.whoFull(m)) + '"' : '') + '>' + esc(P.whoLabel(m, true)) + '</p>' + (m.left ? '<p class="lf">' + ic.swap + ' Leftovers from ' + m.left + '</p>' : '') + '</div>' +
+      '<span class="em">' + m.em + '</span><div class="tx"><h3>' + esc(m.t) + '</h3><p' + (m.part ? ' class="aud" title="' + esc(P.whoFull(m)) + '"' : '') + '>' + esc(P.whoLabel(m, true)) + '</p>' + (m.left ? '<p class="lf">' + ic.swap + ' Leftovers from ' + m.left + '</p>' : '') + (m.why && m.whyk === P.whyKey(m) ? whyChip(m) : '') + '</div>' +
       (S.st === 'edge' ? P.status.html(m, 'edge', TODAYN) : S.st === 'plain' && !pst ? P.status.html(m, 'plain', TODAYN, !dealt(m)) : '') + '<button class="more" data-more="' + m.id + '" aria-label="Actions for ' + esc(m.t) + '">' + ic.more + '</button>' + (S.st === 'edge' || S.st === 'plain' || lite ? '' : P.status.html(m, S.st, TODAYN)) + '</article></div>';
   }
   /* Decision 125 (owner-stated): on the week an open night is only the quiet words "Open night". Ask AI and Surprise me appear once the person taps into that day. 183 refines it: that day is the light card (liteHtml), never a big empty detail.
@@ -153,7 +157,7 @@
      2 where it comes from (made up, Surprise me); 3 Total time, then the meal's note; 4 a view-only or past line; 5 who is eating (People); 6 one ingredient list (missing first, red until it is on the list, then on hand with use-by);
      7 the hold hint, only while held; 8 the footer, Hold N and Add N (past: Copy forward). Replan and Not cooking are not in the detail (126). */
   function detailBody(m) {
-    var src = m.src === 'made' ? '<p class="srcl">' + ic.spark + ' <b>Made up by your AI</b> · not saved as a recipe</p>' : m.src === 'surprise' ? '<p class="srcl">' + ic.dice + ' <b>Surprise me</b> · ' + esc(m.why || '') + '</p>' : '';
+    var src = m.src === 'made' ? '<p class="srcl">' + ic.spark + ' <b>Made up by your AI</b> · not saved as a recipe</p>' : m.src === 'surprise' ? '<p class="srcl">' + ic.dice + ' <b>Surprise me</b>' + (m.why && m.whyk === P.whyKey(m) ? ' · ' + esc(m.why) : '') + '</p>' : '';
     var lk = lockEdit(m);
     return src + '<p class="tt">' + ic.clock + ' Total time <b>' + P.mins(m) + '</b></p>' + (m.note ? '<p class="nt">' + esc(m.note) + '</p>' : '') + (lk ? '<p class="nt ronote">' + (ro() ? ic.eye + ' ' + esc(voLab().charAt(0).toUpperCase() + voLab().slice(1)) : ic.cal + ' Past: read only. Swipe the card right, or use Copy forward, to bring it into a coming day.') + '</p>' : '') + pcount(m) + ingList(m, past(m.day)) + (m.held && !lk ? '<p class="nt holdhint">Replan or Not cooking also releases this hold.</p>' : '');
   }
@@ -433,10 +437,10 @@
   /* 154: Mark as open (and a tile tap in the variants without a per-day detail) turns the night back into an open night. From the light panel the panel closes and the week is back on that day, with the Undo in place; the open night's own detail is one tap away. */
   function unblock(d) { if (guarded(d)) return; tgDay = d; tgAt = Date.now(); var lite = isLite() && S.dday === d; var us = S.blocked[d] === 'usual'; mutate(function () { openMark(d); delete S.xp[d]; if (lite) { S.dday = null; S.sel = null; S.cur = d; S.revealed = d; S.pop = null; } }, dName(d) + (us ? ' is open this week only. The usual day off stays' : ' is open again'), d); if (lite) { var el = document.getElementById('d-' + d); if (el) window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - stkH() - 6); syncHead(); } }
   function placeLite(d) { var el = document.getElementById('d-' + d), pn = document.getElementById('lite'); if (!el || !pn) return; var r = el.getBoundingClientRect(), lim = stkH() + pn.offsetHeight + 12; window.scrollBy(0, r.top - lim - 4); }
-  /* Surprise me (owner-confirmed heuristics, decision 94): timing aware, and never a repeat of a recent meal. */
+  /* Surprise me (decision 292): the Home cooking-ideas engine; P.surprise returns the top idea or null. */
   function surprise(d) {
-    var c = P.surprise(S.meals, d, S.today); if (!c) return note('No fresh idea that is not a repeat. Try Ask AI.');
-    var nm = c; nm.id = nextId('sur'); nm.day = d; nm.who = S.view === 'mine' ? ['sam'] : 'all'; nm.n = S.view === 'mine' ? 1 : 4; nm.src = 'surprise'; nm.note = ''; nm.held = 0; nm.useby = nm.useby || [];
+    var c = P.surprise(S.meals, d, S.today); if (!c) return note('Nothing fits from what is in. Try Ask AI.');
+    var nm = c; nm.id = nextId('sur'); nm.day = d; nm.who = S.view === 'mine' ? ['sam'] : 'all'; nm.n = S.view === 'mine' ? 1 : 4; nm.src = 'surprise'; nm.note = ''; nm.held = 0; nm.useby = nm.useby || []; nm.whyk = P.whyKey(nm);
     mutate(function () { S.meals.push(nm); openMark(d); }, 'Surprise: ' + esc(c.t) + ' for ' + dName(d), d);
   }
   function copyLast() {
