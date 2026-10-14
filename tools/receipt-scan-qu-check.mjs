@@ -3,7 +3,7 @@
 import { chromium } from "playwright-core";
 const BASE = process.env.BASE || "http://localhost:8123/fragments/receipt-scan/";
 const base = "step=view&phase=end&pre=all";
-const states = [base, base + "&filter=check", base + "&sel=l3", base + "&res=l6:new&sel=l6", base + "&sel=l3&nounit=l3", base + "&filter=check&sel=l7", base + "&filter=check&sel=l13", base + "&filter=unsure&sel=l12", base + "&qs=l3"];
+const states = [base, base + "&filter=check", base + "&sel=l3", base + "&res=l6:new&sel=l6", base + "&sel=l3&nounit=l3", base + "&filter=check&sel=l7", base + "&filter=check&sel=l13", base + "&filter=unsure&sel=l12", base + "&qs=l3", base + "&typed=l3~2 litres of milk&sel=l3"];
 const b = await chromium.launch(); let bad = 0, n = 0;
 for (const opt of ["a", "b"]) for (const [w, h] of [[390, 844], [768, 1024], [1280, 800]]) for (const th of ["kitchie", "kitchie-day"]) for (const q of states) {
   const p = await b.newPage({ viewport: { width: w, height: h } }); const errs = [];
@@ -17,15 +17,35 @@ for (const opt of ["a", "b"]) for (const [w, h] of [[390, 844], [768, 1024], [12
   if (errs.length || r.x || r.small.length) { bad++; console.log(opt, w, th, q, errs.join("|"), r.x ? "SIDEWAYS" : "", r.small.join(" ")); }
   await p.close();
 }
-// corrections
+// corrections (A is the chosen option; B is kept)
 for (const [w, h] of [[390, 844], [1280, 800]]) {
   const p = await b.newPage({ viewport: { width: w, height: h } }); const errs = []; p.on("pageerror", e => errs.push(e.message));
+  const say = (m) => { bad++; console.log(m, w); };
   await p.goto(`${BASE}qu-a.html?${base}&sel=l3`); await p.waitForTimeout(300);
-  await p.click("#qb-l3u"); let t = await p.textContent(".ro-li.on .ro-out"); if (!/Kept as a separate item/.test(t)) { bad++; console.log("A clear unit", w, t); }
-  await p.fill("#qb-l3", "500 ml"); await p.press("#qb-l3", "Enter"); t = await p.textContent(".ro-li.on .ro-out"); if (!/1 L to 1\.5 L/.test(t)) { bad++; console.log("A type unit", w, t); }
+  await p.click("#qb-l3u"); let t = await p.textContent(".ro-li.on .ro-out"); if (!/Kept as a separate item/.test(t)) say("A clear unit: " + t);
+  if (await p.getAttribute("#qb-l3", "inputmode")) say("A: the box is still numeric after the pill is cleared (RS-91)");
+  await p.keyboard.type(" litres"); await p.keyboard.press("Enter"); await p.waitForTimeout(200);
+  t = await p.textContent(".ro-li.on .ro-out"); if (!/1 L to 3 L/.test(t) || !(await p.$("#qb-l3u"))) say("A typed words not folded to 2 L: " + t);
+  await p.fill("#qb-l3", "2 litres of milk"); await p.press("#qb-l3", "Enter"); await p.waitForTimeout(200);
+  t = await p.textContent(".ro-li.on .ro-out"); if (!/plus “2 litres of milk”/.test(t)) say("A own words not kept as typed: " + t);
+  await p.fill("#qb-l3", "500 ml"); await p.press("#qb-l3", "Enter"); await p.waitForTimeout(200);
+  t = await p.textContent(".ro-li.on .ro-out"); if (!/1 L to 1\.5 L/.test(t)) say("A type unit: " + t);
+  // no quantity read: blank, never 1 (RS-88)
+  await p.goto(`${BASE}qu-a.html?${base}&filter=check&sel=l7`); await p.waitForTimeout(300);
+  if ((await p.inputValue("#qb-l7")) !== "") say("A: a line with no quantity does not show a blank box");
+  t = await p.textContent(".ro-li.on .ro-out"); if (!/Type how much/.test(t)) say("A blank outcome: " + t);
+  await p.fill("#qb-l7", "2"); await p.press("#qb-l7", "Enter"); await p.waitForTimeout(200);
+  t = await p.textContent(".ro-li.on .ro-out"); if (!/1 bag to 3 bag/.test(t)) say("A blank then typed: " + t);
+  // the photo follows the list (RS-89)
+  await p.goto(`${BASE}qu-a.html?${base}`); await p.waitForTimeout(400);
+  const first = await p.evaluate(() => (document.querySelector(".qu-track") || {}).dataset?.id || "");
+  await p.evaluate(() => { const b = innerWidth >= 1024 ? document.querySelector(".panel[data-mode=lane]") : document.querySelector(".ro-list"); b.scrollTop = 1100; }); await p.waitForTimeout(400);
+  const later = await p.evaluate(() => (document.querySelector(".qu-track") || {}).dataset?.id || "");
+  if (!first || !later || first === later) say("the photo did not follow the list: " + first + " then " + later);
+  // B is kept: its sheet saves
   await p.goto(`${BASE}qu-b.html?${base}&qs=l3`); await p.waitForTimeout(500);
   const f = (await p.$$("input[data-qu]")).pop(); await f.fill("3"); await f.press("Enter"); await p.waitForTimeout(100);
-  t = await p.textContent('.ro-li[data-id="l3"] .ro-out'); if (!/1 L to 4 L/.test(t)) { bad++; console.log("B save", w, t); }
+  t = await p.textContent('.ro-li[data-id="l3"] .ro-out'); if (!/1 L to 4 L/.test(t)) say("B save: " + t);
   if (errs.length) { bad++; console.log(errs); }
   await p.close();
 }

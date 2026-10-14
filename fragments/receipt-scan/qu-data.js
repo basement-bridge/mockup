@@ -30,7 +30,7 @@ window.ROD = (function () {
     { id: "l4", raw: ["CHOPPED TOMATOES 400G", "4 @ 1.10"], price: 4.4, st: "exact", m: "tom", rd: "count", q: 4, u: "tin", note: "4 @ 1.10 read as 4 units. 400G is the tin size, not the amount, so it is dropped" },
     { id: "l5", raw: ["TUNA 425G", "3 @ 1.15"], price: 3.45, st: "exact", m: "tuna", rd: "count", q: 3, u: "tin", note: "3 @ 1.15 read as 3 tins" },
     { id: "l6", raw: ["SLCD CHEDDAR 500G"], price: 9.8, st: "check", m: "cheddar", score: 0.8, cand: ["butter"], rd: "unit", q: 500, u: "g", guess: "Sliced cheddar", note: "500G read as 500 g. The receipt also says sliced" },
-    { id: "l7", raw: ["BABY SPINACH"], price: 3.5, st: "check", m: "spin", score: 0.8, cand: [], q: 1, u: "bag", rd: "none", guess: "Baby spinach", note: "No amount on the line: counted as 1 bag" },
+    { id: "l7", raw: ["BABY SPINACH"], price: 3.5, st: "check", m: "spin", score: 0.8, cand: [], q: 0, u: "bag", rd: "none", guess: "Baby spinach", note: "No amount on the line: the amount is left blank for you to type (never counted as 1)" },
     { id: "l8", raw: ["BTR SLTD 250G"], price: 6.2, st: "check", m: "butter", score: 0.8, cand: ["cheddar"], rd: "unit", q: 250, u: "g", guess: "Salted butter", note: "BTR is a short form of butter. The receipt also says salted" },
     { id: "l9", raw: ["GRK YOG 1KG"], price: 5.6, st: "check", m: "yog", score: 0.93, cand: ["milk"], rd: "unit", q: 1, u: "kg", guess: "Greek yoghurt", note: "1KG read as 1 kg. The Pantry holds yoghurt in g, so 1 kg becomes 1000 g" },
     { id: "l10", raw: ["GV EVOO 1L"], price: 12.5, st: "check", m: "oil", score: 0.65, cand: [], rd: "unit", q: 1, u: "L", guess: "Extra virgin olive oil", note: "EVOO is a short form of extra virgin olive oil. 1 L becomes 1000 mL" },
