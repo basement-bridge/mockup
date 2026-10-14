@@ -30,6 +30,10 @@ Owner (Arjan), by voice: expose receipt bulk-add through MCP so an AI assistant 
 
 Kitchie #754. Owner (voice, 14 October 2026): a scanned quantity may carry a unit read by the shopping list's reader; `MILK 2L` is in scope, weight lines are out. Mockup first: `fragments/receipt-scan/quantity-unit.html` (hub, options A and B, states, decisions, open questions), `qu-a.html`, `qu-b.html`, `qu.js`, `qu.css`, `qu-data.js`; check `tools/receipt-scan-qu-check.mjs`. Revised 15 October 2026 after the owner's live review: A chosen (RS-87), blank amount (RS-88), the photo tracks the list (RS-89), slim header (RS-90), free-text editing as on the shopping list (RS-91). Open items are listed at the foot of the hub. Findings: the Pantry flow never sees the shopping list (the "receipt versus list words" state is Shopping's review); a unit already reaches the Pantry write today (weight lines send "1.2 kg" as quantity words); chat shares the reader and its "5KG is not an amount" rule (RS-77).
 
+## 1h. Revision 4, 15 October 2026 (proposed, awaiting the owner): Read, then Sort
+
+Owner (Arjan), by voice, on Kitchie #750: the phone scan crams the receipt into a thin slice (150 px of the screen), so what was read cannot be read; he wants the receipt shown large and called "read" once steady, and a second step to sort the Check, Unsure and Ignored lines. Three options on the same engine: **A** Read then sort only what needs you (recommended), **B** Read then the whole list, **C** the paper stays above the list. Page `fragments/receipt-scan/ro2.html`, decisions RS-87 to RS-96 in the job note, check `tools/receipt-scan-two-step-check.mjs`. Phone and tablet only; the desktop is unchanged. Nothing is built from this until the owner picks; the matcher and everything under it is unchanged.
+
 ## 1a. Revision 2, 14 October 2026 (archived)
 
 Owner, voice: rebuild around a live viewfinder like Shopping's (Kitchie #695, #697). Matching logic unchanged; resolution moves onto the live view. Four live directions: **A Tap the paper** (recommended), **B Freeze and walk**, **C Cards under the camera**, **D Camera and list**. Decisions RS-29 to RS-54 in the job note; RS-2, RS-19, RS-24 superseded, RS-25 and RS-26 amended. Hub: `fragments/receipt-scan/index.html`; directions `live-a.html` to `live-d.html` (`?step=entry|view|done|refused`, `&phase=`, `&cond=`, `&pre=`, `&sel=`, `&walk=1`, `&sheet=summary`, `&conf=`, `&vp=`); check `tools/receipt-scan-live-check.mjs`; viewport code `lv.phone.js`, `lv.desktop.js`. Revision 1 is at `v1.html`. Sections 2 to 4 below describe revision 1 and the open questions still stand.
@@ -46,7 +50,8 @@ Four options for the whole flow, phone, tablet and desktop: **A Receipt order** 
 | Archived revision 1 hub and options | `archive.html` (live revision), `v1.html`, `a.html`, `b.html`, `c.html`, `d.html` (`?step=entry|capture|reading|review|summary|done`, `&state=`, `&pre=half|resolved`, `&sel=`, `&open=`, `&filter=`, `&conf=pips|bars|ring`, `&vp=`) |
 | Job note and decisions | `docs/knowledge/jobs-to-be-done/receipt-scan.md` |
 | How the read works | `docs/knowledge/jobs-to-be-done/edge-ocr.md` |
-| Check script | `tools/receipt-scan-check.mjs` |
+| Check script | `tools/receipt-scan-check.mjs`; revision 4: `tools/receipt-scan-two-step-check.mjs` |
+| Revision 4 (Read, then Sort) | `fragments/receipt-scan/ro2.html` (`?opt=a|b|c&step=view|sort`), `ro2.css`; hub section at the top of `index.html` |
 
 File layout: shared `rs.css`, `rs-core.js` (state, the one line rule `RS.out`, shared screens), `rs-data.js` (invented sample receipt); per option `x.css`, `view-x.js`, `x.html`; per viewport `phone.css`, `tablet.css`, `desktop.css`, `rs.phone.js`, `rs.desktop.js`. Sample data is synthetic: no real shop, receipt or card digits.
 

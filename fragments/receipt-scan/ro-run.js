@@ -77,7 +77,7 @@
       case "shutter": capture(); break;
       case "photos": clear(); S.step = "view"; S.cond = "auto"; S.sel = null; S.sheet = ""; if (!S.still) { S.still = true; S.pos = 1; S.scroll = 0; } else if (unseen().length) { S.pos++; S.scroll = nextScroll(); } S.fixed = true; markSeen(); S.phase = "still"; render(); break;
       case "box": S.sel = S.sel === id ? null : id; S.filter = RO.inFilter(l, S.filter) ? S.filter : "all"; render(); break;   /* a tap on a box finds its row */
-      case "row": S.sel = S.sel === id ? null : id; if (S.pick && S.pick !== id) S.pick = null; render(); break;
+      case "row": S.sel = S.sel === id ? null : id; if (RO.opt === "c" && S.sel) S.scroll = Math.max(0, Math.min(RO.maxScroll(), RO.GEO[id].top - 40)); if (S.pick && S.pick !== id) S.pick = null; render(); break;
       case "filter": S.filter = v; S.pick = null; render(); break;
       case "accept": if (out(l).k === "check") { S.res[id] = { k: "accept" }; answered(id); } else { buzz(10); render(); } break;
       case "new": S.res[id] = { k: "new" }; answered(id); break;
@@ -90,6 +90,8 @@
       case "qm": S.q[id] = Math.max(step(l.u), Math.round(((S.q[id] != null ? S.q[id] : l.q) - step(l.u)) * 1000) / 1000); render(); break;
       case "qp": S.q[id] = Math.round(((S.q[id] != null ? S.q[id] : l.q) + step(l.u)) * 1000) / 1000; render(); break;
       case "split": S.split[id] = !S.split[id]; render(); break;
+      case "sort": clear(); buzz(10); S.step = "sort"; S.sheet = ""; S.sel = null; S.pick = null; S.fixed = true; S.filter = RO.opt === "a" ? (RO.tally().check + RO.tally().unsure ? "todo" : "ready") : "all"; if (RO.opt === "c") { S.scroll = 0; S.phase = "end"; } render(); break;
+      case "seepaper": S.step = "view"; S.sel = null; S.pick = null; S.sheet = ""; S.fixed = true; S.phase = "end"; S.scroll = 0; render(); break;
       case "summary": S.sheet = "summary"; S.sel = null; render(); break;
       case "showopen": t = RO.tally(); S.sheet = ""; S.filter = t.check ? "check" : "unsure"; render(); break;
       case "done": commit(); break;
@@ -106,13 +108,15 @@
   function reset(all) { S.res = {}; S.q = {}; S.nm = {}; S.split = {}; S.seen = {}; S.sel = null; S.pick = null; S.find = ""; S.filter = "all"; S.still = false; S.pos = 1; S.scroll = 0; S.phase = ""; S.p = 0; S.toast = null; S.undone = false; if (all) S.fixed = false; }
 
   /* ---------- the preset states: a page can open at any moment (?pre=, ?phase=, ?pos=) ---------- */
+  function Q_has(k) { return RO.Q.has(k); }
   function preset() {
     var pre = RO.Q.get("pre") || "";
     /* the desktop has no camera (RS-76): every state that has read lines is a photo that was read; a camera condition or a refused permission does not exist there, so it is a drop zone */
     if (RO.vp.noCamera) { S.cond = "auto"; S.perm = "allowed"; if (S.step === "refused") S.step = "view"; if (S.step === "view" && !S.still && ((S.phase && S.phase !== "look") || pre || RO.Q.get("pos"))) { S.still = true; S.phase = "still"; S.fixed = true; } }
-    if (S.step === "view" || S.step === "done") {
-      S.scroll = RO.scrollFor(S.pos);
-      var all = pre === "all" || pre === "resolved" || pre === "half" || S.step === "done";
+    if (S.step === "sort" && RO.opt) { S.fixed = true; S.still = true; S.phase = "end"; S.scroll = 0; if (!Q_has("filter")) S.filter = RO.opt === "a" ? "todo" : "all"; }
+    if (S.step === "view" || S.step === "done" || S.step === "sort") {
+      S.scroll = S.step === "sort" ? 0 : RO.scrollFor(S.pos);
+      var all = pre === "all" || pre === "resolved" || pre === "half" || S.step === "done" || S.step === "sort";
       if (all) RO.ORDER.forEach(function (id) { S.seen[id] = true; }); else if (S.phase && S.phase !== "look" && !/wall|rest/.test(S.cond)) { S.vis = true; markSeen(); }
       if (pre === "part" && !all) { S.vis = false; ["l1", "l2", "l3", "l4", "l5", "l6"].forEach(function (i) { S.seen[i] = true; }); }
       if (S.cond === "partial") { S.scroll = RO.scrollFor(3); markSeen(); }
@@ -127,9 +131,16 @@
 
   /* ---------- the screens ---------- */
   function scanCol() {
+    if (RO.opt) return twoCol();
     var p = RO.parts(), h = p.bar + p.status + p.prog + RO.stageHtml();
     if (!RO.DESK()) h += RO.head() + RO.list();
     return h + '<div class="rl-panel">' + p.actions + "</div>";
+  }
+  /* Revision 4: step 1 (view) is the paper, large, and what was read; step 2 (sort) is its own screen. Option c keeps the paper above the list, bigger than before. */
+  function twoCol() {
+    var p = RO.parts();
+    if (S.step === "sort") return RO.sortBar() + (RO.opt === "c" ? RO.stageHtml() : "") + RO.head() + RO.list() + '<div class="rl-panel">' + RO.sortActions() + "</div>";
+    return p.bar + p.status + p.prog + RO.stageHtml() + RO.readout() + '<div class="rl-panel">' + p.actions + "</div>";
   }
   function lane() { var t = RO.tally(); return '<div class="rs-sh"><h2>Lines read</h2><span class="tag">' + (t.total + t.left) + "</span></div>" + RO.head() + RO.list(); }
   function screen() {
