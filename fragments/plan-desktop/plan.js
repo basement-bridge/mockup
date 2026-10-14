@@ -333,19 +333,38 @@ function undo(){var j=S.undo.pop();if(!j){toast("Nothing to undo.");P.render();r
 function copyLast(){if(P.layout.copy)return P.layout.copy();if(guard())return;pushUndo();if(S.copied[S.wk]){S.cards=S.cards.filter(function(c){return !(c.wk===S.wk&&c.fromCopy)});S.copied[S.wk]=false;toast("Cleared what Copy last week added. ",true)}else{var LAST=[["Mon","shak","all",2],["Tue","rice","all",2],["Wed","pasta","Sam",1],["Thu","fritt","all",2],["Fri","soup","all",2]],sk=[];LAST.forEach(function(l){if(isBlocked(l[0],ME)){sk.push(l[0]);return}if(S.cards.some(function(c){return c.wk===S.wk&&c.day===l[0]&&c.r===l[1]&&me(c)}))return;var n=mkCard(S.wk,l[0],l[1],ME,l[2]==="all"?"all":ME,l[3],{fromCopy:true});S.cards.push(n)});S.copied[S.wk]=true;toast("Copied last week."+(sk.length?" Skipped "+sk.join(", ")+" (usual day off). ":" "),true)}pulseSync();P.render()}
 function refresh(){if(offline()){S.sync="syncing";P.render();clearTimeout(SYT);SYT=setTimeout(function(){S.sync="offline";toast("Still offline.");P.render()},900);return}S.sync="syncing";P.render();clearTimeout(SYT);SYT=setTimeout(function(){S.sync="live";S.lastSync="12:42";P.render()},1000);say("Refreshing")}
 function assistant(d){S.nudge=false;S.nudgeDone=true;if(P.layout.askNote){P.layout.askNote(d);P.render();return}toast("Opening your default AI app"+(d&&DN.indexOf(d)>-1?", for "+DF[DN.indexOf(d)]:"")+". (Mockup: nothing opens.) ");P.render()}
-/* Surprise me (decision 94 heuristics, mock thresholds are Proposals): on-hand if the night is today or tomorrow, or Fri to Sun of this week; otherwise something new; never a meal planned within 7 days. */
+/* Surprise me uses the Home cooking-ideas engine (decision 292; kitchie server/src/recipe-tab/ideas.ts rank(), signals from ideas-signals.ts gather()). Two passes: FILTER, then SCORE; a filter never scores and a score never excludes.
+   Filters: already on the plan from today on in the week in view; cooked 2 days ago or less. Scores: Recipe readiness (all in +3, needs 1 +1, needs 2 +0.01, 3 or more -2), use-by 3 days or less (+3 at 1 day or less, else +2 per
+   ingredient, capped at 4), last cooked (a month +2, 2 weeks +1, 4 days or less -2), star +1, minutes on a weeknight (30 or less +1, over 60 -2). Only ideas that score above 0 are offered; the pick is the top one.
+   NOT signals, on purpose: the shopping list (Home gathers it and never scores it), and the week's position (no early-week "something new" or late-week "reuse" switch). The pool and SIG below are sample data only. */
 var POOL=["shak","pasta","curry","patty","tuna","stir","soup","rice","fritt"];
-function pickSurprise(d,skip){var i=DN.indexOf(d),date=dt(S.wk,i),soon=(date-TODAYD)<=864e5||(S.wk===CURWK&&i>=4);
- var recent={};S.cards.forEach(function(c){if(me(c)&&Math.abs(cdate(c)-date)<=7*864e5)recent[c.r]=1});(skip||[]).forEach(function(r){recent[r]=1});
- var c1=POOL.filter(function(r){return !recent[r]}),hand=c1.filter(function(r){return R[r].ing.every(has)});
- var r=soon?(hand[0]||c1[0]):(c1.filter(function(r){return hand.indexOf(r)<0})[0]||c1[0]);
- if(!r)r=POOL.filter(function(x){return (skip||[]).indexOf(x)<0})[0]||POOL[0];
- return{r:r,soon:soon,why:soon?"Cooked from what is on hand.":"Something new, not cooked in the last 7 days."}}
-function surprise(d){if(!d||guard())return;var p=pickSurprise(d);S.just=null;if(P.layout.openNight&&P.layout.surpriseNeedsOpen&&isBlocked(d,ME)&&P.surpriseMode==="confirm"){pushUndo();P.layout.openNight(d)}
+var SIG={shak:{min:25,star:1},pasta:{min:25},curry:{min:45,star:1},patty:{min:30},tuna:{min:15},stir:{min:20},soup:{min:70},rice:{min:20},fritt:{min:30}};
+function ubDays(i){var s=STOCK[i],m=s&&s.ub&&s.ub.split("-");return m?Math.round((new Date(+m[0],+m[1]-1,+m[2])-TODAYD)/864e5):null}
+function lastCooked(){var m={};S.cards.forEach(function(c){var k=Math.round((TODAYD-cdate(c))/864e5);if(k>=1&&(m[c.r]===undefined||k<m[c.r]))m[c.r]=k});return m}
+function rankIdeas(d,skip){var date=dt(S.wk,DN.indexOf(d)),wkn=date.getDay()>0&&date.getDay()<6,planned={},last=lastCooked(),out=[];
+ S.cards.forEach(function(c){if(c.wk===S.wk&&cdate(c)>=TODAYD)planned[c.r]=1});
+ POOL.forEach(function(r){if((skip||[]).indexOf(r)>-1||planned[r]||(last[r]!==undefined&&last[r]<=2))return;
+  var g=SIG[r]||{},ing=R[r].ing,miss=ing.filter(function(i){return !has(i)}).length,w=[],add=function(k,pts,t){w.push({k:k,pts:pts,t:t})};
+  if(miss===0)add("ready",3,"Everything is in");else if(miss===1)add("ready",1,"Needs 1 thing");else if(miss===2)add("ready",.01,"Needs 2 things");else add("ready",-2,"Needs "+miss+" things");
+  var due=[],up=0;ing.forEach(function(i){var k=has(i)?ubDays(i):null;if(k!==null&&k<=3){up+=k<=1?3:2;due.push(i)}});if(up)add("useup",Math.min(up,4),"Uses "+due.join(due.length>1?" and ":"")+" before "+(due.length>1?"they go":"it goes"));
+  var l=last[r];if(l!==undefined){if(l>=30)add("rot",2,"Not had for a month");else if(l>=14)add("rot",1,"Not had for "+Math.round(l/7)+" weeks");else if(l<=4)add("rot",-2,"Had "+l+" days ago")}
+  if(g.star)add("fav",1,"A household favourite");
+  if(wkn&&g.min<=30)add("time",1,g.min+" minutes");if(wkn&&g.min>60)add("time",-2,g.min+" minutes, long for a weeknight");
+  var sc=w.reduce(function(a,x){return a+x.pts},0),pos=w.filter(function(x){return x.pts>.5&&x.k!=="ready"}).sort(function(a,b){return b.pts-a.pts}),rd=w[0],
+   a=pos[0]?pos[0].t:rd.t,b=miss>0?rd.t:pos[0]?"all in":pos[1]?pos[1].t.toLowerCase():"";
+  out.push({r:r,score:sc,miss:miss,last:l===undefined?99:l,line:a+(b&&b!==a?" \u00b7 "+b:"")})});
+ out.sort(function(a,b){return b.score-a.score||a.miss-b.miss||b.last-a.last});
+ return out.filter(function(x){return x.score>0})}
+var NOIDEA="Nothing fits from what is in. Try Ask AI.";
+function pickSurprise(d,skip){if(P.surpriseNone)return null;var t=rankIdeas(d,skip)[0];return t?{r:t.r,why:t.line}:null}
+/* the whole-week fill is the Home "Plan ahead" lens: one pool, a different idea for each open night, use-it-up ideas on the earliest nights; a night with no idea left stays open */
+function planAhead(days){if(P.surpriseNone||!days.length)return[];var rk=rankIdeas(days[0]),up=rk.filter(function(x){return /^Uses /.test(x.line)}),pool=up.concat(rk.filter(function(x){return up.indexOf(x)<0}));
+ return days.slice(0,pool.length).map(function(d,k){return{d:d,r:pool[k].r,why:pool[k].line}})}
+function surprise(d){if(!d||guard())return;var p=pickSurprise(d);if(!p){toast(NOIDEA);P.render();say(NOIDEA);return}S.just=null;if(P.layout.openNight&&P.layout.surpriseNeedsOpen&&isBlocked(d,ME)&&P.surpriseMode==="confirm"){pushUndo();P.layout.openNight(d)}
  if(P.surpriseMode==="confirm"){S.prop={day:d,r:p.r,why:p.why,seen:[p.r]};P.render();say("Surprise proposal: "+R[p.r].n);return}
  pushUndo();if(P.layout.openNight)P.layout.openNight(d);var n=mkCard(S.wk,d,p.r,ME,"all",2,{surp:true});S.cards.push(n);lf(n);S.fresh=n.id;toast("Surprise: "+esc(R[p.r].n)+" on "+d+". "+p.why+" ",true);pulseSync();P.render();say("Planned "+R[p.r].n)}
 function propAct(a){var pr=S.prop;if(!pr)return;if(a==="no"){S.prop=null;P.render();return}
- if(a==="next"){var p=pickSurprise(pr.day,pr.seen);pr.r=p.r;pr.why=p.why;pr.seen.push(p.r);P.render();return}
+ if(a==="next"){var p=pickSurprise(pr.day,pr.seen);if(!p){toast("No other idea fits from what is in. Try Ask AI.");P.render();return}pr.r=p.r;pr.why=p.why;pr.seen.push(p.r);P.render();return}
  if(guard())return;pushUndo();if(P.layout.openNight)P.layout.openNight(pr.day);var n=mkCard(S.wk,pr.day,pr.r,ME,"all",2,{surp:true});S.cards.push(n);lf(n);S.fresh=n.id;S.prop=null;toast("Planned "+esc(R[pr.r].n)+" on "+pr.day+". ",true);pulseSync();P.render()}
 function canNudge(){return S.view==="mine"&&!weekRo()&&!S.sel&&!S.toast&&!S.nudge&&!S.nudgeDone&&!S.loading&&DN.some(function(d){return !isBlocked(d,ME)&&!S.cards.some(function(c){return c.wk===S.wk&&c.day===d&&me(c)})})&&S.cards.filter(function(c){return c.wk===S.wk}).length===0}
 function armNudge(){clearTimeout(NT);if(canNudge())NT=setTimeout(function(){if(canNudge()){S.nudge=true;S.nudgeDone=true;P.render()}},5000)}
@@ -499,7 +518,7 @@ var LOADED={};
 P.vpScript=function(query,src){var m=window.matchMedia(query),go=function(){if(m.matches&&!LOADED[src]){LOADED[src]=1;var s=document.createElement("script");s.src=src;s.onload=function(){P.render()};document.head.appendChild(s)}else P.render()};m.addEventListener("change",go);if(m.matches)go()};
 P.sumLane=function(){return '<aside class="panel p2" id="panel2" aria-label="Week summary">'+P.sumHtml()+'</aside>'};
 /* ---------------- start ---------------- */
-P.S=function(){return S};P.u={pickSurprise:pickSurprise,cartLines:cartLines,boughtLines:boughtLines,cartCount:cartCount,cartDiff:cartDiff,listAdd:listAdd,fmtQ:fmtQ,amt:amt,has:has,can:can,also:also,orig:orig,pushUndo:pushUndo,toast:toast,guard:guard,say:say,pulseSync:pulseSync,undo:undo,mkCard:mkCard,lf:lf,setWk:setWk,me:me,person:person,W:W,WMIN:function(){return WMIN},WMAX:function(){return WMAX},cardById:card,dtEnd:function(){return dt(S.wk,6)},leftoverPortions:leftoverPortions,DN:DN,DF:DF,q:q,qa:qa,esc:esc,dstr:dstr,dt:dt,cardW:cardW,dayStack:dayStack,dayHeadTxt:dayHeadTxt,dayCards:dayCards,scopeCards:scopeCards,I:I,R:R,STOCK:STOCK,ings:ings,missing:missing,onhand:onhand,risk:risk,qty:qty,shopping:shopping,risks:risks,status:status,lbl:lbl,meta:meta,ubText:ubText,srcOf:srcOf,pill:pill,avatar:avatar,isBlocked:isBlocked,labelW:labelW,onList:onList,roCard:roCard,weekRo:weekRo,ME:ME,CURWK:CURWK,pastCard:pastCard,cdate:cdate,TODAYD:TODAYD,fmtN:fmtN,select:select,deselect:deselect,okey:okey,conflicts:conflicts,offline:offline,heldBy:heldBy,DF:DF,MON:MON,iso:iso};
+P.S=function(){return S};P.u={pickSurprise:pickSurprise,planAhead:planAhead,NOIDEA:NOIDEA,cartLines:cartLines,boughtLines:boughtLines,cartCount:cartCount,cartDiff:cartDiff,listAdd:listAdd,fmtQ:fmtQ,amt:amt,has:has,can:can,also:also,orig:orig,pushUndo:pushUndo,toast:toast,guard:guard,say:say,pulseSync:pulseSync,undo:undo,mkCard:mkCard,lf:lf,setWk:setWk,me:me,person:person,W:W,WMIN:function(){return WMIN},WMAX:function(){return WMAX},cardById:card,dtEnd:function(){return dt(S.wk,6)},leftoverPortions:leftoverPortions,DN:DN,DF:DF,q:q,qa:qa,esc:esc,dstr:dstr,dt:dt,cardW:cardW,dayStack:dayStack,dayHeadTxt:dayHeadTxt,dayCards:dayCards,scopeCards:scopeCards,I:I,R:R,STOCK:STOCK,ings:ings,missing:missing,onhand:onhand,risk:risk,qty:qty,shopping:shopping,risks:risks,status:status,lbl:lbl,meta:meta,ubText:ubText,srcOf:srcOf,pill:pill,avatar:avatar,isBlocked:isBlocked,labelW:labelW,onList:onList,roCard:roCard,weekRo:weekRo,ME:ME,CURWK:CURWK,pastCard:pastCard,cdate:cdate,TODAYD:TODAYD,fmtN:fmtN,select:select,deselect:deselect,okey:okey,conflicts:conflicts,offline:offline,heldBy:heldBy,DF:DF,MON:MON,iso:iso};
 P.start=function(layout){P.layout=layout;if(Q.get("vp")&&Q.get("embed")!=="1")return;if(layout.wmax!==undefined)WMAX=layout.wmax;
  var wk=Q.get("week");if(wk){for(var w=WMIN;w<=WMAX;w++)if(iso(dt(w,0))===wk)S.wk=w}
  var v=Q.get("view");if(v==="household")v="all";if(v==="all"||v==="mine"||S.people.indexOf(v)>-1)S.view=v;

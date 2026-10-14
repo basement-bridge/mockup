@@ -182,3 +182,14 @@ Only after the owner picks an option and confirms decisions. This is a **proposa
 - **Tile audit:** all four icons present (Hold or Release, Replan, Remove and not cooking, Add missing when something is missing); none dropped.
 - **Check:** `tools/plan-desktop-b-check.mjs`, 230 checks at 1440 and 1280 (F and G now click whichever copy is visible).
 
+
+## 17. Surprise me is the Home cooking-ideas engine (14 October 2026, decision 292)
+
+- **Ask:** owner, voice, 14 Oct 2026: Surprise me must not hand off to an AI assistant (only Ask AI does); it uses the same rule-based heuristics as the Home cooking-ideas pane, so the same logic holds everywhere.
+- **Verdict (decision 94 against Kitchie `recipe-tab/ideas.ts` `rank()` and `ideas-signals.ts` `gather()`):** agree on in-app, no AI, prefer what is in, no obvious repeat. Conflict, Home wins: the shopping list is not a signal (gathered, never scored); no early-week or late-week switch; recency is Home's filters and scores, not 7 days either side; extra signals (use-by within 3 days, star, weeknight minutes). Whole week = Home's Plan ahead lens.
+- **What changed (desktop B and the phone):** `plan.js` `rankIdeas`, `pickSurprise`, `planAhead` (replace the old `soon` / `hand` pick); `b-week.js` `fillWeek` uses `planAhead`; `b.js` `?surprise=none`; phone `data.js` `surprise()` and `SUR`. The pool and its signals (`POOL`, `SIG`, `SUR`) are sample data only. Same class names and data attributes; nothing in markup or CSS changed.
+- **Kept:** lock in with Undo and the drop-in cue (156) as the default; `?surprise=confirm`; Ask AI the only hand-off. **No-idea state (Proposal):** "Nothing fits from what is in. Try Ask AI.", nothing planned, no Undo entry.
+- **Still open:** 118 lock in or confirm; keep 94's stricter 7 days on top of Home's filters; which Lean Surprise me follows; whether a pick reserves what the week already holds.
+- **Next steps for the build:** the Surprise me service method calls the Home ranking (one function, shared), not a copy; it must also read food rules and the Not tonight snooze, which the mockup does not draw.
+- **Check:** `tools/plan-desktop-b-check.mjs` 246 checks (U is new: the Home rules, the no-idea state, confirm mode).
+

@@ -280,7 +280,7 @@
       'Cleared ' + nm + (nm === 1 ? ' meal' : ' meals') + (nc ? ' and ' + nc + ' Not cooking mark' + (nc > 1 ? 's' : '') : '') + ', ' + a.dow + ' ' + a.n + (r.days.length > 1 ? ' to ' + z.dow + ' ' + z.n : '') + ' (' + (S.view === 'mine' ? 'my plan' : 'household plan') + '). ' + (nc ? '' : 'Not cooking days stay.'), r.days, 'clear');
   }
   function surprise(d) {
-    var c = P.surprise(S.meals, d, S.today); if (!c) return toast('No fresh idea that is not a repeat. Try Ask AI.');
+    var c = P.surprise(S.meals, d, S.today); if (!c) return toast('Nothing fits from what is in. Try Ask AI.');
     c.id = 'sur-' + Date.now(); c.day = d; c.who = S.view === 'mine' ? ['sam'] : 'all'; c.n = S.view === 'mine' ? 1 : 4; c.src = 'surprise'; c.note = ''; c.held = 0; c.useby = c.useby || [];
     change(function () { S.meals.push(c); }, 'Surprise: ' + esc(c.t) + ' for ' + dayName(d), [d]);
   }

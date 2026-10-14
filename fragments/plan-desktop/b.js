@@ -131,12 +131,12 @@ function after(){var dr=document.querySelectorAll(".mcw.dropped"),left=0,S=P.S()
 
 /* sample-only set-up: the usual day (Fri) is drawn as a plain usual day off, Sat is a one-week Not cooking, Sun is open; ?fri=cook restores the leftovers meal and the "cooking this week" line.
    A third household member (Priya) and a named-few meal (Salmon patties for Sam and Jane) make the phone's participants (208) real on the next week. */
-function init(S,Q){P.surpriseMode=Q.get("surprise")==="confirm"?"confirm":"lock";
+function init(S,Q){P.surpriseMode=Q.get("surprise")==="confirm"?"confirm":"lock";P.surpriseNone=Q.get("surprise")==="none"; /* ?surprise=none: sample switch that draws the no-idea state (decision 292) */
  if(Q.get("fri")!=="cook"){S.cards=S.cards.filter(function(c){return !(c.wk===1&&c.day==="Fri"&&c.r==="left")});delete S.ov["1|Sam|Fri"]}
  S.people.push("Priya");S.stencil.Priya=[];S.cards.push(u.mkCard(1,"Wed","rice","Priya","Priya",1));
  S.cards.forEach(function(c){if(c.wk===1&&c.day==="Thu"&&c.r==="patty")c.part=["Sam","Jane"]});
  if(Q.get("sum")==="1")S.sumPeek=true;
- if(Q.get("prop")&&DN.indexOf(Q.get("prop"))>-1&&P.surpriseMode==="confirm"){S.prop={day:Q.get("prop"),r:"stir",why:"Something new, not cooked in the last 7 days.",seen:["stir"]}}
+ if(Q.get("prop")&&DN.indexOf(Q.get("prop"))>-1&&P.surpriseMode==="confirm"){S.prop={day:Q.get("prop"),r:"stir",why:"Everything is in \u00b7 20 minutes",seen:["stir"]}}
  if(Q.get("cleared")&&DN.indexOf(Q.get("cleared"))>-1){var cd=Q.get("cleared");S.cards=S.cards.filter(function(c){return !(c.wk===S.wk&&c.day===cd&&c.by===ME)});S.just={wk:S.wk,day:cd}}
  /* the shopping list sample (14 Oct 2026, replan cleanup): feta is on the list for Shakshuka alone (a single-use line); lemon is on the list for BOTH Thursday meals (1 for Salmon patties + 1/2 for Tuna salad, a shared line); chicken thighs were bought on Friday for Chicken curry (in Pantry, never touched); milk was added by hand. */
  S.cards.forEach(function(c){if(c.wk===1&&c.day==="Thu"&&(c.r==="patty"||c.r==="tuna"))c.l_lemon=true});

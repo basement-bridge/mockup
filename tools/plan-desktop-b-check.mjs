@@ -298,6 +298,24 @@ for (const [w, h] of [[1440, 900], [1280, 800]]) {
     await p.keyboard.press("c"); await sleep(250);
     ok(tag + " W: key C copies either way", (await p.locator('.mcw').count()) === 4);
     await p.close(); }
+  // U. Surprise me is the Home cooking-ideas engine (decision 292): no week-position switch, no repeat of what is on the plan, a different idea for each night of the whole-week fill, and the no-idea state
+  { const p = await open(ctx, "state=empty", errs);
+    ok(tag + " U: the pick does not depend on the night's place in the week (no early-week or late-week switch; weeknights compared)", await p.evaluate(() => { const r = ["Mon", "Tue", "Wed", "Thu"].map(d => PLAN.u.pickSurprise(d).r); return new Set(r).size === 1; }));
+    ok(tag + " U: the reason is Home's one line", await p.evaluate(() => /^(Uses .* before (it goes|they go)|Everything is in|Needs \d+ things?|A household favourite|\d+ minutes|Not had for)/.test(PLAN.u.pickSurprise("Tue").why)), await p.evaluate(() => PLAN.u.pickSurprise("Tue").why));
+    ok(tag + " U: the shopping list is not read (listing every ingredient does not change the pick)", await p.evaluate(() => { const a = PLAN.u.pickSurprise("Tue").r; const S = PLAN.S(); S.list = { eggs: 1, lemon: 1, feta: 1, mushrooms: 1, dill: 1 }; return PLAN.u.pickSurprise("Tue").r === a; }));
+    ok(tag + " U: something already on the plan this week is not picked again", await p.evaluate(() => { const S = PLAN.S(), a = PLAN.u.pickSurprise("Tue").r; S.cards.push(PLAN.u.mkCard(S.wk, "Mon", a, "Sam", "all", 2)); return PLAN.u.pickSurprise("Tue").r !== a; }));
+    ok(tag + " U: nothing is offered unless it scores above 0, and the whole-week fill never reaches past the ideas (no repeats, none planned for nothing)", await p.evaluate(() => { PLAN.S().cards = []; const f = PLAN.u.planAhead(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]); return f.length > 0 && new Set(f.map(x => x.r)).size === f.length; }));
+    await p.close(); }
+  { const p = await open(ctx, "surprise=none", errs);
+    const n0 = await p.evaluate(() => PLAN.S().cards.length), u0 = await p.evaluate(() => PLAN.S().undo.length);
+    await p.locator('.slot.open [data-act=surprise]').first().click(); await sleep(250);
+    ok(tag + " U: no idea fits: the toast says so and points to Ask AI", /Nothing fits from what is in\. Try Ask AI\./.test(await p.locator(".toast > span").innerText()));
+    ok(tag + " U: no idea fits: nothing is planned, nothing is added to Undo, no Undo button", (await p.evaluate(() => PLAN.S().cards.length)) === n0 && (await p.evaluate(() => PLAN.S().undo.length)) === u0 && (await p.locator(".toast [data-act=undo]").count()) === 0);
+    await p.close(); }
+  { const p = await open(ctx, "surprise=confirm", errs);
+    await p.locator('.slot.open [data-act=surprise]').first().click(); await sleep(250);
+    ok(tag + " U: ?surprise=confirm still shows the proposal first (118 stays open)", (await p.locator(".slot.prop").count()) === 1);
+    await p.close(); }
   await ctx.close();
 }
 await browser.close();

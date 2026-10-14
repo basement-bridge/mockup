@@ -96,11 +96,12 @@ function emptyWeek(){var s=S(),o={on:false,days:[],nc:[],past:0};
 function skipText(e){if(!e.nc.length)return "";var s=S();
  return e.nc.map(function(d){return d+(s.stencil.Sam.indexOf(d)>-1&&s.ov[u.okey(d,ME)]!==false?" (usual day off)":"")}).join(", ")+(e.nc.length===1?" is":" are")+" Not cooking, so left out."}
 function fillWeek(){var s=S();if(u.guard()||person())return;var e=emptyWeek();if(!e.on)return;
+ var pl=u.planAhead(e.days);if(!pl.length){u.toast(u.NOIDEA);P.render();u.say(u.NOIDEA);return}
  u.pushUndo();s.just=null;s.prop=null;
- e.days.forEach(function(d){var p=u.pickSurprise(d),n=u.mkCard(s.wk,d,p.r,ME,"all",2,{surp:true});s.cards.push(n);u.lf(n)});
- setFlip("fill");
- u.toast("Surprise me planned "+plural(e.days.length,"night")+" ("+e.days.join(", ")+"). "+skipText(e),true);
- u.pulseSync();P.render();u.say("Planned "+plural(e.days.length,"night"))}
+ pl.forEach(function(x){var n=u.mkCard(s.wk,x.d,x.r,ME,"all",2,{surp:true});s.cards.push(n);u.lf(n)});
+ setFlip("fill");var left=e.days.filter(function(d){return !pl.some(function(x){return x.d===d})});
+ u.toast("Surprise me planned "+plural(pl.length,"night")+" ("+pl.map(function(x){return x.d}).join(", ")+"). "+(left.length?left.join(", ")+(left.length>1?" stay":" stays")+" open: nothing else fits from what is in. ":"")+skipText(e),true);
+ u.pulseSync();P.render();u.say("Planned "+plural(pl.length,"night"))}
 function fillBtns(e,cls){var n=e.days.length;
  return '<button class="mini cta" data-act="weekfill" data-fk="wk:sp" data-tip="Surprise me: the app proposes a meal for each open night" aria-label="Surprise me: plan the '+plural(n,"open night")+' of this week">'+sm(BI.SURP,15)+'Surprise me</button>'
  +'<button class="mini cta" data-act="assistant" data-week="1" data-fk="wk:ai" aria-pressed="'+!!(S().aiNote&&!S().aiNote.day&&S().aiNote.wk===S().wk)+'" data-tip="Ask AI: hands off to your default AI app, for the whole week" aria-label="Ask AI: plan the '+plural(n,"open night")+' of this week">'+sm(BI.SPARK,14)+'Ask AI</button>'}

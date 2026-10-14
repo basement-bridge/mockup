@@ -433,9 +433,9 @@
   /* 154: Mark as open (and a tile tap in the variants without a per-day detail) turns the night back into an open night. From the light panel the panel closes and the week is back on that day, with the Undo in place; the open night's own detail is one tap away. */
   function unblock(d) { if (guarded(d)) return; tgDay = d; tgAt = Date.now(); var lite = isLite() && S.dday === d; var us = S.blocked[d] === 'usual'; mutate(function () { openMark(d); delete S.xp[d]; if (lite) { S.dday = null; S.sel = null; S.cur = d; S.revealed = d; S.pop = null; } }, dName(d) + (us ? ' is open this week only. The usual day off stays' : ' is open again'), d); if (lite) { var el = document.getElementById('d-' + d); if (el) window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - stkH() - 6); syncHead(); } }
   function placeLite(d) { var el = document.getElementById('d-' + d), pn = document.getElementById('lite'); if (!el || !pn) return; var r = el.getBoundingClientRect(), lim = stkH() + pn.offsetHeight + 12; window.scrollBy(0, r.top - lim - 4); }
-  /* Surprise me (owner-confirmed heuristics, decision 94): timing aware, and never a repeat of a recent meal. */
+  /* Surprise me (decision 292): the Home cooking-ideas engine; P.surprise returns the top idea or null. */
   function surprise(d) {
-    var c = P.surprise(S.meals, d, S.today); if (!c) return note('No fresh idea that is not a repeat. Try Ask AI.');
+    var c = P.surprise(S.meals, d, S.today); if (!c) return note('Nothing fits from what is in. Try Ask AI.');
     var nm = c; nm.id = nextId('sur'); nm.day = d; nm.who = S.view === 'mine' ? ['sam'] : 'all'; nm.n = S.view === 'mine' ? 1 : 4; nm.src = 'surprise'; nm.note = ''; nm.held = 0; nm.useby = nm.useby || [];
     mutate(function () { S.meals.push(nm); openMark(d); }, 'Surprise: ' + esc(c.t) + ' for ' + dName(d), d);
   }
