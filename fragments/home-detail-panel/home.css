@@ -142,13 +142,13 @@ body{overflow-x:hidden}
 .usedin{margin:0;font-size:14px;color:var(--fg)}.usedin b{color:var(--muted);font-weight:700}
 .fit{margin:0;padding:10px 12px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);color:var(--fg);font-size:14px}.fit b{display:block;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
 .rl.have small em{font-style:normal;color:var(--accent);font-weight:700}
-/* ---- A recipe search result opens the Recipes summary flyout (decisions 187 to 190). Host rules for the flyout itself are in flyout.css (loaded on first use). ---- */
-/* Dashboard: the flyout takes the lane and covers This week (opaque, no peek, no displace, at every width); closing it shows This week again (188) */
+/* ---- A recipe search result opens the Recipes summary flyout (decisions 288 to 291). Host rules for the flyout itself are in flyout.css (loaded on first use). ---- */
+/* Dashboard: the flyout takes the lane and covers This week (opaque, no peek, no displace, at every width); closing it shows This week again (289) */
 .app[data-open=fly]:not([data-view=compact]){grid-template-columns:88px minmax(0,736px) 400px}
 .app[data-open=fly]:not([data-view=compact]) .week{grid-column:3}
 .app[data-open=fly] .detail{grid-column:3;justify-self:stretch;width:100%;z-index:5;box-shadow:none}
 #app[data-open=fly] .peek{display:none}
-/* Compact: no gutter, no stack, no This week, no detail panel (133). The column is centred; while the flyout is open the page reserves the lane, so the column steps left and the flyout never covers it (189) */
+/* Compact: no gutter, no stack, no This week, no detail panel (133). The column is centred; while the flyout is open the page reserves the lane, so the column steps left and the flyout never covers it (290) */
 .app[data-view=compact]{grid-template-columns:88px minmax(0,1fr)}
 #app[data-view=compact] #soon,#app[data-view=compact] .week,#app[data-view=compact] .peek{display:none}
 .app[data-view=compact] .col{margin:0 auto}

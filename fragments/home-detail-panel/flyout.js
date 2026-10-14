@@ -1,4 +1,4 @@
-/* The Recipes summary flyout, as Home draws it for a RECIPE SEARCH RESULT (decisions 187 to 190). Fetched on the first recipe result chosen, never on page load (DESIGN.md section 6).
+/* The Recipes summary flyout, as Home draws it for a RECIPE SEARCH RESULT (decisions 288 to 291). Fetched on the first recipe result chosen, never on page load (DESIGN.md section 6).
    Same markup and classes as ../recipe-browse-full option A (the build's recipe-tab/flyout.ts): header, "Household says" first, Ingredients with All in or N missing, Cook now and Plan, Open full recipe.
    Sample proof below is for this mockup only. No size rules. */
 (function () {

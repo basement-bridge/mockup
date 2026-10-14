@@ -37,7 +37,7 @@ HDP.kbd = kbd; HDP.battery = battery; HDP.MOD = MOD;
 var item = HDP.item = function (id) { return ITEMS.filter(function (i) { return i.id === id; })[0]; };
 var idea = HDP.idea = function (id) { return D.plannedLead.id === id ? D.plannedLead : D.ideas.filter(function (r) { return r.id === id; })[0]; };
 /* "meal:<id>" is today's planned meal when it is not a Recipe family (the build's key for it); it opens the same recipe view, so its kind is "recipe" */
-/* "fly:<id>" is a recipe SEARCH RESULT: it opens the Recipes summary flyout (flyout.js), not the idea view (decision 187) */
+/* "fly:<id>" is a recipe SEARCH RESULT: it opens the Recipes summary flyout (flyout.js), not the idea view (decision 288) */
 function keyOf(s) { var p = s.split(":"); return { kind: p[0] === "meal" ? "recipe" : p[0], id: p[1] }; }
 function qtyOf(it) { return it.level === "Out" ? "Out" : it.qty; }
 
@@ -60,7 +60,7 @@ function drawIdeas() {
   }
   $("#ideas").innerHTML = h;
 }
-/* Compact view (the build's desktop-home Compact): ask first, the lean chips, the lead idea, a glance row. No stack card, no This week, no detail panel (133). Drawn here only so the flyout has a page to sit beside (189). */
+/* Compact view (the build's desktop-home Compact): ask first, the lean chips, the lead idea, a glance row. No stack card, no This week, no detail panel (133). Drawn here only so the flyout has a page to sit beside (290). */
 function drawCompact() {
   var A = D.ideas, pl = S.lead === "planned", lead = pl ? D.plannedLead : A[0];
   var h = '<h2 class="ask">What are we eating?</h2><div class="lean" role="group" aria-label="Tune ideas"><span>Quick</span><span>Use up</span><span>Something new</span><span>Comfort</span></div>';
@@ -205,7 +205,7 @@ function drawAll() { drawIdeas(); drawSoon(); drawWeek(); drawDetail(); sync(); 
 function open(k, o) {
   o = o || {}; if (!k) return;
   var K = keyOf(k); if (K.kind === "item" ? !item(K.id) : !idea(K.id)) return;
-  /* Compact has no gutter and no detail panel (decision 133, unchanged); only a recipe search result gets the flyout there (189). Everything else follows its link, as the build does. */
+  /* Compact has no gutter and no detail panel (decision 133, unchanged); only a recipe search result gets the flyout there (290). Everything else follows its link, as the build does. */
   if (S.view === "compact" && K.kind !== "fly") { closeSearch(); toast(K.kind === "item" ? "Opens the item in the Pantry (not drawn here)." : "Opens the recipe in the Recipes tab (not drawn here)."); return; }
   if (S.open !== k) S.child = "";
   S.open = k; S.front = "detail"; closeSearch();
@@ -217,7 +217,7 @@ function close() {
   if (!S.open) return; var was = S.open; S.open = ""; S.child = ""; S.front = "detail";
   drawIdeas(); drawSoon(); drawDetail(); sync();
   if (keyOf(was).kind === "fly") { HDP.quiet = true; $("#q").focus({ preventScroll: true }); HDP.quiet = false; }
-  else { var r = $('[data-open="' + was + '"]', $("#main")); if (r) r.focus({ preventScroll: true }); }   /* a search result is not a row: focus goes back to the box, and the list does not reopen (190) */
+  else { var r = $('[data-open="' + was + '"]', $("#main")); if (r) r.focus({ preventScroll: true }); }   /* a search result is not a row: focus goes back to the box, and the list does not reopen (291) */
 }
 function front(f) { if (!S.open) return; if (app.dataset.mode === "displace") return; S.front = f || (S.front === "week" ? "detail" : "week"); app.dataset.front = S.front; sync(); }
 function closeSearch() { var q = $("#q"); HDP.forceSearch = false; $("#sres").hidden = true; q.setAttribute("aria-expanded", "false"); S.cur = -1; }

@@ -33,7 +33,7 @@ On the Kitchie desktop **Home** screen, when the user selects an item from the s
 
 All four open the same panel. An item shows the Pantry flyout, byte for byte in markup and classes. An idea shows the recipe view. Clicking another row replaces the content in place. Close is the X or Ctrl or Cmd plus Escape. Keys: `/`, arrows or J K, M, E, comma, U D S Z, P O S, W, `?`.
 
-## 5. Decisions 133 to 190 in one line each
+## 5. Decisions 133 to 159 and 288 to 291 in one line each
 
 | # | Decision | Status |
 |---|---|---|
@@ -58,10 +58,10 @@ All four open the same panel. An item shows the Pantry flyout, byte for byte in 
 | 151 | "Missing" = completely out of stock; running low is not missing | Confirmed 12 Oct |
 | 152 | Edit and History swap the same panel's content in place | Confirmed 12 Oct |
 | 153 | "Used in" line on the item panel: ideas planned in the rolling next 7 days, by weekday first, then recipe ("Used in: Tuesday, prawn curry"), omitted if none | Confirmed 12 Oct |
-| 187 | A recipe SEARCH result opens the Recipes summary flyout (recipe-browse-full option A), not the idea view; Cooking ideas keep the recipe view | Confirmed 12 Oct |
-| 188 | Dashboard: the flyout covers This week in the lane (no peek, no displace); closing shows This week | Proposed (as built) |
-| 189 | Compact gets the flyout for a recipe search result; the page reserves the lane while open; rest of Compact unchanged | Confirmed 12 Oct |
-| 190 | One flyout at a time, Ctrl or Cmd plus Escape and X close, focus back to the box, lazy; item results keep the Pantry flyout (no light item view) | Confirmed 12 Oct |
+| 288 | A recipe SEARCH result opens the Recipes summary flyout (recipe-browse-full option A), not the idea view; Cooking ideas keep the recipe view | Confirmed 12 Oct |
+| 289 | Dashboard: the flyout covers This week in the lane (no peek, no displace); closing shows This week | Proposed (as built) |
+| 290 | Compact gets the flyout for a recipe search result; the page reserves the lane while open; rest of Compact unchanged | Confirmed 12 Oct |
+| 291 | One flyout at a time, Ctrl or Cmd plus Escape and X close, focus back to the box, lazy; item results keep the Pantry flyout (no light item view) | Confirmed 12 Oct |
 | 154 | "Used in": household and own-plan meals plain; someone else's individual plan gets their initial and avatar in brackets ("Tuesday, prawn curry (J)") | Confirmed 12 Oct |
 | 155 | Several meals the same day are grouped under one weekday: "Tuesday, prawn curry (J), lamb curry · Friday, egg fried rice" | **Proposal** |
 | 157 | A long item name has its own full-width row (3 lines, then an ellipsis) under a slim top row of tile and E, comma and x buttons; the key caps stay on their buttons; "quantity | place" right under the name; desktop only | **Proposal** (owner: "the title is buggered .. sort out the clash with item names and the E, , X buttons", 13 Oct 2026) |
