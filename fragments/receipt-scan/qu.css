@@ -1,0 +1,35 @@
+/* Receipt scan, quantity with a unit (Kitchie issue 754). Tokens only (theme.css); no size or viewport rules except the one sheet-or-inline switch at the end (DESIGN.md section 7).
+   `wantbox` and `wunit` are Shopping's own names for the unit pill on the quantity sheet (flows/household styles, mockup PR 157; Kitchie shopping.js): the build lifts them as they are.
+   `ro-amt` and `qu-*` are new here. */
+
+/* ---- the shopping list's quantity box with its unit pill (PR 157): the unit sits quietly inside the box; the x takes it off ---- */
+.wantbox{position:relative}
+.wantbox .field{width:100%}
+.wantbox.hasunit .field{padding-right:78px}
+.wunit{position:absolute;right:8px;top:50%;transform:translateY(-50%);display:inline-flex;align-items:center;gap:4px;min-height:32px;padding:0 10px;border-radius:var(--r-pill);background:transparent;border:1px solid var(--border);color:var(--muted);font-size:13px;font-weight:600}
+.wunit .wx{font-size:15px;line-height:1;opacity:.8}
+button.wunit:hover,button.wunit:focus-visible{color:var(--fg);border-color:var(--muted)}
+span.wunit{border-color:transparent;padding:0 6px}
+
+/* Option A: the box replaces the figure between the stepper's buttons, on the opened row only */
+.rs-step .wantbox{width:148px}
+.rs-step .wantbox .field{border:0;background:transparent;text-align:center;font-weight:700;font-variant-numeric:tabular-nums;padding-left:0}
+.rs-step .wantbox.hasunit .field{padding-right:62px;padding-left:10px}
+.rs-step .wunit{right:4px}
+
+/* Option B: the amount in the row, a quiet pill under the state chip. The button is 44 px tall (a finger); the drawn pill inside is smaller. */
+.ro-amt{display:inline-flex;align-items:center;justify-content:flex-end;min-height:var(--tap);min-width:var(--tap);margin:-8px 0 -6px;padding:0;background:none;border:0;color:var(--muted)}
+.ro-amt span{display:inline-flex;align-items:center;min-height:28px;padding:0 10px;border-radius:var(--r-pill);border:1px solid var(--border);font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ro-amt:hover span,.ro-amt:focus-visible span,.ro-amt[aria-expanded=true] span{color:var(--fg);border-color:var(--fg)}
+
+/* Option B: the quantity sheet (Shopping's "How much milk?"), one Save button. A bottom sheet on a phone, inline under the row in the desktop lane. */
+.qu-sheet{gap:12px}
+.qu-sheet h2{margin:0;font:700 18px var(--head)}
+.qu-sheet .rs-b.pri{width:100%}
+.qu-inline{position:relative;z-index:1;display:flex;flex-direction:column;gap:10px;padding:2px 10px 12px;background:var(--surface);border-top:1px dashed var(--border)}
+.qu-inline h3{margin:0;font:700 15px var(--head)}
+.qu-hint{font-size:12.5px;color:var(--muted);margin:0}
+.qu-sheet .qu-hint{margin-top:-4px}
+
+/* the read line in the opened row: what was printed became what amount (Empty is absent: drawn only when a unit was read) */
+.qu-read{display:flex;gap:6px;align-items:center;font-size:13px;font-weight:700}
