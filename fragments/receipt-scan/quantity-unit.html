@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Receipt scan: a quantity with a unit</title>
+<link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><script src="../../theme.js"></script>
+<style>
+.cols{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+@media(min-width:760px){.cols.two{grid-template-columns:1fr 1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:16px}
+.card h3{margin:0 0 4px;font-size:18px;font-family:var(--head)}
+.card ul{margin:6px 0 10px;padding-left:18px;font-size:14px}.card li{margin-bottom:3px}
+.rec{border:2px solid var(--accent)}
+.links{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.links a{display:inline-flex;align-items:center;min-height:var(--tap);padding:0 14px;border-radius:99px;border:1px solid var(--border);background:var(--bg);font-size:13px;font-weight:600}
+.links a.pri{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.tbl{overflow-x:auto}.tbl table{min-width:640px;border-collapse:collapse;width:100%;font-size:14px}.tbl th,.tbl td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid var(--border)}
+.warnbox{border:2px dashed var(--accent);border-radius:var(--r-card);padding:12px 16px;margin:12px 0}
+.strip{display:flex;gap:14px;overflow-x:auto;padding:6px 2px 14px;scroll-snap-type:x proximity}
+.fr{margin:0;flex:none;scroll-snap-align:start;width:390px}
+.fr figcaption{font-size:13px;font-weight:700;margin:0 0 6px}
+.ph{width:390px;height:760px;border:1px solid var(--border);border-radius:var(--r-phone);overflow:hidden;background:var(--bg)}
+.ph iframe{width:390px;height:760px;border:0;display:block}
+.dfr{width:min(100%,704px);height:440px;border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden;background:var(--bg)}
+.dfr iframe{width:1280px;height:800px;border:0;transform:scale(.55);transform-origin:0 0;display:block}
+.stand{border:1px solid var(--border);border-radius:var(--r-card);padding:12px 16px;margin:12px 0;background:var(--surface)}
+.cols>*{min-width:0}.mini2{font-size:13px}code{font-size:13px;overflow-wrap:anywhere}
+</style>
+</head>
+<body><main class="wrap">
+<p class="mini2"><a href="../../index.html">Mockup index</a> · <a href="index.html">Receipt scan: bulk add to the Pantry</a></p>
+<h1>Receipt scan: a quantity with a unit</h1>
+<p><b>Drawn 15 October 2026. Two options, A recommended. Nothing is decided: the owner picks.</b> Kitchie issue #754, "Receipt scan: quantity is read differently from the shopping list". This page draws the review row of the chosen flow (Receipt order, <a href="index.html">the receipt scan hub</a>) when a scanned quantity carries a unit. Nothing here is built; the build into Kitchie <code>uat</code> follows once the owner chooses and the design review is done.</p>
+<div class="links"><a class="pri" href="qu-a.html?step=view&amp;phase=end&amp;pre=all">Open A (phone)</a><a href="qu-b.html?step=view&amp;phase=end&amp;pre=all">Open B (phone)</a><a href="qu-a.html?step=view&amp;phase=end&amp;pre=all&amp;vp=1280">A, desktop (1280)</a><a href="qu-b.html?step=view&amp;phase=end&amp;pre=all&amp;vp=1280">B, desktop (1280)</a></div>
+
+<h2>The owner's words</h2>
+<div class="stand"><p class="mini2">Owner (Arjan), by voice, 14 October 2026, on #754: "when I scan an item, the quantity is not [right]. There are heuristics around quantity recognition based on what's in the free text. That's something we already use in the shopping list. Can we make sure the same technique is used as part of recognising items on a scanned-in receipt?" Decisions recorded on the issue the same day: <b>a scanned quantity may carry a unit</b>, read with the same reader as the shopping list (kilo and kg become one form: 2 litres becomes 2 L); <b>in scope</b>: a unit in the name (<code>MILK 2L</code>); <b>out of scope for now</b>: weight lines (<code>1.234 kg @ $x/kg</code>), whose handling stays as it is. The governance shape (mockup first, then the independent design review) is the next step.</p></div>
+
+<h2>What is drawn, and the rule that keeps it quiet</h2>
+<div class="cols two">
+<div class="card"><h3>The rule (Empty is absent)</h3><ul>
+<li>The unit is drawn <b>only on a line whose unit was read from its name</b> (<code>MILK 2L</code>, <code>2KILO</code>, <code>500G</code>, <code>1KG</code>).</li>
+<li>A <b>number-only</b> line (<code>2 x EGGS</code>), a line with <b>no number</b>, a <b>size</b> that is not an amount, and a <b>weight line</b> keep today's row exactly. No empty "Amount" slot, no "no unit" placeholder, no extra pill.</li>
+<li>One reader. <code>2L</code>, <code>2 LTR</code>, <code>2 litres</code> all read as <b>2 L</b>; <code>2KILO</code>, <code>2 kilos</code>, <code>2kg</code> as <b>2 kg</b>; <code>500GM</code> as <b>500 g</b> (the shopping list's words, <code>quantity-words.ts</code>). Weight and volume only: g, kg, mL, L. Pounds and ounces are not household units (RS-74).</li>
+<li>The receipt never silently replaces what the person or the list said: the row says what it read, the person can change it, nothing is written until Add.</li></ul></div>
+<div class="card"><h3>What the sample receipt shows</h3><ul>
+<li><b>MILK 2L</b> reads as 2 L: <i>Updates existing (1 L to 3 L)</i>.</li>
+<li><b>BASMATI RICE 2KILO</b> reads as 2 kg: the folded word.</li>
+<li><b>2 x EGGS</b> reads as a count of 2: no unit, as today.</li>
+<li><b>GRK YOG 1KG</b> and <b>GV EVOO 1L</b> read in kg and L; the Pantry holds them in g and mL, so the add-up converts (as built).</li>
+<li><b>BABY SPINACH</b> has no number: counted as 1 bag, said only in the opened row, as today.</li>
+<li><b>KS SMKD SLMN 400G</b>: 400 g is the pack size and the Pantry counts salmon in packs, so it is 1 pack (as the sample already drew it).</li>
+<li><b>ORG BANANAS</b> and its weight line: unchanged.</li></ul></div></div>
+
+<h2>The two options</h2>
+<div class="cols two">
+<div class="card rec"><h3>A. Plain text in the row; the pill when you open it (recommended)</h3><ul>
+<li>The row's outcome line already carries the unit: <i>Updates existing (1 L to 3 L)</i>. A <b>New item</b> says its amount: <i>New item, 500 g</i>. No new control on the row, so the swipe, Pick another item and New (RS-59, RS-60) are exactly as chosen.</li>
+<li>To correct, open the row (where the person already goes): <b>Amount bought</b> keeps the stepper, and its figure becomes <b>the shopping list's box with its unit pill</b> (<code>wantbox</code>, <code>wunit</code>, PR 157). Type a number; tap the <b>×</b> on the pill to take the unit off; type a unit after the number (<code>500 ml</code>) and it is read when you leave the box.</li>
+<li>Desktop: the same, in the lane. Nothing new to learn with the keys.</li>
+<li><b>Costs:</b> a wrong read is only seen in passing on a row that is not opened; fixing it is one tap to open, then the box.</li></ul>
+<div class="links"><a class="pri" href="qu-a.html?step=view&amp;phase=end&amp;pre=all&amp;sel=l3">Open A</a></div></div>
+<div class="card"><h3>B. The amount as a pill in the row; tap it for the shopping list's sheet</h3><ul>
+<li>A quiet pill under the state chip shows the amount (<b>2 L</b>), only on a line whose unit was read. Tapping it opens <b>the shopping list's quantity sheet</b> ("How much milk?"), the box with its unit pill and one Save button; tapping outside cancels (a bottom sheet on a phone, inline under the row in the desktop lane).</li>
+<li>The opened row keeps the stepper exactly as built, with no pill in it.</li>
+<li><b>Costs:</b> every unit line gets another control and a second way to change one number (the pill and the stepper); the chip sits near the state chip and the dots, so a right-hand column of three marks on a Check line; a sheet to dismiss during a quick review. <b>Buys:</b> a wrong read is fixed without opening the row.</li></ul>
+<div class="links"><a class="pri" href="qu-b.html?step=view&amp;phase=end&amp;pre=all&amp;qs=l3">Open B</a></div></div></div>
+<p class="mini2"><b>Why A.</b> The review's job is "scan, check, accept" (RS-55). Most unit lines are right, so the row should not grow a control for the minority that are wrong; the outcome line already shows the sum a wrong unit would spoil. B stays drawn in case the owner prefers a one-tap fix.</p>
+
+<h2>Phone: Option A</h2>
+<div class="strip"><figure class="fr"><figcaption>1 As read: 2KILO, 2 x EGGS, MILK 2L</figcaption><div class="ph"><iframe loading="lazy" title="1 As read: 2KILO, 2 x EGGS, MILK 2L" src="qu-a.html?step=view&amp;phase=end&amp;pre=all&amp;embed=1"></iframe></div></figure><figure class="fr"><figcaption>2 Check lines: units, a line with no number</figcaption><div class="ph"><iframe loading="lazy" title="2 Check lines: units, a line with no number" src="qu-a.html?step=view&amp;phase=end&amp;pre=all&amp;filter=check&amp;embed=1"></iframe></div></figure><figure class="fr"><figcaption>3 MILK 2L opened: the shopping box and its pill</figcaption><div class="ph"><iframe loading="lazy" title="3 MILK 2L opened: the shopping box and its pill" src="qu-a.html?step=view&amp;phase=end&amp;pre=all&amp;sel=l3&amp;embed=1"></iframe></div></figure><figure class="fr"><figcaption>4 A new item says its amount</figcaption><div class="ph"><iframe loading="lazy" title="4 A new item says its amount" src="qu-a.html?step=view&amp;phase=end&amp;pre=all&amp;res=l6:new&amp;sel=l6&amp;embed=1"></iframe></div></figure><figure class="fr"><figcaption>5 The pill taken off</figcaption><div class="ph"><iframe loading="lazy" title="5 The pill taken off" src="qu-a.html?step=view&amp;phase=end&amp;pre=all&amp;sel=l3&amp;nounit=l3&amp;embed=1"></iframe></div></figure><figure class="fr"><figcaption>6 No number on the line: as today</figcaption><div class="ph"><iframe loading="lazy" title="6 No number on the line: as today" src="qu-a.html?step=view&amp;phase=end&amp;pre=all&amp;filter=check&amp;sel=l7&amp;embed=1"></iframe></div></figure><figure class="fr"><figcaption>7 A size, not an amount</figcaption><div class="ph"><iframe loading="lazy" title="7 A size, not an amount" src="qu-a.html?step=view&amp;phase=end&amp;pre=all&amp;filter=check&amp;sel=l13&amp;embed=1"></iframe></div></figure><figure class="fr"><figcaption>8 A weight line: unchanged</figcaption><div class="ph"><iframe loading="lazy" title="8 A weight line: unchanged" src="qu-a.html?step=view&amp;phase=end&amp;pre=all&amp;filter=unsure&amp;sel=l12&amp;embed=1"></iframe></div></figure></div>
+<h2>Phone: Option B</h2>
+<div class="strip"><figure class="fr"><figcaption>1 As read: the amount pill in the row</figcaption><div class="ph"><iframe loading="lazy" title="1 As read: the amount pill in the row" src="qu-b.html?step=view&amp;phase=end&amp;pre=all&amp;embed=1"></iframe></div></figure><figure class="fr"><figcaption>2 Check lines</figcaption><div class="ph"><iframe loading="lazy" title="2 Check lines" src="qu-b.html?step=view&amp;phase=end&amp;pre=all&amp;filter=check&amp;embed=1"></iframe></div></figure><figure class="fr"><figcaption>3 Tap the pill: the shopping list's sheet</figcaption><div class="ph"><iframe loading="lazy" title="3 Tap the pill: the shopping list's sheet" src="qu-b.html?step=view&amp;phase=end&amp;pre=all&amp;qs=l3&amp;embed=1"></iframe></div></figure><figure class="fr"><figcaption>4 A new item: the pill and the stepper</figcaption><div class="ph"><iframe loading="lazy" title="4 A new item: the pill and the stepper" src="qu-b.html?step=view&amp;phase=end&amp;pre=all&amp;res=l6:new&amp;sel=l6&amp;embed=1"></iframe></div></figure></div>
+<h2>Desktop (1280)</h2>
+<div class="cols two"><div><p class="mini2"><b>A: MILK 2L opened</b></p><div class="dfr"><iframe loading="lazy" title="A: MILK 2L opened" src="qu-a.html?step=view&amp;phase=end&amp;pre=all&amp;sel=l3&amp;embed=1"></iframe></div></div><div><p class="mini2"><b>B: the sheet inline under the row</b></p><div class="dfr"><iframe loading="lazy" title="B: the sheet inline under the row" src="qu-b.html?step=view&amp;phase=end&amp;pre=all&amp;qs=l3&amp;embed=1"></iframe></div></div></div>
+
+<h2>A line where the receipt and the shopping list's words differ</h2>
+<div class="warnbox"><p class="mini2"><b>This state is not in the Pantry review.</b> The Pantry's bulk add (<code>pantry-receipt.js</code>) never reads the shopping list, so there are no list words to differ from. The only screen that holds both is <b>Shopping's receipt review</b> (<code>receipt-scan.js</code>, <code>quantityFor</code> in <code>receipt-match.js</code>), where a receipt line matches a list line and one box carries the amount. It is drawn here, once, because #754 asks that the receipt never silently replace the list's own words. Phone first; Shopping's review has no separate desktop layout drawn here.</p></div>
+<div class="cols two">
+<div class="card"><h3>As built today</h3><ul>
+<li>List says <b>2 litres of milk</b>; receipt says <code>MILK 2L</code>. Today the receipt's unit is not read, so nothing about "2 L" appears; if the receipt had a count (<code>2 x MILK</code>) the box is filled with <b>2</b> and the note reads <i>receipt says 2</i>. Only a whole number above 1, or a weight line, replaces the list's words; otherwise the note is <i>from your list</i>.</li></ul></div>
+<div class="card rec"><h3>Proposed with a unit</h3><ul>
+<li>The box starts with the receipt's reading (<b>2 L</b>), as the box is today. The note names both when they differ: <i>receipt says 2 L · your list said 2 litres of milk</i>.</li>
+<li>When the two are the same after folding (<b>2 litres</b> and <code>2L</code> are both 2 L) there is no note at all: nothing differs, so nothing is drawn (Empty is absent). The list's words are never overwritten without the note.</li>
+<li>When the receipt has no amount, the list's words stand and the note is <i>from your list</i>, as today.</li></ul></div></div>
+<div class="stand" aria-label="Shopping review row, drawn">
+<p class="mini2"><b>Shopping review, one matched row (drawn for this page, not a screen of the flow above):</b></p>
+<div class="cols two">
+<div class="card"><b>Milk</b><div class="mini2">Receipt: MILK 2L</div><div class="mini2">receipt says 2 L · your list said 2 litres of milk</div><div class="mini2" style="margin-top:8px">How much milk: <b>2 L</b> (editable text box, as today)</div></div>
+<div class="card"><b>Rice</b><div class="mini2">Receipt: BASMATI RICE 2KILO</div><div class="mini2" style="color:var(--muted)">(no note: the list says 2 kilos, the same reading)</div><div class="mini2" style="margin-top:8px">How much rice: <b>2 kg</b></div></div></div></div>
+
+<h2>Decisions</h2>
+<p class="mini2">Numbered on from RS-77 in <a href="../../docs/knowledge/jobs-to-be-done/receipt-scan.md">the job note</a>. Owner means the owner said it; everything else is a <b>Proposal</b>.</p>
+<div class="tbl"><table><tr><th>No.</th><th>Decision</th><th>Status</th></tr>
+<tr><td>RS-78</td><td>A scanned quantity may carry a unit, read with the shopping list's own reader (one form: kilo and kg, 2 litres is 2 L). Weight and volume units only.</td><td>Owner, 14 Oct 2026</td></tr>
+<tr><td>RS-79</td><td>In scope: a unit in the name (<code>MILK 2L</code>). Out of scope for now: weight lines (<code>1.234 kg @ $x/kg</code>); their handling and their row are drawn unchanged.</td><td>Owner, 14 Oct 2026</td></tr>
+<tr><td>RS-80</td><td>The unit is drawn only on a line whose unit was read from its name. A number-only line, a line with no number, a size and a weight line keep today's row. No empty slot or placeholder.</td><td>Proposal (design principle: Empty is absent)</td></tr>
+<tr><td>RS-81</td><td>Option A is recommended: plain text in the row, the shopping list's box and pill in the opened row. Option B (the pill in the row, the shopping list's sheet) is kept.</td><td>Proposal; the owner picks</td></tr>
+<tr><td>RS-82</td><td>Correction reuses the shopping list's box and unit pill unchanged: the × takes the unit off, a unit typed after the number is read when the box is left, g, kg, mL and L only. A counted Pantry unit (tin, pack, bag) is plain text beside the figure, not a pill.</td><td>Owner for the pill (12 and 13 Oct 2026, PR 157); Proposal for the counted units</td></tr>
+<tr><td>RS-83</td><td>A weight or volume in the name is an amount when the Pantry item holds that kind of unit (MILK 2L onto milk in L) and a size when the Pantry item is counted (400G onto salmon in packs, as the sample already drew it, so 1 pack). An amount the item cannot take is said plainly, as RS-74 already does: <i>Kept as a separate item: 2 cannot be added to 1 L</i>. For a New item there is no Pantry unit to tell, so the unit is read as the amount.</td><td>Proposal. Wrong guess costs: a 2 L bottle read as 2 L is right; a 400 g tin read as 400 g onto a count is kept as a separate item</td></tr>
+<tr><td>RS-84</td><td>A receipt line and the shopping list's words that differ exist only in Shopping's review. The box starts with the receipt's reading; the note names both when they differ and is silent when the folded forms are equal.</td><td>Proposal</td></tr>
+<tr><td>RS-85</td><td>A line with no number stays as built: counted as 1, said only in the opened row, nothing in the row. Chat is different (RS-77: never defaulted to 1). Whether the screen should match chat is open.</td><td>Open</td></tr>
+<tr><td>RS-86</td><td>Form factor: phone leads; the desktop is drawn too because the review row is the same row in the lane (a near-direct port). In B the sheet becomes inline under the row. The swipe does not apply on desktop.</td><td>Proposal</td></tr></table></div>
+
+<h2>Open questions for the owner</h2>
+<ol>
+<li><b>Which option, A or B?</b> A wrong guess costs a redraw of the row (B) or of the opened row (A).</li>
+<li><b>A size or an amount (RS-83)?</b> <code>MILK 2L</code> is a 2 L bottle, so 2 L is right. <code>CHOPPED TOMATOES 400G</code> is a tin size. The draft rule is that a weight or volume is a size when the Pantry item is counted. Is that right, and what should a New item do (it has no Pantry unit to ask)?</li>
+<li><b>No number on the line (RS-85):</b> the screen counts it as 1; chat never does (RS-77, owner confirmed). Should the screen ask instead?</li>
+<li><b>Chat and the screen share the reader.</b> Chat's rule "a size in the name such as 5KG is not an amount" would change if the shared reader started to read units from names. Should chat keep treating a unit in the name as no amount until the person says so?</li></ol>
+
+<h2>Notes</h2>
+<div class="stand"><h3>For the build</h3><p class="mini2">Class names: the Pantry's <code>.row .rmain .nm .mt</code> and the chosen flow's <code>ro-*</code> are unchanged. New: Shopping's own <code>wantbox</code>, <code>wunit</code> (lifted as they are from the shopping quantity sheet), <code>ro-amt</code> (B only), <code>qu-sheet</code>, <code>qu-inline</code>, <code>qu-hint</code>. Files: <code>qu.js</code> wraps the chosen flow's row and actions (mockup only), <code>qu.css</code> (tokens only), <code>qu-data.js</code> (invented sample, mockup only), <code>qu-a.html</code>, <code>qu-b.html</code>. The mockup's <code>WORDS</code>, <code>readWords</code> and <code>fits</code> in <code>qu.js</code> are stand-ins for the sample data: the build reads words with the shopping list's one reader (<code>quantity-words.ts</code>, its browser copy held equal by a test) and adds with <code>KitchieQuantity</code> (RS-74); no unit table is copied. The words the screen sends on Add are the same as today (a number and a unit; <code>Q.words</code>); no new field.<br><b>Default path:</b> nothing new loads on engagement of the review. <code>qu.js</code> and <code>qu.css</code> are small and exist only in this mockup; in the build the reader is the one the screen already loads, and B's sheet is built only when the pill is tapped. <b>Deferred:</b> B's sheet markup (on first tap), the Pantry-unit lists (as RS-74). In place, not a refresh (DESIGN.md 6a): the row, the box and the sheet change where the person is looking; nothing reloads. Checked by <code>tools/receipt-scan-qu-check.mjs</code>.</p></div>
+<div class="stand"><h3>The write path (read on <code>uat</code> at 0ee6c08)</h3><p class="mini2">A unit already reaches the Pantry write today. <code>pantry-receipt.js</code> sends each line as <code>item</code>, <code>name</code>, <code>quantity</code> where the quantity is words (<code>Q.words</code>: a number and a unit, so a weight line goes as "1.2 kg"). <code>POST /items/receipt</code> runs <code>store.pantryReceiptCommit</code>, which cleans the words (<code>cleanShoppingQuantity</code>) and tops up through <code>commitQuantity</code>, the unit-aware add. Reading a unit from the name changes which lines carry a unit, not the shape of the request. A build would touch the reader (<code>receipt-lines.js</code>) and the row (<code>pantry-receipt.js</code>); <code>store.ts</code> needs no edit on this evidence, but the lane stays the owner's call.</p></div>
+</main></body></html>

@@ -1,0 +1,32 @@
+// Receipt scan, quantity with a unit (Kitchie #754): every state of qu-a.html and qu-b.html at phone, tablet and desktop in both themes, then the corrections (take the unit off, type a unit, B's sheet save).
+// Reports console errors, sideways scroll and tap targets under 44px. Usage: python3 -m http.server 8123 &   then   PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers node tools/receipt-scan-qu-check.mjs
+import { chromium } from "playwright-core";
+const BASE = process.env.BASE || "http://localhost:8123/fragments/receipt-scan/";
+const base = "step=view&phase=end&pre=all";
+const states = [base, base + "&filter=check", base + "&sel=l3", base + "&res=l6:new&sel=l6", base + "&sel=l3&nounit=l3", base + "&filter=check&sel=l7", base + "&filter=check&sel=l13", base + "&filter=unsure&sel=l12", base + "&qs=l3"];
+const b = await chromium.launch(); let bad = 0, n = 0;
+for (const opt of ["a", "b"]) for (const [w, h] of [[390, 844], [768, 1024], [1280, 800]]) for (const th of ["kitchie", "kitchie-day"]) for (const q of states) {
+  const p = await b.newPage({ viewport: { width: w, height: h } }); const errs = [];
+  p.on("pageerror", e => errs.push(e.message)); await p.addInitScript(t => { try { localStorage.setItem("theme", t); } catch (e) {} }, th);
+  await p.goto(`${BASE}qu-${opt}.html?${q}`); await p.waitForTimeout(300); n++;
+  const r = await p.evaluate(() => {
+    const vis = e => { const r = e.getBoundingClientRect(); return r.width && r.height && e.offsetParent && getComputedStyle(e).visibility !== "hidden"; };
+    const small = [...document.querySelectorAll("button,input")].filter(e => { const r = e.getBoundingClientRect(); return vis(e) && (r.height < 43.5 || r.width < 43.5) && !e.closest(".dvp,.dvh,.wantbox") ; }).map(e => (e.className || e.tagName) + ":" + Math.round(e.getBoundingClientRect().width) + "x" + Math.round(e.getBoundingClientRect().height));
+    return { x: document.documentElement.scrollWidth > innerWidth + 1, small: small.slice(0, 4) };
+  });
+  if (errs.length || r.x || r.small.length) { bad++; console.log(opt, w, th, q, errs.join("|"), r.x ? "SIDEWAYS" : "", r.small.join(" ")); }
+  await p.close();
+}
+// corrections
+for (const [w, h] of [[390, 844], [1280, 800]]) {
+  const p = await b.newPage({ viewport: { width: w, height: h } }); const errs = []; p.on("pageerror", e => errs.push(e.message));
+  await p.goto(`${BASE}qu-a.html?${base}&sel=l3`); await p.waitForTimeout(300);
+  await p.click("#qb-l3u"); let t = await p.textContent(".ro-li.on .ro-out"); if (!/Kept as a separate item/.test(t)) { bad++; console.log("A clear unit", w, t); }
+  await p.fill("#qb-l3", "500 ml"); await p.press("#qb-l3", "Enter"); t = await p.textContent(".ro-li.on .ro-out"); if (!/1 L to 1\.5 L/.test(t)) { bad++; console.log("A type unit", w, t); }
+  await p.goto(`${BASE}qu-b.html?${base}&qs=l3`); await p.waitForTimeout(500);
+  const f = (await p.$$("input[data-qu]")).pop(); await f.fill("3"); await f.press("Enter"); await p.waitForTimeout(100);
+  t = await p.textContent('.ro-li[data-id="l3"] .ro-out'); if (!/1 L to 4 L/.test(t)) { bad++; console.log("B save", w, t); }
+  if (errs.length) { bad++; console.log(errs); }
+  await p.close();
+}
+await b.close(); console.log(`${n} states checked, ${bad} problems`); process.exit(bad ? 1 : 0);
