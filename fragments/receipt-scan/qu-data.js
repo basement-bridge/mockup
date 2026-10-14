@@ -38,8 +38,8 @@ window.ROD = (function () {
     { id: "l12", raw: ["ORG BANANAS", "1.204 kg @ 2.90/kg"], price: 3.49, st: "unsure", q: 1.2, u: "kg", rd: "weight", guess: "Bananas", note: "The weight line belongs to the item above it: 1.204 kg" },
     { id: "l13", raw: ["KS SMKD SLMN 400G"], price: 11, st: "check", m: "salmon", score: 0.8, cand: [], q: 1, u: "pack", rd: "size", guess: "Smoked salmon", note: "SMKD SLMN read as smoked salmon. 400G is the pack size, not an amount: your Pantry counts salmon in packs, so 1 pack" },
     { id: "l14", raw: ["XJ4 B1U 3PK"], price: 6, st: "unsure", q: 3, u: "", guess: "", unclear: true, note: "The text is unclear (blur). 3PK read as 3 in a pack" },
-    { id: "s1", raw: ["INSTANT SAVINGS -3.00"], price: -3, st: "left", why: "Discount: takes $3.00 off the chicken line above. Not an item", short: "Discount" },
-    { id: "s2", raw: ["PLASTIC BAG 0.15"], price: 0.15, st: "left", why: "Not food: a bag charge", short: "Not food" }
+    { id: "s1", raw: ["INSTANT SAVINGS -3.00"], price: -3, st: "left", why: "Discount, not an item", short: "Discount" },
+    { id: "s2", raw: ["PLASTIC BAG 0.15"], price: 0.15, st: "left", why: "Bag charge, not food", short: "Not food" }
   ];
   var ignored = ["Header and address (5 lines)", "SUBTOTAL 87.43", "GST 3.12", "TOTAL 90.55", "EFTPOS 90.55", "Thank you for shopping"];
   return { pantry: pantry, lines: lines, ignored: ignored };

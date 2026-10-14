@@ -56,7 +56,7 @@
     if (o.k === "top" || o.k === "check") {
       if (w != null) setOut("Updates existing (" + esc(fmt(p.q, p.u)) + " plus “" + esc(w) + "”)");
       else if (bl) setOut("Updates existing (" + esc(fmt(p.q, p.u)) + "). Type how much was bought");
-      else if (!fits(q, l.u, p.u)) setOut("Kept as a separate item: " + esc(fmt(q, l.u)) + " cannot be added to " + esc(fmt(p.q, p.u)));
+      else if (!fits(q, l.u, p.u)) setOut("Kept separate: " + esc(fmt(q, l.u)) + " cannot join " + esc(fmt(p.q, p.u)));
     }
     if (OPT === "a" && o.k === "new") h = h.replace(/(<span class="ro-out" data-k="new">)New item/, "$1New item" + (w != null ? ", “" + esc(w) + "”" : bl ? "" : ", " + esc(fmt(q, l.u))));
     if (OPT === "b" && l.u && w == null && !bl) {
@@ -107,6 +107,184 @@
     else if (e.key === "Escape" && S.qs) { e.stopPropagation(); RO.act("quclose"); }
   }, true);
 
+  /* ---- RS-92: the first pill is Exact (it replaces All). Every line is in exactly one pill: Exact (the line is settled: matched exactly, or settled by the person and adding), Check, Unsure, Ignored. "all" is kept only as an alias of the first pill, so older links and the Leave reset still land on it. ---- */
+  var pillOf = function (l) { var k = RO.out(l).k; return k === "top" || k === "new" ? "exact" : k; };
+  var inFilter0 = RO.inFilter;
+  RO.inFilter = function (l, f) { return f === "all" || f === "exact" ? pillOf(l) === "exact" : inFilter0(l, f); };
+
+  /* ---- RS-94: long-press Exact ticks every exact-match line for Add at once. Nothing is written until Add (RS-69). An Exact line waits for a tick (it is not in "Add N" until ticked); a line with a blank amount cannot be ticked (RS-88). S.cf = the ticked ids. ---- */
+  S.cf = {}; S.cfPrev = null;
+  var isEx = function (l) { var o = RO.out(l); return item(l) && l.st === "exact" && o.k === "top" && !o.picked; };
+  var pending = function (l) { return isEx(l) && !S.cf[l.id]; };
+  var tickable = function (l) { return pending(l) && !blank(l); };
+  var tickables = function () { return RO.seenLines().filter(tickable); };
+  var qcf = RO.Q.get("cf");                                  /* a state for the page: cf=all ticks every exact line, cf=l1,l2 ticks those */
+  if (qcf === "all" || RO.Q.get("pre") === "resolved" || RO.Q.get("pre") === "half" || S.step === "done") D.lines.forEach(function (l) { if (l.st === "exact") S.cf[l.id] = true; });
+  else if (qcf) qcf.split(",").forEach(function (i) { S.cf[i] = true; });
+  RO.adjTally = function (t) { RO.seenLines().forEach(function (l) { if (pending(l)) { t.top--; t.resolved--; t.exact--; t.pend = (t.pend || 0) + 1; } }); };
+  RO.adjEntries = function (e) { e.top = e.top.filter(function (a) { if (!pending(a[0])) return true; e.open.push(a); return false; }); };
+
+  var pressMs = 600;
+  function tickAll() {
+    var ids = tickables().map(function (l) { return l.id; }); if (!ids.length) return;
+    S.cfPrev = Object.assign({}, S.cf); ids.forEach(function (i) { S.cf[i] = true; });
+    var n = ids.length; S.toast = n + " exact line" + (n === 1 ? "" : "s") + ' ticked for Add. <button type="button" data-act="excfundo">Undo</button>' + (S.fixed ? "" : '<span class="lv-cd" aria-hidden="true"><i></i></span>');
+    RO.render(); clearTimeout(tickAll.t); if (!S.fixed) tickAll.t = setTimeout(function () { S.toast = null; S.cfPrev = null; RO.render(true); }, 9000);
+  }
+  if (RO.Q.get("toast") === "cf") { S.cfPrev = {}; S.toast = Object.keys(S.cf).length + ' exact lines ticked for Add. <button type="button" data-act="excfundo">Undo</button>'; }
+  var act1 = RO.act;
+  RO.act = function (a, id, v) {
+    var l = id && L(id);
+    switch (a) {
+      case "exall": tickAll(); return;
+      case "excfundo": if (S.cfPrev) S.cf = S.cfPrev; S.cfPrev = null; S.toast = null; clearTimeout(tickAll.t); RO.render(); return;
+      case "accept": if (l && isEx(l)) { if (tickable(l)) S.cf[id] = true; RO.render(); return; } break;
+      case "excf": if (tickable(l)) S.cf[id] = true; RO.render(); return;
+      case "excfoff": delete S.cf[id]; RO.render(); return;
+      case "box": if (l && !RO.inFilter(l, S.filter === "all" ? "exact" : S.filter)) S.filter = pillOf(l); break;   /* a tap on a photo box opens the pill that holds its line */
+    }
+    return act1.apply(this, arguments);
+  };
+  var acts0 = RO.acts;
+  RO.acts = function (l) {
+    var h = acts0(l); if (!isEx(l)) return h;
+    var key = RO.DESK() && S.keys;
+    return (pending(l) ? '<button type="button" class="rs-b pri sm" data-act="excf" data-id="' + l.id + '"' + (blank(l) ? " disabled" : "") + ">" + ic("check", 18) + "<span>Accept</span>" + (key ? '<span class="kbd cap">Y</span>' : "") + "</button>" : '<button type="button" class="rs-b sm" data-act="excfoff" data-id="' + l.id + '"><span>Undo accept</span></button>') + h;
+  };
+  var row1 = RO.row;
+  RO.row = function (l) {
+    var h = row1(l); if (!isEx(l)) return h;
+    return h.replace("<b>Exact</b>", "<b>" + (pending(l) ? "Exact" : "Ready") + "</b>").replace('data-st="exact">', 'data-st="exact"' + (pending(l) ? "" : ' data-tick="1"') + ">");
+  };
+  var head1 = RO.head;
+  RO.head = function () {
+    if (S.filter === "all") S.filter = "exact";
+    var t = RO.tally(), n = RO.seenLines().filter(function (l) { return pillOf(l) === "exact"; }).length, f = S.filter, nt = tickables().length, hold = RO.Q.get("hold") === "1";
+    var h = head1().replace(/<button[^>]*data-v="all"[\s\S]*?<\/button>/, '<button type="button" class="ro-f' + (hold ? " qu-hold qu-held" : "") + '" role="tab" aria-selected="' + (f === "exact") + '" data-act="filter" data-v="exact" data-hold="1" aria-describedby="qu-hint"><span>Exact</span><b>' + n + "</b></button>");
+    if (f === "exact" && (nt || hold)) h = h.replace(/<\/div>$/, '<div class="qu-hintrow" id="qu-hint"><span>' + (hold ? "Keep holding Exact to tick all " + nt : "Hold Exact to tick all " + nt) + '</span><button type="button" class="rs-b sm" data-act="exall">' + ic("check", 16) + "<span>Tick all " + nt + "</span>" + (RO.DESK() && S.keys ? '<span class="kbd cap">A</span>' : "") + "</button></div></div>");
+    return h;
+  };
+  /* the long press itself: hold the Exact pill. Short of it, the pill is an ordinary filter tab. */
+  var hd = null;
+  document.addEventListener("pointerdown", function (e) {
+    var b = e.target.closest && e.target.closest(".ro-f[data-hold]"); if (!b || e.button) return;
+    hd = { b: b, done: false }; b.classList.add("qu-hold");
+    hd.t = setTimeout(function () { if (!hd) return; hd.done = true; b.classList.add("qu-held"); if (navigator.vibrate) { try { navigator.vibrate(15); } catch (x) {} } tickAll(); }, pressMs);
+  });
+  var rel = function () { if (!hd) return; clearTimeout(hd.t); if (!hd.done) hd.b.classList.remove("qu-hold"); setTimeout(function () { hd = null; }, 0); };
+  document.addEventListener("pointerup", rel); document.addEventListener("pointercancel", rel); document.addEventListener("pointerleave", rel, true);
+  document.addEventListener("contextmenu", function (e) { if (e.target.closest && e.target.closest(".ro-f[data-hold]")) e.preventDefault(); });
+  document.addEventListener("click", function (e) { if (hd && hd.done && e.target.closest && e.target.closest(".ro-f[data-hold]")) { e.stopPropagation(); e.preventDefault(); } }, true);
+  /* keyboard (desktop): A ticks every exact line, as the long press does; Enter or Space on the focused pill only shows the Exact lines */
+  document.addEventListener("keydown", function (e) {
+    var t = e.target; if (e.key !== "a" && e.key !== "A" || e.ctrlKey || e.metaKey || e.altKey || (t.closest && t.closest("input,textarea,select")) || !RO.DESK() || S.step !== "view" || S.sheet) return;
+    e.preventDefault(); tickAll();
+  });
+
+  /* ---- RS-96: a draggable handle between the receipt and the list. Phone and tablet: the receipt picture sits above the list, the handle moves the picture's height. Desktop: the picture column sits beside the lane, the handle moves the lane's width. It stays where it is left, remembered on this device (localStorage, per orientation); nothing re-renders while dragging, so the scroll-tracked photo (RS-89) keeps working and re-centres on the new height. ---- */
+  var KEY = function () { return "rs754.split." + (RO.DESK() ? "lane" : "stage"); };
+  var store = { get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+  var root0 = document.documentElement, SPLIT = { stage: 150, lane: 400 };
+  function applySplit(kind, px, keep) {
+    SPLIT[kind] = Math.round(px); root0.style.setProperty(kind === "lane" ? "--qu-lane" : "--qu-stage", SPLIT[kind] + "px");
+    if (kind === "stage") { var st = $(".lv-stage"); S.stageH = st && st.clientHeight ? st.clientHeight : SPLIT.stage; if (S.step === "view") mark(); }
+    place(); var h = $(".qu-split"); if (h) h.setAttribute("aria-valuenow", String(SPLIT[kind]));
+    if (!keep) store.set(KEY(), String(SPLIT[kind]));
+  }
+  var rangeOf = function () {
+    if (RO.DESK()) return { kind: "lane", min: 320, max: 560, step: 24 };
+    var list = $(".ro-list"), st = $(".lv-stage"), cur = st ? st.getBoundingClientRect().height : SPLIT.stage;
+    return { kind: "stage", min: 64, max: Math.max(120, Math.round(cur + (list ? list.clientHeight : 200) - 120)), step: 24 };
+  };
+  var q96 = parseInt(RO.Q.get("split") || "", 10), saved = parseInt(store.get("rs754.split.stage") || "", 10), savedL = parseInt(store.get("rs754.split.lane") || "", 10);
+  if (q96) root0.style.setProperty(RO.DESK() ? "--qu-lane" : "--qu-stage", q96 + "px");
+  else { if (saved >= 64) root0.style.setProperty("--qu-stage", saved + "px"); if (savedL >= 320) root0.style.setProperty("--qu-lane", savedL + "px"); }
+  if (q96) SPLIT[RO.DESK() ? "lane" : "stage"] = q96; else { if (saved >= 64) SPLIT.stage = saved; if (savedL >= 320) SPLIT.lane = savedL; }
+  function handleHtml() { var r = rangeOf(); return '<div class="qu-split" role="separator" tabindex="0" aria-orientation="' + (RO.DESK() ? "vertical" : "horizontal") + '" aria-label="Resize: receipt and list" aria-valuemin="' + r.min + '" aria-valuemax="' + r.max + '" aria-valuenow="' + SPLIT[r.kind] + '"><i aria-hidden="true"></i></div>'; }
+  var stage0 = RO.stageHtml;
+  RO.stageHtml = function () {
+    var h = stage0(); if (RO.DESK() || /rl-drop/.test(h)) return h;
+    return h + handleHtml();
+  };
+  /* the desktop handle floats on the lane's left edge, put there after each render */
+  function place() {
+    if (!RO.DESK()) return; var lane = $(".panel[data-mode=lane]"), h = $(".qu-split"); if (!lane) { if (h) h.remove(); return; }
+    if (!h) { var d = document.createElement("div"); d.innerHTML = handleHtml(); h = d.firstChild; document.getElementById("app").appendChild(h); }
+    h.style.left = Math.round(lane.getBoundingClientRect().left - 8) + "px";
+  }
+  var drag = null;
+  document.addEventListener("pointerdown", function (e) {
+    var h = e.target.closest && e.target.closest(".qu-split"); if (!h || e.button) return; var r = rangeOf();
+    drag = { r: r, x: e.clientX, y: e.clientY, v: SPLIT[r.kind] === 150 && r.kind === "stage" && $(".lv-stage") ? Math.round($(".lv-stage").getBoundingClientRect().height) : SPLIT[r.kind] }; h.classList.add("qu-drag"); try { h.setPointerCapture(e.pointerId); } catch (x) {} e.preventDefault();
+  });
+  document.addEventListener("pointermove", function (e) {
+    if (!drag) return; var d = drag, v = d.r.kind === "lane" ? d.v - (e.clientX - d.x) : d.v + (e.clientY - d.y);
+    applySplit(d.r.kind, Math.max(d.r.min, Math.min(d.r.max, v)), true);
+  });
+  var endDrag = function () { if (!drag) return; var k = drag.r.kind; drag = null; var h = $(".qu-split"); if (h) h.classList.remove("qu-drag"); store.set(KEY(), String(SPLIT[k])); };
+  document.addEventListener("pointerup", endDrag); document.addEventListener("pointercancel", endDrag);
+  document.addEventListener("keydown", function (e) {
+    var h = e.target.closest && e.target.closest(".qu-split"); if (!h) return; var r = rangeOf(), v = SPLIT[r.kind], a = e.key, nv = null;
+    if (r.kind === "stage" && v === 150) { var st = $(".lv-stage"); if (st) v = Math.round(st.getBoundingClientRect().height); }
+    if (a === (r.kind === "lane" ? "ArrowLeft" : "ArrowDown")) nv = v + r.step; else if (a === (r.kind === "lane" ? "ArrowRight" : "ArrowUp")) nv = v - r.step;
+    else if (a === "PageDown") nv = v + r.step * 4; else if (a === "PageUp") nv = v - r.step * 4; else if (a === "Home") nv = r.min; else if (a === "End") nv = r.max; else if (a === "Enter" || a === " ") { applySplit(r.kind, r.kind === "lane" ? 400 : 150); e.preventDefault(); return; }
+    if (nv == null) return; e.preventDefault(); e.stopPropagation(); applySplit(r.kind, Math.max(r.min, Math.min(r.max, nv)));
+  }, true);
+  window.addEventListener("resize", place);
+  new MutationObserver(function () { place(); }).observe(document.getElementById("app"), { childList: true });
+  setTimeout(place, 0);
+
+  /* ---- RS-95: the whole receipt. Tap the picture (or its corner button) and it opens full size with the boxes drawn on it; tap a box and it says which line it is; Back (or Escape) returns. A tap on a box in the small picture still finds its row, as before. ---- */
+  S.qv = RO.Q.get("view") === "1"; S.vl = RO.Q.get("vline") || null;
+  var iconExpand = '<svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>';
+  var stage1 = RO.stageHtml;
+  RO.stageHtml = function () {
+    var h = stage1(); if (/rl-drop/.test(h) || !/lv-paper/.test(h)) return h;
+    return h.replace('<div class="rl-flash"', '<button type="button" class="qu-expand" data-act="quview" aria-label="Open the whole receipt, full size">' + iconExpand + '</button><div class="rl-flash"');
+  };
+  var lineNo = function (id) { return RO.ORDER.indexOf(id) + 1; };
+  function callout(id) {
+    var l = L(id); if (!l) return '<span>Tap a box to see which line it is.</span>';
+    var x = RO.info(l), o = RO.out(l);
+    return "<span><b>Line " + lineNo(id) + " of " + RO.ORDER.length + "</b> · " + esc(l.raw[0]) + " · " + esc(x.label) + (x.k === "top" || x.k === "check" ? " · " + esc(cap(x.name)) : "") + "</span><span class=\"qu-vsub\">" + esc(x.outcome) + '</span><button type="button" class="rs-b sm" data-act="quto" data-id="' + id + '">Show in the list</button>';
+  }
+  function cap(n) { return n.charAt(0).toUpperCase() + n.slice(1); }
+  function viewer() {
+    var root = document.getElementById("app");
+    if (!S.qv) { var o = root.querySelector(".qu-viewer"); if (o) o.remove(); return; }
+    if (root.querySelector(".qu-viewer") || S.step !== "view") return;
+    var paper = $(".lv-paper", root); if (!paper) return;
+    var c = paper.cloneNode(true); c.style.transform = "none"; c.style.transition = "none"; c.classList.add("lv-boxes");
+    $$(".lv-ln", c).forEach(function (e) { e.removeAttribute("data-act"); e.removeAttribute("aria-label"); if (e.dataset.id) { e.setAttribute("role", "button"); e.setAttribute("tabindex", "0"); e.setAttribute("aria-label", "Line " + lineNo(e.dataset.id) + ": " + L(e.dataset.id).raw[0]); } e.classList.toggle("lv-sel", e.dataset.id === S.vl); });
+    var el = document.createElement("div"); el.className = "qu-viewer"; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", "The whole receipt");
+    el.innerHTML = '<div class="qu-vbar"><button type="button" class="rl-done" data-act="quclosev">' + RO.ic("x", 18) + 'Back</button><b>The whole receipt</b></div><div class="qu-vscroll"><div class="qu-vpaper" style="height:' + RO.PH + 'px"></div></div><div class="qu-vcall" role="status" aria-live="polite">' + callout(S.vl) + "</div>";
+    el.querySelector(".qu-vpaper").appendChild(c); root.appendChild(el);
+    var b = el.querySelector(".rl-done"); if (b && !S.vl) try { b.focus({ preventScroll: true }); } catch (x) {}
+    var ln = S.vl && $('.lv-ln[data-id="' + S.vl + '"]', c), sc = el.querySelector(".qu-vscroll"); if (ln && sc) sc.scrollTop = Math.max(0, ln.offsetTop - 80);
+  }
+  function pickLine(id) { S.vl = id; var el = $(".qu-viewer"); if (!el) return; $$(".lv-ln", el).forEach(function (e) { e.classList.toggle("lv-sel", e.dataset.id === id); }); $(".qu-vcall", el).innerHTML = callout(id); }
+  var act2 = RO.act;
+  RO.act = function (a, id, v) {
+    switch (a) {
+      case "quview": S.qv = true; S.vl = null; S.sel = S.sel; viewer(); return;
+      case "quclosev": S.qv = false; S.vl = null; viewer(); var bt = $(".qu-expand"); if (bt) try { bt.focus({ preventScroll: true }); } catch (x) {} return;
+      case "quto": var l = L(id); S.qv = false; S.vl = null; S.filter = pillOf(l); S.sel = id; S.pick = null; viewer(); RO.render(); return;
+    }
+    return act2.apply(this, arguments);
+  };
+  document.addEventListener("click", function (e) {
+    var t = e.target; if (!t.closest) return;
+    var v = t.closest(".qu-viewer");
+    if (v) { var ln = t.closest(".lv-ln[data-id]"); if (ln) pickLine(ln.dataset.id); return; }
+    var st = t.closest(".rl-stage:not(.rl-drop)");
+    if (st && !t.closest(".lv-ln[data-act],.qu-expand,.rl-go,.qu-split") && $(".lv-paper", st) && S.step === "view") { S.qv = true; S.vl = null; viewer(); }
+  });
+  document.addEventListener("keydown", function (e) {
+    if (S.qv && e.key === "Escape") { e.stopPropagation(); RO.act("quclosev"); return; }
+    var ln = e.target.closest && e.target.closest(".qu-viewer .lv-ln[data-id]"); if (ln && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); pickLine(ln.dataset.id); }
+  }, true);
+  if (S.qv) { setTimeout(viewer, 0); setTimeout(viewer, 400); }
+
   /* B's sheet on a phone: appended after each render, over a dim (the same .dim and .panel as the other sheets) */
   var root = document.getElementById("app");
   function sheet() {
@@ -149,6 +327,6 @@
     if (!cur || cur.dataset.id === tracked) return; tracked = cur.dataset.id; mark();
   }
   document.addEventListener("scroll", function (e) { var t = e.target; if (t && t.matches && (t.matches(".ro-list") || t.matches(".panel[data-mode=lane]")) && !tick) tick = requestAnimationFrame(follow); }, true);
-  new MutationObserver(function () { sheet(); if (settled()) { if (!tracked) follow(); else mark(); } }).observe(root, { childList: true });
+  new MutationObserver(function () { sheet(); viewer(); if (settled()) { if (!tracked) follow(); else mark(); } }).observe(root, { childList: true });
   if (S.qs) { setTimeout(sheet, 0); setTimeout(sheet, 400); }
 })();

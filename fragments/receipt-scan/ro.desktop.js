@@ -29,7 +29,7 @@
     if (S.step !== "view") return;
     if (e.shiftKey && k === "Enter") { e.preventDefault(); RO.act(S.sheet === "summary" ? "done" : "summary"); return; }
     if (S.sheet === "summary") return;
-    if (k === "f" || k === "F") { S.filter = FILTERS[(FILTERS.indexOf(S.filter) + 1) % FILTERS.length]; RO.render(); return; }
+    if (k === "f" || k === "F") { S.filter = FILTERS[(FILTERS.indexOf(S.filter === "exact" ? "all" : S.filter) + 1) % FILTERS.length]; RO.render(); return; }
     if (k === "ArrowDown" || k === "j") { e.preventDefault(); move(1); return; }
     if (k === "ArrowUp" || k === "k") { e.preventDefault(); move(-1); return; }
     var id = S.sel; if (!id) return;

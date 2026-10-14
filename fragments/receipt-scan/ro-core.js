@@ -93,9 +93,9 @@
     } else if (o.k === "new") {
       x.outcome = "New item"; x.g = "plus"; x.label = "New item"; x.name = nm || "Unnamed"; x.tag = "New: " + (nm || "unnamed");
     } else if (o.k === "ignored") {
-      x.outcome = l.st === "left" ? "Ignored. " + l.why : "Ignored. It will not be added"; x.g = "x"; x.label = "Ignored"; x.tag = l.st === "left" ? l.short : "Ignored"; x.name = l.raw[0];
+      x.outcome = l.st === "left" ? l.why : "Ignored"; x.g = "x"; x.label = "Ignored"; x.tag = l.st === "left" ? l.short : "Ignored"; x.name = l.raw[0];
     } else {
-      x.outcome = l.unclear ? "No recommendation. The text was unclear" : "No recommendation. Nothing in your Pantry looks like it"; x.g = "q"; x.label = "Unsure"; x.tag = l.unclear ? "Unsure, unclear" : "Unsure: " + (l.guess || ""); x.name = nm || l.raw[0];
+      x.outcome = l.unclear ? "Text unclear" : "Nothing matches"; x.g = "q"; x.label = "Unsure"; x.tag = l.unclear ? "Unsure, unclear" : "Unsure: " + (l.guess || ""); x.name = nm || l.raw[0];
     }
     return x;
   }
@@ -111,6 +111,7 @@
       t.total++; if (k === "top" && l.st === "exact" && !o.picked) t.exact++;
       if (k === "top" || k === "new" || (k === "ignored" && !o.auto)) t.resolved++;
     });
+    if (RO.adjTally) RO.adjTally(t);   /* a page may hold some lines back from the count (quantity-unit.js: Exact lines waiting for a tick, RS-94) */
     t.ready = t.top + t.new; return t;
   }
   RO.tally = tally; RO.seenLines = seenLines;
@@ -298,6 +299,7 @@
       if (o.k === "top") e.top.push([l, x]); else if (o.k === "new") { if (l.from && S.split[l.id]) { e.news.push([l, x, 1]); e.news.push([l, x, 2]); } else e.news.push([l, x]); }
       else if (o.k === "ignored") (l.st === "left" ? e.left : e.ignored).push([l, x]); else e.open.push([l, x]);
     });
+    if (RO.adjEntries) RO.adjEntries(e);
     return e;
   }
   RO.entries = entries;

@@ -93,7 +93,7 @@
       case "sort": clear(); buzz(10); S.step = "sort"; S.sheet = ""; S.sel = null; S.pick = null; S.fixed = true; S.filter = RO.opt === "a" ? (RO.tally().check + RO.tally().unsure ? "todo" : "ready") : "all"; if (RO.opt === "c") { S.scroll = 0; S.phase = "end"; } render(); break;
       case "seepaper": S.step = "view"; S.sel = null; S.pick = null; S.sheet = ""; S.fixed = true; S.phase = "end"; S.scroll = 0; render(); break;
       case "summary": S.sheet = "summary"; S.sel = null; render(); break;
-      case "showopen": t = RO.tally(); S.sheet = ""; S.filter = t.check ? "check" : "unsure"; render(); break;
+      case "showopen": t = RO.tally(); S.sheet = ""; S.filter = t.check ? "check" : t.unsure ? "unsure" : "all"; render(); break;
       case "done": commit(); break;
       case "undodone": S.undone = true; clearInterval(T.undo); S.toast = 'Undone. The Pantry is as it was. <button type="button" data-act="redo">Redo</button>'; render(); break;
       case "redo": S.undone = false; S.toast = null; startUndo(); render(); break;
