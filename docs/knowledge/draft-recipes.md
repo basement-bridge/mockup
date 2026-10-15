@@ -18,9 +18,37 @@ be converted: same object, same identity, from the moment cooking starts; only t
 recipe by just talking to AI… if they find that it's useful, they should be able to convert that into a
 recipe."*
 
-**D3 — a draft expires in one day if it is not kept.** *"if they don't confirm it within an hour, sorry, a day,
-you just wipe it."* **Open:** a day from the cook starting or from the cook finishing. The mockup assumes
-finishing, because that is when the person last touched it.
+**D3 — a draft stops being offered after one day.** *"if they don't confirm it within an hour, sorry, a day,
+you just wipe it."* **Refined the same evening (D7, D8 below): the day is a state transition, not a
+deletion.** **Open:** a day from the cook starting or from the cook finishing. The mockup assumes finishing.
+
+**D7 — 24 hours is a state transition.** The draft leaves the pending-save shelf and stops asking to be
+promoted, but remains a live recipe object. It is not deleted at 24 hours.
+
+**D8 — data is retained for one week.** Copy-last-week must still reach whatever was cooked, so killing the
+data at 24 hours would put holes in it. After the week, outside the copy-last-week window, it retires.
+
+**D9 — the cook log is a rolling week, not an archive.** No permanent cooking history, so an expired draft
+needs no frozen-snapshot machinery. This supersedes the earlier "keep a frozen snapshot" lean.
+
+**D10 — the retire is almost certainly a soft delete** (state flip to put-away, filtered out of reads), per
+Recipe's own rule. **Open, builder's call:** whether a never-kept draft is the one legitimate hard-delete
+exception.
+
+**D11 — prefer lazy, read-time expiry** over a background sweeper, to match the simple infra and avoid
+deletions firing on a timer. Builder to confirm against what the code already does.
+
+### Verified against Recipe's code, 15 October 2026
+
+- A cook log **already exists and is permanent today**: table `cooks` (`server/src/schema.ts:538`), no time
+  window in any query, and `list_cooks` states *"Cooks are never edited or deleted."* So D9 narrows a
+  published contract rather than filling a blank. Worth deciding whether the rolling week applies to all
+  cooks or only to cooks of never-kept drafts.
+- A cook row stores `version_id`/`revision_id` and **nothing of the dish itself**; the log is rendered by
+  joining to `versions` and `revisions` (`service.ts:779`). A hard-deleted draft would leave a cook row that
+  is unreadable — an argument for D10's soft-delete path.
+- The foreign keys have **no `ON DELETE` clause**, so a hard delete either fails or orphans. The hard-delete
+  exception is not a one-line change.
 
 **D4 — drafts are visible in the library, in their own group.** *"you'd want to have a category, uh, awaiting
 to save or something… pending save. Or or something like that. You come up with what's the more sensible
@@ -55,11 +83,11 @@ All four are cheap to reverse: a section versus a chip, one condition, one thres
 
 ## Open questions, and what a wrong guess costs
 
-1. **When a draft expires, what happens to the cook-log entry that pointed at it?** The owner's lean is that
-   history must stay true — the log keeps a frozen snapshot of what was cooked even after the draft is gone.
-   **Not decided.** Cost: the person silently loses "what did I actually cook last Tuesday", with no way back.
-   This is the expensive decision in #123, and it is deliberately not drawn in the mockup — the library looks
-   the same either way, but the cook log's screens do not.
+1. ~~**When a draft expires, what happens to the cook-log entry that pointed at it?**~~ **Settled 15 October
+   2026 (D9):** the cook log is a rolling week, not an archive, so there is no permanent history to protect
+   and no snapshot machinery is needed. See the verified note above: a permanent log does exist today, so
+   this is a narrowing of current behaviour, and whether it applies to all cooks or only to never-kept
+   drafts is worth stating explicitly.
 2. **Does a draft count as a recipe anywhere else?** Search, the chips, `what_can_i_cook`, the week plan.
    **Proposal:** excluded from planning and from "what can I cook" (you cannot plan next Tuesday around
    something that evaporates tomorrow), included in search. Cost: a plan built on a dish that disappears.
