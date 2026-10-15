@@ -43,3 +43,7 @@ Left out of this view, not just quieter: where things are stored, freshness, exa
 ## Starting from the meal plan (open, 15 Oct 2026)
 
 Owner, by voice, while cooking: opening tonight's meal in the Plan detail gave him no way to start cooking. Today only the AI can start a Cooking now session (Kitchie #307), and Plan's Cook this (saved recipes, nothing missing) sits in the meal's ... menu. Options A to D (saved recipes only; also start Cooking now from a made-up meal; hand a made-up meal to the AI app; unchanged) are drawn in `fragments/plan-start-cooking/`. Option B would let a person start a session from the plan, which changes "declared by the AI"; nothing is decided.
+
+## One flow for chat and screen (open, 15 Oct 2026)
+
+Owner, by voice: the chat tool `start_cooking`, when tied to a recipe, and Make it on the screen (the renamed Cook now) must follow one flow through the same service methods. Today Cook now opens the cook page and starts no session; `start_cooking` starts a session and only links to the recipe. Three options (Make it starts a session then opens the cook page; cook page unchanged with a link; one making state) are drawn as live flows in `fragments/make-it-flow/` (Kitchie #781). Nothing is decided; the agent recommends option 1. Open: whether the banner opens the cook page when a recipe id exists, the personal-link-only rule for Make it, and any change to the tool shape approved on 8 Oct 2026.
