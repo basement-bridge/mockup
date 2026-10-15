@@ -1,8 +1,9 @@
-/* Receipt scan, quantity with a unit (Kitchie issue 754), revision 4, 15 October 2026 (RS-98 to RS-100; revision 2 was the first pass): the owner chose Option A (RS-87). The review row shows a scanned quantity that carries a unit; the person corrects it with the shopping list's own box (RS-91).
+/* Receipt scan, quantity with a unit (Kitchie issue 754), revision 5, 15 October 2026 (RS-112 on top of RS-98 to RS-100; revision 2 was the first pass): the owner chose Option A (RS-87). The review row shows a scanned quantity that carries a unit; the person corrects it with the shopping list's own box (RS-91).
    Loaded after ro-core.js and ro-run.js; it wraps the row, the actions, the header parts and the scroll. The page names its option with <body data-opt="a|b"> (qu-a.html is the chosen one; qu-b.html is kept, not chosen).
    A (chosen): the amount is plain text in the row ("Updates existing (1 L to 3 L)", "New item, 2 L"); the opened row's figure is the shopping list's box with its unit pill.
    B (not chosen, kept): the amount is a quiet pill in the row; tapping it opens the shopping list's quantity sheet.
    Both: the unit is drawn only for a line whose unit was read from its name (rd "unit"). A line with NO quantity read (rd "none") shows a BLANK box, never 1 (RS-88). Number-only, size and weight lines keep today's row (Empty is absent).
+   RS-112 (owner, 15 Oct 2026, by voice): a line with a COUNT and a UNIT in the name (2 x MILK 2L, 6 X 375ML, 4 @ 1.10 on a 400G tin) never multiplies silently. The reader returns the two numbers; the row draws the arithmetic as a quiet pill under the state chip (the same pill as B's amount pill, drawn only for such a line: Empty is absent); the opened row's box holds the same sum as text ("2 × 2" with the L pill) and takes "3 x 2 L", "4 L" or words like any free-text box. A name that is only a size goes to Unsure.
    Also here: the list scroll drives a highlight on the receipt photo (RS-89); the summary strip is a slim line at the top (RS-90).
    Mockup only. WORDS, readWords and fits are stand-ins for the sample data: the build uses the shopping list's one reader (quantity-words.ts, quantity.js, held equal by a test) and KitchieQuantity (RS-74). */
 (function () {
@@ -15,6 +16,8 @@
   /* What the person typed, read the way the shopping list reads it when the box is left: { n, u } for a number with a known unit or none, { words } for anything else (kept exactly as typed). "" is blank. */
   function read(t, pu) {
     t = String(t).trim(); if (!t) return { blank: true };
+    var cm = /^(\d{1,3})\s*[x×*]\s*(\d{1,4}(?:[.,]\d{1,3})?)\s*([a-z]+)$/i.exec(t);   /* RS-112: a sum, count x number unit: shown, never worked out behind the person's back */
+    if (cm && UNIT_OF[cm[3].toLowerCase()]) return { cu: { c: parseInt(cm[1], 10), n: parseFloat(cm[2].replace(",", ".")), u: UNIT_OF[cm[3].toLowerCase()] } };
     var m = /^(\d{1,4}(?:[.,]\d{1,3})?|a|an|one|two|three|four|five|six|seven|eight|nine|ten|half|quarter)\s*([a-z]*)$/i.exec(t);
     if (!m) return { words: t };
     var n = /^\d/.test(m[1]) ? parseFloat(m[1].replace(",", ".")) : NUMW[m[1].toLowerCase()], w = m[2].toLowerCase();
@@ -29,10 +32,15 @@
   var P = RO.P, L = RO.L;
   S.w = {};                                                 /* the person's own words for a line, kept exactly as typed */
   var item = function (l) { return l.st !== "left"; };
-  var carries = function (l) { return item(l) && (l.rd === "unit" || l.rd === "none"); };
+  var carries = function (l) { return item(l) && (l.rd === "unit" || l.rd === "none" || l.rd === "cu"); };
+  S.cu = {};                                                /* RS-112: the person's own sum for a count-and-unit line; null = the sum was taken off and the line is one amount */
+  var cuOf = function (l) { var v = S.cu[l.id]; return v !== undefined ? v : l.rd === "cu" ? l.cu : null; };
+  var sum = function (c) { return c.c + " × " + fmt(c.n, c.u); };
+  var counted = function (p) { return !!(p && p.u && !PILL[p.u]); };   /* a Pantry item held in tins, packs, bags: the count is the amount */
+  var total = function (c, p) { return counted(p) ? { q: c.c, u: p.u } : { q: Math.round(c.c * c.n * 1000) / 1000, u: c.u }; };
   var blank = function (l) { return l.rd === "none" && S.q[l.id] == null && S.w[l.id] == null; };
   var nameOf = function (l) { return RO.info(l).name; };
-  var txt = function (l) { return S.w[l.id] != null ? S.w[l.id] : blank(l) ? "" : String(Math.round(qOf(l) * 1000) / 1000); };
+  var txt = function (l) { var c = cuOf(l); return S.w[l.id] != null ? S.w[l.id] : c ? c.c + " × " + c.n : blank(l) ? "" : String(Math.round(qOf(l) * 1000) / 1000); };
 
   var draft = null;                                         /* the sheet's own draft (B), until Save */
   if (RO.Q.get("nounit")) { var lu = L(RO.Q.get("nounit")); if (lu) lu.u = ""; }   /* a state for the page: the unit already taken off */
@@ -41,16 +49,16 @@
   function openDraft(id) { var l = L(id); draft = { id: id, t: txt(l), u: l.u }; }
 
   /* the shopping list's box: the unit sits in the box as a pill; the x takes it off and the box is the person's own words again. inputmode is numeric only while the pill is on (shopping.js); a box with no pill is a plain text box. */
-  function box(id, id2, t, u) {
-    var pill = u && PILL[u] ? '<button type="button" class="wunit" id="' + id2 + 'u" data-act="quclr" data-id="' + id + '" aria-label="Unit ' + esc(u) + '. Remove the unit and keep your own words">' + esc(u) + '<span class="wx" aria-hidden="true">×</span></button>' : u ? '<span class="wunit">' + esc(u) + "</span>" : "";
-    return '<div class="wantbox' + (u ? " hasunit" : "") + '"><input type="text" class="rs-in field" id="' + id2 + '" data-qu="' + id + '" value="' + esc(t) + '"' + (u && PILL[u] ? ' inputmode="decimal"' : "") + ' autocomplete="off" aria-label="How much">' + pill + "</div>";
+  function box(id, id2, t, u, sumOn) {
+    var pill = u && PILL[u] ? '<button type="button" class="wunit" id="' + id2 + 'u" data-act="quclr" data-id="' + id + '" aria-label="Unit ' + esc(u) + (sumOn ? ". Remove the sum and keep one amount" : ". Remove the unit and keep your own words") + '">' + esc(u) + '<span class="wx" aria-hidden="true">×</span></button>' : u ? '<span class="wunit">' + esc(u) + "</span>" : "";
+    return '<div class="wantbox' + (u ? " hasunit" : "") + '"><input type="text" class="rs-in field" id="' + id2 + '" data-qu="' + id + '" value="' + esc(t) + '"' + (u && PILL[u] && !sumOn ? ' inputmode="decimal"' : "") + ' autocomplete="off" aria-label="How much">' + pill + "</div>";
   }
 
   var row0 = RO.row;
   RO.row = function (l) {
     var h = row0(l), o = RO.out(l), id = l.id, p = o.m && P(o.m);
     if (!carries(l) || o.k === "ignored") return h;
-    var q = qOf(l), bl = blank(l), w = S.w[id];
+    var q = qOf(l), bl = blank(l), w = S.w[id], cu = w == null ? cuOf(l) : null;
     var setOut = function (t) { h = h.replace(/(<span class="ro-out"[^>]*>)[^<]*/, "$1" + t); };
     /* the outcome line says what will happen; a blank amount says it is waiting for the person (RS-88) */
     if (o.k === "top" || o.k === "check") {
@@ -58,20 +66,30 @@
       else if (bl) setOut("Updates existing (" + esc(fmt(p.q, p.u)) + "). Type how much was bought");
       else if (!fits(q, l.u, p.u)) setOut("Kept separate: " + esc(fmt(q, l.u)) + " cannot join " + esc(fmt(p.q, p.u)));
     }
+    if (cu) {   /* RS-112: the arithmetic on the row, a quiet pill under the state chip (and in the row's spoken label) */
+      h = h.replace(/(<span class="ro-st">[\s\S]*?)(<\/span><\/div>)/, '$1<span class="qu-calc" title="Count and size, not multiplied for you">' + esc(sum(cu)) + "</span>$2");
+      h = h.replace(/(data-act="row" data-id="[^"]*" aria-label="[^"]*)"/, '$1. ' + esc(sum(cu)) + '"');
+    }
     if (OPT === "a" && o.k === "new") h = h.replace(/(<span class="ro-out" data-k="new">)New item/, "$1New item" + (w != null ? ", “" + esc(w) + "”" : bl ? "" : ", " + esc(fmt(q, l.u))));
     if (OPT === "b" && l.u && w == null && !bl) {
       h = h.replace(/(<span class="ro-st">[\s\S]*?)(<\/span><\/div>)/, '$1<button type="button" class="ro-amt" data-act="quo" data-id="' + id + '" aria-haspopup="dialog" aria-expanded="' + (S.qs === id) + '" aria-label="Amount ' + esc(fmt(q, l.u)) + ". Change it\"><span>" + esc(fmt(q, l.u)) + "</span></button>$2");
       if (S.qs === id && RO.DESK()) { if (!draft || draft.id !== id) openDraft(id); h = h.replace(/<\/li>$/, '<div class="qu-inline" role="group" aria-label="How much ' + esc(nameOf(l)) + '"><h3>How much ' + esc(nameOf(l)) + "?</h3>" + sheetBody(l) + "</div></li>"); }
     }
     if (OPT === "a" && S.sel === id) {
-      var u = w != null ? "" : l.u, ct = l.rd === "none" ? "" : l.u ? "" : "";
+      var u = w != null ? "" : cu ? cu.u : l.u;
       if (w == null && !l.u && !bl && l.rd === "unit") h = h.replace(/(<div class="rs-qrow">[\s\S]*?<\/div>)/, '$1<p class="qu-hint">' + hint(l, q, p) + "</p>");
-      h = h.replace(/<output>[\s\S]*?<\/output>/, box(id, "qb-" + id, txt(l), u));
-      if (w != null) h = h.replace(/(data-act="q[mp]")/g, '$1 disabled');
+      if (cu) h = h.replace(/(<div class="rs-qrow">[\s\S]*?<\/div>)/, '$1<p class="qu-hint">' + cuHint(l, cu, p) + "</p>");
+      h = h.replace(/<output>[\s\S]*?<\/output>/, box(id, "qb-" + id, txt(l), u, !!cu));
+      if (w != null || cu) h = h.replace(/(data-act="q[mp]")/g, '$1 disabled');
     }
     return h;
   };
   function hint(l, q, p) { return "The unit is off: counted as " + esc(fmt(q, "")) + "." + (p && !fits(q, "", p.u) ? " That cannot be added to " + esc(fmt(p.q, p.u)) + ", so it would be kept as a separate item." : "") + " Type words if you like, for example 2 litres: they are read when you leave the box."; }
+  function cuHint(l, c, p) {
+    var t = total(c, p), s = esc(sum(c));
+    if (counted(p)) return s + " is shown, not multiplied. The Pantry counts " + esc(p.name) + " in " + esc(p.u) + "s, so " + esc(fmt(t.q, t.u)) + " are added and the " + esc(fmt(c.n, c.u)) + " is not added up. Type another sum, or one amount like " + esc(fmt(Math.round(c.c * c.n * 1000) / 1000, c.u)) + ".";
+    return s + " = " + esc(fmt(t.q, t.u)) + ". Both the count and the size are on the receipt, so the sum is shown, not hidden. Change it: type 3 x " + esc(fmt(c.n, c.u)) + ", or one amount like " + esc(fmt(t.q, t.u)) + ".";
+  }
   function sheetBody(l) {
     var d = draft, h = box(l.id, "qs-" + l.id, d.t, d.u);
     h += '<p class="qu-hint">' + (d.u ? "The unit is read from the receipt line. The × takes it off and keeps your own words." : "Your own words. Type 2 litres or 2 L and it is read when you leave the box.") + "</p>";
@@ -81,10 +99,12 @@
   /* what leaving the box does: the same as the shopping list. A number and a known unit is folded (2 litres, 2L, 2 ltr all become 2 L); a number alone keeps the line's unit as it is now; anything else is kept as typed. */
   function apply(id, t, to) {
     var l = L(id), p = P(RO.out(l).m || ""), r = read(t, p && p.u);
-    if (r.blank) { if (to === "draft") { draft.t = ""; } else { delete S.q[id]; delete S.w[id]; if (l.rd === "none") { l.u = l.u; } } return; }
-    if (r.words) { if (to === "draft") { draft.t = r.words; draft.u = ""; } else { S.w[id] = r.words; l.u = ""; } return; }
+    if (r.cu && to === "draft") r = { words: t };   /* B's sheet is the shopping list's: a sum is only read in the row's box (A) */
+    if (r.blank) { if (to === "draft") { draft.t = ""; } else { delete S.q[id]; delete S.w[id]; delete S.cu[id]; if (l.rd === "none") { l.u = l.u; } } return; }
+    if (r.cu) { var tt = total(r.cu, p); delete S.w[id]; S.cu[id] = r.cu; S.q[id] = tt.q; l.u = tt.u; return; }
+    if (r.words) { if (to === "draft") { draft.t = r.words; draft.u = ""; } else { S.w[id] = r.words; S.cu[id] = null; l.u = ""; } return; }
     if (to === "draft") { draft.t = String(r.n); if (r.u) draft.u = r.u; return; }
-    delete S.w[id]; S.q[id] = r.n; if (r.u) l.u = r.u;
+    delete S.w[id]; S.cu[id] = null; S.q[id] = r.n; if (r.u) l.u = r.u;
   }
   var act0 = RO.act;
   RO.act = function (a, id, v) {
@@ -94,7 +114,7 @@
       case "quclose": S.qs = null; draft = null; RO.render(); return;
       case "qusave": if (draft) { var d = draft; draft = null; S.qs = null; var r = read(d.t, null); if (r.words) { S.w[id] = r.words; l.u = ""; } else if (r.n != null) { delete S.w[id]; S.q[id] = r.n; l.u = r.u || d.u; } } S.qs = null; draft = null; RO.render(); return;
       case "quclr":
-        if (S.qs && draft && draft.id === id) draft.u = ""; else l.u = "";
+        if (S.qs && draft && draft.id === id) draft.u = ""; else if (cuOf(l) && S.w[id] == null) S.cu[id] = null; else l.u = "";
         RO.render(); var inp = document.getElementById((S.qs && draft ? "qs-" : "qb-") + id); if (inp) { inp.focus(); try { inp.setSelectionRange(inp.value.length, inp.value.length); } catch (e) {} } return;
     }
     return act0.apply(this, arguments);

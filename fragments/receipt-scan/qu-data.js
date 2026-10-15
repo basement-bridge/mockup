@@ -1,6 +1,7 @@
 /* Receipt scan, quantity with a unit (Kitchie issue 754): sample data. Mockup only (DESIGN.md: plain names that exist only for sample data stay in the mockup's own script).
    Same invented receipt and Pantry as ro-data.js (the chosen flow), with five lines changed to show how a quantity is read: MILK 2L, 2 x EGGS, 2 KILOS, a line with no number, and a weight in the name read as the amount (RS-100: 400G is an amount, as 2L on milk is).
-   rd = how the amount was read: "unit" (a number and a unit in the name, read by the shopping list's reader), "count" (a printed count, as today), "weight" (a weight line, unchanged), "none" (nothing read).
+   rd = how the amount was read: "unit" (a number and a unit in the name, read by the shopping list's reader), "count" (a printed count, as today), "weight" (a weight line, unchanged), "none" (nothing read), "cu" (RS-112: a printed COUNT and a UNIT together, 2 x MILK 2L, 6 X 375ML, 4 @ 1.10 on a 400G tin).
+   cu = { c: the count, n: the number with the unit, u: the unit } for a "cu" line. The reader returns the two numbers and NEVER multiplies; the screen shows c x n u on the row and the person confirms or edits it (RS-112). q/u on the line are the total the screen proposes after showing that sum: c x n in the unit, or just c when the Pantry counts the item (tins).
    Synthetic: no real shop, receipt or card digits. */
 window.ROD = (function () {
   /* The household's Pantry. place = "Area · Spot". Kitchie keeps ONE record per item (no batches, RS-56): a match tops that record up. */
@@ -27,8 +28,8 @@ window.ROD = (function () {
     { id: "l1", raw: ["BASMATI RICE 2KILO"], price: 9.9, st: "exact", m: "rice", q: 2, u: "kg", rd: "unit", note: "2KILO read as 2 kg. The shopping list reads kilo, kilos and kg as one unit" },
     { id: "l2", raw: ["2 x EGGS"], price: 7.5, st: "exact", m: "eggs", q: 2, u: "", rd: "count", note: "2 x read as a count of 2. No unit, as today" },
     { id: "l3", raw: ["MILK 2L"], price: 4.2, st: "exact", m: "milk", q: 2, u: "L", rd: "unit", note: "2L read as 2 L, by the same reader as the shopping list" },
-    { id: "l4", raw: ["CHOPPED TOMATOES 400G", "4 @ 1.10"], price: 4.4, st: "exact", m: "tom", rd: "count", q: 4, u: "tin", note: "4 @ 1.10 read as a count of 4 tins, as today: the line prints its own count and the Pantry counts tomatoes in tins. 400G is a weight, not a size note, and is not shown as one" },
-    { id: "l5", raw: ["TUNA 425G", "3 @ 1.15"], price: 3.45, st: "exact", m: "tuna", rd: "count", q: 3, u: "tin", note: "3 @ 1.15 read as a count of 3 tins, as today (425G is not shown as a size)" },
+    { id: "l4", raw: ["CHOPPED TOMATOES 400G", "4 @ 1.10"], price: 4.4, st: "exact", m: "tom", rd: "cu", cu: { c: 4, n: 400, u: "g" }, q: 4, u: "tin", note: "4 @ 1.10 is a count of 4 and 400G is a weight, so the row shows 4 × 400 g and nothing is dropped. The Pantry counts tomatoes in tins, so 4 tins are added; 4 × 400 g is 1.6 kg, which cannot join tins and would be kept separate" },
+    { id: "l5", raw: ["TUNA 425G", "3 @ 1.15"], price: 3.45, st: "exact", m: "tuna", rd: "cu", cu: { c: 3, n: 425, u: "g" }, q: 3, u: "tin", note: "3 @ 1.15 is a count of 3 and 425G is a weight, so the row shows 3 × 425 g. The Pantry counts tuna in tins, so 3 tins are added" },
     { id: "l6", raw: ["SLCD CHEDDAR 500G"], price: 9.8, st: "check", m: "cheddar", score: 0.8, cand: ["butter"], rd: "unit", q: 500, u: "g", guess: "Sliced cheddar", note: "500G read as 500 g. The receipt also says sliced" },
     { id: "l7", raw: ["BABY SPINACH"], price: 3.5, st: "check", m: "spin", score: 0.8, cand: [], q: 0, u: "bag", rd: "none", guess: "Baby spinach", note: "No amount on the line: the amount is left blank for you to type (never counted as 1)" },
     { id: "l8", raw: ["BTR SLTD 250G"], price: 6.2, st: "check", m: "butter", score: 0.8, cand: ["cheddar"], rd: "unit", q: 250, u: "g", guess: "Salted butter", note: "BTR is a short form of butter. The receipt also says salted" },
@@ -38,9 +39,15 @@ window.ROD = (function () {
     { id: "l12", raw: ["ORG BANANAS", "1.204 kg @ 2.90/kg"], price: 3.49, st: "unsure", q: 1.2, u: "kg", rd: "weight", guess: "Bananas", note: "The weight line belongs to the item above it: 1.204 kg" },
     { id: "l13", raw: ["KS SMKD SLMN 400G"], price: 11, st: "check", m: "salmon", score: 0.8, cand: [], q: 400, u: "g", rd: "unit", guess: "Smoked salmon", note: "SMKD SLMN read as smoked salmon. 400G read as 400 g, the amount, the same as 2L on milk. Your Pantry counts salmon in packs, so 400 g cannot be added to 2 packs and is kept as a separate item" },
     { id: "l14", raw: ["XJ4 B1U 3PK"], price: 6, st: "unsure", q: 3, u: "", guess: "", unclear: true, note: "The text is unclear (blur). 3PK read as 3 in a pack" },
+    /* RS-112 (owner, 15 Oct 2026): a count AND a unit in the name is never multiplied silently; the row shows the arithmetic. A name that is only a size goes to Unsure. */
+    { id: "l15", raw: ["2 x MILK 2L"], price: 8.4, st: "exact", m: "milk", rd: "cu", cu: { c: 2, n: 2, u: "L" }, q: 4, u: "L", note: "2 x is a count of 2 and 2L is a volume. The row shows 2 × 2 L; it is not multiplied behind your back. The Pantry holds milk in L, so 4 L is added if you leave it" },
+    { id: "l16", raw: ["6 X 375ML"], price: 11.4, st: "unsure", rd: "cu", cu: { c: 6, n: 375, u: "mL" }, q: 2250, u: "mL", guess: "", note: "6 X is a count of 6 and 375ML a volume, shown as 6 × 375 mL. After the count there is no name, only a size, so nothing can match: give it a name or ignore it" },
+    { id: "l17", raw: ["375ML"], price: 3.2, st: "unsure", rd: "unit", q: 375, u: "mL", guess: "", note: "Only a size: no count and no name. 375 mL is read as the amount, and with no name nothing matches. Chat asks rather than guessing" },
     { id: "s1", raw: ["INSTANT SAVINGS -3.00"], price: -3, st: "left", why: "Discount, not an item", short: "Discount" },
     { id: "s2", raw: ["PLASTIC BAG 0.15"], price: 0.15, st: "left", why: "Bag charge, not food", short: "Not food" }
   ];
   var ignored = ["Header and address (5 lines)", "SUBTOTAL 87.43", "GST 3.12", "TOTAL 90.55", "EFTPOS 90.55", "Thank you for shopping"];
-  return { pantry: pantry, lines: lines, ignored: ignored };
+  /* the printed order: the three RS-112 lines sit after l14, before the bag charge */
+  var order = ["l1", "l2", "l3", "l4", "l5", "l6", "l7", "l8", "l9", "l10", "l11", "s1", "l12", "l13", "l14", "l15", "l16", "l17", "s2"];
+  return { pantry: pantry, lines: lines, ignored: ignored, order: order };
 })();
