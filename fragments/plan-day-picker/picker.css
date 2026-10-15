@@ -1,0 +1,118 @@
+/* Plan it, choosing the day on desktop. Tokens only (theme.css); shared pieces come from the Home mockup (flyout.css: .btn .kbd .x .toast .phint; home.css: .kb .kbc .kbr .e .t).
+   The day buttons are the sheet's own .days rules (recipe/recipe.css) so option E is today's sheet, not a lookalike. Desktop only: nothing here is linked on a phone. */
+.pk{color:var(--fg)}
+.pk h3{margin:0 0 2px;font:800 18px var(--head)}
+.pk .pk-sub{font-size:13px;color:var(--muted);margin:0}
+.pk small{color:var(--muted)}
+.pk .lbl{font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.pk-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px}
+.pk-row small{display:block;font-size:12px}
+.pk-row b{font-size:14px}
+.pk-note{font-size:13px;margin:0 0 6px}
+.pk-hint{margin:10px 0 0}
+.pk-foot{display:flex;gap:8px;margin-top:14px}
+.pk-foot .btn{flex:1}
+/* the bottom sheet (A, B, E): the same sheet at every width, as it is in the app today */
+.pk-dim{position:fixed;inset:0;background:var(--dim);z-index:40}
+.pk-sheet{position:fixed;left:0;right:0;bottom:0;max-height:92vh;overflow:auto;z-index:41;background:var(--surface);border-top:1px solid var(--border);border-radius:var(--r-card) var(--r-card) 0 0;padding:8px var(--gutter) 22px;box-shadow:0 -10px 30px rgba(0,0,0,.25)}
+.pk-sheet .grab{width:40px;height:4px;border-radius:2px;background:var(--border);margin:0 auto 12px}
+.pk-in{max-width:none}
+.pk-wk{display:flex;align-items:center;gap:6px;margin-top:10px}
+.pk-wk b{flex:1;text-align:center}
+.pk-ib{width:var(--tap);height:var(--tap);border-radius:50%;border:1px solid var(--border);background:var(--bg);display:inline-grid;place-items:center;color:var(--fg)}
+.pk-ib svg,.pk .x svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pk-ib:disabled{opacity:.4;cursor:default}
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:12px 0}
+.days button{min-height:64px;border-radius:var(--r-ctl);border:1px dashed var(--border);background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12px;font-weight:800;color:var(--fg)}
+.days button small{font-weight:600;font-size:10px;color:var(--muted)}
+.days button.full{border-style:solid;background:color-mix(in srgb,var(--surface) 60%,var(--bg))}
+.days button.off{border-style:solid;color:var(--muted)}
+.days button[aria-pressed=true]{background:var(--accent);color:var(--on-accent);border:1px solid var(--accent)}
+.days button[aria-pressed=true] small{color:var(--on-accent)}
+.days button:disabled{opacity:.4;cursor:default}
+.days button:focus-visible,.pk-quick button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.pk .mini{min-height:36px;padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--bg);font-weight:700;font-size:13px;display:inline-flex;align-items:center;gap:6px;color:var(--fg)}
+.pk .mini svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pk .mini[aria-pressed=true]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.fors{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.fors button{min-height:var(--tap);padding:0 16px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-weight:700;font-size:14px;color:var(--fg)}
+.fors button[aria-pressed=true]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.pk .back{min-height:36px;font-size:13px;color:var(--accent);font-weight:700}
+/* the Hard avoid guard, in place under the choice that causes it */
+.pk-guard{display:flex;gap:10px;align-items:flex-start;margin:0 0 8px;padding:10px 12px;border-radius:var(--r-ctl);border:1px solid var(--danger);font-size:13px}
+.pk-guard svg{flex:none;width:20px;height:20px;fill:none;stroke:var(--danger);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pk-guard b{display:block;color:var(--danger)}
+.pk-guard span{display:block}
+.pk-guard .btn{margin-top:8px;min-height:40px}
+.pk-guard small{display:block;margin-top:4px}
+/* B: quick picks */
+.pk-quick{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.pk-quick button{min-height:64px;border-radius:var(--r-ctl);border:1px dashed var(--border);background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-weight:800;color:var(--fg);font-size:15px}
+.pk-quick button small{font-weight:600;font-size:12px;color:var(--muted)}
+.pk-quick button.full{border-style:solid;background:color-mix(in srgb,var(--surface) 60%,var(--bg))}
+.pk-quick button.off{border-style:solid}
+.pk-quick button:hover,.days button:hover:not(:disabled):not([aria-pressed=true]){border-color:var(--accent)}
+.pk-quick button.more{color:var(--accent)}
+.pk-quick button[aria-pressed=true]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.pk-quick button[aria-pressed=true] small{color:var(--on-accent)}
+/* C: the four-week grid, a panel anchored to the Plan button */
+.pk-pop{position:fixed;z-index:42;width:468px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:14px 16px 16px;box-shadow:0 14px 40px rgba(0,0,0,.35)}
+.pk-pop[data-side=l]::after{content:"";position:absolute;right:-7px;top:var(--caret);width:12px;height:12px;background:var(--surface);border-top:1px solid var(--border);border-right:1px solid var(--border);transform:rotate(45deg)}
+.pk-pt{display:flex;align-items:flex-start;gap:12px}
+.pk-pt>div{flex:1;min-width:0}
+.pk-grid{display:grid;grid-template-columns:44px repeat(7,minmax(0,1fr));gap:3px;margin:12px 0 6px;align-items:stretch}
+.pk-gh{font-size:11px;font-weight:800;color:var(--muted);text-align:center;letter-spacing:.06em;text-transform:uppercase}
+.pk-gw{display:flex;flex-direction:column;justify-content:center;font-size:11px;color:var(--muted);line-height:1.2}
+.pk-gw b{color:var(--fg);font-size:12px}
+.pkc{min-height:52px;min-width:0;padding:2px;border-radius:var(--r-ctl);border:1px dashed var(--border);background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;color:var(--fg)}
+.pkc i{font-style:normal;font-weight:800;font-size:13px}
+.pkc span{font-size:10.5px;font-weight:600;color:var(--muted);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pkc.full{border-style:solid;background:color-mix(in srgb,var(--surface) 60%,var(--bg))}
+.pkc.off{border-style:solid}
+.pkc.today{box-shadow:inset 0 0 0 2px var(--accent)}
+.pkc.today i{color:var(--accent)}
+.pkc:hover:not(:disabled):not([aria-selected=true]){border-color:var(--accent)}
+.pkc[aria-selected=true]{background:var(--accent);color:var(--on-accent);border:1px solid var(--accent)}
+.pkc[aria-selected=true] span,.pkc[aria-selected=true] i{color:var(--on-accent)}
+.pkc:disabled{opacity:.4;cursor:default}
+.pkc:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.pk-key{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin:0 0 8px}
+.pk-sw0{display:inline-block;width:12px;height:12px;border-radius:4px;border:1px dashed var(--border);margin-left:6px}
+.pk-sw0.t{border:2px solid var(--accent);margin-left:0}
+.pk-sw0.f{border-style:solid;background:color-mix(in srgb,var(--surface) 60%,var(--bg))}
+.pk-sw0.o{border-style:solid}
+/* D: the Plan page week with the carried meal */
+.pk-plan{position:fixed;left:88px;right:0;top:0;bottom:0;z-index:30;background:var(--bg);display:grid;grid-template-columns:minmax(0,736px) 400px;justify-content:start;border-left:1px solid var(--border)}
+.pk-pm{padding:28px 48px 48px;overflow:auto}
+.pk-ph{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.pk-ph h1{margin:0;flex:1}
+.pk-dl{display:flex;flex-direction:column;gap:6px;margin-top:14px;max-width:640px}
+.pk-dr{display:grid;grid-template-columns:72px minmax(0,1fr);gap:12px;align-items:center;min-height:68px;padding:8px 12px;border-radius:var(--r-card);border:1px dashed var(--border);background:none;text-align:left;color:var(--fg)}
+.pk-dr:hover:not(.past),.pk-dr.over{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--bg))}
+.pk-dr.over{border-style:solid;box-shadow:inset 0 0 0 1px var(--accent)}
+.pk-dr.target{border-style:solid;border-color:var(--accent)}
+.pk-dr.past{opacity:.4;cursor:default}
+.pk-dr:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.pk-dr.today .pk-dh b{color:var(--accent)}
+.pk-dh{display:flex;flex-direction:column}
+.pk-dh b{font-size:15px}
+.pk-dh small{font-size:12px}
+.pk-ds{display:flex;gap:8px;flex-wrap:wrap}
+.pk-ds em{font-style:normal;color:var(--muted);font-size:13px}
+.pk-m{display:flex;flex-direction:column;padding:6px 12px;border-radius:var(--r-ctl);background:var(--surface);border:1px solid var(--border)}
+.pk-m.own{border-color:var(--accent)}
+.pk-m b{font-size:14px}
+.pk-m small{font-size:12px}
+.pk-lane{padding:28px 24px;display:flex;flex-direction:column;gap:12px;background:var(--surface);border-left:1px solid var(--border);overflow:auto}
+.pk-lane h2{margin:0}
+.pk-carry{display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:var(--r-card);border:2px solid var(--accent);background:var(--bg);cursor:grab;box-shadow:0 6px 18px rgba(0,0,0,.2)}
+.pk-carry.lift{opacity:.6}
+.pk-carry .e{font-size:28px;width:52px;height:52px;border-radius:var(--r-ctl);background:color-mix(in srgb,var(--accent) 18%,var(--surface))}
+.pk-carry .t b{display:block}
+/* the option switch at the foot of the rail (mockup scaffolding) */
+.pk-sw{position:fixed;left:8px;bottom:12px;width:72px;display:flex;flex-wrap:wrap;gap:4px;justify-content:center;z-index:45}
+.pk-sw span{flex:1 1 100%;text-align:center;font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.pk-sw a{width:32px;height:32px;display:grid;place-items:center;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-weight:800;font-size:13px;color:var(--fg);text-decoration:none}
+.pk-sw a[aria-current]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.pk-sw a:hover{border-color:var(--accent)}
+@media (prefers-reduced-motion:reduce){.pk *{transition:none!important;animation:none!important}}
