@@ -232,6 +232,14 @@ Owner (Arjan), by voice, 15 October 2026, on Kitchie #750 ("Small footprint of t
 4. Real receipts and a real phone: the matcher and thresholds are set against invented receipts and the synthetic fixtures (RS-66); the 0.45, 0.65 and 0.85 lines and the 0.15 penalty want a check on real receipts.
 5. ~~How does a count combine with a unit (`2 x MILK 2L`, `6 X 375ML`)?~~ **Decided by the owner, 15 October 2026 (RS-112): never multiplied silently; the row shows `2 × 2 L`; a size-only name is Unsure; chat asks.**
 
+### The camera picture size (Kitchie #750, 15 October 2026)
+
+Owner (voice, 15 October 2026): "Get it done ... a few options and make some sensible decisions and have it built straight into UAT." Page: `fragments/receipt-scan/stage-size.html`. **All three are Proposals by the agent; the owner has not chosen.**
+
+- **RS-113.** The phone and tablet picture box is 34% of the screen height, 150 px at least, 300 px at most (was a fixed 150 px). Options A (150 px) and C (44%, 190 to 380 px) are shown beside it.
+- **RS-114.** The #754 handle (RS-96) and its remembered position still replace the default, so #750 does not wait for #754.
+- **RS-115.** The picture stays uncropped (contain); tablet shares the rule; desktop unchanged.
+
 ## For the implementation
 
 - What loads by default: nothing for scanning. On choosing a receipt: the option's review script and css; the reader (about 16 MB, `edge-ocr.md` section 3.2) only when a scan starts. Viewport code is in `rs.phone.js`, `rs.desktop.js`, `phone.css`, `tablet.css`, `desktop.css`; the shared files carry no size rules.

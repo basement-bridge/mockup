@@ -1,5 +1,6 @@
 /* Receipt scan, chosen flow: phone and tablet (under 1024px). The viewfinder is a full-screen layer, as in Shopping; the picture is short and the list under it is the review. Loaded only below 1024px. */
-.ro-rl .rl-stage.lv-short{flex:0 0 auto;height:150px}
+.ro-rl .rl-stage.lv-short{flex:0 0 auto;height:var(--ro-stage,clamp(150px,34dvh,300px))}
+/* RS-102 (Kitchie #750): the picture box is a share of the screen's height, never under the 150 px it was, so a tall receipt in a 9:16 camera frame is about twice as wide. */
 .ro-rl .rl-status{margin-top:.4rem;min-height:44px;padding-top:.3rem;padding-bottom:.3rem}
 .ro-rl .rl-bar{min-height:3rem}
 .ro-rl .rl-prog{margin-top:.35rem}

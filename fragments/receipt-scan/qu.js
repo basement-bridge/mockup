@@ -244,7 +244,7 @@
   }
   var q96 = num(RO.Q.get("split")), saved = num(store.get("rs754.split.stage")), savedL = num(store.get("rs754.split.lane"));
   if (q96) WANT[RO.DESK() ? "lane" : "stage"] = q96; else { if (saved) WANT.stage = saved; if (savedL) WANT.lane = savedL; }
-  if (WANT.stage == null) WANT.stage = 150;   /* the default is a wish too: on a short landscape phone 150 px of picture also left the list 1 px high */
+  /* RS-102: no stored or asked-for height means the CSS default (a share of the screen, 150 px at least); it is not forced to 150 any more. Was: the default is a wish too: on a short landscape phone 150 px of picture also left the list 1 px high */
   fitSplit();
   function handleHtml() { var r = rangeOf(); return '<div class="qu-split" role="separator" tabindex="0" aria-orientation="' + (RO.DESK() ? "vertical" : "horizontal") + '" aria-label="Resize: receipt and list" aria-valuemin="' + r.min + '" aria-valuemax="' + r.max + '" aria-valuenow="' + SPLIT[r.kind] + '"><i aria-hidden="true"></i></div>'; }
   var stage0 = RO.stageHtml;
