@@ -145,10 +145,13 @@
   RO.adjTally = function (t) { RO.seenLines().forEach(function (l) { if (isEx(l) && blank(l)) { t.top--; t.resolved--; t.exact--; } }); };
   RO.adjEntries = function (e) { e.top = e.top.filter(function (a) { if (!(isEx(a[0]) && blank(a[0]))) return true; e.open.push(a); return false; }); };
 
+  /* RS-98 (owner decision (h)): the hint shows until the first use, then only the one group control stays. "Hint seen" is remembered on this device only (localStorage, never sent anywhere, no server field); ?hint=new / ?hint=seen set it for the page. Storage may be blocked or empty: the hint just shows. */
+  var HKEY = "rs754.hintseen", hintSeen = function () { var q = RO.Q.get("hint"); if (q) return q === "seen"; try { return localStorage.getItem(HKEY) === "1"; } catch (e) { return false; } };
+  var markSeen = function () { try { localStorage.setItem(HKEY, "1"); } catch (e) {} };
   var pressMs = 600;
   function reviewAll() {
     var ids = tickables().map(function (l) { return l.id; }); if (!ids.length) return;
-    S.cfPrev = Object.assign({}, S.cf); ids.forEach(function (i) { S.cf[i] = true; });
+    markSeen(); S.cfPrev = Object.assign({}, S.cf); ids.forEach(function (i) { S.cf[i] = true; });
     var n = ids.length; S.toast = n + " exact line" + (n === 1 ? "" : "s") + ' marked reviewed. <button type="button" data-act="excfundo">Undo</button>' + (S.fixed ? "" : '<span class="lv-cd" aria-hidden="true"><i></i></span>');
     RO.render(); clearTimeout(reviewAll.t); if (!S.fixed) reviewAll.t = setTimeout(function () { S.toast = null; S.cfPrev = null; RO.render(true); }, 9000);
   }
@@ -159,18 +162,10 @@
     switch (a) {
       case "exall": reviewAll(); return;
       case "excfundo": if (S.cfPrev) S.cf = S.cfPrev; S.cfPrev = null; S.toast = null; clearTimeout(reviewAll.t); RO.render(); return;
-      case "accept": if (l && isEx(l)) { if (tickable(l)) S.cf[id] = true; RO.render(); return; } break;
-      case "excf": if (tickable(l)) S.cf[id] = true; RO.render(); return;
-      case "excfoff": delete S.cf[id]; RO.render(); return;
+      case "accept": if (l && isEx(l)) { RO.render(); return; } break;   /* RS-98/RS-59: an Exact line has no Accept and no per-row reviewed button; a swipe right on it confirms and changes nothing */
       case "box": if (l && !RO.inFilter(l, S.filter === "all" ? "exact" : S.filter)) S.filter = pillOf(l); break;   /* a tap on a photo box opens the pill that holds its line */
     }
     return act1.apply(this, arguments);
-  };
-  var acts0 = RO.acts;
-  RO.acts = function (l) {
-    var h = acts0(l); if (!isEx(l)) return h;
-    var key = RO.DESK() && S.keys;
-    return (unrev(l) ? '<button type="button" class="rs-b sm" data-act="excf" data-id="' + l.id + '"' + (blank(l) ? " disabled" : "") + ">" + ic("check", 18) + "<span>Mark reviewed</span>" + (key ? '<span class="kbd cap">Y</span>' : "") + "</button>" : '<button type="button" class="rs-b sm" data-act="excfoff" data-id="' + l.id + '"><span>Undo reviewed</span></button>') + h;
   };
   var row1 = RO.row;
   RO.row = function (l) {
@@ -183,7 +178,7 @@
     if (S.filter === "all" && (S.fixed || S.still || S.phase === "end" || S.step === "done")) S.filter = S.sel && L(S.sel) ? pillOf(L(S.sel)) : RO.seenLines().some(function (l) { return pillOf(l) === "check"; }) ? "check" : "exact";
     var t = RO.tally(), n = RO.seenLines().filter(function (l) { return pillOf(l) === "exact"; }).length, f = S.filter === "all" ? "exact" : S.filter, nt = tickables().length, hold = RO.Q.get("hold") === "1";
     var h = head1().replace(/<button[^>]*data-v="all"[\s\S]*?<\/button>/, '<button type="button" class="ro-f' + (hold ? " qu-hold qu-held" : "") + '" role="tab" aria-selected="' + (f === "exact") + '" data-act="filter" data-v="exact" data-hold="1" aria-describedby="qu-hint"><span>Exact</span><b>' + n + "</b></button>");
-    if (f === "exact" && (nt || hold)) h = h.replace(/<\/div>$/, '<div class="qu-hintrow" id="qu-hint"><span>' + (hold ? "Keep holding Exact to mark all " + nt + " reviewed" : "Hold Exact to mark all " + nt + " reviewed") + '</span><button type="button" class="rs-b sm" data-act="exall">' + ic("check", 16) + "<span>Mark all reviewed</span>" + (RO.DESK() && S.keys ? '<span class="kbd cap">A</span>' : "") + "</button></div></div>");
+    if (f === "exact" && (nt || hold)) h = h.replace(/<\/div>$/, '<div class="qu-hintrow' + (hintSeen() && !hold ? " qu-seen" : "") + '" id="qu-hint">' + (hintSeen() && !hold ? "" : "<span>" + (hold ? "Keep holding Exact to mark all " + nt + " reviewed" : "Hold Exact to mark all " + nt + " reviewed") + "</span>") + '<button type="button" class="rs-b sm" data-act="exall">' + ic("check", 16) + "<span>Mark all reviewed</span>" + (RO.DESK() && S.keys ? '<span class="kbd cap">A</span>' : "") + "</button></div></div>");
     return h;
   };
   /* the long press itself: hold the Exact pill (RS-98: marks every exact line reviewed). Short of it, the pill is an ordinary filter tab. */
