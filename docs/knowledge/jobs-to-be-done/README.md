@@ -17,6 +17,7 @@ Every screen starts from what the person is here to do right now. Layout, and wh
 | Cooking right now | [cooking-right-now.md](cooking-right-now.md) | Captured, mockup drafted |
 | About to shop | – | Named, nothing captured yet |
 | Shopping without the app | [shopping-without-the-app.md](shopping-without-the-app.md) | Captured (owner, voice, 10 Oct 2026); owner review the same day settled SL-D1 to SL-D16 (live updates, swipe and multi-select, link lifecycle); mockup revised; receipt scan deferred; detected by arriving through the one-off link |
+| Shopping, on desktop | [shopping-desktop.md](shopping-desktop.md) | Owner ask 15 Oct 2026 (typed: align the desktop Shopping screen with the app's design language); two options drawn (A hand-off in the panel, recommended; B card in the column); decisions SD-1 to SD-12 are proposals awaiting the owner; Kitchie #775 |
 | Scanning things in | [scan-in.md](scan-in.md) | Named, options drafted, nothing else captured |
 | Reading text from a photo, on the phone (edge OCR) | [edge-ocr.md](edge-ocr.md) | Owner direction 11 Oct 2026 (OCR-D1 to OCR-D4: in the browser, no AI fallback, the human confirms). Survey, engine comparison, recommendation, matching without AI, confirm-screen options A/B/C and build slices drafted; all proposals await the owner; no mockup screens yet |
 | Recipe photo enhance (client side) | [photo-enhance.md](photo-enhance.md) | Owner ask 14 Oct 2026; four options (A to D) and a real in-browser engine drawn; all proposals await the owner; nothing built |

@@ -1,0 +1,8 @@
+/* COMPARISON ONLY. NOT FOR THE BUILD. Option B (?o=b): no panel lane; the hand-off stays in the column above the list as it is on the phone. Everything else (header band, rows, cues) is as option A. */
+@media (min-width:1024px){
+body:has(nav.bar):has(.sl-top>*){--pr:0px}
+body:has(nav.bar) .sl-top{position:static;width:auto;padding:0;gap:4px;margin:0 0 8px;overflow:visible;background:none;border:0}
+body:has(nav.bar) .sl-top::after{content:none}
+body:has(nav.bar) .sl-top .sl-handoff,body:has(nav.bar) .sl-top .sl-lrow{background:none}
+body:has(nav.bar) .sl-top .sl-lrow{background:var(--surface)}
+}
