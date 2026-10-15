@@ -136,11 +136,18 @@ function boxBlur(src, w, h, r, passes) {
 }
 
 /* ---------- the pipeline. p = analysis scaled by level k. Returns the same ImageData, changed. ---------- */
-function process(img, A, k, outLong, prog) {
+function process(img, A, k, outLong, prog, X) {
   var w = img.width, h = img.height, n = w * h, d = img.data, i, j, x, y;
-  if (!(k > 0)) return img;
+  if (!X && !(k > 0)) return img;
   var stops = A.stops * k, gr = Math.pow(A.wb[0], k), gb = Math.pow(A.wb[2], k);
   var sh = A.shadows * k, hi = A.highlights * k, vib = A.vibrance * k, dn = A.denoise * k, shp = A.sharpen * k;
+  if (X) {                                                // preset: explicit knobs. auto = how much of the measured fix to keep (0 to 1); the rest are added on top
+    var au = X.auto || 0, wm = X.warm || 0;
+    stops = A.stops * au + (X.ev || 0);
+    gr = Math.pow(A.wb[0], au) * Math.pow(2, 0.2 * wm); gb = Math.pow(A.wb[2], au) * Math.pow(2, -0.2 * wm);
+    sh = clamp(A.shadows * au + (X.shadows || 0), 0, 1.2); hi = clamp(A.highlights * au + (X.highlights || 0), 0, 1);
+    vib = clamp(A.vibrance * au + (X.vib || 0), 0, 1.2); dn = A.denoise * Math.max(au, 0.5); shp = clamp(A.sharpen * au + (X.sharp || 0), 0, 1.2);
+  }
   var R = new Float32Array(n), G = new Float32Array(n), B = new Float32Array(n);
   for (i = 0; i < n; i++) { R[i] = d[i * 4]; G[i] = d[i * 4 + 1]; B[i] = d[i * 4 + 2]; }
   if (prog) prog("noise", 0.05);
@@ -222,6 +229,34 @@ function process(img, A, k, outLong, prog) {
     }
   }
 
+  /* 3b. preset only: global saturation (strongest on dull pixels) and a luma S-curve, both in display space */
+  if (X && (X.sat || X.contrast)) {
+    var sa = X.sat || 0, co = X.contrast || 0;
+    for (i = 0; i < n; i++) {
+      var r5 = R[i], g5 = G[i], b5 = B[i], l5 = 0.299 * r5 + 0.587 * g5 + 0.114 * b5;
+      if (sa) {
+        var m5 = Math.max(r5, g5, b5), s5 = m5 > 0 ? (m5 - Math.min(r5, g5, b5)) / m5 : 0, f5 = 1 + sa * (1 - 0.5 * s5);
+        r5 = l5 + (r5 - l5) * f5; g5 = l5 + (g5 - l5) * f5; b5 = l5 + (b5 - l5) * f5;
+      }
+      if (co && l5 > 1) {
+        var y5 = clamp(l5 / 255, 0, 1), sm = y5 * y5 * (3 - 2 * y5), t5 = (y5 + co * (sm - y5)) * 255, q5 = clamp(t5 / l5, 0, 4);
+        r5 *= q5; g5 *= q5; b5 *= q5;
+      }
+      R[i] = r5; G[i] = g5; B[i] = b5;
+    }
+  }
+  /* 3c. preset only: clarity = local contrast on luma at a wide radius (positive crisps texture, negative softens), weighted to the mid-tones */
+  if (X && X.clarity) {
+    var Yc = new Float32Array(n), cl = X.clarity;
+    for (i = 0; i < n; i++) Yc[i] = 0.299 * R[i] + 0.587 * G[i] + 0.114 * B[i];
+    var Yb = boxBlur(Yc, w, h, Math.max(3, Math.round(outLong / 55)), 3);
+    for (i = 0; i < n; i++) {
+      var yv = Yc[i] / 255, mw = 4 * yv * (1 - yv), ad = (Yc[i] - Yb[i]) * cl * 0.9 * mw;
+      R[i] += ad; G[i] += ad; B[i] += ad;
+    }
+    Yc = Yb = null;
+  }
+
   /* 4. mild unsharp on luma, scaled to output size, with coring so noise is not sharpened */
   if (prog) prog("sharpen", 0.85);
   var YY = new Float32Array(n);
@@ -253,12 +288,12 @@ self.onmessage = function (e) {
       s = sessions[m.sid];
       var img0 = getBase(s, m.w, m.h, m.crop);
       var img = new ImageData(new Uint8ClampedArray(img0.data), m.w, m.h);        // never edit the cached base
-      process(img, s.an, m.k, Math.max(m.w, m.h), null);
+      process(img, s.an, m.k, Math.max(m.w, m.h), null, m.spec);
       post({ type: "render", sid: m.sid, id: m.id, w: m.w, h: m.h, buffer: img.data.buffer, ms: performance.now() - t0 }, [img.data.buffer]);
     } else if (m.type === "encode") {
       s = sessions[m.sid];
       var dr = drawSized(s, m.w, m.h, m.crop), im = dr.cx.getImageData(0, 0, m.w, m.h);
-      process(im, s.an, m.k, Math.max(m.w, m.h), function (ph, f) { post({ type: "progress", sid: m.sid, id: m.id, phase: ph, pct: f }); });
+      process(im, s.an, m.k, Math.max(m.w, m.h), function (ph, f) { post({ type: "progress", sid: m.sid, id: m.id, phase: ph, pct: f }); }, m.spec);
       dr.cx.putImageData(im, 0, 0);
       post({ type: "progress", sid: m.sid, id: m.id, phase: "encode", pct: 0.92 });
       dr.cv.convertToBlob({ type: m.mime || "image/webp", quality: m.quality }).then(function (blob) {

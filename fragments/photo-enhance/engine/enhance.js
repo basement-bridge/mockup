@@ -29,7 +29,14 @@
   var stats = { opens: 0, renders: 0, workerJobs: 0, dropped: 0, encodeCalls: 0, workerStarted: false, lastAnalysisMs: 0, lastRenderMs: 0, lastEncodeMs: 0, worker: null };
 
   function err(code, msg) { var e = new Error(msg || code); e.code = code; return e; }
-  function levelOf(id) { for (var i = 0; i < LEVELS.length; i++) if (LEVELS[i].id === id) return LEVELS[i]; throw err("level", "Unknown level " + id); }
+  var EXTRA = [];                                   // preset levels, added by define() (mockup only; the four LEVELS stay the contract)
+  function levelOf(id) {
+    var i;
+    for (i = 0; i < LEVELS.length; i++) if (LEVELS[i].id === id) return LEVELS[i];
+    for (i = 0; i < EXTRA.length; i++) if (EXTRA[i].id === id) return EXTRA[i];
+    throw err("level", "Unknown level " + id);
+  }
+  function define(id, label, spec) { EXTRA = EXTRA.filter(function (l) { return l.id !== id; }); EXTRA.push({ id: id, label: label, k: 1, spec: spec }); }
   function fit(w, h, maxEdge, crop) {
     var sw = crop ? crop.w * w : w, sh = crop ? crop.h * h : h, sc = Math.min(1, maxEdge / Math.max(sw, sh));
     return { w: Math.max(1, Math.round(sw * sc)), h: Math.max(1, Math.round(sh * sc)) };
@@ -138,13 +145,13 @@
     });
   }
   var P = Session.prototype;
-  P.notesFor = function (levelId) { return notesFor(this._an, levelOf(levelId).k); };
+  P.notesFor = function (levelId) { var L = levelOf(levelId); return L.spec ? [] : notesFor(this._an, L.k); };
   P._dims = function (opts) { return fit(this.width, this.height, (opts && opts.maxEdge) || PREVIEW_EDGE, opts && opts.crop); };
   P._get = function (key) { for (var i = 0; i < this._cache.length; i++) if (this._cache[i].key === key) return this._cache[i]; return null; };
   P._put = function (key, img) {
     this._cache = this._cache.filter(function (c) { return c.key !== key; });
     this._cache.push({ key: key, img: img });
-    while (this._cache.length > CACHE_MAX) this._cache.shift();
+    while (this._cache.length > (window.PhotoEnhance.cacheMax || CACHE_MAX)) this._cache.shift();
   };
   P.ready = function (levelId, opts) {
     var L = levelOf(levelId); if (L.k === 0) return true;
@@ -169,7 +176,7 @@
   }
   P._request = function (levelId, d, crop, prio, waiter) {
     var L = levelOf(levelId), key = keyOf(levelId, d, crop), self = this;
-    enqueue({ type: "render", sid: this._sid, k: L.k, w: d.w, h: d.h, crop: crop || null, dedupe: this._sid + key }, prio, waiter);
+    enqueue({ type: "render", sid: this._sid, k: L.k, spec: L.spec || null, w: d.w, h: d.h, crop: crop || null, dedupe: this._sid + key }, prio, waiter);
   };
   P.render = function (levelId, canvas, opts) {
     var self = this, L = levelOf(levelId), d = this._dims(opts), crop = opts && opts.crop;
@@ -219,7 +226,7 @@
     var d = fit(this.width, this.height, o.maxEdge || 1600, crop);
     return this._ready.then(function () {
       return new Promise(function (resolve, reject) {
-        enqueue({ type: "encode", sid: self._sid, k: L.k, w: d.w, h: d.h, crop: crop, mime: o.type || "image/webp", quality: o.quality == null ? 0.82 : o.quality, square: o.square || 0 }, 3, {
+        enqueue({ type: "encode", sid: self._sid, k: L.k, spec: L.spec || null, w: d.w, h: d.h, crop: crop, mime: o.type || "image/webp", quality: o.quality == null ? 0.82 : o.quality, square: o.square || 0 }, 3, {
           stale: function () { return false; }, reject: reject, progress: o.onProgress,
           resolve: function (m) { stats.lastEncodeMs = m.ms; resolve({ blob: m.blob, width: m.w, height: m.h, square: m.square || null, squareSize: o.square || 0, ms: m.ms }); }
         });
@@ -234,5 +241,5 @@
     if (worker) worker.postMessage({ type: "close", sid: this._sid });
   };
 
-  window.PhotoEnhance = { LEVELS: LEVELS, DEFAULT: DEFAULT, supported: supported, open: open, stats: stats, version: "0.1.0" };
+  window.PhotoEnhance = { LEVELS: LEVELS, DEFAULT: DEFAULT, supported: supported, open: open, define: define, cacheMax: CACHE_MAX, stats: stats, version: "0.1.0" };
 })();
