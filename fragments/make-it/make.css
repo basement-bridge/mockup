@@ -1,0 +1,108 @@
+/* Make it (Kitchie #779, #781; mockup, 15 Oct 2026). Tokens only (theme.css). The Plan phone pages also load ../plan-start-cooking/app.css (Kitchie's plan.phone.css, unchanged).
+   Sections: 1 page scaffold (mockup only), 2 the Make it button family (lift into the app), 3 Plan phone additions, 4 Home + Recipe cards, 5 desktop frame. */
+
+/* 1. page scaffold, mockup only */
+body.mk{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);line-height:1.4}
+.mk-bar{position:fixed;left:0;right:0;bottom:0;height:68px;border-top:1px solid var(--border);background:var(--surface);display:flex;justify-content:space-around;align-items:center;font-size:11px;font-weight:700;color:var(--muted);z-index:5}
+.mk-bar b{color:var(--accent)}
+.mk-toast{position:fixed;left:12px;right:12px;bottom:84px;z-index:40;padding:12px 14px;border-radius:var(--r-ctl);background:var(--fg);color:var(--bg);font-size:13px;line-height:1.35}
+.mk-toast b{font-weight:800}
+.mk-prop{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:0 6px;border-radius:var(--r-pill);border:1px solid var(--accent);color:var(--accent);vertical-align:middle}
+.mk .pw.ph{margin:0;--sth:10px;--barh:68px}
+
+/* 2. the Make it button family. One label, one icon (the pan), three weights. */
+.mkbtn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:var(--tap);padding:0 16px;border-radius:var(--r-ctl);border:1px solid var(--accent);background:var(--accent);color:var(--on-accent);font:700 14px var(--body);white-space:nowrap;cursor:pointer;text-decoration:none}
+.mkbtn svg{width:16px;height:16px;flex:none}
+.mkbtn.out{background:var(--bg);color:var(--accent)}
+.mkbtn.chip{min-height:var(--tap);padding:0 14px;border-radius:var(--r-pill);font-size:13px}
+.mkbtn.pill{min-height:var(--tap);padding:0 14px;border-radius:var(--r-pill);font-size:13px;background:var(--bg);color:var(--accent)}
+.mkbtn:focus-visible,.mkbtn:hover{box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--accent)}
+
+/* 3. Plan phone: Make it in the footer (A), header chip (B), meal row (C) */
+.pw.ph .sfoot .b2.make{flex:1.25;white-space:nowrap;background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.pw.ph .sfoot.hasmake .b2.add,.pw.ph .sfoot.hasmake .b2.hold{background:var(--bg);color:var(--fg);border-color:var(--border)}
+.pw.ph .sfoot.hasmake .b2.hold.on{border-color:var(--sage);color:var(--sage)}
+.pw.ph .sfoot .b2{white-space:nowrap;padding:0 8px}
+.pw.ph .dkh .mkbtn.chip{flex:none}
+.pw.ph .tx .mkbtn.pill{margin-top:6px;min-height:var(--tap)}
+.pw.ph .rol{margin:0 0 10px}
+
+/* 4. Home and Recipe cards (the existing idea card: lead row + two buttons) */
+.hm{padding:16px 16px 92px;max-width:430px;margin:0 auto}
+.hm h1{font-family:var(--head);font-size:1.5rem;margin:4px 0 12px}
+.card{padding:12px;border-radius:var(--r-card);background:var(--surface);border:1px solid var(--border);margin:0 0 14px}
+.card .th{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.card .th h2{margin:0;font-size:1rem;font-family:var(--head)}
+.card .th a{color:var(--accent);font-weight:700;font-size:13px;min-height:var(--tap);display:inline-flex;align-items:center}
+.lead{display:flex;gap:10px;align-items:center}
+.lead .t{min-width:0}.lead small{display:block;color:var(--muted);font-size:12px}
+.e{width:44px;height:44px;border-radius:var(--r-ctl);flex:none;display:flex;align-items:center;justify-content:center;font-size:24px;background:color-mix(in srgb,var(--accent) 18%,var(--surface))}
+.acts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.acts>*{flex:1 1 0;min-width:110px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:var(--tap);padding:0 16px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--surface);color:var(--fg);font:700 14px var(--body);cursor:pointer;text-decoration:none}
+.btn.pri{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.btn svg{width:16px;height:16px}
+.tg{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:800;padding:1px 8px;border-radius:var(--r-pill);border:1px solid var(--sage);color:var(--sage);white-space:nowrap}
+.tg.today{border-color:var(--accent);color:var(--accent)}
+.tg.mute{border-color:var(--border);color:var(--muted)}
+.tg svg{width:12px;height:12px}
+.wk{list-style:none;margin:0;padding:0}
+.wk li{display:flex;align-items:center;gap:10px;min-height:56px;padding:6px 0;border-top:1px solid var(--border)}
+.wk li:first-child{border-top:0}
+.wk .d{width:44px;flex:none;font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.wk .d b{display:block;color:var(--fg);font-size:15px}
+.wk li.today .d b{color:var(--accent)}
+.wk .m{flex:1;min-width:0;font-weight:600;overflow-wrap:anywhere}
+.wk .m small{display:block;color:var(--muted);font-weight:500;font-size:12px}
+.wk .none{color:var(--muted);font-weight:500}
+.mkq{font-size:12px;color:var(--muted);margin:8px 0 0}
+.sw2{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px}
+.sw2 a{display:inline-flex;align-items:center;min-height:36px;padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-size:13px;font-weight:700;color:var(--fg);text-decoration:none}
+.sw2 a[aria-current=true]{border-color:var(--accent);color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.sheet2{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--bg);border:1px solid var(--border);border-bottom:0;border-radius:var(--r-card) var(--r-card) 0 0;padding:14px 16px 20px;max-height:86vh;overflow:auto}
+.sheet2 h3{margin:0 0 4px;font-family:var(--head);font-size:1.15rem}
+.sheet2 .ing2{list-style:none;margin:8px 0;padding:0}
+.sheet2 .ing2 li{display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid var(--border);font-size:14px}
+.sheet2 .ing2 li.no{color:var(--danger);font-weight:700}
+.scrim3{position:fixed;inset:0;background:var(--dim);z-index:20}
+
+/* 5. desktop frame (rail, column, side panel); widths from DESIGN.md section 7: rail 88, column 640, panel 400 */
+.desk{display:grid;grid-template-columns:88px minmax(0,640px) 400px;gap:0 48px;min-height:100vh;align-items:start}
+.desk .rail{position:sticky;top:0;height:100vh;border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 0;font-size:11px;font-weight:700;color:var(--muted)}
+.desk .rail span{width:72px;min-height:var(--tap);display:flex;align-items:center;justify-content:center;border-radius:var(--r-ctl)}
+.desk .rail .on{color:var(--accent);background:var(--surface)}
+.desk .col{padding:24px 0}.desk .col h1{font-family:var(--head);margin:0 0 12px}
+.desk .side{padding:24px 0}
+.dpanel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:20px}
+.dpanel .top{display:flex;align-items:flex-start;gap:12px}
+.dpanel .top .e{width:56px;height:56px;font-size:30px}
+.dpanel h2{margin:0;font-family:var(--head);font-size:1.2rem}
+.dpanel .top p{margin:2px 0 0;color:var(--muted);font-size:13px}
+.dpanel .x{margin-left:auto;width:var(--tap);height:var(--tap);border-radius:50%;border:1px solid var(--border);background:var(--bg);color:var(--fg);font-size:20px;cursor:pointer;flex:none}
+.dpanel .dstat{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 0}
+.dpanel .srcbox{margin-top:10px;display:flex;flex-direction:column;gap:4px;align-items:flex-start;font-size:13px;color:var(--muted)}
+.dpanel .tt{display:flex;gap:8px;margin-top:10px;font-size:13px;color:var(--muted)}.dpanel .tt b{color:var(--fg)}
+.dpanel .vo{margin-top:12px;display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted);padding:8px 12px;border:1px dashed var(--border);border-radius:var(--r-ctl)}
+.dpanel .ings{margin-top:12px}
+.dpanel .ing{display:flex;justify-content:space-between;min-height:var(--tap);align-items:center;border-top:1px solid var(--border);font-size:14px}
+.dpanel .ing:first-child{border-top:0}
+.dpanel .ing .q{color:var(--muted)}
+.dpanel .foot{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.dpanel .foot .btn,.dpanel .foot .mkbtn{flex:1 1 auto}
+.dpanel .foot .btn.held{border-color:var(--sage);color:var(--sage)}
+.kbd{font:600 11px var(--body);border:1px solid var(--border);border-radius:6px;padding:1px 6px;color:var(--muted)}
+.mkbtn .kbd{color:inherit;border-color:currentColor;opacity:.85}
+.tile2{display:flex;align-items:center;gap:12px;min-height:64px;padding:8px 12px;border-radius:var(--r-card);background:var(--surface);border:1px solid var(--border);margin-bottom:8px;cursor:pointer;width:100%;text-align:left;color:var(--fg);font:inherit}
+.tile2.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.tile2 .t{flex:1;min-width:0;font-weight:700}.tile2 .t small{display:block;font-weight:500;color:var(--muted);font-size:12px}
+.dayh{font-size:12px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:16px 0 6px}
+.hint{font-size:12px;color:var(--muted);margin:10px 0 0}
+@media (max-width:1279px){.desk{grid-template-columns:88px minmax(0,1fr);gap:0 24px}.desk .side{grid-column:2;padding-top:0}.desk .rail{height:auto;position:static}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+/* Kitchie's .pw.ph resets buttons (no border, no fill); restate the Make it family inside the Plan phone so the chip and the pill keep their shape */
+.pw.ph .mkbtn{border:1px solid var(--accent);background:var(--accent);color:var(--on-accent);min-height:var(--tap);padding:0 16px;border-radius:var(--r-ctl);font:700 14px var(--body)}
+.pw.ph .mkbtn.chip,.pw.ph .mkbtn.pill{border-radius:var(--r-pill);padding:0 14px;font-size:13px}
+.pw.ph .mkbtn.pill{background:var(--bg);color:var(--accent)}
+.pw.ph .mkbtn.chip{background:var(--accent);color:var(--on-accent)}
+.pw.ph .sfoot .mkbtn.b2{border-radius:var(--r-ctl)}
+.dpanel .top>div{flex:1;min-width:0}

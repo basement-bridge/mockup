@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Make it: start making a planned meal</title><link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><script src="../../theme.js"></script>
+<style>
+.decs li,.q li{margin-bottom:8px;font-size:14px}
+.tbl{overflow-x:auto}.tbl table{min-width:640px}
+.rec{font-size:11px;font-weight:800;padding:1px 7px;border-radius:var(--r-pill);border:1px solid var(--accent);color:var(--accent);margin-left:4px;white-space:nowrap}
+.prop{font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:0 6px;border-radius:var(--r-pill);border:1px solid var(--accent);color:var(--accent);vertical-align:middle}
+.phones{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-top:8px}
+.desks{display:grid;grid-template-columns:1fr;gap:16px;margin-top:8px}
+.ph{display:flex;flex-direction:column;gap:6px}.ph h3{margin:0;font-size:15px}
+.ph iframe{width:100%;border:1px solid var(--border);border-radius:24px;background:var(--bg)}
+.ph iframe.d{max-width:100%;height:620px;border-radius:12px}
+.open{display:inline-flex;align-items:center;min-height:44px;font-size:13px;font-weight:700}
+.lk{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 0}
+.lk a{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border-radius:99px;border:1px solid var(--border);background:var(--bg);font-size:13px;font-weight:600}
+.lk a:hover{border-color:var(--accent)}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Make it: start making a planned meal</h1>
+<p>Mockup only, 15 October 2026. Kitchie issues #779 (the screen) and #781 (chat and screen follow one flow), both read only. Phone first at 360 and 390, light and dark, 44px targets; desktop for the Plan and Home. Every button below is clickable and the tap result opens the page that exists today. Sample data; nothing is saved.</p>
+
+<div class="sec"><div class="lbl">What the owner said (Arjan, voice, 15 October 2026), decided</div>
+<ul class="decs">
+<li>The label is <b>Make it</b>, not cook: it covers baking and prepping. &ldquo;I need a button where we can start making whatever that&rsquo;s on the plan.&rdquo;</li>
+<li>It is shown on a meal that is <b>already on the Plan</b>. A planned meal is never offered add-to-plan again.</li>
+<li>Rename the existing <b>Cook now</b> to <b>Make it</b> everywhere (recipe flyout footer, cooking idea card, Home ideas).</li>
+<li>Home must know whether the idea is <b>planned for today</b>: planned for today is just <b>Make it</b>; not planned for today is the existing Plan (add-to-plan) path, not Make it.</li>
+<li><b>Reuse the existing Cook now flow</b>; a new flow must say why. This page adds none: the tap opens the cook page for a saved recipe and the Cooking now screen for a made-up meal, both as they are.</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">Where the button sits on the Plan meal detail: three layout options <span class="prop">Proposal</span></div>
+<div class="tbl"><table>
+<tr><th>Option</th><th>Where and weight</th><th>Good</th><th>Costs</th></tr>
+<tr><td><b>A</b> Footer <span class="rec">recommended</span></td><td>Third button in the footer, after Hold or Release (and Add). Filled accent, the leading action. Hold and Add go outline so there is one lead.</td><td>The footer is where this screen&rsquo;s actions and the thumb already are. The same place on phone and desktop. One tap from the open meal.</td><td>Footer holds up to three buttons (Hold, Add, Make it); at 360 each is about 96px. Adds to decision 126 (&ldquo;Hold and Add&rdquo;), owner-stated. Add loses its fill when it shows.</td></tr>
+<tr><td><b>B</b> Header chip</td><td>A pill in the day header beside the close button. Filled accent, small.</td><td>Footer stays exactly decision 126. Visible without scrolling a long ingredient list.</td><td>Crowds the header: the title wraps at 360 and on desktop a long meal name. Far from the thumb. Reads as a tag, not the main action.</td></tr>
+<tr><td><b>C</b> Meal row</td><td>An outline pill inside the meal card, under the title. On desktop, on the agenda tile.</td><td>Needs no opened detail: the row is the action, and it matches Home&rsquo;s This week row.</td><td>The card grows taller. Two ways to the same action if the detail also shows it. Repeats on every tile that qualifies, so a busy week gets noisy.</td></tr>
+</table></div>
+<p><b>Recommended: A on the meal detail (phone sheet and desktop panel), plus the row pill on Home&rsquo;s This week</b> (Home has no footer). One filled button per screen, the same word and pan icon everywhere.</p></div>
+
+<div class="sec"><div class="lbl">Plan meal detail, phone (390). Option A footer; links switch state and option</div>
+<div class="phones">
+<div class="ph"><h3>Saved recipe</h3><iframe loading="lazy" title="Saved recipe" src="plan-phone.html?s=saved&o=a" style="max-width:390px;height:760px"></iframe><a class="open" href="plan-phone.html?s=saved&o=a">Open full size</a></div><div class="ph"><h3>Made-up meal, no recipe</h3><iframe loading="lazy" title="Made-up meal, no recipe" src="plan-phone.html?s=adhoc&o=a" style="max-width:390px;height:760px"></iframe><a class="open" href="plan-phone.html?s=adhoc&o=a">Open full size</a></div><div class="ph"><h3>Held meal (Release shows)</h3><iframe loading="lazy" title="Held meal (Release shows)" src="plan-phone.html?s=held&o=a" style="max-width:390px;height:760px"></iframe><a class="open" href="plan-phone.html?s=held&o=a">Open full size</a></div><div class="ph"><h3>Something missing (Hold, Add, Make it)</h3><iframe loading="lazy" title="Something missing (Hold, Add, Make it)" src="plan-phone.html?s=missing&o=a" style="max-width:390px;height:760px"></iframe><a class="open" href="plan-phone.html?s=missing&o=a">Open full size</a></div><div class="ph"><h3>Past day: no Make it</h3><iframe loading="lazy" title="Past day: no Make it" src="plan-phone.html?s=past&o=a" style="max-width:390px;height:760px"></iframe><a class="open" href="plan-phone.html?s=past&o=a">Open full size</a></div><div class="ph"><h3>Someone else&rsquo;s plan, view only: no Make it</h3><iframe loading="lazy" title="Someone else&rsquo;s plan, view only: no Make it" src="plan-phone.html?s=view&o=a" style="max-width:390px;height:760px"></iframe><a class="open" href="plan-phone.html?s=view&o=a">Open full size</a></div>
+</div>
+<h3>Options B and C on the same meal</h3>
+<div class="phones"><div class="ph"><h3>B header chip</h3><iframe loading="lazy" title="B header chip" src="plan-phone.html?s=saved&o=b" style="max-width:390px;height:760px"></iframe><a class="open" href="plan-phone.html?s=saved&o=b">Open full size</a></div><div class="ph"><h3>C meal row</h3><iframe loading="lazy" title="C meal row" src="plan-phone.html?s=saved&o=c" style="max-width:390px;height:760px"></iframe><a class="open" href="plan-phone.html?s=saved&o=c">Open full size</a></div></div></div>
+
+<div class="sec"><div class="lbl">Plan meal panel, desktop (1280, side panel 400px)</div>
+<div class="desks"><div class="ph wide"><h3>A footer: saved recipe</h3><iframe loading="lazy" title="A footer: saved recipe" src="plan-desk.html?s=saved&o=a" class="d"></iframe><a class="open" href="plan-desk.html?s=saved&o=a">Open full size</a></div><div class="ph wide"><h3>A footer: made-up meal</h3><iframe loading="lazy" title="A footer: made-up meal" src="plan-desk.html?s=adhoc&o=a" class="d"></iframe><a class="open" href="plan-desk.html?s=adhoc&o=a">Open full size</a></div><div class="ph wide"><h3>B header: held meal</h3><iframe loading="lazy" title="B header: held meal" src="plan-desk.html?s=held&o=b" class="d"></iframe><a class="open" href="plan-desk.html?s=held&o=b">Open full size</a></div><div class="ph wide"><h3>C tile: saved recipe</h3><iframe loading="lazy" title="C tile: saved recipe" src="plan-desk.html?s=saved&o=c" class="d"></iframe><a class="open" href="plan-desk.html?s=saved&o=c">Open full size</a></div><div class="ph wide"><h3>Past day: no Make it</h3><iframe loading="lazy" title="Past day: no Make it" src="plan-desk.html?s=past&o=a" class="d"></iframe><a class="open" href="plan-desk.html?s=past&o=a">Open full size</a></div><div class="ph wide"><h3>View only: no Make it</h3><iframe loading="lazy" title="View only: no Make it" src="plan-desk.html?s=view&o=a" class="d"></iframe><a class="open" href="plan-desk.html?s=view&o=a">Open full size</a></div></div></div>
+
+<div class="sec"><div class="lbl">Home: This week and the idea card know whether it is planned for today</div>
+<table><tr><th>The idea is&hellip;</th><th>Idea card</th><th>This week</th></tr>
+<tr><td>Planned for today</td><td>Just <b>Make it</b> (owner)</td><td>Today&rsquo;s row has the Make it pill <span class="prop">Proposal</span></td></tr>
+<tr><td>Not planned</td><td>The existing <b>Plan</b> path, no Make it (owner)</td><td>Today shows &ldquo;Nothing planned&rdquo;</td></tr>
+<tr><td>Planned for another day</td><td><b>Move to today</b> and a &ldquo;Planned Saturday&rdquo; chip <span class="prop">Proposal</span>; no second plan, no Make it</td><td>That day&rsquo;s row, no pill</td></tr></table>
+<div class="phones"><div class="ph"><h3>Phone: planned today</h3><iframe loading="lazy" title="Phone: planned today" src="home.html?p=today&w=phone" style="max-width:390px;height:800px"></iframe><a class="open" href="home.html?p=today&w=phone">Open full size</a></div><div class="ph"><h3>Phone: not planned</h3><iframe loading="lazy" title="Phone: not planned" src="home.html?p=none&w=phone" style="max-width:390px;height:800px"></iframe><a class="open" href="home.html?p=none&w=phone">Open full size</a></div><div class="ph"><h3>Phone: planned Saturday</h3><iframe loading="lazy" title="Phone: planned Saturday" src="home.html?p=other&w=phone" style="max-width:390px;height:800px"></iframe><a class="open" href="home.html?p=other&w=phone">Open full size</a></div><div class="ph"><h3>Phone: not planned, Make it also offered (open question 2)</h3><iframe loading="lazy" title="Phone: not planned, Make it also offered (open question 2)" src="home.html?p=none&w=phone&mu=1" style="max-width:390px;height:800px"></iframe><a class="open" href="home.html?p=none&w=phone&mu=1">Open full size</a></div></div>
+<div class="desks"><div class="ph wide"><h3>Desktop Home: planned today</h3><iframe loading="lazy" title="Desktop Home: planned today" src="home.html?p=today&w=desk" class="d"></iframe><a class="open" href="home.html?p=today&w=desk">Open full size</a></div><div class="ph wide"><h3>Desktop Home: not planned</h3><iframe loading="lazy" title="Desktop Home: not planned" src="home.html?p=none&w=desk" class="d"></iframe><a class="open" href="home.html?p=none&w=desk">Open full size</a></div><div class="ph wide"><h3>Desktop Home: planned another day</h3><iframe loading="lazy" title="Desktop Home: planned another day" src="home.html?p=other&w=desk" class="d"></iframe><a class="open" href="home.html?p=other&w=desk">Open full size</a></div></div></div>
+
+<div class="sec"><div class="lbl">Recipe: Cook now becomes Make it</div>
+<p>Same button, same place, new word. Recipe flyout footer (phone sheet and desktop panel) and the cooking idea card. A recipe planned for today drops Plan there too <span class="prop">Proposal</span>.</p>
+<div class="phones"><div class="ph"><h3>Flyout, phone sheet</h3><iframe loading="lazy" title="Flyout, phone sheet" src="recipe.html?v=sheet&p=none" style="max-width:390px;height:760px"></iframe><a class="open" href="recipe.html?v=sheet&p=none">Open full size</a></div><div class="ph"><h3>Cooking idea card</h3><iframe loading="lazy" title="Cooking idea card" src="recipe.html?v=card&p=none" style="max-width:390px;height:600px"></iframe><a class="open" href="recipe.html?v=card&p=none">Open full size</a></div><div class="ph"><h3>Flyout, phone sheet, planned today</h3><iframe loading="lazy" title="Flyout, phone sheet, planned today" src="recipe.html?v=sheet&p=today" style="max-width:390px;height:760px"></iframe><a class="open" href="recipe.html?v=sheet&p=today">Open full size</a></div></div>
+<div class="desks"><div class="ph wide"><h3>Flyout, desktop panel</h3><iframe loading="lazy" title="Flyout, desktop panel" src="recipe.html?v=desk&p=none" class="d"></iframe><a class="open" href="recipe.html?v=desk&p=none">Open full size</a></div></div></div>
+
+<div class="sec"><div class="lbl">What happens on tap <span class="prop">Proposal</span> (Kitchie #781, option 1)</div>
+<ul class="decs">
+<li><b>Saved recipe:</b> Make it opens the <b>existing cook page</b> (<a href="../../recipe/cook.html?id=efr&amp;from=plan">recipe/cook.html</a>), the page Cook now opens today. No new screen.</li>
+<li><b>Made-up meal (no recipe):</b> Make it opens the <b>existing Cooking now screen</b> (<a href="cooking.html?back=index.html">ingredients first</a>, <code>web-cooking.ts</code>), the one only the AI can start today. Its CSS is reused from <code>../plan-start-cooking/cooking-view.css</code>.</li>
+<li>Both: the tap first starts a Cooking now session through the same service the chat tool <code>start_cooking</code> uses, so the banner shows and chat and screen are one flow. This is #781 option 1, the one that needs only a route and wording. The mockup shows a one-line toast, then the page.</li>
+<li><b>Why no new flow:</b> everything above already exists. The only new thing is a web route that calls the existing start method. If the owner prefers #781 option 2 (the tap only links to the cook page) or 3 (a &ldquo;making&rdquo; state on the meal), the buttons here do not change; only what they call does.</li>
+<li>Held meal: Make it stays and uses the held items; the hold ends when making ends. Never on a past day, in someone else&rsquo;s view-only plan, or on Leftovers (as <code>fragments/plan-start-cooking</code> SC-P4). Shows on today&rsquo;s and later days&rsquo; meals; something missing does not hide it.</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">Other Proposals (the owner was silent)</div>
+<ul class="decs">
+<li><b>MK-P1.</b> Icon: the pan from <code>plan-start-cooking</code>, with the word Make it. Wrong guess costs: an icon swap.</li>
+<li><b>MK-P2.</b> Desktop key <span class="kbd">M</span> on the open meal. Wrong guess costs: it clashes with a shortcut; drop the badge.</li>
+<li><b>MK-P3.</b> The Cooking now banner, &ldquo;Done cooking&rdquo; and the chat tools <code>start_cooking</code>/<code>stop_cooking</code> keep their wording in this mockup. Wrong guess costs: one pass over labels, and the MCP tool contract the owner approved on 8 Oct 2026 if the tool is renamed.</li>
+<li><b>MK-P4.</b> Make it on the Plan appears for future days too (baking and prepping ahead); on Home only for today. Wrong guess costs: a visibility rule.</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">Open questions and the cost of a wrong guess</div>
+<ul class="q">
+<li><b>1. Which tap: #781 option 1, 2 or 3?</b> Wrong: a route and wording for 1 or 2; a schema change for 3.</li>
+<li><b>2. Make it on an unplanned idea on Home</b> (the half-finished sentence)? Drawn off; the fourth phone shows it on. Wrong: one button more or fewer on the idea card.</li>
+<li><b>3. Planned for another day:</b> Move to today, Make it anyway, or just a chip? Wrong: the wrong primary on a common state. Also the Recipe flyout keeps Plan when not planned but Home does not offer Make it when not planned: the same recipe gets different buttons on two screens. Wrong: confusion between Home and Recipe.</li>
+<li><b>4. Held meal:</b> start making releases the hold, keeps it, or hides Make it? Wrong: stock reserved for a meal already made.</li>
+<li><b>5. Footer room (option A):</b> may a third action join Hold and Add (decision 126)? Wrong: option B or C instead.</li>
+<li><b>6. Wording elsewhere:</b> Cooking now banner, Done cooking, the chat tools. Wrong: see MK-P3.</li>
+<li><b>7. Personal link only:</b> #781 notes the shared link refuses <code>start_cooking</code>; should Make it hide there too? Wrong: a button that errors.</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">Loads (DESIGN.md section 6, 6a)</div>
+<p>Nothing new on any default path. Make it is one button in markup each screen already draws; its CSS (<code>.mkbtn</code>, about 1 KB) is lifted into the existing stylesheets. The tap result is in place of a navigation only for the app&rsquo;s own cook page; the cook page and Cooking now screen load on tap, not before. This mockup page loads its own small files (<code>make.css</code>, <code>lib.js</code>, one script per screen) and the Plan phone reuses Kitchie&rsquo;s <code>plan.phone.css</code> from <code>plan-start-cooking</code>. The iframes above are lazy.</p></div>
+</div></body></html>
