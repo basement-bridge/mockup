@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Make it: chat and screen, one flow</title>
+<link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><link rel="stylesheet" href="cooking-view.css"><link rel="stylesheet" href="flow.css"><script src="../../theme.js"></script></head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="cl" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 7.500V12l3 2"/></symbol>
+<symbol id="us" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 19c0-3.500 3-5.500 6-5.500s6 2 6 5.500"/><path d="M16 5.500a3 3 0 0 1 0 5.500M18 14c2 .8 3 2.500 3 5"/></symbol>
+<symbol id="ck" viewBox="0 0 24 24"><path d="M5 12.500l4.500 4.500L19 7.500"/></symbol>
+<symbol id="fl" viewBox="0 0 24 24"><path d="M12 3c1 3.500 5 5.500 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 .2 1.500 1 2 2 2-1-3 0-5 1-8z"/></symbol>
+<symbol id="ch" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
+<symbol id="bk" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></symbol>
+<symbol id="x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+</defs></svg>
+<div class="wrap">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Make it: chat and screen, one flow</h1>
+<p class="lede">Kitchie issue #781. Three options for how starting to make something works, drawn as live flows: the assistant's chat on the left, the phone on the right. Tap in the phone or press the buttons. Mockup only, nothing is saved or sent. <b style="color:var(--fg)">The owner has not chosen.</b> The Make it buttons on Plan, Home and Recipe are drawn in <code>fragments/make-it</code> (#779); here they are plain stand-ins, only the place a tap starts from.</p>
+
+<div class="sec"><div class="lbl">Original problem statement (owner, by voice, 15 October 2026)</div>
+<p>On the Make it work: &ldquo;there's an MCP for start cooking &hellip; we should use most of the UI things &hellip; just the DRY principle. Then what I need there is the MCP tool, when somebody starts cooking and it's associated with the recipe &hellip; it needs to follow the same flow.&rdquo; Decided: <b style="color:var(--fg)">one flow</b> for chat and screen, through the same service methods; reuse the existing screens; the word is <b style="color:var(--fg)">Make it</b> (the renamed Cook now).</p>
+<ul class="decs">
+<li><b>Today, screen:</b> Cook now opens the step-by-step cook page and starts no session. No screen path starts a session.</li>
+<li><b>Today, chat:</b> <code>start_cooking</code> starts a Cooking now session (banner on five tabs, ingredients screen, up to two at once, cleared after 45 minutes, by Done cooking, or by <code>stop_cooking</code>). With a <code>recipe_id</code> it only links to the saved recipe, as a secondary option.</li>
+<li>Read from Kitchie <code>uat</code> v0.122.2 (issue #781), not run. Personal link only: the shared link refuses <code>start_cooking</code>.</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">The three options side by side</div>
+<div class="tbl"><table>
+<tr><th></th><th><a href="#o1">1. Make it starts a session <span class="rec">recommended</span></a></th><th><a href="#o2">2. Cook page unchanged, the tool links to it</a></th><th><a href="#o3">3. One making state</a></th></tr>
+<tr><td>Tap Make it (saved recipe)</td><td>Starts a session through the same method as chat, then opens the cook page</td><td>Opens the cook page. Starts nothing (as Cook now today)</td><td>Sets the making state on the recipe and plan entry, then opens the cook page</td></tr>
+<tr><td>Chat starts it with a recipe id</td><td>Starts a session. The banner opens the same cook page</td><td>Starts a session. The banner opens the ingredients screen; a row there links to the cook page</td><td>Sets the same making state. The banner opens the cook page</td></tr>
+<tr><td>Made-up dish (no recipe id)</td><td>Both paths start a session and land on the ingredients screen</td><td>Chat only. The screen has no steps to open, so no Make it</td><td>Same as 1, state on the plan entry only</td></tr>
+<tr><td>Done and Stop</td><td>Done on the cook page, Done cooking, the banner X and the assistant's stop all end the one session</td><td>Done on the cook page records use only; the banner stays until it is dismissed or clears</td><td>Done ends the making state and marks the meal made; the assistant's stop ends it too</td></tr>
+<tr><td>One flow, as the owner asked?</td><td>Yes: one start method, two doors</td><td>No: two starts remain, joined by a link</td><td>Yes: one state both paths set</td></tr>
+<tr><td>Cost of a wrong guess</td><td>A route and wording</td><td>A route and wording, and the screen start is still missing</td><td>A schema change, a migration, possibly the approved tool shape</td></tr>
+</table></div></div>
+
+<div class="sec"><div class="lbl">Try the same story on all three</div>
+<p>Each flow has its own buttons below its phone. These buttons press the same thing in all three at once, so the differences sit side by side.</p>
+<div class="bar" id="allbar" role="group" aria-label="Do the same in all three flows">
+<span class="t">Chat</span><button class="pillb sm sg" data-all="crice">Make egg fried rice</button><button class="pillb sm sg" data-all="cnood">Making garlic soy noodles</button>
+<span class="t">Screen</span><button class="pillb sm" data-all="mrice">Tap Make it: rice</button><button class="pillb sm" data-all="mnood">Tap Make it: noodles</button>
+<span class="t">Time</span><button class="pillb sm" data-all="t10">+10 min</button><button class="pillb sm" data-all="t45">+45 min</button><button class="pillb sm warn" data-all="reset">Reset all</button></div>
+<ol class="decs">
+<li>Chat starts the rice. Tap the banner on the phone: where does it open?</li>
+<li>Tap Make it on the rice from the screen instead. Is there a banner? Then say it in chat as well: does it start a second one?</li>
+<li>Start both dishes: two cards, &ldquo;1 of 2&rdquo;. Tap the name to bring the other forward.</li>
+<li>Finish the rice on the cook page (go to the last step, tap Done). What is left on the banner?</li>
+<li>Press +45 min: the sessions clear by themselves.</li>
+</ol></div>
+
+<section class="optsec" id="o1" aria-labelledby="o1h">
+<h2 id="o1h"><b>1</b>Make it starts a session, then opens the cook page <span class="rec">agent recommendation</span></h2>
+<p>The screen uses the same start method as the tool. The banner, the Cooking now screen and the cook page are one thing seen three ways. <code>start_cooking</code> with a recipe id opens the same cook page the screen does.</p>
+<div class="stage" id="flow1">
+<div class="col">
+<div class="panel"><h3>Chat with your assistant</h3><div class="chat" role="log" aria-label="Chat transcript, option 1" tabindex="0"></div><div class="qr"></div></div>
+<div class="panel hood" aria-live="polite"></div>
+</div>
+<div class="col">
+<div class="fp" role="group" aria-label="Phone, option 1"></div>
+<div class="shot-lbl">On the screen</div>
+<div class="shortcuts"><button class="pillb sm" data-a="make" data-k="rice">Tap Make it: rice</button><button class="pillb sm" data-a="make" data-k="noodles">Tap Make it: noodles</button></div>
+<div class="shot-lbl">Time: <span class="clock"></span></div>
+<div class="shortcuts"><button class="pillb sm" data-a="t10">+10 min</button><button class="pillb sm" data-a="t45">+45 min</button><button class="pillb sm warn" data-a="reset">Reset</button></div>
+</div>
+</div>
+<ul class="decs"><li><b>Screen path.</b> Make it on a saved recipe starts a session (same method as chat) and opens the cook page. On a made-up meal it starts one and lands on the ingredients screen.</li>
+<li><b>Chat path.</b> The call carries the recipe id; the banner opens the cook page <span class="prop">Proposal</span> (MF-P2). The cook page&rsquo;s Ingredients row leads to the tick list, and the tick list has a row back to the cook page (MF-P3).</li>
+<li><b>Stop and Done.</b> One end method, however it is reached: Done on the cook page <span class="prop">Proposal</span> (MF-P4), Done cooking, the banner X, or the assistant stopping. After a stop, the open cook page says so and still lets you tap Done.</li>
+<li><b>45 minutes.</b> From the last sign of life, from either side: the assistant checking in, or a tick or a step on the screen <span class="prop">Proposal</span> (MF-P5). Press +45 min.</li>
+<li><b>Two at once.</b> Start both dishes. A third would be kept but not shown, as today.</li>
+<li><b>Made up.</b> No recipe id, no cook page: banner and Make it open the ingredients screen, as today.</li><li><b>Cost of a wrong guess.</b> A route (a signed-in web route that calls <code>startCooking</code>) and wording (button label, banner target, tool description). No schema change, no change to the tool&rsquo;s input shape. Changing course to option 2 later removes the route; to option 3 adds a schema.</li></ul>
+</section>
+<section class="optsec" id="o2" aria-labelledby="o2h">
+<h2 id="o2h"><b>2</b>Cook page unchanged; the session only links to it</h2>
+<p>Make it stays what Cook now is today: it opens the cook page and starts nothing. A chat session that has a recipe id gains a row that opens the cook page. The two paths are joined by a link, not by a flow.</p>
+<div class="stage" id="flow2">
+<div class="col">
+<div class="panel"><h3>Chat with your assistant</h3><div class="chat" role="log" aria-label="Chat transcript, option 2" tabindex="0"></div><div class="qr"></div></div>
+<div class="panel hood" aria-live="polite"></div>
+</div>
+<div class="col">
+<div class="fp" role="group" aria-label="Phone, option 2"></div>
+<div class="shot-lbl">On the screen</div>
+<div class="shortcuts"><button class="pillb sm" data-a="make" data-k="rice">Tap Make it: rice</button><button class="pillb sm" data-a="make" data-k="noodles">Tap Make it: noodles</button></div>
+<div class="shot-lbl">Time: <span class="clock"></span></div>
+<div class="shortcuts"><button class="pillb sm" data-a="t10">+10 min</button><button class="pillb sm" data-a="t45">+45 min</button><button class="pillb sm warn" data-a="reset">Reset</button></div>
+</div>
+</div>
+<ul class="decs"><li><b>Screen path.</b> Make it opens the cook page. No session, so no banner on any tab. On a made-up meal there is nothing to open, so no Make it <span class="prop">Proposal</span> (MF-P9).</li>
+<li><b>Chat path.</b> The session&rsquo;s ingredients screen shows a row that opens the cook page. The banner still opens the ingredients screen.</li>
+<li><b>Stop and Done.</b> Done on the cook page records what was used and leaves the session running; the banner stays until Done cooking, the X, a stop, or 45 minutes. Try it after starting the rice in chat.</li>
+<li><b>45 minutes.</b> As today: from the assistant&rsquo;s last call only. Screen activity does nothing.</li>
+<li><b>Two at once.</b> As today. Nothing on the screen can start the second.</li>
+<li><b>Made up.</b> Chat only, as today.</li><li><b>Cost of a wrong guess.</b> A route (the link from the Cooking now screen to the cook page by recipe id) and wording (the row label, the tool text), so cheap. The risk is the owner&rsquo;s sentence: he asked for one flow, and here a person tapping Make it still gets no banner and the assistant cannot see it. If he meant a real single flow, this is built and then replaced by option 1.</li></ul>
+</section>
+<section class="optsec" id="o3" aria-labelledby="o3h">
+<h2 id="o3h"><b>3</b>One making state both paths set</h2>
+<p>A single &ldquo;making&rdquo; state sits on the meal or the recipe. Make it sets it; <code>start_cooking</code> with a recipe id sets the same one. The banner, the Cooking now screen and the cook page are all drawn from it.</p>
+<div class="stage" id="flow3">
+<div class="col">
+<div class="panel"><h3>Chat with your assistant</h3><div class="chat" role="log" aria-label="Chat transcript, option 3" tabindex="0"></div><div class="qr"></div></div>
+<div class="panel hood" aria-live="polite"></div>
+</div>
+<div class="col">
+<div class="fp" role="group" aria-label="Phone, option 3"></div>
+<div class="shot-lbl">On the screen</div>
+<div class="shortcuts"><button class="pillb sm" data-a="make" data-k="rice">Tap Make it: rice</button><button class="pillb sm" data-a="make" data-k="noodles">Tap Make it: noodles</button></div>
+<div class="shot-lbl">Time: <span class="clock"></span></div>
+<div class="shortcuts"><button class="pillb sm" data-a="t10">+10 min</button><button class="pillb sm" data-a="t45">+45 min</button><button class="pillb sm warn" data-a="reset">Reset</button></div>
+</div>
+</div>
+<ul class="decs"><li><b>Screen path.</b> Make it sets the making state on the recipe and the plan entry, then opens the cook page. A <b>Making now</b> chip shows on the recipe and the plan meal <span class="prop">Proposal</span> (MF-P10).</li>
+<li><b>Chat path.</b> The call sets the same state, so a dish started from either side is the same dish: no second one.</li>
+<li><b>Stop and Done.</b> Done on the cook page ends the state and marks the meal as made <span class="prop">Proposal</span> (MF-P10); the assistant&rsquo;s stop and the banner X end it too.</li>
+<li><b>45 minutes.</b> Same clock as option 1 (MF-P5). The state clears with it.</li>
+<li><b>Two at once.</b> Two making states; the banner shows both.</li>
+<li><b>Made up.</b> State on the plan entry only, or the session as today when it was never planned.</li><li><b>Cost of a wrong guess.</b> A schema change in Kitchie (a making column or table on plan entries, schema 24 moving on), a migration for live sessions, the contract fixture, and tests. A recipe-level state would live where the recipe lives, and Kitchie holds no recipes (the Recipe service does), so that half may mean a change there. A plan entry id on the tool would change the shape the owner approved on 8 October 2026, so it needs him.</li></ul>
+</section>
+<div class="sec"><div class="lbl">Recommendation</div>
+<p><b style="color:var(--fg)">Option 1</b> <span class="rec">agent recommendation</span>. It is the owner&rsquo;s sentence taken literally: the tool and the Make it button call the same start method, and the existing screens are reused without a second mechanism. It costs a route and wording, needs no schema change, and leaves the approved tool shape alone. Option 2 leaves the screen path unable to start anything, which is the gap he named. Option 3 is the largest and pulls a recipe-level state into Kitchie, which holds no recipes. Caveats to settle first: how a duplicate start is joined (MF-P1) and what keeps a screen-started session alive past 45 minutes (MF-P5).</p></div>
+
+<div class="sec"><div class="lbl">Proposals (the owner was silent)</div>
+<ul class="decs">
+<li><b>MF-P1. A dish already live is joined, not doubled</b> (options 1 and 3). Key: the recipe id, else the title. Today each call without a session id begins a new session. Wrong guess costs: two cards of the same dish, or two different dishes with one title merged.</li>
+<li><b>MF-P2. The banner opens the cook page when a recipe id exists</b> (1 and 3); without one it opens the ingredients screen. This is #781 question 2; the owner has not answered.</li>
+<li><b>MF-P3. The two screens link to each other.</b> The cook page has an Ingredients row that opens the tick list; the tick list has a row (&ldquo;Open the cook page&rdquo;, today &ldquo;Browse the recipe&rdquo;) that opens the cook page. Nothing from Cooking now is lost.</li>
+<li><b>MF-P4. Done on the cook page ends the session</b> (1 and 3), the same end method as Done cooking. In option 2 it does not.</li>
+<li><b>MF-P5. Activity restarts the 45 minutes from the screen too</b> (1 and 3): a tick, a step, or tapping Make it on a live dish. Today only the assistant&rsquo;s next call restarts it, so a session started on the screen would clear in the middle of a long cook. Wrong guess costs: a change to <code>cooking.ts</code> timing, or a dish vanishing from the banner mid-cook.</li>
+<li><b>MF-P6. The button changes while it is live</b> (1 and 3): <b>Back to it</b> instead of Make it, so a second tap does not look like a restart. Option 2 keeps Make it.</li>
+<li><b>MF-P7. A screen start carries</b> the dish, its ingredients with amounts, <code>by: user</code>, source <code>app</code>. Where the web route reads a saved recipe&rsquo;s ingredients (the Recipe service, or the plan entry) is open.</li>
+<li><b>MF-P8. The person&rsquo;s screen does not jump</b> when chat starts a cook: the banner appears and they tap it. No auto-navigation.</li>
+<li><b>MF-P9. Option 2 hides Make it on a made-up meal</b> (nothing to open) and says so.</li>
+<li><b>MF-P10. Option 3 shows a Making now chip</b> on the recipe and the plan meal, and Done marks the meal made.</li>
+<li><b>MF-P11. The tool&rsquo;s reply and description gain one sentence</b> about where the banner opens. The input shape does not change, but the text is part of the approved contract fixture.</li>
+<li><b>MF-P12. Make it follows the personal-link rule</b> (question 3): a signed-in member only; the shared link does not show it. Wrong guess costs: a guest on the shared link sees a button that refuses.</li>
+<li><b>MF-P13. Mock stand-ins.</b> The clock is simulated; the banner CSS is drawn from <code>cooking-banner.ts</code> because <code>page.css</code> was not found; Home and Plan are placeholders for the #779 screens; two dishes only, so the &ldquo;third is kept but hidden&rdquo; rule is described, not drawn.</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">Open questions</div>
+<ol class="decs">
+<li><b>Option 1, 2 or 3?</b> A wrong guess costs a route and wording for 1 or 2, a schema change for 3.</li>
+<li><b>Does the banner open the cook page when a recipe id exists</b> (#781 question 2), or stay on the ingredients screen? Drawn as the cook page for 1 and 3 (MF-P2) with a row to the tick list.</li>
+<li><b>Personal link only</b> (#781 question 3): does Make it follow the same rule, a signed-in member only (MF-P12)?</li>
+<li><b>The MCP tool shape was approved on 8 October 2026.</b> None of the options changes its input. Option 3 may need a plan entry id; MF-P11 changes the description text. Any change needs the owner.</li>
+<li><b>Can the assistant see a cook started on the screen?</b> No tool reads sessions today, so after a screen start it may say &ldquo;starting&rdquo; for something running. MF-P1 absorbs the duplicate; the owner may want a read as well.</li>
+<li><b>MF-P5 and MF-P4:</b> may screen activity keep a session alive, and does Done on the cook page end it?</li>
+<li><b>Made-up meals on the Plan:</b> does #779 show Make it on them? Options 1 and 3 need it to; option 2 cannot.</li>
+</ol></div>
+
+<div class="sec"><div class="lbl">Loads (DESIGN.md sections 6 and 6a)</div>
+<p>Default path: this page, <code>theme.css</code>, <code>shared.css</code>, <code>flow.css</code> (about 11 KB), <code>cooking-view.css</code> (Kitchie&rsquo;s view, copied unchanged from <code>fragments/plan-start-cooking</code>) and <code>flow.js</code>. No images: emoji and inline SVG. Nothing is deferred because the whole page is the demo. In the app the cook page, the tick list and the banner already exist; Make it adds one signed-in POST on the tap and swaps the result in place (the banner appears, the page changes) with a full navigation only as the fallback.</p></div>
+</div>
+<script src="flow.js"></script>
+</body></html>

@@ -1,0 +1,113 @@
+/* Make it: one flow for chat and screen (Kitchie #781). Tokens only (theme.css). Mockup page chrome first, then the phone.
+   The phone reuses: cooking-view.css (Kitchie's Cooking now view, copied unchanged from fragments/plan-start-cooking), and the recipe cook page
+   (recipe-page fragment, layout 3 "Cooking cards") whose rules are copied below, scoped under .fp; its .sec2 is renamed .rsec because Kitchie's
+   Cooking now view already owns .sec2 (a button). The banner rules (.cookbn*) are a stand-in: Kitchie's page.css was not readable, so they are drawn from
+   the markup in cooking-banner.ts. */
+.lede{max-width:62ch;margin-top:8px}
+.say{margin:6px 0 0;font-size:14px;color:var(--fg)}
+.say q{color:var(--fg)}
+.tbl{overflow-x:auto;margin-top:8px}.tbl table{min-width:760px}
+.tbl th:first-child,.tbl td:first-child{width:18%;font-weight:700;color:var(--fg)}
+.rec{font-size:11px;font-weight:800;padding:1px 7px;border-radius:var(--r-pill);border:1px solid var(--accent);color:var(--accent);margin-left:4px;white-space:nowrap}
+.prop{font-size:11px;font-weight:800;padding:1px 7px;border-radius:var(--r-pill);border:1px solid var(--sage);color:var(--sage);white-space:nowrap}
+ul.decs,ol.decs{margin:6px 0 0;padding-left:20px}.decs li{margin-bottom:8px;font-size:14px}
+code{font-size:12px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+.bar .t{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-right:4px}
+.pillb{min-height:var(--tap);padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);color:var(--fg);font:600 14px var(--body);cursor:pointer}
+.pillb:hover{border-color:var(--accent)}
+.pillb.sm{font-size:13px;padding:0 12px}
+.pillb.sg{border-color:var(--sage)}
+.pillb.warn{color:var(--danger);border-color:var(--danger)}
+.optsec{margin-top:36px;scroll-margin-top:12px}
+.optsec>h2{display:flex;gap:10px;align-items:center;font-size:1.35rem}
+.optsec>h2 b{flex:none;width:30px;height:30px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:inline-flex;align-items:center;justify-content:center;font-size:15px}
+.optsec>p{font-size:14px;margin-top:4px}
+.stage{display:grid;gap:16px;margin-top:14px}
+@media(min-width:900px){.stage{grid-template-columns:minmax(0,1fr) 390px;align-items:start}}
+.col{display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:12px}
+.panel h3{margin:0 0 8px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.chat{display:flex;flex-direction:column;gap:8px;max-height:420px;overflow-y:auto;padding:2px}
+.msg{max-width:92%;padding:9px 12px;border-radius:var(--r-ctl);font-size:14px;line-height:1.35;color:var(--fg)}
+.msg.user{align-self:flex-end;background:var(--accent);color:var(--on-accent)}
+.msg.ai{align-self:flex-start;background:var(--bg);border:1px solid var(--border)}
+.msg.sys{align-self:center;max-width:100%;background:none;color:var(--muted);font-size:12px;text-align:center}
+.call{align-self:stretch;max-width:100%;border:1px dashed var(--sage);border-radius:var(--r-ctl);padding:9px 12px;font-size:13px;background:var(--bg)}
+.call b{display:block;color:var(--sage);font-size:12px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+.call ul{margin:0;padding-left:18px;color:var(--fg)}
+.call .ans{margin-top:6px;padding-top:6px;border-top:1px solid var(--border);color:var(--muted)}
+.call .ans em{font-style:normal;color:var(--fg)}
+.qr{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.hood table{font-size:13px}.hood td,.hood th{padding:6px 4px}.hood .none{color:var(--muted);font-size:13px}
+.hood p{font-size:13px;margin-top:8px}
+.clock{font-weight:700;color:var(--fg)}
+.shortcuts{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;max-width:390px}
+.shot-lbl{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:10px}
+
+/* ---- the phone ---- */
+.fp{position:relative;display:flex;flex-direction:column;width:100%;max-width:390px;height:720px;background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:var(--r-phone);overflow:hidden;font-size:14px;line-height:1.4}
+.fp svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.fp button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+.fp-bar{display:flex;justify-content:space-between;padding:12px 20px 4px;font-size:12px;font-weight:700;color:var(--muted)}
+.fp-tabs{display:flex;gap:4px;padding:4px;margin:4px 12px 0;border-radius:var(--r-pill);background:var(--surface);border:1px solid var(--border)}
+.fp-tabs button{flex:1;min-height:var(--tap);border-radius:var(--r-pill);font-weight:700;font-size:13px;color:var(--muted)}
+.fp-tabs button[aria-selected=true]{background:var(--accent);color:var(--on-accent)}
+.fp-scr{flex:1;overflow-y:auto;min-height:0}
+.fp-pg{padding:14px 16px 20px}
+.fp-pg h2{font-size:1.3rem;margin:0 0 8px}
+.fp-toast{position:absolute;left:12px;right:12px;bottom:84px;z-index:5;padding:10px 12px;border-radius:var(--r-ctl);background:var(--fg);color:var(--bg);font-size:13px;line-height:1.35}
+/* banner (stand-in for Kitchie's .cookbn*) */
+.cookbn{position:relative;margin:8px 12px 0}
+.cookbn-c{position:relative;z-index:1;display:flex;align-items:center;min-height:52px;border-radius:var(--r-ctl);background:var(--surface);border:1px solid var(--accent)}
+.cookbn-back{position:absolute;left:8px;right:8px;bottom:-5px;height:12px;border:1px solid var(--border);border-top:0;border-radius:0 0 var(--r-ctl) var(--r-ctl);background:var(--surface)}
+.cookbn-go{flex:1;display:flex;align-items:center;gap:10px;min-height:52px;padding:0 12px;text-align:left;min-width:0}
+.cookbn-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex:none}
+.cookbn-t{display:flex;flex-direction:column;min-width:0}
+.cookbn-t b{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}.cookbn-t b span{color:var(--muted)}
+.cookbn-n{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cookbn-x,.cookbn-open{width:var(--tap);height:var(--tap);display:flex;align-items:center;justify-content:center;color:var(--muted)}
+.cookbn-open{color:var(--fg)}
+/* Plan and Home stand-ins (the Make it buttons on these are drawn in fragments/make-it; this is only the place the tap starts from) */
+.meal{display:flex;align-items:center;gap:12px;padding:12px;margin-bottom:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card)}
+.meal .em{font-size:30px}
+.meal .tx{flex:1;min-width:0}.meal h3{margin:0;font-size:16px;line-height:1.2}.meal p{font-size:12px;margin-top:2px}
+.meal .mk{min-height:var(--tap);padding:0 14px;border-radius:var(--r-ctl);background:var(--accent);color:var(--on-accent);font-weight:800;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.meal .mk.back{background:var(--bg);color:var(--fg);border:1px solid var(--accent)}
+.meal .why{font-size:12px;color:var(--muted);max-width:11em;text-align:right}
+.chipm{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:var(--r-pill);border:1px solid var(--accent);color:var(--accent);margin-top:4px}
+.chipm i{width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.stand{font-size:12px;color:var(--muted);margin-top:8px}
+/* recipe page + cook page (copied from fragments/recipe-page, scoped) */
+.fp .hero{position:relative;height:96px;display:flex;align-items:center;justify-content:center;font-size:52px;background:linear-gradient(160deg,color-mix(in srgb,var(--accent) 30%,var(--surface)),var(--surface))}
+.fp .pad{padding:12px 14px}
+.fp h3.t{font-size:22px;font-weight:800;line-height:1.15;font-family:var(--head);margin:0}
+.fp .meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.fp .mc{display:inline-flex;align-items:center;gap:5px;min-height:30px;padding:0 10px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-size:12px;font-weight:700;color:var(--muted)}
+.fp .mc.hot{color:var(--accent);border-color:var(--accent)}
+.fp .rsec{margin-top:14px}.fp .rsec .lb2{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.fp .ig{display:flex;align-items:center;gap:10px;min-height:44px;border-top:1px solid var(--border)}.fp .ig:first-of-type{border-top:0}
+.fp .ig .n{flex:1}.fp .ig .q{color:var(--muted);font-size:13px}
+.fp .dot{width:10px;height:10px;border-radius:50%;background:var(--cue)}
+.fp .tag2{font-size:11px;font-weight:800;padding:2px 8px;border-radius:var(--r-pill);border:1px solid var(--sage);color:var(--sage)}
+.fp .bn{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:10px 12px;border-radius:var(--r-ctl);background:var(--surface);border:1px solid var(--border);font-weight:700;min-height:var(--tap)}
+.fp .bn small{display:block;font-weight:500;color:var(--muted);font-size:12px}
+.fp .card2{margin:12px 14px 0;padding:14px;border-radius:var(--r-card);background:var(--surface);border:1px solid var(--border)}
+.fp .card2 .lb2{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.fp .card2 .big{height:110px;border-radius:var(--r-ctl);display:flex;align-items:center;justify-content:center;font-size:56px;background:linear-gradient(160deg,color-mix(in srgb,var(--accent) 22%,var(--surface)),var(--bg));margin-bottom:10px}
+.fp .dots{display:flex;gap:6px;justify-content:center;margin-top:12px}.fp .dots i{width:8px;height:8px;border-radius:50%;background:var(--border)}.fp .dots i.on{background:var(--accent);width:22px;border-radius:4px}
+.fp .tm{display:inline-flex;align-items:center;gap:5px;font-weight:800;color:var(--accent);margin-top:8px}
+.fp .use{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}.fp .use span{font-size:11px;font-weight:700;padding:2px 8px;border-radius:var(--r-pill);background:var(--bg);border:1px solid var(--border);color:var(--muted)}
+.fp .cb{padding:10px 12px 12px;background:var(--surface);border-top:1px solid var(--border);display:flex;flex-direction:column;gap:6px;align-items:stretch}
+.fp .cb .go{min-height:48px;border-radius:var(--r-ctl);background:var(--accent);color:var(--on-accent);font-weight:800;display:flex;align-items:center;justify-content:center;gap:8px}
+.fp .cb small{text-align:center;color:var(--muted);font-size:11px}
+.fp .cb .two{display:flex;gap:8px}.fp .cb .two .go{flex:1}.fp .cb .two .alt{flex:1;min-height:48px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);color:var(--fg);font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px}
+.cp-top{display:flex;align-items:center;gap:6px;padding:4px 10px 0}
+.cp-top .bk{width:var(--tap);height:var(--tap);display:flex;align-items:center;justify-content:center}
+.cp-top h3{margin:0;font-size:19px;line-height:1.15}.cp-top span{font-size:12px;color:var(--muted)}
+.strip{margin:8px 14px 0;padding:8px 12px;border-radius:var(--r-ctl);border:1px dashed var(--border);font-size:12px;color:var(--muted)}
+/* Kitchie's Cooking now view sizes itself to the real viewport (dvh, vw); inside this frame it is sized to the frame. Mockup only. */
+.fp .cv{min-height:0}
+.fp .cv .ing{min-height:0}
+.fp .cv .ing li{flex:none;font-size:1.05rem}
+.fp .cv h1{font-family:var(--head)}
