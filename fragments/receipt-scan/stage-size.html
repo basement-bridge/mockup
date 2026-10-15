@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Receipt scan: the camera picture size</title>
+<link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><script src="../../theme.js"></script>
+<style>
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:16px}
+.card h3{margin:0 0 4px;font-size:18px;font-family:var(--head)}
+.card ul{margin:6px 0 10px;padding-left:18px;font-size:14px}.card li{margin-bottom:3px}
+.rec{border:2px solid var(--accent)}
+.strip{display:flex;gap:14px;overflow-x:auto;padding:6px 2px 14px}
+.fr{margin:0;flex:none;width:390px}
+.fr figcaption{font-size:13px;font-weight:700;margin:0 0 6px}
+.ph{width:390px;height:760px;border:1px solid var(--border);border-radius:var(--r-phone);overflow:hidden;background:var(--bg)}
+.ph.short{height:640px;width:360px}
+.ph iframe{width:100%;height:100%;border:0;display:block}
+.stand{border:1px solid var(--border);border-radius:var(--r-card);padding:12px 16px;margin:12px 0;background:var(--surface)}
+.mini2{font-size:13px}code{font-size:13px;overflow-wrap:anywhere}
+</style>
+</head>
+<body><main class="wrap">
+<p class="mini2"><a href="../../index.html">Mockup index</a> · <a href="index.html">Receipt scan: bulk add to the Pantry</a></p>
+<h1>Receipt scan: the camera picture size (Kitchie #750)</h1>
+<div class="stand"><p class="mini2"><b>The report.</b> Owner, 15 October 2026: a screenshot, no words (title: "Small footprint of the receipt"). It shows the live camera on a phone as a thin strip in a wide box: the picture is about 84 px wide in a 365 px box. On 15 October the owner said, by voice: "get it done, a few options, make some sensible decisions, build it straight into UAT." <b>Everything marked Proposal below was decided by the agent under that instruction, not by the owner;</b> overrule any of it.</p></div>
+
+<h2>Three sizes, side by side (live camera, 390 x 760)</h2>
+<div class="strip">
+<figure class="fr"><figcaption>A. As it is: 150 px</figcaption><div class="ph"><iframe data-stage="150px" src="ro.html?step=view&amp;phase=end&amp;pre=half&amp;vp=390" title="A"></iframe></div></figure>
+<figure class="fr"><figcaption>B. Chosen (Proposal): 34% of the screen, 150 to 300 px</figcaption><div class="ph"><iframe data-stage="clamp(150px,34dvh,300px)" src="ro.html?step=view&amp;phase=end&amp;pre=half&amp;vp=390" title="B"></iframe></div></figure>
+<figure class="fr"><figcaption>C. Larger: 44% of the screen, 190 to 380 px</figcaption><div class="ph"><iframe data-stage="clamp(190px,44dvh,380px)" src="ro.html?step=view&amp;phase=end&amp;pre=half&amp;vp=390" title="C"></iframe></div></figure>
+</div>
+<p class="mini2">Other heights, B: a 360 x 640 phone gets 218 px, a 390 x 844 phone 287 px, a 430 x 932 phone 300 px (the cap), a phone on its side (390 px tall) 150 px, as today.</p>
+
+<div class="card rec"><h3>Decisions (Proposal, RS-113 to RS-115)</h3><ul>
+<li><b>RS-113. B is the default.</b> The picture box is 34% of the screen's height, at least 150 px (so never smaller than today) and at most 300 px. On a 390 x 844 phone it is about 287 px, so a 9:16 camera frame is about 161 px wide, twice what it was. A is today's size. C leaves the list under 300 px on a 760 px screen.</li>
+<li><b>RS-114. The handle still wins.</b> Kitchie #754's drag handle (RS-96) and the remembered position replace this default exactly as before; the default is only what a first scan starts at, so #750 does not need #754 built.</li>
+<li><b>RS-115. The picture is never cropped.</b> It stays "contain" in a taller box (the receipt's edges stay visible); a taller box only means a bigger picture. Tablet widths (600 to 1023 px) share the rule. Desktop is unchanged.</li>
+</ul>
+<p class="mini2"><b>Not done, on purpose:</b> option 3 from the issue (a box that grows while the camera looks and folds to a strip when lines are read) is a layout jump and more script; the handle and the new default are enough for now. <b>Wrong guess costs:</b> a few pixels of list on a small phone; it is one CSS value.</p></div>
+
+<div class="stand"><h3>For the build</h3><p class="mini2">One value: <code>.ro-rl .rl-stage.lv-short{height:var(--qu-stage,var(--ro-stage,clamp(150px,34dvh,300px)))}</code> (<code>--ro-stage</code> is only set by this page to compare A and C; the build does not set it). Nothing else loads or changes: no script, no new asset, no new token.</p></div>
+</main>
+<script>
+/* ro.html?vp=390 draws the phone inside an inner frame, so the compared height is set on the page and on every frame inside it, a few times while it loads. */
+function setStage(doc, v) { try { doc.documentElement.style.setProperty("--ro-stage", v); doc.querySelectorAll("iframe").forEach(function (i) { setStage(i.contentDocument, v); }); } catch (e) {} }
+document.querySelectorAll("iframe[data-stage]").forEach(function (f) {
+  var go = function () { setStage(f.contentDocument, f.dataset.stage); };
+  f.addEventListener("load", function () { go(); setTimeout(go, 300); setTimeout(go, 900); });
+});
+</script></body></html>
