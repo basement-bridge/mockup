@@ -22,6 +22,10 @@ span.wunit{border-color:transparent;padding:0 6px}
 .ro-amt span{display:inline-flex;align-items:center;min-height:28px;padding:0 10px;border-radius:var(--r-pill);border:1px solid var(--border);font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
 .ro-amt:hover span,.ro-amt:focus-visible span,.ro-amt[aria-expanded=true] span{color:var(--fg);border-color:var(--fg)}
 
+/* RS-112: the arithmetic of a line that prints a count and a unit (2 × 2 L), a quiet pill under the state chip. Same drawing as the amount pill above (28 px there, 24 px here: it is not a control, so no 44 px). Drawn only for such a line (Empty is absent). */
+.qu-calc{display:inline-flex;align-items:center;min-height:24px;padding:0 9px;border-radius:var(--r-pill);border:1px solid var(--border);color:var(--muted);font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ro-li.on .qu-calc{color:var(--fg);border-color:var(--fg)}
+
 /* Option B: the quantity sheet (Shopping's "How much milk?"), one Save button. A bottom sheet on a phone, inline under the row in the desktop lane. */
 .qu-sheet{gap:12px}
 .qu-sheet h2{margin:0;font:700 18px var(--head)}

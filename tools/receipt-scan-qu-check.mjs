@@ -3,7 +3,7 @@
 import { chromium } from "playwright-core";
 const BASE = process.env.BASE || "http://localhost:8123/fragments/receipt-scan/";
 const base = "step=view&phase=end&pre=all";
-const states = [base, base + "&filter=check", base + "&sel=l3", base + "&res=l6:new&sel=l6", base + "&sel=l3&nounit=l3", base + "&filter=check&sel=l7", base + "&filter=check&sel=l13", base + "&filter=unsure&sel=l12", base + "&qs=l3", base + "&typed=l3~2 litres of milk&sel=l3", base + "&hold=1", base + "&cf=all&toast=cf", base + "&filter=unsure", base + "&filter=ignored"];
+const states = [base, base + "&filter=check", base + "&sel=l3", base + "&res=l6:new&sel=l6", base + "&sel=l3&nounit=l3", base + "&filter=check&sel=l7", base + "&filter=check&sel=l13", base + "&filter=unsure&sel=l12", base + "&qs=l3", base + "&typed=l3~2 litres of milk&sel=l3", base + "&hold=1", base + "&cf=all&toast=cf", base + "&filter=unsure", base + "&filter=ignored", base + "&filter=exact&sel=l15", base + "&filter=exact&sel=l4", base + "&filter=unsure&sel=l16"];
 const b = await chromium.launch(); let bad = 0, n = 0;
 for (const opt of ["a", "b"]) for (const [w, h] of [[390, 844], [768, 1024], [1280, 800]]) for (const th of ["kitchie", "kitchie-day"]) for (const q of states) {
   const p = await b.newPage({ viewport: { width: w, height: h } }); const errs = [];
@@ -48,7 +48,7 @@ for (const [w, h] of [[390, 844], [1280, 800]]) {
   if (pills[0] !== "Exact" || pills.includes("All") || pills.length !== 4) say("pills: " + pills.join(","));
   let seen = 0; const ids = new Set();
   for (const k of ["exact", "check", "unsure", "ignored"]) { await p.click(`.ro-f[data-v="${k}"]`); (await p.$$eval(".ro-li", e => e.map(x => x.dataset.id))).forEach(i => { seen++; ids.add(i); }); }
-  if (ids.size !== 16 || seen !== 16) say("a line is unreachable or in two pills: " + ids.size + "/" + seen);
+  if (ids.size !== 19 || seen !== 19) say("a line is unreachable or in two pills: " + ids.size + "/" + seen);
   // RS-93: unsure rows say only the reason; other reasons are short
   await p.click('.ro-f[data-v="unsure"]'); t = await p.textContent(".ro-list");
   if (/No recommendation|looks like it/.test(t) || !/Nothing matches/.test(t) || !/Text unclear/.test(t)) say("unsure row text: " + t.slice(0, 120));
@@ -81,6 +81,27 @@ for (const [w, h] of [[390, 844], [1280, 800]]) {
   if (/pack size|tin size|is the .{0,8}size|rd: "size"/.test(allText)) say("RS-100: the data still calls a weight a size");
   await p.goto(`${BASE}qu-a.html?${base}&filter=check`); await p.waitForTimeout(300);
   if (/pack size|tin size/i.test(await p.textContent("body"))) say("RS-100: a size note is still shown");
+  // RS-112: a count AND a unit in the name never multiplies silently: the row shows the arithmetic; a size-only name is Unsure
+  { const pill = async (f, id) => { await p.goto(`${BASE}qu-a.html?${base}&filter=${f}`); await p.waitForTimeout(300); return p.$$eval(`.ro-li[data-id="${id}"] .qu-calc`, e => e.map(x => x.textContent)); };
+    const want = [["exact", "l15", "2 × 2 L"], ["exact", "l4", "4 × 400 g"], ["exact", "l5", "3 × 425 g"], ["unsure", "l16", "6 × 375 mL"]];
+    for (const [f, id, txt] of want) { const r = await pill(f, id); if (r.length !== 1 || r[0] !== txt) say(`RS-112: ${id} shows ${JSON.stringify(r)}, wanted ${txt}`); }
+    for (const [f, id] of [["exact", "l3"], ["exact", "l2"], ["exact", "l1"], ["unsure", "l17"], ["unsure", "l12"]]) { const r = await pill(f, id); if (r.length) say(`RS-112: ${id} has no count and a unit but shows a pill ${r[0]} (Empty is absent)`); }
+    await p.goto(`${BASE}qu-a.html?${base}&filter=unsure`); await p.waitForTimeout(300); const ur = await p.$$eval(".ro-li", e => e.map(x => x.dataset.id)); if (!ur.includes("l17") || !ur.includes("l16")) say("RS-112: a size-only name or a count with only a size is not in Unsure: " + ur);
+    await p.goto(`${BASE}qu-a.html?${base}&filter=exact&sel=l15`); await p.waitForTimeout(300);
+    if ((await p.inputValue("#qb-l15")) !== "2 × 2" || !/^L/.test(await p.textContent("#qb-l15u"))) say("RS-112: the opened row does not hold the sum 2 × 2 with an L pill");
+    t = await p.textContent(".ro-li.on .ro-out"); if (!/1 L to 5 L/.test(t)) say("RS-112: l15 outcome: " + t);
+    if (!(await p.$(".ro-li.on .qu-hint"))) say("RS-112: no hint under the sum");
+    await p.fill("#qb-l15", "3 x 2 L"); await p.press("#qb-l15", "Enter"); await p.waitForTimeout(200);
+    t = await p.textContent(".ro-li.on .ro-out"); if (!/1 L to 7 L/.test(t) || (await p.textContent(".ro-li.on .qu-calc")) !== "3 × 2 L") say("RS-112: a typed sum 3 x 2 L: " + t);
+    await p.fill("#qb-l15", "5 L"); await p.press("#qb-l15", "Enter"); await p.waitForTimeout(200);
+    t = await p.textContent(".ro-li.on .ro-out"); if (!/1 L to 6 L/.test(t) || (await p.$(".ro-li.on .qu-calc"))) say("RS-112: a typed single amount 5 L: " + t);
+    await p.goto(`${BASE}qu-a.html?${base}&filter=exact&sel=l15`); await p.waitForTimeout(300);
+    await p.click("#qb-l15u"); await p.waitForTimeout(150); t = await p.textContent(".ro-li.on .ro-out");
+    if (await p.$(".ro-li.on .qu-calc") || (await p.inputValue("#qb-l15")) !== "4" || !/1 L to 5 L/.test(t)) say("RS-112: the pill's x did not turn the sum into one amount: " + t);
+    await p.goto(`${BASE}qu-a.html?${base}&filter=exact&sel=l4`); await p.waitForTimeout(300);
+    t = await p.textContent(".ro-li.on .ro-out"); if (!/4 tin to 8 tin/.test(t) || (await p.inputValue("#qb-l4")) !== "4 × 400") say("RS-112: l4 (4 @ on a 400G tin): " + t);
+    const dropped = await p.evaluate(() => window.ROD.lines.filter(l => l.rd === "count" && l.raw.some(r => /\d\s*(kg|g|ml|l)\b/i.test(r))).map(l => l.id)); if (dropped.length) say("RS-112: a line drops its weight under a printed count: " + dropped);
+    const js = await (await fetch(`${BASE}qu.js`)).text(); if (!/the reader returns the two numbers|NEVER multiplies|never multiplies/i.test(js)) say("RS-112: qu.js does not state the rule"); }
   // RS-96: the handle between the receipt and the list (phone: picture height; desktop: lane width), kept on this device, with a keyboard way
   const kind = w >= 1024 ? "lane" : "stage";
   await p.goto(`${BASE}qu-a.html?${base}`); await p.waitForTimeout(400);
@@ -134,9 +155,9 @@ for (const [w, h] of [[390, 844], [1280, 800]]) {
   await p.goto(`${BASE}qu-a.html?${base}&filter=exact`); await p.waitForTimeout(400);
   await p.click(".qu-expand"); await p.waitForTimeout(200);
   if (!(await p.$(".qu-viewer .lv-ln"))) say("RS-95: the whole receipt did not open with its boxes");
-  const nb = await p.$$eval(".qu-viewer .lv-ln[data-id]", e => e.length); if (nb !== 16) say("RS-95: boxes drawn " + nb + ", wanted 16");
+  const nb = await p.$$eval(".qu-viewer .lv-ln[data-id]", e => e.length); if (nb !== 19) say("RS-95: boxes drawn " + nb + ", wanted 19");
   const vp = await p.evaluate(() => { const v = document.querySelector(".qu-vpaper"); return v.scrollHeight >= document.querySelector(".qu-vpaper").getBoundingClientRect().height; }); 
-  await p.click('.qu-viewer .lv-ln[data-id="l3"]'); t = await p.textContent(".qu-vcall"); if (!/Line 3 of 16/.test(t) || !/MILK 2L/.test(t)) say("RS-95: a tapped box does not name its line: " + t);
+  await p.click('.qu-viewer .lv-ln[data-id="l3"]'); t = await p.textContent(".qu-vcall"); if (!/Line 3 of 19/.test(t) || !/MILK 2L/.test(t)) say("RS-95: a tapped box does not name its line: " + t);
   await p.keyboard.press("Escape"); await p.waitForTimeout(100); if (await p.$(".qu-viewer")) say("RS-95: Escape does not go back");
   await p.click(".lv-stage", { position: { x: 30, y: 8 } }); await p.waitForTimeout(150); if (!(await p.$(".qu-viewer"))) say("RS-95: tapping the picture does not open it");
   await p.click('.qu-viewer .lv-ln[data-id]:nth-of-type(8)'); await p.click('[data-act="quclosev"]'); if (await p.$(".qu-viewer")) say("RS-95: Back does not close");

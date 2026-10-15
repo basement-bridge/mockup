@@ -123,7 +123,7 @@
   RO.visible = function () { return order().filter(function (l) { return RO.inFilter(l, S.filter); }); };
 
   /* ---------- the paper: where each line sits ---------- */
-  var ORDER = ["l1", "l2", "l3", "l4", "l5", "l6", "l7", "l8", "l9", "l10", "l11", "s1", "l12", "l13", "l14", "s2"];
+  var ORDER = D.order || ["l1", "l2", "l3", "l4", "l5", "l6", "l7", "l8", "l9", "l10", "l11", "s1", "l12", "l13", "l14", "s2"];   /* a data file may set its own printed order (qu-data.js adds three lines, RS-112) */
   var ROW = 24, GAP = 12, HEAD = 70, GEO = {}, y = HEAD;
   ORDER.forEach(function (id) { var n = L(id).raw.length; GEO[id] = { top: y, h: n * ROW, n: n }; y += n * ROW + GAP; });
   var FOOT = y, FOOTROWS = ["SUBTOTAL 87.43", "GST 3.12", "TOTAL 90.55", "EFTPOS 90.55", "Thank you for shopping"], PH = FOOT + FOOTROWS.length * 22 + 28;
