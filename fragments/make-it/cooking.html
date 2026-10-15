@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Make it: the existing Cooking now screen</title>
+<link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../plan-start-cooking/cooking-view.css"><link rel="stylesheet" href="make.css"><script src="../../theme.js"></script>
+<style>main{max-width:704px;margin:0 auto;padding:1.25rem 20px 88px}.back{display:inline-flex;align-items:center;min-height:44px;font-size:14px;font-weight:600;color:var(--accent);text-decoration:none}.note{margin:0 0 8px;padding:8px 12px;border:1px dashed var(--border);border-radius:var(--r-ctl);font-size:12.5px;color:var(--muted)}</style></head>
+<body class="mk" data-no-theme-fab><main>
+<a class="back" id="back" href="plan-phone.html?s=adhoc">&lsaquo; Back (mockup only)</a>
+<p class="note"><span class="mk-prop">Proposal</span> This is Kitchie's existing Cooking now screen (ingredients first, <code>web-cooking.ts</code>), unchanged: the CSS is copied from <code>../plan-start-cooking/cooking-view.css</code>. Make it on a meal with no saved recipe opens it. Only the line under the title is new text.</p>
+<div class="cv" data-cooking-screen>
+<div><span class="now"><i></i>Cooking now</span><h1>Malatang with chicken and rice</h1><p class="src">From your meal plan, tonight. Made up in your chat.</p></div>
+<ul class="ing" id="ing" aria-label="Ingredients" style="--n:7;--c:22"></ul>
+<form class="done" id="done"><button type="submit"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Done cooking</button></form>
+</div></main>
+<div class="mk-bar" aria-hidden="true"><span>Home</span><span>Pantry</span><span><b>Plan</b></span><span>Recipes</span><span>Shopping</span></div>
+<script>
+var T='<svg class="tick" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>';
+document.getElementById("ing").innerHTML=[["Chicken thighs","Fridge · Bottom shelf","300 g"],["Rice","Pantry","150 g"],["Malatang soup base","","1 pack"],["Bok choy","Fridge · Crisper","2"],["Enoki mushrooms","","100 g"],["Tofu puffs","","80 g"],["Glass noodles","","50 g"]].map(function(r){return '<li><label class="ci"><input type="checkbox"><span class="ck" aria-hidden="true">'+T+'</span><span class="cn"><span class="nm">'+r[0]+'</span>'+(r[1]?'<span class="wh">'+r[1]+'</span>':'')+'</span><span class="amt">'+r[2]+'</span></label></li>'}).join("");
+var b=new URLSearchParams(location.search).get("back");if(b&&/^[a-z-]+\.html(\?[\w=&%.-]*)?$/i.test(b))document.getElementById("back").href=b;
+document.getElementById("done").onsubmit=function(e){e.preventDefault();location.href=document.getElementById("back").getAttribute("href")};
+</script></body></html>
