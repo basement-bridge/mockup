@@ -97,3 +97,4 @@ span.wunit{border-color:transparent;padding:0 6px}
   .ro-rl .rl-panel{padding-top:.3rem;padding-bottom:max(2px,env(safe-area-inset-bottom,0px))}
   .tabbar{height:calc(48px + env(safe-area-inset-bottom,0px));padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box}
 }
+.qu-hintrow.qu-seen{justify-content:flex-end}

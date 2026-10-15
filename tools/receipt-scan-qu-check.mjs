@@ -60,7 +60,9 @@ for (const [w, h] of [[390, 844], [1280, 800]]) {
   // RS-98: Exact lines count toward Add by themselves; the long press (and Mark all reviewed, key A) only marks them reviewed
   await p.goto(`${BASE}qu-a.html?${base}&filter=exact`); await p.waitForTimeout(300);
   const addN = async () => +(/Add (\d+)/.exec(await p.textContent(".lv-add"))[1]);
-  const before = await addN(); if (!(await p.$(".qu-hintrow"))) say("RS-98: no hint under Exact");
+  const before = await addN(); if (!(await p.$(".qu-hintrow>span"))) say("RS-98: no hint under Exact");
+  if (await p.$('[data-act="excf"],[data-act="excfoff"]')) say("RS-98 (h): a per-row Mark reviewed button is drawn");
+  await p.keyboard.press("y"); await p.waitForTimeout(100); if ((await p.$$(".ro-li[data-tick]")).length) say("RS-98 (h): the Y key marked a row");
   const nEx = +(await p.textContent('.ro-f[data-v="exact"] b'));
   if (before !== nEx || nEx < 5) say(`RS-98: Add starts at ${before}, wanted every exact line (${nEx}) with no tap`);
   if (!/mark all \d+ reviewed/i.test(await p.textContent(".qu-hintrow"))) say("RS-98: hint does not say reviewed: " + await p.textContent(".qu-hintrow"));
@@ -69,10 +71,14 @@ for (const [w, h] of [[390, 844], [1280, 800]]) {
   if (!(await p.$(".ro-f.qu-hold"))) say("RS-98: no pressed state"); await p.waitForTimeout(600); await p.mouse.up(); await p.waitForTimeout(200);
   if ((await addN()) !== before) say(`RS-98: the long press changed the count (${before} to ${await addN()})`);
   if (!/marked reviewed/.test(await p.textContent(".toast")) || await p.$(".qu-hintrow")) say("RS-98: no toast or hint still showing");
+  if ((await p.evaluate(() => localStorage.getItem("rs754.hintseen"))) !== "1") say("RS-98 (h): hint-seen flag not remembered");
   if ((await p.$$(".ro-li[data-tick]")).length !== nEx) say("RS-98: rows not marked reviewed");
   if (!/Reviewed/.test(await p.textContent(".ro-li[data-tick]"))) say("RS-98: reviewed rows do not say Reviewed");
   await p.click('.toast [data-act="excfundo"]'); await p.waitForTimeout(100); if ((await p.$$(".ro-li[data-tick]")).length !== 0 || (await addN()) !== before) say("RS-98: Undo did not clear the reviewed state");
+  if (await p.$(".qu-hintrow>span")) say("RS-98 (h): the hint text still shows after first use");
   await p.click('[data-act="exall"]'); await p.waitForTimeout(100); if ((await p.$$(".ro-li[data-tick]")).length !== nEx || (await addN()) !== before) say("RS-98: Mark all reviewed button");
+  await p.reload(); await p.waitForTimeout(300); if (await p.$(".qu-hintrow>span")) say("RS-98 (h): hint came back after a reload");
+  await p.evaluate(() => localStorage.clear()); await p.goto(`${BASE}qu-a.html?${base}&filter=exact`); await p.waitForTimeout(300); if (!(await p.$(".qu-hintrow>span"))) say("RS-98 (h): hint missing with empty storage");
   // RS-100: a weight in the name is an amount (a pill), never a pack size
   await p.goto(`${BASE}qu-a.html?${base}&filter=check&sel=l13`); await p.waitForTimeout(300);
   if ((await p.inputValue("#qb-l13")) !== "400" || !/^g/.test(await p.textContent("#qb-l13u"))) say("RS-100: SMKD SLMN 400G is not the amount 400 g with a g pill");
