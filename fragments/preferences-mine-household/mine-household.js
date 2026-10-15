@@ -35,7 +35,7 @@
   var NOTE_MAX = 600;
 
   var PEOPLE = { sam: { name: "Sam" }, arjan: { name: "Arjan" }, jo: { name: "Jo" } };
-  var ROLE_WORD = { founder: "Founding member", admin: "Admin", member: "Member" }; // D25 to D27: binary, so founder and admin may edit household values, a member may not
+  var ROLE_WORD = { founder: "Founding member", founder_member: "Founding member", admin: "Admin", member: "Member" }; // D25 to D27: binary, so founder and admin may edit household values, a member may not
   var ADMIN_WHY = "Only household admins can change this.";
 
   /* ---------- sample data (mockup only) ---------- */
@@ -138,7 +138,8 @@
   function mine() { return M.me[S.as]; }
   /* D28: this is the ONE place that decides who may change a household-level value. The screen, and every write below, ask it (in the build the web routes and the MCP tools call the same service check). Personal values never ask (D29). */
   function roleOf(id) { return M.members.filter(function (m) { return m.id === id; })[0].role; }
-  function isAdmin(id) { var r = roleOf(id || S.as); return r === "founder" || r === "admin"; }
+  function isAdmin(id) { var r = roleOf(id || S.as); return r === "founder" || r === "admin"; } // "founder" = the founding member who is an admin; "founder_member" = the founding member who is not (the label gives no permission, SW-90)
+  function adminCount() { return M.members.filter(function (m) { return isAdmin(m.id); }).length; }
   function canWrite(scope) { return scope !== "hh" || isAdmin(); }
   function adminNames() { return M.members.filter(function (m) { return isAdmin(m.id); }).map(function (m) { return PEOPLE[m.id].name; }); }
   function lockNote() { // a household value, seen by a member who is not an admin: read-only, with the reason
@@ -598,7 +599,7 @@
 
   function householdScreen() {
     var only = M.only;
-    var head = isAdmin() ? '<p class="note">' + (roleOf(S.as) === "founder" ? "You are the founding member, so you are an admin." : "You are a household admin.") + " Admins can change these. Other members can only look.</p>"
+    var head = isAdmin() ? '<p class="note">' + (roleOf(S.as) === "founder" ? "You are the founding member and a household admin." : "You are a household admin.") + " Admins can change these. Other members can only look.</p>"
       : '<p class="note ro">' + ICON.lock + "<span>" + ADMIN_WHY + " You can still change everything on Mine.</span></p>";
     return '<div role="tabpanel" id="panel-hh" aria-labelledby="tab-hh" class="mbody2">' +
       '<p>Shared by everyone in ' + esc(only.name) + ". Used for anyone who has not chosen their own.</p>" + head +
@@ -615,22 +616,25 @@
       '<p class="small">These have no personal version, so there is nothing to override on Mine.</p></div>';
   }
 
-  /* Members and admins (D25 to D27). Every member can see it (READING: who may see who is admin is open); any admin gets the grant and revoke buttons for everyone but the founding member and themselves (owner, typed, 14 Oct 2026, SW-85; it was the founding member alone, Q-R1). */
+  /* Members and admins (D25 to D27). Every member can see it (READING: who may see who is admin is open); any admin gets the grant and revoke buttons for everyone else, the founding member included, and "Step down" on their own row while another admin exists; the last admin reads what to do first (owner, typed, 14 Oct 2026, SW-85; owner, voice, 15 Oct 2026, "Founder is no special", SW-90, SW-91). */
   function membersScreen(flash) {
-    var canGrant = roleOf(S.as) !== "member";
-    var WHAT = { founder: "Set the household up. Always an admin.", admin: "Can change household settings", member: "Can change their own preferences" };
-    var KIND = { founder: "you", admin: "hh", member: "app" };
+    var canGrant = isAdmin();
+    var WHAT = { founder: "Set the household up. An admin.", founder_member: "Set the household up. Not an admin now.", admin: "Can change household settings", member: "Can change their own preferences" };
+    var KIND = { founder: "you", founder_member: "app", admin: "hh", member: "app" };
     var li = M.members.map(function (m) {
       var n = PEOPLE[m.id].name;
-      var btn = canGrant && m.role !== "founder" && m.id !== S.as
-        ? '<button type="button" class="btn" data-act="' + (m.role === "admin" ? "revoke" : "grant") + '" data-id="' + m.id + '" aria-label="' + (m.role === "admin" ? "Remove " + esc(n) + " as admin" : "Make " + esc(n) + " an admin") + '">' + (m.role === "admin" ? "Remove admin" : "Make admin") + "</button>" : "";
+      var ad = isAdmin(m.id), self = m.id === S.as;
+      var btn = !canGrant ? ""
+        : !self ? '<button type="button" class="btn" data-act="' + (ad ? "revoke" : "grant") + '" data-id="' + m.id + '" aria-label="' + (ad ? "Remove " + esc(n) + " as admin" : "Make " + esc(n) + " an admin") + '">' + (ad ? "Remove admin" : "Make admin") + "</button>"
+        : adminCount() > 1 ? '<button type="button" class="btn" data-act="revoke" data-id="' + m.id + '" aria-label="Step down as admin">Step down</button>'
+        : '<span class="small lastadm">Make someone else an admin first.</span>';
       return '<li><span class="sname">' + esc(n) + (m.id === S.as ? " (you)" : "") + '<span class="swhat">' + chip(KIND[m.role], ROLE_WORD[m.role]) + "<br>" + esc(WHAT[m.role]) + "</span></span>" + btn + "</li>";
     }).join("");
     return '<div class="sp"><div class="mtop"><a class="back" href="#" data-act="view" data-id="main">&lsaquo; Back</a><h1 class="ttl">Members and admins</h1><span style="width:64px" aria-hidden="true"></span></div>' +
       '<main class="mbody">' + flash +
       "<p>Admins can change what the whole household shares: its settings, notes and food rules. Everyone can always change their own preferences, whatever their role.</p>" +
       '<span class="lbl">Members</span><div class="card sgroup"><ul class="stops" aria-label="Members and admins">' + li + "</ul></div>" +
-      '<p class="note">' + (canGrant ? "Admins can make someone an admin, or take it back. The founding member is always an admin." : "Only household admins can make someone an admin, or take it back. Admins: " + M.members.filter(function (m) { return m.role !== "member"; }).map(function (m) { return PEOPLE[m.id].name; }).join(" and ") + ".") + "</p></main></div>";
+      '<p class="note">' + (canGrant ? "Admins can make someone an admin, or take it back. A household always keeps one admin, so the last admin makes someone else one before stepping down." : "Only household admins can make someone an admin, or take it back. Admins: " + M.members.filter(function (m) { return isAdmin(m.id); }).map(function (m) { return PEOPLE[m.id].name; }).join(" and ") + ".") + "</p></main></div>";
   }
 
   /* ---------- the profile, where Kitchen role and the assistant went (D24) ----------
@@ -697,9 +701,11 @@
     if (t.tagName === "A") ev.preventDefault();
     if (act === "view") { S.view = id === "main" ? null : id; S.open = null; S.flash = ""; S.saved = ""; S.confirm = null; S.focus = null; render(); var vf = root.closest(".mh-frame"); if (vf && vf.getBoundingClientRect().top < 0) vf.scrollIntoView({ block: "start" }); }
     else if (act === "grant" || act === "revoke") { /* D27, widened by SW-85: any admin's call, per person */
-      if (roleOf(S.as) === "member" || id === S.as) return;
-      M.members.forEach(function (m) { if (m.id === id && m.role !== "founder") m.role = act === "grant" ? "admin" : "member"; });
-      S.flash = PEOPLE[id].name + (act === "grant" ? " is now a household admin." : " is no longer a household admin."); S.focus = '[data-act="' + (act === "grant" ? "revoke" : "grant") + '"][data-id="' + id + '"]'; render();
+      if (!isAdmin()) return;
+      if (act === "grant" && id === S.as) return;
+      if (act === "revoke" && isAdmin(id) && adminCount() < 2) return; // the last admin cannot step down or be revoked (SW-91)
+      M.members.forEach(function (m) { if (m.id !== id) return; var founding = m.role === "founder" || m.role === "founder_member"; m.role = act === "grant" ? (founding ? "founder" : "admin") : (founding ? "founder_member" : "member"); });
+      S.flash = (act === "revoke" && id === S.as ? "You are" : PEOPLE[id].name + (act === "grant" ? " is" : " is")) + (act === "grant" ? " now a household admin." : " no longer a household admin."); S.focus = '[data-act="' + (act === "grant" ? "revoke" : "grant") + '"][data-id="' + id + '"]'; render();
     }
     else if (act === "tab") { S.tab = id; S.open = null; S.flash = ""; S.saved = ""; S.confirm = null; render(); }
     else if (act === "toggle") { S.open = S.open === id ? null : id; S.saved = ""; S.confirm = null; S.flash = ""; S.focus = '[data-id="' + id + '"]'; render(); }
