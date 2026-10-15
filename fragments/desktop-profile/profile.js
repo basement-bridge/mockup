@@ -148,20 +148,28 @@ function paneSettings(m){
  return h}
 function accHeads(m){return ''}
 function paneHousehold(m){
- var who=m&&/^(admin|member)$/.test(m.hhrole)?m.hhrole:"founder"; /* who is looking: the founding member (default), a granted admin (maya) or a member (sam). Mockup only: ?open=household&hhrole=admin|member (SW-85) */
+ /* Who is looking and who holds the admin role (SW-85, SW-90 to SW-93). "Founder is no special" (owner, voice, 15 Oct 2026): the founding member is a label; an admin is whoever holds the role, the founding member included, and a household always keeps one.
+    Mockup only: ?open=household&hhrole=founder (default: Arjan, with Maya an admin too) | admin (Maya, Arjan an admin too) | member (Sam) | last (Arjan, the only admin) | exfounder (Maya, the only admin; Arjan, the founding member, was revoked) */
+ var who=m&&/^(admin|member|last|exfounder)$/.test(m.hhrole)?m.hhrole:"founder";
+ var me={founder:"arjan",admin:"maya",member:"sam",last:"arjan",exfounder:"maya"}[who];
+ var admins={founder:["arjan","maya"],admin:["arjan","maya"],member:["arjan","maya"],last:["arjan"],exfounder:["maya"]}[who];
+ var isAd=function(w){return admins.indexOf(w)>=0},meAd=isAd(me),others=admins.length>1;
+ var label={arjan:NAME,maya:"maya",sam:"sam",jo:"jo"};
  var ch=function(t,c){return ' <span class="pf-chip'+(c?' '+c:'')+'">'+t+'</span>'};
  var mem=function(ini,nm,chips,sub,btn,me){return '<li><button type="button" class="pf-item" data-toast="Mockup: this opens the member sheet"><span class="pf-ini'+(me?' me':'')+'" aria-hidden="true">'+ini+'</span><span class="pf-t">'+nm+chips+'<small>'+sub+'</small></span><span class="pf-chev">'+ic("chev",18)+'</span></button>'+(btn||'')+'</li>'};
- /* Make admin and Remove admin carry their confirm in a <details> under the row (no script in the build); the summary reads Cancel while it is open */
- var adm=function(n,ad){var q=ad?"Remove "+n+" as admin?":"Make "+n+" an admin?";return '<details class="pf-adm"><summary class="pf-btn sm" aria-label="'+(ad?"Remove "+n+" as admin":"Make "+n+" an admin")+'"><span class="o">'+(ad?"Remove admin":"Make admin")+'</span><span class="c">Cancel</span></summary><div class="pf-admbox"><b>'+q+'</b><p class="pf-small">'+(ad?n+" stays in Our kitchen and keeps their own preferences. They can no longer change what the household shares.":"Admins can change what the whole household shares: its settings, notes and food rules, and who else is an admin. You can take it back.")+'</p><button type="button" class="pf-btn'+(ad?"":" pri")+' sm" data-toast="Mockup: '+n+(ad?" is no longer an admin":" is now an admin")+'">'+(ad?"Remove admin":"Make "+n+" an admin")+'</button></div></details>'};
- var canG=who!=="member";
- var note=canG?"Admins can make someone an admin, or take it back. The founding member is always an admin.":"Only household admins can make someone an admin, or take it back. Admins: "+NAME+(who==="founder"?"":" and maya")+".";
+ /* Make admin, Remove admin and Step down carry their confirm in a <details> under the row (no script in the build); the summary reads Cancel while it is open */
+ var adm=function(n,ad,self){var q=ad?(self?"Step down as admin?":"Remove "+n+" as admin?"):"Make "+n+" an admin?";var aria=ad?(self?"Step down as admin":"Remove "+n+" as admin"):"Make "+n+" an admin";var o=ad?(self?"Step down":"Remove admin"):"Make admin";var words=ad?(self?"You stay in Our kitchen and keep your own preferences. You can no longer change what the household shares, or who else is an admin.":n+" stays in Our kitchen and keeps their own preferences. They can no longer change what the household shares."):"Admins can change what the whole household shares: its settings, notes and food rules, and who else is an admin. You can take it back.";return '<details class="pf-adm"><summary class="pf-btn sm" aria-label="'+aria+'"><span class="o">'+o+'</span><span class="c">Cancel</span></summary><div class="pf-admbox"><b>'+q+'</b><p class="pf-small">'+words+'</p><button type="button" class="pf-btn'+(ad?"":" pri")+' sm" data-toast="Mockup: '+(self?"you are no longer an admin":n+(ad?" is no longer an admin":" is now an admin"))+'">'+(ad?(self?"Step down":"Remove admin"):"Make "+n+" an admin")+'</button></div></details>'};
+ /* what sits at the end of a row: another member, Make or Remove admin; the viewer's own row, Step down while another admin exists, else the line that says what to do first */
+ var act=function(w){if(!meAd)return "";if(w!==me)return adm(label[w],isAd(w),false);return isAd(w)?(others?adm(label[w],true,true):'<p class="pf-small pf-lastadm">Make someone else an admin first.</p>'):""};
+ var note=meAd?"Admins can make someone an admin, or take it back. A household always keeps one admin, so the last admin makes someone else one before stepping down.":"Only household admins can make someone an admin, or take it back. Admins: "+admins.map(function(w){return label[w]}).join(" and ")+".";
  return '<div><h3 class="pf-h">Our kitchen</h3><p>4 members</p></div>'
  +'<div><span class="pf-lbl">Members and admins</span><p class="pf-small pf-intro2">Admins can change what the whole household shares: its settings, notes and food rules. Everyone can always change their own preferences, whatever their role.</p><ul class="pf-list">'
- +mem("P",NAME,(who==="founder"?ch("You"):"")+ch("Founding member","acc"),SUB+" \u00b7 Always an admin","",who==="founder")
- +mem("M","maya",(who==="admin"?ch("You"):"")+ch("Admin","acc"),"Kitchen helper \u00b7 Can change the household\u2019s values",canG&&who!=="admin"?adm("maya",true):"",who==="admin")
- +mem("S","sam",(who==="member"?ch("You"):"")+ch("Member"),"Sous chef \u00b7 Can change their own preferences",canG?adm("sam",false):"",who==="member")
- +mem("J","jo",ch("Member"),"Can change their own preferences",canG?adm("jo",false):"")
+ +mem("P",NAME,(me==="arjan"?ch("You"):"")+ch("Founding member",isAd("arjan")?"acc":""),SUB+" \u00b7 "+(isAd("arjan")?"Set the household up. An admin.":"Set the household up. Not an admin now."),act("arjan"),me==="arjan")
+ +mem("M","maya",(me==="maya"?ch("You"):"")+ch(isAd("maya")?"Admin":"Member",isAd("maya")?"acc":""),"Kitchen helper \u00b7 "+(isAd("maya")?"Can change the household\u2019s values":"Can change their own preferences"),act("maya"),me==="maya")
+ +mem("S","sam",(me==="sam"?ch("You"):"")+ch("Member"),"Sous chef \u00b7 Can change their own preferences",act("sam"),me==="sam")
+ +mem("J","jo",ch("Member"),"Can change their own preferences",act("jo"))
  +'</ul><p class="pf-small" style="margin:8px 2px 0">'+note+'</p></div>'
+ 
  +'<div><span class="pf-lbl">Waiting to join</span><ul class="pf-list"><li><div class="pf-ev"><span class="pf-ico">'+ic("mail",18)+'</span><span class="pf-t"><span class="pf-code">482 913</span><small>Join Our kitchen, 20 hours left</small></span><button type="button" class="pf-btn sm" data-toast="Mockup: code copied">'+ic("copy",16)+' Copy</button><button type="button" class="pf-btn sm" data-toast="Mockup: invite cancelled">Cancel</button></div></li></ul></div>'
  +'<div><button type="button" class="pf-btn pri" data-hhinvite data-toast="Mockup: this opens the invite sheet (drawn in the household flow: Menu, Household, Invite someone)">'+ic("plus",18)+' Invite someone</button></div>'
  +'<div class="pf-danger"><b>Danger zone</b><p class="pf-small">You lose access to the pantry, shopping and recipes. Nothing is deleted. Someone has to invite you back.</p><button type="button" class="pf-btn dng" data-toast="Mockup: you would type your name to confirm">'+ic("door",18)+' Leave household</button></div>'}
@@ -202,7 +210,7 @@ function newState(kind,view,root,opener){
   if(/^[0-3]$/.test(I.chg))m.chg=I.chg;
   if(/^(mine|hh)$/.test(I.ptab))m.ptab=I.ptab;
   if(/^(arjan|sam)$/.test(I.as))m.as=I.as;
-  if(/^(admin|member)$/.test(I.hhrole))m.hhrole=I.hhrole;
+  if(/^(admin|member|last|exfounder)$/.test(I.hhrole))m.hhrole=I.hhrole;
   m.os=I.os;m.idone=I.done==="1";m.sel=I.sel||null;m.acc=/^(cats|locs|install)$/.test(I.acc)?I.acc:null;
   if(narrow()&&/^(cats|locs|install)$/.test(I.sub)&&!m.acc)m.acc=I.sub}
  return m}

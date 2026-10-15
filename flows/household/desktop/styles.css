@@ -562,3 +562,4 @@ html,body{overflow-x:hidden}.phone,.body{overflow-x:hidden}.rscroll,.twoRow{over
 .adm[open]>summary{justify-content:flex-end;width:100%}
 .admbox{display:flex;flex-direction:column;gap:8px;padding:12px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface)}
 .admbox p{margin:0}
+.lastadm{flex:0 0 100%;margin:0;padding:0 0 8px 52px;color:var(--muted)}

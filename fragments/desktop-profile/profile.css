@@ -226,6 +226,7 @@ html.pf-lock{overflow:hidden;scrollbar-gutter:auto}
 /* Make admin and Remove admin on a Household row (SW-85): the confirm is a <details> under the row; the summary reads Cancel while open. */
 .pf-list li:has(>.pf-item+.pf-adm){display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding-right:8px}
 .pf-adm{flex:0 0 auto}
+.pf-lastadm{margin:0;padding:0 14px 10px 56px;color:var(--muted)}
 .pf-adm[open]{flex:0 0 100%;padding:0 0 10px 8px}
 .pf-adm>summary{list-style:none;cursor:pointer}
 .pf-adm>summary::-webkit-details-marker{display:none}
