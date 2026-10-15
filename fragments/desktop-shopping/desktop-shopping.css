@@ -1,0 +1,42 @@
+/* Desktop Shopping (the member's Shopping screen at 1024px and up). NEW FOR THE BUILD: lift into server/src/desktop-css/shopping.ts, one rule per line, `body:has(nav.bar)` written ${HAS_RAIL}.
+   The build drops the @media wrapper below: desktop-layout.ts puts every package inside its one 64rem query (1024px here: this fragment's frame is a window width).
+   Sits on frame.css (the rail, the lane group, the current-line bar the app already has) and on ../shopper-link/kitchie.css + member.css (the row and the hand-off the app already has).
+   Theme tokens and the existing layout tokens (--rail, --panel, --col, --pl, --pr, --tap, --r-ctl) only; no width literal for a page, column or panel.
+   Decisions SD-1 to SD-12 are in index.html and docs/knowledge/jobs-to-be-done/shopping-desktop.md. Everything outside the one phone rule is Proposal unless the notes say the owner said it. */
+
+/* ---- the one rule a phone or tablet carries: the desktop-only pieces are in the page and hidden by it (Home does the same with .dh-d), lifted into SHOPPING_CSS ---- */
+.dh-s{display:none}
+
+@media (min-width:1024px){
+/* SD-1 Lanes. The panel lane exists while the hand-off slot has something in it (empty is absent, design-principles.md); with it, --pr keeps every fixed bar off the panel (the Pantry's and Home's rule). */
+body:has(nav.bar):has(.sl-top>*){--pr:var(--panel)}
+
+/* SD-2 Header band, the Pantry's count at 1.5rem and nothing else: no "Shopping" title, the rail says where you are. Server-draws the same number as the rail's badge; desktop-shopping.js keeps it equal. */
+body:has(nav.bar) .shop-hd.dh-s{display:flex;align-items:center;gap:12px;margin:0 0 16px}
+body:has(nav.bar) .shop-hd .count{flex:1 1 auto;min-width:0;white-space:nowrap;font-size:1.5rem;font-weight:700;color:var(--fg)}
+
+/* SD-3 The hand-off lives in the panel lane, the way Pantry's item and Home's "This week" do: the slot itself (#sl-top, patched live) becomes the panel, so no markup moves. Cards sit on --bg on the --surface panel, as the Pantry panel's tiles do. */
+body:has(nav.bar) .sl-top{box-sizing:border-box;position:fixed;top:0;bottom:0;left:var(--pl);z-index:6;width:var(--panel);gap:12px;margin:0;padding:24px;overflow:auto;background:var(--surface);border-left:1px solid var(--border);color:var(--fg)}
+body:has(nav.bar) .sl-top .sl-handoff,body:has(nav.bar) .sl-top .sl-lrow{background:var(--bg)}
+/* SD-4 The keys line, in the accent like the Pantry's .phint. Words only: the pieces are the keys #594 already built. */
+body:has(nav.bar) .sl-top::after{content:"J K move \00b7  D bought \00b7  S off the list \00b7  E amount \00b7  ? all keys";margin-top:2px;font-size:12px;line-height:1.5;color:var(--accent)}
+
+/* SD-5 Rows answer the pointer: a hover fill (the Pantry's), and the current line (J K, a click) stays the one fill plus bar the app draws (frame.css). The focus ring would draw it a second time around the link, so the current line leaves it out. */
+body:has(nav.bar) li.shoprow:hover .swfg{background:var(--surface)}
+body:has(nav.bar) li.shoprow[data-cur] .rlink:focus-visible{outline:none}
+/* SD-6 Bought and Remove are the row's own forms (one code path for a tap, a swipe and a key), drawn as the Pantry's hover buttons: right edge, 40px, a key cap, shown on hover, on focus within and on the current line. The "more" button is the touch way to the same two and has no job here. */
+body:has(nav.bar) li.shoprow .more{display:none!important}
+body:has(nav.bar) li.shoprow .acts,body:has(nav.bar) li.shoprow .acts[hidden]{display:flex!important;position:absolute;z-index:2;top:50%;right:10px;flex-wrap:nowrap;gap:8px;margin:0;padding:0 0 0 28px;transform:translateY(-50%);background:linear-gradient(to right,transparent,var(--surface) 28px);opacity:0;pointer-events:none}
+body:has(nav.bar) li.shoprow:is(:hover,:focus-within,[data-cur]) .acts{opacity:1;pointer-events:auto}
+body:has(nav.bar) li.shoprow:is(:hover,:focus-within,[data-cur]) .who{visibility:hidden}
+body:has(nav.bar) li.shoprow .acts .btn{display:inline-flex;align-items:center;min-height:40px;margin:0;padding:0 12px;gap:8px;border:1px solid var(--border);border-radius:var(--r-ctl,14px);background:var(--bg);color:var(--fg);font-weight:700;white-space:nowrap}
+body:has(nav.bar) li.shoprow .acts .btn:hover{border-color:var(--accent);color:var(--accent)}
+body:has(nav.bar) li.shoprow [data-shop-buy]::after{content:"D";padding:1px 6px;border:1px solid var(--accent);border-radius:6px;color:var(--accent);font-size:11px;font-weight:600;line-height:1.4}
+body:has(nav.bar) li.shoprow [data-shop-remove]::after{content:"S";padding:1px 6px;border:1px solid var(--accent);border-radius:6px;color:var(--accent);font-size:11px;font-weight:600;line-height:1.4}
+
+/* SD-7 The picture is a tile, as Home's rows draw it (36px bordered, --r-ctl, 20px glyph; here 40px and 22px for the 68px row). A line with no picture keeps the slot, so the names line up, but draws nothing in it, not the plate: the Pantry draws nothing for an item with no emoji, and a plate that looks like an emoji says something false. The class is only styling; the matching is untouched. */
+body:has(nav.bar) li.shoprow .em{box-sizing:border-box;width:40px;height:40px;min-width:0;border:1px solid var(--border);border-radius:var(--r-ctl,14px);background:var(--surface);font-size:22px}
+body:has(nav.bar) li.shoprow .em.np{border-color:transparent;background:none;font-size:0}
+body:has(nav.bar) li.shoprow .em.ph{padding:0;border:1px dashed var(--muted);opacity:1}
+body:has(nav.bar) li.shoprow .em svg{width:22px;height:22px}
+}

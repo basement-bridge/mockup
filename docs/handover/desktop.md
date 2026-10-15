@@ -99,7 +99,7 @@ Found by reading `uat` (read only; nothing was changed there).
 
 1. **Level filter (not final, not built).** The owner said "rather than Running low... we should simply say Level", with options drawn from the real config (not invented), and that it must change in UAT and prod too. Real list: Out, Running low (`low`), Some, Plenty. Open: pick one level or several; where the row sits; Recently added default (3 days or the real app's 24 hours). Not built in the mockup yet.
 2. **Which of issues #402 to #409 and #413 are released for build.**
-3. **Next desktop screens to draw:** Recipes, Shopping (only Home and Pantry exist).
+3. **Next desktop screens to draw:** Recipes. Shopping is drawn (15 Oct 2026, `fragments/desktop-shopping/`, Kitchie #775, decisions SD-1 to SD-12 are proposals awaiting the owner); Home, Pantry, Plan and Shopping exist.
 4. **Scenario controls on desktop.** The household flow's scenario controls (persona, invite, household, jump to) do not load at desktop sizes, because desktop opens its own page. Proposed fix: share the same state and Controls panel, carried in the URL. Not built.
 5. **"Same number of rows" elsewhere.** The owner asked for a similar row limit "elsewhere"; the Category curtain already has it. Other places not named.
 6. **The "focus" shortcut.** M is my proposal for the main column; the owner said it needs its own single key and left the letter to me.
