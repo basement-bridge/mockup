@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Draft recipes: cook first, keep it after — fragment</title>
+<link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><script src="../../theme.js"></script>
+<style>
+/* Phone frame and list rows follow fragments/recipe-list-ideas so the library reads as one screen. */
+.row3{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start;margin-top:14px}
+figure{margin:0}figcaption{font-size:12px;color:var(--muted);margin-top:6px;text-align:center;max-width:320px}
+.phone{width:100%;max-width:320px;height:580px;display:flex;flex-direction:column;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-phone);overflow:hidden;font-size:14px}
+.sc{flex:1;overflow:hidden;padding:12px 12px 0}
+.bar{display:flex;border-top:1px solid var(--border);background:var(--surface)}
+.bar span{flex:1;text-align:center;padding:12px 0;font-size:12px;color:var(--muted)}.bar .on{color:var(--accent);font-weight:800}
+.sb{display:flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border-radius:var(--r-pill);background:var(--surface);border:1px solid var(--border);color:var(--muted)}
+.chips{display:flex;gap:6px;margin:8px 0;overflow:hidden}
+.c{flex:none;min-height:36px;display:inline-flex;align-items:center;padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--border);font-weight:600;font-size:13px}
+.c.on{border-color:var(--accent);color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.h3{font-size:12px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:14px 0 2px}
+.h3 .n{color:var(--fg);margin-left:4px}
+.rr{display:flex;gap:10px;align-items:center;min-height:60px;padding:6px 0;border-top:1px solid var(--border)}
+.rr .e{width:44px;height:44px;border-radius:var(--r-ctl);flex:none;display:flex;align-items:center;justify-content:center;font-size:24px;background:color-mix(in srgb,var(--accent) 18%,var(--surface))}
+.rr small{display:block;color:var(--muted);font-size:12px}
+.rr b{font-weight:700}
+/* A draft is the same row, marked. Dashed edge = not kept yet; never a different list shape. */
+.rr.draft .e{background:color-mix(in srgb,var(--cue) 20%,var(--surface));border:1px dashed var(--cue)}
+.tg{display:inline-block;margin-top:2px;font-size:11px;font-weight:800;padding:1px 8px;border-radius:var(--r-pill);border:1px solid var(--sage);color:var(--sage)}
+/* The clock is a TIME, not a status. A pill here would read as a badge beside "All in" and collide
+   with it in colour; so plain text with a clock glyph, going warm only when it is nearly up. */
+.exp{display:block;margin-top:2px;font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap}
+.exp::before{content:"\23F1";margin-right:4px;font-weight:400}
+.exp.warn{color:var(--danger)}
+.tg.warn{border-color:var(--danger);color:var(--danger)}
+.keep{margin-left:auto;flex:none;min-height:var(--tap);padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--accent);background:none;color:var(--accent);font:800 12px var(--body)}
+/* The clock: a quiet ring that fills as the day runs out (option B for expiry). */
+.ring{margin-left:auto;flex:none;width:28px;height:28px;position:relative}
+.ring svg{display:block;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:3}
+.ring .t{stroke:var(--border)}.ring .f{stroke:var(--cue);stroke-linecap:round}
+.ring.late .f{stroke:var(--danger)}
+/* Cooking screen, borrowed from fragments/mid-cook. */
+.now{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.now i{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.ing{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}
+.ing li{display:flex;align-items:center;gap:12px;min-height:52px;padding:6px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card)}
+.ing li .amt{font-family:var(--head);font-weight:700;font-size:1.05rem;min-width:70px}
+.ing li .nm{font-size:.98rem;font-weight:600;flex:1}
+.ing li.new{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.ing li.gone{opacity:.4}.ing li.gone .nm{text-decoration:line-through}
+.said{margin-top:10px;padding:10px 12px;border-radius:var(--r-card);background:color-mix(in srgb,var(--accent) 10%,var(--surface));border:1px solid color-mix(in srgb,var(--accent) 35%,var(--border));font-size:13px}
+.said b{font-weight:800}
+/* The offer. A card, not a modal: it never blocks the cook. */
+.offer{margin-top:12px;padding:12px;border-radius:var(--r-card);background:var(--surface);border:1px solid var(--border)}
+.offer.quiet{border-style:dashed}
+.offer h4{margin:0 0 2px;font-family:var(--head);font-size:1rem}
+.offer p{margin:0;font-size:12px;color:var(--muted)}
+.acts{display:flex;gap:8px;margin-top:10px}
+.btn2{min-height:var(--tap);padding:0 14px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);color:var(--fg);font:800 13px var(--body)}
+.btn2.pri{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.btn2.lnk{border:none;background:none;color:var(--muted);padding:0 12px;min-width:var(--tap)}
+/* Sheet for the promotion step. */
+.sheet{margin-top:auto;border-top:1px solid var(--border);background:var(--surface);border-radius:var(--r-card) var(--r-card) 0 0;padding:14px 12px}
+.sheet h4{margin:0 0 8px;font-family:var(--head);font-size1rem;font-size:1.05rem}
+.raw{font-size:13px;padding:10px;border-radius:var(--r-ctl);background:var(--bg);border:1px dashed var(--border);color:var(--muted);white-space:pre-line}
+.pair{display:flex;flex-wrap:wrap;gap:8px;align-items:center;min-height:48px;padding:6px 10px;border-radius:var(--r-ctl);background:var(--bg);border:1px solid var(--border);margin-top:6px;font-size:13px}
+.pair .k{font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);min-width:66px}
+.pair select,.pair input{font:600 13px var(--body);background:var(--surface);color:var(--fg);border:1px solid var(--border);border-radius:8px;min-height:var(--tap);padding:0 8px}
+/* The hint drops to its own line rather than being clipped at the phone edge. */
+.pair .q{color:var(--accent);font-weight:800;font-size:12px;margin-left:auto;text-align:right}
+/* Three options use the shared two-up rule (DESIGN.md section 7, item 3): .wrap caps at 840px on
+   desktop, so three 320px phone frames never fit on one row. They flow two then one. */
+.opts.three{display:grid;gap:14px;margin-top:18px}
+@media(min-width:600px){.opts.three{grid-template-columns:1fr 1fr}}
+.rec{display:inline-block;font-size:11px;font-weight:800;padding:1px 8px;border-radius:var(--r-pill);background:var(--accent);color:var(--on-accent);margin-left:6px}
+.dec{border:1px solid var(--border);border-radius:var(--r-card);padding:12px 16px;margin-top:14px}
+.dec h3{margin:0 0 4px;font-size:1.05rem}
+.dec .ow{font-size:13px;color:var(--muted);margin:0 0 8px}
+.qs{margin-top:26px;padding:14px 16px;border:1px dashed var(--border);border-radius:var(--r-card)}
+.qs li{margin:8px 0 8px 18px}
+table.cmp{border-collapse:collapse;margin-top:10px;font-size:13px;width:100%;max-width:760px}
+table.cmp th,table.cmp td{border:1px solid var(--border);padding:8px 10px;text-align:left;vertical-align:top}
+table.cmp th{background:var(--surface);font-weight:800}
+.scroll{overflow-x:auto;max-width:100%;margin-top:16px}
+.desk{display:flex;height:560px;border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden;background:var(--bg);font-size:14px;width:1100px}
+.rail{width:64px;border-right:1px solid var(--border);padding:12px 0;display:flex;flex-direction:column;gap:10px;align-items:center}
+.rail i{width:28px;height:28px;border-radius:8px;background:var(--surface);border:1px solid var(--border)}.rail i.on{background:var(--accent)}
+.main{flex:1;padding:20px 28px;overflow:hidden}
+.panel{width:380px;flex:none;background:var(--surface);border-left:1px solid var(--border);padding:20px;overflow:hidden}
+.panel .top{display:flex;align-items:center;gap:12px}
+.panel h3{margin:0;font-family:var(--head);font-size:1.15rem}
+.tl{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}
+.tl div{padding:10px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);font-size:12px;color:var(--muted)}
+.tl b{display:block;color:var(--fg);font-size:14px}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Draft recipes: cook first, keep it after</h1>
+<p>Fragment for <a href="https://github.com/basement-bridge/recipe/issues/123" style="color:var(--accent);font-weight:600">recipe&nbsp;#123</a>. The owner's design, 15 October 2026 (voice): a person starts by <b style="color:var(--fg)">cooking</b> — often improvising, talking to the assistant — and only afterwards is offered the chance to keep it as a recipe. An improvised dish <b style="color:var(--fg)">is</b> a recipe from the first moment, carrying a draft status; saving is the reward for it turning out well, never the price of entry. Sample data. Use the Theme button for light and dark. Notes: <a href="../../docs/knowledge/draft-recipes.md" style="color:var(--accent);font-weight:600">draft-recipes.md</a>.</p>
+
+<p class="note" style="max-width:70ch">This fragment proposes; it does not decide. Where there is a genuine fork it shows the options side by side, one marked <span class="rec">lean</span> with the reason. Nothing here is built into Kitchie or Recipe.</p>
+
+<h2>1. Where a draft lives in the library</h2>
+<p>Three ways a draft can appear among 42 kept recipes. The question underneath: is a draft <em>a kind of recipe</em> or <em>a separate tray</em>?</p>
+
+<div class="opts three">
+  <div class="opt">
+    <h2>A — its own group, pinned above<span class="rec">lean</span></h2>
+    <p class="note">A section at the top of Recipes, only present when drafts exist. Disappears when the tray is empty, so a tidy library stays tidy.</p>
+    <figure><div class="phone">
+      <div class="sc">
+        <div class="sb">&#128269; Search recipes or ingredients</div>
+        <div class="chips"><span class="c on">All</span><span class="c">Ready now</span><span class="c">Starred</span><span class="c">Under 30</span></div>
+        <h3 class="h3">Not kept yet <span class="n">2</span></h3>
+        <div class="rr draft"><span class="e">&#127858;</span><span class="t"><b>Garlic soy noodles</b><small>cooked tonight &middot; made up with the AI</small><span class="exp">Keeps until 7pm tomorrow</span></span><button class="keep">Keep</button></div>
+        <div class="rr draft"><span class="e">&#129379;</span><span class="t"><b>Whatever-was-left soup</b><small>cooked yesterday</small><span class="exp warn">Goes in 2 hours</span></span><button class="keep">Keep</button></div>
+        <h3 class="h3">All recipes <span class="n">42</span></h3>
+        <div class="rr"><span class="e">&#127837;</span><span class="t"><b>Spaghetti aglio e olio</b><small>20 min &middot; serves 2</small><span class="tg">&#10003; All in</span></span></div>
+        <div class="rr"><span class="e">&#127859;</span><span class="t"><b>Egg fried rice</b><small>15 min &middot; serves 2</small><span class="tg">&#10003; All in</span></span></div>
+      </div>
+      <div class="bar"><span>Home</span><span>Pantry</span><span class="on">Recipes</span><span>Shopping</span></div>
+    </div><figcaption>Drafts are the same row shape, marked with a dashed tile and a Keep button. Section vanishes when empty.</figcaption></figure>
+  </div>
+
+  <div class="opt">
+    <h2>B — a chip among the filters</h2>
+    <p class="note">"Not kept" joins the existing chips. Nothing changes on the default view, so a draft is invisible unless you look for it — and that is the risk: it expires unseen.</p>
+    <figure><div class="phone">
+      <div class="sc">
+        <div class="sb">&#128269; Search recipes or ingredients</div>
+        <div class="chips"><span class="c">All</span><span class="c on">Not kept <b style="margin-left:4px">2</b></span><span class="c">Ready now</span><span class="c">Starred</span></div>
+        <h3 class="h3">2 dishes <span class="n">not kept yet</span></h3>
+        <div class="rr draft"><span class="e">&#127858;</span><span class="t"><b>Garlic soy noodles</b><small>cooked tonight</small><span class="exp">Keeps until 7pm tomorrow</span></span><button class="keep">Keep</button></div>
+        <div class="rr draft"><span class="e">&#129379;</span><span class="t"><b>Whatever-was-left soup</b><small>cooked yesterday</small><span class="exp warn">Goes in 2 hours</span></span><button class="keep">Keep</button></div>
+      </div>
+      <div class="bar"><span>Home</span><span>Pantry</span><span class="on">Recipes</span><span>Shopping</span></div>
+    </div><figcaption>Cheapest to build and it keeps the library clean — but a draft you never look for is a draft you lose.</figcaption></figure>
+  </div>
+
+  <div class="opt">
+    <h2>C — inline, in date order</h2>
+    <p class="note">Drafts sit in the one list with everything else, marked. Most honest to "a draft is just a recipe" — and the most cluttered, because a dish you may not keep sits beside dishes you cook weekly.</p>
+    <figure><div class="phone">
+      <div class="sc">
+        <div class="sb">&#128269; Search recipes or ingredients</div>
+        <div class="chips"><span class="c on">All</span><span class="c">Ready now</span><span class="c">Starred</span><span class="c">Under 30</span></div>
+        <h3 class="h3">All recipes <span class="n">44</span></h3>
+        <div class="rr draft"><span class="e">&#127858;</span><span class="t"><b>Garlic soy noodles</b><small>cooked tonight</small><span class="exp">Not kept yet</span></span><button class="keep">Keep</button></div>
+        <div class="rr"><span class="e">&#127837;</span><span class="t"><b>Spaghetti aglio e olio</b><small>20 min &middot; serves 2</small><span class="tg">&#10003; All in</span></span></div>
+        <div class="rr draft"><span class="e">&#129379;</span><span class="t"><b>Whatever-was-left soup</b><small>cooked yesterday</small><span class="exp warn">Goes in 2 hours</span></span><button class="keep">Keep</button></div>
+        <div class="rr"><span class="e">&#127859;</span><span class="t"><b>Egg fried rice</b><small>15 min &middot; serves 2</small><span class="tg">&#10003; All in</span></span></div>
+      </div>
+      <div class="bar"><span>Home</span><span>Pantry</span><span class="on">Recipes</span><span>Shopping</span></div>
+    </div><figcaption>Truest to the model, hardest to live with. Search and the chips now return things that are about to vanish.</figcaption></figure>
+  </div>
+</div>
+
+<p class="note" style="max-width:70ch"><b style="color:var(--fg)">Why A:</b> a draft has a deadline, and nothing else in this library does. A thing with a deadline has to be somewhere you pass without looking for it, which rules out B. And it should not sit permanently among things with no deadline, which rules out C. A section that appears only when there is something in it costs nothing when there is not. <b style="color:var(--fg)">On the label:</b> "Not kept yet" reads better than "Pending save" — it is what a person would say, and it implies the action rather than naming a system state. The owner's "pending save" is indicative; this is the proposal.</p>
+
+<h2>2. The offer to keep it</h2>
+<p>The one rule: it is <b style="color:var(--fg)">offered</b>, never required, and it never blocks cooking. So no modal, and nothing before the food is done.</p>
+
+<div class="opts two">
+  <div class="opt">
+    <h2>A — when the cook ends<span class="rec">lean</span></h2>
+    <p class="note">The card appears under the ingredients once they stop cooking. One question, two taps, and "Not this one" is as easy as "Keep it".</p>
+    <figure><div class="phone">
+      <div class="sc">
+        <span class="now"><i></i>Just finished</span>
+        <h2 style="font-size:1.5rem;line-height:1.1;margin:6px 0 2px">Garlic soy noodles</h2>
+        <p style="font-size:13px;color:var(--muted);margin:0">Made up in your chat tonight.</p>
+        <ul class="ing">
+          <li><span class="amt">200 g</span><span class="nm">Egg noodles</span></li>
+          <li><span class="amt">3 cloves</span><span class="nm">Garlic</span></li>
+          <li><span class="amt">2 tbsp</span><span class="nm">Soy sauce</span></li>
+        </ul>
+        <div class="offer">
+          <h4>Keep this one?</h4>
+          <p>It is saved as a draft until 7pm tomorrow. Keep it and it joins your recipes for good.</p>
+          <div class="acts"><button class="btn2 pri">Keep it</button><button class="btn2">Not this one</button></div>
+        </div>
+      </div>
+      <div class="bar"><span>Home</span><span>Pantry</span><span class="on">Recipes</span><span>Shopping</span></div>
+    </div><figcaption>Asked once, at the moment the person actually knows the answer: after eating it.</figcaption></figure>
+  </div>
+
+  <div class="opt">
+    <h2>B — available throughout, asked never</h2>
+    <p class="note">A quiet dashed card sits below the ingredients the whole time. Nothing ever interrupts; the person keeps it when they feel like it. Costs: most people will not notice it, and the draft expires.</p>
+    <figure><div class="phone">
+      <div class="sc">
+        <span class="now"><i></i>Cooking now</span>
+        <h2 style="font-size:1.5rem;line-height:1.1;margin:6px 0 2px">Garlic soy noodles</h2>
+        <p style="font-size:13px;color:var(--muted);margin:0">Made up in your chat. Not in your recipes.</p>
+        <ul class="ing">
+          <li><span class="amt">200 g</span><span class="nm">Egg noodles</span></li>
+          <li><span class="amt">3 cloves</span><span class="nm">Garlic</span></li>
+          <li><span class="amt">2 tbsp</span><span class="nm">Soy sauce</span></li>
+        </ul>
+        <div class="offer quiet">
+          <h4>Keep this when you know</h4>
+          <p>Draft, keeps until 7pm tomorrow.</p>
+          <div class="acts"><button class="btn2">Keep it</button></div>
+        </div>
+      </div>
+      <div class="bar"><span>Home</span><span>Pantry</span><span class="on">Recipes</span><span>Shopping</span></div>
+    </div><figcaption>Purest reading of "never a precondition". Also the one where good dishes quietly evaporate.</figcaption></figure>
+  </div>
+</div>
+
+<p class="note" style="max-width:70ch"><b style="color:var(--fg)">Why A, with B's card underneath:</b> they are not exclusive. Show B's quiet card during the cook (so the option exists the whole time, and the assistant can offer it mid-cook if the person says "that's good"), and turn it into A's direct question once cooking ends. Asking once, at the end, is not nagging — it is the only moment the person has the information. <b style="color:var(--fg)">Proposal:</b> if they tap neither, nothing is asked again; the draft simply sits in the library with its clock.</p>
+
+<h2>3. Keeping it: the one place structure is imposed</h2>
+<p>A draft accepts whatever the person gave — ingredients with no steps, steps with no ingredients, a blob of neither. Keeping it is the single point where the questions get asked, <b style="color:var(--fg)">with the person there to answer</b>. Amounts stay optional; what is firm is that an ingredient is an ingredient and a step is a step.</p>
+
+<div class="row3">
+  <figure><div class="phone">
+    <div class="sc" style="padding-bottom:0">
+      <h3 class="h3">What you said while cooking</h3>
+      <div class="raw">chucked in the leftover noodles, couple of big cloves of garlic, good glug of soy, sesame oil at the end, spring onions on top</div>
+      <p class="note" style="font-size:12px;margin-top:8px">Held exactly as given. Nothing was dropped or guessed.</p>
+    </div>
+    <div class="sheet">
+      <h4>Keep as a recipe</h4>
+      <p style="font-size:12px;color:var(--muted);margin:0 0 8px">Two things to check, then it is yours.</p>
+      <div class="pair"><span class="k">Name</span><input value="Garlic soy noodles" style="flex:1"></div>
+      <div class="pair"><span class="k">Soy sauce</span><input value="a good glug" style="width:92px"><select><option>no unit</option><option>tbsp</option><option>ml</option></select><span class="q">keep as written?</span></div>
+      <div class="acts"><button class="btn2 pri">Keep it</button><button class="btn2 lnk">Later</button></div>
+    </div>
+  </div><figcaption>Only what is genuinely ambiguous is asked. "A good glug" is allowed to stay a good glug.</figcaption></figure>
+
+  <figure><div class="phone">
+    <div class="sc" style="padding-bottom:0">
+      <h3 class="h3">Tidied, for you to confirm</h3>
+      <ul class="ing">
+        <li><span class="amt">200 g</span><span class="nm">Egg noodles</span></li>
+        <li><span class="amt">3 cloves</span><span class="nm">Garlic</span></li>
+        <li><span class="amt">a glug</span><span class="nm">Soy sauce</span></li>
+        <li><span class="amt">&mdash;</span><span class="nm">Sesame oil</span></li>
+        <li><span class="amt">2</span><span class="nm">Spring onions</span></li>
+      </ul>
+      <div class="pair" style="margin-top:10px"><span class="k">Step?</span><span style="flex:1 1 60%">"sesame oil at the end"</span><span class="q" style="flex:1 1 100%">step, not an ingredient</span></div>
+    </div>
+    <div class="sheet">
+      <h4>One thing to sort</h4>
+      <p style="font-size:12px;color:var(--muted);margin:0 0 8px">Sesame oil is in your list and also in what you said about finishing. Which is it?</p>
+      <div class="acts"><button class="btn2 pri">Both</button><button class="btn2">Just an ingredient</button><button class="btn2">Just a step</button></div>
+    </div>
+  </div><figcaption>The ingredient-versus-step question, asked once, in words rather than as a form.</figcaption></figure>
+
+  <figure><div class="phone">
+    <div class="sc">
+      <h3 class="h3">Nothing but a blob</h3>
+      <div class="raw">dumped the rest of the roast veg in stock, blitzed it, salt, done</div>
+      <div class="offer quiet" style="margin-top:12px">
+        <h4>No ingredients listed</h4>
+        <p>This can be kept as it is — a recipe with notes and no list. You can add the list any time, or never.</p>
+        <div class="acts"><button class="btn2 pri">Keep as notes</button><button class="btn2">Add a list now</button></div>
+      </div>
+      <p class="note" style="font-size:12px;margin-top:10px">A partial recipe is a real recipe. Recipe's own rule: missing stays missing, never fabricated to satisfy a shape.</p>
+    </div>
+    <div class="bar"><span>Home</span><span>Pantry</span><span class="on">Recipes</span><span>Shopping</span></div>
+  </div><figcaption>The hardest input — neither ingredients nor steps — is kept, not refused.</figcaption></figure>
+</div>
+
+<h2>4. How the clock is shown</h2>
+<p>A draft is wiped if it is not kept within a day. That has to be visible without becoming a nag. Three readings, from loudest to quietest.</p>
+
+<div class="opts three">
+  <div class="opt">
+    <h2>A — say the time in words<span class="rec">lean</span></h2>
+    <p class="note">"Keeps until 7pm tomorrow", turning to "Goes in 2 hours" near the end. Unambiguous, and readable by anyone.</p>
+    <div style="max-width:300px">
+      <div class="rr draft"><span class="e">&#127858;</span><span class="t"><b>Garlic soy noodles</b><small>cooked tonight</small><span class="exp">Keeps until 7pm tomorrow</span></span></div>
+      <div class="rr draft"><span class="e">&#129379;</span><span class="t"><b>Left-over soup</b><small>cooked yesterday</small><span class="exp warn">Goes in 2 hours</span></span></div>
+    </div>
+  </div>
+  <div class="opt">
+    <h2>B — a ring that empties</h2>
+    <p class="note">A 28px ring beside the row, draining over the day and turning warm at the end. Pretty, and silent — but a ring is not a time, and a person cannot tell 3 hours from 8.</p>
+    <div style="max-width:300px">
+      <div class="rr draft"><span class="e">&#127858;</span><span class="t"><b>Garlic soy noodles</b><small>cooked tonight</small></span>
+        <span class="ring" role="img" aria-label="keeps for about 18 more hours"><svg width="28" height="28" viewBox="0 0 28 28"><circle class="t" cx="14" cy="14" r="11"/><circle class="f" cx="14" cy="14" r="11" stroke-dasharray="69" stroke-dashoffset="17"/></svg></span></div>
+      <div class="rr draft"><span class="e">&#129379;</span><span class="t"><b>Left-over soup</b><small>cooked yesterday</small></span>
+        <span class="ring late" role="img" aria-label="goes in about 2 hours"><svg width="28" height="28" viewBox="0 0 28 28"><circle class="t" cx="14" cy="14" r="11"/><circle class="f" cx="14" cy="14" r="11" stroke-dasharray="69" stroke-dashoffset="61"/></svg></span></div>
+    </div>
+    <p class="note" style="font-size:12px">Would need the words anyway, for screen readers — at which point A is doing the work.</p>
+  </div>
+  <div class="opt">
+    <h2>C — silent until the last hours</h2>
+    <p class="note">No clock at all while there is plenty of time; a line appears only near the end. Quietest, and the one that surprises people: a dish vanishes that they never saw a deadline on.</p>
+    <div style="max-width:300px">
+      <div class="rr draft"><span class="e">&#127858;</span><span class="t"><b>Garlic soy noodles</b><small>cooked tonight</small><span class="exp">Not kept yet</span></span></div>
+      <div class="rr draft"><span class="e">&#129379;</span><span class="t"><b>Left-over soup</b><small>cooked yesterday</small><span class="exp warn">Goes in 2 hours</span></span></div>
+    </div>
+  </div>
+</div>
+
+<p class="note" style="max-width:70ch"><b style="color:var(--fg)">Why A:</b> this is destructive and automatic, so the deadline should be stated plainly from the first moment, not revealed late. A is also the only option that needs no second mechanism for accessibility. <b style="color:var(--fg)">Proposal on wording:</b> an absolute time while it is far off ("until 7pm tomorrow"), switching to a relative countdown under about four hours ("goes in 2 hours"), because that is when the number starts to matter. A wrong guess here costs a little clumsiness, nothing more — the threshold is one constant.</p>
+
+<h2>5. The assistant changes the dish, mid-cook</h2>
+<p>The person is cooking and talking: "no soy, use fish sauce — and I doubled it." That reaches the same object the screen is showing, so the screen changes <b style="color:var(--fg)">in place</b> (DESIGN.md section&nbsp;6a). No reload, no navigation, no losing the ticks already made.</p>
+
+<div class="row3">
+  <figure><div class="phone">
+    <div class="sc">
+      <span class="now"><i></i>Cooking now</span>
+      <h2 style="font-size:1.5rem;line-height:1.1;margin:6px 0 2px">Garlic soy noodles</h2>
+      <p style="font-size:13px;color:var(--muted);margin:0">Draft &middot; made up in your chat</p>
+      <ul class="ing">
+        <li><span class="amt">200 g</span><span class="nm">Egg noodles</span></li>
+        <li><span class="amt">3 cloves</span><span class="nm">Garlic</span></li>
+        <li><span class="amt">2 tbsp</span><span class="nm">Soy sauce</span></li>
+        <li><span class="amt">1 tbsp</span><span class="nm">Sesame oil</span></li>
+      </ul>
+    </div>
+    <div class="bar"><span>Home</span><span>Pantry</span><span class="on">Recipes</span><span>Shopping</span></div>
+  </div><figcaption>Before.</figcaption></figure>
+
+  <figure><div class="phone">
+    <div class="sc">
+      <span class="now"><i></i>Cooking now</span>
+      <h2 style="font-size:1.5rem;line-height:1.1;margin:6px 0 2px">Garlic soy noodles</h2>
+      <p style="font-size:13px;color:var(--muted);margin:0">Draft &middot; made up in your chat</p>
+      <ul class="ing">
+        <li class="new"><span class="amt">400 g</span><span class="nm">Egg noodles</span></li>
+        <li class="new"><span class="amt">6 cloves</span><span class="nm">Garlic</span></li>
+        <li class="gone"><span class="amt">2 tbsp</span><span class="nm">Soy sauce</span></li>
+        <li class="new"><span class="amt">4 tsp</span><span class="nm">Fish sauce</span></li>
+        <li class="new"><span class="amt">2 tbsp</span><span class="nm">Sesame oil</span></li>
+      </ul>
+      <div class="said">You said: <b>no soy, fish sauce instead, and double it.</b> Four lines changed.</div>
+    </div>
+    <div class="bar"><span>Home</span><span>Pantry</span><span class="on">Recipes</span><span>Shopping</span></div>
+  </div><figcaption>After. Changed lines outlined, the dropped one struck through but still legible, and one line saying what was heard.</figcaption></figure>
+</div>
+
+<p class="note" style="max-width:70ch"><b style="color:var(--fg)">Proposals here, all unprompted:</b> changed lines carry an outline for a few seconds rather than animating, because the person's hands are busy and a moving list is hard to re-find. The removed ingredient stays struck through until the next change instead of disappearing, so a mis-heard instruction is visible and correctable. And the screen echoes <em>what it heard</em>, not what it did — "you said: no soy, fish sauce instead" — because that is the sentence a person can check against their own memory. A wrong guess costs a confusing moment mid-cook; all three are small CSS and copy choices.</p>
+
+<h2>Desktop: the same thing in the rail layout</h2>
+<p>Drafts need no new desktop pattern. The group sits at the top of the column; selecting one opens the usual side panel, where Keep is the panel's primary action.</p>
+
+<div class="scroll"><figure><div class="desk">
+  <div class="rail"><i></i><i></i><i class="on"></i><i></i></div>
+  <div class="main">
+    <div class="sb">&#128269; Search recipes or ingredients</div>
+    <div class="chips"><span class="c on">All</span><span class="c">Ready now</span><span class="c">Starred</span><span class="c">Under 30</span></div>
+    <h3 class="h3">Not kept yet <span class="n">2</span></h3>
+    <div class="rr draft" style="background:var(--surface);box-shadow:inset 3px 0 0 var(--accent);border-radius:var(--r-ctl);padding-left:8px"><span class="e">&#127858;</span><span class="t"><b>Garlic soy noodles</b><small>cooked tonight &middot; made up with the AI</small><span class="exp">Keeps until 7pm tomorrow</span></span></div>
+    <div class="rr draft"><span class="e">&#129379;</span><span class="t"><b>Whatever-was-left soup</b><small>cooked yesterday</small><span class="exp warn">Goes in 2 hours</span></span></div>
+    <h3 class="h3">All recipes <span class="n">42</span></h3>
+    <div class="rr"><span class="e">&#127837;</span><span class="t"><b>Spaghetti aglio e olio</b><small>20 min &middot; serves 2</small><span class="tg">&#10003; All in</span></span></div>
+    <div class="rr"><span class="e">&#127859;</span><span class="t"><b>Egg fried rice</b><small>15 min &middot; serves 2</small><span class="tg">&#10003; All in</span></span></div>
+  </div>
+  <aside class="panel">
+    <div class="top"><span class="e" style="width:64px;height:64px;font-size:34px;border-radius:var(--r-ctl);display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--cue) 20%,var(--surface));border:1px dashed var(--cue)">&#127858;</span>
+      <div><h3>Garlic soy noodles</h3><small style="color:var(--muted)">Draft &middot; cooked tonight</small></div></div>
+    <div class="tl"><div><b>Not kept yet</b>goes 7pm tomorrow</div><div><b>5 ingredients</b>one with no amount</div></div>
+    <div class="raw">chucked in the leftover noodles, couple of big cloves of garlic, good glug of soy&hellip;</div>
+    <div class="acts" style="margin-top:14px"><button class="btn2 pri">Keep it</button><button class="btn2">Cook it again</button><button class="btn2 lnk">Let it go</button></div>
+    <p class="note" style="font-size:12px;margin-top:12px">"Let it go" does now what the clock would do tomorrow. It is the only destructive control, and it is the quietest of the three.</p>
+  </aside>
+</div><figcaption>Desktop, 1100px. No new layout: the existing rail, column and side panel from the desktop decisions.</figcaption></figure></div>
+
+<h2>What this screen loads</h2>
+<p class="note" style="max-width:70ch">Default path: nothing new. The draft group is part of the Recipes list already being fetched, and a draft row carries the same fields as a kept row plus an expiry timestamp. The keep sheet is fetched when the person taps Keep, not with the list (DESIGN.md section 6, load on engagement). The clock is computed in the client from one timestamp — no polling, no timer requests; the row re-reads it when the tab regains focus, which the desktop Pantry already does. The mid-cook update arrives on the connection the cooking screen already holds and is applied in place (section 6a), so no new request at all.</p>
+
+<h2>Decisions this fragment records</h2>
+
+<div class="dec"><h3>D1 — an improvised dish is a recipe from the first moment</h3>
+<p class="ow">Owner, 15 October 2026 (voice): "you, in fact, might have to think about the random ones as recipes you add with a different status."</p>
+<p class="note">Not a separate lightweight object that later has to be converted. Same object, same identity, from the moment cooking starts; only the status differs. <b style="color:var(--fg)">Settled by the owner.</b></p></div>
+
+<div class="dec"><h3>D2 — cooking is the entry point; keeping is offered afterwards</h3>
+<p class="ow">Owner, 15 October 2026 (voice): the person "might just start making a random recipe by just talking to AI&hellip; if they find that it's useful, they should be able to convert that into a recipe".</p>
+<p class="note">Saving is never a precondition for cooking or for logging a cook. <b style="color:var(--fg)">Settled by the owner.</b></p></div>
+
+<div class="dec"><h3>D3 — a draft expires in one day if not kept</h3>
+<p class="ow">Owner, 15 October 2026 (voice): "if they don't confirm it within an hour, sorry, a day, you just wipe it."</p>
+<p class="note">Settled as a day. <b style="color:var(--fg)">Open:</b> a day from what — the cook starting, or the cook finishing? This mockup assumes finishing, because that is when the person last touched it. Shown in the copy as a wall-clock time rather than "24 hours left", which is only possible once that is decided.</p></div>
+
+<div class="dec"><h3>D4 — drafts are visible in the library, in their own group</h3>
+<p class="ow">Owner, 15 October 2026 (voice): "you'd want to have a category, uh, awaiting to save or something&hellip; pending save. Or or something like that. You come up with what's the more sensible thing."</p>
+<p class="note">Group, not a chip and not inline: section&nbsp;1 above. <b style="color:var(--fg)">Proposal on the label:</b> "Not kept yet" rather than "Pending save". Owner to confirm the word.</p></div>
+
+<div class="dec"><h3>D5 — loose on how much, strict on what kind</h3>
+<p class="ow">Owner, 15 October 2026 (voice): "there's still the concept of like you don't put ingredients as part of method. And you don't mix it up&hellip; you need to control that at the point of MCP&hellip; I'm happy for you to enforce that as a contract." And: "you must have ingredients and ingredients with quantity, um, quantity optional."</p>
+<p class="note">A draft accepts any subset — ingredients with no steps, steps with no ingredients, free text that is neither — and never validates for completeness. It does enforce typing: an ingredient is a typed ingredient (name required, amount optional), a step is a separate typed thing, and the two never share a field. Enforced at the MCP boundary. Structure is imposed only at keeping: section&nbsp;3. <b style="color:var(--fg)">Settled by the owner.</b></p></div>
+
+<div class="dec"><h3>D6 — assistant edits mid-cook land on the screen in place</h3>
+<p class="ow">Owner, 15 October 2026 (voice): "they might then start uh, giving you&hellip; MCP instructions to fiddle with it. Which then again should go and update what's on the screen."</p>
+<p class="note">The MCP and the screen act on one object; the screen updates where the person is looking. Consistent with DESIGN.md section 6a. <b style="color:var(--fg)">Settled by the owner.</b> How the changed lines are marked is a proposal: section&nbsp;5.</p></div>
+
+<div class="qs"><h3 style="margin-top:0">Open questions, and what a wrong guess costs</h3>
+<ol>
+  <li><b>When a draft expires, what happens to the cook-log entry that pointed at it?</b> The owner's lean is that history must stay true — the log keeps a frozen snapshot of what was cooked even after the draft is gone. Not decided. <b>Cost of guessing wrong:</b> the person loses "what did I actually cook last Tuesday", silently, and there is no way back. This is the one question in #123 that a naive delete would corrupt. Nothing in this fragment depends on the answer; the <em>library</em> is the same either way, but the cook log's own screens are not, so they are not drawn here.</li>
+  <li><b>Does a draft count as a recipe anywhere else?</b> Search, the chips, <code>what_can_i_cook</code>, the week plan. If a draft is a recipe with a status, it is eligible everywhere unless excluded. <b>Proposal:</b> excluded from planning and from "what can I cook" (you cannot plan next Tuesday around something that evaporates tomorrow), included in search so a person can find it. <b>Cost:</b> a plan built on a dish that disappears.</li>
+  <li><b>Is the expiry a household thing or a personal thing?</b> If two people cook, whose draft is it, and can the other keep it? <b>Cost:</b> one member silently losing another's dish, or a draft nobody feels responsible for.</li>
+  <li><b>Can a kept recipe go back to being a draft?</b> Recipe's rule is that nothing a person made is deleted — put away replaces deletion. A draft that evaporates sits against that rule. It probably reconciles as "a draft is not yet something the person made", but that is a judgement the builder should state rather than assume. <b>Cost:</b> a rule quietly broken, and a precedent for deleting other things.</li>
+  <li><b>What does the assistant say when a draft is about to go?</b> Nothing in this fragment notifies outside the app. A push or a chat message would be the obvious place and is not drawn, deliberately: it crosses into the assistant's behaviour rather than the screen's. <b>Cost:</b> drafts expiring while the person is nowhere near the Recipes tab — which is most of the time.</li>
+</ol></div>
+
+<h2>If the three options were compared on one thing each</h2>
+<div class="scroll"><table class="cmp">
+  <tr><th>&nbsp;</th><th>Where a draft lives</th><th>The offer</th><th>The clock</th></tr>
+  <tr><th>Lean</th><td>Own group, pinned above, hidden when empty</td><td>Quiet card during, a direct question at the end</td><td>Words: absolute far out, relative near the end</td></tr>
+  <tr><th>Because</th><td>It is the only thing here with a deadline, so it cannot be somewhere you must go looking</td><td>The end of the cook is the only moment the person knows the answer</td><td>Automatic deletion should be stated plainly, not revealed late</td></tr>
+  <tr><th>Rejected</th><td>A chip (invisible by default) and inline (clutters a list of things with no deadline)</td><td>Asking during cooking (interrupts) and never asking (good dishes evaporate)</td><td>A ring alone (not a time, and needs words anyway) and silence until late (surprises people)</td></tr>
+  <tr><th>If wrong</th><td>Cheap to change: one section versus one chip</td><td>Cheap: copy and one condition</td><td>Cheap: one threshold constant</td></tr>
+</table></div>
+
+<p class="note" style="max-width:70ch;margin-top:22px">Every lean on this page is cheap to reverse. The expensive decision is open question&nbsp;1, and it is deliberately not drawn.</p>
+</div>
+</body></html>

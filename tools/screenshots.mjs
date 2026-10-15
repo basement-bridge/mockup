@@ -12,6 +12,7 @@ const out = process.argv.find((a, i) => i > 1 && !a.startsWith("--")) || "shots"
 const only = (process.argv.find(a => a.startsWith("--only=")) || "").slice(7);
 const SCREENS = [
   ["index", "index.html"],
+  ["draft-recipes", "fragments/draft-recipes/index.html"],
   ["plan-start-cooking", "fragments/plan-start-cooking/index.html"],
   ["plan-start-cooking-b", "fragments/plan-start-cooking/phone.html?o=b&m=adhoc"],
   ["plan-start-cooking-b-missing", "fragments/plan-start-cooking/phone.html?o=b&m=missing"],
