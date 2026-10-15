@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Photo enhance presets</title>
+<link rel="stylesheet" href="../../../theme.css"><link rel="stylesheet" href="presets.css"><script src="../../../theme.js"></script>
+</head><body data-no-theme-fab>
+<!-- Default path: this page, presets.css and presets.js (about 9 KB). Nothing else loads on page load: not ../engine/enhance.js, not the worker, no sample photo, not the sample list.
+     Loaded when a person picks a photo or a sample: ../engine/enhance.js, then (inside open()) the worker. Nothing is encoded or uploaded here at all. -->
+<main class="wrap">
+<h1>Photo enhance: 15 presets</h1>
+<p class="sub">Pick your own photo, tap a look, hold the button to see the original. The photo never leaves this browser.</p>
+<div class="pick">
+  <label class="btn primary">Try your own photo<input id="own" type="file" accept="image/*"></label>
+  <select id="sample" aria-label="Or a sample photo"><option value="">Or a sample photo</option></select>
+</div>
+<div class="status" id="status" role="status">Nothing loaded yet.</div>
+<div class="stage" id="stage" hidden>
+  <div class="view"><canvas id="cv" width="16" height="12" aria-label="Preview"></canvas><span class="badge" id="badge"></span>
+    <button class="btn hold" id="hold" aria-pressed="false">Hold for original</button></div>
+  <div class="cap"><b id="nm"></b><p class="why" id="why"></p><div class="chips" id="chips"></div></div>
+</div>
+<h2>Original and today's levels</h2>
+<div class="grid" id="today"></div>
+<h2>15 presets</h2>
+<div class="grid" id="presets"></div>
+<p class="note">Tell me the number of the look you like (or two, and what to take from each). The knobs under the preview are exactly what it did.</p>
+</main>
+<script src="presets.js"></script>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var cv = $("cv"), stage = $("stage"), statusEl = $("status"), sess = null, cur = null, loading = null, engineP = null, holding = false;
+  var all = PhotoPresets.TODAY.concat(PhotoPresets.PRESETS), byId = {};
+  all.forEach(function (p) { byId[p.id] = p; });
+  function tile(host, p, no) {
+    var b = document.createElement("button"); b.className = "tile"; b.dataset.id = p.id; b.setAttribute("aria-pressed", "false");
+    b.innerHTML = '<canvas width="4" height="3" aria-hidden="true"></canvas><span class="nm"><span class="no">' + (no || "") + '</span><span></span></span>';
+    b.lastChild.lastChild.textContent = p.name; host.appendChild(b); return b;
+  }
+  PhotoPresets.TODAY.forEach(function (p) { tile($("today"), p, ""); });
+  PhotoPresets.PRESETS.forEach(function (p, i) { tile($("presets"), p, i + 1); });
+  document.addEventListener("click", function (e) { var t = e.target.closest && e.target.closest(".tile"); if (t) choose(t.dataset.id); });
+
+  /* the engine is fetched only when a photo is picked */
+  function engine() {
+    if (window.PhotoEnhance) return Promise.resolve();
+    return engineP || (engineP = new Promise(function (res, rej) {
+      var s = document.createElement("script"); s.src = "../engine/enhance.js"; s.onload = res; s.onerror = function () { engineP = null; rej(new Error("engine")); }; document.head.appendChild(s);
+    }));
+  }
+  function load(src) {
+    var mine = (loading = {});
+    statusEl.textContent = "Opening the photo...";
+    engine().then(function () {
+      if (!PhotoEnhance.supported) throw { code: "unsupported" };
+      PhotoEnhance.cacheMax = 12;
+      PhotoPresets.PRESETS.forEach(function (p) { PhotoEnhance.define(p.id, p.name, p.spec); });
+      return PhotoEnhance.open(src);
+    }).then(function (s) {
+      if (loading !== mine) { s.close(); return; }
+      if (sess) sess.close();
+      sess = s; stage.hidden = false; statusEl.textContent = s.width + " x " + s.height + (s.good ? ". Looks good already, so the auto fix is small." : "");
+      choose(cur && byId[cur] ? cur : PhotoPresets.DEFAULT);
+      thumbs(s);
+    }, function (e) {
+      statusEl.textContent = e && e.code === "unsupported" ? "This browser cannot enhance photos (needs a recent Safari or Chrome)." : "That photo cannot be read here.";
+    });
+  }
+  /* thumbnails: one at a time, small, so the worker is never swamped and the big preview keeps priority */
+  function thumbs(s) {
+    var i = 0;
+    (function next() {
+      if (sess !== s || i >= all.length) return;
+      var p = all[i++], c = document.querySelector('.tile[data-id="' + p.id + '"] canvas');
+      s.render(p.id, c, { maxEdge: 360 }).then(next, next);
+    })();
+  }
+  function choose(id) {
+    if (!sess || !byId[id]) return;
+    cur = id; var p = byId[id], t0 = performance.now();
+    [].forEach.call(document.querySelectorAll(".tile"), function (b) { b.setAttribute("aria-pressed", String(b.dataset.id === id)); });
+    $("nm").textContent = p.name; $("why").textContent = p.why; $("badge").textContent = p.name;
+    var chips = $("chips"); chips.textContent = "";
+    (p.spec ? PhotoPresets.describe(p.spec) : id === "off" ? [] : sess.notesFor(id).map(function (n) { return { label: n.label, text: n.text }; })).forEach(function (k) {
+      var c = document.createElement("span"); c.className = "chip"; c.textContent = k.label + ": " + k.text; chips.appendChild(c);
+    });
+    if (!holding) sess.render(id, cv).then(function () { statusEl.textContent = sess.width + " x " + sess.height + ", drawn in " + Math.round(performance.now() - t0) + " ms"; });
+  }
+  var hold = $("hold");
+  function down(e) { if (!sess) return; e.preventDefault(); holding = true; hold.setAttribute("aria-pressed", "true"); $("badge").textContent = "Original"; sess.render("off", cv); }
+  function up() { if (!holding) return; holding = false; hold.setAttribute("aria-pressed", "false"); $("badge").textContent = byId[cur].name; sess.render(cur, cv); }
+  hold.addEventListener("pointerdown", down); ["pointerup", "pointercancel", "pointerleave"].forEach(function (n) { hold.addEventListener(n, up); });
+  hold.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+  hold.addEventListener("keydown", function (e) { if (e.key === " " || e.key === "Enter") down(e); });
+  hold.addEventListener("keyup", function (e) { if (e.key === " " || e.key === "Enter") up(); });
+
+  $("own").onchange = function (e) { if (e.target.files[0]) { $("sample").value = ""; load(e.target.files[0]); } };
+  var listed = false;                                   // the sample list (a few hundred bytes) is fetched only when the dropdown is touched
+  function listSamples() {
+    if (listed) return; listed = true;
+    fetch("../engine/samples/samples.json").then(function (r) { return r.json(); }).then(function (list) {
+      list.forEach(function (s) { var o = document.createElement("option"); o.value = "../engine/samples/" + s.file; o.textContent = s.label; $("sample").appendChild(o); });
+    }).catch(function () { listed = false; });
+  }
+  ["pointerdown", "focus"].forEach(function (n) { $("sample").addEventListener(n, listSamples); });
+  $("sample").onchange = function () { if ($("sample").value) load($("sample").value); };
+})();
+</script></body></html>

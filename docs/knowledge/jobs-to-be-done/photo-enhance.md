@@ -20,6 +20,7 @@ Hub tile "Recipe photo enhance, four options" in `index.html`. All four use one 
 - B: its own step with level chips and a Hold for original button (PR #189).
 - C: auto-on, "Enhanced" pill, Undo (PR #192).
 - D: split slider plus strength slider (PR #191).
+- Presets: `fragments/photo-enhance/presets/`, 15 food-biased looks (brighter bias) plus Original and today's three levels, upload your own photo, hold for original. Built 15 Oct 2026 for Kitchie #768; the owner picks by eye, then the shipped four levels are retuned (no new controls).
 Engine: PR #188. Checks: `tools/photo-enhance-*-check.mjs`.
 
 ## Engine (Proposal, numbers in engine/NOTES.md)
