@@ -58,6 +58,7 @@ F.afterPaint(function(){
   });
 });
 F.prepWatch(ph);
+F.queueUi(document.querySelector('.phone'),'list');
 F.controls('<h4>This week\'s plan</h4><div class="seg"><button type="button" data-plan="yes" aria-pressed="'+(plan==="yes")+'">Plan exists (3 recipes)</button><button type="button" data-plan="no" aria-pressed="'+(plan==="no")+'">No plan yet</button></div>'+
   '<p style="font-size:12px;margin-top:6px">P-D21 is locked: stock picture first, then planned, then on screen + 5 more in the category, the rest on demand. Option switches A to C were removed.</p>');
 document.addEventListener("click",function(e){var c=e.target.closest("[data-chip]");if(c){var u2=new URL(location.href);u2.searchParams.set("chip",c.dataset.chip);location.href=u2.toString();return}var x=e.target.closest("[data-plan]");if(x){X.store.set("pplan",x.dataset.plan);var u=new URL(location.href);u.searchParams.delete("plan");location.href=u.toString()}});
