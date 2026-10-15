@@ -72,6 +72,9 @@ pre.port{white-space:pre-wrap;word-break:break-word;font-size:12.5px;line-height
 <a href="list.html">List: stock picture first, planned first</a>
 <a href="recipe.html?id=efr">Recipe page: text, step photos, banner last</a>
 <a href="recipe.html?id=efr&state=prep&arrive=1">Photo is being prepared (then arrives)</a>
+<a href="list.html?state=sending">Photo on its way: brief toast on the list (Kitchie #773)</a>
+<a href="recipe.html?id=efr&state=sending">Photo on its way: persistent line on that recipe's page (Kitchie #773)</a>
+<a href="list.html?state=failed">Photo failed: the lasting pill with Retry and Remove (Kitchie #773)</a>
 <a href="recipe.html?id=efr&v=v2">Version showing its parent's photos (icon)</a>
 <a href="recipe.html?id=rag">Only a cooked photo: no banner</a>
 <a href="add.html?to=efr&kind=step&sn=2">Photo for a step</a>
@@ -213,6 +216,7 @@ pre.port{white-space:pre-wrap;word-break:break-word;font-size:12.5px;line-height
 <li><span class="n">P-D29</span><b>A note written after a cook</b> carries a reference to that cook and shows "After the 8 Oct cook" as a tag, so the household sees the context, without making the note belong to the cook (under N1 A). <span class="prop">Proposal</span></li>
 <li><span class="n">P-D30</span><b>"Photo is being prepared".</b> A <code>pending</code> photo draws its box at its final size, in its own colour (known from the upload), with one quiet line: "Photo is being prepared". No spinner. Kitchie checks back three times (after 30 seconds, 1 and 2 minutes); after that the line reads "Photo will appear later" and the page stops asking until it is next opened. When the size exists, the image fades in; nothing moves. In a list tile the line is just an icon. <span class="prop">Proposal</span> (draws P-D7 as locked)</li>
 <li><span class="n">P-D31</span><b>Notes and the 5-minute removal.</b> A note pointing at a removed photo renders nothing for it (P-D28), and keeps doing so after the 5 minutes; the note's text never changes. <span class="prop">Proposal</span></li>
+<li><span class="n">P-D32</span><b>A photo on its way: a brief toast, and a lasting line only on that recipe's page (Kitchie #773).</b> Owner, 15 Oct 2026: the white "Photo: photo is being prepared" pill sat over the Recipes list for as long as the photo took (up to ten minutes). Once the upload has started nobody needs telling. <b>Anywhere</b>: one toast, "Photo on its way", gone by itself in under two seconds (1.8 s here), never back for the same photo. <b>Only on error</b> does something come back: a lasting pill, "The photo did not upload", with Retry and Remove. <b>On that recipe's details page</b> (the version the photo is for): a persistent line under the banner, "Waiting", "Uploading 42%", then "Photo is being prepared", with a thin bar and "You can leave this page. It carries on."; it goes when the photo is done. The banner frame itself keeps the P-D30 "Photo is being prepared" box, so the page never looks broken or missing. Client-side only; nothing stored. <span class="prop">Proposal</span> (toast wording, 1.8 s, the line under the banner)</li>
 </ol>
 </section>
 

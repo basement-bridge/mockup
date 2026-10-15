@@ -10,6 +10,7 @@ const PAGES = [
   ["recipe", "recipe.html?id=efr&state=photos", "body"], ["recipe-v2-inherited", "recipe.html?id=efr&v=v2&state=photos", "body"],
   ["recipe-rag-nobanner", "recipe.html?id=rag&state=photos", "body"], ["recipe-none", "recipe.html?id=efr&state=none", "body"],
   ["recipe-slow", "recipe.html?id=efr&state=slow", "body"], ["recipe-prep", "recipe.html?id=efr&state=prep", "body"],
+  ["list-sending", "list.html?plan=yes&state=sending", "body"], ["list-failed", "list.html?plan=yes&state=failed", "body"], ["recipe-sending", "recipe.html?id=efr&state=sending", "body"], ["recipe-failed", "recipe.html?id=efr&state=failed", "body"],
   ["recipe-undo", "recipe.html?id=efr&state=photos&removed=efr-3", "body"],
   ["add-tonight", "add.html?to=efr&kind=cooked&from=cook&state=photos", "body"], ["add-row", "add.html?to=efr&kind=cooked&cook=29%20Sep", "body"],
   ["add-cam", "add.html?to=efr&kind=cooked&src=cam&from=cook", "body"], ["add-raw", "add.html?to=efr&kind=cooked&src=cam&from=cook&phone=raw", "body"],

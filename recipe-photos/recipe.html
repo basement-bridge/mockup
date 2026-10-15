@@ -65,7 +65,7 @@ function draw(keep){
       '<p style="margin-top:4px"><a class="back" style="font-size:13px" href="free.html?to='+r.id+'">'+ic("x","s")+' Free up space: photos of versions you do not use</a></p>';
   }
   var SEC=[["ing","Ingredients",ingH],["met","Method",met],["not","Notes",'<div class="lblrow"><span class="lbl">Notes</span></div>'+notes],["his","Cooked",'<div class="lblrow"><span class="lbl">Cooked</span></div>'+hist],["pho","Photos",'<div class="lblrow"><span class="lbl">Photos</span>'+(extra.length?'<span class="lbl">'+extra.length+' more</span>':'')+'</div>'+gal]];
-  var body=top+F.undoBar(r)+head+'<nav class="jumps" aria-label="Sections">'+SEC.map(function(s,i){return '<a href="#'+s[0]+'" class="'+(i?'':'on')+'">'+s[1]+'</a>'}).join("")+'</nav>'+
+  var body=top+F.queueLine()+F.undoBar(r)+head+'<nav class="jumps" aria-label="Sections">'+SEC.map(function(s,i){return '<a href="#'+s[0]+'" class="'+(i?'':'on')+'">'+s[1]+'</a>'}).join("")+'</nav>'+
     SEC.map(function(s){return '<section class="sec" id="'+s[0]+'">'+s[2]+'</section>'}).join("")+'<div style="height:24px"></div>';
   ph.innerHTML='<div class="top"><a class="back" href="list.html">'+ic("back","s")+'Recipes</a><span class="ttl"></span>'+
     '<a class="ib bare" href="'+F.addHref(r,{})+'" aria-label="Add a photo of what you made">'+ic("cam")+'</a>'+
@@ -105,6 +105,7 @@ ph.addEventListener("click",function(e){
   else if(t.hasAttribute("data-more"))X.sheet('<h3>'+esc(r.name)+'</h3><button class="opt" data-close>'+ic("pen")+'<span class="t"><b>Change it</b><small>Opens your AI assistant; it makes the change through Recipe</small></span></button><a class="opt" href="free.html?to='+r.id+'">'+ic("x")+'<span class="t"><b>Free up space</b><small>Remove photos of versions you do not use. Text and history stay.</small></span></a>');
 });
 draw();
+F.queueUi(document.querySelector('.phone'),'recipe');
 F.controls('<h4>Recipe</h4><p><a href="?id=efr">Egg fried rice (3 versions)</a> · <a href="?id=efr&v=v2">Its newest version, showing its parent\'s photos</a> · <a href="?id=rag">Ragù (cooked photo only: no banner)</a> · <a href="?id=pas">Pasta (no photos)</a> · <a href="?id=efr&state=prep">Photos being prepared</a> · <a href="?id=efr&state=prep&arrive=1">Being prepared, then arriving</a></p>'+
   '<p style="font-size:12px;margin-top:6px">P-D20 is locked as A (full-width banner): the B and C switches were removed.</p>');
 })();
