@@ -1,0 +1,21 @@
+/* The only new rules for "Start cooking" on the phone meal detail. Everything else is Kitchie's plan.phone.css (app.css), unchanged.
+   Tokens only, scoped like the app's (.pw.ph), so this file can be lifted into plan.phone.css as is. */
+.pw.ph .sfoot .b2.cook{flex:1.15;white-space:nowrap}
+.pw.ph .sfoot .b2.cook.lead{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.pw.ph .sfoot .b2.cook .via{display:inline-grid;place-items:center;margin-left:-2px;opacity:.85}
+.pw.ph .sfoot .b2.cook .via svg{width:12px;height:12px}
+/* with three buttons (Hold, Add, Cook) Add keeps the accent fill and Cook is the outline button (SC-P2) */
+.pw.ph .sfoot .b2.add~.b2.cook{background:var(--bg);color:var(--fg);border-color:var(--accent)}
+.pw.ph .asheet.ai{padding:8px 16px calc(16px + env(safe-area-inset-bottom))}
+.pw.ph .asheet.ai h2{padding:8px 0 4px}
+.pw.ph .asheet.ai .hint2{padding:0 0 10px}
+.pw.ph .asheet.ai blockquote{margin:0 0 12px;padding:10px 12px;border-left:3px solid var(--accent);background:var(--bg);border-radius:0 12px 12px 0;font-size:14px;color:var(--fg)}
+.pw.ph .asheet.ai .b2{width:100%}
+
+/* mockup page scaffolding only (not for the build): the app's bottom bar stand-in and the toast */
+.mk-bar{position:fixed;left:0;right:0;bottom:0;height:68px;border-top:1px solid var(--border);background:var(--surface);display:flex;justify-content:space-around;align-items:center;font-size:11px;font-weight:700;color:var(--muted);z-index:5}
+.mk-bar b{color:var(--accent)}
+.mk-toast{position:fixed;left:12px;right:12px;bottom:84px;z-index:40;padding:12px 14px;border-radius:14px;background:var(--fg);color:var(--bg);font-size:13px;line-height:1.35}
+.mk-toast code{font-size:11px}
+body.mk{margin:0;background:var(--bg);color:var(--fg);font-family:"DM Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.mk .pw.ph{margin:0;--sth:10px;--barh:68px}

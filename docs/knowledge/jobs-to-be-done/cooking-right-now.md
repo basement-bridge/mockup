@@ -39,3 +39,7 @@ Left out of this view, not just quieter: where things are stored, freshness, exa
 - The MCP tooling must carry: the recipe in play, and its ingredients.
 - The default mobile view while mid-cook is ingredients, whether or not the recipe is in the vault.
 - Saved-recipe browsing appears only when the recipe is in the vault and unaltered, and only as a secondary action.
+
+## Starting from the meal plan (open, 15 Oct 2026)
+
+Owner, by voice, while cooking: opening tonight's meal in the Plan detail gave him no way to start cooking. Today only the AI can start a Cooking now session (Kitchie #307), and Plan's Cook this (saved recipes, nothing missing) sits in the meal's ... menu. Options A to D (saved recipes only; also start Cooking now from a made-up meal; hand a made-up meal to the AI app; unchanged) are drawn in `fragments/plan-start-cooking/`. Option B would let a person start a session from the plan, which changes "declared by the AI"; nothing is decided.

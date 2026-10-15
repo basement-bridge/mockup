@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Cooking now, started from the plan</title>
+<link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="cooking-view.css"><script src="../../theme.js"></script>
+<style>
+/* page scaffolding for the mockup only; the view's own CSS is Kitchie's (server/src/web-cooking.ts, copied unchanged into cooking-view.css) */
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"DM Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:704px;margin:0 auto;padding:1.25rem 20px 88px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.mk-bar{position:fixed;left:0;right:0;bottom:0;height:68px;border-top:1px solid var(--border);background:var(--surface);display:flex;justify-content:space-around;align-items:center;font-size:11px;font-weight:700;color:var(--muted)}
+.back{display:inline-flex;align-items:center;min-height:44px;font-size:14px;font-weight:600;color:var(--accent);text-decoration:none}
+</style></head>
+<body data-no-theme-fab><main>
+<a class="back" href="phone.html?o=b&amp;m=adhoc">&lsaquo; Back to the plan (mockup only)</a>
+<div class="cv" data-cooking-screen>
+<div><span class="now"><i></i>Cooking now</span><h1>Malatang with chicken and rice</h1><p class="src">From your meal plan, tonight. Made up in your chat.</p></div>
+<ul class="ing" aria-label="Ingredients" style="--n:7;--c:22">
+<li><label class="ci"><input type="checkbox"><span class="ck" aria-hidden="true"><svg class="tick" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></span><span class="cn"><span class="nm">Chicken thighs</span><span class="wh">Fridge · Bottom shelf</span></span><span class="amt">300 g</span></label></li>
+<li><label class="ci"><input type="checkbox"><span class="ck" aria-hidden="true"><svg class="tick" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></span><span class="cn"><span class="nm">Rice</span><span class="wh">Pantry</span></span><span class="amt">150 g</span></label></li>
+<li><label class="ci"><input type="checkbox"><span class="ck" aria-hidden="true"><svg class="tick" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></span><span class="cn"><span class="nm">Malatang soup base</span></span><span class="amt">1 pack</span></label></li>
+<li><label class="ci"><input type="checkbox"><span class="ck" aria-hidden="true"><svg class="tick" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></span><span class="cn"><span class="nm">Bok choy</span><span class="wh">Fridge · Crisper</span></span><span class="amt">2</span></label></li>
+<li><label class="ci"><input type="checkbox"><span class="ck" aria-hidden="true"><svg class="tick" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></span><span class="cn"><span class="nm">Enoki mushrooms</span></span><span class="amt">100 g</span></label></li>
+<li><label class="ci"><input type="checkbox"><span class="ck" aria-hidden="true"><svg class="tick" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></span><span class="cn"><span class="nm">Tofu puffs</span></span><span class="amt">80 g</span></label></li>
+<li><label class="ci"><input type="checkbox"><span class="ck" aria-hidden="true"><svg class="tick" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></span><span class="cn"><span class="nm">Glass noodles</span></span><span class="amt">50 g</span></label></li>
+</ul>
+<form class="done" onsubmit="location.href='phone.html?o=b&amp;m=adhoc';return false"><button type="submit"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Done cooking</button></form>
+</div></main>
+<div class="mk-bar" aria-hidden="true"><span>Home</span><span>Pantry</span><span>Plan</span><span>Recipes</span><span>Shopping</span></div>
+</body></html>
