@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Plan it, choosing the day on desktop</title><link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><script src="../../theme.js"></script>
+<style>
+.decs li,.q li{margin-bottom:8px;font-size:14px}
+.tbl{overflow-x:auto}.tbl table{min-width:640px}
+.links{display:flex;flex-wrap:wrap;gap:6px}
+.links a{display:inline-flex;align-items:center;min-height:36px;padding:0 12px;border-radius:99px;border:1px solid var(--border);background:var(--bg);font-size:13px;font-weight:600}
+.links a:hover{border-color:var(--accent)}
+.rec{font-size:11px;font-weight:800;padding:1px 7px;border-radius:var(--r-pill);border:1px solid var(--accent);color:var(--accent);margin-left:4px;white-space:nowrap}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Plan it: how to choose the day on desktop</h1>
+<p>Five live, clickable options for Kitchie issue #757. Mockup only, nothing is saved or sent. Each one is the desktop Home page with the Mandarin Mango Yogurt Bowl open in the right-hand pane: press <b>Add to plan</b> (or <kbd>P</kbd>) and try it. The phone sheet is not changed in any option. The owner has not chosen yet.</p>
+
+<div class="sec"><div class="lbl">Owner, 15 October 2026 (voice)</div>
+<p>He wants to choose by looking at working options, not by prose. Raised the same day, typed: &ldquo;raise an issue about the best way to do the selection of day of week to plan on the desk..&rdquo;.</p></div>
+
+<div class="sec"><div class="lbl">The options (open one; the A to E switch is at the foot of the left rail on every page)</div>
+<div class="tbl"><table>
+<tr><th>Option</th><th>Open</th><th>What to look for</th></tr>
+<tr><td><b>A</b> Strip plus keys</td><td><a href="home.html?pick=a">desktop</a></td><td>Today's strip and week arrows, with a keyboard layer. Opens with focus on the strip and today chosen; <kbd>&larr;</kbd> <kbd>&rarr;</kbd> move, <kbd>Enter</kbd> plans, a digit or a letter jumps to a day, <kbd>?</kbd> lists the keys. A week past this one still needs the arrows (the issue's cost for A).</td></tr>
+<tr><td><b>B</b> Quick picks</td><td><a href="home.html?pick=b">desktop</a></td><td>Tonight, Tomorrow, Another day&hellip;. A free day is one click. Tomorrow is a usual day off in the sample, so it waits for Plan with the note. Another day&hellip; opens the strip.</td></tr>
+<tr><td><b>C</b> Four-week grid <span class="rec">agent recommendation</span></td><td><a href="home.html?pick=c">desktop</a></td><td>A panel beside the Plan button: four rows of seven days, today ringed, past greyed, each cell shows the meal, a usual day off says Off. Today preselected; four arrow keys, <kbd>Enter</kbd> plans, A's digit and letter jumps.</td></tr>
+<tr><td><b>D</b> On the Plan page</td><td><a href="home.html?pick=d">desktop</a></td><td>Add to plan takes you to the week, carrying the meal. Drag it onto a day, or choose a day and press Enter. Leaving Home is the cost.</td></tr>
+<tr><td><b>E</b> Do nothing</td><td><a href="home.html?pick=e">desktop</a></td><td>Today's sheet, unchanged, as a full-width bottom sheet. Nothing preselected, two clicks for the usual case.</td></tr>
+</table></div>
+<p style="margin-top:8px">Sample controls (add to the address): <code>avoid=mango</code> (Jo has a Hard avoid on mango: a household meal warns with one action, a meal for Jo alone is a hard stop), <code>today=busy</code> (today already has a meal), <code>replace=0</code> (the Home card adds a second meal instead of replacing your own). Sample week: today is Wednesday 14 October, Mon and Tue are past, Thursday is the usual day off, Friday holds Sam's own meal (so it shows <b>Replace Fri&rsquo;s meal</b>), the other days hold household or Jo's meals (a second meal). Check: <code>node tools/plan-day-picker-check.mjs</code>.</p>
+<div class="links"><a href="home.html?pick=a&amp;avoid=mango">A with a Hard avoid</a><a href="home.html?pick=c&amp;avoid=mango">C with a Hard avoid</a><a href="home.html?pick=c&amp;today=busy">C, today busy</a><a href="home.html?pick=c&amp;replace=0">C, no replace</a></div></div>
+
+<div class="sec"><div class="lbl">Rules every option keeps (from the issue)</div>
+<ul class="decs">
+<li>This week and up to four weeks ahead; past days greyed; a usual day off marked and still allowed (&ldquo;cooks this week only&rdquo;); a day with a meal gets a second meal; Hold on by default; the Hard avoid guard is asked live when the day or the person changes (SW-74 to SW-82); on the desktop Home card a day with your own meal is replaced (owner, 12 October 2026).</li>
+<li>Undo: the same 14-second chip as today (here the Home toast, with <kbd>Z</kbd>). Undo puts a replaced meal back.</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">Proposals (the owner was silent)</div>
+<ul class="decs">
+<li><b>PD-P1.</b> Today is preselected in A and C unless it is past, a usual day off, or already has a meal; then the next free day in view; if none, nothing. A day that would take a second meal is never preselected, so Enter cannot add a second meal by accident (the issue says &ldquo;a past or full day never preselected&rdquo;; reading &ldquo;full&rdquo; as &ldquo;already has a meal&rdquo;). Wrong guess: the usual case on a busy evening takes a click.</li>
+<li><b>PD-P2.</b> Letters and digits jump to a day in A and C: <kbd>1</kbd> to <kbd>7</kbd> is Monday to Sunday; <kbd>M T W F S</kbd> jump to that day, and <kbd>T</kbd> and <kbd>S</kbd> pressed again cycle to Thursday and Sunday. In C they act within the week of the chosen day. Wrong guess: letters clash with a later single-key shortcut (Kitchie #594).</li>
+<li><b>PD-P3.</b> C is four rows (this week and three ahead, 28 days); the strip today goes to four weeks ahead (five weeks). The grid is one week short of the cap. Options: a fifth row, or keep four. Needs the owner.</li>
+<li><b>PD-P4.</b> C and the Plan page show the meals of all weeks, so C needs the plan for four weeks when it opens (one range read; the sheet today reads this week only, and later weeks in the strip say Free). A, B and E are drawn as the sheet draws them today: Free for later weeks.</li>
+<li><b>PD-P5.</b> B: a click on Tonight on a free day plans it at once (one click, Undo available); a day with a meal or a usual day off is chosen and waits for Plan. Who it is for and Hold sit above the quick row and are used as set. Wrong guess: a click that plans is too quick; make it two steps.</li>
+<li><b>PD-P6.</b> D: a drop is always a second meal; Replace stays a Home-card rule. After a drop the page stays on the week with the meal in its day and a Back to Home button.</li>
+<li><b>PD-P7.</b> Esc closes any of the pickers without planning (plain Esc closes nothing on Home otherwise, so this is new for an open picker only). Focus returns to Add to plan.</li>
+<li><b>PD-P8.</b> The full-width bottom sheet in A, B and E is the best reading of the code and the description of the owner's screenshot; the screenshot itself was not attached. The width of the sheet's content on a wide screen is a guess.</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">Open questions</div>
+<ul class="q">
+<li>Which option, A, B, C, D or E? (Recommended C with A's keyboard rules; fallback A.)</li>
+<li>Anchored to the Plan button (C) or a bottom sheet? Today preselected? (PD-P1)</li>
+<li>Four rows or five in C (PD-P3)? Does the plan read take a week offset or a range (PD-P4)?</li>
+<li>Do letter and digit jumps (PD-P2) stay, given the shared shortcut registry (Kitchie #594)?</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">Loads (DESIGN.md section 6)</div>
+<p>Nothing is loaded by any existing page: this is a new fragment. The host is the Home mockup (<code>home-detail-panel</code> styles and scripts, reused, not copied), plus <code>picker.css</code> (about 9 KB), <code>data.js</code> (sample), <code>common.js</code> (shared rules, the guard, planning) and exactly one option file: <code>pick-c.js</code> (grid) or <code>pick-d.js</code>, or <code>sheet.js</code> with <code>pick-a.js</code>, <code>pick-b.js</code> or <code>pick-e.js</code>. All of it is desktop-only and none of it is in a shared bundle. In the build, fetch the chosen picker on the first press of Add to plan (or first focus of it), like the sheet today. This host loads the recipe view up front instead of on first use (scaffolding). No images, no fonts added. Where it lands: in place, over Home (DESIGN.md section 6a); D is the one option that leaves the page, drawn in place here for the mockup.</p></div>
+</div></body></html>

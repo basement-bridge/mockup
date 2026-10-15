@@ -81,7 +81,7 @@
       return p;
     }).map(function (p) {
       /* "Being prepared" state: the banner and the step photos of this sample arrived without their sizes (an assistant upload). */
-      return state === "prep" && (p.k === "banner" || p.k === "step") ? Object.assign({}, p, { prep: 1 }) : p;
+      return (state === "prep" && (p.k === "banner" || p.k === "step")) || (state === "sending" && p.k === "banner") ? Object.assign({}, p, { prep: 1 }) : p;
     });
   };
   var chain = function (r, vid) {
@@ -273,7 +273,7 @@
     var b = document.createElement("button"); b.type = "button"; b.className = "mockb"; b.textContent = "Mockup"; b.setAttribute("aria-expanded", "false");
     var p = document.createElement("div"); p.className = "mockp"; p.hidden = true;
     p.innerHTML = '<h4>What this screen loaded</h4><div class="meter" id="pmeter"></div>' +
-      "<h4>Photo state</h4>" + seg("state", state, [["photos", "Has photos"], ["prep", "Being prepared"], ["none", "No photos yet"], ["slow", "Slow network"]]) +
+      "<h4>Photo state</h4>" + seg("state", state, [["photos", "Has photos"], ["prep", "Being prepared"], ["none", "No photos yet"], ["slow", "Slow network"], ["sending", "Photo on its way"], ["failed", "Photo failed"]]) +
       "<h4>Who is using it</h4>" + seg("persona", X.P.persona, X.PERSONAS.map(function (x) { return [x[0], x[2]]; })) +
       (extra || "") +
       '<h4>Theme</h4><div class="tgrid swatches">' + (window.themeHtml ? themeHtml(null, true) : "") + "</div>" +
@@ -290,8 +290,32 @@
     document.addEventListener("keydown", function (e) { if (e.key === "Escape") p.hidden = true; });
   };
 
+
+  /* Photo on its way (Kitchie #773, owner 15 Oct 2026). The build's page queue (photo-queue.js) says it two ways:
+     - ANYWHERE (the list included): one brief toast, "Photo on its way", gone by itself in under two seconds. It never comes back for the same
+       photo; only a FAILURE comes back, as a lasting pill with Retry and Remove (state=failed).
+     - On THAT recipe's details page only: a persistent status line under the banner for as long as the photo is on its way
+       (Waiting, Uploading 42%, Photo is being prepared), so the page never looks broken or missing a photo. It goes when the photo is done.
+     Classes to lift: .pqpill (the toast and the failed pill), .pqs (the details page line). */
+  var queueUi = function (phone, where) {
+    if (!phone) return;
+    var pill = function (cls, html) { var d = document.createElement("div"); d.className = "pqpill " + cls; d.setAttribute("role", "status"); d.setAttribute("aria-live", "polite"); d.innerHTML = html; phone.appendChild(d); return d; };
+    if (state === "failed") {
+      pill("bad", '<span class="pqt">The photo did not upload.</span><button type="button" data-qretry>Retry</button><button type="button" data-qremove>Remove</button>');
+      phone.addEventListener("click", function (e) { var b = e.target.closest("[data-qretry],[data-qremove]"); if (!b) return; var d = phone.querySelector(".pqpill"); if (d) d.remove(); });
+      return;
+    }
+    if (state !== "sending") return;
+    if (where === "list") { var t = pill("brief", '<span class="pqt">Photo on its way</span>'); setTimeout(function () { t.remove(); }, 1800); return; }
+    /* details page: the line under the banner counts up, then settles on "Photo is being prepared" and stays */
+    var line = phone.querySelector("[data-pqs]"); if (!line) return;
+    var n = 0, tick = setInterval(function () { n += 14; if (n >= 100) { clearInterval(tick); line.querySelector(".pqt").textContent = "Photo is being prepared"; line.querySelector(".pqbar i").style.width = "100%"; line.setAttribute("data-q", "processing"); return; } line.querySelector(".pqt").textContent = "Uploading " + n + "%"; line.querySelector(".pqbar i").style.width = n + "%"; }, 450);
+    line.querySelector(".pqt").textContent = "Uploading"; line.setAttribute("data-q", "uploading");
+  };
+  var queueLine = function () { return state === "sending" ? '<div class="pqs" data-pqs role="status" aria-live="polite" data-q="uploading"><span class="pqt">Waiting</span><span class="pqbar" aria-hidden="true"><i style="width:0"></i></span><small>You can leave this page. It carries on.</small></div>' : ""; };
+
   window.PHO = { META: META, PH: PH, KEEP: KEEP, big: big, NOTES: NOTES, state: state, photos: photos, chain: chain, bannerFor: bannerFor, coverFor: coverFor, stepFor: stepFor, stepCount: stepCount,
     frame: frame, fetchOne: fetchOne, phase: phase, watch: watch, afterPaint: afterPaint, load: load, eager: eager, prepWatch: prepWatch, viewer: viewer, label: label,
     isRemoved: isRemoved, remove: remove, restore: restore, undoLeft: undoLeft, undoBar: undoBar, undoBarAll: function () { return undoBar(null); }, tickUndo: tickUndo, UNDO_MS: UNDO_MS,
-    addSheet: addSheet, addHref: addHref, noteHref: noteHref, noteHtml: noteHtml, controls: controls, meter: meter };
+    addSheet: addSheet, addHref: addHref, noteHref: noteHref, noteHtml: noteHtml, controls: controls, meter: meter, queueUi: queueUi, queueLine: queueLine };
 })();
