@@ -51,3 +51,15 @@ Owner, by voice: the chat tool `start_cooking`, when tied to a recipe, and Make 
 ## Make it on a planned meal (open, 15 Oct 2026)
 
 Owner, by voice: a planned meal can be held or released but has no action to start making it. The label is **Make it** (it covers baking and prepping), shown only on a meal already on the Plan, and the existing Cook now buttons are renamed Make it everywhere. Home's idea card must know whether the idea is planned for today: planned today is just Make it; not planned is the existing Plan path. Reuse the existing cook flow. Drawn in `fragments/make-it/` (Plan phone and desktop, Home, Recipe flyout and idea card), three layout options for the button (footer recommended, header chip, meal row), tap result per Kitchie #781 option 1 (a Proposal). Supersedes the Start cooking wording in the section above for the label only; nothing is decided beyond the owner's words in this paragraph.
+
+## After the cook: what happens to the pantry (Kitchie #788)
+
+Status: owner direction by voice, 16 Oct 2026. Mockup: `fragments/cook-confirm/`. Exploration only; the owner compares and decides.
+
+- Two axes: the recipe side is exact; how Kitchie tracks the item (level only, counted, measured, measured with a pinned level) decides the cook behaviour.
+- Kitchie always proposes and never writes silently, even clean arithmetic. Per-item override, then one batch confirm.
+- Plenty and some are left alone; low is where cooking asks. A direction cue shows an item heading to low or out.
+- The cook-time prompt is a different mechanism from the household stock check (staleness). They do not share a trigger.
+- Four versions to compare: every line, low only, one "did anything run out?", quiet multi-cook tracking. Plus a chat rendering driven by a confidence band.
+- Something else went in (not in the recipe) needs its own capture, like an unplanned grab on a shop. Open.
+- Requirement, not an option: the assistant cook path must reach the pantry (the join).
