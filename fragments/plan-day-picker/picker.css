@@ -141,3 +141,12 @@
 .pk-curtain .pkc{min-height:44px}
 @media (prefers-reduced-motion:reduce){.pk-curtain{animation:none}}
 .pk-sw a.w{flex:1 1 100%;width:auto;height:30px;font-size:12px}
+/* Start cooking: the Cooking now card as the server draws it (cookbn, one card, dish name, dismiss X, chevron), at the foot of the column on desktop (placement on desktop is not defined in the ADR) */
+.cookbn{position:fixed;left:136px;bottom:84px;width:min(640px,calc(100vw - 184px));z-index:35}
+.cookbn-c{display:flex;align-items:center;gap:6px;min-height:56px;padding:0 8px 0 16px;border-radius:var(--r-card);background:var(--surface);border:1px solid var(--accent);box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.cookbn-go{flex:1;display:flex;align-items:center;gap:12px;min-width:0}
+.cookbn-dot{width:10px;height:10px;border-radius:50%;background:var(--cue);flex:none}
+.cookbn-t{display:flex;flex-direction:column;min-width:0}.cookbn-t b{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.cookbn-n{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cookbn-x,.cookbn-open{width:var(--tap);height:var(--tap);display:grid;place-items:center;border-radius:50%;color:var(--fg)}
+.cookbn svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}

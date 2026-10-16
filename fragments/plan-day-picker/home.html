@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="../home-detail-panel/home.css">
 <link rel="stylesheet" href="../home-detail-panel/displace.css" media="(min-width:1624px)">
 <link rel="stylesheet" href="../home-detail-panel/stack.css" media="(max-width:1623.98px)">
-<link rel="stylesheet" href="picker.css">
+<link rel="stylesheet" href="picker.css"><link rel="stylesheet" href="rows.css">
 <script>window.HDP_BP = 1624;</script>
 </head>
 <body>
@@ -44,7 +44,7 @@
   var o = (new URLSearchParams(location.search).get("pick") || "c").toLowerCase();
   if ("abcdefg".indexOf(o) < 0 || o.length !== 1) o = "c";
   window.PK_OPT = o;
-  var f = ["common.js"]; if ("abe".indexOf(o) > -1) f.push("sheet.js"); if ("cfg".indexOf(o) > -1) f.push("grid.js"); f.push("pick-" + o + ".js");
+  var f = ["common.js"]; if ("abe".indexOf(o) > -1) f.push("sheet.js"); if ("cfg".indexOf(o) > -1) f.push("grid.js"); if (o === "f") f.push("rows.js"); f.push("pick-" + o + ".js");
   f.forEach(function (n) { document.write('<script src="' + n + '"><\/script>'); });
 })();
 </script>

@@ -128,47 +128,91 @@ for (const [w, h] of [[1440, 900], [1280, 800]]) {
     await p.locator('.pk-dr[data-n="4"]').click(); await sleep(250);
     ok(tag + " D: a drop on a day with your own meal adds a second meal, it does not replace (Replace is the Home card only)", (await p.locator('.pk-dr[data-n="4"] .pk-m').count()) === 2);
     await p.close(); }
-  // F: right-side flyout in the This week slot, roomy grid or tight two-step
-  { const p = await open(ctx, "pick=f&fit=roomy");
+  // F (the owner's choice): flyout in the This week slot, who pills, a rolling seven-day list that is the picker, picking commits, no Cancel or Confirm
+  { const p = await open(ctx, "pick=f");
     const slot0 = await p.locator("#week").boundingBox(); const wk0 = await p.locator("#week .wd").count();
     await p.keyboard.press("p"); await sleep(300);
     const slot1 = await p.locator("#week").boundingBox();
-    ok(tag + " F: roomy shows the four-week grid in the This week slot (same element, same place)", (await p.locator("#week.pk-fly .pkc").count()) === 28 && (await p.locator(".pk-fly").count()) === 1 && Math.abs(slot0.x - slot1.x) < 2 && Math.abs(slot0.width - slot1.width) < 8, { slot0, slot1 });
-    ok(tag + " F: the normal This week content is swapped out while picking; no sheet, no popover", wk0 === 7 && (await p.locator("#week .wd").count()) === 0 && (await p.locator(".pk-sheet,.pk-pop,.pk-curtain").count()) === 0);
-    ok(tag + " F: today preselected and focused; past greyed", (await p.evaluate(() => document.activeElement.dataset.n)) === "2" && await p.locator(".pkc").nth(0).isDisabled());
-    await p.keyboard.press("ArrowDown"); await p.keyboard.press("ArrowRight");
-    ok(tag + " F: arrows move in two directions", (await p.evaluate(() => document.activeElement.dataset.n)) === "10");
-    await p.keyboard.press("ArrowUp"); await p.keyboard.press("ArrowLeft"); await p.keyboard.press("Escape"); await sleep(250);
-    ok(tag + " F: Esc hands the slot back to This week and focus returns to Add to plan", (await p.locator("#week.pk-fly").count()) === 0 && (await p.locator("#week .wd").count()) === 7 && /Add to plan/.test(await focusedLabel(p)));
-    await p.keyboard.press("p"); await sleep(250); await p.keyboard.press("Enter"); await sleep(300);
-    ok(tag + " F: Enter plans today, the slot is handed back with the meal in This week", /is planned for Wed 14 Oct/.test(await toast(p)) && (await p.locator("#week.pk-fly").count()) === 0 && /Mandarin/.test(await weekText(p)));
-    await p.keyboard.press("p"); await sleep(250); await p.keyboard.press("?"); await sleep(250);
-    ok(tag + " F: ? list carries the flyout keys", /Choosing a day \(Plan it, option F\)/.test(await p.locator("#kb").textContent()));
-    await p.keyboard.press("?"); await sleep(200); await p.locator("[data-close]").first().click(); await sleep(200);
-    ok(tag + " F: Cancel hands the slot back", (await p.locator("#week .wd").count()) === 7);
-    await p.close(); }
-  { const p = await open(ctx, "pick=f&fit=tight");
-    await p.keyboard.press("p"); await sleep(300);
-    const q = await p.locator(".pk-quick button").allInnerTexts();
-    ok(tag + " F tight: step one is Tonight, Tomorrow, Pick a day, and no grid", /Tonight/.test(q[0]) && /Tomorrow/.test(q[1]) && /Pick a day/.test(q[2]) && (await p.locator(".pkc").count()) === 0, q);
-    await p.keyboard.press("ArrowRight"); ok(tag + " F tight: Right moves along the three buttons", /Tomorrow/.test(await focusedLabel(p)));
-    await p.locator("[data-pick]").click(); await sleep(200);
-    ok(tag + " F tight: Pick a day opens the grid in the same slot, with a way back", (await p.locator(".pkc").count()) === 28 && (await p.locator("[data-less]").count()) === 1);
-    await p.keyboard.press("ArrowRight"); ok(tag + " F tight: the grid keys work after Pick a day", (await p.evaluate(() => document.activeElement.dataset.n)) === "3");
-    await p.locator("[data-less]").click(); await sleep(150);
-    await p.locator("[data-quick]").nth(1).click(); await sleep(200);
-    ok(tag + " F tight: Tomorrow (a usual day off) waits for Plan, with the note, on the grid", (await p.locator("#week.pk-fly").count()) === 1 && /usual day off/.test(await p.locator(".pk-note").innerText()) && (await p.locator("[data-ok]").innerText()) === "Plan for Thu");
-    await p.locator("[data-less]").click(); await sleep(150);
-    await p.locator("[data-quick]").nth(0).click(); await sleep(250);
-    ok(tag + " F tight: Tonight on a free day is one click and hands the slot back", /is planned for Wed 14 Oct/.test(await toast(p)) && (await p.locator("#week .wd").count()) === 7 && /Mandarin/.test(await weekText(p)));
+    ok(tag + " F: opens in the This week slot (same element, same place), its content swapped", (await p.locator("#week.pk-fly").count()) === 1 && Math.abs(slot0.x - slot1.x) < 2 && Math.abs(slot0.width - slot1.width) < 8 && wk0 === 7 && (await p.locator("#week .wd").count()) === 0, { slot0, slot1 });
+    ok(tag + " F: no sheet, popover, curtain, grid, week arrows, quick picks", (await p.locator(".pk-sheet,.pk-pop,.pk-curtain,.pk-grid,.pk-quick,.pkc,[data-wk]").count()) === 0);
+    const pills = await p.locator("#week [data-who]").allInnerTexts();
+    ok(tag + " F: Who is it for pills at the top (Everyone, Sam, Jo), Everyone on", pills.join() === "Everyone,Sam,Jo" && (await p.locator('#week [data-who="all"]').getAttribute("aria-pressed")) === "true", pills);
+    const dl = await p.locator("#week .row-d .dl").allInnerTexts();
+    ok(tag + " F: seven rows, rolling from today (Wed first, Tue last, not Monday first), day name only", dl.join() === "Wed,Thu,Fri,Sat,Sun,Mon,Tue" && (await p.locator("#week .row-d.today").count()) === 1 && dl.every(x => /^[A-Za-z]{3}$/.test(x)), dl);
+    const txt = i => p.locator("#week .row-d").nth(i).innerText();
+    ok(tag + " F: each row shows what is planned that night, in full", /Open/.test(await txt(0)) && /Usual day off/.test(await txt(1)) && /Salmon patties/.test(await txt(2)) && /Veg stir-fry/.test(await txt(3)) && /Prawn curry/.test(await txt(5)) && /Off this week only/.test(await txt(6)));
+    const btns = await p.locator("#week button").allInnerTexts();
+    ok(tag + " F: no Cancel, Confirm, Plan for or Pick a day button; the X is the only close button", !btns.some(t => /^(Cancel|Confirm|Plan for|Pick a day|Replace)/i.test(t.trim())) && (await p.locator("#week [data-close]").count()) === 1 && (await p.locator("#week [data-ok]").count()) === 0, btns);
+    ok(tag + " F: Everyone shows only the household plan in the row (not Jo's carve-out), with a peek behind Fri, Sun and Mon, none on Wed", !/Cheese toastie/.test(await txt(5)) && (await p.locator("#week .peek-b").count()) === 3 && (await p.locator('#week [data-w="0"] .peek-b').count()) === 0 && (await p.locator('#week [data-w="5"] .peek-b').count()) === 1);
+    ok(tag + " F: at rest only the peek, no full picture", (await p.locator("#week .row-full").count()) === 0);
+    await p.locator('#week [data-w="5"] .peek-b').click(); await sleep(120);
+    const full = await p.locator("#week .row-full").allInnerTexts();
+    ok(tag + " F: opening Mon shows that night in full (household and Jo's own plan), only that day", full.length === 1 && /Household/.test(full[0]) && /Prawn curry/.test(full[0]) && /without Jo/.test(full[0]) && /Jo/.test(full[0]) && /Cheese toastie/.test(full[0]) && (await p.locator('#week [data-w="5"].open').count()) === 1, full);
+    await p.locator('#week [data-w="4"] .peek-b').click(); await sleep(120);
+    ok(tag + " F: opening Sun folds Mon (one night at a time)", (await p.locator("#week .row-full").count()) === 1 && (await p.locator('#week [data-w="4"].open').count()) === 1 && (await p.locator('#week [data-w="5"].open').count()) === 0 && /Chilli noodles/.test(await p.locator("#week .row-full").innerText()));
+    await p.locator('#week [data-w="4"] .peek-b').click(); await sleep(120);
+    ok(tag + " F: Hide folds it back to the peek", (await p.locator("#week .row-full").count()) === 0 && (await p.locator('#week [data-w="4"] .peek-b').count()) === 1);
+    await p.locator('#week .row-d').nth(5).focus(); await p.keyboard.press("ArrowRight"); await sleep(100);
+    ok(tag + " F: Right opens the full picture, Left folds it", (await p.locator("#week .row-full").count()) === 1);
+    await p.locator('#week .row-d').nth(5).focus(); await p.keyboard.press("ArrowLeft"); await sleep(100);
+    ok(tag + " F: Left folds it", (await p.locator("#week .row-full").count()) === 0);
+    await p.keyboard.press("?"); await sleep(250);
+    ok(tag + " F: ? list carries the flyout keys", /Choosing a night \(Plan it, option F\)/.test(await p.locator("#kb").textContent()));
+    await p.keyboard.press("?"); await sleep(200);
+    await p.keyboard.press("Escape"); await sleep(250);
+    ok(tag + " F: Esc closes, This week is handed back, focus returns to Add to plan", (await p.locator("#week.pk-fly").count()) === 0 && (await p.locator("#week .wd").count()) === 7 && /Add to plan/.test(await focusedLabel(p)));
+    await p.keyboard.press("p"); await sleep(250); await p.locator("#week [data-close]").click(); await sleep(200);
+    ok(tag + " F: the X closes it", (await p.locator("#week.pk-fly").count()) === 0 && (await p.locator("#week .wd").count()) === 7);
     await p.keyboard.press("p"); await sleep(250);
-    await p.locator('[data-fit="roomy"]').click(); await sleep(150);
-    ok(tag + " F: the Mockup only Roomy button shows the grid", (await p.locator(".pkc").count()) === 28);
-    await p.locator('[data-fit="tight"]').click(); await sleep(150);
-    ok(tag + " F: the Mockup only Tight button shows the quick picks", (await p.locator(".pk-quick").count()) === 1 && (await p.locator(".pkc").count()) === 0);
+    ok(tag + " F: focus lands on the first row, arrows move, Enter is the pick", /^Wed/.test(await focusedLabel(p)));
+    await p.keyboard.press("ArrowDown"); await p.keyboard.press("ArrowDown"); ok(tag + " F: Down moves along the nights", /^Fri/.test(await focusedLabel(p)));
+    await p.keyboard.press("End"); ok(tag + " F: End goes to the last night", /^Tue/.test(await focusedLabel(p))); await p.keyboard.press("Home");
+    await p.keyboard.press("Enter"); await sleep(300);
+    ok(tag + " F: Enter on Wed plans it at once; the slot is handed back with the meal in This week", /is planned for Wed 14 Oct, what is in is held/.test(await toast(p)) && (await p.locator("#week.pk-fly").count()) === 0 && /Mandarin/.test(await weekText(p)), await toast(p));
     await p.close(); }
   { const p = await open(ctx, "pick=f"); await p.keyboard.press("p"); await sleep(250);
-    ok(tag + " F auto: " + (w >= 1440 ? "roomy grid" : "tight quick picks") + " at this width", w >= 1440 ? (await p.locator(".pkc").count()) === 28 : (await p.locator(".pk-quick").count()) === 1);
+    await p.locator("#week .row-d").nth(3).click(); await sleep(300);
+    ok(tag + " F: clicking Sat (a household meal) is a Replace, with Undo", /replaces Veg stir-fry on Sat 17 Oct/.test(await toast(p)) && /Undo/.test(await toast(p)) && (await p.locator("#week.pk-fly").count()) === 0, await toast(p));
+    await p.keyboard.press("z"); await sleep(250); await p.keyboard.press("p"); await sleep(250);
+    ok(tag + " F: Undo puts the household meal back", /Veg stir-fry/.test(await p.locator("#week .row-d").nth(3).innerText()));
+    await p.locator("#week .row-d").nth(1).click(); await sleep(300);
+    ok(tag + " F: a usual day off is not locked: Thu takes a meal", /is planned for Thu 15 Oct/.test(await toast(p)), await toast(p));
+    await p.keyboard.press("p"); await sleep(250);
+    await p.locator("#week .row-d").nth(4).click(); await sleep(300);
+    ok(tag + " F: Everyone on a night where Jo has her own plan: planned for everyone but Jo, Jo's meal stays", /is planned for Sun 18 Oct, for everyone but Jo\. Jo’s meal stays\./.test(await toast(p)), await toast(p));
+    await p.keyboard.press("p"); await sleep(250);
+    ok(tag + " F: Jo's own meal is still there under the peek", (await p.locator('#week [data-w="4"] .peek-b').count()) === 1);
+    await p.locator('#week [data-w="4"] .peek-b').click(); await sleep(100);
+    ok(tag + " F: the full picture shows both", /Chilli noodles/.test(await p.locator("#week .row-full").innerText()) && /Mandarin/.test(await p.locator("#week .row-full").innerText()));
+    await p.locator('#week [data-w="5"] .peek-b').click(); await sleep(100); await p.locator("#week .row-d").nth(5).click(); await sleep(300);
+    ok(tag + " F: Everyone on Mon (household meal, Jo has her own): replaces the household meal, Jo's stays", /replaces Prawn curry with Mandarin|replaces Prawn curry on Mon 19 Oct, for everyone but Jo/.test(await toast(p)) && /Jo’s meal stays/.test(await toast(p)), await toast(p));
+    await p.close(); }
+  { const p = await open(ctx, "pick=f"); await p.keyboard.press("p"); await sleep(250);
+    await p.locator('#week [data-who="Sam"]').click(); await sleep(100);
+    ok(tag + " F: Sam only: the Sat row says it takes Sam out of the household meal; Fri replaces his own", /Takes you out of Veg stir-fry/.test(await p.locator("#week .row-d").nth(3).innerText()) && /Replaces Salmon patties/.test(await p.locator("#week .row-d").nth(2).innerText()) && /Open/.test(await p.locator("#week .row-d").nth(4).innerText()));
+    ok(tag + " F: Sam only: no peek (only Everyone shows it)", (await p.locator("#week .peek-b").count()) === 0);
+    await p.locator("#week .row-d").nth(3).click(); await sleep(300);
+    ok(tag + " F: Sam only on a household night plans his own and takes only him out of that meal", /is planned for Sat 17 Oct/.test(await toast(p)));
+    await p.keyboard.press("p"); await sleep(250);
+    ok(tag + " F: Everyone's row for Sat now has a peek (Sam has his own plan) and the household meal is untouched", (await p.locator('#week [data-w="3"] .peek-b').count()) === 1 && /Veg stir-fry/.test(await p.locator("#week .row-d").nth(3).innerText()));
+    await p.locator('#week [data-who="Jo"]').click(); await sleep(100);
+    ok(tag + " F: Jo: Jo's own night says her meal stays", /Jo’s meal stays/.test(await p.locator("#week .row-d").nth(4).innerText()));
+    await p.close(); }
+  { const p = await open(ctx, "pick=f"); await p.keyboard.press("p"); await sleep(250);
+    await p.locator("[data-avoid]").click(); await sleep(100);
+    ok(tag + " F guard: Everyone asks first (warning), nothing planned by picking", /Hard avoid on mango/.test(await p.locator("#week .row-d").nth(3).innerText()));
+    await p.locator("#week .row-d").nth(3).click(); await sleep(200);
+    ok(tag + " F guard: picking shows the warning with Leave Jo out and plans nothing", (await p.locator('[data-guard=warn]').count()) === 1 && (await toast(p)) === "" && (await p.locator("#week.pk-fly").count()) === 1);
+    await p.locator("[data-leave]").click(); await sleep(300);
+    ok(tag + " F guard: Leave Jo out plans it for the others", /for everyone but Jo/.test(await toast(p)), await toast(p));
+    await p.keyboard.press("p"); await sleep(250); await p.locator('#week [data-who="Jo"]').click(); await sleep(100);
+    await p.locator("#week .row-d").nth(0).click({force:true}); await sleep(200);
+    ok(tag + " F guard: a meal for Jo alone is a hard stop: no way past, nothing planned", (await p.locator('[data-guard=stop]').count()) === 1 && (await p.locator("[data-leave]").count()) === 0 && (await p.locator("#week.pk-fly").count()) === 1);
+    await p.close(); }
+  { const p = await open(ctx, "pick=f&off=refuse"); await p.keyboard.press("p"); await sleep(250);
+    ok(tag + " F off rule (today's code): off days say what the code answers", /Thu is off for you\. Pick another day\./.test(await p.locator("#week .row-d").nth(1).innerText()));
+    await p.locator("#week .row-d").nth(1).click({force:true}); await sleep(200);
+    ok(tag + " F off rule: picking an off day is refused, with the code's wording, and nothing is planned", /Thu is off for you\. Pick another day\./.test(await toast(p)) && (await p.locator("#week.pk-fly").count()) === 1);
     await p.close(); }
   // G: curtain under Cooking ideas, Add to plan only on the cards
   { const p = await open(ctx, "pick=g");
@@ -215,12 +259,17 @@ for (const [w, h] of [[1440, 900], [1280, 800]]) {
   // Owner rule, 16 Oct 2026: no Plan on the primary card (or in its pane) when it is the meal already planned for tonight; Plan when nothing is planned; Other ideas always keep Plan
   for (const o of ["a", "b", "c", "d", "e", "f", "g"]) {
     { const p = await open(ctx, "pick=" + o);
-      ok(tag + " rule " + o + ": nothing planned tonight, the primary card has Plan", (await p.locator('#ideas .lead [data-act="quickplan"]').count()) === 1);
+      ok(tag + " rule " + o + ": nothing planned tonight, the primary card has Plan and no Start cooking", (await p.locator('#ideas .lead [data-act="quickplan"]').count()) === 1 && !/Start cooking/.test(await p.locator("#ideas").innerText()));
       if (o !== "g") ok(tag + " rule " + o + ": nothing planned tonight, the pane has Add to plan", (await p.locator('#detail [data-act="plan"]').count()) === 1);
       ok(tag + " rule " + o + ": Other ideas have Plan", (await p.locator('#ideas .ir [data-act="quickplan"]').count()) === 4);
       await p.close(); }
     { const p = await open(ctx, "pick=" + o + "&night=planned");
-      ok(tag + " rule " + o + ": planned tonight, the primary card says Planned for today and has no Plan", /Planned for today/i.test(await p.locator("#ideas .lead").innerText()) && (await p.locator("#ideas .lead .btn, #ideas .lead [data-act]").count()) === 0, await p.locator("#ideas .lead").innerText());
+      ok(tag + " rule " + o + ": planned tonight, the primary card says Planned for today and has no Plan", /Planned for today/i.test(await p.locator("#ideas .lead").innerText()) && (await p.locator('#ideas .lead [data-act="quickplan"], #ideas .lead [data-act="planlink"], #ideas .lead [data-act="plan"]').count()) === 0 && !/^Plan$/m.test(await p.locator("#ideas .lead").innerText()), await p.locator("#ideas .lead").innerText());
+      ok(tag + " rule " + o + ": planned tonight, the primary card has Start cooking", (await p.locator("#ideas .lead button.btn").allInnerTexts()).join() === "Start cooking");
+      await p.locator("#ideas .lead button.btn").click(); await sleep(150);
+      ok(tag + " rule " + o + ": Start cooking shows the Cooking now card with the dish (visual only) and Dismiss ends it", /cooking now/i.test(await p.locator(".cookbn").innerText()) && /Mandarin Mango Yogurt Bowl/.test(await p.locator(".cookbn").innerText()) && (await p.locator("#ideas .lead button.btn").innerText()) === "Cooking now");
+      await p.locator("[data-cookx]").click(); await sleep(150);
+      ok(tag + " rule " + o + ": dismissing the card ends it and the button is back", (await p.locator(".cookbn").count()) === 0 && (await p.locator("#ideas .lead button.btn").innerText()) === "Start cooking");
       ok(tag + " rule " + o + ": planned tonight, the pane has no Add to plan and no P hint for it", (await p.locator('#detail [data-act="plan"]').count()) === 0 && !/add to plan/i.test(await p.locator("#detail").innerText()));
       ok(tag + " rule " + o + ": Other ideas keep Plan", (await p.locator('#ideas .ir [data-act="quickplan"]').count()) === 2);
       await p.keyboard.press("p"); await sleep(200);
