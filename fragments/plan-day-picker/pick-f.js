@@ -8,7 +8,7 @@
 (function () {
 "use strict";
 var PK = window.PK, P = window.PKD, S = PK.S, H = window.HDP, R = window.PKRows, esc = PK.esc, ico = PK.ico, $ = PK.$;
-var el, want = null, saved = null, openDay = null, offRule = (new URLSearchParams(location.search).get("off") === "refuse") ? "refuse" : "open";
+var el, hold = null, want = null, saved = null, openDay = null, offRule = (new URLSearchParams(location.search).get("off") === "refuse") ? "refuse" : "open";
 P.weekOff = P.weekOff || { 8: 1 }; /* Tue 20 Oct: off this week only (a blocked day with source week) */
 function days() {
   var o = [];
@@ -34,14 +34,17 @@ function rules(n, o) {
   return { remove: function () { return false; }, who: S.who, carve: [S.who], stays: "" };
 }
 function pickRow(i) {
+  if (hold) return;
   var d = days()[i], v = R.view(d, ctx());
   if (v.refuse) { H.toast(esc(d.dn) + " is off for you. Pick another day."); return; }
+  if (v.peek && openDay !== i) { openDay = i; want = '.row-d[data-i="' + i + '"]'; draw(); return; } /* a stacked night (household plan with someone's own): the first pick only opens it, the second plans */
   var g = PK.guard();
   S.sel = d.n; S.leave = false;
   if (g) { want = '.row-d[data-i="' + i + '"]'; draw(); return; } /* stop: nothing to press; warn: Leave Jo out is the one action */
   PK.commit(d.n);
 }
 function click(e) {
+  if (hold) return;
   var t = e.target.closest("button"); if (!t) return;
   if (t.dataset.avoid !== undefined) { P.avoid = P.avoid ? null : { who: "Jo", item: "mango" }; S.sel = null; S.leave = false; want = "[data-avoid]"; draw(); return; }
   if (t.dataset.offrule !== undefined) { offRule = offRule === "refuse" ? "open" : "refuse"; want = "[data-offrule]"; draw(); return; }
@@ -57,12 +60,19 @@ PK.register({
     el = $("#week"); el.classList.add("pk", "pk-fly"); el.addEventListener("click", click);
     draw(); var f = el.querySelector(".row-d"); if (f) f.focus({ preventScroll: true });
   },
-  close: function () { if (!el) return; el.removeEventListener("click", click); el.classList.remove("pk", "pk-fly"); el = null; H.set({ front: saved || "detail" }); },
+  confirm: function (verb, name, label, note) {
+    if (hold) hold.cancel(true);
+    el.innerHTML = '<div class="pk-pt"><div><h2 id="pk-t">Plan ' + esc(name) + '</h2></div><button type="button" class="x" data-close aria-label="Close">' + ico.x + "</button></div>" + R.confHtml(verb, name, esc(label), esc(note || ""));
+    el.querySelector("[data-close]").focus({ preventScroll: true });
+    hold = R.hold(el, function () { hold = null; if (S.open) { PK.close(true); PK.refocus(); } });
+  },
+  close: function () { if (!el) return; if (hold) { var h = hold; hold = null; h.live = false; clearTimeout(h.t); clearTimeout(h.t2); } el.classList.remove("pk-out"); el.removeEventListener("click", click); el.classList.remove("pk", "pk-fly"); el = null; H.set({ front: saved || "detail" }); },
   key: function (e) {
+    if (hold && (e.key === "z" || e.key === "Z")) { var u = document.querySelector('.toast [data-act="undo"]'); if (u) { e.preventDefault(); u.click(); } return; }
     if (!el.contains(e.target)) return;
     R.key(e, el, { toggle: function (i, on) { openDay = on ? i : null; want = '.row-d[data-i="' + i + '"]'; draw(); if (on) { var q = el.querySelector('[data-w="' + i + '"] .peek-b'); if (q) q.focus(); } } });
   },
   focus: function () { if (!el) return; var f = el.querySelector(".row-d"); if (f) f.focus({ preventScroll: true }); },
-  help: function () { var r = [["↑  ↓", "Move along the nights"], ["Home  End", "First and last night"], ["Enter", "Plan that night (it is planned at once; Undo is in the message)"], ["→", "Open that night’s full picture (everyone’s plans)"], ["←", "Fold it again"], ["Esc", "Close"]]; r.title = "Choosing a night (Plan it, option F)"; return r; }
+  help: function () { var r = [["↑  ↓", "Move along the nights"], ["Home  End", "First and last night"], ["Enter", "Plan that night (it is planned at once; Undo is in the message). A confirmation stays about 3 seconds, then slides out; Esc closes it sooner"], ["→", "Open that night’s full picture (everyone’s plans)"], ["←", "Fold it again"], ["Esc", "Close"]]; r.title = "Choosing a night (Plan it, option F)"; return r; }
 });
 })();

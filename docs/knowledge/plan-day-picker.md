@@ -35,9 +35,21 @@ This week and up to four weeks ahead; past days greyed; a usual day off marked; 
 4. One person replanning just for themselves takes only themselves out of the household meal.
 5. Under Everyone a row shows only the household plan, with a subtle peek behind it if anyone has their own plan. Interacting expands that night only (household plan plus each person's plan), then collapses.
 
-## PD-R2 (decided by the owner, voice, 16 October 2026): Start cooking
+## PD-R2 (decided by the owner, voice, 16 October 2026): Start cooking, now a modal (supersedes the quiet "Cooking now" tag)
 
-In every option A to G, when the primary Cooking ideas card is the meal planned for today it carries a **Start cooking** button (still no Plan). The mockup is visual only: the button turns to "Cooking now" and a "Cooking now" card with the dish name and a dismiss X appears, matching the banner. Semantics to match (ADR cooking-session; MCP tools `start_cooking` and `stop_cooking`): a session has a title, ingredients, optional `recipe_id`, substitutions; two dishes show on the banner (a third is kept but not shown); it clears 45 minutes after the last start (config `server/config/cooking-session.json`); it ends by the dismiss X (`POST /cooking/dismiss`) or `stop_cooking`; the banner opens `GET <base>/cooking?session=<id>`. Today only the MCP tools start a session and there is no web start route, so a Start cooking button probably needs a new POST route: a server-side change.
+In every option A to G, when the primary Cooking ideas card is the meal planned for today it carries a **Start cooking** button (still no Plan). First decision: a status tag. **Superseded the same day by the owner:** one click on Start cooking opens a floating modal, an overlay front and centre, that takes the person straight into cooking, with no extra confirm step. Visual only in the mockup; nothing is sent.
+
+What is real (read from Kitchie `server/src`: `cooking-mcp.ts`, `cooking-banner.ts`, `docs/adr/cooking-session.md`) and what is only the mockup's picture:
+
+- Real: the capability is the MCP tools `start_cooking` (title, ingredients as `{name, amount}`, optional `recipe_id`, optional `substitutions`, `session_id`, `by`; personal link only) and `stop_cooking` (`session_id`, returns `ended`), and the household banner they drive ("Cooking now", the dish name, a dismiss X, a chevron to `GET <base>/cooking?session=<id>`). The ingredients-first view (ADR decision 11) shows the dish as the heading and an ingredient list with the tick on the left, the name, the quantity on the right; ingredients only (no stock, places, freshness or history); Done and the banner's dismiss end the session (`POST <base>/cooking/dismiss`); with a `recipe_id` there is a secondary link to the saved recipe. Two dishes show; a third is kept but not shown; a session clears 45 minutes after the last `start_cooking` (config `server/config/cooking-session.json`). Steps of a recipe are NOT part of this build (ADR consequences).
+- The mockup's picture: the modal holds the dish, the ticking ingredient list with amounts, Done (stop), Open saved recipe (shown because this is a saved recipe) and a close X that leaves cooking on (as leaving the real view does, the banner stays). Esc closes the modal; the card button reopens it. No steps are drawn because the capability has none.
+- Not real today, so a build needs it: there is no web way to start a session (only the MCP tools), so the button needs a new POST route (server-side change) that calls the same `startCooking`; the modal is a new UI surface (the real view is a page, not a dialog).
+
+## PD-R3 (decided by the owner, voice, 16 October 2026): F's confirmation, off days, stacked nights
+
+1. **Confirmation hold.** After a pick commits (fresh plan or replace) the flyout stays open for about 3 seconds showing "Planned" or "Replaced" plus the new meal name (and the day), then slides out to the right, the side it came in from. The Home Undo chip stays. Esc or the X during the hold closes it at once. For a stacked night the hold starts after the second click, the one that commits.
+2. **Usual day off: the weekly Plan's own wording, no new copy** (from Kitchie `recipes-plan-sheet.js`, `plan.desktop.js`, `plan.js`, `plan.phone.js`): before a pick the row shows a "Not cooking" pill and "Every week, usual day off" (a one-week block says "This week only"); picking it shows the sheet's note "<Day> is a usual day off. Planning it cooks this week only."; after the pick the row says "Usual day off, cooking this week"; the confirmation reuses "<Day>: cooking this week. The usual day off stays." The day is neither locked nor refused. The mockup's "Off days refuse (today's code)" switch keeps the refusal for comparison.
+3. **Two steps only for a stacked night** (the household plan with one or more individual carve-outs, the peek state): the first click or Enter on that row does not commit; it expands the row in place, showing the household plan and each person's own plan, with "Pick the row again to plan it." Only the second pick commits. A night with one plan or none commits on the first click. In the mockup the second pick is the row again.
 
 ## Scenario table (what today's code does versus the proposal)
 
@@ -45,7 +57,7 @@ Read from Kitchie `uat`: `recipes-plan-sheet.js`, `docs/plan-week-api.md`.
 
 | Scenario | Today | Status |
 |---|---|---|
-| Usual day off (stencil) | Sheet shows Off; POST has no `override_block`, server answers 409 `day_blocked`; toast "<Day> is off for you. Pick another day." Effectively locked. | Ruling 1 is a proposal; API already supports `override_block:true`, likely client only |
+| Usual day off (stencil) | Sheet shows Off (the row wording and notes above are the sheet's and Plan page's own); POST has no `override_block`, server answers 409 `day_blocked`; toast "<Day> is off for you. Pick another day." Effectively locked. | Ruling 1 is a proposal; API already supports `override_block:true`, likely client only |
 | Day off this week only (`source:week`) | Same refusal; the sheet does not tell it apart from a usual day off. | Proposal (distinguish in the row) |
 | Meal planned by the person driving, desktop Home card | Replaced: new meal planned first, old deleted, Undo restores it (`o.replace`, `view=mine`). | Matches today's behaviour |
 | Meal planned by another person | Sheet reads `view=mine`, so it neither sees nor replaces it; other people's meals are never touched. | Matches today (untouched); showing it in the row is a proposal |
