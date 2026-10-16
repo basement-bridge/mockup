@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Plan it, a month for Another day</title><link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><script src="../../theme.js"></script>
+<style>
+.decs li,.q li{margin-bottom:8px;font-size:14px}
+.tbl{overflow-x:auto}.tbl table{min-width:640px}
+.links{display:flex;flex-wrap:wrap;gap:6px}
+.links a{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border-radius:99px;border:1px solid var(--border);background:var(--bg);font-size:13px;font-weight:600}
+.links a:hover{border-color:var(--accent)}
+.rec{font-size:11px;font-weight:800;padding:1px 7px;border-radius:var(--r-pill);border:1px solid var(--accent);color:var(--accent);margin-left:4px;white-space:nowrap}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Plan it: a month behind Another day</h1>
+<p>Live, clickable mockup for Kitchie issue #826 (the follow-up to #757 option F). Mockup only, nothing is saved or sent. It is the desktop Home page with the Mandarin Mango Yogurt Bowl open on the right. Press <b>Add to plan</b> (or <kbd>P</kbd>), then <b>Another day</b> under the seven days. The sample today is Saturday 17 October 2026.</p>
+
+<div class="sec"><div class="lbl">Owner, 17 October 2026 (voice)</div>
+<p>&ldquo;When people say another day, I actually want that monthly view to replace the current flyout &hellip; rather than making the seven days across as a horizontal Monday, Tuesday, Wednesday, why don&rsquo;t you do Monday, Tuesday, Wednesday vertically and stack the four columns of dates &hellip; colour code what&rsquo;s open, what&rsquo;s closed, what&rsquo;s already got things planned. With hover, you can show what&rsquo;s planned &hellip; The legend needs to be somewhere at the bottom. Get that mocked up first.&rdquo;</p></div>
+
+<div class="sec"><div class="lbl">Open it</div>
+<div class="links">
+<a href="home.html?start=month">Main: the month (typical)</a>
+<a href="home.html?start=list">From the seven days</a>
+<a href="home.html?start=month&amp;scenario=empty">Empty plan</a>
+<a href="home.html?start=month&amp;scenario=full">Mostly full</a>
+<a href="home.html?start=month&amp;avoid=mango">Hard avoid on mango</a>
+<a href="home.html?start=month&amp;today=2026-10-12">Today is a Monday</a>
+<a href="home.html?start=month&amp;today=2026-10-18">Today is a Sunday</a>
+<a href="home.html?start=month&amp;replace=0">Home card adds, never replaces</a>
+</div></div>
+
+<div class="sec"><div class="lbl">Variants (each changes one thing)</div>
+<div class="tbl"><table>
+<tr><th>Variant</th><th>Open</th><th>Trade-off</th></tr>
+<tr><td><b>Main</b> <span class="rec">agent recommends</span></td><td><a href="home.html?start=month">month</a></td><td>Weekdays down the side, five week columns, the week name over the Monday&rsquo;s date, a step-rule where the month changes, Another day as a labelled row under the seven days.</td></tr>
+<tr><td><b>L</b> Columns headed by date only</td><td><a href="home.html?start=month&amp;cols=dates">open</a></td><td>One line shorter; loses &ldquo;This week / Next week&rdquo; at a glance.</td></tr>
+<tr><td><b>M</b> A month band above the columns</td><td><a href="home.html?start=month&amp;month=band">open</a></td><td>Names the month once, loudly; costs a row, and a month that changes partway down a column still needs the &ldquo;1 Nov&rdquo; label.</td></tr>
+<tr><td><b>A</b> Another day as a header icon</td><td><a href="home.html?start=list&amp;another=header">open</a></td><td>The seven days get the whole list; a calendar icon is easier to miss than a labelled row.</td></tr>
+</table></div></div>
+
+<div class="sec"><div class="lbl">States (a colour plus a shape or word each, so colour is never the only cue)</div>
+<ul class="decs">
+<li><b>Open:</b> dashed outline, plus sign, green tint. <b>Planned:</b> solid outline, plate, amber tint (yours, someone else&rsquo;s and the household&rsquo;s are one state; hover says whose). <b>2+ plans:</b> stack icon and the count.</li>
+<li><b>Usual day off:</b> plain outline, outline moon (still pickable, not locked). <b>Off this week only:</b> filled, filled moon. A usual day off that is being cooked this week looks planned with a small moon.</li>
+<li><b>Past:</b> hatched, struck number, not pickable. <b>Today:</b> ring and underlined number. <b>Hard avoid:</b> a triangle where it asks first; a stop on every date when the meal is not for that person.</li>
+<li>Hover or keyboard focus on a planned date shows what is planned in a read-only popover to the left; a line under the grid says what picking the date would do. Keys: <kbd>&larr;</kbd> <kbd>&rarr;</kbd> a week, <kbd>&uarr;</kbd> <kbd>&darr;</kbd> a day, <kbd>Home</kbd> today, <kbd>End</kbd> the last day, <kbd>Enter</kbd> plans, <kbd>Esc</kbd> back.</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">Rules kept from #757 (owner, 16 October 2026)</div>
+<ul class="decs">
+<li>A pick plans at once; a 3-second Planned or Replaced hold with an inline Undo, then the flyout slides out. Two steps only for a stacked night. A usual day off is not locked. Replace applies to the person&rsquo;s own meal. The Hard avoid guard is asked live per date. This week and up to four weeks ahead.</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">Open questions (for the owner)</div>
+<ul class="q">
+<li>Column heads: week name over the date (recommended) or date only (L)?</li>
+<li>Month change: step-rule and &ldquo;1 Nov&rdquo; (recommended) or a month band (M)?</li>
+<li>Another day: a labelled row (recommended) or a header icon (A)?</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">Loads (DESIGN.md section 6)</div>
+<p>The month&rsquo;s script (<code>month.js</code>) and styles (<code>month.css</code>) are fetched on the first press of Another day, not with the page. Everything is desktop-only. No images, no fonts added. Where it lands: in place, in the flyout&rsquo;s slot (DESIGN.md section 6a). Checked locally in headless Chromium at 1440 and 1024 wide, light and dark; live Pages was not reachable from where it was built.</p></div>
+</div></body></html>
