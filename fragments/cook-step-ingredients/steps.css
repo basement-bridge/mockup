@@ -1,0 +1,96 @@
+/* Cooking: the ingredients this step uses. Tokens only (theme.css). Class names follow Kitchie's cook screen
+   (.cs .bigstep .lbl .top .ttl .act .ck) so the build can lift the markup; the new ones are .stepuse, .su, .rest, .chipset, .dock. */
+.ctl{display:flex;flex-wrap:wrap;gap:var(--sp-3) var(--sp-5);margin-top:var(--sp-4);padding:var(--sp-3);border:1px dashed var(--border);border-radius:var(--r-card);background:var(--bg)}
+.ctl .grp{display:flex;flex-wrap:wrap;align-items:center;gap:var(--sp-2)}
+.ctl .k{font-size:12px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-right:var(--sp-1)}
+.ctl button{min-height:var(--tap);min-width:var(--tap);padding:0 var(--sp-3);border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);color:var(--fg);font:700 13px var(--body)}
+.ctl button[aria-pressed=true]{border-color:var(--accent);color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.ctl output{min-width:28px;text-align:center;font:800 16px var(--head)}
+.opts.three{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--sp-4);margin-top:var(--sp-4)}
+.opt{min-width:0}
+
+.pair2{display:flex;flex-wrap:wrap;gap:var(--sp-5);align-items:flex-start}
+figure{margin:0;min-width:0;flex:1 1 300px;max-width:390px}figcaption{font-size:12px;color:var(--muted);margin-top:6px;max-width:390px}
+.figure.deskfig,.deskfig{display:none}
+@media(min-width:1024px){.deskfig{display:block;flex:1 1 560px;max-width:none}}
+.phone,.desk{display:flex;flex-direction:column;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-phone);overflow:hidden;font-size:15px;color:var(--fg)}
+.phone{width:min(390px,100%);height:700px}
+.desk{width:100%;height:640px;border-radius:var(--r-card)}
+.top{flex:none;display:flex;align-items:center;gap:var(--sp-2);min-height:60px;padding:var(--sp-2) var(--sp-3);border-bottom:1px solid var(--border)}
+.top .ttl{flex:1;min-width:0;font:700 16px var(--body);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
+.top .stop{display:inline-flex;align-items:center;min-height:var(--tap);min-width:64px;color:var(--accent);font-weight:600}
+.top .sp{min-width:64px}
+.body{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:var(--sp-4)}
+.lbl{font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.bigstep{margin:var(--sp-3) var(--sp-4);padding:var(--sp-4);border-radius:var(--r-card);background:var(--surface);border:1px solid var(--border)}
+.bigstep p{color:var(--fg);font-size:19px;line-height:1.4;margin-top:var(--sp-2)}
+.bigstep:focus{outline:none}.bigstep p:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.act{flex:none;display:flex;gap:var(--sp-2);padding:var(--sp-2) var(--sp-3);border-top:1px solid var(--border);background:var(--surface)}
+.act .nb{flex:1;min-width:0;min-height:56px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:1px;padding:0 var(--sp-3);border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);color:var(--fg);text-align:left}
+.act .nb.next{background:var(--accent);color:var(--on-accent);border-color:transparent;align-items:flex-end;text-align:right}
+.act .nb small{font-size:11px;font-weight:700;opacity:.85}
+.act .nb b{font-size:14px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.act .nb:only-child{flex:1}
+/* The callout (option A, and the open dock of C). Left bar + tick + heading + count: not colour alone. */
+.stepuse{margin:0 var(--sp-4) var(--sp-3);padding:var(--sp-3) var(--sp-4) var(--sp-3) calc(var(--sp-4) + 2px);border-radius:var(--r-card);background:color-mix(in srgb,var(--accent) 13%,var(--surface));border:1px solid color-mix(in srgb,var(--accent) 45%,var(--border));border-left:6px solid var(--accent)}
+.stepuse>.lbl{display:flex;align-items:center;gap:6px;color:var(--fg)}
+.stepuse>.lbl svg{width:16px;height:16px;flex:none;color:var(--accent)}
+.stepuse>.lbl .n{margin-left:auto;font-weight:800;color:var(--accent)}
+.su{list-style:none;margin:var(--sp-2) 0 0;padding:0}
+.su li{display:flex;align-items:baseline;gap:var(--sp-3);padding:var(--sp-2) 0;border-top:1px solid color-mix(in srgb,var(--accent) 25%,var(--border))}
+.su li:first-child{border-top:0}
+.su .amt{flex:none;min-width:84px;font:800 1.05rem var(--head);color:var(--fg)}
+.su .nm{flex:1;min-width:0;font-weight:700;font-size:16px;overflow-wrap:anywhere}
+.su .nm em{display:block;font-style:normal;font-weight:500;font-size:12.5px;color:var(--muted);margin-top:1px}
+.more{display:inline-flex;align-items:center;min-height:var(--tap);padding:0 var(--sp-2);margin-top:2px;border:0;background:none;color:var(--accent);font:700 13px var(--body)}
+.noings{margin:0 var(--sp-4) var(--sp-3);padding:var(--sp-2) var(--sp-4);font-size:13px;color:var(--muted);border:1px dashed var(--border);border-radius:var(--r-card)}
+/* The rest of the list: plain, no fill. State is words. */
+.rest{margin:0 var(--sp-4)}
+.rest .lbl{display:block;margin:var(--sp-3) 0 2px}
+.rest ul{list-style:none;margin:0;padding:0}
+.rest li{display:flex;align-items:baseline;gap:var(--sp-3);padding:6px 0;border-top:1px solid var(--border);color:var(--muted);font-size:14px}
+.rest li:first-child{border-top:0}
+.rest .amt{flex:none;min-width:84px;font-weight:700}
+.rest .nm{flex:1;min-width:0;overflow-wrap:anywhere}
+.rest .st{flex:none;font-size:12px;font-weight:700;text-align:right;max-width:46%}
+.rest .done .nm{text-decoration:line-through;text-decoration-thickness:1px}
+.rest .done .st::before{content:"\2713\00a0"}
+/* Option B: chips inside the step card */
+.chipset{list-style:none;display:flex;flex-wrap:wrap;gap:var(--sp-2);margin:var(--sp-3) 0 0;padding:var(--sp-3) 0 0;border-top:1px solid var(--border)}
+.chipset li{display:flex;flex-direction:column;justify-content:center;min-height:40px;padding:4px 12px;border-radius:var(--r-ctl);border:1px solid var(--accent);background:color-mix(in srgb,var(--accent) 13%,var(--surface));font-size:15px;font-weight:600;min-width:0;max-width:100%}
+.chipset li .c1{overflow-wrap:anywhere}
+.chipset li b{font-family:var(--head);font-weight:800;white-space:nowrap}
+.chipset li small{font-size:12px;font-weight:500;color:var(--muted)}
+.chiphead{display:flex;align-items:center;gap:6px;margin-top:var(--sp-3);padding-top:var(--sp-3);border-top:1px solid var(--border)}
+.chiphead svg{width:16px;height:16px;color:var(--accent)}
+.chiphead .n{margin-left:auto;font-weight:800;color:var(--accent)}
+.chiphead{color:var(--fg)}
+.chiphead+.chipset{border-top:0;margin-top:var(--sp-2);padding-top:0}
+details.all{margin:0 var(--sp-4)}
+details.all summary{display:flex;align-items:center;min-height:var(--tap);cursor:pointer;font-weight:700;font-size:14px;color:var(--accent)}
+details.all .rest{margin:0}
+/* Option C: dock above the buttons */
+.dock{flex:none;border-top:1px solid var(--border);background:var(--surface)}
+.dock>button{display:flex;align-items:center;gap:var(--sp-2);width:100%;min-height:var(--tap);padding:var(--sp-2) var(--sp-4);border:0;background:color-mix(in srgb,var(--accent) 13%,var(--surface));border-left:6px solid var(--accent);color:var(--fg);text-align:left;font:700 14px var(--body)}
+.dock>button svg{width:16px;height:16px;flex:none;color:var(--accent)}
+.dock>button .sum{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dock>button .ch{transition:transform .15s}
+.dock>button[aria-expanded=true] .ch{transform:rotate(180deg)}
+.dock .stepuse{margin:0;border:0;border-radius:0;border-left:6px solid var(--accent);max-height:260px;overflow:auto}
+@media(prefers-reduced-motion:reduce){.dock>button .ch{transition:none}}
+/* Desktop frames: step words left, ingredients in a side panel */
+.desk .body{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:0 var(--sp-3);align-content:start}
+.desk .body>.bigstep{grid-column:1;grid-row:1/span 6}
+.desk .body>:not(.bigstep){grid-column:2}
+.desk[data-opt=b] .body{display:block}
+.desk[data-opt=b] .bigstep{max-width:640px}
+.desk .bigstep p{font-size:24px}
+.desk .act{justify-content:flex-start}.desk .act .nb{flex:0 1 280px}
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.plain{margin:6px 0 0 18px;padding:0;color:var(--muted);font-size:14px}.plain li{margin:6px 0}.plain b{color:var(--fg)}
+.dec .ow code{font-size:12px}
+/* Phone widths: the frame IS the screen, full bleed at the window width (360, 390), as the app is. */
+.opt{background:none;border:0;padding:0}
+.opt .note{max-width:640px}
+@media(max-width:599px){figure{max-width:none;flex-basis:100%}.phone{width:calc(100% + 2*var(--gutter));margin-inline:calc(-1*var(--gutter));border-radius:0;border-inline:0}figcaption{padding:0}}
+.dock .lbl{margin-right:8px}
