@@ -160,3 +160,32 @@ details.used[open]{padding-bottom:var(--sp-2)}
 .desk[data-opt=a] .bigstep{max-width:720px}
 @media(prefers-reduced-motion:reduce){.dkA .tb .ch{transition:none}}
 .desk[data-opt=a] .bigstep p.noings{font-size:13px;margin:var(--sp-3) 0 0}
+/* Phone "Still to come", quieter (CSI-22..26). Secondary by design: muted type, no fill, no accent outline, no accent chips.
+   The callout above keeps the only fill and the only accent bar. The treatment is chosen with ?stc=0..3 (0 = before). */
+.rsA:not([data-stc="0"]) .go:not(:empty){border-color:var(--border);color:var(--muted);font-weight:600}
+.rsA:not([data-stc="0"]) .cl>li{font-size:13px}
+.stcrow{display:flex;align-items:center;gap:var(--sp-2);width:100%;min-height:var(--tap);padding:0;border:0;background:none;color:var(--muted);text-align:left;font:400 13px/1.3 var(--body)}
+.stcrow svg{width:12px;height:12px;flex:none}
+.stcrow .k{flex:none;font-weight:700}
+.stcrow .v{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stcrow .ch{transition:transform .15s}
+.stcrow[aria-expanded=true] .ch{transform:rotate(180deg)}
+.stcp{padding-bottom:var(--sp-1)}
+.stcp .lbl{margin-top:0}
+details.fold>summary{display:flex;align-items:center;gap:6px;min-height:var(--tap);cursor:pointer;list-style:none;font-size:13px;font-weight:600;color:var(--muted)}
+details.fold>summary::-webkit-details-marker{display:none}
+details.fold>summary svg{width:12px;height:12px;flex:none;transform:rotate(-90deg)}
+details.fold[open]>summary svg{transform:none}
+.stc3 .hd{display:flex;align-items:center;justify-content:space-between;min-height:var(--tap)}
+.stc3 .hd .lbl{margin:0}
+.stc3 .amt{display:inline-flex;align-items:center;gap:6px;min-height:var(--tap);padding:0 var(--sp-1) 0 var(--sp-3);border:0;background:none;color:var(--muted);font:600 13px var(--body);text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px}
+.stc3 .amt svg{width:12px;height:12px}
+.stc3 .amt[aria-expanded=true] svg{transform:rotate(180deg)}
+.run{display:flex;flex-wrap:wrap;list-style:none;margin:0;padding:0 0 var(--sp-1);font-size:13px;line-height:1.5;color:var(--muted)}
+.run li{display:inline-flex;align-items:baseline;gap:4px}
+.run li{margin-right:var(--sp-3)}
+.run .st{font-size:11px;font-weight:700}
+.run .more{margin:0 0 0 6px;padding:0 var(--sp-2)}
+@media(prefers-reduced-motion:reduce){.stcrow .ch{transition:none}}
+@media(prefers-reduced-motion:no-preference){details.fold>summary svg{transition:transform .15s}}
+.rsA:not([data-stc="0"]) .more{color:var(--muted);text-decoration:underline dotted;text-underline-offset:3px}

@@ -50,7 +50,9 @@
   RECIPES.none = JSON.parse(JSON.stringify(RECIPES.rice));
   RECIPES.none.steps.forEach(function (s) { delete s.uses; }); RECIPES.none.tagged = false;
 
-  var S = { rec: "rice", sv: 4, step: { a: 1, b: 0, c: 3 }, dock: false, more: { a: false, b: false }, all: false, room: "roomy", rest: false, used: false, dk: "" };
+  var S = { rec: "rice", sv: 4, step: { a: 1, b: 0, c: 3 }, dock: false, more: { a: false, b: false }, all: false, room: "roomy", rest: false, used: false, dk: "", stc: "1", nx: false, sm: false, amt: false };
+  /* CSI-22..26: phone-only treatments of "Still to come". 0 = before (open list), 1 = Next line (recommended default), 2 = summary row, 3 = inline names. ?stc=0..3 */
+  try { var q = new URLSearchParams(location.search).get("stc"); if (/^[0-3]$/.test(q || "")) S.stc = q; } catch (e) {}
   var LONG = " Keep the heat high and do not crowd the pan, or it will steam instead of sear; give it room and leave it alone until it lifts."; /* sample sentence for the Long text room */
   var $ = function (id) { return document.getElementById(id); };
   var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
@@ -64,6 +66,7 @@
   }
   var IC = {
     tick: '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M4.6 8.2l2.3 2.3 4.5-4.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    arrow: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     chev: '<svg class="ch" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 6l4.5 4.5L12.5 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'
   };
 
@@ -173,14 +176,32 @@
     return { todo: todo, done: done };
   }
   function rowLi(x) { return '<li><span class="nm">' + esc(nameOf(x.i, x.a)) + "</span>" + qtyHtml(x.i, x.a) + chipHtml(x.ks, false, "used in") + "</li>"; }
+  /* Phone "Still to come" (CSI-22..26): the callout leads, this stays secondary. Same data in every treatment. */
+  function stcCap(todo, tight) { var cap = tight ? 3 : 6, open = S.rest && todo.length > cap; return { cap: cap, open: open, shown: open || todo.length <= cap ? todo : todo.slice(0, cap) }; }
+  function moreBtn(todo, c) { return todo.length > c.cap ? '<button type="button" class="more" data-rest aria-expanded="' + c.open + '">' + (c.open ? "Show fewer" : "+" + (todo.length - c.shown.length) + " more") + "</button>" : ""; }
+  function nextStepOf(r, k) { for (var j = k + 1; j < r.steps.length; j++) if ((r.steps[j].uses || []).length) return j; return -1; } /* CSI-26 */
+  function namesOf(r, P, uses, cap) { /* names only, list order, "+n" past the cap */
+    var us = uses.slice().sort(function (x, y) { return r.ings.findIndex(function (i) { return i.id === x[0]; }) - r.ings.findIndex(function (i) { return i.id === y[0]; }); });
+    var n = us.map(function (u) { return nameOf(P.by[u[0]], P.amountOf(u)); });
+    return n.slice(0, cap).join(", ") + (n.length > cap ? ", +" + (n.length - cap) : "");
+  }
   function restA(r, P, k, key, tight) { /* phone */
     if (!r.tagged) return ""; /* only a fully tagged recipe (CSI-8) */
-    var m = restModel(r, P, k), todo = m.todo, done = m.done;
-    var cap = tight ? 3 : 6, open = S.rest && todo.length > cap, shown = open || todo.length <= cap ? todo : todo.slice(0, cap);
-    var h = '<div class="rsA">';
+    var m = restModel(r, P, k), todo = m.todo, done = m.done, v = S.stc, c = stcCap(todo, tight);
+    var listH = '<ul class="cl">' + c.shown.map(rowLi).join("") + "</ul>" + moreBtn(todo, c);
+    var h = '<div class="rsA" data-stc="' + v + '">';
     if (todo.length) {
-      h += '<span class="lbl">Still to come</span><ul class="cl">' + shown.map(rowLi).join("") + "</ul>";
-      if (todo.length > cap) h += '<button type="button" class="more" data-rest aria-expanded="' + open + '">' + (open ? "Show fewer" : "+" + (todo.length - shown.length) + " more") + "</button>";
+      if (v === "0") h += '<span class="lbl">Still to come</span>' + listH;
+      else if (v === "1") { /* one quiet line naming the next step's ingredients; opens to the list */
+        var nk = nextStepOf(r, k), kk = nk < 0 ? "Still to come" : "Next \u00b7 step " + (nk + 1), nm = nk < 0 ? todo.map(function (x) { return [x.i.id, "all"]; }) : r.steps[nk].uses;
+        h += '<button type="button" class="stcrow" data-nx aria-expanded="' + S.nx + '"' + (S.nx ? ' aria-controls="stc-' + key + '"' : "") + ">" + IC.arrow + '<span class="k">' + kk + '</span><span class="v">' + esc(namesOf(r, P, nm, 3)) + "</span>" + IC.chev + "</button>";
+        if (S.nx) h += '<div class="stcp" id="stc-' + key + '"><span class="lbl">Still to come</span>' + listH + "</div>";
+      } else if (v === "2") { /* a fold like Already used */
+        h += '<details class="fold stc"' + (S.sm ? " open" : "") + "><summary>" + IC.chev + "Still to come (" + todo.length + ')</summary><div class="stcp">' + listH + "</div></details>";
+      } else { /* 3: a lighter inline run of names; amounts on demand */
+        var run = c.shown.map(function (x) { return "<li>" + esc(nameOf(x.i, null)) + (x.ks.length ? '<span class="st" aria-hidden="true">\u2192 ' + x.ks.slice(0, 3).map(function (z) { return z + 1; }).join(", ") + (x.ks.length > 3 ? " +" + (x.ks.length - 3) : "") + '</span><span class="sr-only"> used in ' + list(x.ks) + "</span>" : "") + "</li>"; }).join("");
+        h += '<div class="stc3"><div class="hd"><span class="lbl">Still to come \u00b7 ' + todo.length + '</span><button type="button" class="amt" data-amt aria-expanded="' + S.amt + '">Amounts' + IC.chev + "</button></div>" + (S.amt ? listH : '<ul class="run">' + run + "</ul>" + moreBtn(todo, c)) + "</div>";
+      }
     }
     if (done.length) h += '<details class="used"' + (S.used ? " open" : "") + "><summary>" + IC.chev + "Already used (" + done.length + ")</summary><ul class=\"cl\">" + done.map(rowLi).join("") + "</ul></details>"; /* CSI-15 */
     return h + "</div>";
@@ -253,21 +274,25 @@
       });
     });
     document.querySelectorAll("[data-room]").forEach(function (b) { if (b.tagName === "BUTTON") b.setAttribute("aria-pressed", String(b.getAttribute("data-room") === S.room)); });
+    document.querySelectorAll("[data-stc]").forEach(function (b) { if (b.tagName === "BUTTON") b.setAttribute("aria-pressed", String(b.getAttribute("data-stc") === S.stc)); });
     document.querySelectorAll("[data-rec]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-rec") === S.rec)); });
     $("sv").textContent = S.sv;
   }
   document.addEventListener("click", function (e) {
     var t = e.target.closest("button"); if (!t) return;
     var fr = t.closest("[data-opt]"), opt = fr && fr.getAttribute("data-opt"), form = fr && fr.id.charAt(0) === "d" ? "desk" : "phone";
-    if (t.hasAttribute("data-rec")) { S.rec = t.getAttribute("data-rec"); S.step = { a: Math.min(1, RECIPES[S.rec].steps.length - 1), b: 0, c: Math.min(3, RECIPES[S.rec].steps.length - 1) }; S.dock = false; S.more = { a: false, b: false }; S.rest = false; S.used = false; S.dk = ""; draw(); }
+    if (t.hasAttribute("data-rec")) { S.rec = t.getAttribute("data-rec"); S.step = { a: Math.min(1, RECIPES[S.rec].steps.length - 1), b: 0, c: Math.min(3, RECIPES[S.rec].steps.length - 1) }; S.dock = false; S.more = { a: false, b: false }; S.rest = false; S.used = false; S.dk = ""; S.nx = S.sm = S.amt = false; draw(); }
     else if (t.hasAttribute("data-room") && t.tagName === "BUTTON" && !fr) { S.room = t.getAttribute("data-room"); S.rest = false; draw(); }
     else if (t.hasAttribute("data-dk")) { var d = t.getAttribute("data-dk"); S.dk = S.dk === d ? "" : d; draw(); var nb = document.querySelector('#da [data-dk="' + d + '"]'); if (nb) nb.focus({ preventScroll: true }); }
     else if (t.hasAttribute("data-rest")) { S.rest = !S.rest; draw(); }
+    else if (t.hasAttribute("data-stc") && !fr) { S.stc = t.getAttribute("data-stc"); S.rest = false; try { var u = new URL(location.href); u.searchParams.set("stc", S.stc); history.replaceState(null, "", u); } catch (er) {} draw(); }
+    else if (t.hasAttribute("data-nx")) { S.nx = !S.nx; draw(); var b1 = document.querySelector("#pa [data-nx]"); if (b1) b1.focus({ preventScroll: true }); }
+    else if (t.hasAttribute("data-amt")) { S.amt = !S.amt; draw(); var b2 = document.querySelector("#pa [data-amt]"); if (b2) b2.focus({ preventScroll: true }); }
     else if (t.hasAttribute("data-sv")) { S.sv = Math.max(2, Math.min(12, S.sv + Number(t.getAttribute("data-sv")))); draw(); }
     else if (t.hasAttribute("data-go")) { S.step[opt] = Number(t.getAttribute("data-go")); if (opt === "c") S.dock = false; draw(opt + form[0]); }
     else if (t.hasAttribute("data-more")) { var kk = t.getAttribute("data-more").charAt(0); S.more[kk] = !S.more[kk]; draw(); }
     else if (t.hasAttribute("data-dock")) { S.dock = !S.dock; draw(); }
   });
-  document.addEventListener("toggle", function (e) { if (e.target.classList && e.target.classList.contains("all")) S.all = e.target.open; if (e.target.classList && e.target.classList.contains("used")) S.used = e.target.open; }, true);
+  document.addEventListener("toggle", function (e) { if (e.target.classList && e.target.classList.contains("all")) S.all = e.target.open; if (e.target.classList && e.target.classList.contains("stc")) S.sm = e.target.open; else if (e.target.classList && e.target.classList.contains("used")) S.used = e.target.open; }, true);
   draw();
 })();

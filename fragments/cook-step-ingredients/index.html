@@ -6,7 +6,7 @@
 <div class="wrap">
 <a class="back" href="../../index.html">&larr; All mockups</a>
 <h1>Cooking: the ingredients this step uses</h1>
-<p><b>17 Oct 2026: the owner chose option A.</b> Phone: A as revised. Desktop: chips in the step card with a dock for the lists. B and C stay as drawn below A for the record. Step text in the samples carries no quantities (decision CSI-21). </p><p>Owner ask, 16 Oct 2026 (voice): while cooking step by step it is a real inconvenience not to know which ingredients the current step involves. Each step should show the ingredients <b>and the amount that step uses</b> (2 of the 3 eggs, 1 cup of flour), highlighted, with the full list kept neutral. Three options below; <b>A is chosen</b>. Data shape and schema: <a class="lnk" href="../../docs/cook-step-ingredients-analysis.md">analysis</a>. Job note: <a class="lnk" href="../../docs/knowledge/jobs-to-be-done/cook-step-ingredients.md">cook-step-ingredients.md</a>. Nothing is built.</p>
+<p><b>17 Oct 2026, later: phone, "Still to come" is too loud.</b> The current step and its callout must lead; "Still to come" must read as secondary. Three quieter phone treatments are below, switched with the <b>Still to come (phone)</b> control (or <code>?stc=1</code>, <code>2</code>, <code>3</code>; <code>0</code> is the version before). Desktop and options B and C are unchanged.</p><p><b>17 Oct 2026: the owner chose option A.</b> Phone: A as revised. Desktop: chips in the step card with a dock for the lists. B and C stay as drawn below A for the record. Step text in the samples carries no quantities (decision CSI-21). </p><p>Owner ask, 16 Oct 2026 (voice): while cooking step by step it is a real inconvenience not to know which ingredients the current step involves. Each step should show the ingredients <b>and the amount that step uses</b> (2 of the 3 eggs, 1 cup of flour), highlighted, with the full list kept neutral. Three options below; <b>A is chosen</b>. Data shape and schema: <a class="lnk" href="../../docs/cook-step-ingredients-analysis.md">analysis</a>. Job note: <a class="lnk" href="../../docs/knowledge/jobs-to-be-done/cook-step-ingredients.md">cook-step-ingredients.md</a>. Nothing is built.</p>
 
 <section class="ctl" aria-label="Prototype controls">
   <div class="grp" role="group" aria-label="Sample recipe"><span class="k">Sample</span>
@@ -16,6 +16,11 @@
     <button type="button" data-rec="none" aria-pressed="false">Not tagged yet</button></div>
   <div class="grp" role="group" aria-label="Servings"><span class="k">Serves</span>
     <button type="button" data-sv="-2" aria-label="Fewer servings">&minus;</button><output id="sv" aria-live="polite">4</output><button type="button" data-sv="2" aria-label="More servings">+</button></div>
+  <div class="grp" role="group" aria-label="Still to come on the phone (desktop unchanged)"><span class="k">Still to come (phone)</span>
+    <button type="button" data-stc="0" aria-pressed="false">Before</button>
+    <button type="button" data-stc="1" aria-pressed="true">1 Next line (recommended)</button>
+    <button type="button" data-stc="2" aria-pressed="false">2 Summary row</button>
+    <button type="button" data-stc="3" aria-pressed="false">3 Inline names</button></div>
   <div class="grp" role="group" aria-label="Room on option A"><span class="k">Room (A)</span>
     <button type="button" data-room="roomy" aria-pressed="true">Roomy</button>
     <button type="button" data-room="photo" aria-pressed="false">Step photo</button>
@@ -36,6 +41,16 @@
 </div>
 
 <section class="dec"><h3>Content rule, owner, 17 Oct 2026</h3><p class="ow"><b>Step text carries no quantities.</b> "Add the flour", not "add 2 cups flour". Every amount on a step comes from its link and scales with Serves like the main list, so two numbers can never disagree. Existing recipes that already have quantities in their steps keep them; nothing is rewritten.</p></section>
+
+<section class="dec"><h3>Phone: Still to come, quieter (owner, 17 Oct 2026, voice; CSI-22 to CSI-26)</h3>
+<p class="ow">The owner: on the phone "Still to come" is too attention-grabbing. The current step and its callout must lead, and "Still to come" must clearly read as secondary. He asked for a couple of visuals to compare. Same data, same rules (caps, chips, Already used fold) in all three; they differ only in how much of the rest is on screen before a tap.</p>
+<ul class="plain">
+<li><b>1 Next line (recommended default).</b> One muted line, "Next &middot; step 3 oil": only the next step that uses ingredients, names only, one 44px row. Tap opens the whole Still to come list in place (with amounts and step chips); tap again closes it.</li>
+<li><b>2 Summary row.</b> A fold like Already used: "Still to come (5)", closed, opens on tap. Nothing about the rest is shown until then. Two quiet rows stacked.</li>
+<li><b>3 Inline names.</b> A small muted run of names with a tiny step pointer ("soy sauce &rarr; 4"), no amounts. An "Amounts" toggle switches to the list with quantities.</li>
+</ul>
+<p class="ow"><b>Why 1 is the default (Proposal).</b> It is the quietest thing that still helps: one line, no fill, no outline, no amounts, no chips until asked, so the callout is the only coloured block on the screen. It still answers the one question a cook has mid-step, "what do I need to get ready next?", without a tap. Option 2 hides that answer; option 3 keeps a block of three lines on screen that competes with the step words. Wrong guess: a cook who wants the whole list always visible taps once per step; switch to 3 if so.</p>
+<p class="ow"><b>Shared rules (Proposal).</b> The rest uses no fill, no accent bar and no accent chips, 13px muted type next to 16px callout names; a tappable summary is 44px; the 3-or-6 cap with "+N more" applies wherever the list opens; Already used is unchanged and always last; a recipe that is not fully tagged shows none of it. The Next line names the literal next step with ingredients (a step with none is skipped, so step 4 can say "Next &middot; step 6"), including an ingredient the callout also shows; it disappears on the last step.</p></section>
 
 <section class="dec"><h3>Option A, revised 17 Oct 2026 (owner decisions, voice)</h3>
 <ul class="plain">
@@ -65,7 +80,7 @@
 </ol></section>
 
 <section class="dec"><h3>Default path and deferred (DESIGN.md section 6)</h3>
-<p class="ow">No new request: the links ride in the recipe already read for cook mode. The strip is part of the step's markup; Kitchie renders every step section up front and shows one, so changing step makes no request. This page loads <code>steps.css</code> (about 15 KB) and <code>steps.js</code> (about 25 KB, mostly sample data and the option renderers; the build's part is the pure strip and list functions plus the two compositions, about 4 KB); the page is about 48 KB in all, up from about 32 KB before the 17 Oct revision (+16 KB raw, sample controls and the second composition, B and C unchanged); no images, no fonts. Nothing is deferred because nothing is heavy.</p></section>
+<p class="ow">No new request: the links ride in the recipe already read for cook mode. The strip is part of the step's markup; Kitchie renders every step section up front and shows one, so changing step makes no request. This page loads <code>steps.css</code> (about 17 KB) and <code>steps.js</code> (about 29 KB, mostly sample data and the option renderers; the build's part is the pure strip and list functions plus the two compositions, about 4 KB); the page is about 58 KB in all (page 12.0, styles 16.9, script 29.4), up from about 49 KB before the phone Still to come treatments (+9.3 KB raw, +2.5 KB gzipped, mostly the three treatments and their switch; the build keeps only the chosen one, about 1 KB); no images, no fonts. Treatment 1 adds no request and no list markup until tapped. Nothing is deferred because nothing is heavy.</p></section>
 </div>
 <script src="steps.js"></script>
 </body></html>
