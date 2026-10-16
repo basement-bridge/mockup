@@ -81,6 +81,9 @@ So the honest answer to "will it be a database schema change": the database sche
 | some steps tagged, some not | warning `steps_untagged` listing ids |
 | step text changed, `uses` unchanged | warning `uses_maybe_stale` |
 | a number not read from the step text or source | caller rule: use `null`. Never invent (BR12) |
+| step text contains a quantity (number plus a unit, or a counted ingredient: "2 cups flour", "3 cloves") | warning `step_text_quantity` naming the step ids. Proposal, owner-stated rule CSI-21. Durations and temperatures ("10 minutes", "220 degrees") do not count. Never blocks, never rewrites |
+
+**No quantities in step text (owner rule, 17 Oct 2026, CSI-21).** Step text names ingredients without amounts ("add the flour", not "add 2 cups flour"). Any amount a step shows comes only from its `uses` link, which scales with servings exactly like the main ingredient list, so one source of truth and two numbers can never drift apart (a step saying "2 cups" while the strip says "4 cups" at double servings). The rule is prescriptive for the assistant: when it creates or patches a recipe it writes step text without quantities, and quantities live only in `ingredients[]` and in `uses`. Enforcement is guidance plus the soft `step_text_quantity` warning above; the server still never reads prose with AI, so the check is a plain pattern (number followed by a known unit word, or a leading count before an ingredient name). Tool description wording (proposal, for `create_recipe`, `patch_version` and the MCP server instructions): "Write step text without quantities. Say 'add the flour', not 'add 2 cups flour'. Amounts live only in the ingredient list and in each step's `uses` links." **Existing recipes whose steps already contain quantities keep them:** the strip does not rewrite step text, the warning appears only when a step is edited or created, and a backfill pass may offer to remove quantities from a step's words in the same `patch_version` as it adds the link, as a normal undoable revision, never automatically.
 
 **Rounding.** Totals and parts are stored as given (decimals allowed, `0.5`); only Kitchie rounds, for display, with the existing quarter/third rule. Parts are scaled with the same factor as totals, so `"rest"` stays consistent at any serving size. Display rounding may not add up (`⅓ + ⅓ + ⅓`); nothing is adjusted silently.
 
@@ -97,7 +100,7 @@ So the honest answer to "will it be a database schema change": the database sche
 ## 7. Kitchie consumption (read only, deterministic)
 
 - `recipe-client.ts`: parse `uses` with bounds (30 per step, ids matched against the ingredient list, anything unknown dropped, never an error).
-- `cook-model.ts`: a pure `stepIngredients(content, step, servings)` using `scaledAmount`: number x factor, `"all"` = scaled total, `"rest"` = scaled total minus the others, null = no amount. Also the "left for step n" / "already used in step n" texts and the still-to-come / already-used groups.
+- `cook-model.ts`: a pure `stepIngredients(content, step, servings)` using `scaledAmount`: number x factor, `"all"` = scaled total, `"rest"` = scaled total minus the others, null = no amount. Also the later-steps chip data (`"\u2192 step 7"`, `"\u2192 4, 7"`, none on the final use; replaces the earlier "left for step n" sentence, owner decision 17 Oct 2026) and the still-to-come / already-used groups: still to come ordered by the first later step that uses each ingredient, with the remaining amount; already used folded behind a collapsed "Already used (n)" row on the phone. A quantity is omitted entirely when the link has no amount (no placeholder text). Phone: option A callout (name left, quantity right) with a tight/roomy rule (step photo, step text over 160 characters, or viewport height under 600 px caps still-to-come at three behind "+n more"). Desktop: chips inside the step card plus a dock for the two lists (accent for still to come, grey for already used).
 - `cook-html.ts` `stepScreen`: adds the strip next to the step words. All step sections are already rendered up front, so no extra request and no AI. Nothing on the ingredients screen, pantry matching, `cook_meal`, end-of-cook or ideas changes.
 - Kitchie schema: no change (it stores no recipes). Kitchie `SCHEMA_VERSION` stays 47.
 
@@ -107,7 +110,7 @@ So the honest answer to "will it be a database schema change": the database sche
 2. **Kitchie** (uat) reads and shows: needs the Recipe field to exist, but is harmless without it (no links, no strip).
 3. **Platform mode:** confirm platform's proxy passes `get_version` content through untouched (not verified here; it is a proxy of the Recipe routes).
 4. **Assistant behaviour:** tagging quality is the whole feature. Mitigation: arithmetic checks, `null` when unsure, warnings, dry run, and the diff row showing links so the person can revert.
-5. **Risks:** recycled ids (fixed by cascade and max+1); text edited but links stale (warning only); a rebase that breaks a sum (re-validate); two worlds (#126) so legacy recipes never get links until the alias slice; strip clutter on long lists (cap at five, mockup option B/C).
+5. **Risks:** recycled ids (fixed by cascade and max+1); text edited but links stale (warning only); a rebase that breaks a sum (re-validate); two worlds (#126) so legacy recipes never get links until the alias slice; strip clutter on long lists (callout caps at five, still to come caps at three only when room is tight).
 
 ## 9. Test plan
 
@@ -120,4 +123,5 @@ Recipe: zod and normalise unit tests for every row of section 5; `ops` round-tri
 3. Per-link basis (observed or inferred) like quantities have? Proposal no. Cost: no way to tell a read amount from a guessed one.
 4. Backfill: one recipe at a time on request, or a batch pass with one approval? Cost of batch: many revisions the person has not looked at (each undoable).
 5. `max+1` id minting: acceptable change to existing behaviour?
-6. Mockup choice A, B or C, and whether "still to come / already used" belongs on the step screen at all.
+6. ~~Mockup choice A, B or C~~: owner chose A on 17 Oct 2026 (phone), with a desktop composition mixing B (chips) and C (dock). Whether "still to come / already used" belongs on the step screen at all is settled for now: yes, still to come in view, already used folded away.
+7. Step text without quantities (CSI-21, owner-stated 17 Oct 2026): confirmed as a rule. Open: should the warning `step_text_quantity` ever become an error? Proposal no.
