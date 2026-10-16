@@ -142,16 +142,16 @@ var IC = IEF.IC = {
   cartnav: '<path d="M3 4h2l2.4 11h10l2-8H6.2M9 20h.01M17 20h.01"/>'
 };
 IEF.sv = sv;
-/* The level icon is a BATTERY everywhere the level is drawn (decision 94, confirmed by the owner 11 Oct 2026; the drop is gone). Four cells: Plenty 4 filled and green, Some 2 amber, Running low 1 red, Out 0 and black.
-   Same colour tokens as the drop had: --cue, --accent, --danger, --out. The level name is screen-reader text only (.sr-only), never drawn. A hand-set level is drawn exactly like a calculated one. */
-var BAT = { Plenty: [4, "plenty"], Some: [2, "some"], "Running low": [1, "low"], Out: [0, "out"], "": [0, "out"] }; /* no level (an item with no number and nothing picked) reads as Out with no cells, as the app's battery does */
+/* The level icon is THREE SQUARES everywhere the level is drawn (decision 133, owner 16 Oct 2026; replaces the battery of decision 94). Plenty 3 filled and green, Some 2 amber, Running low 1 amber, Out 0 with red outlines.
+   Colour tokens: --cue, --accent, --accent, --danger. The class stays .bat so the build's selectors do not change. The level name is screen-reader text only (.sr-only), never drawn. A hand-set level is drawn exactly like a calculated one. */
+var BAT = { Plenty: [3, "plenty"], Some: [2, "some"], "Running low": [1, "low"], Out: [0, "out"], "": [0, "out"] }; /* no level (an item with no number and nothing picked) reads as Out with no squares filled, as the app's icon does */
 IEF.battery = function (l, width) {
   var a = BAT[l], n = a[0], c = "";
-  for (var i = 0; i < n; i++) c += '<rect x="' + (4 + i * 6) + '" y="5" width="5.2" height="10" rx="1.2" fill="currentColor" stroke="none"/>';
-  return '<svg class="bat lv-' + a[1] + '" width="' + width + '" height="' + Math.round(width * 20 / 34) + '" viewBox="0 0 34 20" aria-hidden="true" focusable="false"><rect x="1" y="2" width="29" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M31.4 7.5h.8a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-.8z" fill="currentColor" stroke="none"/>' + c + "</svg>";
+  for (var i = 0; i < 3; i++) c += '<rect x="' + (1 + i * 18) + '" y="1" width="14" height="14" rx="3.2" fill="' + (i < n ? "currentColor" : "none") + '" stroke="currentColor" stroke-width="1.8"/>';
+  return '<svg class="bat lv-' + a[1] + '" width="' + width + '" height="' + Math.round(width * 16 / 52) + '" viewBox="0 0 52 16" aria-hidden="true" focusable="false">' + c + "</svg>";
 };
-/* the width the tile and the picker draw it at: 38 in the item flyout's level tile, 35 on each picker button */
-IEF.lvIcon = function (l, size) { return IEF.battery(l, Math.round(size * 1.25)); };
+/* the width the tile and the picker draw it at: 48 in the item flyout's level tile, 45 on each picker button */
+IEF.lvIcon = function (l, size) { return IEF.battery(l, Math.round(size * 1.6)); };
 IEF.sr = function (t) { return '<span class="sr-only">' + esc(t) + "</span>"; };
 IEF.LEVELS = ["Plenty", "Some", "Running low", "Out"];
 

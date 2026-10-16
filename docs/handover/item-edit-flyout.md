@@ -153,37 +153,35 @@ Proposal for slicing, not agreed: settle section 5 here and in the job note (moc
 - Round 1: PR 72, squash eb35f8f. Round 2: PR 74, squash 776e396. Round 3: PR 76, squash 9d7cf7b.
 - Rules: [`AGENTS.md`](https://github.com/basement-bridge/mockup/blob/main/AGENTS.md), [`DESIGN.md`](https://github.com/basement-bridge/mockup/blob/main/DESIGN.md). Related: [`plan-desktop.md` handover](https://github.com/basement-bridge/mockup/blob/main/docs/handover/plan-desktop.md) (decisions 49 to 62).
 
-## 10. The battery: exactly what the build copies (decision 94)
+## 10. The level icon: exactly what the build copies (decision 133, replaces the battery of 94)
 
-One icon, drawn the same everywhere the level is shown. Source of truth: `IEF.battery` in `fragments/item-edit-flyout/flyout.js`, the same function as `levelBattery` in `flows/household/app.js`, and the CSS block headed "the level battery" in `fragments/item-edit-flyout/flyout.css` and `flows/household/styles.css`.
+One icon, drawn the same everywhere the level is shown: three rounded squares (owner, 16 Oct 2026, from his own drawing; it replaces the battery). Source of truth: `IEF.battery` in `fragments/item-edit-flyout/flyout.js`, the same function as `levelBattery` in `flows/household/app.js`, and the CSS block headed "the level icon, three squares" in `fragments/item-edit-flyout/flyout.css` and `flows/household/*/styles.css`. The function and class keep the name `battery` / `bat` so nothing else has to change.
 
-**Markup** (`l` is the level, `width` in px; height is `round(width * 20 / 34)`). Plenty has 4 cells, Some 2, Running low 1, Out 0:
+**Markup** (`l` is the level, `width` in px; height is `round(width * 16 / 52)`). Plenty fills 3 squares, Some 2, Running low 1, Out 0; the rest are outlines:
 
 ```html
-<svg class="bat lv-plenty" width="38" height="22" viewBox="0 0 34 20" aria-hidden="true" focusable="false">
-  <rect x="1" y="2" width="29" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="1.8"/>
-  <path d="M31.4 7.5h.8a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-.8z" fill="currentColor" stroke="none"/>
-  <!-- one cell per filled level, i = 0..n-1 -->
-  <rect x="4" y="5" width="5.2" height="10" rx="1.2" fill="currentColor" stroke="none"/>
-  <rect x="10" y="5" .../> <rect x="16" y="5" .../> <rect x="22" y="5" .../>
+<svg class="bat lv-low" width="48" height="15" viewBox="0 0 52 16" aria-hidden="true" focusable="false">
+  <rect x="1" y="1" width="14" height="14" rx="3.2" fill="currentColor" stroke="currentColor" stroke-width="1.8"/>
+  <rect x="19" y="1" width="14" height="14" rx="3.2" fill="none" stroke="currentColor" stroke-width="1.8"/>
+  <rect x="37" y="1" width="14" height="14" rx="3.2" fill="none" stroke="currentColor" stroke-width="1.8"/>
 </svg>
 ```
 
-Cell `i` is `x = 4 + 6 * i`, `y = 5`, `width = 5.2`, `height = 10`, `rx = 1.2`. The class is `bat` plus `lv-plenty`, `lv-some`, `lv-low` or `lv-out`.
+Square `i` (always 3, i = 0..2) is `x = 1 + 18 * i`, `y = 1`, `14 x 14`, `rx = 3.2`, stroke 1.8; `fill="currentColor"` when `i < n`, else `fill="none"`. The class is `bat` plus `lv-plenty`, `lv-some`, `lv-low` or `lv-out`.
 
-**CSS** (the colour is the level; `currentColor` draws the outline and the cells):
+**CSS** (the colour is the level; `currentColor` draws the outlines and the fills):
 
 ```css
 .bat{flex:none}
 .bat.lv-plenty{color:var(--cue)}
 .bat.lv-some{color:var(--accent)}
-.bat.lv-low{color:var(--danger)}
-.bat.lv-out{color:var(--out,var(--fg))}
+.bat.lv-low{color:var(--accent)}
+.bat.lv-out{color:var(--danger)}
 ```
 
-**Sizes:** the item flyout and sheet level tile `.tl .bat{width:38px;height:22px;margin:6px 0}` (draw it at width 38); each button of the level picker `.lvpick .opt` holds one at width 35 (`.lvpick .opt .bat{width:35px;height:21px}` in the household flow). Anywhere else, pick a width and keep the 34:20 ratio.
+**Sizes:** the item flyout and sheet level tile `.tl .bat{width:48px;height:15px;margin:9px 0}` (draw it at width 48); each button of the level picker holds one at width 44 (`.lvpick .opt .bat{width:44px;height:14px}`). Anywhere else, pick a width and keep the 52:16 ratio.
 
-**Tokens:** `--cue` (Plenty, green), `--accent` (Some, amber), `--danger` (Running low, red), `--out` (Out; black on Kitchie Day, a mid grey on Kitchie Night; falls back to `--fg`). No new tokens. All from `theme.css`.
+**Tokens:** `--cue` (Plenty, green), `--accent` (Some and Running low, amber; they differ by how many squares are filled), `--danger` (Out, red outlines). `--out` is no longer used by the icon. No new tokens. All from `theme.css`.
 
 **Words:** never drawn. The name goes in `<span class="sr-only">Running low</span>` inside the control that holds the icon (the picker's `role="radio"` button), or in the `aria-label` of the tile ("Level, Running low. Opens the edit flyout"). The svg itself is `aria-hidden`.
 

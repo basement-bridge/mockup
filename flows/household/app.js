@@ -622,13 +622,13 @@ const screens = {
    Counted = the unit is a count (reducible); anything weighed or measured is level-only. Used up = amount 0, shows Out, Undo toast. */
 const TILE_FIELDS = { amount: ["qty"], level: [], min: ["min"], where: ["loc", "spot"], useby: ["useby"], cat: ["cat"] };
 const TILE_TITLE = { amount: "Amount", level: "Level", min: "Minimum", where: "Where", useby: "Use by", cat: "Category" };
-/* level icon: a BATTERY (owner, 11 Oct 2026, replaces the drop everywhere the level is drawn; item-edit-flyout decision 94). Four cells: Plenty 4 filled (green), Some 2 (amber), Running low 1 (red), Out none (black).
+/* level icon: THREE SQUARES (owner, 16 Oct 2026, replaces the battery everywhere the level is drawn; item-edit-flyout decision 133). Plenty 3 filled (green), Some 2 (amber), Running low 1 (amber), Out none (red outlines).
    No level word is drawn; the name is screen-reader text only (.sr-only). Same markup and classes as fragments/item-edit-flyout (IEF.battery), so the build copies one icon. */
-const LEVELS = { Plenty: [4, "plenty"], Some: [2, "some"], "Running low": [1, "low"], Out: [0, "out"] };
-function levelBattery(l, width = 38) {
+const LEVELS = { Plenty: [3, "plenty"], Some: [2, "some"], "Running low": [1, "low"], Out: [0, "out"] };
+function levelBattery(l, width = 48) {
   const [n, k] = LEVELS[l];
-  let cells = ""; for (let i = 0; i < n; i++) cells += `<rect x="${4 + i * 6}" y="5" width="5.2" height="10" rx="1.2" fill="currentColor" stroke="none"/>`;
-  return `<svg class="bat lv-${k}" width="${width}" height="${Math.round(width * 20 / 34)}" viewBox="0 0 34 20" aria-hidden="true" focusable="false"><rect x="1" y="2" width="29" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M31.4 7.5h.8a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-.8z" fill="currentColor" stroke="none"/>${cells}</svg>`;
+  let cells = ""; for (let i = 0; i < 3; i++) cells += `<rect x="${1 + i * 18}" y="1" width="14" height="14" rx="3.2" fill="${i < n ? "currentColor" : "none"}" stroke="currentColor" stroke-width="1.8"/>`;
+  return `<svg class="bat lv-${k}" width="${width}" height="${Math.round(width * 16 / 52)}" viewBox="0 0 52 16" aria-hidden="true" focusable="false">${cells}</svg>`;
 }
 const srOnly = (t) => `<span class="sr-only">${esc(t)}</span>`;
 function itemSheetHtml() {
@@ -649,7 +649,7 @@ function itemSheetHtml() {
     const more = `<button class="icon smore" data-act="itile" data-p="all" aria-label="All fields" title="All fields">${I.list}</button>`;
     const head = `<div class="shead"><span class="ph" aria-hidden="true">${emo(p)}</span><div class="sid"><b>${esc(p.name)}</b>${hasQty ? `<span class="small shq">${out ? "Out" : esc(fmtAmt(p))}</span>` : ""}${place}</div>${more}</div>`;
     /* the Level tile is the battery; on a counted item it opens the quantity stepper, on a level-only item it opens the level choices */
-    const first = tile(cnt ? "amount" : "level", levelBattery(lv, 38), "", srOnly((cnt ? "Quantity and level, " : "Level, ") + lv), "");
+    const first = tile(cnt ? "amount" : "level", levelBattery(lv, 48), "", srOnly((cnt ? "Quantity and level, " : "Level, ") + lv), "");
     const minTile = tile("min", typeof I.down === "string" ? I.down.replace('width="22" height="22"', 'width="20" height="20"') : riSvg("alert", 20), p.min > 0 ? esc(fmtAmt({ n: p.min, unit: p.unit })) : null, "Minimum", "Add minimum");
     const tiles = `<div class="tiles4">${first}${tile("useby", riSvg("clock", 20), p.days === null ? null : esc(dayLabel(p.days)), "Use by", "Add use-by")}${minTile}${tile("cat", riSvg("basket", 20), p.cat ? esc(p.cat) : null, "", "Add category")}</div>`;
     const acts2 = `<div class="sacts">${out ? `<button class="btn ghost" disabled>${I.tick}<span>&nbsp;Marked Out</span></button>` : `<button class="btn ghost" data-act="sheetused">${I.tick}<span>&nbsp;Used up</span></button>`}${onList(p.id) ? `<button class="btn ghost" disabled>${I.tick}<span>&nbsp;On your list</span></button>` : `<button class="btn" data-act="sheetshop">${riSvg("cart", 20)}<span>&nbsp;Add to shopping</span></button>`}</div>`;
@@ -658,7 +658,7 @@ function itemSheetHtml() {
     const hd = `<div class="shead"><button class="icon" data-act="itile" data-p="tiles" aria-label="Back to ${esc(p.name)}" title="Back">${I.chev.replace("<svg", '<svg style="transform:scaleX(-1)"')}</button><div class="sid"><b>${TILE_TITLE[v]}</b><span class="small">${esc(p.name)}</span></div>${close}</div>`;
     let ed = "";
     if (v === "level") {
-      ed = `<div class="opts lvpick" role="radiogroup" aria-label="Level">${Object.keys(LEVELS).reverse().map((l) => `<button class="opt${l === lv ? " on" : ""}" role="radio" aria-checked="${l === lv}" data-act="lvl" data-p="${l}">${levelBattery(l, 35)}${srOnly(l)}</button>`).join("")}</div><p class="small">The battery empties as it runs down. An empty battery means none left. Nothing is deleted: it stays in the pantry.</p>`;
+      ed = `<div class="opts lvpick" role="radiogroup" aria-label="Level">${Object.keys(LEVELS).reverse().map((l) => `<button class="opt${l === lv ? " on" : ""}" role="radio" aria-checked="${l === lv}" data-act="lvl" data-p="${l}">${levelBattery(l, 44)}${srOnly(l)}</button>`).join("")}</div><p class="small">The battery empties as it runs down. An empty battery means none left. Nothing is deleted: it stays in the pantry.</p>`;
     } else if (v === "amount") ed = ITEM_FIELDS.qty.html(p);
     else if (v === "where") ed = TILE_FIELDS.where.map((k) => `<span class="lbl">${k === "loc" ? "Location" : "Spot"}</span>${ITEM_FIELDS[k].html(p)}`).join("");
     else ed = ITEM_FIELDS[TILE_FIELDS[v][0]].html(p);

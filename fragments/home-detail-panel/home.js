@@ -25,10 +25,10 @@ var IC = HDP.IC = {
   warn: '<circle cx="12" cy="12" r="9"/><path d="M12 7.5v5M12 16v.5"/>'
 };
 var sv = HDP.sv = function (p, sz) { sz = sz || 20; return '<svg viewBox="0 0 24 24" width="' + sz + '" height="' + sz + '" aria-hidden="true" focusable="false">' + p + "</svg>"; };
-var BAT = { Plenty: [4, "plenty"], Some: [2, "some"], "Running low": [1, "low"], Out: [0, "out"] };
+var BAT = { Plenty: [3, "plenty"], Some: [2, "some"], "Running low": [1, "low"], Out: [0, "out"] }; /* the level icon, three squares (item-edit-flyout decision 133) */
 function battery(l, w) {
-  var a = BAT[l] || BAT.Out, c = ""; for (var i = 0; i < a[0]; i++) c += '<rect x="' + (4 + i * 6) + '" y="5" width="5.2" height="10" rx="1.2" fill="currentColor" stroke="none"/>';
-  return '<svg class="bat lv-' + a[1] + '" width="' + w + '" height="' + Math.round(w * 20 / 34) + '" viewBox="0 0 34 20" aria-hidden="true" focusable="false"><rect x="1" y="2" width="29" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M31.4 7.5h.8a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-.8z" fill="currentColor" stroke="none"/>' + c + "</svg>";
+  var a = BAT[l] || BAT.Out, c = ""; for (var i = 0; i < 3; i++) c += '<rect x="' + (1 + i * 18) + '" y="1" width="14" height="14" rx="3.2" fill="' + (i < a[0] ? "currentColor" : "none") + '" stroke="currentColor" stroke-width="1.8"/>';
+  return '<svg class="bat lv-' + a[1] + '" width="' + w + '" height="' + Math.round(w * 16 / 52) + '" viewBox="0 0 52 16" aria-hidden="true" focusable="false">' + c + "</svg>";
 }
 var kbd = function (c, cls) { return '<kbd class="kbd' + (cls ? " " + cls : "") + '">' + c + "</kbd>"; };
 var MAC = /Mac|iPhone|iPad/.test(navigator.platform || ""), MOD = MAC ? "Cmd" : "Ctrl";
@@ -130,7 +130,7 @@ function itemHtml(it) {
   var out = it.level === "Out", sp = it.spot && it.spot !== "Anywhere" ? " &middot; " + esc(it.spot) : "";
   var head = '<div class="top shead" id="d-head"><button type="button" class="ph" data-act="edit" aria-label="Emoji ' + it.emoji + '. Change it in Edit" title="Change the emoji (in Edit)">' + it.emoji + '</button><div class="sid"><h2 class="nm2" id="d-title" tabindex="-1" title="' + esc(it.name) + '">' + esc(it.name) + "</h2>" + (qtyOf(it) ? '<span class="shq">' + esc(qtyOf(it)) + "</span>" : "") + '<span class="shw"><b>' + esc(it.area) + "</b>" + sp + "</span>" + (it.list !== null ? '<span class="onl">On your list</span>' : "") + '</div><div class="hacts" role="group" aria-label="Item actions">' + ib("edit", "Edit item", IC.edit, "E", S.child === "edit") + ib("history", "History", IC.history, ",", S.child === "history") + closeBtn() + "</div></div>";
   var d = it.days, t = [];
-  t.push(tile(battery(it.level, 38), "", "", "", "Level, " + it.level + ". Opens the edit flyout"));
+  t.push(tile(battery(it.level, 48), "", "", "", "Level, " + it.level + ". Opens the edit flyout"));
   t.push(tile(sv(IC.clock, 20), it.days === null ? null : d === 0 ? "Today" : d === 1 ? "1D" : d < 7 ? d + "D" : it.useLabel, "Use by", "Add use-by", it.days === null ? "" : "Use by, " + it.useLabel));
   t.push(tile(sv(IC.down, 20), it.min ? esc(it.min + (it.unit && it.unit !== "bunch" ? " " + it.unit : "")) : null, "Minimum", "Add minimum"));
   t.push(it.cat ? tile(sv(IC.basket, 20), esc(it.cat), "", "", "Category, " + it.cat) : tile("", null, "", "Add category"));
