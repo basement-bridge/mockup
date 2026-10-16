@@ -34,6 +34,7 @@ Source: the owner's consolidated feedback on the fragment (the Claude Docs feedb
 **Naming**
 
 - **SL-D1.** "Share" becomes a hand-off wording, for example "Someone else is shopping". It is only for when someone else does the shopping.
+- **SL-D1a (owner, 16 October 2026).** The control now reads "Is someone else shopping?", a question, with a capital I. Only the wording changes: same control, same place, same subline.
 
 **Live updates** (the new thirteenth open question; revises P1 and P3)
 
@@ -116,7 +117,7 @@ Each lists what was chosen, the other way, and what a wrong guess costs. They ar
 
 Member side (signed in, the Shopping screen; unchanged by the 11 October test except the bag on the "Also got" rows):
 
-- The control "Someone else is shopping" in a slot above the list (SL-D1, SL-J1; options B and C stay on the page for comparison). It makes the link and hands the phone's share sheet the list text, then the link (SL-D14); copy when there is no share sheet.
+- The control "Is someone else shopping?" in a slot above the list (SL-D1, SL-J1; options B and C stay on the page for comparison). It makes the link and hands the phone's share sheet the list text, then the link (SL-D14); copy when there is no share sheet.
 - What lands in the chat: the list as Kitchie already writes it, then a line and the link.
 - One quiet line per link out, at most 3, with a one-tap Cancel (SL-D15): "Not opened yet" or "Opened 3 hours ago", the hours left, and for a link made but not sent "Made, not sent?" with Withdraw (SL-D16). At 3 the control steps aside and says why.
 - As the shopper answers, the real list changes with no member tap (SL-D2): bought lines crossed out and "Got · in the Pantry"; a swapped line "Got instead: fusilli, same size" with what the Pantry did ("Topped up your fusilli" or "Added to the Pantry as new", SL-D11); a line not found says "Couldn't find" and stays. "Also got" lines show after the list.

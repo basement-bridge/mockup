@@ -1,5 +1,5 @@
 // Shopper link, the member's Shopping screen. NEW FOR THE BUILD: fold into assets/shopping.js.
-// "Someone else is shopping" (the hand-off control), Cancel / Withdraw and Dismiss are plain form posts, so they work without this file (the server then
+// "Is someone else shopping?" (the hand-off control), Cancel / Withdraw and Dismiss are plain form posts, so they work without this file (the server then
 // answers the hand-off with a page that shows the text to copy, and redirects back after the other two). With it:
 //   - Hand-off: POST <base>/shopping/share with Accept: application/json answers { link, url, text, expires_at }. The text (the list, then the link line)
 //     goes to the phone's own share sheet; with no share sheet it is copied; if neither works it is shown to copy by hand. The link exists from the moment
