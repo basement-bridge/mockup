@@ -1,0 +1,58 @@
+/* Shopping receipt review mockup (#797). Tokens only (theme.css); no size rules here (DESIGN.md section 7): they are in phone.css and desktop.css.
+   Class names follow the Pantry's and the receipt-scan fragment's (.hd .btn .rows .row .rmain .nm .mt .tag .kbd .toast); new names are sr-*. */
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);line-height:1.4;min-height:100vh}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;padding:0;text-align:inherit}
+[hidden]{display:none!important}
+h1,h2,h3{margin:0;font-family:var(--head)}h2{font-size:1.15rem}
+p{margin:0;color:var(--muted)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{min-height:var(--tap);padding:0 18px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--surface);font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn.pri{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.btn[disabled]{opacity:.5;cursor:default}
+.tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:var(--r-pill);border:1px solid var(--border);color:var(--muted);white-space:nowrap}
+.sr-page{padding:16px var(--gutter) 120px;max-width:var(--content-max);margin:0 auto}
+.hd{display:flex;align-items:center;gap:12px;margin-bottom:6px}.hd h1{flex:1;font-size:1.4rem}
+.sr-sub{margin-bottom:12px;font-size:.92rem}
+.sr-grp{margin:18px 0 6px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-weight:700}
+.sr-grp small{font-weight:500;color:var(--muted)}
+.sr-fold{width:100%;min-height:var(--tap);display:flex;align-items:center;gap:10px;padding:0 12px;border:1px dashed var(--border);border-radius:var(--r-ctl);color:var(--muted);font-weight:600}
+.sr-fold b{color:var(--fg)}
+.rows{list-style:none;margin:0;padding:0}
+.rows>li{border-bottom:1px solid var(--border);padding:10px 4px}.rows>li:last-child{border:0}
+.row{display:flex;align-items:flex-start;gap:12px;min-width:0}
+.sr-em{width:36px;height:36px;border-radius:var(--r-ctl);border:1px solid var(--border);display:grid;place-items:center;flex:none;background:var(--surface)}
+.rmain{min-width:0;flex:1;display:flex;flex-direction:column;gap:2px}
+.nm{font-weight:700;font-size:1.05rem}
+.mt{color:var(--muted);font-size:.88rem}
+/* one cue per state: glyph + word + colour (colour is never the only signal) */
+.sr-chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:800;padding:3px 9px;border-radius:var(--r-pill);white-space:nowrap;border:1px solid var(--border);color:var(--muted);width:fit-content}
+.sr-chip[data-k=ok]{background:var(--added-bg);color:var(--added-fg);border-color:transparent}
+.sr-chip[data-k=fill],.sr-chip[data-k=differ],.sr-chip[data-k=fix]{color:var(--accent);border-color:var(--accent)}
+.sr-chip[data-k=unit]{color:var(--danger);border-color:var(--danger)}
+.sr-chip[data-k=done]{color:var(--sage);border-color:var(--sage)}
+.sr-chip[data-k=extra]{border-style:dashed}
+.sr-chip[data-r=resolved]{background:var(--added-bg);color:var(--added-fg);border-color:transparent}
+/* amounts */
+.sr-amt{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px}
+.sr-n{min-width:68px;min-height:var(--tap);padding:0 12px;display:inline-grid;place-items:center;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);font-weight:700;font-size:1.05rem}
+.sr-step{width:var(--tap);height:var(--tap);border-radius:50%;border:1px solid var(--border);background:var(--bg);display:inline-grid;place-items:center;font-weight:700;font-size:1.2rem}
+.sr-pills{display:inline-flex;gap:6px;flex-wrap:wrap}
+.sr-pill{min-height:var(--tap);min-width:var(--tap);justify-content:center;padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--bg);font-weight:600;display:inline-flex;align-items:center}
+.sr-pill[aria-pressed=true]{border-color:var(--accent);color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.sr-was{min-width:var(--tap);color:var(--muted);font-size:.85rem;text-decoration:underline;min-height:var(--tap);display:inline-flex;align-items:center}
+.sr-ch{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.sr-ch .sr-pill{flex-direction:column;align-items:flex-start;justify-content:center;gap:0;padding:4px 14px;border-radius:var(--r-card)}
+.sr-ch .sr-pill small{font-weight:500;color:var(--muted);font-size:11px}
+.sr-note{font-size:.82rem;color:var(--muted)}
+.sr-arrow{color:var(--muted);font-weight:700}
+.sr-bar{position:fixed;left:0;right:0;bottom:0;z-index:16;background:var(--surface);border-top:1px solid var(--border);padding:10px var(--gutter) max(12px,env(safe-area-inset-bottom));display:flex;align-items:center;gap:12px}
+.sr-bar p{flex:1;font-size:.88rem}.sr-bar p b{color:var(--fg)}
+.toast{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:40;background:var(--fg);color:var(--bg);padding:12px 18px;border-radius:var(--r-card);font-weight:600;max-width:calc(100vw - 24px)}
+.sr-done{text-align:center;padding:48px 0;display:flex;flex-direction:column;gap:10px;align-items:center}
+.sr-gap{height:8px}
+.sr-fold svg{flex:none;transition:transform .15s}.sr-fold[aria-expanded=true] svg{transform:rotate(90deg)}
+.sr-sumbox{border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface);padding:4px 16px 8px;text-align:left}
+.sr-sumbox h2{margin-top:12px}.sr-sum{margin:6px 0 8px;padding-left:18px}
+.toast .sr-was{color:inherit;margin-left:8px}
+@media(prefers-reduced-motion:reduce){.sr-fold svg{transition:none}}

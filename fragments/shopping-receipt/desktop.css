@@ -1,0 +1,4 @@
+/* Desktop (1024px and up): the column sits off-centre like the Pantry's review; the confirm bar sits inside the column. Loaded only from 1024px up. */
+.sr-page{margin:0 0 0 88px;max-width:736px;padding:28px 48px 120px}
+.sr-bar{left:88px;right:auto;width:736px;padding-left:48px;padding-right:48px;border-top:1px solid var(--border)}
+.toast{left:calc(88px + 368px)}
