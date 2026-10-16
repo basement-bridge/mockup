@@ -18,12 +18,12 @@
         { id: "i8", name: "salt", q: null, u: "" }
       ],
       steps: [
-        { text: "Slice one chicken breast thin. Toss it with 1 tbsp of the soy sauce and 2 cloves of crushed garlic and leave it for 10 minutes.", uses: [["i1", 1], ["i2", 1], ["i3", 2]] },
-        { text: "Rub the other breast with salt and sear it whole in 1 tbsp oil, 6 minutes a side. Rest it, then slice.", uses: [["i1", "rest"], ["i4", 1], ["i8", null]] },
-        { text: "Wipe the pan, heat 2 tbsp oil and stir-fry the marinated chicken until cooked through.", uses: [["i4", 2]] },
-        { text: "Add the last garlic clove and the rice. Toss in the rest of the soy sauce until the rice is hot.", uses: [["i3", "rest"], ["i5", "all"], ["i2", "rest"]] },
+        { text: "Slice part of the chicken thin. Toss it with some of the soy sauce and crushed garlic and leave it for 10 minutes.", uses: [["i1", 1], ["i2", 1], ["i3", 2]] },
+        { text: "Rub the rest of the chicken with salt and sear it whole in a little oil, 6 minutes a side. Rest it, then slice.", uses: [["i1", "rest"], ["i4", 1], ["i8", null]] },
+        { text: "Wipe the pan, heat more oil and stir-fry the marinated chicken until cooked through.", uses: [["i4", 2]] },
+        { text: "Add the remaining garlic and the rice. Toss in the rest of the soy sauce until the rice is hot.", uses: [["i3", "rest"], ["i5", "all"], ["i2", "rest"]] },
         { text: "Take the pan off the heat and let it sit for two minutes.", uses: [] },
-        { text: "Scramble 2 eggs in a corner of the pan, then fold them through the rice.", uses: [["i6", 2]] },
+        { text: "Scramble some of the eggs in a corner of the pan, then fold them through the rice.", uses: [["i6", 2]] },
         { text: "Fry the last egg in the last of the oil. Top the bowls with the egg, the sliced chicken and the spring onion.", uses: [["i6", "rest"], ["i4", "rest"], ["i7", "all"]] }
       ]
     },
@@ -37,7 +37,7 @@
         { id: "i9", name: "honey", q: 2, u: "tbsp" }, { id: "i10", name: "mustard", q: 2, u: "tbsp" }
       ],
       steps: [
-        { text: "Heat the oven to 220 degrees. Cut the potato, carrot, onion and capsicum into chunks and toss on the tray with the oil, paprika and thyme.", uses: [["i2", "all"], ["i3", "all"], ["i4", "all"], ["i5", "all"], ["i6", 3], ["i7", "all"], ["i8", "all"]] },
+        { text: "Heat the oven to 220 degrees. Cut the potato, carrot, onion and capsicum into chunks and toss on the tray with some of the oil, the paprika and thyme.", uses: [["i2", "all"], ["i3", "all"], ["i4", "all"], ["i5", "all"], ["i6", 3], ["i7", "all"], ["i8", "all"]] },
         { text: "Nestle the sausages in among the veg and roast for 25 minutes.", uses: [["i1", "all"]] },
         { text: "Stir the honey, mustard and the last of the oil together, brush it over, and roast 10 minutes more.", uses: [["i9", "all"], ["i10", "all"], ["i6", "rest"]] }
       ]
@@ -50,7 +50,8 @@
   RECIPES.none = JSON.parse(JSON.stringify(RECIPES.rice));
   RECIPES.none.steps.forEach(function (s) { delete s.uses; }); RECIPES.none.tagged = false;
 
-  var S = { rec: "rice", sv: 4, step: { a: 1, b: 0, c: 3 }, dock: false, more: { a: false, b: false }, all: false };
+  var S = { rec: "rice", sv: 4, step: { a: 1, b: 0, c: 3 }, dock: false, more: { a: false, b: false }, all: false, room: "roomy", rest: false, used: false, dk: "" };
+  var LONG = " Keep the heat high and do not crowd the pan, or it will steam instead of sear; give it room and leave it alone until it lifts."; /* sample sentence for the Long text room */
   var $ = function (id) { return document.getElementById(id); };
   var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
   var FR = [[0.25, "¼"], [0.333, "⅓"], [0.5, "½"], [0.667, "⅔"], [0.75, "¾"]];
@@ -132,6 +133,76 @@
     function li(x) { return '<li' + (x.done ? ' class="done"' : "") + '><span class="amt">' + esc(x.amt) + '</span><span class="nm">' + esc(x.i.name) + '</span><span class="st">' + esc(x.st) + "</span></li>"; }
     return '<div class="rest">' + (todo.length ? '<span class="lbl">Still to come</span><ul>' + todo.map(li).join("") + "</ul>" : "") + (done.length ? '<span class="lbl">Already used</span><ul>' + done.map(li).join("") + "</ul>" : "") + "</div>";
   }
+
+  /* ---- Option A, revised 17 Oct 2026 (owner decisions CSI-15..19). Pure parts first, then markup. ---- */
+  /* CSI-16: tight when the step competes for room: a step photo, long step text, or a small viewport. */
+  function isTight(o) { return !!(o.photo || o.textLen > 160 || o.vh < 600); }
+  function chipText(ks, arrow) { /* "step 7", "4, 7", "4, 7, 9 +2": compact, never a sentence */
+    var n = ks.map(function (x) { return x + 1; }), shown = n.slice(0, 3).join(", "), extra = n.length > 3 ? " +" + (n.length - 3) : "";
+    return (arrow ? "→ " : "") + (n.length === 1 ? "step " + n[0] : shown + extra);
+  }
+  function chipHtml(ks, arrow, sr) {
+    if (!ks.length) return '<span class="go"></span>';
+    return '<span class="go"><span aria-hidden="true">' + chipText(ks, arrow) + '</span><span class="sr-only">' + sr + (ks.length === 1 ? " step " : " steps ") + ks.map(function (x) { return x + 1; }).join(", ") + "</span></span>";
+  }
+  function qtyHtml(i, a) { return '<span class="qt">' + (a === null || a <= 0.0001 ? "" : esc(fmt(a) + unitText(i))) + "</span>"; } /* CSI-18: no amount, nothing on the right */
+  function calloutA(r, P, k, key, openAll) {
+    var us = usesOf(r, k).slice().sort(function (x, y) { return r.ings.findIndex(function (i) { return i.id === x[0]; }) - r.ings.findIndex(function (i) { return i.id === y[0]; }); });
+    var cap = 5, show = openAll || us.length <= cap + 1 ? us : us.slice(0, cap);
+    var rows = show.map(function (u) {
+      var i = P.by[u[0]], a = P.amountOf(u), later = whereUsed(r, u[0]).filter(function (w) { return w.k > k; }).map(function (w) { return w.k; });
+      return '<li><span class="nm">' + esc(nameOf(i, a)) + "</span>" + qtyHtml(i, a) + chipHtml(later, true, "rest used in") + "</li>"; /* CSI-19: chip only when a later step uses the rest */
+    }).join("");
+    var more = us.length > show.length ? '<button type="button" class="more" data-more="' + key + '" aria-expanded="false">+' + (us.length - show.length) + " more</button>"
+      : (openAll && us.length > cap + 1 ? '<button type="button" class="more" data-more="' + key + '" aria-expanded="true">Show fewer</button>' : "");
+    return '<section class="cu" aria-labelledby="h-' + key + '"><p class="lbl" id="h-' + key + '">' + IC.tick + 'In this step<span class="n">' + us.length + '</span></p><ul class="cl">' + rows + "</ul>" + more + "</section>";
+  }
+  function restModel(r, P, k) { /* { todo, done } for a fully tagged recipe; CSI-16 order */
+    var now = {}; usesOf(r, k).forEach(function (u) { now[u[0]] = 1; });
+    var todo = [], done = [];
+    r.ings.forEach(function (i, idx) {
+      if (now[i.id]) return;
+      var used = whereUsed(r, i.id), later = used.filter(function (w) { return w.k > k; }), earlier = used.filter(function (w) { return w.k < k; });
+      if (!used.length) { todo.push({ i: i, a: P.tot[i.id], ks: [], first: 999, idx: idx }); return; }
+      if (later.length) {
+        var left = 0, known = false; later.forEach(function (w) { var x = P.amountOf(w.u); if (x !== null) { left += x; known = true; } });
+        todo.push({ i: i, a: known ? left : null, ks: later.map(function (w) { return w.k; }), first: later[0].k, idx: idx });
+      } else done.push({ i: i, a: P.tot[i.id], ks: earlier.map(function (w) { return w.k; }), idx: idx });
+    });
+    todo.sort(function (x, y) { return x.first - y.first || x.idx - y.idx; });
+    return { todo: todo, done: done };
+  }
+  function rowLi(x) { return '<li><span class="nm">' + esc(nameOf(x.i, x.a)) + "</span>" + qtyHtml(x.i, x.a) + chipHtml(x.ks, false, "used in") + "</li>"; }
+  function restA(r, P, k, key, tight) { /* phone */
+    if (!r.tagged) return ""; /* only a fully tagged recipe (CSI-8) */
+    var m = restModel(r, P, k), todo = m.todo, done = m.done;
+    var cap = tight ? 3 : 6, open = S.rest && todo.length > cap, shown = open || todo.length <= cap ? todo : todo.slice(0, cap);
+    var h = '<div class="rsA">';
+    if (todo.length) {
+      h += '<span class="lbl">Still to come</span><ul class="cl">' + shown.map(rowLi).join("") + "</ul>";
+      if (todo.length > cap) h += '<button type="button" class="more" data-rest aria-expanded="' + open + '">' + (open ? "Show fewer" : "+" + (todo.length - shown.length) + " more") + "</button>";
+    }
+    if (done.length) h += '<details class="used"' + (S.used ? " open" : "") + "><summary>" + IC.chev + "Already used (" + done.length + ")</summary><ul class=\"cl\">" + done.map(rowLi).join("") + "</ul></details>"; /* CSI-15 */
+    return h + "</div>";
+  }
+  /* Desktop composition (CSI-20): chips inside the step card, the rest in a dock that opens in place. */
+  function chipsA(r, P, k, key) {
+    var us = usesOf(r, k).slice().sort(function (x, y) { return r.ings.findIndex(function (i) { return i.id === x[0]; }) - r.ings.findIndex(function (i) { return i.id === y[0]; }); });
+    var chips = us.map(function (u) {
+      var i = P.by[u[0]], a = P.amountOf(u), later = whereUsed(r, u[0]).filter(function (w) { return w.k > k; }).map(function (w) { return w.k; });
+      return '<li><span class="nm">' + esc(nameOf(i, a)) + "</span>" + qtyHtml(i, a) + chipHtml(later, true, "rest used in") + "</li>";
+    }).join("");
+    return '<div class="lbl chiphead" id="h-' + key + '">' + IC.tick + 'In this step<span class="n">' + us.length + '</span></div><ul class="chipsA" aria-labelledby="h-' + key + '">' + chips + "</ul>";
+  }
+  function dockA(r, P, k, key) {
+    if (!r.tagged) return "";
+    var m = restModel(r, P, k), cur = S.dk === "todo" && m.todo.length ? "todo" : (S.dk === "used" && m.done.length ? "used" : "");
+    if (!m.todo.length && !m.done.length) return "";
+    var panel = cur ? '<div class="dkp ' + cur + '" id="dkp-' + key + '" role="region" aria-label="' + (cur === "todo" ? "Still to come" : "Already used") + '"><ul class="cl">' + (cur === "todo" ? m.todo : m.done).map(rowLi).join("") + "</ul></div>" : "";
+    function tab(id, txt, n, ic) { return n ? '<button type="button" class="tb ' + id + '" data-dk="' + id + '" aria-expanded="' + (cur === id) + '"' + (cur === id ? ' aria-controls="dkp-' + key + '"' : "") + ">" + ic + '<span class="t">' + txt + '</span><span class="n">' + n + "</span>" + IC.chev + "</button>" : ""; }
+    var arrow = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    return '<div class="dkA">' + panel + '<div class="tabs">' + tab("todo", "Still to come", m.todo.length, arrow) + tab("used", "Already used", m.done.length, IC.tick) + "</div></div>";
+  }
   function chipsHtml(r, P, k, key, openAll) {
     var us = usesOf(r, k).slice(), cap = 5, show = openAll || us.length <= cap + 1 ? us : us.slice(0, cap);
     var chips = show.map(function (u) {
@@ -154,9 +225,13 @@
   function frame(opt, form) {
     var r = RECIPES[S.rec], P = plan(r), k = Math.min(S.step[opt], r.steps.length - 1), s = r.steps[k], tagged = !!s.uses, has = tagged && s.uses.length > 0;
     var head = '<div class="top"><span class="stop">✕ Stop</span><span class="ttl">' + esc(r.name) + '</span><span class="sp"></span></div>';
-    var big = function (extra) { return '<div class="bigstep"><span class="lbl">Step ' + (k + 1) + " of " + r.steps.length + '</span><p tabindex="-1">' + esc(s.text) + "</p>" + (extra || "") + "</div>"; };
+    var room = opt === "a" ? S.room : "roomy", photo = room === "photo", text = s.text + (room === "long" ? LONG : "");
+    var vh = room === "small" ? (form === "phone" ? 520 : 440) : (form === "phone" ? 700 : 640);
+    var tight = opt === "a" && (isTight({ photo: photo && form === "phone", textLen: form === "phone" ? text.length : 0, vh: vh }));
+    var big = function (extra) { return '<div class="bigstep">' + (opt === "a" && photo ? '<div class="sphoto" role="img" aria-label="Step photo (sample)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h3l1.5-2h7L17 7h3v12H4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></div>' : "") + '<span class="lbl">Step ' + (k + 1) + " of " + r.steps.length + '</span><p tabindex="-1">' + esc(text) + "</p>" + (extra || "") + "</div>"; };
     var key = opt + form[0], body;
-    if (opt === "a") body = big() + (has ? stripHtml(r, P, k, key, S.more.a) : (tagged ? '<p class="noings">No ingredients in this step.</p>' : "")) + restHtml(r, P, k);
+    if (opt === "a" && form === "desk") return head + '<div class="body">' + big(has ? chipsA(r, P, k, key) : (tagged ? '<p class="noings" style="margin:12px 0 0">No ingredients in this step.</p>' : "")) + "</div>" + dockA(r, P, k, key) + nav(r, k);
+    if (opt === "a") body = big() + (has ? calloutA(r, P, k, key, S.more.a) : (tagged ? '<p class="noings">No ingredients in this step.</p>' : "")) + restA(r, P, k, key, tight);
     else if (opt === "b") body = big(has ? chipsHtml(r, P, k, key, S.more.b) : (tagged ? '<p class="noings" style="margin:12px 0 0">No ingredients in this step.</p>' : "")) + (r.tagged || r.steps.some(function (x) { return x.uses; }) ? '<details class="all"' + (S.all ? " open" : "") + '><summary>All ingredients</summary>' + (r.tagged ? restHtml(r, P, k) : '<div class="rest"><ul>' + r.ings.map(function (i) { var q = P.tot[i.id]; return '<li><span class="amt">' + (q === null ? "–" : fmt(q) + unitText(i)) + '</span><span class="nm">' + esc(i.name) + "</span></li>"; }).join("") + "</ul></div>") + "</details>" : "");
     else {
       if (form === "desk") body = big() + (has ? stripHtml(r, P, k, key, true) : (tagged ? '<p class="noings">No ingredients in this step.</p>' : "")) + restHtml(r, P, k);
@@ -173,22 +248,26 @@
     var r = RECIPES[S.rec];
     [["a", "pa", "da"], ["b", "pb", "db"], ["c", "pc", "dc"]].forEach(function (o) {
       [[o[1], "phone"], [o[2], "desk"]].forEach(function (f) {
-        var el = $(f[0]); el.setAttribute("data-opt", o[0]); el.innerHTML = frame(o[0], f[1]);
+        var el = $(f[0]); el.setAttribute("data-opt", o[0]); if (o[0] === "a") el.setAttribute("data-room", S.room); el.innerHTML = frame(o[0], f[1]);
         if (focus === o[0] + f[1][0]) { var p = el.querySelector(".bigstep p"); if (p) p.focus({ preventScroll: true }); }
       });
     });
+    document.querySelectorAll("[data-room]").forEach(function (b) { if (b.tagName === "BUTTON") b.setAttribute("aria-pressed", String(b.getAttribute("data-room") === S.room)); });
     document.querySelectorAll("[data-rec]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-rec") === S.rec)); });
     $("sv").textContent = S.sv;
   }
   document.addEventListener("click", function (e) {
     var t = e.target.closest("button"); if (!t) return;
     var fr = t.closest("[data-opt]"), opt = fr && fr.getAttribute("data-opt"), form = fr && fr.id.charAt(0) === "d" ? "desk" : "phone";
-    if (t.hasAttribute("data-rec")) { S.rec = t.getAttribute("data-rec"); S.step = { a: Math.min(1, RECIPES[S.rec].steps.length - 1), b: 0, c: Math.min(3, RECIPES[S.rec].steps.length - 1) }; S.dock = false; S.more = { a: false, b: false }; draw(); }
+    if (t.hasAttribute("data-rec")) { S.rec = t.getAttribute("data-rec"); S.step = { a: Math.min(1, RECIPES[S.rec].steps.length - 1), b: 0, c: Math.min(3, RECIPES[S.rec].steps.length - 1) }; S.dock = false; S.more = { a: false, b: false }; S.rest = false; S.used = false; S.dk = ""; draw(); }
+    else if (t.hasAttribute("data-room") && t.tagName === "BUTTON" && !fr) { S.room = t.getAttribute("data-room"); S.rest = false; draw(); }
+    else if (t.hasAttribute("data-dk")) { var d = t.getAttribute("data-dk"); S.dk = S.dk === d ? "" : d; draw(); var nb = document.querySelector('#da [data-dk="' + d + '"]'); if (nb) nb.focus({ preventScroll: true }); }
+    else if (t.hasAttribute("data-rest")) { S.rest = !S.rest; draw(); }
     else if (t.hasAttribute("data-sv")) { S.sv = Math.max(2, Math.min(12, S.sv + Number(t.getAttribute("data-sv")))); draw(); }
     else if (t.hasAttribute("data-go")) { S.step[opt] = Number(t.getAttribute("data-go")); if (opt === "c") S.dock = false; draw(opt + form[0]); }
     else if (t.hasAttribute("data-more")) { var kk = t.getAttribute("data-more").charAt(0); S.more[kk] = !S.more[kk]; draw(); }
     else if (t.hasAttribute("data-dock")) { S.dock = !S.dock; draw(); }
   });
-  document.addEventListener("toggle", function (e) { if (e.target.classList && e.target.classList.contains("all")) S.all = e.target.open; }, true);
+  document.addEventListener("toggle", function (e) { if (e.target.classList && e.target.classList.contains("all")) S.all = e.target.open; if (e.target.classList && e.target.classList.contains("used")) S.used = e.target.open; }, true);
   draw();
 })();
