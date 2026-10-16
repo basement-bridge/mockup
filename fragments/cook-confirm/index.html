@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Cook-time confirm: four ways</title>
+<link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><link rel="stylesheet" href="cook-confirm.css"><script src="../../theme.js"></script>
+</head><body>
+<!-- Default path: this page, cook-confirm.css and cook-confirm.js only. No images, no network calls, no engine. All data is mock data in the script. -->
+<main class="wrap">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>After the cook: what happens to the pantry</h1>
+<p class="sub">Four ways to confirm what a cook did to stock, on the screen and in chat. Kitchie <a href="https://github.com/basement-bridge/kitchie/issues/788" style="color:var(--accent)">#788</a>. Exploration only: the owner compares, nothing here is a recommendation.</p>
+
+<div class="rules">
+  <div class="rule"><b>Two axes</b>The recipe side is exact (grams, mL, counts). How Kitchie tracks the item is the other axis: level only, counted, measured, or measured with a level you pinned. The cook behaviour follows the shape.</div>
+  <div class="rule"><b>Propose, never write silently</b>Even clean arithmetic (2 potatoes minus 1) is a proposal. Nothing reaches stock until the person confirms. Override a line, then one confirm.</div>
+  <div class="rule"><b>Low is where it asks</b>Plenty and some are left alone. A low item is probably out, so cooking is the moment to check. The cue shows which way an item is heading.</div>
+  <div class="rule"><b>Not the stock check</b>This is a deliberate cook-time moment. The household stock-check setting is a different trigger (staleness) and is not used here.</div>
+</div>
+
+<div class="ctl" role="group" aria-label="Version">
+  <div class="grp" id="vsw"></div>
+  <button type="button" class="sw" id="cmp" aria-pressed="false">Compare all four</button>
+</div>
+<div class="ctl" role="group" aria-label="Surface">
+  <div class="grp"><button type="button" class="sw" data-surface="app" aria-pressed="true">In the app</button><button type="button" class="sw" data-surface="chat" aria-pressed="false">In chat</button></div>
+  <button type="button" class="sw" id="reset">Reset</button>
+</div>
+<p class="vdesc" id="vdesc"></p>
+
+<div class="stage" id="stage"></div>
+
+<section class="pan"><h2>Direction cue: which way an item is heading</h2>
+  <p class="sub">Filled pips are what is there, dashed pips are what is about to be lost, the arrow and words say so (not colour alone). It is shown on every line, so a person can see it without being asked.</p>
+  <div class="leg" id="legend"></div></section>
+
+<section class="pan"><h2 id="ctitle">What the screen receives</h2><pre id="contract" aria-label="Proposal data"></pre>
+  <p class="sub" style="margin-top:8px">One proposal, computed once in Kitchie. The version decides <i>what</i> is asked; the confidence decides <i>how</i> the surface says it.</p></section>
+
+<section class="pan"><h2>Open questions</h2>
+<ol class="qs">
+  <li>What goes into the confidence number (shape, last confirmed, past misses, where the number came from)?</li>
+  <li>Version B: does the one confirm also cover the folded lines? Here it does, so nothing is written without a tap.</li>
+  <li>Version D: flat count or by shape? The existing <code>recheckDays</code> is a backing-off timer, not a cook count, so this may need its own threshold. Counting cooks that never went through the pantry join undercounts.</li>
+  <li>Something else went in (the spinach that was about to go): is a seeded list from "use soon" the right capture, as unplanned grabs are on a shop? It must never add to the shopping list by itself.</li>
+  <li>Chat: a "yes" must come from the person, not the assistant confirming for them. Kitchie cannot see the difference.</li>
+</ol></section>
+</main>
+<script src="cook-confirm.js"></script>
+</body></html>
