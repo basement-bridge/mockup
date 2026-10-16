@@ -25,7 +25,7 @@
 <body><main class="wrap">
 <p class="mini2"><a href="../../index.html">Mockup index</a></p>
 <h1>Shopping receipt: no double-add, quantity reconciliation</h1>
-<p>Kitchie issue #797, 16 October 2026. Mockup first; the build for gaps 1 to 4 follows once the owner picks. Decisions SR-1 to SR-22 are in the <a href="../../docs/knowledge/jobs-to-be-done/shopping-receipt.md">job note</a>; the numbered ones below are the same. <span class="pr">Proposal</span> marks every choice the owner was silent on.</p>
+<p>Kitchie issue #797, 16 October 2026. Mockup first; the build for gaps 1 to 4 follows once the owner picks. Decisions SR-1 to SR-27 are in the <a href="../../docs/knowledge/jobs-to-be-done/shopping-receipt.md">job note</a>; the numbered ones below are the same. <span class="pr">Proposal</span> marks every choice the owner was silent on.</p>
 
 <div class="stand"><b>Owner's words (voice, 16 October 2026).</b> While a trip is still open (the whole list not yet confirmed), a person must be able both to tick rows by hand and to scan a receipt. (1) Nothing already accounted for on this trip, that is only ticked, swiped (Bought) or finished with Done shopping, may be added to the Pantry a second time when it shows on the receipt. Such rows read <b>Already in your Pantry</b>, are not added again by default, and offer: <b>same item</b> (use the receipt amount to fix a blind swipe amount, 1 to 1.204 kg), <b>keep the Pantry's</b>, or <b>another one, add again</b>. (2) Quantity as in the Pantry receipt-add: the receipt's real quantity is shown, can fill a blank list amount or correct a different one, with a unit pill; a bare number against an exact-unit item such as kg must ask for the unit; never silently override: the person sees and confirms the number. Repeated receipt lines for one list item are combined (2 x 500 g = 1000 g). Gaps 5 and 6 (parser, shopper link) are out of scope.</div>
 
@@ -35,9 +35,9 @@
 <div class="links"><a class="pri" href="a.html">Open A</a><a href="a.html?pre=resolved">Answered</a><a href="a.html?step=done">Done</a><a href="a.html?vp=1280">Desktop</a></div></div>
 <div class="card"><h3>B: List order, both on show</h3><ul><li>Rows in the order of your list. Two chips on each: <b>List</b> and <b>Receipt</b>.</li><li>Where they differ, <b>nothing is preselected</b>: the person must choose before Add.</li><li>Safest for amounts; most taps.</li></ul>
 <div class="links"><a class="pri" href="b.html">Open B</a><a href="b.html?pre=resolved">Answered</a><a href="b.html?step=done">Done</a><a href="b.html?vp=1280">Desktop</a></div></div>
-<div class="card"><h3>C: Only what needs you</h3><ul><li>Conflicts, blanks and missing units on top.</li><li>Agreed rows and Already-in-your-Pantry rows fold away, with a count and what will happen to them.</li><li>Rows use A's stepper. Shortest screen; hides rows the person may want to check.</li></ul>
+<div class="card"><h3>C: Only what needs you</h3><ul><li>Conflicts, blanks and missing units on top.</li><li>Agreed rows and Already-in-your-Pantry rows fold away, with a count and what will happen to them.</li><li>Off-list lines (the salmon) sit in a third fold, "1 not on your list, added", each with Leave out when open.</li><li>Rows use A's stepper. Shortest screen; hides rows the person may want to check.</li></ul>
 <div class="links"><a class="pri" href="c.html">Open C</a><a href="c.html?open=agree,pantry">Folds open</a><a href="c.html?step=done">Done</a><a href="c.html?vp=1280">Desktop</a></div></div>
-<div class="card"><h3>Same in all three</h3><ul><li>Already-in-your-Pantry rows: three buttons, <b>Keep Pantry's</b> is on. <b>Same item</b> shows only when the amounts differ.</li><li>One Add bar: <i>Adds 4, fixes 1, 3 not added again</i>. Disabled with <i>1 to answer</i> until every unit and choice is made.</li><li>Sample trip: milk (ticked, matches), eggs (blank list), rice (ticked, 1 to 2 kg), chicken (bare 2 against kg), yoghurt (2 lines), bananas (swiped 1, receipt 1.204 kg), butter (swiped, matches), tuna (Done shopping, 2 vs 3 tin), salmon (not on list).</li></ul></div>
+<div class="card"><h3>Same in all three</h3><ul><li>Already-in-your-Pantry rows: three buttons, <b>Keep Pantry's</b> is on. <b>Same item</b> shows only when the amounts differ.</li><li>A typeable box (decimal keyboard) in the stepper on every amount.</li><li>One Add bar: <i>Adds 4, fixes 1, 3 not added again</i>. Disabled with <i>1 to answer</i> until every unit and choice is made.</li><li>Sample trip: milk (ticked, matches), eggs (blank list), rice (ticked, 1 to 2 kg), chicken (bare 2 against kg), yoghurt (2 lines), plain flour (500 g and 1 kg lines = 1.5 kg), bananas (swiped 1, receipt 1.204 kg), butter (swiped, matches), tuna (Done shopping, 2 vs 3 tin), salmon (not on list).</li></ul></div>
 </div>
 
 <h2>The states</h2>
@@ -48,7 +48,7 @@
 <tr><td>Needs a unit</td><td>question mark, Needs a unit</td><td>danger outline</td><td>Bare number against an exact-unit item. Add is off until a unit pill is picked.</td></tr>
 <tr><td>Confirmed</td><td>check, Keeping your list amount / Receipt amount chosen</td><td>green fill</td><td>The person has decided.</td></tr>
 <tr><td>Already in your Pantry</td><td>box, Already in your Pantry</td><td>sage outline</td><td>Swiped, Bought or Done shopping. Not added again unless told.</td></tr>
-<tr><td>Not on your list</td><td>plus, Not on your list</td><td>dashed</td><td>Left out by default (as today).</td></tr></tbody></table></div>
+<tr><td>Not on your list</td><td>plus, Not on your list, added / left out</td><td>dashed</td><td>Added by default (owner); Leave out is one tap.</td></tr><tr><td>Edited by you</td><td>check, Edited by you</td><td>green fill</td><td>The person typed the number.</td></tr></tbody></table></div>
 
 <h2>Phone, the three options</h2>
 <div class="strip">
@@ -79,10 +79,18 @@
 <tr><td>SR-13</td><td><span class="pr">Proposal</span> A needs-a-unit row has no unit selected; Add stays off until one is.</td><td>Proposal</td></tr>
 <tr><td>SR-14</td><td><span class="pr">Proposal</span> One Add bar for the whole review: "Adds N, fixes M, K not added again", disabled with "N to answer".</td><td>Proposal</td></tr>
 <tr><td>SR-15</td><td><span class="pr">Proposal</span> Folds in C show a count and the outcome ("3 not added again"); expanded rows have the same controls.</td><td>Proposal</td></tr>
-<tr><td>SR-16</td><td><span class="pr">Proposal</span> "Not on your list" lines are left out by default, Add as new is one tap (as today; not the subject of #797).</td><td>Proposal</td></tr>
+<tr><td>SR-16</td><td>A receipt line not on the list is <b>added</b> to the Pantry as bought, once; Leave out is the explicit alternative; the Add bar counts it. Owner, voice, 16 Oct: "if it's not on the list, why are we asking to leave it out? That should be added, isn't it?" Replaces the earlier proposal (default Leave out) and changes the original #797 draft (active confirm for unmatched lines). The amount stays editable, with the type-in box.</td><td>Owner</td></tr>
 <tr><td>SR-17</td><td><span class="pr">Proposal</span> After Add: a summary (Added, Pantry amount fixed, Not added again, Left out) and an Undo toast; the list stays as it is.</td><td>Proposal</td></tr>
 <tr><td>SR-18</td><td><span class="pr">Proposal</span> Every state has a glyph, a word and a colour, from existing tokens only (added, accent, danger, sage, muted).</td><td>Proposal</td></tr>
 <tr><td>SR-19</td><td><span class="pr">Proposal</span> Combined lines show a "2 lines combined" tag and the sum; no "keep separate" in this mockup.</td><td>Proposal</td></tr>
+<tr><td>SR-20</td><td>An override on the amount in every option: a typeable numeric box (decimal keyboard) beside the stepper and unit pills, for when neither the list's nor the receipt's figure is right.</td><td>Owner</td></tr>
+<tr><td>SR-21</td><td>Same-item receipt lines in mixed units combine through known unit relationships (g is the minor unit of kg, mL of L; 1000:1): 500 g + 1 kg for one item = 1.5 kg.</td><td>Owner</td></tr>
+<tr><td>SR-22</td><td>Unit relationships should be a first-class app concept: a later unit switch (g to kg) must convert the quantity and the minimum, not relabel. A separate Kitchie issue (separate issue, number to follow); not part of this mockup.</td><td>Owner</td></tr>
+<tr><td>SR-23</td><td>Option C: off-list lines that will auto-add (the salmon) sit in the "nothing to decide" fold with the agreed and already-in-Pantry rows; the fold's count and outcome include them ("1 not on your list, added"); each has Leave out on its row when the fold is open; the Add bar counts them. Owner, voice, 16 Oct: "we should do that, and you give them the option to leave them out". Lines that are not food (bag fee, discount) still go to "Not added" with their reason as before. In A and B they stay visible under "Not on your list", defaulting to Add.</td><td>Owner</td></tr>
+<tr><td>SR-24</td><td><span class="pr">Proposal</span> A typed number shows "Edited by you", counts as answered (also in B, where it settles a row with nothing chosen), is never silently replaced, accepts a decimal comma, and an invalid entry is ignored (the box snaps back). Choosing List or Receipt afterwards replaces it, because the person asked for that.</td><td>Proposal</td></tr>
+<tr><td>SR-25</td><td><span class="pr">Proposal</span> A combined mixed-unit row is expressed in the unit the Pantry holds the item in, and says which ("Shown in kg, the unit the Pantry holds plain flour in"). It shows the working ("500 g + 1 kg = 1.5 kg"), a "2 lines combined" tag, and the chip "Changed from 1 kg, now 1.5 kg".</td><td>Proposal</td></tr>
+<tr><td>SR-26</td><td><span class="pr">Proposal</span> Only known relationships combine (kg and g, L and mL). Lines in unrelated units (tin and kg) are not combined and stay separate.</td><td>Proposal</td></tr>
+<tr><td>SR-27</td><td><span class="pr">Proposal</span> An off-list line's amount is editable (stepper, unit pills, type-in box) while it is set to Add, and hidden when left out.</td><td>Proposal</td></tr>
 </tbody></table></div>
 
 <h2>Open questions</h2>
@@ -90,7 +98,9 @@
 <li><b>Does a tick count as "already accounted for"?</b> The owner's list named ticked, swiped and finished. Drawn: swiped and finished are "Already in your Pantry", a tick is not (SR-7). Wrong guess costs: if ticked should also show that label, the copy changes, but nothing is in the Pantry for a tick, so the tick row would still have to add once.</li>
 <li><b>Same item: replace or top up?</b> Drawn as replace (SR-8). A wrong guess double-counts or under-counts the Pantry.</li>
 <li><b>Which option leads (A, B or C)?</b> A is fewest taps but a prefilled wrong number can slip through; B forces a choice on every difference.</li>
-<li><b>Combining lines with different units</b> (500 g and 1 kg): drawn only for equal units; not decided.</li>
+<li><b>Unit relationships as a first-class concept</b> (owner): a later unit switch (g to kg) must convert quantity and minimum, not relabel. Separate Kitchie issue, number to follow. This mockup only combines lines through the kg/g and L/mL relationships (SR-21).</li>
+<li><b>Lines in unrelated units</b> (tin and kg) are not combined (SR-26); is that right, or should the person be asked?</li>
+<li><b>Non-food lines</b> (bag fee, discount) go to "Not added" with their reason as before; not drawn in this sample.</li>
 <li><b>Which answers can the scan see?</b> A swipe and Done shopping are server-side; a tick on another device is invisible. Build question, guarded lane if the receipt commit changes.</li>
 <li><b>Receipt line with no number at all and a blank list</b> (gap 2): not drawn.</li>
 </ul></div>

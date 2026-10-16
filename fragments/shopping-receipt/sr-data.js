@@ -9,13 +9,14 @@ window.SRD = (function () {
     { id: "eggs", name: "Eggs", em: "🥚", list: null, state: "open", rcpt: { q: 12, u: "" }, raw: ["EGGS 12"] },
     { id: "rice", name: "Basmati rice", em: "🍚", list: { q: 1, u: "kg" }, state: "ticked", rcpt: { q: 2, u: "kg" }, raw: ["BASMATI RICE 1KG", "2 x 1KG"], note: "2 x 1KG read as 2 kg" },
     { id: "chk", name: "Chicken thighs", em: "🍗", list: { q: 1, u: "kg" }, state: "open", exact: true, rcpt: { q: 2, u: "", bare: true }, raw: ["CHKN THIGH", "QTY 2"], note: "QTY 2 has no unit" },
-    { id: "yog", name: "Greek yoghurt", em: "", list: { q: 500, u: "g" }, state: "open", rcpt: { q: 1000, u: "g" }, raw: ["GRK YOG 500G", "GRK YOG 500G"], from: 2, note: "Two lines for one item: 500 g + 500 g" },
+    { id: "yog", name: "Greek yoghurt", em: "", list: { q: 500, u: "g" }, state: "open", rcpt: { q: 1000, u: "g" }, raw: ["GRK YOG 500G", "GRK YOG 500G"], from: 2, lines: [{ q: 500, u: "g" }, { q: 500, u: "g" }], note: "Two lines for one item: 500 g + 500 g" },
+    { id: "flour", name: "Plain flour", em: "🌾", list: { q: 1, u: "kg" }, state: "open", exact: true, pantryU: "kg", rcpt: { q: 1.5, u: "kg" }, raw: ["PLAIN FLOUR 500G", "PLAIN FLOUR 1KG"], from: 2, lines: [{ q: 500, u: "g" }, { q: 1, u: "kg" }], note: "500 g and 1 kg are one item, shown in kg" },
     { id: "banana", name: "Bananas", em: "🍌", list: null, state: "bought", at: "12:40", pantry: { q: 1, u: "" }, rcpt: { q: 1.204, u: "kg" }, raw: ["ORG BANANAS", "1.204 kg @ 2.90/kg"], note: "The swipe added 1 (no amount was listed)" },
     { id: "butter", name: "Butter", em: "🧈", list: { q: 250, u: "g" }, state: "bought", at: "12:41", pantry: { q: 250, u: "g" }, rcpt: { q: 250, u: "g" }, raw: ["BTR SLTD 250G"] },
     { id: "tuna", name: "Tuna", em: "", list: { q: 2, u: "tin" }, state: "finished", at: "Done shopping", pantry: { q: 2, u: "tin" }, rcpt: { q: 3, u: "tin" }, raw: ["TUNA 425G", "3 @ 1.15"], note: "3 @ 1.15 read as 3 tins" }
   ];
   var extra = [{ id: "salmon", name: "Smoked salmon", em: "", rcpt: { q: 400, u: "g" }, raw: ["KS SMKD SLMN 400G"] }];
   /* order = the order the lines print on the receipt (option A); rows above are in list order (option B) */
-  var order = ["milk", "eggs", "rice", "chk", "banana", "yog", "butter", "tuna", "salmon"];
+  var order = ["milk", "eggs", "rice", "chk", "banana", "yog", "flour", "butter", "tuna", "salmon"];
   return { rows: rows, extra: extra, order: order, units: ["kg", "g", "tin", "pack"] };
 })();

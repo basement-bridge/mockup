@@ -42,7 +42,7 @@
       if (res && r.rcpt.bare) ru = fam(r)[0];
       S.R[r.id] = { src: src, q: r.rcpt.q, u: ru };
     });
-    D.extra.forEach(function (x) { S.X[x.id] = { add: false }; });
+    D.extra.forEach(function (x) { S.X[x.id] = S.R[x.id] = { add: true, q: x.rcpt.q, u: x.rcpt.u }; }); /* owner, 16 Oct: not on the list means add (SR-16) */
   }
   init();
 
@@ -56,13 +56,15 @@
   function chipFor(r) {
     var k = kind(r), a = S.R[r.id];
     if (isDone(r)) return chip("done", "Already in your Pantry");
+    if (a.typed && !needsUnit(r, a)) return chip("differ", "Edited by you", true);
     if (k === "ok") return chip("ok", "Matches your list");
     if (k === "fill") return chip("fill", "Fills a blank");
     if (a.src === null) return chip("differ", "List and receipt differ");
     if (needsUnit(r, a)) return chip("unit", "Needs a unit");
     if (same(a, r.list)) return chip("ok", "Keeping your list amount", true);
+    if (a.typed) return chip("differ", "Edited by you", true);
     if (opt === "b") return chip("differ", a.src === "edit" ? "Edited by you" : "Receipt amount chosen", true);
-    return chip("differ", "Changed from " + F(r.list));
+    return chip("differ", "Changed from " + F(r.list) + ", now " + F(a));
   }
   function pills(r, a) {
     var u = fam(r);
@@ -73,7 +75,7 @@
   }
   function stepper(r, a, swap) {
     var h = '<div class="sr-amt"><button class="sr-step" data-act="dec" data-id="' + r.id + '" aria-label="Less ' + esc(r.name) + '">&minus;</button>' +
-      '<span class="sr-n" aria-live="polite">' + N(a.q) + "</span>" +
+      '<input class="sr-in" type="text" inputmode="decimal" autocomplete="off" data-id="' + r.id + '" value="' + N(a.q) + '" aria-label="Type an amount for ' + esc(r.name) + '">' +
       '<button class="sr-step" data-act="inc" data-id="' + r.id + '" aria-label="More ' + esc(r.name) + '">+</button>' + pills(r, a);
     if (swap && r.list && !same(r.list, r.rcpt) && !r.rcpt.bare) {
       h += same(a, r.list) ? '<button class="sr-was" data-act="src" data-id="' + r.id + '" data-v="rcpt">Receipt said ' + F(r.rcpt) + "</button>"
@@ -116,6 +118,11 @@
     if (r.state === "finished") return "Done shopping. " + F(r.pantry) + " went to the Pantry.";
     return l + ".";
   }
+  /* the working for lines combined into one row; mixed units are added through the known relationship (g to kg, mL to L, 1000:1) */
+  function sumLine(r) {
+    var parts = r.lines.map(F).join(" + "), mixed = r.lines.some(function (l) { return l.u !== r.lines[0].u; });
+    return parts + " = " + F(r.rcpt) + (mixed ? ". Shown in " + r.pantryU + ", the unit the Pantry holds " + esc(r.name.toLowerCase()) + " in." : ".");
+  }
   function row(r) {
     var a = S.R[r.id], k = kind(r), body, recv;
     recv = "Receipt: " + r.raw.map(esc).join(" + ") + (r.note && k !== "done" ? ". " + esc(r.note) : r.note ? ". " + esc(r.note) : "") + ".";
@@ -126,13 +133,13 @@
     var h = '<li data-id="' + r.id + '" data-k="' + k + '"><div class="row"><span class="sr-em" aria-hidden="true">' + (r.em || esc(r.name.charAt(0))) + '</span><div class="rmain">' +
       '<span class="nm">' + esc(r.name) + (r.from ? ' <span class="tag">' + r.from + " lines combined</span>" : "") + "</span>" + chipFor(r) +
       '<span class="mt">' + esc(stateLine(r)) + '</span><span class="mt">' + recv + "</span>";
-    if (r.from) h += '<span class="sr-note">' + r.from + " &times; " + F({ q: r.rcpt.q / r.from, u: r.rcpt.u }) + " = " + F(r.rcpt) + "</span>";
+    if (r.from) h += '<span class="sr-note" data-sum>' + sumLine(r) + "</span>";
     return h + body + "</div></div></li>";
   }
   function extraRow(x) {
     var a = S.X[x.id], b = function (v, t, s) { return '<button class="sr-pill" data-act="extra" data-id="' + x.id + '" data-v="' + v + '" aria-pressed="' + (a.add === (v === "add")) + '"><b>' + t + "</b><small>" + s + "</small></button>"; };
-    return '<li data-id="' + x.id + '" data-k="extra"><div class="row"><span class="sr-em" aria-hidden="true">' + esc(x.name.charAt(0)) + '</span><div class="rmain"><span class="nm">' + esc(x.name) + "</span>" + chip("extra", "Not on your list") +
-      '<span class="mt">Receipt: ' + esc(x.raw.join(" + ")) + '.</span><div class="sr-ch" role="group" aria-label="Smoked salmon">' + b("leave", "Leave out", "Not added") + b("add", "Add as new", F(x.rcpt)) + "</div></div></div></li>";
+    return '<li data-id="' + x.id + '" data-k="extra"><div class="row"><span class="sr-em" aria-hidden="true">' + esc(x.name.charAt(0)) + '</span><div class="rmain"><span class="nm">' + esc(x.name) + "</span>" + chip("extra", a.add ? "Not on your list, added" : "Not on your list, left out") +
+      '<span class="mt">Receipt: ' + esc(x.raw.join(" + ")) + '.</span><div class="sr-ch" role="group" aria-label="' + esc(x.name) + '">' + b("add", "Add", "Bought, once") + b("leave", "Leave out", "Not added") + "</div>" + (a.add ? stepper(x, a, false) : "") + "</div></div></li>";
   }
 
   /* ---------- totals ---------- */
@@ -147,23 +154,23 @@
       } else if (pending(r)) t.pend++;
       else { t.add++; t.added.push(r.name + " " + F(a)); }
     });
-    D.extra.forEach(function (x) { if (S.X[x.id].add) { t.add++; t.added.push(x.name + " " + F(x.rcpt)); } else t.left.push(x.name); });
+    D.extra.forEach(function (x) { if (S.X[x.id].add) { t.add++; t.added.push(x.name + " " + F(S.X[x.id]) + " (not on your list)"); } else t.left.push(x.name); });
     return t;
   }
 
   /* ---------- groups per option ---------- */
-  var byId = function (id) { return D.rows.filter(function (r) { return r.id === id; })[0]; };
+  var byId = function (id) { return D.rows.concat(D.extra).filter(function (r) { return r.id === id; })[0]; };
   function grp(title, small) { return '<div class="sr-grp"><span>' + title + "</span><small>" + small + "</small></div>"; }
   function list(rows) { return '<ul class="rows">' + rows.map(row).join("") + "</ul>"; }
-  function fold(key, glyph, title, rest, rows) {
+  function fold(key, glyph, title, rest, rows, extra) {
     var o = S.open.indexOf(key) > -1;
-    return '<button class="sr-fold" data-act="fold" data-v="' + key + '" aria-expanded="' + o + '">' + ic("chev") + "<span><b>" + title + "</b> " + rest + "</span></button>" + (o ? list(rows) : "");
+    return '<button class="sr-fold" data-act="fold" data-v="' + key + '" aria-expanded="' + o + '">' + ic("chev") + "<span><b>" + title + "</b> " + rest + "</span></button>" + (o ? (extra ? '<ul class="rows">' + rows.map(extraRow).join("") + "</ul>" : list(rows)) : "");
   }
   function review() {
     var h = "";
     if (opt === "a") {
       h += grp("In receipt order", D.order.length + " lines read");
-      h += '<ul class="rows">' + D.order.map(function (id) { var r = byId(id); return r ? row(r) : extraRow(D.extra.filter(function (x) { return x.id === id; })[0]); }).join("") + "</ul>";
+      h += '<ul class="rows">' + D.order.map(function (id) { var x = D.extra.filter(function (e) { return e.id === id; })[0]; return x ? extraRow(x) : row(byId(id)); }).join("") + "</ul>";
     } else if (opt === "b") {
       h += grp("In list order", D.rows.length + " list rows");
       h += list(D.rows);
@@ -178,9 +185,11 @@
       h += grp("Nothing to decide", "folded");
       h += fold("agree", "ok", agree.length + " agree with your list", "&middot; " + agree.map(function (r) { return esc(r.name); }).join(", "), agree);
       h += '<div class="sr-gap"></div>';
+      var added = D.extra.filter(function (x) { return S.X[x.id].add; }).length;
+      h += '<div class="sr-gap"></div>';
+      h += fold("extra", "extra", D.extra.length + " not on your list", "&middot; " + added + " added" + (D.extra.length - added ? ", " + (D.extra.length - added) + " left out" : ""), D.extra, true);
+      h += '<div class="sr-gap"></div>';
       h += fold("pantry", "done", had.length + " already in your Pantry", "&middot; " + keeps + " not added again" + (had.length - keeps ? ", " + (had.length - keeps) + " changed" : ""), had);
-      h += grp("Not on your list", D.extra.length + " line");
-      h += '<ul class="rows">' + D.extra.map(extraRow).join("") + "</ul>";
     }
     return h;
   }
@@ -218,6 +227,12 @@
     a.u = u;
     if (a.src !== null && a.src !== "edit") a.src = "edit";
   }
+  app.addEventListener("change", function (e) {
+    var t = e.target; if (!t.classList.contains("sr-in")) return;
+    var r = byId(t.dataset.id), a = S.R[r.id], v = parseFloat(String(t.value).replace(",", "."));
+    if (isFinite(v) && v >= 0 && /^\s*\d*[.,]?\d*\s*$/.test(t.value)) { a.q = Math.round(v * 1000) / 1000; if (!isDone(r)) { a.src = "edit"; a.typed = true; } }
+    render();
+  });
   app.addEventListener("click", function (e) {
     var b = e.target.closest("[data-act]"); if (!b || b.disabled) return;
     var act = b.dataset.act, id = b.dataset.id, v = b.dataset.v, r = id ? byId(id) : null, a = r ? S.R[id] : null;
@@ -226,7 +241,7 @@
       if (!isDone(r)) a.src = "edit";
     } else if (act === "unit") setUnit(r, a, v);
     else if (act === "src") {
-      a.src = v;
+      a.src = v; a.typed = false;
       if (v === "list") { a.q = r.list.q; a.u = r.list.u; } else { a.q = r.rcpt.q; a.u = r.rcpt.bare ? "" : r.rcpt.u; }
     } else if (act === "mode") { a.mode = v; if (v === "again") { a.q = r.rcpt.q; a.u = r.rcpt.u; } }
     else if (act === "extra") S.X[id].add = v === "add";
