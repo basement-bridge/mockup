@@ -164,6 +164,9 @@ textarea.field{padding:12px 14px;min-height:76px;resize:none;font-size:15px}
 .fit .hello h1{font-size:2rem}.fit .hello p{margin:6px 0 0;font-size:16px}
 .fit .wl{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;flex:none}
 .fit .wl li{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;font-size:12.5px;font-weight:600;line-height:1.2}
+.fit .invnote{flex:none;background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:var(--r-card);padding:10px 14px;text-align:left}
+.fit .invnote b{display:block;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.fit .invnote p{margin:4px 0 0;font-size:15px;line-height:1.35;color:var(--fg);white-space:pre-line;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}
 .fit .pickh{font-size:1.2rem;flex:none}
 .fit .rgrid{flex:none;gap:6px}.fit .rgrid.hide{display:none}
 .fit .rtile{min-height:0;padding:8px 4px;gap:4px}
@@ -176,6 +179,9 @@ textarea.field{padding:12px 14px;min-height:76px;resize:none;font-size:15px}
 .fit.editing.anim .hero{display:flex;animation:away .4s ease-in forwards}
 @keyframes away{from{max-height:520px;opacity:1;transform:none}to{max-height:0;opacity:0;transform:translateY(-40px)}}
 .fit.picking .pickh{display:none}
+/* a note is never clipped: the hero stops giving way, the picture and the perks leave first on a short screen, and the page scrolls if it still must */
+.fit .hero:has(.invnote){flex:none;overflow:visible}
+@media (max-height:760px){.fit .hero:has(.invnote) .scene,.fit .invnote~.wl{display:none}.fit .invnote p{-webkit-line-clamp:none}}
 @media (max-height:760px){.fit .rtile .tg{display:none}.fit .hello h1{font-size:1.7rem}}
 @media (prefers-reduced-motion:reduce){.fit.editing.anim .hero{animation:none;display:none}}
 /* not a member: same family as Welcome */
