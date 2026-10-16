@@ -15,6 +15,7 @@ Every screen starts from what the person is here to do right now. Layout, and wh
 | Job | File | State |
 |---|---|---|
 | Cooking right now | [cooking-right-now.md](cooking-right-now.md) | Captured, mockup drafted |
+| Cooking, ingredients per step | [cook-step-ingredients.md](cook-step-ingredients.md) | Owner ask 16 Oct 2026 (voice); three options drawn (A recommended); decisions CSI-1 to CSI-14 are proposals awaiting the owner; schema analysis in `docs/cook-step-ingredients-analysis.md`; nothing built |
 | About to shop | – | Named, nothing captured yet |
 | Shopping without the app | [shopping-without-the-app.md](shopping-without-the-app.md) | Captured (owner, voice, 10 Oct 2026); owner review the same day settled SL-D1 to SL-D16 (live updates, swipe and multi-select, link lifecycle); mockup revised; receipt scan deferred; detected by arriving through the one-off link |
 | Shopping, on desktop | [shopping-desktop.md](shopping-desktop.md) | Owner ask 15 Oct 2026 (typed: align the desktop Shopping screen with the app's design language); two options drawn (A hand-off in the panel, recommended; B card in the column); decisions SD-1 to SD-12 are proposals awaiting the owner; Kitchie #775 |

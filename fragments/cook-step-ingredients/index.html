@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Cooking: the ingredients this step uses — fragment</title>
+<link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><script src="../../theme.js"></script>
+<link rel="stylesheet" href="steps.css">
+</head><body>
+<div class="wrap">
+<a class="back" href="../../index.html">&larr; All mockups</a>
+<h1>Cooking: the ingredients this step uses</h1>
+<p>Owner ask, 16 Oct 2026 (voice): while cooking step by step it is a real inconvenience not to know which ingredients the current step involves. Each step should show the ingredients <b>and the amount that step uses</b> (2 of the 3 eggs, 1 cup of flour), highlighted, with the full list kept neutral. Three options below; <b>A is recommended</b>. Data shape and schema: <a class="lnk" href="../../docs/cook-step-ingredients-analysis.md">analysis</a>. Job note: <a class="lnk" href="../../docs/knowledge/jobs-to-be-done/cook-step-ingredients.md">cook-step-ingredients.md</a>. Nothing is built.</p>
+
+<section class="ctl" aria-label="Prototype controls">
+  <div class="grp" role="group" aria-label="Sample recipe"><span class="k">Sample</span>
+    <button type="button" data-rec="rice" aria-pressed="true">Fried rice</button>
+    <button type="button" data-rec="tray" aria-pressed="false">Long list</button>
+    <button type="button" data-rec="half" aria-pressed="false">Half tagged</button>
+    <button type="button" data-rec="none" aria-pressed="false">Not tagged yet</button></div>
+  <div class="grp" role="group" aria-label="Servings"><span class="k">Serves</span>
+    <button type="button" data-sv="-2" aria-label="Fewer servings">&minus;</button><output id="sv" aria-live="polite">4</output><button type="button" data-sv="2" aria-label="More servings">+</button></div>
+</section>
+
+<div class="opts three" id="opts">
+  <section class="opt" data-opt="a"><h2><b>A</b> Callout under the step<span class="rec">recommended</span></h2>
+    <p class="note">A highlighted card right under the step words lists only this step's ingredients with this step's amounts. Below it the rest of the list stays plain: still to come first, already used last, each with its step number in words.</p>
+    <div class="pair2"><figure><div class="phone" id="pa" data-form="phone"></div><figcaption>Phone 390 and 360</figcaption></figure><figure class="deskfig"><div class="desk" id="da" data-form="desk"></div><figcaption>Desktop: step words left, ingredients in the side panel</figcaption></figure></div></section>
+  <section class="opt" data-opt="b"><h2><b>B</b> Chips inside the step card</h2>
+    <p class="note">Smallest footprint: the amounts sit as chips inside the step card, so the words never move down. The full list is one tap away in a disclosure. Wraps at 360; long lists collapse after five.</p>
+    <div class="pair2"><figure><div class="phone" id="pb" data-form="phone"></div><figcaption>Phone</figcaption></figure><figure class="deskfig"><div class="desk" id="db" data-form="desk"></div><figcaption>Desktop</figcaption></figure></div></section>
+  <section class="opt" data-opt="c"><h2><b>C</b> Dock above the buttons</h2>
+    <p class="note">A one-line dock sits just above the step buttons (thumb reach) and opens in place to the full callout. Step words keep the whole screen. Costs one tap on a long list; on desktop the dock is simply the open side panel.</p>
+    <div class="pair2"><figure><div class="phone" id="pc" data-form="phone"></div><figcaption>Phone</figcaption></figure><figure class="deskfig"><div class="desk" id="dc" data-form="desk"></div><figcaption>Desktop</figcaption></figure></div></section>
+</div>
+
+<section class="dec"><h3>What every option does the same (proposals, see the job note)</h3>
+<ul class="plain">
+<li><b>Only stored links.</b> The screen reads the links saved with the recipe and does arithmetic on them. Nothing is guessed when you open a step.</li>
+<li><b>Split ingredient.</b> Shows "1 of 2" with the rest named by step: "1 left for step 2". An earlier use reads "1 already used in step 1".</li>
+<li><b>Amounts scale</b> with the Serves control by the same rule the ingredients screen uses. Fractions round to quarters and thirds; nothing is adjusted to make parts add up.</li>
+<li><b>Unknown amount</b> shows a dash and "Amount not given". It is never filled in.</li>
+<li><b>Step with no ingredients</b> (saved as checked and empty) says so in one quiet line. A step that was never checked says nothing.</li>
+<li><b>Not tagged yet:</b> the step screen is exactly today's. No strip, no hint, no nag. Half tagged: strips only on tagged steps, and no still-to-come list (it could be wrong).</li>
+<li><b>Not colour alone:</b> a heading with a count, a left bar plus a tick glyph, and words for state ("Already used", "Step 4"). No gesture hint text.</li>
+</ul></section>
+
+<section class="qs"><h3>Open questions, and what a wrong guess costs</h3><ol>
+<li>Strip first, or step words first, on a long list? A shows the strip first (capped at five). Cost: more scrolling before the step words end on 360. C avoids it.</li>
+<li>Show the still-to-come list at all? Proposal yes, only on a fully tagged recipe. Cost: clutter for people who only want the strip.</li>
+<li>"Used in step 1" for an ingredient the cook never ticked off. Proposal: it describes the recipe, not what was done. Cost: a cook who skipped a step sees it as used.</li>
+</ol></section>
+
+<section class="dec"><h3>Default path and deferred (DESIGN.md section 6)</h3>
+<p class="ow">No new request: the links ride in the recipe already read for cook mode. The strip is part of the step's markup; Kitchie renders every step section up front and shows one, so changing step makes no request. This page loads <code>steps.css</code> (about 9 KB) and <code>steps.js</code> (about 17 KB, mostly sample data and the option renderers; the build's part is the pure strip function, about 2 KB); no images, no fonts. Nothing is deferred because nothing is heavy.</p></section>
+</div>
+<script src="steps.js"></script>
+</body></html>
