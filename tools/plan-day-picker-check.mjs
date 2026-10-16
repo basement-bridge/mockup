@@ -9,8 +9,8 @@ let fails = 0, total = 0;
 const ok = (name, cond, extra) => { total++; if (!cond) { fails++; console.log("FAIL", name, extra === undefined ? "" : JSON.stringify(extra)); } };
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const browser = await chromium.launch();
-const errs = [];
-async function open(ctx, q) { const p = await ctx.newPage(); p.on("pageerror", e => errs.push(e.message)); p.on("console", m => { if (m.type() === "error") errs.push(m.text()); }); await p.goto(BASE + "?" + q); await sleep(400); return p; }
+const errs = [], pageErrs = [];
+async function open(ctx, q) { const p = await ctx.newPage(); p.on("pageerror", e => { errs.push(e.message); pageErrs.push(e.message); }); p.on("console", m => { if (m.type() === "error") errs.push(m.text()); }); await p.goto(BASE + "?" + q); await sleep(400); return p; }
 const weekText = p => p.locator("#week").innerText();
 const toast = p => p.locator(".toast").innerText().catch(() => "");
 const focusedLabel = p => p.evaluate(() => { const a = document.activeElement; return a ? (a.getAttribute("aria-label") || a.textContent || "").trim() : ""; });
@@ -242,7 +242,7 @@ for (const [w, h] of [[1440, 900], [1280, 800]]) {
     await p.keyboard.press("p"); await sleep(250); await p.locator("#week .row-d").nth(5).click(); await sleep(150); await p.locator("#week [data-close]").click(); await sleep(100);
     ok(tag + " F hold: the X during the hold closes it too", (await p.locator("#week.pk-fly").count()) === 0);
     await p.close(); }
-  { const p = await ctx.newPage(); p.on("pageerror", e => errs.push(e.message)); await p.goto(BASE.replace("home.html", "day-rows.html")); await sleep(400);
+  { const p = await ctx.newPage(); p.on("pageerror", e => { errs.push(e.message); pageErrs.push(e.message); }); await p.goto(BASE.replace("home.html", "day-rows.html")); await sleep(400);
     await p.locator("#demo .row-d").nth(0).click(); await sleep(150);
     ok(tag + " day rows: a pick shows Planned plus the meal, then the panel slides out to the right after about 3 seconds", /^planned/i.test((await p.locator("#demo .pk-conf-v").innerText()).trim()) && /Mandarin/.test(await p.locator("#demo .pk-conf-n").innerText()));
     await p.waitForFunction(() => document.querySelector("#demo").classList.contains("pk-out"), null, { timeout: 4500, polling: 15 });
@@ -262,6 +262,37 @@ for (const [w, h] of [[1440, 900], [1280, 800]]) {
     ok(tag + " day rows: a usual day off shows the Plan's own wording after the pick", /Thu: cooking this week\. The usual day off stays\./.test(await p.locator("#demo .pk-conf").innerText()));
     await p.keyboard.press("Escape"); await sleep(100);
     await p.close(); }
+  // defects found in PR #225: sweep, pill layout, one dialog, a recipe view that has not loaded yet
+  for (const o of "abcdefg") for (const night of ["", "&night=planned"]) {
+    const p = await open(ctx, "pick=" + o + night); const n0 = pageErrs.length;
+    if (night) { await p.locator("#ideas .lead button.btn").click(); await sleep(350); await p.screenshot().catch(() => {});
+      ok(tag + " sweep " + o + night + ": exactly one dialog open with the Start cooking modal, labelled and aria-modal", (await p.locator('[role="dialog"]').count()) === 1 && (await p.locator('[role="dialog"]').getAttribute("aria-modal")) === "true" && ((await p.locator('[role="dialog"]').getAttribute("aria-labelledby")) || (await p.locator('[role="dialog"]').getAttribute("aria-label"))) !== null);
+      await p.keyboard.press("Escape"); await sleep(100); }
+    else { await p.keyboard.press("p"); await sleep(300); await p.keyboard.press("Escape"); await sleep(200); }
+    ok(tag + " sweep " + o + night + ": no page error", pageErrs.length === n0, pageErrs.slice(n0));
+    await p.close(); }
+  { const p = await open(ctx, "pick=f"); const n0 = pageErrs.length; await p.keyboard.press("p"); await sleep(250);
+    await p.locator("#week .row-d").nth(0).click(); await sleep(200);
+    await p.locator("#week .row-d").count().catch(() => 0); await p.keyboard.press("Escape"); await sleep(150); await p.keyboard.press("p"); await sleep(250);
+    await p.locator("#week .row-d").nth(1).click({ force: true }); await sleep(200); await p.keyboard.press("Escape"); await sleep(150); await p.keyboard.press("p"); await sleep(250);
+    await p.locator("#week .row-d").nth(5).click(); await sleep(150); await p.locator("#week .row-d").nth(5).click(); await sleep(150); await p.keyboard.press("Escape"); await sleep(200);
+    ok(tag + " F flow (empty day, Thu, stacked Mon, Esc in the hold): no page error", pageErrs.length === n0, pageErrs.slice(n0));
+    await p.close(); }
+  for (const scheme of ["light", "dark"]) {
+    const c2 = await browser.newContext({ viewport: { width: w, height: h }, colorScheme: scheme }), p = await open(c2, "pick=f"); await p.keyboard.press("p"); await sleep(300);
+    for (const [i, line] of [[1, /Every week, usual day off/], [6, /This week only/]]) {
+      const g = await p.locator("#week .row-d").nth(i).evaluate(e => { const q = [...e.querySelectorAll(".ln")].map(x => { const b = x.getBoundingClientRect(); return { c: x.className, t: x.textContent, top: b.top, bottom: b.bottom, h: b.height, sw: x.scrollWidth, cw: x.clientWidth }; }); return q; });
+      const pill = g.find(x => /pill/.test(x.c)), sub = g.find(x => /sub/.test(x.c));
+      ok(tag + " pill " + scheme + " row " + i + ": Not cooking is a compact pill (one line), the small line sits below it without overlap, nothing clipped", pill && sub && /Not cooking/.test(pill.t) && line.test(sub.t) && pill.h <= 28 && pill.bottom <= sub.top + 0.5 && pill.sw <= pill.cw + 1, g);
+    }
+    await c2.close(); }
+  { const c3 = await browser.newContext({ viewport: { width: w, height: h } }); let n = 0, pg = await c3.newPage(), e0 = pageErrs.length;
+    pg.on("pageerror", e => { errs.push(e.message); pageErrs.push(e.message); });
+    await pg.route("**/home-detail-panel/recipe.js", r => { n++; n === 1 ? r.abort() : r.continue(); });
+    await pg.goto(BASE + "?pick=f&night=planned"); await sleep(900);
+    await pg.locator("#ideas .lead button.btn").click(); await sleep(400);
+    ok(tag + " the recipe view not loaded at first (blocked request): no stack overflow, the pane recovers", pageErrs.length === e0 && /Mandarin/.test(await pg.locator("#detail").innerText()), pageErrs.slice(e0));
+    await c3.close(); }
   // G: curtain under Cooking ideas, Add to plan only on the cards
   { const p = await open(ctx, "pick=g");
     ok(tag + " G: no Add to plan button in the recipe detail, and no P hint for it", (await p.locator('#detail [data-act="plan"]').count()) === 0 && !/add to plan/i.test(await p.locator("#detail").innerText()) && /Open recipe/.test(await p.locator("#detail").innerText()));
@@ -354,6 +385,7 @@ for (const [w, h] of [[1440, 900], [1280, 800]]) {
     await p.close(); }
   await ctx.close();
 }
+ok("no uncaught page error (pageerror) anywhere in this run", pageErrs.length === 0, pageErrs.slice(0, 5));
 ok("no console or page errors", errs.length === 0, errs.slice(0, 5));
 await browser.close();
 console.log(fails ? fails + " of " + total + " checks FAILED" : "all " + total + " checks passed"); process.exit(fails ? 1 : 0);
