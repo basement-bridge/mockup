@@ -116,3 +116,28 @@
 .pk-sw a[aria-current]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 .pk-sw a:hover{border-color:var(--accent)}
 @media (prefers-reduced-motion:reduce){.pk *{transition:none!important;animation:none!important}}
+/* F: the flyout takes the This week slot (#week); the slot keeps its own padding and column */
+.pk-fly{animation:pk-slide .22s ease-out}
+@keyframes pk-slide{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+.pk-fly .pk-pt h2{margin:0;font:800 18px var(--head)}
+.pk-fly .pk-grid{grid-template-columns:34px repeat(7,minmax(0,1fr));gap:3px}
+.pk-fly .pkc{min-height:48px}
+.pk-fly .pkc span{font-size:9.5px}
+.pk-fly .pk-quick{grid-template-columns:1fr;margin:4px 0}
+.pk-fly .pk-quick button{min-height:56px}
+.pk-fly{padding-bottom:56px}
+.pk-mock{display:flex;align-items:center;gap:6px;margin-top:auto;padding-top:12px;font-size:11px;color:var(--muted);border-top:1px dashed var(--border)}
+.pk-mock span{flex:1;font-weight:800;letter-spacing:.07em;text-transform:uppercase}
+.pk-mock button{min-height:30px;padding:0 10px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--bg);font-size:12px;font-weight:700;color:var(--fg)}
+.pk-mock button[aria-pressed=true]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+@media (prefers-reduced-motion:reduce){.pk-fly{animation:none}}
+/* G: the curtain, directly under the Cooking ideas card, in the column (drops down in place) */
+.pk-curtain{background:var(--surface);border:1px solid var(--accent);border-radius:var(--r-card);padding:14px 16px 16px;margin-top:8px;animation:pk-drop .22s ease-out;transform-origin:top}
+@keyframes pk-drop{from{opacity:0;transform:scaleY(.92) translateY(-8px)}to{opacity:1;transform:none}}
+.pk-curtain .pk-quick{margin:10px 0}
+.pk-curtain .pk-grid{margin-top:4px}
+.pk-curtain .days{margin:0 0 8px}
+.pk-curtain .days button{min-height:56px}
+.pk-curtain .pkc{min-height:44px}
+@media (prefers-reduced-motion:reduce){.pk-curtain{animation:none}}
+.pk-sw a.w{flex:1 1 100%;width:auto;height:30px;font-size:12px}
