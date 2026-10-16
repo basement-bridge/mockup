@@ -22,6 +22,22 @@
   D.ideas.unshift({ id: "mandarin-bowl", fit: "Everything is in and it takes ten minutes. A light one for a day with little time.", name: "Mandarin Mango Yogurt Bowl", emoji: "🥭", mins: 10, serves: 2, why: "quick, everything is in", lines: [
     { n: "Greek yogurt", need: "300 g", have: "500 g", s: "have" }, { n: "Mandarins", need: "3", have: "6", s: "have" }, { n: "Mango", need: "1", have: "2", s: "have" },
     { n: "Honey", need: "2 tbsp", have: "1 jar", s: "have" }, { n: "Granola", need: "100 g", have: "1 bag", s: "have" }], uses: [] });
+  /* Owner rule, 16 Oct 2026 (voice): when the primary card is the meal already planned for tonight it has NO Plan button (the plan is made), on the card and in the pane.
+     ?night=planned draws that state (the bowl is planned for tonight as Sam's own meal); the default is nothing planned for tonight, so the primary card has Plan. Other ideas always keep Plan. */
+  var bowl = D.ideas[0];
+  if (Q.get("night") === "planned") {
+    P.night = "planned"; D.ideas.shift();
+    D.plannedLead = { id: bowl.id, planned: true, name: bowl.name, emoji: bowl.emoji, mins: bowl.mins, serves: bowl.serves, why: "on the plan, nothing to decide", fit: bowl.fit, lines: bowl.lines, uses: [] };
+    P.meals[2] = [{ name: bowl.name, who: "me", hold: true }];
+    var pl = new URLSearchParams(location.search); pl.set("lead", "planned"); if (!pl.get("open") || /^recipe:mandarin/.test(pl.get("open"))) pl.set("open", "meal:" + bowl.id);
+    try { history.replaceState(null, "", location.pathname + "?" + pl.toString() + location.hash); } catch (e) {}
+    /* Home draws "Planned for today" with its sample date and a Plan button; this host fixes the date and drops the button, every time Home redraws the card */
+    var ideas = document.getElementById("ideas");
+    if (ideas) new MutationObserver(function () {
+      var b = ideas.querySelector('.lead [data-act="planlink"]'); if (b) b.remove();
+      var k = ideas.querySelector(".k.planned"); if (k && /Mon 12/.test(k.textContent)) k.innerHTML = k.innerHTML.replace("Mon 12", "Wed 14");
+    }).observe(ideas, { childList: true, subtree: true });
+  }
   /* Home's own "This week" lane reads from the same calendar, rolling from today */
   var DN = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], MO = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   P.dn = DN; P.mo = MO;
@@ -38,7 +54,7 @@
   P.syncHome();
   /* open on the idea, with the week drawn; keep any other params */
   var p = new URLSearchParams(location.search), ch = false;
-  if (!p.get("open")) { p.set("open", "recipe:mandarin-bowl"); ch = true; }
+  if (!p.get("open")) { p.set("open", (P.night === "planned" ? "meal:" : "recipe:") + "mandarin-bowl"); ch = true; }
   if (!p.get("week")) { p.set("week", "planned"); ch = true; }
   if (ch) { try { history.replaceState(null, "", location.pathname + "?" + p.toString() + location.hash); } catch (e) {} }
 })();

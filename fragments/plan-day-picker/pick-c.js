@@ -5,23 +5,9 @@
 "use strict";
 var PK = window.PK, P = window.PKD, S = PK.S, esc = PK.esc, ico = PK.ico, H = window.HDP;
 var el, want = null, W = 468;
-function cells() {
-  var h = '<div class="pk-gh" aria-hidden="true"></div>' + P.dn.map(function (d) { return '<div class="pk-gh" aria-hidden="true">' + d + "</div>"; }).join("");
-  for (var r = 0; r < 4; r++) {
-    var m = PK.info(r * 7);
-    h += '<div class="pk-gw" role="rowheader"><b>' + (r === 0 ? "This" : r === 1 ? "Next" : "+" + r) + '</b><span>' + m.num + " " + m.mon + "</span></div>";
-    for (var i = 0; i < 7; i++) {
-      var n = r * 7 + i, d = PK.info(n), cls = "pkc" + (n === P.todayN ? " today" : "") + (d.meals.length ? " full" : d.off ? " off" : ""), on = S.sel === n;
-      var txt = d.meals.length ? PK.first(d.meals[0].name) + (d.meals.length > 1 ? " +" + (d.meals.length - 1) : "") : d.off ? "Off" : "Free";
-      var lab = d.label + (n === P.todayN ? ", today" : "") + (d.past ? ", past" : "") + ", " + (d.meals.length ? d.meals.map(function (x) { return x.name; }).join(" and ") : d.off ? "usual day off" : "free");
-      h += '<button type="button" role="gridcell" class="' + cls + '" data-n="' + n + '" aria-selected="' + on + '"' + (d.past ? " disabled" : "") + ' tabindex="' + (on ? 0 : -1) + '" aria-label="' + esc(lab) + '"><i>' + (d.num === 1 ? d.num + " " + d.mon : d.num) + "</i><span>" + txt + "</span></button>";
-    }
-  }
-  return h;
-}
 function draw() {
   el.innerHTML = '<div class="pk-pt"><div><h3 id="pk-t">Plan ' + esc(PK.R().name) + '</h3><p class="pk-sub">Pick a day, this week to three weeks ahead</p></div><button type="button" class="x" data-close aria-label="Close">' + ico.x + "</button></div>" +
-    '<div class="pk-grid" role="grid" aria-label="Day, four weeks">' + cells() + "</div>" +
+    PK.grid.html() +
     '<p class="pk-key"><span class="pk-sw0 t"></span>Today <span class="pk-sw0 f"></span>Meal planned <span class="pk-sw0 o"></span>Usual day off</p>' +
     PK.noteHtml(true) + PK.guardHtml() + PK.whoHtml() + PK.holdHtml() +
     PK.footHtml(PK.kbd("←") + PK.kbd("→") + PK.kbd("↑") + PK.kbd("↓") + " move " + PK.kbd("Enter") + " plan " + PK.kbd("Esc") + " close");
@@ -40,24 +26,10 @@ function place() {
   el.style.setProperty("--caret", Math.max(18, Math.min(h - 30, r.top + r.height / 2 - top - 6)) + "px");
 }
 function pick(n) { S.sel = n; S.leave = false; want = '[data-n="' + n + '"]'; draw(); }
-function enabled(n) { return n >= 0 && n < P.GRIDN && !PK.info(n).past; }
-function nextEnabled(n, d) { for (var m = n + d; m >= 0 && m < P.GRIDN; m += d) if (enabled(m)) return m; return n; }
-function rowDays(n) { var r = Math.floor(n / 7), out = []; for (var i = 0; i < 7; i++) if (enabled(r * 7 + i)) out.push(r * 7 + i); return out; }
-function jump(k, n) {
-  var ds = rowDays(n); if (/^[1-7]$/.test(k)) { var t = Math.floor(n / 7) * 7 + (+k - 1); if (ds.indexOf(t) > -1) { pick(t); return true; } return false; }
-  var L = ["m", "t", "w", "t", "f", "s", "s"], c = k.toLowerCase(), cand = ds.filter(function (x) { return L[x % 7] === c; });
-  if (!cand.length) return false; pick(cand[(cand.indexOf(n) + 1) % cand.length]); return true;
-}
 function key(e) {
   if (!e.target.closest || !e.target.closest(".pk-grid")) return;
-  var k = e.key, cur = +e.target.dataset.n; if (isNaN(cur)) return;
-  if (k === "ArrowRight") { e.preventDefault(); pick(nextEnabled(cur, 1)); }
-  else if (k === "ArrowLeft") { e.preventDefault(); pick(nextEnabled(cur, -1)); }
-  else if (k === "ArrowDown") { e.preventDefault(); pick(enabled(cur + 7) ? cur + 7 : cur); }
-  else if (k === "ArrowUp") { e.preventDefault(); pick(enabled(cur - 7) ? cur - 7 : cur); }
-  else if (k === "Home" || k === "End") { e.preventDefault(); var ds = rowDays(cur); pick(k === "Home" ? ds[0] : ds[ds.length - 1]); }
-  else if (k === "Enter") { e.preventDefault(); S.sel = cur; PK.ok(); }
-  else if (k.length === 1 && /[1-7a-zA-Z]/.test(k) && !e.shiftKey) { if (jump(k, cur)) e.preventDefault(); }
+  var t = PK.grid.target(e); if (!t) return; e.preventDefault();
+  if (t.enter) { S.sel = t.n; PK.ok(); } else pick(t.n);
 }
 PK.register({
   open: function () {
@@ -76,6 +48,6 @@ PK.register({
   close: function () { document.removeEventListener("pointerdown", PK.outside, true); removeEventListener("resize", place); if (el) el.remove(); el = null; },
   key: key,
   focus: function () { if (!el) return; var f = el.querySelector('[aria-selected="true"]') || el.querySelector(".pkc:not(:disabled)"); if (f) f.focus({ preventScroll: true }); },
-  help: function () { var r = [["←  →  ↑  ↓", "Move between days and weeks"], ["Home  End", "First and last day of that week"], ["Enter", "Plan the chosen day"], ["1 – 7  or  M T W F S", "Jump to a day of that week (T and S again for the second one)"], ["Esc", "Close without planning"]]; r.title = "Choosing a day (Plan it, option C)"; return r; }
+  help: function () { return PK.grid.helpRows("C"); }
 });
 })();

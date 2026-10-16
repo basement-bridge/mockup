@@ -88,7 +88,7 @@ PK.commit = function (n, o) {
   var stay = PK.mod.after; /* D stays on the Plan page and shows the meal on its day */
   if (!stay) PK.close(true);
   P.syncHome(); H.set({});
-  if (stay) PK.mod.after(n); else { var rf = $('#detail [data-act="plan"]'); if (rf) rf.focus({ preventScroll: true }); }
+  if (stay) PK.mod.after(n); else PK.refocus();
   H.toast(esc(r.name) + (rep ? " replaces your meal on " : " is planned for ") + inf.label + (o.leave ? ", for " + P.me + " only" : "") + (hold ? ", what is in is held" : "") + ".", function () {
     P.meals[n] = JSON.parse(prev); if (!P.meals[n].length) delete P.meals[n]; P.syncHome(); H.set({}); if (S.open && PK.mod.undone) PK.mod.undone();
   });
@@ -112,9 +112,14 @@ PK.open = function (anchor, rid) {
   S.who = "all"; S.hold = true; S.wk = 0; S.sel = null; S.more = false; S.leave = false; S.open = true; PK.anchor = anchor || $('#detail [data-act="plan"]');
   PK.mod.open(PK.anchor);
 };
+/* where focus goes back to: the Plan button in the pane (G has none there: the card's own Plan button) */
+PK.refocus = function () {
+  var rf = PK.mod && PK.mod.returnTo ? PK.mod.returnTo() : ($('#detail [data-act="plan"]') || PK.anchor);
+  if (rf && rf.focus) rf.focus({ preventScroll: true });
+};
 PK.close = function (keepFocus) {
   if (!S.open) return; S.open = false; PK.mod.close();
-  if (!keepFocus) { var rf = $('#detail [data-act="plan"]') || PK.anchor; if (rf && rf.focus) rf.focus({ preventScroll: true }); }
+  if (!keepFocus) PK.refocus();
 };
 var kbEl = $("#kb");
 /* the plan button, or an idea row's quick plan, opens the picker instead of planning at once; so does P */
@@ -136,6 +141,7 @@ document.addEventListener("keydown", function (e) {
   if (e.ctrlKey || e.metaKey || e.altKey) return;
   var t = e.target; if (t.closest && t.closest("input,textarea,select,[contenteditable]")) return;
   var K = String(H.S.open || "");
+  if ((e.key === "p" || e.key === "P") && K.indexOf("recipe:") === 0 && PK.mod && PK.mod.noP) { e.preventDefault(); e.stopPropagation(); return; }
   if ((e.key === "p" || e.key === "P") && K.indexOf("recipe:") === 0) {
     var r = H.idea(K.slice(7)); if (r && !r.planned) { e.preventDefault(); e.stopPropagation(); PK.open($('#detail [data-act="plan"]'), r.id); }
   }
@@ -144,8 +150,9 @@ document.addEventListener("keydown", function (e) {
 /* ---------- the ? list: the keys of the chosen option are added to Home's list ---------- */
 new MutationObserver(function () {
   if (kbEl.hidden) { if (S.open && PK.mod && PK.mod.focus) PK.mod.focus(); return; }
-  var c = kbEl.querySelector(".kbc"); if (!c || c.querySelector(".pk-kbs") || !PK.mod || !PK.mod.help) return;
-  var rows = PK.mod.help(); if (!rows || !rows.length) return;
+  var c = kbEl.querySelector(".kbc"); if (!c || c.querySelector(".pk-kbs") || !PK.mod) return;
+  if (PK.mod.patch) PK.mod.patch(c);
+  var rows = PK.mod.help && PK.mod.help(); if (!rows || !rows.length) return;
   c.insertAdjacentHTML("beforeend", '<div class="sh2 pk-kbs">' + esc(rows.title) + "</div>" + rows.map(function (r) {
     return '<div class="kbr"><span class="kk">' + r[0].split(/\s{2}or\s{2}|\s{2}/).map(function (x) { return "<kbd>" + esc(x) + "</kbd>"; }).join(" ") + "</span><span>" + r[1] + "</span></div>";
   }).join(""));
@@ -155,7 +162,13 @@ new MutationObserver(function () {
 (function () {
   var nav = document.createElement("nav"); nav.className = "pk-sw"; nav.setAttribute("aria-label", "Day picker option");
   var u = new URL(location.href), h = '<span>Option</span>';
-  "abcde".split("").forEach(function (o) { var p = new URLSearchParams(u.search); p.set("pick", o); h += '<a href="?' + p.toString() + '"' + (o === PK.opt ? ' aria-current="true"' : "") + ">" + o.toUpperCase() + "</a>"; });
+  "abcdefg".split("").forEach(function (o) { var p = new URLSearchParams(u.search); p.set("pick", o); h += '<a href="?' + p.toString() + '"' + (o === PK.opt ? ' aria-current="true"' : "") + ">" + o.toUpperCase() + "</a>"; });
+  /* tonight: nothing planned (default, the primary card has Plan) or the meal already planned (no Plan on that card or in its pane; owner, 16 Oct 2026) */
+  h += "<span>Tonight</span>";
+  [["none", "Open"], ["planned", "Planned"]].forEach(function (t) {
+    var p = new URLSearchParams(u.search); p.set("pick", PK.opt); p.delete("lead"); p.delete("open"); p.delete("week"); if (t[0] === "planned") p.set("night", "planned"); else p.delete("night");
+    h += '<a class="w" href="?' + p.toString() + '"' + ((P.night === "planned") === (t[0] === "planned") ? ' aria-current="true"' : "") + ">" + t[1] + "</a>";
+  });
   nav.innerHTML = h; $(".rail").appendChild(nav);
 })();
 })();

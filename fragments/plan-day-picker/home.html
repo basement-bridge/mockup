@@ -39,12 +39,12 @@
 <script src="../home-detail-panel/recipe.js"></script>
 <script>window.HDP.set({});</script>
 <script>
-/* Which option this page draws: ?pick=a|b|c|d|e (default c, the agent's recommendation). Each option is its own file; A, B and E share the baseline sheet. */
+/* Which option this page draws: ?pick=a|b|c|d|e|f|g (default c, the agent's recommendation). Each option is its own file; A, B and E share the baseline sheet. */
 (function () {
   var o = (new URLSearchParams(location.search).get("pick") || "c").toLowerCase();
-  if ("abcde".indexOf(o) < 0 || o.length !== 1) o = "c";
+  if ("abcdefg".indexOf(o) < 0 || o.length !== 1) o = "c";
   window.PK_OPT = o;
-  var f = ["common.js"]; if ("abe".indexOf(o) > -1) f.push("sheet.js"); f.push("pick-" + o + ".js");
+  var f = ["common.js"]; if ("abe".indexOf(o) > -1) f.push("sheet.js"); if ("cfg".indexOf(o) > -1) f.push("grid.js"); f.push("pick-" + o + ".js");
   f.forEach(function (n) { document.write('<script src="' + n + '"><\/script>'); });
 })();
 </script>
