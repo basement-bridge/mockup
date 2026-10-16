@@ -43,9 +43,11 @@ function pickRow(i) {
   if (g) { want = '.row-d[data-i="' + i + '"]'; draw(); return; } /* stop: nothing to press; warn: Leave Jo out is the one action */
   PK.commit(d.n);
 }
+/* Undo from the confirmation is the Home chip's own undo (the chip's click, or the held undo when the chip has already gone while the countdown was paused) */
+function doUndo() { var u = document.querySelector('.toast [data-act="undo"]'); if (u) { u.click(); return; } if (H.S.undo) { var f = H.S.undo; H.S.undo = null; f(); } }
 function click(e) {
-  if (hold) return;
   var t = e.target.closest("button"); if (!t) return;
+  if (hold) { if (t.hasAttribute("data-cfundo")) doUndo(); return; } /* inline Undo is the Home chip's own undo */
   if (t.dataset.avoid !== undefined) { P.avoid = P.avoid ? null : { who: "Jo", item: "mango" }; S.sel = null; S.leave = false; want = "[data-avoid]"; draw(); return; }
   if (t.dataset.offrule !== undefined) { offRule = offRule === "refuse" ? "open" : "refuse"; want = "[data-offrule]"; draw(); return; }
   if (t.dataset.peek !== undefined) { var i = +t.dataset.peek; openDay = openDay === i ? null : i; want = '.row-d[data-i="' + i + '"]'; draw(); var q = el.querySelector('[data-w="' + i + '"] .peek-b'); if (q) q.focus(); return; }
@@ -64,11 +66,13 @@ PK.register({
     if (hold) hold.cancel(true);
     el.innerHTML = '<div class="pk-pt"><div><h2 id="pk-t">Plan ' + esc(name) + '</h2></div><button type="button" class="x" data-close aria-label="Close">' + ico.x + "</button></div>" + R.confHtml(verb, name, esc(label), esc(note || ""));
     el.querySelector("[data-close]").focus({ preventScroll: true });
-    hold = R.hold(el, function () { hold = null; if (S.open) { PK.close(true); PK.refocus(); } });
+    var tmsg = null; setTimeout(function () { var m = document.querySelector(".toast span"); if (m) tmsg = m.innerHTML; }, 0); /* the chip is drawn just after this call */
+    hold = R.hold(el, function () { var tt = hold && hold.undone; hold = null; if (S.open) { PK.close(true); PK.refocus(); } /* the Home chip is the fallback after the slide-out: give it its own time again */ var ch = document.querySelector(".toast"); if (!ch && !tt && tmsg && H.S.undo) { H.toast(tmsg, H.S.undo); ch = document.querySelector(".toast"); } if (ch && !tt) { clearTimeout(H.toast.t); H.toast.t = setTimeout(function () { if (ch.parentNode) ch.remove(); }, 6000); } });
   },
+  undone: function () { if (hold) hold.didUndo(); }, /* inline or chip or Z: the confirmation reads Undone, then the flyout closes */
   close: function () { if (!el) return; if (hold) { var h = hold; hold = null; h.live = false; clearTimeout(h.t); clearTimeout(h.t2); } el.classList.remove("pk-out"); el.removeEventListener("click", click); el.classList.remove("pk", "pk-fly"); el = null; H.set({ front: saved || "detail" }); },
   key: function (e) {
-    if (hold && (e.key === "z" || e.key === "Z")) { var u = document.querySelector('.toast [data-act="undo"]'); if (u) { e.preventDefault(); u.click(); } return; }
+    if (hold && (e.key === "z" || e.key === "Z")) { e.preventDefault(); doUndo(); return; }
     if (!el.contains(e.target)) return;
     R.key(e, el, { toggle: function (i, on) { openDay = on ? i : null; want = '.row-d[data-i="' + i + '"]'; draw(); if (on) { var q = el.querySelector('[data-w="' + i + '"] .peek-b'); if (q) q.focus(); } } });
   },
