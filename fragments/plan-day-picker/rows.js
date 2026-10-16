@@ -16,14 +16,16 @@ R.view = function (d, c) {
   var pw = c.who === "all" ? "all" : c.who === me ? "me" : c.who, lines, v = { disabled: false, danger: false, muted: false };
   if (pw === "all") lines = names(hh);
   else { var mine = d.meals.filter(function (m) { return m.who === pw; }); lines = mine.length ? names(mine).map(function (n) { return n + (pw === "me" ? " (yours)" : ""); }) : names(hh.filter(function (m) { return [].concat(m.notFor || []).indexOf(c.who) < 0; })).map(function (n) { return n + " (household)"; }); }
-  if (!lines.length) { v.muted = true; lines = [d.off === "usual" ? "Usual day off" : d.off === "week" ? "Off this week only" : "Open"]; }
+  /* wording is the weekly Plan's own (kitchie uat): a blocked day with nothing planned is a "Not cooking" pill with "Every week, usual day off" or "This week only"; once it has a meal it says "Usual day off, cooking this week" */
+  if (!lines.length) { v.muted = true; if (d.off) { lines = ["Not cooking"]; v.pill = true; v.sub = d.off === "usual" ? "Every week, usual day off" : "This week only"; } else lines = ["Open"]; }
+  else if (d.off === "usual" && d.meals.length) v.sub = "Usual day off, cooking this week";
   /* what picking this row does, in words */
   var cons = "", rn = names(hh.concat(own)).join(" and "), O = join(others);
   if (c.guard === "stop") { cons = "Not for " + c.avoid.who; v.danger = true; v.disabled = true; }
   else if (c.guard === "warn") { cons = c.avoid.who + " has a Hard avoid on " + c.avoid.item + ": asks first"; v.danger = true; }
   else if (d.off && !d.meals.length) {
     if (c.offRule === "refuse") { cons = d.dn + " is off for you. Pick another day."; v.disabled = true; v.refuse = true; }
-    else cons = d.off === "usual" ? "Usual day off. Planning it cooks this week only." : "Off this week only. Planning it opens the day.";
+    else cons = d.off === "usual" ? d.dn + " is a usual day off. Planning it cooks this week only." : "Planning it cooks this week only.";
   }
   else if (pw === "all") cons = hh.length || own.length ? (others.length ? "Replaces " + rn + " for everyone but " + O + ". " + O + "’s meal stays." : "Replaces " + rn + ".") : (others.length ? "Plans it for everyone but " + O + ". " + O + "’s meal stays." : "Plans it for everyone.");
   else if (pw === "me") cons = own.length ? "Replaces " + names(own).join(" and ") + "." : hh.length ? "Takes you out of " + names(hh).join(" and ") + " and plans yours." : "Plans it for you.";
@@ -42,9 +44,9 @@ R.html = function (days, c, open) {
   return '<div class="rows" role="group" aria-label="Day">' + days.map(function (d, i) {
     var v = R.view(d, c), isOpen = open === i && v.peek;
     return '<div class="row-w' + (v.peek ? " has-peek" : "") + (isOpen ? " open" : "") + '" data-w="' + i + '"><button type="button" class="row-d' + (d.today ? " today" : "") + (d.meals.length ? "" : d.off ? " off" : " open") + (v.danger ? " danger" : "") + (v.disabled ? " dis" : "") + '" data-i="' + i + '"' + (v.disabled ? ' aria-disabled="true"' : "") + ' aria-label="' + esc(v.label) + '"><span class="dl">' + esc(d.dn) + '</span><span class="dt">' +
-      v.lines.map(function (l) { return '<span class="ln' + (v.muted ? " mu" : "") + '">' + esc(l) + "</span>"; }).join("") + '<small class="cons">' + esc(v.cons) + "</small></span></button>" +
+      v.lines.map(function (l) { return '<span class="ln' + (v.pill ? " pill" : v.muted ? " mu" : "") + '">' + esc(l) + "</span>"; }).join("") + (v.sub ? '<span class="ln sub">' + esc(v.sub) + "</span>" : "") + '<small class="cons">' + esc(v.cons) + "</small></span></button>" +
       (v.peek ? '<button type="button" class="peek-b" data-peek="' + i + '" aria-expanded="' + isOpen + '" aria-label="' + (isOpen ? "Hide" : "Show everyone’s plans for") + " " + esc(d.dn) + '"><span>' + (isOpen ? "Hide" : "") + "</span></button>" : "") +
-      (isOpen ? '<div class="row-full" role="group" aria-label="' + esc(d.dn) + ', everyone’s plans">' + v.full.map(function (f) { return '<p><b>' + esc(f.k) + "</b>" + esc(f.v) + "</p>"; }).join("") + "</div>" : "") + "</div>";
+      (isOpen ? '<div class="row-full" role="group" aria-label="' + esc(d.dn) + ', everyone’s plans">' + v.full.map(function (f) { return '<p><b>' + esc(f.k) + "</b>" + esc(f.v) + "</p>"; }).join("") + '<p class="row-hint">Pick the row again to plan it.</p></div>' : "") + "</div>";
   }).join("") + "</div>";
 };
 /* keys on the rows: up and down move, Home and End, Right opens that day's full picture, Left folds it; Enter on a row is the browser's own click */
@@ -58,5 +60,18 @@ R.key = function (e, root, o) {
   else if (k === "ArrowLeft") { if (!root.querySelector('[data-w="' + i + '"].open')) return false; o.toggle(i, false); }
   else return false;
   e.preventDefault(); return true;
+};
+/* After a pick commits: the surface stays open HOLD ms showing what happened ("Planned" or "Replaced" plus the meal), then slides out to the right, the side it came in from.
+   Esc during the hold ends it at once (cancel(true) skips the slide), so nobody is trapped. */
+R.HOLD = 3000; R.OUT = 240;
+R.confHtml = function (verb, name, label, note) {
+  return '<div class="pk-conf" role="status" aria-live="polite"><span class="pk-conf-tick" aria-hidden="true">&#10003;</span><div><b class="pk-conf-v">' + verb + '</b><span class="pk-conf-n">' + String(name).replace(/&/g, "&amp;").replace(/</g, "&lt;") + '</span><span class="pk-conf-d">' + label + '</span>' + (note ? '<span class="pk-conf-x">' + note + "</span>" : "") + '</div></div>';
+};
+R.hold = function (el, done) {
+  var h = { t: null, t2: null, live: true };
+  function finish() { if (!h.live) return; h.live = false; clearTimeout(h.t); clearTimeout(h.t2); el.classList.remove("pk-out"); done(); }
+  h.cancel = function (early) { if (!h.live) return; if (early) finish(); else finish(); };
+  h.t = setTimeout(function () { if (!h.live) return; el.classList.add("pk-out"); h.t2 = setTimeout(finish, R.OUT); }, R.HOLD);
+  return h;
 };
 })();

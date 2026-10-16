@@ -22,8 +22,21 @@ el.addEventListener("click", function (e) {
   var p = e.target.closest(".peek-b"); if (p) { var i = +p.dataset.peek; S.open = S.open === i ? null : i; draw(); var q = el.querySelector('[data-w="' + i + '"] .peek-b'); if (q) q.focus(); return; }
   var b = e.target.closest(".row-d"); if (!b) return;
   var d = days()[+b.dataset.i], v = R.view(d, ctx());
-  say.textContent = v.refuse ? v.cons : v.disabled ? v.cons : (guard() === "warn" ? v.cons + " (Leave Jo out of this meal is the action)" : "Picking " + d.dn + " would commit now. " + v.cons);
+  if (!v.refuse && !v.disabled && v.peek && S.open !== +b.dataset.i) { S.open = +b.dataset.i; draw(+b.dataset.i); say.textContent = d.dn + " has more than one plan stacked. Pick it again to plan it."; return; }
+  if (v.refuse || v.disabled || guard() === "warn") { say.textContent = v.refuse ? v.cons : v.disabled ? v.cons : v.cons + " (Leave Jo out of this meal is the action)"; return; }
+  say.textContent = "Picking " + d.dn + " would commit now. " + v.cons;
+  conf(/^Replaces/.test(v.cons) ? "Replaced" : "Planned", d.dn, d.off === "usual" && !d.meals.length ? d.dn + ": cooking this week. The usual day off stays." : "");
 });
+/* what F does after a pick: the panel stays about 3 seconds with a confirmation, then slides out to the right (Esc ends it sooner) */
+var held = null;
+function conf(verb, dn, note) {
+  if (held) held.cancel(true);
+  el.innerHTML = '<div class="pk-pt"><button type="button" class="x" data-close aria-label="Close" style="margin-left:auto">&times;</button></div>' + R.confHtml(verb, "Mandarin Mango Yogurt Bowl", dn, note);
+  el.querySelector("[data-close]").focus();
+  held = R.hold(el, function () { held = null; draw(); });
+}
+el.addEventListener("click", function (e) { if (held && e.target.closest("[data-close]")) held.cancel(true); });
+document.addEventListener("keydown", function (e) { if (held && e.key === "Escape") { e.preventDefault(); held.cancel(true); } });
 el.addEventListener("keydown", function (e) { R.key(e, el, { toggle: toggle }); });
 document.getElementById("ctl").addEventListener("click", function (e) {
   var b = e.target.closest("button"); if (!b) return;

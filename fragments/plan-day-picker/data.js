@@ -36,7 +36,7 @@
     if (ideas) new MutationObserver(function () {
       /* the card's Plan is gone; in its place Start cooking (owner, 16 Oct 2026; visual only here) */
       var b = ideas.querySelector('.lead [data-act="planlink"]');
-      if (b) { b.setAttribute("data-act", "startcook"); b.textContent = window.PK_COOKING ? "Cooking now" : "Start cooking"; b.className = "btn sm pri"; if (window.PK_COOKING) b.disabled = true; }
+      if (b) { b.setAttribute("data-act", "startcook"); b.textContent = window.PK_COOKING ? "Cooking now" : "Start cooking"; b.className = "btn sm pri"; }
       var k = ideas.querySelector(".k.planned"); if (k && /Mon 12/.test(k.textContent)) k.innerHTML = k.innerHTML.replace("Mon 12", "Wed 14");
     }).observe(ideas, { childList: true, subtree: true });
   }

@@ -87,10 +87,11 @@ PK.commit = function (n, o) {
     var arr0 = (P.meals[n] || []).slice(), prev0 = JSON.stringify(arr0), gone = arr0.filter(rs.remove), keep = arr0.filter(function (m) { return !rs.remove(m); });
     if (rs.carve) keep.forEach(function (m) { if (m.who === "all") m.notFor = [].concat(m.notFor || [], rs.carve).filter(function (x, i, z) { return z.indexOf(x) === i; }); });
     keep.push({ name: r.name, who: rs.who, hold: S.hold, notFor: rs.notFor || [] }); P.meals[n] = keep;
-    PK.close(true); P.syncHome(); H.set({}); PK.refocus();
+    var cf = PK.mod.confirm; /* F: stay open for the confirmation, then slide out */
+    if (cf) { P.syncHome(); cf(gone.length ? "Replaced" : "Planned", r.name, inf.label, inf.off && !gone.length ? inf.dn + ": cooking this week. The usual day off stays." : ""); } else { PK.close(true); P.syncHome(); H.set({}); PK.refocus(); }
     var nf = rs.notFor && rs.notFor.length ? ", for everyone but " + rs.notFor.join(" and ") : "";
     H.toast(esc(r.name) + (gone.length ? " replaces " + esc(gone.map(function (m) { return m.name; }).join(" and ")) + " on " : " is planned for ") + inf.label + nf + (rs.stays ? ". " + esc(rs.stays) : "") + (S.hold ? (rs.stays ? " What is in is held" : ", what is in is held") : "") + ".", function () {
-      P.meals[n] = JSON.parse(prev0); if (!P.meals[n].length) delete P.meals[n]; P.syncHome(); H.set({}); if (S.open && PK.mod.undone) PK.mod.undone();
+      P.meals[n] = JSON.parse(prev0); if (!P.meals[n].length) delete P.meals[n]; P.syncHome(); H.set({}); if (S.open && PK.mod.undone) PK.mod.undone(); if (S.open && PK.mod.confirm) PK.close(true);
     });
     return;
   }
@@ -172,12 +173,30 @@ document.addEventListener("keydown", function (e) {
     b.innerHTML = '<div class="cookbn-c"><span class="cookbn-go"><span class="cookbn-dot" aria-hidden="true"></span><span class="cookbn-t"><b>Cooking now</b><span class="cookbn-n">' + esc(live) + '</span></span></span><button type="button" class="cookbn-x" data-cookx aria-label="Dismiss ' + esc(live) + '" title="Dismiss">' + ICO.x + '</button><button type="button" class="cookbn-open" data-cookopen aria-label="Open ' + esc(live) + '">' + ICO.chev + "</button></div>";
     document.body.appendChild(b);
   }
+  /* The modal (owner, 16 Oct 2026, replaces the quiet tag): one tap on Start cooking opens it, front and centre, and the session is live at once (no confirm step). It is the real
+     ingredients-first view (docs/adr/cooking-session.md decision 11: the dish as heading, a tick on the left, the name, the quantity on the right, ingredients only, no stock or places) in a
+     dialog, with Done (ends the session, as the real view's Done and the banner's dismiss do) and, because this is a saved recipe, the secondary Open saved recipe. Steps are NOT part of the
+     real build, so none are drawn. Closing the modal leaves the session running with its banner (leaving the real view does too). Visual only: nothing is sent. */
+  var ticks = {}, md = null, opener = null;
+  function modal() {
+    var r = H.idea(P.rid), ls = (r && r.lines) || [];
+    close(true);
+    md = document.createElement("div"); md.className = "cookmd"; md.setAttribute("data-cookmd", "");
+    md.innerHTML = '<div class="cookmd-b" data-cookclose></div><div class="cookmd-d" role="dialog" aria-modal="true" aria-labelledby="cookmd-t"><header><span class="cookmd-k"><span class="cookbn-dot" aria-hidden="true"></span>Cooking now</span><button type="button" class="cookmd-x" data-cookclose aria-label="Close, keep cooking" title="Close (the dish stays on the banner)">' + ICO.x + '</button></header><h2 id="cookmd-t" tabindex="-1">' + esc(live) + '</h2><ul class="cookmd-l" aria-label="Ingredients">' +
+      ls.map(function (l, i) { return '<li><button type="button" role="checkbox" aria-checked="' + !!ticks[i] + '" data-cooktick="' + i + '" aria-label="' + esc(l.n) + '"><span class="cookmd-t" aria-hidden="true">' + (ticks[i] ? "&#10003;" : "") + '</span><span class="cookmd-n">' + esc(l.n) + '</span><b>' + esc(l.need) + "</b></button></li>"; }).join("") +
+      '</ul><footer><button type="button" class="btn ghost" data-cookopen>Open saved recipe</button><button type="button" class="btn pri" data-cookdone>Done</button></footer></div>';
+    document.body.appendChild(md); var h = md.querySelector("h2"); if (h) h.focus({ preventScroll: true });
+  }
+  function close(quiet) { if (md) { md.remove(); md = null; if (!quiet && opener && document.contains(opener)) opener.focus({ preventScroll: true }); } }
   document.addEventListener("click", function (e) {
     var s = e.target.closest('[data-act="startcook"]');
-    if (s) { e.preventDefault(); e.stopPropagation(); if (live) return; live = H.idea(P.rid).name; window.PK_COOKING = true; banner(); H.set({}); return; }
-    if (e.target.closest("[data-cookx]")) { live = null; window.PK_COOKING = false; banner(); H.set({}); return; }
-    if (e.target.closest("[data-cookopen]")) H.toast("Opens the ingredients view for this dish (not drawn here).");
+    if (s) { e.preventDefault(); e.stopPropagation(); opener = s; if (!live) { live = H.idea(P.rid).name; ticks = {}; window.PK_COOKING = true; banner(); H.set({}); } modal(); return; }
+    var tk = e.target.closest("[data-cooktick]"); if (tk) { var i = tk.dataset.cooktick; ticks[i] = !ticks[i]; tk.setAttribute("aria-checked", !!ticks[i]); tk.querySelector(".cookmd-t").innerHTML = ticks[i] ? "&#10003;" : ""; return; }
+    if (e.target.closest("[data-cookclose]")) { close(); return; }
+    if (e.target.closest("[data-cookdone]") || e.target.closest("[data-cookx]")) { live = null; ticks = {}; window.PK_COOKING = false; close(true); banner(); H.set({}); return; }
+    if (e.target.closest("[data-cookopen]")) H.toast(md ? "Opens the saved recipe (not drawn here)." : "Opens the ingredients view for this dish (not drawn here).");
   }, true);
+  document.addEventListener("keydown", function (e) { if (md && e.key === "Escape") { e.preventDefault(); e.stopPropagation(); close(); } }, true);
 })();
 
 /* ---------- the ? list: the keys of the chosen option are added to Home's list ---------- */
