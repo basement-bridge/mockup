@@ -34,7 +34,7 @@
   }
   var slot = "";
   if (N > 0) {
-    slot = '<div class="sl-top" id="sl-top">\n<form class="sl-share" method="post" action="#"><button class="sl-handoff" type="submit">' + ico(P.bag, 26) + '<span class="sl-handoff-t"><b>Someone else is shopping</b><span>Send them the list and a link. No sign-in.</span></span>' + ico(P.chev, 20) + '</button></form>';
+    slot = '<div class="sl-top" id="sl-top">\n<form class="sl-share" method="post" action="#"><button class="sl-handoff" type="submit">' + ico(P.bag, 26) + '<span class="sl-handoff-t"><b>Is someone else shopping?</b><span>Send them the list and a link. No sign-in.</span></span>' + ico(P.chev, 20) + '</button></form>';
     if (S !== "handoff") slot += '\n<ul class="sl-links" aria-label="Links that are out">' + linkRow(1, "Mum", "36 h left", "3 of 8 lines answered", "active") + linkRow(2, "Link 2", "48 h left", "Not opened yet", "unopened") + "</ul>";
     if (S === "sorting") slot += '\n<a class="sl-nudge" href="#sl-sorting">' + ico(P.alert, 22) + '<span class="sl-nudge-t"><b>1 line still needs sorting</b><span>Nobody has it. Your call.</span></span>' + ico(P.chev, 20) + "</a>";
     slot += "\n</div>";

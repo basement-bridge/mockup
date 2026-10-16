@@ -102,7 +102,7 @@
     // the slot above the list: the hand-off control (or why it steps aside), the links that are out, and the nudge
     var top = '<div class="sl-top" id="sl-top">';
     top += liveLinks.length >= 3 ? '<p class="note sl-full">3 links are out, the most at once, counting any not sent. Cancel or withdraw one to hand over again.</p>' :
-      '<form class="sl-share" method="post" action="shopping/share" data-sl-share><button class="sl-handoff" type="submit">' + ico(P.bag, 26) + '<span class="sl-handoff-t"><b>Someone else is shopping</b><span>Send them the list and a link. No sign-in.</span></span>' + ico(P.chev, 20) + "</button></form>";
+      '<form class="sl-share" method="post" action="shopping/share" data-sl-share><button class="sl-handoff" type="submit">' + ico(P.bag, 26) + '<span class="sl-handoff-t"><b>Is someone else shopping?</b><span>Send them the list and a link. No sign-in.</span></span>' + ico(P.chev, 20) + "</button></form>";
     if (m.links.length) top += '<ul class="sl-links" aria-label="Links that are out">' + m.links.map(linkRow).join("") + "</ul>";
     if (sorting.length) top += '<a class="sl-nudge" href="#sl-sorting">' + ico(P.alert, 22) + '<span class="sl-nudge-t"><b>' + plural(sorting.length, "line") + " still " + (sorting.length === 1 ? "needs" : "need") + " sorting</b><span>Nobody has " + (sorting.length === 1 ? "it" : "them") + ". Your call.</span></span>" + ico(P.chev, 20) + "</a>";
     top += "</div>";

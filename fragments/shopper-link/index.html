@@ -27,7 +27,7 @@
 
 <div class="sl-notes sl-review"><b>What changed on 10 October 2026</b> <span class="tag">owner review, decisions SL-D1 to SL-D16</span>
 <ul>
-<li><b>The control is renamed.</b> &ldquo;Share&rdquo; is now <b>&ldquo;Someone else is shopping&rdquo;</b>: it is only for when someone else does the shopping (SL-D1).</li>
+<li><b>The control is renamed.</b> &ldquo;Share&rdquo; is now <b>&ldquo;Is someone else shopping?&rdquo;</b>: it is only for when someone else does the shopping (SL-D1).</li>
 <li><b>It is live.</b> What the shopper does reaches the real list at once, not after a &ldquo;Done shopping&rdquo; tap, and two shoppers see each other's answers so nothing is bought twice (SL-D2, SL-D3). The result card is only a notification (SL-D4).</li>
 <li><b>The shopper's page has two modes.</b> Swipe is the default and syncs every action with no confirm step (SL-D5), with Undo always on screen (SL-D6) and a bottom button, &ldquo;Won't be able to buy these&rdquo; (SL-D7). A long-press turns the list into checkboxes with one batch Send (SL-D8). &ldquo;Got something else&rdquo; edits in place (SL-D9) and the &ldquo;also got&rdquo; box is built now (SL-D10).</li>
 <li><b>Swaps go into the Pantry by themselves</b>, matched like any added item (SL-D11).</li>
@@ -49,11 +49,11 @@
 <h2 id="pa">The member, signed in, on Shopping</h2>
 <p>Four moments: where the hand-over lives, what lands in the chat, links being out, and what comes back as it happens.</p>
 
-<h3>1. Where does &ldquo;Someone else is shopping&rdquo; live? <span class="tag new">Judgement call: A</span></h3>
+<h3>1. Where does &ldquo;Is someone else shopping?&rdquo; live? <span class="tag new">Judgement call: A</span></h3>
 <p>The Shopping header lost its cart button on purpose (one shared header on every screen), and the plan still asks where the hand-off goes. Tap it in any phone: it makes the link and hands the list to the phone's own share sheet (or copies it). The owner did not pick a place, so the fragment's own favourite stands as a judgement call (SL-J1) and the other two stay here for comparison.</p>
 <div class="opts two">
 <div class="opt"><h2><b>A</b>A hand-off slot above the list <span class="tag new">Judgement call</span></h2><p class="note"><b>Used.</b> One strip above the list is where the hand-off lives: the control, the link lines, then what came back. Seen on arrival however long the list is, and the shared header stays untouched. Costs one row of height, always.</p>
-<figure class="sl-ph"><iframe src="member.html" title="Member, option A: Someone else is shopping, in a slot above the list"></iframe></figure></div>
+<figure class="sl-ph"><iframe src="member.html" title="Member, option A: Is someone else shopping?, in a slot above the list"></iframe></figure></div>
 <div class="opt"><h2><b>B</b>An icon in the header</h2><p class="note">Smallest. But the header is the same on Home, Pantry and Shopping by the owner's decision, an icon alone does not say &ldquo;with a link&rdquo;, and the live state has nowhere to sit beside it.</p>
 <figure class="sl-ph"><iframe src="member.html?share=b" title="Member, option B: an icon in the header"></iframe></figure></div>
 <div class="opt"><h2><b>C</b>After the last line</h2><p class="note">Where you are when the list is finished, and close to the thumb on a short list. On a long list it is below the fold, and it sits where &ldquo;Done shopping&rdquo; appears once anything is ticked.</p>
@@ -335,6 +335,7 @@ Tick off what you get, no sign-in needed. The link works for 48 hours:
 <p class="q">Numbered as this feature's own series, like the preferences D-series and the recipe tab's R-D series. &ldquo;Revises&rdquo; and &ldquo;answers&rdquo; point at the proposals (P1 to P9) and open questions (1 to 13) these replace.</p>
 <ol class="sl-dec">
 <li><b>SL-D1. Naming.</b> &ldquo;Share&rdquo; becomes a hand-off wording, for example &ldquo;Someone else is shopping&rdquo;. It is only for when someone else does the shopping.</li>
+<li><b>SL-D1a (16 October 2026).</b> The control now reads &ldquo;Is someone else shopping?&rdquo;, as a question.</li>
 <li><b>SL-D2. A result updates the real list at once.</b> When a result comes back on any link, the shopping list updates immediately for members. It is not gated on a &ldquo;Done shopping&rdquo; tap. <i>Revises P1; answers question 1; is question 13.</i></li>
 <li><b>SL-D3. Concurrent links share one live view.</b> Other live links for the same list reflect an update in near real time, so two shoppers (morning and afternoon) do not double-buy. P3's frozen snapshot becomes a live, shared view. Links need no label: the result's content tells concurrent shoppers apart. <i>Revises P3; answers question 3.</i></li>
 <li><b>SL-D4. The result card is a notification.</b> &ldquo;Got 9 of 12 &middot; 1 swap &middot; 2 not got&rdquo; is a summary only, never a gate.</li>

@@ -6,7 +6,7 @@ Status: owner ask, typed, 15 October 2026. Mockup drafted (`fragments/desktop-sh
 
 The same as the phone's: see what to get, tick it as it goes in the basket, take it off when it is bought, and hand the list to someone else when they are the one going ([shopping-without-the-app.md](shopping-without-the-app.md)). On a wide screen the person is also at a keyboard and a pointer, and the screen should look like the rest of the desktop app.
 
-The owner (typed, 15 Oct 2026): "the shopping [screen] on the desktop needs to be design aligned with overall design language of the app, using the governance approach, deal with this." His screenshot (UAT, dark): a narrow column with a large empty area on its right, a dashed "Someone else is shopping" card, a hint line and plain rows with emoji (grapes for a sambar powder blend, an ice-cream cup for Cendol, a plate and cutlery for three more).
+The owner (typed, 15 Oct 2026): "the shopping [screen] on the desktop needs to be design aligned with overall design language of the app, using the governance approach, deal with this." His screenshot (UAT, dark): a narrow column with a large empty area on its right, a dashed "Is someone else shopping?" card, a hint line and plain rows with emoji (grapes for a sambar powder blend, an ice-cream cup for Cendol, a plate and cutlery for three more).
 
 ## How we know the person is in this job
 
@@ -14,7 +14,7 @@ They opened the signed-in member's Shopping screen on a window 64rem (1024px) or
 
 ## What leads
 
-The list, with a count at the top ("8 to get") like the Pantry's "8 items". Each line: the tick, a picture tile, the name, the amount in the accent, what is left at home. On hover or on the current line, Bought and Remove with their key caps. In the panel lane, the hand-off: "Someone else is shopping", the links that are out, the "still needs sorting" nudge, and a keys line.
+The list, with a count at the top ("8 to get") like the Pantry's "8 items". Each line: the tick, a picture tile, the name, the amount in the accent, what is left at home. On hover or on the current line, Bought and Remove with their key caps. In the panel lane, the hand-off: "Is someone else shopping?", the links that are out, the "still needs sorting" nudge, and a keys line.
 
 ## What this job does not need
 
