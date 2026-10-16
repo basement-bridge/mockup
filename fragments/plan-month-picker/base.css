@@ -1,0 +1,51 @@
+/* The pieces of the Plan it picker styles the flyout needs, copied from fragments/plan-day-picker/picker.css (options A to E and G left behind). Tokens only (theme.css); .btn .kbd .x .toast .phint come from the Home mockup. */
+.pk{color:var(--fg)}
+.pk h3{margin:0 0 2px;font:800 18px var(--head)}
+.pk .pk-sub{font-size:13px;color:var(--muted);margin:0}
+.pk small{color:var(--muted)}
+.pk .lbl{font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.pk-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px}
+.pk-row small{display:block;font-size:12px}
+.pk-row b{font-size:14px}
+.pk-hint{margin:10px 0 0}
+.pk .mini{min-height:36px;padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--bg);font-weight:700;font-size:13px;display:inline-flex;align-items:center;gap:6px;color:var(--fg)}
+.pk .mini svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pk .mini[aria-pressed=true]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.fors{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.fors button{min-height:var(--tap);padding:0 16px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-weight:700;font-size:14px;color:var(--fg)}
+.fors button[aria-pressed=true]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.pk-guard{display:flex;gap:10px;align-items:flex-start;margin:0 0 8px;padding:10px 12px;border-radius:var(--r-ctl);border:1px solid var(--danger);font-size:13px}
+.pk-guard svg{flex:none;width:20px;height:20px;fill:none;stroke:var(--danger);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pk-guard b{display:block;color:var(--danger)}
+.pk-guard span{display:block}
+.pk-guard .btn{margin-top:8px;min-height:40px}
+.pk-guard small{display:block;margin-top:4px}
+.pk-pt{display:flex;align-items:flex-start;gap:12px}
+.pk-pt>div{flex:1;min-width:0}
+@media (prefers-reduced-motion:reduce){.pk *{transition:none!important;animation:none!important}}
+.pk-fly{animation:pk-slide .22s ease-out}
+@keyframes pk-slide{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+.pk-fly .pk-pt h2{margin:0;font:800 18px var(--head)}
+@media (prefers-reduced-motion:reduce){.pk-fly{animation:none}}
+
+.pk .x svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+/* the flyout is a column in the This week slot */
+.pk-fly{display:flex;flex-direction:column;gap:8px;padding-bottom:60px} /* the foot keeps clear of the Theme button (mockup scaffolding) */
+.pk-fly{padding-top:16px}
+.pk-fly .pk-row{margin-top:0}
+.pk-fly .fors{margin-top:2px}
+.pk-fly .pk-hint{margin:0;font-size:11px}
+.pk-fly .phint .kbd{min-width:0;padding:0 5px}
+.pk-fly .x,.pk-fly .pdm-back{flex:none}
+/* the mockup controls in the rail (scaffolding, not part of the app) */
+.pk-sw{position:fixed;left:8px;bottom:12px;width:72px;z-index:45}
+.pk-swb{width:72px;min-height:44px;padding:4px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--surface);color:var(--fg);font:700 11px/1.2 var(--body);text-align:center}
+.pk-swb[aria-expanded=true]{border-color:var(--accent)}
+.pk-swp{position:fixed;left:92px;bottom:12px;width:290px;max-height:calc(100vh - 24px);overflow:auto;padding:12px;border-radius:var(--r-card);border:1px solid var(--border);background:var(--bg);box-shadow:0 12px 40px rgba(0,0,0,.35);z-index:70}
+.pk-swp[hidden]{display:none}
+.pk-swg{display:flex;flex-wrap:wrap;gap:4px;margin:0 0 10px}
+.pk-swg span{flex:1 1 100%;font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.pk-swg a{display:inline-flex;align-items:center;min-height:32px;padding:0 10px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-weight:700;font-size:12px;color:var(--fg);text-decoration:none}
+.pk-swg a[aria-current]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.pk-swg a:hover{border-color:var(--accent)}
+.pk-swp p{margin:0;font-size:11px;color:var(--muted)}

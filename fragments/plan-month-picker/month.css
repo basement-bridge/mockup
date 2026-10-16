@@ -1,0 +1,78 @@
+/* The month picker (Kitchie, "Another day"). Tokens only (theme.css). Loaded the first time Another day is pressed. Desktop only.
+   Weekdays run down the left; the five weeks of the plan window run across. Every state has a colour AND a shape (an icon, a pattern or text), so none depends on colour alone (DESIGN.md section 3). */
+.pdm{display:grid;grid-template-columns:34px repeat(5,minmax(0,1fr));column-gap:4px;row-gap:4px;align-items:stretch;margin:0}
+.pdm-r{display:contents}
+.pdm-corner{grid-column:1}
+.pdm-h{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-width:0;text-align:center;line-height:1.15;padding-bottom:2px}
+.pdm-hn{font-size:10px;font-weight:700;color:var(--muted)}
+.pdm-hd{font-size:12px;font-weight:800;color:var(--fg);white-space:nowrap}
+.pdm-mb{font:800 11px var(--head);letter-spacing:.07em;text-transform:uppercase;color:var(--fg);padding:0 4px 3px;border-bottom:2px solid var(--fg);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pdm-d{display:flex;align-items:center;font-size:11px;font-weight:800;color:var(--muted);letter-spacing:.04em}
+/* a date */
+.pdm-c{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:0;min-height:44px;padding:2px;border-radius:var(--r-ctl);border:1.5px solid var(--border);background:var(--surface);color:var(--fg);cursor:pointer}
+.pdm-n{font-size:13px;font-weight:800;line-height:1;white-space:nowrap}
+.pdm-i{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.pdm-i.fill{fill:currentColor}
+.pdm-cnt{position:absolute;right:5px;bottom:4px;font-size:10px;font-weight:800;line-height:1}
+.pdm-bd{position:absolute;top:2px;width:12px;height:12px;display:grid;place-items:center}
+.pdm-bd .pdm-i{width:10px;height:10px}
+.pdm-bd.moon{right:3px;color:var(--muted)}
+.pdm-bd.warn{left:3px;color:var(--danger)}
+/* open: nothing planned. Dashed outline and a plus, tinted with the green cue */
+.st-open{border-style:dashed;border-color:color-mix(in srgb,var(--cue) 80%,var(--surface));background:color-mix(in srgb,var(--cue) 12%,var(--surface))}
+.st-open .pdm-i{color:var(--cue)}
+/* planned: a solid amber outline and a plate; two or more plans show a stack and the count */
+.st-plan,.st-stack{border-color:color-mix(in srgb,var(--accent) 75%,var(--surface));background:color-mix(in srgb,var(--accent) 22%,var(--surface))}
+.st-plan .pdm-i,.st-stack .pdm-i{color:var(--fg)}
+.st-stack .pdm-i{margin-right:6px}
+/* closed: a usual day off is a plain outline with an outline moon; off this week only is filled, with a filled moon (the weekly Plan's own language) */
+.st-usual{background:transparent;border-color:var(--muted)}
+.st-usual .pdm-i{color:var(--muted)}
+.st-week{background:color-mix(in srgb,var(--border) 75%,var(--surface));border-color:var(--muted)}
+.st-week .pdm-i{color:var(--fg)}
+/* past: a hatch, a struck number, not pickable */
+.st-past{cursor:default;border-color:transparent;background:repeating-linear-gradient(135deg,transparent 0 5px,color-mix(in srgb,var(--border) 70%,transparent) 5px 6px)}
+.st-past .pdm-n{color:var(--muted);text-decoration:line-through;font-weight:600}
+/* today: a ring, whatever the state (a shape, not a colour) */
+.pdm-c.today{box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--fg)}
+.pdm-c.today .pdm-n{text-decoration:underline;text-underline-offset:2px}
+/* the Hard avoid: a stop on every date for a meal that person cannot have; a triangle where the guard asks first */
+.g-stop{border-color:var(--danger);border-style:dashed}
+.g-stop .pdm-i{color:var(--danger)}
+.pdm-c:hover:not(:disabled){border-color:var(--fg)}
+.pdm-c:focus-visible{outline:3px solid var(--fg);outline-offset:2px;z-index:2}
+/* the month changes: a heavy rule in the gap on the left and above the first cell of a month, so the boundary reads as a step through the grid */
+.pdm-c.ml::before,.pdm-c.mt::after{content:"";position:absolute;background:var(--fg);border-radius:2px;pointer-events:none}
+.pdm-c.ml::before{left:-4px;top:-2px;bottom:-2px;width:3px}
+.pdm-c.mt::after{top:-4px;left:-2px;right:-2px;height:3px}
+.pdm-cap{display:flex;align-items:center;justify-content:flex-end;gap:6px;margin:-4px 0 0;font-size:11.5px;font-weight:700;color:var(--muted)}
+.pdm-cap .pdm-i{width:14px;height:14px}
+.pdm-st{flex:none;min-height:36px;margin:0;padding:6px 10px;border-radius:var(--r-ctl);border:1px dashed var(--border);font-size:13px;line-height:1.35}
+.pdm-st b{margin-right:4px}
+.pdm-warn-t{font-weight:700}
+.pdm-full{margin:6px 0;padding:8px 12px 6px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--bg);font-size:13px}
+.pdm-full p{margin:0 0 4px;display:flex;gap:10px}
+.pdm-full b{flex:none;width:84px;color:var(--muted)}
+.pdm-full .row-hint{display:block}
+/* the legend: at the foot of the flyout, the same swatches as the dates */
+.pdm-lg{list-style:none;margin:auto 0 0;padding:8px 0 0;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:6px 10px;font-size:11px;color:var(--fg)}
+.pdm-lg li{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.pdm-sw{width:26px;min-height:22px;height:22px;padding:0;flex-direction:row;cursor:default;border-width:1.5px;border-radius:6px}
+.pdm-sw .pdm-i{width:12px;height:12px}
+.pdm-sw .pdm-n{font-size:11px}
+.pdm-sw.st-none{background:var(--surface);border-color:var(--border)}
+.pdm-sw.st-stack .pdm-i{margin-right:0}
+.pdm-sw.today{box-shadow:0 0 0 1.5px var(--bg),0 0 0 3px var(--fg)}
+.pdm-sw.g-warn{border-color:var(--border)}
+.pdm-sw.g-warn .pdm-i{color:var(--danger)}
+/* the read-only popover */
+.pdm-pop{position:fixed;z-index:75;width:268px;padding:10px 12px;border-radius:var(--r-card);border:1px solid var(--border);background:var(--surface);color:var(--fg);box-shadow:0 12px 36px rgba(0,0,0,.35);font-size:13px;pointer-events:none}
+.pdm-pop-h{display:flex;flex-direction:column;gap:2px;margin-bottom:6px}
+.pdm-pop-h b{font:800 14px var(--head)}
+.pdm-pop-h span{font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.pdm-pop p{margin:0 0 4px;display:flex;gap:10px}
+.pdm-pop p b{flex:none;width:84px;color:var(--muted)}
+.pdm-pop .pdm-pop-q{display:block}
+.pdm-pop .pdm-pop-f{margin:6px 0 0;color:var(--muted);font-size:11.5px;display:block}
+@media (forced-colors:active){.pdm-c{border-color:ButtonText}.pdm-c.today{outline:2px solid Highlight}}
+@media (prefers-reduced-motion:reduce){.pdm-c{transition:none}}
