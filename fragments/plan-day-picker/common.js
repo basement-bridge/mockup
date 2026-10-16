@@ -200,7 +200,11 @@ document.addEventListener("keydown", function (e) {
 })();
 
 /* ---------- the ? list: the keys of the chosen option are added to Home's list ---------- */
+/* the Shortcuts list is a dialog only while it is showing; hidden and empty it must not count as a second dialog next to the Start cooking modal */
+function kbRole() { if (kbEl.hidden) { kbEl.removeAttribute("role"); kbEl.removeAttribute("aria-modal"); kbEl.removeAttribute("aria-label"); } else { kbEl.setAttribute("role", "dialog"); kbEl.setAttribute("aria-modal", "true"); kbEl.setAttribute("aria-label", "Shortcuts"); } }
+kbRole();
 new MutationObserver(function () {
+  kbRole();
   if (kbEl.hidden) { if (S.open && PK.mod && PK.mod.focus) PK.mod.focus(); return; }
   var c = kbEl.querySelector(".kbc"); if (!c || c.querySelector(".pk-kbs") || !PK.mod) return;
   if (PK.mod.patch) PK.mod.patch(c);

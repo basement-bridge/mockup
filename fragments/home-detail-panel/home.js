@@ -159,13 +159,13 @@ function drawDetail(opts) {
   if (kind === "fly") {
     d.className = "panel detail";
     if (window.HDP.flyHtml) { d.className = "panel detail rbhost"; d.innerHTML = window.HDP.flyHtml(idea(K.id)); }
-    else { d.innerHTML = skeleton(); load("flyout.js", function () { if (S.open === k) drawDetail(); }); }
+    else { d.innerHTML = skeleton(); load("flyout.js", function () { if (S.open === k && window.HDP.flyHtml) drawDetail(); }); }
   }
   else if (kind === "item") { d.innerHTML = itemHtml(item(K.id)); d.className = "panel detail" + (S.child ? " hasChild" : ""); drawChild(); }
   else {
     d.className = "panel detail";
     if (window.HDP.recipeHtml) d.innerHTML = window.HDP.recipeHtml(idea(K.id));
-    else { d.innerHTML = skeleton(); load("recipe.js", function () { if (S.open === k) drawDetail(); }); }
+    else { d.innerHTML = skeleton(); load("recipe.js", function () { if (S.open === k && window.HDP.recipeHtml) drawDetail(); }); } /* never redraw while the view is still not defined: load() calls back at once for a script already loaded, which would recurse forever */
   }
   if (fresh) d.scrollTop = 0;
 }
