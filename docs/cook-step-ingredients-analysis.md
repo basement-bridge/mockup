@@ -1,6 +1,16 @@
 # Per-step ingredients: data shape and schema analysis
 
-Owner ask, 16 Oct 2026 (voice): while cooking, show on each step the ingredients that step uses and the amount it uses. This is the analysis he asked for ("how the data shape is going to be, because it's going to be a database schema change"). Verified against `basement-bridge/recipe` at `6dc9a1e` (uat, SCHEMA_VERSION 11), `basement-bridge/kitchie` at `c6a7dbbf` (uat, schema 47), this repo at `27c7920`. Nothing is built and no schema change is made. Mockup: `fragments/cook-step-ingredients/`. Job note: `docs/knowledge/jobs-to-be-done/cook-step-ingredients.md`.
+Owner ask, 16 Oct 2026 (voice): while cooking, show on each step the ingredients that step uses and the amount it uses. This is the analysis he asked for ("how the data shape is going to be, because it's going to be a database schema change"). Verified against `basement-bridge/recipe` at `6dc9a1e` (uat, SCHEMA_VERSION 11), `basement-bridge/kitchie` at `c6a7dbbf` (uat, schema 47), this repo at `27c7920`. Nothing is built and no schema change is made. Revised 17 Oct 2026 for the owner's voice decisions (section 0). Mockup: `fragments/cook-step-ingredients/`. Job note: `docs/knowledge/jobs-to-be-done/cook-step-ingredients.md`.
+
+## 0. Owner decisions, 17 Oct 2026 (voice) and the one design
+
+1. **No backfill.** A recipe with no per-step links shows the plain full ingredient list as today: no callout, no error, no hint. Backward compatibility matters. Links are written only going forward, at create or edit time.
+2. **Tagging is always AI-derived** (the calling assistant, never manual entry), so there is no "read from text or inferred" flag on a link. In one pass at save time the assistant supplies, per step, which ingredient id(s) and what quantity that step uses. It does **not** declare a split; the reader (the cooking view, or any `get_version` consumer) groups links by ingredient id across steps to find splits and compute "rest at step N".
+3. **Open, not decided:** Q1 (A or A+) and Q4 (id minting), section 10. Both have a recommendation; neither is resolved.
+4. **Step text carries no quantities** (CSI-21). Amounts come only from per-step links and scale with servings like the ingredient list.
+5. **Is this NoSQL? No.** It is not a database-engine change. Recipe content is already JSON documents inside SQLite (content-addressed `objects` plus `revisions`); the new field lives inside the step's JSON, so there is no new table, column or engine.
+
+**The design in ten lines.** (1) `steps[].uses?: [{ing, amount}]`, stored inside the step object. (2) `ing` = ingredient item id. (3) `amount` = number | `"all"` | `"rest"` | `null`, in the ingredient's own unit and `per` basis, never converted. (4) Absent `uses` = untagged (plain list); `[]` = checked, uses nothing. (5) Scaling: Kitchie multiplies the number by the same factor as the ingredient (`scaledAmount`), so a step amount is always the same share of the scaled total. (6) Validation on the final content of each write: structural and arithmetic errors, advisory warnings, no AI on the server. (7) The write tools take `uses` as an optional field, so old callers work. (8) `get_version` already passes it through; no server-side `split` view, the consumer groups by id. (9) `ing.remove` cascades link removal; step edits warn when text changes without links. (10) Links exist in the v6 store only; no schema change, no migration, no backfill, `SCHEMA_VERSION` stays 11.
 
 ## 1. Prior art check
 
@@ -20,108 +30,126 @@ Searched issues, PRs and branches of recipe, kitchie and mockup for step, ingred
 10. **Unknown amounts.** `quantity: {value: null, basis: "unknown"}` or absent. There is no "to taste" value; it is an unknown amount. The stored unit sits on the ingredient (`unit`), `quantity` keeps `value`, `basis`, `per`, `range_max`.
 11. **Cook view today.** Ingredients screen first (checklist, scaled amounts, missing tags), then one screen per step showing only the step words (plus a timer). Kitchie renders every step section on the server and shows one, so moving between steps makes no request.
 
-## 3. Proposed shape
+## 3. Shape (final)
 
-A step gains an optional `uses` array. Stored inside the step's JSON object (so inside the existing step object, hashed and versioned like the text):
+A step gains an optional `uses`, stored inside the step's JSON object (hashed and versioned with the text):
 
 ```
-step: { text, minutes?, group?, uses?: [ { ing: "i1", amount: 1 | "all" | "rest" | null } ] }
+step: { text, minutes?, group?, uses?: [ { ing: "i1", amount: 2 | "all" | "rest" | null } ] }
 ```
 
-- `ing`: the ingredient's item id in the same version. This is the durable key (section 4).
-- `amount` is in the ingredient's own unit and its own `per` basis. Never a unit of its own, never converted.
-  - a positive number: that much goes in this step (`0.5` allowed: half a breast);
-  - `"all"`: the ingredient's whole listed amount (follows later edits to the total);
-  - `"rest"`: the listed amount minus the explicit numbers in the other steps (at most one per ingredient);
-  - `null`: used here, amount not given (shown by name with "Amount not given").
-- `uses` absent = never checked. `uses: []` = checked, no ingredients (a deliberate "let it rest"). The reader treats these differently.
-- Basis is not stored per link; a number the assistant read off the step text is the same kind of fact as the step text. Open question 3.
+| Field | Type | Meaning |
+|---|---|---|
+| `ing` | string | the ingredient's item id in the same version; the durable key (section 4) |
+| `amount` | positive finite number | this step uses that much, in the **ingredient's own unit and `per` basis** (`2` of `3` eggs; `1` of `2` cups) |
+| | `"all"` | the whole listed amount (follows later edits to the total) |
+| | `"rest"` | the listed amount minus the explicit numbers of the other steps; at most one per ingredient |
+| | `null` | used here, amount not given |
 
-Output: `get_version` already passes stored item fields through (`readShape`), so `content.steps[].uses` appears with no read-side change. Kitchie's sanitiser (`recipe-client.ts`) and `RecipeStep` type gain `uses`.
+How each case is represented, nothing invented:
+- **No unit** (3 eggs): the ingredient has no `unit`; `amount` is a count of the same thing. A link never has a unit of its own, so units cannot disagree and are never converted.
+- **"To taste", "as needed", unreadable:** the ingredient's quantity is unknown (`{value: null, basis: "unknown"}`), and the link is `amount: null`. The assistant writes a number only if the step source states one.
+- **Unknown total, number stated:** accepted as stated (warning `uses_amount_without_total`, no sum check; `"all"`/`"rest"` resolve to unknown).
+- **Range ingredient** (`range_max`): numbers refer to the low end `value`; no sum check against `range_max`.
+- **Absent vs empty:** `uses` absent = never tagged (untagged recipe, plain list, no error); `[]` = checked, uses nothing (a rest or wait step).
+
+**Scaling decision: store the number, scale it with the ingredient's factor.** Kitchie multiplies each link number by exactly the factor it uses for the ingredient (`cookServes / recipeServes`, or `cookServes` when `per = "serving"`), through the same `scaledAmount` rounding. That equals taking a fixed share of the scaled total, so a step amount can never drift from the list. A stored fraction/share was rejected: it is awkward for the assistant to write (0.6667), it hides the amount people actually read in a recipe ("2 of 3 eggs"), and it makes rounding worse. Sum rules (stored values, before scaling): explicit numbers of one ingredient across steps must not exceed the total (0.1% tolerance for decimals); `rest` = total - explicit sum and must be above zero; `all` stands alone. After scaling, only the display is rounded (quarters and thirds); `rest` is computed from unrounded values and then rounded, so displayed parts may be a quarter off the displayed total, and nothing is adjusted silently.
+
+**Split detection is the reader's job.** The assistant just lists, per step, the ingredient and its amount. The reader groups all links by `ing` across steps: more than one step means a split; the "->" chips, "still to come" and "rest at step N" are computed from that grouping. No `split` flag is stored.
 
 ### Options considered
 
 | | Option | Verdict |
 |---|---|---|
-| **A (recommended)** | `uses` inside the step object. No DDL, `SCHEMA_VERSION` stays 11, no migration, no backfill. History, undo, rebase, content-addressing all work unchanged. | Chosen |
-| B | New table `step_ingredients(version, step, ing, amount)`. It is the "schema change" the owner expected, but it sits outside revisions: links would need their own history, undo and rebase, breaking BR1/BR3/BR14. Migration would be v12. | Rejected |
-| C | Links on the ingredient side (`ingredient.steps[]`). Makes the sum check trivial but every step edit or reorder touches ingredients, tagging is per step in practice, and the read is per step. | Rejected |
-| A+ | A, plus bump `SCHEMA_VERSION` to 12 with an empty migration, purely so old code refuses the file. | Not recommended: costs a backup-restore rollback for no data need; see rollout. |
+| **A (recommended)** | `uses` inside the step object. No DDL, `SCHEMA_VERSION` stays 11, no migration. History, undo, rebase, content-addressing work unchanged. | Chosen |
+| B | New table `step_ingredients`. Sits outside revisions (own history, undo, rebase; breaks BR1/BR3/BR14); would be schema 12. | Rejected |
+| C | Links on the ingredient (`ingredient.steps[]`). Every step edit touches ingredients; read is per step. | Rejected |
+| A+ | A plus an empty schema-12 bump as a rollback guard. | Open, Q1 |
 
-So the honest answer to "will it be a database schema change": the database schema does not change; the **content shape** (the JSON inside step objects) does, and the authoring contract and zod schemas do. If the owner wants a hard guard anyway, A+ is a one-line addition.
+## 4. Durable key, edits, reorder, versions, variations
 
-## 4. Durable key, edits, reorder, versions
+- **Key = the ingredient's item id**, already stable across edit, reorder, new versions and spin-offs (2.4).
+- **Reorder** (`ing.move`, `step.move`): nothing to do; links name ids.
+- **Edit an ingredient** (`ing.update`): id kept, links follow. A swap (pork for chicken) keeps id and amounts, right when the unit is the same. If the total changes, the sum check runs on the final content (partial/over warnings or errors).
+- **Remove an ingredient** (`ing.remove`): the server cascades in the same revision, adding `step.update` ops that drop that id from every step's `uses` (visible in the diff, undone with the removal). **Remove a step:** its links go with it.
+- **Step text changed, `uses` unchanged:** warning `uses_maybe_stale` (never blocks, never rewrites). `step.text` and `step.update` keep unrelated fields (generic `patchItem` merges, `ops.ts:56`).
+- **A step's `uses` is replaced whole** (`step.update set uses`), the same "arrays replaced, not merged" rule as variation metadata. No element-level edit.
+- **Variations and versions (v6).** A variation is a version with a pinned parent revision and its own op line, so it **inherits the parent's steps and therefore its links**, and any op it applies is by id. A child that changes an ingredient amount or adds an ingredient is validated on the resolved child; the assistant fixes the links in the same call. A child that adds an ingredient adds links to its steps (`step.update set uses`) or leaves it untagged (warning `ingredient_unused`).
+- **Revisions, undo, restore, revert:** unchanged and immutable. `uses` is part of the step object, so restore returns text and links together; `revert_change` of one op reverts that op.
+- **Rebase:** an ingredient edit (`ing:i1`) and a links edit (`step:s2`) are disjoint, so they rebase silently and could break a sum. Rule: re-run link validation on the rebased result; on failure return `stale_base` naming the step ids.
+- **The two data worlds (recipe#126):** links are **v6-only**. Legacy tools (`create_variation`, `get_variation`, `get_resolved_recipe`, `get_recipe`) read the v5 tables, whose non-strict `StepSchema` would strip `uses`; they stay unchanged, return no links, and `create_variation` is still live (legacy) with no `uses` input. `migrateV5Data` copies steps as they are and never invents links. Result: a legacy-only recipe shows the plain list.
 
-- **Key = the ingredient's item id.** It is already stable across edit, reorder, new versions, variations and spin-offs (2.4). No second key is needed. A parallel key would only add a second thing to keep in step.
-- **Reorder** (`ing.move`, `step.move`): nothing to do; links name ids, not positions.
-- **Edit an ingredient** (`ing.update`, `ing.replace`): id kept, links follow. A swap (pork for chicken) keeps the id and the amounts, which is right when the unit stays the same.
-- **Remove an ingredient** (`ing.remove`): the server cascades in the same revision, adding `step.update` ops that drop the dangling links, visible in the diff. Without this, `freshId` reuse would silently attach old links to a new ingredient. Proposal: also mint `max+1` instead of lowest free, so ids are not recycled within a line at all (small, safe change to `freshId` and `assignIds`).
-- **Remove a step**: its links go with it (they live in the step).
-- **Split or merge steps**: the assistant re-tags in the same call (`step.add` / `step.update` with `uses`).
-- **Replace step text** (`step.replace`/`step.text`): warning `uses_maybe_stale` when a step with `uses` changes text and `uses` is not in the same call. Never blocks, never rewrites.
-- **New version / variation:** inherits the parent's steps, so their links. Child ops are by id, so a changed ingredient amount or an added ingredient is validated on the resolved child (section 5). A link set is replaced as a whole per step (`step.update set uses`), the same "arrays replaced, not merged" rule as variation metadata; no element-level merge.
-- **Revisions, undo, restore, revert:** unchanged. `uses` is part of the step object, so a restore returns links and text together; `revert_change` of one op reverts that op.
-- **Rebase:** an ingredient edit (`ing:i1`) and a step links edit (`step:s2`) are disjoint, so they would rebase silently and could break a sum. Rule: re-run link validation on the rebased result; on failure return `stale_base` naming the step ids.
-- **Legacy world:** no links; `migrateV5Data` copies steps as they are and never invents links.
+## 5. MCP tool contract
 
-## 5. Validation and who tags
+**Who tags.** The calling assistant, in the same call that creates or edits the steps. The server never reads prose with AI (AGENTS.md); it checks structure and arithmetic only, in `normaliseRecipe` and `prepareInputOps`, on the **final** content of the call.
 
-**Who tags.** The calling assistant, at save time, in the same call: `create_recipe` (`recipe.steps[].uses`), `import_recipes`, `patch_version` (`step.add` with `uses`, `step.replace`/`step.update` with `uses`). `validate_recipe` runs the same checks (dry run). The server never reads step prose with AI (AGENTS.md: reasoning belongs to the caller). It checks only structure and arithmetic, in `normaliseRecipe` and `prepareInputOps`, on the **final** content of the call (so one call can edit an ingredient and fix the links).
+| Tool | Change |
+|---|---|
+| `create_recipe`, `import_recipes` | `recipe.steps[].uses` optional (`StepIn` stays `.strict()`; old callers never send it) |
+| `patch_version` (`new_version` and `spin_off`) | `step.add` takes `uses`; `step.update set.uses` / `unset: ["uses"]`; `step.replace` accepts it. Same validation on the final content |
+| `validate_recipe` | same checks as `create_recipe` (dry run), returns the same errors and warnings |
+| `create_variation` (legacy, v5) | unchanged, no links |
+| `get_version`, `get_family` | no change; `readShape` spreads item fields, so `content.steps[].uses` appears (verified, `revisions/content.ts` `toResolvedJson`) |
+| `get_resolved_recipe` (legacy) | unchanged, no links |
+| `list_families` | **no `step_links` field.** It existed only to drive a backfill; with no backfill it is dropped. Can be added later if wanted |
+
+**Read side.** Return the stored `uses` raw; **no server-side `split` view** (recommended). Recipe never scales and does not render; the grouping depends on servings and the current step, so it belongs in Kitchie's pure `stepIngredients`, where it is tested once. Any other `get_version` consumer groups by `ing` the same way (one paragraph in the authoring contract).
+
+**Validation.** Errors block the save; warnings are returned and never block. No silent guessing, no rewriting.
 
 | Rule | Level |
 |---|---|
-| `ing` must exist in the version | error `invalid` |
-| one ingredient at most once per step | error |
-| `amount` is a positive finite number, `"all"`, `"rest"` or null; at most 30 links per step | error |
-| at most one `"rest"` per ingredient; `"all"` cannot be combined with any other link to the same ingredient | error |
-| explicit numbers over all steps exceed the ingredient total (tolerance 0.1%) | error `uses_over_total` naming steps |
-| ingredient total unknown or absent: numbers are accepted as stated, no sum check, `"all"`/`"rest"` resolve to unknown | accepted |
-| explicit numbers sum below the total with no `"rest"`/`"all"` | warning `uses_partial` (the remainder shows nowhere) |
-| ingredient used in no step | warning `ingredient_unused` (garnish, serve-with) |
-| some steps tagged, some not | warning `steps_untagged` listing ids |
+| `ing` not an ingredient id in the version | error `invalid` |
+| same ingredient twice in one step | error `invalid` |
+| `amount` not a positive finite number, `"all"`, `"rest"` or null; more than 30 links in a step | error `invalid` |
+| two `"rest"` for one ingredient; `"all"` combined with another link to it; `"rest"` with nothing left | error `invalid` |
+| explicit numbers across steps exceed the total (0.1%) | error `uses_over_total`, names the steps |
+| number given when the ingredient total is unknown | warning `uses_amount_without_total` |
+| numbers sum below the total with no `rest`/`all` | warning `uses_partial` |
+| ingredient used in no step | warning `ingredient_unused` (garnish, serve with) |
+| some steps tagged, some not | warning `steps_untagged`, lists ids |
 | step text changed, `uses` unchanged | warning `uses_maybe_stale` |
-| a number not read from the step text or source | caller rule: use `null`. Never invent (BR12) |
-| step text contains a quantity (number plus a unit, or a counted ingredient: "2 cups flour", "3 cloves") | warning `step_text_quantity` naming the step ids. Proposal, owner-stated rule CSI-21. Durations and temperatures ("10 minutes", "220 degrees") do not count. Never blocks, never rewrites |
+| step text has a number plus a unit or a counted ingredient ("2 cups flour", "3 cloves"; durations and temperatures excluded) | warning `step_text_quantity`, names the steps. Plain pattern, never blocks, never rewrites |
 
-**No quantities in step text (owner rule, 17 Oct 2026, CSI-21).** Step text names ingredients without amounts ("add the flour", not "add 2 cups flour"). Any amount a step shows comes only from its `uses` link, which scales with servings exactly like the main ingredient list, so one source of truth and two numbers can never drift apart (a step saying "2 cups" while the strip says "4 cups" at double servings). The rule is prescriptive for the assistant: when it creates or patches a recipe it writes step text without quantities, and quantities live only in `ingredients[]` and in `uses`. Enforcement is guidance plus the soft `step_text_quantity` warning above; the server still never reads prose with AI, so the check is a plain pattern (number followed by a known unit word, or a leading count before an ingredient name). Tool description wording (proposal, for `create_recipe`, `patch_version` and the MCP server instructions): "Write step text without quantities. Say 'add the flour', not 'add 2 cups flour'. Amounts live only in the ingredient list and in each step's `uses` links." **Existing recipes whose steps already contain quantities keep them:** the strip does not rewrite step text, the warning appears only when a step is edited or created, and a backfill pass may offer to remove quantities from a step's words in the same `patch_version` as it adds the link, as a normal undoable revision, never automatically.
+**Wording (tool descriptions of `create_recipe`, `import_recipes`, `patch_version`, `validate_recipe`, and the MCP server instructions).** One block, same text everywhere: "For every step, list in `uses` the ingredient ids that step uses and the amount it uses, in the ingredient's own unit. Use `\"all\"` for the whole amount, `\"rest\"` for what is left, `null` when the amount is not stated or the ingredient is 'to taste'. Never guess an amount and never convert units. Write step text without quantities: say 'add the flour', not 'add 2 cups flour'; amounts live only in the ingredient list and in `uses`." Applied to the field descriptions too (the `mcp-descriptions.test.ts` walk covers them). **Existing recipes with quantities in step text keep them**; the rule applies to text the assistant writes from now on.
 
-**Rounding.** Totals and parts are stored as given (decimals allowed, `0.5`); only Kitchie rounds, for display, with the existing quarter/third rule. Parts are scaled with the same factor as totals, so `"rest"` stays consistent at any serving size. Display rounding may not add up (`⅓ + ⅓ + ⅓`); nothing is adjusted silently.
+## 6. Kitchie side
 
-**Existing recipes without links.** No `uses` on any step: Kitchie shows today's screen, no strip, no hint. Backfill is an assistant pass through `patch_version` (`target: fix`, user intent, dry run first), one recipe at a time, each a normal undoable revision. To find them cheaply, `list_families` rows gain `step_links: "none" | "partial" | "full"` (derived from `head_cache`, no new table). No auto-backfill, no server guess. Partly tagged: strips only on tagged steps; the "still to come" list only when every step is tagged.
+- **Pass-through.** `recipe-client.ts` is a field-whitelisting sanitiser, so it must read `steps[].uses` explicitly (bounded: 30 per step; `ing` matched against the ingredient list; unknown ids dropped, never an error; `amount` accepted only as a positive number, `"all"`, `"rest"` or null, anything else treated as null). The `RecipeStep` type gains `uses`. Nothing else is whitelisted by accident.
+- **Cooking view.** `cook-model.ts` gets a pure `stepIngredients(content, step, servings)`: groups links by `ing` across steps, then number x factor, `all` = scaled total, `rest` = scaled total minus the others, null = no amount (nothing shown on the right, no placeholder). It returns this step's lines, the chips (`-> step 7`, none on the final use), still-to-come and already-used groups as in the mockup.
+- **No links, no change.** A recipe with no `uses` anywhere renders exactly today's markup. No callout, no hint, no error. Half tagged: strips only on tagged steps, no still-to-come list.
+- **Platform mode.** Verified read-only in `basement-bridge/platform`: it issues tokens and routes by path prefix (`recipe-uat` with `strip_prefix`); it does not parse or rewrite MCP tool payloads, and no platform code references `get_version`. Kitchie reads Recipe with the member's token directly, so `uses` reaches Kitchie unchanged. Re-check by one live `get_version` on uat once built.
+- No Kitchie schema change (`SCHEMA_VERSION` stays 47), no new request, no AI at read time.
 
-## 6. Contract and MCP changes (all optional fields, backward compatible)
+## 7. Compatibility matrix
 
-- `StepIn` gains `uses` (still `.strict()`; an old client simply never sends it). `OpIn` `step.update.set` gains `uses`; `step.add` and `step.replace` accept it; `step.update.unset` may list `uses`.
-- `stepItem` stores `uses` (normalised: sorted keys, numbers as numbers); `ops.ts` generic `patchItem` already carries it; `diffrows.ts` renders a "step links" row.
-- Tool and field descriptions (test `mcp-descriptions.test.ts` walks them) and `docs/recipe-authoring-contract.md` sections 2 and 3.4 updated; MCP server instructions get one line: tag each step with the ingredients and amounts it uses, null when unsure, never guess.
-- `list_families` gains `step_links`. No change to `get_version`'s envelope.
-- `get_resolved_recipe`, `create_variation` (legacy): unchanged, no links.
+| Case | Result |
+|---|---|
+| Old recipe (no `uses`), new Recipe | unchanged; no warnings except those about steps the call touches |
+| Old recipe, new Kitchie | plain list, today's markup |
+| New recipe (has `uses`), old Recipe build | reads and returns `uses` untouched; `step.text` and `step.update` preserve it (`patchItem` merges); new `uses` input refused by `.strict()`; `ing.remove` has no cascade, so a dangling `ing` may remain (Kitchie drops it) |
+| New recipe, old Kitchie | the whitelist drops `uses`; plain list |
+| Old Kitchie, new Recipe | same as above |
+| Legacy-only (v5) recipe | no links, plain list |
 
-## 7. Kitchie consumption (read only, deterministic)
+**Rollout.** (1) Recipe to uat (contract, validation, cascade, tool descriptions, tests). Promotion to main migrates nothing. (2) Kitchie to uat (reads; harmless without links). (3) Verify platform passthrough with one live `get_version`. (4) New and edited recipes then carry links as the assistant writes them. Rollback: either side can be reverted alone; with A no restore is needed.
 
-- `recipe-client.ts`: parse `uses` with bounds (30 per step, ids matched against the ingredient list, anything unknown dropped, never an error).
-- `cook-model.ts`: a pure `stepIngredients(content, step, servings)` using `scaledAmount`: number x factor, `"all"` = scaled total, `"rest"` = scaled total minus the others, null = no amount. Also the later-steps chip data (`"\u2192 step 7"`, `"\u2192 4, 7"`, none on the final use; replaces the earlier "left for step n" sentence, owner decision 17 Oct 2026) and the still-to-come / already-used groups: still to come ordered by the first later step that uses each ingredient, with the remaining amount; already used folded behind a collapsed "Already used (n)" row on the phone. A quantity is omitted entirely when the link has no amount (no placeholder text). Phone: option A callout (name left, quantity right) with a tight/roomy rule (step photo, step text over 160 characters, or viewport height under 600 px caps still-to-come at three behind "+n more"). Desktop: chips inside the step card plus a dock for the two lists (accent for still to come, grey for already used).
-- `cook-html.ts` `stepScreen`: adds the strip next to the step words. All step sections are already rendered up front, so no extra request and no AI. Nothing on the ingredients screen, pantry matching, `cook_meal`, end-of-cook or ideas changes.
-- Kitchie schema: no change (it stores no recipes). Kitchie `SCHEMA_VERSION` stays 47.
+## 8. Risks
 
-## 8. Rollout, rollback, risks
-
-1. **Recipe first** (uat): contract + validation + `list_families.step_links` + tests; deploy to uat. Because `SCHEMA_VERSION` is unchanged, promoting uat to main migrates nothing in production. Old Recipe code on a database holding links still opens it, returns `uses` untouched, and `.strict()` refuses new `uses` input; the only gap is that old code has no cascade on `ing.remove`, so Kitchie must (and will) ignore a dangling `ing` rather than fail.
-2. **Kitchie** (uat) reads and shows: needs the Recipe field to exist, but is harmless without it (no links, no strip).
-3. **Platform mode:** confirm platform's proxy passes `get_version` content through untouched (not verified here; it is a proxy of the Recipe routes).
-4. **Assistant behaviour:** tagging quality is the whole feature. Mitigation: arithmetic checks, `null` when unsure, warnings, dry run, and the diff row showing links so the person can revert.
-5. **Risks:** recycled ids (fixed by cascade and max+1); text edited but links stale (warning only); a rebase that breaks a sum (re-validate); two worlds (#126) so legacy recipes never get links until the alias slice; strip clutter on long lists (callout caps at five, still to come caps at three only when room is tight).
+Tagging quality is the whole feature: mitigated by arithmetic checks, `null` when unsure, warnings, dry run, and the diff row showing links so the person can revert. Id reuse (Q4). Text edited, links stale (warning only). A rebase breaking a sum (re-validate). Two worlds (legacy gets none). Strip clutter on long lists (the mockup caps and folds). A recipe whose steps still hold quantities and whose strip shows a different number (only when old text is kept; the warning is the nudge).
 
 ## 9. Test plan
 
-Recipe: zod and normalise unit tests for every row of section 5; `ops` round-trip with `step.update uses`; checkpoint rebuild with links; `ing.remove` cascade and id minting; revert and restore of a links change; rebase breaking a sum; new version inherits links and validates a changed total; `validate_recipe` parity with `create_recipe`; old-code compatibility fixture (a step with `uses` read by the previous build); contract and MCP description tests; `list_families.step_links`. Kitchie: `stepIngredients` pure tests (all, rest, explicit, null, scale 2/4/6, rounding, split text, dangling id, untagged, tagged-empty, partial); HTML test that an untagged recipe renders exactly today's markup; screenshot checks at 360 and 390, light and dark.
+Recipe: normalise/zod tests for every row of section 5; `ops` round trip with `step.update uses`; checkpoint rebuild with links; `ing.remove` cascade; id minting (per Q4); revert and restore of a links change; rebase breaking a sum; new version inherits links and validates a changed total; `validate_recipe` parity with `create_recipe`; old-build fixture (a step with `uses` read, text-edited and replaced by the previous build); contract and description tests; untagged recipe fixture unchanged byte for byte. Kitchie: `stepIngredients` pure tests (all, rest, explicit, null, no unit, scale 2/4/6, per serving, rounding, split, dangling id, untagged, tagged-empty, partial); untagged recipe renders today's markup; sanitiser drops bad `uses`; screenshots at 360 and 390, light and dark.
 
 ## 10. Open questions for the owner
 
-1. Option A (no SQL change, content shape only) or A+ (also bump to schema 12 as a guard)? Cost of A+: rollback needs a backup restore, as with v6 and Kitchie 44.
-2. Confirm v6-only: legacy recipes get no links until the alias slice (#126). Cost of a wrong guess: a legacy-only recipe shows no strip.
-3. Per-link basis (observed or inferred) like quantities have? Proposal no. Cost: no way to tell a read amount from a guessed one.
-4. Backfill: one recipe at a time on request, or a batch pass with one approval? Cost of batch: many revisions the person has not looked at (each undoable).
-5. `max+1` id minting: acceptable change to existing behaviour?
-6. ~~Mockup choice A, B or C~~: owner chose A on 17 Oct 2026 (phone), with a desktop composition mixing B (chips) and C (dock). Whether "still to come / already used" belongs on the step screen at all is settled for now: yes, still to come in view, already used folded away.
-7. Step text without quantities (CSI-21, owner-stated 17 Oct 2026): confirmed as a rule. Open: should the warning `step_text_quantity` ever become an error? Proposal no.
+**Q1 (open). Option A (no SQL change) or A+ (empty schema-12 bump as a rollback guard)?** Re-verified with no backfill: **A still holds.** Nothing writes to existing recipes on deploy, promotion migrates nothing, and old Recipe code opening a database with links reads them, keeps them through text edits, and only refuses new `uses` input. A+ would make old code refuse the file, but old code is harmless on it, and a rollback would then need a backup restore (as with v6 and Kitchie 44). **Recommendation: A.**
+
+**Q4 (open, not answered by the owner). How are new ingredient ids minted?** Today `freshId` takes the lowest free number, so removing `i2` and adding an ingredient recycles `i2`. With the cascade, links inside one version cannot go to the wrong ingredient. The remaining hazard is a stale or concurrent writer (an assistant still holding `i2` from an earlier read, or a rebase) whose link to `i2` now silently names a different ingredient, and history rows that read "i2" with two meanings. Options:
+- (a) keep lowest-free plus cascade: zero change; hazard above stays;
+- (b) highest existing + 1 (the owner's phrasing): small change to `freshId`/`assignIds`; but removing the **highest** id and adding one still reuses it;
+- (c) highest id ever used in that version's revision history + 1: closes the gap fully, no schema change (ids are already in the ops), costs one scan of op ids per `ing.add`.
+**Recommendation: (c)**, or (b) if (c) proves costly. Not resolved here; existing ids never change either way.
+
+Closed: Q2 v6-only (confirmed by the owner's no-backfill rule, legacy recipes get none). Q3 per-link basis: no (decision 2, always assistant-derived). Backfill question: dropped (decision 1). Mockup choice: option A, desktop mix (17 Oct). Step text without quantities: rule confirmed; `step_text_quantity` stays a warning, never an error.
