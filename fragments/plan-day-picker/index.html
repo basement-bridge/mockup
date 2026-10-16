@@ -16,17 +16,17 @@
 <div class="sec"><div class="lbl">Owner, 15 October 2026 (voice)</div>
 <p>He wants to choose by looking at working options, not by prose. Raised the same day, typed: &ldquo;raise an issue about the best way to do the selection of day of week to plan on the desk..&rdquo;.</p></div>
 
-<div class="sec"><div class="lbl">Just the day rows (option F, on its own)</div>
-<p><a href="day-rows.html">Open the day rows</a>: a rolling seven days from today, a square day-name label on the left, what is planned on the right, read only, no date.</p></div>
+<div class="sec"><div class="lbl">Owner decision, 16 October 2026 (voice): option F it is</div>
+<p>F is chosen and is the recommendation. A to E and G stay here, marked not chosen. <a href="day-rows.html">Open the day rows on their own</a>: a rolling seven days from today, a square day-name label on the left (no date), what is planned on the right, read only. It shows the scenarios (usual day off, day off this week only, meal planned by you, meal planned by another person, Everyone with the Hard avoid guard) and a line for what picking would do. Picking a row plans at once: no Plan, Confirm or Cancel; Esc or X closes; a wrong pick is fixed by picking again (Undo chip).</p></div>
 
 <div class="sec"><div class="lbl">The options (open one; the A to E switch is at the foot of the left rail on every page)</div>
 <div class="tbl"><table>
 <tr><th>Option</th><th>Open</th><th>What to look for</th></tr>
 <tr><td><b>A</b> Strip plus keys</td><td><a href="home.html?pick=a">desktop</a></td><td>Today's strip and week arrows, with a keyboard layer. Opens with focus on the strip and today chosen; <kbd>&larr;</kbd> <kbd>&rarr;</kbd> move, <kbd>Enter</kbd> plans, a digit or a letter jumps to a day, <kbd>?</kbd> lists the keys. A week past this one still needs the arrows (the issue's cost for A).</td></tr>
 <tr><td><b>B</b> Quick picks</td><td><a href="home.html?pick=b">desktop</a></td><td>Tonight, Tomorrow, Another day&hellip;. A free day is one click. Tomorrow is a usual day off in the sample, so it waits for Plan with the note. Another day&hellip; opens the strip.</td></tr>
-<tr><td><b>C</b> Four-week grid <span class="rec">agent recommendation</span></td><td><a href="home.html?pick=c">desktop</a></td><td>A panel beside the Plan button: four rows of seven days, today ringed, past greyed, each cell shows the meal, a usual day off says Off. Today preselected; four arrow keys, <kbd>Enter</kbd> plans, A's digit and letter jumps.</td></tr>
+<tr><td><b>C</b> Four-week grid <span class="rec">not chosen (was the earlier recommendation)</span></td><td><a href="home.html?pick=c">desktop</a></td><td>A panel beside the Plan button: four rows of seven days, today ringed, past greyed, each cell shows the meal, a usual day off says Off. Today preselected; four arrow keys, <kbd>Enter</kbd> plans, A's digit and letter jumps.</td></tr>
 <tr><td><b>D</b> On the Plan page</td><td><a href="home.html?pick=d">desktop</a></td><td>Add to plan takes you to the week, carrying the meal. Drag it onto a day, or choose a day and press Enter. Leaving Home is the cost.</td></tr>
-<tr><td><b>F</b> Right flyout</td><td><a href="home.html?pick=f">desktop</a> · <a href="home.html?pick=f&amp;fit=tight">tight</a></td><td>Slides in over the same slot as the permanent This week panel (its content is swapped, then handed back). Roomy: the four-week grid (C's). Tight: Tonight / Tomorrow / Pick a day, and only Pick a day opens the grid. Same keys as A and C. Roomy or tight follows the window (1440px and up is roomy); force it with <code>fit=roomy|tight</code> or the Mockup only buttons at the foot of the flyout.</td></tr>
+<tr><td><b>F</b> Right flyout <span class="rec">chosen by the owner, recommended</span></td><td><a href="home.html?pick=f">desktop</a> &middot; <a href="home.html?pick=f&amp;night=planned">tonight planned</a> &middot; <a href="day-rows.html">day rows alone</a></td><td>Slides in over the This week slot (content swapped, then handed back). Who is it for pills on top, then a plain rolling list of the next seven days from today. Each row: day name on the left, what is planned on the right. Selecting a row plans at once; no Plan, Confirm or Cancel. <kbd>&uarr;</kbd> <kbd>&darr;</kbd> move, <kbd>Enter</kbd> picks, <kbd>Esc</kbd> or X closes, <kbd>?</kbd> lists them. Under Everyone a row shows only the household plan, with a subtle peek if someone has their own plan; <kbd>&rarr;</kbd> or the peek opens that night in full, <kbd>&larr;</kbd> folds it. A usual day off is not locked. Mockup-only switches at the foot: Jo avoids mango; off days refuse (today's code).</td></tr>
 <tr><td><b>G</b> Cooking ideas curtain</td><td><a href="home.html?pick=g">strip</a> · <a href="home.html?pick=g&amp;other=grid">grid</a></td><td>Add to plan is removed from the detail pane; it is only the Plan button on each card under Cooking ideas. It drops a curtain under the card with Today / Tomorrow / Other. Other is the open question: a compact week strip (<code>other=strip</code>) or a small grid (<code>other=grid</code>), also switchable inside the curtain. The owner said G is most likely not something we will do.</td></tr>
 <tr><td><b>E</b> Do nothing</td><td><a href="home.html?pick=e">desktop</a></td><td>Today's sheet, unchanged, as a full-width bottom sheet. Nothing preselected, two clicks for the usual case.</td></tr>
 </table></div>
@@ -34,7 +34,7 @@
 <div class="links"><a href="home.html?pick=a&amp;avoid=mango">A with a Hard avoid</a><a href="home.html?pick=c&amp;avoid=mango">C with a Hard avoid</a><a href="home.html?pick=c&amp;today=busy">C, today busy</a><a href="home.html?pick=c&amp;replace=0">C, no replace</a></div></div>
 
 <div class="sec"><div class="lbl">Owner rule, 16 October 2026 (voice), in every option</div>
-<p>Under Cooking ideas, when the primary recommendation is the meal already planned for tonight (the &ldquo;Planned for today&rdquo; card) it has <b>no Plan button</b>, on the card or in the right-hand pane: the person has already made that plan. If nothing is planned for tonight the primary recommendation does have Plan. The Other ideas rows always keep Plan, so a person can override what they planned (Replace on the desktop Home card). Open both states: <a href="home.html?pick=c">nothing planned</a> · <a href="home.html?pick=c&amp;night=planned">planned</a>.</p></div>
+<p>Under Cooking ideas, when the primary recommendation is the meal already planned for tonight (the &ldquo;Planned for today&rdquo; card) it has <b>no Plan button</b> and a <b>Start cooking</b> button (PD-R2, visual only here), on the card or in the right-hand pane: the person has already made that plan. If nothing is planned for tonight the primary recommendation does have Plan. The Other ideas rows always keep Plan, so a person can override what they planned (Replace on the desktop Home card). Open both states: <a href="home.html?pick=c">nothing planned</a> · <a href="home.html?pick=c&amp;night=planned">planned</a>.</p></div>
 
 <div class="sec"><div class="lbl">Rules every option keeps (from the issue)</div>
 <ul class="decs">
@@ -56,7 +56,7 @@
 
 <div class="sec"><div class="lbl">Open questions</div>
 <ul class="q">
-<li>Which option, A, B, C, D or E? (Recommended C with A's keyboard rules; fallback A.)</li>
+<li>Answered 16 Oct 2026: option F.</li>
 <li>Anchored to the Plan button (C) or a bottom sheet? Today preselected? (PD-P1)</li>
 <li>Four rows or five in C (PD-P3)? Does the plan read take a week offset or a range (PD-P4)?</li>
 <li>Do letter and digit jumps (PD-P2) stay, given the shared shortcut registry (Kitchie #594)?</li>

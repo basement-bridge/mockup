@@ -12,7 +12,7 @@
     meals: {
       0: [{ name: "Shakshuka", who: "all" }], 1: [{ name: "Egg fried rice", who: "all" }],
       4: [{ name: "Salmon patties", who: "me" }], 5: [{ name: "Veg stir-fry", who: "all" }], 6: [{ name: "Chilli noodles", who: "Jo" }],
-      7: [{ name: "Prawn curry", who: "all" }], 9: [{ name: "Leftovers curry", who: "me" }], 12: [{ name: "Pizza night", who: "all" }],
+      7: [{ name: "Prawn curry", who: "all", notFor: ["Jo"] }, { name: "Cheese toastie", who: "Jo" }], 9: [{ name: "Leftovers curry", who: "me" }], 12: [{ name: "Pizza night", who: "all" }],
       15: [{ name: "Lamb tagine", who: "all" }], 18: [{ name: "Fish tacos", who: "me" }], 21: [{ name: "Lentil soup", who: "all" }],
       23: [{ name: "Roast chicken", who: "all" }], 30: [{ name: "Dal and rice", who: "all" }]
     }
@@ -34,7 +34,9 @@
     /* Home draws "Planned for today" with its sample date and a Plan button; this host fixes the date and drops the button, every time Home redraws the card */
     var ideas = document.getElementById("ideas");
     if (ideas) new MutationObserver(function () {
-      var b = ideas.querySelector('.lead [data-act="planlink"]'); if (b) b.remove();
+      /* the card's Plan is gone; in its place Start cooking (owner, 16 Oct 2026; visual only here) */
+      var b = ideas.querySelector('.lead [data-act="planlink"]');
+      if (b) { b.setAttribute("data-act", "startcook"); b.textContent = window.PK_COOKING ? "Cooking now" : "Start cooking"; b.className = "btn sm pri"; if (window.PK_COOKING) b.disabled = true; }
       var k = ideas.querySelector(".k.planned"); if (k && /Mon 12/.test(k.textContent)) k.innerHTML = k.innerHTML.replace("Mon 12", "Wed 14");
     }).observe(ideas, { childList: true, subtree: true });
   }

@@ -81,6 +81,19 @@ PK.kbd = function (c) { return '<kbd class="kbd">' + c + "</kbd>"; };
 /* ---------- planning it: writes to the sample calendar, redraws Home's own week, gives an Undo ---------- */
 PK.commit = function (n, o) {
   o = o || {}; var r = PK.R(), inf = PK.info(n), rep = PK.replaces(n), a = A();
+  /* an option that has its own rules for what a pick replaces and who it leaves out (F) says so through mod.rules; A, B, C, D, E and G keep the sheet's rules */
+  var rs = PK.mod.rules ? PK.mod.rules(n, o) : null;
+  if (rs) {
+    var arr0 = (P.meals[n] || []).slice(), prev0 = JSON.stringify(arr0), gone = arr0.filter(rs.remove), keep = arr0.filter(function (m) { return !rs.remove(m); });
+    if (rs.carve) keep.forEach(function (m) { if (m.who === "all") m.notFor = [].concat(m.notFor || [], rs.carve).filter(function (x, i, z) { return z.indexOf(x) === i; }); });
+    keep.push({ name: r.name, who: rs.who, hold: S.hold, notFor: rs.notFor || [] }); P.meals[n] = keep;
+    PK.close(true); P.syncHome(); H.set({}); PK.refocus();
+    var nf = rs.notFor && rs.notFor.length ? ", for everyone but " + rs.notFor.join(" and ") : "";
+    H.toast(esc(r.name) + (gone.length ? " replaces " + esc(gone.map(function (m) { return m.name; }).join(" and ")) + " on " : " is planned for ") + inf.label + nf + (rs.stays ? ". " + esc(rs.stays) : "") + (S.hold ? (rs.stays ? " What is in is held" : ", what is in is held") : "") + ".", function () {
+      P.meals[n] = JSON.parse(prev0); if (!P.meals[n].length) delete P.meals[n]; P.syncHome(); H.set({}); if (S.open && PK.mod.undone) PK.mod.undone();
+    });
+    return;
+  }
   var who = o.leave ? "me" : S.who === "all" ? "all" : S.who === P.me ? "me" : S.who, prev = JSON.stringify(P.meals[n] || []), hold = S.hold;
   var arr = P.meals[n] = P.meals[n] || []; if (rep) arr = P.meals[n] = arr.filter(function (m) { return m.who !== "me"; });
   arr.push({ name: r.name, who: who, hold: hold, notFor: o.leave && a ? a.who : null });
@@ -146,6 +159,26 @@ document.addEventListener("keydown", function (e) {
     var r = H.idea(K.slice(7)); if (r && !r.planned) { e.preventDefault(); e.stopPropagation(); PK.open($('#detail [data-act="plan"]'), r.id); }
   }
 }, true);
+
+/* ---------- Start cooking (owner, 16 Oct 2026): on the planned primary card. VISUAL ONLY: nothing is sent. In Kitchie today the only way in is the MCP tool start_cooking (personal link,
+   by user when the person says so); this is the first screen for it. What it would do (docs/adr/cooking-session.md): declare a "Cooking now" session for the household (title, the recipe's ingredients,
+   recipe_id), shown as a card on every member's screen, at most two shown (a third is kept but not shown), clears by itself 45 minutes after the last start_cooking for it, ended by the dismiss X or stop_cooking. ---------- */
+(function () {
+  var live = null;
+  function banner() {
+    var b = document.querySelector(".cookbn"); if (b) b.remove();
+    if (!live) return;
+    b = document.createElement("div"); b.className = "cookbn"; b.setAttribute("role", "region"); b.setAttribute("aria-label", "Cooking now");
+    b.innerHTML = '<div class="cookbn-c"><span class="cookbn-go"><span class="cookbn-dot" aria-hidden="true"></span><span class="cookbn-t"><b>Cooking now</b><span class="cookbn-n">' + esc(live) + '</span></span></span><button type="button" class="cookbn-x" data-cookx aria-label="Dismiss ' + esc(live) + '" title="Dismiss">' + ICO.x + '</button><button type="button" class="cookbn-open" data-cookopen aria-label="Open ' + esc(live) + '">' + ICO.chev + "</button></div>";
+    document.body.appendChild(b);
+  }
+  document.addEventListener("click", function (e) {
+    var s = e.target.closest('[data-act="startcook"]');
+    if (s) { e.preventDefault(); e.stopPropagation(); if (live) return; live = H.idea(P.rid).name; window.PK_COOKING = true; banner(); H.set({}); return; }
+    if (e.target.closest("[data-cookx]")) { live = null; window.PK_COOKING = false; banner(); H.set({}); return; }
+    if (e.target.closest("[data-cookopen]")) H.toast("Opens the ingredients view for this dish (not drawn here).");
+  }, true);
+})();
 
 /* ---------- the ? list: the keys of the chosen option are added to Home's list ---------- */
 new MutationObserver(function () {

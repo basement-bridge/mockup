@@ -6,9 +6,15 @@
 <body><div class="wrap">
 <a class="back" href="./">&lsaquo; Plan it, choosing the day</a>
 <h1>Plan it: the day rows</h1>
-<p>Just the day rows of option F, on their own. Mockup only, nothing is saved. A rolling list of the next seven real days, today first (not locked to Monday to Sunday). Each row: a square label with the day name on the left, what is already planned that day on the right, read only and in full, no date. Click or use the arrow keys to move; Enter picks. In option F, picking commits at once.</p>
+<p>Just the day rows of option F, on their own, with the scenarios. Mockup only, nothing is saved. A rolling list of the next seven real days, today first. Each row: a square day-name label on the left (no date), what is planned on the right, read only and in full, and under it what picking the row does. Picking a row commits at once in option F (here it only says what it would do).</p>
+<div class="rows-ctl" id="ctl"><b>Mockup only</b><span class="seg2" role="group" aria-label="Hard avoid"><button type="button" data-avoid="off" aria-pressed="true">No Hard avoid</button><button type="button" data-avoid="on" aria-pressed="false">Jo avoids mango</button></span><span class="seg2" role="group" aria-label="Off days"><button type="button" data-off="open" aria-pressed="true">Off days take a meal</button><button type="button" data-off="refuse" aria-pressed="false">Off days refuse (today&rsquo;s code)</button></span></div>
 <div class="rows-demo" id="demo"></div>
-<p class="q">Sample: today is Wednesday 14 October 2026, so the list runs Wed to Tue. Thursday is the usual day off, Friday holds your own meal, Sunday holds two meals, Monday has a long name. <a href="day-rows.html?today=2">Wed</a> · <a href="day-rows.html?today=0">Mon</a> · <a href="day-rows.html?today=5">Sat</a> (start day).</p>
+<div class="rows-say" id="say" role="status" aria-live="polite"></div>
+<div class="sec"><div class="lbl">The scenarios in this list (today is Wednesday)</div>
+<ul class="q"><li><b>Thu</b>: a usual day off, not locked (owner). <b>Tue</b>: off this week only. Under &ldquo;Off days refuse&rdquo; both say what the code answers today (<code>day_blocked</code>).</li>
+<li><b>Fri</b>: a meal you planned yourself (yours). <b>Sun</b>: another person&rsquo;s own meal. <b>Sat</b>: a household meal. <b>Mon</b>: a household meal where Jo has her own plan too: the row shows the household plan with a peek behind it; <b>Show</b> (the strip under the row, or the right arrow key) opens that night&rsquo;s full picture, <b>Hide</b> (or left arrow) folds it.</li>
+<li>Change <b>Who is it for</b> to see what a row shows and does for each person. Turn on the Hard avoid to see the stop and the warning (<b>Leave Jo out</b> is the action in the flyout).</li></ul>
+<p class="q">Arrow keys move between rows, Enter picks, Right and Left open and fold a night. The scenario table, with what matches today&rsquo;s code and what is new, is in <code>docs/knowledge/plan-day-picker.md</code>.</p></div>
 </div>
-<script src="rows.js"></script>
+<script src="rows.js"></script><script src="day-rows.js"></script>
 </body></html>
