@@ -4,7 +4,7 @@
 // Usage: python3 -m http.server 8123 &   then   PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers node tools/shopping-receipt-check.mjs
 import { chromium } from "playwright-core";
 const BASE = process.env.BASE || "http://localhost:8123/fragments/shopping-receipt/";
-const steps = ["", "pre=resolved", "step=done", "step=done&pre=resolved", "open=agree,pantry"];
+const steps = ["", "pre=resolved", "step=done", "step=done&pre=resolved", "open=agree,pantry,extra"];
 const sizes = [[390, 844], [768, 1024], [1280, 800]];
 const b = await chromium.launch(); let bad = 0, n = 0;
 const probe = () => {
@@ -35,18 +35,30 @@ for (const o of "abc") for (const [w, h] of [[390, 844], [1280, 800]]) {
   const txt = s => p.evaluate(sel => document.querySelector(sel)?.textContent || "", s);
   const dis = () => p.evaluate(() => document.querySelector("[data-act=commit]").disabled);
   // default: the three already-in-Pantry rows are not added again
-  if (o === "c") await clk("[data-act=fold][data-v=pantry]");
+  if (o === "c") { await clk("[data-act=fold][data-v=pantry]"); await clk("[data-act=fold][data-v=extra]"); }
   const keeps = await p.evaluate(() => [...document.querySelectorAll("[data-k=done] [data-act=mode][aria-pressed=true]")].map(e => e.dataset.v));
   if (keeps.length !== 3 || keeps.some(v => v !== "keep")) fail.push("already rows not default keep: " + keeps);
+  // a line not on the list defaults to Add, with Leave out as the alternative; the bar counts it
+  const sal = await p.evaluate(() => document.querySelector("[data-id=salmon] [data-act=extra][aria-pressed=true]")?.dataset.v); if (sal !== "add") fail.push("salmon default " + sal);
+  if (!(await p.$("[data-id=salmon] .sr-in"))) fail.push("salmon amount not editable");
+  await clk("[data-id=salmon] [data-act=extra][data-v=leave]"); if (await p.$("[data-id=salmon] .sr-in")) fail.push("amount shown after leave out");
+  await clk("[data-id=salmon] [data-act=extra][data-v=add]");
   // unit-less chicken: must ask for the unit
   if (!(await dis())) fail.push("commit enabled with questions open");
-  if (o === "b") { for (const id of ["rice", "chk", "yog"]) await clk(`[data-id=${id}] [data-act=src][data-v=rcpt]`); }
+  if (o === "b") { for (const id of ["rice", "chk", "yog", "flour"]) await clk(`[data-id=${id}] [data-act=src][data-v=rcpt]`); }
   await clk("[data-id=chk] [data-act=unit][data-v=kg]");
+  // mixed units combine with the working shown, in the Pantry's unit
+  const sum = await txt("[data-id=flour] [data-sum]"); if (!/500 g \+ 1 kg = 1\.5 kg/.test(sum) || !/Pantry holds/.test(sum)) fail.push("flour sum: " + sum);
+  // a typed number is kept and shown as edited
+  const im = await p.getAttribute("[data-id=rice] .sr-in", "inputmode"); if (im !== "decimal") fail.push("inputmode " + im);
+  await p.fill("[data-id=rice] .sr-in", "1,25"); await p.press("[data-id=rice] .sr-in", "Tab"); await p.waitForTimeout(80);
+  const ed = await txt("[data-id=rice] .sr-chip"); const val = await p.inputValue("[data-id=rice] .sr-in");
+  if (!/Edited by you/.test(ed) || val !== "1.25") fail.push("typed: " + ed + " " + val);
   if (await dis()) fail.push("commit still disabled after all answered");
   // fix the blind swipe amount
   if (o === "c") { /* pantry fold is open */ }
   await clk("[data-id=banana] [data-act=mode][data-v=fix]");
-  const bar = await txt(".sr-bar p"); if (!/fixes 1/.test(bar)) fail.push("bar: " + bar);
+  const bar = await txt(".sr-bar p"); if (!/Adds 7/.test(bar) || !/fixes 1/.test(bar)) fail.push("bar: " + bar);
   await clk("[data-act=commit]");
   const t = await txt(".toast"); if (!/Added/.test(t)) fail.push("toast: " + t);
   const body = await txt(".sr-sumbox"); if (!/1 to 1.204 kg/.test(body) || !/Not added again/.test(body)) fail.push("summary: " + body.slice(0, 80));

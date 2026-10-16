@@ -35,7 +35,7 @@ p{margin:0;color:var(--muted)}
 .sr-chip[data-r=resolved]{background:var(--added-bg);color:var(--added-fg);border-color:transparent}
 /* amounts */
 .sr-amt{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px}
-.sr-n{min-width:68px;min-height:var(--tap);padding:0 12px;display:inline-grid;place-items:center;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);font-weight:700;font-size:1.05rem}
+.sr-n,.sr-in{min-width:68px;min-height:var(--tap);padding:0 12px;display:inline-grid;place-items:center;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);font-weight:700;font-size:1.05rem}
 .sr-step{width:var(--tap);height:var(--tap);border-radius:50%;border:1px solid var(--border);background:var(--bg);display:inline-grid;place-items:center;font-weight:700;font-size:1.2rem}
 .sr-pills{display:inline-flex;gap:6px;flex-wrap:wrap}
 .sr-pill{min-height:var(--tap);min-width:var(--tap);justify-content:center;padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--bg);font-weight:600;display:inline-flex;align-items:center}
@@ -56,3 +56,5 @@ p{margin:0;color:var(--muted)}
 .sr-sumbox h2{margin-top:12px}.sr-sum{margin:6px 0 8px;padding-left:18px}
 .toast .sr-was{color:inherit;margin-left:8px}
 @media(prefers-reduced-motion:reduce){.sr-fold svg{transition:none}}
+.sr-in{width:92px;text-align:center;color:var(--fg);font-family:inherit}
+.sr-in:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
