@@ -35,7 +35,7 @@ function conf(verb, dn, note) {
   el.querySelector("[data-close]").focus();
   held = R.hold(el, function () { held = null; draw(); });
 }
-el.addEventListener("click", function (e) { if (held && e.target.closest("[data-close]")) held.cancel(true); });
+el.addEventListener("click", function (e) { if (held && e.target.closest("[data-close]")) held.cancel(true); if (held && e.target.closest("[data-cfundo]")) held.didUndo(); });
 document.addEventListener("keydown", function (e) { if (held && e.key === "Escape") { e.preventDefault(); held.cancel(true); } });
 el.addEventListener("keydown", function (e) { R.key(e, el, { toggle: toggle }); });
 document.getElementById("ctl").addEventListener("click", function (e) {

@@ -65,13 +65,35 @@ R.key = function (e, root, o) {
    Esc during the hold ends it at once (cancel(true) skips the slide), so nobody is trapped. */
 R.HOLD = 3000; R.OUT = 240;
 R.confHtml = function (verb, name, label, note) {
-  return '<div class="pk-conf" role="status" aria-live="polite"><span class="pk-conf-tick" aria-hidden="true">&#10003;</span><div><b class="pk-conf-v">' + verb + '</b><span class="pk-conf-n">' + String(name).replace(/&/g, "&amp;").replace(/</g, "&lt;") + '</span><span class="pk-conf-d">' + label + '</span>' + (note ? '<span class="pk-conf-x">' + note + "</span>" : "") + '</div></div>';
+  var n = String(name).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  return '<div class="pk-conf" role="status" aria-live="polite"><span class="pk-conf-tick" aria-hidden="true">&#10003;</span><div><b class="pk-conf-v">' + verb + '</b><span class="pk-conf-n">' + n + '</span><span class="pk-conf-d">' + label + '</span>' + (note ? '<span class="pk-conf-x">' + note + "</span>" : "") +
+    '<button type="button" class="pk-conf-undo btn ghost" data-cfundo aria-label="Undo: ' + verb.toLowerCase() + " " + n + '">Undo</button></div></div>';
 };
+/* Agent defaults (flagged in docs/knowledge): the countdown pauses while the pointer is over the confirmation or focus is on Undo, and starts again (at least one second left) when both are gone;
+   after Undo the confirmation reads "Undone" for about a second and the surface then closes. */
+R.UNDONE = 1100;
 R.hold = function (el, done) {
-  var h = { t: null, t2: null, live: true };
+  var h = { t: null, t2: null, live: true, paused: false, ptr: false, foc: false, undone: false }, left = R.HOLD, t0 = Date.now(), c = el.querySelector(".pk-conf");
   function finish() { if (!h.live) return; h.live = false; clearTimeout(h.t); clearTimeout(h.t2); el.classList.remove("pk-out"); done(); }
-  h.cancel = function (early) { if (!h.live) return; if (early) finish(); else finish(); };
-  h.t = setTimeout(function () { if (!h.live) return; el.classList.add("pk-out"); h.t2 = setTimeout(finish, R.OUT); }, R.HOLD);
+  function go() { if (!h.live) return; el.classList.add("pk-out"); h.t2 = setTimeout(finish, R.OUT); }
+  function arm(ms) { clearTimeout(h.t); t0 = Date.now(); left = ms; h.t = setTimeout(go, ms); }
+  function sync() {
+    if (!h.live || h.undone || el.classList.contains("pk-out")) return;
+    if ((h.ptr || h.foc) && !h.paused) { h.paused = true; clearTimeout(h.t); left = Math.max(left - (Date.now() - t0), 0); }
+    else if (!h.ptr && !h.foc && h.paused) { h.paused = false; arm(Math.max(left, 1000)); }
+  }
+  h.cancel = function () { finish(); };
+  h.didUndo = function () {
+    if (!h.live || h.undone) return; h.undone = true; clearTimeout(h.t);
+    var v = el.querySelector(".pk-conf-v"), u = el.querySelector(".pk-conf-undo"), x = el.querySelector(".pk-conf-x"), d = el.querySelector(".pk-conf-d");
+    if (v) v.textContent = "Undone"; if (u) u.remove(); if (x) x.remove(); if (d) d.textContent = "Back as it was";
+    h.t = setTimeout(finish, R.UNDONE);
+  };
+  if (c) {
+    c.addEventListener("pointerenter", function () { h.ptr = true; sync(); }); c.addEventListener("pointerleave", function () { h.ptr = false; sync(); });
+    c.addEventListener("focusin", function () { h.foc = true; sync(); }); c.addEventListener("focusout", function () { h.foc = false; sync(); });
+  }
+  arm(R.HOLD);
   return h;
 };
 })();

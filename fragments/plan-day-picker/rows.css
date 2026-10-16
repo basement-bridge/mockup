@@ -52,3 +52,5 @@
 .row-d .ln.sub{display:block;min-height:0;margin-top:4px;font-size:12px;line-height:16px;color:var(--muted);font-weight:500}
 .row-hint{font-size:12px;color:var(--muted);font-style:italic}
 .pk-conf-x{font-size:13px;color:var(--fg)}
+.pk-conf-undo{align-self:flex-start;margin-top:8px;min-height:36px;padding:0 16px}
+.pk-conf-undo:focus-visible{outline:2px solid var(--cue);outline-offset:2px}

@@ -175,7 +175,7 @@ for (const [w, h] of [[1440, 900], [1280, 800]]) {
   { const p = await open(ctx, "pick=f"); await p.keyboard.press("p"); await sleep(250);
     await p.locator("#week .row-d").nth(3).click(); await sleep(300);
     ok(tag + " F: clicking Sat (a household meal) is a Replace, with Undo", /replaces Veg stir-fry on Sat 17 Oct/.test(await toast(p)) && /Undo/.test(await toast(p)) && /Replaced/.test(await p.locator("#week .pk-conf").innerText()), await toast(p));
-    await p.keyboard.press("z"); await sleep(250); await p.keyboard.press("p"); await sleep(250);
+    await p.keyboard.press("z"); await sleep(1500); await p.keyboard.press("p"); await sleep(250);
     ok(tag + " F: Undo puts the household meal back", /Veg stir-fry/.test(await p.locator("#week .row-d").nth(3).innerText()));
     await p.locator("#week .row-d").nth(1).click(); await sleep(300);
     ok(tag + " F: a usual day off is not locked: Thu takes a meal", /is planned for Thu 15 Oct/.test(await toast(p)), await toast(p));
@@ -224,7 +224,7 @@ for (const [w, h] of [[1440, 900], [1280, 800]]) {
     ok(tag + " F off rule: picking an off day is refused, with the code's wording, and nothing is planned", /Thu is off for you\. Pick another day\./.test(await toast(p)) && (await p.locator("#week.pk-fly").count()) === 1);
     await p.close(); }
   { const p = await open(ctx, "pick=f"); await p.keyboard.press("p"); await sleep(250);
-    const t0 = Date.now(); await p.locator("#week .row-d").nth(0).click(); await sleep(150);
+    const t0 = Date.now(); await p.locator("#week .row-d").nth(0).click(); await p.mouse.move(3, 3); await sleep(150);
     ok(tag + " F hold: a fresh plan (empty day) says Planned plus the meal and the day", /^planned/i.test((await p.locator("#week .pk-conf-v").innerText()).trim()) && /Mandarin Mango Yogurt Bowl/.test(await p.locator("#week .pk-conf-n").innerText()) && /Wed 14 Oct/.test(await p.locator("#week .pk-conf-d").innerText()));
     await sleep(2200);
     ok(tag + " F hold: still open and not sliding at about 2.4 seconds", (await p.locator("#week.pk-fly .pk-conf").count()) === 1 && (await p.locator("#week.pk-out").count()) === 0);
@@ -243,7 +243,7 @@ for (const [w, h] of [[1440, 900], [1280, 800]]) {
     ok(tag + " F hold: the X during the hold closes it too", (await p.locator("#week.pk-fly").count()) === 0);
     await p.close(); }
   { const p = await ctx.newPage(); p.on("pageerror", e => { errs.push(e.message); pageErrs.push(e.message); }); await p.goto(BASE.replace("home.html", "day-rows.html")); await sleep(400);
-    await p.locator("#demo .row-d").nth(0).click(); await sleep(150);
+    await p.locator("#demo .row-d").nth(0).click(); await p.mouse.move(3, 3); await sleep(150);
     ok(tag + " day rows: a pick shows Planned plus the meal, then the panel slides out to the right after about 3 seconds", /^planned/i.test((await p.locator("#demo .pk-conf-v").innerText()).trim()) && /Mandarin/.test(await p.locator("#demo .pk-conf-n").innerText()));
     await p.waitForFunction(() => document.querySelector("#demo").classList.contains("pk-out"), null, { timeout: 4500, polling: 15 });
     ok(tag + " day rows: slide-out is the right-hand one", (await p.evaluate(() => document.querySelector("#demo").getAnimations()[0].animationName)) === "pk-slide-out");
@@ -293,6 +293,42 @@ for (const [w, h] of [[1440, 900], [1280, 800]]) {
     await pg.locator("#ideas .lead button.btn").click(); await sleep(400);
     ok(tag + " the recipe view not loaded at first (blocked request): no stack overflow, the pane recovers", pageErrs.length === e0 && /Mandarin/.test(await pg.locator("#detail").innerText()), pageErrs.slice(e0));
     await c3.close(); }
+  // seven days only; inline Undo during the hold (agent defaults: pause on pointer or focus, "Undone" then close)
+  { const p = await open(ctx, "pick=f"); await p.keyboard.press("p"); await sleep(250);
+    const wk = await p.locator("#week").innerText();
+    ok(tag + " F seven days only: seven rows, no date picker, no Another day, no Pick a day, no week arrows, no grid", (await p.locator("#week .row-d").count()) === 7 && (await p.locator('#week input[type="date"], #week [data-wk], #week .pk-grid, #week .pk-quick, #week .pkc').count()) === 0 && !/Another day|Pick a day|Pick a date|next week|Mon \d+ Oct/i.test(wk), wk.slice(0, 120));
+    await p.keyboard.press("Escape"); await p.close(); }
+  for (const [name, setup, verb] of [["fresh plan", async p => { await p.locator("#week .row-d").nth(0).click(); }, /Planned/], ["replace", async p => { await p.locator("#week .row-d").nth(3).click(); }, /Replaced/], ["stacked night second click", async p => { await p.locator("#week .row-d").nth(5).click(); await sleep(120); await p.locator("#week .row-d").nth(5).click(); }, /Replaced/]]) {
+    const p = await open(ctx, "pick=f"); await p.keyboard.press("p"); await sleep(250); await setup(p); await p.mouse.move(3, 3); await sleep(200);
+    const u = p.locator("#week .pk-conf button.pk-conf-undo");
+    ok(tag + " F inline Undo (" + name + "): a real button inside the confirmation with an accessible name", (await u.count()) === 1 && (await u.evaluate(e => e.tagName)) === "BUTTON" && /^Undo: /.test(await u.getAttribute("aria-label")) && verb.test(await p.locator("#week .pk-conf-v").innerText()), await u.getAttribute("aria-label"));
+    await p.keyboard.press("Tab"); await sleep(50);
+    ok(tag + " F inline Undo (" + name + "): reachable by keyboard (Tab from the X)", /^Undo/.test(await focusedLabel(p)));
+    await sleep(3400);
+    ok(tag + " F inline Undo (" + name + "): focus on Undo pauses the countdown (still open past 3.6 seconds)", (await p.locator("#week.pk-fly .pk-conf").count()) === 1 && (await p.locator("#week.pk-out").count()) === 0);
+    await p.keyboard.press("Enter"); await sleep(250);
+    ok(tag + " F inline Undo (" + name + "): one press undoes on the spot; the confirmation reads Undone and Undo is gone", /^undone/i.test((await p.locator("#week .pk-conf-v").innerText()).trim()) && (await p.locator("#week .pk-conf-undo").count()) === 0);
+    ok(tag + " F inline Undo (" + name + "): the plan is back as it was (Mandarin not on the night)", !/Mandarin/.test(await p.evaluate(() => JSON.stringify(window.PKD.meals))));
+    await sleep(1400);
+    ok(tag + " F inline Undo (" + name + "): the flyout then closes", (await p.locator("#week.pk-fly").count()) === 0 && (await p.locator("#week .wd").count()) === 7);
+    await p.close(); }
+  { const p = await open(ctx, "pick=f"); await p.keyboard.press("p"); await sleep(250);
+    await p.locator("#week .row-d").nth(0).click(); await p.locator("#week .pk-conf").hover(); await sleep(3600);
+    ok(tag + " F inline Undo: the pointer over the confirmation pauses the countdown", (await p.locator("#week.pk-fly .pk-conf").count()) === 1 && (await p.locator("#week.pk-out").count()) === 0);
+    await p.mouse.move(3, 3); await p.waitForFunction(() => document.querySelector("#week").classList.contains("pk-out") || !document.querySelector("#week .pk-conf"), null, { timeout: 4500, polling: 15 }); await sleep(450);
+    ok(tag + " F inline Undo: pointer away and Undo is not chosen: it slides out; the inline Undo is gone and the Home chip remains", (await p.locator("#week .pk-conf").count()) === 0 && (await p.locator("#week .pk-conf-undo").count()) === 0 && /Undo/.test(await toast(p)));
+    await p.locator('.toast [data-act="undo"]').click(); await sleep(250);
+    ok(tag + " F inline Undo: the Home chip still undoes after the slide-out", !/Mandarin/.test(await weekText(p)));
+    await p.close(); }
+  { const p = await ctx.newPage(); p.on("pageerror", e => { errs.push(e.message); pageErrs.push(e.message); }); await p.goto(BASE.replace("home.html", "day-rows.html")); await sleep(400);
+    ok(tag + " day rows seven days only: seven rows and no way past them", (await p.locator("#demo .row-d").count()) === 7 && (await p.locator('#demo input[type="date"], #demo [data-wk]').count()) === 0 && !/Another day|Pick a day|Pick a date/i.test(await p.locator("body").innerText()));
+    await p.locator("#demo .row-d").nth(0).click(); await p.mouse.move(3, 3); await sleep(150);
+    ok(tag + " day rows: inline Undo in the confirmation", (await p.locator("#demo .pk-conf button.pk-conf-undo").count()) === 1);
+    await p.locator("#demo .pk-conf-undo").click(); await sleep(150);
+    ok(tag + " day rows: Undo reads Undone, then the list returns", /^undone/i.test((await p.locator("#demo .pk-conf-v").innerText()).trim()));
+    await sleep(1300);
+    ok(tag + " day rows: the list is back after Undone", (await p.locator("#demo .row-d").count()) === 7);
+    await p.close(); }
   // G: curtain under Cooking ideas, Add to plan only on the cards
   { const p = await open(ctx, "pick=g");
     ok(tag + " G: no Add to plan button in the recipe detail, and no P hint for it", (await p.locator('#detail [data-act="plan"]').count()) === 0 && !/add to plan/i.test(await p.locator("#detail").innerText()) && /Open recipe/.test(await p.locator("#detail").innerText()));

@@ -91,7 +91,7 @@ PK.commit = function (n, o) {
     if (cf) { P.syncHome(); cf(gone.length ? "Replaced" : "Planned", r.name, inf.label, inf.off && !gone.length ? inf.dn + ": cooking this week. The usual day off stays." : ""); } else { PK.close(true); P.syncHome(); H.set({}); PK.refocus(); }
     var nf = rs.notFor && rs.notFor.length ? ", for everyone but " + rs.notFor.join(" and ") : "";
     H.toast(esc(r.name) + (gone.length ? " replaces " + esc(gone.map(function (m) { return m.name; }).join(" and ")) + " on " : " is planned for ") + inf.label + nf + (rs.stays ? ". " + esc(rs.stays) : "") + (S.hold ? (rs.stays ? " What is in is held" : ", what is in is held") : "") + ".", function () {
-      P.meals[n] = JSON.parse(prev0); if (!P.meals[n].length) delete P.meals[n]; P.syncHome(); H.set({}); if (S.open && PK.mod.undone) PK.mod.undone(); if (S.open && PK.mod.confirm) PK.close(true);
+      P.meals[n] = JSON.parse(prev0); if (!P.meals[n].length) delete P.meals[n]; P.syncHome(); if (!(S.open && PK.mod.confirm)) H.set({}); /* F: #week is the flyout's, redrawn when it closes */ if (S.open && PK.mod.undone) PK.mod.undone();
     });
     return;
   }
