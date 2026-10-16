@@ -658,7 +658,7 @@ function itemSheetHtml() {
     const hd = `<div class="shead"><button class="icon" data-act="itile" data-p="tiles" aria-label="Back to ${esc(p.name)}" title="Back">${I.chev.replace("<svg", '<svg style="transform:scaleX(-1)"')}</button><div class="sid"><b>${TILE_TITLE[v]}</b><span class="small">${esc(p.name)}</span></div>${close}</div>`;
     let ed = "";
     if (v === "level") {
-      ed = `<div class="opts lvpick" role="radiogroup" aria-label="Level">${Object.keys(LEVELS).reverse().map((l) => `<button class="opt${l === lv ? " on" : ""}" role="radio" aria-checked="${l === lv}" data-act="lvl" data-p="${l}">${levelBattery(l, 44)}${srOnly(l)}</button>`).join("")}</div><p class="small">The battery empties as it runs down. An empty battery means none left. Nothing is deleted: it stays in the pantry.</p>`;
+      ed = `<div class="opts lvpick" role="radiogroup" aria-label="Level">${Object.keys(LEVELS).reverse().map((l) => `<button class="opt${l === lv ? " on" : ""}" role="radio" aria-checked="${l === lv}" data-act="lvl" data-p="${l}">${levelBattery(l, 44)}${srOnly(l)}</button>`).join("")}</div><p class="small">The squares empty as it runs down. No filled squares means none left. Nothing is deleted: it stays in the pantry.</p>`;
     } else if (v === "amount") ed = ITEM_FIELDS.qty.html(p);
     else if (v === "where") ed = TILE_FIELDS.where.map((k) => `<span class="lbl">${k === "loc" ? "Location" : "Spot"}</span>${ITEM_FIELDS[k].html(p)}`).join("");
     else ed = ITEM_FIELDS[TILE_FIELDS[v][0]].html(p);
