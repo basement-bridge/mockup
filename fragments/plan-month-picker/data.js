@@ -14,7 +14,8 @@
     rid: "mandarin-bowl", me: "Sam", people: ["Sam", "Jo"], scenario: /^(typical|empty|full)$/.test(Q.get("scenario") || "") ? Q.get("scenario") : "typical",
     replace: Q.get("replace") !== "0", /* the desktop Home card replaces your own meal on the picked day (owner, 12 Oct 2026) */
     avoid: Q.get("avoid") === "mango" ? { who: "Jo", item: "mango" } : null,
-    weekOff: { 8: 1, 26: 1 }, /* off this week only: Tue 20 Oct and Sat 7 Nov (a blocked day with source week). Thursday is the usual day off (n mod 7 is 3, source stencil). */
+    /* a day off is PER PERSON (owner, voice, 17 Oct 2026): the month shows it only for the person the Who pill selects, and under Everyone it shows none. Sam: Thursday every week (usual), and Sat 7 Nov this week only. Jo: Tue 20 Oct this week only. */
+    offs: { Sam: { usual: 3, week: { 26: 1 } }, Jo: { week: { 8: 1 } } },
     meals: {}
   };
   /* who: all = the household, me = Sam's own, Jo = Jo's. */
@@ -28,10 +29,9 @@
     31: [{ name: "Chicken pie", who: "all" }] /* Thu 12 Nov: a usual day off that is being cooked this week */
   };
   if (P.scenario === "typical") P.meals = typical;
-  if (P.scenario === "full") { /* a mostly full stretch: every cooking day has a meal, two nights are open; replacing is still allowed */
+  if (P.scenario === "full") { /* a mostly full stretch: every night has a meal but two; replacing is still allowed */
     var names = ["Shakshuka", "Egg fried rice", "Tacos", "Pasta bake", "Stir-fry", "Curry", "Soup", "Burgers", "Fish pie", "Pizza night", "Risotto", "Dumplings"], k = 0;
     for (var n = 0; n < 35; n++) {
-      if (n % 7 === 3 || P.weekOff[n]) continue; /* the usual day off and the one-week blocks stay closed */
       if (n === 11 || n === 13) continue; /* open: Fri 23 Oct and Sun 25 Oct */
       P.meals[n] = [{ name: names[k++ % names.length], who: n % 5 === 2 ? "me" : "all" }];
     }

@@ -1,16 +1,12 @@
 /* The rich week (see wide.css and tablet.css): the cells are big enough to carry the meal name, so the week reads as a table. Tokens only (theme.css). The compact base is month.css. */
-#week[data-rich] .pdm{grid-template-columns:var(--pdm-hd,112px) repeat(7,minmax(0,1fr));column-gap:6px;row-gap:6px}
-#week[data-rich] .pdm-corner{display:block}
+#week[data-rich] .pdm{grid-template-columns:repeat(7,minmax(0,1fr));column-gap:6px;row-gap:6px}
 #week[data-rich] .pdm-dh{justify-content:flex-start;padding:0 0 3px 8px;font-size:12px}
-#week[data-rich] .pdm-w{grid-column:auto;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;margin:0;padding-right:6px}
-#week[data-rich] .pdm-wn{font-size:12px}
-#week[data-rich] .pdm-wd{font-size:12px}
 #week[data-rich] .pdm-mb{margin-top:8px}
 #week[data-rich] .pdm .pdm-c{min-height:70px;padding:8px;align-items:flex-start;justify-content:flex-start;text-align:left;gap:0}
 #week[data-rich] .pdm .pdm-n{font-size:15px;margin-right:auto;flex:none}
 #week[data-rich] .pdm .pdm-top{display:flex;align-items:center;gap:5px;width:100%;min-width:0}
 #week[data-rich] .pdm .pdm-top>.pdm-i{position:static;width:17px;height:17px;margin:0}
-#week[data-rich] .pdm .pdm-top .pdm-cnt{position:static;order:1;font-size:11px}
+#week[data-rich] .pdm .pdm-top>.pdm-mk{order:2}
 #week[data-rich] .pdm .pdm-top>.pdm-i{order:2}
 #week[data-rich] .pdm .pdm-top .pdm-bd{position:static;width:14px;height:14px;flex:none}
 #week[data-rich] .pdm .pdm-top .pdm-bd .pdm-i{width:12px;height:12px}
@@ -24,3 +20,8 @@
 #week[data-rich] .pdm-st{min-height:40px;font-size:14px}
 #week[data-rich] .pdm-lg{font-size:12px;gap:6px 14px}
 #week[data-rich] .pdm .pdm-c.first .pdm-n{font-size:13px}
+/* the date number in the rich cell (month.css has the compact one): the number sits in the row beside the state mark, so a and c only change its size and weight */
+#week[data-rich][data-num=a] .pdm .pdm-c .pdm-n{position:static;font-size:12px;font-weight:600}
+#week[data-rich][data-num=a] .pdm .pdm-top>.pdm-i{width:20px;height:20px}
+#week[data-rich][data-num=b] .pdm .pdm-c .pdm-n{font-size:14px;font-weight:600}
+#week[data-rich][data-num=c] .pdm .pdm-c .pdm-n{font-size:13px;font-weight:400}

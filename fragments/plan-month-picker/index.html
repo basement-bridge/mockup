@@ -29,6 +29,12 @@
 <p>&ldquo;Monday to Sunday as a vertical down, it&rsquo;s not how humans work. Let&rsquo;s go back to Monday to Sunday horizontally, left to right. Also when people click another day, this is where I want to change the behavior a little bit. When they go for plan, I want that Monday to Sunday, if there&rsquo;s enough space, to take two flyouts worth of space. I&rsquo;ll talk about what if there isn&rsquo;t space. Actually, you come up with a plan for that. And do a few more visuals as to if you were to take two flyouts worth of space, how will this be a better experience for the user?&rdquo;</p>
 <div class="lbl">Owner, earlier the same day (voice)</div>
 <p>The <b>open</b> day must stand out as the main call to action (&ldquo;I&rsquo;m going to make use of that open slot&rdquo;). All days off should look the same, &ldquo;just a day off no matter what kind&rdquo;. Open is now the only solid, filled state; planned and day off recede. The single grey look for a day off is <span class="await">awaiting the owner&rsquo;s confirmation</span>.</p></div>
+<div class="sec"><div class="lbl">Owner, visual review, 17 October 2026 (voice), applied here</div>
+<ul class="decs">
+<li>Past days stay blanked out. A night with one plan is one yellow mark, a stacked night is three (same yellow, quantity only). The Who pill scopes the grid: planned and day-off marks show what the pill selects; day off is per person and shows none under Everyone. Day off keeps the moon and stays clickable. Hard avoid is a plain exclamation mark, not the triangle. No today state, badge or label.</li>
+<li>Rank of the pickable states: <b>open</b> first (&ldquo;where you can drop it&rdquo;), <b>day off</b> second, <b>planned</b> third, quietest. Past and Hard avoid sit outside the scale.</li>
+<li>Remove the week-label column completely (&ldquo;the dates are self-explanatory&rdquo;). The grid looks busy: the date number carries the weight of the state; options below. A halo on open dates is the start-here cue, <b>transient</b>, not a permanent ring.</li>
+</ul></div>
 
 <div class="sec"><div class="lbl">Open it</div>
 <div class="links">
@@ -42,8 +48,10 @@
 <a href="home.html?start=month&amp;scenario=empty">Empty plan</a>
 <a href="home.html?start=month&amp;scenario=full">Mostly full</a>
 <a href="home.html?start=month&amp;avoid=mango">Hard avoid on mango</a>
-<a href="home.html?start=month&amp;today=2026-10-12">Today is a Monday</a>
-<a href="home.html?start=month&amp;today=2026-10-18">Today is a Sunday</a>
+<a href="home.html?start=month&amp;today=2026-10-12">Window starts on a Monday</a>
+<a href="home.html?start=month&amp;today=2026-10-18">Window starts on a Sunday</a>
+<a href="home.html?start=month&amp;who=Jo">Jo selected</a>
+<a href="home.html?start=month&amp;who=Sam">Sam selected</a>
 </div>
 <p style="font-size:13px;color:var(--muted)">The wide layout needs a window at least 1360px wide. In a narrower window the pages below fall back to the single width on purpose; open them full size, or use the previews on this page (each is the live page, scaled).</p></div>
 
@@ -52,12 +60,12 @@
 
 <div class="fig"><h3>A. Roomy calendar <span class="rec">agent recommends</span></h3>
 <div class="fr" data-w="1700" data-h="900"><iframe loading="lazy" title="Wide layout A" src="home.html?start=month&amp;wide=a&amp;embed=1"></iframe></div>
-<p>Each date is a big cell: the day number, its state icon, and the meal&rsquo;s name (or <b>Plan here</b> when open, <b>Day off</b> when off). A left column names the week. Hover or keyboard focus opens the read-only detail on the date itself.</p>
+<p>Each date is a big cell: the day number, its state icon, and the meal&rsquo;s name (or <b>Plan here</b> when open, <b>Day off</b> when off). No week labels (the dates speak for themselves). Hover or keyboard focus opens the read-only detail on the date itself.</p>
 <p><b>Trade-off:</b> the simplest and most like a calendar people already know; whose meal is on a date still needs a hover. <a class="fr-open" href="home.html?start=month&amp;wide=a">Open full size</a></p></div>
 
 <div class="fig"><h3>B. Calendar and a side card</h3>
 <div class="fr" data-w="1700" data-h="900"><iframe loading="lazy" title="Wide layout B" src="home.html?start=month&amp;wide=b&amp;embed=1"></iframe></div>
-<p>The week keeps its captions above each row and gives 244px to a card that follows the date you point at or focus: the meal being planned, the date, what is planned and whose, what picking it does, and a Plan button (solid green for an open date). No floating popover.</p>
+<p>The grid gives 244px to a card that follows the date you point at or focus: the meal being planned, the date, what is planned and whose, what picking it does, and a Plan button (solid green for an open date). No floating popover.</p>
 <p><b>Trade-off:</b> the most detail without a hover, and the recipe stays visible; cells are about 60px so meal names clamp to two short lines, and the card&rsquo;s button is a second way to plan (the date itself still plans at once). <a class="fr-open" href="home.html?start=month&amp;wide=b">Open full size</a></p></div>
 
 <div class="fig"><h3>C. Open nights first</h3>
@@ -75,7 +83,7 @@
 <ul class="decs">
 <li><b>You see the plan without hovering.</b> The meal is in the cell, so one look says which nights are taken, by what, and which are free.</li>
 <li><b>Open nights are a real button.</b> About 85 by 70px, solid, labelled <b>Plan here</b>, against a 44px square with a plus.</li>
-<li><b>A week is a row, left to right,</b> with its name and dates at the left, the way people read a week.</li>
+<li><b>A week is a row, left to right,</b> the way people read a week. There are no week labels: the dates are enough.</li>
 <li><b>The hover is for detail only</b> (whose meal, what is held), not for finding out what is there.</li>
 <li><b>Cost:</b> the recipe pane steps back while the month is open (the recipe name and, in B, a recipe card stay in view); it needs a window at least 1360px wide.</li>
 </ul></div>
@@ -86,7 +94,7 @@
 <tr><th>Window</th><th>What the month does</th><th>File</th></tr>
 <tr><td>1624px and up</td><td>Two flyouts wide, the Home column keeps its full width (layout A, B or C).</td><td><code>wide.css</code>, <code>rich.css</code>, <code>wide.js</code></td></tr>
 <tr><td>1360 to 1623px</td><td>Two flyouts wide; the Home column gives up width (never under 472px, never covered).</td><td><code>wide.css</code>, <code>rich.css</code></td></tr>
-<tr><td>1024 to 1359px (narrow desktop)</td><td>One flyout wide (400px). Seven compact cells (number and state icon, 44px or more), the week named in a line above each row. The meal is in the hover detail and the line under the grid.</td><td><code>month.css</code> (base)</td></tr>
+<tr><td>1024 to 1359px (narrow desktop)</td><td>One flyout wide (400px). Seven compact cells (number and state icon, 44px or more). The meal is in the hover detail and the line under the grid.</td><td><code>month.css</code> (base)</td></tr>
 <tr><td>600 to 1023px (tablet)</td><td>A centred sheet over a dimmed screen, 720px at most, with the same rich cells as the wide layout (meal names). No hover on touch: a first tap on a planned night or a day off shows what is on it, the second plans it; an open night plans on the first tap.</td><td><code>tablet.html</code>, <code>tablet.css</code>, <code>rich.css</code>, <code>touch.js</code></td></tr>
 <tr><td>Under 600px (phone)</td><td>The whole screen. Seven 44px-plus cells across, open nights first: a full-width green button for the first open night above the grid. Same two-tap rule for planned nights and days off. No keyboard line.</td><td><code>phone.html</code>, <code>phone.css</code>, <code>touch.js</code></td></tr>
 </table></div>
@@ -103,14 +111,45 @@
 <li><b>A horizontally scrolling grid.</b> Hides dates, and a scroll inside a scroll. Dropped.</li>
 </ul></div>
 
-<div class="sec"><div class="lbl">States (a colour plus a shape or word each, so colour is never the only cue)</div>
+<div class="sec"><div class="lbl">States, in rank order (owner-stated, voice, 17 Oct 2026, and the shapes are agent defaults so colour is never the only cue)</div>
 <ul class="decs">
-<li><b>Open (the call to action):</b> solid green, bold plus, and <b>Plan here</b> where there is room. The only filled state; it lifts on hover.</li>
-<li><b>Planned:</b> quiet amber tint, plate icon, the meal name (yours, someone else&rsquo;s and the household&rsquo;s are one state; hover says whose). <b>2+ plans:</b> stack icon and the count.</li>
-<li><b>Day off:</b> one muted grey state with a moon and the words <b>Day off</b>, whatever the kind (a usual day off or off this week only), still pickable, not locked <span class="await">single look awaiting the owner&rsquo;s confirmation</span>. The kind is said in the hover detail and the screen-reader label. A day off that is being cooked this week looks planned with a small moon.</li>
-<li><b>Past:</b> hatched, struck number, not pickable. <b>Today:</b> ring and underlined number. <b>Hard avoid:</b> a triangle where it asks first; a stop sign (&ldquo;Not for Jo&rdquo;) on every date when the meal is not for that person.</li>
-<li>Hover or keyboard focus shows what is planned, read only; a line under the grid says what picking the date does. Keys: <kbd>&larr;</kbd> <kbd>&rarr;</kbd> a day, <kbd>&uarr;</kbd> <kbd>&darr;</kbd> a week, <kbd>Home</kbd> today, <kbd>End</kbd> the last day, <kbd>Enter</kbd> plans, <kbd>Esc</kbd> back. The month step: a heavy rule where the month changes and &ldquo;1 Nov&rdquo; on its first cell.</li>
+<li><b>1. Open, the primary action (&ldquo;this is where you can drop it&rdquo;).</b> Boldest: a 2px green outline, a green tint, a heavy plus, <b>Plan here</b> where there is room. It has the transient halo below, so it does not need the heaviest fill.</li>
+<li><b>2. Day off, second (overriding it is allowed).</b> Medium: a 1.5px grey outline, a grey fill, a moon. Day off is per person: it shows only for the person the Who pill selects, and under Everyone it shows none. Still clickable, not locked.</li>
+<li><b>3. Planned, the quietest.</b> A 1px amber hairline and a barely-there tint. <b>One yellow mark</b> for a night with one plan, <b>three yellow marks</b> for a stacked night (the household plan plus someone&rsquo;s own). Same amber, quantity only; the count of marks is the shape cue. Under Everyone the cell shows the household plan, with three marks when anyone has their own plan too; under a person it shows that person&rsquo;s plans.</li>
+<li><b>Outside the scale:</b> <b>Past</b> is hatched and not clickable. <b>Hard avoid</b> is a plain exclamation mark (not a triangle), a small one in the corner where it asks first, and the stop (&ldquo;Not for Jo&rdquo;) on every date when the meal is not for that person.</li>
+<li><b>No today state.</b> Today is just the first cell of the grid and reads like any other date; no badge, label or ring (a faint cue was considered and not added: the grid always starts at today&rsquo;s week and past days are hatched, so the first live date is plain to see).</li>
+<li><b>No week labels</b> (owner-stated): the &ldquo;this week, next week&rdquo; column is gone. The month shows where it changes by the heavy step-rule and by spelling the month on the cell: &ldquo;1 Nov&rdquo; and the grid&rsquo;s first cell &ldquo;12 Oct&rdquo; (agent default; the earlier month band is dropped).</li>
+<li>Hover or keyboard focus shows what is planned, read only (and the Hard avoid line, with the same exclamation mark); a line under the grid says what picking the date does. Keys: <kbd>&larr;</kbd> <kbd>&rarr;</kbd> a day, <kbd>&uarr;</kbd> <kbd>&darr;</kbd> a week, <kbd>Home</kbd> the first day, <kbd>End</kbd> the last day, <kbd>Enter</kbd> plans, <kbd>Esc</kbd> back.</li>
+<li><b>Legend (bottom of the flyout):</b> Open, Planned (one yellow), Planned several (three yellows), Day off (moon), Hard avoid (exclamation), Past (blank).</li>
 </ul></div>
+
+<div class="sec"><div class="lbl">3. The date number: three treatments side by side (owner-stated: the number looks as heavy as the state, &ldquo;it is just a calendar day&rdquo;)</div>
+<div class="frs">
+<div class="fig"><h3 style="font-size:15px">A. Quiet corner number <span class="rec">agent recommends</span></h3><div class="fr" data-w="1700" data-h="900"><iframe loading="lazy" title="Date number A" src="home.html?start=month&amp;num=a&amp;halo=off&amp;embed=1"></iframe></div><p style="font-size:13px">A small 11px number in the cell corner; the state fill and icon are the picture. <a class="fr-open" href="home.html?start=month&amp;num=a&amp;halo=off">Open full size</a></p></div>
+<div class="fig"><h3 style="font-size:15px">B. Plain cell</h3><div class="fr" data-w="1700" data-h="900"><iframe loading="lazy" title="Date number B" src="home.html?start=month&amp;num=b&amp;halo=off&amp;embed=1"></iframe></div><p style="font-size:13px">No fill behind the number: a plain neutral cell with only a small icon or dots for state, like a plain calendar. <a class="fr-open" href="home.html?start=month&amp;num=b&amp;halo=off">Open full size</a></p></div>
+<div class="fig"><h3 style="font-size:15px">C. Light numeral</h3><div class="fr" data-w="1700" data-h="900"><iframe loading="lazy" title="Date number C" src="home.html?start=month&amp;num=c&amp;halo=off&amp;embed=1"></iframe></div><p style="font-size:13px">The number stays where it was but is a lighter, smaller numeral that recedes behind the state mark. <a class="fr-open" href="home.html?start=month&amp;num=c&amp;halo=off">Open full size</a></p></div>
+</div>
+<p><b>Recommendation: A.</b> The state is what the person is choosing between, so the state mark gets the centre and the size, and the date is where a calendar reader expects it (a corner) and small, so the number never competes. B is the quietest grid but loses the green fill that says &ldquo;drop it here&rdquo; at a glance; open then rests on the plus and the halo alone. C keeps the old reading order but the number still sits above the mark, so the grid stays busier than A.</p></div>
+
+<div class="sec"><div class="lbl">4. The halo on open dates (owner-stated: a transient halo, not a permanent ring; the trigger is an agent default for him to confirm)</div>
+<div class="frs">
+<div class="fig"><h3 style="font-size:15px">Opening (the halo is on)</h3><div class="fr" data-w="1700" data-h="900"><iframe loading="lazy" title="Halo on" src="home.html?start=month&amp;halo=hold&amp;embed=1"></iframe></div><p style="font-size:13px">The first open date glows and breathes. <a class="fr-open" href="home.html?start=month&amp;halo=hold">Open full size</a></p></div>
+<div class="fig"><h3 style="font-size:15px">After it fades</h3><div class="fr" data-w="1700" data-h="900"><iframe loading="lazy" title="Halo off" src="home.html?start=month&amp;halo=off&amp;embed=1"></iframe></div><p style="font-size:13px">No ring on any open cell at rest. <a class="fr-open" href="home.html?start=month&amp;halo=off">Open full size</a></p></div>
+</div>
+<ul class="decs">
+<li><b>Proposal (agent default):</b> when the month opens, the first open date (and focus starts on it) glows and breathes for about 3 seconds, the same timing as F&rsquo;s confirmation hold, then fades over half a second. The first press or key clears it at once. Any open date under the pointer or keyboard focus gets the same glow while it is there. Try it live: <a href="home.html?start=month">timed</a>.</li>
+<li><b>Reduced motion:</b> no breathing; a static, thinner ring that clears the same way (after 3 seconds or on the first press or key).</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">5. Scenarios: the Who pill scopes the grid</div>
+<div class="links">
+<a href="home.html?start=month&amp;halo=off">Everyone: household plans, three marks on Mon 19 Oct, no day off</a>
+<a href="home.html?start=month&amp;halo=off&amp;who=Sam">Sam: Thursdays and Sat 7 Nov are days off; Mon 19 is one mark</a>
+<a href="home.html?start=month&amp;halo=off&amp;who=Jo">Jo: Tue 20 Oct is a day off; Mon 19 is Jo&rsquo;s own toastie, one mark</a>
+<a href="home.html?start=month&amp;halo=off&amp;avoid=mango">Hard avoid on mango (Everyone)</a>
+<a href="home.html?start=month&amp;halo=off&amp;avoid=mango&amp;who=Jo">Hard avoid, Jo selected: not for Jo</a>
+</div>
+<p style="font-size:13px">Day off is per person, so the moon shows only for the person selected and Everyone shows none (agent default; the owner agreed to the idea). A day with nothing for the selected person is open for them, even if someone else has a plan.</p></div>
 
 <div class="sec"><div class="lbl">Rules kept from #757 (owner, 16 October 2026)</div>
 <ul class="decs">
@@ -120,12 +159,13 @@
 <div class="sec"><div class="lbl">Open questions (for the owner), with the recommended answer first</div>
 <ul class="q">
 <li><b>Wide layout:</b> A (recommended), B (side card) or C (open nights first)?</li>
-<li><b>Day off:</b> one muted grey moon for every kind (recommended, awaiting the owner&rsquo;s confirmation), or keep the weekly Plan&rsquo;s two looks?</li>
+<li><b>Day off:</b> one muted grey moon for every kind, shown per person (owner-stated that day off is per person; under Everyone none is shown, an agent default he agreed to).</li>
 <li><b>When the wide layout turns on:</b> from 1360px (recommended; covers a 1366px laptop and shrinks the Home column to 472px) or only from 1624px (the column never shrinks)?</li>
 <li><b>Narrow desktop (1024 to 1359px):</b> the compact grid in the same flyout (recommended) or a wider flyout over the column?</li>
 <li><b>Touch:</b> a first tap shows a planned night, the second plans it (recommended) or one tap plans and Undo is the safety net?</li>
-<li><b>Row heads:</b> week name over the dates (recommended) or dates only (<a href="home.html?start=month&amp;cols=dates">open</a>)?</li>
-<li><b>Month change:</b> a step-rule and &ldquo;1 Nov&rdquo; (recommended) or a month heading before each month (<a href="home.html?start=month&amp;month=band">open</a>)?</li>
+<li><b>Date number:</b> A, a quiet corner number (recommended, see section 3), B, a plain cell, or C, a light numeral?</li>
+<li><b>Halo trigger:</b> the first open date for about 3 seconds when the month opens, cleared by the first press or key (agent default, see section 4), or something else?</li>
+<li><b>Month change:</b> the step-rule and the month spelled on the cell (&ldquo;1 Nov&rdquo;, &ldquo;12 Oct&rdquo;), the minimal marker now that the week labels are gone (agent default).</li>
 <li><b>Another day:</b> a labelled row (recommended) or a header icon (<a href="home.html?start=list&amp;another=header">open</a>)?</li>
 </ul></div>
 

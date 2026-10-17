@@ -6,16 +6,26 @@
 (function () {
 "use strict";
 var H = window.HDP, D = H.D, P = window.PKD, esc = H.esc, $ = H.$, Q = new URLSearchParams(location.search);
-var PK = window.PK = { S: { who: "all", hold: true, sel: null, leave: false, open: false }, esc: esc, $: $, mod: null, Q: Q };
+var PK = window.PK = { S: { who: /^(Sam|Jo)$/.test(new URLSearchParams(location.search).get("who") || "") ? new URLSearchParams(location.search).get("who") : "all", hold: true, sel: null, leave: false, open: false }, esc: esc, $: $, mod: null, Q: Q };
+PK.who0 = PK.S.who; /* ?who=Sam|Jo opens the flyout with that person selected (the scenarios on the hub use it) */
 var S = PK.S, E0 = Date.UTC(2026, 9, 12);
 
 /* ---------- the calendar ---------- */
+/* a day off is per person: only for the person the Who pill selects, none under Everyone */
+function offOf(n, i) { var w = S.who; if (w === "all") return null; var o = (P.offs || {})[w]; if (!o) return null; return o.usual === i ? "usual" : o.week && o.week[n] ? "week" : null; }
 PK.info = function (n) {
   var d = new Date(E0 + n * 86400000), i = ((n % 7) + 7) % 7, meals = (P.meals[n] || []).slice();
   return { n: n, i: i, dn: P.dn[i], full: P.df[i], num: d.getUTCDate(), mon: P.mo[d.getUTCMonth()], monN: d.getUTCMonth(), monFull: P.mf[d.getUTCMonth()], past: n < P.todayN, today: n === P.todayN,
-    off: i === 3 ? "usual" : P.weekOff[n] ? "week" : null, meals: meals, own: meals.filter(function (m) { return m.who === "me"; })[0] || null,
+    off: offOf(n, i), meals: meals, own: meals.filter(function (m) { return m.who === "me"; })[0] || null,
     label: P.dn[i] + " " + d.getUTCDate() + " " + P.mo[d.getUTCMonth()] };
 };
+/* the month's view of a night: the meals the Who pill selects. Everyone: the household plan and anyone's own. A person: the household plan unless it leaves them out, and their own. */
+PK.vis = function (n) {
+  var i = PK.info(n), w = S.who;
+  i.meals = i.meals.filter(function (m) { if (w === "all") return true; if (m.who === "all") return (m.notFor || []).indexOf(w) < 0; return m.who === w || (m.who === "me" && w === P.me); });
+  return i;
+};
+PK.vdayObj = function (n) { var v = PK.vis(n); return { n: n, dn: v.dn, today: false, off: v.off, meals: v.meals.map(function (m) { return { name: m.name, who: m.who, notFor: [].concat(m.notFor || []) }; }) }; };
 PK.R = function () { return H.idea(P.rid); };
 /* one night as the row model reads it (rows.js R.view): { n, dn, today, off, meals: [{ name, who, notFor }] } */
 PK.dayObj = function (n) { var i = PK.info(n); return { n: n, dn: i.dn, today: i.today, off: i.off, meals: i.meals.map(function (m) { return { name: m.name, who: m.who, notFor: [].concat(m.notFor || []) }; }) }; };
@@ -31,8 +41,8 @@ PK.guardFor = function (n) {
   return null;
 };
 var ICO = {
-  stop: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg>',
-  warn: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.2"/></svg>',
+  stop: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5v10M12 19v.1"/></svg>',
+  warn: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5v10M12 19v.1"/></svg>',
   hold: '<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
   back: '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>',
   x: '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>',
@@ -85,7 +95,7 @@ PK.register = function (m) { PK.mod = m; };
 PK.open = function (anchor, rid) {
   if (S.open || !PK.mod) return;
   if (rid && H.idea(rid)) P.rid = rid;
-  S.who = "all"; S.hold = true; S.sel = null; S.leave = false; S.open = true; PK.anchor = anchor || $('#detail [data-act="plan"]');
+  S.who = PK.who0; S.hold = true; S.sel = null; S.leave = false; S.open = true; PK.anchor = anchor || $('#detail [data-act="plan"]');
   PK.mod.open(PK.anchor);
 };
 PK.refocus = function () { var rf = $('#detail [data-act="plan"]') || PK.anchor; if (rf && rf.focus) rf.focus({ preventScroll: true }); };
@@ -138,16 +148,17 @@ new MutationObserver(function () {
   var groups = [
     ["Week", "scenario", [["empty", "Empty"], ["typical", "Typical"], ["full", "Full"]], cur("scenario", "typical")],
     ["Today", "today", [["2026-10-12", "Mon 12"], ["2026-10-14", "Wed 14"], ["2026-10-17", "Sat 17"], ["2026-10-18", "Sun 18"]], cur("today", "2026-10-17")],
+    ["Who it is for", "who", [[null, "Everyone"], ["Sam", "Sam"], ["Jo", "Jo"]], cur("who", null)],
     ["Hard avoid", "avoid", [[null, "Off"], ["mango", "Jo, mango"]], cur("avoid", null)],
     ["Wide layout", "wide", [[null, "A: roomy"], ["b", "B: side card"], ["c", "C: open first"], ["off", "Compact"]], cur("wide", null)],
-    ["Week heads", "cols", [[null, "Name and dates"], ["dates", "Dates only"]], cur("cols", null)],
-    ["Month label", "month", [[null, "On the cell"], ["band", "A band"]], cur("month", null)],
+    ["Date number", "num", [[null, "A: corner"], ["b", "B: plain cell"], ["c", "C: light numeral"]], cur("num", null)],
+    ["Halo", "halo", [[null, "Timed (3 s)"], ["hold", "Held on"], ["off", "Faded"]], cur("halo", null)],
     ["Another day", "another", [[null, "A row"], ["header", "A header icon"]], cur("another", null)],
     ["Flyout width", "w", [[null, "Normal"], ["narrow", "Narrow"]], cur("w", null)]
   ];
   var h = '<button type="button" class="pk-swb" aria-expanded="false" aria-controls="pk-swp">Mockup controls</button><div class="pk-swp" id="pk-swp" hidden role="group" aria-label="Mockup controls">';
   groups.forEach(function (g) { h += '<div class="pk-swg"><span>' + g[0] + "</span>" + g[2].map(function (o) { return link(g[1], o[0], o[1], (o[0] === null ? !Q.get(g[1]) : g[3] === o[0])); }).join("") + "</div>"; });
-  h += '<p>Sample data only. A choice reloads this page with the flyout open on the month. The single grey Day off look is awaiting the owner’s confirmation.</p></div>';
+  h += '<p>Sample data only. A choice reloads this page with the flyout open on the month. Day off shows only for the person the Who pill selects.</p></div>';
   wrap.innerHTML = h; var railEl = $(".rail"); if (!railEl) return; railEl.appendChild(wrap);
   var b = wrap.querySelector(".pk-swb"), pn = wrap.querySelector(".pk-swp");
   b.addEventListener("click", function () { var o = pn.hidden; pn.hidden = !o; b.setAttribute("aria-expanded", String(o)); });
