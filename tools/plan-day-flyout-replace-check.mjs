@@ -1,4 +1,4 @@
-// Behaviour check for the Plan day flyout fixes (replace call-out, usual day off with a meal, named confirmation, 3 second hold), headless Chromium. Mockup only, nothing is saved.
+// Behaviour check for the Plan day flyout fixes (replace call-out, usual day off with a meal, named confirmation, 3 second hold that holds while hovered), headless Chromium. Mockup only, nothing is saved.
 // Usage:  python3 -m http.server 8123 &   then   node tools/plan-day-flyout-replace-check.mjs      (BASE=... to point elsewhere)
 // Needs playwright or playwright-core on the module path (NODE_PATH=/opt/node22/lib/node_modules works in the agent sandbox). Any page or console error fails the run.
 import { createRequire } from "module";
@@ -23,7 +23,7 @@ const ctx = await browser.newContext({ viewport: { width: 1200, height: 900 } })
 {
   const p = await open(ctx, "");
   ok("nine frames and the timer frame are drawn", (await p.locator(".fr").count()) === 10, await p.locator(".fr").count());
-  ok("default hold is 3 seconds, the least left after a press is 1 second", await p.evaluate(() => PDFR.HOLD === 3000 && PDFR.MIN === 1000));
+  ok("default hold is 3 seconds", await p.evaluate(() => PDFR.HOLD === 3000));
 
   // 1. usual day off with a meal
   for (const id of ["s1-phone", "s1-desk"]) {
@@ -86,59 +86,79 @@ const ctx = await browser.newContext({ viewport: { width: 1200, height: 900 } })
   ok("no horizontal scroll at 1200", await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
   await p.close();
 }
-// 4. the timer, with a short hold so the run is quick (hold 900, least left 300, slide-out 240)
+// 4. the timer, with a short hold so the run is quick (hold 900, slide-out 240). Mouse on the flyout holds it; leaving restarts the full hold; no run bar; touch just runs.
 {
   const p = await open(ctx, "hold=900");
-  ok("hold override applied", await p.evaluate(() => PDFR.HOLD === 900 && PDFR.MIN === 300));
-  const st = () => p.locator("#s4-timer").getAttribute("data-hold"), left = async () => +(await p.locator("#s4-timer").getAttribute("data-left"));
-  const plan = async () => { await rows(p, "s4-timer").nth(0).click(); };
-  // control: nobody touches it, it closes
-  await plan();
-  ok("untouched: counting", (await st()) === "run");
+  ok("hold override applied", await p.evaluate(() => PDFR.HOLD === 900 && PDFR.MIN === undefined));
+  ok("no run bar markup anywhere", (await p.locator(".tm, .tm-bar").count()) === 0);
+  const st = () => p.locator("#s4-timer").getAttribute("data-hold");
+  const reset = () => p.locator("#s4-timer").locator("xpath=..").locator("[data-reset]").click();
+  const plan = async () => { await rows(p, "s4-timer").nth(0).click(); await sleep(120); };   // the click leaves the mouse on the flyout; the pause lets the browser settle its own hover events
+  const closed = async () => (await p.locator("#s4-timer [data-reopen]").count()) === 1 && (await p.locator("#s4-timer .pk-conf").count()) === 0;
+  // control: mouse moved away straight after the pick, it closes after the hold
+  await plan(); await p.mouse.move(5, 5); await sleep(60);
+  ok("mouse away: counting", (await st()) === "run", await st());
+  ok("no countdown text or bar in the confirmation", (await p.locator("#s4-timer .pk-conf-d, #s4-timer .pk-conf").count()) >= 1 && !/Closing in|Paused/.test(await txt(p, "#s4-timer")));
   await sleep(900 + 240 + 250);
-  ok("untouched: slides out and is gone after the hold", (await p.locator("#s4-timer [data-reopen]").count()) === 1 && (await p.locator("#s4-timer .pk-conf").count()) === 0);
-  await p.locator("#s4-timer").locator("xpath=..").locator("[data-reset]").click();
-  // press inside the flyout, hold well past the hold time, release outside
+  ok("mouse away: slides out and is gone after the hold", await closed());
+  await reset();
+  // mouse on the flyout: holds well past the hold time, indefinitely
   await plan();
-  const box = await p.locator("#s4-timer .pk-conf").boundingBox();
-  await sleep(250);
-  await p.mouse.move(box.x + 30, box.y + 30); await p.mouse.down();
-  ok("pressed: paused", (await st()) === "paused", await st());
-  const l0 = await left();
-  await sleep(1800);
-  ok("pressed for twice the hold: still there, still paused, time not spent", (await p.locator("#s4-timer .pk-conf").count()) === 1 && (await st()) === "paused" && Math.abs((await left()) - l0) < 30, [await st(), l0, await left()]);
-  ok("the annotation shows paused", (await p.locator("#s4-timer .tm").getAttribute("data-st")) === "paused");
-  await p.mouse.move(5, 5); await p.mouse.up();
-  ok("released (outside the flyout): counting again", (await st()) === "run", await st());
-  ok("after release the least left is kept", (await left()) >= 250 && (await left()) <= 900, await left());
-  await sleep(150);
-  ok("not closed straight after release", (await p.locator("#s4-timer .pk-conf").count()) === 1);
+  ok("mouse on the flyout straight after the pick: held", (await st()) === "held", await st());
+  await sleep(900 * 3);
+  ok("hovered for three times the hold: still there, still held", (await p.locator("#s4-timer .pk-conf").count()) === 1 && (await st()) === "held", await st());
+  // leave: the full hold restarts (not what was left)
+  await p.mouse.move(5, 5);
+  ok("pointer left: counting again", (await st()) === "run", await st());
+  await sleep(600);
+  ok("600ms after leaving (of 900): not closed yet, restarted from the top", (await p.locator("#s4-timer .pk-conf").count()) === 1);
   await sleep(300 + 240 + 250);
-  ok("closes after what was left", (await p.locator("#s4-timer [data-reopen]").count()) === 1);
-  await p.locator("#s4-timer").locator("xpath=..").locator("[data-reset]").click();
-  // press late: little left, release, never under the least left
-  await plan(); await sleep(800);
-  const b2 = await p.locator("#s4-timer .pk-conf").boundingBox(); await p.mouse.move(b2.x + 30, b2.y + 30); await p.mouse.down();
-  const lLate = await left(); await sleep(300); await p.mouse.up();
-  ok("press with 100ms left: after release at least 300ms are left", lLate < 200 && (await left()) >= 250, [lLate, await left()]);
-  await sleep(500); await p.locator("#s4-timer").locator("xpath=..").locator("[data-reset]").click();
-  // a press on Undo: pauses, and the click still undoes
-  await plan(); await sleep(200);
-  const u = await p.locator("#s4-timer [data-undo]").boundingBox(); await p.mouse.move(u.x + 10, u.y + 10); await p.mouse.down();
-  ok("press on Undo pauses", (await st()) === "paused");
-  await p.mouse.up();
-  ok("release on Undo undoes it", /Undone/.test(await txt(p, "#s4-timer .pk-conf-v")));
-  await p.locator("#s4-timer").locator("xpath=..").locator("[data-reset]").click();
-  // hover does not pause
-  await plan(); const b3 = await p.locator("#s4-timer .pk-conf").boundingBox(); await p.mouse.move(b3.x + 40, b3.y + 40);
-  ok("hovering does not pause", (await st()) === "run", await st());
+  ok("closes a full hold after leaving", await closed());
+  await reset();
+  // leave and come back mid-count: held again, then a fresh full hold
+  await plan(); await p.mouse.move(5, 5); await sleep(500);
+  const bx = await p.locator("#s4-timer .pk-conf").boundingBox(); await p.mouse.move(bx.x + 40, bx.y + 40);
+  ok("pointer back mid-count: held", (await st()) === "held", await st());
+  await sleep(1500);
+  ok("held after coming back", (await p.locator("#s4-timer .pk-conf").count()) === 1);
+  await p.mouse.move(5, 5); await sleep(600);
+  ok("second leave restarts the full hold too", (await p.locator("#s4-timer .pk-conf").count()) === 1 && (await st()) === "run");
+  await sleep(300 + 240 + 250);
+  ok("then closes", await closed());
+  await reset();
+  // pressing does not change anything now: a press outside while the mouse is away, the count runs on
+  await plan(); await p.mouse.move(5, 5); await p.mouse.down(); await sleep(900 + 240 + 250); await p.mouse.up();
+  ok("a press elsewhere does not hold it", await closed());
+  await reset();
+  // hovering Undo then clicking undoes it
+  await plan(); const u = await p.locator("#s4-timer [data-undo]").boundingBox(); await p.mouse.move(u.x + 10, u.y + 10); await p.mouse.click(u.x + 10, u.y + 10);
+  ok("Undo works while hovering", /Undone/.test(await txt(p, "#s4-timer .pk-conf-v")));
+  await reset();
+  // keyboard: focus on Undo holds, blur restarts the full hold
+  await plan(); await p.mouse.move(5, 5); await sleep(50);
+  await p.locator("#s4-timer [data-undo]").focus();
+  ok("focus on Undo: held", (await st()) === "held", await st());
+  await sleep(1200);
+  ok("focus on Undo: still there after longer than the hold", (await p.locator("#s4-timer .pk-conf").count()) === 1);
+  await p.locator("#s4-timer [data-undo]").blur();
+  ok("blur: counting again", (await st()) === "run", await st());
   await sleep(900 + 240 + 250);
-  ok("hover: still closes", (await p.locator("#s4-timer [data-reopen]").count()) === 1);
-  await p.locator("#s4-timer").locator("xpath=..").locator("[data-reset]").click();
-  // Esc closes at once
+  ok("blur: closes after a full hold", await closed());
+  await reset();
+  // Esc closes at once, even while hovered
   await plan(); await p.keyboard.press("Escape"); await sleep(50);
   ok("Esc ends the hold at once", (await p.locator("#s4-timer [data-reopen]").count()) === 1);
   await p.close();
+}
+// 4b. touch: no hover, so the count runs from display
+{
+  const tctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+  const p = await open(tctx, "hold=900");
+  await rows(p, "s4-timer").nth(0).tap();
+  ok("touch: counting from display", (await p.locator("#s4-timer").getAttribute("data-hold")) === "run", await p.locator("#s4-timer").getAttribute("data-hold"));
+  await sleep(900 + 240 + 300);
+  ok("touch: closes after the hold", (await p.locator("#s4-timer [data-reopen]").count()) === 1 && (await p.locator("#s4-timer .pk-conf").count()) === 0);
+  await p.close(); await tctx.close();
 }
 // contrast of the call-out in both themes, and no horizontal scroll on a phone
 for (const th of ["kitchie", "kitchie-day"]) {
