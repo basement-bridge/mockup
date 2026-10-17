@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Pantry search, desktop — mockup</title>
+<link rel="stylesheet" href="../../theme.css"><script src="../../theme.js"></script>
+<script>try{var t=new URLSearchParams(location.search).get("theme");if(t==="kitchie"||t==="kitchie-day")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<link rel="stylesheet" href="noresult.css"><link rel="stylesheet" href="desktop.css"></head>
+<body data-no-theme-fab>
+<!-- Desktop (1024px and up): rail, 640px column with the docked search bar, side-panel lane. Only the no-results block is new here (#807); the rest is the settled desktop Pantry, drawn minimally.
+     Notes: docs/knowledge/pantry-search.md, "Add to shopping list from no results". -->
+<div class="app">
+  <nav class="rail" aria-label="Main">
+    <div class="brand">Kitchie</div>
+    <a class="nv" href="#" aria-label="Home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-7 8 7v8.5a1.5 1.5 0 0 1-1.5 1.5h-3.5v-6h-6v6H5.5A1.5 1.5 0 0 1 4 19.5z"/></svg>Home</a>
+    <a class="nv on" href="#" aria-current="page" aria-label="Pantry"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7.5h10a2 2 0 0 1 2 2V18a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 5 18V9.5a2 2 0 0 1 2-2z"/></svg>Pantry</a>
+    <a class="nv" href="#" aria-label="Plan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1zM4 10h16M8 3.5V7M16 3.5V7"/></svg>Plan</a>
+    <a class="nv" href="#" id="nv-shop" aria-label="Shopping, 8 to get"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2.5l2.2 10.2a1 1 0 0 0 1 .8h8.8a1 1 0 0 0 1-.8L20 8H6.2"/></svg>Shopping<span class="n" id="badge">8</span></a>
+  </nav>
+  <main class="main"><div class="col">
+    <div class="hd">
+      <form class="dsrch" role="search" action="#"><span class="mg" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></span><input class="field" id="q" type="search" placeholder="Search pantry" aria-label="Search your pantry" autocomplete="off" spellcheck="false" maxlength="80"></form>
+      <button type="button" class="tbtn" id="filters-open"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16l-6 7.500V19l-4-2v-4.500z"/></svg>Filters</button>
+      <button type="button" class="icon addbtn" id="add-open" aria-label="Add an item" title="Add an item"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+    </div>
+    <div class="ribbon" role="group" aria-label="Location">
+      <button class="rc2 on" data-chip="All" aria-pressed="true">All</button><button class="rc2" data-chip="Unplaced" aria-pressed="false">Unplaced</button><button class="rc2" data-chip="Freezer" aria-pressed="false">Freezer</button><button class="rc2" data-chip="Fridge" aria-pressed="false">Fridge</button><button class="rc2" data-chip="Pantry" aria-pressed="false">Pantry</button>
+    </div>
+    <div id="slive" class="vh" role="status" aria-live="polite"></div>
+    <div id="plist"></div>
+  </div></main>
+  <aside class="panel" aria-label="Item"><div class="pempty"><b>Pick an item to see it here</b><p>Nothing is open.</p></div></aside>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+<script src="sample.js"></script>
+<script src="noresult.js"></script>
+<script src="desktop.js"></script>
+</body></html>

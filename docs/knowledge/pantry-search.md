@@ -1,8 +1,8 @@
 # Pantry top row on the phone: a magnifier that opens search over the whole row
 
-Status: mockup for the owner to review (17 Oct 2026). Not built in Kitchie. Phone only. Source: owner's voice request of 17 Oct 2026. Lines marked **Proposal** are choices the mockup made where the owner was silent; **Open** lines are not decided. Merging this mockup settles none of them.
+Status: mockup for the owner to review (17 Oct 2026). Not built in Kitchie. Phone first; the no-results actions of Kitchie #807 are also drawn on the desktop (see the last section). Source: owner's voice request of 17 Oct 2026. Lines marked **Proposal** are choices the mockup made where the owner was silent; **Open** lines are not decided. Merging this mockup settles none of them.
 
-Mockup: `fragments/pantry-search/` (notes page `index.html`, the phone `app.html`; code `search.css`, `search.js`). Check: `tools/pantry-search-check.mjs` (106 checks at 390px, light and dark). Builds on `pantry-pull-row.md` (the row, the pull thresholds, the refresh), which still holds unless this file says otherwise.
+Mockup: `fragments/pantry-search/` (notes page `index.html`, the phone `app.html`, the desktop `desktop.html`; code `search.css`, `search.js`, and for the no-results block `noresult.css`, `noresult.js`; `sample.js` and `desktop.js` are mock only). Check: `tools/pantry-search-check.mjs` (198 checks at 390px, 360px and 1280px, light and dark). Builds on `pantry-pull-row.md` (the row, the pull thresholds, the refresh), which still holds unless this file says otherwise.
 
 ## What the owner asked (voice, 17 Oct 2026, relayed)
 
@@ -74,4 +74,59 @@ Copy PART 1 of `fragments/pantry-search/search.css` and the row markup in `app.h
 4. New class `by-tap` on `.prow` before `data-state=search` when the open came from the glass; its two rules (front fades instead of the curtain). `header.js` `KitchieSearch.open()` sets it; `pull.js` clears it.
 5. `pull.js` `show()` and the finger-follow interpolate the bar from 48px to `100%` (was to `100% - 132px`) and the X fades in with it.
 6. Hidden layer controls (`#q`, `#search-close`, `#search-glass`) get `tabindex=-1` and `aria-hidden` on the form while closed (the live CSS already uses `visibility:hidden` on the layer, which does the same job; keep whichever it uses).
-7. No-results block (`.empty`) in the list area, with the Add button wired to the existing add sheet with the text.
+7. No-results block (`.empty`) in the list area, with the Add button wired to the existing add sheet with the text. (Kitchie #807 adds a second button to this block: see the last section.)
+
+## Add to shopping list from no results (Kitchie #807, mockup 17 Oct 2026)
+
+Mockup: `fragments/pantry-search/` (phone `app.html?state=open&q=zzq`, desktop `desktop.html?q=zzq`; the confirmed states are `&list=1`). Code to lift: `noresult.css`, `noresult.js` (the block and its two actions; the app passes in the add sheet and the new list route). Kitchie issue #807 (enhancement, not approved for build). Nothing is built. Lines marked **owner** are the owner's words or ask; **Proposal** lines are choices the mockup made where the owner was silent; merging this mockup settles none of them.
+
+### What the owner asked
+
+- Owner, by text in chat, 16 Oct 2026 (as written into #807): when a search finds nothing, there is a button to add it as a new item, but there should also be a button next to it that says "Add to shopping list".
+- Issue's change wanted (from that ask): tapping it puts the searched words on the shopping list as a hand-added entry and confirms in place, without leaving the search. The wording is to be settled in the mockup.
+- Stays the same: the "Add as a new item" button and its behaviour, the empty-search message and its way out, the Shopping screen and how hand-added entries look there (#281).
+- Owner, 17 Oct 2026, typed: "sweep all the issues ... and start mocking" (the reason this was drawn now; it does not approve the build).
+
+### Decisions (PS-S1 to PS-S15)
+
+- **PS-S1 (owner)** In the no-results state a second button, "Add to shopping list", sits next to "Add as a new item".
+- **PS-S2 (owner, via #807)** Tapping it puts the words on the shopping list and confirms where the person is looking: the search stays open, nothing navigates, nothing reloads (DESIGN.md 6a).
+- **PS-S3 (owner)** Unchanged: the headline `No "xyz" in your pantry`, "Check the spelling, or add it.", the Add button's behaviour (opens Add with the text filled in), "Search all places", the Shopping screen. "Add it" now covers both actions, so the line is left as it was.
+- **PS-S4 (Proposal)** The two labels are the owner's words, short: **Add as a new item** and **Add to shopping list**. The typed words are in the headline right above and in each button's accessible name ("Add "xyz" to the shopping list"). This replaces the first mockup's `Add "xyz"` and the live `Add "xyz" as a new item`. The other reading, the words in each label, is drawn and kept: `app.html?state=open&q=zzq&layout=stack`. Wrong guess costs: a person who wants the words on the button sees them only in the headline; switch the layout attribute.
+- **PS-S5 (Proposal)** On a phone the pair sits side by side, equal width, each 44px or taller, a label may take two lines at 390px. Under 380px (and on a very narrow window) they stack at full width. On the desktop each is one line. Wrong guess costs: two-line labels read as cramped; the stacked layout is one attribute away.
+- **PS-S6 (Proposal)** Order and weight: Add as a new item first and filled (it already exists and the owner said it stays); Add to shopping list second, an accent outline. See PS-SQ1.
+- **PS-S7 (Proposal)** The tap result, in place: the button turns into `✓ On your list` (the item sheet's own words, a label not a control, `aria-disabled`), and a line under the pair says `"xyz" is on your shopping list.` with **Undo**. No toast: a toast would disappear while the person is still reading. The line stays until the text is edited or the bar is closed. Undo takes the words off the list again, puts the button back and returns focus to it. Announced to screen readers ("xyz added to your shopping list", "xyz taken off your shopping list").
+- **PS-S8 (Proposal)** The typed text is kept and the bar stays open, so the person can keep going. The keyboard goes down on its own, because tapping a button takes the focus from the field. See PS-SQ2.
+- **PS-S9 (Proposal; the issue's inferred edge 1)** Already on the list: the tap decides (the store answers `already: true`), no check on every keystroke. The button turns to `✓ On your list` and the line says `"xyz" is already on your shopping list. Nothing changed.` No Undo, since nothing changed. The match ignores case and extra spaces. Try `q=chives`.
+- **PS-S10 (Proposal; the issue's inferred edge 2)** The words match a tracked item that is used up (the Pantry search hides used-up items, so "No item matches" can still mean one exists): link the entry to that item, as chat does (`needs_link`), and say so: `Tahini, which you used up, is on your shopping list.` with Undo. Try `q=tahini`. See PS-SQ4.
+- **PS-S11 (Proposal; edge 3)** No quantity is asked. It can be set on the Shopping screen, as with chat. Nothing in the block is a field or a sheet.
+- **PS-S12 (Proposal; edge 4)** The name goes on as typed, trimmed. It is not rewritten to the "type, variant" format (same as Add as a new item).
+- **PS-S13 (Proposal)** Where it shows: every no-results with something typed, including with a place chip on (`No "xyz" in Freezer`). Not in the "It is in another place" state (the item is in the pantry; the only action is Search all places) and not when the field is empty.
+- **PS-S14 (Proposal; edge 6)** Desktop: the same block in the 640px column under the docked search bar, the pair on one line. The rail's Shopping badge goes up by one and back down on Undo, which shows where the name went. The desktop Pantry mock (`flows/household/desktop/`) only says "Nothing matches." today, so `desktop.html` draws the whole desktop Pantry minimally (rail, docked bar `[search] [Filters] [+]`, chips, side-panel lane) and the block inside it. Keyboard: no shortcut cue for the pair (S is for a selected row).
+- **PS-S15 (Proposal; edge 5)** The new entry shows on the shopper link (#479) like any hand-added entry. Not drawn; no change to that screen.
+
+### Open questions (recommended positions)
+
+- **PS-SQ1 Button order and weight.** Recommended: Add as a new item first and filled, Add to shopping list second and outlined (PS-S6). The other reading: "we need to buy it" is the likelier reason for a miss (the issue's own words), so the list button could lead or both be filled. Wrong guess costs: a CSS swap of two rules and the order in `noresult.js`.
+- **PS-SQ2 Is the typed text kept after the tap?** Recommended: kept, bar open (PS-S8). Alternative: clear the field and close the bar, with a toast "Added to your shopping list" and Undo. Wrong guess costs: with the alternative the person cannot see what they just added and the Undo window is short.
+- **PS-SQ3 Wording.** Recommended: the owner's "Add to shopping list" and the item sheet's "On your list". Alternatives: "Add to list" (the swipe's word), "Put on the list". Wrong guess costs: labels in two places (`noresult.js` strings).
+- **PS-SQ4 A used-up match: link silently or ask?** Recommended: link and say so in the line, with Undo (PS-S10). The issue asks the owner if the two readings differ. Wrong guess costs: an entry linked to an item the person did not mean; Undo is one tap.
+- **PS-SQ5 Show "On your list" before the tap?** Recommended: no, the tap decides (PS-S9): no list lookup while typing. Alternative: mark the button as soon as the words match a list line. Wrong guess costs: a person taps and is told "already" instead of seeing it first.
+- **PS-SQ6 How long does Undo last?** Recommended: until the text changes or the bar closes (PS-S7). Alternative: a few seconds, as a toast. After that the way back is the Shopping screen's Remove.
+- **PS-SQ7 A link to the Shopping screen in the confirmation?** Recommended: not now; the person stays in the search ("without leaving the search"). Wrong guess costs: one more tap to check the list.
+- **PS-SQ8 Side by side or stacked on the phone?** Recommended: side by side (the owner said "next to"), stacked only under 380px (PS-S5). If two-line labels feel crowded, the stacked layout with the words in each label is drawn and one attribute away.
+- **PS-SQ9 Order of work.** The Pantry search mockup (this file, above) is not built either. In the live app today (issue evidence, v0.126.0 phone) the add button sits under the search box and "No item matches" below the chips. Recommended: build the pair in whichever place the add button is when #807 is built: the `.eacts` wrapper holds both buttons, so it moves with it. Wrong guess costs: none to the design; a builder deciding alone which screen carries it.
+
+### What the default path loads, and what is deferred (DESIGN.md section 6)
+
+Default path: nothing new. The block is part of the no-results markup that is only drawn when a search finds nothing; `noresult.css` (about 3 KB) and `noresult.js` (about 5 KB) are small, and in the app they are the existing empty-state CSS and `list.js`. Deferred: the call to the new list route happens on the tap, never while typing, and nothing is fetched to draw the buttons. The result lands in place (section 6a): the button and the line are swapped, the field and the list are not touched. `sample.js` and `desktop.js` are mock only.
+
+### For the build
+
+Each difference from the live app is to be listed in the Kitchie pull request.
+
+1. A new web route in `server/src/web-shopping.ts` over `addToShoppingByName` (`server/src/store.ts`), the same call chat (`shopping-mcp.ts`) and the meal plan make. It answers `{ added }`, `{ already }` or `{ linked: "<item name>" }`, and for added and linked the id of the entry, so Undo removes exactly that entry (the Shopping screen's Remove already does this for hand-added entries; the builder checks the route and its permission).
+2. The two buttons share one wrapper (`.eacts`) in the no-results block, ids `add-q` (today `#add-from-search`) and `list-q`. The block's markup, class names and CSS are `noresult.js` and `noresult.css`; the mock's `sample.js` is not lifted.
+3. The tap does not navigate: the click handler posts, swaps the button and the line, and moves focus. A failed request leaves the pair as it was and shows the app's usual error line; this is not drawn.
+4. `aria-disabled` (not `disabled`) on `On your list`, so it keeps its place in the reading order. The live region (`#slive`) announces added, already and taken off.
+5. Light and dark use the same tokens (`--accent`, `--surface`, `--border`, `--muted`); nothing new in `theme.css`.

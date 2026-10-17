@@ -1,0 +1,46 @@
+/* Pantry search on the desktop (Kitchie #807): the rail, column and side-panel lane of the settled desktop layout (DESIGN.md section 7, docs/knowledge/desktop-layout.md), drawn minimally.
+   Mock chrome only except the no-results block, which is noresult.css (shared with the phone). */
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--fg);font-family:var(--body);line-height:1.4}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.app{display:grid;min-height:100vh;grid-template-columns:88px minmax(0,736px) 400px;justify-content:start}
+.rail{border-right:1px solid var(--border);padding:16px 8px;display:flex;flex-direction:column;gap:6px;align-items:stretch;position:sticky;top:0;height:100vh}
+.rail .brand{font:700 13px var(--head);text-align:center;color:var(--muted);margin-bottom:10px}
+.nv{display:flex;flex-direction:column;align-items:center;gap:2px;min-height:44px;padding:8px 2px;border-radius:var(--r-ctl);font-size:12px;font-weight:600;color:var(--muted);position:relative;text-decoration:none}
+.nv svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nv.on{color:var(--accent);background:var(--surface)}
+.nv:hover{background:var(--surface)}
+.nv .n{position:absolute;top:2px;right:14px;background:var(--accent);color:var(--on-accent);font-size:10px;font-weight:700;border-radius:99px;padding:0 5px;min-width:16px;text-align:center}
+.main{padding:28px 48px 56px;min-width:0}
+.col{max-width:640px}
+/* the top row: [docked search] [Filters] [+], as in the household desktop mock (DESIGN.md section 7) */
+.hd{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.dsrch{position:relative;display:flex;align-items:center;flex:1;min-width:0;height:48px;margin:0;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--surface)}
+.dsrch:focus-within{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.dsrch .mg{flex:none;width:40px;height:46px;display:inline-flex;align-items:center;justify-content:center;color:var(--muted)}
+.dsrch:focus-within .mg{color:var(--accent)}
+.dsrch .field{flex:1;min-width:0;border:0;background:none;min-height:46px;padding:0 10px 0 0;outline:none}
+.dsrch .field::placeholder{color:var(--muted)}
+.icon{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:.9rem;border:1px solid var(--border);flex:none;background:none;cursor:pointer}
+.addbtn{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.tbtn{display:inline-flex;align-items:center;gap:6px;min-height:48px;padding:0 1rem;border:1px solid var(--border);border-radius:.8rem;background:var(--surface);font-weight:500;cursor:pointer}
+.ribbon{display:flex;gap:6px;padding:.25rem;border-radius:1rem;background:var(--surface);margin-bottom:.4rem;width:max-content;max-width:100%}
+.rc2{flex:none;min-height:40px;border:0;background:none;border-radius:.75rem;padding:0 1rem;font-weight:700;cursor:pointer}
+.rc2.on{background:var(--accent);color:var(--on-accent)}
+.group h2{font:800 1.15rem var(--head);margin:.9rem .25rem .2rem}
+.rows{list-style:none;margin:0;padding:0}
+.rowx{display:flex;align-items:center;min-height:60px;padding:.5rem .6rem;border-bottom:1px solid var(--border)}
+.rowx:hover{background:var(--surface)}
+.rowx .name{font-weight:700;text-transform:lowercase}
+.rowx .meta{font-size:.9rem;color:var(--muted)}
+.rowx .due{margin-left:auto;font-size:.85rem;color:var(--muted)}
+.panel{background:var(--surface);border-left:1px solid var(--border);padding:24px;position:sticky;top:0;height:100vh}
+.pempty{padding-top:40px;text-align:center}
+.pempty p{margin:4px 0 0;color:var(--muted)}
+/* the no-results block sits in the column, so the pair has room: icons, one line each */
+.col .eacts .btn{flex:0 1 auto;padding:0 18px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:24px;background:var(--fg);color:var(--bg);padding:12px 16px;border-radius:var(--r-ctl);font-weight:600;font-size:14px;z-index:30}
+.toast[hidden]{display:none}
+@media (max-width:1023.98px){.app{grid-template-columns:88px minmax(0,1fr)}.panel{display:none}}

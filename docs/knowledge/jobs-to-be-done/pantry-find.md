@@ -20,7 +20,11 @@ Filters and Add (hidden while the bar is open), the sort, the chips' counts, the
 
 ## Mockup
 
-`fragments/pantry-search/app.html` (phone only). States: closed, flyout, open, typing, no results, shallow pull, deep pull (refresh, unchanged).
+`fragments/pantry-search/app.html` (phone), `desktop.html` (desktop, no-results only). States: closed, flyout, open, typing, no results, shallow pull, deep pull (refresh, unchanged); and, for #807, the no-results pair, added, already on the list, a used-up item.
+
+## When nothing is found (Kitchie #807)
+
+Not finding it usually means "we need to buy it" or "I am putting it away now". The block offers both, next to each other: **Add as a new item** (unchanged) and **Add to shopping list**. The second puts the typed words on the list in place, says so, and offers Undo; the search stays open and the words are kept. No quantity is asked. Decisions PS-S1 to PS-S15 and open questions PS-SQ1 to PS-SQ9 are in `../pantry-search.md`.
 
 ## Open questions
 

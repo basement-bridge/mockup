@@ -8,23 +8,32 @@
 .frs{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;margin-top:10px}
 .fig{flex:0 1 250px;min-width:0}
 .fig h3{margin:0 0 4px;font:800 15px var(--head)}
-.fr{width:242px;height:300px;border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden;background:var(--bg);position:relative}
-.fr iframe{position:absolute;left:0;top:0;width:390px;height:484px;border:0;transform:scale(.62);transform-origin:0 0}
+.fr{width:242px;height:330px;border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden;background:var(--bg);position:relative}
+.fr iframe{position:absolute;left:0;top:0;width:390px;height:532px;border:0;transform:scale(.62);transform-origin:0 0}
 .fr-open{display:inline-flex;align-items:center;min-height:44px;font-size:13px;font-weight:700;color:var(--accent)}
+.figw{margin-top:12px}.figw h3{margin:0 0 4px;font:800 15px var(--head)}
+.frd{display:inline-block;vertical-align:top;margin:0 12px 12px 0;width:320px;max-width:100%;height:200px;border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden;position:relative}
+.frd iframe{position:absolute;left:0;top:0;width:1280px;height:800px;border:0;transform:scale(.25);transform-origin:0 0}
 .idea{display:inline-block;font-size:12px;font-weight:800;padding:3px 10px;border-radius:var(--r-pill);border:1px dashed var(--accent);color:var(--accent)}
 </style></head>
 <body><div class="wrap">
 <a class="back" href="../../">&lsaquo; All mockups</a>
 <h1>Pantry search: a magnifier on the top row</h1>
-<p><span class="idea">Phone only. Mockup, nothing built.</span></p>
-<p style="margin-top:8px">The Pantry's top row on the phone, redrawn. Filters stays at the left border. At the right border sit + and then a magnifier, the magnifier as the rightmost item. Tapping the magnifier makes a search bar fly out from right to left over the whole row, hiding Filters and +. The shallow pull-down opens the same bar. Drag the list down in the live frame to try the pull (mouse works too). Desktop is out of scope: its docked search bar is unchanged.</p>
+<p><span class="idea">Phone first, desktop for the no-results state. Mockup, nothing built.</span></p>
+<p style="margin-top:8px">The Pantry's top row on the phone, redrawn. Filters stays at the left border. At the right border sit + and then a magnifier, the magnifier as the rightmost item. Tapping the magnifier makes a search bar fly out from right to left over the whole row, hiding Filters and +. The shallow pull-down opens the same bar. Drag the list down in the live frame to try the pull (mouse works too). The desktop docked search bar is unchanged; the no-results state is also drawn there (Kitchie #807, below).</p>
 
 <div class="sec"><div class="lbl">Open it</div>
 <div class="links">
 <a href="app.html">The row, closed (try it)</a>
 <a href="app.html?state=open">Open</a>
 <a href="app.html?state=open&amp;q=ch">Typing: &ldquo;ch&rdquo;</a>
-<a href="app.html?state=open&amp;q=zzq">No results</a>
+<a href="app.html?state=open&amp;q=zzq">No results (the pair)</a>
+<a href="app.html?state=open&amp;q=zzq&amp;list=1">Added to the list</a>
+<a href="app.html?state=open&amp;q=chives&amp;list=1">Already on the list</a>
+<a href="app.html?state=open&amp;q=tahini&amp;list=1">A used-up item</a>
+<a href="app.html?state=open&amp;q=zzq&amp;layout=stack">Stacked (not chosen)</a>
+<a href="desktop.html?q=zzq">Desktop: no results</a>
+<a href="desktop.html?q=zzq&amp;list=1">Desktop: added</a>
 <a href="app.html?pull=40">Pull, 40 px (peek)</a>
 <a href="app.html?pull=100">Pull, 100 px (locked)</a>
 <a href="app.html?pull=200">Pull, 200 px (let go to refresh)</a>
@@ -37,6 +46,17 @@
 <div class="fig"><h3>Open, typing</h3><div class="fr"><iframe loading="lazy" title="Open" src="app.html?theme=kitchie-day&amp;state=open&amp;q=ch"></iframe></div></div>
 <div class="fig"><h3>No results</h3><div class="fr"><iframe loading="lazy" title="No results" src="app.html?theme=kitchie-day&amp;state=open&amp;q=zzq"></iframe></div></div>
 <div class="fig"><h3>Dark, open</h3><div class="fr"><iframe loading="lazy" title="Dark open" src="app.html?theme=kitchie&amp;state=open&amp;q=ch"></iframe></div></div>
+</div>
+<h3 style="margin:18px 0 0;font:800 15px var(--head)">Add to shopping list from no results (Kitchie #807)</h3>
+<div class="frs">
+<div class="fig"><h3>The pair</h3><div class="fr"><iframe loading="lazy" title="The pair" src="app.html?theme=kitchie-day&amp;state=open&amp;q=zzq"></iframe></div></div>
+<div class="fig"><h3>Added, with Undo</h3><div class="fr"><iframe loading="lazy" title="Added" src="app.html?theme=kitchie-day&amp;state=open&amp;q=zzq&amp;list=1"></iframe></div></div>
+<div class="fig"><h3>Already on the list</h3><div class="fr"><iframe loading="lazy" title="Already on the list" src="app.html?theme=kitchie-day&amp;state=open&amp;q=chives&amp;list=1"></iframe></div></div>
+<div class="fig"><h3>A used-up item</h3><div class="fr"><iframe loading="lazy" title="A used-up item" src="app.html?theme=kitchie-day&amp;state=open&amp;q=tahini&amp;list=1"></iframe></div></div>
+<div class="fig"><h3>Dark, added</h3><div class="fr"><iframe loading="lazy" title="Dark, added" src="app.html?theme=kitchie&amp;state=open&amp;q=zzq&amp;list=1"></iframe></div></div>
+<div class="fig"><h3>Stacked (not chosen)</h3><div class="fr"><iframe loading="lazy" title="Stacked" src="app.html?theme=kitchie-day&amp;state=open&amp;q=zzq&amp;layout=stack"></iframe></div></div>
+</div>
+<div class="figw"><h3>Desktop (1280 wide)</h3><div class="frd"><iframe loading="lazy" title="Desktop, no results" src="desktop.html?theme=kitchie-day&amp;q=zzq"></iframe></div><div class="frd"><iframe loading="lazy" title="Desktop, added" src="desktop.html?theme=kitchie&amp;q=zzq&amp;list=1"></iframe></div>
 </div></div>
 
 <div class="sec"><div class="lbl">What the owner asked (voice, 17 October 2026)</div>
@@ -68,8 +88,40 @@
 <li><b>PS-Q4</b> Whether the glass needs a keyboard cue (desktop only, out of scope).</li>
 </ul></div>
 
+<div class="sec"><div class="lbl">Add to shopping list from no results (Kitchie #807): what the owner asked</div>
+<ul class="decs">
+<li><b>Owner, text in chat, 16 Oct 2026</b> (as written into #807): when a search finds nothing there is a button to add it as a new item; there should also be a button next to it that says &ldquo;Add to shopping list&rdquo;. Tapping it puts the searched words on the list as a hand-added entry and confirms in place, without leaving the search.</li>
+<li><b>Stays the same:</b> Add as a new item and its behaviour, the empty message, the Shopping screen and how hand-added entries look there.</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">#807 decisions (PS-S1 to PS-S15). S1 to S3 are the owner&rsquo;s; the rest are Proposal.</div>
+<ul class="decs">
+<li><b>PS-S1</b> (owner) A second button, &ldquo;Add to shopping list&rdquo;, next to &ldquo;Add as a new item&rdquo;. <b>PS-S2</b> (owner) The tap confirms in place; the search stays open. <b>PS-S3</b> (owner) The message, the Add button&rsquo;s behaviour and the Shopping screen are unchanged.</li>
+<li><b>PS-S4</b> Labels are the owner&rsquo;s words, short; the typed words are in the headline and in each button&rsquo;s spoken name. The words-in-each-label layout is kept at <code>?layout=stack</code>.</li>
+<li><b>PS-S5</b> Side by side and equal width on a phone (a label may take two lines at 390px); stacked under 380px; one line each on the desktop.</li>
+<li><b>PS-S6</b> Add as a new item first and filled; Add to shopping list second, outlined.</li>
+<li><b>PS-S7</b> The tap: the button becomes <b>On your list</b> (the item sheet&rsquo;s words); a line under it says <b>&ldquo;xyz&rdquo; is on your shopping list.</b> with <b>Undo</b>. No toast. Undo puts the button back and returns focus to it.</li>
+<li><b>PS-S8</b> The typed text is kept and the bar stays open. <b>PS-S9</b> Already on the list: said in words, nothing changed, no Undo (the tap decides; no lookup while typing). <b>PS-S10</b> The words match a used-up tracked item: linked to it and said, with Undo.</li>
+<li><b>PS-S11</b> No quantity is asked (set it on the Shopping screen). <b>PS-S12</b> The words go on as typed, trimmed. <b>PS-S13</b> Shown with a place chip on too; not in the &ldquo;in another place&rdquo; state or with an empty field.</li>
+<li><b>PS-S14</b> Desktop: the same block in the 640px column under the docked bar; the rail&rsquo;s Shopping badge goes up by one and back on Undo. <b>PS-S15</b> The shopper link shows the entry like any hand-added one (not drawn).</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">#807 open questions (recommended position first)</div>
+<ul class="qs">
+<li><b>PS-SQ1</b> Order and weight. Recommended: existing Add first and filled, the list button second and outlined. Or the list button leads, since a miss usually means &ldquo;we need to buy it&rdquo;. Costs: a CSS swap.</li>
+<li><b>PS-SQ2</b> Keep the typed text after the tap? Recommended: keep, bar open. Or clear and close with a toast and Undo.</li>
+<li><b>PS-SQ3</b> Wording. Recommended: &ldquo;Add to shopping list&rdquo; and &ldquo;On your list&rdquo;. Or &ldquo;Add to list&rdquo;.</li>
+<li><b>PS-SQ4</b> A used-up match: link and say so (recommended), or ask first?</li>
+<li><b>PS-SQ5</b> Show &ldquo;On your list&rdquo; before the tap? Recommended: no, the tap decides.</li>
+<li><b>PS-SQ6</b> How long does Undo last? Recommended: until the text changes or the bar closes.</li>
+<li><b>PS-SQ7</b> A link to the Shopping screen in the confirmation? Recommended: not now.</li>
+<li><b>PS-SQ8</b> Side by side on the phone (recommended) or stacked?</li>
+<li><b>PS-SQ9</b> Order of work: the live app has the add button under the search box today; this block is built where the add button is.</li>
+</ul>
+<p style="margin-top:8px;font-size:13px">Full text, wrong-guess costs and the build differences: <code>docs/knowledge/pantry-search.md</code>, last section.</p></div>
+
 <div class="sec"><div class="lbl">What this loads (DESIGN.md section 6)</div>
-<p>Default path: <code>search.css</code> and <code>search.js</code> (small) on top of <code>theme.css</code>. Nothing deferred is fetched: the list is filtered in place from what is already on the page (section 6a). In the app the six refresh scenes still load on the first refresh; this mockup shows the refresh words only. Checked at 390px in light and dark with <code>tools/pantry-search-check.mjs</code>.</p></div>
+<p>Default path: <code>search.css</code> and <code>search.js</code> (small) on top of <code>theme.css</code>. Nothing deferred is fetched: the list is filtered in place from what is already on the page (section 6a). In the app the six refresh scenes still load on the first refresh; this mockup shows the refresh words only. The #807 block adds <code>noresult.css</code> and <code>noresult.js</code> (small); the call to the list is made on the tap only, never while typing, and the result is swapped in place. Checked at 390px, 360px and 1280px in light and dark with <code>tools/pantry-search-check.mjs</code>.</p></div>
 
 <div class="sec"><div class="lbl">Where this sits</div>
 <p>Notes and the build differences: <code>docs/knowledge/pantry-search.md</code>; job: <code>docs/knowledge/jobs-to-be-done/pantry-find.md</code>; builds on <code>docs/knowledge/pantry-pull-row.md</code>.</p></div>
