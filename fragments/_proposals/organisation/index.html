@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mockup index (illustrative)</title>
+<style>
+:root{--bg:#faf8f4;--card:#fff;--ink:#1f2420;--mut:#5b645d;--line:#e2ddd2;--acc:#2f6f4f;--warn:#9a5b00}
+@media (prefers-color-scheme:dark){:root{--bg:#171a18;--card:#202522;--ink:#ece9e1;--mut:#a3aca5;--line:#333a35;--acc:#7cc6a0;--warn:#e0b25a}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,sans-serif}
+.wrap{max-width:980px;margin:0 auto;padding:16px}
+h1{margin:8px 0 4px;font-size:1.5rem}h2{font-size:1.05rem;margin:24px 0 8px}
+p{margin:4px 0}.mut{color:var(--mut);font-size:.9rem}
+.banner{border:1px dashed var(--warn);border-radius:10px;padding:10px 12px;margin:12px 0;font-size:.9rem}
+.strip{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--warn);border-radius:10px;padding:10px 12px;margin:12px 0}
+.strip b.ok{color:var(--acc)}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+input,select,button{font:inherit;min-height:44px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
+button.chip{border-radius:999px}button.chip[aria-pressed=true]{background:var(--acc);color:var(--bg);border-color:var(--acc)}
+.grid{display:grid;gap:8px}
+.row{display:grid;grid-template-columns:1fr auto;gap:4px 12px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.row a{color:var(--ink);font-weight:600;text-decoration:none}.row a:hover{text-decoration:underline}
+.meta{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px 12px;font-size:.85rem;color:var(--mut)}
+.st{font-size:.78rem;font-weight:600;padding:2px 8px;border-radius:999px;border:1px solid var(--line);white-space:nowrap;align-self:start}
+.s-in-production{background:var(--acc);color:var(--bg);border-color:var(--acc)}
+.s-in-uat{border-color:var(--acc);color:var(--acc)}
+.s-awaiting-review{border-color:var(--warn);color:var(--warn)}
+.s-rejected{text-decoration:line-through}
+.s-abandoned{border-style:dashed;color:var(--mut)}
+.dec li{margin:4px 0}
+@media (max-width:560px){.row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Our kitchen: mockup index</h1>
+  <p class="mut">Option A/D landing page, generated from <code>fragments.json</code> plus issue cards. 55 fragments, 8 product areas.</p>
+  <div class="banner"><b>Illustrative only.</b> Real fragment names, sample statuses, issue numbers and decisions are made up for the mock. Links point at existing fragments. Nothing here is decided. Proposal: <a href="../../../docs/organisation-options.md">docs/organisation-options.md</a>.</div>
+
+  <div class="strip" aria-label="Review window">
+    <b>Review window (privacy): <span class="ok">closed</span></b> if nothing below is awaiting review.<br>
+    <span class="mut">Illustrative now: 3 fragments awaiting your review, so a window would stay open. Lock-eligible: <b>no</b>. Blockers: receipt-scan option picker, plan-desktop week strip, item-edit-flyout history icon.</span>
+  </div>
+
+  <div class="filters" role="group" aria-label="Filters">
+    <input id="q" type="search" placeholder="Search name, issue or area" aria-label="Search">
+    <select id="area" aria-label="Product area"><option value="">All areas</option></select>
+    <span id="chips"></span>
+  </div>
+  <p class="mut" id="count"></p>
+  <div class="grid" id="list"></div>
+
+  <h2>Latest decisions</h2>
+  <ol class="dec mut">
+    <li>18 Oct: item-edit-flyout, history icon placement (illustrative) &rarr; <a href="../../item-edit-flyout/">item-edit-flyout</a></li>
+    <li>17 Oct: receipt-scan, Option A chosen and built (illustrative) &rarr; <a href="../../receipt-scan/">receipt-scan</a></li>
+    <li>16 Oct: recipe tab, cooking-ideas pane kept as a pane (illustrative) &rarr; <a href="../../recipe-detail-desktop/">recipe-detail-desktop</a></li>
+  </ol>
+
+  <h2>How a status is worked out</h2>
+  <p class="mut"><b>Derived</b> (never typed): in-build, in-uat, in-production come from the linked issue's factory-state (in-progress, built, done). <b>Recorded with a citation</b>: decided, rejected, superseded. <b>Computed</b>: abandoned means unreviewed and quiet for N days, and is shown differently from rejected.</p>
+</div>
+<script>
+var F=[
+["receipt-scan","Receipt scan bulk add","pantry","K-receipt","awaiting-review","phone + desktop","Option A built in prototype; open: confirm-as-new wording"],
+["pantry-search","Pantry search","pantry","K-search","in-production","phone","built and released (sample)"],
+["pantry-row-actions","Pantry row actions","pantry","K-rowact","in-uat","phone","built into uat (sample)"],
+["item-edit-flyout","Item edit flyout","pantry","K-edit","awaiting-review","desktop","history icon and shortcuts open"],
+["home-detail-panel","Home detail panel","pantry","K-home","decided","desktop","owner picked panel (sample)"],
+["plan-desktop","Plan the week, desktop","plan","K-plan","awaiting-review","desktop","options await confirmation"],
+["plan-day-picker","Plan day picker","plan","K-daypick","in-uat","phone","sample"],
+["plan-month-picker","Plan month picker","plan","K-month","decided","phone","sample"],
+["plan-hard-avoid","Plan hard avoid","plan","K-avoid","in-production","phone","sample"],
+["plan-week","Plan week (early single file)","plan","","superseded","phone","superseded by plan-desktop (sample)"],
+["plan-week-ai","Plan week AI (early)","plan","","abandoned","phone","never reviewed, quiet 30+ days (sample)"],
+["recipe-detail-desktop","Recipe detail, desktop","recipe","K-830","decided","desktop","locked decisions, build pending (sample)"],
+["recipe-share","Recipe share","recipe","K-share","in-build","phone + desktop","claimed (sample)"],
+["recipe-page","Recipe page (early)","recipe","","superseded","phone","superseded by recipe-detail-desktop (sample)"],
+["recipe-tags","Recipe tags","recipe","K-tags","rejected","phone","owner: not now, 12 Oct (sample, with citation)"],
+["shopper-link","Shopper link","shopping","K-shopper","in-production","phone","sample"],
+["shopping-receipt","Shopping receipt","shopping","K-shoprec","in-uat","phone","sample"],
+["household-activity","Household activity","household","K-hist","decided","phone + desktop","sample"],
+["removed-members","Removed members","household","K-rm","in-production","phone","sample"],
+["oauth-consent","OAuth consent","platform","P-oauth","in-uat","phone","sample"],
+["photo-enhance","Photo enhance","recipe","K-photo","awaiting-review","phone","sample"]
+];
+var ST=["awaiting-review","decided","in-build","in-uat","in-production","rejected","superseded","abandoned"];
+var q=document.getElementById('q'),ar=document.getElementById('area'),chips=document.getElementById('chips'),list=document.getElementById('list'),cnt=document.getElementById('count');
+var on={};
+[...new Set(F.map(f=>f[2]))].sort().forEach(a=>{var o=document.createElement('option');o.value=a;o.textContent=a;ar.appendChild(o)});
+ST.forEach(s=>{var b=document.createElement('button');b.className='chip';b.type='button';b.textContent=s;b.setAttribute('aria-pressed','false');b.onclick=function(){on[s]=!on[s];b.setAttribute('aria-pressed',on[s]);render()};chips.appendChild(b)});
+function render(){
+  var t=q.value.toLowerCase(),a=ar.value,any=ST.some(s=>on[s]);
+  var r=F.filter(f=>(!a||f[2]==a)&&(!any||on[f[4]])&&(!t||f.join(' ').toLowerCase().indexOf(t)>-1));
+  cnt.textContent=r.length+' of '+F.length+' sample rows shown';
+  list.innerHTML='';
+  r.forEach(f=>{
+    var d=document.createElement('div');d.className='row';
+    var h=document.createElement('a');h.href='../../'+f[0]+'/';h.textContent=f[1];
+    var s=document.createElement('span');s.className='st s-'+f[4];s.textContent=f[4];
+    var m=document.createElement('div');m.className='meta';
+    [f[2],f[3]||'no issue yet',f[5],f[6]].forEach(x=>{var e=document.createElement('span');e.textContent=x;m.appendChild(e)});
+    d.appendChild(h);d.appendChild(s);d.appendChild(m);list.appendChild(d);
+  });
+}
+q.oninput=render;ar.onchange=render;render();
+</script>
+</body>
+</html>
