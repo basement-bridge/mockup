@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>The idle pane alone</title>
+<link rel="stylesheet" href="../../theme.css"><script src="../../theme.js"></script>
+<script>try{var t=new URLSearchParams(location.search).get("theme");if(t==="kitchie"||t==="kitchie-day")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<link rel="stylesheet" href="shell.css"><link rel="stylesheet" href="pane.css"></head>
+<body data-no-theme-fab>
+<!-- The 400px lane alone, for the side by side page (compare.html). ?s=pantry|recipes&o=a..f&d=typical|large|empty|nostock&theme=... -->
+<div class="app" id="app"></div>
+<script src="data.js"></script><script src="pane.js"></script><script>var __q=new URLSearchParams(location.search);document.body.dataset.screen=__q.get("s")||"pantry";document.body.dataset.lane="1";</script>
+<script>history.replaceState(null,"",location.pathname+"?"+(function(){var u=new URLSearchParams(location.search);u.set("lane","1");return u.toString()})());</script>
+<script src="app.js"></script>
+</body></html>
