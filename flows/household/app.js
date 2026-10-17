@@ -69,8 +69,6 @@ const RI = {
   heart: '<path d="M12 20s-8-5-8-11a4.5 4.5 0 0 1 8-2.5A4.5 4.5 0 0 1 20 9c0 6-8 11-8 11z"/>',
 };
 const ICON_LIB = Object.keys(RI).filter((k) => !["cap", "tag", "lock", "people", "home", "jar", "cart", "clock", "yy", "funnel", "mic"].includes(k)); /* 30 light monoline icons */
-/* The inviter's note (platform#92, kitchie): plain text, at most 280 graphemes, set as text and never markup. Shown once, on the first Welcome after sign-in; it is gone when the person leaves the screen. */
-const INVITE_NOTE = "Welcome! I set this up for our Friday dinners, so you can see what I have in the fridge. Come and cook with me soon.";
 const NAMES = ["Arjan", "Priya", "Tom", "Mei"];
 const riSvg = (k, s = 26) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${RI[k] || RI.spark}</svg>`;
 const roleIc = (r, size = 44) => r ? `<span class="ric" style="width:${size}px;height:${size}px">${riSvg(r.ic, Math.round(size * .55))}</span>` : "";
@@ -128,7 +126,7 @@ const initial = () => ({
   day: 1, aiDone: false, inviteDone: false, cvOpt: "A", aiTab: "ChatGPT", aiLink: false, founder: "arjan", admins: ["arjan"], avatars: {}, bannerGot: false, pending: null, joined: false,
   /* pantry view */
   rmode: "loc", order: { loc: [...AREAS], cat: [...CATEGORIES] }, fa: null, fd: null, flast: null, fTab: "filters", seenP: 0, seenR: 0, view: "name", shop: ["milk", "carrots", "butter"], slx: { milk: { by: "arjan", want: "2 litres", tick: false }, carrots: { by: "sam", want: "", tick: false }, butter: { by: "arjan", want: "", tick: false } }, wantFor: null, sel: null, areaTab: "All", collapsed: {}, search: "", searchOpen: false, draft: { days: null },
-  memberWho: null, existing: 1, own: false, note: true, rdraft: null, iconPick: false,
+  memberWho: null, existing: 1, own: false, rdraft: null, iconPick: false,
   /* install prompt: nothing until 1 hour of use, then 1, 2, 1 across three weeks, then never */
   usageMin: 0, week: 0, pwa: { startWeek: null, shown: {}, done: false }, pwaCard: false,
 });
@@ -435,7 +433,6 @@ const screens = {
       <div class="hero">${KITCHEN_SCENE}
       <div class="hello"><h1>${S.own ? `Your very own kitchen, ${esc(me().name)}.` : `Welcome, ${esc(me().name)}.`}</h1>
       <p>${S.own ? "Arjan thought you'd like one. Zero peer pressure." : `${esc(who)} will be thrilled to see you!`}</p></div>
-      ${S.own && S.note ? `<aside class="invnote" aria-label="A note from the person who invited you"><b>A note for you</b><p>${esc(INVITE_NOTE)}</p></aside>` : ""}
       <ul class="wl">${perks.map(([ic, t, c]) => `<li><span class="ric ${c}" style="width:40px;height:40px">${riSvg(ic, 22)}</span><span>${t}</span></li>`).join("")}</ul></div>
       <h2 class="pickh">Pick a role you like playing</h2>
       ${roleEditor("welcome")}</div>`;
@@ -740,7 +737,7 @@ function panelHtml() {
   const sw = (k, label) => `<label><span>${label}</span><button class="sw ${S[k] ? "on" : ""}" data-ctl="${k}" aria-pressed="${S[k]}"></button></label>`;
   return `<div class="grp"><h3>Who you are</h3><label><span>Signed in as</span><select data-ctl="persona"><option value="sam" ${S.persona === "sam" ? "selected" : ""}>Sam</option><option value="arjan" ${S.persona === "arjan" ? "selected" : ""}>Arjan (looks after the plan)</option></select></label></div>
   <div class="grp"><h3>Theme</h3><div class="tgrid">${(window.themeWarm&&window.themeWarm(),window.themeHtml())}</div></div>
-  <div class="grp"><h3>Invite</h3>${sw("own", "Starting their own kitchen")}${S.own ? sw("note", "Inviter left a note (shown once on Welcome)") : ""}<label><span>People already in</span><select data-ctl="existing">${[1, 2, 3].map((n) => `<option value="${n}" ${S.existing === n ? "selected" : ""}>${n === 3 ? "3 or more" : n}</option>`).join("")}</select></label><label><span>Code entry shows</span><select data-ctl="codeState">${[["ok", "Fine"], ["wrong", "Wrong, used or expired"], ["locked", "Locked out"]].map(([v, l]) => `<option value="${v}" ${S.codeState === v ? "selected" : ""}>${l}</option>`).join("")}</select></label><p class="st">Changes the welcome words. Use "Invite link opens" to replay.</p></div>
+  <div class="grp"><h3>Invite</h3>${sw("own", "Starting their own kitchen")}<label><span>People already in</span><select data-ctl="existing">${[1, 2, 3].map((n) => `<option value="${n}" ${S.existing === n ? "selected" : ""}>${n === 3 ? "3 or more" : n}</option>`).join("")}</select></label><label><span>Code entry shows</span><select data-ctl="codeState">${[["ok", "Fine"], ["wrong", "Wrong, used or expired"], ["locked", "Locked out"]].map(([v, l]) => `<option value="${v}" ${S.codeState === v ? "selected" : ""}>${l}</option>`).join("")}</select></label><p class="st">Changes the welcome words. Use "Invite link opens" to replay.</p></div>
   <div class="grp"><h3>Household</h3><button class="pb" data-act="addmaya">Add Maya to the household</button><button class="pb" data-act="samadmin">Make Sam an admin (as Arjan)</button><button class="pb" data-act="arjanout">Arjan is no longer an admin (Sam is the only one)</button><p class="st">Household > Members: a member sees the list and who the admins are; an admin sees Make admin or Remove admin on everyone else, the founding member included, and Step down on their own row while another admin exists. The last admin reads "Make someone else an admin first."</p>${sw("recipes", "Has Recipes")}${sw("down", "Platform is down")}${sw("expireNext", "Sign-in ends on next save")}</div>
   <div class="grp"><h3>Home-screen prompt</h3><div class="st" id="pwa-st">${esc(pwaStatus())}</div><button class="pb" data-act="usage">Add 30 min of use</button><button class="pb" data-act="week">Move on a week</button><p class="st">Nothing until 1 hour of use. Then once, twice, once over three weeks. Then never. Shows on Today.</p></div>
   <div class="grp"><h3>Jump to</h3><button class="pb" data-act="restart">Invite link opens</button><button class="pb" data-act="jump" data-p="today">Home</button><button class="pb" data-act="jump" data-p="pantry">Pantry</button><button class="pb" data-act="jump" data-p="household">Household</button><button class="pb" data-act="jump" data-p="notmember">Not a member</button><button class="pb" data-act="jump" data-p="entercode">Enter a code</button><button class="pb" data-act="reset">Reset everything</button></div>
@@ -976,8 +973,8 @@ const acts = {
   stocktoggle() { S.stockChecks = !S.stockChecks; render(); },
   proto(l) { toast(`${l}: not in this prototype.`); },
   week() { S.week += 1; render(); },
-  signout() { const k = { day: S.day, cfg: S.cfg, persona: S.persona, recipes: S.recipes, down: S.down, own: S.own, note: S.note, existing: S.existing, usageMin: S.usageMin, week: S.week, pwa: S.pwa }; S = Object.assign(initial(), k); refreshPanel(); render(); },
-  restart() { const k = { persona: S.persona, recipes: S.recipes, down: S.down, own: S.own, note: S.note, existing: S.existing }; S = Object.assign(initial(), k); refreshPanel(); render(); },
+  signout() { const k = { day: S.day, cfg: S.cfg, persona: S.persona, recipes: S.recipes, down: S.down, own: S.own, existing: S.existing, usageMin: S.usageMin, week: S.week, pwa: S.pwa }; S = Object.assign(initial(), k); refreshPanel(); render(); },
+  restart() { const k = { persona: S.persona, recipes: S.recipes, down: S.down, own: S.own, existing: S.existing }; S = Object.assign(initial(), k); refreshPanel(); render(); },
   reset() { S = initial(); refreshPanel(); render(); },
   askaround() { toast("No rush. The kitchen will keep."); },
   jump(p) { S.joined = S.joined || p !== "notmember"; S.stack = []; go(p, null, { replace: true }); },
