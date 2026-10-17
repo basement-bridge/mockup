@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Plan day flyout: replace and timer fixes</title>
+<link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><script src="../../theme.js"></script>
+<link rel="stylesheet" href="flyout.css">
+</head>
+<body><div class="wrap pdfr">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Plan day flyout: four fixes</h1>
+<p>The flyout that opens from Plan it (phone sheet and desktop right-hand flyout). Mockup only, nothing is saved. The frames are live: pick a row to plan it, press Undo, use Reset to start a frame again. It is the real flyout's markup and classes (<code>row-d</code>, <code>fors</code>, <code>pk-conf</code>), so a build can lift it. The real change is being built into Kitchie <code>uat</code> separately; this page is the picture to build to. Spec: <code>docs/knowledge/plan-day-flyout-replace.md</code>.</p>
+<div class="owner"><b>Owner, voice, 17 Oct 2026:</b> &ldquo;Sunday here is shown as not cooking. It was a not-cooking usual day, but somebody chose to cook anyway. So they&rsquo;re still cooking; we don&rsquo;t refer to the not-cooking part unless that actually gets removed. The whole point of plan here is not to remove anything. If you&rsquo;re going to replace something for yourself or everybody, give a visual, some sort of warning. Not to confirm it. I don&rsquo;t want two-step confirmation because you can always undo it. Plan for everyone is fine because that&rsquo;s non-destructive. If I fancy it for everyone but somebody else already has something, say we&rsquo;ve added something: they keep their plan, the others will have this meal. And if somebody clicks on the three seconds, don&rsquo;t act on it until they let go of the flyout.&rdquo;</div>
+
+<section class="sec" id="s1"><div class="lbl">1 &middot; A usual day off that already has a meal</div>
+<p class="note">A usual day off only says <b>Not cooking</b> while nothing is planned. Once anyone cooks, the row shows the meal and drops the chip and &ldquo;Every week, usual day off&rdquo;. (The red Replaces tag on those rows is item 2: picking the night would replace that meal.)</p>
+<p class="rec"><b>Recommended:</b> show the meal as any other night and say nothing about the day off. The Not cooking chip comes back only if the meal is removed. The chip, the line and today&rsquo;s &ldquo;Usual day off, cooking this week&rdquo; line all go from the row.</p>
+<div class="pair"><figure class="fr-w" data-frame="s1-phone"></figure><figure class="fr-w" data-frame="s1-desk"></figure></div></section>
+
+<section class="sec" id="s2"><div class="lbl">2 &middot; Replacing something gets a call-out, not a confirm step</div>
+<p class="note">A row that would replace a meal for you or for Everyone (you are part of Everyone) carries a <b>Replaces</b> tag with a swap icon, a danger-toned border, and the meal that would go struck through. One tap plans it; the confirmation has Undo. A plain Open row, and a row where the other person keeps their meal, stay plain.</p>
+<p class="rec"><b>Recommended:</b> tag with icon and wording, struck-through meal, danger border (tone, icon, wording and strike, so colour is never the only signal). No confirm button, no second tap.</p>
+<div class="pair"><figure class="fr-w" data-frame="s2-phone-me"></figure><figure class="fr-w" data-frame="s2-phone-all"></figure></div>
+<div class="pair"><figure class="fr-w" data-frame="s2-desk-me"></figure><figure class="fr-w" data-frame="s2-desk-all"></figure></div></section>
+
+<section class="sec" id="s3"><div class="lbl">3 &middot; The confirmation names the people</div>
+<p class="note">Planning for Everyone where someone keeps their own meal says who has the new meal and who keeps theirs. You are named last, as &ldquo;you&rdquo;. In the owner&rsquo;s example the line is &ldquo;Planned for Brown Bogan, Green Slander and you. UAT-AL keeps their meal.&rdquo;; here you are Brown Bogan, so the line is the same shape.</p>
+<p class="rec"><b>Recommended:</b> &ldquo;Planned&rdquo; as the headline, then &ldquo;For &hellip; and you. X keeps their meal.&rdquo;; a replace also says what went (&ldquo;Japanese golden curry is out.&rdquo;). If nobody keeps their own: &ldquo;For everyone.&rdquo;. Undo stays on every confirmation.</p>
+<div class="pair"><figure class="fr-w" data-frame="s3-phone"></figure><figure class="fr-w" data-frame="s3-desk"></figure></div>
+<div class="pair"><figure class="fr-w" data-frame="s3-phone-b"></figure></div></section>
+
+<section class="sec" id="s4"><div class="lbl">4 &middot; The 3 seconds wait while you hold</div>
+<p class="note">After a pick the confirmation stays 3 seconds, then slides out. Pressing anywhere in the flyout (mouse down or a finger down) stops the count; it carries on only after you let go, with what was left but never under 1 second.</p>
+<p class="rec"><b>Recommended:</b> pause on press (and on keyboard focus on Undo), resume on release, at least 1 second left. Hovering no longer pauses.</p>
+<div class="tl" role="img" aria-label="Three timelines: untouched closes at 3 seconds; pressed at 1 second and released at 4 seconds closes at 6; pressed at 2.8 and released at 3.2 closes at 4.2">
+<div class="tl-r"><b>Nobody touches it</b><div class="tl-bar"><span class="run" style="flex:3">counts 3 s</span><span class="end">closes</span></div></div>
+<div class="tl-r"><b>Press at 1 s, let go at 4 s</b><div class="tl-bar"><span class="run" style="flex:1">1 s</span><span class="hold" style="flex:3">paused: finger down</span><span class="run" style="flex:2">2 s left</span><span class="end">closes</span></div></div>
+<div class="tl-r"><b>Press at 2.8 s, let go at 3.2 s</b><div class="tl-bar"><span class="run" style="flex:2.8">2.8 s</span><span class="hold" style="flex:.4"></span><span class="run" style="flex:1">1 s (the least)</span><span class="end">closes</span></div></div>
+<div class="tl-key"><span><i class="run"></i>counting</span><span><i class="hold"></i>paused while pressed</span></div></div>
+<div class="pair"><figure class="fr-w" data-frame="s4-timer"></figure></div></section>
+
+<section class="sec" id="oq"><div class="lbl">Open questions</div>
+<ol class="oq">
+<li><b>Does hovering still pause the 3 seconds?</b> <em>Recommended: no.</em> Only a press (and keyboard focus on Undo) pauses it; a resting mouse would hold the flyout open and a phone has no hover. A wrong guess costs one line to restore.</li>
+<li><b>After you let go, how long is left?</b> <em>Recommended: what was left, but at least 1 second.</em> The other reading restarts the full 3 seconds, which feels long after a pause that was itself a decision.</li>
+<li><b>A household meal you are in, planned only for yourself (&ldquo;Takes you out of it&rdquo;): same call-out?</b> <em>Recommended: yes, same tag (&ldquo;Replaces for you&rdquo;).</em> It does remove your place in that meal, though everyone else keeps it.</li>
+<li><b>A long household: name everyone in the confirmation?</b> <em>Recommended: name up to four, then &ldquo;and 3 others&rdquo;.</em> The mockup household has three people, so it names them all.</li>
+</ol></section>
+</div>
+<script src="flyout.js"></script>
+</body></html>
