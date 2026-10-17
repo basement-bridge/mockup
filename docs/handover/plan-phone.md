@@ -2,7 +2,7 @@
 
 Short status file; the full decision history is `docs/knowledge/jobs-to-be-done/plan-ui-review.md` (decisions 63 to 281, cite as "Plan UI review N"). Mockup: `fragments/plan-ui-review/phone.html`. Read `AGENTS.md` and `DESIGN.md` first. Desktop counterpart: [plan-desktop.md](plan-desktop.md).
 
-**Meal planning sheet, 17 October 2026 (Kitchie #860):** the phone's usual-days sheet gets a Household row, the person wins, and loses the Categories row; drawn in `fragments/plan-usual-days/phone.html`, notes in `docs/knowledge/plan-usual-days.md`. `fragments/plan-week-ai` keeps its older one-row-per-person sheet and points there.
+**Off days sheet, 17 October 2026 (Kitchie #860):** the phone's usual-days sheet gets a Household row, the person wins, and loses the Categories row; drawn in `fragments/plan-usual-days/phone.html`, notes in `docs/knowledge/plan-usual-days.md`. `fragments/plan-week-ai` keeps its older one-row-per-person sheet and points there.
 
 ## Status, 14 October 2026
 Mockup only; nothing is built in Kitchie. Latest revision (PR open, not merged, for the owner): decisions 276 to 281 (nineteenth revision).

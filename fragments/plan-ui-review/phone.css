@@ -22,7 +22,7 @@ select{font:inherit}
 .stk.cmp .hd h1{font-size:.95rem;display:inline}
 .stk.cmp .hd .wt small{display:none}
 .stk.cmp .hd .cpy:has(.flipundo){display:inline-flex}
-.stk.cmp .hd .cpy,.stk.cmp .hd .cog{display:none}
+.stk.cmp .hd .cpy,.stk.cmp .hd .offd{display:none}
 .stk.cmp .hd .ib,.stk.cmp .fmenu{min-height:32px;height:32px}
 .hd .ib{width:40px}
 .ib{width:44px;height:44px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:none;color:var(--fg)}
@@ -392,7 +392,7 @@ select{font:inherit}
 /* Plan UI review 203: "Household" is wider than "Mine", and the flipped Undo now says its scope ("clear, household"), so while an Undo shows the filter button gives way at every width, as it already does under 380 */
 .hd.flipped.hh .fmenu{display:none}.hd.flipped.hh .wt small{max-width:min(calc(100vw - 200px),230px)}
 @media(max-height:760px){.dpiece{padding-bottom:18px}.stackw{padding-top:4px}}
-.hd.flipped .cog{display:none}
+.hd.flipped .offd{display:none}
 /* scripted sequence (demo.js, only with ?demo=1) */
 .demobar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(64px + env(safe-area-inset-bottom));width:100%;max-width:430px;z-index:45;display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--fg);color:var(--bg);font-size:12px;line-height:1.3}
 .demobar .dtx{flex:1;min-width:0}.demobar b{display:block;font-size:13px}.demobar span{display:block;opacity:.92}
