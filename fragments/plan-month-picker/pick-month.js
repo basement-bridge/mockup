@@ -24,7 +24,9 @@ function clearHalo() {
   setTimeout(function () { [].forEach.call(el ? el.querySelectorAll(".pdm-c.halo-out") : [], function (h) { h.classList.remove("halo-out"); }); }, 520);
 }
 var WIDE_MIN = 1360, WIDE_MQ = window.matchMedia ? window.matchMedia("(min-width:" + WIDE_MIN + "px)") : { matches: false }; /* 88 rail + 472 column (never covered: it gives up width) + 800 for two flyouts */
-var WOPT = /^(a|b|c)$/.test(Q.get("wide") || "") ? Q.get("wide") : "a", NOWIDE = Q.get("wide") === "off" || NARROW;
+var CARD = /^(slim|collapsed|overlay|strip)$/.test(Q.get("card") || "") ? Q.get("card") : "docked"; /* ?card= how layout B spends its width (owner open sub-question, 17 Oct 2026): docked (as chosen), slim, collapsed until a date is on, overlay while open, strip below the weeks. Any ?card implies layout B; no ?card, no ?wide: layout A as before (B is NOT the default yet). */
+var WOPT = /^(a|b|c)$/.test(Q.get("wide") || "") ? Q.get("wide") : CARD !== "docked" ? "b" : "a", NOWIDE = Q.get("wide") === "off" || NARROW;
+window.PKCard = CARD;
 function wideNow() { return view === "month" && !NOWIDE && WIDE_MQ.matches && !!window.PKWide; }
 function wantWide() { return !NOWIDE && WIDE_MQ.matches && !window.PKWide; }
 function lastLabel() { var l = PK.info(P.lastN); return l.dn + " " + l.num + " " + l.mon; }
@@ -116,7 +118,10 @@ function pickCell(n) {
   PK.commit(n);
 }
 /* wide option B: the side card follows the hovered or focused date */
-function side(n) { var sd = $("#pdw-side"); if (sd && window.PKWide && window.PKWide.sideHtml) sd.innerHTML = window.PKWide.sideHtml(n); }
+function side(n) {
+  var sd = $("#pdw-side"); if (!sd || !window.PKWide || !window.PKWide.sideHtml) return; sd.innerHTML = window.PKWide.sideHtml(n);
+  var b = sd.closest(".pdw-b"); if (b) { b.classList.add("has-card"); b.dataset.side = PK.info(n).i >= 4 ? "left" : "right"; } /* collapsed and overlay: the card opens on the first date you point at or focus; the overlay sits on the side away from that date */
+}
 function setCur(n, m) {
   var old = el.querySelector('.pdm-c[tabindex="0"]'); if (old) old.tabIndex = -1;
   cur = n; msg = m || ""; var b = el.querySelector(cellSel(n)); if (b) { b.tabIndex = 0; b.focus({ preventScroll: true }); }
@@ -137,11 +142,12 @@ function click(e) {
 /* hover and focus on a date: the line under the grid says what picking it does; a planned or closed date also shows what is planned, read only */
 function over(e) {
   if (view !== "month" || !M) return; var b = e.target.closest && e.target.closest(".pdm-c"); if (!b || b.disabled || b.classList.contains("pdm-sw")) return;
-  side(+b.dataset.n); var s = $("#pdm-st"); if (s) s.innerHTML = M.say(+b.dataset.n); if (!quiet) M.showPop(b, el);
+  if (!quiet) side(+b.dataset.n); var s = $("#pdm-st"); if (s) s.innerHTML = M.say(+b.dataset.n); if (!quiet) M.showPop(b, el); /* the focus the flyout moves itself (today, on open) neither opens the card nor a popover */
 }
 function out(e) {
   if (view !== "month" || !M) return; var b = e.target.closest && e.target.closest(".pdm-c"); if (!b) return;
   if (e.relatedTarget && b.contains(e.relatedTarget)) return;
+  if (CARD === "overlay" && e.relatedTarget && e.relatedTarget.closest && !e.relatedTarget.closest(".pdw-b")) { var ob = el.querySelector(".pdw-b"); if (ob) ob.classList.remove("has-card"); } /* the overlay closes when the pointer leaves the grid and the card */
   M.hidePop(); var s = $("#pdm-st"), a = document.activeElement, n = a && a.classList && a.classList.contains("pdm-c") && el.contains(a) ? +a.dataset.n : cur;
   if (s) s.innerHTML = M.say(n, n === cur ? msg : ""); /* the side card (wide B) is left on the last date you pointed at, so moving to its Plan button never changes the date */
 }
