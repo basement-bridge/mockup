@@ -1,0 +1,20 @@
+/* Option B: a context menu on the row (Kitchie #866): right click, the Menu key or Shift F10, or the three-dot button that shows on hover, focus and the current row. */
+.rmore{position:absolute;z-index:2;top:50%;right:8px;transform:translateY(-50%);display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--bg);color:var(--muted);opacity:0;pointer-events:none}
+li[data-row]:is(:hover,:focus-within,[data-cur],.is-hover,[data-menu]) .rmore{opacity:1;pointer-events:auto}
+li[data-row]:is(:hover,:focus-within,[data-cur],.is-hover,[data-menu]) .due{margin-right:46px}
+.rmore:hover,.rmore[aria-expanded=true]{border-color:var(--accent);color:var(--accent)}
+li[data-row][data-menu] .rowlink{background:var(--surface);box-shadow:inset 0 0 0 2px var(--accent)}
+html[data-input=touch] li[data-row]:not([data-cur]):not(:focus-within):not([data-menu]) .rmore{opacity:0;pointer-events:none}
+html[data-input=touch] li[data-row]:not([data-cur]):not(:focus-within):not([data-menu]) .due{margin-right:0}
+html[data-input=touch] .rmore{width:44px;height:44px}
+.rmenu{position:fixed;z-index:50;min-width:272px;padding:6px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface);box-shadow:0 12px 32px var(--dim)}
+.rmenu[hidden]{display:none}
+.rmenu .mh{padding:6px 10px 4px;font-size:12px;font-weight:700;color:var(--muted);max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rmenu .mi{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:0 10px;border:0;border-radius:10px;background:none;text-align:left;font-weight:600}
+.rmenu .mi .lb{flex:1}
+.rmenu .mi:hover,.rmenu .mi:focus-visible{background:var(--bg);outline:none;box-shadow:inset 0 0 0 2px var(--accent)}
+.rmenu .mi.all{color:var(--danger)}
+.rmenu .mi[aria-disabled=true]{opacity:.55;cursor:not-allowed}
+.rmenu .mi .why{font-size:12px;font-weight:500;color:var(--muted)}
+.rmenu hr{border:0;border-top:1px solid var(--border);margin:4px 6px}
+.rmenu .mf{padding:6px 10px 4px;font-size:12px;color:var(--muted)}

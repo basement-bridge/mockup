@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Pantry row actions, desktop — mockup</title>
+<link rel="stylesheet" href="../../theme.css"><script src="../../theme.js"></script>
+<script>try{var t=new URLSearchParams(location.search).get("theme");if(t==="kitchie"||t==="kitchie-day")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<link rel="stylesheet" href="rows.css"></head>
+<body data-no-theme-fab>
+<!-- Desktop (1024px and up): rail, 640px column, side-panel lane (DESIGN.md section 7). The list is the settled desktop Pantry drawn minimally; ONE option for acting on a row without swipe is added on top
+     (opt-a to opt-d, or opt-now for what the app does today), chosen with ?opt=. Notes: docs/knowledge/pantry-row-actions.md. -->
+<div class="app">
+  <nav class="rail" aria-label="Main">
+    <div class="brand">Kitchie</div>
+    <a class="nv" href="#" aria-label="Home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-7 8 7v8.5a1.5 1.5 0 0 1-1.500 1.500h-3.500v-6h-6v6H5.500A1.500 1.500 0 0 1 4 19.500z"/></svg>Home</a>
+    <a class="nv on" href="#" aria-current="page" aria-label="Pantry"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7.500h10a2 2 0 0 1 2 2V18a2.500 2.500 0 0 1-2.500 2.500h-9A2.500 2.500 0 0 1 5 18V9.500a2 2 0 0 1 2-2z"/></svg>Pantry</a>
+    <a class="nv" href="#" aria-label="Plan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1zM4 10h16M8 3.500V7M16 3.500V7"/></svg>Plan</a>
+    <a class="nv" href="#" id="nv-shop" aria-label="Shopping, 8 to get"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2.500l2.200 10.200a1 1 0 0 0 1 .8h8.800a1 1 0 0 0 1-.8L20 8H6.200"/></svg>Shopping<span class="n" id="badge">8</span></a>
+  </nav>
+  <main class="main"><div class="col" id="col">
+    <div class="hd">
+      <form class="dsrch" role="search" action="#" onsubmit="return false"><span class="mg" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.500"/><path d="M16 16l4.500 4.500"/></svg></span><input class="field" id="q" type="search" placeholder="Search pantry" aria-label="Search your pantry" autocomplete="off" spellcheck="false" maxlength="80"></form>
+      <button type="button" class="tbtn" data-toast="Filters opens the side panel (unchanged)">Filters <kbd class="kbd">F</kbd></button>
+      <button type="button" class="icon addbtn" aria-label="Add an item" title="Add an item" data-toast="Add opens the add panel (unchanged)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+    </div>
+    <div class="ribbon" role="group" aria-label="Location">
+      <button class="rc2 on" data-chip="All" aria-pressed="true">All</button><button class="rc2" data-chip="Fridge" aria-pressed="false">Fridge</button><button class="rc2" data-chip="Pantry" aria-pressed="false">Pantry</button><button class="rc2" data-chip="Freezer" aria-pressed="false">Freezer</button><button class="rc2" data-chip="Out" aria-pressed="false">Out<span class="ct">1</span></button>
+    </div>
+    <div class="count" id="count" aria-live="polite"></div>
+    <div id="slive" class="vh" role="status" aria-live="polite"></div>
+    <div id="plist"></div>
+  </div></main>
+  <aside class="panel" id="panel" aria-label="Item"></aside>
+</div>
+<div id="undo-bar" role="status" aria-live="polite" hidden></div>
+<div class="mockbar" aria-label="Prototype controls"><b>Prototype</b>
+  <a data-opt="now" href="#">Today</a><a data-opt="a" href="#">A</a><a data-opt="b" href="#">B</a><a data-opt="c" href="#">C</a><a data-opt="d" href="#">D</a>
+  <a data-toggle="input" href="#">Touch laptop: off</a><a data-toggle="theme" href="#">Dark</a>
+</div>
+<script src="sample.js"></script>
+<script src="act.js"></script>
+<script src="rows.js"></script>
+</body></html>
