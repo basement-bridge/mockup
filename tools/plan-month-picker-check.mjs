@@ -49,6 +49,8 @@ async function visualRules(p, tag, theme) {
   ok(t + "one-mark versus three-mark is kept", (await p.locator(".pdm-c[data-n].st-plan .pdm-mk i").first().count()) === 1 && (await p.locator(".pdm-c[data-n].st-stack").first().locator(".pdm-mk i").count()) === 3);
   ok(t + "no dashed or dotted line anywhere in the grid, its dates, pseudo-elements or the line under it", (await noDashed(p)).length === 0, await noDashed(p));
   ok(t + "the month step-rule is a thin solid rule (at most 4px), not a heavy dash", await stepRules(p));
+  ok(t + "two-row tile: row 1 is the number (and the red exclamation), row 2 the plus or the dots, bigger than row 1, no meal name in the tile", await p.evaluate(() => { const cs = [...document.querySelectorAll(".pdm-c[data-n]")].filter(c => !c.disabled); return cs.length > 20 && cs.every(c => { const top = c.querySelector(":scope > .pdm-top"), mk = c.querySelector(":scope > .pdm-mark"); if (!top || !top.querySelector(".pdm-n") || c.querySelector(".pdm-m")) return false; if (c.classList.contains("g-stop")) return !mk && !!top.querySelector(".pdm-bd.warn .pdm-i.bang"); if (!mk) return false; const a = top.getBoundingClientRect(), b = mk.getBoundingClientRect(); const g = c.classList.contains("g-warn"); if (g && !top.querySelector(".pdm-bd.warn")) return false; if (c.classList.contains("st-open") && !mk.querySelector(".pdm-i")) return false; if (c.classList.contains("st-plan") && mk.querySelectorAll(".pdm-mk i").length !== 1) return false; if (c.classList.contains("st-stack") && mk.querySelectorAll(".pdm-mk i").length !== 3) return false; return b.top >= a.bottom - 1 && b.height > a.height && c.getBoundingClientRect().height >= 43.5 && c.getBoundingClientRect().width >= 43.5; }); }));
+  ok(t + "the month label stays: the first of a month reads 1 Nov in row 1", /1\s*Nov/.test(await cell(p, 20).locator(".pdm-top").innerText()));
   const pn = await look(p, ".pdm-c[data-n].st-plan .pdm-n"), on = await look(p, ".pdm-c[data-n].st-open .pdm-n");
   ok(t + "planned is not bold (number weight 400) and calmer than open", pn.fw <= 400 && pn.fw < on.fw, [pn.fw, on.fw]);
   if (await p.locator(".pdm-c[data-n].st-plan .pdm-m").count()) { const pm = await look(p, ".pdm-c[data-n].st-plan .pdm-m"); ok(t + "planned meal name is not bold", pm.fw <= 400, pm.fw); }
@@ -124,8 +126,9 @@ for (const [w, h] of [[1440, 900], [1024, 800]]) {
     ok(tag + "avoid: an exclamation mark where it asks first", (await p.locator(".pdm .pdm-bd.warn .pdm-i.bang").count()) > 0);
     ok(tag + "avoid: no triangle anywhere in the flyout", await p.evaluate(() => ![...document.querySelectorAll("#week svg path")].some(x => /h-19z|H2z|l9\.5 16\.5/.test(x.getAttribute("d") || ""))));
     await cell(p, 11).focus(); await sleep(250);
-    ok(tag + "avoid: the hover detail says so with the same mark", /Hard avoid/.test(await p.locator(".pdm-pop").innerText()) && (await p.locator(".pdm-pop .pdm-i.bang").count()) === 1);
-    ok(tag + "avoid: the line under the grid says it asks first", /Hard avoid/.test(await status(p)), await status(p));
+    if (w >= 1360) ok(tag + "avoid: the hover detail says so with the same mark", /Hard avoid/.test(await p.locator(".pdm-pop").innerText()) && (await p.locator(".pdm-pop .pdm-i.bang").count()) === 1);
+    else ok(tag + "avoid: the strip says so (no hover pop-up with it)", /Hard avoid/.test(await p.locator("#pdw-side").innerText()) && (await p.locator(".pdm-pop").count()) === 0);
+    ok(tag + "avoid: the line under the grid or the strip says it asks first", /Hard avoid/.test((await status(p)) + (await p.locator("#pdw-side").innerText().catch(() => ""))), await status(p));
     await p.locator('[data-who="Jo"]').click(); await sleep(300);
     ok(tag + "avoid: under Jo every open date is Not for Jo with the exclamation", /not for Jo/i.test(await cell(p, 11).getAttribute("aria-label")) && (await cell(p, 11).locator(".pdm-i.bang").count()) === 1);
     await cell(p, 11).focus(); await p.keyboard.press("Enter"); await sleep(300);
@@ -140,7 +143,7 @@ for (const [w, h] of [[1440, 900], [1024, 800]]) {
     await sc.locator('[data-who="Sam"]').click(); await sleep(300);
     ok(tag + "scope: Sam selected, recipe without mango: no mark", (await bangs(sc)) === 0);
     await cell(sc, 11).focus(); await sleep(250);
-    ok(tag + "scope: no conflict, so the hover on an open date says nothing about a Hard avoid", (await sc.locator(".pdm-pop").count()) === 0);
+    ok(tag + "scope: no conflict, so the hover on an open date says nothing about a Hard avoid", (await sc.locator(".pdm-pop").count()) === 0 && !/Hard avoid/.test(await sc.locator("#pdw-side").innerText().catch(() => "")));
     await sc.close();
     const w1 = await open(ctx, "start=month&avoid=mango&halo=off");
     ok(tag + "scope: Everyone, recipe WITH mango: a mark on the open dates", (await bangs(w1)) > 0);
@@ -172,7 +175,7 @@ for (const [w, h] of [[1440, 900], [1024, 800]]) {
     if (o === "b") ok(tag + "num=b: a plain neutral cell, no state fill (planned and open share the cell colour)", planBg === openBg, [planBg, openBg]);
     else ok(tag + "num=" + o + ": the state fill is the picture (planned and open differ)", planBg !== openBg, [planBg, openBg]);
     if (o === "c") ok(tag + "num=c: a light numeral (weight 400)", parseInt(await css(p, '.pdm-c[data-n="8"] .pdm-n', "fontWeight")) === 400);
-    if (o === "a" && w === 1024) ok(tag + "num=a: the number sits in the corner", (await css(p, '.pdm-c[data-n="8"] .pdm-n', "position")) === "absolute");
+    if (o === "a") ok(tag + "num=a: the number sits in row 1 at the top-left of the tile, with the mark in row 2 below it", await p.evaluate(() => { const c = document.querySelector('.pdm-c[data-n="8"]'), n = c.querySelector(".pdm-top .pdm-n").getBoundingClientRect(), r = c.getBoundingClientRect(), m = c.querySelector(".pdm-mark .pdm-i").getBoundingClientRect(); return n.top - r.top <= 14 && n.left - r.left <= 14 && m.top >= n.bottom - 1; }));
     ok(tag + "num=" + o + ": no sideways scroll", (await flyScroll(p)) <= 0);
     await p.close(); }
   // the transient halo: fires by itself on open, on EVERY open date, today stays the selected cell
@@ -213,12 +216,13 @@ for (const [w, h] of [[1440, 900], [1024, 800]]) {
   // hover and keys
   { const p = await open(ctx, "start=month&halo=off");
     await cell(p, 12).hover(); await sleep(250);
-    ok(tag + "hover on a planned date shows what is planned, read only", /Pizza night/.test(await p.locator(".pdm-pop").innerText()) && /Read only/.test(await p.locator(".pdm-pop").innerText()));
+    if (w >= 1360) ok(tag + "hover on a planned date shows what is planned, read only", /Pizza night/.test(await p.locator(".pdm-pop").innerText()) && /Read only/.test(await p.locator(".pdm-pop").innerText()));
+    else ok(tag + "hover on a planned date moves the strip to it (chip Planned, no restating lines, no pop-up)", /planned/i.test(await p.locator("#pdw-side .pdw-chip").innerText()) && /Friday|Saturday|Sunday|Monday|Tuesday|Wednesday|Thursday/.test(await p.locator("#pdw-side .pdw-date").innerText()) && (await p.locator(".pdm-pop").count()) === 0 && (await p.locator("#pdw-side .pdw-plans").count()) === 0);
     await cell(p, 9).hover(); await sleep(250);
     await cell(p, 11).hover(); await sleep(250);
     ok(tag + "hover on an open date shows no detail", (await p.locator(".pdm-pop").count()) === 0);
     await cell(p, 7).hover(); await sleep(250);
-    ok(tag + "hover on the stacked night lists the household plan and Jo's own", /Prawn curry/.test(await p.locator(".pdm-pop").innerText()) && /Cheese toastie/.test(await p.locator(".pdm-pop").innerText()));
+    if (w >= 1360) ok(tag + "hover on the stacked night lists the household plan and Jo's own", /Prawn curry/.test(await p.locator(".pdm-pop").innerText()) && /Cheese toastie/.test(await p.locator(".pdm-pop").innerText()));
     await p.mouse.move(5, 5);
     await cell(p, 11).focus();
     await p.keyboard.press("ArrowRight"); ok(tag + "Right moves a day", (await activeN(p)) === "12");
@@ -280,6 +284,55 @@ for (const [w, h] of [[1440, 900], [1024, 800]]) {
     ok(tag + "side card strip: follows the date and keeps a 44px button", /Leftovers curry/.test(await st.locator("#pdw-side").innerText()) && (await st.locator("#pdw-side .pdw-go").evaluate(e => e.getBoundingClientRect().height)) >= 43.5);
     ok(tag + "side card strip: no sideways scroll", (await flyScroll(st)) <= 0); await st.close();
   }
+  // the date card (every form) for a date that already has something, and for an open date (owner, 17 Oct 2026)
+  for (const [q, form] of [["start=month&halo=off", w >= 1360 ? "wide A" : "compact strip"], ["start=month&halo=off&wide=b", "docked"], ["start=month&halo=off&card=slim", "slim"], ["start=month&halo=off&card=collapsed", "collapsed"], ["start=month&halo=off&card=overlay", "overlay"], ["start=month&halo=off&card=strip", "bottom strip"]]) {
+    if (w < 1360 && form !== "compact strip") continue;
+    if (form === "wide A") continue; // layout A has the pop-up, not a card
+    const p = await open(ctx, q), card = p.locator("#pdw-side");
+    const shown = async n => { await p.mouse.move(5, 5); await sleep(300); await cell(p, n).hover(); await sleep(250); return (await card.innerText()).replace(/\s+/g, " "); };
+    const planned = await shown(12);
+    ok(tag + form + ": a planned date keeps the chip, the consequence line and the button, and drops the lines that restate the plan", /planned/i.test(planned) && /Replaces|Adds|Pizza|plan/i.test(await card.locator(".pdw-cons").innerText()) && (await card.locator(".pdw-go").count()) === 1 && (await card.locator(".pdw-plans, .pdw-q").count()) === 0, planned);
+    const stacked = await shown(7);
+    ok(tag + form + ": a planned-several date drops the plan lines too", /several/i.test(stacked) && (await card.locator(".pdw-plans").count()) === 0 && !/Cheese toastie/.test(stacked), stacked);
+    const open_ = await shown(8);
+    ok(tag + form + ": an open date keeps the full detail (Nothing planned, the consequence, the button)", /Nothing planned/.test(open_) && (await card.locator(".pdw-cons").count()) === 1 && (await card.locator(".pdw-go").count()) === 1, open_);
+    await p.close();
+    const sp = await open(ctx, q + "&who=Sam"), c2 = sp.locator("#pdw-side"); await cell(sp, 10).hover(); await sleep(250);
+    const off = (await c2.innerText()).replace(/\s+/g, " ");
+    ok(tag + form + ": a day off keeps its chip (with the kind) and drops the restating line", /day off, every week/i.test(off) && (await c2.locator(".pdw-plans, .pdw-q").count()) === 0, off);
+    await sp.close();
+  }
+  // compact: the card is a strip at the bottom of the flyout in place of the line under the grid (owner, 17 Oct 2026)
+  if (w < 1360) {
+    const p = await open(ctx, "start=month&halo=off");
+    const g = await p.evaluate(() => { const a = document.querySelector("#pdw-side"), gr = document.querySelector(".pdm").getBoundingClientRect(), wk = document.querySelector("#week").getBoundingClientRect(), st = document.querySelector("#pdm-st"), ar = a && a.getBoundingClientRect(); return { exists: !!a, below: !!ar && ar.top >= gr.bottom - 1, inside: !!ar && ar.right <= wk.right + 1 && ar.left >= wk.left - 1, wide: !!ar && ar.width > gr.width * 0.9, lineHidden: !st || getComputedStyle(st).display === "none" || st.innerText.trim() === "", h: ar && Math.round(ar.height), btn: a && a.querySelector(".pdw-go") ? Math.round(a.querySelector(".pdw-go").getBoundingClientRect().height) : 0, live: a && a.getAttribute("aria-live") }; });
+    ok(tag + "compact strip: below the grid, inside the flyout, as wide as the grid, replaces the line under the grid", g.exists && g.below && g.inside && g.wide && g.lineHidden, g);
+    ok(tag + "compact strip: a 44px button, a polite live region, and no hover pop-up", g.btn >= 43.5 && g.live === "polite" && (await (async () => { await cell(p, 12).hover(); await sleep(250); return (await p.locator(".pdm-pop").count()) === 0; })()));
+    await cell(p, 13).hover(); await sleep(250);
+    ok(tag + "compact strip: follows the date you point at", /Wednesday|Thursday|Friday|Saturday|Sunday|Monday|Tuesday/.test(await p.locator("#pdw-side .pdw-date").innerText()) && /25 October|Sunday/.test(await p.locator("#pdw-side .pdw-date").innerText()), await p.locator("#pdw-side .pdw-date").innerText());
+    await p.keyboard.press("Escape"); await p.close();
+  }
+  // Hold: a button next to the close control at the top, with a brief live message (owner, 17 Oct 2026)
+  { const p = await open(ctx, "start=month&halo=off");
+    const g = await p.evaluate(() => { const h = document.querySelector(".pk-pt [data-hold]"), x = document.querySelector(".pk-pt [data-close]"), a = h && h.getBoundingClientRect(), b = x && x.getBoundingClientRect(); return { exists: !!h, left: !!a && a.right <= b.left + 1 && b.left - a.right <= 24 && Math.abs(a.top + a.height / 2 - (b.top + b.height / 2)) <= 6, gap: a && Math.round(b.left - a.right), h: a && Math.round(a.height), foot: document.querySelectorAll(".pk-row [data-hold]").length, pressed: h && h.getAttribute("aria-pressed"), label: h && h.innerText.trim() }; });
+    ok(tag + "Hold: a button next to the close control at the top, spaced, 44px, no Hold row at the foot", g.exists && g.left && g.gap >= 4 && g.h >= 43.5 && g.foot === 0, g);
+    ok(tag + "Hold: held by default, reads Held", g.pressed === "true" && g.label === "Held", g);
+    const msg = p.locator("#pk-holdmsg");
+    ok(tag + "Hold: the message is a polite live region and empty at rest", (await msg.getAttribute("role")) === "status" && (await msg.getAttribute("aria-live")) === "polite" && (await msg.innerText()).trim() === "");
+    await p.evaluate(() => { document.querySelector("#pk-holdmsg").__same = true; });
+    await p.locator(".pk-pt [data-hold]").click(); await sleep(200);
+    ok(tag + "Hold: Unhold says Ingredients released., the button reads Hold and is not pressed", /^Ingredients released\.$/.test((await msg.innerText()).trim()) && (await p.locator(".pk-pt [data-hold]").getAttribute("aria-pressed")) === "false" && (await p.locator(".pk-pt [data-hold]").innerText()).trim() === "Hold");
+    ok(tag + "Hold: the live region is the same node (not redrawn), so it is announced", await p.evaluate(() => document.querySelector("#pk-holdmsg").__same === true));
+    ok(tag + "Hold: the message is visible", (await msg.evaluate(e => getComputedStyle(e).visibility)) === "visible" && parseFloat(await msg.evaluate(e => getComputedStyle(e).opacity)) > 0.5);
+    await sleep(3500);
+    ok(tag + "Hold: the message goes after about 3 seconds", (await msg.evaluate(e => getComputedStyle(e).visibility)) === "hidden" && (await msg.innerText()).trim() === "");
+    await p.locator(".pk-pt [data-hold]").click(); await sleep(200);
+    ok(tag + "Hold: Hold says Ingredients will be reserved for this recipe.", /^Ingredients will be reserved for this recipe\.$/.test((await msg.innerText()).trim()) && (await p.locator(".pk-pt [data-hold]").getAttribute("aria-pressed")) === "true");
+    await p.locator('[data-who="Sam"]').click(); await sleep(250);
+    ok(tag + "Hold: the setting survives a redraw (still Held)", (await p.locator(".pk-pt [data-hold]").getAttribute("aria-pressed")) === "true");
+    await p.close();
+    const l = await open(ctx, "start=list&halo=off");
+    ok(tag + "Hold: also at the top of the seven days, next to the close control", (await l.locator(".pk-pt [data-hold]").count()) === 1 && (await l.locator(".pk-row [data-hold]").count()) === 0); await l.close(); }
   // Flyout width: Narrow is the single-flyout compact month at any window size
   { const nrm = await open(ctx, "start=month&halo=off"), nar = await open(ctx, "start=month&halo=off&w=narrow");
     const wd = async p => p.evaluate(() => Math.round(document.querySelector("#week").getBoundingClientRect().width));
@@ -312,6 +365,14 @@ for (const [w, h] of [[1440, 900], [1024, 800]]) {
 
     await q.close(); await p.close(); }
   await ctx.close();
+}
+// vertical fit of the compact flyout with the bottom strip: 1280x720 and 1024x800 without extra scroll
+for (const [vw, vh] of [[1280, 720], [1024, 800]]) {
+  const ctx = await browser.newContext({ viewport: { width: vw, height: vh } }), pg = await ctx.newPage(); pg.on("pageerror", e => errs.push("pageerror " + e.message));
+  await pg.goto(BASE + "?start=month&halo=off&avoid=mango"); await sleep(600);
+  const f = await pg.evaluate(() => { const w = document.querySelector("#week"); return { need: w.scrollHeight, have: w.clientHeight, strip: !!document.querySelector("#pdw-side"), w: Math.round(w.getBoundingClientRect().width) }; });
+  ok("compact " + vw + "x" + vh + ": strip shown and the flyout fits without extra scroll", f.strip && f.need <= f.have + 1, f);
+  await pg.close(); await ctx.close();
 }
 // tablet and phone sheets, the hub and the wide layouts: same rules
 for (const [file, vw, vh, tag] of [["tablet.html", 768, 1024, "tablet "], ["phone.html", 390, 844, "phone "], ["home.html", 1700, 900, "w1700 "]]) {

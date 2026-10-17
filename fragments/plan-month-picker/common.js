@@ -62,7 +62,12 @@ PK.whoHtml = function () {
   return '<div class="pk-row"><span class="lbl">Who it is for</span></div><div class="fors" role="group" aria-label="Who it is for">' +
     [["all", "Everyone"]].concat(P.people.map(function (p) { return [p, p]; })).map(function (w) { return '<button type="button" data-who="' + w[0] + '" aria-pressed="' + (S.who === w[0]) + '">' + w[1] + "</button>"; }).join("") + "</div>";
 };
-PK.holdHtml = function () {
+/* Hold is a button at the top of the flyout, next to the close control (owner, voice, 17 Oct 2026); it is no longer a row at the foot. The real app already reserves and releases ingredients on Hold and Unhold; the mockup only adds the brief confirmation (pick-month.js). */
+PK.holdBtn = function () {
+  return '<button type="button" class="pk-holdb" data-hold aria-pressed="' + S.hold + '" aria-label="Hold ingredients for this recipe">' + ICO.hold + "<span>" + (S.hold ? "Held" : "Hold") + "</span></button>";
+};
+PK.holdHtml = function () { return ""; };
+PK.holdRow = function () {
   return '<div class="pk-row"><span><b>Hold what is in</b><small>Keeps it for this meal; nothing else can claim it.</small></span><button type="button" class="mini" data-hold aria-pressed="' + S.hold + '">' + ICO.hold + (S.hold ? "Held" : "Hold") + "</button></div>";
 };
 PK.kbd = function (c) { return '<kbd class="kbd">' + c + "</kbd>"; };

@@ -4,7 +4,7 @@
 .sh-sheet.pk-fly{padding-top:12px;padding-bottom:calc(64px + env(safe-area-inset-bottom,0px));gap:10px} /* the foot keeps clear of the Theme button (mockup scaffolding) */
 .sh-sheet .pdm{column-gap:3px;row-gap:3px}
 .sh-sheet .pdm .pdm-c{min-height:46px;border-radius:12px}
-.sh-sheet .pdm-n{font-size:14px}
+.sh-sheet .pdm-n{font-size:12px}
 .sh-sheet .pdm-next{flex-direction:column;align-items:stretch;gap:4px}
 .sh-sheet .pdm-next-b{justify-content:center;min-height:52px;font-size:15px}
 .sh-sheet .pdm-next-c{text-align:center}

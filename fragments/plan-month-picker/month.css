@@ -7,37 +7,39 @@
 .pdm-dh{display:flex;align-items:flex-end;justify-content:center;font-size:11px;font-weight:800;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;padding-bottom:2px}
 .pdm-rs,.pdm-rs-h{display:none}
 /* a date */
-.pdm-c{position:relative;overflow:visible;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:0;min-height:44px;padding:2px;border-radius:var(--r-ctl);border:1.5px solid var(--border);background:var(--surface);color:var(--fg);cursor:pointer}
-.pdm-n{font-size:13px;font-weight:800;line-height:1;white-space:nowrap}
+/* THE DAY TILE IS TWO ROWS EVERYWHERE (owner, voice, 17 Oct 2026): row 1 is slim, the date number and the red Hard avoid exclamation if any; row 2 has the bigger footprint, the plus on an open day or the planned dots (one or three), a moon for a day off. Meal names are not in the tile: the card, strip or hover says what is on a date. */
+.pdm-c{position:relative;overflow:visible;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:0;min-width:0;min-height:44px;padding:3px;text-align:left;border-radius:var(--r-ctl);border:1.5px solid var(--border);background:var(--surface);color:var(--fg);cursor:pointer}
+.pdm-n{font-size:11px;font-weight:600;line-height:1;white-space:nowrap}
 .pdm-i{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
 .pdm-i.fill{fill:currentColor}
-.pdm-top{display:contents} /* the number row: the compact cell stacks number and icon in the middle; rich.css lays it out as a row */
-.pdm-m{display:none}
+.pdm-top{display:flex;align-items:center;justify-content:space-between;gap:1px;min-height:16px;width:100%;min-width:0}
+.pdm-mark{flex:1;display:flex;align-items:center;justify-content:center;min-height:24px}
+.pdm-mark .pdm-i{width:20px;height:20px}
+.pdm-mark .pdm-mk{height:16px}
 /* planned: one neutral dark-grey mark for one plan, three for a stacked night. Quantity is the cue; the colour is the same neutral grey (owner, voice, 17 Oct 2026: red means alarming, so planned is never red or amber; red belongs to the Hard avoid exclamation only). --fg mixed toward the cell: near-black on the light theme, a light grey on the dark theme, so it stays readable on both. */
 .pdm-mk{display:inline-flex;align-items:center;gap:3px;height:14px}
 .pdm-mk i{width:9px;height:9px;border-radius:50%;background:var(--plan-mark,color-mix(in srgb,var(--fg) 72%,var(--surface)))}
-.pdm-bd{position:absolute;top:3px;width:12px;height:12px;display:grid;place-items:center}
+.pdm-bd{display:grid;place-items:center;flex:none;width:12px;height:12px}
 .pdm-bd .pdm-i{width:10px;height:10px}
-.pdm-bd.moon{right:3px;top:auto;bottom:3px;color:var(--muted)}
-.pdm-bd.warn{right:3px;color:var(--danger)}
+.pdm-bd.moon{position:absolute;right:3px;bottom:3px;color:var(--muted)}
+.pdm-bd.warn{margin-left:auto;color:var(--danger)}
 .pdm-i.bang{stroke-width:3.2}
 /* THE HARD AVOID EXCLAMATION is the one alarming state: always the danger red (never the open-cell green it sits on), in light and dark, and a modest step larger than any other mark (owner, voice, 17 Oct 2026). The cell and its 44px tap target do not change; the mark grows inside the cell. The higher specificity is on purpose: .st-open .pdm-i sets green on every icon in an open cell, the badge included. */
 #week .pdm-c .pdm-i.bang,#week .pdm-c .pdm-bd.warn .pdm-i,#week .pdm-lg .pdm-sw .pdm-i.bang{color:var(--danger);stroke:var(--danger)}
-#week .pdm .pdm-c.pdm-c .pdm-bd.warn{width:18px;height:18px}
-#week .pdm .pdm-c .pdm-bd.warn .pdm-i.bang{width:18px;height:18px;stroke-width:3.6}
-#week .pdm .pdm-c.g-stop .pdm-i.bang{width:24px;height:24px;stroke-width:3.6}
+#week .pdm .pdm-c .pdm-top .pdm-bd.warn{width:14px;height:14px}
+#week .pdm .pdm-c .pdm-top .pdm-bd.warn .pdm-i.bang{width:14px;height:14px;stroke-width:3.8}
+#week .pdm .pdm-c.first .pdm-n{font-size:10px}
 #week .pdm-lg .pdm-sw .pdm-i.bang{width:18px;height:18px;stroke-width:3.6}
 /* THE WEIGHT OF A PICKABLE DATE FOLLOWS ITS RANK (owner, voice, 17 Oct 2026): 1 open is the primary action and the boldest (a 3px green outline, a green tint, a heavy plus); 2 a day off is second (a 2px grey outline, a grey fill, a moon); 3 planned and planned-several are the quietest (a 1px amber hairline, a barely-there tint, yellow marks). Past and Hard avoid sit outside the scale. */
 .st-open{border:3px solid var(--cue);background:color-mix(in srgb,var(--cue) 20%,var(--surface));color:var(--fg)}
-.st-open .pdm-i{stroke-width:3.2;color:var(--cue)}
+.st-open .pdm-mark .pdm-i{stroke-width:3.2;color:var(--cue)}
 .st-open:hover:not(:disabled){box-shadow:0 0 0 3px color-mix(in srgb,var(--cue) 40%,transparent);transform:translateY(-1px)}
 /* planned: one grey mark for one plan, three for a stacked night (quantity is the cue). Calmer than open and day off: a 1px neutral hairline, a barely-there neutral tint, and NOT bold (owner, voice, 17 Oct 2026): the date number and the meal name are regular weight. */
 .st-plan,.st-stack{border-width:1px;border-color:color-mix(in srgb,var(--muted) 40%,var(--surface));background:color-mix(in srgb,var(--fg) 4%,var(--surface))}
 .st-plan .pdm-n,.st-stack .pdm-n,#week[data-num] .pdm .pdm-c[data-n].st-plan .pdm-n,#week[data-num] .pdm .pdm-c[data-n].st-stack .pdm-n{font-weight:400}
-.st-plan .pdm-m,.st-stack .pdm-m,#week[data-num] .pdm .pdm-c[data-n].st-plan .pdm-m,#week[data-num] .pdm .pdm-c[data-n].st-stack .pdm-m{font-weight:400}
 /* day off: one muted grey state with a moon, second in rank. Still pickable, not locked. */
 .st-off{border-width:2px;background:color-mix(in srgb,var(--border) 70%,var(--surface));border-color:color-mix(in srgb,var(--muted) 65%,var(--surface));color:var(--muted)}
-.st-off .pdm-i{color:var(--muted);stroke-width:2.4}
+.st-off .pdm-mark .pdm-i{color:var(--muted);stroke-width:2.4}
 .st-off .pdm-n{color:var(--fg)}
 /* past: a hatch, a struck number, not pickable */
 .st-past{cursor:default;border-color:transparent;background:repeating-linear-gradient(135deg,transparent 0 5px,color-mix(in srgb,var(--border) 70%,transparent) 5px 6px)}
@@ -46,7 +48,7 @@
 /* the Hard avoid: a stop on every date for a meal that person cannot have; a triangle where the guard asks first */
 /* no dashed border (owner, voice, 17 Oct 2026): the stop is told by the large red exclamation alone, on a plain solid neutral cell */
 .g-stop{border:1.5px solid var(--border);background:var(--surface);color:var(--fg)}
-.g-stop .pdm-i{color:var(--danger)}
+.g-stop .pdm-bd .pdm-i{color:var(--danger)}
 .pdm-c:hover:not(:disabled):not(.st-open){border-color:var(--fg)}
 .pdm-c:focus-visible{outline:3px solid var(--fg);outline-offset:2px;z-index:2}
 /* the month changes: a heavy rule in the gap on the left of, and above, the first cell of a month, so the boundary reads as a step through the grid */
@@ -66,7 +68,7 @@
 /* the legend: at the foot of the flyout, the same swatches as the dates */
 .pdm-lg{list-style:none;margin:auto 0 0;padding:8px 0 0;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:6px 10px;font-size:11px;color:var(--fg)}
 .pdm-lg li{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
-.pdm-sw{width:auto;min-width:26px;min-height:22px;height:22px;padding:0 4px;flex-direction:row;cursor:default;border-width:1.5px;border-radius:6px}
+.pdm-sw{align-items:center;justify-content:center;width:auto;min-width:26px;min-height:22px;height:22px;padding:0 4px;flex-direction:row;cursor:default;border-width:1.5px;border-radius:6px}
 .pdm-sw .pdm-i{width:12px;height:12px}
 .pdm-sw .pdm-n{font-size:11px}
 .pdm-sw.st-none{background:var(--surface);border-color:var(--border)}
@@ -87,17 +89,11 @@
    a (default, agent recommends): a small quiet number in the cell corner; the state fill and icon are the picture.
    b: a plain neutral cell with no state fill; only a small icon or dot says the state, like a plain calendar with light annotations.
    c: the number stays centred but is a lighter, smaller numeral that recedes behind the state mark. */
-#week[data-num=a] .pdm-c{padding-top:12px}
-#week[data-num=a] .pdm-c .pdm-n{position:absolute;top:3px;left:5px;font-size:11px;font-weight:600;line-height:1;color:var(--fg)}
-#week[data-num=a] .pdm-c .pdm-i{width:20px;height:20px}
+#week[data-num=a] .pdm-c .pdm-n{color:var(--fg)}
 #week[data-num=a] .pdm-c.st-past .pdm-n{color:var(--muted)}
-#week[data-num=a] .pdm-sw{padding-top:0}
-#week[data-num=a] .pdm-sw .pdm-i{width:14px;height:14px}
 #week[data-num=b] .pdm-c:not(.st-past){background:var(--surface);border:1px solid var(--border);color:var(--fg)}
-#week[data-num=b] .pdm-c:not(.st-past) .pdm-n{font-size:13px;font-weight:600;color:var(--fg)}
-#week[data-num=b] .pdm-c.st-open .pdm-i{width:18px;height:18px}
-#week[data-num=c] .pdm-c .pdm-n{font-size:12px;font-weight:400;color:var(--fg)}
-#week[data-num=c] .pdm-c .pdm-i{width:18px;height:18px}
+#week[data-num=b] .pdm-c:not(.st-past) .pdm-n{font-size:12px;font-weight:600;color:var(--fg)}
+#week[data-num=c] .pdm-c .pdm-n{font-size:11px;font-weight:400;color:var(--fg)}
 /* THE HALO on open dates: the start-here cue, TRANSIENT (owner, voice, 17 Oct 2026). It fires BY ITSELF the moment the month opens (no hover or focus needed) on EVERY open date at once, glows and breathes for about 3 seconds
    (F's confirmation-hold family), then fades over half a second; the first press or key ends it at once. Today stays the default selected cell. Any open date under the pointer or keyboard focus keeps its own glow on top. Reduced motion: no breathing, a static ring, cleared the same way. */
 .pdm-c.halo{animation:pdm-halo 1s ease-in-out infinite alternate}
@@ -116,3 +112,34 @@
 .pdm-next-b:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
 .pdm-next-c{font-size:12px;font-weight:700;color:var(--muted)}
 .pdm-next.none{font-size:13px;color:var(--muted);gap:8px}
+/* the date card (M.cardHtml in month.js): the wide side card, the bottom strip and the compact strip share these rules (moved here from wide.css so the compact flyout has them too) */
+.pdw-side{position:sticky;top:0;display:flex;flex-direction:column;gap:10px;padding:14px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--bg);font-size:13px}
+.pdw-rec{display:flex;gap:10px;align-items:center;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.pdw-rec b{display:block;font:800 14px/1.2 var(--head)}
+.pdw-rec small{color:var(--muted);font-size:12px}
+.pdw-e{flex:none;width:44px;height:44px;display:grid;place-items:center;font-size:24px;border-radius:var(--r-ctl);background:color-mix(in srgb,var(--accent) 18%,var(--surface))}
+.pdw-date{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.pdw-date b{font:800 17px/1.2 var(--head)}
+.pdw-chip{display:inline-flex;align-items:center;min-height:22px;padding:0 9px;border-radius:var(--r-pill);border:1.5px solid var(--border);font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--fg)}
+.pdw-chip.c-open{background:var(--cue);border-color:var(--cue);color:var(--on-accent)}
+.pdw-chip.c-plan,.pdw-chip.c-stack{border-color:color-mix(in srgb,var(--muted) 55%,var(--surface));background:color-mix(in srgb,var(--fg) 7%,var(--surface))}
+.pdw-chip.c-off{background:color-mix(in srgb,var(--border) 70%,var(--surface));color:var(--muted)}
+.pdw-plans p{display:flex;flex-direction:column;gap:0;margin:0 0 6px}
+.pdw-plans b{font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.pdw-plans span{font-size:14px;font-weight:700}
+.pdw-q,.pdw-cons{margin:0;color:var(--fg);font-size:13px;line-height:1.35}
+.pdw-cons{color:var(--muted)}
+.pdw-go{min-height:var(--tap);padding:0 14px;border-radius:var(--r-pill);border:1.5px solid var(--fg);background:var(--surface);color:var(--fg);font:800 14px var(--body);cursor:pointer}
+.pdw-go.is-open{border-color:var(--cue);background:var(--cue);color:var(--on-accent)}
+.pdw-go:hover{box-shadow:0 0 0 3px color-mix(in srgb,var(--fg) 20%,transparent)}
+.pdw-go.is-open:hover{box-shadow:0 0 0 3px color-mix(in srgb,var(--cue) 40%,transparent)}
+.pdw-go:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
+/* the compact flyout's strip (owner, voice, 17 Oct 2026): at the narrow-desktop width the card docks to the bottom of the flyout as a strip below the grid and replaces the line under the grid. The recipe block is left out (the header already names the recipe). */
+.pdw-compact{position:static;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"d g" "q g" "c g";align-items:center;gap:2px 10px;padding:8px 10px;min-height:60px}
+.pdw-compact .pdw-rec{display:none}
+.pdw-compact .pdw-q{grid-area:q;font-size:12px;margin:0}
+.pdw-compact .pdw-date{grid-area:d;flex-direction:row;align-items:center;gap:8px;flex-wrap:wrap}
+.pdw-compact .pdw-date b{font-size:14px}
+.pdw-compact .pdw-cons{grid-area:c;font-size:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pdw-compact .pdw-go{grid-area:g;min-height:var(--tap);padding:0 12px;font-size:13px;white-space:nowrap}
+.pdm-st:empty{display:none}
