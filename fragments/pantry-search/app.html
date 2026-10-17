@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Pantry search — mockup</title>
+<link rel="stylesheet" href="../../theme.css"><script src="../../theme.js"></script>
+<script>try{var t=new URLSearchParams(location.search).get("theme");if(t==="kitchie"||t==="kitchie-day")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<link rel="stylesheet" href="search.css"></head>
+<body data-no-theme-fab>
+<div class="stage"><div class="phone">
+  <div class="top"><span>Our kitchen</span><span class="av" aria-hidden="true">A</span></div>
+  <div class="body" id="body">
+    <!-- The row. Same classes and data-state as Kitchie's .prow. Differences from the live markup are listed in docs/knowledge/pantry-search.md (section "For the build"). -->
+    <div class="prow" id="prow" data-state="rest"><h1 class="vh">Pantry</h1>
+      <div class="pl pl-msg" id="pmsg" aria-hidden="true"></div>
+      <div class="pl pl-search" id="searchwrap">
+        <form class="spill" id="spill" role="search" action="#" aria-hidden="true">
+          <button type="button" class="icon sclose" id="search-close" aria-label="Close search" title="Close search" tabindex="-1"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+          <input id="q" type="search" placeholder="Search your pantry" aria-label="Search your pantry" enterkeyhint="search" maxlength="80" autocomplete="off" autocapitalize="off" spellcheck="false" tabindex="-1">
+          <button type="button" class="icon smic" id="mic" aria-label="Search by voice" title="Search by voice" tabindex="-1"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.500 11a6.500 6.500 0 0 0 13 0M12 17.500V21"/></svg></button>
+          <button type="button" class="mg" id="search-glass" aria-label="Close search" title="Close search" tabindex="-1"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6.500"/><path d="M16 16l4.500 4.500"/></svg></button>
+        </form>
+      </div>
+      <div class="pl pl-front">
+        <button type="button" class="tbtn" id="filters-open" aria-label="Filters"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16l-6 7.500V19l-4-2v-4.500z"/></svg><span>Filters</span></button>
+        <div class="pact" id="pact">
+          <button type="button" class="icon addbtn" id="add-open" aria-label="Add an item" title="Add an item"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+          <button type="button" class="icon sbtn" id="search-open" aria-label="Search" title="Search" aria-expanded="false" aria-controls="spill"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6.500"/><path d="M16 16l4.500 4.500"/></svg></button>
+        </div>
+      </div>
+    </div>
+    <div class="ribbon" role="group" aria-label="Location">
+      <button class="rc2 on" data-chip="All" aria-pressed="true">All</button><button class="rc2" data-chip="Unplaced" aria-pressed="false">Unplaced</button><button class="rc2" data-chip="Freezer" aria-pressed="false">Freezer</button><button class="rc2" data-chip="Fridge" aria-pressed="false">Fridge</button><button class="rc2" data-chip="Pantry" aria-pressed="false">Pantry</button>
+    </div>
+    <div id="slive" class="vh" role="status" aria-live="polite"></div>
+    <div id="plist"></div>
+  </div>
+  <div class="toast" id="toast" role="status" hidden></div>
+</div></div>
+<script src="search.js"></script>
+</body></html>

@@ -1,0 +1,83 @@
+/* Pantry top row on the phone: Filters at the left, [+] and a magnifier at the right; the magnifier flies a search bar out over the whole row.
+   Notes: docs/knowledge/pantry-search.md.  Mockup of the owner's ask of 17 Oct 2026 (voice).
+   PART 1 is what the build copies (the same classes as Kitchie's .prow in server/src/layout.ts and the household mock). PART 2 is mock chrome only. */
+
+/* ===== PART 1: the row (copy) ===== */
+.prow{position:relative;flex:none;height:56px;min-height:56px;overflow:hidden;margin:0 0 .4rem;--slide:.32s}
+.prow .pl{position:absolute;inset:0;display:flex;align-items:center;gap:8px;background:var(--bg);visibility:hidden;transition:transform var(--slide) cubic-bezier(.2,.8,.2,1),opacity var(--slide) ease,visibility 0s var(--slide)}
+.prow .pl-msg{z-index:1;justify-content:center;color:var(--fg);font-size:13px;font-weight:600}
+.prow .pl-search{z-index:2}
+/* CHANGED: Filters is now a direct child at the left, the right group is [+][magnifier]. Was justify-content:flex-end with Filters inside .pact. */
+.prow .pl-front{z-index:3;justify-content:space-between}
+.prow .count{display:none}
+.pact{display:flex;align-items:center;gap:8px}
+.prow[data-state=rest] .pl-front,.prow[data-state=search] .pl-search,.prow[data-state=let] .pl-msg,.prow[data-state=anim] .pl-msg,.prow.peek .pl-search{visibility:visible;transition-delay:0s}
+/* the pull: the front slides down like a curtain (finger-driven; inline styles take over while the finger is down) */
+.prow[data-state=search] .pl-front,.prow[data-state=let] .pl-front,.prow[data-state=anim] .pl-front{transform:translateY(100%)}
+.prow[data-state=let] .pl-search,.prow[data-state=anim] .pl-search{transform:translateY(-100%)}
+/* NEW, the tap on the magnifier: no curtain. Filters and + and the front's magnifier fade away while the bar flies out from under the magnifier, right to left. */
+.prow.by-tap[data-state=search] .pl-front{transform:none;opacity:0;pointer-events:none;transition:opacity calc(var(--slide)*.5) ease,visibility 0s var(--slide)}
+.prow.by-tap[data-state=rest] .pl-front{transition:opacity calc(var(--slide)*.6) ease calc(var(--slide)*.4),visibility 0s}
+.prow .pl-msg .rf{max-width:100%;padding:0 8px;text-align:center}
+
+/* the search bar: 48px (just the magnifier) at rest, the whole row when open. Right-aligned content, so the magnifier never moves. */
+.spill{display:flex;align-items:center;justify-content:flex-end;flex:none;margin:0 0 0 auto;width:48px;height:48px;overflow:hidden;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--surface);transition:width var(--slide) cubic-bezier(.2,.8,.2,1),border-color var(--slide)}
+.prow[data-state=search] .spill{width:100%;border-color:var(--accent)}
+.spill input[type=search]{flex:1;min-width:0;width:auto;max-width:none;min-height:46px;padding:0 4px 0 2px;border:0;border-radius:0;background:none;color:var(--fg);font:inherit;-webkit-appearance:none;appearance:none;outline:none}
+.spill input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;display:none}
+.spill input::placeholder{color:var(--muted)}
+.spill:focus-within{box-shadow:inset 0 0 0 1px var(--accent)}
+.spill .icon{width:44px;height:46px;border:0;border-radius:0;background:none;flex:none;color:var(--muted)}
+.spill .icon:hover{color:var(--accent)}
+.spill .sclose{color:var(--accent);opacity:0;pointer-events:none;transition:opacity var(--slide)}
+.prow[data-state=search] .spill .sclose{opacity:1;pointer-events:auto}
+.spill .mg{flex:none;width:46px;height:46px;display:inline-flex;align-items:center;justify-content:center;color:var(--muted);background:none;border:0;padding:0;cursor:pointer}
+.prow[data-state=search] .spill .mg{color:var(--accent)}
+/* the pull's lock-in cue (unchanged from the live app): the field flashes, the magnifier pops */
+.prow.lock .spill{animation:pill-lock .5s ease-out}
+.prow.lock .spill .mg{animation:mg-pop .4s ease-out}
+@keyframes pill-lock{0%{background:color-mix(in srgb,var(--accent) 28%,var(--surface))}100%{background:var(--surface)}}
+@keyframes mg-pop{0%{transform:scale(1)}40%{transform:scale(1.3)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.prow .pl,.spill,.spill .sclose{transition:none}.prow.lock .spill,.prow.lock .spill .mg{animation:none}}
+[data-motion] .prow .pl,[data-motion] .spill,[data-motion] .spill .sclose{transition:none}
+
+/* the controls (same as the household mock and Kitchie) */
+.icon{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:.9rem;border:1px solid var(--border);color:var(--fg);flex:none;background:none;cursor:pointer}
+.icon:hover{border-color:var(--accent);color:var(--accent)}
+.addbtn{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.addbtn:hover{color:var(--on-accent);border-color:transparent}
+.tbtn{display:inline-flex;align-items:center;gap:6px;min-height:48px;padding:0 1rem;border:1px solid var(--border);border-radius:.8rem;background:var(--surface);font-weight:500;color:var(--fg);cursor:pointer}
+
+/* no results (the list area; the row itself never changes height) */
+.empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding:36px 12px 12px}
+.empty .eic{width:72px;height:72px;border-radius:50%;background:var(--surface);border:1px dashed var(--border);display:inline-flex;align-items:center;justify-content:center;color:var(--accent)}
+.empty b{font:800 18px var(--head);overflow-wrap:anywhere}
+.empty p{margin:0;color:var(--muted);font-size:14px}
+.empty .btn{margin-top:6px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 18px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--surface);font-weight:700;color:var(--fg);cursor:pointer}
+.btn.pri{background:var(--accent);color:var(--on-accent);border-color:transparent}
+
+/* ===== PART 2: mock chrome only (not for the build) ===== */
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--stage);color:var(--fg);font-family:var(--body)}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.stage{min-height:100%;display:flex;align-items:center;justify-content:center;padding:16px}
+.phone{width:390px;height:760px;max-height:calc(100dvh - 32px);background:var(--bg);border-radius:var(--r-phone);border:1px solid var(--border);overflow:hidden;position:relative;display:flex;flex-direction:column}
+@media (max-width:599.98px){.stage{padding:0;display:block}.phone{width:100%;height:100dvh;max-height:none;border-radius:0;border:0}}
+.top{height:60px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--border);font-family:var(--head);font-weight:700;font-size:19px}
+.top .av{width:38px;height:38px;border-radius:50%;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+.body{flex:1;overflow:auto;padding:12px 20px 40px;overscroll-behavior-y:contain}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ribbon{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:.25rem;border-radius:1rem;background:var(--surface);margin-bottom:.4rem}
+.ribbon::-webkit-scrollbar{display:none}
+.rc2{flex:none;min-height:44px;border:0;background:none;border-radius:.75rem;padding:0 1rem;font-size:.95rem;font-weight:700;cursor:pointer}
+.rc2.on{background:var(--accent);color:var(--on-accent)}
+.group h2{font-size:1.15rem;font-weight:800;margin:.9rem .25rem .2rem}
+.rows{list-style:none;margin:0;padding:0}
+.rowx{display:flex;align-items:center;min-height:64px;padding:.5rem;border-bottom:1px solid var(--border)}
+.rowx .name{font-size:1.06rem;font-weight:600;text-transform:lowercase}
+.rowx .meta{font-size:.9rem;color:var(--muted);margin-top:.1rem}
+.rowx .due{margin-left:auto;font-size:.85rem;color:var(--muted);text-align:right}
+.toast{position:absolute;left:20px;right:20px;bottom:24px;background:var(--fg);color:var(--bg);padding:12px 16px;border-radius:var(--r-ctl);font-weight:600;font-size:14px;z-index:30}
+body.is-pulling{-webkit-user-select:none;user-select:none}

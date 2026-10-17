@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Pantry search</title><link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><script src="../../theme.js"></script>
+<style>
+.decs li,.qs li{margin-bottom:8px;font-size:14px}
+.links{display:flex;flex-wrap:wrap;gap:6px}
+.links a{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border-radius:99px;border:1px solid var(--border);background:var(--bg);font-size:13px;font-weight:600}
+.links a:hover{border-color:var(--accent)}
+.frs{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;margin-top:10px}
+.fig{flex:0 1 250px;min-width:0}
+.fig h3{margin:0 0 4px;font:800 15px var(--head)}
+.fr{width:242px;height:300px;border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden;background:var(--bg);position:relative}
+.fr iframe{position:absolute;left:0;top:0;width:390px;height:484px;border:0;transform:scale(.62);transform-origin:0 0}
+.fr-open{display:inline-flex;align-items:center;min-height:44px;font-size:13px;font-weight:700;color:var(--accent)}
+.idea{display:inline-block;font-size:12px;font-weight:800;padding:3px 10px;border-radius:var(--r-pill);border:1px dashed var(--accent);color:var(--accent)}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Pantry search: a magnifier on the top row</h1>
+<p><span class="idea">Phone only. Mockup, nothing built.</span></p>
+<p style="margin-top:8px">The Pantry's top row on the phone, redrawn. Filters stays at the left border. At the right border sit + and then a magnifier, the magnifier as the rightmost item. Tapping the magnifier makes a search bar fly out from right to left over the whole row, hiding Filters and +. The shallow pull-down opens the same bar. Drag the list down in the live frame to try the pull (mouse works too). Desktop is out of scope: its docked search bar is unchanged.</p>
+
+<div class="sec"><div class="lbl">Open it</div>
+<div class="links">
+<a href="app.html">The row, closed (try it)</a>
+<a href="app.html?state=open">Open</a>
+<a href="app.html?state=open&amp;q=ch">Typing: &ldquo;ch&rdquo;</a>
+<a href="app.html?state=open&amp;q=zzq">No results</a>
+<a href="app.html?pull=40">Pull, 40 px (peek)</a>
+<a href="app.html?pull=100">Pull, 100 px (locked)</a>
+<a href="app.html?pull=200">Pull, 200 px (let go to refresh)</a>
+<a href="app.html?theme=kitchie-day">Light</a><a href="app.html?theme=kitchie">Dark</a>
+</div></div>
+
+<div class="sec"><div class="lbl">The states</div>
+<div class="frs">
+<div class="fig"><h3>Closed</h3><div class="fr"><iframe loading="lazy" title="Closed" src="app.html?theme=kitchie-day"></iframe></div></div>
+<div class="fig"><h3>Open, typing</h3><div class="fr"><iframe loading="lazy" title="Open" src="app.html?theme=kitchie-day&amp;state=open&amp;q=ch"></iframe></div></div>
+<div class="fig"><h3>No results</h3><div class="fr"><iframe loading="lazy" title="No results" src="app.html?theme=kitchie-day&amp;state=open&amp;q=zzq"></iframe></div></div>
+<div class="fig"><h3>Dark, open</h3><div class="fr"><iframe loading="lazy" title="Dark open" src="app.html?theme=kitchie&amp;state=open&amp;q=ch"></iframe></div></div>
+</div></div>
+
+<div class="sec"><div class="lbl">What the owner asked (voice, 17 October 2026)</div>
+<ul class="decs">
+<li><b>PS-D1</b> Filters anchored to the left border.</li>
+<li><b>PS-D2</b> A magnifying-glass button as the rightmost item at the right border, + immediately to its left.</li>
+<li><b>PS-D3</b> Tapping the glass flies a search bar out from right to left over the whole row; Filters and + hidden while it is open.</li>
+<li><b>PS-D4</b> The existing shallow pull-down (behaviour preserved) opens the same full-row bar; the pull and the flyout share the "takes over the entire row" behaviour.</li>
+<li><b>PS-D5</b> Text field filtering the list by item name; empty and no-results states; the keyboard's Search key submits.</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">Choices the mockup made where the owner was silent (Proposal)</div>
+<ul class="decs">
+<li><b>PS-P1 Closing:</b> the X at the left of the bar, the glass again, or Escape; closing clears the query. <b>Open (PS-Q1).</b></li>
+<li><b>PS-P2</b> An X icon, not the live word &ldquo;Cancel&rdquo;.</li>
+<li><b>PS-P3</b> The tap fades Filters and + out while the bar grows from under the glass; the pull keeps its curtain.</li>
+<li><b>PS-P4</b> The glass is a real button in both layers, so it never moves and toggles.</li>
+<li><b>PS-P5</b> Matches the item name only, case and edge spaces ignored.</li>
+<li><b>PS-P6</b> The mic stays inside the bar beside the glass.</li>
+<li><b>PS-P7</b> The location chips keep filtering during a search; the no-results state offers &ldquo;Search all places&rdquo; when the item is under another chip.</li>
+<li><b>PS-P8</b> Filters moves out of the right-hand group to the left; no visible item count.</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">Open questions</div>
+<ul class="qs">
+<li><b>PS-Q1</b> How does the bar close, and does closing keep the query? (Assumed: X, glass, Escape; clears.) Wrong guess costs: a kept query with no visible bar reads as a bug.</li>
+<li><b>PS-Q2</b> Today's live phone row has Filters and + together at the right; the owner described Filters at the left. Is moving Filters to the left border the change?</li>
+<li><b>PS-Q3</b> The custom-view row (no Filters button) is not drawn: [+] [glass] with nothing at the left.</li>
+<li><b>PS-Q4</b> Whether the glass needs a keyboard cue (desktop only, out of scope).</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">What this loads (DESIGN.md section 6)</div>
+<p>Default path: <code>search.css</code> and <code>search.js</code> (small) on top of <code>theme.css</code>. Nothing deferred is fetched: the list is filtered in place from what is already on the page (section 6a). In the app the six refresh scenes still load on the first refresh; this mockup shows the refresh words only. Checked at 390px in light and dark with <code>tools/pantry-search-check.mjs</code>.</p></div>
+
+<div class="sec"><div class="lbl">Where this sits</div>
+<p>Notes and the build differences: <code>docs/knowledge/pantry-search.md</code>; job: <code>docs/knowledge/jobs-to-be-done/pantry-find.md</code>; builds on <code>docs/knowledge/pantry-pull-row.md</code>.</p></div>
+</div></body></html>

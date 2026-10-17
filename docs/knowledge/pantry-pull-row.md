@@ -6,6 +6,8 @@ Code: `flows/household/app.js` (search for `PULL_SEARCH`, `prow`), `flows/househ
 
 > Desktop (above 1024px, mock only, 9 Oct 2026): the tucked search is replaced by a permanent docked search bar and a tab regaining focus plays the refresh animation over the bar. See "Desktop pantry" at the end of this file and DESIGN.md section 7.
 
+> Phone update (17 Oct 2026, mockup only): the row gains a visible magnifier button at the right border and a tap on it opens the search bar over the whole row; the shallow pull opens the same bar. See `pantry-search.md`. Everything below about thresholds, refresh and the other states still holds; where it says the magnifier sits under Add, the new mockup draws it as its own button at the right of Add.
+
 ## The row
 
 One row at the top of Pantry, fixed height 56px (it never changes height, so the list never jumps). Three layers share it:
