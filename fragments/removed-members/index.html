@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Removed members</title><link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><script src="../../theme.js"></script>
+<style>
+.decs li,.qs li,.props li{margin-bottom:8px;font-size:14px}
+.decs b.id,.qs b.id,.props b.id{color:var(--accent)}
+.links{display:flex;flex-wrap:wrap;gap:6px}
+.links a{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border-radius:99px;border:1px solid var(--border);background:var(--bg);font-size:13px;font-weight:600}
+.links a:hover{border-color:var(--accent)}
+.rec{font-size:11px;font-weight:800;padding:1px 7px;border-radius:var(--r-pill);border:1px solid var(--accent);color:var(--accent);margin-left:4px;white-space:nowrap}
+.frs{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;margin-top:10px}
+.fig{flex:1 1 250px;min-width:0;max-width:360px}
+.fig h3{margin:0 0 4px;font:800 16px var(--head)}
+.fig p{margin:4px 0;font-size:13.5px}
+.fr{width:242px;height:472px;border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden;background:var(--bg);position:relative}
+.fr iframe{position:absolute;left:0;top:0;width:390px;height:760px;border:0;transform:scale(.62);transform-origin:0 0}
+.frd{width:100%;max-width:640px;height:400px;border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden;background:var(--bg);position:relative}
+.frd iframe{position:absolute;left:0;top:0;width:1280px;height:800px;border:0;transform:scale(.5);transform-origin:0 0}
+.fr-open{display:inline-flex;align-items:center;min-height:44px;font-size:13px;font-weight:700;color:var(--accent)}
+.badge{display:inline-block;font-size:12px;font-weight:800;padding:3px 10px;border-radius:var(--r-pill);border:1px solid var(--accent);color:var(--accent)}
+table{border-collapse:collapse;font-size:13.5px;width:100%}td,th{border-top:1px solid var(--border);padding:8px 6px;text-align:left;vertical-align:top}th{color:var(--muted);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+code{font-size:12.5px;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0 5px}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Removed members: a week to undo, then erased</h1>
+<p><span class="badge">Mockup first, nothing built</span> Kitchie issue #85. Phone and the desktop Profile window, light and dark. Nothing is saved or sent: the buttons move a sample household between states.</p>
+
+<div class="sec"><div class="lbl">What the owner asked for</div>
+<p>Typed, 1 October 2026: a removed member can be restored for up to a week. If nobody acts, they are gone completely, like a &ldquo;delete my account&rdquo; under European rules: their data and the journal&rsquo;s link to them are erased, and any activity they did that must stay in the transaction log is anonymised. On the open questions, the owner answered one thing: &ldquo;Former member is all we need there&rsquo;s no need for any other follow-ups identification any of that.&rdquo; The issue carries the label <i>approved for build</i>; the other three questions have no written answer.</p></div>
+
+<div class="sec"><div class="lbl">Open it</div>
+<div class="links">
+<a href="app.html">Household, two held</a>
+<a href="app.html?open=sam">Restore confirm open</a>
+<a href="app.html?restored=sam">Sam restored</a>
+<a href="app.html?removed=none&amp;dz=1">Danger zone open</a>
+<a href="app.html?screen=remove&amp;who=maya&amp;removed=none">Remove confirm page</a>
+<a href="app.html?screen=remove&amp;who=maya&amp;removed=none&amp;wrong=1&amp;typed=Sam">Wrong name typed</a>
+<a href="app.html?removedmaya=1&amp;removed=none">Maya just removed</a>
+<a href="app.html?removed=none">Nobody held (no Removed card)</a>
+<a href="app.html?screen=history">History after an erase</a>
+<a href="app.html?erase=1">Option: Erase now</a>
+<a href="app.html?erase=1&amp;screen=erase&amp;who=sam">Option: Erase now page</a>
+<a href="desktop.html">Desktop window</a>
+<a href="desktop.html?open=sam">Desktop, restore open</a>
+</div></div>
+
+<div class="sec"><div class="lbl">1. The Household page with someone held</div>
+<div class="frs">
+<div class="fig"><h3>Removed card</h3>
+<div class="fr"><iframe loading="lazy" title="Household with two held members" src="app.html"></iframe></div>
+<p>Held people leave the Members list and sit in a Removed card under it. Each row says who removed them and when, until when they can be restored, and how long is left (the last 24 hours in the danger colour). The card is not drawn when nobody is held. <a class="fr-open" href="app.html">Open full size</a></p></div>
+<div class="fig"><h3>Restore, in place</h3>
+<div class="fr"><iframe loading="lazy" title="Restore confirm" src="app.html?open=sam"></iframe></div>
+<p>Restore opens the same small box Make admin uses: one sentence, one button. Sam comes back with the same name and has to sign in again. <a class="fr-open" href="app.html?open=sam">Open full size</a></p></div>
+<div class="fig"><h3>Restored</h3>
+<div class="fr"><iframe loading="lazy" title="Sam restored" src="app.html?restored=sam"></iframe></div>
+<p>Sam is a member again, with a line that they have to sign in again, and a note at the top says so. <a class="fr-open" href="app.html?restored=sam">Open full size</a></p></div>
+</div>
+<p style="margin-top:10px">The desktop window shows the same page as its pane (the built page is linked through into the window), so every state above exists there too: <a class="fr-open" href="desktop.html">open the desktop window</a>.</p>
+<div class="frd" style="margin-top:6px"><iframe loading="lazy" title="Desktop Household" src="desktop.html"></iframe></div></div>
+
+<div class="sec"><div class="lbl">2. Removing, and the week it starts</div>
+<div class="frs">
+<div class="fig"><h3>Danger zone</h3>
+<div class="fr"><iframe loading="lazy" title="Danger zone open" src="app.html?removed=none&amp;dz=1"></iframe></div>
+<p>As built today (a Remove button per other member), with one new sentence: they can be restored for 7 days, then erased. <a class="fr-open" href="app.html?removed=none&amp;dz=1">Open full size</a></p></div>
+<div class="fig"><h3>Confirm page</h3>
+<div class="fr"><iframe loading="lazy" title="Remove confirm page" src="app.html?screen=remove&amp;who=maya&amp;removed=none"></iframe></div>
+<p>Three short facts: what happens now, the week and its exact end, and what the erase takes. Typed name stays (#82). A wrong name changes nothing and says so. <a class="fr-open" href="app.html?screen=remove&amp;who=maya&amp;removed=none">Open full size</a></p></div>
+<div class="fig"><h3>Right after</h3>
+<div class="fr"><iframe loading="lazy" title="Maya just removed" src="app.html?removedmaya=1&amp;removed=none"></iframe></div>
+<p>A note gives the deadline to the minute (exactly 7 days) and Maya is in the Removed card, 7 days left. <a class="fr-open" href="app.html?removedmaya=1&amp;removed=none">Open full size</a></p></div>
+</div></div>
+
+<div class="sec"><div class="lbl">3. After the week</div>
+<div class="frs">
+<div class="fig"><h3>History</h3>
+<div class="fr"><iframe loading="lazy" title="History after an erase" src="app.html?screen=history"></iframe></div>
+<p>The erased person is gone from the Household page without a trace. What they did stays in History with the item and the change, and the name is replaced by &ldquo;a former member&rdquo; (owner). <a class="fr-open" href="app.html?screen=history">Open full size</a></p></div>
+<div class="fig"><h3>Option: Erase now</h3>
+<div class="fr"><iframe loading="lazy" title="Erase now option" src="app.html?erase=1&amp;screen=erase&amp;who=sam"></iframe></div>
+<p>Only if the owner wants it (RM-Q2). A second action on each held row and a typed-name page that says it cannot be undone. Off in the default frames. <a class="fr-open" href="app.html?erase=1&amp;screen=erase&amp;who=sam">Open full size</a></p></div>
+</div></div>
+
+<div class="sec"><div class="lbl">Decisions: the owner&rsquo;s words</div>
+<ol class="decs" style="list-style:none;padding:0;margin:0">
+<li><b class="id">RM-D1</b> A removed member can be restored for up to a week (owner, 1 Oct 2026).</li>
+<li><b class="id">RM-D2</b> If nobody acts, they are gone completely, like &ldquo;delete my account&rdquo; under European rules: their data and the journal&rsquo;s link to them are erased; activity that must stay in the transaction log is anonymised (owner, 1 Oct 2026).</li>
+<li><b class="id">RM-D3</b> History says &ldquo;a former member&rdquo; after the erase, and nothing more identifying (owner, comment, 1 Oct 2026; answers issue question 3).</li>
+<li><b class="id">RM-D4</b> The removed person gets no notice and nothing else follows (owner, same comment: &ldquo;no need for any other follow-ups&rdquo;). <i>Read as the answer to issue question 4; the owner did not say &ldquo;no notice&rdquo; in those words.</i></li>
+</ol></div>
+
+<div class="sec"><div class="lbl">From the issue, carried as written (label <i>approved for build</i>)</div>
+<ol class="decs" style="list-style:none;padding:0;margin:0">
+<li><b class="id">RM-B1</b> Removing (the #82 danger-zone flow) sets <code>removed_at</code> and ends sessions, the assistant link and invites at once.</li>
+<li><b class="id">RM-B2</b> They leave the member list and appear under a &ldquo;Removed, can be restored until &lt;date&gt;&rdquo; line with a Restore button.</li>
+<li><b class="id">RM-B3</b> Restore needs a new sign-in (sessions stay ended) and puts them back with the same name.</li>
+<li><b class="id">RM-B4</b> After 7 days a purge runs (app start, then hourly) and deletes the member row, sessions, assistant link, their invites, join events, notices that name them and removal records that name them.</li>
+<li><b class="id">RM-B5</b> Journal rows they wrote keep the item and the change but lose <code>member_id</code> and any name in <code>note</code>. The append-only trigger gets one narrow, audited exception for that (RM-Q1).</li>
+<li><b class="id">RM-B6</b> The window is exactly 7 days from removal, shown on the household page. Leaving is out of scope.</li>
+</ol></div>
+
+<div class="sec"><div class="lbl">Proposals (the mockup&rsquo;s own; none approved)</div>
+<ol class="props" style="list-style:none;padding:0;margin:0">
+<li><b class="id">RM-P1</b> One Removed card, under Members and above Invite someone, drawn only while someone is held. It replaces today&rsquo;s Removals card, since a removal record that names someone is erased with them (RM-B4).</li>
+<li><b class="id">RM-P2</b> A held row reads &ldquo;Arjan removed Sam on Wed 14 Oct.&rdquo;, then &ldquo;Can be restored until Wed 21 Oct, 9:15 am &middot; 3 days left&rdquo;. Whole days while two or more are left, then hours, then &ldquo;Less than an hour left&rdquo;; the last 24 hours in the danger colour.</li>
+<li><b class="id">RM-P3</b> Restore asks first, in place, as Make admin does (SW-86): it hands someone access back.</li>
+<li><b class="id">RM-P4</b> A restored person is an ordinary member, even if they were an admin; an admin has to make them one again.</li>
+<li><b class="id">RM-P5</b> A restored member reads &ldquo;Has to sign in again&rdquo; until they have a live session.</li>
+<li><b class="id">RM-P6</b> Held rows are ordered by who is erased soonest.</li>
+<li><b class="id">RM-P7</b> Whoever may remove may restore (follows SW-O63).</li>
+<li><b class="id">RM-P8</b> At the 7-day mark Restore is refused and the row is hidden even if the hourly purge has not run yet, so the page and the server agree to the minute.</li>
+<li><b class="id">RM-P9</b> The remove page tells the week, its exact end and what the erase covers before the name is typed.</li>
+<li><b class="id">RM-P10</b> History says &ldquo;by a former member&rdquo; in the place of the name. Each erased person reads the same; they cannot be told apart (RM-D3).</li>
+<li><b class="id">RM-P11</b> Nothing tells the household when an erase happens and nothing is logged (RM-D4).</li>
+<li><b class="id">RM-P12</b> Erase now is drawn as an option, off by default (RM-Q2).</li>
+<li><b class="id">RM-P13</b> Times are shown in the household&rsquo;s time, as &ldquo;Wed 21 Oct, 9:15 am&rdquo;.</li>
+</ol></div>
+
+<div class="sec"><div class="lbl">Open questions, with a recommended position</div>
+<ol class="qs" style="list-style:none;padding:0;margin:0">
+<li><b class="id">RM-Q1</b> Approve the narrow journal exception (anonymise only <code>member_id</code> and <code>note</code>, only at purge, with the trigger allowing nothing else)? It changes a protected rule. <b>Recommend yes,</b> as the issue wrote it. A wrong no means a purge cannot anonymise: either the link to the person stays, or journal rows are deleted and stock history is lost. The label is not read as this approval.</li>
+<li><b class="id">RM-Q2</b> Erase now, instead of waiting? <b>Recommend not in version 1.</b> It is a second irreversible path and the week already meets the owner&rsquo;s ask. A wrong no costs a household up to a week when someone asks to be erased at once; drawn here so it can be added.</li>
+<li><b class="id">RM-Q3</b> A held person redeems a new invite. <b>Recommend it restores the same member</b> (no duplicate, hold cleared, same name), since a member has just invited them. A wrong guess either blocks a deliberate re-invite for a week or creates a second row for one sign-in.</li>
+<li><b class="id">RM-Q4</b> Restored as an admin if they were one (RM-P4)? <b>Recommend no.</b> Giving household-wide rights back is a separate, deliberate step.</li>
+<li><b class="id">RM-Q5</b> Who may restore (RM-P7)? <b>Recommend the same people who may remove.</b> Open with SW-O63.</li>
+<li><b class="id">RM-Q6</b> The one-time scrub of old &ldquo;by Name&rdquo; notes written before #84 rides on the same exception. <b>Recommend a separate migration step after RM-Q1</b>; not drawn.</li>
+</ol></div>
+
+<div class="sec"><div class="lbl">Build notes</div>
+<p>Markup and class names are the built Household page&rsquo;s (<code>.pm .mtop .mbody .menu.card .mrow .who2 .av.sm .sub .chip .dz .stack .btn .note .adm .admbox</code>); new are <code>#removed</code>, <code>.mrow.held</code>, <code>.sub.soon</code> and the confirm page&rsquo;s <code>.facts</code> list. Everything is a link or a form post: <code>POST /household/members/restore</code> beside the existing remove; no script, the confirm is a <code>&lt;details&gt;</code>. Reads <code>members.removed_at</code>. The mockup&rsquo;s script only moves sample data. Left off here: the household name editor, admin buttons, invites (unchanged). Check: <code>tools/removed-members-check.mjs</code> (390, 360, 1280, light and dark). Notes: <code>docs/knowledge/removed-members.md</code>.</p>
+<p style="margin-top:8px"><b>Default path and deferred:</b> the page loads <code>theme.css</code>, <code>removed.css</code> (about 8 KB) and <code>removed.js</code> (about 13 KB); no images, no libraries. Confirm, erase and History are drawn only when opened. Desktop reuses the same two files; the window shell is plain CSS in the same file.</p></div>
+</div></body></html>
