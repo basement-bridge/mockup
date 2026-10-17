@@ -1,4 +1,4 @@
-/* Desktop (1024px and up): Meal planning is a right-hand flyout in the lane, the same slot and the same shape as the Home Plan it flyout (Kitchie #757 option F, desktop-plan-flyout.css `.pdf`):
+/* Desktop (1024px and up): Off days is a right-hand flyout in the lane, the same slot and the same shape as the Home Plan it flyout (Kitchie #757 option F, desktop-plan-flyout.css `.pdf`):
    it slides in over the lane's content (the lane's own content is hidden while it is open) and out to the right. Width, position and stacking are the lane's own. `?c=dialog` draws the same content as a
    centred window (the shape the Plan desktop mockup has today), for comparison; it is not the proposal. */
 .ud-host[hidden]{display:none}

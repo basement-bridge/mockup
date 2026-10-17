@@ -1,5 +1,5 @@
 // Behaviour check for the Plan UI phone mockup, the week header (Plan UI review 191 to 194, owner-stated 13 Oct 2026): the counts are buttons that jump (191) and read clearly (192), the Today pill is gone and a long hold on the
-// "Week of ..." label (or T) goes to today (193), Copy last week and Clear week are two icon buttons beside the cog that flip to Undo in place (194). Headless Chromium, touch and mouse, dark and light, reduced motion.
+// "Week of ..." label (or T) goes to today (193), Copy last week and Clear week are two icon buttons beside the Off days moon that flip to Undo in place (194). Headless Chromium, touch and mouse, dark and light, reduced motion.
 // Usage:  python3 -m http.server 8123 &   then   NODE_PATH=/opt/node22/lib/node_modules node tools/plan-ui-header-check.mjs      (BASE=... to point elsewhere)
 import { createRequire } from "module";
 const req = createRequire(import.meta.url); let pw; try { pw = req("playwright-core"); } catch (e) { pw = req("playwright"); }
@@ -96,12 +96,12 @@ for (const [scheme, reduced] of [["dark", false], ["light", false], ["dark", tru
     ok(`${tag} D: typing t in the person search does not jump`, (await st(p)).cur !== "d13" && (await p.locator("#fq").inputValue()) === "t"); await p.close(); }
   { const p = await open(ctx, "sel=wed-curry", errs); await sleep(300); await S(p, "window.__plan.goDay('d15')"); await sleep(500); const pt = await lab(p); await hold(ctx, p, touch, pt.x, pt.y, 800); await sleep(1000);
     ok(`${tag} D: with a detail docked, the hold swaps the docked day to today`, await S(p, "window.__plan.S.cur === 'd13' && window.__plan.S.sel && window.__plan.find(window.__plan.S.sel).day === 'd13'"), await S(p, "[window.__plan.S.cur, window.__plan.S.sel]")); await p.close(); }
-  // ---------- E. Copy and Clear beside the cog ----------
+  // ---------- E. Copy and Clear beside the Off days moon ----------
   { const p = await open(ctx, "ut=6", errs); const hd = ".hd";
     ok(`${tag} E: no ... menu and no week-actions button any more`, (await p.locator("[data-wkmenu], .wkm").count()) === 0 && (await p.locator(".hd .ib[aria-label^='Week actions']").count()) === 0);
     const bs = await p.locator(".hd .ib").evaluateAll(es => es.map(e => ({ l: e.getAttribute("aria-label"), t: e.title, x: e.getBoundingClientRect().x, w: e.getBoundingClientRect().width, h: e.getBoundingClientRect().height, d: e.disabled })));
-    ok(`${tag} E: Copy last week, Clear week, Plan settings in that order, each with a name and a tooltip`, bs.length === 3 && /^Copy last week/.test(bs[0].l) && /^Clear week/.test(bs[1].l) && /settings/i.test(bs[2].l) && bs.every(b => b.t && b.l && b.h >= 43.5 && b.w >= 36), bs);
-    ok(`${tag} E: the two icons sit next to the cogwheel, right of the Mine dropdown`, bs[0].x > (await p.locator(".fmenu").boundingBox()).x && bs[1].x + bs[1].w <= bs[2].x + 2, bs);
+    ok(`${tag} E: Copy last week, Clear week, Off days in that order, each with a name and a tooltip`, bs.length === 3 && /^Copy last week/.test(bs[0].l) && /^Clear week/.test(bs[1].l) && /^Off days/.test(bs[2].l) && bs.every(b => b.t && b.l && b.h >= 43.5 && b.w >= 36), bs);
+    ok(`${tag} E: the two icons sit next to the Off days moon, right of the Mine dropdown`, bs[0].x > (await p.locator(".fmenu").boundingBox()).x && bs[1].x + bs[1].w <= bs[2].x + 2, bs);
     const icon = await p.locator(".hd [data-clearw] svg path").first().getAttribute("d"); ok(`${tag} E: Clear week keeps the eraser glyph`, icon.startsWith("m7 21-4.3-4.3"));
     const fits = async label => ok(`${tag} E: header does not overflow (${label})`, await S(p, "(function () { var h = document.querySelector('.hd'), r = h.getBoundingClientRect(); return h.scrollWidth <= h.clientWidth + 1 && [...h.querySelectorAll('button, h1, small')].every(function (b) { var q = b.getBoundingClientRect(); return q.width === 0 || (q.left >= -0.5 && q.right <= innerWidth + 0.5); }) && document.documentElement.scrollWidth <= innerWidth; })()"), await S(p, "[...document.querySelectorAll('.hd button')].map(function (b) { return Math.round(b.getBoundingClientRect().right); })"));
     await fits("idle");

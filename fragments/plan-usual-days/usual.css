@@ -1,9 +1,11 @@
-/* Meal planning flyout, usual days off (Kitchie #860). Shared by phone and desktop; tokens only, no raw colours. The container rules are in sheet.css (phone) and lane.css (desktop).
-   Class names are the ones the build will use (.ud-*). Chip states, for a person's row:
-     filled            = not cooking (as the days have always read)
-     dashed border     = follows the household (nothing of the person's own)
-     solid + a dot     = set by the person
-   so "off, from the household" is a tinted dashed chip, "off, set by you" the solid filled chip with a dot, "open, set by you" a solid accent ring with a dot, "open, follows" the plain dashed chip. */
+/* Off days flyout, usual days off cooking (Kitchie #860). Shared by phone and desktop; tokens only, no raw colours. The container rules are in sheet.css (phone) and lane.css (desktop).
+   Class names are the ones the build will use (.ud-*). A day has one of two values, drawn the same on every row:
+     FILLED   = off (not cooking)
+     UNFILLED = open (cooking possible)
+   and, on a person's row, two flags that sit on top of either value:
+     dashed ring inside the chip = INHERITED (it came from the household; the person set nothing)
+     a dot                       = the person set it themselves
+   So a person's chip is one of: filled + dashed ring (off, inherited), filled + dot (off, set by the person), unfilled + dashed ring (open, inherited), unfilled + dot (open, set by the person). The household's own row has neither flag. */
 .ud{color:var(--fg);font-family:var(--body);display:flex;flex-direction:column;min-height:0}
 .ud-scroll{overflow:auto;min-height:0;padding:0}
 .ud-pt{display:flex;align-items:flex-start;gap:12px}
@@ -22,9 +24,8 @@
 .ud-d[aria-pressed=true]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 .ud-d:disabled{cursor:default;opacity:.7}
 /* a person's chips */
-.ud-d[data-src=household]{border-style:dashed;border-color:var(--muted)}
-.ud-d[data-src=household][aria-pressed=true]{background:color-mix(in srgb,var(--accent) 26%,var(--surface));color:var(--fg);border-color:var(--accent)}
-.ud-d[data-src=own][data-eff=open]{border:2px solid var(--accent);color:var(--accent);background:var(--surface)}
+.ud-d[data-src=inherited]::after{content:"";position:absolute;inset:3px;border:1.5px dashed currentColor;border-radius:inherit;opacity:.85;pointer-events:none}
+.ud-d[data-src=own][data-eff=open] .ud-dot{background:var(--accent)}
 .ud-dot{position:absolute;top:6px;right:8px;width:6px;height:6px;border-radius:50%;background:currentColor}
 .ud-d[aria-expanded=true]{outline:2px solid var(--accent);outline-offset:2px}
 .ud:focus{outline:none}
@@ -50,12 +51,7 @@
 .ud-k{display:flex;align-items:center;gap:8px;min-width:0}
 .ud-sw{flex:none;width:34px;min-height:22px;height:22px;border-radius:var(--r-pill);pointer-events:none}
 .ud-sw .ud-dot{top:5px;right:6px;width:5px;height:5px}
-.ud-sw[data-eff=off]{background:var(--accent)}
-.ud-sw[data-eff=off][data-src=household]{background:color-mix(in srgb,var(--accent) 26%,var(--surface))}
-.ud-sw[data-eff=off][data-src=own]{color:var(--on-accent)}
+.ud-sw[data-eff=off]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 .ud-sw[data-eff=open]{background:var(--surface)}
-.ud-sw[data-src=household][data-eff=open]{border:1px dashed var(--muted)}
-.ud-sw[data-src=household][data-eff=off]{border:1px dashed var(--accent)}
-.ud-sw[data-src=own][data-eff=off]{border:1px solid var(--accent)}
-.ud-sw[data-src=own][data-eff=open]{border:2px solid var(--accent);color:var(--accent)}
+.ud-sw[data-src=inherited]::after{inset:2px}
 .ud-done{display:block;width:100%;min-height:var(--tap);margin-top:14px;border-radius:var(--r-ctl);border:1px solid var(--accent);background:var(--accent);color:var(--on-accent);font:700 15px var(--body);cursor:pointer}

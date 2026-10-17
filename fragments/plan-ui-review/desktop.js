@@ -129,7 +129,7 @@
   function header() {
     var mn = P.dinfo(P.dinfo(S.cur).mon).n, w = wk();
     return '<div class="top"><div class="wkbar"><div class="wt"><h1>Week of ' + mn + ' Oct</h1><span class="sub">' + P.REL[w] + (w < 0 ? ' · read only' : '') + '</span></div>' + (S.cur !== S.today ? '<button class="tdy" data-today title="Jump to today (T)">Today <span class="kbd">T</span></button>' : '') +
-      '<span class="sp"></span><span class="sync" title="Plan is live"><i></i>Live</span>' + (S.f === 'menu' ? filter() : '') + '<span class="wkacts">' + copyBtn() + clearBtn() + '</span><button class="ib" aria-label="Plan settings (the gear)" title="Plan settings (the gear)">' + ic.cog + '</button></div>' + (S.f !== 'menu' ? '<div class="tools">' + filter() + '</div>' : '') + ribbon() + (ro() ? '<div class="rol">' + ic.people + ' ' + viewLabel(S.view) + "'s plan: view only. You can look, not change it.</div>" : '') +
+      '<span class="sp"></span><span class="sync" title="Plan is live"><i></i>Live</span>' + (S.f === 'menu' ? filter() : '') + '<span class="wkacts">' + copyBtn() + clearBtn() + '</span><button class="ib" aria-label="Off days" title="Off days">' + ic.moon + '</button></div>' + (S.f !== 'menu' ? '<div class="tools">' + filter() + '</div>' : '') + ribbon() + (ro() ? '<div class="rol">' + ic.people + ' ' + viewLabel(S.view) + "'s plan: view only. You can look, not change it.</div>" : '') +
       '<div class="cslot' + (S.cuShown ? ' in' : '') + '">' + (S.cuShown ? '<button class="curtain' + (S.cuNew ? ' drop' : '') + '" data-curtain>' + ic.spark + ' Ask AI to plan this</button>' : '') + '</div></div>';
   }
   function rail() {
