@@ -349,3 +349,41 @@ Q10. **Method reading order across two columns.** Steps run down the left column
 - **Proposal (Claude, advice only):** A. Not locked.
 - Proposals made where he was silent: row two stays and left aligns (the hero is 4px shorter); no banner means no overlay and the buttons stay in row two; the banner becomes a click-to-enlarge target (new); magnifier always visible; keyboard order unchanged plus one banner stop.
 - Open: which placement (A, B or C); whether the banner focus point should choose the button corner; whether the banner click-to-enlarge is wanted at all.
+
+---
+
+## 8. Inline edit (Kitchie #892)
+
+Added 18 October 2026, folder `inline-edit/` (live: https://basement-bridge.github.io/mockup/fragments/recipe-detail-desktop/inline-edit/index.html). Issue: https://github.com/basement-bridge/kitchie/issues/892 (an enhancement: no desktop edit view was ever specified; the phone-shaped form in a right-lane panel is the designed behaviour, E-O5, 12 October). Page notes with every rule, the validation table and the key table: `inline-edit/notes.md`. Check: `tools/inline-edit-check.mjs`.
+
+### 8.1 Decided by the owner (by voice, 17 October 2026; locked until he overrides)
+
+1. **Build a proper desktop edit experience.** Clicking Edit on desktop opens the mobile edit form today; there is no desktop edit view. Not a bug in the old sense.
+2. **Inline editing, in place on the recipe page.** "I prefer mostly inline edits rather than big fat 1990s forms."
+3. **Use sensible judgement on the details**, and mockup first (no Kitchie code until he has seen it).
+
+### 8.2 Recommended by Claude (recommended, awaiting owner review; the owner was silent on all of these)
+
+R1. **Entry: an Edit toggle (chip, key E, section pencils) that reveals click-to-edit on every value**, rather than always-on click-to-edit or a whole-page form. Reading and cooking stay clean.
+R2. **Save: per field, at once.** Enter or leaving the field saves it; the strip says Saved; a toast and the History flyout carry Undo; Ctrl+Z undoes the last change; Esc cancels the field. No Save button.
+R3. **Keeper question once, when Edit is switched on for a keeper** (fix this one, keep both, different dish), not at every field; a Trying version and a new recipe edit in place. Keep both starts a new version (Trying, "<name>, edited", From the original) at the first change.
+R4. **One editing session is one revision**; each saved field is a change in it with its own Undo in History; the new version shows in the version menu and the lineage chain.
+R5. **Validation inline in the field** (messages in `inline-edit/notes.md` D5); a field with an error stays open; Esc reverts.
+R6. **Keyboard:** Enter saves (Shift+Enter a line break in steps, Ctrl+Enter saves a note), Esc cancels, Tab and Shift+Tab save and move to the next value, Ctrl+Enter saves and opens a new blank step or ingredient below, arrows on a drag handle reorder, Ctrl+Z undoes.
+R7. **Reorder:** a visible drag handle per row (mouse drag or arrow keys); group headings are rows like any other. No separate Reorder mode.
+R8. **Amounts are shown as written while editing** (not scaled by the Serves stepper); changing Serves does not rescale them.
+R9. **Quick-add lines** pinned under the ingredient list and the method: type `2 tbsp soy sauce`, Enter.
+R10. **Step photos are added and removed in place** (undo for 5 minutes, up to 10); the banner and the gallery stay in the existing photo sheet.
+R11. **Notes:** your notes are editable in place; notes inherited from the parent version are read-only ("Change it there"); Add a note also works outside edit mode.
+R12. **Edit strip** between the hero and the body (where changes go, saved state, Undo last, Done); the banner shrinks to a slim band while editing so nothing scrolls; Plan it and Cook it are dimmed.
+R13. **Wide layout only** (80rem x 700px and up, the same viewport rule); below it the build keeps today's edit panel.
+
+### 8.3 Open questions for the owner
+
+Q1. **Revision per session or per change** (R4)? Wrong guess: a noisy History, or a revision that is only complete at Done.
+Q2. **Does inline edit replace the right-lane edit panel on desktop** (E-O5)? Recommended yes at 80rem x 700px and up; the panel stays below that and for the assistant hand-off and gallery photos. Wrong guess: two edit experiences to keep in step.
+Q3. **Where the keeper question sits** (R3): once on entering, or at the first change.
+Q4. **Banner and gallery photos stay in the photo sheet** (R10): accept?
+Q5. **Inherited notes read-only** (R11): accept, or editable (changes the parent's note for everyone)?
+Q6. **E toggles edit mode; Esc cancels only the open field** (R1, R6): accept? (Today E opens the panel.)
+Q7. **Tab stops:** plain Tab through every value as drawn, or one stop per row with arrows in the build?

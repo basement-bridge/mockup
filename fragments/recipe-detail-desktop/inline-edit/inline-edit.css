@@ -45,7 +45,7 @@
 .tbadge.ed.none{background:transparent;color:var(--accent);border:2px dashed var(--accent)}
 .svcta.ed{cursor:text}
 .hico.ed{color:var(--muted)}
-.ed-t{display:inline-block;padding:0 8px;margin:0 -8px;font:inherit;line-height:inherit;text-align:left}
+.ed-t{display:inline-block;padding:0 4px;margin:0;font:inherit;line-height:inherit;text-align:left}
 .hmain h1:has(.ed-t),.hmain h1:has(.edw){display:block;overflow:visible;-webkit-line-clamp:unset}
 
 /* the open field */

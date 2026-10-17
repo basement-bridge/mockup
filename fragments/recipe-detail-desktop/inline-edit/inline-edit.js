@@ -329,7 +329,7 @@ function openEd(btn){
  var hideEl=sp.hide?$(sp.hide):null;btn.hidden=true;if(hideEl)hideEl.hidden=true;btn.after(w);
  var b=EDB={btn:btn,sp:sp,w:w,el:el,msg:msg,hideEl:hideEl,closing:false};
  var grow=function(){if(sp.area){el.style.height="auto";el.style.height=Math.min(el.scrollHeight+2,sp.multi?260:140)+"px"}};
- el.addEventListener("input",function(){el.removeAttribute("aria-invalid");msg.className="edmsg";msg.textContent=sp.hint||"";msg.hidden=!sp.hint;grow();
+ el.addEventListener("input",function(){el.removeAttribute("aria-invalid");msg.removeAttribute("role");msg.className="edmsg";msg.textContent=sp.hint||"";msg.hidden=!sp.hint;grow();
   if(sp.max&&el.value.length>=sp.max*0.9&&sp.max>10){msg.hidden=false;msg.textContent=el.value.length+" of "+sp.max+" characters"}});
  el.addEventListener("keydown",function(e){
   if(e.key==="Escape"){e.preventDefault();e.stopPropagation();cancelEd(b);return}
@@ -337,7 +337,7 @@ function openEd(btn){
   if(e.key==="Enter"){var mod=e.ctrlKey||e.metaKey;
    if(sp.area&&!sp.enterCommits){if(mod){e.preventDefault();commitEd(b)}return}
    if(sp.area&&e.shiftKey)return;
-   e.preventDefault();if(commitEd(b)&&mod&&sp.after)sp.after()}});
+   e.preventDefault();if(commitEd(b)){if(mod&&sp.after)sp.after();else btn.focus()}}});
  el.addEventListener("blur",function(){if(b.closing)return;setTimeout(function(){if(EDB===b&&document.activeElement!==el)commitEd(b)},0)});
  el.focus();if(sp.area){el.setSelectionRange(el.value.length,el.value.length)}else el.select();grow();
  btn.scrollIntoView({block:"nearest"})}
@@ -347,7 +347,7 @@ function commitEd(b){
  var sp=b.sp,v=b.el.value;if(!sp.raw)v=v.trim();
  if(sp.fresh&&v===""){closeEd(b);discardFresh(b.btn);return true}
  var err=sp.validate?sp.validate(v):null;
- if(err){b.el.setAttribute("aria-invalid","true");b.msg.hidden=false;b.msg.className="edmsg err";b.msg.textContent=err;return false}
+ if(err){b.el.setAttribute("aria-invalid","true");b.msg.hidden=false;b.msg.className="edmsg err";b.msg.setAttribute("role","alert");b.msg.textContent=err;return false}
  var same=(sp.same?sp.same(v):String(sp.get())===v)&&!sp.fresh;
  closeEd(b);
  if(!same){var ch=sp.set(v,b);record(ch);b.btn.innerHTML=sp.show();if(sp.after)sp.after();justSaved(b.btn)}

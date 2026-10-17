@@ -16,3 +16,6 @@
  .es-t{max-width:12rem}
  .estrip .mini .kbd{display:none}
 }
+@container page (max-width:62rem){
+ [data-edit="1"] .hgo{display:none}
+}
