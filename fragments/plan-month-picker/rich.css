@@ -14,8 +14,8 @@
 #week[data-rich] .pdm .st-open .pdm-m{font-weight:800;font-size:12.5px}
 #week[data-rich] .pdm .st-off .pdm-m,#week[data-rich] .pdm .g-stop .pdm-m{font-weight:700}
 #week[data-rich] .pdm .g-stop .pdm-m{color:var(--danger)}
-#week[data-rich] .pdm-c.ml::before{left:-5px}
-#week[data-rich] .pdm-c.mt::after{top:-5px}
+#week[data-rich] .pdm-c.ml::before{left:-4px;top:-4px;bottom:-4px}
+#week[data-rich] .pdm-c.mt::after{top:-4px;left:-4px;right:-4px}
 #week[data-rich] .pdm-cap{margin-top:-2px}
 #week[data-rich] .pdm-st{min-height:40px;font-size:14px}
 #week[data-rich] .pdm-lg{font-size:12px;gap:6px 14px}

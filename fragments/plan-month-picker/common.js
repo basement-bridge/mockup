@@ -34,8 +34,9 @@ PK.replaces = function (n) { return P.replace && !!PK.info(n).own; };
 /* ---------- the Hard avoid guard (SW-74 to SW-82), asked again for each date picked ---------- */
 /* stop: a meal for that person alone. warn: a meal for everyone; no warning on a night where that person keeps their own plan (they are left out of the household meal already). */
 PK.guardFor = function (n) {
+  /* scoped to the recipe being planned and the people the Who pill selects (owner, voice, 17 Oct 2026): no recipe in context, or a recipe that does not touch the Hard avoid, shows nothing at all; a member's standing Hard avoid is never surfaced for its own sake */
   var a = P.avoid, r = PK.R();
-  if (!a || S.leave || !r.lines.some(function (l) { return l.n.toLowerCase().indexOf(a.item) > -1; })) return null;
+  if (!a || !r || !r.lines || S.leave || !r.lines.some(function (l) { return l.n.toLowerCase().indexOf(a.item) > -1; })) return null;
   if (S.who === a.who) return "stop";
   if (S.who === "all") { if (n != null && PK.info(n).meals.some(function (m) { return m.who === a.who; })) return null; return "warn"; }
   return null;
@@ -149,12 +150,13 @@ new MutationObserver(function () {
     ["Week", "scenario", [["empty", "Empty"], ["typical", "Typical"], ["full", "Full"]], cur("scenario", "typical")],
     ["Today", "today", [["2026-10-12", "Mon 12"], ["2026-10-14", "Wed 14"], ["2026-10-17", "Sat 17"], ["2026-10-18", "Sun 18"]], cur("today", "2026-10-17")],
     ["Who it is for", "who", [[null, "Everyone"], ["Sam", "Sam"], ["Jo", "Jo"]], cur("who", null)],
-    ["Hard avoid", "avoid", [[null, "Off"], ["mango", "Jo, mango"]], cur("avoid", null)],
-    ["Wide layout", "wide", [[null, "A: roomy"], ["b", "B: side card"], ["c", "C: open first"], ["off", "Compact"]], cur("wide", null)],
+    ["Hard avoid (Jo, mango)", "avoid", [[null, "Off"], ["mango", "On"]], cur("avoid", null)],
+    ["Recipe being planned", "recipe", [[null, "With mango"], ["clear", "No mango"]], cur("recipe", null)],
+    ["Wide layout", "wide", [[null, "A: roomy (not chosen)"], ["b", "B: side card (chosen)"], ["c", "C: open first (not chosen)"], ["off", "Compact"]], cur("wide", null)],
     ["Date number", "num", [[null, "A: corner"], ["b", "B: plain cell"], ["c", "C: light numeral"]], cur("num", null)],
     ["Halo", "halo", [[null, "Timed (3 s)"], ["hold", "Held on"], ["off", "Faded"]], cur("halo", null)],
     ["Another day", "another", [[null, "A row"], ["header", "A header icon"]], cur("another", null)],
-    ["Flyout width", "w", [[null, "Normal"], ["narrow", "Narrow"]], cur("w", null)]
+    ["Flyout width", "w", [[null, "Normal: two wide if room"], ["narrow", "Narrow: one flyout, compact"]], cur("w", null)]
   ];
   var h = '<button type="button" class="pk-swb" aria-expanded="false" aria-controls="pk-swp">Mockup controls</button><div class="pk-swp" id="pk-swp" hidden role="group" aria-label="Mockup controls">';
   groups.forEach(function (g) { h += '<div class="pk-swg"><span>' + g[0] + "</span>" + g[2].map(function (o) { return link(g[1], o[0], o[1], (o[0] === null ? !Q.get(g[1]) : g[3] === o[0])); }).join("") + "</div>"; });

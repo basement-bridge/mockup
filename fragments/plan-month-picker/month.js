@@ -17,7 +17,7 @@ var I = {
   bang: svg('<path d="M12 4.5v10M12 19v.1"/>', "bang"), /* the Hard avoid mark: a plain exclamation mark (owner, voice, 17 Oct 2026; the triangle looked see-through) */
   end: svg('<path d="M5 12h13M13 7l5 5-5 5M20.5 5v14"/>')
 };
-/* the planned marks: one yellow mark for a night with one plan, three for a stacked night (the count of marks is the shape cue; same amber family, quantity only) */
+/* the planned marks: one neutral dark-grey mark for a night with one plan, three for a stacked night (the count of marks is the cue; same grey, quantity only; red is reserved for the Hard avoid exclamation, owner, voice, 17 Oct 2026) */
 function mk(k) { return '<span class="pdm-mk" aria-hidden="true">' + (k > 1 ? "<i></i><i></i><i></i>" : "<i></i>") + "</span>"; }
 var M = window.PKMonth = {};
 
@@ -43,9 +43,9 @@ M.plans = function (d) {
 };
 
 /* ---------- the grid ---------- */
-/* what a cell says in words when it is big enough (wide.css, tablet.css): the meal, or Plan here on an open night. month.css and phone.css hide it; the aria-label always carries everything. */
+/* what a cell says in words when it is big enough (wide.css, tablet.css): the meal's name, or Day off. An open night says NO words, only the plus (owner, voice, 17 Oct 2026: no "Plan here", not even a small caption). month.css and phone.css hide it; the aria-label always carries everything. */
 function mealText(d, k) {
-  if (k === "open") return "Plan here";
+  if (k === "open") return "";
   if (k === "off") return "Day off";
   if (k === "past" || !d.meals.length) return "";
   return d.meals[0].name + (d.meals.length > 1 ? " +" + (d.meals.length - 1) : "");

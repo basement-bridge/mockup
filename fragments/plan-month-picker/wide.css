@@ -32,8 +32,8 @@
 #week[data-wide=b] .pdm .pdm-top .pdm-bd{width:12px;height:12px}
 #week[data-wide=b] .pdm .pdm-m{font-size:10.5px;-webkit-line-clamp:2}
 #week[data-wide=b] .pdm .st-open .pdm-m{font-size:10px}
-#week[data-wide=b] .pdm-c.ml::before{left:-4px}
-#week[data-wide=b] .pdm-c.mt::after{top:-4px}
+#week[data-wide=b] .pdm-c.ml::before{left:-3.5px;top:-3.5px;bottom:-3.5px}
+#week[data-wide=b] .pdm-c.mt::after{top:-3.5px;left:-3.5px;right:-3.5px}
 .pdw-side{position:sticky;top:0;display:flex;flex-direction:column;gap:10px;padding:14px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--bg);font-size:13px}
 .pdw-rec{display:flex;gap:10px;align-items:center;padding-bottom:10px;border-bottom:1px solid var(--border)}
 .pdw-rec b{display:block;font:800 14px/1.2 var(--head)}
@@ -43,7 +43,7 @@
 .pdw-date b{font:800 17px/1.2 var(--head)}
 .pdw-chip{display:inline-flex;align-items:center;min-height:22px;padding:0 9px;border-radius:var(--r-pill);border:1.5px solid var(--border);font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--fg)}
 .pdw-chip.c-open{background:var(--cue);border-color:var(--cue);color:var(--on-accent)}
-.pdw-chip.c-plan,.pdw-chip.c-stack{border-color:color-mix(in srgb,var(--accent) 60%,var(--surface));background:color-mix(in srgb,var(--accent) 16%,var(--surface))}
+.pdw-chip.c-plan,.pdw-chip.c-stack{border-color:color-mix(in srgb,var(--muted) 55%,var(--surface));background:color-mix(in srgb,var(--fg) 7%,var(--surface))}
 .pdw-chip.c-off{background:color-mix(in srgb,var(--border) 70%,var(--surface));color:var(--muted)}
 .pdw-plans p{display:flex;flex-direction:column;gap:0;margin:0 0 6px}
 .pdw-plans b{font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
