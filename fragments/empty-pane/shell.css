@@ -78,3 +78,5 @@ body.lane-only{background:var(--surface)}
 body.lane-only .lane{position:static;height:auto;min-height:100vh;border:0}
 body.lane-only .app{display:block;min-height:0}
 body.lane-only .lane{display:block}
+
+.mk .mkb{display:inline-flex;align-items:center;min-height:32px;padding:0 10px;border-radius:var(--r-pill);border:1px solid var(--accent);background:var(--surface);color:var(--accent);font-weight:700;cursor:pointer}
