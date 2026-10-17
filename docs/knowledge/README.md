@@ -4,6 +4,7 @@ What we have learned and decided about the product, written so it can be carried
 
 - `jobs-to-be-done/`: one file per job. See its README for the convention and the status of each job.
 - `pantry-pull-row.md`: the Pantry top row (Filters and Add, pull for search, pull further to refresh): thresholds, timings, animations.
+- `pantry-search.md`: the Pantry top row on the phone with a magnifier at the right border (Filters left, + then glass right) that flies a search bar out over the whole row, and the shallow pull opening the same bar (owner, voice, 17 Oct 2026; PS-D1 to PS-D5 asked, PS-P1 to PS-P8 proposals, PS-Q1 to PS-Q4 open; phone only, **mockup only, not built**). Mockup `fragments/pantry-search/`, check `tools/pantry-search-check.mjs`. Job: `jobs-to-be-done/pantry-find.md`.
 - `pantry-default-view.md`: the default Pantry: grouped by area, A to Z, Out and zero-quantity items hidden (still reachable by search and filter); Use by stays a sort and filter.
 - `pantry-swipe.md`: swipe gestures on pantry rows (use one, used up, add to shopping list); counted vs level-only is a proposal.
 - `item-sheet.md`: the half-height bottom sheet a pantry row opens (tile grid, owner's choice); counted vs level-only, Used up, All fields, and the proposals it had to make.
