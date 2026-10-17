@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="rows.css"></head>
 <body data-no-theme-fab>
 <!-- Desktop (1024px and up): rail, 640px column, side-panel lane (DESIGN.md section 7). The list is the settled desktop Pantry drawn minimally; ONE option for acting on a row without swipe is added on top
-     (opt-a to opt-d, or opt-now for what the app does today), chosen with ?opt=. Notes: docs/knowledge/pantry-row-actions.md. -->
+     (opt-all, the owner's decision: A, B and C together; opt-a to opt-d, the earlier options kept for context; or opt-now for what the app does today), chosen with ?opt= (default all). Notes: docs/knowledge/pantry-row-actions.md. -->
 <div class="app">
   <nav class="rail" aria-label="Main">
     <div class="brand">Kitchie</div>
@@ -31,7 +31,7 @@
 </div>
 <div id="undo-bar" role="status" aria-live="polite" hidden></div>
 <div class="mockbar" aria-label="Prototype controls"><b>Prototype</b>
-  <a data-opt="now" href="#">Today</a><a data-opt="a" href="#">A</a><a data-opt="b" href="#">B</a><a data-opt="c" href="#">C</a><a data-opt="d" href="#">D</a>
+  <a data-opt="all" href="#">Decided: A + B + C</a><a data-opt="now" href="#">Today</a><a data-opt="a" href="#" title="Superseded, kept for context">A</a><a data-opt="b" href="#" title="Superseded, kept for context">B</a><a data-opt="c" href="#" title="Superseded, kept for context">C</a><a data-opt="d" href="#" title="Superseded, kept for context">D</a>
   <a data-toggle="input" href="#">Touch laptop: off</a><a data-toggle="theme" href="#">Dark</a>
 </div>
 <script src="sample.js"></script>

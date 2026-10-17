@@ -1,10 +1,10 @@
 /* Plan day flyout: four fixes (mockup only, nothing is saved or sent). Sample data only.
    A night is { dn, num, off: null | "usual" | "week", meals: [{ name, who: "all" | "me" | "<person>", notFor: [people] }] } (the plan's own model: a household meal is for everyone minus notFor, a personal meal is for one member).
-   view() is the row model: the Plan it flyout's rule with the fixes (a blocked night that has a meal is cooking, a replace is called out). plan() is a pick: one tap, no confirm. hold() is the 3 second hold with the press pause. */
+   view() is the row model: the Plan it flyout's rule with the fixes (a blocked night that has a meal is cooking, a replace is called out). plan() is a pick: one tap, no confirm. hold() is the 3 second hold: held while hovered, restarts on leave. */
 (function () {
 "use strict";
 var Q = new URLSearchParams(location.search);
-var HOLD = Math.max(200, +Q.get("hold") || 3000), MIN = Math.round(HOLD / 3), OUT = 240, UNDONE = 1100;
+var HOLD = Math.max(200, +Q.get("hold") || 3000), OUT = 240, UNDONE = 1100;
 var ME = "Brown Bogan", NEW = "Mandarin Mango Yogurt Bowl", PEOPLE = ["Brown Bogan", "UAT-AL", "Green Slander"];
 var NUM = { Sat: 17, Sun: 18, Mon: 19, Tue: 20, Wed: 21, Thu: 22, Fri: 23 };
 var ICO = {
@@ -67,33 +67,34 @@ function plan(s, i) {
   var x = (replaced ? join(out) + " is out" + (pw === "me" && !own.length ? " for you" : "") + ". " : "") + "For " + who + "." + (keep.length ? " " + join(keep) + (keep.length > 1 ? " keep their meals." : " keeps their meal.") : "");
   return { snap: snap, i: i, verb: replaced ? "Replaced" : "Planned", name: NEW, label: dlabel(d), note: x };
 }
-function confHtml(c, annot) {
+function confHtml(c) {
   return '<div class="pk-pt"><div><h2>Plan ' + esc(NEW) + '</h2></div><button type="button" class="x" data-close aria-label="Close">' + ICO.x + "</button></div>" +
     '<div class="pk-conf" role="status" aria-live="polite"><span class="pk-conf-tick" aria-hidden="true">&#10003;</span><div><b class="pk-conf-v">' + c.verb + '</b><span class="pk-conf-n">' + esc(c.name) + '</span><span class="pk-conf-d">' + esc(c.label) + '</span><span class="pk-conf-x">' + esc(c.note) +
-    '</span><button type="button" class="pk-conf-undo btn ghost" data-undo aria-label="Undo: ' + c.verb.toLowerCase() + " " + esc(c.name) + '">Undo</button></div></div>' +
-    (annot ? '<div class="tm" data-st="run" aria-hidden="true"><span class="tm-t">Closing in 3.0 s</span><div class="tm-bar"><i></i></div><small>Mockup note, not in the app.</small></div>' : "");
+    '</span><button type="button" class="pk-conf-undo btn ghost" data-undo aria-label="Undo: ' + c.verb.toLowerCase() + " " + esc(c.name) + '">Undo</button></div></div>';
 }
 
-/* the hold: HOLD ms, then the flyout slides out. A press (pointer or finger down) anywhere in the flyout stops the count; it carries on only after the press is released, with what was left but never less than MIN.
-   Keyboard focus on Undo also pauses it. Hover does not. Esc ends it at once. */
+/* the hold: HOLD ms, then the flyout slides out. While a mouse is on the flyout it holds for as long as the mouse stays (hover means they are reading); when the pointer leaves, the full HOLD starts again.
+   Touch: a finger down on the flyout holds it the same way; when the finger lifts (or the touch is cancelled) the full HOLD starts again. Keyboard focus on Undo holds the same way and restarts on blur. Esc ends it at once. No countdown is drawn. */
 function hold(fr, done) {
-  var h = { st: "run", left: HOLD, t0: Date.now(), t: null, down: false, foc: false, live: true };
-  function show() { fr.dataset.hold = h.st; fr.dataset.left = String(Math.round(h.rem())); }
-  h.rem = function () { return h.st === "run" ? Math.max(h.left - (Date.now() - h.t0), 0) : h.left; };
-  function end() { if (!h.live) return; h.live = false; clearTimeout(h.t); cancelAnimationFrame(h.raf); fr.removeEventListener("pointerdown", dn); document.removeEventListener("pointerup", up, true); document.removeEventListener("pointercancel", up, true); fr.removeEventListener("focusin", fi); fr.removeEventListener("focusout", fo); fr.removeEventListener("keydown", kd); fr.dataset.hold = "done"; done(); }
+  var h = { st: "run", t: null, over: false, foc: false, live: true };
+  function show() { fr.dataset.hold = h.st; }
+  function off() { fr.removeEventListener("pointerenter", pe); fr.removeEventListener("pointerleave", pl); fr.removeEventListener("pointerdown", pd); fr.removeEventListener("pointerup", pu); fr.removeEventListener("pointercancel", pu); fr.removeEventListener("focusin", fi); fr.removeEventListener("focusout", fo); fr.removeEventListener("keydown", kd); }
+  function end() { if (!h.live) return; h.live = false; clearTimeout(h.t); off(); fr.dataset.hold = "done"; done(); }
   function go() { h.st = "out"; show(); fr.classList.add("pk-out"); h.t = setTimeout(function () { fr.classList.remove("pk-out"); end(); }, OUT); }
-  function arm(ms) { clearTimeout(h.t); h.t0 = Date.now(); h.left = ms; h.st = "run"; h.t = setTimeout(go, ms); show(); }
-  function sync() { if (!h.live || h.st === "out") return; if ((h.down || h.foc) && h.st === "run") { h.left = h.rem(); clearTimeout(h.t); h.st = "paused"; show(); } else if (!h.down && !h.foc && h.st === "paused") arm(Math.max(h.left, MIN)); }
-  function dn() { h.down = true; sync(); }
-  function up() { if (!h.down) return; h.down = false; sync(); }
+  function arm() { clearTimeout(h.t); h.st = "run"; h.t = setTimeout(go, HOLD); show(); }
+  function sync() { if (!h.live || h.st === "out") return; if (h.over || h.foc) { clearTimeout(h.t); h.st = "held"; show(); } else if (h.st === "held") arm(); }
+  function pe(e) { if (e.pointerType === "touch") return; h.over = true; sync(); }
+  function pl(e) { if (e.pointerType === "touch") return; h.over = false; sync(); }
+  function pd(e) { if (e.pointerType !== "touch") return; h.over = true; sync(); }
+  function pu(e) { if (e.pointerType !== "touch") return; h.over = false; sync(); }
   function fi(e) { if (e.target.closest && e.target.closest("[data-undo]")) { h.foc = true; sync(); } }
   function fo() { h.foc = false; sync(); }
   function kd(e) { if (e.key === "Escape") { e.preventDefault(); clearTimeout(h.t); fr.classList.remove("pk-out"); end(); } }
-  fr.addEventListener("pointerdown", dn); document.addEventListener("pointerup", up, true); document.addEventListener("pointercancel", up, true); fr.addEventListener("focusin", fi); fr.addEventListener("focusout", fo); fr.addEventListener("keydown", kd);
+  fr.addEventListener("pointerenter", pe); fr.addEventListener("pointerleave", pl); fr.addEventListener("pointerdown", pd); fr.addEventListener("pointerup", pu); fr.addEventListener("pointercancel", pu); fr.addEventListener("focusin", fi); fr.addEventListener("focusout", fo); fr.addEventListener("keydown", kd);
   h.cancel = function () { clearTimeout(h.t); fr.classList.remove("pk-out"); end(); };
-  h.stop = function () { h.live = false; clearTimeout(h.t); cancelAnimationFrame(h.raf); fr.removeEventListener("pointerdown", dn); document.removeEventListener("pointerup", up, true); document.removeEventListener("pointercancel", up, true); fr.removeEventListener("focusin", fi); fr.removeEventListener("focusout", fo); fr.removeEventListener("keydown", kd); };
-  h.tick = function () { var tm = fr.querySelector(".tm"); if (!tm || !h.live) return; var r = h.rem(); tm.dataset.st = h.st; tm.querySelector("i").style.width = Math.round(100 * r / HOLD) + "%"; tm.querySelector(".tm-t").textContent = h.st === "paused" ? "Paused while you hold, " + (r / 1000).toFixed(1) + " s left" : "Closing in " + (r / 1000).toFixed(1) + " s"; h.raf = requestAnimationFrame(h.tick); };
-  arm(HOLD); if (fr.querySelector(".tm")) h.tick();
+  h.stop = function () { h.live = false; clearTimeout(h.t); off(); };
+  /* a mouse already resting on the flyout when the confirmation appears (the pick itself was a click) counts as hovering */
+  h.over = !!(window.matchMedia && matchMedia("(hover:hover)").matches && fr.matches(":hover")); if (h.over) { h.st = "held"; show(); } else arm();
   return h;
 }
 
@@ -106,7 +107,7 @@ function head(who, interactive) {
 }
 function draw(fr) {
   var s = fr.s, body;
-  if (s.view === "conf") body = confHtml(s.conf, s.cfg.annot);
+  if (s.view === "conf") body = confHtml(s.conf);
   else if (s.view === "undone") body = '<div class="pk-pt"><div><h2>Plan ' + esc(NEW) + '</h2></div><button type="button" class="x" data-close aria-label="Close">' + ICO.x + '</button></div><div class="pk-conf" role="status" aria-live="polite"><span class="pk-conf-tick" aria-hidden="true">&#10003;</span><div><b class="pk-conf-v">Undone</b><span class="pk-conf-d">Back as it was</span></div></div>';
   else if (s.view === "gone") body = '<div class="fr-gone"><span>The flyout slid out. In the app it is gone and you are back on the Plan.</span><button type="button" class="btn ghost" data-reopen>Reopen the flyout</button></div>';
   else {
@@ -117,7 +118,7 @@ function draw(fr) {
 }
 function reset(fr) {
   var c = fr.s && fr.s.cfg || fr.cfg; if (fr.s && fr.s.h) fr.s.h.stop();
-  fr.classList.remove("pk-out"); delete fr.dataset.hold; delete fr.dataset.left;
+  fr.classList.remove("pk-out"); delete fr.dataset.hold;
   fr.s = { cfg: c, who: c.who, view: "pick", days: c.rows.map(function (r) { return JSON.parse(JSON.stringify(r.d)); }), conf: null, h: null };
   if (c.view === "conf") { fr.s.conf = plan(fr.s, c.pick || 0); fr.s.view = "conf"; }
   draw(fr);
@@ -186,11 +187,11 @@ var DEF = {
   "s3-phone": { dev: "phone", who: "all", fixed: true, view: "conf", title: "Phone: Everyone, UAT-AL keeps their meal", rows: [{ d: day("Thu", [m("Salmon traybake", UA)]) }], hint: "Shown held; Undo works" },
   "s3-desk": { dev: "desk", who: "all", fixed: true, view: "conf", title: "Desktop flyout: Everyone, UAT-AL keeps their meal", rows: [{ d: day("Thu", [m("Salmon traybake", UA)]) }], hint: "Shown held; Undo works" },
   "s3-phone-b": { dev: "phone", who: "all", fixed: true, view: "conf", title: "Phone: Everyone, a replace, two people keep theirs", rows: [{ d: day("Fri", [m("Japanese golden curry", "all"), m("Pasta bake", UA), m("Fried rice", GS)]) }], hint: "Shown held; Undo works" },
-  "s4-timer": { dev: "phone", who: "all", annot: true, title: "Try it: tap Tue, then press and hold anywhere in the flyout", rows: [{ d: day("Tue", []) }, { d: day("Wed", [m("Japanese golden curry", "all")]) }] }
+  "s4-timer": { dev: "phone", who: "all", title: "Try it: tap Tue, then rest the mouse on the flyout, then move off", rows: [{ d: day("Tue", []) }, { d: day("Wed", [m("Japanese golden curry", "all")]) }] }
 };
 function init() {
   [].forEach.call(document.querySelectorAll("[data-frame]"), function (h) { var c = DEF[h.dataset.frame]; if (c) { h.__cfg = c; build(h); } });
 }
-window.PDFR = { HOLD: HOLD, MIN: MIN, view: view, frames: frames, join: join };
+window.PDFR = { HOLD: HOLD, view: view, frames: frames, join: join };
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
 })();

@@ -34,31 +34,33 @@
     var snaps = ids.map(function (id) { var it0 = P.item(id); return Object.assign({}, it0, { out: !!it0.out }); });
     var wasShop = { count: S.shop.count, on: Object.assign({}, S.shop.on) }, wasUsed = S.usedAt.slice();
     var restore = function () { snaps.forEach(function (s) { Object.assign(P.item(s.id), s); }); S.shop = wasShop; S.usedAt = wasUsed; };
-    var done = [], said = "", usedNow = 0;
+    var done = [], said = "", usedNow = 0, skipped = 0;
     var now = Date.now(), recent = S.usedAt.filter(function (t) { return now - t < 5 * 60 * 1000; }).length;
     for (var n = 0; n < ids.length; n++) {
       var it = P.item(ids[n]); if (!it) continue;
       var nm = P.label(it);
       if (kind === "shop") {
-        if (S.shop.on[it.id]) { if (ids.length === 1) { P.say(it.name + " is already on your list", false); return { result: "already", id: it.id }; } continue; }
+        if (S.shop.on[it.id]) { if (ids.length === 1) { P.say(it.name + " is already on your list", false); return { result: "already", id: it.id }; } skipped++; continue; }
         S.shop.on[it.id] = true; S.shop.count++; done.push(it.id); said = nm + " added to your list";
-      } else if (it.out) { continue; }
+      } else if (it.out) { skipped++; continue; }
       else if (kind === "one" && P.counted(it) && it.n > 1) { it.n--; done.push(it.id); said = nm + ": " + P.left(it) + " left"; }
-      else if (kind === "one" && !P.counted(it)) { if (ids.length === 1) { P.say(it.name + " is not counted, so there is no Use one. Change its level instead.", false); return { result: "notcounted", id: it.id }; } continue; }
+      else if (kind === "one" && !P.counted(it)) { if (ids.length === 1) { P.say(it.name + " is not counted, so there is no Use one. Change its level instead.", false); return { result: "notcounted", id: it.id }; } skipped++; continue; }
       else {
         /* used up (also the last of a counted item). The removal guardrail (store.ts REMOVAL_GUARD): the third used-up inside 5 minutes answers 409 and changes nothing. */
-        if (!opts.confirmed && recent + usedNow >= 2) {
+        if (!opts.confirmed && !opts.batch && recent + usedNow >= 2) {
           restore();
           if (S.guard === "today") { P.say("Several items were used up just now. Open the item to confirm.", false); return { result: "409", id: it.id }; }
           var again = ids.slice();
           P.say("Several items were used up just now. Use up " + (again.length === 1 ? it.name.toLowerCase() : again.length + " items") + " anyway?", false, [{ label: "Use up", fn: function () { P.do("all", again, { confirmed: true }); } }, { label: "Not now", fn: function () { var b = bar(); b.hidden = true; } }]);
           return { result: "409", id: it.id };
         }
-        it.out = true; usedNow++; S.usedAt.push(Date.now()); done.push(it.id); said = nm + " used up";
+        it.out = true; usedNow++; if (!opts.batch) S.usedAt.push(Date.now()); done.push(it.id); said = nm + " used up";
       }
     }
     if (!done.length) { P.say(kind === "shop" ? "Already on your list" : "Nothing to change", false); return { result: "none" }; }
-    if (ids.length > 1) said = done.length + (done.length === 1 ? " item" : " items") + (kind === "shop" ? " added to your list" : kind === "one" ? " used one of" : " used up");
+    /* opts.batch (the decided view, several rows picked): the whole batch counts as ONE deliberate used-up for the third-in-five-minutes guardrail (open question DA-Q4, recommended position), and the sentence names how many were done. */
+    if (opts.batch && usedNow) S.usedAt.push(Date.now());
+    if (ids.length > 1) said = done.length + (done.length === 1 ? " item" : " items") + (kind === "shop" ? " added to your list" : kind === "one" ? " used one of" : " used up") + (skipped ? ", " + skipped + (kind === "shop" ? " already on it" : kind === "one" ? " not counted" : " already out") : "");
     S.last = { restore: restore };
     P.say(said, true); P.changed();
     return { result: kind, ids: done };
