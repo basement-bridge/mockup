@@ -1,0 +1,260 @@
+{
+ "1440x900 typical dark": {
+  "#ingb": 0,
+  "#metb": 0,
+  "#notb": 0,
+  "#right": 0,
+  "page": 0,
+  "hx": 0
+ },
+ "1440x900 typical light": {
+  "#ingb": 0,
+  "#metb": 0,
+  "#notb": 0,
+  "#right": 0,
+  "page": 0,
+  "hx": 0
+ },
+ "1440x900 long dark": {
+  "#ingb": 372,
+  "#metb": 360,
+  "#notb": 0,
+  "#right": 0,
+  "page": 0,
+  "hx": 0
+ },
+ "1440x900 long light": {
+  "#ingb": 372,
+  "#metb": 360,
+  "#notb": 0,
+  "#right": 0,
+  "page": 0,
+  "hx": 0
+ },
+ "1440x900 notes dark": {
+  "#ingb": 0,
+  "#metb": 0,
+  "#notb": 186,
+  "#right": 0,
+  "page": 0,
+  "hx": 0
+ },
+ "1440x900 notes light": {
+  "#ingb": 0,
+  "#metb": 0,
+  "#notb": 186,
+  "#right": 0,
+  "page": 0,
+  "hx": 0
+ },
+ "1440x900 short dark": {
+  "#ingb": 0,
+  "#metb": 0,
+  "page": 0,
+  "hx": 0
+ },
+ "1440x900 short light": {
+  "#ingb": 0,
+  "#metb": 0,
+  "page": 0,
+  "hx": 0
+ },
+ "1440x900 nocooked dark": {
+  "#ingb": 0,
+  "#metb": 0,
+  "page": 0,
+  "hx": 0
+ },
+ "1440x900 nocooked light": {
+  "#ingb": 0,
+  "#metb": 0,
+  "page": 0,
+  "hx": 0
+ },
+ "1440x900 cooked dark": {
+  "#ingb": 0,
+  "#metb": 0,
+  "#right": 0,
+  "page": 0,
+  "hx": 0
+ },
+ "1440x900 cooked light": {
+  "#ingb": 0,
+  "#metb": 0,
+  "#right": 0,
+  "page": 0,
+  "hx": 0
+ },
+ "1280x720 typical dark": {
+  "#ingb": 0,
+  "#metb": 0,
+  "#notb": 0,
+  "#right": 0,
+  "page": 0,
+  "hx": 0
+ },
+ "1280x720 typical light": {
+  "#ingb": 0,
+  "#metb": 0,
+  "#notb": 0,
+  "#right": 0,
+  "page": 0,
+  "hx": 0
+ },
+ "1280x720 long dark": {
+  "#ingb": 581,
+  "#metb": 557,
+  "#notb": 0,
+  "#right": 0,
+  "page": 0,
+  "hx": 0
+ },
+ "1280x720 long light": {
+  "#ingb": 581,
+  "#metb": 557,
+  "#notb": 0,
+  "#right": 0,
+  "page": 0,
+  "hx": 0
+ },
+ "1280x720 notes dark": {
+  "#ingb": 0,
+  "#metb": 0,
+  "#notb": 280,
+  "#right": 0,
+  "page": 0,
+  "hx": 0
+ },
+ "1280x720 notes light": {
+  "#ingb": 0,
+  "#metb": 0,
+  "#notb": 280,
+  "#right": 0,
+  "page": 0,
+  "hx": 0
+ },
+ "1280x720 short dark": {
+  "#ingb": 0,
+  "#metb": 0,
+  "page": 0,
+  "hx": 0
+ },
+ "1280x720 short light": {
+  "#ingb": 0,
+  "#metb": 0,
+  "page": 0,
+  "hx": 0
+ },
+ "1280x720 nocooked dark": {
+  "#ingb": 0,
+  "#metb": 0,
+  "page": 0,
+  "hx": 0
+ },
+ "1280x720 nocooked light": {
+  "#ingb": 0,
+  "#metb": 0,
+  "page": 0,
+  "hx": 0
+ },
+ "1280x720 cooked dark": {
+  "#ingb": 0,
+  "#metb": 0,
+  "#right": 0,
+  "page": 0,
+  "hx": 0
+ },
+ "1280x720 cooked light": {
+  "#ingb": 0,
+  "#metb": 0,
+  "#right": 0,
+  "page": 0,
+  "hx": 0
+ },
+ "1920x1080 typical dark": {
+  "#ingb": 0,
+  "#metb": 0,
+  "#notb": 0,
+  "#right": 0,
+  "page": 0,
+  "hx": 0
+ },
+ "1920x1080 typical light": {
+  "#ingb": 0,
+  "#metb": 0,
+  "#notb": 0,
+  "#right": 0,
+  "page": 0,
+  "hx": 0
+ },
+ "1920x1080 long dark": {
+  "#ingb": 223,
+  "#metb": 376,
+  "#notb": 0,
+  "#right": 0,
+  "page": 0,
+  "hx": 0
+ },
+ "1920x1080 long light": {
+  "#ingb": 223,
+  "#metb": 376,
+  "#notb": 0,
+  "#right": 0,
+  "page": 0,
+  "hx": 0
+ },
+ "1920x1080 notes dark": {
+  "#ingb": 0,
+  "#metb": 0,
+  "#notb": 0,
+  "#right": 0,
+  "page": 0,
+  "hx": 0
+ },
+ "1920x1080 notes light": {
+  "#ingb": 0,
+  "#metb": 0,
+  "#notb": 0,
+  "#right": 0,
+  "page": 0,
+  "hx": 0
+ },
+ "1920x1080 short dark": {
+  "#ingb": 0,
+  "#metb": 0,
+  "page": 0,
+  "hx": 0
+ },
+ "1920x1080 short light": {
+  "#ingb": 0,
+  "#metb": 0,
+  "page": 0,
+  "hx": 0
+ },
+ "1920x1080 nocooked dark": {
+  "#ingb": 0,
+  "#metb": 0,
+  "page": 0,
+  "hx": 0
+ },
+ "1920x1080 nocooked light": {
+  "#ingb": 0,
+  "#metb": 0,
+  "page": 0,
+  "hx": 0
+ },
+ "1920x1080 cooked dark": {
+  "#ingb": 0,
+  "#metb": 0,
+  "#right": 0,
+  "page": 0,
+  "hx": 0
+ },
+ "1920x1080 cooked light": {
+  "#ingb": 0,
+  "#metb": 0,
+  "#right": 0,
+  "page": 0,
+  "hx": 0
+ }
+}
