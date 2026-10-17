@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Household activity</title><link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><script src="../../theme.js"></script>
+<style>
+.decs li,.qs li{margin-bottom:8px;font-size:14px}
+.links{display:flex;flex-wrap:wrap;gap:6px}
+.links a{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border-radius:99px;border:1px solid var(--border);background:var(--bg);font-size:13px;font-weight:600}
+.links a:hover{border-color:var(--accent)}
+.frs{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;margin-top:10px}
+.fig{flex:0 1 250px;min-width:0}
+.fig h3{margin:0 0 4px;font:800 15px var(--head)}
+.fr{width:242px;height:330px;border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden;background:var(--bg);position:relative}
+.fr iframe{position:absolute;left:0;top:0;width:390px;height:532px;border:0;transform:scale(.62);transform-origin:0 0}
+.figw{margin-top:12px}.figw h3{margin:0 0 4px;font:800 15px var(--head)}
+.frd{display:inline-block;vertical-align:top;margin:0 12px 12px 0;width:320px;max-width:100%;height:200px;border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden;position:relative}
+.frd iframe{position:absolute;left:0;top:0;width:1280px;height:800px;border:0;transform:scale(.25);transform-origin:0 0}
+.idea{display:inline-block;font-size:12px;font-weight:800;padding:3px 10px;border-radius:var(--r-pill);border:1px dashed var(--accent);color:var(--accent)}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Household activity: tell other members what changed</h1>
+<p><span class="idea">Kitchie #110. Phone and desktop. Mockup, nothing built here; Level 1 is already in Kitchie main.</span></p>
+<p style="margin-top:8px">When other people in the household add things or use them up, the member sees a small bell with a number in the header (a rail item on desktop). Tapping it shows who did what in one line per person and burst, then leads to History&rsquo;s locked &ldquo;Since you were last here&rdquo; catch-up. A setting on the device can switch it off. Device notifications (Level 2) are drawn as an idea only. Tap the bell in the live frames to try it.</p>
+
+<div class="sec"><div class="lbl">Open it</div>
+<div class="links">
+<a href="app.html?scene=few">Phone: 4 new</a>
+<a href="app.html?scene=few&amp;open=peek">Phone: the peek</a>
+<a href="app.html?scene=one">1 new</a>
+<a href="app.html?scene=many">9+ new</a>
+<a href="app.html?scene=many&amp;open=peek">9+ and the peek</a>
+<a href="app.html?scene=none">Nothing new (no bell)</a>
+<a href="app.html?scene=few&amp;option=a">Option A: straight to History</a>
+<a href="app.html?screen=settings&amp;push=off">Settings</a>
+<a href="app.html?screen=settings&amp;pref=0">Setting off</a>
+<a href="app.html?screen=settings&amp;push=on">Level 2 on</a>
+<a href="app.html?screen=settings&amp;push=blocked">Level 2 blocked</a>
+<a href="app.html?screen=settings&amp;push=ios">Level 2 on iPhone</a>
+<a href="desktop.html?scene=few">Desktop: 4 new</a>
+<a href="desktop.html?scene=many&amp;open=peek">Desktop: the peek</a>
+<a href="desktop.html?open=settings&amp;push=on">Desktop: Settings</a>
+<a href="app.html?theme=kitchie-day&amp;scene=few&amp;open=peek">Light</a><a href="app.html?theme=kitchie&amp;scene=few&amp;open=peek">Dark</a>
+</div></div>
+
+<div class="sec"><div class="lbl">The states (phone)</div>
+<div class="frs">
+<div class="fig"><h3>4 new</h3><div class="fr"><iframe loading="lazy" title="4 new" src="app.html?theme=kitchie-day&amp;scene=few"></iframe></div></div>
+<div class="fig"><h3>The peek (option B)</h3><div class="fr"><iframe loading="lazy" title="The peek" src="app.html?theme=kitchie-day&amp;scene=few&amp;open=peek"></iframe></div></div>
+<div class="fig"><h3>9+ and a long day</h3><div class="fr"><iframe loading="lazy" title="Nine plus peek" src="app.html?theme=kitchie-day&amp;scene=many&amp;open=peek"></iframe></div></div>
+<div class="fig"><h3>Dark, 9+</h3><div class="fr"><iframe loading="lazy" title="Dark nine plus" src="app.html?theme=kitchie&amp;scene=many"></iframe></div></div>
+<div class="fig"><h3>Setting and Level 2 idea</h3><div class="fr"><iframe loading="lazy" title="Settings" src="app.html?theme=kitchie-day&amp;screen=settings&amp;push=on"></iframe></div></div>
+<div class="fig"><h3>Dark, blocked in the browser</h3><div class="fr"><iframe loading="lazy" title="Blocked" src="app.html?theme=kitchie&amp;screen=settings&amp;push=blocked"></iframe></div></div>
+</div>
+<div class="figw"><h3>Desktop (1280 wide): bell in the rail, peek in the lane</h3><div class="frd"><iframe loading="lazy" title="Desktop, 4 new" src="desktop.html?theme=kitchie-day&amp;scene=few"></iframe></div><div class="frd"><iframe loading="lazy" title="Desktop, peek" src="desktop.html?theme=kitchie-day&amp;scene=many&amp;open=peek"></iframe></div><div class="frd"><iframe loading="lazy" title="Desktop, settings, dark" src="desktop.html?theme=kitchie&amp;open=settings&amp;push=on"></iframe></div>
+</div></div>
+
+<div class="sec"><div class="lbl">What the owner said (Kitchie #110, 1 October 2026) and decided</div>
+<ul class="decs">
+<li><b>HA-D1</b> Build Level 1 (in-app) only for now; device notifications later (&ldquo;build to L1&rdquo;). Level 1 is in Kitchie main (PR #126).</li>
+<li><b>HA-D2</b> Changes with no known person (the shared AI address) notify everybody.</li>
+<li><b>HA-D3</b> Each recipient&rsquo;s own setting decides whether they see it (&ldquo;respecting the recipients setting for notification in their browser&rdquo;). Drawn as a per-device Settings row, on by default.</li>
+<li><b>HA-D4</b> Counted: items added and items used up (&ldquo;Added and use up&rdquo;). A plain removal is not.</li>
+<li><b>HA-D5</b> Level 1 as in the issue: others only, one cursor per member, one summary per burst, 24-hour cue, no polling, History stays the durable record.</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">Choices the mockup made where the owner was silent (Proposal)</div>
+<ul class="decs">
+<li><b>HA-P1</b> Phone: bell left of the profile button. Desktop: a rail item above the profile button.</li>
+<li><b>HA-P2</b> Badge from the tokens (accent, on-accent), not the built red.</li>
+<li><b>HA-P3</b> A tap opens a peek first (option B, recommended), then History; option A (straight to History, as built) is kept.</li>
+<li><b>HA-P4</b> One row per person per kind within 30 minutes; up to four rows, then &ldquo;and n more in History&rdquo;; counts only, never item names; the shared address is &ldquo;Someone&rdquo;.</li>
+<li><b>HA-P5</b> Two cursors: the bell moves when the peek or History opens; the catch-up moves only on its tick (H11); the tick also clears the bell.</li>
+<li><b>HA-P6</b> The cue ends after 24 hours; a busy day shows 9+ and four rows, not a flood.</li>
+<li><b>HA-P7</b> Hidden at zero; stays pressed while the peek is open.</li>
+<li><b>HA-P8</b> Setting on by default, a check row, off hides the bell and (later) pushes on this device.</li>
+<li><b>HA-P9</b> Only household-visible changes count; others&rsquo; personal records never do; recipe and plan changes not yet.</li>
+<li><b>HA-P10</b> Desktop: Ctrl/Cmd+Enter closes the peek; no open key.</li>
+<li><b>HA-P11</b> Level 2 card, its states, and a counts-only notification: idea only, <b>not approved</b>.</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">Open questions (recommended position, and what a wrong guess costs)</div>
+<ul class="qs">
+<li><b>HA-Q1</b> What did &ldquo;default household activity remove&rdquo; mean? Recommended: the setting is on by default and plain removals are not counted. Cost: a filter line and a default flag.</li>
+<li><b>HA-Q2</b> Can the journal tell &ldquo;used up&rdquo; from &ldquo;removed&rdquo;? Built Level 1 counts both. Recommended: if it cannot, say &ldquo;used up or removed&rdquo; until it can. Cost: wording.</li>
+<li><b>HA-Q3</b> Is &ldquo;the browser setting&rdquo; the in-app setting (Level 1) or the browser&rsquo;s notification permission (Level 2)? Recommended: Level 1 now; a push, if approved, needs both and never prompts before the person taps Turn on.</li>
+<li><b>HA-Q4</b> Should opening the bell mark the catch-up caught up? Recommended: no (H11); the tick clears the bell.</li>
+<li><b>HA-Q5</b> Peek first (B) or straight to History (A)? Recommended: B.</li>
+<li><b>HA-Q6</b> Do recipe and plan changes count? Recommended: not yet.</li>
+<li><b>HA-Q7</b> A desktop key for the bell, or the rail placement? Recommended: rail, no key.</li>
+<li><b>HA-Q8</b> Level 2 (device push) needs the owner&rsquo;s explicit approval: a VAPID secret, a subscription table, a new outbound path, a public endpoint to protect, iPhone only from the Home Screen (iOS 16.4+), a debounce check first. Recommended: keep it deferred.</li>
+<li><b>HA-Q9</b> Is &ldquo;Someone&rdquo; right for the shared AI address? Recommended: yes until personal links are required.</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">How it fits the locked History decisions</div>
+<p>The peek and the notification both lead to the catch-up (H4, H8). The bell&rsquo;s 24 hours and counts are a different job from the catch-up&rsquo;s three days with activity (H6). Opening the bell never marks the catch-up caught up (H11). An assistant on a personal link shows as that person (H10). Others&rsquo; personal entries stay private (D6, D7).</p></div>
+
+<div class="sec"><div class="lbl">What loads, and what waits (DESIGN.md section 6)</div>
+<p>Default path: the bell markup (about 0.4 KB, hidden at zero) and about 1.5 KB of CSS. The number and rows ride the existing <code>/changes</code> call; no polling. Deferred: the peek is drawn on tap from data already in the page, in place; one small request moves the cursor on open; History loads only if tapped. Level 2, if ever approved, loads nothing until Turn on. Full notes, the build differences and the proposals in detail: <code>docs/knowledge/household-activity.md</code>.</p></div>
+</div></body></html>

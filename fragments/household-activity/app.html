@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Household activity, phone — mockup</title>
+<link rel="stylesheet" href="../../theme.css"><script src="../../theme.js"></script>
+<script>try{var t=new URLSearchParams(location.search).get("theme");if(t==="kitchie"||t==="kitchie-day")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<link rel="stylesheet" href="activity.css"></head>
+<body data-no-theme-fab data-form="phone">
+<!-- Phone: the header with the bell left of the profile button (the app's .hdr order: activity, profile, search). The Pantry under it is mock chrome only. Notes: docs/knowledge/household-activity.md -->
+<div class="stage"><div class="phone" id="phone">
+  <div class="top"><span id="toptitle">Our kitchen</span>
+    <div class="hdr">
+      <a class="icon activity-badge" id="activity" href="../../history/option-d/index.html" aria-label="No new changes" title="No new changes" hidden><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 17V11a6 6 0 0 1 12 0v6l1.5 2h-15z"/><path d="M10 21a2 2 0 0 0 4 0"/></svg><span class="n">0</span></a>
+      <button type="button" class="av" id="profile" aria-label="Profile">A</button>
+    </div>
+  </div>
+  <div class="body" id="body">
+    <div class="ribbon" role="group" aria-label="Location"><button class="rc2 on" aria-pressed="true">All</button><button class="rc2">Unplaced</button><button class="rc2">Freezer</button><button class="rc2">Fridge</button></div>
+    <div id="plist"></div>
+  </div>
+</div></div>
+<script src="sample.js"></script>
+<script>
+(function(){var g={};window.HA_ITEMS.forEach(function(i){(g[i[0]]=g[i[0]]||[]).push(i)});
+document.getElementById("plist").innerHTML=Object.keys(g).map(function(k){return '<section class="group"><h2>'+k+'</h2><ul class="rows">'+g[k].map(function(i){return '<li class="rowx"><div><div class="name">'+i[1]+'</div><div class="meta">'+k+' · '+i[2]+'</div></div></li>'}).join("")+'</ul></section>'}).join("")})();
+</script>
+<script src="activity.js"></script>
+</body></html>
