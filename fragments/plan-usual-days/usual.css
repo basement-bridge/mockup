@@ -1,0 +1,61 @@
+/* Meal planning flyout, usual days off (Kitchie #860). Shared by phone and desktop; tokens only, no raw colours. The container rules are in sheet.css (phone) and lane.css (desktop).
+   Class names are the ones the build will use (.ud-*). Chip states, for a person's row:
+     filled            = not cooking (as the days have always read)
+     dashed border     = follows the household (nothing of the person's own)
+     solid + a dot     = set by the person
+   so "off, from the household" is a tinted dashed chip, "off, set by you" the solid filled chip with a dot, "open, set by you" a solid accent ring with a dot, "open, follows" the plain dashed chip. */
+.ud{color:var(--fg);font-family:var(--body);display:flex;flex-direction:column;min-height:0}
+.ud-scroll{overflow:auto;min-height:0;padding:0}
+.ud-pt{display:flex;align-items:flex-start;gap:12px}
+.ud-pt>div{flex:1;min-width:0}
+.ud-pt h2{margin:0;font:800 18px var(--head);overflow-wrap:anywhere}
+.ud-sub{margin:2px 0 0;font-size:13px;color:var(--muted)}
+.ud-x{width:var(--tap);height:var(--tap);border-radius:50%;border:1px solid var(--border);background:var(--bg);color:var(--fg);flex:none;display:grid;place-items:center;padding:0;cursor:pointer}
+.ud-x svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.ud-x:hover{border-color:var(--accent)}
+.ud-lbl{margin:16px 0 4px;font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.ud-lbl span{font-weight:700}
+.ud-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin:8px 0}
+@media (max-width:374px){.ud-days{gap:3px}}
+.ud-d{position:relative;min-width:0;min-height:var(--tap);padding:0;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);color:var(--fg);font:700 14px var(--body);cursor:pointer}
+.ud-d:hover:not(:disabled){border-color:var(--accent)}
+.ud-d[aria-pressed=true]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.ud-d:disabled{cursor:default;opacity:.7}
+/* a person's chips */
+.ud-d[data-src=household]{border-style:dashed;border-color:var(--muted)}
+.ud-d[data-src=household][aria-pressed=true]{background:color-mix(in srgb,var(--accent) 26%,var(--surface));color:var(--fg);border-color:var(--accent)}
+.ud-d[data-src=own][data-eff=open]{border:2px solid var(--accent);color:var(--accent);background:var(--surface)}
+.ud-dot{position:absolute;top:6px;right:8px;width:6px;height:6px;border-radius:50%;background:currentColor}
+.ud-d[aria-expanded=true]{outline:2px solid var(--accent);outline-offset:2px}
+.ud:focus{outline:none}
+.ud button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* hints, status, the three choices for one day */
+.ud-hint{margin:0 0 2px;font-size:12px;line-height:1.4;color:var(--muted)}
+.ud-diff{color:var(--fg)}
+.ud-say{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:6px 0 4px;padding:8px 12px;border-radius:var(--r-ctl);background:var(--bg);border:1px solid var(--border);font-size:13px;color:var(--fg)}
+.ud-hr{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ud-hr .ud-hint{flex:1;min-width:0}
+.ud-link{display:inline-flex;align-items:center;flex:none;min-height:var(--tap);padding:0 6px;border:0;background:none;color:var(--accent);font:700 12px var(--body);cursor:pointer}
+.ud-pick{margin:4px 0 8px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--bg);overflow:hidden}
+.ud-pick-h{margin:0;padding:8px 12px 2px;font-size:12px;font-weight:800;color:var(--muted)}
+.ud-opt{display:flex;align-items:center;gap:12px;width:100%;min-height:var(--tap);padding:0 12px;border:0;border-top:1px solid var(--border);background:none;color:var(--fg);font:600 14px var(--body);text-align:left;cursor:pointer}
+.ud-pick-h+.ud-opt{border-top:0}
+.ud-opt em{font-style:normal;font-weight:700;color:var(--muted)}
+.ud-opt:hover{background:var(--surface)}
+.ud-rd{flex:none;width:18px;height:18px;border-radius:50%;border:2px solid var(--border);background:var(--surface)}
+.ud-opt[aria-checked=true]{background:var(--surface)}
+.ud-opt[aria-checked=true] .ud-rd{border-color:var(--accent);background:radial-gradient(circle,var(--accent) 0 4px,var(--surface) 5px)}
+/* how to read the chips */
+.ud-key{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;margin:18px 0 4px;padding-top:12px;border-top:1px solid var(--border);font-size:12px;color:var(--muted)}
+.ud-k{display:flex;align-items:center;gap:8px;min-width:0}
+.ud-sw{flex:none;width:34px;min-height:22px;height:22px;border-radius:var(--r-pill);pointer-events:none}
+.ud-sw .ud-dot{top:5px;right:6px;width:5px;height:5px}
+.ud-sw[data-eff=off]{background:var(--accent)}
+.ud-sw[data-eff=off][data-src=household]{background:color-mix(in srgb,var(--accent) 26%,var(--surface))}
+.ud-sw[data-eff=off][data-src=own]{color:var(--on-accent)}
+.ud-sw[data-eff=open]{background:var(--surface)}
+.ud-sw[data-src=household][data-eff=open]{border:1px dashed var(--muted)}
+.ud-sw[data-src=household][data-eff=off]{border:1px dashed var(--accent)}
+.ud-sw[data-src=own][data-eff=off]{border:1px solid var(--accent)}
+.ud-sw[data-src=own][data-eff=open]{border:2px solid var(--accent);color:var(--accent)}
+.ud-done{display:block;width:100%;min-height:var(--tap);margin-top:14px;border-radius:var(--r-ctl);border:1px solid var(--accent);background:var(--accent);color:var(--on-accent);font:700 15px var(--body);cursor:pointer}
