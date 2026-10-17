@@ -6,7 +6,7 @@
 
 Style follows `docs/handover/desktop.md` (the Pantry and Home desktop handover). Read `AGENTS.md` and `DESIGN.md` in this repo first; the rules that bite are in sections 9 and 10.
 
-**Off days flyout, 17 October 2026 (Kitchie #860):** the usual-days flyout now has a Household row, the person wins, and no Categories row; drawn in `fragments/plan-usual-days/`, notes in `docs/knowledge/plan-usual-days.md` (decisions UD-D1 to UD-D12, proposals UD-P1 to UD-P12). This option's own flyout keeps one row per person and points there.
+**Off days flyout, 17 October 2026 (Kitchie #860):** the usual-days flyout now has a Household row, the person wins, and no Categories row; drawn in `fragments/plan-usual-days/`, notes in `docs/knowledge/plan-usual-days.md` (decisions UD-D1 to UD-D20, proposals UD-P1 to UD-P13; no legend, a dotted ring marks a day that differs from the household, a tap resets it). This option's own flyout keeps one row per person and points there.
 
 ## 1. The ask, in the owner's words
 

@@ -16,14 +16,14 @@
   function who() { return P.view === "mine" ? S.me : P.view; }
   function night(d, i) {
     var v = P.view, off, src, own = null;
-    if (v === "household") { off = UD.hhOff(d); src = "household"; }  /* the household\u2019s own days are neither inherited nor a person\u2019s own */
+    if (v === "household") { off = UD.hhOff(d); src = "household"; }  /* the household\u2019s own days are the source: neither the same as it nor different from it */
     else { var x = UD.eff(who(), d); off = x.off; src = x.src; }
     var ro = v !== "mine", lifted = !ro && off && P.lift[d];
     var tile;
     if (off && !lifted) {
-      var sub = src === "inherited" ? "Every week, usual day off (inherited)" : "Every week, usual day off";
+      var same = src === "same", sub = same ? "Every week, usual day off, same as household" : "Every week, usual day off";
       var inner = MOON + '<span class="bt"><b>Not cooking</b><small>' + sub + (ro ? "" : " · tap to cook this week") + "</small></span>";
-      tile = ro ? '<div class="pg-blk' + (src === "inherited" ? " inh" : "") + '">' + inner + "</div>" : '<button type="button" class="pg-blk' + (src === "inherited" ? " inh" : "") + '" data-lift="' + d + '" aria-label="Not cooking ' + FULL[i] + ', ' + (src === "inherited" ? "usual day off, inherited" : "usual day off") + '. Tap to cook this week">' + inner + "</button>";
+      tile = ro ? '<div class="pg-blk">' + inner + "</div>" : '<button type="button" class="pg-blk" data-lift="' + d + '" aria-label="Not cooking ' + FULL[i] + ', ' + (same ? "usual day off, same as household" : "usual day off") + '. Tap to cook this week">' + inner + "</button>";
     } else {
       tile = (lifted ? '<p class="pg-ovt">Usual day off, cooking this week</p>' : "") + (lifted ? '<button type="button" class="pg-open" data-lift="' + d + '">' + OPEN + "<span>Open night</span></button>" : '<div class="pg-open">' + OPEN + "<span>Open night</span></div>");
     }
@@ -43,7 +43,7 @@
     var d = S.data, a = S.admin;
     function b(k, t) { return '<button type="button" data-data="' + k + '" aria-pressed="' + (d === k) + '">' + t + "</button>"; }
     return '<div class="pg-mock" role="group" aria-label="Mockup only"><b>Mockup only</b>' +
-      '<div class="pg-mg" role="group" aria-label="Sample household"><span>Household</span><div class="pg-seg">' + b("typical", "Some set") + b("empty", "None yet") + b("everyday", "Sam sets every day") + b("solo", "Only Sam") + b("solohh", "Only Sam, household days left") + b("removed", "Jane removed") + "</div></div>" +
+      '<div class="pg-mg" role="group" aria-label="Sample household"><span>Household</span><div class="pg-seg">' + b("typical", "Some set") + b("empty", "None yet") + b("everyday", "Sam differs every day") + b("solo", "Only Sam") + b("solohh", "Only Sam, household days left") + b("removed", "Jane removed") + "</div></div>" +
       '<div class="pg-mg" role="group" aria-label="Sam is"><span>Sam is</span><div class="pg-seg"><button type="button" data-admin="1" aria-pressed="' + a + '">An admin</button><button type="button" data-admin="0" aria-pressed="' + !a + '">A member</button></div></div></div>';
   }
   function draw() {
