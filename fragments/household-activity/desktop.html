@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Household activity, desktop — mockup</title>
+<link rel="stylesheet" href="../../theme.css"><script src="../../theme.js"></script>
+<script>try{var t=new URLSearchParams(location.search).get("theme");if(t==="kitchie"||t==="kitchie-day")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<link rel="stylesheet" href="activity.css"></head>
+<body data-no-theme-fab data-form="desktop">
+<!-- Desktop (1024px and up): rail, 640px column, 400px lane. The bell is a rail item above the profile button; its peek opens in the lane. The Pantry column is mock chrome only. Notes: docs/knowledge/household-activity.md -->
+<div class="app">
+  <nav class="rail" aria-label="Main">
+    <div class="brand">Our kitchen</div>
+    <a class="nv" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-7 8 7v8.5a1.5 1.5 0 0 1-1.5 1.5h-3.5v-6h-6v6H5.5A1.5 1.5 0 0 1 4 19.5z"/></svg>Home</a>
+    <a class="nv cur" href="#" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7.5h10a2 2 0 0 1 2 2V18a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 5 18V9.5a2 2 0 0 1 2-2z"/></svg>Pantry</a>
+    <a class="nv" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1zM4 10h16M8 3.5V7M16 3.5V7"/></svg>Plan</a>
+    <a class="nv" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2.5l2.2 10.2a1 1 0 0 0 1 .8h8.8a1 1 0 0 0 1-.8L20 8H6.2"/></svg>Shopping<span class="c">3</span></a>
+    <div class="grow"></div>
+    <a class="nv activity-badge" id="activity" href="../../history/option-d/index.html" aria-label="No new changes" title="No new changes" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 17V11a6 6 0 0 1 12 0v6l1.5 2h-15z"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>Activity<span class="n">0</span></a>
+    <button type="button" class="av" id="profile" aria-label="Profile">A</button>
+  </nav>
+  <main class="main"><div class="col">
+    <div class="hd"><h1>14 items</h1><button type="button" class="tbtn">Filters</button><button type="button" class="tbtn">Add</button></div>
+    <div id="plist"></div>
+  </div></main>
+  <aside class="panel" id="lane" aria-label="Side panel"><div class="pempty"><b>Pick an item to see it here</b><p>Nothing is open.</p></div></aside>
+</div>
+<script src="sample.js"></script>
+<script>
+(function(){var g={};window.HA_ITEMS.forEach(function(i){(g[i[0]]=g[i[0]]||[]).push(i)});
+document.getElementById("plist").innerHTML=Object.keys(g).map(function(k){return '<section class="group"><h2>'+k+'</h2><ul class="rows">'+g[k].map(function(i){return '<li class="rowx"><div><div class="name">'+i[1]+'</div><div class="meta">'+k+' · '+i[2]+'</div></div></li>'}).join("")+'</ul></section>'}).join("")})();
+</script>
+<script src="activity.js"></script>
+</body></html>
