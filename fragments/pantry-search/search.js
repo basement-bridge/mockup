@@ -49,12 +49,10 @@
     var q = S.q.trim().toLowerCase();
     var items = ITEMS.filter(function (i) { return (S.chip === "All" || (S.chip === "Unplaced" ? !i.area : i.area === S.chip)) && (!q || i.name.toLowerCase().indexOf(q) > -1); });
     var out = "";
+    if (!q) window.PSNoResult.reset();
     if (!items.length) {
       var other = q && S.chip !== "All" && ITEMS.some(function (i) { return i.name.toLowerCase().indexOf(q) > -1; });
-      out = '<div class="empty" id="noresult"><span class="eic" aria-hidden="true">' + I.none + "</span>" +
-        (q ? "<b>No &ldquo;" + esc(S.q.trim()) + "&rdquo; in " + (S.chip === "All" ? "your pantry" : esc(S.chip)) + "</b><p>" + (other ? "It is in another place." : "Check the spelling, or add it.") + "</p>" +
-          (other ? '<button class="btn" id="all-places">Search all places</button>' : '<button class="btn pri" id="add-q">' + I.plus + "Add &ldquo;" + esc(S.q.trim()) + "&rdquo;</button>")
-          : "<b>Nothing here yet</b><p>Add what you have.</p>") + "</div>";
+      out = window.PSNoResult.html(S.q, S.chip === "All" ? "your pantry" : S.chip, other);   /* noresult.js: the message and, for #807, the two actions */
     } else {
       var groups = ["Fridge", "Pantry", "Freezer", ""].filter(function (g) { return items.some(function (i) { return (i.area || "") === g; }); });
       out = groups.map(function (g) {
@@ -134,7 +132,6 @@
     document.addEventListener("click", function (e) {
       var c = e.target.closest && e.target.closest(".rc2"); if (c) { S.chip = c.dataset.chip; render(); }
       if (e.target.closest && e.target.closest("#all-places")) { S.chip = "All"; render(); }
-      if (e.target.closest && e.target.closest("#add-q")) toast("Add opens with “" + S.q.trim() + "” filled in");
     });
     document.addEventListener("pointerdown", function (e) { if (e.pointerType !== "touch" && e.button === 0) pullStart(e.target, e.clientX, e.clientY); });
     document.addEventListener("pointermove", function (e) { if (e.pointerType !== "touch") pullMove(e.clientX, e.clientY); });
@@ -145,6 +142,14 @@
     document.addEventListener("touchend", function () { pullEnd(); }, { passive: true });
     document.addEventListener("touchcancel", function () { pullCancel(); }, { passive: true });
 
+    /* the nothing-found block (noresult.js). In the app these three are the existing add sheet and the new list route. */
+    window.PSNoResult.init({
+      query: function () { return S.q; }, render: render,
+      addNew: function (t) { toast("Add opens with “" + t + "” filled in"); },
+      addToList: function (t) { return window.PS_SHOP.add(t); },                       /* MOCK: addToShoppingByName */
+      undoList: function (t) { window.PS_SHOP.undo(t); }
+    });
+
     /* ---------- MOCK: demo hooks (?state=open|peek|let|anim  ?q=  ?chip=  ?pull=NN  ?theme=kitchie|kitchie-day) ---------- */
     var Q = new URLSearchParams(location.search);
     if (Q.get("chip")) S.chip = Q.get("chip");
@@ -154,27 +159,11 @@
     if (st === "open" || S.q) { S.open = true; setRow("search"); }
     if (Q.get("pull")) { pl = { x: 0, y: 0, dy: 0, st: null }; var n = +Q.get("pull"); pl.dy = n; show(stateFor(n), n); pl = null; }
     if (st === "anim") playRefresh();
+    if (Q.get("list")) { var lb = $("list-q"); if (lb) { lb.click(); document.activeElement.blur(); } }           /* ?list=1 : as if Add to shopping list had just been tapped (for the notes page frames) */
     window.PantrySearch = { open: function () { openSearch("tap"); }, close: closeSearch, pull: function (n) { pl = { x: 0, y: 0, dy: n, st: null }; show(stateFor(n), n); }, release: function (n) { pl = { x: 0, y: 0, dy: n, st: null }; pullEnd(); }, state: function () { return S; } };
   }
 
-  /* ---------- MOCK: sample data ---------- */
-  var ITEMS = [
-    { name: "Milk", area: "Fridge", amt: "1 litre", due: "Use within 3 days" },
-    { name: "Butter", area: "Fridge", amt: "250 g" },
-    { name: "Carrots", area: "Fridge", amt: "6" },
-    { name: "Cheddar", area: "Fridge", amt: "400 g", due: "Use within 9 days" },
-    { name: "Eggs", area: "Fridge", amt: "10" },
-    { name: "Rice", area: "Pantry", amt: "2 kg" },
-    { name: "Tinned tomatoes", area: "Pantry", amt: "4 cans" },
-    { name: "Pasta", area: "Pantry", amt: "3 packs" },
-    { name: "Olive oil", area: "Pantry", amt: "Plenty" },
-    { name: "Peas", area: "Freezer", amt: "1 bag" },
-    { name: "Chicken thighs", area: "Freezer", amt: "6", due: "Use within 40 days" },
-    { name: "Bread", area: "Freezer", amt: "1 loaf" },
-    { name: "Ice cream", area: "Freezer", amt: "1 tub" },
-    { name: "Coffee beans", area: "", amt: "Some" },
-    { name: "Honey", area: "", amt: "Plenty" }
-  ];
+  var ITEMS = window.PS_ITEMS;
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
   window.PS_ICONS = I;
 })();

@@ -48,15 +48,6 @@
 .addbtn:hover{color:var(--on-accent);border-color:transparent}
 .tbtn{display:inline-flex;align-items:center;gap:6px;min-height:48px;padding:0 1rem;border:1px solid var(--border);border-radius:.8rem;background:var(--surface);font-weight:500;color:var(--fg);cursor:pointer}
 
-/* no results (the list area; the row itself never changes height) */
-.empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding:36px 12px 12px}
-.empty .eic{width:72px;height:72px;border-radius:50%;background:var(--surface);border:1px dashed var(--border);display:inline-flex;align-items:center;justify-content:center;color:var(--accent)}
-.empty b{font:800 18px var(--head);overflow-wrap:anywhere}
-.empty p{margin:0;color:var(--muted);font-size:14px}
-.empty .btn{margin-top:6px}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 18px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--surface);font-weight:700;color:var(--fg);cursor:pointer}
-.btn.pri{background:var(--accent);color:var(--on-accent);border-color:transparent}
-
 /* ===== PART 2: mock chrome only (not for the build) ===== */
 *,*::before,*::after{box-sizing:border-box}
 html,body{margin:0;height:100%;background:var(--stage);color:var(--fg);font-family:var(--body)}

@@ -1,0 +1,29 @@
+/* The "nothing found" block of the Pantry search (phone and desktop). Kitchie #807 adds the second button, the on-list state and the confirmation line.
+   Notes: docs/knowledge/pantry-search.md. All of this is for the build to copy; theme tokens only. */
+.empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding:36px 12px 12px}
+.empty .eic{width:72px;height:72px;border-radius:50%;background:var(--surface);border:1px dashed var(--border);display:inline-flex;align-items:center;justify-content:center;color:var(--accent)}
+.empty b{font:800 18px var(--head);overflow-wrap:anywhere}
+.empty p{margin:0;color:var(--muted);font-size:14px}
+.empty .btn{margin-top:6px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 18px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--surface);font-weight:700;color:var(--fg);cursor:pointer}
+.btn.pri{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.btn svg{flex:none}
+
+/* NEW (#807): the pair, side by side and equal width; a label may take two lines. Both are 44px or taller and share the row's width. */
+.eacts{display:flex;justify-content:center;gap:8px;width:100%;margin-top:6px}
+.eacts .btn{flex:1 1 0;min-width:0;margin-top:0;padding:6px 10px;line-height:1.2;text-align:center;overflow-wrap:anywhere}
+/* the new button is the second, quieter one: an accent outline (the existing Add keeps the filled accent) */
+.btn.sec{border-color:var(--accent);color:var(--accent);background:none}
+.btn.sec:hover{background:var(--surface)}
+/* after the tap, or when the words were already on the list: a label, not a control (the item sheet's "On your list") */
+.btn.on{border-color:var(--border);color:var(--muted);background:none;cursor:default}
+/* the confirmation line, in place under the pair, with Undo */
+.empty .edone{margin:6px 0 0;font-size:14px;color:var(--fg);text-align:center;overflow-wrap:anywhere}
+.edone svg{color:var(--accent);vertical-align:-4px;margin-right:6px}
+.edone .undo{display:flex;margin:0 auto;align-items:center;justify-content:center;min-height:44px;min-width:44px;padding:0 10px;border:0;background:none;color:var(--accent);font:inherit;font-weight:800;text-decoration:underline;cursor:pointer}
+/* a phone narrower than 380px has no room for two labels side by side: they stack, full width */
+@media (max-width:379.98px){.eacts{flex-direction:column;align-items:stretch}}
+/* option not chosen, kept: one under the other with the typed words in each label (?layout=stack) */
+.empty[data-layout=stack] .eacts{flex-direction:column;align-items:stretch}
+@media (prefers-reduced-motion:no-preference){.edone{animation:edone-in .2s ease-out}}
+@keyframes edone-in{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
