@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Recipe detail, desktop option C</title>
+<link rel="stylesheet" href="../../../theme.css">
+<link rel="stylesheet" href="c.css">
+<link rel="stylesheet" href="c-short.css" media="(max-height:800px)">
+<script src="../../../theme.js"></script>
+</head>
+<body>
+<div class="app">
+  <nav class="bar" aria-label="Kitchie (stand-in for the app rail)">
+    <div class="brand">Our kitchen</div>
+    <a class="nv" href="#"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9H3z"/></svg>Home</a>
+    <a class="nv" href="#"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M4 10h16"/></svg>Pantry</a>
+    <a class="nv on" href="#"><svg viewBox="0 0 24 24"><path d="M5 4h11a3 3 0 013 3v13H8a3 3 0 01-3-3z"/></svg>Recipes</a>
+    <a class="nv" href="#"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>Plan</a>
+    <div class="demo">
+      <button type="button" class="demo-b" id="demoB" aria-expanded="false" aria-controls="demoP">Demo</button>
+      <div class="demo-p" id="demoP" hidden></div>
+    </div>
+  </nav>
+  <div class="rtab rd" id="rtab" data-screen="recipe"><!-- filled by c.js from the sample data --></div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<script src="c.js"></script>
+</body>
+</html>

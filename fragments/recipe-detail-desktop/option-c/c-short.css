@@ -1,0 +1,14 @@
+/* Short screens (height 800px or less, e.g. 1280x720): tighter rows so a typical recipe still fits with no inner scroll. Same tokens, spacing only. */
+.top{min-height:56px}
+.top h1{font-size:1.3rem}
+.bandL,.bandR{min-height:52px}
+.tabs [role=tab]{min-height:44px}
+.lblrow{min-height:40px;margin-top:0}
+.ing{min-height:38px}
+.cart{width:32px;height:32px}
+.stp{padding:9px 0}
+.pfoot{padding:6px 0 8px}
+.note{padding:8px 12px;margin-bottom:6px}
+.rrow{padding-bottom:6px}.rb-rc{min-height:30px}
+.pfr{aspect-ratio:16/10}.pfr.ban{aspect-ratio:16/7}
+.note{padding:6px 12px;margin-bottom:5px}
