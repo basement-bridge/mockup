@@ -155,3 +155,5 @@ Window state is a **set of reasons**, not a timer. Each reason is a fragment (or
 - C: "folder named from the Kitchie issue."
 - D: A plus the decision-line convention and the generator and derived-status check in governance.
 - Privacy: "repo visibility and Pages settings are changed only on the owner's explicit instruction at the time (or the standing close rule if he approves it); every open runs the scrub check; every close reports what remained open and why."
+
+Governance item: https://github.com/basement-bridge/governance/issues/63 (enhancement, lane guarded, readiness not-ready; no `approved for build`).
