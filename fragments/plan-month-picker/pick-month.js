@@ -12,7 +12,7 @@ var PK = window.PK, P = window.PKD, S = PK.S, H = window.HDP, R = window.PKRows,
 var BASE = document.currentScript ? document.currentScript.src.replace(/[^\/]*$/, "") : "";
 var quiet = false, el, hold = null, want = null, saved = null, openDay = null, openN = null, view = "list", cur = P.todayN, msg = "", M = null;
 var ANOTHER = Q.get("another") === "header" ? "header" : "row", NARROW = Q.get("w") === "narrow"; /* ?w=narrow: the single-flyout width with compact cells at ANY window size, the same look as ?wide=off and as a 1024 to 1359px window; ?w (normal) goes two flyouts wide when the window is 1360px or more */
-var NUM = /^(a|b|c)$/.test(Q.get("num") || "") ? Q.get("num") : "a", HALO = /^(hold|off)$/.test(Q.get("halo") || "") ? Q.get("halo") : "timed"; /* ?num=a|b|c the date number; ?halo=hold keeps the opening halo on, ?halo=off shows the month after it faded */
+var NUM = /^(a|b|c)$/.test(Q.get("num") || "") ? Q.get("num") : "b", HALO = /^(hold|off)$/.test(Q.get("halo") || "") ? Q.get("halo") : "timed"; /* ?num=a|b|c the date number; ?halo=hold keeps the opening halo on, ?halo=off shows the month after it faded */
 var halo = false, haloT = null;
 var holdMsg = "", holdMsgT = null; /* the brief confirmation after Hold or Unhold: about 3 seconds like F's hold, in a polite live region that is not redrawn by the toggle, so a screen reader announces it */
 function showHoldMsg(txt) {

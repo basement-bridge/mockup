@@ -55,7 +55,8 @@ async function visualRules(p, tag, theme) {
   ok(t + "planned is not bold (number weight 400) and calmer than open", pn.fw <= 400 && pn.fw < on.fw, [pn.fw, on.fw]);
   if (await p.locator(".pdm-c[data-n].st-plan .pdm-m").count()) { const pm = await look(p, ".pdm-c[data-n].st-plan .pdm-m"); ok(t + "planned meal name is not bold", pm.fw <= 400, pm.fw); }
   const pb = parseFloat(await css(p, ".pdm-c[data-n].st-plan", "borderTopWidth")), ob = parseFloat(await css(p, ".pdm-c[data-n].st-open", "borderTopWidth"));
-  ok(t + "priority stays open > planned", ob > pb, [ob, pb]);
+  const numOpt = await p.evaluate(() => document.querySelector("#week").dataset.num || "a");
+  ok(t + (numOpt === "b" ? "priority: the plain cell (owner-decided date number B) weighs open and planned the same; the plus and the dots say the state" : "priority stays open > planned"), numOpt === "b" ? ob === pb : ob > pb, [ob, pb]);
 }
 async function redRules(p, tag, theme) {
   const t = tag + theme + " ";
@@ -156,7 +157,7 @@ for (const [w, h] of [[1440, 900], [1024, 800]]) {
     ok(tag + "scope: no Hard avoid in the household at all: no mark", (await bangs(n0)) === 0 && (await n0.locator(".pdm-c[data-n].g-warn, .pdm-c[data-n].g-stop").count()) === 0);
     await n0.close(); }
   // the rank of the weights: open, then day off, then planned; the number never outweighs the mark
-  { const p = await open(ctx, "start=month&halo=off&who=Sam");
+  { const p = await open(ctx, "start=month&halo=off&who=Sam&num=a"); /* the outline weights are option A's picture; the default (B, the plain cell) has none (checked below) */
     const bw = async n => parseFloat(await css(p, '.pdm-c[data-n="' + n + '"]', "borderTopWidth"));
     const open_ = await bw(8), off = await bw(10), plan = await bw(12), stack = await bw(7);
     ok(tag + "rank: open outline > day off outline > planned outline", open_ > off && off > plan, [open_, off, plan]);
@@ -165,7 +166,7 @@ for (const [w, h] of [[1440, 900], [1024, 800]]) {
     ok(tag + "rank: the plus is heavier than the moon", plusW > moonW, [plusW, moonW]);
     const numW = parseInt(await css(p, '.pdm-c[data-n="8"] .pdm-n', "fontWeight")), numSz = parseFloat(await css(p, '.pdm-c[data-n="8"] .pdm-n', "fontSize")), iconSz = parseFloat(await css(p, '.pdm-c[data-n="8"] .pdm-i', "width"));
     ok(tag + "the date number is lighter and smaller than the state mark", numW <= 600 && numSz < iconSz + 2 && numSz <= 12, [numW, numSz, iconSz]);
-    ok(tag + "default date-number option is A (corner)", (await p.evaluate(() => document.querySelector("#week").dataset.num)) === "a");
+    { const d0 = await open(ctx, "start=month&halo=off"); ok(tag + "default date-number option is B (plain cell, owner decided, voice, 17 Oct 2026)", (await d0.evaluate(() => document.querySelector("#week").dataset.num)) === "b"); await d0.close(); }
     await p.close(); }
   // the date-number options present
   for (const o of ["a", "b", "c"]) {
