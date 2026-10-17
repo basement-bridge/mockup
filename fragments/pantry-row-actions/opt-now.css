@@ -1,0 +1,8 @@
+/* Today (Kitchie uat, layout.ts and desktop-css/pantry.ts): the minus and the tick sit at opacity 0 and show on hover or focus; level-only rows have no minus; no cart; no key caps. A mouse drag on the row also swipes (not drawn). */
+.now-acts{display:flex;align-items:center;gap:0;align-self:center;margin-right:4px}
+.now-acts .nb{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border:0;border-radius:.75rem;background:transparent;color:var(--muted);opacity:0;transition:opacity .12s}
+.now-acts .nb.ok{color:var(--accent)}
+.now-acts .nb:hover{background:var(--surface);color:var(--fg)}
+li[data-row]:is(:hover,:focus-within,.is-hover) .now-acts .nb{opacity:1}
+html[data-input=touch] .now-acts .nb{opacity:0}
+.nownote{margin:8px 4px 0;font-size:13px;color:var(--muted)}

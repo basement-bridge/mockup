@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Nothing picked, side by side</title>
+<link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><script src="../../theme.js"></script>
+<script>try{var t=new URLSearchParams(location.search).get("theme");if(t==="kitchie"||t==="kitchie-day")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<style>
+.cmp{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));margin-top:16px}
+.cmp figure{margin:0}
+.cmp figcaption{display:flex;gap:8px;align-items:baseline;margin:0 0 6px;font-weight:700}
+.cmp figcaption b{width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:inline-flex;align-items:center;justify-content:center;font-size:13px;flex:none}
+.cmp figcaption small{font-weight:400;color:var(--muted);font-size:13px}
+.cmp iframe{display:block;width:400px;max-width:100%;height:820px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface)}
+.cmp .none{width:400px;max-width:100%;height:820px;border:1px dashed var(--border);border-radius:var(--r-card);display:grid;place-items:center;text-align:center;padding:24px;color:var(--muted);font-size:14px}
+.bar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:12px}
+.bar a{display:inline-flex;align-items:center;min-height:var(--tap);padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-weight:700;font-size:13px}
+.bar a[aria-current=true]{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.bar b{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-left:8px}
+</style></head>
+<body><div class="wrap" style="max-width:none">
+<a class="back" href="./">&lsaquo; Nothing picked: the notes</a>
+<h1>Side by side</h1>
+<p>The 400px lane alone, one pane per option, for one household size and one theme. Open any one in the full desktop screen with the link under it.</p>
+<div class="bar" id="bar"></div>
+<div class="cmp" id="cmp"></div>
+</div>
+<script>
+(function(){
+  var Q=new URLSearchParams(location.search), s=Q.get("s")==="recipes"?"recipes":"pantry", d=Q.get("d")||"typical", th=Q.get("theme")||"";
+  var NAMES={a:"At a glance",b:"Things to do",c:"Pick up where you left off",d:"Keys and search",e:"No pane until needed",f:"Recommended: at a glance, trimmed, with one hint line"};
+  function lnk(p,l,on){var u=new URLSearchParams(Q);for(var k in p){if(p[k]===null)u.delete(k);else u.set(k,p[k])}return '<a href="?'+u+'"'+(on?' aria-current="true"':"")+'>'+l+'</a>'}
+  var ds=["empty","typical","large","calm"].concat(s==="recipes"?["nostock"]:[]);
+  document.getElementById("bar").innerHTML='<b>Screen</b>'+lnk({s:"pantry"},"Pantry",s==="pantry")+lnk({s:"recipes"},"Recipes",s==="recipes")+'<b>Household</b>'+ds.map(function(x){return lnk({d:x},x,d===x)}).join("")+'<b>Theme</b>'+lnk({theme:"kitchie"},"Dark",th==="kitchie")+lnk({theme:"kitchie-day"},"Light",th==="kitchie-day")+lnk({theme:null},"Yours",th==="");
+  var out="";
+  "abcdef".split("").forEach(function(o){
+    var q="s="+s+"&o="+o+"&d="+d+(th?"&theme="+th:"");
+    var page=(s==="pantry"?"pantry":"recipes")+".html?"+q+"&mk=0";
+    out+='<figure><figcaption><b>'+o.toUpperCase()+'</b>'+NAMES[o]+'</figcaption>'+
+      (o==="e"?'<div class="none"><div><p><b>No pane.</b></p><p style="margin-top:6px">The lane is not drawn until something is picked. <br>Picking opens it; closing hides it again.</p></div></div>':'<iframe title="Option '+o.toUpperCase()+'" loading="lazy" src="lane.html?'+q+'"></iframe>')+
+      '<p style="margin-top:6px"><a class="back" href="'+page+'">Open in the full screen &rsaquo;</a></p></figure>';
+  });
+  document.getElementById("cmp").innerHTML=out;
+})();
+</script>
+</body></html>

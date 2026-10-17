@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Pantry row actions on desktop</title><link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><script src="../../theme.js"></script>
+<style>
+.decs li,.qs li{margin-bottom:8px;font-size:14px}
+.links{display:flex;flex-wrap:wrap;gap:6px}
+.links a{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border-radius:99px;border:1px solid var(--border);background:var(--bg);font-size:13px;font-weight:600}
+.links a:hover{border-color:var(--accent)}
+.frs{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:flex-start;margin-top:10px}
+.fig{margin:0;flex:0 1 320px;min-width:0}
+.fig figcaption{margin-top:4px;font-size:12px;font-weight:600}
+.fig figcaption a{color:var(--accent)}
+.frd{width:320px;max-width:100%;height:200px;border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden;position:relative;background:var(--bg)}
+.frd iframe{position:absolute;left:0;top:0;width:1280px;height:800px;border:0;transform:scale(.25);transform-origin:0 0}
+.idea{display:inline-block;font-size:12px;font-weight:800;padding:3px 10px;border-radius:var(--r-pill);border:1px dashed var(--accent);color:var(--accent)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:14px 16px;margin-top:14px}
+.card h3{margin:0 0 2px;font:800 17px var(--head)}
+.card h3 b{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;margin-right:8px;border-radius:50%;background:var(--accent);color:var(--on-accent);font-size:13px}
+.card .one{margin:0 0 8px;font-size:14px}
+.card dl{margin:8px 0 0;display:grid;grid-template-columns:max-content 1fr;gap:4px 14px;font-size:13px}
+.card dt{color:var(--muted);font-weight:700}
+.card dd{margin:0}
+.rec{border-color:var(--accent)}
+.pill2{display:inline-block;font-size:11px;font-weight:800;padding:2px 8px;border-radius:var(--r-pill);background:var(--accent);color:var(--on-accent);vertical-align:middle;margin-left:6px}
+table.cmp{font-size:13px}
+table.cmp th,table.cmp td{padding:7px 8px}
+table.cmp td:first-child,table.cmp th:first-child{font-weight:700;white-space:nowrap}
+.tw{overflow-x:auto;margin-top:8px}
+.stress li{margin-bottom:10px;font-size:14px}
+.kbd{display:inline-block;padding:1px 6px;border:1px solid var(--accent);border-radius:6px;color:var(--accent);font:600 11px/1.4 var(--body)}
+.verdict{margin-top:10px;padding:14px 16px;border:1px solid var(--accent);border-radius:var(--r-card);background:var(--surface);font-size:14px}
+.verdict li{margin-bottom:6px}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Pantry row actions on desktop</h1>
+<p><span class="idea">Desktop. Mockup, nothing built.</span> Kitchie <a href="https://github.com/basement-bridge/kitchie/issues/866" style="color:var(--accent);font-weight:700">#866</a>, 17 Oct 2026.</p>
+<p style="margin-top:8px">On the phone, a Pantry row is swiped: left a little to use one, left a long way to use it up, right to add it to the shopping list. The owner: <i>&ldquo;For Pantry items, Kitchie allows these mobile swipes, but that is not the right way to do it on a desktop. I want mockups for how we navigate this idea for the desktop. I want to see some options.&rdquo;</i> Four options are drawn below on the settled desktop Pantry (rail, column, side panel), each covering every swipe action, a keyboard way, a touch-laptop fallback, and the empty and edge states, in dark and light. The phone and its swipe are unchanged.</p>
+
+<div class="sec"><div class="lbl">Open it (the Prototype bar in the corner switches option, touch laptop and theme)</div>
+<div class="links">
+<a href="desktop.html?opt=a&amp;sel=eggs">Option A: hover actions</a>
+<a href="desktop.html?opt=b&amp;sel=eggs">Option B: context menu</a>
+<a href="desktop.html?opt=c&amp;sel=eggs">Option C: select and act</a>
+<a href="desktop.html?opt=d&amp;sel=eggs">Option D: panel and keys</a>
+<a href="desktop.html?opt=now&amp;sel=eggs">Today</a>
+<a href="desktop.html?opt=a&amp;input=touch&amp;sel=eggs">A on a touch laptop</a>
+<a href="desktop.html?opt=a&amp;guard=2&amp;sel=peas">Used-up guardrail (use up Peas)</a>
+<a href="desktop.html?opt=a&amp;theme=kitchie-day">Light</a><a href="desktop.html?opt=a&amp;theme=kitchie">Dark</a>
+</div></div>
+
+<div class="sec"><div class="lbl">What swipe does today, and what a desktop has already (read from Kitchie <code>uat</code>)</div>
+<div class="tw"><table class="cmp"><thead><tr><th>Action</th><th>Phone gesture</th><th>Desktop today</th></tr></thead><tbody>
+<tr><td>Use one</td><td>Swipe left past 90px (counted items; a level-only item is used up)</td><td>Hover minus (counted rows only), key <span class="kbd">U</span>, a mouse drag</td></tr>
+<tr><td>Used up</td><td>Swipe left past 190px</td><td>Hover tick, key <span class="kbd">D</span>, the panel's Used up, a mouse drag</td></tr>
+<tr><td>Add to shopping list</td><td>Swipe right past 90px</td><td>Key <span class="kbd">S</span>, the panel's button, a mouse drag. No row button.</td></tr>
+<tr><td>Undo</td><td>The bar, 5 seconds</td><td>The same bar, key <span class="kbd">Z</span></td></tr>
+</tbody></table></div>
+<p style="margin-top:8px;font-size:13px">One shared file, <code>swipe.js</code>, serves every width, so on a desktop a left-button mouse drag on a row also swipes it. The third used-up inside 5 minutes answers 409 and the bar says &ldquo;Open the item to confirm&rdquo;, but the open item&rsquo;s Used up makes the same call, so nothing in the page confirms it (to investigate; it matters more the faster the actions get).</p>
+<div class="frs"><figure class="fig"><div class="frd"><iframe loading="lazy" title="Today (hover minus and tick), dark" src="desktop.html?opt=now&hover=eggs&sel=eggs&theme=kitchie"></iframe></div><figcaption><a href="desktop.html?opt=now&hover=eggs&sel=eggs&theme=kitchie">Today (hover minus and tick), dark</a></figcaption></figure><figure class="fig"><div class="frd"><iframe loading="lazy" title="Empty Pantry" src="desktop.html?opt=a&state=empty&theme=kitchie-day"></iframe></div><figcaption><a href="desktop.html?opt=a&state=empty&theme=kitchie-day">Empty Pantry</a></figcaption></figure><figure class="fig"><div class="frd"><iframe loading="lazy" title="Everything used up" src="desktop.html?opt=a&state=allout&theme=kitchie"></iframe></div><figcaption><a href="desktop.html?opt=a&state=allout&theme=kitchie">Everything used up</a></figcaption></figure><figure class="fig"><div class="frd"><iframe loading="lazy" title="Saved-list banner, an action blocked" src="desktop.html?opt=a&down=1&sel=eggs&theme=kitchie"></iframe></div><figcaption><a href="desktop.html?opt=a&down=1&sel=eggs&theme=kitchie">Saved-list banner, an action blocked</a></figcaption></figure></div></div>
+
+<div class="sec"><div class="lbl">What the owner asked and already settled</div>
+<ul class="decs">
+<li><b>DA-D1</b> (owner, voice, 17 Oct 2026) Swipe on Pantry items is the phone&rsquo;s way, not the right way on a desktop.</li>
+<li><b>DA-D2</b> (owner, same) Mockups of how a desktop does the same job, as options.</li>
+<li><b>DA-D3</b> (owner, standing, 10 Oct 2026) Anything viewport-specific lives in its own file, never in one the other viewports download.</li>
+<li><b>DA-D4</b> (settled earlier, not asked again) Keys <span class="kbd">J</span> <span class="kbd">K</span> <span class="kbd">U</span> <span class="kbd">D</span> <span class="kbd">S</span> <span class="kbd">Z</span> <span class="kbd">E</span> <span class="kbd">,</span> and the panel&rsquo;s Used up and Add to shopping list stay; key caps follow the Shift Space switch; closing uses Ctrl or Cmd Enter and plain Esc only clears the search; Shopping desktop already has hover buttons with key caps (SD-6).</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">The four options</div>
+
+<div class="card rec"><h3><b>A</b>Hover actions on the row<span class="pill2">Recommended</span></h3>
+<p class="one">Rest: the row is as it is. Hover, focus or the current row: three small buttons at the right, each with its key cap, over a soft fade. A button opens its label under the pointer. The use-by words step aside while they show.</p>
+<dl><dt>Actions</dt><dd>Use one (counted rows), Add to list, Used up; the tick stays at the right edge where it is today.</dd>
+<dt>Found by</dt><dd>Moving the mouse over a row; key caps on the buttons; the current row always shows them.</dd>
+<dt>Touch laptop</dt><dd>A tap makes the row current, so its three buttons show (44px). Swipe still works for touch.</dd>
+<dt>Keyboard</dt><dd>Focus on a row shows its buttons; the keys U D S Z as today.</dd>
+<dt>Edge states</dt><dd>Level-only: no Use one. Out: Add to list only. Long names end before the buttons.</dd></dl>
+<div class="frs"><figure class="fig"><div class="frd"><iframe loading="lazy" title="Hover on a row, dark" src="desktop.html?opt=a&hover=eggs&sel=eggs&theme=kitchie"></iframe></div><figcaption><a href="desktop.html?opt=a&hover=eggs&sel=eggs&theme=kitchie">Hover on a row, dark</a></figcaption></figure><figure class="fig"><div class="frd"><iframe loading="lazy" title="Level-only item, light" src="desktop.html?opt=a&hover=milk&theme=kitchie-day"></iframe></div><figcaption><a href="desktop.html?opt=a&hover=milk&theme=kitchie-day">Level-only item, light</a></figcaption></figure><figure class="fig"><div class="frd"><iframe loading="lazy" title="Used-up item (Out)" src="desktop.html?opt=a&chip=Out&hover=tahini&theme=kitchie"></iframe></div><figcaption><a href="desktop.html?opt=a&chip=Out&hover=tahini&theme=kitchie">Used-up item (Out)</a></figcaption></figure><figure class="fig"><div class="frd"><iframe loading="lazy" title="Touch laptop, tapped row" src="desktop.html?opt=a&input=touch&sel=eggs&theme=kitchie"></iframe></div><figcaption><a href="desktop.html?opt=a&input=touch&sel=eggs&theme=kitchie">Touch laptop, tapped row</a></figcaption></figure></div></div>
+
+<div class="card"><h3><b>B</b>A context menu on the row</h3>
+<p class="one">Right click a row, press the Menu key or Shift F10, or use a three-dot button that shows on hover. One small menu: Use one, Add to shopping list, Used up, then Edit and History, each with its key cap.</p>
+<dl><dt>Actions</dt><dd>The same three, in words, with room for more later (Move, Edit, History).</dd>
+<dt>Found by</dt><dd>The three dots on hover; right click is a habit for some people.</dd>
+<dt>Touch laptop</dt><dd>The three dots show on the tapped row (44px).</dd>
+<dt>Keyboard</dt><dd>Arrow keys, Enter, or the letters inside the menu; closes with Ctrl or Cmd Enter, a click outside or a choice.</dd>
+<dt>Edge states</dt><dd>Use one shows disabled with the reason; Used up too on an Out row.</dd>
+<dt>Cost</dt><dd>Takes over right click on a row, and the row is a real link: &ldquo;Open in new tab&rdquo; goes (Shift right click keeps it). One more click than A.</dd></dl>
+<div class="frs"><figure class="fig"><div class="frd"><iframe loading="lazy" title="Menu open, light" src="desktop.html?opt=b&menu=eggs&hover=eggs&sel=eggs&theme=kitchie-day"></iframe></div><figcaption><a href="desktop.html?opt=b&menu=eggs&hover=eggs&sel=eggs&theme=kitchie-day">Menu open, light</a></figcaption></figure><figure class="fig"><div class="frd"><iframe loading="lazy" title="Three dots on hover, dark" src="desktop.html?opt=b&hover=eggs&sel=eggs&theme=kitchie"></iframe></div><figcaption><a href="desktop.html?opt=b&hover=eggs&sel=eggs&theme=kitchie">Three dots on hover, dark</a></figcaption></figure><figure class="fig"><div class="frd"><iframe loading="lazy" title="Level-only: Use one disabled" src="desktop.html?opt=b&menu=milk&theme=kitchie"></iframe></div><figcaption><a href="desktop.html?opt=b&menu=milk&theme=kitchie">Level-only: Use one disabled</a></figcaption></figure><figure class="fig"><div class="frd"><iframe loading="lazy" title="Touch laptop, tapped row" src="desktop.html?opt=b&input=touch&sel=eggs&theme=kitchie"></iframe></div><figcaption><a href="desktop.html?opt=b&input=touch&sel=eggs&theme=kitchie">Touch laptop, tapped row</a></figcaption></figure></div></div>
+
+<div class="card"><h3><b>C</b>Select rows, act from the panel lane</h3>
+<p class="one">A check box takes the emoji&rsquo;s place on hover; once one is picked every row shows its box. The side lane lists the picks and the three actions. Shift click picks a range, <span class="kbd">X</span> picks the current row, Ctrl or Cmd A picks all. Used up on three or more asks once.</p>
+<dl><dt>Actions</dt><dd>The same three, on one row or many; Use one counts how many are counted.</dd>
+<dt>Found by</dt><dd>The box on hover.</dd>
+<dt>Touch laptop</dt><dd>The box shows on the tapped row (44px).</dd>
+<dt>Keyboard</dt><dd>X, Shift J / K, Ctrl or Cmd A, then U D S; Ctrl or Cmd Enter clears.</dd>
+<dt>Edge states</dt><dd>No box on an Out row; Use one disabled when none are counted.</dd>
+<dt>Cost</dt><dd>Two clicks for one item. The only option that needs a new write path for several items at once (see Build impact).</dd></dl>
+<div class="frs"><figure class="fig"><div class="frd"><iframe loading="lazy" title="Three picked, dark" src="desktop.html?opt=c&pick=eggs,peas,rice&theme=kitchie"></iframe></div><figcaption><a href="desktop.html?opt=c&pick=eggs,peas,rice&theme=kitchie">Three picked, dark</a></figcaption></figure><figure class="fig"><div class="frd"><iframe loading="lazy" title="Used up asks once, light" src="desktop.html?opt=c&pick=eggs,peas,rice&ask=1&theme=kitchie-day"></iframe></div><figcaption><a href="desktop.html?opt=c&pick=eggs,peas,rice&ask=1&theme=kitchie-day">Used up asks once, light</a></figcaption></figure><figure class="fig"><div class="frd"><iframe loading="lazy" title="One picked, boxes on every row" src="desktop.html?opt=c&pick=milk&theme=kitchie"></iframe></div><figcaption><a href="desktop.html?opt=c&pick=milk&theme=kitchie">One picked, boxes on every row</a></figcaption></figure><figure class="fig"><div class="frd"><iframe loading="lazy" title="Touch laptop, tapped row" src="desktop.html?opt=c&input=touch&sel=eggs&theme=kitchie"></iframe></div><figcaption><a href="desktop.html?opt=c&input=touch&sel=eggs&theme=kitchie">Touch laptop, tapped row</a></figcaption></figure></div></div>
+
+<div class="card"><h3><b>D</b>The panel and the keys only</h3>
+<p class="one">Rows carry nothing. The open item&rsquo;s panel leads with the three actions and their key caps (Use one is the new one), and a keys line at the foot of the column says <span class="kbd">J</span> <span class="kbd">K</span> <span class="kbd">U</span> <span class="kbd">D</span> <span class="kbd">S</span> <span class="kbd">Z</span>. Run down the list with the keys.</p>
+<dl><dt>Actions</dt><dd>The same three.</dd>
+<dt>Found by</dt><dd>The keys line; the panel.</dd>
+<dt>Touch laptop</dt><dd>Tap the row, tap a panel button (48px). Nothing to add.</dd>
+<dt>Keyboard</dt><dd>The best of the four: J, D, D, S without leaving the keys.</dd>
+<dt>Edge states</dt><dd>Level-only: Use one disabled with the reason. Out: Add to shopping list live.</dd>
+<dt>Cost</dt><dd>Mouse users need two clicks (row, then button) and a panel always open.</dd></dl>
+<div class="frs"><figure class="fig"><div class="frd"><iframe loading="lazy" title="The open item leads with actions, light" src="desktop.html?opt=d&sel=eggs&theme=kitchie-day"></iframe></div><figcaption><a href="desktop.html?opt=d&sel=eggs&theme=kitchie-day">The open item leads with actions, light</a></figcaption></figure><figure class="fig"><div class="frd"><iframe loading="lazy" title="Level-only item, dark" src="desktop.html?opt=d&sel=milk&theme=kitchie"></iframe></div><figcaption><a href="desktop.html?opt=d&sel=milk&theme=kitchie">Level-only item, dark</a></figcaption></figure><figure class="fig"><div class="frd"><iframe loading="lazy" title="Nothing open, dark" src="desktop.html?opt=d&theme=kitchie"></iframe></div><figcaption><a href="desktop.html?opt=d&theme=kitchie">Nothing open, dark</a></figcaption></figure><figure class="fig"><div class="frd"><iframe loading="lazy" title="Touch laptop" src="desktop.html?opt=d&input=touch&sel=eggs&theme=kitchie"></iframe></div><figcaption><a href="desktop.html?opt=d&input=touch&sel=eggs&theme=kitchie">Touch laptop</a></figcaption></figure></div></div>
+</div>
+
+<div class="sec"><div class="lbl">Comparison</div>
+<div class="tw"><table class="cmp"><thead><tr><th></th><th>A hover</th><th>B menu</th><th>C select</th><th>D panel and keys</th></tr></thead><tbody>
+<tr><td>Clicks, one action, mouse</td><td>1 (hover, click)</td><td>2 (right click or dots, then entry)</td><td>2 (box, then button)</td><td>2 (row, then button)</td></tr>
+<tr><td>Fast on the keyboard</td><td>Same keys as today</td><td>Same keys, plus the Menu key</td><td>Adds X and range picks</td><td>Same keys, keys line always shown</td></tr>
+<tr><td>Found without being told</td><td>Yes, by hovering</td><td>Dots on hover; right click for some</td><td>Box on hover</td><td>Keys line only</td></tr>
+<tr><td>Touch laptop, no hover</td><td>Tapped row shows them</td><td>Tapped row shows the dots</td><td>Tapped row shows the box</td><td>Nothing needed</td></tr>
+<tr><td>Space at rest</td><td>None</td><td>None</td><td>None (lane reused)</td><td>One 36px line, off with the cues</td></tr>
+<tr><td>Several items at once</td><td>No</td><td>No</td><td>Yes</td><td>No</td></tr>
+<tr><td>Room for more actions later</td><td>Little</td><td>A lot</td><td>Some</td><td>Some</td></tr>
+<tr><td>Precedent</td><td>Shopping desktop hover buttons (SD-6)</td><td>None in the app</td><td>None in the app</td><td>Today&rsquo;s keys and panel</td></tr>
+<tr><td>Mis-click risk (Used up)</td><td>Low: 6px from the cart, Undo, danger colour on hover</td><td>Low</td><td>Low, and asks for three or more</td><td>Low</td></tr>
+<tr><td>Build impact</td><td>Routine</td><td>Routine</td><td>Guarded (bulk write path)</td><td>Routine</td></tr>
+</tbody></table></div>
+
+<div class="verdict"><b>Recommendation: A, plus Use one added to the panel.</b> It is the Shopping desktop pattern the owner already approved (hover buttons with key caps, shown on hover, focus and the current row), it adds nothing at rest, it is one click, and it is the only option that puts all three actions on the row. The panel gets Use one beside Used up and Add to shopping list so the open item offers every swipe action too (D&rsquo;s one good idea, without its keys line). B waits until there are more actions than three, because it takes over right click on a real link. C waits until there is a real need to act on several items, because it is the only one that needs a new write path. Stop a mouse drag swiping a row on desktop.</div>
+</div>
+
+<div class="sec"><div class="lbl">Stress test: what the owner could push back on, and the answer</div>
+<ul class="stress">
+<li><b>&ldquo;Hidden until hover means nobody finds it.&rdquo;</b> A shows on hover, on focus and on the current row, with key caps, so moving the mouse over a list is enough, and a tap or J / K keeps them up. D has no hidden part; its keys line is always there. If the owner still doubts A, the cheap fix is the label on the first row for the first visits (client-side, like the phone&rsquo;s nudge).</li>
+<li><b>&ldquo;Screen space is precious.&rdquo;</b> A, B and C add nothing at rest and change no row, header or list height. D adds one 36px line, which the cues switch hides.</li>
+<li><b>&ldquo;Used up is one click next to the cart.&rdquo;</b> It is the far-right button, as the tick is today, 6px from the cart, red only on hover, with the 5 second Undo bar, Z, and the server&rsquo;s third-in-five-minutes guardrail, which A to D now ask about in place instead of pointing at the item.</li>
+<li><b>&ldquo;Two code paths, one for the phone and one for the desktop.&rdquo;</b> No. Every option calls the swipe&rsquo;s own <code>act()</code> and <code>shop()</code>, as the keys and the item sheet already do. Only the control that triggers it differs, and it lives in <code>desktop-pantry.js</code>, which a phone never downloads (DA-D3). The one shared-file edit is that a mouse pointer stops starting a swipe.</li>
+<li><b>&ldquo;Right click is the browser&rsquo;s.&rdquo;</b> The strongest case against B. The row is a real link, so B hides &ldquo;Open in new tab&rdquo; and &ldquo;Copy link&rdquo; (Shift right click gives them back).</li>
+<li><b>&ldquo;Who selects five pantry items?&rdquo;</b> Unknown; there is no evidence yet of a bulk job. C is the only option that is not a thin trigger on an existing call: one used-up is fine, three or more would trip the removal guardrail and the per-member write limit if looped.</li>
+<li><b>&ldquo;An iPad in landscape, a touch laptop.&rdquo;</b> They get the desktop layout and have no hover. Each option shows its controls on the tapped row at 44px, and swipe still works for a finger. Covered by the touch checks.</li>
+<li><b>&ldquo;Tab through forty rows.&rdquo;</b> A adds a third stop to each row (today two). The keys are the fast path; the buttons stay real buttons for screen readers. Left as it is (DA-Q11).</li>
+<li><b>&ldquo;A used-up item vanishes.&rdquo;</b> It goes to Out, stays findable by search and the Out chip, and Undo brings it straight back.</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">Choices the mockup made where the owner was silent (Proposal; what a wrong guess costs)</div>
+<ul class="decs">
+<li><b>DA-P1</b> Every swipe action stays reachable on desktop, each with the same 5 second Undo bar and Z. Wrong guess: none, this is the job.</li>
+<li><b>DA-P2</b> One code path: every option calls the swipe&rsquo;s <code>act()</code> and <code>shop()</code>. No new route for A, B or D.</li>
+<li><b>DA-P3</b> A mouse drag on a row no longer swipes on desktop; touch and pen still do. Wrong guess: someone who dragged with the mouse loses it; one line brings it back.</li>
+<li><b>DA-P4</b> Touch laptop or tablet landscape: swipe stays, and the tapped (current) row shows the option&rsquo;s controls at 44px, chosen by the hover capability in CSS, not by width.</li>
+<li><b>DA-P5</b> Level-only rows have no Use one (as today); the U key says why. Out rows offer Add to list only.</li>
+<li><b>DA-P6</b> Words: Use one, Add to list, Used up on the compact buttons; Add to shopping list in the menu, the panel and the lane (the item sheet&rsquo;s words).</li>
+<li><b>DA-P7</b> Order: Use one, Add to list, Used up, the tick last where it is today.</li>
+<li><b>DA-P8</b> In A the use-by words hide while the buttons show, and the name ends in an ellipsis before them.</li>
+<li><b>DA-P9</b> Add to list from the desktop behaves like the S key: it sends the item panel&rsquo;s &ldquo;How much to buy&rdquo; words at Running low or Out; the swipe sends none today.</li>
+<li><b>DA-P10</b> The used-up guardrail is asked in place: the bar says &ldquo;Several items were used up just now. Use up peas anyway?&rdquo; with Use up and Not now. Today&rsquo;s words are at <code>?guard=today</code>. Needs the reduce route to accept a confirm (Build impact).</li>
+<li><b>DA-P11</b> Key caps use the shared <code>kbd</code> class and follow the Shift Space cues switch.</li>
+<li><b>DA-P12</b> In C, once a row is picked a plain click on a row picks or unpicks it; the item opens again when nothing is picked.</li>
+<li><b>DA-P13</b> In B the menu closes with the owner&rsquo;s close chord, a click outside or a choice, not plain Esc.</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">Open questions (recommended position first)</div>
+<ul class="qs">
+<li><b>DA-Q1</b> Which option? Recommended: A, with Use one added to the panel. Cost of a wrong pick: a mockup edit; nothing is built.</li>
+<li><b>DA-Q2</b> Does a mouse drag stop swiping on desktop? Recommended: yes (DA-P3). It fights text selection and click-to-open, and nobody asked for it on a desktop.</li>
+<li><b>DA-Q3</b> Touch laptop: keep swipe and show the controls on the tapped row? Recommended: yes (DA-P4).</li>
+<li><b>DA-Q4</b> Ask the used-up guardrail in place (DA-P10)? Recommended: yes, as its own later slice, because it changes a write path. Until then today&rsquo;s message stands and points at a dead end.</li>
+<li><b>DA-Q5</b> Add to list on an Out row from the row? Recommended: yes; an item that ran out is the one you want to buy.</li>
+<li><b>DA-Q6</b> Several items at once (C), now or later? Recommended: later, when there is a real case (for example clearing five things after a cook). Cost of waiting: none; of building now: a guarded write path for a job nobody has named.</li>
+<li><b>DA-Q7</b> A context menu as well as A? Recommended: not now; right click stays the browser&rsquo;s.</li>
+<li><b>DA-Q8</b> Should the row&rsquo;s Add to list ask how much to buy? Recommended: no, as the S key today (DA-P9).</li>
+<li><b>DA-Q9</b> Does a menu or selection close with plain Esc? Recommended: no, keep the owner&rsquo;s close chord (Esc leaves full screen); revisit if B is chosen.</li>
+<li><b>DA-Q10</b> Is hiding the use-by words while the buttons show acceptable? Recommended: yes; the words return as the pointer leaves, and they are in the panel. If not, the buttons can shrink to icons only.</li>
+<li><b>DA-Q11</b> One more Tab stop per row in A? Recommended: leave it; J / K and the keys are the fast path.</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">Build impact</div>
+<div class="verdict"><b>No migration, in any option.</b> No schema, no stored data, no new setting (remembered choices stay client-side).
+<ul style="margin:8px 0 0;padding-left:18px">
+<li><b>Recommended (A plus Use one in the panel, no mouse drag): routine.</b> Touches <code>desktop-pantry.js</code> (the Add to list button and key caps on each row, desktop only, fetched only from 64rem), <code>desktop-css/pantry.ts</code> (the strip), the desktop item panel (one button), <code>swipe.js</code> (pointer type, one line, input not viewport, the only shared-file edit), the swipe test and a new desktop browser journey. No deny-list path, no new route: <code>act()</code> and <code>shop()</code> have several callers and are not edited. Wrong build costs: a missed hover state on a row, a use-by label hidden; both visible in the browser journey.</li>
+<li><b>B: routine.</b> Same files plus the menu; the cost is the lost right click on a link, not a build risk.</li>
+<li><b>D: routine.</b> Panel button and a keys line.</li>
+<li><b>C: guarded.</b> Several used-ups need a batch route (a new write path in <code>web-edit.ts</code> and the store, which is on the deny list): looping the single call trips the third-in-five-minutes guardrail and the per-member write limit. It needs a risk package.</li>
+<li><b>The in-place guardrail confirm (DA-P10, DA-Q4): guarded, separate slice.</b> The reduce route accepts exactly one field today; a confirm field relaxes the removal guardrail on a write path.</li>
+</ul></div></div>
+
+<div class="sec"><div class="lbl">What this loads (DESIGN.md section 6)</div>
+<p>The default path is <code>desktop.html</code>, <code>rows.css</code>, <code>rows.js</code>, <code>act.js</code> and <code>sample.js</code> on top of <code>theme.css</code>, then only the chosen option&rsquo;s two small files (<code>opt-a.css</code> and <code>opt-a.js</code>, and so on); the other three are never requested (checked). In the app nothing new is fetched: the controls are drawn by <code>desktop-pantry.js</code>, which a phone never downloads, and the actions are changed in place with the Undo bar, not by reloading (section 6a). Checked at 1024, 1280 and 1440 wide in light and dark, with a mouse and a touch laptop, with <code>tools/pantry-row-actions-check.mjs</code>.</p></div>
+
+<div class="sec"><div class="lbl">Where this sits</div>
+<p>Notes, the touch-to-pointer table and the build differences: <code>docs/knowledge/pantry-row-actions.md</code>. The phone swipe: <code>docs/knowledge/pantry-swipe.md</code> (unchanged). Desktop layout and keys: <code>docs/handover/desktop.md</code>. The Shopping desktop hover buttons: <code>docs/knowledge/jobs-to-be-done/shopping-desktop.md</code> (SD-6).</p></div>
+</div></body></html>
