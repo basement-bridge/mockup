@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Meal planning, usual days off, household and person</title>
+<link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css">
+<style>
+.decs li,.props li{margin-bottom:8px;font-size:14px}
+.tbl{overflow-x:auto}.tbl table{min-width:560px;border-collapse:collapse;font-size:14px;width:100%}.tbl th,.tbl td{border-top:1px solid var(--border);padding:8px 10px;text-align:left;vertical-align:top}
+.links{display:flex;flex-wrap:wrap;gap:6px}
+.links a{display:inline-flex;align-items:center;min-height:var(--tap);padding:0 14px;border-radius:99px;border:1px solid var(--border);background:var(--bg);font-size:13px;font-weight:600}
+.links a:hover{border-color:var(--accent)}
+.shots{display:grid;gap:12px;grid-template-columns:1fr}
+@media(min-width:720px){.shots.two{grid-template-columns:1fr 1fr}}
+.shots figure{margin:0}.shots img{width:100%;height:auto;border:1px solid var(--border);border-radius:var(--r-ctl);display:block}
+.shots figcaption{font-size:12px;color:var(--muted);margin-top:4px}
+.shots .ph{max-width:260px}
+.prop-tag{font-size:11px;font-weight:800;padding:1px 7px;border-radius:var(--r-pill);border:1px solid var(--accent);color:var(--accent);margin-left:4px;white-space:nowrap}
+code{font-size:12.5px}
+pre{overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-ctl);padding:10px 12px;font-size:12.5px}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Meal planning: usual days off, household and person</h1>
+<p>Kitchie issue #860. Mockup only, nothing is saved or built. The Meal planning flyout (the cog in the Plan header) gets a <b>Household</b> row of usual days off that applies to everyone by default; each person keeps their own setting and <b>the person wins</b>, whichever way they disagree. The Categories and Leftovers rename section is gone from it. Drawn on the Home Plan it flyout's shape (right-hand lane on desktop) and the Preferences "Same as household" handling.</p>
+<p style="margin-top:8px">The owner asked for no sign-off rounds on this mockup: every call is a numbered <b>decision</b> or a <b>Proposal</b> with an open question and a recommended answer. Full spec: <code>docs/knowledge/plan-usual-days.md</code>. Check: <code>tools/plan-usual-days-check.mjs</code>.</p>
+
+<div class="sec"><div class="lbl">Open it</div>
+<div class="links" aria-label="Screens">
+<a href="desktop.html">Desktop, typical household</a>
+<a href="phone.html">Phone, typical household</a>
+<a href="desktop.html?as=member">Desktop, a member who is not an admin</a>
+<a href="phone.html?as=member">Phone, a member</a>
+<a href="desktop.html?data=empty">Nothing set yet</a>
+<a href="phone.html?data=everyday">A person sets every day</a>
+<a href="phone.html?data=solo">One member, no household days</a>
+<a href="phone.html?data=solohh">One member, household days left</a>
+<a href="desktop.html?data=removed">A member removed</a>
+<a href="desktop.html?c=dialog">Desktop as a centred window (not the proposal)</a>
+</div>
+<p style="margin-top:10px">Each page opens with the flyout open; press the cog (or S on desktop) to open it again. Below the week, <b>Mockup only</b> switches the sample household and whether Sam is an admin. Tap a day on <b>You (Sam)</b> to choose Same as household, Off or Open for that weekday. Tap a household day (as an admin) to see who follows it and whose own setting stays. Tap a Not cooking night in the week to cook it this week only (unchanged).</p></div>
+
+<div class="sec"><div class="lbl">What it looks like</div>
+<div class="shots two">
+<figure><img loading="lazy" src="img/desktop-typical-light.jpg" alt="Desktop, the Meal planning flyout in the lane, typical household, light theme" width="1280" height="800"><figcaption>Desktop, light: the right-hand flyout. Household, then You, then Jane and Priya read only; the week on the left reads the same result.</figcaption></figure>
+<figure><img loading="lazy" src="img/desktop-choice-dark.jpg" alt="Desktop, the three choices for Tuesday open under Sam's row, dark theme" width="1280" height="800"><figcaption>Desktop, dark: a day on your row opens its three choices in place.</figcaption></figure>
+<figure><img loading="lazy" src="img/desktop-member-dark.jpg" alt="Desktop, a member who is not an admin sees the household row read only" width="1280" height="800"><figcaption>A member who is not an admin: the household row is read only, with the owner's line.</figcaption></figure>
+</div>
+<div class="shots" style="grid-template-columns:repeat(auto-fit,minmax(200px,260px));margin-top:12px">
+<figure class="ph"><img loading="lazy" src="img/phone-typical-light.jpg" alt="Phone, bottom sheet, typical household, light" width="390" height="844"><figcaption>Phone 390, light: the bottom sheet.</figcaption></figure>
+<figure class="ph"><img loading="lazy" src="img/phone-choice-dark.jpg" alt="Phone 360, the three choices for Friday, dark" width="360" height="740"><figcaption>Phone 360, dark: three choices for Friday.</figcaption></figure>
+<figure class="ph"><img loading="lazy" src="img/phone-empty-dark.jpg" alt="Phone, nothing set yet, dark" width="390" height="844"><figcaption>Nothing set yet.</figcaption></figure>
+<figure class="ph"><img loading="lazy" src="img/phone-solo-light.jpg" alt="Phone, one member, no household row, light" width="390" height="844"><figcaption>One member: today's flyout.</figcaption></figure>
+</div></div>
+
+<div class="sec"><div class="lbl">How to read a person's day</div>
+<div class="tbl"><table>
+<tr><th>Look</th><th>Meaning</th></tr>
+<tr><td>Tinted, dashed border</td><td>Not cooking, <b>from the household</b> (follows)</td></tr>
+<tr><td>Solid accent fill, a dot</td><td>Not cooking, <b>set by the person</b></td></tr>
+<tr><td>Accent ring, a dot</td><td>Open, <b>set by the person</b> (opens a household day: the person wins)</td></tr>
+<tr><td>Plain, dashed border</td><td>Open, follows the household</td></tr>
+</table></div>
+<p style="margin-top:8px">The order of precedence: a one-week change for the date, then the person's own setting for the weekday, then the household's. Today's personal days are exactly "own off"; nothing existing changes meaning.</p></div>
+
+<div class="sec"><div class="lbl">Decisions</div><ul class="decs">
+<li><b>UD-D1. The order of precedence is one-week change, then the person's own weekday setting, then the household's.</b> The person wins in both directions (owner, #860). The one-week override still beats everything, exactly as the code does today.</li>
+<li><b>UD-D2. A person has three states per weekday: follows the household (nothing stored), own off, own open.</b> Today's personal list is exactly "own off"; no existing setting changes meaning, nothing is rewritten, and a household with no household days behaves exactly as today.</li>
+<li><b>UD-D3. Only household admins change the household row</b> (owner's standing rule P2, D25 to D28: household things are admin-only; read-only for everyone else with one line, never hidden). The line is the owner's own: "Only household admins can change this." The existing rule for personal rows stays: only that person can change it ("only Jane can change"). Another person's row is visible and read-only, and shows inherited versus own in the same way.</li>
+<li><b>UD-D4. The household row is called "Household"</b> (the owner's word in Plan UI review 201: "Household", not "Everyone") and comes first, above You.</li>
+<li><b>UD-D5. The Categories section and its Leftovers rename row are gone from this flyout, on phone and desktop</b> (one sheet). Nothing is removed from the server: <code>GET/PATCH /api/plan/categories</code> and the rename stay. Where it is reached from now is UD-P9.</li>
+<li><b>UD-D6. The household never writes a person's own setting.</b> Changing a household day changes what everyone who follows it gets; nobody's own choice is edited (owner's standing P1, subject control, and P6, forward-looking changes).</li>
+<li><b>UD-D7. Edits save as you tap, as today.</b> No Save button. The phone sheet keeps Done, the desktop flyout the X.</li>
+<li><b>UD-D8. A personal "open" on a household-off weekday is a permanent personal choice and reads in the week as a plain open night.</b> The tip "Usual day off, cooking this week" stays for what it means today: a usual day lifted for one week only.</li>
+<li><b>UD-D9. One markup, one script, the same class names for phone and desktop; only the container differs</b> (<code>.ud-*</code> classes; <code>usual.css</code> shared, <code>lane.css</code> desktop only, <code>sheet.css</code> phone only). DESIGN.md section 7 and the owner's standing rule of 10 October (viewport-specific code in its own file).</li>
+<li><b>UD-D10. A removed member has no row.</b> Their settings never touch anyone else's; restoring them inside the week brings their own settings back (RM-D1); they are erased with them after the week.</li>
+<li><b>UD-D11. Keyboard.</b> S opens the flyout (the Plan's existing key for Usual days), left and right arrows move along a row, Enter opens a day's choices, the first Escape closes the choices and the second the flyout.</li>
+<li><b>UD-D12. The Plan header does not change</b> (the cog only, no badge). Whether a night is blocked by the household or by the person is shown on the night's tile, not in the header (UD-P7).</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">Proposals <span class="prop-tag">Owner silent</span></div>
+<p>Each one is a judgment call with the open question, the recommended answer and what a wrong guess costs.</p><ul class="props">
+<li><b>UD-P1. On desktop Meal planning is a right-hand lane flyout (the Home Plan it flyout's shape), not the bottom sheet or a centred window.</b> Q: do you want that shape? <b>Recommend yes</b>: you asked to reuse the flyout layout. A wrong guess costs a container swap only, the content is identical; <code>desktop.html?c=dialog</code> draws the same content as the centred window the Plan desktop mockup has today. The phone and tablet keep the sheet.</li>
+<li><b>UD-P2. A person changes a day with two taps: the day, then one of three choices.</b> Q: or one tap that cycles? <b>Recommend the three choices</b>: a cycle hides the third state and silently pins a day. A wrong guess costs one extra tap on the most common edit. With nobody to inherit from (a household of one, no household days) a tap is a plain on and off, as today.</li>
+<li><b>UD-P3. The four looks of a chip and the key (table above).</b> Q: is "dashed = follows, solid with a dot = set" readable at a glance? <b>Recommend as drawn.</b> A wrong guess costs a restyle of one block of CSS (tokens only).</li>
+<li><b>UD-P4. A household chip changes at once, with no confirm; a status line says who follows and whose own setting stays</b> ("Wednesdays are off for the household. Following it: you and Priya. Own setting stays: Jane."). Q: should changing the household's day ask first, since it changes everyone's default? <b>Recommend no confirm</b>: the person always wins, so the worst case is a default someone overrides, and it is one tap to put back.</li>
+<li><b>UD-P5. A person's own setting that equals the household's is kept ("pinned").</b> Choosing "Off every Friday" while the household has Friday off stays the person's own, so it holds if the household later opens Friday. Q: or should it collapse to "follows"? <b>Recommend keep</b>: it is what the person chose, and the dot shows it. A wrong guess costs a day that does not move when the household's does; "Same as household" per day and <b>Follow household</b> for all undo it.</li>
+<li><b>UD-P6. "Follow household" clears every own day at once, no confirm, with Undo in the status line.</b> Q: ask first? <b>Recommend no confirm, with Undo</b> (the Plan's undo habit).</li>
+<li><b>UD-P7. A week tile blocked by the household reads "Every week, household day off";</b> one the person set keeps "Every week, usual day off". The first is a new phrase (one string). Q: add it, or keep the one wording for both? <b>Recommend add it</b>: without it a person sees a night blocked that they never set and cannot tell why. A wrong guess costs one string.</li>
+<li><b>UD-P8. The Household view of the Plan shows the household's days off as Not cooking.</b> Today the Household view draws the viewer's own marks, which would leave a household with Fridays off looking open on its own tab. Outside this flyout. Q: yes? <b>Recommend yes, as slice 2.</b></li>
+<li><b>UD-P9. Where the Leftovers rename goes.</b> Not drawn (the owner asked only for its removal here). Options: (a) a protected row "Leftovers (planning)" in Settings, Categories; (b) the Household page; (c) nowhere until asked (the server feature stays). <b>Recommend (a), household admins only</b>, because the name is household-wide and the owner's P2 makes household names admin-only. This <b>collides with today's code</b> (any member can rename: <code>PATCH /api/plan/categories/leftovers</code>, no admin check), so (a) as admin-only is a behaviour change to be confirmed.</li>
+<li><b>UD-P10. The Household row is hidden for a household of one with no household days, and shown whenever household days exist</b> (for example after a member was removed, so the remaining person can see and change what applies to them). Q: always show it? <b>Recommend as drawn</b>: with one member the row is noise, and the flyout then equals today's.</li>
+<li><b>UD-P11. The plan event for a usual-day change says whose it is</b> ("Changed the household's usual days off to Tue, Fri" versus the person's). Q: should other members be told (Household activity, Kitchie #110)? <b>Recommend the wording only</b>; whether it notifies follows #110's own decision.</li>
+<li><b>UD-P12. The line "Different for you (Fri open, Sun off) and Jane (Wed off)" on the household row</b> (capped at three names, then "and N more"). It makes the person-wins effect visible to the admin who sets the default. Q: keep? <b>Recommend keep.</b> A wrong guess costs a line.</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">Build impact, in short</div>
+<p><b>Verdict: this needs a schema change (48), and it is small.</b> A stencil row can only say off, so a person's "open" on a household-off weekday has no place to live. A no-DDL encoding exists (reserved ids in the member column of <code>plan_stencil</code>) but it puts phantom members in the Plan strip, leaves personal rows behind when a member is erased, and lets older code run on the new rows after a rollback, so it is not recommended. The smallest change is schema <b>48</b> with two new tables (<code>plan_household_stencil</code> and <code>plan_stencil_open</code>), additive, no backfill, a household with none behaves as today. #838's Option 2 also claims 48; one schema change at a time, the owner merges the schema slice.</p>
+<p style="margin-top:8px">Server (guarded slice): <code>store.ts</code>, <code>plan.ts</code> (one <code>usualOff</code> used wherever <code>stencilSet</code> is), <code>web-plan-api.ts</code> (a household scope behind <code>householdWriteAllowed</code>, an <code>open</code> list), <code>inventory-port.ts</code>, <code>event-registry.ts</code>, <code>docs/plan-week-api.md</code>, tests and a schema-47 fixture. Page code (routine slice): <code>plan-sheet.js</code>, <code>plan.js</code>, <code>plan.phone-data.js</code>, <code>plan.phone.js</code>, <code>plan.desktop.js</code>, plus new <code>plan-usual*.css</code> assets. Exact lines, the SQL, the risks and the API shape are in <code>docs/knowledge/plan-usual-days.md</code>, section Build impact.</p></div>
+
+<div class="sec"><div class="lbl">What the default path loads</div>
+<p>Each screen is the page, the two shared stylesheets, three small stylesheets and two scripts (the flyout, about 16 KB; the stand-in page, about 9 KB). No image, no font and no request beyond that; the screenshots on this page load only here, lazily. Phone and desktop container rules are separate files (<code>sheet.css</code>, <code>lane.css</code>), so a phone never downloads the lane. In the build nothing is added to the Plan page load: the flyout code and its CSS load on the first press of the cog, as <code>plan-sheet.js</code> does today, and the week read the Plan already makes carries every member's rows.</p></div>
+
+<div class="sec"><div class="lbl">Files</div>
+<p><code>usual.js</code> and <code>usual.css</code> are the flyout (the build copies them first); <code>lane.css</code> and <code>sheet.css</code> the two containers; <code>page.js</code>, <code>page.css</code>, <code>desktop.css</code> and <code>phone.css</code> the stand-in Plan page around it (not part of the design: the real screens are <code>fragments/plan-desktop</code> and <code>fragments/plan-ui-review</code>). The older Plan mockups (<code>plan-desktop</code>, <code>plan-week-ai</code>) lost their Categories row and point here.</p></div>
+</div></body></html>

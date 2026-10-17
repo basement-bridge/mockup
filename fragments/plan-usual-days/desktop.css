@@ -1,0 +1,15 @@
+/* Stand-in page chrome for the desktop mockup: the rail, a 640px column and the 400px lane, left-anchored as DESIGN.md section 7 says (rail 88, column 640 inside a 736px lane with 48px gutters, panel 400).
+   Tokens only. Not part of the flyout design. */
+.pg-desk{display:flex;min-height:100vh;background:var(--bg);color:var(--fg)}
+.pg-rail{width:88px;flex:none;border-right:1px solid var(--border);padding:14px 8px;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh}
+.pg-brand{font:700 13px var(--head);text-align:center;color:var(--muted);margin-bottom:10px}
+.pg-nv{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px;border-radius:var(--r-ctl);font-size:12px;font-weight:600;color:var(--muted)}
+.pg-nv svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.pg-nv.on{color:var(--accent);background:var(--surface)}
+.pg-main{flex:0 1 736px;min-width:0;padding:24px 48px 64px}
+.pg-lane{flex:0 0 400px;width:400px;margin-left:0;border-left:1px solid var(--border);padding:24px 20px;min-height:100vh;position:sticky;top:0;align-self:flex-start;max-height:100vh;overflow:auto}
+.pg-idle{display:flex;flex-direction:column;gap:4px;padding:14px 16px;border:1px dashed var(--border);border-radius:var(--r-card);color:var(--muted);font-size:13px}
+.pg-idle b{color:var(--fg);font:800 16px var(--head)}
+.pg-idle[hidden]{display:none}
+.pg-lane .ud-host{position:static;display:block}
+@media (max-width:1023px){.pg-desk{display:block}.pg-rail{display:none}.pg-main{padding:16px var(--gutter)}.pg-lane{width:auto;position:static;border:0;min-height:0}}

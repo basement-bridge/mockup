@@ -1,0 +1,4 @@
+/* Stand-in page chrome for the phone mockup: one column at its natural width (a centred 390px column on a wider window). Tokens only. Not part of the flyout design. */
+.pg-ph{max-width:var(--content-max);margin:0 auto;min-height:100vh;background:var(--bg);color:var(--fg)}
+.pg-main{padding:16px var(--gutter) 64px}
+@media (min-width:600px){.pg-ph{max-width:420px}}

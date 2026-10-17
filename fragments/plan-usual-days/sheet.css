@@ -1,0 +1,10 @@
+/* Phone (and tablet): Meal planning is the bottom sheet it has always been (`.pw-sheet`): a scrim, a sheet rising from the bottom edge, content scrolls inside, Done at the foot. Only the container is drawn here;
+   everything inside is usual.css. */
+.ud-host{position:fixed;left:0;right:0;bottom:0;z-index:30;max-width:var(--content-max);margin:0 auto;max-height:88%;display:flex;flex-direction:column;background:var(--surface);border-top:1px solid var(--border);border-radius:var(--r-card) var(--r-card) 0 0;padding:16px var(--gutter) calc(18px + env(safe-area-inset-bottom,0px))}
+.ud-host[hidden]{display:none}
+.ud-sheet{display:flex;flex-direction:column;min-height:0}
+.ud-sheet .ud-scroll{overflow:auto;-webkit-overflow-scrolling:touch}
+.ud-sheet .ud-x{display:none}
+.pg-scrim{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:20}
+.pg-scrim[hidden]{display:none}
+.ud-host>.ud{flex:1 1 auto;min-height:0}
