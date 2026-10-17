@@ -29,6 +29,7 @@ nav.bar{position:static;height:auto}
 .psp{width:var(--pw);height:calc(var(--pw)*.75)}
 .pprep{width:var(--pw);height:auto;min-height:calc(var(--pw)*.75)}
 .stp{padding:var(--sp-2) 0}
+.stp.open .psp{width:min(100%,960px,calc(50vh*1.3333));height:auto}
 
 /* balanced columns: two when the method area is wide enough (the flyout, which pushes the page, drops it to one) */
 @container (min-width:42rem){.steps{column-count:2;column-gap:var(--sp-6);column-fill:balance}}

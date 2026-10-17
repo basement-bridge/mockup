@@ -29,7 +29,7 @@ var tab=Q.get("tab")||(R==="notes"?"notes":R==="cooked"?"cooked":"ing");
 var servesNow=D.serves;
 
 /* ---------------- derived ---------------- */
-var cookedN=D.cooks.length,notesN=D.notes.length,remarksN=D.cooks.filter(function(c){return c.line}).length,photosN=D.photosN;
+var cookedN=D.cooks.length,notesN=D.notes.length,remarksN=D.cooks.filter(function(c){return c.line}).length,photosN=D.photos.length+(D.banner?1:0);
 var missing=D.ing.filter(function(x){return x[3]==="miss"}).length;
 var dens=(D.ing.length>16||D.steps.length>10)?"tight":(D.ing.length<=5&&D.steps.length<=4)?"roomy":"normal";
 var cur=D.vers.filter(function(v){return v.id===D.ver})[0];
@@ -77,9 +77,7 @@ function photoCell(ph,i){
  if(ph==="prep")return '<span class="psp pprep" title="Photo is being prepared">Photo being prepared</span>';
  var real=ph.indexOf("img:")===0;
  var bg=real?'background-image:url('+IMG+ph.slice(4)+'-m.webp)':'background-image:linear-gradient(150deg,'+ph+',color-mix(in srgb,'+ph+' 55%,#000))';
- /* the enlarged view needs a full-size picture: the real step photo (960x720), or for the colour-block samples a 960x720 drawing */
- var full=real?IMG+ph.slice(4)+'-m.webp':'data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="960" height="720"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="'+ph+'"/><stop offset="1" stop-color="#4a3c2b"/></linearGradient></defs><rect width="960" height="720" fill="url(#g)"/><text x="480" y="420" font-size="220" text-anchor="middle">'+D.emoji+'</text></svg>');
- return '<button type="button" class="psp" data-psp data-full="'+esc(full)+'" style="'+bg+'" aria-label="Enlarge the photo for step '+(i+1)+'" title="Enlarge">'+(real?'':'<span class="pf">'+D.emoji+'</span>')+'<span class="zm" aria-hidden="true">'+ic("zoom","s")+'</span></button>'}
+ return '<button type="button" class="psp" data-psp style="'+bg+'" aria-label="Enlarge the photo for step '+(i+1)+'" title="Enlarge (Esc closes)">'+(real?'':'<span class="pf">'+D.emoji+'</span>')+'<span class="zm" aria-hidden="true">'+ic("zoom","s")+'</span></button>'}
 function stepsHtml(){
  var h="";
  D.steps.forEach(function(s,i){
@@ -95,7 +93,7 @@ function hero(){
   +(vers?'<div class="vpop" data-vpop role="menu" hidden>'+D.vers.map(function(v){return '<button type="button" role="menuitem" class="vi'+(v.id===D.ver?' on':'')+'">'+(v.usual?'<span class="us">★</span>':'<span class="us"></span>')+'<span class="vl"><b>'+esc(v.name)+'</b>'+(v.parent?'<small>From '+esc(v.parent)+'</small>':'<small>First version</small>')+'</span>'+(v.st==="trying"?'<em>Trying</em>':'')+(v.review?'<em class="rv">To review</em>':'')+'</button>'}).join("")+'<a class="vall" href="#">All versions</a></div>':'')+'</div>';
  /* Notes and reactions pill: icons and counts only, no text label (the thumbs and note icons say it). aria-label and tooltip keep the words. */
  var pill='<button type="button" class="rb-notesbtn re-a" data-gonotes aria-label="Notes and reactions: '+upN+' liked, '+dnN+' not for me, '+notesN+' notes" title="Notes and reactions (N)"><i class="rb-pillcnt"><i class="u">'+ic("up")+upN+'</i>'+(dnN?'<i class="d">'+ic("dn")+dnN+'</i>':'')+'<i>'+ic("note")+notesN+'</i></i><span class="kbd">N</span></button>';
- var hist='<a class="hico" href="#" data-key="," aria-label="History (,)" title="History (,)">'+ic("hist")+'</a>';
+ var hist='<button type="button" class="hico" data-hist aria-expanded="false" aria-controls="hlane" aria-label="History (,)" title="History (,)">'+ic("hist")+'</button>';
  var servesCta='<div class="svwrap"><button type="button" class="svcta" data-svcta aria-haspopup="true" aria-expanded="false" title="Change servings">'+ic("people","s")+'<span data-sv>Serves '+servesNow+'</span>'+ic("chev","s")+'</button>'
   +'<div class="spop" data-spop role="group" aria-label="Servings" hidden><div class="serves" data-serves><button type="button" data-dec aria-label="Fewer servings">−</button><span data-sv2>'+servesNow+' servings</span><button type="button" data-inc aria-label="More servings">+</button></div><small>Scales the ingredients and Cook it</small></div></div>';
  /* banner band: the photo has its own band above the controls; nothing sits on it or crops into it */
@@ -129,8 +127,15 @@ function lane(){
  +'<section><h3 class="rb-h4">Notes on this version <span class="sub">'+notesN+'</span></h3>'+(D.notes.slice().reverse().map(noteCard).join("")||'<p class="mut">No notes yet.</p>')+'</section></div>'
  +'<footer class="rff"><button type="button" class="rb-btn pri" data-note>'+ic("plus")+' Add a note</button></footer></aside>'}
 
+/* History flyout: same lane, slide-in and treatment as Notes and reactions. This recipe's version history, newest first, with the lineage chain on top. */
+function histLane(){
+ var chain=[],v=cur;while(v){chain.unshift(v);var pn=v.parent;v=pn?D.vers.filter(function(x){return x.name===pn})[0]:null}
+ var rows=D.hist.map(function(h){return '<li class="hrow"><div class="hd"><b>'+esc(h.at)+'</b></div><div class="ht"><p><b>'+esc(h.by)+'</b> '+(h.from?'started':'changed')+' <span class="hv">'+esc(h.v)+'</span>'+(h.from?' <small>from '+esc(h.from)+'</small>':'')+'</p><p class="hw">'+esc(h.what)+'</p></div></li>'}).join("");
+ return '<aside class="rfly rfly-hist" id="hlane" aria-label="History" hidden><header class="rfh"><h2>History</h2><button type="button" class="x" data-hist-close aria-label="Close (Esc)">'+ic("x")+'</button></header>'
+ +'<div class="rfb" data-scroll><section><h3 class="rb-h4">This version <span class="sub">'+esc(cur.name)+'</span></h3><p class="chain">'+chain.map(function(c,i){return (i?'<span class="ar" aria-hidden="true">\u2192</span>':'')+'<span class="ch'+(c.id===cur.id?' on':'')+'">'+esc(c.name)+'</span>'}).join("")+'</p></section>'
+ +'<section><h3 class="rb-h4">Changes <span class="sub">'+D.hist.length+'</span></h3><ol class="hlist">'+rows+'</ol></section></div></aside>'}
 $("#rtab").innerHTML=hero()+'<div class="rbody">'+rail+method+'</div>';
-$("#lane-slot").innerHTML=lane();
+$("#lane-slot").innerHTML=lane()+histLane();
 var rt=$("#rtab");rt.dataset.dens=dens;rt.dataset.tab=tab;rt.dataset.r=R;rt.dataset.size=key;
 document.title="Recipe detail, desktop, recommended ("+R+")";
 
@@ -159,10 +164,13 @@ $$("[role=tab]").forEach(function(b){b.onclick=function(){setTab(b.dataset.tab)}
 
 /* Notes and reactions flyout: opens on the pill or N, pushes the page (the app's lane rule), closes on its x or Ctrl/Cmd+Enter. */
 var app=$(".app"),laneEl=$("#lane");
-function setLane(on){laneEl.hidden=!on;app.classList.toggle("lane-open",on);$("[data-gonotes]").setAttribute("aria-expanded",on);setTimeout(fades,200)}
+var hlane=$("#hlane"),hbtn=$("[data-hist]");
+function setHist(on,back){if(on&&!laneEl.hidden)setLane(false);hlane.hidden=!on;hbtn.setAttribute("aria-expanded",on);app.classList.toggle("lane-open",on||!laneEl.hidden);if(on)$("[data-hist-close]").focus();else if(back)hbtn.focus();setTimeout(fades,200)}
+hbtn.onclick=function(e){e.preventDefault();setHist(hlane.hidden)};$("[data-hist-close]").onclick=function(){setHist(false,true)};
+function setLane(on){if(on&&!hlane.hidden)setHist(false);laneEl.hidden=!on;app.classList.toggle("lane-open",on||!hlane.hidden);$("[data-gonotes]").setAttribute("aria-expanded",on);setTimeout(fades,200)}
 $("[data-gonotes]").onclick=function(){setLane(laneEl.hidden)};
 $("[data-lane-close]").onclick=function(){setLane(false)};
-if(Q.get("lane")==="1")setLane(true);
+if(Q.get("lane")==="1")setLane(true);if(Q.get("lane")==="h")setHist(true);
 
 /* version chip popover */
 var vc=$("[data-vchip]"),vp=$("[data-vpop]");
@@ -177,20 +185,25 @@ document.addEventListener("keydown",function(e){
  if((e.ctrlKey||e.metaKey)&&(e.key==="Enter"||e.key==="Escape")){if(!laneEl.hidden){e.preventDefault();setLane(false)}return}
  if(e.ctrlKey||e.metaKey||e.altKey)return;if(t&&/INPUT|TEXTAREA|SELECT/.test(t.tagName))return;
  var k=e.key.toLowerCase();
- if(e.key==="Escape"){if(!sp.hidden){spop(false);sc.focus();return}if(vp&&!vp.hidden){vpop(false);vc.focus();return}return}
+ if(e.key==="Escape"){if(!sp.hidden){spop(false);sc.focus();return}if(!hlane.hidden){setHist(false,true);return}if($(".stp.open")){collapse(true);return}if(vp&&!vp.hidden){vpop(false);vc.focus();return}return}
  if(KEYS[k]){e.preventDefault();setTab(KEYS[k])}
  else if(k==="n"){e.preventDefault();setLane(laneEl.hidden)}
  else if(k==="s"&&$("[data-share]")){e.preventDefault();toast("Share panel opens in the right lane (not drawn here).")}
- else if(k==="e"||k===","){e.preventDefault();toast(k==="e"?"Editor opens in the right lane (not drawn here).":"History opens as its own page (not drawn here).")}
+ else if(k===","){e.preventDefault();setHist(hlane.hidden,true)}
+ else if(k==="e"){e.preventDefault();toast("Editor opens in the right lane (not drawn here).")}
 });
 
-/* step photos: click enlarges in the shared lightbox (arrows stay within the step photos); focus returns to the step's photo */
-var stepBtns=$$("[data-psp]");
-stepBtns.forEach(function(b,n){b.onclick=function(){LB.open(stepBtns.map(function(x){return {src:x.dataset.full,alt:x.getAttribute("aria-label").replace("Enlarge the photo for","Photo for"),el:x}}),n)}});
+/* step photos: click enlarges the photo in place, under its step (no dimming, nothing else moves except the steps below it); click it again, click away or Esc returns, focus stays on the step photo.
+   The full-screen photo viewer below is for the Photos tab only. */
+function collapse(back){var o=$(".stp.open");if(!o)return;o.classList.remove("open");var b=$("[data-psp]",o);b.setAttribute("aria-expanded","false");if(back)b.focus();fades()}
+$$("[data-psp]").forEach(function(b){b.setAttribute("aria-expanded","false");b.onclick=function(e){e.stopPropagation();var s=b.closest(".stp"),was=s.classList.contains("open");collapse();if(!was){s.classList.add("open");b.setAttribute("aria-expanded","true");s.scrollIntoView({block:"nearest"});fades()}}});
+document.addEventListener("click",function(e){if($(".stp.open")&&!e.target.closest(".stp.open"))collapse()});
 
 var pm=$("[data-pmore]");
-if(pm)pm.onclick=function(){var g=$("#pgrid"),h="";D.photos.forEach(function(n,i){h+='<button type="button" class="pfr" data-ph="'+i+'" style="background-image:url('+IMG+n+'-t.webp)" aria-label="Open photo '+(i+1)+' of '+photosN+'"></button>'});g.innerHTML=h;fades();
- var th=$$("[data-ph]",g);th.forEach(function(b,i){b.onclick=function(){LB.open(th.map(function(x,j){return {src:IMG+D.photos[j]+'-l.webp',alt:D.name+', photo '+(j+1)+' of '+photosN,el:x}}),i)}})};
+/* Photos = the uploaded photos plus the banner image; method step photos are not here (they enlarge in place under their step) */
+var PH=(D.banner?[{src:D.banner,thumb:D.banner,alt:D.name+", banner image",tag:"Banner"}]:[]).concat(D.photos.map(function(n,j){return {src:IMG+n+"-l.webp",thumb:IMG+n+"-t.webp",alt:D.name+", uploaded photo "+(j+1)}}));
+if(pm)pm.onclick=function(){var g=$("#pgrid"),h="";PH.forEach(function(p,i){h+='<button type="button" class="pfr" data-ph="'+i+'" style="background-image:url('+p.thumb+')" aria-label="Open photo '+(i+1)+' of '+photosN+(p.tag?' ('+p.tag.toLowerCase()+')':'')+'">'+(p.tag?'<span class="ptag">'+p.tag+'</span>':'')+'</button>'});g.innerHTML=h;fades();
+ var th=$$("[data-ph]",g);th.forEach(function(b,i){b.onclick=function(){LB.open(th.map(function(x,j){return {src:PH[j].src,alt:PH[j].alt,el:x}}),i)}})};
 
 /* ---------------- lightbox (shared by the Photos grid and the step photos) ----------------
    Dims the page (inert + scrim), photo centred, object-fit contain with max sizes from the viewport, never upscaled past its natural size (width/height stay auto).
@@ -241,7 +254,7 @@ function setTheme(v){try{localStorage.setItem("theme",v==="light"?"kitchie-day":
 var qt=Q.get("theme");if(qt==="light"||qt==="dark")setTheme(qt);
 var rs=[["typical","Typical"],["short","Short"],["long","Long"],["notes","Notes"],["cooked","Cooked"],["nocooked","Not cooked"]];
 P.innerHTML='<h3>State</h3><div class="dc">'+rs.map(function(r){return '<a href="'+link({r:r[0],tab:null})+'"'+(R===r[0]?' aria-current="true"':'')+'>'+r[1]+'</a>'}).join("")+'</div><h3>Banner</h3><div class="dc"><a href="'+link({banner:null})+'"'+(Q.get("banner")!=="none"?' aria-current="true"':'')+'>Has banner</a><a href="'+link({banner:"none"})+'"'+(Q.get("banner")==="none"?' aria-current="true"':'')+'>No banner</a></div><h3>Theme</h3><div class="dc"><button type="button" data-th="dark">Dark</button><button type="button" data-th="light">Light</button></div>'
- +(D.groups?'<p class="dn">Groups are drawn, but the app drops <code>group</code> today. Needs the wire change.</p>':'')+'<p class="dn">Keys: 1 to 4 rail tabs, N Notes and reactions, S share, comma History. In a photo viewer: Left/Right, Home/End, Esc. The wide layout needs 1280 x 700 or more; below that the page stacks and scrolls (the build keeps today’s page there).</p>';
+ +(D.groups?'<p class="dn">Groups are drawn, but the app drops <code>group</code> today. Needs the wire change.</p>':'')+'<p class="dn">Keys: 1 to 4 rail tabs, N Notes and reactions, S share, comma History. flyout. In the Photos viewer: Left/Right, Home/End, Esc. The wide layout needs 1280 x 700 or more; below that the page stacks and scrolls (the build keeps today’s page there).</p>';
 $$("[data-th]",P).forEach(function(b){b.onclick=function(){setTheme(b.dataset.th)}});
 B.onclick=function(){var o=P.hidden;P.hidden=!o;B.setAttribute("aria-expanded",o)};
 document.addEventListener("keydown",function(e){if(e.key==="`")B.click()});
