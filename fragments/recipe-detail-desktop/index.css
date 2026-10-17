@@ -1,0 +1,19 @@
+/* Hub page for the recipe detail desktop layout options. Page chrome only, tokens only (DESIGN.md section 2). Nothing here is loaded by the options. */
+.hub-opt{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:var(--sp-4);margin-bottom:var(--sp-4);display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:var(--sp-4);align-items:start}
+.hub-opt:hover{border-color:var(--accent)}
+.hub-opt .thumb{display:block;border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden;background:var(--bg)}
+.hub-opt .thumb img{display:block;width:100%;height:auto;aspect-ratio:1440/900}
+.hub-opt h2{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0}
+.hub-opt h2 a{display:inline-flex;align-items:center;min-height:var(--tap);text-decoration:underline;text-underline-offset:3px}
+.hub-opt .one{margin:2px 0 0;color:var(--fg);font-weight:600}
+.facts{margin:var(--sp-3) 0 0;display:grid;grid-template-columns:max-content minmax(0,1fr);gap:4px var(--sp-3);font-size:13px}
+.facts dt{color:var(--muted);font-weight:700}
+.facts dd{margin:0}
+.hub-links{display:flex;flex-wrap:wrap;gap:6px;margin-top:var(--sp-3)}
+.hub-links a{display:inline-flex;align-items:center;min-height:var(--tap);padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--bg);font-size:13px;font-weight:600}
+.hub-links a:hover{border-color:var(--accent)}
+.hub-list li{margin-bottom:6px;font-size:14px}
+.hub-said{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:var(--sp-4);margin-top:var(--sp-4)}
+.hub-said ul{margin:var(--sp-2) 0 0;padding-left:18px;font-size:14px}
+.hub-said li{margin-bottom:6px}
+@media(max-width:699px){.hub-opt{grid-template-columns:minmax(0,1fr)}}
