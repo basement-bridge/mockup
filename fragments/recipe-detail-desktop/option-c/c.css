@@ -52,7 +52,7 @@ nav.bar{width:88px;flex:none;border-right:1px solid var(--border);padding:14px 8
 .shr-chip{display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font:700 13px var(--body);margin:0 4px}
 .shr-n{font-size:12px;color:var(--accent)}
 
-/* row B: serves + time over the rail, versions / history / proof / Plan it / Cook it over the method */
+/* row B: serves + time over the rail, versions / history / proof / Plan it / Make it over the method */
 .bandL,.bandR{display:flex;align-items:center;gap:var(--sp-2);min-height:56px;border-bottom:1px solid var(--border);padding:0 var(--sp-4)}
 .bandL{border-right:1px solid var(--border);justify-content:space-between}
 .bandR{padding-left:var(--sp-5);min-width:0;overflow:hidden;white-space:nowrap}

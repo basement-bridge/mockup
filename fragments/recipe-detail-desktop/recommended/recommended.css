@@ -39,7 +39,7 @@ nav.bar{width:88px;flex:none;align-self:stretch;border-right:1px solid var(--bor
 .ib[aria-pressed=true]{color:var(--accent)}.ib[aria-pressed=true] .ic{fill:currentColor}
 
 /* ---------------- hero: banner band on top (nothing sits on it), then the controls in two rows ----------------
-   Row 1: back, title (left) | pill, star, edit, Share, More (right).  Row 2: Serves (CTA), time, version, History icon (left) | Plan it, Cook it (right). */
+   Row 1: back, title (left) | pill, star, edit, Share, More (right).  Row 2: Serves (CTA), time, version, History icon (left) | Plan it, Make it (right). */
 .hero{position:relative;display:flex;flex-direction:column;margin:var(--sp-2) var(--sp-3) 0;border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface);overflow:visible}
 .hphoto{height:clamp(88px,15vh,240px);border-radius:calc(var(--r-card) - 1px) calc(var(--r-card) - 1px) 0 0;overflow:hidden;background:var(--surface);border-bottom:1px solid var(--border)}
 .hphoto img{width:100%;height:100%;object-fit:cover;object-position:50% 50%;display:block}

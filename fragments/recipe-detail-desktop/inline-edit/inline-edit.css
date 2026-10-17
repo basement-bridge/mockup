@@ -137,3 +137,32 @@
 .toast{display:flex;align-items:center;gap:var(--sp-3)}
 .tundo{min-height:32px;padding:0 14px;border-radius:var(--r-pill);border:1px solid currentColor;font-weight:800;font-size:13px;color:inherit}
 .tundo:hover{background:color-mix(in srgb,var(--bg) 18%,transparent)}
+
+/* photos: Add beside the label; step photo Replace */
+.addgal{margin-left:auto}
+.pwrap{display:inline-flex;flex-direction:column;align-items:flex-start;gap:4px}
+.phr{display:inline-flex;align-items:center;gap:4px;min-height:28px;padding:0 10px;border:1px solid var(--border);border-radius:var(--r-pill);font-size:12px;font-weight:700;color:var(--muted);position:relative}
+.phr::after{content:"";position:absolute;inset:-8px 0}
+.phr:hover{border-color:var(--accent);color:var(--accent)}
+
+/* trailing section pencil (owner: "at the end of it"): pinned foot rows */
+.frow{display:flex;align-items:center;gap:var(--sp-2);flex-wrap:wrap;width:100%}
+.fsp{flex:1}
+.frow>.mini.ico:last-child,.pfoot-r .frow>.mini:last-child{margin-left:auto}
+.pfoot-r{flex-direction:column;align-items:stretch;gap:4px}
+.mfoot-p{display:flex;align-items:center;gap:var(--sp-2);padding:6px 0}
+.mfoot .mini.ico:last-child,.mfoot .mini.sec-done:last-child,.pfoot-e .mini.ico:last-child,.pfoot-e .mini.sec-done:last-child{margin-left:auto}
+.mini.sec-done{color:var(--accent);border-color:var(--accent);font-weight:700}
+/* finish dialog: where do the changes go */
+.fin{position:fixed;inset:0;z-index:90;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,#000 55%,transparent);padding:16px}
+.fin-b{background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:var(--r-lg,14px);padding:20px;max-width:30rem;width:100%;display:flex;flex-direction:column;gap:12px}
+.fin-b h2{margin:0;font-size:18px}
+.fin-b p{margin:0}
+.fin-o{display:flex;flex-direction:column;gap:8px}
+.fin-c{display:flex;text-align:left;gap:10px;padding:12px;border:1px solid var(--border);border-radius:var(--r-md,10px);min-height:44px}
+.fin-c .t{display:flex;flex-direction:column;gap:2px}
+.fin-c small{color:var(--muted);font-size:12.5px}
+.fin-c[aria-checked=true]{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent)}
+.fin-a{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.pfoot-r .frow .mini.wide{width:auto;flex:1}
+.mfoot [data-act=sec-done],.mfoot [data-act=edit-sec],.pfoot-e [data-act=sec-done],.pfoot-e [data-act=edit-sec]{margin-left:auto}

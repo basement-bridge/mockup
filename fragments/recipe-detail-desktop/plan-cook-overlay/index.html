@@ -1,41 +1,52 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Plan it and Cook it overlay</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Plan it and Make it overlay, option C chosen</title>
 <link rel="stylesheet" href="../../../theme.css"><link rel="stylesheet" href="../../../shared.css"><link rel="stylesheet" href="../index.css"><script src="../../../theme.js"></script></head>
 <body><div class="wrap">
 <a class="back" href="../index.html">&lsaquo; Recipe page, desktop layout options</a>
-<h1>Plan it and Cook it on the banner</h1>
-<p>Fragment. The owner asked (by voice, 18 October 2026) for Plan it and Cook it to sit directly on the hero banner image, always visible and not shown on hover, instead of the right side of row two. He has not chosen where. Three variations of the <a href="../recommended/index.html">recommended page</a>; each changes only that. Mockup only. Kitchie issue #830. <span class="tag">Open decision, awaiting owner</span></p>
+<h1>Plan it and Make it on the banner</h1>
+<p>Fragment. The owner asked (by voice, 18 October 2026) for Plan it and Make it to sit directly on the hero banner image, always visible and not shown on hover, instead of the right side of row two. <b>He chose option C (top-right stacked buttons)</b>, rejected B ("yucky") and A ("insensible"), and asked that the contrast adapt to the photo instead of using a fixed dark scrim. Variations of the <a href="../recommended/index.html">recommended page</a>; each changes only that. Mockup stage only, <b>not approved for build</b>. Kitchie issues #830 and #898. <span class="tag chosen">C chosen, mockup stage</span></p>
+<div class="hub-links"><a href="c/index.html">Open C (adaptive)</a><a href="adaptive-test.html">Adaptive contrast test banners</a><a href="c/index.html?banner=none">C, no banner</a></div>
 
 <div class="hub-said"><b>What is the same in all three</b>
 <ul>
-<li>Buttons are solid (or dark glass with white text), 44px tall (36px on a very short banner), readable over a light, a dark and a black and white banner photo.</li>
-<li>The whole banner opens the photo viewer (click or Enter), with a visible magnifier in a corner the buttons do not use. It is the first tab stop; Plan it and Cook it stay after the History icon, so the keyboard order is exactly today's.</li>
+<li>Buttons are solid (or dark glass with white text), 44px tall (36px on a very short banner), readable over a light, a dark and a black and white banner photo. In C the style adapts to the photo.</li>
+<li>The whole banner opens the photo viewer (click or Enter), with a visible magnifier in a corner the buttons do not use. It is the first tab stop; Plan it and Make it stay after the History icon, so the keyboard order is exactly today's.</li>
 <li>Row two keeps Serves, the time badge, the version chip and History, left aligned. The hero is 4px shorter (190 instead of 194 at 1280x720): the Serves button is 40px, so row two barely shrinks.</li>
-<li>No banner: nothing is overlaid; Plan it and Cook it stay at the right of row two, as in the recommended page.</li>
+<li>No banner: nothing is overlaid; Plan it and Make it stay at the right of row two, as in the recommended page.</li>
 </ul></div>
 
-<div class="sec"><div class="lbl">The three options</div>
-<article class="hub-opt" id="a">
-<a class="thumb" href="a/index.html" aria-label="Open variation A"><img src="a/typical-1440x900-dark.png" width="1440" height="900" loading="lazy" decoding="async" alt="Variation A, typical recipe at 1440 by 900, dark"></a>
-<div><h2><a href="a/index.html">A: Bottom-right pair of solid buttons</a> <span class="tag">Open</span></h2>
-<p class="one">The same two buttons as today, moved onto the banner's bottom-right corner over a corner scrim; the nearest thing to where they were.</p>
-<div class="hub-links"><a href="a/index.html">Open A</a><a href="a/index.html?r=long&amp;theme=light">Long, light</a><a href="a/index.html?banner=none">No banner</a></div></div>
-</article>
-<article class="hub-opt" id="b">
-<a class="thumb" href="b/index.html" aria-label="Open variation B"><img src="b/typical-1440x900-dark.png" width="1440" height="900" loading="lazy" decoding="async" alt="Variation B, typical recipe at 1440 by 900, dark"></a>
-<div><h2><a href="b/index.html">B: Floating glass bar, bottom centre</a> <span class="tag">Open</span></h2>
-<p class="one">One dark glass capsule holding both buttons, centred along the bottom edge; the most legible over any photo (white text on at worst a 10:1 backing).</p>
-<div class="hub-links"><a href="b/index.html">Open B</a><a href="b/index.html?r=long&amp;theme=light">Long, light</a><a href="b/index.html?banner=none">No banner</a></div></div>
-</article>
+<div class="sec"><div class="lbl">The three options: C chosen, A and B rejected (both stay viewable)</div>
 <article class="hub-opt" id="c">
 <a class="thumb" href="c/index.html" aria-label="Open variation C"><img src="c/typical-1440x900-dark.png" width="1440" height="900" loading="lazy" decoding="async" alt="Variation C, typical recipe at 1440 by 900, dark"></a>
-<div><h2><a href="c/index.html">C: Top-right corner stack</a> <span class="tag">Open</span></h2>
-<p class="one">Plan it above Cook it in the top-right corner (a single row when the banner is shorter than 112px, as at 1280x720); keeps the bottom of the photo clear.</p>
-<div class="hub-links"><a href="c/index.html">Open C</a><a href="c/index.html?r=long&amp;theme=light">Long, light</a><a href="c/index.html?banner=none">No banner</a></div></div>
+<div><h2><a href="c/index.html">C: Top-right corner stack, adaptive contrast</a> <span class="tag chosen">Owner's choice</span></h2>
+<p class="one">Plan it above Make it in the top-right corner (a single row when the banner is shorter than 112px, as at 1280x720); keeps the bottom of the photo clear. The buttons sample the banner behind them and switch between a light and a dark style, so they stay legible over any photo.</p>
+<div class="hub-links"><a href="c/index.html">Open C</a><a href="c/index.html?r=long&amp;theme=light">Long, light</a><a href="adaptive-test.html">Test banners</a><a href="../../../tools/plan-cook-overlay-adaptive-check.mjs">Check script</a><a href="c/index.html?banner=none">No banner</a></div></div>
+</article>
+<article class="hub-opt rej" id="a">
+<a class="thumb" href="a/index.html" aria-label="Open variation A"><img src="a/typical-1440x900-dark.png" width="1440" height="900" loading="lazy" decoding="async" alt="Variation A, typical recipe at 1440 by 900, dark"></a>
+<div><h2><a href="a/index.html">A: Bottom-right pair of solid buttons</a> <span class="tag rej">Rejected</span></h2>
+<p class="mut">Owner, 18 October 2026: "insensible".</p><p class="one">The same two buttons as today, moved onto the banner's bottom-right corner over a corner scrim; the nearest thing to where they were.</p>
+<div class="hub-links"><a href="a/index.html">Open A</a><a href="a/index.html?r=long&amp;theme=light">Long, light</a><a href="a/index.html?banner=none">No banner</a></div></div>
+</article>
+<article class="hub-opt rej" id="b">
+<a class="thumb" href="b/index.html" aria-label="Open variation B"><img src="b/typical-1440x900-dark.png" width="1440" height="900" loading="lazy" decoding="async" alt="Variation B, typical recipe at 1440 by 900, dark"></a>
+<div><h2><a href="b/index.html">B: Floating glass bar, bottom centre</a> <span class="tag rej">Rejected</span></h2>
+<p class="mut">Owner, 18 October 2026: "yucky".</p><p class="one">One dark glass capsule holding both buttons, centred along the bottom edge; the most legible over any photo (white text on at worst a 10:1 backing).</p>
+<div class="hub-links"><a href="b/index.html">Open B</a><a href="b/index.html?r=long&amp;theme=light">Long, light</a><a href="b/index.html?banner=none">No banner</a></div></div>
+</article>
 </article></div>
 
-<div class="sec"><div class="lbl">Advice from Claude, not a decision</div>
-<p><b>Suggested pick: A.</b> It keeps today's buttons and today's place (bottom right of the hero), so there is nothing new to learn; it does not hide the photo's centre; both buttons keep the exact styling used everywhere else in the app. B is the safest choice if banner photos turn out to be unpredictable (it is legible over anything, but it is a new component and sits over the middle of the photo). C is the one to pick if the bottom of the photo matters more than the corner (it leaves the lower half clear, but at 1280x720 it is a row, not a stack). The owner decides; nothing here is locked.</p></div>
+<div class="sec"><div class="lbl">Decision, 18 October 2026 (owner, by voice)</div>
+<p><b>C.</b> Top-right stacked buttons. B was "yucky", A "insensible". Contrast must be handled adaptively: sample the brightness of the banner behind the buttons and switch between a light-on-dark and a dark-on-light button style, instead of the fixed dark scrim. The button is also now called <b>Make it</b> (not Cook it), which works for baking and cocktails. Claude's earlier suggestion (A) was not taken. Status: mockup stage, not approved for build.</p></div>
+
+<div class="sec"><div class="lbl">How the adaptive contrast works (C)</div>
+<ul class="hub-list">
+<li><b>Sample:</b> the banner is drawn to a 32px canvas for just the part behind the stack (mapped through object-fit and object-position, so the crop and a resize are right); mean, 10th and 90th percentile relative luminance are read.</li>
+<li><b>Style:</b> a dark region gets light buttons (cream Plan it, amber Make it, white edge); a light region gets dark buttons (ink Plan it, deep amber Make it, near-black edge). Hysteresis: it switches to dark buttons above luminance 0.24 and back only below 0.15, so a resize across the line does not flicker.</li>
+<li><b>Contrast kept:</b> label text 8.7 to 9.6:1 (AA needs 4.5); button edge at least 3:1 against the worst pixel behind it, measured in the tests on the rendered page.</li>
+<li><b>Scrim:</b> none on a flat extreme; a subtle 30% (50% if still short of 3:1) backing in the opposite tone for mid-tone or busy regions.</li>
+<li><b>Fallback:</b> if the image cannot be read (a cross-origin image without CORS taints the canvas), has not loaded or has no size, C shows the fixed look, theme buttons on the fixed dark corner scrim. <code>?adaptive=off</code> forces it for comparison.</li>
+<li><b>Motion:</b> .28s transitions on button colours and the scrim; none under prefers-reduced-motion.</li></ul></div>
 
 <div class="sec"><div class="lbl">Weak spots</div>
 <ul class="hub-list">
@@ -46,5 +57,5 @@
 </ul></div>
 
 <div class="sec"><div class="lbl">Read next</div>
-<div class="hub-links"><a href="notes.md">Notes and test results</a><a href="../notes.md#74-open-decision-plan-it-and-cook-it-overlay-placement-18-october-2026">Owner decisions log</a><a href="https://github.com/basement-bridge/kitchie/issues/830">Kitchie issue #830</a></div></div>
+<div class="hub-links"><a href="notes.md">Notes and test results</a><a href="../notes.md#74-plan-it-and-make-it-overlay-placement-18-october-2026-c-chosen">Owner decisions log</a><a href="https://github.com/basement-bridge/kitchie/issues/898">Kitchie issue #898</a><a href="https://github.com/basement-bridge/kitchie/issues/830">Kitchie issue #830</a></div></div>
 </div></body></html>

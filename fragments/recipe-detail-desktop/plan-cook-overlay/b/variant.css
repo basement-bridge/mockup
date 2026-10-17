@@ -1,4 +1,4 @@
-/* B: floating glass bar, bottom centre, over a soft bottom scrim. Dark glass in both themes (white text), Cook it keeps the accent fill. Enlarge icon top-right. */
+/* B: floating glass bar, bottom centre, over a soft bottom scrim. Dark glass in both themes (white text), Make it keeps the accent fill. Enlarge icon top-right. */
 .ban-scrim{background:linear-gradient(to top,rgba(0,0,0,.55),rgba(0,0,0,.18) 55%,rgba(0,0,0,0))}
 .pc-go{left:50%;bottom:10px;transform:translateX(-50%);gap:6px;padding:5px;border-radius:var(--r-pill);background:rgba(10,18,15,.80);border:1px solid rgba(255,255,255,.24);backdrop-filter:blur(14px) saturate(1.2);-webkit-backdrop-filter:blur(14px) saturate(1.2);box-shadow:0 6px 24px rgba(0,0,0,.4)}
 @supports not (backdrop-filter:blur(1px)){.pc-go{background:rgba(10,18,15,.92)}}

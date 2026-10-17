@@ -51,7 +51,7 @@ var VERS=D.vers;
 var cur=function(){return VERS.filter(function(v){return v.id===D.ver})[0]};
 var calcDens=function(){var n=ING.filter(function(x){return x.k==="i"}).length,m=STP.filter(function(x){return x.k==="s"}).length;return (n>16||m>10)?"tight":(n<=5&&m<=4)?"roomy":"normal"};
 var tab=Q.get("tab")||(R==="notes"?"notes":R==="cooked"?"cooked":"ing");
-var S={edit:false,dens:calcDens(),target:cur().st==="trying"?"inplace":null,revN:Math.max(1,HIST.filter(function(h){return h.v===cur().name}).length),revOpen:false,changes:0,saved:"",stack:[],laneOpen:false,histOpen:false,composing:false,servesNow:META.serves};
+var S={edit:false,dens:calcDens(),target:cur().st==="trying"?"inplace":"pending",scope:{},revN:Math.max(1,HIST.filter(function(h){return h.v===cur().name}).length),revOpen:false,changes:0,saved:"",stack:[],laneOpen:false,histOpen:false,composing:false,servesNow:META.serves};
 var find=function(arr,id){return arr.filter(function(x){return x.id===id})[0]};
 var idx=function(arr,id){for(var i=0;i<arr.length;i++)if(arr[i].id===id)return i;return -1};
 var PHOTOS=["img:efr-s1","img:efr-s2","img:efr-s4"],phCycle=0,MAXSTEPPH=10;
@@ -82,13 +82,19 @@ function derived(){var d={};d.ingN=ING.filter(function(x){return x.k==="i"}).len
  d.known=ING.filter(function(x){return x.k==="i"&&x.pan}).length;d.missing=ING.filter(function(x){return x.k==="i"&&x.pan==="miss"}).length;
  d.upN=D.react.people.filter(function(p){return p[1]==="up"}).length;d.dnN=D.react.people.length-d.upN;d.remarksN=D.cooks.filter(function(c){return c.line}).length;
  d.tabs=[["ing","Ingredients",d.ingN,"1"],["notes","Notes",d.notesN,"2"],["cooked","Cooked",d.cookedN,"3"],["pho","Photos",d.photosN,"4"]].filter(function(t){
-  if(t[0]==="cooked"&&!d.cookedN)return false;if(t[0]==="pho"&&!d.photosN)return false;return true});
+  if(t[0]==="cooked"&&!d.cookedN)return false;return true});
  if(!d.tabs.some(function(t){return t[0]===tab}))tab="ing";return d}
 var DV=derived();
-var askNeeded=function(){return S.edit&&S.target===null};
+var askNeeded=function(){return false};   /* the keeper question is asked at Done, not on entering (owner, 18 Oct 2026) */
+/* Two entry points (owner, 18 Oct 2026): E and the Edit chip = GLOBAL (S.edit): every field on the page. A section's pencil = SCOPED (S.scope[sec]): that section only. */
+var EDON=false;
+var ANY=function(){return S.edit||Object.keys(S.scope).length>0};
+var secOn=function(k){return S.edit||!!S.scope[k]};
 
 /* ---------------- editable value helper ---------------- */
-function ed(k,html,o){o=o||{};if(!S.edit)return html;
+/* the section pencil TRAILS its section (owner, voice, 18 Oct 2026: "I want it to be at the end of it"): pinned in the foot row under the list, so a long section never pushes it out of view */
+function secBtn(sec,label){return S.edit?'':S.scope[sec]?'<button type="button" class="mini sec-done" data-act="sec-done" data-sec="'+sec+'" title="Finish editing '+label+'">'+ic("check","s")+' Done</button>':'<button type="button" class="mini ico" data-act="edit-sec" data-sec="'+sec+'" aria-label="Edit '+label+'" title="Edit '+label+' (this section only; E edits the whole page)">'+ic("pen")+'</button>'}
+function ed(k,html,o){o=o||{};if(!EDON)return html;
  return '<button type="button" class="ed'+(o.cls?' '+o.cls:'')+'" data-ed="'+k+'" aria-label="'+esc(o.label||"Edit")+'" title="'+esc(o.label||"Edit")+'">'+html+'</button>'}
 
 /* ---------------- rail panes ---------------- */
@@ -96,10 +102,10 @@ function grip(label){return '<button type="button" class="grip" draggable="true"
 function rmBtn(label,what){return '<button type="button" class="rm" data-act="rm" aria-label="Remove '+esc(label)+'" title="Remove">'+ic("x","s")+'</button>'}
 function ingRow(x){
  if(x.k==="g"){
-  if(!S.edit)return '<h3 class="grp">'+esc(x.name)+'</h3>';
+  if(!EDON)return '<h3 class="grp">'+esc(x.name)+'</h3>';
   return '<div class="ing ing-e ing-g" data-row="'+x.id+'" data-list="ing">'+grip(x.name+" (group)")+'<h3 class="grp">'+ed("g:"+x.id,esc(x.name),{cls:"nm",label:"Edit the group name"})+'</h3>'+rmBtn(x.name+" (group heading)")+'</div>'}
  var miss=x.pan==="miss",un=x.q===null,u=esc(x.u);
- if(!S.edit){
+ if(!EDON){
   return '<div class="ing'+(miss?' miss':'')+'" data-row="'+x.id+'">'+(D.pantryKnown?'<span class="dot'+(miss?' no':x.pan?'':' unk')+'" title="'+(miss?'Not in the pantry':x.pan?'In the pantry':'Checked against the pantry when saved')+'"></span>':'')
    +'<span class="nm">'+esc(x.name.replace(/,.*/,""))+(x.name.indexOf(",")>0?'<small>'+esc(x.name.replace(/^[^,]*/,""))+'</small>':"")+(x.opt?' <small>(optional)</small>':"")+'</span>'
    +(miss?'<button type="button" class="cart" data-act="cart" aria-label="Add '+esc(x.name)+' to shopping">'+ic("cart")+'</button>':"")
@@ -108,17 +114,17 @@ function ingRow(x){
   +ed("i:"+x.id+":q",un?'<i aria-label="amount unknown">?</i>':fmt(x.q),{cls:"eq",label:"Edit the amount of "+x.name+(un?" (unknown)":"")})
   +ed("i:"+x.id+":u",x.u?u:'<i>unit</i>',{cls:"eu",label:"Edit the unit of "+x.name})
   +ed("i:"+x.id+":n",esc(x.name)+(x.opt?' <small>(optional)</small>':""),{cls:"nm",label:"Edit the ingredient name"})+rmBtn(x.name)+'</div>'}
-function ingPane(){
- var head='<div class="lblrow"><span class="lbl">Ingredients <span class="sub">'+(S.edit?'as written for '+META.serves:D.pantryKnown&&DV.known?(DV.missing?(DV.known-DV.missing)+' of '+DV.known+' in':'all in'):'')+'</span></span><span class="row-a">'
-  +(!S.edit&&D.planned?'<button type="button" class="mini" data-act="hold">Hold for '+D.planned+'</button>':'')
-  +(S.edit?'':'<button type="button" class="mini ico" data-act="edit-sec" data-sec="ing" aria-label="Edit ingredients" title="Edit ingredients (E)">'+ic("pen")+'</button>')+'</span></div>';
+function ingPane(){EDON=secOn("ing");
+ var head='<div class="lblrow"><span class="lbl">Ingredients <span class="sub">'+(EDON?'as written for '+META.serves:D.pantryKnown&&DV.known?(DV.missing?(DV.known-DV.missing)+' of '+DV.known+' in':'all in'):'')+'</span></span><span class="row-a">'
+  +(!EDON&&D.planned?'<button type="button" class="mini" data-act="hold">Hold for '+D.planned+'</button>':'')
+  +'</span></div>';
  var body='<div class="pscroll" data-scroll><div class="ings">';
- if(!ING.length)body+='<div class="rb-empty"><span>'+ic("plus")+'</span><div><b>No ingredients yet.</b><small>'+(S.edit?'Type the first one below, for example 2 tbsp soy sauce.':'Press E to add them.')+'</small></div></div>';
+ if(!ING.length)body+='<div class="rb-empty"><span>'+ic("plus")+'</span><div><b>No ingredients yet.</b><small>'+(EDON?'Type the first one below, for example 2 tbsp soy sauce.':'Press E to add them.')+'</small></div></div>';
  body+=ING.map(ingRow).join("")+'</div></div>';
  var foot="";
- if(S.edit)foot='<div class="pfoot pfoot-e"><label class="addrow"><span class="vh">Add an ingredient</span>'+ic("plus","s")+'<input class="edin" data-add="ing" placeholder="Add one, e.g. 2 tbsp soy sauce" maxlength="120" autocomplete="off"></label>'
-  +'<button type="button" class="mini" data-act="addgrp" data-list="ing" aria-label="Add a group heading" title="Add a group heading">'+ic("plus","s")+' Group</button></div>';
- else if(DV.missing)foot='<div class="pfoot">'+(DV.missing>1?'<button type="button" class="mini wide" data-act="cartall">'+ic("cart")+' Add all '+DV.missing+' missing to shopping</button>':'')+'<span class="hint">Talk to your assistant about substitutes</span></div>';
+ if(EDON)foot='<div class="pfoot pfoot-e"><label class="addrow"><span class="vh">Add an ingredient</span>'+ic("plus","s")+'<input class="edin" data-add="ing" placeholder="Add one, e.g. 2 tbsp soy sauce" maxlength="120" autocomplete="off"></label>'
+  +'<button type="button" class="mini" data-act="addgrp" data-list="ing" aria-label="Add a group heading" title="Add a group heading">'+ic("plus","s")+' Group</button>'+secBtn("ing","ingredients")+'</div>';
+ else foot='<div class="pfoot pfoot-r"><div class="frow">'+(DV.missing>1?'<button type="button" class="mini wide" data-act="cartall">'+ic("cart")+' Add all '+DV.missing+' missing to shopping</button>':'<span class="fsp"></span>')+secBtn("ing","ingredients")+'</div>'+(DV.missing?'<span class="hint">Talk to your assistant about substitutes</span>':'')+'</div>';
  return head+body+foot}
 function noteBody(n){return n.b.map(function(p){return '<p>'+md(p)+'</p>'}).join("")+(n.li?'<ul>'+n.li.map(function(l){return '<li>'+esc(l)+'</li>'}).join("")+'</ul>':"")}
 function noteMeta(n){return '<small>'+esc(n.by)+', '+esc(n.at)+(n.inh?'<span class="from" title="from the parent version">'+ic("branch")+' from '+esc(n.on)+'</span>':n.reworded?'<span class="from">changed in this version</span>':'')+'</small>'}
@@ -126,26 +132,34 @@ function noteCard(n){return '<div class="note'+(n.inh?' inh':'')+'">'+noteBody(n
 function noteCardEdit(n){
  if(n.inh)return '<div class="note inh n-e" data-note-id="'+n.id+'">'+noteBody(n)+noteMeta(n)+'<p class="lockn">'+ic("lock","s")+' Comes from '+esc(n.on)+'. Change it there.</p></div>';
  return '<div class="note n-e" data-note-id="'+n.id+'" data-row="'+n.id+'">'+ed("n:"+n.id,noteBody(n),{cls:"nbtn",label:"Edit this note"})+'<div class="nfoot">'+noteMeta(n)+'<button type="button" class="rm" data-act="rm" aria-label="Remove this note" title="Remove">'+ic("x","s")+'</button></div></div>'}
-function notesPane(){
- var c=cur(),h='<div class="lblrow"><span class="lbl">Notes <span class="sub" data-subnotes>'+(DV.notesN?'on '+esc(c.name):'')+'</span></span><span class="row-a">'+(S.edit?'':'<button type="button" class="mini ico" data-act="edit-sec" data-sec="notes" aria-label="Edit notes" title="Edit notes (E)">'+ic("pen")+'</button>')+'</span></div><div class="pscroll" data-scroll>';
+function notesPane(){EDON=secOn("notes");
+ var c=cur(),h='<div class="lblrow"><span class="lbl">Notes <span class="sub" data-subnotes>'+(DV.notesN?'on '+esc(c.name):'')+'</span></span><span class="row-a">'+'</span></div><div class="pscroll" data-scroll>';
  if(!DV.notesN)h+='<div class="rb-empty"><span>'+ic("note")+'</span><div><b>No notes yet.</b><small>'+(DV.cookedN?'Anything worth remembering next time.':'Cook it once and the thumbs and notes start here.')+'</small></div></div>';
- h+=NOTES.map(S.edit?noteCardEdit:noteCard).join("")+'</div>';
+ h+=NOTES.map(EDON?noteCardEdit:noteCard).join("")+'</div>';
  return h+'<div class="pfoot" data-pfoot-notes>'+noteFoot()+'</div>'}
 function noteFoot(){return S.composing?'<div class="composer"><textarea class="edin" data-add="note" rows="3" maxlength="4000" placeholder="Anything worth remembering next time" aria-label="New note"></textarea><div class="comp-a"><span class="hint">Ctrl+Enter adds. Esc cancels.</span><button type="button" class="mini" data-act="note-cancel">Cancel</button><button type="button" class="rb-btn pri" data-act="note-add">Add</button></div></div>'
- :'<button type="button" class="rb-btn" data-act="note">'+ic("plus")+' Add a note</button>'}
+ :'<div class="frow"><button type="button" class="rb-btn" data-act="note">'+ic("plus")+' Add a note</button>'+secBtn("notes","notes")+'</div>'}
 function cookedPane(){
  var h='<div class="lblrow"><span class="lbl">Cooked <span class="sub">'+DV.cookedN+(DV.cookedN>=40?"+":"")+' time'+(DV.cookedN>1?'s':'')+'</span></span></div>';
  if(D.react.fav)h+='<p class="fav">'+esc(D.react.fav)+'</p>';
  h+='<div class="pscroll" data-scroll>';
  D.cooks.forEach(function(c){h+='<div class="hist"><div class="d">'+(c.d?'<b>'+c.d+'</b>':'')+c.m+'</div><div class="t"><b>'+esc(c.by)+'</b> cooked '+esc(c.v)+(c.line?'<small>“'+esc(c.line)+'”</small>':'')+((c.verdict||c.ate)?'<small>'+(c.verdict?'<em class="vd">'+c.verdict+'</em>':'')+(c.verdict&&c.ate?' . ':'')+(c.ate?c.ate+' ate':'')+'</small>':'')+'</div></div>'});
  return h+'</div>'}
-function phoPane(){return '<div class="lblrow"><span class="lbl">Photos <span class="sub">'+DV.photosN+'</span></span></div><div class="pscroll" data-scroll><div id="pgrid" class="pgrid"><button type="button" class="pmore" data-act="pmore">Show '+DV.photosN+' photos <small>(loads on tap)</small></button></div></div>'}
+/* Photos has no pencil (owner, voice, 18 Oct 2026): an explicit Add button beside the label and count */
+function phoPane(){return '<div class="lblrow"><span class="lbl">Photos <span class="sub">'+DV.photosN+'</span></span><button type="button" class="mini addgal" data-act="addgal" title="Add a photo to this recipe">'+ic("plus","s")+' Add</button></div><div class="pscroll" data-scroll><div id="pgrid" class="pgrid">'+(DV.photosN?'<button type="button" class="pmore" data-act="pmore">Show '+DV.photosN+' photos <small>(loads on tap)</small></button>':'<p class="mut">No photos yet. Use Add.</p>')+'</div></div>'}
+var galUp=false;
+function addGallery(){if(galUp)return;galUp=true;toast("Uploading photo…");var b=$("[data-act=addgal]");if(b)b.disabled=true;
+ setTimeout(function(){galUp=false;var n=PHOTOS[phCycle++%PHOTOS.length].slice(4);D.photos.push(n);
+  record({what:"Added a photo to Photos",undo:function(){var i=D.photos.lastIndexOf(n);if(i>=0)D.photos.splice(i,1)}},true);
+  tab="pho";paint({focus:"[data-act=addgal]"})},700)}
+function replacePhoto(row){var s=find(STP,row.dataset.row);if(!s||!s.ph||s.ph==="prep")return;var o=s.ph,n=stepNo(s.id),nw=PHOTOS[phCycle++%PHOTOS.length];if(nw===o)nw=PHOTOS[phCycle++%PHOTOS.length];s.ph=nw;
+ record({what:"Replaced the photo on step "+n,undo:function(){s.ph=o}},true);paint({focus:'[data-row="'+s.id+'"] [data-act=repph]'})}
 var panes={ing:ingPane,notes:notesPane,cooked:cookedPane,pho:phoPane};
 
 /* ---------------- method ---------------- */
 function photoCell(s,n){
  var ph=s.ph;
- if(!S.edit){
+ if(!EDON){
   if(!ph)return"";
   if(ph==="prep")return '<span class="psp pprep" title="Photo is being prepared">Photo being prepared</span>';
   var real=ph.indexOf("img:")===0,bg=real?'background-image:url('+IMG+ph.slice(4)+'-m.webp)':'background-image:linear-gradient(150deg,'+ph+',color-mix(in srgb,'+ph+' 55%,#000))';
@@ -154,24 +168,25 @@ function photoCell(s,n){
   return '<button type="button" class="addph" data-act="addph" '+(full?'disabled title="A recipe keeps up to '+MAXSTEPPH+' step photos"':'title="Add a photo to step '+n+'"')+' aria-label="Add a photo to step '+n+'">'+ic("image","s")+(full?'10 of 10':'Photo')+'</button>'}
  if(ph==="prep")return '<span class="pwrap"><span class="psp pprep" title="Photo is being prepared">Photo being prepared</span><button type="button" class="phx" data-act="rmph" aria-label="Remove the photo from step '+n+'" title="Remove the photo">'+ic("x","s")+'</button></span>';
  var real2=ph.indexOf("img:")===0,bg2=real2?'background-image:url('+IMG+ph.slice(4)+'-m.webp)':'background-image:linear-gradient(150deg,'+ph+',color-mix(in srgb,'+ph+' 55%,#000))';
- return '<span class="pwrap"><span class="psp" style="'+bg2+'" role="img" aria-label="Photo for step '+n+'">'+(real2?'':'<span class="pf">'+D.emoji+'</span>')+'</span><button type="button" class="phx" data-act="rmph" aria-label="Remove the photo from step '+n+'" title="Remove the photo (undo for 5 minutes)">'+ic("x","s")+'</button></span>'}
+ return '<span class="pwrap"><span class="psp" style="'+bg2+'" role="img" aria-label="Photo for step '+n+'">'+(real2?'':'<span class="pf">'+D.emoji+'</span>')+'</span><button type="button" class="phx" data-act="rmph" aria-label="Remove the photo from step '+n+'" title="Remove the photo (undo for 5 minutes)">'+ic("x","s")+'</button><button type="button" class="phr" data-act="repph" aria-label="Replace the photo on step '+n+'" title="Replace the photo">'+ic("image","s")+' Replace</button></span>'}
 function timerHtml(s){return s.m?ic("timer")+mins(s.m):""}
 function stepRow(s,n){
  if(s.k==="g"){
-  if(!S.edit)return '<h3 class="grp">'+esc(s.name)+'</h3>';
+  if(!EDON)return '<h3 class="grp">'+esc(s.name)+'</h3>';
   return '<div class="stp stp-g" data-row="'+s.id+'" data-list="stp"><div class="nbw">'+grip(s.name+" (group)")+'</div><div class="sb"><h3 class="grp">'+ed("g:"+s.id,esc(s.name),{cls:"nm",label:"Edit the group name"})+'</h3></div>'+rmBtn(s.name+" (group heading)")+'</div>'}
- if(!S.edit)return '<div class="stp" data-row="'+s.id+'" data-i="'+(n-1)+'"><div class="nbw"><span class="nb">'+n+'</span>'+(s.m?'<span class="timer">'+timerHtml(s)+'</span>':'')+'</div><div class="sb"><p>'+esc(s.t)+'</p></div>'+photoCell(s,n)+'</div>';
+ if(!EDON)return '<div class="stp" data-row="'+s.id+'" data-i="'+(n-1)+'"><div class="nbw"><span class="nb">'+n+'</span>'+(s.m?'<span class="timer">'+timerHtml(s)+'</span>':'')+'</div><div class="sb"><p>'+esc(s.t)+'</p></div>'+photoCell(s,n)+'</div>';
  return '<div class="stp stp-e" data-row="'+s.id+'" data-list="stp" data-i="'+(n-1)+'"><div class="nbw"><span class="nb">'+n+'</span>'
   +ed("s:"+s.id+":m",s.m?timerHtml(s):ic("timer")+'<i>time</i>',{cls:"timer et"+(s.m?'':' none'),label:"Edit the time for step "+n})
   +'<span class="racts">'+grip("step "+n)+rmBtn("step "+n)+'</span></div>'
   +'<div class="sb">'+ed("s:"+s.id+":t",esc(s.t)||'<i>Write the step</i>',{cls:"tx",label:"Edit step "+n})+'</div>'+photoCell(s,n)+'</div>'}
 function stepsHtml(){var n=0,h="";STP.forEach(function(s){if(s.k==="s")n++;h+=stepRow(s,n)});return h}
-function method(){
- var c=DV.stpN,h='<main class="meth" id="met" data-steps="'+c+'"><div class="lblrow"><span class="lbl">Method <span class="sub">'+c+' step'+(c===1?'':'s')+'</span></span><span class="row-a">'+(S.edit?'':'<button type="button" class="mini ico" data-act="edit-sec" data-sec="met" aria-label="Edit method" title="Edit method (E)">'+ic("pen")+'</button>')+'</span></div>';
+function method(){EDON=secOn("met");
+ var c=DV.stpN,h='<main class="meth" id="met" data-steps="'+c+'"><div class="lblrow"><span class="lbl">Method <span class="sub">'+c+' step'+(c===1?'':'s')+'</span></span><span class="row-a">'+'</span></div>';
  h+='<div class="mscroll" data-scroll>';
- if(!STP.length)h+='<div class="rb-empty"><span>'+ic("plus")+'</span><div><b>No steps yet.</b><small>'+(S.edit?'Type the first step below.':'Press E to add them.')+'</small></div></div>';
+ if(!STP.length)h+='<div class="rb-empty"><span>'+ic("plus")+'</span><div><b>No steps yet.</b><small>'+(EDON?'Type the first step below.':'Press E to add them.')+'</small></div></div>';
  h+='<div class="steps">'+stepsHtml()+'</div></div>';
- if(S.edit)h+='<div class="mfoot"><label class="addrow"><span class="vh">Add a step</span>'+ic("plus","s")+'<input class="edin" data-add="stp" placeholder="Add a step, then Enter" maxlength="400" autocomplete="off"></label><button type="button" class="mini" data-act="addgrp" data-list="stp" aria-label="Add a group heading" title="Add a group heading">'+ic("plus","s")+' Group heading</button></div>';
+ if(EDON)h+='<div class="mfoot"><label class="addrow"><span class="vh">Add a step</span>'+ic("plus","s")+'<input class="edin" data-add="stp" placeholder="Add a step, then Enter" maxlength="400" autocomplete="off"></label><button type="button" class="mini" data-act="addgrp" data-list="stp" aria-label="Add a group heading" title="Add a group heading">'+ic("plus","s")+' Group heading</button>'+secBtn("met","method")+'</div>';
+ else h+='<div class="mfoot mfoot-p"><span class="fsp"></span>'+secBtn("met","method")+'</div>';
  return h+'</main>'}
 
 /* ---------------- hero and edit strip ---------------- */
@@ -179,7 +194,7 @@ function vchipHtml(){var c=cur(),vers=VERS.length>1;
  return '<div class="vwrap"><button type="button" class="vchip" data-act="vchip" aria-haspopup="true" aria-expanded="false" title="Switch version">'+(c.usual?'<span class="us" title="Our usual">★</span>':'')+(c.review?'<span class="rvd" title="Has a change to review"></span>':'')+'<span class="vn">'+esc(c.name)+'</span>'+(vers?ic("chev","s"):'')+'</button>'
  +(vers?'<div class="vpop" data-vpop role="menu" hidden>'+VERS.map(function(v){return '<button type="button" role="menuitem" class="vi'+(v.id===D.ver?' on':'')+'">'+(v.usual?'<span class="us">★</span>':'<span class="us"></span>')+'<span class="vl"><b>'+esc(v.name)+'</b>'+(v.parent?'<small>From '+esc(v.parent)+'</small>':'<small>First version</small>')+'</span>'+(v.st==="trying"?'<em>Trying</em>':'')+(v.review?'<em class="rv">To review</em>':'')+'</button>'}).join("")+'<a class="vall" href="#">All versions</a></div>':'')+'</div>'}
 function hero(){
- var d=DV,c=cur();
+ EDON=S.edit;var d=DV,c=cur();
  var pill='<button type="button" class="rb-notesbtn re-a" data-act="lane" aria-label="Notes and reactions: '+d.upN+' liked, '+d.dnN+' not for me, '+d.notesN+' notes" title="Notes and reactions (N)"><i class="rb-pillcnt"><i class="u">'+ic("up")+d.upN+'</i>'+(d.dnN?'<i class="d">'+ic("dn")+d.dnN+'</i>':'')+'<i>'+ic("note")+d.notesN+'</i></i><span class="kbd">N</span></button>';
  var hist='<button type="button" class="hico" data-act="hist" aria-expanded="'+S.histOpen+'" aria-controls="hlane" aria-label="History (,)" title="History (,)">'+ic("hist")+'</button>';
  var serves=S.edit?'<button type="button" class="svcta ed ed-b" data-ed="serves" aria-label="Edit how many it serves" title="Edit how many it serves">'+ic("people","s")+'Serves '+META.serves+'</button>'
@@ -188,8 +203,8 @@ function hero(){
  var time=S.edit?'<button type="button" class="tbadge ed ed-b'+(META.min?'':' none')+'" data-ed="time" aria-label="Edit the total time" title="Edit the total time">'+ic("clock","s")+(META.min?mins(META.min):'Add time')+'</button>'
   :(META.min?'<span class="tbadge" title="Total time">'+ic("clock","s")+mins(META.min)+'</span>':'');
  var ren=S.edit?'<button type="button" class="hico ed ed-b" data-ed="vname" aria-label="Rename this version" title="Rename this version">'+ic("pen","s")+'</button>':'';
- var planBtn='<button type="button" class="rb-btn" data-act="plan"'+(S.edit?' disabled title="Finish editing to plan it"':'')+'>'+ic("plan")+(D.planned?'<span class="lw">Planned </span>'+D.planned:'Plan it')+'</button>';
- var cook='<a class="rb-btn pri" href="#cook?n='+S.servesNow+'" data-act="cook"'+(S.edit?' aria-disabled="true" tabindex="-1" title="Finish editing to cook it"':'')+'>'+ic("cook")+'Cook it</a>';
+ var planBtn='<button type="button" class="rb-btn" data-act="plan"'+(ANY()?' disabled title="Finish editing to plan it"':'')+'>'+ic("plan")+(D.planned?'<span class="lw">Planned </span>'+D.planned:'Plan it')+'</button>';
+ var cook='<a class="rb-btn pri" href="#cook?n='+S.servesNow+'" data-act="cook"'+(ANY()?' aria-disabled="true" tabindex="-1" title="Finish editing to make it"':'')+'>'+ic("cook")+'Make it</a>';
  return '<header class="hero'+(D.banner?'':' nobanner')+'" id="hero">'
  +(D.banner?'<div class="hphoto" aria-hidden="true"><img src="'+D.banner+'" alt="" width="1600" height="560" decoding="async"></div>':'')
  +'<div class="hbody"><div class="hr1"><div class="hmain"><a class="back ib" href="#" aria-label="Back to Recipes">'+ic("back")+'</a>'
@@ -202,18 +217,16 @@ function hero(){
  +'<div class="hr2"><div class="hmeta">'+serves+time+vchipHtml()+ren+hist+'</div>'
  +'<div class="hgo">'+planBtn+cook+'</div></div></div></header>'}
 function revLabel(){return "revision "+(S.revOpen?S.revN:S.revN+1)}
-function whereText(){return S.target==="fix"?'Fixing this version, '+revLabel():S.target==="both"&&!S.forked?'New version starts at your first change':S.forked?'New version, a try, '+revLabel():'A try, edited in place, '+revLabel()}
+function whereText(){return S.target==="pending"?'Kept in this session. You choose where it goes when you press Done':S.forked?'New version, a try, '+revLabel():S.target==="fix"?'Fixing this version, '+revLabel():'A try, edited in place, '+revLabel()}
+var SECN={ing:"Ingredients",met:"Method",notes:"Notes"};
 function strip(){
- if(!S.edit)return"";var c=cur(),q=askNeeded();
- var where=q?'<span class="es-q" id="esq">Where should changes go?</span><span class="seg" role="group" aria-label="Where should changes go">'
-   +[["fix","Fix this one"],["both","Keep both"],["own","Different dish"]].map(function(o){return '<button type="button" data-act="target" data-v="'+o[0]+'" aria-pressed="false"'+(o[0]==="own"?' title="Starts its own recipe, linked back"':o[0]==="both"?' title="A new version that starts as Trying; this one stays as it is"':' title="Revision of this version; everyone cooking it gets the fix"')+'>'+o[1]+'</button>'}).join("")+'</span>'
-  :'<span class="es-w">'+whereText()+'</span>';
+ if(!ANY())return"";var c=cur(),sc=Object.keys(S.scope).map(function(k){return SECN[k]}).join(", ");
  return '<div class="estrip" id="estrip" role="region" aria-label="Editing">'
-  +'<span class="es-t">'+ic("pen","s")+'Editing <b>'+esc(c.name)+'</b></span>'+where
+  +'<span class="es-t">'+ic("pen","s")+'Editing <b>'+esc(S.edit?c.name:sc+" only")+'</b></span><span class="es-w">'+whereText()+'</span>'
   +'<span class="es-sp"></span><span class="es-s" id="ess" role="status"></span>'
   +'<button type="button" class="mini" data-act="undolast" id="esu">'+ic("undo","s")+' Undo last <span class="kbd">Ctrl Z</span></button>'
-  +'<button type="button" class="rb-btn pri es-done" data-act="edit">'+ic("check","s")+' Done <span class="kbd">E</span></button></div>'}
-function statusText(){if(!S.changes)return S.saved||"Nothing changed yet";return (S.saved==="Saved"?"✓ Saved":"✓ All changes saved")+" · "+S.changes+" change"+(S.changes>1?"s":"")}
+  +'<button type="button" class="rb-btn pri es-done" data-act="done">'+ic("check","s")+' Done'+(S.edit?' <span class="kbd">E</span>':'')+'</button></div>'}
+function statusText(){if(!S.changes)return S.saved||"Nothing changed yet";var kept=S.target==="pending";return (S.saved==="Saved"?(kept?"✓ Kept":"✓ Saved"):(kept?"✓ All changes kept":"✓ All changes saved"))+" · "+S.changes+" change"+(S.changes>1?"s":"")}
 function updStatus(){var e=$("#ess");if(e){e.textContent=statusText();e.dataset.just=S.saved==="Saved"?"1":""}var u=$("#esu");if(u)u.disabled=!lastUndo()}
 
 /* ---------------- lanes ---------------- */
@@ -246,8 +259,8 @@ function paint(o){o=o||{};
  var rail='<aside class="rail" aria-label="Ingredients, notes, cooked, photos">'+railT+DV.tabs.map(function(t){return '<section class="pane" role="tabpanel" id="p-'+t[0]+'" aria-labelledby="tab-'+t[0]+'"'+(t[0]===tab?'':' hidden')+' data-pane="'+t[0]+'">'+panes[t[0]]()+'</section>'}).join("")
   +(D.source?'<p class="src" title="Where it came from">'+ic("branch","s")+'<span>'+esc(D.source)+'</span></p>':'')+'</aside>';
  rt.innerHTML=hero()+strip()+'<div class="rbody">'+rail+method()+'</div>';
- rt.dataset.dens=S.dens;rt.dataset.tab=tab;rt.dataset.r=R;rt.dataset.size=key;rt.dataset.edit=S.edit?"1":"";rt.dataset.gated=askNeeded()?"1":"";
- document.title="Recipe detail, desktop, inline edit ("+R+(S.edit?", editing":"")+")";
+ rt.dataset.dens=S.dens;rt.dataset.tab=tab;rt.dataset.r=R;rt.dataset.size=key;rt.dataset.edit=ANY()?"1":"";rt.dataset.scope=S.edit?"all":Object.keys(S.scope).join(",");rt.dataset.gated=askNeeded()?"1":"";
+ document.title="Recipe detail, desktop, inline edit ("+R+(S.edit?", editing":ANY()?", editing "+Object.keys(S.scope).join("+"):"")+")";
  $$("#rtab [data-scroll]").forEach(function(s,i){if(sc[i])s.scrollTop=sc[i];s.addEventListener("scroll",fades)});
  renderLanes();updStatus();fades();
  if(o.focus){var f=$(o.focus);if(f)f.focus({preventScroll:false})}
@@ -265,7 +278,6 @@ function lastUndo(){for(var i=S.stack.length-1;i>=0;i--)if(!S.stack[i].done)retu
 function forkVersion(){var p=cur(),nv={id:"n"+(++uid),name:p.name+", edited",st:"trying",parent:p.name};VERS.push(nv);D.ver=nv.id;S.forked=true;S.target="inplace";S.revN=0;S.revOpen=false;
  HIST.unshift({id:nid("h"),at:"Today",by:"You",v:nv.name,from:p.name,what:"Started this version from "+p.name+".",mine:false});refreshVersionBits();toast("Started a new version, "+nv.name+", from "+p.name+". "+p.name+" stays as it is.")}
 function record(ch,photo){
- if(S.target==="both"&&!S.forked)forkVersion();
  if(!S.revOpen){S.revOpen=true;S.revN++}
  var e={id:nid("h"),what:ch.what,undo:ch.undo,done:false,rev:S.revN};if(photo)e.until=Date.now()+300000;
  S.stack.push(e);S.changes++;S.saved="Saved";
@@ -275,7 +287,7 @@ function record(ch,photo){
  toast(ch.what,"Undo",function(){undoEntry(e)})}
 function undoEntry(e){if(!e||e.done)return;if(e.until&&Date.now()>e.until){toast("The 5 minutes for undoing this photo change are over.");return}
  e.undo();e.done=true;S.changes=Math.max(0,S.changes-1);var h=find(HIST,e.id);if(h)h.done=true;S.saved="All saved";
- paint({focus:S.edit?".estrip .es-done":".edtog"});toast("Undone: "+e.what)}
+ paint({focus:ANY()?".estrip .es-done":".edtog"});toast("Undone: "+e.what)}
 function refreshVersionBits(){var w=$(".vwrap");if(w){var tmp=document.createElement("div");tmp.innerHTML=vchipHtml();w.replaceWith(tmp.firstChild)}
  var st=$("#estrip");if(st){var t=document.createElement("div");t.innerHTML=strip();st.replaceWith(t.firstChild);updStatus()}
  var sn=$("[data-subnotes]");if(sn)sn.textContent=DV.notesN?"on "+cur().name:"";renderLanes()}
@@ -387,17 +399,51 @@ function dropOn(list,id,targetId,after){var arr=list==="ing"?ING:STP,i=idx(arr,i
  var to=j+(after?1:0);if(i<to)to--;moveRow(arr,id,to,rowLabel(list,id)+(to<i?" up":" down"));paint({focus:'[data-row="'+id+'"] .grip'})}
 
 /* ---------------- edit mode on and off ---------------- */
-function setEdit(on,sec){
+function beginSession(){S.changes=0;S.saved="";S.servesNow=META.serves;S.revOpen=false;S.forked=false;S.target=cur().st==="trying"?"inplace":"pending"}
+function narrow(){if(WIDE.matches)return false;toast("Below 80rem wide and 700px high the page stacks and the build keeps today's edit panel. Inline edit is drawn for the wide layout.");return true}
+/* GLOBAL: E and the Edit chip. Every field on the page. With sections already scoped it takes them over (the session continues). */
+function setEdit(on){
  if(on===S.edit)return;
- if(on&&!WIDE.matches){toast("Below 80rem wide and 700px high the page stacks and the build keeps today's edit panel. Inline edit is drawn for the wide layout.");return}
+ if(on&&narrow())return;
  if(EDB&&!commitEd(EDB))return;
- if(on){S.edit=true;S.changes=0;S.saved="";S.servesNow=META.serves;S.revOpen=false;S.forked=false;S.target=cur().st==="trying"?"inplace":null;if(sec)tab=sec==="notes"?"notes":"ing";
-  paint({focus:null});
-  if(askNeeded()){var f=$("[data-act=target]");if(f)f.focus()}
-  else{var first=sec==="met"?$('#met [data-ed$=":t"]'):sec==="notes"?$("#p-notes [data-ed]"):$("#p-ing [data-ed]")||$('[data-ed="title"]');if(first&&sec)openEd(first);else{var t=$('[data-ed="title"]');if(t)t.focus()}}}
- else{var n=S.changes,wasForked=S.forked;S.edit=false;S.dens=calcDens();S.servesNow=META.serves;S.revOpen=false;S.composing=false;
-  paint({focus:".edtog"});
-  toast(n?"Done. "+n+" change"+(n>1?"s":"")+" saved"+(wasForked?" to the new version":"")+". Each is in History with Undo.":"Done. Nothing was changed.")}}
+ if(on){var was=ANY();S.edit=true;S.scope={};if(!was)beginSession();paint({focus:null});var t=$('[data-ed="title"]');if(t)t.focus()}
+ else tryLeave()}
+/* SCOPED: a section's pencil. That section only; the rest stays read-only. While the global mode is on the pencils are not drawn (nothing to do). */
+function setScope(sec,on){
+ if(S.edit)return;
+ if(on&&narrow())return;
+ if(EDB&&!commitEd(EDB))return;
+ if(on){var was=ANY();S.scope[sec]=true;if(!was)beginSession();tab=sec==="notes"?"notes":sec==="ing"?"ing":tab;paint({focus:null});
+  var first=sec==="met"?$('#met [data-ed$=":t"]'):sec==="notes"?$("#p-notes [data-ed]"):$("#p-ing [data-ed]");
+  if(first)openEd(first);else{var a=$(sec==="met"?"[data-add=stp]":sec==="ing"?"[data-add=ing]":"[data-act=note]");if(a)a.focus()}}
+ else{if(Object.keys(S.scope).length>1){delete S.scope[sec];paint({focus:'[data-act=edit-sec][data-sec="'+sec+'"]'})}else tryLeave()}}
+function tryLeave(){if(EDB&&!commitEd(EDB))return;if(S.target==="pending"&&S.changes>0){openFinish();return}leaveEdit()}
+function leaveEdit(msg){var n=S.changes,wasForked=S.forked;S.edit=false;S.scope={};S.dens=calcDens();S.servesNow=META.serves;S.revOpen=false;S.composing=false;
+ paint({focus:".edtog"});
+ toast(msg||(n?"Done. "+n+" change"+(n>1?"s":"")+" saved"+(wasForked?" to the new version":"")+". Each is in History with Undo.":"Done. Nothing was changed."))}
+/* The keeper question, asked at Done (owner, voice, 18 Oct 2026): only now does the person know whether it was a fix, a second version or a different dish. Enter saves the preselected Fix; Esc or Back keeps editing. */
+var FIN=null;
+function openFinish(){
+ if(FIN)return;var c=cur(),n=S.changes,pick="fix",opener=document.activeElement;
+ var el=document.createElement("div");el.className="fin";el.setAttribute("role","dialog");el.setAttribute("aria-modal","true");el.setAttribute("aria-labelledby","fin-h");
+ var opts=[["fix","Fix "+c.name,"Your "+n+" change"+(n>1?"s go":" goes")+" in as "+revLabel()+" of this version. Everyone cooking it gets the fix."],["both","Keep both","A new version that starts as Trying with your changes. "+c.name+" stays exactly as it is."],["own","It is a different dish now","Its own recipe, linked back to "+META.name+". (Not drawn here.)"]];
+ el.innerHTML='<div class="fin-b"><h2 id="fin-h">Where should these changes go?</h2><p class="mut">'+esc(c.name)+' is a keeper'+(c.usual?' and our usual':'')+'. Nothing has been written to it yet: you made '+n+' change'+(n>1?'s':'')+'.</p>'
+  +'<div class="fin-o" role="radiogroup" aria-label="Where the changes go">'+opts.map(function(o){return '<button type="button" role="radio" class="fin-c" data-fin="'+o[0]+'" aria-checked="'+(o[0]===pick)+'"><span class="t"><b>'+esc(o[1])+'</b><small>'+esc(o[2])+'</small></span></button>'}).join("")+'</div>'
+  +'<div class="fin-a"><button type="button" class="rb-btn" data-fin-back>Back to editing <span class="kbd">Esc</span></button><button type="button" class="rb-btn pri" data-fin-ok>Save as '+revLabel()+'</button></div></div>';
+ document.body.appendChild(el);$(".app").setAttribute("inert","");FIN={el:el};
+ var ok=$("[data-fin-ok]",el);
+ function sync(){$$("[data-fin]",el).forEach(function(b){b.setAttribute("aria-checked",String(b.dataset.fin===pick))});ok.textContent={fix:"Save as "+revLabel(),both:"Save as a new version",own:"Make its own recipe"}[pick]}
+ function close(){el.remove();$(".app").removeAttribute("inert");FIN=null;if(opener&&opener.isConnected&&opener.focus)opener.focus()}
+ $$("[data-fin]",el).forEach(function(b){b.onclick=function(){pick=b.dataset.fin;sync()}});
+ $("[data-fin-back]",el).onclick=close;
+ ok.onclick=function(){if(pick==="own"){toast("This would start its own recipe, linked back to this one. Not drawn here.");return}close();finishSave(pick)};
+ el.addEventListener("keydown",function(e){if(e.key==="Escape"){e.preventDefault();e.stopPropagation();close()}else if(e.key==="Enter"&&!e.target.hasAttribute("data-fin-back")){e.preventDefault();ok.click()}else if(e.key==="Tab"){var f=$$("button",el),i=f.indexOf(document.activeElement);e.preventDefault();f[(i+(e.shiftKey?f.length-1:1))%f.length].focus()}},true);
+ ok.focus()}
+function finishSave(choice){
+ var rows=HIST.filter(function(h){return h.mine&&!h.done&&h.rev===S.revN&&!h.sealed}),n=S.changes,from=cur().name;
+ if(choice==="both"){forkVersion();S.revN=1;S.revOpen=true;rows.forEach(function(h){h.v=cur().name;h.rev=1})}
+ rows.forEach(function(h){h.sealed=true});S.target=choice==="both"?"inplace":"fix";
+ leaveEdit("Done. "+n+" change"+(n>1?"s":"")+" saved "+(choice==="both"?"to a new version, "+cur().name+", from "+from:"to "+from+" as revision "+S.revN)+". Each is in History with Undo.")}
 
 /* ---------------- tabs, flyouts, popovers, photos ---------------- */
 function setTab(t,focus){if(!DV.tabs.some(function(x){return x[0]===t}))return;if(EDB&&!commitEd(EDB))return;tab=t;rt.dataset.tab=t;
@@ -425,8 +471,8 @@ function bindComposer(t){t.addEventListener("keydown",function(e){if(e.key==="Es
 function closeComposer(){S.composing=false;$("[data-pfoot-notes]").innerHTML=noteFoot();var b=$("[data-act=note]",$("[data-pfoot-notes]"));if(b)b.focus()}
 function addNote(){var t=$("[data-add=note]"),v=t.value;if(!v.trim()){t.setAttribute("aria-invalid","true");t.focus();return}
  var r=textToNote(v.trim()),n={id:nid("n"),on:cur().name,by:"You",at:"Today",b:r.b,li:r.li};
- if(S.target==="both"&&!S.forked)forkVersion();NOTES.push(n);S.composing=false;
- var wasEdit=S.edit;if(wasEdit){record({what:"Added a note",undo:function(){var i=idx(NOTES,n.id);if(i>=0)NOTES.splice(i,1)}})}
+ NOTES.push(n);S.composing=false;
+ var wasEdit=secOn("notes");if(wasEdit){record({what:"Added a note",undo:function(){var i=idx(NOTES,n.id);if(i>=0)NOTES.splice(i,1)}})}
  else{HIST.unshift({id:nid("h"),at:"Today",by:"You",v:cur().name,what:"Added a note.",mine:false});toast("Note added.")}
  paint({focus:"[data-act=note]"});var sc=$("#p-notes [data-scroll]");if(sc)sc.scrollTop=sc.scrollHeight}
 
@@ -441,15 +487,16 @@ document.addEventListener("click",function(e){
  var act=a.dataset.act,row=a.closest("[data-row]");
  switch(act){
   case "edit":setEdit(!S.edit);break;
-  case "edit-sec":if(askNeeded())return;setEdit(true,a.dataset.sec);break;
-  case "target":if(a.dataset.v==="own"){toast("This would start its own recipe, linked back to this one. Not drawn here.");break}S.target=a.dataset.v;rt.dataset.gated="";
-   var st=$("#estrip");if(st){var tmp=document.createElement("div");tmp.innerHTML=strip();st.replaceWith(tmp.firstChild);updStatus()}
-   toast(S.target==="fix"?"Changes go into this version as "+revLabel()+".":"Your first change starts a new version. "+cur().name+" stays as it is.");var tt=$('[data-ed="title"]');if(tt)tt.focus();break;
+  case "done":tryLeave();break;
+  case "edit-sec":setScope(a.dataset.sec,true);break;
+  case "sec-done":setScope(a.dataset.sec,false);break;
   case "undolast":undoEntry(lastUndo());break;
   case "hundo":undoEntry(S.stack.filter(function(x){return x.id===a.dataset.id})[0]);var x2=$("[data-act=histclose]");if(x2)x2.focus();break;
   case "rm":if(row)removeRow(row);break;
   case "addgrp":addGroup(a.dataset.list);break;
   case "addph":if(row)addPhoto(row);break;
+  case "addgal":addGallery();break;
+  case "repph":if(row)replacePhoto(row);break;
   case "rmph":if(row)removePhoto(row);break;
   case "grip":break;
   case "svcta":e.stopPropagation();spopOpen($("[data-spop]").hidden);if(!$("[data-spop]").hidden){var inc=$("[data-act=inc]");if(inc)inc.focus()}break;
@@ -550,7 +597,8 @@ document.addEventListener("keydown",function(e){if(e.key==="`"&&!(e.target&&/INP
 /* ---------------- start ---------------- */
 paint();
 if(Q.get("lane")==="1")setLane(true);if(Q.get("lane")==="h")setHist(true);
-if(Q.get("edit")==="1"){setEdit(true);if(Q.get("choose")){var tg=$('[data-act=target][data-v="'+Q.get("choose")+'"]');if(tg)tg.click()}}
+if(Q.get("edit")==="1")setEdit(true);
+if(Q.get("scope")&&!S.edit)Q.get("scope").split(",").forEach(function(k){if(SECN[k])setScope(k,true)});
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fades);
 window.__ie={S:S,ING:ING,STP:STP,NOTES:NOTES,HIST:HIST,META:META,VERS:VERS};
 })();

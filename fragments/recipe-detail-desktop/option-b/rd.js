@@ -52,7 +52,7 @@ function head(){
  +'<button class="ib bare" data-more aria-label="More" title="More">'+ic('more')+'</button>'
  +'<span class="sep"></span>'
  +'<button class="btn ghost sm" data-plan>'+ic('cal',18)+(planned?'Planned Tue':'Plan it')+'</button>'
- +'<a class="btn sm" data-cook href="#">'+ic('cook',18)+'Cook it</a>'
+ +'<a class="btn sm" data-cook href="#">'+ic('cook',18)+'Make it</a>'
  +'</header>'
  +(fresh?'<div class="band '+fresh.cls+'"><span>'+fresh.txt+'</span><button class="mini" data-keep>'+fresh.btn+'</button></div>':'');
 }

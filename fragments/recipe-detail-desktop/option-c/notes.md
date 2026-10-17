@@ -24,9 +24,9 @@ Desktop bucket only (1024 and up; phone untouched and not drawn). Designed for 1
 5. **Keyboard.** 1, 2, 3, 4 switch the rail tabs (Ingredients, Notes, Cooked, Photos; fixed positions, an absent tab ignores its number). N = Notes. S = Share (unchanged), E, comma unchanged. Left and Right arrows move between tabs only while a tab has focus (arrows are not global, they would fight with scrolling the panes). Esc closes an open step photo. Digits are free in the notes' list of registered keys, but `desktop-keys.js` and `desktop-global.js` were not read (recon notes 6), so a clash is unverified. The numbers are in the tab `title` and the demo panel, not drawn on the tabs (a `.kbd` next to a badge read as a second count; try again once the keys list `?` exists).
 6. **Tabs are ARIA tabs** (`role=tablist/tab/tabpanel`, roving tabindex). All panels are in the DOM, only the selected one is shown. Photos grid is drawn on tap ("Show N photos (loads on tap)"), keeping the P-D20 load order.
 7. **Empty is absent.** Cooked tab is not drawn when there are no cooks (`?r=nocooked`), the row-B proof reads "Not cooked yet" (the "Cook it once and the thumbs and notes start here." line moves into the Notes empty state, which keeps its next action). Photos tab is absent with no photos. Notes tab always stays: "No notes yet." plus Add a note.
-8. **Serves stepper + time sit at the top of the rail (row B, left).** The stepper rewrites the Ingredients, so it lives directly above them, and Cook it's `n=` follows it. Time next to it.
+8. **Serves stepper + time sit at the top of the rail (row B, left).** The stepper rewrites the Ingredients, so it lives directly above them, and Make it's `n=` follows it. Time next to it.
 9. **Versions, History, proof sit in row B right (over the Method).** The version strip is one segmented control here (names truncate at 104px, full name in the tooltip; italic = Trying). History link with `,` hint (hint hidden under 1440). Proof is "Cooked 4x" plus up to 8 dots, a button that opens the Cooked tab. "Last cooked 2 days ago" is in the tooltip and the Cooked tab, not on the row (no room at 1280).
-10. **Plan it / Cook it: top of the Method column, end of row B, always visible.** Reason: the page does not scroll, so a fixed bottom bar buys nothing and would cost 64px of height at 720; Cook it also sits right above the steps it starts. Cost: the build's bottom bar is replaced (kitchie project-plan 1634 kept that bar), and the buttons are far from the bottom-right thumb on a very big screen. "Planned Tue" replaces Plan it when planned (toast only). Hold for Tue lives in the Ingredients pane head.
+10. **Plan it / Make it: top of the Method column, end of row B, always visible.** Reason: the page does not scroll, so a fixed bottom bar buys nothing and would cost 64px of height at 720; Make it also sits right above the steps it starts. Cost: the build's bottom bar is replaced (kitchie project-plan 1634 kept that bar), and the buttons are far from the bottom-right thumb on a very big screen. "Planned Tue" replaces Plan it when planned (toast only). Hold for Tue lives in the Ingredients pane head.
 11. **Header (row A):** back + recipe name (two-line clamp at 1.45rem, tooltip has the full name) + banner thumbnail (button, opens Photos tab; the banner no longer takes a hero) on the left; on the right Notes pill, star, edit pencil, Share pill (with count and S), More. Same elements as today, one row. Share is absent when the household may not share (`?r=short`).
 12. **Step photos become 112x63 thumbnails** (160x90 from 860px tall, 208x117 from 1000px) beside the step text instead of a 150px strip. Click expands the whole photo in place under the step, click or Esc returns (matches today's behaviour). "Photo being prepared" keeps a dashed frame.
 13. **Ingredient groups** (long recipe): small caps headings in rail and Method. Data gap, see below.
@@ -59,7 +59,7 @@ Desktop bucket only (1024 and up; phone untouched and not drawn). Designed for 1
 | Cooked | Rail tab 3, badge | date block, quote, verdict, "N ate"; remarks live here |
 | Photos | Rail tab 4, badge | gallery and cook photos on tap |
 | Where it came from | End of Method scroll | |
-| Plan it / Cook it | Row B right, top of Method | decision 10 |
+| Plan it / Make it | Row B right, top of Method | decision 10 |
 | Notes flyout (right lane) | Not used by this page | replaced by tab; Share, Edit and Plan lanes still open on the right |
 | Toasts, sheets | unchanged (toasts shown; sheets/lanes not drawn) | |
 
@@ -82,7 +82,7 @@ So the typical recipe fits with nothing scrolling at 1440x900 and 1280x720 (and 
 ## Costs and buys
 
 Buys: no page scroll for ordinary recipes; ingredients column only as wide as it needs (about a third of the width, no wasted white); Method gets the room and reads in one column beside its photo; notes are one key away and counted; no flyout covering the page; the same data and markup as the build.
-Costs: the tab strip replaces an owner-decided jump row (R-O2 A); the bottom Plan it / Cook it bar moves; step photos are small until clicked; the page is a fixed-height app screen, so browser find-in-page and zoom above 125% will push more into the panes' scroll.
+Costs: the tab strip replaces an owner-decided jump row (R-O2 A); the bottom Plan it / Make it bar moves; step photos are small until clicked; the page is a fixed-height app screen, so browser find-in-page and zoom above 125% will push more into the panes' scroll.
 
 ## What is NOT solved (honest)
 

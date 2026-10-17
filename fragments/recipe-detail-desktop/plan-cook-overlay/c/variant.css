@@ -1,8 +1,22 @@
-/* C: top-right corner. A vertical stack of two solid buttons when the banner is tall enough (112px and over); a single row on a short banner. Enlarge icon bottom-left. */
-.ban-scrim{background:radial-gradient(120% 150% at 100% 0%,rgba(0,0,0,.62),rgba(0,0,0,.28) 45%,rgba(0,0,0,0) 72%)}
+/* C (the owner's choice, 18 October 2026): top-right corner. A vertical stack of two buttons when the banner is tall enough (112px and over); a single row on a short banner. Enlarge icon bottom-left.
+   Contrast is ADAPTIVE (adaptive.js): it samples the banner behind the stack and picks a light or a dark button style. Without that (no script, tainted or unloaded image) it is the fixed look below:
+   theme buttons on the fixed dark corner scrim. */
+.ban-scrim{background:radial-gradient(120% 150% at 100% 0%,rgba(0,0,0,.62),rgba(0,0,0,.28) 45%,rgba(0,0,0,0) 72%);transition:opacity .28s ease}
+.hero[data-ov-adapt="sampled"] .ban-scrim{opacity:0}
 .pc-go{right:14px;top:12px;flex-direction:row}
 .pc-go .rb-btn{box-shadow:0 2px 12px rgba(0,0,0,.45)}
 .pc-go .rb-btn:not(.pri){border-color:color-mix(in srgb,var(--fg) 40%,transparent)}
 .ban-zoom{left:12px;bottom:10px}
 @container (min-height:112px){.pc-go{flex-direction:column;align-items:stretch;gap:8px;min-width:132px}.pc-go .rb-btn{min-height:40px}}
 @container (max-height:68px){.pc-go{top:10px}}
+
+/* adaptive: a soft backing in the opposite tone, flat under the stack and feathered outside it; its strength (0, .3 or .5) is set by the script */
+.ban-adapt{position:absolute;inset:0;pointer-events:none}
+.ban-adapt i{position:absolute;inset:0;opacity:0;transition:opacity .28s ease}
+.ban-adapt i.d{background:radial-gradient(ellipse calc(var(--ov-rx,0px)*2) calc(var(--ov-ry,0px)*2) at var(--ov-cx,100%) var(--ov-cy,0),#000 0,#000 78%,transparent 100%);opacity:var(--ov-sd,0)}
+.ban-adapt i.l{background:radial-gradient(ellipse calc(var(--ov-rx,0px)*2) calc(var(--ov-ry,0px)*2) at var(--ov-cx,100%) var(--ov-cy,0),#fff 0,#fff 78%,transparent 100%);opacity:var(--ov-sl,0)}
+.hero[data-ov-adapt="sampled"] .pc-go .rb-btn,.hero[data-ov-adapt="sampled"] .pc-go .rb-btn:hover{border-width:1.5px;border-style:solid;border-color:var(--ov-edge);box-shadow:0 2px 10px var(--ov-shadow);transition:background-color .28s ease,color .28s ease,border-color .28s ease,box-shadow .28s ease}
+.hero[data-ov-adapt="sampled"] .pc-go .rb-btn:not(.pri){background:var(--ov-plan-bg);color:var(--ov-plan-fg)}
+.hero[data-ov-adapt="sampled"] .pc-go .rb-btn.pri{background:var(--ov-make-bg);color:var(--ov-make-fg)}
+.hero[data-ov-adapt="sampled"] .pc-go .rb-btn:hover{filter:brightness(1.07)}
+@media (prefers-reduced-motion:reduce){.ban-scrim,.ban-adapt i,.hero[data-ov-adapt="sampled"] .pc-go .rb-btn{transition:none!important}}

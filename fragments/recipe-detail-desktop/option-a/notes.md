@@ -15,7 +15,7 @@ Owner is explicitly asking to rethink the big-screen layout, so this page uses t
 4. **Notes under ingredients in the same rail**: newest two as clamped cards (inherited ones dashed, "from the parent version"), "See all N notes (N)" opens the right lane. Below 780px height only the newest note shows, one line. Add a note stays in the Notes head, so "No notes yet." keeps its action.
 5. **Header band is two rows (about 100px).** Row 1: back, small banner thumbnail, title (2 lines max), Notes and reactions pill (counts, N), star, edit, Share (S), more. Row 2: time, versions (only with more than one), History (comma), proof strip.
 6. **History + "Not cooked yet" strip go in header row 2**, not the rail and not the method column. Why: they are facts about the recipe's life, not content to cook from; row 2 costs a 44px line instead of rail height, and the rail height is the scarce thing (10 ingredients plus Notes plus buttons has about 30px spare at 720). The strip becomes one button: it opens the right lane on the Cooked tab, so it keeps a next step (and "Not cooked yet" keeps its sentence).
-7. **Plan it / Cook it sit at the bottom of the rail** (a footer inside the rail), not a fixed bar and not in the header. Why: the job order is check what you have, then cook, and the rail is where you check; the header is already full (8 controls at 1280); a full-width fixed bar costs 64px of height on every screen. The footer follows the content when the rail is short (so the short recipe has no stranded buttons) and pins to the bottom when the rail is full. Cost: Cook it is about 300px from the right edge where the old bar centred it; and its position moves with recipe length (it is at the bottom for long, under the notes for short).
+7. **Plan it / Make it sit at the bottom of the rail** (a footer inside the rail), not a fixed bar and not in the header. Why: the job order is check what you have, then cook, and the rail is where you check; the header is already full (8 controls at 1280); a full-width fixed bar costs 64px of height on every screen. The footer follows the content when the rail is short (so the short recipe has no stranded buttons) and pins to the bottom when the rail is full. Cost: Make it is about 300px from the right edge where the old bar centred it; and its position moves with recipe length (it is at the bottom for long, under the notes for short).
 8. **Method: 18px text (20px from 1600), step photo beside the text** in a right-hand column, numbered circles, timer chip inline, group labels for long recipes. Click a photo to open it in place (same pattern as today). Under 640px of column (right lane open at 1280) photos shrink to 96x60 beside the text.
 9. **Tabs row dropped.** At this width Ingredients, Method and Notes are all on screen at once, so there is nothing to jump to. Replaced by: the right lane (the existing Notes and reactions lane) gets three tabs, Notes and reactions, Cooked, Photos. Entry points: Notes pill or N (Notes), proof strip (Cooked), tab (Photos, lazy "Show N photos" on tap as today). No new controls in the page itself. The lane pushes the page left, never covers it (existing rule).
 10. **Banner photo** becomes a 72x44 thumbnail in row 1 (tap to open large in place, Esc closes). Still loaded last. For recipes with 3 or fewer steps and a screen at least 860px high, the method column shows a 520px banner above the steps to use the spare room.
@@ -45,7 +45,7 @@ Owner is explicitly asking to rethink the big-screen layout, so this page uses t
 | Cooked | right lane tab | one tap deeper than today |
 | Photos | right lane tab, lazy | two taps deeper than today |
 | Where it came from | not on the page; stays in More | the one-line source is hidden |
-| Plan it / Planned Tue, Cook it | rail footer | see decision 7 |
+| Plan it / Planned Tue, Make it | rail footer | see decision 7 |
 | Notes flyout, Share, Edit lanes | right lane, push the page | unchanged pattern |
 | Per-step ingredient chips (cook mode work) | not drawn; the step row has room under the text | to design later |
 
@@ -77,7 +77,7 @@ Horizontal scroll 0 and document vertical overflow 0 in all 32 captures. Inner s
 Server-drawn, complete without script. Default path: the page CSS and the small page script. Deferred: the lane's Cooked and Photos tab bodies (photos on tap), share/edit/plan panels, banner (last), step photos by order as today. No new request at page load; one desktop CSS file served at 64rem+ only.
 
 ## What is NOT solved
-- Cook it is no longer a fixed full-width bar; its place moves with recipe length.
+- Make it is no longer a fixed full-width bar; its place moves with recipe length.
 - Photos and Cooked are one or two taps deeper; the jump row's quick access is gone.
 - Notes show two cards at most in the rail (one under 780px high); full text needs the lane.
 - With the lane open at 1280 the method column is about 450px; fits typical, tight for long steps.

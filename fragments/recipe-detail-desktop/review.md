@@ -39,14 +39,14 @@ Severity: **High** blocks the owner's goal or breaks a rule; **Medium** a visibl
 
 ### Option A, narrow rail + wide method
 
-What it is: left rail (320/340/360 px) holding Serves, wrapping ingredients, newest notes, and the Plan it / Cook it footer; wide method with the photo beside each step; two-row header (title, Notes pill, star, edit, Share, more; then time, History, proof); Cooked and Photos become tabs in the existing right lane; the jump row and bottom bar are dropped.
+What it is: left rail (320/340/360 px) holding Serves, wrapping ingredients, newest notes, and the Plan it / Make it footer; wide method with the photo beside each step; two-row header (title, Notes pill, star, edit, Share, more; then time, History, proof); Cooked and Photos become tabs in the existing right lane; the jump row and bottom bar are dropped.
 
 Delivers: the owner's sentence almost word for word. Typical, short, notes and nocooked fit at every size with 0 px scroll; method is 872 px wide at 1280 and the line length stays readable. The header is the lowest of the five (96 px), leaving 624 px of height for content at 720. The lane keeps the existing push rule and the existing key set (`N`, `S`, `E`, `,`). Everything in the anatomy has a home except the source line.
 
 Findings:
 - **Medium: dead gap between step text and photo.** At 1440 and 1920 the text ends near 570 px and the photo is pinned to the right edge, leaving 250 px or more of empty row on every step (typical 1440x900 shows it clearly). Fix: cap the step row (about 62ch text, photo directly after) or put the photo under the text; C and B both avoid the gap.
 - **Medium: on a long recipe the Notes block is not visible.** The rail scroller holds ingredients and notes; at 1280x720 the Notes sit beyond the scroll, so the owner's "notes with ingredients" is only true for short and typical recipes. Fix: pin Notes (one line plus Add a note) with the Plan/Cook footer and let only the ingredient list scroll.
-- **Medium: Cook it moves.** It is at the foot of the rail, about 300 px from where the bottom bar centred it, and its position depends on recipe length (stranded buttons are avoided, but the spot is not constant). This is an owner call (question 3).
+- **Medium: Make it moves.** It is at the foot of the rail, about 300 px from where the bottom bar centred it, and its position depends on recipe length (stranded buttons are avoided, but the spot is not constant). This is an owner call (question 3).
 - **Low: "Where it came from" is gone from the page** (More only); the "talk to your assistant about substitutes" hint is a tooltip only. Heading "INGREDIENTS 8 OF 10 IN" wraps next to Hold at 1280.
 - **Low:** Cooked and Photos are one and two taps deeper (lane tabs) than today's jump row. Keeps lazy loading. Acceptable if the owner agrees.
 - Missing from the live anatomy: source line; state band (only a "To review" pill; Keep it / Bring back as a small button); jump row (replaced by lane tabs).
@@ -54,15 +54,15 @@ Findings:
 
 ### Option B, three zones
 
-What it is: ingredients card left (Serves on top), method centre, and a right "us and this recipe" rail (Notes, Cooked with remarks, Photos strip, History strip with version chips); Plan it / Cook it in the header; the Notes flyout is retired at 1200+; an empty right rail collapses.
+What it is: ingredients card left (Serves on top), method centre, and a right "us and this recipe" rail (Notes, Cooked with remarks, Photos strip, History strip with version chips); Plan it / Make it in the header; the Notes flyout is retired at 1200+; an empty right rail collapses.
 
 Delivers: the richest single-screen page. Notes, cooked history, reactions, photos and versions are all visible with no tabs and no lane; typical, short, nocooked and cooked fit at every size. "Empty is absent" is applied best here, with the empty rail collapsing into one dashed foot bar. Cook remarks now show next to each cook.
 
 Findings:
 - **High: not what the owner said.** Notes are on the right, not with the ingredients; the method gets only 554 px at 1280 (steps wrap to two or three lines, 15.5 px type). The owner's words ask for the opposite proportions.
-- **High: breaks below 1280.** At 1024x768 the document scrolls horizontally by 19 px and Cook it is clipped at the right edge, although 1024 is inside today's desktop bucket (64rem). The notes' "folds below 1200" is not true at 1024.
+- **High: breaks below 1280.** At 1024x768 the document scrolls horizontally by 19 px and Make it is clipped at the right edge, although 1024 is inside today's desktop bucket (64rem). The notes' "folds below 1200" is not true at 1024.
 - **Medium: the page rearranges when data arrives.** The rail disappears with no notes and no cooks, so the first note or first cook changes the layout shape. Defensible under "empty is absent" but surprising; the method also jumps from 554 to about 780 px.
-- **Medium: the Notes and reactions pill has no `N` hint at 1440** (and none at 1280), although the page claims key N; the pill drops its words below 1440. The Plan it / Cook it / Share / More / pill header is 11 controls in one 64 px row.
+- **Medium: the Notes and reactions pill has no `N` hint at 1440** (and none at 1280), although the page claims key N; the pill drops its words below 1440. The Plan it / Make it / Share / More / pill header is 11 controls in one 64 px row.
 - **Medium: version chips clip** ("Less soy, m" cut at the card edge) and "3 versions" wraps onto two lines at 1280 in the History head.
 - **Medium: lane covers the right rail at 1280** (the notes admit it pushes nothing). Against the lane rule.
 - **Low:** the retired flyout means `recipes-browse.js openNotes()` and `#t-notes-fly` need a desktop code path; three independent scroll regions on long recipes (ingredients 581, method 557 at 1280x720); the right rail and ingredients cards leave dead space under their content (about 70 px at 1280, 130 at 900 tall).
@@ -70,7 +70,7 @@ Findings:
 
 ### Option C, rail with in-place tabs
 
-What it is: left rail with a tab strip (Ingredients, Notes, Cooked, Photos), method always on the right, Serves and time over the rail, versions, History and proof over the method, Plan it / Cook it at the top of the method column.
+What it is: left rail with a tab strip (Ingredients, Notes, Cooked, Photos), method always on the right, Serves and time over the rail, versions, History and proof over the method, Plan it / Make it at the top of the method column.
 
 Delivers: the cleanest fit numbers (0 px typical in every tab at all three sizes, including the Notes tab with 5 notes), a wide 852 px method, and an honest "not solved" list. ARIA tabs are well specified. The ingredient column is only as wide as it needs.
 
@@ -84,7 +84,7 @@ Findings:
 
 ### Option D, step stage
 
-What it is: ingredients and notes in a left rail (so far the owner's idea); the method becomes a compact list plus one large current step with a big photo, moved by clicking, arrows or Previous/Next; "Show all steps" returns the plain list; Plan it / Cook it in a second header row.
+What it is: ingredients and notes in a left rail (so far the owner's idea); the method becomes a compact list plus one large current step with a big photo, moved by clicking, arrows or Previous/Next; "Show all steps" returns the plain list; Plan it / Make it in a second header row.
 
 Delivers: the only option that fully respects "ingredients and notes together" while also using height (nothing scrolls on typical at 1440x900 and 1920x1080), and the step list is excellent on a long recipe (all 14 steps and 3 group labels visible without scrolling). The author's note on how the stage overlaps Cook it mode is the most honest piece of analysis in the set.
 
@@ -100,7 +100,7 @@ Findings:
 
 ### Option E, hero strip + balanced columns
 
-What it is: a two-row hero (photo thumbnail, title, time, Serves, History, proof, star, edit, Share, More, Notes pill, Plan it, Cook it), a view bar (Recipe, Cooked, Photos in place; version strip and To review on the right), ingredients left, method in CSS columns right, Notes under the ingredients; density classes chosen from counts (roomy, normal, tight); the lane docks open at 1700+.
+What it is: a two-row hero (photo thumbnail, title, time, Serves, History, proof, star, edit, Share, More, Notes pill, Plan it, Make it), a view bar (Recipe, Cooked, Photos in place; version strip and To review on the right), ingredients left, method in CSS columns right, Notes under the ingredients; density classes chosen from counts (roomy, normal, tight); the lane docks open at 1700+.
 
 Delivers: the only option where the long recipe fits with no scrolling at all three sizes (ingredients in two columns on "tight", step photos shrink to thumbnails). Short recipes get big photos rather than white. Anatomy coverage is broad (versions, review pill, proof dots, thumbs chips, Hold).
 
@@ -120,7 +120,7 @@ Findings:
 | Option | Claim | What I found |
 |---|---|---|
 | A | None materially wrong. Measurements match mine (long: method 378, rail 497 at 1280x720). "1024 to 1279 not verified" is cautious: it holds in my 1024x768 capture. | |
-| B | "Three zones survive at 1280; they fold below 1200." | At 1024x768 the page has 19 px horizontal scroll and Cook it is clipped; the fold does not work at 1024. |
+| B | "Three zones survive at 1280; they fold below 1200." | At 1024x768 the page has 19 px horizontal scroll and Make it is clipped; the fold does not work at 1024. |
 | B | Notes pill carries key N (anatomy table row 4). | No N hint is drawn at 1440 or 1280. |
 | B | "Page area ... right of the 88px rail" and rail clamps need no width literals. | Width literals (256/340/288/420 px clamps) are present; these need tokens. |
 | C | "Below 1280 wide: rail 300px, labels trimmed; only checked that nothing breaks." | At 1024x768 the tab strip overlaps the Method heading and Plan it is clipped. |
@@ -134,7 +134,7 @@ Findings:
 
 ## 6. Missing elements against the live anatomy
 
-Present in all five: back, title, Notes and reactions pill with counts, star, edit pencil, Share with S hint, More, time, Serves stepper, History with comma hint, proof, Ingredients, Method, Notes, Plan it / Cook it. Not present or not drawn:
+Present in all five: back, title, Notes and reactions pill with counts, star, edit pencil, Share with S hint, More, time, Serves stepper, History with comma hint, proof, Ingredients, Method, Notes, Plan it / Make it. Not present or not drawn:
 
 | Element | A | B | C | D | E |
 |---|---|---|---|---|---|
@@ -149,7 +149,7 @@ Present in all five: back, title, Notes and reactions pill with counts, star, ed
 | Cooked | lane tab | right rail | rail tab | lane | view |
 | Photos | lane tab | right rail strip | rail tab | lane | view |
 | Notes flyout | kept (lane) | retired at 1200+ | replaced by tab | kept (lane) | kept (lane, overlays) |
-| Where Plan it / Cook it | rail footer | header | row B | row 2 | hero |
+| Where Plan it / Make it | rail footer | header | row B | row 2 | hero |
 
 ## 7. Recommended position
 
@@ -172,7 +172,7 @@ Build size: one new desktop-only stylesheet (placed by grid areas over the curre
 
 1. **Relax the desktop width rule for this page?** Options: (a) make the recipe page a recorded exception: full width beside the rail, left-anchored, capped near 1600 px, widths held as tokens, exception written in `docs/project-plan.md` (this is what A, B, C, D and E all assume); (b) keep the 736 px column and put the two-column layout inside it (cannot hold a rail plus a method; does not meet the goal); (c) widen the column token only for this page (smaller change but it is the same exception in disguise, and everything else on the page then drifts). Trade-off: (a) adds a second desktop layout; (b) is rule-clean but fails the goal. Recommend (a), with the exception recorded and the widths as tokens, not literals.
 2. **Which breakpoint?** Today desktop begins at 64rem (1024 px), and four of the five options break at 1024 (B clips, C overlaps, E truncates, D collapses). Options: (a) apply the new layout from 80rem (1280 px) and at least 700 px high, keep today's single-column page between 64rem and 80rem and on short windows; (b) apply from 64rem and design 1024 to 1279 properly (more mockup work, narrower method). Trade-off: (a) is one more breakpoint but no new broken states; (b) matches the three-bucket rule but needs a second mockup round. Recommend (a), because a fixed-height page without a scroll fallback also fails under browser zoom of 125% and above and under find-in-page; the fallback is today's page.
-3. **Where do Plan it and Cook it live?** Options: (a) rail footer (A): follows the check-what-you-have then cook order, no bar cost, but moves with recipe length; (b) header (B, C, D, E): constant place, but the busiest row and far from the method; (c) keep today's fixed bottom bar: familiar, costs 64 px of height. Recommend (a) for the mockup; ask him to look at it on a 27 inch screen.
+3. **Where do Plan it and Make it live?** Options: (a) rail footer (A): follows the check-what-you-have then cook order, no bar cost, but moves with recipe length; (b) header (B, C, D, E): constant place, but the busiest row and far from the method; (c) keep today's fixed bottom bar: familiar, costs 64 px of height. Recommend (a) for the mockup; ask him to look at it on a 27 inch screen.
 4. **Cooked and Photos one tap deeper.** Accept lane tabs (A), or keep them visible (B)? Recommend accepting the tabs; the proof button and N already reach them in one key.
 5. **Long recipes: accept inner scroll, or restructure the page for them?** Options: (a) accept inner scroll in the rail and the method (A, B, C); (b) E's tight mode (two-column ingredients, thumbnails) so nothing scrolls, at the cost of a rail that changes width and a smaller, harder to read method. Recommend (a): the brief says "where possible", and most recipes are not 24 ingredients; keep Notes and the footer pinned.
 6. **Data additions: ingredient and step `group` on the wire.** Yes, as its own small change before the build: carry `group` through `IngredientLine`, `StepLine` and the mapper (no store, no write path), because all five options draw groups on long recipes and real data already has them (Berry Pavlova). No, for now: prep and cook minutes, equipment, tags, and per-step ingredient links (only D needs the last, and cook mode owns that under #810). A wrong guess costs a build with group labels that cannot be filled.

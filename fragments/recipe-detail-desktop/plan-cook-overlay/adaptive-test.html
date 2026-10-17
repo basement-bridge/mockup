@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Adaptive contrast test, option C</title>
+<link rel="stylesheet" href="../../../theme.css"><link rel="stylesheet" href="../../../shared.css"><link rel="stylesheet" href="../index.css"><script src="../../../theme.js"></script>
+<style>
+.wrap{max-width:1100px}.cmp{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;margin:10px 0 26px}
+.cell h3{margin:0 0 6px;font-size:14px}
+.fr{position:relative;overflow:hidden;border:1px solid var(--border);border-radius:12px;background:var(--bg)}
+.fr iframe{position:absolute;left:0;top:0;width:1440px;height:900px;border:0;transform-origin:0 0}
+.rd{margin:6px 0 0;font:12px/1.5 ui-monospace,Menlo,Consolas,monospace;color:var(--muted)}
+.rd b{color:var(--fg)}
+.ok{color:var(--sage)}.bad{color:var(--danger)}
+
+</style></head>
+<body><div class="wrap">
+<a class="back" href="index.html">&lsaquo; Plan it / Make it on the banner</a>
+<h1>Adaptive contrast, option C: test banners</h1>
+<p>Each row is the same recipe page (C) on a synthetic 1600x560 banner. Left: the fixed dark corner scrim and theme buttons (what C had before; also the fallback when the image cannot be read). Right: adaptive, which samples the banner behind the stack and picks light or dark buttons. The test banners carry opposite-tone bands at the top and bottom edge that the page crops away, so a wrong crop mapping would pick the wrong style. Readouts are read live from each frame. Mockup only.</p>
+<div id="rows"></div>
+<div class="sec"><div class="lbl">How to read the numbers</div>
+<ul class="hub-list"><li><b>lum / p10 / p90</b>: relative luminance (0 black, 1 white) of the region behind the stack: mean, 10th and 90th percentile pixel.</li>
+<li><b>text</b>: contrast of the label on its button fill; AA needs 4.5.</li>
+<li><b>edge</b>: contrast of the button's outline against the worst pixel behind it (after the scrim); 3 is the target.</li>
+<li><b>scrim</b>: 0, 30% or 50% backing in the opposite tone, added only for mid-tone or busy regions.</li></ul></div>
+</div>
+<script>
+(function(){
+var B=[["very-light","Very light"],["very-dark","Very dark"],["mid-busy","Mid-tone, busy"],["split-light-dark","Light left, dark right"],["split-dark-light","Dark left, light right"]];
+var rows=document.getElementById("rows"),frames=[];
+B.forEach(function(b){
+ var h='<h2>'+b[1]+'</h2><div class="cmp">';
+ [["off","Fixed scrim (before)"],["on","Adaptive"]].forEach(function(m){
+  h+='<div class="cell"><h3>'+m[1]+'</h3><div class="fr" data-fr><iframe title="'+b[1]+', '+m[1]+'" loading="lazy" data-src="c/index.html?banner='+b[0]+'&theme=dark'+(m[0]==="off"?'&adaptive=off':'')+'"></iframe></div><p class="rd" data-rd data-mode="'+m[0]+'"></p></div>'});
+ rows.insertAdjacentHTML("beforeend",h+'</div>')});
+function fit(){frames.forEach(function(f){var w=f.fr.clientWidth,s=w/1440;f.fr.style.height=Math.round(300*s)+"px";f.ifr.style.transform="scale("+s+")"})}
+document.querySelectorAll("[data-fr]").forEach(function(fr){var ifr=fr.querySelector("iframe");ifr.src=ifr.dataset.src;frames.push({fr:fr,ifr:ifr,rd:fr.parentNode.querySelector("[data-rd]")})});
+fit();addEventListener("resize",fit);
+function lum(c){var m=c.match(/[\d.]+/g).map(Number),l=function(v){v/=255;return v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4)};return .2126*l(m[0])+.7152*l(m[1])+.0722*l(m[2])}
+function cr(a,b){return (Math.max(a,b)+.05)/(Math.min(a,b)+.05)}
+function read(){frames.forEach(function(f){try{
+ var d=f.ifr.contentDocument,hero=d&&d.getElementById("hero");if(!hero)return;var a=hero.dataset,btns=hero.querySelectorAll(".pc-go .rb-btn"),t=[],P=d.defaultView.getComputedStyle.bind(d.defaultView);
+ btns.forEach(function(b){var s=P(b);t.push(cr(lum(s.color),lum(s.backgroundColor)))});
+ var txt=t.length?Math.min.apply(null,t).toFixed(1):"?";
+ f.rd.innerHTML=a.ovAdapt==="sampled"?'<b>'+a.ovTone+'</b> | lum <b>'+a.ovLum+'</b> p10 '+a.ovLo+' p90 '+a.ovHi+' | text <b class="'+(txt>=4.5?'ok':'bad')+'">'+txt+'</b> | edge <b class="'+(a.ovEdge>=3?'ok':'bad')+'">'+a.ovEdge+'</b> | scrim <b>'+[0,30,50][+a.ovLevel]+'%</b>':'<b>'+(a.ovAdapt||"loading")+'</b>'+(a.ovWhy?' ('+a.ovWhy+')':'')+' | text '+txt}catch(e){}})}
+setInterval(read,600);
+})();
+</script></body></html>

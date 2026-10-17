@@ -207,7 +207,7 @@
       '<div class="serves" data-n="' + state.n + '"><button type="button" data-sv="-1" aria-label="Fewer servings">&minus;</button><span>Serves ' + state.n + '</span><button type="button" data-sv="1" aria-label="More servings">+</button></div>' +
       proofHtml() +
       '<button class="btn ghost" type="button" data-plan>' + ic("plan", "s") + "Plan it</button>" +
-      '<a class="btn" href="../../../recipe/cook.html" data-cook>' + ic("flame", "s") + "Cook it</a></div>" +
+      '<a class="btn" href="../../../recipe/cook.html" data-cook>' + ic("flame", "s") + "Make it</a></div>" +
       /* main */
       '<div class="od-main"><aside class="od-rail" aria-label="Ingredients and notes">' + vselHtml() +
       '<section class="od-ing" id="ing"><div class="lblrow"><span class="lbl">Ingredients <b data-instock>' + (missing.length ? (rec.ing.length - missing.length) + " of " + rec.ing.length + " in" : "all in") + '</b></span><span class="sp"></span>' +

@@ -1,2 +1,4 @@
-/* Mockup-only shim, loaded between recommended-data.js and recommended.js: the banner images live in ../recommended/img, so point the sample data there (and one level deeper for the shared sample photos). */
-(function(){var R=window.RECIPES;["typical","short","long"].forEach(function(k){if(R[k]&&R[k].banner&&R[k].banner.indexOf("img/")===0)R[k].banner="../../recommended/"+R[k].banner});if(R.IMG&&R.IMG.indexOf("../../../")===0)R.IMG="../"+R.IMG})();
+/* Mockup-only shim, loaded between recommended-data.js and recommended.js: the banner images live in ../recommended/img, so point the sample data there (and one level deeper for the shared sample photos).
+   Also: ?banner=very-light|very-dark|mid-busy|split-light-dark|split-dark-light swaps in a synthetic test banner (../test-banners/, used by adaptive-test.html); ?banner=none is handled by recommended.js. */
+(function(){var R=window.RECIPES;["typical","short","long"].forEach(function(k){if(R[k]&&R[k].banner&&R[k].banner.indexOf("img/")===0)R[k].banner="../../recommended/"+R[k].banner});if(R.IMG&&R.IMG.indexOf("../../../")===0)R.IMG="../"+R.IMG;
+var b=new URLSearchParams(location.search).get("banner");if(b&&/^(very-light|very-dark|mid-busy|split-light-dark|split-dark-light)$/.test(b))["typical","short","long"].forEach(function(k){if(R[k]&&R[k].banner)R[k].banner="../test-banners/"+b+".png"})})();

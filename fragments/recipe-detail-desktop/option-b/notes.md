@@ -15,7 +15,7 @@ A compact header band, then three zones side by side, nothing else (no bottom ba
 | Centre | Method: numbered steps, timers, step photo thumbnail beside the text (click opens it in place, Esc closes) | the rest |
 | Right rail (card) | Everything about us and this recipe: Notes, Cooked (dates, thumbs, remarks), Photos strip, History strip (versions, review, source) | `clamp(288px, 23vw, 420px)` |
 
-Header (64px, one row): back, title (two lines max, full name on hover), time, Notes and reactions pill (counts; label spelled out from 1440), star, edit, Share (S), more, then **Plan it** and **Cook it**.
+Header (64px, one row): back, title (two lines max, full name on hover), time, Notes and reactions pill (counts; label spelled out from 1440), star, edit, Share (S), more, then **Plan it** and **Make it**.
 
 State switcher: the gear button at the foot of the app rail (hidden in screenshots) or the URL: `?r=short|typical|long|notes|cooked|nocooked`, `&t=dark|light`, `&v=kept|trying|away`, `&empty=collapse|keep`, `&sv=unknown`, `&planned=1`.
 
@@ -25,7 +25,7 @@ State switcher: the gear button at the foot of the app rail (hidden in screensho
 
 ## Design decisions
 
-1. **Plan it / Cook it live in the header, right-aligned, Cook it primary.** The phone's fixed bottom bar is a thumb-reach device and costs 64px of the height this layout is trying to save. They are the page's two primary actions (RB-D1), so they stay as buttons, never in More. Plan it becomes "Planned Tue" when planned (`?planned=1` and click). Cost: the header is the busiest row (11 controls); see decision 8. A wrong guess costs: the owner wants the actions near the method; the alternative is a 56px strip at the foot of the centre zone (costs method height).
+1. **Plan it / Make it live in the header, right-aligned, Make it primary.** The phone's fixed bottom bar is a thumb-reach device and costs 64px of the height this layout is trying to save. They are the page's two primary actions (RB-D1), so they stay as buttons, never in More. Plan it becomes "Planned Tue" when planned (`?planned=1` and click). Cost: the header is the busiest row (11 controls); see decision 8. A wrong guess costs: the owner wants the actions near the method; the alternative is a 56px strip at the foot of the centre zone (costs method height).
 2. **The anchor row is deleted on desktop.** Nothing is hidden and the three zones are always visible, so there is nothing to jump to. This supersedes R-O2 A for desktop only (phone keeps it). Cost: the scroll-spy, the sticky offsets and `scroll-margin-top` rules are not needed in the desktop file; the Photos and Cooked anchors become right-rail blocks.
 3. **Serves stepper sits at the top of the Ingredients rail**, above the rows it scales, in the same 44px pill as today. Batch recipes keep "N portions" and the same stepping rule.
 4. **The right rail is "us and this recipe".** Notes first (the owner's "notes are important", readable without leaving the page), then Cooked, Photos, History. Notes get the flexible block, so when space is short only the notes list scrolls inside, with the rest pinned. Cook remarks now show under each cook row (today they are only in the Notes flyout).
@@ -67,7 +67,7 @@ State switcher: the gear button at the foot of the app rail (hidden in screensho
 | 22 Cooked | right rail, with remarks and verdict thumbs |
 | 23 Photos | right rail strip, grid in place |
 | 24 Where it came from | History strip line; left rail foot when the rail is collapsed |
-| 25 Plan it / Cook it | header (decision 1) |
+| 25 Plan it / Make it | header (decision 1) |
 | 26 Notes flyout | retired at 1200+ (proposal); lane below 1200 |
 | 27 Share panel, 28 Edit panel | unchanged (right lane, one flyout at a time). At 1280 a 400px lane covers the right rail; the lane pushes nothing |
 | 29 Toasts and sheets | unchanged |

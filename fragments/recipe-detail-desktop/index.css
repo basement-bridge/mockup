@@ -18,3 +18,7 @@
 .hub-said li{margin-bottom:6px}
 @media(max-width:699px){.hub-opt{grid-template-columns:minmax(0,1fr)}}
 .hub-opt .mut{margin:var(--sp-3) 0 0;font-size:13px;color:var(--muted)}
+
+.hub-opt.rej .thumb img{filter:grayscale(.75)}
+.tag.rej{border-color:var(--danger);color:var(--danger)}
+.tag.chosen{background:var(--accent);color:var(--on-accent);border-color:transparent}

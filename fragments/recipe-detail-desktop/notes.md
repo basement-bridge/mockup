@@ -223,7 +223,7 @@ Citations are file:line at the tips above.
 
 **Earlier recipe decisions (owner)**
 - R-O2 A: recipe page is one continuous scroll with the section jump row docked (not real tabs); R-O3 B: versions strip only when >1 version, own row above the jump row, both dock: `kitchie:docs/project-plan.md:641`, memory recipe-tab (10 Oct).
-- Social proof leads on the browse flyout; Cook now and Plan are the two primary actions; Open full recipe is a secondary link (RB-D1/D2); full page takes over the whole recipe lane, entered without reload (RB-D3); notes and reactions flyout re-openable on the page in the right lane, one flyout at a time (RB-D4); phones have no flyouts (RB-D5): `mockup:docs/knowledge/recipe-browse-full.md:7-11`. Defaults chosen by the build with the owner NOT having picked among the options: flyout A, page layout 1 (proof band, one column), Re-open A (labelled header button with counts and key N); build keeps the bottom Plan it / Cook it bar (a difference from the mockup); thumbs-down named only for the caller: `kitchie:docs/project-plan.md:1634`. Page-top option 2 ("hero card and two columns, narrows to the 736px column when the flyout opens so it pushes and never covers") was DRAWN and not chosen: `mockup:docs/knowledge/recipe-browse-full.md:17`, CSS `mockup:fragments/recipe-browse-full/styles.css:119-122` (`.rb-hero`, `.rb-two` 5fr/6fr grid, `.rb-hacts`). It is the nearest existing vocabulary for a wide page.
+- Social proof leads on the browse flyout; Cook now and Plan are the two primary actions; Open full recipe is a secondary link (RB-D1/D2); full page takes over the whole recipe lane, entered without reload (RB-D3); notes and reactions flyout re-openable on the page in the right lane, one flyout at a time (RB-D4); phones have no flyouts (RB-D5): `mockup:docs/knowledge/recipe-browse-full.md:7-11`. Defaults chosen by the build with the owner NOT having picked among the options: flyout A, page layout 1 (proof band, one column), Re-open A (labelled header button with counts and key N); build keeps the bottom Plan it / Make it bar (a difference from the mockup); thumbs-down named only for the caller: `kitchie:docs/project-plan.md:1634`. Page-top option 2 ("hero card and two columns, narrows to the 736px column when the flyout opens so it pushes and never covers") was DRAWN and not chosen: `mockup:docs/knowledge/recipe-browse-full.md:17`, CSS `mockup:fragments/recipe-browse-full/styles.css:119-122` (`.rb-hero`, `.rb-two` 5fr/6fr grid, `.rb-hacts`). It is the nearest existing vocabulary for a wide page.
 - "Recipes land" pane / cooking-ideas pane: moved entirely to Home; Recipes tab is the library only; desktop row tap opens a summary flyout in the Pantry panel's right lane, "Open full recipe" goes to the full page (owner 11-12 Oct, memory recipe-tab; `kitchie:docs/project-plan.md:1536`).
 - Photos: banner large, step photos medium, one photo per step (max 10 per version), gallery max 3 (`limits` in the wire, observed in `get_version`), cook photos on demand (memory, `kitchie:docs/project-plan.md:641`).
 - Share: placement A on phone (icon with count) and on the desktop full page (labelled pill with S); desktop summary flyout also gets a Share button beside Open full recipe, opening the panel in the same lane; panel is a bottom sheet on phone and a side panel on desktop: `kitchie:docs/project-plan.md:664`, `recipe-tab/share.ts:157,203-211`; `mockup:docs/handover/recipe-share.md`, `mockup:fragments/recipe-share/placement/notes.md`.
@@ -288,7 +288,7 @@ Build-side CSS locations to mirror: `recipe-tab/css.ts` (phone + shared base), `
 
 - The rendered width of the page on a wide screen. The task brief says about 1060px pinned left; the code points to the 736px column (`--content-max` = 640 + 2x48 from the rail rules) with `.rtab{margin:0 calc(-1*var(--gutter))}` (css.ts:542) and `body:has(.rtab)` setting `--content-max:var(--phone-max)` (44rem = 704px, layout.ts:27) at 64rem (css.ts:543). Which of the two cascades wins on the live page (the rail selector `body:has(nav.bar):not(:has(...))` is more specific, so 736 is my reading), and what the extra width in the 1060 figure is (rail 88 + column + gutters + scrollbar?), was not measured; I did not load the page in a browser. The comment in `desktop-css/recipes.ts:97` says "the 736px column", and the 12 Oct plan row says "the same 640px phone column" (`project-plan.md:1579`).
 - The live UAT page itself (https://43-134-239-163.sslip.io/kitchie-uat/recipes/recipe?id=fam_34824ea9-...) was not opened: no signed-in browser here. Every anatomy claim is from the code and from the Recipe UAT data (read-only `list_families` and `get_version` through the MCP on 17 Oct). The UAT example recipe (Barramundi with Capers) has 2 ingredients, minutes 20, serves 2, one kept version, no banner; its steps, notes and cooks were not read.
-- Exact pixel heights of the page's fixed and sticky chrome at desktop (top bar 61px per `--rtop`; version strip 48px; jump row 40px + padding; bottom bar height with `--barh`, which is `0px` on rail pages per `desktop-layout.ts:92`, so the Plan it / Cook it bar sticks to the viewport bottom with no bottom nav under it). Needed for any "fits without scrolling" claim; measure in the mockup at 1280x800 and 1366x768.
+- Exact pixel heights of the page's fixed and sticky chrome at desktop (top bar 61px per `--rtop`; version strip 48px; jump row 40px + padding; bottom bar height with `--barh`, which is `0px` on rail pages per `desktop-layout.ts:92`, so the Plan it / Make it bar sticks to the viewport bottom with no bottom nav under it). Needed for any "fits without scrolling" claim; measure in the mockup at 1280x800 and 1366x768.
 - How many rows a 10-ingredient / 6-step recipe actually occupies in a given column width, so which sample recipes fit one screen without scrolling is not known. The three sample sets in 3.4 are meant to answer exactly that.
 - Whether the browse-to-page in-place swap (`recipes-browse.js openFull`) works when the page is rebuilt with a different DOM: it replaces the whole `#rtab` node by id, re-runs the page's `/assets/recipes*.js` scripts, relies on `#rtab h1`, `#rtab .top a.back`, `[data-notes]`, `[data-note]`, `#t-notes-fly` and `.rtab .sheet`. A new desktop markup must keep those hooks or the script changes with it. Not tested.
 - Whether `window.KitchieRecipes` state survives a swap when new desktop scripts are added (the swap nulls `KitchieRecipes` and `KitchieRecipeFlyout`, then re-runs scripts in order).
@@ -311,7 +311,7 @@ Added 17 October 2026 with the sixth layout, `recommended/` (live: https://basem
 3. **The time badge ("20 min") sits directly under the title.**
 4. **Per-step time is shown beside each step number**, only where a step has a time.
 5. **No ingredient-to-step linkage on this page.** Cook it mode owns that (recipe#127, Kitchie #810).
-6. **The "ingredients and notes in one zone" constraint is lifted.** This is the recipe's detail page. The hero strip is the one place that shows everything: title, time badge, Serves, History and proof, the version and lineage line ("From <parent>") and every action including Plan it and Cook it. There is no bottom bar.
+6. **The "ingredients and notes in one zone" constraint is lifted.** This is the recipe's detail page. The hero strip is the one place that shows everything: title, time badge, Serves, History and proof, the version and lineage line ("From <parent>") and every action including Plan it and Make it. There is no bottom bar.
 7. **The "Notes and reactions" pill loses its text label** (the thumbs and note icons say it). Its flyout is better organised and shows the user's NAME against each rating, only for people who actually rated.
 8. **Avoid scrolling on desktop.** Ingredients are a short, wrapping list; the method gets the room.
 
@@ -331,7 +331,7 @@ Added 17 October 2026 with the sixth layout, `recommended/` (live: https://basem
 ### 7.3 Open questions for the owner
 
 Q1. **Width-rule exception, and the breakpoint.** `kitchie AGENTS.md:181` says desktop is a rail, a 640px column and a side panel and "do not add other desktop widths"; line 187 says a screen needing its own layout records the exception in `docs/project-plan.md` and asks the owner. The owner is explicitly rethinking the big-screen layout, so the recommended page uses the space right of the 88px rail, left-anchored, capped at 105rem, with the rail width held as a token (`--rec-rail`, `--rec-max`, `--rec-lane`). This is recorded as **proposed, awaiting owner** in `docs/project-plan.md`; nothing is settled. Breakpoint proposal: apply from 80rem and 700px high, keep today's page from 64rem to 80rem and on short windows (also covers browser zoom above 125%). Alternative: design 1024 to 1279 properly. A wrong guess costs a second desktop layout that is not wanted, or four broken widths.
-Q2. **Where do Plan it and Cook it live?** Recommended: hero, top right, no bottom bar (constant place, no 64px height cost). Alternatives: rail footer (option A), keep today's fixed bar.
+Q2. **Where do Plan it and Make it live?** Recommended: hero, top right, no bottom bar (constant place, no 64px height cost). Alternatives: rail footer (option A), keep today's fixed bar.
 Q3. **Cooked and Photos one tap deeper** than today's jump row (tabs, keys 3 and 4, and a "Cooked 4x" proof button). Accept, or keep them visible?
 Q4. **Carry `group` through the wire** (`IngredientLine`, `StepLine`, `client.ts:217`, `fake.ts`): the long sample draws group labels that the app cannot fill today. Recommended: yes, as its own small change first. Not asked for: prep and cook minutes, equipment, tags.
 Q5. **Park option D** (the step stage) under Kitchie #810 as "Cook it on desktop", rather than discarding it.
@@ -341,14 +341,34 @@ Q8. **Names against thumbs-down.** The owner asked for the user's NAME against e
 Q9. **A long recipe still scrolls its ingredient list inside the rail** (24 ingredients does not fit 1280x720; the method does fit). Accept, or show ingredients in two columns on tight recipes (E's way, at the cost of a rail that changes width)?
 Q10. **Method reading order across two columns.** Steps run down the left column, then the right; a group label can end a column and its steps continue unlabelled in the next. Accept, or one column with the lane open only?
 
-### 7.4 Open decision: Plan it / Cook it overlay placement (18 October 2026)
+### 7.4 Plan it and Make it overlay placement, 18 October 2026: C chosen
 
-**Status: OPEN.** Owner direction by voice, 18 October 2026: move Plan it and Cook it so they are overlaid directly on the hero banner image, always visible (not hover), instead of the right side of row two. He has not chosen the placement and wants a few options first. Mockup: `plan-cook-overlay/` (live: https://basement-bridge.github.io/mockup/fragments/recipe-detail-desktop/plan-cook-overlay/index.html), variations A (bottom-right solid pair), B (floating glass bar, bottom centre), C (top-right stack).
+**Status: DECIDED by the owner (placement C, adaptive contrast, label "Make it"). Still mockup stage, NOT approved for build.** Owner direction by voice, 18 October 2026: move Plan it and Make it so they are overlaid directly on the hero banner image, always visible (not hover), instead of the right side of row two. Mockup: `plan-cook-overlay/` (live: https://basement-bridge.github.io/mockup/fragments/recipe-detail-desktop/plan-cook-overlay/index.html), options A (bottom-right solid pair), B (floating glass bar, bottom centre), C (top-right stack). Issues: Kitchie #898 (placement) and #830 (the page).
 
-- This supersedes proposal 7.3 Q2 (hero, top right of row two) once an option is picked; until then the recommended page is unchanged.
-- **Proposal (Claude, advice only):** A. Not locked.
-- Proposals made where he was silent: row two stays and left aligns (the hero is 4px shorter); no banner means no overlay and the buttons stay in row two; the banner becomes a click-to-enlarge target (new); magnifier always visible; keyboard order unchanged plus one banner stop.
-- Open: which placement (A, B or C); whether the banner focus point should choose the button corner; whether the banner click-to-enlarge is wanted at all.
+#### 7.4.1 Decided by the owner (by voice, 18 October 2026; locked until he overrides)
+
+1. **Option C is chosen:** Plan it above Make it in the top-right corner of the banner (a single row when the banner is under 112px tall, as at 1280x720).
+2. **Option B is rejected.** His word: "yucky". It stays viewable in `plan-cook-overlay/b/`, labelled Rejected.
+3. **Option A is rejected.** His word: "insensible". It stays viewable in `plan-cook-overlay/a/`, labelled Rejected. (Claude's earlier suggestion, A, was not taken.)
+4. **Contrast is adaptive, not a fixed dark scrim.** Sample the average brightness (relative luminance) of the banner behind the button stack and switch automatically between a light-on-dark and a dark-on-light button style, so the buttons stay legible whatever is in that part of the photo. Built in `plan-cook-overlay/c/adaptive.js`; tests in `tools/plan-cook-overlay-adaptive-check.mjs` and `plan-cook-overlay/adaptive-test.html`.
+
+#### 7.4.2 Proposals made by Claude where he was silent (mockup; not locked)
+
+- Light and dark styles break even at luminance about 0.19; hysteresis (to dark buttons above 0.24, back below 0.15) stops flicker. Label text at least 4.5:1 (8.7 to 9.6 in the palette); button edge at least 3:1 against the worst pixel behind it, measured on the rendered page.
+- A subtle backing (30%, 50% if still short of 3:1) in the opposite tone for mid-tone or busy regions only. Smooth .28s transition; none under prefers-reduced-motion.
+- If the image cannot be read (cross-origin image without CORS taints the canvas, not loaded, no size) C falls back to the fixed look: theme buttons on the fixed dark corner scrim.
+- Row two stays and left aligns (the hero is 4px shorter); no banner means no overlay and the buttons stay in row two; the banner is a click-to-enlarge target (new); magnifier always visible, bottom left in C; keyboard order unchanged plus one banner stop.
+
+#### 7.4.3 Still open
+
+- Whether the banner focus point should also choose the button corner; whether the banner click-to-enlarge is wanted at all; real banner photos (the tests use synthetic banners and the three sample photos); who owns the build of the sampler (it is about 120 lines of script, runs on image load and resize).
+- This supersedes proposal 7.3 Q2 (hero, top right of row two) for the placement. The recommended page itself is unchanged.
+
+### 7.5 Button label: "Make it" (18 October 2026)
+
+1. **Decided by the owner (by voice, 18 October 2026):** the "Cook it" button on the desktop recipe detail page is renamed **"Make it"**, because it works for baking, cocktails and so on. Plan it is unchanged. Alternatives considered: Start it, Do it, Prepare it, Let's go.
+2. **Scope in the mockup:** visible label, aria-labels and tooltips in every fragment under `fragments/recipe-detail-desktop/` (recommended, plan-cook-overlay, inline-edit, options A to E, hub text). CSS classes and ids, the `data-cook` hooks, the Cook mode screen name ("Cook it mode", Kitchie #810) and the empty-state phrase "Cook it once and the thumbs and notes start here" are not renamed. Sections 1 to 6 of this file describe today's app and still say "Cook it" where they name today's button; the build wording is decided in 7.5.1.
+3. **Not decided:** the label on other screens (phone recipe page, recipe browse, plan flyouts, Kitchie build). Those still say "Cook it" and are listed in the PR for the owner to confirm.
 
 ---
 
@@ -375,7 +395,7 @@ R8. **Amounts are shown as written while editing** (not scaled by the Serves ste
 R9. **Quick-add lines** pinned under the ingredient list and the method: type `2 tbsp soy sauce`, Enter.
 R10. **Step photos are added and removed in place** (undo for 5 minutes, up to 10); the banner and the gallery stay in the existing photo sheet.
 R11. **Notes:** your notes are editable in place; notes inherited from the parent version are read-only ("Change it there"); Add a note also works outside edit mode.
-R12. **Edit strip** between the hero and the body (where changes go, saved state, Undo last, Done); the banner shrinks to a slim band while editing so nothing scrolls; Plan it and Cook it are dimmed.
+R12. **Edit strip** between the hero and the body (where changes go, saved state, Undo last, Done); the banner shrinks to a slim band while editing so nothing scrolls; Plan it and Make it are dimmed.
 R13. **Wide layout only** (80rem x 700px and up, the same viewport rule); below it the build keeps today's edit panel.
 
 ### 8.3 Open questions for the owner

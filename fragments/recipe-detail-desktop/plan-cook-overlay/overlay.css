@@ -1,5 +1,5 @@
-/* Plan it / Cook it overlaid on the banner: shared base for variants a, b, c. Loaded after ../../recommended/recommended.css and recommended-wide.css, so the page itself is unchanged.
-   Only these things change: the banner is a click target (enlarge) with a scrim, Plan it / Cook it move from row two onto the banner (.pc), row two keeps Serves, time, version, History. */
+/* Plan it / Make it overlaid on the banner: shared base for variants a, b, c. Loaded after ../../recommended/recommended.css and recommended-wide.css, so the page itself is unchanged.
+   Only these things change: the banner is a click target (enlarge) with a scrim, Plan it / Make it move from row two onto the banner (.pc), row two keeps Serves, time, version, History. */
 .hero{--ban-h:clamp(88px,15vh,240px)}
 @media (min-width:1280px) and (min-height:700px) and (max-height:800px){.hero{--ban-h:84px}}
 .hphoto{position:relative;height:var(--ban-h)}

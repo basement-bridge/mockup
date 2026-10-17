@@ -10,7 +10,7 @@ Left rail (about 22% of the page, 316 to 380 px): Ingredients (text wraps) with 
 ## Numbered decisions (all **Proposal**; the owner was silent on every one)
 
 1. **Width.** Designed for 1280 to 1920 wide, 720 or more tall, fluid between. Page area is the viewport minus the 88 px nav rail, capped at 1840 so a 2560 screen leaves free space on the right (left-anchored, as the lane rule says). This breaks `AGENTS.md:181` ("no new desktop widths"): the 640 px column is gone. The owner asked to rethink big screens (issue #830), so I treated that as permission and flag it as the first thing to confirm; `kitchie:AGENTS.md:187` says record the exception in `docs/project-plan.md`. One CSS rule set, no per-width files; three container queries (page under 1330, 1150, 960 px; stage under 660 px; current step 760 px and over) do the adapting, so no new width buckets in the build's sense. Under 1280 it degrades (list shrinks to numbers) but is not designed or screenshotted. Height: under 800 tall the rows tighten.
-2. **Two rows of chrome, no bottom bar.** Row 1 (60 px): Back, title (two lines max), Notes and reactions pill, star, edit, Share (S), more. Row 2 (56 px): time, Serves stepper, History strip, Plan it, Cook it. The fixed bottom bar is removed (it cost 64 px of height on a screen that is meant not to scroll). Plan it / Cook it move up beside the facts they act on (Serves feeds Cook it's `n=`).
+2. **Two rows of chrome, no bottom bar.** Row 1 (60 px): Back, title (two lines max), Notes and reactions pill, star, edit, Share (S), more. Row 2 (56 px): time, Serves stepper, History strip, Plan it, Make it. The fixed bottom bar is removed (it cost 64 px of height on a screen that is meant not to scroll). Plan it / Make it move up beside the facts they act on (Serves feeds Cook it's `n=`).
 3. **Rail, then stage, because the owner's own sentence says so.** Ingredients and Notes left (his idea), Method gets the wide area. Notes sit under ingredients, not in a tab, so they are never hidden; they get at most 40% of the rail height and scroll inside it.
 4. **Stage = browse and prepare, Cook it = commit** (see "Stage vs Cook it" below).
 5. **The step list is the progress, the current step is the reading.** Current step text is 20 to 30 px (scales with width). Photo fills the rest (cropped, as `focus_y` already does); a step with no photo shows "Up next" (the next step's words) instead of a hole. A photo being prepared shows today's "Photo is being prepared" frame. At 760 px of step width and up (1440 with the lane closed gives about 640, 1920 gives about 1070) text and photo sit side by side; below that, text above photo.
@@ -48,7 +48,7 @@ Left rail (about 22% of the page, 316 to 380 px): Ingredients (text wraps) with 
 | 22 | COOKED | lane (N): list of cooks; summary is the row 2 strip | |
 | 23 | PHOTOS | lane (N), "Show 6 photos" on tap | on-demand rule kept |
 | 24 | "Where it came from" | More menu only | there was no room; it was already reachable there |
-| 25 | Plan it / Cook it bar | row 2, right; bottom bar removed | see decision 2 |
+| 25 | Plan it / Make it bar | row 2, right; bottom bar removed | see decision 2 |
 | 26 | Notes and reactions flyout | right lane, 400 px, pushes | |
 | 27 | Share panel | same lane, one parent flyout at a time (stub: toast) | not drawn |
 | 28 | Edit panel | same lane (stub: toast) | not drawn |
@@ -113,7 +113,7 @@ Differences the build would list:
 3. The page is one `<form method=get>` today; the stage steps in place with script. Without script the build should draw the "show all" list (the server HTML is already that), so the page stays complete with no script.
 4. Ingredient rows are about 28 px, not 44 px (rows are not controls; the cart button keeps a 44 px hit area via padding).
 5. `.ing.use`, `.od-proof` (the band in one line), `.vsel` (version popover), `.sg-*` are new; the `.rb-dots` timeline became `.od-dots`.
-6. Plan it and Cook it are in the page header, not the fixed `.act` bar; the Plan it picker becomes the Kitchie #757 flyout (stubbed with a toast).
+6. Plan it and Make it are in the page header, not the fixed `.act` bar; the Plan it picker becomes the Kitchie #757 flyout (stubbed with a toast).
 7. Share, Edit and Photos panels are stubs.
 
 ## Performance (DESIGN.md section 6)

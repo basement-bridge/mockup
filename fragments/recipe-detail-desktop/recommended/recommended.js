@@ -107,7 +107,7 @@ function hero(){
  +(D.share!==null?'<button type="button" class="shr-chip" data-share>'+ic("share","s")+'<span class="sl">Share</span>'+(D.share?'<span class="shr-n">'+D.share+'</span>':'')+'<span class="kbd">S</span></button>':'')
  +'<button type="button" class="ib" data-more aria-label="More">'+ic("more")+'</button></div></div>'
  +'<div class="hr2"><div class="hmeta">'+servesCta+'<span class="tbadge" title="Total time">'+ic("clock","s")+D.min+'</span>'+chip+hist+'</div>'
- +'<div class="hgo"><button type="button" class="rb-btn" data-plan>'+ic("plan")+(D.planned?'<span class="lw">Planned </span>'+D.planned:'Plan it')+'</button><a class="rb-btn pri" href="#" data-cook>'+ic("cook")+'Cook it</a></div></div></div>'
+ +'<div class="hgo"><button type="button" class="rb-btn" data-plan>'+ic("plan")+(D.planned?'<span class="lw">Planned </span>'+D.planned:'Plan it')+'</button><a class="rb-btn pri" href="#" data-cook>'+ic("cook")+'Make it</a></div></div></div>'
  +'</header>'}
 
 var railT='<div class="tabs" role="tablist" aria-label="Ingredients, notes, cooked, photos">'+tabs.map(function(t){
