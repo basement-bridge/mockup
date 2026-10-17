@@ -1,0 +1,98 @@
+/* Removed members (Kitchie #85). Mockup of the Household page with a hold: a removed member can be restored for 7 days, then is erased.
+   Theme tokens only, no raw colours. Class names are the ones the built Household page already uses (server/src/people-pages.ts:
+   .pm .mtop .mbody .menu.card .mrow .who2 .av.sm .sub .chip .dz .stack .btn .note .adm .admbox), so the build lifts this file's rules and markup.
+   New in this mockup: #removed (the Removed card), .mrow.held (a held member's row), .sub.soon (the last 24 hours), .fld/.note.bad (typed-name confirm page). */
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;background:var(--stage);color:var(--fg);font-family:var(--body);line-height:1.45}
+button,input{font:inherit;color:inherit}
+button{background:none;border:0;padding:0;cursor:pointer}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+p{margin:0;color:var(--muted)}
+
+/* the frame: full bleed under 600px, the 390px phone from 600px. desktop.html puts the same page in the Profile window. */
+.stage{min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:var(--sp-4) var(--gutter)}
+.phone{width:390px;height:844px;max-height:calc(100dvh - 32px);background:var(--bg);border-radius:var(--r-phone);border:1px solid var(--border);overflow:hidden;display:flex;flex-direction:column}
+@media(max-width:599.98px){.stage{padding:0;display:block}.phone{width:100%;height:100dvh;max-height:none;border-radius:0;border:0}}
+
+.pm{display:flex;flex-direction:column;min-height:0;flex:1}
+.pm .mtop{height:60px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--border)}
+.pm .back{display:inline-flex;align-items:center;min-height:44px;min-width:64px;color:var(--accent);font-size:15px;font-weight:600}
+.pm .ttl{font-family:var(--head);font-weight:700;font-size:19px}
+.pm .mbody{flex:1;overflow:auto;padding:20px;display:flex;flex-direction:column;gap:16px;overscroll-behavior:contain}
+.pm h1.hh{font:700 2rem/1.05 var(--head);margin:0}
+.pm h2{font:700 1.5rem/1.15 var(--head);margin:0}
+.pm .small{font-size:13px}
+.pm .lbl{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted);margin-bottom:6px}
+.pm .sub{display:block;font-size:13px;font-weight:400;color:var(--muted)}
+.pm .sub.soon{color:var(--danger);font-weight:600}
+.pm .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:4px 16px}
+.pm .menu>.mrow{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:56px;width:100%;padding:8px 0;border-top:1px solid var(--border);font-weight:600;font-size:16px}
+.pm .menu>.mrow:first-child{border-top:0}
+.pm .mrow .who2{display:flex;align-items:center;gap:12px;min-width:0;flex:1}
+.pm .mrow .who2>div{min-width:0}
+.pm .mrow .who2 b{overflow-wrap:anywhere}
+.pm .av{width:38px;height:38px;border-radius:50%;background:var(--bg);border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex:none}
+.pm .av.sm{width:40px;height:40px;font-size:18px}
+.pm .av.dash{border-style:dashed;color:var(--muted)}
+.pm .chip{font-size:12px;font-weight:700;padding:3px 10px;border-radius:var(--r-pill);background:var(--bg);border:1px solid var(--border);color:var(--fg);white-space:nowrap;margin-left:2px}
+.pm .fchip{color:var(--accent);border-color:var(--accent)}
+
+/* buttons: the built Household page's */
+.pm .btn{display:flex;align-items:center;justify-content:center;min-height:48px;padding:0 16px;margin:0;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--surface);color:var(--fg);font-weight:600;text-align:center;width:100%}
+.pm .btn.go{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
+.pm .btn.alert{background:var(--danger);border-color:var(--danger);color:var(--on-accent);font-weight:700}
+.pm .btn.ghost{background:none}
+.pm .btn.ghost.danger{color:var(--danger);border-color:var(--danger)}
+.pm .stack{display:flex;flex-direction:column;gap:10px}
+.pm .note{margin:0;padding:12px 14px;border:1px solid var(--border);border-radius:12px;background:var(--surface);font-size:15px;color:var(--fg)}
+.pm .note.bad{border-color:var(--danger)}
+.pm .note b{color:var(--fg)}
+.pm .dz{border:1px solid var(--danger);border-radius:var(--r-card);padding:14px;display:flex;flex-direction:column;gap:10px}
+.pm .dz summary{display:flex;align-items:center;min-height:44px;color:var(--danger);font:700 13px/1.2 var(--body);letter-spacing:.04em;text-transform:uppercase;cursor:pointer;list-style:none}
+.pm .dz summary::-webkit-details-marker{display:none}
+.pm .dz details>.stack{margin-top:6px}
+
+/* the in-place confirm under a row (the same box Make admin uses, SW-86) */
+.pm .menu>.mrow.adm-row{flex-wrap:wrap}
+.pm .adm{flex:0 0 auto}
+.pm .adm>summary{list-style:none;display:inline-flex;align-items:center;min-height:44px;padding:0 8px;color:var(--accent);font:600 14px/1.2 var(--body);cursor:pointer}
+.pm .adm>summary::-webkit-details-marker{display:none}
+.pm .adm>summary .c,.pm .adm[open]>summary .o{display:none}
+.pm .adm[open]>summary .c{display:inline}
+.pm .adm[open]{flex:0 0 100%;padding-bottom:12px}
+.pm .adm[open]>summary{display:flex;justify-content:flex-end;width:100%}
+.pm .admbox{display:flex;flex-direction:column;gap:8px;padding:12px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--bg)}
+.pm .admbox p{margin:0}
+.pm .admbox b{color:var(--fg)}
+.pm .admbox .btn{min-height:44px}
+
+/* typed-name confirm (as the leave page) */
+.pm .fld{min-height:48px;padding:0 14px;border:1px solid var(--border);border-radius:12px;background:var(--bg);color:var(--fg);font-size:16px;width:100%}
+.pm label.small{color:var(--fg)}
+.pm .facts{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px}
+.pm .facts li{padding:12px 14px;border:1px solid var(--border);border-radius:12px;background:var(--surface);font-size:14px;color:var(--muted)}
+.pm .facts li b{display:block;color:var(--fg);font-size:15px;margin-bottom:2px}
+.pm .facts li.erase{border-color:var(--danger)}
+
+/* History after the erase */
+.pm .hrow b{font-size:16px}
+.pm .hrow .sub em{font-style:normal;color:var(--fg);font-weight:600}
+
+/* Profile window (desktop.html): the same page as the pane, 44rem column, as the built page */
+.win{width:min(1000px,calc(100vw - 48px));height:min(760px,calc(100dvh - 48px));margin:24px auto;display:flex;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden}
+.win nav{width:220px;flex:none;border-right:1px solid var(--border);padding:16px 12px;display:flex;flex-direction:column;gap:4px;background:var(--surface)}
+.win nav .who{display:flex;gap:10px;align-items:center;padding:4px 8px 14px;font-weight:700}
+.win nav .who small{display:block;font-weight:400;color:var(--muted)}
+.win nav span.i{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 10px;border-radius:var(--r-ctl);color:var(--muted);font-weight:600}
+.win nav span.i.on{background:var(--bg);color:var(--accent);border:1px solid var(--accent)}
+.win .pane{flex:1;min-width:0;display:flex;flex-direction:column}
+.win .pane .pm{max-width:44rem;width:100%;margin:0 auto}
+.win .pane .mtop{border-bottom:0}
+@media(max-width:899.98px){.win{width:100%;height:100dvh;margin:0;border:0;border-radius:0}.win nav{display:none}}
+.pane-wrap{flex:1;min-height:0;display:flex;flex-direction:column;overflow:auto}
+.pane-wrap .pm{flex:none}
+.pm .menu>.mrow>a.dg{display:inline-flex;align-items:center;flex:none;min-height:44px;padding:0 8px;color:var(--danger);font:600 14px/1.2 var(--body)}
+/* with Erase now drawn there are two actions: they sit under the text, to the right, so the text keeps its width on a 360px phone */
+.pm .menu>.mrow.held.two .who2{flex:1 1 100%}
+.pm .menu>.mrow.held.two{justify-content:flex-end}
