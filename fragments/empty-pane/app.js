@@ -1,8 +1,8 @@
 /* MOCK: the desktop Pantry and Recipes with the idle pane in the lane (owner, voice, 17 Oct 2026: "what are your design options for that space when something is not picked?").
    Everything the pane shows is worked out here from the rows already on the page, with no request, the way the real pages can (data.js).
-   Hooks (query string):  o=a|b|c|d|e|f   (the option; default f, the recommendation)   d=typical|large|empty|calm|nostock (calm = nothing needs attention; nostock is Recipes only)
+   Hooks (query string):  o=a|b|c|d|e|f   (the option; default f, the decided pane)   from=home|direct|ready (home: the sections Home already holds draw at once; direct: came straight here, count then shimmer then rows; ready: all drawn)   d=typical|large|empty|calm|nostock (calm = nothing needs attention; nostock is Recipes only)
                           theme=kitchie|kitchie-day   touch=1 (a wide tablet with no keyboard)   ev=quiet (option E keeps the lane, drawn empty)
-                          fresh=1 (a first visit: nothing remembered)   open=<row id>   flt=soon|low|out|ready|short|planned|lately   mk=0 (hide the mockup switcher)   lane=1 (the lane alone) */
+                          nonew=1 (Recipes: nothing added in the last 14 days)   fresh=1 (a first visit: nothing remembered)   open=<row id>   flt=soon|low|out|ready|short|planned|lately   mk=0 (hide the mockup switcher)   lane=1 (the lane alone) */
 (function () {
   "use strict";
   var Q = new URLSearchParams(location.search), $ = function (id) { return document.getElementById(id); };
@@ -11,10 +11,13 @@
   var OPTS = ["a", "b", "c", "d", "e", "f"];
   var S = {
     screen: screen, opt: OPTS.indexOf(Q.get("o")) > -1 ? Q.get("o") : "f", data: Q.get("d") || "typical", touch: Q.get("touch") === "1", quiet: Q.get("ev") === "quiet",
-    flt: Q.get("flt") || "", sel: null, loc: "All", chip: "all", q: "", recent: [], laneOnly: Q.get("lane") === "1"
+    flt: Q.get("flt") || "", sel: null, loc: "All", chip: "all", q: "", recent: [], laneOnly: Q.get("lane") === "1", search: null, mode: "direct", phase: null, log: []
   };
+  S.mode = Q.get("from") || (S.laneOnly ? "ready" : "direct");
+  var cancelRun = null;
   if (!window.EP_DATA[screen][S.data]) S.data = "typical";
   var ITEMS = window.EP_DATA[screen][S.data];
+  if (Q.get("nonew") === "1" && screen === "recipes") ITEMS = ITEMS.map(function (r) { var o = {}; for (var k in r) o[k] = r[k]; o.added = null; return o; }); /* mock hook: nothing added lately, to draw the empty state */
   var KEY = "ep.recent." + screen, toastT;
   var DET = { sel: null };
 
@@ -58,7 +61,7 @@
       return true;
     });
   }
-  var FLT_LABEL = { soon: "Use soon", low: "Running low", out: "Out", ready: "Ready now", short: "One thing short", planned: "Planned this week", lately: "Cooked lately" };
+  var FLT_LABEL = { soon: "Use soon", low: "Running low", out: "Out", ready: "Ready now", short: "One thing short", planned: "Planned this week", lately: "Recently cooked" };
   function rowPantry(i) {
     var d = i.ub === null ? "" : i.ub <= 7 ? '<span class="due soon">' + esc(window.EP_STATS.when(i.ub)) + "</span>" : "";
     return '<li><button type="button" class="rowx' + (DET.sel === i.id ? " sel" : "") + '" data-row="' + esc(i.id) + '"><span><span class="name">' + esc(i.n.toLowerCase()) + '</span><span class="meta">' + esc(i.loc + " · " + i.qty) + "</span></span>" + d + "</button></li>";
@@ -97,8 +100,9 @@
     }
     return '<div class="det"><header><h3>' + esc(i.n) + "</h3>" + close + '</header><div class="banner" aria-hidden="true"></div><dl><dt>Time</dt><dd>' + i.min + " min</dd><dt>Serves</dt><dd>" + i.serves + "</dd><dt>Pantry</dt><dd>" + (i.miss === null ? "Cannot be read now" : i.miss === 0 ? "All in" : i.miss + " missing") + "</dd><dt>Cooked</dt><dd>" + esc(i.cd === null ? "Not yet" : window.EP_STATS.cooked(i.cd)) + '</dd></dl><div class="btns"><button type="button" class="pri" data-act="stub">Cook now</button><button type="button" data-act="stub">Plan</button><button type="button" data-act="stub">Open full recipe</button></div><p class="cap">The existing recipe flyout, drawn small. Close it and the idle pane comes back.</p></div>';
   }
-  function paneHtml() {
-    return window.EP_PANE({ screen: screen, opt: S.opt, data: S.data, items: ITEMS, cap: S.data === "large" ? 3 : 3, touch: S.touch, recent: S.recent });
+  function paneState() { return S.paneS || (S.paneS = { screen: screen, opt: S.opt, data: S.data, items: ITEMS, cap: 3, touch: S.touch, recent: S.recent, mode: S.mode, phase: null, search: null }); }
+  function paneHtml() { var ps = paneState(); ps.recent = S.recent; ps.search = S.search; ps.phase = S.phase;
+    return window.EP_PANE(paneState());
   }
   function drawLane() {
     var lane = $("lane"), app = $("app"); if (!lane) return;
@@ -123,7 +127,18 @@
     DET.sel = id; remember(it); drawList(); drawLane();
     var row = document.querySelector('[data-row="' + id + '"]'); if (row && row.scrollIntoView) row.scrollIntoView({ block: "nearest" });
   }
-  function close() { if (!DET.sel) return; var id = DET.sel; DET.sel = null; drawList(); drawLane(); var r = document.querySelector('[data-row="' + id + '"]'); if (r) r.focus(); }
+  function startIdle() {
+    if (cancelRun) cancelRun(); cancelRun = null;
+    var ps = paneState(); ps.recent = S.recent; ps.mode = S.mode;
+    if (S.opt !== "f" || !window.EP_IDLE) { S.phase = null; ps.phase = null; return; }
+    window.EP_IDLE.initPhase(ps); S.phase = ps.phase; S.log = [];
+    cancelRun = window.EP_IDLE.run(ps, function (k, ph, log) {
+      S.log = log; var l = $("lane");
+      if (l && !DET.sel && !S.search && l.querySelector(".ip-f")) window.EP_IDLE.patch(l, ps, k);
+      if (window.EP_APP && window.EP_APP.onTick) window.EP_APP.onTick(k, ph, log);
+    });
+  }
+  function close() { if (S.search && !DET.sel) { S.search = null; drawLane(); return; } if (!DET.sel) return; var id = DET.sel; DET.sel = null; drawList(); drawLane(); var r = document.querySelector('[data-row="' + id + '"]'); if (r) r.focus(); }
   var STUB = {
     add: "Add opens the add panel in this lane (unchanged).", scan: "Scan a receipt opens from the Add panel. The reading code loads only now, not before.",
     assistant: "Opens your AI app (unchanged).", plan: "Opens the Plan it flyout (unchanged).", review: "Opens the review page (unchanged).", stub: "Unchanged, not drawn here."
@@ -151,7 +166,7 @@
     var other = screen === "pantry" ? "recipes.html" : "pantry.html", u = new URLSearchParams(Q); u.delete("open"); u.delete("flt");
     return '<div class="mk" aria-label="Mockup only"><b>Mockup only</b>' + OPTS.map(function (o) { return link({ o: o, open: null, flt: null }, o === "f" ? "F★" : o.toUpperCase(), S.opt === o); }).join("") +
       '<span aria-hidden="true">|</span>' + ["empty", "typical", "large", "calm"].concat(screen === "recipes" ? ["nostock"] : []).map(function (d) { return link({ d: d, open: null, flt: null }, d, S.data === d); }).join("") +
-      '<span aria-hidden="true">|</span>' + link({ touch: S.touch ? null : "1" }, S.touch ? "touch on" : "touch off", S.touch) + '<a href="' + other + "?" + u.toString() + '">' + (screen === "pantry" ? "Recipes" : "Pantry") + "</a></div>";
+      '<span aria-hidden="true">|</span>' + (S.opt === "f" ? '<span aria-hidden="true">|</span>' + link({ from: "home" }, "Came from Home", S.mode === "home") + link({ from: "direct" }, "Came straight here", S.mode === "direct") + '<button type="button" class="mkb" data-act="replay">Replay</button>' : "") + '<span aria-hidden="true">|</span>' + link({ touch: S.touch ? null : "1" }, S.touch ? "touch on" : "touch off", S.touch) + '<a href="' + other + "?" + u.toString() + '">' + (screen === "pantry" ? "Recipes" : "Pantry") + "</a></div>";
   }
 
   function onClick(e) {
@@ -162,6 +177,15 @@
     var a = t.dataset.act;
     if (a === "open") pick(t.dataset.id);
     else if (a === "close") close();
+    else if (a === "idle-back") { S.search = null; drawLane(); var f = document.querySelector('#lane [data-act="plan-find"]'); if (f) f.focus(); }
+    else if (a === "plan-find") { DET.sel = null; S.search = t.dataset.id; drawList(); drawLane(); var bk = document.querySelector('#lane [data-act="idle-back"]'); if (bk) bk.focus(); }
+    else if (a === "plan-pick") toast("Plan it opens for that recipe, with the soonest night first (unchanged).");
+    else if (a === "shop-add") {
+      var it2 = ITEMS.filter(function (x) { return x.id === t.dataset.id; })[0]; if (!it2) return;
+      var keep = $("lane") ? $("lane").scrollTop : 0; it2.onList = true; drawLane(); if ($("lane")) $("lane").scrollTop = keep;
+      toast("Added " + it2.n.toLowerCase() + " to the shopping list.");
+    }
+    else if (a === "replay") { DET.sel = null; S.search = null; drawList(); startIdle(); drawLane(); }
     else if (a === "clearflt") { S.flt = ""; drawList(); }
     else if (a === "filter" || a === "chip") { DET.sel = null; S.flt = t.dataset.f; drawList(); drawLane(); toast("Applies the same filter as Home's tiles: " + FLT_LABEL[t.dataset.f] + "."); }
     else if (a === "search") { var q = $("q"); if (q) { q.focus(); q.select(); } }
@@ -182,16 +206,16 @@
   function init() {
     if (S.laneOnly) {
       document.body.classList.add("lane-only");
-      $("app").innerHTML = '<aside class="lane" id="lane"></aside>'; $("app").dataset.lane = "on"; loadRecent(); drawLane(); return;
+      $("app").innerHTML = '<aside class="lane" id="lane"></aside>'; $("app").dataset.lane = "on"; loadRecent(); startIdle(); drawLane(); return;
     }
     build(); loadRecent(); drawList();
     if (Q.get("open")) { DET.sel = Q.get("open"); }
-    drawList(); drawLane();
+    drawList(); startIdle(); drawLane();
     $("app").addEventListener("click", onClick); document.addEventListener("click", onClick);
     document.addEventListener("keydown", onKey);
     $("q").addEventListener("input", function () { S.q = $("q").value; drawList(); });
     $("q").closest("form").addEventListener("submit", function (e) { e.preventDefault(); });
   }
-  window.EP_APP = { state: S };
+  window.EP_APP = { state: S, replay: function () { DET.sel = null; S.search = null; drawList(); startIdle(); drawLane(); } };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
 })();

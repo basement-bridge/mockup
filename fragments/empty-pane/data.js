@@ -1,7 +1,7 @@
 /* MOCK ONLY, not for the build: sample households for the empty-pane options (Kitchie, Pantry and Recipes desktop, owner voice 17 Oct 2026).
    Three sizes per screen: empty (nothing yet), typical (a family kitchen), large (a big household: 420 items, 180 recipes). The repo is public, so every name is invented.
    Shapes follow what the real list pages already carry per row, so nothing here needs a request in the app:
-   Pantry row  = name, place, use-by date (days from today), level, quantity, added (days ago), low (the Running low list), gone (Out). [server/src/app.ts renderRow: data-name, data-area, data-useby, data-low, data-gone, data-recent]
+   Pantry row  = name, emoji (em), place, use-by date (days from today), level, quantity, added (days ago), low (the Running low list), gone (Out). [server/src/app.ts renderRow: data-name, data-area, data-useby, data-low, data-gone, data-recent]
    Recipe row  = name, minutes, serves, missing (null when the pantry cannot be read), cooked (days ago), starred, planned. [server/src/recipe-tab/list.ts row: data-ready, data-cd, data-star, data-planned, data-quick] */
 (function () {
   "use strict";
@@ -43,6 +43,18 @@
     ["Greek salad", 15, 2, 1, null, false, false], ["Banana bread", 70, 8, 2, 14, true, false]
   ].map(function (r, i) { return { id: "r" + i, n: r[0], min: r[1], serves: r[2], miss: r[3], cd: r[4], star: r[5], planned: r[6] }; });
 
+  /* Revised 17 Oct 2026 (owner decided both panes): Pantry rows also carry what Home already holds or can hand over (em, plan = the meal and night it is planned for, onList = on the shopping list);
+     Recipe rows carry added (days since the recipe was added; the Recipe service lists newest first but does not send a date today) and night (the planned night). */
+  var EM = { "Milk": "\u{1F95B}", "Spinach": "\u{1F96C}", "Yoghurt": "\u{1F963}", "Leftover dahl": "\u{1F372}", "Basil": "\u{1F33F}", "Carrots": "\u{1F955}", "Ice cream": "\u{1F368}", "Tinned tomatoes": "\u{1F96B}", "Coffee beans": "\u2615", "Paprika": "\u{1F336}\uFE0F", "Tahini": "\u{1FAD9}", "Eggs": "\u{1F95A}", "Cheddar": "\u{1F9C0}", "Bread": "\u{1F35E}" };
+  var PLAN_T = { "Milk": { meal: "Banana pancakes", night: "Tomorrow", d: 1 }, "Basil": { meal: "Pasta al limone", night: "Thursday", d: 3 }, "Yoghurt": { meal: "Banana bread", night: "Saturday", d: 5 } };
+  var ON_T = { "Tinned tomatoes": 1, "Coffee beans": 1 };
+  P_TYPICAL.forEach(function (it) { if (EM[it.n]) it.em = EM[it.n]; it.plan = PLAN_T[it.n] || null; it.onList = !!ON_T[it.n]; });
+  var MEALS = ["Lentil dahl", "Veg curry", "Shakshuka", "Tomato soup", "Fried rice", "Fish tacos"], NIGHTS = ["Tonight", "Tomorrow", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+  P_LARGE.forEach(function (it, ix) {
+    if (it.ub !== null && it.ub <= 7 && ix % 3 !== 0) { var d = ix % 2 ? Math.max(0, it.ub) : Math.max(0, it.ub) + 2; it.plan = { meal: MEALS[ix % MEALS.length], night: NIGHTS[Math.min(d, 6)], d: d }; } else it.plan = null;
+    it.onList = (it.lvl === "low" || it.lvl === "out") && ix % 3 === 0;
+  });
+
   var DISH = ["Curry", "Soup", "Salad", "Stew", "Bake", "Stir fry", "Tacos", "Risotto", "Noodles", "Pie", "Frittata", "Dumplings", "Pancakes", "Roast", "Chilli"];
   var MAIN = ["Chicken", "Lentil", "Mushroom", "Pumpkin", "Salmon", "Beef", "Chickpea", "Spinach", "Tofu", "Potato", "Egg", "Prawn", "Cauliflower", "Sausage", "Zucchini", "Bean"];
   var STYLE = ["", "Smoky ", "Lemon ", "Garlic ", "Spicy ", "Creamy ", "Sticky ", "Herby ", "One pan "];
@@ -57,8 +69,11 @@
   [["Lentil dahl", 0], ["Pasta al limone", 0], ["Tomato soup", 0]].forEach(function (x, k) { R_LARGE[10 + k].n = x[0]; R_LARGE[10 + k].miss = x[1]; R_LARGE[10 + k].cd = 40 + k; });
 
   /* "calm": nothing needs attention (no use-by within a week, nothing low or out; no recipe ready, planned or cooked this week), so a pane built on "what needs you" has nothing to say */
+  var R_ADDED = { "Fish tacos": 3, "Greek salad": 6, "Banana bread": 11, "Mushroom risotto": 40, "Veg curry": 70 }, R_NIGHT = { "Lentil dahl": "Thursday", "Pasta al limone": "Saturday", "Fried rice": "Sunday" };
+  R_TYPICAL.forEach(function (r) { r.added = R_ADDED[r.n] === undefined ? null : R_ADDED[r.n]; r.night = R_NIGHT[r.n] || ""; });
+  R_LARGE.forEach(function (r, j) { r.added = j < 4 ? j * 3 + 1 : (j * 13) % 300 + 15; r.night = r.planned ? NIGHTS[j % 7] : ""; });
   var P_CALM = P_TYPICAL.filter(function (i) { return (i.ub === null || i.ub > 7) && i.lvl !== "low" && i.lvl !== "out"; });
-  var R_CALM = R_TYPICAL.filter(function (r) { return r.miss >= 2 && !r.planned && (r.cd === null || r.cd > 7); }).map(function (r, i) { var o = {}; for (var k in r) o[k] = r[k]; o.id = "c" + i; return o; });
+  var R_CALM = R_TYPICAL.filter(function (r) { return r.miss >= 2 && !r.planned && (r.cd === null || r.cd > 7) && (r.added === null || r.added > 14); }).map(function (r, i) { var o = {}; for (var k in r) o[k] = r[k]; o.id = "c" + i; return o; });
 
   window.EP_DATA = {
     pantry: { empty: [], typical: P_TYPICAL, large: P_LARGE, calm: P_CALM },

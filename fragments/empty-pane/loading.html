@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>How the idle pane gets its data</title>
+<link rel="stylesheet" href="../../theme.css"><script src="../../theme.js"></script>
+<script>try{var t=new URLSearchParams(location.search).get("theme");if(t==="kitchie"||t==="kitchie-day")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<link rel="stylesheet" href="shell.css"><link rel="stylesheet" href="pane.css">
+<style>
+body{padding:0}
+.pg{max-width:1100px;margin:0 auto;padding:24px 16px 64px}
+.pg h1{font:800 1.6rem var(--head);margin:8px 0}
+.pg h2{font:800 1.05rem var(--head);margin:0 0 8px}
+.pg p{margin:6px 0;font-size:14px}
+.back{display:inline-block;margin-top:4px;color:var(--accent);font-weight:700;text-decoration:none}
+.ctl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0}
+.ctl b{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-left:6px}
+.ctl button{min-height:44px;padding:0 16px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-weight:700;cursor:pointer}
+.ctl button[aria-pressed=true]{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.ctl .go{border-color:var(--accent);color:var(--accent)}
+.two{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:20px;align-items:start}
+@media (max-width:900px){.two{grid-template-columns:1fr}}
+.flow{display:grid;gap:12px}
+.card{border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface);padding:12px 14px}
+.card.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.card ol{margin:6px 0 0;padding-left:20px;font-size:13px}.card li{margin:4px 0}
+.card .arrow{font-size:12px;color:var(--muted)}
+.lanebox{width:400px;max-width:100%;min-height:560px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card)}
+.log{margin:10px 0 0;padding:10px 12px;border:1px dashed var(--border);border-radius:var(--r-card);font:12px/1.5 ui-monospace,Menlo,monospace;min-height:120px}
+.log div b{display:inline-block;width:62px}
+.states{margin-top:22px}
+.states .lanebox{min-height:0;padding:8px 12px}
+.sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px}
+.sgrid h3{font-size:13px;margin:0 0 4px}
+.rm{font-size:12px;color:var(--muted)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:24px;background:var(--fg);color:var(--bg);padding:12px 16px;border-radius:var(--r-ctl);font-weight:600;font-size:14px;z-index:30}
+.toast[hidden]{display:none}
+</style></head>
+<body><div class="pg">
+<a class="back" href="./">&lsaquo; Nothing picked: the notes</a>
+<h1>How the idle pane gets its data</h1>
+<p>Owner, 17 October 2026: if they came straight from Home, use what Home already loaded and do not reload it; if they came straight to the screen, the pane is lazy loaded: the count first, then a shimmer, then the rows replace it. The same shape on Pantry and Recipes. Try both below (Replay runs it again with real timing).</p>
+<div class="ctl" role="group" aria-label="Frame controls">
+<b>Screen</b><button type="button" id="b-pantry" aria-pressed="true">Pantry</button><button type="button" id="b-recipes" aria-pressed="false">Recipes</button>
+<b>Arrived</b><button type="button" id="b-home" aria-pressed="false">Came from Home</button><button type="button" id="b-direct" aria-pressed="true">Came straight to <span id="sn">Pantry</span></button>
+<button type="button" class="go" id="b-replay">Replay</button>
+</div>
+<p class="rm" id="rm"></p>
+<div class="two">
+<div class="flow">
+<div class="card" id="c-home"><h2>Came from Home: nothing is fetched for what Home holds</h2>
+<ol id="ol-home"></ol></div>
+<div class="card" id="c-direct"><h2>Came straight here: count first, then rows</h2>
+<ol id="ol-direct"></ol></div>
+<div class="card"><h2>Events in this run</h2><div class="log" id="log" aria-live="off"></div></div>
+</div>
+<div><div class="lanebox" id="lane" aria-label="The pane, as drawn in the lane"></div></div>
+</div>
+<div class="states"><h2>The row states, drawn from the same widget</h2><p class="rm">Icons carry the state, each with an accessible name and a tooltip (hover or focus). Shape differs, so colour is never the only signal.</p>
+<div class="sgrid" id="sg"></div></div>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+<script src="data.js"></script><script src="pane.js"></script>
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i)}, Q=new URLSearchParams(location.search);
+  var screen=Q.get("s")==="recipes"?"recipes":"pantry", mode=Q.get("from")==="home"?"home":"direct", d=Q.get("d")||"typical";
+  var DATA=window.EP_DATA[screen][d]||window.EP_DATA[screen].typical;
+  var s={screen:screen,opt:"f",data:d,items:DATA.map(function(x){var o={};for(var k in x)o[k]=x[k];return o}),cap:3,touch:false,recent:[],mode:mode,phase:null,search:null};
+  var cancel=null, T=window.EP_IDLE.TIMES, lane=$("lane");
+  var NAMES={pantry:{home:["Use soon rows and their counts (Home's “On the way out” tile and the glance row hold them)","Running low rows and the count (Home's tile holds them)","Out: Home does not hold it, so it is lazy"],direct:["Out"]},recipes:{home:["Ready now and the count (the ideas card Home loaded)","Planned this week (Home's This week panel)","Newly added and Recently cooked: Home does not hold them, so they are lazy"]}};
+  function words(){
+    var other=screen==="pantry"?"Pantry":"Recipes"; $("sn").textContent=other;
+    $("ol-home").innerHTML = screen==="pantry"
+      ? "<li><b>0 ms</b> Use soon and Running low draw from what Home handed over in the browser. No request. They also carry the plan state and the shopping-list state, which Home’s query would add (open question EP-Q1).</li><li><b>250 ms</b> Out is not on Home: its count appears, then the shimmer.</li><li><b>about 900 ms</b> The Out rows arrive and replace the shimmer.</li>"
+      : "<li><b>0 ms</b> Ready now and Planned this week draw from what Home handed over (the ideas card and This week). No request.</li><li><b>250 ms</b> Newly added and Recently cooked are not on Home: their counts appear, then the shimmer.</li><li><b>about 900 ms to 1.2 s</b> Their rows arrive and replace the shimmer.</li>";
+    $("ol-direct").innerHTML = "<li><b>0 ms</b> The page draws with the list and the pane’s section heads. Each head has a small grey pill where its number will be.</li><li><b>250 ms</b> The counts appear (they come with the page or in the first small answer). One grey row per row to come appears under each, so nothing jumps.</li><li><b>about 900 ms onward</b> One request, fired after first paint and only when nothing is picked, brings the rows; each section’s rows replace its shimmer the moment they arrive, in any order.</li>";
+    $("c-home").className="card"+(mode==="home"?" on":""); $("c-direct").className="card"+(mode==="direct"?" on":"");
+    ["pantry","recipes","home","direct"].forEach(function(k){var b=$("b-"+k);var on=(k===screen)||(k===mode);b.setAttribute("aria-pressed",on?"true":"false")});
+  }
+  function render(log){
+    $("log").innerHTML=(log||[]).map(function(e){return "<div><b>"+e.ms+" ms</b>"+({ph:"head only",count:"count shown, shimmer",rows:e.fromHome?"rows, handed over by Home (no request)":"rows replace the shimmer"}[e.phase])+" · "+e.key+"</div>"}).join("")||"<div>Press Replay.</div>";
+  }
+  function draw(){ lane.innerHTML=window.EP_PANE(s); }
+  function start(){
+    if(cancel)cancel(); s.mode=mode; s.search=null; s.items.forEach(function(it){var o=DATA.filter(function(x){return x.id===it.id})[0]; if(o)it.onList=o.onList});
+    window.EP_IDLE.initPhase(s); draw(); render(s.log=[]);
+    cancel=window.EP_IDLE.run(s,function(k,ph,log){ if(lane.querySelector(".ip-f")) window.EP_IDLE.patch(lane,s,k); render(log); });
+    render(s.log);
+  }
+  function set(next){ if(next.s)screen=next.s; if(next.from)mode=next.from; DATA=window.EP_DATA[screen][d]; s.screen=screen;s.data=d;s.items=DATA.map(function(x){var o={};for(var k in x)o[k]=x[k];return o}); var u=new URLSearchParams(location.search); u.set("s",screen); u.set("from",mode); history.replaceState(null,"","?"+u); words(); start(); }
+  $("b-pantry").onclick=function(){set({s:"pantry"})}; $("b-recipes").onclick=function(){set({s:"recipes"})};
+  $("b-home").onclick=function(){set({from:"home"})}; $("b-direct").onclick=function(){set({from:"direct"})}; $("b-replay").onclick=start;
+  var tt; function toast(m){var e=$("toast");e.textContent=m;e.hidden=false;clearTimeout(tt);tt=setTimeout(function(){e.hidden=true},2400)}
+  lane.addEventListener("click",function(e){var t=e.target.closest("[data-act]");if(!t)return;var a=t.dataset.act;
+    if(a==="shop-add"){var it=s.items.filter(function(x){return x.id===t.dataset.id})[0];if(it){it.onList=true;draw();toast("Added "+it.n.toLowerCase()+" to the shopping list.")}}
+    else if(a==="plan-find"){s.search=t.dataset.id;draw()} else if(a==="idle-back"){s.search=null;draw()}
+    else if(a==="open"||a==="filter"||a==="chip"||a==="plan-pick"||a==="assistant")toast("Opens in the real screen (not drawn in this frame).")});
+  var rm=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches; $("rm").textContent=rm?"Reduced motion is on: the placeholders are static grey blocks, with the same timing.":"Reduced motion is off. With it on, the placeholders are static grey blocks and nothing moves (same timing).";
+  /* the row states, from the same row builders */
+  var R=window.EP_IDLE.rows, st=function(h,l){return '<div><h3>'+h+'</h3><div class="lanebox"><section class="ip" style="padding:0;min-height:0"><ul class="ip-rows">'+l+"</ul></section></div></div>"};
+  var sp={id:"x1",n:"Spinach",em:"\u{1F96C}",ub:0,plan:null,onList:false}, ml={id:"x2",n:"Milk",em:"\u{1F95B}",ub:1,plan:{meal:"Banana pancakes",night:"Tomorrow",d:1},onList:false}, yo={id:"x3",n:"Yoghurt",em:"\u{1F963}",ub:2,plan:{meal:"Banana bread",night:"Saturday",d:5},onList:false};
+  var ic={id:"x4",n:"Ice cream",em:"\u{1F368}",lvl:"low",qty:"1 tub",loc:"Freezer",onList:false}, tt2={id:"x5",n:"Tinned tomatoes",em:"\u{1F96B}",lvl:"low",qty:"1 can",loc:"Pantry",onList:true}, ta={id:"x6",n:"Tahini",em:"\u{1FAD9}",lvl:"out",qty:"Out",loc:"Pantry",onList:false};
+  $("sg").innerHTML=st("Use soon: not planned, planned too late, planned in time",R.soon(sp)+R.soon(yo)+R.soon(ml))+st("Running low and Out: not on the list, then on the list",R.low(ic)+R.low(tt2)+R.low(ta))+
+    st("Recipes: ready, planned, newly added, recently cooked",R.ready({id:"y1",n:"Tomato soup",min:30})+R.planned({id:"y2",n:"Lentil dahl",min:35,night:"Thursday"})+R.fresh({id:"y3",n:"Fish tacos",added:3})+R.cooked({id:"y4",n:"Tomato soup",cd:1}));
+  words(); start();
+})();
+</script></body></html>
