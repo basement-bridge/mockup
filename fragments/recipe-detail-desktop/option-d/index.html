@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recipe page, desktop: option D, step stage</title>
+<script>/* ?t=light|dark picks the saved theme before first paint (theme.js reads localStorage) */
+try{var _t=new URLSearchParams(location.search).get("t");if(_t)localStorage.setItem("theme",_t==="light"?"kitchie-day":"kitchie")}catch(e){}</script>
+<link rel="stylesheet" href="../../../theme.css">
+<link rel="stylesheet" href="option-d.css">
+<script src="../../../theme.js"></script>
+</head>
+<body>
+<!-- Desktop only (1280 to 1920 wide). The page is drawn by option-d.js from the sample data; the markup it writes uses the build's recipe class names. -->
+<div class="od-app" id="app"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="od-sw" id="sw"></div>
+<script src="option-d.js"></script>
+</body></html>
