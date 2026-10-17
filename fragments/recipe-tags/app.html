@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Recipe tags — mockup</title>
+<link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../recipe/recipe.css"><link rel="stylesheet" href="tags.css"><script src="../../theme.js"></script><script src="../../recipe/recipe.js"></script><script src="tags.js"></script></head>
+<body data-no-theme-fab>
+<div class="stage"><div class="phone" id="ph"></div></div>
+<script>
+/* Kitchie #834 (idea, not for build). Two screens in one page, picked by ?screen=list|detail.
+   ?find=a|b   list: tags in the strip (A) or a Tags sheet (B)
+   ?tagin=row|edit   detail: a tag row on the recipe (1) or tags only in Edit (2)
+   ?id=   which recipe (detail)   ?sel=Breakfast,Protein   tags already picked (list)   ?open=find|tags   open a sheet on load
+   ?reset=1   back to the sample tags */
+(function(){
+var X=RCP,T=RT,ic=X.ic,esc=X.esc,Q=X.Q;
+var screen=Q.get("screen")||"list",find=Q.get("find")||"a",tagin=Q.get("tagin")||"row";
+var ph=document.getElementById("ph");
+var keep=function(extra){var p=new URLSearchParams(location.search);p.delete("open");p.delete("reset");Object.keys(extra).forEach(function(k){if(extra[k]==null)p.delete(k);else p.set(k,extra[k])});return "app.html?"+p.toString()};
+
+/* ---------- list ---------- */
+var CH=[["all","All"],["ready","Ready now"],["star","Starred"],["quick","Under 30"]];
+var chip="all",q="",sel=(Q.get("sel")||"").split(",").filter(Boolean);
+/* RT-P7: within one group, any picked tag matches (Breakfast or Lunch); across groups, all must (Breakfast and Protein). */
+window.RT_FILTER=function(pick){
+  return X.R.filter(function(r){
+    var mine=T.tagsOf(r.id),by={};
+    pick.forEach(function(t){var g=T.groupOf(t);(by[g]=by[g]||[]).push(t)});
+    return Object.keys(by).every(function(g){return by[g].some(function(t){return mine.indexOf(t)>-1})});
+  });
+};
+var listRows=function(){
+  return window.RT_FILTER(sel).filter(function(r){
+    if(q){var s=q.toLowerCase();if(r.name.toLowerCase().indexOf(s)<0&&!T.tagsOf(r.id).some(function(t){return t.toLowerCase().indexOf(s)>-1}))return false}
+    var m=X.missing(X.resolve(r).ings).length;
+    if(chip==="ready")return !m;if(chip==="star")return r.star;if(chip==="quick")return r.min<=30;return true;
+  }).sort(function(a,b){return X.missing(X.resolve(a).ings).length-X.missing(X.resolve(b).ings).length||a.last-b.last});
+};
+var row=function(r){
+  var m=X.missing(X.resolve(r).ings),pills=[];
+  if(!m.length)pills.push('<span class="tg">'+ic("check")+'All in</span>');else pills.push('<span class="tg miss">'+m.length+' missing</span>');
+  /* RT-P5: the row shows up to two of the household's tags; a picked tag shows first, the rest is a count. */
+  var ts=T.tagsOf(r.id).sort(function(a,b){return (sel.indexOf(b)>-1)-(sel.indexOf(a)>-1)});
+  ts.slice(0,2).forEach(function(t){pills.push('<span class="tg ht'+(sel.indexOf(t)>-1?' on':'')+'">'+esc(t)+'</span>')});
+  if(ts.length>2)pills.push('<span class="tg mut" aria-label="'+(ts.length-2)+' more tags">+'+(ts.length-2)+'</span>');
+  var meta=r.min+" min · "+(r.batch?"makes "+r.serves:"serves "+r.serves);
+  return '<li><a class="rr" href="'+keep({screen:"detail",id:r.id})+'"><span class="th" aria-hidden="true">'+r.e+'</span><span class="t"><b>'+esc(r.name)+'</b><small>'+meta+'</small><span class="pills">'+pills.join("")+'</span></span><span class="chev">'+ic("chev","s")+'</span></a></li>';
+};
+var drawList=function(){
+  var strip=CH.map(function(c,i){return (i===1?'<span class="sd" aria-hidden="true"></span>':'')+'<button type="button" data-chip="'+c[0]+'" aria-pressed="'+(chip===c[0])+'">'+c[1]+'</button>'}).join("");
+  var tagStrip='';
+  if(find==="a"){
+    /* Option A: the household's tags are a second strip under the first, always in view. Each one toggles; several can be on. Only tags in use show. */
+    tagStrip='<div class="strip rtstrip" role="group" aria-label="Tags"><span class="rtlab" aria-hidden="true">'+T.tagIc("xs")+'</span>'+
+      T.TAGS().filter(function(x){return T.count(x[0])}).map(function(x){return '<button type="button" class="rtt" data-tag="'+esc(x[0])+'" aria-pressed="'+(sel.indexOf(x[0])>-1)+'">'+esc(x[0])+'</button>'}).join("")+'</div>';
+  }else{
+    /* Option B: one Tags chip at the end opens the sheet; picked tags show on a slim row under the strip. */
+    strip+='<span class="sd" aria-hidden="true"></span><button type="button" class="rtt" data-find aria-haspopup="dialog" aria-pressed="'+(sel.length>0)+'">'+T.tagIc("xs")+'Tags'+(sel.length?' · '+sel.length:'')+ic("chev","xs")+'</button>';
+  }
+  var list=listRows();
+  var picked=find==="b"&&sel.length?'<div class="rtsel-row" role="group" aria-label="Picked tags">'+sel.map(function(t){return '<button type="button" class="rtc on" data-unpick="'+esc(t)+'" aria-label="Remove '+esc(t)+'">'+esc(t)+ic("x","xs")+'</button>'}).join("")+'</div>':'';
+  ph.innerHTML='<div class="top" style="border-bottom:0"><label class="search">'+ic("search","s")+'<span class="vh">Search recipes</span><input id="q" type="search" placeholder="Search recipes, ingredients or tags" autocomplete="off" value="'+esc(q)+'"></label><button type="button" class="ib acc" aria-label="Ask your assistant">'+ic("spark")+'</button></div>'+
+    '<div class="strip" id="strip" role="group" aria-label="Show">'+strip+'</div>'+tagStrip+picked+
+    '<div class="body" id="body">'+(sel.length?'<p class="rtcount">'+list.length+' recipe'+(list.length===1?'':'s')+' tagged '+sel.map(esc).join(" + ")+'</p>':'')+
+    (list.length?'<ul class="rl">'+list.map(row).join("")+'</ul>':'<div class="pad" style="text-align:center;padding-top:40px"><div style="font-size:44px">🏷️</div><p style="margin-top:8px">No recipe has all of those tags.</p><p style="margin-top:12px"><button type="button" class="back" data-clearsel style="margin:0 auto">Clear the tags</button></p></div>')+
+    '<div style="height:24px"></div></div>'+X.bar();
+  var qi=document.getElementById("q");qi.addEventListener("input",function(e){q=e.target.value.trim();var p=qi.selectionStart;drawList();var n=document.getElementById("q");n.focus();n.setSelectionRange(p,p)});
+};
+var listClick=function(e){
+  var b;
+  if((b=e.target.closest("[data-chip]"))){chip=chip===b.dataset.chip&&chip!=="all"?"all":b.dataset.chip;drawList();return}
+  if((b=e.target.closest("[data-tag]"))){var t=b.dataset.tag,at=sel.indexOf(t);if(at>-1)sel.splice(at,1);else sel.push(t);drawList();var nb=ph.querySelector('[data-tag="'+CSS.escape(t)+'"]');if(nb)nb.focus();return}
+  if(e.target.closest("[data-find]")){T.findSheet(sel,function(p){sel=p;drawList()});return}
+  if((b=e.target.closest("[data-unpick]"))){sel.splice(sel.indexOf(b.dataset.unpick),1);drawList();return}
+  if(e.target.closest("[data-clearsel]")){sel=[];drawList();return}
+};
+
+/* ---------- detail ---------- */
+var drawDetail=function(){
+  var r=X.byId(Q.get("id")||"sha")||X.R[0],res=X.resolve(r),mine=T.tagsOf(r.id),src=T.sourceTags(r);
+  var tagRow='';
+  if(tagin==="row"){
+    /* Option 1: the household's tags are a row on the recipe, under time and serves. The + opens the picker sheet. */
+    tagRow='<div class="rtrow" role="group" aria-label="Tags">'+mine.map(function(t){return '<button type="button" class="rtc on" data-edit aria-label="'+esc(t)+', change tags">'+esc(t)+'</button>'}).join("")+
+      '<button type="button" class="rtc add" data-edit aria-haspopup="dialog">'+ic("plus","xs")+(mine.length?'Tag':'Add a tag')+'</button></div>'+
+      (src.length?'<p class="rtsrc">From the source: '+src.map(function(t){return '<span class="tg mut">'+esc(t)+'</span>'}).join(" ")+' <button type="button" class="rtx" data-srcinfo aria-label="About tags from the source">'+ic("dots","s")+'</button></p>':'');
+  }
+  var ings=res.ings.slice(0,4).map(function(x){var i=x.i,ok=X.has(i[0]);return '<div class="ing'+(ok?'':' miss')+'"><span class="dot'+(ok?'':' no')+'" aria-hidden="true"></span><span class="nm">'+esc(i[1])+'</span></div>'}).join("");
+  var foot='';
+  if(tagin==="edit"){
+    /* Option 2: no new control. Tags are set in Edit (already drawn in recipe/edit.html); the page lists them, read only, at the foot. */
+    foot='<div class="sec" style="margin-top:16px"><div class="lblrow"><span class="lbl">Tags</span><a class="back" href="../../recipe/edit.html?id='+r.id+'" style="font-size:14px">'+ic("pen","s")+' Edit</a></div>'+
+      '<p class="rtsrc" style="margin-top:0">'+(mine.length?mine.map(function(t){return '<span class="tg ht">'+esc(t)+'</span>'}).join(" "):'No tags yet.')+(src.length?' '+src.map(function(t){return '<span class="tg mut">'+esc(t)+'</span>'}).join(" "):'')+'</p></div>';
+  }
+  ph.innerHTML='<div class="top"><a class="back" href="'+keep({screen:"list",id:null})+'">'+ic("back","s")+'Recipes</a><span class="ttl"></span><span style="width:44px"></span></div>'+
+    '<div class="body" id="body"><div class="pad"><div style="display:flex;gap:8px;align-items:flex-start"><span style="font-size:34px;line-height:1" aria-hidden="true">'+r.e+'</span><h1 style="flex:1">'+esc(r.name)+'</h1></div>'+
+    '<div class="meta"><span class="mc ro">'+ic("clock")+r.min+' min</span><span class="mc ro">'+(r.batch?"Makes "+r.serves:"Serves "+r.serves)+'</span></div>'+tagRow+'</div>'+
+    '<div class="sec"><div class="lblrow"><span class="lbl">Ingredients</span></div>'+ings+'<p class="hint" style="margin-top:8px">The rest of the page is the recipe page as it is today (recipe/detail.html).</p></div>'+foot+
+    '<div class="endpad"></div></div>'+
+    '<div class="act"><button type="button" class="btn ghost">'+ic("cal","s")+'Plan it</button><button type="button" class="btn">'+ic("chef","s")+'Make it</button></div>';
+  ph.querySelector(".body").addEventListener("click",function(e){
+    if(e.target.closest("[data-edit]"))T.pickSheet(r,drawDetail);
+    if(e.target.closest("[data-srcinfo]"))X.sheet('<h3>Tags from the source</h3><p class="hint">Your assistant set these when it saved the recipe. They stay with the recipe and are kept apart from your household&rsquo;s tags.</p>'+src.map(function(t){return '<div class="ing"><span class="nm">'+esc(t)+'</span><button type="button" class="mini" data-hide="'+esc(t)+'">Hide</button></div>'}).join("")+'<button type="button" class="btn ghost" data-close style="width:100%;margin-top:12px">Done</button>',function(s,close){s.addEventListener("click",function(e){var b=e.target.closest("[data-hide]");if(b){T.hideSource(r.id,b.dataset.hide);close();drawDetail();X.toast("Hidden "+b.dataset.hide+" on this recipe")}})});
+  });
+};
+
+if(screen==="detail"){drawDetail();if(Q.get("open")==="tags"&&tagin==="row")T.pickSheet(X.byId(Q.get("id")||"sha")||X.R[0],drawDetail)}
+else{ph.addEventListener("click",listClick);drawList();if(Q.get("open")==="find"&&find==="b")T.findSheet(sel,function(p){sel=p;drawList()})}
+})();
+</script>
+</body></html>

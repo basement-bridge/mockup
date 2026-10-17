@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Recipe tags</title><link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><script src="../../theme.js"></script>
+<style>
+.decs li,.qs li{margin-bottom:8px;font-size:14px}
+.links{display:flex;flex-wrap:wrap;gap:6px}
+.links a{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border-radius:99px;border:1px solid var(--border);background:var(--bg);font-size:13px;font-weight:600}
+.links a:hover{border-color:var(--accent)}
+.rec{font-size:11px;font-weight:800;padding:1px 7px;border-radius:var(--r-pill);border:1px solid var(--accent);color:var(--accent);margin-left:4px;white-space:nowrap}
+.idea{display:inline-block;font-size:12px;font-weight:800;padding:3px 10px;border-radius:var(--r-pill);border:1px dashed var(--accent);color:var(--accent)}
+.frs{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;margin-top:10px}
+.fig{flex:1 1 250px;min-width:0}
+.fig h3{margin:0 0 4px;font:800 17px var(--head)}
+.fig p{margin:4px 0;font-size:14px}
+.fr{width:242px;height:472px;border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden;background:var(--bg);position:relative}
+.fr iframe{position:absolute;left:0;top:0;width:390px;height:760px;border:0;transform:scale(.62);transform-origin:0 0}
+.fr-open{display:inline-flex;align-items:center;min-height:44px;font-size:13px;font-weight:700;color:var(--accent)}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Recipe tags: the household&rsquo;s own</h1>
+<p><span class="idea">Idea only, not for build</span></p>
+<p style="margin-top:8px">Live, clickable mockup for Kitchie issue #834. It exists so the Kitchie collaborators have something to talk around; drawing it approves nothing. Mockup only: nothing is saved or sent (tags you add are kept in this browser so the list and the recipe agree; <a class="fr-open" href="app.html?reset=1">reset the sample</a>). Phone only for now.</p>
+
+<div class="sec"><div class="lbl">The idea, as raised (owner, typed, 17 October 2026)</div>
+<p>Recipes already carry tags, but they are set automatically when a recipe is saved or imported (&ldquo;HelloFresh&rdquo;, &ldquo;rice bowl&rdquo;, &ldquo;quick&rdquo;). The household cannot add its own, or filter, suggest or plan by them. The idea: let the household tag recipes, for example a meal type (&ldquo;breakfast&rdquo;), a calorie band (&ldquo;300 cals&rdquo;), an occasion (&ldquo;treat&rdquo;) or a focus (&ldquo;protein&rdquo;), then use the tags to find recipes, to steer suggestions and in weekly planning (&ldquo;pick a breakfast&rdquo;, &ldquo;one treat a week&rdquo;). Asked by voice the same day: &ldquo;create mockups for that and follow our standard governance mode.&rdquo;</p></div>
+
+<div class="sec"><div class="lbl">Open it</div>
+<div class="links">
+<a href="app.html?screen=list&amp;find=a&amp;reset=1">List, A: tags strip</a>
+<a href="app.html?screen=list&amp;find=b&amp;reset=1">List, B: Tags sheet</a>
+<a href="app.html?screen=detail&amp;tagin=row&amp;id=sha&amp;reset=1">Recipe, 1: tag row</a>
+<a href="app.html?screen=detail&amp;tagin=edit&amp;id=efr&amp;reset=1">Recipe, 2: tags only in Edit</a>
+<a href="app.html?screen=list&amp;find=a&amp;sel=Breakfast,Protein&amp;reset=1">Breakfast + Protein picked</a>
+<a href="app.html?screen=list&amp;find=a&amp;sel=Treat,Breakfast&amp;reset=1">Nothing matches</a>
+</div></div>
+
+<div class="sec"><div class="lbl">1. Finding recipes by tag: two options</div>
+<div class="frs">
+<div class="fig"><h3>A. A tags strip <span class="rec">agent recommends</span></h3>
+<div class="fr"><iframe loading="lazy" title="List, option A" src="app.html?screen=list&amp;find=a&amp;sel=Breakfast,Protein&amp;reset=1"></iframe></div>
+<p>The household&rsquo;s tags sit on a second strip under All, Ready now, Starred, Under 30, always in view. Each tag toggles; several can be on. Only tags some recipe carries are shown. The count line says what is picked.</p>
+<p><b>Trade-off:</b> one tap, nothing to open, and the tags are discoverable; it costs one thin row, and past about ten tags the strip needs a sideways scroll. <a class="fr-open" href="app.html?screen=list&amp;find=a&amp;reset=1">Open full size</a></p></div>
+<div class="fig"><h3>B. A Tags sheet</h3>
+<div class="fr"><iframe loading="lazy" title="List, option B" src="app.html?screen=list&amp;find=b&amp;open=find&amp;reset=1"></iframe></div>
+<p>One Tags chip at the end of the existing strip opens a sheet grouped by kind (Meal, Occasion, Focus, Calories), with how many recipes carry each. Pick several, then Show. The picked tags stay on a slim row under the strip, each with an &times;.</p>
+<p><b>Trade-off:</b> scales to many tags and keeps the list screen as it is; finding by tag is two taps and hidden behind a chip. <a class="fr-open" href="app.html?screen=list&amp;find=b&amp;reset=1">Open full size</a></p></div>
+</div>
+<p style="margin-top:8px"><b>Recommendation: A</b> while the household has a handful of tags (the owner&rsquo;s examples are four); B is the step up if the list grows. Both use the same matching rule (RT-P7) and both let search find a tag by name.</p></div>
+
+<div class="sec"><div class="lbl">2. Tagging a recipe: two options</div>
+<div class="frs">
+<div class="fig"><h3>1. A tag row on the recipe <span class="rec">agent recommends</span></h3>
+<div class="fr"><iframe loading="lazy" title="Recipe, option 1" src="app.html?screen=detail&amp;tagin=row&amp;id=sha&amp;open=tags&amp;reset=1"></iframe></div>
+<p>Under time and serves, the recipe&rsquo;s household tags show as chips with a <b>+ Tag</b> chip. Either opens a sheet: the household&rsquo;s tags by group, tap to add or remove (saved at once, a toast says what changed), and a New tag field with a group. Tags the recipe came with sit on their own line, lighter, as &ldquo;From the source&rdquo;; the &hellip; lets you hide one on this recipe.</p>
+<p><b>Trade-off:</b> tagging is a two-tap job while looking at the recipe, which is when people think of it; it adds a row to every recipe page. <a class="fr-open" href="app.html?screen=detail&amp;tagin=row&amp;id=sha&amp;reset=1">Open full size</a></p></div>
+<div class="fig"><h3>2. Tags only in Edit</h3>
+<div class="fr"><iframe loading="lazy" title="Recipe, option 2" src="app.html?screen=detail&amp;tagin=edit&amp;id=efr&amp;reset=1"></iframe></div>
+<p>No new control. The Edit screen already has a Tags field (<a class="fr-open" href="../../recipe/edit-options.html">recipe edit mockup</a>, owner 11 October 2026: tags are among the fields edited by hand). The recipe page lists the tags read only at the foot, with an Edit link.</p>
+<p><b>Trade-off:</b> nothing new to build on the page; tagging means opening Edit, and in Edit a tag change goes through the version flow like any other edit (see RT-Q2). <a class="fr-open" href="app.html?screen=detail&amp;tagin=edit&amp;id=efr&amp;reset=1">Open full size</a></p></div>
+</div></div>
+
+<div class="sec"><div class="lbl">Choices the mockup made where the idea was silent (all Proposal)</div>
+<ul class="decs">
+<li><b>RT-P1 One tag list per household.</b> A tag is made once and reused on any recipe; every member sees the same tags. Wrong guess costs: if people want private tags, the list needs a Mine and Household split like Preferences option B.</li>
+<li><b>RT-P2 A tag can sit in a group.</b> Meal, Occasion, Focus, Calories (the owner&rsquo;s four kinds) and Other. The groups drive the sheet layout and the matching rule. Wrong guess costs: if groups feel like admin, drop them and keep one flat list (option A still works).</li>
+<li><b>RT-P3 Any member can tag and make a new tag.</b> Same controls for everyone on Recipes (R-O5). Wrong guess costs: if new tags should be a household admin&rsquo;s call (as household-level preferences are, D25 to D30), a member would only pick from the list.</li>
+<li><b>RT-P4 The source&rsquo;s tags are kept apart.</b> Tags set automatically at save or import stay on the recipe, shown lighter as &ldquo;From the source&rdquo;, and can be hidden per recipe, never deleted. They are not in the household&rsquo;s find list. Wrong guess costs: if the household wants Quick or Batch as their own, they would make the same word again (RT-P6 makes that one tag).</li>
+<li><b>RT-P5 A list row shows up to two household tags</b>, a picked one first, the rest as +n. Wrong guess costs: busy rows; the fix is tags only while filtering.</li>
+<li><b>RT-P6 The same word is one tag</b>, whatever its case (&ldquo;protein&rdquo; and &ldquo;Protein&rdquo;). New tags are up to 24 characters.</li>
+<li><b>RT-P7 Matching:</b> within one group any picked tag matches (Breakfast or Lunch); across groups all must (Breakfast and Protein). Wrong guess costs: someone expecting &ldquo;all of these&rdquo; inside a group sees more recipes than expected.</li>
+<li><b>RT-P8 A tag sits on the recipe, not on a version.</b> &ldquo;Breakfast&rdquo; does not change when the recipe is tweaked. See RT-Q2.</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">Open questions for the collaborators</div>
+<ul class="qs">
+<li><b>RT-Q1 Calorie band: a tag or a fact?</b> Recipe already stores per-serving nutrition (kcal) with its source. &ldquo;300 cals&rdquo; typed by hand can disagree with that figure. Option: offer &ldquo;Under 300 kcal&rdquo; as a filter worked out from nutrition where it is recorded, and keep a hand tag only where it is not. Wrong guess costs: two numbers that disagree on the same recipe.</li>
+<li><b>RT-Q2 Recipe or version?</b> The Edit mockup treats tags as part of a version (a change shows in the version&rsquo;s changes). RT-P8 puts them on the recipe. One has to win before anything is built.</li>
+<li><b>RT-Q3 Planning (not drawn).</b> &ldquo;Pick a breakfast&rdquo; is a filter in the plan picker; &ldquo;one treat a week&rdquo; is a rule the planner acts on. A rule needs a closed vocabulary (Kitchie ADR closed-vocabulary-for-ai): the household&rsquo;s tag list could be that vocabulary. Food preferences already have a frequency cap checked against recent meals (F-series); a tag could be its target rather than a new kind of rule.</li>
+<li><b>RT-Q4 Suggestions.</b> Should Cooking ideas and the assistant read the household&rsquo;s tags (e.g. lean towards Protein), and if so is a tag a hint or a hard filter?</li>
+<li><b>RT-Q5 Who curates the list?</b> Renaming, merging and removing a tag the household no longer uses: where it lives (Settings or the sheet) and who may do it (RT-P3).</li>
+<li><b>RT-Q6 Desktop.</b> Not drawn. On desktop the tags would likely sit in the list column&rsquo;s filters and the recipe panel; drawn only if the idea goes ahead.</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">What this loads (DESIGN.md section 6)</div>
+<p>Default path: the Recipe tab&rsquo;s own files plus <code>tags.css</code> and <code>tags.js</code> (both small). The household&rsquo;s tag list would come with the recipe list (a few short words), so filtering is in place with no new request (section 6a). The picker and find sheets are built on tap. Nothing is fetched for tags on the recipe page beyond the recipe itself.</p>
+<p>Checked at 360 and 390 in both themes. The strip chips are 36px tall, the same as the existing Recipes strip (recipe/list.html), below the 44px rule; that is the strip as it is today, not new here.</p></div>
+
+<div class="sec"><div class="lbl">Where this sits</div>
+<p>Kitchie #834 (label <b>idea</b>). Notes: <code>docs/knowledge/recipe-tags.md</code>. Builds on the Recipe tab mockup (<code>recipe/</code>), whose list, strip, sheet and tag styles it reuses.</p></div>
+</div></body></html>
