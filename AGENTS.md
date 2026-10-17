@@ -28,3 +28,11 @@ Owner direction, 8 October 2026. A pull request description here is the working 
 - What the default path loads and what is deferred (`DESIGN.md` section 6).
 
 Do not turn a PR into a GitHub issue at PR time. That is too early: the direction is not picked yet. The owner converts PRs into issues once a design direction is chosen and stable, using the PR description as the source. Write it so that conversion loses nothing. Keep `docs/knowledge/` in step with the PR.
+
+### Claims and conflicts: call the governance tools (owner-agreed design; governance PR #59)
+
+Use the commands in `basement-bridge/governance` `tools/` (index: `tools/README.md`); do not re-implement them, and do not hand-edit the claim lines of a `factory-state` block.
+
+- **Before starting, mocking up or claiming an issue:** `tools/pickup-guard.sh <owner/repo> <issue> --session <session url> --branch <branch>`. Exit 4 means another session holds a live claim: leave it alone, open no competing branch or PR. There is no override.
+- **Claim and touch:** `tools/claim.sh claim ...` once the guard is clear, `tools/claim.sh touch ...` at the start and the end of each unit of meaningful work (a push, a PR opened or updated, an issue comment), `tools/claim.sh release ... --status built` when the PR merges into `uat`. A claim is stale after 4 hours without a touch or a commit (`tools/staleness-check.sh`).
+- **A PR branch that fell behind its base:** `tools/conflict.sh <owner/repo> <pr>` (dry run), then `--apply --session <session url>`. Agent-authored PRs only, forward merge only, never the PR itself; it stops and reports when both sides changed the same logic. It does not change the stop-and-ask conditions in this file.
