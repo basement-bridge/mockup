@@ -314,7 +314,7 @@
   }
   function header() {
     var r = info(S.cur), mn = info(r.mon), n = S.note, fk = flipKind(), tu = topU(), sub = (fk && tu) ? (tu.short || plain(tu.msg)) + (S.ustk.length > 1 ? ' · +' + (S.ustk.length - 1) + ' more' : '') : P.REL[r.wk];
-    var t = '<div class="hd' + (fk ? ' flipped' : '') + (S.view === 'household' ? ' hh' : '') + '"><div class="wt"><h1><button class="wkl" id="wkt" data-wkl aria-keyshortcuts="T" aria-description="Press and hold, or press T, to jump to today">Week of ' + mn.n + ' ' + mn.mo + '</button></h1><small id="wks" class="' + (fk ? 'fl' : '') + '">' + sub + '</small></div><span class="sp"></span>' + filterCtl() + wkCtl() + '<button class="ib cog" aria-label="Plan settings" title="Plan settings">' + ic.cog + '</button></div>';
+    var t = '<div class="hd' + (fk ? ' flipped' : '') + (S.view === 'household' ? ' hh' : '') + '"><div class="wt"><h1><button class="wkl" id="wkt" data-wkl aria-keyshortcuts="T" aria-description="Press and hold, or press T, to jump to today">Week of ' + mn.n + ' ' + mn.mo + '</button></h1><small id="wks" class="' + (fk ? 'fl' : '') + '">' + sub + '</small></div><span class="sp"></span>' + filterCtl() + wkCtl() + '<button class="ib offd" aria-label="Off days" title="Off days">' + ic.moon + '</button></div>';
     var ex = '';
     if (n && S.u === 'banner') ex += '<div class="ubn" role="status"><span>' + n.msg + '</span>' + (n.undo ? '<button data-undo>' + ic.undo + ' Undo</button>' : '') + '</div>';
     if (n && S.u === 'pill') ex += '<div class="upill" role="status"><span>' + n.msg + '</span>' + (n.undo ? '<button data-undo>' + ic.undo + ' Undo</button>' : '') + '</div>';

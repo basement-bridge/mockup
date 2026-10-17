@@ -1,5 +1,5 @@
 /* MOCK: the desktop Pantry list, the open item's panel and the keys the app already has (J K, Enter or E, comma, U, D, S, Z, Shift Space), with ONE option from the four (and "Today") added on top.
-   ?opt=now|a|b|c|d   ?theme=kitchie|kitchie-day   ?input=touch (a touch laptop: no hover)   ?sel=<id> (open item)   ?hover=<id> (draw that row as hovered, for a still)   ?chip=out
+   ?opt=all (the decided view, the default)|now|a|b|c|d   ?theme=kitchie|kitchie-day   ?input=touch (a touch laptop: no hover)   ?sel=<id> (open item)   ?hover=<id> (draw that row as hovered, for a still)   ?chip=out
    ?state=empty|allout   ?keep=<id,id> (all others used up)   ?down=1 (the "saved list" banner)   ?guard=today   ?cues=0   ?menu=<id> (B)   ?pick=<id,id> (C).
    Only the chosen option's two files are fetched (DESIGN.md section 6): the page loads this file, act.js, sample.js and rows.css, then opt-<x>.css and opt-<x>.js. */
 (function () {
@@ -7,7 +7,7 @@
   var P = window.PRA, S = P.state, Q = new URLSearchParams(location.search);
   var $ = function (id) { return document.getElementById(id); };
   var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
-  var OPT = (Q.get("opt") || "a").toLowerCase(); if (["now", "a", "b", "c", "d"].indexOf(OPT) < 0) OPT = "a";
+  var OPT = (Q.get("opt") || "all").toLowerCase(); if (["all", "now", "a", "b", "c", "d"].indexOf(OPT) < 0) OPT = "all";
   var th = Q.get("theme"); if (th === "kitchie" || th === "kitchie-day") document.documentElement.setAttribute("data-theme", th);
   var touch = Q.get("input") === "touch" || (window.matchMedia && matchMedia("(hover: none)").matches);
   if (touch) document.documentElement.setAttribute("data-input", "touch");
@@ -20,7 +20,7 @@
   if (Q.get("guard") === "2" || Q.get("guard") === "today") { S.usedAt = [Date.now() - 1000, Date.now() - 2000]; } /* two used-up just now: the next one hits the guardrail */
 
   /* line icons on the app's 24px grid */
-  var D = { minus: "M5 12h14", check: "M5 12.500l4.200 4.200L19 7", pencil: "M4 20h4L18.500 9.500a2.100 2.100 0 0 0-3-3L5 17z", more: "", cart: "M3 4h2.5l2.2 10.2a1 1 0 0 0 1 .8h8.8a1 1 0 0 0 1-.8L20 8H6.2", x: "M6 6l12 12M18 6L6 18", hist: "M12 7v5l3 2" };
+  var D = { minus: "M5 12h14", check: "M5 12.500l4.200 4.200L19 7", pencil: "M4 20h4L18.500 9.500a2.100 2.100 0 0 0-3-3L5 17z", more: "", cart: "M3 4h2.5l2.2 10.2a1 1 0 0 0 1 .8h8.8a1 1 0 0 0 1-.8L20 8H6.2", x: "M6 6l12 12M18 6L6 18", hist: "M12 7v5l3 2", open: "M14 5h5v5M19 5l-8 8M18 14v4a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h4" };
   P.icon = function (name) {
     var inner = name === "cart" ? '<circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="' + D.cart + '"/>' : name === "more" ? '<circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/>' : name === "hist" ? '<circle cx="12" cy="12" r="8"/><path d="' + D.hist + '"/>' : '<path d="' + D[name] + '"/>';
     return '<svg class="i" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' + inner + "</svg>";
@@ -141,6 +141,7 @@
     document.querySelectorAll(".rc2").forEach(function (b) { b.addEventListener("click", function () { S.chip = b.dataset.chip; P.render(); }); });
     var sel = Q.get("sel"); if (sel && P.item(sel)) { S.open = sel; S.cur = sel; }
     P.opt.mount(); P.render();
+    if (["a", "b", "c", "d"].indexOf(OPT) > -1) { var sn = document.createElement("p"); sn.className = "supnote"; sn.innerHTML = '<b>Superseded.</b> The owner chose all three together, each with its own way in. This is option ' + OPT.toUpperCase() + ' alone, kept for context. <a href="desktop.html?opt=all&amp;sel=eggs">Open the decided view</a>.'; $("count").after(sn); }
     if (S.down) { var bn = document.createElement("div"); bn.className = "banner"; bn.setAttribute("role", "status"); bn.textContent = "Showing your saved list. Changes will work again shortly."; $("plist").parentNode.insertBefore(bn, $("plist")); }
     document.documentElement.setAttribute("data-ready", "1");
   }

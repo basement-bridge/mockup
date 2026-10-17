@@ -1,4 +1,4 @@
-/* Phone (and tablet): Meal planning is the bottom sheet it has always been (`.pw-sheet`): a scrim, a sheet rising from the bottom edge, content scrolls inside, Done at the foot. Only the container is drawn here;
+/* Phone (and tablet): Off days is the bottom sheet it has always been (`.pw-sheet`): a scrim, a sheet rising from the bottom edge, content scrolls inside, Done at the foot. Only the container is drawn here;
    everything inside is usual.css. */
 .ud-host{position:fixed;left:0;right:0;bottom:0;z-index:30;max-width:var(--content-max);margin:0 auto;max-height:88%;display:flex;flex-direction:column;background:var(--surface);border-top:1px solid var(--border);border-radius:var(--r-card) var(--r-card) 0 0;padding:16px var(--gutter) calc(18px + env(safe-area-inset-bottom,0px))}
 .ud-host[hidden]{display:none}
@@ -8,3 +8,11 @@
 .pg-scrim{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:20}
 .pg-scrim[hidden]{display:none}
 .ud-host>.ud{flex:1 1 auto;min-height:0}
+/* The list is a FIXED height on a phone (owner, 17 Oct 2026): Household and You are always in view and the other people sit below it, a peek of the next label showing, reached by scrolling in place. They matter less.
+   With only two rows (one person, or one person and the household) there is nothing to scroll and the list is its natural height. */
+.ud-sheet .ud-list[data-n="3"],.ud-sheet .ud-list[data-n="4"],.ud-sheet .ud-list[data-n="5"],.ud-sheet .ud-list[data-n="6"]{height:var(--ud-list-h,256px);max-height:calc(100dvh - 330px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+.ud-sheet .ud-list[data-more="true"]{-webkit-mask-image:linear-gradient(#000 calc(100% - 36px),transparent);mask-image:linear-gradient(#000 calc(100% - 36px),transparent)}
+.ud-sheet .ud-lbl{margin-top:10px}
+.ud-sheet .ud-days{margin:4px 0}
+.ud-sheet .ud-more{display:inline}
+.ud-sheet .ud-pt h2{font-size:18px}
