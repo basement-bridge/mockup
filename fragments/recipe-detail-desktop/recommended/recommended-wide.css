@@ -10,13 +10,11 @@ nav.bar{position:static;height:auto}
 .rd{display:flex;flex-direction:column;height:100vh;max-width:var(--rec-max);overflow:hidden;container:page/inline-size}
 .rfly{width:var(--rec-lane)}
 
-.hero{flex:none;margin:var(--sp-3) var(--sp-4) 0;min-height:clamp(150px,19vh,230px);padding:var(--sp-3) var(--sp-5)}
-/* the scrim in the wide layout: words on the left sit on the page colour, the photo stays whole on the right */
-.hphoto::after{background:linear-gradient(90deg,color-mix(in srgb,var(--bg) 96%,transparent) 0,color-mix(in srgb,var(--bg) 90%,transparent) 38%,color-mix(in srgb,var(--bg) 42%,transparent) 62%,transparent 84%)}
-.hero.nobanner{min-height:0}
-.hmain{flex-wrap:nowrap}
-.hact{align-self:stretch;justify-content:space-between}
-.hinfo h1{font-size:clamp(1.55rem,1rem + 1.15vw,2.3rem)}
+.hero{flex:none;margin:var(--sp-3) var(--sp-4) 0}
+.hbody{padding:var(--sp-2) var(--sp-5)}
+.hphoto{height:clamp(88px,15vh,240px)}
+.hero.nobanner .hbody{padding-top:var(--sp-3)}
+.hmain h1{font-size:clamp(1.55rem,1rem + 1.15vw,2.3rem)}
 
 .rbody{flex:1;min-height:0;display:grid;grid-template-columns:var(--rec-rail) minmax(0,1fr);grid-template-rows:minmax(0,1fr);gap:var(--sp-5);align-items:start;padding:var(--sp-3) var(--sp-4) var(--sp-4)}
 .rail{max-height:100%}
@@ -31,7 +29,6 @@ nav.bar{position:static;height:auto}
 .psp{width:var(--pw);height:calc(var(--pw)*.75)}
 .pprep{width:var(--pw);height:auto;min-height:calc(var(--pw)*.75)}
 .stp{padding:var(--sp-2) 0}
-.stp.open .psp{width:100%;height:auto;max-height:50vh}
 
 /* balanced columns: two when the method area is wide enough (the flyout, which pushes the page, drops it to one) */
 @container (min-width:42rem){.steps{column-count:2;column-gap:var(--sp-6);column-fill:balance}}
@@ -50,11 +47,11 @@ nav.bar{position:static;height:auto}
 [data-dens=roomy] .timer{font-size:13px}
 
 @media(max-height:800px){
- .hero{padding-top:var(--sp-2);padding-bottom:var(--sp-2)}
+ .hphoto{height:84px}
+ .hbody{padding-top:6px;padding-bottom:var(--sp-2);gap:6px}
  .lblrow{min-height:34px}
  .ing{padding:3px 0}
  .pfoot{padding:6px 0 8px}
- .hmeta{margin-top:0}
 }
 
 /* page narrower than 62rem (the Notes flyout is open at 1280 to 1500): same layout, tighter. Rail 19.5rem, hero stays one row of chrome, hint chips and labels drop. */
@@ -62,12 +59,8 @@ nav.bar{position:static;height:auto}
  .rbody{grid-template-columns:19.5rem minmax(0,1fr);gap:var(--sp-4)}
  .tabs [role=tab]{font-size:12px;gap:3px;padding:0 2px}
  .bdg{min-width:16px;padding:0 4px;font-size:10.5px}
- .hero{flex-wrap:nowrap;padding:var(--sp-2) var(--sp-4)}
- .hmain{flex:1 1 0}
- .hact{flex:none}
- .hicons{flex-wrap:nowrap}
- .shr-chip .sl,.shr-chip .kbd,.rb-notesbtn .kbd,.hl .kbd,.proof .lc{display:none}
- .hphoto img{object-position:100% 50%}
- .hphoto::after{background:linear-gradient(90deg,color-mix(in srgb,var(--bg) 96%,transparent) 0,color-mix(in srgb,var(--bg) 88%,transparent) 55%,color-mix(in srgb,var(--bg) 35%,transparent) 80%,transparent)}
- .hinfo h1{font-size:clamp(1.35rem,1rem + .8vw,1.8rem)}
+ .hbody{padding:6px var(--sp-4)}
+ .shr-chip .sl,.shr-chip .kbd,.rb-notesbtn .kbd{display:none}
+ .hmain h1{font-size:clamp(1.35rem,1rem + .8vw,1.8rem)}
 }
+.hmain h1{-webkit-line-clamp:2}

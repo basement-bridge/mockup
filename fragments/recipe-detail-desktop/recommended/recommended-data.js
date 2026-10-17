@@ -25,11 +25,11 @@ window.RECIPES={
  typical:{name:"Egg fried rice",min:"20 min",serves:2,banner:"img/banner-typical.webp",emoji:"\u{1F35A}",vers:VERS,ver:"p",planned:"Tue",pantryKnown:true,
   ing:[["Eggs",3,""],["Basmati rice, cooked and cooled",300,"g"],["Onion",1,""],["Spring onions",2,"","miss"],["Soy sauce",2,"tbsp"],["Oil",1,"tbsp"],["Frozen peas",80,"g"],["Garlic cloves",2,""],["Sesame oil",1,"tsp","miss","opt"],["Chilli flakes",null,"","","","amount?"]],
   steps:[["Beat the eggs with a pinch of salt.",0,"img:efr-s1"],["Chop the onion and fry it in the oil until soft.",3,"img:efr-s2"],["Push the onion aside, pour in the eggs and stir until just set.",1,"prep"],["Tip in the cold rice and break up any lumps. Keep the heat high.",4,"img:efr-s4"],["Splash in the soy sauce and add the peas.",2],["Toss through the spring onions and serve.",0]],
-  notes:NOTES,cooks:COOKS,react:REACT,photosN:6,source:"Adapted from a recipe card, Sam, 2024",share:2},
+  notes:NOTES,cooks:COOKS,react:REACT,photosN:6,photos:['efr-1','efr-2','efr-3','efr-c1','efr-c2','efr-c3'],source:"Adapted from a recipe card, Sam, 2024",share:2},
  short:{name:"Garlic toast eggs",min:"10 min",serves:2,banner:"img/banner-short.webp",emoji:"\u{1F373}",vers:[{id:"o",name:"Original",st:"kept",usual:true,parent:null}],ver:"o",pantryKnown:true,
   ing:[["Eggs",4,""],["Sourdough",4,"slices"]],
   steps:[["Toast the bread and rub it with a cut garlic clove.",3,"img:efr-s1"],["Fry the eggs in butter until the whites are set; lay on the toast.",4,"img:efr-s2"]],
-  notes:[],cooks:[],react:{mine:null,people:[],household:3},photosN:2,source:"",share:null},
+  notes:[],cooks:[],react:{mine:null,people:[],household:3},photosN:2,photos:['efr-1','efr-2'],source:"",share:null},
  long:{name:"Slow lamb shoulder with white beans and salsa verde",min:"4 h 30",serves:8,banner:"img/banner-long.webp",emoji:"\u{1F356}",vers:[{id:"o",name:"Original",st:"kept",usual:true,parent:null}],ver:"o",pantryKnown:true,groups:true,
   ing:[["Lamb shoulder, bone in",2.2,"kg",0,0,0,"Lamb"],["Garlic cloves",8,""],["Rosemary sprigs",4,""],["Anchovy fillets",6,"","","opt"],["Olive oil",3,"tbsp"],["Salt",2,"tsp"],["Black pepper",1,"tsp"],["White wine",250,"ml"],
    ["Cannellini beans",3,"tins","miss",0,0,"Beans"],["Onion, finely sliced",2,""],["Celery sticks",2,"","miss"],["Carrot",2,""],["Tomato paste",2,"tbsp"],["Chicken stock",500,"ml"],["Bay leaves",2,""],["Lemon, zest of",1,""],["Chilli flakes",null,"","","","amount?"],
@@ -39,7 +39,7 @@ window.RECIPES={
    ["Chop herbs, capers and garlic together.",8,0,"Salsa verde"],["Stir in vinegar and oil; season with the salt.",0],["Pull the lamb into large pieces over the beans.",5,"#b08f68",""],["Spoon salsa verde over and serve with lemon wedges.",0]],
   notes:[NOTES[0],{on:"Original",by:"You",at:"3 Oct",b:["Rest it a full 20 minutes or it shreds badly."]}],
   cooks:[{d:"11",m:"Oct",by:"Sam",v:"Original",line:"fell off the bone",verdict:"Kept it",ate:8,ago:"6 days ago"},{d:"6",m:"Sep",by:"You",v:"Original",line:"",verdict:"Kept it",ate:6}],
-  react:{mine:"up",people:[["Sam","up","11 Oct"],["You","up","6 Sep"]],household:5,fav:"Liked by 2 of 5."},photosN:4,source:"Slow Sundays, a family recipe",share:1}
+  react:{mine:"up",people:[["Sam","up","11 Oct"],["You","up","6 Sep"]],household:5,fav:"Liked by 2 of 5."},photosN:4,photos:['len-1','sha-1','rag-1','cur-1'],source:"Slow Sundays, a family recipe",share:1}
 };
 window.RECIPES.IMG=IMG;
 })();

@@ -13,7 +13,7 @@ var I={
  edit:'<path d="M4 20l1-4L16 5l3 3L8 19z"/>',share:'<path d="M12 15V4M8 8l4-4 4 4M5 13v6h14v-6"/>',more:'<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
  up:'<path d="M7 11v9H4v-9zM7 11l4-8c2 0 3 1.5 2.5 3.5L13 9h6a2 2 0 012 2.4l-1.3 6.6a2 2 0 01-2 1.6H7"/>',dn:'<path d="M7 13V4H4v9zM7 13l4 8c2 0 3-1.5 2.5-3.5L13 15h6a2 2 0 002-2.4l-1.3-6.6a2 2 0 00-2-1.6H7"/>',
  note:'<path d="M5 4h14v12l-5 4H5z"/><path d="M14 20v-4h5"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
- cart:'<path d="M3 4h2l2 11h11l2-8H6"/><circle cx="9" cy="19" r="1.4"/><circle cx="17" cy="19" r="1.4"/>',plan:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+ people:'<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6M16 5a3 3 0 010 6M18 14c2 1 3 3 3 6"/>',zoom:'<circle cx="11" cy="11" r="6"/><path d="M20 20l-4-4M11 8v6M8 11h6"/>',left:'<path d="M15 5l-7 7 7 7"/>',right:'<path d="M9 5l7 7-7 7"/>',cart:'<path d="M3 4h2l2 11h11l2-8H6"/><circle cx="9" cy="19" r="1.4"/><circle cx="17" cy="19" r="1.4"/>',plan:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
  cook:'<path d="M8 3c-2 2 2 3 0 5M13 3c-2 2 2 3 0 5M4 12h16l-1.5 7a2 2 0 01-2 1.5h-9A2 2 0 014.800 19z"/>',hist:'<path d="M4 12a8 8 0 108-8 8 8 0 00-6 2.700L4 9M4 4v5h5M12 8v4l3 2"/>',
  pen:'<path d="M4 20l1-4L16 5l3 3L8 19z"/>',branch:'<circle cx="6" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="8" r="2"/><path d="M6 7v10M18 10c0 4-6 3-12 7"/>',
  plus:'<path d="M12 5v14M5 12h14"/>',timer:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',chev:'<path d="M7 10l5 5 5-5"/>'
@@ -75,8 +75,11 @@ var panes={ing:ingPane,notes:notesPane,cooked:cookedPane,pho:phoPane};
 function photoCell(ph,i){
  if(!ph)return"";
  if(ph==="prep")return '<span class="psp pprep" title="Photo is being prepared">Photo being prepared</span>';
- var bg=ph.indexOf("img:")===0?'background-image:url('+IMG+ph.slice(4)+'-m.webp)':'background-image:linear-gradient(150deg,'+ph+',color-mix(in srgb,'+ph+' 55%,#000))';
- return '<button type="button" class="psp" data-psp style="'+bg+'" aria-label="Show the photo for step '+(i+1)+'">'+(ph.indexOf("img:")===0?'':'<span class="pf">'+D.emoji+'</span>')+'</button>'}
+ var real=ph.indexOf("img:")===0;
+ var bg=real?'background-image:url('+IMG+ph.slice(4)+'-m.webp)':'background-image:linear-gradient(150deg,'+ph+',color-mix(in srgb,'+ph+' 55%,#000))';
+ /* the enlarged view needs a full-size picture: the real step photo (960x720), or for the colour-block samples a 960x720 drawing */
+ var full=real?IMG+ph.slice(4)+'-m.webp':'data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="960" height="720"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="'+ph+'"/><stop offset="1" stop-color="#4a3c2b"/></linearGradient></defs><rect width="960" height="720" fill="url(#g)"/><text x="480" y="420" font-size="220" text-anchor="middle">'+D.emoji+'</text></svg>');
+ return '<button type="button" class="psp" data-psp data-full="'+esc(full)+'" style="'+bg+'" aria-label="Enlarge the photo for step '+(i+1)+'" title="Enlarge">'+(real?'':'<span class="pf">'+D.emoji+'</span>')+'<span class="zm" aria-hidden="true">'+ic("zoom","s")+'</span></button>'}
 function stepsHtml(){
  var h="";
  D.steps.forEach(function(s,i){
@@ -90,23 +93,23 @@ function hero(){
  var vers=D.vers.length>1;
  var chip='<div class="vwrap"><button type="button" class="vchip" data-vchip aria-haspopup="true" aria-expanded="false" title="Switch version">'+(cur.usual?'<span class="us" title="Our usual">★</span>':'')+(cur.review?'<span class="rvd" title="Has a change to review"></span>':'')+'<span class="vn">'+esc(cur.name)+'</span>'+(vers?ic("chev","s"):'')+'</button>'
   +(vers?'<div class="vpop" data-vpop role="menu" hidden>'+D.vers.map(function(v){return '<button type="button" role="menuitem" class="vi'+(v.id===D.ver?' on':'')+'">'+(v.usual?'<span class="us">★</span>':'<span class="us"></span>')+'<span class="vl"><b>'+esc(v.name)+'</b>'+(v.parent?'<small>From '+esc(v.parent)+'</small>':'<small>First version</small>')+'</span>'+(v.st==="trying"?'<em>Trying</em>':'')+(v.review?'<em class="rv">To review</em>':'')+'</button>'}).join("")+'<a class="vall" href="#">All versions</a></div>':'')+'</div>';
- var lineage=cur.parent?'<a class="lin" href="#" title="Open '+esc(cur.parent)+'">'+ic("branch","s")+'From '+esc(cur.parent)+'</a>':'';
- var proof=cookedN?'<button type="button" class="proof" data-gocooked title="Cooked '+cookedN+' time'+(cookedN>1?'s':'')+(lastCook?', last '+lastCook:'')+' (3)">Cooked <b>'+cookedN+'×</b>'+(lastCook?'<small class="lc">last '+lastCook+'</small>':'')+'<span class="rb-dots">'+D.cooks.slice(0,8).reverse().map(function(c,i,a){return '<i class="'+(i===a.length-1?'last':'')+'"></i>'}).join("")+'</span></button>':'<span class="proof none" title="Cook it once and the thumbs and notes start here.">Not cooked yet</span>';
  /* Notes and reactions pill: icons and counts only, no text label (the thumbs and note icons say it). aria-label and tooltip keep the words. */
  var pill='<button type="button" class="rb-notesbtn re-a" data-gonotes aria-label="Notes and reactions: '+upN+' liked, '+dnN+' not for me, '+notesN+' notes" title="Notes and reactions (N)"><i class="rb-pillcnt"><i class="u">'+ic("up")+upN+'</i>'+(dnN?'<i class="d">'+ic("dn")+dnN+'</i>':'')+'<i>'+ic("note")+notesN+'</i></i><span class="kbd">N</span></button>';
+ var hist='<a class="hico" href="#" data-key="," aria-label="History (,)" title="History (,)">'+ic("hist")+'</a>';
+ var servesCta='<div class="svwrap"><button type="button" class="svcta" data-svcta aria-haspopup="true" aria-expanded="false" title="Change servings">'+ic("people","s")+'<span data-sv>Serves '+servesNow+'</span>'+ic("chev","s")+'</button>'
+  +'<div class="spop" data-spop role="group" aria-label="Servings" hidden><div class="serves" data-serves><button type="button" data-dec aria-label="Fewer servings">−</button><span data-sv2>'+servesNow+' servings</span><button type="button" data-inc aria-label="More servings">+</button></div><small>Scales the ingredients and Cook it</small></div></div>';
+ /* banner band: the photo has its own band above the controls; nothing sits on it or crops into it */
  return '<header class="hero'+(D.banner?'':' nobanner')+'" id="hero">'
  +(D.banner?'<div class="hphoto" aria-hidden="true"><img src="'+D.banner+'" alt="" width="1600" height="560" decoding="async"></div>':'')
- +'<div class="hmain"><a class="back ib" href="#" data-key="alt-left" aria-label="Back to Recipes">'+ic("back")+'</a>'
- +'<div class="hinfo"><h1 data-vt="title" title="'+esc(D.name)+'">'+esc(D.name)+'</h1>'
- +'<span class="tbadge" title="Total time">'+ic("clock","s")+D.min+'</span>'
- +'<div class="hmeta"><div class="serves" data-serves><button type="button" data-dec aria-label="Fewer servings">−</button><span data-sv>Serves '+servesNow+'</span><button type="button" data-inc aria-label="More servings">+</button></div>'
- +chip+lineage+'<a class="hl" href="#" data-key=",">'+ic("hist","s")+'History<span class="kbd">,</span></a>'+proof+'</div></div></div>'
- +'<div class="hact"><div class="hicons">'+pill
+ +'<div class="hbody"><div class="hr1"><div class="hmain"><a class="back ib" href="#" data-key="alt-left" aria-label="Back to Recipes">'+ic("back")+'</a>'
+ +'<h1 data-vt="title" title="'+esc(D.name)+'">'+esc(D.name)+'</h1></div>'
+ +'<div class="hicons">'+pill
  +'<button type="button" class="ib" data-star aria-pressed="'+(D.react.mine==="up")+'" aria-label="Like this version">'+ic("star")+'</button>'
  +'<a class="ib" href="#" data-key="e" aria-label="Edit (E)">'+ic("edit")+'</a>'
  +(D.share!==null?'<button type="button" class="shr-chip" data-share>'+ic("share","s")+'<span class="sl">Share</span>'+(D.share?'<span class="shr-n">'+D.share+'</span>':'')+'<span class="kbd">S</span></button>':'')
- +'<button type="button" class="ib" data-more aria-label="More">'+ic("more")+'</button></div>'
- +'<div class="hgo"><button type="button" class="rb-btn" data-plan>'+ic("plan")+(D.planned?'<span class="lw">Planned </span>'+D.planned:'Plan it')+'</button><a class="rb-btn pri" href="#" data-cook>'+ic("cook")+'Cook it</a></div></div>'
+ +'<button type="button" class="ib" data-more aria-label="More">'+ic("more")+'</button></div></div>'
+ +'<div class="hr2"><div class="hmeta">'+servesCta+'<span class="tbadge" title="Total time">'+ic("clock","s")+D.min+'</span>'+chip+hist+'</div>'
+ +'<div class="hgo"><button type="button" class="rb-btn" data-plan>'+ic("plan")+(D.planned?'<span class="lw">Planned </span>'+D.planned:'Plan it')+'</button><a class="rb-btn pri" href="#" data-cook>'+ic("cook")+'Cook it</a></div></div></div>'
  +'</header>'}
 
 var railT='<div class="tabs" role="tablist" aria-label="Ingredients, notes, cooked, photos">'+tabs.map(function(t){
@@ -133,10 +136,15 @@ document.title="Recipe detail, desktop, recommended ("+R+")";
 
 /* ---------------- behaviour ---------------- */
 function fmt(v){return String(Math.round(v*100)/100)}
-function scale(){$$("[data-a]").forEach(function(e){var v=parseFloat(e.dataset.a)*servesNow/D.serves;e.textContent=fmt(v)+(e.dataset.u?" "+e.dataset.u:"")});$("[data-sv]").textContent="Serves "+servesNow;$("[data-cook]").setAttribute("href","#cook?n="+servesNow)}
+function scale(){$$("[data-a]").forEach(function(e){var v=parseFloat(e.dataset.a)*servesNow/D.serves;e.textContent=fmt(v)+(e.dataset.u?" "+e.dataset.u:"")});$("[data-sv]").textContent="Serves "+servesNow;$("[data-sv2]").textContent=servesNow+" serving"+(servesNow>1?"s":"");$("[data-cook]").setAttribute("href","#cook?n="+servesNow)}
 scale();
 $("[data-dec]").onclick=function(){if(servesNow>1){servesNow--;scale()}};
 $("[data-inc]").onclick=function(){if(servesNow<12){servesNow++;scale()}};
+/* Serves is the call to action: opens a small stepper under it (Esc or a click outside closes and returns focus) */
+var sc=$("[data-svcta]"),sp=$("[data-spop]");
+function spop(on){sp.hidden=!on;sc.setAttribute("aria-expanded",on)}
+sc.onclick=function(e){e.stopPropagation();spop(sp.hidden);if(!sp.hidden)$("[data-inc]").focus()};
+document.addEventListener("click",function(e){if(!sp.hidden&&!sp.contains(e.target))spop(false)});
 
 function setTab(t,focus){
  if(!tabs.some(function(x){return x[0]===t}))return;
@@ -148,7 +156,6 @@ function setTab(t,focus){
 $$("[role=tab]").forEach(function(b){b.onclick=function(){setTab(b.dataset.tab)};
  b.onkeydown=function(e){var ids=tabs.map(function(t){return t[0]}),i=ids.indexOf(b.dataset.tab);
   if(e.key==="ArrowRight"||e.key==="ArrowLeft"){e.preventDefault();setTab(ids[(i+(e.key==="ArrowRight"?1:ids.length-1))%ids.length],true)}}});
-var gc=$("[data-gocooked]");if(gc)gc.onclick=function(){setTab("cooked",true)};
 
 /* Notes and reactions flyout: opens on the pill or N, pushes the page (the app's lane rule), closes on its x or Ctrl/Cmd+Enter. */
 var app=$(".app"),laneEl=$("#lane");
@@ -170,19 +177,48 @@ document.addEventListener("keydown",function(e){
  if((e.ctrlKey||e.metaKey)&&(e.key==="Enter"||e.key==="Escape")){if(!laneEl.hidden){e.preventDefault();setLane(false)}return}
  if(e.ctrlKey||e.metaKey||e.altKey)return;if(t&&/INPUT|TEXTAREA|SELECT/.test(t.tagName))return;
  var k=e.key.toLowerCase();
- if(e.key==="Escape"){if(vp&&!vp.hidden){vpop(false);vc.focus();return}if($(".stp.open"))collapse();return}
+ if(e.key==="Escape"){if(!sp.hidden){spop(false);sc.focus();return}if(vp&&!vp.hidden){vpop(false);vc.focus();return}return}
  if(KEYS[k]){e.preventDefault();setTab(KEYS[k])}
  else if(k==="n"){e.preventDefault();setLane(laneEl.hidden)}
  else if(k==="s"&&$("[data-share]")){e.preventDefault();toast("Share panel opens in the right lane (not drawn here).")}
  else if(k==="e"||k===","){e.preventDefault();toast(k==="e"?"Editor opens in the right lane (not drawn here).":"History opens as its own page (not drawn here).")}
 });
 
-/* step photos: thumbnail; click expands the whole photo under the step, click or Esc returns */
-function collapse(){$$(".stp.open").forEach(function(s){s.classList.remove("open")});fades()}
-$$("[data-psp]").forEach(function(b){b.onclick=function(){var s=b.closest(".stp"),was=s.classList.contains("open");collapse();if(!was){s.classList.add("open");s.scrollIntoView({block:"nearest"});fades()}}});
+/* step photos: click enlarges in the shared lightbox (arrows stay within the step photos); focus returns to the step's photo */
+var stepBtns=$$("[data-psp]");
+stepBtns.forEach(function(b,n){b.onclick=function(){LB.open(stepBtns.map(function(x){return {src:x.dataset.full,alt:x.getAttribute("aria-label").replace("Enlarge the photo for","Photo for"),el:x}}),n)}});
 
 var pm=$("[data-pmore]");
-if(pm)pm.onclick=function(){var g=$("#pgrid"),h="",cs=["#c8a86b","#bfa98c","#d8c8c8","#ba976b","#a98f6a","#c9b48a"];for(var i=0;i<photosN;i++)h+='<div class="pfr" style="background-image:linear-gradient(150deg,'+cs[i%cs.length]+',color-mix(in srgb,'+cs[i%cs.length]+' 55%,#000))"><span class="pf">'+D.emoji+'</span></div>';g.innerHTML=h;fades()};
+if(pm)pm.onclick=function(){var g=$("#pgrid"),h="";D.photos.forEach(function(n,i){h+='<button type="button" class="pfr" data-ph="'+i+'" style="background-image:url('+IMG+n+'-t.webp)" aria-label="Open photo '+(i+1)+' of '+photosN+'"></button>'});g.innerHTML=h;fades();
+ var th=$$("[data-ph]",g);th.forEach(function(b,i){b.onclick=function(){LB.open(th.map(function(x,j){return {src:IMG+D.photos[j]+'-l.webp',alt:D.name+', photo '+(j+1)+' of '+photosN,el:x}}),i)}})};
+
+/* ---------------- lightbox (shared by the Photos grid and the step photos) ----------------
+   Dims the page (inert + scrim), photo centred, object-fit contain with max sizes from the viewport, never upscaled past its natural size (width/height stay auto).
+   Left/Right arrows (keys and buttons) wrap round; Home/End jump; Esc, the close button or a click on the scrim close; Tab is held inside; focus returns to the opener.
+   While open every other page key (1-4, N, S, E, comma, backtick, Ctrl+Enter) is swallowed. */
+var LB=(function(){
+ var el=document.createElement("div");el.className="lbx";el.hidden=true;el.setAttribute("role","dialog");el.setAttribute("aria-modal","true");el.setAttribute("aria-label","Photo viewer");
+ el.innerHTML='<button type="button" class="lbx-x" aria-label="Close (Esc)">'+ic("x")+'</button><button type="button" class="lbx-n prev" aria-label="Previous photo (Left arrow)">'+ic("left")+'</button><figure class="lbx-f"><img alt=""><figcaption></figcaption></figure><button type="button" class="lbx-n next" aria-label="Next photo (Right arrow)">'+ic("right")+'</button>';
+ document.body.appendChild(el);
+ var img=$("img",el),cap=$("figcaption",el),bx=$(".lbx-x",el),pv=$(".prev",el),nx=$(".next",el),L={items:[],i:0,isOpen:false};
+ function show(i){var n=L.items.length;L.i=(i+n)%n;var it=L.items[L.i];img.alt=it.alt||"";img.src=it.src;cap.textContent=n>1?(L.i+1)+" of "+n:""}
+ function toggleBg(on){[$(".app"),$("#toast")].forEach(function(x){if(x){if(on)x.setAttribute("inert","");else x.removeAttribute("inert")}});document.documentElement.classList.toggle("lbx-on",on)}
+ L.open=function(items,i){L.items=items;L.isOpen=true;el.hidden=false;toggleBg(true);pv.hidden=nx.hidden=items.length<2;show(i);bx.focus()};
+ L.close=function(){if(!L.isOpen)return;L.isOpen=false;el.hidden=true;toggleBg(false);img.removeAttribute("src");var o=L.items[L.i].el;if(o&&o.focus){o.focus();if(o.scrollIntoView)o.scrollIntoView({block:"nearest"})}};
+ L.step=function(d){if(L.items.length>1)show(L.i+d)};
+ pv.onclick=function(){L.step(-1)};nx.onclick=function(){L.step(1)};bx.onclick=L.close;
+ el.addEventListener("click",function(e){if(e.target===el||e.target.classList.contains("lbx-f"))L.close()});
+ document.addEventListener("keydown",function(e){
+  if(!L.isOpen)return;
+  var k=e.key;
+  if(k==="Escape")L.close();
+  else if(k==="ArrowLeft")L.step(-1);else if(k==="ArrowRight")L.step(1);
+  else if(k==="Home"){show(0)}else if(k==="End"){show(L.items.length-1)}
+  else if(k==="Tab"){var f=[bx,pv,nx].filter(function(b){return !b.hidden}),a=document.activeElement,ix=f.indexOf(a);e.preventDefault();f[(ix+(e.shiftKey?f.length-1:1))%f.length].focus();return}
+  else if(k!=="Shift"&&k!=="Control"&&k!=="Alt"&&k!=="Meta"&&k!=="Enter"&&k!==" ")e.stopImmediatePropagation();
+  if(k==="Escape"||k==="ArrowLeft"||k==="ArrowRight"||k==="Home"||k==="End"){e.preventDefault();e.stopImmediatePropagation()}
+ },true);
+ return L})();
 
 function toast(m){var t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(function(){t.hidden=true},2600)}
 $("[data-plan]").onclick=function(){toast(D.planned?"On the plan for "+D.planned+". Change it in Plan.":"Day picker opens in the right lane (not drawn here).")};
@@ -205,7 +241,7 @@ function setTheme(v){try{localStorage.setItem("theme",v==="light"?"kitchie-day":
 var qt=Q.get("theme");if(qt==="light"||qt==="dark")setTheme(qt);
 var rs=[["typical","Typical"],["short","Short"],["long","Long"],["notes","Notes"],["cooked","Cooked"],["nocooked","Not cooked"]];
 P.innerHTML='<h3>State</h3><div class="dc">'+rs.map(function(r){return '<a href="'+link({r:r[0],tab:null})+'"'+(R===r[0]?' aria-current="true"':'')+'>'+r[1]+'</a>'}).join("")+'</div><h3>Banner</h3><div class="dc"><a href="'+link({banner:null})+'"'+(Q.get("banner")!=="none"?' aria-current="true"':'')+'>Has banner</a><a href="'+link({banner:"none"})+'"'+(Q.get("banner")==="none"?' aria-current="true"':'')+'>No banner</a></div><h3>Theme</h3><div class="dc"><button type="button" data-th="dark">Dark</button><button type="button" data-th="light">Light</button></div>'
- +(D.groups?'<p class="dn">Groups are drawn, but the app drops <code>group</code> today. Needs the wire change.</p>':'')+'<p class="dn">Keys: 1 to 4 rail tabs, N Notes and reactions, S share, Esc closes a step photo. The wide layout needs 1280 x 700 or more; below that the page stacks and scrolls (the build keeps today’s page there).</p>';
+ +(D.groups?'<p class="dn">Groups are drawn, but the app drops <code>group</code> today. Needs the wire change.</p>':'')+'<p class="dn">Keys: 1 to 4 rail tabs, N Notes and reactions, S share, comma History. In a photo viewer: Left/Right, Home/End, Esc. The wide layout needs 1280 x 700 or more; below that the page stacks and scrolls (the build keeps today’s page there).</p>';
 $$("[data-th]",P).forEach(function(b){b.onclick=function(){setTheme(b.dataset.th)}});
 B.onclick=function(){var o=P.hidden;P.hidden=!o;B.setAttribute("aria-expanded",o)};
 document.addEventListener("keydown",function(e){if(e.key==="`")B.click()});
