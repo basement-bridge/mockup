@@ -1,0 +1,7 @@
+/* A: bottom-right pair of solid buttons on a bottom-right scrim. Enlarge icon top-left (the sample dish sits right of centre). */
+.ban-scrim{background:radial-gradient(120% 140% at 100% 100%,rgba(0,0,0,.62),rgba(0,0,0,.28) 45%,rgba(0,0,0,0) 72%)}
+.pc-go{right:14px;bottom:12px}
+.pc-go .rb-btn{box-shadow:0 2px 12px rgba(0,0,0,.45)}
+.pc-go .rb-btn:not(.pri){border-color:color-mix(in srgb,var(--fg) 40%,transparent)}
+.ban-zoom{left:12px;top:10px}
+@container (max-height:68px){.pc-go{bottom:10px}}

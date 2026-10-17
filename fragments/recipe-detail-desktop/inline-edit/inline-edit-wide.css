@@ -1,0 +1,18 @@
+/* Inline edit, wide viewport file. Linked with media="(min-width:1280px) and (min-height:700px)" like ../recommended/recommended-wide.css: the page is one viewport tall and the document never scrolls.
+   Edit mode adds the 50px strip, so the banner shrinks to a slim band while editing (it is decoration then) and the panes keep their room. */
+.estrip{margin:var(--sp-2) var(--sp-4) 0}
+[data-edit="1"] .hphoto{height:clamp(36px,6vh,80px)}
+[data-edit="1"] .hbody{padding-top:6px;padding-bottom:6px;gap:6px}
+@media(max-height:800px){
+ [data-edit="1"] .hphoto{height:36px}
+ .estrip{padding:4px var(--sp-3);margin-top:6px}
+ .ing-e{padding:1px 0}
+ .pfoot-e{padding:6px 0 8px}
+ .mfoot{padding-top:6px}
+}
+/* the Notes and reactions flyout is open: the strip drops its explanation and the chooser stays */
+@container page (max-width:62rem){
+ .es-w{display:none}
+ .es-t{max-width:12rem}
+ .estrip .mini .kbd{display:none}
+}

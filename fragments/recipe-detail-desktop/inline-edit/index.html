@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Recipe detail, desktop, inline edit</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="../../../theme.css">
+<!-- the page itself is the Recommended layout: its stylesheets are reused as they are, the edit layer is this folder's own -->
+<link rel="stylesheet" href="../recommended/recommended.css">
+<link rel="stylesheet" href="../recommended/recommended-wide.css" media="(min-width:1280px) and (min-height:700px)">
+<link rel="stylesheet" href="inline-edit.css">
+<link rel="stylesheet" href="inline-edit-wide.css" media="(min-width:1280px) and (min-height:700px)">
+<script src="../../../theme.js"></script>
+</head>
+<body>
+<div class="app">
+  <nav class="bar" aria-label="Kitchie (stand-in for the app rail)">
+    <div class="brand">Our kitchen</div>
+    <a class="nv" href="#"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9H3z"/></svg>Home</a>
+    <a class="nv" href="#"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M4 10h16"/></svg>Pantry</a>
+    <a class="nv on" href="#"><svg viewBox="0 0 24 24"><path d="M5 4h11a3 3 0 013 3v13H8a3 3 0 01-3-3z"/></svg>Recipes</a>
+    <a class="nv" href="#"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>Plan</a>
+    <div class="demo">
+      <button type="button" class="demo-b" id="demoB" aria-expanded="false" aria-controls="demoP">Demo</button>
+      <div class="demo-p" id="demoP" hidden></div>
+    </div>
+  </nav>
+  <div class="rtab rd" id="rtab" data-screen="recipe"><!-- filled by inline-edit.js from the Recommended sample data --></div>
+  <div id="lane-slot"></div>
+</div>
+<datalist id="units"><option value="g"><option value="kg"><option value="ml"><option value="l"><option value="tsp"><option value="tbsp"><option value="cup"><option value="tin"><option value="slice"><option value="stick"><option value="pinch"></datalist>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<noscript>This mockup draws the page from sample data with script.</noscript>
+<script src="../recommended/recommended-data.js"></script>
+<script src="inline-edit.js"></script>
+</body>
+</html>

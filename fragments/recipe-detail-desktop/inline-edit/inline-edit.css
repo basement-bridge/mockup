@@ -1,0 +1,139 @@
+/* Inline edit layer, base file. Loaded after ../recommended/recommended.css (reused as it is) and tokens only (../../../theme.css). Edit-only class names are listed in notes.md.
+   Edit mode is a state of the same page: data-edit="1" on #rtab. Nothing here changes how the page looks in read mode. */
+.ed[hidden],.vwrap[hidden],.edw[hidden]{display:none!important}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ed i,.ed-b i{font-style:normal;color:var(--muted);font-size:.88em;opacity:.7}
+
+/* the Edit toggle in the hero */
+.edtog[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.edtog[aria-pressed=true] .kbd{color:var(--on-accent);border-color:currentColor;background:transparent}
+.rb-btn:disabled,.rb-btn[aria-disabled=true]{opacity:.45;cursor:not-allowed}
+
+/* the edit strip: where the changes go, saved state, undo, done */
+.estrip{flex:none;display:flex;flex-wrap:wrap;align-items:center;gap:6px var(--sp-3);margin:var(--sp-2) var(--sp-3) 0;padding:6px var(--sp-3);border:1px solid var(--accent);border-radius:var(--r-card);background:color-mix(in srgb,var(--accent) 9%,var(--surface));font-size:13.5px}
+.es-t{display:inline-flex;align-items:center;gap:6px;min-width:0;max-width:22rem;white-space:nowrap}
+.es-t b{overflow:hidden;text-overflow:ellipsis}
+.es-q{font-weight:800}
+.es-q.nudge{animation:nudge .5s 2}
+@keyframes nudge{50%{color:var(--accent);transform:translateX(3px)}}
+.es-w{color:var(--muted)}
+.es-sp{flex:1 1 0;min-width:0}
+.es-s{font-weight:700;color:var(--muted);white-space:nowrap}
+.es-s[data-just="1"]{color:var(--sage)}
+.seg{display:inline-flex;gap:4px}
+.seg button{min-height:36px;padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--bg);font-size:13px;font-weight:700;white-space:nowrap}
+.seg button:hover{border-color:var(--accent)}
+.seg button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.estrip .rb-btn,.estrip .mini{min-height:36px}
+.estrip .rb-btn{padding:0 14px;font-size:14px}
+.estrip .mini:disabled{opacity:.4;cursor:default}
+.estrip .kbd{font-size:10.5px}
+.estrip .pri .kbd{color:var(--on-accent);border-color:currentColor;background:transparent}
+
+/* click-to-edit values: dashed while Edit is on, solid on hover, the field itself on click */
+.ed{position:relative;font:inherit;color:inherit;text-align:inherit;cursor:text;border-radius:8px;outline:none;background:color-mix(in srgb,var(--muted) 6%,transparent);box-shadow:inset 0 -1.5px 0 color-mix(in srgb,var(--muted) 40%,transparent);max-width:100%;overflow-wrap:anywhere}
+.ed:hover{background:color-mix(in srgb,var(--accent) 12%,transparent);box-shadow:inset 0 0 0 1.5px var(--accent)}
+.ed:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+[data-gated="1"] .ed{opacity:.55}
+.ed.just{animation:saved 1.6s ease-out}
+@keyframes saved{0%{outline:3px solid var(--sage);background:color-mix(in srgb,var(--sage) 30%,transparent)}100%{outline-color:transparent;background:transparent}}
+.ed-b{background:none;box-shadow:none}
+.ed-b:hover{box-shadow:0 0 0 2px var(--accent);background:none}
+.svcta.ed:hover,.tbadge.ed:hover{background:color-mix(in srgb,var(--accent) 14%,var(--surface))}
+.tbadge.ed:hover{filter:brightness(1.1);background:var(--accent)}
+.tbadge.ed{background:var(--accent);color:var(--on-accent);box-shadow:none}
+.tbadge.ed.none{background:transparent;color:var(--accent);border:2px dashed var(--accent)}
+.svcta.ed{cursor:text}
+.hico.ed{color:var(--muted)}
+.ed-t{display:inline-block;padding:0 8px;margin:0 -8px;font:inherit;line-height:inherit;text-align:left}
+.hmain h1:has(.ed-t),.hmain h1:has(.edw){display:block;overflow:visible;-webkit-line-clamp:unset}
+
+/* the open field */
+.edw{display:flex;flex-direction:column;gap:3px;min-width:0;max-width:100%}
+.edin{font:inherit;color:var(--fg);background:var(--bg);border:2px solid var(--accent);border-radius:8px;padding:4px 8px;width:100%;min-width:0;line-height:1.3;resize:none;display:block}
+.edin::placeholder{color:var(--muted)}
+.edin:focus-visible{outline:3px solid color-mix(in srgb,var(--accent) 35%,transparent);outline-offset:0}
+.edin[aria-invalid=true]{border-color:var(--danger)}
+.edmsg{font-size:12px;color:var(--muted);line-height:1.3}
+.edmsg.err{color:var(--danger);font-weight:700}
+.edw.ti{width:100%;font:inherit}
+.edw.ti .edin{font:inherit;font-weight:800;padding:2px 8px}
+.edw.sv{width:11rem}.edw.tm{width:11rem}.edw.vn{width:15rem}
+.edw.sv .edin,.edw.tm .edin,.edw.vn .edin{min-height:36px;font-size:14px;font-weight:700}
+.edw.iq{width:58px;flex:none}.edw.iu{width:64px;flex:none}.edw.in,.edw.gn{flex:1}
+.edw.sm{width:5.5rem}
+.edw.st{width:calc(100% + 12px);margin:-2px -6px}
+.edw.st .edin{font-size:var(--mtxt);line-height:1.38}
+.edw.nt .edin{font-size:14px}
+.ing-e .edin{padding:3px 6px;font-size:14.5px}
+.ing-e .iq .edin{text-align:right}
+
+/* ingredient rows in edit mode */
+.ing-e{align-items:center;gap:4px;padding:2px 0}
+.ing-e .eq,.ing-e .eu,.ing-e .nm.ed{min-height:30px;display:inline-flex;align-items:center;padding:0 6px;font-size:inherit}
+.ing-e .eq{width:52px;flex:none;justify-content:flex-end;font-weight:700;font-variant-numeric:tabular-nums}
+.ing-e .eu{width:52px;flex:none;color:var(--muted)}
+.ing-e .nm.ed{flex:1;min-width:0;justify-content:flex-start;text-align:left;display:block;padding-top:4px;padding-bottom:4px;min-height:30px}
+.ing-g .grp{flex:1;margin:0;min-width:0}
+.ing-g .nm.ed{display:block;padding:3px 6px;text-align:left}
+.grip,.rm{position:relative;width:26px;height:26px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;color:var(--muted);flex:none}
+.grip::after,.rm::after{content:"";position:absolute;inset:-9px}
+.grip{cursor:grab}.grip:active{cursor:grabbing}
+.grip:hover,.rm:hover{color:var(--fg);background:var(--surface)}
+.rm:hover{color:var(--danger)}
+.dragging{opacity:.4}
+.drop-b{box-shadow:0 -2px 0 var(--accent)}.drop-a{box-shadow:0 2px 0 var(--accent)}
+
+/* quick add rows */
+.addrow{display:flex;align-items:center;gap:8px;flex:1;min-width:0;min-height:40px;padding:0 10px;border:1px dashed var(--border);border-radius:var(--r-ctl);color:var(--muted)}
+.addrow:focus-within{border:2px solid var(--accent);padding:0 9px;outline:3px solid color-mix(in srgb,var(--accent) 30%,transparent)}
+.addrow .edin{border:0;background:transparent;padding:6px 0;flex:1;outline:none!important;border-radius:0}
+.addrow .edin:focus-visible{outline:none}
+.pfoot-e{flex-direction:row;align-items:center;gap:var(--sp-2)}
+.mfoot{flex:none;display:flex;align-items:center;gap:var(--sp-2);padding:var(--sp-2) 0 0;max-width:calc(40ch + 52px + var(--sp-3))}
+.ing .dot.unk{background:none;border:2px dotted var(--border)}
+
+/* notes in edit mode */
+.n-e .nbtn{display:block;width:100%;text-align:left;padding:2px 6px;margin:0 -6px;width:calc(100% + 12px)}
+.n-e .nbtn p+p,.n-e .nbtn ul{margin-top:4px}.n-e .nbtn ul{margin-bottom:0;padding-left:18px}
+.nfoot{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-2)}
+.nfoot small{margin-top:4px}
+.lockn{display:flex;gap:6px;align-items:center;margin-top:4px;color:var(--muted);font-size:12px}
+.composer{display:flex;flex-direction:column;gap:6px}
+.composer .edin{font-size:14px}
+.comp-a{display:flex;gap:8px;align-items:center}
+.comp-a .hint{flex:1;text-align:left}
+.comp-a .rb-btn{min-height:36px;padding:0 14px;font-size:14px}
+
+/* method rows in edit mode */
+.stp-e .nbw{gap:3px}
+.racts{display:flex;gap:2px;margin-top:2px}
+.timer.et{min-height:24px;padding:0 6px;font-size:11.5px;gap:3px}
+.timer.et.none{color:var(--muted);font-weight:600}
+.timer.et .ic{width:12px;height:12px}
+.sb .tx.ed{display:block;width:calc(100% + 12px);margin:-2px -6px;padding:2px 6px;text-align:left;font-size:var(--mtxt);line-height:1.38;max-width:none}
+.stp-g{grid-template-columns:52px minmax(0,40ch) auto;align-items:center}
+.stp-g .grp{margin:0}
+.stp-g .nm.ed{display:block;padding:3px 6px;text-align:left}
+.addph{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 12px;border:1px dashed var(--border);border-radius:var(--r-pill);color:var(--muted);font-size:12.5px;font-weight:700;white-space:nowrap}
+.addph:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+.addph:disabled{opacity:.5;cursor:not-allowed}
+.pwrap{position:relative;display:inline-block}
+.pwrap .psp{cursor:default}
+.phx{position:absolute;top:-9px;right:-9px;width:26px;height:26px;border-radius:50%;background:var(--bg);border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;color:var(--fg)}
+.phx::after{content:"";position:absolute;inset:-9px}
+.phx:hover{border-color:var(--danger);color:var(--danger)}
+
+/* History flyout: this session's changes carry Undo */
+.hrow .hd .rv{display:block;color:var(--sage);font-weight:700}
+.hrow.mine .hw{color:var(--fg)}
+.hrow.undone .hw{text-decoration:line-through;color:var(--muted)}
+.hundo{display:inline-flex;align-items:center;gap:5px;min-height:32px;padding:0 12px;margin-top:4px;border:1px solid var(--border);border-radius:var(--r-pill);font-size:12.5px;font-weight:700}
+.hundo:hover{border-color:var(--accent);color:var(--accent)}
+.hundo small{font-weight:500;color:var(--muted)}
+.hu{display:inline-block;margin-top:4px;font-size:12px;font-weight:700;color:var(--muted)}
+
+/* toast with Undo */
+.toast{display:flex;align-items:center;gap:var(--sp-3)}
+.tundo{min-height:32px;padding:0 14px;border-radius:var(--r-pill);border:1px solid currentColor;font-weight:800;font-size:13px;color:inherit}
+.tundo:hover{background:color-mix(in srgb,var(--bg) 18%,transparent)}

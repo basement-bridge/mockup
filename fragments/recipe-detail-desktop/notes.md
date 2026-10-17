@@ -340,3 +340,12 @@ Q7. **What does N do?** Proposal 10 keeps N as the Notes and reactions flyout an
 Q8. **Names against thumbs-down.** The owner asked for the user's NAME against each rating. Today "not for me" is private: a count, named only for the caller (V-D33). The mockup shows the name for every rating, so it draws Alex's "Not for me". Confirm that V-D33 is lifted.
 Q9. **A long recipe still scrolls its ingredient list inside the rail** (24 ingredients does not fit 1280x720; the method does fit). Accept, or show ingredients in two columns on tight recipes (E's way, at the cost of a rail that changes width)?
 Q10. **Method reading order across two columns.** Steps run down the left column, then the right; a group label can end a column and its steps continue unlabelled in the next. Accept, or one column with the lane open only?
+
+### 7.4 Open decision: Plan it / Cook it overlay placement (18 October 2026)
+
+**Status: OPEN.** Owner direction by voice, 18 October 2026: move Plan it and Cook it so they are overlaid directly on the hero banner image, always visible (not hover), instead of the right side of row two. He has not chosen the placement and wants a few options first. Mockup: `plan-cook-overlay/` (live: https://basement-bridge.github.io/mockup/fragments/recipe-detail-desktop/plan-cook-overlay/index.html), variations A (bottom-right solid pair), B (floating glass bar, bottom centre), C (top-right stack).
+
+- This supersedes proposal 7.3 Q2 (hero, top right of row two) once an option is picked; until then the recommended page is unchanged.
+- **Proposal (Claude, advice only):** A. Not locked.
+- Proposals made where he was silent: row two stays and left aligns (the hero is 4px shorter); no banner means no overlay and the buttons stay in row two; the banner becomes a click-to-enlarge target (new); magnifier always visible; keyboard order unchanged plus one banner stop.
+- Open: which placement (A, B or C); whether the banner focus point should choose the button corner; whether the banner click-to-enlarge is wanted at all.

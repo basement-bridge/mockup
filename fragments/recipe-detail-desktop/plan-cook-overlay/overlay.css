@@ -1,0 +1,21 @@
+/* Plan it / Cook it overlaid on the banner: shared base for variants a, b, c. Loaded after ../../recommended/recommended.css and recommended-wide.css, so the page itself is unchanged.
+   Only these things change: the banner is a click target (enlarge) with a scrim, Plan it / Cook it move from row two onto the banner (.pc), row two keeps Serves, time, version, History. */
+.hero{--ban-h:clamp(88px,15vh,240px)}
+@media (min-width:1280px) and (min-height:700px) and (max-height:800px){.hero{--ban-h:84px}}
+.hphoto{position:relative;height:var(--ban-h)}
+.ban-scrim{position:absolute;inset:0;pointer-events:none}
+.ban-open{position:absolute;inset:0;width:100%;height:100%;padding:0;border:0;background:transparent;cursor:zoom-in}
+.ban-open:focus-visible{outline:3px solid var(--accent);outline-offset:-4px}
+.ban-zoom{position:absolute;width:40px;height:40px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;background:rgba(10,18,15,.66);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.ban-zoom .ic{width:19px;height:19px}
+.ban-open:hover .ban-zoom{background:rgba(10,18,15,.88);border-color:#fff}
+@supports not (backdrop-filter:blur(1px)){.ban-zoom{background:rgba(10,18,15,.85)}}
+
+/* the overlay layer: exactly the banner's box, a size container so the buttons can adapt to a very short banner; only its buttons take clicks, the rest falls through to the enlarge target */
+.pc{position:absolute;left:0;right:0;top:0;height:var(--ban-h);container-type:size;pointer-events:none;z-index:2}
+.pc-go{position:absolute;display:flex;gap:10px;align-items:center;pointer-events:auto}
+.pc-go .rb-btn{min-height:44px}
+/* very short banner (under 68px): smaller buttons so nothing touches the edges; the whole banner is still the enlarge target */
+@container (max-height:68px){.pc-go .rb-btn{min-height:36px;padding:0 12px;font-size:14px}.pc-go{gap:8px}.ban-zoom{width:32px;height:32px}}
+/* row two without the buttons: left aligned, same controls */
+.hero.has-ov .hr2{justify-content:flex-start}

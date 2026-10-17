@@ -1,0 +1,2 @@
+/* Mockup-only shim, loaded between recommended-data.js and recommended.js: the banner images live in ../recommended/img, so point the sample data there (and one level deeper for the shared sample photos). */
+(function(){var R=window.RECIPES;["typical","short","long"].forEach(function(k){if(R[k]&&R[k].banner&&R[k].banner.indexOf("img/")===0)R[k].banner="../../recommended/"+R[k].banner});if(R.IMG&&R.IMG.indexOf("../../../")===0)R.IMG="../"+R.IMG})();

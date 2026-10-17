@@ -1,0 +1,8 @@
+/* C: top-right corner. A vertical stack of two solid buttons when the banner is tall enough (112px and over); a single row on a short banner. Enlarge icon bottom-left. */
+.ban-scrim{background:radial-gradient(120% 150% at 100% 0%,rgba(0,0,0,.62),rgba(0,0,0,.28) 45%,rgba(0,0,0,0) 72%)}
+.pc-go{right:14px;top:12px;flex-direction:row}
+.pc-go .rb-btn{box-shadow:0 2px 12px rgba(0,0,0,.45)}
+.pc-go .rb-btn:not(.pri){border-color:color-mix(in srgb,var(--fg) 40%,transparent)}
+.ban-zoom{left:12px;bottom:10px}
+@container (min-height:112px){.pc-go{flex-direction:column;align-items:stretch;gap:8px;min-width:132px}.pc-go .rb-btn{min-height:40px}}
+@container (max-height:68px){.pc-go{top:10px}}
