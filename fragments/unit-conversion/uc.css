@@ -1,0 +1,30 @@
+/* Kitchie #800, unit conversion. Everything else on the page is item-edit-flyout's own CSS (flyout.css and the size files); this file holds only what is new. Tokens only (theme.css), no size rules.
+   .ef-conv is the in-place card under the unit chips in the Quantity group: .done (a change was made, with Undo), .warn (a value would round to zero), .ask (no known rate, asks the real count).
+   .ef-also lists the other rows of one name and the combined figures. The page hides the rail on a phone and the tab bar on a desktop, as item-edit-flyout's host does. */
+@media(max-width:1023.98px){.rail{display:none}}
+@media(min-width:1024px){.tabbar{display:none}}
+.ef-conv,.ef-also{display:grid;gap:10px;padding:12px;border-radius:var(--r-card);border:1px solid var(--border);color:var(--fg);font-size:14px}
+.ef-conv{background:color-mix(in srgb,var(--accent) 10%,var(--bg))}
+.ef-convh{display:flex;gap:10px;align-items:flex-start;min-width:0}
+.ef-convh svg{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;margin-top:1px;color:var(--accent)}
+.ef-convt{flex:1;min-width:0;margin:0;color:var(--fg);line-height:1.35}
+.ef-convt b{font-weight:700}
+.ef-conv.done{background:none;border-color:var(--cue);grid-template-columns:minmax(0,1fr) auto;align-items:center}
+.ef-conv.done .ef-convh svg{color:var(--cue)}
+.ef-conv.done .ef-clear{margin:-8px 0}
+.ef-conv.warn{border:2px solid var(--accent)}
+.ef-conv.ask{border:2px solid var(--accent)}
+.ef-convb{display:flex;flex-wrap:wrap;gap:8px}
+.ef-convb .btn{flex:1 1 140px;min-height:var(--tap)}
+.ef-convin{flex:1;min-width:0;font-weight:700}
+.ef-conv2{display:grid;gap:6px}
+.ef-conv2 .ef-l{margin-top:4px}
+.ef-also{border-style:dashed;background:none;grid-template-columns:auto minmax(0,1fr);align-items:start}
+.ef-also svg{fill:none;stroke:var(--muted);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;margin-top:1px}
+.ef-also .ef-convt{color:var(--muted)}
+.ef-also .ef-convt b{color:var(--fg)}
+/* the unit the person tapped while the card is waiting for an answer: outlined, not yet current */
+.ef-chip.pend{border-color:var(--accent);border-style:dashed;color:var(--accent)}
+.ef-w.asking .ef-step,.ef-w.asking .ef-num{opacity:.55}
+.ef-step button[disabled],.ef-clear[disabled]{opacity:.45;cursor:not-allowed}
+.ef-conv .btn[disabled]{background:var(--surface);color:var(--muted);cursor:not-allowed;opacity:.8}
