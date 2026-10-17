@@ -13,20 +13,28 @@
 .pdm-i.fill{fill:currentColor}
 .pdm-top{display:contents} /* the number row: the compact cell stacks number and icon in the middle; rich.css lays it out as a row */
 .pdm-m{display:none}
-/* planned: one yellow mark for one plan, three for a stacked night. Quantity is the cue; the hue is the same amber (owner, voice, 17 Oct 2026) */
+/* planned: one neutral dark-grey mark for one plan, three for a stacked night. Quantity is the cue; the colour is the same neutral grey (owner, voice, 17 Oct 2026: red means alarming, so planned is never red or amber; red belongs to the Hard avoid exclamation only). --fg mixed toward the cell: near-black on the light theme, a light grey on the dark theme, so it stays readable on both. */
 .pdm-mk{display:inline-flex;align-items:center;gap:3px;height:14px}
-.pdm-mk i{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 1px color-mix(in srgb,var(--fg) 35%,transparent)}
+.pdm-mk i{width:9px;height:9px;border-radius:50%;background:var(--plan-mark,color-mix(in srgb,var(--fg) 72%,var(--surface)))}
 .pdm-bd{position:absolute;top:3px;width:12px;height:12px;display:grid;place-items:center}
 .pdm-bd .pdm-i{width:10px;height:10px}
 .pdm-bd.moon{right:3px;top:auto;bottom:3px;color:var(--muted)}
 .pdm-bd.warn{right:3px;color:var(--danger)}
 .pdm-i.bang{stroke-width:3.2}
+/* THE HARD AVOID EXCLAMATION is the one alarming state: always the danger red (never the open-cell green it sits on), in light and dark, and a modest step larger than any other mark (owner, voice, 17 Oct 2026). The cell and its 44px tap target do not change; the mark grows inside the cell. The higher specificity is on purpose: .st-open .pdm-i sets green on every icon in an open cell, the badge included. */
+#week .pdm-c .pdm-i.bang,#week .pdm-c .pdm-bd.warn .pdm-i,#week .pdm-lg .pdm-sw .pdm-i.bang{color:var(--danger);stroke:var(--danger)}
+#week .pdm .pdm-c.pdm-c .pdm-bd.warn{width:18px;height:18px}
+#week .pdm .pdm-c .pdm-bd.warn .pdm-i.bang{width:18px;height:18px;stroke-width:3.6}
+#week .pdm .pdm-c.g-stop .pdm-i.bang{width:24px;height:24px;stroke-width:3.6}
+#week .pdm-lg .pdm-sw .pdm-i.bang{width:18px;height:18px;stroke-width:3.6}
 /* THE WEIGHT OF A PICKABLE DATE FOLLOWS ITS RANK (owner, voice, 17 Oct 2026): 1 open is the primary action and the boldest (a 3px green outline, a green tint, a heavy plus); 2 a day off is second (a 2px grey outline, a grey fill, a moon); 3 planned and planned-several are the quietest (a 1px amber hairline, a barely-there tint, yellow marks). Past and Hard avoid sit outside the scale. */
 .st-open{border:3px solid var(--cue);background:color-mix(in srgb,var(--cue) 20%,var(--surface));color:var(--fg)}
 .st-open .pdm-i{stroke-width:3.2;color:var(--cue)}
 .st-open:hover:not(:disabled){box-shadow:0 0 0 3px color-mix(in srgb,var(--cue) 40%,transparent);transform:translateY(-1px)}
-/* planned: one yellow mark for one plan, three for a stacked night (quantity is the cue; the hue is the same amber) */
-.st-plan,.st-stack{border-width:1px;border-color:color-mix(in srgb,var(--accent) 45%,var(--surface));background:color-mix(in srgb,var(--accent) 9%,var(--surface))}
+/* planned: one grey mark for one plan, three for a stacked night (quantity is the cue). Calmer than open and day off: a 1px neutral hairline, a barely-there neutral tint, and NOT bold (owner, voice, 17 Oct 2026): the date number and the meal name are regular weight. */
+.st-plan,.st-stack{border-width:1px;border-color:color-mix(in srgb,var(--muted) 40%,var(--surface));background:color-mix(in srgb,var(--fg) 4%,var(--surface))}
+.st-plan .pdm-n,.st-stack .pdm-n,#week[data-num] .pdm .pdm-c[data-n].st-plan .pdm-n,#week[data-num] .pdm .pdm-c[data-n].st-stack .pdm-n{font-weight:400}
+.st-plan .pdm-m,.st-stack .pdm-m,#week[data-num] .pdm .pdm-c[data-n].st-plan .pdm-m,#week[data-num] .pdm .pdm-c[data-n].st-stack .pdm-m{font-weight:400}
 /* day off: one muted grey state with a moon, second in rank. Still pickable, not locked. */
 .st-off{border-width:2px;background:color-mix(in srgb,var(--border) 70%,var(--surface));border-color:color-mix(in srgb,var(--muted) 65%,var(--surface));color:var(--muted)}
 .st-off .pdm-i{color:var(--muted);stroke-width:2.4}
@@ -36,17 +44,19 @@
 .st-past .pdm-n{color:var(--muted);text-decoration:line-through;font-weight:600}
 /* no today state, badge or ring (owner, voice, 17 Oct 2026): today is the first cell of the grid and reads like any other date */
 /* the Hard avoid: a stop on every date for a meal that person cannot have; a triangle where the guard asks first */
-.g-stop{border-color:var(--danger);border-style:dashed;background:var(--surface);color:var(--fg)}
+/* no dashed border (owner, voice, 17 Oct 2026): the stop is told by the large red exclamation alone, on a plain solid neutral cell */
+.g-stop{border:1.5px solid var(--border);background:var(--surface);color:var(--fg)}
 .g-stop .pdm-i{color:var(--danger)}
 .pdm-c:hover:not(:disabled):not(.st-open){border-color:var(--fg)}
 .pdm-c:focus-visible{outline:3px solid var(--fg);outline-offset:2px;z-index:2}
 /* the month changes: a heavy rule in the gap on the left of, and above, the first cell of a month, so the boundary reads as a step through the grid */
-.pdm-c.ml::before,.pdm-c.mt::after{content:"";position:absolute;background:var(--fg);border-radius:2px;pointer-events:none}
-.pdm-c.ml::before{left:-4px;top:-2px;bottom:-2px;width:3px}
-.pdm-c.mt::after{top:-4px;left:-2px;right:-2px;height:3px}
+/* a solid, continuous, thin step-rule that sits only in the gap (never on a date): neighbours overlap by 2px so it never reads as broken or dashed (owner, voice, 17 Oct 2026: long broken black lines on top of dates removed) */
+.pdm-c.ml::before,.pdm-c.mt::after{content:"";position:absolute;background:var(--muted);border-radius:1px;pointer-events:none}
+.pdm-c.ml::before{left:-3px;top:-3px;bottom:-3px;width:2px}
+.pdm-c.mt::after{top:-3px;left:-3px;right:-3px;height:2px}
 .pdm-cap{display:flex;align-items:center;justify-content:flex-end;gap:6px;margin:-4px 0 0;font-size:11.5px;font-weight:700;color:var(--muted)}
 .pdm-cap .pdm-i{width:14px;height:14px}
-.pdm-st{flex:none;min-height:36px;margin:0;padding:6px 10px;border-radius:var(--r-ctl);border:1px dashed var(--border);font-size:13px;line-height:1.35}
+.pdm-st{flex:none;min-height:36px;margin:0;padding:6px 10px;border-radius:var(--r-ctl);border:1px solid var(--border);font-size:13px;line-height:1.35}
 .pdm-st b{margin-right:4px}
 .pdm-warn-t{font-weight:700}
 .pdm-full{margin:6px 0;padding:8px 12px 6px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--bg);font-size:13px}
@@ -88,14 +98,14 @@
 #week[data-num=b] .pdm-c.st-open .pdm-i{width:18px;height:18px}
 #week[data-num=c] .pdm-c .pdm-n{font-size:12px;font-weight:400;color:var(--fg)}
 #week[data-num=c] .pdm-c .pdm-i{width:18px;height:18px}
-/* THE HALO on open dates: the "start here" cue, TRANSIENT (owner, voice, 17 Oct 2026: "not a permanent ring on every open cell"). The trigger is an agent default for him to confirm: when the month opens, the first open date glows and breathes for about 3 seconds
-   (F's confirmation-hold family), then fades; the first press or key clears it at once. Any open date under the pointer or keyboard focus gets the same glow while it is there. Reduced motion: no breathing, a static thinner ring, cleared the same way. */
-.pdm-c.halo{animation:pdm-halo 1.1s ease-in-out infinite alternate}
+/* THE HALO on open dates: the start-here cue, TRANSIENT (owner, voice, 17 Oct 2026). It fires BY ITSELF the moment the month opens (no hover or focus needed) on EVERY open date at once, glows and breathes for about 3 seconds
+   (F's confirmation-hold family), then fades over half a second; the first press or key ends it at once. Today stays the default selected cell. Any open date under the pointer or keyboard focus keeps its own glow on top. Reduced motion: no breathing, a static ring, cleared the same way. */
+.pdm-c.halo{animation:pdm-halo 1s ease-in-out infinite alternate}
 .pdm-c.halo-out{animation:pdm-halo-out .5s ease-out forwards}
-@keyframes pdm-halo{from{box-shadow:0 0 0 2px color-mix(in srgb,var(--cue) 60%,transparent),0 0 6px color-mix(in srgb,var(--cue) 35%,transparent)}to{box-shadow:0 0 0 6px color-mix(in srgb,var(--cue) 38%,transparent),0 0 18px color-mix(in srgb,var(--cue) 55%,transparent)}}
-@keyframes pdm-halo-out{from{box-shadow:0 0 0 6px color-mix(in srgb,var(--cue) 38%,transparent),0 0 18px color-mix(in srgb,var(--cue) 55%,transparent)}to{box-shadow:0 0 0 0 transparent,0 0 0 transparent}}
+@keyframes pdm-halo{from{box-shadow:0 0 0 3px color-mix(in srgb,var(--cue) 70%,transparent),0 0 8px color-mix(in srgb,var(--cue) 45%,transparent)}to{box-shadow:0 0 0 7px color-mix(in srgb,var(--cue) 50%,transparent),0 0 22px color-mix(in srgb,var(--cue) 70%,transparent)}}
+@keyframes pdm-halo-out{from{box-shadow:0 0 0 7px color-mix(in srgb,var(--cue) 50%,transparent),0 0 22px color-mix(in srgb,var(--cue) 70%,transparent)}to{box-shadow:0 0 0 0 transparent,0 0 0 transparent}}
 .st-open:focus-visible{box-shadow:0 0 0 4px color-mix(in srgb,var(--cue) 45%,transparent)}
-@media (prefers-reduced-motion:reduce){.pdm-c.halo{animation:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--cue) 55%,transparent)}.pdm-c.halo-out{animation:none}}
+@media (prefers-reduced-motion:reduce){.pdm-c.halo{animation:none;box-shadow:0 0 0 4px color-mix(in srgb,var(--cue) 60%,transparent)}.pdm-c.halo-out{animation:none}}
 @media (forced-colors:active){.pdm-c{border-color:ButtonText}.pdm-mk i{background:Highlight}}
 @media (prefers-reduced-motion:reduce){.pdm-c{transition:none}}
 /* the shortcut to the first open night: the same solid cue as an open date */

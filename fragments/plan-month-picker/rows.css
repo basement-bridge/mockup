@@ -61,5 +61,4 @@
 .row-d .dl svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .pdm-cal svg{stroke-width:2}
 .pdm-back{width:var(--tap);height:var(--tap);display:grid;place-items:center;border-radius:50%;margin-left:-8px}
-.pdm-narrow{padding-right:98px!important} /* mockup only: a narrow flyout, 272px inside its padding */
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}

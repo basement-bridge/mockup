@@ -1,7 +1,7 @@
 /* Sample data for this mockup only (the repo is public: invented meals, no real household). Runs after the Home sample data and before Home's script.
    One calendar. Day n is days since Monday 12 October 2026 (n 0), so a date is n and a weekday is n mod 7. Today is Saturday 17 October 2026 (n 5) unless ?today=YYYY-MM-DD says otherwise.
    The plan window is the real server's (kitchie docs/plan-week-api.md, "Week window"): from the Monday of today's week to the Sunday of the week four weeks ahead, so five week columns (35 days).
-   Params: ?scenario=typical|empty|full   ?today=2026-10-14   ?avoid=mango (Jo has a Hard avoid on mango, the recipe has mango)   ?replace=0 (the Home card adds a second meal, never replaces) */
+   Params: ?scenario=typical|empty|full   ?today=2026-10-14   ?avoid=mango (Jo has a Hard avoid on mango; the marks show only when the recipe in context has mango: the default Mandarin Mango Yogurt Bowl does)   ?recipe=clear (the recipe in context is the Cucumber and spring onion salad, no mango: no marks even with the avoid on)   ?replace=0 (the Home card adds a second meal, never replaces) */
 (function () {
   var Q = new URLSearchParams(location.search), D = window.HDP_DATA;
   var E0 = Date.UTC(2026, 9, 12);
@@ -11,7 +11,7 @@
   var winStart = Math.floor(todayN / 7) * 7; /* the Monday of today's week (current_start) */
   var P = window.PKD = {
     todayN: todayN, winStart: winStart, WEEKS: 5, GRIDN: 35, lastN: winStart + 34, /* last_start + 6: four weeks ahead, to the Sunday */
-    rid: "mandarin-bowl", me: "Sam", people: ["Sam", "Jo"], scenario: /^(typical|empty|full)$/.test(Q.get("scenario") || "") ? Q.get("scenario") : "typical",
+    rid: Q.get("recipe") === "clear" ? "cuke-salad" : "mandarin-bowl", me: "Sam", people: ["Sam", "Jo"], scenario: /^(typical|empty|full)$/.test(Q.get("scenario") || "") ? Q.get("scenario") : "typical",
     replace: Q.get("replace") !== "0", /* the desktop Home card replaces your own meal on the picked day (owner, 12 Oct 2026) */
     avoid: Q.get("avoid") === "mango" ? { who: "Jo", item: "mango" } : null,
     /* a day off is PER PERSON (owner, voice, 17 Oct 2026): the month shows it only for the person the Who pill selects, and under Everyone it shows none. Sam: Thursday every week (usual), and Sat 7 Nov this week only. Jo: Tue 20 Oct this week only. */
@@ -59,7 +59,7 @@
   P.syncHome();
   /* open on the idea, with the week drawn; keep any other params */
   var p = new URLSearchParams(location.search), ch = false;
-  if (!p.get("open")) { p.set("open", "recipe:mandarin-bowl"); ch = true; }
+  if (!p.get("open")) { p.set("open", "recipe:" + P.rid); ch = true; }
   if (!p.get("week")) { p.set("week", "planned"); ch = true; }
   if (ch) { try { history.replaceState(null, "", location.pathname + "?" + p.toString() + location.hash); } catch (e) {} }
 })();
