@@ -21,12 +21,13 @@ W.sideHtml = function (n) {
   h += '<p class="pdw-cons">' + esc(v.cons) + (v.peek ? " Pick it twice: the first pick shows everyone’s plans." : "") + "</p>";
   if (g === "stop") return h;
   var label = k === "open" ? "Plan " + d.label : /^Replaces/.test(v.cons) ? "Replace what is planned" : k === "off" ? "Plan it, cook this week" : "Plan it here too";
-  return h + '<button type="button" class="pdw-go' + (k === "open" ? " is-open" : "") + '" data-sidepick data-n="' + n + '">' + label + "</button>";
+  var short = k === "open" ? "Plan " + d.label : /^Replaces/.test(v.cons) ? "Replace" : k === "off" ? "Plan it" : "Add too"; /* the bottom strip is one line, so its button is short; the aria-label keeps the full words */
+  return h + '<button type="button" class="pdw-go' + (k === "open" ? " is-open" : "") + '" data-sidepick data-n="' + n + '"' + (window.PKCard === "strip" ? ' aria-label="' + esc(label) + '">' + esc(short) : ">" + label) + "</button>";
 };
 /* the three layouts: the same parts, put together differently */
 W.compose = function (opt, p) {
   var M = Mo();
-  if (opt === "b") return '<div class="pdw-b"><div class="pdw-main">' + p.grid + p.cap + p.full + '</div><aside class="pdw-side" id="pdw-side" aria-label="The date you are on" aria-live="polite">' + W.sideHtml(p.cur) + "</aside></div>" + p.hold + p.hint + p.legend;
+  if (opt === "b") { var c = window.PKCard || "docked"; return '<div class="pdw-b" data-card="' + c + '"><div class="pdw-main">' + p.grid + p.cap + p.full + '</div><aside class="pdw-side' + (c === "strip" ? " pdw-strip" : "") + '" id="pdw-side" aria-label="The date you are on" aria-live="polite">' + W.sideHtml(p.cur) + "</aside></div>" + p.hold + p.hint + p.legend; }
   if (opt === "c") return M.nextHtml() + p.grid + p.cap + p.st + p.full + p.hold + p.hint + p.legend;
   return p.grid + p.cap + p.st + p.full + p.hold + p.hint + p.legend;
 };

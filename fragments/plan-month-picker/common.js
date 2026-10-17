@@ -153,6 +153,7 @@ new MutationObserver(function () {
     ["Hard avoid (Jo, mango)", "avoid", [[null, "Off"], ["mango", "On"]], cur("avoid", null)],
     ["Recipe being planned", "recipe", [[null, "With mango"], ["clear", "No mango"]], cur("recipe", null)],
     ["Wide layout", "wide", [[null, "A: roomy (not chosen)"], ["b", "B: side card (chosen)"], ["c", "C: open first (not chosen)"], ["off", "Compact"]], cur("wide", null)],
+    ["Side card (layout B)", "card", [[null, "Docked (as chosen)"], ["slim", "Slim docked"], ["collapsed", "Collapsed until a date"], ["overlay", "Overlay while open"], ["strip", "Bottom strip"]], cur("card", null)],
     ["Date number", "num", [[null, "A: corner"], ["b", "B: plain cell"], ["c", "C: light numeral"]], cur("num", null)],
     ["Halo", "halo", [[null, "Timed (3 s)"], ["hold", "Held on"], ["off", "Faded"]], cur("halo", null)],
     ["Another day", "another", [[null, "A row"], ["header", "A header icon"]], cur("another", null)],

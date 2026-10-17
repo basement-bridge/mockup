@@ -257,6 +257,29 @@ for (const [w, h] of [[1440, 900], [1024, 800]]) {
   { const p = await open(ctx, "start=month&halo=off&scenario=empty");
     ok(tag + "empty: no planned dates", (await p.locator('.pdm-c[data-n].st-plan, .pdm-c[data-n].st-stack').count()) === 0);
     await p.close(); }
+  // the side card's space options (layout B; owner open sub-question, 17 Oct 2026): the default is NOT B, and each option keeps the grid honest
+  if (w === 1440) {
+    const geo = p => p.evaluate(() => { const r = e => e ? e.getBoundingClientRect() : null, a = document.querySelector("#pdw-side"), vis = a && getComputedStyle(a).display !== "none"; return { grid: Math.round(r(document.querySelector(".pdm")).width), card: vis ? Math.round(r(a).width) : 0, cardH: vis ? Math.round(r(a).height) : 0, cell: Math.round(r(document.querySelector('.pdm-c[data-n="12"]')).width) }; });
+    const dflt = await open(ctx, "start=month&halo=off"); ok(tag + "side card: B is not the default (no ?wide, no ?card is layout A, no card)", (await dflt.locator("#pdw-side").count()) === 0, await dflt.locator("#pdw-side").count()); await dflt.close();
+    const dk = await open(ctx, "start=month&halo=off&wide=b"), gd = await geo(dk);
+    ok(tag + "side card docked: the card is 244px and the grid gives it up (about 491px)", gd.card === 244 && gd.grid < 560, gd); await dk.close();
+    const sl = await open(ctx, "start=month&halo=off&card=slim"), gs = await geo(sl);
+    ok(tag + "side card slim: 176px card, a wider grid than docked, cells wider than docked", gs.card === 176 && gs.grid > gd.grid + 50 && gs.cell > gd.cell, [gs, gd]); await sl.close();
+    const co = await open(ctx, "start=month&halo=off&card=collapsed"), g0 = await geo(co);
+    ok(tag + "side card collapsed: no card and a full-width grid until a date is on", g0.card === 0 && g0.grid > 700, g0);
+    await cell(co, 12).hover(); await sleep(300); const g1 = await geo(co);
+    ok(tag + "side card collapsed: hovering a date opens the card (and the grid gives up width)", g1.card === 244 && g1.grid < g0.grid, [g0, g1]); await co.close();
+    const ov = await open(ctx, "start=month&halo=off&card=overlay"), o0 = await geo(ov);
+    await cell(ov, 9).hover(); await sleep(300); const o1 = await geo(ov);
+    ok(tag + "side card overlay: the grid keeps its full width, the card appears over it only while a date is on", o0.card === 0 && o1.card === 244 && o1.grid === o0.grid && o0.grid > 700, [o0, o1]);
+    await ov.mouse.move(5, 5); await sleep(400);
+    ok(tag + "side card overlay: closes when the pointer leaves", (await geo(ov)).card === 0); await ov.close();
+    const st = await open(ctx, "start=month&halo=off&card=strip"), g2 = await geo(st), sb = await st.evaluate(() => { const a = document.querySelector("#pdw-side").getBoundingClientRect(), g = document.querySelector(".pdm").getBoundingClientRect(); return { below: a.top >= g.bottom, over: a.right <= document.querySelector("#week").getBoundingClientRect().right + 1, h: Math.round(a.height) }; });
+    ok(tag + "side card strip: full-width grid, the strip sits below the weeks, inside the flyout, one line tall", g2.grid > 700 && sb.below && sb.over && sb.h <= 80, [g2, sb]);
+    await cell(st, 9).hover(); await sleep(250);
+    ok(tag + "side card strip: follows the date and keeps a 44px button", /Leftovers curry/.test(await st.locator("#pdw-side").innerText()) && (await st.locator("#pdw-side .pdw-go").evaluate(e => e.getBoundingClientRect().height)) >= 43.5);
+    ok(tag + "side card strip: no sideways scroll", (await flyScroll(st)) <= 0); await st.close();
+  }
   // Flyout width: Narrow is the single-flyout compact month at any window size
   { const nrm = await open(ctx, "start=month&halo=off"), nar = await open(ctx, "start=month&halo=off&w=narrow");
     const wd = async p => p.evaluate(() => Math.round(document.querySelector("#week").getBoundingClientRect().width));
