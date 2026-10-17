@@ -266,7 +266,13 @@ for (const [w, h] of [[1440, 900], [1024, 800]]) {
   if (w === 1440) {
     const geo = p => p.evaluate(() => { const r = e => e ? e.getBoundingClientRect() : null, a = document.querySelector("#pdw-side"), vis = a && getComputedStyle(a).display !== "none"; return { grid: Math.round(r(document.querySelector(".pdm")).width), card: vis ? Math.round(r(a).width) : 0, cardH: vis ? Math.round(r(a).height) : 0, cell: Math.round(r(document.querySelector('.pdm-c[data-n="12"]')).width) }; });
     const dflt = await open(ctx, "start=month&halo=off"); ok(tag + "side card: B is not the default (no ?wide, no ?card is layout A, no card)", (await dflt.locator("#pdw-side").count()) === 0, await dflt.locator("#pdw-side").count()); await dflt.close();
-    const dk = await open(ctx, "start=month&halo=off&wide=b"), gd = await geo(dk);
+    const wb = await open(ctx, "start=month&halo=off&wide=b"), gwb = await geo(wb), wbd = await wb.evaluate(() => ({ card: document.querySelector(".pdw-b").dataset.card, strip: document.querySelector("#pdw-side").classList.contains("pdw-strip") })); await wb.close();
+    ok(tag + "the bottom strip is the default card: ?wide=b with no ?card draws the strip (full-width, below the grid), not the docked card (PM-D45)", wbd.card === "strip" && wbd.strip && gwb.card === gwb.grid && gwb.grid > 700, [wbd, gwb]);
+    const ca = await open(ctx, "start=month&halo=off&card=strip"), wca = await ca.evaluate(() => document.querySelector(".pdw-b").dataset.card); await ca.close();
+    ok(tag + "?card=strip still draws the strip", wca === "strip", wca);
+    const wa = await open(ctx, "start=month&halo=off&wide=a"); ok(tag + "?wide=a still draws layout A (no card)", (await wa.locator("#pdw-side").count()) === 0 && (await wa.locator(".pdw-b").count()) === 0); await wa.close();
+    const dk = await open(ctx, "start=month&halo=off&card=docked"), gd = await geo(dk), dkd = await dk.evaluate(() => ({ card: document.querySelector(".pdw-b").dataset.card, strip: document.querySelector("#pdw-side").classList.contains("pdw-strip") }));
+    ok(tag + "?card=docked keeps the historic docked card for comparison", dkd.card === "docked" && !dkd.strip, dkd);
     ok(tag + "side card docked: the card is 244px and the grid gives it up (about 491px)", gd.card === 244 && gd.grid < 560, gd); await dk.close();
     const sl = await open(ctx, "start=month&halo=off&card=slim"), gs = await geo(sl);
     ok(tag + "side card slim: 176px card, a wider grid than docked, cells wider than docked", gs.card === 176 && gs.grid > gd.grid + 50 && gs.cell > gd.cell, [gs, gd]); await sl.close();
@@ -286,7 +292,7 @@ for (const [w, h] of [[1440, 900], [1024, 800]]) {
     ok(tag + "side card strip: no sideways scroll", (await flyScroll(st)) <= 0); await st.close();
   }
   // the date card (every form) for a date that already has something, and for an open date (owner, 17 Oct 2026)
-  for (const [q, form] of [["start=month&halo=off", w >= 1360 ? "wide A" : "compact strip"], ["start=month&halo=off&wide=b", "docked"], ["start=month&halo=off&card=slim", "slim"], ["start=month&halo=off&card=collapsed", "collapsed"], ["start=month&halo=off&card=overlay", "overlay"], ["start=month&halo=off&card=strip", "bottom strip"]]) {
+  for (const [q, form] of [["start=month&halo=off", w >= 1360 ? "wide A" : "compact strip"], ["start=month&halo=off&card=docked", "docked"], ["start=month&halo=off&wide=b", "default strip"], ["start=month&halo=off&card=slim", "slim"], ["start=month&halo=off&card=collapsed", "collapsed"], ["start=month&halo=off&card=overlay", "overlay"], ["start=month&halo=off&card=strip", "bottom strip"]]) {
     if (w < 1360 && form !== "compact strip") continue;
     if (form === "wide A") continue; // layout A has the pop-up, not a card
     const p = await open(ctx, q), card = p.locator("#pdw-side");
