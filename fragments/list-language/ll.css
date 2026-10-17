@@ -1,0 +1,160 @@
+/* One list language (fragment): the structure every variant shares. Tokens only, from ../../theme.css (DESIGN.md section 2). No raw colours.
+   Each variant (v-a.css ... v-d.css) is a skin on this DOM: it positions and styles, it never changes what a control does.
+   Mock chrome only: the frame (.llp) and the harness in index.html / app.html. The rows, chips, flags, sheet and tab bar are what a build keeps. */
+.llp,.llp *{box-sizing:border-box}
+.llp{container-type:inline-size;position:relative;width:min(390px,100%);height:var(--ph,780px);display:flex;flex-direction:column;background:var(--bg);color:var(--fg);font-family:var(--body);line-height:1.35;border:1px solid var(--border);border-radius:var(--r-phone);overflow:hidden;isolation:isolate;-webkit-tap-highlight-color:transparent}
+:where(.llp) :is(button,input){font:inherit;color:inherit}
+:where(.llp) button{background:none;border:0;padding:0;margin:0;cursor:pointer;text-align:left}
+:where(.llp) ul{list-style:none;margin:0;padding:0}
+:where(.llp) :is(h1,h2,p){margin:0}
+.llp :focus-visible{outline:3px solid var(--accent);outline-offset:-3px}
+.llp .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.llp .ic{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.llp .btn{min-height:var(--tap);padding:0 16px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--surface);font-weight:700;font-size:14px}
+.llp .btn.pri{background:var(--accent);color:var(--on-accent);border-color:transparent}
+
+/* ---- top row: Filters at the left border, then (right) + and the magnifier at the far right (pantry-search PS-D1, PS-D2). Sort, count and Select are shown only by the variants that put them here. ---- */
+.ll-top{flex:none;position:relative;background:var(--bg);z-index:4}
+.tp-rest{display:flex;align-items:center;gap:var(--sp-2);height:56px;padding:0 var(--sp-3)}
+.tp-rest>button{min-height:var(--tap);min-width:var(--tap);display:inline-flex;align-items:center;justify-content:center;gap:6px;flex:none}
+.tp-sp{flex:1}
+.tp-rest>.tp-sort,.tp-rest>.tp-count,.tp-rest>.tp-sel,.ll-chips>.ch-sel,.ll-fab,.ll-seg,.ll-colhead,.ll-selbar{display:none}
+.tp-filters{position:relative}
+.tp-n{font-style:normal;font-size:11px;font-weight:800;min-width:18px;height:18px;border-radius:9px;background:var(--accent);color:var(--on-accent);display:inline-flex;align-items:center;justify-content:center;padding:0 5px}
+.tp-add{border-radius:50%;background:var(--accent);color:var(--on-accent)}
+.tp-find{border-radius:50%}
+.tp-count{color:var(--muted);font-size:12.5px;font-weight:600;white-space:nowrap}
+.tp-search{position:absolute;inset:0;display:none;align-items:center;gap:var(--sp-2);padding:0 var(--sp-3);background:var(--bg)}
+.llp[data-search="1"] .tp-search{display:flex}
+.llp[data-search="1"] .tp-rest{visibility:hidden}
+.tp-x,.tp-mic{width:var(--tap);height:var(--tap);display:inline-flex;align-items:center;justify-content:center;flex:none;color:var(--muted)}
+.tp-field{flex:1;min-width:0;display:flex;align-items:center;gap:var(--sp-2);min-height:var(--tap);padding:0 var(--sp-3);border-radius:var(--r-pill);border:1px solid var(--accent);background:var(--surface);color:var(--accent)}
+.tp-q{flex:1;min-width:0;min-height:var(--tap);border:0;background:none;outline:0;font-size:16px;color:var(--fg)}
+.tp-q::placeholder{color:var(--muted)}
+.llp .tp-q:focus-visible{outline:0}
+
+/* ---- chips: the mode toggle (tag = categories, pin = locations; on Recipes: ranked or by readiness), All, then the values ---- */
+.ll-chips{flex:none;display:flex;align-items:center;gap:var(--sp-1);padding:0 0 0 var(--sp-3);min-width:0}
+.ch-mode{width:var(--tap);height:var(--tap);display:inline-flex;align-items:center;justify-content:center;flex:none;color:var(--muted)}
+.ch-scroll{flex:1;min-width:0;display:flex;align-items:center;gap:6px;overflow-x:auto;scrollbar-width:none;padding-right:var(--sp-3)}
+.ch-scroll::-webkit-scrollbar{display:none}
+.ch{flex:none;min-height:var(--tap);display:inline-flex;align-items:center}
+.ch>span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;font-weight:700;font-size:13px}
+.ch>span i{font-style:normal;font-weight:600;color:var(--muted);font-size:11.5px}
+
+/* ---- custom view strip (a sort or Status filter is on: the grouped default gives way to one list, as in the household flow) ---- */
+.ll-cv{flex:none;display:flex;align-items:center;gap:var(--sp-2);min-height:var(--tap);padding:0 var(--sp-3)}
+.cv-t{font-size:12px;font-weight:800;color:var(--muted);white-space:nowrap}
+.cv-pills{flex:1;min-width:0;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.cv-p{flex:none;min-height:var(--tap);display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:var(--accent);white-space:nowrap}
+.cv-p .ic{width:12px;height:12px}
+.cv-clear{min-height:var(--tap);min-width:var(--tap);font-size:13px;font-weight:700;color:var(--accent)}
+
+/* ---- body, groups, rows ---- */
+.ll-body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;position:relative;scrollbar-width:thin}
+.ll-end{height:96px}
+.g-h{display:flex;align-items:center;gap:var(--sp-2);width:100%;min-height:var(--tap);user-select:none;-webkit-user-select:none}
+.g-h h2{font-size:15px;font-weight:800}
+.g-n{color:var(--muted);font-size:12.5px;font-weight:600}
+.g-new{display:inline-flex;align-items:center;gap:2px;height:20px;padding:0 7px;border-radius:10px;background:var(--added-bg);color:var(--added-fg);font-size:12px;font-weight:700}
+.g-new .ic{width:12px;height:12px}
+.g:not(.shut) .g-new{display:none}
+.g-fold{margin-left:auto;display:inline-flex;color:var(--muted);transition:transform .15s}
+.g.shut .g-fold{transform:rotate(-90deg)}
+.g.shut .rows{display:none}
+.r-main{display:flex;align-items:center;gap:var(--sp-3);width:100%;min-height:var(--tap);position:relative}
+.r-text{flex:1;min-width:0;display:block}
+.r-name{display:flex;align-items:center;gap:6px;min-width:0;font-weight:700}
+.r-name .nm{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.r-name .em{flex:none}
+.r-meta{display:block;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.r-meta>span+span::before{content:" · "}
+.cue{display:inline-flex;color:var(--cue);flex:none}
+.cue .ic{width:16px;height:16px}
+.r-lead{display:none;flex:none;align-items:center;justify-content:center}
+.llp[data-s=recipes] .r-lead,.llp[data-s=home] .r-lead{display:flex}
+.r-lead.th{border-radius:var(--r-ctl);background:linear-gradient(160deg,color-mix(in srgb,var(--accent) 24%,var(--surface)),var(--surface));border:1px solid var(--border)}
+.r-ltr{font:800 1.1em var(--head);color:var(--accent)}
+.r-flags{display:flex;align-items:center;gap:6px;flex:none}
+.r-chev{display:inline-flex;color:var(--muted);flex:none}
+.r-chev .ic{width:18px;height:18px}
+.r-sel{display:none;flex:none;width:24px;height:24px;border-radius:7px;border:2px solid var(--muted);align-items:center;justify-content:center;color:var(--on-accent)}
+.r-sel .ic{width:16px;height:16px;stroke-width:2.6}
+.llp[data-sel="1"] .r-sel{display:inline-flex}
+.is-sel .r-sel{background:var(--accent);border-color:var(--accent)}
+.llp[data-sel="1"] .r-chev{display:none}
+
+/* flags: one component, tone by meaning (danger = past use by or missing, accent = soon or low, sage = all in or fine, mut = information) */
+.fl{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;white-space:nowrap}
+.fl .ic{width:12px;height:12px;stroke-width:2.2}
+.fl-s{display:none}
+.fl-danger{color:var(--danger)}.fl-accent,.fl-acc-i{color:var(--accent)}.fl-sage{color:var(--sage)}.fl-mut{color:var(--muted)}
+.fl-acc-i .ic{width:14px;height:14px;fill:currentColor}
+.lv{display:inline-flex;gap:2px;flex:none}
+.lv i{width:7px;height:7px;border-radius:2px;border:1.5px solid currentColor;display:block}
+.lv i.on{background:currentColor}
+.lv-plenty{color:var(--cue)}.lv-some,.lv-low{color:var(--accent)}.lv-out{color:var(--danger)}
+
+/* ---- floating copy / pick several (the existing control), the selection bar that takes the tab bar's place, tab bar ---- */
+.ll-fab{position:absolute;right:var(--sp-3);bottom:76px;width:52px;height:52px;border-radius:50%;align-items:center;justify-content:center;background:var(--surface);color:var(--accent);border:1px solid var(--border);box-shadow:0 6px 20px rgba(0,0,0,.28);z-index:5}
+.ll-fab[aria-pressed=true]{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.ll-tabs{flex:none;display:flex;height:60px;border-top:1px solid var(--border);background:var(--bg);z-index:5}
+.ll-tabs a{flex:1;min-width:0;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;font-weight:600;color:var(--muted);text-decoration:none}
+.ll-tabs a.on{color:var(--accent)}
+.ll-tabs .ic{width:23px;height:23px}
+.ll-tabs .badge{position:absolute;top:6px;left:calc(50% + 6px);min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:var(--accent);color:var(--on-accent);font:800 10.5px var(--body);font-style:normal;display:inline-flex;align-items:center;justify-content:center}
+.llp[data-sel="1"] .ll-selbar{display:flex}
+.ll-selbar{flex:none;align-items:center;gap:var(--sp-1);height:60px;padding:0 var(--sp-3);border-top:1px solid var(--accent);background:var(--surface);z-index:6}
+.sb-n{font-size:13px;font-weight:800;margin-right:auto;white-space:nowrap}
+.sb-a{min-height:var(--tap);min-width:var(--tap);display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:0 8px;font-size:12.5px;font-weight:700;color:var(--accent);white-space:nowrap}
+.sb-a:disabled{color:var(--muted);opacity:.6;cursor:default}
+.sb-a .ic{width:18px;height:18px}
+.sb-done{min-height:var(--tap);min-width:var(--tap);padding:0 10px;font-size:13px;font-weight:800;color:var(--fg)}
+
+/* ---- Filters sheet, sort menu, empty state, toast: built when opened ---- */
+.ll-scrim{position:absolute;inset:0;background:var(--dim);z-index:8}
+.ll-scrim.clear{background:none;z-index:7}
+.ll-sheet{position:absolute;left:0;right:0;bottom:0;z-index:9;max-height:86%;overflow:auto;background:var(--bg);border-top:1px solid var(--border);border-radius:var(--r-card) var(--r-card) 0 0;padding:0 var(--sp-4) var(--sp-4)}
+.sh-grab{width:40px;height:4px;border-radius:2px;background:var(--border);margin:8px auto 0}
+.sh-h{display:flex;align-items:center;justify-content:space-between;min-height:var(--tap)}
+.sh-h h2{font:800 18px var(--head)}
+.sh-x{width:var(--tap);height:var(--tap);display:inline-flex;align-items:center;justify-content:center;margin-right:-10px}
+.sh-l{margin:var(--sp-3) 0 var(--sp-2);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:800}
+.sh-row{display:flex;flex-direction:column;gap:var(--sp-2)}
+.sh-seg{display:flex;background:var(--surface);border-radius:var(--r-pill);padding:3px}
+.sh-seg button{flex:1;min-height:var(--tap);display:flex;align-items:center;justify-content:center;border-radius:var(--r-pill);font-size:13.5px;font-weight:700;color:var(--muted);text-align:center}
+.sh-seg button[aria-checked=true]{background:var(--accent);color:var(--on-accent)}
+.sh-dir{min-height:var(--tap);display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:700;color:var(--accent)}
+.sh-st{display:flex;flex-direction:column;gap:6px}
+.sh-p{min-height:var(--tap);display:flex;align-items:center;gap:var(--sp-3);padding:0 var(--sp-3);border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-weight:700;font-size:14px}
+.sh-p[aria-pressed=true]{border-color:var(--accent)}
+.sh-box{width:22px;height:22px;border-radius:7px;border:2px solid var(--muted);display:inline-flex;align-items:center;justify-content:center;color:var(--on-accent)}
+.sh-p[aria-pressed=true] .sh-box{background:var(--accent);border-color:var(--accent)}
+.sh-box .ic{width:14px;height:14px;stroke-width:2.8}
+.sh-f{display:flex;gap:var(--sp-2);margin-top:var(--sp-4)}
+.sh-f .btn{flex:0 0 auto}.sh-f .btn.pri{flex:1}
+.ll-menu{position:absolute;z-index:8;top:54px;left:var(--sp-3);min-width:210px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);box-shadow:0 12px 36px rgba(0,0,0,.35);padding:6px}
+.ll-menu button{width:100%;min-height:var(--tap);display:flex;align-items:center;gap:var(--sp-2);padding:0 var(--sp-3);border-radius:var(--r-ctl);font-size:14px;font-weight:600}
+.ll-menu .mk{width:18px;color:var(--accent);display:inline-flex}
+.ll-menu .mk .ic{width:16px;height:16px}
+.ll-menu .mdir{border-top:1px solid var(--border);border-radius:0 0 var(--r-ctl) var(--r-ctl);color:var(--accent);font-weight:700}
+.ll-empty{padding:var(--sp-6) var(--sp-4);text-align:center;color:var(--muted)}
+.ll-empty-acts{display:flex;flex-direction:column;gap:var(--sp-2);margin-top:var(--sp-4)}
+.ll-toast{position:absolute;left:50%;bottom:76px;transform:translate(-50%,10px);max-width:calc(100% - 32px);padding:10px 16px;border-radius:var(--r-pill);background:var(--fg);color:var(--bg);font-size:13px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .15s,transform .15s;z-index:12;text-align:center}
+.ll-toast.on{opacity:1;transform:translate(-50%,0)}
+@media(prefers-reduced-motion:reduce){.llp *{transition:none!important}}
+
+/* ---- Home: shares every component above; each variant lays the three tiles out its own way ---- */
+.hm-hi{font:800 26px/1.1 var(--head);order:-2}
+.hm-sec+.hm-sec{margin-top:var(--sp-4)}
+.hm-h{display:flex;align-items:center;gap:var(--sp-2);min-height:var(--tap)}
+.hm-h h2{font:800 16px var(--head);flex:1;min-width:0}
+.hm-i{display:inline-flex;color:var(--accent)}
+.hm-va{min-height:var(--tap);min-width:var(--tap);padding:0 4px;font-size:13px;font-weight:700;color:var(--accent);text-align:right}
+.hm-idea{display:flex;gap:var(--sp-3);align-items:flex-start}
+.hm-it{flex:1;min-width:0}
+.hm-it b{display:block;font-size:17px}.hm-it small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.hm-it .r-flags{margin-top:6px;flex-wrap:wrap}
+.hm-k{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.hm-acts{display:flex;gap:var(--sp-2)}
+.hm-tune{min-height:var(--tap);font-size:13px;font-weight:700;color:var(--accent)}

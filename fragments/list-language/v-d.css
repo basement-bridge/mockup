@@ -1,0 +1,74 @@
+/* Variant D, "Table": compact table-like rows. The column heads are the sort control (tap Name or Use by; the arrow shows the direction), the first column
+   is the picture or, when picking, the tick box, and the last column is one inline status chip. Group names are full-width bands. Densest of the four. */
+.llp[data-v=d] .tp-rest{height:48px;gap:6px}
+.llp[data-v=d] .tp-filters{padding:0 12px 0 8px;font-weight:700;font-size:14px}
+.llp[data-v=d] .tp-add{width:40px;height:40px;min-height:44px;min-width:44px;border-radius:12px}
+.llp[data-v=d] .tp-find{border-radius:12px}
+.llp[data-v=d] .ll-chips{padding-left:4px}
+.llp[data-v=d] .ch-mode{width:44px}
+.llp[data-v=d] .ch-scroll{gap:4px;padding-right:12px}
+.llp[data-v=d] .ch>span{height:28px;padding:0 10px;border-radius:8px;border:1px solid var(--border);font-size:12.5px}
+.llp[data-v=d] .ch[aria-pressed=true]>span{border-color:var(--accent);color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.llp[data-v=d] .ll-colhead{display:grid;grid-template-columns:44px minmax(0,1fr) 78px 98px;align-items:center;flex:none;background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);z-index:3}
+.llp[data-v=d] .hd{min-height:var(--tap);display:flex;align-items:center;gap:3px;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:800;color:var(--muted);padding:0}
+.llp[data-v=d] .hd:disabled{cursor:default}
+.llp[data-v=d] .hd[aria-sort]{color:var(--accent)}
+.llp[data-v=d] .hd .dir{width:13px;height:13px}
+.llp[data-v=d] .hd-sel{justify-content:center;color:var(--muted)}
+.llp[data-v=d] .hd-sel[aria-pressed=true]{color:var(--accent)}
+.llp[data-v=d] .hd-amt{justify-content:flex-end;padding-right:10px}
+.llp[data-v=d] .hd-flag{justify-content:flex-start}
+.llp[data-v=d] .ll-cv{background:var(--bg);border-bottom:1px solid var(--border)}
+.llp[data-v=d] .g{border-bottom:1px solid var(--border)}
+.llp[data-v=d] .g-h{padding:0 12px;background:var(--surface);border-bottom:1px solid var(--border);min-height:44px}
+.llp[data-v=d] .g-h h2{font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.llp[data-v=d] .r{border-bottom:1px solid var(--border)}
+.llp[data-v=d] .r:last-child{border-bottom:0}
+.llp[data-v=d] .r-text,.llp[data-v=d] .r-meta{display:contents}
+.llp[data-v=d] .r-main{display:grid;grid-template-columns:44px minmax(0,1fr) 78px 98px;grid-template-areas:"lead name amt flag" "lead where amt flag";align-items:center;align-content:center;row-gap:0;min-height:48px;padding:2px 0}
+.llp[data-v=d] .r{display:block}
+.llp[data-v=d] .r-main{display:grid}
+.llp[data-v=d] .r-lead{grid-area:lead;display:flex;justify-self:center;width:32px;height:32px;font-size:18px;border-radius:8px}
+.llp[data-v=d][data-s=pantry] .r-lead{display:flex;background:none;border:0}
+.llp[data-v=d] .r-lead .r-ltr{display:none}
+.llp[data-v=d] .r-lead.th{width:34px;height:34px;font-size:18px}
+.llp[data-v=d] .r-sel{grid-area:lead;justify-self:center}
+.llp[data-v=d][data-sel="1"] .r-lead{display:none}
+.llp[data-v=d] .r-name{grid-area:name;align-self:end;font-size:15px;padding-right:6px;display:flex}
+.llp[data-v=d] .r-name .em{display:none}
+.llp[data-v=d] .m-amt{grid-area:amt;justify-self:end;text-align:right;padding-right:10px;font-size:12.5px;font-weight:600;color:var(--fg);font-variant-numeric:tabular-nums;line-height:1.2}
+.llp[data-v=d] .m-where{grid-area:where;align-self:start;font-size:11.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:6px}
+.llp[data-v=d] .m-where::before{content:none}
+.llp[data-v=d] .m-grp{display:none}
+.llp[data-v=d] .r-flags{grid-area:flag;display:flex;gap:4px;flex-wrap:nowrap;overflow:hidden}
+.llp[data-v=d] .r-flags .fl:not(.fl--p):not(.fl-acc-i){display:none}
+.llp[data-v=d] .fl--p{padding:3px 8px;border-radius:7px;font-size:11.5px;background:color-mix(in srgb,currentColor 15%,transparent);min-width:0}
+.llp[data-v=d] .fl--p .fl-t{display:none}
+.llp[data-v=d] .fl--p .fl-s{display:inline}
+.llp[data-v=d][data-s=pantry] .fl-danger.fl--p{background:var(--danger);color:var(--bg)}
+.llp[data-v=d] .fl-acc-i .ic{width:13px;height:13px}
+.llp[data-v=d] .lv{grid-area:flag}
+.llp[data-v=d] .r-flags:not(:empty)~.lv{display:none}
+.llp[data-v=d] .r-chev{display:none}
+.llp[data-v=d] .ll-tabs{height:56px}
+.llp[data-v=d] .ll-tabs a{gap:1px;font-size:10.5px}
+.llp[data-v=d] .ll-tabs .ic{width:21px;height:21px}
+/* Home: three small tables with the same bands, columns and chips */
+.llp[data-v=d] .hm{padding:8px 0 24px}
+.llp[data-v=d] .hm-hi{font-size:20px;padding:4px 12px 6px}
+.llp[data-v=d] .hm-sec+.hm-sec{margin-top:8px}
+.llp[data-v=d] .hm-h{padding:0 4px 0 12px;background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.llp[data-v=d] .hm-h h2{font:800 11.5px var(--body);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.llp[data-v=d] .hm-i .ic{width:17px;height:17px}
+.llp[data-v=d] .hm .r{border-bottom:1px solid var(--border)}
+.llp[data-v=d] .hm .r-main{grid-template-columns:44px minmax(0,1fr) 98px;grid-template-areas:"lead name flag" "lead where flag"}
+.llp[data-v=d] .hm .m-amt{display:none}
+.llp[data-v=d] .hm .r-flags .lv{display:none}
+.llp[data-v=d] .hm-idea{padding:8px 12px 4px;flex-wrap:wrap;gap:8px}
+.llp[data-v=d] .hm-idea .r-lead.th{width:44px;height:44px;font-size:22px}
+.llp[data-v=d] .hm-acts{flex-basis:100%;gap:6px}.llp[data-v=d] .hm-acts .btn{flex:1;border-radius:8px}
+.llp[data-v=d] .hm-tune{padding:0 12px}
+.llp[data-v=d] .hm-alts .r-flags .fl:not(.fl--p){display:none}
+
+/* long recipe names wrap to two lines instead of cutting off; the table keeps its columns */
+.llp[data-v=d][data-s=recipes] .r-name .nm{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.2}
