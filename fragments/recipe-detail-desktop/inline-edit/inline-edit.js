@@ -413,10 +413,10 @@ function setScope(sec,on){
  if(S.edit)return;
  if(on&&narrow())return;
  if(EDB&&!commitEd(EDB))return;
- if(on){var was=ANY();S.scope[sec]=true;if(!was)beginSession();tab=sec==="notes"?"notes":sec==="ing"?"ing":tab;paint({focus:null});
+ if(on){var was=ANY();S.scope={};S.scope[sec]=true;if(!was)beginSession();tab=sec==="notes"?"notes":sec==="ing"?"ing":tab;paint({focus:null});
   var first=sec==="met"?$('#met [data-ed$=":t"]'):sec==="notes"?$("#p-notes [data-ed]"):$("#p-ing [data-ed]");
   if(first)openEd(first);else{var a=$(sec==="met"?"[data-add=stp]":sec==="ing"?"[data-add=ing]":"[data-act=note]");if(a)a.focus()}}
- else{if(Object.keys(S.scope).length>1){delete S.scope[sec];paint({focus:'[data-act=edit-sec][data-sec="'+sec+'"]'})}else tryLeave()}}
+ else tryLeave()}
 function tryLeave(){if(EDB&&!commitEd(EDB))return;if(S.target==="pending"&&S.changes>0){openFinish();return}leaveEdit()}
 function leaveEdit(msg){var n=S.changes,wasForked=S.forked;S.edit=false;S.scope={};S.dens=calcDens();S.servesNow=META.serves;S.revOpen=false;S.composing=false;
  paint({focus:".edtog"});
@@ -544,7 +544,7 @@ document.addEventListener("keydown",function(e){
  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="z"&&!e.shiftKey&&!(t&&/INPUT|TEXTAREA|SELECT/.test(t.tagName))){var u=lastUndo();if(u){e.preventDefault();undoEntry(u)}return}
  if(e.ctrlKey||e.metaKey||e.altKey)return;if(t&&/INPUT|TEXTAREA|SELECT/.test(t.tagName))return;
  var k=e.key.toLowerCase();
- if(e.key==="Escape"){var sp0=$("[data-spop]");if(sp0&&!sp0.hidden){spopOpen(false);$("[data-act=svcta]").focus();return}if(S.histOpen){setHist(false,true);return}if($(".stp.open")){collapse(true);return}var vp=$("[data-vpop]");if(vp&&!vp.hidden){vpopOpen(false);$("[data-act=vchip]").focus();return}return}
+ if(e.key==="Escape"){var sp0=$("[data-spop]");if(sp0&&!sp0.hidden){spopOpen(false);$("[data-act=svcta]").focus();return}if(S.histOpen){setHist(false,true);return}if($(".stp.open")){collapse(true);return}var vp=$("[data-vpop]");if(vp&&!vp.hidden){vpopOpen(false);$("[data-act=vchip]").focus();return}var sk=Object.keys(S.scope);if(!S.edit&&sk.length&&!EDB&&!FIN){setScope(sk[0],false);return}return}
  if(KEYS[k]){e.preventDefault();setTab(KEYS[k])}
  else if(k==="n"){e.preventDefault();setLane(!S.laneOpen)}
  else if(k==="s"&&$("[data-act=share]")){e.preventDefault();toast("Share panel opens in the right lane (not drawn here).")}

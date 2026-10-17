@@ -386,7 +386,7 @@ Added 18 October 2026, folder `inline-edit/` (live: https://basement-bridge.gith
 
 R1. **Entry: an Edit toggle (chip, key E, section pencils) that reveals click-to-edit on every value**, rather than always-on click-to-edit or a whole-page form. Reading and cooking stay clean.
 R2. **Save: per field, at once.** Enter or leaving the field saves it; the strip says Saved; a toast and the History flyout carry Undo; Ctrl+Z undoes the last change; Esc cancels the field. No Save button.
-R3. **Keeper question once, when Edit is switched on for a keeper** (fix this one, keep both, different dish), not at every field; a Trying version and a new recipe edit in place. Keep both starts a new version (Trying, "<name>, edited", From the original) at the first change.
+R3. **(Superseded by the owner, 18 Oct: the keeper question is asked at Done, with Fix preselected.) Keeper question once, when Edit is switched on for a keeper** (fix this one, keep both, different dish), not at every field; a Trying version and a new recipe edit in place. Keep both starts a new version (Trying, "<name>, edited", From the original) at the first change.
 R4. **One editing session is one revision**; each saved field is a change in it with its own Undo in History; the new version shows in the version menu and the lineage chain.
 R5. **Validation inline in the field** (messages in `inline-edit/notes.md` D5); a field with an error stays open; Esc reverts.
 R6. **Keyboard:** Enter saves (Shift+Enter a line break in steps, Ctrl+Enter saves a note), Esc cancels, Tab and Shift+Tab save and move to the next value, Ctrl+Enter saves and opens a new blank step or ingredient below, arrows on a drag handle reorder, Ctrl+Z undoes.
@@ -402,10 +402,10 @@ R13. **Wide layout only** (80rem x 700px and up, the same viewport rule); below 
 
 Q1. **Revision per session or per change** (R4)? Wrong guess: a noisy History, or a revision that is only complete at Done.
 Q2. **Does inline edit replace the right-lane edit panel on desktop** (E-O5)? Recommended yes at 80rem x 700px and up; the panel stays below that and for the assistant hand-off and gallery photos. Wrong guess: two edit experiences to keep in step.
-Q3. **Where the keeper question sits** (R3): once on entering, or at the first change.
+Q3. **Where the keeper question sits** (R3): answered by the owner, 18 Oct: at Done.
 Q4. **Banner and gallery photos stay in the photo sheet** (R10): accept?
 Q5. **Inherited notes read-only** (R11): accept, or editable (changes the parent's note for everyone)?
-Q6. **E toggles edit mode; Esc cancels only the open field** (R1, R6): accept? (Today E opens the panel.)
+Q6. (E as a global toggle owner-confirmed 18 Oct; section pencils are scoped, trail their section, Photos has an Add button; see inline-edit/notes.md.) **E toggles edit mode; Esc cancels only the open field** (R1, R6): accept? (Today E opens the panel.)
 Q7. **Tab stops:** plain Tab through every value as drawn, or one stop per row with arrows in the build?
 
 **Update (delegation):** Q1, Q2, Q3 and Q6 above were decided by Claude under delegation, owner may override (as recommended; reasoning in `inline-edit/notes.md`, "Decisions under delegation"). Q4, Q5 and Q7 stay open.

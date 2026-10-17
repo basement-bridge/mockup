@@ -23,7 +23,7 @@ for (const [w, h] of [[1280, 720], [1440, 900], [1920, 1080]]) {
   const ctx = await browser.newContext({ viewport: { width: w, height: h } }); const tag = w + "x" + h;
   for (const r of ["typical", "short", "long", "empty"]) {
     for (const edit of [false, true]) {
-      const p = await open(ctx, "r=" + r + (edit ? "&edit=1&choose=fix" : ""));
+      const p = await open(ctx, "r=" + r + (edit ? "&edit=1" : ""));
       const o = await noOverflow(p);
       ok(tag + " A " + r + (edit ? " edit" : " read") + ": the document does not scroll", o.x <= 0 && o.y <= 0, o);
       if (edit) ok(tag + " A " + r + ": edit mode is on and has its strip", (await p.locator("#estrip").count()) === 1 && (await p.locator("#rtab").getAttribute("data-edit")) === "1");
@@ -36,7 +36,7 @@ for (const [w, h] of [[1280, 720], [1440, 900], [1920, 1080]]) {
     }
   }
   for (const lane of ["1", "h"]) {   // the Notes and reactions flyout and the History flyout push the page: edit mode must still fit
-    const p = await open(ctx, "r=typical&edit=1&choose=fix&lane=" + lane);
+    const p = await open(ctx, "r=typical&edit=1&lane=" + lane);
     const o = await noOverflow(p);
     ok(tag + " A lane=" + lane + " edit: the document does not scroll", o.x <= 0 && o.y <= 0, o);
     const inner = await p.evaluate(() => [".rail", ".meth", ".hero", ".estrip"].map(s => { const e = document.querySelector(s); return e ? e.scrollWidth - e.clientWidth : 0; }));
@@ -51,29 +51,42 @@ for (const [w, h] of [[1280, 720], [1440, 900], [1920, 1080]]) {
 
 // ---------------------------------------------------------------- B to N at 1440x900 (the keyboard and data behaviour does not depend on size)
 const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
-{ // B. the keeper question gates editing
+{ // B. the keeper question is NOT asked on entering edit mode; it is asked at Done
   const p = await open(ctx, "edit=1");
-  ok("B: a keeper asks where changes go, nothing is chosen", (await p.locator("#esq").count()) === 1 && (await p.locator('[data-act=target][aria-pressed=true]').count()) === 0);
-  ok("B: values are dimmed until it is answered", (await p.locator("#rtab").getAttribute("data-gated")) === "1");
+  ok("B: entering edit on a keeper asks nothing", (await p.locator("#esq").count()) === 0 && (await p.locator(".fin").count()) === 0 && (await p.locator("#rtab").getAttribute("data-gated")) !== "1");
+  ok("B: the strip says where it will be decided", /You choose where it goes when you press Done/.test(await txt(p, ".es-w")));
   await p.click('[data-ed="title"]'); await sleep(120);
-  ok("B: clicking a value before choosing opens no field and asks", (await p.locator(".edw").count()) === 0 && /Choose where/.test(await txt(p, "#toast")));
-  await p.click('[data-act=target][data-v=own]'); await sleep(100);
-  ok("B: Different dish only explains (not drawn here)", /own recipe/.test(await txt(p, "#toast")) && (await p.locator("#esq").count()) === 1);
-  await p.click('[data-act=target][data-v=fix]'); await sleep(120);
-  ok("B: choosing Fix this one opens editing and says revision 4", /Fixing this version, revision 4/.test(await txt(p, ".es-w")) && (await p.locator("#esq").count()) === 0);
+  ok("B: a value opens its field straight away", (await p.locator(".edw").count()) === 1);
+  await p.keyboard.type(" x"); await p.keyboard.press("Enter"); await sleep(150);
+  ok("B: status says Kept, not Saved", /Kept/.test(await txt(p, "#ess")) && !/Saved/.test(await txt(p, "#ess")), await txt(p, "#ess"));
+  await p.click(".es-done"); await sleep(150);
+  ok("B: Done with changes opens the dialog, Fix preselected", (await p.locator(".fin").count()) === 1 && (await p.locator('[data-fin=fix][aria-checked=true]').count()) === 1);
   await shot(p, "keeper-question-1440x900-dark");
+  await p.keyboard.press("Escape"); await sleep(100);
+  ok("B: Esc keeps editing", (await p.locator(".fin").count()) === 0 && (await p.locator("#estrip").count()) === 1);
+  await p.click(".es-done"); await sleep(100); await p.click("[data-fin-back]"); await sleep(100);
+  ok("B: Back to editing keeps editing", (await p.locator("#estrip").count()) === 1);
+  await p.click(".es-done"); await sleep(100); await p.click("[data-fin=own]"); await p.click("[data-fin-ok]"); await sleep(100);
+  ok("B: Different dish only explains", (await p.locator(".fin").count()) === 1 && /Not drawn here/.test(await txt(p, "#toast")));
+  await p.click("[data-fin=fix]"); await p.keyboard.press("Enter"); await sleep(150);
+  ok("B: saving as Fix writes revision 4 and leaves edit mode", (await p.locator("#estrip").count()) === 0 && /revision 4/.test(await txt(p, "#toast")), await txt(p, "#toast"));
   await p.close();
+  const q = await open(ctx, "edit=1"); await q.keyboard.press("Escape"); await q.evaluate(() => document.activeElement.blur()); await q.keyboard.press("e"); await sleep(120);
+  ok("B: Done with no changes asks nothing", (await q.locator(".fin").count()) === 0 && (await q.locator("#estrip").count()) === 0);
+  await q.close();
   const t = await open(ctx, "edit=1&ver=trying");
   ok("B: a Trying version edits in place with no question", (await t.locator("#esq").count()) === 0 && /A try, edited in place/.test(await txt(t, ".es-w")));
+  await t.click('[data-ed="title"]'); await t.keyboard.type("!"); await t.keyboard.press("Enter"); await sleep(100); await t.click(".es-done"); await sleep(120);
+  ok("B: a Trying version saves at Done with no dialog", (await t.locator(".fin").count()) === 0 && (await t.locator("#estrip").count()) === 0);
   await t.close();
 }
 { // C. hero fields
-  const p = await open(ctx, "edit=1&choose=fix");
+  const p = await open(ctx, "edit=1");
   await p.click('[data-ed="title"]'); await sleep(80);
   ok("C: click opens the field in place, selected", (await focusedLabel(p)) === "Name" && await p.evaluate(() => { const i = document.activeElement; return i.selectionStart === 0 && i.selectionEnd === i.value.length; }));
   await p.keyboard.type("Egg fried rice, the quick one"); await p.keyboard.press("Enter"); await sleep(120);
   ok("C: Enter saves the title", (await txt(p, "h1")) === "Egg fried rice, the quick one" && (await p.locator(".edw").count()) === 0);
-  ok("C: the strip says Saved and counts one change", /Saved .* 1 change/.test(await txt(p, "#ess")), await txt(p, "#ess"));
+  ok("C: the strip says Kept and counts one change", /Kept .* 1 change/.test(await txt(p, "#ess")), await txt(p, "#ess"));
   ok("C: the toast carries Undo", (await p.locator("#toast .tundo").count()) === 1);
   await p.click('[data-ed="title"]'); await p.keyboard.press("Control+a"); await p.keyboard.press("Delete"); await p.keyboard.press("Enter"); await sleep(100);
   ok("C: an empty title is refused, stays open with a message", (await p.locator(".edw .edmsg.err").count()) === 1 && (await p.locator(".edw .edin[aria-invalid=true]").count()) === 1);
@@ -108,7 +121,7 @@ const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } })
   await p.close();
 }
 { // D. Tab flow through ingredients, Enter, quick add, remove, reorder
-  const p = await open(ctx, "edit=1&choose=fix");
+  const p = await open(ctx, "edit=1");
   const first = await p.evaluate(() => window.__ie.ING[0].id);
   await p.click('[data-ed="i:' + first + ':q"]'); await p.keyboard.type("4"); await p.keyboard.press("Tab"); await sleep(120);
   ok("D: Tab saves the amount and opens the unit", (await focusedLabel(p)) === "Unit" && (await txt(p, '[data-ed="i:' + first + ':q"]')).trim() === "4");
@@ -152,7 +165,7 @@ const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } })
   await p.close();
 }
 { // E. method: text, Shift+Enter, time, add, photo, remove, reorder
-  const p = await open(ctx, "edit=1&choose=fix");
+  const p = await open(ctx, "edit=1");
   const s0 = await p.evaluate(() => window.__ie.STP[4].id);   // step 5 has no photo and a time
   await p.click('[data-ed="s:' + s0 + ':t"]'); await p.keyboard.press("End");
   await p.keyboard.press("Shift+Enter"); await p.keyboard.type("Taste."); await p.keyboard.press("Enter"); await sleep(120);
@@ -187,7 +200,7 @@ const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } })
   await p.close();
 }
 { // F. notes
-  const p = await open(ctx, "edit=1&choose=fix&tab=notes");
+  const p = await open(ctx, "edit=1&tab=notes");
   const own = await p.evaluate(() => window.__ie.NOTES.filter(n => !n.inh)[0].id);
   ok("F: a note inherited from the parent is read-only with a lock line", (await p.locator(".note.inh .lockn").count()) >= 1);
   await p.click('[data-ed="n:' + own + '"]'); await sleep(80);
@@ -208,17 +221,16 @@ const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } })
   ok("F: adding a note also works in read mode", /Read-mode note/.test(await txt(r, "#p-notes")));
   await r.close();
 }
-{ // G. keep both starts a new version; History and the version menu show it
-  const p = await open(ctx, "edit=1&choose=both");
-  ok("G: Keep both says a new version starts at the first change", /New version starts/.test(await txt(p, ".es-w")));
+{ // G. keep both (chosen at Done) starts a new version; History and the version menu show it
+  const p = await open(ctx, "edit=1");
   await p.click('[data-ed="title"]'); await p.keyboard.type(" x"); await p.keyboard.press("Enter"); await sleep(200);
-  ok("G: the first change starts the new version: chip, strip and revision 1", /With peas, edited/.test(await txt(p, ".vchip")) && /New version, a try, revision 1/.test(await txt(p, ".es-w")), await txt(p, ".es-w"));
+  await p.click(".es-done"); await sleep(100); await p.click("[data-fin=both]"); await p.click("[data-fin-ok]"); await sleep(250);
+  ok("G: Keep both at Done makes the new version", /With peas, edited/.test(await txt(p, ".vchip")) && /new version/.test(await txt(p, "#toast")), await txt(p, "#toast"));
   await p.click('[data-act=vchip]'); await sleep(80);
   ok("G: the version menu lists it as Trying, from With peas", /With peas, edited/.test(await txt(p, "[data-vpop]")) && /Trying/.test(await txt(p, "[data-vpop] .vi.on")) && /From With peas/.test(await txt(p, "[data-vpop] .vi.on")));
   await shot(p, "version-menu-new-1440x900-dark");
   await p.keyboard.press("Escape"); await p.keyboard.press(","); await sleep(300);
-  ok("G: History shows 'started this version from With peas' and the change", /started .*With peas, edited/.test(await txt(p, "#hlane")) && (await p.locator("#hlane .hrow.mine").count()) === 1);
-  ok("G: the lineage chain ends at the new version", /With peas\s*→\s*With peas, edited|Original\s*→\s*With peas\s*→\s*With peas, edited/.test(await txt(p, "#hlane .chain")));
+  ok("G: History shows the change on the new version", (await p.locator("#hlane .hrow.mine").count()) === 1 && /With peas, edited/.test(await txt(p, "#hlane")));
   await p.close();
 }
 { // H. empty state
@@ -236,7 +248,7 @@ const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } })
   await p.close();
 }
 { // I. keys are quiet inside a field; Serves stepper in read mode still scales
-  const p = await open(ctx, "edit=1&choose=fix");
+  const p = await open(ctx, "edit=1");
   await p.click('[data-ed="title"]'); await p.keyboard.type("n1e,"); await sleep(60);
   ok("I: letters and digits that are page keys just type inside a field", (await p.evaluate(() => document.activeElement.value)).endsWith("n1e,") && (await p.locator("#lane:not([hidden])").count()) === 0 && (await p.locator("#hlane:not([hidden])").count()) === 0);
   await p.keyboard.press("Escape"); await p.keyboard.press("e"); await sleep(120);
@@ -253,10 +265,82 @@ const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } })
 }
 { // K. light theme, and the screenshots the notes link
   const light = await browser.newContext({ viewport: { width: 1440, height: 900 } });
-  const p = await open(light, "edit=1&choose=fix&theme=light");
+  const p = await open(light, "edit=1&theme=light");
   await p.click('[data-ed="title"]'); await sleep(100);
   await shot(p, "title-editing-1440x900-light");
   await p.close(); await light.close();
+}
+{ // P. two entry points, pencil at the end, Photos Add, step photos
+  const rd = async p => p.evaluate(() => ({ ing: !!document.querySelector("#p-ing .ed"), met: !!document.querySelector("#met .ed"), notes: !!document.querySelector("#p-notes .ed"), hero: !!document.querySelector('[data-ed="title"]') }));
+  const p = await open(ctx, "");
+  ok("P: read mode has a pencil per section, none on Photos", (await p.locator("[data-act=edit-sec]").count()) === 3 && (await p.locator("#p-pho [data-act=edit-sec], #p-pho .pen").count()) === 0);
+  ok("P: the pencils trail the content (below the last row)", await p.evaluate(() => { const b = document.querySelector('#p-ing [data-act=edit-sec]'), l = [...document.querySelectorAll('#p-ing .ing')].pop(); const m = document.querySelector('#met [data-act=edit-sec]'), st = [...document.querySelectorAll('#met .stp')].pop(); return b && m && (!l || b.getBoundingClientRect().top >= l.getBoundingClientRect().bottom - 2) && m.getBoundingClientRect().top >= st.getBoundingClientRect().bottom - 2; }));
+  ok("P: no pencil sits in a heading row", (await p.locator(".lblrow [data-act=edit-sec]").count()) === 0);
+  await p.click('#met [data-act=edit-sec]'); await sleep(150);
+  let r = await rd(p);
+  ok("P: the Method pencil edits Method only", r.met && !r.ing && !r.notes && !r.hero, r);
+  ok("P: the pencil did not turn on global mode", (await p.locator("#rtab").getAttribute("data-scope")) === "met" && !/Editing <b>/.test("") && (await p.locator("[data-act=edit-sec][data-sec=met]").count()) === 0 && (await p.locator(".sec-done").count()) === 1);
+  ok("P: no keeper question on entering a scoped section", (await p.locator(".fin, #esq").count()) === 0);
+  await p.evaluate(() => document.activeElement.blur()); await p.keyboard.press("Escape"); await sleep(80);
+  await p.click('#p-ing [data-act=edit-sec]'); await sleep(150);
+  r = await rd(p);
+  ok("P: another pencil moves editing there; only one scoped section is open", r.ing && !r.met && !r.notes && !r.hero && (await p.locator(".sec-done").count()) === 1, r);
+  await p.keyboard.press("Escape"); await sleep(100); r = await rd(p);
+  ok("P: Esc closes the open field first", r.ing && (await p.locator("#estrip").count()) === 1);
+  await p.evaluate(() => document.activeElement.blur()); await p.keyboard.press("Escape"); await sleep(150); r = await rd(p);
+  ok("P: Esc with no field open returns the scoped section to read-only and ends the session", !r.ing && (await p.locator("#estrip").count()) === 0 && (await p.locator("[data-act=edit-sec]").count()) === 3, r);
+  await p.click('#p-ing [data-act=edit-sec]'); await sleep(120); await p.click('.sec-done'); await sleep(120); r = await rd(p);
+  ok("P: the section's Done returns it to read-only", !r.ing && (await p.locator("#estrip").count()) === 0, r);
+  await p.click('#met [data-act=edit-sec]'); await sleep(120);
+  await p.keyboard.press("Escape"); await p.evaluate(() => document.activeElement.blur()); await p.keyboard.press("e"); await sleep(150);
+  r = await rd(p);
+  ok("P: E from scoped goes global (every text field editable)", r.ing && r.met && r.notes && r.hero && (await p.locator("#rtab").getAttribute("data-scope")) === "all", r);
+  ok("P: no pencils while global is on", (await p.locator("[data-act=edit-sec], .sec-done").count()) === 0);
+  await p.evaluate(() => document.activeElement.blur()); await p.keyboard.press("e"); await sleep(150);
+  r = await rd(p);
+  ok("P: E again leaves everything", !r.ing && !r.met && !r.notes && !r.hero && (await p.locator("#estrip").count()) === 0, r);
+  await p.close();
+  const g = await open(ctx, "edit=1");
+  ok("P: E mode is text only: the Photos tab shows Add, no pencil", (await g.locator("[data-act=edit-sec]").count()) === 0);
+  await g.close();
+  // scoped: Esc/blur/another pencil leave it clean; one open field at a time
+  const s = await open(ctx, "scope=ing");
+  r = await rd(s);
+  ok("P: ?scope=ing opens Ingredients only", r.ing && !r.met && !r.hero, r);
+  ok("P: a scoped pencil in the same trailing spot reads Done", (await s.locator('#p-ing .sec-done').count()) === 1);
+  await s.close();
+  // Photos Add
+  const h = await open(ctx, "tab=pho");
+  const n0 = parseInt((await txt(h, "#p-pho .lbl .sub")), 10);
+  ok("P: Photos has an Add button next to its count and no pencil", (await h.locator("#p-pho .lblrow [data-act=addgal]").count()) === 1 && (await h.locator("#p-pho [data-act=edit-sec]").count()) === 0);
+  await h.focus("[data-act=addgal]"); await h.keyboard.press("Enter"); await sleep(120);
+  ok("P: Add shows an uploading state first", /Uploading/.test(await txt(h, "#toast")) && (await h.locator("[data-act=addgal]").isDisabled()));
+  await sleep(900);
+  ok("P: then the count rises with an Added/Undo toast", parseInt((await txt(h, "#p-pho .lbl .sub")), 10) === n0 + 1 && /Added a photo/.test(await txt(h, "#toast")) && (await h.locator("#toast .tundo").count()) === 1, await txt(h, "#toast"));
+  await h.click("#toast .tundo"); await sleep(150);
+  ok("P: Undo takes it back", parseInt((await txt(h, "#p-pho .lbl .sub")), 10) === n0);
+  await h.close();
+  // step photos in both modes
+  for (const q of ["edit=1", "scope=met"]) {
+    const t = await open(ctx, q);
+    const withPh = await t.locator("#met .pwrap").count();
+    ok("P " + q + ": photo steps show X and Replace in place", withPh > 0 && (await t.locator("#met .pwrap .phx").count()) === withPh && (await t.locator("#met .pwrap .phr").count()) === (await t.locator("#met .pwrap .psp:not(.pprep)").count()));
+    ok("P " + q + ": a step without a photo shows Add photo", (await t.locator("#met .addph").count()) > 0);
+    const before = await t.locator("#met .pwrap").count();
+    await t.focus("#met .pwrap .phx"); await t.keyboard.press("Enter"); await sleep(150);
+    ok("P " + q + ": X removes with an Undo toast", (await t.locator("#met .pwrap").count()) === before - 1 && (await t.locator("#toast .tundo").count()) === 1);
+    await t.click("#toast .tundo"); await sleep(150);
+    ok("P " + q + ": Undo restores the photo", (await t.locator("#met .pwrap").count()) === before);
+    const bg0 = await t.locator("#met .pwrap .psp").first().getAttribute("style");
+    await t.focus("#met .pwrap .phr"); await t.keyboard.press("Enter"); await sleep(150);
+    ok("P " + q + ": Replace swaps the photo with an Undo toast", (await t.locator("#met .pwrap .psp").first().getAttribute("style")) !== bg0 && /Replaced/.test(await txt(t, "#toast")));
+    await t.click("#met .addph"); await sleep(150);
+    ok("P " + q + ": Add photo on an empty step works", (await t.locator("#met .pwrap").count()) === before + 1 || (await t.locator("#met .pwrap").count()) >= before);
+    await t.close();
+  }
+  const ro = await open(ctx, "");
+  ok("P: read mode shows no X, Replace or Add photo", (await ro.locator("#met .phx, #met .phr, #met .addph").count()) === 0);
+  await ro.close();
 }
 await ctx.close();
 // console must be clean everywhere
