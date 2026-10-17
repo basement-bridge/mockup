@@ -4,4 +4,4 @@ body[data-sheet=open]::before{content:"";position:fixed;inset:0;background:var(-
 .sh-sheet{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(720px,calc(100vw - 32px));max-height:calc(100vh - 32px);padding:20px 24px 24px;border:1px solid var(--border);border-radius:var(--r-card);box-shadow:0 24px 70px rgba(0,0,0,.45)}
 .sh-sheet.pk-fly{padding-top:20px;padding-bottom:64px}
 .sh-sheet{--pdm-hd:96px}
-@media (max-width:719.98px){.sh-sheet{--pdm-hd:64px}#week[data-rich] .pdm .pdm-c{min-height:64px;padding:6px}#week[data-rich] .pdm .pdm-m{font-size:11px}}
+@media (max-width:719.98px){.sh-sheet{--pdm-hd:64px}#week[data-rich] .pdm .pdm-c{min-height:64px;padding:5px 6px}}

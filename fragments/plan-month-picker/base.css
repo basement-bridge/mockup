@@ -49,3 +49,13 @@
 .pk-swg a[aria-current]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 .pk-swg a:hover{border-color:var(--accent)}
 .pk-swp p{margin:0;font-size:11px;color:var(--muted)}
+/* Hold, a clear button next to the close control at the top of the flyout (owner, voice, 17 Oct 2026) and its brief message */
+.pk-pt{position:relative}
+.pk-holdb{flex:none;display:inline-flex;align-items:center;gap:6px;min-height:var(--tap);padding:0 14px;margin-right:6px;border-radius:var(--r-pill);border:1.5px solid var(--fg);background:var(--surface);color:var(--fg);font:800 14px var(--body);cursor:pointer}
+.pk-holdb svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pk-holdb[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.pk-holdb:hover{box-shadow:0 0 0 3px color-mix(in srgb,var(--fg) 18%,transparent)}
+.pk-holdb:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
+.pk-holdmsg{position:absolute;right:0;top:calc(100% + 4px);z-index:8;margin:0;max-width:280px;padding:6px 12px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);color:var(--fg);box-shadow:0 8px 24px rgba(0,0,0,.25);font-size:13px;font-weight:700;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .25s,visibility .25s}
+.pk-holdmsg.on{opacity:1;visibility:visible}
+@media (prefers-reduced-motion:reduce){.pk-holdmsg{transition:none}}

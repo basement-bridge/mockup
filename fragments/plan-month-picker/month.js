@@ -43,25 +43,19 @@ M.plans = function (d) {
 };
 
 /* ---------- the grid ---------- */
-/* what a cell says in words when it is big enough (wide.css, tablet.css): the meal's name, or Day off. An open night says NO words, only the plus (owner, voice, 17 Oct 2026: no "Plan here", not even a small caption). month.css and phone.css hide it; the aria-label always carries everything. */
-function mealText(d, k) {
-  if (k === "open") return "";
-  if (k === "off") return "Day off";
-  if (k === "past" || !d.meals.length) return "";
-  return d.meals[0].name + (d.meals.length > 1 ? " +" + (d.meals.length - 1) : "");
-}
 function cell(n, cur) {
   var d = PK.vis(n), dj = PK.vdayObj(n), k = state(d), g = d.past ? null : PK.guardFor(n);
   var left = n - 1, up = n - 7, ml = d.i > 0 && n - 1 >= P.winStart && PK.info(left).monN !== d.monN, mt = up >= P.winStart && PK.info(up).monN !== d.monN;
-  var icon = g === "stop" ? I.bang : k === "open" ? I.plus : k === "plan" ? mk(1) : k === "stack" ? mk(3) : k === "off" ? I.moon : "";
-  var badge = (d.off && d.meals.length && !d.past ? '<span class="pdm-bd moon" aria-hidden="true">' + I.moonF + "</span>" : "") + (g === "warn" ? '<span class="pdm-bd warn" aria-hidden="true">' + I.bang + "</span>" : "");
+  /* row 2: the plus on an open day, the planned dots (1 or 3), a moon for a day off; a date that cannot be planned for the selected person (the stop) has none */
+  var icon = g === "stop" ? "" : k === "open" ? I.plus : k === "plan" ? mk(1) : k === "stack" ? mk(3) : k === "off" ? I.moon : "";
+  var moon = d.off && d.meals.length && !d.past ? '<span class="pdm-bd moon" aria-hidden="true">' + I.moonF + "</span>" : "";
+  var warn = g ? '<span class="pdm-bd warn" aria-hidden="true">' + I.bang + "</span>" : ""; /* row 1: the red Hard avoid exclamation (asks first, or the stop) */
   var said = d.past ? "past" : d.meals.length ? (d.meals.length > 1 ? "planned, " + d.meals.length + " plans" : "planned") + (d.off ? (d.off === "usual" ? ", usual day off, cooking this week" : ", off this week only, cooking it") : "") : k === "off" ? "day off, " + kindOff(d) : WORD[k];
   var plans = !d.past && d.meals.length ? ". " + M.plans(dj).map(function (p) { return p.k + ": " + p.v; }).join(". ") : "";
   var lab = d.full + " " + d.num + " " + d.monFull + ", " + said + (g === "stop" ? ", Hard avoid, not for " + P.avoid.who : g === "warn" ? ", Hard avoid, asks first" : "") + plans;
   var cls = "pdm-c st-" + k + (ml ? " ml" : "") + (mt ? " mt" : "") + (g ? " g-" + g : "") + (d.num === 1 ? " first" : "");
-  var mt2 = g === "stop" ? "Not for " + P.avoid.who : mealText(d, k);
   return '<button type="button" role="gridcell" class="' + cls + '" data-n="' + n + '"' + (d.past ? " disabled" : "") + ' tabindex="' + (n === cur ? 0 : -1) + '" aria-label="' + esc(lab) + '">' +
-    '<span class="pdm-top"><b class="pdm-n">' + (d.num === 1 || n === P.winStart ? d.num + " " + d.mon : d.num) + "</b>" + badge + icon + "</span>" + (mt2 ? '<span class="pdm-m">' + esc(mt2) + "</span>" : "") + "</button>";
+    '<span class="pdm-top"><b class="pdm-n">' + (d.num === 1 || n === P.winStart ? d.num + " " + d.mon : d.num) + "</b>" + warn + "</span>" + (icon ? '<span class="pdm-mark">' + icon + "</span>" : "") + moon + "</button>";
 }
 function openCount(c) { var k = 0; for (var i = 0; i < 7; i++) if (state(PK.vis(P.winStart + c * 7 + i)) === "open") k++; return k; }
 /* o.summary: an "N open" count at the end of each week row (wide option C) */
@@ -98,6 +92,22 @@ M.nextHtml = function () {
 };
 /* the end of the cap: said in words under the last column, never only a colour */
 M.capHtml = function () { var l = PK.info(P.lastN); return '<p class="pdm-cap">' + I.end + "<span>The plan ends " + l.dn + " " + l.num + " " + l.mon + ", four weeks ahead</span></p>"; };
+
+/* ---------- the date card: what the side card, the bottom strip and the compact strip say about the date you are on (owner, voice, 17 Oct 2026: for a date that already has something, the tile is the signal, so the lines that restate what is planned are dropped; the chip, the consequence line and the action stay; an open date keeps the full detail) ---------- */
+var CHIP = { open: "Open", plan: "Planned", stack: "Planned, several", off: "Day off", past: "Past" };
+M.cardHtml = function (n) {
+  var d = PK.vis(n), dj = PK.dayObj(n), k = state(d), r = PK.R(), g = d.past ? null : PK.guardFor(n), v = R.view(dj, PK.ctxFor(dj));
+  var h = '<div class="pdw-rec"><span class="pdw-e" aria-hidden="true">' + esc(r.emoji || "") + '</span><div><b>' + esc(r.name) + "</b><small>" + r.mins + " min, serves " + r.serves + "</small></div></div>";
+  h += '<div class="pdw-date"><b>' + d.full + " " + d.num + " " + d.monFull + '</b><span class="pdw-chip c-' + k + '">' + CHIP[k] + (k === "off" ? ", " + (d.off === "usual" ? "every week" : "this week only") : "") + "</span></div>";
+  if (k === "open" && !d.past) h += '<p class="pdw-q">Nothing planned. This night is free.</p>';
+  if (d.past) return h + '<p class="pdw-q">Already past.</p>';
+  h += '<p class="pdw-cons">' + esc(v.cons) + (v.peek ? " Pick it twice: the first pick shows everyone’s plans." : "") + "</p>";
+  if (g === "stop") return h;
+  var label = k === "open" ? "Plan " + d.label : /^Replaces/.test(v.cons) ? "Replace what is planned" : k === "off" ? "Plan it, cook this week" : "Plan it here too";
+  var short = k === "open" ? "Plan " + d.label : /^Replaces/.test(v.cons) ? "Replace" : k === "off" ? "Plan it" : "Add too"; /* a one-line strip has a short button; the aria-label keeps the full words */
+  var strip = !!window.PKCardStrip;
+  return h + '<button type="button" class="pdw-go' + (k === "open" ? " is-open" : "") + '" data-sidepick data-n="' + n + '"' + (strip ? ' aria-label="' + esc(label) + '">' + esc(short) : ">" + label) + "</button>";
+};
 
 /* the line under the grid: what picking that date would do (the row's own consequence line), live for the hovered or focused date */
 M.say = function (n, msg) {

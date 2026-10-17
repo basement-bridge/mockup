@@ -26,35 +26,11 @@
 #week[data-wide=b] .pdm{grid-template-columns:repeat(7,minmax(0,1fr));column-gap:5px;row-gap:5px}
 #week[data-wide=b] .pdm-dh{padding:0 0 2px;justify-content:center}
 #week[data-wide=b] .pdm .pdm-c{min-height:60px;padding:6px}
-#week[data-wide=b] .pdm .pdm-n{font-size:14px}
-#week[data-wide=b] .pdm .pdm-top{gap:3px}
-#week[data-wide=b] .pdm .pdm-top>.pdm-i{width:15px;height:15px}
-#week[data-wide=b] .pdm .pdm-top .pdm-bd{width:12px;height:12px}
-#week[data-wide=b] .pdm .pdm-m{font-size:10.5px;-webkit-line-clamp:2}
-#week[data-wide=b] .pdm .st-open .pdm-m{font-size:10px}
+#week[data-wide=b] .pdm .pdm-n{font-size:12px}
+#week[data-wide=b] .pdm .pdm-mark{min-height:30px}
+#week[data-wide=b] .pdm .pdm-mark .pdm-i{width:24px;height:24px}
 #week[data-wide=b] .pdm-c.ml::before{left:-3.5px;top:-3.5px;bottom:-3.5px}
 #week[data-wide=b] .pdm-c.mt::after{top:-3.5px;left:-3.5px;right:-3.5px}
-.pdw-side{position:sticky;top:0;display:flex;flex-direction:column;gap:10px;padding:14px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--bg);font-size:13px}
-.pdw-rec{display:flex;gap:10px;align-items:center;padding-bottom:10px;border-bottom:1px solid var(--border)}
-.pdw-rec b{display:block;font:800 14px/1.2 var(--head)}
-.pdw-rec small{color:var(--muted);font-size:12px}
-.pdw-e{flex:none;width:44px;height:44px;display:grid;place-items:center;font-size:24px;border-radius:var(--r-ctl);background:color-mix(in srgb,var(--accent) 18%,var(--surface))}
-.pdw-date{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
-.pdw-date b{font:800 17px/1.2 var(--head)}
-.pdw-chip{display:inline-flex;align-items:center;min-height:22px;padding:0 9px;border-radius:var(--r-pill);border:1.5px solid var(--border);font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--fg)}
-.pdw-chip.c-open{background:var(--cue);border-color:var(--cue);color:var(--on-accent)}
-.pdw-chip.c-plan,.pdw-chip.c-stack{border-color:color-mix(in srgb,var(--muted) 55%,var(--surface));background:color-mix(in srgb,var(--fg) 7%,var(--surface))}
-.pdw-chip.c-off{background:color-mix(in srgb,var(--border) 70%,var(--surface));color:var(--muted)}
-.pdw-plans p{display:flex;flex-direction:column;gap:0;margin:0 0 6px}
-.pdw-plans b{font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
-.pdw-plans span{font-size:14px;font-weight:700}
-.pdw-q,.pdw-cons{margin:0;color:var(--fg);font-size:13px;line-height:1.35}
-.pdw-cons{color:var(--muted)}
-.pdw-go{min-height:var(--tap);padding:0 14px;border-radius:var(--r-pill);border:1.5px solid var(--fg);background:var(--surface);color:var(--fg);font:800 14px var(--body);cursor:pointer}
-.pdw-go.is-open{border-color:var(--cue);background:var(--cue);color:var(--on-accent)}
-.pdw-go:hover{box-shadow:0 0 0 3px color-mix(in srgb,var(--fg) 20%,transparent)}
-.pdw-go.is-open:hover{box-shadow:0 0 0 3px color-mix(in srgb,var(--cue) 40%,transparent)}
-.pdw-go:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
 
 /* THE SIDE CARD'S SPACE (owner open sub-question, 17 Oct 2026: the docked card takes room from the grid). ?card= on layout B; the default stays docked. Same content in every option (sideHtml); only where it sits changes. */
 .pdw-b[data-card=slim]{grid-template-columns:minmax(0,1fr) 176px;gap:12px}

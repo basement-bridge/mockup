@@ -14,6 +14,15 @@ var quiet = false, el, hold = null, want = null, saved = null, openDay = null, o
 var ANOTHER = Q.get("another") === "header" ? "header" : "row", NARROW = Q.get("w") === "narrow"; /* ?w=narrow: the single-flyout width with compact cells at ANY window size, the same look as ?wide=off and as a 1024 to 1359px window; ?w (normal) goes two flyouts wide when the window is 1360px or more */
 var NUM = /^(a|b|c)$/.test(Q.get("num") || "") ? Q.get("num") : "a", HALO = /^(hold|off)$/.test(Q.get("halo") || "") ? Q.get("halo") : "timed"; /* ?num=a|b|c the date number; ?halo=hold keeps the opening halo on, ?halo=off shows the month after it faded */
 var halo = false, haloT = null;
+var holdMsg = "", holdMsgT = null; /* the brief confirmation after Hold or Unhold: about 3 seconds like F's hold, in a polite live region that is not redrawn by the toggle, so a screen reader announces it */
+function showHoldMsg(txt) {
+  holdMsg = txt; clearTimeout(holdMsgT); var m = $("#pk-holdmsg"); if (m) { m.textContent = txt; m.classList.add("on"); }
+  holdMsgT = setTimeout(function () { holdMsg = ""; var q = $("#pk-holdmsg"); if (q) { q.classList.remove("on"); setTimeout(function () { if (!holdMsg && q) q.textContent = ""; }, 400); } }, 3000);
+}
+function holdToggle(t) {
+  S.hold = !S.hold; t.setAttribute("aria-pressed", String(S.hold)); var sp = t.querySelector("span"); if (sp) sp.textContent = S.hold ? "Held" : "Hold";
+  showHoldMsg(S.hold ? "Ingredients will be reserved for this recipe." : "Ingredients released.");
+}
 /* the transient halo on EVERY open date at once (owner, voice, 17 Oct 2026): it fires by itself the moment the month opens (no hover or focus needed), holds about 3 seconds (F's confirmation-hold family), then fades; the first press or key ends it at once.
    Today stays the selected and focused cell. Hover and keyboard focus keep their own glow on top (month.css). */
 function haloOn() { clearTimeout(haloT); halo = HALO === "off" || !M ? false : true; if (halo && HALO === "timed") haloT = setTimeout(clearHalo, 3000); }
@@ -33,6 +42,7 @@ function lastLabel() { var l = PK.info(P.lastN); return l.dn + " " + l.num + " "
 function days() { var o = []; for (var i = 0; i < 7; i++) { var d = PK.dayObj(P.todayN + i); d.today = i === 0; o.push(d); } return o; }
 function ctxFor(d) { return { who: S.who, me: P.me, avoid: P.avoid, guard: PK.guardFor(d.n), offRule: "open" }; }
 PK.ctxFor = ctxFor;
+function stText(n, msg) { return $("#pdw-side") ? (msg ? M.say(n, msg) : "") : M.say(n, msg); } /* with a card or strip the line under the grid only carries a key message (the end of the plan); it never restates what picking does */
 var cellSel = function (n) { return '.pdm-c[data-n="' + n + '"]'; };
 
 /* what a pick does to the night, in the data model the plan already has (F's rules, unchanged) */
@@ -58,14 +68,17 @@ function draw() {
   var name = esc(PK.R().name), g = S.sel == null ? null : PK.guardFor(S.sel), mo = view === "month" && M, W = mo && wideNow() ? window.PKWide : null;
   var app = $("#app"); if (app) { if (W) app.dataset.plan = "wide"; else delete app.dataset.plan; } /* the host lane widens (wide.css); data-plan is the only thing the host sees */
   if (el) { if (mo) el.dataset.num = NUM; else delete el.dataset.num; }
-  if (el) { if (W) el.dataset.wide = WOPT; else delete el.dataset.wide; if (W || PK.rich) el.dataset.rich = "1"; else delete el.dataset.rich; } /* rich: cells big enough for a meal name (rich.css) */ if (M) { M.noPop = !!W && WOPT === "b"; M.popOver = !!W; }
+  if (el) { if (W) el.dataset.wide = WOPT; else delete el.dataset.wide; if (W || PK.rich) el.dataset.rich = "1"; else delete el.dataset.rich; } /* rich: cells big enough for a meal name (rich.css) */ if (M) { M.noPop = (!!W && WOPT === "b") || (!W && !PK.touch); M.popOver = !!W; } /* the card or strip is the detail, so there is no hover pop-up with it */
   var h = '<div class="pk-pt">' + (mo ? '<button type="button" class="x pdm-back" data-back aria-label="Back to the next seven days" title="Back to the next seven days">' + ico.back + "</button>" : "") +
     '<div><h2 id="pk-t">' + (mo ? "Another day" : "Plan " + name) + '</h2><p class="pk-sub">' + (mo ? name : "Pick a night. It is planned as soon as you pick.") + "</p></div>" +
     (!mo && ANOTHER === "header" ? '<button type="button" class="x pdm-cal" data-more aria-label="Another day: pick a date from the month, up to ' + lastLabel() + '" title="Another day">' + ico.cal + "</button>" : "") +
-    '<button type="button" class="x" data-close aria-label="Close">' + ico.x + "</button></div>" + PK.whoHtml() + (g ? PK.guardHtml() : "");
+    PK.holdBtn() + '<button type="button" class="x" data-close aria-label="Close">' + ico.x + '</button><p class="pk-holdmsg' + (holdMsg ? " on" : "") + '" id="pk-holdmsg" role="status" aria-live="polite">' + esc(holdMsg) + "</p></div>" + PK.whoHtml() + (g ? PK.guardHtml() : "");
   if (mo) {
-    var parts = { grid: M.html(cur, { summary: W && WOPT === "c" }), cap: M.capHtml(), st: '<p class="pdm-st" id="pdm-st" role="status" aria-live="polite">' + M.say(cur, msg) + "</p>", full: openN != null ? M.fullHtml(openN) : "", hold: PK.holdHtml(), hint: hint(), legend: M.legendHtml(), cur: cur };
-    h += W ? W.compose(WOPT, parts) : (PK.touch ? M.nextHtml() : "") + parts.grid + parts.cap + parts.st + parts.full + parts.hold + parts.hint + parts.legend;
+    var strip = !W && !PK.touch; /* the compact (narrow-desktop) flyout: the card docks at the bottom as a strip instead of the line under the grid */
+    var parts = { grid: M.html(cur, { summary: W && WOPT === "c" }), cap: M.capHtml(), st: '<p class="pdm-st" id="pdm-st" role="status" aria-live="polite">' + (strip ? (msg ? M.say(cur, msg) : "") : M.say(cur, msg)) + "</p>", full: openN != null ? M.fullHtml(openN) : "", hold: PK.holdHtml(), hint: hint(), legend: M.legendHtml(), cur: cur };
+    window.PKCardStrip = strip || (!!W && WOPT === "b" && CARD === "strip");
+    var cardEl = strip ? '<aside class="pdw-side pdw-strip pdw-compact" id="pdw-side" aria-label="The date you are on" aria-live="polite">' + M.cardHtml(cur) + "</aside>" : "";
+    h += W ? W.compose(WOPT, parts) : (PK.touch ? M.nextHtml() : "") + parts.grid + parts.cap + parts.st + cardEl + parts.full + parts.hold + parts.hint + parts.legend;
   } else {
     h += R.html(days(), ctxFor, openDay) + (ANOTHER === "row" ? moreRow() : "") + PK.holdHtml() + hint();
   }
@@ -119,19 +132,20 @@ function pickCell(n) {
 }
 /* wide option B: the side card follows the hovered or focused date */
 function side(n) {
-  var sd = $("#pdw-side"); if (!sd || !window.PKWide || !window.PKWide.sideHtml) return; sd.innerHTML = window.PKWide.sideHtml(n);
+  var sd = $("#pdw-side"); if (!sd || !M) return; sd.innerHTML = M.cardHtml(n);
   var b = sd.closest(".pdw-b"); if (b) { b.classList.add("has-card"); b.dataset.side = PK.info(n).i >= 4 ? "left" : "right"; } /* collapsed and overlay: the card opens on the first date you point at or focus; the overlay sits on the side away from that date */
 }
 function setCur(n, m) {
   var old = el.querySelector('.pdm-c[tabindex="0"]'); if (old) old.tabIndex = -1;
   cur = n; msg = m || ""; var b = el.querySelector(cellSel(n)); if (b) { b.tabIndex = 0; b.focus({ preventScroll: true }); }
-  side(n); var s = $("#pdm-st"); if (s) s.innerHTML = M.say(n, msg);
+  side(n); var s = $("#pdm-st"); if (s) s.innerHTML = stText(n, msg);
   if (b && !m) M.showPop(b, el); else if (M) M.hidePop();
 }
 function click(e) {
   var t = e.target.closest("button"); if (!t) return;
   if (hold) { if (t.hasAttribute("data-cfundo")) { var u = document.querySelector('.toast [data-act="undo"]'); if (u) u.click(); } return; }
   if (t.hasAttribute("data-more")) { openMonth(); return; }
+  if (t.hasAttribute("data-hold")) { holdToggle(t); return; }
   if (t.hasAttribute("data-back")) { back(); return; }
   if (t.hasAttribute("data-nextopen") || t.hasAttribute("data-sidepick")) { pickCell(+t.dataset.n); return; }
   if (t.classList.contains("pdm-c")) { pickCell(+t.dataset.n); return; }
@@ -142,14 +156,14 @@ function click(e) {
 /* hover and focus on a date: the line under the grid says what picking it does; a planned or closed date also shows what is planned, read only */
 function over(e) {
   if (view !== "month" || !M) return; var b = e.target.closest && e.target.closest(".pdm-c"); if (!b || b.disabled || b.classList.contains("pdm-sw")) return;
-  if (!quiet) side(+b.dataset.n); var s = $("#pdm-st"); if (s) s.innerHTML = M.say(+b.dataset.n); if (!quiet) M.showPop(b, el); /* the focus the flyout moves itself (today, on open) neither opens the card nor a popover */
+  if (!quiet) side(+b.dataset.n); var s = $("#pdm-st"); if (s) s.innerHTML = stText(+b.dataset.n); if (!quiet) M.showPop(b, el); /* the focus the flyout moves itself (today, on open) neither opens the card nor a popover */
 }
 function out(e) {
   if (view !== "month" || !M) return; var b = e.target.closest && e.target.closest(".pdm-c"); if (!b) return;
   if (e.relatedTarget && b.contains(e.relatedTarget)) return;
   if (CARD === "overlay" && e.relatedTarget && e.relatedTarget.closest && !e.relatedTarget.closest(".pdw-b")) { var ob = el.querySelector(".pdw-b"); if (ob) ob.classList.remove("has-card"); } /* the overlay closes when the pointer leaves the grid and the card */
   M.hidePop(); var s = $("#pdm-st"), a = document.activeElement, n = a && a.classList && a.classList.contains("pdm-c") && el.contains(a) ? +a.dataset.n : cur;
-  if (s) s.innerHTML = M.say(n, n === cur ? msg : ""); /* the side card (wide B) is left on the last date you pointed at, so moving to its Plan button never changes the date */
+  if (s) s.innerHTML = stText(n, n === cur ? msg : ""); /* the side card (wide B) is left on the last date you pointed at, so moving to its Plan button never changes the date */
 }
 
 PK.register({
