@@ -93,7 +93,16 @@ Read mode loads what the Recommended page loads. In the build the edit layer is 
 
 1280x720, 1440x900 and 1920x1080, typical, short, long and empty, read and edit, and with the Notes flyout and the History flyout open: the document never scrolls, nothing overflows sideways in the rail, the method, the hero or the strip, and the console is clean. Behaviour: the keeper gate, every field's save, cancel and error, Tab and Shift+Tab flow, quick add parsing, remove with Undo, keyboard and mouse reorder, step text, line breaks, times, photos, notes, Keep both and the version menu and History, empty states, keys quiet in a field, the narrow-window message. Screenshots in `screenshots/` (dark, plus one light).
 
-## Open questions for the owner
+## Decisions under delegation (19 Oct 2026: owner asked Claude to use best judgment on questions 1, 2, 3 and 6 below)
+
+**Decided by Claude under delegation, owner may override.** None is owner-decided; no behaviour in the mockup changed, because each call is what it already draws.
+
+1. **One revision per editing session** (Edit on to Done), each saved field a change with its own Undo. Why: the existing rule in `recipe/edit.js` is "every save is one revision with per-change undo", and History would otherwise fill with one-word revisions. Alternative: every field its own revision (noisier History, no half-open revision).
+2. **Inline replaces the right-lane edit panel on desktop at 80rem x 700px and up.** The panel stays below that size, for the assistant hand-off and for banner and gallery photos. Why: the owner's 17 Oct direction ("mostly inline edits rather than big fat 1990s forms") is newer than E-O5 (12 Oct), and the Pantry flyout pattern was chosen for items, which have no page to edit in place. Alternative: keep both everywhere (two experiences to keep in step).
+3. **The keeper question is asked once, when Edit is switched on for a keeper.** Why: there is no Save moment for the phone's sheet, and asking per field would interrupt typing; a Trying version never asks. Alternative: a small sheet at the first change (friendlier on entry, but interrupts the first edit).
+4. **E toggles edit mode; Esc cancels only the open field.** Why: E is already "edit the open item" (item flyout and recipe page), comma is History, and Done shows the same E cue; Esc stays "cancel the smallest thing" so it never discards saved work. Alternative: E only opens, Esc leaves edit mode.
+
+## Still open for the owner (4, 5, 7; 1, 2, 3 and 6 above stand unless he overrides)
 
 1. **One revision per session, or per change?** Recommended: per session (Edit on to Done), with per-change undo in History, so History does not fill with one-word revisions. Alternative: every saved field is its own revision. Wrong guess: either a noisy History or a revision that is only complete when you press Done (close the tab mid-session and you have a half-finished revision; the changes themselves are still saved).
 2. **Does inline editing replace the right-lane edit panel on desktop** (E-O5, 12 October)? Recommended: yes at 80rem and 700px and up; the panel stays below that, for the assistant hand-off and for banner and gallery photos. Wrong guess: two edit experiences to keep in step.

@@ -387,3 +387,5 @@ Q4. **Banner and gallery photos stay in the photo sheet** (R10): accept?
 Q5. **Inherited notes read-only** (R11): accept, or editable (changes the parent's note for everyone)?
 Q6. **E toggles edit mode; Esc cancels only the open field** (R1, R6): accept? (Today E opens the panel.)
 Q7. **Tab stops:** plain Tab through every value as drawn, or one stop per row with arrows in the build?
+
+**Update (delegation):** Q1, Q2, Q3 and Q6 above were decided by Claude under delegation, owner may override (as recommended; reasoning in `inline-edit/notes.md`, "Decisions under delegation"). Q4, Q5 and Q7 stay open.
