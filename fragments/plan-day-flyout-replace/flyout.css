@@ -1,0 +1,104 @@
+/* Plan day flyout, replace and timer fixes (mockup only). Tokens only (theme.css). The flyout rows, chips, Held pill and confirmation are the Plan it flyout's own (class names row-d, dl, dt, ln, cons, fors, pk-pt, pk-holdb, pk-conf);
+   the new pieces are .rp (the replace call-out), .ln.gone (the meal that would go) and the frame scaffolding (.fr*, .cap, .tl*), which exist only on this page. */
+.wrap.pdfr{max-width:1040px}
+.pdfr h1{font-size:1.75rem}
+.pdfr .note{font-size:14px;color:var(--fg);margin:4px 0 4px}
+.pdfr .rec{font-size:13px;color:var(--sage);margin:0 0 6px}
+.pdfr .rec b{color:var(--sage)}
+.pdfr .owner{margin:10px 0 0;padding:10px 12px;border-left:3px solid var(--accent);background:var(--surface);border-radius:0 var(--r-ctl) var(--r-ctl) 0;font-size:13px;color:var(--fg)}
+.pdfr code{font-size:12.5px}
+.pdfr .pair{display:flex;flex-wrap:wrap;gap:20px 24px;align-items:flex-start;margin:12px 0}
+.fr-w{margin:0;flex:0 1 auto;min-width:0;max-width:100%}
+.fr-lbl{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+.fr{position:relative;color:var(--fg);background:var(--surface);border:1px solid var(--border);padding:16px;display:flex;flex-direction:column;gap:8px;overflow:hidden}
+.fr-w.phone{width:372px}.fr-w.desk{width:468px}
+.fr.phone{width:100%;border-radius:var(--r-phone);padding:20px 16px 18px}
+.fr.desk{width:100%;border-radius:var(--r-card)}
+.fr-ctl{margin-top:6px;display:flex;gap:8px;align-items:center;font-size:12px;color:var(--muted)}
+.fr-ctl button{min-height:32px;padding:0 12px;border-radius:var(--r-pill);border:1px dashed var(--border);background:none;color:var(--fg);font:700 12px var(--body)}
+.fr-ctl button:hover{border-color:var(--accent)}
+.fr .cap{align-self:flex-start;margin:6px 0 -2px;padding:1px 9px;border:1px dashed var(--accent);border-radius:var(--r-pill);font-size:11px;font-weight:800;letter-spacing:.03em;color:var(--accent);background:none}
+.fr .cap:first-child{margin-top:0}
+.fr-gone{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:28px 4px;color:var(--muted);font-size:13px;min-height:120px}
+.fr-gone button{min-height:36px;padding:0 16px}
+
+/* the flyout head, chips and rows */
+.fr h2{margin:0;font:800 18px/1.2 var(--head)}
+.fr .pk-sub{font-size:13px;color:var(--muted);margin:2px 0 0}
+.fr .lbl{font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.pk-pt{display:flex;align-items:flex-start;gap:8px}
+.pk-pt>div{flex:1;min-width:0}
+.x{flex:none;width:var(--tap);height:var(--tap);border-radius:50%;border:1px solid var(--border);background:var(--bg);display:inline-grid;place-items:center;color:var(--fg)}
+.x svg,.pk-holdb svg,.rp svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.pk-holdb{flex:none;display:inline-flex;align-items:center;gap:6px;min-height:var(--tap);padding:0 14px;border-radius:var(--r-pill);border:1.5px solid var(--accent);background:var(--accent);color:var(--on-accent);font:800 14px var(--body)}
+.fors{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.fors button{min-height:var(--tap);padding:0 16px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-weight:700;font-size:14px;color:var(--fg)}
+.fors button[aria-pressed=true]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.kbd{font:600 11px var(--body);border:1px solid var(--border);border-radius:6px;padding:1px 5px;color:var(--muted);background:var(--surface);white-space:nowrap}
+.phint{font-size:11px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;margin:4px 0 0}
+.btn{min-height:var(--tap);padding:0 18px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--surface);color:var(--fg);font:600 14px var(--body);display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn.ghost{background:none}
+.rows{display:flex;flex-direction:column;gap:6px;margin:2px 0}
+.row-d{display:flex;align-items:stretch;gap:12px;width:100%;min-height:56px;padding:0;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--surface);text-align:left;color:var(--fg);overflow:hidden;position:relative;font-family:var(--body)}
+.row-d .dl{flex:none;width:56px;min-height:56px;display:grid;place-items:center;font:800 14px var(--head);background:var(--bg);border-right:1px solid var(--border)}
+.row-d .dt{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:8px 12px 8px 0;font-size:14px;line-height:1.3;overflow-wrap:anywhere}
+.row-d .dt .ln{display:block}
+.row-d .dt .ln.mu{color:var(--muted)}
+.row-d .dt .cons{font-size:12px;color:var(--muted);font-weight:600}
+.row-d.open{border-style:dashed}
+.row-d.off .dl{color:var(--muted)}
+.row-d:hover{border-color:var(--accent)}
+.row-d:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.row-d .ln.pill{width:max-content;max-width:100%;white-space:nowrap;line-height:18px;padding:1px 10px;margin:0 0 3px;border-radius:9px;border:1px solid var(--border);background:var(--bg);color:var(--muted);font-size:12px;font-weight:700}
+.row-d .ln.sub{margin-top:4px;font-size:12px;line-height:16px;color:var(--muted);font-weight:500}
+
+/* the replace call-out (new): tone, icon and wording together, never colour alone. No confirm step: one tap plans, Undo is in the confirmation. */
+.row-d.replace{border-color:var(--danger)}
+.row-d.replace .dl{box-shadow:inset 4px 0 0 var(--danger)}
+.row-d.replace:hover{border-color:var(--danger);box-shadow:0 0 0 1px var(--danger)}
+.row-d.replace:focus-visible{outline-color:var(--danger)}
+.row-d .ln.rp{display:inline-flex;align-items:center;gap:5px;width:max-content;max-width:100%;margin:0 0 2px;padding:1px 10px 1px 6px;border-radius:9px;border:1.5px solid var(--danger);color:var(--danger);background:color-mix(in srgb,var(--danger) 12%,transparent);font:800 12px/18px var(--body)}
+.row-d .ln.gone{color:var(--muted);text-decoration:line-through;text-decoration-thickness:1.5px}
+.row-d.replace .cons{color:var(--fg)}
+
+/* the confirmation */
+.pk-conf{display:flex;align-items:center;gap:14px;margin:auto 0;padding:24px 4px;min-height:150px}
+.pk-conf-tick{flex:none;width:44px;height:44px;border-radius:50%;background:var(--added-bg);color:var(--added-fg);display:grid;place-items:center;font:800 22px var(--head)}
+.pk-conf>div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.pk-conf-v{font:800 20px var(--head)}
+.pk-conf-n{font-size:15px;font-weight:700;overflow-wrap:anywhere}
+.pk-conf-d{font-size:13px;color:var(--muted)}
+.pk-conf-x{font-size:13px;color:var(--fg)}
+.pk-conf-undo{align-self:flex-start;margin-top:8px;min-height:36px;padding:0 16px}
+.pk-conf-undo:focus-visible{outline:2px solid var(--cue);outline-offset:2px}
+.pk-out{animation:pk-slide-out .24s ease-in forwards}
+@keyframes pk-slide-out{from{opacity:1;transform:none}to{opacity:0;transform:translateX(32px)}}
+@media (prefers-reduced-motion:reduce){.pk-out{animation:none;opacity:0}}
+
+/* timer annotation (mockup only, not in the app) */
+.tm{display:flex;flex-direction:column;gap:4px;padding:8px 10px;border:1px dashed var(--accent);border-radius:var(--r-ctl);font-size:12px;color:var(--fg)}
+.tm-bar{height:8px;border-radius:4px;background:var(--bg);border:1px solid var(--border);overflow:hidden}
+.tm-bar i{display:block;height:100%;width:100%;background:var(--cue)}
+.tm[data-st=paused] .tm-bar i{background:repeating-linear-gradient(135deg,var(--accent) 0 5px,var(--surface) 5px 10px)}
+.tm b{font-weight:800}
+.tm small{color:var(--muted)}
+.tm-t{font-weight:700}
+
+/* timeline diagram */
+.tl{display:flex;flex-direction:column;gap:12px;margin:12px 0}
+.tl-r{display:grid;grid-template-columns:minmax(0,200px) minmax(0,1fr);gap:6px 14px;align-items:center}
+.tl-r>b{font-size:13px}
+.tl-bar{display:flex;gap:2px;min-width:0}
+.tl-bar span{min-height:34px;display:flex;align-items:center;justify-content:center;text-align:center;padding:2px 6px;font-size:11.5px;font-weight:700;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--fg);overflow:hidden}
+.tl-bar .run{background:var(--cue);color:var(--on-accent);border-color:var(--cue)}
+.tl-bar .hold{background:repeating-linear-gradient(135deg,var(--accent) 0 6px,var(--surface) 6px 12px);color:var(--fg);border-color:var(--accent);text-shadow:0 0 4px var(--surface),0 0 4px var(--surface)}
+.tl-bar .end{flex:none;width:34px;border-style:dashed;color:var(--muted);font-size:11px}
+.tl-key{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.tl-key i{display:inline-block;width:18px;height:10px;border-radius:3px;vertical-align:-1px;margin-right:5px;border:1px solid var(--border)}
+.tl-key .run{background:var(--cue)}
+.tl-key .hold{background:repeating-linear-gradient(135deg,var(--accent) 0 4px,var(--surface) 4px 8px)}
+@media(max-width:640px){.tl-r{grid-template-columns:1fr}}
+.oq{margin:8px 0 0;padding-left:20px;font-size:14px}
+.oq li{margin-bottom:10px}
+.oq li b{color:var(--fg)}
+.oq em{font-style:normal;color:var(--sage);font-weight:700}
