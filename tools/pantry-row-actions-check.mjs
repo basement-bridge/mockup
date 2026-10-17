@@ -1,7 +1,11 @@
-// Behaviour check for the Pantry row actions on desktop without swipe (Kitchie #866). Headless Chromium, desktop 1280 (and 1024, 1440 for overflow), dark and light, a mouse and a touch laptop.
-// Checks, per option (A hover actions, B context menu, C select and act, D panel and keys) and for "Today": every swipe action (Use one, Used up, Add to the shopping list) is reachable by the option's own way and
+// Behaviour check for the Pantry row actions on desktop without swipe (Kitchie #866). Headless Chromium, dark and light, a mouse and a touch laptop.
+// THE DECIDED VIEW (opt=all, owner 17 Oct 2026: A hover buttons + B right-click menu + C Ctrl/Cmd-click multi-select) is checked in full at 1024, 1280 and 1440: no three dots anywhere, the right-click menu away from the buttons
+// (Use one only where valid, Used up, Add to shopping list, Open) and no menu over the buttons, the selection bar with ONLY Add to shopping list and Used up (no Use one while more than one row is picked), Esc or Clear empties,
+// one Undo reverses a whole batch, the panel's Use one, the touch laptop, the edge and empty states. The earlier options (a to d, superseded, kept for context) keep their own checks at 1280.
+// Checks, per earlier option (A hover actions, B context menu, C select and act, D panel and keys) and for "Today": every swipe action (Use one, Used up, Add to the shopping list) is reachable by the option's own way and
 // by the keys, each has an Undo (button and Z), level-only and Out rows offer what applies and no more, rest state shows nothing extra, key caps and the cues switch, the touch-laptop fallback (no hover needed, 44px),
 // the used-up guardrail, the empty, all-used-up and saved-list states, no sideways scroll, targets, only the chosen option's files load, and no raw colours.
+// VERBOSE=1 prints every passing check; ONLY=all (or a, b, c, d) runs one option's behaviour block while you work on it.
 // Usage:  python3 -m http.server 8123 &   then   node tools/pantry-row-actions-check.mjs      (BASE=... to point elsewhere)
 // Needs playwright or playwright-core on the module path (NODE_PATH=/opt/node22/lib/node_modules works in the agent sandbox).
 import { createRequire } from "module";
@@ -10,7 +14,7 @@ const req = createRequire(import.meta.url); let pw; try { pw = req("playwright-c
 const { chromium } = pw;
 const ROOT = process.env.BASE || "http://localhost:8123/fragments/pantry-row-actions/";
 let fails = 0, total = 0;
-const ok = (name, cond, extra) => { total++; if (!cond) { fails++; console.log("FAIL", name, extra === undefined ? "" : JSON.stringify(extra)); } };
+const ok = (name, cond, extra) => { total++; if (process.env.VERBOSE && cond) console.log("ok  ", name); if (!cond) { fails++; console.log("FAIL", name, extra === undefined ? "" : JSON.stringify(extra)); } };
 const browser = await chromium.launch();
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const errs = [];
@@ -20,6 +24,7 @@ async function open(ctx, q, w) {
   p.on("request", r => p.reqs.push(r.url()));
   await p.goto(ROOT + "desktop.html?" + q); await p.waitForSelector("html[data-ready]"); await sleep(120); return p;
 }
+const CP = { x: 60, y: 24 }; // clicks on a row come in on its name side, as a hand does; at 1024 the open label of a hover button can reach across a 440px row
 const li = (p, id) => p.locator(`#plist li[data-id="${id}"]`);
 const meta = async (p, id) => (await li(p, id).locator(".meta").innerText()).trim();
 const badge = async p => Number(await p.locator("#badge").innerText());
@@ -30,17 +35,20 @@ const shown = async (p, sel) => { const v = await vis(p, sel); return !!v && v.o
 
 // ---- how each option performs the three actions on a row, with the mouse (the same scenario then runs on every option)
 const WAYS = {
-  a: { one: async (p, id) => { await li(p, id).locator(".rowlink").hover(); await li(p, id).locator(".rb.one").click(); }, shop: async (p, id) => { await li(p, id).locator(".rowlink").hover(); await li(p, id).locator(".rb.shop").click(); }, all: async (p, id) => { await li(p, id).locator(".rowlink").hover(); await li(p, id).locator(".rb.all").click(); } },
+  a: { one: async (p, id) => { await li(p, id).locator(".rowlink").hover({ position: CP }); await li(p, id).locator(".rb.one").click(); }, shop: async (p, id) => { await li(p, id).locator(".rowlink").hover({ position: CP }); await li(p, id).locator(".rb.shop").click(); }, all: async (p, id) => { await li(p, id).locator(".rowlink").hover({ position: CP }); await li(p, id).locator(".rb.all").click(); } },
   b: { one: async (p, id) => { await li(p, id).click({ button: "right" }); await p.locator('.rmenu [data-m="one"]').click(); }, shop: async (p, id) => { await li(p, id).click({ button: "right" }); await p.locator('.rmenu [data-m="shop"]').click(); }, all: async (p, id) => { await li(p, id).click({ button: "right" }); await p.locator('.rmenu [data-m="all"]').click(); } },
-  c: { one: async (p, id) => { await p.keyboard.press("Control+Enter"); await li(p, id).locator(".rowlink").hover(); await li(p, id).locator(".rsel").click(); await p.locator('[data-bulk="one"]').click(); }, shop: async (p, id) => { await p.keyboard.press("Control+Enter"); await li(p, id).locator(".rowlink").hover(); await li(p, id).locator(".rsel").click(); await p.locator('[data-bulk="shop"]').click(); }, all: async (p, id) => { await p.keyboard.press("Control+Enter"); await li(p, id).locator(".rowlink").hover(); await li(p, id).locator(".rsel").click(); await p.locator('[data-bulk="all"]').click(); } },
-  d: { one: async (p, id) => { await li(p, id).locator(".rowlink").click(); await p.locator('.pact [data-do="one"]').click(); }, shop: async (p, id) => { await li(p, id).locator(".rowlink").click(); await p.locator('.pact [data-do="shop"]').click(); }, all: async (p, id) => { await li(p, id).locator(".rowlink").click(); await p.locator('.pact [data-do="all"]').click(); } }
+  c: { one: async (p, id) => { await p.keyboard.press("Control+Enter"); await li(p, id).locator(".rowlink").hover({ position: CP }); await li(p, id).locator(".rsel").click(); await p.locator('[data-bulk="one"]').click(); }, shop: async (p, id) => { await p.keyboard.press("Control+Enter"); await li(p, id).locator(".rowlink").hover({ position: CP }); await li(p, id).locator(".rsel").click(); await p.locator('[data-bulk="shop"]').click(); }, all: async (p, id) => { await p.keyboard.press("Control+Enter"); await li(p, id).locator(".rowlink").hover({ position: CP }); await li(p, id).locator(".rsel").click(); await p.locator('[data-bulk="all"]').click(); } },
+  d: { one: async (p, id) => { await li(p, id).locator(".rowlink").click({ position: CP }); await p.locator('.pact [data-do="one"]').click(); }, shop: async (p, id) => { await li(p, id).locator(".rowlink").click({ position: CP }); await p.locator('.pact [data-do="shop"]').click(); }, all: async (p, id) => { await li(p, id).locator(".rowlink").click({ position: CP }); await p.locator('.pact [data-do="all"]').click(); } }
 };
 
+// the decided view: the hover buttons are the mouse way for one row; the pointer comes to the name side of the row first (x 60), as a hand does, because at 1024 the open label of a button can reach across a 440px row
+const hv = (p, id) => li(p, id).locator(".rowlink").hover({ position: { x: 60, y: 24 } });
+WAYS.all = { one: async (p, id) => { await hv(p, id); await li(p, id).locator(".rb.one").click(); }, shop: async (p, id) => { await hv(p, id); await li(p, id).locator(".rb.shop").click(); }, all: async (p, id) => { await hv(p, id); await li(p, id).locator(".rb.all").click(); } };
 const ONLY = process.env.ONLY; // ONLY=c  runs one option while you work on it
 for (const [scheme, theme] of [["dark", "kitchie"], ["light", "kitchie-day"]]) {
-  for (const opt of ["a", "b", "c", "d"].filter(o => !ONLY || ONLY.includes(o))) {
-    const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 }, colorScheme: scheme }); // a fresh context per option keeps the mouse and focus clean
-    const tag = `${opt} ${scheme}`, W = WAYS[opt], Q = `opt=${opt}&theme=${theme}`;
+  for (const [opt, vw] of [["all", 1024], ["all", 1280], ["all", 1440], ["a", 1280], ["b", 1280], ["c", 1280], ["d", 1280]].filter(([o]) => !ONLY || ONLY.includes(o))) {
+    const ctx = await browser.newContext({ viewport: { width: vw, height: 800 }, colorScheme: scheme }); // a fresh context per option keeps the mouse and focus clean
+    const tag = opt === "all" ? `all ${vw} ${scheme}` : `${opt} ${scheme}`, W = WAYS[opt], Q = `opt=${opt}&theme=${theme}`;
     // ---------- rest, loading ----------
     { const p = await open(ctx, Q);
       const loaded = p.reqs.filter(u => /\/opt-[a-z]+\.(css|js)$/.test(u)).map(u => u.split("/").pop());
@@ -48,6 +56,8 @@ for (const [scheme, theme] of [["dark", "kitchie"], ["light", "kitchie-day"]]) {
       ok(`${tag} load: nothing from outside this folder or the repo's theme files`, p.reqs.every(u => u.startsWith(new URL(ROOT).origin)), p.reqs.filter(u => !u.startsWith(new URL(ROOT).origin)));
       ok(`${tag} rest: 12 items listed, the used-up one hidden by default`, (await p.locator("#plist li[data-row]").count()) === 12 && await gone(p, "tahini"));
       ok(`${tag} theme: the page background is the theme's token`, await p.evaluate(t => getComputedStyle(document.body).backgroundColor === (t === "kitchie" ? "rgb(15, 30, 25)" : "rgb(246, 241, 230)"), theme));
+      if (opt === "all") {
+        ok(`${tag} rest: no row shows its buttons, no selection bar, no menu, until the person does something`, !(await shown(p, "li[data-id=eggs] .ract")) && !(await shown(p, "li[data-id=milk] .ract")) && (await p.locator("#selbar").isHidden()) && (await p.locator(".rmenu").isHidden())); }
       if (opt === "a") ok(`${tag} rest: no row shows its buttons until hover, focus or current`, !(await shown(p, "li[data-id=eggs] .ract")) && !(await shown(p, "li[data-id=milk] .ract")));
       if (opt === "b") ok(`${tag} rest: no three-dot button shows until hover, focus or current`, !(await shown(p, "li[data-id=eggs] .rmore")));
       if (opt === "c") ok(`${tag} rest: no check box shows until hover, focus, current or a pick`, !(await shown(p, "li[data-id=eggs] .rsel")));
@@ -75,35 +85,39 @@ for (const [scheme, theme] of [["dark", "kitchie"], ["light", "kitchie-day"]]) {
 
     // ---------- the keys are the app's and still work from every option ----------
     { const p = await open(ctx, Q);
-      await li(p, "eggs").locator(".rowlink").click();
+      await li(p, "eggs").locator(".rowlink").click({ position: CP });
       await p.keyboard.press("u"); ok(`${tag} keys: U uses one of the open item`, (await meta(p, "eggs")).startsWith("9"));
       await p.keyboard.press("z"); await p.keyboard.press("s"); ok(`${tag} keys: S adds it to the list`, /eggs added to your list|already/.test(await bar(p)), await bar(p));
       await p.keyboard.press("z");
       await p.keyboard.press("d"); ok(`${tag} keys: D uses it up and the next row (carrots) is open`, await gone(p, "eggs") && (await li(p, "carrots").locator(".rowlink[aria-current]").count()) === 1);
       await p.keyboard.press("z"); ok(`${tag} keys: Z brings eggs back`, !(await gone(p, "eggs")));
       await p.keyboard.press("j"); await p.keyboard.press("j"); ok(`${tag} keys: J moves down and opens the item`, (await p.locator(".rowlink[aria-current]").count()) === 1);
-      await li(p, "milk").locator(".rowlink").click(); await p.keyboard.press("u");
+      await li(p, "milk").locator(".rowlink").click({ position: CP }); await p.keyboard.press("u");
       ok(`${tag} keys: U on a level-only item says there is no Use one and changes nothing`, /not counted/.test(await bar(p)) && (await meta(p, "milk")).startsWith("1 litre"), await bar(p));
       await p.close(); }
 
     // ---------- level-only and Out rows ----------
     { const p = await open(ctx, Q + "&sel=milk");
-      if (opt === "a") { await li(p, "milk").locator(".rowlink").hover(); ok(`${tag} level-only: no Use one button, the other two show`, (await li(p, "milk").locator(".rb.one").count()) === 0 && await shown(p, "li[data-id=milk] .rb.shop") && await shown(p, "li[data-id=milk] .rb.all")); }
+      if (opt === "a") { await li(p, "milk").locator(".rowlink").hover({ position: CP }); ok(`${tag} level-only: no Use one button, the other two show`, (await li(p, "milk").locator(".rb.one").count()) === 0 && await shown(p, "li[data-id=milk] .rb.shop") && await shown(p, "li[data-id=milk] .rb.all")); }
+      if (opt === "all") { await li(p, "milk").locator(".rowlink").hover({ position: CP }); ok(`${tag} level-only: no Use one button, the other two show`, (await li(p, "milk").locator(".rb.one").count()) === 0 && await shown(p, "li[data-id=milk] .rb.shop") && await shown(p, "li[data-id=milk] .rb.all"));
+        ok(`${tag} level-only: the panel's Use one is disabled, with the reason`, (await p.locator('#panel [data-do="one"]').getAttribute("aria-disabled")) === "true" && /Not counted/.test(await p.locator("#panel .why").innerText())); }
       if (opt === "b") { await li(p, "milk").click({ button: "right" }); ok(`${tag} level-only: the menu's Use one is disabled and says why`, (await p.locator('.rmenu [data-m="one"]').getAttribute("aria-disabled")) === "true" && /not counted/.test(await p.locator('.rmenu [data-m="one"]').innerText())); await p.keyboard.press("Control+Enter"); }
       if (opt === "d") ok(`${tag} level-only: Use one is disabled in the panel, with the reason`, (await p.locator('.pact [data-do="one"]').getAttribute("aria-disabled")) === "true" && /Not counted/.test(await p.locator("#panel .why").innerText()));
-      if (opt === "c") { await li(p, "milk").locator(".rowlink").hover(); await li(p, "milk").locator(".rsel").click(); ok(`${tag} level-only: Use one is disabled and the lane says none are counted`, (await p.locator('[data-bulk="one"]').getAttribute("aria-disabled")) === "true" && /None of these are counted/.test(await p.locator(".sellane").innerText())); }
+      if (opt === "c") { await li(p, "milk").locator(".rowlink").hover({ position: CP }); await li(p, "milk").locator(".rsel").click(); ok(`${tag} level-only: Use one is disabled and the lane says none are counted`, (await p.locator('[data-bulk="one"]').getAttribute("aria-disabled")) === "true" && /None of these are counted/.test(await p.locator(".sellane").innerText())); }
       await p.close();
       const o = await open(ctx, Q + "&chip=Out");
       ok(`${tag} Out: the Out chip lists the used-up item`, (await li(o, "tahini").count()) === 1);
-      if (opt === "a") { await li(o, "tahini").locator(".rowlink").hover(); ok(`${tag} Out: only Add to list shows`, await shown(o, "li[data-id=tahini] .rb.shop") && !(await shown(o, "li[data-id=tahini] .rb.all")) && !(await shown(o, "li[data-id=tahini] .rb.one"))); await li(o, "tahini").locator(".rb.shop").click(); ok(`${tag} Out: Add to list works on it`, /tahini added to your list/.test(await bar(o))); }
+      if (opt === "all") { await li(o, "tahini").locator(".rowlink").hover({ position: CP }); ok(`${tag} Out: only Add to list shows on the row`, await shown(o, "li[data-id=tahini] .rb.shop") && !(await shown(o, "li[data-id=tahini] .rb.all")) && !(await shown(o, "li[data-id=tahini] .rb.one"))); await li(o, "tahini").locator(".rb.shop").click(); ok(`${tag} Out: Add to list works on it`, /tahini added to your list/.test(await bar(o)));
+        await li(o, "tahini").locator(".rowlink").click({ position: CP }); ok(`${tag} Out: the panel's Used up and Use one are disabled, Add to shopping list is live`, (await o.locator('#panel [data-do="all"]').getAttribute("aria-disabled")) === "true" && (await o.locator('#panel [data-do="one"]').getAttribute("aria-disabled")) === "true" && (await o.locator('#panel [data-do="shop"]').getAttribute("aria-disabled")) === null); }
+      if (opt === "a") { await li(o, "tahini").locator(".rowlink").hover({ position: CP }); ok(`${tag} Out: only Add to list shows`, await shown(o, "li[data-id=tahini] .rb.shop") && !(await shown(o, "li[data-id=tahini] .rb.all")) && !(await shown(o, "li[data-id=tahini] .rb.one"))); await li(o, "tahini").locator(".rb.shop").click(); ok(`${tag} Out: Add to list works on it`, /tahini added to your list/.test(await bar(o))); }
       if (opt === "b") { await li(o, "tahini").click({ button: "right" }); const dis = async k => (await o.locator(`.rmenu [data-m="${k}"]`).getAttribute("aria-disabled")) === "true"; ok(`${tag} Out: Use one and Used up are disabled, Add to shopping list is not`, await dis("one") && await dis("all") && !(await dis("shop"))); await o.keyboard.press("Control+Enter"); }
       if (opt === "c") ok(`${tag} Out: no check box (nothing to use or use up; Add to list is on the open item)`, !(await shown(o, "li[data-id=tahini] .rsel")));
-      if (opt === "d") { await li(o, "tahini").locator(".rowlink").click(); ok(`${tag} Out: the panel's Used up is disabled, Add to shopping list is live`, (await o.locator('.pact [data-do="all"]').getAttribute("aria-disabled")) === "true" && (await o.locator('.pact [data-do="shop"]').getAttribute("aria-disabled")) === null); }
+      if (opt === "d") { await li(o, "tahini").locator(".rowlink").click({ position: CP }); ok(`${tag} Out: the panel's Used up is disabled, Add to shopping list is live`, (await o.locator('.pact [data-do="all"]').getAttribute("aria-disabled")) === "true" && (await o.locator('.pact [data-do="shop"]').getAttribute("aria-disabled")) === null); }
       await o.close(); }
 
     // ---------- the used-up guardrail: the third inside five minutes ----------
     { const p = await open(ctx, Q + "&guard=2&sel=peas");
-      if (opt === "c") { await li(p, "peas").locator(".rowlink").hover(); await li(p, "peas").locator(".rsel").click(); await p.locator('[data-bulk="all"]').click(); } else await W.all(p, "peas");
+      if (opt === "c") { await li(p, "peas").locator(".rowlink").hover({ position: CP }); await li(p, "peas").locator(".rsel").click(); await p.locator('[data-bulk="all"]').click(); } else await W.all(p, "peas");
       ok(`${tag} guardrail: a third used-up inside 5 minutes asks in place and changes nothing`, !(await gone(p, "peas")) && /Several items were used up just now\. Use up peas anyway\?/.test(await bar(p)) && (await p.locator("#undo-bar .ubtn").count()) === 2, await bar(p));
       await p.locator("#undo-bar .ubtn", { hasText: "Use up" }).click(); ok(`${tag} guardrail: Use up then does it`, await gone(p, "peas"));
       await p.close();
@@ -127,13 +141,13 @@ for (const [scheme, theme] of [["dark", "kitchie"], ["light", "kitchie-day"]]) {
       await d.close();
       const lone = await open(ctx, Q + "&keep=peas");
       ok(`${tag} last item: one item in stock`, (await lone.locator("#plist li[data-row]").count()) === 1);
-      await lone.locator("li[data-id=peas] .rowlink").click(); await lone.keyboard.press("d");
+      await lone.locator("li[data-id=peas] .rowlink").click({ position: CP }); await lone.keyboard.press("d");
       ok(`${tag} last item: using it up leaves "Nothing in stock." with a way to the used-up items, and Undo`, /Nothing in stock\./.test(await lone.locator("#plist").innerText()) && (await lone.locator("#undo-button").count()) === 1);
       await lone.locator("#undo-button").click(); ok(`${tag} last item: Undo restores the row`, (await lone.locator("#plist li[data-row]").count()) === 1);
       await lone.close();
       const srch = await open(ctx, Q);
       await srch.locator("#q").fill("peas"); await sleep(80); ok(`${tag} search: one match`, (await srch.locator("#plist li[data-row]").count()) === 1);
-      await srch.locator("li[data-id=peas] .rowlink").click(); await srch.keyboard.press("d");
+      await srch.locator("li[data-id=peas] .rowlink").click({ position: CP }); await srch.keyboard.press("d");
       ok(`${tag} search: a used-up item stays findable, shown as Out`, (await srch.locator("li[data-id=peas][data-gone]").count()) === 1 && /Out/.test(await srch.locator("li[data-id=peas] .due").textContent()));
       await srch.close(); }
 
@@ -147,7 +161,7 @@ for (const [scheme, theme] of [["dark", "kitchie"], ["light", "kitchie-day"]]) {
     // ---------- option specifics ----------
     if (opt === "a") {
       const p = await open(ctx, Q);
-      await li(p, "eggs").locator(".rowlink").hover();
+      await li(p, "eggs").locator(".rowlink").hover({ position: CP });
       ok(`a hover: three buttons with key caps U, S, D, in that order, the tick last`, (await li(p, "eggs").locator(".rb .kbd").allInnerTexts()).join("") === "USD");
       ok(`a hover: the use-by words step aside while the buttons show`, (await vis(p, "li[data-id=eggs] .due")).v === "hidden");
       ok(`a hover: the buttons are 40px tall or more`, (await vis(p, "li[data-id=eggs] .rb.one")).h >= 40);
@@ -155,7 +169,7 @@ for (const [scheme, theme] of [["dark", "kitchie"], ["light", "kitchie-day"]]) {
       ok(`a hover: each button has a spoken name with the item`, /Use one of Eggs/.test(await li(p, "eggs").locator(".rb.one").getAttribute("aria-label")) && /Add to shopping list: Eggs/.test(await li(p, "eggs").locator(".rb.shop").getAttribute("aria-label")) && /Mark as used up: Eggs/.test(await li(p, "eggs").locator(".rb.all").getAttribute("aria-label")));
       await p.mouse.move(5, 5); await li(p, "milk").locator(".rowlink").focus();
       ok(`a keyboard: focus on a row shows its buttons`, await shown(p, "li[data-id=milk] .ract"));
-      await li(p, "thighs").locator(".rowlink").hover();
+      await li(p, "thighs").locator(".rowlink").hover({ position: CP });
       const g = await p.evaluate(() => { const n = document.querySelector("li[data-id=thighs] .name").getBoundingClientRect(), s = document.querySelector("li[data-id=thighs] .ract").getBoundingClientRect(); return { nameRight: n.right, stripLeft: s.left + 28 }; });
       ok(`a long name: the name ends before the buttons, it does not run under them`, g.nameRight <= g.stripLeft + 1, g);
       await p.close();
@@ -177,22 +191,22 @@ for (const [scheme, theme] of [["dark", "kitchie"], ["light", "kitchie-day"]]) {
       await p.keyboard.press("Control+Enter"); ok(`b menu: Ctrl or Cmd Enter closes it (the owner's close chord)`, (await p.locator(".rmenu").isHidden()));
       await li(p, "eggs").click({ button: "right" }); await p.mouse.click(1100, 600); ok(`b menu: a click outside closes it`, await p.locator(".rmenu").isHidden());
       await li(p, "eggs").click({ button: "right", modifiers: ["Shift"] }); ok(`b menu: Shift right click leaves the browser's own menu alone`, await p.locator(".rmenu").isHidden());
-      await li(p, "eggs").locator(".rowlink").click(); await p.keyboard.press("ContextMenu"); ok(`b menu: the Menu key opens it on the current row`, !(await p.locator(".rmenu").isHidden()));
+      await li(p, "eggs").locator(".rowlink").click({ position: CP }); await p.keyboard.press("ContextMenu"); ok(`b menu: the Menu key opens it on the current row`, !(await p.locator(".rmenu").isHidden()));
       await p.keyboard.press("Control+Enter"); await p.keyboard.press("Shift+F10"); ok(`b menu: Shift F10 opens it too`, !(await p.locator(".rmenu").isHidden()));
       await p.keyboard.press("d"); ok(`b menu: a letter inside the menu does the action (D: used up)`, await gone(p, "eggs") && await p.locator(".rmenu").isHidden());
       await p.keyboard.press("z");
-      await li(p, "carrots").locator(".rowlink").hover(); await li(p, "carrots").locator(".rmore").click(); ok(`b button: the three-dot button opens the same menu`, !(await p.locator(".rmenu").isHidden()) && (await p.locator("li[data-id=carrots] .rmore").getAttribute("aria-expanded")) === "true");
+      await li(p, "carrots").locator(".rowlink").hover({ position: CP }); await li(p, "carrots").locator(".rmore").click(); ok(`b button: the three-dot button opens the same menu`, !(await p.locator(".rmenu").isHidden()) && (await p.locator("li[data-id=carrots] .rmore").getAttribute("aria-expanded")) === "true");
       ok(`b button: it is 40px or more and named`, (await vis(p, "li[data-id=carrots] .rmore")).h >= 40 && /Actions for Carrots/.test(await li(p, "carrots").locator(".rmore").getAttribute("aria-label")));
       await p.close();
       const lm = await open(ctx, Q + "&menu=eggs"); ok(`b menu (?menu=eggs): opens for the still, dark and light`, !(await lm.locator(".rmenu").isHidden())); await lm.close();
     }
     if (opt === "c") {
       const p = await open(ctx, Q);
-      await li(p, "eggs").locator(".rowlink").hover(); await li(p, "eggs").locator(".rsel").click();
+      await li(p, "eggs").locator(".rowlink").hover({ position: CP }); await li(p, "eggs").locator(".rsel").click();
       ok(`c select: one pick shows "1 selected" in the lane, every row now shows a check box`, /1 selected/.test(await p.locator("#panel").innerText()) && await shown(p, "li[data-id=milk] .rsel"));
-      await li(p, "pasta").locator(".rowlink").click(); ok(`c select: with a pick, a plain click on a row adds it, it does not open it`, /2 selected/.test(await p.locator("#panel").innerText()));
-      await li(p, "pasta").locator(".rowlink").click(); ok(`c select: and a second click removes it`, /1 selected/.test(await p.locator("#panel").innerText()));
-      await p.keyboard.press("Control+Enter"); await li(p, "eggs").locator(".rowlink").hover(); await li(p, "eggs").locator(".rsel").click();
+      await li(p, "pasta").locator(".rowlink").click({ position: CP }); ok(`c select: with a pick, a plain click on a row adds it, it does not open it`, /2 selected/.test(await p.locator("#panel").innerText()));
+      await li(p, "pasta").locator(".rowlink").click({ position: CP }); ok(`c select: and a second click removes it`, /1 selected/.test(await p.locator("#panel").innerText()));
+      await p.keyboard.press("Control+Enter"); await li(p, "eggs").locator(".rowlink").hover({ position: CP }); await li(p, "eggs").locator(".rsel").click();
       await li(p, "carrots").locator(".rowlink").click({ modifiers: ["Shift"] }); ok(`c select: Shift click picks the range from the last pick (eggs to carrots)`, /2 selected/.test(await p.locator("#panel").innerText()));
       await p.keyboard.press("Control+a"); const all = Number((await p.locator("#panel h2").innerText()).split(" ")[0]); ok(`c select: Ctrl or Cmd A picks every row on screen (12)`, all === 12, all);
       await p.keyboard.press("Control+Enter"); ok(`c select: Ctrl or Cmd Enter clears, the lane goes back to the item`, !/selected/.test(await p.locator("#panel").innerText()) && (await p.locator("#plist[data-selecting]").count()) === 0);
@@ -203,7 +217,7 @@ for (const [scheme, theme] of [["dark", "kitchie"], ["light", "kitchie-day"]]) {
       await p.locator('[data-bulk="all"]').click(); await p.locator('[data-bulk="confirm"]').click();
       ok(`c bulk: confirming uses all three up and says so, one Undo for the lot`, await gone(p, "eggs") && await gone(p, "carrots") && /3 items used up/.test(await bar(p)), await bar(p));
       await p.locator("#undo-button").click(); ok(`c bulk: Undo brings all three back together`, !(await gone(p, "eggs")) && !(await gone(p, "carrots")) && !(await gone(p, "butter")));
-      await li(p, "eggs").locator(".rowlink").hover(); await li(p, "eggs").locator(".rsel").click(); await li(p, "peas").locator(".rsel").click(); await li(p, "rice").locator(".rsel").click(); await p.locator('[data-bulk="one"]').click();
+      await li(p, "eggs").locator(".rowlink").hover({ position: CP }); await li(p, "eggs").locator(".rsel").click(); await li(p, "peas").locator(".rsel").click(); await li(p, "rice").locator(".rsel").click(); await p.locator('[data-bulk="one"]').click();
       ok(`c bulk: Use one applies to the counted ones only (eggs 9, peas used up, rice untouched) and says 2 of 3`, (await meta(p, "eggs")).startsWith("9") && await gone(p, "peas") && /2 items used one of|used one/.test(await bar(p)), await bar(p));
       await p.close();
       const lp = await open(ctx, Q + "&pick=eggs,peas,rice&ask=1"); ok(`c (?pick, ?ask): the confirm still opens for the link`, /Use up 3 items\?/.test(await lp.locator("#panel").innerText())); await lp.close();
@@ -216,6 +230,142 @@ for (const [scheme, theme] of [["dark", "kitchie"], ["light", "kitchie-day"]]) {
       ok(`d panel: no second copy of Used up lower down`, (await p.locator("#panel .pbtns").count()) === 0);
       await p.close();
     }
+    if (opt === "all") {
+      const L = "position"; // right-click and Ctrl click are made on the NAME side of a row (x 60), away from the hover buttons, at every width
+      const away = { x: 60, y: 24 };
+      const rc = (p, id) => li(p, id).click({ button: "right", position: away });
+      const names = async p => (await p.locator(".rmenu .mi .lb").allInnerTexts()).map(x => x.replace(/\s+/g, " ").trim()).join("|");
+      const barTxt = async p => (await p.locator("#selbar").innerText()).replace(/\s+/g, " ").trim();
+      const barActs = async p => (await p.locator("#selbar [data-bulk]").evaluateAll(a => a.map(b => b.dataset.bulk))).join("|");
+      const sc = async (p, id, mod) => li(p, id).locator(".rowlink").click({ modifiers: mod || ["Control"], position: away });
+      const open1 = (extra) => open(ctx, Q + (extra || ""));
+
+      // ---------- A: the hover buttons on the right side of a row ----------
+      { const p = await open1();
+        await li(p, "eggs").locator(".rowlink").hover({ position: CP });
+        ok(`${tag} A: three buttons with key caps U, S, D, in that order, the tick last`, (await li(p, "eggs").locator(".rb .kbd").allInnerTexts()).join("") === "USD");
+        ok(`${tag} A: the use-by words step aside while the buttons show`, (await vis(p, "li[data-id=eggs] .due")).v === "hidden");
+        ok(`${tag} A: the buttons are 40px tall or more`, (await vis(p, "li[data-id=eggs] .rb.one")).h >= 40);
+        ok(`${tag} A: the buttons sit on the right side of the row`, await p.evaluate(() => { const r = document.querySelector("li[data-id=eggs]").getBoundingClientRect(), a = document.querySelector("li[data-id=eggs] .ract").getBoundingClientRect(); return a.right > r.right - 16 && a.left > r.left + (r.width / 2) - 40; }));
+        ok(`${tag} A: a button opens its label under the pointer, the others stay icons`, await (async () => { await li(p, "eggs").locator(".rb.shop").hover(); const a = (await vis(p, "li[data-id=eggs] .rb.shop .lbl")).d, b = (await vis(p, "li[data-id=eggs] .rb.one .lbl")).d; return a !== "none" && b === "none"; })());
+        ok(`${tag} A: each button has a spoken name with the item`, /Use one of Eggs/.test(await li(p, "eggs").locator(".rb.one").getAttribute("aria-label")) && /Add to shopping list: Eggs/.test(await li(p, "eggs").locator(".rb.shop").getAttribute("aria-label")) && /Mark as used up: Eggs/.test(await li(p, "eggs").locator(".rb.all").getAttribute("aria-label")));
+        await p.mouse.move(5, 5); await li(p, "milk").locator(".rowlink").focus(); ok(`${tag} A: focus on a row shows its buttons`, await shown(p, "li[data-id=milk] .ract"));
+        await li(p, "thighs").locator(".rowlink").hover({ position: CP });
+        const g = await p.evaluate(() => { const n = document.querySelector("li[data-id=thighs] .name").getBoundingClientRect(), s = document.querySelector("li[data-id=thighs] .ract").getBoundingClientRect(); return { nameRight: n.right, stripLeft: s.left }; });
+        ok(`${tag} A: a long name ends before the buttons, it does not run under them`, g.nameRight <= g.stripLeft + 1, g);
+        ok(`${tag} A: the use-by clear of the fade: the strip is not wider than the padding kept for it`, await p.evaluate(() => { const l = document.querySelector("li[data-id=thighs] .rowlink"), s = document.querySelector("li[data-id=thighs] .ract"); return l.getBoundingClientRect().right - s.getBoundingClientRect().left <= parseFloat(getComputedStyle(l).paddingRight) + 1; }));
+        await p.close();
+        const m = await open1("&sel=eggs"); const x0 = await li(m, "eggs").locator(".rowlink").boundingBox(); await m.mouse.move(x0.x + 60, x0.y + 20); await m.mouse.down(); await m.mouse.move(x0.x + 250, x0.y + 22, { steps: 6 }); await m.mouse.up();
+        ok(`${tag} A: dragging a row with the mouse does nothing (no swipe on desktop)`, (await meta(m, "eggs")).startsWith("10") && !(await m.locator("#undo-button").count())); await m.close(); }
+
+      // ---------- B: right click on the row, away from the buttons, opens the menu; no three dots anywhere ----------
+      { const p = await open1();
+        const dots = async () => p.evaluate(() => ({ rmore: document.querySelectorAll(".rmore").length, popup: document.querySelectorAll("#plist [aria-haspopup],#panel [aria-haspopup]").length, threeCircles: [...document.querySelectorAll("svg")].filter(s => s.querySelectorAll("circle").length >= 3).length, more: /⋯|… menu|More actions|Actions for/.test(document.body.innerText + [...document.querySelectorAll("[aria-label]")].map(e => e.getAttribute("aria-label")).join(" ")) }));
+        let d = await dots(); ok(`${tag} B: no three-dot button at rest`, d.rmore === 0 && d.popup === 0 && d.threeCircles === 0 && !d.more, d);
+        await li(p, "eggs").locator(".rowlink").hover({ position: CP }); d = await dots(); ok(`${tag} B: no three-dot button on hover either`, d.rmore === 0 && d.popup === 0 && d.threeCircles === 0 && !d.more, d);
+        await p.evaluate(() => { window.__cm = []; window.addEventListener("contextmenu", e => window.__cm.push(e.defaultPrevented)); });
+        await rc(p, "eggs");
+        ok(`${tag} B: right click on a row away from the buttons opens the menu and takes the browser's own menu`, !(await p.locator(".rmenu").isHidden()) && (await p.evaluate(() => window.__cm.pop())) === true);
+        ok(`${tag} B: eggs: Use one, Add to shopping list, Used up, then Open`, (await names(p)) === "Use one|Add to shopping list|Used up|Open", await names(p));
+        ok(`${tag} B: key caps U S D and Enter`, (await p.locator(".rmenu .mi .kbd").allInnerTexts()).join("") === "USDEnter");
+        ok(`${tag} B: roles, the heading names the item, the first entry has focus`, (await p.locator(".rmenu").getAttribute("role")) === "menu" && /Eggs/.test(await p.locator(".rmenu .mh").innerText()) && (await p.evaluate(() => document.activeElement.dataset.m)) === "one");
+        ok(`${tag} B: entries are 44px tall and the menu is inside the window`, await p.evaluate(() => { const m = document.querySelector(".rmenu").getBoundingClientRect(); return [...document.querySelectorAll(".rmenu .mi")].every(e => e.getBoundingClientRect().height >= 44) && m.right <= innerWidth && m.bottom <= innerHeight && m.left >= 0 && m.top >= 0; }));
+        d = await dots(); ok(`${tag} B: still no three dots with the menu open`, d.rmore === 0 && d.popup === 0 && d.threeCircles === 0, d);
+        await p.keyboard.press("ArrowDown"); ok(`${tag} B: arrow keys move`, (await p.evaluate(() => document.activeElement.dataset.m)) === "shop");
+        await p.keyboard.press("End"); ok(`${tag} B: End goes to the last entry (Open)`, (await p.evaluate(() => document.activeElement.dataset.m)) === "open");
+        await p.keyboard.press("Control+Enter"); ok(`${tag} B: Ctrl or Cmd Enter closes it (the owner's close chord)`, await p.locator(".rmenu").isHidden());
+        await rc(p, "eggs"); await p.mouse.click(vw - 20, 400); ok(`${tag} B: a click outside closes it`, await p.locator(".rmenu").isHidden());
+        await li(p, "eggs").click({ button: "right", modifiers: ["Shift"], position: away }); ok(`${tag} B: Shift right click leaves the browser's own menu alone`, await p.locator(".rmenu").isHidden() && (await p.evaluate(() => window.__cm.pop())) === false);
+        await rc(p, "eggs"); await p.locator('.rmenu [data-m="open"]').click(); ok(`${tag} B: Open opens the item in the panel`, (await li(p, "eggs").locator(".rowlink[aria-current]").count()) === 1 && /Eggs/.test(await p.locator("#panel h2").innerText()) && await p.locator(".rmenu").isHidden());
+        await p.keyboard.press("ContextMenu"); ok(`${tag} B: the Menu key opens it on the current row`, !(await p.locator(".rmenu").isHidden()));
+        await p.keyboard.press("Control+Enter"); await p.keyboard.press("Shift+F10"); ok(`${tag} B: Shift F10 opens it too`, !(await p.locator(".rmenu").isHidden()));
+        await p.keyboard.press("s"); ok(`${tag} B: a letter inside the menu does the action (S: added to the list)`, /eggs added to your list/.test(await bar(p)) && await p.locator(".rmenu").isHidden(), await bar(p));
+        await p.keyboard.press("z");
+        await rc(p, "carrots"); await p.locator('.rmenu [data-m="all"]').click(); ok(`${tag} B: a click on Used up does it, with Undo`, await gone(p, "carrots") && (await p.locator("#undo-button").count()) === 1);
+        await p.locator("#undo-button").click(); await rc(p, "pasta"); await p.locator('.rmenu [data-m="one"]').click(); ok(`${tag} B: a click on Use one does it`, (await meta(p, "pasta")).startsWith("2"), await meta(p, "pasta"));
+        await p.mouse.move(vw - 30, 700); await p.locator("#plist").click({ button: "right", position: { x: 5, y: 3 } }).catch(() => {}); ok(`${tag} B: right click on the gap between rows opens nothing of ours`, await p.locator(".rmenu").isHidden());
+        await p.close();
+        const lv = await open1(); await rc(lv, "milk"); ok(`${tag} B: level-only: no Use one in the menu (Add to shopping list, Used up, Open)`, (await names(lv)) === "Add to shopping list|Used up|Open", await names(lv)); await lv.close();
+        const ot = await open1("&chip=Out"); await rc(ot, "tahini"); ok(`${tag} B: Out: Add to shopping list and Open only`, (await names(ot)) === "Add to shopping list|Open", await names(ot)); await ot.locator('.rmenu [data-m="shop"]').click(); ok(`${tag} B: Out: Add to list from the menu works`, /tahini added to your list/.test(await bar(ot))); await ot.close();
+        const ls = await open1("&menu=eggs"); ok(`${tag} B (?menu=eggs): opens for the still`, !(await ls.locator(".rmenu").isHidden())); await ls.close(); }
+
+      // ---------- B and A: right click over the hover buttons opens no menu ----------
+      { const p = await open1();
+        await p.evaluate(() => { window.__cm = []; window.addEventListener("contextmenu", e => window.__cm.push(e.defaultPrevented)); });
+        await li(p, "eggs").locator(".rowlink").hover({ position: CP });
+        await li(p, "eggs").locator(".rb.shop").click({ button: "right" });
+        ok(`${tag} A and B: right click on a hover button opens no menu and leaves the browser's own menu alone`, await p.locator(".rmenu").isHidden() && (await p.evaluate(() => window.__cm.pop())) === false);
+        const box = await li(p, "eggs").locator(".ract").boundingBox(); await p.mouse.click(box.x + box.width / 2, box.y + 2, { button: "right" });
+        ok(`${tag} A and B: nor on the strip's own box between the buttons`, await p.locator(".rmenu").isHidden());
+        ok(`${tag} A and B: the strip's box is only the buttons (the fade takes no clicks)`, await p.evaluate(() => getComputedStyle(document.querySelector("li[data-id=eggs] .ract"), "::before").pointerEvents) === "none");
+        await li(p, "eggs").locator(".rowlink").click({ button: "right", position: { x: 20, y: 40 } }); ok(`${tag} A and B: the same row, right click on its left side opens the menu`, !(await p.locator(".rmenu").isHidden()));
+        await p.close(); }
+
+      // ---------- C: Ctrl or Cmd click, Shift click, the selection bar ----------
+      { const p = await open1();
+        await sc(p, "eggs");
+        ok(`${tag} C: Ctrl click picks a row, it does not open it, and says "1 selected"`, /1 selected/.test(await barTxt(p)) && (await p.locator("#panel .pempty").count()) === 1 && (await li(p, "eggs").locator(".rowlink[aria-current]").count()) === 0 && (await li(p, "eggs").getAttribute("data-picked")) !== null);
+        ok(`${tag} C: one counted row picked: Use one, Add to shopping list, Used up, Clear`, (await barActs(p)) === "one|shop|all|clear", await barActs(p));
+        await sc(p, "pasta"); await sc(p, "peas", ["Meta"]);
+        ok(`${tag} C: Ctrl click and Cmd click both add rows: 3 selected`, /3 selected/.test(await barTxt(p)), await barTxt(p));
+        ok(`${tag} C: more than one picked: ONLY Add to shopping list and Used up (and Clear); no Use one anywhere`, (await barActs(p)) === "shop|all|clear" && !/Use one\s*U/.test(await barTxt(p)) && (await p.locator('#selbar [data-bulk="one"]').count()) === 0, [await barActs(p), await barTxt(p)]);
+        ok(`${tag} C: the bar says why Use one is gone (wide screens)`, vw < 1200 || /Use one is off for several rows/.test(await barTxt(p)), await barTxt(p));
+        ok(`${tag} C: picked rows are marked and no hover buttons are offered while rows are picked`, (await p.locator("#plist li[data-picked]").count()) === 3 && !(await shown(p, "li[data-id=carrots] .ract")) && !(await (async () => { await li(p, "carrots").locator(".rowlink").hover({ position: CP }); return shown(p, "li[data-id=carrots] .ract"); })()));
+        const geo = await p.evaluate(() => { const b = document.getElementById("selbar").getBoundingClientRect(), h = document.querySelector(".hd").getBoundingClientRect(); return { dt: Math.abs(b.top - h.top), dh: Math.abs(b.height - h.height), fits: [...document.querySelectorAll("#selbar > *")].every(e => e.getBoundingClientRect().right <= b.right + 0.5 && e.getBoundingClientRect().left >= b.left - 0.5), btns: [...document.querySelectorAll("#selbar .btn")].every(e => e.getBoundingClientRect().height >= 40), noOverlap: (() => { const r = [...document.querySelectorAll("#selbar > *")].map(e => e.getBoundingClientRect()); return r.every((x, i) => i === 0 || x.left >= r[i - 1].right - 0.5); })() }; });
+        ok(`${tag} C: the bar takes the header row's place (same top and height), everything fits, buttons 40px or more`, geo.dt < 1 && geo.dh < 1 && geo.fits && geo.btns && geo.noOverlap, geo);
+        await p.keyboard.press("Escape"); ok(`${tag} C: Esc empties the selection`, (await p.locator("#plist li[data-picked]").count()) === 0 && await p.locator("#selbar").isHidden() && (await p.locator("#plist[data-selecting]").count()) === 0);
+        await sc(p, "eggs"); await p.locator('#selbar [data-bulk="clear"]').click(); ok(`${tag} C: the Clear button empties it`, (await p.locator("#plist li[data-picked]").count()) === 0 && await p.locator("#selbar").isHidden());
+        await sc(p, "eggs"); await p.keyboard.press("Control+Enter"); ok(`${tag} C: Ctrl or Cmd Enter empties it too (the owner's close chord)`, (await p.locator("#plist li[data-picked]").count()) === 0);
+        await sc(p, "eggs"); await sc(p, "cheddar", ["Shift"]); ok(`${tag} C: Shift click picks the range from the last pick (eggs, carrots, cheddar)`, /3 selected/.test(await barTxt(p)) && (await li(p, "carrots").getAttribute("data-picked")) !== null, await barTxt(p));
+        await li(p, "carrots").locator(".rowlink").click({ position: away }); ok(`${tag} C: with rows picked a plain click picks or unpicks (carrots off: 2 selected)`, /2 selected/.test(await barTxt(p)));
+        await sc(p, "carrots"); await sc(p, "carrots"); ok(`${tag} C: Ctrl click on a picked row unpicks it`, /2 selected/.test(await barTxt(p)));
+        await p.keyboard.press("Escape");
+        // the menu on a selection: the same two actions, never Use one
+        await sc(p, "eggs"); await sc(p, "peas"); await rc(p, "peas");
+        ok(`${tag} C: right click with rows picked opens the menu for the selection: Add to shopping list, Used up only`, (await names(p)) === "Add to shopping list|Used up" && /2 selected/.test(await p.locator(".rmenu .mh").innerText()), await names(p));
+        await p.keyboard.press("Control+Enter"); await p.keyboard.press("u");
+        ok(`${tag} C: the key U with several rows picked says Use one is for a single row and changes nothing`, /Use one is only for a single row/.test(await bar(p)) && (await meta(p, "eggs")).startsWith("10"), await bar(p));
+        await p.keyboard.press("Escape"); await p.close(); }
+
+      // ---------- C: the batch, one Undo ----------
+      { const p = await open1(); const b0 = await badge(p);
+        await sc(p, "eggs"); await sc(p, "carrots"); await sc(p, "cheddar");
+        await p.locator('#selbar [data-bulk="shop"]').click();
+        ok(`${tag} C batch: Add to shopping list for three (carrots already on it) adds two and says so, Undo offered`, (await badge(p)) === b0 + 2 && /2 items added to your list, 1 already on it/.test(await bar(p)) && (await p.locator("#undo-button").count()) === 1, [await badge(p), await bar(p)]);
+        ok(`${tag} C batch: the selection is empty after the action`, (await p.locator("#plist li[data-picked]").count()) === 0 && await p.locator("#selbar").isHidden());
+        await p.locator("#undo-button").click(); ok(`${tag} C batch: one Undo takes both back off the list`, (await badge(p)) === b0);
+        await sc(p, "eggs"); await sc(p, "peas"); await sc(p, "rice"); await p.locator('#selbar [data-bulk="all"]').click();
+        ok(`${tag} C batch: Used up for three: all three leave the list, one sentence names how many`, await gone(p, "eggs") && await gone(p, "peas") && await gone(p, "rice") && /3 items used up/.test(await bar(p)) && (await p.locator("#undo-bar .ubtn").count()) === 1, await bar(p));
+        await p.locator("#undo-button").click(); ok(`${tag} C batch: ONE Undo brings all three back together`, !(await gone(p, "eggs")) && !(await gone(p, "peas")) && !(await gone(p, "rice")) && (await meta(p, "eggs")).startsWith("10"));
+        await sc(p, "eggs"); await sc(p, "pasta"); await p.keyboard.press("d"); ok(`${tag} C batch: the key D acts on the selection too`, await gone(p, "eggs") && await gone(p, "pasta") && /2 items used up/.test(await bar(p)), await bar(p));
+        await p.keyboard.press("z"); ok(`${tag} C batch: Z undoes the batch`, !(await gone(p, "eggs")) && !(await gone(p, "pasta")));
+        await sc(p, "eggs"); await p.locator('#selbar [data-bulk="one"]').click(); ok(`${tag} C: one counted row picked: Use one works from the bar (eggs 9) and empties the selection`, (await meta(p, "eggs")).startsWith("9") && (await p.locator("#plist li[data-picked]").count()) === 0);
+        await p.close();
+        const g = await open1("&guard=2"); // two used-up just now: a single third asks, a batch is one deliberate action
+        await sc(g, "eggs"); await sc(g, "peas"); await sc(g, "rice"); await g.locator('#selbar [data-bulk="all"]').click();
+        ok(`${tag} C guardrail (DA-Q4, recommended position): a batch of three is one deliberate action: no question, done, named`, await gone(g, "eggs") && await gone(g, "peas") && await gone(g, "rice") && /3 items used up/.test(await bar(g)) && (await g.locator("#undo-bar .ubtn").count()) === 1, await bar(g));
+        await g.close();
+        const q = await open1("&state=x"); await q.locator("#q").fill("a"); await sleep(80); // search shows Out rows too: tahini (Out) and pasta (counted)
+        await sc(q, "tahini"); await sc(q, "pasta");
+        ok(`${tag} C: an Out row can be picked (Add to list is valid for it); the bar says Used up applies to 1 of 2`, /2 selected/.test(await barTxt(q)) && (vw < 1200 || /Used up applies to 1 of 2/.test(await barTxt(q))), await barTxt(q));
+        await q.locator('#selbar [data-bulk="all"]').click(); ok(`${tag} C: Used up on that pick does the in-stock one and says the other was already out`, /1 item used up, 1 already out/.test(await bar(q)) && !!(await li(q, "pasta").getAttribute("data-gone") !== null), await bar(q));
+        await q.close();
+        const o = await open1("&chip=Out"); await sc(o, "tahini"); ok(`${tag} C: only an Out row picked: Add to shopping list and Clear, no Used up, no Use one`, (await barActs(o)) === "shop|clear", await barActs(o)); await o.close(); }
+
+      // ---------- the open item's panel: Use one joins the other two ----------
+      { const p = await open1("&sel=eggs");
+        ok(`${tag} panel: Use one, Add to shopping list, Used up, each with its key cap`, (await p.locator("#panel .pbtns .btn").allInnerTexts()).map(x => x.replace(/\s+/g, " ").trim()).join("|") === "Use one U|Add to shopping list S|Used up D");
+        ok(`${tag} panel: the buttons are 44px or more`, await p.evaluate(() => [...document.querySelectorAll("#panel .pbtns .btn")].every(b => b.getBoundingClientRect().height >= 44)));
+        await p.locator('#panel [data-do="one"]').click(); ok(`${tag} panel: Use one from the panel uses one (eggs 9), with Undo`, (await meta(p, "eggs")).startsWith("9") && (await p.locator("#undo-button").count()) === 1);
+        await p.close(); }
+
+      // ---------- the earlier views say they are superseded; the decided view is the default ----------
+      { const d = await open(ctx, `theme=${theme}`); const loaded = d.reqs.filter(u => /\/opt-[a-z]+\.(css|js)$/.test(u)).map(u => u.split("/").pop()).sort().join();
+        ok(`${tag} default: desktop.html with no ?opt loads the decided view`, loaded === "opt-all.css,opt-all.js" && (await d.locator(".mockbar a[data-opt]").first().getAttribute("data-opt")) === "all" && (await d.locator(".mockbar a[data-opt=all]").getAttribute("aria-current")) === "true", loaded);
+        ok(`${tag} default: the Prototype bar names the first view "Decided: A + B + C" and marks the others superseded`, /Decided: A \+ B \+ C/.test(await d.locator(".mockbar a[data-opt=all]").innerText()) && (await d.locator(".mockbar a[data-opt=a]").getAttribute("title")) === "Superseded, kept for context" && (await d.locator(".supnote").count()) === 0);
+        await d.close();
+        if (vw === 1280) { const s = await open(ctx, `opt=b&theme=${theme}`); ok(`${tag} superseded: an earlier option view says so and links to the decided view`, /Superseded/.test(await s.locator(".supnote").innerText()) && (await s.locator('.supnote a[href*="opt=all"]').count()) === 1); await s.close(); } }
+    }
     await ctx.close();
   }
 }
@@ -223,7 +373,7 @@ for (const [scheme, theme] of [["dark", "kitchie"], ["light", "kitchie-day"]]) {
 // ---------- Today (what the app does now), for the comparison ----------
 { const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 }, colorScheme: "dark" });
   const p = await open(ctx, "opt=now&theme=kitchie");
-  await li(p, "eggs").locator(".rowlink").hover();
+  await li(p, "eggs").locator(".rowlink").hover({ position: CP });
   ok("now: the minus and the tick show on hover, no cart, no key caps on the row", (await li(p, "eggs").locator(".nb").count()) === 2 && (await li(p, "eggs").locator(".kbd").count()) === 0 && (await li(p, "eggs").locator(".nb svg circle").count()) === 0);
   ok("now: a level-only row has the tick only", (await li(p, "milk").locator(".nb").count()) === 1);
   ok("now: the shopping list is reachable only by the key or the panel (no row button)", (await li(p, "eggs").locator('[data-do="shop"]').count()) === 0);
@@ -231,18 +381,22 @@ for (const [scheme, theme] of [["dark", "kitchie"], ["light", "kitchie-day"]]) {
 
 // ---------- the touch laptop: no hover, a tap makes a row current ----------
 for (const [scheme, theme] of [["dark", "kitchie"], ["light", "kitchie-day"]]) {
-  for (const opt of ["a", "b", "c", "d"]) {
+  for (const opt of ["all", "a", "b", "c", "d"]) {
     const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 }, colorScheme: scheme, hasTouch: true });
     const tag = `${opt} touch ${scheme}`, Q = `opt=${opt}&theme=${theme}&input=touch`;
     const p = await open(ctx, Q);
     ok(`${tag}: the page knows it is a touch laptop`, (await p.evaluate(() => document.documentElement.getAttribute("data-input"))) === "touch");
-    const sel = { a: "li[data-id=eggs] .ract", b: "li[data-id=eggs] .rmore", c: "li[data-id=eggs] .rsel" }[opt];
+    const sel = { all: "li[data-id=eggs] .ract", a: "li[data-id=eggs] .ract", b: "li[data-id=eggs] .rmore", c: "li[data-id=eggs] .rsel" }[opt];
     if (sel) ok(`${tag}: nothing extra on a row nobody has touched`, !(await shown(p, sel)));
     await li(p, "eggs").locator(".rowlink").tap(); await sleep(80);
     if (sel) ok(`${tag}: a tap makes the row current and its actions show, no hover needed`, await shown(p, sel));
     if (sel) ok(`${tag}: other rows stay quiet`, !(await shown(p, sel.replace("eggs", "carrots"))));
-    const hs = await p.evaluate(o => { const q = { a: ".ract .rb", b: ".rmore", c: ".rsel", d: ".pact .btn" }[o]; return [...document.querySelectorAll(o === "d" ? q : "li[data-id=eggs] " + q)].map(e => Math.round(e.getBoundingClientRect().height)); }, opt);
+    const hs = await p.evaluate(o => { const q = { all: ".ract .rb", a: ".ract .rb", b: ".rmore", c: ".rsel", d: ".pact .btn" }[o]; return [...document.querySelectorAll(o === "d" ? q : "li[data-id=eggs] " + q)].map(e => Math.round(e.getBoundingClientRect().height)); }, opt);
     ok(`${tag}: the targets are 44px or more`, hs.length > 0 && hs.every(h => h >= 44), hs);
+    if (opt === "all") { await li(p, "eggs").locator(".rb.one").tap(); ok(`${tag}: Use one by tap works`, (await meta(p, "eggs")).startsWith("9")); await p.locator("#undo-button").tap(); ok(`${tag}: Undo by tap works`, (await meta(p, "eggs")).startsWith("10"));
+      ok(`${tag}: no three-dot button on a touch laptop either`, (await p.locator(".rmore").count()) === 0 && (await p.locator("[aria-haspopup]").count()) === 0);
+      await li(p, "carrots").locator(".rowlink").tap(); ok(`${tag}: a tap alone picks nothing (no Ctrl or Cmd by finger): no selection bar`, await p.locator("#selbar").isHidden() && (await p.locator("#plist li[data-picked]").count()) === 0);
+      ok(`${tag}: the panel's Use one is 44px or more`, await p.evaluate(() => [...document.querySelectorAll("#panel .pbtns .btn")].every(b => b.getBoundingClientRect().height >= 44))); }
     if (opt === "a") { await li(p, "eggs").locator(".rb.one").tap(); ok(`${tag}: Use one by tap works`, (await meta(p, "eggs")).startsWith("9")); await p.locator("#undo-button").tap(); ok(`${tag}: Undo by tap works`, (await meta(p, "eggs")).startsWith("10")); }
     if (opt === "b") { await li(p, "eggs").locator(".rmore").tap(); ok(`${tag}: the three-dot button opens the menu by tap`, !(await p.locator(".rmenu").isHidden())); await p.locator('.rmenu [data-m="shop"]').tap(); ok(`${tag}: and an entry works by tap`, /eggs added to your list/.test(await bar(p))); }
     if (opt === "c") { await li(p, "eggs").locator(".rsel").tap(); await p.locator('[data-bulk="shop"]').tap(); ok(`${tag}: select and act by tap`, /eggs added to your list/.test(await bar(p))); }
@@ -252,9 +406,9 @@ for (const [scheme, theme] of [["dark", "kitchie"], ["light", "kitchie-day"]]) {
 }
 
 // ---------- layout: no sideways scroll at the desktop widths, both themes ----------
-for (const w of [1024, 1280, 1440]) for (const opt of ["now", "a", "b", "c", "d"]) for (const theme of ["kitchie", "kitchie-day"]) {
+for (const w of [1024, 1280, 1440]) for (const opt of ["all", "now", "a", "b", "c", "d"]) for (const theme of ["kitchie", "kitchie-day"]) {
   const ctx = await browser.newContext({ viewport: { width: w, height: 800 }, colorScheme: theme === "kitchie" ? "dark" : "light" });
-  const p = await open(ctx, `opt=${opt}&theme=${theme}&sel=thighs&hover=thighs` + (opt === "c" ? "&pick=eggs,thighs,rice" : "") + (opt === "b" ? "&menu=thighs" : ""));
+  const p = await open(ctx, `opt=${opt}&theme=${theme}&sel=thighs&hover=thighs` + (opt === "c" || opt === "all" ? "&pick=eggs,thighs,rice" : "") + (opt === "b" ? "&menu=thighs" : ""));
   ok(`layout ${opt} ${w} ${theme}: no sideways scroll`, await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth), await p.evaluate(() => [document.documentElement.scrollWidth, innerWidth]));
   ok(`layout ${opt} ${w} ${theme}: the long name does not push the row wider than the column`, await p.evaluate(() => document.querySelector("li[data-id=thighs]").getBoundingClientRect().width <= 641));
   await ctx.close();
@@ -271,16 +425,31 @@ for (const w of [1024, 1280, 1440]) for (const opt of ["now", "a", "b", "c", "d"
 { const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, colorScheme: "dark" });
   const p = await ctx.newPage(); p.on("pageerror", e => errs.push(e.message));
   await p.goto(ROOT + "index.html"); await sleep(400);
-  const t = await p.locator("body").innerText();
-  ok("index: title, the owner's ask and the four options are on the page", /Pantry row actions/.test(t) && /not the right way to do it on a desktop/.test(t) && ["A", "B", "C", "D"].every(o => new RegExp("Option " + o + "\\b").test(t)));
-  ok("index: the comparison table and the recommendation are there", (await p.locator("table.cmp").count()) >= 2 && /Recommended/.test(t));
-  ok("index: decisions, proposals and open questions are numbered", /DA-D1\b/.test(t) && /DA-P1\b/.test(t) && /DA-Q1\b/.test(t) && /DA-Q9\b/.test(t));
-  ok("index: a Build impact verdict names migration and lane", /Build impact/.test(t) && /No migration/i.test(t) && /routine/i.test(t) && /guarded/i.test(t));
-  const srcs = await p.locator("iframe").evaluateAll(a => a.map(f => f.getAttribute("src")));
-  ok("index: there are live frames for every option, touch and light", srcs.length >= 8 && ["opt=a", "opt=b", "opt=c", "opt=d", "input=touch", "theme=kitchie-day"].every(k => srcs.some(s => s.includes(k))), srcs.length);
-  let bad = []; for (const s of srcs) { const r = await ctx.request.get(new URL(s, ROOT + "index.html").href); if (!r.ok()) bad.push(s); }
+  const tabs = await p.locator('[role=tab]').allInnerTexts();
+  ok("index: the first tab is Decided: A + B + C together, selected, and the earlier options are the second tab", /^Decided: A \+ B \+ C together/.test(tabs[0]) && /Earlier options \(superseded/.test(tabs[1]) && (await p.locator("#t-decided").getAttribute("aria-selected")) === "true" && await p.locator("#p-options").isHidden());
+  const d = await p.locator("#p-decided").innerText();
+  ok("index decided: the owner's words and the three modes are on the page, with the no-three-dots and Use one rules", /So I am going for all three options/.test(d) && /Add to shopping list and Used up only/.test(d) && /No three-dot button anywhere/.test(d) && /One Undo reverses the whole batch/.test(d) && (await p.locator("#p-decided table.cmp").count()) >= 1);
+  ok("index decided: decisions are recorded as taken (all three, no Use one for several, no three dots, no mouse drag swipe, touch keeps swipe, Out row Add to list)", /DA-D5\b/.test(d) && /DA-D6\b/.test(d) && /DA-D7\b/.test(d) && /DA-D8\b[\s\S]*mouse drag no longer swipes/.test(d) && /DA-D9\b[\s\S]*Touch laptops keep swipe/.test(d) && /DA-D10\b[\s\S]*Out row/.test(d));
+  const qs = (await p.locator("#p-decided ul.qs li b:first-child").allInnerTexts()).join(",");
+  ok("index decided: only two questions are left open (the batch guardrail DA-Q4, shopping quantity DA-Q8)", qs === "DA-Q4,DA-Q8", qs);
+  ok("index decided: a touch-laptop note, empty and edge states, a Build impact with no migration, routine and guarded", /Touch laptop and tablet landscape/i.test(d) && /Empty and edge states/i.test(d) && /No migration/i.test(d) && /routine/i.test(d) && /guarded/i.test(d));
+  const dsrc = await p.locator("#p-decided iframe").evaluateAll(a => a.map(f => f.getAttribute("src")));
+  ok("index decided: live frames show the buttons, the menu, a selection, touch, light, empty, all used up, saved list", dsrc.length >= 12 && ["hover=eggs", "menu=eggs", "pick=eggs,peas,rice", "input=touch", "theme=kitchie-day", "state=empty", "state=allout", "down=1"].every(k => dsrc.some(x => x.includes(k))) && dsrc.every(x => x.includes("opt=all")), dsrc.length);
+  await p.goto(ROOT + "index.html#options"); await sleep(300);
+  const t = await p.locator("#p-options").innerText();
+  ok("index options: the earlier page is the second tab, marked superseded, with its title, the owner's ask and the four options", /Superseded, kept for context/.test(t) && /Pantry row actions/.test(await p.locator("body").innerText()) && /not the right way to do it on a desktop/.test(t) && ["A", "B", "C", "D"].every(o => new RegExp("Option " + o + "\\b").test(t)) && await p.locator("#p-decided").isHidden());
+  ok("index options: the comparison table and the earlier recommendation are there", (await p.locator("#p-options table.cmp").count()) >= 2 && /Earlier recommendation/.test(t) && /Recommended/.test(t));
+  ok("index options: decisions, proposals and open questions are numbered, each question has its status", /DA-D1\b/.test(t) && /DA-P1\b/.test(t) && /DA-Q1\b/.test(t) && /DA-Q9\b/.test(t) && (await p.locator("#p-options .qs .stat").count()) === 11);
+  ok("index options: a Build impact verdict names migration and lane", /Build impact/.test(t) && /No migration/i.test(t) && /routine/i.test(t) && /guarded/i.test(t));
+  const osrc = await p.locator("#p-options iframe").evaluateAll(a => a.map(f => f.getAttribute("src")));
+  const srcs = [...dsrc, ...osrc];
+  ok("index options: there are live frames for every option, touch and light", osrc.length >= 8 && ["opt=a", "opt=b", "opt=c", "opt=d", "input=touch", "theme=kitchie-day"].every(k => osrc.some(x => x.includes(k))), osrc.length);
+  let bad = []; for (const x of srcs) { const r = await ctx.request.get(new URL(x, ROOT + "index.html").href); if (!r.ok()) bad.push(x); }
   ok("index: every frame address answers", bad.length === 0, bad);
-  ok("index: no sideways scroll", await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+  await p.goto(ROOT + "index.html"); await sleep(200);
+  ok("index: no sideways scroll on the Decided tab", await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+  await p.goto(ROOT + "index.html#options"); await sleep(200);
+  ok("index: no sideways scroll on the earlier-options tab", await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
   await ctx.close(); }
 
 ok("no page errors in any run", errs.length === 0, errs.slice(0, 5));
