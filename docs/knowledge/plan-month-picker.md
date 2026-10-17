@@ -17,13 +17,13 @@ Status: mockup built, awaiting the owner's look (17 October 2026). Follow-up to 
 Mark: owner-stated, or agent default (reversible).
 
 - **PM-D1 (owner-stated).** The month replaces the seven-day list in the same flyout and slot; a back arrow returns.
-- **PM-D2 (owner-stated).** Weekdays are rows down the left; weeks are columns across.
+- **PM-D2 (owner-stated, reversed 17 Oct 2026, typed).** Monday to Sunday run horizontally, left to right; weeks stack as rows. (The first cut had weekdays down the side; owner: "it's not how humans work".) Supersedes the voice instruction quoted above.
 - **PM-D3 (agent default).** Five columns, 35 dates: the server's window is this week plus four (`docs/plan-week-api.md`, "Week window"), so today is always in the first column and the last day is a Sunday (15 Nov in the sample).
 - **PM-D4 (owner-stated).** Open, planned and closed are told apart by colour; **(agent default)** each also has a shape or word (DESIGN.md section 3): open dashed plus; planned solid with a plate; stacked night a stack icon and count; usual day off an outline moon; off this week a filled moon; past hatched and struck; today ringed and underlined.
 - **PM-D5 (owner-stated).** Hover shows what is planned; **(agent default)** the same on keyboard focus, read only, to the left of the flyout, for planned and closed dates only. A line under the grid says what picking the date would do.
 - **PM-D6 (owner-stated).** The legend is the last thing in the flyout; **(agent default)** it adds a Hard avoid item only when that guard applies.
 - **PM-D7 (earlier owner rules, kept).** A pick plans at once; 3-second Planned or Replaced hold then slide-out; two steps only for a stacked night; a usual day off is not locked; Replace applies to the person's own meal; the Hard avoid guard is asked live per date.
-- **PM-D8 (agent default).** Keys: Left and Right a week, Up and Down a day, Home today, End the last day, Enter plans, Esc or the back arrow returns; in the `?` list. At the end of the cap the move stops and says so.
+- **PM-D8 (agent default).** Keys: Left and Right a day, Up and Down a week (follows the new orientation), Home today, End the last day, Enter plans, Esc or the back arrow returns; in the `?` list. At the end of the cap the move stops and says so.
 - **PM-D9 (agent default).** Another day is a labelled row under the seven days (variant A: a header icon).
 - **PM-D10 (agent default).** Week columns are headed by the week name over the Monday's date (variant L: date only); the month change is a step-rule and "1 Nov" on the first cell (variant M: a month band).
 - **PM-D11 (agent default).** The inline Undo, the pause on hover and "Undone" follow F's hold as it is changing in the day-picker branch; keep them in step when that merges.
@@ -37,7 +37,7 @@ Mark: owner-stated, or agent default (reversible).
 
 ## Open questions
 
-1. Column heads: week name over the date (recommended) or date only.
+1. Row heads (were column heads): week name over the dates (recommended) or dates only.
 2. Month change: step-rule and "1 Nov" (recommended) or a month band.
 3. Another day: a labelled row (recommended) or a header icon.
 
@@ -48,3 +48,15 @@ Rendered in headless Chromium at 1440x900 and 1024x800, light and dark, served w
 ## Not done
 
 The plan-day-picker hub is not linked to this fragment (another agent is editing `fragments/plan-day-picker/`); link it later.
+
+## Update 17 October 2026 (owner, typed): across, two flyouts wide, open as the call to action
+
+Owner: Monday to Sunday horizontally; when Another day is chosen the flyout takes two flyouts' worth of width if there is space; "come up with a plan" for when there is not; more visuals. Earlier (voice): the open day is the primary call to action; all days off look the same.
+
+- **PM-D13 (owner-stated).** Open is the only solid, filled state (green, bold plus, "Plan here" where there is room); planned and day off recede.
+- **PM-D14 (owner-stated, look awaiting confirmation).** One muted grey Day off state with a moon for every kind; the kind is said in the hover detail and aria-label. Trade-off: usual vs this-week-only is not visible at a glance.
+- **PM-D15 (agent default, three layouts shown).** Wide = 800px, from a 1360px window (88 rail + 472 column + 800). From 1624px the column keeps 736px; between, it gives up width, never covered. The recipe pane steps back while open. Layouts: A roomy calendar (recommended), B side card, C open nights first (`?wide=a|b|c`). Files: `wide.css`, `rich.css`, `wide.js`, fetched only by a wide window.
+- **PM-D16 (agent default, the narrow-space plan).** 1024 to 1359px: single flyout width, compact cells (>=44px), week caption above each row. Tablet: centred sheet <=720px with rich cells. Phone: full-screen sheet, 7 cells >=44px, shortcut to the first open night. On touch a planned night or a day off shows what is on it first; the second tap plans (an open night plans on the first). Files: `tablet.html/css`, `phone.html/css`, `touch.js`, `sheet-host.js` (scaffolding).
+- **PM-D17 (agent default).** Contrast pairing: open uses `--on-accent` on `--cue` (5.35 light, 10.2 dark; lavender-fog 4.06, under 4.5: a build may add an `--on-cue` token).
+- Open: wide layout A/B/C; Day off single look; wide threshold 1360 or 1624; narrow desktop compact vs wider flyout; touch two-tap vs one-tap with Undo; row head style; month change; Another day row vs icon. Wrong guess costs a CSS or markup tweak each.
+- Checked: `tools/plan-month-picker-check.mjs` (359 checks) at 1700, 1440, 1366, 1280, 1100, 1024, tablet 768 and 600, phone 390 and 360, light and dark.

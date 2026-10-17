@@ -1,4 +1,6 @@
-/* The month picker for "Another day" (owner, voice, 17 Oct 2026): weekdays run DOWN the left (Mon to Sun as rows), the weeks are stacked as COLUMNS going across, one date per cell.
+/* The month picker for "Another day". Owner, 17 Oct 2026 (voice, then typed): weekdays Monday to Sunday run HORIZONTALLY, left to right, and the weeks stack as ROWS (this week plus four), one date per cell.
+   (The first cut had weekdays down the side; the owner: "it's not how humans work".) Markup is the same at every width; the stylesheet decides how much each cell shows: month.css (the single-flyout width, compact cells),
+   wide.css (two flyouts' worth of width, meal names in the cells), tablet.css and phone.css (the sheet).
    The plan window is the real server's: this week and four weeks ahead, so five columns (35 days) from the Monday of today's week to the Sunday four weeks on (kitchie docs/plan-week-api.md "Week window").
    Loaded on engagement only: the flyout fetches this file and month.css the first time "Another day" is pressed (DESIGN.md section 6). Desktop only. Sample data, nothing is stored.
    Markup, keys, the legend and the read-only popover live here; what a pick does is the flyout's (pick-month.js), which is F's. */
@@ -26,11 +28,11 @@ function state(d) {
   if (d.past) return "past";
   if (d.meals.length > 1) return "stack";
   if (d.meals.length) return "plan";
-  if (d.off === "usual") return "usual";
-  if (d.off === "week") return "week";
+  if (d.off) return "off"; /* one state for every kind of day off (owner, voice, 17 Oct 2026: "just a day off no matter what kind"); the kind is said in the popover and the aria-label. Awaiting his confirmation of the single grey look. */
   return "open";
 }
-var WORD = { past: "past", stack: "planned, more than one plan", plan: "planned", usual: "usual day off", week: "off this week only", open: "open" };
+var WORD = { past: "past", stack: "planned, more than one plan", plan: "planned", off: "day off", open: "open" };
+function kindOff(d) { return d.off === "usual" ? "usual day off, every week" : "off this week only"; }
 function nameOf(w) { return w === "me" ? P.me + " (you)" : w; }
 function join(a) { return a.length < 2 ? a.join("") : a.slice(0, -1).join(", ") + " and " + a[a.length - 1]; }
 function uniq(a) { return a.filter(function (x, i) { return a.indexOf(x) === i; }); }
@@ -43,39 +45,66 @@ M.plans = function (d) {
 };
 
 /* ---------- the grid ---------- */
+/* what a cell says in words when it is big enough (wide.css, tablet.css): the meal, or Plan here on an open night. month.css and phone.css hide it; the aria-label always carries everything. */
+function mealText(d, k) {
+  if (k === "open") return "Plan here";
+  if (k === "off") return "Day off";
+  if (k === "past" || !d.meals.length) return "";
+  return d.meals[0].name + (d.meals.length > 1 ? " +" + (d.meals.length - 1) : "");
+}
 function cell(n, cur) {
-  var d = PK.info(n), dj = PK.dayObj(n), k = state(d), g = d.past ? null : PK.guardFor(n), v = R.view(dj, PK.ctxFor(dj));
-  var up = n - 1, left = n - 7, ml = left >= P.winStart && PK.info(left).monN !== d.monN, mt = d.i > 0 && PK.info(up).monN !== d.monN;
-  var icon = g === "stop" ? I.stop : k === "open" ? I.plus : k === "plan" ? I.plate : k === "stack" ? I.stack + '<b class="pdm-cnt">' + d.meals.length + "</b>" : k === "usual" ? I.moon : k === "week" ? I.moonF : "";
+  var d = PK.info(n), dj = PK.dayObj(n), k = state(d), g = d.past ? null : PK.guardFor(n);
+  var left = n - 1, up = n - 7, ml = d.i > 0 && n - 1 >= P.winStart && PK.info(left).monN !== d.monN, mt = up >= P.winStart && PK.info(up).monN !== d.monN;
+  var icon = g === "stop" ? I.stop : k === "open" ? I.plus : k === "plan" ? I.plate : k === "stack" ? I.stack + '<b class="pdm-cnt">' + d.meals.length + "</b>" : k === "off" ? I.moon : "";
   var badge = (d.off && d.meals.length && !d.past ? '<span class="pdm-bd moon" aria-hidden="true">' + I.moonF + "</span>" : "") + (g === "warn" ? '<span class="pdm-bd warn" aria-hidden="true">' + I.warn + "</span>" : "");
-  var said = d.past ? "past" : d.meals.length ? (d.meals.length > 1 ? "planned, " + d.meals.length + " plans" : "planned") + (d.off ? (d.off === "usual" ? ", usual day off, cooking this week" : ", off this week only, cooking it") : "") : WORD[k];
+  var said = d.past ? "past" : d.meals.length ? (d.meals.length > 1 ? "planned, " + d.meals.length + " plans" : "planned") + (d.off ? (d.off === "usual" ? ", usual day off, cooking this week" : ", off this week only, cooking it") : "") : k === "off" ? "day off, " + kindOff(d) : WORD[k];
   var plans = !d.past && d.meals.length ? ". " + M.plans(dj).map(function (p) { return p.k + ": " + p.v; }).join(". ") : "";
   var lab = d.full + " " + d.num + " " + d.monFull + (d.today ? ", today" : "") + ", " + said + plans;
   var cls = "pdm-c st-" + k + (d.today ? " today" : "") + (ml ? " ml" : "") + (mt ? " mt" : "") + (g ? " g-" + g : "") + (d.num === 1 ? " first" : "");
+  var mt2 = g === "stop" ? "Not for " + P.avoid.who : mealText(d, k);
   return '<button type="button" role="gridcell" class="' + cls + '" data-n="' + n + '"' + (d.past ? " disabled" : "") + ' tabindex="' + (n === cur ? 0 : -1) + '" aria-label="' + esc(lab) + '">' +
-    '<b class="pdm-n">' + (d.num === 1 ? "1 " + d.mon : d.num) + "</b>" + icon + badge + "</button>";
+    '<span class="pdm-top"><b class="pdm-n">' + (d.num === 1 ? "1 " + d.mon : d.num) + "</b>" + badge + icon + "</span>" + (mt2 ? '<span class="pdm-m">' + esc(mt2) + "</span>" : "") + "</button>";
 }
-M.html = function (cur) {
-  var w0 = P.winStart, h = '<div class="pdm pdm-' + COLS + (MONTH === "band" ? " has-band" : "") + '" role="grid" aria-label="Another day, weeks across and days down, ' + PK.info(P.todayN).label + " to " + PK.info(P.lastN).label + '">';
-  if (MONTH === "band") {
-    h += '<div class="pdm-r" role="row"><span class="pdm-corner"></span>';
-    var runs = []; for (var c = 0; c < 5; c++) { var m = PK.info(w0 + c * 7); if (runs.length && runs[runs.length - 1].m === m.monN) runs[runs.length - 1].to = c + 3; else runs.push({ m: m.monN, name: m.monFull, from: c + 2, to: c + 3 }); }
-    runs.forEach(function (r) { h += '<span class="pdm-mb" role="columnheader" style="grid-column:' + r.from + "/" + r.to + '">' + r.name + "</span>"; });
-    h += "</div>";
-  }
-  h += '<div class="pdm-r" role="row"><span class="pdm-corner" role="columnheader"><span class="sr-only">Day</span></span>';
-  for (var c2 = 0; c2 < 5; c2++) {
-    var m2 = PK.info(w0 + c2 * 7), dt = m2.num + (MONTH === "band" ? "" : " " + m2.mon);
-    h += '<span class="pdm-h" role="columnheader" aria-label="Week of ' + m2.num + " " + m2.monFull + ", " + LONG[c2] + (c2 === 4 ? ", the last week you can plan" : "") + '">' +
-      (COLS === "both" ? '<span class="pdm-hn">' + NAMES[c2] + "</span>" : "") + '<b class="pdm-hd">' + dt + "</b></span>";
-  }
+/* the week row's head: the weekly Plan's own week name over the Monday-to-Sunday dates; ?cols=dates leaves the name out */
+function rangeOf(c) {
+  var a = PK.info(P.winStart + c * 7), z = PK.info(P.winStart + c * 7 + 6);
+  return a.num + (a.monN === z.monN ? "" : " " + a.mon) + "\u2013" + z.num + " " + z.mon;
+}
+function openCount(c) { var k = 0; for (var i = 0; i < 7; i++) if (state(PK.info(P.winStart + c * 7 + i)) === "open") k++; return k; }
+/* o.summary: an "N open" count at the end of each week row (wide option C) */
+M.html = function (cur, o) {
+  o = o || {};
+  var w0 = P.winStart, h = '<div class="pdm pdm-' + COLS + (MONTH === "band" ? " has-band" : "") + (o.summary ? " has-sum" : "") + '" role="grid" aria-label="Another day, Monday to Sunday across, ' + PK.info(P.todayN).label + " to " + PK.info(P.lastN).label + '">';
+  h += '<div class="pdm-r pdm-hr" role="row"><span class="pdm-corner" role="columnheader"><span class="sr-only">Week</span></span>';
+  for (var i = 0; i < 7; i++) h += '<span class="pdm-dh" role="columnheader" aria-label="' + P.df[i] + '">' + P.dn[i] + "</span>";
+  if (o.summary) h += '<span class="pdm-rs-h" role="columnheader">Open</span>';
   h += "</div>";
-  for (var r2 = 0; r2 < 7; r2++) {
-    h += '<div class="pdm-r" role="row"><span class="pdm-d" role="rowheader" aria-label="' + P.df[r2] + '">' + P.dn[r2] + "</span>";
-    for (var c3 = 0; c3 < 5; c3++) h += cell(w0 + c3 * 7 + r2, cur);
+  var lastMon = -1;
+  for (var c = 0; c < 5; c++) {
+    var a = PK.info(w0 + c * 7);
+    if (MONTH === "band" && (c === 0 || a.monN !== lastMon)) h += '<div class="pdm-mb" role="presentation"><b>' + a.monFull + "</b></div>";
+    lastMon = a.monN;
+    h += '<div class="pdm-r" role="row"><span class="pdm-w" role="rowheader" aria-label="Week of ' + a.num + " " + a.monFull + ", " + LONG[c] + (c === 4 ? ", the last week you can plan" : "") + '">' +
+      (COLS === "both" ? '<span class="pdm-wn">' + NAMES[c] + "</span>" : "") + '<b class="pdm-wd">' + rangeOf(c) + "</b></span>";
+    for (var r = 0; r < 7; r++) h += cell(w0 + c * 7 + r, cur);
+    if (o.summary) { var oc = openCount(c); h += '<span class="pdm-rs' + (oc ? "" : " none") + '" role="gridcell" aria-label="' + oc + ' open nights that week">' + (oc ? "<b>" + oc + "</b> open" : "none open") + "</span>"; }
     h += "</div>";
   }
   return h + "</div>";
+};
+/* the first open night from today (the shortcut under wide option C and on the phone) */
+M.nextOpen = function () {
+  for (var n = P.todayN; n <= P.lastN; n++) { var d = PK.info(n); if (state(d) === "open" && PK.guardFor(n) !== "stop") return n; }
+  return null;
+};
+M.openTotal = function () { var k = 0; for (var n = P.todayN; n <= P.lastN; n++) if (state(PK.info(n)) === "open") k++; return k; };
+M.state = state;
+/* the shortcut to the open nights: one button for the first open night (wide option C, and the phone). It plans that date at once, like any pick, and names the date on the button. */
+M.nextHtml = function () {
+  var n = M.nextOpen(), t = M.openTotal();
+  if (n == null) return '<p class="pdm-next none">' + I.moon + "<span>No open night in the next five weeks. Pick a planned night to replace or add to it.</span></p>";
+  var d = PK.info(n);
+  return '<div class="pdm-next"><button type="button" class="pdm-next-b" data-nextopen data-n="' + n + '" aria-label="Plan the next open night, ' + d.full + " " + d.num + " " + d.monFull + '">' + I.plus + "<span>Plan the next open night <b>" + d.label + '</b></span></button><span class="pdm-next-c">' + t + " open in the next five weeks</span></div>";
 };
 /* the end of the cap: said in words under the last column, never only a colour */
 M.capHtml = function () { var l = PK.info(P.lastN); return '<p class="pdm-cap">' + I.end + "<span>The plan ends " + l.dn + " " + l.num + " " + l.mon + ", four weeks ahead</span></p>"; };
@@ -90,19 +119,20 @@ M.say = function (n, msg) {
 /* a stacked night, opened in place by its first pick: the household plan and each person's own (the same picture as F's) */
 M.fullHtml = function (n) {
   var d = PK.info(n), dj = PK.dayObj(n);
-  return '<div class="pdm-full" role="group" aria-label="' + d.label + ', everyone’s plans">' + M.plans(dj).map(function (p) { return "<p><b>" + esc(p.k) + "</b>" + esc(p.v) + "</p>"; }).join("") + '<p class="row-hint">Pick the date again to plan it.</p></div>';
+  var ps = M.plans(dj);
+  return '<div class="pdm-full" role="group" aria-label="' + d.label + ', everyone’s plans">' + (ps.length ? ps.map(function (p) { return "<p><b>" + esc(p.k) + "</b>" + esc(p.v) + "</p>"; }).join("") : '<p class="row-hint">' + esc(d.off === "usual" ? "Usual day off, every week. Planning it cooks this week only." : "Off this week only. Planning it cooks this week.") + "</p>") + '<p class="row-hint">Pick the date again to plan it.</p></div>';
 };
 
 /* ---------- the legend, at the foot of the flyout: the same swatches as the cells, each with an icon or a pattern and a word ---------- */
 M.legendHtml = function () {
-  var items = [["open", I.plus, "Open"], ["plan", I.plate, "Planned"], ["stack", I.stack, "2+ plans"], ["usual", I.moon, "Usual day off"], ["week", I.moonF, "Off this week"], ["past", "", "Past"], ["none today", "", "Today"]];
+  var items = [["open", I.plus, "Open"], ["plan", I.plate, "Planned"], ["stack", I.stack, "2+ plans"], ["off", I.moon, "Day off"], ["past", "", "Past"], ["none today", "", "Today"]];
   if (P.avoid) items.push(["none g-warn", I.warn, "Hard avoid: asks first"]);
   return '<ul class="pdm-lg" aria-label="Key">' + items.map(function (x) { return '<li><span class="pdm-c pdm-sw st-' + x[0] + '" aria-hidden="true">' + (x[2] === "Past" ? '<b class="pdm-n">9</b>' : x[2] === "Today" ? '<b class="pdm-n">17</b>' : x[1]) + "</span>" + x[2] + "</li>"; }).join("") + "</ul>";
 };
 
-/* ---------- keys: arrows in two directions. Up and Down are one day, Left and Right are one week (the same weekday). Home is today, End the last day of the plan ---------- */
+/* ---------- keys: arrows in two directions, as the grid is drawn. Left and Right are one day, Up and Down are one week (the same weekday). Home is today, End the last day of the plan ---------- */
 M.target = function (e, cur) {
-  var k = e.key, lo = P.todayN, hi = P.lastN, step = k === "ArrowRight" ? 7 : k === "ArrowLeft" ? -7 : k === "ArrowDown" ? 1 : k === "ArrowUp" ? -1 : 0;
+  var k = e.key, lo = P.todayN, hi = P.lastN, step = k === "ArrowDown" ? 7 : k === "ArrowUp" ? -7 : k === "ArrowRight" ? 1 : k === "ArrowLeft" ? -1 : 0;
   if (k === "Enter") return { n: cur, enter: true };
   if (k === "Home") return { n: lo };
   if (k === "End") return { n: hi };
@@ -117,16 +147,21 @@ M.target = function (e, cur) {
 var pop = null;
 M.hidePop = function () { if (pop) { pop.remove(); pop = null; } };
 M.showPop = function (btn, host) {
-  M.hidePop(); var n = +btn.dataset.n, d = PK.info(n), dj = PK.dayObj(n); if (d.past) return;
+  M.hidePop(); var n = +btn.dataset.n, d = PK.info(n), dj = PK.dayObj(n); if (d.past || M.noPop) return; /* wide option B shows the same facts in its side card instead */
   var plans = M.plans(dj), k = state(d); if (k === "open") return;
-  var chip = d.meals.length ? (d.off ? (d.off === "usual" ? "Usual day off, cooking this week" : "Off this week only, cooking it") : d.meals.length > 1 ? d.meals.length + " plans" : "Planned") : d.off === "usual" ? "Usual day off" : "Off this week only";
+  var chip = d.meals.length ? (d.off ? (d.off === "usual" ? "Usual day off, cooking this week" : "Off this week only, cooking it") : d.meals.length > 1 ? d.meals.length + " plans" : "Planned") : "Day off, " + kindOff(d);
   var body = plans.length ? plans.map(function (p) { return "<p><b>" + esc(p.k) + "</b>" + esc(p.v) + "</p>"; }).join("") : '<p class="pdm-pop-q">' + (d.off === "usual" ? "Not cooking. Every week, usual day off." : "Not cooking. This week only.") + "</p>";
   pop = document.createElement("div"); pop.className = "pdm-pop"; pop.setAttribute("role", "tooltip"); pop.id = "pdm-pop";
   pop.innerHTML = '<div class="pdm-pop-h"><b>' + d.full + " " + d.num + " " + d.monFull + '</b><span>' + chip + "</span></div>" + body + '<p class="pdm-pop-f">Read only. Pick the date to plan it.</p>';
   document.body.appendChild(pop);
   var r = btn.getBoundingClientRect(), hr = host.getBoundingClientRect(), pw = pop.offsetWidth, ph = pop.offsetHeight;
-  var left = hr.left - pw - 10; if (left < 96) left = Math.min(innerWidth - pw - 8, r.right + 8); /* no room on the left: to the right of the cell */
-  var top = Math.max(8, Math.min(innerHeight - ph - 8, r.top + r.height / 2 - ph / 2));
+  var left, top;
+  if (M.popOver) { /* wide: the flyout is the whole width, so the popover sits on the date itself (below it, or above when the foot is near) and stays inside the flyout */
+    left = Math.max(hr.left + 8, Math.min(hr.right - pw - 8, r.left + r.width / 2 - pw / 2)); top = r.bottom + 6; if (top + ph > innerHeight - 8) top = Math.max(8, r.top - ph - 6);
+  } else {
+    left = hr.left - pw - 10; if (left < 96) left = Math.min(innerWidth - pw - 8, r.right + 8); /* no room on the left: to the right of the cell */
+    top = Math.max(8, Math.min(innerHeight - ph - 8, r.top + r.height / 2 - ph / 2));
+  }
   pop.style.left = left + "px"; pop.style.top = top + "px"; btn.setAttribute("aria-describedby", "pdm-pop");
 };
 })();
