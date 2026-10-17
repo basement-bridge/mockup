@@ -12,7 +12,7 @@
 #week[data-wide]{animation:pdw-grow .24s ease-out}
 @keyframes pdw-grow{from{opacity:.5;transform:translateX(-24px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){#week[data-wide]{animation:none}}
-#week[data-wide=c] .pdm.has-sum{grid-template-columns:var(--pdm-hd,104px) repeat(7,minmax(0,1fr)) 62px}
+#week[data-wide=c] .pdm.has-sum{grid-template-columns:repeat(7,minmax(0,1fr)) 62px}
 /* C: an open count at the end of every week row, and the shortcut to the first open night above the grid */
 #week[data-wide=c] .pdm-rs-h{display:block;align-self:end;text-align:center;font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;padding-bottom:3px}
 #week[data-wide] .pdm-rs{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;font-size:11px;font-weight:700;color:var(--muted);line-height:1.1}
@@ -24,10 +24,7 @@
 .pdw-b{display:grid;grid-template-columns:minmax(0,1fr) 244px;gap:16px;align-items:start}
 .pdw-main{min-width:0}
 #week[data-wide=b] .pdm{grid-template-columns:repeat(7,minmax(0,1fr));column-gap:5px;row-gap:5px}
-#week[data-wide=b] .pdm-corner{display:none}
 #week[data-wide=b] .pdm-dh{padding:0 0 2px;justify-content:center}
-#week[data-wide=b] .pdm-w{grid-column:1/-1;flex-direction:row;align-items:baseline;gap:8px;margin-top:5px;padding:0}
-#week[data-wide=b] .pdm-wn,#week[data-wide=b] .pdm-wd{font-size:11px}
 #week[data-wide=b] .pdm .pdm-c{min-height:60px;padding:6px}
 #week[data-wide=b] .pdm .pdm-n{font-size:14px}
 #week[data-wide=b] .pdm .pdm-top{gap:3px}

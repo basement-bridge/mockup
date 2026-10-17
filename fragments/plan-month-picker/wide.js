@@ -8,12 +8,12 @@
 var PK = window.PK, P = window.PKD, esc = PK.esc, W = window.PKWide = {};
 function R() { return window.PKRows; }
 function Mo() { return window.PKMonth; }
-var CHIP = { open: "Open", plan: "Planned", stack: "More than one plan", off: "Day off", past: "Past" };
+var CHIP = { open: "Open", plan: "Planned", stack: "Planned, several", off: "Day off", past: "Past" };
 /* B: the card for one date: the meal being planned, then the date, what is on it, what picking it does, and the Plan button. Same facts as the popover and the line under the grid. */
 W.sideHtml = function (n) {
-  var M = Mo(), d = PK.info(n), dj = PK.dayObj(n), k = M.state(d), r = PK.R(), g = d.past ? null : PK.guardFor(n), v = R().view(dj, PK.ctxFor(dj)), plans = d.past ? [] : M.plans(dj);
+  var M = Mo(), d = PK.vis(n), dj = PK.dayObj(n), k = M.state(d), r = PK.R(), g = d.past ? null : PK.guardFor(n), v = R().view(dj, PK.ctxFor(dj)), plans = d.past ? [] : M.plans(PK.vdayObj(n));
   var h = '<div class="pdw-rec"><span class="pdw-e" aria-hidden="true">' + esc(r.emoji || "") + '</span><div><b>' + esc(r.name) + "</b><small>" + r.mins + " min, serves " + r.serves + "</small></div></div>";
-  h += '<div class="pdw-date"><b>' + (d.today ? "Today, " : "") + d.full + " " + d.num + " " + d.monFull + '</b><span class="pdw-chip c-' + k + '">' + CHIP[k] + "</span></div>";
+  h += '<div class="pdw-date"><b>' + d.full + " " + d.num + " " + d.monFull + '</b><span class="pdw-chip c-' + k + '">' + CHIP[k] + "</span></div>";
   if (plans.length) h += '<div class="pdw-plans">' + plans.map(function (p) { return "<p><b>" + esc(p.k) + "</b><span>" + esc(p.v) + "</span></p>"; }).join("") + "</div>";
   else if (k === "off") h += '<p class="pdw-q">' + (d.off === "usual" ? "Not cooking. Every week, usual day off." : "Not cooking. This week only.") + "</p>";
   else if (k === "open") h += '<p class="pdw-q">Nothing planned. This night is free.</p>';
