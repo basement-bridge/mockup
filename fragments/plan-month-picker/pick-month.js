@@ -33,8 +33,8 @@ function clearHalo() {
   setTimeout(function () { [].forEach.call(el ? el.querySelectorAll(".pdm-c.halo-out") : [], function (h) { h.classList.remove("halo-out"); }); }, 520);
 }
 var WIDE_MIN = 1360, WIDE_MQ = window.matchMedia ? window.matchMedia("(min-width:" + WIDE_MIN + "px)") : { matches: false }; /* 88 rail + 472 column (never covered: it gives up width) + 800 for two flyouts */
-var CARD = /^(slim|collapsed|overlay|strip)$/.test(Q.get("card") || "") ? Q.get("card") : "docked"; /* ?card= how layout B spends its width (owner open sub-question, 17 Oct 2026): docked (as chosen), slim, collapsed until a date is on, overlay while open, strip below the weeks. Any ?card implies layout B; no ?card, no ?wide: layout A as before (B is NOT the default yet). */
-var WOPT = /^(a|b|c)$/.test(Q.get("wide") || "") ? Q.get("wide") : CARD !== "docked" ? "b" : "a", NOWIDE = Q.get("wide") === "off" || NARROW;
+var CARD = /^(docked|slim|collapsed|overlay|strip)$/.test(Q.get("card") || "") ? Q.get("card") : "strip"; /* ?card= how layout B spends its width. The bottom strip below the weeks is the default card: the owner decided it for the build (PM-D44) and confirmed it as the hub default (PM-D45, 18 Oct 2026). The others stay reachable for comparison: ?card=docked (the historic side card), slim, collapsed until a date is on, overlay while open. Any ?card implies layout B; ?wide=b with no ?card draws B with the strip. No ?card, no ?wide: layout A as before (B is NOT the no-parameter layout yet). */
+var WOPT = /^(a|b|c)$/.test(Q.get("wide") || "") ? Q.get("wide") : /^(docked|slim|collapsed|overlay|strip)$/.test(Q.get("card") || "") ? "b" : "a", NOWIDE = Q.get("wide") === "off" || NARROW;
 window.PKCard = CARD;
 function wideNow() { return view === "month" && !NOWIDE && WIDE_MQ.matches && !!window.PKWide; }
 function wantWide() { return !NOWIDE && WIDE_MQ.matches && !window.PKWide; }
