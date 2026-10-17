@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Unit conversion</title><link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><script src="../../theme.js"></script>
+<style>
+.decs li,.qs li{margin-bottom:8px;font-size:14px}
+.links{display:flex;flex-wrap:wrap;gap:6px}
+.links a{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border-radius:99px;border:1px solid var(--border);background:var(--bg);font-size:13px;font-weight:600}
+.links a:hover{border-color:var(--accent)}
+.frs{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;margin-top:10px}
+.fig{flex:0 1 214px;min-width:0}
+.fig h3{margin:0 0 4px;font:800 15px var(--head)}
+.fig p{margin:0 0 6px;font-size:12px;color:var(--muted)}
+.fr{width:214px;height:464px;border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden;background:var(--bg);position:relative}
+.fr iframe{position:absolute;left:0;top:0;width:390px;height:844px;border:0;transform:scale(.55);transform-origin:0 0}
+.figw{margin-top:12px}.figw h3{margin:0 0 4px;font:800 15px var(--head)}
+.frd{display:inline-block;vertical-align:top;margin:0 12px 12px 0;width:400px;max-width:100%;height:250px;border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden;position:relative}
+.frd iframe{position:absolute;left:0;top:0;width:1280px;height:800px;border:0;transform:scale(.3125);transform-origin:0 0}
+.idea{display:inline-block;font-size:12px;font-weight:800;padding:3px 10px;border-radius:var(--r-pill);border:1px dashed var(--accent);color:var(--accent)}
+.tbl{overflow-x:auto}.tbl table{min-width:560px;font-size:13px}
+.pr{font-weight:800;color:var(--accent)}
+code{font-size:13px;overflow-wrap:anywhere}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Unit conversion: switching a unit converts the quantity and the minimum</h1>
+<p><span class="idea">Mockup for the owner to review. Nothing built (Kitchie #800).</span></p>
+<p style="margin-top:8px">When an item&rsquo;s unit is switched (grams to kilograms), the number you hold <b>and</b> the minimum stock change together, so 500 g with a minimum of 250 g becomes 0.5 kg with a minimum of 0.25 kg, and the level stays the same. This page draws the three things the owner said need a screen before any code: the <b>quiet conversion</b> when the rate is known, the <b>ask</b> when there is no known rate, and the <b>warning</b> when a value would round to zero. It also draws two rows of one name in mixed units. It is the Edit item flyout (<a href="../item-edit-flyout/">item-edit-flyout</a>) with its own stylesheets; nothing opens over it, the card appears under the unit chips (DESIGN.md 6a, in place). Every state below is live: tap a unit chip, type a count, press the buttons.</p>
+
+<div class="sec"><div class="lbl">Open it</div>
+<div class="links">
+<a href="app.html?item=yog">Greek yoghurt: 500 g, minimum 250 g (try it)</a>
+<a href="app.html?item=yog&amp;to=kg">g to kg: converted</a>
+<a href="app.html?item=rice&amp;to=g">kg to g: converted</a>
+<a href="app.html?item=tom&amp;to=kg">Tin to kg: asks the real count</a>
+<a href="app.html?item=tom&amp;to=kg&amp;n=1.6">Typed 1.6</a>
+<a href="app.html?item=tom&amp;to=kg&amp;n=1.6&amp;go=1">Converted by your count</a>
+<a href="app.html?item=tom&amp;to=kg&amp;ask=two&amp;n=1.6&amp;m=1.2">Two numbers (not chosen)</a>
+<a href="app.html?item=tom0&amp;to=kg">Quantity 0: asks the minimum only</a>
+<a href="app.html?item=yog&amp;to=mL">g to mL (another kind): asks</a>
+<a href="app.html?item=saffron&amp;to=kg">Rounds to zero: warns</a>
+<a href="app.html?item=saffron&amp;to=kg&amp;go=1">Switch anyway</a>
+<a href="app.html?item=flour">Two rows of plain flour</a>
+<a href="app.html?item=flour&amp;to=kg">Switch one of them</a>
+<a href="app.html?item=tom&amp;to=kg&amp;theme=kitchie">Dark</a>
+</div></div>
+
+<div class="sec"><div class="lbl">The states, phone (390 wide)</div>
+<div class="frs">
+<div class="fig"><h3>Known: g to kg</h3><p>Converted at once, both numbers, Undo.</p><div class="fr"><iframe loading="lazy" title="g to kg" src="app.html?theme=kitchie-day&amp;item=yog&amp;to=kg"></iframe></div></div>
+<div class="fig"><h3>No rate: it asks</h3><p>One number; the minimum follows.</p><div class="fr"><iframe loading="lazy" title="Ask" src="app.html?theme=kitchie-day&amp;item=tom&amp;to=kg&amp;n=1.6"></iframe></div></div>
+<div class="fig"><h3>Asked, then converted</h3><p>Your count, not a guess.</p><div class="fr"><iframe loading="lazy" title="Asked then converted" src="app.html?theme=kitchie-day&amp;item=tom&amp;to=kg&amp;n=1.6&amp;go=1"></iframe></div></div>
+<div class="fig"><h3>Rounds to zero: warns</h3><p>Keep is the default.</p><div class="fr"><iframe loading="lazy" title="Warn" src="app.html?theme=kitchie-day&amp;item=saffron&amp;to=kg"></iframe></div></div>
+<div class="fig"><h3>Mixed units, one name</h3><p>Combined in the smaller unit.</p><div class="fr"><iframe loading="lazy" title="Mixed units" src="app.html?theme=kitchie-day&amp;item=flour"></iframe></div></div>
+<div class="fig"><h3>Dark, ask</h3><p>Same tokens.</p><div class="fr"><iframe loading="lazy" title="Dark ask" src="app.html?theme=kitchie&amp;item=tom&amp;to=kg"></iframe></div></div>
+<div class="fig"><h3>Dark, warn</h3><p>Same tokens.</p><div class="fr"><iframe loading="lazy" title="Dark warn" src="app.html?theme=kitchie&amp;item=saffron&amp;to=kg"></iframe></div></div>
+<div class="fig"><h3>Two numbers (not chosen)</h3><p>Quantity and minimum each asked.</p><div class="fr"><iframe loading="lazy" title="Two numbers" src="app.html?theme=kitchie-day&amp;item=tom&amp;to=kg&amp;ask=two&amp;n=1.6&amp;m=1.2"></iframe></div></div>
+</div>
+<div class="figw"><h3>Desktop (1280 wide): the Edit flyout in the right lane</h3>
+<div class="frd"><iframe loading="lazy" title="Desktop, converted" src="app.html?theme=kitchie-day&amp;item=yog&amp;to=kg"></iframe></div><div class="frd"><iframe loading="lazy" title="Desktop, ask" src="app.html?theme=kitchie-day&amp;item=tom&amp;to=kg&amp;n=1.6"></iframe></div><div class="frd"><iframe loading="lazy" title="Desktop, warn, dark" src="app.html?theme=kitchie&amp;item=saffron&amp;to=kg"></iframe></div><div class="frd"><iframe loading="lazy" title="Desktop, mixed units" src="app.html?theme=kitchie-day&amp;item=flour"></iframe></div>
+</div></div>
+
+<div class="sec"><div class="lbl">What the owner decided (voice, 16 October 2026, recorded on Kitchie #800)</div>
+<ul class="decs">
+<li><b>UC-D1</b> One shared conversion service, used wherever quantity or minimum math happens (Option A). Quantity and minimum convert together, in lockstep. Not convert-only-on-switch, not relabel-and-warn.</li>
+<li><b>UC-D2</b> Known relationships (g and kg, mL and L, mm and cm &ldquo;and the like&rdquo;) convert automatically.</li>
+<li><b>UC-D3</b> No known rate between two units (tin, pack, any pair the table does not cover): <b>ask the person for the real count in the new unit</b>. Not a silent relabel, not a refusal.</li>
+<li><b>UC-D4</b> Rounding: precision comes from the conversion factor (a factor of 1000 gives three decimals, 100 gives two), not a fixed rule.</li>
+<li><b>UC-D5</b> A value that rounds to zero (the example was 1 g to 0.001 kg): <b>warn</b> the person. Not a silent refusal, not a silent keep of the old unit.</li>
+<li><b>UC-D6</b> History: not needed. No dedicated journal record for a conversion.</li>
+<li><b>UC-D7</b> Mixed units under one name (a kg row and a g row with their own minimums): <b>combine and show in the smaller, more granular unit</b>, so no fidelity is lost.</li>
+<li><b>UC-D8</b> MCP: no new &ldquo;change unit&rdquo; tool; the system infers it (only the unit changed means convert; the amount changed means a correction through the existing <code>correct_item</code>). <b>Provisional until the owner confirms the wording.</b></li>
+<li><b>UC-D9</b> No UI is built without a mockup first: the ask and the warning are user-facing, so this mockup comes before any code for them.</li>
+<li><b>UC-D10</b> Sequencing: satisfied, #799 (decimal minimum) is merged.</li>
+<li><b>Not yet answered:</b> which units beyond g, kg, mL, L (UC-Q1) and density cases such as cup to gram (UC-Q2).</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">Choices the mockup made where the owner was silent (Proposal)</div>
+<ul class="decs">
+<li><b>UC-P1</b> <span class="pr">Proposal.</span> The prompts live in place, in the Quantity group under the unit chips, in the Edit flyout (and the Add form, which is the same component). No sheet, dialog or toast opens over the form.</li>
+<li><b>UC-P2</b> <span class="pr">Proposal.</span> A known switch applies at once with no confirmation, and a line under the chips says what happened: &ldquo;Converted 500 g to 0.5 kg. Minimum 250 g to 0.25 kg.&rdquo; with <b>Undo</b>. The line stays until the next change. Undo is a screen convenience held in the open form; it writes no history (UC-D6).</li>
+<li><b>UC-P3</b> <span class="pr">Proposal.</span> While a question is open nothing is stored. The unit box keeps the old unit, the tapped chip is outlined and dashed, and the quantity and minimum controls are dimmed and disabled until it is answered or cancelled (<b>Keep tin</b>, <b>Keep g</b>).</li>
+<li><b>UC-P4</b> <span class="pr">Proposal.</span> The ask is <b>one number</b>: &ldquo;How many kg is your 4 tin?&rdquo; The minimum follows at the same ratio, shown live under the field (&ldquo;Minimum 4 tin becomes 1.6 kg at the same rate&rdquo;). The two-number form (quantity and minimum each asked) is drawn as an alternative (<code>?ask=two</code>).</li>
+<li><b>UC-P5</b> <span class="pr">Proposal.</span> With a quantity of 0 there is no ratio to derive, so only the minimum is asked.</li>
+<li><b>UC-P6</b> <span class="pr">Proposal.</span> The warning says exactly what would happen (&ldquo;The minimum 0.4 g is 0.0004 kg, and kg is kept to 3 decimals, so it would become 0 (no minimum)&rdquo;) and offers <b>Keep g</b> (filled, takes focus) or <b>Switch to kg anyway</b>. Switching anyway stores 0, which for a minimum means none and for a quantity means used up, and the confirmation line says so. The quantity and the minimum are checked separately and each is named.</li>
+<li><b>UC-P7</b> <span class="pr">Proposal.</span> Only a unit change converts. Typing or stepping the quantity or the minimum is a correction and is never converted (this is what UC-D8 infers for MCP too).</li>
+<li><b>UC-P8</b> <span class="pr">Proposal.</span> A switch to or from <b>No unit</b> is a relabel, because there is nothing to convert by; the line says the number stays.</li>
+<li><b>UC-P9</b> <span class="pr">Proposal.</span> A typed unit is matched to the household&rsquo;s spelling first (&ldquo;kilos&rdquo; is kg, &ldquo;ml&rdquo; is mL), as the Unit box already does (item-edit-flyout decisions 120 and 121), then converted.</li>
+<li><b>UC-P10</b> <span class="pr">Proposal.</span> Rows of one name (UC-D7): the Edit form shows a dashed block under the chips naming the other rows, the total in the smaller unit and the larger minimum, and the level icon reads from the total and that minimum (a name has one level). The minimum used is the <b>largest</b> of the rows, converted (today&rsquo;s low-stock rule, now comparing like with like), not the sum.</li>
+<li><b>UC-P11</b> <span class="pr">Proposal.</span> An ask answer is used for this item only; the rate is not remembered (tins and packs differ by brand).</li>
+<li><b>UC-P12</b> <span class="pr">Proposal.</span> For a rate the person supplied, the minimum is rounded to 3 decimals (the cap <code>convertAmount</code> uses today).</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">Open questions (recommended position first; what a wrong guess costs)</div>
+<ul class="qs">
+<li><b>UC-Q1</b> <i>(owner, unanswered)</i> Which units besides g, kg, mL, L? <b>Recommended:</b> none now, then mg only if a household uses it. oz, lb, tsp, tbsp and cup are not power-of-ten relationships, so UC-D4 gives them no clean decimals, and a tablespoon is 20 mL in Australia and 15 mL in the US, so it would need a household setting. Cost: a line in <code>unit-rules.json</code> per unit; until then they stay free text and use the ask.</li>
+<li><b>UC-Q2</b> <i>(owner, unanswered)</i> Density (cup to gram, mL to g). <b>Recommended:</b> out of scope; a switch across kinds uses the same ask (&ldquo;There is no fixed rate between g and mL&rdquo;, drawn at <a href="app.html?item=yog&amp;to=mL">g to mL</a>). Cost if wrong: none to build; a density table would be a later feature.</li>
+<li><b>UC-Q3</b> The rounding rule and the example. With UC-D4, 1 g to kg is exactly 0.001 and does <b>not</b> round to zero; the zero case starts below half a gram (0.4 g is the one drawn). Is that the owner&rsquo;s intent, or did he read the issue&rsquo;s example (written against two stored decimals)? <b>Recommended:</b> store as many decimals as the factor gives (three for kg and L). Cost if wrong: a stored kg quantity rounded to two decimals would turn 1 g into 0 and warn on values the person can still write.</li>
+<li><b>UC-Q4</b> One number or two when asking? <b>Recommended:</b> one (UC-P4). Two is drawn at <code>?ask=two</code>. Cost: a different card and, because the person can answer the minimum independently, the level can change across the switch (drawn at the two-number link: Running low becomes Some); the server call is the same.</li>
+<li><b>UC-Q5</b> What does <b>Switch anyway</b> do to a minimum that rounds to zero? <b>Recommended:</b> becomes none, said in words, with Keep as the default. Or the smallest step (0.001 kg) so the rule keeps working. Cost: a person could lose a low-stock alert; the warning names it.</li>
+<li><b>UC-Q6</b> MCP wording (UC-D8, provisional). <b>Recommended reading:</b> unit only: convert quantity and minimum; amount only: a correction; <b>unit and amount together:</b> a correction (the amount is in the new unit) <b>and the minimum is converted from the old unit</b>, because the minimum has no unit of its own and would otherwise change meaning. With no known rate the MCP answers with its existing <code>needs_confirmation</code> asking the same question as the ask card. Cost if wrong: a minimum left in the old unit after a unit-and-amount correction.</li>
+<li><b>UC-Q7</b> Mixed units across the app. Shopping receipt SR-21 and SR-25 show a combined row in the unit the Pantry holds it in (500 g + 1 kg = 1.5 kg). UC-D7 says the smaller unit (1500 g). <b>Recommended:</b> UC-D7 wins everywhere, and SR-25 is updated in <code>shopping-receipt</code> in a follow-up that is shown first (that fragment is not changed here). Also: which minimum wins, largest (recommended) or sum.</li>
+<li><b>UC-Q8</b> The undo line (UC-P2). <b>Recommended:</b> keep Undo on the line. With a factor of 10 the round trip is exact, but Undo also restores values that rounding dropped. Cost: one snapshot in the open form.</li>
+<li><b>UC-Q9</b> A hand-set level keeps its minimum record (<code>override.minimum</code>) in step: the issue says it must be rewritten in the same operation. Not visible here; stated so the build tests it.</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">What each caller does (for the build; nothing here changes Kitchie)</div>
+<div class="tbl"><table>
+<tr><th>Call</th><th>Result</th><th>State</th></tr>
+<tr><td>Web or MCP, only the unit changes, known rate</td><td>Quantity and minimum (and a hand-set level&rsquo;s recorded minimum) convert in one operation. Web shows the line with Undo.</td><td>UC-D1, D2</td></tr>
+<tr><td>Only the unit changes, no known rate</td><td>Web: the ask card. MCP: <code>needs_confirmation</code> with the same question; nothing changed until answered.</td><td>UC-D3, D8</td></tr>
+<tr><td>Only the amount or the minimum changes</td><td>A correction as given. No conversion.</td><td>UC-P7</td></tr>
+<tr><td>Unit and amount both change</td><td>Correction as given for the amount; the minimum converts from the old unit.</td><td>UC-Q6 (to confirm)</td></tr>
+<tr><td>A converted value would be 0</td><td>The warning; nothing changes until Keep or Switch anyway.</td><td>UC-D5</td></tr>
+<tr><td>Readers: low-stock rule, receipt reconcile, shopping amounts, cook</td><td>Use the same helper; rows of one name combine in the smaller unit.</td><td>UC-D1, D7</td></tr>
+</table></div></div>
+
+<div class="sec"><div class="lbl">What the default path loads, and what is deferred (DESIGN.md section 6)</div>
+<p style="font-size:14px">Nothing new on the default path in the build: the Edit flyout already carries the unit table for its quantity editor. The mockup page loads <code>theme.css</code>, the existing item-edit-flyout stylesheets, <code>uc.css</code> (about 2 KB), <code>convert.js</code> (about 4 KB), <code>sample.js</code> and <code>uc.js</code>. The conversion and the card are worked out in the page, in place (section 6a): no request until the person confirms, then one write to the server, which converts again with the same rules and wins. The ask and warning cards are drawn only when needed.</p></div>
+</div></body></html>
