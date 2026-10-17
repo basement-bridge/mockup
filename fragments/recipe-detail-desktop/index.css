@@ -17,3 +17,4 @@
 .hub-said ul{margin:var(--sp-2) 0 0;padding-left:18px;font-size:14px}
 .hub-said li{margin-bottom:6px}
 @media(max-width:699px){.hub-opt{grid-template-columns:minmax(0,1fr)}}
+.hub-opt .mut{margin:var(--sp-3) 0 0;font-size:13px;color:var(--muted)}

@@ -297,3 +297,46 @@ Build-side CSS locations to mirror: `recipe-tab/css.ts` (phone + shared base), `
 - Which owner decision (if any) covers a wider-than-736px recipe page: `AGENTS.md:181` says "do not add other desktop widths" and "a screen does not get its own layout per bucket" (187). No recorded decision allows the page to use the free space right of the lane. Page layout option 2 of RB was drawn, not picked. This is a decision for Arjan, not something to assume in the mockups.
 - Sample data in 3.4 is invented, not read from a live household (except the Berry Pavlova groups, Barramundi example and long real titles from UAT, and the fixtures from `recipe-tab/fake.ts`). The 24 ingredient count and 14 steps in sample E should be re-counted when the mockup data is written.
 - The project docs listed in the session (`claude/plan-desktop-handoff.md`, `claude/platform-context.md`, etc.) were not readable in this agent (no project tool); decisions here come from the repos and the account memory only.
+
+---
+
+## 7. Owner decisions on the recommended layout
+
+Added 17 October 2026 with the sixth layout, `recommended/` (live: https://basement-bridge.github.io/mockup/fragments/recipe-detail-desktop/recommended/index.html). It merges option C's tabbed rail with option E's hero strip and method columns, as the owner asked. Notes for the page itself: `recommended/notes.md`.
+
+### 7.1 Decided by the owner (by voice, 17 October 2026; locked until he overrides)
+
+1. **Hybrid.** Option C's in-place tabbed left rail (Ingredients, Notes, Cooked, Photos, count badges, keys 1 to 4 and N) plus option E's hero strip and balanced multi-column method on the right. Option D is dropped.
+2. **The banner image is a real hero.** A proper banner photo across the hero strip, not a thumbnail. None of options A to E did this.
+3. **The time badge ("20 min") sits directly under the title.**
+4. **Per-step time is shown beside each step number**, only where a step has a time.
+5. **No ingredient-to-step linkage on this page.** Cook it mode owns that (recipe#127, Kitchie #810).
+6. **The "ingredients and notes in one zone" constraint is lifted.** This is the recipe's detail page. The hero strip is the one place that shows everything: title, time badge, Serves, History and proof, the version and lineage line ("From <parent>") and every action including Plan it and Cook it. There is no bottom bar.
+7. **The "Notes and reactions" pill loses its text label** (the thumbs and note icons say it). Its flyout is better organised and shows the user's NAME against each rating, only for people who actually rated.
+8. **Avoid scrolling on desktop.** Ingredients are a short, wrapping list; the method gets the room.
+
+### 7.2 Recommended by Claude (proposals; the owner was silent)
+
+9. **Wide layout only from 80rem wide and 700px high.** Below that the same page stacks and the document scrolls (a stand-in for today's single column, which the build keeps). Separate viewport file `recommended-wide.css`, linked with a `media` attribute (the repo's viewport rule).
+10. **Keys.** 1 to 4 switch the rail tabs; N keeps its app meaning (open or close the Notes and reactions flyout) and is shown on the pill; the Notes tab is key 2. All gated to the recipe page in the build (`1` and `2` are also History keys, Up and Down are "previous or next item"). Ctrl or Cmd with Enter or Esc closes the flyout; plain Esc closes only a step photo or the version menu.
+11. **Version and lineage.** One version chip in the hero ("With peas", star for Our usual, red dot for a change to review) opens a small menu (every version, its parent, Trying, To review, All versions); "From Original" sits beside it. This handles five versions without the truncation the review found in C.
+12. **Density classes from the counts** (E's idea): roomy up to 5 ingredients and 4 steps (one column, large photos), normal, tight above 16 ingredients or 10 steps (smaller text and thumbnails). Chosen by the server in the build.
+13. **Long recipes keep Notes reachable.** The tab strip never scrolls, so Notes is one tap or key 2 away; inside a tab only the list scrolls, with "Add a note" and the source line pinned under it.
+14. **The source line is back,** pinned at the foot of the rail.
+15. **No gap between step text and photo.** The text track is capped at 40 characters and the photo follows it directly; a tapped photo opens large under the step.
+16. **The Notes flyout pushes the page and never covers it** (the app's lane rule). While it is open the page is narrower, so the rail drops to 19.5rem, hero hint chips go and the method drops to one column.
+17. **Empty is absent.** No Cooked tab until there is a cook, no Photos tab without photos; Notes always stays ("No notes yet." plus Add a note). With no banner there is no photo hero (R-D9): a plain, shorter strip.
+18. **Photos in the sample are mockup-only:** banners are wide crops composed from the repo's sample plates (`recommended/img/`), step thumbnails reuse `recipe-photos/img/`.
+
+### 7.3 Open questions for the owner
+
+Q1. **Width-rule exception, and the breakpoint.** `kitchie AGENTS.md:181` says desktop is a rail, a 640px column and a side panel and "do not add other desktop widths"; line 187 says a screen needing its own layout records the exception in `docs/project-plan.md` and asks the owner. The owner is explicitly rethinking the big-screen layout, so the recommended page uses the space right of the 88px rail, left-anchored, capped at 105rem, with the rail width held as a token (`--rec-rail`, `--rec-max`, `--rec-lane`). This is recorded as **proposed, awaiting owner** in `docs/project-plan.md`; nothing is settled. Breakpoint proposal: apply from 80rem and 700px high, keep today's page from 64rem to 80rem and on short windows (also covers browser zoom above 125%). Alternative: design 1024 to 1279 properly. A wrong guess costs a second desktop layout that is not wanted, or four broken widths.
+Q2. **Where do Plan it and Cook it live?** Recommended: hero, top right, no bottom bar (constant place, no 64px height cost). Alternatives: rail footer (option A), keep today's fixed bar.
+Q3. **Cooked and Photos one tap deeper** than today's jump row (tabs, keys 3 and 4, and a "Cooked 4x" proof button). Accept, or keep them visible?
+Q4. **Carry `group` through the wire** (`IngredientLine`, `StepLine`, `client.ts:217`, `fake.ts`): the long sample draws group labels that the app cannot fill today. Recommended: yes, as its own small change first. Not asked for: prep and cook minutes, equipment, tags.
+Q5. **Park option D** (the step stage) under Kitchie #810 as "Cook it on desktop", rather than discarding it.
+Q6. **How is lineage and version shown?** Proposal 11 (one chip with a menu plus a "From <parent>" line). Alternative: a version strip as in C and E.
+Q7. **What does N do?** Proposal 10 keeps N as the Notes and reactions flyout and gives the Notes tab key 2. The owner's wording ("keys 1-4/N") could also mean N goes to the Notes tab; then the pill opens the flyout by click only.
+Q8. **Names against thumbs-down.** The owner asked for the user's NAME against each rating. Today "not for me" is private: a count, named only for the caller (V-D33). The mockup shows the name for every rating, so it draws Alex's "Not for me". Confirm that V-D33 is lifted.
+Q9. **A long recipe still scrolls its ingredient list inside the rail** (24 ingredients does not fit 1280x720; the method does fit). Accept, or show ingredients in two columns on tight recipes (E's way, at the cost of a rail that changes width)?
+Q10. **Method reading order across two columns.** Steps run down the left column, then the right; a group label can end a column and its steps continue unlabelled in the next. Accept, or one column with the lane open only?

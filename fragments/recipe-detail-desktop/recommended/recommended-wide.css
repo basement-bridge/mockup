@@ -1,0 +1,73 @@
+/* Recommended layout, wide viewport file. Linked with media="(min-width:1280px) and (min-height:700px)" (80rem x 700px): the page is exactly one viewport tall and the document
+   never scrolls; only the rail pane and the method may scroll inside, and only when a recipe is long. Below that size this file is not loaded and recommended.css
+   (stacked, scrolling) applies; in the build the fallback is today's single-column page.
+   WIDTH EXCEPTION (proposed, awaiting owner; kitchie AGENTS.md:181 "do not add other desktop widths"): the page uses the space right of the 88px app rail, left-anchored,
+   capped at --rec-max, with the rail held as a token. The Notes and reactions flyout (400px) pushes the page and never covers it. */
+:root{--rec-rail:clamp(21rem,25vw,28rem);--rec-max:105rem;--rec-lane:400px}
+html,body{height:100%;overflow:hidden}
+.app{height:100vh;min-height:0;align-items:stretch}
+nav.bar{position:static;height:auto}
+.rd{display:flex;flex-direction:column;height:100vh;max-width:var(--rec-max);overflow:hidden;container:page/inline-size}
+.rfly{width:var(--rec-lane)}
+
+.hero{flex:none;margin:var(--sp-3) var(--sp-4) 0;min-height:clamp(150px,19vh,230px);padding:var(--sp-3) var(--sp-5)}
+/* the scrim in the wide layout: words on the left sit on the page colour, the photo stays whole on the right */
+.hphoto::after{background:linear-gradient(90deg,color-mix(in srgb,var(--bg) 96%,transparent) 0,color-mix(in srgb,var(--bg) 90%,transparent) 38%,color-mix(in srgb,var(--bg) 42%,transparent) 62%,transparent 84%)}
+.hero.nobanner{min-height:0}
+.hmain{flex-wrap:nowrap}
+.hact{align-self:stretch;justify-content:space-between}
+.hinfo h1{font-size:clamp(1.55rem,1rem + 1.15vw,2.3rem)}
+
+.rbody{flex:1;min-height:0;display:grid;grid-template-columns:var(--rec-rail) minmax(0,1fr);grid-template-rows:minmax(0,1fr);gap:var(--sp-5);align-items:start;padding:var(--sp-3) var(--sp-4) var(--sp-4)}
+.rail{max-height:100%}
+.pane{flex:0 1 auto}
+.pane:not([hidden]){display:flex}
+.ing{font-size:clamp(14px,6px + .9vh,17px)}
+.note{font-size:clamp(13.5px,6px + .85vh,16px)}
+
+.meth{max-height:100%;container-type:inline-size}
+.mscroll{overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;padding-right:var(--sp-2)}
+.steps{--mtxt:clamp(16px,8px + 1.35vh,22px);--pw:clamp(96px,12vh,176px)}
+.psp{width:var(--pw);height:calc(var(--pw)*.75)}
+.pprep{width:var(--pw);height:auto;min-height:calc(var(--pw)*.75)}
+.stp{padding:var(--sp-2) 0}
+.stp.open .psp{width:100%;height:auto;max-height:50vh}
+
+/* balanced columns: two when the method area is wide enough (the flyout, which pushes the page, drops it to one) */
+@container (min-width:42rem){.steps{column-count:2;column-gap:var(--sp-6);column-fill:balance}}
+.stp,.grp{break-inside:avoid}
+
+/* density, chosen from the counts by the server (data-dens): roomy up to 5 ingredients and 4 steps, tight above 16 ingredients or 10 steps */
+[data-dens=tight] .steps{--mtxt:clamp(14px,6.5px + .95vh,17px);--pw:clamp(64px,8vh,104px)}
+[data-dens=tight] .stp{padding:5px 0;gap:var(--sp-2)}
+[data-dens=tight] .ing{padding:3px 0}
+[data-dens=roomy] .steps{--mtxt:clamp(19px,10px + 1.3vh,26px);--pw:clamp(200px,32vh,380px)}
+[data-dens=roomy] .stp{padding:var(--sp-4) 0}
+@container (min-width:42rem){[data-dens=roomy] .steps{column-count:1}}
+[data-dens=roomy] .sb p{max-width:48ch}
+[data-dens=roomy] .nb{width:36px;height:36px;font-size:16px}
+[data-dens=roomy] .stp{grid-template-columns:60px minmax(0,34ch) auto;column-gap:var(--sp-5)}
+[data-dens=roomy] .timer{font-size:13px}
+
+@media(max-height:800px){
+ .hero{padding-top:var(--sp-2);padding-bottom:var(--sp-2)}
+ .lblrow{min-height:34px}
+ .ing{padding:3px 0}
+ .pfoot{padding:6px 0 8px}
+ .hmeta{margin-top:0}
+}
+
+/* page narrower than 62rem (the Notes flyout is open at 1280 to 1500): same layout, tighter. Rail 19.5rem, hero stays one row of chrome, hint chips and labels drop. */
+@container page (max-width:62rem){
+ .rbody{grid-template-columns:19.5rem minmax(0,1fr);gap:var(--sp-4)}
+ .tabs [role=tab]{font-size:12px;gap:3px;padding:0 2px}
+ .bdg{min-width:16px;padding:0 4px;font-size:10.5px}
+ .hero{flex-wrap:nowrap;padding:var(--sp-2) var(--sp-4)}
+ .hmain{flex:1 1 0}
+ .hact{flex:none}
+ .hicons{flex-wrap:nowrap}
+ .shr-chip .sl,.shr-chip .kbd,.rb-notesbtn .kbd,.hl .kbd,.proof .lc{display:none}
+ .hphoto img{object-position:100% 50%}
+ .hphoto::after{background:linear-gradient(90deg,color-mix(in srgb,var(--bg) 96%,transparent) 0,color-mix(in srgb,var(--bg) 88%,transparent) 55%,color-mix(in srgb,var(--bg) 35%,transparent) 80%,transparent)}
+ .hinfo h1{font-size:clamp(1.35rem,1rem + .8vw,1.8rem)}
+}

@@ -4,7 +4,7 @@
 <body><div class="wrap">
 <a class="back" href="../../">&lsaquo; All mockups</a>
 <h1>Recipe page, desktop layout options</h1>
-<p>Fragment. The job: <b>read and cook from the full recipe page on a big desktop screen without scrolling where possible</b>, with ingredients that wrap instead of wasting white space, notes close by, and history, serves, Plan it and Cook it given a place. Five options, each a live page with short, typical, long, notes and cooked states. Mockup only: nothing is built or saved. Kitchie issue #830. <span class="tag">Draft, awaiting owner choice</span></p>
+<p>Fragment. The job: <b>read and cook from the full recipe page on a big desktop screen without scrolling where possible</b>, with ingredients that wrap instead of wasting white space, notes close by, and history, serves, Plan it and Cook it given a place. Five options, plus a sixth, Recommended, that merges C and E as the owner asked (option D is dropped). Each is a live page with short, typical, long, notes and cooked states. Mockup only: nothing is built or saved. Kitchie issue #830. <span class="tag">Draft, awaiting owner choice</span></p>
 
 <div class="hub-said"><b>The owner's words</b> <span class="tag">issue #830</span>
 <ul>
@@ -13,6 +13,15 @@
 <li>Do not scroll if it can be avoided.</li>
 <li>Pay attention to the history, the serves and the other bits.</li>
 </ul></div>
+
+<div class="sec"><div class="lbl">Recommended, the owner's hybrid</div>
+<article class="hub-opt" id="recommended">
+<a class="thumb" href="recommended/index.html" aria-label="Open the recommended layout"><img src="recommended/screenshots/typical-1440x900-dark.png" width="1440" height="900" loading="lazy" decoding="async" alt="Recommended layout, typical recipe at 1440 by 900, dark"></a>
+<div><h2><a href="recommended/index.html">Recommended: hero banner, tabbed rail, balanced method</a> <span class="tag">Draft, awaiting owner choice</span></h2>
+<p class="one">C's in-place tabbed left rail (Ingredients, Notes, Cooked, Photos) under E's hero strip, with the method in balanced columns on the right.</p>
+<dl class="facts"><dt>Hero</dt><dd>A real banner photo, with the title, the time badge directly under it, Serves, version and "From parent", History, proof and every action including Plan it and Cook it. No bottom bar.</dd><dt>Fits without scrolling</dt><dd>Short, typical and long at 1280x720, 1440x900 and 1920x1080: the page never scrolls. A long recipe scrolls only the ingredient list inside the rail.</dd><dt>Notes</dt><dd>A rail tab (key 2) with a count; the pill (icons only, key N) opens a flyout that names who rated what.</dd><dt>Method</dt><dd>Two balanced columns; the step time sits beside the step number; no ingredient links (Cook it owns those).</dd><dt>Below 80rem or 700px high</dt><dd>The page stacks and scrolls (the build keeps today's page there).</dd><dt>Needs the owner</dt><dd>The width-rule exception (AGENTS.md:181) and the breakpoint. See Owner decisions in the notes.</dd></dl>
+<div class="hub-links"><a href="recommended/index.html">Open the recommended layout</a><a href="recommended/notes.md">Notes</a><a href="notes.md#7-owner-decisions-on-the-recommended-layout">Owner decisions</a></div></div>
+</article></div>
 
 <div class="sec"><div class="lbl">The five options</div>
 <p>Thumbnails are the typical recipe at 1440x900, dark. Each option also has light, 1280x720 and 1920x1080 screenshots in its folder.</p>
@@ -39,10 +48,10 @@
 </article>
 <article class="hub-opt" id="option-d">
 <a class="thumb" href="option-d/index.html" aria-label="Open option D"><img src="option-d/screenshots/typical-1440x900-dark.png" width="1440" height="900" loading="lazy" decoding="async" alt="Option D, typical recipe at 1440 by 900, dark"></a>
-<div><h2><a href="option-d/index.html">Option D: Step stage</a> <span class="tag">Draft, awaiting owner choice</span></h2>
+<div><h2><a href="option-d/index.html">Option D: Step stage</a> <span class="tag">Dropped by the owner</span></h2>
 <p class="one">A rail plus the whole method as a one-line list, with the current step large beside it.</p>
 <dl class="facts"><dt>Fits without scrolling</dt><dd>Yes for short and typical at 1440x900 and 1920x1080 (a few px inside the rail at 1280x720).</dd><dt>Long recipe</dt><dd>Only the rail scrolls (ingredients and notes); the step list fits, with a highlight for the rows a step uses.</dd><dt>History</dt><dd>Chrome row 2 (strip).</dd><dt>Serves</dt><dd>Chrome row 2, a stepper that feeds Cook it.</dd><dt>Notes</dt><dd>Under the ingredients in the rail, at most 40% of its height.</dd><dt>Plan it / Cook it</dt><dd>Chrome row 2, beside Serves.</dd><dt>Costs</dt><dd>You cannot read the whole method at once without Show all steps; the stage overlaps Cook it; long titles and notes squeeze the height at 720.</dd></dl>
-<div class="hub-links"><a href="option-d/index.html">Open option D</a><a href="option-d/notes.md">Notes</a></div></div>
+<p class="mut">Dropped by the owner (17 October 2026). The cook-along idea may be parked under Kitchie #810 (Cook it on desktop); that is an open question in the notes.</p><div class="hub-links"><a href="option-d/index.html">Open option D</a><a href="option-d/notes.md">Notes</a></div></div>
 </article>
 <article class="hub-opt" id="option-e">
 <a class="thumb" href="option-e/index.html" aria-label="Open option E"><img src="option-e/screenshots/typical-1440x900-dark.png" width="1440" height="900" loading="lazy" decoding="async" alt="Option E, typical recipe at 1440 by 900, dark"></a>
