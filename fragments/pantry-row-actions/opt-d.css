@@ -1,0 +1,11 @@
+/* Option D: the panel and the keys only (Kitchie #866). The rows carry nothing. The open item's panel leads with the three actions, each with its key cap; a keys line at the foot of the column says the keys. */
+.pact{display:grid;grid-template-columns:1fr;gap:8px;margin:18px 0 6px}
+.pact .btn{justify-content:space-between;min-height:48px}
+.pact .btn .l{display:inline-flex;align-items:center;gap:10px}
+.pact .btn.one{background:var(--bg)}
+.pact .btn.all:hover{border-color:var(--danger);color:var(--danger)}
+.pact .btn[aria-disabled=true]{opacity:.5}
+.pact .why{margin:-2px 2px 6px;font-size:12px;color:var(--muted)}
+.keysline{position:sticky;bottom:0;display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;margin:18px -4px 0;padding:10px 4px;border-top:1px solid var(--border);background:var(--bg);font-size:13px;color:var(--muted)}
+.keysline span{display:inline-flex;align-items:center;gap:6px}
+html[data-cues=off] .keysline{display:none}

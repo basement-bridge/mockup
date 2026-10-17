@@ -1,0 +1,89 @@
+/* Pantry row actions on the desktop (Kitchie #866): the rail, column and side-panel lane of the settled desktop layout (DESIGN.md section 7, docs/knowledge/desktop-layout.md), drawn minimally,
+   and the Pantry row as the app draws it. Every colour, radius and size is a theme token. Each option adds its own file (opt-*.css), fetched only when that option is shown (DESIGN.md section 6).
+   Mock chrome only: the rail, the header row, the chips, the "Prototype" bar. The row, .kbd, the Undo bar and the panel are what the build keeps. */
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--fg);font-family:var(--body);line-height:1.4}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.app{display:grid;min-height:100vh;grid-template-columns:88px minmax(0,736px) 400px;justify-content:start}
+.rail{border-right:1px solid var(--border);padding:16px 8px;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh}
+.rail .brand{font:700 13px var(--head);text-align:center;color:var(--muted);margin-bottom:10px}
+.nv{display:flex;flex-direction:column;align-items:center;gap:2px;min-height:44px;padding:8px 2px;border-radius:var(--r-ctl);font-size:12px;font-weight:600;color:var(--muted);position:relative}
+.nv svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nv.on{color:var(--accent);background:var(--surface)}
+.nv:hover{background:var(--surface)}
+.nv .n{position:absolute;top:2px;right:14px;background:var(--accent);color:var(--on-accent);font-size:10px;font-weight:700;border-radius:99px;padding:0 5px;min-width:16px;text-align:center}
+.main{padding:28px 48px 56px;min-width:0}
+.col{max-width:640px;position:relative}
+.hd{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.dsrch{position:relative;display:flex;align-items:center;flex:1;min-width:0;height:48px;margin:0;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--surface)}
+.dsrch:focus-within{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.dsrch .mg{flex:none;width:40px;height:46px;display:inline-flex;align-items:center;justify-content:center;color:var(--muted)}
+.dsrch .field{flex:1;min-width:0;border:0;background:none;min-height:46px;padding:0 10px 0 0;outline:none}
+.dsrch .field::placeholder{color:var(--muted)}
+.icon{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:.9rem;border:1px solid var(--border);flex:none;background:none}
+.addbtn{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.tbtn{display:inline-flex;align-items:center;gap:6px;min-height:48px;padding:0 1rem;border:1px solid var(--border);border-radius:.8rem;background:var(--surface);font-weight:500}
+.ribbon{display:flex;gap:6px;padding:.25rem;border-radius:1rem;background:var(--surface);margin-bottom:.4rem;width:max-content;max-width:100%}
+.rc2{flex:none;min-height:40px;border:0;background:none;border-radius:.75rem;padding:0 1rem;font-weight:700}
+.rc2.on{background:var(--accent);color:var(--on-accent)}
+.rc2 .ct{margin-left:4px;font-weight:500;color:var(--muted)}.rc2.on .ct{color:inherit}
+.count{margin:6px 4px 0;font-size:13px;color:var(--muted)}
+/* ---- the key cap (desktop-pantry.css .kbd in the app): the same small bordered cue everywhere, in the accent. The cues switch (Shift Space) hides it. */
+.kbd{display:inline-block;padding:1px 6px;border:1px solid var(--accent);border-radius:6px;color:var(--accent);font:600 11px/1.4 var(--body);background:none}
+html[data-cues=off] .kbd:not(.keep){display:none}
+/* ---- the list and the Pantry row (markup as the app's: li[data-row] > a.rowlink, plus whatever the option adds) */
+.group h2{font:800 1.15rem var(--head);margin:.9rem .25rem .2rem}
+.rows{list-style:none;margin:0;padding:0}
+li[data-row]{position:relative;display:flex;align-items:stretch;min-height:64px;border-bottom:1px solid var(--border)}
+li[data-row] .rowlink{flex:1;min-width:0;display:flex;align-items:center;gap:12px;padding:8px 12px;border-radius:var(--r-ctl)}
+li[data-row]:hover .rowlink,li[data-row].is-hover .rowlink{background:var(--surface)}
+li[data-row] .rowlink[aria-current]{background:var(--surface);box-shadow:inset 3px 0 0 var(--accent)}
+li[data-row] .emo{flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:22px;background:var(--surface);border:1px solid var(--border)}
+li[data-row] .rtxt{flex:1;min-width:0;display:flex;flex-direction:column}
+li[data-row] .name{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+li[data-row] .meta{font-size:.9rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+li[data-row] .due{flex:none;margin-left:auto;font-size:.85rem;color:var(--muted);text-align:right;line-height:1.2}
+li[data-row] .due.hot{color:var(--accent);font-weight:700}
+li[data-row][data-gone] .name,li[data-row][data-gone] .meta{opacity:.55}
+li[data-row][data-gone] .due{font-weight:700}
+.emptystate{margin:40px 0;padding:28px;border:1px dashed var(--border);border-radius:var(--r-card);text-align:center}
+.emptystate b{display:block;font:800 1.1rem var(--head);margin-bottom:4px}
+.emptystate p{margin:0 0 14px;color:var(--muted)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:var(--tap);padding:0 16px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);font-weight:700}
+.btn.pri{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.btn:hover{border-color:var(--accent)}
+.btn[aria-disabled=true]{opacity:.5;cursor:not-allowed}
+.btn.dng:hover{border-color:var(--danger);color:var(--danger)}
+/* ---- the side panel: the open item. Used up and Add to shopping list stay as they are (item flyout); the pencil and clock are the Edit and History icons with their key caps. */
+.panel{background:var(--surface);border-left:1px solid var(--border);padding:24px;position:sticky;top:0;height:100vh;overflow:auto}
+.pempty{padding-top:40px;text-align:center}.pempty p{margin:4px 0 0;color:var(--muted)}
+.ph{display:flex;align-items:center;gap:12px}
+.ph .emo{width:56px;height:56px;border-radius:var(--r-card);display:grid;place-items:center;font-size:28px;background:var(--bg);border:1px solid var(--border);flex:none}
+.ph h2{font:800 1.2rem var(--head);margin:0;overflow-wrap:anywhere}.ph p{margin:0;color:var(--muted);font-size:.9rem}
+.ph .hi{display:flex;gap:6px;margin-left:auto}
+.pic{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 10px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--bg)}
+.pic svg{width:18px;height:18px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:18px 0}
+.tile2{padding:10px 12px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--bg)}
+.tile2 b{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.tile2 span{font-weight:700}
+.pbtns{display:flex;flex-direction:column;gap:8px}
+.pbtns .btn{justify-content:flex-start}
+.svg,svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+/* ---- the Undo bar (swipe.js #undo-bar): the same bar for every way in */
+#undo-bar{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:40;display:flex;align-items:center;gap:12px;max-width:min(560px,calc(100vw - 32px));padding:10px 12px 10px 16px;border-radius:var(--r-ctl);background:var(--fg);color:var(--bg);font-weight:600;font-size:14px}
+#undo-bar[hidden]{display:none}
+#undo-bar .ubtn{min-height:36px;padding:0 12px;border:1px solid currentColor;border-radius:10px;background:none;color:inherit;font-weight:700}
+#undo-bar .kbd{border-color:currentColor;color:inherit;opacity:.8;margin-left:4px}
+/* ---- mock chrome: the Prototype bar (not the product) */
+.mockbar{position:fixed;right:12px;bottom:12px;z-index:30;display:flex;flex-wrap:wrap;gap:6px;align-items:center;max-width:380px;padding:8px;border:1px dashed var(--border);border-radius:var(--r-ctl);background:var(--bg);font-size:12px}
+.mockbar b{color:var(--muted);font-weight:700;margin-right:2px}
+.mockbar a{display:inline-flex;align-items:center;min-height:32px;padding:0 10px;border:1px solid var(--border);border-radius:99px;font-weight:700}
+.mockbar a[aria-current=true]{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.banner{margin:0 0 10px;padding:10px 14px;border-radius:var(--r-ctl);border:1px solid var(--danger);color:var(--danger);font-weight:600;font-size:14px}
+@media (max-width:1023.98px){.app{grid-template-columns:88px minmax(0,1fr)}.panel{display:none}.main{padding:20px 24px 56px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
