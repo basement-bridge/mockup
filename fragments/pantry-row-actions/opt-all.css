@@ -1,0 +1,74 @@
+/* The decided view (Kitchie #866, owner 17 Oct 2026): A, B and C together, each with its own way in.
+   A  hover buttons on the right side of a row (the Shopping desktop pattern, SD-6), key caps kept.
+   B  a context menu on right click anywhere on the row EXCEPT over those buttons. No three-dot button anywhere.
+   C  Ctrl or Cmd click toggles rows into a selection (Shift click picks a range); a bar shows the count with Add to shopping list and Used up only.
+   Every colour is a theme token. This file and opt-all.js are the only option files this view fetches (DESIGN.md section 6). */
+
+/* ---- A: the strip of buttons at the right of a row. Shown on hover, focus within and the current row. The use-by words step aside while it shows. */
+.ract{position:absolute;z-index:2;top:50%;right:8px;display:flex;flex-wrap:nowrap;align-items:center;gap:6px;margin:0;padding:0;transform:translateY(-50%);opacity:0;pointer-events:none}
+/* the soft fade at the strip's left edge is a pseudo-element that takes no clicks, so the strip's own box (its buttons and the gaps between them) is the "right side where the buttons show" and nothing else is */
+.ract::before{content:"";position:absolute;right:100%;top:-12px;bottom:-12px;width:28px;background:linear-gradient(to right,transparent,var(--surface));pointer-events:none}
+li[data-row]:is(:hover,:focus-within,[data-cur],.is-hover) .ract{opacity:1;pointer-events:auto}
+li[data-row]:is(:hover,:focus-within,[data-cur],.is-hover) .due{visibility:hidden}
+.ract .rb{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 9px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--bg);color:var(--fg);font-weight:700;white-space:nowrap}
+.ract .rb .lbl{display:none}
+.ract .rb:is(:hover,:focus-visible) .lbl{display:inline}
+.ract .rb:hover{border-color:var(--accent);color:var(--accent)}
+.ract .rb.all:hover{border-color:var(--danger);color:var(--danger)}
+.ract .rb.all:hover .kbd{border-color:var(--danger);color:var(--danger)}
+.ract .rb:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+li[data-row]:is(:hover,:focus-within,[data-cur],.is-hover) .rowlink{padding-right:232px}
+li[data-row][data-sheet^="0"]:is(:hover,:focus-within,[data-cur],.is-hover) .rowlink{padding-right:172px}
+li[data-row][data-gone]:is(:hover,:focus-within,[data-cur],.is-hover) .rowlink{padding-right:104px}
+/* an Out row: Add to list only (an item that ran out is the one you want to buy) */
+li[data-gone] .ract .rb.one,li[data-gone] .ract .rb.all{display:none}
+/* no text selection by dragging or Shift click on a row: Shift click picks a range */
+li[data-row]{-webkit-user-select:none;user-select:none}
+
+/* ---- C: picked rows. A tick takes the emoji tile's place; the row gets the accent bar. While anything is picked the hover buttons step aside (the bar acts), so a row never offers Use one beside a selection. */
+.rpick{position:absolute;z-index:1;left:12px;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:12px;background:var(--accent);color:var(--on-accent);display:none;place-items:center;pointer-events:none}
+.rpick svg{width:22px;height:22px}
+li[data-row][data-picked] .rpick{display:grid}
+li[data-row][data-picked] .rowlink{background:var(--surface);box-shadow:inset 3px 0 0 var(--accent)}
+#plist[data-selecting] li[data-row] .ract{opacity:0;pointer-events:none}
+#plist[data-selecting] li[data-row] .due{visibility:visible}
+#plist[data-selecting] li[data-row] .rowlink{padding-right:12px}
+/* the selection bar takes the header row's place (same 48px, so nothing in the column moves) */
+.selbar{position:absolute;z-index:5;left:0;right:0;top:0;height:48px;display:flex;align-items:center;gap:8px;padding:0 4px 0 14px;border:1px solid var(--accent);border-radius:var(--r-ctl);background:var(--surface)}
+.selbar[hidden]{display:none}
+.selbar .cnt{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.15}
+.selbar .cnt b{font-weight:800;white-space:nowrap}
+.selbar .cnt span{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.selbar .btn{flex:none;min-height:40px;padding:0 10px;gap:6px}
+.selbar .btn.clr{border-color:transparent;background:none;color:var(--muted)}
+#col[data-selecting] .hd > *{visibility:hidden}
+.selbar .btn.clr .i{display:none}
+/* the narrow desktop (1024): the column is 440px, so the bar keeps the count and the two actions; the hint line and the caps go and Clear is the cross */
+@media (max-width:1180px){.selbar{padding-left:12px;gap:6px}.selbar .cnt span{display:none}.selbar .btn .kbd{display:none}.selbar .btn.clr .i{display:inline-block}.selbar .btn.clr .t{display:none}.selbar .btn.clr{padding:0 8px}}
+/* ---- B: the context menu. One menu for the whole list. Entries that cannot apply are absent, not greyed. */
+.rmenu{position:fixed;z-index:50;min-width:272px;padding:6px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface);box-shadow:0 12px 32px var(--dim)}
+.rmenu[hidden]{display:none}
+.rmenu .mh{padding:6px 10px 4px;font-size:12px;font-weight:700;color:var(--muted);max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rmenu .mi{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:0 10px;border:0;border-radius:10px;background:none;text-align:left;font-weight:600}
+.rmenu .mi .lb{flex:1}
+.rmenu .mi:hover,.rmenu .mi:focus-visible{background:var(--bg);outline:none;box-shadow:inset 0 0 0 2px var(--accent)}
+.rmenu .mi.all{color:var(--danger)}
+.rmenu hr{border:0;border-top:1px solid var(--border);margin:4px 6px}
+.rmenu .mf{padding:6px 10px 4px;font-size:12px;color:var(--muted)}
+li[data-row][data-menu] .rowlink{background:var(--surface);box-shadow:inset 0 0 0 2px var(--accent)}
+
+/* ---- the open item's panel: Use one joins Add to shopping list and Used up, each with its key cap */
+.pbtns.caps .btn{justify-content:space-between}
+.pbtns.caps .btn .l{display:inline-flex;align-items:center;gap:8px}
+.pbtns.caps .btn.all:hover{border-color:var(--danger);color:var(--danger)}
+.pbtns .why{margin:-2px 2px 0;font-size:12px;color:var(--muted)}
+
+/* ---- Touch laptop (no hover). The condition in the build is the plain media query (hover: none); html[data-input=touch] is this mock's stand-in (rows.js), or ?input=touch.
+   A tap makes the row current and its strip shows at 44px; swipe stays for a finger. There is no Ctrl or Cmd with a finger alone, so no multi-select by touch alone. */
+@media (hover:none){.ract .rb{min-height:44px}}
+html[data-input=touch] .ract .rb{min-height:44px}
+html[data-input=touch] li[data-row]:not([data-cur]):not(:focus-within) .rowlink{padding-right:12px}
+html[data-input=touch] li[data-row]:not([data-cur]):not(:focus-within) .ract{opacity:0;pointer-events:none}
+html[data-input=touch] li[data-row]:not([data-cur]):not(:focus-within) .due{visibility:visible}
+html[data-input=touch] li[data-row]:hover:not([data-cur]):not(:focus-within) .ract{opacity:0}
+html[data-input=touch] .selbar .btn{min-height:44px}
