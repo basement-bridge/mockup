@@ -1,0 +1,7 @@
+/* The month as a sheet on a tablet (600 to 1023px): a centred dialog over a dimmed screen, 720px at most. There is room for the rich week (rich.css): a column naming each week and a meal name in every cell, so the tablet gets the wide
+   layout's cells in a dialog. Touch: no hover popover, a planned night shows what is on it first (touch.js). Separate from the desktop and the phone on purpose (DESIGN.md section 7). */
+body[data-sheet=open]::before{content:"";position:fixed;inset:0;background:var(--dim);z-index:40}
+.sh-sheet{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(720px,calc(100vw - 32px));max-height:calc(100vh - 32px);padding:20px 24px 24px;border:1px solid var(--border);border-radius:var(--r-card);box-shadow:0 24px 70px rgba(0,0,0,.45)}
+.sh-sheet.pk-fly{padding-top:20px;padding-bottom:64px}
+.sh-sheet{--pdm-hd:96px}
+@media (max-width:719.98px){.sh-sheet{--pdm-hd:64px}#week[data-rich] .pdm-wn{display:none}#week[data-rich] .pdm .pdm-c{min-height:64px;padding:6px}#week[data-rich] .pdm .pdm-m{font-size:11px}}

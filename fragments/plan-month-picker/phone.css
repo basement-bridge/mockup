@@ -1,0 +1,15 @@
+/* The month as a sheet on a phone (under 600px): the whole screen. Seven 44px cells across (number and icon, the month a person already knows), the open nights first: a full-width shortcut to the first one above the grid, and open
+   dates the only solid cells. A tap on a planned night or a day off shows what is on it under the grid, and the second tap plans it (touch.js). Separate from the desktop and the tablet on purpose (DESIGN.md section 7). */
+.sh-sheet{position:fixed;inset:0;width:100%;padding:12px var(--gutter,16px) calc(16px + env(safe-area-inset-bottom,0px));border:0;border-radius:0}
+.sh-sheet.pk-fly{padding-top:12px;padding-bottom:calc(64px + env(safe-area-inset-bottom,0px));gap:10px} /* the foot keeps clear of the Theme button (mockup scaffolding) */
+.sh-sheet .pdm{column-gap:3px;row-gap:3px}
+.sh-sheet .pdm .pdm-c{min-height:46px;border-radius:12px}
+.sh-sheet .pdm-n{font-size:14px}
+.sh-sheet .pdm-next{flex-direction:column;align-items:stretch;gap:4px}
+.sh-sheet .pdm-next-b{justify-content:center;min-height:52px;font-size:15px}
+.sh-sheet .pdm-next-c{text-align:center}
+.sh-sheet .fors button{min-height:var(--tap);padding:0 14px}
+.sh-sheet .pk-row small{display:none}
+.sh-sheet .pdm-lg{gap:6px 12px}
+.sh-sheet .pdm-st{min-height:0}
+.sh-sheet .pk-pt h2{font-size:17px}

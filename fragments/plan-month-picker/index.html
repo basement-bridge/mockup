@@ -7,56 +7,136 @@
 .links a{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border-radius:99px;border:1px solid var(--border);background:var(--bg);font-size:13px;font-weight:600}
 .links a:hover{border-color:var(--accent)}
 .rec{font-size:11px;font-weight:800;padding:1px 7px;border-radius:var(--r-pill);border:1px solid var(--accent);color:var(--accent);margin-left:4px;white-space:nowrap}
+.await{font-size:11px;font-weight:800;padding:1px 7px;border-radius:var(--r-pill);border:1px dashed var(--muted);color:var(--muted);margin-left:4px;white-space:nowrap}
+.fig{margin:14px 0 22px}
+.fig h3{margin:0 0 4px;font:800 17px var(--head)}
+.fig p{margin:4px 0;font-size:14px}
+.fr{position:relative;border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden;background:var(--bg);margin:8px 0}
+.fr iframe{position:absolute;left:0;top:0;border:0;transform-origin:0 0;background:var(--bg)}
+.fr-phone{max-width:240px}.fr-tab{max-width:420px}
+.frs{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
+.frs>.fig{flex:1 1 240px;min-width:0;margin:0}
+.fr-open{display:inline-flex;align-items:center;min-height:44px;font-size:13px;font-weight:700}
+.two{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:760px){.two{grid-template-columns:1fr 1fr}}
 </style></head>
 <body><div class="wrap">
 <a class="back" href="../../">&lsaquo; All mockups</a>
 <h1>Plan it: a month behind Another day</h1>
-<p>Live, clickable mockup for Kitchie issue #826 (the follow-up to #757 option F). Mockup only, nothing is saved or sent. It is the desktop Home page with the Mandarin Mango Yogurt Bowl open on the right. Press <b>Add to plan</b> (or <kbd>P</kbd>), then <b>Another day</b> under the seven days. The sample today is Saturday 17 October 2026.</p>
+<p>Live, clickable mockup for Kitchie issue #826 (the follow-up to #757 option F). Mockup only, nothing is saved or sent. It is the desktop Home page with the Mandarin Mango Yogurt Bowl open on the right. Press <b>Add to plan</b> (or <kbd>P</kbd>), then <b>Another day</b> under the seven days. The sample today is Saturday 17 October 2026. Updated 17 October 2026: Monday to Sunday now runs <b>across</b>, and Another day can take <b>two flyouts&rsquo; width</b>.</p>
 
-<div class="sec"><div class="lbl">Owner, 17 October 2026 (voice)</div>
-<p>&ldquo;When people say another day, I actually want that monthly view to replace the current flyout &hellip; rather than making the seven days across as a horizontal Monday, Tuesday, Wednesday, why don&rsquo;t you do Monday, Tuesday, Wednesday vertically and stack the four columns of dates &hellip; colour code what&rsquo;s open, what&rsquo;s closed, what&rsquo;s already got things planned. With hover, you can show what&rsquo;s planned &hellip; The legend needs to be somewhere at the bottom. Get that mocked up first.&rdquo;</p></div>
+<div class="sec"><div class="lbl">Owner, 17 October 2026 (typed)</div>
+<p>&ldquo;Monday to Sunday as a vertical down, it&rsquo;s not how humans work. Let&rsquo;s go back to Monday to Sunday horizontally, left to right. Also when people click another day, this is where I want to change the behavior a little bit. When they go for plan, I want that Monday to Sunday, if there&rsquo;s enough space, to take two flyouts worth of space. I&rsquo;ll talk about what if there isn&rsquo;t space. Actually, you come up with a plan for that. And do a few more visuals as to if you were to take two flyouts worth of space, how will this be a better experience for the user?&rdquo;</p>
+<div class="lbl">Owner, earlier the same day (voice)</div>
+<p>The <b>open</b> day must stand out as the main call to action (&ldquo;I&rsquo;m going to make use of that open slot&rdquo;). All days off should look the same, &ldquo;just a day off no matter what kind&rdquo;. Open is now the only solid, filled state; planned and day off recede. The single grey look for a day off is <span class="await">awaiting the owner&rsquo;s confirmation</span>.</p></div>
 
 <div class="sec"><div class="lbl">Open it</div>
 <div class="links">
-<a href="home.html?start=month">Main: the month (typical)</a>
+<a href="home.html?start=month">Wide A, roomy (recommended)</a>
+<a href="home.html?start=month&amp;wide=b">Wide B, side card</a>
+<a href="home.html?start=month&amp;wide=c">Wide C, open nights first</a>
+<a href="home.html?start=month&amp;wide=off">Single flyout width (compact)</a>
+<a href="tablet.html?start=month">Tablet sheet</a>
+<a href="phone.html?start=month">Phone sheet</a>
 <a href="home.html?start=list">From the seven days</a>
 <a href="home.html?start=month&amp;scenario=empty">Empty plan</a>
 <a href="home.html?start=month&amp;scenario=full">Mostly full</a>
 <a href="home.html?start=month&amp;avoid=mango">Hard avoid on mango</a>
 <a href="home.html?start=month&amp;today=2026-10-12">Today is a Monday</a>
 <a href="home.html?start=month&amp;today=2026-10-18">Today is a Sunday</a>
-<a href="home.html?start=month&amp;replace=0">Home card adds, never replaces</a>
-</div></div>
+</div>
+<p style="font-size:13px;color:var(--muted)">The wide layout needs a window at least 1360px wide. In a narrower window the pages below fall back to the single width on purpose; open them full size, or use the previews on this page (each is the live page, scaled).</p></div>
 
-<div class="sec"><div class="lbl">Variants (each changes one thing)</div>
+<div class="sec"><div class="lbl">1. Two flyouts&rsquo; width: three layouts to compare</div>
+<p>Pressing <b>Another day</b> widens the Plan flyout to 800px (two flyouts) when the window has room. It takes the recipe pane&rsquo;s lane and the This week lane; the Home column is never covered (from 1624px it keeps its full width, between 1360 and 1623px it gives up width down to 472px). The recipe pane steps back while the month is open and returns when you go back or close. All three keep the same dates, the same states, the legend, the hover or keyboard detail, the 3-second Planned hold with Undo, and the owner&rsquo;s rule that open is the call to action: a solid green cell that says <b>Plan here</b>.</p>
+
+<div class="fig"><h3>A. Roomy calendar <span class="rec">agent recommends</span></h3>
+<div class="fr" data-w="1700" data-h="900"><iframe loading="lazy" title="Wide layout A" src="home.html?start=month&amp;wide=a&amp;embed=1"></iframe></div>
+<p>Each date is a big cell: the day number, its state icon, and the meal&rsquo;s name (or <b>Plan here</b> when open, <b>Day off</b> when off). A left column names the week. Hover or keyboard focus opens the read-only detail on the date itself.</p>
+<p><b>Trade-off:</b> the simplest and most like a calendar people already know; whose meal is on a date still needs a hover. <a class="fr-open" href="home.html?start=month&amp;wide=a">Open full size</a></p></div>
+
+<div class="fig"><h3>B. Calendar and a side card</h3>
+<div class="fr" data-w="1700" data-h="900"><iframe loading="lazy" title="Wide layout B" src="home.html?start=month&amp;wide=b&amp;embed=1"></iframe></div>
+<p>The week keeps its captions above each row and gives 244px to a card that follows the date you point at or focus: the meal being planned, the date, what is planned and whose, what picking it does, and a Plan button (solid green for an open date). No floating popover.</p>
+<p><b>Trade-off:</b> the most detail without a hover, and the recipe stays visible; cells are about 60px so meal names clamp to two short lines, and the card&rsquo;s button is a second way to plan (the date itself still plans at once). <a class="fr-open" href="home.html?start=month&amp;wide=b">Open full size</a></p></div>
+
+<div class="fig"><h3>C. Open nights first</h3>
+<div class="fr" data-w="1700" data-h="900"><iframe loading="lazy" title="Wide layout C" src="home.html?start=month&amp;wide=c&amp;embed=1"></iframe></div>
+<p>A solid green button above the week plans the first open night (<b>Plan the next open night Fri 23 Oct</b>, with how many are open), and each week row ends with its open count (&ldquo;2 open&rdquo;, &ldquo;none open&rdquo;).</p>
+<p><b>Trade-off:</b> pushes hardest toward open nights, which is the stated job; the extra count column costs a little cell width, and the button helps someone who wants an open night, not someone replacing a planned one. <a class="fr-open" href="home.html?start=month&amp;wide=c">Open full size</a></p></div>
+
+<p><b>Recommendation: A.</b> It is what was asked (names in the cells, nothing to learn). C&rsquo;s shortcut button is a cheap add-on to A later if people want it; B is the pick only if seeing whose meal is on a date without a hover matters more than bigger cells.</p>
+
+<div class="lbl" style="margin-top:18px">How wide is better than the single width</div>
+<div class="two">
+<div class="fig"><h3 style="font-size:15px">Single flyout width (today&rsquo;s fallback)</h3><div class="fr" data-w="1300" data-h="900"><iframe loading="lazy" title="Single width" src="home.html?start=month&amp;wide=off&amp;embed=1"></iframe></div><p style="font-size:13px">Number and icon only: to know what is on a date you hover each one.</p></div>
+<div class="fig"><h3 style="font-size:15px">Two flyouts wide (A)</h3><div class="fr" data-w="1700" data-h="900"><iframe loading="lazy" title="Wide A again" src="home.html?start=month&amp;wide=a&amp;embed=1"></iframe></div><p style="font-size:13px">The whole month reads at a glance, with no hovering.</p></div>
+</div>
+<ul class="decs">
+<li><b>You see the plan without hovering.</b> The meal is in the cell, so one look says which nights are taken, by what, and which are free.</li>
+<li><b>Open nights are a real button.</b> About 85 by 70px, solid, labelled <b>Plan here</b>, against a 44px square with a plus.</li>
+<li><b>A week is a row, left to right,</b> with its name and dates at the left, the way people read a week.</li>
+<li><b>The hover is for detail only</b> (whose meal, what is held), not for finding out what is there.</li>
+<li><b>Cost:</b> the recipe pane steps back while the month is open (the recipe name and, in B, a recipe card stay in view); it needs a window at least 1360px wide.</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">2. When there is not enough space: the plan</div>
+<p>Rule for every width: Monday to Sunday always runs across, never a cell under 44px, never a sideways scroll. The wide layout is an upgrade; everything below it still works with the same states and rules. The buckets are DESIGN.md section 7&rsquo;s; each form factor has its own file.</p>
 <div class="tbl"><table>
-<tr><th>Variant</th><th>Open</th><th>Trade-off</th></tr>
-<tr><td><b>Main</b> <span class="rec">agent recommends</span></td><td><a href="home.html?start=month">month</a></td><td>Weekdays down the side, five week columns, the week name over the Monday&rsquo;s date, a step-rule where the month changes, Another day as a labelled row under the seven days.</td></tr>
-<tr><td><b>L</b> Columns headed by date only</td><td><a href="home.html?start=month&amp;cols=dates">open</a></td><td>One line shorter; loses &ldquo;This week / Next week&rdquo; at a glance.</td></tr>
-<tr><td><b>M</b> A month band above the columns</td><td><a href="home.html?start=month&amp;month=band">open</a></td><td>Names the month once, loudly; costs a row, and a month that changes partway down a column still needs the &ldquo;1 Nov&rdquo; label.</td></tr>
-<tr><td><b>A</b> Another day as a header icon</td><td><a href="home.html?start=list&amp;another=header">open</a></td><td>The seven days get the whole list; a calendar icon is easier to miss than a labelled row.</td></tr>
-</table></div></div>
+<tr><th>Window</th><th>What the month does</th><th>File</th></tr>
+<tr><td>1624px and up</td><td>Two flyouts wide, the Home column keeps its full width (layout A, B or C).</td><td><code>wide.css</code>, <code>rich.css</code>, <code>wide.js</code></td></tr>
+<tr><td>1360 to 1623px</td><td>Two flyouts wide; the Home column gives up width (never under 472px, never covered).</td><td><code>wide.css</code>, <code>rich.css</code></td></tr>
+<tr><td>1024 to 1359px (narrow desktop)</td><td>One flyout wide (400px). Seven compact cells (number and state icon, 44px or more), the week named in a line above each row. The meal is in the hover detail and the line under the grid.</td><td><code>month.css</code> (base)</td></tr>
+<tr><td>600 to 1023px (tablet)</td><td>A centred sheet over a dimmed screen, 720px at most, with the same rich cells as the wide layout (meal names). No hover on touch: a first tap on a planned night or a day off shows what is on it, the second plans it; an open night plans on the first tap.</td><td><code>tablet.html</code>, <code>tablet.css</code>, <code>rich.css</code>, <code>touch.js</code></td></tr>
+<tr><td>Under 600px (phone)</td><td>The whole screen. Seven 44px-plus cells across, open nights first: a full-width green button for the first open night above the grid. Same two-tap rule for planned nights and days off. No keyboard line.</td><td><code>phone.html</code>, <code>phone.css</code>, <code>touch.js</code></td></tr>
+</table></div>
+<div class="frs">
+<div class="fig"><h3 style="font-size:15px">Narrow desktop, 1100px</h3><div class="fr" data-w="1100" data-h="800"><iframe loading="lazy" title="Narrow desktop" src="home.html?start=month&amp;embed=1"></iframe></div><a class="fr-open" href="home.html?start=month">Open (use a 1024 to 1359px window)</a></div>
+<div class="fig"><h3 style="font-size:15px">Tablet, 768px</h3><div class="fr fr-tab" data-w="768" data-h="1024"><iframe loading="lazy" title="Tablet sheet" src="tablet.html?start=month&amp;embed=1"></iframe></div><a class="fr-open" href="tablet.html?start=month">Open full size</a></div>
+<div class="fig"><h3 style="font-size:15px">Phone, 390px</h3><div class="fr fr-phone" data-w="390" data-h="844"><iframe loading="lazy" title="Phone sheet" src="phone.html?start=month&amp;embed=1"></iframe></div><a class="fr-open" href="phone.html?start=month">Open full size</a></div>
+</div>
+<p><b>Recommendation: this ladder.</b> The compact fallback is the same markup as the wide layout with the names hidden, so there is one grid, not two. Considered and dropped:</p>
+<ul class="decs">
+<li><b>Grow the flyout over the Home column on a narrow desktop</b> (a modal over what you were looking at, and the column jumps). Dropped for the compact in-lane grid.</li>
+<li><b>A one-week-at-a-time pager on the phone.</b> Hides the open nights in later weeks, five taps to see a month. Dropped for all five weeks in one screen.</li>
+<li><b>Vertical weekdays on narrow screens.</b> The owner rejected it.</li>
+<li><b>A horizontally scrolling grid.</b> Hides dates, and a scroll inside a scroll. Dropped.</li>
+</ul></div>
 
 <div class="sec"><div class="lbl">States (a colour plus a shape or word each, so colour is never the only cue)</div>
 <ul class="decs">
-<li><b>Open:</b> dashed outline, plus sign, green tint. <b>Planned:</b> solid outline, plate, amber tint (yours, someone else&rsquo;s and the household&rsquo;s are one state; hover says whose). <b>2+ plans:</b> stack icon and the count.</li>
-<li><b>Usual day off:</b> plain outline, outline moon (still pickable, not locked). <b>Off this week only:</b> filled, filled moon. A usual day off that is being cooked this week looks planned with a small moon.</li>
-<li><b>Past:</b> hatched, struck number, not pickable. <b>Today:</b> ring and underlined number. <b>Hard avoid:</b> a triangle where it asks first; a stop on every date when the meal is not for that person.</li>
-<li>Hover or keyboard focus on a planned date shows what is planned in a read-only popover to the left; a line under the grid says what picking the date would do. Keys: <kbd>&larr;</kbd> <kbd>&rarr;</kbd> a week, <kbd>&uarr;</kbd> <kbd>&darr;</kbd> a day, <kbd>Home</kbd> today, <kbd>End</kbd> the last day, <kbd>Enter</kbd> plans, <kbd>Esc</kbd> back.</li>
+<li><b>Open (the call to action):</b> solid green, bold plus, and <b>Plan here</b> where there is room. The only filled state; it lifts on hover.</li>
+<li><b>Planned:</b> quiet amber tint, plate icon, the meal name (yours, someone else&rsquo;s and the household&rsquo;s are one state; hover says whose). <b>2+ plans:</b> stack icon and the count.</li>
+<li><b>Day off:</b> one muted grey state with a moon and the words <b>Day off</b>, whatever the kind (a usual day off or off this week only), still pickable, not locked <span class="await">single look awaiting the owner&rsquo;s confirmation</span>. The kind is said in the hover detail and the screen-reader label. A day off that is being cooked this week looks planned with a small moon.</li>
+<li><b>Past:</b> hatched, struck number, not pickable. <b>Today:</b> ring and underlined number. <b>Hard avoid:</b> a triangle where it asks first; a stop sign (&ldquo;Not for Jo&rdquo;) on every date when the meal is not for that person.</li>
+<li>Hover or keyboard focus shows what is planned, read only; a line under the grid says what picking the date does. Keys: <kbd>&larr;</kbd> <kbd>&rarr;</kbd> a day, <kbd>&uarr;</kbd> <kbd>&darr;</kbd> a week, <kbd>Home</kbd> today, <kbd>End</kbd> the last day, <kbd>Enter</kbd> plans, <kbd>Esc</kbd> back. The month step: a heavy rule where the month changes and &ldquo;1 Nov&rdquo; on its first cell.</li>
 </ul></div>
 
 <div class="sec"><div class="lbl">Rules kept from #757 (owner, 16 October 2026)</div>
 <ul class="decs">
-<li>A pick plans at once; a 3-second Planned or Replaced hold with an inline Undo, then the flyout slides out. Two steps only for a stacked night. A usual day off is not locked. Replace applies to the person&rsquo;s own meal. The Hard avoid guard is asked live per date. This week and up to four weeks ahead.</li>
+<li>A pick plans at once; a 3-second Planned or Replaced hold with an inline Undo, then the flyout slides out. Two steps only for a stacked night (and, on touch, for a planned night or a day off, because there is no hover). A usual day off is not locked. Replace applies to the person&rsquo;s own meal. The Hard avoid guard is asked live per date. This week and up to four weeks ahead.</li>
 </ul></div>
 
-<div class="sec"><div class="lbl">Open questions (for the owner)</div>
+<div class="sec"><div class="lbl">Open questions (for the owner), with the recommended answer first</div>
 <ul class="q">
-<li>Column heads: week name over the date (recommended) or date only (L)?</li>
-<li>Month change: step-rule and &ldquo;1 Nov&rdquo; (recommended) or a month band (M)?</li>
-<li>Another day: a labelled row (recommended) or a header icon (A)?</li>
+<li><b>Wide layout:</b> A (recommended), B (side card) or C (open nights first)?</li>
+<li><b>Day off:</b> one muted grey moon for every kind (recommended, awaiting the owner&rsquo;s confirmation), or keep the weekly Plan&rsquo;s two looks?</li>
+<li><b>When the wide layout turns on:</b> from 1360px (recommended; covers a 1366px laptop and shrinks the Home column to 472px) or only from 1624px (the column never shrinks)?</li>
+<li><b>Narrow desktop (1024 to 1359px):</b> the compact grid in the same flyout (recommended) or a wider flyout over the column?</li>
+<li><b>Touch:</b> a first tap shows a planned night, the second plans it (recommended) or one tap plans and Undo is the safety net?</li>
+<li><b>Row heads:</b> week name over the dates (recommended) or dates only (<a href="home.html?start=month&amp;cols=dates">open</a>)?</li>
+<li><b>Month change:</b> a step-rule and &ldquo;1 Nov&rdquo; (recommended) or a month heading before each month (<a href="home.html?start=month&amp;month=band">open</a>)?</li>
+<li><b>Another day:</b> a labelled row (recommended) or a header icon (<a href="home.html?start=list&amp;another=header">open</a>)?</li>
 </ul></div>
 
-<div class="sec"><div class="lbl">Loads (DESIGN.md section 6)</div>
-<p>The month&rsquo;s script (<code>month.js</code>) and styles (<code>month.css</code>) are fetched on the first press of Another day, not with the page. Everything is desktop-only. No images, no fonts added. Where it lands: in place, in the flyout&rsquo;s slot (DESIGN.md section 6a). Checked locally in headless Chromium at 1440 and 1024 wide, light and dark; live Pages was not reachable from where it was built.</p></div>
-</div></body></html>
+<div class="sec"><div class="lbl">Loads (DESIGN.md sections 6, 6a and 7)</div>
+<p>The default path is the flyout as F. On the first press of Another day the flyout fetches <code>month.js</code> and <code>month.css</code>; a window at least 1360px wide also fetches <code>rich.css</code>, <code>wide.css</code> and <code>wide.js</code>; a narrower window never fetches them. The tablet and phone pages load their own small files and never the wide ones. The month fills the flyout&rsquo;s slot in place, and widens or folds back in place if the window crosses 1360px (no reload). No images, no fonts. The previews on this page are lazy iframes: they load only when scrolled to.</p></div>
+</div>
+<script>
+(function () {
+  function fit(b) { var w = +b.dataset.w, h = +b.dataset.h, s = b.clientWidth / w, f = b.querySelector("iframe"); f.style.width = w + "px"; f.style.height = h + "px"; f.style.transform = "scale(" + s + ")"; b.style.height = Math.round(h * s) + "px"; }
+  function all() { [].forEach.call(document.querySelectorAll(".fr"), fit); }
+  all(); addEventListener("resize", all);
+})();
+</script>
+</body></html>

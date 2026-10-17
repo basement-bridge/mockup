@@ -1,4 +1,7 @@
-/* The flyout of option F (the owner's choice, Kitchie #757) with "Another day" opening a month picker in the same slot (owner, voice, 17 Oct 2026). Same slot as Home's "This week" panel (#week): its content is
+/* WIDE (owner, typed, 17 Oct 2026): choosing Another day widens the flyout to take two flyouts' worth of width when the window has room, so the Monday to Sunday week has space for a meal name in each cell.
+   The rule and the layouts are in wide.css and wide.js (fetched only when the window is wide enough and Another day is pressed); below that width the month keeps the single-flyout width with compact cells (month.css),
+   and tablet.html and phone.html show it as a sheet (tablet.css, phone.css). ?wide=a|b|c picks the wide layout (default a), ?wide=off shows the compact fallback at any width.
+   The flyout of option F (the owner's choice, Kitchie #757) with "Another day" opening a month picker in the same slot (owner, voice, 17 Oct 2026). Same slot as Home's "This week" panel (#week): its content is
    swapped while picking, then handed back. The seven-day list is F's (copied from fragments/plan-day-picker/pick-f.js, which is being edited elsewhere): a pick plans at once, a 3 second Planned or Replaced hold
    with an inline Undo and a slide-out, two steps only for a stacked night, a usual day off is not locked, the Hard avoid guard is asked for the date picked, Replace is the person's own meal.
    Another day is a row at the foot of the seven days (default) or an icon in the header (?another=header). It replaces the flyout's content with the month (month.js, loaded on first use), with a back control to the seven days.
@@ -9,6 +12,10 @@ var PK = window.PK, P = window.PKD, S = PK.S, H = window.HDP, R = window.PKRows,
 var BASE = document.currentScript ? document.currentScript.src.replace(/[^\/]*$/, "") : "";
 var quiet = false, el, hold = null, want = null, saved = null, openDay = null, openN = null, view = "list", cur = P.todayN, msg = "", M = null;
 var ANOTHER = Q.get("another") === "header" ? "header" : "row", NARROW = Q.get("w") === "narrow";
+var WIDE_MIN = 1360, WIDE_MQ = window.matchMedia ? window.matchMedia("(min-width:" + WIDE_MIN + "px)") : { matches: false }; /* 88 rail + 472 column (never covered: it gives up width) + 800 for two flyouts */
+var WOPT = /^(a|b|c)$/.test(Q.get("wide") || "") ? Q.get("wide") : "a", NOWIDE = Q.get("wide") === "off";
+function wideNow() { return view === "month" && !NOWIDE && WIDE_MQ.matches && !!window.PKWide; }
+function wantWide() { return !NOWIDE && WIDE_MQ.matches && !window.PKWide; }
 function lastLabel() { var l = PK.info(P.lastN); return l.dn + " " + l.num + " " + l.mon; }
 function days() { var o = []; for (var i = 0; i < 7; i++) { var d = PK.dayObj(P.todayN + i); d.today = i === 0; o.push(d); } return o; }
 function ctxFor(d) { return { who: S.who, me: P.me, avoid: P.avoid, guard: PK.guardFor(d.n), offRule: "open" }; }
@@ -29,18 +36,22 @@ function moreRow() {
   return '<div class="rows more"><button type="button" class="row-d more" data-more aria-label="Another day: pick a date from the month, up to ' + lastLabel() + '"><span class="dl">' + ico.cal + '</span><span class="dt"><span class="ln">Another day</span><small class="cons">Pick a date from the month, up to ' + lastLabel() + ".</small></span></button></div>";
 }
 function hint() {
-  return '<p class="phint hint pk-hint">' + (view === "month" ? PK.kbd("←") + PK.kbd("→") + " week " + PK.kbd("↑") + PK.kbd("↓") + " day " + PK.kbd("Enter") + " plan " + PK.kbd("Esc") + " back"
+  if (PK.touch) return "";
+  return '<p class="phint hint pk-hint">' + (view === "month" ? PK.kbd("←") + PK.kbd("→") + " day " + PK.kbd("↑") + PK.kbd("↓") + " week " + PK.kbd("Enter") + " plan " + PK.kbd("Esc") + " back"
     : PK.kbd("↑") + PK.kbd("↓") + " move " + PK.kbd("Enter") + " plan " + PK.kbd("→") + " everyone’s plans " + PK.kbd("Esc") + " close") + "</p>";
 }
 function draw() {
   if (M) M.hidePop();
-  var name = esc(PK.R().name), g = S.sel == null ? null : PK.guardFor(S.sel), mo = view === "month" && M;
+  var name = esc(PK.R().name), g = S.sel == null ? null : PK.guardFor(S.sel), mo = view === "month" && M, W = mo && wideNow() ? window.PKWide : null;
+  var app = $("#app"); if (app) { if (W) app.dataset.plan = "wide"; else delete app.dataset.plan; } /* the host lane widens (wide.css); data-plan is the only thing the host sees */
+  if (el) { if (W) el.dataset.wide = WOPT; else delete el.dataset.wide; if (W || PK.rich) el.dataset.rich = "1"; else delete el.dataset.rich; } /* rich: cells big enough for a meal name (rich.css) */ if (M) { M.noPop = !!W && WOPT === "b"; M.popOver = !!W; }
   var h = '<div class="pk-pt">' + (mo ? '<button type="button" class="x pdm-back" data-back aria-label="Back to the next seven days" title="Back to the next seven days">' + ico.back + "</button>" : "") +
     '<div><h2 id="pk-t">' + (mo ? "Another day" : "Plan " + name) + '</h2><p class="pk-sub">' + (mo ? name : "Pick a night. It is planned as soon as you pick.") + "</p></div>" +
     (!mo && ANOTHER === "header" ? '<button type="button" class="x pdm-cal" data-more aria-label="Another day: pick a date from the month, up to ' + lastLabel() + '" title="Another day">' + ico.cal + "</button>" : "") +
     '<button type="button" class="x" data-close aria-label="Close">' + ico.x + "</button></div>" + PK.whoHtml() + (g ? PK.guardHtml() : "");
   if (mo) {
-    h += M.html(cur) + M.capHtml() + '<p class="pdm-st" id="pdm-st" role="status" aria-live="polite">' + M.say(cur, msg) + "</p>" + (openN != null ? M.fullHtml(openN) : "") + PK.holdHtml() + hint() + M.legendHtml();
+    var parts = { grid: M.html(cur, { summary: W && WOPT === "c" }), cap: M.capHtml(), st: '<p class="pdm-st" id="pdm-st" role="status" aria-live="polite">' + M.say(cur, msg) + "</p>", full: openN != null ? M.fullHtml(openN) : "", hold: PK.holdHtml(), hint: hint(), legend: M.legendHtml(), cur: cur };
+    h += W ? W.compose(WOPT, parts) : (PK.touch ? M.nextHtml() : "") + parts.grid + parts.cap + parts.st + parts.full + parts.hold + parts.hint + parts.legend;
   } else {
     h += R.html(days(), ctxFor, openDay) + (ANOTHER === "row" ? moreRow() : "") + PK.holdHtml() + hint();
   }
@@ -49,10 +60,20 @@ function draw() {
 }
 /* the month's file and styles are fetched the first time Another day is pressed (DESIGN.md section 6) */
 function withMonth(cb) {
-  if (window.PKMonth) { M = window.PKMonth; cb(); return; }
-  var left = 2, one = function () { if (--left) return; M = window.PKMonth; cb(); };
-  var l = document.createElement("link"); l.rel = "stylesheet"; l.href = BASE + "month.css"; l.onload = l.onerror = one; document.head.appendChild(l);
-  var s = document.createElement("script"); s.src = BASE + "month.js"; s.onload = s.onerror = one; document.head.appendChild(s);
+  var need = [], add = function (kind, file, media) { need.push([kind, file, media]); };
+  if (!window.PKMonth) { add("css", "month.css"); add("js", "month.js"); }
+  if (wantWide()) { add("css", "rich.css", "(min-width:" + WIDE_MIN + "px)"); add("css", "wide.css", "(min-width:" + WIDE_MIN + "px)"); add("js", "wide.js"); } /* only a window that is wide enough fetches the wide layout (DESIGN.md section 6, 7) */
+  var left = need.length, one = function () { if (--left > 0) return; M = window.PKMonth; cb(); };
+  if (!left) { M = window.PKMonth; cb(); return; }
+  need.forEach(function (x) {
+    if (x[0] === "css") { var l = document.createElement("link"); l.rel = "stylesheet"; l.href = BASE + x[1]; if (x[2]) l.media = x[2]; l.onload = l.onerror = one; document.head.appendChild(l); }
+    else { var s = document.createElement("script"); s.src = BASE + x[1]; s.onload = s.onerror = one; document.head.appendChild(s); }
+  });
+}
+/* the window crosses the wide width while the month is open: widen or fold back in place */
+function onWide() {
+  if (!el || view !== "month") return;
+  if (wantWide()) withMonth(function () { if (el) draw(); }); else draw();
 }
 function openMonth() {
   if (hold) return;
@@ -75,16 +96,18 @@ function pickCell(n) {
   var d = PK.dayObj(n), v = R.view(d, ctxFor(d));
   if (openN != null && openN !== n) openN = null;
   cur = n; msg = "";
-  if (v.peek && openN !== n) { openN = n; want = cellSel(n); draw(); return; } /* a stacked night: two steps, as in the seven days */
+  if ((v.peek || (PK.touch && (d.meals.length || d.off))) && openN !== n) { openN = n; want = cellSel(n); draw(); return; } /* a stacked night: two steps, as in the seven days. On a touch screen there is no hover, so a planned night or a day off also shows what is there first (phone.js sets PK.touch) */
   var g = PK.guardFor(n);
   S.sel = n; S.leave = false;
   if (g) { want = cellSel(n); draw(); return; }
   PK.commit(n);
 }
+/* wide option B: the side card follows the hovered or focused date */
+function side(n) { var sd = $("#pdw-side"); if (sd && window.PKWide && window.PKWide.sideHtml) sd.innerHTML = window.PKWide.sideHtml(n); }
 function setCur(n, m) {
   var old = el.querySelector('.pdm-c[tabindex="0"]'); if (old) old.tabIndex = -1;
   cur = n; msg = m || ""; var b = el.querySelector(cellSel(n)); if (b) { b.tabIndex = 0; b.focus({ preventScroll: true }); }
-  var s = $("#pdm-st"); if (s) s.innerHTML = M.say(n, msg);
+  side(n); var s = $("#pdm-st"); if (s) s.innerHTML = M.say(n, msg);
   if (b && !m) M.showPop(b, el); else if (M) M.hidePop();
 }
 function click(e) {
@@ -92,6 +115,7 @@ function click(e) {
   if (hold) { if (t.hasAttribute("data-cfundo")) { var u = document.querySelector('.toast [data-act="undo"]'); if (u) u.click(); } return; }
   if (t.hasAttribute("data-more")) { openMonth(); return; }
   if (t.hasAttribute("data-back")) { back(); return; }
+  if (t.hasAttribute("data-nextopen") || t.hasAttribute("data-sidepick")) { pickCell(+t.dataset.n); return; }
   if (t.classList.contains("pdm-c")) { pickCell(+t.dataset.n); return; }
   if (t.dataset.peek !== undefined) { var i = +t.dataset.peek; openDay = openDay === i ? null : i; want = '.row-d[data-i="' + i + '"]'; draw(); var q = el.querySelector('[data-w="' + i + '"] .peek-b'); if (q) q.focus(); return; }
   if (t.classList.contains("row-d")) { pickRow(+t.dataset.i); return; }
@@ -100,13 +124,13 @@ function click(e) {
 /* hover and focus on a date: the line under the grid says what picking it does; a planned or closed date also shows what is planned, read only */
 function over(e) {
   if (view !== "month" || !M) return; var b = e.target.closest && e.target.closest(".pdm-c"); if (!b || b.disabled || b.classList.contains("pdm-sw")) return;
-  var s = $("#pdm-st"); if (s) s.innerHTML = M.say(+b.dataset.n); if (!quiet) M.showPop(b, el);
+  side(+b.dataset.n); var s = $("#pdm-st"); if (s) s.innerHTML = M.say(+b.dataset.n); if (!quiet) M.showPop(b, el);
 }
 function out(e) {
   if (view !== "month" || !M) return; var b = e.target.closest && e.target.closest(".pdm-c"); if (!b) return;
   if (e.relatedTarget && b.contains(e.relatedTarget)) return;
   M.hidePop(); var s = $("#pdm-st"), a = document.activeElement, n = a && a.classList && a.classList.contains("pdm-c") && el.contains(a) ? +a.dataset.n : cur;
-  if (s) s.innerHTML = M.say(n, n === cur ? msg : "");
+  if (s) s.innerHTML = M.say(n, n === cur ? msg : ""); /* the side card (wide B) is left on the last date you pointed at, so moving to its Plan button never changes the date */
 }
 
 PK.register({
@@ -115,6 +139,7 @@ PK.register({
     saved = H.S.front; openDay = null; openN = null; view = "list"; S.sel = null; cur = P.todayN; msg = "";
     if (saved !== "week") H.set({ front: "week" });
     el = $("#week"); el.classList.add("pk", "pk-fly"); if (NARROW) el.classList.add("pdm-narrow");
+    if (WIDE_MQ.addEventListener) WIDE_MQ.addEventListener("change", onWide);
     el.addEventListener("click", click); el.addEventListener("mouseover", over); el.addEventListener("mouseout", out); el.addEventListener("focusin", over); el.addEventListener("focusout", out);
     draw(); var f = el.querySelector(".row-d"); if (f) f.focus({ preventScroll: true });
   },
@@ -129,6 +154,8 @@ PK.register({
     if (!el) return; if (M) M.hidePop();
     if (hold) { var h = hold; hold = null; h.live = false; clearTimeout(h.t); clearTimeout(h.t2); }
     el.classList.remove("pk-out"); el.removeEventListener("click", click); el.removeEventListener("mouseover", over); el.removeEventListener("mouseout", out); el.removeEventListener("focusin", over); el.removeEventListener("focusout", out);
+    if (WIDE_MQ.removeEventListener) WIDE_MQ.removeEventListener("change", onWide);
+    var app = $("#app"); if (app) delete app.dataset.plan; delete el.dataset.wide; delete el.dataset.rich;
     el.classList.remove("pk", "pk-fly", "pdm-narrow"); el = null; H.set({ front: saved || "detail" });
   },
   esc: function () { if (!hold && view === "month") { back(); return; } PK.close(); },
@@ -145,7 +172,7 @@ PK.register({
   focus: function () { if (!el) return; var f = view === "month" ? el.querySelector(cellSel(cur)) : el.querySelector(".row-d"); if (f) f.focus({ preventScroll: true }); },
   help: function () {
     return [{ title: "Choosing a night (Plan it, the next seven days)", rows: [["↑  ↓", "Move along the nights"], ["Home  End", "First and last night"], ["Enter", "Plan that night. It is planned at once; a confirmation with Undo stays about 3 seconds, then slides out"], ["→", "Open that night’s full picture (everyone’s plans)"], ["←", "Fold it again"], ["Esc", "Close"]] },
-      { title: "Choosing another day (Plan it, month)", rows: [["Enter", "On the Another day row: open the month"], ["←  →", "A week back or ahead, the same weekday"], ["↑  ↓", "A day back or ahead"], ["Home  End", "Today and the last day of the plan"], ["Enter", "Plan that date (a stacked night shows everyone’s plans first; Enter again plans it)"], ["Esc", "Back to the next seven days"]] }];
+      { title: "Choosing another day (Plan it, month)", rows: [["Enter", "On the Another day row: open the month"], ["←  →", "A day back or ahead"], ["↑  ↓", "A week back or ahead, the same weekday"], ["Home  End", "Today and the last day of the plan"], ["Enter", "Plan that date (a stacked night shows everyone’s plans first; Enter again plans it)"], ["Esc", "Back to the next seven days"]] }];
   }
 });
 /* ?start=list|month opens the flyout on load (the rail's mockup controls and the check use it) */

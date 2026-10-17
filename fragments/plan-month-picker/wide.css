@@ -1,0 +1,60 @@
+/* The wide layout of the month picker (see wide.js). Linked only with media="(min-width:1360px)" and only by a window that wide, so nothing here reaches a narrower window.
+   1360px is 88 rail + 472 for the column (so the common 1366px laptop gets the wide layout; the column gives up width and is never covered (DESIGN.md section 7, item 2)) + 800 for two flyouts. At 1624px and up the column keeps its full 736px.
+   Tokens only (theme.css). The base (single-flyout, compact cells) is month.css. */
+/* the lane: the Plan flyout takes the Details lane and the This week lane, so it is two flyouts wide; the recipe pane steps back until the flyout closes */
+#app[data-plan=wide] .detail,#app[data-plan=wide] .peek{display:none}
+#app[data-plan=wide]{grid-template-columns:88px minmax(0,1fr) 800px}
+#app[data-plan=wide] #week{grid-column:3;justify-self:stretch;width:100%}
+@media (min-width:1624px){
+  #app[data-plan=wide]{grid-template-columns:88px minmax(0,736px) 400px 400px}
+  #app[data-plan=wide] #week{grid-column:3 / span 2}
+}
+#week[data-wide]{animation:pdw-grow .24s ease-out}
+@keyframes pdw-grow{from{opacity:.5;transform:translateX(-24px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){#week[data-wide]{animation:none}}
+#week[data-wide=c] .pdm.has-sum{grid-template-columns:var(--pdm-hd,104px) repeat(7,minmax(0,1fr)) 62px}
+/* C: an open count at the end of every week row, and the shortcut to the first open night above the grid */
+#week[data-wide=c] .pdm-rs-h{display:block;align-self:end;text-align:center;font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;padding-bottom:3px}
+#week[data-wide] .pdm-rs{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;font-size:11px;font-weight:700;color:var(--muted);line-height:1.1}
+#week[data-wide] .pdm-rs b{font:800 20px var(--head);color:var(--cue)}
+#week[data-wide] .pdm-rs.none{opacity:.7}
+#week[data-wide=c] .pdm-next{margin:0 0 6px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--bg)}
+#week[data-wide=c] .pdm-next-b{min-height:48px;font-size:15px}
+/* B: the grid keeps its week captions above each row, so seven cells fit beside the side card; the card follows the date you are on and holds the Plan button */
+.pdw-b{display:grid;grid-template-columns:minmax(0,1fr) 244px;gap:16px;align-items:start}
+.pdw-main{min-width:0}
+#week[data-wide=b] .pdm{grid-template-columns:repeat(7,minmax(0,1fr));column-gap:5px;row-gap:5px}
+#week[data-wide=b] .pdm-corner{display:none}
+#week[data-wide=b] .pdm-dh{padding:0 0 2px;justify-content:center}
+#week[data-wide=b] .pdm-w{grid-column:1/-1;flex-direction:row;align-items:baseline;gap:8px;margin-top:5px;padding:0}
+#week[data-wide=b] .pdm-wn,#week[data-wide=b] .pdm-wd{font-size:11px}
+#week[data-wide=b] .pdm .pdm-c{min-height:60px;padding:6px}
+#week[data-wide=b] .pdm .pdm-n{font-size:14px}
+#week[data-wide=b] .pdm .pdm-top{gap:3px}
+#week[data-wide=b] .pdm .pdm-top>.pdm-i{width:15px;height:15px}
+#week[data-wide=b] .pdm .pdm-top .pdm-bd{width:12px;height:12px}
+#week[data-wide=b] .pdm .pdm-m{font-size:10.5px;-webkit-line-clamp:2}
+#week[data-wide=b] .pdm .st-open .pdm-m{font-size:10px}
+#week[data-wide=b] .pdm-c.ml::before{left:-4px}
+#week[data-wide=b] .pdm-c.mt::after{top:-4px}
+.pdw-side{position:sticky;top:0;display:flex;flex-direction:column;gap:10px;padding:14px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--bg);font-size:13px}
+.pdw-rec{display:flex;gap:10px;align-items:center;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.pdw-rec b{display:block;font:800 14px/1.2 var(--head)}
+.pdw-rec small{color:var(--muted);font-size:12px}
+.pdw-e{flex:none;width:44px;height:44px;display:grid;place-items:center;font-size:24px;border-radius:var(--r-ctl);background:color-mix(in srgb,var(--accent) 18%,var(--surface))}
+.pdw-date{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.pdw-date b{font:800 17px/1.2 var(--head)}
+.pdw-chip{display:inline-flex;align-items:center;min-height:22px;padding:0 9px;border-radius:var(--r-pill);border:1.5px solid var(--border);font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--fg)}
+.pdw-chip.c-open{background:var(--cue);border-color:var(--cue);color:var(--on-accent)}
+.pdw-chip.c-plan,.pdw-chip.c-stack{border-color:color-mix(in srgb,var(--accent) 60%,var(--surface));background:color-mix(in srgb,var(--accent) 16%,var(--surface))}
+.pdw-chip.c-off{background:color-mix(in srgb,var(--border) 70%,var(--surface));color:var(--muted)}
+.pdw-plans p{display:flex;flex-direction:column;gap:0;margin:0 0 6px}
+.pdw-plans b{font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.pdw-plans span{font-size:14px;font-weight:700}
+.pdw-q,.pdw-cons{margin:0;color:var(--fg);font-size:13px;line-height:1.35}
+.pdw-cons{color:var(--muted)}
+.pdw-go{min-height:var(--tap);padding:0 14px;border-radius:var(--r-pill);border:1.5px solid var(--fg);background:var(--surface);color:var(--fg);font:800 14px var(--body);cursor:pointer}
+.pdw-go.is-open{border-color:var(--cue);background:var(--cue);color:var(--on-accent)}
+.pdw-go:hover{box-shadow:0 0 0 3px color-mix(in srgb,var(--fg) 20%,transparent)}
+.pdw-go.is-open:hover{box-shadow:0 0 0 3px color-mix(in srgb,var(--cue) 40%,transparent)}
+.pdw-go:focus-visible{outline:3px solid var(--fg);outline-offset:2px}

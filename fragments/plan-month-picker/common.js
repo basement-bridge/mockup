@@ -139,15 +139,16 @@ new MutationObserver(function () {
     ["Week", "scenario", [["empty", "Empty"], ["typical", "Typical"], ["full", "Full"]], cur("scenario", "typical")],
     ["Today", "today", [["2026-10-12", "Mon 12"], ["2026-10-14", "Wed 14"], ["2026-10-17", "Sat 17"], ["2026-10-18", "Sun 18"]], cur("today", "2026-10-17")],
     ["Hard avoid", "avoid", [[null, "Off"], ["mango", "Jo, mango"]], cur("avoid", null)],
-    ["Columns", "cols", [[null, "Names and dates"], ["dates", "Dates only"]], cur("cols", null)],
+    ["Wide layout", "wide", [[null, "A: roomy"], ["b", "B: side card"], ["c", "C: open first"], ["off", "Compact"]], cur("wide", null)],
+    ["Week heads", "cols", [[null, "Name and dates"], ["dates", "Dates only"]], cur("cols", null)],
     ["Month label", "month", [[null, "On the cell"], ["band", "A band"]], cur("month", null)],
     ["Another day", "another", [[null, "A row"], ["header", "A header icon"]], cur("another", null)],
     ["Flyout width", "w", [[null, "Normal"], ["narrow", "Narrow"]], cur("w", null)]
   ];
   var h = '<button type="button" class="pk-swb" aria-expanded="false" aria-controls="pk-swp">Mockup controls</button><div class="pk-swp" id="pk-swp" hidden role="group" aria-label="Mockup controls">';
   groups.forEach(function (g) { h += '<div class="pk-swg"><span>' + g[0] + "</span>" + g[2].map(function (o) { return link(g[1], o[0], o[1], (o[0] === null ? !Q.get(g[1]) : g[3] === o[0])); }).join("") + "</div>"; });
-  h += '<p>Sample data only. A choice reloads this page with the flyout open on the month.</p></div>';
-  wrap.innerHTML = h; $(".rail").appendChild(wrap);
+  h += '<p>Sample data only. A choice reloads this page with the flyout open on the month. The single grey Day off look is awaiting the owner’s confirmation.</p></div>';
+  wrap.innerHTML = h; var railEl = $(".rail"); if (!railEl) return; railEl.appendChild(wrap);
   var b = wrap.querySelector(".pk-swb"), pn = wrap.querySelector(".pk-swp");
   b.addEventListener("click", function () { var o = pn.hidden; pn.hidden = !o; b.setAttribute("aria-expanded", String(o)); });
 })();
