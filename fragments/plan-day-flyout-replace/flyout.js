@@ -74,21 +74,23 @@ function confHtml(c) {
 }
 
 /* the hold: HOLD ms, then the flyout slides out. While a mouse is on the flyout it holds for as long as the mouse stays (hover means they are reading); when the pointer leaves, the full HOLD starts again.
-   Touch has no hover, so the count simply runs from display (a finger resting on the flyout does not hold it). Keyboard focus on Undo holds the same way and restarts on blur. Esc ends it at once. No countdown is drawn. */
+   Touch: a finger down on the flyout holds it the same way; when the finger lifts (or the touch is cancelled) the full HOLD starts again. Keyboard focus on Undo holds the same way and restarts on blur. Esc ends it at once. No countdown is drawn. */
 function hold(fr, done) {
   var h = { st: "run", t: null, over: false, foc: false, live: true };
   function show() { fr.dataset.hold = h.st; }
-  function off() { fr.removeEventListener("pointerenter", pe); fr.removeEventListener("pointerleave", pl); fr.removeEventListener("focusin", fi); fr.removeEventListener("focusout", fo); fr.removeEventListener("keydown", kd); }
+  function off() { fr.removeEventListener("pointerenter", pe); fr.removeEventListener("pointerleave", pl); fr.removeEventListener("pointerdown", pd); fr.removeEventListener("pointerup", pu); fr.removeEventListener("pointercancel", pu); fr.removeEventListener("focusin", fi); fr.removeEventListener("focusout", fo); fr.removeEventListener("keydown", kd); }
   function end() { if (!h.live) return; h.live = false; clearTimeout(h.t); off(); fr.dataset.hold = "done"; done(); }
   function go() { h.st = "out"; show(); fr.classList.add("pk-out"); h.t = setTimeout(function () { fr.classList.remove("pk-out"); end(); }, OUT); }
   function arm() { clearTimeout(h.t); h.st = "run"; h.t = setTimeout(go, HOLD); show(); }
   function sync() { if (!h.live || h.st === "out") return; if (h.over || h.foc) { clearTimeout(h.t); h.st = "held"; show(); } else if (h.st === "held") arm(); }
   function pe(e) { if (e.pointerType === "touch") return; h.over = true; sync(); }
   function pl(e) { if (e.pointerType === "touch") return; h.over = false; sync(); }
+  function pd(e) { if (e.pointerType !== "touch") return; h.over = true; sync(); }
+  function pu(e) { if (e.pointerType !== "touch") return; h.over = false; sync(); }
   function fi(e) { if (e.target.closest && e.target.closest("[data-undo]")) { h.foc = true; sync(); } }
   function fo() { h.foc = false; sync(); }
   function kd(e) { if (e.key === "Escape") { e.preventDefault(); clearTimeout(h.t); fr.classList.remove("pk-out"); end(); } }
-  fr.addEventListener("pointerenter", pe); fr.addEventListener("pointerleave", pl); fr.addEventListener("focusin", fi); fr.addEventListener("focusout", fo); fr.addEventListener("keydown", kd);
+  fr.addEventListener("pointerenter", pe); fr.addEventListener("pointerleave", pl); fr.addEventListener("pointerdown", pd); fr.addEventListener("pointerup", pu); fr.addEventListener("pointercancel", pu); fr.addEventListener("focusin", fi); fr.addEventListener("focusout", fo); fr.addEventListener("keydown", kd);
   h.cancel = function () { clearTimeout(h.t); fr.classList.remove("pk-out"); end(); };
   h.stop = function () { h.live = false; clearTimeout(h.t); off(); };
   /* a mouse already resting on the flyout when the confirmation appears (the pick itself was a click) counts as hovering */

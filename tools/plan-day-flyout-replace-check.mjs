@@ -86,7 +86,7 @@ const ctx = await browser.newContext({ viewport: { width: 1200, height: 900 } })
   ok("no horizontal scroll at 1200", await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
   await p.close();
 }
-// 4. the timer, with a short hold so the run is quick (hold 900, slide-out 240). Mouse on the flyout holds it; leaving restarts the full hold; no run bar; touch just runs.
+// 4. the timer, with a short hold so the run is quick (hold 900, slide-out 240). Mouse on the flyout holds it; leaving restarts the full hold; no run bar; a finger down holds it on touch.
 {
   const p = await open(ctx, "hold=900");
   ok("hold override applied", await p.evaluate(() => PDFR.HOLD === 900 && PDFR.MIN === undefined));
@@ -150,14 +150,22 @@ const ctx = await browser.newContext({ viewport: { width: 1200, height: 900 } })
   ok("Esc ends the hold at once", (await p.locator("#s4-timer [data-reopen]").count()) === 1);
   await p.close();
 }
-// 4b. touch: no hover, so the count runs from display
+// 4b. touch: finger down holds it, lifting restarts the full hold
 {
   const tctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
   const p = await open(tctx, "hold=900");
+  const st = () => p.locator("#s4-timer").getAttribute("data-hold");
+  const fire = (type) => p.evaluate(t => { const f = document.querySelector("#s4-timer"); f.dispatchEvent(new PointerEvent(t, { pointerType: "touch", bubbles: true, pointerId: 7 })); }, type);
   await rows(p, "s4-timer").nth(0).tap();
-  ok("touch: counting from display", (await p.locator("#s4-timer").getAttribute("data-hold")) === "run", await p.locator("#s4-timer").getAttribute("data-hold"));
+  ok("touch: counting from display", (await st()) === "run", await st());
+  await fire("pointerdown"); await sleep(300);
+  ok("touch: finger down holds", (await st()) === "held", await st());
+  await sleep(900 + 400);
+  ok("touch: still open after longer than the hold", (await p.locator("#s4-timer .pk-conf").count()) === 1 && (await st()) === "held");
+  await fire("pointerup"); await sleep(450);
+  ok("touch: lifting restarts the full hold (not closed at once)", (await p.locator("#s4-timer .pk-conf").count()) === 1 && (await st()) === "run", await st());
   await sleep(900 + 240 + 300);
-  ok("touch: closes after the hold", (await p.locator("#s4-timer [data-reopen]").count()) === 1 && (await p.locator("#s4-timer .pk-conf").count()) === 0);
+  ok("touch: closes a full hold after the lift", (await p.locator("#s4-timer [data-reopen]").count()) === 1 && (await p.locator("#s4-timer .pk-conf").count()) === 0);
   await p.close(); await tctx.close();
 }
 // contrast of the call-out in both themes, and no horizontal scroll on a phone
