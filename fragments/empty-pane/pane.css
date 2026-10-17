@@ -1,0 +1,60 @@
+/* The idle pane (.ip): what the lane shows when nothing is picked. Tokens only; 24px padding and 400px lane are the Pantry item panel's own (desktop-layout.ts --panel).
+   Icon first, words short, detail on demand (DESIGN.md section 3). Every control is 44px or more high. */
+.ip{padding:24px;display:flex;flex-direction:column;gap:12px;min-height:100%}
+.ip-h{display:flex;align-items:center;gap:12px;margin-bottom:2px}
+.ip-h b{display:block;font:800 1.15rem/1.15 var(--head)}
+.ip-h small{display:block;margin-top:2px;font-size:13px;color:var(--muted)}
+.ip-ic{flex:none;width:44px;height:44px;border-radius:var(--r-ctl);display:grid;place-items:center;background:color-mix(in srgb,var(--accent) 18%,var(--surface));color:var(--accent)}
+.ip-ic.big{width:56px;height:56px}
+.ip svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ip-ic.big svg{width:28px;height:28px}
+.ip-i{flex:none;width:36px;height:36px;border-radius:var(--r-ctl);display:grid;place-items:center;background:var(--bg);border:1px solid var(--border);color:var(--muted)}
+.ip-i.amber{color:var(--accent)}.ip-i.red{color:var(--danger)}.ip-i.sage{color:var(--sage)}.ip-i.mute{color:var(--out)}
+.ip-i svg{width:20px;height:20px}
+/* a block: head button + names */
+.ip-blk{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden}
+.ip-bh{display:flex;align-items:center;gap:10px;width:100%;min-height:52px;padding:8px 12px;border:0;background:none;cursor:pointer;text-align:left}
+.ip-bh:hover{background:var(--surface)}
+.ip-bh b{flex:1;font-size:15px}
+.ip-n{font:800 15px var(--head);color:var(--fg);min-width:24px;text-align:right}
+.ip-go{flex:none;color:var(--muted);display:grid}
+.ip-go svg{width:18px;height:18px}
+.ip-li{list-style:none;margin:0;padding:0 4px 6px 4px}
+.ip-nm{display:flex;align-items:baseline;justify-content:space-between;gap:12px;width:100%;min-height:44px;padding:6px 8px 6px 58px;border:0;border-radius:var(--r-ctl);background:none;cursor:pointer;text-align:left;align-items:center}
+.ip-nm:hover{background:var(--surface)}
+.ip-li.flat .ip-nm{padding-left:12px}
+.ip-t{font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.ip-nm small{flex:none;font-size:12px;color:var(--muted)}
+.ip-more{display:block;width:100%;min-height:44px;padding:0 12px 0 66px;border:0;background:none;text-align:left;font-size:13px;font-weight:700;color:var(--accent);cursor:pointer}
+.ip-more:hover{text-decoration:underline}
+/* action rows */
+.ip-acts{display:flex;flex-direction:column;gap:8px}
+.ip-act{display:flex;align-items:center;gap:12px;width:100%;min-height:60px;padding:8px 12px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--bg);cursor:pointer;text-align:left}
+.ip-act:hover{border-color:var(--accent)}
+.ip-tx{flex:1;min-width:0}
+.ip-tx b{display:block;font-size:15px}
+.ip-tx small{display:block;font-size:13px;color:var(--muted)}
+/* last viewed */
+.ip-last{display:grid;grid-template-columns:1fr auto;column-gap:10px;align-items:center;width:100%;min-height:68px;padding:10px 14px;border:1px solid var(--accent);border-radius:var(--r-card);background:var(--bg);cursor:pointer;text-align:left}
+.ip-last .ip-t{font:800 1.05rem var(--head);white-space:normal}
+.ip-last small{grid-column:1;font-size:13px;color:var(--muted)}
+.ip-last .ip-go{grid-column:2;grid-row:1 / span 2}
+.ip-sub{margin:6px 4px 0;font-size:12px;letter-spacing:.07em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+/* keys and search */
+.ip-find{display:flex;align-items:center;gap:12px;width:100%;min-height:52px;padding:6px 14px 6px 8px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--bg);cursor:pointer;color:var(--muted);text-align:left}
+.ip-find span:nth-child(2){flex:1}
+.ip-find:hover{border-color:var(--accent)}
+.ip-keys{list-style:none;margin:4px 0 0;padding:0}
+.ip-keys li{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:40px;border-bottom:1px solid var(--border);font-size:14px}
+.ip-keys li:last-child{border-bottom:0}
+.ip-keys .ks{display:inline-flex;gap:4px}
+/* quiet states */
+.ip-quiet{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:28px 12px;color:var(--muted)}
+.ip-quiet p{margin:0}.ip-quiet b{color:var(--fg);font:800 1.05rem var(--head)}
+.ip-note{margin:0;padding:12px 14px;border:1px dashed var(--border);border-radius:var(--r-card);font-size:13px;color:var(--muted)}
+.ip-foot{margin:auto 0 0;padding-top:12px;display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.ip-empty .ip-h{margin-bottom:8px}
+@media (prefers-reduced-motion:no-preference){.ip{animation:ip-in .18s ease-out}@keyframes ip-in{from{opacity:0}to{opacity:1}}}
+.ip-bh.static{cursor:default}.ip-bh.static:hover{background:none}
+.ip-line{margin:0;flex:1;display:grid;place-items:center;text-align:center;color:var(--muted);padding:24px 0}
+.ip-calm{min-height:100%}

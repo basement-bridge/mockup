@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Pantry and Recipes: nothing picked</title><link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><script src="../../theme.js"></script>
+<style>
+.decs li,.qs li{margin-bottom:8px;font-size:14px}
+.links{display:flex;flex-wrap:wrap;gap:6px}
+.links a{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border-radius:99px;border:1px solid var(--border);background:var(--bg);font-size:13px;font-weight:600}
+.links a:hover{border-color:var(--accent)}
+.idea{display:inline-block;font-size:12px;font-weight:800;padding:3px 10px;border-radius:var(--r-pill);border:1px dashed var(--accent);color:var(--accent)}
+.pr{font-weight:800;color:var(--accent)}
+.tbl{overflow-x:auto}.tbl table{min-width:760px;font-size:13px}
+.tbl td,.tbl th{vertical-align:top}
+.shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;margin-top:10px}
+.shots figure{margin:0}.shots img{display:block;width:100%;height:auto;border:1px solid var(--border);border-radius:var(--r-card)}
+.shots figcaption{font-size:12px;color:var(--muted);margin-top:4px}
+code{font-size:13px;overflow-wrap:anywhere}
+.rec{border:1px solid var(--accent);border-radius:var(--r-card);padding:12px 14px;background:var(--bg)}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Pantry and Recipes on desktop: what the side panel shows when nothing is picked</h1>
+<p><span class="idea">Mockup for the owner to review. Options to choose from, nothing built (Kitchie #867).</span></p>
+<p style="margin-top:8px">Owner, by voice, 17 October 2026: &ldquo;Under Pantry and Recipe there is a flyout that is blank. Under Recipe it says &lsquo;pick a recipe to see it here&rsquo;; under Pantry it says &lsquo;pick an item to see it here&rsquo;. That seems pretty ordinary, but what are your design options for that space when something is not picked?&rdquo; Six directions are drawn for both screens, in dark and light, for an empty household, a typical one and a large one (420 items, 180 recipes). Every one is built only from what the list page already holds, so none of them asks the server for anything.</p>
+
+<div class="sec"><div class="lbl">Open it</div>
+<div class="links">
+<a href="pantry.html?theme=kitchie">Pantry, recommended (F), dark</a>
+<a href="pantry.html?theme=kitchie-day">Pantry, recommended, light</a>
+<a href="recipes.html?theme=kitchie">Recipes, recommended, dark</a>
+<a href="recipes.html?theme=kitchie-day">Recipes, recommended, light</a>
+<a href="compare.html?s=pantry&amp;d=typical&amp;theme=kitchie">All six side by side: Pantry</a>
+<a href="compare.html?s=recipes&amp;d=typical&amp;theme=kitchie">All six side by side: Recipes</a>
+<a href="pantry.html?d=large&amp;theme=kitchie">Large household</a>
+<a href="pantry.html?d=empty&amp;theme=kitchie-day">Empty household</a>
+<a href="pantry.html?d=calm&amp;theme=kitchie">Nothing needs attention</a>
+<a href="recipes.html?d=nostock&amp;theme=kitchie">Recipes, pantry unreadable</a>
+<a href="pantry.html?touch=1&amp;theme=kitchie-day">Wide tablet, no keyboard</a>
+</div>
+<p style="font-size:13px;margin-top:6px">The small bar at the bottom of each screen (&ldquo;Mockup only&rdquo;) switches option A to F, household size and touch. Click any name in a pane to open it in the lane; Ctrl or Cmd with Esc closes it and the pane comes back.</p></div>
+
+<div class="sec"><div class="lbl">What it is today</div>
+<p style="font-size:14px">From 1024px up, the Pantry and Recipes keep a 400px lane on the right even when nothing is open. The only thing in it is one line of muted text, drawn by CSS alone (a <code>::after</code> in <code>desktop-layout.ts</code> for the Pantry and <code>desktop-css/recipes.ts</code> for Recipes): &ldquo;Pick an item to see it here.&rdquo; and &ldquo;Pick a recipe to see it here.&rdquo; It costs nothing to load, and it also teaches nothing and answers no question. About 400 by 800 pixels of the screen (a third of it) is idle every time you arrive.</p></div>
+
+<div class="sec"><div class="lbl">The six options</div>
+<div class="tbl"><table>
+<tr><th>Option</th><th>Pantry shows</th><th>Recipes shows</th><th>Fetch cost</th><th>What is weak</th></tr>
+<tr><td><b>A At a glance</b></td><td>Your kitchen (items, places), then Use soon (7 days), Running low, Out, three names each, each head applies the same filter Home&rsquo;s tiles do</td><td>Ready now, One thing short, Planned this week, Cooked lately</td><td>None. Counted from the rows on the page (use-by, low, gone; ready, cooked days ago, planned). Fixed cost: one pass over the rows (about 420 in the large household).</td><td>Tallest pane (up to 838px in the large household), so it scrolls on a laptop. Out is on show though the default list hides it. One thing short needs a missing count the list does not carry.</td></tr>
+<tr><td><b>B Things to do</b></td><td>Add an item, Scan a receipt, See what is going off, See what is running low</td><td>Ask your assistant to add a recipe, Plan a recipe this week, See what is ready now, Review changes</td><td>None. Counts on two rows only.</td><td>Mostly repeats buttons already on the screen (the + and the Filters). Says what you could do, not how things are. Nothing to read.</td></tr>
+<tr><td><b>C Pick up where you left off</b></td><td>The last item you opened, and the three before</td><td>The last recipe, the three before, Cooked lately</td><td>None from the server. A short list kept in this browser (owner, 15 Oct 2026: a remembered choice is client-side).</td><td>Empty on a first visit and on a new device. Mostly the list&rsquo;s own order again. Needs browser storage.</td></tr>
+<tr><td><b>D Keys and search</b></td><td>A search box that takes focus, then the shortcuts (Move, Open, Edit, History, Use one, Used up, Add to the list, Add an item, Filters, All shortcuts)</td><td>Search, then Move, Open, Open the full recipe, Notes and reactions, Edit, History, Share</td><td>None. Static text.</td><td>Teaches once, then is clutter every day after. Useless without a keyboard (the tablet shows &ldquo;Tap an item&rdquo;). Shift+? already opens the shortcut list.</td></tr>
+<tr><td><b>E No pane until needed</b></td><td>The lane is not drawn until you pick; closing hides it again</td><td>Same</td><td>None. Less than today.</td><td>No gain on a desktop of 1280px or more: the list is already capped at 640px, so it only leaves a bare right side. Between 1024px and about 1224px the list is wider but moves sideways on every pick and every close, which is the move the lane was built to avoid.</td></tr>
+<tr><td><b>F Recommended</b>: A, trimmed, with one hint line</td><td>Your kitchen, Use soon and Running low (two names each, &ldquo;and N more&rdquo;), then a line of keys at the foot. When nothing needs attention it is today&rsquo;s line, unchanged.</td><td>What to cook, Ready now (three), Planned this week and Cooked lately (two each), then the same hint line. When nothing is ready, planned or cooked it is today&rsquo;s line.</td><td>None. Counted from the rows already on the page; no request on load, on a click or after an action.</td><td>One more thing to keep right: the numbers must equal what the list shows (checked, see below). Fills with nothing useful for a household that has no use-by dates.</td></tr>
+</table></div>
+<div class="shots">
+<figure><img loading="lazy" src="img/cmp-pantry-typical-dark.jpg" alt="Pantry, all six options side by side, typical household, dark"><figcaption>Pantry, six options, typical household, dark</figcaption></figure>
+<figure><img loading="lazy" src="img/cmp-pantry-typical-light.jpg" alt="Pantry, all six options side by side, typical household, light"><figcaption>Pantry, six options, typical household, light</figcaption></figure>
+<figure><img loading="lazy" src="img/cmp-recipes-typical-light.jpg" alt="Recipes, all six options side by side, typical household, light"><figcaption>Recipes, six options, typical household, light</figcaption></figure>
+<figure><img loading="lazy" src="img/cmp-pantry-large-dark.jpg" alt="Pantry, large household, dark"><figcaption>Large household (420 items): A is too tall, F is the same height as before</figcaption></figure>
+<figure><img loading="lazy" src="img/cmp-recipes-large-dark.jpg" alt="Recipes, large household, dark"><figcaption>Large household (180 recipes)</figcaption></figure>
+<figure><img loading="lazy" src="img/cmp-pantry-empty-light.jpg" alt="Pantry, empty household, light"><figcaption>Empty household: a way forward, never a summary of nothing</figcaption></figure>
+<figure><img loading="lazy" src="img/cmp-recipes-empty-dark.jpg" alt="Recipes, empty household, dark"><figcaption>No recipes yet: ask the assistant</figcaption></figure>
+<figure><img loading="lazy" src="img/cmp-pantry-calm-dark.jpg" alt="Pantry, nothing needs attention, dark"><figcaption>Nothing needs attention: F says today&rsquo;s line, no blocks</figcaption></figure>
+<figure><img loading="lazy" src="img/cmp-recipes-nostock-light.jpg" alt="Recipes, pantry unreadable, light"><figcaption>Recipes when the pantry cannot be read: says so, claims nothing is ready</figcaption></figure>
+</div></div>
+
+<div class="sec"><div class="lbl">The recommendation: F, for both screens</div>
+<div class="rec"><p style="font-size:14px"><b>F: the at-a-glance pane, trimmed to the two or three things that need you, with one line of keys at the foot.</b> It answers the question a person has when they land on the page and have not picked anything (&ldquo;what needs me?&rdquo; on the Pantry, &ldquo;what can I cook?&rdquo; on Recipes), it matches Home&rsquo;s tiles so nothing is new to learn, and it costs no request. When there is nothing to say, it says exactly what it says today, so no household ever sees an empty summary. It is the same shell for both screens (header, blocks, key line), so the build is one component with two block lists.</p>
+<p style="font-size:14px;margin-top:8px"><b>Why not the others.</b> A is F with more, and too tall for a laptop. B repeats the + and Filters that are already on screen. C is a nice extra but empty at first and tied to one browser; it can be added under F later. D is a one-off lesson that Shift+? already gives. E is the cheapest, but on a 1280px screen it only moves the empty space to the right.</p></div>
+<div class="shots">
+<figure><img loading="lazy" src="img/pantry-f-typical-dark.jpg" alt="Pantry, option F, 1280 wide, dark"><figcaption>Pantry F, 1280 by 800, dark</figcaption></figure>
+<figure><img loading="lazy" src="img/pantry-f-typical-light.jpg" alt="Pantry, option F, 1280 wide, light"><figcaption>Pantry F, light</figcaption></figure>
+<figure><img loading="lazy" src="img/recipes-f-typical-dark.jpg" alt="Recipes, option F, 1280 wide, dark"><figcaption>Recipes F, dark</figcaption></figure>
+<figure><img loading="lazy" src="img/recipes-f-large-light.jpg" alt="Recipes, option F, large household, light"><figcaption>Recipes F, large household, light</figcaption></figure>
+</div></div>
+
+<div class="sec"><div class="lbl">Wide tablet (1024px, no keyboard)</div>
+<p style="font-size:14px">At 1024px the lane is still 400px and the list column narrows to fit. With touch there is nothing to press keys on, so the key line becomes &ldquo;Tap an item to open it.&rdquo;, and D shows a tap line instead of its list of keys. Every control in a pane is 44px or more high on desktop and tablet alike (checked). Below 1024px the lane is not drawn and nothing here applies (the phone keeps its own pattern).</p>
+<div class="shots">
+<figure><img loading="lazy" src="img/pantry-f-1024-light.jpg" alt="Pantry F at 1024 wide, light"><figcaption>F at 1024</figcaption></figure>
+<figure><img loading="lazy" src="img/pantry-d-touch-1024-light.jpg" alt="Pantry D on a touch tablet, light"><figcaption>D on a touch tablet: no keys it cannot use</figcaption></figure>
+<figure><img loading="lazy" src="img/pantry-e-1024-dark.jpg" alt="Pantry E at 1024, nothing picked, dark"><figcaption>E at 1024, nothing picked</figcaption></figure>
+<figure><img loading="lazy" src="img/pantry-e-1024-picked-dark.jpg" alt="Pantry E at 1024, an item picked, dark"><figcaption>E at 1024, after a pick: the list has moved</figcaption></figure>
+</div></div>
+
+<div class="sec"><div class="lbl">Decisions for the owner (pick one answer for each)</div>
+<ul class="decs">
+<li><b>EP-1</b> Which direction? <b>Recommended: F</b> for both screens. A, B, C, D and E are drawn and can be switched to at the bottom bar. Combining (F now, C added under it later) is allowed.</li>
+<li><b>EP-2</b> One shared shell for Pantry and Recipes, or a different idea on each? <b>Recommended: shared</b> (same header, block, key line; only the blocks differ).</li>
+<li><b>EP-3</b> When nothing needs attention: today&rsquo;s one line (<b>recommended</b>), or a friendly all-clear (&ldquo;Nothing is going off. Nothing is running low.&rdquo;, drawn in A)? The line keeps the screen as quiet as today; the all-clear tells you it looked.</li>
+<li><b>EP-4</b> Keep the key line at the foot (<b>recommended</b>: a pointer user sees / search, up and down move, ? all shortcuts), or leave it out?</li>
+<li><b>EP-5</b> Is a person&rsquo;s own &ldquo;last opened&rdquo; (C) wanted now? <b>Recommended: not now</b>; it is kept per browser and so is empty on first use.</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">Choices the mockup made where the owner was silent (Proposal)</div>
+<ul class="decs">
+<li><b>EP-P1</b> <span class="pr">Proposal.</span> The pane replaces the one-line text in the same 400px lane, with the same surface, border and 24px padding as the item panel, so opening something changes the content and nothing else moves.</li>
+<li><b>EP-P2</b> <span class="pr">Proposal.</span> A block head is a button that applies the same filter Home&rsquo;s tiles do (Use soon, Running low, Ready now), and the list then shows exactly that many rows. No new filter is invented. <b>Planned this week</b> and <b>Cooked lately</b> are plain labels because the Recipes list has no such chip.</li>
+<li><b>EP-P3</b> <span class="pr">Proposal.</span> A name in a block opens that item or recipe in the lane, the same as clicking its row; closing it (X, or Ctrl or Cmd with Esc) brings the pane back and focus returns to the row.</li>
+<li><b>EP-P4</b> <span class="pr">Proposal.</span> F shows two names per block (three for Ready now) and &ldquo;and N more&rdquo;, which is the filter. Use soon is sorted by date, soonest and overdue first, never A to Z.</li>
+<li><b>EP-P5</b> <span class="pr">Proposal.</span> &ldquo;Use soon&rdquo; means a use-by within 7 days or overdue; &ldquo;Running low&rdquo; is the existing low flag. Both are what Home already uses, to be confirmed against Home&rsquo;s tile before build.</li>
+<li><b>EP-P6</b> <span class="pr">Proposal.</span> The numbers are never separate from the list: a count is the number of rows its filter shows. This is a build test (the mockup check does it for A and F in both households).</li>
+<li><b>EP-P7</b> <span class="pr">Proposal.</span> An empty household gets prompts, never a summary of nothing: Pantry says &ldquo;Your pantry is empty&rdquo; with Add an item and Scan a receipt; Recipes says &ldquo;No recipes yet&rdquo; with Ask your assistant to add one (recipes are added through the assistant).</li>
+<li><b>EP-P8</b> <span class="pr">Proposal.</span> F leaves <b>Out</b> items out of the pane. The default Pantry list hides them on purpose (<code>data-gone</code>, Kitchie #329), so a block that shows them would disagree with the list the person is looking at. Out stays one tap away in Filters.</li>
+<li><b>EP-P9</b> <span class="pr">Proposal.</span> If the pantry cannot be read, Recipes F says &ldquo;Kitchie cannot read the pantry right now, so it cannot say what is ready.&rdquo; and shows no Ready now block.</li>
+<li><b>EP-P10</b> <span class="pr">Proposal.</span> The key line shows on a keyboard device only. On a touch tablet it reads &ldquo;Tap an item to open it.&rdquo;</li>
+<li><b>EP-P11</b> <span class="pr">Proposal.</span> The pane re-counts from the rows whenever the list changes (use one, used up, a filter), with no request, so it cannot drift out of date while it is on screen.</li>
+<li><b>EP-P12</b> <span class="pr">Proposal.</span> The recommended pane is no taller than 768px at any household size (checked), so it never scrolls on a small laptop. A is allowed to be taller and is, for that reason, not the pick.</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">Open questions (recommended position first; what a wrong guess costs)</div>
+<ul class="qs">
+<li><b>EP-Q1</b> <i>(owner is working on lazy loading)</i> If the list will load in pages, counts must not be taken from the rows loaded so far. <b>Recommended:</b> the server writes the pane (or just its numbers) in the same query that writes the list, so they cover every row; the pane still needs no request of its own. Cost of a wrong guess: the pane says 6 use soon, the filter shows 4 until you scroll, and the person stops trusting it. This is the one thing to settle before building.</li>
+<li><b>EP-Q2</b> Recipes &ldquo;One thing short&rdquo; (drawn in A, not in F) needs a missing-ingredient count per row. The list today carries only <code>data-ready</code> (all in or not). <b>Recommended:</b> leave it out of F. Cost to add later: one data attribute, no new request.</li>
+<li><b>EP-Q3</b> Should Planned this week and Cooked lately become chips in the Recipes list so their heads can be buttons? <b>Recommended:</b> not in this change; they stay labels (EP-P2). Cost: two inert-looking heads that do not open anything.</li>
+<li><b>EP-Q4</b> Use soon at 7 days (EP-P5): is that Home&rsquo;s rule? <b>Recommended:</b> use Home&rsquo;s, whichever it is. Cost if different: the pane and Home disagree about the same item.</li>
+<li><b>EP-Q5</b> Do large households want a longer pane (A) instead of F&rsquo;s trimmed one? <b>Recommended:</b> no; &ldquo;and N more&rdquo; opens the full filtered list, which is where a long list belongs.</li>
+<li><b>EP-Q6</b> If C is added later, per browser (<b>recommended</b>, nothing stored on the server) or per person across devices? Across devices needs a stored table, which is a migration; per browser needs none.</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">Stress tests (headless Chromium, 1280 and 1024, dark and light: <code>tools/empty-pane-check.mjs</code>, 1005 checks pass)</div>
+<ul class="decs">
+<li>Every option draws (or, for E, deliberately draws nothing) for every household: empty, typical, large, calm, and for Recipes the pantry-unreadable case, on both screens.</li>
+<li>The number in a block equals the rows its filter then shows (Pantry A and F, Recipes A and F, typical and large). The pane cannot disagree with the list.</li>
+<li>No request of any kind (fetch or XHR) at load, on a name click, or on closing.</li>
+<li>Every control in a pane is 44px or more high; no sideways scroll at 1024 or 1280; no page errors.</li>
+<li>Empty households get a way forward and never a summary; calm households get today&rsquo;s one line with no blocks.</li>
+<li>A name opens its item; Ctrl or Cmd Esc brings the pane back; <code>/</code> still focuses search.</li>
+<li>E: at 1280 the list is already capped at 640px, so collapsing buys no width; below about 1224 the list moves when the lane opens. Recorded as the cost of E.</li>
+<li>F is no taller than 768px in the typical or large household, on both screens.</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">What the default path loads, and what is deferred (DESIGN.md section 6)</div>
+<p style="font-size:14px">Built, F adds <b>no request</b> on the default path: the numbers and names come from the rows the page is already built from (<code>data-useby</code>, <code>data-low</code>, <code>data-gone</code> on the Pantry; <code>data-ready</code>, <code>data-cd</code>, <code>data-planned</code> on Recipes), or from the same query that writes them (EP-Q1). Nothing is deferred because nothing extra is fetched. Today&rsquo;s pane is CSS only; F adds a small block of markup and a few lines of script in the existing <code>desktop-pantry.js</code> and <code>recipes-desktop.js</code> (the whole mockup pane, with all six options, is 20 KB raw and 5.2 KB gzipped plus 5 KB of CSS; F alone is a fraction of that, an estimate of 2 KB gzipped). The receipt scan engine is not loaded by the pane; it loads only when Scan a receipt is pressed. This page loads <code>theme.css</code>, <code>shared.css</code> and screenshots on demand (lazy).</p></div>
+
+<div class="sec"><div class="lbl">Build impact (verdict)</div>
+<p style="font-size:14px"><b>No migration. No schema change, no new table, no new endpoint, no new MCP tool.</b> The change replaces the CSS-only text in <code>server/src/desktop-layout.ts</code> and <code>server/src/desktop-css/recipes.ts</code> with a small pane drawn from data the pages already hold. Option C, if added, uses browser storage only (EP-Q6); a per-person history across devices would need a table and is not part of F. A change to the lane&rsquo;s width, the item panel or the lists is not needed. Per <code>AGENTS.md</code>, the build copies this mockup&rsquo;s markup and CSS (<code>.ip</code>, <code>.ip-blk</code>, <code>.ip-bh</code>, <code>.ip-li</code>, <code>.ip-act</code>, <code>.ip-keys</code>, <code>.ip-foot</code>, <code>.ip-quiet</code>) first. Mockup-only: the sample data, the toast, the fake &ldquo;when&rdquo; words and the switcher bar.</p></div>
+
+<p style="font-size:13px;color:var(--muted)">Notes: <code>docs/knowledge/empty-pane.md</code>. Check: <code>tools/empty-pane-check.mjs</code>. Screenshots: <code>tools/empty-pane-shots.mjs</code>. Kitchie issue #867.</p>
+</div></body></html>
