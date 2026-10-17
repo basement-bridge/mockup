@@ -1,0 +1,28 @@
+/* Option C: select rows, act from the panel lane (Kitchie #866). A check box takes the emoji tile's place on hover, focus and the current row, and on every row once one is picked. The lane shows the selection and the
+   three actions; nothing is added to the column, so no row, header or list height changes. */
+.rsel{position:absolute;z-index:2;left:12px;top:50%;transform:translateY(-50%);width:40px;height:40px;display:grid;place-items:center;border:2px solid var(--border);border-radius:12px;background:var(--bg);color:var(--on-accent);opacity:0;pointer-events:none}
+.rsel svg{width:22px;height:22px;opacity:0}
+li[data-row]:is(:hover,:focus-within,[data-cur],.is-hover) .rsel,#plist[data-selecting] .rsel{opacity:1;pointer-events:auto}
+.rsel:hover{border-color:var(--accent)}
+.rsel[aria-checked=true]{background:var(--accent);border-color:var(--accent)}
+.rsel[aria-checked=true] svg{opacity:1}
+li[data-row][data-picked] .rowlink{background:var(--surface);box-shadow:inset 3px 0 0 var(--accent)}
+html[data-input=touch] .rsel{width:44px;height:44px;left:10px}
+html[data-input=touch] #plist:not([data-selecting]) li[data-row]:not([data-cur]) .rsel{opacity:0;pointer-events:none}
+li[data-gone] .rsel{opacity:0!important;pointer-events:none!important}
+/* the lane */
+.sellane h2{font:800 1.2rem var(--head);margin:0 0 2px}
+.sellane .sub{margin:0 0 14px;color:var(--muted);font-size:.9rem}
+.sellane .chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 16px;max-height:132px;overflow:auto}
+.sellane .chip{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 6px 0 10px;border:1px solid var(--border);border-radius:99px;background:var(--bg);font-size:13px;font-weight:600}
+.sellane .chip button{display:inline-grid;place-items:center;width:24px;height:24px;border:0;border-radius:50%;background:none;color:var(--muted)}
+.sellane .chip button:hover{color:var(--danger)}
+.sellane .chip svg{width:14px;height:14px}
+.sellane .pbtns .btn{justify-content:space-between}
+.sellane .pbtns .btn .l{display:inline-flex;align-items:center;gap:8px}
+.sellane .note{margin:10px 2px 0;font-size:13px;color:var(--muted)}
+.sellane .ask{padding:14px;border:1px solid var(--danger);border-radius:var(--r-card);background:var(--bg)}
+.sellane .ask b{display:block;margin-bottom:4px}
+.sellane .ask p{margin:0 0 12px;color:var(--muted);font-size:.9rem}
+.sellane .ask .row{display:flex;gap:8px}
+.sellane .clear{margin-top:14px}
