@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>List language, one phone</title>
+<script>try{var t=new URLSearchParams(location.search).get("theme");if(t==="kitchie"||t==="kitchie-day")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="ll.css"><link rel="stylesheet" href="app.css"><script src="../../theme.js"></script></head>
+<body data-no-theme-fab>
+<!-- One phone, one variant, one screen. ?v=a|b|c|d  &s=pantry|recipes|home  &state=rest|search|select|filters|sort|custom|folded  &q=  &chip=  &group=  &theme=kitchie|kitchie-day
+     Only the chosen variant's stylesheet is fetched (DESIGN.md section 6). Phone widths: full bleed. Wider: the 390px phone, centred. -->
+<main id="stage"><div class="llp" id="ph"></div></main>
+<script>
+(function(){
+  var Q=new URLSearchParams(location.search),v=(Q.get("v")||"a").toLowerCase(),s=Q.get("s")||"pantry";
+  if(!/^[abcd]$/.test(v))v="a"; if(!/^(pantry|recipes|home)$/.test(s))s="pantry";
+  var l=document.createElement("link");l.rel="stylesheet";l.href="v-"+v+".css";
+  var go=function(){var sc=document.createElement("script");sc.src="ll-data.js";sc.onload=function(){var s2=document.createElement("script");s2.src="ll.js";s2.onload=function(){
+    var el=document.getElementById("ph");el.dataset.v=v;el.dataset.s=s;
+    LL.mount(el,{v:v,s:s,state:Q.get("state")||"",q:Q.get("q")||"",chip:Q.get("chip")||"",group:Q.get("group")||"",pick:Q.get("pick")||""});
+    document.title="List language "+v.toUpperCase()+", "+s;};document.body.appendChild(s2)};document.body.appendChild(sc)};
+  l.onload=go;l.onerror=go;document.head.appendChild(l);
+})();
+</script>
+</body></html>

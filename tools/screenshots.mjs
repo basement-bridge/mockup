@@ -169,6 +169,11 @@ const SCREENS = [
   ["shopper-link-link-got", "fragments/shopper-link/link.html?s=got"],
   ["shopper-link-link-dead", "fragments/shopper-link/link.html?s=dead"],
   ["use-up", "fragments/use-up/index.html"],
+  ["list-language-index", "fragments/list-language/index.html?eager=1"],
+  ["list-language-a-pantry", "fragments/list-language/app.html?v=a&s=pantry"],
+  ["list-language-b-pantry", "fragments/list-language/app.html?v=b&s=pantry"],
+  ["list-language-c-recipes", "fragments/list-language/app.html?v=c&s=recipes"],
+  ["list-language-d-home", "fragments/list-language/app.html?v=d&s=home"],
 ].filter(s => !only || s[0].includes(only));
 const WIDTHS = [[360, 800, "phone"], [390, 844, "phone"], [768, 1024, "tablet"], [1280, 900, "desktop"]];
 const THEMES = [["kitchie-day", "light"], ["kitchie", "dark"]];

@@ -1,0 +1,57 @@
+/* Variant C, "Sections, segmented control and a bottom sheet": a segmented control chooses how the list is grouped (Pantry: Location, Category, Use by;
+   Recipes: Ranked, Readiness), each group is an inset card, and sorting and Status filters live only in the Filters sheet. Medium density, calm. */
+.llp[data-v=c] .tp-rest{height:54px}
+.llp[data-v=c] .tp-rest>.tp-sel{display:inline-flex;font-size:13.5px;font-weight:700;color:var(--accent);padding:0 10px}
+.llp[data-v=c] .tp-sel .ic{width:19px;height:19px}
+.llp[data-v=c] .tp-sel[aria-pressed=true]{color:var(--fg)}
+.llp[data-v=c] .tp-filters{padding:0 12px 0 8px;font-weight:700;font-size:14px}
+.llp[data-v=c] .tp-filters .tp-n{margin-left:2px}
+.llp[data-v=c] .tp-find{border:1px solid var(--border);background:var(--surface)}
+.llp[data-v=c] .ll-seg{display:flex;margin:0 12px 2px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-pill);flex:none}
+.llp[data-v=c] .ll-seg button{flex:1;min-height:44px;display:flex;align-items:center;justify-content:center;border-radius:var(--r-pill);font-size:13.5px;font-weight:700;color:var(--muted);text-align:center}
+.llp[data-v=c] .ll-seg button[aria-checked=true]{background:var(--accent);color:var(--on-accent)}
+.llp[data-v=c] .ch-mode{display:none}
+.llp[data-v=c] .ll-chips{padding-left:12px}
+.llp[data-v=c] .ch-scroll{gap:18px}
+.llp[data-v=c] .ch{min-width:var(--tap);justify-content:center}
+.llp[data-v=c] .ch>span{height:44px;color:var(--muted);border-bottom:3px solid transparent;font-size:14px}
+.llp[data-v=c] .ch[aria-pressed=true]>span{color:var(--fg);border-bottom-color:var(--accent)}
+.llp[data-v=c] .ch>span i{font-size:11.5px}
+.llp[data-v=c] .ll-body{padding-top:6px}
+.llp[data-v=c] .g{margin:0 12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden}
+.llp[data-v=c] .g-h{padding:0 14px;min-height:48px}
+.llp[data-v=c] .g-h h2{font:800 16px var(--head)}
+.llp[data-v=c] .g.shut .g-h{color:var(--muted)}
+.llp[data-v=c] .rows .r{border-top:1px solid var(--border)}
+.llp[data-v=c] .rows .r:first-child{border-top:1px solid var(--border)}
+.llp[data-v=c] .r-main{min-height:60px;padding:8px 10px 8px 14px;gap:10px}
+.llp[data-v=c] .r-name{font-size:16px}
+.llp[data-v=c] .r-meta{font-size:13px;margin-top:1px}
+.llp[data-v=c] .r-lead.th{width:48px;height:48px;font-size:24px}
+.llp[data-v=c] .r-flags{flex-wrap:wrap;justify-content:flex-end;gap:3px 6px;max-width:150px}
+.llp[data-v=c] .r-flags .fl--p{order:-1;flex-basis:auto;margin-left:auto}
+.llp[data-v=c] .fl--p{padding:1px 8px;border-radius:var(--r-pill);border:1px solid currentColor}
+.llp[data-v=c] .r-chev .ic{width:16px;height:16px}
+.llp[data-v=c] .ll-cv{margin:0 12px;padding:0}
+.llp[data-v=c] .ll-tabs a.on::before{content:"";position:absolute;top:6px;width:52px;height:30px;border-radius:15px;background:color-mix(in srgb,var(--accent) 18%,transparent)}
+.llp[data-v=c] .ll-tabs a .ic,.llp[data-v=c] .ll-tabs a span{position:relative}
+.llp[data-v=c] .ll-sheet{padding-bottom:var(--sp-5)}
+.llp[data-v=c] .sh-h h2{font-size:20px}
+/* Home: the same inset cards, one per tile */
+.llp[data-v=c] .hm{padding:10px 12px 24px}
+.llp[data-v=c] .hm-hi{padding:0 4px 8px;font-size:26px}
+.llp[data-v=c] .hm-sec{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden}
+.llp[data-v=c] .hm-sec+.hm-sec{margin-top:12px}
+.llp[data-v=c] .hm-h{padding:0 6px 0 14px}
+.llp[data-v=c] .hm .r-main{min-height:56px;padding:8px 10px 8px 14px}
+.llp[data-v=c] .hm .r{border-top:1px solid var(--border)}
+.llp[data-v=c] .hm .r-lead{display:none}
+.llp[data-v=c] .hm .hm-idea .r-lead,.llp[data-v=c] .hm .hm-alts .r-lead{display:flex}
+.llp[data-v=c] .hm-idea{padding:8px 14px 12px;flex-wrap:wrap}
+.llp[data-v=c] .hm-idea .r-lead.th{width:64px;height:64px;font-size:32px}
+.llp[data-v=c] .hm-acts{flex-basis:100%}.llp[data-v=c] .hm-acts .btn{flex:1}
+.llp[data-v=c] .hm-tune{padding:0 14px}
+.llp[data-v=c] .hm-alts .r-lead.th{width:48px;height:48px;font-size:24px}
+.llp[data-v=c] .hm .r-flags{flex-wrap:wrap;justify-content:flex-end;max-width:150px}
+
+.llp[data-v=c][data-custom="1"] .ll-seg{opacity:.5}

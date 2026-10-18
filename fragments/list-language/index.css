@@ -1,0 +1,55 @@
+/* Comparison page only (mock chrome). Layout of the harness; the phones themselves are ll.css + v-*.css. Tokens only.
+   shared.css is not loaded here: its .r, .btn and .pill classes would collide with the list language's own. */
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);line-height:1.45}
+a{color:inherit;text-decoration:none}
+p{margin:0;color:var(--muted)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+code{font-size:.9em;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0 5px}
+.ll-wrap{max-width:1760px;margin:0 auto;padding:var(--sp-5) var(--gutter) calc(var(--sp-7) + var(--sp-4))}
+.ll-wrap h1{font-family:var(--head);font-size:2rem;line-height:1.05;margin:8px 0 6px}
+.ll-wrap h2{font-family:var(--head);font-size:1.25rem;margin:0 0 4px}
+.ll-wrap p,.ll-wrap li{max-width:100ch}
+.ll-wrap .lead{color:var(--fg)}
+.box p{color:var(--fg)}
+.lead{color:var(--fg);font-size:15px}
+.idea{display:inline-block;font-size:12px;font-weight:800;padding:3px 10px;border-radius:var(--r-pill);border:1px dashed var(--accent);color:var(--accent)}
+.box{margin:18px 0;padding:14px 18px;border:1px dashed var(--border);border-radius:var(--r-card)}
+.box.rec{border-style:solid;border-color:var(--accent);background:var(--surface)}
+.box h2{margin-bottom:6px}
+.box ul,.box ol{margin:6px 0;padding-left:20px;color:var(--fg)}
+.box li{margin:5px 0;font-size:14px}
+.box p{font-size:14px;margin:6px 0}
+.tools{display:flex;flex-wrap:wrap;gap:var(--sp-2);align-items:center;margin:14px 0 4px}
+.tools .tpick{min-height:var(--tap)}
+.links{display:flex;flex-wrap:wrap;gap:6px}
+.links a{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border-radius:99px;border:1px solid var(--border);background:var(--bg);font-size:13px;font-weight:600}
+.links a:hover{border-color:var(--accent)}
+.vars{margin-top:12px}
+.var{margin:0 0 var(--sp-6)}
+.vhd{display:flex;gap:var(--sp-3);align-items:flex-start;margin:0 0 var(--sp-3);max-width:390px}
+.vhd>b{flex:none;width:36px;height:36px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:inline-flex;align-items:center;justify-content:center;font:800 18px var(--head)}
+.vhd h3{margin:0;font:800 17px var(--head)}
+.vhd p{font-size:13.5px;margin:2px 0 0;color:var(--muted)}
+.trio{display:flex;flex-wrap:wrap;gap:var(--sp-5) var(--sp-5)}
+.cell{width:min(390px,100%);--ph:min(780px,calc(100dvh - 24px))}
+.cell>h4{margin:0 0 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:800}
+.cell .llp{--ph:780px}
+.sts{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.sts button{min-height:44px;min-width:44px;padding:0 10px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);color:var(--fg);font:600 12.5px var(--body);cursor:pointer}
+.sts button[aria-pressed=true]{border-color:var(--accent);color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+@media(min-width:1700px){
+  .vars{display:grid;grid-template-columns:repeat(4,390px);gap:var(--sp-3) var(--sp-5);justify-content:center}
+  .var,.trio{display:contents}
+  .vhd{grid-row:1}
+  .cell[data-s=pantry]{grid-row:2}.cell[data-s=recipes]{grid-row:3}.cell[data-s=home]{grid-row:4}
+  .vhd[data-vi="0"],.cell[data-vi="0"]{grid-column:1}.vhd[data-vi="1"],.cell[data-vi="1"]{grid-column:2}.vhd[data-vi="2"],.cell[data-vi="2"]{grid-column:3}.vhd[data-vi="3"],.cell[data-vi="3"]{grid-column:4}
+  .cell{margin-bottom:var(--sp-4)}
+}
+table.cmp{width:100%;border-collapse:collapse;font-size:13.5px;margin:8px 0}
+table.cmp th,table.cmp td{text-align:left;padding:8px 8px;border-top:1px solid var(--border);vertical-align:top}
+table.cmp th{color:var(--muted);font-weight:700}
+.tscroll{overflow-x:auto;max-width:100%}
+.tscroll table{min-width:640px}
+.pq{font-size:12px;font-weight:800;color:var(--accent)}
+.ll-wrap code{overflow-wrap:anywhere}

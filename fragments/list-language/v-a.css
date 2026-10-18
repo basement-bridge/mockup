@@ -1,0 +1,53 @@
+/* Variant A, "Dense and sticky": a two-line list. Everything that steers the list (Filters, Sort, +, search, chips) is one sticky head of two rows;
+   group labels stick under it; rows are 56px, two lines, flags at the right. Built to show the most rows per screen (the owner's rule: the list screen's space is precious). */
+.llp[data-v=a] .tp-rest{height:52px;gap:6px}
+.llp[data-v=a] .tp-rest>.tp-sort{display:inline-flex}
+.llp[data-v=a] .tp-filters,.llp[data-v=a] .tp-sort{padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-size:13.5px;font-weight:700}
+.llp[data-v=a] .tp-sort .ic,.llp[data-v=a] .tp-filters .ic{width:18px;height:18px}
+.llp[data-v=a] .tp-sort .dir{width:14px;height:14px;color:var(--accent)}
+.llp[data-v=a] .tp-add{width:44px}
+.llp[data-v=a] .ll-chips{border-bottom:1px solid var(--border);padding-left:6px}
+.llp[data-v=a] .ch-mode{width:44px}
+.llp[data-v=a] .ch-scroll{gap:4px;padding-right:0}
+.llp[data-v=a] .ch>span{height:30px;padding:0 11px;border-radius:var(--r-pill);color:var(--fg)}
+.llp[data-v=a] .ch[aria-pressed=true]>span{background:var(--accent);color:var(--on-accent)}
+.llp[data-v=a] .ch[aria-pressed=true]>span i{color:inherit;opacity:.8}
+.llp[data-v=a] .ll-chips>.ch-sel{display:inline-flex;align-items:center;justify-content:center;width:var(--tap);height:var(--tap);flex:none;color:var(--muted)}
+.llp[data-v=a] .ch-sel[aria-pressed=true]{color:var(--accent)}
+.llp[data-v=a] .ll-cv{border-bottom:1px solid var(--border);min-height:44px}
+.llp[data-v=a] .g-h{position:sticky;top:0;z-index:2;background:var(--bg);padding:10px 12px 0;min-height:44px;align-items:flex-end;gap:6px}
+.llp[data-v=a] .g-h h2{font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);padding-bottom:8px}
+.llp[data-v=a] .g-n,.llp[data-v=a] .g-new,.llp[data-v=a] .g-fold{margin-bottom:6px}
+.llp[data-v=a] .g-n{font-size:11.5px}
+.llp[data-v=a] .g-fold .ic{width:18px;height:18px}
+.llp[data-v=a] .r{border-bottom:1px solid var(--border);margin-left:12px}
+.llp[data-v=a] .r-main{min-height:52px;padding:4px 12px 4px 0;gap:10px}
+.llp[data-v=a] .r-name{font-size:15.5px;font-weight:700}
+.llp[data-v=a] .r-name .em{font-size:16px}
+.llp[data-v=a] .r-meta{font-size:12.5px;margin-top:1px}
+.llp[data-v=a] .r-lead.th{width:40px;height:40px;font-size:20px}
+.llp[data-v=a] .r-chev{display:none}
+.llp[data-v=a] .fl-danger.fl--p,.llp[data-v=a] .fl-accent.fl--p,.llp[data-v=a] .fl-sage.fl--p{padding:2px 8px;border-radius:var(--r-pill)}
+.llp[data-v=a] .fl-danger.fl--p{background:color-mix(in srgb,var(--danger) 16%,transparent)}
+.llp[data-v=a] .fl-accent.fl--p{background:color-mix(in srgb,var(--accent) 16%,transparent)}
+.llp[data-v=a] .fl-sage.fl--p{background:color-mix(in srgb,var(--sage) 16%,transparent)}
+.llp[data-v=a][data-sel="1"] .r-main{padding-left:0}
+.llp[data-v=a][data-sel="1"] .r-sel{margin-right:2px}
+/* Home: the same dense rows, three short lists */
+.llp[data-v=a] .hm{padding:6px 0 24px}
+.llp[data-v=a] .hm-hi{font-size:22px;padding:6px 12px 2px}
+.llp[data-v=a] .hm-sec+.hm-sec{margin-top:6px}
+.llp[data-v=a] .hm-h{padding:0 4px 0 12px;border-bottom:1px solid var(--border)}
+.llp[data-v=a] .hm-h h2{font:800 11.5px var(--body);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.llp[data-v=a] .hm-i .ic{width:18px;height:18px}
+.llp[data-v=a] .hm .r-main{padding:6px 12px 6px 0}
+.llp[data-v=a] .hm .r-lead{display:none}
+.llp[data-v=a] .hm .hm-idea .r-lead,.llp[data-v=a] .hm .hm-alts .r-lead{display:flex}
+.llp[data-v=a] .hm-idea{flex-wrap:wrap;padding:10px 12px;border-bottom:1px solid var(--border)}
+.llp[data-v=a] .hm-idea .r-lead.th{width:52px;height:52px;font-size:26px}
+.llp[data-v=a] .hm-acts{flex-basis:100%;gap:6px}.llp[data-v=a] .hm-acts .btn{flex:1}
+.llp[data-v=a] .hm-tune{padding:0 12px}
+.llp[data-v=a] .hm-alts .r-lead.th{width:40px;height:40px;font-size:20px}
+
+/* the narrow phone (360): the sort pill loses its leading icon, Filters and Sort tighten, so + and the magnifier keep the right border */
+@container (max-width:375px){.llp[data-v=a] .tp-rest{gap:4px;padding:0 8px}.llp[data-v=a] .tp-filters,.llp[data-v=a] .tp-sort{padding:0 10px}.llp[data-v=a] .tp-sort>.ic:first-child{display:none}}
