@@ -55,7 +55,7 @@ for (const [w, mode] of [[360, "light"], [390, "dark"], [1024, "dark"], [1280, "
   await p.click("#pa details.used > summary"); ok(t + "Already used opens on tap and shows names with step tags", (await p.locator("#pa details.used li:visible").count()) > 0 && /step \d/.test(await txt("#pa details.used")));
   await p.click("#pa details.used > summary");
   // ---- Phone treatments of Still to come (CSI-22..26): ?stc=1 Next line, 2 Summary row, 3 Inline names ----
-  const contrast = sel => p.evaluate(s => { const rgb = c => c.match(/[\d.]+/g).slice(0, 3).map(Number), lum = a => { const f = a.map(v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }); return 0.2126 * f[0] + 0.7152 * f[1] + 0.0722 * f[2]; };
+  const contrast = sel => p.evaluate(s => { const rgb = c => c.match(/[\d.]+/g).slice(0, 3).map(Number).map(x => /^color\(srgb/.test(c) ? x * 255 : x), lum = a => { const f = a.map(v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }); return 0.2126 * f[0] + 0.7152 * f[1] + 0.0722 * f[2]; };
     const el = document.querySelector(s); let bg = el; while (bg && /rgba\(0, 0, 0, 0\)|transparent/.test(getComputedStyle(bg).backgroundColor)) bg = bg.parentElement; const a = lum(rgb(getComputedStyle(el).color)), b = lum(rgb(getComputedStyle(bg).backgroundColor)); return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05); }, sel);
   const quiet = async (v, tag) => { // the callout leads: the rest has no fill, no accent, small muted type
     const q = await p.evaluate(() => { const cu = document.querySelector("#pa .cu"), rs = document.querySelector("#pa .rsA"), all = [...rs.querySelectorAll("*")].filter(e => e.getBoundingClientRect().width > 0);
@@ -125,53 +125,74 @@ for (const [w, mode] of [[360, "light"], [390, "dark"], [1024, "dark"], [1280, "
     ok(t + tg + "no sideways scroll in the frame (long text)", await p.evaluate(() => { const f = document.querySelector("#pa"), b = f.querySelector(".body"); return f.scrollWidth <= f.clientWidth && b.scrollWidth <= b.clientWidth && document.documentElement.scrollWidth <= document.documentElement.clientWidth; }));
     await p.click('.ctl [data-room="roomy"]');
   }
-  // ---- ?stc=4 amalgam (CSI-27..32) ----
+  // ---- ?stc=4, the owner's locked design (CSI-27..42) ----
   await p.goto(BASE + "?stc=4", { waitUntil: "networkidle" }); const t4 = "stc4: ";
-  ok(t + t4 + "?stc=4 selects the amalgam and its control; 0..3 still selectable", (await p.locator('.ctl [data-stc="4"]').getAttribute("aria-pressed")) === "true" && (await p.locator("#pa .rsA").getAttribute("data-stc")) === "4");
+  ok(t + t4 + "?stc=4 selects the design and its control; 0..3 still selectable", (await p.locator('.ctl [data-stc="4"]').getAttribute("aria-pressed")) === "true" && (await p.locator("#pa .cu.c4").count()) === 1);
   await goStep(1);
-  const row4 = () => p.$$eval("#pa .cu li", ls => ls.map(l => ({ nm: l.querySelector(".nm").textContent, q: l.querySelector(".qt4").textContent, lf: (l.querySelector(".lf") || { textContent: "" }).textContent })));
+  const row4 = () => p.$$eval("#pa .cu tr", ls => ls.map(l => ({ nm: l.querySelector(".nm .t").textContent, q: l.querySelector(".am").textContent, lf: (l.querySelector(".lf") || { textContent: "" }).textContent, box: !!l.querySelector("td.ck input[type=checkbox]") })));
   let r4 = await row4(); const g4 = n => r4.find(x => x.nm.startsWith(n));
-  ok(t + t4 + "step 1 callout: chicken 1 + '1 left for step 2'; soy sauce 1 tbsp + '2 tbsp left for step 4'; garlic 2 + '1 left for step 4'", g4("chicken").q === "1" && g4("chicken").lf === "1 left for step 2" && g4("soy").q === "1 tbsp" && g4("soy").lf === "2 tbsp left for step 4" && g4("garlic").q === "2" && g4("garlic").lf === "1 left for step 4", r4);
-  ok(t + t4 + "never '1 of 2' and no old arrow chip", !/\d of \d|→/.test(await txt("#pa .cu")) && (await p.locator("#pa .cu .go").count()) === 0);
-  ok(t + t4 + "no count badge in the callout heading", (await p.locator("#pa .cu .n").count()) === 0 && /^In this step$/i.test((await txt("#pa .cu .lbl")).trim()));
-  const l4 = await p.evaluate(() => { const l = document.querySelector("#pa .cu li:nth-child(2)"), n = l.querySelector(".nm"), q = l.querySelector(".qt4"); return { nmW: +getComputedStyle(n).fontWeight, qW: +getComputedStyle(q).fontWeight, left: n.getBoundingClientRect().left < q.getBoundingClientRect().left, align: getComputedStyle(q).textAlign }; });
-  ok(t + t4 + "name left heavier, quantity right lighter", l4.nmW >= 700 && l4.qW <= 500 && l4.left && l4.align === "right", l4);
+  ok(t + t4 + "merged table: three rows, each amount | checkbox | name", r4.length === 3 && r4.every(x => x.box), r4);
+  ok(t + t4 + "step 1: chicken 1 + '1 left for step 2'; soy sauce 1 tbsp + '2 tbsp left for step 4'; garlic 2 + '1 left for step 4'", g4("chicken").q === "1" && g4("chicken").lf === "1 left for step 2" && g4("soy").q === "1 tbsp" && g4("soy").lf === "2 tbsp left for step 4" && g4("garlic").q === "2" && g4("garlic").lf === "1 left for step 4", r4);
+  const cx = await p.evaluate(() => { const rw = document.querySelector("#pa .cu tr"), am = rw.querySelector(".am").getBoundingClientRect(), ck = rw.querySelector("input").getBoundingClientRect(), nm = rw.querySelector(".nm .t").getBoundingClientRect(); return { order: am.left < ck.left && ck.right <= nm.left + 1, amW: +getComputedStyle(rw.querySelector(".am")).fontWeight, rows: [...document.querySelectorAll("#pa .cu tr")].map(r => r.getBoundingClientRect().height), tag: document.querySelector("#pa .cu .t4").tagName, th: document.querySelectorAll("#pa .cu th, #pa .cu thead").length }; });
+  ok(t + t4 + "amount on the LEFT, then the checkbox, then the name", cx.order && cx.amW >= 700, cx);
+  ok(t + t4 + "compact table, no header row, and no word 'Ingredient' anywhere in the callout", cx.tag === "TABLE" && cx.th === 0 && !/ingredient/i.test(await txt("#pa .cu")) && !/amount/i.test(await txt("#pa .cu")), await txt("#pa .cu"));
+  ok(t + t4 + "rows keep a 44px tap target", cx.rows.every(h => h >= 43.5), cx.rows);
+  ok(t + t4 + "never '1 of 2', no old arrow chip, no count badge", !/\d of \d|→/.test(await txt("#pa .cu")) && (await p.locator("#pa .cu .n, #pa .cu .go").count()) === 0 && /^In this step$/i.test((await txt("#pa .cu .lbl")).trim()));
+  const lb = await p.locator("#pa .cu tr:first-child input").boundingBox(), cb = await p.locator("#pa .cu tr:first-child label.cb").boundingBox(); ok(t + t4 + "checkbox target (label) is 44 x 44", cb.width >= 43.5 && cb.height >= 43.5, [lb, cb]);
+  await p.locator("#pa .cu tr:first-child input").check();
+  ok(t + t4 + "ticking strikes the name (not colour alone) and the box shows ticked; amount stays", (await p.locator("#pa .cu tr:first-child input").isChecked()) && (await p.locator("#pa .cu tr:first-child .nm .t").evaluate(e => getComputedStyle(e).textDecorationLine)) === "line-through" && (await p.locator("#pa .cu tr:first-child .am").evaluate(e => getComputedStyle(e).textDecorationLine)) === "none");
+  await p.locator("#pa .cu tr:nth-child(2) .nm label").click(); ok(t + t4 + "tapping the name also toggles it", await p.locator("#pa .cu tr:nth-child(2) input").isChecked());
+  ok(t + t4 + "tick is screen-only: it does not touch the URL, storage or the other steps", (await p.evaluate(() => location.search + localStorage.length)) === "?stc=40" && (await (async () => { await goStep(2); const n = await p.locator("#pa .cu input:checked").count(); await goStep(1); return n; })()) === 0);
   await goStep(2); r4 = await row4();
-  ok(t + t4 + "step 2: oil '3 tbsp left for steps 3, 7' (plural, several steps); chicken final use no chip; salt: nothing right, no filler", g4("oil").lf === "3 tbsp left for steps 3, 7" && g4("chicken").lf === "" && g4("chicken").q === "1" && g4("salt").q === "" && g4("salt").lf === "" && !/to taste|not given|–/i.test(await txt("#pa .cu")), r4);
+  ok(t + t4 + "step 2: oil '3 tbsp left for steps 3, 7'; chicken final use no line; salt: empty amount, no filler", g4("oil").lf === "3 tbsp left for steps 3, 7" && g4("chicken").lf === "" && g4("chicken").q === "1" && g4("salt").q === "" && g4("salt").lf === "" && !/to taste|not given|–/i.test(await txt("#pa .cu")), r4);
+  ok(t + t4 + "empty amount keeps the checkbox column aligned", await p.evaluate(() => { const l = [...document.querySelectorAll("#pa .cu tr input")].map(i => Math.round(i.getBoundingClientRect().left)); return new Set(l).size === 1; }));
   await goStep(3);
-  // quiet rows: names only, muted, one line, trailing ellipsis, no count, no "+N more"
-  const rowsTxt = await p.$$eval("#pa .rsA .stcrow", bs => bs.map(b => ({ k: b.querySelector(".k").textContent, v: b.querySelector(".v").textContent })));
-  ok(t + t4 + "step 3: Still to come shows the next step's names only; Already used shows the latest finished names", rowsTxt[0].k === "Still to come" && /^soy sauce, garlic clove, cooked rice, eggs?\b|^soy sauce, garlic clove, cooked rice/.test(rowsTxt[0].v) && rowsTxt.length === 2 && rowsTxt[1].k === "Already used" && rowsTxt[1].v.length > 0, rowsTxt);
-  ok(t + t4 + "quiet rows: no quantities, no count, no '+N more'", rowsTxt.every(x => !/\d/.test(x.v + x.k)) && !/\+\d|\(\d+\)|more/.test(await txt("#pa .rsA")), rowsTxt);
-  const qs = await p.evaluate(() => { const rs = document.querySelector("#pa .rsA"), all = [...rs.querySelectorAll("*")].filter(e => e.getBoundingClientRect().width > 0), v = rs.querySelector(".v"), cs = getComputedStyle(v);
-    return { fills: all.filter(e => !/rgba\(0, 0, 0, 0\)/.test(getComputedStyle(e).backgroundColor)).map(e => e.className.toString()), fs: cs.fontSize, ws: cs.whiteSpace, to: cs.textOverflow, h: [...rs.querySelectorAll(".stcrow")].map(b => b.getBoundingClientRect().height), color: cs.color }; });
-  ok(t + t4 + "quiet rows: no fill, 13px, one line with text-overflow ellipsis, 44px rows", qs.fills.length === 0 && qs.fs === "13px" && qs.ws === "nowrap" && qs.to === "ellipsis" && qs.h.every(x => x >= 43.5), qs);
-  await p.addStyleTag({ content: "#pa .rsA .v{max-width:70px!important}" });
-  ok(t + t4 + "when space runs out the line is cut (scrollWidth > clientWidth, ellipsis), not wrapped or counted", await p.evaluate(() => { const v = document.querySelector("#pa .rsA .v"); return v.scrollWidth > v.clientWidth && v.getBoundingClientRect().height < 24; }));
+  // Already used: grey accordion in place under "In this step"; Still to come: bottom dock
+  const ord = await p.evaluate(() => { const f = document.querySelector("#pa"), cu = f.querySelector(".cu").getBoundingClientRect(), us = f.querySelector(".us4").getBoundingClientRect(), dk = f.querySelector(".dk4").getBoundingClientRect(), act = f.querySelector(".act").getBoundingClientRect(), body = f.querySelector(".body").getBoundingClientRect(); return { under: us.top >= cu.bottom - 1 && us.top - cu.bottom < 20, dockBelowBody: dk.top >= body.bottom - 1, dockAboveBtns: Math.abs(dk.bottom - act.top) <= 1.5, nextSib: f.querySelector(".cu").nextElementSibling.className }; });
+  ok(t + t4 + "Already used accordion sits directly under 'In this step'; the dock bar sits at the bottom just above the step buttons", ord.under && ord.dockBelowBody && ord.dockAboveBtns && /us4/.test(ord.nextSib), ord);
+  ok(t + t4 + "no 'Still to come' row in the body any more (it is only the docked bar)", (await p.locator("#pa .body .stcrow, #pa .body [data-pd=todo]").count()) === 0 && (await p.locator("#pa .dk4 [data-pd=todo]").count()) === 1);
+  const ac = await p.evaluate(() => { const u = document.querySelector("#pa .us4"), b = u.querySelector(".usb"), cs = getComputedStyle(b), ch = b.querySelector(".ch"), tr = getComputedStyle(ch).transform; return { closed: b.getAttribute("aria-expanded"), txt: b.textContent.trim(), h: b.getBoundingClientRect().height, color: cs.color, muted: getComputedStyle(document.documentElement).getPropertyValue("--muted"), bar: getComputedStyle(u).borderLeftColor, accent: getComputedStyle(document.querySelector("#pa .dk4 .bar")).borderLeftColor, tr, ic: getComputedStyle(b.querySelector("svg")).color, bg: getComputedStyle(u).backgroundColor }; });
+  ok(t + t4 + "accordion: closed, 'Already used (2)', 44px header", ac.closed === "false" && ac.txt === "Already used (2)" && ac.h >= 43.5, ac);
+  ok(t + t4 + "accordion header is grey: grey bar differs from the accent bar, header text and icon use the muted colour, tinted grey fill", ac.bar !== ac.accent && ac.color === ac.ic && ac.tr === "none" && (await p.evaluate(() => getComputedStyle(document.querySelector("#pa .usb")).color === getComputedStyle(document.querySelector("#pa .usb svg")).color && getComputedStyle(document.querySelector("#pa .usb")).color !== getComputedStyle(document.querySelector("#pa .dk4 .k")).color)), ac);
+  ok(t + t4 + "arrow points DOWN when closed (chevron unrotated)", ac.tr === "none" || ac.tr === "matrix(1, 0, 0, 1, 0, 0)", ac.tr);
+  const ba = await p.evaluate(() => getComputedStyle(document.querySelector("#pa .dk4 .bar .ch")).transform); ok(t + t4 + "dock bar chevron points up when closed (it opens upward)", /matrix\(-1, /.test(ba), ba);
+  // dock bar: names of the next step only, one line, ellipsis
+  const bar = await p.evaluate(() => { const b = document.querySelector("#pa .dk4 .bar"), v = b.querySelector(".v"), cs = getComputedStyle(v); return { k: b.querySelector(".k").textContent, v: v.textContent, fs: cs.fontSize, ws: cs.whiteSpace, to: cs.textOverflow, h: b.getBoundingClientRect().height, text: b.textContent }; });
+  ok(t + t4 + "dock bar: 'Still to come' + the next step's names only (no quantity, no count, no '+N more'), 44px, nowrap with ellipsis", bar.k === "Still to come" && /^soy sauce, garlic clove, cooked rice/.test(bar.v) && !/\d|\+|more|\(/.test(bar.v + bar.k) && bar.h >= 43.5 && bar.ws === "nowrap" && bar.to === "ellipsis", bar);
+  ok(t + t4 + "dock bar: hint-free (no 'tap', 'swipe')", !/tap|swipe|drag/i.test(bar.text));
+  await p.addStyleTag({ content: "#pa .dk4 .v{max-width:70px!important}" });
+  ok(t + t4 + "when space runs out the names are cut (scrollWidth > clientWidth), not wrapped or counted", await p.evaluate(() => { const v = document.querySelector("#pa .dk4 .v"); return v.scrollWidth > v.clientWidth && v.getBoundingClientRect().height < 24; }));
   await p.goto(BASE + "?stc=4", { waitUntil: "networkidle" }); await goStep(3);
-  ok(t + t4 + "muted text keeps 4.5:1 contrast", (await contrast("#pa .rsA .v")) >= 4.5 && (await contrast("#pa .rsA .k")) >= 4.5, [await contrast("#pa .rsA .v")]);
-  // dock: both sections open in place above the step buttons with full detail
-  ok(t + t4 + "dock closed by default", (await p.locator("#pa .dk4").count()) === 0 && (await p.locator('#pa [data-pr="todo"]').getAttribute("aria-expanded")) === "false");
-  await p.click('#pa [data-pr="todo"]');
-  const dk = await p.evaluate(() => { const d = document.querySelector("#pa .dk4"), a = document.querySelector("#pa .act"), b = document.querySelector("#pa .body"); return { have: !!d, above: d && d.getBoundingClientRect().bottom <= a.getBoundingClientRect().top + 1, inFrame: d && d.getBoundingClientRect().bottom <= document.querySelector("#pa").getBoundingClientRect().bottom, bodyH: b.getBoundingClientRect().height, tabs: [...d.querySelectorAll(".tb")].map(x => [x.textContent.trim(), x.getAttribute("aria-expanded"), x.getBoundingClientRect().height]), nav: location.search }; });
-  const todoRows = await p.$$eval("#pa .dk4 .p li", ls => ls.map(l => l.textContent.replace(/\s+/g, " ").trim()));
-  ok(t + t4 + "tap Still to come opens a dock in place (no navigation) with full detail and quantities", dk.have && dk.above && dk.inFrame && dk.nav === "?stc=4" && /Still to come/.test(await txt("#pa .dk4 .tb.todo")) && todoRows.length === 5 && todoRows.some(x => /soy sauce\s*2 tbsp/.test(x)) && todoRows.some(x => /cooked rice\s*3 cup/.test(x)), [dk, todoRows]);
-  ok(t + t4 + "dock rows use the 'left for' wording for a split ingredient, 'for' otherwise", todoRows.some(x => /soy sauce.*left for step 4/.test(x)) && todoRows.some(x => /eggs.*for steps 6, 7/.test(x) && !/left for/.test(x)) && !/\d of \d/.test(todoRows.join(" ")), todoRows);
-  ok(t + t4 + "dock tabs are 44px, state by aria-expanded and chevron", dk.tabs.length === 2 && dk.tabs.every(x => x[2] >= 43.5) && dk.tabs[0][1] === "true" && dk.tabs[1][1] === "false", dk.tabs);
-  await p.click('#pa .dk4 [data-pd="used"]');
-  const usedRows = await p.$$eval("#pa .dk4 .p.used li", ls => ls.map(l => l.textContent.replace(/\s+/g, " ").trim()));
-  ok(t + t4 + "Already used opens through the same dock, with amounts and where it was used", usedRows.length === 2 && usedRows.every(x => /used in steps? \d/.test(x)) && /chicken breasts?\s*2/.test(usedRows.join(" ")), usedRows);
-  ok(t + t4 + "dock stays within the frame, no sideways scroll", await p.evaluate(() => { const f = document.querySelector("#pa"); return f.scrollWidth <= f.clientWidth && document.documentElement.scrollWidth <= document.documentElement.clientWidth; }));
-  await p.click('#pa .dk4 [data-pd="used"]'); ok(t + t4 + "tapping the open tab closes the dock", (await p.locator("#pa .dk4").count()) === 0);
-  await p.click('#pa [data-pr="used"]'); ok(t + t4 + "Already used row opens it directly", (await p.locator("#pa .dk4 .p.used li").count()) === 2); await p.click('#pa .dk4 [data-pd="used"]');
+  ok(t + t4 + "muted text keeps 4.5:1 contrast (dock names, accordion header)", (await contrast("#pa .dk4 .v")) >= 4.5 && (await contrast("#pa .usb")) >= 4.5, [await contrast("#pa .dk4 .v"), await contrast("#pa .usb")]);
+  // open the accordion
+  await p.click('#pa [data-pd="used"]');
+  const ao = await p.evaluate(() => { const u = document.querySelector("#pa .us4"), r = [...u.querySelectorAll(".usp tr")].map(x => [...x.children].map(c => c.textContent.trim()).filter(Boolean).join(" ")); return { open: u.classList.contains("open"), exp: u.querySelector(".usb").getAttribute("aria-expanded"), tr: getComputedStyle(u.querySelector(".usb .ch")).transform, r, nav: location.search, fits: u.getBoundingClientRect().right <= document.querySelector("#pa").getBoundingClientRect().right }; });
+  ok(t + t4 + "accordion opens in place with amounts and where used; arrow rotates UP when open; no navigation", ao.open && ao.exp === "true" && /matrix\(-1, /.test(ao.tr) && ao.r.length === 2 && ao.r.every(x => /used in steps? \d/.test(x)) && /^2 chicken breasts/.test(ao.r.join("|")) && ao.nav === "?stc=4" && ao.fits, ao);
+  ok(t + t4 + "dock bar still shown while the accordion is open, but its flyout is closed", (await p.locator("#pa .dk4 .bar").getAttribute("aria-expanded")) === "false" && (await p.locator("#pa .dk4 .p").count()) === 0);
+  // either-or
+  await p.click('#pa .dk4 [data-pd="todo"]');
+  const eo = await p.evaluate(() => ({ flyout: !!document.querySelector("#pa .dk4 .p"), acc: document.querySelector("#pa .us4").classList.contains("open"), accExp: document.querySelector("#pa .usb").getAttribute("aria-expanded"), rows: [...document.querySelectorAll("#pa .dk4 .p tr")].map(x => [...x.children].map(c => c.textContent.trim()).filter(Boolean).join(" ")), above: document.querySelector("#pa .dk4").getBoundingClientRect().bottom <= document.querySelector("#pa .act").getBoundingClientRect().top + 1, barExp: document.querySelector("#pa .dk4 .bar").getAttribute("aria-expanded"), tr: getComputedStyle(document.querySelector("#pa .dk4 .bar .ch")).transform }));
+  ok(t + t4 + "either-or: opening the dock closes Already used", eo.flyout && !eo.acc && eo.accExp === "false" && eo.barExp === "true", eo);
+  ok(t + t4 + "dock flyout: full detail with quantities and 'left for', above the buttons; bar arrow points down when open", eo.rows.length === 5 && eo.rows.some(x => /^2 tbsp soy sauce.*left for step 4/.test(x)) && eo.rows.some(x => /^3 cup cooked rice/.test(x)) && eo.rows.some(x => /eggs?.*for steps 6, 7/.test(x) && !/left for/.test(x)) && eo.above && !/\d of \d/.test(eo.rows.join(" ")) && !/matrix\(-1, /.test(eo.tr), eo);
+  ok(t + t4 + "dock flyout stays inside the frame, no sideways scroll", await p.evaluate(() => { const f = document.querySelector("#pa"); return f.scrollWidth <= f.clientWidth && document.documentElement.scrollWidth <= document.documentElement.clientWidth; }));
+  await p.click('#pa [data-pd="used"]');
+  ok(t + t4 + "either-or: opening Already used closes the dock", (await p.locator("#pa .dk4 .p").count()) === 0 && (await p.locator("#pa .us4.open").count()) === 1 && (await p.locator("#pa .dk4 .bar").getAttribute("aria-expanded")) === "false");
+  await p.click('#pa [data-pd="used"]'); ok(t + t4 + "tapping the open accordion closes it; nothing open", (await p.locator("#pa .us4.open, #pa .dk4 .p").count()) === 0);
+  await p.click('#pa .dk4 [data-pd="todo"]'); await p.click('#pa .dk4 [data-pd="todo"]'); ok(t + t4 + "tapping the open dock bar closes it", (await p.locator("#pa .dk4 .p").count()) === 0);
   await p.click('#pa [data-go="3"]'); await p.click('#pa [data-go="4"]'); await p.click('#pa [data-go="5"]'); await p.click('#pa [data-go="6"]');
-  ok(t + t4 + "last step: no Still to come row, Already used remains", (await p.locator('#pa [data-pr="todo"]').count()) === 0 && (await p.locator('#pa [data-pr="used"]').count()) === 1);
-  for (const rec of ["none", "half"]) { await p.click('[data-rec="' + rec + '"]'); await goStep(rec === "half" ? 5 : 2); ok(t + t4 + rec + ": no callout, no rows, no dock (backward compatible)", (await p.locator("#pa .rsA, #pa .cu, #pa .dk4").count()) === 0); }
+  ok(t + t4 + "last step: no dock bar (nothing to come), Already used remains", (await p.locator("#pa .dk4").count()) === 0 && (await p.locator('#pa [data-pd="used"]').count()) === 1);
+  for (const rec of ["none", "half"]) { await p.click('[data-rec="' + rec + '"]'); await goStep(rec === "half" ? 5 : 2); ok(t + t4 + rec + ": no callout, no accordion, no dock (backward compatible)", (await p.locator("#pa .rsA, #pa .cu, #pa .dk4, #pa .us4").count()) === 0); }
   await p.click('[data-rec="rice"]'); await p.click('.ctl [data-room="long"]');
   ok(t + t4 + "no sideways scroll with long text", await p.evaluate(() => { const f = document.querySelector("#pa"); return f.scrollWidth <= f.clientWidth && document.documentElement.scrollWidth <= document.documentElement.clientWidth; })); await p.click('.ctl [data-room="roomy"]');
   await p.click('[data-rec="tray"]'); await goStep(1);
-  ok(t + t4 + "long list keeps the 5 + '+2 more' cap in the callout", (await p.locator("#pa .cu li").count()) === 5 && /^\+2 more$/.test((await txt("#pa .cu [data-more]")).trim()));
+  ok(t + t4 + "long list keeps the 5 + '+2 more' cap in the callout", (await p.locator("#pa .cu tr").count()) === 5 && /^\+2 more$/.test((await txt("#pa .cu [data-more]")).trim()));
   await p.click('[data-rec="rice"]');
+  // the dropped options are gone (CSI-34)
+  await p.goto(BASE + "?stc=4&disp=check", { waitUntil: "networkidle" });
+  ok(t + "dropped display options: no control, no checklist, pills, bullets, cards or old table; ?disp is ignored", (await p.locator("[data-disp]").count()) === 0 && (await p.locator("#pa .d4, #pa .d-check, #pa .d-table, #pa .d-pills, #pa .d-bul, #pa .d-cards, #pa .qt4").count()) === 0 && (await p.locator("#pa .cu .t4").count()) === 1 && !/In this step \(phone\)|Grouped cards|Pills|Bullets|Checklist/.test(await txt(".ctl")));
+  await p.goto(BASE + "?stc=4", { waitUntil: "networkidle" });
+  const pz = (await (await fetch(BASE + "steps.js")).text()) + (await (await fetch(BASE + "steps.css")).text()) + (await (await fetch(BASE)).text());
+  ok(t + "dropped options are gone from the code too", !/calloutDisp|d-check|d-pills|d-cards|d-bul|d-table|data-disp|GORDER/.test(pz));
   // ---- label fix (CSI-32): B's remainder disclosure is not called "All ingredients" ----
   await p.goto(BASE, { waitUntil: "networkidle" });
   ok(t + "B disclosure says 'Still to come', not 'All ingredients', and does not repeat the heading", (await txt("#pb details.all > summary")).trim() === "Still to come" && !/All ingredients/.test(await txt("#opts")) && (await p.locator("#pb details.all .rest .lbl").allInnerTexts()).every(x => x !== "Still to come"));
@@ -180,26 +201,6 @@ for (const [w, mode] of [[360, "light"], [390, "dark"], [1024, "dark"], [1280, "
   await p.click('[data-rec="half"]'); await p.click('#pb [data-go="0"]').catch(() => {});
   ok(t + "B half tagged lists every ingredient, so 'All ingredients' stays", /^All ingredients$/.test((await txt("#pb details.all > summary")).trim()));
   await p.click('[data-rec="rice"]');
-  // ---- display swaps (CSI-33): ?disp=check|table|pills|bullets|cards ----
-  for (const d of ["check", "table", "pills", "bullets", "cards"]) {
-    await p.goto(BASE + "?stc=4&disp=" + d, { waitUntil: "networkidle" }); await goStep(1); const td = "disp " + d + ": ";
-    ok(t + td + "key selects it and its control", (await p.locator('.ctl [data-disp="' + d + '"]').getAttribute("aria-pressed")) === "true" && (await p.locator("#pa .cu.d4").getAttribute("data-disp")) === d);
-    const dtx = (await txt("#pa .cu")).replace(/\s+/g, " ");
-    ok(t + td + "three ingredients, split wording '1 left for step 2', no '1 of 2', no count, no step-text quantity change", /chicken breast/i.test(dtx) && /soy sauce/i.test(dtx) && /garlic/i.test(dtx) && /1 left for step 2/.test(dtx) && /2 tbsp left for step 4/.test(dtx) && !/\d of \d/.test(dtx) && (await p.locator("#pa .cu .n").count()) === 0, dtx);
-    if (d === "check") {
-      const hs = await p.$$eval("#pa .d-check label", ls => ls.map(l => l.getBoundingClientRect().height)); ok(t + td + "three checkbox rows, each a 44px target", hs.length === 3 && hs.every(h => h >= 43.5), hs);
-      await p.locator("#pa .d-check input").first().check(); ok(t + td + "ticking keeps the tick and strikes the name (not colour alone)", (await p.locator("#pa .d-check input").first().isChecked()) && (await p.locator("#pa .d-check li:first-child .nm").evaluate(e => getComputedStyle(e).textDecorationLine)) === "line-through");
-      await p.locator("#pa .d-check input").first().uncheck();
-    }
-    if (d === "table") ok(t + td + "two columns with visible headers Ingredient and Amount", (await p.locator("#pa .d-table th").allInnerTexts()).join("|").toLowerCase() === "ingredient|amount" && (await p.locator("#pa .d-table tbody tr").count()) === 3);
-    if (d === "pills") ok(t + td + "wrapping pills with bold amount", (await p.locator("#pa .d-pills li").count()) === 3 && (await p.locator("#pa .d-pills li").first().evaluate(e => getComputedStyle(e).borderRadius)) !== "0px" && (await p.locator("#pa .d-pills .qt4").first().evaluate(e => +getComputedStyle(e).fontWeight)) >= 700);
-    if (d === "bullets") ok(t + td + "bulleted list, bold amount first: '1 chicken breast'", (await p.locator("#pa .d-bul li").count()) === 3 && /^1 chicken breast/.test((await p.locator("#pa .d-bul li").first().innerText()).trim()) && (await p.locator("#pa .d-bul li").first().evaluate(e => getComputedStyle(e).display)) === "list-item" && (await p.locator("#pa .d-bul b").first().evaluate(e => +getComputedStyle(e).fontWeight)) >= 700);
-    if (d === "cards") ok(t + td + "grouped by type with a heading per group", (await p.locator("#pa .gc h4").allInnerTexts()).join("|").toLowerCase() === "produce|meat|pantry");
-    ok(t + td + "no sideways scroll, no 'Still to come' regression (quiet rows still follow ?stc=4)", await p.evaluate(() => { const f = document.querySelector("#pa"); return f.scrollWidth <= f.clientWidth && document.documentElement.scrollWidth <= document.documentElement.clientWidth; }) && (await p.locator("#pa .rsA .stcrow").count()) === 1);
-    await p.click('[data-rec="none"]'); await goStep(2); ok(t + td + "not tagged: no callout at all", (await p.locator("#pa .cu").count()) === 0); await p.click('[data-rec="rice"]');
-  }
-  await p.goto(BASE + "?disp=check", { waitUntil: "networkidle" }); ok(t + "disp works with the older treatments too (callout swaps, rest follows ?stc)", (await p.locator("#pa .cu.d4").count()) === 1 && (await p.locator("#pa .rsA").getAttribute("data-stc")) === "1");
-  await p.click('.ctl [data-disp="default"]'); ok(t + "Default restores the existing callout (with its count)", (await p.locator("#pa .cu .n").count()) === 1 && (await p.locator("#pa .d4").count()) === 0);
   await p.goto(BASE, { waitUntil: "networkidle" });
   }
   if (!phone) {
@@ -207,7 +208,6 @@ for (const [w, mode] of [[360, "light"], [390, "dark"], [1024, "dark"], [1280, "
   const snap = () => p.evaluate(() => ["#da", "#db", "#dc", "#pb", "#pc"].map(i => document.querySelector(i).innerHTML).join("\u0001"));
   const before = await snap();
   for (const v of ["0", "2", "3", "4", "1"]) { await p.click('.ctl [data-stc="' + v + '"]'); ok(t + "desktop, B and C unchanged by treatment " + v, (await snap()) === before); }
-  for (const d of ["check", "table", "pills", "bullets", "cards", "default"]) { await p.click('.ctl [data-disp="' + d + '"]'); ok(t + "desktop, B and C unchanged by display " + d, (await snap()) === before); }
   // Desktop composition: chips in the step card, dock for the rest, two accents
   await p.click('#da [data-go="0"]').catch(() => {});
   ok(t + "desktop: no separate callout, chips sit inside the step card", (await p.locator("#da .cu").count()) === 0 && (await p.locator("#da .bigstep .chipsA li").count()) > 0);
