@@ -121,8 +121,8 @@
     row = $("prow"); front = row.querySelector(".pl-front"); spill = $("spill"); input = $("q"); body = $("body"); msg = $("pmsg"); list = $("plist"); live = $("slive");
     setRow(row.dataset.state || "rest");
     $("search-open").addEventListener("click", function () { openSearch("tap"); });
-    $("search-glass").addEventListener("click", function () { closeSearch(); });          /* OPEN: the magnifier again closes (assumed) */
-    $("search-close").addEventListener("click", function () { closeSearch(); });          /* OPEN: the X closes (assumed) */
+    $("search-glass").addEventListener("click", function () { closeSearch(); });          /* the magnifier again closes and clears (owner, 18 Oct 2026) */
+    $("search-close").addEventListener("click", function () { closeSearch(); });          /* the X closes and clears (owner, 18 Oct 2026) */
     spill.addEventListener("submit", function (e) { e.preventDefault(); input.blur(); }); /* the keyboard's Search key: keyboard down, the list stays filtered, the bar stays open */
     input.addEventListener("input", function () { S.q = input.value; render(); });
     document.addEventListener("keydown", function (e) { if (e.key === "Escape" && S.open) closeSearch(); });

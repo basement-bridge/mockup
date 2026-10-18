@@ -40,11 +40,11 @@ Searching:
 - A visually hidden live region says "3 matches" or "No matches" for screen readers; the row has no visible count (as in the live phone app, where `.prow .count` is hidden).
 
 Closing:
-- **Open (assumed, not decided):** the X at the left of the bar, the glass at the right (tapping it again), and Escape on a keyboard all close the bar; the query is cleared, the list shows everything again, Filters and + return (fade in as the bar shrinks back into the glass). Tapping or scrolling the list does not close it (the existing rule, `pantry-pull-row.md`).
+- **Decided (owner, by voice, 18 October 2026: "No, clear."):** the X at the left of the bar, the glass at the right (tapping it again), and Escape on a keyboard all close the bar; the query is cleared, the list shows everything again, Filters and + return (fade in as the bar shrinks back into the glass). Tapping or scrolling the list does not close it (the existing rule, `pantry-pull-row.md`).
 
 ## Proposals (owner was silent)
 
-- **PS-P1** Close by X (left), by the glass (right) and by Escape; closing clears the query. Wrong guess costs: if the owner wants the query kept after closing, the list stays filtered with no visible bar, which reads as a bug, so it would need a "filtered by ..." chip.
+- **PS-P1 (decided 18 October 2026)** Close by X (left), by the glass (right) and by Escape; closing clears the query, for the glass-opened bar and the shallow pull-down bar alike (one `closeSearch`). The owner chose clear over keep.
 - **PS-P2** The X replaces the live word "Cancel" (`#search-close`). Wrong guess costs: a word is clearer than an icon for some people; the old markup has both (`.ic-cancel`, `.ic-x`), so it is a one-line switch.
 - **PS-P3** Tap flies out over a fading row; the pull keeps its curtain. Wrong guess costs: two entry animations to maintain; making the tap use the curtain too is the cheaper build.
 - **PS-P4** The glass is a real button in both layers (open and close), so it never moves and tapping it twice toggles. Wrong guess costs: an accidental double tap opens then closes; the query is empty then, so nothing is lost.
@@ -55,7 +55,7 @@ Closing:
 
 ## Open questions
 
-- **PS-Q1** How does the bar close, and does closing keep the query? (PS-P1, PS-P2.) This is the one the owner flagged as assumed.
+- **PS-Q1 (answered 18 October 2026)** Closing clears the query (PS-P1). The built app matches for the X, the magnifier, the search icon and Escape. One difference stays: in the build the Search key closes the bar and keeps the results in the banner (the search applied); in this mockup it only puts the keyboard away and the bar stays open (PS-D5).
 - **PS-Q2** The owner described the row today as Filters at the left and + at the right. In the live phone app Filters and + both sit together at the right (`.pl-front{justify-content:flex-end}`, Filters inside `.pact`); in the household mock the item count sits at the left. Is the move of Filters to the left border the intended change, or was the row already like that on the owner's phone? Wrong guess costs: if Filters was already at the left on a build the mockup has not seen, the markup diff below is larger than needed.
 - **PS-Q3** When a custom view is active the live app has no Filters button (the strip's Edit replaces it). The mockup does not draw that state: the row would be `[+] [glass]` at the right with nothing at the left. Fine, or should the view's name sit there?
 - **PS-Q4** Does the glass need a keyboard shortcut cue (`/`), as the live bar carries `.kbd`? That is desktop-keyboard only and out of scope here.
