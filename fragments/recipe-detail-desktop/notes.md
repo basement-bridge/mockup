@@ -368,7 +368,7 @@ Q10. **Method reading order across two columns.** Steps run down the left column
 
 1. **Decided by the owner (by voice, 18 October 2026):** the "Cook it" button on the desktop recipe detail page is renamed **"Make it"**, because it works for baking, cocktails and so on. Plan it is unchanged. Alternatives considered: Start it, Do it, Prepare it, Let's go.
 2. **Scope in the mockup:** visible label, aria-labels and tooltips in every fragment under `fragments/recipe-detail-desktop/` (recommended, plan-cook-overlay, inline-edit, options A to E, hub text). CSS classes and ids, the `data-cook` hooks, the Cook mode screen name ("Cook it mode", Kitchie #810) and the empty-state phrase "Cook it once and the thumbs and notes start here" are not renamed. Sections 1 to 6 of this file describe today's app and still say "Cook it" where they name today's button; the build wording is decided in 7.5.1.
-3. **Not decided:** the label on other screens (phone recipe page, recipe browse, plan flyouts, Kitchie build). Those still say "Cook it" and are listed in the PR for the owner to confirm.
+3. **Extended (owner, by voice, 18 October 2026: "apply Cook it to Make it globally", Kitchie #917):** every other visible recipe label now reads "Make it" too (phone recipe page and versions buttons, "Make it again", the "Make it once and the thumbs and notes start here" empty state, browse and home flyouts), matching the build. Left on purpose: the Cook mode screen name, plan wording about cooking a night ("Tap the night to cook it first", "Cook it by Wed"), and prose in notes and review documents.
 
 ---
 

@@ -105,7 +105,7 @@ function notesBlock(){
 }
 function cookedBlock(){
  var c=soc.cooks, r=soc.react;
- if(!hasCooks)return '<div class="rd-cb empty"><div class="zh"><h2 class="lbl">Cooked</h2></div><div class="zs"><p class="none">Not cooked yet. Cook it once and the thumbs and notes start here.</p></div></div>';
+ if(!hasCooks)return '<div class="rd-cb empty"><div class="zh"><h2 class="lbl">Cooked</h2></div><div class="zs"><p class="none">Not cooked yet. Make it once and the thumbs and notes start here.</p></div></div>';
  var dots=c.slice(0,8).reverse().map(function(x,i,a){return '<i class="rb-dot'+(i===a.length-1?' last':'')+'"></i>'}).join('');
  var chips=r.chips.map(function(x){return '<span class="rb-rc"><span class="rb-av m'+x.m+'">'+x.who[0]+'</span><span class="rb-th up">'+ic('up',12)+'</span></span>'}).join('')+(r.notKeen?'<span class="rb-rc oth"><span class="rb-th dn">'+ic('dn',12)+'</span>'+r.notKeen+' other</span>':'');
  var rows=c.slice(0,3).map(function(x){return '<div class="hist"><span class="d">'+(x.d?x.d+' '+x.m:x.m)+'</span><span class="t"><b>'+x.by+'</b> · '+esc(x.v)+(x.line?'<small>“'+esc(x.line)+'”</small>':'')+'</span>'+(x.ate?'<small class="ate">'+x.ate+' ate</small>':'')+thumb(x.verdict==='keep'?'up':x.verdict==='work'?'work':x.verdict==='no'?'dn':null)+'</div>'}).join('');
@@ -142,7 +142,7 @@ function right(){
 function emptyBar(){
  var vs=rec.versions.length>1?'<span class="cnt">'+rec.versions.length+' versions</span>':'';
  return '<div class="rd-foot" id="hist">'
-  +'<span class="it"><b>Not cooked yet.</b> Cook it once and the thumbs and notes start here.</span>'
+  +'<span class="it"><b>Not cooked yet.</b> Make it once and the thumbs and notes start here.</span>'
   +'<button class="mini" data-note>'+ic('plus',14)+'Add a note</button>'
   +(photoCount>1?'<button class="mini" data-photos>'+ic('cam',16)+'Photos '+photoCount+'</button>':'')
   +'<a class="mini" href="#" data-key=",">'+ic('hist',16)+'History '+vs+' <span class="kbd">,</span></a>'

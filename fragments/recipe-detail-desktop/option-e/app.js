@@ -36,7 +36,7 @@ var hero='<header class="rhero">'+
  '<a class="vline" data-key="," href="#">'+(vers.length>1&&vers[D.cur].usual?'<span class="fp">From Original \u00B7 </span>':"")+'<u>History</u><span class="kbd">,</span></a>'+
  (cooks.length?'<div class="proof"><b>Cooked '+(cooks.length>=4?cooks.length+" times":cooks.length===1?"once":cooks.length+" times")+'</b><span class="mut">last '+(cooks[0].ago||"cooked")+'</span><span class="rb-dots">'+cooks.slice(0,8).reverse().map(function(c,i,a){return '<i class="'+(i===a.length-1?"last":"")+'"></i>'}).join("")+'</span>'+
   (upN?'<span class="rb-th up" title="'+upN+' liked it">'+ic("up")+'<i>'+upN+'</i></span>':"")+(D.react.down?'<span class="rb-th dn" title="'+D.react.down+' not keen">'+ic("dn")+'<i>'+D.react.down+'</i></span>':"")+'</div>'
-  :'<div class="proof none"><b>Not cooked yet</b><span class="mut">Cook it once and the thumbs and notes start here.</span></div>')+
+  :'<div class="proof none"><b>Not cooked yet</b><span class="mut">Make it once and the thumbs and notes start here.</span></div>')+
  '<div class="hgo"><button class="btn ghost sm" data-plan>'+ic("cal")+(D.planned?"Planned "+D.planned:"Plan it")+'</button><a class="btn sm" href="#" data-cook>'+ic("pot")+'Make it</a></div></div></div></header>';
 
 var vbar=(tabs.length>1||vers.length>1)?'<nav class="jumps vbar" aria-label="Views">'+

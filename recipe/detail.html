@@ -83,7 +83,7 @@ function draw(keepScroll){
   /* R-D11 action bar: Cook it leads, Plan it beside it; everything else in the overflow. Same for every member (R-O5). */
   var act='<div class="act">'+
     '<button type="button" class="btn ghost" data-plan>'+ic("cal","s")+(planned?'Planned Tue':'Plan it')+'</button>'+
-    '<a class="btn" href="cook.html?id='+r.id+'&v='+v.id+'&n='+n+'">'+ic("flame","s")+'Cook it</a>'+
+    '<a class="btn" href="cook.html?id='+r.id+'&v='+v.id+'&n='+n+'">'+ic("flame","s")+'Make it</a>'+
   '</div>';
   ph.innerHTML='<div class="top"><a class="back" href="list.html">'+ic("back","s")+'Recipes</a><span class="ttl"></span>'+
     '<button type="button" class="ib bare" data-star aria-pressed="'+star+'" aria-label="'+(star?"Starred":"Star")+'">'+(star?'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true" style="fill:var(--accent);stroke:var(--accent)">'+'<path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8 6.8 19.6l1-5.8L3.5 9.7l5.9-.8z"/></svg>':ic("star"))+'</button>'+

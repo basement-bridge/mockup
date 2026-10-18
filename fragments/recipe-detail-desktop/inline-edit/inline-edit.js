@@ -134,7 +134,7 @@ function noteCardEdit(n){
  return '<div class="note n-e" data-note-id="'+n.id+'" data-row="'+n.id+'">'+ed("n:"+n.id,noteBody(n),{cls:"nbtn",label:"Edit this note"})+'<div class="nfoot">'+noteMeta(n)+'<button type="button" class="rm" data-act="rm" aria-label="Remove this note" title="Remove">'+ic("x","s")+'</button></div></div>'}
 function notesPane(){EDON=secOn("notes");
  var c=cur(),h='<div class="lblrow"><span class="lbl">Notes <span class="sub" data-subnotes>'+(DV.notesN?'on '+esc(c.name):'')+'</span></span><span class="row-a">'+'</span></div><div class="pscroll" data-scroll>';
- if(!DV.notesN)h+='<div class="rb-empty"><span>'+ic("note")+'</span><div><b>No notes yet.</b><small>'+(DV.cookedN?'Anything worth remembering next time.':'Cook it once and the thumbs and notes start here.')+'</small></div></div>';
+ if(!DV.notesN)h+='<div class="rb-empty"><span>'+ic("note")+'</span><div><b>No notes yet.</b><small>'+(DV.cookedN?'Anything worth remembering next time.':'Make it once and the thumbs and notes start here.')+'</small></div></div>';
  h+=NOTES.map(EDON?noteCardEdit:noteCard).join("")+'</div>';
  return h+'<div class="pfoot" data-pfoot-notes>'+noteFoot()+'</div>'}
 function noteFoot(){return S.composing?'<div class="composer"><textarea class="edin" data-add="note" rows="3" maxlength="4000" placeholder="Anything worth remembering next time" aria-label="New note"></textarea><div class="comp-a"><span class="hint">Ctrl+Enter adds. Esc cancels.</span><button type="button" class="mini" data-act="note-cancel">Cancel</button><button type="button" class="rb-btn pri" data-act="note-add">Add</button></div></div>'
