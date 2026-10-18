@@ -1,0 +1,5 @@
+# Mockup fragments awaiting the owner's review. One line per fragment: fragments/<name> <repo>#<issue> [note]
+# Add at ready-for-review, remove at the uat merge or on the owner's word. Rule: governance docs/factory/mockup-visibility.md
+fragments/recipe-detail-desktop/inline-edit basement-bridge/kitchie#892 recommended, awaiting owner review
+fragments/list-language basement-bridge/mockup#261 draft, no Kitchie issue; awaiting owner review
+fragments/plan-month-picker basement-bridge/kitchie#826 notes say awaiting the owner's look; hub card since decided (PM-D44 to D46), unsure
