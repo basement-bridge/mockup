@@ -62,7 +62,7 @@
     else if (a === "close") closeFly();
     else if (a === "reopen") reopen();
     else if (a === "openrecipe") say("Open full recipe is another screen (browse flyout to full page).");
-    else if (a === "cook" || a === "plan") say((a === "cook" ? "Cook now" : "Plan") + " is another screen.");
+    else if (a === "cook" || a === "plan") say((a === "cook" ? "Make it" : "Plan") + " is another screen.");
     else if (a === "rename") { S.editing = l.id; draw(); }
     else if (a === "keep") { S.editing = null; draw(); }
     else if (a === "copy") { copyText(FL.URLS + "Hq2xK9mPz"); say("Link copied. Paste it in a message."); }

@@ -163,7 +163,7 @@
       '<div class="rb-fb"><section class="rb-sec"><h4 class="rb-h4">Household says</h4><div class="rb-cooked"><div><b class="rb-big">1&times;</b><small>times cooked</small></div><div><b class="rb-big s">today</b><small>last cooked, 13 Oct</small></div></div>' + m +
       '<h4 class="rb-h4 sub">Notes <span class="n">1</span></h4><blockquote class="rb-q"><span class="rb-av">Y</span><div><b>You</b> <small>13 Oct</small><p>If the spring onions have been frozen, cook them into the dish. Do not sprinkle on top, the texture changes.</p></div></blockquote></section>' +
       '<section class="rb-sec" aria-label="Ingredients"><h4 class="rb-h4">Ingredients <span class="rb-tg">Stock unknown</span></h4><ul class="rb-ing two">' + ing + "</ul></section></div>" +
-      '<footer class="rb-ff"><div class="rb-acts"><button type="button" class="rb-btn pri" data-act="cook">Cook now</button><button type="button" class="rb-btn pri" data-act="plan">Plan</button></div>' +
+      '<footer class="rb-ff"><div class="rb-acts"><button type="button" class="rb-btn pri" data-act="cook">Make it</button><button type="button" class="rb-btn pri" data-act="plan">Plan</button></div>' +
       '<div class="fl-ofrow"><a class="rb-open" href="#" data-act="openrecipe">Open full recipe <span class="kbd">O</span></a><span id="fl-chip">' + chip() + "</span></div>" +
       '<p class="phint"><span class="kbd">' + MOD + ' Esc</span> to close, <span class="kbd">?</span> for all shortcuts</p></footer></aside>';
   }

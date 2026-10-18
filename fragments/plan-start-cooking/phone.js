@@ -73,7 +73,7 @@
   function menu() {
     var items = "";
     if (m.rid) items += '<button class="it" role="menuitem">' + ic.book + "Open recipe</button>";
-    if (m.rid && cookableToday) items += '<button class="it" role="menuitem" data-cook="mode">' + ic.right + "Cook this</button>";
+    if (m.rid && cookableToday) items += '<button class="it" role="menuitem" data-cook="mode">' + ic.right + "Make it</button>";
     items += '<button class="it" role="menuitem">' + ic.swap + 'Replan</button><button class="it" role="menuitem">' + ic.cal + 'Move to another day</button><button class="it" role="menuitem">' + ic.moon + "Not cooking</button>";
     return '<div class="scrim2" data-closea></div><div class="asheet" role="menu" aria-label="Actions for ' + esc(m.t) + '"><h2>' + esc(m.t) + "</h2>" + items + "</div>";
   }

@@ -1,6 +1,6 @@
 /* Recipe share, summary-flyout slice. Tokens only (theme.css); no raw colours; no size rules by viewport (desktop.css carries those).
    Copied first, then trimmed, from earlier slices (differences are listed in notes.md):
-   rb-*   fragments/recipe-browse-full/styles.css (the recipe summary flyout: header, Household says, Ingredients, Cook now / Plan, Open full recipe)
+   rb-*   fragments/recipe-browse-full/styles.css (the recipe summary flyout: header, Household says, Ingredients, Make it / Plan, Open full recipe)
    shr-*  fragments/recipe-share/placement/share.css (the labelled Share chip and its count)
    rs-*   fragments/recipe-share/manage/manage.css (option A, the links list: rename, copy, cancel with Undo)
    sh-*   fragments/recipe-share/sheet/share.css (option A, the create form and the link-made state)

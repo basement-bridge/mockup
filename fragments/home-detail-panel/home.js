@@ -64,7 +64,7 @@ function drawIdeas() {
 function drawCompact() {
   var A = D.ideas, pl = S.lead === "planned", lead = pl ? D.plannedLead : A[0];
   var h = '<h2 class="ask">What are we eating?</h2><div class="lean" role="group" aria-label="Tune ideas"><span>Quick</span><span>Use up</span><span>Something new</span><span>Comfort</span></div>';
-  h += '<div class="lead hl"><span class="e" aria-hidden="true">' + lead.emoji + '</span><span class="t"><span class="k' + (pl ? " planned" : "") + '">' + (pl ? "Planned today" : "Tonight") + "</span><b>" + esc(lead.name) + "</b><small>" + miss(lead).replace(/<[^>]+>/g, "") + (lead.mins ? " \u00b7 " + lead.mins + " min" : "") + '</small></span><a class="btn pri" href="#" data-act="cook">Cook now</a><a class="btn" href="#" data-act="planlink">Plan</a></div>';
+  h += '<div class="lead hl"><span class="e" aria-hidden="true">' + lead.emoji + '</span><span class="t"><span class="k' + (pl ? " planned" : "") + '">' + (pl ? "Planned today" : "Tonight") + "</span><b>" + esc(lead.name) + "</b><small>" + miss(lead).replace(/<[^>]+>/g, "") + (lead.mins ? " \u00b7 " + lead.mins + " min" : "") + '</small></span><a class="btn pri" href="#" data-act="cook">Make it</a><a class="btn" href="#" data-act="planlink">Plan</a></div>';
   h += '<div class="glance"><a href="#" data-act="glance">' + D.soon.length + ' going off</a><a href="#" data-act="glance">' + D.low.length + ' running low</a><a href="#" data-act="glance">' + (mealsOn(0).length ? "Today planned" : "Nothing planned today") + "</a></div>";
   var el = $("#ideas"); el.className = "compact"; el.innerHTML = h;
 }
@@ -247,7 +247,7 @@ function act(a, el) {
   if (a === "close") close();
   else if (a === "view") { S.view = el.dataset.v === "compact" ? "compact" : "dash"; if (S.view === "compact" && S.open && keyOf(S.open).kind !== "fly") { S.open = ""; S.child = ""; } drawAll(); }
   else if (a === "glance") toast("Opens that list (not drawn here).");
-  else if (a === "cook") toast("Opens Cook now for this recipe (not drawn here).");
+  else if (a === "cook") toast("Opens Make it for this recipe (not drawn here).");
   else if (a === "peek") front();
   else if (a === "edit" || a === "history") { if (!it) return; S.child = S.child === a ? "" : a; drawDetail(); sync(); var b = S.child ? $('#ief-child [data-act="childback"]') : $('[data-act="' + a + '"].ib'); if (b) b.focus({ preventScroll: true }); }
   else if (a === "childback") { var was = S.child; S.child = ""; drawDetail(); sync(); var r = $('[data-act="' + was + '"].ib'); if (r) r.focus({ preventScroll: true }); }

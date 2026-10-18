@@ -162,7 +162,7 @@
       '<div class="acts">' +
       (i.kind === "freezer"
         ? '<button type="button" class="btn" data-act="eat" data-id="' + i.r.id + '">' + ic("snow", "s") + "Have it tonight</button>"
-        : '<a class="btn" href="../recipe/cook.html?id=' + i.r.id + '&from=idea">' + ic("flame", "s") + "Cook now</a>") +
+        : '<a class="btn" href="../recipe/cook.html?id=' + i.r.id + '&from=idea">' + ic("flame", "s") + "Make it</a>") +
       '<button type="button" class="btn ghost" data-act="plan" data-id="' + i.r.id + '">' + ic("cal", "s") + "Plan</button>" +
       '<button type="button" class="ib" data-act="why" data-id="' + i.r.id + '" aria-label="Why this idea">' + ix("info", "s") + "</button></div>" +
       (m && m < 3 ? '<div style="display:flex;align-items:center;gap:8px;padding:0 12px 12px;font-size:13px;color:var(--muted)"><span style="flex:1">Missing: ' + i.miss.map(function (x) { return esc(x[1].toLowerCase()); }).join(", ") + '</span><button type="button" class="mini ico" data-act="cart" data-id="' + i.r.id + '" aria-label="Add the missing to shopping">' + ic("cart", "s") + "</button></div>" : "") +

@@ -23,7 +23,7 @@
 <div class="sec"><div class="lbl">What the app does today (read from the code, Kitchie uat 0.122.2)</div>
 <ul class="decs">
 <li>The detail's footer is <b>Hold</b> and <b>Add</b> only (Plan UI review decision 126, owner-stated). There is no cook action in the detail itself.</li>
-<li><b>Cook this</b> exists only in the meal's &hellip; menu, and only when the household holds Recipe (cook mode on), the meal is a <b>saved recipe</b>, <b>nothing is missing</b>, it is not someone else's plan and not a past day (<code>cookable()</code> in <code>plan.phone.js</code>). It opens the Recipe tab's cook mode.</li>
+<li><b>Make it</b> exists only in the meal's &hellip; menu, and only when the household holds Recipe (cook mode on), the meal is a <b>saved recipe</b>, <b>nothing is missing</b>, it is not someone else's plan and not a past day (<code>cookable()</code> in <code>plan.phone.js</code>). It opens the Recipe tab's cook mode.</li>
 <li>A meal made up with the AI has no recipe id, so it never gets a cook action anywhere. The household's <i>Cooking now</i> view (ingredients first, the banner on every tab) can only be started by the AI (<code>start_cooking</code>, Kitchie #307); the app itself can end it, not start it.</li>
 <li>Desktop Plan has no cook action at all.</li>
 </ul></div>
@@ -34,7 +34,7 @@
 <tr><td><b>A</b> Footer button, saved recipes only</td><td>Start cooking in the footer opens cook mode</td><td>Nothing (as today)</td><td>Page script and CSS only. Does not fix the reported case. Adds a button to the owner-stated footer (decision 126).</td></tr>
 <tr><td><b>B</b> Footer button, both <span class="rec">agent recommendation</span></td><td>Opens cook mode</td><td>Starts the household's Cooking now from the plan: title and ingredients with amounts, the banner shows for everyone, lands on the ingredients view</td><td>One new signed-in write (<code>POST /cooking/start</code> with the plan entry id) through the existing store method; no schema change. Reverses #307's &ldquo;declared by the AI&rdquo; for this one entry point. Adds to decision 126.</td></tr>
 <tr><td><b>C</b> Footer button, made-up meals via the AI</td><td>Opens cook mode</td><td>Opens the person's AI app with a ready prompt; the AI starts the cook as today</td><td>No new write; keeps #307 as decided. Needs the AI app and a round trip before the banner appears; slower at the stove. Adds to decision 126.</td></tr>
-<tr><td><b>D</b> Do nothing</td><td>&hellip; menu, Cook this (as today)</td><td>Nothing</td><td>Nothing changes. The report is closed as working as designed (the owner's bug label stays).</td></tr>
+<tr><td><b>D</b> Do nothing</td><td>&hellip; menu, Make it (as today)</td><td>Nothing</td><td>Nothing changes. The report is closed as working as designed (the owner's bug label stays).</td></tr>
 </table></div></div>
 
 <div class="sec"><div class="lbl">Try them (phone, 390 wide)</div>
@@ -47,10 +47,10 @@
 
 <div class="sec"><div class="lbl">Proposals (the owner was silent)</div>
 <ul class="decs">
-<li><b>SC-P1. Where:</b> in the detail's footer row, after Hold (and Add). The footer is where the detail's actions already live and where a thumb is. Kept as well: Cook this in the &hellip; menu (unchanged). Wrong guess costs: the footer gets crowded; the alternative is a small pan button on the docked day card.</li>
+<li><b>SC-P1. Where:</b> in the detail's footer row, after Hold (and Add). The footer is where the detail's actions already live and where a thumb is. Kept as well: Make it in the &hellip; menu (unchanged). Wrong guess costs: the footer gets crowded; the alternative is a small pan button on the docked day card.</li>
 <li><b>SC-P2. Label and weight:</b> with two buttons (nothing to add) it reads <b>Start cooking</b> (the owner's words) and is the filled, leading button; with three (something to add) it reads <b>Cook</b> and is an outline button, so Add keeps the accent. Checked at 360 and 390.</li>
 <li><b>SC-P3. Icon:</b> a small pan (new; the app has none). C adds the spark after the label, so it is visible that the AI app opens.</li>
-<li><b>SC-P4. When it shows:</b> on today's and future meals in your own or the household's plan; not on a past day, not in another person's view-only plan, not on Leftovers. <b>Something missing does not hide it</b> (unlike today's Cook this rule): cooking with a gap is normal, and cook mode or the Cooking now view lists what is there. This differs from the &ldquo;sorted&rdquo; rule of Kitchie #563 (XR1), so it is an open question below.</li>
+<li><b>SC-P4. When it shows:</b> on today's and future meals in your own or the household's plan; not on a past day, not in another person's view-only plan, not on Leftovers. <b>Something missing does not hide it</b> (unlike today's Make it rule): cooking with a gap is normal, and cook mode or the Cooking now view lists what is there. This differs from the &ldquo;sorted&rdquo; rule of Kitchie #563 (XR1), so it is an open question below.</li>
 <li><b>SC-P5 (B only). What Cooking now carries:</b> the meal's title and its ingredients with the planned amounts (scaled to the people count), <code>by: user</code>, source <code>app</code>, and a source line &ldquo;From your meal plan, tonight. Made up in your chat.&rdquo;. A second tap while it is already cooking opens the same session instead of starting another. The 45-minute clear, dismiss and Done work as today.</li>
 <li><b>SC-P6 (C only). The prompt:</b> &ldquo;I'm cooking &lt;meal&gt; now, from my Kitchie meal plan for tonight. Start cooking it in Kitchie so I can see the ingredients.&rdquo; through the existing assistant link (Plan decisions 42 to 45).</li>
 <li><b>SC-P7. Lead form factor:</b> phone, because the report came from the stove and the detail he described is the phone's docked stack. Desktop Plan has no cook action at all; it follows once the owner has chosen here (a carry-over audit, guardrails &ldquo;Which form factor a mockup leads with&rdquo;).</li>

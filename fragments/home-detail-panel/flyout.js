@@ -1,5 +1,5 @@
 /* The Recipes summary flyout, as Home draws it for a RECIPE SEARCH RESULT (decisions 288 to 291). Fetched on the first recipe result chosen, never on page load (DESIGN.md section 6).
-   Same markup and classes as ../recipe-browse-full option A (the build's recipe-tab/flyout.ts): header, "Household says" first, Ingredients with All in or N missing, Cook now and Plan, Open full recipe.
+   Same markup and classes as ../recipe-browse-full option A (the build's recipe-tab/flyout.ts): header, "Household says" first, Ingredients with All in or N missing, Make it and Plan, Open full recipe.
    Sample proof below is for this mockup only. No size rules. */
 (function () {
 "use strict";
@@ -30,7 +30,7 @@ H.flyHtml = function (r) {
   }).join("");
   return '<aside class="rb-fly" aria-label="Recipe summary"><header class="rb-fh"><span class="rb-e big" aria-hidden="true">' + r.emoji + '</span><div class="rb-ft"><h3 id="d-title" tabindex="-1">' + esc(r.name) + "</h3><small>" + esc(meta) + '</small></div><button type="button" class="rb-x" data-act="close" aria-label="Close" title="Close (' + H.MOD + ' Esc)">&times;</button></header>'
     + '<div class="rb-fb"><section class="rb-sec"><h4 class="rb-h4">Household says</h4>' + says + '</section><section class="rb-sec" aria-label="Ingredients"><h4 class="rb-h4">Ingredients ' + tag + '</h4><ul class="rb-ing two">' + lines + "</ul></section></div>"
-    + '<footer class="rb-ff"><div class="rb-acts"><button type="button" class="rb-btn pri" data-act="cook">Cook now</button><button type="button" class="rb-btn pri" data-act="planlink">Plan</button></div><a class="rb-open c" href="#" data-act="openrecipe">Open full recipe <span class="kbd">O</span></a>'
+    + '<footer class="rb-ff"><div class="rb-acts"><button type="button" class="rb-btn pri" data-act="cook">Make it</button><button type="button" class="rb-btn pri" data-act="planlink">Plan</button></div><a class="rb-open c" href="#" data-act="openrecipe">Open full recipe <span class="kbd">O</span></a>'
     + '<p class="phint hint"><span class="kbd">' + H.MOD + " Esc</span> to close, <span class=\"kbd\">?</span> for all shortcuts</p></footer></aside>";
 };
 })();

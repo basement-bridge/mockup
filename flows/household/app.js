@@ -508,7 +508,7 @@ const screens = {
     return backHeader("Recipes", r.name) + `<div class="body" style="flex:1">
       <div><h1 style="font-size:2rem">${esc(r.name)}</h1><p style="margin-top:4px">${r.time} min · you have ${have.length} of ${r.ings.length}</p></div>
       <div><span class="lbl">Ingredients</span>${r.ings.map(([k, n, q]) => { const has = S.pantry.some((p) => p.key === k); return `<div class="ing"><span>${esc(n)}, ${esc(q)}</span><span class="${has ? "ok" : "no"}">${has ? "In pantry" : "Missing"}</span></div>`; }).join("")}</div>
-      <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px"><button class="btn" data-act="cook" data-p="${r.id}" ${S.down || !have.length ? "disabled" : ""}>Cook this</button><p class="small" style="text-align:center">Cooking takes the used items out of your pantry.</p></div></div>` + bar();
+      <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px"><button class="btn" data-act="cook" data-p="${r.id}" ${S.down || !have.length ? "disabled" : ""}>Make it</button><p class="small" style="text-align:center">Cooking takes the used items out of your pantry.</p></div></div>` + bar();
   },
 
   /* Profile menu, grouped by job (Settings holds the App list; Preferences is its own section, after Settings; People, Connect, My data here). A "Get started" strip is timed by how long you have been a member: AI link for the first 2 days, Invite for the first 5; each drops off when done and both settle into their segments afterwards. */

@@ -66,7 +66,7 @@ h3.t{font-size:22px;font-weight:800;line-height:1.15}
 <ul>
 <li>Which layout leads: the whole page in one scroll, tabs, cooking cards, or steps with their ingredients?</li>
 <li>Where do the extras go: your variations, nutrition per serving, where the recipe came from, and the star?</li>
-<li>Cook this takes the used items out of the pantry. Should it stay pinned, or only appear once you start cooking?</li>
+<li>Make it takes the used items out of the pantry. Should it stay pinned, or only appear once you start cooking?</li>
 <li>A missing ingredient could offer "Add to shopping" right on its row. Wanted?</li>
 <li>Do step timers belong in the page, or is that the cooking-right-now job's own screen?</li>
 </ul></div>
@@ -80,7 +80,7 @@ var meta='<div class="meta"><span class="mc">'+ic("cl")+'20 min</span><span clas
 var ings=ING.map(function(i){return '<div class="ig"><span class="dot'+(i[2]?'':' no')+'"></span><span class="n">'+i[0]+' <span class="q">'+i[1]+'</span></span><span class="tag2'+(i[2]?'':' no')+'">'+(i[2]?'In pantry':'Missing')+'</span></div>'}).join("");
 var steps=function(withUse){return STEPS.map(function(s,k){return '<div class="stp"><span class="nb">'+(k+1)+'</span><div style="flex:1"><b>'+s[0]+'</b><p>'+s[1]+'</p>'+(s[3]?'<span class="tm">'+ic("cl")+s[3]+'</span>':'')+(withUse?'<div class="use">'+s[4].map(function(u){return '<span'+(miss(u)?' class="no"':'')+'>'+u+'</span>'}).join("")+'</div>':'')+'<div class="sp">'+s[2]+'</div></div></div>'}).join("")};
 var extras='<div class="sec2"><div class="lb2">Your versions</div><div class="bn">🫛<div>Egg fried rice with peas<small>Your variation, cooked 4 times</small></div></div></div><div class="sec2"><div class="lb2">Per serving, estimated</div><div class="nut"><div><b>480</b>kcal</div><div><b>16 g</b>protein</div><div><b>3 g</b>fibre</div><div><b>62 g</b>carbs</div></div></div><div class="sec2"><div class="lb2">From</div><p class="q" style="color:var(--muted)">Home kitchen notes, added by Sam</p></div>';
-var cook='<div class="cb"><div class="go">'+ic("fl")+'Cook this</div><small>Cooking takes the used items out of your pantry.</small></div>';
+var cook='<div class="cb"><div class="go">'+ic("fl")+'Make it</div><small>Cooking takes the used items out of your pantry.</small></div>';
 var frame=function(inner,bar){return '<div class="ph2">'+inner+(bar||cook)+'</div>'};
 var A=frame('<div class="sc"><div class="hero">🍚<i>Photo of the finished dish</i></div><div class="pad"><h3 class="t">Egg fried rice</h3>'+meta+'<div class="sec2"><div class="lb2">Ingredients</div>'+ings+'</div><div class="sec2"><div class="lb2">Steps</div>'+steps(false)+'</div>'+extras+'</div></div>');
 var B=frame('<div class="sc" id="tabsc"><div class="hero sm">🍚</div><div class="pad" style="padding-bottom:0"><h3 class="t">Egg fried rice</h3>'+meta+'</div><div class="tabs" role="tablist"><button role="tab" aria-selected="true" data-t="i">Ingredients</button><button role="tab" aria-selected="false" data-t="s">Steps</button><button role="tab" aria-selected="false" data-t="m">More</button></div><div class="pad" id="tabbody">'+ings+'</div></div>');
