@@ -58,7 +58,7 @@ function noteCard(n){return '<div class="note'+(n.inh?' inh':'')+'">'+n.b.map(fu
  +'<small>'+esc(n.by)+', '+esc(n.at)+(n.inh?'<span class="from" title="from the parent version">'+ic("branch")+' from '+esc(n.on)+'</span>':n.reworded?'<span class="from">changed in this version</span>':'')+'</small></div>'}
 function notesPane(){
  var h='<div class="lblrow"><span class="lbl">Notes <span class="sub">'+(notesN?'on '+esc(cur.name):'')+'</span></span><span class="row-a"><a class="mini ico" href="#" aria-label="Edit notes">'+ic("pen")+'</a></span></div><div class="pscroll" data-scroll>';
- if(!notesN)h+='<div class="rb-empty"><span>'+ic("note")+'</span><div><b>No notes yet.</b><small>'+(cookedN?'Anything worth remembering next time.':'Cook it once and the thumbs and notes start here.')+'</small></div></div>';
+ if(!notesN)h+='<div class="rb-empty"><span>'+ic("note")+'</span><div><b>No notes yet.</b><small>'+(cookedN?'Anything worth remembering next time.':'Make it once and the thumbs and notes start here.')+'</small></div></div>';
  h+=D.notes.map(noteCard).join("")+'</div><div class="pfoot"><button type="button" class="rb-btn" data-note>'+ic("plus")+' Add a note</button></div>';
  return h}
 function cookedPane(){

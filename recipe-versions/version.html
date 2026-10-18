@@ -90,7 +90,7 @@ function draw(keep){
        only where a version's notes differ (spec 9.4). The app writes notes and photos, never recipe content (L4). */
     notesSec()+'<div style="height:24px"></div></div>'+
     '<div class="act">'+(v.state==="spun"?'':'<a class="btn ghost" data-key="e" href="../recipe/edit.html?id=efr&v='+v.id+'">'+ic("pen","s")+'Edit</a>')+
-    (v.state==="put_away"||v.state==="spun"?'':'<a class="btn" href="after-cook.html?v='+v.id+'">'+ic("flame","s")+'Cook it</a>')+'</div>';
+    (v.state==="put_away"||v.state==="spun"?'':'<a class="btn" href="after-cook.html?v='+v.id+'">'+ic("flame","s")+'Make it</a>')+'</div>';
   var b=document.getElementById("body");b.scrollTop=y;
   var vs=document.getElementById("vstrip"),jr=b.querySelector(".jumps"),vh=vs?vs.offsetHeight:0;
   if(vs){var on=vs.querySelector("[aria-current=true]");if(on)vs.scrollLeft=Math.max(0,on.offsetLeft-vs.clientWidth/2+on.offsetWidth/2)}

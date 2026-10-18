@@ -493,7 +493,7 @@ const screens = {
         ${fld("name", p, `<span class="ph" aria-hidden="true">${emo(p)}</span><span class="idt"><b data-fv="name">${VAL.name(p)}</b><span class="small">Added by ${esc(p.by)}</span></span>`, `Name and emoji: ${p.name}`)}
         ${row("qty", "stack", "Quantity")}${row("level", "battery", "Level")}${row("loc", "fridge", "Location")}${row("spot", "jar", "Spot")}${row("cat", "basket", "Category")}${row("useby", "clock", "Use by")}${row("min", "shield", "Minimum")}
       </div>
-      ${S.recipes && rs.length ? `<div style="display:flex;flex-direction:column;gap:10px"><span class="lbl">Cook it tonight</span>${rs.map((r) => `<button class="rc" data-go="recipe" data-p="${r.id}"><span class="ph">${r.emoji}</span><div style="flex:1"><b>${esc(r.name)}</b><p class="small">${can(r).length} of ${r.ings.length} ingredients · ${r.time} min</p></div></button>`).join("")}</div>` : ""}
+      ${S.recipes && rs.length ? `<div style="display:flex;flex-direction:column;gap:10px"><span class="lbl">Make it tonight</span>${rs.map((r) => `<button class="rc" data-go="recipe" data-p="${r.id}"><span class="ph">${r.emoji}</span><div style="flex:1"><b>${esc(r.name)}</b><p class="small">${can(r).length} of ${r.ings.length} ingredients · ${r.time} min</p></div></button>`).join("")}</div>` : ""}
       ${!S.recipes ? `<button class="card" data-go="upgrade"><b>Know what you can cook</b><p class="small">Recipes uses what's in your pantry.</p></button>` : ""}
       ${onList(p.id) ? `<p class="small">On your shopping list.</p>` : `<button class="btn ghost" data-act="shopadd" data-p="${p.id}">Add to shopping list</button>`}
       <button class="btn ghost danger" data-act="usedask">${I.tick}<span>Mark as used up</span></button></div>`;

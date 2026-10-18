@@ -23,7 +23,7 @@ H.flyHtml = function (r) {
   var says = pr
     ? '<div class="rb-cooked"><div><b class="rb-big">' + pr.n + '&times;</b><small>times cooked</small></div><div><b class="rb-big s">' + esc(pr.last) + "</b><small>last cooked, " + esc(pr.on) + '</small></div></div><div class="rb-mems">' + MEM.map(function (k, i) { return mem(k, pr.who[k], i); }).join("") + "</div>"
       + (pr.notes.length ? '<h4 class="rb-h4 sub">Notes <span class="n">' + pr.notes.length + "</span></h4>" + pr.notes.map(function (q, i) { return '<blockquote class="rb-q"><span class="rb-av m' + (i + 1) + '" aria-hidden="true">' + q[0][0] + "</span><div><b>" + q[0] + "</b> <small>" + q[1] + "</small><p>" + esc(q[2]) + "</p></div></blockquote>"; }).join("") : "")
-    : '<div class="rb-empty"><span class="rb-e" aria-hidden="true">🍽️</span><div><b>Not cooked yet</b><small>Nobody has rated it. Cook it once and the thumbs and notes start here.</small></div></div><div class="rb-mems">' + MEM.map(function (k, i) { return mem(k, "", i); }).join("") + "</div>";
+    : '<div class="rb-empty"><span class="rb-e" aria-hidden="true">🍽️</span><div><b>Not cooked yet</b><small>Nobody has rated it. Make it once and the thumbs and notes start here.</small></div></div><div class="rb-mems">' + MEM.map(function (k, i) { return mem(k, "", i); }).join("") + "</div>";
   var lines = r.lines.slice().sort(function (a, b) { return (b.s === "miss") - (a.s === "miss"); }).map(function (l) {
     var no = l.s === "miss";
     return '<li' + (no ? ' class="no"' : "") + "><span>" + (no ? "&#10007;" : "&#10003;") + "</span><span>" + esc(l.n) + "</span><b>" + esc(l.need) + "</b>" + (no ? "<em>Missing</em>" : "") + "</li>";

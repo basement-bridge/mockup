@@ -69,7 +69,7 @@ function noteHtml(x,full){return '<div class="note'+(x.inh?" inh":"")+'"><div cl
 var cooks=d.cooks,planned=d.planned,lk=d.likes;
 var nCook=cooks.length;
 function proof(){
- if(!nCook)return '<button class="rb-band rb-empty" type="button" data-open="cooked"><b>Not cooked yet</b><small>Cook it once and the thumbs and notes start here.</small></button>';
+ if(!nCook)return '<button class="rb-band rb-empty" type="button" data-open="cooked"><b>Not cooked yet</b><small>Make it once and the thumbs and notes start here.</small></button>';
  var dots=cooks.filter(function(c){return c.day}).map(function(c,i,a){return '<i class="rb-dot'+(i===0?" last":"")+'"></i>'}).join("");
  var last=cooks[0].ago?"last cooked "+cooks[0].ago:"last cooked "+cooks[0].day+" "+cooks[0].mon;
  var chips=lk?lk.up.map(function(x,i){return '<span class="rb-rc"><span class="rb-av m'+(1+i%3)+'">'+x+'</span>'+ic("up","xs").replace('class="ic xs"','class="ic up"')+'</span>'}).join("")+(lk.dn?'<span class="rb-rc"><span class="rb-av m3">'+lk.dn+'</span>'+ic("dn").replace('class="ic"','class="ic dn"')+'</span>':""):"";
