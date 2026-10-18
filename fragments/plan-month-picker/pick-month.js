@@ -1,6 +1,6 @@
 /* WIDE (owner, typed, 17 Oct 2026): choosing Another day widens the flyout to take two flyouts' worth of width when the window has room, so the Monday to Sunday week has space for a meal name in each cell.
    The rule and the layouts are in wide.css and wide.js (fetched only when the window is wide enough and Another day is pressed); below that width the month keeps the single-flyout width with compact cells (month.css),
-   and tablet.html and phone.html show it as a sheet (tablet.css, phone.css). ?wide=a|b|c picks the wide layout (default a), ?wide=off shows the compact fallback at any width.
+   and tablet.html and phone.html show it as a sheet (tablet.css, phone.css). ?wide=a|b|c picks the wide layout (default b with the bottom strip card, PM-D46), ?wide=off shows the compact fallback at any width.
    The flyout of option F (the owner's choice, Kitchie #757) with "Another day" opening a month picker in the same slot (owner, voice, 17 Oct 2026). Same slot as Home's "This week" panel (#week): its content is
    swapped while picking, then handed back. The seven-day list is F's (copied from fragments/plan-day-picker/pick-f.js, which is being edited elsewhere): a pick plans at once, a 3 second Planned or Replaced hold
    with an inline Undo and a slide-out, two steps only for a stacked night, a usual day off is not locked, the Hard avoid guard is asked for the date picked, Replace is the person's own meal.
@@ -33,8 +33,8 @@ function clearHalo() {
   setTimeout(function () { [].forEach.call(el ? el.querySelectorAll(".pdm-c.halo-out") : [], function (h) { h.classList.remove("halo-out"); }); }, 520);
 }
 var WIDE_MIN = 1360, WIDE_MQ = window.matchMedia ? window.matchMedia("(min-width:" + WIDE_MIN + "px)") : { matches: false }; /* 88 rail + 472 column (never covered: it gives up width) + 800 for two flyouts */
-var CARD = /^(docked|slim|collapsed|overlay|strip)$/.test(Q.get("card") || "") ? Q.get("card") : "strip"; /* ?card= how layout B spends its width. The bottom strip below the weeks is the default card: the owner decided it for the build (PM-D44) and confirmed it as the hub default (PM-D45, 18 Oct 2026). The others stay reachable for comparison: ?card=docked (the historic side card), slim, collapsed until a date is on, overlay while open. Any ?card implies layout B; ?wide=b with no ?card draws B with the strip. No ?card, no ?wide: layout A as before (B is NOT the no-parameter layout yet). */
-var WOPT = /^(a|b|c)$/.test(Q.get("wide") || "") ? Q.get("wide") : /^(docked|slim|collapsed|overlay|strip)$/.test(Q.get("card") || "") ? "b" : "a", NOWIDE = Q.get("wide") === "off" || NARROW;
+var CARD = /^(docked|slim|collapsed|overlay|strip)$/.test(Q.get("card") || "") ? Q.get("card") : "strip"; /* ?card= how layout B spends its width. The bottom strip below the weeks is the default card: the owner decided it for the build (PM-D44) and confirmed it as the hub default (PM-D45, 18 Oct 2026). The others stay reachable for comparison: ?card=docked (the historic side card), slim, collapsed until a date is on, overlay while open. Any ?card implies layout B; ?wide=b with no ?card draws B with the strip. No ?card, no ?wide: layout B with the strip (the hub default, PM-D46, 18 Oct 2026); layout A needs ?wide=a. */
+var WOPT = /^(a|b|c)$/.test(Q.get("wide") || "") ? Q.get("wide") : /^(docked|slim|collapsed|overlay|strip)$/.test(Q.get("card") || "") ? "b" : "b", NOWIDE = Q.get("wide") === "off" || NARROW;
 window.PKCard = CARD;
 function wideNow() { return view === "month" && !NOWIDE && WIDE_MQ.matches && !!window.PKWide; }
 function wantWide() { return !NOWIDE && WIDE_MQ.matches && !window.PKWide; }
