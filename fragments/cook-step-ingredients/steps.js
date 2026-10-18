@@ -50,10 +50,10 @@
   RECIPES.none = JSON.parse(JSON.stringify(RECIPES.rice));
   RECIPES.none.steps.forEach(function (s) { delete s.uses; }); RECIPES.none.tagged = false;
 
-  var S = { rec: "rice", sv: 4, step: { a: 1, b: 0, c: 3 }, dock: false, more: { a: false, b: false }, all: false, room: "roomy", rest: false, used: false, dk: "", stc: "1", nx: false, sm: false, amt: false, pd: "", disp: "", chk: {} };
+  var S = { rec: "rice", sv: 4, step: { a: 1, b: 0, c: 3 }, dock: false, more: { a: false, b: false }, all: false, room: "roomy", rest: false, used: false, dk: "", stc: "1", nx: false, sm: false, amt: false, pd: "", chk: {} };
   /* CSI-22..26: phone-only treatments of "Still to come". 0 = before (open list), 1 = Next line (recommended default), 2 = summary row, 3 = inline names. ?stc=0..3 */
-  try { var q = new URLSearchParams(location.search).get("stc"); if (/^[0-4]$/.test(q || "")) S.stc = q; var dq = new URLSearchParams(location.search).get("disp"); if (/^(check|table|pills|bullets|cards)$/.test(dq || "")) S.disp = dq; } catch (e) {}
-  /* CSI-27..: ?stc=4 is the amalgam of the 17 Oct refinements (a new option; 0..3 are untouched). ?disp=check|table|pills|bullets|cards swaps only the phone "In this step" callout for a common web pattern (CSI-33). */
+  try { var q = new URLSearchParams(location.search).get("stc"); if (/^[0-4]$/.test(q || "")) S.stc = q; } catch (e) {}
+  /* CSI-27..: ?stc=4 is the amalgam of the 17 Oct refinements (a new option; 0..3 are untouched). The owner reviewed it on 18 Oct 2026 and decided (CSI-34..42): ?stc=4 is now his locked phone design. The ?disp swaps of CSI-33 were dropped. */
   var LONG = " Keep the heat high and do not crowd the pan, or it will steam instead of sear; give it room and leave it alone until it lifts."; /* sample sentence for the Long text room */
   var $ = function (id) { return document.getElementById(id); };
   var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
@@ -212,8 +212,6 @@
   }
 
   /* ---- ?stc=4: the amalgam (CSI-27..33). Pure parts, then markup. ---- */
-  var GROUP = { "chicken breast": "Meat", "sausage": "Meat", "soy sauce": "Pantry", "garlic": "Produce", "oil": "Pantry", "cooked rice": "Pantry", "egg": "Dairy and eggs", "spring onion": "Produce", "salt": "Pantry", "potato": "Produce", "carrot": "Produce", "red onion": "Produce", "capsicum": "Produce", "olive oil": "Pantry", "smoked paprika": "Pantry", "dried thyme": "Pantry", "honey": "Pantry", "mustard": "Pantry" }; /* sample grouping for ?disp=cards only */
-  var GORDER = ["Produce", "Meat", "Dairy and eggs", "Pantry"];
   function sortedUses(r, k) { return usesOf(r, k).slice().sort(function (x, y) { return r.ings.findIndex(function (i) { return i.id === x[0]; }) - r.ings.findIndex(function (i) { return i.id === y[0]; }); }); }
   function qtyText(i, a) { return a === null || a <= 0.0001 ? "" : fmt(a) + unitText(i); } /* the step's own plain amount: never "1 of 2" (CSI-28) */
   function stepsShort(ks) { var n = ks.map(function (x) { return x + 1; }); return (n.length === 1 ? "step " : "steps ") + n.slice(0, 3).join(", ") + (n.length > 3 ? " +" + (n.length - 3) : ""); }
@@ -223,46 +221,40 @@
     return later.length ? { ks: later.map(function (w) { return w.k; }), sum: sum, known: known } : null;
   }
   function leftText(i, L) { return (L.known ? fmt(L.sum) + unitText(i) : "Some") + " left for " + stepsShort(L.ks); } /* "1 left for step 2", "3 tbsp left for steps 3, 7" */
-  function rows4(r, P, k) { return sortedUses(r, k).map(function (u) { var i = P.by[u[0]], a = P.amountOf(u), L = leftOf(r, P, k, u[0]); return { i: i, a: a, nm: nameOf(i, a), q: qtyText(i, a), lf: L ? leftText(i, L) : "", g: GROUP[i.name] || "Pantry" }; }); }
+  function rows4(r, P, k) { return sortedUses(r, k).map(function (u) { var i = P.by[u[0]], a = P.amountOf(u), L = leftOf(r, P, k, u[0]); return { i: i, a: a, nm: nameOf(i, a), q: qtyText(i, a), lf: L ? leftText(i, L) : "" }; }); }
   function lfHtml(x) { return x.lf ? '<span class="lf">' + esc(x.lf) + "</span>" : ""; }
-  function calloutNew(r, P, k, key, openAll) { /* CSI-27: name left (heavy), quantity right (light), no count badge */
+  /* CSI-34: ONE merged in-step display for ?stc=4: a compact table, amount LEFT, then a tick box, then the name. No header row (so no "Ingredient" word),
+     no count badge. The tick is purely visual: it lives for this screen only and means nothing. Rows keep a 44px target. */
+  function calloutNew(r, P, k, key, openAll) {
     var all = rows4(r, P, k), cap = 5, show = openAll || all.length <= cap + 1 ? all : all.slice(0, cap);
     var more = all.length > show.length ? '<button type="button" class="more" data-more="' + key + '" aria-expanded="false">+' + (all.length - show.length) + " more</button>" : (openAll && all.length > cap + 1 ? '<button type="button" class="more" data-more="' + key + '" aria-expanded="true">Show fewer</button>' : "");
-    return '<section class="cu c4" aria-labelledby="h-' + key + '"><p class="lbl" id="h-' + key + '">' + IC.tick + 'In this step</p><ul class="cl4">' + show.map(function (x) { return '<li><span class="nm">' + esc(x.nm) + '</span><span class="qt4">' + esc(x.q) + "</span>" + lfHtml(x) + "</li>"; }).join("") + "</ul>" + more + "</section>";
-  }
-  /* CSI-33: how the web commonly shows ingredients, as swaps for the callout only. Same rows, same rules (plain amount, "left for" chip, no count). */
-  function calloutDisp(d, r, P, k, key) {
-    var rows = rows4(r, P, k), i = 0, h, id = function (x) { return S.rec + ":" + k + ":" + x.i.id; };
-    if (d === "check") h = '<ul class="d-check">' + rows.map(function (x) { return '<li><label><input type="checkbox" data-chk="' + id(x) + '"' + (S.chk[id(x)] ? " checked" : "") + '><span class="tx"><span class="nm">' + esc(x.nm) + '</span><span class="qt4">' + esc(x.q) + "</span>" + lfHtml(x) + "</span></label></li>"; }).join("") + "</ul>";
-    else if (d === "table") h = '<table class="d-table"><thead><tr><th scope="col">Ingredient</th><th scope="col">Amount</th></tr></thead><tbody>' + rows.map(function (x) { return '<tr><td class="nm">' + esc(x.nm) + lfHtml(x) + '</td><td class="qt4">' + esc(x.q) + "</td></tr>"; }).join("") + "</tbody></table>";
-    else if (d === "pills") h = '<ul class="d-pills">' + rows.map(function (x) { return "<li><span><span class=\"nm\">" + esc(x.nm) + "</span>" + (x.q ? ' <b class="qt4">' + esc(x.q) + "</b>" : "") + "</span>" + lfHtml(x) + "</li>"; }).join("") + "</ul>";
-    else if (d === "bullets") h = '<ul class="d-bul">' + rows.map(function (x) { return "<li>" + (x.q ? "<b>" + esc(x.q) + "</b> " : "") + esc(x.nm) + lfHtml(x) + "</li>"; }).join("") + "</ul>";
-    else h = '<div class="d-cards">' + GORDER.filter(function (g) { return rows.some(function (x) { return x.g === g; }); }).map(function (g) { return '<section class="gc"><h4>' + g + '</h4><ul class="cl4">' + rows.filter(function (x) { return x.g === g; }).map(function (x) { return '<li><span class="nm">' + esc(x.nm) + '</span><span class="qt4">' + esc(x.q) + "</span>" + lfHtml(x) + "</li>"; }).join("") + "</ul></section>"; }).join("") + "</div>";
-    return '<section class="cu c4 d4" data-disp="' + d + '" aria-labelledby="h-' + key + '"><p class="lbl" id="h-' + key + '">' + IC.tick + "In this step</p>" + h + "</section>";
+    var rows = show.map(function (x) {
+      var id = S.rec + ":" + k + ":" + x.i.id, dom = "ck-" + key + "-" + x.i.id, on = !!S.chk[id];
+      return '<tr' + (on ? ' class="on"' : "") + '><td class="am">' + esc(x.q) + '</td><td class="ck"><label class="cb"><input type="checkbox" id="' + dom + '" data-chk="' + id + '"' + (on ? " checked" : "") + '></label></td><td class="nm"><label for="' + dom + '"><span class="t">' + esc(x.nm) + "</span>" + lfHtml(x) + "</label></td></tr>";
+    }).join("");
+    return '<section class="cu c4" aria-labelledby="h-' + key + '"><p class="lbl" id="h-' + key + '">' + IC.tick + 'In this step</p><table class="t4"><tbody>' + rows + "</tbody></table>" + more + "</section>";
   }
   function stepNames(r, P, j) { return sortedUses(r, j).map(function (u) { return nameOf(P.by[u[0]], P.amountOf(u)); }).join(", "); }
-  function peek4(r, P, k, m) { /* CSI-30: names only. Still to come: the next step that uses ingredients. Already used: what finished most recently. */
-    var nk = nextStepOf(r, k), todo = !m.todo.length ? "" : (nk < 0 ? m.todo.map(function (x) { return nameOf(x.i, x.a); }).join(", ") : stepNames(r, P, nk));
-    var last = -1; m.done.forEach(function (x) { x.last = Math.max.apply(null, x.ks); last = Math.max(last, x.last); });
-    return { todo: todo, used: m.done.filter(function (x) { return x.last === last; }).map(function (x) { return nameOf(x.i, x.a); }).join(", ") };
-  }
-  function restNew(r, P, k, key) { /* the quiet default: two 44px muted rows, names only, CSS ellipsis when the line runs out */
-    if (!r.tagged) return "";
-    var m = restModel(r, P, k), pk = peek4(r, P, k, m), cur = pd4(m);
-    function row(id, label, names, ic) { return '<button type="button" class="stcrow q4" data-pr="' + id + '" aria-expanded="' + (cur === id) + '"' + (cur === id ? ' aria-controls="pd-' + key + '"' : "") + ">" + ic + '<span class="k">' + label + '</span><span class="v">' + esc(names) + "</span>" + IC.chev + "</button>"; }
-    return '<div class="rsA" data-stc="4">' + (m.todo.length ? row("todo", "Still to come", pk.todo, IC.arrow) : "") + (m.done.length ? row("used", "Already used", pk.used, IC.tick) : "") + "</div>";
-  }
-  function pd4(m) { return S.pd === "todo" && m.todo.length ? "todo" : (S.pd === "used" && m.done.length ? "used" : ""); }
-  function dock4(r, P, k, key) { /* CSI-31: opens in place above the step buttons, like option C and the desktop dock; full detail with quantities */
-    if (!r.tagged) return "";
-    var m = restModel(r, P, k), cur = pd4(m); if (!cur) return "";
-    function li(x, todo) {
-      var q = qtyText(x.i, x.a), chip = "";
+  function peekTodo(r, P, k, m) { var nk = nextStepOf(r, k); return !m.todo.length ? "" : (nk < 0 ? m.todo.map(function (x) { return nameOf(x.i, x.a); }).join(", ") : stepNames(r, P, nk)); } /* CSI-37: the immediate next step's names only */
+  function pd4(m) { return S.pd === "todo" && m.todo.length ? "todo" : (S.pd === "used" && m.done.length ? "used" : ""); } /* CSI-38: ONE state, so only one of the two can be open */
+  function listRows(r, k, items, todo) { /* amount left, name, small where-line; read-only, no tick */
+    return '<table class="t4 ro"><tbody>' + items.map(function (x) {
+      var chip = "";
       if (x.ks.length) chip = todo ? (whereUsed(r, x.i.id).some(function (w) { return w.k < k; }) ? "left for " : "for ") + stepsShort(x.ks) : "used in " + stepsShort(x.ks);
-      return '<li><span class="nm">' + esc(nameOf(x.i, x.a)) + '</span><span class="qt4">' + esc(q) + "</span>" + (chip ? '<span class="lf">' + esc(chip) + "</span>" : "") + "</li>";
-    }
-    function tab(id, txt, ic) { return '<button type="button" class="tb ' + id + '" data-pd="' + id + '" aria-expanded="' + (cur === id) + '"' + (cur === id ? ' aria-controls="pd-' + key + '"' : "") + ">" + ic + '<span class="t">' + txt + "</span>" + IC.chev + "</button>"; }
-    return '<div class="dk4"><div class="p ' + cur + '" id="pd-' + key + '" role="region" aria-label="' + (cur === "todo" ? "Still to come" : "Already used") + '"><ul class="cl4">' + (cur === "todo" ? m.todo : m.done).map(function (x) { return li(x, cur === "todo"); }).join("") + '</ul></div><div class="tabs">' + (m.todo.length ? tab("todo", "Still to come", IC.arrow) : "") + (m.done.length ? tab("used", "Already used", IC.tick) : "") + "</div></div>";
+      return '<tr><td class="am">' + esc(qtyText(x.i, x.a)) + '</td><td class="nm"><span class="t">' + esc(nameOf(x.i, x.a)) + "</span>" + (chip ? '<span class="lf">' + esc(chip) + "</span>" : "") + "</td></tr>";
+    }).join("") + "</tbody></table>";
+  }
+  function usedAcc(r, P, k, key) { /* CSI-35: the quiet grey accordion, in place directly under "In this step"; header greyed too; chevron DOWN closed, UP open */
+    if (!r.tagged) return "";
+    var m = restModel(r, P, k); if (!m.done.length) return "";
+    var open = pd4(m) === "used";
+    return '<div class="us4' + (open ? " open" : "") + '"><button type="button" class="usb" data-pd="used" aria-expanded="' + open + '"' + (open ? ' aria-controls="pu-' + key + '"' : "") + ">" + IC.tick + "<span>Already used (" + m.done.length + ")</span>" + IC.chev + "</button>" + (open ? '<div class="usp" id="pu-' + key + '" role="region" aria-label="Already used">' + listRows(r, k, m.done, false) + "</div>" : "") + "</div>";
+  }
+  function dock4(r, P, k, key) { /* CSI-36/37: docked at the bottom above the step buttons; names only with a CSS ellipsis; tap opens the flyout upward with full detail */
+    if (!r.tagged) return "";
+    var m = restModel(r, P, k); if (!m.todo.length) return "";
+    var open = pd4(m) === "todo";
+    return '<div class="dk4">' + (open ? '<div class="p" id="pd-' + key + '" role="region" aria-label="Still to come">' + listRows(r, k, m.todo, true) + "</div>" : "") + '<button type="button" class="bar" data-pd="todo" aria-expanded="' + open + '"' + (open ? ' aria-controls="pd-' + key + '"' : "") + ">" + IC.arrow + '<span class="k">Still to come</span><span class="v">' + esc(peekTodo(r, P, k, m)) + "</span>" + IC.chev + "</button></div>";
   }
   /* Desktop composition (CSI-20): chips inside the step card, the rest in a dock that opens in place. */
   function chipsA(r, P, k, key) {
@@ -310,7 +302,7 @@
     var big = function (extra) { return '<div class="bigstep">' + (opt === "a" && photo ? '<div class="sphoto" role="img" aria-label="Step photo (sample)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h3l1.5-2h7L17 7h3v12H4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></div>' : "") + '<span class="lbl">Step ' + (k + 1) + " of " + r.steps.length + '</span><p tabindex="-1">' + esc(text) + "</p>" + (extra || "") + "</div>"; };
     var key = opt + form[0], body;
     if (opt === "a" && form === "desk") return head + '<div class="body">' + big(has ? chipsA(r, P, k, key) : (tagged ? '<p class="noings" style="margin:12px 0 0">No ingredients in this step.</p>' : "")) + "</div>" + dockA(r, P, k, key) + nav(r, k);
-    if (opt === "a") { body = big() + (has ? (S.disp ? calloutDisp(S.disp, r, P, k, key) : S.stc === "4" ? calloutNew(r, P, k, key, S.more.a) : calloutA(r, P, k, key, S.more.a)) : (tagged ? '<p class="noings">No ingredients in this step.</p>' : "")) + (S.stc === "4" ? restNew(r, P, k, key) : restA(r, P, k, key, tight)); if (S.stc === "4") return head + '<div class="body">' + body + "</div>" + dock4(r, P, k, key) + nav(r, k); }
+    if (opt === "a") { body = big() + (has ? (S.stc === "4" ? calloutNew(r, P, k, key, S.more.a) : calloutA(r, P, k, key, S.more.a)) : (tagged ? '<p class="noings">No ingredients in this step.</p>' : "")) + (S.stc === "4" ? usedAcc(r, P, k, key) : restA(r, P, k, key, tight)); if (S.stc === "4") return head + '<div class="body">' + body + "</div>" + dock4(r, P, k, key) + nav(r, k); }
     else if (opt === "b") body = big(has ? chipsHtml(r, P, k, key, S.more.b) : (tagged ? '<p class="noings" style="margin:12px 0 0">No ingredients in this step.</p>' : "")) + (r.tagged || r.steps.some(function (x) { return x.uses; }) ? '<details class="all"' + (S.all ? " open" : "") + '><summary>' + (r.tagged ? bLabel(r, P, k) : "All ingredients") + '</summary>' + (r.tagged ? restHtml(r, P, k, bLabel(r, P, k) === "Still to come" ? "todo" : "used") : '<div class="rest"><ul>' + r.ings.map(function (i) { var q = P.tot[i.id]; return '<li><span class="amt">' + (q === null ? "–" : fmt(q) + unitText(i)) + '</span><span class="nm">' + esc(i.name) + "</span></li>"; }).join("") + "</ul></div>") + "</details>" : "");
     else {
       if (form === "desk") body = big() + (has ? stripHtml(r, P, k, key, true) : (tagged ? '<p class="noings">No ingredients in this step.</p>' : "")) + restHtml(r, P, k);
@@ -334,7 +326,6 @@
     });
     document.querySelectorAll("[data-room]").forEach(function (b) { if (b.tagName === "BUTTON") b.setAttribute("aria-pressed", String(b.getAttribute("data-room") === S.room)); });
     document.querySelectorAll("[data-stc]").forEach(function (b) { if (b.tagName === "BUTTON") b.setAttribute("aria-pressed", String(b.getAttribute("data-stc") === S.stc)); });
-    document.querySelectorAll("[data-disp]").forEach(function (b) { if (b.tagName === "BUTTON") b.setAttribute("aria-pressed", String((b.getAttribute("data-disp") === "default" ? "" : b.getAttribute("data-disp")) === S.disp)); });
     document.querySelectorAll("[data-rec]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-rec") === S.rec)); });
     $("sv").textContent = S.sv;
   }
@@ -346,8 +337,7 @@
     else if (t.hasAttribute("data-dk")) { var d = t.getAttribute("data-dk"); S.dk = S.dk === d ? "" : d; draw(); var nb = document.querySelector('#da [data-dk="' + d + '"]'); if (nb) nb.focus({ preventScroll: true }); }
     else if (t.hasAttribute("data-rest")) { S.rest = !S.rest; draw(); }
     else if (t.hasAttribute("data-stc") && !fr) { S.stc = t.getAttribute("data-stc"); S.rest = false; S.pd = ""; try { var u = new URL(location.href); u.searchParams.set("stc", S.stc); history.replaceState(null, "", u); } catch (er) {} draw(); }
-    else if (t.hasAttribute("data-disp") && !fr) { var dv = t.getAttribute("data-disp"); S.disp = dv === "default" ? "" : dv; try { var u2 = new URL(location.href); if (S.disp) u2.searchParams.set("disp", S.disp); else u2.searchParams.delete("disp"); history.replaceState(null, "", u2); } catch (er) {} draw(); }
-    else if (t.hasAttribute("data-pr") || t.hasAttribute("data-pd")) { var pv = t.getAttribute("data-pr") || t.getAttribute("data-pd"); S.pd = S.pd === pv ? "" : pv; draw(); var pf = document.querySelector(S.pd ? '#pa [data-pd="' + S.pd + '"]' : '#pa [data-pr="' + pv + '"]'); if (pf) pf.focus({ preventScroll: true }); }
+    else if (t.hasAttribute("data-pd")) { var pv = t.getAttribute("data-pd"); S.pd = S.pd === pv ? "" : pv; draw(); var pf = document.querySelector('#pa [data-pd="' + pv + '"]'); if (pf) { pf.focus({ preventScroll: true }); if (S.pd === "used") { var ac = pf.parentNode; ac.scrollIntoView({ block: "nearest" }); } } }
     else if (t.hasAttribute("data-nx")) { S.nx = !S.nx; draw(); var b1 = document.querySelector("#pa [data-nx]"); if (b1) b1.focus({ preventScroll: true }); }
     else if (t.hasAttribute("data-amt")) { S.amt = !S.amt; draw(); var b2 = document.querySelector("#pa [data-amt]"); if (b2) b2.focus({ preventScroll: true }); }
     else if (t.hasAttribute("data-sv")) { S.sv = Math.max(2, Math.min(12, S.sv + Number(t.getAttribute("data-sv")))); draw(); }

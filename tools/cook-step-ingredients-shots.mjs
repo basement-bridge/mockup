@@ -34,22 +34,15 @@ for (const w of [360, 390]) for (const mode of ["light", "dark"]) {
   }
 }
 
-// ?stc=4 (amalgam) and ?disp=... (CSI-27..33): roomy and tight (small screen), 360 and 390, light and dark
-const DISP = ["check", "table", "pills", "bullets", "cards"];
+// ?stc=4, the owner's locked design (CSI-27..42): roomy and tight (small screen), 360 and 390, light and dark
 for (const w of [360, 390]) for (const mode of ["light", "dark"]) {
   const s = w + "-" + mode;
   for (const room of ["roomy", "small"]) {
     const [c, p] = await page(w, mode, "?stc=4"); await p.click('.ctl [data-room="' + room + '"]');
     await goto(p, 3); await shot(p, "stc4-step3-" + room + "-" + s);
-    await goto(p, 1); await shot(p, "stc4-step1-" + room + "-" + s);
-    await goto(p, 4); await p.click('#pa [data-pr="todo"]'); await shot(p, "stc4-dock-todo-" + room + "-" + s);
-    await p.click('#pa .dk4 [data-pd="used"]'); await shot(p, "stc4-dock-used-" + room + "-" + s); await c.close();
-    const imgs = [];
-    for (const d of DISP) { const [c2, p2] = await page(w, mode, "?stc=4&disp=" + d); await p2.click('.ctl [data-room="' + room + '"]'); await goto(p2, 1); imgs.push((await p2.locator("#pa").screenshot()).toString("base64")); await c2.close(); }
-    const [c3, p3] = await page(w, mode); const bg = await p3.evaluate(() => getComputedStyle(document.body).backgroundColor), fg = await p3.evaluate(() => getComputedStyle(document.body).color);
-    await p3.setViewportSize({ width: 5 * w + 72, height: 800 });
-    await p3.setContent(`<body style="margin:0;padding:12px;background:${bg};color:${fg};font:600 14px system-ui"><div style="display:flex;gap:12px">${imgs.map((b, i) => `<figure style="margin:0"><img src="data:image/png;base64,${b}" style="display:block;width:${w}px"><figcaption style="padding:8px 2px">?disp=${DISP[i]}</figcaption></figure>`).join("")}</div></body>`);
-    await p3.screenshot({ path: `${OUT}/cook-step-ingredients-disp-compare-${room}-${s}.png`, fullPage: true }); await c3.close();
+    await goto(p, 1); await p.locator("#pa .cu tr:first-child input").check(); await shot(p, "stc4-step1-ticked-" + room + "-" + s);
+    await goto(p, 4); await p.click('#pa [data-pd="used"]'); await shot(p, "stc4-accordion-open-" + room + "-" + s);
+    await p.click('#pa .dk4 [data-pd="todo"]'); await shot(p, "stc4-dock-open-" + room + "-" + s); await c.close();
   }
 }
 // the full-page desktop captures (they include the phone frames)
