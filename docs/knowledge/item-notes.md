@@ -12,7 +12,7 @@ Owner, 19 Oct 2026 (relayed): a shopping row "apples" or "cucumber" lacks detail
 
 ## What the mockup does
 
-`fragments/item-notes/`: the add-to-list sheet with three scenarios (Pantry has a note; edited for this trip; never in the Pantry), the shopping list with notes under names, and the Pantry item sheet with a Note row. A live helper line under the box says what buying will do to the Pantry note.
+`fragments/item-notes/`: the add-to-list sheet with three scenarios (Pantry has a note; edited for this trip; never in the Pantry), the shopping list with notes under names, and the Pantry item sheet with a Note row. Revised 19 Oct after owner feedback (less text, more visual): no note shows nothing (no empty box, no reserved space); the add sheet has only a quiet "+ Note" chip, or the note as a tap-to-edit line; the two-way sync is one small icon with "Pantry" or "This trip"; a trip-only edit shows a "this trip" pill on the row; the history line and helper text are gone.
 
 ## Proposals
 
@@ -20,7 +20,9 @@ Owner, 19 Oct 2026 (relayed): a shopping row "apples" or "cucumber" lacks detail
 - IN-P2: one note per item, shared by the household, read-only on the shopper link.
 - IN-P3: a note edit is a History entry, so Undo covers it, the bought path included.
 - IN-P4: clearing the box and buying clears the Pantry note; the helper line says so first.
-- IN-P5: "Use the Pantry note" appears only when the box differs from it.
+- IN-P5: the "Pantry" reset chip appears only while editing and only when the note differs from the Pantry's.
+- IN-P6: notes are optional everywhere; nothing prompts for one except the quiet chip on the add sheet.
+- IN-P3 still holds (a note edit is a History entry) but is no longer drawn.
 
 ## Open
 
