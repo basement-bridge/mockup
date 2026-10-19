@@ -1,4 +1,4 @@
 # Mockup fragments awaiting the owner's review. One line per fragment: fragments/<name> <repo>#<issue> [note]
 # Add at ready-for-review, remove at the uat merge or on the owner's word. Rule: governance docs/factory/mockup-visibility.md
 fragments/recipe-detail-desktop/inline-edit basement-bridge/kitchie#892 recommended, awaiting owner review
-fragments/item-notes basement-bridge/kitchie#986 awaiting owner review
+fragments/item-notes basement-bridge/kitchie#986 UAT-baselined shopper list plus notes, awaiting owner review

@@ -12,7 +12,13 @@ Owner, 19 Oct 2026 (relayed): a shopping row "apples" or "cucumber" lacks detail
 
 ## What the mockup does
 
-`fragments/item-notes/`: the add-to-list sheet with three scenarios (Pantry has a note; edited for this trip; never in the Pantry), the shopping list with notes under names, and the Pantry item sheet with a Note row. Revised 19 Oct after owner feedback (less text, more visual): no note shows nothing (no empty box, no reserved space); the add sheet has only a quiet "+ Note" chip, or the note as a tap-to-edit line; the two-way sync is one small icon with "Pantry" or "This trip"; a trip-only edit shows a "this trip" pill on the row; the history line and helper text are gone.
+`fragments/item-notes/`: two shopper-link phones side by side, then the add-to-list sheet and the Pantry item sheet.
+
+- **UAT today** is an iframe of `fragments/shopper-link/list.html` — the page a shopper actually opens in UAT (brand, Undo, promise, the 12 lines, empty Also got, 46-hour line). No notes, no extra items.
+- **With notes** is `fragments/shopper-link/list-notes.html` — the same 12 lines. Eggs, Milk and Tomatoes get a quiet `.sl-note` subline; every other line is identical to UAT. The shopper cannot edit a note (IN-P2).
+- Add-to-list and Pantry use those same UAT names (Milk, Eggs, Rice), not a second invented list.
+
+Revised 19 Oct after owner feedback (less text, more visual), then again the same day to baseline on UAT: the earlier shopping column invented extra groceries (cucumber, apples, sourdough, butter) and a note on most rows, which is not what the shopper link shows.
 
 ## Proposals
 
