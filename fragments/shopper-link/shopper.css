@@ -102,7 +102,7 @@ main[data-sl-mode=swipe] .sl-list li.shoprow .swfg{cursor:grab}
 @keyframes sl-fresh{from{background:color-mix(in srgb,var(--sage) 28%,var(--bg))}to{background:var(--bg)}}
 @media (prefers-reduced-motion:reduce){.sl-list li.shoprow[data-fresh]{animation:none}}
 
-/* "Got something else" (SL-D9): a small button under the line that opens one text field in place. Said and done, it is one line again. */
+/* "Got substitution?" (SL-D9): a small button under the line that opens one text field in place. Said and done, it is one line again. */
 .sl-acts{position:relative}
 .sl-swap{margin:0 8px 0 56px}
 .sl-swap>summary{display:flex;align-items:center;gap:6px;width:fit-content;min-height:44px;max-width:100%;margin:-6px 0 0 -8px;padding:0 10px 0 8px;border-radius:.75rem;color:var(--muted);font-size:.9rem;font-weight:600;line-height:1.25;cursor:pointer;list-style:none;-webkit-tap-highlight-color:transparent}

@@ -1,138 +1,43 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Item notes — fragment</title><link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><script src="../../theme.js"></script>
 <style>
-.scn{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 0}
+.fr{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,390px),390px));gap:22px 18px;justify-content:center;margin-top:16px}
+.fr figure{margin:0}
+.fr figcaption{margin:0 0 6px;font-weight:700;font-size:14px}
+.fr iframe{display:block;width:100%;max-width:390px;height:680px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--bg)}
+.scn{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 8px}
 .scn button{min-height:var(--tap);padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);color:var(--fg);font-weight:600;font-size:13px}
 .scn button[aria-pressed=true]{border-color:var(--accent);color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
-.grid{display:grid;grid-template-columns:1fr;gap:18px;margin-top:18px}
-@media(min-width:900px){.grid{grid-template-columns:repeat(3,1fr)}}
-.col h2{font-size:15px;margin:0 0 4px}.col .note{margin:0 0 10px;color:var(--muted);font-size:13px;line-height:1.4}
-.ph{position:relative;width:100%;max-width:320px;height:600px;margin:0 auto;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden;font-size:14px;line-height:1.35;color:var(--fg)}
-.ph .bk{padding:14px 12px}.ph .t{font-weight:800;font-size:18px;margin-bottom:8px}
-.dim{position:absolute;inset:0;background:color-mix(in srgb,var(--fg) 38%,transparent)}
-.sh{position:absolute;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--border);border-radius:var(--r-card) var(--r-card) 0 0;display:flex;flex-direction:column;padding:8px 14px 14px;gap:10px}
-.sh .hd{width:40px;height:5px;border-radius:3px;background:var(--border);margin:0 auto;flex:none}
-.top{display:flex;gap:10px;align-items:center}.top .em{font-size:28px;width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;border-radius:var(--r-ctl);background:var(--bg)}
-.top b{font-size:18px;display:block}.top .m{color:var(--muted);font-size:12px}
-.sy{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;color:var(--cue)}
-.sy svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.sy[hidden]{display:none}
-.sy.trip{color:var(--accent)}
-.addn{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;min-height:var(--tap);padding:0 14px;border-radius:var(--r-pill);border:0;background:transparent;color:var(--muted);font:600 13px var(--body)}
-.addn:hover{color:var(--fg)}
-.nline{display:flex;align-items:center;gap:8px;min-height:var(--tap);padding:0 6px 0 12px;border-radius:var(--r-ctl);background:var(--bg);border:0;color:var(--fg);font:500 14px/1.3 var(--body);text-align:left;width:100%}
-.nline .tx{flex:1}
-.nline .pen{width:16px;height:16px;stroke:var(--muted);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none;margin-right:6px}
-.ned{display:flex;gap:8px;align-items:center}
-.ned input{flex:1;min-width:0;min-height:var(--tap);padding:0 12px;border-radius:var(--r-ctl);border:1px solid var(--accent);background:var(--bg);color:var(--fg);font:500 14px var(--body)}
-.ned input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
-.ned .chip{padding:0 12px}
-.chip[hidden],.ned[hidden],.addn[hidden],.nline[hidden]{display:none}
-.row2{display:flex;gap:8px}
-.chip{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:var(--tap);padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--bg);font-weight:600;font-size:13px;color:var(--fg)}
-.btn2{flex:1;min-height:48px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--bg);display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:var(--fg)}
-.btn2.main{background:var(--accent);color:var(--on-accent);border-color:transparent}
-.li{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border)}
-.li .ck{width:26px;height:26px;border-radius:8px;border:2px solid var(--border);flex:none;margin-top:2px}
-.li .nm{font-weight:700;font-size:15px}.li .q{color:var(--muted);font-size:12px;margin-left:6px;font-weight:500}
-.li .nn{font-size:13px;color:var(--muted);line-height:1.35;margin-top:2px}
-.li .tag{display:inline-block;margin-left:6px;padding:0 7px;border-radius:var(--r-pill);border:1px solid var(--accent);color:var(--accent);font-size:11px;font-weight:700;line-height:17px;font-style:normal}
-.li.done .nm{text-decoration:line-through;color:var(--muted)}
-.rows2{display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--bg)}
-.rows2 .rw{display:flex;align-items:center;gap:10px;min-height:var(--tap);padding:0 12px;border-bottom:1px solid var(--border)}
-.rows2 .rw:last-child{border-bottom:0}.rows2 .rw .l{color:var(--muted);flex:1}
-.rows2 .rw .nv{flex:1;padding:10px 0;line-height:1.35}
-.qs{margin-top:22px;padding:14px 16px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface)}
-.qs ul{margin:6px 0 0;padding-left:20px;line-height:1.5}
+.qs{margin-top:22px;font-size:14px;line-height:1.5}.qs ul{margin:4px 0 0;padding-left:20px}
 </style></head>
 <body>
 <div class="wrap">
 <a class="back" href="../../index.html">All mockups</a>
 <h1>Item notes</h1>
-<p>An optional note on an item. Kitchie <a href="https://github.com/basement-bridge/kitchie/issues/986">#986</a>. <b>Mockup only.</b></p>
-
-<div class="scn" role="group" aria-label="Scenario for the add-to-list sheet">
-<button type="button" data-s="have" aria-pressed="true">Cucumber</button>
-<button type="button" data-s="trip" aria-pressed="false">Apples, this trip</button>
-<button type="button" data-s="new" aria-pressed="false">Sourdough, new</button>
+<p>Kitchie <a href="https://github.com/basement-bridge/kitchie/issues/986">#986</a>. Quiet by default: a note is one muted line, only on rows that have one. <b>Mockup only.</b></p>
+<div class="fr">
+<figure><figcaption>Shopping list</figcaption><iframe src="list.html" title="Shopping list with notes"></iframe></figure>
+<figure><figcaption>Shopper link (no sign-in)</figcaption><iframe src="shopper.html" title="Shopper link with notes"></iframe></figure>
+<figure><figcaption>Add to list</figcaption>
+<div class="scn" role="group" aria-label="Add sheet scenario"><button type="button" data-s="have" aria-pressed="true">Has note</button><button type="button" data-s="trip" aria-pressed="false">This trip</button><button type="button" data-s="new" aria-pressed="false">No note</button></div>
+<iframe id="add" src="add.html#have" title="Add to list sheet"></iframe></figure>
+<figure><figcaption>Pantry item</figcaption><iframe src="pantry.html" title="Pantry item with note"></iframe></figure>
 </div>
-
-<div class="grid">
-
-<div class="col"><h2>1. Add to list</h2>
-<div class="ph"><div class="bk"><div class="t">Shopping</div><div class="li"><span class="ck"></span><div><span class="nm">Milk</span><span class="q">2 l</span></div></div><div class="li"><span class="ck"></span><div><span class="nm">Eggs</span><span class="q">12</span></div></div></div><div class="dim"></div>
-<div class="sh"><span class="hd"></span>
-<div class="top"><span class="em" id="em">🥒</span><div style="flex:1"><b id="nm">Cucumber</b><span class="m">Add to list</span></div><span class="sy" id="sy" title="Same note in your Pantry"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 3l4 4-4 4"/><path d="M3 11V9a2 2 0 0 1 2-2h16"/><path d="M7 21l-4-4 4-4"/><path d="M21 13v2a2 2 0 0 1-2 2H3"/></svg><span id="sytx">Pantry</span></span></div>
-<button type="button" class="addn" id="addn" hidden>＋ Note</button>
-<button type="button" class="nline" id="nline" aria-label="Edit note"><span class="tx" id="ntx"></span><svg class="pen" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
-<div class="ned" id="ned" hidden><input id="nt" maxlength="200" aria-label="Note" placeholder="Note"><button type="button" class="chip" id="back" hidden title="Use the Pantry note">↺ Pantry</button><button type="button" class="chip" id="done">Done</button></div>
-<div class="row2"><span class="btn2">Cancel</span><span class="btn2 main">Add to list</span></div>
-</div></div></div>
-
-<div class="col"><h2>2. Shopping list</h2>
-<div class="ph"><div class="bk"><div class="t">Shopping</div>
-<div class="li"><span class="ck"></span><div><span class="nm">Cucumber</span><span class="q">2</span><div class="nn">Persian or Lebanese, the tasty kind</div></div></div>
-<div class="li"><span class="ck"></span><div><span class="nm">Apples</span><span class="q">6</span><i class="tag">this trip</i><div class="nn">Crunchy: Pink Lady or Jazz. Pale, not floury.</div></div></div>
-<div class="li"><span class="ck"></span><div><span class="nm">Sourdough</span><span class="q">1</span></div></div>
-<div class="li"><span class="ck"></span><div><span class="nm">Milk</span><span class="q">2 l</span><div class="nn">Full cream, the blue-top one</div></div></div>
-<div class="li done"><span class="ck" style="background:var(--accent);border-color:var(--accent)"></span><div><span class="nm">Butter</span><span class="q">250 g</span></div></div>
-</div></div></div>
-
-<div class="col"><h2>3. Pantry item</h2>
-<div class="ph"><div class="bk"><div class="t">Pantry</div><div class="li"><div class="nm">🥒 Cucumber</div></div><div class="li"><div class="nm">🍎 Apples</div></div><div class="li"><div class="nm">🍞 Sourdough</div></div></div><div class="dim"></div>
-<div class="sh"><span class="hd"></span>
-<div class="top"><span class="em">🥒</span><div style="flex:1"><b>Cucumber</b><span class="m">Fridge · Crisper</span></div></div>
-<div class="rows2">
-<div class="rw"><span class="l">Amount</span><b>1</b></div>
-<div class="rw"><span class="l">Use by</span><b>24 Oct</b></div>
-<div class="rw"><span class="nv">Persian or Lebanese, the tasty kind</span><span class="sy" title="Same note on your shopping list"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 3l4 4-4 4"/><path d="M3 11V9a2 2 0 0 1 2-2h16"/><path d="M7 21l-4-4 4-4"/><path d="M21 13v2a2 2 0 0 1-2 2H3"/></svg></span></div>
-</div>
-<div class="row2"><span class="btn2">Used up</span><span class="btn2 main">Add to list</span></div>
-</div></div></div>
-
-</div>
-
-<div class="qs"><b>Proposals (owner silent)</b>
+<div class="qs"><b>Proposals</b>
 <ul>
-<li>Optional everywhere: no note, nothing shown, no empty field. The only prompt is a quiet "＋ Note" on the add sheet.</li>
-<li>Plain text, about 200 characters. One note per item, shared by the household.</li>
-<li>Bought: the row's note becomes the Pantry note. A note edit is a History entry, so Undo restores the old one (not drawn).</li>
-<li>Emptying the note and buying clears the Pantry note.</li>
+<li>Household list: the note takes the row's muted line (where the location shows), two lines at most. Rows without a note are unchanged.</li>
+<li>No pill, chip or icon per row. "This trip" shows only on the add sheet.</li>
+<li>Shopper link: the note under the name, up to two lines, read-only. The swap button reads "Got substitution?".</li>
+<li>Plain text, about 200 characters, one note per item, shared by the household. Buying writes the row's note to the Pantry.</li>
 </ul>
-<b style="display:block;margin-top:12px">Open</b>
-<ul>
-<li>A running-low row is not stored today. Drawn as: stored only once edited (issue question 1).</li>
-<li>Should "this trip" ever leave the Pantry note alone on buy? Drawn as no.</li>
-</ul>
-<p style="margin:12px 0 0;font-size:13px;color:var(--muted)">Loads: static HTML, theme tokens, inline icons, nothing deferred.</p>
+<b style="display:block;margin-top:10px">Open</b>
+<ul><li>A running-low row is not stored today: it reads the Pantry note live, stored once edited.</li>
+<li>Should a trip-only edit leave the Pantry note alone on buy? Drawn as no.</li></ul>
+<p style="margin:10px 0 0;color:var(--muted)">Loads: static HTML, the app's own CSS, no script except the add sheet's.</p></div>
 </div>
-</div>
-
 <script>
-(function(){
-var S={
- have:{em:"🥒",nm:"Cucumber",pantry:"Persian or Lebanese, the tasty kind",start:"Persian or Lebanese, the tasty kind"},
- trip:{em:"🍎",nm:"Apples",pantry:"Crunchy: Pink Lady or Jazz",start:"Crunchy: Pink Lady or Jazz. Pale, not floury."},
- new:{em:"🍞",nm:"Sourdough",pantry:"",start:""}
-};
-var cur="have",val="",$=function(i){return document.getElementById(i)};
-var nt=$("nt"),ned=$("ned"),addn=$("addn"),nline=$("nline"),back=$("back"),sy=$("sy");
-function view(){
- var s=S[cur],has=!!val.trim(),trip=has&&!!s.pantry&&val!==s.pantry;
- ned.hidden=true;addn.hidden=has;nline.hidden=!has;$("ntx").textContent=val;
- sy.hidden=!has;sy.className="sy"+(trip?" trip":"");$("sytx").textContent=trip?"This trip":"Pantry";
- sy.title=trip?"Only on this list. Buying it updates the Pantry note.":"Same note in your Pantry";
-}
-function edit(){ned.hidden=false;addn.hidden=true;nline.hidden=true;nt.value=val;back.hidden=!(S[cur].pantry&&val!==S[cur].pantry);sy.hidden=true;nt.focus()}
-function set(k){cur=k;var s=S[k];$("em").textContent=s.em;$("nm").textContent=s.nm;val=s.start;
- document.querySelectorAll(".scn button").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.s===k?"true":"false")});view()}
-document.querySelectorAll(".scn button").forEach(function(b){b.addEventListener("click",function(){set(b.dataset.s)})});
-addn.addEventListener("click",edit);nline.addEventListener("click",edit);
-nt.addEventListener("input",function(){back.hidden=!(S[cur].pantry&&nt.value.trim()!==S[cur].pantry)});
-nt.addEventListener("keydown",function(e){if(e.key==="Enter")$("done").click()});
-$("done").addEventListener("click",function(){val=nt.value.trim();view()});
-back.addEventListener("click",function(){nt.value=S[cur].pantry;back.hidden=true;nt.focus()});
-set("have");
-})();
+document.querySelectorAll(".scn button").forEach(function(b){b.addEventListener("click",function(){
+ document.querySelectorAll(".scn button").forEach(function(x){x.setAttribute("aria-pressed",x===b?"true":"false")});
+ var f=document.getElementById("add");try{f.contentWindow.location.hash=b.dataset.s}catch(e){f.src="add.html#"+b.dataset.s}})});
 </script>
 </body></html>

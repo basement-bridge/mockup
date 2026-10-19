@@ -1,6 +1,6 @@
 // Shopper link, the shopper's page (list.html). NEW FOR THE BUILD: lift this file as it is.
 // Two modes (decisions SL-D5 to SL-D10 and judgement calls SL-J4 to SL-J8, docs/knowledge/shopper-link.md):
-//   SWIPE (default). Swipe right = got it, swipe left = couldn't find it, a tap on the tick = got it, "Got something else" opens one text field in place
+//   SWIPE (default). Swipe right = got it, swipe left = couldn't find it, a tap on the tick = got it, "Got substitution?" opens one text field in place
 //     (120 characters). Every action is ONE request and syncs at once, with no confirm step. Undo is always on screen. The bottom button, "Won't be able
 //     to buy these", marks the lines still open as not found and touches nothing already answered. "Also got" adds a free-text line at once.
 //   MULTI-SELECT. A long-press on any line turns the whole list into checkboxes. Nothing syncs: the picks are one batch. Send shows the three counts and
@@ -82,7 +82,7 @@
     if (s === "swapped" && !locked(li)) box(li).checked = false;
     if (label !== false) {
       var w = words(li);
-      li.querySelector("[data-sl-swap-label]").textContent = s === "swapped" && w ? "Got instead: " + w : "Got something else";
+      li.querySelector("[data-sl-swap-label]").textContent = s === "swapped" && w ? "Got instead: " + w : "Got substitution?";
       if (claimedElsewhere(li)) { sub.textContent = "Someone else is getting this"; sub.hidden = false; }
       else if (locked(li)) { sub.textContent = li.getAttribute("data-sl-lock") === "passed" ? "Someone else has dealt with this" : "Someone else got this"; sub.hidden = false; }
       else if (s === "notgot" && mode === "swipe") { sub.textContent = "Couldn't find"; sub.hidden = false; }
@@ -103,7 +103,7 @@
     li.setAttribute("data-sl-w", state === "swapped" && !lock ? w || "" : "");
     box(li).checked = state === "got";
     box(li).disabled = lock || cl;
-    // A shopper who is typing "got something else" on a line another shopper has just got keeps what they typed until they finish: the line leaves after (see busy, flush).
+    // A shopper who is typing "Got substitution?" on a line another shopper has just got keeps what they typed until they finish: the line leaves after (see busy, flush).
     var typing = (lock || cl) && det(li).open;
     if (!typing) field(li).value = state === "swapped" && !lock ? (w || "") : "";
     if (state !== "swapped" && det(li).open && !typing) det(li).open = false;
@@ -410,12 +410,12 @@
     var nf = e.target.closest && e.target.closest("[data-sl-notgot]");
     if (nf) answer(nf.closest("li[data-shop-row]"), "notgot");
   });
-  // Opening "Got something else" puts the keyboard straight on its field. (toggle does not bubble, so it is caught on the way down.)
+  // Opening "Got substitution?" puts the keyboard straight on its field. (toggle does not bubble, so it is caught on the way down.)
   list.addEventListener("toggle", function (e) {
     var d = e.target;
     if (!d.matches || !d.matches("details.sl-swap")) return;
     var li = d.closest("li[data-shop-row]");
-    if (d.open) { li.querySelector("[data-sl-swap-label]").textContent = "Got something else"; if (!quiet) field(li).focus(); } else { paint(li); flush(li); }
+    if (d.open) { li.querySelector("[data-sl-swap-label]").textContent = "Got substitution?"; if (!quiet) field(li).focus(); } else { paint(li); flush(li); }
   }, true);
 
   // ---- the bottom button, undo, also-got
