@@ -10,9 +10,23 @@ Static files, no build. Test by serving the folder (`python3 -m http.server`) an
 
 Speed is a design constraint (`DESIGN.md` section 6). For every mockup screen, say in its notes what the default path loads, what is deferred and why. Load on engagement, not on page load; keep one token set and small per-screen files. Rebase before you push, read `git diff --stat` for anything outside your scope, and never undo an earlier settled improvement. Once a mockup is settled, the built app matches it exactly; a change to a settled mockup is shown here first, never built first.
 
-## Merging: mockups go straight to main
+## Merging: factory lanes (owner, 19 October 2026)
 
-Owner direction, 9 October 2026 (by voice, restated in chat the same day: "push to main... never wait for me to push mockups in the main"). A pull request in this repo is not part of the approval or governance process. When the work is done and checked, the agent merges it into `main` itself: no `uat` step, no waiting for the owner, no asking first. Rebase on the latest `main` and resolve any conflicts before merging, and never drop someone else's merged work to do it. The pull request description is still the working spec (next section), and open questions stay open in it; merging does not settle them. This rule is for this repo only: Kitchie, Recipe, platform and infra keep their own rules (Kitchie pull requests go to `uat`).
+The agent operates the software factory end-to-end. **UAT is the automated integration lane. `main` is the
+owner-gated release lane.** Canonical statement: governance `docs/factory/lanes.md`.
+
+**Supersedes** the 9 October 2026 rule that mockup agents self-merge into `main` ("push to main... never wait
+for me to push mockups in the main"). Agents **stop merging to `main`**. Tags are never cut by the agent.
+
+This repo has **no `uat` branch**. Do not create one unless the owner asks. When the owner has asked for
+the work, open or update a pull request targeting `main` and wait for the owner to merge it. Do not
+spontaneously open extra PRs for unasked work. Finishing already-asked work includes opening or updating
+that PR. If a `uat` branch exists later, a clean conflict-free PR targeting `uat` may be merged by the
+agent without asking.
+
+The pull request description is still the working spec (next section), and open questions stay open in
+it; merging does not settle them. Bring the branch up to date with `main` (forward merge, never rebase a
+shared branch, never force-push) and never drop someone else's merged work.
 
 **Visibility (owner, 18 October 2026).** This repo is private by default. When a mockup is ready for the owner's review, add its line to `REVIEW-QUEUE` in the same push and run `governance/tools/mockup-visibility.sh open`; give him the live link. When the product PR carrying it merges into `uat`, remove the line and run `close` (it holds while other lines remain). Never open it for a draft. Full rule: governance `docs/factory/mockup-visibility.md`.
 
@@ -38,3 +52,4 @@ Use the commands in `basement-bridge/governance` `tools/` (index: `tools/README.
 - **Before starting, mocking up or claiming an issue:** `tools/pickup-guard.sh <owner/repo> <issue> --session <session url> --branch <branch>`. Exit 4 means another session holds a live claim: leave it alone, open no competing branch or PR. There is no override.
 - **Claim and touch:** `tools/claim.sh claim ...` once the guard is clear, `tools/claim.sh touch ...` at the start and the end of each unit of meaningful work (a push, a PR opened or updated, an issue comment), `tools/claim.sh release ... --status built` when the PR merges into `uat`. A claim is stale after 4 hours without a touch or a commit (`tools/staleness-check.sh`).
 - **A PR branch that fell behind its base:** `tools/conflict.sh <owner/repo> <pr>` (dry run), then `--apply --session <session url>`. Agent-authored PRs only, forward merge only, never the PR itself; it stops and reports when both sides changed the same logic. It does not change the stop-and-ask conditions in this file.
+- **Cursor Cloud `gh` writes (owner, 20 October 2026):** use `GH_TOKEN` (fine-grained PAT: issues write, pull requests write). The App `ghs_` token can read; comment, close issue and open PR return 403. If the environment injects a write token under another name, export it as `GH_TOKEN` for `gh`. Canonical: governance `docs/factory/agent-environment-limits.md` section 6. Names only; never a value.
