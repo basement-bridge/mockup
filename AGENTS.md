@@ -53,3 +53,7 @@ Use the commands in `basement-bridge/governance` `tools/` (index: `tools/README.
 - **Claim and touch:** `tools/claim.sh claim ...` once the guard is clear, `tools/claim.sh touch ...` at the start and the end of each unit of meaningful work (a push, a PR opened or updated, an issue comment), `tools/claim.sh release ... --status built` when the PR merges into `uat`. A claim is stale after 4 hours without a touch or a commit (`tools/staleness-check.sh`).
 - **A PR branch that fell behind its base:** `tools/conflict.sh <owner/repo> <pr>` (dry run), then `--apply --session <session url>`. Agent-authored PRs only, forward merge only, never the PR itself; it stops and reports when both sides changed the same logic. It does not change the stop-and-ask conditions in this file.
 - **Cursor Cloud `gh` writes (owner, 20 October 2026):** use `GH_TOKEN` (fine-grained PAT: issues write, pull requests write). The App `ghs_` token can read; comment, close issue and open PR return 403. If the environment injects a write token under another name, export it as `GH_TOKEN` for `gh`. Canonical: governance `docs/factory/agent-environment-limits.md` section 6. Names only; never a value.
+
+## Beads
+
+This repository keeps its own `.beads/` store (owner, typed, 21 October 2026: beads in every repo, governance-owned, so a later repo gets it too). The registry, the check and the setup script live in governance (`docs/factory/beads.md`). Agent hooks, a `CLAUDE.md` rewrite, and git hooks are not part of this store. Cost: none. Nothing in the store is loaded by a mockup page.
