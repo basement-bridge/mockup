@@ -65,8 +65,14 @@ ok(/\d of \d/.test(await txt(p, "#sres .g")), "chick: a truncated group says 'n 
 ok(await p.locator("#sres .i[aria-selected=true]").count() === 1 && await p.locator("#sres .i").first().getAttribute("aria-selected") === "true", "first row is highlighted so Enter works at once");
 ok(/^combobox$/.test(await p.locator("#q").getAttribute("role")) && await p.locator("#q").getAttribute("aria-expanded") === "true" && !!(await p.locator("#q").getAttribute("aria-activedescendant")), "combobox, expanded, aria-activedescendant set");
 // recede
-ok((await op(p, "#cards")) < 0.3 && (await op(p, "#week")) < 0.3 && (await op(p, "#rail")) < 0.3, "everything behind the dropdown recedes (cards, This week, rail below 30% opacity)");
-ok(await p.evaluate(() => ["#cards", "#week", "#rail"].every(s => getComputedStyle(document.querySelector(s)).pointerEvents === "none")), "the receded areas take no clicks");
+ok((await op(p, "#cards")) < 0.3 && (await op(p, "#rail")) < 0.3, "everything else behind the dropdown recedes (cards and rail below 30% opacity)");
+ok(await p.evaluate(() => ["#cards", "#rail"].every(s => getComputedStyle(document.querySelector(s)).pointerEvents === "none")), "the receded areas take no clicks");
+// This week stays fully visible and active while the dropdown is open (owner, 22 Oct 2026)
+ok(await op(p, "#week") === 1 && await p.evaluate(() => getComputedStyle(document.querySelector("#week")).pointerEvents !== "none"), "This week stays at full opacity and takes clicks while the dropdown is open");
+ok(await p.evaluate(() => { const w = document.querySelector("#week").getBoundingClientRect(); return [...document.querySelectorAll("#week .wd")].every(d => { const r = d.getBoundingClientRect(), e = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); return e && document.querySelector("#week").contains(e); }) && w.width === 400; }), "every day in This week is the topmost element at its centre (nothing covers it), 400px wide, in place");
+ok(await p.evaluate(() => { const w = document.querySelector("#week").getBoundingClientRect(), s = document.querySelector("#sres").getBoundingClientRect(), m = document.querySelector("#main").getBoundingClientRect(); return s.right <= w.left && m.right <= w.left + 1; }), "the dropdown ends before This week (does not cover it)");
+await p.locator("#week .wd").nth(3).click({ trial: true }); ok(true, "a day in This week passes Playwright's actionability check for a click (receives pointer events)");
+ok(await p.evaluate(() => ["#week", "#week h2"].every(s => getComputedStyle(document.querySelector(s)).opacity === "1") && ![...document.querySelectorAll("#week *")].some(e => getComputedStyle(e).opacity !== "1")), "nothing inside This week is dimmed");
 ok(await p.evaluate(() => { const c = document.querySelector("#cards"); const y = document.elementFromPoint(300, innerHeight - 40); return true; }), "(sanity) page still responds");
 // heights and sizes
 ok(await p.evaluate(() => { const d = document.querySelector("#desk").getBoundingClientRect(), s = document.querySelector("#sres").getBoundingClientRect(); return s.bottom <= d.bottom - 8; }), "dropdown stays inside the frame");
@@ -152,6 +158,17 @@ for (const theme of ["kitchie", "kitchie-day"]) for (const [n, q] of STATES) {
     for (const [k, y] of [["top", 0], ["mid", Math.round(H / 2)], ["end", H]]) { await p.evaluate(y => scrollTo(0, y), y); await p.waitForTimeout(80); await p.screenshot({ path: `${shots}/${n}-${theme}-page-${k}.png` }); }
     await p.evaluate(() => { document.querySelector("#main").scrollTop = 9999; }); await p.evaluate(() => scrollTo(0, 0)); await p.waitForTimeout(80); await p.locator(".dw").screenshot({ path: `${shots}/${n}-${theme}-column-scrolled.png` });
   }
+  await p.context().close();
+}
+
+// ---- This week stays active in the Collapse reading and at ~1100 wide (the frame is fixed at 1224px, the figure scrolls)
+for (const [w, theme, q] of [[1440, "kitchie", "q=chick&recede=collapse"], [1100, "kitchie", "q=chick"], [1100, "kitchie-day", "q=chick"], [1440, "kitchie-day", "q=chick"]]) {
+  p = await page(q, theme, w, 900);
+  const tag = `${theme} ${w} ${q}`;
+  ok(await op(p, "#week") === 1 && await p.evaluate(() => getComputedStyle(document.querySelector("#week")).pointerEvents !== "none") && await p.locator("#sres:visible").count() === 1, `${tag}: dropdown open, This week undimmed and clickable`);
+  if (w < 1224) { await p.locator("#week .wd").nth(3).scrollIntoViewIfNeeded(); await p.locator("#week .wd").nth(3).click({ trial: true }); }
+  ok(await p.evaluate(() => { const s = document.querySelector("#sres").getBoundingClientRect(), w = document.querySelector("#week").getBoundingClientRect(); return s.right <= w.left; }) && p.errs.length === 0, `${tag}: dropdown does not cover This week, no console errors`);
+  if (shots) { await p.screenshot({ path: `${shots}/this-week-${theme}-${w}${/collapse/.test(q) ? "-collapse" : ""}.png` }); await p.locator(".dw").screenshot({ path: `${shots}/this-week-frame-${theme}-${w}${/collapse/.test(q) ? "-collapse" : ""}.png` }); }
   await p.context().close();
 }
 
