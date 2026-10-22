@@ -1,0 +1,58 @@
+/* Add item: an amount or a level (Kitchie #1047). Only what is new lives here; the form, the level picker and the squares are the item edit flyout's own
+   classes (../item-edit-flyout/flyout.css: .ef-*, .lvpick, .bat, .btn, .chd, .cft). Tokens only (theme.css), no size literals beyond the 44px tap. */
+
+/* the sheet, drawn static inside a frame (the build's .ief-child is fixed to the bottom of the window) */
+.ael-page{min-height:100vh;display:flex;flex-direction:column;justify-content:flex-end;background:var(--bg)}
+.ael-behind{flex:1;padding:16px 16px 0;color:var(--muted);font-size:13px;font-weight:600}
+.ael-sheet{display:flex;flex-direction:column;gap:12px;padding:8px 16px 16px;background:var(--surface);border-top:1px solid var(--border);border-radius:var(--r-card) var(--r-card) 0 0;box-shadow:0 -10px 28px rgba(0,0,0,.18)}
+.ael-sheet .cbody{max-height:none;overflow:visible;margin:0;padding:0}
+
+/* A: the two-way switch. Same selected look as the level picker (2px accent border on the surface). */
+.ael-seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border:1px solid var(--border);border-radius:var(--r-pill);background:var(--bg)}
+.ael-seg .sg{min-height:var(--tap);display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:var(--r-pill);border:2px solid transparent;font-weight:700;font-size:14px;color:var(--muted);text-align:center}
+.ael-seg .sg:hover{color:var(--fg)}
+.ael-seg .sg.on{background:var(--surface);border-color:var(--accent);color:var(--fg)}
+.ael-seg .sg svg{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ael-seg .sg .bat{width:26px;height:8px;color:currentColor}
+
+/* B: both at once, joined by a quiet "or" */
+.ael-or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+.ael-or::before,.ael-or::after{content:"";flex:1;border-top:1px solid var(--border)}
+
+/* a level pick that can be taken back: the cue row is the edit flyout's (.ef-lvm .ef-src .ef-auto) */
+.ael-lvnote{min-height:20px}
+
+/* C: the second quiet button sits beside "Add unit" and uses the same ghost button */
+.ael-row2{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+/* what Add would store: a mock aid, not part of the product (dashed, muted, outside the sheet's own rhythm) */
+.ael-out{margin:12px 16px 0;padding:10px 12px;border:1px dashed var(--border);border-radius:var(--r-ctl);background:var(--bg);font-size:12px;line-height:1.45;color:var(--muted)}
+.ael-out b{display:block;margin-bottom:2px;color:var(--fg);font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+.ael-out p{margin:0}.ael-out p+p{margin-top:2px}
+
+/* D: the setting (Preferences) */
+.ael-pref{display:grid;gap:12px;padding:16px}
+.ael-pref h2{font-size:1.25rem}
+.ael-prow{display:grid;gap:8px;padding:12px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface)}
+.ael-prow .ef-note{margin:0}
+.ael-dim{opacity:.55}
+
+/* the options page */
+.ael-fr{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,390px));gap:26px 18px;justify-content:center;margin-top:16px}
+.ael-fr figure{margin:0}
+.ael-fr figcaption{margin:0 0 6px;font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ael-fr figcaption span{font-weight:500;color:var(--muted);font-size:13px}
+.ael-fr iframe{display:block;width:100%;max-width:390px;height:760px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--bg)}
+.ael-fr .ael-cap{margin:6px 0 0;font-size:13px;line-height:1.45;color:var(--muted)}
+.ael-qs{margin-top:22px;font-size:14px;line-height:1.5}.ael-qs ul{margin:4px 0 0;padding-left:20px}.ael-qs li{margin:2px 0}
+.ael-cmp{width:100%;border-collapse:collapse;margin-top:8px;font-size:13px}
+.ael-cmp th,.ael-cmp td{border:1px solid var(--border);padding:6px 8px;text-align:left;vertical-align:top}
+.ael-cmp th{background:var(--surface);color:var(--muted);font-weight:700}
+.ael-tablewrap{overflow-x:auto}
+
+/* the sheet's footer is the Add sheet's: Add item on its own row, then the two quieter buttons side by side (as the built sheet draws it) */
+.ael-sheet .cft{grid-template-columns:1fr 1fr}
+.ael-sheet .cft .pri{grid-column:1/-1}
+.ael-sheet .ael-seg{margin-bottom:12px}
+@media (max-width:43.75rem){.ael-fr{grid-template-columns:minmax(0,390px)}}
+.ael-row2 .btn.sm{min-height:var(--tap)}

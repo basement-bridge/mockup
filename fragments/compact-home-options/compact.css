@@ -1,0 +1,135 @@
+/* Compact view, options: the styles a build lifts. Tokens only (theme.css); no raw colours, no size rules (desktop only, DESIGN.md section 7).
+   Class names are desktop-home's and home-detail-panel's (.rail .nv .topbar .us .seg .compact .ask .lean .lead .glance .card .th .sh2 .ir .or .e .t .k .pl .btn .rok .rmiss).
+   New names, all explained in the page notes: .empt .rsn .near .nrow .lens .gp .tray .rblock .dense. Sample names live in mock.js, never here. */
+*{box-sizing:border-box}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;padding:0}
+button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.rail{width:88px;flex:none;border-right:1px solid var(--border);padding:16px 8px;display:flex;flex-direction:column;gap:6px}
+.rail .brand{font:700 13px var(--head);text-align:center;color:var(--muted);margin-bottom:10px}
+.nv{display:flex;flex-direction:column;align-items:center;gap:2px;min-height:var(--tap);padding:8px 2px;border-radius:var(--r-ctl);font-size:12px;font-weight:600;color:var(--muted)}
+.nv svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nv.on{color:var(--accent);background:var(--surface)}
+.main{flex:1;min-width:0;padding:24px 48px;overflow:auto}
+.col{max-width:640px}
+.dash .main{flex:none;width:736px}
+.topbar{display:flex;gap:12px;align-items:center;margin-bottom:6px}
+.us{flex:1;min-width:0;display:flex;align-items:center;gap:8px;min-height:var(--tap);padding:0 16px;border-radius:var(--r-pill);background:var(--surface);border:1px solid var(--border);color:var(--muted)}
+.us svg{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;flex:none}
+.seg{display:inline-flex;flex:none;padding:3px;border-radius:var(--r-pill);background:var(--surface);border:1px solid var(--border)}
+.seg span{min-height:34px;line-height:34px;padding:0 14px;border-radius:var(--r-pill);font-weight:700;font-size:13px;color:var(--muted)}
+.seg .on{background:var(--accent);color:var(--on-accent)}
+svg.i{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none;vertical-align:-3px}
+/* controls */
+.btn{min-height:var(--tap);padding:0 16px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--surface);color:var(--fg);font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}
+.btn.pri{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.btn.sm{min-height:36px;padding:0 12px;font-size:13px}
+.btn.lnk{background:none;border-color:transparent;color:var(--accent)}
+.btn.on{border-color:var(--cue);color:var(--cue)}
+.btn[aria-pressed=true]{border-color:var(--accent);color:var(--accent)}
+/* the Compact column (decision 133: no gutter, no side panel, no This week) */
+.compact{margin-top:18px;display:flex;flex-direction:column;gap:14px;align-items:center;max-width:640px;margin-left:auto;margin-right:auto}
+.compact.eco{margin-top:16px;gap:10px}
+.compact .ask{margin:6px 0 0;text-align:center;font-family:var(--head);font-size:1.9rem;line-height:1.15}
+.compact.eco .ask{font-size:1.6rem;margin:0}
+.lean{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.lean span,.lean button{min-height:30px;display:inline-flex;align-items:center;gap:6px;padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-weight:600;font-size:13px;color:var(--muted)}
+.lean button{min-height:36px}
+.lean button:hover{border-color:var(--accent);color:var(--fg)}
+.lean button[aria-pressed=true]{background:var(--accent);border-color:transparent;color:var(--on-accent)}
+.lean button i{font-style:normal;font-weight:800;font-size:11px;color:var(--fg);opacity:.75}
+.lean button[aria-pressed=true] i{color:var(--on-accent)}
+.lean button.zero{border-style:dashed;background:none;color:var(--muted)}      /* no match: dim and dashed, as a zero-count status in Filters (desktop handover section 4) */
+.lean button.zero i{color:var(--muted)}
+.lens{align-self:stretch;justify-content:flex-start;align-items:center}
+.lens .rblock{margin-left:auto}
+.lead{align-self:stretch;display:flex;align-items:center;gap:12px;margin:0;padding:12px;border:2px solid var(--accent);border-radius:var(--r-card);background:var(--surface)}
+.lead .e{width:56px;height:56px;border-radius:var(--r-ctl);font-size:28px;background:var(--bg);border:1px solid var(--border)}
+.lead .t{flex:1;min-width:0;display:flex;flex-direction:column}
+.lead .t small{color:var(--muted);font-size:13px}
+.lead b{font-size:17px}
+.e{display:inline-flex;align-items:center;justify-content:center;flex:none}
+.e.s{width:36px;height:36px;border-radius:var(--r-ctl);font-size:20px;background:var(--bg);border:1px solid var(--border)}
+.k{color:var(--accent);font-weight:800;font-size:11px;letter-spacing:.06em;text-transform:uppercase}.k.planned{color:var(--sage)}
+.rok{color:var(--cue);font-weight:700;font-size:13px}
+.rmiss{color:var(--danger);font-weight:700;font-size:13px}
+.rblock{display:inline-flex;align-items:center;gap:6px;min-height:30px;padding:0 10px;border-radius:var(--r-pill);border:1px dashed var(--border);color:var(--muted);font-weight:700;font-size:12px}
+button.rblock:hover{border-color:var(--accent);color:var(--fg)}
+/* rows: an idea you can open (a flyout for a recipe, decision 290) and its action */
+.rows{align-self:stretch;display:flex;flex-direction:column}
+.sh2{align-self:stretch;font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:12px 0 2px}
+.compact .sh2{margin:2px 0 -6px}
+.ir,.nrow{display:flex;align-items:center;gap:10px;min-height:52px;border-top:1px solid var(--border);padding:4px 0}
+.rows>:first-child{border-top:0}
+.hrow{display:flex;align-items:center;gap:10px;flex:1;min-width:0;min-height:44px;padding:4px 8px;border-radius:var(--r-ctl);text-align:left}
+.hrow:hover{background:var(--surface)}
+.hrow .t{flex:1;min-width:0}
+.hrow .t b{display:block;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hrow .t small{display:block;color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ir>.btn,.nrow>.btn{flex:none}
+/* nothing fits */
+.empt{align-self:stretch;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:14px 16px;border:1px dashed var(--border);border-radius:var(--r-card)}
+.empt .big{font-size:34px;line-height:1}
+.empt>b{font-size:16px}
+.empt>p{margin:0;color:var(--muted);font-size:13.5px;max-width:46ch}
+.empt .row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:6px}
+.compact.eco .empt{flex-direction:row;text-align:left;align-items:flex-start;gap:12px;padding:10px 14px}
+.compact.eco .empt .big{font-size:28px;margin-top:2px}
+.compact.eco .empt .eb{flex:1;min-width:0}
+.compact.eco .empt .eb>b{font-size:15px;display:block}
+/* the reason, split: shopping can fix one, only a person can fix the other */
+.rsn{display:flex;flex-direction:column;gap:6px;margin-top:2px;align-self:stretch;text-align:left}
+.rg{display:flex;align-items:flex-start;gap:10px;font-size:13.5px}
+.rg>svg{margin-top:2px;color:var(--muted)}
+.rg .t{flex:1;min-width:0}
+.rg .t b{font-size:13.5px}
+.rg .t small{display:block;color:var(--muted);font-size:12.5px}
+.rg ul{margin:4px 0 0;padding:0;list-style:none;display:grid;gap:2px;font-size:12.5px;color:var(--muted)}
+.rg ul b{color:var(--fg);font-weight:600}
+/* the status strip: pills that were information are controls */
+.glance{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;align-self:stretch;position:relative}
+.glance a,.gp{min-height:36px;display:inline-flex;align-items:center;gap:6px;padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-weight:600;font-size:13px;text-decoration:none;color:inherit;max-width:100%}
+.gp:hover{border-color:var(--accent)}
+.gp[aria-expanded=true]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.gp.hot{border-color:var(--accent);color:var(--accent)}
+.gp.ghost{background:none}
+.gp .tx{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gp .tx b{font-weight:800}
+.tray{flex:0 0 100%;order:9;position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:5;text-align:left;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:4px 12px 8px;box-shadow:0 12px 32px rgba(0,0,0,.25)}   /* a popover under the strip: nothing below it moves (6a) */
+.eco .tray{top:auto;bottom:calc(100% + 6px)}
+.tray .or{display:flex;align-items:center;gap:10px;min-height:48px;border-top:1px solid var(--border)}
+.tray .or:first-child{border-top:0}
+.tray .t{flex:1;min-width:0}.tray .t b{display:block}.tray .t small{color:var(--muted);font-size:12px}
+.tray .tf{display:flex;justify-content:flex-end;gap:8px;padding-top:6px;border-top:1px solid var(--border)}
+.pl{display:inline-flex;align-items:center;min-height:28px;padding:0 10px;border-radius:var(--r-pill);border:1px solid var(--border);font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap}.pl.hot{border-color:var(--accent);color:var(--accent)}
+/* Dashboard (option F): the cards the owner has moved on to */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:14px 16px;margin-top:12px}
+.th{display:flex;align-items:center;gap:8px;margin-bottom:8px}.th h2{margin:0;flex:1;font-family:var(--head);font-size:1.15rem}
+.th a,.th button{color:var(--accent);font-weight:700;font-size:13px;min-height:36px;display:inline-flex;align-items:center;padding:0 6px}
+.sh{font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:10px 0 2px}.sh:first-child{margin-top:0}
+.card .lead{border-width:1px;box-shadow:inset 0 0 0 1px var(--accent);background:var(--bg);padding:6px}
+.card .lead .hrow{min-height:76px;gap:14px}.card .lead .hrow:hover{background:none}
+.card .lead .e{font-size:34px;width:64px;height:64px;background:color-mix(in srgb,var(--accent) 18%,var(--surface))}
+.card .lead .btn{margin-right:6px}
+.card .rows .ir,.card .or{border-top:1px solid var(--border)}
+.or{display:flex;align-items:center;gap:6px;min-height:52px}
+.card .or:first-of-type{border-top:0}
+.week{width:400px;flex:none;border-left:1px solid var(--border);background:var(--surface);padding:24px;display:flex;flex-direction:column}
+.week h2{margin:0;font-family:var(--head);font-size:1.15rem}
+.week p{margin:2px 0 6px;color:var(--muted);font-size:13px}
+.wd{display:flex;gap:10px;align-items:baseline;padding:12px 0;border-top:1px solid var(--border);font-size:14px}
+.wd b{flex:none;width:56px}.wd span{color:var(--muted)}.wd.now b{color:var(--accent)}.wd.set span{color:var(--fg)}
+/* density: the existing Settings > Compact rows, here also on Home rows (Proposal CH-F2) */
+.dense .ir,.dense .or,.dense .nrow{min-height:40px;padding-top:0;padding-bottom:0}
+.dense .hrow{min-height:38px;padding-top:0;padding-bottom:0}
+.dense .card{padding:10px 14px;margin-top:8px}
+.dense .th{margin-bottom:4px}
+.dense .card .lead .hrow{min-height:60px}
+.dense .card .lead .e{width:48px;height:48px;font-size:26px}
+.dense .e.s{width:30px;height:30px;font-size:17px}
+.dense .wd{padding:8px 0}
+.dense .sh{margin:6px 0 0}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:70;background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:var(--r-ctl);font-weight:600;font-size:14px;max-width:min(520px,calc(100vw - 32px))}
+.toast[hidden]{display:none}
+@media (prefers-reduced-motion:no-preference){.toast{animation:chtoast .18s ease-out}}
+@keyframes chtoast{from{opacity:0;transform:translate(-50%,6px)}}
+.lk{color:var(--accent);font-weight:700;font-size:12.5px;text-decoration:underline;min-height:24px}

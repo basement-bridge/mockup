@@ -13,6 +13,8 @@ const only = (process.argv.find(a => a.startsWith("--only=")) || "").slice(7);
 const SCREENS = [
   ["index", "index.html"],
   ["draft-recipes", "fragments/draft-recipes/index.html"],
+  ["add-amount-or-level", "fragments/add-amount-or-level/index.html"],
+  ["add-amount-or-level-a-level", "fragments/add-amount-or-level/add.html#a-level"],
   ["cook-step-ingredients", "fragments/cook-step-ingredients/index.html"],
   ["plan-start-cooking", "fragments/plan-start-cooking/index.html"],
   ["plan-start-cooking-b", "fragments/plan-start-cooking/phone.html?o=b&m=adhoc"],

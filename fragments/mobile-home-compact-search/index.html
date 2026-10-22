@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Mobile Home, compact is the search bar — fragment</title>
+<link rel="stylesheet" href="../../theme.css"><script src="../../theme.js"></script><link rel="stylesheet" href="home.css">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);line-height:1.45}
+.wrap{max-width:var(--content-max);margin:0 auto;padding:var(--sp-4) var(--gutter) 96px}
+.back{color:var(--accent);font-weight:700;display:inline-flex;align-items:center;min-height:var(--tap)}
+h1,h2,h3{font-family:var(--head)}h1{font-size:1.7rem;line-height:1.1;margin:0 0 6px}h2{margin:32px 0 6px;font-size:1.2rem}h3{margin:16px 0 4px;font-size:1rem}
+p,li,dd{color:var(--muted)}p b,li b,dd b{color:var(--fg)}
+code{font-size:.9em}
+.notes{padding-left:20px}.notes li{margin:6px 0}
+.own{border-left:3px solid var(--accent);padding:2px 0 2px 12px;color:var(--fg);margin:12px 0}
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+#tabsX{display:flex;gap:6px;overflow-x:auto;padding:var(--sp-2) 0;margin:0;background:var(--bg);scrollbar-width:none;border-bottom:1px solid var(--border)}
+#tabs::-webkit-scrollbar{display:none}
+#tabs button{flex:none;min-height:var(--tap);padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);color:var(--muted);font:700 13px var(--body);cursor:pointer}
+#tabs button span{display:none}
+#tabs button[aria-selected=true]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+#tabs button[aria-selected=true] span{display:inline}
+#tabs button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.badge{display:inline-block;padding:2px 10px;margin-left:8px;border-radius:var(--r-pill);border:1px solid var(--accent);color:var(--accent);font:800 12px var(--body);vertical-align:middle}
+.lede{margin:0 0 var(--sp-3)}
+/* the frames: 390 wide, as the owner's phone */
+.fr3{display:flex;flex-wrap:wrap;gap:var(--sp-5);margin:0 -16px}
+@media(min-width:600px){.fr3{margin:0}}
+.fr{margin:0;width:390px;max-width:100%}
+.fr figcaption{padding:0 16px var(--sp-2);font-size:13px;color:var(--muted)}.fr figcaption b{display:block;color:var(--fg);font-size:14px}
+@media(min-width:600px){.fr figcaption{padding-left:0}}
+.pf{position:relative;display:flex;flex-direction:column;width:100%;height:760px;background:var(--bg);border:1px solid var(--border);border-width:1px 0;overflow:hidden}
+@media(min-width:600px){.pf{border-width:1px;border-radius:var(--r-phone)}}
+.pbody{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column}
+.pbody>.home{flex:0 0 auto;width:100%}
+.toast{position:absolute;left:var(--sp-3);right:var(--sp-3);bottom:80px;z-index:20;background:var(--fg);color:var(--bg);border-radius:var(--r-ctl);padding:12px 14px;font-weight:600;font-size:14px}
+.toast[hidden]{display:none}
+.panel{margin:var(--sp-3) 16px 0;padding:var(--sp-3);border:1px dashed var(--border);border-radius:var(--r-card);font-size:13px}
+@media(min-width:600px){.panel{margin-left:0;margin-right:0}}
+.panel .pt{margin:0 0 6px;font-weight:800;font-size:11px;letter-spacing:.07em;text-transform:uppercase}
+.panel dl{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;margin:0}.panel dt{color:var(--muted)}.panel dd{margin:0;color:var(--fg);word-break:break-all}
+.prow{display:flex;flex-wrap:wrap;gap:6px;margin-top:var(--sp-2);align-items:center}
+.prow button{min-height:var(--tap);padding:0 12px;border-radius:var(--r-pill);border:1px dashed var(--border);background:none;color:var(--fg);font:700 13px var(--body);cursor:pointer}
+.prow label{display:inline-flex;align-items:center;gap:6px;min-height:var(--tap);color:var(--fg);font-weight:600}
+.prow input{width:20px;height:20px;accent-color:var(--accent)}
+.panel .pn{margin:var(--sp-2) 0 0;font-size:12px}
+.facts{display:grid;gap:2px;margin:var(--sp-5) 0 0}.facts dt{font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--accent);margin-top:var(--sp-3)}.facts dd{margin:0}
+.tw{overflow-x:auto;margin:0 -16px;padding:0 16px}
+table{border-collapse:collapse;min-width:1040px;width:100%;font-size:13.5px}th,td{text-align:left;vertical-align:top;border-top:1px solid var(--border);padding:8px 10px}th{color:var(--muted);font-size:11px;letter-spacing:.06em;text-transform:uppercase}td:first-child{font-weight:700;color:var(--fg);white-space:nowrap}td:not(:first-child){min-width:120px}td{color:var(--muted)}
+.q{margin:14px 0;padding:12px 14px;border:1px dashed var(--border);border-radius:var(--r-card)}
+.recbox{margin:14px 0;padding:12px 14px;border:2px solid var(--accent);border-radius:var(--r-card);color:var(--fg)}
+
+.pf{height:844px}
+.fr{margin-bottom:var(--sp-4)}
+.fr3{display:flex;flex-wrap:wrap;gap:var(--sp-5)}
+.bar2{background:var(--bg);border-bottom:1px solid var(--border);padding:var(--sp-2) 0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.bar2 .lbl{font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:0 2px 0 6px}
+#stateSw{display:contents}
+#stateSw button{min-height:var(--tap);padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font:700 13px var(--body);color:var(--muted);cursor:pointer}
+#stateSw button small{font-weight:600}
+#stateSw button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+#stateSw button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.pbody>.home{flex:0 0 auto;width:100%}
+.mini{font-size:13px}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Mobile Home, option F: compact is the search bar</h1>
+<p>A sixth answer to &ldquo;what is Compact on mobile&rdquo;, drawn after the owner saw the five switches in <a href="../mobile-home-view-switch/" style="color:var(--accent)">Mobile Home: switching to Compact</a> (options A to E, unchanged). There is no switch at all. Compact <b>is</b> the search bar: one line, always there. Tap it and it takes the screen; <b>This week</b> stays in view; after about two seconds of nothing typed the single most context-relevant thing comes up on its own, depending on the time of day. Type two letters and you get the same contextual dropdown as desktop. Sample data; the live frame works; Theme button bottom right. Phone width only. <b>Mockup only: nothing is built.</b></p>
+<div class="own"><b>Owner, voice, 22 Oct 2026, after seeing A to E:</b> confused by the pull handle; he expected mobile compact to be a different, leaner thing, with the existing mobile Home (on the way out, running low, cooking ideas, This week) behind it. Compact is most appropriate for mobile only; desktop uses search-first instead, no toggle. For desktop he said: &ldquo;I still like to see the week in focus&hellip; everything else behind that needs to go.&rdquo; Tapped and idle (nothing typed, about 2 seconds): no action beyond that, then the single most context-relevant thing surfaces on its own, not a list and not an empty box. &ldquo;Whatever is on the screen based on the time: around cooking time we don&rsquo;t want to show running low and whatnot.&rdquo; Typing: the same contextual dropdown as desktop (fits tonight, needs a shop, pantry items, shopping list), after 2 characters. No labelled toggle, no chunky pills, no expanding pins. (Paraphrased from voice.)</div>
+
+<div class="bar2" role="group" aria-label="Pretend state"><div id="stateSw"></div></div>
+<p class="mini">The switch pretends the time and whether the next meal is planned. It redraws every frame. After dinner, &ldquo;next meal&rdquo; means tomorrow. Add <code>?trigger=focus</code> to the address to see the other trigger (surface the moment the bar is tapped).</p>
+<h2>The frames (390 &times; 844)</h2>
+<div class="fr3" id="frames"></div>
+
+<h2>How it behaves</h2>
+<ul class="notes">
+<li><b>At rest, compact:</b> greeting, the bar (one line, the biggest thing on the screen), This week as a list. Nothing else is drawn, so nothing else is loaded. <b>At rest, full:</b> today&rsquo;s Home with the bar added at the top.</li>
+<li><b>Tap the bar:</b> the greeting and the cards step aside (they are hidden, not dimmed: a phone with the keyboard up has no room behind), the bar sticks to the top with a <b>Cancel</b> button, and This week folds into a pinned seven-day strip that stays tappable. Nothing else happens. Same pattern as desktop (the bar takes over, the week stays), cut to a phone.</li>
+<li><b>About two seconds with nothing typed:</b> one card comes up between the bar and the week: the single most context-relevant thing for this time of day (next section). It is announced once through a polite live region, focus never moves, and it is the same markup as the Cooking ideas lead (<code>.idl .top2 .acts .btn</code>), so Make it and Plan are the buttons Home already has. Typing replaces it.</li>
+<li><b>Two characters:</b> the dropdown replaces the card. Groups in the same order as desktop: On tonight&rsquo;s plan (or If plans change), Fits tonight, In your pantry, Needs a shop, On your shopping list, Left out for who is eating; at most six rows. No Enter to search, no results page. Emptying the field brings the wait (and the card) back.</li>
+<li><b>Cancel, Esc, or tapping away with nothing typed:</b> Home comes back exactly as it was, scrolled where it was. Tapping away with words typed keeps the dropdown and drops the keyboard.</li>
+</ul>
+
+<h2>What surfaces, by time and by the next meal</h2>
+<p>One card. Never a list. The ladder is a short, pure function (<code>surface()</code> in <code>search.js</code>); the ranking behind &ldquo;fits tonight&rdquo; is the existing Cooking ideas ranking (<code>recipe-ideas/ideas.js</code> <code>rank()</code>, the shape of <code>suggest_meals</code>: fits tonight, use-by pressure, who is eating). The time windows and the idle surfacing are new and are Proposals.</p>
+<div class="tw"><table><thead><tr><th>Window</th><th>Tonight not planned</th><th>Planned</th><th>Nothing fits</th><th>Hidden here</th></tr></thead><tbody>
+<tr><td>Morning<br>before 11:00</td><td>What goes off tomorrow, with the recipe that uses it (Plan tonight)</td><td>Tonight&rsquo;s meal, and that it uses what is going off</td><td>The freezer meal: take it out this morning</td><td>Running low</td></tr>
+<tr><td>Mid-day<br>11:00 to 16:29</td><td>The idea for tonight (Plan tonight)</td><td>The one thing running low (Add to list)</td><td>The freezer meal: take it out now</td><td>Going off, once tonight is settled</td></tr>
+<tr><td>Cooking time<br>16:30 to 19:59</td><td>The idea that fits tonight (Make it, Plan)</td><td>Tonight&rsquo;s planned meal (Make it)</td><td>The freezer meal (Make it)</td><td><b>Running low and going off, always</b></td></tr>
+<tr><td>After dinner<br>from 20:00</td><td>An idea for tomorrow (Plan tomorrow)</td><td>Tomorrow&rsquo;s planned meal</td><td>An honest &ldquo;nothing fits tomorrow&rdquo; and Ask your assistant</td><td>Running low and going off</td></tr>
+</tbody></table></div>
+
+<h2>How compact vs full is chosen</h2>
+<p>There is no switch on Home. The bar is always there in both, so nothing needs a hint or a glyph. <b>Proposal MS-P7:</b> the person&rsquo;s remembered start, one setting, <code>kitchie.homeStart.&lt;memberId&gt;</code> = <code>full</code> or <code>compact</code>, in <code>localStorage</code>, client-side only per the owner&rsquo;s rule, with a plain row in Settings (&ldquo;Home opens with: Everything, or Search and the week&rdquo;, drawn in the mock panel under the live frame). Default is Full, so nothing changes for anyone who never looks. Storage unavailable: Home opens full for this visit. Another device starts at the default.</p>
+
+<h2>Proposals (the owner was silent; each is mine, with the cost of a wrong guess)</h2>
+<ul class="notes">
+<li><b>MS-P1 The windows.</b> Morning before 11:00 and after dinner from 20:00 are the cut-offs <code>recipe-ideas/ideas.js</code> already uses; mid-day 11:00 to 16:29 and cooking time 16:30 to 19:59 are new. Wrong guess costs: a household that eats at 6:30 pm or 8 pm sees the wrong lead for up to an hour; the better answer is the household&rsquo;s own cooking time (from the plan or its cooking history). Four constants in <code>home.js</code>.</li>
+<li><b>MS-P2 The clock</b> is the device&rsquo;s local time. Wrong guess costs: someone travelling sees their home time&rsquo;s meal; none for a household in one place.</li>
+<li><b>MS-P3 Two seconds of idle.</b> Counted from the tap; any change to the field cancels it, and emptying the field starts it again. Wrong guess costs: <b>too short</b> and a card appears under someone who is about to type (a flash of content they did not ask for); <b>too long</b> and a tapped, empty bar looks broken. One constant, <code>idleMs</code>.</li>
+<li><b>MS-P4 Accessibility of content appearing unasked.</b> The card is announced once per tap through a polite live region (never assertive); focus never moves (the field keeps it, the card is reached by swiping or Tab afterwards); a tap on the card or the week never drops the keyboard; no timer closes it. Reduced motion: the 220ms fade is off, the card simply appears; the wait stays. Wrong guess costs: a screen-reader user hears one extra line; a person who finds it noisy has no off switch (see MS-Q3).</li>
+<li><b>MS-P5 Takeover, not dim.</b> Desktop dims the cards to 14% behind the list; on a phone with the keyboard up there is no room behind, so the cards are hidden and Home comes back exactly where it was scrolled. Wrong guess costs: less sense of place; a fade-out is the alternative.</li>
+<li><b>MS-P6 One card, by a short ladder</b> (the table above). Wrong guess costs: the wrong single thing leads; the card is one function and the actions are the buttons Home already has.</li>
+<li><b>MS-P7 The remembered start,</b> default Full, chosen in Settings, not on Home. Wrong guess costs: a setting nobody opens; Compact stays unseen (as MV-Q2).</li>
+<li><b>MS-P8 Leaving.</b> Cancel (a 44px text button, the only control added while the bar has the screen), Esc, or tapping away with nothing typed returns Home; tapping away with words typed keeps the dropdown and drops the keyboard. Wrong guess costs: a stray tap keeps a stale list open; the words are kept so nothing is lost.</li>
+<li><b>MS-P9 Six rows, not eight,</b> and smaller group caps, because the keyboard leaves about 400px. Wrong guess costs: a fifth group falls below the fold; it scrolls.</li>
+<li><b>MS-P10 The week</b> is a list at rest and a seven-day strip (a dot for a planned day, a ring for today) while the bar has the screen. Each day is a 44px+ button that would open that day in the Plan. Wrong guess costs: the strip hides meal names; tap a day for them.</li>
+<li><b>MS-P11 Mid-day, tonight planned, leads with the one thing running low</b> (the shopping window, with Add to list). This is the one place the card nudges toward a purchase, in a product whose assistants never push purchases. Wrong guess costs: an annoying nudge; the alternative is to repeat tonight&rsquo;s meal, which is safe but says nothing new (MS-Q6).</li>
+<li><b>MS-P12 No microphone, no hint, no coachmark.</b> The placeholder (&ldquo;Search, or what&rsquo;s for tonight&rdquo;) is the only teaching. Wrong guess costs: someone does not realise the bar answers questions with nothing typed; they find out by tapping it.</li>
+<li><b>MS-P13 Typed results hide only hard avoids,</b> as desktop does (HS-P9); the suggestion card uses the full Cooking ideas rules (recent, snoozed, capped, planned elsewhere). Wrong guess costs: a recipe found by name that the card would not suggest.</li>
+<li><b>MS-P14 Phone width only</b> (under 600px). Tablet and desktop Home are unchanged by this fragment; desktop has <a href="../desktop-home-search/" style="color:var(--accent)">its own</a>.</li>
+<li><b>MS-P15 The bar is pinned</b> to the top of full Home while it scrolls (about 60px that never scrolls away), because &ldquo;the search bar is always there&rdquo; should be true on a long page. Wrong guess costs: 60px of a small screen; unpinned, the bar scrolls off and needs a scroll to the top first.</li>
+</ul>
+
+<h2>Open questions, with what a wrong guess costs</h2>
+<ul class="notes">
+<li><b>MS-Q1 Is F the answer, instead of any of A to E?</b> Recommendation: yes. It removes the switch, the hint and the second layout, and matches desktop. Cost if wrong: A to E are still drawn and unchanged, so nothing is lost.</li>
+<li><b>MS-Q2 Default start for a new person: Full (drawn) or Compact?</b> Recommendation: Full. Compact makes the lean screen everyone&rsquo;s first view, which is a bigger decision than a setting. Cost: most people never see the other one.</li>
+<li><b>MS-Q3 Trigger: two seconds idle (the owner&rsquo;s), or the moment the bar is tapped?</b> Open <code>?trigger=focus</code> to compare. Recommendation: draw the owner&rsquo;s two seconds, then test on a phone: if the wait feels dead, ship the immediate trigger (same constant, <code>0</code>). Cost: a flash of unasked content versus a bar that looks broken for two seconds.</li>
+<li><b>MS-Q4 Fixed windows or the household&rsquo;s own cooking time?</b> Recommendation: fixed now, the household&rsquo;s later. Cost: see MS-P1.</li>
+<li><b>MS-Q5 Should compact at rest already show the card, without a tap?</b> The owner&rsquo;s words say no (tapped, then idle). Cost if it should: Home would change unasked on open, which A to E&rsquo;s learner (E) was already judged too surprising for.</li>
+<li><b>MS-Q6 Mid-day with tonight planned: running low, or tonight&rsquo;s meal again?</b> Recommendation: tonight&rsquo;s meal if the owner dislikes any purchase nudge. Cost: see MS-P11.</li>
+<li><b>MS-Q7 Where is the start chosen?</b> Settings row (drawn), or no choice at all (compact only on mobile, full dropped), or a long-press on the bar. Recommendation: the Settings row. Cost: a hidden setting, or losing the full Home on phones.</li>
+<li><b>MS-Q8 Do Make it and Plan on the card act in place</b> (a sheet over Home, DESIGN.md 6a) or navigate? Recommendation: in place. Cost: a reload where the owner wants none.</li>
+<li><b>MS-Q9 What does a tap on a day in the strip do?</b> Drawn: opens that day in the Plan. Cost: a stub to change.</li>
+<li><b>MS-Q10 After dinner: tomorrow, or nothing?</b> Drawn: tomorrow, as ideas.js already does after 8 pm. Cost: a late snack asker finds nothing for now.</li>
+</ul>
+
+<h2>What loads</h2>
+<p><b>Default path:</b> this page, <code>theme.css</code> (two themes inline), <code>theme.js</code>, <code>home.css</code> (about 9 KB raw, phone only: the idle Home, the bar, the week, the suggestion card), <code>home.js</code> (about 10 KB raw, mostly markup and the remembered start) and <code>mock.js</code> (the mockup&rsquo;s frames, never for the build). No images, no fonts beyond the theme, no framework, no network call. <b>In compact, at rest, only the bar and the week are drawn</b> (the cards are not built). <b>Deferred:</b> <code>search.css</code> and <code>search.js</code> (the sample index, <code>rank()</code>, <code>surface()</code>, the dropdown) are fetched on the first tap on the bar, so they are on the way during the two seconds of waiting. In the build, the one read they need (the pantry, recipes, shopping and plan, for the ranking and the card) is made then, not on page load or scroll; the result lands in place (DESIGN.md 6a). Nothing is read on scroll.</p>
+
+<h2>For the build</h2>
+<ul class="notes">
+<li>Lift <code>home.css</code> and the markup <code>homeHtml()</code> writes. The two attributes are <code>.home[data-opens=full|compact]</code> and <code>.home[data-mode=rest|search]</code>; compact at rest is the same markup with the cards not drawn. Existing names: <code>.hi .tilec .th2 .ric .va .minis .ideas .idl .top2 .ph .why .k .acts .btn .idr .go .e .sub .bar</code>. New names: <code>.srch .cx .sg .wk .wd .kbm</code> (the keyboard stand-in is mock only, do not build it). Dropdown names are desktop Home search&rsquo;s.</li>
+<li>Lift <code>search.js</code>&rsquo;s <code>surface()</code> and <code>rank()</code> as functions, not their sample data. <code>rank()</code> is a copy in shape of desktop&rsquo;s (and of <code>ideas.js</code>); the real one should be shared, not copied (see the PR).</li>
+<li>Use <code>100dvh</code> (not a fixed height) so the dropdown and the strip fit above the real keyboard.</li>
+<li>Check: <code>node tools/mobile-home-compact-search-check.mjs</code> (needs <code>python3 -m http.server 8123</code>).</li>
+</ul>
+<p>Mockup and options only; nothing is built into the real app. Related: <a href="../mobile-home-view-switch/" style="color:var(--accent)">Mobile Home: switching to Compact (A to E)</a>, <a href="../desktop-home-search/" style="color:var(--accent)">Desktop Home, search first</a>, <code>docs/knowledge/jobs-to-be-done/mobile-home-compact-search.md</code>.</p>
+</div>
+<script src="home.js"></script><script src="mock.js"></script>
+</body></html>

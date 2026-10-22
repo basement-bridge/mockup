@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Add item: an amount or a level — fragment</title><link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><link rel="stylesheet" href="ael.css"><script src="../../theme.js"></script></head>
+<body>
+<div class="wrap">
+<a class="back" href="../../index.html">All mockups</a>
+<h1>Add item: an amount or a level</h1>
+<p>Kitchie <a href="https://github.com/basement-bridge/kitchie/issues/1047">#1047</a>. When someone adds an item, Add asks for a number of units. Some people, in some cases, will want to give a level instead (Plenty, Some, Running low, Out). Four ways to let them, drawn on the Add sheet. <b>Mockup only, nothing built, options not decided.</b> Drawn from Kitchie <code>uat</code> at <code>83180cc</code> (v0.159.0, 22 October 2026). Tap anything in a frame: it works, and the dashed box under each frame says what Add would store.</p>
+<div class="ael-fr">
+<figure><figcaption>A · A switch <span class="tag flow">recommended</span></figcaption>
+<iframe src="add.html#a" title="Option A: a Quantity or Level switch" loading="lazy"></iframe>
+<div class="ael-out" role="note" aria-live="polite"></div>
+<p class="ael-cap">One two-way switch at the top of Amount. Quantity is what Add does today; Level swaps the quantity block for the four squares. Both choices are on screen.</p></figure>
+<figure><figcaption>B · Both, joined by "or"</figcaption>
+<iframe src="add.html#b" title="Option B: quantity and level together" loading="lazy"></iframe>
+<div class="ael-out" role="note" aria-live="polite"></div>
+<p class="ael-cap">No switch: the quantity and the level are both there. Fewest taps, tallest form, and it invites giving both.</p></figure>
+<figure><figcaption>C · A quiet second button</figcaption>
+<iframe src="add.html#c" title="Option C: Set a level beside Add unit" loading="lazy"></iframe>
+<div class="ael-out" role="note" aria-live="polite"></div>
+<p class="ael-cap">Add stays exactly as it is. A ghost button "Set a level" sits beside "Add unit" and swaps the block in place; "Use a quantity" swaps it back. Try the level side: <a href="add.html#c-level">add.html#c-level</a>.</p></figure>
+<figure><figcaption>D · One or the other, by a setting <span>(on Add)</span></figcaption>
+<iframe src="add.html#d" title="Option D: Add shows only the level" loading="lazy"></iframe>
+<div class="ael-out" role="note" aria-live="polite"></div>
+<p class="ael-cap">The form has no choice: it shows only what the person set once. Drawn here for someone who set Level. There is no way to count on Add.</p></figure>
+<figure><figcaption>D · The setting <span>(Preferences)</span></figcaption>
+<iframe src="add.html#dp" title="Option D: the Preferences row" loading="lazy"></iframe>
+<p class="ael-cap">One row in Preferences, remembered on this device only (Preferences are client-side). One rule for every item the person adds.</p></figure>
+</div>
+
+<div class="ael-qs"><b>What the code already does</b> (read from <code>uat</code> <code>83180cc</code>, not run)
+<ul>
+<li>The web Add route already accepts a level and stores it as the person's own (<code>web-edit.ts</code>, the add branch). Add simply does not draw the Level control (decisions 78 and 128). So a build is the control, not a new route or field.</li>
+<li>Level and quantity are two separate stored objects and never overwrite each other (R25). The level words and the three squares do not change.</li>
+<li><b>The shopping list reads a level only when there is no exact amount</b> (<code>store.ts</code>, the loose-level pass). A level-only item, or one with free words, at Running low or Out is listed as "running low" or "out", with no minimum. A level next to an exact amount is not read: the amount decides, and only against a minimum. This is what separates the options.</li>
+</ul>
+<b style="display:block;margin-top:14px">The four, side by side</b>
+<div class="ael-tablewrap"><table class="ael-cmp"><thead><tr><th></th><th>Taps to a level</th><th>Both choices on screen</th><th>What it costs</th><th>With no script</th></tr></thead><tbody>
+<tr><th>A switch</th><td>2</td><td>Yes</td><td>One more row. People who only count pay nothing else.</td><td>Both fields are plain inputs, so it reads as B.</td></tr>
+<tr><th>B both</th><td>1</td><td>Yes, together</td><td>Tallest form. Invites a level beside an exact amount, which the list ignores.</td><td>As drawn.</td></tr>
+<tr><th>C quiet button</th><td>2</td><td>No, only the button</td><td>Add is unchanged. Level is a second-class route that is easy to miss.</td><td>The button needs script, so it reads as B.</td></tr>
+<tr><th>D setting</th><td>1 (after a one-time setting)</td><td>No, one only</td><td>One rule for every item: a household that counts milk and levels spices is stuck. Counting moves to Edit.</td><td>Cannot remember the setting, so Add falls back to Quantity.</td></tr>
+</tbody></table></div>
+
+<b style="display:block;margin-top:14px">Proposals</b> (the mockup's own choices, the owner was silent)
+<ul>
+<li><b>A, with C as the runner-up</b> if Add must stay exactly as quiet as today. A is the quantity editor's own idea (two explicit states, R25), the owner preferred "choose between them", and nothing is hidden. D is drawn because he floated "one or the other"; it is not recommended.</li>
+<li>Quantity is the default, as Add is today, so nothing changes for anyone who never switches.</li>
+<li>Only the side showing is saved. What was typed on the other side stays in the form while it is open, so a flip back loses nothing, and the readout says it was not saved.</li>
+<li>The last choice is remembered on this device only, not for the household (design principle: preferences are client-side).</li>
+<li>No square is preselected: nothing is invented for the person. Add with Level showing and no square saves just the name, and the cue reads "Automatic".</li>
+<li>Minimum stock is not drawn on the Level side: a level has nothing to compare against.</li>
+<li>Tapping the picked square again takes it back, and the circular arrow does the same (the Edit flyout's "Set by you" cue, decisions 111 and 112). The words are the form's own: Quantity, Level.</li>
+<li>The same control in the quick-add sheet and the desktop Add flyout, since they are one form. Not drawn separately at 1280; confirm there.</li>
+</ul>
+<b style="display:block;margin-top:10px">Open</b> (what a wrong guess costs)
+<ul>
+<li><b>Which option?</b> Wrong A: one extra row for people who only count. Wrong C: Level stays hard to find. Wrong D: a mixed household is stuck on one way of adding.</li>
+<li><b>Default to Quantity, or open on the last choice?</b> Wrong "last choice": Add opens on Level for someone who is counting milk, one tap to flip. Wrong "always Quantity": a Level person flips on every add.</li>
+<li><b>Should a person be able to give both (B)?</b> If yes, a level beside an exact amount is stored but ignored by the shopping list, and the form should say so.</li>
+<li><b>Preselect Plenty?</b> Wrong "no": one extra tap on every add. Wrong "yes": a state the person never gave.</li>
+<li>Whether the quick-add sheet should offer it at all, or only the full Add.</li>
+</ul>
+<p style="margin:12px 0 0;color:var(--muted)">Loads: static HTML for each frame, <code>theme.css</code>, the Edit flyout's <code>flyout.css</code> (the shared form family), <code>ael.css</code> and <code>ael.js</code>, all cached after the first frame. No request after that, no image, no font. Frames load on scroll (<code>loading="lazy"</code>). In the build there is no new request: the level picker is the one Edit already draws, so the cost is the markup of one control on Add and a few lines in the form script that already loads. Notes: <a href="https://github.com/basement-bridge/mockup/blob/main/docs/knowledge/add-amount-or-level.md">docs/knowledge/add-amount-or-level.md</a>.</p>
+</div>
+</div>
+<script>
+/* The dashed boxes are a mock aid. Each frame sends what Add would store as plain data; the page writes it with textContent. */
+(function () {
+  function fill(o, r) { o.textContent = ""; var b = document.createElement("b"); b.textContent = r.title; o.appendChild(b); r.lines.forEach(function (t) { var p = document.createElement("p"); p.textContent = t; o.appendChild(p); }); }
+  window.addEventListener("message", function (ev) {
+    if (ev.origin !== location.origin && location.origin !== "null") return;
+    var d = ev.data; if (!d || d.ael !== "out" || !d.v || !Array.isArray(d.v.lines)) return;
+    [].forEach.call(document.querySelectorAll("iframe"), function (f) {
+      if (f.contentWindow !== ev.source) return;
+      var o = f.parentNode.querySelector(".ael-out"); if (o) fill(o, { title: String(d.v.title), lines: d.v.lines.map(String) });
+    });
+  });
+})();
+</script>
+</body></html>

@@ -1,0 +1,27 @@
+/* The live dropdown and the receding page. Fetched on first focus of the search bar (not on page load). Tokens only.
+   Reuses desktop-home's .sres .g .i; new: .res .ctx .rk .mt .foot .recede .out .empt */
+.sres{position:absolute;left:0;right:0;top:100%;margin-top:6px;z-index:30;background:var(--surface);border:1px solid var(--accent);border-radius:var(--r-card);padding:6px 8px 0;box-shadow:0 14px 36px color-mix(in srgb,var(--fg) 22%,transparent)}
+.sres{max-height:640px;overflow:auto}
+.sres[hidden]{display:none}
+@media (prefers-reduced-motion:no-preference){.sres{animation:sresin .14s ease-out}}
+@keyframes sresin{from{opacity:0;transform:translateY(-4px)}}
+.sres .ctx{display:flex;align-items:center;gap:6px;padding:4px 8px 2px;font-size:12px;color:var(--muted)}
+.sres .g{font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:8px 8px 2px;display:flex;gap:8px}
+.sres .g i{font-style:normal;font-weight:600;letter-spacing:0;text-transform:none}
+.sres .i{display:flex;gap:10px;align-items:center;width:100%;min-height:48px;padding:4px 8px;border-radius:var(--r-ctl);text-align:left;border-top:0}
+.sres .i[aria-selected=true]{background:color-mix(in srgb,var(--accent) 14%,var(--surface));box-shadow:inset 3px 0 0 var(--accent)}
+.sres .i .t{flex:1;min-width:0}
+.sres .i .t b{display:block;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sres .i .t small{display:block;color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:0}
+.sres .i .rk{flex:none;margin-left:auto;font-size:12.5px;font-weight:700;color:var(--muted);white-space:nowrap}
+.sres .i .rk.hot{color:var(--danger)}
+.sres .i .rk.ok{color:var(--cue)}
+.sres .i.out{opacity:.72}.sres .i.out .t b{font-weight:600}
+.mt{color:var(--accent);font-weight:800}
+.sres .empt{padding:14px 8px 8px;color:var(--muted)}.sres .empt b{color:var(--fg)}
+.sres .foot{display:flex;gap:14px;align-items:center;padding:8px 8px;margin-top:6px;border-top:1px solid var(--border);font-size:12px;color:var(--muted)}
+.sres .foot .kbd{margin-right:4px}
+/* everything behind the dropdown recedes (owner: "otherwise it's widget on top of widget") EXCEPT This week (owner, 22 Oct 2026, voice: the week plan stays fully visible and active) */
+.desk.searching .cards,.desk.searching .rail,.desk.searching .fly{opacity:.14;pointer-events:none}
+.desk.searching .week{opacity:1;pointer-events:auto}
+.desk.searching.collapse .cards{display:none}

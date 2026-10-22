@@ -67,6 +67,8 @@ No edit form of its own (Edit and History are the item edit flyout's, tucked in 
 290. (CONFIRMED 12 Oct 2026, owner by voice) **Compact view gets the flyout too, for a recipe search result.** Compact has no gutter, so while the flyout is open the page reserves the same 400px lane: the column steps left and the flyout never covers it; closing it centres the column again. Everything else in Compact is unchanged from 133: no detail panel, no stack, no This week, and an item search result or a row follows its link.
 291. (CONFIRMED 12 Oct 2026, owner by voice; **item results unchanged**) **Same conventions as the panel, and item results keep the Pantry flyout.** One parent flyout at a time (choosing another result replaces it); the X and Ctrl or Cmd plus Escape close it, plain Esc does not; the search box keeps what was typed and gets focus back on close, without reopening the list; no row is lit (a search result is not a row); nothing is fetched until a result is chosen (the flyout script, its styles and its one read). The Plan button carries its own data, so it works with no list row. A Pantry item result keeps the item panel of 140 (the Pantry's own flyout); the lighter read-only item view tried in draft PR #685 is dropped.
 
+*Added 22 Oct 2026:* whether Compact (133, 290) should stay, and how its empty state and status pills could improve, is drawn in [compact-home.md](compact-home.md) (`fragments/compact-home-options/`, options A to F, all Proposals). Nothing there changes 133 or 290 until the owner decides; if Compact is retired, 290's reserved lane for Compact goes with it.
+
 ## Options (the layout is genuinely open; recommend A)
 
 | Option | Rule | Files | Cost |
@@ -93,3 +95,5 @@ All eight questions of the first round are answered (CONFIRMED, 12 Oct 2026): 1 
 - State is in the URL in the mockup (`open`, `front`, `child`, `q`, `lead`, `ideas`, `week`, `detail`, `opt`, `peek`); the build can keep `open` in the URL as the plan does.
 - Real data: the panel reads the same item and idea records the rows already have; the idea's ingredient list and its stock match come from Recipe's `what_am_i_missing`, asked on open.
 - Check: `node tools/home-detail-panel-check.mjs` (behaviour, breakpoints, states, no console errors, no sideways scroll). DESIGN.md learnings applied: 1 start from the job, 2 one token set, 4 one visual family, 5 options, 6 load only what is needed now, 7 form factors.
+
+*Added 22 Oct 2026 (owner, voice):* there is no Compact view on desktop any more, so 290 (the lane reserved in Compact) and the Compact-only rules of 133 fall away; a recipe search result still opens the 400px flyout and an item result the item panel (288, 291), now from the live dropdown of [home-search.md](home-search.md) (`fragments/desktop-home-search/`).
