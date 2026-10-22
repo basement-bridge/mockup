@@ -95,3 +95,5 @@ All eight questions of the first round are answered (CONFIRMED, 12 Oct 2026): 1 
 - State is in the URL in the mockup (`open`, `front`, `child`, `q`, `lead`, `ideas`, `week`, `detail`, `opt`, `peek`); the build can keep `open` in the URL as the plan does.
 - Real data: the panel reads the same item and idea records the rows already have; the idea's ingredient list and its stock match come from Recipe's `what_am_i_missing`, asked on open.
 - Check: `node tools/home-detail-panel-check.mjs` (behaviour, breakpoints, states, no console errors, no sideways scroll). DESIGN.md learnings applied: 1 start from the job, 2 one token set, 4 one visual family, 5 options, 6 load only what is needed now, 7 form factors.
+
+*Added 22 Oct 2026 (owner, voice):* there is no Compact view on desktop any more, so 290 (the lane reserved in Compact) and the Compact-only rules of 133 fall away; a recipe search result still opens the 400px flyout and an item result the item panel (288, 291), now from the live dropdown of [home-search.md](home-search.md) (`fragments/desktop-home-search/`).

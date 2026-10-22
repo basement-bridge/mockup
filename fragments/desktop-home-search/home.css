@@ -1,0 +1,69 @@
+/* Desktop Home, search first: the styles a build lifts. Tokens only (theme.css); no raw colours; desktop only (DESIGN.md section 7).
+   Class names are desktop-home's (.rail .nv .topbar .us .sres .g .i .card .th .lead .ir .or .e .t .k .pl .btn .wd .week .kbd).
+   New names, explained in the page notes: .sw .res .ctx .rk .mt .foot .fly .recede. Sample names live in home.js and search.js, never here.
+   This file is the DEFAULT path (idle Home). The dropdown styles are search.css, fetched on first focus. */
+*{box-sizing:border-box}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;padding:0}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.desk{position:relative;display:flex;width:1224px;height:720px;border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden;background:var(--bg);font-size:14px}
+.rail{width:88px;flex:none;border-right:1px solid var(--border);padding:16px 8px;display:flex;flex-direction:column;gap:6px}
+.rail .brand{font:700 13px var(--head);text-align:center;color:var(--muted);margin-bottom:10px}
+.nv{display:flex;flex-direction:column;align-items:center;gap:2px;min-height:var(--tap);padding:8px 2px;border-radius:var(--r-ctl);font-size:12px;font-weight:600;color:var(--muted)}
+.nv svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nv.on{color:var(--accent);background:var(--surface)}
+.main{flex:none;width:736px;padding:0 48px 24px;overflow:auto;scrollbar-gutter:stable}
+/* the search bar is the first thing and stays put while the cards scroll under it */
+.topbar{position:sticky;top:0;z-index:10;background:var(--bg);padding:20px 0 10px;margin-bottom:0}
+.sw{position:relative}
+.us{display:flex;align-items:center;gap:8px;min-height:var(--tap);padding:0 16px;border-radius:var(--r-pill);background:var(--surface);border:1px solid var(--border);color:var(--muted)}
+.us:focus-within{border-color:var(--accent);color:var(--fg)}
+.us svg{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;flex:none}
+.us input{flex:1;min-width:0;height:42px;border:0;background:none;color:var(--fg);font:inherit;font-size:15px;outline:0;-webkit-appearance:none;appearance:none}
+.us input::placeholder{color:var(--muted)}
+.us input::-webkit-search-cancel-button{cursor:pointer}
+.us:focus-within .kbd,.us.has .kbd{display:none}
+.kbd{font:600 11px var(--body);border:1px solid var(--accent);border-radius:6px;padding:1px 6px;color:var(--accent)}
+.cards{transition:opacity .16s ease}
+/* cards (the settled Dashboard) */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:14px 16px;margin-top:12px}
+.th{display:flex;align-items:center;gap:8px;margin-bottom:8px}.th h2{margin:0;flex:1;font-family:var(--head);font-size:1.15rem}
+.th a,.th button{color:var(--accent);font-weight:700;font-size:13px;min-height:36px;display:inline-flex;align-items:center;padding:0 6px}
+.sh,.sh2{font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:10px 0 2px}.sh:first-child{margin-top:0}
+.lead{display:flex;align-items:center;gap:12px;padding:6px;border:1px solid var(--accent);box-shadow:inset 0 0 0 1px var(--accent);border-radius:var(--r-card);background:var(--bg)}
+.lead .hrow{min-height:76px;gap:14px}.lead .hrow:hover{background:none}
+.lead .e{font-size:34px;width:64px;height:64px;border-radius:var(--r-ctl);background:color-mix(in srgb,var(--accent) 18%,var(--surface))}
+.lead .t{flex:1;min-width:0;display:flex;flex-direction:column}.lead .t b{font-size:17px}.lead .t small{color:var(--muted);font-size:13px}.lead .hrow .t small{white-space:normal}
+.lead .acts{display:flex;gap:8px;margin-right:6px}
+.k{color:var(--accent);font-weight:800;font-size:11px;letter-spacing:.06em;text-transform:uppercase}.k.planned{color:var(--sage)}
+.e{display:inline-flex;align-items:center;justify-content:center;flex:none}
+.e.s{width:36px;height:36px;border-radius:var(--r-ctl);font-size:20px;background:var(--bg);border:1px solid var(--border)}
+.hrow{display:flex;align-items:center;gap:10px;flex:1;min-width:0;min-height:44px;padding:4px 8px;border-radius:var(--r-ctl);text-align:left}
+.hrow:hover{background:var(--surface)}
+.hrow .t{flex:1;min-width:0}.hrow .t b{display:block;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hrow .t small{display:block;color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ir,.or{display:flex;align-items:center;gap:10px;min-height:52px;border-top:1px solid var(--border);padding:4px 0}
+.rows>:first-child,.stack .sh+.or{border-top:0}
+.btn{min-height:var(--tap);padding:0 16px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--surface);color:var(--fg);font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}
+.btn.pri{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.btn.sm{min-height:36px;padding:0 12px;font-size:13px}
+.btn.lnk{background:none;border-color:transparent;color:var(--accent)}
+.pl{display:inline-flex;align-items:center;min-height:28px;padding:0 10px;border-radius:var(--r-pill);border:1px solid var(--border);font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap}.pl.hot{border-color:var(--accent);color:var(--accent)}
+.rok{color:var(--cue);font-weight:700;font-size:13px}.rmiss{color:var(--danger);font-weight:700;font-size:13px}
+/* This week gutter */
+.week{width:400px;flex:none;border-left:1px solid var(--border);background:var(--surface);padding:24px;display:flex;flex-direction:column;transition:opacity .16s ease}
+.week h2{margin:0;font-family:var(--head);font-size:1.15rem}.week p{margin:2px 0 6px;color:var(--muted);font-size:13px}
+.wd{display:flex;gap:10px;align-items:baseline;padding:12px 0;border-top:1px solid var(--border);font-size:14px}
+.wd b{flex:none;width:56px}.wd span{color:var(--muted)}.wd.now b{color:var(--accent)}.wd.set span{color:var(--fg)}
+.rail{transition:opacity .16s ease}
+/* the flyout lane: 400px, takes the This week gutter's place (decision 289); the item panel and the recipe flyout are stand-ins, see the notes */
+.fly{position:absolute;top:0;right:0;bottom:0;width:400px;z-index:20;background:var(--surface);border-left:1px solid var(--border);padding:24px;overflow:auto;transition:opacity .16s ease}
+.fly[hidden]{display:none}
+.fly .fh{display:flex;align-items:center;gap:12px}.fly .fh .e{width:56px;height:56px;font-size:30px;border-radius:var(--r-ctl);background:var(--bg);border:1px solid var(--border)}
+.fly .fh b{display:block;font-family:var(--head);font-size:1.25rem}.fly .fh small{color:var(--muted)}
+.fly .x{margin-left:auto;width:var(--tap);height:var(--tap);border-radius:50%;border:1px solid var(--border);font-size:20px;line-height:1}
+.fly .why{margin:14px 0;color:var(--fg)}.fly .blk{margin:14px 0;padding:10px 12px;border:1px dashed var(--border);border-radius:var(--r-card);color:var(--muted)}
+.fly ul{list-style:none;margin:6px 0 14px;padding:0}.fly li{display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid var(--border)}
+.fly .sacts{display:flex;gap:8px;margin-top:10px}.fly .phint{margin-top:16px;font-size:12px;color:var(--muted)}
+.toast{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);z-index:70;background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:var(--r-ctl);font-weight:600;font-size:14px;max-width:520px}
+.toast[hidden]{display:none}
+@media (prefers-reduced-motion:reduce){.cards,.week,.rail,.fly{transition:none}}

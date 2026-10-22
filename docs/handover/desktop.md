@@ -103,7 +103,7 @@ Found by reading `uat` (read only; nothing was changed there).
 4. **Scenario controls on desktop.** The household flow's scenario controls (persona, invite, household, jump to) do not load at desktop sizes, because desktop opens its own page. Proposed fix: share the same state and Controls panel, carried in the URL. Not built.
 5. **"Same number of rows" elsewhere.** The owner asked for a similar row limit "elsewhere"; the Category curtain already has it. Other places not named.
 6. **The "focus" shortcut.** M is my proposal for the main column; the owner said it needs its own single key and left the letter to me.
-7. **Keep or retire the Home Compact view (owner, typed, 22 Oct 2026).** Six options drawn in `fragments/compact-home-options/` (notes: `docs/knowledge/jobs-to-be-done/compact-home.md`, CH-P1 to CH-P12, CH-Q1 to CH-Q5). Recommendation: retire (F) unless he uses it; if it stays, E. Not decided.
+7. **Home Compact view: decided, retired on desktop (owner, voice, 22 Oct 2026).** There is no Dashboard / Compact toggle; one Home, the settled Dashboard, with the universal search driving it: idle is the curated answer, typing is a live contextual dropdown and the page behind recedes. Mockup `fragments/desktop-home-search/`, notes `docs/knowledge/jobs-to-be-done/home-search.md` (HS-P1 to HS-P17 proposals, HS-Q1 to HS-Q7 open; the ranking source is `recipe-ideas/ideas.js`, where it runs is not decided). `fragments/compact-home-options/` is partly superseded (options A and C stay open for the empty state). Not built.
 
 ## 10. How to build it: one coordinator, several agents, one consistency rule
 
@@ -118,6 +118,7 @@ Owner, voice, 10 October 2026: it is implemented **through multiple agents with 
 ## 11. File map (mockup)
 
 - `fragments/desktop/desktop.js`, `desktop.css`: the Pantry and Home screens (state, Filters, Sort, History, Add, shortcuts).
+- `fragments/desktop-home-search/`: Home as one view, search first (22 Oct 2026): `home.js` idle Home, `search.js` the contextual dropdown and `rank()`, `flyout.js` the 400px lane; check `tools/desktop-home-search-check.mjs`.
 - `fragments/desktop-profile/`: the Profile window (round 6, 12 Oct 2026: dots and one proposal visual in Preferences, SW-37 to SW-46; the "set someone up with their own household" gutter entry and modal, `docs/knowledge/invite-new-household.md`).
 - `fragments/invite-new-household/`: the invited person's sign-up side and the notes for that feature.
 - `fragments/device.js`: the hidden Device control. `flows/household/`: the phone flow.
@@ -131,6 +132,7 @@ Base: `https://basement-bridge.github.io/mockup/fragments/desktop/`. Add `&vp=12
 | State | Link |
 |---|---|
 | Home | `home.html` |
+| Home, search first (one view, live contextual dropdown) | `../desktop-home-search/?q=chick` (also `tonight=planned`, `recede=collapse`) |
 | Pantry, item open | `pantry.html?sel=butter` |
 | History column | `pantry.html?sel=butter&hist=1` |
 | Filters, clean | `pantry.html?filters=1` |

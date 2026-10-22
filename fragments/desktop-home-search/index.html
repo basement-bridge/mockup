@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Desktop Home, search first — fragment</title>
+<link rel="stylesheet" href="../../theme.css"><script src="../../theme.js"></script><link rel="stylesheet" href="home.css">
+<style>
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);line-height:1.4}
+.wrap{max-width:1360px;margin:0 auto;padding:0 16px 80px}
+.back{color:var(--accent);font-weight:700;display:inline-flex;align-items:center;min-height:36px}
+h1,h2,h3{font-family:var(--head)}h1{margin:0 0 2px;font-size:1.5rem}h2{margin:36px 0 6px;font-size:1.25rem}h3{margin:18px 0 4px;font-size:1.05rem}
+p,li{color:var(--muted);max-width:80ch}p b,li b{color:var(--fg)}code{font-size:.92em}
+.notes{max-width:80ch}.notes li{margin:5px 0}
+.own{border-left:3px solid var(--accent);padding:2px 0 2px 12px;color:var(--fg);max-width:80ch;margin:10px 0}
+.bar{position:sticky;top:0;z-index:40;background:var(--bg);border-bottom:1px solid var(--border);padding:6px 16px;margin:8px -16px 0;display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center}
+.bar .lbl{font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-right:6px}
+#stateSw{display:inline-flex;flex-wrap:wrap;gap:6px;align-items:center}
+#stateSw button{min-height:36px;padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-weight:700;font-size:13px;color:var(--muted)}
+#stateSw button[aria-pressed=true]{background:var(--accent);border-color:transparent;color:var(--on-accent)}
+.dw{margin:10px 0 0;overflow-x:auto;max-width:100%}.dw figcaption{margin-top:8px;color:var(--muted);max-width:1280px}.dw figcaption b{color:var(--fg)}
+table{border-collapse:collapse;width:100%;max-width:1100px;font-size:14px}th,td{text-align:left;vertical-align:top;border-top:1px solid var(--border);padding:8px 10px;color:var(--muted)}th{font-size:12px;letter-spacing:.06em;text-transform:uppercase}td:first-child{color:var(--fg);font-weight:700;white-space:nowrap}.tw{overflow-x:auto}
+.q{margin:18px 0;padding:14px 16px;border:1px dashed var(--border);border-radius:var(--r-card);max-width:900px}
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Desktop Home, search first</h1>
+<p style="margin:0">One Home, no toggle. Idle is what is worth your attention tonight; typing opens a live, contextual answer under the bar and everything behind it steps back. Sample data. Theme button for light and dark.</p>
+
+<div class="bar" role="group" aria-label="Mockup controls (not part of the screen)">
+<span id="stateSw"><span class="lbl">State</span>
+<button type="button" data-q="">Idle</button><button type="button" data-q="chick">Typing &ldquo;chick&rdquo;</button><button type="button" data-q="quinoa">No match</button><button type="button" data-q="satay">Person-blocked recipe</button><button type="button" data-q="egg">&ldquo;egg&rdquo;</button>
+<span class="lbl" style="margin-left:14px">Tonight</span><button type="button" data-t="open">Not planned</button><button type="button" data-t="planned">Planned</button>
+<span class="lbl" style="margin-left:14px">Behind the list</span><button type="button" data-r="dim">Dim</button><button type="button" data-r="collapse">Collapse</button></span>
+</div>
+<figure class="dw"><div id="deskHost"></div>
+<figcaption><b>Try it:</b> press <span class="kbd">/</span> or <span class="kbd">Ctrl K</span> to focus the bar, type, <span class="kbd">&uarr;</span> <span class="kbd">&darr;</span> to move, <span class="kbd">Enter</span> to open, <span class="kbd">Esc</span> to clear and go back to idle. A recipe opens the 400px flyout lane, a pantry item the item panel (<span class="kbd">Ctrl Esc</span> closes). The first row is highlighted so Enter works at once.</figcaption></figure>
+<div class="own"><b>Owner, voice, 22 Oct 2026:</b> &ldquo;build, build, build.&rdquo; No Dashboard / Compact toggle on desktop, one Home view. The page is about <b>search being the focus</b>: idle is the curated answer (&ldquo;what grabs attention&rdquo;); typing is a live dropdown beneath the bar, no Enter, no results page, results <b>contextually relevant, not just name matches</b>: recipes you can make tonight, recipes that need a shop (say what is missing), pantry items (going off, running low), shopping-list items, what is planned; grouped and ranked by context. Everything behind the dropdown recedes: &ldquo;otherwise it&rsquo;s widget on top of widget.&rdquo; Drop chips, status pills, near-miss cards and Plan tonight from this idea; every control earns its place.</div>
+<p class="sr-only" id="live" role="status"></p>
+
+<h2>What this does</h2>
+<ol class="notes">
+<li><b>Idle is the settled Dashboard</b>, unchanged: Cooking ideas (the lead is today&rsquo;s plan, else the top idea), Other ideas, On the way out and Running low, This week in the gutter. The Dashboard / Compact toggle is gone. Nothing new is added: no chips, no status pills, no near-miss cards, no Plan tonight button.</li>
+<li><b>Searching</b> starts at the second character, with no Enter. A dropdown sits directly beneath the bar (6px gap, the bar&rsquo;s width). The cards, This week, the rail and any open flyout fade to 14% and cannot be focused, so the dropdown is the one answer. Nothing moves or reflows (DESIGN.md 6a). <code>Collapse</code> in the controls shows the other reading of &ldquo;fade, dim or collapse&rdquo;.</li>
+<li><b>The way back:</b> <span class="kbd">Esc</span> clears the field and idle returns at once (focus stays so you can type again); a second Esc on an empty field leaves it. Deleting the last letter or the field&rsquo;s own clear (x) does the same. Leaving the field by click or Tab hides the list but keeps the words; focusing it again shows it.</li>
+<li><b>Picking</b> keeps the existing behaviours: a recipe opens the 400px flyout lane (decision 290 without the Compact-only parts), a pantry item opens the item panel (291). The list closes, the words stay in the box, nothing is cleared; closing the flyout (<span class="kbd">Ctrl Esc</span> or its x) returns focus to the box without reopening the list.</li>
+<li><b>Context, not just names.</b> A recipe also matches by its ingredients (&ldquo;chick&rdquo; finds the satay and the tacos that use chicken). Each row says why it is here: <i>uses the chicken thighs going off tomorrow</i>, <i>needs laksa paste, coconut milk and rice noodles</i>, <i>Priya avoids peanuts</i>, <i>planned Thu</i>. A line at the top of the list says what the ranking is for (tonight, who is eating).</li>
+</ol>
+
+<h2>Groups and ranking (all Proposal, see below)</h2>
+<div class="tw"><table><thead><tr><th>Group (in this order)</th><th>What goes in</th><th>Inside the group</th></tr></thead><tbody>
+<tr><td>On tonight&rsquo;s plan</td><td>Only when tonight is planned and the planned meal matches. Opens like any recipe.</td><td>One row.</td></tr>
+<tr><td>Fits tonight</td><td>Recipes with at most 2 things missing (the rule Home already uses), not left out for anyone. Named <i>If plans change</i> when tonight is planned.</td><td>Uses something going off first; then a name match over an ingredient match; then fewer missing; then quicker.</td></tr>
+<tr><td>In your pantry</td><td>Items whose name matches.</td><td>Soonest use-by first, then running low, then the rest. <i>Use by tomorrow</i> is shown in the danger colour.</td></tr>
+<tr><td>Needs a shop</td><td>Recipes missing 3 or more things. The row names them (and says if one is already on the list).</td><td>Fewest missing, then quicker.</td></tr>
+<tr><td>On your shopping list</td><td>List rows whose name matches.</td><td>As listed.</td></tr>
+<tr><td>Left out for who is eating</td><td>Recipes a person eating tonight avoids. Dimmed, with who and what; still openable.</td><td>As found.</td></tr>
+</tbody></table></div>
+<p>At most 8 rows: one from every group that has a match first, then the rest by group priority and each group&rsquo;s own cap (3, 3, 2, 2, 1). A truncated group says &ldquo;2 of 5&rdquo;; typing more narrows it. There is no &ldquo;see all&rdquo; page.</p>
+
+<h2>Mocked now, and what the real search would need</h2>
+<div class="tw"><table><thead><tr><th>Piece</th><th>In the mockup</th><th>Real search</th></tr></thead><tbody>
+<tr><td>Matching</td><td>Substring, case and accents ignored, plural folded, as today; plus ingredient matching.</td><td>Today: name only, Pantry and Recipes (Shopping is not drawn in decision 144). Ingredient matching is new for Home. Recipe&rsquo;s <code>list_families</code> already matches <code>q</code> against title, ingredients and tags.</td></tr>
+<tr><td>Fits tonight</td><td>Missing things counted from a sample stock list.</td><td>The Cooking ideas ranking, <code>recipe-ideas/ideas.js</code> <code>rank()</code> (the shape of <code>suggest_meals</code>): ready (0, 1, 2, 3+ missing), use it up, rotation, favour, person rules, hard avoids. Needs a stock match for <b>every</b> recipe that matches the words, not only the top idea (Recipe <code>what_am_i_missing</code> or the same signals inside Kitchie).</td></tr>
+<tr><td>Use-by, low, list, plan, eaters, hard avoids</td><td>Sample constants at the top of <code>search.js</code>, each commented with its real source.</td><td>Kitchie. All already exist for the Dashboard and the Plan.</td></tr>
+<tr><td>Speed</td><td>Instant, local.</td><td>Not decided here: see HS-Q3. The ranking function is pure (signals in, groups out) so it can run wherever that decision puts it.</td></tr>
+</tbody></table></div>
+<p><b>Different from the ideas pane:</b> <code>rank()</code> hides recipes already on the plan, cooked in the last two days, snoozed or capped, because they are poor <i>suggestions</i>. A search is not a suggestion: someone looking for the traybake they cooked yesterday must find it. So only hard avoids leave the ranked groups here (HS-P9); the other signals may lower a row but never remove it.</p>
+
+<h2>Proposals (the owner was silent)</h2>
+<ul class="notes">
+<li><b>HS-P1 One Home is the Dashboard as it stands, toggle removed.</b> Idle adds nothing and drops nothing else. The remembered view per browser goes with the toggle. Wrong guess: none to build; if he wants it leaner, see HS-Q1.</li>
+<li><b>HS-P2 The list opens at 2 characters.</b> The Pantry&rsquo;s own search starts at 1. Here one stray letter would dim the whole page. Wrong guess: one constant; at 1 the page flickers on a slip.</li>
+<li><b>HS-P3 Receding is a dim to 14% plus inert, not a collapse.</b> Nothing moves, so Esc puts the page back exactly as it was (6a), and the scroll position is kept. Wrong guess: a CSS class (<code>?recede=collapse</code> is drawn to compare).</li>
+<li><b>HS-P4 The group order is fixed</b> (table above) and context decides only inside a group. Alternative: order the groups by their best row. Wrong guess: a pantry item going off tomorrow can sit under three recipes; one sort function.</li>
+<li><b>HS-P5 At most 8 rows, at least one per group that matches, headers show &ldquo;n of m&rdquo;.</b> About 560px at its tallest, so it fits a 760px window. Wrong guess: a constant.</li>
+<li><b>HS-P6 Fits is at most 2 missing</b> (today&rsquo;s rule, the same open question as CH-Q1); three or more is Needs a shop, and the row names what is missing. No Add to list button on the row: the flyout already has Add all to list. Wrong guess: a row that says &ldquo;Missing 2&rdquo; sits under Fits.</li>
+<li><b>HS-P7 A recipe left out for someone eating still shows, last, dimmed, with who and why.</b> Hiding it makes the recipe look gone; showing it risks tempting. It never ranks as a candidate. Wrong guess: dropping the group is a one-line change; keeping it silently hidden loses the answer to &ldquo;where did my satay go&rdquo;.</li>
+<li><b>HS-P8 Tonight planned:</b> the planned meal is pinned first when it matches; Fits becomes <i>If plans change</i>; a pantry row says when it is in tonight&rsquo;s meal; a recipe planned on another night says <i>planned Thu</i> in its own row (no separate group).</li>
+<li><b>HS-P9 Only hard avoids remove a recipe from the ranked groups.</b> Cooked yesterday, snoozed and capped (ideas pane rules) do not. See the box above.</li>
+<li><b>HS-P10 The first row is highlighted, Enter opens it, arrows wrap</b> (decision 144: Enter takes the highlighted result or the first). Hover moves the highlight.</li>
+<li><b>HS-P11 Esc clears and returns to idle; a second Esc leaves the field.</b> Plain Esc closes nothing else (the handover rule). The words survive blur and a pick (291), not Esc.</li>
+<li><b>HS-P12 A quiet line at the top of the list says what it is ranked for</b> (&ldquo;Ranked for tonight &middot; Sam, Jo and Priya eating&rdquo;). It is text, not a control. 24px; drop it if the rows already explain themselves.</li>
+<li><b>HS-P13 A shopping-list result goes to Shopping with that row in view</b> (a navigation, drawn as a note). The owner has not said what it does; in place would be a flyout in the lane. Wrong guess: leaves Home; see HS-Q4.</li>
+<li><b>HS-P14 Nothing matches:</b> one action row, <i>Add &ldquo;quinoa&rdquo; to the shopping list</i>, the same as the Pantry search&rsquo;s no-results block (Kitchie #807). No Add as new item here.</li>
+<li><b>HS-P15 Both results land in the 400px lane that covers This week</b> (decision 289; item stacking over a peeking This week, 134 to 137, does not apply: at 1440 it would stack anyway). The flyout itself dims while you type again.</li>
+<li><b>HS-P16 <span class="kbd">/</span> and <span class="kbd">Ctrl K</span> (<span class="kbd">&#8984; K</span>) focus the bar.</b> The <span class="kbd">/</span> cue shows in the bar while it is empty and unfocused, and follows the shortcut cues switch.</li>
+<li><b>HS-P17 The matched letters are accent-bold</b> in the name. No other decoration.</li>
+</ul>
+
+<h2>Open questions, and what a wrong guess costs</h2>
+<div class="q"><b>HS-Q1 Should the single Home be leaner?</b> Search now does the finding, so the Other ideas rows (two recipes you could also search for) are the first candidate to go, then the stack under it, giving idle one lead and nothing else. <b>Recommendation:</b> keep it as it is for this build; revisit after he has used it. Cost of a wrong guess: none either way to the search; removing rows later is a delete, adding them back is a revert.</div>
+<div class="q"><b>HS-Q2 Dim or collapse behind the list.</b> Recommendation: dim (HS-P3). Cost: a CSS class.</div>
+<div class="q"><b>HS-Q3 Where does the contextual ranking run?</b> (a) the client over an index read once on first focus (instant, but ships every recipe&rsquo;s ingredients and the stock; stale after a change); (b) one debounced server call per keystroke returning the groups (always fresh; every letter is a request, and Recipe and Kitchie both answer it); (c) names instantly from a client index, the context (missing, use-by, avoid) added when the server answers (fastest to feel, hardest to build). <b>Not decided here.</b> Cost of a wrong guess: (a) ships data and logic that must match the server&rsquo;s rank; (b) can feel laggy; (c) rows change under the cursor. The mockup&rsquo;s <code>rank()</code> is pure so any of them can host it.</div>
+<div class="q"><b>HS-Q4 What does a shopping-list result do?</b> Options: go to Shopping with the row in view (drawn), or a flyout in the lane with Remove, Edit quantity. Cost: the first leaves Home mid-task against the in-place principle (6a).</div>
+<div class="q"><b>HS-Q5 Start at 1 or 2 characters?</b> Recommendation: 2 (HS-P2). Cost: a constant.</div>
+<div class="q"><b>HS-Q6 Is a recipe left out for a person shown, hidden, or shown only when the words name it?</b> Recommendation: shown last, dimmed (HS-P7). Cost: see HS-P7. A related, preferences-level question the Compact notes already carry (CH-Q5): may a person be left out for one night from here?</div>
+<div class="q"><b>HS-Q7 Is 8 rows right?</b> Cost: a constant.</div>
+
+<h2>What loads</h2>
+<ul class="notes">
+<li><b>Default path (idle Home):</b> <code>theme.css</code>, <code>theme.js</code>, <code>home.css</code>, <code>home.js</code>. No images, no fonts (emoji are text). Nothing about search results.</li>
+<li><b>First focus of the bar, or first keystroke:</b> <code>search.css</code> and <code>search.js</code> (the dropdown, the ranking, the sample index). In the build this is the moment the one search read happens (intent-based, DESIGN.md 6); nothing is fetched on page load and nothing is fetched per scroll.</li>
+<li><b>First result picked (or first row opened):</b> <code>flyout.js</code>. In the build: the one recipe or item read, only then.</li>
+<li><b>Viewport-specific files only.</b> This folder is desktop (1024px and up) and shares nothing with the phone files; the phone search is <code>fragments/pantry-search/</code>. It loads only <code>../../theme.css</code> and <code>../../theme.js</code> from outside the folder.</li>
+</ul>
+
+<h2>For the implementation</h2>
+<ul class="notes">
+<li>Copy <code>home.css</code> and <code>search.css</code>, and the markup <code>home.js</code> and <code>search.js</code> write; list each difference in the PR (AGENTS.md). Class names are desktop-home&rsquo;s plus <code>.sw .ctx .rk .mt .foot .fly</code> and the <code>searching</code> state class on the desk. Sample names live only in the two scripts.</li>
+<li>Accessibility is built in: the input is a combobox, the list a listbox of options with <code>aria-activedescendant</code>, a live region announces the count, the receded areas lose pointer events, and every row is 48px high.</li>
+<li>Check: <code>node tools/desktop-home-search-check.mjs</code> (add <code>--shots=DIR</code> for screenshots).</li>
+</ul>
+<p>Mockup only; nothing is built in the real app. Supersedes in part <code>fragments/compact-home-options</code> for desktop (the toggle is removed); phone and tablet Home are unchanged.</p>
+</div>
+<script src="home.js"></script>
+</body></html>
