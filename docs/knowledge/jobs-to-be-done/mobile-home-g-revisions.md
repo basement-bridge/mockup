@@ -1,52 +1,123 @@
-# Mobile Home G, revisions: urgency-driven slot 2, fit-to-height chevrons
+# Mobile Home G, revisions (round 2): urgency ranking, countdown window, drag to reveal
 
-Mockup: `fragments/mobile-home-g-revisions/` (four options A to D in phone frames; switches for phone height short/medium/tall = 600/740/844 and data: nothing urgent, one expires today, expired and several, nothing at all, only running low; a switch for the Running low rule; a report under each frame measured from the drawn frame). Live: <https://basement-bridge.github.io/mockup/fragments/mobile-home-g-revisions/>. Revises [mobile-home-g.md](mobile-home-g.md); fragment G is unchanged. Issue: kitchie#1055. **Status: owner direction 23 Oct 2026; every choice he did not state is a Proposal (MR-P) or a question (MR-Q); nothing is built.** Series MR.
+Mockup: `fragments/mobile-home-g-revisions/` (three options A to C in phone frames; switches for phone height short/medium/tall = 600/740/844, nine pantry states, the countdown window, drag-to-reveal on or off, and a simulated trip away and back). Live: <https://basement-bridge.github.io/mockup/fragments/mobile-home-g-revisions/>. Revises [mobile-home-g.md](mobile-home-g.md); fragment G is unchanged. Issue: kitchie#1055. Round 1: PR #281. **Status: owner decisions of 23 Oct 2026 applied; everything he did not state is a Proposal (MR-P) or a question (MR-Q), each guess labelled; nothing is built.** Series MR.
 
-## Owner direction
+## Decisions (owner, 23 Oct 2026). Authoritative for the build.
 
-1. Cooking ideas has two tiers: a hero card (single best idea, Make it and Plan) always first and never touched, then other ideas as compact line items (2 or 3).
-2. Smart defaults replace "always collapsed". Ladder: hero always; the most time-critical thing earns the privileged second slot above the fold, expanded. On the way out items expiring today or already expired take it, ahead of other ideas and ahead of Running low. If that content needs the room, other ideas gives way. Nothing urgent: the slot goes to other ideas (or stays absent).
-3. Below the reserved top section everything is normal scrolling content (not a failure): other ideas rows, then both chevrons, each opening and closing by tap. Open caps: On the way out 1 or 2 items with "+N more"; Running low everything, uncapped.
-4. The default open or closed state is driven by what fits above the fold on the phone's height and by urgency: taller phone, more open; short phone, hero and urgent only.
-5. Locked (unchanged): cooking ideas first under the greeting; chevron sections absent when empty; small right-aligned search control in the greeting row (takeover drops pinned This week); no This week on mobile Home; Recipes parked.
+- **D1 Three equal chevron sections,** each absent when empty and optional (space permitting): **More ideas** (the hero's own extension; no longer a separate always-visible block), **On the way out**, **Running low**. The hero (Cooking ideas, Make it, Plan) is always first and never touched.
+- **D2 Urgency is consequence plus neglect,** not raw stock or date. On the way out becomes more urgent the longer it has been ignored (expiring, not on a plan, nobody acted). Running low is urgent only when something rides on it (a planned meal needs it) or it is at zero; "low, nothing riding on it" is background. Running low can take slot 2 ahead of On the way out when its consequence is worse. **The time-of-day chevron order is replaced entirely by urgency ranking.**
+- **D3 A global sliding countdown window in hours.** Anything going off within N hours is urgent even if its date is tomorrow. The date label stays honest: tomorrow is never labelled "today". N is a visible control on the page; default 6 h is a **guess**.
+- **D4 Expired-ingredient warning.** Any cooking idea (hero included) using an expired or off-today ingredient stays eligible but carries a visible alarming warning: red alert mark plus words ("Check this is still OK", "uses chicken that goes off today"). Expiring stock also surfaces as its own idea in More ideas.
+- **D5 Default open or closed = urgency plus fit to height.** Chevrons open in rank order until the phone height is spent; the urgent one always opens; scrolling never changes state. Caps when open: On the way out 1 to 2 items plus "+N more"; Running low uncapped.
+- **D6 Session continuity.** A manual open or close is remembered while the person hops between Home, Pantry and Recipes in one sitting; after a real gap away (default 30 min, a **guess**) it resets to the computed default.
+- **D7 Drag to reveal.** Pointer or thumb down on a chevron header and dragging UP opens that section; continuing the same drag into the next header opens that one too, one motion, no layout shift under the thumb (height animates, scroll anchoring kept). Plain scrolling elsewhere is untouched; tapping a header also toggles. `aria-expanded` and a non-gesture path; `prefers-reduced-motion` honoured; a switch so it can be compared with tap-only.
+- **D8 Kept:** search control in the greeting row, takeover per G, no This week on mobile.
 
-## The four options
+## The rules the mockup implements (the spec)
 
-- **A. Promote.** The urgent section moves into slot 2 as an open, tinted card with a word badge. Other ideas follow as rows and fall below the fold when the card needs the room. Only the cap and the number of other ideas change with height.
-- **B. Strip on the hero.** A one-line strip fused to the hero's bottom edge; tap opens it in place. It opens by itself only if two other ideas still fit above the fold, otherwise stays one line (53px).
-- **C. Fit to the height.** Every part is a chevron section (Other ideas too). They open in priority order until the height is spent; the urgent one always opens.
-- **D. Badge, nothing moves.** Fixed order; a word badge on the chevron; only the top urgent section opens, and only if it fits whole. Does not promote, so it departs from direction 2 by design.
+Scores (all constants are guesses, MR-P13 to P15):
+
+| Thing | Score |
+| --- | --- |
+| Item expired (hours < 0) | 60 |
+| Item inside the window (hours <= N) | 50 |
+| Item inside 48 h | 20 (10 if on a plan) |
+| Item later | 5 |
+| Neglect | + 15 per day ignored, max 3 days, none if on a plan |
+| Running low: a planned meal needs it and it is gone | 90 |
+| Running low: a planned meal needs it | 55 |
+| Running low: gone | 50 |
+| Running low: plain low | 5 |
+| More ideas | 30 |
+
+A section scores its worst item. **50 and up is urgent** (More ideas never is). Sections rank by score, ties On the way out, Running low, More ideas. The hero is first. Within On the way out, items sort worst first (score, then hours).
+
+Open rule: in rank order a section opens if it fits whole above the fold (height measured once on open); an urgent section always opens (A, C); the first non-urgent section that does not fit stops the rest (so opens are a prefix of the ranking). A taller phone never opens less.
+
+Dates: label from the calendar day: `Today 17:00`, `Tomorrow 06:00`, `in 3 days`, `Expired yesterday`, `Went off today 09:00`. The window only affects urgency and the badge ("2 in 12h"), never the label.
+
+Warning: hero or More ideas row whose ingredient is expired: red alert mark + "Check this is still OK: uses milk that went off yesterday" (row: "Check first"). Goes off today by calendar: same mark + "Uses chicken that goes off today at 17:00" (row: "Off today"). Tomorrow never warns, even inside the window.
+
+More ideas rows: expiring stock (inside 48 h, not on a plan, not the hero's) as its own idea, worst first, then fillers; 3 rows (2 on short).
+
+Session: per-section manual open or close kept until `now - left >= gap` (30 min); then dropped and defaults recomputed. A data refresh does not reset. Clock injected (`MR.session(gap)`; `leave(t)`, `enter(t)` returns true when reset).
+
+Gesture: pointer events (mouse, touch, pen, one path). Arms after 8 px of mostly upward movement. Opens the pressed section, then each closed header whose centre lies between the pointer and the press point. Bodies grow below the header under the finger. A drag only opens; closing is a tap, Enter or Space. After a drag the click is swallowed. Only headers get `touch-action:none`, only while the gesture is on.
+
+## The options (D retired)
+
+All three share the ranking, the open rule and the badge; they differ in how an urgent section is shown.
+
+- **A. Tinted card.** Urgent sections are tinted, carry a word badge, always open. Round 1: promoted card plus other-ideas rows. Now More ideas is a chevron.
+- **B. Strip on the hero.** The top-ranked urgent section is a one-line strip fused to the hero; opens in place only if the height allows (the one option where an urgent section may stay closed). Round 1: strip opened if two other ideas fit.
+- **C. Plain chevrons.** Three equal sections; urgency is order, word badge and default open; no tint. Round 1: fit to the height.
+- **D. Retired.** "Fixed order, nothing moves" contradicts D2 (urgency ranks, time-of-day order dropped) and D5 (open by priority and height). Its word badge lives on in all three.
 
 ## Recommendation
 
-**A, with C's height rule on the chevrons below it.** A is the owner's rule as stated. B is the fallback if a 190px card on a short phone is too much. C is worth trying for tall phones. D is the calmest (nothing moves) and the least like what he asked for.
+**C, plain chevrons.** It is D1 and D5 as written and the least to learn; keep the word badge. Add A's tint only if testing shows an urgent section being missed. B is the fallback if a tall open section above everything is too much on a short phone. Risk to test on a real phone before building: the gesture makes headers dead to a scroll that starts on them (MR-Q9).
 
-## Proposals (MR-P), with what a wrong guess costs
+## Proposals (MR-P)
 
-- MR-P1 Urgent = due today or already past (days <= 0); tomorrow is not urgent. **Guess.** Cost: a household wanting a day's notice sees no promotion until the day; one constant.
-- MR-P2 Running low "critical" = none left (level or quantity zero). **Guess.**
-- MR-P3 Caps: On the way out 2 items when open, 1 on the short phone, most urgent first (expired, today, then date), "+N more . View all"; Running low uncapped. **The 1 and the 2 are guesses.**
-- MR-P4 Phone heights 600 / 740 / 844 (small phone or browser bars showing / fewer bars / the owner's 390 x 844). **Guesses.** The fold is the frame minus the 68px bottom bar and 2px border. Other ideas shows 2 rows on short, 3 otherwise. **Guess.**
-- MR-P5 A part is above the fold only if all of it is; the model never opens a section the fold would cut (except A's and C's urgent section, which always opens).
-- MR-P6 Urgency is in words (badge, "Expired yesterday", "Today"), never colour alone.
-- MR-P7 Other ideas gives way by moving: rows below the fold in A, B, D; a chevron section in C.
-- MR-P8 The chevrons below slot 2 stay in fixed order (On the way out, Running low); G's time-of-day `order()` is not redrawn (MR-Q4). The mock is fixed at mid-day, tonight not planned.
-- MR-P9 Smart defaults are worked out once when Home opens and not re-worked while it is on screen (no jumping); taps are kept for the visit only.
-- MR-P10 The hero is never built on an expired item (food safety); `suggest_meals` must enforce it.
-- MR-P11 B's rule (two other ideas still fit) and D's rule (the whole open section fits) are guesses.
-- MR-P12 Height numbers in `K` (hero 236, other-idea row 49, closed chevron 57 plus 8 margin, item row 44, ...) are measured from this render and checked by `tools/mobile-home-g-revisions-check.mjs` within 8px; in the app they are measured, not constants.
+Round 1, status now:
 
-## Questions (MR-Q), with a recommendation
+| ID | Round 1 | Now |
+| --- | --- | --- |
+| P1 urgent = today or past | guess | **Replaced** by P13 and D3 |
+| P2 low critical = none left | guess | **Replaced** by P14 (or a planned meal needs it) |
+| P3 caps 2 (1 short) | guess | Kept (P20) |
+| P4 heights 600/740/844; More ideas rows 2/3 | guess | Kept |
+| P5 above the fold only if whole | | Kept |
+| P6 urgency in words | | Kept |
+| P7 other ideas gives way by moving | | **Replaced**: More ideas is a ranked chevron |
+| P8 fixed chevron order | | **Replaced** by ranking (D2) |
+| P9 defaults computed once; taps kept for the visit only | | **Replaced** by P21 (kept within a sitting) |
+| P10 hero never on expired | | **Reversed** by D4 (eligible with warning) |
+| P11 B and D fit tests | guess | B rewritten (P23); D retired |
+| P12 `K` heights measured, 8 px | | Kept, re-measured (`openHead` 50, `heroWarn` 14) |
 
-- **MR-Q1 Should Running low ever outrank On the way out for the second slot?** Recommendation: only if nothing in On the way out is urgent and Running low has something at zero. Drawn with the switch (Zero outranks / Never outranks). Cost: on such a day Other ideas is one row lower.
-- MR-Q2 Which option? A with C's fit rule on the chevrons.
-- MR-Q3 Is tomorrow urgent after 20:00? Recommendation: no.
-- MR-Q4 Does G's moment-based chevron order still apply below slot 2? Recommendation: yes.
-- MR-Q5 Remember a manual open or close? Recommendation: no.
-- MR-Q6 May an expired item feed the hero? Recommendation: never.
+New (each a guess unless noted, with the cost of a wrong guess):
+
+- **MR-P13 Item scores and neglect** as in the table. Cost: a section ranks one place off; constants in `scoreSoon()`.
+- **MR-P14 Running low scores** 90 / 55 / 50 / 5. Cost: "gone, nothing riding" (50) ties the lowest urgent; it outranks On the way out only at 55 or 90.
+- **MR-P15 More ideas = 30; ties On the way out, Running low, More ideas.** Effect: a calm On the way out (under 30) sits below More ideas.
+- **MR-P16 Window global, default 6 h, 0 to 48 on the page.** A plan does not remove window urgency (MR-Q7).
+- **MR-P17 "Ignored" = days an unplanned item has sat in On the way out.** The app needs a first-listed time and an "acted" event.
+- **MR-P18 Warning rules** as above; "off today" gets the same alert mark as expired, with different words (MR-Q12).
+- **MR-P19 More ideas content:** use-up ideas first, then fillers, 3 rows (2 on short).
+- **MR-P20 Caps** unchanged: On the way out 2 (1 short) plus "+N more", Running low uncapped.
+- **MR-P21 Session:** per section, gap 30 min (guess), no reset on data refresh.
+- **MR-P22 Drag:** arm at 8 px (guess); opens bottom to top (the next header the finger meets is the one above); a drag never closes.
+- **MR-P23 B** is the only option where urgent may stay closed; strip names what is urgent either way.
+- **MR-P24 Mock clock** is 14:00 on a Friday, tonight not planned. Guess; sample hours live in `DATA`.
+- **MR-P25 Hero choice is data** in the mock (`hero:`); in the app `suggest_meals` chooses and only the warning is derived from the ingredient's date.
+
+## Questions
+
+Round 1, answered by the owner (23 Oct 2026):
+
+- MR-Q1 Should Running low outrank On the way out for slot 2? **Yes, when its consequence is worse** (D2): drawn in "Running low rides on a plan" (90 vs 60).
+- MR-Q2 Which option? Updated: C (see Recommendation).
+- MR-Q3 Is tomorrow urgent after 20:00? **No, but the hour window supersedes** (D3): tomorrow 06:00 is urgent at a window of 18 h or more.
+- MR-Q4 Does G's moment-based chevron order still apply? **No, dropped** (D2).
+- MR-Q5 Remember a manual open? **Yes, within a sitting** (D6).
+- MR-Q6 May an expired item feed the hero? **Yes, with a warning** (D4).
+
+Open, with a recommendation and the cost of a wrong answer:
+
+- **MR-Q7 Does a plan neutralise the window?** Drawn: no (literal "anything within N hours"); a plan only removes neglect and lowers the 48 h tier. Recommendation: neutralise it only when the planned meal is before the expiry; needs the plan's date in the data. Cost: a planned item still pushes On the way out up the ranking.
+- **MR-Q8 Should dragging down close a section?** Recommendation: no; closing is a tap, so one gesture never undoes another. Cost: closing three takes three taps.
+- **MR-Q9 Headers are dead to scrolling** (touch-action none), so a thumb scroll that starts on a 57 px header does not scroll. Recommendation: accept, test on a real phone; the gesture switch is the escape. Cost: occasional "stuck" scroll.
+- **MR-Q10 Is 6 h right, and should the window follow dinner time** (for example until bedtime)? Recommendation: fixed N, owner picks (8 h may suit a 17:00 shop). Cost: late-evening items rank late.
+- **MR-Q11 What counts as acting on an ignored item?** Recommendation: planned, cooked with, or dismissed; opening Home does not. Cost: neglect resets too easily or never.
+- **MR-Q12 Should "off today" (not yet expired) share expired's alert mark?** Drawn: yes, different words. Recommendation: keep; the owner asked for an alarming mark on both. Cost: the hero is flagged most days a meat item is due.
+- **MR-Q13 What ends a sitting besides 30 min away?** Recommendation: app killed or sign-out also ends it (store the leave time in memory plus session storage). Cost: an old choice survives a relaunch.
+- **MR-Q14 Which option?** Recommendation C; see above.
+- **MR-Q15 Should More ideas, when ranked first, visually fuse to the hero?** Recommendation: no, keep three equal sections (D1).
 
 ## For the implementation
 
-- Lift `plan()` and `facts()` (pure), the markup in `homeHtml()`, `revisions.css` beside G's `home.css`. Measure the fold once with `visualViewport.height` minus the bottom bar.
-- Loading: default path is the page, `home.css`, `revisions.css`, `revisions.js`; a closed section's body is written on first open; nothing on scroll. The takeover and `search.js` are G's, not loaded here.
-- Check: `node tools/mobile-home-g-revisions-check.mjs [--shots=DIR]`.
+- Lift `facts()`, `plan()` and the score functions (pure), `homeHtml()`, `setOpen()`, `bindDrag()`, `session()`, and `revisions.css` beside G's `home.css`. Measure the fold once with `visualViewport.height` minus the bottom bar. `K` is the model's guess of each part's height, checked within 8 px.
+- Loading: default path is the page, `home.css`, `revisions.css`, `revisions.js`; a closed section's body is written on first open; nothing is fetched on scroll or drag. The takeover and `search.js` are G's, not loaded here.
+- Accessibility: every header has `aria-expanded`; a polite live region announces opens and closes; touch targets 44 px; reduced motion skips the height animation and all transitions.
+- Check: `node tools/mobile-home-g-revisions-check.mjs [--shots=DIR]` (needs a server on :8123). It restates the scores independently and asserts ranking, window, warnings, caps, fit, drag (mouse and touch), session and reduced motion.

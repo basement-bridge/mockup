@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Mobile Home G, revisions — fragment</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Mobile Home G, revisions (round 2) — fragment</title>
 <link rel="stylesheet" href="../../theme.css"><script src="../../theme.js"></script><link rel="stylesheet" href="../mobile-home-g/home.css"><link rel="stylesheet" href="revisions.css">
 <style>
 *{box-sizing:border-box}
@@ -46,67 +46,94 @@ table{border-collapse:collapse;min-width:1040px;width:100%;font-size:13.5px}th,t
 .rep{padding:var(--sp-2) var(--sp-4) 0;font-size:13px}.rep p{margin:2px 0}
 @media(min-width:600px){.rep{padding-left:0}}
 .fr{width:390px}
+
+.pbody{overflow-anchor:none}
+.bar2{position:sticky;top:0;z-index:30}
+.bar2.sub{position:static;border-top:0}
+#dragSw{display:contents}
+#dragSw button,.bar2 .act{min-height:var(--tap);padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font:700 13px var(--body);color:var(--muted);cursor:pointer}
+#dragSw button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+#dragSw button:focus-visible,.bar2 .act:focus-visible,#win:focus-visible,#gap:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#win{width:min(220px,50vw);min-height:var(--tap);accent-color:var(--accent)}
+#winOut{font:800 14px var(--body);color:var(--fg);min-width:3.2em}
+#gap{width:64px;min-height:var(--tap);border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--surface);color:var(--fg);font:700 14px var(--body);padding:0 8px}
+.guess{font-size:12px;color:var(--muted)}
+#sessMsg{margin:6px 0 0;font-size:13px;color:var(--fg)}
+.pill{display:inline-block;padding:1px 8px;border-radius:var(--r-pill);border:1px solid var(--border);font-size:12px;font-weight:700;color:var(--muted)}
 </style>
 <body><div class="wrap">
 <a class="back" href="../../">&lsaquo; All mockups</a>
-<h1>Mobile Home G, revisions: urgency-driven slot 2, fit-to-height chevrons <span class="badge">Options A to D</span></h1>
-<p>G stays as drawn (<a href="../mobile-home-g/">fragments/mobile-home-g</a>). This page changes only how the page <b>opens</b>: a hero idea first and never touched, then <b>the most time-critical thing earns the privileged second slot</b>, expanded; below that, normal scrolling content. Four different takes to compare side by side, on three phone heights and five states of the pantry.</p>
-<div class="own"><b>Owner direction (Arjan), 23 Oct 2026:</b> cooking ideas in two tiers, a hero card (Make it, Plan) always first and never touched, then other ideas as compact line items (2 or 3). Smart defaults instead of &ldquo;always collapsed&rdquo;: hero always; then the most time-critical thing takes the second slot above the fold, expanded; <b>On the way out</b> with items expiring today or already expired takes it, ahead of other ideas and ahead of Running low. If it needs the room, other ideas gives way. Nothing urgent: the slot goes to other ideas. Below that it is normal scrolling; On the way out shows 1 or 2 items even when open (&ldquo;+N more&rdquo;), Running low shows everything. The default depends on what fits above the fold on the phone, and on urgency.</div>
-<p><b>Locked and unchanged:</b> cooking ideas first under the greeting; both chevron sections absent when empty; the small search control right-aligned in the greeting row (the takeover is G&rsquo;s and is not redrawn, the magnifier here is inert); no This week on mobile Home; Recipes parked.</p>
+<h1>Mobile Home G, revisions, round 2: urgency ranking, countdown window, drag to reveal <span class="badge">Options A to C (D retired)</span></h1>
+<p>G stays as drawn (<a href="../mobile-home-g/">fragments/mobile-home-g</a>). Round 1 (PR #281) is merged; this page is round 2 on the owner&rsquo;s decisions of 23 Oct 2026. Same URL. <b>Authoritative decisions for the build are in <code>docs/knowledge/jobs-to-be-done/mobile-home-g-revisions.md</code></b>; this page lets you play them.</p>
+<div class="own"><b>Owner decisions (Arjan), 23 Oct 2026, applied here:</b>
+<ol class="notes">
+<li><b>Three equal chevron sections</b>, each absent when empty and optional: <b>More ideas</b> (the hero&rsquo;s own extension), <b>On the way out</b>, <b>Running low</b>. The hero is always first and never touched.</li>
+<li><b>Urgency = consequence + neglect.</b> On the way out gets more urgent the longer it is ignored. Running low is urgent only when a planned meal needs it or it is at zero. Running low can take slot 2 ahead of On the way out. The time-of-day order is gone; urgency ranks.</li>
+<li><b>A global sliding countdown window</b> in hours: anything going off inside it is urgent even if the date is tomorrow. The date label stays honest.</li>
+<li><b>An expired or off-today ingredient</b> keeps the idea eligible (hero too) but with a red alert and words. Expiring stock is also its own idea in More ideas.</li>
+<li><b>Open by urgency and height:</b> chevrons open in rank order until the phone&rsquo;s height is spent; the urgent one always opens; scrolling never changes state. On the way out shows 1 or 2 items and &ldquo;+N more&rdquo;; Running low is uncapped.</li>
+<li><b>A manual open or close is remembered within a sitting</b> (hops between Home, Pantry, Recipes) and reset after a real gap away.</li>
+<li><b>Drag up on a header to reveal,</b> continuing into the next header as one motion; tap also toggles.</li>
+<li>Kept: search in the greeting row, takeover per G, no This week on mobile.</li></ol></div>
 
 <div class="bar2" role="group" aria-label="Pretend state"><div id="stateSw"></div></div>
-<p class="mini">The switches redraw all four frames. Under each frame, the report is <b>measured from the drawn frame</b>: a part is above the fold only if all of it is. Tap any section to open or close it. The phone height is the whole frame including the 68px bottom bar; scrolling a frame is normal, not a failure. The time is fixed at mid-day with tonight not planned (G&rsquo;s time and next-meal switches still apply to the hero and are not re-drawn here).</p>
-<h2>The four options</h2>
+<div class="bar2 sub" role="group" aria-label="Countdown window"><label class="lbl" for="win">Countdown window</label><input id="win" type="range" min="0" max="48" step="1" value="6" aria-describedby="winHelp"><output id="winOut" for="win">6 h</output><span class="guess" id="winHelp">Anything going off inside this many hours is urgent, even tomorrow. <b>Default 6 h is a guess.</b></span></div>
+<div class="bar2 sub" role="group" aria-label="Gesture and sitting"><div id="dragSw"></div><span class="lbl">Sitting</span><button type="button" class="act" id="away1">Hop away 1 min and back</button><button type="button" class="act" id="away45">Away 45 min and back</button><label class="lbl" for="gap">Reset after (min)</label><input id="gap" type="number" min="1" max="600" value="30" inputmode="numeric"><span class="guess">30 min is a guess.</span></div>
+<p id="sessMsg" role="status" aria-live="polite"></p>
+<p class="mini">The switches redraw all three frames. Under each frame, the report is <b>measured from the drawn frame</b>: a part is above the fold only if all of it is. Try it: with Short and <i>Nothing urgent</i> every section is closed. Press a header and <b>drag up</b> (finger or mouse): it opens, and if you keep going over the headers above it, each opens in turn. Open or close something by hand, then press <i>Hop away 1 min</i> (kept) or <i>Away 45 min</i> (forgotten). Move the window to 12 h on <i>Expiring in hours</i> and watch the ranking change; tomorrow is still called tomorrow. The clock is fixed at 14:00 on a Friday, tonight not planned. The phone height is the whole frame including the 68px bottom bar; scrolling a frame is normal, not a failure.</p>
+<h2>The three options</h2>
 <div class="fr3" id="frames"></div>
 
-<h2>The ladder (all four options start from it)</h2>
-<ol class="notes">
-<li><b>Hero:</b> always first, never touched, never collapses. Make it and Plan.</li>
-<li><b>Slot 2 is earned by urgency.</b> On the way out, if anything is due today or already past, takes it. Otherwise (Question MR-Q1) Running low takes it only if something is at zero; otherwise slot 2 is Other ideas.</li>
-<li><b>Below slot 2</b> everything is normal scrolling content: other ideas, then the chevron sections in G&rsquo;s fixed order, each open or closed by tap.</li>
-<li><b>Caps when open:</b> On the way out shows the most urgent 2 items (1 on the short phone) and &ldquo;+N more &middot; View all&rdquo;; Running low shows all it has.</li>
-<li><b>Height decides how much more opens by default.</b> What fits whole above the fold opens; the rest stays closed and is one tap away.</li>
-</ol>
-<div class="tw"><table><thead><tr><th>Option</th><th>How urgency is handed to slot 2</th><th>What it does with height</th><th>Other ideas</th><th>Cost</th></tr></thead><tbody>
-<tr><td>A. Promote</td><td>The section moves up and opens as a tinted card with a word badge (&ldquo;1 expired &middot; 2 today&rdquo;).</td><td>Only the cap (1 or 2 items) and the number of other ideas (2 or 3) change.</td><td>Rows, always; they fall below the fold when the card needs the room.</td><td>The page changes shape on a bad day: the card is 190px.</td></tr>
-<tr><td>B. Strip on the hero</td><td>A one-line strip fused to the hero&rsquo;s bottom edge (&ldquo;Use now: Milk, Chicken thighs +1&rdquo;), opened in place by tap.</td><td>Opens by itself only if two other ideas still fit above the fold; otherwise stays one line (53px).</td><td>Rows, right under the strip; never displaced by more than the strip.</td><td>Least room taken; the urgent items are one tap on a short phone.</td></tr>
-<tr><td>C. Fit to the height</td><td>Same order as A, but every part is a chevron section (Other ideas too) and no special look besides the badge.</td><td>Sections open in priority order until the height is spent; the urgent one always opens. Taller phone, more open.</td><td>A chevron section that opens when it fits.</td><td>Most to learn: the default differs by phone; on a tall phone Home opens more than the owner may expect.</td></tr>
-<tr><td>D. Badge, nothing moves</td><td>Fixed order. A word badge on the chevron; only the top urgent section opens, and only if it fits whole.</td><td>Same: opens if it fits, otherwise the badge alone says it.</td><td>Rows, always second.</td><td>Breaks the owner&rsquo;s rule that the urgent thing takes the slot: it is signalled, not promoted.</td></tr>
+<h2>What round 2 changed, per option</h2>
+<div class="tw"><table><thead><tr><th>Option</th><th>Round 1</th><th>Round 2</th></tr></thead><tbody>
+<tr><td>A</td><td>Urgent section promoted into slot 2 as a tinted card; other ideas as always-visible rows.</td><td>Now <b>Tinted card</b>. Order is the urgency ranking (the same in all options); an urgent section is tinted, carries a word badge and always opens. Other ideas is no longer rows: it is the chevron <b>More ideas</b>.</td></tr>
+<tr><td>B</td><td>One-line strip fused to the hero; opens if two other ideas fit.</td><td>Same strip, now for the <b>top-ranked urgent section</b> (On the way out or Running low), opening in place only if the height allows. It is the one option where an urgent section may stay closed.</td></tr>
+<tr><td>C</td><td>Every part a chevron; open in priority order until the height is spent.</td><td>Now <b>Plain chevrons</b>, three equal sections: the owner&rsquo;s decision 1 and 5 as written. Urgency is shown by order, the word badge and the default open; no tint.</td></tr>
+<tr><td>D</td><td>Fixed order, a badge, nothing moves.</td><td><b>Retired.</b> A fixed order contradicts decision 2 (urgency ranks, time-of-day order dropped) and &ldquo;nothing moves&rdquo; contradicts decision 5 (open by priority and height). Its useful part, the word badge, is in all three.</td></tr>
 </tbody></table></div>
 
+<h2>The ranking (all three options use it)</h2>
+<div class="tw"><table><thead><tr><th>Thing</th><th>Score</th><th>Why</th></tr></thead><tbody>
+<tr><td>Item, expired</td><td>60 + neglect</td><td>Past its date: a loss now.</td></tr>
+<tr><td>Item, inside the window</td><td>50 + neglect</td><td>Going off within N hours, whatever the date label says. <i>Guess.</i></td></tr>
+<tr><td>Item, inside 48 h</td><td>20 (10 if on a plan) + neglect</td><td>Soon, not yet pressing.</td></tr>
+<tr><td>Item, later</td><td>5 + neglect</td><td>Background.</td></tr>
+<tr><td>Neglect</td><td>+15 per day ignored, up to 3 days, none if on a plan</td><td>Expiring, not on a plan, nobody acted. <i>Guess.</i></td></tr>
+<tr><td>Running low: a planned meal needs it and it is gone</td><td>90</td><td>Tonight&rsquo;s plan breaks.</td></tr>
+<tr><td>Running low: a planned meal needs it</td><td>55</td><td>Something rides on it.</td></tr>
+<tr><td>Running low: gone</td><td>50</td><td>At zero.</td></tr>
+<tr><td>Running low: plain low</td><td>5</td><td>Nothing rides on it: background.</td></tr>
+<tr><td>More ideas</td><td>30</td><td>Above background, below urgent.</td></tr>
+</tbody></table></div>
+<p>A section scores its worst item. <b>50 and up is urgent.</b> Sections rank by score, ties On the way out, Running low, More ideas. The hero is always first. Open rule: in rank order, a section opens while it fits whole above the fold; an urgent one always opens (A, C); the first that does not fit stops the rest. Date labels come from the calendar day: <i>Today 23:00</i>, <i>Tomorrow 06:00</i>, never &ldquo;today&rdquo; for tomorrow.</p>
+
 <h2>Recommendation</h2>
-<div class="recbox"><b>A, with C&rsquo;s height rule on the chevrons below it.</b> A is the owner&rsquo;s rule as he said it: the urgent section takes slot 2, expanded, ahead of other ideas and Running low. B is the fallback if a 190px card on a short phone is too much (it costs 53px). C is worth trying for tall phones only. D does not promote, so it is the least like what he asked for, but it never moves anything, which fits &ldquo;not too jumpy&rdquo;.</div>
+<div class="recbox"><b>C, plain chevrons.</b> It is decisions 1 and 5 as written (three equal sections; the order and the default open carry the urgency) and the least to learn. Keep the word badge. A&rsquo;s tint is a polish to add only if testing shows an urgent section being missed; B is the fallback only if a tall open section above everything else is too much on a short phone. D is retired. <b>Not a recommendation but a risk:</b> the drag gesture makes headers dead to a scroll that starts on them (MR-Q9); try it on a real phone before building it.</div>
 
 <h2>Proposals (the owner was silent; each is a guess, with the cost of a wrong guess)</h2>
+<p>Round 1 MR-P1 to P12 are carried in the doc with their status (kept, replaced or reversed). New in round 2:</p>
 <ul class="notes">
-<li><b>MR-P1 Urgent means due today or already past</b> (days &le; 0). Tomorrow is not urgent. <i>Guess.</i> Wrong guess: a household that wants a day&rsquo;s notice sees nothing promoted until the day itself; one constant.</li>
-<li><b>MR-P2 &ldquo;Critical&rdquo; for Running low means none left</b> (level or quantity zero). <i>Guess.</i> Wrong guess: &ldquo;1 left&rdquo; never earns the slot.</li>
-<li><b>MR-P3 Caps:</b> On the way out shows 2 items when open, 1 on the short phone, most urgent first (expired, then today, then by date), with &ldquo;+N more &middot; View all&rdquo;. Running low uncapped. <i>The 1 and 2 are guesses.</i></li>
-<li><b>MR-P4 Phone heights</b> are 600 (a small phone, or a browser with its bars showing), 740, and 844 (the owner&rsquo;s 390 x 844). <i>Guesses.</i> The fold is the frame minus the 68px bottom bar. Other ideas shows 2 rows on the short phone, 3 otherwise. Wrong guess: the breakpoints sit in the wrong place; they are in <code>HEIGHTS</code> and <code>facts()</code>.</li>
-<li><b>MR-P5 A part counts as above the fold only if all of it is.</b> A half-shown card is reported as peeking, and the model never opens a section that would be cut.</li>
-<li><b>MR-P6 Urgency is words, never colour alone:</b> &ldquo;Expired yesterday&rdquo;, &ldquo;Today&rdquo; in the row, a word badge in the header. The bare count steps aside when a badge is there.</li>
-<li><b>MR-P7 Other ideas gives way by moving, not vanishing:</b> in A, B and D it stays as rows and falls below the fold; in C it becomes a chevron section. Wrong guess: a person wanted it gone, not just lower.</li>
-<li><b>MR-P8 The order of the chevrons below slot 2 is fixed</b> (On the way out, then Running low). G&rsquo;s time-of-day <code>order()</code> is not re-drawn here (at cooking time G puts Running low first); whether it still applies is MR-Q4.</li>
-<li><b>MR-P9 Smart defaults are worked out once when Home opens,</b> never re-worked while you look at it, so nothing jumps under a thumb; a tap is kept for the visit and not remembered after. Wrong guess: someone who always opens a section taps each time.</li>
-<li><b>MR-P10 The hero must not be built on something already expired</b> (the sample uses chicken that goes off today, never milk that is past). Food safety, not taste. The ranking in <code>suggest_meals</code> has to enforce it.</li>
-<li><b>MR-P11 B&rsquo;s test is &ldquo;two other ideas still fit&rdquo;; D&rsquo;s test is &ldquo;the whole open section fits&rdquo;.</b> Both are guesses.</li>
+<li><b>MR-P13 Scores</b> as in the table above (60, 50, 20, 10, 5, neglect +15 a day to 3 days). <i>Guess.</i> Wrong guess: a section ranks one place off; constants in <code>scoreSoon()</code>.</li>
+<li><b>MR-P14 Running low scores</b> 90, 55, 50, 5. <i>Guess.</i> Wrong guess: &ldquo;gone with nothing riding&rdquo; (50) ties the lowest urgent; it can only outrank On the way out when it is 55 or 90.</li>
+<li><b>MR-P15 More ideas scores 30;</b> ties go On the way out, Running low, More ideas. <i>Guess.</i> Effect: a calm On the way out (under 30) sits below More ideas.</li>
+<li><b>MR-P16 The window is global,</b> default 6 h, range 0 to 48 on this page. <i>6 h is a guess.</i> A plan does not remove window urgency (MR-Q7).</li>
+<li><b>MR-P17 &ldquo;Ignored&rdquo; is days an unplanned item has sat in On the way out.</b> <i>Guess.</i> The app needs a first-listed time and an &ldquo;acted&rdquo; event.</li>
+<li><b>MR-P18 Warning:</b> expired gives a red alert and &ldquo;Check this is still OK: uses milk that went off yesterday&rdquo;; goes off today (calendar day) gives the same mark and &ldquo;uses chicken that goes off today at 17:00&rdquo;. Tomorrow never warns, even inside the window. <i>Whether &ldquo;today&rdquo; deserves the same mark is a guess (MR-Q12).</i></li>
+<li><b>MR-P19 More ideas rows:</b> expiring stock (inside 48 h, not on a plan, not the hero&rsquo;s) is its own idea, worst first, then fillers; 3 rows (2 on Short).</li>
+<li><b>MR-P20 Caps</b> unchanged (On the way out 2, 1 on Short, then &ldquo;+N more&rdquo;; Running low uncapped).</li>
+<li><b>MR-P21 Session:</b> manual opens and closes are kept per section until a gap of 30 min or more; a data refresh does not reset them. <i>30 is a guess.</i></li>
+<li><b>MR-P22 Drag:</b> arms after 8 px of mostly upward movement (<i>guess</i>); opens the pressed section, then every closed header the pointer reaches above it; a drag only opens, a tap or Enter toggles.</li>
+<li><b>MR-P23 Option changes</b> (table above); D retired.</li>
 </ul>
 
 <h2>Open questions</h2>
-<ul class="notes">
-<li><b>MR-Q1 Should Running low ever outrank On the way out for the second slot?</b> Recommendation: only if nothing in On the way out is urgent and Running low has something at zero (drawn: the switch &ldquo;Running low: Zero outranks&rdquo;; &ldquo;Never outranks&rdquo; shows the alternative). Reason: going off is lost today, running low is lost tonight only if the shop is not done. Cost: on a day with a zero item and nothing urgent, Other ideas is one row lower.</li>
-<li><b>MR-Q2 Which option?</b> Recommendation: A with C&rsquo;s fit on the chevrons. Cost: see the table.</li>
-<li><b>MR-Q3 Is tomorrow urgent after 20:00?</b> Recommendation: no, keep &ldquo;today or past&rdquo;. Cost: a late planner sees tomorrow&rsquo;s going-off items only in the chevron.</li>
-<li><b>MR-Q4 Does G&rsquo;s moment-based order of the two chevrons still apply below slot 2?</b> Recommendation: yes, unchanged. Cost: none drawn here.</li>
-<li><b>MR-Q5 Should a manual open or close be remembered?</b> Recommendation: no (MR-P9).</li>
-<li><b>MR-Q6 Should an expired item be eligible to appear in the hero at all?</b> Recommendation: never (MR-P10).</li>
-</ul>
+<p>Round 1 MR-Q1 to Q6 are answered in the doc. New: MR-Q7 does a plan neutralise the window; MR-Q8 should a drag down close; MR-Q9 headers dead to scroll; MR-Q10 the 6 h default and a dinner-time window; MR-Q11 what counts as acting on an ignored item; MR-Q12 should &ldquo;off today&rdquo; share expired&rsquo;s mark; MR-Q13 what ends a sitting; MR-Q14 which option. Each has a recommendation and a cost in the doc.</p>
 
 <h2>What loads</h2>
-<p><b>Default path:</b> this page, <code>theme.css</code>, <code>theme.js</code>, G&rsquo;s <code>home.css</code> (not edited), <code>revisions.css</code>, <code>revisions.js</code> (the model and markup) and <code>mock.js</code> (the mockup&rsquo;s frames, never for the build). A closed section&rsquo;s body is written on its first open. No images, no fonts, no <code>search.js</code> (the takeover is G&rsquo;s). <b>Deferred:</b> nothing is fetched on scroll.</p>
+<p><b>Default path:</b> this page, <code>theme.css</code>, <code>theme.js</code>, G&rsquo;s <code>home.css</code> (not edited), <code>revisions.css</code>, <code>revisions.js</code> (model, markup, gesture, session) and <code>mock.js</code> (the mockup&rsquo;s frames, never for the build). A closed section&rsquo;s body is written on its first open. No images, no fonts, no <code>search.js</code> (the takeover is G&rsquo;s). <b>Deferred:</b> nothing is fetched on scroll or on drag.</p>
 <h2>For the build</h2>
 <ul class="notes">
-<li>Lift <code>plan()</code> and <code>facts()</code> (pure functions), the markup in <code>homeHtml()</code>, and <code>revisions.css</code> beside G&rsquo;s <code>home.css</code>. In the app the fold is measured with <code>window.visualViewport.height</code> minus the bottom bar, once on open; the numbers in <code>K</code> are the model&rsquo;s guesses, measured against the render by <code>tools/mobile-home-g-revisions-check.mjs</code>.</li>
+<li>Lift <code>facts()</code>, <code>plan()</code> and the score functions (pure), the markup in <code>homeHtml()</code>, <code>setOpen()</code>, <code>bindDrag()</code>, <code>session()</code> and <code>revisions.css</code> beside G&rsquo;s <code>home.css</code>. The fold is measured once with <code>visualViewport.height</code> minus the bottom bar; the numbers in <code>K</code> are guesses checked by <code>tools/mobile-home-g-revisions-check.mjs</code>.</li>
 <li>Knowledge doc: <code>docs/knowledge/jobs-to-be-done/mobile-home-g-revisions.md</code>. Issue: kitchie#1055.</li>
 </ul>
 </div>
