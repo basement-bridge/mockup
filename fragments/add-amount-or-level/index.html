@@ -4,12 +4,16 @@
 <div class="wrap">
 <a class="back" href="../../index.html">All mockups</a>
 <h1>Add item: an amount or a level</h1>
-<p>Kitchie <a href="https://github.com/basement-bridge/kitchie/issues/1047">#1047</a>. When someone adds an item, Add asks for a number of units. Some people, in some cases, will want to give a level instead (Plenty, Some, Running low, Out). Four ways to let them, drawn on the Add sheet. <b>Mockup only, nothing built, options not decided.</b> Drawn from Kitchie <code>uat</code> at <code>83180cc</code> (v0.159.0, 22 October 2026). Tap anything in a frame: it works, and the dashed box under each frame says what Add would store.</p>
+<p>Kitchie <a href="https://github.com/basement-bridge/kitchie/issues/1047">#1047</a>. When someone adds an item, Add asks for a number of units. Some people, in some cases, will want to give a level instead (Plenty, Some, Running low, Out). Five ways to let them, drawn on the Add sheet. <b>Mockup only, nothing built, options not decided.</b> Drawn from Kitchie <code>uat</code> at <code>83180cc</code> (v0.159.0, 22 October 2026). Tap anything in a frame: it works, and the dashed box under each frame says what Add would store.</p>
 <div class="ael-fr">
 <figure><figcaption>A · A switch <span class="tag flow">recommended</span></figcaption>
 <iframe src="add.html#a" title="Option A: a Quantity or Level switch" loading="lazy"></iframe>
 <div class="ael-out" role="note" aria-live="polite"></div>
 <p class="ael-cap">One two-way switch at the top of Amount. Quantity is what Add does today; Level swaps the quantity block for the four squares. Both choices are on screen.</p></figure>
+<figure><figcaption>E · Three separate choices <span>(owner, voice, 22 Oct)</span></figcaption>
+<iframe src="add.html#e" title="Option E: Words, Quantity and Level as three separate choices" loading="lazy"></iframe>
+<div class="ael-out" role="note" aria-live="polite"></div>
+<p class="ael-cap">Free words, a number and unit, and a level, each its own choice and never mixed. Words has no "Add unit"; Quantity is always a number. Try the other two: <a href="add.html#e-qty">add.html#e-qty</a>, <a href="add.html#e-level">add.html#e-level</a>.</p></figure>
 <figure><figcaption>B · Both, joined by "or"</figcaption>
 <iframe src="add.html#b" title="Option B: quantity and level together" loading="lazy"></iframe>
 <div class="ael-out" role="note" aria-live="polite"></div>
@@ -33,12 +37,13 @@
 <li>Level and quantity are two separate stored objects and never overwrite each other (R25). The level words and the three squares do not change.</li>
 <li><b>The shopping list reads a level only when there is no exact amount</b> (<code>store.ts</code>, the loose-level pass). A level-only item, or one with free words, at Running low or Out is listed as "running low" or "out", with no minimum. A level next to an exact amount is not read: the amount decides, and only against a minimum. This is what separates the options.</li>
 </ul>
-<b style="display:block;margin-top:14px">The four, side by side</b>
+<b style="display:block;margin-top:14px">The five, side by side</b>
 <div class="ael-tablewrap"><table class="ael-cmp"><thead><tr><th></th><th>Taps to a level</th><th>Both choices on screen</th><th>What it costs</th><th>With no script</th></tr></thead><tbody>
 <tr><th>A switch</th><td>2</td><td>Yes</td><td>One more row. People who only count pay nothing else.</td><td>Both fields are plain inputs, so it reads as B.</td></tr>
 <tr><th>B both</th><td>1</td><td>Yes, together</td><td>Tallest form. Invites a level beside an exact amount, which the list ignores.</td><td>As drawn.</td></tr>
 <tr><th>C quiet button</th><td>2</td><td>No, only the button</td><td>Add is unchanged. Level is a second-class route that is easy to miss.</td><td>The button needs script, so it reads as B.</td></tr>
 <tr><th>D setting</th><td>1 (after a one-time setting)</td><td>No, one only</td><td>One rule for every item: a household that counts milk and levels spices is stuck. Counting moves to Edit.</td><td>Cannot remember the setting, so Add falls back to Quantity.</td></tr>
+<tr><th>E three apart</th><td>2</td><td>Yes, all three</td><td>The widest switch. Splits what the app stores as one quantity with two states (R25): a person must choose words or a number before typing. Words can no longer become a number with "Add unit".</td><td>All three fields are plain inputs, so it reads as B with a third box.</td></tr>
 </tbody></table></div>
 
 <b style="display:block;margin-top:14px">Proposals</b> (the mockup's own choices, the owner was silent)
@@ -50,6 +55,7 @@
 <li>No square is preselected: nothing is invented for the person. Add with Level showing and no square saves just the name, and the cue reads "Automatic".</li>
 <li>Minimum stock is not drawn on the Level side: a level has nothing to compare against.</li>
 <li>Tapping the picked square again takes it back, and the circular arrow does the same (the Edit flyout's "Set by you" cue, decisions 111 and 112). The words are the form's own: Quantity, Level.</li>
+<li><b>E, for the owner's three-way reading:</b> Words is the default (as Add is today). Switching away keeps what was typed, unsaved, and the readout says so. Not recommended over A: it separates one stored quantity into two sides, but it is the literal split asked for.</li>
 <li>The same control in the quick-add sheet and the desktop Add flyout, since they are one form. Not drawn separately at 1280; confirm there.</li>
 </ul>
 <b style="display:block;margin-top:10px">Open</b> (what a wrong guess costs)
@@ -58,6 +64,7 @@
 <li><b>Default to Quantity, or open on the last choice?</b> Wrong "last choice": Add opens on Level for someone who is counting milk, one tap to flip. Wrong "always Quantity": a Level person flips on every add.</li>
 <li><b>Should a person be able to give both (B)?</b> If yes, a level beside an exact amount is stored but ignored by the shopping list, and the form should say so.</li>
 <li><b>Preselect Plenty?</b> Wrong "no": one extra tap on every add. Wrong "yes": a state the person never gave.</li>
+<li><b>Words and a number: two choices or one?</b> E asks the person to pick before typing. Today the editor takes either in one place and splits a plain "2kg" into 2 and kg by itself (decision 121). Wrong E: a person who types "2 jars" in Words gets free text the list cannot read. Wrong A: a person who wants words has to see a number editor first.</li>
 <li>Whether the quick-add sheet should offer it at all, or only the full Add.</li>
 </ul>
 <p style="margin:12px 0 0;color:var(--muted)">Loads: static HTML for each frame, <code>theme.css</code>, the Edit flyout's <code>flyout.css</code> (the shared form family), <code>ael.css</code> and <code>ael.js</code>, all cached after the first frame. No request after that, no image, no font. Frames load on scroll (<code>loading="lazy"</code>). In the build there is no new request: the level picker is the one Edit already draws, so the cost is the markup of one control on Add and a few lines in the form script that already loads. Notes: <a href="https://github.com/basement-bridge/mockup/blob/main/docs/knowledge/add-amount-or-level.md">docs/knowledge/add-amount-or-level.md</a>.</p>

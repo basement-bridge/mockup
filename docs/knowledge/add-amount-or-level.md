@@ -11,12 +11,16 @@ When someone adds an item they are asked for a number of units. Some people, in 
 - Level and quantity are two stored objects that never overwrite each other (R25).
 - **The shopping list reads a level only when there is no exact amount** (`store.ts`, loose-level pass): a level-only item, or one with free words, at Running low or Out is listed as "running low" or "out" with no minimum; a level next to an exact amount is ignored (the amount decides, only against a minimum). Mockup decision 101 ("a level never adds an item") is about the exact-amount case and the buy default; it does not contradict this.
 
+## Owner, voice, 22 October 2026 (after seeing the mockup)
+There are really three ways to say how much: free text, a quantity, and a level. He asked to see all three treated separately: option E. (Claude had offered two ways to collapse them; he chose to see the split first.)
+
 ## Options (all drawn; A recommended)
 | | What it is | Taps to a level | Cost |
 |---|---|---|---|
 | A | Two-way switch Quantity / Level at the top of Amount | 2 | One more row |
 | B | Quantity and level together, joined by "or" | 1 | Tallest form; invites a level beside an exact amount, which the list ignores |
 | C | Add unchanged; a ghost "Set a level" beside "Add unit", swapped in place | 2 | Level is easy to miss |
+| E | Three-way switch Words / Quantity / Level, each separate (owner asked to see it) | 2 | Widest switch; one stored quantity becomes two sides |
 | D | A device setting decides; Add shows only that one | 1 after setup | One rule for every item; counting moves to Edit |
 
 Not drawn: choosing by pattern-matching the name or location. #192 rules that out (category and location are the household's free text).
@@ -30,6 +34,7 @@ Not drawn: choosing by pattern-matching the name or location. #192 rules that ou
 - AL-P6 No Minimum stock on the Level side.
 - AL-P7 Tapping the picked square again, or the circular arrow, takes it back (decisions 111, 112 pattern). Words: Quantity, Level.
 - AL-P8 Same control in the quick-add sheet and the desktop Add flyout (one form); not drawn separately at 1280.
+- AL-P10 E: Words is the default; switching away keeps the typed words or number in the form, unsaved. Words has no "Add unit"; Quantity is always a number and unit. Not recommended over A.
 - AL-P9 No script: both fields are plain inputs (radios named `level`), so A and C read as B; the server's existing rules apply.
 
 ## Open (and what a wrong guess costs)
@@ -37,6 +42,7 @@ Not drawn: choosing by pattern-matching the name or location. #192 rules that ou
 - AL-Q2 Default Quantity or open on the last choice. Wrong "last": opens on Level for someone counting milk (one tap). Wrong "always Quantity": a Level person flips every add.
 - AL-Q3 May a person give both (B)? If yes the form should say a level beside an exact amount is not read by the list.
 - AL-Q4 Preselect Plenty? Wrong "no": one extra tap. Wrong "yes": a state the person never gave.
+- AL-Q6 Words and a number: two choices (E) or one (A, today)? Wrong E: "2 jars" typed in Words is free text the list cannot read. Wrong A: a person who wants words sees a number editor first.
 - AL-Q5 Quick-add: offer it, or only on the full Add?
 
 ## Build impact (for the issue, not decided)
