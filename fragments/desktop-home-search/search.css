@@ -21,7 +21,7 @@
 .sres .empt{padding:14px 8px 8px;color:var(--muted)}.sres .empt b{color:var(--fg)}
 .sres .foot{display:flex;gap:14px;align-items:center;padding:8px 8px;margin-top:6px;border-top:1px solid var(--border);font-size:12px;color:var(--muted)}
 .sres .foot .kbd{margin-right:4px}
-/* everything behind the dropdown recedes (owner: "otherwise it's widget on top of widget") */
-.desk.searching .cards,.desk.searching .week,.desk.searching .rail,.desk.searching .fly{opacity:.14;pointer-events:none}
+/* everything behind the dropdown recedes (owner: "otherwise it's widget on top of widget") EXCEPT This week (owner, 22 Oct 2026, voice: the week plan stays fully visible and active) */
+.desk.searching .cards,.desk.searching .rail,.desk.searching .fly{opacity:.14;pointer-events:none}
+.desk.searching .week{opacity:1;pointer-events:auto}
 .desk.searching.collapse .cards{display:none}
-.desk.searching.collapse .week{opacity:.14}
