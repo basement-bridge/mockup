@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Compact view, options — fragment</title>
+<link rel="stylesheet" href="../../theme.css"><script src="../../theme.js"></script><link rel="stylesheet" href="compact.css">
+<style>
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);line-height:1.4}
+.wrap{max-width:1360px;margin:0 auto;padding:0 16px 80px}
+.back{color:var(--accent);font-weight:700;display:inline-flex;align-items:center;min-height:44px}
+h1,h2,h3{font-family:var(--head)}h1{margin:0 0 6px}h2{margin:36px 0 6px;font-size:1.25rem}h3{margin:18px 0 4px;font-size:1.05rem}
+p,li{color:var(--muted);max-width:78ch}p b,li b{color:var(--fg)}
+code{font-size:.92em}
+.notes{max-width:78ch}.notes li{margin:5px 0}
+.own{border-left:3px solid var(--accent);padding:2px 0 2px 12px;color:var(--fg);max-width:78ch;margin:10px 0}
+.bar{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--border);padding:8px 0;margin:0 -16px;padding-left:16px;padding-right:16px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
+.bar .lbl{font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+#stateSw{display:inline-flex;flex-wrap:wrap;gap:6px}
+#stateSw button{min-height:36px;padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font-weight:700;font-size:13px;color:var(--muted)}
+#stateSw button[aria-pressed=true]{background:var(--accent);border-color:transparent;color:var(--on-accent)}
+#nav{display:inline-flex;flex-wrap:wrap;gap:4px;margin-left:auto}
+#nav a{min-height:36px;display:inline-flex;align-items:center;padding:0 10px;border-radius:var(--r-pill);font-weight:700;font-size:13px;color:var(--accent);text-decoration:none}
+#nav a.on{background:var(--surface);box-shadow:inset 0 0 0 1px var(--accent)}
+.dw{margin:28px 0 0;overflow-x:auto;max-width:100%;scroll-margin-top:64px}
+.desk{display:flex;width:1280px;height:680px;border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden;background:var(--bg);font-size:14px}
+.dw figcaption{margin:0 0 8px;display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center;color:var(--muted);max-width:1280px}
+.dw figcaption b{color:var(--fg)}
+.badge{display:inline-block;padding:2px 10px;margin-left:8px;border-radius:var(--r-pill);border:1px solid var(--accent);color:var(--accent);font-size:12px;font-weight:800}
+.mockctl{margin-left:auto;min-height:36px;padding:0 12px;border-radius:var(--r-pill);border:1px dashed var(--border);font-weight:700;font-size:13px;color:var(--fg)}
+.mockctl[aria-pressed=true]{border-color:var(--accent);color:var(--accent)}
+table{border-collapse:collapse;width:100%;max-width:1100px;font-size:14px}th,td{text-align:left;vertical-align:top;border-top:1px solid var(--border);padding:8px 10px}th{color:var(--muted);font-size:12px;letter-spacing:.06em;text-transform:uppercase}td:first-child{white-space:nowrap;font-weight:700;color:var(--fg)}td{color:var(--muted)}td b{color:var(--fg)}
+.tw{overflow-x:auto}
+.q{margin:18px 0;padding:14px 16px;border:1px dashed var(--border);border-radius:var(--r-card);max-width:900px}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Compact view: options</h1>
+<p>The desktop Home has two views, Dashboard and Compact view (decisions 133, 290). The owner has moved on a lot in Dashboard and asks whether Compact is still worth having, and whether its design could borrow from the newer ideas. Below: what is actually happening on the Compact screen, six options drawn at desktop width in four states, and an honest read on keeping or retiring it. Sample data; every control works in place and saves nothing; Theme button bottom right.</p>
+<div class="own"><b>Owner, typed, 22 Oct 2026:</b> &ldquo;give me some solid options for the compact view of the dashboard by understanding what is actually happening here, because I have moved on a lot on the non-compact version. I&rsquo;m considering whether this is really worth having, but tell me whether that design could be improved with some of the ideas ... mockups as per the process.&rdquo;</div>
+
+<h2>What is actually happening</h2>
+<ol class="notes">
+<li><b>The empty state is a dead end.</b> One button, Plan ahead, and the lower half of the screen is empty. The phone&rsquo;s Cooking ideas pane has the same empty state with two more exits (the freezer meal and Ask your assistant); Compact has neither.</li>
+<li><b>One sentence, two causes.</b> &ldquo;Every recipe needs three or more things you do not have, or is left out for someone eating&rdquo; joins a problem a shop can fix with one a shop cannot (a person on tonight&rsquo;s plan avoids the ingredient). The person cannot tell which one they are in.</li>
+<li><b>The pills look like information and are the most actionable things on the screen.</b> Compact has no side panel (133), so &ldquo;2 running low&rdquo; can only follow a link away, while the same two items are rows you can open and act on in Dashboard.</li>
+<li><b>The chips do nothing you can see.</b> They sit above the answer, so they read as part of the question, and with one idea shown or none at all there is nothing for them to re-rank.</li>
+<li><b>The rule has a floor.</b> A recipe fits with at most two things missing. So when nothing fits, the closest recipe is missing at least three: &ldquo;Missing 2&rdquo; can appear on a recipe that fits (rows below the lead), but never as a near-miss when nothing fits. The near-miss rows therefore read &ldquo;Missing 3: &hellip;&rdquo;. See CH-Q1.</li>
+<li><b>Compact shows one idea.</b> Dashboard shows a lead and two others plus the going-off and running-low rows. Compact&rsquo;s whole value is fewer things on screen; that is also why it has the least to act on.</li>
+</ol>
+
+<div class="bar" role="group" aria-label="State and option">
+<span class="lbl">State</span><span id="stateSw"><button type="button" data-s="fits"></button><button type="button" data-s="planned"></button><button type="button" data-s="none"></button><button type="button" data-s="excl"></button></span>
+<nav id="nav" aria-label="Options"><a href="?o=" data-o="">All</a><a href="#opt-T">Today</a><a href="#opt-A">A</a><a href="#opt-B">B</a><a href="#opt-C">C</a><a href="#opt-D">D</a><a href="#opt-E">E</a><a href="#opt-F">F</a></nav>
+</div>
+<div id="frames"></div>
+<p class="sr-only" id="live" role="status"></p>
+
+<h2>The options, in one table</h2>
+<div class="tw"><table><thead><tr><th>Option</th><th>Fixes</th><th>Costs</th><th>On its own</th></tr></thead><tbody>
+<tr><td>A Near-misses</td><td>The dead end. Closest three (fewest missing, then quickest), each with what is missing and a one-tap Add to the list; the freezer meal first when there is one.</td><td>Three rows (about 170px) in the empty state only. Needs a stock match for every recipe, not just the top idea (Recipe&rsquo;s what_am_i_missing, one call).</td><td>Best single fix. Still says &ldquo;or is left out for someone eating&rdquo;.</td></tr>
+<tr><td>B Actionable strip</td><td>Pills become controls: going off and running low open a small tray (Add to list per item, Add both); Plan tonight is prefilled with the top near-miss and adds its missing things; Plan ahead is folded in as the last pill.</td><td>Same row of pills, now buttons. The tray is a popover under the strip (above it in E): nothing navigates and nothing below it moves.</td><td>Good, but Plan tonight prefills something you have not seen unless A is also there.</td></tr>
+<tr><td>C Split the reason</td><td>&ldquo;Missing 3 or more&rdquo; (a shop fixes it) apart from &ldquo;left out for Priya and Jo&rdquo; (shopping cannot), each blocked recipe &ldquo;blocked for Priya (peanut butter)&rdquo;, and a Change who is eating link.</td><td>Reads longer than one sentence; in E it is two lines.</td><td>Honest, but gives no way out except changing who is eating.</td></tr>
+<tr><td>D Chips as a lens</td><td>Chips move under the answer, show a count, re-rank (never hide), and go dim and dashed when nothing matches. Needs a lead and two more rows so there is something to re-rank.</td><td>Two rows (about 110px) in the populated states.</td><td>Weak when nothing fits: every chip is dashed and the dead end remains.</td></tr>
+<tr><td>E A + B + C + D</td><td>All of the above in one column. Each state fits without scrolling in a 1280 by 680 window. Ask AI appears only when nothing fits.</td><td>The most to build; but A and C are the same content the Dashboard needs (see F).</td><td>Recommended if Compact stays.</td></tr>
+<tr><td>F Retire Compact</td><td>No toggle, no second layout, no special case for the flyout lane (290), no view to remember per browser. Settings &gt; Compact rows (which exists today for Pantry rows) also tightens Home&rsquo;s rows. A and C are drawn inside the Dashboard&rsquo;s ideas card because the dead end exists there too.</td><td>Home needs scrolling on a short window; density helps but cannot match one screen of Compact.</td><td>Recommended if the owner does not use Compact.</td></tr>
+</tbody></table></div>
+
+<h2>Does Compact earn its place? An honest read</h2>
+<ul class="notes">
+<li><b>What only Compact does:</b> it shows one answer and nothing else. That is a real job (&ldquo;just tell me what to cook&rdquo;) but Dashboard&rsquo;s lead card already leads with the same answer, top left, with Make it and Plan, and the Dashboard&rsquo;s highlighted slot is the plan or the top idea in both views.</li>
+<li><b>What Compact costs forever:</b> a second layout to design and test in every state; a view choice to remember per browser; a special case in the flyout (the lane is reserved only in Compact, 290); every Home improvement (near-misses, the split reason, anything next) drawn and built twice. The three improvements this page proposes for Compact (A, C, and Dashboard rows for B) are needed in the Dashboard too, so none of that work is lost if Compact goes.</li>
+<li><b>What I cannot tell from here:</b> how often it is used. There is no usage data in the mockups or in this repo&rsquo;s notes.</li>
+<li><b>Measured in the frames (1280 by 680 window, same sample data):</b> Compact today fills 320 to 430px, so the lower third is empty. Option E fills 440 to 605px in every state, with no scrolling. The Dashboard needs 703 to 860px (it scrolls by 23 to 180px) and, with Compact rows on, 678 to 739px (it fits in three states of four). So density closes most of the gap; it does not make Dashboard one screen in the worst state.</li>
+<li><b>Read:</b> as it stands, Compact does not earn its place; it is Dashboard with the useful parts removed. With A to D (option E) it would: it becomes a one-screen &ldquo;decide and act&rdquo; view that is not a subset of Dashboard. Whether that is worth a second layout is the owner&rsquo;s call (CH-Q2). If it is dropped, F is the drawn replacement; if it stays, E.</li>
+</ul>
+
+<h2>Proposals (the owner was silent; each is mine)</h2>
+<ul class="notes">
+<li><b>CH-P1</b> Near-misses are recipes nothing blocks and that miss three or more things; shown fewest missing first, then quickest, at most three. (Wrong guess costs: a different order for ties; one comparator.)</li>
+<li><b>CH-P2</b> The freezer meal, when there is one, is the first row in the nothing-fits answer (as on the phone pane), above the near-misses. Not in the screenshot, so I am proposing it back. (Cost: one row; drop if the freezer is not meant for Home.)</li>
+<li><b>CH-P3</b> &ldquo;Add n to list&rdquo; adds exactly the missing things for that recipe, toggles to &ldquo;On the list&rdquo; and takes them off again on a second tap. No confirmation.</li>
+<li><b>CH-P4</b> The Plan tonight pill appears only when there is no lead (nothing fits). With a lead, the lead&rsquo;s own Plan button does it; a second control would be a duplicate.</li>
+<li><b>CH-P5</b> Plan tonight with a near-miss plans the recipe and adds its missing things to the list in one tap, with an Undo in the toast. (Cost: a plan with missing things; wrong guess is a plan the person did not want, undone by the same toast.)</li>
+<li><b>CH-P6</b> Plan ahead is the last pill of the strip, always, and leaves the empty card; the empty card keeps no buttons.</li>
+<li><b>CH-P7</b> Going off opens a read-only tray with Open in the Pantry; running low opens a tray with Add to list per item and Add both. A zero count drops the pill (today&rsquo;s Compact already hides Going off at zero).</li>
+<li><b>CH-P8</b> Chips are a single-choice lens that re-ranks (matching recipes first) and never hides a result. Count on each chip is over what is shown; zero is dim and dashed, as a zero-count status in Filters. Chips still mean what &ldquo;Tune ideas&rdquo; means today.</li>
+<li><b>CH-P9</b> In E, recipes left out for someone are not shown as rows; one dashed &ldquo;n left out&rdquo; chip at the end of the lens row opens the reason with who and what. (Cost: a hidden reason; the chip is always visible.)</li>
+<li><b>CH-P10</b> Ask AI (the only hand-off; it opens the person&rsquo;s own AI app) is a quiet link in E only when nothing fits. Surprise me is not on Home and is not drawn; where the Home engine already ranks ideas, Surprise me never hands off to an AI (decision 292).</li>
+<li><b>CH-P11</b> Option F draws the Dashboard as it stands in the mockups with Compact rows on. Settings &gt; Compact rows today changes Pantry rows only; extending it to Home&rsquo;s rows is mine. Dashboard&rsquo;s own empty state gets A and C (its present empty state has the same dead end).</li>
+<li><b>CH-P12</b> Frames are 1280 by 680 so the owner judges what shows without scrolling on a laptop; Compact is meant to be one screen, so E is checked against that.</li>
+</ul>
+
+<h2>Open questions, with what a wrong guess costs</h2>
+<ul class="notes">
+<li><b>CH-Q1 The threshold.</b> Is &ldquo;three or more things missing does not fit&rdquo; the real rule? If it should be looser, the near-misses can read &ldquo;Missing 2&rdquo; as the brief imagined, but then those recipes are not nothing-fits at all. Cost: a threshold number in the ranking; copy only.</li>
+<li><b>CH-Q2 Keep or retire Compact?</b> Recommendation: retire (F) unless the owner uses it; if kept, build E. Cost of keeping wrongly: a second layout forever. Cost of retiring wrongly: a person who liked one-screen Home loses it; the toggle can come back, and Dashboard with Compact rows is the nearest.</li>
+<li><b>CH-Q3 Does Plan tonight belong on a recipe that needs shopping?</b> Drawn: yes, it adds the missing things. Alternative: add to the list only and plan later. Cost: one button&rsquo;s label and behaviour.</li>
+<li><b>CH-Q4 Should the running-low tray be a popover or the flyout?</b> Drawn: a popover on the strip (in place, 6a), so Compact never needs the 400px lane for it (290 stays for recipe results only). Cost: a different place for the same list.</li>
+<li><b>CH-Q5 Change who is eating</b> is drawn as a link to Tune ideas (tonight only). Whether leaving a person out for a night is allowed from a food-rules block is a preferences decision, not made here.</li>
+</ul>
+
+<h2>What loads</h2>
+<p><b>Default path:</b> this page, <code>theme.css</code> (two themes inline), <code>theme.js</code>, <code>compact.css</code> (about 12 KB) and <code>mock.js</code> (about 27 KB; 56 KB raw in all, with this page). No images, no fonts beyond the theme, no framework, no network call. <b>Deferred:</b> any non-default theme (one small file when chosen); in the build, near-misses need a stock match for every recipe, so they are fetched only when the answer is empty (one call, Recipe&rsquo;s what_am_i_missing), and the tray lists read the items Home already has. The recipe flyout (290) loads on first open, as today.</p>
+
+<h2>For the build</h2>
+<ul class="notes">
+<li>Lift <code>compact.css</code> and the markup that <code>mock.js</code> writes. Existing names: <code>.compact .ask .lean .lead .glance .card .th .sh2 .ir .or .e .t .k .pl .btn .rok .rmiss .seg .us .topbar .rail .nv</code>. New names: <code>.empt</code> (as in the Cooking ideas pane), <code>.rsn .rg</code> (the split reason), <code>.nrow</code> (a near-miss row), <code>.lens</code> (chips below the answer; <code>.zero</code> for dim and dashed), <code>.gp</code> (a strip pill that is a button), <code>.tray</code>, <code>.rblock</code>, <code>.dense</code> (option F).</li>
+<li>One render path: an option is only a set of flags, so the build can ship E and switch a part off without new markup.</li>
+<li>Check: <code>node tools/compact-home-options-check.mjs</code>.</li>
+</ul>
+<p>Mockup and options only; nothing is built into the real app. Related: <a href="../desktop-home/" style="color:var(--accent)">Desktop Home: Dashboard and Compact view</a>, <a href="../home-detail-panel/index.html" style="color:var(--accent)">Home: the detail panel</a>, <a href="../../recipe-ideas/" style="color:var(--accent)">Cooking ideas</a>, <code>docs/knowledge/jobs-to-be-done/compact-home.md</code>.</p>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+<script src="mock.js"></script>
+</body></html>

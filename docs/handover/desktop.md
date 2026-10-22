@@ -103,6 +103,7 @@ Found by reading `uat` (read only; nothing was changed there).
 4. **Scenario controls on desktop.** The household flow's scenario controls (persona, invite, household, jump to) do not load at desktop sizes, because desktop opens its own page. Proposed fix: share the same state and Controls panel, carried in the URL. Not built.
 5. **"Same number of rows" elsewhere.** The owner asked for a similar row limit "elsewhere"; the Category curtain already has it. Other places not named.
 6. **The "focus" shortcut.** M is my proposal for the main column; the owner said it needs its own single key and left the letter to me.
+7. **Keep or retire the Home Compact view (owner, typed, 22 Oct 2026).** Six options drawn in `fragments/compact-home-options/` (notes: `docs/knowledge/jobs-to-be-done/compact-home.md`, CH-P1 to CH-P12, CH-Q1 to CH-Q5). Recommendation: retire (F) unless he uses it; if it stays, E. Not decided.
 
 ## 10. How to build it: one coordinator, several agents, one consistency rule
 
