@@ -12,6 +12,14 @@ Speed is a design constraint (`DESIGN.md` section 6). For every mockup screen, s
 
 ## Merging: factory lanes (owner, 19 October 2026)
 
+**Exception in force: `mockup-direct-to-main` (owner, 23 October 2026; governance `docs/factory/exceptions.md`, expires 2026-12-31).**
+Mockup content here (pages, fragments, themes, `docs/knowledge/`, `REVIEW-QUEUE`) is committed **straight to `main`, with no
+pull request**. Do not open a PR for it and do not ask first. Fetch, put your own unpushed commits on top of `origin/main`, and push
+as a fast-forward; if the push is rejected, fetch and redo it. Never force-push and never drop someone else's work. This does **not**
+cover `AGENTS.md`, `tools/`, `.github/` or any other repo: those still go by PR for the owner to merge. Tags are still never cut by
+the agent. Private-by-default visibility (below) is unchanged. If the exception is past its `expires` date or missing from the
+exceptions list, it is not in force: follow the lanes text below.
+
 The agent operates the software factory end-to-end. **UAT is the automated integration lane. `main` is the
 owner-gated release lane.** Canonical statement: governance `docs/factory/lanes.md`.
 
@@ -25,7 +33,9 @@ that PR. If a `uat` branch exists later, a clean conflict-free PR targeting `uat
 agent without asking.
 
 The pull request description is still the working spec (next section), and open questions stay open in
-it; merging does not settle them. Bring the branch up to date with `main` (forward merge, never rebase a
+it; merging does not settle them. While `mockup-direct-to-main` is in force there is no PR for mockup content, so the same working spec
+goes into the screen's notes and `docs/knowledge/` in the same commit, with the commit message naming the owner's request; the owner
+converts that note into an issue once a direction is chosen. Bring the branch up to date with `main` (forward merge, never rebase a
 shared branch, never force-push) and never drop someone else's merged work.
 
 **Visibility (owner, 18 October 2026).** This repo is private by default. When a mockup is ready for the owner's review, add its line to `REVIEW-QUEUE` in the same push and run `governance/tools/mockup-visibility.sh open`; give him the live link. When the product PR carrying it merges into `uat`, remove the line and run `close` (it holds while other lines remain). Never open it for a draft. Full rule: governance `docs/factory/mockup-visibility.md`.
