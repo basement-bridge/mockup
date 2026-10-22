@@ -6,3 +6,5 @@ fragments/compact-home-options basement-bridge/mockup (no issue) options A to F 
 fragments/desktop-home-search basement-bridge/mockup (no issue) one desktop Home, search first: live contextual dropdown, no Dashboard/Compact toggle; awaiting owner review
 fragments/mobile-home-view-switch basement-bridge/mockup (no issue) options A to E for the control that switches mobile Home between full and compact (ask-first), B recommended; awaiting owner review
 fragments/add-amount-or-level basement-bridge/kitchie#1047 options A to E for choosing an amount or a level on Add, A recommended; awaiting owner review
+fragments/mobile-home-compact-search basement-bridge/mockup (no issue) option F for mobile Home: compact is the search bar, one contextual suggestion by time of day after 2 s idle, no switch; A to E unchanged; awaiting owner review
+fragments/mobile-home-g basement-bridge/mockup (no issue) option G for mobile Home: cooking ideas always first, on the way out and running low collapsed and absent when empty, search a small button in the greeting row (same place as Pantry), takeover only on tap, no This week; F and A to E unchanged; awaiting owner review
