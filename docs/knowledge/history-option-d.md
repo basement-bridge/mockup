@@ -1,3 +1,5 @@
+**Field catalogue superseded 23 Oct 2026 by the canonical event model (`history-event-model.md`, section 6 lists every change) and drawn again on it in `history/search/` (`history-search.md`). The locked structure (H1 to H15) stands.**
+
 # History, Option D: catch-up feed, recent history, structured filters
 
 **Revised to the owner's locked decisions H4 to H10 (11 Oct 2026) and H11 to H15 (12 Oct 2026: tick and X, person link, second tab, "recent" wording, day-at-a-time loading).** The decisions are in `history-options.md` (H1 to H15) and win over anything below. Numbers D1 to D27 are Proposals; those the decisions removed are marked **Superseded**. Nothing is built into Kitchie or Recipe.

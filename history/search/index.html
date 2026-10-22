@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>History search and filters</title>
+<link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><link rel="stylesheet" href="../option-d/option-d.css"><link rel="stylesheet" href="search.css">
+<script src="../../theme.js"></script></head>
+<body data-no-theme-fab>
+<!-- History search and filters on the canonical event model. Phone under 1024px, rail + column + lane from 1024px. Spec: docs/knowledge/history-search.md; model: docs/knowledge/history-event-model.md.
+ Parameters: ?as=arjan|sam &household=two|more &view=list (recent, a day at a time; default is the catch-up) &tab=mine|other &last=sat|wed &filters=1 &step=when|who|area|kind|product|touches
+ &when=any|today|week|month &area=pantry|recipe &kind=pantry.moved &product=kitchie|recipe &touches=me &entity=item:itm_rice (in context) &open=<seq> (the result detail)
+ &state=loading|empty|down &tpl=loading|none (template registry) &affects=today (as Kitchie writes it) &nomember=include (Q5 option a) &keyword=1 (Q1 S1 Proposal) &notes=0 -->
+<div class="hx" id="hx"></div>
+<script src="model.js"></script><script src="search.js"></script>
+</body></html>
