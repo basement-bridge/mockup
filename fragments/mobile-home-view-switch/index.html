@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Mobile Home view switch — fragment</title>
+<link rel="stylesheet" href="../../theme.css"><script src="../../theme.js"></script><link rel="stylesheet" href="home-view.css">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);line-height:1.45}
+.wrap{max-width:var(--content-max);margin:0 auto;padding:var(--sp-4) var(--gutter) 96px}
+.back{color:var(--accent);font-weight:700;display:inline-flex;align-items:center;min-height:var(--tap)}
+h1,h2,h3{font-family:var(--head)}h1{font-size:1.7rem;line-height:1.1;margin:0 0 6px}h2{margin:32px 0 6px;font-size:1.2rem}h3{margin:16px 0 4px;font-size:1rem}
+p,li,dd{color:var(--muted)}p b,li b,dd b{color:var(--fg)}
+code{font-size:.9em}
+.notes{padding-left:20px}.notes li{margin:6px 0}
+.own{border-left:3px solid var(--accent);padding:2px 0 2px 12px;color:var(--fg);margin:12px 0}
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+#tabs{display:flex;gap:6px;overflow-x:auto;padding:var(--sp-2) 0;margin:0;background:var(--bg);scrollbar-width:none;border-bottom:1px solid var(--border)}
+#tabs::-webkit-scrollbar{display:none}
+#tabs button{flex:none;min-height:var(--tap);padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);color:var(--muted);font:700 13px var(--body);cursor:pointer}
+#tabs button span{display:none}
+#tabs button[aria-selected=true]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+#tabs button[aria-selected=true] span{display:inline}
+#tabs button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.badge{display:inline-block;padding:2px 10px;margin-left:8px;border-radius:var(--r-pill);border:1px solid var(--accent);color:var(--accent);font:800 12px var(--body);vertical-align:middle}
+.lede{margin:0 0 var(--sp-3)}
+/* the frames: 390 wide, as the owner's phone */
+.fr3{display:flex;flex-wrap:wrap;gap:var(--sp-5);margin:0 -16px}
+@media(min-width:600px){.fr3{margin:0}}
+.fr{margin:0;width:390px;max-width:100%}
+.fr figcaption{padding:0 16px var(--sp-2);font-size:13px;color:var(--muted)}.fr figcaption b{display:block;color:var(--fg);font-size:14px}
+@media(min-width:600px){.fr figcaption{padding-left:0}}
+.pf{position:relative;display:flex;flex-direction:column;width:100%;height:760px;background:var(--bg);border:1px solid var(--border);border-width:1px 0;overflow:hidden}
+@media(min-width:600px){.pf{border-width:1px;border-radius:var(--r-phone)}}
+.pbody{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column}
+.pbody>.home{flex:0 0 auto;width:100%}
+.toast{position:absolute;left:var(--sp-3);right:var(--sp-3);bottom:80px;z-index:20;background:var(--fg);color:var(--bg);border-radius:var(--r-ctl);padding:12px 14px;font-weight:600;font-size:14px}
+.toast[hidden]{display:none}
+.panel{margin:var(--sp-3) 16px 0;padding:var(--sp-3);border:1px dashed var(--border);border-radius:var(--r-card);font-size:13px}
+@media(min-width:600px){.panel{margin-left:0;margin-right:0}}
+.panel .pt{margin:0 0 6px;font-weight:800;font-size:11px;letter-spacing:.07em;text-transform:uppercase}
+.panel dl{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;margin:0}.panel dt{color:var(--muted)}.panel dd{margin:0;color:var(--fg);word-break:break-all}
+.prow{display:flex;flex-wrap:wrap;gap:6px;margin-top:var(--sp-2);align-items:center}
+.prow button{min-height:var(--tap);padding:0 12px;border-radius:var(--r-pill);border:1px dashed var(--border);background:none;color:var(--fg);font:700 13px var(--body);cursor:pointer}
+.prow label{display:inline-flex;align-items:center;gap:6px;min-height:var(--tap);color:var(--fg);font-weight:600}
+.prow input{width:20px;height:20px;accent-color:var(--accent)}
+.panel .pn{margin:var(--sp-2) 0 0;font-size:12px}
+.facts{display:grid;gap:2px;margin:var(--sp-5) 0 0}.facts dt{font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--accent);margin-top:var(--sp-3)}.facts dd{margin:0}
+.tw{overflow-x:auto;margin:0 -16px;padding:0 16px}
+table{border-collapse:collapse;min-width:1040px;width:100%;font-size:13.5px}th,td{text-align:left;vertical-align:top;border-top:1px solid var(--border);padding:8px 10px}th{color:var(--muted);font-size:11px;letter-spacing:.06em;text-transform:uppercase}td:first-child{font-weight:700;color:var(--fg);white-space:nowrap}td:not(:first-child){min-width:120px}td{color:var(--muted)}
+.q{margin:14px 0;padding:12px 14px;border:1px dashed var(--border);border-radius:var(--r-card)}
+.recbox{margin:14px 0;padding:12px 14px;border:2px solid var(--accent);border-radius:var(--r-card);color:var(--fg)}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Mobile Home: a quiet way to switch views</h1>
+<p>Desktop drops the Compact toggle. Compact lives on mobile: Home can be seen in full, or compact and ask-first (&ldquo;What are we eating?&rdquo;, one answer, nothing else). This page draws five ways to switch, each nearly invisible (an icon or a gesture, never a labelled toggle or a pill), remembered on this device, with a one-time hint. Sample data; the controls work in place; Theme button bottom right. Phone width only.</p>
+<div class="own"><b>Owner, voice, 22 Oct 2026 (&ldquo;build, build, build&rdquo;):</b> desktop drops the Compact toggle entirely. Compact lives on mobile: Home can be viewed compact (ask-first, &ldquo;What are we eating?&rdquo;) or in the fuller view. A few options for the control. Not a plainly labelled toggle, not a Dashboard / Compact segmented control, not chunky widget-style pills, no pins that expand on mobile. A very intuitive, almost invisible control, icon-level or gesture-level, not a widget sitting on the page. Each shows how a first-time person finds it (one quiet hint, shown once, no coachmark spam) and how it shows the mode without text. Persisted per person, client-side only. Screen space is precious; thumb-reachable; reduced motion; accessible names; state never by colour alone.</div>
+
+<h2>Pick an option</h2>
+<div id="tabs" role="tablist" aria-label="Options"></div>
+<div id="opt" aria-live="off"></div>
+<p class="sr-only" id="live" role="status"></p>
+
+<h2>The five, side by side</h2>
+<div class="tw"><table><thead><tr><th>Option</th><th>The control</th><th>First-time discovery</th><th>Shows the mode</th><th>Thumb</th><th>Space</th><th>Honest weak spot</th></tr></thead><tbody>
+<tr><td>A Header icon</td><td>Icon button, right of the greeting</td><td>Bubble + soft rings, once</td><td>Glyph: rows or one card; ring + fill when compact</td><td>Poor (top right)</td><td>0 px</td><td>A button after all; far from the thumb</td></tr>
+<tr><td>B Pull handle <span class="badge">Recommended</span></td><td>Drag handle under the ideas card; drag up or tap</td><td>Always visible; nudges twice + bubble, once</td><td>Short pill + up chevron, or long pill + down chevron</td><td>Best</td><td>~36 px</td><td>A handle is easy to ignore; the hint is the only teacher</td></tr>
+<tr><td>C Pinch or hold</td><td>Pinch Home, or press and hold the heading</td><td>Bubble, once. Nothing visible to find</td><td>Heading text and a 4-dot or 1-dot mark</td><td>Anywhere, but two fingers</td><td>0 px</td><td>Turns off browser pinch-zoom on Home; hidden; poor one-handed</td></tr>
+<tr><td>D Lens in the search field</td><td>Lens at the end of a search field</td><td>Pulse + bubble, once</td><td>Open ring or ring with a solid dot</td><td>Poor (top)</td><td>~52 px (the field)</td><td>Pays for a search field mobile Home does not have</td></tr>
+<tr><td>E Remembers</td><td>None. Tap the heading to override</td><td>One note when Home first changes itself</td><td>Heading text and the dot mark</td><td>Usually no tap</td><td>0 px</td><td>Home changes under you; no way to ask for it first</td></tr>
+</tbody></table></div>
+
+<h2>Recommendation</h2>
+<div class="recbox"><b>B, the pull handle, with the choice remembered as drawn.</b> It is the only one that costs no distance for the thumb, earns its space (about 36px net) in the one place the thumb already rests, shows its own state by shape, has a visible affordance even if the hint is missed, and works with a single tap for anyone who cannot drag. <b>Fallback if you want the cheapest and most findable:</b> A (about 30 lines, no gesture file), at the price of the far top corner. <b>E is not a control</b>: use it under B or A if you want Home to adapt, never alone. <b>C is not recommended</b> (it switches off browser pinch-zoom on Home, an accessibility regression; and nobody finds it). <b>D is only worth it if Home gets search anyway.</b></div>
+<h3>Honest trade-offs on discoverability</h3>
+<ul class="notes">
+<li><b>Quiet and findable pull against each other.</b> The quieter the control, the more the one-time hint carries. A hint shown once to a person who looks away is lost for good; the control must therefore still be findable without it (A and B are, C and E are not).</li>
+<li><b>The default hides the feature.</b> Home opens full, as today. Someone who never meets the control never sees compact. That is deliberate (nothing changes for them) but it means usage may be low; there is no usage data here to say.</li>
+<li><b>No coachmark spam, and no repeat when nothing can remember.</b> When localStorage is unavailable the hint is not shown at all, because it could never be marked as seen. Those people can still use the control; they are simply not taught it.</li>
+<li><b>State shown without text.</b> Every option changes shape (glyph, chevron, dot count) as well as the page itself. The heading also changes wording (a greeting when full, the question when compact), which is content, not a label.</li>
+</ul>
+
+<h2>The remembered choice</h2>
+<ul class="notes">
+<li><b>Rule (owner):</b> a remembered-choice UI setting is client-side only, never server-side. It is <code>localStorage</code>, per device.</li>
+<li><b>Keys:</b> <code>kitchie.homeView.&lt;memberId&gt;</code> holds <code>full</code> or <code>compact</code>; <code>kitchie.homeView.hint.&lt;memberId&gt;</code> holds <code>1</code> once the hint has shown; for E only, <code>kitchie.homeView.learn.&lt;memberId&gt;</code> holds the run count. The member id is in the key so a shared tablet remembers each person. The mock uses a <code>mock.</code> prefix per option so the options do not overwrite each other.</li>
+<li><b>Survives reload:</b> yes. Try it: in the Live frame switch the view, press Reload frame, and it reopens in the same view with the readout showing the stored value. <b>Per device:</b> another device, or another browser profile, starts at the default.</li>
+<li><b>Storage unavailable</b> (private window, cleared site data, a browser that blocks it, quota): every read and write is in <code>try/catch</code>; Home opens <b>full</b> (today&rsquo;s Home); the control still works for this visit, in memory; the hint is <b>not</b> shown; nothing throws and nothing is shown to the person. Tick &ldquo;Storage blocked&rdquo; in the Live frame and press Reload frame to see it.</li>
+<li><b>A bad stored value</b> (anything but <code>full</code> or <code>compact</code>) is ignored: default view.</li>
+<li><b>Another tab on the same device</b> changing it updates this one (the <code>storage</code> event).</li>
+</ul>
+
+<h2>Proposals (the owner was silent; each is mine)</h2>
+<ul class="notes">
+<li><b>MV-P1</b> The default is Full when nothing is stored or storage is unavailable, so nothing changes for people who never find the control. Wrong guess costs: compact stays hidden from people who would like it; one constant.</li>
+<li><b>MV-P2</b> The key carries the member id (per person on a shared device). Wrong guess costs: a new person on a shared device starts at Full; the key suffix.</li>
+<li><b>MV-P3</b> Compact on mobile is the greeting becoming &ldquo;What are we eating?&rdquo;, the lead idea (the planned meal, else the top idea) with Make it and Plan, and one line of plain text for what is going off or running low. No tiles, no other ideas, no pills, no search. The line is text, not a control (the owner ruled out pins that expand). Wrong guess costs: the line may be wanted as a link; one element.</li>
+<li><b>MV-P4</b> The hint shows once per person per device, for five seconds, goes on any touch, is marked as shown the moment it appears (not when dismissed), and is never shown when storage is unavailable. Wrong guess costs: a person who misses it never sees it again, or a longer time is wanted; one number.</li>
+<li><b>MV-P5</b> In A and D the glyph shows the layout you are in (rows when full, one card when compact), and pressed also draws a ring and fills the button. The accessible name is constant (&ldquo;Just tonight&rsquo;s answer&rdquo;) with <code>aria-pressed</code>, and a polite live region says what changed. Wrong guess costs: some will read the glyph as the target, not the state; swap the two glyphs.</li>
+<li><b>MV-P6</b> Gesture thresholds: B drags 32px (a tap under 6px also toggles, and Enter or Space for keyboards); C pinches below 0.75 or above 1.33 of the starting finger distance, or holds 450ms; E needs three visits in a row of the same kind. Wrong guess costs: feel, one number each.</li>
+<li><b>MV-P7</b> B starts only on the handle, so it never competes with the page scroll; C scopes pinch to the Home scroller with <code>touch-action: pan-y</code>.</li>
+<li><b>MV-P8</b> D adds a search field to mobile Home (about 52px in both views), because the lens needs a field to live in. Not asked for. Wrong guess costs: a field nobody wanted, or this option is dropped.</li>
+<li><b>MV-P9</b> The choice changes Home only; nothing else reads it. It is not synced to a second device (the owner rule). Wrong guess costs: a person on phone and tablet sets it twice.</li>
+<li><b>MV-P10</b> Motion is one 180ms fade of the changed parts, the hint&rsquo;s fade, and (A, D) two rings or (B) two nudges. With reduced motion: none of them; A and D show one still ring, B the bubble only, and the handle does not follow the finger.</li>
+<li><b>MV-P11</b> Every gesture has a single-finger, no-timing alternative: B a tap, C Enter or Space on the heading, E a tap on the heading. (WCAG 2.5.1 and 2.5.4.)</li>
+<li><b>MV-P12</b> Phone width only (under 600px). The drawn frame is 390 by 760. At 600px and over, Home is full and the stored choice is ignored. Wrong guess costs: see MV-Q3.</li>
+</ul>
+
+<h2>Open questions, with what a wrong guess costs</h2>
+<ul class="notes">
+<li><b>MV-Q1 Which control?</b> Recommendation B, fallback A. Cost of choosing wrongly: the control is one small component; the stored value, the compact content and the keys are the same for every option, so switching later changes one file and a hint.</li>
+<li><b>MV-Q2 Default for a new person: Full (drawn) or Compact?</b> Full changes nothing for anyone. Compact makes Home the ask-first screen for everyone, which is a larger decision than a control. Cost: wrong default means most people see the other view first.</li>
+<li><b>MV-Q3 Tablet.</b> Home is full at 600px and over here. Should a tablet get the switch? Cost: a few lines of CSS and the same script; the owner has not said.</li>
+<li><b>MV-Q4 What compact shows when nothing fits or nothing is planned.</b> Only the &ldquo;a lead idea&rdquo; state is drawn. The phone pane&rsquo;s own empty state (freezer meal, Ask your assistant) is the likely answer; the desktop near-misses (compact-home-options A and C) would need a phone cut. Cost: a half-empty compact screen in those states.</li>
+<li><b>MV-Q5 Should Home ever change the view by itself (E)?</b> Recommendation: no, unless the owner wants it; a person is surprised once and may not know why. Cost if built wrongly: a support question.</li>
+<li><b>MV-Q6 Per person on a shared device (drawn) or per device?</b> Cost: the key suffix.</li>
+<li><b>MV-Q7 Does the owner want search on mobile Home?</b> If yes, D comes back into play at no extra space cost beyond the field itself.</li>
+</ul>
+
+<h2>What loads</h2>
+<p><b>Default path:</b> this page, <code>theme.css</code> (two themes inline), <code>theme.js</code>, <code>home-view.css</code> (about 11 KB raw, phone only), <code>home-view.js</code> (about 7 KB raw, mostly comments: storage, the view attribute, the icon button, the hint) and <code>mock.js</code> (about 20 KB, the mockup&rsquo;s own sample data and frames, never for the build). No images, no fonts beyond the theme, no framework, no network call. <b>Only the option you choose is drawn</b> (the others are not built into the page until you open them). <b>Deferred:</b> <code>gestures.js</code> (about 6.5 KB raw: the drag handle, pinch, press and hold, the learner) is fetched only when B, C or E is opened; A and D, the icon options, never load it. In the build the same split holds: the icon switch ships in the Home bundle; gestures load on first Home paint after the page is idle, or never for a person who switches by icon. Any non-default theme is one small file fetched on choice.</p>
+
+<h2>For the build</h2>
+<ul class="notes">
+<li>Lift <code>home-view.css</code> and the markup <code>homeHtml()</code> writes. The view is one attribute, <code>.home[data-view=full|compact]</code>; compact is only CSS hiding <code>.tilec</code>, the ideas heading, <code>.sub</code> and <code>.idr</code>, so there is one render path and no second layout to maintain. Existing names: <code>.hi .tilec .th2 .ric .va .minis .ideas .idl .top2 .ph .why .acts .btn .idr .go .e .sub .bar</code>. New names: <code>.hbar .ask .g .glance .hv-ctl .hv-handle .hv-hint .hv-live .srch</code>.</li>
+<li>Lift <code>home-view.js</code> as is: <code>HomeView.mount(el, {member})</code>. Storage is behind one function; there is no server call.</li>
+<li>Check: <code>node tools/mobile-home-view-switch-check.mjs</code> (needs <code>python3 -m http.server 8123</code>).</li>
+</ul>
+<p>Mockup and options only; nothing is built into the real app. Related: <a href="../compact-home-options/" style="color:var(--accent)">Compact view: options (desktop)</a>, <a href="../../recipe-ideas/home.html" style="color:var(--accent)">Cooking ideas on Home</a>, <code>docs/knowledge/jobs-to-be-done/mobile-home-view.md</code>.</p>
+</div>
+<script src="home-view.js"></script><script src="mock.js"></script>
+</body></html>
