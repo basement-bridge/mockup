@@ -1,6 +1,6 @@
 # Shopping: a link to what's running low
 
-Status: mockup for the owner to review (22 Oct 2026). Not built. No Kitchie issue yet (the owner converts the PR once a direction is chosen). Lines marked **Proposal** are mockup choices where the owner's words were silent. Fragment: `fragments/shopping-running-low/`.
+Status: **option B chosen by the owner (23 Oct 2026)**; mockup of 22 Oct 2026. Not built. No Kitchie issue yet (the owner converts the PR once a direction is chosen). Lines marked **Proposal** are mockup choices where the owner's words were silent. Fragment: `fragments/shopping-running-low/`.
 
 ## What the owner said
 
@@ -17,11 +17,15 @@ Owner, by voice, 22 Oct 2026: asked for "a link to running low pantry items from
 
 | Option | Placement | Height above the list |
 |---|---|---|
-| A (recommended) | "Running low (3) ›" at the end of the hint line | 0 |
-| B | square tile beside the hand-off card | about 12 px |
+| A | "Running low (3) ›" at the end of the hint line | 0 |
+| B (**owner's pick**) | square tile beside the hand-off card | about 12 px |
 | C | basket-and-count pill right of the hint | about 20 px |
 | D | card after the last line | 0 (56 px below the list) |
 | E | basket icon with count in the app bar | 0 |
+
+## Owner's choice
+
+Owner, 23 Oct 2026: "I like the option with 'is someone shopping' and level=low on the same line as different cards." That is B: the hand-off card and a Running low tile as two cards on one row. Open: RL-3 (the count, and whether the Pantry's Running low view is what is wanted). A, C, D and E stay drawn, not chosen.
 
 ## Proposals
 
