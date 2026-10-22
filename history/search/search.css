@@ -1,0 +1,45 @@
+/* History search and filters. Adds to option-d.css (loaded first): tokens only (theme.css), no raw colours. Mockup-only pieces are marked. */
+.hx .wh{font-weight:700}
+.hx .sep{color:var(--muted)}
+.hx .ln.gen{color:var(--muted)}
+.hx .ln.gen .wh{color:var(--fg)}
+.hx .ev .tx .ln b{font-weight:700}
+.hx .ev .skbody{display:inline-block;width:55%;vertical-align:middle;margin-left:8px}
+.hx .skbody i,.hx .dline .skbody i{display:block;height:12px;border-radius:6px;background:var(--border);animation:skp 1.2s ease-in-out infinite}
+.av.none{background:var(--surface);color:var(--muted);border:1px solid var(--border)}
+.hx .chip.prop{border-style:dashed;color:var(--accent);border-color:var(--accent)}
+.hx .empty.slim{padding:var(--sp-5) var(--sp-4)}
+.hx .empty.slim h2{font-size:1rem;margin:0}
+.hx .sum.touch{display:flex;align-items:center;gap:6px;color:var(--accent);margin:0 0 var(--sp-3)}
+.ksub{margin:var(--sp-3) 0 0;font:700 12px var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);width:100%}
+.mcs>.ksub:first-child,.fchips>.ksub:first-child{margin-top:0}
+.fpb h3 code,.fsub code{text-transform:none;letter-spacing:0;font-weight:500}
+/* keyword box: a Proposal (Q1, S1), off unless ?keyword=1 */
+.kw{display:flex;align-items:center;gap:var(--sp-2);margin:var(--sp-2) 0}
+.kwl{flex:1;display:flex;align-items:center;gap:var(--sp-2);min-height:var(--tap);padding:0 var(--sp-3);border:1px solid var(--border);border-radius:var(--r-pill);background:var(--surface)}
+.kwl input{flex:1;min-width:0;border:0;background:none;color:var(--fg);font:inherit;min-height:var(--tap);outline:none}
+.kwl:focus-within{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.kwnote{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);margin:var(--sp-2) 0}
+/* the result detail: skeleton chrome + the template's output */
+.dtl{display:flex;flex-direction:column;gap:var(--sp-3)}
+.dtl .ph{margin-bottom:0}
+.dh{display:flex;align-items:center;gap:var(--sp-3)}
+.dh .dw{flex:1;min-width:0;display:flex;flex-direction:column;font-size:13px;color:var(--muted)}
+.dh .dw b{color:var(--fg);font-size:15px}
+.dline{margin:0;font-size:1.15rem;line-height:1.35}
+.dline.gen{color:var(--muted)}
+.dsub{margin:0;font-size:14px;color:var(--muted);padding-left:var(--sp-3);border-left:2px solid var(--border)}
+a.tl{color:var(--accent);text-decoration:underline;text-underline-offset:3px;font-weight:700}
+.dsheet{max-height:80%}
+.dsheet .fbody{padding-bottom:calc(var(--sp-5) + env(safe-area-inset-bottom))}
+/* mockup-only annotation (not part of the app; hide with ?notes=0) */
+.ann{margin:var(--sp-3) 0;padding:var(--sp-2) var(--sp-3);border:1px dashed var(--border);border-radius:var(--r-ctl);font-size:12px;line-height:1.4;color:var(--muted);background:none}
+.ann b{display:inline-block;margin-right:6px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.ann code{font-size:11px;color:var(--fg)}
+.hx-tabs .c{margin-left:2px}
+.pl{text-decoration:none;color:inherit}
+@media(min-width:1024px){.hx-panel .ann{margin-top:var(--sp-4)}}
+
+/* 44px targets (DESIGN.md section 3): option D's tabs and tokens were 40 and 36 */
+.hx-tabs button{min-height:var(--tap)}
+.hx .tok{min-height:var(--tap)}
