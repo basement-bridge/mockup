@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Shopping: a Running low link</title>
+<link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><script src="../../theme.js"></script>
+<style>
+.wrap{max-width:1300px}
+.frames{display:flex;flex-wrap:wrap;gap:24px;margin:12px 0 0}
+.fr{margin:0;width:390px;max-width:100%}
+.fr figcaption{padding:8px 2px 0;font-size:13px;color:var(--muted)}.fr figcaption b{display:block;color:var(--fg);font-size:15px}
+.fr iframe{display:block;width:100%;height:760px;border:1px solid var(--border);border-radius:var(--r-phone,28px);background:var(--bg)}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:640px;font-size:14px}th,td{text-align:left;vertical-align:top;border-top:1px solid var(--border);padding:8px 10px}th{color:var(--muted);font-size:12px;letter-spacing:.05em;text-transform:uppercase}
+.own{border-left:3px solid var(--accent);padding:2px 0 2px 12px;color:var(--fg);margin:12px 0}
+.rec{margin:14px 0;padding:12px 14px;border:2px solid var(--accent);border-radius:var(--r-card);color:var(--fg)}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Shopping: a link to what's running low</h1>
+<p>Phone Shopping screen with a way to open the Pantry's Running low view (<code>/pantry?show=low</code>, the view Home's tile opens). Five placements, drawn on the app's real markup (<code>web-shopping.ts</code>), each with the hand-off card ("Is someone else shopping?") and the hint line kept. Everything here is a <b>Proposal</b>; the owner has not reviewed it.</p>
+<div class="own"><b>Owner, voice, 22 Oct 2026:</b> "We'd still need the is someone else shopping option. We need the tick as you drop things in the basket small instruction. And we're going to need a way that's just a link to items running low. I don't know. Mock up some options for me and try to maintain as much screen space as we can on the mobile." (He had asked for "a link to running low pantry items from the shopping list"; on his laptop he could see the desktop header row, on the phone there is none.)</div>
+
+<h2>The five placements (390 px wide, sample list of 8)</h2>
+<div class="frames">
+<figure class="fr"><iframe title="Option A" loading="lazy" src="phone.html?o=a"></iframe><figcaption><b>A. End of the hint line <span class="tag">Recommended</span></b>"Running low (3) &rsaquo;" in the accent, after the sentence people already read. No height of its own.</figcaption></figure>
+<figure class="fr"><iframe title="Option B" loading="lazy" src="phone.html?o=b"></iframe><figcaption><b>B. Beside the hand-off card</b>A square tile with the basket and the count, same row as the card. About 12 px taller than the card alone.</figcaption></figure>
+<figure class="fr"><iframe title="Option C" loading="lazy" src="phone.html?o=c"></iframe><figcaption><b>C. A pill beside the hint</b>Basket and count, 44 px, right of the hint. The hint wraps to about three lines (about 20 px more).</figcaption></figure>
+<figure class="fr"><iframe title="Option D" loading="lazy" src="phone.html?o=d&amp;s=handoff"></iframe><figcaption><b>D. End of the list</b>"See what's running low" as a card after the last line (scroll the frame). Nothing above the list moves; only seen once you reach the bottom.</figcaption></figure>
+<figure class="fr"><iframe title="Option E" loading="lazy" src="phone.html?o=e"></iframe><figcaption><b>E. App bar icon</b>Basket with a count, left of the profile button. No height at all, but it is a Shopping-only icon in the shared bar.</figcaption></figure>
+</div>
+
+<h2>What each one costs</h2>
+<div class="tw"><table>
+<tr><th>Option</th><th>Height added above the list</th><th>Seen without scrolling</th><th>Touch target</th><th>Watch out for</th></tr>
+<tr><td><b>A</b> hint line</td><td>0 (maybe one short word-wrap)</td><td>Yes</td><td>Text link, hit area padded to 44 px</td><td>Small and in muted text's company: easy to miss</td></tr>
+<tr><td><b>B</b> beside the card</td><td>About 12 px</td><td>Yes</td><td>84 px tile</td><td>The card's second line wraps; with links out the card is still first</td></tr>
+<tr><td><b>C</b> pill</td><td>About 20 px</td><td>Yes</td><td>44 px pill</td><td>Icon and count only, no word; the hint gets narrower</td></tr>
+<tr><td><b>D</b> end of list</td><td>0 above, 56 px below</td><td>Only on a short list</td><td>Full-width card</td><td>Hidden on a long list; fine as a "what next" once you are done</td></tr>
+<tr><td><b>E</b> app bar</td><td>0</td><td>Yes</td><td>44 px round (the bar's own)</td><td>An icon only this screen has in a bar every screen shares</td></tr>
+</table></div>
+<div class="rec"><b>Proposal: A.</b> It costs no height, sits where the person already reads the instructions, and carries the count in words. If A proves too easy to miss, E is the zero-height fallback; B is the one that is always shown as a real button.</div>
+
+<h2>Other states</h2>
+<ul>
+<li><a href="phone.html?o=a&amp;s=links">With two links out (A)</a>: the card and the links stay on top; the Running low link does not move them. Also <a href="phone.html?o=b&amp;s=links">B</a> and <a href="phone.html?o=e&amp;s=links">E</a>.</li>
+<li><a href="phone.html?o=a&amp;s=empty">Nothing on the list</a>: no new link. The existing "Nothing on the list yet" card already has "See what's running low" (<code>shop-empty</code>); it stays as it is.</li>
+</ul>
+
+<h2>Decisions and open questions</h2>
+<ol>
+<li><b>RL-1 Where it goes.</b> One of A to E. <b>Open question 1.</b> A wrong guess costs one small CSS and markup change; nothing stored changes.</li>
+<li><b>RL-2 Label.</b> "Running low", the word Home, the Pantry preset and the Shopping empty card already use. Proposal: with the count in brackets (A) or as a badge (B, C, D, E).</li>
+<li><b>RL-3 The count.</b> The number of entries the Pantry preset keeps (<code>home.ts</code> <code>lowKeys</code>), so it matches what the link opens. Sample value 3 here. Those entries are already on the shopping list; the link is for seeing them in the Pantry (levels, where to look at home). <b>Open question 2:</b> is that what is wanted, or should it open something else?</li>
+<li><b>RL-4 Empty is absent.</b> With nothing running low, or nothing on the list, the link is not drawn (<code>docs/design-principles.md</code>). The empty list keeps its own button.</li>
+<li><b>RL-5 Where it goes.</b> A plain link to <code>&lt;base&gt;/pantry?show=low</code>; works with no script, and the Pantry opens in the view it already has.</li>
+<li><b>RL-6 Desktop.</b> Not drawn here. Proposal: the same link at the right end of the 1.5rem "N to get" header row (<code>.shop-hd</code>, desktop only), since the row already has room and the phone's hint-line placement is a touch wording desktop does not need. The phone placements are hidden from 64rem up (one rule).</li>
+<li><b>RL-7 Tablet.</b> Takes the phone's placement (tablet is not drawn separately).</li>
+</ol>
+
+<h2>What loads, what is deferred (<code>DESIGN.md</code> section 6)</h2>
+<p>Nothing new on load: one anchor and, for the chosen option, a few lines in the existing Shopping stylesheet block. No script, no request, no new file. The count comes from the same list the page already works out. The tap goes to the Pantry as an ordinary navigation (a failed read is the only fallback; there is nothing to fill in place, it is a different screen).</p>
+</div></body></html>
