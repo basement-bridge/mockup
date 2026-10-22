@@ -1,0 +1,112 @@
+/* Mobile Home, compact is the search bar (option F). PHONE WIDTH ONLY (under 600px). Tokens only (theme.css): no raw colours.
+   Base rules are a copy of the existing mobile Home's as drawn in fragments/mobile-home-view-switch/home-view.css (class names: .hi .tilec .th2 .ric .va .minis .ideas .idl .top2 .ph .why .k .acts .btn .idr .go .e .sub .bar).
+   New names: .home[data-opens][data-mode] .srch .cx .sg .wk .wd .kbm. Group and row names of the dropdown (search.css) are desktop Home search's: .sres .g .i .e .t .rk .mt.
+   Sample names live in the scripts, never here. This file is the DEFAULT PATH: the idle Home, the bar, the week and the suggestion card. The dropdown (search.css) is deferred to the first tap on the bar. */
+.home{position:relative;padding-bottom:var(--sp-6)}
+.home *{box-sizing:border-box}
+:where(.home button){font:inherit;color:inherit;cursor:pointer;background:none;border:0;padding:0;text-align:inherit}   /* :where keeps the reset at zero specificity so the component rules below win */
+.home button:focus-visible,.home a:focus-visible,.home input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.home svg.ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.hbar{display:flex;align-items:center;gap:var(--sp-2);margin:var(--sp-3) var(--sp-4) var(--sp-2);min-height:var(--tap)}
+.hi{flex:1;min-width:0;margin:0;font:800 1.75rem/1.1 var(--head);color:var(--fg)}
+.hi .hbtn{display:block;width:100%;min-height:var(--tap);padding:var(--sp-1) 0;font:inherit;color:inherit}
+.tilec{margin:var(--sp-2) var(--sp-3) 0;padding:var(--sp-3);border-radius:var(--r-card);background:var(--surface);border:1px solid var(--border)}
+.th2{display:flex;align-items:center;gap:var(--sp-2);min-height:36px}
+.th2 h2{flex:1;margin:0;font:700 1.05rem var(--head)}
+.ric{display:inline-flex;align-items:center;justify-content:center;flex:none;width:32px;height:32px;border-radius:50%;background:color-mix(in srgb,var(--c,var(--accent)) 20%,var(--surface));color:var(--c,var(--accent));border:1px solid color-mix(in srgb,var(--c,var(--accent)) 45%,var(--border))}
+.ric.t3{--c:var(--cue)}
+.va{display:inline-flex;align-items:center;min-height:var(--tap);padding:0 var(--sp-1);color:var(--accent);font-weight:700;font-size:14px}
+.minis{display:flex;gap:6px;margin-top:6px}
+.minis span{flex:1;min-width:0;padding:6px 8px;border-radius:var(--r-ctl);border:1px solid var(--border);font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.minis b{display:block;color:var(--fg);font-size:13px}
+.ideas{margin:var(--sp-2) var(--sp-3) 0;padding:var(--sp-3);border-radius:var(--r-card);background:var(--surface);border:1px solid var(--border)}
+.idl{margin-top:var(--sp-2);border-radius:var(--r-ctl);background:var(--bg);border:1px solid var(--border);overflow:hidden}
+.idl .top2{display:flex;gap:var(--sp-3);align-items:center;padding:var(--sp-3);width:100%}
+.idl .ph{width:64px;height:64px;border-radius:var(--r-ctl);flex:none;display:flex;align-items:center;justify-content:center;font-size:34px;background:linear-gradient(160deg,color-mix(in srgb,var(--accent) 26%,var(--surface)),var(--surface));border:1px solid var(--border)}
+.idl .t{flex:1;min-width:0}
+.idl b{display:block;font-size:17px;line-height:1.2}
+.why{display:flex;align-items:flex-start;gap:5px;font-size:13px;line-height:1.35;color:var(--fg);margin-top:3px}
+.why svg.ic{width:15px;height:15px;margin-top:1px;color:var(--accent)}
+.k{display:block;color:var(--accent);font-weight:800;font-size:11px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px}
+.idl .acts{display:flex;gap:var(--sp-2);padding:0 var(--sp-3) var(--sp-3)}
+.sub{font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:var(--sp-3) 0 2px}
+.idr{display:flex;align-items:center;min-height:60px;width:100%;border-top:1px solid var(--border)}
+.idr .go{flex:1;min-width:0;display:flex;align-items:center;gap:var(--sp-3);min-height:60px;padding:var(--sp-2) 0}
+.idr .e{width:40px;height:40px;border-radius:var(--r-ctl);flex:none;display:flex;align-items:center;justify-content:center;font-size:22px;background:var(--bg);border:1px solid var(--border)}
+.idr .t{flex:1;min-width:0}
+.idr b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.idr .why{color:var(--muted);font-size:12.5px;margin-top:1px}
+.idr .why svg.ic{display:none}
+.hv-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.bar{height:68px;flex:none;display:flex;border-top:1px solid var(--border);background:var(--bg)}
+.bar svg.ic{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.bar a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:12px;font-weight:600;color:var(--muted);text-decoration:none}
+.bar a.on{color:var(--accent)}
+
+.hi{font-size:1.5rem}
+.home .hbar{margin-top:var(--sp-4)}
+.hi small{display:block;margin-top:2px;font:600 .8125rem var(--body);color:var(--muted)}
+
+/* ---------- the idle cards of full Home (unchanged from the existing mobile Home) ---------- */
+.btn{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:var(--sp-2);min-height:var(--tap);padding:0 var(--sp-3);border-radius:var(--r-ctl);background:var(--accent);color:var(--on-accent);font-weight:800;font-size:14px;border:1px solid var(--accent);white-space:nowrap}
+.btn.ghost{background:var(--bg);color:var(--fg);border-color:var(--border)}
+
+/* ---------- the bar: Compact IS this. One line at rest, taller and sticky when it takes over ---------- */
+.srch{display:flex;align-items:center;gap:var(--sp-2);margin:0 var(--sp-3) var(--sp-2);min-height:52px;padding:0 var(--sp-2) 0 var(--sp-4);border-radius:var(--r-pill);background:var(--surface);border:1px solid var(--border);color:var(--muted);position:sticky;top:0;z-index:3;box-shadow:0 0 0 var(--sp-2) var(--bg)}   /* pinned: the bar is always there, also while full Home scrolls (Proposal MS-P15) */
+.srch:focus-within,.srch.is-focus{border-color:var(--accent)}
+.srch input{flex:1;min-width:0;min-height:var(--tap);background:none;border:0;color:var(--fg);font:inherit;font-size:16px}   /* 16px: a smaller field makes iOS zoom the page on focus */
+.srch input::placeholder{color:var(--muted)}
+.srch input:focus-visible{outline:0}
+.srch input::-webkit-search-cancel-button{display:none}
+.srch .cx{display:none;align-items:center;min-height:var(--tap);padding:0 var(--sp-3);border-radius:var(--r-pill);color:var(--accent);font-weight:800;font-size:14px}
+.home[data-opens=compact] .srch{min-height:60px;border-width:2px}
+
+/* ---------- the week: always on screen. A list at rest, one pinned strip while the bar has the screen ---------- */
+.wk{margin-top:var(--sp-3)}
+.wk .th2 h2{font-size:1.05rem}
+.wd{display:flex;align-items:center;gap:var(--sp-3);width:100%;min-height:var(--tap);padding:var(--sp-1) 0;border-top:1px solid var(--border);color:var(--fg);text-align:left}
+.wd b{flex:none;width:64px;font-size:13px;color:var(--muted)}
+.wd span{flex:1;min-width:0;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wd:not(.set) span{color:var(--muted)}
+.wd.now b{color:var(--accent)}
+.wd.now{font-weight:700}
+.wd i{display:none}
+
+/* ---------- the one suggestion that surfaces by itself (never a list) ---------- */
+.sg{margin:var(--sp-2) var(--sp-3) 0}
+.sg[hidden],.sres[hidden]{display:none}
+.sg .idl{margin-top:0;border-color:var(--accent);background:var(--surface)}
+.sg .ph{width:72px;height:72px;font-size:40px}
+.sg .idl b{font-size:18px}
+.sg .acts .btn{min-height:48px}
+
+/* ---------- the bar has taken over: greeting, cards and the bottom bar step aside; the week stays ---------- */
+.home[data-mode=search]{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;padding-bottom:0}
+.home[data-mode=search] .hbar,.home[data-mode=search] .rest{display:none}
+.home[data-mode=search] .srch{margin-top:var(--sp-3);flex:none}
+.home[data-mode=search] .srch .cx{display:inline-flex}
+.home[data-mode=search] .sg,.home[data-mode=search] .sres{flex:1 1 auto;min-height:0;overflow-y:auto}
+.home[data-mode=search] .wk{flex:none;order:9;margin:var(--sp-2) var(--sp-3) var(--sp-2);padding:var(--sp-2)}
+.home[data-mode=search] .wk .th2{display:none}
+.home[data-mode=search] .wk .wl{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.home[data-mode=search] .wd{flex-direction:column;justify-content:center;gap:2px;min-height:52px;padding:var(--sp-1) 0;border-top:0;border-radius:var(--r-ctl);text-align:center;position:relative}
+.home[data-mode=search] .wd b{width:auto;font-size:11px;line-height:1.2}
+.home[data-mode=search] .wd span{display:none}
+.home[data-mode=search] .wd i{display:block;width:8px;height:8px;border-radius:50%;border:1.5px solid var(--border)}
+.home[data-mode=search] .wd.set i{background:var(--accent);border-color:var(--accent)}
+.home[data-mode=search] .wd.now{background:var(--bg);box-shadow:inset 0 0 0 1.5px var(--accent)}
+.pbody>.home[data-mode=search]{flex:1 1 auto}
+.pf[data-kb] .bar{display:none}
+.kbm{flex:none;height:291px;padding:var(--sp-2);background:var(--surface);border-top:1px solid var(--border);display:flex;flex-direction:column;gap:var(--sp-2);justify-content:center}
+.kbm div{display:flex;gap:5px;justify-content:center}
+.kbm span{height:46px;flex:1;max-width:34px;border-radius:6px;background:var(--bg);border:1px solid var(--border)}
+.kbm div.w span{max-width:none}
+.kbm[hidden]{display:none}
+.kbm small{align-self:center;color:var(--muted);font-size:11px}
+
+/* ---------- motion: only when the person has not asked for less ---------- */
+@media (prefers-reduced-motion:no-preference){
+  .sg.in{animation:mhin .22s ease-out}
+  .home.swapped .wk,.home.swapped .rest{animation:mhin .18s ease-out}
+}
+@keyframes mhin{from{opacity:0;transform:translateY(4px)}}
