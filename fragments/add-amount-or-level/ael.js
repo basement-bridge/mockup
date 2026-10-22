@@ -4,10 +4,12 @@
 (function () {
   "use strict";
   var H = (location.hash || "#a").slice(1), OPT = H === "dp" ? "dp" : H.charAt(0);
-  if (["a", "b", "c", "d", "dp"].indexOf(OPT) < 0) OPT = "a";
+  if (["a", "b", "c", "d", "dp", "e"].indexOf(OPT) < 0) OPT = "a";
   var LEVELS = ["Plenty", "Some", "Running low", "Out"], FILL = { "Plenty": 3, "Some": 2, "Running low": 1, "Out": 0 }, CLS = { "Plenty": "lv-plenty", "Some": "lv-some", "Running low": "lv-low", "Out": "lv-out" };
   var UNITS = ["jar", "g", "kg", "mL", "L", "pack"];
-  var S = { mode: (OPT === "d" || /-level$/.test(H)) ? "level" : "qty", words: "", amount: null, unit: "", min: "", level: "", pref: "level" };
+  var S = { mode: (OPT === "d" || /-level$/.test(H)) ? "level" : "qty", words: "", amount: null, unit: "", min: "", level: "", pref: "level", held: null };
+  if (OPT === "e") S.mode = /-qty$/.test(H) ? "qty" : /-level$/.test(H) ? "level" : "words"; /* E: three separate choices, Words first as Add is today */
+  if (OPT === "e" && S.mode === "qty") S.amount = 1;
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var esc = function (t) { return String(t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
   var IC = { plus: '<path d="M12 5v14M5 12h14"/>', minus: '<path d="M6 12h12"/>', x: '<path d="M6 6l12 12M18 6L6 18"/>', ruler: '<path d="M3.5 15.5l12-12 5 5-12 12z"/><path d="M7 12l2.2 2.2M10 9l1.6 1.6M13 6l2.2 2.2"/>', rotate: '<path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/>' };
@@ -22,17 +24,21 @@
   var step = function (d, label, ic) { return '<button type="button" data-ael="step" data-d="' + d + '" aria-label="' + label + '">' + sv(ic, 20) + "</button>"; };
 
   /* ---- the Quantity editor (form.js INNER.qty): free words first, "Add unit" opens the number and unit ---- */
-  function qtyHtml(extra) {
+  function qtyHtml(extra, apart) {
     if (S.amount === null) {
       return '<div class="ef-w" id="ael-q">' + L("Quantity") + '<div class="ef-row"><input class="ef-in" data-in="words" value="' + esc(S.words) + '" placeholder="In your own words, e.g. a handful" autocomplete="off" aria-label="Quantity"></div>'
         + '<div class="ael-row2"><button type="button" class="btn ghost sm" data-ael="addunit">Add unit</button>' + (extra || "") + "</div></div>";
     }
     var chips = UNITS.map(function (u) { var on = u === S.unit; return '<button type="button" class="ef-chip' + (on ? " on" : "") + '" data-ael="unit" data-v="' + u + '" aria-pressed="' + on + '">' + u + "</button>"; }).join("");
-    return '<div class="ef-w" id="ael-q"><div class="ef-lh">' + L("Quantity") + '<button type="button" class="ef-clear" data-ael="qclear">Clear</button></div>'
+    return '<div class="ef-w" id="ael-q"><div class="ef-lh">' + L("Quantity") + (apart ? "" : '<button type="button" class="ef-clear" data-ael="qclear">Clear</button>') + '</div>'
       + '<div class="ef-row"><div class="ef-step" role="group" aria-label="Quantity">' + step(-1, "Less", IC.minus) + '<input class="ef-num" data-in="amount" inputmode="decimal" value="' + S.amount + '" aria-label="Quantity" autocomplete="off">' + step(1, "More", IC.plus) + "</div>"
       + '<input class="ef-in ef-unitin" data-in="unit" value="' + esc(S.unit) + '" placeholder="Unit" maxlength="20" autocomplete="off" aria-label="Unit"></div>'
       + '<div class="ef-cats" data-kind="unit" data-open="false"><span class="ef-ct" aria-hidden="true">' + sv(IC.ruler, 20) + '</span><div class="ef-cl" role="group" aria-label="Unit suggestions">' + chips + "</div></div>"
       + (extra ? '<div class="ael-row2">' + extra + "</div>" : "") + "</div>";
+  }
+  /* E: the words on their own, no "Add unit" (a number and unit is its own choice) */
+  function wordsHtml() {
+    return '<div class="ef-w" id="ael-q">' + L("In your own words") + '<div class="ef-row"><input class="ef-in" data-in="words" value="' + esc(S.words) + '" placeholder="e.g. a handful, half a bag" autocomplete="off" aria-label="Quantity in your own words"></div></div>';
   }
   /* Minimum stock stays as in Add today: only once there is a unit (decision 73). It has nothing to compare with when the person gives a level. */
   function minHtml() {
@@ -49,16 +55,19 @@
   }
   var segIcon = {
     qty: '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M5 9h14M5 15h14M9.5 4l-1.4 16M15.9 4l-1.4 16"/></svg>',
-    level: bat("Some", 26)
+    level: bat("Some", 26),
+    words: '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M4 7h16M4 12h16M4 17h10"/></svg>'
   };
   function segHtml(label) {
     var sg = function (v, t) { var on = S.mode === v; return '<button type="button" class="sg' + (on ? " on" : "") + '" role="radio" aria-checked="' + on + '" data-ael="seg" data-v="' + v + '">' + segIcon[v] + "<span>" + t + "</span></button>"; };
+    if (OPT === "e") return '<div class="ael-seg three" role="radiogroup" aria-label="' + label + '">' + sg("words", "Words") + sg("qty", "Quantity") + sg("level", "Level") + "</div>";
     return '<div class="ael-seg" role="radiogroup" aria-label="' + label + '">' + sg("qty", "Quantity") + sg("level", "Level") + "</div>";
   }
 
   /* ---- the Amount group per option ---- */
   function amountHtml() {
     if (OPT === "a") return segHtml("How much do you have?") + (S.mode === "qty" ? qtyHtml() + minHtml() : lvlHtml());
+    if (OPT === "e") return segHtml("How do you say how much you have?") + (S.mode === "words" ? wordsHtml() : S.mode === "qty" ? qtyHtml(null, true) + minHtml() : lvlHtml());
     if (OPT === "b") return qtyHtml() + minHtml() + '<div class="ael-or" aria-hidden="true">or</div>' + lvlHtml();
     if (OPT === "c") return S.mode === "qty"
       ? qtyHtml('<button type="button" class="btn ghost sm" data-ael="tolevel">Set a level</button>') + minHtml()
@@ -68,7 +77,7 @@
 
   /* ---- what Add would store: a mock aid, not part of the product. Read from the rules in the code (store.ts shopping list, web-edit.ts add). Plain text only. ---- */
   function readout() {
-    var useQ = OPT === "b" || (OPT !== "d" && S.mode === "qty"), useL = OPT === "b" || OPT === "d" || S.mode === "level";
+    var useQ = OPT === "b" || (OPT !== "d" && (S.mode === "qty" || S.mode === "words")), useL = OPT === "b" || OPT === "d" || S.mode === "level";
     var exact = useQ && S.amount !== null, words = useQ && S.amount === null && S.words.trim() !== "", lv = useL ? S.level : "";
     var q = exact ? S.amount + (S.unit ? " " + S.unit : "") + " (an exact amount)" : words ? S.words.trim() + " (your words)" : "none";
     var l = lv ? lv + ", set by you" : exact ? "automatic" : "none (no level until you pick one)";
@@ -79,7 +88,11 @@
     else if (lv) list = "not listed";
     else list = words ? "not listed (words are not read as a number)" : "not listed";
     var held = [];
-    if (OPT !== "b" && OPT !== "d") {
+    if (OPT === "e") {
+      if (S.mode !== "words" && S.words.trim()) held.push("your words");
+      if (S.mode !== "qty" && S.held !== null) held.push("the number " + S.held);
+      if (S.mode !== "level" && S.level) held.push("the level " + S.level);
+    } else if (OPT !== "b" && OPT !== "d") {
       if (S.mode === "level" && (S.words.trim() || S.amount !== null)) held.push("the quantity you typed");
       if (S.mode === "qty" && S.level) held.push("the level " + S.level);
     }
@@ -126,7 +139,13 @@
   document.addEventListener("click", function (e) {
     var t = e.target.closest("[data-ael]"); if (!t) return;
     var a = t.dataset.ael, v = t.dataset.v;
-    if (a === "seg") S.mode = v;
+    if (a === "seg") {
+      S.mode = v;
+      if (OPT === "e") { /* the number lives only on the Quantity side; the other sides keep what was typed, unsaved */
+        if (v === "qty") { S.amount = S.held !== null ? S.held : 1; S.held = null; }
+        else if (S.amount !== null) { S.held = S.amount; S.amount = null; }
+      }
+    }
     else if (a === "tolevel") S.mode = "level";
     else if (a === "toqty") S.mode = "qty";
     else if (a === "addunit") { var n = parseFloat(S.words); S.amount = isFinite(n) ? n : 1; S.unit = ""; S.words = ""; }
