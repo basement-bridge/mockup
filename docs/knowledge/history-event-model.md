@@ -126,9 +126,9 @@ Option D (`history-option-d.md`, locked H1 to H15: two tabs "My activity" and a 
 | --- | --- | --- |
 | Tabs: My activity, person or Others | `actor=me` and `actor=<id>` or `others` exist | **Keep.** But "Others" misses events with no member (Q5). The second tab should be the member's id, not a name search. |
 | "Others" includes the shopper link (D25, Proposal) | `others` excludes null actors; no filter selects them | **Blocked** until Q5. Drawn as: null-actor events shown in neither tab. |
-| Tick and X, catch-up, `since` | `since` is `occurred_at` only | **Keep**, with the late-arrival caveat (Q-H4). |
-| Catch-up cap: three calendar days with a change | `days=1` and `tz` give exactly that | **Keep.** The cap is the screen's rule. |
-| Person link in the catch-up | `actor=<id>`; summary counts can be computed from the loaded rows | **Keep.** |
+| Tick and X, catch-up, `since` | `since` is `occurred_at` only | **Superseded 24 Oct 2026 (owner, voice):** the catch-up card, tick and X are replaced by a divider in the list; the screen compares `occurred_at` with the last visit on the rows it has and no longer sends `since`. The late-arrival caveat (Q-H4) stands. |
+| Catch-up cap: three calendar days with a change | `days=1` and `tz` give exactly that | **Keep**, now as the reach of the "new" marks and of the first load up to the divider. The cap is the screen's rule. |
+| Person link in the catch-up | `actor=<id>`; summary counts can be computed from the loaded rows | **Dropped 24 Oct 2026** with the card (no counts anywhere; the tabs say whose). |
 | Recent, a day at a time, no ceiling | `days=1&tz` with `after` | **Keep.** Filtered results page the same way. |
 | Row sentence: "Sam used up *Green tea*" (a bold subject, a verb) | Name and verb are payload; words are the template's | **Change.** Row = skeleton chrome (who, when, product) + the template's output. Without a template: the generic row. |
 | Field `subject.name`, `place`, `verb` text | Not in the envelope | **Drop as fields.** `verb` becomes `kind`. |

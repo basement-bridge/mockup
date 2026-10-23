@@ -126,3 +126,18 @@ button.avb:hover .av,button.avb:focus-visible .av{box-shadow:0 0 0 2px var(--acc
 .toast.withundo{width:max-content;display:flex;align-items:center;gap:var(--sp-3);padding:0 6px 0 16px;min-height:var(--tap)}
 .toast .tundo{min-height:var(--tap);min-width:var(--tap);padding:0 12px;border:0;background:none;color:var(--bg);font:700 14px var(--body);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .sline:has(>.sl){flex-wrap:nowrap}
+
+/* ---- revision 4 (owner, voice, 24 Oct 2026) ---- */
+/* the divider: where you were last here. A quiet line inside the list, no card, no counts; changes above it carry the existing .ev.new dot */
+.seam{display:flex;flex-direction:column;align-items:center;gap:2px;padding:var(--sp-2) var(--sp-4);color:var(--muted);font-size:13px;font-weight:600}
+.seam .sm1{display:flex;align-items:center;gap:var(--sp-3);width:100%}
+.seam .sm1::before,.seam .sm1::after{content:"";flex:1;height:1px;background:var(--accent);opacity:.55}
+.seam .sm2{font-weight:500;font-size:12px}
+.day+.seam,.seam+.day{margin-top:var(--sp-2)}
+.pg>.seam{background:var(--bg)}
+/* B: no Anytime, so the Date row has no toggle (the rotary is Pantry's, unchanged) */
+.hx .stt.fixed{flex:1;text-align:left;padding:0 8px;display:inline-flex;align-items:center;color:var(--fg);font-weight:700;cursor:default}
+/* B's More / Show fewer link: 44px like every control */
+.fbody .flinks .link{min-height:var(--tap)}
+/* D variation: the filter in the desktop lane, a flyout with its own close */
+.hx-panel .fph .ib{flex:none}
