@@ -19,15 +19,20 @@
     { n: "basmati rice", e: "🍚", amt: "1 kg", spot: "Pantry · Shelf 1", by: "", sm: "plenty" },
     { n: "basil", e: "🌿", amt: "1 bunch", spot: "Fridge · Drawer", by: "", sm: "plenty" }
   ];
-  var TS = [["match", "Match my phone"], ["standard", "Standard"], ["larger", "Larger"], ["largest", "Largest"]];
+  /* Text size is a seven-step stepper relative to the phone's own size (owner, 24 Oct 2026): step 0 is Match my phone, three steps smaller and three larger. Percentages are the root font size. */
+  var TS_PCT = { "-3": -24, "-2": -16, "-1": -8, "0": 0, "1": 10, "2": 20, "3": 30 };
+  var tsId = function (n) { return n === 0 ? "" : (n < 0 ? "s" : "l") + Math.abs(n); };
+  var tsWord = function (n) { return n === 0 ? "Match my phone" : n < 0 ? "Smaller" : "Larger"; };
+  /* The ten themes' real looks (background, card, accent, text), read from theme.css and themes/*.css; the swatch draws all four together. */
+  var LOOKS = { "kitchie": ["Kitchie Night", "#0F1E19", "#172A23", "#F2B84B", "#F3EEE3"], "kitchie-day": ["Kitchie Day", "#F6F1E6", "#FFFFFF", "#8A5600", "#1D2A24"], "marmalade": ["Marmalade", "#FBF1E3", "#FFFFFF", "#C2410C", "#3A2412"], "blueberry": ["Blueberry", "#14142B", "#1D1D3D", "#F48FB1", "#EEEBFF"], "herb": ["Herb Garden", "#EEF4E6", "#FFFFFF", "#2F7D32", "#1B2E1B"], "cappuccino": ["Cappuccino", "#F3E9DD", "#FFFFFF", "#8B5A2B", "#33261B"], "tokyo-midnight": ["Tokyo Midnight", "#0B0F1E", "#141A30", "#5CE1E6", "#E8ECFF"], "paprika": ["Paprika", "#1F1410", "#2B1D17", "#FF8A4C", "#F7E9DD"], "sea-salt": ["Sea Salt", "#EAF2F4", "#FFFFFF", "#0F766E", "#12313A"], "lavender-fog": ["Lavender Fog", "#F1EEF7", "#FFFFFF", "#6D28D9", "#2A2340"] };
   var MODE = [["system", "System"], ["light", "Light"], ["dark", "Dark"]];
-  var PINNABLE = [{ id: "looks", t: "Looks", sub: "Theme, light or dark, emoji" }, { id: "text", t: "Text size", sub: "Every screen" }];
+  var PINNABLE = [{ id: "looks", t: "Looks", sub: "Theme, light or dark" }, { id: "text", t: "Text size", sub: "Every screen" }];
   var SC = { device: "This device", member: "You", household: "Whole household", account: "Your account", info: "Not a setting" };
   var STOP = {}; "the a an my to of for in on i it is me how do can want change make set turn show find where what please setting settings and or this that are be get need would there off".split(" ").forEach(function (w) { STOP[w] = 1; });
   var EXAMPLES = [["Exact", "text size"], ["Synonym", "bigger text"], ["Typo", "drak mode"], ["Vague", "too small"], ["Vague, several", "hard to see"], ["Advanced", "animations"], ["Colour word", "orange"], ["Jumps to a screen", "food rules"], ["Many results", "household"], ["Old name", "item name size"], ["Not a setting", "time zone"], ["No match", "flux capacitor"]];
-  var SUGGEST = ["bigger text", "dark mode", "stop the questions", "invite someone", "connect Claude", "turn off emoji", "food rules", "undo changes"];
+  var SUGGEST = ["bigger text", "dark mode", "stop the questions", "invite someone", "connect Claude", "text too small", "food rules", "undo changes"];
 
-  var ST = { mode: "system", emoji: true, ts: "match", rows: "standard", motion: "phone", bell: true, checks: true, conn: 1, samples: true, pins: ["looks", "text"], recents: [], toast: "", toastDev: 0 };
+  var ST = { mode: "system", ts: 0, rows: "standard", motion: "phone", bell: true, checks: true, conn: 1, samples: true, pins: ["looks", "text"], recents: [], toast: "", toastDev: 0 };
   var devs = [], uid = 0, IDX = null, V = null, F = {}, loading = false, waiters = [], lastDev = null;
   var VALS = { me: "Alex", role: "Sous chef", hh: "Henderson kitchen", members: "3 people, 1 admin", invite: "1 pending", cats: "12", locs: "4", gemini: "Not connected", quiet: "22:00 to 06:00", cap: "3 a day", rules: "2 custom rules", stops: "2 switched off", avoids: "1 hard, 2 soft", likes: "4 likes, 3 dislikes", subs: "3 saved", notes: "2 notes", props: "1 waiting", tz: "Australia/Sydney, from your phone", units: "No setting", install: "Not installed", sort: "Name", planoff: "Sat, Sun", prefs: "", csv: "", signout: "", leave: "", disconnect: "", history: "", notif: "" };
   function osLabel() { return parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--os") || "1") > 1.01 ? "Large" : "Default"; }
@@ -35,8 +40,7 @@
     switch (key) {
       case "theme": return window.themeName ? window.themeName() : "";
       case "mode": return ST.mode === "system" ? "Follows my phone" : ST.mode === "light" ? "Light" : "Dark";
-      case "emoji": return ST.emoji ? "On" : "Off";
-      case "text": return TS.filter(function (t) { return t[0] === ST.ts; })[0][1];
+      case "text": return ST.ts === 0 ? "Match my phone" : tsWord(ST.ts) + " (" + (ST.ts > 0 ? "+" : "") + TS_PCT[ST.ts] + "%)";
       case "rows": return ST.rows === "names" ? "Names only" : "Standard";
       case "motion": return ST.motion === "reduce" ? "Always reduced" : "Follows my phone";
       case "bell": return ST.bell ? "On" : "Off";
@@ -135,30 +139,50 @@
     return '<div class="seg2 wide eseg ' + (cls || "") + '" role="radiogroup" aria-label="' + esc(label) + '" data-seg="' + k + '">' + opts.map(function (o) { return '<label><input type="radio" name="' + nm + '" data-ek="' + k + '" data-fk="' + nm + "-" + o[0] + '" value="' + o[0] + '"' + (o[0] === v ? " checked" : "") + '><span>' + esc(o[1]) + '</span></label>'; }).join("") + '</div>';
   }
   function sw(d, c, k, label, on, sub) { var f = fk(d, c, k); return '<label class="srow"><span>' + esc(label) + (sub ? "<small>" + esc(sub) + "</small>" : "") + '</span><input type="checkbox" role="switch" data-ek="' + k + '" data-fk="' + f + '"' + (on ? " checked" : "") + '><span class="swt" aria-hidden="true"></span></label>'; }
-  function themeBlock() { return '<div class="tgrid swatches" data-themes role="group" aria-label="Theme">' + (window.themeHtml ? window.themeHtml(null, true) : "") + '</div><p class="small" aria-live="polite" style="margin:6px 0 0"><span data-theme-name>' + esc(window.themeName ? window.themeName() : "") + '</span></p>'; }
+  /* One tile per theme: a mini preview of its real look with the name underneath (the build's `phoneThemeTile`, with a button where the build has a radio). */
+  function themeTile(id) {
+    var l = LOOKS[id], cur = document.documentElement.getAttribute("data-theme");
+    return '<button type="button" class="tpick tbare tmini" data-theme-pick="' + id + '" aria-pressed="' + (id === cur) + '" aria-label="' + esc(l[0]) + '" title="' + esc(l[0]) + '"><i class="tsw tprev" style="--pbg:' + l[1] + ';--pcd:' + l[2] + ';--pac:' + l[3] + ';--pfg:' + l[4] + '" aria-hidden="true"><b></b><s></s><u></u></i><span class="tname" aria-hidden="true">' + esc(l[0]) + '</span></button>';
+  }
+  function themeTiles(ids) { return Object.keys(LOOKS).filter(function (id) { return !ids || ids.indexOf(id) > -1; }).map(themeTile).join(""); }
+  /* rotary: the pinned card keeps ONE row; everything when it fits, else a row that swipes sideways */
+  function themeBlock(rotary) {
+    if (rotary) return '<div class="trot" data-rotary data-edge="none"><div class="tgrid swatches trow" data-themes role="group" aria-label="Theme, swipe sideways for more">' + themeTiles() + '</div></div>';
+    return '<div class="tgrid swatches" data-themes role="group" aria-label="Theme">' + themeTiles() + '</div>';
+  }
+  /* Text size: one line, smaller | the phone's own size | larger. The middle is in em, so it shows the size now applied. */
+  function stepper(d, c) {
+    var n = ST.ts, dots = "", f = fk(d, c, "ts");
+    for (var i = -3; i <= 3; i++) dots += '<i class="tdot' + (i === n ? " on" : "") + (i === 0 ? " mid" : "") + '"></i>';
+    var say = n === 0 ? "Match my phone, your phone's own size" : tsWord(n) + ", step " + Math.abs(n) + " of 3, " + Math.abs(TS_PCT[n]) + "% " + (n < 0 ? "smaller" : "larger") + " than your phone";
+    return '<div class="tstep" role="group" aria-label="Text size" data-step="' + n + '" data-seg="ts">' +
+      '<button type="button" class="tbtn" data-ea="ts:-1" data-fk="' + f + '-down" aria-label="Smaller text" aria-disabled="' + (n <= -3) + '"><span class="ta" aria-hidden="true">A</span><span class="tpm" aria-hidden="true">−</span></button>' +
+      '<div class="tmid" role="status" aria-label="' + esc(say) + '"><b class="tlab" aria-hidden="true">' + tsWord(n) + '</b><span class="tdots" aria-hidden="true">' + dots + '</span></div>' +
+      '<button type="button" class="tbtn" data-ea="ts:1" data-fk="' + f + '-up" aria-label="Larger text" aria-disabled="' + (n >= 3) + '"><span class="ta big" aria-hidden="true">A</span><span class="tpm" aria-hidden="true">+</span></button></div>';
+  }
   function say(k) {
     if (k === "mode") return ST.mode === "system" ? "Following your phone (it is " + (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark") + " now), including its night schedule." : "Always " + ST.mode + ", whatever the phone says.";
-    if (k === "text") return ST.ts === "match" ? "Using your phone's own text size (" + osLabel().toLowerCase() + " now). Kitchie adds nothing." : ST.ts === "standard" ? "Kitchie's normal size, whatever the phone says." : "Your phone's size, then " + (ST.ts === "larger" ? "15%" : "30%") + " bigger. Every screen below follows.";
+    if (k === "text") return ST.ts === 0 ? "Your phone's own text size (" + osLabel().toLowerCase() + " now). Kitchie adds nothing. Tap A− or A+ to go smaller or larger." : "Your phone's size, " + Math.abs(TS_PCT[ST.ts]) + "% " + (ST.ts < 0 ? "smaller" : "larger") + ". Every screen below follows.";
     return "";
   }
   function ctlHtml(d, c, e) {
     switch (e.ctl) {
-      case "theme": return themeBlock();
+      case "theme": return themeBlock(false);
       case "mode": return seg(d, c, "mode", "Light or dark", MODE, ST.mode) + '<p class="small" data-say="mode">' + esc(say("mode")) + '</p>';
-      case "emoji": return sw(d, c, "emoji", "Emoji", ST.emoji);
-      case "text": return seg(d, c, "ts", "Text size", TS, ST.ts, "g2") + '<p class="small" data-say="text">' + esc(say("text")) + '</p>';
+      case "text": return stepper(d, c) + '<p class="small" data-say="text">' + esc(say("text")) + '</p>';
       case "rows": return seg(d, c, "rows", "Rows", [["standard", "Standard"], ["names", "Names only"]], ST.rows);
       case "motion": return seg(d, c, "motion", "Reduce motion", [["phone", "Follow my phone"], ["reduce", "Always reduce"]], ST.motion);
       case "bell": return sw(d, c, "bell", "Show the bell", ST.bell);
       case "checks": return sw(d, c, "checks", "Ask me to check amounts", ST.checks);
       case "reset": return '<button type="button" class="btn ghost" data-ea="reset" data-fk="' + fk(d, c, "reset") + '">Reset to defaults</button>';
-      case "themepick": return window.themeHtml ? window.themeHtml([e.tid]) : "";
+      case "themepick": return '<div class="tgrid swatches">' + themeTiles([e.tid]) + '</div>';
       default: return "";
     }
   }
+  /* the pin is only an icon: filled when pinned, outline when not; the words live in the accessible name */
   function pinBtn(d, id, c) {
     var on = pins(d).indexOf(id) > -1, nm = PINNABLE.filter(function (p) { return p.id === id; })[0].t;
-    return '<button type="button" class="pinb" data-ea="pin:' + id + '" data-fk="' + fk(d, c, "pin", id) + '" aria-pressed="' + on + '" aria-label="' + (on ? "Unpin " : "Pin ") + nm + (c === "tile" ? "" : " to Settings") + '">' + PIN(on) + '<span>' + (on ? "Pinned" : "Pin") + '</span></button>';
+    return '<button type="button" class="pinb" data-ea="pin:' + id + '" data-fk="' + fk(d, c, "pin", id) + '" aria-pressed="' + on + '" aria-label="' + (on ? "Unpin " + nm + " from Shortcuts" : "Pin " + nm + " to Shortcuts") + '">' + PIN(on) + '</button>';
   }
   function mi(label, o) { o = o || {}; return '<button type="button" class="mi" data-ea="' + (o.a || "go:" + label) + '"><span>' + esc(label) + '</span><span style="display:inline-flex;align-items:center">' + (o.val ? '<span class="val">' + esc(o.val) + '</span>' : "") + '<span class="chev">' + CH + '</span></span></button>'; }
   function mtop(back, title, d) { return '<div class="mtop">' + (back ? '<button type="button" class="bk" data-ea="nav:' + back[1] + '">&lsaquo; ' + esc(back[0]) + '</button>' : '<span style="width:64px"></span>') + '<h1 class="ttl">' + esc(title) + '</h1><span style="width:64px"></span></div>'; }
@@ -166,13 +190,12 @@
   /* ---------- the front: shortcuts and the curated list ---------- */
   function tile(d, id) {
     var p = PINNABLE.filter(function (x) { return x.id === id; })[0];
-    var inner = id === "looks" ? themeBlock() + '<div class="srow plain" role="group"><span>Light or dark</span>' + seg(d, "tile", "mode", "Light or dark", MODE, ST.mode) + '</div><p class="small" data-say="mode">' + esc(say("mode")) + '</p>' + sw(d, "tile", "emoji", "Emoji", ST.emoji)
-      : '<div class="srow plain" role="group"><span>Text size<small>Every screen, not one list</small></span>' + seg(d, "tile", "ts", "Text size", TS, ST.ts, "g2") + '</div><p class="small" data-say="text">' + esc(say("text")) + '</p>';
+    var inner = id === "looks" ? themeBlock(true) + seg(d, "tile", "mode", "Light or dark", MODE, ST.mode) : stepper(d, "tile");
     return '<article class="etile" data-pinned="' + id + '"><header><b>' + esc(p.t) + '</b>' + pinBtn(d, id, "tile") + '</header>' + inner + '</article>';
   }
   function shortcuts(d) {
     var P = pins(d), un = PINNABLE.filter(function (p) { return P.indexOf(p.id) < 0; });
-    var adds = un.map(function (p) { return '<button type="button" class="eadd" data-ea="pin:' + p.id + '" data-fk="' + fk(d, "add", "pin", p.id) + '">' + PIN(false) + '<span>Pin ' + esc(p.t) + '</span><small>' + esc(p.sub) + '</small></button>'; }).join("");
+    var adds = un.map(function (p) { return '<button type="button" class="eadd" data-ea="pin:' + p.id + '" data-fk="' + fk(d, "add", "pin", p.id) + '" aria-label="Pin ' + esc(p.t) + ' to Shortcuts">' + PIN(false) + '<span>' + esc(p.t) + '</span></button>'; }).join("");
     var body = P.length ? '<div class="etiles">' + P.map(function (id) { return tile(d, id); }).join("") + '</div>' : '<div class="eempty" data-empty-pins><b>Nothing pinned</b><p class="small">Pin Looks or Text size and they sit here, one tap from Settings. Pinning only adds a shortcut: the setting stays in its own place and in search, and unpinning loses nothing.</p></div>';
     return '<section class="eshort" data-shortcuts aria-label="Shortcuts"><div class="eshort-h"><span class="lbl">Shortcuts</span><span class="small">' + P.length + " of " + PINNABLE.length + ' pinned</span></div>' + body + (adds ? '<div class="eadds">' + adds + '</div>' : "") + '</section>';
   }
@@ -184,8 +207,8 @@
       '<p class="small" data-more-hint>Five things here, on purpose. <b>Everything else is one search away</b>' + (IDX ? ": " + IDX.length + " things you can look up, " + IDX.filter(function (e) { return e.adv; }).length + " of them only by search." : ".") + '</p>';
   }
   function looksPage(d) {
-    return '<section class="card sgroup" data-looks><div class="ecard-h"><b>Looks</b>' + pinBtn(d, "looks", "page") + '</div>' + themeBlock() + '<div class="srow plain" role="group"><span>Light or dark</span>' + seg(d, "page", "mode", "Light or dark", MODE, ST.mode) + '</div><p class="small" data-say="mode">' + esc(say("mode")) + '</p>' + sw(d, "page", "emoji", "Emoji", ST.emoji) + '</section>' +
-      '<section class="card sgroup" data-textcard><div class="ecard-h"><b>Text size</b>' + pinBtn(d, "text", "page") + '</div>' + seg(d, "page", "ts", "Text size", TS, ST.ts, "g2") + '<p class="small" data-say="text">' + esc(say("text")) + '</p></section>' +
+    return '<section class="card sgroup" data-looks><div class="ecard-h"><b>Looks</b>' + pinBtn(d, "looks", "page") + '</div>' + themeBlock(false) + '<div class="srow plain" role="group"><span>Light or dark</span>' + seg(d, "page", "mode", "Light or dark", MODE, ST.mode) + '</div><p class="small" data-say="mode">' + esc(say("mode")) + '</p></section>' +
+      '<section class="card sgroup" data-textcard><div class="ecard-h"><b>Text size</b>' + pinBtn(d, "text", "page") + '</div>' + stepper(d, "page") + '<p class="small" data-say="text">' + esc(say("text")) + '</p></section>' +
       '<p class="small">Rows, motion, the bell and Reset are not on this page on purpose. <b>Search finds them:</b></p><div class="chips">' + ["rows", "animations", "bell", "undo changes"].map(function (q) { return '<button type="button" class="echip" data-ea="q:' + q + '">' + esc(q) + '</button>'; }).join("") + '</div>';
   }
   function menuPage(d) {
@@ -248,7 +271,7 @@
 
   /* ---------- frames ---------- */
   function sampleHtml(cls) {
-    var rows = ST.rows, e = ST.emoji;
+    var rows = ST.rows, e = true; /* no Emoji setting: an item shows its emoji when it has one */
     var home = ITEMS.slice(0, 3).map(function (i) { return '<div class="hrow"><span class="ic" aria-hidden="true">' + (e ? i.e : "·") + '</span><span class="nm">' + esc(i.n) + '</span><span class="sm">' + esc(i.sm) + '</span></div>'; }).join("");
     var pan = '<ul class="rows">' + ITEMS.slice(0, 3).map(function (i) { return '<li data-row><a class="rowlink" href="#" tabindex="-1"><div class="main"><div class="name">' + (e ? '<span class="emo" aria-hidden="true">' + i.e + '</span> ' : "") + esc(i.n) + '</div><div class="meta">' + esc(i.amt + " · " + i.spot) + '</div></div>' + (i.by ? '<span class="due">' + esc(i.by) + '</span>' : "") + '<span class="chev">' + CHS + '</span></a></li>'; }).join("") + '</ul>';
     var shop = ITEMS.slice(1, 4).map(function (i) { return '<div class="hrow"><span class="ic" aria-hidden="true">○</span><span class="nm">' + (e ? i.e + " " : "") + esc(i.n) + '</span><span class="sm">' + esc(i.amt) + '</span></div>'; }).join("");
@@ -256,7 +279,7 @@
       '<section class="escr" data-s="home" aria-label="Home sample"><h4 class="escr-t">Home<span class="ebell" aria-label="2 changes by others">' + BELL + ' 2</span></h4>' + home + '</section>' +
       '<section class="escr" data-s="pantry" aria-label="Pantry sample"><h4 class="escr-t">Pantry</h4>' + pan + '</section>' +
       '<section class="escr" data-s="shop" aria-label="Shopping sample"><h4 class="escr-t">Shopping</h4>' + shop + '</section></div>' +
-      '<p class="cap small">One Text size, three screens, all moving together. Emoji reaches all three; Rows reaches the two lists; the bell shows on Home.</p></div>';
+      '<p class="cap small">One Text size, three screens, all moving together. Rows reaches the two lists; the bell shows on Home.</p></div>';
   }
   function phoneHtml(d) {
     var top, body;
@@ -316,12 +339,23 @@
     var ex = $("[data-examples]", root); if (ex) ex.innerHTML = EXAMPLES.map(function (x) { return '<button type="button" class="echip ex" data-ea="try:' + esc(x[1]) + '"><small>' + esc(x[0]) + '</small>' + esc(x[1]) + '</button>'; }).join("");
   }
   function applyAttrs() {
-    root.setAttribute("data-ts", ST.ts); root.setAttribute("data-rows", ST.rows); root.setAttribute("data-bell", ST.bell ? "on" : "off");
+    if (ST.ts === 0) root.removeAttribute("data-ts"); else root.setAttribute("data-ts", tsId(ST.ts)); root.setAttribute("data-rows", ST.rows); root.setAttribute("data-bell", ST.bell ? "on" : "off");
     if (ST.motion === "reduce") root.setAttribute("data-motion", "reduce"); else root.removeAttribute("data-motion");
+  }
+  /* the pinned Looks card's theme row: keeps its scroll across a re-draw, shows the chosen theme the first time, and fades an edge that has more */
+  function edgeOf(row) { var host = row.parentNode, max = row.scrollWidth - row.clientWidth; host.setAttribute("data-edge", max <= 1 ? "none" : row.scrollLeft <= 1 ? "end" : row.scrollLeft >= max - 1 ? "start" : "both"); }
+  function rotaries(el, keep) {
+    $$(".trow", el).forEach(function (row, i) {
+      if (keep && keep[i] !== undefined && keep[i] > 0) row.scrollLeft = keep[i];
+      else { var on = $("[aria-pressed=true]", row); if (on && !keep.length) row.scrollLeft = Math.max(0, on.offsetLeft - (row.clientWidth - on.offsetWidth) / 2); }
+      edgeOf(row); row.addEventListener("scroll", function () { edgeOf(row); }, { passive: true });
+    });
   }
   function drawDev(d) {
     var el = $('[data-edev="' + d.i + '"]', root); if (!el) return;
+    var keep = $$(".trow", el).map(function (r) { return r.scrollLeft; });
     if (d.kind === "phone") $(".scr", el).innerHTML = phoneHtml(d); else if (d.kind === "desk") el.innerHTML = deskHtml(d); else el.innerHTML = galHtml(d);
+    rotaries(el, keep);
     if (ST.toast && ST.toastDev === d.i && (d.kind === "phone" || d.kind === "desk")) { var t = document.createElement("div"); t.className = "toast"; t.setAttribute("role", "status"); t.textContent = ST.toast; el.appendChild(t); }
   }
   function keepFocus() { var a = document.activeElement; if (!a || !root.contains(a)) return null; var k = { fk: a.getAttribute("data-fk"), eq: a.hasAttribute("data-eq"), dev: (a.closest("[data-edev]") || {}).dataset ? a.closest("[data-edev]").dataset.edev : null }; if (k.eq) { k.s = a.selectionStart; k.e = a.selectionEnd; } return k; }
@@ -366,7 +400,7 @@
     ensureIndex(function () { refreshBody(d); }); renderDevSearch(d, focus);
   }
   function renderDevSearch(d, focus) { drawDev(d); if (focus) { var el = $('[data-edev="' + d.i + '"] [data-eq]', root); if (el) { el.focus({ preventScroll: true }); var L = el.value.length; el.setSelectionRange(L, L); } } }
-  function doReset() { ST.emoji = true; ST.ts = "match"; ST.rows = "standard"; ST.motion = "phone"; ST.bell = true; ST.mode = "system"; pickTheme(matchMedia("(prefers-color-scheme: light)").matches ? "kitchie-day" : "kitchie"); }
+  function doReset() { ST.ts = 0; ST.rows = "standard"; ST.motion = "phone"; ST.bell = true; ST.mode = "system"; pickTheme(matchMedia("(prefers-color-scheme: light)").matches ? "kitchie-day" : "kitchie"); }
   function onChange(e) {
     var n = e.target; if (!n.hasAttribute || !n.hasAttribute("data-ek") || !root.contains(n)) return; var k = n.getAttribute("data-ek"), d = devOf(n), v = n.type === "checkbox" ? n.checked : n.value;
     if (k === "mode") setMode(v); else if (k === "assistant") { /* drawn only */ } else ST[k] = v;
@@ -376,6 +410,7 @@
   function onClick(e) {
     var b = e.target.closest("[data-ea]"); if (!b || !root.contains(b)) return; var a = b.getAttribute("data-ea"), d = devOf(b);
     if (a.indexOf("pin:") === 0) { var id = a.slice(4), P = d && d.pins ? d.pins : ST.pins, on = P.indexOf(id) > -1, nm = PINNABLE.filter(function (p) { return p.id === id; })[0].t; if (on) P.splice(P.indexOf(id), 1); else P.push(id); if (d && d.q) commit(d); toast(d, on ? "Unpinned " + nm + ". It is still in " + (id === "looks" ? "Settings › Looks, the profile menu" : "Settings › Looks") + " and in search." : "Pinned " + nm + ". A shortcut only: it stays where it was."); renderAll(); var pf = $('[data-edev="' + (d ? d.i : 0) + '"] [data-ea="pin:' + id + '"]', root); if (pf && !root.contains(document.activeElement)) pf.focus({ preventScroll: true }); return; }
+    if (a.indexOf("ts:") === 0) { ST.ts = Math.max(-3, Math.min(3, ST.ts + Number(a.slice(3)))); if (d && d.q) commit(d); renderAll(); return; }
     if (a.indexOf("nav:") === 0) { var pg = a.slice(4); if (d && d.kind === "gal") { toast(null, "Opens " + pg + "."); renderAll(); return; } if (d) { d.page = pg; if (pg === "front") { d.q = d.kind === "desk" ? d.q : ""; } } renderAll(); return; }
     if (a.indexOf("go:") === 0) { if (d) commit(d); toast(d || devs[0], "Opens " + a.slice(3) + ", unchanged. (Mockup: nothing is built.)"); renderAll(); return; }
     if (a.indexOf("q:") === 0) { var t = d || devs[0]; if (t.kind === "gal") { t = devs[0]; } if (t.page !== "front") t.page = "front"; ensureIndex(); t.q = a.slice(2); t.act = 0; t.all = false; t.literal = false; t.browse = false; commit(t); renderAll(); var el = $('[data-edev="' + t.i + '"] [data-eq]', root); if (el) el.focus({ preventScroll: true }); return; }
@@ -395,10 +430,11 @@
   }
   function activate(d) {
     if (!d.cur || !d.cur.length) return; var e = d.cur[d.act].e; commit(d); var row = $("#sr-" + d.i + "-" + e.id, root), c = e.ctl;
-    if (c === "emoji" || c === "bell" || c === "checks") { var k = c; ST[k] = !ST[k]; renderAll(); return; }
+    if (c === "bell" || c === "checks") { var k = c; ST[k] = !ST[k]; renderAll(); return; }
     if (c === "reset") { doReset(); toast(d, "Looks, text size, rows, motion and the bell are back to normal. Pinned shortcuts and household settings were not touched."); renderAll(); return; }
     if (c === "themepick") { pickTheme(e.tid); return; }
-    if (c === "mode" || c === "text" || c === "rows" || c === "motion") { var r = $("input:checked", row); if (r) r.focus(); return; }
+    if (c === "text") { var tb = $(".tbtn", row); if (tb) tb.focus(); return; }
+    if (c === "mode" || c === "rows" || c === "motion") { var r = $("input:checked", row); if (r) r.focus(); return; }
     if (c === "theme") { var t = $("[data-theme-pick][aria-pressed=true]", row) || $("[data-theme-pick]", row); if (t) t.focus(); return; }
     toast(d, e.info ? "Nothing to change here." : "Opens " + e.go + ", unchanged. (Mockup: nothing is built.)"); renderAll();
   }
@@ -411,6 +447,8 @@
       else if (e.key === "Escape") { e.preventDefault(); if (n.value) { d.q = ""; d.act = 0; n.value = ""; refreshBody(d); } else n.blur(); }
       return;
     }
+    var st = n.closest && n.closest(".tstep");
+    if (st && root.contains(n) && (e.key === "ArrowLeft" || e.key === "ArrowRight")) { e.preventDefault(); var f = n.getAttribute("data-fk"), dv = devOf(n); ST.ts = Math.max(-3, Math.min(3, ST.ts + (e.key === "ArrowLeft" ? -1 : 1))); renderAll(); var nn = f && $('[data-fk="' + f + '"]', dv ? $('[data-edev="' + dv.i + '"]', root) : root); if (nn) nn.focus({ preventScroll: true }); return; }
     if (e.key === "/" && window.SR_ACTIVE_OPT === "E" && !/INPUT|TEXTAREA|SELECT/.test((document.activeElement || {}).tagName || "")) {
       var t = lastDev && $('[data-edev="' + lastDev.i + '"] [data-eq]', root) || $("[data-eq]", root); if (t) { e.preventDefault(); ensureIndex(); t.focus(); }
     }

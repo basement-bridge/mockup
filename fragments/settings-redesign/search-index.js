@@ -6,7 +6,7 @@
      val     key of the current value (resolved by the page from its state; sample data for household items)
      syn     synonyms and plain-language phrasings, separated by |  (what people type, not what we call it)
      aka     old names this entry replaces (audit knobs that were merged)
-     ctl     inline control: theme | mode | emoji | text | rows | motion | bell | checks | reset | themepick   (none = opens a screen, or info)
+     ctl     inline control: theme | mode | text | rows | motion | bell | checks | reset | themepick   (none = opens a screen, or info)
      go      the screen it opens when it has no inline control        info   true = not a setting, an explanation
      adv     true = search-only: not on any curated page, found only here
      pin     the pinnable segment it belongs to (looks | text)        k   audit ids covered (K01..K35)       pri   tie-break, lower first */
@@ -17,7 +17,7 @@
     syn: "colour|color|colours|colors|look|looks|appearance|palette|skin|style|scheme|background|accent|personalise|personalize|customise|customize|make it pretty|change the colours|change the look|prettier|hard to see|contrast|themes|theme picker|swatches" });
   add({ id: "mode", t: "Light or dark", g: "Looks", sc: "device", where: "Settings › Looks", aff: "Every screen. System follows your phone's own day and night.", val: "mode", ctl: "mode", pin: "looks", k: ["K13", "K02"], pri: 2,
     syn: "dark|light|dark mode|light mode|night|night mode|day mode|day|dark at night|too bright|too dark|eyes hurt|bright|dim|dimmer|follow my phone|auto dark|automatic dark|system theme|black background|white background|hard to see|brightness|screen too bright" });
-  add({ id: "emoji", t: "Emoji", g: "Looks", sc: "device", where: "Settings › Looks", aff: "Every screen: item rows, Home, Shopping and Plan.", val: "emoji", ctl: "emoji", pin: "looks", k: ["K04"], pri: 4, aka: ["Show emoji"],
+  add({ id: "emoji", t: "Emoji", g: "Looks", sc: "info", where: "No setting: an item shows its emoji when it has one", aff: "Item rows, Home, Shopping and Plan.", info: "Not a setting. An item shows its emoji when it has one and nothing when it does not. To change or remove one, open the item and tap its emoji.", k: ["K04"], pri: 4, aka: ["Show emoji"],
     syn: "emojis|icons|pictures|little pictures|food pictures|symbols|smileys|faces|cartoons|show emoji|hide emoji|remove emoji|turn off emoji|emoticons|images on items" });
   add({ id: "text", t: "Text size", g: "Text and rows", sc: "device", where: "Settings › Looks", aff: "Every screen at once: Home, Pantry, Shopping, Plan, Recipes, Preferences and menus. Replaces Item name size, which only moved the Pantry list.", val: "text", ctl: "text", pin: "text", k: ["K03"], pri: 1, aka: ["Item name size"],
     syn: "font|font size|bigger text|larger text|big text|small text|smaller text|bigger font|larger font|too small|tiny|tiny text|hard to read|cant read|hard to see|readable|readability|zoom|magnify|accessibility|large print|reading glasses|size of letters|name size|enlarge|make it bigger|make text bigger|text too small|letters too small|squint|size|scale|display size|bigger|larger" });
@@ -27,7 +27,7 @@
     syn: "animation|animations|movement|moving|transitions|dizzy|motion sickness|flashing|slide|sliding|bounce|wobble|stop moving|calm|less movement|stop animations|parallax|jumpy" });
   add({ id: "bell", t: "Household activity bell", g: "Notifications", sc: "device", where: "Search only", aff: "The bell with a count that appears when someone else in the household changes something.", val: "bell", ctl: "bell", adv: true, k: ["K09"], pri: 8, aka: ["Show household activity"],
     syn: "bell|badge|notification dot|red dot|alerts|someone changed|activity|housemate changed|who changed|updates|notification bell|count on the bell|hide the bell|turn off the bell" });
-  add({ id: "reset", t: "Reset to defaults", g: "Looks", sc: "device", where: "Search only", aff: "This device's looks and display settings only: theme, light or dark, emoji, text size, rows, motion and the bell. Not your household, Preferences or pinned shortcuts.", val: "reset", ctl: "reset", adv: true, k: ["K11"], pri: 9,
+  add({ id: "reset", t: "Reset to defaults", g: "Looks", sc: "device", where: "Search only", aff: "This device's looks and display settings only: theme, light or dark, text size, rows, motion and the bell. Not your household, Preferences or pinned shortcuts.", val: "reset", ctl: "reset", adv: true, k: ["K11"], pri: 9,
     syn: "reset|defaults|default|undo|undo changes|restore|start over|put back|back to normal|revert|i broke it|messed up|messed it up|factory settings|clear my changes|go back to how it was|default settings" });
   add({ id: "sort", t: "Sort order", g: "Lists", sc: "device", where: "Pantry list › Sort", aff: "The order of the Pantry list. Set on the list itself, not here.", val: "sort", go: "the Pantry list", k: ["K12"], pri: 12,
     syn: "sort|sorting|order|arrange|alphabetical|by date|newest|oldest|a to z|reorder|what comes first|sort by use-by|group by" });
