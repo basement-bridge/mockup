@@ -10,11 +10,10 @@
 .hx .chip.prop{border-style:dashed;color:var(--accent);border-color:var(--accent)}
 .hx .empty.slim{padding:var(--sp-5) var(--sp-4)}
 .hx .empty.slim h2{font-size:1rem;margin:0}
-.hx .sum.touch{display:flex;align-items:center;gap:6px;color:var(--accent);margin:0 0 var(--sp-3)}
 .ksub{margin:var(--sp-3) 0 0;font:700 12px var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);width:100%}
 .mcs>.ksub:first-child,.fchips>.ksub:first-child{margin-top:0}
 .fpb h3 code,.fsub code{text-transform:none;letter-spacing:0;font-weight:500}
-/* keyword box: a Proposal (Q1, S1), off unless ?keyword=1 */
+/* free-text box: Preview B only (Q1, S1), off unless ?search=text */
 .kw{display:flex;align-items:center;gap:var(--sp-2);margin:var(--sp-2) 0}
 .kwl{flex:1;display:flex;align-items:center;gap:var(--sp-2);min-height:var(--tap);padding:0 var(--sp-3);border:1px solid var(--border);border-radius:var(--r-pill);background:var(--surface)}
 .kwl input{flex:1;min-width:0;border:0;background:none;color:var(--fg);font:inherit;min-height:var(--tap);outline:none}
@@ -36,10 +35,31 @@ a.tl{color:var(--accent);text-decoration:underline;text-underline-offset:3px;fon
 .ann{margin:var(--sp-3) 0;padding:var(--sp-2) var(--sp-3);border:1px dashed var(--border);border-radius:var(--r-ctl);font-size:12px;line-height:1.4;color:var(--muted);background:none}
 .ann b{display:inline-block;margin-right:6px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
 .ann code{font-size:11px;color:var(--fg)}
-.hx-tabs .c{margin-left:2px}
 .pl{text-decoration:none;color:inherit}
 @media(min-width:1024px){.hx-panel .ann{margin-top:var(--sp-4)}}
 
 /* 44px targets (DESIGN.md section 3): option D's tabs and tokens were 40 and 36 */
 .hx-tabs button{min-height:var(--tap)}
 .hx .tok{min-height:var(--tap)}
+
+/* ---- the quiet filter (owner, voice, 23 Oct 2026: quiet, no big bold block). One muted line on the phone; the sheet and the lane carry the same one-page body. ---- */
+.qline{display:flex;align-items:center;gap:4px;margin:0 0 var(--sp-2)}
+.qfb{flex:1;min-width:0;display:flex;align-items:center;gap:8px;min-height:var(--tap);padding:0 4px;background:none;border:0;color:var(--muted);font:600 14px var(--body);text-align:left;cursor:pointer}
+.qfb span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qfb svg{flex:none}
+.qfb:hover,.qfb:focus-visible{color:var(--fg)}
+.qfx{border:0;flex:none;width:var(--tap);height:var(--tap);color:var(--muted)}
+.fsheet{max-height:85%}
+.fsheet .fbody{padding-bottom:var(--sp-4)}
+/* the Date row and its rotary: Pantry's rules, copied from flows/household/mobile/styles.css (.strow .stt .dotc .rot .rar) so this page stands alone */
+.hx .strow.rotrow{padding:4px 6px;cursor:default}
+.hx .rotrow .stt{flex:1;text-align:left;padding:0 8px;background:none;border:0;color:inherit;font:inherit;font-weight:700;cursor:pointer}
+.hx .rotrow.on .stt{color:var(--fg)}
+.hx .rotrow.drag .stt{color:var(--accent)}.hx .rotrow.drag .lbl2{font-variant-numeric:tabular-nums}
+.hx .rot{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 10px;border-radius:var(--r-pill);background:transparent;border:1px solid transparent;color:var(--muted);touch-action:none;cursor:ns-resize;font-weight:600;font-size:14px;user-select:none;-webkit-user-select:none}
+.hx .rotrow.on .rot{color:var(--accent)}
+.hx .rot:focus-visible{border-color:var(--accent)}
+.hx .rar{display:inline-flex;flex-direction:column;font-size:9px;line-height:9px;color:var(--muted);opacity:.8}.hx .rar i{font-style:normal}
+.hx .rotrow .lbl2{font-size:inherit;letter-spacing:0;text-transform:none;color:inherit;margin:0;font-weight:700} /* option D uses .lbl2 for day labels; in Pantry's row it is plain */
+.fpb .fh{margin-top:18px}
+.fsheet .flinks .link{min-height:var(--tap)}
