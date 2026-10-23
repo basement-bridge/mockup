@@ -1,7 +1,7 @@
 # Mockup fragments awaiting the owner's review. One line per fragment: fragments/<name> <repo>#<issue> [note]
 # Add at ready-for-review, remove at the uat merge or on the owner's word. Rule: governance docs/factory/mockup-visibility.md
 fragments/recipe-detail-desktop/inline-edit basement-bridge/kitchie#892 recommended, awaiting owner review
-fragments/item-notes basement-bridge/kitchie#986 awaiting owner review
+fragments/item-notes basement-bridge/kitchie#986 UAT-baselined shopper list plus notes, awaiting owner review
 fragments/compact-home-options basement-bridge/mockup (no issue) options A to F for the Home Compact view, E recommended if it stays, F retires it; awaiting owner review until=2026-10-22T07:55:00Z
 fragments/desktop-home-search basement-bridge/mockup (no issue) one desktop Home, search first: live contextual dropdown, no Dashboard/Compact toggle; awaiting owner review
 fragments/mobile-home-view-switch basement-bridge/mockup (no issue) options A to E for the control that switches mobile Home between full and compact (ask-first), B recommended; awaiting owner review

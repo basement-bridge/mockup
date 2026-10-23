@@ -3,6 +3,7 @@
 // open page what changed, a second shopper, and the member's Shopping screen following along. It also jumps a frame to the state named in its address,
 // so the fragment page can show every state side by side. Sample answers and sample outcomes live here, never in the stylesheets or in the files meant for the build.
 //   list.html            ?s=mid | drag | drag-armed | drag-no | drag-no-armed | leave | done | done-none | swap | also | multi | summary | none | wont | live | reopen | two        phase one (see the seeds below)
+//   list-notes.html      same as list.html, plus a read-only note on Eggs, Milk and Tomatoes (Kitchie #986; item-notes fragment)
 //                        ?s=p2 | p2-ask | p2-reading | p2-ok | p2-retry | p2-fallback   phase two (not built); ?p2=1 only shows the chooser
 //                        ?g=<group>&as=A|B   several frames in one group share one pretend server (A and B are two links; the member sees both)
 //                        SL-D21 on (11 October 2026, second round): ?s=fresh | trim | committed | committed-all | bailed | reject-ask | rejected | claimed-other | released | notfound-other (SL-D37)
