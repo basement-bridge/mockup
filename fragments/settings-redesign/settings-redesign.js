@@ -284,7 +284,7 @@
     var want = m === "light" ? "kitchie-day" : m === "dark" ? "kitchie" : (matchMedia("(prefers-color-scheme: light)").matches ? "kitchie-day" : "kitchie");
     var b = document.createElement("button"); b.setAttribute("data-theme-pick", want); b.hidden = true; document.body.appendChild(b); b.click(); b.remove();
   }
-  function optOf(n) { var f = n.closest(".fr"); return f ? f.dataset.opt : null; }
+  function optOf(n) { var f = n.closest(".fr"); return f && OPTS.indexOf(f.dataset.opt) > -1 ? f.dataset.opt : null; }
   function devOf(opt, n) { var el = n.closest("[data-dev]"); return el ? S[opt].devs.filter(function (d) { return String(d.i) === el.dataset.dev; })[0] : null; }
   function onChange(e) {
     var n = e.target, opt = optOf(n); if (!opt || !n.hasAttribute("data-k")) return; var k = n.getAttribute("data-k"), st = S[opt].st;
@@ -303,10 +303,10 @@
     if (a.indexOf("nav:") === 0) { var d = devOf(opt, b); if (d) { d.page = a.slice(4); } else { S[opt].devs.forEach(function (x) { if (x.kind === "desk") x.page = a.slice(4); }); } render(opt); return; }
     if (a.indexOf("link:") === 0) { st.toast = "Opens “" + a.slice(5) + "”, unchanged."; render(opt); return; }
   }
-  function onInput(e) { var n = e.target; if (!n.hasAttribute("data-q")) return; var opt = optOf(n); S[opt].st.q = n.value; render(opt); }
+  function onInput(e) { var n = e.target; if (!n.hasAttribute("data-q")) return; var opt = optOf(n); if (!opt) return; S[opt].st.q = n.value; render(opt); }
   function onKey(e) {
     if (e.key === "Escape") { OPTS.forEach(function (o) { if (S[o].st.aa) { S[o].st.aa = false; render(o); } }); }
-    if (e.key === "/" && !/INPUT|TEXTAREA/.test((document.activeElement || {}).tagName || "")) { var inp = $("#opt-C [data-dev='" + (S.C.devs[1] ? S.C.devs[1].i : "") + "'] [data-q]") || $("#opt-C [data-q]"); if (inp) { e.preventDefault(); inp.focus(); } }
+    if (e.key === "/" && window.SR_ACTIVE_OPT !== "E" && !/INPUT|TEXTAREA/.test((document.activeElement || {}).tagName || "")) { var inp = $("#opt-C [data-dev='" + (S.C.devs[1] ? S.C.devs[1].i : "") + "'] [data-q]") || $("#opt-C [data-q]"); if (inp) { e.preventDefault(); inp.focus(); } }
   }
   /* page-level mockup aids */
   function aids() {
@@ -318,10 +318,10 @@
   /* ledger (deferred data) */
   function ledger() {
     var K = window.SR_KNOBS; var tb = $("#ledger tbody"); if (!K || !tb) return;
-    var word = { stay: "stays", gone: "gone", auto: "automatic", merge: "merged", ctx: "in context", search: "by search", adv: "under More" };
-    tb.innerHTML = K.map(function (k) { return "<tr><td>" + k.id + "</td><td>" + esc(k.name) + '</td><td><span class="v ' + k.verdict + '">' + k.verdict + "</span></td>" + ["A", "B", "C", "D"].map(function (o) { return '<td class="o-' + k.o[o] + '">' + word[k.o[o]] + "</td>"; }).join("") + "</tr>"; }).join("");
-    var words = { stay: "stay", gone: "gone", auto: "automatic", merge: "merged", ctx: "in context", search: "by search", adv: "under More" };
-    ["A", "B", "C", "D"].forEach(function (o) { var t = {}; K.forEach(function (k) { t[k.o[o]] = (t[k.o[o]] || 0) + 1; }); var cell = $("#l" + o); if (cell) cell.textContent = Object.keys(t).map(function (w) { return t[w] + " " + words[w]; }).join(", "); });
+    var word = { stay: "stays", gone: "gone", auto: "automatic", merge: "merged", ctx: "in context", search: "by search", adv: "under More", pin: "pinnable" };
+    tb.innerHTML = K.map(function (k) { return "<tr><td>" + k.id + "</td><td>" + esc(k.name) + '</td><td><span class="v ' + k.verdict + '">' + k.verdict + "</span></td>" + ["A", "B", "C", "D", "E"].map(function (o) { return '<td class="o-' + k.o[o] + '">' + word[k.o[o]] + "</td>"; }).join("") + "</tr>"; }).join("");
+    var words = { stay: "stay", gone: "gone", auto: "automatic", merge: "merged", ctx: "in context", search: "by search", adv: "under More", pin: "pinnable" };
+    ["A", "B", "C", "D", "E"].forEach(function (o) { var t = {}; K.forEach(function (k) { t[k.o[o]] = (t[k.o[o]] || 0) + 1; }); var cell = $("#l" + o); if (cell) cell.textContent = Object.keys(t).map(function (w) { return t[w] + " " + words[w]; }).join(", "); });
     var n = $("#ledger-note"); if (n) n.textContent = "Loaded.";
   }
   function init() {
@@ -333,7 +333,7 @@
     var go = function () { var s = document.createElement("script"); s.src = "data.js"; s.onload = ledger; document.head.appendChild(s); };
     if ("IntersectionObserver" in window && $("#ledger")) { var io = new IntersectionObserver(function (en) { if (en[0].isIntersecting) { io.disconnect(); go(); } }, { rootMargin: "400px" }); io.observe($("#ledger")); } else go();
     document.body.setAttribute("data-ready", "1");
-    var q = new URLSearchParams(location.search); if (q.get("o")) { var t = $("#opt-" + q.get("o")); if (t) t.scrollIntoView(); }
+    var q = new URLSearchParams(location.search); if (q.get("o")) { var t = document.getElementById("opt-" + q.get("o")); if (t) t.scrollIntoView(); }
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
 })();
