@@ -9,7 +9,7 @@ const b = await chromium.launch();
 const out = p => p.$eval("#ael-out", e => e.textContent);
 for (const w of [360, 390, 768, 1280]) for (const [theme, scheme] of [["kitchie-day", "light"], ["kitchie", "dark"]]) {
   const ctx = await b.newContext({ viewport: { width: w, height: 800 }, colorScheme: scheme }); await ctx.addInitScript(t => { try { localStorage.setItem("theme", t); } catch (e) {} }, theme);
-  for (const o of ["a", "a-level", "b", "c", "c-level", "d", "dp"]) {
+  for (const o of ["a", "a-level", "b", "c", "c-level", "d", "dp", "e", "e-qty", "e-level"]) {
     const p = await ctx.newPage(), errs = []; p.on("pageerror", e => errs.push(e.message)); await p.goto(BASE + "add.html#" + o); await p.waitForTimeout(250);
     const g = await p.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth, small: [...document.querySelectorAll("button,input")].filter(e => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && r.height < 43.5 && !e.closest(".ef-cl"); }).map(e => e.getAttribute("aria-label") || e.textContent.trim()).slice(0, 4) }));
     ok(g.sw <= g.cw, `${w} ${scheme} #${o}: no sideways scroll`); ok(g.small.length === 0, `${w} ${scheme} #${o}: controls at least 44px high ${g.small.join("|")}`); ok(errs.length === 0, `${w} ${scheme} #${o}: no page errors`); await p.close();
@@ -35,6 +35,15 @@ ok((await out(p)).includes("the level is not read"), "B: a level beside an exact
 // C: swaps in place and back
 await go(BASE + "add.html#c"); await p.click('[data-ael="tolevel"]'); ok(await p.$("#ael-l") !== null && await p.$("#ael-q") === null, "C: Set a level swaps the quantity for the squares");
 await p.click('[data-ael="toqty"]'); ok(await p.$("#ael-q") !== null && await p.$("#ael-l") === null, "C: Use a quantity swaps it back");
+// E: three separate choices, only the side showing is saved, the others are kept unsaved
+await go(BASE + "add.html#e"); ok(await p.$$eval('[data-ael="seg"]', e => e.length) === 3, "E: three choices");
+ok(await p.$('[data-ael="addunit"]') === null, "E: Words has no Add unit");
+await p.fill('[data-in="words"]', "half a bag"); ok((await out(p)).includes("half a bag (your words)"), "E: words are the quantity");
+await p.click('[data-ael="seg"][data-v="qty"]'); t = await out(p);
+ok(t.includes("Quantity: 1 (an exact amount)") && t.includes("not saved: your words"), "E: Quantity saves the number and keeps the words unsaved");
+await p.click('[data-ael="seg"][data-v="level"]'); await p.click('[data-ael="lvl"][data-v="Out"]'); t = await out(p);
+ok(t.includes("Level: Out, set by you") && t.includes("Quantity: none") && t.includes("the number 1") && t.includes("your words") && t.includes("listed as out"), "E: Level saves the level only and keeps the rest unsaved");
+await p.click('[data-ael="seg"][data-v="words"]'); ok(await p.$eval('[data-in="words"]', e => e.value) === "half a bag", "E: the words are still there after flipping back");
 // D: the setting frame has the two choices; the level frame has no switch
 await go(BASE + "add.html#d"); ok(await p.$(".ael-seg") === null && await p.$("#ael-l") !== null, "D: Add draws only the level");
 // the options page: the readout arrives from the frame; keyboard on the switch

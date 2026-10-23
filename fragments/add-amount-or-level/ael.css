@@ -56,3 +56,7 @@
 .ael-sheet .ael-seg{margin-bottom:12px}
 @media (max-width:43.75rem){.ael-fr{grid-template-columns:minmax(0,390px)}}
 .ael-row2 .btn.sm{min-height:var(--tap)}
+
+/* E: three segments */
+.ael-seg.three{grid-template-columns:repeat(3,1fr)}
+.ael-seg.three .sg{gap:6px;padding:0 4px}

@@ -15,6 +15,7 @@ const SCREENS = [
   ["draft-recipes", "fragments/draft-recipes/index.html"],
   ["add-amount-or-level", "fragments/add-amount-or-level/index.html"],
   ["add-amount-or-level-a-level", "fragments/add-amount-or-level/add.html#a-level"],
+  ["add-amount-or-level-e", "fragments/add-amount-or-level/add.html#e"],
   ["cook-step-ingredients", "fragments/cook-step-ingredients/index.html"],
   ["plan-start-cooking", "fragments/plan-start-cooking/index.html"],
   ["plan-start-cooking-b", "fragments/plan-start-cooking/phone.html?o=b&m=adhoc"],

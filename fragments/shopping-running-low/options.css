@@ -1,0 +1,37 @@
+/* The "Running low" link on the phone Shopping screen: five placements (A to E). The build lifts the chosen option's rules only. Tokens only: no raw colours, no new widths on the page. */
+.rl-n{display:inline-block;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--accent);color:var(--on-accent);font:800 11px/18px var(--body);font-style:normal;text-align:center}
+.rl-tile:focus-visible,.rl-pill:focus-visible,.rl-end:focus-visible,.rl-ic:focus-visible,.rl-inline:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+/* A: the end of the hint line. No height of its own. The hit area is padded out to 44px without moving a line (padding and an equal negative margin). */
+.rl-inline{display:inline-block;padding:14px 6px;margin:-14px -6px;color:var(--accent);font-weight:700;white-space:nowrap;text-decoration:none}
+
+/* B: beside the hand-off card, one row. The card gives up 92px; its second line wraps, so the row is about 12px taller than the card alone. */
+.rl-pair{display:flex;align-items:stretch;gap:8px}
+.rl-pair .sl-share{display:flex;flex:1 1 auto;min-width:0;margin:0}
+.rl-pair .sl-handoff{height:100%}
+.rl-tile{position:relative;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:84px;padding:6px;border:1px dashed var(--border);border-radius:18px;color:var(--fg);font:700 12px/1.15 var(--body);text-align:center;text-decoration:none}
+.rl-tile svg{color:var(--accent)}
+.rl-tile .rl-n{position:absolute;top:6px;right:8px}
+
+/* C: a pill, right of the hint. Icon and count only (Home's Running low tile uses the same basket), so the hint keeps most of the width. The hint wraps to about three lines. */
+.rl-hintrow{display:flex;align-items:flex-start;gap:8px;margin:0 0 8px}
+.rl-hintrow .hint{flex:1 1 auto;min-width:0;margin:0 2px}
+.rl-pill{flex:none;display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 12px;border:1px solid var(--border);border-radius:var(--r-pill);background:var(--surface);color:var(--fg);text-decoration:none}
+.rl-pill svg{color:var(--accent)}
+
+/* D: after the last line. Nothing above the list moves. Drawn as the hand-off card is (dashed, 18px radius), one line shorter. */
+.rl-end{display:flex;align-items:center;gap:12px;min-height:56px;margin:12px 0 0;padding:6px 10px 6px 14px;border:1px dashed var(--border);border-radius:18px;color:var(--fg);text-decoration:none}
+.rl-end>svg:first-child{flex:none;color:var(--accent)}
+.rl-end>svg:last-child{flex:none;margin-left:auto;color:var(--muted)}
+.rl-end-t{flex:1 1 auto;min-width:0;line-height:1.25}
+.rl-end-t b{display:block;font-size:1rem}
+.rl-end-t span{display:block;font-size:.85rem;color:var(--muted)}
+
+/* E: an icon in the app bar, left of the profile button, in the 44px round the bar already uses. No height at all. */
+.rl-ic{position:relative}
+.rl-ic .rl-n{position:absolute;top:-2px;right:-2px;box-shadow:0 0 0 2px var(--bg)}
+
+/* Not part of the proposal: rules the app already has (web-shopping.ts SHOPPING_CSS), copied from ../desktop-shopping/frame.css so the sample rows draw as the app's do (the swipe backing sits under the row). */
+li.shoprow .swbg{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 20px;background:var(--added,var(--cue));color:var(--bg);font-weight:700}
+li.shoprow:not(.rt) .swbg .l,li.shoprow.rt .swbg .r{visibility:hidden}
+li.shoprow .swbg span{display:inline-flex;align-items:center;gap:8px}

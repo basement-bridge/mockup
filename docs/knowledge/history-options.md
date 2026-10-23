@@ -13,6 +13,8 @@ Landing page: `history/index.html`. Each option has its own spec with a field ca
 
 The options are not exclusive. A and B are two ways into one results list; C is where the entry points live; D is a different job (catch up) that could sit beside any of them.
 
+**Update, 18 and 23 Oct 2026:** History became a Platform capability with a canonical event model (`history-event-model.md`). The catch-up, filters and detail are drawn again on that model in `history/search/` (`history-search.md`, Proposals S-P1 to S-P9, questions Q1 to Q10). Option D's field catalogue is superseded by it; H1 to H15 stand.
+
 ## Owner direction (voice, 11 Oct 2026): Recipe history is pulled by Kitchie
 Kitchie, the main app, pulls Recipe's history when it needs to. That is not built now: "just plan for it". So every option keeps the door open: one event shape (who, area, action, subject, when, source) that Recipe can supply and Kitchie can merge into its own list, and Recipe rows that can be absent without the screen breaking. **Proposal:** screens show Recipe events in the same list when present and show nothing special when absent.
 
