@@ -1,8 +1,56 @@
 # History search and filters, on the canonical event model
 
-Owner (voice, 18 Oct 2026; typed 23 Oct 2026: get it built): the point of the History work is a canonical model. The search and filter mockup uses only fields that model guarantees, respects the template system (no invented fields; result detail defers to the kind's template), and every choice it needs is an owner question, not a quiet pick. Model and the numbered questions Q1 to Q10: `history-event-model.md`. Mockup: `history/search/` (`mobile.html`, `desktop.html`, or `index.html` responsive: phone under 1024px, rail + column + lane from 1024px). Checks: `tools/history-search-check.mjs` (448 checks; run with the server and `SHOTS=dir`). Screenshots: `docs/screenshots/history-search-*.png`.
+Owner (voice, 18 Oct 2026; typed 23 Oct 2026: get it built): the point of the History work is a canonical model. The search and filter mockup uses only fields that model guarantees, respects the template system (no invented fields; result detail defers to the kind's template), and every choice it needs is an owner question, not a quiet pick. Model and the numbered questions Q1 to Q10: `history-event-model.md`. Mockup: `history/search/` (`mobile.html`, `desktop.html`, or `index.html` responsive: phone under 1024px, rail + column + lane from 1024px). Checks: `tools/history-search-check.mjs` (1,060 checks; run with the server and `SHOTS=dir`). Screenshots: `docs/screenshots/history-search-*.png`.
 
 **Revision 2, 23 Oct 2026 (owner, voice, 23 Oct 2026).** The first version (mockup PR #280) was a proposal on every question. The owner has now decided most of them; this revision applies his decisions. He typed that the Pantry change below is a separate enhancement elsewhere, and that this mockup must stand on its own and survive without it.
+
+**Revision 3, 24 Oct 2026 (owner, voice, 24 Oct 2026): alternatives to the cascading filter. Status: for owner choice.** He found the cascade (pick a person, then a topic, then a date, and the list keeps reshuffling) clunky and asked to see different ways. Revision 2's design stays as baseline **A: Cascade**; three more ways are added beside it in the Preview switch, **B: Sentence**, **C: Quick answers**, **D: Tap to filter**. Nothing was deleted, nothing was decided for him. Every rule from 23 Oct still holds (below).
+
+## Filter patterns A to D (revision 3, for owner choice)
+
+Open any of them on the one page with `?way=`: A is the default (no parameter), `?way=sentence` (B), `?way=quick` (C), `?way=tap` (D). They combine with the other parameters (`view=list`, `tab=`, `as=`, `household=more`, `search=text`, `choices=several`, ...). Preview switch: "Filter pattern (owner, 24 Oct)". B, C and D have no filter sheet and no desktop filter panel; the X on the catch-up opens the recent list with the pattern's line. The tabs, the catch-up, the rows, the detail and the Others rules are exactly as in A (the owner said another change to how mine and others are shown is in progress elsewhere; the tabs are untouched here).
+
+| | Pattern | What the screen shows | What one tap does |
+|---|---|---|---|
+| A | **Cascade** (baseline, revision 2) | One muted line (Anytime · All topics) opening a short sheet (lane on desktop) with the Date rotary row and Topic chips, then a finer kind row. | Each pick re-draws the list; the choices stack. |
+| B | **Sentence** | One line, "You · anything · anytime". The line is the filter state. No panel. | Tap a word: a short sheet (phone) or small popover (desktop) with only that part. Who = the three tab values; What = Anything, Pantry, Shopping, Recipes, then that area's kinds; When = Pantry's Date row (toggle, rotary). The X clears every part at once (the tab stays). |
+| C | **Quick answers** | A strip of five ready-made chips: Mine today, Removed this week, Moved this week, By Sam (two-person households), By others; a read-only line under it saying what is on. No panel. | Tap a chip: it sets the parts it names (Who, What, When). A second chip is added over the first (a later When replaces an earlier one); tapping a chip that is on clears just its parts; the X clears what the chips set. |
+| D | **Tap to filter** (designer's pick) | The list itself carries the controls: a row has the line (opens the change), small underlined handles for its topic, kind and thing, a person button on the avatar where it narrows, and each day label is a button. A line at the top shows what is on; each part is a pill that clears with one tap. | Tap a handle: the list narrows, the page scrolls to the line, a toast says what happened with Undo. As the list narrows, a handle that is already on disappears from the rows. |
+
+**Every control is one real model filter** (checked: `tools/history-search-check.mjs` reads the query the screen would send after each tap, and it may use only `actor`, `actorNot`, `product`, `area`, `kind`, `entityType`, `entityId`, `from`, `to`, `since`). Mapping:
+
+- Who (B word, C person chips, D person tap) = `actor` (me, the other person's id, or an id; `actorNot` for Others). It is the tab. Tabs are unchanged, so the sentence's first word shows the tab ("You", "Sam", "Others"); a list is always someone's, so **"Anyone" never appears** in the list. See the first open point.
+- What (B, C chips, D handles) = `area`, or `kind` (whose first segment is the area).
+- When = `from` (Today, Last 7 days, Last 30 days: Pantry's rotary, unchanged: tap, drag, wheel, no press and hold, no "Anytime" step), or **one day = `from` and `to`** (D day label only).
+- The thing (D item name) = `entity_type` + `entity_id`, sent with the `product` the API requires (never shown).
+- No keyword, no counts, no product filter, no touches/affects filter, in any pattern. Free text stays the Preview B-search (`?search=text`, same label) and works together with B, C or D.
+
+### D in detail (the designer's pick, drawn most carefully)
+
+- **A row is separate 44px targets, not one big button.** The line (who, what changed) still opens the change; under it small underlined handles; the time is plain text. Rows are about half as tall again as A's (two 44px lines instead of one block); as the list narrows, handles that are already on disappear, so rows get shorter again.
+- **What can be tapped:** the topic ("Pantry"), the kind ("Moved"; only where the area has several kinds, as in A), the thing ("Basmati rice"), the avatar (a person) and the day label ("Yesterday Sat 17 Oct").
+- **Person tap exists only where it narrows.** In My activity or Sam's tab every row is already that person's, so the avatar is plain. In Others, a named member's avatar is a button: with two people it opens Sam's tab; with more people it narrows Others to that person (`actor=<id>`, a pill with an X). **"Someone" and "A former member" are never buttons:** there is no single person to filter by (`actor=none` would be a new parameter, the option b of Q5).
+- **The thing, and what the model guarantees.** `entity.type` and `entity.id` are on every row, but `entity.id` can be null (Kitchie leaves it out for `bulk_changed`: "no single thing"), so such a row has **no** handle (the sample has one: Sam, Sat 17 Oct, 8:00 am, Bulk changed). The handle filters by the id, never the name (names are not guaranteed and are not filters). The handle's text is the template's own entity link text (so it reads "Basmati rice"); a row with no template says "This recipe". The `product` goes with it because the API wants it. The mockup says this on its D note.
+- **One tap, then a clear result.** Tapping scrolls to the top (where the line is), the toast says what was filtered ("Showing only Moved in Pantry") with **Undo**, which restores the whole previous state.
+- **Date in D.** A day label narrows to that day. For "roughly a week ago" the line's "anytime" opens Pantry's rotary (the same row as A); once a date is on, its pill opens the rotary and its X clears it. Stepping the rotary while a day is on goes back to the remembered window.
+- **The line.** "You · anything · anytime" with a hint ("Tap a name, a topic or a day in the list to narrow it.") that goes away once something is on. Only the parts that are on are pills; the first word is the tab and is not clearable.
+- **Catch-up.** Rows in the catch-up carry the same handles; tapping one leaves the catch-up (not marked caught up) and shows the list with the line.
+
+### Designer's recommendation: D
+
+Why: the two jobs. (1) Catch up: nothing changes; the catch-up opens first in every pattern. (2) Who did that and when, "often knowing only roughly when and what": D starts from the thing on the screen ("the milk row" is in front of you), so you tap the kind or the item and see only that, then the day it happened; you never have to know the vocabulary of a filter first. Nothing stacks, nothing cascades; one tap, one visible result, one tap to undo. B is the clearest statement of state but still asks you to name each part; C is fastest for the questions it anticipates and a dead end for any other. D can be paired with B's line (it already is), and C's chips could be added to D's empty line later. Costs of D: rows are taller (about half again); person tap does little while the tabs split whose; tap handles are small text, so they rely on the 44px target and an underline to be discovered; "Tap a name..." hint is the only teaching.
+
+### What the owner must choose
+
+1. A, B, C or D (or D with C's chips on its empty line). Status: **for owner choice**; nothing is decided for him.
+2. Whether to keep the tabs once a pattern is chosen. B, C and D all read "who" from the tabs, so "Anyone" cannot exist while the tabs are there; D's person tap and the item tap ("everyone's changes to the milk") are most useful when one list can show everyone. This is the territory of the parallel change to the mine and others tabs, so it was not touched.
+3. D's day label: narrows to one day (`from` and `to`). OK, or only the Today / 7 / 30 windows?
+4. C's chip list (five chips as drawn).
+
+## What stays decided (revision 2, all patterns)
+
+No keyword box by default (free text is the Preview B-search); no counts anywhere; no product filter; no touches/affects filter; events with no member and former members stay under Others ("Someone", "A former member"); one combined feed; Date is the Pantry rotary and keeps its real behaviour; single choice per group (Q2) stays undecided and reachable with `?choices=several`; the time zone is the device's (undecided).
+
 
 This **revises option D** (`history-option-d.md`), keeping its locked structure (H1 to H15) except where the decisions below overrule it.
 
@@ -34,7 +82,7 @@ What exists in Pantry, and so here: each status is one long pill with a checkbox
 
 Two small differences from Pantry, both marked: the first tap on an **off** row turns it on at its remembered window (Pantry's tap always advances, which would skip a window when the row is off); arrow keys and Enter also step it (Pantry's rotary is pointer-only). Time zone: the device's, undecided.
 
-## Decisions log (owner, voice, 23 Oct 2026)
+## Decisions log (owner, voice, 23 Oct 2026; revision 3 rows 24 Oct 2026)
 
 Numbering follows `history-event-model.md` section 7. The owner's own voice list ran one behind it after Q3 (his Q4 is the document's Q5, his Q5 is Q6, his Q6 is Q9); the mapping is stated so nothing is applied to the wrong question.
 
@@ -50,6 +98,8 @@ Numbering follows `history-event-model.md` section 7. The owner's own voice list
 | - | Date uses the same rotary row as Pantry's Filters sheet, same look and feel. The existing three-day catch-up stays. | **Decided** (owner, voice, 23 Oct 2026) |
 | Q9 (his Q6) | The time zone is the device's. | **Undecided** (owner, voice, 23 Oct 2026) |
 | Q7 | Whether ADR 0003's template design is confirmed. | **Undecided** (owner, voice, 23 Oct 2026) |
+| R3 | Show alternatives to the cascading filter, switchable beside it. Agreed to see three: B Sentence, C Quick answers, D Tap to filter. A (the cascade) stays as the baseline in the Preview switch (`?way=`). | **Asked for** (owner, voice, 24 Oct 2026); which one to keep is **for owner choice** |
+| R3 | Designer's recommendation: D, Tap to filter. Not chosen by the owner. | **For owner choice** |
 | - | Visual language: a quiet filter component, consistent with the existing tokens. Applying that pattern to Pantry is a separate enhancement (tracked as a mockup issue); this mockup does not depend on it and no Pantry mockup is changed. | **Decided** (owner, typed, 23 Oct 2026) |
 
 ## Proposals (the owner was silent; marked in the mockup)
@@ -62,7 +112,16 @@ Numbering follows `history-event-model.md` section 7. The owner's own voice list
 - **S-P11. Three tabs in a two-person household** (My activity, the other person, Others) so that Others is reachable without losing the person tab; with more people, My activity and Others.
 - **S-P12. The catch-up lists who made changes as links without numbers** ("By Sam, you, Others"). "Others" in that sentence means no member or a former member; the Others tab is wider (see open points).
 
+- **S-P13. Chips in C** are Mine today, Removed this week, Moved this week, By Sam, By others: five, chosen for the two jobs ("Removed" and "Moved" answer "the milk vanished" and "where did it go"). Each is built only from `actor`, `kind` and `from`. A chip that does not name a person keeps the current tab, so "Removed this week" under My activity is mine only.
+- **S-P14. D's day label** sets one calendar day (`from` and `to`); the Date rotary has no such value in Pantry, so the rotary reads the day while it is on and a tap goes back to the remembered window.
+- **S-P15. D's Undo** (a toast, 6 seconds) and the scroll to the top after a tap; D hides a handle that is already on.
+- **S-P16. The sample gained one row** (Sam, Sat 17 Oct, 8:00 am, `pantry.bulk_changed`, `entity.id` null) to show a kind with no thing to filter by. It is before the Saturday 5:30 pm catch-up cut, so the catch-up is unchanged.
+
 ## Open points and what a wrong guess costs
+
+- **"Anyone".** The owner described the sentence as "Anyone · anything · anytime". With the tabs left alone, every list is one person's (You, Sam, Others), so the first word is the tab's value and "Anyone" never shows. If the tabs go, "Anyone" is `actor` left out and D's person and item taps get much more useful. Wrong guess costs: building a person word that duplicates the tabs.
+- **Item filter under a tab.** Tapping "Milk" in My activity shows only my milk changes; to see who removed it you must also look in Sam's tab or Others. Same cause.
+- **Parallel work on mine and others.** Checked `origin/main` on 24 Oct: nothing after PR #290 touches `history/` or the tabs, and there are no open PRs in mockup, kitchie or platform. If that work lands, the tab bar is the only place to reconcile (B's Who picker and D's person tap read the same state).
 
 - **Press and hold** on the rotary (above): not in Pantry; build only if the owner wants it, and then in both places.
 - **Q2, Q7, Q9** are undecided and still drawn as above. Q2 wrong guess: with one choice a person cannot see "Sam or Priya" together (Others covers the common case); lists is a Platform contract change. Q9: a household spanning zones sees different day cuts.

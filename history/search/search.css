@@ -63,3 +63,66 @@ a.tl{color:var(--accent);text-decoration:underline;text-underline-offset:3px;fon
 .hx .rotrow .lbl2{font-size:inherit;letter-spacing:0;text-transform:none;color:inherit;margin:0;font-weight:700} /* option D uses .lbl2 for day labels; in Pantry's row it is plain */
 .fpb .fh{margin-top:18px}
 .fsheet .flinks .link{min-height:var(--tap)}
+
+/* ---- B, C and D: the filter as a sentence (owner, voice, 24 Oct 2026). Same tokens; nothing new but layout. ---- */
+.qwrap{position:relative}
+.sline{display:flex;flex-wrap:wrap;align-items:center;gap:0 2px;margin:0 0 var(--sp-1);font-size:1rem;line-height:1.3}
+.sline .sl{flex:1;min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:0 2px}
+.sline .sg{display:inline-flex;align-items:center;white-space:nowrap}
+.sline .sd{color:var(--muted);padding:0 2px}
+.sw{min-height:var(--tap);min-width:var(--tap);padding:0 5px;border:0;background:none;color:var(--muted);font:600 1rem var(--body);cursor:pointer;display:inline-flex;align-items:center;text-align:left}
+.sw.on{color:var(--fg)}
+.sw:not(.plain){text-decoration:underline dotted;text-decoration-color:var(--accent);text-decoration-thickness:2px;text-underline-offset:6px}
+.sw:not(.plain):hover,.sw[aria-expanded=true]{color:var(--accent)}
+.sw.plain{cursor:default;display:inline-flex;align-items:center;min-height:var(--tap)}
+.sw.plain:not(.off){color:var(--fg)}
+.sline.ro .sw{font-size:14px;padding:0 3px}
+.sline.ro .sd{padding:0}
+.sline .qfx{margin-left:2px}
+.hint{margin:0 0 var(--sp-1);padding:0 6px;font-size:13px;color:var(--muted)}
+/* D: a part that is on is a pill, clears with one tap */
+.ap{display:inline-flex;align-items:center;gap:6px;min-height:var(--tap);padding:0 10px 0 14px;border:1px solid var(--accent);border-radius:var(--r-pill);background:var(--surface);color:var(--fg);font:600 14px var(--body);cursor:pointer}
+.ap svg{color:var(--muted)}
+.ap:hover svg{color:var(--accent)}
+.ap.split{padding:0;gap:0;cursor:default}
+.ap.split .apt{min-height:var(--tap);padding:0 4px 0 14px;border:0;background:none;font:600 14px var(--body);color:var(--fg);cursor:pointer}
+.ap.split .apx{min-height:var(--tap);min-width:var(--tap);border:0;background:none;display:inline-flex;align-items:center;justify-content:center;color:var(--muted);cursor:pointer}
+/* C: the strip */
+.qstrip{display:flex;flex-wrap:nowrap;gap:var(--sp-2);margin:0 0 var(--sp-1);overflow-x:auto;scrollbar-width:none;scroll-snap-type:x proximity;padding:2px 0}
+.qstrip::-webkit-scrollbar{display:none}
+.qc{flex:none;scroll-snap-align:start;white-space:nowrap}
+@media(min-width:1024px){.qstrip{flex-wrap:wrap;overflow:visible}}
+.qc{min-height:var(--tap);padding:0 16px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font:600 14px var(--body);color:inherit;cursor:pointer}
+.qc:hover{border-color:var(--accent)}
+.qc.on{background:var(--accent);color:var(--on-accent);border-color:transparent}
+/* the picker: a sheet on a phone (the A sheet's own classes), a small popover under the line on desktop */
+.psheet{max-height:85%}
+.pdim{position:fixed;inset:0;z-index:30}
+.pop2{position:absolute;left:0;top:100%;z-index:31;width:min(380px,100%);background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);box-shadow:0 12px 40px rgba(0,0,0,.28)}
+.pop2 .fbody{padding:var(--sp-3) var(--sp-4) var(--sp-4)}
+.lane0{padding-top:var(--sp-5);color:var(--muted)}
+.lane0 h2{font-size:1.25rem;margin:0;color:var(--fg)}
+.lane0 p{margin:4px 0 0;font-size:14px}
+/* D: the row is separate targets, 44px each */
+.ev.dv{cursor:default;align-items:flex-start;gap:var(--sp-1);padding:var(--sp-1) var(--sp-4) var(--sp-1) var(--sp-2)}
+.ev.dv.new{padding-left:var(--sp-4)}
+.ev.dv.new::before{left:4px;top:18px}
+.avb{flex:none;width:var(--tap);height:var(--tap);display:inline-flex;align-items:center;justify-content:center;border:0;background:none;padding:0;border-radius:50%;cursor:default}
+button.avb{cursor:pointer}
+button.avb:hover .av,button.avb:focus-visible .av{box-shadow:0 0 0 2px var(--accent)}
+.evo{display:flex;align-items:center;width:100%;min-height:var(--tap);padding:var(--sp-1) 0;border:0;background:none;text-align:left;cursor:pointer;font-size:15px;line-height:1.35;color:inherit}
+.evo[aria-current=true]{box-shadow:inset 3px 0 0 var(--accent);padding-left:var(--sp-2)}
+.ev.dv .meta.hds{margin:0;gap:2px 0}
+.hd{display:inline-flex;align-items:center;gap:4px;min-height:var(--tap);min-width:var(--tap);padding:0 8px 0 0;margin-right:0;border:0;background:none;color:var(--muted);font:600 13px var(--body);cursor:pointer;max-width:100%}
+.hd span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border-bottom:1px dotted currentColor;padding-bottom:1px}
+.hd:hover,.hd:focus-visible{color:var(--accent)}
+.hd svg{width:14px;height:14px}
+.ev.dv time{line-height:var(--tap);margin:0}
+.day>.lbl .dl{min-height:var(--tap);padding:0;border:0;background:none;display:inline-flex;align-items:center;gap:var(--sp-2);text-align:left;cursor:pointer;font:inherit;text-transform:inherit;letter-spacing:inherit;color:inherit}
+.day>.lbl .dl small{font-weight:500}
+.day>.lbl .dl:hover,.day>.lbl .dl:focus-visible{text-decoration:underline;text-underline-offset:4px}
+.day>.lbl:has(.dl){padding:0}
+.toast.withundo span{flex:1}
+.toast.withundo{width:max-content;display:flex;align-items:center;gap:var(--sp-3);padding:0 6px 0 16px;min-height:var(--tap)}
+.toast .tundo{min-height:var(--tap);min-width:var(--tap);padding:0 12px;border:0;background:none;color:var(--bg);font:700 14px var(--body);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.sline:has(>.sl){flex-wrap:nowrap}

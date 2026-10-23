@@ -145,7 +145,7 @@ Option D (`history-option-d.md`, locked H1 to H15: two tabs "My activity" and a 
 
 ## 7. Open decisions (owner questions)
 
-**Revision 2, 23 Oct 2026 (owner, voice, 23 Oct 2026; details in `history-search.md`, decisions log).** Decided: Q1, Q3, Q5, Q6. **Undecided and still drawn: Q2, Q7, Q9** (the owner's own numbering in his voice list ran one behind this document after Q3; the mapping used here is Q5 = events with no member, Q6 = `affects`, Q9 = time zone). Q4 (where the choice lists come from) is still a Proposal. Q8 and Q10 are untouched.
+**Revision 2, 23 Oct 2026 (owner, voice, 23 Oct 2026; details in `history-search.md`, decisions log).** Decided: Q1, Q3, Q5, Q6. **Undecided and still drawn: Q2, Q7, Q9** (the owner's own numbering in his voice list ran one behind this document after Q3; the mapping used here is Q5 = events with no member, Q6 = `affects`, Q9 = time zone). Q4 (where the choice lists come from) is still a Proposal. Q8 and Q10 are untouched. **Revision 3, 24 Oct 2026:** the mockup now also shows filter patterns B to D; they use no new field. The thing-filter of pattern D relies on `entity.type` and `entity.id` (the id is nullable, so rows without one get no control; names are never filtered on); see `history-search.md`.
 
 Each: options, then a recommended position. None is applied as decided; the mockup draws the recommended position where a choice was forced and marks it **Proposal**.
 

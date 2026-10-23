@@ -31,6 +31,7 @@ add(1, "18:20", null, "pantry.purchased", { type: "item", id: "itm_milk" }, { na
 add(1, "17:50", "arjan", "pantry.added", { type: "item", id: "itm_eggs" }, { name: "Eggs", quantity: "12", origin: "manual" });
 add(1, "12:10", "arjan", "pantry.stock_checked", { type: "item", id: "itm_soy" }, { name: "Soy sauce", level_from: "some", level_to: "low" });
 add(1, "09:40", "sam", "recipe.edited", { type: "recipe", id: "rcp_fried_rice" }, {}, { product: "recipe" });
+add(1, "08:00", "sam", "pantry.bulk_changed", { type: "item", id: null }, {}); /* a kind about no single thing: entity.id is null (model doc section 2), so a tap-to-filter by entity must not be offered on this row */
 add(1, "20:05", "former", "pantry.used", { type: "item", id: "itm_yog" }, { name: "Yoghurt", from: 3, to: 2 }); /* a member who has since been removed: Platform erases the name after a week (Q5) */
 /* Thu 15 (Fri 16 is quiet: no events, so it is skipped when days are counted) */
 add(3, "20:15", "sam", "pantry.used", { type: "item", id: "itm_milk" }, { name: "Milk", from: 2, to: 1 });
@@ -84,6 +85,15 @@ var fmtLong = new Intl.DateTimeFormat("en-AU", { timeZone: TZ, weekday: "short",
 function dayKey(iso) { return fmtDay.format(new Date(iso)); }
 function timeOf(iso) { return fmtTime.format(new Date(iso)).replace(/\s?([ap])m/i, function (m, c) { return " " + c.toLowerCase() + "m"; }); }
 function longDay(iso) { return fmtLong.format(new Date(iso)).replace(",", ""); }
+function startOfDay(key) { /* the first instant of a calendar day in TZ (what from= is for a single day) */
+  var base = Date.parse(key + "T00:00:00.000Z");
+  for (var off = 11; off >= 10; off--) { var t = base - off * 3600000; if (dayKey(new Date(t).toISOString()) === key && dayKey(new Date(t - 1).toISOString()) !== key) return new Date(t).toISOString(); }
+  return new Date(base).toISOString();
+}
+function dayBounds(key) { /* [from, to] for one calendar day: both are real parameters of GET /api/history */
+  var next = new Date(Date.parse(key + "T00:00:00.000Z") + 86400000).toISOString().slice(0, 10);
+  return [startOfDay(key), new Date(Date.parse(startOfDay(next)) - 1).toISOString()];
+}
 function dayLabel(key) {
   var today = dayKey(new Date(NOW).toISOString());
   var y = new Date(NOW - 86400000); var yk = dayKey(y.toISOString());
@@ -158,7 +168,7 @@ function paint(nodes, e, cx) { /* returns {html, text}; detail nodes are collect
     else if (n.k === "emph") { var r = paint(n.c, e, cx); html += "<b>" + r.html + "</b>"; text += r.text; }
     else if (n.k === "group") { var g = paint(n.c, e, cx); if (g.text !== "") { html += "(" + g.html + ")"; text += "(" + g.text + ")"; } }
     else if (n.k === "list") { var arr = get(e.payload, n.p); if (!Array.isArray(arr)) throw new Error("list"); html += esc(arr.join(", ")); text += arr.join(", "); }
-    else if (n.k === "link") { var r2 = paint(n.c, e, cx); var rt = (REGISTRY.routes[e.product] || {})[n.to]; if (rt && e.entity.id && /^[A-Za-z0-9_.:-]+$/.test(e.entity.id)) { var href = rt.replace("{id}", e.entity.id); html += cx.links ? '<a class="tl" href="' + esc(href) + '" data-route="' + esc(href) + '">' + r2.html + "</a>" : r2.html; } else html += r2.html; text += r2.text; }
+    else if (n.k === "link") { var r2 = paint(n.c, e, cx); if (cx.ent === undefined) cx.ent = r2.text; var rt = (REGISTRY.routes[e.product] || {})[n.to]; if (rt && e.entity.id && /^[A-Za-z0-9_.:-]+$/.test(e.entity.id)) { var href = rt.replace("{id}", e.entity.id); html += cx.links ? '<a class="tl" href="' + esc(href) + '" data-route="' + esc(href) + '">' + r2.html + "</a>" : r2.html; } else html += r2.html; text += r2.text; }
     else if (n.k === "detail") { var d = paint(n.c, e, cx); cx.detail.push(d.html); }
     else { var u = paint(n.c || [], e, cx); html += u.html; text += u.text; } /* unknown tag: keep its children as plain text (ADR 0003 proposed rule, O-2) */
   });
@@ -170,10 +180,10 @@ function render(e, links) {
   if (tplMode === "loading") return { state: "loading" };
   var tpl = tplMode === "none" ? null : template(e);
   if (!tpl) return gen();
-  var cx = { detail: [], links: !!links };
-  try { var r = paint(tpl.body, e, cx); return { state: "ok", html: r.html, text: r.text, detail: cx.detail, tpl: e.product + "/" + e.kind + "/" + e.kind_v + " rev " + tpl.rev }; }
+  var cx = { detail: [], links: !!links, ent: undefined };
+  try { var r = paint(tpl.body, e, cx); return { state: "ok", html: r.html, text: r.text, entity: cx.ent || "", detail: cx.detail, tpl: e.product + "/" + e.kind + "/" + e.kind_v + " rev " + tpl.rev }; }
   catch (x) { return gen(); }
 }
 
-W.HM = { TZ: TZ, FORMER: FORMER, IDS: IDS, NAMES: NAMES, NOW: NOW, PRODUCTS: PRODUCTS, REGISTRY: REGISTRY, build: build, pageDay: pageDay, matches: matches, dayKey: dayKey, dayLabel: dayLabel, timeOf: timeOf, longDay: longDay, render: render, setTplMode: setTplMode, utc: utc, esc: esc };
+W.HM = { TZ: TZ, FORMER: FORMER, IDS: IDS, NAMES: NAMES, NOW: NOW, PRODUCTS: PRODUCTS, REGISTRY: REGISTRY, build: build, pageDay: pageDay, matches: matches, dayKey: dayKey, dayBounds: dayBounds, dayLabel: dayLabel, timeOf: timeOf, longDay: longDay, render: render, setTplMode: setTplMode, utc: utc, esc: esc };
 })(window);

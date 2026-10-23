@@ -1,4 +1,4 @@
-// Behaviour, grounding and layout check for History search and filters (history/search/), revised 23 Oct 2026. Mockup only.
+// Behaviour, grounding and layout check for History search and filters (history/search/), revised 24 Oct 2026 (filter patterns A to D). Mockup only.
 // Usage:  python3 -m http.server 8131 &   then   ROOT=http://localhost:8131 node tools/history-search-check.mjs   (SHOTS=dir saves PNGs; needs playwright-core and Chromium at PLAYWRIGHT_BROWSERS_PATH)
 // Runs at 390, 360 (phone) and 1280 (desktop), light and dark. The "grounding" checks read the screen's own source: it may use only the canonical fields (docs/knowledge/history-event-model.md).
 import { chromium } from "playwright-core";
@@ -34,6 +34,11 @@ ok("grounding: search.js never reads a payload", !/payload/.test(code), code.mat
 ok("grounding: search.js has no place, scope, needs_review or counts fields", !/\bplace\b|\.scope\b|needs_review|\.count\b|\bfacet/.test(code), code.match(/.{0,30}(\bplace\b|\.scope\b|needs_review|\.count\b|\bfacet).{0,30}/));
 ok("grounding: search.js does not read affects (Kitchie records none; the control and its mark are removed)", !/\baffects\b|\btouches\b/i.test(code), code.match(/.{0,30}(affects|touches).{0,30}/i));
 ok("grounding: search.js has no product filter control (product stays on the event, shown on the detail)", !/data-opt="product|"product\||S\.f\.product|HM\.PRODUCTS\)/.test(ui.replace(/\/\*[\s\S]*?\*\//g, "")), ui.match(/.{0,30}S\.f\.product.{0,30}/));
+const HM_SAM = "b7e2d4a6c8f01357b9d1e3f5"; // Sam's member id in the sample (model.js)
+const ALLOWED = ["actor", "actorNot", "product", "area", "kind", "entityType", "entityId", "from", "to", "since"]; // the parameters GET /api/history has (model doc section 3)
+const assigned = [...code.matchAll(/\bq\.(\w+)\s*=/g)].map(m => m[1]);
+ok("grounding: search.js builds its query only from parameters the API has (every q.x = is one of them)", assigned.length > 0 && assigned.every(k => ALLOWED.includes(k)), assigned.filter(k => !ALLOWED.includes(k)));
+ok("grounding: the patterns B, C and D add no new field read: nothing in search.js touches name, text or title of an entity or event for filtering", !/\.entity\.name\b|e\.name\b|\.title\b/.test(code) && /q\.entityType = e\[0\]; q\.entityId = e\[1\]/.test(code));
 const api = readFileSync(new URL("../history/search/model.js", import.meta.url), "utf8");
 ok("grounding: the stand-in filters only on the parameters the API has", [..."actor,actorNot,product,area,kind,entityType,entityId,from,to,since".split(",")].every(k => api.includes(`q.${k} !== undefined`)) && !/q\.(place|scope|text|search|name|affects)\b/.test(api));
 ok("grounding: actor=others returns events with no member (Q4); the stand-in no longer has the old exclusion switch", /q\.actorNot !== undefined\) \{ if \(r\.actor && r\.actor\.member === q\.actorNot\) return false/.test(api) && !/noMember/.test(api));
@@ -168,6 +173,159 @@ for (const mode of ["light", "dark"]) {
     ok(`${tag}: the detail says who, when and the app from the skeleton`, /Sam/.test(await txt(p, det + " .dh")) && /Sun 18 Oct, 7:40 am/.test(await txt(p, det + " .dh")) && /Kitchie/.test(await txt(p, det + " .dh")), await txt(p, det + " .dh"));
     await layout(p, tag + " detail"); await shot(p, `detail-template-${fn}-${mode}`);
     await p.close();
+
+    // 9. the filter patterns B, C and D (owner, voice, 24 Oct 2026). Every control must map to a real model filter: after each tap the query the screen would send is read back and must use only the API's parameters.
+    {
+      const Qp = pg => pg.evaluate(() => window.__hx.params(false));
+      const realQ = (name, q) => ok(`${tag}: ${name}: the query uses only parameters the API has`, Object.keys(q).every(k => ALLOWED.includes(k)) && !/Basmati|Sam\b|Pantry|Removed/.test(JSON.stringify(q)), q);
+      const line = async pg => (await pg.locator("#qline").innerText()).replace(/\s+/g, " ").trim();
+      const popS = wide ? ".pop2" : ".psheet";
+      // ---- B: Sentence
+      p = await open("?way=sentence&view=list", w, h, mode);
+      ok(`${tag} B: the screen reads one line, You · anything · anytime`, (await line(p)).startsWith("You · anything · anytime"), await line(p));
+      ok(`${tag} B: no panel, no cascade: no filter sheet, no lane panel, no Date row until a word is tapped`, await p.locator(".fsheet, .fp, .rotrow").count() === 0);
+      ok(`${tag} B: the tabs are as they were (My activity, Sam, Others)`, (await p.locator(".hx-tabs button").allInnerTexts()).map(t => t.trim()).join() === "My activity,Sam,Others");
+      await p.locator('[data-pick="what"]').click();
+      ok(`${tag} B: tapping What opens a ${wide ? "popover" : "short sheet"} with Anything, Pantry, Shopping, Recipes`, (await p.locator(`${popS} [data-opt^="topic|"]`).allInnerTexts()).map(t => t.trim()).join() === "Anything,Pantry,Shopping,Recipes", await p.locator(popS).count());
+      await p.locator(`${popS} [data-opt="topic|area:pantry"]`).click();
+      ok(`${tag} B: Pantry sets the line and offers its kinds in the same picker`, (await line(p)).startsWith("You · Pantry · anytime") && /in pantry/i.test(await p.locator(`${popS} .ksub`).innerText()), await line(p));
+      realQ("B Pantry", await Qp(p));
+      await p.locator(`${popS} [data-opt="topic|kind:pantry.removed"]`).click();
+      ok(`${tag} B: a kind completes the choice: the picker closes and the line says Removed in Pantry`, (await line(p)).startsWith("You · Removed in Pantry · anytime") && await p.locator(popS).count() === 0, await line(p));
+      let q = await Qp(p); realQ("B kind", q); ok(`${tag} B: What is kind, with actor me`, q.kind === "pantry.removed" && q.actor === "me" && q.area === undefined, q);
+      await p.locator('[data-pick="when"]').click();
+      ok(`${tag} B: tapping When opens Pantry's Date row (toggle left, rotary right), not a new control`, await p.locator(`${popS} .strow .stt[role=checkbox] .dotc`).count() === 1 && await p.locator(`${popS} .strow .rot .rar`).count() === 1);
+      await p.locator(`${popS} .rot`).click();
+      ok(`${tag} B: the rotary steps as in Pantry and the line follows`, (await line(p)).includes("Last 7 days") && (await txt(p, `${popS} .rot .rv`)) === "Last 7 days", await line(p));
+      q = await Qp(p); realQ("B date", q); ok(`${tag} B: When is from`, typeof q.from === "string" && q.to === undefined, q);
+      await p.mouse.move(0, 0);
+      await layout(p, tag + " B picker"); await shot(p, `b-when-${fn}-${mode}`);
+      await p.keyboard.press("Escape");
+      ok(`${tag} B: Esc closes the picker`, await p.locator(popS).count() === 0);
+      await p.locator('[data-pick="who"]').click();
+      ok(`${tag} B: Who offers You, Sam, Others (the tabs' own values)`, (await p.locator(`${popS} [data-who]`).allInnerTexts()).map(t => t.trim()).join() === "You,Sam,Others");
+      await p.locator(`${popS} [data-who="person"]`).click();
+      ok(`${tag} B: choosing Sam is the same as the Sam tab: the line, the tab and the actor all agree`, (await line(p)).startsWith("Sam · Removed in Pantry · Last 7 days") && await p.locator('[data-tab="person"][aria-selected="true"]').count() === 1 && (await Qp(p)).actor === HM_SAM, [await line(p), await Qp(p)]);
+      ok(`${tag} B: no counts anywhere on the line or its pickers`, !/\b\d+\s*(entries|results|changes|matches)\b/.test(await p.locator("#qline").innerText()));
+      await shot(p, `b-line-${fn}-${mode}`);
+      await p.locator("#qline [data-clear]").click();
+      ok(`${tag} B: the X clears every part at once (the tab stays)`, (await line(p)).startsWith("Sam · anything · anytime"), await line(p));
+      await layout(p, tag + " B"); await p.context().close();
+      p = await open("?way=sentence&view=list&search=text", w, h, mode);
+      ok(`${tag} B: the free-text B-search keeps its own label and still sits above the line`, await p.locator("#kw").count() === 1 && /Comparison/.test(await txt(p, ".kw")) && await p.locator(".sline").count() === 1);
+      await p.context().close();
+
+      // ---- C: Quick answers
+      p = await open("?way=quick&view=list", w, h, mode);
+      ok(`${tag} C: the strip is Mine today, Removed this week, Moved this week, By Sam, By others`, (await p.locator(".qstrip .qc").allInnerTexts()).map(t => t.trim()).join() === "Mine today,Removed this week,Moved this week,By Sam,By others");
+      ok(`${tag} C: no cascade: no panel, no sheet, nothing to open`, await p.locator(".fsheet, .fp, .rotrow, [data-pick]").count() === 0);
+      for (const c of ["mine-today", "removed-week", "moved-week", "by-person", "by-others"]) { // every chip is built only from real model filters: tap it, read the query back, tap it off
+        await p.locator(`[data-chip="${c}"]`).click(); const cq = await Qp(p); realQ(`C chip ${c}`, cq);
+        ok(`${tag} C: chip ${c} uses actor, kind and from only`, Object.keys(cq).every(k => ["actor", "actorNot", "kind", "from"].includes(k)), cq);
+        await p.locator(`[data-chip="${c}"]`).click();
+      }
+      await p.locator('[data-chip="mine-today"]').click();
+      ok(`${tag} C: one tap sets the whole answer: Mine today reads You · anything · Today`, (await line(p)).includes("You · anything · Today") && (await p.locator('[data-chip="mine-today"]').getAttribute("aria-pressed")) === "true", await line(p));
+      q = await Qp(p); ok(`${tag} C: Mine today is actor me and from today's start`, q.actor === "me" && typeof q.from === "string", q);
+      await p.locator('[data-chip="removed-week"]').click();
+      ok(`${tag} C: a second chip is combined: Removed this week adds What and replaces the date (Mine stays)`, (await line(p)).includes("You · Removed in Pantry · Last 7 days") && (await p.locator('[data-chip="mine-today"]').getAttribute("aria-pressed")) === "false" && (await p.locator('[data-chip="removed-week"]').getAttribute("aria-pressed")) === "true", await line(p));
+      await p.locator('[data-chip="by-others"]').click();
+      ok(`${tag} C: a person chip changes only Who: Others · Removed in Pantry · Last 7 days`, (await line(p)).includes("Others · Removed in Pantry · Last 7 days") && await p.locator('[data-tab="others"][aria-selected="true"]').count() === 1, await line(p));
+      q = await Qp(p); realQ("C combined", q); ok(`${tag} C: the combination is actor=others, kind and from together`, q.actorNot !== undefined && q.kind === "pantry.removed" && typeof q.from === "string", q);
+      ok(`${tag} C: and it finds Sam's removal`, await rows(p).count() >= 1 && /Green tea/.test(await rows(p).first().innerText()), await rows(p).allInnerTexts());
+      await shot(p, `c-combined-${fn}-${mode}`);
+      await layout(p, tag + " C");
+      await p.locator('[data-chip="removed-week"]').click();
+      ok(`${tag} C: tapping a chip that is on clears just its parts: What and When go, Who stays`, (await line(p)).includes("Others · anything · anytime") && (await p.locator('[data-chip="by-others"]').getAttribute("aria-pressed")) === "true", await line(p));
+      await p.locator('[data-chip="moved-week"]').click(); await p.locator("#qline [data-clear]").click();
+      ok(`${tag} C: the X clears everything the chips set`, (await line(p)).includes("Others · anything · anytime") && await p.locator('.qc[aria-pressed="true"]').count() === 1, await line(p));
+      ok(`${tag} C: no counts on any chip`, !/\d/.test((await p.locator(".qstrip").innerText())));
+      await p.context().close();
+      p = await open("?way=quick&household=more&view=list", w, h, mode);
+      ok(`${tag} C: with more people there is no per-person chip (By others covers them)`, (await p.locator(".qstrip .qc").allInnerTexts()).map(t => t.trim()).join() === "Mine today,Removed this week,Moved this week,By others");
+      await p.context().close();
+
+      // ---- D: Tap to filter
+      p = await open("?way=tap&view=list", w, h, mode);
+      ok(`${tag} D: the line starts as You · anything · anytime, with one hint and no panel`, (await line(p)).startsWith("You · anything · anytime") && /Tap a name, a topic or a day/.test(await line(p)) && await p.locator(".fsheet, .fp").count() === 0, await line(p));
+      ok(`${tag} D: a row is separate targets: the line opens the change, topic and kind and the thing are their own buttons, the row itself is not a button`, await p.locator("#feed div.ev.dv").count() >= 3 && await p.locator("#feed .ev > button.evo, #feed .ev .evo").count() >= 3 && await p.locator("#feed button.ev").count() === 0 && /Pantry/.test(await p.locator('#feed .ev:first-child .hd[data-f^="area:"]').first().innerText()), await p.locator("#feed button.ev").count());
+      ok(`${tag} D: in My activity the avatar is plain (a person tap would not narrow anything)`, await p.locator("#feed button.avb").count() === 0);
+      const hs = await p.locator("#feed .ev").first().locator(".hd").allInnerTexts(); ok(`${tag} D: the first row offers Pantry, Moved and Basmati rice`, hs.map(t => t.trim()).join() === "Pantry,Moved,Basmati rice", hs);
+      await layout(p, tag + " D rows"); await shot(p, `d-rows-${fn}-${mode}`);
+      await p.locator('#feed .hd[data-f="area:pantry"]').first().click();
+      ok(`${tag} D: tapping a topic narrows the list; the line says Pantry and it clears with one tap`, (await line(p)).startsWith("You · Pantry") && await p.locator('#qline .ap[data-unset="what"]').count() === 1 && !/Tap a name/.test(await line(p)), await line(p));
+      ok(`${tag} D: the toast says what happened and offers Undo`, /Showing only Pantry/.test(await txt(p, "#toast")) && await p.locator("#toast [data-undo]").count() === 1);
+      q = await Qp(p); realQ("D area", q); ok(`${tag} D: topic is area, with actor me`, q.area === "pantry" && q.actor === "me", q);
+      ok(`${tag} D: once Pantry is on, its handle is gone from the rows (they get quieter as the list narrows)`, await p.locator('#feed .hd[data-f="area:pantry"]').count() === 0 && await p.locator('#feed .hd[data-f^="kind:"]').count() >= 1);
+      await p.locator("#toast [data-undo]").click();
+      ok(`${tag} D: Undo puts the list back`, (await line(p)).startsWith("You · anything · anytime") && await p.locator('#feed .hd[data-f="area:pantry"]').count() >= 1);
+      await p.locator('#feed .hd[data-f="kind:pantry.moved"]').first().click();
+      ok(`${tag} D: tapping a kind narrows by kind: Moved in Pantry, every row is a move`, (await line(p)).startsWith("You · Moved in Pantry") && (await rows(p).allInnerTexts()).every(t => /Moved to/.test(t)) && await rows(p).count() >= 1, await rows(p).allInnerTexts());
+      q = await Qp(p); realQ("D kind", q); ok(`${tag} D: it is kind (pantry.moved)`, q.kind === "pantry.moved" && q.area === undefined, q);
+      ok(`${tag} D: with the kind on, area and kind handles are gone and only the thing's handle is left`, await p.locator('#feed .hd[data-f^="area:"], #feed .hd[data-f^="kind:"]').count() === 0 && await p.locator('#feed .hd[data-f^="entity:"]').count() >= 1);
+      await shot(p, `d-narrowed-${fn}-${mode}`);
+      await p.locator('#feed .hd[data-f="entity:item:itm_rice"]').first().click();
+      ok(`${tag} D: tapping the item name narrows to that entity: 'just Basmati rice'`, /just Basmati rice/.test(await line(p)) && await rows(p).count() === 1, await line(p));
+      q = await Qp(p); realQ("D entity", q); ok(`${tag} D: the entity filter is entity_type + entity_id (ids, never the name), sent with the product the API requires`, q.entityType === "item" && q.entityId === "itm_rice" && q.product === "kitchie" && !JSON.stringify(q).includes("Basmati"), q);
+      ok(`${tag} D: the screen says the thing is matched by id, and that some kinds have none`, /id can be null/.test(await p.locator(".ann").last().innerText().catch(() => "")) || /id can be null/.test(await p.locator("body").innerText()));
+      await layout(p, tag + " D entity"); await shot(p, `d-entity-${fn}-${mode}`);
+      await p.locator('#qline [data-unset="entity"]').click();
+      ok(`${tag} D: the entity pill clears with one tap and the rest stays on`, !/just/.test(await line(p)) && (await line(p)).startsWith("You · Moved in Pantry") && (await Qp(p)).entityId === undefined, await line(p));
+      await p.locator('#qline [data-unset="what"]').click();
+      ok(`${tag} D: and so does What`, (await line(p)).startsWith("You · anything · anytime"));
+      // a day label is a handle: from and to for that one day
+      await p.locator('#feed .dl').first().click();
+      q = await Qp(p); realQ("D day", q);
+      ok(`${tag} D: tapping a day label narrows to that day: from and to are that calendar day`, /Sat 17 Oct/.test(await line(p)) && typeof q.from === "string" && typeof q.to === "string" && Date.parse(q.to) - Date.parse(q.from) === 86400000 - 1 && await p.locator("#feed section.day").count() === 1 && await p.locator("#feed .dl").count() === 0, [await line(p), q]);
+      await p.locator('#qline .apt').click();
+      ok(`${tag} D: the date pill opens Pantry's rotary and a step replaces the day with a window`, await p.locator(`${popS} .rot`).count() === 1);
+      await p.locator(`${popS} .rot`).click();
+      ok(`${tag} D: now Last 7 days, no 'to'`, (await line(p)).includes("Last 7 days") && (await Qp(p)).to === undefined, await line(p));
+      await p.keyboard.press("Escape"); await p.locator('#qline [data-unset="when"]').click();
+      ok(`${tag} D: the date pill clears with its X: anytime again`, (await line(p)).startsWith("You · anything · anytime"));
+      await p.context().close();
+      // the thing is offered only where the model guarantees it: bulk_changed has no entity id; a generic row says 'This recipe', never a name
+      p = await open("?way=tap&view=list&tab=person", w, h, mode);
+      await p.evaluate(() => { for (let i = 0; i < 3; i++) window.__hx.moreDay(); });
+      const bulk = p.locator('#feed .ev:has(.hd[data-f="kind:pantry.bulk_changed"])').first();
+      ok(`${tag} D: a kind about no single thing (entity.id null) has topic and kind handles but no entity handle`, await bulk.count() === 1 && await bulk.locator('.hd[data-f^="entity:"]').count() === 0 && await bulk.locator('.hd[data-f^="kind:"]').count() === 1, await bulk.count());
+      const rec = p.locator('#feed .ev:has(.hd[data-f="area:recipe"])').first();
+      ok(`${tag} D: a generic row (no template) offers 'This recipe' for its entity, never a name`, await rec.count() === 1 && /This recipe/.test(await rec.locator('.hd[data-f^="entity:"]').innerText()) && !/rcp_|Fried/.test(await rec.innerText()), await rec.innerText());
+      ok(`${tag} D: in Sam's own tab his avatar is plain`, await p.locator("#feed button.avb").count() === 0);
+      await p.context().close();
+      // a person tap exists only where it narrows: Others
+      p = await open("?way=tap&view=list&tab=others", w, h, mode);
+      await p.evaluate(() => { for (let i = 0; i < 3; i++) window.__hx.moreDay(); });
+      ok(`${tag} D: in Others a named member's avatar is a button; 'Someone' and 'A former member' are plain (no single person to filter by)`, await p.locator('#feed .ev:has-text("Sam") button.avb').count() >= 1 && await p.locator('#feed .ev:has-text("Someone") button.avb, #feed .ev:has-text("A former member") button.avb').count() === 0 && await p.locator('#feed .ev:has-text("Someone") .avb').count() >= 1);
+      await p.locator('#feed button.avb[data-f^="who:"]').first().click();
+      ok(`${tag} D: tapping Sam in Others opens Sam's view (the tab, actor=Sam)`, await p.locator('[data-tab="person"][aria-selected="true"]').count() === 1 && (await Qp(p)).actor === HM_SAM && /Showing only changes by Sam/.test(await txt(p, "#toast")), await Qp(p));
+      await p.context().close();
+      p = await open("?way=tap&view=list&tab=others&household=more", w, h, mode);
+      await p.evaluate(() => { for (let i = 0; i < 2; i++) window.__hx.moreDay(); });
+      await p.locator('#feed .ev:has-text("Priya") button.avb').first().click();
+      q = await Qp(p); realQ("D person", q);
+      ok(`${tag} D: with three people, tapping Priya stays in Others and narrows by actor=<id>; the pill clears it`, q.actor === "c3d5e7f9a1b30246c8e0f2a4" && await p.locator('[data-tab="others"][aria-selected="true"]').count() === 1 && /Priya/.test(await line(p)) && await p.locator('#qline [data-unset="who"]').count() === 1, [q, await line(p)]);
+      await p.locator('#qline [data-unset="who"]').click();
+      ok(`${tag} D: clearing the person returns to everyone in Others`, (await Qp(p)).actorNot !== undefined && (await Qp(p)).actor === undefined);
+      await p.context().close();
+      // from the catch-up: a tap leaves the catch-up and narrows, and the X is unchanged
+      p = await open("?way=tap", w, h, mode);
+      ok(`${tag} D: the catch-up keeps the tick and the X and its rows carry the same handles`, await p.locator("[data-tick]").count() >= 1 && await p.locator("[data-closecatch]").count() >= 1 && await p.locator("#feed .hd").count() >= 3 && await p.locator("#qline .sline").count() === 0);
+      await p.locator('#feed .hd[data-f="kind:pantry.moved"]').first().click();
+      ok(`${tag} D: tapping a handle in the catch-up leaves it and shows the line (not marked caught up)`, (await line(p)).startsWith("You · Moved in Pantry") && await p.evaluate(() => window.__hx.S.view === "list" && window.__hx.S.ticked === false));
+      await p.context().close();
+      // the catch-up X in B, C and D opens the list, not a sheet
+      for (const way of ["sentence", "quick", "tap"]) {
+        p = await open(`?way=${way}`, w, h, mode); await p.locator("[data-closecatch]:visible").first().click();
+        ok(`${tag} ${way}: the X leaves the catch-up to the list with its line; no filter sheet opens`, await p.locator(".fsheet, .fp").count() === 0 && await p.locator("#qline .sline").count() === 1);
+        await p.context().close();
+      }
+      // D opens a change from its line; the detail is the same as A's
+      p = await open("?way=tap&view=list", w, h, mode);
+      await p.locator("#feed .evo").first().click();
+      ok(`${tag} D: the line opens the change (same detail as A)`, /Basmati rice\s*Moved to Pantry, Top shelf/.test((await txt(p, wide ? "#panel" : ".dsheet")).replace(/\s+/g, " ")));
+      await p.context().close();
+    }
   }
 }
 
@@ -192,6 +350,8 @@ for (const [mode, w, h] of [["dark", 390, 844], ["light", 1280, 800]]) {
   p = await open("?view=list", w, h, mode);
   await p.locator("#pvb").click();
   ok(`${fn}: the Preview switch offers A (default, elements only) and B (free text)`, /A: filters only/.test(await txt(p, "#pvp")) && /B: free text/.test(await txt(p, "#pvp")) && await p.locator('#pvp a[aria-pressed="true"]:has-text("A: filters only")').count() === 1);
+  ok(`${fn}: the Preview switch offers the filter patterns A Cascade (baseline, default), B Sentence, C Quick answers, D Tap to filter (recommended)`, /A: Cascade \(baseline\)/.test(await txt(p, "#pvp")) && /B: Sentence/.test(await txt(p, "#pvp")) && /C: Quick answers/.test(await txt(p, "#pvp")) && /D: Tap to filter \(recommended\)/.test(await txt(p, "#pvp")) && await p.locator('#pvp a[aria-pressed="true"]:has-text("A: Cascade")').count() === 1);
+  ok(`${fn}: the pattern links keep the other parameters and use ?way=sentence|quick|tap`, (await p.locator('#pvp a:has-text("D: Tap")').getAttribute("href")).includes("way=tap") && (await p.locator('#pvp a:has-text("D: Tap")').getAttribute("href")).includes("view=list"));
   ok(`${fn}: the Preview switch keeps the lists alternative reachable and marks Q2 undecided`, /Several \(lists\)/.test(await txt(p, "#pvp")) && /Q2, undecided/i.test(await txt(p, "#pvp")));
   await p.close();
   // Q2: the lists alternative
