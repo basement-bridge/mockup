@@ -6,6 +6,8 @@
 // B has four job rows, More is closed until opened, Rows replaces four switches; C shows six common things, finds by typing, says so when nothing matches, keeps all 27 entries reachable; D: Aa opens a labelled popover that
 // changes the list, Esc closes it, the thin Settings page has no display control; the ledger has 35 rows and its tallies match the options; the knowledge note, README row, index tile and REVIEW-QUEUE line exist;
 // 44px targets; no hex colour in the CSS; deferred data.js loads only near the ledger.
+// Option E (hybrid): five curated rows plus Shortcuts; pin/unpin from tile, page and search result, empty state; a search index of 50+ entries covering all 35 knobs, loaded only when search is used; search states (exact, synonym, typo,
+// vague, advanced flag, screen jump, many, no match, empty, recents, old name, merged switch, reset); inline controls change the Home/Pantry/Shopping samples; Text size scales all three and the settings screens; keyboard (arrows, Enter, Esc, /); phone width without sideways scroll; 17-state gallery.
 import { chromium } from "playwright-core";
 import { mkdirSync, readFileSync, existsSync } from "node:fs";
 const BASE = process.env.BASE || "http://localhost:8123/fragments/settings-redesign/";
@@ -27,11 +29,11 @@ const fr = o => `#opt-${o}`;
 
 for (const [theme, scheme] of [["kitchie", "dark"], ["kitchie-day", "light"]]) {
   const p = await open(theme, 1440, 900, scheme);
-  ok(await p.locator(".fr").count() === 5, `${theme}: five frames (Today, A to D)`);
+  ok(await p.locator(".fr").count() === 6, `${theme}: six frames (Today, A to E)`);
   ok(p.errs.length === 0, `${theme}: no console errors ${p.errs.join(";")}`);
   ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${theme}: no sideways page scroll at 1440`);
-  ok(await p.locator(".phone").count() === 9 && await p.locator(".desk").count() === 6, `${theme}: 9 phones and 6 desktop windows`);
-  if (shots) for (const o of ["today", "A", "B", "C", "D"]) await p.locator(fr(o)).screenshot({ path: `${shots}/settings-redesign-${o}-${theme}.png` });
+  ok(await p.locator(".phone").count() === 12 && await p.locator(".desk").count() === 7, `${theme}: 12 phones and 7 desktop windows`);
+  if (shots) for (const o of ["today", "A", "B", "C", "D", "E"]) await p.locator(fr(o)).screenshot({ path: `${shots}/settings-redesign-${o}-${theme}.png` });
   await p.context().close();
 }
 {
@@ -136,23 +138,147 @@ ok(await p.locator(`${D} .phone [data-thin] .mi`).count() <= 6 && !/Text size|Th
 ok(await p.locator(`${D} .phone [data-quick] [data-themes]`).count() === 1, "D: Looks sit on the profile menu");
 await p.context().close();
 
+/* E: curated front, pins, search, keyboard, text size across screens, phone width */
+{
+  const E = fr("E");
+  let p = await open(); const ph = p.locator(`${E} .phone`).first(), q = ph.locator("[data-eq]");
+  ok(!p.reqs.includes("search-index.js"), "E: the search index is not loaded on the default path");
+  ok(await ph.locator("[data-shortcuts] .etile").count() === 2 && await ph.locator("[data-curated] .mi").count() === 5, "E: front has Shortcuts (2 tiles pinned) and exactly five curated rows");
+  ok(await ph.locator("[data-curated]").innerText().then(t => /Looks/.test(t) && /Preferences/.test(t) && /Household/.test(t) && /Kitchen setup/.test(t) && /Assistants/.test(t)), "E: the five rows are Looks, Preferences, Household, Kitchen setup, Assistants");
+  await q.focus(); await p.waitForSelector("body[data-e-index]");
+  ok(p.reqs.filter(r => r === "search-index.js").length === 1, "E: focusing search loads the index once");
+  const n = +(await p.evaluate(() => document.body.getAttribute("data-e-index")));
+  ok(n >= 50, `E: index has ${n} entries`);
+  /* index shape and coverage of the 35 audited knobs */
+  const ix = await p.evaluate(() => window.SR_E_INDEX.map(e => ({ id: e.id, t: e.t, syn: e.syn.split("|").length, aff: !!e.aff, where: !!e.where, sc: e.sc, adv: !!e.adv, k: e.k || [], th: e.id.startsWith("th-") })));
+  ok(ix.every(e => e.t && e.aff && e.where && e.sc && e.syn >= 3), "E: every entry has label, synonyms, affects, scope and place");
+  const cov = new Set(ix.flatMap(e => e.k)); const miss = Array.from({ length: 35 }, (_, i) => "K" + String(i + 1).padStart(2, "0")).filter(k => !cov.has(k));
+  ok(miss.length === 0, `E: all 35 audited knobs are reachable by search (missing: ${miss.join(",")})`);
+  ok(ix.filter(e => e.th).length === 10 && ix.filter(e => e.adv).length >= 8, "E: ten theme names and at least 8 advanced (search-only) entries");
+  const top = async s => p.evaluate(s => window.SR_SEARCH.run(s), s);
+  let r = await top("text size"); ok(r.ids[0] === "text" && r.top.t === "exact", "E search: exact match");
+  r = await top("bigger text"); ok(r.ids[0] === "text" && r.top.t === "syn", "E search: synonym finds Text size");
+  r = await top("drak mode"); ok(r.ids[0] === "mode" && r.fixed === "dark mode", "E search: typo corrected to dark mode");
+  r = await top("emogi"); ok(r.ids[0] === "emoji", "E search: typo emogi finds Emoji");
+  r = await top("quite hours"); ok(r.ids[0] === "quiet", "E search: typo quite hours finds Quiet hours");
+  r = await top("too small"); ok(r.ids[0] === "text", "E search: vague 'too small' leads with Text size");
+  r = await top("hard to see"); ok(r.ids.slice(0, 3).join() === "text,mode,theme", "E search: 'hard to see' gives Text size, Light or dark, Theme in that order");
+  for (const [s, id] of [["font", "text"], ["dark", "mode"], ["night", "mode"], ["colour", "theme"], ["preference", "prefs"], ["animations", "motion"], ["undo changes", "reset"], ["item name size", "text"], ["use-by date", "rows"], ["stop the questions", "checks"], ["marmalade", "th-marmalade"], ["connect claude", "claude"], ["rename the household", "hh"], ["allergy", "avoids"]]) { r = await top(s); ok(r.ids[0] === id, `E search: "${s}" leads with ${id} (got ${r.ids[0]})`); }
+  r = await top("flux capacitor"); ok(r.ids.length === 0, "E search: nonsense finds nothing");
+  r = await top("household"); ok(r.ids.length > 6, `E search: 'household' is a multi-result query (${r.ids.length})`);
+  /* the UI for each state, on the phone */
+  await q.fill("text size"); ok(await ph.locator("[data-results] .sr").count() === 1 && await ph.locator('[data-entry=text] .seg2').count() === 1 && await ph.locator('[data-entry=text] .sr-aff').innerText().then(t => /every screen/i.test(t)), "E UI: a result says what it affects and carries its control");
+  ok(/Match my phone/.test(await ph.locator('[data-entry=text] .sr-val').innerText()) && /Settings/.test(await ph.locator('[data-entry=text] .sr-loc').innerText()), "E UI: a result shows where it lives and its current value");
+  await q.fill("bigger text"); ok(/bigger text/.test(await ph.locator('[data-entry=text] .sr-why').innerText()), "E UI: a synonym result says what it is also called");
+  await q.fill("drak mode"); ok(/dark mode/.test(await ph.locator("[data-fixed]").innerText()) && await ph.locator('[data-entry=mode]').count() === 1, "E UI: a typo says what it searched for");
+  await q.fill("animations"); ok(await ph.locator('[data-entry=motion] .sr-adv').count() === 1 && /search only/i.test(await ph.locator('[data-entry=motion] .sr-adv').innerText()), "E UI: an advanced result is flagged search only");
+  await q.fill("food rules"); ok(/Open Preferences/.test(await ph.locator('[data-entry=prefs] .sr-go').innerText()), "E UI: a result that jumps to a screen says which");
+  await ph.locator('[data-entry=prefs] .sr-go').click(); ok(/Preferences/.test(await p.locator(`${E} .toast`).first().innerText()), "E UI: opening a screen is acknowledged");
+  await q.fill("household"); ok(await ph.locator("[data-results] .sr").count() === 6 && await ph.locator('[data-ea=all]').count() === 1, "E UI: many results show six and offer more");
+  await ph.locator('[data-ea=all]').click(); ok(await ph.locator("[data-results] .sr").count() >= 7, "E UI: Show more shows the rest");
+  await q.fill("flux capacitor"); ok(await ph.locator("[data-empty]").count() === 1 && /Nothing matches/.test(await ph.locator("[data-empty]").innerText()) && await ph.locator('[data-empty] [data-ea=browse]').count() === 1, "E UI: no match says so and offers a way on");
+  await ph.locator('[data-empty] [data-ea=browse]').click(); ok(await ph.locator("[data-browse] .echip").count() >= 50, "E UI: Browse lists every setting by group");
+  await q.fill(""); ok(await ph.locator("[data-suggest] .echip").count() >= 6, "E UI: an empty box offers suggestions");
+  ok(await ph.locator("[data-recents] .echip").count() >= 1, "E UI: recent searches come back as chips");
+  await ph.locator("[data-suggest] .echip").first().click(); ok(await q.inputValue() === "bigger text", "E UI: a suggestion fills the box");
+  /* inline controls change the sample screens */
+  await q.fill("emoji"); const emo = () => p.locator(`${E} [data-slot=prev] [data-s=pantry] .emo`).count();
+  ok(await emo() === 3, "E: emoji shows on the sample Pantry"); await ph.locator('[data-entry=emoji] label.srow').click(); ok(await emo() === 0 && await p.locator(`${E} [data-slot=prev] [data-s=home] .ic`).first().innerText() === "·", "E: an inline switch in a result changes every sample screen"); await ph.locator('[data-entry=emoji] label.srow').click();
+  await q.fill("use-by"); await ph.locator('[data-entry=rows] label:has(input[value=names])').click();
+  ok(!(await p.locator(`${E} [data-slot=prev] [data-s=pantry] .meta`).first().isVisible()) && !(await p.locator(`${E} [data-slot=prev] [data-s=shop] .sm`).first().isVisible()), "E: Rows Names only hides amount, spot and use-by on Pantry and Shopping");
+  await ph.locator('[data-entry=rows] label:has(input[value=standard])').click();
+  /* reset */
+  await q.fill("text size"); await ph.locator('[data-entry=text] label:has(input[value=larger])').click(); await q.fill("undo changes"); await ph.locator('[data-entry=reset] [data-ea=reset]').click();
+  ok(await p.locator(E).getAttribute("data-ts") === "match" && await p.locator(`${E} [data-shortcuts] .etile`).count() === 2, "E: Reset (found by search) restores display settings and leaves pins alone");
+  await p.context().close();
+
+  /* pin and unpin */
+  p = await open(); const f = p.locator(`${E} .phone`).first();
+  await f.locator('[data-pinned=text] .pinb').click();
+  ok(await f.locator("[data-pinned=text]").count() === 0 && await f.locator("[data-pinned=looks]").count() === 1 && await f.locator(".eadd").count() === 1, "E pin: unpinning Text size removes its tile and offers it back");
+  await f.locator('[data-pinned=looks] .pinb').click(); ok(await f.locator("[data-empty-pins]").count() === 1 && await f.locator(".eadd").count() === 2, "E pin: nothing pinned shows the empty state with both segments to add");
+  const g = p.locator(`${E} .phone`).nth(1); await g.locator(".mtop").first().waitFor();
+  await p.locator(`${E} .phone`).nth(0).locator('[data-ea="nav:looks"]').click();
+  ok(await f.locator("[data-looks] .seg2").count() === 1 && await f.locator("[data-textcard] .seg2").count() === 1, "E pin: unpinned, Looks and Text size are still on their own page");
+  await f.locator('[data-looks] .pinb').click(); await f.locator('[data-ea="nav:front"]').click();
+  ok(await f.locator("[data-pinned=looks]").count() === 1, "E pin: pinning from the Looks page adds the tile");
+  await f.locator("[data-eq]").fill("text size"); await f.locator('[data-entry=text] .pinb').click(); await f.locator("[data-eq]").fill(""); await f.locator("[data-eq]").press("Escape");
+  ok(await f.locator("[data-pinned=text]").count() === 1, "E pin: pinning from a search result works");
+  const menu = p.locator(`${E} .phone`).nth(2); ok(/Looks/.test(await menu.locator("[data-menu]").innerText()), "E: Looks lives on the profile menu whether or not pinned");
+  await p.context().close();
+
+  /* keyboard */
+  p = await open(); const k = p.locator(`${E} .phone`).first(); const kq = k.locator("[data-eq]");
+  await kq.fill("dark"); const active = () => k.locator(".sr.is-active").getAttribute("data-entry");
+  ok(await active() === "mode", "E keys: the best match is highlighted first");
+  await kq.press("ArrowDown"); const a1 = await active(); ok(a1 !== "mode", "E keys: ArrowDown moves the highlight"); await kq.press("ArrowUp"); ok(await active() === "mode", "E keys: ArrowUp moves it back");
+  ok(await kq.getAttribute("aria-activedescendant") === await k.locator(".sr.is-active").getAttribute("id"), "E keys: aria-activedescendant follows the highlight");
+  await kq.fill("emoji"); const before = await p.locator(`${E} [data-slot=prev] [data-s=pantry] .emo`).count(); await kq.press("Enter");
+  ok(before === 3 && await p.locator(`${E} [data-slot=prev] [data-s=pantry] .emo`).count() === 0 && await p.evaluate(() => document.activeElement.hasAttribute("data-eq")), "E keys: Enter uses the highlighted result and keeps focus in the box");
+  await kq.press("Escape"); ok(await kq.inputValue() === "", "E keys: Esc clears the box");
+  await kq.press("Escape"); ok(!(await p.evaluate(() => document.activeElement.hasAttribute("data-eq"))), "E keys: Esc again leaves the box");
+  await p.locator(`${E} header h2`).click(); await p.keyboard.press("/"); ok(await p.evaluate(() => document.activeElement.hasAttribute("data-eq")), "E keys: / focuses search");
+  await p.context().close();
+
+  /* text size reaches Home, Pantry and Shopping */
+  p = await open(); const sz = s => px(p, `${E} [data-slot=prev] ${s}`);
+  const base = [await sz("[data-s=home] .nm"), await sz("[data-s=pantry] li .name"), await sz("[data-s=shop] .nm")];
+  await p.locator(`${E} .phone`).first().locator('[data-pinned=text] label:has(input[value=larger])').click();
+  const lg = [await sz("[data-s=home] .nm"), await sz("[data-s=pantry] li .name"), await sz("[data-s=shop] .nm")];
+  ok(lg.every((v, i) => v > base[i] + 1), `E text size: Larger grows Home, Pantry and Shopping together (${base.map(x => x.toFixed(1))} to ${lg.map(x => x.toFixed(1))})`);
+  await p.locator(`${E} .phone`).first().locator('[data-pinned=text] label:has(input[value=largest])').click();
+  ok(await sz("[data-s=home] .nm") > lg[0] + 1, "E text size: Largest is bigger again");
+  ok(await px(p, `${E} .phone .mbody p`) > 0 && await px(p, `${E} .phone .etile b`) > 16.5, "E text size: the settings screens themselves grow too (whole app)");
+  await p.locator(`${E} .phone`).first().locator('[data-pinned=text] label:has(input[value=match])').click();
+  await p.locator("[data-aid-os=large]").click(); const mm = await sz("[data-s=home] .nm"); ok(mm > base[0] + 1, "E text size: Match my phone follows the phone's size");
+  await p.locator(`${E} .phone`).first().locator('[data-pinned=text] label:has(input[value=standard])').click(); ok(Math.abs(await sz("[data-s=home] .nm") - base[0]) < 0.5, "E text size: Standard ignores the phone's size");
+  await p.context().close();
+
+  /* phone width: nothing scrolls sideways, even at the largest size with results showing */
+  p = await open("kitchie", 390, 844);
+  ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), "E phone width: the page does not scroll sideways at 390");
+  await p.locator(`${E} .phone`).first().locator('[data-pinned=text] label:has(input[value=largest])').click(); await p.locator(`${E} .phone`).first().locator("[data-eq]").fill("hard to see"); await p.waitForTimeout(200);
+  const over = await p.evaluate(() => [...document.querySelectorAll("#opt-E .scr, #opt-E .gbody")].filter(n => n.scrollWidth > n.clientWidth + 1).map(n => n.className));
+  ok(over.length === 0, `E phone width: no phone screen or gallery card scrolls sideways at the largest size (${over.join(",")})`);
+  ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), "E phone width: still no sideways page scroll with results and Largest");
+  await p.context().close();
+
+  /* gallery: every state drawn */
+  p = await open(); await p.locator("[data-egal]").scrollIntoViewIfNeeded(); await p.waitForSelector("body[data-e-index]"); await p.waitForTimeout(300);
+  ok(await p.locator(`${E} .gcard`).count() === 17, "E gallery: 17 states");
+  const gz = async i => p.locator(`${E} .gcard`).nth(i);
+  const counts = []; for (let i = 0; i < 14; i++) counts.push(await (await gz(i)).locator(".sr").count());
+  ok(counts.slice(0, 13).every((c, i) => i === 13 || c >= 1) && counts[13] === 0, `E gallery: search states have results, 'no match' has none (${counts.join(",")})`);
+  ok(await (await gz(14)).locator("[data-suggest]").count() === 1 && await (await gz(14)).locator("[data-recents]").count() === 0 && await (await gz(15)).locator("[data-recents] .echip").count() === 3 && await (await gz(16)).locator("[data-empty-pins]").count() === 1, "E gallery: empty box, recent searches and nothing-pinned states");
+  ok(await p.locator(`${E} .gcard .sr-adv`).count() >= 1 && await p.locator(`${E} .gcard .sr-go`).count() >= 1 && await p.locator(`${E} .gcard [data-fixed]`).count() === 1, "E gallery: advanced badge, screen jump and typo notice are all shown");
+  /* examples */
+  await p.locator(`${E} [data-examples] .echip`).nth(2).click(); ok(await p.locator(`${E} .phone [data-eq]`).first().inputValue() === "drak mode" && await p.locator(`${E} .desk [data-eq]`).inputValue() === "drak mode", "E: an example chip fills the phone and the desktop box");
+  ok(await p.locator(`${E} [data-examples] .echip`).count() >= 10, "E: at least ten example chips");
+  /* desktop rows are two columns */
+  const d = p.locator(`${E} .desk`); await d.locator("[data-eq]").fill("hard to see"); const cols = await d.locator(".sr").first().evaluate(n => getComputedStyle(n).gridTemplateColumns.split(" ").length); ok(cols === 2, "E desktop: result rows are two columns, control on the right");
+  ok(await d.locator("[data-eprev]").count() === 1, "E desktop: the sample screens sit beside the settings");
+  await p.context().close();
+}
+
 /* ledger, targets, files */
 p = await open(); await p.locator("#ledger").scrollIntoViewIfNeeded(); await p.waitForTimeout(500);
 ok(await p.locator("#ledger tbody tr").count() === 35, "ledger: 35 knobs");
+ok(/11 by search/.test(await p.locator("#lE").innerText()) && /3 pinnable/.test(await p.locator("#lE").innerText()), "ledger: E tally (11 by search, 3 pinnable)");
 ok(/7 gone/.test(await p.locator("#lA").innerText()) && /1 gone/.test(await p.locator("#lB").innerText()) && /3 gone/.test(await p.locator("#lD").innerText()), "ledger: tallies match the options' summaries");
 ok(p.reqs.filter(r => r === "data.js").length === 1, "data.js is fetched once the ledger is near");
 { const q = await open(); ok(!q.reqs.includes("data.js"), "data.js is not loaded on the default path"); await q.context().close(); }
 const small = await p.evaluate(() => [...document.querySelectorAll(".fr button, .fr .srow, .fr .seg2 label, .fr .mi, .fr .tpick, .fr .btn, .fr .pill")].filter(n => n.offsetParent && !n.closest(".prev") && n.getBoundingClientRect().height < 43.5 && n.getBoundingClientRect().width > 0).map(n => (n.textContent || n.className).trim().slice(0, 24)));
 ok(small.length === 0, `44px targets in every frame control (${small.slice(0, 5).join(", ")})`);
 await p.context().close();
-const css = readFileSync("fragments/settings-redesign/settings-redesign.css", "utf8");
-ok(!/#[0-9a-fA-F]{3,8}\b/.test(css), "settings-redesign.css has no hex colour (tokens only)");
+const css = readFileSync("fragments/settings-redesign/settings-redesign.css", "utf8") + readFileSync("fragments/settings-redesign/settings-redesign-e.css", "utf8");
+ok(!/#[0-9a-fA-F]{3,8}\b/.test(css), "settings-redesign.css and settings-redesign-e.css have no hex colour (tokens only)");
 const doc = readFileSync("docs/knowledge/jobs-to-be-done/settings-redesign.md", "utf8");
 ok((doc.match(/^\| K\d\d \|/gm) || []).length === 35, "knowledge note: 35 audit rows");
-ok(/SR-P1\./.test(doc) && /SR-P11\./.test(doc) && /^14\. \*\*/m.test(doc) && /Recommendation: A\./.test(doc), "knowledge note: proposals SR-P1..P11, questions 1..14, a recommendation");
+ok(/SR-P1\./.test(doc) && /SR-P22\./.test(doc) && /^30\. \*\*/m.test(doc) && /Recommendation: E\./.test(doc), "knowledge note: proposals SR-P1..P22, questions 1..30, recommendation E");
+ok(/search-only/.test(doc) && (doc.match(/\*\*search-only\*\*/g) || []).length >= 11 && /Match my phone/.test(doc) && /Reset to defaults/.test(doc), "knowledge note: audit table says search-only (11 rows), text size and reset answered");
 ok(/Item name size/.test(doc) && /#1089/.test(doc) && /#285/.test(doc) && /#1088/.test(doc), "knowledge note: names the size evidence, #1089, #1088 and PR #285");
 ok(/settings-redesign\.md/.test(readFileSync("docs/knowledge/jobs-to-be-done/README.md", "utf8")) && /fragments\/settings-redesign\//.test(readFileSync("index.html", "utf8")), "README status row and index tile exist");
-ok(/^fragments\/settings-redesign basement-bridge\/kitchie#\d+ Settings audit and redesign options$/m.test(readFileSync("REVIEW-QUEUE", "utf8")), "REVIEW-QUEUE line (no until=)");
+ok(/^fragments\/settings-redesign basement-bridge\/kitchie#\d+ Settings audit and redesign options(?:; (?!.*until=).*)?$/m.test(readFileSync("REVIEW-QUEUE", "utf8")), "REVIEW-QUEUE line (no until=)");
 await b.close();
 console.log(fails ? `\n${fails} failed` : "\nall passed");
 process.exit(fails ? 1 : 0);
