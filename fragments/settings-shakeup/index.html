@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Settings shake-up, three simpler directions — fragment</title>
+<link rel="stylesheet" href="../../theme.css"><script src="../../theme.js"></script><link rel="stylesheet" href="../../shared.css"><link rel="stylesheet" href="shake.css">
+</head>
+<body><div class="wrap shk">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Settings shake-up<span class="badge">mockup only, nothing built</span></h1>
+<p><b>Three simpler directions for the phone Settings, all playable. Recommended: B.</b> Each has working search on the real index, Household, Preferences, Kitchen setup and Assistants pages, light and dark, and text to +30%.</p>
+
+<div class="bar" aria-label="Mockup aids">
+  <span class="grp" role="group" aria-label="Direction"><span class="lbl2">Direction</span><button type="button" data-view="A">A</button><button type="button" data-view="B" aria-pressed="true">B</button><button type="button" data-view="C">C</button><button type="button" data-view="all">All three</button></span>
+  <span class="grp" role="group" aria-label="Try a search"><span class="lbl2">Try</span><button type="button" data-q="invite">invite</button><button type="button" data-q="bigger text">bigger text</button><button type="button" data-q="theme">theme</button><button type="button" data-q="turn off the bell">turn off the bell</button><button type="button" data-q="someone changed">someone changed</button><button type="button" data-q="drak mode">drak mode (typo)</button><button type="button" data-q="flux capacitor">flux capacitor</button></span>
+</div>
+
+<div id="stage" class="stage" data-view="B">
+<figure class="sopt" data-o="A"><figcaption><h2><b>A</b> Just the list</h2><p class="pitch">Seven rows, the current value on every row, no cards, no labels, no shortcuts. Theme opens its tiles in place; light or dark and text size are one tap inside their rows.</p><p class="tr"><b>Front:</b> 12 controls, 17 text items (was 24 and 34). <b>Cost:</b> the comfort controls are three rows among seven, so nothing stands out. <b>Gain:</b> the calmest and the cheapest to build (mostly deletion).</p></figcaption><div class="host"></div></figure>
+<figure class="sopt" data-o="B"><figcaption><h2><b>B</b> Search is the front door <span class="recbadge">Recommended</span></h2><p class="pitch">A big search first. Under it two quick rows: theme and light or dark, then the text stepper. Then three plain rows. Kitchen setup lives inside Household.</p><p class="tr"><b>Front:</b> 11 controls, 13 text items. <b>Cost:</b> a big field is wasted if few people search; Household is two rows longer. <b>Gain:</b> the shortest front; the controls are exactly where the owner said the intent is.</p></figcaption><div class="host"></div></figure>
+<figure class="sopt" data-o="C"><figcaption><h2><b>C</b> Control strip + short list</h2><p class="pitch">A thin strip (theme chip, light or dark icon, A&minus; A+) under the title on <i>every</i> Settings page; the magnifier in every header; four plain rows in two groups.</p><p class="tr"><b>Front:</b> 10 controls, 13 text items. <b>Cost:</b> a strip on Household and Kitchen setup, where it has no job; Dark can take two taps. <b>Gain:</b> controls and search from anywhere without going back.</p></figcaption><div class="host"></div></figure>
+</div>
+<p class="own" style="border-color:var(--border)"><b>How to play.</b> Everything works: tap a theme tile, the sun or moon, A&minus; and A+ (seven steps, up to +30%), open Household and press <i>Copy invite link</i>, and search from any page with the field or the magnifier (the page you are on is listed first, then everywhere else). Open <code>?o=B&amp;bare=1</code> on a phone for the full-screen version. In this mockup a theme is one look, so Light and Dark switch between Kitchie Day and Night; in the build every theme carries both looks and Light or dark keeps your theme.</p>
+
+<p class="own"><b>Owner, 24 Oct 2026, on the live build 0.171.0 of option E:</b> &ldquo;I think it looks like it&rsquo;s going worse than what it is now.&rdquo; &ldquo;It seems very Java&nbsp;ME like.&rdquo; &ldquo;Don&rsquo;t know why you&rsquo;ve got stuff.&rdquo; Shortcuts should be &ldquo;readily available&rdquo;: the control itself, small, one tap, not a copy of the Looks page. &ldquo;You have to look at a way to shake up the settings; nothing changes.&rdquo; Principles: &ldquo;User experience is paramount. Less is more.&rdquo; Kitchie <a href="https://github.com/basement-bridge/kitchie/issues/1110">#1110</a>, <a href="https://github.com/basement-bridge/kitchie/issues/1090">#1090</a>. Phone only.</p>
+<p><b>Start from what Settings is for.</b> Almost nobody opens it to browse. They open it to <b>make the app comfortable to read</b> (theme, light or dark, bigger text), to <b>look after the household</b> (who is in, the invite link, the kitchen&rsquo;s shape) and, rarely, to <b>tune the assistant</b>. Everything else is something they know the name of and search for. So: the comfort controls are controls, not a place; three or four plain areas; one excellent search. Below, three directions that differ in <i>structure</i>, not in paint, then a cut list of every element on today&rsquo;s screens.</p>
+
+
+<h2>Before and after</h2>
+<div class="sum" aria-label="Headline">
+<div><b>53</b><span>elements audited on today&rsquo;s Settings screens</span></div>
+<div><b>36</b><span>cut or merged (22 cut, 14 merged or moved)</span></div>
+<div><b>17</b><span>earn their place as they are</span></div>
+<div><b>24 &rarr; 10&ndash;12</b><span>controls on the Settings front</span></div>
+</div>
+<div class="tblwrap"><table class="tbl" aria-label="Element counts">
+<thead><tr><th></th><th>Today (0.171.0)</th><th>A Just the list</th><th>B Search first</th><th>C Strip</th></tr></thead>
+<tbody>
+<tr><td>Controls on the front</td><td class="n num">24</td><td class="n num">12</td><td class="n num">11</td><td class="n num">10</td></tr>
+<tr><td>Text items on the front</td><td class="n num">34</td><td class="n num">17</td><td class="n num">13</td><td class="n num">13</td></tr>
+<tr><td>Front, both together</td><td class="n num">58</td><td class="n num">29</td><td class="n num">24</td><td class="n num">23</td></tr>
+<tr><td>Settings screens</td><td class="n num">6</td><td class="n num">5</td><td class="n num">4</td><td class="n num">5</td></tr>
+</tbody></table></div>
+<p class="hint2" style="color:var(--muted);font-size:13px">Screens: today front, Looks, Preferences, Household, Kitchen setup, Assistants; A and C drop Looks; B also folds Kitchen setup into Household. Pins, the Shortcuts area, the footer hint and the explainer lines are gone in all three. How counted: visible controls (buttons, links, inputs, switches) and text-bearing elements on the first screen with no scrolling, by the same rule on all four, run by <code>tools/settings-shakeup-check.mjs</code>. &ldquo;Today&rdquo; is the option E mockup, which the build follows, plus the Back link and Assistants row that the build adds (24 controls also by reading <code>settings-phone.ts</code>: Back 1, search 1, two pins 2, ten theme tiles 10, light or dark 3, stepper 2, five rows 5). All ten theme tiles count although five show at a time.</p>
+<div class="tblwrap"><table class="tbl" aria-label="Taps for common jobs">
+<thead><tr><th>Common job, from the Settings front</th><th>Today</th><th>A</th><th>B</th><th>C</th></tr></thead>
+<tbody>
+<tr><td>Change the theme to a named one</td><td class="n num">1 to 2</td><td class="n num">2</td><td class="n num">2</td><td class="n num">2</td></tr>
+<tr><td>Text one step bigger</td><td class="n num">1</td><td class="n num">1</td><td class="n num">1</td><td class="n num">1</td></tr>
+<tr><td>Switch to dark</td><td class="n num">1</td><td class="n num">1</td><td class="n num">1</td><td class="n num">2</td></tr>
+<tr><td>Find the invite link and copy it</td><td class="n num">3</td><td class="n num">2</td><td class="n num">2</td><td class="n num">2</td></tr>
+<tr><td>Turn off the bell</td><td class="n num">3</td><td class="n num">3</td><td class="n num">3</td><td class="n num">3</td></tr>
+</tbody></table></div>
+<p style="color:var(--muted);font-size:13px"><b>Honest reading:</b> today’s theme is 1 tap when it is among the five tiles showing, 2 after a swipe; in C the light or dark icon cycles System, Light, Dark, so Dark from System is 2; the bell is search, type, switch in every version. No direction makes the common jobs much cheaper in taps. Today&rsquo;s pinned tiles were already one tap. What drops is what has to be read and drawn, and the Looks page and the pin machinery are deleted. The invite link gets a tap cheaper because <i>Copy invite link</i> makes the link and copies it in one press (<b>Proposal</b>, SR-Q39). Taps start at the Settings front; reaching Settings is the same for every direction.</p>
+
+<div class="rec"><h3>Recommendation: B, Search is the front door</h3>
+<p><b>Why.</b> It is the smallest front (11 controls against 24), it puts the three comfort controls exactly where the owner said the intent of shortcuts is (small, one tap, on the front, the control itself), it leads with the thing he called the product (search), and it has no page that exists to hold nothing. A does the least and is the safest; C answers a question nobody asked (&ldquo;let me change text size from the Household page&rdquo;) and spends 52px on every page to do it.</p>
+<p><b>Trade-offs and risks, plainly.</b> (1) The controls live only on the front, which is two taps from the app (avatar, Settings). (2) A big search field is 56px of height that earns nothing if few people search; there is no usage data and we decided not to collect any (SR-Q14). (3) Kitchen setup moves inside Household, which is two rows longer. (4) Deleting the Looks page and the pins is a deletion of something just built and shipped to UAT (0.171.0): per-device pins vanish quietly, nothing is lost. (5) Preferences is untouched and is now the heaviest screen left; it needs its own shake-up next. (6) Taps do not improve, so this is a judgement about clarity, not speed. (7) Not tried on a phone or with a screen reader; the strip and stepper are checked at 390 and 360 px wide, to +30% text.</p>
+<p><b>Fallback.</b> A is deletion only and can grow B&rsquo;s big search later. If the owner wants controls on every page, C is a small step from B.</p></div>
+
+<details class="fold" open><summary>Element audit of today&rsquo;s Settings screens: 53 elements, 22 cut, 14 merged or moved, 17 earn their place</summary><div>
+<p style="color:var(--muted);font-size:13px">Read from the build (<code>kitchie</code> <code>uat</code> 0.171.0: <code>settings-phone.ts</code>, <code>settings-phone.js</code>, <code>people-pages.ts</code>, <code>preferences/</code>) and the earlier mockups. The same table is in <code>docs/knowledge/jobs-to-be-done/settings-redesign.md</code>.</p>
+<div class="tblwrap"><table class="tbl" aria-label="Element audit"><thead><tr><th>Element</th><th>Verdict</th><th>Why</th></tr></thead><tbody>
+<tr class="scr"><th colspan="3">Settings front</th></tr>
+<tr><td>Back link</td><td><span class="v keep">Earns its place</span></td><td>Leaves Settings.</td></tr>
+<tr><td>Title “Settings”</td><td><span class="v keep">Earns its place</span></td><td>Says where you are; made smaller in A to C.</td></tr>
+<tr><td>Search box</td><td><span class="v keep">Earns its place</span></td><td>The product (owner, 23 Oct). Slim in A, big in B, a header icon on every page in C.</td></tr>
+<tr><td>“Shortcuts” label</td><td><span class="v cut">Cut</span></td><td>Names a feature that exists only because Looks was buried two levels down.</td></tr>
+<tr><td>“2 of 2 pinned” counter</td><td><span class="v cut">Cut</span></td><td>Tells you nothing you can act on.</td></tr>
+<tr><td>Looks tile: title and pin icon</td><td><span class="v cut">Cut</span></td><td>The pin goes; the controls sit where the tile was.</td></tr>
+<tr><td>Ten theme tiles in a sideways rotary</td><td><span class="v merge">Merge or move</span></td><td>One chip with the current theme; tap opens the same named tiles in place.</td></tr>
+<tr><td>System / Light / Dark three-way</td><td><span class="v keep">Earns its place</span></td><td>A real control. Three icons (A, B) or one cycling icon (C).</td></tr>
+<tr><td>Text size tile: title and pin icon</td><td><span class="v cut">Cut</span></td><td>The pin goes; “Text size” stays only as a row label in A.</td></tr>
+<tr><td>Stepper: A−, label with seven dots, A+</td><td><span class="v keep">Earns its place</span></td><td>The owner's own design. Full in B; two buttons in A and C (the value is under the row name in A, a toast in C).</td></tr>
+<tr><td>Dashed “add pin” chips</td><td><span class="v cut">Cut</span></td><td>Exist only for pinning.</td></tr>
+<tr><td>“Nothing pinned” explainer box</td><td><span class="v cut">Cut</span></td><td>Explains a feature that is cut.</td></tr>
+<tr><td>“Settings” label above the rows</td><td><span class="v cut">Cut</span></td><td>The page is already called Settings.</td></tr>
+<tr><td>Row: Looks (shows the theme name)</td><td><span class="v cut">Cut</span></td><td>Duplicates the tile and the Looks page.</td></tr>
+<tr><td>Row: Preferences</td><td><span class="v keep">Earns its place</span></td><td>A real area.</td></tr>
+<tr><td>Row: Household (shows the name)</td><td><span class="v keep">Earns its place</span></td><td>A real area.</td></tr>
+<tr><td>Row: Kitchen setup</td><td><span class="v merge">Merge or move</span></td><td>Folded into Household in B (it is the household's structure); kept as its own row in A and C.</td></tr>
+<tr><td>Row: Assistants</td><td><span class="v keep">Earns its place</span></td><td>A real area (connect, disconnect).</td></tr>
+<tr><td>Footer “Five things here, on purpose. Everything else is one search away.”</td><td><span class="v cut">Cut</span></td><td>Explains the design to the person. The search bar already says it.</td></tr>
+<tr><td>Default-assistant card (two connected)</td><td><span class="v merge">Merge or move</span></td><td>Moves onto the Assistants page: an assistant setting, not a front-page card.</td></tr>
+<tr><td>Notice banner</td><td><span class="v keep">Earns its place</span></td><td>Only appears after an action.</td></tr>
+<tr class="scr"><th colspan="3">Looks page</th></tr>
+<tr><td>Back and title “Looks” (the whole page)</td><td><span class="v cut">Cut</span></td><td>Looks is a control, not a place. The page is deleted; its controls act in place.</td></tr>
+<tr><td>Privacy paragraph “These stay on this device…”</td><td><span class="v cut">Cut</span></td><td>Said once, in a word, on the search result (“this phone”).</td></tr>
+<tr><td>Looks card: title and pin</td><td><span class="v cut">Cut</span></td><td>Pin goes.</td></tr>
+<tr><td>Theme grid of ten</td><td><span class="v merge">Merge or move</span></td><td>The same tiles, now a panel opened in place instead of a page.</td></tr>
+<tr><td>“Light or dark” row, segment and sentence</td><td><span class="v merge">Merge or move</span></td><td>Segment kept; the sentence (“Following your phone, including its night schedule”) goes.</td></tr>
+<tr><td>Text size card: title and pin</td><td><span class="v cut">Cut</span></td><td>Pin goes.</td></tr>
+<tr><td>Stepper and sentence “Your phone's own text size…”</td><td><span class="v merge">Merge or move</span></td><td>Stepper kept; the sentence goes.</td></tr>
+<tr><td>“Rows, motion, the bell and Reset are not on this page on purpose. Search finds them:” and four chips</td><td><span class="v cut">Cut</span></td><td>Explaining an absence. Nobody looks for what is not there.</td></tr>
+<tr class="scr"><th colspan="3">Search</th></tr>
+<tr><td>“Try typing” and eight example chips</td><td><span class="v merge">Merge or move</span></td><td>Four chips, chosen for the page you are on.</td></tr>
+<tr><td>Recent searches and Clear</td><td><span class="v keep">Earns its place</span></td><td>Two or three, one tap each.</td></tr>
+<tr><td>Footnote “Search reads names, plain phrases, colours and typos…”</td><td><span class="v cut">Cut</span></td><td>Search that works needs no instructions.</td></tr>
+<tr class="scr"><th colspan="3">Search results</th></tr>
+<tr><td>Result title, matched words marked</td><td><span class="v keep">Earns its place</span></td><td>What you scan for.</td></tr>
+<tr><td>“Advanced · search only” pill</td><td><span class="v cut">Cut</span></td><td>Explains nothing you can act on.</td></tr>
+<tr><td>Scope pill (This device / You / Whole household)</td><td><span class="v merge">Merge or move</span></td><td>Plain words at the end of one grey line: “Settings · this phone”.</td></tr>
+<tr><td>“Exact match” / “Also called…” line</td><td><span class="v cut">Cut</span></td><td>Ranking explained to people (owner: “this is shit”).</td></tr>
+<tr><td>AFFECTS paragraph</td><td><span class="v cut">Cut</span></td><td>A paragraph per result is what made them tall.</td></tr>
+<tr><td>LIVES IN and NOW line</td><td><span class="v merge">Merge or move</span></td><td>One grey line for where it lives; the value sits at the right.</td></tr>
+<tr><td>Inline control (switch, stepper, three-way, theme tiles)</td><td><span class="v keep">Earns its place</span></td><td>The result is the setting: most searches end with no navigation.</td></tr>
+<tr><td>“Go to Looks” / Open button</td><td><span class="v merge">Merge or move</span></td><td>The whole row is the tap target.</td></tr>
+<tr><td>Pin icon on a result</td><td><span class="v cut">Cut</span></td><td>Pin goes.</td></tr>
+<tr><td>“On this page” / “Everywhere else” headings</td><td><span class="v keep">Earns its place</span></td><td>Owner decision (SR-P23); shown only when both lists exist.</td></tr>
+<tr class="scr"><th colspan="3">Household</th></tr>
+<tr><td>Name box, members list, Invite someone</td><td><span class="v keep">Earns its place</span></td><td>The job of the page.</td></tr>
+<tr><td>“Tap a person to remove them…” paragraph</td><td><span class="v cut">Cut</span></td><td>Said by the confirm screen that follows the tap.</td></tr>
+<tr><td>“They sign in and join &lt;name>” under Invite</td><td><span class="v merge">Merge or move</span></td><td>One line under the link: “Works for 7 days. Anyone with it can join.”</td></tr>
+<tr><td>“Danger zone” label and Leave household</td><td><span class="v merge">Merge or move</span></td><td>Search-only, as the index already files it; no label.</td></tr>
+<tr><td>Removals list</td><td><span class="v merge">Merge or move</span></td><td>History already says who removed whom.</td></tr>
+<tr class="scr"><th colspan="3">Preferences</th></tr>
+<tr><td>“Only the household has these” rows (Members and admins, Household name…)</td><td><span class="v cut">Cut</span></td><td>Three entry points to one value (audit K28). One home: Household.</td></tr>
+<tr><td>Stock checks, quiet hours, per day, Food, Notes, Housemates</td><td><span class="v keep">Earns its place</span></td><td>Real settings. Not redesigned here; it is the heaviest page left.</td></tr>
+<tr class="scr"><th colspan="3">Kitchen setup</th></tr>
+<tr><td>Categories and Locations and spots</td><td><span class="v keep">Earns its place</span></td><td>Household structure.</td></tr>
+<tr><td>Note “Categories and Locations and spots are the household's, not just this device's.”</td><td><span class="v cut">Cut</span></td><td>The row names say it.</td></tr>
+<tr><td>Sample items block</td><td><span class="v merge">Merge or move</span></td><td>Search-only; the Pantry strip is the other door.</td></tr>
+<tr class="scr"><th colspan="3">Assistants</th></tr>
+<tr><td>Connect, open and disconnect rows</td><td><span class="v keep">Earns its place</span></td><td>An account action, one place.</td></tr>
+</tbody></table></div></div></details>
+
+<h2>What stays decided</h2>
+<ul>
+<li>Search must be excellent and reach every setting from anywhere, current page first (&ldquo;On this page&rdquo;, then &ldquo;Everywhere else&rdquo;): the engine and the 51-entry index are the earlier ones (<code>../settings-redesign/search-index.js</code>), synonyms, plain phrases and typos unchanged (try &ldquo;drak mode&rdquo;). Results are one grey line under the name, no tags or paragraphs.</li>
+<li>No pin words, no Emoji setting, text size is the seven-step stepper centred on Match my phone (&minus;8, &minus;16, &minus;24, +10, +20, +30%), themes are named tiles that show their own look, preferences stay per device and client-side, one name per setting.</li>
+<li>44px targets (and 3.2em at larger text), strong contrast, text to +30% on every screen here, light and dark.</li>
+</ul>
+
+<h2>Open questions and decision for the owner</h2>
+<ol>
+<li><b>SR-Q36.</b> Which direction: A, B or C? Recommend <b>B</b>. A wrong guess costs a front screen only; the sub pages are shared.</li>
+<li><b>SR-Q37.</b> Delete the Looks page, the Shortcuts area and the pins (whichever direction)? Recommend yes: the controls act in place, so there is nothing left to pin. Stored pins are ignored.</li>
+<li><b>SR-Q38.</b> Fold Kitchen setup into Household (B)? Recommend yes: Categories and Locations are the household&rsquo;s. A and C keep the row.</li>
+<li><b>SR-Q39.</b> <i>Copy invite link</i> makes and copies the link in one press instead of making it on one page and showing it on the next? Recommend yes (<b>Proposal</b>). A wrong guess costs one confirm line.</li>
+<li><b>SR-Q40.</b> Leave household stays search-only, as the index files it, rather than a plain bottom row on Household? Recommend search-only, with the confirm that follows. A wrong guess is a risky action that is slightly harder to find.</li>
+<li><b>SR-Q41.</b> Is Preferences next? Recommend yes: it is the heaviest page left (eight rows, each a drill-down).</li>
+</ol>
+
+<h2>Loads</h2>
+<p>Default path: <code>theme.css</code>, <code>theme.js</code>, <code>shared.css</code>, <code>shake.css</code>, <code>shake.js</code>. Deferred, on engagement: <code>shake-search.js</code> (the engine) and <code>../settings-redesign/search-index.js</code> (about 7 KB gzipped), fetched on first focus of a search box, a typed letter, a preset or opening a sub page. Theme files other than Kitchie Night and Day load when chosen (<code>theme.js</code>). Everything changes in place: no page loads when a control, a panel or a result is used. Check: <code>tools/settings-shakeup-check.mjs</code>.</p>
+</div>
+<script src="shake.js"></script>
+<script>
+(function () {
+  var q = new URLSearchParams(location.search), S = window.SHAKE, stage = document.getElementById("stage");
+  var $$ = function (s) { return Array.prototype.slice.call(document.querySelectorAll(s)); };
+  if (q.get("bare")) { document.body.classList.add("bare"); document.body.setAttribute("data-no-theme-fab", ""); }
+  var view = (q.get("o") || "B").toUpperCase(); if (q.get("all")) view = "all";
+  function setView(v) { view = v; stage.setAttribute("data-view", v); $$("[data-view]").forEach(function (b) { if (b.tagName === "BUTTON") b.setAttribute("aria-pressed", String(b.dataset.view.toUpperCase() === v.toUpperCase())); }); }
+  $$("#stage .sopt").forEach(function (f) { new S.Phone(f.querySelector(".host"), f.dataset.o); });
+  function visible() { return S.phones.filter(function (p) { return view === "all" || p.opt === view; }); }
+  $$("[data-view]").forEach(function (b) { if (b.tagName === "BUTTON") b.addEventListener("click", function () { setView(b.dataset.view); }); });
+  $$("[data-q]").forEach(function (b) { b.addEventListener("click", function () { visible().forEach(function (p) { p.stack = []; if (p.searching) p.end(); p.page = "front"; p.set(b.dataset.q, false); }); }); });
+  var ts = parseInt(q.get("ts") || "0", 10); if (ts) { S.SH.ts = Math.max(-3, Math.min(3, ts)); }
+  setView(view); S.syncAll();
+  var pg = q.get("p"); if (pg) S.phones.forEach(function (p) { p.goPage(pg); });
+  if (q.get("q")) S.phones.forEach(function (p) { p.set(q.get("q"), false); });
+  document.body.setAttribute("data-ready", "1");
+})();
+</script>
+</body></html>
