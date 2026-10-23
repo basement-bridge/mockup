@@ -114,11 +114,27 @@ for (const [w, h] of SIZES) {
   // ?adaptive=off
   const po = await open(ctx, C + "?banner=very-light&theme=dark&adaptive=off"); await sleep(600);
   ok("adaptive=off keeps the fixed look", (await po.evaluate(() => document.getElementById("hero").dataset.ovAdapt + "/" + document.getElementById("hero").dataset.ovWhy)) === "fallback/off"); await po.close();
-  // no banner: buttons stay in row two, nothing overlaid
-  const pn = await open(ctx, C + "?banner=none&theme=dark"); await sleep(500);
-  const nb = await pn.evaluate(() => { const hgo = document.querySelector(".hgo"), hr2 = document.querySelector(".hr2"); return { pc: document.querySelectorAll("[data-pc]").length, inRow2: !!hgo && hr2.contains(hgo), adapt: document.getElementById("hero").dataset.ovAdapt || null, labels: [...hgo.querySelectorAll(".rb-btn")].map(x => x.textContent.trim()) }; });
-  ok("no banner: buttons stay in row two, no overlay, adaptive idle", nb.pc === 0 && nb.inRow2 && nb.adapt === null && nb.labels[1] === "Make it", nb);
-  const on = await noOverflow(pn); ok("no banner: no page scroll", on.x <= 0 && on.y <= 0, on); if (SHOTS) await pn.screenshot({ path: DIR + "adaptive-nobanner-1440x900-dark.png" }); await pn.close();
+  // no banner (owner, 24 Oct 2026, RD-NB1 to RD-NB4): Plan it / Make it SWAP ROWS with the socials; nothing overlaid, adaptive idle. Both themes, both sizes, short and long recipes.
+  for (const th of ["dark", "light"]) for (const [vw, vh] of [[1440, 900], [1280, 720]]) for (const r of ["typical", "long"]) {
+    const cx = await browser.newContext({ viewport: { width: vw, height: vh } }), t = "no banner " + th + " " + vw + "x" + vh + " " + r + ": ";
+    const pn = await open(cx, C + "?banner=none&theme=" + th + "&r=" + r); await sleep(500);
+    const nb = await pn.evaluate(() => { const R = e => e ? e.getBoundingClientRect() : null, q = s => document.querySelector(s), hgo = q(".hgo"), hi = q(".hicons"), r1 = q(".hr1"), r2 = q(".hr2"), h1 = q("h1"), sv = q(".svcta"), mo = q("[data-more]");
+      const bt = [...hgo.querySelectorAll(".rb-btn")].map(x => R(x)), all = [...document.querySelectorAll("#hero button, #hero a")], ix = e => all.indexOf(e);
+      return { pc: document.querySelectorAll("[data-pc]").length, goRow1: r1.contains(hgo), iconsRow2: r2.contains(hi), goNotRow2: !r2.contains(hgo), iconsNotRow1: !r1.contains(hi), swap: document.getElementById("hero").classList.contains("ov-swap"),
+        adapt: document.getElementById("hero").dataset.ovAdapt || null, labels: [...hgo.querySelectorAll(".rb-btn")].map(x => x.textContent.trim()), h: bt.map(x => Math.round(x.height)),
+        goAbove: R(hgo).bottom <= R(hi).top + 1, goRight: Math.abs(R(hgo).right - R(r1).right) <= 2, iconsRight: Math.abs(R(hi).right - R(r2).right) <= 2, titleLeftOfGo: R(h1).right <= R(hgo).left + 1, servesLeftOfIcons: R(sv).right <= R(hi).left + 1,
+        sameRow: Math.abs(R(hgo).top - R(h1).top) < 40, tabOrder: ix(hgo.querySelector("[data-plan]")) < ix(sv) && ix(sv) < ix(q("[data-star]")) && ix(q("[data-cook]")) < ix(sv), moreInside: R(mo).right <= R(q("#hero")).right,
+        grp: hgo.getAttribute("aria-label"), hero: Math.round(R(q("#hero")).height) }; });
+    ok(t + "Plan it, Make it are in row one at the right, socials in row two at the right, nothing overlaid, adaptive idle", nb.pc === 0 && nb.goRow1 && nb.iconsRow2 && nb.goNotRow2 && nb.iconsNotRow1 && nb.swap && nb.adapt === null && nb.labels[0].startsWith("Plan") && nb.labels[1] === "Make it", nb);
+    ok(t + "the two action buttons are on top (above the socials), right aligned, beside the title; Serves is left of the socials", nb.goAbove && nb.goRight && nb.iconsRight && nb.titleLeftOfGo && nb.servesLeftOfIcons && nb.sameRow, nb);
+    ok(t + "buttons are 44px tall, keyboard order follows the new visual order (Plan it, Make it, then Serves, then the socials), group labelled", nb.h.every(x => x >= 44) && nb.tabOrder && nb.grp === "Plan it or make it" && nb.moreInside, nb);
+    ok(t + "the hero keeps two rows (no taller than 126px)", nb.hero <= 126, nb.hero);
+    const on = await noOverflow(pn); ok(t + "no page scroll", on.x <= 0 && on.y <= 0, on);
+    if (SHOTS && r === "typical") await pn.screenshot({ path: DIR + "nobanner-swap-" + vw + "x" + vh + "-" + th + ".png" });
+    if (r === "typical") { await pn.locator("[data-plan]").click(); await sleep(150); ok(t + "Plan it still works from row one (its toast shows)", (await pn.locator("#toast:not([hidden])").count()) === 1); }
+    await cx.close(); }
+  { const pb = await open(ctx, C + "?theme=dark"); await sleep(600); ok("with a banner the buttons stay on the banner (no swap): Plan it / Make it overlaid, socials in row one", await pb.evaluate(() => !document.getElementById("hero").classList.contains("ov-swap") && document.querySelectorAll("[data-pc]").length === 1 && document.querySelector(".hr1").contains(document.querySelector(".hicons"))));
+    await pb.close(); }
   await ctx.close(); }
 
 // ---- the real banners (typical/short/long) through C at the three sizes, plus the other fragments: label and overflow

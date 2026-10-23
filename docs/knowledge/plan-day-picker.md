@@ -85,3 +85,7 @@ Which option (answered: F); anchored panel or bottom sheet (moot for F); today p
 ## Loads (DESIGN.md section 6)
 
 Default path: the Home mockup's own files, `picker.css`, `data.js`, `common.js`, and one option file. Desktop only, never in a shared bundle. In the build, fetch the chosen picker on first press of Add to plan.
+
+## Open, 24 October 2026: the stacked-night cue
+
+The peek (a sliver card under a night with more than one meal) reads as a stray border on both themes (owner). Four alternative cues are drawn, none chosen: `docs/knowledge/plan-stacked-night-cue.md`, `fragments/plan-day-picker/stacked-cue/`.

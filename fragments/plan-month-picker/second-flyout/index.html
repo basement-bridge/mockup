@@ -5,6 +5,7 @@
 .links{display:flex;flex-wrap:wrap;gap:6px}
 .links a{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border-radius:99px;border:1px solid var(--border);background:var(--bg);font-size:13px;font-weight:600}
 .links a:hover{border-color:var(--accent)}
+.await.dec{color:var(--fg);border-color:var(--fg);border-width:2px}
 .await{font-size:11px;font-weight:800;padding:1px 7px;border-radius:var(--r-pill);border:1px solid var(--muted);color:var(--muted);margin-left:4px;white-space:nowrap}
 .fig{margin:14px 0 22px}
 .fig h3{margin:0 0 4px;font:800 17px var(--head)}
@@ -16,11 +17,11 @@
 <body><div class="wrap">
 <a class="back" href="../">&lsaquo; Month picker</a>
 <h1>Plan it: Another day in a second flyout</h1>
-<p>Live, clickable mockup, a follow-up to Kitchie #826 and the one-wide-panel build (#844). Mockup only, nothing is saved or sent, nothing is built in Kitchie. It is the desktop Home page with the Mandarin Mango Yogurt Bowl and the <b>Plan it</b> flyout open (the first flyout). Press <b>Another day</b> and the month opens in a <b>second flyout</b>. Three places for it are drawn, for the owner to pick.</p>
+<p>Live, clickable mockup, a follow-up to Kitchie #826 and the one-wide-panel build (#844). Mockup only, nothing is saved or sent, nothing is built in Kitchie. It is the desktop Home page with the Mandarin Mango Yogurt Bowl and the <b>Plan it</b> flyout open (the first flyout). Press <b>Another day</b> and the month opens in a <b>second flyout</b>. Three places for it were drawn; the owner picked <b>A</b> on 24 October 2026 and it is the default.</p>
 
 <div class="sec"><div class="lbl">Owner, 24 October 2026</div>
 <p>The month calendar (the &ldquo;Other / Another day&rdquo; four-week grid) should open in a <b>second flyout</b>, on top of or beside the first (the Plan it flyout), instead of a wider single panel with a side card (#844, #826). Show a few visual variants.</p>
-<p style="font-size:13px;color:var(--muted)">Recorded as PM-D47 to PM-D50 in <code>docs/knowledge/plan-month-picker.md</code>. All open, awaiting the owner&rsquo;s pick.</p></div>
+<p style="font-size:13px;color:var(--muted)">Recorded as PM-D47 to PM-D50 in <code>docs/knowledge/plan-month-picker.md</code>. <b>Decided: A</b> (owner, typed approval, 24 October 2026): the second flyout stacked right of the first, from 1360px; below that A is drawn as B. The date number stays the plain cell.</p></div>
 
 <div class="sec"><div class="lbl">Open it</div>
 <div class="links">
@@ -35,13 +36,13 @@
 <p style="font-size:13px;color:var(--muted)">A needs a window of 1360px or more (88 rail, 472 Home column, 400 and 400). Between 1024 and 1359px, A behaves as B. The previews below are the live pages, scaled.</p></div>
 
 <div class="sec"><div class="lbl">The three variants, at 1440 by 900</div>
-<div class="fig"><h3>A. Stacked right of the first <span class="await">awaiting owner pick</span></h3>
+<div class="fig"><h3>A. Stacked right of the first <span class="await" dec>DECIDED, owner pick 24 Oct 2026</span></h3>
 <p>The first flyout stays where it is and stays usable; the second takes the next lane to its right, full height, 400px. The Home column gives up width (472px at 1440), never a flyout. From 1624px the column keeps its 736px. Cost: the width. Gain: both are visible at once, so the recipe, the Who pill and the seven days stay in view while you look at the month.</p>
 <div class="fr" data-w="1440" data-h="900"><iframe loading="lazy" title="Variant A at 1440" src="home.html?start=month&amp;second=a&amp;halo=off&amp;embed=1"></iframe></div></div>
-<div class="fig"><h3>B. Over the first, the first dimmed <span class="await">awaiting owner pick</span></h3>
+<div class="fig"><h3>B. Over the first, the first dimmed <span class="await">not picked (kept for the record; also A&rsquo;s look below 1360px)</span></h3>
 <p>The second flyout lands on top of the first and leaves a 28px edge of it showing, dimmed and not clickable; the edge, Esc or the back arrow closes the second. No extra width at any window of 1024px and more, and the Home column never moves. Cost: the seven days are behind glass while the month is open.</p>
 <div class="fr" data-w="1440" data-h="900"><iframe loading="lazy" title="Variant B at 1440" src="home.html?start=month&amp;second=b&amp;halo=off&amp;embed=1"></iframe></div></div>
-<div class="fig"><h3>C. Floating, anchored to the Another day row <span class="await">awaiting owner pick</span></h3>
+<div class="fig"><h3>C. Floating, anchored to the Another day row <span class="await">not picked (kept for the record)</span></h3>
 <p>The second flyout is a card with a caret pointing at the Another day row. It floats to the left of the first, over the Home column, so the first flyout is untouched and stays usable and no lane moves. Cost: it covers part of Home while open, and it sits beside the row, not below it (below the row there is not room, see the note).</p>
 <div class="fr" data-w="1440" data-h="900"><iframe loading="lazy" title="Variant C at 1440" src="home.html?start=month&amp;second=c&amp;halo=off&amp;embed=1"></iframe></div></div>
 </div>
@@ -64,10 +65,10 @@
 
 <div class="sec"><div class="lbl">Open questions</div>
 <ol class="q">
-<li>Which place: A (beside, recommended where there is room), B (over, the fallback below 1360px), or C (floating card)? Wrong guess costs a CSS placement rule; the markup and script are the same.</li>
+<li><b>Decided:</b> A, picked by the owner on 24 October 2026 (no longer open). The questions below are the ones still unconfirmed.</li>
 <li>Does the second flyout stay at one flyout wide (400px, compact cells, the strip below) or take more width when there is room? Drawn at 400px; the roomy 800px layouts are in the earlier pages.</li>
 <li>Esc closes the second flyout only and Ctrl or Cmd+Esc closes both (PM-D48): right?</li>
-<li>C literally &ldquo;below the Another day row&rdquo; was measured and does not fit (PM-D50): beside the row is drawn instead.</li>
+<li>Moot after the A pick: C literally &ldquo;below the Another day row&rdquo; was measured and does not fit (PM-D50).</li>
 </ol></div>
 
 <div class="sec"><div class="lbl">What loads</div>

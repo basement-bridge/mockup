@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Plan it flyout, stacked-night cue</title>
+<link rel="stylesheet" href="../../../theme.css"><script src="../../../theme.js"></script>
+<link rel="stylesheet" href="../../item-edit-flyout/flyout.css">
+<link rel="stylesheet" href="../../home-detail-panel/home.css">
+<link rel="stylesheet" href="../../home-detail-panel/displace.css" media="(min-width:1624px)">
+<link rel="stylesheet" href="../../home-detail-panel/stack.css" media="(max-width:1623.98px)">
+<link rel="stylesheet" href="../picker.css"><link rel="stylesheet" href="../rows.css"><link rel="stylesheet" href="cue.css">
+<script>window.HDP_BP = 1624;</script>
+</head>
+<body>
+<!-- The host is desktop Home from fragments/home-detail-panel (same markup, same scripts, nothing copied). Only the Plan it picker is new. -->
+<div class="app" id="app" data-open="none" data-front="detail">
+  <nav class="rail" aria-label="Main"><div class="brand">Our<br>kitchen</div>
+    <span class="nv on" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</span>
+    <span class="nv"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v3H7zM6 6h12v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1zM9 11h6v5H9z"/></svg>Pantry</span>
+    <span class="nv"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 14a4 4 0 1 1 2-7 4 4 0 0 1 6 0 4 4 0 1 1 2 7v6H7z"/></svg>Recipes</span>
+    <span class="nv"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.4 11h10l2-8H6.2M9 20h.01M17 20h.01"/></svg>Shopping</span>
+  </nav>
+  <main class="main" id="main"><div class="col">
+    <h1 class="sr-only">Kitchie</h1>
+    <div class="topbar">
+      <label class="us" id="us"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+        <input id="q" type="search" placeholder="Search pantry, recipes and shopping" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="sres" aria-label="Search pantry, recipes and shopping" aria-keyshortcuts="/"><span class="kbd">/</span></label>
+      <div class="seg" role="group" aria-label="Home view"><button type="button" class="on" data-act="view" data-v="dash" aria-pressed="true">Dashboard</button><button type="button" data-act="view" data-v="compact" aria-pressed="false">Compact view</button></div>
+      <div class="sres" id="sres" role="listbox" hidden></div>
+    </div>
+    <section class="card" id="ideas" aria-label="Cooking ideas"></section>
+    <section class="card stack" id="soon" aria-label="Going off and running low"></section>
+  </div></main>
+  <button type="button" class="peek" id="peek" data-act="peek" aria-label="Show This week" title="Show This week (W)"></button>
+  <aside class="panel week" id="week" aria-label="This week"></aside>
+  <aside class="panel detail" id="detail" aria-label="Details" hidden></aside>
+</div>
+<div class="kb" id="kb" hidden></div>
+<script src="../../home-detail-panel/data.js"></script>
+<script src="../data.js"></script><script src="cue-data.js"></script>
+<script src="../../home-detail-panel/home.js"></script>
+<script src="../../home-detail-panel/recipe.js"></script>
+<script>window.HDP.set({});</script>
+<script>
+/* Which option this page draws: ?pick=a|b|c|d|e|f|g (default c, the agent's recommendation). Each option is its own file; A, B and E share the baseline sheet. */
+(function () {
+  var o = (new URLSearchParams(location.search).get("pick") || "c").toLowerCase();
+  if ("abcdefg".indexOf(o) < 0 || o.length !== 1) o = "c";
+  window.PK_OPT = "f"; o = "f";
+  var f = ["../common.js"]; if ("abe".indexOf(o) > -1) f.push("sheet.js"); if ("cfg".indexOf(o) > -1) f.push("../grid.js"); if (o === "f") f.push("../rows.js"); f.push("../pick-" + o + ".js"); f.push("cue.js");
+  f.forEach(function (n) { document.write('<script src="' + n + '"><\/script>'); });
+})();
+</script>
+</body></html>
