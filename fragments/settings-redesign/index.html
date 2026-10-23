@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Settings redesign, options — fragment</title>
+<link rel="stylesheet" href="../../theme.css"><script src="../../theme.js"></script><link rel="stylesheet" href="settings-redesign.css">
+</head>
+<body><div class="wrap">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Settings: audit and redesign options<span class="badge">mockup only, nothing built</span></h1>
+<p class="own"><b>Owner, 23 Oct 2026:</b> &ldquo;This section hasn&rsquo;t been looked at for a long time. Evaluate how the entire settings feature set has been implemented, in code, and create different mock-up ideas as to how to drive this outcome. Feel free to critically evaluate if all those knobs are really relevant or are there better ways. I&rsquo;m very open. User experience is paramount. Less is more.&rdquo; <br>Trigger: he picked Small, Medium or Large <i>item name size</i> in Settings and saw no effect on Android (that bug is Kitchie #1089 and is not touched here).</p>
+
+<h2 style="margin-top:22px">What the code audit found</h2>
+<div class="stats" aria-label="Audit totals">
+  <div class="stat"><b>35</b><span>knobs a person can reach (K01 to K35)</span></div>
+  <div class="stat"><b>9</b><span>to remove (one is dead code)</span></div>
+  <div class="stat"><b>4</b><span>to merge, default or move</span></div>
+  <div class="stat"><b>21</b><span>earn their place</span></div>
+  <div class="stat"><b>0</b><span>fully broken; 1 works on one screen only</span></div>
+  <div class="stat"><b>5</b><span>rows listed twice on the phone</span></div>
+</div>
+<ul class="notes">
+  <li><b>The display settings are from day 3 of the project.</b> All seven switches, the size and Reset came in on 1 Oct 2026 (Kitchie #73, &ldquo;browser-only settings&rdquo;), for a single list view. Since 13 Oct the repo has had 558 commits (Home, Plan, Shopping and Recipes were rebuilt); none of these settings followed. <i>Fact: git log.</i></li>
+  <li><b>Most of them reach one screen.</b> Item name size, the spot, the amount, the use-by date and Compact rows only touch the Pantry list&rsquo;s <code>li</code> rows. Measured in headless Chromium at 390 and 1366 px: size large changes the Pantry names (16.96 to 20.8 px) and 0 text nodes on Home, Shopping, Plan, Cooking, Preferences or the menu. <i>Fact: measured.</i> The test for it only checks that an attribute appears, never that text grows. <i>Fact: browser/settings-screens.browser.ts.</i></li>
+  <li><b>Settings is a second copy of the menu.</b> On the phone, Looks, Categories, Locations and spots, Install and Sign out are on the Profile menu and again on the Settings page. The Settings page has one thing of its own: Sample items. <i>Fact: profile-menu.ts and app.ts use the same row builder.</i></li>
+  <li><b>The phone already decides several of these.</b> Reduce motion is honoured from the OS in 110 places; text size is the OS&rsquo;s job; dark at night is the OS (and Kitchie #1088 adds an override). <i>Inference for text size on Android Brave; it was not tried on a device here.</i></li>
+  <li><b>Where it was solved well:</b> sort is set on the list; planning days off are set on the Plan page; time zone is never asked (inferred); the shortcut-cue switch was deleted on 12 Oct. Option D is those habits made the rule.</li>
+</ul>
+<p>The full table (setting, where it appears, storage, scope, what it does and how that was verified, whether it works, whether it earns its place, evidence) is in <a href="https://github.com/basement-bridge/mockup/blob/main/docs/knowledge/jobs-to-be-done/settings-redesign.md">docs/knowledge/jobs-to-be-done/settings-redesign.md</a>, and below as the ledger with what each option does with every knob.</p>
+
+<div class="bar" aria-label="Mockup aids">
+  <span class="lbl2">Mockup aids</span>
+  <span class="grp" role="group" aria-label="Pretend phone text size"><span class="lbl2">Pretend phone text</span><button type="button" data-aid-os="normal" aria-pressed="true">Default</button><button type="button" data-aid-os="large" aria-pressed="false">Large</button></span>
+  <span class="grp" role="group" aria-label="Assistants connected"><span class="lbl2">Assistants connected</span><button type="button" data-aid-conn="0" aria-pressed="false">0</button><button type="button" data-aid-conn="1" aria-pressed="true">1</button><button type="button" data-aid-conn="2" aria-pressed="false">2</button></span>
+  <span class="grp"><button type="button" data-aid-samples aria-pressed="true">Sample items left</button></span>
+  <nav id="nav" aria-label="Options"><a href="#opt-today">Today</a><a href="#opt-A">A</a><a href="#opt-B">B</a><a href="#opt-C">C</a><a href="#opt-D">D</a><a href="#ledger">Ledger</a><a href="#recommendation">Recommendation</a></nav>
+</div>
+
+<section class="fr" id="opt-today" data-opt="today">
+  <header><h2>Today</h2><span class="badge">as built on uat, 15418671</span></header>
+  <p class="sum">Three screens for one job. Item name size is on Looks, three taps from Home (avatar, Looks, the control). <b>Try it:</b> set Large, then switch the preview from Pantry list to Home or Shopping. That is the Android report, reproduced from the code.</p>
+  <div class="aids"><button type="button" class="aid" data-aid-dup aria-pressed="false">Mark duplicates</button></div>
+  <div class="pair"></div>
+</section>
+
+<section class="fr" id="opt-A" data-opt="A">
+  <header><h2>A. Just the essentials</h2><span class="badge">recommended</span></header>
+  <p class="sum"><b>Settings stops existing; Looks has three controls</b>: Theme, Light or dark (this is Kitchie #1088, mockup#285, folded in), Emoji. Text size, motion and dark at night belong to the phone and Kitchie follows. Row detail is not a preference, because the job decides what a row shows (DESIGN.md section 1). The household bits stay where the menu already has them. Try &ldquo;Pretend phone text: Large&rdquo; in the bar: every screen grows, which the in-app size never did. With two assistants connected a fourth card appears; with one it is never asked.</p>
+  <p class="sum"><b>Gone:</b> text size, reduce motion, show spot, amount, use-by, activity, compact, Reset, the legacy theme field, the Settings overview page, the Settings row on the menu, the second Install, second Sign out and second copies of Categories and Locations. <b>Cost:</b> a person who really wanted larger text must set it on the phone. <b>Effort:</b> mostly deletion plus one check that type is rem-based; no data migration, because unknown stored keys are already dropped on read.</p>
+  <div class="pair"></div>
+</section>
+
+<section class="fr" id="opt-B" data-opt="B">
+  <header><h2>B. Grouped by job, More for the rest</h2></header>
+  <p class="sum">Keep a Settings front door, but organise it by job: <b>How it looks</b>, <b>How it behaves</b>, <b>My household</b>, <b>Assistants</b>. Each page leads with the two or three things people change, the rest is under <b>More</b>. The four row switches become one <b>Rows</b> choice (Standard, Compact, Names only), text size becomes a whole-app Larger, motion follows the phone, and the stock-check dials from Preferences get a front door but are not changed. Stays closest to today; the most new UI of the four; one more tap to anything (theme is four taps from Home).</p>
+  <div class="pair"></div>
+</section>
+
+<section class="fr" id="opt-C" data-opt="C">
+  <header><h2>C. Search first</h2></header>
+  <p class="sum">One search box, six common things, and everything else found by typing: <i>dark</i>, <i>text</i>, <i>quiet</i>, <i>sample</i>. Every knob stays (so the Pantry-only size stays too), which is exactly the cost: a search index of 27 entries and their synonyms to keep true. Good if the set of settings grows; wasteful for a handful. Press <code>/</code> on desktop. Try &ldquo;dark&rdquo;, &ldquo;text&rdquo;, &ldquo;zzz&rdquo;.</p>
+  <div class="pair"></div>
+</section>
+
+<section class="fr" id="opt-D" data-opt="D">
+  <header><h2>D. In context, with a thin page</h2></header>
+  <p class="sum">A setting lives where it is used. <b>Aa</b> on the Pantry list (desktop: <b>View</b> beside Sort) holds text size and which details a row shows, labelled <i>This list</i> so it never promises the whole app. Theme, Light or dark and Emoji sit at the top of the avatar&rsquo;s profile menu. The Settings page that is left holds only what is not about looks: Kitchen setup, Household, Assistants, Install, the CSV. Honest about scope, but it builds a little menu for every list, and repeats the Pantry-only limit on each. Press Esc to close the popover.</p>
+  <div class="pair"></div>
+</section>
+
+<h2 id="compare">At a glance</h2>
+<div class="tw"><table class="t">
+<thead><tr><th>Measure</th><th>Today</th><th>A Essentials</th><th>B Grouped</th><th>C Search</th><th>D Context</th></tr></thead>
+<tbody>
+<tr><td>Controls on the screen you land on</td><td>10 on Looks (grid, size, 7 switches, Reset); 4 rows on Settings</td><td>3 (4 with two assistants)</td><td>4 job rows; 3 controls on How it looks</td><td>6 common</td><td>6 rows on Settings; 5 in the list popover</td></tr>
+<tr><td>Taps from Home to change the theme</td><td>3</td><td>3</td><td>4</td><td>3, or <code>/</code></td><td>2</td></tr>
+<tr><td>Taps to make list text bigger</td><td>3, Pantry list only</td><td>0, the phone does it for every screen</td><td>5, whole app</td><td>3, Pantry list only</td><td>2, labelled this list</td></tr>
+<tr><td>What happens to the 35 knobs (the rest stay)</td><td>nothing</td><td>7 gone, 4 automatic, 2 merged</td><td>1 gone, 5 merged, 3 under More, 2 automatic</td><td>1 gone, 9 by search only, 1 merged, 1 automatic</td><td>3 gone, 10 in context, 1 merged, 2 automatic</td></tr>
+<tr><td>Fixes what the original complaint was about</td><td>No</td><td>Yes: no knob that over-promises</td><td>Yes: size is whole-app</td><td>No: same knob, harder to see</td><td>Partly: scoped and labelled</td></tr>
+<tr><td>New UI to build</td><td>none</td><td>none (deletes)</td><td>4 pages, 1 disclosure</td><td>search, index, inline controls</td><td>a View menu per list, thin page</td></tr>
+<tr><td>Main risk</td><td>more knobs that miss screens</td><td>someone who needed in-app large text</td><td>keeps decisions about small knobs</td><td>index goes stale; flaws hidden not fixed</td><td>inconsistent per list; many menus</td></tr>
+</tbody></table></div>
+
+<h2 id="ledger-h">Ledger: every knob, and what each option does with it</h2>
+<p>Read from the audit table (35 rows). Stays means kept as a visible setting. Automatic means the app or the phone decides. Merged means folded into another control or place. In context means set where it is used. By search means reachable only by typing. <span id="ledger-note">The rows load as this section scrolls into view.</span></p>
+<div class="tw"><table class="t" id="ledger"><thead><tr><th>ID</th><th>Knob</th><th>Audit</th><th>A</th><th>B</th><th>C</th><th>D</th></tr></thead><tbody></tbody><tfoot><tr><td colspan="3">Tally</td><td id="lA"></td><td id="lB"></td><td id="lC"></td><td id="lD"></td></tr></tfoot></table></div>
+
+<h2 id="recommendation">Recommendation</h2>
+<div class="rec">
+<p><b>Take A.</b> It is the only option where the answer to &ldquo;this knob does nothing on my phone&rdquo; is that there is no such knob. Settings becomes Looks, with Theme, Light or dark and Emoji. Nine knobs and two pages go; nothing is lost that the phone does not already do better. Use <b>D&rsquo;s rule</b> for anything the owner insists on keeping: it lives where it is used and says what it changes (the Pantry list&rsquo;s <i>Aa</i> is the example). B is the fallback if he wants a visible front door for Preferences and the household; C is not recommended unless the set of settings grows.</p>
+<p><b>Removed under A:</b> Item name size, Reduce motion, Show the spot, Show the amount, Show the use-by date, Show household activity, Compact rows, Reset to defaults, the legacy Light/Dark/Follow field; the Settings overview page and its duplicate rows; the second household-name and sample-items entries move to one home each.</p>
+<p>Open questions SR-Q1 to SR-Q14, each with a recommendation and how it was checked, are in the knowledge note. The ones that decide the build: remove text size (Q1), the four row-detail switches (Q2), motion (Q3), the bell (Q4), and what to do with the ten themes (Q5).</p>
+</div>
+
+<h2>Notes for the build</h2>
+<ul class="notes">
+  <li>Markup uses the app&rsquo;s own class names (<code>.mtop .menu.card .srow .swt .seg2 .tpick li[data-row] .name .meta .due</code>) and tokens from <code>theme.css</code>; the <code>data-size</code>, <code>data-compact</code> and <code>data-hide</code> rules are layout.ts&rsquo;s, scoped to the frame (<code>.fr</code>) instead of <code>html</code>. The mockup has ten look files; the app has Kitchie automatic plus nine.</li>
+  <li>Mode here switches Kitchie Night and Day only; all ten looks in both modes are in mockup#285 (Kitchie #1088), which this page does not redraw or contradict.</li>
+  <li>The phone-text aid scales the frames; on a real phone the browser does this to the whole page. Not tried on a device.</li>
+  <li>Loads by default: this page, <code>theme.css</code>, <code>theme.js</code>, <code>settings-redesign.css</code>, <code>settings-redesign.js</code>. Deferred: the ledger&rsquo;s <code>data.js</code> (when the ledger nears the viewport), and a theme&rsquo;s own file when it is picked. Nothing is stored. Desktop frames scroll sideways inside their own box; the page does not.</li>
+</ul>
+</div>
+<script src="settings-redesign.js" defer></script>
+</body></html>
