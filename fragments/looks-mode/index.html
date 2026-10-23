@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Looks: light and dark mode — fragment</title>
+<link rel="stylesheet" href="../../theme.css">
+<style>
+/* Mode control beside the theme picker (Kitchie #1088). Tokens are the built app's (server/src/theme.ts, UAT 1541867): both halves of all ten looks. */
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);line-height:1.45}
+.back{display:inline-flex;align-items:center;min-height:44px;color:var(--accent);font-weight:600}
+.lm{max-width:1120px;margin:0 auto;padding:24px 16px 56px}
+.lm h1{font-family:var(--head);margin:6px 0}
+.lm .lead{max-width:62ch;color:var(--muted)}
+.dev-sim{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin:18px 0 4px;padding:10px 12px;border:1px dashed var(--border);border-radius:var(--r-card);background:var(--surface)}
+.dev-sim b{font-size:13px}
+.dev-sim .hint{font-size:13px;color:var(--muted)}
+.frames{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:22px;margin-top:16px;align-items:start}
+.frames figure{margin:0}
+.frames figcaption{font-weight:700;font-size:14px;margin:0 0 6px}
+/* the device: scoped tokens, never :root */
+.dev{background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden;font-family:var(--body)}
+.dev.phone{max-width:390px}
+.dev .appbar{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--border);font-weight:700}
+.dev .appbar a{color:var(--accent);font-weight:600}
+.dev .pg{padding:16px}
+.dev h2{font-family:var(--head);font-size:1.25rem;margin:0 0 12px}
+.dev .lbl{font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted);padding:0}
+.dev fieldset{border:0;margin:0 0 18px;padding:0;min-width:0}
+.dev legend{padding:0;margin:0 0 8px}
+.dev .small{margin:8px 0 0;font-size:13px;color:var(--muted);min-height:1.4em}
+.dev .small b{color:var(--fg)}
+.vh{position:absolute;opacity:0;width:1px;height:1px;margin:0;pointer-events:none}
+/* the app's .seg2, as radios (desktop profile.ts), full width on the phone */
+.seg2{display:flex;padding:3px;gap:2px;border-radius:.8rem;background:var(--surface);border:1px solid var(--border)}
+.seg2 label{position:relative;flex:1;display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 12px;border-radius:.65rem;font-weight:700;font-size:14px;color:var(--muted);cursor:pointer;white-space:nowrap}
+.seg2 label:has(input:checked){background:var(--accent);color:var(--on-accent)}
+.seg2 label:has(input:focus-visible){outline:3px solid var(--accent);outline-offset:2px}
+.seg2 svg{flex:none}
+.dev.desk .seg2{display:inline-flex}
+.dev.desk .seg2 label{flex:none;padding:0 12px}
+/* the app's swatch grid (.tgrid.swatches, .tpick.tbare) */
+.tgrid{display:flex;flex-wrap:wrap;gap:10px}
+.tpick.tbare{position:relative;width:44px;height:44px;min-height:44px;padding:0;justify-content:center;gap:0;display:inline-flex;align-items:center;border-radius:99px;border:1px solid var(--border);background:var(--surface);cursor:pointer}
+.tpick.tbare:has(input:checked){border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.tpick.tbare:has(input:focus-visible){outline:3px solid var(--accent);outline-offset:2px}
+.tsw{width:22px;height:22px;border-radius:50%;border:1px solid var(--border);flex:none}
+/* a sample so the owner sees the screen the mode changes */
+.sample{margin-top:4px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface);padding:12px 14px}
+.sample .r{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-top:1px solid var(--border);font-weight:600;font-size:14px}
+.sample .r:first-child{border-top:0}
+.sample .r span{font-weight:400;color:var(--muted);font-size:13px}
+.sample .cta{display:inline-flex;align-items:center;min-height:40px;margin-top:8px;padding:0 16px;border-radius:var(--r-ctl);background:var(--accent);color:var(--on-accent);font-weight:700;font-size:14px}
+.dev.desk{overflow-x:auto}.desk .layout{min-width:560px;display:grid;grid-template-columns:150px 1fr;min-height:430px}
+.desk .gut{border-right:1px solid var(--border);padding:12px 8px;font-size:14px}
+.desk .gut div{padding:8px 10px;border-radius:10px;color:var(--muted)}
+.desk .gut .on{background:var(--surface);color:var(--fg);font-weight:700}
+.desk .gut .sub{padding:6px 10px 6px 22px;font-size:13px}
+.desk .gut .sub.on{color:var(--accent);background:none}
+.row2{display:flex;flex-wrap:wrap;gap:14px 28px}
+/* matrix: every look, both modes */
+.mx{margin-top:34px}
+.mx h2{font-family:var(--head);font-size:1.25rem;margin:0 0 4px}
+.mx p{font-size:14px;margin:0 0 12px;max-width:70ch}
+.mxg{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr));gap:12px}
+.mxc{border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface);padding:10px}
+.mxc h3{margin:0 0 8px;font-size:14px}
+.mxp{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.chip{border-radius:12px;padding:10px;min-height:86px;display:flex;flex-direction:column;justify-content:space-between;font-size:12px;font-weight:700}
+.chip i{font-style:normal;font-weight:400;opacity:.9}
+.chip u{display:inline-block;text-decoration:none;padding:3px 9px;border-radius:99px;font-size:11px;align-self:flex-start}
+.qs{margin-top:30px;font-size:14px;line-height:1.5;max-width:78ch}
+.qs ul{margin:4px 0 12px;padding-left:20px}.qs li{margin:3px 0}
+.qs code{font-size:13px}
+</style></head>
+<body>
+<div class="lm">
+<a class="back" href="../../index.html">All mockups</a>
+<h1>Looks: light and dark mode</h1>
+<p class="lead">Kitchie <a href="https://github.com/basement-bridge/kitchie/issues/1088" style="color:var(--accent);font-weight:600">#1088</a>. A <b>Mode</b> control (System, Light, Dark) sits above the theme picker on Settings, Looks. The ten looks stay; each has a light and a dark half. <b>Mockup only, nothing is built.</b> Drawn from Kitchie <code>origin/uat</code> 1541867 (all ten looks' tokens are the app's, <code>server/src/theme.ts</code>). Try it: the controls in both screens work, and the row below stands in for the device's own light or dark setting.</p>
+
+<div class="dev-sim" role="group" aria-label="Pretend device setting">
+<b>Pretend this device is set to</b>
+<div class="seg2" id="osSeg" role="radiogroup" aria-label="Device setting" style="display:inline-flex">
+<label><input class="vh" type="radio" name="os" value="light"><span>Light</span></label>
+<label><input class="vh" type="radio" name="os" value="dark" checked><span>Dark</span></label></div>
+<span class="hint">Only System follows it. Light and Dark ignore it.</span>
+</div>
+
+<div class="frames">
+<figure><figcaption>Phone: Menu, App, Looks</figcaption>
+<div class="dev phone" id="dPhone">
+<div class="appbar"><a href="#" onclick="return false">&lsaquo; Settings</a><span>Looks</span></div>
+<div class="pg">
+<fieldset><legend class="lbl">Mode</legend>
+<div class="seg2" role="radiogroup" aria-label="Mode" data-mode></div>
+<p class="small" data-mode-note aria-live="polite"></p></fieldset>
+<fieldset><legend class="lbl">Theme</legend>
+<div class="tgrid" role="radiogroup" aria-label="Theme" data-themes></div>
+<p class="small" data-theme-name aria-live="polite"></p></fieldset>
+<div class="sample" aria-hidden="true"><div class="r">Milk <span>Fridge</span></div><div class="r">Eggs <span>2 left</span></div><div class="r">Tomatoes <span>Running low</span></div><span class="cta">Add to list</span></div>
+</div></div></figure>
+
+<figure><figcaption>Desktop: Settings window, Looks</figcaption>
+<div class="dev desk" id="dDesk">
+<div class="layout"><div class="gut"><div>Profile</div><div class="on">Settings</div><div class="sub on">Looks</div><div class="sub">Categories</div><div class="sub">Locations and spots</div><div>Preferences</div><div>Household</div></div>
+<div class="pg"><h2>Settings</h2>
+<div class="row2">
+<fieldset><legend class="lbl">Mode</legend><div class="seg2" role="radiogroup" aria-label="Mode" data-mode></div><p class="small" data-mode-note aria-live="polite"></p></fieldset>
+<fieldset><legend class="lbl">Theme</legend><div class="tgrid" role="radiogroup" aria-label="Theme" data-themes></div><p class="small" data-theme-name aria-live="polite"></p></fieldset></div>
+<div class="sample" aria-hidden="true"><div class="r">Milk <span>Fridge</span></div><div class="r">Eggs <span>2 left</span></div><div class="r">Tomatoes <span>Running low</span></div><span class="cta">Add to list</span></div>
+</div></div></div></figure>
+</div>
+
+<section class="mx"><h2>Every look, both modes</h2>
+<p>Each look's light half (left) and dark half (right), straight from the app's tokens. Nothing was invented: Kitchie is Day and Night; the nine themes already carry both halves (Marmalade, Herb Garden and the six light-first ones have a dark half in <code>ALT</code>; Blueberry is dark-first with a light half).</p>
+<div class="mxg" id="mx"></div></section>
+
+<div class="qs">
+<b>What is drawn (Proposals unless marked)</b>
+<ul>
+<li><b>Placement (owner: beside the picker).</b> A Mode row directly above Theme, same label style, so the two read as one pair: how it looks (mode), then whose colours (theme). Phone: full-width three-segment control. Desktop: the same control inline, to the left of Theme.</li>
+<li><b>Three visible choices (owner).</b> System (selected by default), Light, Dark. System has a half-circle icon, Light a sun, Dark a moon, so the choice reads at a glance. The control is a radio group using the app's <code>.seg2</code>; every target is 44px high on the phone.</li>
+<li><b>A line says what is in effect.</b> Under the control: "Following your device, which is dark now." for System; "Always light." / "Always dark." otherwise. It answers "why is it dark?" without a help page.</li>
+<li><b>Theme swatches show the half in use</b> (they redraw when the mode changes), and the theme name is written once underneath as today.</li>
+<li><b>Saves the moment it changes, no Save button</b>, like the theme and the other Looks controls.</li>
+<li><b>Mode is independent of theme.</b> Picking a theme keeps the mode; picking a mode keeps the theme. Option 3 on the issue (fold mode into the theme value) is not drawn: it brings back the coupling this change removes.</li>
+</ul>
+<b>Open</b>
+<ul>
+<li><b>Where is mode kept?</b> Not drawn either way: the control looks the same for a cookie (this device) or the member (every device). The screen's current line "Only your theme and the emoji setting also travel with you" is left out of this mock because it is the thing the issue says may already disagree with the code. A wrong guess costs a copy change only, not the layout. (Issue question 2.)</li>
+<li><b>Does the old Light / Dark / Follow-the-phone display setting go?</b> This control replaces it for signed-in people, so the mock shows one mode control, not two. Wrong guess: two controls that fight.</li>
+<li><b>Platform and Recipe pages</b> are not drawn; they would follow whatever the stored choice is (issue question 5).</li>
+<li><b>Sign-in and other pre-session screens</b> are not drawn; they would read the saved mode like they read the theme today.</li>
+<li><b>Contrast</b> of ten looks in two modes has not been measured here; the tokens are the app's own.</li>
+</ul>
+<p style="margin:10px 0 0;color:var(--muted)">Loads: this page, <code>theme.css</code> and about 5 KB of inline script. Default path is the static controls; nothing else is fetched. Nothing is stored; a reload goes back to System.</p>
+</div>
+</div>
+<script>
+(function(){
+"use strict";
+/* Tokens are server/src/theme.ts at origin/uat 1541867 (light and dark half of each look). Kitchie = production's Day and Night (theme.css). */
+var K=["bg","surface","border","fg","muted","accent","on-accent","danger"];
+function t(a){var o={};K.forEach(function(k,i){o["--"+k]=a[i]});return o}
+var L={
+ kitchie:{n:"Kitchie",light:t(["#F6F1E6","#FFFFFF","#D9D1BF","#1D2A24","#56645B","#8A5600","#FFFFFF","#B42318"]),dark:t(["#0F1E19","#172A23","#24403A","#F3EEE3","#A9B8AE","#F2B84B","#0F1E19","#FF9A8F"])},
+ marmalade:{n:"Marmalade",light:t(["#FBF1E3","#FFFFFF","#EAD3B5","#3A2412","#7A5B43","#C2410C","#FFFFFF","#B42318"]),dark:t(["#1F1510","#2A1D14","#4A3524","#FBF1E3","#C9AE95","#F59E5B","#2A1405","#FF9A8F"])},
+ blueberry:{n:"Blueberry",light:t(["#F4F2FF","#FFFFFF","#D8D4F2","#1E1B3A","#5A5880","#B8325F","#FFFFFF","#B42318"]),dark:t(["#14142B","#1D1D3D","#34346B","#EEEBFF","#A9A8D0","#F48FB1","#2B0F1B","#FF9A8F"])},
+ herb:{n:"Herb Garden",light:t(["#EEF4E6","#FFFFFF","#C8D8B8","#1B2E1B","#4F6A4F","#2F7D32","#FFFFFF","#B42318"]),dark:t(["#101A12","#18251A","#2C4430","#E6F0DC","#A3BC9F","#7FD18A","#0E1F10","#FF9A8F"])},
+ graphite:{n:"Graphite",light:t(["#E4E4E2","#EFEFED","#C4C4C0","#1E1F20","#55585B","#3A3F44","#F2F2F0","#A32A20"]),dark:t(["#161718","#1F2022","#36383B","#E3E3E0","#9A9C9E","#C9CCCE","#161718","#FF9A8F"])},
+ lagoon:{n:"Lagoon",light:t(["#E8F4F3","#FFFFFF","#BFDEDB","#0F2F2E","#3F6B69","#0F766E","#FFFFFF","#B42318"]),dark:t(["#0C1D1D","#122A29","#1F4745","#DFF3F1","#8FBDB9","#4FD1C5","#072524","#FF9A8F"])},
+ terracotta:{n:"Terracotta",light:t(["#F6EBE4","#FFFFFF","#E3C9BA","#3B1F14","#7C5646","#B4482B","#FFFFFF","#B42318"]),dark:t(["#20130F","#2C1B15","#52352A","#F6EBE4","#CDAE9E","#F28C6A","#2B1109","#FF9A8F"])},
+ orchard:{n:"Orchard",light:t(["#F4F7EC","#FFFFFF","#D4DDBE","#26301A","#5E6D45","#B3261E","#FFFFFF","#B42318"]),dark:t(["#131A0F","#1B2515","#33432A","#EEF3E2","#A9B88F","#FF8A80","#2A0A08","#FF9A8F"])},
+ lavender:{n:"Lavender",light:t(["#F3EFFA","#FFFFFF","#DAD0EE","#2A2140","#6A5E8C","#6D4AC4","#FFFFFF","#B42318"]),dark:t(["#18132A","#221B3A","#3D3466","#EFEAFB","#B3A8D6","#B79CFF","#1B1033","#FF9A8F"])},
+ harbour:{n:"Harbour",light:t(["#EAF0F7","#FFFFFF","#C5D3E6","#14233A","#4D6483","#1D4ED8","#FFFFFF","#B42318"]),dark:t(["#0E1726","#152238","#263A5C","#E6EEFA","#94A9C9","#6EA8FF","#07142B","#FF9A8F"])}
+};
+var IDS=Object.keys(L);
+var MODES=[["system","System","<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"8\"/><path d=\"M12 4a8 8 0 0 1 0 16z\" fill=\"currentColor\"/></svg>"],
+ ["light","Light","<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4\"/></svg>"],
+ ["dark","Dark","<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z\"/></svg>"]];
+var st={mode:"system",theme:"kitchie",os:"dark"};
+try{st.os=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"}catch(e){}
+var devs=[document.getElementById("dPhone"),document.getElementById("dDesk")];
+var uid=0;
+function eff(){return st.mode==="system"?st.os:st.mode}
+function paint(el,tok){for(var k in tok)el.style.setProperty(k,tok[k])}
+function build(d,n){
+ var m=d.querySelector("[data-mode]");
+ m.innerHTML=MODES.map(function(x){return '<label><input class="vh" type="radio" name="mode'+n+'" value="'+x[0]+'"'+(x[0]===st.mode?" checked":"")+'>'+x[2]+'<span>'+x[1]+'</span></label>'}).join("");
+ var g=d.querySelector("[data-themes]");
+ g.innerHTML=IDS.map(function(id){return '<label class="tpick tbare" title="'+L[id].n+'"><input class="vh" type="radio" name="theme'+n+'" value="'+id+'" aria-label="'+L[id].n+'"'+(id===st.theme?" checked":"")+'><i class="tsw" data-sw="'+id+'"></i></label>'}).join("");
+ m.addEventListener("change",function(e){st.mode=e.target.value;render()});
+ g.addEventListener("change",function(e){st.theme=e.target.value;render()});
+}
+function render(){
+ var e=eff(),half=L[st.theme][e];
+ devs.forEach(function(d,i){
+  paint(d,half);d.style.colorScheme=e;
+  d.querySelectorAll("[data-mode] input").forEach(function(r){r.checked=r.value===st.mode});
+  d.querySelectorAll("[data-themes] input").forEach(function(r){r.checked=r.value===st.theme});
+  d.querySelectorAll("[data-sw]").forEach(function(s){var h=L[s.getAttribute("data-sw")][e];s.style.background="linear-gradient(135deg,"+h["--bg"]+" 50%,"+h["--accent"]+" 50%)"});
+  d.querySelector("[data-mode-note]").innerHTML=st.mode==="system"?"Following your device, which is <b>"+st.os+"</b> now.":"Always <b>"+st.mode+"</b>, whatever the device says.";
+  d.querySelector("[data-theme-name]").textContent=L[st.theme].n;
+ });
+ document.querySelectorAll("#osSeg input").forEach(function(r){r.checked=r.value===st.os});
+}
+devs.forEach(build);
+document.getElementById("osSeg").addEventListener("change",function(e){st.os=e.target.value;render()});
+/* the matrix */
+document.getElementById("mx").innerHTML=IDS.map(function(id){
+ function chip(h,lab){return '<div class="chip" style="background:'+h["--bg"]+';color:'+h["--fg"]+';border:1px solid '+h["--border"]+'"><span>'+lab+'<br><i style="color:'+h["--muted"]+'">Milk, Fridge</i></span><u style="background:'+h["--accent"]+';color:'+h["--on-accent"]+'">Add</u></div>'}
+ return '<div class="mxc"><h3>'+L[id].n+'</h3><div class="mxp">'+chip(L[id].light,"Light")+chip(L[id].dark,"Dark")+'</div></div>'}).join("");
+render();
+})();
+</script>
+</body></html>
