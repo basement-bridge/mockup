@@ -26,7 +26,7 @@ var MEID = HM.IDS[ME], OTHERS = Object.keys(HM.IDS).filter(function (k) { return
 var ALL = HM.build({ house: HOUSE });
 var TPL = ["loading", "none"].indexOf(Q.get("tpl")) >= 0 ? Q.get("tpl") : "ready"; HM.setTplMode(TPL);
 /* SEARCH: Preview B (free text over the days loaded; owner asked to see it, Q1). MULTI: Preview for Q2 (several topics at once; needs a Platform change; undecided). */
-var WAY = { sentence: "b", quick: "c", tap: "d" }[Q.get("way")] || ""; /* the filter pattern (owner, voice, 24 Oct 2026): "" = A cascade (baseline), b = Sentence, c = Quick answers, d = Tap to filter */
+var WAY = { sentence: "b", quick: "c", tap: "d", cascade: "" }[Q.get("way") === null ? "tap" : Q.get("way")] || ""; /* the filter pattern (owner, voice, 24 Oct 2026): default (no way parameter) = d on phone and desktop; way=cascade = A (baseline), b = Sentence, c = Quick answers, d = Tap to filter */
 var NOTES = Q.get("notes") !== "0", SEARCH = Q.get("search") === "text", MULTI = Q.get("choices") === "several";
 var LAST = { sat: { iso: HM.utc(1, 17, 30), t: "Sat 17 Oct, 5:30 pm" }, wed: { iso: HM.utc(4, 17, 30), t: "Wed 14 Oct, 5:30 pm" } }[Q.get("last") === "wed" ? "wed" : "sat"];
 var CAP = 3; /* H6: the catch-up is at most three calendar days that each had a change. The screen's rule, not the API's. */
@@ -458,7 +458,7 @@ function pvHtml() {
  var u = function (k, v) { var p = new URLSearchParams(location.search); if (v === null) p.delete(k); else p.set(k, v); return "?" + p.toString(); };
  var grp = function (title, k, opts, cur) { return "<h3>" + title + '</h3><div class="pills">' + opts.map(function (o) { return '<a class="pl" aria-pressed="' + (cur === o[0]) + '" href="' + u(k, o[0] === "" ? null : o[0]) + '">' + o[1] + "</a>"; }).join("") + "</div>"; };
  return '<div class="pv" id="pv"><button type="button" id="pvb" aria-expanded="false">Preview</button><div class="pop" id="pvp">' +
-  grp("Filter pattern (owner, 24 Oct)", "way", [["", "A: Cascade (baseline)"], ["sentence", "B: Sentence"], ["quick", "C: Quick answers"], ["tap", "D: Tap to filter (recommended)"]], { b: "sentence", c: "quick", d: "tap" }[WAY] || "") +
+  grp("Filter pattern (owner, 24 Oct)", "way", [["cascade", "A: Cascade (baseline)"], ["sentence", "B: Sentence"], ["quick", "C: Quick answers"], ["tap", "D: Tap to filter (default)"]], { b: "sentence", c: "quick", d: "tap" }[WAY] || "cascade") +
   grp("Search (Q1)", "search", [["", "A: filters only (default)"], ["text", "B: free text, days loaded"]], SEARCH ? "text" : "") +
   grp("Choices per group (Q2, undecided)", "choices", [["", "One at a time (shown)"], ["several", "Several (lists)"]], MULTI ? "several" : "") +
   grp("Signed in as", "as", [["", "Arjan"], ["sam", "Sam"]], ME === "sam" ? "sam" : "") + grp("Household", "household", [["", "Two people"], ["more", "More"]], HOUSE === "more" ? "more" : "") +
