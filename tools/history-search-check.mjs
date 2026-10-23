@@ -9,6 +9,7 @@ let fails = 0, total = 0;
 const ok = (n, c, x) => { total++; if (!c) { fails++; console.log("FAIL", n, x === undefined ? "" : JSON.stringify(x)); } };
 const browser = await chromium.launch();
 async function open(qs, w, h, mode, auto) {
+  if (!/[?&]way=/.test(qs) && qs !== "@default") qs = (qs ? qs + "&" : "?") + "way=cascade"; if (qs === "@default") qs = ""; // the default is D; checks of the cascade baseline name it
   const ctx = await browser.newContext({ viewport: { width: w, height: h }, colorScheme: mode });
   await ctx.addInitScript(t => { try { localStorage.setItem("theme", t); } catch (e) {} }, mode === "dark" ? "kitchie" : "kitchie-day");
   if (!auto) await ctx.addInitScript(() => { window.IntersectionObserver = class { observe() {} disconnect() {} unobserve() {} }; }); // days then load only when the check asks (window.__hx.moreDay), so counts are exact
@@ -347,10 +348,13 @@ for (const [mode, w, h] of [["dark", 390, 844], ["light", 1280, 800]]) {
   await p.locator("#kw").press("Escape");
   ok(`${fn}: Esc clears the search`, (await p.locator("#kw").inputValue()) === "");
   await shot(p, `search-b-${fn}-${mode}`); await p.close();
+  p = await open("@default", w, h, mode); await p.locator("[data-closecatch]:visible").first().click().catch(() => {});
+  ok(`${fn}: with no parameters the filter pattern is D, Tap to filter, on phone and desktop`, await p.evaluate(() => window.__hx.WAY) === "d");
+  await p.close();
   p = await open("?view=list", w, h, mode);
   await p.locator("#pvb").click();
   ok(`${fn}: the Preview switch offers A (default, elements only) and B (free text)`, /A: filters only/.test(await txt(p, "#pvp")) && /B: free text/.test(await txt(p, "#pvp")) && await p.locator('#pvp a[aria-pressed="true"]:has-text("A: filters only")').count() === 1);
-  ok(`${fn}: the Preview switch offers the filter patterns A Cascade (baseline, default), B Sentence, C Quick answers, D Tap to filter (recommended)`, /A: Cascade \(baseline\)/.test(await txt(p, "#pvp")) && /B: Sentence/.test(await txt(p, "#pvp")) && /C: Quick answers/.test(await txt(p, "#pvp")) && /D: Tap to filter \(recommended\)/.test(await txt(p, "#pvp")) && await p.locator('#pvp a[aria-pressed="true"]:has-text("A: Cascade")').count() === 1);
+  ok(`${fn}: the Preview switch offers the filter patterns A Cascade (baseline), D Tap (default), B Sentence, C Quick answers, D Tap to filter (recommended)`, /A: Cascade \(baseline\)/.test(await txt(p, "#pvp")) && /B: Sentence/.test(await txt(p, "#pvp")) && /C: Quick answers/.test(await txt(p, "#pvp")) && /D: Tap to filter \(default\)/.test(await txt(p, "#pvp")) && await p.locator('#pvp a[aria-pressed="true"]:has-text("A: Cascade")').count() === 1);
   ok(`${fn}: the pattern links keep the other parameters and use ?way=sentence|quick|tap`, (await p.locator('#pvp a:has-text("D: Tap")').getAttribute("href")).includes("way=tap") && (await p.locator('#pvp a:has-text("D: Tap")').getAttribute("href")).includes("view=list"));
   ok(`${fn}: the Preview switch keeps the lists alternative reachable and marks Q2 undecided`, /Several \(lists\)/.test(await txt(p, "#pvp")) && /Q2, undecided/i.test(await txt(p, "#pvp")));
   await p.close();
