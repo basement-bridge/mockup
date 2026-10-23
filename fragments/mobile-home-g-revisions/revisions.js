@@ -11,7 +11,8 @@ var I = {
   lens: ic('<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/>'), clock: ic('<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>'), cart: ic('<path d="M4 5h2l2 10h9l2-7H7"/><circle cx="9.5" cy="19" r="1.3"/><circle cx="16.5" cy="19" r="1.3"/>'),
   leaf: ic('<path d="M5 19c0-8 5-13 14-14-1 9-6 14-14 14z"/><path d="M5 19l7-7"/>'), chef: ic('<path d="M7 14a3.5 3.5 0 1 1 1-6.8 4 4 0 0 1 8 0A3.5 3.5 0 1 1 17 14v5H7z"/>'),
   jar: ic('<rect x="6" y="6" width="12" height="14" rx="2.5"/><path d="M8 3h8v3H8z"/>'), note: ic('<path d="M6 4h12v16H6z"/><path d="M9 9h6M9 13h6"/>'), chev: ic('<path d="M6 9l6 6 6-6"/>', "chv"),
-  spark: ic('<path d="M12 4l1.8 5.2L19 11l-5.2 1.8L12 18l-1.8-5.2L5 11l5.2-1.8z"/>'), alert: ic('<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.4"/>', "alr")
+  spark: ic('<path d="M12 4l1.8 5.2L19 11l-5.2 1.8L12 18l-1.8-5.2L5 11l5.2-1.8z"/>'), alert: ic('<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.4"/>', "alr"),
+  info: ic('<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.6v.2"/>')   /* the app's one information icon (Recipe tab icons.ts ICON_PATHS.info: the Why button on an idea, the notes and the photo hints) */
 };
 
 /* ---- constants. Every one is a guess (Proposals in the doc). ---- */
@@ -55,8 +56,8 @@ function scoreSoon(x, n) { return (x.h < 0 ? 60 : x.h <= n ? 50 : x.h <= 48 ? (x
 function kindSoon(x, n) { return x.h < 0 ? "expired" : x.h <= n ? "window" : scoreSoon(x, n) >= URG ? "ignored" : ""; }
 function scoreLow(x) { return x.rides && x.zero ? 90 : x.rides ? 55 : x.zero ? 50 : 5; }                  /* a planned meal needs it and it is gone 90; needed 55; gone 50; plain low 5 (background) */
 
-/* ---- the height of each part, in px (guesses; measured against the render by the check) ---- */
-var K = { top: 56, hero: 236, heroWarn: 14, closed: 57, openHead: 50, ur: 44, va: 44, ol: 49, fbPad: 4, banClosed: 53, banOpenHead: 54, card: 8, xl: 45 };   /* xl: the collapse bar that ends an open More ideas (MR-P26) */
+/* ---- the height of each part, in px (guesses; measured against the render by the check). hero and heroWarn re-measured for the passport layout (kitchie #1095). ---- */
+var K = { top: 56, hero: 250, heroWarn: 37, closed: 57, openHead: 50, ur: 44, va: 44, ol: 49, fbPad: 4, banClosed: 53, banOpenHead: 54, card: 8, xl: 45 };   /* xl: the collapse bar that ends an open More ideas (MR-P26) */
 
 function facts(c) {
   var d = DATA[c.data], n = c.n == null ? WIN : c.n;
@@ -68,8 +69,15 @@ function facts(c) {
     var why = w === "expired" ? "Check this is still OK: uses " + nm[2] + " that " + (d0 < 0 ? "went off " + (d0 < -1 ? (-d0) + " days ago" : "yesterday") : "went off today")
       : w === "today" ? "Uses " + nm[2] + " that " + (nm[3] ? "goes" : "go") + " off today at " + clock(hi.h)
       : "Uses " + nm[2] + " that " + (nm[3] ? "goes" : "go") + " off " + (d0 === 1 ? "tomorrow" : "in " + d0 + " days");
-    hero = { e: nm[0], t: nm[1], why: why, warn: w, item: hi.n };
-  } else hero = { e: BASE_HERO[0], t: BASE_HERO[1], why: "Everything is in &middot; 30 min", warn: "", item: null };
+    /* kitchie #1095: the meta line is always its own line; the expired or off-today warning (when there is one) is a separate note under the card's head row */
+    hero = { e: nm[0], t: nm[1], meta: "30 min &middot; uses up the " + nm[2], alarm: w ? why : "", why: why, warn: w, item: hi.n };
+    if (!w) hero.meta = why;
+  } else hero = { e: BASE_HERO[0], t: BASE_HERO[1], meta: "Everything is in &middot; 30 min", alarm: "", why: "Everything is in &middot; 30 min", warn: "", item: null };
+  /* hero view (a page switch, not data): idea or planned for today, with or without a photo. The planned one is the owner's screenshot: a long two-line name. */
+  var hv = c.hv || "idea";
+  hero.planned = hv === "planned" || hv === "plannedphoto"; hero.photo = hv === "photo" || hv === "plannedphoto";
+  hero.eyebrow = hero.planned ? "Planned for today &middot; Fri 23" : "Today &middot; Idea for tonight";
+  if (hero.planned) { hero.t = "Ginger-Soy Chicken Stir-Fry with Rice"; hero.meta = "25 min &middot; on the plan, nothing to decide"; }
   var f = { n: n, soon: soon, low: low, hero: hero, capSoon: c.h === "short" ? 1 : 2, nOI: c.h === "short" ? 2 : 3 };
   /* More ideas: expiring stock gets its own idea (decision 4), worst first; then filler. A planned item already has its meal. */
   var ideas = soon.filter(function (x) { return !x.plan && x.h <= 48 && x.n !== hero.item; }).sort(function (a, b) { return a.h - b.h; }).map(function (x) {
@@ -141,8 +149,10 @@ function bodyOf(f, k) {
 }
 function heroHtml(f, fused, ext) {
   var L = f.hero, warn = L.warn;
+  /* kitchie #1095, passport layout: the eyebrow on the top line, the picture (or the chef-hat placeholder) at the left, the name (two lines at most) and the meta line beside it, the warning note under both, then Make it, Plan and the information icon. */
+  var pic = L.photo && MR.photo ? '<span class="ph pic" aria-hidden="true" style="background-image:url(' + MR.photo + ')"></span>' : '<span class="ph" aria-hidden="true">' + I.chef + "</span>";
   return '<section class="ideas hero' + (fused ? " has-ban" : "") + (ext ? " has-ext" : "") + '" data-sec="hero"' + (warn ? ' data-warn="' + warn + '"' : "") + ' aria-label="Cooking ideas"><div class="th2"><span class="ric t2" aria-hidden="true" style="--c:var(--sage)">' + I.chef + '</span><h2>Cooking ideas</h2></div>' +
-    '<div class="idl"><button type="button" class="top2" data-stub><span class="ph" aria-hidden="true">' + L.e + '</span><span class="t"><span class="k">Today &middot; <span class="w">Idea for tonight</span></span><b>' + esc(L.t) + '</b><span class="why' + (warn ? " alarm" : "") + '">' + (warn ? I.alert : I.leaf) + L.why + '</span></span></button><div class="acts"><button type="button" class="btn" data-stub>Make it</button><button type="button" class="btn ghost" data-stub>Plan</button></div></div></section>';
+    '<div class="idl"><button type="button" class="top2" data-stub>' + pic + '<span class="t"><span class="k' + (L.planned ? " planned" : "") + '">' + L.eyebrow + '</span><b>' + esc(L.t) + '</b><span class="why">' + L.meta + '</span>' + (L.alarm ? '<span class="why alarm">' + I.alert + L.alarm + '</span>' : "") + '</span></button><div class="acts"><button type="button" class="btn" data-stub>Make it</button><button type="button" class="btn ghost" data-stub>Plan</button><button type="button" class="ib" data-stub aria-label="Why this idea">' + I.info + '</button></div></div></section>';
 }
 function foldHtml(id, P, k, open) {
   var f = P.f, form = P.form[k], t = T[k], b = k === "oi" ? "" : badge(f, k), n = k === "soon" ? f.soon.length : k === "low" ? f.low.length : f.ideas.length, fid = id + "-" + k, urg = f.urgent(k);
