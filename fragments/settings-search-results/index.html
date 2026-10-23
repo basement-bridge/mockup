@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Settings search results, options A to D — fragment</title>
+<link rel="stylesheet" href="../../theme.css"><script src="../../theme.js"></script><link rel="stylesheet" href="../../shared.css"><link rel="stylesheet" href="ssr.css">
+</head>
+<body><div class="wrap ssrwrap">
+<a class="back" href="../../">&lsaquo; All mockups</a>
+<h1>Settings search results<span class="badge">mockup only, nothing built</span></h1>
+<p class="own"><b>Owner, 24 Oct 2026:</b> &ldquo;This is shit. Give me better mockups for this visual.&rdquo; Then: search must work <b>from anywhere in Settings</b>, the page you are on comes first, and it must be obvious which results are &ldquo;on this page&rdquo; and which are &ldquo;everywhere else&rdquo;. Phone only. Kitchie <a href="https://github.com/basement-bridge/kitchie/issues/1090">#1090</a>, follows <a href="../settings-redesign/">Settings option E</a>.</p>
+
+<div class="bar" aria-label="Mockup aids">
+  <span class="grp" role="group" aria-label="Option"><span class="lbl2">Option</span><button type="button" data-view="A">A</button><button type="button" data-view="B" aria-pressed="true">B</button><button type="button" data-view="C">C</button><button type="button" data-view="D">D</button><button type="button" data-view="all">All four</button></span>
+  <span class="grp" role="group" aria-label="Start page"><span class="lbl2">Start page</span><button type="button" data-start="front" aria-pressed="true">Settings</button><button type="button" data-start="looks">Looks</button><button type="button" data-start="household">Household</button><button type="button" data-start="preferences">Preferences</button><button type="button" data-start="kitchen">Kitchen setup</button></span>
+  <span class="grp" role="group" aria-label="Text size" data-ts-aid><span class="lbl2">Text</span><button type="button" data-ts="1" aria-pressed="true">Auto</button><button type="button" data-ts="1.15">+15%</button><button type="button" data-ts="1.3">+30%</button></span>
+  <span class="grp" role="group" aria-label="Looks"><span class="lbl2">Looks</span><button type="button" data-mode="light">Light</button><button type="button" data-mode="dark">Dark</button></span>
+</div>
+<div class="bar presets" aria-label="Try a search"><span class="lbl2">Try</span>
+  <button type="button" data-q="invite">invite</button><button type="button" data-q="someone changed">someone changed</button><button type="button" data-q="theme">theme</button><button type="button" data-q="bigger text">bigger text</button><button type="button" data-q="hard to see">hard to see</button><button type="button" data-q="remove someone">remove someone</button><button type="button" data-q="household">household</button><button type="button" data-q="animations">animations</button><button type="button" data-q="drak mode">drak mode (typo)</button><button type="button" data-q="flux capacitor">flux capacitor (no match)</button><button type="button" data-q="">empty box</button>
+</div>
+
+<div id="stage" class="stage" data-view="B">
+<figure class="opt" data-o="A"><figcaption><h2><b>A</b> Scan list</h2><p class="pitch">One quiet line under the name, nothing else. Tap a row to open its plain-language sentence and control in place.</p><p class="tr"><b>Cost:</b> an extra tap to see scope, the sentence or the control. <b>Gain:</b> the plainest list; the most rows.</p></figcaption><div class="host"></div></figure>
+<figure class="opt" data-o="B"><figcaption><h2><b>B</b> Change it right here <span class="recbadge">Recommended</span></h2><p class="pitch">The result is the control: switches and the text stepper sit in the row; everything else shows its current value and a chevron.</p><p class="tr"><b>Cost:</b> only five settings have an inline control; the rest are plain rows. <b>Gain:</b> the most common searches end with no navigation.</p></figcaption><div class="host"></div></figure>
+<figure class="opt" data-o="C"><figcaption><h2><b>C</b> Best answer, then by area</h2><p class="pitch">The top answer is a larger card with its control; the rest are one-line rows under area headings.</p><p class="tr"><b>Cost:</b> the card is tall, so fewer rows above the fold. <b>Gain:</b> the right answer is unmistakable; areas explain a long list.</p></figcaption><div class="host"></div></figure>
+<figure class="opt" data-o="D"><figcaption><h2><b>D</b> Icon rows</h2><p class="pitch">An area icon tile, the name, and &ldquo;matches &lsquo;someone changed&rsquo;&rdquo; when a plain phrase found it; scope, shortcut and search-only as small icons.</p><p class="tr"><b>Cost:</b> five icons to learn; the most to draw and maintain. <b>Gain:</b> the friendliest and fastest to recognise; shows why each result matched.</p></figcaption><div class="host"></div></figure>
+</div>
+
+<details class="how" open><summary>What was wrong, what changed, how to read this page</summary>
+<ul class="notes">
+<li><b>What was wrong (visible):</b> each result was a tall block (title, scope pill, &ldquo;Exact match&rdquo;, AFFECTS paragraph, LIVES IN path, a full-width Open button, sometimes a control row). Two or three results per screen, shouty labels, an accent bar and tint on the first one, and nothing to scan.</li>
+<li><b>What all four do instead:</b> one or two lines per result, 44px rows, matched words highlighted (no &ldquo;Exact match&rdquo;), the plain-language sentence only when asked for, scope as an icon (long-press an icon, or the <span class="inl">i</span> button, for what it means), <i>search only</i> as a quiet dashed-magnifier icon, a shortcut that is already pinned as an icon only (no word). Six or more results on a 390 by 844 screen.</li>
+<li><b>Same index, same engine:</b> the real 51 entries and their synonyms (<code>../settings-redesign/search-index.js</code>, 52 minus Emoji, which the owner removed). Type in any box, press a preset, or try a typo. Text sizes to +30% and Light/Dark are in the bar.</li>
+<li><b>Search from every page (owner addition).</b> Start on Settings, Looks, Household, Preferences or Kitchen setup (&ldquo;Start page&rdquo;), open the search with the magnifier in the header, and the same words rank differently: the page you are on is listed first as <b>On this page</b>, the rest as <b>Everywhere else</b>. Tap a result: it opens its page and the row flashes; <b>Back</b> returns to the results you left.</li>
+</ul>
+</details>
+<h2>Why B (designer&rsquo;s recommendation)</h2>
+<p>B is the only option where the search result <i>is</i> the setting for the searches people actually make (bigger text, bell, motion, check amounts). It keeps every row at two lines, shows scope as one small icon, and needs no learned icon set beyond four. C is the runner-up if the owner wants one hero answer; D if the app wants more personality. A is the fallback with the fewest moving parts.</p>
+<h2>Page-scoped ranking (SR-P23, proposal)</h2>
+<p>Score every setting as today (exact, old name, phrase, words, typos). A result is <b>On this page</b> when it lives on the page the person is on <i>and</i> scores at least a fifth of the best score (and 20 points), so a stray partial hit on this page never outranks a strong answer elsewhere. On this page is listed first; each list keeps the global order. From the Settings front there is no &ldquo;this page&rdquo;. If nothing on this page matches, one quiet line says so. Where each setting lives is a Proposal for the History and activity bell rows: both are filed under Household here.</p>
+<h2>Loads</h2>
+<p>Default path: <code>theme.css</code>, <code>theme.js</code>, <code>shared.css</code>, <code>ssr.css</code> (small), <code>ssr.js</code>. Deferred: <code>../settings-redesign/search-index.js</code> (about 7 KB gzipped), fetched on first focus, typing, preset or when a start page needs it. Nothing is stored.</p>
+<h2>Open questions</h2>
+<ol>
+<li><b>SR-Q31.</b> Which results style: A, B, C or D? Recommend B.</li>
+<li><b>SR-Q32.</b> Page-scoped ranking (SR-P23): on-this-page first, with the one-fifth-of-best floor? Recommend yes. A wrong guess costs a re-rank rule only.</li>
+<li><b>SR-Q33.</b> Is History filed under Household for ranking? Recommend yes.</li>
+</ol>
+</div>
+<script src="ssr.js"></script>
+<script>
+(function () {
+  var q = new URLSearchParams(location.search), S = window.SSR, stage = document.getElementById("stage");
+  var $$ = function (s) { return Array.prototype.slice.call(document.querySelectorAll(s)); };
+  var view = (q.get("o") || "B").toUpperCase(); if (q.get("all")) view = "all";
+  function setView(v) { view = v; stage.setAttribute("data-view", v); $$("[data-view]").forEach(function (b) { if (b.tagName === "BUTTON") b.setAttribute("aria-pressed", String(b.dataset.view.toUpperCase() === v.toUpperCase() || b.dataset.view === v)); }); }
+  $$("#stage .opt").forEach(function (f) { new S.Phone(f.querySelector(".host"), f.dataset.o); });
+  function visible() { return S.phones.filter(function (p) { return view === "all" || p.opt === view; }); }
+  function startAll(pg) { S.phones.forEach(function (p) { p.stack = []; p.q = ""; p.inp.value = ""; p.goPage(pg); }); $$("[data-start]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.start === pg)); }); }
+  function ask(t) { S.ensureIndex(function () { S.phones.forEach(function (p) { p.stack = []; if (p.searching) p.end(); p.set(t, false); }); }); }
+  $$("[data-view]").forEach(function (b) { if (b.tagName === "BUTTON") b.addEventListener("click", function () { setView(b.dataset.view); }); });
+  $$("[data-start]").forEach(function (b) { b.addEventListener("click", function () { startAll(b.dataset.start); }); });
+  $$("[data-q]").forEach(function (b) { b.addEventListener("click", function () { if (!b.dataset.q) { S.phones.forEach(function (p) { p.stack = []; if (p.searching) p.end(); p.begin(); p.set("", false); S.ensureIndex(function () { p.draw(); }); }); } else ask(b.dataset.q); }); });
+  $$("[data-ts]").forEach(function (b) { b.addEventListener("click", function () { S.SH.ts = parseFloat(b.dataset.ts); S.syncAll(); }); });
+  $$("[data-mode]").forEach(function (b) { b.addEventListener("click", function () { S.SH.mode = b.dataset.mode; S.applyMode(); $$("[data-mode]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); S.syncAll(); }); });
+  if (q.get("ts")) S.SH.ts = parseFloat(q.get("ts"));
+  setView(view); S.syncAll();
+  var pg = q.get("p"); if (pg) startAll(pg);
+  if (q.get("q") !== null && q.get("q") !== "") ask(q.get("q"));
+  document.body.setAttribute("data-ready", "1");
+})();
+</script>
+</body></html>
