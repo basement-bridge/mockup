@@ -5,6 +5,7 @@ Mockup: `fragments/mobile-home-g-revisions/` (three options A to C in phone fram
 ## Decisions (owner, 23 Oct 2026). Authoritative for the build.
 
 - **D1 Three equal chevron sections,** each absent when empty and optional (space permitting): **More ideas** (the hero's own extension; no longer a separate always-visible block), **On the way out**, **Running low**. The hero (Cooking ideas, Make it, Plan) is always first and never touched.
+- **D1b More ideas open is the hero's continuation (owner decision, 23 Oct 2026, MR-P26).** Open, it has no label or header: its rows flow directly under the hero as one card. The chevron header (title, count, preview) exists only when it is closed, as the hint that more is there. Options A, B and C alike. On the way out and Running low keep their labelled headers.
 - **D2 Urgency is consequence plus neglect,** not raw stock or date. On the way out becomes more urgent the longer it has been ignored (expiring, not on a plan, nobody acted). Running low is urgent only when something rides on it (a planned meal needs it) or it is at zero; "low, nothing riding on it" is background. Running low can take slot 2 ahead of On the way out when its consequence is worse. **The time-of-day chevron order is replaced entirely by urgency ranking.**
 - **D3 A global sliding countdown window in hours.** Anything going off within N hours is urgent even if its date is tomorrow. The date label stays honest: tomorrow is never labelled "today". N is a visible control on the page; default 6 h is a **guess**.
 - **D4 Expired-ingredient warning.** Any cooking idea (hero included) using an expired or off-today ingredient stays eligible but carries a visible alarming warning: red alert mark plus words ("Check this is still OK", "uses chicken that goes off today"). Expiring stock also surfaces as its own idea in More ideas.
@@ -91,6 +92,7 @@ New (each a guess unless noted, with the cost of a wrong guess):
 - **MR-P23 B** is the only option where urgent may stay closed; strip names what is urgent either way.
 - **MR-P24 Mock clock** is 14:00 on a Friday, tonight not planned. Guess; sample hours live in `DATA`.
 - **MR-P25 Hero choice is data** in the mock (`hero:`); in the app `suggest_meals` chooses and only the warning is derived from the ingredient's date.
+- **MR-P26 More ideas open = the hero's continuation, no label (OWNER DECISION, 23 Oct 2026).** Closed: the chevron header stays in its ranked slot (MR-P15) with title, count and preview. Open: the header is gone; the extra idea rows sit directly under the hero in one card (same width, hero's bottom corners squared, a divider between), wherever More ideas ranks, so opening it from a lower slot moves it up under the hero. The collapse control is the SAME button, drawn last as a 44 px chevron-up bar on the card's bottom edge (flex order, so focus, `aria-expanded` and `aria-controls` never leave it; its name is "Hide more ideas"). Tap, Enter, Space and the drag all still work; a drag only opens. After a tap the moved card is scrolled into view; during a drag the sections above its old slot stay put. Row warnings (expired, off today) are unchanged; session memory, urgency ranking, fit-to-height (the open cost is rows + bar, no header or gap) are unchanged. In B the open rows sit between the hero and the strip and the strip fuses to the bottom of that stack. Cost: one section changes place on open; the ranked slot is only the closed position.
 
 ## Questions
 
@@ -113,11 +115,11 @@ Open, with a recommendation and the cost of a wrong answer:
 - **MR-Q12 Should "off today" (not yet expired) share expired's alert mark?** Drawn: yes, different words. Recommendation: keep; the owner asked for an alarming mark on both. Cost: the hero is flagged most days a meat item is due.
 - **MR-Q13 What ends a sitting besides 30 min away?** Recommendation: app killed or sign-out also ends it (store the leave time in memory plus session storage). Cost: an old choice survives a relaunch.
 - **MR-Q14 Which option?** Recommendation C; see above.
-- **MR-Q15 Should More ideas, when ranked first, visually fuse to the hero?** Recommendation: no, keep three equal sections (D1).
+- **MR-Q15 Should More ideas, when ranked first, visually fuse to the hero?** **Answered by the owner (MR-P26):** yes, whenever it is open, in every rank position; closed it is the chevron header.
 
 ## For the implementation
 
 - Lift `facts()`, `plan()` and the score functions (pure), `homeHtml()`, `setOpen()`, `bindDrag()`, `session()`, and `revisions.css` beside G's `home.css`. Measure the fold once with `visualViewport.height` minus the bottom bar. `K` is the model's guess of each part's height, checked within 8 px.
 - Loading: default path is the page, `home.css`, `revisions.css`, `revisions.js`; a closed section's body is written on first open; nothing is fetched on scroll or drag. The takeover and `search.js` are G's, not loaded here.
 - Accessibility: every header has `aria-expanded`; a polite live region announces opens and closes; touch targets 44 px; reduced motion skips the height animation and all transitions.
-- Check: `node tools/mobile-home-g-revisions-check.mjs [--shots=DIR]` (needs a server on :8123). It restates the scores independently and asserts ranking, window, warnings, caps, fit, drag (mouse and touch), session and reduced motion.
+- Check: `node tools/mobile-home-g-revisions-check.mjs [--shots=DIR]` (needs a server on :8123). It restates the scores independently and asserts ranking, window, warnings, caps, fit, drag (mouse and touch), session, reduced motion, and MR-P26 (no label when open, directly under the hero, one card, collapse bar, focus and aria kept, B strip, drag, session).

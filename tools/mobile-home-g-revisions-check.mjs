@@ -6,6 +6,7 @@
 // tap and keyboard; 44px targets; the model's height numbers against the render; default path; reduced motion; no hex colour; phone-only; fragment G untouched. Option D is retired and asserted gone.
 // Round 2 adds: urgency = consequence + neglect restated independently, the ranking replacing the time-of-day order, Running low taking slot 2 when its consequence is worse, the countdown window changing urgency
 // while the date label stays honest, the expired and off-today warning on the hero and on More ideas rows, expiring stock as its own idea, scrolling never changing state,
+// More ideas open has no label and continues the hero as one card (MR-P26), the chevron header only when closed,
 // drag-to-reveal with mouse and with touch (sections open in sequence, no shift under the thumb, a tap still toggles, tap-only mode, keyboard path, reduced motion), and the session (kept within a sitting, reset after a gap).
 import { chromium } from "playwright-core";
 import { mkdirSync, readFileSync } from "node:fs";
@@ -54,9 +55,18 @@ const settle = p => p.waitForTimeout(380);
 // the layout, read from the drawn frame
 const read = (p, o) => F(p, o).evaluate(fr => { const body = fr.querySelector(".pbody"), br = body.getBoundingClientRect();
   return { V: body.clientHeight, secs: [...fr.querySelectorAll("[data-sec]")].map(s => { const r = s.getBoundingClientRect(); return { sec: s.dataset.sec, form: s.dataset.form || "hero", open: s.dataset.open === "true", urgent: s.dataset.urgent === "true", score: +s.dataset.score, view: s.dataset.view, top: Math.round(r.top - br.top), bottom: Math.round(r.bottom - br.top), rows: s.querySelectorAll(".ur").length, text: s.innerText, warn: s.dataset.warn || "" }; }) }; });
-const ids = L => L.secs.map(s => s.sec);
+// DOM order, except that an OPEN More ideas sits under the hero by design (MR-P26): put it back in its rank slot (before the first section scoring under its 30) so the ranking checks still read the rank
+const ids = L => { const a = L.secs.map(s => s.sec), o = L.secs.find(s => s.sec === "oi"); if (o && o.open && a[1] === "oi") { a.splice(1, 1); let i = 1; while (i < a.length && sec(L, a[i]).score >= 30) i++; a.splice(i, 0, "oi"); } return a; };
 const sec = (L, k) => L.secs.find(s => s.sec === k);
 const openMap = (p, o) => F(p, o).evaluate(fr => Object.fromEntries([...fr.querySelectorAll(".fold")].map(s => [s.dataset.sec, s.dataset.open])));
+
+// MR-P26: what More ideas looks like in a frame (null when the frame has none)
+const probe = (p, o) => F(p, o).evaluate(fr => {
+  const rest = fr.querySelector(".mr-rest"), kids = [...rest.children], hero = fr.querySelector("[data-sec=hero]"), oi = fr.querySelector("[data-sec=oi]"); if (!oi) return null;
+  const tog = oi.querySelector(".tog"), hr = hero.getBoundingClientRect(), r = oi.getBoundingClientRect(), tr = tog.getBoundingClientRect(), vis = e => { const c = getComputedStyle(e); return c.display !== "none" && c.visibility !== "hidden" && e.getBoundingClientRect().width > 2; };
+  return { open: oi.dataset.open === "true", after: kids.indexOf(oi) - kids.indexOf(hero), label: vis(oi.querySelector(".tt")) && /More ideas/.test(oi.querySelector(".tt").innerText), rows: oi.querySelectorAll(".ol").length, gap: Math.round(r.top - hr.bottom), dx: Math.round(Math.abs(r.left - hr.left) + Math.abs(r.width - hr.width)),
+    tb: Math.round(r.bottom - tr.bottom), th: Math.round(tr.height), exp: tog.getAttribute("aria-expanded"), ctl: tog.getAttribute("aria-controls") === oi.querySelector(".fb").id, hl: oi.querySelector(".hl") && vis(oi.querySelector(".hl")), heroExt: hero.classList.contains("has-ext")};
+});
 
 /* 1. every combination draws; no errors; no sideways scroll; the frame is the height asked for; D is retired */
 const LAY = {};
@@ -66,7 +76,7 @@ for (const theme of ["kitchie", "kitchie-day"]) for (const h of HS) for (const d
   const tag = `${theme} ${h}/${d}`;
   if (await p.locator(".fr").count() !== 3 || await F(p, "d").count() !== 0 || p.errs.length || !await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth) ||
       !await p.evaluate(px => [...document.querySelectorAll(".pf")].every(e => Math.round(e.getBoundingClientRect().height) === px && e.querySelector(".pbody").scrollWidth <= 391), HPX[h])) ok(false, `${tag}: three frames (D retired), no errors, no sideways scroll, ${HPX[h]}px high ${p.errs.join(";")}`);
-  if (theme === "kitchie") for (const o of OPTS) LAY[`${h}.${d}.${o}`] = await read(p, o);
+  if (theme === "kitchie") for (const o of OPTS) { const L = LAY[`${h}.${d}.${o}`] = await read(p, o); L.__pr = await probe(p, o); }
   if (shots && theme === "kitchie") await p.locator("#frames").screenshot({ path: `${shots}/${h}-${d}.png` });
   await p.context().close();
 }
@@ -359,6 +369,59 @@ async function dragUp(p, o, fromSec, steps, { touch = false, cdp = null, pause =
   await F(q, "c").locator("[data-sec=soon] .tog").click(); await settle(q); await q.locator("#away45").click(); await q.waitForTimeout(200);
   ok((await openMap(q, "c")).soon === "false", "with the gap set to 60 min, 45 min away is still the same sitting");
   await q.context().close();
+}
+
+/* 16. MR-P26 (owner decision): More ideas OPEN has no label, its rows continue the hero as one card; the chevron header exists only when closed; the same button collapses it */
+{
+  const bad = [], badC = [];
+  for (const o of OPTS) for (const h of HS) for (const d of DS) {
+    const L = LAY[`${h}.${d}.${o}`], pr = L.__pr, t = `${o}/${h}/${d}`; if (!pr) continue;
+    if (pr.open) {
+      if (pr.after !== 1) bad.push(t + " open: not directly under the hero"); if (pr.label) bad.push(t + " open: a More ideas label is visible"); if (pr.gap > 1 || pr.gap < -1) bad.push(t + ` open: gap to hero ${pr.gap}px`);
+      if (pr.dx > 1) bad.push(t + " open: not the hero's width"); if (pr.exp !== "true" || !pr.ctl) bad.push(t + " open: aria on the control"); if (pr.th < 43.5 || Math.abs(pr.tb) > 1) bad.push(t + ` open: collapse bar ${pr.th}px high, ${pr.tb}px from the card's bottom edge`); if (!pr.heroExt) bad.push(t + " open: hero not marked as continued");
+    } else { if (!pr.label) badC.push(t + " closed: header label missing"); if (pr.exp !== "false") badC.push(t + " closed: aria-expanded"); if (pr.hl) badC.push(t + " closed: the hide label shows"); }
+  }
+  ok(bad.length === 0, "More ideas OPEN, every option, height and state: no label, directly under the hero, same width, rows flush to the hero, a 44px collapse bar on the card's bottom edge, aria-expanded true " + bad.slice(0, 4).join(" | "));
+  ok(badC.length === 0, "More ideas CLOSED, every option, height and state: the chevron header with its label and count, aria-expanded false " + badC.slice(0, 4).join(" | "));
+  ok(Object.values(LAY).some(l => l.__pr && l.__pr.open) && Object.values(LAY).some(l => l.__pr && !l.__pr.open), "the sweep covers both open and closed More ideas");
+
+  /* tap and keyboard: open, no label, focus stays on the same button, collapse again from the card's bottom edge */
+  for (const o of OPTS) {
+    const p = await open(`h=short&d=expired&opt=${o}`, { vh: 2000 }), tog = F(p, o).locator("[data-sec=oi] .tog");
+    const before = await probe(p, o); ok(before && !before.open && before.label && before.after > 1, `${o}: short phone, expired: More ideas starts closed as a labelled header in its ranked slot (slot ${before && before.after})`);
+    await tog.focus(); await p.keyboard.press("Enter"); await settle(p);
+    const mid = await probe(p, o), foc = await p.evaluate(() => document.activeElement && document.activeElement.className + "|" + document.activeElement.closest("[data-sec]").dataset.sec);
+    ok(mid.open && mid.after === 1 && !mid.label && mid.rows === 2 && mid.exp === "true", `${o}: Enter opens it: no label, directly under the hero, the two short-phone rows (${JSON.stringify(mid)})`);
+    ok(/^tog\|oi$/.test(foc), `${o}: focus stays on the same control after opening (${foc})`);
+    ok(await F(p, o).locator("[data-sec=oi] .ol .m.w").count() >= 1 && await F(p, o).locator("[data-sec=oi] .ol svg.alr").count() >= 1, `${o}: the expired-ingredient warning is still on the idea row when it continues the hero`);
+    const nOpen = await F(p, o).getByRole("button", { name: "Hide more ideas", exact: true }).count(), nOld = await F(p, o).getByRole("button", { name: /^More ideas/ }).count();
+    ok(nOpen === 1 && nOld === 0, `${o}: in the accessibility tree the open control is named for what it does ("Hide more ideas"), and no "More ideas" label remains (${nOpen}/${nOld})`);
+    await p.keyboard.press("Enter"); await settle(p);
+    const aft = await probe(p, o), foc2 = await p.evaluate(() => document.activeElement.className + "|" + document.activeElement.closest("[data-sec]").dataset.sec);
+    ok(!aft.open && aft.label && aft.after === before.after && aft.exp === "false" && /^tog\|oi$/.test(foc2), `${o}: Enter on the bar collapses it back to the labelled header in its ranked slot, focus kept (${JSON.stringify(aft)})`);
+    await tog.click(); await settle(p); ok((await probe(p, o)).open, `${o}: a tap on the header opens it`);
+    await p.mouse.click(...(await tog.evaluate(e => { const r = e.getBoundingClientRect(); return [r.x + r.width / 2, r.y + r.height / 2]; }))); await settle(p);
+    ok(!(await probe(p, o)).open, `${o}: a tap on the bar at the card's bottom edge collapses it`);
+    const w = await openMap(p, o); ok(JSON.stringify(Object.keys(w)) !== "[]", `${o}: the other sections are still there`);
+    await p.context().close();
+  }
+  /* B with a strip: hero, open More ideas, then the strip fused to the bottom of the stack */
+  { const p = await open("h=medium&d=expired&opt=b", { vh: 2000 }); await F(p, "b").locator("[data-sec=oi] .tog").click(); await settle(p);
+    const r = await F(p, "b").evaluate(fr => { const k = [...fr.querySelector(".mr-rest").children]; return { order: k.map(e => e.dataset.sec), heroBan: k[0].classList.contains("has-ban"), oiBan: k[1].classList.contains("has-ban"), ban: k.filter(e => e.classList.contains("ban")).length, gap: Math.round(k[2].getBoundingClientRect().top - k[1].getBoundingClientRect().bottom) }; });
+    ok(r.order.join() === "hero,oi,soon,low" && !r.heroBan && r.oiBan && r.ban === 1 && Math.abs(r.gap) <= 1, `B: with the strip, More ideas opens between the hero and the strip and the stack stays one fused card (${JSON.stringify(r)})`);
+    await F(p, "b").locator("[data-sec=oi] .tog").click(); await settle(p);
+    const r2 = await F(p, "b").evaluate(fr => [...fr.querySelector(".mr-rest").children].map(e => e.dataset.sec + (e.classList.contains("has-ban") ? "*" : "")).join()); ok(r2 === "hero*,soon,oi,low", `B: closing it puts the strip back against the hero and More ideas back in its slot (${r2})`);
+    await p.context().close(); }
+  /* a closed header can still be reached by the drag, and the result is the same continuation */
+  { const p = await open("h=short&d=calm&opt=c", { vh: 2000 }); await dragUp(p, "c", "low", 14); const pr = await probe(p, "c"), st = await state(p, "c");
+    ok(pr.open && pr.after === 1 && !pr.label && JSON.stringify(st.log) === JSON.stringify(["low", "soon", "oi"]), "drag-to-reveal still opens all three; More ideas ends up as the hero's continuation without a label"); await p.context().close(); }
+  /* session memory: a manual open of More ideas survives a hop away and is forgotten after a gap; tall phones open it by default and a manual close is kept */
+  { const p = await open("h=short&d=calm&opt=c", { vh: 2000 }); await F(p, "c").locator("[data-sec=oi] .tog").click(); await settle(p);
+    await p.locator("#away1").click(); await p.waitForTimeout(250); const k = await probe(p, "c"); ok(k.open && k.after === 1 && !k.label, "session: a manual open of More ideas is kept after a short hop, still as the hero's continuation");
+    await p.locator("#away45").click(); await p.waitForTimeout(250); const g = await probe(p, "c"); ok(!g.open && g.label, "session: after a real gap it is a closed labelled header again"); await p.close(); }
+  /* On the way out and Running low keep their labelled headers when open */
+  { const p = await open("h=tall&d=lowride&opt=a", { vh: 2000 }); const t = await F(p, "a").locator("[data-sec=low] .tt").innerText(), u = await F(p, "a").locator("[data-sec=soon] .tt").innerText();
+    ok(/Running low/.test(t) && /On the way out/.test(u) && await F(p, "a").locator("[data-sec=low][data-open=true], [data-sec=soon][data-open=true]").count() >= 1, "On the way out and Running low keep their labelled headers, open or closed"); await p.context().close(); }
 }
 
 /* 15. default path; reduced motion; hygiene; G untouched */

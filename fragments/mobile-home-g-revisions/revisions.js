@@ -56,7 +56,7 @@ function kindSoon(x, n) { return x.h < 0 ? "expired" : x.h <= n ? "window" : sco
 function scoreLow(x) { return x.rides && x.zero ? 90 : x.rides ? 55 : x.zero ? 50 : 5; }                  /* a planned meal needs it and it is gone 90; needed 55; gone 50; plain low 5 (background) */
 
 /* ---- the height of each part, in px (guesses; measured against the render by the check) ---- */
-var K = { top: 56, hero: 236, heroWarn: 14, closed: 57, openHead: 50, ur: 44, va: 44, ol: 49, fbPad: 4, banClosed: 53, banOpenHead: 54, card: 8 };
+var K = { top: 56, hero: 236, heroWarn: 14, closed: 57, openHead: 50, ur: 44, va: 44, ol: 49, fbPad: 4, banClosed: 53, banOpenHead: 54, card: 8, xl: 45 };   /* xl: the collapse bar that ends an open More ideas (MR-P26) */
 
 function facts(c) {
   var d = DATA[c.data], n = c.n == null ? WIN : c.n;
@@ -85,7 +85,8 @@ function shown(f, k) { return k === "soon" ? Math.min(f.soon.length, f.capSoon) 
 function heroH(f) { return K.hero + (f.hero.warn ? K.heroWarn : 0); }
 function cost(f, k, form, open) {
   if (form === "ban") return open ? K.banOpenHead + K.fbPad + shown(f, k) * K.ur + K.va : K.banClosed;
-  return open ? K.card + K.openHead + K.fbPad + (k === "oi" ? shown(f, k) * K.ol : shown(f, k) * K.ur + K.va) : K.closed + K.card;
+  if (k === "oi") return open ? shown(f, k) * K.ol + K.fbPad + K.xl : K.closed + K.card;   /* open: no header, no card gap; the rows continue the hero (MR-P26) */
+  return open ? K.card + K.openHead + K.fbPad + shown(f, k) * K.ur + K.va : K.closed + K.card;
 }
 
 /* plan(opt, c): c = { h: short|medium|tall, data, n (hours), drag }. Returns { order, form, open, f, V }.
@@ -138,14 +139,19 @@ function bodyOf(f, k) {
   var more = k === "soon" && f.soon.length > f.capSoon ? "+" + (f.soon.length - f.capSoon) + " more &middot; View all" : "View all";
   return '<div class="fbi">' + rowsOf(f, k) + '<a class="va" href="#" data-stub>' + more + "</a></div>";
 }
-function heroHtml(f, fused) {
+function heroHtml(f, fused, ext) {
   var L = f.hero, warn = L.warn;
-  return '<section class="ideas hero' + (fused ? " has-ban" : "") + '" data-sec="hero"' + (warn ? ' data-warn="' + warn + '"' : "") + ' aria-label="Cooking ideas"><div class="th2"><span class="ric t2" aria-hidden="true" style="--c:var(--sage)">' + I.chef + '</span><h2>Cooking ideas</h2></div>' +
+  return '<section class="ideas hero' + (fused ? " has-ban" : "") + (ext ? " has-ext" : "") + '" data-sec="hero"' + (warn ? ' data-warn="' + warn + '"' : "") + ' aria-label="Cooking ideas"><div class="th2"><span class="ric t2" aria-hidden="true" style="--c:var(--sage)">' + I.chef + '</span><h2>Cooking ideas</h2></div>' +
     '<div class="idl"><button type="button" class="top2" data-stub><span class="ph" aria-hidden="true">' + L.e + '</span><span class="t"><span class="k">Today &middot; <span class="w">Idea for tonight</span></span><b>' + esc(L.t) + '</b><span class="why' + (warn ? " alarm" : "") + '">' + (warn ? I.alert : I.leaf) + L.why + '</span></span></button><div class="acts"><button type="button" class="btn" data-stub>Make it</button><button type="button" class="btn ghost" data-stub>Plan</button></div></div></section>';
 }
 function foldHtml(id, P, k, open) {
   var f = P.f, form = P.form[k], t = T[k], b = k === "oi" ? "" : badge(f, k), n = k === "soon" ? f.soon.length : k === "low" ? f.low.length : f.ideas.length, fid = id + "-" + k, urg = f.urgent(k);
   var data = ' data-sec="' + k + '" data-form="' + form + '" data-open="' + open + '" data-score="' + f.score[k] + '" data-urgent="' + urg + '"';
+  if (k === "oi") {   /* MR-P26: closed it is a chevron header; open it has no label and its rows continue the hero. The same button is the collapse bar (flex order puts it last). */
+    var fused = P.f.rank.length && P.form[P.f.rank[0]] === "ban";
+    return '<section class="tilec fold' + (open ? " ext" + (fused ? " has-ban" : "") : "") + '"' + data + '><h2 class="th2"><button type="button" class="tog" aria-expanded="' + open + '" aria-controls="' + fid + '"><span class="ric ' + t[2] + '" aria-hidden="true">' + I[t[1]] + '</span><span class="tt"><b>' + t[0] + "</b><small>" + esc(preview(f, k)) + "</small></span>" +
+      '<span class="n">' + n + '<span class="sr"> items</span></span><span class="hl">Hide more ideas</span>' + I.chev + '</button></h2><div class="fb" id="' + fid + '"' + (open ? "" : " hidden") + ">" + (open ? bodyOf(f, k) : "") + "</div></section>";
+  }
   if (form === "ban") {
     var arr = k === "soon" ? f.soon.filter(function (x) { return x.s >= URG; }) : f.low.filter(function (x) { return x.s >= URG; });
     var names = arr.slice(0, 2).map(function (x) { return x.n; }).join(", ") + (arr.length > 2 ? " +" + (arr.length - 2) : "");
@@ -160,25 +166,49 @@ var GREET = "Good afternoon, Sam.";
 function homeHtml(id, P, manual) {
   manual = manual || {};
   var eff = {}; P.f.rank.forEach(function (k) { eff[k] = manual[k] != null ? !!manual[k] : P.open[k]; });
-  var parts = P.order.map(function (k) { return k === "hero" ? heroHtml(P.f, P.form[P.f.rank[0]] === "ban") : foldHtml(id, P, k, eff[k]); }).join("");
+  var seq = ["hero"].concat(eff.oi ? ["oi"] : [], P.f.rank.filter(function (k) { return !(k === "oi" && eff.oi); }));   /* an open More ideas sits directly under the hero (MR-P26); data-order stays the rank */
+  var parts = seq.map(function (k) { return k === "hero" ? heroHtml(P.f, P.form[P.f.rank[0]] === "ban" && !eff.oi, !!eff.oi) : foldHtml(id, P, k, eff[k]); }).join("");
   return '<div class="home mr" id="' + id + '" data-opt="' + P.opt + '" data-order="' + P.order.join(",") + '" data-drag="' + (P.c.drag === false ? "off" : "on") + '"><header class="hbar"><h1 class="hi">' + GREET + '</h1><button type="button" class="sbtn" aria-label="Search" data-stub>' + I.lens + '</button></header><div class="mr-rest">' + parts + '</div><p class="hv-live" role="status" aria-live="polite"></p></div>';
 }
 
 /* ---- open and close one section in place. Height animates (not in reduced motion); the pressed header does not move under the thumb (scroll anchoring kept by hand). ---- */
 var LOG = [];
 function reduced() { try { return matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) { return false; } }
+/* MR-P26: More ideas is the only section that moves. Open: no label, directly under the hero, the same button is now the collapse bar. Closed: back in its ranked slot as the chevron header. */
+function relocate(sec, on, P) {
+  var rest = sec.parentNode, hero = rest.querySelector('[data-sec="hero"]'), ban = rest.querySelector(".ban"), act = document.activeElement, had = act && sec.contains(act);
+  if (on) rest.insertBefore(sec, hero.nextSibling);
+  else {
+    var after = null, r = P.f.rank, i = r.indexOf("oi");
+    for (var j = i + 1; j < r.length && !after; j++) after = rest.querySelector('[data-sec="' + r[j] + '"]');
+    rest.insertBefore(sec, after);
+  }
+  sec.classList.toggle("ext", on); sec.classList.toggle("has-ban", on && !!ban);
+  hero.classList.toggle("has-ext", on); hero.classList.toggle("has-ban", !on && !!ban);
+  if (had && document.activeElement !== act) { try { act.focus({ preventScroll: true }); } catch (e) { act.focus(); } }
+}
+function reveal(el, sc) {   /* bring a moved section wholly into view, nearest edge, only when it is cut */
+  if (!sc) return;
+  var r = el.getBoundingClientRect(), b = sc.getBoundingClientRect();
+  if (r.top < b.top) sc.scrollTop += r.top - b.top - 8; else if (r.bottom > b.bottom) sc.scrollTop += Math.min(r.bottom - b.bottom + 8, r.top - b.top - 8);
+}
 function setOpen(sec, on, P, o) {
   o = o || {};
   var btn = sec.querySelector(".tog"), body = sec.querySelector(".fb"), k = sec.dataset.sec, was = sec.dataset.open === "true";
   if (on === was) return false;
   if (on && !body.firstChild) body.innerHTML = bodyOf(P.f, k);
-  var sc = sec.closest(".pbody"), t0 = btn.getBoundingClientRect().top, via = o.via || "tap";
+  var sc = sec.closest(".pbody"), t0 = btn.getBoundingClientRect().top, via = o.via || "tap", prev = sec.previousElementSibling, pb = prev ? prev.getBoundingClientRect().bottom : 0, moved = false;
   sec.dataset.open = on ? "true" : "false"; btn.setAttribute("aria-expanded", on ? "true" : "false");
+  if (k === "oi") { relocate(sec, on, P); moved = sec.previousElementSibling !== prev; }
   LOG.push({ sec: k, on: on, via: via, t: Date.now() });
-  var live = sec.closest(".home").querySelector(".hv-live"); if (live) live.textContent = T[k][0] + (on ? " opened" : " closed");
+  var live = sec.closest(".home").querySelector(".hv-live"); if (live) live.textContent = (k === "oi" ? "More ideas" : T[k][0]) + (on ? " opened" : " closed");
   sec.dispatchEvent(new CustomEvent("mr-change", { bubbles: true, detail: { sec: k, on: on, via: via } }));
-  var fix = function () { var d = btn.getBoundingClientRect().top - t0; if (sc && Math.abs(d) > 0.5) sc.scrollTop += d; };
-  var settled = function () { sec.dispatchEvent(new CustomEvent("mr-settled", { bubbles: true, detail: { sec: k } })); };
+  /* a pressed header stays under the thumb; More ideas' button moves, so a drag keeps the section above its old slot still instead, and a tap brings the result into view */
+  var fix = function () {
+    if (k === "oi") { if (moved && via === "drag" && prev && sc) { var d = prev.getBoundingClientRect().bottom - pb; if (Math.abs(d) > 0.5) sc.scrollTop += d; } return; }
+    var d = btn.getBoundingClientRect().top - t0; if (sc && Math.abs(d) > 0.5) sc.scrollTop += d;
+  };
+  var settled = function () { if (k === "oi" && via !== "drag") reveal(sec, sc); sec.dispatchEvent(new CustomEvent("mr-settled", { bubbles: true, detail: { sec: k } })); };
   if (reduced() || o.animate === false) { body.hidden = !on; fix(); settled(); return true; }
   body.hidden = false; body.style.overflow = "hidden";
   var full = body.scrollHeight;
@@ -198,7 +228,7 @@ function toggle(btn, P, o) { var sec = btn.closest(".fold"); return setOpen(sec,
    only a header gets touch-action:none (css), and only while the gesture is switched on. A tap on a header, Enter or Space, still toggles it (the button's own click). ---- */
 function bindDrag(sc, o) {
   var st = null, sup = false, ARM = 8;
-  var heads = function () { return [].slice.call(sc.querySelectorAll(".fold .tog")); };
+  var heads = function () { return [].slice.call(sc.querySelectorAll(".fold .tog")).filter(function (t) { return t.offsetParent; }); };
   var open = function (tog) { var sec = tog.closest(".fold"); if (sec.dataset.open !== "true") setOpen(sec, true, o.plan(sec), { via: "drag" }); };
   sc.addEventListener("pointerdown", function (e) {
     if (!o.enabled() || (e.pointerType === "mouse" && e.button !== 0)) return;

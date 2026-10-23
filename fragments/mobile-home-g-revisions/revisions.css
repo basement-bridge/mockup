@@ -62,3 +62,16 @@
 .mr[data-drag=on] .fold .tog:active{cursor:grabbing}
 /* ---------- round 2: nothing animates when the person asks for less motion (the script also skips the height animation) ---------- */
 @media (prefers-reduced-motion:reduce){.mr *,.mr *::before,.mr *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+/* ---------- MR-P26 (owner decision): More ideas OPEN has no label. Its rows continue the hero as one card; the same button becomes a small chevron-up bar at the card's bottom edge (flex order puts it last, so focus and aria-expanded never leave the control). Closed it is the chevron header, the hint that more is there. ---------- */
+.mr .fold .tog .hl{display:none}
+.mr .fold.ext{display:flex;flex-direction:column;margin-top:0;border-top-color:transparent;border-top-left-radius:0;border-top-right-radius:0}
+.mr .fold.ext .fb{order:1}
+.mr .fold.ext .th2{order:2}
+.mr .fold.ext .tog{justify-content:center;min-height:44px;padding:0;border-top:1px solid var(--border);border-radius:0 0 var(--r-card) var(--r-card)}
+.mr .fold.ext .tog .ric,.mr .fold.ext .tog .tt,.mr .fold.ext .tog .n{display:none}
+.mr .fold.ext .tog .hl{display:block;position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.mr .fold.ext .fbi{padding-bottom:0}
+.mr .hero.has-ext,.mr .hero.has-ban{border-bottom-left-radius:0;border-bottom-right-radius:0;border-bottom-color:transparent}
+.mr .fold.ext.has-ban{border-bottom-left-radius:0;border-bottom-right-radius:0;border-bottom-color:transparent}
+.mr .fold.ext.has-ban .tog{border-radius:0}
+.mr .fold.ext.has-ban + .ban.soon{border-top:1px solid color-mix(in srgb,var(--danger) 55%,var(--border))}
