@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Plan it, Another day in a second flyout</title><link rel="stylesheet" href="../../../theme.css"><link rel="stylesheet" href="../../../shared.css"><script src="../../../theme.js"></script>
+<style>
+.decs li,.q li{margin-bottom:8px;font-size:14px}
+.links{display:flex;flex-wrap:wrap;gap:6px}
+.links a{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border-radius:99px;border:1px solid var(--border);background:var(--bg);font-size:13px;font-weight:600}
+.links a:hover{border-color:var(--accent)}
+.await{font-size:11px;font-weight:800;padding:1px 7px;border-radius:var(--r-pill);border:1px solid var(--muted);color:var(--muted);margin-left:4px;white-space:nowrap}
+.fig{margin:14px 0 22px}
+.fig h3{margin:0 0 4px;font:800 17px var(--head)}
+.fig p{margin:4px 0;font-size:14px}
+.fr{position:relative;border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden;background:var(--bg);margin:8px 0}
+.fr iframe{position:absolute;left:0;top:0;border:0;transform-origin:0 0;background:var(--bg)}
+.tbl{overflow-x:auto}.tbl table{min-width:560px}
+</style></head>
+<body><div class="wrap">
+<a class="back" href="../">&lsaquo; Month picker</a>
+<h1>Plan it: Another day in a second flyout</h1>
+<p>Live, clickable mockup, a follow-up to Kitchie #826 and the one-wide-panel build (#844). Mockup only, nothing is saved or sent, nothing is built in Kitchie. It is the desktop Home page with the Mandarin Mango Yogurt Bowl and the <b>Plan it</b> flyout open (the first flyout). Press <b>Another day</b> and the month opens in a <b>second flyout</b>. Three places for it are drawn, for the owner to pick.</p>
+
+<div class="sec"><div class="lbl">Owner, 24 October 2026</div>
+<p>The month calendar (the &ldquo;Other / Another day&rdquo; four-week grid) should open in a <b>second flyout</b>, on top of or beside the first (the Plan it flyout), instead of a wider single panel with a side card (#844, #826). Show a few visual variants.</p>
+<p style="font-size:13px;color:var(--muted)">Recorded as PM-D47 to PM-D50 in <code>docs/knowledge/plan-month-picker.md</code>. All open, awaiting the owner&rsquo;s pick.</p></div>
+
+<div class="sec"><div class="lbl">Open it</div>
+<div class="links">
+<a href="home.html?start=month&amp;second=a">A: second flyout stacked right of the first</a>
+<a href="home.html?start=month&amp;second=b">B: second flyout over the first, first dimmed</a>
+<a href="home.html?start=month&amp;second=c">C: second flyout floating, anchored to the Another day row</a>
+<a href="home.html?start=list&amp;second=a">Start on the seven days (press Another day)</a>
+<a href="home.html?start=month&amp;second=a&amp;avoid=mango">Hard avoid, recipe with mango</a>
+<a href="home.html?start=month&amp;second=a&amp;who=Sam">Sam selected (day off moons)</a>
+<a href="home.html?start=month&amp;second=a&amp;scenario=full">Mostly full plan</a>
+</div>
+<p style="font-size:13px;color:var(--muted)">A needs a window of 1360px or more (88 rail, 472 Home column, 400 and 400). Between 1024 and 1359px, A behaves as B. The previews below are the live pages, scaled.</p></div>
+
+<div class="sec"><div class="lbl">The three variants, at 1440 by 900</div>
+<div class="fig"><h3>A. Stacked right of the first <span class="await">awaiting owner pick</span></h3>
+<p>The first flyout stays where it is and stays usable; the second takes the next lane to its right, full height, 400px. The Home column gives up width (472px at 1440), never a flyout. From 1624px the column keeps its 736px. Cost: the width. Gain: both are visible at once, so the recipe, the Who pill and the seven days stay in view while you look at the month.</p>
+<div class="fr" data-w="1440" data-h="900"><iframe loading="lazy" title="Variant A at 1440" src="home.html?start=month&amp;second=a&amp;halo=off&amp;embed=1"></iframe></div></div>
+<div class="fig"><h3>B. Over the first, the first dimmed <span class="await">awaiting owner pick</span></h3>
+<p>The second flyout lands on top of the first and leaves a 28px edge of it showing, dimmed and not clickable; the edge, Esc or the back arrow closes the second. No extra width at any window of 1024px and more, and the Home column never moves. Cost: the seven days are behind glass while the month is open.</p>
+<div class="fr" data-w="1440" data-h="900"><iframe loading="lazy" title="Variant B at 1440" src="home.html?start=month&amp;second=b&amp;halo=off&amp;embed=1"></iframe></div></div>
+<div class="fig"><h3>C. Floating, anchored to the Another day row <span class="await">awaiting owner pick</span></h3>
+<p>The second flyout is a card with a caret pointing at the Another day row. It floats to the left of the first, over the Home column, so the first flyout is untouched and stays usable and no lane moves. Cost: it covers part of Home while open, and it sits beside the row, not below it (below the row there is not room, see the note).</p>
+<div class="fr" data-w="1440" data-h="900"><iframe loading="lazy" title="Variant C at 1440" src="home.html?start=month&amp;second=c&amp;halo=off&amp;embed=1"></iframe></div></div>
+</div>
+
+<div class="sec"><div class="lbl">The same three at 1280 by 720 (the compact breakpoint, 1024 to 1359px)</div>
+<p style="font-size:14px">At 1280px there are not two lanes, so A is drawn as B. All three fit the 720px height without the second flyout scrolling.</p>
+<div class="fig"><h3>A at 1280 (behaves as B)</h3><div class="fr" data-w="1280" data-h="720"><iframe loading="lazy" title="Variant A at 1280" src="home.html?start=month&amp;second=a&amp;halo=off&amp;embed=1"></iframe></div></div>
+<div class="fig"><h3>B at 1280</h3><div class="fr" data-w="1280" data-h="720"><iframe loading="lazy" title="Variant B at 1280" src="home.html?start=month&amp;second=b&amp;halo=off&amp;embed=1"></iframe></div></div>
+<div class="fig"><h3>C at 1280</h3><div class="fr" data-w="1280" data-h="720"><iframe loading="lazy" title="Variant C at 1280" src="home.html?start=month&amp;second=c&amp;halo=off&amp;embed=1"></iframe></div></div>
+</div>
+
+<div class="sec"><div class="lbl">What does not change (every earlier decision, inside the second flyout)</div>
+<ul class="decs">
+<li>Monday to Sunday across, week rows from today&rsquo;s week (this week and four more, 35 dates, the plan ends Sun 15 Nov in the sample); past days hatched and not clickable; today is the focused cell and has no label or ring (PM-D2, PM-D3, PM-D18, PM-D23).</li>
+<li>The grey moon for a day off (per person, none under Everyone), grey planned marks (one or three), the red Hard avoid exclamation scoped to the recipe, the halo on every open date for 3 seconds, the 1 Nov month marker (PM-D14, PM-D19 to PM-D22, PM-D25, PM-D30, PM-D32, PM-D33, PM-D34).</li>
+<li>The Hold pill at the top of the flyout with its brief message; the detail card is the bottom strip under the grid; the date number is the plain cell; the legend is the last thing in the flyout (PM-D28, PM-D41, PM-D42, PM-D43, PM-D44).</li>
+<li>A pick plans at once; a 3 second confirmation with an inline Undo, then it slides out and both flyouts close; a stacked night takes two steps; a usual day off is not locked; Replace applies to the person&rsquo;s own meal (PM-D7).</li>
+<li>Esc, the back arrow, X and Ctrl or Cmd+Esc all close (see PM-D48 for what each closes); 1360px is the wide threshold; 1024 to 1359px is the compact breakpoint; touch keeps two taps and the sheets (tablet and phone pages are not changed).</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">Open questions</div>
+<ol class="q">
+<li>Which place: A (beside, recommended where there is room), B (over, the fallback below 1360px), or C (floating card)? Wrong guess costs a CSS placement rule; the markup and script are the same.</li>
+<li>Does the second flyout stay at one flyout wide (400px, compact cells, the strip below) or take more width when there is room? Drawn at 400px; the roomy 800px layouts are in the earlier pages.</li>
+<li>Esc closes the second flyout only and Ctrl or Cmd+Esc closes both (PM-D48): right?</li>
+<li>C literally &ldquo;below the Another day row&rdquo; was measured and does not fit (PM-D50): beside the row is drawn instead.</li>
+</ol></div>
+
+<div class="sec"><div class="lbl">What loads</div>
+<p style="font-size:14px">The default path is the Home page and the seven-day flyout. The month (<code>month.css</code>, <code>month.js</code>) and this page&rsquo;s <code>second.css</code> placement rules are fetched on the first press of Another day; no wide files (<code>wide.css</code>, <code>rich.css</code>, <code>wide.js</code>) are fetched at any window width. Nothing is loaded on a phone or tablet.</p></div>
+
+<p style="font-size:13px;color:var(--muted)">Files: <code>fragments/plan-month-picker/second-flyout/</code> (<code>home.html</code>, <code>second.js</code>, <code>second.css</code>, <code>recipe.js</code>, this page), reusing <code>../month.js</code>, <code>../month.css</code>, <code>../data.js</code>, <code>../common.js</code>, <code>../rows.js</code>. Check: <code>tools/plan-month-picker-check.mjs</code>.</p>
+</div>
+<script>
+(function () {
+  function fit(b) { var w = +b.dataset.w, h = +b.dataset.h, s = b.clientWidth / w, f = b.querySelector("iframe"); f.style.width = w + "px"; f.style.height = h + "px"; f.style.transform = "scale(" + s + ")"; b.style.height = Math.round(h * s) + "px"; }
+  function all() { [].forEach.call(document.querySelectorAll(".fr"), fit); }
+  all(); addEventListener("resize", all);
+})();
+</script>
+</body></html>

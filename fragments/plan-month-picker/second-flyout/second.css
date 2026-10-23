@@ -1,0 +1,53 @@
+/* The SECOND FLYOUT for Another day (owner, 24 Oct 2026). Tokens only (theme.css). The month's own styles are ../month.css (the compact, single-flyout-width cells and the bottom strip); this file only places the second flyout and gives it the few rules month.css writes for #week (a second id, #week2).
+   Variants (#app[data-second], from ?second=a|b|c):
+   A  the second flyout stacked to the right of the first, in the next lane (from 1360px; below that it behaves as B)
+   B  the second flyout overlays the first, which stays behind it, dimmed, with a 28px edge showing; the lane grows 28px so the second keeps its 400px (any width of 1024px and more)
+   C  the second flyout floats beside the first, anchored to the Another day row with a caret (any width of 1024px and more) */
+
+/* ---- the rules month.css writes for #week, repeated for #week2 (same values) ---- */
+#week2 .pdm-c .pdm-i.bang,#week2 .pdm-c .pdm-bd.warn .pdm-i,#week2 .pdm-lg .pdm-sw .pdm-i.bang{color:var(--danger);stroke:var(--danger)}
+#week2 .pdm .pdm-c .pdm-top .pdm-bd.warn{width:14px;height:14px}
+#week2 .pdm .pdm-c .pdm-top .pdm-bd.warn .pdm-i.bang{width:14px;height:14px;stroke-width:3.8}
+#week2 .pdm .pdm-c.first .pdm-n{font-size:10px}
+#week2 .pdm-lg .pdm-sw .pdm-i.bang{width:18px;height:18px;stroke-width:3.6}
+#week2[data-num] .pdm .pdm-c[data-n].st-plan .pdm-n,#week2[data-num] .pdm .pdm-c[data-n].st-stack .pdm-n{font-weight:400}
+#week2[data-num=a] .pdm-c .pdm-n{color:var(--fg)}
+#week2[data-num=a] .pdm-c.st-past .pdm-n{color:var(--muted)}
+#week2[data-num=b] .pdm-c:not(.st-past){background:var(--surface);border:1px solid var(--border);color:var(--fg)}
+#week2[data-num=b] .pdm-c:not(.st-past) .pdm-n{font-size:12px;font-weight:600;color:var(--fg)}
+#week2[data-num=c] .pdm-c .pdm-n{font-size:11px;font-weight:400;color:var(--fg)}
+
+/* ---- the second flyout, common: a lane-width panel like the first ---- */
+#week2[hidden],.pk-scrim[hidden]{display:none}
+#week2{grid-row:1;grid-column:3;width:400px;max-width:100%;border-left:1px solid var(--border)}
+.pk-fly #pk-t2,#week2 h2{margin:0;font:800 18px var(--head)}
+#week2 .pdw-compact{margin-top:2px}
+#week2 .pk-pt .pdm-back{margin-left:-6px}
+/* the Another day row says it is the one the second flyout belongs to */
+#week .row-d.more[aria-expanded=true],#week .more .row-d[aria-expanded=true]{border-color:var(--cue);box-shadow:0 0 0 2px color-mix(in srgb,var(--cue) 40%,transparent)}
+/* the first flyout while a confirmation is showing in the second: waiting, not clickable */
+#week.pk-under{opacity:.55}
+
+/* ---- A: stacked right of the first, in the next lane. The Home column gives up width, never the flyouts ---- */
+#app[data-second=a] .detail,#app[data-second=a] .peek{display:none}
+#app[data-second=a]{grid-template-columns:88px minmax(0,1fr) 400px 400px}
+#app[data-second=a] #week{grid-column:3}
+#app[data-second=a] #week2{grid-column:4;animation:pk2-in-a .22s ease-out}
+@media (min-width:1624px){#app[data-second=a]{grid-template-columns:88px minmax(0,736px) 400px 400px}}
+@keyframes pk2-in-a{from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:none}}
+
+/* ---- B: overlays the first; the first waits behind it, dimmed, with an edge showing; the edge (the scrim) closes the second ---- */
+#app[data-second=b]{grid-template-columns:88px minmax(0,736px) 428px} /* the lane grows 28px so the second flyout keeps its full 400px (cells stay 44px) and the first still shows an edge */
+#app[data-second=b] .detail,#app[data-second=b] .peek{display:none}
+#app[data-second=b] #week{grid-column:3;justify-self:start;width:400px;opacity:.5;filter:saturate(.5)}
+#app[data-second=b] #week2{grid-column:3;justify-self:end;width:400px;z-index:8;box-shadow:-10px 0 28px rgba(0,0,0,.35);animation:pk2-in-b .22s ease-out}
+#app[data-second=b] .pk-scrim{display:block;grid-row:1;grid-column:3;justify-self:start;width:28px;height:100vh;position:sticky;top:0;z-index:9;cursor:pointer;background:transparent}
+#app[data-second=b] .pk-scrim::before{content:"";position:absolute;top:50%;left:12px;width:4px;height:44px;margin-top:-22px;border-radius:4px;background:var(--fg);opacity:.55}
+#app[data-second=b] .pk-scrim:hover::before{opacity:1;height:72px;margin-top:-36px}
+@keyframes pk2-in-b{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}
+
+/* ---- C: a floating card beside the first, with a caret on the Another day row. Left and top are set by second.js from the row; the card never covers the first flyout ---- */
+#app[data-second=c] #week2{position:fixed;z-index:40;grid-column:auto;height:auto;top:8px;left:0;width:400px;max-height:calc(100vh - 16px);border:1px solid var(--border);border-radius:var(--r-card);box-shadow:0 18px 50px rgba(0,0,0,.4);animation:pk2-in-c .18s ease-out;overflow:auto;padding-bottom:20px}
+#app[data-second=c] #week2::after{content:"";position:fixed;width:14px;height:14px;background:var(--surface);border-top:1px solid var(--border);border-right:1px solid var(--border);transform:rotate(45deg);left:var(--caret-x,0);top:var(--caret-y,0);margin:-7px 0 0 -7px;pointer-events:none}
+@keyframes pk2-in-c{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){#app[data-second] #week2{animation:none}}
