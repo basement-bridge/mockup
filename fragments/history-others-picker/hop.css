@@ -1,0 +1,156 @@
+/* History, phone screen (WP4). Markup and rules lifted from the mockup, basement-bridge/mockup history/option-d/option-d.css (phone baseline: header, tabs, catch-up card,
+   day and person groups, rows, empty states, the tick and X, person link and bar, day-at-a-time loader). Every rule is scoped under .hx so nothing leaks into the page shell.
+   Phone only: the desktop rail, column and lane (WP5) and the filter sheet and panel (WP6) are in their own files. Tokens only. */
+.hx{--r-ctl:14px;--r-card:18px;--r-pill:99px;--dim:rgba(0,0,0,.5);--body:"DM Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:block;font-family:var(--body);color:var(--fg)}
+.hx a{color:inherit}
+.hx a.pri{color:var(--on-accent);text-decoration:none}
+.hx a.sec2,.hx a.ib,.hx a.xcatch,.hx a.tickcatch{text-decoration:none}
+.hx a.lnk2{color:var(--muted)}
+.hx a.tickcatch{color:var(--accent)}
+.hx-main{padding:0 0 var(--sp-5)}
+.hx button{font:inherit;color:inherit}
+.hx svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.hx svg.sm{width:16px;height:16px}
+.hx-head{display:flex;align-items:center;gap:var(--sp-2);min-height:var(--tap)}
+.hx-head h1{margin:0;font-size:1.6rem;flex:1}
+.hx .ib{width:var(--tap);height:var(--tap);border-radius:50%;border:1px solid var(--border);background:none;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;position:relative}
+.hx .ib[aria-pressed=true],.hx .ib.on{border-color:var(--accent);color:var(--accent)}
+.hx .ib .n{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;border-radius:9px;background:var(--accent);color:var(--on-accent);font:700 11px var(--body);display:flex;align-items:center;justify-content:center;padding:0 4px}
+.hx-tabs{display:flex;gap:var(--sp-1);padding:4px;border:1px solid var(--border);border-radius:var(--r-pill);background:var(--surface);margin:var(--sp-2) 0}
+.hx .scope{display:flex;gap:var(--sp-2);align-items:flex-start;font-size:13px;color:var(--muted);margin:var(--sp-2) 0 var(--sp-3)}
+.hx .scope svg{margin-top:1px}
+.hx .scope b{color:var(--fg)}
+.hx .catch{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:var(--sp-4);margin:var(--sp-2) 0 var(--sp-4)}
+.hx .catch h2{display:flex;align-items:center;gap:var(--sp-2);font-size:1.1rem;margin:0}
+.hx .catch h2 svg{color:var(--accent)}
+.hx .catch .sum{font-size:13px;margin:4px 0 var(--sp-3);color:var(--muted)}
+.hx .hl{display:flex;gap:var(--sp-3);align-items:flex-start;padding:var(--sp-3) 0;border-top:1px solid var(--border)}
+.hx .hl:first-of-type{border-top:0}
+.hx .hl .tx{flex:1;font-size:14px;line-height:1.35}
+.hx .hl .tx small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.hx .hl .go{min-height:36px;padding:0 var(--sp-3);border-radius:var(--r-pill);border:1px solid var(--accent);background:none;color:var(--accent);font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap}
+.hx .hl .ico{width:32px;height:32px;border-radius:50%;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--accent);flex:none}
+.hx .catch .foot{display:flex;gap:var(--sp-3);align-items:center;justify-content:space-between;margin-top:var(--sp-3);flex-wrap:wrap}
+.hx .pri{min-height:var(--tap);padding:0 var(--sp-4);border-radius:var(--r-pill);border:0;background:var(--accent);color:var(--on-accent);font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:var(--sp-2)}
+.hx .sec2{min-height:var(--tap);padding:0 var(--sp-4);border-radius:var(--r-pill);border:1px solid var(--border);background:none;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:var(--sp-2)}
+.hx .lnk2{background:none;border:0;color:var(--muted);font-weight:600;min-height:var(--tap);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.hx .day{margin-top:var(--sp-5)}
+.hx .day>.lbl{display:flex;align-items:baseline;gap:var(--sp-2);font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--accent);position:sticky;top:0;background:var(--bg);padding:6px 0;z-index:2}
+.hx .day>.lbl small{color:var(--muted);letter-spacing:0;text-transform:none;font-weight:500;font-size:12px}
+.hx .pg{margin-top:var(--sp-2);background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden}
+.hx .pg>.who{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-3) var(--sp-4);font-size:13px;color:var(--muted);border-bottom:1px solid var(--border)}
+.hx .pg>.who b{color:var(--fg);font-size:14px}
+.hx .pg>.who .priv{margin-left:auto;display:inline-flex;align-items:center;gap:4px;font-size:12px}
+.hx a.ev{text-decoration:none;color:inherit}
+.hx .ev{display:flex;gap:var(--sp-3);align-items:flex-start;width:100%;padding:var(--sp-3) var(--sp-4);border:0;border-top:1px solid var(--border);background:none;text-align:left;cursor:pointer;min-height:var(--tap);position:relative}
+.hx .pg>.who+.ev,.hx .pg>.ev:first-child{border-top:0}
+.hx .ev:hover{background:var(--bg)}
+.hx .ev[aria-current=true]{background:var(--bg);box-shadow:inset 3px 0 0 var(--accent)}
+.hx .ev.new{padding-left:26px}
+.hx .ev.new::before{content:"";position:absolute;left:10px;top:20px;width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.hx .ev .tx{flex:1;min-width:0;font-size:15px;line-height:1.35}
+.hx .ev .tx b{font-weight:700}
+.hx .ev .meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:4px;font-size:12px;color:var(--muted)}
+.hx .ev time{font-size:12px;color:var(--muted);white-space:nowrap;margin-top:2px}
+.hx .chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:1px 8px;border-radius:var(--r-pill);border:1px solid var(--border);color:var(--muted);white-space:nowrap}
+.hx .chip.me{color:var(--accent);border-color:var(--accent)}
+.hx .chip.rv{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.hx .chip.undone{text-decoration:line-through}
+.hx .av{width:32px;height:32px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font:700 13px var(--body);background:var(--sage);color:var(--on-accent);flex:none;position:relative}
+.hx .av.me{background:var(--accent)}
+.hx .av.sm{width:28px;height:28px;font-size:12px}
+.hx .more{display:flex;justify-content:center;margin:var(--sp-5) 0}
+.hx .note{font-size:12px;color:var(--muted);text-align:center}
+.hx .empty{text-align:center;padding:var(--sp-7) var(--sp-4);border:1px dashed var(--border);border-radius:var(--r-card);margin-top:var(--sp-4)}
+.hx .empty .big{width:72px;height:72px;margin:0 auto var(--sp-3);border-radius:50%;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--accent)}
+.hx .empty .big svg{width:36px;height:36px}
+.hx .empty h2{font-size:1.2rem;margin:0 0 4px}
+.hx .empty p{font-size:14px;margin:0 auto var(--sp-4);max-width:34ch}
+.hx .empty .acts{display:flex;gap:var(--sp-2);justify-content:center;flex-wrap:wrap}
+.hx .empty .searched{font-size:12px;margin-top:var(--sp-4)}
+.hx .chead{display:flex;align-items:center;gap:var(--sp-2)}
+.hx .chead h2{flex:1}
+.hx .xcatch{width:var(--tap);height:var(--tap);flex:none}
+.hx .lbl2{font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--accent);margin-bottom:2px}
+.hx .note.left{text-align:left}
+.hx .hl a.go{display:inline-flex;align-items:center;text-decoration:none}
+.hx .capline,.hx .lastn{display:flex;gap:var(--sp-2);align-items:center;font-size:13px;color:var(--muted);margin:0}
+.hx .lastn{margin:var(--sp-4) 0 var(--sp-2)}
+.hx .more.cap{flex-direction:column;align-items:center;gap:var(--sp-3)}
+.hx .flatlist{margin-top:0}
+.hx .sk{display:flex;gap:var(--sp-3);align-items:center;padding:var(--sp-3) var(--sp-4);border-top:1px solid var(--border)}
+.hx .sk:first-child{border-top:0}
+.hx .sk .av{background:var(--border)}
+.hx .sk div{flex:1}
+.hx .sk i,.hx .sklbl i{display:block;height:12px;border-radius:6px;background:var(--border);width:70%;margin:6px 0;animation:skp 1.2s ease-in-out infinite}
+.hx .sk i.s{width:40%}
+.hx .sklbl i{width:90px}
+@keyframes skp{50%{opacity:.45}}
+@media(prefers-reduced-motion:reduce){.hx .sk i,.hx .sklbl i{animation:none}}
+.hx .tickcatch{width:var(--tap);height:var(--tap);flex:none;color:var(--accent)}
+.hx .plink{display:flex;align-items:center;gap:var(--sp-3);background:none;border:0;padding:0;font:inherit;color:inherit;text-align:left;min-height:var(--tap)}
+.hx button.plink{cursor:pointer}
+.hx button.plink b{text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:3px}
+.hx .plink2{background:none;border:0;padding:0;font:inherit;color:var(--accent);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.hx .pbar{display:flex;align-items:center;gap:var(--sp-3);flex-wrap:wrap;margin:var(--sp-3) 0 0;padding:var(--sp-2) var(--sp-3);border:1px solid var(--accent);border-radius:var(--r-card);background:var(--surface);font-size:13px}
+.hx .pbar .pt{flex:1;min-width:0}
+.hx .pbar .lnk2{min-height:36px;font-size:13px}
+.hx .sentinel{display:flex;justify-content:center;align-items:center;gap:var(--sp-2);margin:var(--sp-5) 0;font-size:13px;color:var(--muted);min-height:48px}
+.hx .sentinel .dots{width:14px;height:14px;border-radius:50%;border:2px solid var(--border);border-top-color:var(--accent);animation:hxspin .8s linear infinite}
+@keyframes hxspin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.hx .sentinel .dots{animation:none}}
+/* the tabs and the sorter's two choices are links here (the screen works without script); same look as the mockup's buttons */
+.hx .hx-tabs a{flex:1;min-height:40px;padding:0 6px;white-space:nowrap;border:0;border-radius:var(--r-pill);background:none;font-weight:700;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;color:var(--muted);text-decoration:none}
+.hx .hx-tabs a[aria-selected=true]{background:var(--accent);color:var(--on-accent)}
+.hx .hx-tabs a svg{display:block}
+.hx .hx-tabs a .c{font-size:11px;padding:1px 6px;border-radius:var(--r-pill);border:1px solid currentColor;opacity:.85}
+.hx .sorter{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-3);margin:var(--sp-2) 0 var(--sp-1);font-size:13px;color:var(--muted)}
+.hx .seg{display:inline-flex;border:1px solid var(--border);border-radius:var(--r-pill);padding:2px;background:var(--surface)}
+.hx .seg a{min-height:32px;padding:0 12px;border-radius:var(--r-pill);display:inline-flex;align-items:center;font-weight:600;font-size:13px;color:var(--muted);text-decoration:none}
+.hx .seg a[aria-pressed=true]{background:var(--accent);color:var(--on-accent)}
+.hx .toast{position:fixed;left:50%;bottom:88px;transform:translateX(-50%);z-index:80;background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:var(--r-pill);font-weight:600;font-size:14px;max-width:calc(100vw - 32px)}
+.hx .toast[hidden]{display:none}
+.hx a.plink{display:flex;text-decoration:none}
+.hx a.plink b{text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:3px}
+.hx .chead form{display:contents;margin:0}
+.hx .toast{animation:hxtoast 2.4s forwards}
+@keyframes hxtoast{0%,85%{opacity:1;visibility:visible}100%{opacity:0;visibility:hidden}}
+@media(prefers-reduced-motion:reduce){.hx .toast{animation-duration:2.4s}}
+.hx .scope{display:flex;gap:var(--sp-2);align-items:flex-start;font-size:13px;color:var(--muted);margin:var(--sp-2) 0 var(--sp-3)}
+/* The people dropdown in the scope control (#662): a <details> whose summary is the third segment, with the Pantry ribbon's down arrow; the menu opens below it and works with no script. */
+.hx .hx-tabs{position:relative}
+.hx .hx-people{flex:1;min-width:0;display:flex}
+.hx .hx-people>summary{flex:1;min-width:0;min-height:40px;padding:0 6px;list-style:none;border-radius:var(--r-pill);font-weight:700;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;color:var(--muted);-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+.hx .hx-people>summary::-webkit-details-marker{display:none}
+.hx .hx-people>summary[aria-selected=true]{background:var(--accent);color:var(--on-accent)}
+.hx .hx-people>summary:focus-visible,.hx .hx-menu a:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.hx .hx-people>summary .chev{width:18px;height:18px;color:inherit;transition:transform .15s}
+.hx .hx-people[open]>summary .chev{transform:rotate(180deg)}
+@media(prefers-reduced-motion:reduce){.hx .hx-people>summary .chev{transition:none}}
+.hx .hx-menu{position:absolute;z-index:30;top:calc(100% + 4px);right:0;min-width:min(16rem,100%);max-height:50vh;overflow:auto;padding:4px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface);box-shadow:0 8px 24px rgba(0,0,0,.18)}
+.hx .hx-menu a{display:flex;align-items:center;gap:var(--sp-2);min-height:var(--tap);padding:0 var(--sp-3);border-radius:var(--r-ctl);font-weight:600;color:var(--fg);text-decoration:none}
+.hx .hx-menu a:hover{background:var(--bg)}
+.hx .hx-menu a .nm{text-decoration:underline;text-underline-offset:2px}
+.hx .hx-menu a[role=menuitemcheckbox]::after{content:"";order:3;flex:none;width:18px;height:18px;border:2px solid var(--border);border-radius:5px;box-sizing:border-box}
+.hx .hx-menu a[role=menuitemcheckbox][aria-checked=true]::after{border-color:var(--accent);background:var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/14px no-repeat}
+.hx .hx-menu a[aria-checked=true]{color:var(--accent)}
+.hx .hx-menu a .c{margin-left:auto;font-size:11px;padding:1px 6px;border-radius:var(--r-pill);border:1px solid currentColor;opacity:.85}
+@media(max-width:26rem){.hx .hx-people>summary>svg:first-child{display:none}.hx .hx-people>summary{padding:0 2px}}
+
+/* Issue kitchie#1103: the Others dropdown. Rows are: a tick box (select or deselect, several allowed), then the person as a link (avatar + underlined name, opens ONLY that person, same as the catch-up line and group heads), then the change count. Appended to the lifted history-phone.css so the build copies it as it is. */
+.hx-tabs{position:relative}
+.hx .hx-menu a.pname{flex:1;justify-content:flex-start;text-align:left;min-width:0;display:flex;align-items:center;gap:var(--sp-2);min-height:var(--tap);padding:0;border-radius:0;font-weight:600;color:var(--fg);text-decoration:none}
+.hx .hx-menu a.pname:hover{background:none}
+.hx .hx-menu a.pname .nm{text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:3px}
+.hx .hx-menu .hx-row{display:flex;align-items:center;gap:var(--sp-2);padding:0 var(--sp-3);border-radius:var(--r-ctl)}
+.hx .hx-menu .hx-row:hover{background:var(--bg)}
+.hx .hx-menu .hx-row .c{margin-left:0;font-size:11px;padding:1px 6px;border-radius:var(--r-pill);border:1px solid currentColor;opacity:.85}
+.hx .hx-menu .tick{flex:none;width:var(--tap);height:var(--tap);margin-left:calc(var(--sp-2) * -1);background:none;border:0;padding:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+.hx .hx-menu .tick::before{content:"";width:20px;height:20px;border:2px solid var(--border);border-radius:6px;box-sizing:border-box;background:var(--surface) center/14px no-repeat}
+.hx .hx-menu .tick[aria-checked=true]::before{border-color:var(--accent);background-color:var(--accent);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E")}
+.hx .hx-menu .tick:focus-visible{outline:2px solid var(--accent);outline-offset:-4px;border-radius:var(--r-ctl)}
+.hx .hx-people:not([open])>.hx-menu{display:none}
+/* mockup page only */
+body.hop{margin:0;background:var(--bg);color:var(--fg)}
+.hop .frame{max-width:420px;margin:0 auto;padding:var(--sp-4)}
+.hop .hint{font-size:12px;color:var(--muted);margin:var(--sp-3) 0 0}

@@ -13,3 +13,4 @@ fragments/history-search basement-bridge/mockup (no issue) History search and fi
 fragments/mobile-home-g-revisions basement-bridge/kitchie#1055 mobile Home round 2: urgency ranking, countdown window (hours), expired warning, drag to reveal, session memory; options A to C, C recommended, D retired; ; hero passport layout and info icon (kitchie#1095); awaiting owner review
 fragments/settings-redesign basement-bridge/kitchie#1090 Settings audit and redesign options; option E (hybrid: curated front, pinned shortcuts, search for everything) recommended, A to D kept; awaiting owner review
 fragments/looks-mode basement-bridge/kitchie#1088 Looks light/dark mode control: System, Light, Dark beside the theme picker; persistence still open; awaiting owner review
+fragments/history-others-picker basement-bridge/kitchie#1103 Others dropdown with tick boxes and name links, card wording; awaiting owner review

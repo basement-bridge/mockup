@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>History: Others picker — fragment</title><link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><script src="../../theme.js"></script>
+<style>.hop-fr{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:var(--sp-4);align-items:start}.hop-fr iframe{width:100%;height:640px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--bg)}.hop-fr figcaption{font-weight:700;margin-bottom:var(--sp-2)}.hop-fr p{font-size:13px;color:var(--muted)}</style></head>
+<body>
+<div class="wrap">
+<a class="back" href="../../index.html">All mockups</a>
+<h1>History: the Others picker and the card wording</h1>
+<p>Kitchie <a href="https://github.com/basement-bridge/kitchie/issues/1103">#1103</a>. Owner, by voice with a screenshot, 23 and 24 Oct 2026: the top is just <b>Mine | Others</b> (no People). Others opens a dropdown of the other members, each with an initial circle, the name as a link, and a count, plus a way to select or deselect them. The name is a link with a function, as it is in Kitchie today. The card is headed <b>Recent changes</b> and reads <b>72 changes: 71 by you, 1 by Sleepy Gecko</b>.</p>
+<div class="hop-fr">
+<figure><figcaption>1 · Closed (the default)</figcaption><iframe src="picker.html#closed" title="Others on, dropdown closed, everyone shown" loading="lazy"></iframe><p>Owner, 24 Oct: the dropdown starts closed. Nothing narrowed, so everyone's changes show. Press Others to open it.</p></figure>
+<figure><figcaption>2 · Open, everyone ticked</figcaption><iframe src="picker.html#open" title="Others open with everyone ticked" loading="lazy"></iframe><p>Each row: tick box, avatar and name (a link, underlined), count. Try it: untick one, untick both (everybody is reticked), press a name.</p></figure>
+<figure><figcaption>3 · After pressing a name</figcaption><iframe src="picker.html#matilda" title="Only Matilda ticked, narrowed" loading="lazy"></iframe><p>Pressing a name leaves only that person ticked (owner, 24 Oct) and the page comes back closed with the person bar and the way back.</p></figure>
+<figure><figcaption>4 · Mine</figcaption><iframe src="picker.html#mine" title="Mine tab" loading="lazy"></iframe><p>On Mine, Others is a plain tab. The dropdown is drawn only while Others is on.</p></figure>
+</div>
+<div class="ael-qs" style="margin-top:var(--sp-5)"><b>Decided (owner, 24 Oct 2026)</b>
+<ul><li>The dropdown starts closed.</li><li>Unticking the last ticked person reticks everybody.</li><li>Pressing a name leaves only that person ticked.</li><li>The card wording is in the same issue.</li></ul>
+<b>Proposals (owner was silent)</b>
+<ul><li><b>Everyone starts ticked</b> (nothing narrowed). A tick box per row is the select or deselect.</li><li>A tick keeps the dropdown open (it is a toggle); a name opens only that person and closes it.</li><li>With one other member the dropdown is still drawn, for the same look every time.</li><li>The person bar reads "Only changes by Matilda, Sleepy Gecko" when several are ticked.</li><li>The Others count is the changes of the ticked people.</li></ul>
+<b>Open questions</b>
+<ul><li>Should the tick or the name be the larger tap area on a phone? Both are 44px high here; the name takes the room.</li><li>In the Settings window (desktop) the name underlines on hover today; here it is underlined at rest so a phone shows it is a link. Keep at rest, or hover only?</li><li>The card's line when people are ticked: today "N changes in all, shown below for ..."; here it keeps "77 changes: ..." and the person bar says who is shown. OK?</li></ul>
+<b>Loads</b>: one small CSS file (the lifted <code>history-phone.css</code> plus 20 lines) and one small script; nothing on page load beyond them. Uses the same <code>hx</code> markup and class names as <code>server/src/history-screen.ts</code>; the build copies the appended rules.</div>
+</div>
+</body></html>
