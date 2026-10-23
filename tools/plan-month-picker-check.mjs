@@ -1,3 +1,4 @@
+// Also covers the SECOND FLYOUT page (second-flyout/home.html, ?second=a|b|c; PM-D47 to PM-D50): placement, Esc, back, X, Ctrl or Cmd+Esc, the pick with Undo, the earlier decisions inside it.
 // Behaviour check for the month picker behind "Another day" (Kitchie #826, from #757 F), headless Chromium. Mockup only, nothing is saved.
 // Usage:  python3 -m http.server 8123 &   then   node tools/plan-month-picker-check.mjs      (BASE=... to point elsewhere)
 // Needs playwright or playwright-core on the module path. Any page error or console error fails the run.
@@ -397,6 +398,107 @@ for (const [file, vw, vh, tag] of [["tablet.html", 768, 1024, "tablet "], ["phon
   await pg.goto(BASE.replace("home.html", "index.html")); await sleep(800);
   ok("hub: no \"Plan here\" wording left in the hub copy", !/plan here/i.test(await pg.locator("body").innerText()) && !/yellow/i.test(await pg.locator("body").innerText()), (await pg.locator("body").innerText()).match(/.{20}(plan here|yellow).{20}/i));
   await pg.close(); await ctx.close(); }
+// ---- SECOND FLYOUT for Another day (owner, 24 Oct 2026; PM-D47 to PM-D50): fragments/plan-month-picker/second-flyout/home.html, ?second=a|b|c ----
+// The month opens in a second flyout beside or over the first (Plan it). Every earlier decision is asserted inside the second flyout; the existing pages above are unchanged and still checked.
+{
+  const SF = BASE.replace("home.html", "second-flyout/home.html");
+  const sopen = async (ctx, q, theme) => {
+    const p = await ctx.newPage();
+    p.on("pageerror", e => errs.push("sf pageerror " + e.message)); p.on("console", m => { if (m.type() === "error") errs.push("sf console " + m.text()); }); p.on("requestfailed", r => errs.push("sf requestfailed " + r.url()));
+    if (theme) await p.addInitScript(t => { try { localStorage.setItem("theme", t); } catch (e) {} }, theme);
+    await p.goto(SF + (q ? "?" + q : "")); await sleep(600); return p;
+  };
+  const rects = p => p.evaluate(() => { const r = s => { const e = document.querySelector(s); if (!e || e.hidden) return null; const b = e.getBoundingClientRect(); return { l: Math.round(b.left), r: Math.round(b.right), t: Math.round(b.top), b: Math.round(b.bottom), w: Math.round(b.width), h: Math.round(b.height) }; }; return { f: r("#week"), s: r("#week2") }; });
+  const state = p => p.evaluate(() => ({ second: document.querySelector("#app").dataset.second || null, s2: !document.querySelector("#week2").hidden, rows: document.querySelectorAll("#week .row-d[data-i]").length, open: document.querySelector("#week").classList.contains("pk-fly"), inert: document.querySelector("#week").hasAttribute("inert"), op: parseFloat(getComputedStyle(document.querySelector("#week")).opacity), foc: document.activeElement ? (document.activeElement.hasAttribute("data-more") ? "more" : document.activeElement.dataset.n ? "cell" + document.activeElement.dataset.n : document.activeElement.className) : null }));
+  for (const [vw, vh] of [[1440, 900], [1280, 720]]) {
+    const ctx = await browser.newContext({ viewport: { width: vw, height: vh } }), tag = "second-flyout " + vw + " ";
+    // placement: A beside (from 1360px, else B), B over the first dimmed, C floating with a caret
+    for (const v of ["a", "b", "c"]) {
+      const p = await sopen(ctx, "start=month&halo=off&second=" + v), t = tag + v.toUpperCase() + ": ", rc = await rects(p), st = await state(p), want = v === "a" && vw < 1360 ? "b" : v;
+      ok(t + "the first flyout keeps the seven days and the second flyout is a separate panel", st.rows === 7 && st.s2 && st.open && rc.f && rc.s && (await p.locator("#week #pdm-st, #week .pdm").count()) === 0 && (await p.locator("#week2 .pdm").count()) === 1, st);
+      ok(t + "effective placement " + want + (v === "a" && vw < 1360 ? " (below 1360px A needs two lanes, so it is B)" : ""), st.second === want, st.second);
+      if (want === "a") ok(t + "A: the second flyout sits to the right of the first, both one flyout wide (400px), nothing covered", rc.s.l >= rc.f.r - 1 && rc.f.w >= 390 && rc.f.w <= 400 && rc.s.w === 400 && rc.s.h >= vh - 2 && st.op === 1 && !st.inert, [rc, st]);
+      if (want === "b") ok(t + "B: the second flyout is over the first, which waits behind it dimmed and inert, with an edge showing that closes it", rc.s.l > rc.f.l && rc.s.w === 400 && rc.s.l - rc.f.l <= 36 && st.op < 1 && st.inert && (await p.locator("#pk-scrim:visible").count()) === 1, [rc, st]);
+      if (want === "c") { const cx = await p.evaluate(() => ({ pos: getComputedStyle(document.querySelector("#week2")).position, cy: document.querySelector("#week2").style.getPropertyValue("--caret-y"), row: document.querySelector("[data-more]").getBoundingClientRect() })); ok(t + "C: a floating card beside the first (never over it), fully on screen, its caret level with the Another day row", cx.pos === "fixed" && rc.s.r <= rc.f.l && rc.s.t >= 0 && rc.s.b <= vh && Math.abs(parseFloat(cx.cy) - (cx.row.top + cx.row.height / 2)) < Math.max(40, cx.row.height) , [rc, cx]); }
+      ok(t + "no horizontal scroll in either flyout", (await p.evaluate(() => ["#week", "#week2"].every(s => { const e = document.querySelector(s); return e.scrollWidth - e.clientWidth <= 1; }))));
+      // earlier decisions, inside the second flyout
+      ok(t + "Monday to Sunday across, week rows from today's week, 35 dates, today's cell focused", (await p.locator("#week2 .pdm-dh").allInnerTexts()).join(",").toUpperCase() === "MON,TUE,WED,THU,FRI,SAT,SUN" && (await p.locator("#week2 .pdm-c[data-n]").count()) === 35 && (await cell(p, 0).getAttribute("class")).includes("st-past") && (await activeN(p)) === "5");
+      ok(t + "the 1 Nov month marker, the held pill, the legend with six items and the bottom strip as the detail card", /1\s*Nov/.test(await cell(p, 20).locator(".pdm-top").innerText()) && /Held/.test(await p.locator("#week2 .pk-holdb").innerText()) && (await p.locator("#week2 .pdm-lg li").count()) === 6 && (await p.locator("#week2 .pdw-strip.pdw-compact").count()) === 1 && (await p.locator("#week2 .pdm-pop, .pdm-pop").count()) === 0);
+      ok(t + "cells keep 44px, the plus only on open days, past is blank and disabled, planned marks are grey (1 or 3), no today label", await p.evaluate(() => { const cs = [...document.querySelectorAll("#week2 .pdm-c[data-n]")]; return cs.every(c => c.getBoundingClientRect().width >= 43.5 && c.getBoundingClientRect().height >= 43.5) && cs.filter(c => c.classList.contains("st-past")).every(c => c.disabled) && cs.filter(c => c.classList.contains("st-open")).every(c => c.querySelector(".pdm-mark svg")) && cs.filter(c => c.classList.contains("st-stack")).every(c => c.querySelectorAll(".pdm-mk i").length === 3) && !/today/i.test(document.querySelector("#week2").innerText); }));
+      const mk1 = await look(p, "#week2 .pdm-c.st-plan .pdm-mk i");
+      ok(t + "the planned mark is neutral grey, never red", mk1 && isNeutral(rgbOf(mk1.bg)) && !isRed(rgbOf(mk1.bg)), mk1);
+      ok(t + "the halo scenario is off here (halo=off): no cell glows", (await p.locator("#week2 .pdm-c.halo").count()) === 0);
+      await p.close();
+    }
+    // keys and closing: Esc, the back arrow, X, Ctrl or Cmd+Esc (A at 1440 beside; B at 1280)
+    for (const v of ["a", "b", "c"]) {
+      const t = tag + v.toUpperCase() + " closing: ", q = "start=month&halo=off&second=" + v;
+      let p = await sopen(ctx, q); await p.keyboard.press("Escape"); await sleep(350);
+      let st = await state(p); ok(t + "Esc closes the second flyout only; the first stays and focus returns to the Another day row", !st.s2 && st.open && st.rows === 7 && st.foc === "more" && !st.inert && st.op === 1, st);
+      await p.keyboard.press("Escape"); await sleep(350); st = await state(p); ok(t + "a second Esc closes the first flyout", !st.open, st);
+      await p.close();
+      p = await sopen(ctx, q); await p.locator("#week2 [data-back]").click(); await sleep(350); st = await state(p); ok(t + "the back arrow returns to the seven days (second closed, first open)", !st.s2 && st.open && st.rows === 7, st); await p.close();
+      p = await sopen(ctx, q); await p.locator("#week2 [data-close]").click(); await sleep(350); st = await state(p); ok(t + "X closes both flyouts", !st.s2 && !st.open, st); await p.close();
+      for (const mod of ["Control", "Meta"]) { p = await sopen(ctx, q); await p.keyboard.press(mod + "+Escape"); await sleep(350); st = await state(p); ok(t + mod + "+Esc closes both flyouts", !st.s2 && !st.open, st); await p.close(); }
+      p = await sopen(ctx, q); st = await state(p);
+      if (st.second !== "b") { await p.locator("[data-more]").click(); await sleep(300); st = await state(p); ok(t + "pressing the Another day row again closes the second flyout (it is a toggle: aria-expanded)", !st.s2 && st.open, st); }
+      await p.close();
+    }
+    { const p = await sopen(ctx, "start=month&halo=off&second=b"); await p.locator("#pk-scrim").click(); await sleep(350); const st = await state(p); ok(tag + "B: the edge of the dimmed first flyout closes the second", !st.s2 && st.open && !st.inert, st); await p.close(); }
+    // keys inside the second flyout are the month's
+    { const p = await sopen(ctx, "start=month&halo=off"); await cell(p, 11).focus(); await p.keyboard.press("ArrowRight"); const a = await activeN(p); await p.keyboard.press("ArrowDown"); const b = await activeN(p); await p.keyboard.press("Home"); const c = await activeN(p); await p.keyboard.press("End"); const d = await activeN(p);
+      ok(tag + "arrow keys, Home and End move through the dates in the second flyout", a === "12" && b === "19" && c === "5" && d === "34", [a, b, c, d]);
+      ok(tag + "the strip follows the date you are on", /Sun 15 Nov|Sunday 15 November/.test(await p.locator("#week2 #pdw-side").innerText()), await p.locator("#week2 #pdw-side").innerText()); await p.close(); }
+    // a pick commits at once with the 3 second inline Undo, in the second flyout; then both close
+    for (const v of ["a", "b"]) {
+      const p = await sopen(ctx, "start=month&halo=off&second=" + v); const before = await cls(p, 8);
+      await cell(p, 8).click(); await sleep(250);
+      ok(tag + v.toUpperCase() + ": picking an open date plans it at once, with a confirmation and an Undo in the second flyout", before.includes("st-open") && (await p.locator("#week2 .pk-conf").count()) === 1 && /Planned/.test(await p.locator("#week2 .pk-conf-v").innerText()) && (await p.locator("#week2 [data-cfundo]").count()) === 1);
+      await p.locator("#week2 [data-cfundo]").click(); await sleep(250);
+      ok(tag + v.toUpperCase() + ": Undo reads Undone and the date is open again", /Undone/.test(await p.locator("#week2 .pk-conf-v").innerText()));
+      await sleep(1700); let st = await state(p); ok(tag + v.toUpperCase() + ": after Undo both flyouts close", !st.s2 && !st.open, st); await p.close();
+      const q2 = await sopen(ctx, "start=month&halo=off&second=" + v); await cell(q2, 8).click(); await sleep(3000);
+      ok(tag + v.toUpperCase() + ": the confirmation holds about 3 seconds", (await q2.locator("#week2 .pk-conf").count()) === 1 || (await state(q2)).s2 === true); await sleep(900);
+      st = await state(q2); ok(tag + v.toUpperCase() + ": then it slides out and both close", !st.s2 && !st.open, st); await q2.close();
+    }
+    for (const v of vw >= 1360 ? ["a", "c"] : ["c"]) { const p = await sopen(ctx, "start=month&halo=off&second=" + v); await p.locator('#week .row-d[data-i="3"]').click(); await sleep(300); const st = await state(p);
+      ok(tag + v.toUpperCase() + ": a pick in the first flyout (still usable beside it) dismisses the second and confirms in the first", !st.s2 && (await p.locator("#week .pk-conf").count()) === 1, st); await p.close(); }
+    // Who pill, Hard avoid and the second flyout's own state
+    { const p = await sopen(ctx, "start=month&halo=off&second=a&who=Sam"); ok(tag + "Sam selected: the moon shows on a day off in the second flyout (Thursdays)", (await cell(p, 10).locator(".pdm-mark .pdm-i").count()) === 1 && (await cls(p, 10)).includes("st-off")); await p.close(); }
+    { const p = await sopen(ctx, "start=month&halo=off&second=a&avoid=mango"); const badge = await look(p, "#week2 .pdm .pdm-bd.warn .pdm-i.bang"), mk = await look(p, "#week2 .pdm-lg li:nth-child(2) .pdm-mk i");
+      ok(tag + "Hard avoid with a mango recipe: a red exclamation (not green, larger than the planned marks) in the second flyout", badge && isRed(rgbOf(badge.color)) && badge.w > mk.w + 3, [badge, mk]);
+      await p.locator('#week2 [data-who="Jo"]').click(); await sleep(250);
+      ok(tag + "the Who pill in the second flyout scopes both flyouts; under Jo a stop mark has no plus", (await p.locator('#week [data-who="Jo"][aria-pressed="true"]').count()) === 1 && (await p.locator("#week2 .pdm-c.g-stop").count()) > 0 && (await p.locator("#week2 .pdm-c.g-stop .pdm-mark").count()) === 0);
+      await p.close(); }
+    { const p = await sopen(ctx, "start=month&second=a"); await sleep(300);
+      ok(tag + "the halo is on every open date at once when the second flyout opens", (await p.locator("#week2 .pdm-c.st-open.halo").count()) > 5);
+      await sleep(3300); ok(tag + "and it ends after about 3 seconds", (await p.locator("#week2 .pdm-c.halo").count()) === 0); await p.close(); }
+    { const p = await sopen(ctx, "start=month&halo=off&second=a"); const h0 = await p.locator("#week2 .pk-holdb span").innerText(); await p.locator("#week2 .pk-holdb").click(); await sleep(200);
+      ok(tag + "Hold in the second flyout toggles both pills and gives the brief message", h0 === "Held" && (await p.locator("#week .pk-holdb span").innerText()) === "Hold" && (await p.locator("#week2 .pk-holdmsg").innerText()).length > 5); await p.close(); }
+    await ctx.close();
+  }
+  // the threshold: A is two lanes from 1360px, B below; tablet and phone are the existing sheets (two taps), not this page
+  for (const [vw, want] of [[1360, "a"], [1359, "b"], [1100, "b"], [1024, "b"], [1700, "a"]]) {
+    const ctx = await browser.newContext({ viewport: { width: vw, height: 800 } }), p = await sopen(ctx, "start=month&halo=off&second=a"), st = await state(p), rc = await rects(p);
+    ok("second-flyout A at " + vw + "px is " + want.toUpperCase() + ", the second flyout fully on screen, no covered Home column in A", st.second === want && rc.s.r <= vw + 1 && (want !== "a" || (rc.s.l >= rc.f.r - 1)), [st, rc]); await p.close(); await ctx.close();
+  }
+  // both themes: contrast and the red Hard avoid
+  for (const th of ["kitchie-day", "kitchie"]) {
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } }), p = await sopen(ctx, "start=month&halo=off&second=a&who=Sam", th);
+    ok("second-flyout " + th + ": the theme really applied", (await p.evaluate(() => document.documentElement.getAttribute("data-theme"))) === th);
+    for (const [n, sel] of [["open", "#week2 .pdm-c[data-n].st-open .pdm-n"], ["plan", "#week2 .pdm-c[data-n].st-plan .pdm-n"], ["off", "#week2 .pdm-c[data-n].st-off .pdm-n"], ["header", "#week2 .pdm-dh"], ["legend", "#week2 .pdm-lg li"], ["strip", "#week2 .pdw-chip"]]) { const c = await contrast(p, sel); ok("second-flyout " + th + " contrast " + n + " >= 4.5", c >= 4.5, c.toFixed(2)); }
+    const q = await sopen(ctx, "start=month&halo=off&second=a&avoid=mango", th), b = await look(q, "#week2 .pdm .pdm-bd.warn .pdm-i.bang"); ok("second-flyout " + th + ": the Hard avoid exclamation is red", b && isRed(rgbOf(b.color)), b && b.color); await q.close();
+    ok("second-flyout " + th + ": no dashed or dotted line in the second flyout's grid", await p.evaluate(() => { for (const e of document.querySelectorAll("#week2 .pdm, #week2 .pdm *")) for (const ps of [null, "::before", "::after"]) { const cs = getComputedStyle(e, ps); if (ps && cs.content === "none") continue; for (const sd of ["Top", "Right", "Bottom", "Left"]) if (/dashed|dotted/.test(cs["border" + sd + "Style"]) && parseFloat(cs["border" + sd + "Width"]) > 0) return false; } return true; }));
+    await p.close(); await ctx.close();
+  }
+  // the existing month picker is untouched: the one-wide-panel page still works, and the hub links the new page
+  { const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } }), p = await open(ctx, "start=month&halo=off"); ok("existing home.html is untouched: still one wide panel (#week with the grid and the strip), no second flyout", (await p.locator("#week .pdm").count()) === 1 && (await p.locator("#week2").count()) === 0 && (await p.locator("#week #pdw-side").count()) === 1); await p.close();
+    const h = await ctx.newPage(); h.on("pageerror", e => errs.push("hub pageerror " + e.message)); await h.goto(BASE.replace("home.html", "index.html")); await sleep(500);
+    ok("the month picker hub links the second-flyout page and its three variants", (await h.locator('a[href^="second-flyout/"]').count()) >= 4, await h.locator('a[href^="second-flyout/"]').count());
+    const s = await ctx.newPage(); s.on("pageerror", e => errs.push("sf hub pageerror " + e.message)); await s.goto(SF.replace("home.html", "index.html")); await sleep(700);
+    ok("the second-flyout hub opens each variant at 1440 and 1280 and carries the open questions", (await s.locator('a[href^="home.html?"]').count()) >= 5 && /Open questions|open question/i.test(await s.locator("body").innerText()));
+    await s.close(); await h.close(); await ctx.close(); }
+}
 ok("no page errors or console errors", errs.length === 0, errs.slice(0, 5));
 await browser.close();
 console.log((fails ? "FAILED " : "OK ") + (total - fails) + "/" + total);
