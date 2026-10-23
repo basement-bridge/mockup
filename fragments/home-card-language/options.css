@@ -1,0 +1,14 @@
+/* Phone Home: one card language. Tokens only (theme.css). Loaded AFTER ../mobile-home-g/home.css and ../mobile-home-g-revisions/revisions.css, neither edited; this file only adds the three treatments of an URGENT section.
+   Shared by all three: the surface (var(--surface)), the hairline (1px var(--border)), the radius (var(--r-card)), the pill (.bdg, words) and the count (.n). Only an urgent section differs, and only by what is below.
+   Names: .hc (frame root), .opt-a .opt-b .opt-c (the option), .urg (the urgent section, set by the script in the build as data-urgent=true). */
+.hc .fold .tog{cursor:default}
+/* A. one surface: nothing extra. */
+/* B. tint: the colour of the section's tone mixed into the surface, border mixed likewise (what uat drew before kitchie#1112, at 6%). Colour carries it; the badge words repeat it. */
+.opt-b .fold.urg.soon{border-color:color-mix(in srgb,var(--danger) 50%,var(--border));background:color-mix(in srgb,var(--danger) 8%,var(--surface))}
+.opt-b .fold.urg.low{border-color:color-mix(in srgb,var(--accent) 55%,var(--border));background:color-mix(in srgb,var(--accent) 8%,var(--surface))}
+/* C. edge bar: the same surface and hairline; a 4px bar down the leading edge (a SHAPE), inside the radius, in the tone's colour, plus the word badge. The bar is the only mark; nothing is tinted. */
+.opt-c .fold.urg{position:relative;overflow:hidden}
+.opt-c .fold.urg::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--danger)}
+.opt-c .fold.urg.low::before{background:var(--accent)}
+.opt-c .fold.urg .tog{padding-left:calc(var(--sp-3) + 4px)}
+.opt-c .fold.urg .fb{padding-left:calc(var(--sp-3) + 4px)}
