@@ -1,0 +1,45 @@
+/* Stacked-night cue options (mockup only). Tokens only (theme.css); loaded after ../rows.css. ?cue=0 leaves the sliver exactly as F draws it today.
+   Every cue is shape plus text or letters, never colour alone. The cue is the existing .peek-b button, so keys and aria-expanded are F's. */
+.cue-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+#week[data-cue="1"] .row-w.has-peek::after,#week[data-cue="2"] .row-w.has-peek::after,#week[data-cue="3"] .row-w.has-peek::after,#week[data-cue="4"] .row-w.has-peek::after{display:none}
+#week[data-cue="1"] .row-w.has-peek:not(.open),#week[data-cue="3"] .row-w.has-peek:not(.open),#week[data-cue="4"] .row-w.has-peek:not(.open){padding-bottom:0}
+
+/* Cue 1: count badge. A small pill at the row's top right: two stacked cards glyph and "2 meals". It is the open control. */
+#week[data-cue="1"] .row-w.has-peek:not(.open) .peek-b{left:auto;right:10px;bottom:auto;top:8px;width:auto;height:26px;display:inline-flex;align-items:center;gap:6px;padding:0 10px 0 8px;border:1px solid var(--accent);border-radius:var(--r-pill);background:var(--bg);color:var(--fg);font-size:12px;font-weight:800;letter-spacing:0;text-transform:none}
+#week[data-cue="1"] .peek-b b{font-weight:800}
+.cue-ic{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round}
+#week[data-cue="1"] .row-w.has-peek:not(.open) .row-d .dt{padding-right:92px}
+#week[data-cue="1"] .peek-b:hover{background:color-mix(in srgb,var(--accent) 18%,var(--bg))}
+
+/* Cue 2: stacked cards, a pile. The front row is 12px narrower than its neighbours; up to two whole cards sit behind it, each lower and further right (6px, then 12px), with whole rounded corners and a clearly visible edge. */
+#week[data-cue="2"] .row-w.has-peek:not(.open):not(.cue-solo){padding-bottom:12px;padding-right:12px}
+#week[data-cue="2"] .row-w.has-peek:not(.open):not(.cue-solo)::before,#week[data-cue="2"] .row-w.has-peek:not(.open):not(.cue-solo)::after{content:"";display:block;position:absolute;border:1px solid color-mix(in srgb,var(--fg) 58%,var(--bg));border-radius:var(--r-ctl);background:var(--surface);z-index:0;height:auto}
+#week[data-cue="2"] .row-w.has-peek:not(.open)::after{left:6px;right:6px;top:6px;bottom:6px}
+#week[data-cue="2"] .row-w.has-peek:not(.open)::before{left:12px;right:0;top:12px;bottom:0;display:none}
+#week[data-cue="2"] .row-w.has-peek[data-extra="2"]:not(.open)::before{display:block}
+#week[data-cue="2"] .row-w.has-peek:not(.open):not(.cue-solo) .peek-b{left:0;right:0;top:auto;bottom:0;height:12px;border-radius:var(--r-ctl);z-index:2}
+#week[data-cue="2"] .row-w.has-peek:not(.open):not(.cue-solo) .row-d{z-index:1}
+#week[data-cue="2"] .row-w.has-peek[data-extra="1"]:not(.open):not(.cue-solo){padding-bottom:6px;padding-right:6px}
+#week[data-cue="2"] .row-w.has-peek[data-extra="1"]:not(.open)::after{left:6px;right:0;top:6px;bottom:0}
+
+/* Cue 3: who dots. Small overlapping circles with an initial, one for each person who has their own plan that night. */
+#week[data-cue="3"] .row-w.has-peek:not(.open) .peek-b{left:auto;right:10px;bottom:auto;top:10px;width:auto;height:24px;display:inline-flex;align-items:center;padding:0 2px;border:0;border-radius:var(--r-pill);background:transparent}
+.cue-av{display:inline-flex}
+.cue-av i{box-sizing:border-box;width:24px;height:24px;margin-left:-7px;border-radius:50%;display:grid;place-items:center;font:800 12px/1 var(--head);font-style:normal;background:var(--bg);color:var(--fg);border:2px solid var(--accent);box-shadow:0 0 0 2px var(--surface)}
+.cue-av i:first-child{margin-left:0}
+#week[data-cue="3"] .peek-b:hover .cue-av i{background:var(--accent);color:var(--on-accent)}
+#week[data-cue="3"] .row-w.has-peek:not(.open) .row-d .dt{padding-right:68px}
+
+/* Cue 4: a second mini row. A 28px attached row per person who has their own plan (two at most): an elbow connector, the person and the meal. Nothing to open to learn what it is. */
+#week[data-cue="4"] .row-w.has-peek:not(.open) .peek-b{position:static;display:block;width:100%;height:auto;margin:-1px 0 0 18px;width:calc(100% - 18px);padding:0;border:0;background:none;text-align:left;text-transform:none;letter-spacing:0;font-weight:600;color:var(--fg);border-radius:0}
+.cue-mini{display:flex;align-items:center;gap:8px;min-height:28px;padding:0 10px 0 0;font-size:13px;line-height:1.2;min-width:0}
+.cue-mini b{flex:none;font-weight:800;font-size:12px}
+.cue-mini > span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);font-weight:600}
+.cue-l{flex:none;width:18px;height:28px;margin-top:-14px;border-left:2px solid color-mix(in srgb,var(--fg) 58%,var(--bg));border-bottom:2px solid color-mix(in srgb,var(--fg) 58%,var(--bg));border-radius:0 0 0 8px}
+#week[data-cue="4"] .peek-b:hover .cue-mini > span{color:var(--fg)}
+#week[data-cue="4"] .row-w.has-peek:not(.open){margin-bottom:0}
+
+/* one meal only: nothing drawn, the button stays for keys and readers */
+#week[data-cue] .row-w.cue-solo::after{display:none}
+#week[data-cue] .row-w.cue-solo:not(.open){padding-bottom:0}
+#week[data-cue] .row-w.cue-solo:not(.open) .peek-b{position:absolute;left:0;bottom:0;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);padding:0;border:0;background:none}

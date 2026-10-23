@@ -19,3 +19,9 @@
 @container (max-height:68px){.pc-go .rb-btn{min-height:36px;padding:0 12px;font-size:14px}.pc-go{gap:8px}.ban-zoom{width:32px;height:32px}}
 /* row two without the buttons: left aligned, same controls */
 .hero.has-ov .hr2{justify-content:flex-start}
+
+/* No banner (24 October 2026, owner): Plan it / Make it are in row one (right of the title) and the socials are in row two (right of Serves, time, version, History). Both groups stay right aligned
+   at every width; where the row is too narrow they wrap under, as the rows always did. Buttons are the page's own size (44px), the hero has the same two rows. */
+.hero.ov-swap .hgo,.hero.ov-swap .hicons{justify-content:flex-end;flex:none}
+.hero.ov-swap .hr2 .hmeta{flex:1 1 auto}
+.hero.ov-swap .hgo .rb-btn{min-height:44px}

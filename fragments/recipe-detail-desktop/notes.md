@@ -357,7 +357,7 @@ Q10. **Method reading order across two columns.** Steps run down the left column
 - Light and dark styles break even at luminance about 0.19; hysteresis (to dark buttons above 0.24, back below 0.15) stops flicker. Label text at least 4.5:1 (8.7 to 9.6 in the palette); button edge at least 3:1 against the worst pixel behind it, measured on the rendered page.
 - A subtle backing (30%, 50% if still short of 3:1) in the opposite tone for mid-tone or busy regions only. Smooth .28s transition; none under prefers-reduced-motion.
 - If the image cannot be read (cross-origin image without CORS taints the canvas, not loaded, no size) C falls back to the fixed look: theme buttons on the fixed dark corner scrim.
-- Row two stays and left aligns (the hero is 4px shorter); no banner means no overlay and the buttons stay in row two; the banner is a click-to-enlarge target (new); magnifier always visible, bottom left in C; keyboard order unchanged plus one banner stop.
+- Row two stays and left aligns (the hero is 4px shorter); no banner means no overlay, and (decided 24 October 2026, 7.6) Plan it and Make it swap rows with the socials; the banner is a click-to-enlarge target (new); magnifier always visible, bottom left in C; keyboard order unchanged plus one banner stop.
 
 #### 7.4.3 Still open
 
@@ -371,6 +371,20 @@ Q10. **Method reading order across two columns.** Steps run down the left column
 3. **Extended (owner, by voice, 18 October 2026: "apply Cook it to Make it globally", Kitchie #917):** every other visible recipe label now reads "Make it" too (phone recipe page and versions buttons, "Make it again", the "Make it once and the thumbs and notes start here" empty state, browse and home flyouts), matching the build. Left on purpose: the Cook mode screen name, plan wording about cooking a night ("Tap the night to cook it first", "Cook it by Wed"), and prose in notes and review documents.
 
 ---
+
+### 7.6 No banner photo: Plan it and Make it swap rows with the socials (24 October 2026)
+
+**DECIDED by the owner (typed approval, 24 October 2026; Kitchie #898).** With a banner, option C stands (top-right stack, adaptive contrast, label "Make it", 7.4 and 7.5). **New for a recipe with NO banner photo:**
+
+- **RD-NB1 (owner).** Plan it and Make it swap rows with the Share / Like row (the socials: Notes and reactions pill, Like, Edit, Share, More). Row one is back, title (left) and Plan it, Make it (right). Row two is Serves, time, version, History (left) and the socials (right). The two action buttons are on top; the socials drop to the row below.
+- **RD-NB2 (agent default).** The elements are moved, not copied, so handlers and the "Planned Tue" label stay; the keyboard order follows the new visual order (title row, Plan it, Make it, Serves, time, version, History, the socials). The two groups are labelled for assistive tech ("Plan it or make it", "Like, edit, share and more"); a banner click target does not exist in this state.
+- **RD-NB3 (agent default).** Same two rows, so the hero keeps its height (116 to 118px at 1280x720 and 1440x900). Buttons keep the page's own style and 44px height; no adaptive sampling and no scrim (nothing is behind them: the card surface is the backing; theme contrast of the original buttons, 13.0:1 and 9.6:1 dark, 14.9:1 and 6.2:1 light).
+- **RD-NB4 (agent default).** The state is reached by `?banner=none` on `plan-cook-overlay/c/` (also a and b) or any recipe without a photo; adding a banner at runtime is not drawn. Not drawn: widths under 1280px (stacked page, as before).
+
+Drawn in both themes at 1440x900 and 1280x720: `plan-cook-overlay/c/adaptive/nobanner-swap-{1440x900,1280x720}-{dark,light}.png`. Check: `tools/plan-cook-overlay-adaptive-check.mjs` (247 checks; 204 before, the old "stay in row two" no-banner assertion is replaced). Supersedes the "no banner: buttons stay in row two" line of 7.4.2. Full text: `docs/knowledge/recipe-detail-no-banner-actions.md`.
+
+---
+
 
 ## 8. Inline edit (Kitchie #892)
 

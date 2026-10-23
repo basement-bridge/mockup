@@ -1,12 +1,17 @@
 /* Plan it / Make it overlay, shared by variants a, b, c (the variant is set on <html data-ov>). Runs after recommended.js has drawn the page.
    Mockup-only: in the build the hero template would draw this markup directly. It moves the EXISTING Plan it / Make it elements (handlers, labels and the "Planned Tue" state stay),
    so the DOM order, and therefore the keyboard order, is the same as today: title row, Serves row, then Plan it, Make it, then the rail. The banner is one button in the page (first tab stop).
-   No banner (?banner=none, or a recipe without a photo): nothing is overlaid and Plan it / Make it stay in row two at the right, exactly as in recommended/. */
+   No banner (?banner=none, or a recipe without a photo): nothing is overlaid, and (owner decision, 24 October 2026, RD-NB1 to RD-NB4 in ../notes.md 7.6) Plan it / Make it SWAP ROWS with the
+   socials (pill, Like, Edit, Share, More): row one is back, title, Plan it, Make it; row two is Serves, time, version, History, then the socials at the right. The elements are moved, not copied,
+   so handlers and the "Planned Tue" label stay and the keyboard order follows the new visual order. The hero keeps its height (the same two rows). */
 (function(){
 "use strict";
 var hero=document.getElementById("hero");if(!hero)return;
 var ph=hero.querySelector(".hphoto"),go=hero.querySelector(".hgo");
-if(!ph||!go){hero.classList.add("ov-none");return}
+if(!ph||!go){hero.classList.add("ov-none");
+ var hi=hero.querySelector(".hicons"),r1=hero.querySelector(".hr1"),r2=hero.querySelector(".hr2");
+ if(go&&hi&&r1&&r2&&!hero.classList.contains("ov-swap")){r1.appendChild(go);r2.appendChild(hi);hero.classList.add("ov-swap");go.setAttribute("role","group");go.setAttribute("aria-label","Plan it or make it");hi.setAttribute("role","group");hi.setAttribute("aria-label","Like, edit, share and more")}
+ return}
 hero.classList.add("has-ov");document.title=document.title.replace("recommended","Plan it / Make it overlay "+(document.documentElement.dataset.ov||"").toUpperCase());
 ph.removeAttribute("aria-hidden");
 var scrim=document.createElement("span");scrim.className="ban-scrim";scrim.setAttribute("aria-hidden","true");ph.appendChild(scrim);
