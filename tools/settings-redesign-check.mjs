@@ -167,7 +167,7 @@ await p.context().close();
   r = await top("flux capacitor"); ok(r.ids.length === 0, "E search: nonsense finds nothing");
   r = await top("household"); ok(r.ids.length > 6, `E search: 'household' is a multi-result query (${r.ids.length})`);
   /* the UI for each state, on the phone */
-  await q.fill("text size"); ok(await ph.locator("[data-results] .sr").count() === 1 && await ph.locator('[data-entry=text] .seg2').count() === 1 && await ph.locator('[data-entry=text] .sr-aff').innerText().then(t => /every screen/i.test(t)), "E UI: a result says what it affects and carries its control");
+  await q.fill("text size"); ok(await ph.locator("[data-results] .sr").count() === 1 && await ph.locator('[data-entry=text] .tstep').count() === 1 && await ph.locator('[data-entry=text] .sr-aff').innerText().then(t => /every screen/i.test(t)), "E UI: a result says what it affects and carries its control");
   ok(/Match my phone/.test(await ph.locator('[data-entry=text] .sr-val').innerText()) && /Settings/.test(await ph.locator('[data-entry=text] .sr-loc').innerText()), "E UI: a result shows where it lives and its current value");
   await q.fill("bigger text"); ok(/bigger text/.test(await ph.locator('[data-entry=text] .sr-why').innerText()), "E UI: a synonym result says what it is also called");
   await q.fill("drak mode"); ok(/dark mode/.test(await ph.locator("[data-fixed]").innerText()) && await ph.locator('[data-entry=mode]').count() === 1, "E UI: a typo says what it searched for");
@@ -183,13 +183,13 @@ await p.context().close();
   await ph.locator("[data-suggest] .echip").first().click(); ok(await q.inputValue() === "bigger text", "E UI: a suggestion fills the box");
   /* inline controls change the sample screens */
   await q.fill("emoji"); const emo = () => p.locator(`${E} [data-slot=prev] [data-s=pantry] .emo`).count();
-  ok(await emo() === 3, "E: emoji shows on the sample Pantry"); await ph.locator('[data-entry=emoji] label.srow').click(); ok(await emo() === 0 && await p.locator(`${E} [data-slot=prev] [data-s=home] .ic`).first().innerText() === "·", "E: an inline switch in a result changes every sample screen"); await ph.locator('[data-entry=emoji] label.srow').click();
+  ok(await emo() === 3 && await ph.locator('[data-entry=emoji] input').count() === 0 && /shows its emoji when it has one/.test(await ph.locator('[data-entry=emoji] .sr-info').innerText()), "E: no Emoji setting: a search for emoji explains it, has no control, and the samples keep their emoji");
   await q.fill("use-by"); await ph.locator('[data-entry=rows] label:has(input[value=names])').click();
   ok(!(await p.locator(`${E} [data-slot=prev] [data-s=pantry] .meta`).first().isVisible()) && !(await p.locator(`${E} [data-slot=prev] [data-s=shop] .sm`).first().isVisible()), "E: Rows Names only hides amount, spot and use-by on Pantry and Shopping");
   await ph.locator('[data-entry=rows] label:has(input[value=standard])').click();
   /* reset */
-  await q.fill("text size"); await ph.locator('[data-entry=text] label:has(input[value=larger])').click(); await q.fill("undo changes"); await ph.locator('[data-entry=reset] [data-ea=reset]').click();
-  ok(await p.locator(E).getAttribute("data-ts") === "match" && await p.locator(`${E} [data-shortcuts] .etile`).count() === 2, "E: Reset (found by search) restores display settings and leaves pins alone");
+  await q.fill("text size"); await ph.locator('[data-entry=text] .tbtn[data-ea="ts:1"]').click(); await q.fill("undo changes"); await ph.locator('[data-entry=reset] [data-ea=reset]').click();
+  ok(await p.locator(E).getAttribute("data-ts") === null && await p.locator(`${E} [data-shortcuts] .etile`).count() === 2, "E: Reset (found by search) restores display settings and leaves pins alone");
   await p.context().close();
 
   /* pin and unpin */
@@ -199,7 +199,7 @@ await p.context().close();
   await f.locator('[data-pinned=looks] .pinb').click(); ok(await f.locator("[data-empty-pins]").count() === 1 && await f.locator(".eadd").count() === 2, "E pin: nothing pinned shows the empty state with both segments to add");
   const g = p.locator(`${E} .phone`).nth(1); await g.locator(".mtop").first().waitFor();
   await p.locator(`${E} .phone`).nth(0).locator('[data-ea="nav:looks"]').click();
-  ok(await f.locator("[data-looks] .seg2").count() === 1 && await f.locator("[data-textcard] .seg2").count() === 1, "E pin: unpinned, Looks and Text size are still on their own page");
+  ok(await f.locator("[data-looks] .seg2").count() === 1 && await f.locator("[data-textcard] .tstep").count() === 1, "E pin: unpinned, Looks and Text size are still on their own page");
   await f.locator('[data-looks] .pinb').click(); await f.locator('[data-ea="nav:front"]').click();
   ok(await f.locator("[data-pinned=looks]").count() === 1, "E pin: pinning from the Looks page adds the tile");
   await f.locator("[data-eq]").fill("text size"); await f.locator('[data-entry=text] .pinb').click(); await f.locator("[data-eq]").fill(""); await f.locator("[data-eq]").press("Escape");
@@ -214,33 +214,61 @@ await p.context().close();
   await kq.press("ArrowDown"); const a1 = await active(); ok(a1 !== "mode", "E keys: ArrowDown moves the highlight"); await kq.press("ArrowUp"); ok(await active() === "mode", "E keys: ArrowUp moves it back");
   ok(await kq.getAttribute("aria-activedescendant") === await k.locator(".sr.is-active").getAttribute("id"), "E keys: aria-activedescendant follows the highlight");
   await kq.fill("emoji"); const before = await p.locator(`${E} [data-slot=prev] [data-s=pantry] .emo`).count(); await kq.press("Enter");
-  ok(before === 3 && await p.locator(`${E} [data-slot=prev] [data-s=pantry] .emo`).count() === 0 && await p.evaluate(() => document.activeElement.hasAttribute("data-eq")), "E keys: Enter uses the highlighted result and keeps focus in the box");
+  ok(before === 3 && await p.locator(`${E} [data-slot=prev] [data-s=pantry] .emo`).count() === 3 && /Nothing to change/.test(await p.locator(`${E} .toast`).first().innerText()) && await p.evaluate(() => document.activeElement.hasAttribute("data-eq")), "E keys: Enter on a not-a-setting result says so and keeps focus in the box");
   await kq.press("Escape"); ok(await kq.inputValue() === "", "E keys: Esc clears the box");
   await kq.press("Escape"); ok(!(await p.evaluate(() => document.activeElement.hasAttribute("data-eq"))), "E keys: Esc again leaves the box");
   await p.locator(`${E} header h2`).click(); await p.keyboard.press("/"); ok(await p.evaluate(() => document.activeElement.hasAttribute("data-eq")), "E keys: / focuses search");
   await p.context().close();
 
-  /* text size reaches Home, Pantry and Shopping */
+  /* text size: a seven-step stepper relative to the phone's own size; it reaches Home, Pantry and Shopping */
   p = await open(); const sz = s => px(p, `${E} [data-slot=prev] ${s}`);
+  const P1 = p.locator(`${E} .phone`).first(), up = P1.locator('[data-pinned=text] .tbtn[data-ea="ts:1"]'), dn = P1.locator('[data-pinned=text] .tbtn[data-ea="ts:-1"]');
   const base = [await sz("[data-s=home] .nm"), await sz("[data-s=pantry] li .name"), await sz("[data-s=shop] .nm")];
-  await p.locator(`${E} .phone`).first().locator('[data-pinned=text] label:has(input[value=larger])').click();
+  ok(await P1.locator("[data-pinned=text] .tlab").innerText() === "Match my phone", "E text size: the middle says Match my phone at step 0");
+  await up.click();
   const lg = [await sz("[data-s=home] .nm"), await sz("[data-s=pantry] li .name"), await sz("[data-s=shop] .nm")];
-  ok(lg.every((v, i) => v > base[i] + 1), `E text size: Larger grows Home, Pantry and Shopping together (${base.map(x => x.toFixed(1))} to ${lg.map(x => x.toFixed(1))})`);
-  await p.locator(`${E} .phone`).first().locator('[data-pinned=text] label:has(input[value=largest])').click();
-  ok(await sz("[data-s=home] .nm") > lg[0] + 1, "E text size: Largest is bigger again");
+  ok(lg.every((v, i) => v > base[i] + 0.5), `E text size: one tap larger grows Home, Pantry and Shopping together (${base.map(x => x.toFixed(1))} to ${lg.map(x => x.toFixed(1))})`);
+  await up.click(); await up.click();
+  ok(await sz("[data-s=home] .nm") > lg[0] + 1 && await p.locator(E).getAttribute("data-ts") === "l3", "E text size: three taps larger is bigger again (+30%)");
+  ok(await up.getAttribute("aria-disabled") === "true", "E text size: the larger button is disabled at the end");
+  await up.click({ force: true }); ok(await p.locator(E).getAttribute("data-ts") === "l3", "E text size: another tap at the end changes nothing");
   ok(await px(p, `${E} .phone .mbody p`) > 0 && await px(p, `${E} .phone .etile b`) > 16.5, "E text size: the settings screens themselves grow too (whole app)");
-  await p.locator(`${E} .phone`).first().locator('[data-pinned=text] label:has(input[value=match])').click();
+  ok(await P1.locator("[data-pinned=text] .tlab").evaluate(n => parseFloat(getComputedStyle(n).fontSize)) > 16, "E text size: the middle label shows at the applied size");
+  for (let i = 0; i < 3; i++) await dn.click();
+  ok(await p.locator(E).getAttribute("data-ts") === null && Math.abs(await sz("[data-s=home] .nm") - base[0]) < 0.5, "E text size: back at the middle, exactly the phone's own size");
   await p.locator("[data-aid-os=large]").click(); const mm = await sz("[data-s=home] .nm"); ok(mm > base[0] + 1, "E text size: Match my phone follows the phone's size");
-  await p.locator(`${E} .phone`).first().locator('[data-pinned=text] label:has(input[value=standard])').click(); ok(Math.abs(await sz("[data-s=home] .nm") - base[0]) < 0.5, "E text size: Standard ignores the phone's size");
+  for (let i = 0; i < 3; i++) await dn.click();
+  ok(await p.locator(E).getAttribute("data-ts") === "s3" && await sz("[data-s=home] .nm") < mm - 1 && await dn.getAttribute("aria-disabled") === "true", "E text size: three taps smaller is smaller than the phone's size and the smaller button is disabled");
+  const row = await P1.locator("[data-pinned=text] .tstep > *").evaluateAll(els => els.map(e => { const r = e.getBoundingClientRect(); return [r.top, r.bottom, r.width, r.height]; }));
+  ok(row.length === 3 && Math.max(...row.map(r => r[0])) < Math.min(...row.map(r => r[1])) && row[0][2] >= 44 && row[0][3] >= 44 && row[2][2] >= 44 && row[2][3] >= 44, "E text size: one line, two 44px buttons and the middle");
+  ok(await P1.locator("[data-pinned=text]").getByText("Text size", { exact: true }).count() === 1, "E text size: the card says Text size once");
+  await p.context().close();
+
+  /* pin is only an icon; no Emoji on Looks; swatches show real looks with names; the pinned Looks card keeps themes on one row */
+  p = await open("kitchie", 390, 844); const Q = p.locator(`${E} .phone`).first();
+  const pins = await Q.locator(".pinb").evaluateAll(els => els.map(e => ({ t: e.textContent.trim(), l: e.getAttribute("aria-label"), w: e.getBoundingClientRect().width, h: e.getBoundingClientRect().height, f: e.querySelector("svg").getAttribute("fill") })));
+  ok(pins.length === 2 && pins.every(x => x.t === "" && /^Unpin .* from Shortcuts$/.test(x.l) && x.w >= 44 && x.h >= 44 && x.f === "currentColor"), "E pin: only an icon (filled when pinned), an accessible name, 44px");
+  await Q.locator("[data-pinned=text] .pinb").click();
+  const chip = await Q.locator(".eadd").evaluate(e => ({ t: e.textContent.trim(), l: e.getAttribute("aria-label") }));
+  ok(chip.t === "Text size" && chip.l === "Pin Text size to Shortcuts" && !/Pin/.test(await Q.locator("[data-shortcuts]").innerText()), "E pin: the add chip has no Pin word, only the name and an outline pin");
+  await Q.locator(".eadd").click();
+  ok(await Q.locator("[data-pinned=looks] input[data-ek=emoji]").count() === 0 && !/Emoji/.test(await Q.locator("[data-pinned=looks]").innerText()), "E Looks: no Emoji switch in the pinned card");
+  const tiles = await Q.locator("[data-pinned=looks] .tmini").evaluateAll(els => els.map(e => { const c = k => getComputedStyle(e.querySelector(k)).backgroundColor, n = e.querySelector(".tname"); return { n: n.textContent, k: [getComputedStyle(e.querySelector(".tprev")).backgroundColor, c("b"), c("u"), c("s")].join("|"), below: n.getBoundingClientRect().top >= e.querySelector(".tprev").getBoundingClientRect().bottom - 1, one: n.getBoundingClientRect().height < parseFloat(getComputedStyle(n).fontSize) * 1.6 }; }));
+  ok(tiles.length === 10 && new Set(tiles.map(t => t.k)).size === 10 && tiles.every(t => t.below && t.one), "E swatches: ten different real looks (background, card, accent, text), each with its name underneath on one line");
+  const rot = await Q.locator("[data-pinned=looks] .trow").evaluate(e => ({ tops: new Set([...e.querySelectorAll(".tmini")].map(l => Math.round(l.getBoundingClientRect().top))).size, over: e.scrollWidth > e.clientWidth + 2, wrap: getComputedStyle(e).flexWrap, snap: getComputedStyle(e).scrollSnapType, edge: e.parentNode.getAttribute("data-edge"), label: e.getAttribute("aria-label") }));
+  ok(rot.tops === 1 && rot.over && rot.wrap === "nowrap" && /x/.test(rot.snap) && rot.edge === "end" && /Theme/.test(rot.label), "E rotary: ten themes stay on ONE sideways row (snap, edge fade on the side with more, labelled)");
+  ok(await Q.locator("[data-pinned=looks] .seg2 label").count() === 3, "E rotary: System, Light and Dark stay in the pinned Looks card");
+  await Q.locator("[data-pinned=looks] .trow").evaluate(e => { e.scrollLeft = e.scrollWidth; }); await p.waitForTimeout(100);
+  ok(await Q.locator("[data-pinned=looks] .trot").getAttribute("data-edge") === "start", "E rotary: scrolled to the end, the fade moves to the other side");
   await p.context().close();
 
   /* phone width: nothing scrolls sideways, even at the largest size with results showing */
   p = await open("kitchie", 390, 844);
   ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), "E phone width: the page does not scroll sideways at 390");
-  await p.locator(`${E} .phone`).first().locator('[data-pinned=text] label:has(input[value=largest])').click(); await p.locator(`${E} .phone`).first().locator("[data-eq]").fill("hard to see"); await p.waitForTimeout(200);
+  for (let i = 0; i < 3; i++) await p.locator(`${E} .phone`).first().locator('[data-pinned=text] .tbtn[data-ea="ts:1"]').click(); await p.locator(`${E} .phone`).first().locator("[data-eq]").fill("hard to see"); await p.waitForTimeout(200);
   const over = await p.evaluate(() => [...document.querySelectorAll("#opt-E .scr, #opt-E .gbody")].filter(n => n.scrollWidth > n.clientWidth + 1).map(n => n.className));
   ok(over.length === 0, `E phone width: no phone screen or gallery card scrolls sideways at the largest size (${over.join(",")})`);
-  ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), "E phone width: still no sideways page scroll with results and Largest");
+  ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), "E phone width: still no sideways page scroll with results and the largest size");
   await p.context().close();
 
   /* gallery: every state drawn */
