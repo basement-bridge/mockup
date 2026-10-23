@@ -1,5 +1,5 @@
 /* History search and filters, on the canonical event model (docs/knowledge/history-event-model.md, docs/knowledge/history-search.md).
-   Everything this screen reads comes from GET /api/history rows (model.js stands in for it): occurred_at, actor, product, kind (area = first segment), kind_v, entity, affects.
+   Everything this screen reads comes from GET /api/history rows (model.js stands in for it): occurred_at, actor, product, kind (area = first segment), kind_v, entity.
    It never reads a payload; row and detail text come from the kind's template via HM.render. Mockup data lives in model.js, not here.
    Markup uses option D's classes (../option-d/option-d.css) plus search.css; the build lifts those and replaces model.js with the calls. */
 (function () {
@@ -23,44 +23,45 @@ var ic = function (n, c) { return '<svg viewBox="0 0 24 24" aria-hidden="true"' 
 /* ---------- state: URL parameters are the mockup's way in ---------- */
 var ME = Q.get("as") === "sam" ? "sam" : "arjan", HOUSE = Q.get("household") === "more" ? "more" : "two";
 var MEID = HM.IDS[ME], OTHERS = Object.keys(HM.IDS).filter(function (k) { return k !== ME && (HOUSE === "more" || k !== "priya"); });
-var ALL = HM.build({ affects: Q.get("affects") === "today" ? "today" : "sample", house: HOUSE });
+var ALL = HM.build({ house: HOUSE });
 var TPL = ["loading", "none"].indexOf(Q.get("tpl")) >= 0 ? Q.get("tpl") : "ready"; HM.setTplMode(TPL);
-var NOTES = Q.get("notes") !== "0", KEYWORD = Q.get("keyword") === "1", NOMEMBER_IN = Q.get("nomember") === "include";
+/* SEARCH: Preview B (free text over the days loaded; owner asked to see it, Q1). MULTI: Preview for Q2 (several topics at once; needs a Platform change; undecided). */
+var NOTES = Q.get("notes") !== "0", SEARCH = Q.get("search") === "text", MULTI = Q.get("choices") === "several";
 var LAST = { sat: { iso: HM.utc(1, 17, 30), t: "Sat 17 Oct, 5:30 pm" }, wed: { iso: HM.utc(4, 17, 30), t: "Wed 14 Oct, 5:30 pm" } }[Q.get("last") === "wed" ? "wed" : "sat"];
 var CAP = 3; /* H6: the catch-up is at most three calendar days that each had a change. The screen's rule, not the API's. */
-var RANGES = [["any", "Any time"], ["today", "Today"], ["week", "Last 7 days"], ["month", "Last 30 days"]];
+var RANGES = [["today", "Today"], ["week", "Last 7 days"], ["month", "Last 30 days"]], DEFAULT_I = 1; /* the windows the rotary steps through; off reads "Anytime" */
+var TAB0 = Q.get("tab") === "other" ? (HOUSE === "two" ? "person" : "others") : Q.get("tab");
 var S = {
- view: Q.get("view") === "list" ? "list" : "catch", tab: Q.get("tab") === "other" ? "other" : "mine", panel: Q.get("filters") === "1" ? "filters" : "", step: Q.get("step") || "",
- f: { when: Q.get("when") || "any", area: Q.get("area") || "", kind: Q.get("kind") || "", product: Q.get("product") || "", touches: Q.get("touches") || "" },
- entity: Q.get("entity") || "" /* "item:itm_rice": in-context, from an item. Needs product (API rule). */, kw: "", state: Q.get("state") || "",
+ view: Q.get("view") === "list" ? "list" : "catch", tab: ["mine", "person", "others"].indexOf(TAB0) >= 0 && !(TAB0 === "person" && HOUSE !== "two") ? TAB0 : "mine", panel: Q.get("filters") === "1" ? "filters" : "",
+ f: { on: false, i: DEFAULT_I, areas: [], kind: "" }, /* Date (from) and Topic (area, or kind): the only two filters. Who is the tab. */
+ entity: Q.get("entity") || "" /* "item:itm_rice": in-context, from an item. The API wants the product with it, so it is sent but never shown as a filter. */, kw: "", state: Q.get("state") || "",
  pages: [], more: true, afterDay: null, open: null, seen: null, ticked: false, person: ""
 };
-if (S.entity && !S.f.product) S.f.product = "kitchie";
+(function () { /* URL: when=today|week|month, area=pantry (or pantry,recipe with choices=several), kind=pantry.moved */
+ var wi = RANGES.map(function (r) { return r[0]; }).indexOf(Q.get("when")); if (wi >= 0) { S.f.on = true; S.f.i = wi; }
+ var k = Q.get("kind"); if (k) { S.f.kind = k; S.f.areas = [k.split(".")[0]]; }
+ else if (Q.get("area")) S.f.areas = Q.get("area").split(",").filter(function (a) { return HM.REGISTRY.areas.some(function (x) { return x.id === a; }); }).slice(0, MULTI ? 9 : 1);
+})();
 if (S.state === "" && Q.get("open")) S.open = +Q.get("open");
 
 var wide = function () { return window.matchMedia("(min-width:1024px)").matches; };
 function otherId() { return HM.IDS[OTHERS[0]]; }
-function otherName() { return HOUSE === "two" ? HM.NAMES[otherId()] : "Others"; }
-function whoName(e) { if (e.actor === null) return "Someone"; if (e.actor.member === MEID) return "You"; return e.actor.name === null ? "A former member" : e.actor.name; }
+function otherName() { return HM.NAMES[otherId()]; }
 function isNull(e) { return e.actor === null; }
+function isFormer(e) { return e.actor !== null && e.actor.name === null; } /* a removed member: the id stays on old events, the name is erased after a week */
+function whoName(e) { if (isNull(e)) return "Someone"; if (e.actor.member === MEID) return "You"; return isFormer(e) ? "A former member" : e.actor.name; }
 function areaOf(e) { return e.kind.split(".")[0]; }
 function areaLabel(id) { var a = HM.REGISTRY.areas.filter(function (x) { return x.id === id; })[0]; return a ? a.label : id; }
 function kindLabel(k) { var x = HM.REGISTRY.kinds.filter(function (y) { return y.kind === k; })[0]; return x ? x.label : k; }
-function memberLabel(id) { return id === MEID ? "you" : HM.NAMES[id] || "a member"; }
 
-/* ---------- the query: only parameters GET /api/history accepts, each single-valued ---------- */
+/* ---------- the query: only parameters GET /api/history accepts. Who is the tab (actor); Date is from; Topic is area or kind. ---------- */
 function startOfTodayISO() { return HM.utc(0, 0, 0); }
 function params(forCatch) {
  var q = {};
- if (!forCatch) { if (S.tab === "mine") q.actor = "me"; else if (HOUSE === "two") q.actor = otherId(); else { q.actorNot = MEID; q.noMember = NOMEMBER_IN; } }
- if (S.f.touches) q.affects = S.f.touches === "me" ? "me" : S.f.touches;
- if (S.f.product) q.product = S.f.product;
- if (S.f.area) q.area = S.f.area;
- if (S.f.kind) q.kind = S.f.kind;
- if (S.entity) { var e = S.entity.split(":"); q.entityType = e[0]; q.entityId = e[1]; }
- if (S.f.when === "today") q.from = startOfTodayISO();
- if (S.f.when === "week") q.from = new Date(HM.NOW - 7 * 86400000).toISOString();
- if (S.f.when === "month") q.from = new Date(HM.NOW - 30 * 86400000).toISOString();
+ if (!forCatch) { if (S.tab === "mine") q.actor = "me"; else if (S.tab === "person") q.actor = otherId(); else q.actorNot = MEID; /* Others = actor=others: everyone but me, and events with no member */ }
+ if (S.f.kind) q.kind = S.f.kind; else if (S.f.areas.length) q.area = S.f.areas.length === 1 ? S.f.areas[0] : S.f.areas.slice();
+ if (S.entity) { var e = S.entity.split(":"); q.entityType = e[0]; q.entityId = e[1]; q.product = "kitchie"; }
+ if (S.f.on) { var w = RANGES[S.f.i][0]; q.from = w === "today" ? startOfTodayISO() : new Date(HM.NOW - (w === "week" ? 7 : 30) * 86400000).toISOString(); }
  return q;
 }
 function catchQ() { var q = params(true); q.since = S.seen || LAST.iso; return q; }
@@ -75,28 +76,26 @@ function loadDay() { /* one calendar day with activity per call, newest first (d
 }
 function ensureFirst() { reset(); S.capped = false; var n = S.view === "catch" ? CAP : 1; for (var i = 0; i < n && S.more; i++) loadDay(); }
 function rows() { var o = []; S.pages.forEach(function (p) { o = o.concat(p.events); }); return o; }
-function byTab(e, tab) { return tab === "mine" ? (e.actor && e.actor.member === MEID) : (HOUSE === "two" ? (e.actor && e.actor.member === otherId()) : (e.actor ? e.actor.member !== MEID : NOMEMBER_IN)); }
-/* catch-up: the three days are loaded without an actor (one call), then split by actor in the client; summary counts are of exactly these loaded rows */
-function catchRows() { return rows().filter(function (e) { return !S.person || (S.person === "none" ? isNull(e) : e.actor && e.actor.member === S.person); }); }
+function byTab(e, tab) { return tab === "mine" ? (e.actor !== null && e.actor.member === MEID) : tab === "person" ? (e.actor !== null && e.actor.member === otherId()) : !(e.actor !== null && e.actor.member === MEID); }
+/* catch-up: the three days are loaded without an actor (one call), then split by actor in the client */
+function catchRows() { return rows().filter(function (e) { return !S.person || (S.person === "others" ? (isNull(e) || isFormer(e)) : e.actor !== null && e.actor.member === S.person); }); }
 function tabRows() { return catchRows().filter(function (e) { return byTab(e, S.tab); }); }
 function viewRows() { var L = S.view === "catch" ? tabRows() : rows(); if (S.kw) { var k = S.kw.toLowerCase(); L = L.filter(function (e) { var r = HM.render(e); return ((r.state === "ok" || r.state === "generic") ? r.text : "").toLowerCase().indexOf(k) >= 0; }); } return L; }
 
 /* ---------- rows ---------- */
 function avatar(e, small) {
- var cls = "av" + (small ? " sm" : "") + (e.actor && e.actor.member === MEID ? " me" : "");
- if (e.actor === null) return '<span class="' + cls + ' none" aria-hidden="true">' + ic("link", "sm") + "</span>";
- var n = e.actor.name; return '<span class="' + cls + '" aria-hidden="true">' + esc(n ? n.charAt(0) : "?") + "</span>";
+ var cls = "av" + (small ? " sm" : "") + (e.actor !== null && e.actor.member === MEID ? " me" : "");
+ if (isNull(e)) return '<span class="' + cls + ' none" aria-hidden="true">' + ic("link", "sm") + "</span>";
+ if (isFormer(e)) return '<span class="' + cls + ' none" aria-hidden="true">' + ic("user", "sm") + "</span>";
+ return '<span class="' + cls + '" aria-hidden="true">' + esc(e.actor.name.charAt(0)) + "</span>";
 }
 function evRow(e, isNew) {
  var r = HM.render(e), who = whoName(e), line;
  if (r.state === "ok") line = '<b class="wh">' + esc(who) + '</b><span class="sep"> · </span><span class="ln">' + r.html + "</span>";
  else if (r.state === "generic") line = '<span class="ln gen"><b class="wh">' + esc(who) + "</b> " + r.html + "</span>";
  else line = '<b class="wh">' + esc(who) + '</b><span class="skbody" aria-label="Loading this row"><i></i></span>';
- var m = [];
- if (e.affects.indexOf(MEID) >= 0 && e.actor && e.actor.member !== MEID) m.push('<span class="chip me">Touches you</span>');
- m.push("<span>" + esc(HM.PRODUCTS[e.product] || e.product) + " · " + esc(areaLabel(areaOf(e))) + "</span>");
  return '<button type="button" class="ev' + (isNew ? " new" : "") + '" data-seq="' + e.seq + '" aria-haspopup="dialog"' + (S.open === e.seq ? ' aria-current="true"' : "") + ">" + avatar(e, 1) +
-  '<div class="tx">' + line + '<div class="meta">' + m.join("") + "</div></div><time datetime=\"" + e.occurred_at + '">' + esc(HM.timeOf(e.occurred_at)) + "</time></button>";
+  '<div class="tx">' + line + '<div class="meta"><span>' + esc(areaLabel(areaOf(e))) + "</span></div></div><time datetime=\"" + e.occurred_at + '">' + esc(HM.timeOf(e.occurred_at)) + "</time></button>";
 }
 function dayBlock(page, L) {
  var evs = L.filter(function (e) { return HM.dayKey(e.occurred_at) === page.day; });
@@ -106,72 +105,52 @@ function dayBlock(page, L) {
 }
 function skeleton() { var r = '<div class="sk"><span class="av"></span><div><i></i><i class="s"></i></div></div>'; return '<section class="day"><div class="sklbl lbl"><i></i></div><div class="pg">' + r + r + r + "</div></section>"; }
 
-/* ---------- active filters and labels ---------- */
-function toks() {
- var t = [];
- if (S.entity) t.push(["entity", "In", S.entity.indexOf("item:") === 0 ? "This item" : "This " + S.entity.split(":")[0]]);
- if (S.f.when !== "any") t.push(["when", "When", RANGES.filter(function (r) { return r[0] === S.f.when; })[0][1]]);
- if (S.f.product) t.push(["product", "App", HM.PRODUCTS[S.f.product]]);
- if (S.f.area) t.push(["area", "Area", areaLabel(S.f.area)]);
- if (S.f.kind) t.push(["kind", "What happened", kindLabel(S.f.kind)]);
- if (S.f.touches) t.push(["touches", "Touches", memberLabel(S.f.touches === "me" ? MEID : S.f.touches)]);
- return t;
+/* ---------- the quiet filter: Date (the same rotary row as Pantry's Filters sheet) and Topic ---------- */
+function dateLabel() { return S.f.on ? RANGES[S.f.i][1] : "Anytime"; }
+function topicName() {
+ if (S.f.kind) return kindLabel(S.f.kind) + " in " + areaLabel(S.f.kind.split(".")[0]);
+ return S.f.areas.length ? S.f.areas.map(areaLabel).join(", ") : "All topics";
 }
-function tokBar() { var t = toks(); return t.length ? '<div class="toks" aria-label="Active filters">' + t.map(function (x) { return '<button type="button" class="tok" data-rm="' + x[0] + '"><i>' + x[1] + "</i> " + esc(x[2]) + '<span class="x">' + ic("x", "sm") + "</span></button>"; }).join("") + "</div>" : ""; }
-
-/* groups: [id, label, icon, canonical parameter]. Who is the tab (actor). Where (place) and counts are gone: payload and facets are not in the model. */
-var GROUPS = [["when", "When", "clock", "occurred_at"], ["who", "Who", "user", "actor"], ["area", "Area", "jar", "kind, first part"], ["kind", "What happened", "check", "kind"], ["product", "App", "home", "product"], ["touches", "Touches", "bell", "affects"]];
-function visibleGroups() { return GROUPS.filter(function (g) { return !(g[0] === "area" && HM.REGISTRY.areas.length < 2); }); }
-function options(g) { /* [group, value, label, icon] */
- if (g === "when") return RANGES.map(function (r) { return ["when", r[0], r[1]]; });
- if (g === "who") return [["who", "mine", "You"]].concat(HOUSE === "two" ? [["who", "other", HM.NAMES[otherId()]]] : [["who", "other", "Others"]]);
- if (g === "area") return HM.REGISTRY.areas.map(function (a) { return ["area", a.id, a.label]; });
- if (g === "kind") return HM.REGISTRY.kinds.map(function (k) { return ["kind", k.kind, k.label, k.kind.split(".")[0]]; });
- if (g === "product") return Object.keys(HM.PRODUCTS).map(function (p) { return ["product", p, HM.PRODUCTS[p]]; });
- if (g === "touches") return [["touches", "me", "You"]].concat(OTHERS.map(function (k) { return ["touches", HM.IDS[k], HM.NAMES[HM.IDS[k]]]; }));
- return [];
+function hasFilters() { return S.f.on || S.f.areas.length > 0 || !!S.f.kind || !!S.entity; }
+function summary() { return (S.entity ? "This item · " : "") + dateLabel() + " · " + topicName(); }
+/* The status row, copied from Pantry's Filters sheet (flows/household/app.js srow): a toggle on the left, the rotary on the right. */
+function rotRow() {
+ var on = S.f.on, drag = ro && ro.moved;
+ return '<div class="strow rotrow' + (on ? " on" : "") + (drag ? " drag" : "") + '" data-fk="when"><button type="button" class="stt" data-dt="toggle" role="checkbox" aria-checked="' + on + '"><span class="dotc" aria-hidden="true">' + (on ? ic("check", "sm") : "") + '</span><span class="lbl2">' + (drag ? esc(dateLabel()) : "Date") +
+  '</span></button><button type="button" class="rot" data-rot="when" aria-label="Date: ' + esc(dateLabel()) + '. Drag up or down, or tap, to change"><span class="rv">' + esc(dateLabel()) + '</span><span class="rar" aria-hidden="true"><i>▴</i><i>▾</i></span></button></div>';
 }
-function isOn(o) { if (o[0] === "who") return S.tab === o[1]; if (o[0] === "when") return S.f.when === o[1]; return S.f[o[0]] === o[1]; }
-function chipSet(g, cls) {
- var opts = options(g), out = "", lastArea = null;
- opts.forEach(function (o) {
-  if (g === "kind" && o[3] !== lastArea) { lastArea = o[3]; out += '</div><p class="ksub">' + esc(areaLabel(o[3])) + '</p><div class="' + (cls === "mc" ? "mcs" : "fchips") + '">'; }
-  var on = isOn(o);
-  out += cls === "mc" ? '<button type="button" class="mc' + (on ? " on" : "") + '" aria-pressed="' + on + '" data-opt="' + o[0] + "|" + o[1] + '"><span class="mi">' + (on ? ic("check", "sm") : "") + "</span>" + esc(o[2]) + "</button>"
-   : '<button type="button" class="fpl' + (on ? " on" : "") + '" aria-pressed="' + on + '" data-opt="' + o[0] + "|" + o[1] + '">' + esc(o[2]) + "</button>";
- });
+function chip(cls, opt, label, on) {
+ return cls === "mc" ? '<button type="button" class="mc' + (on ? " on" : "") + '" aria-pressed="' + on + '" data-opt="' + opt + '"><span class="mi">' + (on ? ic("check", "sm") : "") + "</span>" + esc(label) + "</button>"
+  : '<button type="button" class="fpl' + (on ? " on" : "") + '" aria-pressed="' + on + '" data-opt="' + opt + '">' + esc(label) + "</button>";
+}
+function topicSet(cls) { /* choices come from the registry (/api/history/kinds, designed, not built) */
+ var wrap = cls === "mc" ? "mcs" : "fchips", out = '<div class="' + wrap + '" role="group" aria-label="Topic">';
+ HM.REGISTRY.areas.forEach(function (a) { out += chip(cls, "topic|area:" + a.id, a.label, S.f.areas.indexOf(a.id) >= 0); });
+ out += "</div>";
+ if (!MULTI && S.f.areas.length === 1) { /* a finer step only where an area has several kinds */
+  var ks = HM.REGISTRY.kinds.filter(function (k) { return k.kind.indexOf(S.f.areas[0] + ".") === 0; });
+  if (ks.length > 1) out += '<p class="ksub">In ' + esc(areaLabel(S.f.areas[0])) + '</p><div class="' + wrap + '" role="group" aria-label="Kind">' + ks.map(function (k) { return chip(cls, "topic|kind:" + k.kind, k.label, S.f.kind === k.kind); }).join("") + "</div>";
+ }
  return out;
 }
-function groupValue(g) {
- if (g === "when") return RANGES.filter(function (r) { return r[0] === S.f.when; })[0][1];
- if (g === "who") return S.tab === "mine" ? "You" : otherName();
- if (g === "area") return S.f.area ? areaLabel(S.f.area) : "Any";
- if (g === "kind") return S.f.kind ? kindLabel(S.f.kind) : "Any";
- if (g === "product") return S.f.product ? HM.PRODUCTS[S.f.product] : "Any";
- if (g === "touches") return S.f.touches ? memberLabel(S.f.touches === "me" ? MEID : S.f.touches) : "Any";
- return "Any";
-}
-var isAny = function (g) { return g === "when" ? S.f.when === "any" : g === "who" ? false : groupValue(g) === "Any"; };
-
-/* ---------- the panels ---------- */
 function ann(t) { return NOTES ? '<aside class="ann"><b>Mockup note</b> ' + t + "</aside>" : ""; }
-function filtersPanel() {
- var n = toks().length;
- var sec = function (g) { return "<section><h3>" + g[1] + (NOTES ? " <small>" + g[3] + "</small>" : "") + '</h3><div class="fchips">' + chipSet(g[0], "fpl") + "</div></section>"; };
- return '<div class="fp"><div class="fph"><div><h2>Filters</h2><p>' + esc(rangeName()) + "</p></div></div><div class=\"fpb\">" +
-  '<p class="fhint">Nothing is typed. Pick one in each group; the list updates as you pick.</p>' + visibleGroups().map(sec).join("") +
-  '<div class="acts2"><button type="button" class="sec2" data-clear>Clear all' + (n ? " (" + n + ")" : "") + "</button></div>" +
-  '<p class="rule">' + ic("info", "sm") + "<span>One choice per group. There are no counts: the history can say what matches, not how many.</span></p>" +
-  ann("Each group name above is the Platform parameter it sets. Choices for Area and What happened come from the registry (<code>/api/history/kinds</code>, designed, not built). Where, counts and several choices in one group are gone: place is payload, and the API has no facets or lists (model, sections 2 and 3).") + "</div></div>";
+function filtersBody(cls) {
+ return '<div class="strows">' + rotRow() + '</div><h3 class="fh">Topic' + (MULTI ? " <small>pick any</small>" : "") + "</h3>" + topicSet(cls) +
+  ann("Date sets <code>from</code> (Today, 7 or 30 days); off reads Anytime. Topic sets <code>kind</code>, whose first part is the area; choosing a kind needs its area first. Who is the tab (<code>actor</code>). There is no app, touches or where control. Days are cut in this device’s time zone (undecided). " + (MULTI ? "Preview: several topics at once needs Platform to accept a list per parameter (undecided)." : "One choice at a time; whether to allow several is undecided."));
 }
-function sheetHtml() {
- var G = visibleGroups(), step = S.step && G.some(function (g) { return g[0] === S.step; }) ? S.step : "", g = G.filter(function (x) { return x[0] === step; })[0], body;
- if (!step) body = '<p class="fsub">Pick a group, then one choice in it. Groups combine.</p><div class="strows">' + G.map(function (x) { var v = groupValue(x[0]); return '<button type="button" class="strow' + (!isAny(x[0]) ? " on" : "") + '" data-step="' + x[0] + '"><span class="stt"><span class="dotc">' + ic(x[2], "sm") + "</span>" + x[1] + '</span><span class="sval">' + esc(v) + ic("chev", "sm") + "</span></button>"; }).join("") + "</div>";
- else body = '<button type="button" class="back2" data-step="">' + ic("chev", "sm") + ' All filters</button><h3 class="fh">' + g[1] + ' <small>pick one</small></h3><div class="mcs">' + chipSet(step, "mc") + "</div>" + (NOTES ? '<p class="fsub">Sets <code>' + g[3] + "</code>.</p>" : "");
- return '<div class="sheet-dim" data-dim><div class="sheet tall" role="dialog" aria-modal="true" aria-label="Pick a filter" data-keep><div class="grab"></div><div class="fhead"><div class="ftabs"><button type="button" class="on">' + (step ? g[1] : "Pick a filter") + '</button></div><button type="button" class="ib" data-closepanel aria-label="Close">' + ic("x") + "</button></div>" +
-  '<div class="fbody">' + body + '</div><div class="ffoot"><button type="button" class="pri wide" data-closepanel>Show results</button><div class="flinks"><button type="button" class="link" data-clear>Clear</button><span></span></div></div></div></div>';
+function filtersPanel() { /* desktop lane */
+ return '<div class="fp"><div class="fph"><div><h2>Filter</h2><p>' + esc(summary()) + '</p></div></div><div class="fpb">' + filtersBody("fpl") +
+  '<div class="acts2"><button type="button" class="sec2" data-clear>Clear</button></div></div></div>';
 }
-function rangeName() { return {any: "Recent history", today: "Today", week: "The last 7 days", month: "The last 30 days"}[S.f.when]; }
+function sheetHtml() { /* phone: a short bottom sheet, the same one-page body */
+ return '<div class="sheet-dim" data-dim><div class="sheet fsheet" role="dialog" aria-modal="true" aria-label="Filter" data-keep><div class="grab"></div><div class="fhead"><div class="ftabs"><button type="button" class="on">Filter</button></div><button type="button" class="ib" data-closepanel aria-label="Close">' + ic("x") + "</button></div>" +
+  '<div class="fbody">' + filtersBody("mc") + '</div><div class="ffoot"><button type="button" class="pri wide" data-closepanel>Done</button><div class="flinks"><button type="button" class="link" data-clear>Clear</button><span></span></div></div></div></div>';
+}
+function qlineHtml() { /* phone only: one quiet line under the tabs; the lane carries this on desktop */
+ if (wide() || S.view === "catch") return "";
+ var t = summary();
+ return '<div class="qline"><button type="button" class="qfb" data-filters aria-label="Filter. Now: ' + esc(t) + '">' + ic("sliders", "sm") + "<span>" + esc(t) + "</span></button>" + (hasFilters() ? '<button type="button" class="ib qfx" data-clear aria-label="Clear the filter">' + ic("x", "sm") + "</button>" : "") + "</div>";
+}
 
 /* ---------- the result detail: the skeleton (who, when, app) plus the kind's template output. Nothing else is drawn. ---------- */
 function find(seq) { return ALL.filter(function (e) { return e.seq === seq; })[0]; }
@@ -194,25 +173,24 @@ function catchCard() {
  var all = rows(), x = '<button type="button" class="ib xcatch" data-closecatch aria-label="Leave the catch-up and pick a filter (C). Does not mark it caught up">' + ic("x") + "</button>";
  var tick = '<button type="button" class="ib tickcatch" data-tick aria-label="Mark as caught up (T). Your next visit starts fresh from here">' + ic("check") + "</button>";
  if (!all.length) return '<section class="catch" aria-label="Since you were last here"><div class="chead"><h2>' + ic("check") + "You’re caught up</h2>" + x + "</div><p class=\"sum\">" + (S.ticked ? "Marked as caught up just now. Your next visit starts fresh from here." : "Nothing new since " + esc(LAST.t) + ". Enjoy the quiet.") + "</p></section>";
- var by = {}, ord = [];
- all.forEach(function (e) { var k = e.actor ? e.actor.member : "none"; if (!by[k]) { by[k] = 0; ord.push(k); } by[k]++; });
- var parts = ord.map(function (k) { var lab = k === "none" ? "no sign-in" : k === MEID ? "you" : HM.NAMES[k] || "a former member"; return k === "none" ? by[k] + " with no member" : by[k] + " by " + (S.person ? esc(lab) : '<button type="button" class="plink2" data-person="' + k + '">' + esc(lab) + "</button>"); });
- var touch = all.filter(function (e) { return e.affects.indexOf(MEID) >= 0 && e.actor && e.actor.member !== MEID; }).length;
- var sum = esc(LAST.t) + " · " + all.length + " change" + (all.length === 1 ? "" : "s") + (S.capped ? " in the last 3 days with activity" : "") + (parts.length && !S.person ? ": " + parts.join(", ") : "");
- var bar = S.person ? '<div class="pbar"><span class="pt">Only changes by ' + esc(S.person === "none" ? "no member" : S.person === MEID ? "you" : HM.NAMES[S.person]) + ' in this catch-up</span><button type="button" class="lnk2" data-person="">Back to the full catch-up</button></div>' : "";
- return '<section class="catch" aria-label="Since you were last here"><div class="chead"><h2>' + ic("bell") + "Since you were last here</h2>" + tick + x + '</div><p class="sum">' + sum + "</p>" +
-  (touch ? '<p class="sum touch">' + ic("bell", "sm") + " " + touch + " " + (touch === 1 ? "change touches" : "changes touch") + " you, marked on the rows.</p>" : "") + bar +
-  ann("The old per-person sentence and action button are gone: <code>affects</code> is member ids only, and product-written words are not allowed. A person is touched by a row, and the row is the template’s. Counts are of the " + all.length + " loaded rows only.") + "</section>";
+ var seen = [], lab = {};
+ all.forEach(function (e) { var k = isNull(e) || isFormer(e) ? "others" : e.actor.member; if (seen.indexOf(k) < 0) seen.push(k); lab[k] = k === "others" ? "Others" : k === MEID ? "you" : e.actor.name; });
+ var link = function (k) { return S.person ? esc(lab[k]) : '<button type="button" class="plink2" data-person="' + k + '">' + esc(lab[k]) + "</button>"; };
+ var by = seen.length && !S.person ? '<p class="sum">By ' + seen.map(link).join(" · ") + "</p>" : "";
+ var sum = esc(LAST.t) + (S.capped ? " · the last 3 days with activity" : "");
+ var bar = S.person ? '<div class="pbar"><span class="pt">Only changes by ' + esc(S.person === "others" ? "others" : S.person === MEID ? "you" : HM.NAMES[S.person]) + ' in this catch-up</span><button type="button" class="lnk2" data-person="">Back to the full catch-up</button></div>' : "";
+ return '<section class="catch" aria-label="Since you were last here"><div class="chead"><h2>' + ic("bell") + "Since you were last here</h2>" + tick + x + '</div><p class="sum">' + sum + "</p>" + by + bar +
+  ann("No counts: the history can say what changed, not how many. The old per-person sentence, action button and “touches you” mark are gone: Kitchie does not record who an event affects for now. Others means events with no member (a shopping link, an assistant link, the system) and past events by someone who has left.") + "</section>";
 }
 
 /* ---------- empty, zero, down ---------- */
 function emptyHtml(kind) {
- var t = toks().map(function (x) { return x[2]; });
- if (S.view === "list" || kind === "zero") { if (S.tab === "other") t.unshift(otherName()); else t.unshift("You"); }
+ var t = []; if (S.f.on) t.push(dateLabel()); if (S.f.areas.length || S.f.kind) t.push(topicName());
+ if (S.view === "list" || kind === "zero") t.unshift(S.tab === "mine" ? "You" : S.tab === "person" ? otherName() : "Others");
  if (kind === "down") return '<div class="empty"><div class="big">' + ic("clock") + "</div><h2>History is not reachable</h2><p>This is the feed being down, not an empty history. Nothing you did is lost.</p><div class=\"acts\"><button type=\"button\" class=\"pri\" data-retry>Try again</button></div></div>";
  if (kind === "empty") return '<div class="empty"><div class="big">' + ic("clock") + "</div><h2>A quiet kitchen so far</h2><p>Changes you and the household make will show here.</p></div>";
- var more = S.f.when !== "month" ? '<button type="button" class="pri" data-month>Look back 30 days</button>' : "";
- return '<div class="empty"><div class="big">' + ic("search") + "</div><h2>No matches</h2><p>" + (S.kw ? "Nothing in the days loaded says “" + esc(S.kw) + "”." : "Nothing on record for " + esc(t.join(" · ")) + ".") + '</p><div class="acts">' + more + '<button type="button" class="sec2" data-clear>Clear filters</button></div></div>';
+ var more = !(S.f.on && S.f.i === 2) ? '<button type="button" class="pri" data-month>Look back 30 days</button>' : "";
+ return '<div class="empty"><div class="big">' + ic("search") + "</div><h2>No matches</h2><p>" + (S.kw ? "Nothing in the days loaded says “" + esc(S.kw) + "”." : "Nothing on record for " + esc(t.join(" · ")) + ".") + '</p><div class="acts">' + more + '<button type="button" class="sec2" data-clear>Clear filter</button></div></div>';
 }
 function feed() {
  if (S.state === "loading") return skeleton();
@@ -221,40 +199,40 @@ function feed() {
  var L = viewRows();
  if (S.view === "catch") {
   if (!rows().length) return "";
-  if (!L.length) return '<div class="empty slim"><h2>' + (S.tab === "mine" ? "Nothing from you" : "Nothing from " + esc(otherName())) + " in this catch-up</h2></div>" + footnote();
-  return S.pages.map(function (p) { return dayBlock(p, L); }).join("") + footnote() + catchEnd();
+  if (!L.length) return '<div class="empty slim"><h2>' + (S.tab === "mine" ? "Nothing from you" : "Nothing from " + esc(S.tab === "person" ? otherName() : "others")) + " in this catch-up</h2></div>" + othersNote();
+  return S.pages.map(function (p) { return dayBlock(p, L); }).join("") + othersNote() + catchEnd();
  }
  if (!L.length && !S.more) return emptyHtml("zero");
- return (S.kw ? '<p class="kwnote">' + ic("search", "sm") + " Searching the " + S.pages.length + " day" + (S.pages.length === 1 ? "" : "s") + " loaded. Older days load as you scroll.</p>" : "") +
-  S.pages.map(function (p) { return dayBlock(p, L); }).join("") + footnote() + (S.more ? '<div class="sentinel" id="sentinel" role="status"><span class="dots" aria-hidden="true"></span>Loading one more day with activity</div>' : '<p class="note">That is everything on record.</p>');
+ return S.pages.map(function (p) { return dayBlock(p, L); }).join("") + othersNote() + (S.more ? '<div class="sentinel" id="sentinel" role="status"><span class="dots" aria-hidden="true"></span>Loading one more day with activity</div>' : '<p class="note">That is everything on record.</p>');
 }
 function catchEnd() { return S.capped ? '<div class="more cap"><p class="capline">' + ic("clock", "sm") + " Showing the last 3 days with activity. Search for older.</p><button type=\"button\" class=\"sec2\" data-closecatch>Pick a filter</button></div>" : ""; }
-function footnote() { /* Q5: what the reference store does today, said plainly */
- if (S.tab !== "other") return "";
- var nm = (S.view === "catch" ? rows() : ALL.filter(function (e) { return isNull(e); })).filter(isNull).length;
- if (!nm || NOMEMBER_IN) return "";
- return ann("Q5. " + nm + " change" + (nm === 1 ? " has" : "s have") + " no member (a shopping link or the system) and is in neither tab: <code>actor=others</code> skips a null actor, and no parameter selects one. Preview: Others also returns them.");
+function othersNote() { /* Q4 (owner, voice, 23 Oct 2026): nothing is hidden; these are under Others */
+ if (S.tab !== "others") return "";
+ return ann("Others holds every change that is not yours, and the ones with no member: a shopping link, a shared assistant link, the system (read “Someone”), and changes by a member who has since left (read “A former member”; their name is erased after a week and History is anonymised). <code>actor=others</code> returning them is a Platform change, listed in the PR.");
 }
 
 /* ---------- page ---------- */
 function railHtml() { var it = [["home", "Home"], ["jar", "Pantry"], ["cal", "Plan"], ["book", "Recipes"], ["cart", "Shopping"], ["clock", "History"]]; return '<div class="brand">Kitchie</div>' + it.map(function (i) { return '<a href="#" data-rail aria-label="' + i[1] + '"' + (i[1] === "History" ? ' aria-current="page"' : "") + ">" + ic(i[0]) + "<span>" + i[1] + "</span></a>"; }).join(""); }
-function tabsHtml() {
- var all = S.view === "catch" ? rows() : [], c = { mine: all.filter(function (e) { return byTab(e, "mine"); }).length, other: all.filter(function (e) { return byTab(e, "other"); }).length };
- return '<div class="hx-tabs" role="tablist" aria-label="Whose activity">' + [["mine", "My activity", ic("user", "sm")], ["other", otherName(), ic(HOUSE === "two" ? "user" : "users", "sm")]].map(function (t) { return '<button type="button" role="tab" aria-selected="' + (S.tab === t[0]) + '" data-tab="' + t[0] + '">' + t[2] + t[1] + (c[t[0]] ? ' <span class="c">' + c[t[0]] + "</span>" : "") + "</button>"; }).join("") + "</div>";
+function tabsHtml() { /* no counts: not on a tab, not on a button */
+ var T = [["mine", "My activity", ic("user", "sm")]]; if (HOUSE === "two") T.push(["person", otherName(), ic("user", "sm")]); T.push(["others", "Others", ic("users", "sm")]);
+ return '<div class="hx-tabs" role="tablist" aria-label="Whose activity">' + T.map(function (t) { return '<button type="button" role="tab" aria-selected="' + (S.tab === t[0]) + '" data-tab="' + t[0] + '">' + t[2] + t[1] + "</button>"; }).join("") + "</div>";
 }
-function kwBox() { return KEYWORD ? '<div class="kw"><label class="kwl"><span class="kwi">' + ic("search", "sm") + '</span><input type="search" id="kw" value="' + esc(S.kw) + '" placeholder="Search the days loaded" autocomplete="off" aria-label="Search the days loaded"></label><span class="chip prop">Proposal · Q1 · S1</span></div>' + (NOTES ? ann("A keyword box is not in the locked design (H9) and the API has no text parameter. This is the only reading that needs nothing from Platform: the client matches the template-rendered text of the days it has loaded. Esc clears it. Off by default; <code>?keyword=1</code>.") : "") : ""; }
+function searchBox() { /* Preview B: free text over the days loaded (S1). Not the default design (Q1). */
+ return SEARCH ? '<div class="kw"><label class="kwl"><span class="kwi">' + ic("search", "sm") + '</span><input type="search" id="kw" value="' + esc(S.kw) + '" placeholder="Search the days loaded" autocomplete="off" aria-label="Search the days loaded only"></label><span class="chip prop">Comparison · Q1 · B</span></div><p class="kwnote">' + ic("info", "sm") + " Searches only the days loaded so far, not the whole history. Older days load as you scroll." + "</p>" +
+  ann("Preview B. Not in the default design (owner, voice, 23 Oct 2026). The API has no text parameter, so this is the one reading that needs nothing from Platform: the client matches the template-rendered text of the days it has loaded (S1). It cannot find something older that has not loaded yet, which is why it says so. Esc clears it.") : "";
+}
 function lane() {
  if (S.open !== null && find(S.open)) return detailPanel(find(S.open), false);
  if (S.view === "catch" && S.panel !== "filters") return '<div class="grab"></div>' + catchCard();
  return filtersPanel();
 }
 function render() {
- var root = $("#hx"), nt = toks().length, showFilterBtn = wide() ? S.view === "catch" : S.view !== "catch";
- var head = '<header class="hx-head"><h1>History</h1>' + (showFilterBtn ? '<button type="button" class="ib' + (S.panel === "filters" ? " on" : "") + '" data-filters aria-label="Filters (F)">' + ic("sliders") + (nt ? '<span class="n">' + nt + "</span>" : "") + "</button>" : "") + "</header>";
+ var root = $("#hx"), showFilterBtn = wide() && S.view === "catch";
+ var head = '<header class="hx-head"><h1>History</h1>' + (showFilterBtn ? '<button type="button" class="ib' + (S.panel === "filters" ? " on" : "") + '" data-filters aria-label="Filter (F)">' + ic("sliders") + "</button>" : "") + "</header>";
  root.innerHTML = '<nav class="hx-rail" aria-label="Main">' + railHtml() + "</nav>" +
-  '<main class="hx-main">' + head + tabsHtml() + (NOTES ? ann("Fields this screen reads: <code>occurred_at</code>, <code>actor</code>, <code>product</code>, <code>kind</code> (area is its first part), <code>kind_v</code>, <code>entity</code>, <code>affects</code>. It never reads <code>payload</code>; text comes from the kind’s template.") : "") +
-  (S.view === "catch" && !S.state ? '<div class="phonecatch">' + catchCard() + "</div>" : "") + kwBox() + tokBar() + '<div id="feed">' + feed() + "</div></main>" +
-  '<aside class="hx-panel" id="panel" aria-label="' + (S.open !== null ? "This change" : S.view === "catch" && S.panel !== "filters" ? "Catch-up" : "Filters") + '">' + (wide() ? lane() : "") + "</aside>" +
+  '<main class="hx-main">' + head + tabsHtml() + (NOTES ? ann("Two jobs: catch up on what changed since you were last here, and find who did something and when after it looks wrong (the milk vanished), often knowing only roughly when and what. So the screen carries Date and Topic, and the tab says whose. Fields read: <code>occurred_at</code>, <code>actor</code>, <code>kind</code> (area is its first part), <code>kind_v</code>, <code>entity</code>, <code>product</code> (on the detail, never a filter). It never reads <code>payload</code>; text comes from the kind’s template.") : "") +
+  (S.view === "catch" && !S.state ? '<div class="phonecatch">' + catchCard() + "</div>" : "") + searchBox() + '<div id="qline">' + qlineHtml() + '</div><div id="feed">' + feed() + "</div></main>" +
+  '<aside class="hx-panel" id="panel" aria-label="' + (S.open !== null ? "This change" : S.view === "catch" && S.panel !== "filters" ? "Catch-up" : "Filter") + '">' + (wide() ? lane() : "") + "</aside>" +
   (!wide() && S.panel === "filters" && S.open === null ? sheetHtml() : "") +
   (!wide() && S.open !== null && find(S.open) ? '<div class="sheet-dim" data-dim><div class="sheet dsheet" role="dialog" aria-modal="true" aria-label="This change" data-keep><div class="grab"></div><div class="fbody">' + detailPanel(find(S.open), true) + "</div></div></div>" : "") +
   '<div class="toast" id="toast" hidden></div>';
@@ -273,44 +251,72 @@ function watch() {
 function moreDay() { if (S.view !== "list" || !S.more) return; loadDay(); refreshFeed(); }
 function setView(v) { S.view = v; S.person = ""; S.open = null; ensureFirst(); }
 
+/* ---------- the date rotary: Pantry's, copied (flows/household/app.js, "status rotary").
+   What Pantry has, and so what is here: drag up or down on the value, scroll over it, or tap to step through the windows; a light vibration on each step where the device allows it;
+   while dragging, the row's label shows the window live. Pantry has NO press-and-hold on the rotary (verified in the code), so there is none here. Added for access only: arrow keys and Enter. ---------- */
+var ro = null;
+function rowRefresh() { /* the in-place update Pantry's refreshSheet does, so a drag is not interrupted by a redraw */
+ $$(".rotrow").forEach(function (r) {
+  var on = S.f.on, drag = !!(ro && ro.moved);
+  r.classList.toggle("on", on); r.classList.toggle("drag", drag);
+  r.querySelector(".stt").setAttribute("aria-checked", on); r.querySelector(".dotc").innerHTML = on ? ic("check", "sm") : "";
+  r.querySelector(".lbl2").textContent = drag ? dateLabel() : "Date"; r.querySelector(".rv").textContent = dateLabel();
+  r.querySelector(".rot").setAttribute("aria-label", "Date: " + dateLabel() + ". Drag up or down, or tap, to change");
+ });
+}
+function commit() { /* the list follows the date as it changes; leaving the catch-up redraws the page once */
+ var c = S.view === "catch"; if (c) { S.view = "list"; S.person = ""; }
+ ensureFirst();
+ if (c) render(); else { rowRefresh(); refreshFeed(); var ql = $("#qline"); if (ql) ql.innerHTML = qlineHtml(); var sm = $(".fph p"); if (sm) sm.textContent = summary(); }
+}
+function rotStep(i) { var n = RANGES.length; i = Math.max(0, Math.min(n - 1, i)); if (i !== S.f.i || !S.f.on) { S.f.i = i; S.f.on = true; commit(); if (navigator.vibrate) navigator.vibrate(6); } }
+function rotTap() { if (!S.f.on) rotStep(S.f.i); else rotStep((S.f.i + 1) % RANGES.length); } /* Pantry's tap always advances; here the first tap on an off row turns it on at its remembered window, so "Anytime" is not skipped over */
+document.addEventListener("pointerdown", function (e) { var r = e.target.closest ? e.target.closest("[data-rot]") : null; if (!r || e.button > 0) return; ro = { y: e.clientY, base: S.f.i, moved: false }; });
+document.addEventListener("pointermove", function (e) { if (!ro) return; var dy = ro.y - e.clientY; if (Math.abs(dy) > 6 && !ro.moved) { ro.moved = true; rowRefresh(); } if (ro.moved) rotStep(ro.base + Math.round(dy / 20)); });
+var endRo = function () { if (!ro) return; var x = ro; ro = null; if (!x.moved) rotTap(); else rowRefresh(); };
+document.addEventListener("pointerup", endRo); document.addEventListener("pointercancel", endRo);
+document.addEventListener("wheel", function (e) { var r = e.target.closest ? e.target.closest("[data-rot]") : null; if (!r) return; e.preventDefault(); rotStep(S.f.i + (e.deltaY > 0 ? 1 : -1)); }, { passive: false });
+
 /* ---------- behaviour ---------- */
-function apply(g, v) {
- if (g === "who") { S.tab = v; }
- else if (g === "when") S.f.when = v;
- else if (g === "kind") { S.f.kind = S.f.kind === v ? "" : v; if (S.f.kind) S.f.area = ""; }
- else if (g === "area") { S.f.area = S.f.area === v ? "" : v; if (S.f.area) S.f.kind = ""; }
- else S.f[g] = S.f[g] === v ? "" : v;
+function apply(g, v) { /* Topic: area:<id> or kind:<kind> */
+ if (v.indexOf("area:") === 0) {
+  var a = v.slice(5);
+  if (MULTI) { var ix = S.f.areas.indexOf(a); if (ix >= 0) S.f.areas.splice(ix, 1); else S.f.areas.push(a); }
+  else S.f.areas = S.f.areas[0] === a && !S.f.kind ? [] : [a];
+  S.f.kind = "";
+ } else { var k = v.slice(5); S.f.kind = S.f.kind === k ? "" : k; }
  if (S.view === "catch") S.view = "list";
  ensureFirst(); render();
 }
 document.addEventListener("click", function (ev) {
  var t = ev.target;
- if (t.hasAttribute && t.hasAttribute("data-dim")) { if (S.open !== null) S.open = null; else { S.panel = ""; S.step = ""; } render(); return; }
+ if (t.hasAttribute && t.hasAttribute("data-dim")) { if (S.open !== null) S.open = null; else S.panel = ""; render(); return; }
  var b = t.closest ? t.closest("button,a") : null; if (!b) return;
  if (b.matches("a[data-route]")) { ev.preventDefault(); toast("Would open " + b.getAttribute("data-route")); return; }
  if (b.matches("a[data-rail]")) { ev.preventDefault(); return; }
+ if (b.matches("[data-rot]")) { if (ev.detail === 0) rotTap(); return; } /* a pointer tap is handled on pointerup, as in Pantry; this is the keyboard */
+ if (b.dataset.dt) { S.f.on = !S.f.on; commit(); return; }
  if (b.dataset.seq) { S.open = +b.dataset.seq; render(); return; }
  if (b.hasAttribute("data-closedetail")) { S.open = null; render(); return; }
  if (b.dataset.tab) { S.tab = b.dataset.tab; S.open = null; if (S.view === "list") ensureFirst(); render(); return; }
- if (b.hasAttribute("data-filters")) { S.panel = S.panel === "filters" && wide() ? "" : "filters"; S.step = ""; S.open = null; render(); return; }
- if (b.hasAttribute("data-closecatch")) { S.view = "list"; S.person = ""; S.open = null; if (!wide()) { S.panel = "filters"; S.step = ""; } ensureFirst(); render(); toast("Left the catch-up. Not marked as caught up."); return; }
+ if (b.hasAttribute("data-filters")) { S.panel = S.panel === "filters" && wide() ? "" : "filters"; S.open = null; render(); return; }
+ if (b.hasAttribute("data-closecatch")) { S.view = "list"; S.person = ""; S.open = null; if (!wide()) S.panel = "filters"; ensureFirst(); render(); toast("Left the catch-up. Not marked as caught up."); return; }
  if (b.hasAttribute("data-tick")) { S.ticked = true; S.seen = new Date(HM.NOW).toISOString(); ensureFirst(); render(); toast("Marked as caught up. Your next visit starts fresh from here."); return; }
- if (b.dataset.person !== undefined) { S.person = b.dataset.person; if (S.person && S.person !== "none") S.tab = S.person === MEID ? "mine" : "other"; render(); return; }
+ if (b.dataset.person !== undefined) { S.person = b.dataset.person; if (S.person === MEID) S.tab = "mine"; else if (S.person === "others") S.tab = "others"; else if (S.person) S.tab = HOUSE === "two" ? "person" : "others"; render(); return; }
  if (b.dataset.opt) { var p = b.dataset.opt.split("|"); apply(p[0], p[1]); return; }
- if (b.dataset.step !== undefined) { S.step = b.dataset.step; render(); return; }
- if (b.dataset.rm) { var k = b.dataset.rm; if (k === "entity") S.entity = ""; else if (k === "when") S.f.when = "any"; else S.f[k] = ""; if (S.view === "catch") S.view = "list"; ensureFirst(); render(); return; }
- if (b.hasAttribute("data-clear")) { S.f = { when: "any", area: "", kind: "", product: "", touches: "" }; S.entity = ""; S.kw = ""; ensureFirst(); render(); return; }
- if (b.hasAttribute("data-month")) { S.f.when = "month"; ensureFirst(); render(); return; }
+ if (b.hasAttribute("data-clear")) { S.f = { on: false, i: DEFAULT_I, areas: [], kind: "" }; S.entity = ""; S.kw = ""; ensureFirst(); render(); return; }
+ if (b.hasAttribute("data-month")) { S.f.on = true; S.f.i = 2; ensureFirst(); render(); return; }
  if (b.hasAttribute("data-retry")) { S.state = ""; ensureFirst(); render(); return; }
- if (b.hasAttribute("data-closepanel")) { S.panel = ""; S.step = ""; render(); return; }
+ if (b.hasAttribute("data-closepanel")) { S.panel = ""; render(); return; }
 });
 document.addEventListener("input", function (ev) { if (ev.target && ev.target.id === "kw") { S.kw = ev.target.value; refreshFeed(); } });
 document.addEventListener("keydown", function (ev) {
  var tag = (ev.target && ev.target.tagName) || ""; if (tag === "INPUT") { if (ev.key === "Escape" && S.kw) { S.kw = ""; ev.target.value = ""; refreshFeed(); } return; }
+ if (ev.target && ev.target.matches && ev.target.matches("[data-rot]") && (ev.key === "ArrowUp" || ev.key === "ArrowDown")) { ev.preventDefault(); rotStep(S.f.i + (ev.key === "ArrowDown" ? 1 : -1)); return; }
  if (ev.ctrlKey || ev.metaKey) { if (ev.key === "Escape") { if (S.open !== null) S.open = null; else S.panel = ""; render(); } return; }
  var k = ev.key.toLowerCase();
  if (k === "f") { S.panel = "filters"; S.open = null; render(); }
- else if (k === "1" || k === "2") { S.tab = k === "1" ? "mine" : "other"; S.open = null; if (S.view === "list") ensureFirst(); render(); }
+ else if (k === "1" || k === "2" || (k === "3" && HOUSE === "two")) { S.tab = k === "1" ? "mine" : k === "2" ? (HOUSE === "two" ? "person" : "others") : "others"; S.open = null; if (S.view === "list") ensureFirst(); render(); }
  else if (k === "c" && S.view === "catch") { S.view = "list"; ensureFirst(); render(); }
  else if (k === "t" && S.view === "catch") { S.ticked = true; S.seen = new Date(HM.NOW).toISOString(); ensureFirst(); render(); }
  else if (k === "m" && S.view === "list") moreDay();
@@ -322,18 +328,17 @@ function pvHtml() {
  var u = function (k, v) { var p = new URLSearchParams(location.search); if (v === null) p.delete(k); else p.set(k, v); return "?" + p.toString(); };
  var grp = function (title, k, opts, cur) { return "<h3>" + title + '</h3><div class="pills">' + opts.map(function (o) { return '<a class="pl" aria-pressed="' + (cur === o[0]) + '" href="' + u(k, o[0] === "" ? null : o[0]) + '">' + o[1] + "</a>"; }).join("") + "</div>"; };
  return '<div class="pv" id="pv"><button type="button" id="pvb" aria-expanded="false">Preview</button><div class="pop" id="pvp">' +
+  grp("Search (Q1)", "search", [["", "A: filters only (default)"], ["text", "B: free text, days loaded"]], SEARCH ? "text" : "") +
+  grp("Choices per group (Q2, undecided)", "choices", [["", "One at a time (shown)"], ["several", "Several (lists)"]], MULTI ? "several" : "") +
   grp("Signed in as", "as", [["", "Arjan"], ["sam", "Sam"]], ME === "sam" ? "sam" : "") + grp("Household", "household", [["", "Two people"], ["more", "More"]], HOUSE === "more" ? "more" : "") +
   grp("Opens at", "view", [["", "Catch-up"], ["list", "Recent"]], S.view === "list" ? "list" : "") + grp("Last visit", "last", [["", "Sat"], ["wed", "Wed (older than the cap)"]], Q.get("last") === "wed" ? "wed" : "") +
   grp("Template registry", "tpl", [["", "Published"], ["loading", "Fetching"], ["none", "Nothing published"]], TPL === "ready" ? "" : TPL) +
-  grp("Affects", "affects", [["", "Filled (Proposal)"], ["today", "As Kitchie writes it today"]], Q.get("affects") === "today" ? "today" : "") +
-  grp("No-member events in Others (Q5)", "nomember", [["", "No (today)"], ["include", "Yes (option a)"]], NOMEMBER_IN ? "include" : "") +
-  grp("Keyword box (Q1, S1)", "keyword", [["", "Off"], ["1", "On"]], KEYWORD ? "1" : "") + grp("Mockup notes", "notes", [["", "On"], ["0", "Off"]], NOTES ? "" : "0") + "</div></div>";
+  grp("Mockup notes", "notes", [["", "On"], ["0", "Off"]], NOTES ? "" : "0") + "</div></div>";
 }
 document.body.insertAdjacentHTML("beforeend", pvHtml());
 $("#pvb").addEventListener("click", function () { var o = $("#pv").classList.toggle("open"); this.setAttribute("aria-expanded", o); });
 
 if (S.state === "" || S.state === "down") ensureFirst();
-if (S.state === "" && S.view === "list" && !S.pages.length && !S.more) { /* zero results straight from the URL */ }
 render();
 window.__hx = { S: S, moreDay: moreDay, rows: rows, ALL: ALL };
 })();
