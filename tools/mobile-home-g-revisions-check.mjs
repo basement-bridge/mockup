@@ -170,7 +170,7 @@ ok(true, "every height x data state x theme drew three frames (A, B, C; D is gon
 
 /* 6. the expired and off-today warning; expiring stock as its own idea */
 {
-  const warnOf = async (q, o = "c") => { const p = await open(q); const w = await F(p, o).locator(".hero").evaluate(h => ({ warn: h.dataset.warn || "", alarm: !!h.querySelector(".why.alarm"), svg: !!h.querySelector(".why.alarm svg.alr"), text: h.querySelector(".why").innerText, vis: h.querySelector(".why.alarm") ? getComputedStyle(h.querySelector(".why.alarm svg")).color : "" })); await p.context().close(); return w; };
+  const warnOf = async (q, o = "c") => { const p = await open(q); const w = await F(p, o).locator(".hero").evaluate(h => ({ warn: h.dataset.warn || "", alarm: !!h.querySelector(".why.alarm"), svg: !!h.querySelector(".why.alarm svg.alr"), text: (h.querySelector(".why.alarm") || h.querySelector(".why")).innerText, vis: h.querySelector(".why.alarm") ? getComputedStyle(h.querySelector(".why.alarm svg")).color : "" })); await p.context().close(); return w; };
   const e = await warnOf("h=tall&d=heroexp");
   ok(e.warn === "expired" && e.alarm && e.svg && /Check this is still OK/.test(e.text) && /milk/.test(e.text) && /yesterday/.test(e.text), "hero built on expired milk stays eligible and carries a red alert mark and \"Check this is still OK: uses milk that went off yesterday\"");
   const t = await warnOf("h=tall&d=today");
@@ -438,5 +438,41 @@ async function dragUp(p, o, fromSec, steps, { touch = false, cdp = null, pause =
   let g = true; try { g = execSync("git diff --name-only origin/main -- fragments/mobile-home-g tools/mobile-home-g-check.mjs docs/knowledge/jobs-to-be-done/mobile-home-g.md", { encoding: "utf8" }).trim() === ""; } catch (e) { }
   ok(g, "fragment G, its check and its doc are untouched");
 }
+/* 6b. the hero, passport layout (kitchie #1095, owner 23 Oct 2026): eyebrow on the top line above the picture, picture at the left, the name (two lines at most) beside it, the meta line last in the text block,
+   the warning note under both, Make it and Plan as before, Why as the app's information icon (the Recipe tab's ICON_PATHS.info). Every hero view x warning x height x theme. */
+{
+  const INFO = "M12 11v5.5M12 7.6v.2", bad = [];
+  let n = 0, maxH = 0;
+  for (const hv of ["idea", "photo", "planned", "plannedphoto"]) for (const d of ["calm", "heroexp", "today"]) for (const h of ["short", "tall"]) for (const theme of ["kitchie", "kitchie-day"]) {
+    const p = await open(`h=${h}&d=${d}&hv=${hv}&opt=c`, { theme });
+    const r = await F(p, "c").locator(".hero").evaluate(hero => {
+      const q = s => hero.querySelector(s), box = e => { const r = e.getBoundingClientRect(); return { l: r.left, r: r.right, t: r.top, b: r.bottom, w: r.width, h: r.height }; };
+      const k = box(q(".top2 .k")), ph = box(q(".top2 .ph")), nm = box(q(".top2 b")), meta = box(q(".top2 .why:not(.alarm)")), al = q(".top2 .why.alarm"), acts = box(q(".acts")), card = box(hero), ib = q(".acts .ib");
+      const lh = parseFloat(getComputedStyle(q(".top2 b")).lineHeight) || 20;
+      return { kAbove: k.b <= ph.t + 0.5 && k.b <= nm.t + 0.5, left: ph.r <= nm.l + 0.5 && Math.abs(ph.l - box(q(".top2")).l - 14) <= 1.5, lines: Math.round(nm.h / lh), metaLast: meta.t >= nm.b - 0.5 && (!al || box(al).t >= meta.b - 0.5),
+        alarmFull: al ? box(al).w > card.w * 0.7 : true, actsBelow: acts.t >= Math.max(ph.b, meta.b) - 0.5, inside: card.w > 0 && Math.max(k.r, ph.r, nm.r, meta.r) <= card.r - 8,
+        btns: [...hero.querySelectorAll(".acts > *")].map(e => e.textContent.trim() || e.getAttribute("aria-label")).join("|"), ibName: ib.getAttribute("aria-label"), ibW: ib.getBoundingClientRect().width, ibH: ib.getBoundingClientRect().height,
+        ibPath: ib.querySelector("svg path:last-child").getAttribute("d"), ibVis: getComputedStyle(ib.querySelector("svg")).display !== "none", whyText: !![...hero.querySelectorAll("button,a")].find(e => e.textContent.trim() === "Why"),
+        photo: !!q(".ph.pic"), chef: !!q(".ph svg"), planned: !!q(".k.planned"), eyebrow: q(".k").textContent, meta: meta ? meta.t : 0, hh: card.h, scrollW: document.documentElement.scrollWidth <= innerWidth + 1 };
+    });
+    n++; maxH = Math.max(maxH, r.hh);
+    const t = `${hv}/${d}/${h}/${theme}`;
+    if (!r.kAbove) bad.push(t + ": eyebrow not above the picture and name"); if (!r.left) bad.push(t + ": picture not at the left with 14px padding"); if (r.lines > 2) bad.push(t + ": name over two lines");
+    if (!r.metaLast) bad.push(t + ": meta line is not the last line of the text block"); if (!r.alarmFull) bad.push(t + ": warning note not full width"); if (!r.actsBelow) bad.push(t + ": buttons not under the head row");
+    if (!r.inside) bad.push(t + ": text runs past the card"); if (r.btns !== "Make it|Plan|Why this idea") bad.push(t + ": buttons are " + r.btns); if (r.ibName !== "Why this idea" || r.ibW < 43.5 || r.ibH < 43.5) bad.push(t + ": info button name or size");
+    if (r.ibPath !== INFO || !r.ibVis || r.whyText) bad.push(t + ": Why is not the app's information icon"); if (r.photo !== (hv === "photo" || hv === "plannedphoto") || r.chef === r.photo) bad.push(t + ": photo or placeholder wrong");
+    if (r.planned !== hv.startsWith("planned") || !/^(Planned for today . Fri 23|Today . Idea for tonight)$/.test(r.eyebrow)) bad.push(t + ": eyebrow " + r.eyebrow); if (!r.scrollW) bad.push(t + ": sideways scroll");
+    await p.context().close();
+  }
+  ok(bad.length === 0, `hero passport layout, ${n} combinations (view x warning x height x theme)` + (bad.length ? ": " + bad.slice(0, 6).join("; ") : ""));
+  ok(maxH <= 320, `the hero never grows past 320px even with a photo, a two-line name and a two-line warning (tallest ${Math.round(maxH)}px)`);
+  const pl = await open("h=tall&d=calm&hv=planned&opt=c");
+  const txt = await F(pl, "c").locator(".hero .top2").innerText();
+  ok(/Planned for today . Fri 23\s+Ginger-Soy Chicken Stir-Fry with Rice\s+25 min . on the plan, nothing to decide/.test(txt.replace(/\n+/g, " ").replace(/\s+/g, " ")) || /Planned for today/i.test(txt) && /25 min · on the plan, nothing to decide/.test(txt), "planned hero keeps its words: eyebrow, name, \"25 min · on the plan, nothing to decide\" unchanged");
+  await F(pl, "c").locator(".hero .ib").click(); await pl.waitForTimeout(80);
+  ok(await F(pl, "c").locator(".toast").isVisible(), "the information icon is a live button (the mock answers with its usual toast)");
+  await pl.context().close();
+}
+
 console.log(fails ? `\n${fails} FAILED` : "\nall passed");
 await b.close(); process.exit(fails ? 1 : 0);

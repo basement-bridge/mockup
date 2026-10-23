@@ -75,3 +75,20 @@
 .mr .fold.ext.has-ban{border-bottom-left-radius:0;border-bottom-right-radius:0;border-bottom-color:transparent}
 .mr .fold.ext.has-ban .tog{border-radius:0}
 .mr .fold.ext.has-ban + .ban.soon{border-top:1px solid color-mix(in srgb,var(--danger) 55%,var(--border))}
+
+/* ---------- the hero, passport layout (kitchie #1095; owner, 23 October 2026, by voice). The first row used to be the picture alone. Now: the eyebrow on the top line, the picture (or the chef-hat placeholder)
+   at the left with comfortable padding, the name beside it (two lines at most) and the meta line last, the warning note (when there is one) under both, then Make it, Plan and the information icon (the app's one
+   information icon, the Recipe tab's Why on an idea). The name and the meta line sit as one block centred against the picture (b ends its row, .why starts the next). The .t wrapper has no box of its own so the eyebrow can sit above the picture. Not taller than before. ---------- */
+.mr .hero .idl .top2{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"k k" "e n" "e w" "x x";column-gap:var(--sp-3);row-gap:0;align-items:start;padding:14px 14px 12px;text-align:left}
+.mr .hero .idl .top2 .t{display:contents}
+.mr .hero .idl .top2 .k{grid-area:k;margin:0 0 var(--sp-2)}
+.mr .hero .idl .top2 .k.planned{color:var(--sage)}
+.mr .hero .idl .top2 .ph{grid-area:e;width:64px;height:64px;font-size:34px;overflow:hidden;background-size:cover;background-position:center}
+.mr .hero .idl .top2 .ph svg.ic{width:34px;height:34px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;color:var(--accent)}
+.mr .hero .idl .top2 b{grid-area:n;align-self:end;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere}
+.mr .hero .idl .top2 .why{grid-area:w;align-self:start;display:block}
+.mr .hero .idl .top2 .why.alarm{grid-area:x;align-self:stretch;display:flex;margin-top:var(--sp-2)}
+.mr .hero .idl .acts{align-items:center}
+.mr .hero .ib{box-sizing:border-box;width:44px;height:44px;flex:none;border-radius:50%;border:1px solid var(--border);background:var(--surface);color:var(--fg);display:inline-flex;align-items:center;justify-content:center;padding:0;cursor:pointer}
+.mr .hero .ib svg.ic{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.mr .hero .ib:focus-visible{outline:2px solid var(--accent);outline-offset:2px}

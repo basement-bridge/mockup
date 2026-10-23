@@ -6,6 +6,9 @@
   var MR = window.MR, I = MR.I;
   var HS = [["short", "Short", "600"], ["medium", "Medium", "740"], ["tall", "Tall", "844"]];
   var DS = [["calm", "Nothing urgent"], ["window", "Expiring in hours"], ["neglect", "Ignored for days"], ["today", "One goes off today"], ["expired", "Expired and several"], ["heroexp", "Hero uses expired"], ["lowride", "Running low rides on a plan"], ["onlylow", "Only running low"], ["empty", "Nothing at all"]];
+  var HV = [["idea", "Idea"], ["photo", "Idea with photo"], ["planned", "Planned today (long name)"], ["plannedphoto", "Planned with photo"]];
+  /* the sample photo: a drawn plate on a plain ground (no hex colours; the page draws it, there is no image file to load) */
+  MR.photo = "'data:image/svg+xml;utf8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 72"><rect width="72" height="72" fill="rgb(176,120,64)"/><circle cx="36" cy="36" r="27" fill="rgb(244,238,226)"/><circle cx="36" cy="36" r="19" fill="rgb(214,150,60)"/><circle cx="30" cy="31" r="5" fill="rgb(96,150,80)"/><circle cx="42" cy="40" r="6" fill="rgb(180,70,50)"/></svg>') + "'";
   var DG = [["1", "Drag up to reveal: on"], ["0", "Tap only"]];
   var OPTS = [
     { id: "a", name: "A. Tinted card", sub: "An urgent section is tinted and carries a word badge; it always opens. The order and the opening rule are the same in all three." },
@@ -15,7 +18,7 @@
   var NAMES = { hero: "Cooking ideas", oi: "More ideas", soon: "On the way out", low: "Running low" };
   var Q = new URLSearchParams(location.search);
   var pick = function (v, list, d) { return list.some(function (x) { return x[0] === v; }) ? v : d; };
-  var S = { h: pick(Q.get("h"), HS, "medium"), data: pick(Q.get("d"), DS, "expired"), n: Math.max(0, Math.min(48, +Q.get("n") || MR.C.WIN)), dg: pick(Q.get("dg"), DG, "1"), opt: ["a", "b", "c"].indexOf(Q.get("opt")) >= 0 ? Q.get("opt") : "all" };
+  var S = { h: pick(Q.get("h"), HS, "medium"), data: pick(Q.get("d"), DS, "expired"), n: Math.max(0, Math.min(48, +Q.get("n") || MR.C.WIN)), dg: pick(Q.get("dg"), DG, "1"), hv: pick(Q.get("hv"), HV, "idea"), opt: ["a", "b", "c"].indexOf(Q.get("opt")) >= 0 ? Q.get("opt") : "all" };
   var PLANS = {}, sess = MR.session(MR.C.GAP), SIM = { t: 0 };
 
   function barHtml() {
@@ -45,7 +48,7 @@
     $("#frames").innerHTML = opts.map(frameHtml).join("");
     PLANS = {};
     opts.forEach(function (o) {
-      var fig = $(".fr[data-frame=" + o.id + "]"), body = $(".pbody", fig), c = { h: S.h, data: S.data, n: S.n, drag: S.dg === "1" }, P = (PLANS[o.id] = MR.plan(o.id, c));
+      var fig = $(".fr[data-frame=" + o.id + "]"), body = $(".pbody", fig), c = { h: S.h, data: S.data, n: S.n, drag: S.dg === "1", hv: S.hv }, P = (PLANS[o.id] = MR.plan(o.id, c));
       body.innerHTML = MR.html("h-" + o.id, P, sess.get(o.id));
       fig.addEventListener("click", function (e) {
         var tg = e.target.closest(".tog"); if (tg) { MR.toggle(tg, P); return; }
@@ -57,14 +60,14 @@
       measure(fig);
     });
     document.body.dataset.ready = "";
-    setTimeout(function () { document.body.dataset.ready = [S.h, S.data, S.n, S.dg, S.opt, SIM.t].join("."); }, 60);
+    setTimeout(function () { document.body.dataset.ready = [S.h, S.data, S.n, S.dg, S.opt, S.hv, SIM.t].join("."); }, 60);
   }
-  function url() { try { history.replaceState(null, "", "?h=" + S.h + "&d=" + S.data + "&n=" + S.n + "&dg=" + S.dg + "&opt=" + S.opt); } catch (e) {} }
+  function url() { try { history.replaceState(null, "", "?h=" + S.h + "&d=" + S.data + "&n=" + S.n + "&dg=" + S.dg + "&opt=" + S.opt + "&hv=" + S.hv); } catch (e) {} }
   function sw(label, key, list, show) {
     return '<span class="lbl">' + label + "</span>" + list.map(function (t) { return '<button type="button" data-' + key + '="' + t[0] + '" aria-pressed="' + (S[key] === t[0]) + '">' + t[1] + (show && t[2] ? " <small>" + t[2] + "</small>" : "") + "</button>"; }).join("");
   }
   function drawSwitch() {
-    $("#stateSw").innerHTML = sw("Phone height", "h", HS, 1) + sw("Data", "data", DS) + sw("Show", "opt", [["all", "All three"], ["a", "A"], ["b", "B"], ["c", "C"]]);
+    $("#stateSw").innerHTML = sw("Phone height", "h", HS, 1) + sw("Data", "data", DS) + sw("Show", "opt", [["all", "All three"], ["a", "A"], ["b", "B"], ["c", "C"]]) + sw("Hero", "hv", HV);
     $("#dragSw").innerHTML = sw("Gesture", "dg", DG);
   }
   function winOut() { $("#winOut").textContent = S.n + " h"; $("#win").value = S.n; }
@@ -80,7 +83,7 @@
     drawSwitch(); winOut(); draw(); rescenario();
     $("#stateSw").addEventListener("click", function (e) {
       var b = e.target.closest("button"); if (!b) return;
-      ["h", "data", "opt"].forEach(function (k) { if (b.dataset[k] != null) S[k] = b.dataset[k]; });
+      ["h", "data", "opt", "hv"].forEach(function (k) { if (b.dataset[k] != null) S[k] = b.dataset[k]; });
       drawSwitch(); url(); rescenario(); draw();
     });
     $("#dragSw").addEventListener("click", function (e) {
