@@ -610,3 +610,19 @@ Settings shake-up (owner, 24 Oct 2026, on UAT 0.171.0: "going worse", "Java ME",
 - Nothing is built. If E is chosen, build in this order: the rem check and the measuring test (SR-P4, SR-P9, SR-P17); Text size and Rows; Shortcuts and pins; the generated index with its tests, then the search box. Remove K03 to K11 from pages as search takes them over. If A is chosen instead: delete `server/src/assets/settings-page.js` rows for K03 to K11, the `data-size`, `data-compact`, `data-hide`, `data-motion` rules in `layout.ts`, the Settings route's overview branch in `app.ts`, and the matching tests; keep `kitchie_theme` and `kitchie_emoji`; add Mode per mockup#285.
 - Order that limits risk: copy fix and dead `theme` field first; then remove knobs one at a time with their tests; the rem check before text size goes.
 - No MCP tool surface is touched. No schema change under A. Cost: none.
+
+## Design review of the phone Menu build (Kitchie PR #1134, 24 Oct 2026)
+
+Independent review of head 327dd62 against DESIGN.md section 9 and `fragments/menu-level-search/`; full text is the "Design review" section of the PR description. Run in the browser harness at 390 and 360, light and dark, text normal and +30%, pins 0 to 3. Not tried on a real phone or with a screen reader.
+
+**Verdict: pass with changes.** The menu does its job (search first, each thing once, every target 44px, no sideways scroll, contrast 6 to 7). Two must-fix items: (1) focusing the search box hides the rows, so Tab never reaches Name to Sign out (`settings-find.js` `searching()` and the focus handler); (2) pin buttons are named "Unpin ... from the front", a place that no longer exists (`settings-front.js`).
+
+Should-fix: Back loses the original page after one round trip (Pantry, Menu, Household, Menu, Back goes Home); the Preferences value "Quiet 10pm to 6am" wraps to three lines at +30%; a long name breaks mid-word; text-size steps are 18px wide at 2 pins; one pinned control has no name; chip captions are 12px at 3 pins; Sign out has no icon.
+
+Decisions, with how checked:
+- **Kitchen setup row on the menu? No.** It re-creates the duplicate 9.5 forbids to save two taps on a rare job; search does Categories and Locations in 2 taps and a word. *Checked:* tap counts in the fragment, search results run.
+- **Name row (to /me) and Household's own self row? Keep both.** Different jobs: my profile versus who is in the house. *Checked:* both pages drawn and read.
+- **You page repeating Install, Download my data, Sign out? Drop them on the phone** (keep Leave household); one tap back to the menu. Owner of that page to do it; not a blocker.
+- **Invite one tap before, Household first now? Acceptable.** The old tap made an invite without choosing Join us or Their own; Household opens with the choice and Copy link above the fold. *Checked:* 390 screenshot.
+
+Lesson for the checklist: when search takes over the screen on focus, test Tab order, not only taps. Add "Tab reaches the last row" to section 9.7.
