@@ -329,8 +329,10 @@ Screen title 1 to 3 words. Row label, button, chip 3 words at most. State is a g
 ### Questions (SR-Q58 to SR-Q62, each with a recommendation)
 
 - **SR-Q58.** Is a shield alone enough for Admin, or does he want the word beside it? Recommend the shield with the name for a screen reader, and add the word back if it is not recognised on his phone.
+  **Resolved, 24 Oct 2026 (owner: apply the independent reviewer's recommendation, PR #303):** the shield **plus the word "Admin"** on the person's row, glyph first. Only one row has it, the `title` never shows on a phone, and a shield alone reads as "protected". Built in kitchie as the fixes to 0.178.0; drawn in `fragments/settings-areas-overhaul/` (direction A).
 - **SR-Q59.** Categories: the footer that explains why Protein stays apart from Meat is dropped; the refusal still says why when it happens. Recommend yes.
 - **SR-Q60.** Is a star the right default control for assistants, or a "Default" word on the row? Recommend the star: it is the common sign and a 44px button; a word would repeat the dot.
+  **Resolved, 24 Oct 2026 (owner: apply the independent reviewer's recommendation, PR #303):** the star **stays**, and the starred assistant gets the one word **"Default"** under its name, only when two or more assistants are connected (none on the others, none when only one is connected). The filled and outline star differ by fill alone, and a star can also mean favourite; the word does not repeat the dot (the dot says connected, the word says which one is used). Built in kitchie and drawn in `fragments/settings-areas-overhaul/`.
 - **SR-Q61.** The quote in an opened food row drops "(kept as data, said 1 time)". Recommend yes: the count changes no decision.
 - **SR-Q62.** Lean History, the bell and the invite landing the same way next? Recommend yes, History first (61 words, its own mockup).
 
@@ -670,3 +672,19 @@ Reviewer: a separate agent briefed as a senior mobile UX designer, who did not b
 - Does he want the word "Admin" back (SR-Q58)? Recommended: yes, the word.
 - "Default" word under the starred assistant (SR-Q60)? Recommended: yes.
 - Should a Like be editable, or only stoppable?
+
+## Design review of the phone Menu build (Kitchie PR #1134, 24 Oct 2026)
+
+Independent review of head 327dd62 against DESIGN.md section 9 and `fragments/menu-level-search/`; full text is the "Design review" section of the PR description. Run in the browser harness at 390 and 360, light and dark, text normal and +30%, pins 0 to 3. Not tried on a real phone or with a screen reader.
+
+**Verdict: pass with changes.** The menu does its job (search first, each thing once, every target 44px, no sideways scroll, contrast 6 to 7). Two must-fix items: (1) focusing the search box hides the rows, so Tab never reaches Name to Sign out (`settings-find.js` `searching()` and the focus handler); (2) pin buttons are named "Unpin ... from the front", a place that no longer exists (`settings-front.js`).
+
+Should-fix: Back loses the original page after one round trip (Pantry, Menu, Household, Menu, Back goes Home); the Preferences value "Quiet 10pm to 6am" wraps to three lines at +30%; a long name breaks mid-word; text-size steps are 18px wide at 2 pins; one pinned control has no name; chip captions are 12px at 3 pins; Sign out has no icon.
+
+Decisions, with how checked:
+- **Kitchen setup row on the menu? No.** It re-creates the duplicate 9.5 forbids to save two taps on a rare job; search does Categories and Locations in 2 taps and a word. *Checked:* tap counts in the fragment, search results run.
+- **Name row (to /me) and Household's own self row? Keep both.** Different jobs: my profile versus who is in the house. *Checked:* both pages drawn and read.
+- **You page repeating Install, Download my data, Sign out? Drop them on the phone** (keep Leave household); one tap back to the menu. Owner of that page to do it; not a blocker.
+- **Invite one tap before, Household first now? Acceptable.** The old tap made an invite without choosing Join us or Their own; Household opens with the choice and Copy link above the fold. *Checked:* 390 screenshot.
+
+Lesson for the checklist: when search takes over the screen on focus, test Tab order, not only taps. Add "Tab reaches the last row" to section 9.7.

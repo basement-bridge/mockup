@@ -231,6 +231,8 @@ Do not add an edit mode, pencil or reorder button. Double tap resets; a long hol
 
 44px minimum targets; text size can grow +30% without breaking; no sideways scroll; light and dark; phone-only unless stated; desktop window untouched.
 
+- [ ] Tab reaches the last row, also while search has focus (focusing the search shows its suggestions under the field and never hides, removes or inert-s the rows; only a typed query may replace them, and then Tab still goes through the results). Add a browser test that tabs through the whole screen with and without the search focused (found in the review of Kitchie PR #1134).
+
 ### 9.8 Design review checklist (REQUIRED)
 
 Every item answered, with the reviewer's one-line evidence:
