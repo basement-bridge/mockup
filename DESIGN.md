@@ -233,6 +233,23 @@ Do not add an edit mode, pencil or reorder button. Double tap resets; a long hol
 
 - [ ] Tab reaches the last row, also while search has focus (focusing the search shows its suggestions under the field and never hides, removes or inert-s the rows; only a typed query may replace them, and then Tab still goes through the results). Add a browser test that tabs through the whole screen with and without the search focused (found in the review of Kitchie PR #1134).
 
+### 9.10 Lean does not mean mean (owner, 25 October 2026)
+
+The owner, after the lean pass flattened the person row on the phone Menu: it is "too boring". "Lean doesn't mean mean."
+
+**Lean cuts words and noise. It never cuts warmth or identity.** The words budget (9.1) and the one accent (9.3) are there so the screen can be calm and quick for the person holding the phone. They are not a licence to make it grey. A screen that is only correct is half finished.
+
+Who this is for: a real person, in a real kitchen, often with a thumb and one eye on the pan, who opens the Menu to be reminded that this is *their* kitchen. The first thing they meet must say so: their name, in their colour, big enough to read without effort, with a little of the household around it. Nothing says "you" like your own name. A row that reads "Alex" in the same grey as "Preferences" has forgotten who it is talking to.
+
+- **Identity is allowed to be the loudest thing that is not the accent.** The person (name, picture or initial in their colour, household, kitchen role) may be bigger, rounder and more colourful than the plain rows around it. Size and shape carry it; no extra words are needed.
+- **Playful but calm.** A rounded picture, a role with its own little icon, a brand mark for each assistant, a star that is actually a star. Motion only where a gesture needs it (a swipe settling), and never when the person has asked for reduced motion. Never confetti, never a joke in the label, never a second accent.
+- **Cut a word, keep the character.** When a rewrite makes a row shorter, check that it still *sounds like someone lives here*. If the lean version could belong to any app, put the person back: a name instead of "Account", a picture instead of an icon, the household's own name instead of "Household".
+- **Things that are theirs are theirs to change where they stand.** Their name edits in place; their role is a swipe. No trip to another page to fix a spelling.
+- **State still never relies on colour alone** (9.3). Warmth is size, shape and colour *together*; take the colour away and the row is still plainly theirs.
+- **Where this applies.** Anything that shows the person (Menu, You, Household member rows, Home greeting) or something they chose (role, assistant, theme). Utility screens (Download my data, a confirmation) stay plain.
+
+Review question for 9.8 item 9: *would the person recognise this screen as theirs without reading it?*
+
 ### 9.8 Design review checklist (REQUIRED)
 
 Every item answered, with the reviewer's one-line evidence:
@@ -245,5 +262,6 @@ Every item answered, with the reviewer's one-line evidence:
 6. **Targets:** every tap target 44px or more, spaced.
 7. **Text size:** +30% still fits, no clipping, no sideways scroll.
 8. **Dark:** checked in dark; state is not colour alone.
+9. **Warmth:** the person, or what they chose, is recognisable as theirs without reading it (9.10); lean cut words, not character.
 
 **Rule: a design review is REQUIRED before any UI change merges.** The reviewer is a **separate agent, briefed as a senior mobile UX designer, that did not build the change.** The builder never reviews its own work. **Any UI pull request states the reviewer's verdict in its description** (Pass, Pass with changes done, or Fail, plus the checklist answers). No verdict, no merge. A mockup PR follows the same rule; the product PR that builds a settled mockup cites that verdict.
