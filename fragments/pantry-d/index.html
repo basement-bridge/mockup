@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Pantry D, one phone</title>
+<script>try{var t=new URLSearchParams(location.search).get("theme");if(t==="kitchie"||t==="kitchie-day")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../list-language/ll.css"><link rel="stylesheet" href="pd.css"><script src="../../theme.js"></script>
+<style>
+html,body{margin:0;background:var(--stage);min-height:100%}
+body{font-family:var(--body)}
+#stage{min-height:100dvh;display:flex;flex-direction:column;align-items:center;gap:8px;padding:8px 16px 16px}
+#ph{--ph:min(844px,calc(100dvh - 80px))}
+#opt{width:min(390px,100%);color:var(--fg);font-size:13px}
+#opt summary{min-height:44px;display:flex;align-items:center;gap:8px;font-weight:700;cursor:pointer;list-style:none}
+#opt summary::-webkit-details-marker{display:none}
+#opt .og{display:flex;flex-wrap:wrap;gap:4px 6px;align-items:center;padding:2px 0 6px}
+#opt .og b{width:64px;color:var(--muted);font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+#opt a{min-height:44px;display:inline-flex;align-items:center;padding:0 10px;border:1px solid var(--border);border-radius:99px;color:var(--fg);text-decoration:none;font-weight:600}
+#opt a[aria-current=true]{border-color:var(--accent);color:var(--accent);font-weight:800}
+@media(max-width:430px){#stage{padding:0 0 0;gap:0}#opt{padding:0 12px;box-sizing:border-box}#ph{width:100%;height:calc(100dvh - 52px);border:0;border-radius:0}}
+</style></head>
+<body data-no-theme-fab>
+<!-- Pantry D, locked by the owner (voice, 25 Oct 2026). One phone.
+     ?s=pantry|recipes|home  &chips=pill|dot|tabs|square|icon  &basis=carousel|dial|chips  &plan=today|other|none  &state=select|sorted|collapsed|catch|swap|filters|search
+     &group=cat|loc  &theme=kitchie|kitchie-day  &hint=0 (no first-week jiggle)  &pick=id,id
+     The options row below is mock chrome (not in the app). Only this screen's scripts are fetched (DESIGN.md section 6). -->
+<main id="stage"><details id="opt"><summary>Options</summary><div id="optg"></div></details><div class="llp" id="ph" data-v="d"></div></main>
+<script>
+(function(){
+  var Q=new URLSearchParams(location.search),s=Q.get("s")||"pantry";
+  if(!/^(pantry|recipes|home)$/.test(s))s="pantry";
+  var chips=/^(pill|dot|tabs|square|icon)$/.test(Q.get("chips")||"")?Q.get("chips"):"pill";
+  var basis=/^(carousel|dial|chips)$/.test(Q.get("basis")||"")?Q.get("basis"):"carousel";
+  var plan=/^(today|other|none)$/.test(Q.get("plan")||"")?Q.get("plan"):"today";
+  function href(k,v){var u=new URLSearchParams(location.search);u.set(k,v);return "?"+u.toString()}
+  function grp(label,key,vals,cur){var h='<div class="og"><b>'+label+'</b>';vals.forEach(function(v){h+='<a href="'+href(key,v)+'"'+(v===cur?' aria-current="true"':'')+'>'+v+'</a>'});return h+'</div>'}
+  var h=grp("Screen","s",["pantry","recipes","home"],s);
+  if(s!=="home")h+=grp("Chips","chips",["pill","dot","tabs","square","icon"],chips);
+  else h+=grp("Basis","basis",["carousel","dial","chips"],basis)+grp("Plan","plan",["today","other","none"],plan);
+  h+=grp("Theme","theme",["kitchie","kitchie-day"],Q.get("theme")||"kitchie");
+  document.getElementById("optg").innerHTML=h;
+  function load(src,cb){var e=document.createElement("script");e.src=src;e.onload=cb;document.body.appendChild(e)}
+  load("../list-language/ll-data.js",function(){load("pd-data.js",function(){load("pd.js",function(){
+    var el=document.getElementById("ph");el.dataset.v="d";el.dataset.s=s;
+    PD.mount(el,{s:s,state:Q.get("state")||(s==="home"&&Q.get("swap")?"swap":""),chips:chips,basis:basis,plan:plan,group:Q.get("group")||"",chip:Q.get("chip")||"",q:Q.get("q")||"",pick:Q.get("pick")||"",hint:Q.get("hint")||""});
+    document.title="Pantry D, "+s;
+  })})});
+})();
+</script>
+</body></html>

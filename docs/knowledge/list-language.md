@@ -2,6 +2,8 @@
 
 Status: mockup for the owner to review (18 Oct 2026). **Draft. Nothing is built in Kitchie and nothing here is decided.** Phone only (390 wide, checked at 360). Lines marked **Proposal** are choices the mockup made where the owner was silent; **Open** lines are not decided. Merging this mockup settles none of them.
 
+**Update, 25 Oct 2026: the owner locked D.** It is drawn in full, with his decisions, in `pantry-d.md` and `fragments/pantry-d/`. This comparison page stays as reviewed.
+
 Mockup: `fragments/list-language/` (comparison page `index.html`; one phone `app.html?v=a|b|c|d&s=pantry|recipes|home&state=...`; engine `ll.js`, base `ll.css`, one skin per variant `v-a.css` to `v-d.css`, sample data `ll-data.js`, mock only). Check: `tools/list-language-check.mjs` (520 checks at 390 and 360, light and dark, plus behaviour, the shared drive, the comparison page and a no-raw-colour scan).
 
 ## What the owner asked
