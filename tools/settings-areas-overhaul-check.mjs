@@ -92,7 +92,7 @@ const sw = (p, a) => p.click(`label.sw:has([data-a="${a}"])`);
   await p.click('[data-a="scope:hh"]'); ok(await has(p, "text=Amount checks") && !await has(p, "[data-a=qnone]"), "A: Everyone shows the household's own rows");
   await p.click('[data-a="scope:me"]');
   ok(await has(p, ".fh:has-text('Avoids')") && await has(p, ".fh:has-text('Likes')"), "A: Food is grouped under Avoids and Likes headings");
-  ok(await has(p, ".fmark svg.hard") && await has(p, ".fmark.soft svg.soft"), "A: Hard is a closed lock, Soft an open lock (one metaphor, no word); Everyone and Just you are icons");
+  ok(await has(p, ".fmark svg.hard") && await has(p, ".fmark.soft svg.soft"), "A: Hard is a filled closed lock with the word Hard, Soft an open lock; Everyone and Just you are icons");
   ok(!/no reason given/i.test(await txt(p, ".bd")) && await p.locator(".fline").first().evaluate(e => getComputedStyle(e).textOverflow === "ellipsis" && getComputedStyle(e).whiteSpace === "nowrap"), "A: a reason is one quiet line with an ellipsis, none where there is none");
   ok(await p.locator(".flist").evaluateAll(l => l.every(x => x.firstElementChild.classList.contains("fadd-li"))), "A: the add row is first in each group");
   await p.click(".fadd >> nth=0"); ok(/assistant/i.test(await txt(p, ".toast")), "A: Add says what to tell the assistant");
@@ -101,10 +101,10 @@ const sw = (p, a) => p.click(`label.sw:has([data-a="${a}"])`);
   await p.click('[data-a="open:rules"]'); ok(/Place rules\s*2/.test(await txt(p, '[data-a="open:rules"]')), "A: Place rules opens in place"); await p.click('[data-a="rulerm:0"]'); ok(/Place rules\s*1/.test(await txt(p, '[data-a="open:rules"]')), "A: a rule removes");
   await p.click('[data-a="sheet:rule"]'); ok(await vis(p, ".sheet"), "A: Add rule is one sheet"); await p.click("[data-a=ruleadd]"); ok(!await vis(p, ".sheet") && /Place rules\s*2/.test(await txt(p, '[data-a="open:rules"]')), "A: the rule adds and the sheet closes");
   // a food row opens in place: a quote, Hard or Soft as a two-way control, the Reason, Stop remembering; no help paragraphs
-  await p.click('.fmain >> nth=0'); ok(await vis(p, ".ped q") && await vis(p, '.ped [data-a^="ftype:"]') && await vis(p, ".ped input") && /Stop remembering/.test(await txt(p, ".ped .dng")), "A: a food row opens its editor in place");
+  await p.click('.fmain >> nth=0'); ok(await vis(p, ".ped q") && await vis(p, '.ped [data-a^="ftype:"]') && await vis(p, ".ped input") && /Stop remembering/.test(await txt(p, ".ped .stopq")), "A: a food row opens its editor in place");
   ok((await txt(p, ".ped")).split(/\s+/).filter(w => /\w/.test(w)).length <= 25, "A: the opened food row stays under 25 words (was about 130)");
   await p.click('.ped [data-a^="ftype:"][data-a$=":soft"]'); ok(await has(p, ".conf:has-text('Make')"), "A: Hard to Soft asks once, in place"); await p.click('[data-a^="do:soft:"]'); ok(await has(p, ".fmark.soft svg.soft"), "A: it becomes Soft");
-  await p.click('.ped .dng'); ok(await has(p, ".conf:has-text('Stop remembering')") || !await has(p, ".ped"), "A: Stop remembering works (a Hard one asks first)");
+  await p.click('.ped .stopq'); ok(await has(p, ".conf:has-text('Stop remembering')") || !await has(p, ".ped"), "A: Stop remembering works (a Hard one asks first)");
   await p.close();
 }
 { // A kitchen
