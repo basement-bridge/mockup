@@ -264,6 +264,80 @@ Mockup: `fragments/settings-areas-overhaul/` (live: <https://basement-bridge.git
 
 **Checked.** The check plays every screen of A, B and C at 390 by 844 and 360 by 640, light and dark, Match my phone and +30% (no error, no sideways scroll, nothing wider than the phone, controls 44px; words in B exempt in width), each control's behaviour, the seven tap sequences, and that `directions.html` prints those numbers. **Not verified:** a real phone, a screen reader (B's words are buttons in running text), the live Pages URL, the browser's own time picker, clipboard copy, a household with many members or hundreds of categories.
 
+## Settings, the other areas: lean wording, 24 Oct 2026 (Kitchie #1090, #1110; built as 0.178.0)
+
+Mockup: `fragments/settings-areas-overhaul/` Direction A, with the before and after word counts on `directions.html#lean`. Check: `tools/settings-areas-overhaul-check.mjs` (section 4b plays the words budget). Applies `DESIGN.md` section 9 (words budget, jobs per screen, one accent, glyph and shape for state, the right control, no duplication).
+
+**Owner ask (via the coordinating session, 24 Oct 2026), after the flat pages shipped in 0.177.0 (PR #1126).** The phone Settings pages below the front are "far too wordy and do not use the phone well": "everything's too wordy; you're not making use of the best way of communicating on a mobile device." Example: Assistants should be a name, a connected dot and one button, not "connected, connected". Keep every meaning (Hard and Soft, Everyone and Just you, scopes, confirm in place) and the search ids and highlights. The owner approved building without waiting for review.
+
+**What was read.** Kitchie `uat` cca89b5 (0.177.0): `settings-flat.ts`, `web-people-flat.ts`, `preferences/flat.ts`, `food-flat.ts`, `food-card.ts`, `avoid-type.ts`, `web-propose.ts`, `rules-draw.ts`, `housemate-pane.ts`, `settings-phone.ts`, `web-categories.ts`, `web-locations.ts`, `web-starters.ts`, `settings-flat.js`. Every page was rendered in headless Chromium at 390 wide in Kitchie's own sign-in and in Platform sign-in, and the words a person can see were counted (the page body, not the back bar, not words only a screen reader reads). Nothing was inferred from code alone.
+
+### Audit: every phone page reachable from /settings, with words today
+
+Counts are the visible words in the page body. Kitchie's own sign-in unless "Platform". "+" is the state after a tap, in place. The household has two people and four food rules, so the counts include sample names.
+
+| Screen (path) | Words today | The job | What the wording does wrong |
+|---|---|---|---|
+| Household (`/household`) | 28; person opened 31; Remove asked 43; invite copied 55; Platform 13 | See who is here, invite someone, find Kitchen setup and History | "You, Founding member" and the word "Admin" on every row; the invite explains "Works once and ends in 48 hours. Send it to the person."; a second row "Invite someone to set up their own household" repeats the Their own choice |
+| You (`/me`) | 24; Platform 25, role opened 38 | Fix my name or picture; sign out | "Tap to change" under a picture that is plainly a button; "Household admin / Turn off to step down"; "CSV" on a download row |
+| Assistants (`/settings/assistants`) | 56 (free choice); Platform 30, one opened 36, Disconnect asked 43 | See which assistants are connected; connect one; pick the default; disconnect | The state is written twice per row ("Connected", then the button "Connected"); "Connected, the default"; two long sentences under the choice; a footer sentence |
+| Preferences, Mine (`/settings/preferences`) | 130; Platform 100 | Change how Kitchie asks me; see what it knows about food | "Same as app default" under every setting; "Ask me to check amounts", "Most suggestions per day"; headings and helpers in every section; "Nothing waiting / All clear" and "Nothing is switched off. Use Stop asking on a check, or tell the assistant." (empty states that say nothing) |
+| Preferences, Everyone (`?tab=hh`) | 95 | Change what applies to the whole household | Same |
+| Food row, opened | adds 133 (Hard avoid), 142 (Soft avoid), 84 (like), 124 (swap) | Change Hard or Soft, add a reason, stop remembering | The scope is written out ("Everyone. This applies to the whole household."), the quote carries "(kept as data, said 1 time)", Hard and Soft each have a 30-word paragraph, the Reason has a help paragraph, "Saves as you type." stays on screen, the no-end note, and a 28-word closing note |
+| Add row, opened | adds 21 | Know how to add a food rule | 28 words where one quoted example does the job |
+| Housemates, one opened | adds 85 | Suggest a food for someone | "Nothing of their own yet" for nobody; "N food items, M waiting"; a button "Suggest something for Sam" |
+| Place rules, opened (the old editor in the page) | adds 79 | Say how often to check a place or item | "The most specific place wins: an item, then a category in a location, ..." and "Pick one to see which rule wins" |
+| Suggest for a housemate (`/settings/preferences/propose`) | 192 | Put a food rule on someone else's list | A numbered form with four labels, a 30-word Hard paragraph, a Reason help paragraph and three paragraphs of "what happens when you press the button" |
+| Kitchen setup (`/settings/kitchen`) | 35 | Reach Categories and Locations; clear the sample items | The page title repeated as a label; "Categories and Locations and spots are the household's, not just this device's."; "8 sample items left. They count toward nothing until you change one." |
+| Categories (`/settings/categories`) | 103 | Rename or delete a category | An intro sentence and a 37-word footer; "0 items" and "Delete" written on 12 rows |
+| Locations and spots (`/settings/locations`) | 50 | Rename, add or remove a place | An intro and a footer that repeat each other |
+| Sample items strip | in Kitchen setup | Remove the starter items | See Kitchen setup |
+| Confirms (Remove, Leave, Disconnect, Revoke) | 9 to 28 | Be sure | They are the one place a sentence earns its room, but Leave runs to 28 |
+| History (`/history`, reached from Household) | 61 | See what changed | **Not changed here.** A feature screen with its own mockup (`history-options`); the same critique applies and is a follow-up (SR-Q62) |
+| The activity bell | on the front | Mute household activity | A quick control on the front, as built; not below the front. Unchanged |
+| Invite landing (`/invite`, `/invite/<code>`) | 2 to 40 | The invitee joins | Not a Settings page. Unchanged |
+
+Not audited because another change owns it: the profile menu and its Settings entry, Install, History and Download my data as menu items.
+
+### Jobs, per screen, and what stays
+
+- **Household.** Job: invite someone; manage who is in. Changes a decision: who is an admin, whether the invite joins or starts a household of their own, how long it lasts. Stays: the name field, people (Admin as a glyph, Remove inside), the invite control, Kitchen setup, History. Cut: "Founding member", the repeated own-household row, the explainer under the link.
+- **You.** Job: my name and picture; leave or sign out. Stays: picture, name, role, Admin switch, Download my data, Install, Sign out, Leave household. Cut: the hints.
+- **Assistants.** Job: connect and disconnect, and with two connected, pick the default. One accent: the Connect button. State is a dot (ring or ticked disc).
+- **Preferences.** Job: tune how Kitchie asks, see and stop food rules. One accent: the Mine and Everyone control. Each setting is its own control (switch, two times, stepper). A value that is not mine says where it comes from in one word.
+- **Food row.** Job: Hard or Soft, a reason, stop. Stays: Hard and Soft (a two-way control), the Reason, Stop remembering (a Hard one asks once, Hard to Soft asks once). The consequences of Hard and Soft are two words each.
+- **Kitchen setup and the lists.** Job: rename, add, remove. Stays: the lists. Cut: every explanatory paragraph; a count is a number.
+
+### Rules this applies (DESIGN.md 9.1 to 9.4)
+
+Screen title 1 to 3 words. Row label, button, chip 3 words at most. State is a glyph, then one word only if the glyph is not enough, and never twice. Helper text only where it changes a decision (a consequence, who can read a note, that an assistant sees the household). Empty is absent. Confirms are the one sentence: a title and one consequence. Presentation: on or off is a switch; a small number a stepper; two or three choices a segmented control; many a list of rows; state of a thing an icon plus state.
+
+### Proposals (SR-P58 to SR-P68, awaiting the owner; wrong guess cost in brackets). The owner approved building these without waiting.
+
+- **SR-P58.** (all) The words budget of DESIGN.md 9.1 holds on every phone page below the front: title 1 to 3 words, label 3, state 3 (a glyph first), helper 9, confirm 16. A test counts them (`tools/settings-areas-overhaul-check.mjs`, and in Kitchie a unit test on the rendered pages). (Low: copy only.)
+- **SR-P59.** (Assistants) A row is a name, a dot and one button: Connect (accent) or Disconnect (asks in place). The dot is a ring or a ticked disc, so it is not colour alone; a screen reader hears Connected or Not connected once. With two or more connected a star marks the default (pressed = default); with one it is the default and nothing is shown. My own link is the same row (Make link, Revoke). (Low; replaces the "Connected" button that opened a pane.)
+- **SR-P60.** (all) Hard is a closed lock, Soft an open lock (one metaphor, two shapes), Everyone two people, Just you one person. The words Hard, Soft, Everyone and Just you stay for a screen reader. (Low: Soft was the word "Soft".)
+- **SR-P61.** (Preferences) A value from the household or the app is a link glyph and one word (Household, Kitchie). A value that is yours has an undo glyph button with the name "Use the household's"; the tag is gone. Double tap still resets. (Medium: an icon-only reset is less discoverable than the words "Use the household's"; mitigated by double tap and by the tag disappearing.)
+- **SR-P62.** (Food row) Opened, it is the quote of what was said, Hard or Soft as a two-way control with a two-word consequence (Never suggested. Ranked lower.), the Reason box (placeholder Optional, no help paragraph), Stop remembering, and one line: "Change it: tell your assistant." The end-date notes go; an end date that exists shows in the row's quiet line ("Until 3 Nov"). Hard to Soft and stopping a Hard rule still ask once. (Low.)
+- **SR-P63.** (Household, You) Admin is a shield glyph on the person's row (name for a screen reader) and an Admin switch inside; "Founding member" and "Household admin / Turn off to step down" go. (Low; SR-Q58.)
+- **SR-P64.** (all) Empty is absent: no "Nothing waiting / All clear", no "Nothing is switched off", no "Nobody else is in the household yet", no "Nothing of their own yet". Housemates shows a count only when something waits ("1 waiting"). (Low.)
+- **SR-P65.** (all) A confirm is a title and one consequence: Remove Sam? They lose access. Disconnect Claude? It stops seeing your kitchen. Leave Our kitchen? You lose its pantry, shopping and recipes. Only an invite brings you back. The typed name stays for Leave. (Low; the sentences lose "Nothing is deleted".)
+- **SR-P66.** (Kitchen setup, Categories, Locations) No intro and no footer. A count is a number; Delete is a trash glyph with its name; the "household's, not this device's" line becomes the Everyone glyph on the group. Sample items: "8 sample items" and Clear. (Low; SR-Q59 asks about the Protein-and-Meat merge footer.)
+- **SR-P67.** (Suggest for a housemate) The form loses its numbers, the intro and the three paragraphs: What is it, Hard or Soft, Reason, one line "Goes on Sam's list at once. Sam can reject it." and the button "Add to Sam's list". (Medium: it is the one place where the consequence matters; the line keeps it.)
+- **SR-P68.** (Household) The invite life is one line, "One use · 48 hours" (own: "One use · their own household"); the button is "Copy link". (Low.)
+
+### Questions (SR-Q58 to SR-Q62, each with a recommendation)
+
+- **SR-Q58.** Is a shield alone enough for Admin, or does he want the word beside it? Recommend the shield with the name for a screen reader, and add the word back if it is not recognised on his phone.
+- **SR-Q59.** Categories: the footer that explains why Protein stays apart from Meat is dropped; the refusal still says why when it happens. Recommend yes.
+- **SR-Q60.** Is a star the right default control for assistants, or a "Default" word on the row? Recommend the star: it is the common sign and a 44px button; a word would repeat the dot.
+- **SR-Q61.** The quote in an opened food row drops "(kept as data, said 1 time)". Recommend yes: the count changes no decision.
+- **SR-Q62.** Lean History, the bell and the invite landing the same way next? Recommend yes, History first (61 words, its own mockup).
+
+**Checked.** The check plays Direction A in 15 states and fails if a row label, button or chip is over 3 words, a state over 3, a helper over 9 or a confirm over 16, and prints the played word counts on `directions.html`. The numbers are in the table there: without the household's own sample words, Household 20 to 13, You 20 to 13, Preferences mine 70 to 31, everyone 42 to 22, Kitchen setup 37 to 35 (the lists are the page), a housemate opened 74 to 34, Place rules opened 85 to 37. Layout checks (44px, +30% text, 360 and 390, light and dark, no sideways scroll) are the existing ones and pass. **Not done:** the design review by a separate agent that DESIGN.md 9.8 requires (no such agent could be started from this session; the builder's own checklist answers are in the Kitchie pull request); a real phone.
+
+**Built.** Kitchie 0.178.0 (pull request #1132, into `uat`; phone only, the `?win=1` pages untouched). Visible words at 390 wide, Kitchie's own sign-in, before to after: Household 28 to 15 (a person opened 31 to 18), You 25 to 13, Assistants 58 to 25, Preferences mine 106 to 39, everyone 69 to 26, Place rules opened 164 to 65, a Hard food rule opened 222 to 55 (Soft 241 to 56, a like 176 to 49, with the page around it), a housemate opened 110 to 42, Suggest for a housemate 197 to 30, Kitchen setup 38 to 13, Categories 105 to 29, Locations and spots 124 to 72. A unit test (`test/settings-lean.test.ts`) and a browser test hold a words budget per page. Differences from the mockup: the rules by place pane is leaner in its heading and probe row only (its rows redraw through a shared route and keep their words); Suggest for a housemate stays long inside the desktop window's frame. Two bugs were found and fixed on the way: the Suggestions a day stepper posted NaN, and an opened person row on Household was clipped to one row. History, the bell and the invite landing are unchanged (SR-Q62).
+
 ## Option E: curated front, pinned shortcuts, search for everything (recommended default)
 
 `fragments/settings-redesign/` (E is first on the page). Phone: Settings (search, Shortcuts, five rows), Looks page, profile menu. Desktop: the Settings window with the sample screens at the right. A 17-state gallery under it. Files: `settings-redesign-e.js`, `settings-redesign-e.css`, and `search-index.js` (deferred).

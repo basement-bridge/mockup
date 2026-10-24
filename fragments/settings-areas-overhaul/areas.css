@@ -181,3 +181,29 @@ body.bare .shk>.tabs,body.bare .shk>.bar2{display:none}
 .fscope{flex:none;display:inline-flex;color:var(--muted)}
 .fadd{display:flex;align-items:center;gap:8px;width:100%;min-height:max(44px,2.9em);padding:0 16px;border:0;background:none;color:var(--accent);font:inherit;font-weight:700;cursor:pointer;text-align:left}
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Lean wording (owner, 24 Oct 2026; DESIGN.md 9): state as glyph and shape, one word at most, icon-only buttons carry an accessible name */
+.ibtn2{flex:none;width:max(44px,2.9em);height:max(44px,2.9em);border:0;border-radius:50%;background:none;color:var(--muted);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+.ibtn2:focus-visible{outline:3px solid var(--accent);outline-offset:-3px}
+.ibtn2.star[aria-pressed=true]{color:var(--accent)}
+.ibtn2.star[aria-pressed=true] svg{fill:currentColor}
+.inh{display:inline-flex;align-items:center;gap:4px;font-size:.8em;color:var(--muted)}
+.val.adm{color:var(--accent)}
+.you-top .big-av{position:relative}
+.big-av .edb{position:absolute;right:-.1em;bottom:-.1em;width:2em;height:2em;border-radius:50%;background:var(--surface);border:1px solid var(--border);color:var(--accent);display:inline-flex;align-items:center;justify-content:center}
+.arow .nm{flex:1;min-width:0;overflow-wrap:anywhere}
+.cdot{width:1.5em;height:1.5em;border-radius:50%;border:2px solid var(--muted);flex:none;display:inline-flex;align-items:center;justify-content:center;color:var(--on-accent)}
+.cdot.on{background:var(--sage);border-color:var(--sage)}
+.arow .pbtn{white-space:nowrap}
+.foot{padding:8px 16px 0}
+.fmark.soft{color:var(--muted);font-size:1em;font-weight:400}
+.fmark.soft svg{width:15px;height:15px}
+.ped{padding:2px 16px 14px;display:flex;flex-direction:column;gap:8px}
+.ped .said{margin:0;color:var(--muted);font-size:.9em}
+.ped q{quotes:"\201C" "\201D"}
+.ped .conseq{margin:-2px 0 0}
+.ped .fl{font-size:.78em;font-weight:700;color:var(--muted)}
+.ped .in.boxed{border:1px solid var(--border);border-radius:var(--r-ctl);padding:0 10px;background:var(--surface);min-height:max(44px,2.9em);font-weight:500}
+.tseg button svg{vertical-align:-2px;margin-right:4px}
+.blk .fl{display:flex;align-items:center;gap:8px;font-size:1em}
+.blk .fl .fscope{margin-left:auto}
