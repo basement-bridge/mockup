@@ -74,62 +74,63 @@ Mockup: `fragments/settings-shakeup/` (live: <https://basement-bridge.github.io/
 
 Read from `settings-phone.ts`, `settings-phone.js`, `people-pages.ts`, `preferences/` (kitchie `uat` 2c43f9a) and the earlier mockups.
 
-| Screen | Element | Verdict | Why |
-|---|---|---|---|
-| Settings front | Back link | Earns its place | Leaves Settings. |
-| Settings front | Title “Settings” | Earns its place | Says where you are; made smaller in A to C. |
-| Settings front | Search box | Earns its place | The product (owner, 23 Oct). Slim in A, big in B, a header icon on every page in C. |
-| Settings front | “Shortcuts” label | Cut | Names a feature that exists only because Looks was buried two levels down. |
-| Settings front | “2 of 2 pinned” counter | Cut | Tells you nothing you can act on. |
-| Settings front | Looks tile: title and pin icon | Cut | The pin goes; the controls sit where the tile was. |
-| Settings front | Ten theme tiles in a sideways rotary | Merge or move | One chip with the current theme; tap opens the same named tiles in place. |
-| Settings front | System / Light / Dark three-way | Earns its place | A real control. Three icons (A, B) or one cycling icon (C). |
-| Settings front | Text size tile: title and pin icon | Cut | The pin goes; “Text size” stays only as a row label in A. |
-| Settings front | Stepper: A−, label with seven dots, A+ | Earns its place | The owner's own design. Full in B; two buttons in A and C (the value is under the row name in A, a toast in C). |
-| Settings front | Dashed “add pin” chips | Cut | Exist only for pinning. |
-| Settings front | “Nothing pinned” explainer box | Cut | Explains a feature that is cut. |
-| Settings front | “Settings” label above the rows | Cut | The page is already called Settings. |
-| Settings front | Row: Looks (shows the theme name) | Cut | Duplicates the tile and the Looks page. |
-| Settings front | Row: Preferences | Earns its place | A real area. |
-| Settings front | Row: Household (shows the name) | Earns its place | A real area. |
-| Settings front | Row: Kitchen setup | Merge or move | Folded into Household in B (it is the household's structure); kept as its own row in A and C. |
-| Settings front | Row: Assistants | Earns its place | A real area (connect, disconnect). |
-| Settings front | Footer “Five things here, on purpose. Everything else is one search away.” | Cut | Explains the design to the person. The search bar already says it. |
-| Settings front | Default-assistant card (two connected) | Merge or move | Moves onto the Assistants page: an assistant setting, not a front-page card. |
-| Settings front | Notice banner | Earns its place | Only appears after an action. |
-| Looks page | Back and title “Looks” (the whole page) | Cut | Looks is a control, not a place. The page is deleted; its controls act in place. |
-| Looks page | Privacy paragraph “These stay on this device…” | Cut | Said once, in a word, on the search result (“this phone”). |
-| Looks page | Looks card: title and pin | Cut | Pin goes. |
-| Looks page | Theme grid of ten | Merge or move | The same tiles, now a panel opened in place instead of a page. |
-| Looks page | “Light or dark” row, segment and sentence | Merge or move | Segment kept; the sentence (“Following your phone, including its night schedule”) goes. |
-| Looks page | Text size card: title and pin | Cut | Pin goes. |
-| Looks page | Stepper and sentence “Your phone's own text size…” | Merge or move | Stepper kept; the sentence goes. |
-| Looks page | “Rows, motion, the bell and Reset are not on this page on purpose. Search finds them:” and four chips | Cut | Explaining an absence. Nobody looks for what is not there. |
-| Search | “Try typing” and eight example chips | Merge or move | Four chips, chosen for the page you are on. |
-| Search | Recent searches and Clear | Earns its place | Two or three, one tap each. |
-| Search | Footnote “Search reads names, plain phrases, colours and typos…” | Cut | Search that works needs no instructions. |
-| Search results | Result title, matched words marked | Earns its place | What you scan for. |
-| Search results | “Advanced · search only” pill | Cut | Explains nothing you can act on. |
-| Search results | Scope pill (This device / You / Whole household) | Merge or move | Plain words at the end of one grey line: “Settings · this phone”. |
-| Search results | “Exact match” / “Also called…” line | Cut | Ranking explained to people (owner: “this is shit”). |
-| Search results | AFFECTS paragraph | Cut | A paragraph per result is what made them tall. |
-| Search results | LIVES IN and NOW line | Merge or move | One grey line for where it lives; the value sits at the right. |
-| Search results | Inline control (switch, stepper, three-way, theme tiles) | Earns its place | The result is the setting: most searches end with no navigation. |
-| Search results | “Go to Looks” / Open button | Merge or move | The whole row is the tap target. |
-| Search results | Pin icon on a result | Cut | Pin goes. |
-| Search results | “On this page” / “Everywhere else” headings | Earns its place | Owner decision (SR-P23); shown only when both lists exist. |
-| Household | Name box, members list, Invite someone | Earns its place | The job of the page. |
-| Household | “Tap a person to remove them…” paragraph | Cut | Said by the confirm screen that follows the tap. |
-| Household | “They sign in and join <name>” under Invite | Merge or move | One line under the link: “Works for 7 days. Anyone with it can join.” |
-| Household | “Danger zone” label and Leave household | Merge or move | Search-only, as the index already files it; no label. |
-| Household | Removals list | Merge or move | History already says who removed whom. |
-| Preferences | “Only the household has these” rows (Members and admins, Household name…) | Cut | Three entry points to one value (audit K28). One home: Household. |
-| Preferences | Stock checks, quiet hours, per day, Food, Notes, Housemates | Earns its place | Real settings. Not redesigned here; it is the heaviest page left. |
-| Kitchen setup | Categories and Locations and spots | Earns its place | Household structure. |
-| Kitchen setup | Note “Categories and Locations and spots are the household's, not just this device's.” | Cut | The row names say it. |
-| Kitchen setup | Sample items block | Merge or move | Search-only; the Pantry strip is the other door. |
-| Assistants | Connect, open and disconnect rows | Earns its place | An account action, one place. |
+| Screen | Element | First verdict (0.171.0) | Why | Chosen design (24 Oct) | What it becomes |
+|---|---|---|---|---|---|
+| Settings front | Back link | Earns its place | Leaves Settings. | Earns its place | Same. |
+| Settings front | Title “Settings” | Earns its place | Says where you are; made smaller in A to C. | Earns its place | Large, left aligned; grows at half the text-size rate, capped. |
+| Settings front | Search box | Earns its place | The product (owner, 23 Oct). Slim in A, big in B, a header icon on every page in C. | Earns its place | Big front door (B), accent border; on every other page it is the magnifier in the header. |
+| Settings front | “Shortcuts” label | Cut | Names a feature that exists only because Looks was buried two levels down. | Cut | Same. |
+| Settings front | “2 of 2 pinned” counter | Cut | Tells you nothing you can act on. | Cut | Same. |
+| Settings front | Looks tile: title and pin icon | Cut | The pin goes; the controls sit where the tile was. | Merge or move | A small Looks row above the quick area opens the Looks page; the pin is an icon on the Looks page only. |
+| Settings front | Ten theme tiles in a sideways rotary | Merge or move | One chip with the current theme; tap opens the same named tiles in place. | Merge or move | One in-place rotary: swipe sideways, real colours and names, the page re-themes live. |
+| Settings front | System / Light / Dark three-way | Earns its place | A real control. Three icons (A, B) or one cycling icon (C). | Earns its place | Compact, alongside the rotary. |
+| Settings front | Text size tile: title and pin icon | Cut | The pin goes; “Text size” stays only as a row label in A. | Merge or move | Label left, stepper on the right (thumb) half; the pin is on the Looks page. |
+| Settings front | Stepper: A−, label with seven dots, A+ | Earns its place | The owner's own design. Full in B; two buttons in A and C (the value is under the row name in A, a toast in C). | Merge or move | Seven battery segments, middle Match my phone; a small Aa chip when three or more are pinned. |
+| Settings front | Dashed “add pin” chips | Cut | Exist only for pinning. | Cut | Same. |
+| Settings front | “Nothing pinned” explainer box | Cut | Explains a feature that is cut. | Cut | Same. |
+| Settings front | “Settings” label above the rows | Cut | The page is already called Settings. | Cut | Same. |
+| Settings front | Row: Looks (shows the theme name) | Cut | Duplicates the tile and the Looks page. | Merge or move | Not a plain row: the Looks row above the quick area, showing the theme name. |
+| Settings front | Row: Preferences | Earns its place | A real area. | Earns its place | One of three plain rows; shows its value. |
+| Settings front | Row: Household (shows the name) | Earns its place | A real area. | Earns its place | One of three plain rows; shows the name. |
+| Settings front | Row: Kitchen setup | Merge or move | Folded into Household in B (it is the household's structure); kept as its own row in A and C. | Earns its place | One of three plain rows, with Assistants inside it (supersedes folding it into Household). |
+| Settings front | Row: Assistants | Earns its place | A real area (connect, disconnect). | Merge or move | Now a section inside Kitchen setup. |
+| Settings front | Footer “Five things here, on purpose. Everything else is one search away.” | Cut | Explains the design to the person. The search bar already says it. | Cut | Same. |
+| Settings front | Default-assistant card (two connected) | Merge or move | Moves onto the Assistants page: an assistant setting, not a front-page card. | Merge or move | Inside Kitchen setup, search-only. |
+| Settings front | Notice banner | Earns its place | Only appears after an action. | Earns its place | Same. |
+| Looks page | Back and title “Looks” (the whole page) | Cut | Looks is a control, not a place. The page is deleted; its controls act in place. | Earns its place | The Looks page is back, small: the three pinnable controls with an icon-only pin each (supersedes the deletion). |
+| Looks page | Privacy paragraph “These stay on this device…” | Cut | Said once, in a word, on the search result (“this phone”). | Cut | Same. |
+| Looks page | Looks card: title and pin | Cut | Pin goes. | Merge or move | Icon-only pin on each row. |
+| Looks page | Theme grid of ten | Merge or move | The same tiles, now a panel opened in place instead of a page. | Merge or move | The rotary. |
+| Looks page | “Light or dark” row, segment and sentence | Merge or move | Segment kept; the sentence (“Following your phone, including its night schedule”) goes. | Earns its place | Compact segment; no sentence. |
+| Looks page | Text size card: title and pin | Cut | Pin goes. | Merge or move | A row with the stepper and an icon-only pin. |
+| Looks page | Stepper and sentence “Your phone's own text size…” | Merge or move | Stepper kept; the sentence goes. | Merge or move | Seven-segment stepper; the sentence goes. |
+| Looks page | “Rows, motion, the bell and Reset are not on this page on purpose. Search finds them:” and four chips | Cut | Explaining an absence. Nobody looks for what is not there. | Cut | Same. |
+| Search | “Try typing” and eight example chips | Merge or move | Four chips, chosen for the page you are on. | Merge or move | Last three searches (newest first) or three or four examples: plain text, thin dotted underline, no pill. |
+| Search | Recent searches and Clear | Earns its place | Two or three, one tap each. | Merge or move | Last three, no Clear. |
+| Search | Footnote “Search reads names, plain phrases, colours and typos…” | Cut | Search that works needs no instructions. | Cut | Same. |
+| Search results | Result title, matched words marked | Earns its place | What you scan for. | Earns its place | Name on the best-match card and in each compact row. |
+| Search results | “Advanced · search only” pill | Cut | Explains nothing you can act on. | Cut | Same. |
+| Search results | Scope pill (This device / You / Whole household) | Merge or move | Plain words at the end of one grey line: “Settings · this phone”. | Cut | Gone (all pills removed, owner 24 Oct). |
+| Search results | “Exact match” / “Also called…” line | Cut | Ranking explained to people (owner: “this is shit”). | Cut | Same. |
+| Search results | AFFECTS paragraph | Cut | A paragraph per result is what made them tall. | Cut | Gone; one plain line on the best match only. |
+| Search results | LIVES IN and NOW line | Merge or move | One grey line for where it lives; the value sits at the right. | Merge or move | A quiet where-it-lives line on the best match; the value at the right of a compact row. |
+| Search results | Inline control (switch, stepper, three-way, theme tiles) | Earns its place | The result is the setting: most searches end with no navigation. | Earns its place | On the best match; switches also sit in compact rows. |
+| Search results | “Go to Looks” / Open button | Merge or move | The whole row is the tap target. | Merge or move | Go there on the best match; a compact row is its own tap target. |
+| Search results | Pin icon on a result | Cut | Pin goes. | Cut | Same. |
+| Search results | “On this page” / “Everywhere else” headings | Earns its place | Owner decision (SR-P23); shown only when both lists exist. | Cut | Removed with the browse-by-area grouping; this page's matches just come first. |
+| Household | Name box, members list, Invite someone | Earns its place | The job of the page. | Earns its place | Tap yourself to edit your name (no You row anywhere else). |
+| Household | “Tap a person to remove them…” paragraph | Cut | Said by the confirm screen that follows the tap. | Cut | Same. |
+| Household | “They sign in and join <name>” under Invite | Merge or move | One line under the link: “Works for 7 days. Anyone with it can join.” | Merge or move | Same. |
+| Household | “Danger zone” label and Leave household | Merge or move | Search-only, as the index already files it; no label. | Merge or move | Same. |
+| Household | Removals list | Merge or move | History already says who removed whom. | Merge or move | Same. |
+| Preferences | “Only the household has these” rows (Members and admins, Household name…) | Cut | Three entry points to one value (audit K28). One home: Household. | Cut | Same. |
+| Preferences | Stock checks, quiet hours, per day, Food, Notes, Housemates | Earns its place | Real settings. Not redesigned here; it is the heaviest page left. | Earns its place | Grouped Stock checks and Food; not redesigned. |
+| Kitchen setup | Categories and Locations and spots | Earns its place | Household structure. | Earns its place | Same; on Kitchen setup. |
+| Kitchen setup | Note “Categories and Locations and spots are the household's, not just this device's.” | Cut | The row names say it. | Cut | Same. |
+| Kitchen setup | Sample items block | Merge or move | Search-only; the Pantry strip is the other door. | Merge or move | Same. |
+| Assistants | Connect, open and disconnect rows | Earns its place | An account action, one place. | Earns its place | A section of Kitchen setup. |
 
+**Cut list for the chosen design (owner, 24 Oct 2026): of the same 53 elements, 16 earn their place, 18 are cut and 19 are merged or moved** (first audit: 17, 22, 14). The Looks page is back in small form, Kitchen setup is its own row again, and the pins stay as an icon. New in the chosen design (not in the 53): the quick area with its adaptive layouts, the rotary, the seven-segment stepper, the best-match card, the plain dotted search suggestions, the You page under Household, and the two gesture rules.
 Headline: **36 of 53 elements are cut or merged.** The Looks page, the Shortcuts area, the pins, the counter, the explainer lines and the result paragraphs go; the controls stay and act where they are.
 
 ### The three directions (all playable at 390 by 844, light and dark, text to +30%, working search on the real index)
@@ -161,7 +162,7 @@ Counted by one rule (visible controls and text-bearing elements on the first scr
 
 Honest reading: nobody gets much cheaper in taps (today's pinned tiles were already one tap). What drops is what must be read and built. The invite link is one tap cheaper because Copy invite link makes and copies in one press (SR-Q39, a Proposal).
 
-### Recommendation: B, with the trade-offs (SR-Q36; questions SR-Q36 to SR-Q41 are in the list below)
+### Recommendation: B, with the trade-offs (**chosen by the owner, 24 Oct 2026; see "Settings, the chosen design"**; SR-Q36; questions SR-Q36 to SR-Q41 are in the list below)
 
 Smallest front (11 controls against 24); the three comfort controls are exactly where he said the intent of shortcuts is (small, one tap, the control itself, on the front); it leads with search, which he called the product; no page exists to hold nothing. **Risks:** the controls live only on the front (two taps from the app); a big search field is 56px that earns nothing if few people search (no usage data, none collected, SR-Q14); Kitchen setup folds into Household, two rows longer; deleting the Looks page and pins removes something just shipped to UAT (per-device pins vanish quietly, nothing lost); Preferences is untouched and is now the heaviest screen left; taps do not improve, so this is a judgement about clarity, not speed; not tried on a real phone or with a screen reader. **Fallback:** A is deletion only and can grow B's big search later; C is a small step from B if he wants controls on every page.
 
@@ -171,6 +172,52 @@ Smallest front (11 controls against 24); the three comfort controls are exactly 
 - **SR-P25.** (B) Kitchen setup becomes a section of Household (Categories, Locations and spots), so there are three areas: Household, Preferences, Assistants. (Low.)
 - **SR-P26.** Copy invite link makes the invite and copies it in one press, showing the link and "Works for 7 days. Anyone with it can join." under the button. (Low: one confirm line.)
 - **SR-P27.** Search results are one grey line under the name (location and scope in plain words), the control in the row for simple settings, no scope or advanced pills, no AFFECTS or ranking lines. (Low: copy and layout.)
+
+## Settings, the chosen design: owner's final decisions, 24 Oct 2026 (Kitchie #1110, #1090)
+
+Mockup: `fragments/settings-shakeup/` (live: <https://basement-bridge.github.io/mockup/fragments/settings-shakeup/>; `?p=looks|household|you|preferences|kitchen`, `?q=text+size`, `?pins=0..3`, `?ts=-3..3`, `?s=examples|last3`, `&bare=1` for the phone alone). The page now leads with the chosen design as one tappable phone and a state switcher at the top (Screen, Search, Pinned controls). A and C are **not chosen**; they stay playable, as first drawn, on `fragments/settings-shakeup/directions.html` behind a collapsed note. Phone only. Not built; four build agents implement the same decisions in Kitchie `uat` and compare to this mockup.
+
+**All of SR-Q42 to SR-Q51 and SR-P28 to SR-P37 below are decided by the owner (24 Oct 2026, voice and typed). They supersede SR-Q36 to SR-Q38 and SR-P24, SR-P25 (the Looks page is back in small form and Kitchen setup is its own row again).** SR-P38 on are Proposals where he was silent.
+
+### Decisions
+
+- **SR-Q42. Base design?** Shake-up option B: a big search front door, quick controls, three plain rows (Household, Preferences, Kitchen setup with Assistants inside) with their values shown in the rows. A and C are not chosen. *Decided by owner.*
+- **SR-Q43. Search results layout?** C: a best-match card (name, a quiet where-it-lives line, ONE plain line, then the control or Go there), then compact one-line rows. Removed: browse-by-area grouping, the results count, why-it-matched labels, all pills, the AFFECTS and LIVES IN labels. *Decided by owner.*
+- **SR-Q44. Where does search work, and what does an empty search show?** From every page, the current page's matches first. Empty and focused: the last three searches (newest first), or example searches when there is no history, as plain text with a thin dotted underline and no pill (the history-search suggestion style, `history/search/search.css` `.sw`). *Decided by owner.*
+- **SR-Q45. Theme control?** An in-place rotary: swipe sideways through the themes, each with its real colours and name; replaces the dropdown chevron; the whole page re-themes live while it turns; light or dark sits compactly alongside. *Decided by owner.*
+- **SR-Q46. Text size control?** A compact seven-step stepper drawn as battery segments. Middle = Match my phone; three smaller (−8, −16, −24%), three larger (+10, +20, +30%). On the right (thumb) half, label on the left. The whole page rescales live; headings grow at half the rate of list text, with a cap. A compact "Aa" chip that opens in place when it is in the pinned area. Double tap resets it to Match my phone. *Decided by owner.*
+- **SR-Q47. The quick (pinned) area?** Pinnable: text size, theme, activity bell (optional third). Invite and Assistants are not pinnable. Adaptive: 1 pinned = a full row; 2 share a row; 3 or 4 = compact chips that start small and open in place on touch, the others dim without jumping. Fixed default order: text size, theme, bell. Reorder by long hold, then drag: no edit button, no pencil icon. Double tap resets a control to its default. Pin is an icon only, never a word. No Emoji setting. *Decided by owner.*
+- **SR-Q48. Where do your own name and profile live?** Under Household: tap yourself in the member list. There is no You row. Searching "my name" or "profile" lands there. *Decided by owner.*
+- **SR-Q49. Are the gestures one-off?** No: app-wide rules. Double tap resets; long hold moves. Recorded in `DESIGN.md` ("Gestures") as a design rule for the rest of Kitchie, Recipe and Platform. *Decided by owner.*
+- **SR-Q50. Kitchen setup?** Its own plain row again, with Assistants inside it, so the front has three rows: Household, Preferences, Kitchen setup. *Decided by owner.* (Supersedes SR-Q38.)
+- **SR-Q51. Looks?** Looks is a sub page (reachable, visibly different from the others) that holds the three pinnable controls with an icon-only pin each. *Decided by owner.* (Supersedes SR-Q37: the page is not deleted; the Shortcuts area, its labels and counter stay cut.)
+
+### Proposals the owner has decided (the concrete form of the decisions above)
+
+- **SR-P28.** (Q42) Front, top to bottom: title, big search, the Looks row, the quick area, three plain rows with value at the right (Household shows the household name, Preferences "1 hard, 2 soft", Kitchen setup "Claude connected"). *Decided by owner.*
+- **SR-P29.** (Q43, Q44) Best match = the top result overall; its control is inline (rotary, light or dark, stepper, switch) or a Go there button. Compact rows: name and a quiet where-it-lives word on one line, the value or a switch at the right. The ten theme-name results are hidden when Theme itself is a result. *Decided by owner.*
+- **SR-P30.** (Q44) Empty search: three recents or three or four examples chosen for the page you are on; each is one tap; there is no Clear and no pill. *Decided by owner.*
+- **SR-P31.** (Q45) Rotary: card width about two thirds of its window so the neighbours peek; a card shows the theme's background, card, accent and text colours and its name; snapping applies the theme at once; tap a neighbour to bring it in; arrow keys; `role="slider"`. *Decided by owner.*
+- **SR-P32.** (Q46) Heading size = 1 + half of the text change, capped at +15% and floored at −12%; list text takes the whole change. *Decided by owner.*
+- **SR-P33.** (Q47) A control in the quick area shows as: full row (1), two halves (2), chips (3 or 4; today there are only three pinnables, the fourth slot is the layout's room for a future one). Long hold = about half a second without moving; the control lifts and follows the finger sideways; neighbours swap as it passes their middle. *Decided by owner.*
+- **SR-P34.** (Q47) The pin lives on the Looks page as an icon on Theme, Text size and Household activity bell (filled = pinned). Accessible names say "Pin Text size to the Settings front" / "Unpin…". *Decided by owner.*
+- **SR-P35.** (Q48) Household: name, people (tap yourself to open You: your name, picture, kitchen role), Copy invite link, History. *Decided by owner.*
+- **SR-P36.** (Q49) Double tap = two taps close in time and place on one control. It resets text size to Match my phone, theme to the default for your phone (system, Kitchie), the bell to On. Long hold moves things. *Decided by owner.*
+- **SR-P37.** (Q50) Kitchen setup page: Categories, Locations and spots; then Assistants (Claude, ChatGPT, Gemini with a connected dot); search-only items (Sample items, Default assistant, Disconnect) appear under the page when search opens them. *Decided by owner.*
+
+### Proposals where the owner was silent (awaiting him; wrong guess cost in brackets)
+
+- **SR-P38.** The Looks page is reached from a small Looks row above the quick area; its value is the theme name. (Low: one row.)
+- **SR-P39.** Double tap = within 340 ms and 24 px; long hold = 480 ms. (Low: constants.)
+- **SR-P40.** Choosing a theme sets Light or dark to what the theme is; the sun and moon pick Kitchie Day or Night; the system icon returns to the phone's setting. (Low; the build's themes each carry both looks.)
+- **SR-P41.** A search counts as searched when a result is opened, Enter is pressed, or a control inside the results is used. (Low.)
+- **SR-P42.** The one plain line on a best match is written once per setting (a short map in the mockup; generated from the setting definitions in the build). (Low: copy.)
+- **SR-P43.** A weak on-page match (under half the best score) does not jump ahead of a strong match elsewhere, so "my name" finds My name and picture, not Text size. The activity bell is no longer search-only, because it is pinnable and on Looks. (Low.)
+- **SR-P44.** Quick area when zero are pinned: nothing is drawn; the Looks row stays. (Low.)
+
+### Checked
+
+`tools/settings-shakeup-check.mjs` covers the chosen design at 390 by 844 and 360 by 640, light and dark, +30% text, with no error and no sideways scroll; the rotary swipe, tap and keys; the stepper's seven steps and double-tap reset; the pinned layouts for 0 to 3; long-hold reorder; the Looks pins; the search states (examples, last three, best match, Go there, no match, typo, "my name" landing on You); no pills, counts or labels; editing your name; and the first audit's A, B, C page. Not tried on a real phone or with a screen reader.
 
 ## Option E: curated front, pinned shortcuts, search for everything (recommended default)
 

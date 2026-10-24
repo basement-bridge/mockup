@@ -163,3 +163,13 @@ Owner decision, voice session, 9 October 2026. Mock only (`flows/household/deskt
 A new screen is added to the `SCREENS` list in the script. Output in `shots/` is git-ignored.
 
 **Keep in sync:** this file is the canonical copy of sections 6 and 7 while the mockup is the working copy. Kitchie carries a derived copy of the section 6 rules in its `AGENTS.md` ("Performance and regression guard", 7 October 2026), and this repo's `AGENTS.md` points here. Platform, Recipe and infra carry no copy yet (the section 6 migration TODO is still open). Section 7 has not been propagated to any repo yet, and Kitchie's `AGENTS.md` "Form factors and responsive layout" still says desktop is one 840px column; it needs the owner's edit to match the desktop layout in item 2. Propagate it with section 6 when the migration happens (issue #34).
+
+## 8. Gestures are app-wide rules
+
+Owner direction, 24 October 2026 (Settings, kitchie#1110 and #1090; `fragments/settings-shakeup/`): two gestures mean the same thing everywhere, so a person learns them once.
+
+- **Double tap resets** a control to its default (text size to Match my phone, a theme to the default for the phone, a switch to its default state). Two taps close in time and place on one control (the mockup uses 340 ms and 24 px). The toast says what it went back to.
+- **Long hold moves.** Hold still for about half a second (480 ms in the mockup), the thing lifts (shadow, a light vibration where the device allows), then drag it. There is no edit button, no pencil icon and no reorder mode to enter.
+- A gesture is never the only way: every control also works with a single tap or a key, and moves have a keyboard path. A tap straight after a hold or a drag is ignored.
+- A sideways swipe on a rotary (a themed or stepped control that sits in place) turns it; it never moves the page.
+- Use these two in Kitchie, Recipe and Platform before inventing another. Where a screen cannot honour them, say so in its notes. Pantry's swipe rows and the history rotary keep their own, older, rules until the owner folds them in.

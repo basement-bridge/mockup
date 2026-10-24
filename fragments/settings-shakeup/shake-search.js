@@ -52,11 +52,21 @@
     items.forEach(function (x) { var pg = pageOf(x.e); if (!x.e.adv && (pg === ctx || pg === "*") && x.s >= Math.max(20, top / 5)) on.push(x); else rest.push(x); });
     return { on: on, rest: rest, n: items.length, qt: qt, use: use, fixed: fix ? fix.map(function (w) { return V[w] || w; }).join(" ") : null };
   }
+  /* owner decisions of 24 Oct 2026, applied on load without touching the shared index: your own name and profile live under Household (tap yourself), so those words find "My name and picture";
+     the activity bell is pinnable and sits on the Looks page, so it is no longer search-only */
+  function patch(I) {
+    I.forEach(function (e) {
+      if (e.id === "me") e.aka = (e.aka || []).concat(["my name", "my profile", "profile", "edit my name"]);
+      if (e.id === "me") e.syn += "|profile|my profile|edit my name|change my name|rename myself|my account|who am i|my details";
+      if (e.id === "bell") e.adv = false;
+      if (e.id === "text") e.aka = (e.aka || []).filter(function (a) { return !/name/i.test(a); });
+    });
+  }
   function load(cb) {
     if (IDX) { cb(); return; }
     waiters.push(cb); if (loading) return; loading = true;
     var s = document.createElement("script"); s.src = "../settings-redesign/search-index.js";
-    s.onload = function () { IDX = (window.SR_E_INDEX || []).filter(function (e) { return e.id !== "emoji"; }); prep(); waiters.splice(0).forEach(function (f) { f(); }); };
+    s.onload = function () { IDX = (window.SR_E_INDEX || []).filter(function (e) { return e.id !== "emoji"; }); patch(IDX); prep(); waiters.splice(0).forEach(function (f) { f(); }); };
     s.onerror = function () { loading = false; };
     document.head.appendChild(s);
   }
