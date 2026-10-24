@@ -60,6 +60,9 @@
   };
   const CHIPS = { recipes: [["all", "All"], ["ready", "Ready now"], ["star", "Starred"], ["batch", "Batch"], ["quick", "Under 30"], ["mine", "Added by me"]] };
   const CHIPTEST = { ready: (r) => r.miss === 0, star: (r) => r.star, batch: (r) => r.batch, quick: (r) => r.min <= 30, mine: (r) => r.mine };
+  const reduced = () => !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+  /* the jiggle hints that more ideas sit behind Swap, in the first week only (owner, 25 Oct 2026). The build keeps a first-seen date per person; the mockup keeps it per browser. */
+  const hintOn = () => { try { const k = "pd.hint.first", n = Date.now(); let f = Number(localStorage.getItem(k)); if (!f) { f = n; localStorage.setItem(k, String(f)); } return n - f < 7 * 864e5; } catch (e) { return true; } };
   const ago = (d) => (d <= 7 ? d + "d ago" : d <= 21 ? Math.round(d / 7) + "w ago" : "a while ago");
   const UNDO_MS = 5000; /* UAT: the bar at the top offers Undo for 5 seconds (swipe.js) */
   const THRESHOLD = 90, DEEP = 190; /* UAT swipe distances */
@@ -117,7 +120,7 @@
     const name = esc(i.name);
     if (P) {
       /* the second line carries the other dimension: category when grouped by location, location when grouped by category (owner, 25 Oct) */
-      second = flat ? i.cat + " · " + i.loc : S.group === "loc" ? i.cat : i.spot;
+      second = flat ? i.cat + " · " + i.loc : S.group === "loc" ? i.cat : i.loc + " · " + i.spot;
       const top = /^Level/.test(i.amt) ? "" : i.amt.split(",")[0];
       tile = '<span class="r-lead" aria-hidden="true">' + (i.e ? "<span>" + i.e + "</span>" : '<span class="r-ltr">' + esc(i.name.charAt(0)) + "</span>") + "</span>";
       tail = '<span class="r-amt"><span class="am-n">' + esc(top) + "</span>" + lvIc(i.lvl) + '</span><span class="r-ub">' + ubHtml(i.days) + "</span>";
@@ -181,8 +184,8 @@
   };
   P_.headHtml = function () {
     const S = this.S, P = this.s === "pantry";
-    const col = (k, t, cls) => { const on = S.sort.k === k; return '<button type="button" class="hd ' + cls + '" data-a="sorthd" data-k="' + k + '" aria-label="Sort by ' + t + '"' + (on ? ' aria-sort="' + (S.sort.d ? "descending" : "ascending") + '"' : "") + "><span>" + t + "</span>" + (on ? ic(S.sort.d ? "down" : "up", "dir") : "") + "</button>"; };
-    return '<div class="ll-colhead" role="row"><button type="button" class="hd hd-sel" data-a="select" aria-pressed="' + !!S.sel + '" aria-label="' + (S.sel ? "Cancel picking" : "Pick several") + '">' + ic(S.sel ? "x" : "sel") + "</button>" + col("name", "Name", "hd-name") + (P ? col("amt", "Amount", "hd-amt") + col("use", "Use by", "hd-flag") : col("time", "Time", "hd-amt") + col("best", "Ready", "hd-flag")) + "</div>";
+    const col = (k, t, cls) => { const on = S.sort.k === k; return '<button type="button" class="hd ' + cls + '" data-a="sorthd" data-k="' + k + '" aria-label="Sort by ' + t + (on ? ", " + (S.sort.d ? "descending" : "ascending") : "") + '"><span>' + t + "</span>" + (on ? ic(S.sort.d ? "down" : "up", "dir") : "") + "</button>"; };
+    return '<div class="ll-colhead"><button type="button" class="hd hd-sel" data-a="select" aria-pressed="' + !!S.sel + '" aria-label="' + (S.sel ? "Cancel picking" : "Pick several") + '">' + ic(S.sel ? "x" : "sel") + "</button>" + col("name", "Name", "hd-name") + (P ? col("amt", "Amount", "hd-amt") + col("use", "Use by", "hd-flag") : col("time", "Time", "hd-amt") + col("best", "Ready", "hd-flag")) + "</div>";
   };
   const TABS = [["Home", "home"], ["Pantry", "jar"], ["Plan", "plan"], ["Recipes", "book"], ["Shopping", "cart"]];
   P_.tabsHtml = function (cur) {
@@ -218,13 +221,13 @@
   };
   P_.basisHtml = function () {
     const S = this.S, st = S.basisStyle, L = D.leans, cur = S.lean;
-    const items = L.map((l) => '<button type="button" class="bs-i" role="option" data-a="lean" data-l="' + l[0] + '" aria-selected="' + (cur === l[0]) + '">' + esc(l[1]) + "</button>").join("");
-    if (st === "chips") return '<div class="bs bs-chips" role="listbox" aria-label="Based on">' + items + "</div>";
-    return '<div class="bs bs-' + st + '" role="listbox" aria-label="Based on"><div class="bs-track" tabindex="0">' + items + '</div></div>';
+    const items = L.map((l) => '<button type="button" class="bs-i" role="radio" data-a="lean" data-l="' + l[0] + '" aria-checked="' + (cur === l[0]) + '" aria-selected="' + (cur === l[0]) + '" tabindex="' + (cur === l[0] ? 0 : -1) + '">' + esc(l[1]) + "</button>").join("");
+    if (st === "chips") return '<div class="bs bs-chips" role="radiogroup" aria-label="Based on">' + items + "</div>";
+    return '<div class="bs bs-' + st + '" role="radiogroup" aria-label="Based on"><div class="bs-track">' + items + '</div></div>';
   };
   P_.heroHtml = function () {
     const S = this.S, idea = this.idea(), plan = S.plan;
-    return '<section class="hm-hero" id="hero"><div class="hm-top"><span class="r-lead th" aria-hidden="true"><span id="hi-e">' + idea.e + '</span></span><div class="hm-it"><span class="hm-k">' + (plan === "other" ? "Planned Saturday" : plan === "today" ? "Tonight, planned" : "Tonight") + '</span><b id="hi-n">' + esc(idea.name) + '</b><small id="hi-m">' + idea.min + ' min · ' + (idea.miss ? idea.miss + " missing" : "all in") + '</small></div></div>' +
+    return '<section class="hm-hero" id="hero"><div class="hm-top"><span class="r-lead th" aria-hidden="true"><span id="hi-e">' + idea.e + '</span></span><div class="hm-it"><span class="hm-k">' + (S.basis ? "Trying" : plan === "other" ? "Planned Saturday" : plan === "today" ? "Tonight, planned" : "Tonight") + '</span><b id="hi-n">' + esc(idea.name) + '</b><small id="hi-m">' + idea.min + ' min · ' + (idea.miss ? idea.miss + " missing" : "all in") + '</small></div></div>' +
       '<div class="hm-based" id="based"' + (S.basis ? "" : " hidden") + '><span class="bs-k">Based on</span><div id="basis"></div></div><div class="hm-acts" id="acts">' + this.actsHtml() + "</div></section>";
   };
   P_.outHtml = function () {
@@ -246,8 +249,10 @@
   };
 
   /* ---------- draw ---------- */
+  const dsel = (d) => { let q = '[data-a="' + d.a + '"]'; ["k", "id", "g", "c", "l", "t"].forEach((x) => { if (d[x] != null) q += "[data-" + x + '="' + String(d[x]).replace(/"/g, '\\"') + '"]'; }); return q; };
   P_.draw = function () {
     const S = this.S, keep = this.el.querySelector(".ll-body"), top = keep ? keep.scrollTop : 0;
+    const ae = document.activeElement, had = ae && this.el.contains(ae) && ae.dataset && ae.dataset.a ? Object.assign({}, ae.dataset) : null, wasSheet = !!this._sheetWas;
     const cur = this.s;
     let h;
     if (this.s === "home") h = '<div class="ll-body" tabindex="-1">' + this.homeHtml() + '<div class="ll-end"></div></div>' + this.tabsHtml(cur);
@@ -258,6 +263,12 @@
     const b = this.el.querySelector(".ll-body"); if (b) b.scrollTop = top;
     if (S.search) { const q = this.el.querySelector(".tp-q"); if (q) { q.focus({ preventScroll: true }); try { q.setSelectionRange(q.value.length, q.value.length); } catch (e) {} } }
     if (this.s === "home" && S.basis) this.mountBasis(false);
+    this._sheetWas = S.sheet;
+    /* a redraw must not drop keyboard focus: open the sheet onto its close button, give focus back to the control that opened it, else to the same control */
+    if (S.sheet && !wasSheet) { const x = this.el.querySelector(".sh-x"); if (x) x.focus({ preventScroll: true }); }
+    else if (!S.sheet && wasSheet) { const f = this.el.querySelector(".tp-filters"); if (f) f.focus({ preventScroll: true }); }
+    else if (had && !S.search) { const t = this.el.querySelector(dsel(had)); if (t) t.focus({ preventScroll: true }); }
+    const cp = this.el.querySelector('.ch[aria-pressed="true"]'); if (cp && cp.scrollIntoView) { try { cp.scrollIntoView({ inline: "nearest", block: "nearest" }); } catch (e) {} }
   };
   P_.redrawList = function () { const b = this.el.querySelector(".ll-body"); if (!b) return; b.innerHTML = this.bodyHtml() + '<div class="ll-end"></div>'; this.el.dataset.shut = this._allShut ? "1" : "0"; };
   P_.say = function (t, undo) {
@@ -292,13 +303,13 @@
       [].forEach.call(tr.children, (c) => { const d = Math.abs(c.offsetLeft + c.offsetWidth / 2 - mid); if (d < bd) { bd = d; best = c; } });
       if (best && best.dataset.l !== self.S.lean) self.setLean(best.dataset.l, true);
     }, 110); }, { passive: true });
-    if (animate && !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) && this.o.hint !== "0") { tr.classList.add("jig"); setTimeout(() => tr.classList.remove("jig"), 1500); }
+    if (animate && !reduced() && this.o.hint !== "0" && hintOn()) { tr.classList.add("jig"); setTimeout(() => tr.classList.remove("jig"), 1500); }
   };
   P_.setLean = function (l, fromScroll) {
     const S = this.S; S.lean = l; S.ready = false; clearTimeout(this._cf);
     this.heroPatch();
-    this.el.querySelectorAll(".bs-i").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.l === l)));
-    if (!fromScroll) { const b = this.el.querySelector('.bs-i[data-l="' + l + '"]'), tr = this.el.querySelector(".bs-track"); if (b && tr) tr.scrollTo({ left: b.offsetLeft - (tr.clientWidth - b.offsetWidth) / 2, behavior: "smooth" }); }
+    this.el.querySelectorAll(".bs-i").forEach((b) => { const on = b.dataset.l === l; b.setAttribute("aria-selected", String(on)); b.setAttribute("aria-checked", String(on)); b.tabIndex = on ? 0 : -1; });
+    if (!fromScroll) { const b = this.el.querySelector('.bs-i[data-l="' + l + '"]'), tr = this.el.querySelector(".bs-track"); if (b && tr) tr.scrollTo({ left: b.offsetLeft - (tr.clientWidth - b.offsetWidth) / 2, behavior: reduced() ? "auto" : "smooth" }); }
     /* nothing locks in on its own: after 3 seconds of no movement, Confirm lights up and waits for a tap */
     this._cf = setTimeout(() => { S.ready = true; this.actsPatch(); }, 3000);
   };
@@ -326,7 +337,7 @@
     closesearch(p) { p.S.search = false; p.S.q = ""; p.draw(); },
     chip(p, t) { p.S.chip = t.dataset.c; p.draw(); },
     mode(p) { const S = p.S; if (p.s === "pantry") { S.group = S.group === "loc" ? "cat" : "loc"; S.chip = "all"; p.draw(); } },
-    sortk(p, t) { const S = p.S; if (S.sort.k === t.dataset.k) S.sort.d = S.sort.d ? 0 : 1; else S.sort = { k: t.dataset.k, d: 0 }; p.draw(); },
+    sortk(p, t) { const S = p.S; S.catch = false; if (S.sort.k === t.dataset.k) S.sort.d = S.sort.d ? 0 : 1; else S.sort = { k: t.dataset.k, d: 0 }; p.draw(); },
     sorthd(p, t) { A.sortk(p, t); },
     dir(p) { p.S.sort.d = p.S.sort.d ? 0 : 1; p.draw(); },
     st(p, t) { const k = t.dataset.k; p.S.st[k] = !p.S.st[k]; p.draw(); },
@@ -353,14 +364,14 @@
     const li = row.closest(".r"), id = li.dataset.id, it = pItem(id);
     if (row.dataset.home) {
       const on = this.S.onList;
-      if (dx >= THRESHOLD && !on.has(id)) { on.add(id); this.draw(); this.say("Added: " + it.name, () => { on.delete(id); this.draw(); }); }
-      else if (dx <= -THRESHOLD && on.has(id)) { on.delete(id); this.draw(); this.say("Removed: " + it.name, () => { on.add(id); this.draw(); }); }
+      if (dx >= THRESHOLD) { if (on.has(id)) this.say("Already on the list"); else { on.add(id); this.draw(); this.say("Added: " + it.name, () => { on.delete(id); this.draw(); }); } }
+      else if (dx <= -THRESHOLD) { if (!on.has(id)) this.say("Not on the list"); else { on.delete(id); this.draw(); this.say("Removed: " + it.name, () => { on.add(id); this.draw(); }); } }
       return;
     }
     const d = this.data.filter((x) => x.id === id)[0]; if (!d) return;
-    if (dx >= THRESHOLD) { this.say("Added to the list: " + d.name, () => {}); return; }
+    if (dx >= THRESHOLD) { const L = this.S.listed || (this.S.listed = new Set()); if (L.has(id)) { this.say("Already on the list"); return; } L.add(id); this.say("Added to the list: " + d.name, () => { L.delete(id); }); return; }
     if (dx <= -THRESHOLD) {
-      const prev = { amt: d.amt, lvl: d.lvl, low: d.low }, deep = dx <= -DEEP, m = /^(\d+)\s*(.*)$/.exec(d.amt || ""), counted = m && Number(m[1]) > 1;
+      const prev = { amt: d.amt, lvl: d.lvl, low: d.low }, deep = dx <= -DEEP, m = /^(\d+)\s*(.*)$/.exec(d.amt || ""), counted = m && Number(m[1]) > 1 && !/^(g|kg|ml|l)\b/i.test(m[2]);
       if (deep || !counted) { d.lvl = "out"; d.amt = "0"; this.draw(); this.say("Used up: " + d.name, () => { Object.assign(d, prev); this.draw(); }); }
       else { d.amt = (Number(m[1]) - 1) + (m[2] ? " " + m[2] : ""); this.draw(); this.say("Used one: " + d.name, () => { Object.assign(d, prev); this.draw(); }); }
     }
@@ -414,9 +425,15 @@
       const f = A[t.dataset.a]; if (!f) return; e.preventDefault(); f(p, t);
     });
     this.el.addEventListener("input", (e) => { if (e.target.classList.contains("tp-q")) { p.S.q = e.target.value; p.redrawList(); } });
-    this.el.addEventListener("keydown", (e) => {
-      if (e.key !== "Escape") return; const S = p.S;
-      if (S.sheet) { S.sheet = false; p.draw(); } else if (S.search) { S.search = false; S.q = ""; p.draw(); } else if (S.sel) { S.sel = null; p.draw(); }
+    document.addEventListener("keydown", (e) => {
+      const S = p.S;
+      if (e.key === "Escape") { if (S.sheet) { S.sheet = false; p.draw(); } else if (S.search) { S.search = false; S.q = ""; p.draw(); } else if (S.sel) { S.sel = null; p.draw(); } return; }
+      if (e.key === "Tab" && S.sheet) { const f = [].slice.call(p.el.querySelectorAll(".ll-sheet button")); if (!f.length) return; const i = f.indexOf(document.activeElement); if (e.shiftKey && i <= 0) { e.preventDefault(); f[f.length - 1].focus(); } else if (!e.shiftKey && i === f.length - 1) { e.preventDefault(); f[0].focus(); } return; }
+      /* the keyboard way to the two hold gestures (never gesture-only): on a group heading, Shift+Enter folds or opens all; with all folded, Alt+Up or Alt+Down moves it */
+      const h = e.target.closest && e.target.closest(".g-h"); if (!h || !p.el.contains(h)) return;
+      const secs = [].slice.call(p.el.querySelectorAll(".g")), id = h.dataset.g;
+      if (e.key === "Enter" && e.shiftKey) { e.preventDefault(); const anyOpen = secs.some((x) => !x.classList.contains("shut")); secs.forEach((x) => { S.folded[x.dataset.g] = anyOpen; }); p.draw(); p.say(anyOpen ? "All collapsed" : "All open"); }
+      else if (e.altKey && (e.key === "ArrowUp" || e.key === "ArrowDown") && p._allShut) { e.preventDefault(); const ids = secs.map((x) => x.dataset.g), i = ids.indexOf(id), j = i + (e.key === "ArrowUp" ? -1 : 1); if (j < 0 || j >= ids.length) return; ids.splice(i, 1); ids.splice(j, 0, id); S.order[S.group] = ids; p.draw(); p.say("Moved: " + id); }
     });
     this.bindGestures();
   };

@@ -40,7 +40,7 @@ body{font-family:var(--body)}
   load("../list-language/ll-data.js",function(){load("pd-data.js",function(){load("pd.js",function(){
     var el=document.getElementById("ph");el.dataset.v="d";el.dataset.s=s;
     PD.mount(el,{s:s,state:Q.get("state")||(s==="home"&&Q.get("swap")?"swap":""),chips:chips,basis:basis,plan:plan,group:Q.get("group")||"",chip:Q.get("chip")||"",q:Q.get("q")||"",pick:Q.get("pick")||"",hint:Q.get("hint")||""});
-    document.title="Pantry D, "+s;
+    document.title="Pantry D, "+s;var th=Q.get("theme");if(th==="kitchie"||th==="kitchie-day")document.documentElement.setAttribute("data-theme",th);
   })})});
 })();
 </script>
