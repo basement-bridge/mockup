@@ -167,3 +167,17 @@ body.bare .shk>.tabs,body.bare .shk>.bar2{display:none}
 
 .shk.wide{max-width:1180px}
 .sm2{font-size:.88em;color:var(--muted)}.sm2 b{color:var(--fg)}
+
+/* Food list rows (flat pages) */
+.hd2{margin:16px 16px 4px;font-size:.78em;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.hd2.fh{margin-top:12px;font-weight:700}
+.flist{list-style:none;margin:0;padding:0}
+.frow{border-top:1px solid var(--border)}
+.fmain{display:flex;align-items:center;gap:10px;width:100%;min-height:max(48px,3.2em);padding:6px 16px;border:0;background:none;text-align:left;color:var(--fg);font:inherit;cursor:pointer}
+.fmain .rm{flex:1;min-width:0;display:flex;flex-direction:column}
+.fline{display:block;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:.84em;color:var(--muted)}
+.fmark{flex:none;display:inline-flex;align-items:center;color:var(--danger)}
+.fmark.soft{color:var(--muted);font-size:.78em;font-weight:700}
+.fscope{flex:none;display:inline-flex;color:var(--muted)}
+.fadd{display:flex;align-items:center;gap:8px;width:100%;min-height:max(44px,2.9em);padding:0 16px;border:0;background:none;color:var(--accent);font:inherit;font-weight:700;cursor:pointer;text-align:left}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}

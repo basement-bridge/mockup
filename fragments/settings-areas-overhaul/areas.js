@@ -33,7 +33,8 @@
       pending: [{ id: "i1", left: 6 }], kind: "join", link: null,
       scope: "me",
       d: { me: { ask: null, q: null, cap: null }, hh: { ask: true, q: { s: "21:00", e: "07:00" }, cap: 5 }, app: { ask: true, q: { s: "22:00", e: "06:00" }, cap: 3 } },
-      food: { me: { hard: ["Peanuts"], soft: ["Cilantro"], like: ["Mushrooms"], swap: ["Butter to olive oil"] }, hh: { hard: ["Shellfish"], soft: [], like: [], swap: [] } },
+      food: { me: { hard: [], soft: ["Pasta", "Roti", "Tomato-based foods", "Iceberg lettuce", "Non-rice noodles"], like: ["Protein-forward, carb-conscious meals", "Gluten-free bread", "Rice noodles"], swap: ["Butter to olive oil"] }, hh: { hard: ["Gluten"], soft: [], like: [], swap: [] } },
+      why: { Gluten: "Gluten sensitivity in the household, so nothing with wheat, barley or rye goes in a plan", Pasta: "Too heavy on carbs for most weeknights", "Tomato-based foods": "Heartburn", "Iceberg lettuce": "", "Non-rice noodles": "Only rice noodles, never wheat", "Protein-forward, carb-conscious meals": "", "Gluten-free bread": "Toast and sandwiches" },
       notes: { me: "", hh: "" },
       rules: [{ t: "Dairy in the Fridge", v: "Low, weekly" }, { t: "Freezer items", v: "Out, daily" }], stops: 2,
       cats: CATS.slice(), areas: [{ n: "Kitchen", spots: ["Fridge", "Freezer", "Pantry", "Spice rack"] }, { n: "Garage", spots: ["Chest freezer"] }, { n: "Balcony", spots: [] }],
@@ -103,10 +104,25 @@
     }).join("") + '<button type="button" class="cp add" data-a="chipadd:' + path + '" aria-label="Add">' + ic("plus", 16) + " Add</button>";
     return '<div class="cps">' + chips + "</div>" + chipEditor(ui, path, items);
   }
+  /* Food list (owner, 24 Oct 2026; built in kitchie #1125): one heading per group (Avoids, Likes, Swaps), dense rows (name, one quiet line for the reason, cut with an ellipsis; nothing when there is no reason),
+     a lock for Hard and the word Soft for soft, a small icon for Everyone or Just you (shown, not a control: moving a rule between the two has no operation today), and an add row first in each group. */
+  var LOCKI = '<svg class="hard" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+  var ONEI = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/></svg>';
+  var MANYI = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 19c0-3.1 2.7-5 6-5s6 1.9 6 5"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c2.6 0 4.5 1.6 4.5 4"/></svg>';
+  function foodRow(S, key, t, kind, everyone) {
+    var why = (S.why || {})[t] || "", open = S.ui.chip && S.ui.chip.path === key;
+    var mark = kind === "hard" ? '<span class="fmark" title="Hard">' + LOCKI + '<span class="vh">Hard</span></span>' : kind === "soft" ? '<span class="fmark soft">Soft</span>' : "";
+    return '<li class="frow prow"><button type="button" class="fmain" data-a="toast:Opens the row to change the reason or remove it (as built today)." aria-expanded="' + !!open + '"><span class="rm"><span class="nm">' + esc(t) + "</span>" + (why ? '<span class="fline">' + esc(why) + "</span>" : "") + "</span>" + mark + '<span class="fscope" title="' + (everyone ? "Everyone" : "Just you") + '">' + (everyone ? MANYI : ONEI) + '<span class="vh">' + (everyone ? "Everyone" : "Just you") + "</span></span>" + chev() + "</button></li>";
+  }
+  function foodGroup(S, scope, title, add, rows) {
+    return '<p class="hd2 fh">' + title + '</p><ul class="list flist"><li class="fadd-li"><button type="button" class="fadd" data-a="toast:Adding is the assistant&rsquo;s: tell it what to add. It shows here once saved.">' + ic("plus", 18) + esc(add) + "</button></li>" + rows + "</ul>";
+  }
   function foodBlock(S, scope) {
-    var f = S.food[scope], out = "";
-    FOODL.forEach(function (l) { out += '<p class="cl">' + l[1] + "</p>" + chipList(S, "food." + scope + "." + l[0], f[l[0]], scope === "me" && l[0] === "hard" ? S.food.hh.hard : []); });
-    return '<div class="blk"><b class="nm">' + (scope === "me" ? "Food" : "Food for everyone") + "</b>" + out + "</div>";
+    var f = S.food[scope], hh = S.food.hh, row = function (path, k, t, kind, ev) { return foodRow(S, "food." + path + "." + k + ":" + t, t, kind, ev); };
+    var avoids = (scope === "me" ? hh.hard.map(function (t) { return row("hh", "hard", t, "hard", true); }).join("") : "") + f.hard.map(function (t) { return row(scope, "hard", t, "hard", scope === "hh"); }).join("") + f.soft.map(function (t) { return row(scope, "soft", t, "soft", scope === "hh"); }).join("");
+    var likes = f.like.map(function (t) { return row(scope, "like", t, "", scope === "hh"); }).join("");
+    var swaps = f.swap.map(function (t) { return row(scope, "swap", t, "", scope === "hh"); }).join("");
+    return '<p class="hd2">' + (scope === "me" ? "Food" : "Food for everyone") + "</p>" + foodGroup(S, scope, "Avoids", "Add something to avoid", avoids) + foodGroup(S, scope, "Likes", "Add something you like", likes) + foodGroup(S, scope, "Swaps", "Add a swap", swaps);
   }
   function notesBlock(S, scope) {
     return '<div class="blk"><label class="fl" for="note-' + scope + '"><b class="nm">' + (scope === "me" ? "Notes for your assistant" : "Notes for everyone&rsquo;s assistant") + '</b></label><textarea id="note-' + scope + '" class="in ta" rows="2" data-in="note:' + scope + '" placeholder="Anything it should know">' + esc(S.notes[scope]) + "</textarea></div>";
