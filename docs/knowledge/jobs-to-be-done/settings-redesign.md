@@ -611,6 +611,68 @@ Settings shake-up (owner, 24 Oct 2026, on UAT 0.171.0: "going worse", "Java ME",
 - Order that limits risk: copy fix and dead `theme` field first; then remove knobs one at a time with their tests; the rem check before text size goes.
 - No MCP tool surface is touched. No schema change under A. Cost: none.
 
+## Design review of the lean phone Settings pages (24 Oct 2026)
+
+Reviewer: a separate agent briefed as a senior mobile UX designer, who did not build this. Built: kitchie `uat` 0.178.0 (PR #1132). Drawn: `fragments/settings-areas-overhaul`, direction A (#lean). Checked against DESIGN.md 9.8 and kitchie `docs/design-principles.md`. Method: the real app via the browser harness (`server/test/web-harness.ts`, Playwright Chromium), 390 and 360 wide, light and dark, text normal and +30%, screenshots looked at. Measured at those 72 page states: no sideways scroll, and every button, link and input is 44px or more. Not run: Assistants with Platform sign-in (the harness has no Platform), so its rows were drawn from the real renderer with the real CSS, at 360 only and text normal.
+
+### Verdicts
+
+| Page | Verdict | Why, in one line |
+|---|---|---|
+| Household (and an opened person) | Pass with changes | Clear job; the invite choice has no label and two filled accents compete |
+| You | Pass with changes | Short and clear; Sign out is red and misaligned, Leave has no glyph |
+| Assistants | Pass with changes | One name, one dot, one button works; several Connect buttons all shout; None is only an outline |
+| Preferences, Mine and Everyone | Pass with changes | Right idea, but the Hard/Soft and scope glyphs are 15 to 18px and do not grow with text; the accent is on the wrong thing |
+| Opened Hard, Soft, like | Pass with changes | Hard/Soft control is good; a loud Stop button and a repeated quote |
+| Suggest for a housemate | Pass | The best page of the set |
+| Kitchen setup | Pass | Two rows; nothing to cut |
+| Categories | Pass with changes | A trash on every row, no confirm seen; counts and Total of 0 |
+| Locations and spots | Pass with changes | At +30% on 360 the header wraps; "0 · ▸" is unreadable |
+
+### Glyphs, judged without the word (a low-vision reader)
+
+- **Closed or open lock for Hard or Soft: fails alone, passes in the open row.** In the list the lock is 15 to 18px and the difference is a small arc; the red on Hard helps, but red is not the cue. The glyph does not grow with +30% text (measured 15 to 18px at both). In the opened row it sits beside the word, which is right. Fix: draw the list mark at 22px or in `em` so it follows text size, and keep red as a second cue only.
+- **Two people vs one person: too small to tell apart** at 16px. Keep, but 22px, and only where it is not the tab's own scope (see Duplication).
+- **Link glyph for "follows household / Kitchie": cryptic.** 14px plus a 12.8px word. A reader sees a paperclip. The word does the work, and it is small. Fix: show the word at body size, drop the glyph, or show the glyph only on a value that is the person's own (the reverse) with the undo.
+- **Trash: clear** (Categories 20px, with a name for a screen reader; Stop remembering has trash plus the words). Remove on a person is red text with no glyph: add a trash, or leave as is because the word is there.
+- **Shield for Admin: SR-Q58, see below.** **Star for default: SR-Q60, see below.**
+
+### Answers
+
+- **SR-Q58, shield alone for Admin: not enough yet. Recommend shield plus the word "Admin" (one word) on the person's row, glyph first.** Why: the shield is 20px, drawn only on the one admin, with a `title` that a phone never shows; a shield also reads as "protected" or "verified". Only one row has it, so the page has nothing to compare it with. The word costs one short word in a row that has room (Alex row: name, "You", shield). It stays inside the 3-word budget and does not repeat a state: the opened row's switch is the control, the row's word is the state. If the owner insists on no word, make the shield 24px and say "Admin" once under the household name ("Alex is Admin") on the first view.
+- **SR-Q60, star for default assistant: keep the star, but only with a one-word cue on the pressed row.** Recommend a filled star plus "Default" under the name on the starred row only (and none on the others), shown only when two or more are connected. Why: the filled and outline star differ by fill alone at 22px thin stroke; "star" can also mean favourite or rate. The word does not repeat the dot (the dot says connected; the word says which one is used). The tap target is 44px and fine.
+
+### The review checklist (9.8), one line each
+
+1. **Jobs: Pass.** Each page names a job (the jobs list above); Switched off and Place rules with a 0 do not change a decision (see Fixes).
+2. **Accent: Fail on Preferences, Household, Assistants.** Preferences puts the accent on Mine/Everyone, a view switch, not the job (food rules). Household has the selected Join us and Copy link both filled. Assistants has up to three Connect buttons in accent at once.
+3. **Presentation: Pass.** Switch, stepper, two-way control and list are the right kinds. Assistants None is selected by a border only: add a tick or a filled dot.
+4. **Words: Pass with changes.** Counts at 390: Household 21, You 15, Assistants 26, Preferences 83 (cap 75 in the test, 59 on Everyone), Suggest 31, Kitchen 8, Categories 42, Locations 21. All within the tests. Preferences Mine is the heaviest and still carries dead lines (below).
+5. **Duplication: Pass with changes.** The quote repeats the row's title when they are the same ("rice noodles" under rice noodles); the scope glyph repeats the Mine/Everyone tab; Admin shows on Household (shield) and on You (switch), which is fine.
+6. **Targets: Pass.** Zero controls under 44px in all 72 states.
+7. **Text size: Pass with changes.** Nothing sideways and nothing clipped on the five main pages at 360 +30%, except the Locations header (wraps to two lines and the back chevron drops to its own line) and the glyphs not growing. The Preferences Gluten reason is one line with an ellipsis by design.
+8. **Dark: Pass.** Text contrast 8.3 or more (muted), 14.9 (body) in dark; 5.5 or more in light. State is not colour alone except Assistants None and the Hard red.
+
+### Fixes (where in code)
+
+1. **Preferences: move the accent to the job.** Mine/Everyone selected should be quiet (outline, not filled): `.fl .tseg [aria-checked=true]` in `server/src/assets/settings-flat.css` line 77. Make "+ Add" in Avoids the one accent, the others quieter. Also change the mockup note "One accent: the Mine and Everyone control" in `fragments/settings-areas-overhaul/`.
+2. **Glyph size follows text.** Food row marks and scope marks are fixed 15 to 18px SVG in `server/src/preferences/food-flat.ts` and `avoid-type.ts` (LOCK_SVG, OPEN_LOCK_SVG); set size in `em` (about 1.35em) so +30% grows them.
+3. **Link glyph rows ("Kitchie").** `.fl .inh` is 12.8px (`settings-flat.css` line 91); set 1em and drop or enlarge the glyph.
+4. **Household invite.** The Join us / Their own control has no heading: `settings-flat.ts` line 135 passes the label "Who the invite is for" to `tsegHtml` but it is not drawn. Draw it as a one-word label ("Invite") or use a glyph pair (a door, a new house) with the words. Keep Copy link the only accent: make the selected segment an outline.
+5. **Assistants.** Several Connect buttons: make only the first one accent and the rest outline (`settings-flat.ts` line 261, `pbtn go`). The free-choice chips (None selected by border alone): add a tick on the selected chip (`settings-flat.css` line 102). Add the "Default" word (SR-Q60).
+6. **Admin on a row.** Add the word (SR-Q58) in `settings-flat.ts` where `val gly adm` is drawn.
+7. **You.** Sign out is red but not destructive: use normal text, align it with the other rows' icon column, and add a glyph to Leave household (`settings-flat.ts` lines 213 to 222). Keep Leave in red.
+8. **Opened food row.** Cut the quote when it equals the title; make Stop remembering a quiet outline (not a full-width red box) because it is the rare action; replace "Change it: tell your assistant." with nothing on a Soft or like row (it tells him to leave the app to do a basic edit) or turn it into a real Edit (`preferences/food-flat.ts`, `food-subs.ts`). Open question: how does he change a like? Today he can only stop it.
+9. **Dead lines in Preferences Mine.** "Switched off / None" and "Place rules 0" appear when empty (`preferences/flat.ts` lines 120 to 125): empty is absent, so hide them when nothing is there.
+10. **Categories.** Delete is a bare trash with no confirm seen; the page is a long column of 12 identical trash buttons in my seeded state (in real use only unused ones get it). Add the one-line confirm used on Household, and drop "Total 0" and the 0 counts on rows (`web-categories.ts` line 90 and 99). I could not find an Add control on the page; confirm that is intended.
+11. **Locations header at +30%.** On 360 at +30% "Locations and spots" wraps and the back chevron breaks off; shorten the title to "Locations" (the index already says "Kitchen setup > Locations and spots") or let the back label collapse to the chevron (`web-locations.ts`). "0 · ▸" is cryptic and does not grow: use a number only, with a chevron that opens the spots, at body size.
+
+### Open for the owner
+
+- Does he want the word "Admin" back (SR-Q58)? Recommended: yes, the word.
+- "Default" word under the starred assistant (SR-Q60)? Recommended: yes.
+- Should a Like be editable, or only stoppable?
+
 ## Design review of the phone Menu build (Kitchie PR #1134, 24 Oct 2026)
 
 Independent review of head 327dd62 against DESIGN.md section 9 and `fragments/menu-level-search/`; full text is the "Design review" section of the PR description. Run in the browser harness at 390 and 360, light and dark, text normal and +30%, pins 0 to 3. Not tried on a real phone or with a screen reader.
