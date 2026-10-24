@@ -33,5 +33,5 @@ Seven steps of 44px are 308px; a 360px phone has 320px inside its gutters, so 44
 
 ## Open
 
-- Three or four pinned controls (chips): an opened Text size chip shares its row with the other chips; its steps are 25px at 390. Proposal: opening the Text size chip takes the whole row and the others drop under it, which makes the row taller when it opens (the owner earlier said nothing should jump). Needs the owner.
+- Three or four pinned controls (chips): an opened Text size chip shares its row with the other chips; its steps are 26px at 390 and 22px at 360. Proposal: opening the Text size chip takes the whole row and the others drop under it, which makes the row taller when it opens (the owner earlier said nothing should jump). Needs the owner.
 - Not tried: a real phone (the feel of the snap under a thumb, the wiggle's pace), VoiceOver and TalkBack activating a theme (a click with no pointer still chooses it).

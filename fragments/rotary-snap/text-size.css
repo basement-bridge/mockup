@@ -11,6 +11,7 @@
 .tsz .tsz-name{font-size:0.875rem;font-weight:700;color:var(--muted);overflow-wrap:anywhere}
 .tsz .tsz-val{display:none}
 .tsz .tsz-bar{flex:none;display:flex;align-items:stretch;gap:0;box-sizing:border-box;width:100%;min-height:44px;padding:0;border-radius:12px;touch-action:pan-y;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+.tsz[data-mode=compact] .tsz-bar{width:min(224px,calc(100vw - 96px))}
 .tsz .tsz-bar:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
 /* A step is an element 44px tall and a seventh of the bar wide (the finger's target); the drawn bar inside it is inset 1px a side, so two steps are 2px apart. */
 .tsz .tsz-seg{position:relative;flex:1 1 0;min-width:0;height:44px}
