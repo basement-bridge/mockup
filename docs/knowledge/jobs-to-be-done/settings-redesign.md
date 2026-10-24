@@ -743,3 +743,14 @@ Mockup `fragments/preferences-options/` (open `?o=A` to `?o=I`; `directions.html
 - Nothing is built. The change is to the Food list and the dial rows of `server/src/preferences/flat.ts` and `food-flat.ts` plus `settings-flat.css`; routes, words in the opened row and the scripts stay.
 - The mockup's class names (`row`, `rm`, `nm`, `ln`, `mk`, `wh`, `crow`, `vrow`, `ped`, `conf`, `seg`, `tabs`) are plain so the CSS can be lifted.
 - Unverified: the mockup's data is sample data, not read from the real store; a screen reader and a real phone were not tried; the real Everyone view for a non-admin (read-only with one line) is not drawn; category rules (a limit on "Spicy") are not drawn.
+
+
+## Preferences option H final, 25 Oct 2026 (owner: "build H"; owner answer 07:36 closes SR-Q64)
+
+Mockup: `fragments/preferences-h-final/` (live: <https://basement-bridge.github.io/mockup/fragments/preferences-h-final/>). Full notes: `docs/knowledge/preferences-h-final.md`. Built into Kitchie `uat` in parallel, phone only.
+
+**Job.** Read what the household avoids, likes, swaps and limits at a glance; change one rule in one place; take one away and take it back. **Owner decisions.** Option H is the base (read-only list, every add and edit in one bottom sheet, the same for Add and Edit). Swipe a row left to remove it: a Hard rule asks in place, any other goes at once; every removal shows an Undo bar; the sheet's Remove and the Delete key are the non-gesture paths. "Reason" is "Comment", with a "Share with household" box above it, off by default (the rule stays shared; only the comment is private until ticked). A plus on each group header opens the sheet for that group; the Add rows are gone. Exceptions to a rule are closed (said in the Comment). Option F is shortlisted and not built.
+
+**SR-Q64 CLOSED (owner, 25 Oct 2026 07:36: "I think word").** Hard and Soft are shown as WORDS, not lock glyphs, on Preferences rows and in the sheet. This supersedes SR-P73 (filled lock, open lock, no word). One person and two people stay for Just you and Everyone. Assistant logos stay monograms (PR-Q2).
+
+**Open (PH-Q1 to PH-Q3).** Another person's comment is now private unless shared, which tightens what the Housemates page and the plan guard show today; household comments are readable by their author alone; category rules keep their own editor. See the notes.

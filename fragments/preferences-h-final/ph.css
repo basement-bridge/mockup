@@ -1,0 +1,213 @@
+/* Preferences, option H final. Theme tokens only (theme.css); no raw colours. Phone only. Mockup only. Page chrome, phone frame, scope control, dial rows and the opened-rule fields are option H's (preferences-options/po.css) unchanged;
+   the rows, plus buttons, swipe, sheet and undo bar are new and use the BUILD's class names (fgroup, fh, frow, fmain, fmark, fscope, fplus). */
+/* Preferences, nine calmer directions. Theme tokens only (theme.css); no raw colours. Phone only. Mockup only.
+   Text size: --ts on the phone scales everything in it (font-size is calc(16px * var(--ts))); everything here is in em and every control keeps max(44px, 2.9em).
+   Calm, in order of weight: more air (56px rows, 12px gaps), one line of text per row at most, state as a glyph with a shape (a closed lock is filled, an open lock is an outline), no state words on a row. */
+:root{--ts:1;--hk:1}
+
+/* ---------- the page around the phones ---------- */
+.po{max-width:640px;font-size:16px}
+.po.wide{max-width:1280px}
+.po h1{font-size:1.35em;margin:0;line-height:1.1}
+.po h2.sec{font-size:1.15em;margin:28px 0 6px}
+.po h3{font-size:1.02em}
+.po p,.po li{max-width:72ch;font-size:.92em;color:var(--fg)}
+.po code{font-size:.92em}
+.po .top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-height:44px}
+.po .badge{display:inline-block;padding:2px 10px;margin-left:8px;border-radius:var(--r-pill);border:1px solid var(--accent);color:var(--accent);font-size:.72em;font-weight:800;vertical-align:middle;font-family:var(--body)}
+.po .own{border-left:3px solid var(--accent);padding:2px 0 2px 12px;max-width:72ch;margin:10px 0}
+.po a{color:var(--accent);text-decoration:underline}
+.po .tabsx{display:flex;flex-wrap:wrap;gap:6px}
+.po .tabsx a{display:inline-flex;align-items:center;min-height:44px;padding:0 12px;border:1px solid var(--border);border-radius:var(--r-pill);text-decoration:none;color:var(--fg);font-weight:700;font-size:.9em}
+.po .tabsx a[aria-current=true]{box-shadow:inset 0 0 0 2px var(--fg)}
+.po .bar{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:flex-end;padding:6px 0 8px}
+.po .bar label{display:flex;flex-direction:column;gap:1px;flex:1 1 7em;min-width:0}
+.po .bar span.l{font-size:.7em;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.po .bar select{min-height:44px;width:100%;padding:0 10px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--surface);font:700 .9em var(--body);color:var(--fg)}
+.po .grp2{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.po .grp2 button{min-height:44px;padding:0 14px;border:1px solid var(--border);border-radius:var(--r-pill);background:var(--surface);color:var(--fg);font:700 .88em var(--body);cursor:pointer}
+.po .grp2 button[aria-pressed=true]{box-shadow:inset 0 0 0 2px var(--fg)}
+.po .grp2 .l{font-size:.7em;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-right:2px}
+.stage{display:flex;justify-content:center;margin:2px 0 10px}
+.stage .host{width:390px;max-width:100%}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,var(--w,390px)),1fr));gap:28px 20px;justify-items:center;margin:14px 0}
+.cell{width:var(--w,390px);max-width:100%}
+.cell h3{margin:0 0 4px;font-size:1.05em}
+.cell .one{font-size:.88em;color:var(--muted);margin:0 0 8px;max-width:none}
+.tblwrap{overflow-x:auto;margin:8px 0}
+table.tbl{border-collapse:collapse;width:100%;font-size:.86em;min-width:760px}
+.tbl th,.tbl td{text-align:left;vertical-align:top;padding:7px 9px;border-bottom:1px solid var(--border)}
+.tbl th{font-size:.78em;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.tbl td.n{text-align:center;font-variant-numeric:tabular-nums;font-weight:700}
+.shots{display:flex;flex-wrap:wrap;gap:16px;margin:10px 0}
+.shots figure{margin:0;flex:1 1 300px;max-width:420px}
+.shots img{width:100%;height:auto;border:1px solid var(--border);border-radius:var(--r-ctl);display:block}
+.shots figcaption{font-size:.84em;color:var(--muted);padding-top:4px}
+.rec{border:1px solid var(--accent);border-radius:var(--r-card);padding:10px 14px;background:var(--surface);margin:12px 0}
+.rec h3{margin:0 0 4px}.rec p{margin:4px 0}
+details.fold{margin:12px 0;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--surface)}
+details.fold>summary{min-height:44px;display:flex;align-items:center;padding:0 14px;font-weight:700;cursor:pointer;font-size:.92em}
+details.fold>div{padding:0 14px 12px}
+
+
+/* ---------- the phone ---------- */
+.ph{position:relative;width:390px;max-width:100%;height:844px;border:1px solid var(--border);border-radius:var(--r-phone);overflow:hidden;background:var(--bg);color:var(--fg);display:flex;flex-direction:column;font-size:calc(16px * var(--ts));font-family:var(--body);line-height:1.4}
+@media (max-width:599px){.ph{height:max(560px,calc(100dvh - 150px))}}
+.ph [hidden]{display:none!important}
+.ph button,.ph input,.ph textarea{font-family:inherit;font-size:inherit;color:inherit}
+.ph button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.ph :focus-visible{outline:3px solid var(--accent);outline-offset:-3px}
+.ph p{margin:0;font-size:inherit;color:inherit;max-width:none}
+.ph .i{flex:none}
+.ph .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ph .hd{display:flex;align-items:center;gap:4px;min-height:max(56px,3.5em);padding:0 4px;border-bottom:1px solid var(--border);flex:none}
+.ph .hd .ttl{flex:1;margin:0;font:700 calc(1.3em * var(--hk)) var(--head);overflow-wrap:anywhere;min-width:0}
+.ph .hd .hx{flex:none;display:flex;align-items:center}
+.ph .bk{display:inline-flex;align-items:center;min-height:44px;min-width:44px;color:var(--accent);font-weight:700;font-size:.94em;background:none;border:0;cursor:pointer;padding:0 6px 0 2px}
+.ph .bk .bkw{display:none}
+.ph.drilled .bk .bkw{display:inline;margin-left:.1em}
+.ph .ib{width:max(44px,2.9em);height:max(44px,2.9em);flex:none;display:inline-flex;align-items:center;justify-content:center;background:none;border:0;color:var(--fg);cursor:pointer;border-radius:50%}
+.ph .ib:disabled{opacity:.35;cursor:default}
+.ph .bd{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;padding:0 0 28px;position:relative}
+.ph .bd.pgd{display:flex;flex-direction:column;overflow:hidden;padding-bottom:0}
+.ph .gap{height:10px}
+.ph .blk{padding:12px 16px}
+.ph .sm{font-size:.82em;color:var(--muted);line-height:1.3}
+.ph .d{overflow-wrap:anywhere}
+.ph ul.list{list-style:none;margin:0;padding:0}
+
+/* scope: two-way control, quiet (an outline and a tick, no fill) so the accent stays on the one thing */
+.ph .seg{display:flex;width:100%;padding:3px;border-radius:var(--r-pill);background:var(--bg);border:1px solid var(--border);gap:2px}
+.ph .seg button{flex:1 1 0;min-width:0;min-height:max(44px,2.7em);padding:0 8px;border:0;border-radius:var(--r-pill);background:none;color:var(--muted);font-weight:700;font-size:.94em;cursor:pointer;line-height:1.15;display:inline-flex;align-items:center;justify-content:center;gap:.3em}
+.ph .seg button[aria-checked=true]{background:var(--surface);color:var(--fg);box-shadow:inset 0 0 0 2px var(--fg)}
+.ph .seg.mini{width:auto;padding:2px}
+.ph .seg.mini button{flex:none;padding:0 10px;font-size:.84em}
+.ph .seg.two{margin:0}
+
+/* headings: quiet small caps; a heading with a value */
+.ph .hd2{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:22px 16px 4px;font:800 .78em var(--body);letter-spacing:.09em;color:var(--muted)}
+.ph .hd2:empty,.ph .hd2:has(span:empty:only-child){margin:10px 16px 0}
+
+
+/* dial rows: a value on every row */
+.ph .crow{display:flex;align-items:center;gap:10px;min-height:max(56px,3.6em);padding:4px 16px;border-bottom:1px solid var(--border)}
+.ph .crow.vcol{flex-direction:column;align-items:stretch;gap:0;padding:0}
+.ph .vrow{display:flex;align-items:center;gap:10px;width:100%;min-height:max(56px,3.6em);padding:4px 16px;border:0;background:none;text-align:left;cursor:pointer;box-sizing:border-box}
+.ph .vrow .nm{flex:0 1 auto}
+.ph .crow>.nm{flex:1;min-width:0}
+.ph .tms{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:0 16px 12px}
+.ph .tm{min-height:max(44px,2.9em);padding:0 8px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--surface);color:var(--fg);font:700 1em var(--body);min-width:0;width:7.4em;color-scheme:inherit}
+.ph .lnk{display:inline-flex;align-items:center;min-height:max(44px,2.9em);padding:0;border:0;background:none;color:var(--accent);font-weight:700;font-size:.9em;cursor:pointer;text-decoration:underline;text-underline-offset:3px;margin-left:auto}
+.ph .dbody{padding:0 16px 12px}
+.ph .mate{display:flex;align-items:center;gap:10px;min-height:max(48px,3em)}
+.ph .mate .nm{flex:1;min-width:0}
+.ph .av{width:2.2em;height:2.2em;border-radius:50%;border:1px solid var(--border);background:var(--surface);display:inline-flex;align-items:center;justify-content:center;font-weight:700;flex:none}
+.ph .num{display:inline-flex;align-items:center;gap:2px;flex:none}
+.ph .num button{width:max(44px,2.9em);height:max(44px,2.9em);border:1px solid var(--border);border-radius:50%;background:var(--surface);color:var(--fg);font-size:1.15em;font-weight:700;cursor:pointer;line-height:1;display:inline-flex;align-items:center;justify-content:center;padding:0}
+.ph .num button:disabled{opacity:.4;cursor:default}
+.ph .num b{min-width:1.8em;text-align:center;font-variant-numeric:tabular-nums}
+.ph .sw{position:relative;display:inline-flex;align-items:center;justify-content:center;min-width:56px;min-height:44px;cursor:pointer;flex:none}
+.ph .sw input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
+.ph .swt{width:48px;height:28px;border-radius:99px;background:var(--border);position:relative;transition:background .15s;pointer-events:none}
+.ph .swt::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--surface);transition:transform .15s;box-shadow:0 0 0 1px var(--muted)}
+.ph .sw input:checked+.swt{background:var(--accent)}
+.ph .sw input:checked+.swt::after{transform:translateX(20px);box-shadow:none}
+.ph .sw input:focus-visible+.swt{outline:3px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.ph .swt,.ph .swt::after{transition:none}}
+
+/* the opened rule */
+.ph .ped{display:flex;flex-direction:column;gap:10px;padding:8px 16px 16px;background:var(--surface);border-bottom:1px solid var(--border)}
+.ph .ped .said{color:var(--muted);font-size:.92em}
+.ph .ped .aud{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:.92em;min-height:1.6em}
+.ph .ped .seg button[aria-checked=true]{background:var(--bg)}
+.ph .flab{font-size:.8em;font-weight:700;color:var(--muted)}
+.ph .in{min-height:max(44px,2.9em);width:100%;box-sizing:border-box;padding:0 12px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--bg);color:var(--fg)}
+.ph .in.ta{padding:10px 12px;min-height:5em;resize:vertical;line-height:1.35}
+.ph .stopq{display:inline-flex;align-items:center;gap:8px;align-self:flex-start;min-height:max(44px,2.9em);padding:0 16px;border:1px solid var(--border);border-radius:var(--r-pill);background:none;color:var(--muted);font-weight:600;font-size:.94em;cursor:pointer}
+.ph .pbtn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:max(44px,2.9em);padding:0 16px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);color:var(--fg);font-weight:700;font-size:.94em;cursor:pointer}
+.ph .pbtn.danger{border-color:var(--danger);color:var(--danger);background:none}
+.ph .conf{display:flex;flex-direction:column;gap:8px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--bg)}
+.ph .conf .btns{display:flex;gap:8px;flex-wrap:wrap}
+.ph .conf .btns>*{flex:1 1 7em}
+
+
+/* ---------- groups, rows (the build's names) ---------- */
+.ph .fgroup{margin:0}
+.ph .fh{display:flex;align-items:center;gap:8px;padding:14px 8px 0 16px;min-height:max(52px,3.4em)}
+.ph .fh h3{margin:0;font:800 .78em var(--body);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);flex:1}
+/* the plus: 44px square at the least, on the right edge of the header; accent on Avoids only, quiet on the others */
+.ph .fplus{flex:none;display:inline-flex;align-items:center;justify-content:center;width:max(44px,2.9em);height:max(44px,2.9em);padding:0;border:0;border-radius:50%;background:none;color:var(--accent);cursor:pointer}
+.ph .fplus.quiet{color:var(--muted)}
+.ph ul.flist{list-style:none;margin:0;padding:0}
+.ph .frow{border-top:1px solid var(--border);position:relative}
+.ph .frow:last-child{border-bottom:1px solid var(--border)}
+.ph .fr{position:relative;overflow:hidden;background:var(--bg)}
+.ph .fmain{position:relative;z-index:1;display:flex;align-items:center;gap:12px;width:100%;min-height:max(56px,3.6em);padding:8px 16px;border:0;background:var(--bg);text-align:left;cursor:pointer;box-sizing:border-box;touch-action:pan-y;color:var(--fg);transition:transform .15s}
+.ph .fmain.drag{transition:none}
+@media (prefers-reduced-motion:reduce){.ph .fmain{transition:none}}
+.ph .rm{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.ph .nm{font-weight:700;overflow-wrap:anywhere}
+.ph .fline{font-size:.88em;color:var(--muted);font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Hard and Soft are words (owner, 25 Oct 2026): Hard in the danger colour, Soft quiet; the word carries it, never colour alone */
+.ph .fmark{flex:none;display:inline-flex;align-items:center}
+.ph .fw{font-size:.88em;font-weight:800;color:var(--danger)}
+.ph .fmark.soft .fw{color:var(--muted);font-weight:700}
+.ph .fscope{flex:none;display:inline-flex;align-items:center;color:var(--muted)}
+/* the swipe underlay: danger panel, behind the row, shown only while the row is pulled */
+.ph .fdel{position:absolute;inset:0;display:flex;align-items:center;justify-content:flex-end;gap:.4em;padding:0 20px;background:var(--danger);color:var(--bg);font-weight:800;visibility:hidden}
+.ph .frow[data-swipe] .fdel{visibility:visible}
+.ph .frow[data-swipe=armed] .fdel{filter:brightness(.92)}
+.ph .frow[data-swipe=armed] .fdel span{text-decoration:underline;text-underline-offset:3px}
+.ph .propconf{display:flex;flex-direction:column;gap:8px;padding:10px 16px;border:0;background:var(--surface)}
+.ph .propconf .btns{display:flex;gap:8px;flex-wrap:wrap}
+.ph .propconf .btns>*{flex:1 1 7em}
+.ph .fr .propconf{min-height:max(56px,3.6em);justify-content:center}
+
+/* ---------- the sheet: Add and Edit are the same ---------- */
+.ph .sheet{position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;justify-content:flex-end}
+.ph .shd{position:absolute;inset:0;background:var(--dim)}
+.ph .shp{position:relative;max-height:88%;overflow-y:auto;background:var(--bg);border-radius:var(--r-card) var(--r-card) 0 0;border-top:1px solid var(--border);padding:0 0 16px}
+.ph .shh{display:flex;align-items:center;gap:8px;padding:6px 8px 0 16px;min-height:max(56px,3.5em)}
+.ph .shh .nm{flex:1;min-width:0;font-size:1.1em}
+.ph .ped{display:flex;flex-direction:column;gap:10px;padding:8px 16px 8px;background:var(--bg)}
+.ph .ped .said{color:var(--muted);font-size:.92em}
+.ph .ped .aud{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:.92em;min-height:1.6em}
+.ph .ped .aud .fw{color:var(--fg)}
+.ph .ped .lock{color:var(--muted)}
+.ph .note.error{color:var(--danger);font-weight:700;font-size:.92em}
+.ph .seg.two{margin:0}
+.ph .ped .seg button[aria-checked=true]{background:var(--surface)}
+.ph .flab{font-size:.8em;font-weight:700;color:var(--muted)}
+.ph label.flab{margin-bottom:-4px}
+.ph .in{min-height:max(44px,2.9em);width:100%;box-sizing:border-box;padding:0 12px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--surface);color:var(--fg)}
+.ph .in.ta{padding:10px 12px;min-height:5em;resize:vertical;line-height:1.35}
+.ph .in[aria-invalid=true]{border-color:var(--danger);box-shadow:inset 0 0 0 1px var(--danger)}
+/* Share with household: a real checkbox in a 44px row; the box is drawn, the tick is a glyph, so it is not colour alone */
+.ph .chk{position:relative;display:flex;align-items:center;gap:12px;min-height:max(44px,2.9em);cursor:pointer;font-weight:700}
+.ph .chk input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
+.ph .chk .bx{flex:none;display:inline-flex;align-items:center;justify-content:center;width:1.7em;height:1.7em;border:2px solid var(--fg);border-radius:6px;background:var(--surface);color:transparent}
+.ph .chk input:checked+.bx{background:var(--fg);color:var(--bg)}
+.ph .chk input:focus-visible+.bx{outline:3px solid var(--accent);outline-offset:2px}
+.ph .shf{padding-top:6px}
+.ph .shf .btns{display:flex;gap:8px;flex-wrap:wrap}
+.ph .shf .btns>*{flex:1 1 7em}
+.ph .shf .propconf{background:var(--surface);border-radius:var(--r-ctl);padding:10px 12px}
+.ph .stopq{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:max(44px,2.9em);padding:0 16px;border:1px solid var(--border);border-radius:var(--r-pill);background:none;color:var(--danger);font-weight:700;font-size:.94em;cursor:pointer}
+.ph .pbtn.primary{background:var(--accent);color:var(--on-accent);border-color:transparent;width:100%}
+.ph .crow.flat{border-bottom:0;padding:0}
+
+/* ---------- the undo bar: at the bottom, short, no prompt ---------- */
+.ph .undo{position:absolute;left:12px;right:12px;bottom:12px;z-index:25;display:flex;align-items:center;gap:8px;padding:4px 4px 4px 16px;border-radius:var(--r-ctl);background:var(--fg);color:var(--bg);min-height:max(52px,3.4em)}
+.ph .undo .u-t{flex:1;min-width:0;font-weight:700;overflow-wrap:anywhere}
+.ph .undo .u-b{flex:none;min-width:max(44px,2.9em);min-height:max(44px,2.9em);padding:0 16px;border:0;border-radius:var(--r-pill);background:none;color:var(--bg);font-weight:800;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.ph .undo .u-b:focus-visible{outline:3px solid var(--bg);outline-offset:-3px}
+.ph .toast{position:absolute;left:12px;right:12px;bottom:12px;z-index:30;padding:10px 14px;border-radius:var(--r-ctl);background:var(--fg);color:var(--bg);font-size:.9em;font-weight:600}
+.ph .hd2{display:flex;margin:10px 16px 0}
+
+/* ?bare=1: only the phone, full window (for phone testing and screenshots) */
+body.bare .po>*:not(.stage){display:none}
+body.bare .wrap.po{padding:0;max-width:none}
+body.bare .stage{margin:0}
+body.bare .stage .host{max-width:100%}
+body.bare .ph{height:100dvh;border:0;border-radius:0}
+@media (max-width:599px){body.bare .ph{height:100dvh}}

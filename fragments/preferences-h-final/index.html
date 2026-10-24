@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Preferences, option H final — fragment</title>
+<link rel="stylesheet" href="../../theme.css"><script src="../../theme.js"></script><link rel="stylesheet" href="../../shared.css"><link rel="stylesheet" href="ph.css">
+</head>
+<body data-no-theme-fab><div class="wrap po">
+<div class="top"><a class="back" href="../../">&lsaquo; All mockups</a><h1>Preferences<span class="badge">H final</span></h1></div>
+<p class="own"><b>Owner, 25 Oct 2026: &ldquo;build H&rdquo;.</b> The list only reads. Every add and every edit is one bottom sheet. Swipe a row left to remove it. Hard and Soft are words. Phone only; the desktop window is untouched.</p>
+
+<div class="bar" role="group" aria-label="Mockup aids">
+  <label><span class="l">View</span><select id="st-view" aria-label="View"><option value="mine">Mine</option><option value="edit">A rule opened</option><option value="soft">A Soft rule opened</option><option value="add">Add an avoid</option><option value="addswap">Add a swap</option><option value="addlimit">Add a limit</option><option value="comment">Comment shared</option><option value="confirm">Swiped a Hard rule</option><option value="undo">Removed, Undo bar</option><option value="hh">Everyone</option><option value="member">Everyone, not an admin</option></select></label>
+  <label><span class="l">Width</span><select id="st-w" aria-label="Width"><option value="390">390</option><option value="360">360</option></select></label>
+  <label><span class="l">Text</span><select id="st-ts" aria-label="Text size"><option value="0">Match my phone</option><option value="3">+30%</option></select></label>
+  <label><span class="l">Look</span><select id="st-look" aria-label="Light or dark"><option value="dark">Dark</option><option value="light">Light</option></select></label>
+</div>
+
+<div id="stage" class="stage"><div class="host"></div></div>
+
+<p><b>Play it.</b> Tap a rule to open the sheet. Tap a plus to add. Swipe a row left (a finger, or the mouse here) past the line: a Soft rule goes and the Undo bar appears, a Hard rule asks first, in the row. Delete on a focused row does the same from the keyboard; the sheet has Remove for everyone else. Hard to Soft asks once. Tick Share with household and the line under it changes.</p>
+<h2 class="sec">What changed from option H</h2>
+<ul>
+<li><b>Plus on each group header</b> (44px, right edge) replaces the Add row under every group. Avoids carries the one accent.</li>
+<li><b>Hard and Soft are words</b> on the row and in the sheet, no lock glyphs. Just you is one person, Everyone is two (unchanged).</li>
+<li><b>Reason is Comment</b>, with a <b>Share with household</b> box above it, off by default. The rule itself is shared as before; only the comment is private until ticked. Someone else&rsquo;s private comment is not shown to you at all (try Everyone: peanuts).</li>
+<li><b>Swipe left removes.</b> Past 72px; short of it the row springs back. Vertical movement is the page&rsquo;s scroll. Hard asks in the row, anything else goes at once. Every removal shows <b>Undo</b> for 8 seconds, no prompt.</li>
+<li><b>No exceptions feature.</b> &ldquo;Gluten except soy sauce&rdquo; is said in the Comment (owner, closed).</li>
+</ul>
+<p><a href="../preferences-options/index.html?o=H">The nine options this came from</a> &middot; <a href="../../docs/knowledge/preferences-h-final.md">notes</a></p>
+</div>
+<script src="ph.js"></script>
+<script>
+(function () {
+  var q = new URLSearchParams(location.search), PH = window.PH;
+  if (q.get("bare")) document.body.classList.add("bare");
+  var host = document.querySelector("#stage .host"), ph = PH.make(host);
+  if (q.get("undoms")) ph.undoMs = +q.get("undoms");
+  var S = ph.S;
+  function setView(v) {
+    var U = S.ui; U.sheet = null; U.conf = null; U.draft = null; U.undo = null; S.scope = "me"; S.role = "admin";
+    if (v === "hh" || v === "member") S.scope = "hh";
+    if (v === "member") S.role = "member";
+    if (v === "edit") ph.act("sheet:p");
+    if (v === "soft") ph.act("sheet:i");
+    if (v === "comment") ph.act("sheet:g");
+    if (v === "add") ph.act("add:avoid");
+    if (v === "addswap") ph.act("add:swap");
+    if (v === "addlimit") ph.act("add:limit");
+    if (v === "confirm") ph.act("swipe:p");
+    if (v === "undo") { var r = ph.rule("i"); if (r) ph.remove("i", "row"); }
+    ph.draw();
+  }
+  var view = q.get("view") || "mine"; document.querySelector("#st-view").value = view; setView(view);
+  var ts = q.get("ts") === "3" ? 3 : 0; PH.setScale(ts); document.querySelector("#st-ts").value = String(ts);
+  var w = q.get("w") === "360" ? "360" : "390"; document.querySelector("#st-w").value = w; host.style.width = w + "px";
+  document.body.setAttribute("data-ready", "1");
+  document.querySelector("#st-view").addEventListener("change", function (e) { location.search = "?view=" + e.target.value + "&ts=" + (document.querySelector("#st-ts").value) + "&w=" + document.querySelector("#st-w").value; });
+  document.querySelector("#st-w").addEventListener("change", function (e) { host.style.width = e.target.value + "px"; });
+  document.querySelector("#st-ts").addEventListener("change", function (e) { PH.setScale(+e.target.value); });
+  var look = document.querySelector("#st-look");
+  function curLook() { return document.documentElement.getAttribute("data-theme") === "kitchie-day" ? "light" : "dark"; }
+  look.value = curLook();
+  look.addEventListener("change", function (e) { PH.pickTheme(e.target.value === "light" ? "kitchie-day" : "kitchie"); });
+})();
+</script>
+</body></html>
