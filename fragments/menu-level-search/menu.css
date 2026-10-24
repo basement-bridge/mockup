@@ -6,7 +6,7 @@
 .mnu .phone .rb.out{color:var(--danger)}
 .mnu .phone .rb.out .lead{color:var(--danger)}
 .mnu .phone ul.list.main,.mnu .phone ul.list.tail{border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface);overflow:hidden}
-.mnu .phone ul.list.main .lead,.mnu .phone ul.list.tail .lead{background:none;border:0}
+.mnu .phone ul.list.main .lead,.mnu .phone ul.list.tail .lead{background:none;border:0;color:var(--muted)}
 .mnu .phone ul.list.main .who-av{background:var(--bg)}
 .mnu .phone ul.list .prow:last-child{border-bottom:0}
 /* the page around the phones */

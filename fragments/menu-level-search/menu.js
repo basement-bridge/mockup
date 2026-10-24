@@ -22,7 +22,7 @@
   var ico = function (n, s) { return '<svg width="' + (s || 20) + '" height="' + (s || 20) + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + PATHS[n] + "</svg>"; };
   var chev = function () { return '<span class="chev">' + ico("chev", 18) + "</span>"; };
   function row(a, label, v, icon, extra) {
-    return '<li class="prow" data-row="' + esc(extra && extra.row || label) + '"><button type="button" class="rb' + (extra && extra.cls ? " " + extra.cls : "") + '" data-a="' + a + '"><i class="lead" aria-hidden="true">' + ico(icon) + '</i><span class="nm">' + esc(label) + "</span>" + (v ? '<span class="val">' + esc(v) + "</span>" : "") + (extra && extra.nochev ? "" : chev()) + "</button></li>";
+    return '<li class="prow" data-row="' + esc(extra && extra.row || label) + '"><button type="button" class="rb' + (extra && extra.cls ? " " + extra.cls : "") + '" data-a="' + a + '">' + (icon ? '<i class="lead" aria-hidden="true">' + ico(icon) + "</i>" : "") + '<span class="nm">' + esc(label) + "</span>" + (v ? '<span class="val">' + esc(v) + "</span>" : "") + (extra && extra.nochev ? "" : chev()) + "</button></li>";
   }
   function who() {
     var n = SH.me || "Alex";
@@ -33,7 +33,7 @@
     return this.pinsHtml() +
       '<ul class="list main" data-curated>' + who() + row("pg:household", "Household", SH.hh, "home") + row("pg:preferences", "Preferences", "Quiet 22:00 to 07:00", "sliders") + row("pg:assistants", "Assistants", "Claude", "spark") + "</ul>" +
       '<ul class="list tail">' + row("soon:History", "History", "", "clock") + row("soon:Install", "Install", "", "install", { nochev: true }) + row("soon:Download my data", "Download my data", "", "down", { nochev: true }) + "</ul>" +
-      '<ul class="list tail">' + row("soon:Sign out", "Sign out", "", "out", { cls: "out", nochev: true }) + "</ul>";
+      '<ul class="list tail">' + row("soon:Sign out", "Sign out", "", "", { cls: "out", nochev: true }) + "</ul>";
   };
   var pageHtml = P.pageHtml, hhHtml = P.householdHtml;
   /* Kitchen setup lives inside Household (as built since 0.176): one row at the foot of the Household page */
