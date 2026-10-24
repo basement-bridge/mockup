@@ -85,6 +85,9 @@
 .swipe-under[data-armed=yes] span{transform:scale(1.12)}
 .swipe-under .ic{width:20px;height:20px}
 @media (prefers-reduced-motion:reduce){.swipe-under span{transition:none}}
+.r-kb{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.r-kb:focus-within{position:static;width:auto;height:auto;clip:auto;display:flex;flex-wrap:wrap;gap:8px;padding:4px 12px 8px}
+.r-kb button{min-height:var(--tap);padding:0 14px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--surface);font-weight:700;font-size:0.8125rem}
 .r-main.snap{transition:transform .22s cubic-bezier(.2,.9,.3,1.25),opacity .18s}
 @media (prefers-reduced-motion:reduce){.r-main.snap{transition:none}}
 .llp[data-v=d] .r[data-dragging]{overflow:visible;z-index:2}
@@ -195,7 +198,7 @@
 .lw-c.on .ic{fill:currentColor}
 
 /* Recipes tiles are photos, Pantry tiles are icons: a filled, framed square for a photo (a stand-in here), an unfilled outlined one for an icon (owner, 25 Oct 2026: could not tell them apart) */
-.llp[data-v=d][data-s=recipes] .r-lead.th{width:40px;height:40px;border-radius:6px;border:0;font-size:1.5rem;background:linear-gradient(150deg,color-mix(in srgb,var(--accent) 50%,var(--surface)),color-mix(in srgb,var(--sage) 45%,var(--surface)));box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--fg) 28%,transparent),0 1px 3px rgba(0,0,0,.35)}
+.llp[data-v=d][data-s=recipes] .r-lead.th{width:36px;height:36px;border-radius:6px;border:0;font-size:1.375rem;background:linear-gradient(150deg,color-mix(in srgb,var(--fg) 22%,var(--surface)),color-mix(in srgb,var(--sage) 38%,var(--surface)));box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--fg) 28%,transparent),0 1px 3px rgba(0,0,0,.35)}
 
 /* level symbol and small text: large enough for this owner (reviewer, 25 Oct 2026) */
 .llp[data-v=d] .lv{gap:3px}

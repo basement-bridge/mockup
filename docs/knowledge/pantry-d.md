@@ -97,3 +97,9 @@ Still open from the review: swipe has no visible hint on Pantry rows or Running 
 | R2-7 | Recipes pictures read differently from Pantry's icons. | Recipes tiles are a filled, ringed square with slightly tighter corners (40 px, a stand-in for a real photo); Pantry tiles stay the outlined icon tile. **Proposal; open until he sees real photos.** |
 
 Not done, still open from before: which Home basis style; Amount sort order; what the tick means; catch-up window; group order across visits; Confirm Undo 5 s or 14 s (the swipe Undo is UAT's 5 s); Recipes servings label; the plan none/other buttons; See all links; Why and Not tonight not drawn.
+
+### Design review of round two (separate senior-mobile-UX agent, 25 Oct 2026): Pass with changes, changes done
+
+Swipe checked against UAT's code: thresholds, colours in light and dark, labels, spring, slide-off and Undo bar match. Fixed after the review: swipe actions now also have buttons for keyboard and screen reader (hidden until focused, as UAT keeps its row buttons), including Add to list, Remove and Don\u2019t remind me on Running low; the On the way out position is kept when Home redraws; the Recipes tile is 36 px with a neutral fill (it was crowding the edge and adding a second accent); the Remove panel word is shorter; a blocked swipe on Running low gives a small give instead of nothing.
+
+Still open (suggestions): "Don\u2019t remind me" is household-wide in UAT's mechanism, no list to unhide from after the 5 s Undo, and 160 to 190 px looks the same as the Add stage (easy to overshoot); no swipe hint on Running low; the red pill on Pantry rows versus red writing on the cards; hero "top" at +30% text pushes Running low down (beside is the safer default); UAT draws a coloured edge bar on all three swipe stages (mockup only on Used up); the mock theme\u2019s light `--on-accent` is white where the app\u2019s is cream.

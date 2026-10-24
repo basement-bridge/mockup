@@ -28,7 +28,8 @@
   const lvIc = (k) => { const l = LV[k]; if (!l) return ""; let s = ""; for (let i = 0; i < 3; i++) s += '<i class="' + (i < l[0] ? "on" : "") + '"></i>'; return '<span class="lv lv-' + l[1] + '" role="img" aria-label="Level: ' + l[2] + '">' + s + "</span>"; };
   const RANK = { out: 0, low: 1, some: 2, plenty: 3 };
   /* the panel under a swiped row: UAT's words and marks only (swipe.js underFor): a minus and "Use one", a tick and "Used up", the cart and "Add to list" */
-  const underHtml = (home) => '<div class="swipe-under" aria-hidden="true">' + (home ? '<span class="su-rm">Remove from list</span><span class="su-hide">Don\u2019t remind me</span>' : '<span class="su-one">\u2212 Use one</span><span class="su-all">\u2713 Used up</span>') + '<span class="su-shop">' + ic("cart") + "Add to list</span></div>";
+  const kbHtml = (acts) => '<span class="r-kb" role="group" aria-label="Actions">' + acts.map((a) => '<button type="button" data-a="kb" data-k="' + a[0] + '">' + a[1] + "</button>").join("") + "</span>";
+  const underHtml = (home) => '<div class="swipe-under" aria-hidden="true">' + (home ? '<span class="su-rm">Remove</span><span class="su-hide">Don\u2019t remind me</span>' : '<span class="su-one">\u2212 Use one</span><span class="su-all">\u2713 Used up</span>') + '<span class="su-shop">' + ic("cart") + "Add to list</span></div>";
 
   /* ---------- use-by in short counts (owner, 25 Oct 2026): 1D, 5D ... 1W, 2W, 3W, 1M; a minus sign and a red pill when past ---------- */
   function ub(d) {
@@ -140,7 +141,7 @@
     return '<li class="r' + (sel ? " is-sel" : "") + out + '" data-id="' + i.id + '">' + (P ? underHtml(false) : "") +
       '<button type="button" class="r-main" data-a="row" data-id="' + i.id + '"' + (P ? " data-swipe=\"1\"" : "") + ' aria-label="' + esc(ar) + '"' + (S.sel ? ' aria-pressed="' + !!sel + '"' : "") + ">" +
       '<span class="r-sel" aria-hidden="true">' + (sel ? ic("check") : "") + "</span>" + tile +
-      '<span class="r-text"><b class="r-name"><span class="nm">' + name + "</span>" + star + cue + '</b><small class="r-meta">' + esc(second) + "</small></span>" + tail + "</button></li>";
+      '<span class="r-text"><b class="r-name"><span class="nm">' + name + "</span>" + star + cue + '</b><small class="r-meta">' + esc(second) + "</small></span>" + tail + "</button>" + (P ? kbHtml([["shop", "Add to list"]].concat(useKind(i) === "one" ? [["one", "Use one"]] : []).concat([["all", "Used up"]])) : "") + "</li>";
   };
   P_.bodyHtml = function () {
     const S = this.S, P = this.s === "pantry", items = this.items(), gs = this.groups(items);
@@ -244,7 +245,7 @@
     const list = D.home.low.filter((id) => !this.S.hidden.has(id)); if (!list.length) return "";
     return '<ul class="rows hm-low-rows">' + list.map(pItem).map((i) => {
       const on = this.S.onList.has(i.id), q = /^Level/.test(i.amt) ? "" : i.amt.split(",")[0];
-      return '<li class="r lw" data-id="' + i.id + '">' + underHtml(true) + "<button type=\"button\" class=\"r-main\" data-swipe=\"1\" data-home=\"1\" data-a=\"toast\" data-t=\"Opens " + esc(i.name) + "\" aria-label=\"" + esc(i.name) + ", " + esc(q) + (on ? ", on the shopping list" : ", not on the list") + '"><span class="r-lead" aria-hidden="true"><span>' + (i.e || '<span class="r-ltr">' + esc(i.name.charAt(0)) + "</span>") + '</span></span><span class="r-text"><b class="r-name"><span class="nm">' + esc(i.name) + '</span></b></span><span class="lw-q">' + esc(q) + '</span><span class="lw-c' + (on ? " on" : "") + '" role="img" aria-label="' + (on ? "On the shopping list" : "Not on the list") + '">' + ic("cart") + "</span></button></li>";
+      return '<li class="r lw" data-id="' + i.id + '">' + underHtml(true) + "<button type=\"button\" class=\"r-main\" data-swipe=\"1\" data-home=\"1\" data-a=\"toast\" data-t=\"Opens " + esc(i.name) + "\" aria-label=\"" + esc(i.name) + ", " + esc(q) + (on ? ", on the shopping list" : ", not on the list") + '"><span class="r-lead" aria-hidden="true"><span>' + (i.e || '<span class="r-ltr">' + esc(i.name.charAt(0)) + "</span>") + '</span></span><span class="r-text"><b class="r-name"><span class="nm">' + esc(i.name) + '</span></b></span><span class="lw-q">' + esc(q) + '</span><span class="lw-c' + (on ? " on" : "") + '" role="img" aria-label="' + (on ? "On the shopping list" : "Not on the list") + '">' + ic("cart") + "</span></button>" + kbHtml(on ? [["rm", "Remove from list"]] : [["shop", "Add to list"], ["hide", "Don\u2019t remind me"]]) + "</li>";
     }).join("") + "</ul>";
   };
   P_.homeHtml = function () {
@@ -255,7 +256,7 @@
   /* ---------- draw ---------- */
   const dsel = (d) => { let q = '[data-a="' + d.a + '"]'; ["k", "id", "g", "c", "l", "t"].forEach((x) => { if (d[x] != null) q += "[data-" + x + '="' + String(d[x]).replace(/"/g, '\\"') + '"]'; }); return q; };
   P_.draw = function () {
-    const S = this.S, keep = this.el.querySelector(".ll-body"), top = keep ? keep.scrollTop : 0;
+    const S = this.S, keep = this.el.querySelector(".ll-body"), top = keep ? keep.scrollTop : 0, oct = this.el.querySelector(".oc-track"), ocl = oct ? oct.scrollLeft : 0;
     const ae = document.activeElement, had = ae && this.el.contains(ae) && ae.dataset && ae.dataset.a ? Object.assign({}, ae.dataset) : null, wasSheet = !!this._sheetWas;
     const cur = this.s;
     let h;
@@ -265,6 +266,7 @@
     const d = this.el.dataset;
     d.search = S.search ? "1" : "0"; d.sel = S.sel ? "1" : "0"; d.custom = this.custom() ? "1" : "0"; d.v = "d"; d.s = this.s; d.chips = S.chips; d.shut = this._allShut ? "1" : "0";
     const b = this.el.querySelector(".ll-body"); if (b) b.scrollTop = top;
+    const oc2 = this.el.querySelector(".oc-track"); if (oc2 && ocl) oc2.scrollLeft = ocl;
     if (S.search) { const q = this.el.querySelector(".tp-q"); if (q) { q.focus({ preventScroll: true }); try { q.setSelectionRange(q.value.length, q.value.length); } catch (e) {} } }
     if (this.s === "home" && S.basis) this.mountBasis(false);
     this._sheetWas = S.sheet;
@@ -354,6 +356,7 @@
     catch(p) { p.S.catch = true; p.draw(); },
     caughtup(p) { p.S.catch = false; p.S.seen = true; p.draw(); },
     undo(p) { const u = p._undo; p._undo = null; if (u) u(); },
+    kb(p, t) { const row = t.closest(".r").querySelector(".r-main"); p.swDo(row, t.dataset.k); },
     ubar(p) { const u = p._ubar; p._ubar = null; clearTimeout(p._ut); if (u) { u(); p.undoBar("Undone"); } },
     /* Home */
     swap(p) { const S = p.S; S.basis = !S.basis; S.ready = false; clearTimeout(p._cf); const box = p.el.querySelector("#based"); if (S.basis) { p.mountBasis(true); p.actsPatch(); p.setLean(S.lean, true); } else { box.hidden = true; p.actsPatch(); } },
@@ -368,7 +371,8 @@
   const useKind = (d) => { const m = /^(\d+)\s*(.*)$/.exec((d && d.amt) || ""); return m && Number(m[1]) > 1 && !/^(g|kg|ml|l)\b/i.test(m[2]) ? "one" : "all"; };
   const memory = () => { try { return JSON.parse(localStorage.getItem("kitchie.swipe") || "{}") || {}; } catch (e) { return {}; } };
   const remember = (k) => { try { const m = memory(); m[k] = (m[k] || 0) + 1; localStorage.setItem("kitchie.swipe", JSON.stringify(m)); } catch (e) {} };
-  P_.swLimit = function (row, dx) { if (!row.dataset.home) return dx; const on = this.S.onList.has(row.closest(".r").dataset.id); return on ? Math.min(dx, 0) : Math.max(dx, 0); };
+  P_.swBlocked = function (row, dx) { if (!row.dataset.home) return false; const on = this.S.onList.has(row.closest(".r").dataset.id); return on ? dx > 0 : dx < 0; };
+  P_.swLimit = function (row, dx) { return this.swBlocked(row, dx) ? 0 : dx; };
   P_.swAction = function (row, dx) {
     const id = row.closest(".r").dataset.id;
     if (row.dataset.home) { if (this.S.onList.has(id)) return dx <= -THRESHOLD ? "rm" : ""; return dx >= DEEP ? "hide" : dx >= THRESHOLD ? "shop" : ""; }
@@ -377,7 +381,8 @@
     return "";
   };
   P_.swPaint = function (row, raw) {
-    const li = row.closest(".r"), un = li.querySelector(".swipe-under"), dx = this.swLimit(row, raw), act = this.swAction(row, dx);
+    const li = row.closest(".r"), un = li.querySelector(".swipe-under"), blocked = this.swBlocked(row, raw), dx = this.swLimit(row, raw), act = this.swAction(row, dx);
+    if (blocked) { /* nothing to do this way: the row only gives a little, then holds */ row.style.transform = "translateX(" + Math.sign(raw) * Math.min(8, Math.abs(raw) / 8) + "px)"; return; }
     const kind = row.dataset.home ? "" : useKind(this.data.filter((x) => x.id === li.dataset.id)[0]);
     li.setAttribute("data-dragging", "");
     un.dataset.dir = act || (dx > 0 ? "shop" : row.dataset.home ? "rm" : kind === "all" ? "all" : "one");
