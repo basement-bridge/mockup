@@ -88,4 +88,4 @@ Default path: the Home mockup's own files, `picker.css`, `data.js`, `common.js`,
 
 ## Open, 24 October 2026: the stacked-night cue
 
-The peek (a sliver card under a night with more than one meal) reads as a stray border on both themes (owner). Four alternative cues are drawn, none chosen: `docs/knowledge/plan-stacked-night-cue.md`, `fragments/plan-day-picker/stacked-cue/`.
+The peek (a sliver card under a night with more than one meal) reads as a stray border on both themes (owner). Four alternative cues are drawn, SC-O1 (count badge) chosen 25 Oct 2026, SC-D1: `docs/knowledge/plan-stacked-night-cue.md`, `fragments/plan-day-picker/stacked-cue/`.

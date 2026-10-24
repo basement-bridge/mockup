@@ -1,6 +1,6 @@
 # Phone Home: one card language (kitchie#1112)
 
-Mockup: `fragments/home-card-language/` (three options A to C, phone 390 wide, light and dark). Live: <https://basement-bridge.github.io/mockup/fragments/home-card-language/>. Builds on `mobile-home-g-revisions.md` (the three chevron sections and the passport hero). Issue: kitchie#1112. Status: **options awaiting the owner's pick** (HC-Q1); the regression fixes are already on UAT.
+Mockup: `fragments/home-card-language/` (three options A to C, phone 390 wide, light and dark). Live: <https://basement-bridge.github.io/mockup/fragments/home-card-language/>. Builds on `mobile-home-g-revisions.md` (the three chevron sections and the passport hero). Issue: kitchie#1112. Status: **option A chosen** (HC-D3, owner, 25 Oct 2026); the regression fixes are already on UAT.
 
 ## Owner (24 Oct 2026, typed, with a phone screenshot of Home on UAT 0.169.0)
 
@@ -26,10 +26,11 @@ Before #1070 (15f8233a, 23 Oct) every Home card was one white surface with a hai
 
 - **HC-D1 (built).** One card surface for the hero and the three sections: `var(--surface)`, 1px `var(--border)`, `var(--r-card)`; the lead a hairline on `var(--bg)`.
 - **HC-D2 (built).** Word pill at the right of the title row, 11px, the bare count hidden while it shows.
+- **HC-D3 (owner, 25 Oct 2026, approved; resolves HC-Q1).** Home card language is **option A, one surface**: every card, urgent sections included, is the same `var(--surface)` with a hairline; urgency is order, the word pill and default open. B (tint) and C (edge bar) are not taken; C remains the fallback only if a later pick reopens it. Already on UAT, so the build needs no new CSS.
 
-## Options for an urgent section (HC-Q1, awaiting the owner)
+## Options for an urgent section (HC-Q1, resolved: A chosen, HC-D3)
 
-- **A. One surface (recommended, on UAT).** No extra mark; urgency is order, pill and default open. Calmest; only as loud as its pill.
+- **A. One surface (CHOSEN, HC-D3; on UAT).** No extra mark; urgency is order, pill and default open. Calmest; only as loud as its pill.
 - **B. Tinted.** Tint plus coloured border. Seen at a glance, but a second surface and colour-led. Not recommended.
 - **C. Edge bar.** Same surface; a 4px leading-edge bar (a shape) plus the pill. Recommended if A proves too quiet.
 
@@ -37,7 +38,7 @@ Shape plus colour in every option: the pill carries words; C adds a shape.
 
 ## Open
 
-- **HC-Q1** A, B or C. Cost of a wrong pick: A too quiet, B a second surface, C one more mark.
+- **HC-Q1** Resolved by HC-D3: A.
 - **HC-Q2** Keep "See all" on the hero (the build has it, the mockup hero does not). Recommendation: keep.
 - **HC-Q3** The blurred header: the installed app's translucent status bar? Needs a real phone.
 
