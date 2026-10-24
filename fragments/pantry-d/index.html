@@ -18,7 +18,7 @@ body{font-family:var(--body)}
 </style></head>
 <body data-no-theme-fab>
 <!-- Pantry D, locked by the owner (voice, 25 Oct 2026). One phone.
-     ?s=pantry|recipes|home  &chips=pill|dot|tabs|square|icon  &basis=carousel|dial|chips  &plan=today|other|none  &state=select|sorted|collapsed|catch|swap|filters|search
+     ?s=pantry|recipes|home  &hero=left|top  &basis=carousel|dial|chips  &plan=today|other|none  &state=select|sorted|collapsed|catch|swap|filters|search
      &group=cat|loc  &theme=kitchie|kitchie-day  &hint=0 (no first-week jiggle)  &pick=id,id
      The options row below is mock chrome (not in the app). Only this screen's scripts are fetched (DESIGN.md section 6). -->
 <main id="stage"><details id="opt"><summary>Options</summary><div id="optg"></div></details><div class="llp" id="ph" data-v="d"></div></main>
@@ -26,20 +26,20 @@ body{font-family:var(--body)}
 (function(){
   var Q=new URLSearchParams(location.search),s=Q.get("s")||"pantry";
   if(!/^(pantry|recipes|home)$/.test(s))s="pantry";
-  var chips=/^(pill|dot|tabs|square|icon)$/.test(Q.get("chips")||"")?Q.get("chips"):"pill";
+  var chips="tabs";
+  var hero=/^(left|top)$/.test(Q.get("hero")||"")?Q.get("hero"):"left";
   var basis=/^(carousel|dial|chips)$/.test(Q.get("basis")||"")?Q.get("basis"):"carousel";
   var plan=/^(today|other|none)$/.test(Q.get("plan")||"")?Q.get("plan"):"today";
   function href(k,v){var u=new URLSearchParams(location.search);u.set(k,v);return "?"+u.toString()}
   function grp(label,key,vals,cur){var h='<div class="og"><b>'+label+'</b>';vals.forEach(function(v){h+='<a href="'+href(key,v)+'"'+(v===cur?' aria-current="true"':'')+'>'+v+'</a>'});return h+'</div>'}
   var h=grp("Screen","s",["pantry","recipes","home"],s);
-  if(s!=="home")h+=grp("Chips","chips",["pill","dot","tabs","square","icon"],chips);
-  else h+=grp("Basis","basis",["carousel","dial","chips"],basis)+grp("Plan","plan",["today","other","none"],plan);
+  if(s==="home")h+=grp("Basis","basis",["carousel","dial","chips"],basis)+grp("Plan","plan",["today","other","none"],plan)+grp("Hero","hero",["left","top"],hero);
   h+=grp("Theme","theme",["kitchie","kitchie-day"],Q.get("theme")||"kitchie");
   document.getElementById("optg").innerHTML=h;
   function load(src,cb){var e=document.createElement("script");e.src=src;e.onload=cb;document.body.appendChild(e)}
   load("../list-language/ll-data.js",function(){load("pd-data.js",function(){load("pd.js",function(){
     var el=document.getElementById("ph");el.dataset.v="d";el.dataset.s=s;
-    PD.mount(el,{s:s,state:Q.get("state")||(s==="home"&&Q.get("swap")?"swap":""),chips:chips,basis:basis,plan:plan,group:Q.get("group")||"",chip:Q.get("chip")||"",q:Q.get("q")||"",pick:Q.get("pick")||"",hint:Q.get("hint")||""});
+    PD.mount(el,{s:s,state:Q.get("state")||(s==="home"&&Q.get("swap")?"swap":""),chips:chips,hero:hero,basis:basis,plan:plan,group:Q.get("group")||"",chip:Q.get("chip")||"",q:Q.get("q")||"",pick:Q.get("pick")||"",hint:Q.get("hint")||""});
     document.title="Pantry D, "+s;var th=Q.get("theme");if(th==="kitchie"||th==="kitchie-day")document.documentElement.setAttribute("data-theme",th);
   })})});
 })();

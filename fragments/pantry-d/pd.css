@@ -8,28 +8,13 @@
 .llp[data-v=d] .tp-add{width:44px;height:44px;border-radius:12px}
 .llp[data-v=d] .tp-find{border-radius:12px}
 
-/* ---- category / location chips: five looks ---- */
+/* ---- category / location chips: tabs (owner picked it, 25 Oct 2026): words in a row, a line under the one that is on ---- */
 .llp[data-v=d] .ll-chips{padding-left:4px}
 .llp[data-v=d] .ch-scroll{gap:4px;padding-right:12px}
 .llp[data-v=d] .ch-mode:disabled{opacity:.5}
-.llp[data-v=d] .ch>span{height:30px;padding:0 11px;border-radius:99px;border:1.5px solid var(--border);font-size:0.7812rem;background:none}
+.llp[data-v=d] .ch>span{height:34px;padding:0 8px;border:0;border-bottom:3px solid transparent;border-radius:0;font-size:0.7812rem;background:none}
 .llp[data-v=d] .ch>span i{font-size:0.6875rem}
-.llp[data-v=d] .ch[aria-pressed=true]>span{border-color:var(--accent);color:var(--accent)}
-/* dot: a ring before the word, filled when on (shape, not only colour) */
-.llp[data-chips=dot] .ch>span{border:0;padding:0 8px 0 6px;border-radius:0}
-.llp[data-chips=dot] .ch>span::before{content:"";width:9px;height:9px;border-radius:50%;border:1.5px solid var(--muted);flex:none}
-.llp[data-chips=dot] .ch[aria-pressed=true]>span{color:var(--fg);font-weight:800}
-.llp[data-chips=dot] .ch[aria-pressed=true]>span::before{background:var(--accent);border-color:var(--accent)}
-/* tabs: words in a row, a line under the one that is on */
-.llp[data-chips=tabs] .ch>span{border:0;border-radius:0;padding:0 8px;border-bottom:3px solid transparent;height:34px}
-.llp[data-chips=tabs] .ch[aria-pressed=true]>span{border-bottom-color:var(--accent);color:var(--fg);font-weight:800}
-/* square: thin outline, tight corners, close to the table */
-.llp[data-chips=square] .ch>span{border-radius:4px;border-width:1px}
-.llp[data-chips=square] .ch[aria-pressed=true]>span{border-width:1px;box-shadow:inset 0 0 0 1px var(--accent)}
-/* icon: the tag or pin with the name, no box; underlined when on */
-.llp[data-chips=icon] .ch>span{border:0;padding:0 7px;border-radius:0}
-.llp[data-chips=icon] .ch>span .ch-i{width:14px;height:14px}
-.llp[data-chips=icon] .ch[aria-pressed=true]>span{color:var(--accent);font-weight:800;text-decoration:underline;text-underline-offset:5px;text-decoration-thickness:2px}
+.llp[data-v=d] .ch[aria-pressed=true]>span{border-bottom-color:var(--accent);color:var(--fg);font-weight:800}
 
 /* ---- column head: it is the sort ---- */
 .llp[data-v=d] .ll-colhead{display:grid;grid-template-columns:var(--c-lead) minmax(0,1fr) var(--c-amt) var(--c-ub);align-items:center;flex:none;background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);z-index:3}
@@ -58,8 +43,7 @@
 /* ---- rows ---- */
 .llp[data-v=d] .r{position:relative;overflow:hidden;border-bottom:1px solid var(--border);display:block}
 .llp[data-v=d] .r:last-child{border-bottom:0}
-.llp[data-v=d] .r-main{display:grid;grid-template-columns:var(--c-lead) minmax(0,1fr) var(--c-amt) var(--c-ub);align-items:center;gap:0;min-height:54px;padding:3px 0;background:var(--bg);touch-action:pan-y;position:relative;z-index:1;transition:transform .15s}
-.llp[data-v=d] .r-main[style*=translate]{transition:none}
+.llp[data-v=d] .r-main{display:grid;grid-template-columns:var(--c-lead) minmax(0,1fr) var(--c-amt) var(--c-ub);align-items:center;gap:0;min-height:54px;padding:3px 0;background:var(--bg);touch-action:pan-y;position:relative;z-index:1}
 .llp[data-v=d] .r-lead{display:flex;grid-column:1;grid-row:1;justify-self:center;width:34px;height:34px;border-radius:9px;font-size:1.125rem;background:var(--surface);border:1px solid var(--border);align-items:center;justify-content:center}
 .llp[data-v=d] .r-lead .r-ltr{font-size:1rem}
 .llp[data-v=d] .r-sel{grid-column:1;grid-row:1;justify-self:center}
@@ -87,17 +71,32 @@
 .llp[data-v=d] .r.is-sel .r-main{background:color-mix(in srgb,var(--accent) 10%,var(--bg))}
 .llp[data-v=d] .r-chev,.llp[data-v=d] .ll-fab{display:none}
 
-/* swipe panels under the row (UAT numbers: 90px short, 190px long) */
-.sw-l,.sw-r{position:absolute;inset:0;display:none;align-items:center;gap:8px;padding:0 16px;font-size:0.8125rem;font-weight:800}
-.sw-l{justify-content:flex-start;background:var(--accent);color:var(--on-accent)}
-.sw-r{justify-content:flex-end;background:var(--surface);color:var(--fg)}
-.sw-l .ic{width:20px;height:20px}
-.sw-all{display:none}
-.r[data-sw=r] .sw-l,.r[data-sw=shop] .sw-l{display:flex}
-.r[data-sw=l] .sw-r,.r[data-sw=one] .sw-r,.r[data-sw=all] .sw-r{display:flex}
-.r[data-sw=all] .sw-r{background:var(--danger);color:var(--bg)}
-.r[data-sw=all] .sw-one{display:none}.r[data-sw=all] .sw-all{display:inline}
-.r[data-sw=l] .sw-r .sw-one,.r[data-sw=one] .sw-r .sw-one{display:inline}
+/* swipe: copied from UAT as it is today (kitchie d14049a: server/src/assets/swipe.js, layout.ts .swipe-under / li[data-dragging] / li.snap, .undo).
+   Panel under the row: accent "- Use one", danger "Used up", added-green cart "Add to list"; fades in with the drag; label grows when armed. 90px short, 190px long. */
+.llp{--added:#86D99B;--on-danger:#0F1E19}
+:root[data-theme=kitchie-day] .llp{--added:#1E7A44;--on-danger:#FFFFFF}
+.swipe-under{position:absolute;inset:0;display:none;align-items:center;justify-content:flex-end;padding:0 1.2rem;border-radius:.75rem;font-weight:700;font-size:.95rem;color:var(--on-accent);pointer-events:none;background:var(--accent)}
+.r[data-dragging] .swipe-under{display:flex}
+.swipe-under[data-dir=all]{background:var(--danger);color:var(--on-danger)}
+.swipe-under[data-dir=shop]{background:var(--added);justify-content:flex-start}
+.swipe-under[data-dir=hide]{background:var(--muted);color:var(--bg);justify-content:flex-start}
+.swipe-under span{display:none;align-items:center;gap:8px;transition:transform .12s}
+.swipe-under[data-dir=one] .su-one,.swipe-under[data-dir=all] .su-all,.swipe-under[data-dir=shop] .su-shop,.swipe-under[data-dir=rm] .su-rm,.swipe-under[data-dir=hide] .su-hide{display:inline-flex}
+.swipe-under[data-armed=yes] span{transform:scale(1.12)}
+.swipe-under .ic{width:20px;height:20px}
+@media (prefers-reduced-motion:reduce){.swipe-under span{transition:none}}
+.r-main.snap{transition:transform .22s cubic-bezier(.2,.9,.3,1.25),opacity .18s}
+@media (prefers-reduced-motion:reduce){.r-main.snap{transition:none}}
+.llp[data-v=d] .r[data-dragging]{overflow:visible;z-index:2}
+.llp[data-v=d] .r[data-dragging] .r-main{box-shadow:0 4px 14px rgba(0,0,0,.12);border-radius:.75rem}
+.llp[data-v=d] .r[data-swipe-now=all] .r-main{box-shadow:0 4px 14px rgba(0,0,0,.12),inset -4px 0 0 var(--danger)}
+/* the Undo bar: UAT's, at the top, 5 seconds */
+.ll-undo{position:absolute;top:0;left:0;right:0;z-index:9;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.6rem .6rem .6rem 1.1rem;background:color-mix(in srgb,var(--accent) 88%,transparent);color:var(--on-accent);font-weight:600;font-size:.9375rem;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:0 6px 24px rgba(0,0,0,.28);animation:uin .18s ease-out}
+.ll-undo[hidden]{display:none}
+.ll-undo .u-t{min-width:0;overflow-wrap:anywhere}
+.ll-undo button{flex:none;min-height:48px;min-width:88px;padding:0 1.2rem;border:0;border-radius:.7rem;background:var(--on-accent);color:var(--accent);font:inherit;font-weight:700;text-align:center}
+@keyframes uin{from{transform:translateY(-100%)}to{transform:none}}
+@media (prefers-reduced-motion:reduce){.ll-undo{animation:none}}
 
 /* ---- catch-up: a quiet divider in the list, then one flat list of what changed ---- */
 .ca-div,.ca-band{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 12px;font-size:0.7812rem;font-weight:600;color:var(--muted);border-bottom:1px solid var(--border)}
@@ -133,6 +132,12 @@
 .hm-hero{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:14px}
 .hm-top{display:flex;gap:12px;align-items:center}
 .hm-hero .r-lead.th{display:flex;width:56px;height:56px;font-size:1.75rem;border-radius:14px}
+/* hero with more in it (time, what is missing, why) and a bigger picture; ?hero=left (picture beside) or top (picture as a banner): owner to pick */
+.hm-hero.hero-left .hm-top{align-items:flex-start}
+.hm-hero.hero-left .r-lead.th{width:88px;height:88px;font-size:2.75rem;border-radius:16px}
+.hm-hero.hero-top .hm-top{flex-direction:column;align-items:stretch;gap:10px}
+.hm-hero.hero-top .r-lead.th{width:100%;height:116px;font-size:3.5rem;border-radius:14px}
+.hm-why{display:block;margin-top:5px;font-size:0.8125rem;line-height:1.3;color:var(--muted)}
 .hm-hero .hm-it b{font:800 20px/1.15 var(--head);margin-top:2px;overflow-wrap:anywhere}
 .hm-hero .hm-it small{font-size:0.8125rem}
 .hm-acts{display:flex;gap:8px;margin-top:14px;container-type:inline-size;align-items:stretch}
@@ -160,24 +165,27 @@
 .bs-track.jig{animation:jig 1.3s ease-in-out 1}
 @keyframes jig{0%,100%{transform:translateX(0)}25%{transform:translateX(-12px)}70%{transform:translateX(12px)}}
 @media(prefers-reduced-motion:reduce){.bs-track.jig,.hb.cf{animation:none}}
-/* On the way out: a carousel of one-line cards (icon and name level; where it lives under the name; quantity or level, never both) */
-.oc-track{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:none;margin:2px -12px 0;padding:2px 12px}
+/* On the way out: a carousel of tight two-row cards (owner, 25 Oct 2026). Row 1: name, use-by. Row 2: where it lives, quantity or level (same slot, same size, never both).
+   Narrower than the screen so the next card peeks in. Past use-by is red writing with a minus sign, not a pill. */
+.oc-track{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x proximity;scroll-padding:0 12px;scrollbar-width:none;margin:2px -12px 0;padding:2px 12px}
 .oc-track::-webkit-scrollbar{display:none}
-.oc{flex:none;width:min(82%,300px);scroll-snap-align:start}
-.oc-b{display:flex;align-items:center;gap:8px;width:100%;min-height:54px;padding:4px 10px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--surface)}
-.oc-e{font-size:1.375rem;display:inline-flex;flex:none;width:28px;justify-content:center}
-.oc-t{flex:1;min-width:0}
-.oc-t b{display:block;font-size:0.9062rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.oc-t small{display:block;font-size:0.7188rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.oc-q{flex:none;font-size:0.7812rem;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums}
+.oc{flex:none;width:calc(100% - 44px);scroll-snap-align:start}
+.oc-b{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;padding:3px 10px 3px 8px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--surface)}
+.oc-e{font-size:1.25rem;display:inline-flex;flex:none;width:26px;justify-content:center}
+.oc-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.oc-1,.oc-2{display:flex;align-items:center;gap:8px;min-width:0}
+.oc-1 b{flex:1;min-width:0;font-size:0.9062rem;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.oc-2{min-height:1rem}
+.oc-2 small{flex:1;min-width:0;font-size:0.7188rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.oc-q{flex:none;display:inline-flex;align-items:center;font-size:0.7188rem;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums}
 .oc .ub{flex:none;font-size:0.75rem;font-weight:800}
-.oc .ub-danger{background:var(--danger);color:var(--bg);padding:3px 7px;border-radius:99px}
+.llp[data-v=d] .oc .ub-danger{background:none;padding:0;border-radius:0;color:var(--danger)}
 .oc .ub-accent{color:var(--accent)}.oc .ub-mut{color:var(--muted)}
-/* Running low: a list; the cart is information (filled = on the shopping list); swipe right adds, left removes */
+/* Running low: a list; the cart is information (filled = on the shopping list). Right adds (only when not on the list); a long pull right = don't remind me; left removes (only when on the list) */
 .hm-low-rows{margin:0 -12px}
 .hm-low-rows .r{border-bottom:1px solid var(--border)}
 .hm-low-rows .r:first-child{border-top:1px solid var(--border)}
-.lw .r-main{display:grid;grid-template-columns:var(--c-lead) minmax(0,1fr) auto 48px;align-items:center;min-height:52px;background:var(--bg);touch-action:pan-y;position:relative;z-index:1;padding:2px 0;transition:transform .15s}
+.lw .r-main{display:grid;grid-template-columns:var(--c-lead) minmax(0,1fr) auto 48px;align-items:center;min-height:52px;background:var(--bg);touch-action:pan-y;position:relative;z-index:1;padding:2px 0}
 .lw .r-lead{display:flex;grid-column:1;justify-self:center;width:34px;height:34px;border-radius:9px;font-size:1.125rem;background:var(--surface);border:1px solid var(--border);align-items:center;justify-content:center}
 .lw .r-text{grid-column:2}
 .lw-q{font-size:0.7812rem;font-weight:600;color:var(--muted);padding-right:4px;white-space:nowrap}
@@ -185,6 +193,9 @@
 .lw-c .ic{width:22px;height:22px}
 .lw-c.on{color:var(--accent)}
 .lw-c.on .ic{fill:currentColor}
+
+/* Recipes tiles are photos, Pantry tiles are icons: a filled, framed square for a photo (a stand-in here), an unfilled outlined one for an icon (owner, 25 Oct 2026: could not tell them apart) */
+.llp[data-v=d][data-s=recipes] .r-lead.th{width:40px;height:40px;border-radius:6px;border:0;font-size:1.5rem;background:linear-gradient(150deg,color-mix(in srgb,var(--accent) 50%,var(--surface)),color-mix(in srgb,var(--sage) 45%,var(--surface)));box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--fg) 28%,transparent),0 1px 3px rgba(0,0,0,.35)}
 
 /* level symbol and small text: large enough for this owner (reviewer, 25 Oct 2026) */
 .llp[data-v=d] .lv{gap:3px}

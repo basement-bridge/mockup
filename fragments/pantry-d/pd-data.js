@@ -26,6 +26,15 @@
   D.leanIdea = { balanced: "omelette", use: "saag", quick: "toastie", fav: "dal", new: "pancakes", batch: "soup" };
   D.home.out = ["turmeric", "spinach", "milk", "mushrooms", "paneer", "flour"];
   D.home.low = ["milk", "tomatopaste", "garam", "paneer"];
+  /* the hero's extra content: why it was picked and what is missing (sample text; the build reads these from the idea) */
+  D.ideaInfo = {
+    omelette: { why: "Uses the spinach before it turns.", miss: [] },
+    saag: { why: "Uses the spinach and paneer, both close to their use-by.", miss: ["cream"] },
+    toastie: { why: "Quick, and everything is in.", miss: [] },
+    dal: { why: "A favourite. Makes enough to freeze.", miss: ["coriander", "lemon"] },
+    pancakes: { why: "Something different: not made for 40 days.", miss: ["baking powder", "maple syrup", "butter"] },
+    soup: { why: "A batch that freezes well. Uses the tomato paste.", miss: ["stock", "basil"] }
+  };
   D.home.onList = ["milk"];       /* already on the shopping list: filled cart */
   D.home.override = ["turmeric"]; /* level set by hand: the level symbol shows instead of the quantity (never both) */
 })();

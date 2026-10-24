@@ -27,6 +27,8 @@
   const LV = { plenty: [3, "plenty", "Plenty"], some: [2, "some", "Some"], low: [1, "low", "Running low"], out: [0, "out", "Out"] };
   const lvIc = (k) => { const l = LV[k]; if (!l) return ""; let s = ""; for (let i = 0; i < 3; i++) s += '<i class="' + (i < l[0] ? "on" : "") + '"></i>'; return '<span class="lv lv-' + l[1] + '" role="img" aria-label="Level: ' + l[2] + '">' + s + "</span>"; };
   const RANK = { out: 0, low: 1, some: 2, plenty: 3 };
+  /* the panel under a swiped row: UAT's words and marks only (swipe.js underFor): a minus and "Use one", a tick and "Used up", the cart and "Add to list" */
+  const underHtml = (home) => '<div class="swipe-under" aria-hidden="true">' + (home ? '<span class="su-rm">Remove from list</span><span class="su-hide">Don\u2019t remind me</span>' : '<span class="su-one">\u2212 Use one</span><span class="su-all">\u2713 Used up</span>') + '<span class="su-shop">' + ic("cart") + "Add to list</span></div>";
 
   /* ---------- use-by in short counts (owner, 25 Oct 2026): 1D, 5D ... 1W, 2W, 3W, 1M; a minus sign and a red pill when past ---------- */
   function ub(d) {
@@ -73,7 +75,7 @@
     this.data = D.pantry.map((i) => Object.assign({}, i));
     this.S = {
       sort: { k: P ? "name" : "best", d: 0 }, group: P ? "cat" : "flat", chip: "all", q: "", search: false, folded: {}, sel: null, sheet: false, menu: false, st: {}, toast: "",
-      order: {}, catch: false, seen: false, chips: o.chips || "pill",
+      order: {}, catch: false, seen: false, chips: "tabs", hero: o.hero === "top" ? "top" : "left", hidden: new Set(),
       plan: o.plan || "today", lean: "balanced", basis: false, ready: false, planned: "omelette", onList: new Set(D.home.onList), basisStyle: o.basis || "carousel"
     };
     if (o.group && P) this.S.group = o.group === "loc" ? "loc" : "cat";
@@ -135,7 +137,7 @@
     const cue = P && i.recent ? '<span class="cue" role="img" aria-label="Added in the last 24 hours">' + ic("up") + "</span>" : "";
     const star = !P && i.star ? '<span class="nm-star" role="img" aria-label="Starred">' + ic("star") + "</span>" : "";
     const out = P && i.lvl === "out" ? " is-out" : "";
-    return '<li class="r' + (sel ? " is-sel" : "") + out + '" data-id="' + i.id + '" data-sw="">' + (P ? '<div class="sw-l" aria-hidden="true">' + ic("cart") + "<span>Add to list</span></div><div class=\"sw-r\" aria-hidden=\"true\"><span class=\"sw-one\">Use one</span><span class=\"sw-all\">Used up</span></div>" : "") +
+    return '<li class="r' + (sel ? " is-sel" : "") + out + '" data-id="' + i.id + '">' + (P ? underHtml(false) : "") +
       '<button type="button" class="r-main" data-a="row" data-id="' + i.id + '"' + (P ? " data-swipe=\"1\"" : "") + ' aria-label="' + esc(ar) + '"' + (S.sel ? ' aria-pressed="' + !!sel + '"' : "") + ">" +
       '<span class="r-sel" aria-hidden="true">' + (sel ? ic("check") : "") + "</span>" + tile +
       '<span class="r-text"><b class="r-name"><span class="nm">' + name + "</span>" + star + cue + '</b><small class="r-meta">' + esc(second) + "</small></span>" + tail + "</button></li>";
@@ -171,7 +173,7 @@
   P_.chipsHtml = function () {
     const S = this.S, P = this.s === "pantry", cl = this.chipList();
     const mi = P ? (S.group === "loc" ? "pin" : "tag") : "layers", ml = P ? (S.group === "loc" ? "Showing locations. Switch to categories" : "Showing categories. Switch to locations") : "Recipe filters";
-    const lead = (c) => { if (S.chips !== "icon" || c.id === "all") return ""; return ic(P ? (S.group === "loc" ? "pin" : "tag") : "star", "ch-i"); };
+    const lead = () => "";
     return '<div class="ll-chips"><button type="button" class="ch-mode" data-a="mode" aria-label="' + ml + '" title="' + ml + '"' + (P ? "" : " disabled") + ">" + ic(mi) + '</button><div class="ch-scroll" role="group" aria-label="' + (P ? (S.group === "loc" ? "Location" : "Category") : "Show") + '">' +
       cl.map((c) => '<button type="button" class="ch" data-a="chip" data-c="' + esc(c.id) + '" aria-pressed="' + (S.chip === c.id) + '"><span>' + lead(c) + esc(c.label) + "<i>" + c.n + "</i></span></button>").join("") + "</div></div>";
   };
@@ -225,26 +227,28 @@
     if (st === "chips") return '<div class="bs bs-chips" role="radiogroup" aria-label="Based on">' + items + "</div>";
     return '<div class="bs bs-' + st + '" role="radiogroup" aria-label="Based on"><div class="bs-track">' + items + '</div></div>';
   };
+  P_.heroMeta = function (i) { const inf = (D.ideaInfo || {})[i.id] || {}; return i.min + " min \u00b7 " + (i.miss ? i.miss + " missing" + (inf.miss && inf.miss.length ? ": " + inf.miss.join(", ") : "") : "all in"); };
   P_.heroHtml = function () {
-    const S = this.S, idea = this.idea(), plan = S.plan;
-    return '<section class="hm-hero" id="hero"><div class="hm-top"><span class="r-lead th" aria-hidden="true"><span id="hi-e">' + idea.e + '</span></span><div class="hm-it"><span class="hm-k">' + (S.basis ? "Trying" : plan === "other" ? "Planned Saturday" : plan === "today" ? "Tonight, planned" : "Tonight") + '</span><b id="hi-n">' + esc(idea.name) + '</b><small id="hi-m">' + idea.min + ' min · ' + (idea.miss ? idea.miss + " missing" : "all in") + '</small></div></div>' +
+    const S = this.S, idea = this.idea(), plan = S.plan, inf = (D.ideaInfo || {})[idea.id] || {};
+    return '<section class="hm-hero hero-' + S.hero + '" id="hero"><div class="hm-top"><span class="r-lead th" aria-hidden="true"><span id="hi-e">' + idea.e + '</span></span><div class="hm-it"><span class="hm-k">' + (S.basis ? "Trying" : plan === "other" ? "Planned Saturday" : plan === "today" ? "Tonight, planned" : "Tonight") + '</span><b id="hi-n">' + esc(idea.name) + '</b><small id="hi-m">' + esc(this.heroMeta(idea)) + '</small><span class="hm-why" id="hi-w">' + esc(inf.why || "") + '</span></div></div>' +
       '<div class="hm-based" id="based"' + (S.basis ? "" : " hidden") + '><span class="bs-k">Based on</span><div id="basis"></div></div><div class="hm-acts" id="acts">' + this.actsHtml() + "</div></section>";
   };
   P_.outHtml = function () {
     const cards = D.home.out.map(pItem).map((i) => {
       const auto = D.home.override.indexOf(i.id) < 0, q = /^Level/.test(i.amt) ? "" : i.amt.split(",")[0];
-      return '<li class="oc"><button type="button" class="oc-b" data-a="toast" data-t="Opens ' + esc(i.name) + '"><span class="oc-e" aria-hidden="true">' + (i.e || '<span class="r-ltr">' + esc(i.name.charAt(0)) + "</span>") + '</span><span class="oc-t"><b>' + esc(i.name) + '</b><small>' + esc(i.spot) + '</small></span><span class="oc-q">' + (auto ? esc(q || "") : lvIc(i.lvl)) + "</span>" + ubHtml(i.days) + "</button></li>";
+      return '<li class="oc"><button type="button" class="oc-b" data-a="toast" data-t="Opens ' + esc(i.name) + '"><span class="oc-e" aria-hidden="true">' + (i.e || '<span class="r-ltr">' + esc(i.name.charAt(0)) + "</span>") + '</span><span class="oc-t"><span class="oc-1"><b>' + esc(i.name) + "</b>" + ubHtml(i.days) + '</span><span class="oc-2"><small>' + esc(i.spot) + '</small><span class="oc-q">' + (auto ? esc(q) : lvIc(i.lvl)) + "</span></span></span></button></li>";
     }).join("");
     return '<ul class="oc-track">' + cards + "</ul>";
   };
   P_.lowHtml = function () {
-    return '<ul class="rows hm-low-rows">' + D.home.low.map(pItem).map((i) => {
+    const list = D.home.low.filter((id) => !this.S.hidden.has(id)); if (!list.length) return "";
+    return '<ul class="rows hm-low-rows">' + list.map(pItem).map((i) => {
       const on = this.S.onList.has(i.id), q = /^Level/.test(i.amt) ? "" : i.amt.split(",")[0];
-      return '<li class="r lw" data-id="' + i.id + '"><div class="sw-l" aria-hidden="true">' + ic("cart") + "<span>Add</span></div><div class=\"sw-r\" aria-hidden=\"true\"><span class=\"sw-one\">Remove</span></div><button type=\"button\" class=\"r-main\" data-swipe=\"1\" data-home=\"1\" data-a=\"toast\" data-t=\"Opens " + esc(i.name) + "\" aria-label=\"" + esc(i.name) + ", " + esc(q) + (on ? ", on the shopping list" : ", not on the list") + '"><span class="r-lead" aria-hidden="true"><span>' + (i.e || '<span class="r-ltr">' + esc(i.name.charAt(0)) + "</span>") + '</span></span><span class="r-text"><b class="r-name"><span class="nm">' + esc(i.name) + '</span></b></span><span class="lw-q">' + esc(q) + '</span><span class="lw-c' + (on ? " on" : "") + '" role="img" aria-label="' + (on ? "On the shopping list" : "Not on the list") + '">' + ic("cart") + "</span></button></li>";
+      return '<li class="r lw" data-id="' + i.id + '">' + underHtml(true) + "<button type=\"button\" class=\"r-main\" data-swipe=\"1\" data-home=\"1\" data-a=\"toast\" data-t=\"Opens " + esc(i.name) + "\" aria-label=\"" + esc(i.name) + ", " + esc(q) + (on ? ", on the shopping list" : ", not on the list") + '"><span class="r-lead" aria-hidden="true"><span>' + (i.e || '<span class="r-ltr">' + esc(i.name.charAt(0)) + "</span>") + '</span></span><span class="r-text"><b class="r-name"><span class="nm">' + esc(i.name) + '</span></b></span><span class="lw-q">' + esc(q) + '</span><span class="lw-c' + (on ? " on" : "") + '" role="img" aria-label="' + (on ? "On the shopping list" : "Not on the list") + '">' + ic("cart") + "</span></button></li>";
     }).join("") + "</ul>";
   };
   P_.homeHtml = function () {
-    const sec = (cls, icn, t, body) => '<section class="hm-sec ' + cls + '"><div class="hm-h"><span class="hm-i">' + ic(icn) + "</span><h2>" + t + "</h2></div>" + body + "</section>";
+    const sec = (cls, icn, t, body) => body ? '<section class="hm-sec ' + cls + '"><div class="hm-h"><span class="hm-i">' + ic(icn) + "</span><h2>" + t + "</h2></div>" + body + "</section>" : "";
     return '<div class="hm"><h1 class="hm-hi">Good evening, ' + esc(D.me) + ".</h1>" + this.heroHtml() + sec("hm-out", "clock", "On the way out", this.outHtml()) + sec("hm-low", "basket", "Running low", this.lowHtml()) + "</div>";
   };
 
@@ -257,7 +261,7 @@
     let h;
     if (this.s === "home") h = '<div class="ll-body" tabindex="-1">' + this.homeHtml() + '<div class="ll-end"></div></div>' + this.tabsHtml(cur);
     else h = this.topHtml() + this.chipsHtml() + this.cvHtml() + this.headHtml() + '<div class="ll-body" tabindex="-1">' + this.bodyHtml() + '<div class="ll-end"></div></div>' + (S.sel ? this.selbarHtml() : this.tabsHtml(cur)) + (S.sheet ? this.sheetHtml() : "");
-    this.el.innerHTML = h + '<div class="ll-toast" role="status" aria-live="polite"></div>';
+    this.el.innerHTML = h + '<div class="ll-undo" role="status" aria-live="polite" hidden></div><div class="ll-toast" role="status" aria-live="polite"></div>';
     const d = this.el.dataset;
     d.search = S.search ? "1" : "0"; d.sel = S.sel ? "1" : "0"; d.custom = this.custom() ? "1" : "0"; d.v = "d"; d.s = this.s; d.chips = S.chips; d.shut = this._allShut ? "1" : "0";
     const b = this.el.querySelector(".ll-body"); if (b) b.scrollTop = top;
@@ -315,7 +319,7 @@
   };
   P_.heroPatch = function () {
     const i = this.idea(), q = (s) => this.el.querySelector(s);
-    if (q("#hi-e")) q("#hi-e").textContent = i.e; if (q("#hi-n")) q("#hi-n").textContent = i.name; if (q("#hi-m")) q("#hi-m").textContent = i.min + " min · " + (i.miss ? i.miss + " missing" : "all in");
+    if (q("#hi-e")) q("#hi-e").textContent = i.e; if (q("#hi-n")) q("#hi-n").textContent = i.name; if (q("#hi-m")) q("#hi-m").textContent = this.heroMeta(i); if (q("#hi-w")) q("#hi-w").textContent = ((D.ideaInfo || {})[i.id] || {}).why || "";
     this.actsPatch();
   };
   P_.actsPatch = function () { const a = this.el.querySelector("#acts"); if (a) a.innerHTML = this.actsHtml(); };
@@ -350,6 +354,7 @@
     catch(p) { p.S.catch = true; p.draw(); },
     caughtup(p) { p.S.catch = false; p.S.seen = true; p.draw(); },
     undo(p) { const u = p._undo; p._undo = null; if (u) u(); },
+    ubar(p) { const u = p._ubar; p._ubar = null; clearTimeout(p._ut); if (u) { u(); p.undoBar("Undone"); } },
     /* Home */
     swap(p) { const S = p.S; S.basis = !S.basis; S.ready = false; clearTimeout(p._cf); const box = p.el.querySelector("#based"); if (S.basis) { p.mountBasis(true); p.actsPatch(); p.setLean(S.lean, true); } else { box.hidden = true; p.actsPatch(); } },
     lean(p, t) { p.setLean(t.dataset.l); },
@@ -358,23 +363,85 @@
     addplan(p) { const S = p.S; S.plan = "today"; S.planned = p.idea().id; p.draw(); p.say("Added to tonight", () => { S.plan = "none"; p.draw(); }); }
   };
 
-  /* Swipe (UAT numbers: 90px short, 190px long). Pantry rows: right = add to list, left a little = use one, left a long way = used up.
-     Home Running low rows: right = add to the list, left = remove. Works while picking. */
-  P_.swipeDone = function (row, dx) {
-    const li = row.closest(".r"), id = li.dataset.id, it = pItem(id);
+  /* Swipe: UAT's, copied (swipe.js d14049a). Pantry rows: right 90px = add to list; left 90px = use one (used up when it cannot step down); left 190px = used up.
+     Home Running low rows (owner, 25 Oct 2026): right 90px = add (only when NOT on the list); right 190px = don't remind me; left = remove (only when ON the list). Works while picking. */
+  const useKind = (d) => { const m = /^(\d+)\s*(.*)$/.exec((d && d.amt) || ""); return m && Number(m[1]) > 1 && !/^(g|kg|ml|l)\b/i.test(m[2]) ? "one" : "all"; };
+  const memory = () => { try { return JSON.parse(localStorage.getItem("kitchie.swipe") || "{}") || {}; } catch (e) { return {}; } };
+  const remember = (k) => { try { const m = memory(); m[k] = (m[k] || 0) + 1; localStorage.setItem("kitchie.swipe", JSON.stringify(m)); } catch (e) {} };
+  P_.swLimit = function (row, dx) { if (!row.dataset.home) return dx; const on = this.S.onList.has(row.closest(".r").dataset.id); return on ? Math.min(dx, 0) : Math.max(dx, 0); };
+  P_.swAction = function (row, dx) {
+    const id = row.closest(".r").dataset.id;
+    if (row.dataset.home) { if (this.S.onList.has(id)) return dx <= -THRESHOLD ? "rm" : ""; return dx >= DEEP ? "hide" : dx >= THRESHOLD ? "shop" : ""; }
+    if (dx >= THRESHOLD) return "shop"; if (dx <= -DEEP) return "all";
+    if (dx <= -THRESHOLD) return useKind(this.data.filter((x) => x.id === id)[0]) === "all" ? "all" : "one";
+    return "";
+  };
+  P_.swPaint = function (row, raw) {
+    const li = row.closest(".r"), un = li.querySelector(".swipe-under"), dx = this.swLimit(row, raw), act = this.swAction(row, dx);
+    const kind = row.dataset.home ? "" : useKind(this.data.filter((x) => x.id === li.dataset.id)[0]);
+    li.setAttribute("data-dragging", "");
+    un.dataset.dir = act || (dx > 0 ? "shop" : row.dataset.home ? "rm" : kind === "all" ? "all" : "one");
+    un.dataset.armed = act ? "yes" : ""; un.style.opacity = String(Math.min(1, Math.abs(dx) / THRESHOLD));
+    row.style.transform = "translateX(" + Math.max(-240, Math.min(160, dx)) + "px)";
+    if (act) li.setAttribute("data-swipe-now", act); else li.removeAttribute("data-swipe-now");
+    if (act && act !== this._stage && navigator.vibrate) { try { navigator.vibrate(act === "all" || act === "hide" ? 14 : 8); } catch (e) {} }
+    this._stage = act;
+  };
+  P_.swClear = function (row) {
+    const li = row.closest(".r"); if (!li) return; const un = li.querySelector(".swipe-under");
+    row.classList.remove("snap"); row.style.transform = ""; row.style.opacity = ""; li.removeAttribute("data-dragging"); li.removeAttribute("data-swipe-now");
+    if (un) { un.style.opacity = ""; un.dataset.dir = ""; un.dataset.armed = ""; } this._stage = "";
+  };
+  P_.swSettle = function (row, to, then) {
+    if (reduced()) { row.style.transform = to || ""; this.swClear(row); if (then) then(); return; }
+    row.classList.add("snap"); row.style.transform = to || "";
+    setTimeout(() => { this.swClear(row); if (then) then(); }, 220);
+  };
+  P_.swEnd = function (row, raw) {
+    const dx = this.swLimit(row, raw), act = this.swAction(row, dx), p = this;
+    if (!act) { this.swSettle(row, "", null); return; }
+    remember("swipes");
+    if (act === "shop" || act === "rm" || act === "one") { this.swSettle(row, "", () => p.swDo(row, act)); return; }
+    /* used up / hidden: the row leaves, then the change is made */
+    if (reduced()) { this.swClear(row); this.swDo(row, act); return; }
+    row.classList.add("snap"); row.style.transform = "translateX(" + (act === "hide" ? "110%" : "-110%") + ")"; row.style.opacity = "0";
+    setTimeout(() => { p.swClear(row); p.swDo(row, act); }, 180);
+  };
+  P_.swDo = function (row, act) {
+    const li = row.closest(".r"), id = li.dataset.id, it = pItem(id), S = this.S;
     if (row.dataset.home) {
-      const on = this.S.onList;
-      if (dx >= THRESHOLD) { if (on.has(id)) this.say("Already on the list"); else { on.add(id); this.draw(); this.say("Added: " + it.name, () => { on.delete(id); this.draw(); }); } }
-      else if (dx <= -THRESHOLD) { if (!on.has(id)) this.say("Not on the list"); else { on.delete(id); this.draw(); this.say("Removed: " + it.name, () => { on.add(id); this.draw(); }); } }
+      const on = S.onList, nm = it.name;
+      if (act === "shop") { on.add(id); this.draw(); this.undoBar(nm + " added to your list", () => { on.delete(id); this.draw(); }); }
+      else if (act === "rm") { on.delete(id); this.draw(); this.undoBar(nm + " taken off your list", () => { on.add(id); this.draw(); }); }
+      else if (act === "hide") { S.hidden.add(id); this.draw(); this.undoBar(nm + " hidden until it changes", () => { S.hidden.delete(id); this.draw(); }); }
       return;
     }
     const d = this.data.filter((x) => x.id === id)[0]; if (!d) return;
-    if (dx >= THRESHOLD) { const L = this.S.listed || (this.S.listed = new Set()); if (L.has(id)) { this.say("Already on the list"); return; } L.add(id); this.say("Added to the list: " + d.name, () => { L.delete(id); }); return; }
-    if (dx <= -THRESHOLD) {
-      const prev = { amt: d.amt, lvl: d.lvl, low: d.low }, deep = dx <= -DEEP, m = /^(\d+)\s*(.*)$/.exec(d.amt || ""), counted = m && Number(m[1]) > 1 && !/^(g|kg|ml|l)\b/i.test(m[2]);
-      if (deep || !counted) { d.lvl = "out"; d.amt = "0"; this.draw(); this.say("Used up: " + d.name, () => { Object.assign(d, prev); this.draw(); }); }
-      else { d.amt = (Number(m[1]) - 1) + (m[2] ? " " + m[2] : ""); this.draw(); this.say("Used one: " + d.name, () => { Object.assign(d, prev); this.draw(); }); }
-    }
+    if (act === "shop") { const L = S.listed || (S.listed = new Set()); if (L.has(id)) { this.undoBar(d.name + " is already on your list"); return; } L.add(id); this.undoBar(d.name + " added to your list", () => { L.delete(id); }); return; }
+    const prev = { amt: d.amt, lvl: d.lvl, low: d.low }, lname = d.name.toLowerCase();
+    if (act === "all") { d.lvl = "out"; d.amt = "0"; this.draw(); this.undoBar(lname + " used up", () => { Object.assign(d, prev); this.draw(); }); }
+    else { const m = /^(\d+)\s*(.*)$/.exec(d.amt || ""), left = (Number(m[1]) - 1) + (m[2] ? " " + m[2] : ""); d.amt = left; this.draw(); this.undoBar(lname + ": " + left + " left", () => { Object.assign(d, prev); this.draw(); }); }
+  };
+  /* UAT's Undo bar: at the top of the screen, 5 seconds; "Undone" for 3 */
+  P_.undoBar = function (t, undo) {
+    const el = this.el.querySelector(".ll-undo"); if (!el) return;
+    clearTimeout(this._ut); el.innerHTML = '<span class="u-t"></span>' + (undo ? '<button type="button" data-a="ubar">Undo</button>' : ""); el.firstChild.textContent = t;
+    el.hidden = false; this._ubar = undo || null;
+    this._ut = setTimeout(() => { el.hidden = true; this._ubar = null; }, undo ? UNDO_MS : 3000);
+  };
+  /* UAT's nudge: after a pause, the row nearest the middle moves a little each way once per visit, at most four visits, never after three real swipes */
+  P_.nudge = function () {
+    if (this.s !== "pantry" || this.o.hint === "0" || reduced() || this.S.sel || this.S.sheet || this._nudged || this._down) return;
+    const m = memory(); if ((m.swipes || 0) >= 3 || (m.hints || 0) >= 4) return;
+    const body = this.el.querySelector(".ll-body"); if (!body) return; const br = body.getBoundingClientRect(), mid = br.top + br.height * 0.45; let best = null, bd = 1e9;
+    [].forEach.call(this.el.querySelectorAll(".r-main[data-swipe]"), (r) => { const q = r.getBoundingClientRect(); if (q.height === 0 || q.top < br.top + 20 || q.bottom > br.bottom - 20) return; const d = Math.abs(q.top + q.height / 2 - mid); if (d < bd) { bd = d; best = r; } });
+    if (!best) return; this._nudged = true; remember("hints");
+    const steps = [[-46, 260], [46, 420], [0, 300]], p = this; let n = 0;
+    (function next() {
+      if (p._down || !best.isConnected) { if (best.isConnected) p.swClear(best); return; }
+      if (n === steps.length) { p.swSettle(best, "", null); return; }
+      const s = steps[n++]; best.classList.add("snap"); p.swPaint(best, s[0] * 1.2); best.style.transform = "translateX(" + s[0] + "px)"; setTimeout(next, s[1]);
+    })();
   };
   P_.longHold = function (g) {
     const S = this.S, secs = [].slice.call(this.el.querySelectorAll(".g"));
@@ -388,7 +455,7 @@
     const p = this, el = this.el; let g = null;
     el.addEventListener("pointerdown", (e) => {
       if (e.button) return;
-      const row = e.target.closest(".r-main[data-swipe]"), head = e.target.closest(".g-h");
+      const row = e.target.closest(".r-main[data-swipe]"), head = e.target.closest(".g-h"); p._down = true;
       if (row) g = { t: "row", row, x: e.clientX, y: e.clientY, id: e.pointerId, drag: false };
       else if (head && p.s === "pantry") { g = { t: "head", head, x: e.clientX, y: e.clientY, id: e.pointerId, held: false }; g.timer = setTimeout(() => p.longHold(g), 480); }
     });
@@ -396,7 +463,7 @@
       if (!g || e.pointerId !== g.id) return; const dx = e.clientX - g.x, dy = e.clientY - g.y;
       if (g.t === "row") {
         if (!g.drag) { if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)) { g = null; return; } if (Math.abs(dx) > 8) { g.drag = true; try { g.row.setPointerCapture(g.id); } catch (er) {} } }
-        if (g.drag) { const li = g.row.closest(".r"); g.row.style.transform = "translateX(" + dx + "px)"; li.dataset.sw = dx >= THRESHOLD ? "shop" : dx <= -DEEP ? "all" : dx <= -THRESHOLD ? "one" : dx > 8 ? "r" : dx < -8 ? "l" : ""; g.dx = dx; }
+        if (g.drag) { p.swPaint(g.row, dx); g.dx = dx; }
       } else if (g.t === "head") {
         if (!g.held && (Math.abs(dx) > 10 || Math.abs(dy) > 10)) { clearTimeout(g.timer); g = null; return; }
         if (g.lift) g.lift.style.transform = "translateY(" + dy + "px)";
@@ -404,7 +471,7 @@
     });
     const end = (e) => {
       if (!g || e.pointerId !== g.id) return; clearTimeout(g.timer);
-      if (g.t === "row" && g.drag) { const li = g.row.closest(".r"); g.row.style.transform = ""; li.dataset.sw = ""; p._swallow = true; setTimeout(() => { p._swallow = false; }, 60); if (e.type === "pointerup") p.swipeDone(g.row, g.dx || 0); }
+      if (g.t === "row" && g.drag) { p._swallow = true; setTimeout(() => { p._swallow = false; }, 60); p.swEnd(g.row, e.type === "pointerup" ? (g.dx || 0) : 0); }
       if (g.t === "head" && g.held) {
         if (g.lift && e.type === "pointerup") {
           const secs = [].slice.call(el.querySelectorAll(".g")), me = g.lift, r = me.getBoundingClientRect(), cy = r.top + r.height / 2;
@@ -416,6 +483,7 @@
       g = null;
     };
     el.addEventListener("pointerup", end); el.addEventListener("pointercancel", end);
+    document.addEventListener("pointerup", () => { p._down = false; }); document.addEventListener("pointercancel", () => { p._down = false; });
     el.addEventListener("contextmenu", (e) => { if (e.target.closest(".g-h")) e.preventDefault(); });
   };
   P_.bind = function () {
@@ -437,5 +505,5 @@
     });
     this.bindGestures();
   };
-  window.PD = { mount(el, o) { const p = new Phone(el, o); p.bind(); el._pd = p; return p; } };
+  window.PD = { mount(el, o) { const p = new Phone(el, o); p.bind(); el._pd = p; setTimeout(() => p.nudge(), 4000); return p; } };
 })();
