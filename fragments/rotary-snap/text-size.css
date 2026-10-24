@@ -1,0 +1,27 @@
+/* The Text size control (assets/text-size.js; Kitchie #1118). Phone file. The label sits over a bar that has the whole row (owner, 25 October 2026).
+   Sizes of text are rem (the page scale reaches the words); the bar itself is px so it does not move under a finger while the page resizes live. Targets are 44px tall. */
+.tsz{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0;max-width:100%}
+.tsz[data-mode=compact]{display:inline-flex;justify-content:flex-start;gap:8px}
+.tsz .tsz-body{display:flex;flex-direction:column;align-items:stretch;gap:0;flex:1 1 auto;min-width:0}
+.tsz .tsz-body[hidden]{display:none}
+.tsz[data-mode=compact] .tsz-body{flex:0 1 auto}
+/* One label, "Text size", above a bar that has the whole row (owner, 25 October 2026). The value line stays in the page for the screen reader and the live region but is not drawn: the filled steps and the ringed one are the answer. */
+.tsz .tsz-l{flex:none;min-width:0;display:flex;flex-direction:row;align-items:center;min-height:max(44px,2.75rem);user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.tsz .tsz-l:not(:has(.tsz-name)){display:none}
+.tsz .tsz-name{font-size:0.875rem;font-weight:700;color:var(--muted);overflow-wrap:anywhere}
+.tsz .tsz-val{display:none}
+.tsz .tsz-bar{flex:none;display:flex;align-items:stretch;gap:0;box-sizing:border-box;width:100%;min-height:44px;padding:0;border-radius:12px;touch-action:pan-y;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+.tsz .tsz-bar:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+/* A step is an element 44px tall and a seventh of the bar wide (the finger's target); the drawn bar inside it is inset 1px a side, so two steps are 2px apart. */
+.tsz .tsz-seg{position:relative;flex:1 1 0;min-width:0;height:44px}
+.tsz .tsz-seg::before{content:"";position:absolute;left:1px;right:1px;top:8px;bottom:8px;border-radius:6px;background:var(--border);transition:background .12s}
+.tsz .tsz-seg.on::before{background:var(--accent)}
+.tsz .tsz-seg.cur::before{box-shadow:0 0 0 2px var(--surface,var(--bg)),0 0 0 4px var(--accent)}
+.tsz .tsz-seg.mid::after{content:"";position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:var(--muted)}
+.tsz .tsz-seg.mid.on::after{background:var(--on-accent,#fff)}
+.tsz .tsz-chip{flex:none;display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;padding:0 10px;border-radius:.8rem;border:1px solid var(--border);background:var(--surface,var(--bg));color:var(--fg);font:inherit;cursor:pointer}
+.tsz .tsz-chip:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.tsz[data-open] .tsz-chip{border-color:var(--accent)}
+.tsz .tsz-a{font-size:1.25rem;font-weight:700;line-height:1}.tsz .tsz-a small{font-size:.8125rem;font-weight:700}
+.tsz .vh{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+@media (prefers-reduced-motion:reduce){.tsz .tsz-seg::before{transition:none}}

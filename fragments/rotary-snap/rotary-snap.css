@@ -1,0 +1,73 @@
+/* Phone Settings quick controls: the theme rotary SNAPS to exactly one theme and hints once with a wiggle; Text size is one label and seven wide steps (Kitchie #1110, owner 25 Oct 2026).
+   Phone only. Theme tokens only (theme.css); no raw colours except the theme cards, which carry each theme's own four colours as custom properties (--pbg --pcd --pac --pfg) set inline, as the app does.
+   Class names, data attributes and rules are the ones the build has (server/src/assets/settings-front.css and text-size.css): the quick-control rules below are copied from there, with the owner's changes. */
+:root{--ts:1}
+.rs{font-size:16px}
+.rs .wrap{max-width:640px}
+.rs h1{font-size:1.35em;margin:0;line-height:1.1}.rs h2.sec{font-size:1.15em;margin:26px 0 6px}
+.rs p,.rs li{max-width:70ch;font-size:.92em}
+.rs .top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-height:44px}
+.rs .badge{display:inline-block;padding:2px 10px;margin-left:8px;border-radius:var(--r-pill);border:1px solid var(--accent);color:var(--accent);font-size:.72em;font-weight:800;vertical-align:middle}
+.rs .own{border-left:3px solid var(--accent);padding:2px 0 2px 12px;max-width:70ch;margin:10px 0}
+.rs .own a,.rs p a,.rs li a{color:var(--accent);text-decoration:underline}
+.rs .bar{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:flex-end;padding:4px 0 8px}
+.rs .bar label{display:flex;flex-direction:column;gap:1px;flex:1 1 7em;min-width:0}
+.rs .bar span.l{font-size:.7em;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.rs .bar select,.rs .bar button{min-height:44px;width:100%;padding:0 10px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--surface);font:700 .9em var(--body);color:var(--fg);cursor:pointer}
+.rs .bar button.go{flex:1 1 9em;background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.rs .stage{display:flex;justify-content:center;margin:6px 0 14px}
+.rs .frame{box-sizing:border-box;width:var(--fw,390px);max-width:100%;padding:16px 20px 18px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--bg)}
+.rs.bare .wrap{padding:0;max-width:none}
+.rs.bare .frame{width:100%;border:0;border-radius:0}
+.rs .cap{font-size:.78em;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+.rs .films{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,17rem),1fr));gap:12px;margin:8px 0}
+.rs .films figure{margin:0}.rs .films figcaption{font-size:.82em;color:var(--muted);margin-top:4px}
+.rs table.tt{border-collapse:collapse;width:100%;font-size:.88em;margin:6px 0 12px}
+.rs table.tt th,.rs table.tt td{border-bottom:1px solid var(--border);padding:6px 8px;text-align:left;vertical-align:top}
+.rs table.tt th{font-size:.78em;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.rs table.tt td.n{font-weight:800;white-space:nowrap;font-variant-numeric:tabular-nums}
+.rs .tw{overflow-x:auto}
+.rs .meter{position:absolute;left:-9999px;top:0;visibility:hidden}
+
+/* ---------- copied from the build: the quick controls ---------- */
+.sp .qk{display:grid;gap:.6rem;min-width:0;margin:0}
+.sp [data-front]{container-type:inline-size;container-name:front}
+.sp .qc{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 44px;grid-template-areas:"ctl pin";align-items:center;column-gap:4px;min-width:0;box-sizing:border-box;
+  padding:5px 5px 5px 13px;border:1px solid var(--border);border-radius:18px;background:var(--surface);color:var(--fg);touch-action:manipulation;-webkit-user-select:none;user-select:none}
+.sp .qc-ctl{grid-area:ctl;container-type:inline-size;min-width:0}
+.sp .qc-pin{grid-area:pin;align-self:center;justify-self:center}
+.sp .qc .pinb{display:inline-flex;align-items:center;justify-content:center;width:max(44px,2.75rem);height:max(44px,2.75rem);min-width:max(44px,2.75rem);border:0;border-radius:50%;background:none;color:var(--accent);cursor:pointer}
+.sp .qc .pinb:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+/* theme card (the app's .tprev, with the four colours of the theme set inline) */
+.sp .tprev{display:block;position:relative;width:100%;height:3rem;border-radius:.7rem;border:1px solid color-mix(in srgb,var(--pfg) 22%,transparent);background:var(--pbg);overflow:hidden}
+.sp .tprev b{position:absolute;left:.35rem;right:.35rem;top:.4rem;bottom:.35rem;border-radius:.45rem;background:var(--pcd);border:1px solid color-mix(in srgb,var(--pfg) 16%,transparent)}
+.sp .tprev s{position:absolute;left:.7rem;top:.8rem;width:55%;height:.28rem;border-radius:99px;background:var(--pfg);text-decoration:none}
+.sp .tprev s::after{content:"";position:absolute;left:0;top:.5rem;width:60%;height:.28rem;border-radius:99px;background:var(--pfg);opacity:.4}
+.sp .tprev u{position:absolute;right:.7rem;bottom:.6rem;width:1.1rem;height:.5rem;border-radius:99px;background:var(--pac);text-decoration:none}
+
+/* the theme rotary and light or dark. ONE theme fills the row; mandatory snap, one stop per swipe; nothing of the neighbours shows. */
+.sp .qc-th{display:flex;align-items:center;gap:.4rem;min-width:0}
+.sp .rot{touch-action:pan-x pan-y pinch-zoom;cursor:auto;position:relative;flex:1 1 0;min-width:0;display:flex;gap:0;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:.2rem 0;border-radius:14px}
+.sp .rot::-webkit-scrollbar{display:none}
+.sp .rot-i{flex:0 0 100%;width:100%;box-sizing:border-box;scroll-snap-align:center;scroll-snap-stop:always;display:flex;align-items:center;gap:.6rem;min-width:0;min-height:max(52px,3.25rem);padding:.25rem .5rem .25rem .3rem;border:2px solid transparent;border-radius:14px;background:none;color:var(--fg);cursor:pointer;font:inherit;text-align:left}
+.sp .rot-i[aria-checked=true]{border-color:var(--accent)}
+.sp .rot-i:focus-visible{outline:3px solid var(--accent);outline-offset:-3px}
+.sp .rot-i .tprev{flex:none;width:3.6rem;height:2.6rem;border-radius:.7rem}
+.sp .rot-i .tprev b{left:.3rem;right:.3rem;top:.35rem;bottom:.3rem;border-radius:.4rem}
+.sp .rot-i .tprev s{left:.6rem;top:.7rem}
+.sp .rot-i .tprev u{right:.6rem;bottom:.5rem}
+.sp .rot-i .tname{flex:1;min-width:0;font-size:.9rem;font-weight:700;line-height:1.15;color:var(--fg);text-align:left;overflow:hidden;overflow-wrap:anywhere;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2}
+.sp .qc-mode{flex:none;display:inline-flex;padding:3px;border-radius:99px;background:var(--bg);border:1px solid var(--border)}
+.sp .qc-mode button{width:max(44px,2.75rem);height:max(44px,2.75rem);border:0;background:none;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:var(--muted);cursor:pointer}
+.sp .qc-mode button[aria-checked=true]{background:var(--accent);color:var(--on-accent)}
+.sp .qc-mcyc{display:none;flex:none;width:max(44px,2.75rem);height:max(44px,2.75rem);border:1px solid var(--border);border-radius:50%;background:var(--bg);color:var(--accent);align-items:center;justify-content:center;cursor:pointer}
+@container (max-width:20.5rem){.sp .qc-mode{display:none}.sp .qc-mcyc{display:inline-flex}}
+.sp .qc-hd,.sp .qc-face{display:none}
+
+/* text size inside a tile: one label, seven steps across the whole row; the pin hangs in the corner on the label's line */
+.sp .qc[data-q=text]{display:block;padding:0 5px 6px}
+.sp .qc[data-q=text] .qc-pin{position:absolute;top:0;right:0}
+.sp .qc-text .tsz{width:100%}
+.sp .qc-text .tsz-l{padding:0 max(44px,2.75rem) 0 9px}
+@media (prefers-reduced-motion:reduce){.sp .qc{transition:none}.sp .rot{scroll-behavior:auto}}
