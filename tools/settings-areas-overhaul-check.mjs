@@ -3,7 +3,7 @@
 // Needs playwright-core and Chromium at PLAYWRIGHT_BROWSERS_PATH (/opt/pw-browsers).
 // Covers: every screen of A (flat pages), B (one note) and C (faces) at 390x844 and 360x640, light and dark, Match my phone and +30%: no console error, no sideways scroll, nothing wider than the phone,
 // every control at least 44px tall (words in B exempt in width); the behaviour of each control; the seven tap sequences (played, end state checked) and that directions.html prints those numbers;
-// the coverage table; no hex colour in areas.css; the knowledge note (SR-P45 to SR-P57, SR-Q52 to SR-Q57), REVIEW-QUEUE and the index tile.
+// the words budget of Direction A (labels 3, states 3, helpers 9, confirms 16; the played body words printed on directions.html); the coverage table; no hex colour in areas.css; the knowledge note (SR-P45 to SR-P68, SR-Q52 to SR-Q62), REVIEW-QUEUE and the index tile.
 import { chromium } from "playwright-core";
 import { readFileSync } from "node:fs";
 const BASE = process.env.BASE || "http://localhost:8123/fragments/settings-areas-overhaul/";
@@ -66,7 +66,7 @@ const sw = (p, a) => p.click(`label.sw:has([data-a="${a}"])`);
   await p.click('[data-a="open:p:sam"]'); await p.click('[data-a="open:p:sam"]'); await p.click('[data-a="ask:rm:sam"]'); await p.click("[data-a=keep]"); ok(!await has(p, '[data-a="do:rm:sam"]') && await has(p, '[data-a="open:p:sam"]'), "A: Remove asks in place and Keep leaves them");
   await p.click('[data-a="ask:rm:sam"]'); await p.click('[data-a="do:rm:sam"]'); ok(!await has(p, '[data-a="open:p:sam"]'), "A: removing a person removes the row");
   await p.click('[data-a="cancelinv:i1"]'); ok(!await has(p, '[data-a="cancelinv:i1"]'), "A: a pending invite cancels");
-  await p.click('[data-a="kind:own"]'); await p.click("[data-a=copy]"); ok(/N3RT/.test(await txt(p, ".link")) && /household of their own/.test(await txt(p, ".link")), "A: the invite has two kinds and one press copies");
+  await p.click('[data-a="kind:own"]'); await p.click("[data-a=copy]"); ok(/N3RT/.test(await txt(p, ".link")) && /their own household/.test(await txt(p, ".link")) && /Copied/.test(await txt(p, "[data-a=copy]")), "A: the invite has two kinds and one press copies");
   ok(await has(p, "text=History") && !await has(p, "text=Danger"), "A: Household ends with History, no danger zone");
   await p.close();
 }
@@ -76,39 +76,45 @@ const sw = (p, a) => p.click(`label.sw:has([data-a="${a}"])`);
   await p.click('[data-a="pic:3"]'); ok((await txt(p, ".big-av")).includes("🍄"), "A: choosing a picture shows it");
   await p.fill("[data-in=myname]", "Alexa"); ok(await p.inputValue("[data-in=myname]") === "Alexa", "A: name is a field");
   await p.click('[data-a="open:role"]'); await p.click('[data-a="role:2"]'); ok(/Baker/.test(await txt(p, ".blk .val")), "A: kitchen role chips open in place and set");
-  ok(await has(p, "text=Download my data") && await has(p, "text=Install Kitchie") && await has(p, "text=Sign out"), "A: You has data, install and sign out");
+  ok(await has(p, "text=Download my data") && await has(p, "text=Install app") && await has(p, "text=Sign out"), "A: You has data, install and sign out");
   await p.click('[data-a="ask:leave"]'); ok(await p.getAttribute('[data-a="do:leave"]', "aria-disabled") === "true", "A: Leave is disabled until your name is typed");
   await p.fill("#lv", "Alexa"); ok(await p.getAttribute('[data-a="do:leave"]', "aria-disabled") === "false", "A: typing your name enables Leave");
   await p.close();
 }
 { // A preferences
   const p = await open(C0, "A", "prefs");
-  ok(/Same as household/.test(await txt(p, ".crow")), "A: Mine shows Same as household");
-  await sw(p, "tog:ask"); ok(/Yours/.test(await txt(p, ".crow")), "A: changing a switch makes it yours"); await p.click('[data-a="reset:ask"]'); ok(/Same as household/.test(await txt(p, ".crow")), "A: one button goes back to the household's");
+  ok(/Household/.test(await txt(p, ".crow .inh")) && !await has(p, '[data-a="reset:ask"]'), "A: a value from the household is a link glyph and one word, no reset");
+  await sw(p, "tog:ask"); ok(await has(p, '[data-a="reset:ask"]') && !await has(p, ".crow[data-ctl=ask] .inh"), "A: changing a switch makes it yours (a Reset glyph replaces the source)"); await p.click('[data-a="reset:ask"]'); ok(/Household/.test(await txt(p, ".crow .inh")), "A: one button goes back to the household's");
   await p.click('[data-a="step:cap:1"]'); ok(await txt(p, ".num b") === "6", "A: stepper adds one");
   await p.dblclick('.crow[data-ctl=cap] .rm'); ok(await txt(p, ".num b") === "5", "A: double tap on the row resets it (DESIGN.md 8)");
   await p.fill("[data-in=qs]", "20:00"); ok(await p.inputValue("[data-in=qs]") === "20:00", "A: quiet hours start is a time in the row");
-  await p.click("[data-a=qnone]"); ok(await has(p, "text=No quiet hours") && !await has(p, "[data-in=qs]"), "A: No quiet hours for me");
-  await p.click('[data-a="scope:hh"]'); ok(await has(p, "text=Ask to check amounts") && !await has(p, "[data-a=qnone]"), "A: Everyone shows the household's own rows");
+  await p.click("[data-a=qnone]"); ok(await has(p, "text=None") && /Use quiet hours/.test(await txt(p, "[data-a=qnone]")) && !await has(p, "[data-in=qs]"), "A: No quiet hours is one text button");
+  await p.click('[data-a="scope:hh"]'); ok(await has(p, "text=Amount checks") && !await has(p, "[data-a=qnone]"), "A: Everyone shows the household's own rows");
   await p.click('[data-a="scope:me"]');
   ok(await has(p, ".fh:has-text('Avoids')") && await has(p, ".fh:has-text('Likes')"), "A: Food is grouped under Avoids and Likes headings");
-  ok(await has(p, ".fmark .hard") && await has(p, ".fmark.soft"), "A: Hard has a lock, Soft says Soft; Everyone and Just you are icons");
+  ok(await has(p, ".fmark svg.hard") && await has(p, ".fmark.soft svg.soft"), "A: Hard is a closed lock, Soft an open lock (one metaphor, no word); Everyone and Just you are icons");
   ok(!/no reason given/i.test(await txt(p, ".bd")) && await p.locator(".fline").first().evaluate(e => getComputedStyle(e).textOverflow === "ellipsis" && getComputedStyle(e).whiteSpace === "nowrap"), "A: a reason is one quiet line with an ellipsis, none where there is none");
   ok(await p.locator(".flist").evaluateAll(l => l.every(x => x.firstElementChild.classList.contains("fadd-li"))), "A: the add row is first in each group");
   await p.click(".fadd >> nth=0"); ok(/assistant/i.test(await txt(p, ".toast")), "A: Add says what to tell the assistant");
   await p.fill("#note-me", "no spice"); ok(await p.inputValue("#note-me") === "no spice", "A: notes are a text box");
-  await p.click('[data-a="open:hm:sam"]'); ok(await has(p, "text=Suggest something for Sam"), "A: a housemate opens in place");
-  await p.click('[data-a="open:rules"]'); ok(/2 rules/.test(await txt(p, '[data-a="open:rules"]')), "A: Rules by place opens in place"); await p.click('[data-a="rulerm:0"]'); ok(/1 rule,/.test(await txt(p, '[data-a="open:rules"]')), "A: a rule removes");
-  await p.click('[data-a="sheet:rule"]'); ok(await vis(p, ".sheet"), "A: Add a rule is one sheet"); await p.click("[data-a=ruleadd]"); ok(!await vis(p, ".sheet") && /2 rules/.test(await txt(p, '[data-a="open:rules"]')), "A: the rule adds and the sheet closes");
+  await p.click('[data-a="open:hm:sam"]'); ok(await has(p, "text=Suggest for Sam"), "A: a housemate opens in place");
+  await p.click('[data-a="open:rules"]'); ok(/Place rules\s*2/.test(await txt(p, '[data-a="open:rules"]')), "A: Place rules opens in place"); await p.click('[data-a="rulerm:0"]'); ok(/Place rules\s*1/.test(await txt(p, '[data-a="open:rules"]')), "A: a rule removes");
+  await p.click('[data-a="sheet:rule"]'); ok(await vis(p, ".sheet"), "A: Add rule is one sheet"); await p.click("[data-a=ruleadd]"); ok(!await vis(p, ".sheet") && /Place rules\s*2/.test(await txt(p, '[data-a="open:rules"]')), "A: the rule adds and the sheet closes");
+  // a food row opens in place: a quote, Hard or Soft as a two-way control, the Reason, Stop remembering; no help paragraphs
+  await p.click('.fmain >> nth=0'); ok(await vis(p, ".ped q") && await vis(p, '.ped [data-a^="ftype:"]') && await vis(p, ".ped input") && /Stop remembering/.test(await txt(p, ".ped .dng")), "A: a food row opens its editor in place");
+  ok((await txt(p, ".ped")).split(/\s+/).filter(w => /\w/.test(w)).length <= 25, "A: the opened food row stays under 25 words (was about 130)");
+  await p.click('.ped [data-a^="ftype:"][data-a$=":soft"]'); ok(await has(p, ".conf:has-text('Make')"), "A: Hard to Soft asks once, in place"); await p.click('[data-a^="do:soft:"]'); ok(await has(p, ".fmark.soft svg.soft"), "A: it becomes Soft");
+  await p.click('.ped .dng'); ok(await has(p, ".conf:has-text('Stop remembering')") || !await has(p, ".ped"), "A: Stop remembering works (a Hard one asks first)");
   await p.close();
 }
 { // A kitchen
   const p = await open(C0, "A", "kitchen");
   await p.click('[data-a="chipadd:cats"]'); await p.fill("[data-in=chipin]", "Oils"); await p.click("[data-a=chipsave]"); ok(await has(p, ".cp:has-text('Oils')"), "A: a category adds");
   await p.click('[data-a="clear:samples"]'); ok(!await has(p, "[data-a='clear:samples']"), "A: Clear them removes the row");
-  await p.click('[data-a="ai:chatgpt"]'); ok(/Connected/.test(await txt(p, '.arow-wrap:has-text("ChatGPT")')), "A: Connect works");
-  await p.click('[data-a="open:a:chatgpt"]'); await sw(p, "dflt:chatgpt"); ok(/the default/.test(await txt(p, '.arow-wrap:has-text("ChatGPT")')), "A: default assistant is a switch when two are connected");
-  await p.click('[data-a="ask:ai:chatgpt"]'); await p.click('[data-a="do:ai:chatgpt"]'); ok(/Not connected/.test(await txt(p, '.arow-wrap:has-text("ChatGPT")')), "A: Disconnect asks in place and works");
+  ok(await has(p, '.arow-wrap:has-text("Claude") [aria-label="Connected"]') && !await has(p, '[data-a^="dflt:"]'), "A: an assistant row is a name, a dot and one button; no default star with one connected");
+  await p.click('[data-a="ai:chatgpt"]'); ok(await has(p, '.arow-wrap:has-text("ChatGPT") [aria-label="Connected"]') && await has(p, '[data-a="dflt:chatgpt"]'), "A: Connect works, and the default star appears with two connected");
+  await p.click('[data-a="dflt:chatgpt"]'); ok(await p.getAttribute('[data-a="dflt:chatgpt"]', "aria-pressed") === "true" && await p.getAttribute('[data-a="dflt:claude"]', "aria-pressed") === "false", "A: the default is a star, one of them");
+  await p.click('[data-a="ask:ai:chatgpt"]'); ok(await vis(p, '[data-a="do:ai:chatgpt"]'), "A: Disconnect asks in place"); await p.click('[data-a="do:ai:chatgpt"]'); ok(await has(p, '.arow-wrap:has-text("ChatGPT") [aria-label="Not connected"]'), "A: Disconnect works");
   await p.click('[data-a="link:make"]'); await p.click('[data-a="ask:revoke"]'); ok(await has(p, '[data-a="do:revoke"]'), "A: Revoke asks in place"); await p.click('[data-a="do:revoke"]'); ok(await has(p, '[data-a="link:make"]'), "A: Revoke works");
   await p.close();
 }
@@ -137,16 +143,16 @@ const sw = (p, a) => p.click(`label.sw:has([data-a="${a}"])`);
   await p.click('[data-a="sheet:invite"]'); await p.click("[data-a=copy]"); ok(/K7QX/.test(await txt(p, ".sheet .link")), "C: the plus face copies the link");
   await p.click(".sheet [data-a=shut].pbtn");
   await p.click('[data-a="sheet:face:me"]'); await p.click('.sheet [data-a="step:cap:1"]'); ok(await txt(p, ".sheet .num b") === "6", "C: your sheet changes your own value"); ok(await txt(p, ".crow .num b") === "5", "C: the Household page keeps everyone's value");
-  await p.click('.sheet [data-a="ai:chatgpt"]'); ok(/Connected/.test(await txt(p, '.sheet .arow-wrap:has-text("ChatGPT")')), "C: assistants are on your sheet");
-  ok(await has(p, ".sheet >> text=Leave Henderson kitchen"), "C: leave is at the foot of your sheet");
+  await p.click('.sheet [data-a="ai:chatgpt"]'); ok(await has(p, '.sheet .arow-wrap:has-text("ChatGPT") [aria-label="Connected"]'), "C: assistants are on your sheet");
+  ok(await has(p, ".sheet >> text=Leave household"), "C: leave is at the foot of your sheet");
   await p.close();
 }
 
 /* 3. tap sequences, played */
 const JOBS = {
-  A: [[['[data-a="go:household"]', "[data-a=copy]"], p => /kitchie\.app\/join/.test(p)], [['[data-a="go:household"]', '[data-a="go:you"]', "[data-in=myname]"], "focus:myname"], [['[data-a="go:prefs"]', "[data-a=qnone]"], p => /No quiet hours/.test(p)], [['[data-a="go:prefs"]', '[data-a="step:cap:1"]'], p => /\b6\b/.test(p)], [['[data-a="go:kitchen"]', '[data-a="ai:chatgpt"]'], p => /ChatGPT\s+Connected/.test(p)], [['[data-a="go:kitchen"]', '[data-a="chipadd:cats"]'], "vis:[data-in=chipin]"], [['[data-a="go:household"]', '[data-a="open:p:sam"]', '[data-a="ask:rm:sam"]', '[data-a="do:rm:sam"]'], "gone:Sam"]],
+  A: [[['[data-a="go:household"]', "[data-a=copy]"], p => /kitchie\.app\/join/.test(p)], [['[data-a="go:household"]', '[data-a="go:you"]', "[data-in=myname]"], "focus:myname"], [['[data-a="go:prefs"]', "[data-a=qnone]"], p => /\bNone\b/.test(p)], [['[data-a="go:prefs"]', '[data-a="step:cap:1"]'], p => /\b6\b/.test(p)], [['[data-a="go:kitchen"]', '[data-a="ai:chatgpt"]'], 'vis:.arow-wrap:has-text("ChatGPT") .cdot.on'], [['[data-a="go:kitchen"]', '[data-a="chipadd:cats"]'], "vis:[data-in=chipin]"], [['[data-a="go:household"]', '[data-a="open:p:sam"]', '[data-a="ask:rm:sam"]', '[data-a="do:rm:sam"]'], "gone:Sam"]],
   B: [[['[data-a="go:note"]', '[data-a="tk:invite"]'], p => /kitchie\.app\/join/.test(p)], [['[data-a="go:note"]', '[data-a="tk:p:me"]', "[data-in=myname]"], "focus:myname"], [['[data-a="go:note"]', '[data-a="tk:q"]', "[data-a=qnone]"], p => /at any hour/.test(p)], [['[data-a="go:note"]', '[data-a="tk:cap"]', '[data-a="step:cap:1"]'], p => /no more than 6 a day/.test(p)], [['[data-a="go:note"]', '[data-a="tk:a:chatgpt"]', '[data-a="ai:chatgpt"]'], p => /Claude and ChatGPT are connected/.test(p)], [['[data-a="go:note"]', '[data-a="tk:cats"]', '[data-a="chipadd:cats"]'], "vis:[data-in=chipin]"], [['[data-a="go:note"]', '[data-a="tk:p:sam"]', '[data-a="ask:rm:sam"]', '[data-a="do:rm:sam"]'], "gone:Sam"]],
-  C: [[['[data-a="go:household"]', '[data-a="sheet:invite"]', "[data-a=copy]"], p => /kitchie\.app\/join/.test(p)], [['[data-a="go:household"]', '[data-a="sheet:face:me"]', ".sheet [data-in=myname]"], "focus:myname"], [['[data-a="go:household"]', '[data-a="sheet:face:me"]', ".sheet [data-a=qnone]"], p => /No quiet hours/.test(p)], [['[data-a="go:household"]', '[data-a="sheet:face:me"]', '.sheet [data-a="step:cap:1"]'], p => /\b6\b/.test(p)], [['[data-a="go:household"]', '[data-a="sheet:face:me"]', '.sheet [data-a="ai:chatgpt"]'], p => /ChatGPT\s+Connected/.test(p)], [['[data-a="go:kitchen"]', '[data-a="chipadd:cats"]'], "vis:[data-in=chipin]"], [['[data-a="go:household"]', '[data-a="sheet:face:sam"]', '.sheet [data-a="ask:rm:sam"]', '.sheet [data-a="do:rm:sam"]'], "gone:Sam"]]
+  C: [[['[data-a="go:household"]', '[data-a="sheet:invite"]', "[data-a=copy]"], p => /kitchie\.app\/join/.test(p)], [['[data-a="go:household"]', '[data-a="sheet:face:me"]', ".sheet [data-in=myname]"], "focus:myname"], [['[data-a="go:household"]', '[data-a="sheet:face:me"]', ".sheet [data-a=qnone]"], p => /\bNone\b/.test(p)], [['[data-a="go:household"]', '[data-a="sheet:face:me"]', '.sheet [data-a="step:cap:1"]'], p => /\b6\b/.test(p)], [['[data-a="go:household"]', '[data-a="sheet:face:me"]', '.sheet [data-a="ai:chatgpt"]'], 'vis:.sheet .arow-wrap:has-text("ChatGPT") .cdot.on'], [['[data-a="go:kitchen"]', '[data-a="chipadd:cats"]'], "vis:[data-in=chipin]"], [['[data-a="go:household"]', '[data-a="sheet:face:sam"]', '.sheet [data-a="ask:rm:sam"]', '.sheet [data-a="do:rm:sam"]'], "gone:Sam"]]
 };
 const played = {};
 for (const o of ["A", "B", "C"]) for (let j = 0; j < 7; j++) {
@@ -190,13 +196,53 @@ for (const o of ["A", "B", "C"]) for (let j = 0; j < 7; j++) {
   ok(["A", "B", "C"].every(o => pc[o] === counts[o]), `directions.html prints the first-screen control counts (played ${JSON.stringify(counts)}, printed ${JSON.stringify(pc)})`);
 }
 
+
+/* 4b. words budget (DESIGN.md 9.1), Direction A, owner 24 Oct 2026: "everything's too wordy". Played, not asserted: the body words of each screen are counted, directions.html prints them, and every label stays within its budget. */
+const WC = t => (t.match(/\S+/g) || []).filter(w => /[\p{L}\p{N}]/u.test(w)).length;
+const BUDGET = () => {
+  const ph = document.querySelector(".phone"), bd = ph.querySelector(".bd"), sh = ph.querySelector(".sheet:not([hidden]) .sh");
+  const words = (el, chrome) => { const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT); let t = "", n; while ((n = w.nextNode())) { if (n.parentElement.closest(".vh,svg,.av,.big-av,script,style")) continue; if (chrome && n.parentElement.closest("[data-user],.fline")) continue; t += " " + n.textContent; } return (t.match(/\S+/g) || []).filter(x => /[\p{L}\p{N}]/u.test(x)).length; };
+  const roots = [bd, sh].filter(Boolean), over = [];
+  const check = (sel, max, what) => roots.forEach(r => r.querySelectorAll(sel).forEach(e => { if (e.closest("[data-user],.link")) return; const n = words(e); if (n > max) over.push(what + " " + n + ": " + e.textContent.trim().slice(0, 40)); }));
+  check(".nm:not([data-user]), .pbtn, .lnk, .dng, .tseg button, .fadd, .cp:not([data-user]), .val", 3, "label");
+  check(".sub, .inh, .st", 3, "state");
+  check("p.sm, .conseq, .foot", 9, "helper");
+  check(".conf p", 16, "confirm");
+  return { words: roots.reduce((a, r) => a + words(r), 0), chrome: roots.reduce((a, r) => a + words(r, true), 0), over };
+};
+const wordsA = {}, chromeA = {};
+{
+  const STATES = {
+    household: ["household", []], "household+person": ["household", ['[data-a="open:p:sam"]']], "household+remove": ["household", ['[data-a="open:p:sam"]', '[data-a="ask:rm:sam"]']], "household+invite": ["household+invite", []],
+    you: ["you", []], "you+leave": ["you", ['[data-a="ask:leave"]']], "you+role": ["you", ['[data-a="open:role"]']],
+    prefs: ["prefs", []], "prefs+hh": ["prefs+hh", []], "prefs+food": ["prefs", [".fmain >> nth=0"]], "prefs+housemate": ["prefs", ['[data-a="open:hm:sam"]']], "prefs+rules": ["prefs", ['[data-a="open:rules"]']], "prefs+sheet": ["prefs", ['[data-a="open:rules"]', '[data-a="sheet:rule"]']],
+    kitchen: ["kitchen", []], "kitchen+disconnect": ["kitchen", ['[data-a="ask:ai:claude"]']]
+  };
+  let bad = [];
+  for (const [name, [scr, clicks]] of Object.entries(STATES)) {
+    const p = await open(C0, "A", scr);
+    for (const c of clicks) await p.click(c);
+    const r = await p.evaluate(BUDGET); wordsA[name] = r.words; chromeA[name] = r.chrome;
+    if (r.over.length) bad.push(name + ": " + r.over.slice(0, 3).join(" | "));
+    await p.close();
+  }
+  ok(bad.length === 0, `A: every label, state, helper and confirm is within the words budget (3, 3, 9, 16) in ${Object.keys(STATES).length} states ${bad.join(" || ")}`);
+  const html = readFileSync(new URL("../fragments/settings-areas-overhaul/directions.html", import.meta.url), "utf8");
+  const printed = Object.fromEntries([...html.matchAll(/data-words-after="([^"]+)">(\d+)</g)].map(m => [m[1], +m[2]]));
+  const printedC = Object.fromEntries([...html.matchAll(/data-chrome-after="([^"]+)">(\d+)</g)].map(m => [m[1], +m[2]]));
+  const diff = Object.keys(wordsA).filter(k => printed[k] !== wordsA[k] || printedC[k] !== chromeA[k]);
+  ok(diff.length === 0, `directions.html prints the played word counts, with and without the household's own words (${diff.map(k => k + " played " + wordsA[k] + "/" + chromeA[k] + " printed " + printed[k] + "/" + printedC[k]).join(", ")})`);
+  const before = Object.fromEntries([...html.matchAll(/data-chrome-before="([^"]+)">(\d+)</g)].map(m => [m[1], +m[2]]));
+  ok(Object.keys(chromeA).filter(k => before[k]).every(k => chromeA[k] < before[k]), "every screen with a before count is shorter now");
+}
+
 /* 5. files */
 {
   const css = readFileSync(new URL("../fragments/settings-areas-overhaul/areas.css", import.meta.url), "utf8");
   ok(!/#[0-9a-fA-F]{3,8}\b/.test(css.replace(/\/\*[\s\S]*?\*\//g, "")), "no hex colour in areas.css (tokens only)");
   const note = readFileSync(new URL("../docs/knowledge/jobs-to-be-done/settings-redesign.md", import.meta.url), "utf8");
-  const miss = []; for (let i = 45; i <= 57; i++) if (!new RegExp("\\*\\*SR-P" + i + "\\.").test(note)) miss.push("P" + i); for (let i = 52; i <= 57; i++) if (!new RegExp("\\*\\*SR-Q" + i + "\\.").test(note)) miss.push("Q" + i);
-  ok(miss.length === 0, `the note records SR-P45 to SR-P57 and SR-Q52 to SR-Q57 ${miss.join(",")}`);
+  const miss = []; for (let i = 45; i <= 68; i++) if (!new RegExp("\\*\\*SR-P" + i + "\\.").test(note)) miss.push("P" + i); for (let i = 52; i <= 62; i++) if (!new RegExp("\\*\\*SR-Q" + i + "\\.").test(note)) miss.push("Q" + i);
+  ok(miss.length === 0, `the note records SR-P45 to SR-P68 and SR-Q52 to SR-Q62 ${miss.join(",")}`);
   ok(/settings-areas-overhaul/.test(readFileSync(new URL("../REVIEW-QUEUE", import.meta.url), "utf8")), "REVIEW-QUEUE has the line");
   ok(/fragments\/settings-areas-overhaul\//.test(readFileSync(new URL("../index.html", import.meta.url), "utf8")), "the index has the tile");
 }
