@@ -2,6 +2,8 @@
 
 Before changing any mockup here, read `DESIGN.md`. It is the design brief for this repo: jobs to be done first, one theme token set, playful tone, one visual family, options before decisions.
 
+**Before any UI work, read `DESIGN.md` section 9 (standing design concerns, phone first: words budget, jobs, accent, presentation, no duplication) and pass the design review checklist (9.8). A design review by a separate senior-mobile-UX agent is REQUIRED before any UI change merges, and the PR description states its verdict. The owner must never need to repeat these.**
+
 **Building or reviewing the desktop screens: start with `docs/handover/desktop.md`** (the master reference: every decision, requirement, open question and live link). 
 
 Static files, no build. Test by serving the folder (`python3 -m http.server`) and opening `index.html`.
