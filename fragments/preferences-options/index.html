@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Preferences, nine calmer options — fragment</title>
+<link rel="stylesheet" href="../../theme.css"><script src="../../theme.js"></script><link rel="stylesheet" href="../../shared.css"><link rel="stylesheet" href="po.css">
+</head>
+<body data-no-theme-fab><div class="wrap po">
+<div class="top"><a class="back" href="../../">&lsaquo; All mockups</a><h1>Preferences<span class="badge" id="badge">option</span></h1></div>
+<nav class="tabsx" id="tabs" aria-label="Option"></nav>
+
+<div class="bar" role="group" aria-label="Mockup aids">
+  <label><span class="l">View</span><select id="st-view" aria-label="View"><option value="mine">Mine</option><option value="open">A rule opened</option><option value="hh">Everyone</option></select></label>
+  <label><span class="l">Width</span><select id="st-w" aria-label="Width"><option value="390">390</option><option value="360">360</option></select></label>
+  <label><span class="l">Text</span><select id="st-ts" aria-label="Text size"><option value="0">Match my phone</option><option value="3">+30%</option></select></label>
+  <label><span class="l">Look</span><select id="st-look" aria-label="Light or dark"><option value="dark">Dark</option><option value="light">Light</option></select></label>
+</div>
+
+<div id="stage" class="stage"><div class="host"></div></div>
+<div id="pitch"></div>
+<p><b>Play it.</b> Everything on the phone works: the switch, quiet hours (tap the value), the stepper, opening a rule, Hard to Soft (asks once), Stop remembering, Add (shows what to tell the assistant), Mine and Everyone. <a href="directions.html">All nine side by side, with taps, words and a recommendation, is on directions.html</a>.</p>
+</div>
+<script src="po.js"></script>
+<script>
+(function () {
+  var q = new URLSearchParams(location.search), PO = window.PO, M = PO.META;
+  var o = (q.get("o") || "A").toUpperCase(); if (!M[o]) o = "A";
+  if (q.get("bare")) document.body.classList.add("bare");
+  document.querySelector("#tabs").innerHTML = PO.ORDER.map(function (k) { return '<a href="?o=' + k + '"' + (k === o ? ' aria-current="true"' : "") + ">" + k + ". " + M[k].name + "</a>"; }).join("") + '<a href="directions.html">All side by side</a>';
+  document.querySelector("#badge").textContent = o + ". " + M[o].name;
+  var m = M[o], host = document.querySelector("#stage .host");
+  document.querySelector("#pitch").innerHTML = "<p><b>" + o + ". " + m.name + ".</b> " + m.job + " <b>Accent:</b> " + m.accent + ". <b>For:</b> " + m.pros + " <b>Against:</b> " + m.cons + "</p>";
+  var ph = PO.make(host, o);
+  var view = q.get("view") || "mine"; document.querySelector("#st-view").value = view;
+  function setView(v) {
+    var S = ph.S; S.scope = v === "hh" ? "hh" : "me"; S.ui.open = v === "open" ? "p" : null; S.ui.grp = v === "open" ? "avoid" : S.ui.grp; S.ui.drill = v === "open" && o === "E" ? "food" : null; S.ui.sheet = v === "open" && o === "H" ? "p" : null; ph.draw();
+    if (v === "open" && o === "F") ph.act("pg:0");
+  }
+  setView(view);
+  var ts = q.get("ts") === "3" ? 3 : 0; PO.setScale(ts); document.querySelector("#st-ts").value = String(ts);
+  var w = q.get("w") === "360" ? "360" : "390"; document.querySelector("#st-w").value = w; host.style.width = w + "px";
+  document.body.setAttribute("data-ready", "1");
+  document.querySelector("#st-view").addEventListener("change", function (e) { ph.S.ui = JSON.parse(JSON.stringify({ open: null, conf: null, add: null, addany: false, tab: "avoid", grp: null, drill: null, page: 0, sheet: null, qopen: false, disc: null })); setView(e.target.value); });
+  document.querySelector("#st-w").addEventListener("change", function (e) { host.style.width = e.target.value + "px"; });
+  document.querySelector("#st-ts").addEventListener("change", function (e) { PO.setScale(+e.target.value); });
+  var look = document.querySelector("#st-look");
+  function curLook() { return document.documentElement.getAttribute("data-theme") === "kitchie-day" ? "light" : "dark"; }
+  look.value = curLook();
+  look.addEventListener("change", function (e) { PO.pickTheme(e.target.value === "light" ? "kitchie-day" : "kitchie"); });
+})();
+</script>
+</body></html>

@@ -688,3 +688,58 @@ Decisions, with how checked:
 - **Invite one tap before, Household first now? Acceptable.** The old tap made an invite without choosing Join us or Their own; Household opens with the choice and Copy link above the fold. *Checked:* 390 screenshot.
 
 Lesson for the checklist: when search takes over the screen on focus, test Tab order, not only taps. Add "Tab reaches the last row" to section 9.7.
+
+## Preferences, nine calmer options (owner, 25 Oct 2026)
+
+Mockup `fragments/preferences-options/` (open `?o=A` to `?o=I`; `directions.html` shows all nine side by side, every phone playable). Kitchie phone Preferences as built in 0.180.0. **Mockup only: no Kitchie build; nothing here is approved.** Check: `tools/preferences-options-check.mjs`. Design review (DESIGN.md 9.8, a separate senior-mobile-UX agent) is **not yet done**.
+
+**Owner, 25 Oct 2026 (voice):** "I still don't like that Preferences page, it's too crowded. What we had before was better; you made it worse. I want to see mockups, a lot of options." He loved **displaying values on the rows** ("quite fantastic": each setting shows its current value on the row). Keep that.
+
+**Job.** Open Preferences to (1) see what is avoided, (2) add something to avoid, (3) make a Hard avoid Soft, (4) look at or change the household's side (Mine or Everyone). All four are food jobs; the checks, quiet hours and suggestions a day are looked at rarely and changed more rarely.
+
+### What was compared, and what it showed
+
+0.177.0 (flat pages, before the lean pass) and 0.180.0 (now), run in the Kitchie web harness with the same data, photographed at 390 wide in light and dark (`fragments/preferences-options/before/`). The page is **not** longer now: 2180px on 0.177.0 against 1872px on 0.180.0. What changed is the weight per row: a 0.177.0 rule row had three marks (a 15px lock, a person, a chevron); a 0.180.0 Hard row has four (a lock 1.4 times bigger, the red word "Hard", a person 1.4 times bigger, a chevron), five times in a row. The three dial rows gained a second line each ("Kitchie") that changes no decision, and the group heading "Add something to avoid" became four bare "Add" rows under two stacked headings (FOOD, AVOIDS). The reasons the owner wrote are now the quietest thing on the row (gluten's is cut at "barle…").
+
+### The nine options (all keep the values on the rows)
+
+| | Direction | Gets the accent | See / Add / Hard to Soft / Everyone (taps) |
+|---|---|---|---|
+| A | Restore 0.177.0, word cuts only | Add, on Avoids | 0 / 1 / 3 / 1 |
+| B | Sentence rows ("Never gluten"), one list, one Add | Add | 0 / 2 / 3 / 1 |
+| C | One glyph per rule; Add and Mine/Everyone in a thumb bar | the round Add | 0 / 2 / 3 / 1 |
+| D | A card per kind; header shows count and a preview | none (position) | 1 / 2 / 4 / 1 |
+| E | Values on the top level, drill to a calm page | Food row | 1 / 2 / 4 / 1 |
+| F | Swipe through, one category per screen (arrows are buttons) | the category name | 0 / 1 / 3 / 1 |
+| G | Chips for the four kinds with counts, one calm list | the chosen chip | 0 / 1 / 3 / 1 |
+| H | Calm read-only list, every edit in a bottom sheet | Add | 0 / 1 / 3 / 1 |
+| I | Each kind is a cloud of name chips | the dashed Add chip | 0 / 1 / 3 / 1 |
+
+### Proposals (SR-P69 to SR-P78; all awaiting the owner; wrong guess cost in brackets)
+
+- **SR-P69. Recommend G (Kind chips), runner-up B, fallback A.** G keeps the rows he knew, shows six rows and not eleven, opens on Avoids (no tap to see them), uses a segmented control with counts (DESIGN.md 9.4, one of two to five). [A wrong guess rebuilds the Food list only.]
+- **SR-P70. Food goes above the checks** in every option except A: all four jobs are food. [Low: moving a block.]
+- **SR-P71. The source word on the dial rows ("Kitchie", "Household") is cut;** only the undo glyph stays when the value is the person's own, and the opened row says where it comes from. [Low.]
+- **SR-P72. Quiet hours edits in place by tapping the value** (two times and "No quiet hours" open under the row), replacing two always-open pickers. [Low.]
+- **SR-P73. Hard is a filled lock, Soft an open lock, with no word on the row;** the word "Hard" and the red are gone from the row and stay in the opened row and for screen readers. The danger red is kept for Remove only. [Medium: low-vision readers; the lock is 22px and a shape.]
+- **SR-P74. One audience mark per row where one is needed:** in B and I only Everyone is marked (Just you is the default on Mine). [Medium: absence as a state.]
+- **SR-P75. Add keeps its meaning:** "Add" on the group, then one line that says what to tell the assistant (food F8). B and C ask which kind first (one more tap). [Low.]
+- **SR-P76. The page height is part of the design check:** the first view, in screens, and the words on it, are counted by the page (A 1.8 screens and 11 words; G 1.2 and 15; B 1.4 and 24). [None.]
+- **SR-P77. The empty "Notes" row shows no value** (not "None"), and Housemates, Place rules and Switched off show a count; Switched off stays absent when empty. [Low.]
+- **SR-P78. Moving a rule between Everyone and Just you stays not a control** (no operation exists). [If he wants it, it is new work in Kitchie.]
+
+### Open questions (SR-Q63 to SR-Q69, each with a recommendation)
+
+- **SR-Q63. Which direction?** Recommend G; B if he prefers reading; A if he wants the page back. *How checked:* all nine played at 390 and 360, light and dark, +30%, Tab order, tap counts by script.
+- **SR-Q64. Is a word enough for Hard and Soft in B** ("Never", "Rather not"), or must the lock stay (9.1, 9.3)? Recommend: keep the lock if B is chosen. *How checked:* read against DESIGN.md 9.
+- **SR-Q65. Is the source word on dial rows gone for good?** Recommend yes (SR-P71).
+- **SR-Q66. Just you unmarked, Everyone marked?** Recommend yes in B and I; both drawn elsewhere, as built.
+- **SR-Q67. Checks above the Food list (A) or below (all others)?** Recommend below (SR-P70).
+- **SR-Q68. Quiet hours edited by tapping the value?** Recommend yes (SR-P72).
+- **SR-Q69. Does he want a way to move a rule between Everyone and Just you?** Recommend ask only if he has hit the need; no option draws it as a control.
+
+### For the implementation (only after he chooses)
+
+- Nothing is built. The change is to the Food list and the dial rows of `server/src/preferences/flat.ts` and `food-flat.ts` plus `settings-flat.css`; routes, words in the opened row and the scripts stay.
+- The mockup's class names (`row`, `rm`, `nm`, `ln`, `mk`, `wh`, `crow`, `vrow`, `ped`, `conf`, `seg`, `tabs`) are plain so the CSS can be lifted.
+- Unverified: the mockup's data is sample data, not read from the real store; a screen reader and a real phone were not tried; the real Everyone view for a non-admin (read-only with one line) is not drawn; category rules (a limit on "Spicy") are not drawn.

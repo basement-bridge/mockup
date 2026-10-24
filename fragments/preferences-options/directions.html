@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Preferences, nine options side by side — fragment</title>
+<link rel="stylesheet" href="../../theme.css"><script src="../../theme.js"></script><link rel="stylesheet" href="../../shared.css"><link rel="stylesheet" href="po.css">
+</head>
+<body data-no-theme-fab><div class="wrap po wide">
+<div class="top"><a class="back" href="../../">&lsaquo; All mockups</a><h1>Preferences: nine calmer options<span class="badge">for the owner to choose</span></h1></div>
+
+<div class="own"><b>Owner, 25 Oct 2026:</b> &ldquo;I still don&rsquo;t like that Preferences page, it&rsquo;s too crowded. What we had before was better; you made it worse. I want to see mockups, a lot of options.&rdquo; He loved <b>displaying values on the rows</b> (&ldquo;quite fantastic&rdquo;: each setting shows its current value on the row). Every option below keeps that. Phone only. Mockup only: no Kitchie build, nothing here is approved for build.</div>
+
+<h2 class="sec" id="looked">What I looked at first: 0.177.0 against 0.180.0</h2>
+<p>Both pages were run for real (the Kitchie web harness, same data: gluten Hard for Everyone with a reason; pasta, roti, tomato-based foods, non-rice noodles Hard for you; iceberg lettuce Soft; three likes, a swap, a limit) and photographed at 390 wide, light and dark.</p>
+<div class="shots">
+  <figure><img src="before/mine-0177-light.png" alt="Preferences on 0.177.0, light, 390 wide: 2180 pixels tall" width="390" height="2180" loading="lazy"><figcaption>0.177.0 (before the lean pass): 2180px tall. Small lock, person, chevron per row.</figcaption></figure>
+  <figure><img src="before/mine-0180-light.png" alt="Preferences on 0.180.0, light, 390 wide: 1872 pixels tall" width="390" height="1872" loading="lazy"><figcaption>0.180.0 now: 1872px tall. Big lock, the word Hard, person, chevron per row.</figcaption></figure>
+  <figure><img src="before/mine-0177-dark.png" alt="Preferences on 0.177.0, dark" width="390" height="2180" loading="lazy"><figcaption>0.177.0, dark.</figcaption></figure>
+  <figure><img src="before/mine-0180-dark.png" alt="Preferences on 0.180.0, dark" width="390" height="1872" loading="lazy"><figcaption>0.180.0, dark.</figcaption></figure>
+</div>
+<p><b>What the earlier page did better, and what is crowded now, in five lines:</b></p>
+<ol>
+<li><b>It was not shorter, it was lighter per row.</b> 0.177.0 is 2180px tall and 0.180.0 is 1872px (14% less), so length is not the complaint. A 0.177.0 rule row carried three marks (a small lock, a person, a chevron); a 0.180.0 Hard row carries four (a lock 1.4 times bigger, the red word &ldquo;Hard&rdquo;, a person 1.4 times bigger, a chevron), five times in a row for the same thing.</li>
+<li><b>Each setting stood alone with air.</b> The checks, quiet hours and suggestions rows had a line of their own and a large control; now the three sit shoulder to shoulder, and the second line under each label (&ldquo;Kitchie&rdquo;, three times) tells you where a value came from, which changes no decision.</li>
+<li><b>Words that said what a row does were cut too far.</b> &ldquo;Add something to avoid&rdquo; read as a sentence; four bare &ldquo;Add&rdquo; rows under four small headings do not. Two stacked headings (FOOD, then AVOIDS) say the same thing.</li>
+<li><b>Now the marks compete with the names.</b> The name, the reason (cut at &ldquo;barle&hellip;&rdquo; on gluten), a filled lock, a red word, a person glyph and a chevron all sit in one 56px row, and the reasons the owner wrote are the quietest thing on it.</li>
+<li><b>What to keep from 0.180.0:</b> the values on the rows (the Settings front&rsquo;s idea, which he loved), the filled and open lock as a shape not only a colour, the quiet Mine and Everyone switch, 44px targets. The nine options below all keep those and differ in how much each rule row carries and how much is shown at once.</li>
+</ol>
+
+<h2 class="sec" id="exists">What exists today (so nothing is lost)</h2>
+<p>Read from Kitchie UAT 0.180.0 (<code>settings-phone.ts</code>, <code>preferences/flat.ts</code>, <code>preferences/food-flat.ts</code>, <code>food-card.ts</code>) and the 0.177.0 pages. Everything in the left column is on every option; the right column says where it lives.</p>
+<div class="tblwrap"><table class="tbl"><thead><tr><th>Exists</th><th>How it works today</th></tr></thead><tbody>
+<tr><td>Mine / Everyone</td><td>A two-way control at the top. Everyone is the household&rsquo;s own settings and rules; editable by admins, read-only for others with one line.</td></tr>
+<tr><td>Amount checks</td><td>A switch (&ldquo;Ask me to check amounts&rdquo;). On Mine it follows the household, then Kitchie, until you set your own; a small undo goes back.</td></tr>
+<tr><td>Quiet hours</td><td>Two times, default 10pm to 6am. On Mine only: &ldquo;No quiet hours&rdquo; and &ldquo;Use quiet hours&rdquo;. The Settings front row Preferences already shows the value (&ldquo;10pm&ndash;6am&rdquo; or &ldquo;Off&rdquo;).</td></tr>
+<tr><td>Suggestions a day</td><td>A stepper, 1 to 20, default 3.</td></tr>
+<tr><td>Food rules</td><td>Four kinds: <b>Avoids</b> (Hard first, then Soft), <b>Likes</b>, <b>Swaps</b>, <b>Limits</b>. A row: the name, one quiet line (reason, swap, &ldquo;Max twice a week&rdquo;, when, until, recipe count), Hard (a filled lock) or Soft (an open lock), who it is for (Everyone or Just you). A rule on a category (&ldquo;Spicy&rdquo;) has its own opened row.</td></tr>
+<tr><td>Opened rule</td><td>Hard or Soft (Hard to Soft asks once: &ldquo;Make soft? It can still turn up.&rdquo;; Soft to Hard does not), a Reason field that saves as you type, the end of a like (&ldquo;Keep&rdquo;), Stop remembering (a Hard avoid asks once). &ldquo;Change it: tell your assistant.&rdquo; Everyone or Just you is <b>shown, not a control</b>: moving a rule between them has no operation today.</td></tr>
+<tr><td>Add</td><td>Adding a rule is the assistant&rsquo;s (food F8): Add opens a line that says what to tell it, with an example; on Everyone it adds &ldquo;Say it is for everyone.&rdquo;</td></tr>
+<tr><td>Assistant notes</td><td>A text box, 600 characters. Admins only on Everyone.</td></tr>
+<tr><td>Housemates (Mine)</td><td>One row per person; opens to their food shown read-only, &ldquo;Suggest for Sam&rdquo;, and &ldquo;Review N&rdquo; when something waits.</td></tr>
+<tr><td>Place rules</td><td>A count, opens the rules by place (an item, a category or a place, a level, how often).</td></tr>
+<tr><td>Switched off (Mine)</td><td>Checks switched off, each with &ldquo;Ask again&rdquo;. Absent when nothing is switched off.</td></tr>
+<tr><td>Added for you</td><td>A banner at the top of Mine when proposals wait. Not drawn here (it only appears when something waits, and sits above every option the same way).</td></tr>
+</tbody></table></div>
+
+<h2 class="sec" id="options">The nine options</h2>
+<p>Same data on every phone: gluten Hard for Everyone with its reason; pasta, roti, tomato-based foods and non-rice noodles Hard for Just you; iceberg lettuce Soft; likes: protein-forward carb-conscious meals, gluten-free bread, rice noodles; one swap, one limit; quiet hours 10pm&ndash;6am; two housemates, two place rules, one thing switched off. Every phone plays: tap, open a rule, make Pasta soft, switch to Everyone. Food is first wherever the page is reorganised, because all four of the common jobs are food jobs.</p>
+<div class="bar" role="group" aria-label="Mockup aids">
+  <span class="grp2"><span class="l">Width</span><button type="button" data-w="390" aria-pressed="true">390</button><button type="button" data-w="360" aria-pressed="false">360</button></span>
+  <span class="grp2"><span class="l">Text</span><button type="button" data-ts="0" aria-pressed="true">Match my phone</button><button type="button" data-ts="3" aria-pressed="false">+30%</button></span>
+  <span class="grp2"><span class="l">Look</span><button type="button" data-look="dark" aria-pressed="true">Dark</button><button type="button" data-look="light" aria-pressed="false">Light</button></span>
+  <span class="grp2"><span class="l">View</span><button type="button" data-view="mine" aria-pressed="true">Mine</button><button type="button" data-view="open" aria-pressed="false">A rule opened</button><button type="button" data-view="hh" aria-pressed="false">Everyone</button></span>
+</div>
+<div id="grid" class="grid"></div>
+
+<h2 class="sec" id="compare">Side by side</h2>
+<p>Taps are the played sequences (the check script plays each one and checks the end state): <b>See</b> is what it takes to see the avoids, <b>Add</b> to reach the add line for an avoid, <b>Hard to Soft</b> includes the one confirm (Pasta), <b>Everyone</b> is switching Mine to Everyone. Words are the words a person reads on the first screen, counted by the page from what is drawn (sample data and screen-reader text are not counted). Height is the first view, in screens of 844px.</p>
+<div class="tblwrap"><table class="tbl" id="cmp"><thead><tr><th>Option</th><th>Job to be done</th><th>Gets the accent</th><th>Words</th><th>Height</th><th>See</th><th>Add</th><th>Hard to Soft</th><th>Everyone</th><th>For</th><th>Against</th></tr></thead><tbody></tbody></table></div>
+
+<h2 class="sec" id="rec">Recommendation</h2>
+<div class="rec" id="recbox">
+<h3>G, Kind chips, with the values rows of E for the checks. Runner-up B. Fallback A.</h3>
+<p><b>Why G.</b> It answers the complaint without changing what he knows: the rows are the 0.177.0 rows, but only one kind shows at a time, so the page holds six rows and not eleven. Avoids is chosen on arrival, so the first job (see what is avoided) costs no tap. The four kinds are a segmented control with counts on them (&ldquo;Avoids 6&rdquo;), which is exactly what DESIGN.md 9.4 prescribes for one of two to five, and the counts are values on a control, the idea he loved. Add belongs to the chosen kind. The cost: a Like, a Swap or a Limit takes one more tap to see, and at +30% the chips wrap to two rows.</p>
+<p><b>Why not the others first.</b> D and E hide the avoids behind a tap, and avoids are the safety job. F hides everything but one screen. C and I are the calmest to look at but ask him to learn a shape (a ring, a chip) at low vision. H is calm but every edit is a modal.</p>
+<p><b>B is the runner-up</b> if he would rather read than decode: &ldquo;Never gluten&rdquo; needs no lock, no heading and no &ldquo;Just you&rdquo; mark. It does carry Hard and Soft in a word and not a glyph, which DESIGN.md 9.1 and 9.3 prefer the other way round (open question SR-Q64). <b>A is the safe fallback:</b> the page he knew, with the values added and the repeated words cut.</p>
+<p>Nothing is decided. Recommended picks are proposals for him to choose between, by looking at the phones above.</p>
+</div>
+
+<h2 class="sec" id="open">Open questions</h2>
+<ol>
+<li><b>SR-Q63.</b> Which direction (G recommended, B or A as alternatives)? A wrong guess costs a rebuild of the Food list only: every option keeps the same rules, routes and words in the opened row.</li>
+<li><b>SR-Q64.</b> Is a word (&ldquo;Never&rdquo;, &ldquo;Rather not&rdquo;) enough to carry Hard and Soft in B, or must the lock stay (9.1, 9.3)? If the lock stays, B grows a mark per row and is close to A.</li>
+<li><b>SR-Q65.</b> Is the source word on the dial rows (&ldquo;Kitchie&rdquo;, &ldquo;Household&rdquo;) gone for good, with only the undo glyph when a value is yours? Proposal: yes; the opened row says where the value comes from.</li>
+<li><b>SR-Q66.</b> Should Just you be unmarked and only Everyone marked (B, I: yes; A, D, E, F, G, H: both drawn, as built)? On Everyone every rule is Everyone, so the mark is moot there.</li>
+<li><b>SR-Q67.</b> Should the checks and quiet hours sit above the Food list (A) or below it (all others)? Proposal: below, because every common job is food.</li>
+<li><b>SR-Q68.</b> Quiet hours edit in place by tapping the value (all options). The times were two always-open pickers plus a link. OK?</li>
+<li><b>SR-Q69.</b> Moving a rule between Everyone and Just you has no operation today. Does he want one? No option draws it as a control.</li>
+</ol>
+
+<h2 class="sec" id="notes">Notes: how it is drawn</h2>
+<details class="fold" open><summary>Words, accent, targets, Tab order (DESIGN.md 9)</summary><div>
+<p><b>Words.</b> Screen title 1 to 3 words; every row label, chip and button 3 words at most (&ldquo;Suggestions a day&rdquo; is 3); state is a glyph (a filled lock is Hard, an open lock is Soft, two people is Everyone) with the word only in the opened row and for screen readers; helper text is none, except the one line that appears after Add, and the two confirms.</p>
+<p><b>Accent.</b> One per phone, named in the table. The switch is the standard control colour when it is on. Mine and Everyone is an outline and a tick, never the accent (so the accent stays on one thing).</p>
+<p><b>Targets and size.</b> Every control is at least 44px both ways and scales with text size (em); at +30% nothing is cut and nothing scrolls sideways (the check script measures it at 390 and 360, light and dark, both text sizes, on every option and in the opened and Everyone views). Glyphs are in em, 1.4em (22px at normal) for state marks.</p>
+<p><b>Not colour alone.</b> Hard is a filled lock, Soft an open lock, Everyone two people, Just you one, a chosen chip has a tick and an outline. Dark is checked the same way.</p>
+<p><b>Tab order</b> follows the screen, top to bottom, with no tabindex. F: the pages off screen are inert (not focusable) and the arrows are real buttons, so swipe is never the only way. H: the sheet traps focus, closes on Escape and returns focus to the row. The check script tabs through each option and requires the last control to be reached.</p>
+<p><b>Performance.</b> The default path loads <code>theme.css</code>, <code>shared.css</code>, <code>po.css</code> (9KB) and <code>po.js</code> (one file for nine options); the screenshots under <code>before/</code> are loaded lazily and only on this page; nothing is fetched on the phone itself. The real page is server-drawn and loads only the Food scripts that a row needs; none of these options changes that.</p>
+<p><b>Design review.</b> DESIGN.md 9.8 requires a review by a separate senior mobile UX agent. It has not been done on this fragment. The builder (this session) has not reviewed its own work against the checklist and does not claim a verdict.</p>
+</div></details>
+</div>
+<script src="po.js"></script>
+<script>
+(function () {
+  var PO = window.PO, M = PO.META, J = PO.JOBS, O = PO.ORDER, grid = document.querySelector("#grid"), phones = {}, view = "mine";
+  grid.innerHTML = O.map(function (k) { return '<div class="cell" id="opt-' + k + '"><h3>' + k + ". " + M[k].name + '</h3><p class="one">' + M[k].job + ' <a href="index.html?o=' + k + '">Open full size</a></p><div class="host"></div><p class="one" data-live></p></div>'; }).join("");
+  O.forEach(function (k) { phones[k] = PO.make(document.querySelector("#opt-" + k + " .host"), k); });
+  function setView(v) {
+    view = v;
+    O.forEach(function (k) {
+      var ph = phones[k], S = ph.S; S.ui = { open: null, conf: null, add: null, addany: false, tab: "avoid", grp: null, drill: null, page: 0, sheet: null, qopen: false, disc: null };
+      S.scope = v === "hh" ? "hh" : "me"; if (v === "open") { S.ui.open = "p"; if (k === "D") S.ui.grp = "avoid"; if (k === "E") S.ui.drill = "food"; if (k === "H") S.ui.sheet = "p"; }
+      ph.draw();
+    });
+    live();
+  }
+  function live() {
+    O.forEach(function (k) {
+      var ph = phones[k], bd = ph.bd, h = k === "F" ? "one screen per page, 6 pages" : (bd.scrollHeight / 844 + 0.005).toFixed(1) + " screens";
+      document.querySelector("#opt-" + k + " [data-live]").textContent = PO.wordCount(ph) + " words on this view · " + h;
+    });
+  }
+  var base = {}; /* the table is measured on Mine, the first view, at 390 and normal text, on a fresh phone */
+  var meas = document.createElement("div"); meas.style.cssText = "position:absolute;left:-9999px;top:0;width:390px"; document.body.appendChild(meas);
+  var tb = document.querySelector("#cmp tbody");
+  function row(k) {
+    var ph = PO.make(meas, k); var w = PO.wordCount(ph), h = k === "F" ? "1 per page" : (ph.bd.scrollHeight / 844 + 0.005).toFixed(1) + " screens"; PO.drop(ph);
+    var m = M[k], j = J[k];
+    return '<tr id="row-' + k + '"><td><b>' + k + ". " + m.name + '</b></td><td>' + m.job + "</td><td>" + m.accent + '</td><td class="n" data-words>' + w + '</td><td class="n">' + h + '</td><td class="n" data-t="see">' + j.see.length + '</td><td class="n" data-t="add">' + j.add.length + '</td><td class="n" data-t="soft">' + j.soft.length + '</td><td class="n" data-t="scope">' + j.scope.length + "</td><td>" + m.pros + "</td><td>" + m.cons + "</td></tr>";
+  }
+  function fill() { tb.innerHTML = O.map(row).join(""); meas.remove(); live(); }
+  function go() { fill(); document.body.setAttribute("data-ready", "1"); }
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(go); else go();
+  [].forEach.call(document.querySelectorAll("[data-view]"), function (b) { b.addEventListener("click", function () { [].forEach.call(document.querySelectorAll("[data-view]"), function (x) { x.setAttribute("aria-pressed", String(x === b)); }); setView(b.getAttribute("data-view")); }); });
+  [].forEach.call(document.querySelectorAll("[data-w]"), function (b) { b.addEventListener("click", function () { [].forEach.call(document.querySelectorAll("[data-w]"), function (x) { x.setAttribute("aria-pressed", String(x === b)); }); document.querySelector("#grid").style.setProperty("--w", b.getAttribute("data-w") + "px"); [].forEach.call(document.querySelectorAll(".ph"), function (p) { p.style.width = "100%"; }); setTimeout(live, 50); }); });
+  [].forEach.call(document.querySelectorAll("[data-ts]"), function (b) { b.addEventListener("click", function () { [].forEach.call(document.querySelectorAll("[data-ts]"), function (x) { x.setAttribute("aria-pressed", String(x === b)); }); PO.setScale(+b.getAttribute("data-ts")); setTimeout(live, 50); }); });
+  [].forEach.call(document.querySelectorAll("[data-look]"), function (b) { b.addEventListener("click", function () { [].forEach.call(document.querySelectorAll("[data-look]"), function (x) { x.setAttribute("aria-pressed", String(x === b)); }); PO.pickTheme(b.getAttribute("data-look") === "light" ? "kitchie-day" : "kitchie"); }); });
+  var cur = document.documentElement.getAttribute("data-theme") === "kitchie-day" ? "light" : "dark";
+  [].forEach.call(document.querySelectorAll("[data-look]"), function (x) { x.setAttribute("aria-pressed", String(x.getAttribute("data-look") === cur)); });
+})();
+</script>
+</body></html>
