@@ -329,8 +329,10 @@ Screen title 1 to 3 words. Row label, button, chip 3 words at most. State is a g
 ### Questions (SR-Q58 to SR-Q62, each with a recommendation)
 
 - **SR-Q58.** Is a shield alone enough for Admin, or does he want the word beside it? Recommend the shield with the name for a screen reader, and add the word back if it is not recognised on his phone.
+  **Resolved, 24 Oct 2026 (owner: apply the independent reviewer's recommendation, PR #303):** the shield **plus the word "Admin"** on the person's row, glyph first. Only one row has it, the `title` never shows on a phone, and a shield alone reads as "protected". Built in kitchie as the fixes to 0.178.0; drawn in `fragments/settings-areas-overhaul/` (direction A).
 - **SR-Q59.** Categories: the footer that explains why Protein stays apart from Meat is dropped; the refusal still says why when it happens. Recommend yes.
 - **SR-Q60.** Is a star the right default control for assistants, or a "Default" word on the row? Recommend the star: it is the common sign and a 44px button; a word would repeat the dot.
+  **Resolved, 24 Oct 2026 (owner: apply the independent reviewer's recommendation, PR #303):** the star **stays**, and the starred assistant gets the one word **"Default"** under its name, only when two or more assistants are connected (none on the others, none when only one is connected). The filled and outline star differ by fill alone, and a star can also mean favourite; the word does not repeat the dot (the dot says connected, the word says which one is used). Built in kitchie and drawn in `fragments/settings-areas-overhaul/`.
 - **SR-Q61.** The quote in an opened food row drops "(kept as data, said 1 time)". Recommend yes: the count changes no decision.
 - **SR-Q62.** Lean History, the bell and the invite landing the same way next? Recommend yes, History first (61 words, its own mockup).
 

@@ -22,7 +22,7 @@
     star: '<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>', unlock: '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 017.5-2"/>',
     link: '<path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/>', download: '<path d="M12 4v11M7 11l5 5 5-5M5 20h14"/>',
     install: '<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M12 8v6M9.5 11.5L12 14l2.5-2.5"/>', signout: '<path d="M10 4H6a2 2 0 00-2 2v12a2 2 0 002 2h4M15 8l4 4-4 4M19 12H9"/>',
-    pencil: '<path d="M4 20h4L19 9l-4-4L4 16z"/>', clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', one: '<circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/>', many: '<circle cx="9" cy="8" r="3"/><path d="M3 19c0-3.1 2.7-5 6-5s6 1.9 6 5"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c2.6 0 4.5 1.6 4.5 4"/>'
+    leave: '<path d="M4 11l8-7 8 7M6 9.5V20h12V9.5M10 13.5l4 4M14 13.5l-4 4"/>', pencil: '<path d="M4 20h4L19 9l-4-4L4 16z"/>', clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', one: '<circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/>', many: '<circle cx="9" cy="8" r="3"/><path d="M3 19c0-3.1 2.7-5 6-5s6 1.9 6 5"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c2.6 0 4.5 1.6 4.5 4"/>'
   };
   function ic(n, s) { return '<svg class="i" width="' + (s || 20) + '" height="' + (s || 20) + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + P[n] + "</svg>"; }
   function chev() { return '<span class="chev">' + ic("chev", 18) + "</span>"; }
@@ -68,15 +68,15 @@
 
   /* ---------- small controls ---------- */
   function sw(a, on, label) { return '<label class="sw"><input type="checkbox" role="switch" data-a="' + a + '"' + (on ? " checked" : "") + ' aria-label="' + esc(label) + '"><i class="swt" aria-hidden="true"></i></label>'; }
-  function tseg(label, opts, cur, pre) { return '<div class="tseg" role="radiogroup" aria-label="' + esc(label) + '">' + opts.map(function (o) { return '<button type="button" role="radio" aria-checked="' + (cur === o[0]) + '" data-a="' + pre + ":" + o[0] + '">' + esc(o[1]) + "</button>"; }).join("") + "</div>"; }
+  function tseg(label, opts, cur, pre, cls) { return '<div class="tseg' + (cls ? " " + cls : "") + '" role="radiogroup" aria-label="' + esc(label) + '">' + opts.map(function (o) { return '<button type="button" role="radio" aria-checked="' + (cur === o[0]) + '" data-a="' + pre + ":" + o[0] + '">' + esc(o[1]) + "</button>"; }).join("") + "</div>"; }
   function num(key, v, lo, hi) { return '<span class="num" role="group" aria-label="Most suggestions per day"><button type="button" data-a="step:' + key + ':-1" aria-label="Fewer"' + (v <= lo ? " disabled" : "") + '>−</button><b aria-live="polite">' + v + '</b><button type="button" data-a="step:' + key + ':1" aria-label="More"' + (v >= hi ? " disabled" : "") + '>+</button></span>'; }
   function timeIn(k, v, label, dis) { return '<input type="time" class="tm" data-in="' + k + '" value="' + esc(v) + '" aria-label="' + esc(label) + '"' + (dis ? " disabled" : "") + ">"; }
 
   /* ---------- the dials: ask, quiet hours, most per day. scope 'me' or 'hh'. Mine falls back to the household's, then the app's; a double tap on a row (or the quiet words) goes back ---------- */
-  /* A value that is not yours says where it comes from as a link glyph and one word; a value that is yours has a Reset glyph button instead (words budget: no "Same as ...", no "Yours. Use the ...") */
+  /* A value that is not yours says where it comes from as one word at body size (the link glyph read as a paperclip, design review 24 Oct 2026); a value that is yours has a Reset glyph button instead (words budget: no "Same as ...", no "Yours. Use the ...") */
   function inhLine(S, scope, k) {
     if (scope === "hh" || own(S, "me", k)) return "";
-    return '<span class="inh" title="Same as ' + fromWho(S, k) + '">' + ic("link", 14) + (S.d.hh[k] != null ? "Household" : "Kitchie") + "</span>";
+    return '<span class="inh" title="Same as ' + fromWho(S, k) + '">' + (S.d.hh[k] != null ? "Household" : "Kitchie") + "</span>";
   }
   function resetBtn(S, scope, k) {
     if (scope === "hh" || !own(S, "me", k)) return "";
@@ -115,29 +115,30 @@
   }
   /* Food list (owner, 24 Oct 2026; built in kitchie #1125): one heading per group (Avoids, Likes, Swaps), dense rows (name, one quiet line for the reason, cut with an ellipsis; nothing when there is no reason),
      a lock for Hard and the word Soft for soft, a small icon for Everyone or Just you (shown, not a control: moving a rule between the two has no operation today), and an add row first in each group. */
-  var LOCKI = '<svg class="hard" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
-  var UNLOCKI = '<svg class="soft" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.5-2"/></svg>';
-  var ONEI = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/></svg>';
-  var MANYI = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 19c0-3.1 2.7-5 6-5s6 1.9 6 5"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c2.6 0 4.5 1.6 4.5 4"/></svg>';
-  /* Hard is a closed lock, Soft an open lock (one metaphor, two shapes; the colour is not the signal), Everyone two people, Just you one. Words only for a screen reader. A row opens in place:
+  var LOCKI = '<svg class="hard" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+  var UNLOCKI = '<svg class="soft" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7.5a4 4 0 0 1 7.6-1.7"/></svg>';
+  var ONEI = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/></svg>';
+  var MANYI = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 19c0-3.1 2.7-5 6-5s6 1.9 6 5"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c2.6 0 4.5 1.6 4.5 4"/></svg>';
+  /* Hard is a filled closed lock with the word Hard (red is a second cue, not the signal), Soft an open outline lock, Everyone two people, Just you one; all in em so they grow with Text size (22px at normal). The word Soft is for a screen reader only. A row opens in place:
      what was said (a quote), Hard or Soft as a two-way control, the Reason (a box, no help text), Stop remembering (asks once for a Hard one), and one line: changing it is the assistant's. */
   function foodRow(S, sc, kind, t, everyone) {
     var key = sc + "." + kind + ":" + t, why = (S.why || {})[t] || "", open = S.ui.open["food:" + key];
-    var mark = kind === "hard" ? '<span class="fmark" title="Hard">' + LOCKI + '<span class="vh">Hard</span></span>' : kind === "soft" ? '<span class="fmark soft" title="Soft">' + UNLOCKI + '<span class="vh">Soft</span></span>' : "";
+    var mark = kind === "hard" ? '<span class="fmark" title="Hard">' + LOCKI + '<span class="fw">Hard</span></span>' : kind === "soft" ? '<span class="fmark soft" title="Soft">' + UNLOCKI + '<span class="vh">Soft</span></span>' : "";
     return '<li class="frow prow"><button type="button" class="fmain" data-a="open:food:' + esc(key) + '" aria-expanded="' + !!open + '"><span class="rm"><span class="nm" data-user>' + esc(t) + "</span>" + (why ? '<span class="fline">' + esc(why) + "</span>" : "") + "</span>" + mark + '<span class="fscope" title="' + (everyone ? "Everyone" : "Just you") + '">' + (everyone ? MANYI : ONEI) + '<span class="vh">' + (everyone ? "Everyone" : "Just you") + "</span></span>" + chev() + "</button>" + (open ? foodEditor(S, sc, kind, t, everyone, key, why) : "") + "</li>";
   }
   function foodEditor(S, sc, kind, t, everyone, key, why) {
     var conf = S.ui.confirm, typed = kind === "hard" || kind === "soft", stopAsk = conf === "stop:" + key, softAsk = conf === "soft:" + key;
-    var said = '<p class="said"><q>' + esc((S.said || {})[t] || (kind === "hard" ? "Never " + t.toLowerCase() : kind === "soft" ? "Rather not " + t.toLowerCase() : kind === "like" ? "I like " + t.toLowerCase() : t)) + "</q></p>";
+    var quote = (S.said || {})[t] || (kind === "hard" ? "Never " + t.toLowerCase() : kind === "soft" ? "Rather not " + t.toLowerCase() : kind === "like" ? "I like " + t.toLowerCase() : t);
+    var said = quote.trim().toLowerCase() === t.trim().toLowerCase() ? "" : '<p class="said"><q>' + esc(quote) + "</q></p>"; /* the quote is dropped when it only repeats the row's title */
     var seg = typed ? '<div class="tseg" role="radiogroup" aria-label="Hard or soft"><button type="button" role="radio" aria-checked="' + (kind === "hard") + '" data-a="ftype:' + esc(key) + ':hard">' + LOCKI + ' Hard</button><button type="button" role="radio" aria-checked="' + (kind === "soft") + '" data-a="ftype:' + esc(key) + ':soft">' + UNLOCKI + " Soft</button></div>" +
       '<p class="sm conseq">' + (kind === "hard" ? "Never suggested." : "Ranked lower.") + "</p>" : "";
     var soft = softAsk ? confirmHtml("Make " + t + " soft?", "It can come back.", '<button type="button" class="pbtn danger" data-a="do:soft:' + esc(key) + '">Make soft</button><button type="button" class="pbtn" data-a="keep">Keep hard</button>') : "";
     var reason = typed ? '<label class="fl" for="why-' + esc(t) + '">Reason</label><input id="why-' + esc(t) + '" class="in boxed" data-in="why:' + esc(t) + '" maxlength="200" placeholder="Optional" autocomplete="off" value="' + esc(why) + '">' : "";
-    var stop = stopAsk ? confirmHtml("Stop remembering " + t + "?", kind === "hard" ? "It can be suggested again." : "", '<button type="button" class="pbtn danger" data-a="do:stop:' + esc(key) + '">Stop</button><button type="button" class="pbtn" data-a="keep">Keep</button>') : '<button type="button" class="dng plain" data-a="' + (kind === "hard" ? "ask:stop:" : "do:stop:") + esc(key) + '">Stop remembering</button>';
+    var stop = stopAsk ? confirmHtml("Stop remembering " + t + "?", kind === "hard" ? "It can be suggested again." : "", '<button type="button" class="pbtn danger" data-a="do:stop:' + esc(key) + '">Stop</button><button type="button" class="pbtn" data-a="keep">Keep</button>') : '<button type="button" class="stopq" data-a="' + (kind === "hard" ? "ask:stop:" : "do:stop:") + esc(key) + '">' + ic("trash", 18) + " Stop remembering</button>";
     return '<div class="ped">' + said + seg + soft + reason + stop + '<p class="sm">Change it: tell your assistant.</p></div>';
   }
   function foodGroup(S, scope, title, add, rows, eg) {
-    return '<p class="hd2 fh">' + title + '</p><ul class="list flist"><li class="fadd-li"><button type="button" class="fadd" data-a="toast:Tell your assistant, e.g. &ldquo;' + eg + '&rdquo;." aria-label="' + esc(add) + '">' + ic("plus", 18) + "Add</button></li>" + rows + "</ul>";
+    return '<p class="hd2 fh">' + title + '</p><ul class="list flist"><li class="fadd-li"><button type="button" class="fadd' + (title === "Avoids" ? "" : " quiet") + '" data-a="toast:Tell your assistant, e.g. &ldquo;' + eg + '&rdquo;." aria-label="' + esc(add) + '">' + ic("plus", 18) + "Add</button></li>" + rows + "</ul>";
   }
   function foodBlock(S, scope) {
     var f = S.food[scope], hh = S.food.hh, row = function (sc, k, t, kind, ev) { return foodRow(S, sc, kind, t, ev); };
@@ -162,7 +163,7 @@
   }
   function rulesBlock(S) {
     var open = S.ui.open.rules;
-    return '<li class="prow"><button type="button" class="rb" data-a="open:rules" aria-expanded="' + !!open + '"><span class="nm">Place rules</span><span class="val">' + S.rules.length + "</span>" + chev() + "</button>" +
+    return '<li class="prow"><button type="button" class="rb" data-a="open:rules" aria-expanded="' + !!open + '"><span class="nm">Place rules</span>' + (S.rules.length ? '<span class="val">' + S.rules.length + "</span>" : "") + chev() + "</button>" +
       (open ? '<div class="exp">' + S.rules.map(function (r, i) { return '<div class="crow"><div class="top"><span class="rm"><b class="nm" data-user>' + esc(r.t) + '</b><span class="sub">' + esc(r.v) + '</span></span><button type="button" class="ibtn2" data-a="rulerm:' + i + '" aria-label="Remove ' + esc(r.t) + '" title="Remove">' + ic("trash", 20) + '</button></div></div>'; }).join("") +
         '<button type="button" class="pbtn wide" data-a="sheet:rule">Add rule</button></div>' : "") + "</li>";
   }
@@ -172,7 +173,7 @@
     var all = [{ id: "me", name: S.me.name, pic: S.me.pic, admin: S.me.admin, you: true }].concat(S.people);
     return all.map(function (p) {
       var open = S.ui.open["p:" + p.id], conf = S.ui.confirm === "rm:" + p.id;
-      var adm = p.admin ? '<span class="val adm" title="Admin">' + ic("shield", 20) + '<span class="vh">Admin</span></span>' : "";
+      var adm = p.admin ? '<span class="val gly adm">' + ic("shield", 20) + '<span class="gw">Admin</span></span>' : ""; /* SR-Q58: the shield and the word */
       var row = '<button type="button" class="rb" data-a="' + (p.you ? "go:you" : "open:p:" + p.id) + '"' + (p.you ? "" : ' aria-expanded="' + !!open + '"') + ">" + discHtml(p.name, p.pic, "s") + '<span class="rm"><span class="nm" data-pn="' + p.id + '" data-user>' + esc(p.name) + "</span>" + (p.you ? '<span class="sub">You</span>' : "") + "</span>" + adm + chev() + "</button>";
       var exp = !p.you && open ? '<div class="exp"><div class="crow"><div class="top"><span class="rm"><b class="nm">Admin</b></span>' + sw("adm:" + p.id, p.admin, "Admin: " + p.name) + "</div></div>" +
         (conf ? confirmHtml("Remove " + p.name + "?", "They lose access.", '<button type="button" class="pbtn danger" data-a="do:rm:' + p.id + '">Remove ' + esc(p.name) + '</button><button type="button" class="pbtn" data-a="keep">Keep</button>') : '<button type="button" class="dng plain" data-a="ask:rm:' + p.id + '">Remove ' + esc(p.name) + "</button>") + "</div>" : "";
@@ -183,11 +184,11 @@
   function inviteBlock(S, bare) {
     var join = S.kind === "join";
     var link = S.link ? '<p class="link"><b>' + esc(S.link) + "</b><span>" + (join ? "One use &middot; 48 hours" : "One use &middot; their own household") + "</span></p>" : "";
-    return '<div class="invite2">' + tseg("Who the invite is for", [["join", "Join us"], ["own", "Their own"]], S.kind, "kind") +
-      '<button type="button" class="pbtn go wide" data-a="copy">' + ic(S.link ? "check" : "copy", 18) + " " + (S.link ? "Copied" : "Copy link") + "</button>" + link + "</div>";
+    return '<div class="invite2"><span class="fl">Invite</span>' + tseg("Who the invite is for", [["join", "Join us"], ["own", "Their own"]], S.kind, "kind") +
+      '<button type="button" class="pbtn wide" data-a="copy">' + ic(S.link ? "check" : "copy", 18) + " " + (S.link ? "Copied" : "Copy link") + "</button>" + link + "</div>";
   }
   function leaveBlock(S) {
-    if (S.ui.confirm !== "leave") return '<div class="blk"><button type="button" class="dng plain" data-a="ask:leave">Leave household</button></div>';
+    if (S.ui.confirm !== "leave") return '<div class="blk"><button type="button" class="dng plain" data-a="ask:leave"><i class="lead" aria-hidden="true">' + ic("leave", 20) + '</i><span>Leave household</span></button></div>';
     var ok = S.ui.leaveTyped.trim().toLowerCase() === S.me.name.trim().toLowerCase();
     return '<div class="blk">' + confirmHtml("Leave " + S.hh + "?", "You lose its pantry, shopping and recipes. Only an invite brings you back.",
       '<label class="sm" for="lv" style="flex:1 1 100%">Type your name</label><input id="lv" class="in" data-in="leave" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="' + esc(S.me.name) + '" style="flex:1 1 100%;min-height:max(44px,2.9em)" value="' + esc(S.ui.leaveTyped) + '"><button type="button" class="pbtn danger" data-a="do:leave" aria-disabled="' + !ok + '"' + (ok ? "" : ' tabindex="-1"') + ">Leave</button><button type=\"button\" class=\"pbtn\" data-a=\"keep\">Stay</button>") + "</div>";
@@ -210,7 +211,7 @@
     var lead = function (n) { return '<i class="lead" aria-hidden="true">' + ic(n, 20) + "</i>"; };
     return '<ul class="list mrows"><li class="prow"><button type="button" class="rb" data-a="toast:Downloads your inventory as a spreadsheet.">' + lead("download") + '<span class="nm">Download my data</span>' + chev() + "</button></li>" +
       (S.installable ? '<li class="prow"><button type="button" class="rb" data-a="toast:Adds Kitchie to your home screen.">' + lead("install") + '<span class="nm">Install app</span>' + chev() + "</button></li>" : "") +
-      (withOut ? '<li class="prow"><button type="button" class="rb danger" data-a="toast:Signed out (mockup).">' + lead("signout") + '<span class="nm">Sign out</span></button></li>' : "") + "</ul>";
+      (withOut ? '<li class="prow"><button type="button" class="rb" data-a="toast:Signed out (mockup).">' + lead("signout") + '<span class="nm">Sign out</span></button></li>' : "") + "</ul>";
   }
 
   /* ---------- kitchen: categories, locations and spots, samples, assistants ---------- */
@@ -230,14 +231,15 @@
   function assistRow(S, a) {
     var conn = ASSISTS.filter(function (x) { return S.ai[x[0]]; }).length;
     var on = S.ai[a[0]], dis = S.ui.confirm === "ai:" + a[0];
+    var primary = ASSISTS.filter(function (x) { return !S.ai[x[0]]; })[0]; /* one accent on the page: the first Connect offered; the others are outlines */
     var star = on && conn > 1 ? '<button type="button" class="ibtn2 star" data-a="dflt:' + a[0] + '" aria-pressed="' + (S.dflt === a[0]) + '" aria-label="Use ' + a[1] + ' by default" title="Default">' + ic("star", 22) + "</button>" : "";
-    var act = on ? '<button type="button" class="pbtn" data-a="ask:ai:' + a[0] + '">Disconnect</button>' : '<button type="button" class="pbtn go" data-a="ai:' + a[0] + '">Connect</button>';
+    var act = on ? '<button type="button" class="pbtn" data-a="ask:ai:' + a[0] + '">Disconnect</button>' : '<button type="button" class="pbtn' + (primary && primary[0] === a[0] ? " go" : "") + '" data-a="ai:' + a[0] + '">Connect</button>';
     var more = on && dis ? '<div class="exp">' + confirmHtml("Disconnect " + a[1] + "?", "It stops seeing your kitchen.", '<button type="button" class="pbtn danger" data-a="do:ai:' + a[0] + '">Disconnect</button><button type="button" class="pbtn" data-a="keep">Keep</button>') + "</div>" : "";
-    return '<div class="arow-wrap"><div class="arow"><span class="nm">' + a[1] + "</span>" + dot(on, on ? "Connected" : "Not connected") + star + act + "</div>" + more + "</div>";
+    return '<div class="arow-wrap"><div class="arow">' + (on && conn > 1 && S.dflt === a[0] ? '<span class="rm"><span class="nm">' + a[1] + '</span><span class="sub">Default</span></span>' : '<span class="nm">' + a[1] + "</span>") + dot(on, on ? "Connected" : "Not connected") + star + act + "</div>" + more + "</div>";
   }
   function linkRow(S) {
     var lk = S.link, rev = S.ui.confirm === "revoke";
-    return '<div class="arow"><span class="nm">My own link</span>' + dot(!!lk, lk ? "Active" : "Not made") + (lk ? '<button type="button" class="pbtn" data-a="ask:revoke">Revoke</button>' : '<button type="button" class="pbtn go" data-a="link:make">Make link</button>') + "</div>" +
+    return '<div class="arow"><span class="nm">My own link</span>' + dot(!!lk, lk ? "Active" : "Not made") + (lk ? '<button type="button" class="pbtn" data-a="ask:revoke">Revoke</button>' : '<button type="button" class="pbtn' + (ASSISTS.some(function (x) { return !S.ai[x[0]]; }) ? "" : " go") + '" data-a="link:make">Make link</button>') + "</div>" +
       (rev ? '<div class="exp">' + confirmHtml("Revoke your link?", "Every assistant using it loses access.", '<button type="button" class="pbtn danger" data-a="do:revoke">Revoke</button><button type="button" class="pbtn" data-a="keep">Keep</button>') + "</div>" : "");
   }
   function assistRows(S) { return ASSISTS.map(function (a) { return assistRow(S, a); }).join("") + linkRow(S) + '<p class="sm foot">Assistants act as you and see your whole household.</p>'; }
@@ -427,7 +429,7 @@
     return function (ph) {
       var S = ph.S, hd = '<button type="button" class="mhead" data-a="' + opens + '"><span class="av" aria-hidden="true">' + esc(S.me.pic || initialOf(S.me.name)) + '</span><span class="rm"><span class="nm">' + esc(S.me.name) + '</span><span class="sub">' + esc(S.me.role) + ", " + esc(S.hh) + "</span></span>" + chev() + "</button>";
       var start = '<div class="start"><span class="rm"><span class="nm">Invite someone</span></span><button type="button" class="pbtn go" data-a="copy">' + ic(S.link ? "check" : "copy", 16) + " " + (S.link ? "Copied" : "Copy link") + "</button></div>";
-      return hd + start + '<ul class="list mrows"><li class="prow"><button type="button" class="rb" data-a="go:front"><i class="lead" aria-hidden="true">' + ic("sliders", 20) + '</i><span class="nm">Settings</span>' + chev() + '</button></li><li class="prow"><button type="button" class="rb" data-a="toast:History is its own screen."><i class="lead" aria-hidden="true">' + ic("pot", 20) + '</i><span class="nm">History</span>' + chev() + '</button></li><li class="prow"><button type="button" class="rb danger" data-a="toast:Signed out (mockup)."><span class="nm">Sign out</span></button></li></ul>';
+      return hd + start + '<ul class="list mrows"><li class="prow"><button type="button" class="rb" data-a="go:front"><i class="lead" aria-hidden="true">' + ic("sliders", 20) + '</i><span class="nm">Settings</span>' + chev() + '</button></li><li class="prow"><button type="button" class="rb" data-a="toast:History is its own screen."><i class="lead" aria-hidden="true">' + ic("pot", 20) + '</i><span class="nm">History</span>' + chev() + '</button></li><li class="prow"><button type="button" class="rb" data-a="toast:Signed out (mockup)."><span class="nm">Sign out</span></button></li></ul>';
     };
   }
 
@@ -441,7 +443,7 @@
         return '<label class="field"><span class="fl">Name</span><input class="in" data-in="hhname" value="' + esc(S.hh) + '" maxlength="40" autocomplete="off" aria-label="Household name"></label><ul class="list people">' + peopleRows(S) + "</ul>" + inviteBlock(S) + historyRow(); } },
       you: { title: "You", back: "household", backLabel: "Household", render: function (ph) { var S = ph.S; return youTop(S) + nameField(S) + roleBlock(S) + accountRows(S, true) + leaveBlock(S); } },
       prefs: { title: "Preferences", back: "front", backLabel: "Settings", render: function (ph) { var S = ph.S, sc = S.scope;
-        return '<div class="blk">' + tseg("Whose preferences", [["me", "Mine"], ["hh", "Everyone"]], sc, "scope") + "</div>" + dialsRows(S, sc) + foodBlock(S, sc) + notesBlock(S, sc) +
+        return '<div class="blk">' + tseg("Whose preferences", [["me", "Mine"], ["hh", "Everyone"]], sc, "scope", "quiet") + "</div>" + dialsRows(S, sc) + foodBlock(S, sc) + notesBlock(S, sc) +
           (sc === "me" ? housematesRows(S) : "") + '<ul class="list">' + rulesBlock(S) + "</ul>"; } },
       kitchen: { title: "Kitchen setup", back: "front", backLabel: "Settings", render: function (ph) { var S = ph.S;
         return catsBlock(S) + locsBlock(S) + samplesRow(S) + '<div class="blk" style="padding-bottom:0"><b class="nm">Assistants</b></div>' + assistRows(S); } }
