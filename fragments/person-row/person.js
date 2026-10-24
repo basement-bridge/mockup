@@ -65,7 +65,7 @@
         '<span class="lk" role="img" aria-label="Connected">' + ic(D.link, 22, 2) + '</span><button type="button" class="unl" aria-label="Disconnect ' + NAMES[id] + '" data-ask="' + id + '">' + ic(D.unlink, 20, 1.8) + "</button></li>";
     }).join("");
     var add = off.length ? '<button type="button" class="addai" aria-expanded="' + S.adding + '" data-add>' + ic(D.add, 22, 1.8) + "<span>Add an assistant</span></button>" : "";
-    var more = S.adding ? '<ul class="more">' + off.map(function (id) { return '<li class="ar off" data-assistant="' + id + '" data-setting="' + id + '">' + logo(id) + '<span class="nm">' + NAMES[id] + '</span><a class="cn" href="#connect-' + id + '" aria-label="Connect ' + NAMES[id] + '">' + ic(D.add, 22, 1.8) + "</a></li>"; }).join("") + "</ul>" : "";
+    var more = S.adding ? '<ul class="aimore">' + off.map(function (id) { return '<li class="ar off" data-assistant="' + id + '" data-setting="' + id + '">' + logo(id) + '<span class="nm">' + NAMES[id] + '</span><a class="cn" href="#connect-' + id + '" aria-label="Connect ' + NAMES[id] + '">' + ic(D.add, 22, 1.8) + "</a></li>"; }).join("") + "</ul>" : "";
     return '<section class="ai" data-assistants data-setting="assistants" aria-label="Assistants">' + (rows ? "<ul>" + rows + "</ul>" : "") + add + more + "</section>";
   }
 

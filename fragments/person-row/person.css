@@ -72,7 +72,7 @@ table.tt th{font-size:.78em;font-weight:800;letter-spacing:.05em;text-transform:
 .phh span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* the kitchen role: a rotary that holds exactly one role, no neighbour peeking, swipe (or arrow keys) only */
-.roles{display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none;touch-action:pan-x pan-y pinch-zoom;border-radius:var(--r-ctl);background:color-mix(in srgb,var(--pc) 16%,var(--bg));border:1px solid var(--border)}
+.roles{position:relative;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none;touch-action:pan-x pan-y pinch-zoom;border-radius:var(--r-ctl);background:color-mix(in srgb,var(--pc) 16%,var(--bg));border:1px solid var(--border)}
 .roles::-webkit-scrollbar{display:none}
 .role{flex:0 0 100%;scroll-snap-align:center;scroll-snap-stop:always;display:flex;align-items:center;justify-content:center;gap:.6em;min-height:max(52px,3.4em);padding:.2em 1.6em;border:0;background:none;font-weight:800;font-size:1.02em;text-align:center;cursor:grab;position:relative}
 .role svg{flex:none;color:hsl(var(--ph) 55% var(--pl-ic))}
@@ -111,7 +111,7 @@ table.tt th{font-size:.78em;font-weight:800;letter-spacing:.05em;text-transform:
 .addai{align-self:flex-start;gap:.5em;padding:0 .9em 0 .5em;border:1px dashed var(--border);border-radius:var(--r-pill);color:var(--fg);font-weight:700;margin-top:.5em}
 .addai[aria-expanded=true]{border-style:solid}
 .ai ul+ul{margin-top:.5em}
-.ai .more{margin-top:.5em}
+.ai .aimore{margin-top:.5em}
 
 /* ---------- variant A: the person card, the assistants a list under it (recommended) ---------- */
 [data-o=A] .pcard{padding:1em}
