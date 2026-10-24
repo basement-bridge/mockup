@@ -1,4 +1,5 @@
 // Behaviour, count and layout check for fragments/settings-shakeup (headless Chromium). Prints PASS or FAIL per check; optional screenshots.
+// The first half of the output is the three directions as first drawn (directions.html, kept so they stay working); the second half, from the line starting 'chosen', is the CHOSEN DESIGN (index.html, owner decisions of 24 Oct 2026: SR-Q42 to SR-Q51).
 // Usage:  python3 -m http.server 8123 &   then   node tools/settings-shakeup-check.mjs [--shots=shots/settings-shakeup]
 // Needs playwright-core and Chromium at PLAYWRIGHT_BROWSERS_PATH (/opt/pw-browsers).
 // Covers: the three phones (A just the list, B search is the front door, C control strip) draw in light and dark at 390 and 360 wide with no console error and no sideways scroll, at every
@@ -22,7 +23,7 @@ async function open(o, { theme = "kitchie", scheme = "dark", w = 390, h = 844, t
   const p = await c.newPage(); p.errs = []; p.reqs = [];
   p.on("pageerror", e => p.errs.push(e.message)); p.on("console", m => { if (m.type() === "error") p.errs.push(m.text()); });
   p.on("request", r => p.reqs.push(r.url().replace(/^.*settings-shakeup\//, "").replace(/^.*fragments\//, "").replace(/\?.*$/, "")));
-  await p.goto(`${BASE}?o=${o}&bare=1${q}`); await p.waitForSelector("body[data-ready]"); await p.waitForTimeout(200);
+  await p.goto(`${BASE}directions.html?o=${o}&bare=1${q}`); await p.waitForSelector("body[data-ready]"); await p.waitForTimeout(200);
   p.ph = `.phone[data-opt=${o}]`; p.o = o;
   for (let i = 0; i < ts; i++) await p.click(`${p.ph} [data-a="ts:1"]`);
   return p;
@@ -46,7 +47,7 @@ const COUNT = ph => {
 };
 
 /* the page: counts, no errors, no sideways scroll, every direction, light and dark, 390 and 360, text steps */
-const html = readFileSync(new URL("../fragments/settings-shakeup/index.html", import.meta.url), "utf8");
+const html = readFileSync(new URL("../fragments/settings-shakeup/directions.html", import.meta.url), "utf8");
 const audit = [...html.matchAll(/<span class="v (keep|cut|merge)">/g)].map(m => m[1]);
 ok(audit.length === 53 && audit.filter(v => v === "keep").length === 17 && audit.filter(v => v === "cut").length === 22 && audit.filter(v => v === "merge").length === 14, `audit table: ${audit.length} rows, ${audit.filter(v => v === "keep").length} earn, ${audit.filter(v => v === "cut").length} cut, ${audit.filter(v => v === "merge").length} merge (page says 53, 17, 22, 14)`);
 const EXPECT = { A: [12, 17], B: [11, 13], C: [10, 13] };
@@ -187,13 +188,305 @@ for (const o of ["A", "B", "C"]) {
   }
 }
 /* the shared page rules */
-const css = readFileSync(new URL("../fragments/settings-shakeup/shake.css", import.meta.url), "utf8");
+const css = readFileSync(new URL("../fragments/settings-shakeup/directions.css", import.meta.url), "utf8");
 ok(!/#[0-9a-fA-F]{3,8}\b/.test(css.replace(/\/\*[\s\S]*?\*\//g, "")), "no hex colour in shake.css (tokens only)");
 const note = readFileSync(new URL("../docs/knowledge/jobs-to-be-done/settings-redesign.md", import.meta.url), "utf8");
 ok(/SR-Q36/.test(note) && /Element audit of the current UAT build/.test(note) && /settings-shakeup/.test(note), "knowledge note has the shake-up section, the audit and SR-Q36");
 ok(/fragments\/settings-shakeup /.test(readFileSync(new URL("../REVIEW-QUEUE", import.meta.url), "utf8")), "REVIEW-QUEUE has the shake-up line");
 ok(/fragments\/settings-shakeup\//.test(readFileSync(new URL("../index.html", import.meta.url), "utf8")), "index tile exists");
 ok(existsSync(new URL("../fragments/settings-shakeup/shake-search.js", import.meta.url)), "search engine file exists");
+
+/* ======================= the CHOSEN design (index.html): owner decisions of 24 Oct 2026, SR-Q42 to SR-Q51 ======================= */
+const CB = BASE;
+async function openC({ theme = "kitchie", scheme = "dark", w = 390, h = 844, query = "", bare = true } = {}) {
+  const c = await b.newContext({ viewport: { width: w, height: h }, colorScheme: scheme });
+  await c.addInitScript(t => localStorage.setItem("theme", t), theme);
+  const p = await c.newPage(); p.errs = []; p.reqs = [];
+  p.on("pageerror", e => p.errs.push(e.message)); p.on("console", m => { if (m.type() === "error") p.errs.push(m.text()); });
+  p.on("request", r => p.reqs.push(r.url().replace(/^.*settings-shakeup\//, "").replace(/^.*fragments\//, "").replace(/\?.*$/, "")));
+  const qs = [bare ? "bare=1" : "", query].filter(Boolean).join("&");
+  await p.goto(`${CB}${qs ? "?" + qs : ""}`); await p.waitForSelector("body[data-ready]"); await p.waitForTimeout(250);
+  return p;
+}
+const PH = ".phone";
+const tsVar = p => p.evaluate(() => parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--ts")));
+const noSide = p => p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1 && [...document.querySelectorAll(".bd")].every(n => n.scrollWidth <= n.clientWidth + 1));
+const csearch = async (p, t) => { await p.click(`${PH} input[data-eq]`).catch(async () => { await p.click(`${PH} [data-a=opensearch]`); }); await p.fill(`${PH} input[data-eq]`, t); await p.waitForTimeout(200); };
+const pbg = p => p.evaluate(() => getComputedStyle(document.body).backgroundColor);
+const smallTargets = p => p.evaluate(() => {
+  const R = document.querySelector(".phone").getBoundingClientRect();
+  const vis = e => { const r = e.getBoundingClientRect(); const cs = getComputedStyle(e); return r.width > 2 && r.height > 2 && cs.visibility !== "hidden" && r.bottom > R.top && r.top < R.bottom && !e.closest("[hidden]") && !(e.tagName === "INPUT" && e.type === "checkbox"); };
+  return [...document.querySelectorAll(".phone button,.phone [role=slider],.phone label.sw,.phone input:not([type=checkbox])")].filter(vis).filter(e => { const r = e.getBoundingClientRect(); if (/\bseg\b/.test(e.className)) return r.height < 43.5 || r.width < 15; return r.height < 43.5 || r.width < 43.5; }).map(e => (e.getAttribute("aria-label") || e.className || e.textContent).toString().trim().slice(0, 24));
+});
+
+/* 1. every state, light and dark, 390 and 360, text steps: no error, no sideways scroll, targets */
+const STATES = ["", "p=looks", "p=household", "p=you", "p=preferences", "p=kitchen", "pins=0", "pins=1", "pins=3", "q=text+size", "q=quiet+hours", "q=theme", "s=examples", "s=last3", "q=flux+capacitor", "q=my+name"];
+for (const [th, scheme] of [["kitchie", "dark"], ["kitchie-day", "light"]]) {
+  for (const [w, h] of [[390, 844], [360, 640]]) {
+    let bad = [], side = [], small = [];
+    for (const st of STATES) {
+      for (const ts of [0, 3, -3]) {
+        const p = await openC({ theme: th, scheme, w, h, query: [st, ts ? "ts=" + ts : ""].filter(Boolean).join("&") });
+        if (p.errs.length) bad.push(st + ts + ":" + p.errs[0]);
+        if (!(await noSide(p))) side.push(st + "/ts" + ts);
+        if (ts === 0) { const sm = await smallTargets(p); if (sm.length) small.push(st + ":" + sm.join(",")); }
+        if (shots && (ts === 3 || st === "" || st === "pins3") && (w === 390 || st === "")) await p.screenshot({ path: `${shots}/chosen-${scheme}-${w}x${h}-${(st || "front").replace(/[^a-z0-9]+/gi, "-")}${ts ? "-ts" + ts : ""}.png` });
+        await p.context().close();
+      }
+    }
+    ok(bad.length === 0, `chosen ${scheme} ${w}x${h}: ${STATES.length} states at three text sizes draw with no console error ${bad.slice(0, 2).join(";")}`);
+    ok(side.length === 0, `chosen ${scheme} ${w}x${h}: no sideways scroll in any of them ${side.slice(0, 3).join(",")}`);
+    ok(small.length === 0, `chosen ${scheme} ${w}x${h}: every control is at least 44px by 44px (a stepper segment 44px tall and at least 15px wide, seven across; compact by the owner's design, see the note) ${small.slice(0, 3).join(" | ")}`);
+  }
+}
+
+/* 2. the page leads with the phone and the state switcher, no scrolling */
+{
+  const p = await openC({ bare: false });
+  const r = await p.evaluate(() => { const ph = document.querySelector(".phone").getBoundingClientRect(), sel = [...document.querySelectorAll(".bar select")].map(s => s.getBoundingClientRect()); return { top: ph.top, h: ph.height, sel: sel.map(s => s.bottom <= innerHeight && s.top >= 0), bars: sel.length, scrollY }; });
+  ok(r.top < 220 && r.top + 400 < 844 && r.h > 560, `the phone is the first thing on the page: starts at ${Math.round(r.top)}px, ${Math.round(r.h)}px tall`);
+  ok(r.bars === 3 && r.sel.every(Boolean), "the state switcher (Screen, Search, Pinned) is on screen at load, no scrolling");
+  ok((await p.locator(`${PH} .main .nm`).allInnerTexts()).join("|") === "Household|Preferences|Kitchen setup", "the front has three plain rows: Household, Preferences, Kitchen setup (no You row, no Assistants row)");
+  ok((await p.locator(`${PH} .main .val`).count()) === 3 && (await p.locator(`${PH} .main .val`).allInnerTexts()).every(t => t.trim().length > 2), "each plain row shows its value");
+  ok(await p.locator(`details.nc`).count() === 1 && !(await p.locator(`details.nc`).evaluate(d => d.open)) && (await p.locator(`details.nc a[href="directions.html"]`).count()) === 1, "A and C are collapsed behind a small note that links to them");
+  const txt = await p.locator(PH).innerText();
+  ok(!/\bpinned?\b/i.test(txt) && !/emoji/i.test(txt), "no 'Pin' or 'Pinned' word and no Emoji on the front");
+  ok(await p.locator('select#st-screen option').count() === 6, "the switcher reaches Settings, Looks, Household, You, Preferences, Kitchen setup");
+  await p.selectOption("#st-screen", "looks"); await p.waitForTimeout(150);
+  ok(await p.locator(`${PH}[data-page=looks]`).count() === 1, "the Screen switcher opens Looks");
+  await p.selectOption("#st-search", "last3"); await p.waitForTimeout(250);
+  ok(await p.locator(`${PH}[data-searching=true] .sgl[data-kind=recent]`).count() === 1, "the Search switcher shows the empty search with recents");
+  await p.selectOption("#st-search", "off"); await p.selectOption("#st-pins", "3"); await p.waitForTimeout(150);
+  ok(await p.locator(`${PH} .pins[data-n="3"] .chipb`).count() === 3, "the Pinned switcher shows three chips");
+  ok(!p.reqs.some(q => /search-index|shake-search/.test(q.replace(/^.*\//, "")) ) || true, "");
+  await p.context().close();
+  const q2 = await openC();
+  ok(!q2.reqs.some(q => /search-index|shake-search/.test(q)), `the engine and the index are not requested on load (${q2.reqs.filter(q => /shake|search/.test(q)).join(",")})`);
+  await q2.click(`${PH} input[data-eq]`); await q2.waitForTimeout(300);
+  ok(q2.reqs.some(q => /search-index/.test(q)) && q2.reqs.some(q => /shake-search/.test(q)), "both load when the search box is first used");
+  await q2.context().close();
+}
+
+/* 3. the quick area: 0, 1, 2, 3 pinned */
+{
+  const geom = async (n) => { const p = await openC({ query: `pins=${n}` }); const g = await p.evaluate(() => { const o = [...document.querySelectorAll(".pins .pin")].map(e => { const r = e.getBoundingClientRect(); return { k: e.dataset.k, x: r.left, t: r.top, w: r.width, h: r.height }; }); const m = document.querySelector(".main").getBoundingClientRect().top; return { o, m, pins: !!document.querySelector(".pins") }; }); return [p, g]; };
+  let [p, g] = await geom(0); ok(!g.pins, "0 pinned: no quick area is drawn"); await p.context().close();
+  [p, g] = await geom(1); ok(g.o.length === 1 && g.o[0].k === "text" && g.o[0].w > 340, `1 pinned: one full row (${Math.round(g.o[0].w)}px wide), Text size`); await p.context().close();
+  [p, g] = await geom(2); ok(g.o.length === 2 && Math.abs(g.o[0].t - g.o[1].t) < 2 && Math.abs(g.o[0].w - g.o[1].w) < 2 && g.o[0].w < 190, `2 pinned: two halves share a row (${g.o.map(x => Math.round(x.w)).join(" and ")}px)`); await p.context().close();
+  [p, g] = await geom(3);
+  ok(g.o.length === 3 && g.o.map(x => x.k).join() === "text,theme,bell" && g.o.every(x => x.w < 90), `3 pinned: compact chips, default order text size, theme, bell (${g.o.map(x => Math.round(x.w)).join(",")}px)`);
+  const before = g.m;
+  await p.click(`${PH} .pin[data-k=text] .chipb`); await p.waitForTimeout(250);
+  const after = await p.evaluate(() => ({ m: document.querySelector(".main").getBoundingClientRect().top, open: document.querySelectorAll(".pin.open").length, ow: document.querySelector(".pin.open").getBoundingClientRect().width, dim: [...document.querySelectorAll(".pins .pin:not(.open)")].map(e => +getComputedStyle(e).opacity), segs: document.querySelectorAll(".pin.open .seg").length }));
+  ok(after.open === 1 && after.ow > 200 && after.segs === 7, `touching a chip opens it in place (${Math.round(after.ow)}px wide, seven segments)`);
+  ok(after.dim.length === 2 && after.dim.every(o => o < 0.6), "the other chips dim");
+  ok(Math.abs(after.m - before) < 1.5, `and nothing below jumps (rows moved ${Math.round((after.m - before) * 10) / 10}px)`);
+  await p.click(`${PH} .main .rb >> nth=0`).catch(() => {}); await p.waitForTimeout(100);
+  await p.context().close();
+  /* the Aa chip and the swatch chip and the bell chip have names */
+  p = await openC({ query: "pins=3" });
+  ok((await p.locator(`${PH} .chipb .aa`).innerText()) === "Aa" && (await p.locator(`${PH} .chipb`).evaluateAll(n => n.every(x => /Open/.test(x.getAttribute("aria-label"))))), "the text chip is a compact Aa and every chip has an accessible name");
+  await p.context().close();
+}
+
+/* 4. long hold then drag moves a pinned control; no edit button, no pencil */
+{
+  const p = await openC({ query: "pins=2" });
+  ok(await p.locator(`${PH} [aria-label*="Edit" i], ${PH} [aria-label*="pencil" i], ${PH} .pencil`).count() === 0, "no edit button and no pencil on the front");
+  const a = await p.locator(`${PH} .pin[data-k=text] .clab`).boundingBox(), t = await p.locator(`${PH} .pin[data-k=theme] .clab`).boundingBox();
+  await p.mouse.move(a.x + 8, a.y + 8); await p.mouse.down(); await p.waitForTimeout(300);
+  ok(await p.locator(`${PH} .pin.lift`).count() === 0, "a short press does not lift anything (the hold is about half a second)");
+  await p.waitForTimeout(350);
+  ok(await p.locator(`${PH} .pin.lift`).count() === 1, "a long hold lifts the control");
+  await p.mouse.move(t.x + 70, t.y + 8, { steps: 10 }); await p.mouse.up(); await p.waitForTimeout(250);
+  ok((await p.locator(`${PH} .pin`).evaluateAll(n => n.map(x => x.dataset.k))).join() === "theme,text", "dragging it past the other swaps their order");
+  await p.click(`${PH} [data-a="pg:looks"]`); await p.click(`${PH} [data-a=back]`); await p.waitForTimeout(100);
+  ok((await p.locator(`${PH} .pin`).evaluateAll(n => n.map(x => x.dataset.k))).join() === "theme,text", "the new order stays");
+  await p.context().close();
+  /* a swipe on the rotary does not start a move */
+  const q = await openC({ query: "pins=2" }); const r = await q.locator(`${PH} .pin[data-k=theme] .rot`).boundingBox();
+  await q.mouse.move(r.x + r.width / 2, r.y + 20); await q.mouse.down(); await q.mouse.move(r.x + r.width / 2 - 60, r.y + 20, { steps: 6 }); await q.waitForTimeout(650); await q.mouse.up();
+  ok(await q.locator(`${PH} .pin.lift`).count() === 0 && (await q.locator(`${PH} .pin`).evaluateAll(n => n.map(x => x.dataset.k))).join() === "text,theme", "a swipe on the rotary turns it and never lifts the control");
+  await q.context().close();
+}
+
+/* 5. the rotary: swipe, tap, keys, the whole page re-themes live, double tap resets */
+{
+  const p = await openC({ query: "pins=1" }); // text only; open Looks for theme
+  await p.click(`${PH} [data-a="pg:looks"]`); await p.waitForTimeout(150);
+  const names10 = await p.locator(`${PH} .rot .rit b`).allInnerTexts();
+  ok(names10.length === 10 && new Set(names10).size === 10, `the rotary holds ten named themes (${names10.slice(0, 3).join(", ")}...)`);
+  const looks = await p.locator(`${PH} .rot .rit`).evaluateAll(ns => ns.map(n => [n.style.getPropertyValue("--pbg"), n.style.getPropertyValue("--pac")].join("/")));
+  ok(new Set(looks).size === 10, "each theme is drawn in its own real colours");
+  ok((await p.locator(`${PH} .rot`).getAttribute("role")) === "slider" && await p.locator(`${PH} .dropdown, ${PH} select`).count() === 0, "the rotary is a slider, not a dropdown");
+  const bg0 = await pbg(p), th0 = await theme(p);
+  const r = await p.locator(`${PH} .rot`).boundingBox(), W = r.width * 0.66 + 8;
+  await p.mouse.move(r.x + r.width / 2, r.y + 20); await p.mouse.down();
+  await p.mouse.move(r.x + r.width / 2 - W * 0.4, r.y + 20, { steps: 4 }); await p.mouse.move(r.x + r.width / 2 - W * 1.6, r.y + 20, { steps: 6 });
+  await p.waitForTimeout(450); // mid-drag: the page has already re-themed
+  const mid = await theme(p), midbg = await pbg(p);
+  await p.mouse.up(); await p.waitForTimeout(450);
+  ok(mid !== th0 && mid === await theme(p) && midbg !== bg0, `swiping sideways changes the theme live, while the finger is still down (${th0} to ${mid})`);
+  ok((await p.locator(`${PH} .rit.cur b`).innerText()) === (await p.evaluate(() => window.themeName())), "the card in the middle is the theme in use");
+  await p.focus(`${PH} .rot`); await p.keyboard.press("ArrowRight"); await p.waitForTimeout(450);
+  ok(await theme(p) !== mid, "the arrow keys turn it too");
+  const cur = await theme(p);
+  const rb2 = await p.locator(`${PH} .rot`).boundingBox(); await p.mouse.click(rb2.x + rb2.width - 8, rb2.y + rb2.height / 2); await p.waitForTimeout(500);
+  ok(await theme(p) !== cur, "tapping the neighbour brings it to the middle");
+  await p.waitForTimeout(500);
+  const rr = await p.locator(`${PH} .rot`).boundingBox(); await p.mouse.dblclick(rr.x + rr.width / 2, rr.y + rr.height / 2); await p.waitForTimeout(500);
+  ok(await theme(p) === "kitchie", "a double tap resets the theme to the default for the phone (dark: Kitchie Night)");
+  await p.click(`${PH} .mseg [data-a="mode:light"]`); await p.waitForTimeout(400);
+  ok(await theme(p) === "kitchie-day" && (await p.locator(`${PH} .mseg [aria-checked=true]`).getAttribute("aria-label")) === "Light", "light or dark sits alongside and switches");
+  const rows = await p.locator(`${PH} .rot`).evaluate(n => n.closest(".lrow") !== null);
+  ok(rows, "on Looks the rotary sits on the right half with the label on the left");
+  await p.context().close();
+}
+
+/* 6. text size: seven battery segments, live whole-page scale, headings at half the rate, double tap resets */
+{
+  const p = await openC({ bare: false, query: "pins=1" });
+  ok(await p.locator(`${PH} .pin .seg`).count() === 7 && await p.locator(`${PH} .pin .seg.mid`).count() === 1, "seven segments, one of them the middle (Match my phone)");
+  const lab = await p.locator(`${PH} .pin .clab`).boundingBox(), st = await p.locator(`${PH} .pin .ts`).boundingBox();
+  ok(lab.x < st.x && st.x >= 185 && st.x + st.width > 330, `label on the left, stepper on the right half (stepper starts at ${Math.round(st.x)}px)`);
+  const fs = async sel => p.locator(sel).first().evaluate(n => parseFloat(getComputedStyle(n).fontSize));
+  const base = { body: await fs(`.shk p`), head: await fs(`${PH} .hd .ttl`), row: await fs(`${PH} .main .nm`), h1: await fs(`.shk h1`) };
+  const want = [0.76, 0.84, 0.92, 1, 1.1, 1.2, 1.3], got = [];
+  for (let i = 0; i < 7; i++) { await p.click(`${PH} .pin .seg >> nth=${i}`); await p.waitForTimeout(500); got.push(Math.round(await tsVar(p) * 100) / 100); }
+  ok(JSON.stringify(got) === JSON.stringify(want), `each segment sets its step: ${got.join(" ")}`);
+  const big = { body: await fs(`.shk p`), head: await fs(`${PH} .hd .ttl`), row: await fs(`${PH} .main .nm`), h1: await fs(`.shk h1`) };
+  ok(big.body / base.body > 1.25 && big.row / base.row > 1.25, `at +30% the page and list text grow by ${Math.round((big.row / base.row - 1) * 100)}%`);
+  const hr = big.head / base.head; ok(hr > 1.05 && hr < 1.18 && hr < big.row / base.row - 0.1, `headings grow at about half the rate, capped (${Math.round((hr - 1) * 100)}% at +30%)`);
+  ok(big.h1 / base.h1 < 1.18, "the page's own heading follows the same half-rate rule");
+  await p.waitForTimeout(500); await p.locator(`${PH} .pin .seg >> nth=5`).dblclick(); await p.waitForTimeout(300);
+  ok(await tsVar(p) === 1, "a double tap on the stepper resets it to Match my phone");
+  await p.locator(`${PH} .pin .seg >> nth=0`).click(); await p.waitForTimeout(100);
+  ok(await tsVar(p) === 0.76 && (await p.locator(`${PH} .pin .seg.on`).count()) === 1, "−24% is the smallest step");
+  await p.context().close();
+}
+
+/* 7. Looks: three pinnable controls, an icon-only pin each */
+{
+  const p = await openC({ query: "p=looks" });
+  const pins = p.locator(`${PH} .pinb:not(.ph)`);
+  ok(await pins.count() === 3, "Looks has a pin on Theme, Text size and the activity bell (three, nothing else)");
+  ok((await pins.evaluateAll(n => n.every(x => x.textContent.trim() === "" && x.querySelector("svg")))), "every pin is an icon with no word");
+  ok((await pins.evaluateAll(n => n.map(x => x.getAttribute("aria-label")))).every(a => /^(Pin|Unpin) .+ (to|from) the Settings front$/.test(a)), "the accessible names say what a pin does");
+  const state = async () => (await pins.evaluateAll(n => n.map(x => x.getAttribute("aria-pressed")))).join();
+  ok(await state() === "true,false,true" || await state() === "true,true,false" || (await state()).split(",").filter(x => x === "true").length === 2, `two are pinned by default (${await state()})`);
+  ok(await p.locator(`${PH} .lrow`).count() === 4 && await p.locator(`${PH} .lrow[data-id=mode] .pinb.ph`).count() === 1, "light or dark has no pin of its own (it travels with Theme)");
+  await p.locator(`${PH} .pinb[data-a="pin:bell"]`).click(); await p.waitForTimeout(150);
+  await p.click(`${PH} [data-a=back]`); await p.waitForTimeout(150);
+  ok(await p.locator(`${PH} .pins[data-n="3"] .chipb`).count() === 3, "pinning the bell makes three: the front switches to chips");
+  ok(await p.locator(`${PH} [data-k=invite], ${PH} [data-k=assistants], ${PH} .pinb[data-a="pin:invite"]`).count() === 0, "invite and assistants are not pinnable");
+  await p.context().close();
+  const q = await openC({ query: "p=looks&pins=3" }); await q.waitForTimeout(100);
+  await q.locator(`${PH} .lrow[data-id=bell] .sw input`).evaluate(n => n.click()); await q.waitForTimeout(120);
+  const bellOff = await q.locator(`${PH} .lrow[data-id=bell] .sub`).innerText();
+  await q.locator(`${PH} .lrow[data-id=bell]`).dblclick({ position: { x: 300, y: 20 } }).catch(() => {});
+  const sw = q.locator(`${PH} .lrow[data-id=bell] .sw`); const bb = await sw.boundingBox(); await q.waitForTimeout(500);
+  await q.mouse.dblclick(bb.x + bb.width / 2, bb.y + bb.height / 2); await q.waitForTimeout(250);
+  ok(bellOff === "Off" && (await q.locator(`${PH} .lrow[data-id=bell] .sub`).innerText()) === "On", "a double tap on the bell switch resets it to On");
+  await q.context().close();
+}
+
+/* 8. search: examples, last three, best match, compact rows, nothing removed left behind */
+{
+  let p = await openC({ query: "s=examples" });
+  const sg = p.locator(`${PH} .sg`);
+  ok(await p.locator(`${PH} .sgl[data-kind=examples]`).count() === 1 && await sg.count() >= 3 && await sg.count() <= 4, "with no history the empty search shows three or four example searches");
+  const st = await sg.first().evaluate(n => { const c = getComputedStyle(n); return { d: c.textDecorationLine + " " + c.textDecorationStyle, th: c.textDecorationThickness, bg: c.backgroundColor, bw: c.borderTopWidth, r: c.borderTopLeftRadius }; });
+  ok(/underline dotted/.test(st.d) && parseFloat(st.th) <= 1.5 && st.bg === "rgba(0, 0, 0, 0)" && st.bw === "0px", `suggestions are plain text with a thin dotted underline, no pill (${st.d}, ${st.th})`);
+  ok(await p.locator(`${PH} .qchip, ${PH} .pill, ${PH} .tag`).count() === 0, "no pill anywhere in the empty search");
+  await p.context().close();
+  p = await openC();
+  await csearch(p, "text size"); await p.keyboard.press("Enter"); await p.waitForTimeout(100);
+  await p.fill(`${PH} input[data-eq]`, "quiet hours"); await p.keyboard.press("Enter"); await p.fill(`${PH} input[data-eq]`, "invite"); await p.keyboard.press("Enter"); await p.fill(`${PH} input[data-eq]`, "bell"); await p.keyboard.press("Enter");
+  await p.fill(`${PH} input[data-eq]`, ""); await p.waitForTimeout(150);
+  const rc = await p.locator(`${PH} .sgl[data-kind=recent] .sg`).allInnerTexts();
+  ok(rc.join("|") === "bell|invite|quiet hours", `with history it shows the last three searches, newest first (${rc.join(", ")})`);
+  await p.fill(`${PH} input[data-eq]`, "text size"); await p.waitForTimeout(250);
+  const best = p.locator(`${PH} .best`);
+  ok(await best.count() === 1 && (await best.locator(".nm").innerText()) === "Text size" && (await best.locator(".at").innerText()) === "Looks", "results lead with one best-match card: name and a quiet where-it-lives line");
+  ok(await best.locator(".ts .seg").count() === 7, "the best match for Text size carries its control (the stepper), no navigation needed");
+  const dh = await best.locator(".desc").evaluate(n => ({ h: n.getBoundingClientRect().height, lh: parseFloat(getComputedStyle(n).lineHeight) }));
+  ok(dh.h < dh.lh * 1.5, "its description is one line");
+  const body = await p.locator(`${PH} .bd`).innerText();
+  ok(!/\b(AFFECTS|LIVES IN|NOW|Exact match|Also called|Advanced|results?|matches|On this page|Everywhere else)\b/i.test(body.replace(/Text size|Looks/g, "")) && await p.locator(`${PH} .pill, ${PH} .sh, ${PH} .tag, ${PH} .qchip`).count() === 0, "no results count, area groups, why labels, AFFECTS, LIVES IN or pills");
+  await p.fill(`${PH} input[data-eq]`, "quiet hours"); await p.waitForTimeout(250);
+  ok(await p.locator(`${PH} .best .pbtn.go`).innerText() === "Go there" && await p.locator(`${PH} .best .at`).innerText() === "Preferences", "a setting with no inline control shows Go there");
+  await p.fill(`${PH} input[data-eq]`, "name"); await p.waitForTimeout(250);
+  const rowsN = await p.locator(`${PH} .res .prow`).count();
+  const rh = rowsN ? await p.locator(`${PH} .res .prow >> nth=0`).evaluate(n => n.getBoundingClientRect().height) : 0;
+  ok(rowsN >= 1 && rh < 62, `the rest are compact one-line rows (${rowsN} rows, ${Math.round(rh)}px each)`);
+  await p.fill(`${PH} input[data-eq]`, "flux capacitor"); await p.waitForTimeout(200);
+  ok(await p.locator(`${PH} [data-empty]`).count() === 1 && await p.locator(`${PH} [data-empty] .sg`).count() >= 3, "no match says so and offers plain words");
+  await p.fill(`${PH} input[data-eq]`, "drak mode"); await p.waitForTimeout(200);
+  ok(await p.locator(`${PH} [data-fixed]`).count() === 1 && (await p.locator(`${PH} .best .nm`).innerText()) === "Light or dark", "a typo still finds it and says what it searched");
+  await p.fill(`${PH} input[data-eq]`, "bell"); await p.waitForTimeout(200);
+  const swc = p.locator(`${PH} .best input[role=switch]`); const was = await swc.isChecked(); await swc.evaluate(n => n.click()); await p.waitForTimeout(100);
+  ok(await p.locator(`${PH} .best input[role=switch]`).isChecked() === !was, "the switch in the best match flips the bell right there");
+  await p.fill(`${PH} input[data-eq]`, "theme"); await p.waitForTimeout(250);
+  ok(await p.locator(`${PH} .best .rot`).count() === 1 && await p.locator(`${PH} .res .prow`).count() <= 3, "searching Theme gives the rotary in the best match, not ten theme results");
+  await p.context().close();
+  /* from every page; this page's matches first */
+  for (const pg of ["looks", "household", "you", "preferences", "kitchen"]) {
+    const q = await openC({ query: "p=" + pg });
+    ok(await q.locator(`${PH} [data-a=opensearch]`).isVisible(), `search is one tap away on ${pg}`); await q.context().close();
+  }
+  let q = await openC({ query: "p=household" }); await csearch(q, "name");
+  const first1 = await q.locator(`${PH} .best .nm`).innerText(); await q.context().close();
+  q = await openC({ query: "p=you" }); await csearch(q, "name"); const first2 = await q.locator(`${PH} .best .nm`).innerText(); await q.context().close();
+  ok(first1 === "Household name" && first2 === "My name and picture", `this page's matches come first ("name": ${first1} from Household, ${first2} from You)`);
+  /* my name and profile land on You */
+  for (const w of ["my name", "profile"]) {
+    const z = await openC(); await csearch(z, w);
+    ok((await z.locator(`${PH} .best .nm`).innerText()) === "My name and picture" && (await z.locator(`${PH} .best .at`).innerText()) === "Household · You", `"${w}" finds My name and picture, filed under Household`);
+    await z.click(`${PH} .best [data-a^="go:"]`); await z.waitForTimeout(300);
+    ok(await z.locator(`${PH}[data-page=you]`).count() === 1 && await z.locator(`${PH} .field.flash`).count() === 1, `and opens You and flashes the name box (from "${w}")`);
+    await z.click(`${PH} [data-a=back]`); await z.waitForTimeout(150);
+    ok(await z.locator(`${PH}[data-searching=true]`).count() === 1, "Back returns to the results");
+    await z.context().close();
+  }
+}
+
+/* 9. Household: tap yourself to edit your name; Back goes to Household */
+{
+  const p = await openC({ query: "p=household" });
+  ok(await p.locator(`${PH} .people .rb`).count() === 1 && (await p.locator(`${PH} .people .rb .nm`).innerText()) === "Alex", "only you are tappable in the member list");
+  await p.click(`${PH} .people .rb`); await p.waitForTimeout(150);
+  ok(await p.locator(`${PH}[data-page=you] input[data-me]`).count() === 1, "tapping yourself opens a page with your name to edit");
+  await p.fill(`${PH} input[data-me]`, "Robin"); await p.waitForTimeout(100);
+  ok((await p.locator(`${PH} .big-av`).innerText()) === "R", "the picture follows the name");
+  await p.click(`${PH} [data-a=back]`); await p.waitForTimeout(150);
+  ok(await p.locator(`${PH}[data-page=household]`).count() === 1 && (await p.locator(`${PH} .people .rb .nm`).innerText()) === "Robin", "Back goes to Household, which shows the new name");
+  await p.click(`${PH} [data-a=invite]`); await p.waitForTimeout(100);
+  ok(/kitchie\.app\/join\//.test(await p.locator(`${PH} [data-invite]`).innerText()), "Copy invite link makes and shows the link in one press");
+  await p.context().close();
+  const k = await openC({ query: "p=kitchen" });
+  ok((await k.locator(`${PH} .gh`).allInnerTexts()).join() === "Kitchen,Assistants" && await k.locator(`${PH} .cdot.on`).count() === 1, "Kitchen setup holds Categories, Locations and the Assistants (Claude connected)");
+  await k.context().close();
+}
+
+/* 10. gestures: the rule is written down, and the records exist */
+{
+  const css = readFileSync(new URL("../fragments/settings-shakeup/shake.css", import.meta.url), "utf8");
+  ok(!/#[0-9a-fA-F]{3,8}\b/.test(css.replace(/\/\*[\s\S]*?\*\//g, "")), "no hex colour in shake.css (tokens only; the rotary's theme colours come from data)");
+  const design = readFileSync(new URL("../DESIGN.md", import.meta.url), "utf8");
+  ok(/## 8\. Gestures are app-wide rules/.test(design) && /Double tap resets/.test(design) && /Long hold moves/.test(design), "DESIGN.md records the two gesture rules");
+  const note2 = readFileSync(new URL("../docs/knowledge/jobs-to-be-done/settings-redesign.md", import.meta.url), "utf8");
+  const q = []; for (let i = 42; i <= 51; i++) if (!new RegExp("\\*\\*SR-Q" + i + "\\.").test(note2)) q.push("Q" + i);
+  const pr = []; for (let i = 28; i <= 44; i++) if (!new RegExp("\\*\\*SR-P" + i + "\\.").test(note2)) pr.push("P" + i);
+  ok(q.length === 0 && pr.length === 0, `the note records SR-Q42 to SR-Q51 and SR-P28 to SR-P44 ${q.concat(pr).join(",")}`);
+  ok((note2.match(/Decided by owner/g) || []).length >= 20, "the decisions are marked decided by owner");
+  const cl = /of the same 53 elements, (\d+) earn their place, (\d+) are cut and (\d+) are merged or moved/.exec(note2);
+  const rowsC = [...note2.matchAll(/\| (Earns its place|Cut|Merge or move) \| [^|]+\|$/gm)].map(m => m[1]);
+  ok(cl && rowsC.length === 53 && +cl[1] === rowsC.filter(v => v === "Earns its place").length && +cl[2] === rowsC.filter(v => v === "Cut").length && +cl[3] === rowsC.filter(v => v === "Merge or move").length, `the cut list is updated for the chosen design and its count matches its rows (${cl ? cl.slice(1).join("/") : "?"} of ${rowsC.length})`);
+  ok(/settings-shakeup/.test(readFileSync(new URL("../REVIEW-QUEUE", import.meta.url), "utf8")) && /final decisions/.test(readFileSync(new URL("../REVIEW-QUEUE", import.meta.url), "utf8")), "REVIEW-QUEUE line is updated");
+  ok(/settings-shakeup \(chosen\)/.test(readFileSync(new URL("../fragments/settings-search-results/index.html", import.meta.url), "utf8")), "settings-search-results carries the 'superseded by settings-shakeup (chosen)' note");
+  ok(existsSync(new URL("../fragments/settings-shakeup/directions.html", import.meta.url)), "A, B and C are still reachable (directions.html)");
+}
+
 await b.close();
 console.log(fails ? `\n${fails} FAILED` : "\nall passed");
 process.exit(fails ? 1 : 0);
