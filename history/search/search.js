@@ -1,4 +1,4 @@
-/* History search and filters, on the canonical event model (docs/knowledge/history-event-model.md, docs/knowledge/history-search.md).
+/* History search and filters, on the canonical event model (revision 5, owner, voice, 24-25 Oct 2026: the sentence pattern B is the default) (docs/knowledge/history-event-model.md, docs/knowledge/history-search.md).
    Everything this screen reads comes from GET /api/history rows (model.js stands in for it): occurred_at, actor, product, kind (area = first segment), kind_v, entity.
    It never reads a payload; row and detail text come from the kind's template via HM.render. Mockup data lives in model.js, not here.
    Markup uses option D's classes (../option-d/option-d.css) plus search.css; the build lifts those and replaces model.js with the calls. */
@@ -24,21 +24,24 @@ var ic = function (n, c) { return '<svg viewBox="0 0 24 24" aria-hidden="true"' 
 var ME = Q.get("as") === "sam" ? "sam" : "arjan", HOUSE = Q.get("household") === "more" ? "more" : "two";
 var MEID = HM.IDS[ME], OTHERS = Object.keys(HM.IDS).filter(function (k) { return k !== ME && (HOUSE === "more" || k !== "priya"); });
 var ALL = HM.build({ house: HOUSE });
+var UNDONE = {}; ALL.forEach(function (e) { if (e.kind === "pantry.undone" && e.ref_event_id) UNDONE[e.ref_event_id] = true; }); /* an undo is its own entry and points at the original (ref_event_id); the original reads "undone" (owner, voice, 24-25 Oct 2026) */
 var TPL = ["loading", "none"].indexOf(Q.get("tpl")) >= 0 ? Q.get("tpl") : "ready"; HM.setTplMode(TPL);
 /* SEARCH: Preview B (free text over the days loaded; owner asked to see it, Q1). MULTI: Preview for Q2 (several topics at once; needs a Platform change; undecided). */
-var WAY = { sentence: "b", quick: "c", tap: "d", cascade: "" }[Q.get("way") === null ? "tap" : Q.get("way")] || ""; /* the filter pattern (owner, voice, 24 Oct 2026): default (no way parameter) = d on phone and desktop; way=cascade = A (baseline), b = Sentence, c = Quick answers, d = Tap to filter */
+var WAY = { sentence: "b", quick: "c", tap: "d", cascade: "" }[Q.get("way") === null ? "sentence" : Q.get("way")] || ""; /* the filter pattern: default (no way parameter) = b, the sentence line, on phone and desktop (owner, voice, 24-25 Oct 2026, revision 5); way=cascade = A (baseline), quick = C, tap = D (a variation) */
 var NOTES = Q.get("notes") !== "0", SEARCH = Q.get("search") === "text", MULTI = Q.get("choices") === "several";
 var LAST = { sat: { iso: HM.utc(1, 17, 30), t: "Sat 17 Oct, 5:30 pm" }, wed: { iso: HM.utc(4, 17, 30), t: "Wed 14 Oct, 5:30 pm" } }[Q.get("last") === "wed" ? "wed" : "sat"];
 var CAP = 3; /* H6: "new" reaches back at most three calendar days that each had a change. The screen's rule, not the API's. */
-var RANGES = [["today", "Today"], ["week", "Last 7 days"], ["month", "Last 30 days"]], DEFAULT_I = 1; /* the windows the rotary steps through (rolling); off reads "Anytime" in A, C and D. B has no Anytime: it opens on Last 7 days (owner, voice, 24 Oct 2026) */
-var HALF_LIFE = 2; /* B: days. An action done now counts 1, two days ago a half, six days ago an eighth (recency bias, owner, voice, 24 Oct 2026) */
+/* The windows the rotary steps through (rolling); off reads "Anytime" in A, C and D. B (revision 5) has a fourth, last stop, All time, no Anytime, and opens on Last 30 days (owner, voice, 24-25 Oct 2026). */
+var RANGES = [["today", "Today"], ["week", "Last 7 days"], ["month", "Last 30 days"]].concat(WAY === "b" ? [["all", "All time"]] : []), DEFAULT_I = WAY === "b" ? 2 : 1;
+var DAY = 86400000, SPAN = 30; /* the summary behind the suggestions covers 30 days until the person widens the range */
+var HALF_LIFE = 2; /* B: days. An action done now counts 1, two days ago a half, six days ago an eighth (recency bias, owner, voice, 24 Oct 2026). PROPOSAL: the owner gave the shape, not the number. */
 var LANE = Q.get("lane") === "1"; /* D variation for desktop: the filter choices open in the right lane as a flyout (owner, voice, 24 Oct 2026) */
 var TAB0 = Q.get("tab") === "other" ? (HOUSE === "two" ? "person" : "others") : Q.get("tab");
-function newF() { return { on: WAY === "b", i: DEFAULT_I, areas: [], kind: "", day: "" }; } /* B opens on a rolling Last 7 days; A, C and D open on Anytime */
+function newF() { return { on: WAY === "b", i: DEFAULT_I, areas: [], kind: "", day: "" }; } /* B opens on a rolling Last 30 days; A, C and D open on Anytime */
 var S = {
  tab: ["mine", "person", "others"].indexOf(TAB0) >= 0 && !(TAB0 === "person" && HOUSE !== "two") ? TAB0 : "mine", panel: Q.get("filters") === "1" && (!WAY || (LANE && WAY === "d")) ? "filters" : "",
  f: newF(), /* Date (from, and to for one day) and Topic (area, or kind): the only two filters. Who is the tab (actor). */
- who: "" /* a member id narrower than the Others tab (actor=<id>); only set by tapping a person in Others when the household has more than two */, pop: "" /* the open picker in B and D: what | when */, moreOpen: false /* B: the full area and kind list behind More */, prev: null /* the state before the last tap in D, for Undo */, entLabel: "", entProduct: "kitchie",
+ who: "" /* a member id narrower than the Others tab (actor=<id>); only set by tapping a person in Others when the household has more than two */, pop: "" /* the open picker in B and D: what | when */, fly: "" /* B: the fuller filter behind More, a flyout in the right gutter (desktop) or a sheet (phone): what | when */, cal: "" /* the month shown by the day picker, 2026-10 */, wide30: false /* the summary was widened past 30 days (the person went further back) */, prev: null /* the state before the last tap in D, for Undo */, entLabel: "", entProduct: "kitchie",
  entity: Q.get("entity") || "" /* "item:itm_rice": in-context, from an item. The API wants the product with it, so it is sent but never shown as a filter. */, kw: "", state: Q.get("state") || "",
  pages: [], more: true, afterDay: null, open: null, capped: false
 };
@@ -67,7 +70,7 @@ function params() {
  if (S.f.kind) q.kind = S.f.kind; else if (S.f.areas.length) q.area = S.f.areas.length === 1 ? S.f.areas[0] : S.f.areas.slice();
  if (S.entity) { var e = S.entity.split(":"); q.entityType = e[0]; q.entityId = e[1]; q.product = S.entProduct; /* the API wants the product with an entity; it is sent, never shown */ }
  if (S.f.on && S.f.day) { var b = HM.dayBounds(S.f.day); q.from = b[0]; q.to = b[1]; }
- else if (S.f.on) { var w = RANGES[S.f.i][0]; q.from = w === "today" ? startOfTodayISO() : new Date(HM.NOW - (w === "week" ? 7 : 30) * 86400000).toISOString(); }
+ else if (S.f.on) { var w = RANGES[S.f.i][0]; if (w !== "all") q.from = w === "today" ? startOfTodayISO() : new Date(HM.NOW - (w === "week" ? 7 : 30) * DAY).toISOString(); } /* All time: no from */
  return q;
 }
 function reset() { S.pages = []; S.more = true; S.afterDay = null; S.capped = false; }
@@ -80,7 +83,17 @@ function loadDay() { /* one calendar day with activity per call, newest first (d
 /* The list opens with the divider in view (owner, voice, 24 Oct 2026): days load until one holds a change from the last visit or before it, at most three days with activity (H6),
    so a filter never pushes it out. After that the list loads one more day as the end scrolls into view. */
 function reached() { var p = S.pages[S.pages.length - 1]; return !!p && p.events.some(function (e) { return e.occurred_at <= LAST.iso; }); }
-function ensureFirst() { reset(); for (var i = 0; i < CAP && S.more; i++) { loadDay(); if (reached()) break; } S.capped = S.more && S.pages.length >= CAP && !reached(); }
+/* B (revision 5): the first load is ONE PAGE worth, whole days newest first, enough to fill the screen, and never fewer than the divider needs (the day that holds it, or the third day with activity). It is not 30 days of entries.
+   The rest pages in by whole days as the end scrolls into view. A, C and D keep the revision 4 first load (to the divider, at most three days). */
+function pageRows() { return Math.max(6, Math.ceil((window.innerHeight - 220) / 60)); }
+function rowsLoaded() { return S.pages.reduce(function (n, p) { return n + p.events.length; }, 0); }
+function dividerSettled() { return S.pages.length >= CAP || S.pages.some(function (p) { return p.events.some(function (e) { return e.occurred_at <= LAST.iso; }); }); }
+function ensureFirst() {
+ reset();
+ if (WAY === "b") { while (S.more && !(rowsLoaded() >= pageRows() && dividerSettled())) { if (!loadDay()) break; } return; }
+ for (var i = 0; i < CAP && S.more; i++) { loadDay(); if (reached()) break; }
+ S.capped = S.more && S.pages.length >= CAP && !reached();
+}
 function rows() { var o = []; S.pages.forEach(function (p) { o = o.concat(p.events); }); return o; }
 function inTab(e, tab) { return tab === "mine" ? (e.actor !== null && e.actor.member === MEID) : tab === "person" ? (e.actor !== null && e.actor.member === otherId()) : !(e.actor !== null && e.actor.member === MEID); }
 function viewRows() { var L = rows(); if (S.kw) { var k = S.kw.toLowerCase(); L = L.filter(function (e) { var r = HM.render(e); return ((r.state === "ok" || r.state === "generic") ? r.text : "").toLowerCase().indexOf(k) >= 0; }); } return L; }
@@ -94,7 +107,7 @@ function avatar(e, small) {
 }
 function evRow(e, isNew) {
  var r = HM.render(e), who = whoName(e), line;
- if (r.state === "ok") line = '<b class="wh">' + esc(who) + '</b><span class="sep"> · </span><span class="ln">' + r.html + "</span>";
+ if (r.state === "ok") line = '<b class="wh">' + esc(who) + '</b><span class="sep"> · </span><span class="ln">' + r.html + "</span>" + (UNDONE[e.event_id] ? '<span class="und">undone</span>' : "");
  else if (r.state === "generic") line = '<span class="ln gen"><b class="wh">' + esc(who) + "</b> " + r.html + "</span>";
  else line = '<b class="wh">' + esc(who) + '</b><span class="skbody" aria-label="Loading this row"><i></i></span>';
  return '<button type="button" class="ev' + (isNew ? " new" : "") + '" data-seq="' + e.seq + '" aria-haspopup="dialog"' + (S.open === e.seq ? ' aria-current="true"' : "") + ">" + avatar(e, 1) +
@@ -123,7 +136,7 @@ function handlesFor(e, r) {
 }
 function evRowD(e, isNew) {
  var r = HM.render(e), who = whoName(e), line;
- if (r.state === "ok") line = '<b class="wh">' + esc(who) + '</b><span class="sep"> · </span><span class="ln">' + r.html + "</span>";
+ if (r.state === "ok") line = '<b class="wh">' + esc(who) + '</b><span class="sep"> · </span><span class="ln">' + r.html + "</span>" + (UNDONE[e.event_id] ? '<span class="und">undone</span>' : "");
  else if (r.state === "generic") line = '<span class="ln gen"><b class="wh">' + esc(who) + "</b> " + r.html + "</span>";
  else line = '<b class="wh">' + esc(who) + '</b><span class="skbody" aria-label="Loading this row"><i></i></span>';
  var pid = personTarget(e), hs = r.state === "loading" ? "" : handlesFor(e, r);
@@ -138,20 +151,36 @@ function dayBlock(page, L, pi, seamAt) { /* seamAt: the index, within this day's
  var head = WAY === "d" && !S.f.day ? '<button type="button" class="dl" data-f="day:' + page.day + '" aria-label="Show only ' + esc(lab) + (sub ? "" : ", " + esc(HM.longDay(page.day + "T12:00:00.000Z"))) + '">' + esc(lab) + sub + "</button>" : esc(lab) + sub;
  return '<section class="day" aria-label="' + esc(lab) + '"><div class="lbl">' + head + '</div><div class="pg">' + evs.map(function (e, j) { return (j === seamAt ? seam() : "") + (WAY === "d" ? evRowD : evRow)(e, isNew(e, pi)); }).join("") + "</div></section>";
 }
-/* The divider (owner, voice, 24 Oct 2026): where you were last here. Changes newer than it, within the last three days with activity (H6), carry a quiet dot. No counts. */
+/* The divider (owner, voice, 24 Oct 2026; wording revision 5): where you were last here. Changes newer than it, within the last three days with activity (H6), carry a quiet dot (owner: keep). No counts, no clock times, no dates. */
 function isNew(e, pi) { return e.occurred_at > LAST.iso && pi < CAP; }
-function seam(note) { return '<div class="seam" role="separator" aria-label="You were last here ' + esc(LAST.t) + '"><span class="sm1">You were last here ' + esc(LAST.t) + "</span>" + (note ? '<span class="sm2">' + esc(note) + "</span>" : "") + "</div>"; }
-function listHtml(L) { /* the day blocks with the divider placed once: inside the day that holds the first change from the last visit or before, or after the third day when the last visit is older than that */
- var out = "", placed = false;
+/* humanVisit(lastIso, nowIso): the last visit in words, no digits. A small function with no dependency (Intl only), in the device's zone (HM.TZ).
+   Today "this evening"; within the week "on Saturday evening"; the same weekday one week back "last Saturday evening"; the week before that "last Thursday";
+   a few weeks "a few weeks ago"; longer "a few months ago". Part of day: morning (5 to 12), afternoon (12 to 17), evening (17 to 21), night (21 to 5). */
+function humanVisit(lastIso, nowIso) {
+ var tz = HM.TZ, part = function (iso, o) { var out = {}; new Intl.DateTimeFormat("en-AU", Object.assign({ timeZone: tz, hour12: false }, o)).formatToParts(new Date(iso)).forEach(function (x) { out[x.type] = x.value; }); return out; };
+ var h = +part(lastIso, { hour: "numeric" }).hour % 24, wk = part(lastIso, { weekday: "long" }).weekday;
+ var pod = h >= 5 && h < 12 ? "morning" : h >= 12 && h < 17 ? "afternoon" : h >= 17 && h < 21 ? "evening" : "night";
+ var days = Math.round((Date.parse(HM.dayKey(nowIso)) - Date.parse(HM.dayKey(lastIso))) / DAY);
+ if (days <= 0) return "this " + pod;
+ if (days < 7) return "on " + wk + " " + pod;
+ if (days === 7) return "last " + wk + " " + pod;
+ if (days < 14) return "last " + wk;
+ return days < 70 ? "a few weeks ago" : "a few months ago";
+}
+function seamText() { return "You were here " + humanVisit(LAST.iso, new Date(HM.NOW).toISOString()); }
+function seam(note) { return '<div class="seam" role="separator" aria-label="' + esc(seamText()) + '"><span class="sm1">' + esc(seamText()) + "</span>" + (note ? '<span class="sm2">' + esc(note) + "</span>" : "") + "</div>"; }
+var CAPNOTE = "Only the last three days with activity are marked new.";
+function listHtml(L) { /* the day blocks with the divider placed once: inside the day that holds the first change from the last visit or before (within the first three days), or after the third day when the last visit is older than that */
+ var out = "", placed = false, seamPage = -1;
+ S.pages.forEach(function (p, pi) { if (seamPage < 0 && L.some(function (e) { return HM.dayKey(e.occurred_at) === p.day && e.occurred_at <= LAST.iso; })) seamPage = pi; });
+ var capCase = seamPage < 0 || seamPage >= CAP, capNote = (seamPage >= CAP || (seamPage < 0 && (S.more || S.pages.length > CAP))) ? CAPNOTE : "";
  S.pages.forEach(function (p, pi) {
-  if (S.capped && pi === CAP && !placed) { out += seam("Only the last three days with activity are marked new."); placed = true; }
+  if (capCase && !placed && pi === CAP) { out += seam(capNote); placed = true; }
   var evs = L.filter(function (e) { return HM.dayKey(e.occurred_at) === p.day; }), k = -1;
-  if (!placed) { for (var j = 0; j < evs.length; j++) if (evs[j].occurred_at <= LAST.iso) { k = j; break; } }
-  if (k === 0) { out += seam(out === "" ? "Nothing new since then." : ""); placed = true; k = -1; }
-  else if (k > 0) placed = true;
+  if (!capCase && !placed && pi === seamPage) { for (var j = 0; j < evs.length; j++) if (evs[j].occurred_at <= LAST.iso) { k = j; break; } if (k === 0) { out += seam(out === "" ? "Nothing new since then." : ""); k = -1; } placed = true; }
   out += dayBlock(p, L, pi, k);
  });
- if (!placed && L.length) out += seam(S.capped ? "Only the last three days with activity are marked new." : "");
+ if (!placed && L.length) out += seam(capNote);
  return out;
 }
 function skeleton() { var r = '<div class="sk"><span class="av"></span><div><i></i><i class="s"></i></div></div>'; return '<section class="day"><div class="sklbl lbl"><i></i></div><div class="pg">' + r + r + r + "</div></section>"; }
@@ -163,7 +192,7 @@ function topicName() {
  return S.f.areas.length ? S.f.areas.map(areaLabel).join(", ") : "All topics";
 }
 function hasFilters() { var d = newF(); return S.f.on !== d.on || (d.on && S.f.i !== d.i) || !!S.f.day || S.f.areas.length > 0 || !!S.f.kind || !!S.entity || !!S.who; } /* anything away from how the page opens */
-function summary() { return (S.entity ? "This item · " : "") + dateLabel() + " · " + topicName(); }
+function summary() { return WAY === "b" ? sentenceText() : (S.entity ? "This item · " : "") + dateLabel() + " · " + topicName(); }
 /* The status row, copied from Pantry's Filters sheet (flows/household/app.js srow): a toggle on the left, the rotary on the right. */
 function rotRow(fixed) { /* fixed (B): there is no Anytime, so the window is always on and the toggle is not drawn; the rotary is the same */
  var on = S.f.on, drag = ro && ro.moved;
@@ -185,41 +214,86 @@ function topicSet(cls) { /* A and the D flyout: every area and kind the registry
  }
  return out;
 }
-/* ---------- B: the action picker adapts to the tab (owner, voice, 24 Oct 2026). Only the areas and kinds that person has activity in are offered (the rest are not drawn);
-   at most three are shown, ranked by that person's activity with newer activity counting more; the rest, in the two-level area then kind structure, are behind More. ---------- */
-function activity(tab) { /* [{kind, score}] for the person the tab names, best first. Score = sum of 0.5^(age in days / HALF_LIFE): the ranking decides which three are offered, never the time window. */
- var by = {};
+/* ---------- B (revision 5): both slots open a light popup of at most three options drawn from the data, with More (owner, voice, 24-25 Oct 2026).
+   The data is a separate, cheap SUMMARY of the last 30 days, per person: which kinds have activity and on which days. No entries. ---------- */
+var SUMLOG = []; /* mockup-only: every call to the summary, so the checks can see what the suggestions were drawn from */
+function summarize(tab, span, via) { /* [{kind, days:["2026-10-17", ...]}] for the person the tab names. span = days back from now, 0 = everything on record. Faked from the sample rows: kind and day only, never an entry. */
+ SUMLOG.push({ tab: tab, span: span, via: via || "summarize" });
+ var from = span ? HM.NOW - span * DAY : -Infinity, by = {};
  ALL.forEach(function (e) {
-  if (!inTab(e, tab)) return;
-  var age = Math.max(0, (HM.NOW - Date.parse(e.occurred_at)) / 86400000), o = by[e.kind] || (by[e.kind] = { kind: e.kind, score: 0 });
-  o.score += Math.pow(0.5, age / HALF_LIFE);
+  var t = Date.parse(e.occurred_at); if (!inTab(e, tab) || t < from || t > HM.NOW) return;
+  (by[e.kind] || (by[e.kind] = {}))[HM.dayKey(e.occurred_at)] = 1;
  });
- return Object.keys(by).map(function (k) { return by[k]; }).filter(function (o) { return HM.REGISTRY.kinds.some(function (r) { return r.kind === o.kind; }); }).sort(function (a, b) { return b.score - a.score || (a.kind < b.kind ? -1 : 1); });
+ return Object.keys(by).filter(function (k) { return HM.REGISTRY.kinds.some(function (r) { return r.kind === k; }); }).map(function (k) { return { kind: k, days: Object.keys(by[k]).sort().reverse() }; });
+}
+/* In the real build this is one cheap Platform call, owner approved (owner, voice, 24-25 Oct 2026). Platform builds it; this mockup only fakes it. */
+function summarize30(tab) { return summarize(tab, SPAN, "summarize30"); }
+function widened() { return S.wide30 || (S.f.on && !S.f.day && RANGES[S.f.i][0] === "all") || (S.f.on && !!S.f.day && Date.parse(HM.dayBounds(S.f.day)[1]) < HM.NOW - SPAN * DAY); } /* the range went past 30 days, so the summary widens to match */
+function summ(tab) { return widened() ? summarize(tab, 0, "summarize.widened") : summarize30(tab); }
+function dayAge(day) { return Math.max(0, (HM.NOW - Date.parse(HM.dayBounds(day)[1])) / DAY); }
+function activity(tab) { /* [{kind, score}] best first. Score = sum over the days with activity of 0.5^(age in days / HALF_LIFE): the ranking decides which three are offered, never the time window. */
+ return summ(tab).map(function (o) { return { kind: o.kind, score: o.days.reduce(function (n, d) { return n + Math.pow(0.5, dayAge(d) / HALF_LIFE); }, 0) }; }).sort(function (a, b) { return b.score - a.score || (a.kind < b.kind ? -1 : 1); });
 }
 function kindName(k) { return kindLabel(k) + " in " + areaLabel(k.split(".")[0]); }
 function offered(tab) { var act = activity(tab); return { top: act.slice(0, 3), all: act, areas: HM.REGISTRY.areas.filter(function (a) { return act.some(function (o) { return o.kind.indexOf(a.id + ".") === 0; }); }) }; }
+function activeDays(tab) { var d = {}; summ(tab).forEach(function (o) { o.days.forEach(function (k) { d[k] = 1; }); }); return d; }
+function windowsWithActivity(tab) { /* the windows, from Today / Last 7 days / Last 30 days, that actually hold activity for that person; Today is not offered when nothing happened today */
+ var days = Object.keys(activeDays(tab)), today = HM.dayKey(new Date(HM.NOW).toISOString()), out = [];
+ var within = function (n) { return days.some(function (d) { return Date.parse(HM.dayBounds(d)[1]) >= HM.NOW - n * DAY; }); };
+ if (days.indexOf(today) >= 0) out.push(0); if (within(7)) out.push(1); if (within(SPAN)) out.push(2);
+ return out;
+}
 function setTab(t) { /* B: a choice this person has no activity in is dropped, so the list is never empty for a reason the line does not show */
  S.tab = t; S.who = ""; S.pop = ""; S.open = null;
  if (WAY === "b" && (S.f.kind || S.f.areas.length)) { var o = offered(t), ok = S.f.kind ? o.all.some(function (x) { return x.kind === S.f.kind; }) : o.areas.some(function (a) { return a.id === S.f.areas[0]; }); if (!ok) { S.f.kind = ""; S.f.areas = []; } }
  ensureFirst(); render();
 }
-function outsideTop() { var o = offered(S.tab); return (!!S.f.kind && o.top.every(function (x) { return x.kind !== S.f.kind; })) || (!S.f.kind && S.f.areas.length > 0); }
-function actionPicker(cls) {
- var o = offered(S.tab), wrap = cls === "mc" ? "mcs" : "fchips", more = o.all.length > o.top.length;
+function qo(attrs, label, on, more) { return '<button type="button" class="qo' + (more ? " qmore" : "") + '" ' + attrs + (more ? ' aria-haspopup="dialog"' : ' aria-pressed="' + !!on + '"') + '><span class="t">' + esc(label) + "</span>" + (on ? ic("check", "sm") : more ? ic("chev", "sm") : "") + "</button>"; }
+function popB(k) { /* the light popup: at most three options and More, under the line, in the line's own look */
+ var h = "";
+ if (k === "what") { var o = offered(S.tab); if (!o.all.length) return '<p class="hint">Nothing on record yet.</p>'; h = o.top.map(function (x) { return qo('data-opt="topic|kind:' + x.kind + '" data-rank="1"', kindName(x.kind), S.f.kind === x.kind); }).join(""); }
+ else { var w = windowsWithActivity(S.tab); if (!w.length) return '<p class="hint">Nothing on record yet.</p>'; h = w.map(function (i) { return qo('data-win="' + i + '"', RANGES[i][1], S.f.on && !S.f.day && S.f.i === i); }).join(""); }
+ return h + qo('data-more="' + k + '"', "More", false, true);
+}
+/* More: the fuller Pantry-style filter, a flyout in the right gutter (desktop, 1024px and up) or a sheet (phone). Time: the date widget (the Pantry rotary with All time as its last stop) and a day picker for specific dates.
+   Action: the area-then-kind two-level list. Only what the person has activity in is drawn. */
+function actionFull(cls) {
+ var o = offered(S.tab), wrap = cls === "mc" ? "mcs" : "fchips";
  if (!o.all.length) return '<p class="hint">Nothing on record yet.</p>';
- if (!(more && S.moreOpen)) {
-  return '<div class="' + wrap + '" role="group" aria-label="Action">' + o.top.map(function (x) { return chip(cls, "topic|kind:" + x.kind, kindName(x.kind), S.f.kind === x.kind, ' data-rank="1"'); }).join("") + "</div>" +
-   (more ? '<div class="flinks"><button type="button" class="link" data-more="1" aria-expanded="false">More</button><span></span></div>' : "");
- }
- var out = '<div class="' + wrap + '" role="group" aria-label="Area">' + chip(cls, "topic|clear", "Anything", !S.f.areas.length && !S.f.kind) + o.areas.map(function (a) { return chip(cls, "topic|area:" + a.id, a.label, S.f.areas.indexOf(a.id) >= 0); }).join("") + "</div>";
+ var out = '<div class="' + wrap + '" role="group" aria-label="Area">' + chip(cls, "topic|clear", "Everything", !S.f.areas.length && !S.f.kind) + o.areas.map(function (a) { return chip(cls, "topic|area:" + a.id, a.label, S.f.areas.indexOf(a.id) >= 0); }).join("") + "</div>";
  if (S.f.areas.length === 1) {
   var ks = o.all.filter(function (x) { return x.kind.indexOf(S.f.areas[0] + ".") === 0; });
   if (ks.length > 1) out += '<p class="ksub">In ' + esc(areaLabel(S.f.areas[0])) + '</p><div class="' + wrap + '" role="group" aria-label="Kind">' + ks.map(function (x) { return chip(cls, "topic|kind:" + x.kind, kindLabel(x.kind), S.f.kind === x.kind); }).join("") + "</div>";
  }
- return out + '<div class="flinks"><button type="button" class="link" data-more="0" aria-expanded="true">Show fewer</button><span></span></div>';
+ return out;
+}
+var MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+function monthOf(day) { return day.slice(0, 7); }
+function dayPicker() { /* the specific-date picker (new for History and Pantry alike): one day = from and to. Days with nothing on record for this person are not selectable. */
+ var today = HM.dayKey(new Date(HM.NOW).toISOString()), m = S.cal || monthOf(S.f.day || today), y = +m.slice(0, 4), mo = +m.slice(5, 7) - 1;
+ var first = new Date(Date.UTC(y, mo, 1)), n = new Date(Date.UTC(y, mo + 1, 0)).getUTCDate(), lead = (first.getUTCDay() + 6) % 7; /* weeks start on Monday */
+ var act = activeDays(S.tab), oldest = HM.dayKey(ALL[ALL.length - 1].occurred_at), prev = new Date(Date.UTC(y, mo - 1, 1)).toISOString().slice(0, 7), next = new Date(Date.UTC(y, mo + 1, 1)).toISOString().slice(0, 7);
+ var cells = ""; for (var i = 0; i < lead; i++) cells += "<span></span>";
+ for (var d = 1; d <= n; d++) {
+  var key = m + "-" + ("0" + d).slice(-2), has = !!act[key] && key <= today, on = S.f.on && S.f.day === key;
+  cells += '<button type="button" class="dpd' + (has ? " has" : "") + (on ? " on" : "") + '" data-day="' + key + '"' + (has ? "" : " disabled") + ' aria-pressed="' + on + '" aria-label="' + esc(HM.longDay(key + "T12:00:00.000Z")) + (has ? "" : ", nothing on record") + '">' + d + "</button>";
+ }
+ return '<div class="daypick" role="group" aria-label="Specific date"><div class="dph"><button type="button" class="ib" data-cal="' + prev + '"' + (monthOf(oldest) > prev ? " disabled" : "") + ' aria-label="Earlier month">' + ic("back") + "</button><b>" + MONTHS[mo] + " " + y + '</b><button type="button" class="ib" data-cal="' + next + '"' + (next > monthOf(today) ? " disabled" : "") + ' aria-label="Later month">' + ic("chev") + '</button></div><div class="dpw" aria-hidden="true">' + ["M", "T", "W", "T", "F", "S", "S"].map(function (x) { return "<span>" + x + "</span>"; }).join("") + '</div><div class="dpg">' + cells + "</div></div>";
+}
+function flyBody(k, cls) {
+ if (k === "what") return actionFull(cls) + ann(KINDNOTE + " Only what this person has activity in is drawn; a seeded category appears only once it has been used.");
+ return '<div class="strows">' + rotRow(true) + '</div><h3 class="fh">Specific date</h3>' + dayPicker() + ann("One component for History and Pantry: this is Pantry’s Date rotary (flows/household/app.js, the status rotary, with its CSS) and the same row; All time as its last stop and the specific-date picker are new for both, and a change to one reaches both. Days with nothing on record for this person are not selectable. Going to an earlier month widens the summary behind the suggestions to match.");
+}
+function flyHtml() { /* desktop gutter flyout */
+ var t = S.fly === "what" ? "Action" : "Time";
+ return '<div class="fp fly"><div class="fph"><div><h2>' + t + "</h2><p>" + esc(sentenceText()) + '</p></div><button type="button" class="ib" data-closefly aria-label="Close">' + ic("x") + '</button></div><div class="fpb">' + flyBody(S.fly, "fpl") + '<div class="acts2"><button type="button" class="sec2" data-clear>Clear</button></div></div></div>';
+}
+function flySheetHtml() { /* phone sheet, the A sheet's own classes */
+ var t = S.fly === "what" ? "Action" : "Time";
+ return '<div class="sheet-dim" data-dim><div class="sheet fsheet" role="dialog" aria-modal="true" aria-label="' + t + '" data-keep><div class="grab"></div><div class="fhead"><div class="ftabs"><button type="button" class="on">' + t + '</button></div><button type="button" class="ib" data-closefly aria-label="Close">' + ic("x") + '</button></div><div class="fbody">' + flyBody(S.fly, "mc") + '</div><div class="ffoot"><button type="button" class="pri wide" data-closefly>Done</button><div class="flinks"><button type="button" class="link" data-clear>Clear</button><span></span></div></div></div></div>';
 }
 var WAYNOTE = {
- b: "<b>B: Sentence (revision 4).</b> Two parts only, the kind of change and the time, because the tabs already say whose activity it is (so no “you”, “mine”, “others” or name in the line). Tap a word to change it (a short sheet on a phone, a small popover on desktop). The action picker offers only what that person has activity in, at most three, ranked by recent activity with newer counting more (half-life two days), and the rest behind More (area, then kind). It opens on Last 7 days; there is no Anytime. The time window is rolling; whether it should be calendar-based is still open. Free text stays the Preview B-search.",
+ b: "<b>B: Sentence, the default (revision 5).</b> The sentence line up front, time first, then the action: “last 30 days · everything”. The tabs say whose, so there is no person word in it. Tap a slot for a light popup (the same dotted look as the line) with at most three options drawn from the data, and More. Time offers the windows that hold activity for that person (Today only if something happened today); the action offers the person’s top three kinds, ranked by recent activity with a two-day half-life (a proposal), from a separate cheap 30-day summary, not from the entries. More opens the fuller filter: a flyout in the right gutter on desktop, a sheet on a phone. It opens on Last 30 days and the first load is one page of whole days, newest first. Scroll past the 30-day edge and the time quietly becomes All time while pages keep loading; nobody is stopped from going back. Free text stays the Preview B-search.",
  c: "<b>C: Quick answers.</b> Each chip is a partial filter made only of real model filters (<code>actor</code>, <code>kind</code>, <code>from</code>). One tap sets the parts it names; a second chip adds its parts over the first (a later When replaces an earlier one); tapping a chip that is on clears just its parts; the line says what is on. No cascade.",
  d: "<b>D: Tap to filter.</b> Tap a name, a topic or kind, a day label, or the thing itself. A person tap only appears where it narrows (in Others). The thing is <code>entity_type</code> + <code>entity_id</code>: the model guarantees both on every row but the id can be null (such rows get no handle), and a name is never filtered on, only its id. The line shows what is on; each part clears with one tap; Undo is in the toast."
 };
@@ -238,24 +312,24 @@ function sheetHtml() { /* phone: a short bottom sheet, the same one-page body */
 }
 /* ---------- B, C and D: the filter is a sentence (owner, voice, 24 Oct 2026). Each part reads one real model filter: who = actor (the tab), what = area or kind, when = from (and to for one day). ---------- */
 function whoText() { return S.who ? HM.NAMES[S.who] : S.tab === "mine" ? "You" : S.tab === "person" ? otherName() : "Others"; }
-function whatText() { return S.f.areas.length || S.f.kind ? topicName() : "anything"; }
-function whenText() { return S.f.on ? (WAY === "b" ? dateLabel().toLowerCase() : dateLabel()) : "anytime"; } /* B reads "last 7 days"; its window is always on */
+function whatText() { return S.f.areas.length || S.f.kind ? topicName() : "everything"; } /* "everything" is the no-action-filter state (revision 5; it was "anything") */
+function whenText() { return S.f.on ? (WAY === "b" && !S.f.day ? dateLabel().toLowerCase() : dateLabel()) : "anytime"; } /* B reads "last 30 days" or "all time"; its window is always on */
 function entityText() { return "just " + (S.entLabel || "this " + S.entity.split(":")[0].replace(/_/g, " ")); }
-function sentenceText() { return (WAY === "b" ? [whatText(), whenText()] : [whoText(), whatText(), whenText()]).concat(S.entity ? [entityText()] : []).join(" · "); } /* B has two parts: the tabs already say whose */
+function sentenceText() { return (WAY === "b" ? [whenText(), whatText()] : [whoText(), whatText(), whenText()]).concat(S.entity ? [entityText()] : []).join(" · "); } /* B has two parts: the tabs already say whose */
 var DOT = '<span class="sd" aria-hidden="true">·</span>';
 function seg(h) { return '<span class="sg">' + DOT + h + "</span>"; } /* the dot travels with the word after it, so a wrapped line never ends on a dot */
 function clearX(label) { return '<button type="button" class="ib qfx" data-clear aria-label="' + (label || "Clear the filter") + '">' + ic("x", "sm") + "</button>"; }
-/* B: the line is the state (action, time); tap a word to change that part. Whose is the tab, so no person word. */
+/* B: the line is the state (time first, then action); tap a word to change that part. Whose is the tab, so no person word (revision 5). */
 function word(k, t, on) { return '<button type="button" class="sw' + (on ? " on" : "") + '" data-pick="' + k + '" aria-haspopup="dialog" aria-expanded="' + (S.pop === k) + '">' + esc(t) + "</button>"; }
 function lineB() {
- return '<div class="sline" role="group" aria-label="Filter. Now: ' + esc(sentenceText()) + '">' + '<span class="sl">' + word("what", whatText(), S.f.areas.length || S.f.kind) + seg(word("when", whenText(), S.f.on)) +
+ return '<div class="sline" role="group" aria-label="Filter. Now: ' + esc(sentenceText()) + '">' + '<span class="sl">' + word("when", whenText(), S.f.on) + seg(word("what", whatText(), S.f.areas.length || S.f.kind)) +
   (S.entity ? seg(pill("entity", entityText())) : "") + (hasFilters() ? clearX() : "") + "</span></div>";
 }
 /* D: only what is on is a pill, and each pill clears with one tap. The person part is the tab (not clearable: the tabs stay as they are); a narrower person (Others, three or more people) is a pill. */
 function pill(k, t) { return '<button type="button" class="ap" data-unset="' + k + '" aria-label="' + esc(t) + ". Tap to clear" + '"><span>' + esc(t) + "</span>" + ic("x", "sm") + "</button>"; }
 function lineD() {
  var on = S.f.areas.length || S.f.kind, parts = [S.who ? pill("who", whoText()) : '<span class="sw plain">' + esc(whoText()) + "</span>"];
- parts.push(on ? pill("what", whatText()) : '<span class="sw plain off">anything</span>');
+ parts.push(on ? pill("what", whatText()) : '<span class="sw plain off">everything</span>');
  parts.push(S.f.on ? '<span class="ap split"><button type="button" class="apt" data-pick="when" aria-haspopup="dialog" aria-label="Date: ' + esc(dateLabel()) + '. Change">' + esc(dateLabel()) + '</button><button type="button" class="apx" data-unset="when" aria-label="Clear the date">' + ic("x", "sm") + "</button></span>" : word("when", "anytime", false));
  if (S.entity) parts.push(pill("entity", entityText()));
  return '<div class="sline" role="group" aria-label="Filter. Now: ' + esc(sentenceText()) + '">' + parts[0] + parts.slice(1).map(seg).join("") + "</div>" + (hasFilters() ? "" : '<p class="hint">Tap a name, a topic or a day in the list to narrow it.</p>');
@@ -278,15 +352,16 @@ function lineC() {
   '<div class="sline ro" role="status" aria-label="Filter. Now: ' + esc(sentenceText()) + '"><span class="sl"><span class="sw plain">' + esc(whoText()) + "</span>" + seg('<span class="sw plain' + (S.f.areas.length || S.f.kind ? "" : " off") + '">' + esc(whatText()) + "</span>") + seg('<span class="sw plain' + (S.f.on ? "" : " off") + '">' + esc(whenText()) + "</span>") + (S.entity ? seg(pill("entity", entityText())) : "") + (hasFilters() ? clearX() : "") + "</span></div>";
 }
 function wayLine() { return WAY === "b" ? lineB() : WAY === "c" ? lineC() : lineD(); }
-/* the pickers: a short bottom sheet on a phone, a small popover under the line on desktop */
-function popBody(k) {
+/* the pickers. D: a short bottom sheet on a phone, a small popover under the line on desktop. B (revision 5): the light popup under the line on both (popB). */
+function popBody(k) { /* D */
  var cls = wide() ? "fpl" : "mc";
- if (k === "what") return (WAY === "b" ? actionPicker(cls) : topicSet(cls)) + ann("The action is <code>area</code>, or <code>kind</code> once an area is picked. The options are only what this tab’s person has activity in; the three shown are ranked by recent activity (newer counts more), and the rest are behind More. The ranking only chooses what is offered; it does not change the time window. One choice at a time (Q2 undecided).");
- return '<div class="strows">' + rotRow(WAY === "b") + "</div>" + ann("The time is <code>from</code> (Today, 7 or 30 days) or, for one day in D, <code>from</code> and <code>to</code>. The Pantry rotary, unchanged. The windows are rolling (counted back from now, not calendar weeks); whether they should be calendar-based is still open.");
+ if (k === "what") return topicSet(cls) + ann("The action is <code>area</code>, or <code>kind</code> once an area is picked. One choice at a time (Q2 undecided).");
+ return '<div class="strows">' + rotRow(false) + "</div>" + ann("The time is <code>from</code> (Today, 7 or 30 days) or, for one day in D, <code>from</code> and <code>to</code>. The Pantry rotary, unchanged. The windows are rolling (counted back from now, not calendar weeks); whether they should be calendar-based is still open.");
 }
 function popHtml() {
  if (!WAY || !S.pop) return "";
- var title = { what: WAY === "b" ? "Action" : "What", when: WAY === "b" ? "Time" : "When" }[S.pop];
+ if (WAY === "b") return '<div class="pdim" data-dim></div><div class="pop2 light" role="dialog" aria-label="' + (S.pop === "what" ? "Action" : "Time") + '">' + popB(S.pop) + "</div>";
+ var title = { what: "What", when: "When" }[S.pop];
  if (!wide()) return '<div class="sheet-dim" data-dim><div class="sheet fsheet psheet" role="dialog" aria-modal="true" aria-label="' + title + '" data-keep><div class="grab"></div><div class="fhead"><div class="ftabs"><button type="button" class="on">' + title + '</button></div><button type="button" class="ib" data-closepop aria-label="Close">' + ic("x") + '</button></div><div class="fbody">' + popBody(S.pop) + '</div><div class="ffoot"><button type="button" class="pri wide" data-closepop>Done</button></div></div></div>';
  return '<div class="pdim" data-dim></div><div class="pop2" role="dialog" aria-label="' + title + '"><div class="fbody">' + popBody(S.pop) + "</div></div>";
 }
@@ -319,7 +394,7 @@ function emptyHtml(kind) {
  t.unshift(S.tab === "mine" ? "You" : S.tab === "person" ? otherName() : "Others");
  if (kind === "down") return '<div class="empty"><div class="big">' + ic("clock") + "</div><h2>History is not reachable</h2><p>This is the feed being down, not an empty history. Nothing you did is lost.</p><div class=\"acts\"><button type=\"button\" class=\"pri\" data-retry>Try again</button></div></div>";
  if (kind === "empty") return '<div class="empty"><div class="big">' + ic("clock") + "</div><h2>A quiet kitchen so far</h2><p>Changes you and the household make will show here.</p></div>";
- var more = !(S.f.on && S.f.i === 2) ? '<button type="button" class="pri" data-month>Look back 30 days</button>' : "";
+ var more = WAY === "b" ? (RANGES[S.f.i][0] !== "all" || S.f.day ? '<button type="button" class="pri" data-alltime>Look at all time</button>' : "") : !(S.f.on && S.f.i === 2) ? '<button type="button" class="pri" data-month>Look back 30 days</button>' : "";
  return '<div class="empty"><div class="big">' + ic("search") + "</div><h2>No matches</h2><p>" + (S.kw ? "Nothing in the days loaded says “" + esc(S.kw) + "”." : "Nothing on record for " + esc(t.join(" · ")) + ".") + '</p><div class="acts">' + more + '<button type="button" class="sec2" data-clear>Clear filter</button></div></div>';
 }
 function feed() {
@@ -328,7 +403,7 @@ function feed() {
  if (S.state === "down") return emptyHtml("down");
  var L = viewRows();
  if (!L.length && !S.more) return emptyHtml("zero");
- return listHtml(L) + othersNote() + (S.more ? '<div class="sentinel" id="sentinel" role="status"><span class="dots" aria-hidden="true"></span>Loading one more day with activity</div>' : '<p class="note">That is everything on record.</p>');
+ return listHtml(L) + othersNote() + (S.more || atEdge() ? '<div class="sentinel" id="sentinel" role="status"><span class="dots" aria-hidden="true"></span>Loading one more day with activity</div>' : '<p class="note">That is everything on record.</p>');
 }
 function othersNote() { /* Q4 (owner, voice, 23 Oct 2026): nothing is hidden; these are under Others */
  if (S.tab !== "others") return "";
@@ -346,10 +421,14 @@ function searchBox() { /* Preview B: free text over the days loaded (S1). Not th
   ann("Preview B. Not in the default design (owner, voice, 23 Oct 2026). The API has no text parameter, so this is the one reading that needs nothing from Platform: the client matches the template-rendered text of the days it has loaded (S1). It cannot find something older that has not loaded yet, which is why it says so. Esc clears it.") : "";
 }
 var LANENOTE = "<b>Variation for owner review: D with the filter in the gutter.</b> Desktop only (<code>?way=tap&amp;lane=1</code>; the phone is unchanged). The filter choices open in this right lane as a flyout (the Date rotary, then Topic and its kinds, the same body as A) instead of a small popover under the line. The line’s date word and the Filter button open it; tapping a word in a row still works and the flyout follows it. Opening a change replaces the flyout; closing the change brings it back. Default D (no <code>lane</code>) is unchanged.";
+function wayNotes() { return ann(WAYNOTE[WAY]) + (WAY === "b" ? ann(KINDNOTE) + ann(HISTNOTE) : ""); }
+var KINDNOTE = "<b>What the action slot means.</b> It means an area or a kind. An area is a broad bucket inside an app (here Pantry, Shopping, Recipes); a kind is the specific action, for example Stock checked, shown as one phrase under its area. An area is not the app: the app filter is removed. Kind names are whole phrases because the template builds the line.";
+var HISTNOTE = "<b>Undo and seeds (owner, voice, 24-25 Oct 2026).</b> An undo is shown as one line: its own entry, attributed to whoever pressed undo, linked to the original (the original gets “undone”; there is no second “removed” line). In the sample: Arjan added 5 mangoes, then 10, and Sam undid adding 10 mangoes. Starter-list (seed) items never appear in History; a seeded category enters History only through use, so an area nobody has used is not offered.";
 function lane() {
  if (S.open !== null && find(S.open)) return detailPanel(find(S.open), false);
+ if (WAY === "b" && S.fly) return flyHtml();
  if (WAY === "d" && LANE && S.panel === "filters") return filtersPanel();
- if (WAY) return '<div class="lane0"><h2>This change</h2><p>Open a change to see it here.</p></div>' + ann(WAYNOTE[WAY]) + (WAY === "d" && LANE ? ann(LANENOTE) : ""); /* B, C and D have no filter panel (D with lane=1 has the flyout above): the filter is the line above the list */
+ if (WAY) return '<div class="lane0"><h2>This change</h2><p>Open a change to see it here.</p></div>' + wayNotes() + (WAY === "d" && LANE ? ann(LANENOTE) : ""); /* B, C and D have no filter panel (D with lane=1 has the flyout above): the filter is the line above the list */
  return filtersPanel();
 }
 function render() {
@@ -357,13 +436,13 @@ function render() {
  var head = '<header class="hx-head"><h1>History</h1>' + (showFilterBtn ? '<button type="button" class="ib' + (S.panel === "filters" ? " on" : "") + '" data-filters aria-label="Filter (F)">' + ic("sliders") + "</button>" : "") + "</header>";
  root.innerHTML = '<nav class="hx-rail" aria-label="Main">' + railHtml() + "</nav>" +
   '<main class="hx-main">' + head + tabsHtml() + (NOTES ? ann("Two jobs: catch up on what changed since you were last here, and find who did something and when after it looks wrong (the milk vanished), often knowing only roughly when and what. So the screen carries Date and Topic, and the tab says whose. Fields read: <code>occurred_at</code>, <code>actor</code>, <code>kind</code> (area is its first part), <code>kind_v</code>, <code>entity</code>, <code>product</code> (on the detail, never a filter). It never reads <code>payload</code>; text comes from the kind’s template.") : "") +
-  searchBox() + '<div class="qwrap"><div id="qline">' + qlineHtml() + '</div><div id="popslot">' + popHtml() + '</div></div>' + (WAY && !wide() ? ann(WAYNOTE[WAY]) : "") + '<div id="feed">' + feed() + "</div></main>" +
-  '<aside class="hx-panel" id="panel" aria-label="' + (S.open !== null ? "This change" : WAY && !(WAY === "d" && LANE && S.panel === "filters") ? "Details" : "Filter") + '">' + (wide() ? lane() : "") + "</aside>" +
-  (!wide() && !WAY && S.panel === "filters" && S.open === null ? sheetHtml() : "") +
+  searchBox() + '<div class="qwrap"><div id="qline">' + qlineHtml() + '</div><div id="popslot">' + popHtml() + '</div></div>' + (WAY && !wide() ? wayNotes() : "") + '<div id="feed">' + feed() + "</div></main>" +
+  '<aside class="hx-panel" id="panel" aria-label="' + (S.open !== null ? "This change" : WAY && !(WAY === "d" && LANE && S.panel === "filters") && !(WAY === "b" && S.fly) ? "Details" : "Filter") + '">' + (wide() ? lane() : "") + "</aside>" +
+  (!wide() && !WAY && S.panel === "filters" && S.open === null ? sheetHtml() : "") + (!wide() && WAY === "b" && S.fly && S.open === null ? flySheetHtml() : "") +
   (!wide() && S.open !== null && find(S.open) ? '<div class="sheet-dim" data-dim><div class="sheet dsheet" role="dialog" aria-modal="true" aria-label="This change" data-keep><div class="grab"></div><div class="fbody">' + detailPanel(find(S.open), true) + "</div></div></div>" : "") +
   '<div class="toast" id="toast" hidden></div>';
  watch();
- var pv = $(".pv"); if (pv) pv.style.display = (!wide() && ((S.panel === "filters" && !WAY) || S.open !== null || S.pop)) ? "none" : "";
+ var pv = $(".pv"); if (pv) pv.style.display = (!wide() && ((S.panel === "filters" && !WAY) || S.open !== null || (S.pop && WAY !== "b") || (S.fly && WAY === "b"))) ? "none" : "";
 }
 var tmr;
 function toast(t, undo) { var el = $("#toast"); if (!el) return; el.innerHTML = "<span>" + esc(t) + "</span>" + (undo ? '<button type="button" class="tundo" data-undo>Undo</button>' : ""); el.classList.toggle("withundo", !!undo); el.hidden = false; clearTimeout(tmr); tmr = setTimeout(function () { el.hidden = true; }, undo ? 6000 : 2400); }
@@ -374,7 +453,12 @@ function watch() {
  var s = $("#sentinel"); if (!s || !("IntersectionObserver" in window)) return;
  io = new IntersectionObserver(function (en) { if (en[0].isIntersecting) { io.disconnect(); setTimeout(moreDay, 350); } }, { rootMargin: "200px" }); io.observe(s);
 }
-function moreDay() { if (!S.more) return; loadDay(); refreshFeed(); }
+/* B: scrolling past the 30-day edge quietly turns the time slot into All time and the pages keep loading. Nobody is stopped from going further back (owner, voice, 24-25 Oct 2026). */
+function atEdge() { return WAY === "b" && !S.state && S.f.on && !S.f.day && RANGES[S.f.i][0] === "month" && !S.more && S.pages.length > 0; }
+function moreDay() {
+ if (!S.more) { if (!atEdge()) return; S.f.i = RANGES.length - 1; var ql = $("#qline"); if (ql) ql.innerHTML = qlineHtml(); var rr = $(".rotrow"); if (rr) rowRefresh(); var sm = $(".fph p"); if (sm) sm.textContent = summary(); }
+ loadDay(); refreshFeed();
+}
 
 /* ---------- the date rotary: Pantry's, copied (flows/household/app.js, "status rotary").
    What Pantry has, and so what is here: drag up or down on the value, scroll over it, or tap to step through the windows; a light vibration on each step where the device allows it;
@@ -390,7 +474,7 @@ function rowRefresh() { /* the in-place update Pantry's refreshSheet does, so a 
  });
 }
 function commit() { /* the list follows the date as it changes */
- ensureFirst(); rowRefresh(); refreshFeed(); var ql = $("#qline"); if (ql) ql.innerHTML = qlineHtml(); var sm = $(".fph p"); if (sm) sm.textContent = summary();
+ ensureFirst(); rowRefresh(); refreshFeed(); var ql = $("#qline"); if (ql) ql.innerHTML = qlineHtml(); var sm = $(".fph p"); if (sm) sm.textContent = summary(); var dp = $(".daypick"); if (dp) dp.outerHTML = dayPicker();
 }
 function rotStep(i) { var n = RANGES.length; i = Math.max(0, Math.min(n - 1, i)); if (i !== S.f.i || !S.f.on || S.f.day) { S.f.i = i; S.f.on = true; S.f.day = ""; commit(); if (navigator.vibrate) navigator.vibrate(6); } }
 function rotTap() { if (!S.f.on || S.f.day) rotStep(S.f.i); else rotStep((S.f.i + 1) % RANGES.length); } /* Pantry's tap always advances; here the first tap on an off row turns it on at its remembered window, so "Anytime" is not skipped over */
@@ -414,7 +498,7 @@ function apply(g, v) { /* Topic: area:<id> or kind:<kind> */
 }
 document.addEventListener("click", function (ev) {
  var t = ev.target;
- if (t.hasAttribute && t.hasAttribute("data-dim")) { if (S.pop) S.pop = ""; else if (S.open !== null) S.open = null; else S.panel = ""; render(); return; }
+ if (t.hasAttribute && t.hasAttribute("data-dim")) { if (S.pop) S.pop = ""; else if (S.open !== null) S.open = null; else if (S.fly) S.fly = ""; else S.panel = ""; render(); return; }
  var b = t.closest ? t.closest("button,a") : null; if (!b) return;
  if (b.matches("a[data-route]")) { ev.preventDefault(); toast("Would open " + b.getAttribute("data-route")); return; }
  if (b.matches("a[data-rail]")) { ev.preventDefault(); return; }
@@ -425,8 +509,13 @@ document.addEventListener("click", function (ev) {
  if (b.dataset.tab) { setTab(b.dataset.tab); return; }
  if (b.hasAttribute("data-filters")) { S.panel = S.panel === "filters" && wide() ? "" : "filters"; S.open = null; render(); return; }
  if (b.dataset.opt) { var p = b.dataset.opt.split("|"); apply(p[0], p[1]); return; }
- if (b.dataset.pick) { if (LANE && WAY === "d" && wide()) { S.panel = "filters"; S.pop = ""; } else { S.pop = S.pop === b.dataset.pick ? "" : b.dataset.pick; if (S.pop === "what") S.moreOpen = outsideTop(); } S.open = null; render(); return; }
- if (b.dataset.more) { S.moreOpen = b.dataset.more === "1"; render(); return; }
+ if (b.dataset.pick) { if (LANE && WAY === "d" && wide()) { S.panel = "filters"; S.pop = ""; } else { S.pop = S.pop === b.dataset.pick ? "" : b.dataset.pick; if (WAY === "b") S.fly = ""; } S.open = null; render(); return; }
+ if (b.dataset.more) { S.fly = b.dataset.more; S.pop = ""; S.open = null; render(); return; } /* B: More opens the fuller filter (gutter flyout on desktop, sheet on a phone) */
+ if (b.dataset.win) { S.f.on = true; S.f.i = +b.dataset.win; S.f.day = ""; S.pop = ""; ensureFirst(); render(); return; }
+ if (b.dataset.day) { S.f.on = true; S.f.day = b.dataset.day; if (Date.parse(HM.dayBounds(b.dataset.day)[1]) < HM.NOW - SPAN * DAY) S.wide30 = true; ensureFirst(); render(); return; }
+ if (b.dataset.cal) { S.cal = b.dataset.cal; if (Date.parse(S.cal + "-01T00:00:00.000Z") < HM.NOW - SPAN * DAY) S.wide30 = true; render(); return; }
+ if (b.hasAttribute("data-closefly")) { S.fly = ""; render(); return; }
+ if (b.hasAttribute("data-alltime")) { S.f.on = true; S.f.i = RANGES.length - 1; S.f.day = ""; ensureFirst(); render(); return; }
  if (b.hasAttribute("data-closepop")) { S.pop = ""; render(); return; }
  if (b.dataset.chip) { chipTap(chips().filter(function (c) { return c.id === b.dataset.chip; })[0]); return; }
  if (b.dataset.f) { tapContent(b); return; }
@@ -458,6 +547,7 @@ document.addEventListener("keydown", function (ev) {
  var tag = (ev.target && ev.target.tagName) || ""; if (tag === "INPUT") { if (ev.key === "Escape" && S.kw) { S.kw = ""; ev.target.value = ""; refreshFeed(); } return; }
  if (ev.target && ev.target.matches && ev.target.matches("[data-rot]") && (ev.key === "ArrowUp" || ev.key === "ArrowDown")) { ev.preventDefault(); rotStep(S.f.i + (ev.key === "ArrowDown" ? 1 : -1)); return; }
  if (ev.key === "Escape" && S.pop) { S.pop = ""; render(); return; }
+ if (ev.key === "Escape" && S.fly && S.open === null) { S.fly = ""; render(); return; }
  if (ev.ctrlKey || ev.metaKey) { if (ev.key === "Escape") { if (S.open !== null) S.open = null; else S.panel = ""; render(); } return; }
  var k = ev.key.toLowerCase();
  if (k === "f") { if (!WAY || (LANE && WAY === "d" && wide())) { S.panel = "filters"; S.open = null; render(); } }
@@ -471,11 +561,11 @@ function pvHtml() {
  var u = function (k, v) { var p = new URLSearchParams(location.search); if (v === null) p.delete(k); else p.set(k, v); return "?" + p.toString(); };
  var grp = function (title, k, opts, cur) { return "<h3>" + title + '</h3><div class="pills">' + opts.map(function (o) { return '<a class="pl" aria-pressed="' + (cur === o[0]) + '" href="' + u(k, o[0] === "" ? null : o[0]) + '">' + o[1] + "</a>"; }).join("") + "</div>"; };
  return '<div class="pv" id="pv"><button type="button" id="pvb" aria-expanded="false">Preview</button><div class="pop" id="pvp">' +
-  grp("Filter pattern (owner, 24 Oct)", "way", [["cascade", "A: Cascade (baseline)"], ["sentence", "B: Sentence"], ["quick", "C: Quick answers"], ["tap", "D: Tap to filter (default)"]], { b: "sentence", c: "quick", d: "tap" }[WAY] || "cascade") +
+  grp("Filter pattern (owner, 24-25 Oct)", "way", [["cascade", "A: Cascade (baseline)"], ["", "B: Sentence (default)"], ["quick", "C: Quick answers"], ["tap", "D: Tap to filter (variation)"]], { b: "", c: "quick", d: "tap" }[WAY] === undefined ? "cascade" : { b: "", c: "quick", d: "tap" }[WAY]) +
   grp("Search (Q1)", "search", [["", "A: filters only (default)"], ["text", "B: free text, days loaded"]], SEARCH ? "text" : "") +
   grp("Choices per group (Q2, undecided)", "choices", [["", "One at a time (shown)"], ["several", "Several (lists)"]], MULTI ? "several" : "") +
   grp("Signed in as", "as", [["", "Arjan"], ["sam", "Sam"]], ME === "sam" ? "sam" : "") + grp("Household", "household", [["", "Two people"], ["more", "More"]], HOUSE === "more" ? "more" : "") +
-  grp("D filter choices (desktop, variation)", "lane", [["", "Popover under the line (default)"], ["1", "Flyout in the gutter"]], LANE ? "1" : "") + grp("Last visit", "last", [["", "Sat"], ["wed", "Wed (older than the cap)"]], Q.get("last") === "wed" ? "wed" : "") +
+  grp("D filter choices (desktop, variation of D)", "lane", [["", "Popover under the line (default)"], ["1", "Flyout in the gutter"]], LANE ? "1" : "") + grp("Last visit", "last", [["", "Sat"], ["wed", "Wed (older than the cap)"]], Q.get("last") === "wed" ? "wed" : "") +
   grp("Template registry", "tpl", [["", "Published"], ["loading", "Fetching"], ["none", "Nothing published"]], TPL === "ready" ? "" : TPL) +
   grp("Mockup notes", "notes", [["", "On"], ["0", "Off"]], NOTES ? "" : "0") + "</div></div>";
 }
@@ -484,5 +574,5 @@ $("#pvb").addEventListener("click", function () { var o = $("#pv").classList.tog
 
 if (S.state === "" || S.state === "down") ensureFirst();
 render();
-window.__hx = { S: S, params: params, WAY: WAY, LANE: LANE, moreDay: moreDay, rows: rows, ALL: ALL, activity: activity, offered: offered };
+window.__hx = { S: S, params: params, WAY: WAY, LANE: LANE, moreDay: moreDay, rows: rows, ALL: ALL, activity: activity, offered: offered, summarize: summarize, summarize30: summarize30, sumLog: SUMLOG, humanVisit: humanVisit, pageRows: pageRows, windowsWithActivity: windowsWithActivity, HALF_LIFE: HALF_LIFE, HM: HM };
 })();

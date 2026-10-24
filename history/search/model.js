@@ -19,7 +19,7 @@ function utc(daysAgo, hh, mm) { /* Sydney local time on the sample's calendar ->
 var RAW = [];
 function add(d, hhmm, who, kind, ent, payload, extra) {
   var p = hhmm.split(":");
-  RAW.push({ at: utc(d, +p[0], +p[1]), who: who, kind: kind, ent: ent, payload: payload, extra: extra || {} });
+  RAW.push({ at: utc(d, +p[0], +p[1]), who: who, kind: kind, ent: ent, payload: payload, extra: extra || {} }); /* extra.key names a row; extra.ref points an undo at the row it reverses (becomes ref_event_id) */
 }
 var P = function (area, place) { return { area: area, place: place }; };
 /* Sun 18 */
@@ -36,13 +36,18 @@ add(1, "20:05", "former", "pantry.used", { type: "item", id: "itm_yog" }, { name
 /* Thu 15 (Fri 16 is quiet: no events, so it is skipped when days are counted) */
 add(3, "20:15", "sam", "pantry.used", { type: "item", id: "itm_milk" }, { name: "Milk", from: 2, to: 1 });
 add(3, "19:02", "arjan", "pantry.corrected", { type: "item", id: "itm_flour" }, { name: "Flour", fields: ["name", "category"] });
+/* Undo is ONE line (owner, voice, 24-25 Oct 2026): an undo is its own entry, attributed to whoever pressed undo, linked to the original by ref_event_id (the original reads "undone"); there is no second "removed" line.
+   Here: Arjan added 5 mangoes, then 10, and Sam undid adding the 10. PROPOSAL: Kitchie sends no ref_event_id today (its undo kind carries payload.reverses); Platform or Kitchie would set it. */
+add(1, "14:30", "arjan", "pantry.added", { type: "item", id: "itm_mango" }, { name: "Mangoes", quantity: "5", origin: "manual" });
+add(1, "14:32", "arjan", "pantry.added", { type: "item", id: "itm_mango" }, { name: "Mangoes", quantity: "10", origin: "manual" }, { key: "mango10" });
+add(1, "14:40", "sam", "pantry.undone", { type: "item", id: "itm_mango" }, { name: "mangoes", quantity: "10" }, { ref: "mango10" });
 add(3, "08:30", "sam", "pantry.removed", { type: "item", id: "itm_bread" }, { name: "Bread", reason: "manual" });
 /* generated tail: about three weeks of older activity so the day-at-a-time loading has somewhere to go (Wed 14 back to 30 days). Deterministic. */
 (function () {
   var items = [["itm_oats", "Oats"], ["itm_yog", "Yoghurt"], ["itm_lent", "Lentils"], ["itm_tom", "Tomatoes"], ["itm_pasta", "Pasta"], ["itm_butter", "Butter"], ["itm_rice2", "Jasmine rice"], ["itm_lemon", "Lemons"]];
   var kinds = ["pantry.used", "pantry.removed", "pantry.moved", "pantry.added", "pantry.stock_checked", "pantry.corrected"];
   var s = 7, rnd = function (n) { s = (s * 9301 + 49297) % 233280; return Math.floor(s / 233280 * n); };
-  for (var d = 4; d <= 30; d++) {
+  for (var d = 4; d <= 45; d++) {
     if ((d * 7) % 5 === 0 || d === 18) continue; /* quiet days */
     var n = 1 + rnd(3);
     for (var i = 0; i < n; i++) {
@@ -58,18 +63,20 @@ add(3, "08:30", "sam", "pantry.removed", { type: "item", id: "itm_bread" }, { na
     }
   }
 })();
+add(40, "11:20", "sam", "pantry.restored", { type: "item", id: "itm_beans" }, { name: "Black beans" }); /* older than 30 days: the only Restored in the sample, so it appears in the action list only after the range is widened past 30 days */
 add(9, "10:15", "arjan", "shopping.added", { type: "list_item", id: "shp_lemons" }, { name: "Lemons" }, { product: "kitchie" }); /* hypothetical: no shopping kind is published yet; shows as a generic row */
 RAW.sort(function (a, b) { return a.at < b.at ? -1 : a.at > b.at ? 1 : 0; });
 
 var HOUSE = "two";
 function build(opts) { /* opts.house two|more. affects is always [] (Kitchie writes none; Q5 is closed: nothing here reads it). */
+  var idOf = {}; RAW.forEach(function (r, i) { if (r.extra.key) idOf[r.extra.key] = (r.extra.product || "kitchie") + ":journal:" + (i + 1); });
   var out = RAW.map(function (r, i) {
     var product = r.extra.product || "kitchie";
     return {
       seq: i + 1, event_id: product + ":journal:" + (i + 1), product: product, kind: r.kind, kind_v: 1,
       entity: { type: r.ent.type, id: r.ent.id || null },
       actor: r.who === null ? null : r.who === "former" ? { member: FORMER, name: null } : { member: IDS[r.who], name: NAMES[IDS[r.who]] },
-      via: null, affects: [], ref_event_id: null, occurred_at: r.at, payload: r.payload
+      via: null, affects: [], ref_event_id: r.extra.ref ? idOf[r.extra.ref] : null, occurred_at: r.at, payload: r.payload
     };
   });
   if (opts.house === "more") { /* a third member, so there is no per-person tab, only Others */
@@ -150,6 +157,7 @@ var TEMPLATES = {
   "kitchie/pantry.used/1": { rev: 1, vocab: 1, body: [NAME, T(" Amount "), S("from"), T(" to "), S("to")] },
   "kitchie/pantry.added/1": { rev: 1, vocab: 1, body: [NAME, T(" Added "), { k: "group", c: [SO("quantity")] }] },
   "kitchie/pantry.purchased/1": { rev: 1, vocab: 1, body: [NAME, T(" Added "), { k: "group", c: [SO("quantity")] }] },
+  "kitchie/pantry.undone/1": { rev: 1, vocab: 1, body: [T("Undid adding "), S("quantity"), T(" "), NAME] },
   "kitchie/pantry.stock_checked/1": { rev: 1, vocab: 1, body: [NAME, T(" Level "), S("level_from"), T(" to "), S("level_to")] },
   "kitchie/pantry.corrected/1": { rev: 1, vocab: 1, body: [NAME, T(" Changed "), { k: "list", p: "fields" }] }
 };
@@ -185,5 +193,7 @@ function render(e, links) {
   catch (x) { return gen(); }
 }
 
-W.HM = { TZ: TZ, FORMER: FORMER, IDS: IDS, NAMES: NAMES, NOW: NOW, PRODUCTS: PRODUCTS, REGISTRY: REGISTRY, build: build, pageDay: pageDay, matches: matches, dayKey: dayKey, dayBounds: dayBounds, dayLabel: dayLabel, timeOf: timeOf, longDay: longDay, render: render, setTplMode: setTplMode, utc: utc, esc: esc };
+/* Starter-list (seed) items: never written to History (owner, voice, 24-25 Oct 2026). A seeded category enters History only through use. Mockup-only list, so the checks can prove none is in the sample. */
+var SEEDS = ["Salt", "Pepper", "Olive oil", "Sugar"];
+W.HM = { SEEDS: SEEDS, TZ: TZ, FORMER: FORMER, IDS: IDS, NAMES: NAMES, NOW: NOW, PRODUCTS: PRODUCTS, REGISTRY: REGISTRY, build: build, pageDay: pageDay, matches: matches, dayKey: dayKey, dayBounds: dayBounds, dayLabel: dayLabel, timeOf: timeOf, longDay: longDay, render: render, setTplMode: setTplMode, utc: utc, esc: esc };
 })(window);

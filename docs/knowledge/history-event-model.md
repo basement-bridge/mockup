@@ -49,7 +49,7 @@ Never in the body: `household` (400 by name). It is the token's.
 | `entity.id` | id, or null | Null for "no single thing". Kitchie leaves it out for `bulk_changed`. |
 | `via` | `web`, `assistant`, `system`, or null | **Kitchie sends none** (`history-envelope.ts`; its `source` string travels as `payload.channel`). Captured, not displayed (Q-H5). |
 | `affects` | up to 8 unique member ids of the household | **Kitchie sends none.** Reads return `[]`. |
-| `ref_event_id` | an earlier `event_id` of the same product, or null | **Kitchie sends none** (its undo kind carries `payload.reverses`). Inert; not validated. |
+| `ref_event_id` | an earlier `event_id` of the same product, or null | **Kitchie sends none** (its undo kind carries `payload.reverses`). Inert; not validated. **Revision 5 (History search, 24-25 Oct 2026): the owner wants an undo shown as one line, its own entry attributed to whoever pressed undo and linked to the original (the original reads "undone"). The mockup draws that by reading `ref_event_id`; it is a **Proposal** that Kitchie (or Platform, from `payload.reverses`) sets it. See `history-search.md` R5-7.** |
 
 ### 1.3 What a read returns (`GET /api/history`), per event
 
@@ -168,5 +168,7 @@ Each: options, then a recommended position. None is applied as decided; the mock
 **Q9. Which time zone cuts the days** (`tz`)? Platform has no household zone. Mockup uses the device's. Recommended: device, with the household's later if one is ever stored. **Device zone is what the mockup uses (owner, voice, 23 Oct 2026); undecided as a decision.**
 
 **Q10. Recording the model.** Should this model be recorded in Platform (proposed: a short section next to `history-capability.md` section 2, through Platform's own issue and PR), and should Kitchie's and Recipe's docs link to it? Proposed only; nothing is pushed there from here.
+
+Recorded from the owner's voice decisions of 24-25 Oct 2026 (see `history-search.md`, revision 5): a cheap per-person 30-day summary (which kinds have activity and on which days; no entries) is approved as a Platform call, the Platform build being separate work; templates are fetched (Platform pulls them and caches them per kind and version); seeded (starter-list) items never appear in History, a seeded category only through use.
 
 Already open elsewhere and unchanged: visibility of private changes (Q-H1), retention beyond 30 days (Q-H2), undo scope (Q-H3), last-seen server or device and late arrivals (Q-H4), assistant mark (Q-H5).
