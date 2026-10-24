@@ -1,0 +1,24 @@
+/* Menu level search (kitchie#1090, #1110; phone only). Reuses the chosen Settings design (../settings-shakeup/shake.css) and changes only what the menu needs. Theme tokens only, no raw colours.
+   Class names are the ones the build will have: .sp (root), .mrow, .lead, .who, [data-eq], [data-front], [data-results], [data-quick]. */
+.mnu .phone[data-page=front] ul.list.main .lead{background:var(--surface)}
+.mnu .phone .who-av{display:inline-flex;align-items:center;justify-content:center;width:2.2em;height:2.2em;border-radius:50%;background:var(--surface);border:1px solid var(--border);color:var(--fg);font-weight:800;flex:none}
+.mnu .phone ul.list.tail{margin-top:4px}
+.mnu .phone .rb.out{color:var(--danger)}
+.mnu .phone .rb.out .lead{color:var(--danger)}
+.mnu .phone ul.list.main,.mnu .phone ul.list.tail{border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface);overflow:hidden}
+.mnu .phone ul.list.main .lead,.mnu .phone ul.list.tail .lead{background:none;border:0}
+.mnu .phone ul.list.main .who-av{background:var(--bg)}
+.mnu .phone ul.list .prow:last-child{border-bottom:0}
+/* the page around the phones */
+.mnu .two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,19rem),1fr));gap:18px;align-items:start}
+.mnu .two>div>h3{margin:0 0 6px}
+.mnu .phone.static{height:640px}
+.mnu table.tt{border-collapse:collapse;width:100%;font-size:.88em;margin:6px 0 12px}
+.mnu table.tt th,.mnu table.tt td{border-bottom:1px solid var(--border);padding:6px 8px;text-align:left;vertical-align:top}
+.mnu table.tt th{font-size:.78em;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.mnu table.tt td.n{text-align:center;font-weight:800;white-space:nowrap}
+.mnu table.tt .up{color:var(--sage)}.mnu table.tt .dn{color:var(--danger)}
+.mnu .tw{overflow-x:auto}
+.mnu ol.cmp{margin:4px 0 12px;padding-left:1.4em}
+.mnu ol.cmp li{margin:2px 0}
+.mnu .gone{text-decoration:line-through;color:var(--muted)}

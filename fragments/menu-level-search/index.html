@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Menu with search at the top — fragment</title>
+<link rel="stylesheet" href="../../theme.css"><script src="../../theme.js"></script><link rel="stylesheet" href="../../shared.css"><link rel="stylesheet" href="../settings-shakeup/shake.css"><link rel="stylesheet" href="menu.css">
+</head>
+<body data-no-theme-fab class="mnu"><div class="wrap shk">
+<div class="top"><a class="back" href="../../">&lsaquo; All mockups</a><h1>Menu<span class="badge">search first</span></h1></div>
+
+<div class="own"><b>Owner, 24 Oct 2026</b> (Kitchie <a href="https://github.com/basement-bridge/kitchie/issues/1110">#1110</a>, <a href="https://github.com/basement-bridge/kitchie/issues/1090">#1090</a>; phone only): &ldquo;everything other than Install, History and Download my data is basically settings, so why haven&rsquo;t you elevated settings search to the menu level instead of hiding it under the Settings entry? And there&rsquo;s a lot of duplication of the same thing.&rdquo;</div>
+
+<div class="bar" role="group" aria-label="Mockup aids: jump to any state">
+  <label><span>Screen</span><select id="st-screen" aria-label="Screen"><option value="front">Menu</option><option value="looks">Looks</option><option value="household">Household</option><option value="you">You</option><option value="preferences">Preferences</option><option value="kitchen">Kitchen setup</option><option value="assistants">Assistants</option></select></label>
+  <label><span>Search</span><select id="st-search" aria-label="Search"><option value="off">Off</option><option value="examples">Empty: examples</option><option value="last3">Empty: last 3</option><option value="results">Results</option><option value="goto">Go there</option><option value="nomatch">No match</option><option value="custom" disabled>Your own</option></select></label>
+  <label><span>Pinned controls</span><select id="st-pins" aria-label="Pinned controls"><option value="0">0</option><option value="1">1: full row</option><option value="2" selected>2: share</option><option value="3">3: chips</option></select></label>
+</div>
+
+<div id="stage" class="stage"><div class="host"></div></div>
+<p><b>Play it.</b> Search is the first thing under the bar. Type &ldquo;bigger text&rdquo; or &ldquo;install&rdquo;. The text size stepper and the theme rotary work in place. The Settings entry is gone: the rows that were behind it are the menu.</p>
+
+<h2 class="sec">What changed</h2>
+<ul>
+<li><b>Search is the menu&rsquo;s first item</b>: the same search as Settings search (best match, rows, last three searches). The <i>Settings</i> entry that hid it is gone.</li>
+<li><b>The quick controls come with it</b>: text size, theme, bell, as pinned. Pins, rotary and stepper work as before.</li>
+<li><b>The settings rows sit directly under</b>, once each: your name (the profile), Household, Preferences, Assistants.</li>
+<li><b>Install, History and Download my data stay their own items</b>, in a second block. Sign out last.</li>
+<li><b>Gone from the menu because they were repeats</b>: Settings, Looks, Kitchen setup with Categories and Locations, the Preferences group, People, Me, the Get started strip. See the tables below.</li>
+<li><b>One search box.</b> The old Settings front&rsquo;s own search is not drawn for a signed-in person: <code>/settings</code> lands on the menu.</li>
+</ul>
+
+<h2 class="sec">Before and after</h2>
+<div class="two">
+  <div><h3>Before (uat today)</h3><div id="before-host"></div>
+  <ol class="cmp" id="before-list">
+    <li>Link your AI <i>(first 2 days)</i></li><li>Invite someone <i>(first 5 days)</i></li><li>Settings &rarr; <i>opens a second screen</i>: Search, quick controls, Household, Preferences, Assistants</li><li>History</li><li>Looks</li><li>Kitchen setup: Categories, Locations and spots</li><li>Install</li><li>Preferences</li><li>Me</li><li>Household</li><li>Download inventory CSV</li><li>Sign out</li></ol>
+  <p class="sub">14 rows on the menu, search two taps down, Household and Preferences on two screens.</p></div>
+  <div><h3>After</h3>
+  <ol class="cmp" id="after-list">
+    <li>Search settings</li><li>Quick controls <i>(as pinned)</i></li><li>Your name (profile)</li><li>Household</li><li>Preferences</li><li>Assistants</li><li>History</li><li>Install</li><li>Download my data</li><li>Sign out</li></ol>
+  <p class="sub">9 rows and the search. One screen. Nothing twice.</p></div>
+</div>
+
+<h2 class="sec">Taps to do a job</h2>
+<p>Counted from the avatar on Home; the avatar tap is 1 in both columns. Typing is not counted.</p>
+<div class="tw"><table class="tt" id="taps"><thead><tr><th>Job</th><th>Before</th><th>After</th><th>How</th></tr></thead><tbody>
+<tr data-job="search"><td>Search a setting</td><td class="n">3</td><td class="n up">2</td><td>menu, search box</td></tr>
+<tr data-job="text"><td>Text size</td><td class="n">3</td><td class="n up">2</td><td>menu, stepper (pinned)</td></tr>
+<tr data-job="theme"><td>Theme</td><td class="n">3</td><td class="n up">2</td><td>menu, rotary (pinned)</td></tr>
+<tr data-job="assistants"><td>Assistants</td><td class="n">3</td><td class="n up">2</td><td>menu, Assistants</td></tr>
+<tr data-job="household"><td>Household</td><td class="n">2</td><td class="n">2</td><td>menu, Household</td></tr>
+<tr data-job="prefs"><td>Preferences</td><td class="n">2</td><td class="n">2</td><td>menu, Preferences</td></tr>
+<tr data-job="you"><td>My name</td><td class="n">2</td><td class="n">2</td><td>menu, my name</td></tr>
+<tr data-job="history"><td>History</td><td class="n">2</td><td class="n">2</td><td>menu, History</td></tr>
+<tr data-job="install"><td>Install</td><td class="n">2</td><td class="n">2</td><td>menu, Install</td></tr>
+<tr data-job="data"><td>Download my data</td><td class="n">2</td><td class="n">2</td><td>menu, Download my data</td></tr>
+<tr data-job="categories"><td>Categories</td><td class="n">2</td><td class="n dn">4</td><td>menu, Household, Kitchen setup, Categories. By search: 2 and a word.</td></tr>
+</tbody></table></div>
+<p>The only job that costs more is Categories and Locations, which were two taps from the old menu. They live in Household now (Kitchen setup), and search finds them in two taps and a word. <b>Decision needed</b> below.</p>
+
+<h2 class="sec">Every duplicate found (uat 0.177.0)</h2>
+<div class="tw"><table class="tt" id="dups"><thead><tr><th>Thing</th><th>Where it appeared</th><th>After</th></tr></thead><tbody>
+<tr><td>Settings search</td><td>Behind the Settings entry only (the front); a second search lived on every Settings page</td><td>On the menu, first. Settings pages keep the magnifier in their bar</td></tr>
+<tr><td>Preferences</td><td>Menu group <i>Preferences</i> with a <i>Preferences</i> row; Settings front row; search</td><td>One row</td></tr>
+<tr><td>Household</td><td>Menu <i>People</i> row; Settings front row; search</td><td>One row</td></tr>
+<tr><td>Assistants / Link your AI</td><td>Get started strip; Settings front row; search</td><td>One row; the first-days nudge is its value (<i>Link yours</i>)</td></tr>
+<tr><td>Invite someone</td><td>Get started strip; Household page; search</td><td>Household page; the first-days nudge is the Household value</td></tr>
+<tr><td>Looks</td><td>Menu row (lands on the Settings front); quick controls; search</td><td>Quick controls and search</td></tr>
+<tr><td>Kitchen setup, Categories, Locations</td><td>Menu subgroup; Household page; <code>/settings/kitchen</code>; search</td><td>Household page and search</td></tr>
+<tr><td>Me</td><td>Menu <i>Me</i> row with a name chip; the avatar header; the Household page (your own row)</td><td>One row, your name. The Household page keeps your own row among the people</td></tr>
+<tr><td>Settings (the entry)</td><td>Menu row opening a screen that only held the rows above</td><td>Gone</td></tr>
+<tr><td>Install</td><td>Menu; You page; search</td><td>Menu. The You page still repeats it (another page&rsquo;s file)</td></tr>
+<tr><td>Download data</td><td>Menu (<i>Download inventory CSV</i>); You page; search</td><td>Menu, as <i>Download my data</i>. The You page still repeats it</td></tr>
+<tr><td>Sign out</td><td>Menu; You page</td><td>Menu. The You page still repeats it</td></tr>
+<tr><td>Pinned controls</td><td>Pinned area; the same control inside a search result</td><td>Kept on purpose: pinning is a shortcut and the setting keeps its place</td></tr>
+</tbody></table></div>
+
+<h2 class="sec">Words</h2>
+<p>Every label is 3 words or fewer (<i>Search settings</i>, <i>Household</i>, <i>Preferences</i>, <i>Assistants</i>, <i>History</i>, <i>Install</i>, <i>Download my data</i>, <i>Sign out</i>). Each row is an icon, a label and at most one short value. No helper text, no title-plus-description rows. The one accent on the screen is the search outline.</p>
+
+<h2 class="sec">Choices made where the owner was silent</h2>
+<p>All <b>Proposals</b>; a wrong guess costs a small change.</p>
+<ul>
+<li>Your name and picture is the first row (it replaces <i>Me</i> and the avatar header). It opens the You page.</li>
+<li>The Get started strip is gone. Its two nudges become the value on the row they point to: <i>Link yours</i> on Assistants (first 2 days, not linked), <i>Invite</i> on Household (first 5 days, nobody else in).</li>
+<li>Order: settings block, then History, Install, Download my data, then Sign out.</li>
+<li>The Settings front is kept only for a visitor who is not signed in (theme and text size, no household rows). A signed-in person who opens <code>/settings</code> lands here, with the same <i>?from</i> so Back still returns to the page they came from.</li>
+<li>Pages behind the menu say <i>Menu</i> in their Back button.</li>
+</ul>
+
+<h2 class="sec">Open questions</h2>
+<ul>
+<li><b>Categories and Locations</b> cost 4 taps by browsing (2 by search). Option 1: leave as drawn (recommended; the owner said these are settings and search is now one tap away). Option 2: a <i>Kitchen setup</i> row back on the menu (2 taps, one more row).</li>
+<li><b>Your name row</b> versus the Household page, which also lists you. Recommended: keep both (one is the shortcut, the other is a person in a list).</li>
+<li>The You page repeats Install, Download my data and Sign out. Recommended: remove them there so the menu is their only home (another agent is editing that page).</li>
+</ul>
+
+<h2 class="sec">Loads</h2>
+<p>Default path: <code>theme.css</code>, <code>theme.js</code>, <code>shared.css</code>, <code>../settings-shakeup/shake.css</code>, <code>shake.js</code>, <code>menu.js</code>, <code>menu.css</code>. Deferred on first focus of the search box: the engine and the index (unchanged from the Settings design).</p>
+</div>
+<script src="../settings-shakeup/shake.js"></script>
+<script src="menu.js"></script>
+<script>
+(function () {
+  var q = new URLSearchParams(location.search), S = window.SHAKE;
+  if (q.get("bare")) document.body.classList.add("bare");
+  new S.Phone(document.querySelector("#stage .host"));
+  S.bindBar();
+  var pins = q.get("pins"); if (pins !== null && /^[0-3]$/.test(pins)) { S.SH.pins = ["text", "theme", "bell"].slice(0, +pins); }
+  var ts = parseInt(q.get("ts") || "0", 10); if (ts) { S.SH.ts = Math.max(-3, Math.min(3, ts)); }
+  S.applyScale();
+  var pg = q.get("p"); if (pg) S.phone.goPage(pg); else S.phone.draw();
+  if (q.get("q")) S.phone.set(q.get("q"), false);
+  if (q.get("recents")) S.SH.recents = S.SH.recents.concat(["bigger text", "invite someone", "dark mode"]).slice(0, 3);
+  if (q.get("s") === "last3" || q.get("s") === "examples") { if (q.get("s") === "last3") S.SH.recents = ["bigger text", "invite someone", "dark mode"]; S.phone.set("", false); }
+  S.syncBar();
+  var bh = document.getElementById("before-host");
+  bh.innerHTML = '<div class="phone static" data-before><header class="hd"><span></span><h2 class="ttl">Profile</h2><span></span></header><div class="bd">' + S.beforeHtml() + "</div></div>";
+  document.body.setAttribute("data-ready", "1");
+})();
+</script>
+</body></html>
