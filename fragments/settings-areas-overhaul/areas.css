@@ -1,0 +1,169 @@
+/* Settings, the other areas (Household, You, Preferences, Kitchen setup, Assistants, invite, the profile menu). Theme tokens only (theme.css); no raw colours.
+   Builds on ../settings-shakeup/shake.css (the phone frame, rows, switch, field, avatar, pins, stepper, rotary, toast, page furniture), which is the chosen front.
+   Text size: --ts on the phone element scales everything in it (the phone's font-size is calc(16px * var(--ts)) in shake.css); everything here is in em and keeps max(44px, 2.9em).
+   Class names are plain so the app can lift them. */
+
+.phone[data-o]{--t:max(44px,2.9em)}
+.phone .pg{display:block;padding-bottom:8px}
+.phone .blk{padding:12px 16px;border-bottom:1px solid var(--border)}
+.phone .blk:last-child{border-bottom:0}
+.phone .blk>.nm{display:block;margin:0 0 2px}
+.phone .sm{font-size:.82em;color:var(--muted);line-height:1.3}
+.phone .gap{height:8px}
+
+/* controls that live in a row */
+.tseg{display:flex;width:100%;padding:3px;border-radius:var(--r-pill);background:var(--bg);border:1px solid var(--border);gap:2px}
+.tseg button{flex:1 1 0;min-width:0;min-height:max(44px,2.7em);padding:0 8px;border:0;border-radius:var(--r-pill);background:none;color:var(--muted);font-weight:700;font-size:.94em;cursor:pointer;line-height:1.15}
+.tseg button[aria-checked=true]{background:var(--accent);color:var(--on-accent)}
+.num{display:inline-flex;align-items:center;gap:2px;flex:none}
+.num button{width:max(44px,2.9em);height:max(44px,2.9em);border:1px solid var(--border);border-radius:50%;background:var(--surface);color:var(--fg);font-size:1.15em;font-weight:700;cursor:pointer;line-height:1;display:inline-flex;align-items:center;justify-content:center}
+.num button:disabled{opacity:.4;cursor:default}
+.num b{min-width:2em;text-align:center;font-size:1.05em;font-variant-numeric:tabular-nums}
+.tms{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tm{min-height:var(--t);padding:0 8px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--surface);color:var(--fg);font:700 1em var(--body);min-width:0;width:7.4em;color-scheme:inherit}
+.tm:disabled{opacity:.45}
+.tm:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+.lnk{display:inline-flex;align-items:center;min-height:var(--t);padding:0;border:0;background:none;color:var(--accent);font-weight:700;font-size:.9em;cursor:pointer;text-align:left;text-decoration:underline;text-underline-offset:3px}
+.dng{display:inline-flex;align-items:center;justify-content:center;min-height:var(--t);padding:0 16px;border-radius:var(--r-ctl);border:1px solid var(--danger);background:none;color:var(--danger);font-weight:700;font-size:.94em;cursor:pointer}
+.dng.plain{border:0;padding:0;justify-content:flex-start}
+.inh{display:flex;align-items:center;flex-wrap:wrap;gap:0 .35em;font-size:.8em;color:var(--muted);line-height:1.3}
+.inh button{font:inherit;color:var(--accent);background:none;border:0;padding:0 .2em;min-height:max(44px,2.9em);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+
+/* a row that carries its own control (the control is the shortcut) */
+.crow{padding:10px 16px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:6px}
+.crow .top{display:flex;align-items:center;gap:10px;min-height:var(--t)}
+.crow .top .rm{flex:1;min-width:0}
+.crow .ctl{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.crow.stack .top{align-items:flex-start}
+
+/* chips: food words, categories, spots */
+.cps{display:flex;flex-wrap:wrap;gap:6px 6px;margin-top:4px}
+.cp{display:inline-flex;align-items:center;gap:6px;min-height:var(--t);padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);color:var(--fg);font:600 .94em var(--body);cursor:pointer;max-width:100%;overflow-wrap:anywhere}
+.cp[aria-expanded=true]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.cp.lock{background:none;color:var(--muted);cursor:default;border-style:dotted}
+.cp.add{border-style:dashed;color:var(--accent);background:none}
+.cl{font-size:.8em;font-weight:700;color:var(--muted);margin:10px 0 0}
+.cl:first-child{margin-top:0}
+.edit{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px;padding:8px 10px;border:1px solid var(--accent);border-radius:var(--r-ctl);background:var(--bg)}
+.edit .in{flex:1 1 7em;min-width:0;border:1px solid var(--border);border-radius:var(--r-ctl);padding:0 10px;background:var(--surface)}
+.edit .pbtn{min-height:var(--t);padding:0 14px}
+.conf{margin-top:6px;padding:10px 12px;border:1px solid var(--danger);border-radius:var(--r-ctl);background:var(--bg);display:flex;flex-direction:column;gap:8px}
+.conf p{font-size:.94em}
+.conf .btns{display:flex;gap:8px;flex-wrap:wrap}
+.conf .btns>*{flex:1 1 7em}
+.conf .in{border:1px solid var(--border);border-radius:var(--r-ctl);padding:0 10px;background:var(--surface)}
+.pbtn.danger{border-color:var(--danger);color:var(--danger);background:none}
+.pbtn[aria-disabled=true]{opacity:.45;pointer-events:none}
+.pbtn.wide{width:100%}
+
+/* people */
+.av.s{width:2.4em;height:2.4em;font-size:1em}
+.av.dash{background:none;border:1.5px dashed var(--muted);color:var(--muted)}
+.chipt{font-size:.78em;color:var(--muted);font-weight:700}
+.exp{padding:0 16px 10px 16px;display:flex;flex-direction:column;gap:6px}
+.exp .crow{padding:6px 0;border:0}
+
+/* picture picker: one row, sideways, in place */
+.avrow{display:flex;gap:6px;overflow-x:auto;padding:8px 16px 12px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+.avrow button{flex:none;width:max(48px,3.2em);height:max(48px,3.2em);border-radius:50%;border:2px solid var(--border);background:var(--surface);color:var(--fg);font-size:1.3em;cursor:pointer;scroll-snap-align:center;display:inline-flex;align-items:center;justify-content:center;font-weight:800}
+.avrow button[aria-pressed=true]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.you-top{display:flex;flex-direction:column;align-items:center;padding:12px 16px 0;gap:2px}
+.you-top .big-av{border:0;cursor:pointer}
+.you-top .hintl{font-size:.82em;color:var(--muted)}
+.rolechips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+
+/* invite */
+.invite2{padding:12px 16px;display:flex;flex-direction:column;gap:10px}
+.invite2 .link{margin:0}
+
+/* assistants */
+.arow{display:flex;align-items:center;gap:10px;min-height:max(56px,3.6em);padding:6px 16px;border-bottom:1px solid var(--border)}
+.arow .rm{flex:1;min-width:0}
+.arow .pbtn{min-height:var(--t);padding:0 14px;font-size:.88em}
+.arow .st{font-size:.8em;color:var(--muted);display:flex;align-items:center;gap:6px}
+
+/* places: categories, locations and spots */
+.area{padding:8px 0 4px;border-top:1px solid var(--border)}
+.area:first-of-type{border-top:0}
+.area .an{font-weight:700;display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:var(--t)}
+
+/* the profile menu */
+.mhead{display:flex;align-items:center;gap:12px;width:100%;padding:12px 16px;border:0;background:none;color:var(--fg);text-align:left;cursor:pointer;min-height:max(72px,4.6em);border-bottom:1px solid var(--border)}
+.mhead .rm{flex:1;min-width:0}
+.mhead .av{width:3em;height:3em}
+.start{display:flex;align-items:center;gap:10px;padding:8px 16px;min-height:max(60px,3.9em);border-bottom:1px solid var(--border)}
+.start .rm{flex:1;min-width:0}
+.start .pbtn{min-height:var(--t);padding:0 14px;font-size:.88em}
+.mrows .rb.danger .nm{color:var(--danger)}
+
+/* sheets: a person, an invite, a rule picker. In place over the page, never a new page */
+.sheet{position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;justify-content:flex-end}
+.sheet[hidden]{display:none}
+.scrim{position:absolute;inset:0;background:var(--dim);border:0;padding:0;cursor:pointer}
+.sh{position:relative;max-height:92%;display:flex;flex-direction:column;background:var(--bg);border:1px solid var(--border);border-bottom:0;border-radius:var(--r-card) var(--r-card) 0 0}
+.shh{display:flex;align-items:center;gap:8px;min-height:max(56px,3.5em);padding:0 4px 0 16px;border-bottom:1px solid var(--border);flex:none}
+.shh .ttl{flex:1;margin:0;font:700 calc(1.15em * var(--hk)) var(--head);overflow-wrap:anywhere}
+.shh .pbtn{min-height:var(--t);padding:0 14px}
+.shb{overflow-y:auto;overscroll-behavior:contain;padding-bottom:20px}
+
+/* faces (direction C) */
+.faces{display:flex;flex-wrap:wrap;gap:4px 4px;padding:8px 8px 4px}
+.face{display:flex;flex-direction:column;align-items:center;gap:4px;width:25%;min-width:5.2em;flex:1 0 25%;max-width:33%;padding:8px 2px;border:0;background:none;color:var(--fg);cursor:pointer;min-height:max(88px,6em)}
+.face .av{width:3.4em;height:3.4em;font-size:1.05em}
+.face .fn{font-size:.86em;font-weight:700;max-width:100%;overflow-wrap:anywhere;text-align:center;line-height:1.15}
+.face .ft{font-size:.72em;color:var(--muted)}
+.face:focus-visible{outline:3px solid var(--accent);outline-offset:-3px;border-radius:var(--r-ctl)}
+.hhname{display:block;margin:10px 16px 0;padding:6px 12px 8px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--surface)}
+.vals{display:inline-flex;align-items:center;gap:0}
+.vals .av{width:1.7em;height:1.7em;font-size:.78em;border:2px solid var(--bg);margin-left:-.4em}
+.vals .av:first-child{margin-left:0}
+
+/* the note (direction B): sentences with the controls in them */
+.note{padding:6px 16px 4px}
+.note .hh{display:block;width:100%;border:0;background:none;color:var(--fg);font:700 calc(1.5em * var(--hk)) var(--head);padding:6px 0;min-height:var(--t);outline:none;border-bottom:1px solid var(--border)}
+.note .hh:focus-visible{border-bottom-color:var(--accent);outline:none}
+.note p.s{font-size:1.1em;line-height:2.15;margin:6px 0 2px;max-width:none}
+.tk{display:inline;padding:calc((max(44px,2.2em) - 1em) / 2) .08em;border:0;background:none;color:var(--fg);font:700 1em var(--body);cursor:pointer;text-decoration:underline dotted;text-decoration-color:var(--accent);text-decoration-thickness:2px;text-underline-offset:5px;text-align:left;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.tk[aria-expanded=true]{color:var(--accent);text-decoration-style:solid}
+.tk.warn{color:var(--danger);text-decoration-color:var(--danger)}
+.tk:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:3px}
+.dr{margin:6px 0 4px;padding:8px 12px 10px;border:1px solid var(--accent);border-radius:var(--r-card);background:var(--surface);display:flex;flex-direction:column;gap:8px}
+.dr .row2{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-height:var(--t)}
+.dr .row2>.nm{flex:1;min-width:6em}
+.dr .shut{align-self:flex-end}
+
+/* the page around the phones: directions.html */
+.strip{display:flex;gap:16px;overflow-x:auto;padding:6px 2px 16px;align-items:flex-start;scroll-snap-type:x proximity}
+.strip>figure{margin:0;flex:none;scroll-snap-align:start}
+.strip figcaption{font-size:.8em;font-weight:800;margin:0 0 4px;color:var(--muted);letter-spacing:.04em}
+.strip[data-w="360"] .phone{width:360px}
+.strip[data-w="390"] .phone{width:390px}
+.dirhead{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:26px}
+.dirhead h2{margin:0}
+.dirhead b.lt{width:30px;height:30px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:inline-flex;align-items:center;justify-content:center;font-size:15px}
+.recbadge{font:800 .72em var(--body);padding:2px 10px;border-radius:var(--r-pill);border:1px solid var(--sage);color:var(--sage)}
+.bar2{position:sticky;top:0;z-index:30;background:var(--bg);border-bottom:1px solid var(--border);padding:6px 0;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center}
+.bar2 .grp{display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap}
+.bar2 .lbl2{font-size:.7em;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.bar2 button,.tabs a{min-height:44px;padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);font:700 .85em var(--body);color:var(--fg);cursor:pointer;display:inline-flex;align-items:center;text-decoration:none}
+.bar2 button[aria-pressed=true],.tabs a[aria-current=true]{background:var(--accent);border-color:transparent;color:var(--on-accent)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.v{white-space:nowrap;display:inline-block;padding:1px 8px;border-radius:var(--r-pill);font-weight:800;font-size:.8em;border:1px solid var(--border)}
+.v.keep{border-color:var(--sage);color:var(--sage)}.v.cut{border-color:var(--danger);color:var(--danger)}.v.merge{border-color:var(--accent);color:var(--accent)}
+.sum{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+.sum div{border:1px solid var(--border);background:var(--surface);border-radius:var(--r-ctl);padding:10px 14px;min-width:120px}
+.sum b{display:block;font-size:1.5em}.sum span{font-size:.8em;color:var(--muted)}
+body.bare .shk>.tabs,body.bare .shk>.bar2{display:none}
+
+/* additions */
+.phone .ta{display:block;width:100%;margin-top:6px;min-height:max(72px,4.8em);padding:8px 10px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--surface);resize:none;font:500 1em var(--body);color:var(--fg)}
+.phone .ta:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+.sb button.find{font:inherit;text-align:left;cursor:pointer;width:100%}
+.strip[data-w="390"] .phone{height:844px}
+.strip[data-w="360"] .phone{height:640px}
+.tm::-webkit-calendar-picker-indicator{display:none}
+.tm{width:6.6em;text-align:center}
+.area .an{font-weight:600;color:var(--muted);font-size:.9em}
+
+.shk.wide{max-width:1180px}
+.sm2{font-size:.88em;color:var(--muted)}.sm2 b{color:var(--fg)}

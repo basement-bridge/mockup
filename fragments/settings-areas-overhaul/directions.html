@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Settings, the other areas, A B C — fragment</title>
+<link rel="stylesheet" href="../../theme.css"><script src="../../theme.js"></script><link rel="stylesheet" href="../../shared.css"><link rel="stylesheet" href="../settings-shakeup/shake.css"><link rel="stylesheet" href="areas.css">
+</head>
+<body data-no-theme-fab><div class="wrap shk wide">
+<div class="top"><a class="back" href="../../">&lsaquo; All mockups</a><h1>Settings, the other areas: three directions<span class="badge">for the owner to choose</span></h1></div>
+
+<div class="own"><b>Owner, 24 Oct 2026</b> (Kitchie <a href="https://github.com/basement-bridge/kitchie/issues/1110">#1110</a>, <a href="https://github.com/basement-bridge/kitchie/issues/1090">#1090</a>): the front of Settings is built and chosen (<a href="../settings-shakeup/">settings-shakeup</a>). The other areas still feel &ldquo;Java ME like&rdquo;: too many nested menus and lists. Shortcuts must be the control itself. Radically simpler. This page is an overhaul of everything under the front: the profile menu, Household, the profile (my name and picture), invite, Preferences, Kitchen setup and Assistants. Phone only. Not built; nothing here is approved for build.</div>
+
+<p><b>Three directions, every screen, both widths, light and dark, text to +30%.</b> Each direction below shows every area it has, playable. The front is the chosen design, drawn still, only so the taps from it can be counted. What stands from the chosen design is kept: the control is the shortcut (a switch, a stepper, two times, in the row itself), double tap resets to the default, no pills, no counts, no explainer lines, 44px targets, search reaches everything (search is as decided and is not redrawn here). One phone at a time to play: <a href="./?o=A" style="text-decoration:underline">A</a>, <a href="./?o=B" style="text-decoration:underline">B</a>, <a href="./?o=C" style="text-decoration:underline">C</a>.</p>
+
+<div class="bar2" role="group" aria-label="Mockup aids">
+  <span class="grp"><span class="lbl2">Width</span><button type="button" data-w="390" aria-pressed="true">390</button><button type="button" data-w="360" aria-pressed="false">360</button></span>
+  <span class="grp"><span class="lbl2">Text</span><button type="button" data-ts="0" aria-pressed="true">Match my phone</button><button type="button" data-ts="3" aria-pressed="false">+30%</button></span>
+  <span class="grp"><span class="lbl2">Look</span><button type="button" data-look="dark" aria-pressed="true">Dark</button><button type="button" data-look="light" aria-pressed="false">Light</button></span>
+</div>
+
+<h2 class="sec">What exists today, and where each thing goes</h2>
+<p>Read from Kitchie <code>uat</code> (<code>857b39e</code>): <code>profile-menu.ts</code>, <code>people-pages.ts</code>, <code>settings-phone.ts</code>, <code>preferences/web-page.ts</code>, <code>page-dials.ts</code>, <code>phone.ts</code>, <code>assistant-connect.ts</code>, <code>profile-assistant.ts</code>. About 24 screens are reachable below the Settings front today (menu, Looks, Household, Me, Picture, Remove confirm, Leave confirm, Left, Preferences Mine, Preferences Household, a Housemate page, two picker pages, Members and admins, Kitchen setup, Categories, Locations, Sample items sheet, an AI panel for each assistant, How to link, Revoke confirm, Kitchen role, Invite to a household of their own). Every row of this table is placed in all three directions; none is dropped except where it says so.</p>
+<div class="tblwrap"><table class="tbl" data-cover><thead><tr><th>Thing</th><th>Today</th><th>A. Flat pages</th><th>B. One note</th><th>C. Faces</th></tr></thead><tbody>
+<tr class="scr"><th colspan="5">Profile menu</th></tr>
+<tr><td>The avatar menu</td><td>About 11 rows: Get started, Settings, History, Install, Preferences, Me, Household, Download CSV, Sign out</td><td>Your face, Invite someone with Copy link in the row (Get started), Settings, History, Sign out</td><td>Same as A</td><td>Same, and your face opens your sheet</td></tr>
+<tr class="scr"><th colspan="5">Household and people</th></tr>
+<tr><td>Household name</td><td>A heading with a pencil, a name box under it</td><td>A field at the top of Household</td><td>The heading of the note; type in it</td><td>A field at the top of Household</td></tr>
+<tr><td>Members</td><td>List; tap one to reach a Remove confirm page</td><td>Rows; tap one to open it in place</td><td>Their names in the first sentence</td><td>Faces</td></tr>
+<tr><td>Members and admins</td><td>A page of its own, reached from Preferences</td><td>An Admin switch on the person&rsquo;s row</td><td>The same switch in the person&rsquo;s drawer</td><td>The same switch on the person&rsquo;s sheet</td></tr>
+<tr><td>Remove a member</td><td>Confirm page</td><td>Remove, then Remove or Keep in place</td><td>Same, in the drawer</td><td>Same, on the sheet</td></tr>
+<tr><td>Pending invites</td><td>Rows with Cancel</td><td>A row with Cancel</td><td>&ldquo;One invite is waiting; cancel it.&rdquo;</td><td>A dashed face</td></tr>
+<tr><td>Invite to join</td><td>Invite someone, a post, then a page with the link and an explainer</td><td>Join us, then Copy invite link, one press</td><td>The words Invite someone copy the link in one tap</td><td>The plus face; its sheet has Copy invite link</td></tr>
+<tr><td>Invite to a household of their own</td><td>A row on Me</td><td>The second choice of the same two-way control</td><td>Same control in the drawer</td><td>Same control on the sheet</td></tr>
+<tr><td>Leave household</td><td>Danger zone, then a page that asks for your name</td><td>Foot of You; asks in place, you type your name</td><td>The last sentence; asks in place</td><td>Foot of your sheet; asks in place</td></tr>
+<tr><td>Removals list</td><td>A list on Household</td><td>Gone: History says who removed whom</td><td>Gone</td><td>Gone</td></tr>
+<tr><td>History</td><td>Menu row</td><td>A row at the foot of Household, and the menu</td><td>&ldquo;See what changed&rdquo;, and the menu</td><td>A row at the foot of Household, and the menu</td></tr>
+<tr class="scr"><th colspan="5">You</th></tr>
+<tr><td>My name</td><td>Me page; saves as you type</td><td>You page: a field</td><td>Tap your name in the first sentence</td><td>Your sheet: a field</td></tr>
+<tr><td>My picture</td><td>A page of twelve pictures</td><td>Tap the big picture; one sideways row opens in place</td><td>Same, in your drawer</td><td>Same, on your sheet</td></tr>
+<tr><td>Kitchen role</td><td>A page of its own</td><td>A row that opens its chips in place</td><td>Same, in your drawer</td><td>Same, on your sheet</td></tr>
+<tr><td>Download my data</td><td>Menu row, CSV</td><td>A row on You</td><td>A word in the last sentence</td><td>A row on your sheet</td></tr>
+<tr><td>Install</td><td>Menu row, only where the phone can install</td><td>A row on You, same rule</td><td>A word in the last sentence, same rule</td><td>A row on your sheet, same rule</td></tr>
+<tr><td>Sign out</td><td>Menu row</td><td>Menu, and a row on You</td><td>Menu, and a word in the last sentence</td><td>Menu, and a row on your sheet</td></tr>
+<tr class="scr"><th colspan="5">Preferences</th></tr>
+<tr><td>Mine or Household</td><td>Two tabs, two intro paragraphs, a legend of three chips (You, Household, App)</td><td>One two-way control, Mine or Everyone, at the top</td><td>The words &ldquo;my own&rdquo; or &ldquo;everyone&rsquo;s&rdquo;</td><td>No longer a place: your sheet is yours, Household is everyone&rsquo;s</td></tr>
+<tr><td>Ask me to check amounts</td><td>Row, editor with three choices and a chain line</td><td>A switch in the row; &ldquo;Same as household&rdquo; under it</td><td>The word may or may not; one tap toggles</td><td>A switch, as A</td></tr>
+<tr><td>Quiet hours</td><td>Row, editor with three choices, two time boxes</td><td>Two times in the row, and No quiet hours for me</td><td>Two words (9pm, 7am) open the two times</td><td>As A</td></tr>
+<tr><td>Most suggestions per day</td><td>Row, editor with two choices and a number box</td><td>A stepper in the row</td><td>The number opens a stepper</td><td>As A</td></tr>
+<tr><td>Back to the household&rsquo;s value</td><td>Pick the first choice of the editor</td><td>A text button under the name, and double tap on the row</td><td>Double tap the word, or one button in the scope drawer</td><td>As A</td></tr>
+<tr><td>Food: avoids, likes, swaps</td><td>A card, rows, a picker</td><td>Four lines of chips; tap one to remove, Add to type</td><td>One sentence; each word opens Remove</td><td>As A</td></tr>
+<tr><td>Notes</td><td>Two note cards</td><td>A text box</td><td>The words &ldquo;my notes&rdquo; open it</td><td>A text box</td></tr>
+<tr><td>Housemates</td><td>A group, a page for each, a Someone else accordion</td><td>Rows that open in place; Suggest something</td><td>Their names in a sentence</td><td>Their face sheet</td></tr>
+<tr><td>Rules by place, switched-off stops, two picker pages</td><td>Rows, then picker pages</td><td>One row that expands; Add a rule is one sheet</td><td>One sentence; same sheet</td><td>As A</td></tr>
+<tr><td>Household-only rows (name, Categories, Locations, Recipe stars)</td><td>A card of four rows on the Household tab</td><td>Gone: each lives on its own page. The Recipe stars note is cut</td><td>Gone</td><td>Gone</td></tr>
+<tr class="scr"><th colspan="5">Kitchen setup and Assistants</th></tr>
+<tr><td>Categories</td><td>A page</td><td>Chips on Kitchen setup</td><td>&ldquo;12 categories&rdquo; opens the chips</td><td>Chips on Kitchen setup</td></tr>
+<tr><td>Locations and spots</td><td>A page</td><td>Chips under each place</td><td>&ldquo;3 places&rdquo; opens them</td><td>Chips under each place</td></tr>
+<tr><td>Sample items</td><td>A block and a sheet</td><td>One row, Clear them, only while any remain</td><td>A sentence, only while any remain</td><td>One row, only while any remain</td></tr>
+<tr><td>Claude, ChatGPT, Gemini</td><td>Rows, then a panel page each, then a how-to page</td><td>Three rows on Kitchen setup: Connect or Connected</td><td>Their names in a sentence; each opens its control</td><td>On your sheet (the link acts as you)</td></tr>
+<tr><td>Default assistant</td><td>A form: which app do you use</td><td>A switch on a connected assistant, when two are connected</td><td>The same switch in the drawer</td><td>The same switch</td></tr>
+<tr><td>My own AI link</td><td>A row, a how-to page, a Revoke confirm page</td><td>A row: Make my link, or Revoke, which asks in place</td><td>&ldquo;My own link is not made yet&rdquo;</td><td>A row on your sheet</td></tr>
+<tr><td>Per-tool switch for assistants</td><td>Code only (<code>tool-switch.ts</code>), not a person&rsquo;s setting</td><td>Nothing to draw</td><td>Nothing to draw</td><td>Nothing to draw</td></tr>
+</tbody></table></div>
+
+<div class="dirhead"><b class="lt">A</b><h2>A. Flat pages</h2><span class="recbadge">recommended</span></div>
+<p><b>The three doors stay and each becomes one flat page.</b> Household, Preferences, Kitchen setup (Assistants inside it), plus You under Household. Every setting is a control in its own row: a switch, a stepper, two times, chips you tap. Nothing opens another page except a small sheet to add a rule. Mine or Everyone is one two-way control. This is mostly deletion and merging of what UAT already has.</p>
+<p class="sm2"><b>Front rows:</b> unchanged (three). <b>Screens below the front:</b> 4 pages and 1 sheet. <b>Trade-off:</b> still a list of rows, so it is the least different from today; Preferences is long (about two screens) because it keeps every setting.</p>
+<div class="strip" id="strip-A" data-w="390"></div>
+
+<div class="dirhead"><b class="lt">B</b><h2>B. One note</h2></div>
+<p><b>One door, &ldquo;Our kitchen&rdquo;, and a short note in plain sentences.</b> The underlined words are the controls, the same pattern as the History search sentence: &ldquo;Kitchie may ask me to check amounts, never between 9pm and 7am, and no more than 5 a day.&rdquo; Tap may and it flips. Tap 9pm and the two times open right under the sentence. No rows, no pages, no tabs.</p>
+<p class="sm2"><b>Front rows:</b> one, which changes the three the owner chose (SR-Q50). <b>Screens below the front:</b> 1 page and 1 sheet. <b>Trade-off:</b> the least to read and the least to learn, but words are a weaker target than a row (at least 44px tall, often narrower than 44px wide), long lists (categories, spots) are hidden behind a word, and wrapping sentences at +30% text run long. Hardest to build well.</p>
+<div class="strip" id="strip-B" data-w="390"></div>
+
+<div class="dirhead"><b class="lt">C</b><h2>C. Faces</h2></div>
+<p><b>Organised by who it is about, not by feature.</b> Household is the household&rsquo;s name, a row of faces and what is true for everyone. Tap a face for that person: your own face holds your name, picture, role, your preferences and your assistants; someone else&rsquo;s holds their food, the admin switch and Remove; the plus face invites. Preferences stops being a place. The sheets open in place over Household.</p>
+<p class="sm2"><b>Front rows:</b> two (Household, Kitchen setup), which changes the three the owner chose. <b>Screens below the front:</b> 2 pages and 4 sheets. <b>Trade-off:</b> the most original and the best fit for &ldquo;my&rdquo; against &ldquo;everyone&rsquo;s&rdquo;, but your sheet is the longest screen of the three, Assistants move away from Kitchen setup (the link acts as you), and nobody finds Preferences by name.</p>
+<div class="strip" id="strip-C" data-w="390"></div>
+
+<h2 class="sec">Compare</h2>
+<div class="tblwrap"><table class="tbl" data-cmp><thead><tr><th>Taps from the Settings front</th><th>Today</th><th>A</th><th>B</th><th>C</th></tr></thead><tbody>
+<tr><td>1. Copy the invite link</td><td class="n">3</td><td class="n" data-tap="A-1">2</td><td class="n" data-tap="B-1">2</td><td class="n" data-tap="C-1">3</td></tr>
+<tr><td>2. Reach my name to edit it</td><td class="n">4</td><td class="n" data-tap="A-2">3</td><td class="n" data-tap="B-2">3</td><td class="n" data-tap="C-2">3</td></tr>
+<tr><td>3. Turn quiet hours off for me</td><td class="n">3</td><td class="n" data-tap="A-3">2</td><td class="n" data-tap="B-3">3</td><td class="n" data-tap="C-3">3</td></tr>
+<tr><td>4. Raise most suggestions per day by one</td><td class="n">4 and typing</td><td class="n" data-tap="A-4">2</td><td class="n" data-tap="B-4">3</td><td class="n" data-tap="C-4">3</td></tr>
+<tr><td>5. Connect ChatGPT</td><td class="n">3</td><td class="n" data-tap="A-5">2</td><td class="n" data-tap="B-5">3</td><td class="n" data-tap="C-5">3</td></tr>
+<tr><td>6. Start adding a category</td><td class="n">3</td><td class="n" data-tap="A-6">2</td><td class="n" data-tap="B-6">3</td><td class="n" data-tap="C-6">2</td></tr>
+<tr><td>7. Remove a person (asks first)</td><td class="n">3</td><td class="n" data-tap="A-7">4</td><td class="n" data-tap="B-7">4</td><td class="n" data-tap="C-7">4</td></tr>
+</tbody><tbody>
+<tr class="scr"><th colspan="5">Shape</th></tr>
+<tr><td>Screens below the front</td><td class="n">about 24</td><td class="n">5 (4 pages, 1 sheet)</td><td class="n">2 (1 page, 1 sheet)</td><td class="n">6 (2 pages, 4 sheets)</td></tr>
+<tr><td>Deepest level below the front</td><td class="n">3</td><td class="n">2</td><td class="n">2</td><td class="n">2</td></tr>
+<tr><td>Rows on the front</td><td class="n">3</td><td class="n">3</td><td class="n">1</td><td class="n">2</td></tr>
+<tr><td>Controls on the busiest page&rsquo;s first screen (390 by 844)</td><td class="n">not counted</td><td class="n" data-ctrl="A">16</td><td class="n" data-ctrl="B">23</td><td class="n" data-ctrl="C">14</td></tr>
+</tbody></table></div>
+<p>Taps are counted by <code>tools/settings-areas-overhaul-check.mjs</code>, which plays each sequence on the phone and checks where it ends. The Today column is read from the code (<b>F</b>), not played: <i>Today</i> for job 2 is Back, the avatar, Me, the name box, because Me is only on the profile menu. Honest reading: taps barely change. What drops is what must be read and built, and the number of screens. Removing a person costs one more tap than today in all three because the confirm now sits in place under the person, not on a page of its own.</p>
+
+<h2 class="sec">Recommendation: A</h2>
+<ul>
+<li><b>Why A.</b> It is the only direction that keeps the owner&rsquo;s three decided rows and still removes what he disliked: no tabs, no editor that opens inside a row, no Members and admins page, no Housemate pages, no picker pages, no Kitchen sub pages, no AI panel pages. Its controls are the plain ones he already approved on the front (a switch, a stepper, a row). It is the best fit for his vision needs: rows are big, steady targets that scale with the text. And it is mostly deletion and merging of what UAT already has, so it is the cheapest and safest to build.</li>
+<li><b>What it gives up.</b> It is still rows. If he finds A still &ldquo;Java ME&rdquo;, the next step is not B or C wholesale but B&rsquo;s sentence for the Preferences page only (the heaviest page), with A everywhere else.</li>
+<li><b>Why not B.</b> It is the boldest, but words are small, wandering targets for someone who needs strong contrast and large targets, long lists hide behind a word, and it changes the three rows he chose. Worth playing before dismissing.</li>
+<li><b>Why not C.</b> It is the best idea about <i>my</i> against <i>everyone&rsquo;s</i> and it may be where the product goes with more households, but it dissolves Preferences, which he chose to keep as a row, and it makes your sheet the longest screen. Borrow its idea if people multiply: faces on Household.</li>
+</ul>
+
+<h2 class="sec">Proposals (SR-P45 to SR-P57) and open questions (SR-Q52 to SR-Q57)</h2>
+<p>Next numbers continue from the knowledge note. All are <b>Proposals</b> or questions awaiting the owner; wrong-guess cost in brackets.</p>
+<ul>
+<li><b>SR-P45.</b> (all) The profile menu is your face, Invite someone with Copy link in its row while you are new (the Get started strip), Settings, History, Sign out. Preferences, Me, Household, Install and Download my data leave the menu and live on Settings. (Low: a menu shortens.)</li>
+<li><b>SR-P46.</b> (all) Invite is one two-way control, Join us or Their own, and one press makes and copies the link. &ldquo;Invite to a household of their own&rdquo; stops being a second entry on Me. (Low: one control.)</li>
+<li><b>SR-P47.</b> (all) The Admin switch sits on the person; there is no Members and admins page. Remove asks in place, Remove or Keep. (Medium: removing someone is serious; the confirm stays, one tap shorter than a page.)</li>
+<li><b>SR-P48.</b> (all) The Removals list is dropped; History already says who removed whom. (Low.)</li>
+<li><b>SR-P49.</b> (all) Mine falls back to the household&rsquo;s value, then Kitchie&rsquo;s, shown as a quiet &ldquo;Same as household&rdquo; under the name. A value that is yours says &ldquo;Yours. Use the household&rsquo;s&rdquo; as one button, and double tap on the row does the same (DESIGN.md section 8). The two intro paragraphs and the three-chip legend are dropped. (Low: copy.)</li>
+<li><b>SR-P50.</b> (all) &ldquo;None&rdquo; for quiet hours is one text button, No quiet hours for me, not a third choice in an editor. (Low.)</li>
+<li><b>SR-P51.</b> (A, B) Mine or Everyone is one two-way control, or one word in B. The word is Everyone, not Household, because it sits next to Mine. (Low: one word.)</li>
+<li><b>SR-P52.</b> (all) Rules by place and the switched-off stops are one expanding row; the two picker pages become one sheet with three choices: where, level, how often. (Medium: the existing picker searches items; a sheet of three choices is shorter but needs the item search added back when a household has hundreds of items.)</li>
+<li><b>SR-P53.</b> (all) The picture row and the kitchen role chips open in place. (Low.)</li>
+<li><b>SR-P54.</b> (all) Default assistant is a switch on a connected assistant, shown only when two or more are connected. (Low.)</li>
+<li><b>SR-P55.</b> (all) Leave household sits at the foot of You (A), the last sentence (B), the foot of your sheet (C), with no &ldquo;Danger zone&rdquo; label, and is also found by search. The chosen design had it search-only; this puts a plain way to it on the page for you, not on Household. (Low: one row; set back to search-only if he wants.)</li>
+<li><b>SR-P56.</b> (B, C) B shows one row on the front (Our kitchen), C two (Household, Kitchen setup). Both reopen SR-Q50, which the owner decided as three rows. (Medium: the front he approved changes.)</li>
+<li><b>SR-P57.</b> (B) Words in a sentence are at least 44px tall and may be narrower than 44px wide (the inline exception in WCAG 2.5.8; the owner&rsquo;s own rule is 44px both ways). (Medium: with his vision, this is B&rsquo;s main risk.)</li>
+<li><b>SR-Q52.</b> Which direction for the other areas: A (recommended), B or C? A wrong guess costs a rebuild of these pages only; the front stays.</li>
+<li><b>SR-Q53.</b> Does Preferences stay a place (A, B) or dissolve into faces (C)? Recommend it stays: he chose it as a row.</li>
+<li><b>SR-Q54.</b> Should the front keep its three rows (A) or change (B one, C two)? Recommend keep.</li>
+<li><b>SR-Q55.</b> Is a confirm in place enough for Remove, with the typed name kept for Leave? Recommend yes. A wrong guess is a mistaken removal; it is undone by an invite.</li>
+<li><b>SR-Q56.</b> Do Assistants stay in Kitchen setup (A, B) or go on your own face (C), since the link acts as you? Recommend stay: he chose it (SR-Q50).</li>
+<li><b>SR-Q57.</b> Is Install, as a row only where the phone can install, enough, with search as the other door? Recommend yes.</li>
+</ul>
+
+<h2 class="sec">Loads</h2>
+<p>Default path: <code>theme.css</code>, <code>theme.js</code>, <code>shared.css</code>, <code>../settings-shakeup/shake.css</code> (the chosen front&rsquo;s styles, reused so the areas lift with it), <code>areas.css</code>, <code>areas.js</code>. No search engine, no index and no other theme file load: the front is drawn still and search is not part of this page. Every change happens in place (a row opens, a sheet slides over the page, a chip becomes an editor); no page loads when a control, a row or a sheet is used.</p>
+
+<h2 class="sec">Checked, and what is not</h2>
+<p><code>tools/settings-areas-overhaul-check.mjs</code> (headless Chromium) plays every screen of A, B and C at 390 by 844 and 360 by 640, light and dark, at Match my phone and +30%: no console error, no sideways scroll, nothing wider than the phone, every control at least 44px tall (words in B exempt in width), each tap sequence of the table above, the behaviour of every control (switch, stepper, times, chips, picture, role, invite kind, remove, leave, connect, default, link), that this page&rsquo;s numbers equal the played numbers, that the table covers every area in all three, no hex colour in <code>areas.css</code>, the note and the review queue.</p>
+<p><b>Not verified:</b> a real phone; a screen reader (the tokens in B are buttons in running text, which reads differently); the Pages URL (it cannot be fetched from the authoring session, egress is blocked); native time pickers (the mockup uses the browser&rsquo;s own); the copy to clipboard (the link is also shown); how the real Kitchie server handles a household with many members or hundreds of categories (a few sample entries are drawn).</p>
+</div>
+<script src="areas.js"></script>
+<script>
+(function () {
+  var A = window.AREAS, strips = {};
+  ["A", "B", "C"].forEach(function (o) {
+    var el = document.getElementById("strip-" + o); strips[o] = el;
+    A.DIRS[o].screens.forEach(function (s) {
+      var fig = document.createElement("figure"), cap = document.createElement("figcaption"), host = document.createElement("div");
+      cap.innerHTML = s[1]; fig.appendChild(cap); fig.appendChild(host); el.appendChild(fig);
+      A.make(host, o, s[0]);
+    });
+  });
+  function press(attr, val, fn) {
+    var bs = document.querySelectorAll(".bar2 [" + attr + "]");
+    Array.prototype.forEach.call(bs, function (b) { b.addEventListener("click", function () { Array.prototype.forEach.call(bs, function (x) { x.setAttribute("aria-pressed", String(x === b)); }); fn(b.getAttribute(attr)); }); });
+  }
+  press("data-w", 0, function (w) { Object.keys(strips).forEach(function (o) { strips[o].setAttribute("data-w", w); }); });
+  press("data-ts", 0, function (n) { A.setScale(+n); });
+  press("data-look", 0, function (v) { A.pickTheme(v === "light" ? "kitchie-day" : "kitchie"); });
+  var cur = document.documentElement.getAttribute("data-theme") === "kitchie-day" ? "light" : "dark";
+  Array.prototype.forEach.call(document.querySelectorAll("[data-look]"), function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-look") === cur)); });
+  var q = new URLSearchParams(location.search);
+  if (q.get("w") === "360") { document.querySelector("[data-w='360']").click(); }
+  if (q.get("ts") === "3") { document.querySelector("[data-ts='3']").click(); }
+  document.body.setAttribute("data-ready", "1");
+})();
+</script>
+</body></html>

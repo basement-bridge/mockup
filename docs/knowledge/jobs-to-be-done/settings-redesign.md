@@ -219,6 +219,51 @@ Mockup: `fragments/settings-shakeup/` (live: <https://basement-bridge.github.io/
 
 `tools/settings-shakeup-check.mjs` covers the chosen design at 390 by 844 and 360 by 640, light and dark, +30% text, with no error and no sideways scroll; the rotary swipe, tap and keys; the stepper's seven steps and double-tap reset; the pinned layouts for 0 to 3; long-hold reorder; the Looks pins; the search states (examples, last three, best match, Go there, no match, typo, "my name" landing on You); no pills, counts or labels; editing your name; and the first audit's A, B, C page. Not tried on a real phone or with a screen reader.
 
+## Settings, the other areas: three directions, 24 Oct 2026 (Kitchie #1110, #1090)
+
+Mockup: `fragments/settings-areas-overhaul/` (live: <https://basement-bridge.github.io/mockup/fragments/settings-areas-overhaul/>; `?o=A|B|C`, `&p=<screen>`, `&ts=3`, `&bare=1`; all three and every screen on `directions.html`). Phone only. Check: `tools/settings-areas-overhaul-check.mjs`. Nothing built, nothing approved for build. The Pages URL could not be fetched from the authoring session (egress blocked), so the live page is unchecked; the pages were run in headless Chromium.
+
+**Owner ask (voice, via the coordinating session).** An overall overhaul of the other areas of the phone Settings and profile menu, everything under the front (search, quick controls, pinned area, theme rotary, text-size stepper stay as built): Household, Preferences, Assistants, the profile ("my name and picture"), invite, Kitchen setup, and anything else reachable from /settings. They still feel "Java ME like": too many nested menus and lists; shortcuts must be the control itself; radically simpler.
+
+**What was read.** Kitchie `uat` 857b39e (`profile-menu.ts`, `people-pages.ts`, `settings-phone.ts`, `preferences/web-page.ts`, `page-dials.ts`, `phone.ts`, `assistant-connect.ts`, `profile-assistant.ts`, `tool-switch.ts`). About 24 screens sit below the front today. The full inventory (32 things, each placed in A, B and C) is the table on `directions.html`. The per-tool switch for assistants is code only and has nothing to draw.
+
+**The three directions** (all keep the chosen design's rules: the control is the shortcut, double tap resets, no pills or counts or explainer lines, 44px targets, text to +30%):
+
+- **A. Flat pages (recommended).** The three doors stay; each is one flat page (Household with You under it, Preferences, Kitchen setup with Assistants). Every setting is a control in its own row. Mine or Everyone is one two-way control. Four pages and one sheet (Add a rule).
+- **B. One note.** One front row, Our kitchen: a note in plain sentences whose underlined words are the controls (the History search sentence pattern). One page and one sheet.
+- **C. Faces.** By who, not by feature: Household is the household's name, a row of faces and what is true for everyone; tap a face for that person (yours holds your name, picture, preferences, assistants). Preferences stops being a place. Two front rows (Household, Kitchen setup). Two pages and four sheets.
+
+**Taps from the front (played by the check; Today read from code).** 1 copy the invite link: today 3, A 2, B 2, C 3. 2 reach my name: 4, 3, 3, 3. 3 quiet hours off for me: 3, 2, 3, 3. 4 one more suggestion per day: 4 and typing, 2, 3, 3. 5 connect ChatGPT: 3, 2, 3, 3. 6 start adding a category: 3, 2, 3, 2. 7 remove a person (asks first): 3, 4, 4, 4. Taps barely change; what drops is what is read and built. First screen of the busiest page: A 16 controls (Preferences), B 23 (the note), C 14 (Household).
+
+**Recommendation: A.** The only direction that keeps the three decided rows and still removes what he disliked (tabs, editors inside rows, Members and admins, Housemate and picker pages, Kitchen sub pages, AI panel pages); steady, large targets that scale with text for his vision needs; mostly deletion and merging of what UAT has, so cheapest and safest. **Gives up:** still rows; if he finds A still "Java ME", try B's sentence for the Preferences page only. **Not B:** words are small wandering targets (at least 44px tall, often narrower than 44px wide), long lists hide behind a word, and it changes the three rows. **Not C:** dissolves Preferences, and your sheet is the longest screen; keep its idea (faces) for when households grow.
+
+### Proposals (SR-P45 to SR-P57, awaiting the owner; wrong guess cost in brackets)
+
+- **SR-P45.** (all) The profile menu is your face, Invite someone with Copy link in its row while you are new, Settings, History, Sign out. Preferences, Me, Household, Install and Download my data leave the menu. (Low.)
+- **SR-P46.** (all) Invite is one two-way control, Join us or Their own, and one press makes and copies the link; "invite to a household of their own" stops being a second entry on Me. (Low.)
+- **SR-P47.** (all) The Admin switch sits on the person; no Members and admins page. Remove asks in place, Remove or Keep. (Medium: serious action; one tap shorter than a page.)
+- **SR-P48.** (all) The Removals list is dropped; History says who removed whom. (Low.)
+- **SR-P49.** (all) Mine falls back to the household's value, then Kitchie's, shown as a quiet "Same as household"; a value that is yours says "Yours. Use the household's" as one button, and double tap on the row does the same. The two intro paragraphs and the three-chip legend are dropped. (Low.)
+- **SR-P50.** (all) "None" for quiet hours is one text button, No quiet hours for me. (Low.)
+- **SR-P51.** (A, B) Mine or Everyone is one two-way control (one word in B); the word is Everyone, not Household. (Low.)
+- **SR-P52.** (all) Rules by place and switched-off stops are one expanding row; the two picker pages become one sheet (where, level, how often). (Medium: item search must return for households with hundreds of items.)
+- **SR-P53.** (all) The picture row and the kitchen role chips open in place. (Low.)
+- **SR-P54.** (all) Default assistant is a switch on a connected assistant, shown when two or more are connected. (Low.)
+- **SR-P55.** (all) Leave household sits at the foot of You (A), the last sentence (B), the foot of your sheet (C), no "Danger zone" label, also found by search; the chosen design had it search-only. (Low.)
+- **SR-P56.** (B, C) B shows one front row, C two; both reopen SR-Q50 (three rows, decided). (Medium.)
+- **SR-P57.** (B) Words in a sentence are at least 44px tall and may be narrower than 44px wide (WCAG 2.5.8 inline exception; his own rule is 44px both ways). (Medium: his vision; B's main risk.)
+
+### Questions (SR-Q52 to SR-Q57, each with a recommendation)
+
+- **SR-Q52.** Which direction for the other areas? Recommend A. A wrong guess costs a rebuild of these pages only.
+- **SR-Q53.** Does Preferences stay a place (A, B) or dissolve into faces (C)? Recommend it stays.
+- **SR-Q54.** Keep the three front rows (A) or change (B one, C two)? Recommend keep.
+- **SR-Q55.** Is a confirm in place enough for Remove, with the typed name kept for Leave? Recommend yes.
+- **SR-Q56.** Do Assistants stay in Kitchen setup (A, B) or go on your own face (C)? Recommend stay (he chose it, SR-Q50).
+- **SR-Q57.** Is Install as a row only where the phone can install, plus search, enough? Recommend yes.
+
+**Checked.** The check plays every screen of A, B and C at 390 by 844 and 360 by 640, light and dark, Match my phone and +30% (no error, no sideways scroll, nothing wider than the phone, controls 44px; words in B exempt in width), each control's behaviour, the seven tap sequences, and that `directions.html` prints those numbers. **Not verified:** a real phone, a screen reader (B's words are buttons in running text), the live Pages URL, the browser's own time picker, clipboard copy, a household with many members or hundreds of categories.
+
 ## Option E: curated front, pinned shortcuts, search for everything (recommended default)
 
 `fragments/settings-redesign/` (E is first on the page). Phone: Settings (search, Shortcuts, five rows), Looks page, profile menu. Desktop: the Settings window with the sample screens at the right. A 17-state gallery under it. Files: `settings-redesign-e.js`, `settings-redesign-e.css`, and `search-index.js` (deferred).

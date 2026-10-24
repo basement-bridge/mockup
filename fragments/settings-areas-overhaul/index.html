@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Settings, the other areas — fragment</title>
+<link rel="stylesheet" href="../../theme.css"><script src="../../theme.js"></script><link rel="stylesheet" href="../../shared.css"><link rel="stylesheet" href="../settings-shakeup/shake.css"><link rel="stylesheet" href="areas.css">
+</head>
+<body data-no-theme-fab><div class="wrap shk">
+<div class="top"><a class="back" href="../../">&lsaquo; All mockups</a><h1>Settings, the other areas<span class="badge">three directions</span></h1></div>
+<nav class="tabs" aria-label="Direction"><a href="?o=A" data-o="A">A. Flat pages</a><a href="?o=B" data-o="B">B. One note</a><a href="?o=C" data-o="C">C. Faces</a><a href="directions.html">All three, every screen</a></nav>
+
+<div class="bar" role="group" aria-label="Mockup aids">
+  <label><span>Screen</span><select id="st-screen" aria-label="Screen"></select></label>
+  <label><span>Width</span><select id="st-w" aria-label="Width"><option value="390">390</option><option value="360">360</option></select></label>
+  <label><span>Text</span><select id="st-ts" aria-label="Text size"><option value="0">Match my phone</option><option value="3">+30%</option></select></label>
+  <label><span>Look</span><select id="st-look" aria-label="Light or dark"><option value="dark">Dark</option><option value="light">Light</option></select></label>
+</div>
+
+<div id="stage" class="stage"><div class="host"></div></div>
+
+<p id="pitch"></p>
+<p><b>Play it.</b> Everything on the phone works: switches, steppers, times, chips, the picture row, the invite link, remove and leave (each asks in place), connect and disconnect. Double tap a row that is yours to go back to the household&rsquo;s value. The Settings front above the areas is the chosen design, drawn still, only so the taps from it can be counted. <a href="directions.html">The three side by side, every screen, is on directions.html</a>, with what exists today, the recommendation and the open questions.</p>
+</div>
+<script src="areas.js"></script>
+<script>
+(function () {
+  var q = new URLSearchParams(location.search), A = window.AREAS;
+  var o = (q.get("o") || "A").toUpperCase(); if (!A.DIRS[o]) o = "A";
+  if (q.get("bare")) document.body.classList.add("bare");
+  var host = document.querySelector("#stage .host"), ph = null;
+  var PITCH = {
+    A: "<b>A. Flat pages.</b> The three doors stay (Household, Preferences, Kitchen setup). Each opens one flat page where every setting is a control in its own row: a switch, a stepper, two times, chips you tap to change. No tabs, no editors that open another page, no &ldquo;Members and admins&rdquo; page. Mine or Everyone is one two-way control at the top of Preferences.",
+    B: "<b>B. One note.</b> One door, &ldquo;Our kitchen&rdquo;. It opens a short note written in plain sentences whose underlined words are the controls (the History search sentence pattern): &ldquo;Kitchie may ask me to check amounts, never between 10pm and 6am, and no more than 3 a day.&rdquo; Tap a word and its control opens right under it.",
+    C: "<b>C. Faces.</b> Organised by who, not by feature. Household is a row of faces and the household&rsquo;s own defaults; tap a face for that person (your own face holds your name, picture, preferences and assistants). Preferences stops being a place. Two doors on the front: Household and Kitchen setup."
+  };
+  document.querySelector("#pitch").innerHTML = PITCH[o];
+  Array.prototype.forEach.call(document.querySelectorAll(".tabs a[data-o]"), function (a) { if (a.getAttribute("data-o") === o) a.setAttribute("aria-current", "true"); });
+  var sel = document.querySelector("#st-screen");
+  sel.innerHTML = A.DIRS[o].screens.map(function (s) { return '<option value="' + s[0] + '">' + s[1] + "</option>"; }).join("");
+  function mount(preset) {
+    if (ph) A.drop(ph);
+    ph = A.make(host, o, preset || "front");
+    document.body.setAttribute("data-ready", "1");
+  }
+  var p0 = q.get("p") || "front";
+  if (A.DIRS[o].screens.some(function (s) { return s[0] === p0; })) sel.value = p0; else if (!A.DIRS[o].pages[p0.split(/[+@]/)[0]]) p0 = "front";
+  var ts = q.get("ts") === "3" ? 3 : 0; A.setScale(ts); document.querySelector("#st-ts").value = String(ts);
+  mount(p0);
+  if (q.get("scope") === "hh") { ph.S.scope = "hh"; ph.draw(); }
+  var w = q.get("w") === "360" ? "360" : "390"; document.querySelector("#st-w").value = w; host.style.width = w + "px";
+  sel.addEventListener("change", function () { mount(sel.value); });
+  document.querySelector("#st-w").addEventListener("change", function (e) { host.style.width = e.target.value + "px"; });
+  document.querySelector("#st-ts").addEventListener("change", function (e) { A.setScale(+e.target.value); });
+  var look = document.querySelector("#st-look");
+  function curLook() { return document.documentElement.getAttribute("data-theme") === "kitchie-day" ? "light" : "dark"; }
+  look.value = curLook();
+  look.addEventListener("change", function (e) { A.pickTheme(e.target.value === "light" ? "kitchie-day" : "kitchie"); });
+})();
+</script>
+</body></html>
