@@ -10,6 +10,7 @@
 <div class="bar" role="group" aria-label="Mockup aids: jump to any state">
   <label><span>Screen</span><select id="st-screen" aria-label="Screen"><option value="front">Menu</option><option value="looks">Looks</option><option value="household">Household</option><option value="you">You</option><option value="preferences">Preferences</option><option value="kitchen">Kitchen setup</option><option value="assistants">Assistants</option></select></label>
   <label><span>Search</span><select id="st-search" aria-label="Search"><option value="off">Off</option><option value="examples">Empty: examples</option><option value="last3">Empty: last 3</option><option value="results">Results</option><option value="goto">Go there</option><option value="nomatch">No match</option><option value="custom" disabled>Your own</option></select></label>
+  <label><span>History count</span><select id="st-hist" aria-label="History count"><option value="0">0 (hidden)</option><option value="3" selected>3</option><option value="12">12</option><option value="99">99</option><option value="100">100 (99+)</option></select></label>
   <label><span>Pinned controls</span><select id="st-pins" aria-label="Pinned controls"><option value="0">0</option><option value="1">1: full row</option><option value="2" selected>2: share</option><option value="3">3: chips</option></select></label>
 </div>
 
@@ -21,6 +22,7 @@
 <li><b>Search is the menu&rsquo;s first item</b>: the same search as Settings search (best match, rows, last three searches). The <i>Settings</i> entry that hid it is gone.</li>
 <li><b>The quick controls come with it</b>: text size, theme, bell, as pinned. Pins, rotary and stepper work as before.</li>
 <li><b>The settings rows sit directly under</b>, once each: your name (the profile), Household, Preferences, Assistants.</li>
+<li><b>History shows a quiet count</b> (owner, 25 Oct 2026): the number of changes by others since History was last opened, on the History row, beside the chevron. No red badge, nothing at 0, <i>99+</i> past 99; it clears when History is opened. Install and Download my data are untouched. The History page gets a <i>&lsaquo; Menu</i> Back like the other pages (the mockup has no History screen). <b>Proposal</b>: the count is others&rsquo; changes only (your own are not news), and only ones you may see.</li>
 <li><b>Install, History and Download my data stay their own items</b>, in a second block. Sign out last.</li>
 <li><b>Gone from the menu because they were repeats</b>: Settings, Looks, Kitchen setup with Categories and Locations, the Preferences group, People, Me, the Get started strip. See the tables below.</li>
 <li><b>One search box.</b> The old Settings front&rsquo;s own search is not drawn for a signed-in person: <code>/settings</code> lands on the menu.</li>
@@ -105,6 +107,9 @@
   S.bindBar();
   var pins = q.get("pins"); if (pins !== null && /^[0-3]$/.test(pins)) { S.SH.pins = ["text", "theme", "bell"].slice(0, +pins); }
   var ts = parseInt(q.get("ts") || "0", 10); if (ts) { S.SH.ts = Math.max(-3, Math.min(3, ts)); }
+  S.SH.hist = 3; var hs = document.getElementById("st-hist"), hq = q.get("hist");
+  if (hq !== null && /^\d{1,4}$/.test(hq)) { S.SH.hist = +hq; if (hs && ![].some.call(hs.options, function (o) { return o.value === hq; })) hs.add(new Option(hq, hq)); }
+  if (hs) { hs.value = String(S.SH.hist); hs.addEventListener("change", function () { S.SH.hist = +hs.value; S.phone.draw(); }); }
   S.applyScale();
   var pg = q.get("p"); if (pg) S.phone.goPage(pg); else S.phone.draw();
   if (q.get("q")) S.phone.set(q.get("q"), false);

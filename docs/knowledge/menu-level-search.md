@@ -36,3 +36,7 @@ SR-Q58 Categories and Locations cost 4 taps by browsing (2 by search); keep, or 
 ## Loads
 
 Default path: theme and shared CSS, `../settings-shakeup/shake.css`, `shake.js`, `menu.js`, `menu.css`. Search engine and index deferred to first focus.
+
+## History count (owner, 25 October 2026)
+
+The History row carries a quiet count: how many changes by others, that this person may see, since History was last opened. Placement: on the menu row (the owner answered "on the menu row"; a Proposal default). A plain number beside the chevron in the row's value place, not a filled or red badge; hidden at 0; "99+" past 99; a screen reader hears "New 3". It clears when History is opened. Install and Download my data are untouched. Mockup state switch: "History count" in the bar, or `?hist=N`. The History page gets the standard Back to Menu (the mockup has no History screen). Checked at 390 and 360, light and dark, text +30% (`tools/menu-level-search-check.mjs`).

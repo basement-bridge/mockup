@@ -21,8 +21,10 @@
   };
   var ico = function (n, s) { return '<svg width="' + (s || 20) + '" height="' + (s || 20) + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + PATHS[n] + "</svg>"; };
   var chev = function () { return '<span class="chev">' + ico("chev", 18) + "</span>"; };
+  /* the History row's quiet count: what changed since History was last opened, others' changes the person may see. Number only, "99+" past 99, nothing at 0; a screen reader hears "New" first. */
+  var histText = function () { var n = SH.hist | 0; return n > 99 ? "99+" : n > 0 ? String(n) : ""; };
   function row(a, label, v, icon, extra) {
-    return '<li class="prow" data-row="' + esc(extra && extra.row || label) + '"><button type="button" class="rb' + (extra && extra.cls ? " " + extra.cls : "") + '" data-a="' + a + '">' + (icon ? '<i class="lead" aria-hidden="true">' + ico(icon) + "</i>" : "") + '<span class="nm">' + esc(label) + "</span>" + (v ? '<span class="val">' + esc(v) + "</span>" : "") + (extra && extra.nochev ? "" : chev()) + "</button></li>";
+    return '<li class="prow" data-row="' + esc(extra && extra.row || label) + '"><button type="button" class="rb' + (extra && extra.cls ? " " + extra.cls : "") + '" data-a="' + a + '">' + (icon ? '<i class="lead" aria-hidden="true">' + ico(icon) + "</i>" : "") + '<span class="nm">' + esc(label) + "</span>" + (extra && extra.count && v ? '<span class="val cnt"><span class="sr-only">New </span>' + esc(v) + "</span>" : v ? '<span class="val">' + esc(v) + "</span>" : "") + (extra && extra.nochev ? "" : chev()) + "</button></li>";
   }
   function who() {
     var n = SH.me || "Alex";
@@ -32,9 +34,11 @@
   P.frontHtml = function () {
     return this.pinsHtml() +
       '<ul class="list main" data-curated>' + who() + row("pg:household", "Household", SH.hh, "home") + row("pg:preferences", "Preferences", "Quiet 22:00 to 07:00", "sliders") + row("pg:assistants", "Assistants", "Claude", "spark") + "</ul>" +
-      '<ul class="list tail">' + row("soon:History", "History", "", "clock") + row("soon:Install", "Install", "", "install", { nochev: true }) + row("soon:Download my data", "Download my data", "", "down", { nochev: true }) + "</ul>" +
+      '<ul class="list tail">' + row("soon:History", "History", histText(), "clock", { count: true }) + row("soon:Install", "Install", "", "install", { nochev: true }) + row("soon:Download my data", "Download my data", "", "down", { nochev: true }) + "</ul>" +
       '<ul class="list tail">' + row("soon:Sign out", "Sign out", "", "", { cls: "out", nochev: true }) + "</ul>";
   };
+  /* opening History clears the count (the app does it on the server when the page loads); the mockup has no History screen, so the tap clears it and the toast says where it goes */
+  document.addEventListener("click", function (e) { var b = e.target.closest && e.target.closest('[data-a="soon:History"]'); if (b && (SH.hist | 0) > 0) { SH.hist = 0; var sel = document.getElementById("st-hist"); if (sel) sel.value = "0"; setTimeout(function () { S.phone && S.phone.draw(); }, 0); } }, true);
   var pageHtml = P.pageHtml, hhHtml = P.householdHtml;
   /* Kitchen setup lives inside Household (as built since 0.176): one row at the foot of the Household page */
   P.householdHtml = function () { return hhHtml.call(this) + '<ul class="list"><li class="prow" data-row="Kitchen setup"><button type="button" class="rb" data-a="pg:kitchen"><span class="nm">Kitchen setup</span>' + chev() + "</button></li></ul>"; };

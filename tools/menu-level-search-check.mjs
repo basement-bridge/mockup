@@ -101,6 +101,38 @@ for (const [th, scheme] of [["kitchie", "dark"], ["kitchie-day", "light"]]) {
   await p.context().close();
 }
 
+/* the History count (owner, 25 Oct 2026): a quiet number on the History row; hidden at 0; 99+ past 99; clears on open; fits at 390/360, light/dark, +30% */
+for (const [th, scheme] of [["kitchie", "dark"], ["kitchie-day", "light"]]) {
+  for (const [w, h] of [[390, 844], [360, 640]]) {
+    for (const ts of [0, 3]) {
+      const tag = `history count ${scheme} ${w} ts${ts}`;
+      let p = await open({ theme: th, scheme, w, h, ts, q: "&hist=3" });
+      const hv = p.locator('.phone:not(.static) [data-row="History"]');
+      ok((await hv.locator(".val.cnt").innerText()).replace(/\s+/g, " ").trim() === "New 3" && await hv.locator(".val.cnt").evaluate(n => n.textContent.trim().endsWith("3")), `${tag}: the row shows 3 (a screen reader hears New first)`);
+      ok(await hv.locator(".badge,.dot,[class*=red]").count() === 0 && await hv.locator(".val.cnt").evaluate(n => getComputedStyle(n).backgroundColor === "rgba(0, 0, 0, 0)"), `${tag}: a quiet number, not a filled badge`);
+      ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1) && await hv.locator(".rb").evaluate(n => n.scrollWidth <= n.clientWidth + 1 && n.getBoundingClientRect().height >= 43.5), `${tag}: fits, no sideways scroll, row 44px or more`);
+      ok(await hv.locator(".nm").innerText() === "History" && await hv.locator(".chev").count() === 1, `${tag}: label and chevron unchanged`);
+      for (const other of ["Install", "Download my data"]) ok(await p.locator(`.phone:not(.static) [data-row="${other}"] .val`).count() === 0, `${tag}: ${other} row untouched`);
+      if (shots) await p.screenshot({ path: `${shots}/history-count-${scheme}-${w}x${h}-ts${ts}.png` });
+      await p.context().close();
+    }
+  }
+}
+{
+  let p = await open({ q: "&hist=0" });
+  ok(await p.locator('.phone:not(.static) [data-row="History"] .val').count() === 0, "history count: nothing drawn at 0");
+  await p.context().close();
+  p = await open({ q: "&hist=100" });
+  ok((await p.locator('.phone:not(.static) [data-row="History"] .val.cnt').innerText()).replace(/\s+/g, " ").trim() === "New 99+", "history count: 99+ past 99");
+  await p.context().close();
+  p = await open({ q: "&hist=99" });
+  ok((await p.locator('.phone:not(.static) [data-row="History"] .val.cnt').innerText()).replace(/\s+/g, " ").trim() === "New 99", "history count: 99 shows 99");
+  await p.context().close();
+  p = await open({ q: "&hist=7" });
+  await p.click('.phone:not(.static) [data-a="soon:History"]'); await p.waitForTimeout(150);
+  ok(await p.locator('.phone:not(.static) [data-row="History"] .val').count() === 0, "history count: opening History clears it");
+  await p.context().close();
+}
 /* the page: before and after lists, duplicates, docs */
 {
   const p = await open({});

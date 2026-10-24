@@ -22,3 +22,5 @@
 .mnu ol.cmp{margin:4px 0 12px;padding-left:1.4em}
 .mnu ol.cmp li{margin:2px 0}
 .mnu .gone{text-decoration:line-through;color:var(--muted)}
+/* the History count (kitchie: quiet number on the row, not a badge): the row's own muted value, a little heavier so it reads at +30%, tabular so 9 and 10 do not jump */
+.mnu .phone .rb>.val.cnt{font-weight:700;font-variant-numeric:tabular-nums;color:var(--fg);flex:none}
