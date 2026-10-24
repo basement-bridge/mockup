@@ -173,3 +173,75 @@ Owner direction, 24 October 2026 (Settings, kitchie#1110 and #1090; `fragments/s
 - A gesture is never the only way: every control also works with a single tap or a key, and moves have a keyboard path. A tap straight after a hold or a drag is ignored.
 - A sideways swipe on a rotary (a themed or stepped control that sits in place) turns it; it never moves the page.
 - Use these two in Kitchie, Recipe and Platform before inventing another. Where a screen cannot honour them, say so in its notes. Pantry's swipe rows and the history rotary keep their own, older, rules until the owner folds them in.
+
+## 9. Standing design concerns, phone first (owner, 24 October 2026)
+
+The owner (Arjan; low vision: 44px targets, large text) said these once so he never has to say them again. **He should never need to repeat any of them.** If an agent asks him one of these questions, that is a defect in this file or in the agent's reading of it. Read this section before any UI work; sections 7 and 8 still apply. Phone only unless stated; the desktop window is untouched.
+
+### 9.1 Mobile is not a shrunk desktop
+
+On a phone, communicate with icons, short labels and one clear action per screen or row. Not paragraphs. Everything so far is "too wordy" (example: the Assistants page saying "connected" twice).
+
+**Words budget per element** (over budget means rewrite, not shrink the font):
+
+| Element | Budget |
+|---|---|
+| Screen title | 1-3 words |
+| Row label, button, chip, tab | 3 words max |
+| State | icon or glyph first; one word at most, only if the glyph is not enough |
+| Helper text | none by default; one short line only when it changes a decision |
+| Toast, empty state | one short line, with the next action |
+| Sentence | only where an icon plus state cannot carry the meaning |
+
+Never say the same state twice in one row ("connected / connected").
+
+### 9.2 Jobs to be done, per screen
+
+For each screen write down: what job is this person here to do? For each piece of information: what does it mean to them, and does it change a decision? If not, cut it or demote it (behind a tap, smaller, later). This extends section 1 to every element, not only every screen.
+
+### 9.3 Visual accent and weight
+
+- The **single most important thing per screen** gets the accent colour, the size and the position (top, or under the thumb). One accent per screen; if two things shout, neither is heard.
+- Everything else is quieter, in this order of weight: size, position, then colour.
+- **State is shown as glyph, colour and shape, not words** (on or off, connected, hard or soft, scope). **Never colour alone:** pair colour with a shape or glyph so it survives low vision, colour blindness and dark mode.
+
+### 9.4 Best presentation per kind of information
+
+Choose deliberately, and write the choice and why in the screen's notes.
+
+| Kind of information | Use | Why |
+|---|---|---|
+| On or off | switch | one tap, state visible |
+| A number in a small range | stepper | no keyboard, no typos |
+| One of 2-5 options | segmented control | all visible, one tap |
+| Several of many, or tags | chips | scannable, multi-select |
+| State of a thing | icon plus state | no reading |
+| A set of items | list | scroll, one action per row |
+| A reason, a warning, a consequence | a short sentence | only here is a sentence worth the room |
+
+### 9.5 No duplication
+
+The same thing must not appear in two places in the menu or the app. Examples: Settings is one entry, and Household and Preferences are not also top-level menu items; search belongs at menu level with the settings rows directly under it; Install, History and Download my data stay their own items. Before adding an entry, search the menu for it.
+
+### 9.6 The control is the shortcut
+
+Do not add an edit mode, pencil or reorder button. Double tap resets; a long hold moves (section 8). A gesture is never the only way.
+
+### 9.7 Standing constraints (existing, restated)
+
+44px minimum targets; text size can grow +30% without breaking; no sideways scroll; light and dark; phone-only unless stated; desktop window untouched.
+
+### 9.8 Design review checklist (REQUIRED)
+
+Every item answered, with the reviewer's one-line evidence:
+
+1. **Jobs:** the job is named; each element changes a decision or is cut or demoted.
+2. **Accent:** one most important thing carries the accent, size and position.
+3. **Presentation:** each kind of info uses the right control (9.4), reason noted.
+4. **Words count:** every element within its budget (9.1); no repeated state.
+5. **Duplication:** nothing appears twice in the menu or screen (9.5).
+6. **Targets:** every tap target 44px or more, spaced.
+7. **Text size:** +30% still fits, no clipping, no sideways scroll.
+8. **Dark:** checked in dark; state is not colour alone.
+
+**Rule: a design review is REQUIRED before any UI change merges.** The reviewer is a **separate agent, briefed as a senior mobile UX designer, that did not build the change.** The builder never reviews its own work. **Any UI pull request states the reviewer's verdict in its description** (Pass, Pass with changes done, or Fail, plus the checklist answers). No verdict, no merge. A mockup PR follows the same rule; the product PR that builds a settled mockup cites that verdict.
