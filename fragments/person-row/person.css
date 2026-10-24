@@ -1,0 +1,143 @@
+/* Person row on the phone Menu (kitchie, owner 25 Oct 2026: "too boring"; DESIGN.md 9.10 lean does not mean mean). Theme tokens only (theme.css). The only other colour data are
+   the person's own hue (--ph, set inline from the name) and the three assistant brand tints (--brand-*, hsl, one place). Sizes are in em: the phone sets font-size from --ts (text size),
+   so +30% scales everything. Class names are the ones the build will have: .pr (the person area), .pcard, .pav, .pn, .phh, .roles, .role, .rdots, .ai, .ar, .logo, .lk, .star, .unl, .addai. */
+:root{--ts:1;--brand-claude:hsl(15 63% 58%);--brand-chatgpt:hsl(164 80% 34%);--brand-gemini:hsl(217 89% 60%);--brand-other:var(--muted);--pl-bg:30%;--pl-ink:90%;--pl-ic:72%}
+:root[data-theme=kitchie-day]{--pl-bg:80%;--pl-ink:16%;--pl-ic:30%}
+@media (prefers-color-scheme:light){:root:not([data-theme]){--pl-bg:80%;--pl-ink:16%;--pl-ic:30%}}
+
+/* ---------- the page around the phone ---------- */
+.prw{max-width:680px;font-size:16px}
+.prw h1{font-size:1.35em;margin:0;line-height:1.1}
+.prw h2.sec{font-size:1.15em;margin:26px 0 6px}
+.prw p,.prw li{max-width:70ch;font-size:.92em;color:var(--fg)}
+.prw a{color:var(--accent);text-decoration:underline}
+.top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-height:44px}
+.badge{display:inline-block;padding:2px 10px;margin-left:8px;border-radius:var(--r-pill);border:1px solid var(--accent);color:var(--accent);font-size:.72em;font-weight:800;vertical-align:middle}
+.own{border-left:3px solid var(--accent);padding:2px 0 2px 12px;max-width:70ch;margin:10px 0}
+.bar{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:flex-end;padding:4px 0 8px}
+.bar label{display:flex;flex-direction:column;gap:1px;flex:1 1 7em;min-width:0}
+.bar span{font-size:.7em;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.bar select{min-height:44px;width:100%;padding:0 10px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--surface);font:700 .9em var(--body);color:var(--fg)}
+.stage{display:flex;justify-content:center;margin:2px 0 10px}
+.stage .host{width:390px;max-width:100%}
+.tw{overflow-x:auto}
+table.tt{border-collapse:collapse;width:100%;font-size:.88em;margin:6px 0 12px;min-width:480px}
+table.tt th,table.tt td{border-bottom:1px solid var(--border);padding:6px 8px;text-align:left;vertical-align:top}
+table.tt th{font-size:.78em;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.three{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,18rem),1fr));gap:14px;align-items:start}
+.three .phone{height:760px}
+
+/* ---------- the phone ---------- */
+.phone{position:relative;width:390px;max-width:100%;height:844px;border:1px solid var(--border);border-radius:var(--r-phone);overflow:hidden;background:var(--bg);color:var(--fg);display:flex;flex-direction:column;font-size:calc(16px*var(--ts));font-family:var(--body)}
+.phone [hidden]{display:none!important}
+.phone .hd{display:flex;align-items:center;gap:8px;min-height:3.2em;padding:0 .5em;border-bottom:1px solid var(--border);flex:none}
+.phone .hd .bk{display:inline-flex;align-items:center;min-height:44px;min-width:44px;padding:0 .6em;color:var(--fg);text-decoration:none;font-weight:700}
+.phone .hd h2{margin:0;flex:1;text-align:center;font:800 1.05em var(--head)}
+.phone .hd i{flex:none;width:44px}
+.phone .bd{flex:1;overflow-y:auto;padding:.9em 1em 1.4em;display:flex;flex-direction:column;gap:.8em}
+.phone .bd>*{flex:none}
+.phone :is(button,input,a){font:inherit;color:inherit}
+.phone svg{display:block}
+:where(.phone) :is(button,a):focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+/* menu stubs around the area (everything except the person area is the app as it is today) */
+.phone .find{display:flex;align-items:center;gap:.6em;min-height:max(48px,3.2em);padding:0 1em;border:2px solid var(--accent);border-radius:var(--r-ctl);color:var(--muted);background:var(--surface)}
+.phone .qk{display:flex;gap:.6em}
+.phone .qk>div{flex:1;min-height:max(48px,3.2em);display:flex;align-items:center;justify-content:center;gap:.5em;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--surface);color:var(--muted);font-weight:700;font-size:.9em}
+.phone .rowsx{border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface);overflow:hidden}
+.phone .rowsx>a{display:flex;align-items:center;justify-content:space-between;gap:.6em;min-height:max(56px,3.6em);padding:0 1em;color:var(--fg);text-decoration:none;font-weight:600;border-top:1px solid var(--border)}
+.phone .rowsx>a:first-child{border-top:0}
+.phone .rowsx .mu{color:var(--muted);font-weight:500;font-size:.9em}
+
+/* ---------- the person area ---------- */
+.pr{display:flex;flex-direction:column;gap:.7em}
+.pcard{--pc:hsl(var(--ph) 52% var(--pl-bg));--pcf:hsl(var(--ph) 40% var(--pl-ink));position:relative;display:flex;flex-direction:column;gap:.55em;padding:1em;border:1px solid var(--border);border-radius:var(--r-card);background:linear-gradient(160deg,color-mix(in srgb,var(--pc) 34%,var(--surface)) 0,var(--surface) 62%)}
+.pwho{display:flex;align-items:center;gap:.85em;min-width:0}
+.pav{--avn:4.4;position:relative;flex:none;display:inline-flex;align-items:center;justify-content:center;width:calc(var(--avn)*1em);height:calc(var(--avn)*1em);border-radius:50%;background:var(--pc);color:var(--pcf);font:800 1em var(--head);overflow:hidden;box-shadow:0 0 0 .14em var(--surface),0 0 0 .22em var(--pc)}
+.prw .pav,.pav{text-decoration:none}
+.pav .pmi{position:relative;font-size:calc(var(--avn)*.45em);line-height:1}
+.pav .pmic{position:absolute;inset:0;display:inline-flex;align-items:center;justify-content:center;color:var(--pcf);opacity:.22}
+.pid{min-width:0;flex:1;display:flex;flex-direction:column;gap:.1em}
+.pname{margin:0;position:relative}
+.pn-b{display:block;max-width:100%;min-height:max(44px,2.4em);padding:0;border:0;background:none;text-align:left;cursor:text}
+.pn{display:block;font:800 1.75em/1.15 var(--head);color:var(--fg);overflow-wrap:break-word;hyphens:auto;border-bottom:.08em dotted color-mix(in srgb,var(--fg) 35%,transparent)}
+.pn-in{width:100%;min-height:max(44px,2.4em);padding:0 .3em;border:2px solid var(--accent);border-radius:var(--r-ctl);background:var(--bg);font:800 1.5em/1.2 var(--head);color:var(--fg)}
+.pe{display:block;margin-top:.15em;color:var(--danger);font-weight:700;font-size:.9em}
+.pid>*{max-width:100%}
+.pcard[data-len=m] .pn{font-size:1.4em}.pcard[data-len=l] .pn{font-size:1.15em}
+[data-o=B] .pcard[data-len=m] .pn{font-size:1.6em}[data-o=B] .pcard[data-len=l] .pn{font-size:1.3em}
+[data-o=C] .pcard[data-len=m] .pn{font-size:1.6em}[data-o=C] .pcard[data-len=l] .pn{font-size:1.3em}
+.phh{margin:0;display:flex;align-items:center;gap:.4em;color:var(--muted);font-size:.95em;font-weight:600;min-width:0}
+.phh svg{flex:none}
+.phh span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* the kitchen role: a rotary that holds exactly one role, no neighbour peeking, swipe (or arrow keys) only */
+.roles{display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none;touch-action:pan-x pan-y pinch-zoom;border-radius:var(--r-ctl);background:color-mix(in srgb,var(--pc) 16%,var(--bg));border:1px solid var(--border)}
+.roles::-webkit-scrollbar{display:none}
+.role{flex:0 0 100%;scroll-snap-align:center;scroll-snap-stop:always;display:flex;align-items:center;justify-content:center;gap:.6em;min-height:max(52px,3.4em);padding:.2em 1.6em;border:0;background:none;font-weight:800;font-size:1.02em;text-align:center;cursor:grab;position:relative}
+.role svg{flex:none;color:hsl(var(--ph) 55% var(--pl-ic))}
+.role span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.role::before,.role::after{position:absolute;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:800;font-size:1.2em;line-height:1}
+.role:not(:first-child)::before{content:"\2039";left:.45em}
+.role:not(:last-child)::after{content:"\203A";right:.45em}
+.rdots{display:flex;justify-content:center;gap:.4em;margin-top:-.1em;min-height:.8em}
+.rdots i{width:.5em;height:.5em;border-radius:50%;background:var(--border)}
+.rdots i.on{background:hsl(var(--ph) 55% var(--pl-ic));box-shadow:0 0 0 .12em color-mix(in srgb,var(--pc) 35%,transparent)}
+.rsaved{position:absolute;right:1em;bottom:.95em;color:var(--sage);opacity:0;transition:opacity .2s}
+.rsaved.on{opacity:1}
+
+/* assistants */
+.ai{display:flex;flex-direction:column}
+.ai ul{list-style:none;margin:0;padding:0;border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface);overflow:hidden}
+.ar{display:flex;align-items:center;gap:.5em;min-height:max(56px,3.6em);padding:.15em .4em .15em .8em;border-top:1px solid var(--border)}
+.ar:first-child{border-top:0}
+.logo{flex:none;display:inline-flex;align-items:center;justify-content:center;width:2.3em;height:2.3em;border-radius:50%;background:var(--bc);color:var(--surface);font:800 .95em var(--head);letter-spacing:-.02em}
+.logo[data-s=sm]{font-size:.7em}
+.logo.claude{--bc:var(--brand-claude)}.logo.chatgpt{--bc:var(--brand-chatgpt)}.logo.gemini{--bc:var(--brand-gemini)}.logo.other{--bc:var(--brand-other)}
+.ar .nm{flex:1;min-width:0;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lk{flex:none;display:inline-flex;align-items:center;justify-content:center;min-width:2em;height:2em;color:var(--sage)}
+.ar button,.addai,.ar a.cn{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;border:0;background:none;border-radius:50%;cursor:pointer;color:var(--muted)}
+.ar button.star{color:var(--muted)}
+.ar button.star[aria-pressed=true]{color:var(--accent)}
+.ar button.unl{color:var(--muted)}
+.ar.off .logo{filter:grayscale(1);opacity:.55}
+.ar.off .nm{color:var(--muted);font-weight:600}
+.ar.off a.cn{color:var(--muted);text-decoration:none}
+.ar.ask{flex-wrap:wrap;background:color-mix(in srgb,var(--danger) 9%,var(--surface))}
+.ar.ask .q{flex:1 1 100%;font-weight:700;padding:.5em 0 0 .2em}
+.ar.ask .acts{flex:1 1 100%;display:flex;gap:.5em;padding:.2em 0 .6em}
+.ar.ask .acts button{flex:1;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--bg);font-weight:800;color:var(--fg)}
+.ar.ask .acts button.go{border-color:var(--danger);color:var(--danger)}
+.addai{align-self:flex-start;gap:.5em;padding:0 .9em 0 .5em;border:1px dashed var(--border);border-radius:var(--r-pill);color:var(--fg);font-weight:700;margin-top:.5em}
+.addai[aria-expanded=true]{border-style:solid}
+.ai ul+ul{margin-top:.5em}
+.ai .more{margin-top:.5em}
+
+/* ---------- variant A: the person card, the assistants a list under it (recommended) ---------- */
+[data-o=A] .pcard{padding:1em}
+/* ---------- variant B: hero, centred, one tinted card holds everything that is yours ---------- */
+[data-o=B] .pcard{align-items:stretch;text-align:center;padding:1.2em 1em 1em;background:linear-gradient(180deg,color-mix(in srgb,var(--pc) 42%,var(--surface)) 0,var(--surface) 75%)}
+[data-o=B] .pwho{flex-direction:column;gap:.5em}
+[data-o=B] .pav{--avn:6.4}
+[data-o=B] .pid{align-items:center;width:100%}
+[data-o=B] .pn-b{text-align:center}
+[data-o=B] .pn{font-size:2em;display:inline-block}
+[data-o=B] .phh{max-width:100%}
+[data-o=B] .phh{justify-content:center}
+[data-o=B] .pn-in{text-align:center}
+[data-o=B] .ai ul{background:transparent;border-color:color-mix(in srgb,var(--pc) 30%,var(--border))}
+/* ---------- variant C: open and type-led, no card chrome around the person; the role is an outlined pill ---------- */
+[data-o=C] .pcard{background:none;border:0;padding:.2em 0;gap:.7em}
+[data-o=C] .pwho{gap:1em}
+[data-o=C] .pav{--avn:5.2;border-radius:1.3em}
+[data-o=C] .pn{font-size:2.1em}
+[data-o=C] .roles{border-radius:var(--r-pill);border:2px solid var(--pc);background:none}
+[data-o=C] .ai ul{border:0;background:none;border-radius:0}
+[data-o=C] .ar{border-top:1px solid var(--border);padding-left:0}
+[data-o=C] .ar:last-child{border-bottom:1px solid var(--border)}
+
+@media (prefers-reduced-motion:reduce){.rsaved{transition:none}.roles{scroll-behavior:auto}}
+/* bare: only the phone (used by the side-by-side frames and the check) */
+body.bare .prw>*:not(#stage){display:none}
+body.bare .prw{max-width:none;padding:0}
+body.bare .stage{margin:0}

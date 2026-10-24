@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Person row on the Menu — fragment</title>
+<link rel="stylesheet" href="../../theme.css"><script src="../../theme.js"></script><link rel="stylesheet" href="../../shared.css"><link rel="stylesheet" href="person.css">
+</head>
+<body data-no-theme-fab class="prb"><div class="wrap prw">
+<div class="top"><a class="back" href="../../">&lsaquo; All mockups</a><h1>Person row<span class="badge">warm</span></h1></div>
+
+<div class="own"><b>Owner, 25 Oct 2026</b> (Kitchie <a href="https://github.com/basement-bridge/kitchie/issues/1110">#1110</a>; phone Menu only): the person row is &ldquo;too boring&rdquo; after the lean pass flattened it. &ldquo;Lean doesn&rsquo;t mean mean&rdquo;: lean cuts words and noise, never warmth or identity. The name big and editable in place; the kitchen role a swipeable set under it; the assistants under the person, not a separate menu item; each assistant with its brand mark, a symbol for its state, a star for the default.</div>
+
+<div class="bar" role="group" aria-label="Mockup aids: jump to any state">
+  <label><span>Option</span><select id="st-o" aria-label="Option"><option value="A">A: card (recommended)</option><option value="B">B: hero</option><option value="C">C: open</option></select></label>
+  <label><span>Assistants</span><select id="st-ai" aria-label="Assistants"><option value="none">None connected</option><option value="one">One connected</option><option value="two" selected>Two connected</option><option value="all">All three</option></select></label>
+  <label><span>Role</span><select id="st-role" aria-label="Role"><option value="set">Picked</option><option value="none">Not picked</option></select></label>
+  <label><span>Name</span><select id="st-name" aria-label="Name"><option value="short">Short</option><option value="long">Very long</option></select></label>
+</div>
+
+<div id="stage" class="stage"><div class="host"></div></div>
+<p><b>Play it.</b> Tap the name to change it (Enter or tapping away saves, Escape puts it back; type <code>!!</code> to see the error). Swipe the role sideways: it snaps to one and applies when it settles (arrow keys work too). The unlink icon asks in place. <i>Add an assistant</i> shows the ones not connected, greyed. With two or more connected, the star marks the default. URL aids: <code>?o=A|B|C</code>, <code>ai=none|one|two|all</code>, <code>role=none</code>, <code>long=1</code>, <code>ts=3</code> (+30%), <code>pic=1</code>, <code>ask=claude</code>, <code>add=1</code>.</p>
+
+<h2 class="sec">What the owner asked for</h2>
+<ul>
+<li><b>Name</b> big, editable in place (tap, no pencil). Only the name field; the picture is untouched here (the round picture opens the profile page, where it is changed). Saves on Enter or leaving, Escape cancels, errors inline under the name.</li>
+<li><b>Kitchen role</b> under it: a horizontal rotary of the real roles (Head Chef, Supply Runner, Full Stack Cook, Knife Hand, Pantry Marshal, Sink General), like the theme rotary but each role fills the width (no neighbour peeks), swipe only, applies when it settles. A role someone typed themselves is shown first as their own.</li>
+<li><b>Assistants</b> under the person: the separate Assistants menu item is gone. Connected ones only, plus one <i>Add an assistant</i> control for the rest. State is a symbol: linked (in colour) for connected, a plain add icon (greyed) for not connected, a small unlink icon to disconnect with the confirm in place. A star marks the default (shown from two connected).</li>
+<li><b>Character</b>: a big round picture in the person&rsquo;s own colour (their hue comes from their name), a warm household line, a soft wash of their colour behind the card. No new words.</li>
+</ul>
+
+<h2 class="sec">The three options</h2>
+<div class="three">
+  <div><h3>A: card</h3><iframe title="Option A" loading="lazy" src="index.html?bare=1&amp;o=A" style="width:100%;height:780px;border:0"></iframe><p>The person in one warm card: picture left, name large, household under it, the role rotary inside the card. Assistants are a list card directly under. Reads left to right, scales to +30% and long names best. <b>Recommended.</b></p></div>
+  <div><h3>B: hero</h3><iframe title="Option B" loading="lazy" src="index.html?bare=1&amp;o=B" style="width:100%;height:780px;border:0"></iframe><p>Centred: a large picture, the name big under it. The warmest, and the tallest: at +30% the rows below the person fall further down the Menu.</p></div>
+  <div><h3>C: open</h3><iframe title="Option C" loading="lazy" src="index.html?bare=1&amp;o=C" style="width:100%;height:780px;border:0"></iframe><p>No card around the person: a rounded-square picture, big type, an outlined role pill, hairline assistant rows. Calmest, least like a &ldquo;profile&rdquo;; the person is less separate from the plain rows.</p></div>
+</div>
+
+<h2 class="sec">Brand marks</h2>
+<p><b>Monograms, not the official logos.</b> I could not confirm the logo usage rules of Anthropic, OpenAI or Google from here, so each assistant is a clean coloured monogram (Claude C, ChatGPT GPT, Gemini G) in its brand tint, drawn from one table so the official mark can replace it where the rules allow. Inline, no fetch (the app&rsquo;s CSP is <code>'self'</code>). Not connected ones are greyed.</p>
+
+<h2 class="sec">Design review checklist (DESIGN.md 9.8)</h2>
+<div class="tw"><table class="tt" id="review"><thead><tr><th>#</th><th>Check</th><th>Evidence (option A)</th></tr></thead><tbody>
+<tr><td>1</td><td>Jobs</td><td>Job: confirm this is my kitchen, fix my name, set my role, see and switch my assistants. The household line and the star each change a decision or reassure; nothing else is added.</td></tr>
+<tr><td>2</td><td>Accent</td><td>The Menu&rsquo;s one accent is the search outline. The person is loudest by size, shape and their own hue, not by the accent. The star uses the accent only when it is the default (a decision), as on the Assistants page today.</td></tr>
+<tr><td>3</td><td>Presentation</td><td>Name: in-place text field (typed text). Role: rotary (one of a few, no keyboard). Assistant state: symbol (linked / add). Disconnect: sentence + two buttons (a consequence). 9.4.</td></tr>
+<tr><td>4</td><td>Words</td><td>New words: none beyond <i>Add an assistant</i> (3), <i>Disconnect Claude?</i> with <i>Disconnect</i> / <i>Keep</i>, <i>Pick a role</i> (3), <i>Try another name</i> (3). State is never in words.</td></tr>
+<tr><td>5</td><td>Duplication</td><td>The Assistants menu item is gone; the person row replaces the profile avatar row. Nothing twice.</td></tr>
+<tr><td>6</td><td>Targets</td><td>Name 44px+; the picture 4.4em; role item 52px+; star, unlink, add: 44x44. Checked by the script at 390 and 360.</td></tr>
+<tr><td>7</td><td>+30%</td><td>Checked at 390 and 360: no clipping, no sideways page scroll; long names wrap; the role title shortens with an ellipsis.</td></tr>
+<tr><td>8</td><td>Dark</td><td>Checked light and dark. Linked is a chain symbol (not colour alone); the default is a filled star (not colour alone); greyed ones also show the add symbol.</td></tr>
+<tr><td>9</td><td>Warmth (9.10)</td><td>Would the person recognise the screen as theirs? Their name, in their colour, with their household and their role.</td></tr>
+</tbody></table></div>
+
+<h2 class="sec">Choices made where the owner was silent</h2>
+<p>All <b>Proposals</b>; a wrong guess costs a small change.</p>
+<ul>
+<li><b>PR-1</b> The round picture is the way to the profile page (where the picture, Admin and Leave are). No chevron, no extra row.</li>
+<li><b>PR-2</b> The star shows only from two connected; with one connected it is the default by itself, as today.</li>
+<li><b>PR-3</b> A person with no role sees <i>Pick a role</i> first in the rotary; swiping to a real role saves it. A role cannot be cleared here.</li>
+<li><b>PR-4</b> Brand marks are monograms (above).</li>
+<li><b>PR-5</b> Assistants Kitchie only knows by name (not Claude, ChatGPT, Gemini) are listed as connected with a neutral monogram and no unlink (Platform manages them).</li>
+<li><b>PR-6</b> The person&rsquo;s hue comes from their name (stable, no setting).</li>
+</ul>
+
+<h2 class="sec">Open questions</h2>
+<ul>
+<li><b>PR-Q1</b> Option A, B or C (A recommended).</li>
+<li><b>PR-Q2</b> Official logos: allowed where? (monograms until you say)</li>
+<li><b>PR-Q3</b> Should the picture be changeable from the Menu too? (You said no; it stays on the profile page.)</li>
+</ul>
+
+<h2 class="sec">Loads</h2>
+<p>Default path: <code>theme.css</code>, <code>theme.js</code>, <code>shared.css</code>, <code>person.css</code>, <code>person.js</code>. Nothing deferred; no image, no font, no network call (marks are inline).</p>
+</div>
+<script src="person.js"></script>
+</body></html>
