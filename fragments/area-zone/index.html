@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Area and Zone — fragment</title><link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><style>
+.az-fr{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,390px));gap:26px 18px;justify-content:center;margin-top:16px}
+.az-fr figure{margin:0}.az-fr figcaption{margin:0 0 6px;font-weight:700;font-size:14px}
+.az-fr iframe{display:block;width:100%;max-width:390px;height:560px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--bg)}
+.az-t{width:100%;border-collapse:collapse;font-size:14px;margin:8px 0}.az-t th,.az-t td{text-align:left;padding:8px;border-top:1px solid var(--border);vertical-align:top}
+.az-t th{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.06em}.az-w{overflow-x:auto}
+</style><script src="../../theme.js"></script></head>
+<body>
+<div class="wrap">
+<a class="back" href="../../index.html">All mockups</a>
+<h1>Area and Zone</h1>
+<p>Kitchie <a href="https://github.com/basement-bridge/kitchie/issues/1137">#1137</a>. Owner, by voice, 24 October 2026: rename <b>Location</b> to <b>Area</b> and <b>Spot</b> to <b>Zone</b>. Labels only: same fields, same data, same layout. <b>Mockup only, nothing built, not approved for build.</b> Each frame has a Today / Proposed switch; tap anything, nothing is saved.</p>
+<div class="az-fr">
+<figure><figcaption>Add item · Where</figcaption><iframe src="screen.html#add" title="Add item with Area and Zone" loading="lazy"></iframe></figure>
+<figure><figcaption>Item · details</figcaption><iframe src="screen.html#sheet" title="Item sheet with Area and Zone" loading="lazy"></iframe></figure>
+<figure><figcaption>Filters · group and sort</figcaption><iframe src="screen.html#filters" title="Filters with Area and Zone" loading="lazy"></iframe></figure>
+<figure><figcaption>History · a change line</figcaption><iframe src="screen.html#history" title="History with Area and Zone" loading="lazy"></iframe></figure>
+</div>
+
+<div class="sec"><div class="lbl">Every word that changes (read from <code>uat</code> code, not run)</div>
+<div class="az-w"><table class="az-t"><thead><tr><th>Where</th><th>Today</th><th>Proposed</th></tr></thead><tbody>
+<tr><td>Add and Edit form labels (<code>add-form.ts</code>, <code>form.js</code>, <code>web-edit.ts</code>)</td><td>Location, Spot</td><td>Area, Zone</td></tr>
+<tr><td>Strip screen-reader labels (not visible): "Show all …", "Add “x” as a new …"</td><td>locations, spots, location, spot</td><td>areas, zones, area, zone</td></tr>
+<tr><td>Filters: group chip, summary "by …", heading, curtain label (<code>filters-panel.js</code>, <code>filters.js</code>)</td><td>Location, "by Location", locations</td><td>Area, "by Area", areas</td></tr>
+<tr><td>Sort names (<code>settings.js</code>); "Show the spot" switch (<code>app.ts</code>)</td><td>Area, Spot; Show the spot</td><td>Area, Zone; Show the zone</td></tr>
+<tr><td>Pantry ribbon, list title fallback, aria-labels (<code>list.js</code>, <code>app.ts</code>); desktop pantry titles (<code>desktop-pantry.js</code>)</td><td>Location; "Switch to locations"; "Show just that location"</td><td>Area; "Switch to areas"; "Show just that area"</td></tr>
+<tr><td>History lines (<code>web-item-history.ts</code>, <code>history-wording.ts</code>)</td><td>Location, Spot, "Locations and spots"</td><td>Area, Zone, "Areas and zones"</td></tr>
+<tr><td>Menu and Settings row (<code>profile-menu.ts</code>, <code>profile-settings.js</code>, <code>preferences/web-page.ts</code>)</td><td>Locations and spots</td><td>Areas and zones</td></tr>
+<tr><td>Rules: group, scope words, "Category in a location", picker sub-labels, notes, heading sentence (<code>rules-draw.ts</code>, <code>rules-pick.ts</code>)</td><td>Location, "Location and spot", "Category in a location"</td><td>Area, "Area and zone", "Category in an area"</td></tr>
+<tr><td>Messages people see (<code>store.ts</code> validation: "Pick a location.", "Say which location the spot is in.", "There is already a location called…"; <code>web-starters.ts</code>)</td><td>location, spot</td><td>area, zone</td></tr>
+<tr><td><b>Open:</b> Settings manager screens (<code>web-locations.ts</code>, <code>locations-win.ts</code>), about 45 strings</td><td>location, spot</td><td>area, zone, if included</td></tr>
+</tbody></table></div></div>
+
+<div class="sec"><div class="lbl">What does not change</div>
+<ul>
+<li>Stored field names (<code>area</code>, <code>place</code>), URLs, MCP tool names and descriptions, code, docs. A deeper rename is a follow-up issue.</li>
+<li>Layout, order, the strip behaviour, tap sizes. Only the words.</li>
+<li>Words that only look the same: "Grab your spot" (invite), "Bright spots calmed" (photo), <code>location.href</code> and other code uses.</li>
+<li>Assistants (MCP) still say "location" and "spot" until the follow-up. Proposal: accept that gap for now.</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">Proposals and open questions</div>
+<ul>
+<li><b>Proposal:</b> every screen that shows the word changes together, in one release, so no screen mixes the old and new words.</li>
+<li><b>Proposal:</b> "an area" and "a zone" (article follows the word) in strip text and rules text.</li>
+<li><b>Proposal:</b> field-change history lines are labelled when read, so old ones also read Area and Zone. Batch messages already stored as text (manager changes, "Starter … locations copied in") keep the old words. Nothing stored is rewritten.</li>
+<li><b>Question:</b> the Settings manager screens (about 45 strings) were found by search, not drawn. Include them in this release? A wrong guess leaves the Menu row saying Areas and zones over a screen saying locations and spots.</li>
+<li><b>Question:</b> does the household's own free text clash? "Shelves" is an area name already; "Zone" reads fine beside it.</li>
+</ul></div>
+
+<div class="sec"><div class="lbl">Performance (DESIGN.md section 6)</div>
+<p>Default path: this page, the shared theme, and one small script and stylesheet per frame. No images, no requests after load. In the app this is a string change: no new request, no new file.</p></div>
+</div>
+</body></html>

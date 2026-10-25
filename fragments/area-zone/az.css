@@ -1,0 +1,27 @@
+/* Rename Location to Area and Spot to Zone (Kitchie #1137). Labels only. Tokens only (theme.css); 44px taps via --tap. */
+.az-page{min-height:100vh;background:var(--bg);color:var(--fg);padding:16px;display:flex;flex-direction:column;gap:14px;font-family:inherit}
+.az-bar{display:flex;align-items:center;gap:10px;min-height:var(--tap)}
+.az-bar h2{margin:0;font-size:1.15rem;flex:1}
+.az-sw{display:inline-grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border:1px solid var(--border);border-radius:var(--r-pill);background:var(--bg)}
+.az-sw button{min-height:var(--tap);padding:0 14px;border:2px solid transparent;border-radius:var(--r-pill);background:transparent;color:var(--muted);font:inherit;font-weight:700;font-size:14px}
+.az-sw button[aria-pressed=true]{background:var(--surface);border-color:var(--accent);color:var(--fg)}
+.az-card{display:grid;gap:12px;padding:14px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface)}
+.az-f{display:grid;gap:6px}
+.az-f label,.az-lbl{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.az-in{min-height:var(--tap);display:flex;align-items:center;padding:0 12px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--bg);font-size:16px}
+.az-in.ph{color:var(--muted)}
+.az-in.on{border:2px solid var(--accent)}
+.az-strip{display:flex;gap:8px;flex-wrap:wrap}
+.az-chip{min-height:var(--tap);display:inline-flex;align-items:center;gap:6px;padding:0 14px;border:1px solid var(--border);border-radius:var(--r-pill);background:var(--surface);color:var(--fg);font:inherit;font-size:15px;font-weight:600}
+.az-chip[aria-pressed=true]{border:2px solid var(--accent)}
+.az-chip svg,.az-pin svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.az-row{display:flex;align-items:center;gap:10px;min-height:var(--tap);padding:8px 0;border-top:1px solid var(--border)}
+.az-row:first-of-type{border-top:0}
+.az-row b{flex:0 0 5.5rem;font-size:13px;color:var(--muted);font-weight:700}
+.az-row span{flex:1;font-size:16px}
+.az-hist{display:grid;gap:8px}
+.az-hist p{margin:0;font-size:15px}.az-hist small{color:var(--muted)}
+.az-was{display:none;font-size:12px;color:var(--muted)}
+[data-v=today] .az-was{display:inline}
+.az-note{margin:0;font-size:12px;color:var(--muted)}
+.az-save{min-height:var(--tap);border:0;border-radius:var(--r-pill);background:var(--accent);color:var(--on-accent,#fff);font:inherit;font-weight:700;font-size:16px}
