@@ -232,7 +232,7 @@
   P_.heroHtml = function () {
     const S = this.S, idea = this.idea(), plan = S.plan, inf = (D.ideaInfo || {})[idea.id] || {};
     return '<section class="hm-hero hero-' + S.hero + '" id="hero"><div class="hm-top"><span class="r-lead th" aria-hidden="true"><span id="hi-e">' + idea.e + '</span></span><div class="hm-it"><span class="hm-k">' + (S.basis ? "Trying" : plan === "other" ? "Planned Saturday" : plan === "today" ? "Tonight, planned" : "Tonight") + '</span><b id="hi-n">' + esc(idea.name) + '</b><small id="hi-m">' + esc(this.heroMeta(idea)) + '</small><span class="hm-why" id="hi-w">' + esc(inf.why || "") + '</span></div></div>' +
-      '<div class="hm-based" id="based"' + (S.basis ? "" : " hidden") + '><span class="bs-k">I feel like</span><div id="basis"></div></div><div class="hm-acts" id="acts">' + this.actsHtml() + "</div></section>";
+      '<div class="hm-based" id="based"' + (S.basis ? "" : " hidden") + '><span class="bs-k">I feel like</span><div id="basis"></div></div><div class="hm-acts" id="acts">' + this.actsHtml() + "</div>" + this.moreHtml() + "</section>";
   };
   P_.outHtml = function () {
     const cards = D.home.out.map(pItem).map((i) => {
@@ -251,12 +251,12 @@
   /* UAT's other ideas under the hero, drawn last and only when they fit without scrolling (owner, 25 Oct 2026) */
   P_.moreHtml = function () {
     const cur = this.idea().id, rows = ["saag", "toastie", "dal", "pancakes", "soup", "omelette"].filter((id) => id !== cur).slice(0, 2).map(rItem);
-    return '<section class="hm-sec hm-more" hidden><div class="hm-h"><span class="hm-i">' + ic("star") + "</span><h2>More ideas</h2></div><ul class=\"mi-rows\">" + rows.map((r) => '<li><button type="button" class="mi-b" data-a="toast" data-t="Opens ' + esc(r.name) + '"><span class="r-lead th" aria-hidden="true"><span>' + r.e + '</span></span><span class="mi-t"><b>' + esc(r.name) + "</b><small>" + esc(this.heroMeta(r)) + "</small></span></button></li>").join("") + "</ul></section>";
+    return '<ul class="hm-more mi-rows" aria-label="More ideas" hidden>' + rows.map((r) => '<li><button type="button" class="mi-b" data-a="toast" data-t="Opens ' + esc(r.name) + '"><span class="mi-e" aria-hidden="true">' + r.e + '</span><span class="mi-t"><b>' + esc(r.name) + "</b><small>" + r.min + " min \u00b7 " + (r.miss ? r.miss + " missing" : "all in") + "</small></span></button></li>").join("") + "</ul>";
   };
-  P_.fitMore = function () { const m = this.el.querySelector(".hm-more"), b = this.el.querySelector(".ll-body"); if (!m || !b) return; const end = b.querySelector(".ll-end"), pad = end ? end.offsetHeight : 0; m.hidden = false; if (b.scrollHeight - pad > b.clientHeight + 1) m.hidden = true; };
+  P_.fitMore = function () { const m = this.el.querySelector(".hm-more"), b = this.el.querySelector(".ll-body"); if (!m || !b) return; if (this.S.basis) { m.hidden = true; return; } const end = b.querySelector(".ll-end"), pad = end ? end.offsetHeight : 0; m.hidden = false; if (b.scrollHeight - pad > b.clientHeight + 1) m.hidden = true; };
   P_.homeHtml = function () {
     const sec = (cls, icn, t, body) => body ? '<section class="hm-sec ' + cls + '"><div class="hm-h"><span class="hm-i">' + ic(icn) + "</span><h2>" + t + "</h2></div>" + body + "</section>" : "";
-    return '<div class="hm"><h1 class="hm-hi">Good evening, ' + esc(D.me) + ".</h1>" + this.heroHtml() + sec("hm-out", "clock", "On the way out", this.outHtml()) + sec("hm-low", "basket", "Running low", this.lowHtml()) + this.moreHtml() + "</div>";
+    return '<div class="hm"><h1 class="hm-hi">Good evening, ' + esc(D.me) + ".</h1>" + this.heroHtml() + sec("hm-out", "clock", "On the way out", this.outHtml()) + sec("hm-low", "basket", "Running low", this.lowHtml()) + "</div>";
   };
 
   /* ---------- draw ---------- */
@@ -328,7 +328,7 @@
   };
   P_.heroPatch = function () {
     const i = this.idea(), q = (s) => this.el.querySelector(s);
-    if (q("#hi-e")) q("#hi-e").textContent = i.e; if (q("#hi-n")) q("#hi-n").textContent = i.name; if (q("#hi-m")) q("#hi-m").textContent = this.heroMeta(i); if (q("#hi-w")) q("#hi-w").textContent = ((D.ideaInfo || {})[i.id] || {}).why || "";
+    if (q("#hi-e")) q("#hi-e").textContent = i.e; if (q("#hi-n")) q("#hi-n").textContent = i.name; if (q("#hi-m")) q("#hi-m").textContent = this.heroMeta(i); if (q("#hi-w")) q("#hi-w").textContent = ((D.ideaInfo || {})[i.id] || {}).why || ""; const mo = q(".hm-more"); if (mo) mo.outerHTML = this.moreHtml();
     this.actsPatch();
   };
   P_.actsPatch = function () { const a = this.el.querySelector("#acts"); if (a) a.innerHTML = this.actsHtml(); this.fitMore(); };

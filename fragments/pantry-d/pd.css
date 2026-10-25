@@ -203,13 +203,12 @@
 .llp[data-v=d] .ll-tabs a{font-size:.7rem}
 .llp[data-v=d] .ll-tabs a span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-/* More ideas (UAT: the hero's other ideas): drawn last, only when there is room after On the way out and Running low (owner, 25 Oct 2026) */
+/* More ideas (UAT: the hero's other ideas): an extension of the hero card, lighter than the hero (a small picture, a name, a short line), drawn only when there is room after On the way out and Running low (owner, 25 Oct 2026) */
 .hm-more[hidden]{display:none}
-.mi-rows{list-style:none;margin:0 -12px;padding:0}
-.mi-rows li{border-bottom:1px solid var(--border)}
-.mi-rows li:first-child{border-top:1px solid var(--border)}
-.mi-b{display:flex;align-items:center;gap:10px;width:100%;min-height:52px;padding:2px 12px}
-.mi-b .r-lead.th{display:flex;width:36px;height:36px;font-size:1.375rem;border-radius:6px;border:0;background:linear-gradient(150deg,color-mix(in srgb,var(--fg) 22%,var(--surface)),color-mix(in srgb,var(--sage) 38%,var(--surface)));box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--fg) 28%,transparent)}
+.mi-rows{list-style:none;margin:12px -14px -14px;padding:0;border-top:1px solid var(--border)}
+.mi-rows li+li{border-top:1px solid var(--border)}
+.mi-b{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:2px 14px}
+.mi-e{display:inline-flex;flex:none;width:28px;height:28px;align-items:center;justify-content:center;font-size:1.125rem;border-radius:6px;background:var(--bg);border:1px solid var(--border)}
 .mi-t{flex:1;min-width:0}
-.mi-t b{display:block;font-size:0.9375rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mi-t small{display:block;font-size:0.7188rem;color:var(--muted)}
+.mi-t b{display:block;font-size:0.875rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mi-t small{display:block;font-size:0.6875rem;color:var(--muted)}
