@@ -368,7 +368,17 @@
 
   /* Swipe: UAT's, copied (swipe.js d14049a). Pantry rows: right 90px = add to list; left 90px = use one (used up when it cannot step down); left 190px = used up.
      Home Running low rows (owner, 25 Oct 2026): right 90px = add (only when NOT on the list); right 190px = don't remind me; left = remove (only when ON the list). Works while picking. */
-  const useKind = (d) => { const m = /^(\d+)\s*(.*)$/.exec((d && d.amt) || ""); return m && Number(m[1]) > 1 && !/^(g|kg|ml|l)\b/i.test(m[2]) ? "one" : "all"; };
+  /* "Use one", UAT's rule (quantity.ts useOne / useAfter, server/config/unit-rules.json): an exact amount comes down one configured step (g and mL 50, kg and L 0.25, packs 1); when that is all there is, it is used up.
+     Free text keeps the old rule (reduce.ts): "3 tubs" becomes "2 tubs", "1 tub" is used up. */
+  const STEP = { g: 50, kg: 0.25, ml: 50, l: 0.25, pack: 1, tin: 1, jar: 1, bottle: 1, bag: 1, box: 1, carton: 1, bunch: 1, roll: 1 };
+  const useStep = (d) => {
+    const a = ((d && d.amt) || "").trim(), m = /^(\d+(?:\.\d+)?)\s*([A-Za-z]*)\b(.*)$/.exec(a); if (!m) return { kind: "all" };
+    const n = Number(m[1]), u = m[2], key = u.toLowerCase().replace(/s$/, ""), step = STEP[u.toLowerCase()] || STEP[key];
+    if (step) { if (n <= step) return { kind: "all" }; const left = Math.round((n - step) * 1000) / 1000; return { kind: "one", left: left + " " + u + (m[3] || "") }; }
+    const f = /^(\d{1,4})(?=$|\s)([\s\S]*)$/.exec(a); if (!f || Number(f[1]) < 2) return { kind: "all" };
+    return { kind: "one", left: (Number(f[1]) - 1) + f[2] };
+  };
+  const useKind = (d) => useStep(d).kind;
   const memory = () => { try { return JSON.parse(localStorage.getItem("kitchie.swipe") || "{}") || {}; } catch (e) { return {}; } };
   const remember = (k) => { try { const m = memory(); m[k] = (m[k] || 0) + 1; localStorage.setItem("kitchie.swipe", JSON.stringify(m)); } catch (e) {} };
   P_.swBlocked = function (row, dx) { if (!row.dataset.home) return false; const on = this.S.onList.has(row.closest(".r").dataset.id); return on ? dx > 0 : dx < 0; };
@@ -425,7 +435,7 @@
     if (act === "shop") { const L = S.listed || (S.listed = new Set()); if (L.has(id)) { this.undoBar(d.name + " is already on your list"); return; } L.add(id); this.undoBar(d.name + " added to your list", () => { L.delete(id); }); return; }
     const prev = { amt: d.amt, lvl: d.lvl, low: d.low }, lname = d.name.toLowerCase();
     if (act === "all") { d.lvl = "out"; d.amt = "0"; this.draw(); this.undoBar(lname + " used up", () => { Object.assign(d, prev); this.draw(); }); }
-    else { const m = /^(\d+)\s*(.*)$/.exec(d.amt || ""), left = (Number(m[1]) - 1) + (m[2] ? " " + m[2] : ""); d.amt = left; this.draw(); this.undoBar(lname + ": " + left + " left", () => { Object.assign(d, prev); this.draw(); }); }
+    else { const left = useStep(d).left; d.amt = left; this.draw(); this.undoBar(lname + ": " + left + " left", () => { Object.assign(d, prev); this.draw(); }); }
   };
   /* UAT's Undo bar: at the top of the screen, 5 seconds; "Undone" for 3 */
   P_.undoBar = function (t, undo) {
