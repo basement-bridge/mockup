@@ -76,7 +76,7 @@
     this.data = D.pantry.map((i) => Object.assign({}, i));
     this.S = {
       sort: { k: P ? "name" : "best", d: 0 }, group: P ? "cat" : "flat", chip: "all", q: "", search: false, folded: {}, sel: null, sheet: false, menu: false, st: {}, toast: "",
-      order: {}, catch: false, seen: false, chips: "tabs", hero: o.hero === "top" ? "top" : "left", hidden: new Set(),
+      order: {}, catch: false, seen: false, chips: "tabs", hero: "top", hidden: new Set(),
       plan: o.plan || "today", lean: "balanced", basis: false, ready: false, planned: "omelette", onList: new Set(D.home.onList), basisStyle: o.basis || "carousel"
     };
     if (o.group && P) this.S.group = o.group === "loc" ? "loc" : "cat";

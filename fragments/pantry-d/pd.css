@@ -135,12 +135,9 @@
 .hm-hero{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:14px}
 .hm-top{display:flex;gap:12px;align-items:center}
 .hm-hero .r-lead.th{display:flex;width:56px;height:56px;font-size:1.75rem;border-radius:14px}
-/* hero with more in it (time, what is missing, why) and a bigger picture; ?hero=left (picture beside) or top (picture as a banner): owner to pick */
-.hm-hero.hero-left .hm-top{align-items:flex-start}
-.hm-hero.hero-left .r-lead.th{width:88px;height:88px;font-size:2.75rem;border-radius:16px}
-.hm-hero.hero-top .hm-top{flex-direction:column;align-items:stretch;gap:10px}
-.hm-hero.hero-top .r-lead.th{width:100%;height:116px;font-size:3.5rem;border-radius:14px}
-.hm-why{display:block;margin-top:5px;font-size:0.8125rem;line-height:1.3;color:var(--muted)}
+/* hero with more in it (time, what is missing, why) and a bigger picture as a banner on top (owner, 25 Oct 2026) */
+.hm-hero .hm-top{flex-direction:column;align-items:stretch;gap:10px}
+.hm-hero .r-lead.th{width:100%;height:96px;font-size:3.25rem;border-radius:14px}
 .hm-hero .hm-it b{font:800 20px/1.15 var(--head);margin-top:2px;overflow-wrap:anywhere}
 .hm-hero .hm-it small{font-size:0.8125rem}
 .hm-acts{display:flex;gap:8px;margin-top:14px;container-type:inline-size;align-items:stretch}
@@ -155,16 +152,13 @@
 /* the recommendation basis: shown after Swap. carousel (default), dial (one centred, like the Settings rotary) or chips (all visible) */
 .hm-based{margin-top:14px}
 .bs-k{display:block;font-size:0.6875rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
-.bs-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain;touch-action:pan-x pan-y}
+/* "Based on" (owner, 25 Oct 2026): tab words, no pills, in a rotary/carousel: the chosen word snaps to the centre with a line under it and the neighbours peek in either side.
+   Native scroll snapping gives the soft flick and ease-out stop; a tap glides the word to the centre. */
+.bs-track{display:flex;gap:4px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none;overscroll-behavior-x:contain;touch-action:pan-x pan-y;-webkit-overflow-scrolling:touch;padding:0 calc(50% - 34px);-webkit-mask-image:linear-gradient(90deg,transparent,#000 16%,#000 84%,transparent);mask-image:linear-gradient(90deg,transparent,#000 16%,#000 84%,transparent)}
 .bs-track::-webkit-scrollbar{display:none}
-.bs-i{flex:none;scroll-snap-align:center;min-height:48px;display:inline-flex;align-items:center;justify-content:center;text-align:center;font-weight:700;font-size:0.875rem;border-radius:99px;border:1.5px solid var(--border);background:var(--bg);color:var(--muted);padding:0 16px}
-.bs-i[aria-selected=true]{border:2.5px solid var(--accent);color:var(--fg);font-weight:800}
-.bs-carousel .bs-track{gap:8px;padding:0 calc(50% - 56px)}
-.bs-dial .bs-track{gap:0;border-radius:var(--r-ctl);background:var(--bg);border:1px solid var(--border)}
-.bs-dial .bs-i{flex:0 0 100%;border:0;border-radius:0;background:none;font-size:1rem;color:var(--fg)}
-.bs-dial .bs-i[aria-selected=true]{border:0}
-.bs-chips{display:flex;flex-wrap:wrap;gap:6px}
-.bs-chips .bs-i{padding:0 12px;font-size:0.8125rem}
+.bs-i{flex:none;scroll-snap-align:center;min-height:48px;display:inline-flex;align-items:center;padding:0 12px;font-weight:700;font-size:0.9375rem;color:var(--muted);border:0;border-bottom:3px solid transparent;border-radius:0;background:none;white-space:nowrap}
+.bs-i[aria-selected=true]{color:var(--fg);border-bottom-color:var(--accent)}
+@media(prefers-reduced-motion:reduce){.bs-track{scroll-behavior:auto}}
 .bs-track.jig{animation:jig 1.3s ease-in-out 1}
 @keyframes jig{0%,100%{transform:translateX(0)}25%{transform:translateX(-12px)}70%{transform:translateX(12px)}}
 @media(prefers-reduced-motion:reduce){.bs-track.jig,.hb.cf{animation:none}}
@@ -204,6 +198,4 @@
 .llp[data-v=d] .lv{gap:3px}
 .llp[data-v=d] .lv i{width:10px;height:10px;border-radius:3px}
 .llp[data-v=d] .ll-tabs a{font-size:.7rem}
-.llp[data-v=d] .bs-i[aria-checked=true]{border:2.5px solid var(--accent);color:var(--fg);font-weight:800}
-.llp[data-v=d] .bs-dial .bs-i[aria-checked=true]{border:0}
 .llp[data-v=d] .ll-tabs a span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

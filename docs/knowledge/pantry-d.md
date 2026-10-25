@@ -109,3 +109,8 @@ Still open (suggestions): "Don\u2019t remind me" is household-wide in UAT's mech
 Short left = use a bit, long left (190 px) = used up, as UAT. "Use one" takes off one configured step (`server/config/unit-rules.json`: g and mL 50, kg and L 0.25, pack, jar, bag and the like 1); when that is all there is, it is used up (so 50 g or less, and a single jar, go to Used up). Free text such as "3 tubs" goes down by one. The panel label follows: "\u2212 Use one" when it will step down, "\u2713 Used up" when it cannot. Not separately re-reviewed (a one-function change to match UAT).
 
 An item that is already out (level Out or amount 0) has no left swipe and no Use one or Used up button; only Add to list is offered (owner, 25 Oct 2026).
+
+### Decided by voice, 25 Oct 2026 (owner): hero banner, "Based on" as tab words in a rotary
+
+- **Hero: the picture is a banner on top** (96 px high). The beside option and the `?hero=` switch are gone.
+- **"Based on" (Swap): tab words, no pills, in a carousel/rotary.** The chosen word snaps to the centre with a line under it; the neighbours peek in on both sides (edges fade). The flick should ease out, not stop abruptly: drawn with the browser\u2019s own scroll snapping (soft deceleration on a phone), and a tap glides the word to the centre. The `?basis=` switch (carousel, dial, chips) is gone. Checked in a script that the chosen word sits dead centre after a tap at 390 and 360 (and at +30% text); **a real flick on a phone has not been tried here**, so the feel of the deceleration is the owner\u2019s to judge.
