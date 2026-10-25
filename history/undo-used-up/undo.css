@@ -1,0 +1,14 @@
+/* kitchie #1102: Undo and Redo pills in a History row. Tokens only; no new colours. 44px targets (DESIGN.md 9.7). */
+.hx .ev.dv .meta.hds{gap:var(--sp-2)}
+.hx .hd.act{display:inline-flex;align-items:center;gap:6px;min-height:var(--tap);padding:0 var(--sp-4);border-radius:var(--r-pill,99px);border:1px solid var(--accent);background:none;color:var(--accent);font:700 14px/1 inherit;font-family:inherit;cursor:pointer;white-space:nowrap;text-decoration:none}
+.hx .hd.act span{text-decoration:none;border:0}
+.hx .hd.act:focus-visible,.ubar button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hx .hd.act[disabled]{opacity:.5;cursor:default}
+.hx .ev.is-undone .ln b:last-child{text-decoration:line-through;text-decoration-thickness:1px}
+.hx .chip.undone{min-height:28px;text-decoration:none}
+.ubar{display:flex;align-items:center;gap:var(--sp-3);width:max-content;max-width:calc(100% - 32px)}
+.ubar #toast-text{flex:1 1 auto;min-width:0;white-space:normal}
+.ubar button{flex:none}
+.ubar button{min-height:var(--tap);min-width:var(--tap);padding:0 var(--sp-3);border:1px solid currentColor;background:none;color:inherit;border-radius:99px;font:700 14px/1 inherit;font-family:inherit;cursor:pointer}
+.ubar.err{background:var(--danger,#B42318);color:var(--on-danger,#fff)}
+@media (prefers-reduced-motion:reduce){.ubar{transition:none}}
