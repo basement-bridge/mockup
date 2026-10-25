@@ -19,3 +19,12 @@ Tap area split between tick and name; underline at rest versus hover only on des
 
 ## Loads
 One small CSS file and one small script, nothing on page load beyond them. No data, route, security or cost change.
+
+## Decisions, owner, voice, 25 October 2026 (kitchie #1103, edge cases 1 to 5)
+1. Starting state: everyone ticked, nothing narrowed.
+2. One other member: still show the dropdown, tick on, name link works.
+3. **No memory.** Ticks live only on the open page; a refresh returns to everyone ticked; no person ids in the page address; loading older days carries the current ticks quietly. **Revisit if** refreshing mid-review proves annoying (the owner may have made a poor decision here).
+4. "Back to the full catch-up" keeps its wording when several people are shown.
+5. Card line keeps today's form minus the date; with several people it lists their names.
+
+The mockup (`fragments/history-others-picker/`) is not yet updated to show these; draw it before build.
