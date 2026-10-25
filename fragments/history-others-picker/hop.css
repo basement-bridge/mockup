@@ -94,13 +94,13 @@
 .hx .plink2{background:none;border:0;padding:0;font:inherit;color:var(--accent);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .hx .pbar{display:flex;align-items:center;gap:var(--sp-3);flex-wrap:wrap;margin:var(--sp-3) 0 0;padding:var(--sp-2) var(--sp-3);border:1px solid var(--accent);border-radius:var(--r-card);background:var(--surface);font-size:13px}
 .hx .pbar .pt{flex:1;min-width:0}
-.hx .pbar .lnk2{min-height:36px;font-size:13px}
+.hx .pbar .lnk2{min-height:var(--tap);font-size:13px}
 .hx .sentinel{display:flex;justify-content:center;align-items:center;gap:var(--sp-2);margin:var(--sp-5) 0;font-size:13px;color:var(--muted);min-height:48px}
 .hx .sentinel .dots{width:14px;height:14px;border-radius:50%;border:2px solid var(--border);border-top-color:var(--accent);animation:hxspin .8s linear infinite}
 @keyframes hxspin{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){.hx .sentinel .dots{animation:none}}
 /* the tabs and the sorter's two choices are links here (the screen works without script); same look as the mockup's buttons */
-.hx .hx-tabs a{flex:1;min-height:40px;padding:0 6px;white-space:nowrap;border:0;border-radius:var(--r-pill);background:none;font-weight:700;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;color:var(--muted);text-decoration:none}
+.hx .hx-tabs a{flex:1;min-height:var(--tap);padding:0 6px;white-space:nowrap;border:0;border-radius:var(--r-pill);background:none;font-weight:700;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;color:var(--muted);text-decoration:none}
 .hx .hx-tabs a[aria-selected=true]{background:var(--accent);color:var(--on-accent)}
 .hx .hx-tabs a svg{display:block}
 .hx .hx-tabs a .c{font-size:11px;padding:1px 6px;border-radius:var(--r-pill);border:1px solid currentColor;opacity:.85}
@@ -120,7 +120,7 @@
 /* The people dropdown in the scope control (#662): a <details> whose summary is the third segment, with the Pantry ribbon's down arrow; the menu opens below it and works with no script. */
 .hx .hx-tabs{position:relative}
 .hx .hx-people{flex:1;min-width:0;display:flex}
-.hx .hx-people>summary{flex:1;min-width:0;min-height:40px;padding:0 6px;list-style:none;border-radius:var(--r-pill);font-weight:700;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;color:var(--muted);-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+.hx .hx-people>summary{flex:1;min-width:0;min-height:var(--tap);padding:0 6px;list-style:none;border-radius:var(--r-pill);font-weight:700;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;color:var(--muted);-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
 .hx .hx-people>summary::-webkit-details-marker{display:none}
 .hx .hx-people>summary[aria-selected=true]{background:var(--accent);color:var(--on-accent)}
 .hx .hx-people>summary:focus-visible,.hx .hx-menu a:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}

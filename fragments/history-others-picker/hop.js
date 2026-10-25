@@ -4,10 +4,12 @@
   var svg = function (n, c) { return '<svg viewBox="0 0 24 24" aria-hidden="true"' + (c ? ' class="' + c + '"' : "") + ">" + IC[n] + "</svg>"; };
   var CHEV = '<svg class="chev" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 10l5 5 5-5"/></svg>';
   var ME = { id: "me", name: "You", n: 71 };
-  var OTHERS = [{ id: "sg", name: "Sleepy Gecko", n: 1, ev: ["Marked the oat milk as used up"] }, { id: "ma", name: "Matilda", n: 5, ev: ["Added 2 jars of tahini", "Used 1 of the eggs", "Moved the rice to the cupboard", "Added a note to the lentils", "Marked the spinach as used up"] }];
+  var OTHERS = [{ id: "sg", name: "Sleepy Gecko", n: 1, ev: ["Marked the oat milk as used up"] }, { id: "ma", name: "Matilda", n: 5, ev: ["Added 2 jars of tahini", "Used 1 of the eggs", "Moved the rice to the cupboard", "Added a note to the lentils", "Marked the spinach as used up"] }, { id: "ar", name: "Aroha", n: 2, ev: ["Added a bag of oats", "Moved the butter to the fridge door"] }];
+  var H0 = location.hash.slice(1), NOLINK = /-nolink$/.test(H0), H1 = H0.replace(/-nolink$/, "");
+  if (H1 === "one" || H1 === "one-open") OTHERS = OTHERS.slice(0, 1); /* one other member: nothing to narrow, dropdown still drawn */
   var ALL = OTHERS.map(function (p) { return p.id; });
-  var h = location.hash.slice(1);
-  var S = { tab: h === "mine" ? "mine" : "other", open: h === "open", ticked: h === "matilda" ? ["ma"] : ALL.slice() };
+  var h = H1;
+  var S = { tab: h === "mine" ? "mine" : "other", open: h === "open" || h === "one-open", ticked: h === "matilda" ? ["ma"] : h === "several" ? ["ma", "ar"] : ALL.slice() };
   var narrowed = function () { return S.ticked.length < ALL.length; };
   var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
   var ini = function (n) { return n.charAt(0).toUpperCase(); };
@@ -15,7 +17,7 @@
 
   function tabs() {
     var mine = '<a role="tab" href="#mine" data-tab="mine" aria-selected="' + (S.tab === "mine") + '">' + svg("user", "sm") + 'Mine <span class="c">' + ME.n + "</span></a>";
-    if (S.tab === "mine") return mine + '<a role="tab" href="#other" data-tab="other" aria-selected="false">' + svg("users", "sm") + 'Others <span class="c">6</span></a>';
+    if (S.tab === "mine") return mine + '<a role="tab" href="#other" data-tab="other" aria-selected="false">' + svg("users", "sm") + 'Others <span class="c">' + OTHERS.reduce(function (a, p) { return a + p.n; }, 0) + '</span></a>';
     var rows = OTHERS.map(function (p) {
       var on = S.ticked.indexOf(p.id) > -1;
       return '<div class="hx-row"><button type="button" class="tick" role="checkbox" data-tick="' + p.id + '" aria-checked="' + on + '" aria-label="Show ' + esc(p.name) + '’s changes"></button>' +
@@ -26,13 +28,14 @@
   }
   function card() {
     if (S.tab === "mine") return '<section class="catch" aria-label="Recent changes"><div class="chead"><h2>' + svg("bell") + 'Recent changes</h2></div><p class="sum">71 changes: 71 by you</p></section>';
+    var total = 71 + OTHERS.reduce(function (a, p) { return a + p.n; }, 0);
     var parts = ["71 by you"].concat(OTHERS.map(function (p) { return p.n + ' by <a class="plink2" href="#" data-only="' + p.id + '">' + esc(p.name) + "</a>"; }));
-    return '<section class="catch" aria-label="Recent changes"><div class="chead"><h2>' + svg("bell") + 'Recent changes</h2><span class="ib" aria-label="Mark as caught up">' + svg("check") + '</span><span class="ib" aria-label="Leave the catch-up">' + svg("x") + '</span></div><p class="sum">77 changes: ' + parts.join(", ") + "</p></section>";
+    return '<section class="catch" aria-label="Recent changes"><div class="chead"><h2>' + svg("bell") + 'Recent changes</h2><span class="ib" aria-label="Mark as caught up">' + svg("check") + '</span><span class="ib" aria-label="Leave the catch-up">' + svg("x") + '</span></div><p class="sum">' + (narrowed() ? total + " changes in all, shown below for " + shown().map(function (p) { return esc(p.name); }).join(", ") : total + " changes: " + parts.join(", ")) + "</p></section>";
   }
   function pbar() {
     if (S.tab !== "other" || !narrowed()) return "";
     var ps = shown(), nm = ps.map(function (p) { return p.name; }).join(", "), n = ps.reduce(function (a, p) { return a + p.n; }, 0);
-    return '<div class="pbar"><span class="av sm" aria-hidden="true">' + ini(ps[0].name) + '</span><span class="pt">Only changes by <b>' + esc(nm) + "</b> in this catch-up · " + n + '</span><a class="lnk2" href="#" data-all>Back to the full catch-up</a></div>';
+    return '<div class="pbar"><span class="av sm" aria-hidden="true">' + ini(ps[0].name) + '</span><span class="pt"><b>' + esc(nm) + "</b> · " + n + '</span>' + (NOLINK ? "" : '<a class="lnk2" href="#" data-all>Back to the full catch-up</a>') + "</div>";
   }
   function feed() {
     var ps = S.tab === "mine" ? [{ name: "You", id: "me", ev: ["Added 3 tins of tomatoes", "Marked the milk as used up"], n: 71 }] : shown();
@@ -49,7 +52,7 @@
     document.getElementById("feed").innerHTML = feed();
     var d = document.querySelector(".hx-people");
     if (d) d.addEventListener("toggle", function () { S.open = d.open; });
-    document.getElementById("hint").textContent = S.tab === "mine" ? "Mine: your own changes. Others is a plain tab here; the dropdown is drawn once Others is on." : S.open ? "Open: tick or untick people (several at once), or press a name to see only that person." : narrowed() ? "Narrowed: only the ticked people are shown, with the way back to everyone." : "Closed (the default): nothing narrowed, so everyone’s changes show. Press Others to open the list.";
+    document.getElementById("hint").textContent = S.tab === "mine" ? "Mine: your own changes. Others is a plain tab here; the dropdown is drawn once Others is on." : S.open ? "Open: tick or untick people (several at once), or press a name to see only that person." : narrowed() ? ("Narrowed: only the ticked people are shown, with " + (NOLINK ? "no shortcut: tick people in the dropdown to get back." : "the way back to everyone.")) : "Closed (the default): nothing narrowed, so everyone’s changes show. Press Others to open the list.";
   }
   document.addEventListener("click", function (ev) {
     var d = document.querySelector(".hx-people[open]");

@@ -27,4 +27,6 @@ One small CSS file and one small script, nothing on page load beyond them. No da
 4. "Back to the full catch-up" keeps its wording when several people are shown.
 5. Card line keeps today's form minus the date; with several people it lists their names.
 
-The mockup (`fragments/history-others-picker/`) is not yet updated to show these; draw it before build.
+Redrawn 25 Oct 2026: `fragments/history-others-picker/` now shows closed, open, one member, several ticked with the Back link (A) and without it (B), and a name pressed both ways, with Aroha added as a third member. **Owner to pick A or B** (recommend A only for the name-press case); then record the pick here and on #1103.
+
+Design review (separate agent, 25 Oct 2026): Pass with changes, applied: the Others trigger, Mine tab and Back link are now 44px (were 40, 40 and 36 in the lifted `history-phone.css`; **the build must make the same change**), the person bar is shortened to names and count so it no longer repeats the card line, the Mine-tab count is computed. Not rendered at +30% text. Not seen on a phone.
