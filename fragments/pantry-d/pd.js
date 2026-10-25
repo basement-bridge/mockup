@@ -237,7 +237,7 @@
   P_.outHtml = function () {
     const cards = D.home.out.map(pItem).map((i) => {
       const auto = D.home.override.indexOf(i.id) < 0, q = /^Level/.test(i.amt) ? "" : i.amt.split(",")[0];
-      return '<li class="oc"><button type="button" class="oc-b" data-a="toast" data-t="Opens ' + esc(i.name) + '"><span class="oc-e" aria-hidden="true">' + (i.e || '<span class="r-ltr">' + esc(i.name.charAt(0)) + "</span>") + '</span><span class="oc-t"><span class="oc-1"><b>' + esc(i.name) + "</b>" + ubHtml(i.days) + '</span><span class="oc-2"><small>' + esc(i.spot) + '</small><span class="oc-q">' + (auto ? esc(q) : lvIc(i.lvl)) + "</span></span></span></button></li>";
+      return '<li class="oc"><button type="button" class="oc-b" data-a="toast" data-t="Opens ' + esc(i.name) + '"><span class="oc-t"><span class="oc-1"><b>' + esc(i.name) + "</b>" + ubHtml(i.days) + '</span><span class="oc-2"><small>' + esc(i.spot) + '</small><span class="oc-q">' + (auto ? esc(q) : lvIc(i.lvl)) + "</span></span></span></button></li>";
     }).join("");
     return '<ul class="oc-track">' + cards + "</ul>";
   };

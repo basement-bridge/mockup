@@ -126,7 +126,7 @@
 /* ---- Home (curated; shares the tokens and components) ---- */
 .llp[data-v=d] .hm{padding:8px 12px 24px}
 .llp[data-v=d] .hm-hi{font-size:1.5rem;padding:4px 2px 10px}
-.llp[data-v=d] .hm-sec{margin-top:18px}
+.llp[data-v=d] .hm-sec{margin-top:14px}
 .llp[data-v=d] .hm-h{padding:0 2px}
 .llp[data-v=d] .hm-h h2{font:800 12px var(--body);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
 .llp[data-v=d] .hm-i{color:var(--muted)}
@@ -170,10 +170,10 @@
 @media(prefers-reduced-motion:reduce){.bs-track.jig,.hb.cf{animation:none}}
 /* On the way out: a carousel of tight two-row cards (owner, 25 Oct 2026). Row 1: name, use-by. Row 2: where it lives, quantity or level (same slot, same size, never both).
    Narrower than the screen so the next card peeks in. Past use-by is red writing with a minus sign, not a pill. */
-.oc-track{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x proximity;scroll-padding:0 12px;scrollbar-width:none;margin:2px -12px 0;padding:2px 12px}
+.oc-track{display:flex;gap:6px;overflow-x:auto;scroll-snap-type:x proximity;scroll-padding:0 12px;scrollbar-width:none;margin:2px -12px 0;padding:2px 12px}
 .oc-track::-webkit-scrollbar{display:none}
-.oc{flex:none;width:calc(100% - 44px);scroll-snap-align:start}
-.oc-b{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;padding:3px 10px 3px 8px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--surface)}
+.oc{flex:none;width:min(66%,248px);scroll-snap-align:start}
+.oc-b{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;padding:2px 10px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--surface)}
 .oc-e{font-size:1.25rem;display:inline-flex;flex:none;width:26px;justify-content:center}
 .oc-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
 .oc-1,.oc-2{display:flex;align-items:center;gap:8px;min-width:0}
