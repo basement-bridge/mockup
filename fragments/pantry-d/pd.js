@@ -217,7 +217,7 @@
     const mk = (acc) => '<button type="button" class="hb mk' + (acc ? " acc" : "") + '" data-a="makeit" aria-label="Make it">' + ic("chef") + '<span class="hb-l">Make it</span></button>';
     const ap = '<button type="button" class="hb ap acc" data-a="addplan">' + ic("plan") + '<span class="hb-l">Add to plan</span></button>';
     const cf = '<button type="button" class="hb cf' + (S.ready ? " acc" : "") + '" data-a="confirm"' + (S.ready ? "" : " disabled") + ">" + ic("check") + '<span class="hb-l">Confirm</span></button>';
-    if (S.basis) return cf + (plan === "today" ? mk(false) : "") + '<button type="button" class="hb sw" data-a="swap" aria-label="Close ideas">' + ic("x") + "</button>";
+    if (S.basis) return cf + (plan === "today" ? mk(false) : "");
     if (plan === "today") return mk(true) + sw(false);
     if (plan === "other") return sw(true);
     return ap + mk(false);
@@ -225,19 +225,19 @@
   P_.basisHtml = function () {
     const S = this.S, st = S.basisStyle, L = D.leans, cur = S.lean;
     const items = L.map((l) => '<button type="button" class="bs-i" role="radio" data-a="lean" data-l="' + l[0] + '" aria-checked="' + (cur === l[0]) + '" aria-selected="' + (cur === l[0]) + '" tabindex="' + (cur === l[0] ? 0 : -1) + '">' + esc(l[1]) + "</button>").join("");
-    if (st === "chips") return '<div class="bs bs-chips" role="radiogroup" aria-label="Based on">' + items + "</div>";
-    return '<div class="bs bs-' + st + '" role="radiogroup" aria-label="Based on"><div class="bs-track">' + items + '</div></div>';
+    if (st === "chips") return '<div class="bs bs-chips" role="radiogroup" aria-label="I feel like">' + items + "</div>";
+    return '<div class="bs bs-' + st + '" role="radiogroup" aria-label="I feel like"><div class="bs-track">' + items + '</div></div>';
   };
   P_.heroMeta = function (i) { const inf = (D.ideaInfo || {})[i.id] || {}; return i.min + " min \u00b7 " + (i.miss ? i.miss + " missing" + (inf.miss && inf.miss.length ? ": " + inf.miss.join(", ") : "") : "all in"); };
   P_.heroHtml = function () {
     const S = this.S, idea = this.idea(), plan = S.plan, inf = (D.ideaInfo || {})[idea.id] || {};
     return '<section class="hm-hero hero-' + S.hero + '" id="hero"><div class="hm-top"><span class="r-lead th" aria-hidden="true"><span id="hi-e">' + idea.e + '</span></span><div class="hm-it"><span class="hm-k">' + (S.basis ? "Trying" : plan === "other" ? "Planned Saturday" : plan === "today" ? "Tonight, planned" : "Tonight") + '</span><b id="hi-n">' + esc(idea.name) + '</b><small id="hi-m">' + esc(this.heroMeta(idea)) + '</small><span class="hm-why" id="hi-w">' + esc(inf.why || "") + '</span></div></div>' +
-      '<div class="hm-based" id="based"' + (S.basis ? "" : " hidden") + '><span class="bs-k">Based on</span><div id="basis"></div></div><div class="hm-acts" id="acts">' + this.actsHtml() + "</div></section>";
+      '<div class="hm-based" id="based"' + (S.basis ? "" : " hidden") + '><span class="bs-k">I feel like</span><div id="basis"></div></div><div class="hm-acts" id="acts">' + this.actsHtml() + "</div></section>";
   };
   P_.outHtml = function () {
     const cards = D.home.out.map(pItem).map((i) => {
       const auto = D.home.override.indexOf(i.id) < 0, q = /^Level/.test(i.amt) ? "" : i.amt.split(",")[0];
-      return '<li class="oc"><button type="button" class="oc-b" data-a="toast" data-t="Opens ' + esc(i.name) + '"><span class="oc-t"><span class="oc-1"><b>' + esc(i.name) + "</b>" + ubHtml(i.days) + '</span><span class="oc-2"><small>' + esc(i.spot) + '</small><span class="oc-q">' + (auto ? esc(q) : lvIc(i.lvl)) + "</span></span></span></button></li>";
+      return '<li class="oc"><button type="button" class="oc-b" data-a="toast" data-t="Opens ' + esc(i.name) + '">' + (i.e ? '<span class="oc-e" aria-hidden="true">' + i.e + "</span>" : "") + '<span class="oc-t"><span class="oc-1"><b>' + esc(i.name) + "</b>" + ubHtml(i.days) + '</span><span class="oc-2"><small>' + esc(i.spot) + '</small><span class="oc-q">' + (auto ? esc(q) : lvIc(i.lvl)) + "</span></span></span></button></li>";
     }).join("");
     return '<ul class="oc-track">' + cards + "</ul>";
   };
@@ -248,9 +248,15 @@
       return '<li class="r lw" data-id="' + i.id + '">' + underHtml(true) + "<button type=\"button\" class=\"r-main\" data-swipe=\"1\" data-home=\"1\" data-a=\"toast\" data-t=\"Opens " + esc(i.name) + "\" aria-label=\"" + esc(i.name) + ", " + esc(q) + (on ? ", on the shopping list" : ", not on the list") + '"><span class="r-lead" aria-hidden="true"><span>' + (i.e || '<span class="r-ltr">' + esc(i.name.charAt(0)) + "</span>") + '</span></span><span class="r-text"><b class="r-name"><span class="nm">' + esc(i.name) + '</span></b></span><span class="lw-q">' + esc(q) + '</span><span class="lw-c' + (on ? " on" : "") + '" role="img" aria-label="' + (on ? "On the shopping list" : "Not on the list") + '">' + ic("cart") + "</span></button>" + kbHtml(on ? [["rm", "Remove from list"]] : [["shop", "Add to list"], ["hide", "Don\u2019t remind me"]]) + "</li>";
     }).join("") + "</ul>";
   };
+  /* UAT's other ideas under the hero, drawn last and only when they fit without scrolling (owner, 25 Oct 2026) */
+  P_.moreHtml = function () {
+    const cur = this.idea().id, rows = ["saag", "toastie", "dal", "pancakes", "soup", "omelette"].filter((id) => id !== cur).slice(0, 2).map(rItem);
+    return '<section class="hm-sec hm-more" hidden><div class="hm-h"><span class="hm-i">' + ic("star") + "</span><h2>More ideas</h2></div><ul class=\"mi-rows\">" + rows.map((r) => '<li><button type="button" class="mi-b" data-a="toast" data-t="Opens ' + esc(r.name) + '"><span class="r-lead th" aria-hidden="true"><span>' + r.e + '</span></span><span class="mi-t"><b>' + esc(r.name) + "</b><small>" + esc(this.heroMeta(r)) + "</small></span></button></li>").join("") + "</ul></section>";
+  };
+  P_.fitMore = function () { const m = this.el.querySelector(".hm-more"), b = this.el.querySelector(".ll-body"); if (!m || !b) return; const end = b.querySelector(".ll-end"), pad = end ? end.offsetHeight : 0; m.hidden = false; if (b.scrollHeight - pad > b.clientHeight + 1) m.hidden = true; };
   P_.homeHtml = function () {
     const sec = (cls, icn, t, body) => body ? '<section class="hm-sec ' + cls + '"><div class="hm-h"><span class="hm-i">' + ic(icn) + "</span><h2>" + t + "</h2></div>" + body + "</section>" : "";
-    return '<div class="hm"><h1 class="hm-hi">Good evening, ' + esc(D.me) + ".</h1>" + this.heroHtml() + sec("hm-out", "clock", "On the way out", this.outHtml()) + sec("hm-low", "basket", "Running low", this.lowHtml()) + "</div>";
+    return '<div class="hm"><h1 class="hm-hi">Good evening, ' + esc(D.me) + ".</h1>" + this.heroHtml() + sec("hm-out", "clock", "On the way out", this.outHtml()) + sec("hm-low", "basket", "Running low", this.lowHtml()) + this.moreHtml() + "</div>";
   };
 
   /* ---------- draw ---------- */
@@ -269,6 +275,7 @@
     const oc2 = this.el.querySelector(".oc-track"); if (oc2 && ocl) oc2.scrollLeft = ocl;
     if (S.search) { const q = this.el.querySelector(".tp-q"); if (q) { q.focus({ preventScroll: true }); try { q.setSelectionRange(q.value.length, q.value.length); } catch (e) {} } }
     if (this.s === "home" && S.basis) this.mountBasis(false);
+    if (this.s === "home") this.fitMore();
     this._sheetWas = S.sheet;
     /* a redraw must not drop keyboard focus: open the sheet onto its close button, give focus back to the control that opened it, else to the same control */
     if (S.sheet && !wasSheet) { const x = this.el.querySelector(".sh-x"); if (x) x.focus({ preventScroll: true }); }
@@ -324,7 +331,7 @@
     if (q("#hi-e")) q("#hi-e").textContent = i.e; if (q("#hi-n")) q("#hi-n").textContent = i.name; if (q("#hi-m")) q("#hi-m").textContent = this.heroMeta(i); if (q("#hi-w")) q("#hi-w").textContent = ((D.ideaInfo || {})[i.id] || {}).why || "";
     this.actsPatch();
   };
-  P_.actsPatch = function () { const a = this.el.querySelector("#acts"); if (a) a.innerHTML = this.actsHtml(); };
+  P_.actsPatch = function () { const a = this.el.querySelector("#acts"); if (a) a.innerHTML = this.actsHtml(); this.fitMore(); };
 
   /* ---------- actions ---------- */
   const A = {
@@ -511,7 +518,7 @@
     this.el.addEventListener("input", (e) => { if (e.target.classList.contains("tp-q")) { p.S.q = e.target.value; p.redrawList(); } });
     document.addEventListener("keydown", (e) => {
       const S = p.S;
-      if (e.key === "Escape") { if (S.sheet) { S.sheet = false; p.draw(); } else if (S.search) { S.search = false; S.q = ""; p.draw(); } else if (S.sel) { S.sel = null; p.draw(); } return; }
+      if (e.key === "Escape") { if (S.basis) { A.swap(p); } else if (S.sheet) { S.sheet = false; p.draw(); } else if (S.search) { S.search = false; S.q = ""; p.draw(); } else if (S.sel) { S.sel = null; p.draw(); } return; }
       if (e.key === "Tab" && S.sheet) { const f = [].slice.call(p.el.querySelectorAll(".ll-sheet button")); if (!f.length) return; const i = f.indexOf(document.activeElement); if (e.shiftKey && i <= 0) { e.preventDefault(); f[f.length - 1].focus(); } else if (!e.shiftKey && i === f.length - 1) { e.preventDefault(); f[0].focus(); } return; }
       /* the keyboard way to the two hold gestures (never gesture-only): on a group heading, Shift+Enter folds or opens all; with all folded, Alt+Up or Alt+Down moves it */
       const h = e.target.closest && e.target.closest(".g-h"); if (!h || !p.el.contains(h)) return;
@@ -521,5 +528,5 @@
     });
     this.bindGestures();
   };
-  window.PD = { mount(el, o) { const p = new Phone(el, o); p.bind(); el._pd = p; setTimeout(() => p.nudge(), 4000); return p; } };
+  window.PD = { mount(el, o) { const p = new Phone(el, o); p.bind(); el._pd = p; setTimeout(() => p.nudge(), 4000); window.addEventListener("resize", () => p.fitMore()); return p; } };
 })();

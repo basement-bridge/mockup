@@ -60,7 +60,7 @@
 .llp[data-v=d] .am-n{font-size:0.7812rem;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.1;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-height:1.1em}
 .llp[data-v=d] .r-ub{grid-column:4;grid-row:1;display:flex;justify-content:center;min-width:0}
 .llp[data-v=d] .ub{font-size:0.75rem;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
-.llp[data-v=d] .ub-danger{background:var(--danger);color:var(--bg);padding:3px 7px;border-radius:99px}
+.llp[data-v=d] .ub-danger{color:var(--danger)}
 .llp[data-v=d] .ub-accent{color:var(--accent)}
 .llp[data-v=d] .ub-mut{color:var(--muted);font-weight:700}
 .llp[data-v=d] .rd{font-size:0.7188rem;font-weight:500;white-space:nowrap}
@@ -150,11 +150,14 @@
 @container (max-width:250px){.hb.mk .hb-l{display:none}.hb.mk{flex:0 0 52px}}
 @container (max-width:170px){.hb.sw .hb-l{display:none}.hb.sw{flex:0 0 52px}}
 /* the recommendation basis: shown after Swap. carousel (default), dial (one centred, like the Settings rotary) or chips (all visible) */
-.hm-based{margin-top:14px}
-.bs-k{display:block;font-size:0.6875rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.hm-based{margin-top:10px}
+.hm-based{display:flex;align-items:center;gap:2px}
+.hm-based[hidden]{display:none}
+.bs-k{flex:none;font-size:0.8125rem;font-weight:700;color:var(--muted);white-space:nowrap}
+.hm-based #basis{flex:1;min-width:0}
 /* "Based on" (owner, 25 Oct 2026): tab words, no pills, in a rotary/carousel: the chosen word snaps to the centre with a line under it and the neighbours peek in either side.
    Native scroll snapping gives the soft flick and ease-out stop; a tap glides the word to the centre. */
-.bs-track{display:flex;gap:4px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none;overscroll-behavior-x:contain;touch-action:pan-x pan-y;-webkit-overflow-scrolling:touch;padding:0 calc(50% - 34px);-webkit-mask-image:linear-gradient(90deg,transparent,#000 16%,#000 84%,transparent);mask-image:linear-gradient(90deg,transparent,#000 16%,#000 84%,transparent)}
+.bs-track{position:relative;display:flex;gap:4px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none;overscroll-behavior-x:contain;touch-action:pan-x pan-y;-webkit-overflow-scrolling:touch;padding:0 calc(50% - 34px);-webkit-mask-image:linear-gradient(90deg,transparent,#000 16%,#000 84%,transparent);mask-image:linear-gradient(90deg,transparent,#000 16%,#000 84%,transparent)}
 .bs-track::-webkit-scrollbar{display:none}
 .bs-i{flex:none;scroll-snap-align:center;min-height:48px;display:inline-flex;align-items:center;padding:0 12px;font-weight:700;font-size:0.9375rem;color:var(--muted);border:0;border-bottom:3px solid transparent;border-radius:0;background:none;white-space:nowrap}
 .bs-i[aria-selected=true]{color:var(--fg);border-bottom-color:var(--accent)}
@@ -164,16 +167,16 @@
 @media(prefers-reduced-motion:reduce){.bs-track.jig,.hb.cf{animation:none}}
 /* On the way out: a carousel of tight two-row cards (owner, 25 Oct 2026). Row 1: name, use-by. Row 2: where it lives, quantity or level (same slot, same size, never both).
    Narrower than the screen so the next card peeks in. Past use-by is red writing with a minus sign, not a pill. */
-.oc-track{display:flex;gap:6px;overflow-x:auto;scroll-snap-type:x proximity;scroll-padding:0 12px;scrollbar-width:none;margin:2px -12px 0;padding:2px 12px}
+.oc-track{display:flex;gap:6px;touch-action:pan-x pan-y;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;overflow-x:auto;scroll-snap-type:x proximity;scroll-padding:0 12px;scrollbar-width:none;margin:2px -12px 0;padding:2px 12px}
 .oc-track::-webkit-scrollbar{display:none}
-.oc{flex:none;width:min(66%,248px);scroll-snap-align:start}
-.oc-b{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;padding:2px 10px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--surface)}
-.oc-e{font-size:1.25rem;display:inline-flex;flex:none;width:26px;justify-content:center}
+.oc{flex:none;width:max-content;max-width:min(78%,280px);scroll-snap-align:start}
+.oc-b{display:flex;align-items:center;gap:7px;width:auto;max-width:100%;min-height:44px;padding:2px 10px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--surface)}
+.oc-e{font-size:1.0625rem;display:inline-flex;flex:none;width:20px;justify-content:center}
 .oc-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
-.oc-1,.oc-2{display:flex;align-items:center;gap:8px;min-width:0}
-.oc-1 b{flex:1;min-width:0;font-size:0.9062rem;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.oc-1,.oc-2{display:flex;align-items:center;gap:12px;min-width:0}
+.oc-1 b{flex:1 1 auto;min-width:0;font-size:0.9062rem;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .oc-2{min-height:1rem}
-.oc-2 small{flex:1;min-width:0;font-size:0.7188rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.oc-2 small{flex:1 1 auto;min-width:0;font-size:0.7188rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .oc-q{flex:none;display:inline-flex;align-items:center;font-size:0.7188rem;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums}
 .oc .ub{flex:none;font-size:0.75rem;font-weight:800}
 .llp[data-v=d] .oc .ub-danger{background:none;padding:0;border-radius:0;color:var(--danger)}
@@ -199,3 +202,14 @@
 .llp[data-v=d] .lv i{width:10px;height:10px;border-radius:3px}
 .llp[data-v=d] .ll-tabs a{font-size:.7rem}
 .llp[data-v=d] .ll-tabs a span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* More ideas (UAT: the hero's other ideas): drawn last, only when there is room after On the way out and Running low (owner, 25 Oct 2026) */
+.hm-more[hidden]{display:none}
+.mi-rows{list-style:none;margin:0 -12px;padding:0}
+.mi-rows li{border-bottom:1px solid var(--border)}
+.mi-rows li:first-child{border-top:1px solid var(--border)}
+.mi-b{display:flex;align-items:center;gap:10px;width:100%;min-height:52px;padding:2px 12px}
+.mi-b .r-lead.th{display:flex;width:36px;height:36px;font-size:1.375rem;border-radius:6px;border:0;background:linear-gradient(150deg,color-mix(in srgb,var(--fg) 22%,var(--surface)),color-mix(in srgb,var(--sage) 38%,var(--surface)));box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--fg) 28%,transparent)}
+.mi-t{flex:1;min-width:0}
+.mi-t b{display:block;font-size:0.9375rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mi-t small{display:block;font-size:0.7188rem;color:var(--muted)}
