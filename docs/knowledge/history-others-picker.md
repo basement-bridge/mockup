@@ -30,3 +30,20 @@ One small CSS file and one small script, nothing on page load beyond them. No da
 Redrawn 25 Oct 2026: `fragments/history-others-picker/` now shows closed, open, one member, several ticked with the Back link (A) and without it (B), and a name pressed both ways, with Aroha added as a third member. **Owner to pick A or B** (recommend A only for the name-press case); then record the pick here and on #1103.
 
 Design review (separate agent, 25 Oct 2026): Pass with changes, applied: the Others trigger, Mine tab and Back link are now 44px (were 40, 40 and 36 in the lifted `history-phone.css`; **the build must make the same change**), the person bar is shortened to names and count so it no longer repeats the card line, the Mine-tab count is computed. Not rendered at +30% text. Not seen on a phone.
+
+## Owner's notes after reviewing the mockup, voice, 25 October 2026 (kitchie #1103), closely paraphrased
+- **Frame 2 (open, everyone ticked) is the pick.**
+- **Drop the Recent changes card.** The dropdown already shows each person and count, so the card repeats it. Done in every frame; `picker.html#open-card` keeps one comparison frame.
+- **Frame 3 (one other member) preferred**, but it shows only one other person. What matters is that the name link works for every other user; it does (dropdown name and each day's group name show only that person).
+- **Ticking Matilda, or Matilda and Aroha:** the owner cannot answer yet; stays open.
+- **Back link A or B, and name pressed with or without the link:** hard to choose; **undecided, both kept**.
+- **History over more than today:** every frame now draws Today, Yesterday and the day before (sample rows; Mine shows a few rows under the real per-day count).
+
+## Open after these notes
+1. Where do "Mark as caught up" (tick) and "Leave the catch-up" (X) live now the card is gone, or are they dropped? They were on the card. **Proposal:** keep them in the header row beside the History title. Not drawn; a wrong guess changes how catch-up works.
+2. The 25 Oct card wording ("72 changes: 71 by you, 1 by ...") has no home without the card. The person bar still names who is shown and the count.
+3. Two people ticked (Matilda and Aroha): the screen's wording; owner cannot answer yet.
+4. Back link A or B (frames 4 and 5, name pressed).
+5. How many days the first load shows before "Load older" (drawn: three).
+
+Not run: +30% text, a real phone. Design review of this revision not repeated.

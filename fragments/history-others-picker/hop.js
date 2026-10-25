@@ -4,8 +4,10 @@
   var svg = function (n, c) { return '<svg viewBox="0 0 24 24" aria-hidden="true"' + (c ? ' class="' + c + '"' : "") + ">" + IC[n] + "</svg>"; };
   var CHEV = '<svg class="chev" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 10l5 5 5-5"/></svg>';
   var ME = { id: "me", name: "You", n: 71 };
-  var OTHERS = [{ id: "sg", name: "Sleepy Gecko", n: 1, ev: ["Marked the oat milk as used up"] }, { id: "ma", name: "Matilda", n: 5, ev: ["Added 2 jars of tahini", "Used 1 of the eggs", "Moved the rice to the cupboard", "Added a note to the lentils", "Marked the spinach as used up"] }, { id: "ar", name: "Aroha", n: 2, ev: ["Added a bag of oats", "Moved the butter to the fridge door"] }];
-  var H0 = location.hash.slice(1), NOLINK = /-nolink$/.test(H0), H1 = H0.replace(/-nolink$/, "");
+  var OTHERS = [{ id: "sg", name: "Sleepy Gecko", n: 1, days: [["Marked the oat milk as used up"], [], []] }, { id: "ma", name: "Matilda", n: 5, days: [["Added 2 jars of tahini", "Used 1 of the eggs"], ["Moved the rice to the cupboard", "Added a note to the lentils"], ["Marked the spinach as used up"]] }, { id: "ar", name: "Aroha", n: 2, days: [[], ["Added a bag of oats"], ["Moved the butter to the fridge door"]] }];
+  var DAYS = [["Today", "Sun 25 Oct"], ["Yesterday", "Sat 24 Oct"], ["Friday", "23 Oct"]]; /* History over three days (owner, 25 Oct 2026) */
+  var MINE = { id: "me", name: "You", n: 71, days: [["Added 3 tins of tomatoes", "Marked the milk as used up"], ["Added a pack of pasta", "Used 2 of the eggs"], ["Moved the flour to the cupboard"]], counts: [24, 31, 16] }; /* a few sample rows per day under the real count */
+  var H0 = location.hash.slice(1), NOLINK = /-nolink/.test(H0), CARD = /-card/.test(H0), H1 = H0.replace(/-(nolink|card)/g, ""); /* -card draws the Recent changes card again, for comparison only */
   if (H1 === "one" || H1 === "one-open") OTHERS = OTHERS.slice(0, 1); /* one other member: nothing to narrow, dropdown still drawn */
   var ALL = OTHERS.map(function (p) { return p.id; });
   var h = H1;
@@ -27,6 +29,7 @@
     return mine + '<details class="hx-people"' + (S.open ? " open" : "") + (narrowed() ? " data-on" : "") + '><summary role="tab" aria-selected="true" aria-haspopup="menu" aria-label="Others. ' + (narrowed() ? "Showing " + S.ticked.length + " of " + ALL.length + ". " : "") + 'Pick people">' + svg("users", "sm") + 'Others <span class="c">' + n + "</span>" + CHEV + '</summary><div class="hx-menu" role="menu" aria-label="People">' + rows + "</div></details>";
   }
   function card() {
+    if (!CARD) return ""; /* owner, 25 Oct 2026: the Recent changes card is extraneous now the dropdown shows each person and count */
     if (S.tab === "mine") return '<section class="catch" aria-label="Recent changes"><div class="chead"><h2>' + svg("bell") + 'Recent changes</h2></div><p class="sum">71 changes: 71 by you</p></section>';
     var total = 71 + OTHERS.reduce(function (a, p) { return a + p.n; }, 0);
     var parts = ["71 by you"].concat(OTHERS.map(function (p) { return p.n + ' by <a class="plink2" href="#" data-only="' + p.id + '">' + esc(p.name) + "</a>"; }));
@@ -38,11 +41,16 @@
     return '<div class="pbar"><span class="av sm" aria-hidden="true">' + ini(ps[0].name) + '</span><span class="pt"><b>' + esc(nm) + "</b> · " + n + '</span>' + (NOLINK ? "" : '<a class="lnk2" href="#" data-all>Back to the full catch-up</a>') + "</div>";
   }
   function feed() {
-    var ps = S.tab === "mine" ? [{ name: "You", id: "me", ev: ["Added 3 tins of tomatoes", "Marked the milk as used up"], n: 71 }] : shown();
-    return '<section class="day"><div class="lbl">Today <small>Fri 23 Oct</small></div>' + ps.map(function (p) {
-      return '<div class="pg"><div class="who"><a class="plink" href="#"' + (p.id === "me" ? "" : ' data-only="' + p.id + '"') + '><span class="av' + (p.id === "me" ? " me" : "") + '" aria-hidden="true">' + ini(p.name) + "</span><span><b>" + esc(p.name) + "</b><br>" + p.n + (p.n === 1 ? " thing" : " things") + "</span></a></div>" +
-        p.ev.map(function (t, i) { return '<div class="ev"><div class="tx">' + esc(t) + '<div class="meta"><span>Pantry · Kitchie</span></div></div><time>9:' + (10 + i * 7) + " am</time></div>"; }).join("") + "</div>";
-    }).join("") + "</section>";
+    var ps = S.tab === "mine" ? [MINE] : shown();
+    return DAYS.map(function (d, di) {
+      var groups = ps.filter(function (p) { return p.days[di].length; });
+      if (!groups.length) return "";
+      return '<section class="day"><div class="lbl">' + (d[0] ? d[0] + " " : "") + "<small>" + d[1] + "</small></div>" + groups.map(function (p) {
+        var cnt = p.counts ? p.counts[di] : p.days[di].length;
+        return '<div class="pg"><div class="who"><a class="plink" href="#"' + (p.id === "me" ? "" : ' data-only="' + p.id + '"') + '><span class="av' + (p.id === "me" ? " me" : "") + '" aria-hidden="true">' + ini(p.name) + "</span><span><b>" + esc(p.name) + "</b><br>" + cnt + (cnt === 1 ? " thing" : " things") + "</span></a></div>" +
+          p.days[di].map(function (t, i) { return '<div class="ev"><div class="tx">' + esc(t) + '<div class="meta"><span>Pantry · Kitchie</span></div></div><time>' + (di === 0 ? "9:" + (10 + i * 7) + " am" : di === 1 ? "6:" + (10 + i * 12) + " pm" : "11:" + (20 + i * 9) + " am") + "</time></div>"; }).join("") + "</div>";
+      }).join("") + "</section>";
+    }).join("");
   }
   function draw() {
     document.getElementById("tabs").innerHTML = tabs();
