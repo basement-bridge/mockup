@@ -107,3 +107,5 @@ Still open (suggestions): "Don\u2019t remind me" is household-wide in UAT's mech
 ### Left swipe, UAT\u2019s rule (owner, 25 Oct 2026)
 
 Short left = use a bit, long left (190 px) = used up, as UAT. "Use one" takes off one configured step (`server/config/unit-rules.json`: g and mL 50, kg and L 0.25, pack, jar, bag and the like 1); when that is all there is, it is used up (so 50 g or less, and a single jar, go to Used up). Free text such as "3 tubs" goes down by one. The panel label follows: "\u2212 Use one" when it will step down, "\u2713 Used up" when it cannot. Not separately re-reviewed (a one-function change to match UAT).
+
+An item that is already out (level Out or amount 0) has no left swipe and no Use one or Used up button; only Add to list is offered (owner, 25 Oct 2026).

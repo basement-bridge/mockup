@@ -141,7 +141,7 @@
     return '<li class="r' + (sel ? " is-sel" : "") + out + '" data-id="' + i.id + '">' + (P ? underHtml(false) : "") +
       '<button type="button" class="r-main" data-a="row" data-id="' + i.id + '"' + (P ? " data-swipe=\"1\"" : "") + ' aria-label="' + esc(ar) + '"' + (S.sel ? ' aria-pressed="' + !!sel + '"' : "") + ">" +
       '<span class="r-sel" aria-hidden="true">' + (sel ? ic("check") : "") + "</span>" + tile +
-      '<span class="r-text"><b class="r-name"><span class="nm">' + name + "</span>" + star + cue + '</b><small class="r-meta">' + esc(second) + "</small></span>" + tail + "</button>" + (P ? kbHtml([["shop", "Add to list"]].concat(useKind(i) === "one" ? [["one", "Use one"]] : []).concat([["all", "Used up"]])) : "") + "</li>";
+      '<span class="r-text"><b class="r-name"><span class="nm">' + name + "</span>" + star + cue + '</b><small class="r-meta">' + esc(second) + "</small></span>" + tail + "</button>" + (P ? kbHtml([["shop", "Add to list"]].concat(isOut(i) ? [] : (useKind(i) === "one" ? [["one", "Use one"]] : []).concat([["all", "Used up"]]))) : "") + "</li>";
   };
   P_.bodyHtml = function () {
     const S = this.S, P = this.s === "pantry", items = this.items(), gs = this.groups(items);
@@ -381,7 +381,8 @@
   const useKind = (d) => useStep(d).kind;
   const memory = () => { try { return JSON.parse(localStorage.getItem("kitchie.swipe") || "{}") || {}; } catch (e) { return {}; } };
   const remember = (k) => { try { const m = memory(); m[k] = (m[k] || 0) + 1; localStorage.setItem("kitchie.swipe", JSON.stringify(m)); } catch (e) {} };
-  P_.swBlocked = function (row, dx) { if (!row.dataset.home) return false; const on = this.S.onList.has(row.closest(".r").dataset.id); return on ? dx > 0 : dx < 0; };
+  const isOut = (d) => !!d && (d.lvl === "out" || /^\s*0(\s|$)/.test(d.amt || ""));
+  P_.swBlocked = function (row, dx) { if (!row.dataset.home) return dx < 0 && isOut(this.data.filter((x) => x.id === row.closest(".r").dataset.id)[0]); const on = this.S.onList.has(row.closest(".r").dataset.id); return on ? dx > 0 : dx < 0; };
   P_.swLimit = function (row, dx) { return this.swBlocked(row, dx) ? 0 : dx; };
   P_.swAction = function (row, dx) {
     const id = row.closest(".r").dataset.id;
