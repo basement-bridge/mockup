@@ -1,0 +1,97 @@
+/* Sign-in with six providers (mockup, 26 Oct 2026). Tokens only (theme.css); every control is 44px or more (--tap).
+   The base block repeats the few rules of Kitchie's own sign-in screen (kitchie server/src/skin.ts SKIN_CSS: .skin, .hero, .hello, .note, .acts, .small, .btn.primary, .pill)
+   so the frames read as Kitchie. The new rules are the .pv block. Nothing here loads a script or an image. */
+@font-face{font-family:"DM Sans";src:url(../oauth-consent/fonts/dm-sans.woff2) format("woff2");font-weight:100 1000;font-style:normal;font-display:swap}
+@font-face{font-family:"Bricolage Grotesque";src:url(../oauth-consent/fonts/bricolage-grotesque.woff2) format("woff2");font-weight:100 1000;font-style:normal;font-display:swap}
+*{box-sizing:border-box}
+body.skinpage{margin:0 auto;max-width:var(--content-max);padding:1.25rem var(--gutter) 0;background:var(--bg);color:var(--fg);font-family:"DM Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.5}
+body.si{--content-max:30rem}
+a{color:var(--accent)}
+.brandbar{display:inline-flex;align-items:center;gap:.45rem;min-height:44px;font-family:var(--head);font-weight:700;font-size:1.1rem;color:var(--fg);text-decoration:none}
+.brandbar svg{color:var(--sage);flex:none}
+main.skin{--r-ctl:.9rem;--r-card:1.2rem;display:flex;flex-direction:column;gap:.7rem;min-height:calc(100vh - 5.2rem);min-height:calc(100dvh - 5.2rem)}
+.skin h1{font-family:var(--head);font-size:min(2.1rem,11.8vw);line-height:1.05;font-weight:700;margin:0}
+.skin p{margin:.4rem 0 0;color:var(--muted)}
+.skin .small{font-size:.88rem;text-align:center}
+.skin .hello{text-align:center}
+.skin .hello p{font-size:1.05rem}
+.skin .hero{display:flex;flex-direction:column;justify-content:center;gap:.7rem;flex:1 1 auto;min-height:0;overflow:hidden}
+.skin .scene{align-self:stretch;width:100%;flex:1 1 0;min-height:56px;max-height:260px;display:block}
+.skin .scene .sh rect{fill:var(--border)}.skin .scene .pt{fill:var(--accent)}.skin .scene .lf{fill:var(--added-bg)}
+.skin .scene .j1{fill:var(--accent)}.skin .scene .j2{fill:var(--sage)}.skin .scene .j3{fill:var(--muted)}
+.skin .scene .body,.skin .scene .lid path{fill:var(--accent)}.skin .scene .lid circle{fill:var(--fg)}.skin .scene .hd{fill:none;stroke:var(--accent);stroke-width:4;stroke-linecap:round}
+.skin .scene .steam path{fill:none;stroke:var(--muted);stroke-width:2.5;stroke-linecap:round;opacity:.7;animation:si-rise 2.6s ease-in infinite}
+.skin .scene .steam path:nth-child(2){animation-delay:.5s}.skin .scene .steam path:nth-child(3){animation-delay:1s}
+.skin .scene .hearts path{fill:var(--danger)}.skin .scene .pan rect{fill:var(--sage)}.skin .scene .cups rect{fill:var(--muted)}
+@keyframes si-rise{0%{transform:translateY(8px);opacity:0}30%{opacity:.7}100%{transform:translateY(-8px);opacity:0}}
+.skin .env .back{fill:color-mix(in srgb,var(--accent) 55%,var(--surface))}.skin .env .flap{fill:color-mix(in srgb,var(--accent) 80%,var(--fg))}.skin .env .fold{fill:none;stroke:var(--bg);stroke-width:2;opacity:.5}
+.skin .env .letter rect{fill:var(--surface);stroke:var(--accent);stroke-width:2}.skin .env .lp path{fill:var(--accent);stroke:none}.skin .env .lp path:nth-child(2){fill:none;stroke:var(--accent);stroke-width:3;stroke-linecap:round}
+.skin .env .s1,.skin .env .s2{fill:var(--accent)}.skin .env .s3{fill:var(--added-bg)}.skin .env .s4{fill:var(--sage)}.skin .env .s5{fill:none;stroke:var(--sage);stroke-width:3;stroke-linecap:round}
+.skin .acts{display:flex;flex-direction:column;gap:.4rem;flex:none;margin-top:auto;background:var(--bg);padding:.4rem 0 .6rem}
+.skin .btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;margin:0;padding:0 1rem;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--surface);color:var(--fg);font:inherit;text-decoration:none;cursor:pointer}
+.skin .btn:hover{border-color:var(--accent)}
+.skin .btn.primary{width:100%;min-height:52px;gap:.5rem;background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
+.skin .btn.primary:hover{border-color:var(--fg)}
+.skin .btn.ghost{align-self:center;border:0;background:none;color:var(--muted);font-weight:500;text-decoration:underline;text-underline-offset:3px}
+.skin .btn:focus-visible,.skin summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.skin .note{padding:.6rem .8rem;border:1px solid var(--accent);border-radius:var(--r-ctl);background:var(--surface);color:var(--fg);text-align:center;margin:0}
+.skin .pill{display:inline-flex;align-items:center;gap:.4rem;min-height:28px;padding:0 .75rem;border-radius:999px;border:1px solid var(--accent);color:var(--accent);font-size:.75rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin:0 0 .6rem}
+.skin.nm .hello h1{font-size:1.9rem}
+.skin details.qa{align-self:stretch;text-align:center}
+.skin details.qa>summary{display:flex;align-items:center;justify-content:center;gap:.4rem;min-height:44px;padding:0 .9rem;color:var(--muted);text-decoration:underline;text-underline-offset:3px;cursor:pointer;list-style:none}
+.skin details.qa>summary::-webkit-details-marker{display:none}
+.skin details.qa>summary svg{transition:transform .15s}
+.skin details.qa[open]>summary svg{transform:rotate(180deg)}
+.vh{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
+.skin .dev{border:1px dashed var(--border);border-radius:var(--r-ctl);padding:.5rem .8rem;font-size:.82rem;color:var(--muted);text-align:center;margin:0}
+
+/* ---- The provider buttons (new) ---------------------------------------------------------------------------------------------------- */
+.skin .lead{margin:0;font-size:.78rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);text-align:center}
+.pv{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.5rem}
+.pv li{margin:0;min-width:0}
+.pv .btn{position:relative;width:100%;min-height:52px;justify-content:flex-start;gap:.7rem;padding:0 .9rem;font-weight:600;font-size:1rem;overflow:hidden}
+.pv .btn.primary{justify-content:flex-start;font-weight:700}
+.pv .g{display:inline-flex;align-items:center;justify-content:center;flex:none;width:28px;height:28px}
+.pv .g svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.pv .g svg .f{fill:currentColor;stroke:none}
+.pv .n{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pv .lu{position:absolute;right:.55rem;top:50%;transform:translateY(-50%);display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;border:2px solid currentColor}
+.pv .lu svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.pv .btn[aria-busy=true]{cursor:progress}
+.pv .spin{display:none;position:absolute;right:.7rem;top:50%;width:20px;height:20px;margin-top:-10px;border:3px solid color-mix(in srgb,currentColor 30%,transparent);border-top-color:currentColor;border-radius:50%;animation:si-spin .8s linear infinite}
+.pv .btn[aria-busy=true] .spin{display:block}
+.pv[data-busy] .btn:not([aria-busy=true]){opacity:.45;pointer-events:none}
+@keyframes si-spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.skin .scene *{animation:none!important}.pv .spin{animation:none}}
+:root[data-motion=reduce] .skin .scene *{animation:none!important}
+:root[data-motion=reduce] .pv .spin{animation:none}
+/* Option B: two across. Option A: one column (the base). Option C: one button, the rest folded in place. */
+.si[data-opt=b] .pv{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+.si[data-opt=b] .pv .btn{padding:0 .7rem;gap:.5rem}
+.si[data-opt=b] .pv .lu{position:static;transform:none;margin-left:auto;flex:none;width:20px;height:20px}
+.si[data-opt=b] .pv li:only-child{grid-column:1/-1}
+.si[data-opt=b] .pv li:nth-child(odd):last-child{grid-column:1/-1}
+.si[data-opt=c] details.qa .pv{margin:.2rem 0 .3rem}
+.si .cq{display:flex;align-items:center;justify-content:center;gap:.4rem;margin:0;font-size:.88rem;color:var(--muted);text-align:center}
+.si .cq svg{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* The brief "back from the vendor" state: the dots from the consent page, nothing to press. */
+.si .wire{display:inline-flex;gap:.4rem;align-items:center;justify-content:center;min-height:44px}
+.si .wire i{display:block;width:10px;height:10px;border-radius:50%;background:var(--accent);opacity:.35;animation:si-hop 1.6s ease-in-out infinite}
+.si .wire i:nth-child(2){animation-delay:.25s}.si .wire i:nth-child(3){animation-delay:.5s}
+@keyframes si-hop{0%,100%{opacity:.25;transform:scale(.8)}50%{opacity:1;transform:scale(1.15)}}
+@media (prefers-reduced-motion:reduce){.si .wire i{animation:none;opacity:.8}}
+:root[data-motion=reduce] .si .wire i{animation:none;opacity:.8}
+
+/* "As built" frames: Platform's own page (plain) as it is on uat. Its few rules, so the frame is true to it. */
+.pp-built{margin:0;display:flex;flex-direction:column;gap:.2rem}
+.pp-built h1{margin:.4rem 0 .8rem;font-size:2.1rem}
+.pp-built p{margin:.5rem 0;color:var(--fg)}
+.pp-built a.btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;width:100%;margin:0;padding:.5rem 1rem;border:1px solid var(--accent);border-radius:var(--r-ctl);background:var(--accent);color:var(--on-accent);font-weight:700;text-decoration:none}
+
+/* Desktop bucket (1024px and up): the same column, centred, a taller kitchen. */
+@media (min-width:64rem){
+  body.si{--content-max:30rem}
+  .skin .scene{max-height:300px}
+  .skin h1{font-size:2.4rem}
+}

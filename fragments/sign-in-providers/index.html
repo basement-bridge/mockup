@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Sign-in with six providers — fragment</title><link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><script src="../../theme.js"></script>
+<style>
+.si-fr{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,390px));gap:26px 18px;justify-content:center;margin-top:16px}
+.si-fr figure,.si-dk figure{margin:0}.si-fr figcaption,.si-dk figcaption{margin:0 0 6px;font-weight:700;font-size:14px}.si-fr figcaption small,.si-dk figcaption small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+.si-fr iframe{display:block;width:100%;max-width:390px;height:780px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--bg)}
+.si-fr iframe.w360{max-width:360px;height:700px}
+.si-fr iframe.short{height:640px}
+.si-dk{display:grid;grid-template-columns:1fr;gap:18px;margin-top:18px}
+.si-d{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;border:1px solid var(--border);border-radius:var(--r-card);background:var(--bg);--k:.5}
+.si-d iframe{position:absolute;left:0;top:0;width:1280px;height:720px;border:0;transform-origin:0 0;transform:scale(var(--k))}
+.si-t{width:100%;border-collapse:collapse;font-size:14px;margin:8px 0}.si-t th,.si-t td{text-align:left;padding:8px;border-top:1px solid var(--border);vertical-align:top}
+.si-t th{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.06em}.si-w{overflow-x:auto}
+.si-rec{border:2px solid var(--accent);border-radius:var(--r-card);padding:14px;background:var(--surface);margin-top:16px}
+.si-rec b.k{color:var(--accent)}
+.si-sec h2{margin-top:6px}
+.si-ol{padding-left:20px}.si-ol li{margin:6px 0}
+code{font-size:.92em}
+.si-pick{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:var(--r-pill);background:var(--accent);color:var(--on-accent);margin-left:6px;vertical-align:middle}
+</style></head>
+<body>
+<div class="wrap">
+<a class="back" href="../../index.html">All mockups</a>
+<h1>Sign-in with six providers</h1>
+<p>Owner, typed, 26 October 2026: mock up the sign-in screen for the built WorkOS and Clerk sign-in (<a href="https://github.com/basement-bridge/platform/pull/134">platform #134</a>, merged into <code>uat</code>, issue #128). Six buttons: Google, Apple and Microsoft through WorkOS, Facebook and X and TikTok through Clerk. No email and password, no phone, minimal data. <b>Mockup only. Nothing built, nothing approved; every decision below is proposed and none is confirmed.</b></p>
+
+<div class="si-rec" role="note"><div class="lbl" style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--accent)">Recommended (proposed)</div>
+<p style="color:var(--fg);margin-top:6px"><b>B, two across.</b> Google first and in the accent, then Apple, Facebook, Microsoft, X, TikTok, two to a row. All six are on screen at once with the kitchen still in view, one tap each, a glyph and one word per button. A shows the same six in one column and squeezes the kitchen on a small phone. C shows one button and folds five behind &ldquo;Other ways&rdquo;; it is the calmest, but a first sign-in on a new phone (the usual case, sessions last) has no last-used button to promote, so most people pay an extra tap.</p>
+<p style="color:var(--fg);margin-top:8px"><b>For &ldquo;two buttons, two members&rdquo;:</b> say nothing on the main screen. Mark the button last used on this device with a tick, and put one short line on the invite-only screen, where someone who used a different button lands (frames in section 6). N1 (nothing) and N2 (a line under the buttons, always) are drawn too.</p></div>
+
+<div class="sec si-sec"><div class="lbl">1 · What exists today (read from code, not run, not seen on a screen)</div>
+<p>Read on 26 October 2026 from <code>platform</code> <code>uat</code> (<code>b53453f</code>: <code>pages.ts</code>, <code>server.ts</code>, <code>authn-*.ts</code>) and <code>kitchie</code> <code>uat</code> (<code>32f66eb</code>: <code>skin.ts</code>, <code>web-signin.ts</code>, <code>platform-config.ts</code>). <b>The built app has not been checked against this mockup.</b> The two frames are drawn from that code.</p>
+<div class="si-fr">
+<figure><figcaption>Platform&rsquo;s own <code>/signin</code> page<small>All seven buttons on, direct Google too. Plain: heading &ldquo;Platform&rdquo;, one line, a full-width accent button each, no glyphs.</small></figcaption><iframe src="screen.html#o=built-platform&t=day" title="Platform sign-in page as built, seven buttons" loading="lazy"></iframe></figure>
+<figure><figcaption>Kitchie&rsquo;s sign-in screen<small>What a person meets when they open Kitchie. One button, Google only.</small></figcaption><iframe src="screen.html#o=built-kitchie&t=day" title="Kitchie sign-in screen as built, one Google button" loading="lazy"></iframe></figure>
+</div>
+<ul>
+<li><b>The six buttons are on Platform&rsquo;s page, not on Kitchie&rsquo;s.</b> Kitchie&rsquo;s screen sends <code>p=google</code> (a fixed value, <code>PLATFORM_PROVIDER</code>) to Platform&rsquo;s <code>/auth/start</code>. Platform&rsquo;s own <code>/signin</code> page is only reached by typing its address. So today a person cannot choose Apple or Facebook from Kitchie. This mockup is Kitchie&rsquo;s screen with the six buttons (SP-O1).</li>
+<li><b>Order built:</b> direct Google, then WorkOS (Google, Microsoft, Apple), then Clerk (Facebook, X, TikTok). Proposed: Google, Apple, Facebook, Microsoft, X, TikTok (SP-2).</li>
+<li><b>Two &ldquo;Google&rdquo; buttons</b> while the direct one stays on: the WorkOS one reads &ldquo;Google (WorkOS)&rdquo; (<code>buildAuthn</code>). They are two members (SP-O3).</li>
+<li><b>A button is off when its key is not set.</b> WorkOS needs two names, Clerk three; some-but-not-all stops start-up. Nothing else switches either on.</li>
+<li><b>Errors:</b> every failure goes back to Kitchie&rsquo;s own <code>/signin?signin_error=1</code> (&ldquo;That sign-in didn&rsquo;t work. Please try again.&rdquo;). A signed-in account with no member goes to <code>/not-a-member</code>. There is no page for redirecting or returning: Platform answers with 303s only.</li>
+<li><b>Not a member screen</b> says &ldquo;Use a different Google account&rdquo;: Google-only wording (SP-10).</li>
+<li><b>Own page or vendor page, as built:</b> see section 7.</li>
+</ul></div>
+
+<div class="sec si-sec"><div class="lbl">2 · Option A · one column</div>
+<p>Six full-width buttons stacked, glyph and one word each, &ldquo;Continue with&rdquo; said once above them. Everything visible, nothing to learn. Cost: the column is 350px tall on its own, so on a 360 by 640 phone the kitchen shrinks to a strip, and six near-identical bars read as a form rather than a welcome.</p>
+<div class="si-fr">
+<figure><figcaption>A · 360 · light</figcaption><iframe class="w360" src="screen.html#o=a&t=day" title="Option A, 360 wide, light" loading="lazy"></iframe></figure>
+<figure><figcaption>A · 390 · dark</figcaption><iframe src="screen.html#o=a&t=night" title="Option A, 390 wide, dark" loading="lazy"></iframe></figure>
+</div>
+<div class="si-dk">
+<figure><figcaption>A · desktop 1280 · light</figcaption><div class="si-d"><iframe src="screen.html#o=a&t=day" title="Option A, desktop, light" loading="lazy"></iframe></div></figure>
+<figure><figcaption>A · desktop 1280 · dark</figcaption><div class="si-d"><iframe src="screen.html#o=a&t=night" title="Option A, desktop, dark" loading="lazy"></iframe></div></figure>
+</div></div>
+
+<div class="sec si-sec"><div class="lbl">3 · Option B · two across <span class="si-pick">recommended</span></div>
+<p>Two columns, three rows. Google is first and the only filled button; the other five are quiet. The tick on a button means &ldquo;last used on this device&rdquo; (frame in section 5): the accent then moves to that button. On desktop the column stays 30rem wide, centred, with a taller kitchen above it.</p>
+<div class="si-fr">
+<figure><figcaption>B · 360 · light</figcaption><iframe class="w360" src="screen.html#o=b&t=day" title="Option B, 360 wide, light" loading="lazy"></iframe></figure>
+<figure><figcaption>B · 390 · dark</figcaption><iframe src="screen.html#o=b&t=night" title="Option B, 390 wide, dark" loading="lazy"></iframe></figure>
+</div>
+<div class="si-dk">
+<figure><figcaption>B · desktop 1280 · light</figcaption><div class="si-d"><iframe src="screen.html#o=b&t=day" title="Option B, desktop, light" loading="lazy"></iframe></div></figure>
+<figure><figcaption>B · desktop 1280 · dark</figcaption><div class="si-d"><iframe src="screen.html#o=b&t=night" title="Option B, desktop, dark" loading="lazy"></iframe></div></figure>
+</div></div>
+
+<div class="sec si-sec"><div class="lbl">4 · Option C · one button, the rest folded in place</div>
+<p>One clear action: the first button, full width. &ldquo;Other ways&rdquo; opens the other five in place (a plain <code>details</code>, no script, DESIGN.md 6a). Best on the calm and on the words budget. Cost: Apple, Facebook, Microsoft, X and TikTok people always pay a second tap on a new phone, and a person who does not see their provider may think it is missing. Tap &ldquo;Other ways&rdquo; in the frames.</p>
+<div class="si-fr">
+<figure><figcaption>C · 360 · light, folded</figcaption><iframe class="w360" src="screen.html#o=c&t=day" title="Option C, 360 wide, light, folded" loading="lazy"></iframe></figure>
+<figure><figcaption>C · 390 · dark, opened</figcaption><iframe src="screen.html#o=c&t=night&open=1" title="Option C, 390 wide, dark, opened" loading="lazy"></iframe></figure>
+</div>
+<div class="si-dk">
+<figure><figcaption>C · desktop 1280 · light, folded</figcaption><div class="si-d"><iframe src="screen.html#o=c&t=day" title="Option C, desktop, light, folded" loading="lazy"></iframe></div></figure>
+<figure><figcaption>C · desktop 1280 · dark, opened</figcaption><div class="si-d"><iframe src="screen.html#o=c&t=night&open=1" title="Option C, desktop, dark, opened" loading="lazy"></iframe></div></figure>
+</div></div>
+
+<div class="sec si-sec"><div class="lbl">5 · States (drawn on B; the same states apply to A and C)</div>
+<p>Press any button in a frame to see the redirecting state for two seconds. Nothing is sent.</p>
+<div class="si-fr">
+<figure><figcaption>Redirecting<small>Facebook pressed. The button says &ldquo;Opening…&rdquo; with a spinner; the others dim and stop taking taps. Without script it is today&rsquo;s plain link (SP-6).</small></figcaption><iframe src="screen.html#o=b&s=busy&p=facebook&t=day" title="Redirecting state, Facebook pressed" loading="lazy"></iframe></figure>
+<figure><figcaption>Back from the vendor<small>Only if the answer is slow (about a second). Built today: the browser waits on the callback address with nothing drawn (SP-8).</small></figcaption><iframe src="screen.html#o=b&s=back&p=facebook&t=night" title="Back from the vendor, checking" loading="lazy"></iframe></figure>
+<figure><figcaption>Something went wrong<small>The built neutral line, never a vendor or a reason (SP-7).</small></figcaption><iframe src="screen.html#o=b&s=error&t=day" title="Error state" loading="lazy"></iframe></figure>
+<figure><figcaption>Session ended<small>The built line.</small></figcaption><iframe src="screen.html#o=b&s=expired&t=night" title="Session ended state" loading="lazy"></iframe></figure>
+<figure><figcaption>Clerk off: its keys are not set<small>The three Clerk buttons are absent, not greyed and not explained. Three left; the odd one spans the row (SP-5).</small></figcaption><iframe class="short" src="screen.html#o=b&off=clerk&t=day" title="Clerk switched off, three buttons" loading="lazy"></iframe></figure>
+<figure><figcaption>WorkOS off<small>Only Facebook, X and TikTok remain. Google is then absent too, which the owner may not want (SP-O3).</small></figcaption><iframe class="short" src="screen.html#o=b&off=workos&t=night" title="WorkOS switched off, three buttons" loading="lazy"></iframe></figure>
+<figure><figcaption>Everything off<small>The built wording when no provider is configured.</small></figcaption><iframe class="short" src="screen.html#o=b&off=all&t=day" title="No provider on" loading="lazy"></iframe></figure>
+<figure><figcaption>Returning on a known phone<small>Apple was last used here: the tick and the accent move to it, the order stays fixed (SP-3). A per-device cookie like the theme one; nothing on the server (SP-O9).</small></figcaption><iframe src="screen.html#o=b&s=last&p=apple&t=day" title="Apple last used on this device" loading="lazy"></iframe></figure>
+</div></div>
+
+<div class="sec si-sec"><div class="lbl">6 · &ldquo;Two buttons, two members&rdquo;, said honestly</div>
+<p>Built: Google by WorkOS and Google direct are different members, and so is Facebook and every other button. There is no linking. In Kitchie that matters in one place: someone invited under Google presses Facebook, Platform verifies them, finds no member and sends them to the invite-only screen, which today reads as &ldquo;you are not invited&rdquo;. Three ways to be honest about it:</p>
+<div class="si-fr">
+<figure><figcaption>N1 · nothing<small>Today&rsquo;s behaviour. Shortest. The wrong-button person is told they are not invited.</small></figcaption><iframe src="screen.html#o=b&x=n1&t=day" title="N1, no line" loading="lazy"></iframe></figure>
+<figure><figcaption>N2 · a line under the buttons, always<small>&ldquo;Each button is its own account.&rdquo; Seen by everyone, every time, to help the few. Costs a line on the screen with the fewest words.</small></figcaption><iframe src="screen.html#o=b&x=n2&t=day" title="N2, line under the buttons" loading="lazy"></iframe></figure>
+<figure><figcaption>N3 · on the invite-only screen<small>Appears only when it changes a decision. The ghost button is renamed (SP-10). Recommended, with the last-used tick above.</small></figcaption><iframe src="screen.html#o=b&s=member&x=n3&t=day" title="N3, line on the invite-only screen" loading="lazy"></iframe></figure>
+<figure><figcaption>The invite-only screen as built<small>For comparison: same screen, no line, &ldquo;Use a different Google account&rdquo;.</small></figcaption><iframe src="screen.html#o=b&s=member&x=n1&was=built&t=night" title="Invite-only screen as built" loading="lazy"></iframe></figure>
+</div></div>
+
+<div class="sec si-sec"><div class="lbl">7 · Can Kitchie keep its own look, or does the person land on a vendor page?</div>
+<p><b>Short answer.</b> Kitchie&rsquo;s own screen is always the first thing seen, and the WorkOS buttons can go straight to the provider with no WorkOS page in between. Two screens that are not Kitchie&rsquo;s remain: the provider&rsquo;s own consent screen (Google, Apple, Microsoft, Facebook, X, TikTok), which can never wear Kitchie&rsquo;s look, and, <b>as built</b>, a Clerk-hosted screen for the three Clerk buttons. Read from the vendors&rsquo; docs on 26 October 2026; each claim says where it came from; what could not be fetched is listed at the end.</p>
+<div class="si-w"><table class="si-t"><thead><tr><th>Question</th><th>WorkOS (Google, Apple, Microsoft)</th><th>Clerk (Facebook, X, TikTok)</th></tr></thead><tbody>
+<tr><td><b>As built (platform #134): own page or vendor page?</b></td><td><b>Own page, then the provider.</b> Kitchie&rsquo;s button goes to Platform, which sends the browser to <code>api.workos.com/user_management/authorize</code> with <code>provider=GoogleOAuth</code> (and the Microsoft and Apple values). No AuthKit page is involved. WorkOS&rsquo;s reference says that without <code>provider=authkit</code> you name one connection, organisation or provider, and the URL then sends the person to that identity provider. <b>Not yet run against WorkOS</b>: #134 says the paths and values were not fetched; I confirmed <code>GoogleOAuth</code> (Google integration page) and <code>AppleOAuth</code> (an example value on the reference page). <code>MicrosoftOAuth</code> is named in prose but the value was not shown.</td><td><b>Own page, then a Clerk-hosted page, then the provider.</b> Clerk acts as an OpenID Connect provider to Platform: the browser goes to <code>&lt;Frontend API&gt;/oauth/authorize</code>. Clerk&rsquo;s docs say users authenticate with their Clerk credentials there, which implies Clerk&rsquo;s own sign-in page (the Account Portal); the page fetched does not say so outright. #134 says all three buttons begin at Clerk and the button only names the stored provider: <b>pressing &ldquo;X&rdquo; does not make Clerk show X</b>, so the person may pick a social again at Clerk. Whether Clerk can preselect one is unverified.</td></tr>
+<tr><td><b>Hosted option</b></td><td>AuthKit hosted UI: the app redirects to the AuthKit URL (<code>&lt;random-phrase&gt;.authkit.app</code> in staging, your own domain in production). &ldquo;Customizable domain and branding&rdquo; via the Dashboard, and page CSS, but only within the hosted domain and its limits (WorkOS blog on customising AuthKit). Sign-up, password, email and MFA come with it, which we do not want.</td><td>Account Portal: &ldquo;hosted on Clerk servers&rdquo;, sign-in at a random subdomain of <code>accounts.dev</code> in development and <code>accounts.&lt;your-domain&gt;</code> in production. It &ldquo;cannot be customized beyond the options provided in the Clerk Dashboard&rdquo;.</td></tr>
+<tr><td><b>Own buttons, no hosted page</b></td><td>WorkOS headless: its Authentication API lets you &ldquo;build and own the UI entirely&rdquo;. For social only (our case) that is the built flow: our buttons, <code>provider=</code> straight to Google, then the code exchange. We own the states (loading, error) and bot protection; with no password and no email form there is little more to own.</td><td>Clerk custom flow: Kitchie&rsquo;s own buttons call Clerk&rsquo;s browser SDK (<code>signIn.sso(...)</code> in its React example, a strategy such as <code>oauth_google</code>) and go to the provider with no Clerk page. <b>That is a different design</b>: a script from Clerk on Kitchie&rsquo;s page, and a Clerk session in the browser instead of the one OpenID Connect code Platform checks today. Kitchie&rsquo;s pages carry no third-party script. Not built, not costed (SP-O5).</td></tr>
+<tr><td><b>What shows during the hop</b></td><td>Google&rsquo;s own screen. By default it reads &ldquo;Choose an account to continue to workos.com&rdquo;, because Google names the redirect host. In <b>staging</b> WorkOS&rsquo;s default Google credentials are used and &ldquo;Google&rsquo;s authentication flow will display WorkOS&rsquo; name, logo, and other information&rdquo;. <b>Production needs our own Google credentials</b> (then our name and logo), and a custom domain for the wording above.</td><td>The Clerk-hosted page (Clerk-branded; &ldquo;Remove Clerk branding&rdquo; is a Pro or Business feature on the pricing page), then the provider&rsquo;s screen. In <b>development</b> Clerk uses &ldquo;preconfigured shared OAuth credentials and redirect URIs&rdquo;; <b>production needs our own credentials</b> (Google page; Apple needs a Services ID and key). What the shared credentials show on the provider&rsquo;s consent screen: not stated.</td></tr>
+<tr><td><b>Free tier and what costs</b></td><td>Free to 1 million monthly active users; social login is in &ldquo;Batteries included&rdquo;, no separate price. <b>Custom domain $99 a month</b> (covers AuthKit, Admin Portal and the email sender). Custom branding is a further fee, price not listed. Owner pays nothing: so no custom domain, and Google shows <code>workos.com</code> (SP-O6).</td><td>Hobby (free): 50,000 monthly retained users per app, <b>up to 3 social connections</b> (exactly our three; a fourth needs Pro), custom domain listed as included on Hobby (pricing page; check before relying on it). No Clerk-branding removal on Hobby.</td></tr>
+</tbody></table></div>
+<p><b>What this means for the screen.</b> The six buttons can be fully Kitchie&rsquo;s own look in every state we draw. The vendor-owned moments are the provider consent screen and, for Clerk&rsquo;s three buttons as built, one Clerk-hosted screen. If that Clerk screen is not acceptable, the choices are a Clerk custom flow (different architecture, SP-O5) or fewer social buttons.</p>
+<p><b>Could not fetch</b> (not on the session&rsquo;s fetch list, or the page did not say): WorkOS <code>/docs/authkit/hosted-ui</code> and the WorkOS social-login guides (read the <code>.md</code> copy and the reference page instead); WorkOS Apple and Microsoft integration pages (so what Apple and Microsoft show during the hop, and Apple developer cost, are not checked); WorkOS branding page (price of custom branding); Clerk&rsquo;s &ldquo;How Clerk implements OAuth&rdquo; and the OAuth reference (what Clerk&rsquo;s authorize page and consent screen look like, and whether a social can be preselected); Clerk shared-credential consent branding. Also not run: no real sign-in with either vendor was attempted.</p></div>
+
+<div class="sec si-sec"><div class="lbl">8 · Decisions (all proposed, none confirmed)</div>
+<ol class="si-ol">
+<li><b>SP-1.</b> Layout B (two across), A and C kept for comparison.</li>
+<li><b>SP-2.</b> Fixed order: Google, Apple, Facebook, Microsoft, X, TikTok (what households use first). Built order is direct Google, WorkOS (Google, Microsoft, Apple), Clerk (Facebook, X, TikTok); Platform lists adapters by vendor, so this is a small change to its composition list.</li>
+<li><b>SP-3.</b> One accent: Google, or the button last used on this device. A tick shows last used (shape, not colour alone). The order never moves.</li>
+<li><b>SP-4.</b> A glyph and one word per button; &ldquo;Continue with&rdquo; once above (a single button reads &ldquo;Continue with Google&rdquo;). Words budget: button 1 to 3 words.</li>
+<li><b>SP-5.</b> A provider whose key is not set is absent: not greyed, not explained. One on: one button. None on: the built &ldquo;Sign-in isn&rsquo;t available right now&rdquo;.</li>
+<li><b>SP-6.</b> Redirecting: the pressed button shows &ldquo;Opening…&rdquo; and a spinner, the rest dim and stop taking taps. A small script; without it, today&rsquo;s plain link.</li>
+<li><b>SP-7.</b> Error stays neutral, as built; it never names a vendor or a reason.</li>
+<li><b>SP-8.</b> Back from the vendor: no screen unless the answer takes about a second, then &ldquo;Checking it&rsquo;s you&rdquo; with the dots. Built: nothing drawn.</li>
+<li><b>SP-9.</b> Two buttons, two members: nothing on the main screen; last-used tick; one line on the invite-only screen (N3). N1 and N2 drawn.</li>
+<li><b>SP-10.</b> Invite-only screen: &ldquo;Use a different Google account&rdquo; becomes &ldquo;Try another sign-in&rdquo;.</li>
+<li><b>SP-11.</b> Desktop is the same centred column (30rem) with a taller kitchen; no side panel on a signed-out screen.</li>
+<li><b>SP-12.</b> The glyphs here are one-colour stand-ins, not the vendors&rsquo; marks. The real marks and button shapes follow each vendor&rsquo;s brand rules before anything is built.</li>
+</ol>
+<div class="lbl" style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--accent);margin-top:14px">Open questions</div>
+<ol class="si-ol">
+<li><b>SP-O1.</b> Kitchie&rsquo;s screen has only Google (a fixed <code>p=google</code>). How does it learn which providers are on: a list in Kitchie&rsquo;s own configuration, or a read from Platform? A wrong guess shows a button that fails, or hides one that works.</li>
+<li><b>SP-O2.</b> Platform&rsquo;s own <code>/signin</code> page (built in #134) is plain, with seven accent buttons. Only reached by typing the address. Restyle it to match, or leave it plain?</li>
+<li><b>SP-O3.</b> Keep the direct Google button beside the WorkOS one? They are two members. If WorkOS is off the Google button vanishes (frame above).</li>
+<li><b>SP-O4.</b> Clerk&rsquo;s three buttons all begin at one Clerk screen. Is a second choice there acceptable, or should the button decide?</li>
+<li><b>SP-O5.</b> Clerk custom flow (own buttons, no Clerk page) needs Clerk&rsquo;s browser SDK and a different hand-off. Worth costing, or accept the Clerk screen?</li>
+<li><b>SP-O6.</b> Accept &ldquo;continue to workos.com&rdquo; on Google&rsquo;s screen (custom domain $99 a month, owner pays nothing)?</li>
+<li><b>SP-O7.</b> Production needs a developer app and review for Facebook, X and TikTok, Apple credentials, and own Google and Microsoft credentials (owner actions in #134). Brand rules for the buttons come with them.</li>
+<li><b>SP-O8.</b> The welcome line and the invite-only footer are unchanged from today. Leave them?</li>
+<li><b>SP-O9.</b> A per-device cookie holding the last-used provider id (no account, no name): allowed?</li>
+<li><b>SP-O10.</b> Does the owner want to see the screen on a real phone, on UAT, once the keys exist? Nothing here proves how WorkOS and Clerk behave.</li>
+</ol></div>
+
+<div class="sec si-sec"><div class="lbl">9 · Design checklist (DESIGN.md 9.8), builder&rsquo;s own answers</div>
+<p><b>The separate senior-mobile-UX review the repo requires has not been done</b>: this session has no agent to hand it to. These answers are the builder&rsquo;s and do not count as the review.</p>
+<ol class="si-ol">
+<li>Jobs: the job is &ldquo;get into the kitchen&rdquo;; the accent button is the one tap most likely right.</li>
+<li>Accent: one (Google, or last used).</li>
+<li>Presentation: a set of choices is a list of buttons (9.4); state is glyph plus shape (tick, spinner), not colour alone.</li>
+<li>Words: buttons one word; one lead word; the existing welcome line kept (SP-O8).</li>
+<li>Duplication: nothing repeated; &ldquo;Google&rdquo; appears once.</li>
+<li>Targets: every button 52px high, 44px summary; checked at 360, 390, 768 and 1280.</li>
+<li>Text size: the names ellipsise, buttons stay in the grid; not yet checked at +30%.</li>
+<li>Dark: every option drawn in dark.</li>
+<li>Warmth: the kitchen stays on screen in B and C; A squeezes it.</li>
+</ol></div>
+
+<div class="sec si-sec"><div class="lbl">Performance (DESIGN.md section 6)</div>
+<p>Default path: this page, the shared theme, and one small script and stylesheet per frame (frames load when scrolled to). The sign-in screen itself loads no image and no script except the one-screen redirecting state (about 1 KB, SP-6); the provider glyphs are inline SVG in the page, so six buttons cost no requests. Nothing is deferred because nothing here is large. Option C&rsquo;s fold is a plain <code>details</code>: five buttons are in the page but not shown, no fetch on open.</p></div>
+</div>
+<script>
+/* Scale the 1280 by 720 desktop frames to the width they sit in. */
+(function(){var fit=function(){document.querySelectorAll(".si-d").forEach(function(d){d.style.setProperty("--k",(d.clientWidth/1280).toFixed(4))})};fit();addEventListener("resize",fit);addEventListener("load",fit)})();
+</script>
+</body></html>
