@@ -1,0 +1,176 @@
+/* VERBATIM copy of kitchie server/src/assets/mobile-home.css at origin/uat cd7fdb6. Do not edit: the baseline. New rules are in hw.css. */
+/* The phone's Home (kitchie #1187, slice 3 of #1184; mockup basement-bridge/mockup fragments/pantry-d `?s=home`: `.hm-hero .hm-top .r-lead.th .hm-it .hm-k .hm-why .hm-based .bs-track .bs-i .hm-acts .hb .hb-l .hm-sec .hm-h .oc-track .oc .oc-b
+   .hm-low-rows .lw .mi-rows .mi-b`, copied with the app's own tokens; the greeting row and the search takeover are #1070's). Linked with media="not all and (min-width:64rem)" by home.ts: phones and tablets draw it, a desktop never
+   applies it. Text is in rem (the +30% text size must not break it), every tap target is 44px or more, nothing scrolls sideways except the two carousels that are meant to. Tokens only. The pieces it draws are in the page and hidden by the base rules in home.ts and ideas-card.ts. */
+
+/* ---------- the greeting row: the greeting at the left, the search control at the right (Pantry's 48px box, the same place on every screen) ---------- */
+.hm .mh-bar{display:flex;align-items:center;gap:var(--sp-2,8px);margin:0 0 var(--sp-3,12px);min-height:48px}
+.hm .mh-bar h1.greeting{flex:1 1 auto;min-width:0;margin:0}
+.hm .mh-sb:not([hidden]){display:inline-flex;flex:none}
+.hm .mh-sb{background:var(--surface)}
+.hm .mh-sb:hover{color:var(--accent)}
+.hm .mh-sb svg{fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.hm .tiles{gap:var(--sp-2,8px);grid-template-columns:minmax(0,1fr)}
+.hm .mh-secs{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--sp-2,8px);min-width:0}
+.hm .mh-secs:empty{display:none}
+
+
+/* ---------- the Cooking ideas card on a phone: the hero replaces the desktop lead, the alternates and the Tune controls. A card with no hero (no recipes yet, nothing fits, not available) keeps its own chrome and wording. ---------- */
+.hm #hm-ideas[data-heroed]{padding:0;border:0;border-radius:0;background:none}
+.hm #hm-ideas[data-heroed]>.th,.hm #hm-ideas[data-heroed]>.lead,.hm #hm-ideas[data-heroed]>.sh2,.hm #hm-ideas[data-heroed]>.ir,.hm #hm-ideas[data-heroed]>.tunebtn,.hm #hm-ideas[data-heroed]>.tune{display:none}
+.hm #hm-ideas[data-heroed]>.warnl{margin:var(--sp-2,8px) 0 0}
+.hm #hm-ideas .hm-hero{display:block}
+.hm .hm-sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+/* ---------- the hero: one surface, a banner picture on top, the words under it, the buttons under those ---------- */
+.hm .hm-hero{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card,18px);padding:14px;color:var(--fg)}
+.hm .hm-top{position:relative;display:flex;flex-direction:column;align-items:stretch;gap:10px}
+.hm .hm-hero .r-lead.th{display:flex;align-items:center;justify-content:center;width:100%;height:6rem;font-size:3.25rem;line-height:1;border-radius:14px;overflow:hidden;background:linear-gradient(160deg,color-mix(in srgb,var(--accent) 24%,var(--surface)),var(--surface));border:1px solid var(--border)}
+.hm .hm-hero .r-lead.th .pf{width:100%;height:100%;border-radius:0}
+.hm .hm-hero .r-lead.th .pf .ic{width:2rem;height:2rem}
+.hm .hm-it{flex:1;min-width:0}
+.hm .hm-it .hm-k{display:block;font-size:0.6875rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.hm .hm-it b{display:block;margin-top:2px;font-family:var(--head);font-size:min(calc(1.25rem*var(--hs,1)),7vw);font-weight:800;line-height:1.15;overflow-wrap:anywhere}
+.hm .hm-it b a{position:relative;color:inherit;text-decoration:none}
+/* the name is a 24px line: its link gets a 44px hit area (above and below it) without moving anything */
+.hm .hm-it b a::after{content:"";position:absolute;left:0;right:0;top:-11px;bottom:-11px}
+.hm .hm-it b a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+.hm .hm-it small{display:block;margin-top:2px;font-size:0.8125rem;color:var(--muted)}
+.hm .hm-why{display:block;margin-top:4px;font-size:0.8125rem;color:var(--fg)}
+.hm .hm-why[hidden]{display:none}
+/* Why (UAT's, the app's information icon): a quiet 44px round button over the banner's corner; the mockup does not draw it, UAT keeps it */
+.hm .hm-info{position:absolute;top:6px;right:6px;display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;margin:0;padding:0;border:1px solid var(--border);border-radius:50%;background:color-mix(in srgb,var(--surface) 86%,transparent);color:var(--fg);cursor:pointer;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.hm .hm-info:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hm .hm-info .ic{width:1.125rem;height:1.125rem}
+
+/* ---------- the buttons: Make it shrinks first and then becomes its cooking mark, Swap becomes the swap-arrows mark; each icon-only button keeps its name (aria-label). The widths are the mockup's 250px and 170px, in px: a larger text size must not drop Make it's word on a 360px screen (both buttons still fit at +30%). ---------- */
+.hm .hm-acts{display:flex;gap:8px;margin-top:14px;container-type:inline-size;align-items:stretch}
+.hm .hm-acts .mkf{display:contents}
+.hm .hb{flex:1 1 0;min-width:48px;min-height:48px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;gap:6px;margin:0;border-radius:var(--r-ctl,14px);border:1px solid var(--border);background:var(--bg);color:var(--fg);font:inherit;font-weight:700;font-size:0.875rem;line-height:1.2;white-space:nowrap;padding:0 10px;text-decoration:none;cursor:pointer}
+.hm .hb .ic{width:1.25rem;height:1.25rem;flex:none}
+.hm .hb:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hm .hb.acc{background:var(--accent);color:var(--on-accent);border-color:transparent;flex-grow:1.4}
+.hm .hb.cf:disabled{background:none;color:var(--muted);border-style:dashed;opacity:.8;cursor:default}
+.hm .hb.cf{animation:cfin .25s ease-out}
+@keyframes cfin{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+@container (max-width:250px){.hm .hb.mk .hb-l{display:none}.hm .hb.mk{flex:0 0 52px}}
+@container (max-width:170px){.hm .hb.sw .hb-l{display:none}.hm .hb.sw{flex:0 0 52px}}
+
+/* ---------- Swap: "I feel like" and the rotary of the six leans. Tab-style words, no pills: the chosen word snaps to the centre with a 3px line under it, the neighbours peek in either side, the edges fade.
+   Native scroll snapping gives the soft flick and the ease-out stop; a tap glides the word to the centre. ---------- */
+.hm .hm-based{display:flex;align-items:center;gap:2px;margin-top:10px}
+.hm .hm-based[hidden]{display:none}
+.hm .bs-k{flex:none;margin-right:8px;font-size:0.8125rem;font-weight:700;color:var(--muted);white-space:nowrap}
+.hm .hm-based #basis{flex:1;min-width:0}
+.hm .bs-track{position:relative;display:flex;gap:4px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none;overscroll-behavior-x:contain;touch-action:pan-x pan-y;-webkit-overflow-scrolling:touch;padding:0 calc(50% - 2.125rem);-webkit-mask-image:linear-gradient(90deg,transparent,#000 24%,#000 84%,transparent);mask-image:linear-gradient(90deg,transparent,#000 24%,#000 84%,transparent)}
+.hm .bs-track::-webkit-scrollbar{display:none}
+.hm .bs-i{flex:none;scroll-snap-align:center;min-height:48px;display:inline-flex;align-items:center;margin:0;padding:0 12px;font:inherit;font-weight:700;font-size:0.9375rem;color:var(--muted);border:0;border-bottom:3px solid transparent;border-radius:0;background:none;white-space:nowrap;cursor:pointer}
+.hm .bs-i[aria-checked=true]{color:var(--fg);border-bottom-color:var(--accent)}
+.hm .bs-i:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+@media(prefers-reduced-motion:reduce){.hm .bs-track{scroll-behavior:auto}}
+.hm .bs-track.jig{animation:jig 1.3s ease-in-out 1}
+@keyframes jig{0%,100%{transform:translateX(0)}25%{transform:translateX(-12px)}70%{transform:translateX(12px)}}
+@media(prefers-reduced-motion:reduce){.hm .bs-track.jig,.hm .hb.cf{animation:none}}
+
+/* ---------- More ideas: the hero's own extension, directly under its buttons, no heading, lighter than the hero. Shown by mobile-home.js only when there is room (hidden otherwise, and while Swap is open). ---------- */
+.hm .hm-more[hidden]{display:none}
+.hm .mi-rows{list-style:none;margin:12px -14px -14px;padding:0;border-top:1px solid var(--border)}
+.hm .mi-rows li+li{border-top:1px solid var(--border)}
+.hm .mi-b{display:flex;align-items:center;gap:10px;width:100%;box-sizing:border-box;min-height:48px;padding:2px 14px;color:inherit;text-decoration:none}
+.hm .mi-b:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.hm .mi-e{display:inline-flex;flex:none;width:1.75rem;height:1.75rem;align-items:center;justify-content:center;font-size:1.125rem;border-radius:6px;background:var(--bg);border:1px solid var(--border);overflow:hidden}
+.hm .mi-e .pf{width:100%;height:100%;border-radius:0}
+.hm .mi-e .pf .ic{width:1rem;height:1rem}
+.hm .mi-t{flex:1;min-width:0}
+.hm .mi-t b{display:block;font-size:0.875rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hm .mi-t small{display:block;font-size:0.6875rem;color:var(--muted)}
+.hm .mi-t .xw{white-space:normal}
+
+/* ---------- the expired-ingredient warning: red, an alert mark and words; the idea stays ---------- */
+.hm .hm-ideas .xw{display:flex;align-items:flex-start;gap:6px;margin:6px 0 0;padding:6px 8px;border:1px solid var(--danger);border-radius:var(--r-ctl,14px);background:color-mix(in srgb,var(--danger) 10%,var(--surface));color:var(--fg);font-size:0.7813rem;line-height:1.35;white-space:normal}
+.hm .hm-ideas .xw .xi{flex:none;width:1.125rem;height:1.125rem;margin-top:0;fill:none;stroke:var(--danger);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.hm .hm-ideas .xw b{display:inline;margin:0;font:inherit;font-weight:800;color:var(--danger)}
+
+/* ---------- the two sections: a quiet heading (icon and small capitals) and the body. Absent when empty (hidden by mobile-home.js; the server does not draw an empty one). ---------- */
+.hm .hm-sec{margin-top:14px;padding:0;border:0;background:none}
+.hm .hm-sec[hidden]{display:none}
+.hm .hm-h{display:flex;align-items:center;gap:var(--sp-2,8px);min-height:var(--tap,44px);padding:0 2px}
+.hm .hm-h h2{flex:1;min-width:0;margin:0;font-family:inherit;font-size:0.75rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.hm .hm-i{display:inline-flex;color:var(--muted)}
+.hm .hm-i .ic{width:1.125rem;height:1.125rem;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- On the way out: a sideways scroller of tight two-row cards, each as wide as its content (no empty gap). Row 1: name and use-by. Row 2: where it lives, then the quantity or the level symbol (one slot, never both).
+   Past use-by is red writing with a minus sign, not a pill. Touch scrolling: pan-x pan-y, proximity snapping (iOS Safari and Android). ---------- */
+.hm .oc-track{display:flex;gap:6px;list-style:none;touch-action:pan-x pan-y;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;overflow-x:auto;scroll-snap-type:x proximity;scroll-padding:0 12px;scrollbar-width:none;margin:2px -12px 0;padding:2px 12px}
+.hm .oc-track::-webkit-scrollbar{display:none}
+.hm .oc{flex:none;width:max-content;max-width:min(78%,17.5rem);scroll-snap-align:start}
+.hm .oc[hidden]{display:none}
+.hm .oc-b{display:flex;align-items:center;gap:7px;width:auto;max-width:100%;box-sizing:border-box;min-height:44px;padding:2px 10px;border:1px solid var(--border);border-radius:var(--r-ctl,14px);background:var(--surface);color:var(--fg);text-decoration:none}
+.hm .oc-b:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hm .oc-e{font-size:1.0625rem;display:inline-flex;flex:none;width:1.25rem;justify-content:center}
+.hm .oc-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.hm .oc-1,.hm .oc-2{display:flex;align-items:center;gap:12px;min-width:0}
+.hm .oc-1 b{flex:1 1 auto;min-width:0;font-size:0.9062rem;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hm .oc-2{min-height:1rem}
+.hm .oc-2 small{flex:1 1 auto;min-width:0;font-size:0.7188rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hm .oc-q{flex:none;display:inline-flex;align-items:center;font-size:0.7188rem;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums}
+.hm .oc-q .bat{display:block}
+.hm .ub{flex:none;font-size:0.75rem;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+.hm .ub-danger{color:var(--danger)}
+.hm .ub-accent{color:var(--accent)}
+.hm .ub-mut{color:var(--muted);font-weight:700}
+
+/* ---------- Running low: a list; the cart is information (filled = on the shopping list). Right adds (only when it is not on the list); a long pull right = don't remind me; left removes (only when it is on the list).
+   The panel under the row is swipe.js's own (layout.ts .swipe-under), with the words of these three actions. ---------- */
+.hm .hm-low-rows{list-style:none;margin:0 -12px;padding:0}
+.hm .hm-low-rows .r{position:relative;display:block;overflow:hidden;border-bottom:1px solid var(--border)}
+.hm .hm-low-rows .r:first-child{border-top:1px solid var(--border)}
+.hm .hm-low-rows .r[hidden]{display:none}
+.hm .lw .r-main{display:grid;grid-template-columns:2.75rem minmax(0,1fr) auto 3rem;align-items:center;gap:0;min-height:3.25rem;box-sizing:border-box;padding:2px 0;background:var(--bg);color:var(--fg);text-decoration:none;touch-action:pan-y;position:relative;z-index:1}
+.hm .lw .r-main:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.hm .lw .r-lead{display:flex;grid-column:1;justify-self:center;width:2.125rem;height:2.125rem;border-radius:9px;font-size:1.125rem;background:var(--surface);border:1px solid var(--border);align-items:center;justify-content:center}
+.hm .lw .r-ltr{font-family:var(--head);font-size:min(calc(1rem*var(--hs,1)),5.6vw);font-weight:800;color:var(--accent)}
+.hm .lw .r-text{grid-column:2;min-width:0;padding-right:6px}
+.hm .lw .r-name{display:flex;align-items:flex-start;min-width:0;font-size:0.9375rem;line-height:1.2;font-weight:700}
+.hm .lw .r-name .nm{min-width:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.hm .lw .r-text small{display:block;margin-top:1px;font-size:0.7188rem;color:var(--muted)}
+.hm .lw .r-text small[hidden]{display:none}
+.hm .lw-q{font-size:0.7812rem;font-weight:600;color:var(--muted);padding-right:4px;white-space:nowrap}
+.hm .lw-c{display:inline-flex;justify-content:center;color:var(--muted)}
+.hm .lw-c .ic{width:1.375rem;height:1.375rem;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.hm .lw-c.on{color:var(--accent)}
+.hm .lw-c.on .ic{fill:currentColor}
+/* the buttons that do what the swipes do: there for keyboard and screen reader, shown when one of them has focus */
+.hm .r-kb{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.hm .r-kb:focus-within{position:static;width:auto;height:auto;clip:auto;display:flex;flex-wrap:wrap;gap:8px;padding:4px 12px 8px}
+.hm .r-kb button{min-height:var(--tap,44px);margin:0;padding:0 14px;border:1px solid var(--border);border-radius:var(--r-ctl,14px);background:var(--surface);color:var(--fg);font:inherit;font-weight:700;font-size:0.8125rem;cursor:pointer}
+.hm .r-kb button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* the swipe panel's words for Home: Remove (left), Don't remind me (far right); the Pantry's own panel keeps its own (layout.ts) */
+.hm .lw .swipe-under{inset:0;top:0;bottom:0;display:none;border-radius:0}
+.hm .lw[data-dragging] .swipe-under{display:flex}
+.hm .lw .swipe-under .su-rm,.hm .lw .swipe-under .su-hide,.hm .lw .swipe-under .su-shop{display:none;align-items:center;gap:8px}
+.hm .lw .swipe-under[data-dir=rm] .su-rm,.hm .lw .swipe-under[data-dir=hide] .su-hide,.hm .lw .swipe-under[data-dir=shop] .su-shop{display:inline-flex}
+.hm .lw .swipe-under[data-dir=rm]{justify-content:flex-end;background:var(--accent);color:var(--on-accent)}
+.hm .lw .swipe-under[data-dir=hide]{background:var(--muted);color:var(--bg);justify-content:flex-start}
+.hm .lw .swipe-under .ic{width:1.25rem;height:1.25rem;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.hm .lw[data-dragging]{z-index:2;overflow:visible}
+.hm .lw[data-dragging] .r-main{box-shadow:0 4px 14px rgba(0,0,0,.12);border-radius:.75rem}
+.hm .lw .r-main.snap{transition:transform .22s cubic-bezier(.2,.9,.3,1.25),opacity .18s}
+@media(prefers-reduced-motion:reduce){.hm .lw .r-main.snap{transition:none}}
+
+/* ---------- the takeover: the field replaces the greeting row and the screen is the search's (everything else steps aside) ---------- */
+.hm[data-mode=search] .mh-bar,.hm[data-mode=search] .tiles{display:none}
+.hm[data-mode=search] .mh-take{display:block}
+.hm .mh-take[hidden]{display:none}
+body[data-mhs] nav.bar{display:none}
+/* No double-tap zoom on the search control or the takeover (kitchie #1097): on the first press the keyboard is slow to rise and a second tap is read by iOS Safari as double-tap-to-zoom. Pinch zoom is untouched (owner accessibility need; the viewport meta is unchanged). */
+.hm .mh-bar,.hm .mh-sb,.hm .mh-take,.hm .mh-field,.hm .mh-field input,.hm .mh-cx,.hm[data-mode=search],body[data-mhs]{touch-action:manipulation}
+.hm .mh-field{display:flex;align-items:center;gap:var(--sp-2,8px);height:52px;padding:0 4px 0 14px;border:1px solid var(--accent);border-radius:var(--r-pill,99px);background:var(--surface);color:var(--accent)}
+.hm .mh-field svg{flex:none;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round}
+.hm .mh-field input{flex:1 1 auto;min-width:0;width:auto;max-width:none;height:48px;min-height:48px;margin:0;padding:0;border:0;border-radius:0;background:none;color:var(--fg);font:inherit;font-size:1rem;outline:none;-webkit-appearance:none;appearance:none}
+.hm .mh-field input::placeholder{color:var(--muted);opacity:1}
+.hm .mh-field input::-webkit-search-cancel-button{display:none}
+.hm .mh-cx{flex:none;min-height:var(--tap,44px);margin:0;padding:0 var(--sp-3,12px);border:0;border-radius:var(--r-pill,99px);background:none;color:var(--accent);font:inherit;font-weight:800;font-size:0.875rem;cursor:pointer}
+.hm .mh-cx:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.hm .mh-res[hidden]{display:none}
+.hm .mh-vh{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}

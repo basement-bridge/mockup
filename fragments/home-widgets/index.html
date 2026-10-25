@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Home cards, options</title>
+<script>try{var q=new URLSearchParams(location.search),t=q.get("theme");if(t==="kitchie"||t==="kitchie-day")document.documentElement.setAttribute("data-theme",t);if(q.get("big")==="1")document.documentElement.style.fontSize="130%"}catch(e){}</script>
+<link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="mobile-home.css"><link rel="stylesheet" href="hw.css?v=1"><script src="../../theme.js"></script>
+</head>
+<body data-no-theme-fab>
+<!-- Home cards (kitchie #1238). One phone. ?way=a|b|c  &state=...  &theme=kitchie|kitchie-day  &big=1 (text +30%)  &w=360
+     A hold a card (no mode) | B a Home cards list in Settings | C an edit mode, shown only for comparison (DESIGN.md 9.6 says no edit mode).
+     States: A default moved hold hidden urgent empty | B entry sheet sheetmoved new norecipe reset | C edit edithidden. The options row is mock chrome. Spec: docs/knowledge/home-widgets.md -->
+<main id="stage"><details id="opt"><summary>Options</summary><div id="optg"></div></details><div class="hw-ph" id="ph"></div></main>
+<script>
+(function(){
+  var Q=new URLSearchParams(location.search),way=/^[abc]$/.test(Q.get("way")||"")?Q.get("way"):"a",state=Q.get("state")||"";
+  var ST={a:[["default",""],["moved","moved"],["holding","hold"],["hidden","hidden"],["urgent","urgent"],["empty","empty"]],b:[["Settings","entry"],["sheet","sheet"],["moved","sheetmoved"],["new card","new"],["no Recipe","norecipe"],["reset","reset"]],c:[["edit","edit"],["with hidden","edithidden"]]};
+  function href(o){var u=new URLSearchParams(location.search);Object.keys(o).forEach(function(k){o[k]===null?u.delete(k):u.set(k,o[k])});return "?"+u.toString()}
+  function grp(label,items,cur){var h='<div class="og"><b>'+label+'</b>';items.forEach(function(i){h+='<a href="'+i[1]+'"'+(i[2]===cur?' aria-current="true"':'')+'>'+i[0]+'</a>'});return h+'</div>'}
+  var W={a:"Hold a card",b:"Home cards list",c:"Edit mode"};
+  var h=grp("Option",["a","b","c"].map(function(k){return [k.toUpperCase()+" "+W[k],href({way:k,state:null}),k]}),way);
+  h+=grp("State",ST[way].map(function(s){return [s[0],href({state:s[1]||null}),s[1]]}),state);
+  h+=grp("Look",[["dark",href({theme:"kitchie"}),"kitchie"],["light",href({theme:"kitchie-day"}),"kitchie-day"]],Q.get("theme")||"kitchie");
+  h+=grp("Size",[["normal",href({big:null}),null],["+30%",href({big:"1"}),"1"]],Q.get("big")||null);
+  h+=grp("Width",[["390",href({w:null}),null],["360",href({w:"360"}),"360"]],Q.get("w")||null);
+  document.getElementById("optg").innerHTML=h+'<p>'+{a:"Hold a card half a second: all fold to bands. Drag to move; drop on Hide to hide. Hidden cards come back from the chip at the foot. Keyboard: Alt+Up or Down on a focused button, or the three buttons that appear on focus.",b:"Settings, Looks, Home cards. A switch per card, hold a row to move it, Reset when something is changed. Double tap a row puts that card back.",c:"Edit, then a grip and a switch on every card, Done. Drawn because the issue asks for the phone-widget way; DESIGN.md 9.6 rules an edit mode out."}[way]+'</p>';
+  var ph=document.getElementById("ph");if(Q.get("w")==="360")ph.setAttribute("data-w","360");
+  var s=document.createElement("script");s.src="hw.js?v=1";s.onload=function(){HW.mount();document.title="Home cards, option "+way.toUpperCase()};document.body.appendChild(s);
+})();
+</script>
+</body></html>

@@ -1,0 +1,142 @@
+/* Home cards (kitchie #1238). Phone only. Sits on theme.css tokens and kitchie's own mobile-home.css (copied unchanged next to this file).
+   Everything below is NEW for this feature: the class names start hc- (card controls) or hw- (mock frame). The frame (.hw-*) and the options row are mock chrome and are not lifted into the app. */
+html,body{margin:0;background:var(--stage,var(--bg))}
+body{font-family:var(--body);color:var(--fg)}
+#stage{min-height:100dvh;display:flex;flex-direction:column;align-items:center;gap:8px;padding:8px 16px 16px}
+#opt{width:min(390px,100%);color:var(--fg);font-size:13px}
+#opt summary{min-height:44px;display:flex;align-items:center;gap:8px;font-weight:700;cursor:pointer;list-style:none}
+#opt summary::-webkit-details-marker{display:none}
+#opt .og{display:flex;flex-wrap:wrap;gap:4px 6px;align-items:center;padding:2px 0 6px}
+#opt .og b{width:58px;color:var(--muted);font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+#opt a{min-height:44px;display:inline-flex;align-items:center;padding:0 10px;border:1px solid var(--border);border-radius:99px;color:var(--fg);text-decoration:none;font-weight:600}
+#opt a[aria-current=true]{border-color:var(--accent);color:var(--accent);font-weight:800}
+#opt p{margin:4px 0 8px;color:var(--muted);line-height:1.4}
+.hw-ph{container-type:inline-size;position:relative;width:min(390px,100%);height:min(780px,calc(100dvh - 70px));display:flex;flex-direction:column;background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:var(--r-phone,28px);overflow:hidden;isolation:isolate;-webkit-tap-highlight-color:transparent}
+.hw-ph[data-w="360"]{width:min(360px,100%)}
+.hw-body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:12px 12px 24px;scrollbar-width:thin}
+.hw-body[data-lock]{overflow:hidden}
+.hw-tabs{flex:none;display:flex;height:60px;border-top:1px solid var(--border);background:var(--bg)}
+.hw-tabs a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:.6875rem;font-weight:600;color:var(--muted);text-decoration:none}
+.hw-tabs a.on{color:var(--accent)}
+.hw-tabs svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+@media(max-width:430px){#stage{padding:0;gap:0}#opt{padding:0 12px;box-sizing:border-box}.hw-ph{width:100%!important;height:calc(100dvh - 52px);border:0;border-radius:0}}
+
+/* ---- pieces the app already draws, kept minimal here (the app's own base rules are in home.ts / layout.ts) ---- */
+.hm{display:block}
+.hw-ph .ic{width:1.25rem;height:1.25rem;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.hm .mh-bar h1.greeting{font-family:var(--head);font-size:min(calc(1.5rem*var(--hs,1)),7vw);line-height:1.15}
+.hm .icon{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border:1px solid var(--border);border-radius:50%;color:var(--fg);padding:0;font:inherit;cursor:pointer}
+.hm .hb{cursor:pointer}
+.hm .oc-track{margin-bottom:0}
+.hm .hm-low-rows{margin:0 -12px}
+.hm .lw .r-main{cursor:default}
+.hm .hm-hero .r-lead.th{font-size:3.25rem}
+
+/* ---- the switch: settings-flat.css, same markup (label.sw > input[role=switch] + i.swt), scoped to .hc here ---- */
+.hc label.sw{position:relative;display:inline-flex;align-items:center;justify-content:center;width:56px;min-height:44px;flex:none}
+.hc label.sw input{position:absolute;inset:0;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
+.hc .swt{width:48px;height:28px;border-radius:99px;background:var(--border);position:relative;transition:background .15s;pointer-events:none}
+.hc .swt::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--surface);transition:transform .15s;box-shadow:0 0 0 1px var(--muted)}
+.hc label.sw input:checked+.swt{background:var(--accent)}
+.hc label.sw input:checked+.swt::after{transform:translateX(20px);box-shadow:none}
+.hc label.sw input:focus-visible+.swt{outline:3px solid var(--accent);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){.hc .swt,.hc .swt::after{transition:none}}
+
+/* ---- A: hold a card, every card folds to a band, drag, drop on Hide ---- */
+.hc-card{position:relative}
+.hc-card+.hc-card{margin-top:14px}
+.hm .hm-hero.hc-card{margin-top:0}
+.hc-hold{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.hc-band{display:none;align-items:center;gap:10px;min-height:56px;box-sizing:border-box;padding:0 8px 0 12px;border:1px solid var(--border);border-radius:var(--r-card,18px);background:var(--surface);color:var(--fg);font-weight:800;font-size:.9375rem}
+.hc-band .hc-grip{display:inline-flex;color:var(--muted)}
+.hc-band .hc-grip .ic{stroke:none;fill:currentColor}
+.hc-band .hc-bi{display:inline-flex;color:var(--accent)}
+.hc-band b{flex:1;min-width:0}
+.hm[data-fold] .hc-card>*:not(.hc-band):not(.hc-ed){display:none}
+.hm[data-fold] .hc-card>.hc-band{display:flex}
+.hm[data-fold] .hm-hero.hc-card{padding:0;border:0;background:none}
+.hm[data-fold] .hc-card+.hc-card{margin-top:8px}
+.hm[data-fold] .hc-card{transition:transform .12s}
+.hm[data-fold] .hc-card[data-lift]{z-index:5;transition:none}
+.hm[data-fold] .hc-card[data-lift]>.hc-band{border-color:var(--accent);box-shadow:0 10px 26px rgba(0,0,0,.35);transform:scale(1.02)}
+.hm[data-fold] .hc-card.dz-before::before{content:"";position:absolute;left:0;right:0;top:-6px;height:4px;border-radius:2px;background:var(--accent)}
+.hm[data-fold] .hc-card.dz-end::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:4px;border-radius:2px;background:var(--accent)}
+.hc-hide{position:absolute;left:12px;right:12px;bottom:72px;z-index:20;display:none;align-items:center;justify-content:center;gap:8px;min-height:56px;border:2px dashed var(--border);border-radius:var(--r-card,18px);background:var(--surface);color:var(--muted);font-weight:800}
+.hc-hide[data-on]{display:flex}
+.hc-hide[data-over]{border-style:solid;border-color:var(--accent);color:var(--accent)}
+.hc-foot{display:flex;justify-content:center;margin-top:14px}
+.hc-chip{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border:1px solid var(--border);border-radius:var(--r-pill,99px);background:none;color:var(--muted);font:inherit;font-weight:700;font-size:.8125rem;cursor:pointer}
+.hc-chip:focus-visible,.hc-btn:focus-visible,.hc-row:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hc-kb{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.hc-kb:focus-within{position:static;width:auto;height:auto;clip:auto;display:flex;flex-wrap:wrap;gap:8px;padding:4px 0 8px}
+.hc-kb button{min-height:44px;padding:0 14px;border:1px solid var(--border);border-radius:var(--r-ctl,14px);background:var(--surface);color:var(--fg);font:inherit;font-weight:700;font-size:.8125rem;cursor:pointer}
+/* hidden On the way out, but something is past its use-by or due today: one slim row, the same red warning look as the ideas card */
+.hc-flag{display:flex;align-items:center;gap:8px;min-height:48px;margin-top:14px;padding:0 12px;border:1px solid var(--danger);border-radius:var(--r-ctl,14px);background:color-mix(in srgb,var(--danger) 10%,var(--surface));color:var(--fg);font-weight:800;font-size:.875rem;text-decoration:none}
+.hc-flag .ic{stroke:var(--danger)}
+.hc-flag span{flex:1}
+.hc-flag em{font-style:normal;color:var(--danger)}
+/* the Undo bar: the app's own (layout.ts .undo), 5 seconds */
+.hc-undo{position:absolute;left:12px;right:12px;bottom:72px;z-index:40;display:flex;align-items:center;gap:8px;min-height:48px;padding:0 6px 0 14px;border-radius:var(--r-ctl,14px);background:var(--fg);color:var(--bg);font-weight:700;font-size:.875rem}
+.hc-undo[hidden]{display:none}
+.hc-undo span{flex:1}
+.hc-undo button{min-height:44px;padding:0 14px;border:0;border-radius:var(--r-ctl,14px);background:none;color:var(--bg);font:inherit;font-weight:900;text-decoration:underline;cursor:pointer}
+
+/* ---- B: the Home cards sheet (also what A's "n hidden" opens) ---- */
+.hc-dim{position:absolute;inset:0;z-index:30;background:rgba(0,0,0,.5)}
+.hc-sheet{position:absolute;left:0;right:0;bottom:0;z-index:31;display:flex;flex-direction:column;max-height:86%;background:var(--bg);border-top:1px solid var(--border);border-radius:22px 22px 0 0;box-shadow:0 -10px 30px rgba(0,0,0,.35)}
+.hc-sh{display:flex;align-items:center;gap:8px;min-height:56px;padding:0 8px 0 18px}
+.hc-sh h2{flex:1;margin:0;font-family:var(--head);font-size:1.125rem}
+.hc-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 14px;border:0;border-radius:var(--r-ctl,14px);background:none;color:var(--accent);font:inherit;font-weight:800;font-size:.9375rem;cursor:pointer}
+.hc-btn .ic{width:1.125rem;height:1.125rem}
+.hc-list{list-style:none;margin:0;padding:0 12px;overflow-y:auto}
+.hc-row{position:relative;display:flex;align-items:center;gap:10px;min-height:60px;padding:0 0 0 4px;background:var(--bg);border-top:1px solid var(--border);-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.hc-row:last-child{border-bottom:1px solid var(--border)}
+.hc-row .hc-grip{display:inline-flex;width:28px;justify-content:center;color:var(--muted)}
+.hc-row .hc-grip .ic{stroke:none;fill:currentColor}
+.hc-row .hc-bi{display:inline-flex;align-items:center;justify-content:center;width:2.125rem;height:2.125rem;border-radius:9px;background:var(--surface);border:1px solid var(--border);color:var(--accent)}
+.hc-row .hc-t{flex:1;min-width:0}
+.hc-row .hc-t b{display:block;font-size:.9375rem;line-height:1.2}
+.hc-row .hc-t small{display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--muted)}
+.hc-row[data-off] .hc-t b{color:var(--muted)}
+.hc-row[data-lift]{z-index:5;box-shadow:0 10px 26px rgba(0,0,0,.35);border-radius:var(--r-ctl,14px);border:1px solid var(--accent)}
+.hc-row.dz-before{box-shadow:inset 0 4px 0 var(--accent)}
+.hc-row.dz-end{box-shadow:inset 0 -4px 0 var(--accent)}
+.hc-new{display:inline-flex;align-items:center;gap:4px;font-weight:800;color:var(--accent)}
+.hc-new::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.hc-sf{display:flex;align-items:center;gap:8px;min-height:56px;padding:0 8px 0 18px;color:var(--muted);font-size:.8125rem}
+.hc-sf .dev{flex:1;display:flex;align-items:center;gap:8px}
+/* the Settings row that opens it */
+.hc-set{list-style:none;margin:0;padding:0}
+.hc-set li{display:flex;align-items:center;gap:12px;min-height:56px;border-bottom:1px solid var(--border);color:var(--muted)}
+.hc-set li.me{color:var(--fg);font-weight:800;background:color-mix(in srgb,var(--accent) 8%,transparent);margin:0 -12px;padding:0 12px;border-top:1px solid var(--accent);border-bottom:1px solid var(--accent)}
+.hc-set li.me .hc-bi{color:var(--accent)}
+.hc-set li>span:not(.hc-bi){flex:1}
+.hc-set li small{color:var(--muted);font-weight:600}
+
+/* ---- C: edit mode (like phone widgets), shown for comparison; DESIGN.md 9.6 says no edit mode ---- */
+.hm[data-edit] .hc-card{border-radius:var(--r-card,18px);outline:2px dashed var(--border);outline-offset:3px}
+.hm[data-edit] .hc-card>*:not(.hc-ed):not(.hc-band){max-height:84px;overflow:hidden;pointer-events:none;-webkit-mask-image:linear-gradient(#000 40%,transparent);mask-image:linear-gradient(#000 40%,transparent)}
+.hm[data-edit] .hm-hero.hc-card{overflow:hidden}
+.hm[data-edit] .hc-card[data-off]>*:not(.hc-ed){opacity:.35}
+.hc-ed{display:none}
+.hm[data-edit] .hc-ed{display:flex;align-items:center;gap:6px;position:relative;z-index:3;min-height:52px;padding:0 4px 0 8px;font-weight:800;font-size:.9375rem}
+.hc-ed .hc-grip{display:inline-flex;width:44px;height:44px;align-items:center;justify-content:center;color:var(--fg);touch-action:none;cursor:grab}
+.hc-ed .hc-grip .ic{stroke:none;fill:currentColor}
+.hc-ed b{flex:1;min-width:0}
+.hc-ed{pointer-events:auto}
+.hm[data-edit] .hc-card[data-lift]{z-index:6;opacity:.92;box-shadow:0 12px 30px rgba(0,0,0,.4)}
+.hm[data-edit] .hc-card.dz-before::before{content:"";position:absolute;left:0;right:0;top:-8px;height:4px;border-radius:2px;background:var(--accent);z-index:7}
+.hm[data-edit] .hc-card.dz-end::after{content:"";position:absolute;left:0;right:0;bottom:-8px;height:4px;border-radius:2px;background:var(--accent);z-index:7}
+.hm[data-edit] .hc-card+.hc-card{margin-top:18px}
+.hm[data-edit] .hm-hero.hc-card{padding:0 12px 0}
+.hm[data-edit] .hm-hero.hc-card>.hm-top{padding-top:0}
+.hm[data-edit] .hc-card>*:not(.hc-ed):not(.hc-band){margin-top:0}
+.hm .mh-bar .hc-done{margin-left:auto}
+.hc-eb{display:inline-flex;align-items:center;gap:6px;min-height:48px;padding:0 14px;border:1px solid var(--border);border-radius:var(--r-pill,99px);background:var(--surface);color:var(--fg);font:inherit;font-weight:800;font-size:.875rem;cursor:pointer;flex:none}
+.hc-eb.acc{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.hm[data-fold] .mh-bar,.hm[data-fold] .hc-foot,.hm[data-fold] .hc-flag{opacity:.5}
+@media(prefers-reduced-motion:reduce){.hm[data-fold] .hc-card{transition:none}}
+
+/* with the sheet open the Undo bar takes the sheet's foot row (it must never cover a row or a switch) */
+.hw-ph[data-sheet] .hc-undo{bottom:4px;z-index:50}
+.hm[data-edit] .hm-h,.hm[data-edit] .hm-hero .r-lead.th{display:none}
