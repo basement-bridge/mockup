@@ -1,6 +1,27 @@
-# Sign-in with six providers (Kitchie's sign-in screen for the built WorkOS and Clerk sign-in)
+# Sign-in with five providers (Kitchie's sign-in screen for the built WorkOS and Clerk sign-in)
 
 Mockup: `fragments/sign-in-providers/` (`index.html` the options and notes, `screen.html#o=a|b|c&s=...&t=day|night` one frame; the hash settings are listed at the top of `si.js`). Owner request: Arjan, typed, 26 October 2026: mock up the sign-in screen for the built WorkOS and Clerk sign-in (platform PR #134, issue #128, merged into `uat`), straight into mockup `main` (exception `mockup-direct-to-main`), and say what it looks like. Six buttons, three through WorkOS (Google, Apple, Microsoft) and three through Clerk (Facebook, X, TikTok); no email and password, no phone, minimal data. **Mockup only. Nothing built, nothing approved. Every decision below is proposed; none is confirmed.** The owner converts this into an issue once a direction is chosen.
+
+## Update 26 October 2026 (owner, typed): five providers and option D (mockup only, all proposed)
+
+**Five providers.** Apple is dropped (the owner will not pay the $99 a year developer fee); it stays behind the port in Platform as a later option and is not drawn on any new frame. Google and Microsoft through WorkOS; Facebook, X, TikTok through Clerk. Fixed order: Google, Facebook, Microsoft, X, TikTok. The "as built" frame still shows Apple because the built Platform page has it.
+
+**Option D (owner's phone pick) = B's two-across grid + C's "Other ways".** Rules: (1) a provider whose keys are not set is not shown; (2) first visit shows all configured providers, two across, an odd last one spans; (3) from the second visit the browser remembers every provider used and those lead, most recent first, in pairs; (4) an odd count is filled by one more provider in the fixed order (**the owner said random; I chose fixed so the screen is predictable and testable: flagged, SP-D3**); (5) the rest sit under "Other ways" (plain `details`), always reachable; (6) only direct Google configured gives today's single full-width Google button (resilience). Memory is browser-only: `localStorage` key `kitchie.signin.providers`, an array of provider ids, written when a button is pressed; nothing on the server. States drawn: first visit; returning with 1, 2 and 3 remembered (odd, even, odd); only Google; Clerk off; one vendor failing; redirecting; back from the vendor; error; a live frame using the real store; phone 360 and 390, desktop 1280, light and dark.
+
+**DOM and classes to copy:** `main.skin.si[data-opt=d]` > `.hero`, `.hello`, `.acts` > `p.lead#si-l` + `ul.pv.pv-grid[aria-labelledby=si-l]` > `li` > `a.btn.prov-{google|facebook|microsoft|x|tiktok}[data-p]` > `span.g` (inline `svg.lg.lg-{id}`) + `span.n` + `span.spin`; folded group `details.qa` > `summary` > `ul.pv.pv-grid`. States: `ul.pv[data-busy]`, `a.btn[aria-busy=true]`, `a.btn.is-down[aria-disabled=true]` + `span.lu.dn`, `p.note[role=status]`, `span.wire`. Single Google: `ul.pv > li > a.btn.prov-google`, no `.lead`. CSS: the `.pv` block and "Official provider branding" block in `fragments/sign-in-providers/si.css`; script helpers `readUsed`, `saveUsed`, `remembered`, `split` in `si.js`.
+
+**Official branding (SP-D4) and what could not be fetched.** Each button uses its provider's mark (inline SVG) and button colours, with dark variants in Kitchie's dark theme. **None of the five guideline pages could be fetched in this run (all refused as not on the allowed list); marks and colours are from memory and unverified.** To check before launch: developers.google.com/identity/branding-guidelines; learn.microsoft.com/en-us/entra/identity-platform/howto-add-branding-in-apps; developers.facebook.com/docs/facebook-login/userexperience and about.meta.com/brand/resources/facebook; about.x.com/en/who-we-are/brand-toolkit; developers.tiktok.com/doc/login-kit-design-guidelines. Facebook, X and TikTok branding may need an approved or reviewed developer app. The compact "Continue with" lead plus one word may not meet strict button-wording rules; the fallback is option A's full wording.
+
+- **SP-D1.** Five providers, Apple dropped, fixed order above (replaces SP-2's Apple slot).
+- **SP-D2.** Option D is the owner's pick; first visit all, then remembered pairs, rest under Other ways.
+- **SP-D3.** Odd slot filled in fixed order, not random (flag: owner said random).
+- **SP-D4.** Official marks and colours per provider, light and dark (unverified, above). Supersedes SP-12.
+- **SP-D5.** Browser-only memory written on press: a press that then fails is also remembered; writing after a successful return needs a script on the signed-in page. Clearing site data resets to first visit.
+- **SP-D6.** Brand-coloured buttons replace the single accent in the provider list (SP-3's moving accent is gone; order carries last-used).
+- **SP-D7.** A failing vendor: dashed, dimmed, alert shape, not tappable, neutral line "That one isn't answering right now. The others still work."; the fold opens if it is inside. How the app learns a vendor is down is not decided (built redirects carry only `signin_error=1`).
+- **SP-D8.** Only direct Google configured: today's single full-width Google button, nothing else.
+
+Checked in headless Chromium at 360, 390 and 1280, light and dark, on the A to D frames: no sideways scroll, controls 44px or more, no clipped names, no page errors; the live frame remembers a press. The separate senior-mobile-UX review is still not done. Default path: unchanged (theme, `si.css`, `si.js`; logos are inline SVG, no request).
 
 ## What exists (read from code on 26 October 2026, not run, not seen on a screen)
 
