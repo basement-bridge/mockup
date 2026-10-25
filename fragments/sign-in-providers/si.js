@@ -45,7 +45,7 @@
       '<span class="g">' + MARK[id] + '</span><span class="n">' + (busy ? "Opening…" : NAME[id]) + '</span>' + (s === "last" && q.p === id ? TICK : "") + (down ? WARN : "") + '<span class="spin" aria-hidden="true"></span></a>';
   }
   /* Option D. remembered = providers used in this browser, most recent first. Rule: first visit (none) shows all, two across;
-     otherwise remembered lead in pairs, an odd slot is filled by the next provider in the fixed order, the rest sit under "Other ways". */
+     otherwise the remembered ones lead, two across, the rest sit under "Other ways". No filler provider: an odd last button is centred at one column width by the CSS (SP-D9). */
   var KEY = "kitchie.signin.providers";
   function readUsed() { try { var v = JSON.parse(localStorage.getItem(KEY) || "[]"); return Array.isArray(v) ? v.filter(function (id) { return NAME[id]; }) : []; } catch (e) { return []; } }
   function saveUsed(id) { try { var a = readUsed().filter(function (x) { return x !== id; }); a.unshift(id); localStorage.setItem(KEY, JSON.stringify(a)); } catch (e) {} }
@@ -56,7 +56,6 @@
   function split(ids) {
     var shown = remembered(ids);
     if (shown.length === 0) return { shown: ids.slice(), rest: [], first: true };
-    if (shown.length % 2 === 1) { var f = ids.filter(function (id) { return shown.indexOf(id) < 0; })[0]; if (f) shown.push(f); }
     return { shown: shown, rest: ids.filter(function (id) { return shown.indexOf(id) < 0; }), first: false };
   }
   function acts(ids) {
