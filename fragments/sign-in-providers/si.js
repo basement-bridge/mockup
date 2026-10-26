@@ -26,9 +26,10 @@
     x: '<svg class="lg lg-x" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>',
     tiktok: '<svg class="lg lg-tiktok" viewBox="-1 -1 26 26" aria-hidden="true" focusable="false"><path fill="#25F4EE" transform="translate(-.8 -.8)" d="' + TT + '"/><path fill="#FE2C55" transform="translate(.8 .8)" d="' + TT + '"/><path fill="currentColor" d="' + TT + '"/></svg>'
   };
-  var NAME = { google: "Google", facebook: "Facebook", microsoft: "Microsoft", x: "X", tiktok: "TikTok" };
+  MARK.email = '<svg class="lg lg-email" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" d="M3 6.5h18v11H3zM3.5 7l8.5 6.5L20.5 7"/></svg>';
+  var NAME = { google: "Google", facebook: "Facebook", microsoft: "Microsoft", x: "X", tiktok: "TikTok", email: "Email" };
   /* The fixed order (SP-2, Apple dropped: five providers). Which vendor serves each is the build's concern: Google and Microsoft are WorkOS; Facebook, X and TikTok are Clerk (platform authn-vendors.ts). */
-  var ORDER = [["google", "workos"], ["facebook", "clerk"], ["microsoft", "workos"], ["x", "clerk"], ["tiktok", "clerk"]];
+  var ORDER = [["google", "workos"], ["facebook", "clerk"], ["microsoft", "workos"], ["x", "clerk"], ["tiktok", "clerk"], ["email", "workos"]];
   var ARROW = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
   var INFO = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.5"/></svg>';
   var TICK = '<span class="lu" title="Last used"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.500l4.500 4.500L19 7.500"/></svg><span class="vh">Last used</span></span>';
@@ -37,14 +38,16 @@
 
   function list() {
     var on = q.on ? q.on.split(",") : null;
-    return ORDER.filter(function (r) { return !(off === "all" || off === r[1]) && (!on || on.indexOf(r[0]) > -1); }).map(function (r) { return r[0]; });
+    return ORDER.filter(function (r) { return !(off === "all" || off === r[1]) && (r[0] !== "email" || o === "d") && (!on || on.indexOf(r[0]) > -1); }).map(function (r) { return r[0]; });
   }
+  /* SP-D11: in option D the tick carries visible words (small, under the name); the other options keep the ticked circle. */
+  var TICKD = '<span class="lu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.500l4.500 4.500L19 7.500"/></svg>Last used</span>';
   var WARN = '<span class="lu dn" title="Not available right now"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v6M12 17v.5"/></svg><span class="vh">Not available right now</span></span>';
   var lastD = ""; /* option D (SP-D10): the most recent remembered provider, the one that wears the "Last used" tick; empty on a first visit */
   function btn(id, primary, busyId) {
     var busy = busyId === id, down = s === "down" && q.fail === id;
     return '<a class="btn prov-' + id + (down ? " is-down" : "") + '" href="#" data-p="' + id + '"' + (busy ? ' aria-busy="true"' : "") + (down ? ' aria-disabled="true" tabindex="-1"' : "") + '>' +
-      '<span class="g">' + MARK[id] + '</span><span class="n">' + (busy ? "Opening…" : NAME[id]) + '</span>' + ((s === "last" && q.p === id) || lastD === id ? TICK : "") + (down ? WARN : "") + '<span class="spin" aria-hidden="true"></span></a>';
+      '<span class="g">' + MARK[id] + '</span><span class="n">' + (busy ? "Opening…" : NAME[id]) + '</span>' + ((s === "last" && q.p === id) || lastD === id ? (o === "d" ? TICKD : TICK) : "") + (down ? WARN : "") + '<span class="spin" aria-hidden="true"></span></a>';
   }
   /* Option D. remembered = providers used in this browser, most recent first. Rule: first visit (none) shows all, two across;
      otherwise the remembered ones lead, two across, the rest sit under "Other ways". No filler provider: an odd last button is centred at one column width by the CSS (SP-D9). */
