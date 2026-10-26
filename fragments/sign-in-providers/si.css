@@ -60,6 +60,7 @@ main.skin{--r-ctl:.9rem;--r-card:1.2rem;display:flex;flex-direction:column;gap:.
 .pv .btn[aria-busy=true]{cursor:progress}
 .pv .spin{display:none;position:absolute;right:.7rem;top:50%;width:20px;height:20px;margin-top:-10px;border:3px solid color-mix(in srgb,currentColor 30%,transparent);border-top-color:currentColor;border-radius:50%;animation:si-spin .8s linear infinite}
 .pv .btn[aria-busy=true] .spin{display:block}
+.pv .btn[aria-busy=true] .lu{visibility:hidden}
 .pv[data-busy] .btn:not([aria-busy=true]){opacity:.45;pointer-events:none}
 @keyframes si-spin{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){.skin .scene *{animation:none!important}.pv .spin{animation:none}}

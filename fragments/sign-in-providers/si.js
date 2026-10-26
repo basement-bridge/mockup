@@ -9,6 +9,7 @@
      off which vendor is switched off (its key is not set): clerk | workos | all
      x   the "two buttons, two members" line: n1 none | n2 a line under the buttons | n3 a line on the not-a-member screen only
      t   day | night (fixed in a frame so the options page can show both)
+   SP-D10: in option D the first remembered provider (the most recent) carries the small "Last used" tick (span.lu, visually hidden words), only when something is remembered and only on that one button. Logging out never clears the memory or changes the screen.
    The markup mirrors what Kitchie's sign-in page (server/src/skin.ts signInPageHtml) would write: .skin, .hero, .hello, .acts, a.btn, plus the new .pv list.
    Nothing here is lifted into the app. Links go nowhere; nothing is sent or stored. */
 (function () {
@@ -39,10 +40,11 @@
     return ORDER.filter(function (r) { return !(off === "all" || off === r[1]) && (!on || on.indexOf(r[0]) > -1); }).map(function (r) { return r[0]; });
   }
   var WARN = '<span class="lu dn" title="Not available right now"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v6M12 17v.5"/></svg><span class="vh">Not available right now</span></span>';
+  var lastD = ""; /* option D (SP-D10): the most recent remembered provider, the one that wears the "Last used" tick; empty on a first visit */
   function btn(id, primary, busyId) {
     var busy = busyId === id, down = s === "down" && q.fail === id;
     return '<a class="btn prov-' + id + (down ? " is-down" : "") + '" href="#" data-p="' + id + '"' + (busy ? ' aria-busy="true"' : "") + (down ? ' aria-disabled="true" tabindex="-1"' : "") + '>' +
-      '<span class="g">' + MARK[id] + '</span><span class="n">' + (busy ? "Opening…" : NAME[id]) + '</span>' + (s === "last" && q.p === id ? TICK : "") + (down ? WARN : "") + '<span class="spin" aria-hidden="true"></span></a>';
+      '<span class="g">' + MARK[id] + '</span><span class="n">' + (busy ? "Opening…" : NAME[id]) + '</span>' + ((s === "last" && q.p === id) || lastD === id ? TICK : "") + (down ? WARN : "") + '<span class="spin" aria-hidden="true"></span></a>';
   }
   /* Option D. remembered = providers used in this browser, most recent first. Rule: first visit (none) shows all, two across;
      otherwise the remembered ones lead, two across, the rest sit under "Other ways". No filler provider: an odd last button is centred at one column width by the CSS (SP-D9). */
@@ -69,7 +71,8 @@
     if (ids.length === 1) {
       body = '<ul class="pv"' + label + '><li><a class="btn prov-' + ids[0] + '" href="#" data-p="' + ids[0] + '"><span class="g">' + MARK[ids[0]] + '</span><span class="n">Continue with ' + NAME[ids[0]] + '</span></a></li></ul>';
     } else if (o === "d") {
-      var sp = split(ids), dn = s === "down" ? q.fail : "", openD = q.open === "1" || sp.rest.indexOf(dn) > -1;
+      var sp = split(ids); lastD = sp.first ? "" : sp.shown[0];
+      var dn = s === "down" ? q.fail : "", openD = q.open === "1" || sp.rest.indexOf(dn) > -1;
       body = '<p class="lead" id="si-l">Continue with</p><ul class="pv pv-grid" aria-labelledby="si-l"' + (busyId ? " data-busy" : "") + '>' + items(sp.shown) + '</ul>' +
         (sp.rest.length ? '<details class="qa"' + (openD ? " open" : "") + '><summary>Other ways' + ARROW + '</summary><ul class="pv pv-grid" aria-label="Other ways to sign in"' + (busyId ? " data-busy" : "") + '>' + items(sp.rest) + '</ul></details>' : "");
       lead = "";
