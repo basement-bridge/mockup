@@ -36,6 +36,25 @@ Owner: "the login buttons aren't looking good"; five-plus providers are live on 
 - **Open (owner).** SP-O-D11a: Google's own spec fills its button white (`#FFFFFF`) in light and `#131314` in dark with a `#747775` or `#8E918F` stroke; ours is the neutral surface, close but not identical. SP-O-D11b: Facebook, X and TikTok may require their own button look once developer apps are reviewed. Neither could be confirmed from the vendors' pages (brand pages unverified, see the section above). If a vendor requires it, that one button returns to its brand fill and the rest stay.
 - **Checked** in headless Chromium at 390 and 1280, light and dark: Last used, odd last centring, fold opened, keyboard focus ring, one failing vendor. The independent senior-mobile-UX review required by `AGENTS.md` is still not done.
 
+## Update 27 October 2026 (owner, typed, two hand-off entries): desktop page and order (option E), compact icon row (option F) (mockup only, all proposed)
+
+Mockup: `screen.html#o=e|f&...` (hash settings listed at the top of `si.js`: `bw=s|m|l` block width, `ft=wide`, `co=1`, `open=1`, `r=`, `on=`, `t=`). Options A to D are untouched. Nothing is built; Platform and Kitchie wait for the owner's go.
+
+**Entry 1, desktop layout and order (E).** Owner words, from a screenshot of live UAT (Google with Last used, Email, X, Facebook, Microsoft, Other ways open with TikTok): heading "Welcome to Kitchie" at the very top with the animated pot directly under it, then the buttons (pot animation unchanged, UAT badge stays); buttons in a centred, narrower block, show two or three widths; on desktop the first view shows at least four providers (two rows of two), the rest behind "Other ways", and once opened the extras join the same two-column grid with the label gone (ask about a collapse control; owner has not said); phone keeps option D; providers used in this browser lead with last used first and featured; nothing remembered: Email first, then Facebook, then a fixed order.
+- **SP-D12.** Desktop (64rem and up) in E and F: heading, pot, then buttons. Proposal: tagline under the pot; the small Kitchie mark floats top-left. UAT badge not drawn in the mockup, not touched.
+- **SP-D13.** Fixed order Email, Facebook (owner), Google, Microsoft, X, TikTok (the last four are a proposal), in E and F on every width.
+- **SP-D14.** Centred block S 20rem, M 22rem (proposed), L 24rem; today 25rem.
+- **SP-D15.** At least four first (remembered, then fixed order); rest behind Other ways; opened extras join the grid; odd last centred (SP-D9); collapse control asked (SP-O13). Needs a small script: `button.ow` plus `li[hidden]`, width test `(min-width:64rem)`; no script shows every button.
+- **SP-D16.** Last used first and featured: same size, accent ring, tick and "Last used"; variant `ft=wide` spans both columns.
+
+**Entry 2, compact icon row and Email as a button (F).** Owner looked at WorkOS's AuthKit preview (Email field, white "Continue with email", "OR", four small outlined logo-only buttons) and likes the compact style: a NEW option, not a replacement. Rules: Email is a plain button, no email field on Kitchie's page, hands off to WorkOS AuthKit; logo-only buttons need accessible names, 44px targets and provider branding; show Last used on an icon row; say how icons sit beyond four and how Other ways behaves.
+- **SP-D17.** Option F: "Continue with email" button (same size and style), "or", a row of logo-only buttons; no input element.
+- **SP-D18.** Icons: `aria-label="Continue with {name}"`, title, 52px high, 76px or wider, four to a row; last used leads with ring, ticked corner badge and caption "Last used: {name}"; Email stays on top; the fifth and later sit behind Other ways and join as a centred second row.
+- **SP-D19.** Marks unaltered in the D treatment; whether each vendor allows a logo-only button is unverified (fallback: that provider keeps its labelled button).
+- **Open (SP-O11 to SP-O17).** Width; ring or wide last used; collapse control; order of the last four; E or F and whether Email stays on top; tagline position; and a dashboard check: WorkOS's own preview showed GitHub and Apple, which Kitchie does not use, so confirm only Google, Microsoft and email are enabled in the WorkOS dashboard.
+
+Checked in headless Chromium at 360, 390 and 1280, light and dark: no sideways scroll, no clipped names, no page errors; Other ways opens, moves focus to the first new button and (with `co=1`) folds back. The separate senior-mobile-UX review required by `AGENTS.md` is still not done. Default path unchanged: theme, `si.css`, `si.js`; logos inline SVG, no request.
+
 ## What exists (read from code on 26 October 2026, not run, not seen on a screen)
 
 Read from `basement-bridge/platform` `uat` at `b53453f` (`apps/portal/src/pages.ts`, `server.ts`, `authn-vendors.ts`, `authn-workos.ts`, `authn-clerk.ts`, `authn.ts`) and `basement-bridge/kitchie` `uat` at `32f66eb` (`server/src/skin.ts`, `web-signin.ts`, `platform-config.ts`). **The built app has not been checked against the mockup.**

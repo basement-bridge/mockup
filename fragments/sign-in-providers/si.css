@@ -152,3 +152,63 @@ main.skin{--r-ctl:.9rem;--r-card:1.2rem;display:flex;flex-direction:column;gap:.
 .si[data-opt=d] details.qa>summary:focus-visible{outline:2px solid var(--accent);outline-offset:0}
 .si[data-opt=d] details.qa .pv{margin:.75rem auto .3rem}
 @media (forced-colors:active){.si[data-opt=d] .pv-grid .btn{border-color:ButtonText}.si[data-opt=d] .pv-grid .btn:focus-visible,.si[data-opt=d] details.qa>summary:focus-visible{outline-color:Highlight}}
+
+/* ---- Options E and F (27 Oct 2026; proposed, built on D). E = D on a phone, a revised page on a desktop. F = E's page with Email as a plain button and a compact row of logo-only buttons. ----
+   Everything below is scoped to [data-v] so options A to D and every earlier frame are untouched. Tokens only; nothing loads. */
+.si .ow{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;min-height:44px;padding:0 .9rem;margin:0;border:0;border-radius:999px;background:none;color:var(--muted);font:inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.si .ow:hover{color:var(--fg)}
+.si .ow:focus-visible{outline:2px solid var(--accent);outline-offset:0}
+.si .ow svg{transition:transform .15s}
+.si .ow.less svg{transform:rotate(180deg)}
+.si[data-opt=d] .pv-grid li.more:nth-child(n):last-child{grid-column:1/-1;justify-self:center;width:auto}
+.si[data-opt=d] .pv-grid li.more:nth-child(n):last-child .ow{width:auto}
+.si[data-opt=d] .pv-grid li.more{display:flex;justify-content:center;margin-top:.15rem}
+/* F: Email, "or", the icon row. */
+.si .or{display:flex;align-items:center;gap:.75rem;width:100%;max-width:25rem;margin:.85rem auto;font-size:.75rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.si .or::before,.si .or::after{content:"";flex:1;height:1px;background:var(--border)}
+.si[data-opt=d] .pv-grid.pv-one{grid-template-columns:1fr}
+.si[data-opt=d] .pv-grid.pv-one li:nth-child(odd):last-child{width:auto;justify-self:stretch}
+.si[data-opt=d] .pv-grid.pv-one .btn{grid-template-columns:28px auto;justify-content:center}
+.si[data-opt=d] .pv-grid.pv-one .btn.is-last{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.si[data-opt=d] .pv-ic{--ic-gap:.5rem;--pv-line:color-mix(in srgb,var(--fg) 26%,var(--border));display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;gap:var(--ic-gap);width:100%;max-width:25rem;margin-inline:auto}
+.si[data-opt=d] .pv-ic li{width:calc((100% - 3*var(--ic-gap))/4)}
+.si[data-opt=d] .pv-ic li.more{width:100%;display:flex;justify-content:center}
+.si[data-opt=d] .pv-ic .btn{position:relative;display:flex;align-items:center;justify-content:center;width:100%;min-height:52px;padding:0;overflow:visible;border:1px solid var(--pv-line);border-radius:var(--r-ctl);background:var(--surface);color:var(--fg);transition:border-color .15s,background-color .15s}
+.si[data-opt=d] .pv-ic .g{width:28px;height:28px}
+.si[data-opt=d] .pv-ic .lg-facebook path{fill:#1877F2}
+@media (hover:hover){.si[data-opt=d] .pv-ic a.btn:hover{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--surface))}}
+.si[data-opt=d] .pv-ic .btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.si[data-opt=d] .pv-ic .btn.is-last{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+/* Last used on an icon: a small ticked badge on the corner (a shape, not colour alone); the name is in the caption under the row and in the accessible name. */
+.si[data-opt=d] .pv-ic .lu{position:absolute;top:-7px;right:-7px;left:auto;bottom:auto;transform:none;margin:0;display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border:2px solid var(--bg);border-radius:50%;background:var(--accent);color:var(--on-accent)}
+.si[data-opt=d] .pv-ic .lu svg{width:10px;height:10px;stroke:var(--on-accent);stroke-width:3.5}
+.si[data-opt=d] .pv-ic .spin{left:50%;right:auto;margin-left:-10px}
+.si[data-opt=d] .pv-ic .btn[aria-busy=true] .g{visibility:hidden}
+.si .pv-ic li.cap{width:100%;display:flex;align-items:center;justify-content:center;gap:.35rem;margin:.1rem 0 0;font-size:.82rem;color:var(--muted);text-align:center}
+.si .pv-ic li.cap svg{width:12px;height:12px;flex:none;fill:none;stroke:var(--accent);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.si .pv-ic li.cap b{color:var(--fg);font-weight:600}
+.si .lu-cap{display:flex;align-items:center;justify-content:center;gap:.35rem;margin:.6rem 0 0;font-size:.82rem;color:var(--muted);text-align:center}
+.si .lu-cap svg{width:12px;height:12px;flex:none;fill:none;stroke:var(--accent);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.si .lu-cap b{color:var(--fg);font-weight:600}
+.si[data-v=f] .acts{gap:0}
+/* Desktop (64rem and up), E and F only: the heading first, the pot directly under it, then the (centred, narrower) buttons. Phones keep D: pot, heading, buttons. */
+@media (min-width:64rem){
+  .si[data-v]{--pv-w:22rem;justify-content:center;gap:.8rem}
+  .si[data-v][data-bw=s]{--pv-w:20rem}
+  .si[data-v][data-bw=l]{--pv-w:24rem}
+  body.si:has(main[data-v]) .brandbar{position:fixed;top:.75rem;left:1rem;z-index:1}
+  .si[data-v] .hello{display:contents}
+  .si[data-v] .hello h1{order:0;text-align:center;font-size:2.4rem;margin:0}
+  .si[data-v] .hero{order:1;flex:none;height:190px}
+  .si[data-v] .hero .scene{flex:1 1 0;max-height:190px}
+  .si[data-v] .hello p{order:2;text-align:center;margin:0}
+  .si[data-v] .acts{order:3;flex:none;margin-top:.4rem;padding:0}
+  .si[data-v] .small{order:4;margin:0}
+  .si[data-v=f] .hero{height:150px}
+  .si[data-v=f] .hero .scene{max-height:150px}
+  .si[data-v=f]{gap:.6rem}
+  .si[data-v] .note{order:2}
+  .si[data-opt=d][data-v] .pv-grid,.si[data-opt=d][data-v] .pv-ic,.si[data-opt=d][data-v] .or{max-width:var(--pv-w)}
+  .si[data-opt=d][data-v=e] .pv-grid li.feat{grid-column:1/-1;justify-self:stretch;width:auto}
+  .si[data-opt=d][data-v=e] .pv-grid .btn.is-last{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+}
