@@ -1,0 +1,127 @@
+/* Change login method (mockup, 27 Oct 2026). Tokens only (theme.css); every control is 44px or more (--tap). No images, no requests.
+   Two parts. (1) The feature rules, prefix lm-: these are what a build lifts (profile row, picker, status line, message, nudge, support view).
+   (2) Scaffolding, prefix cl-: page, frames, the sample profile around the feature. The button treatment repeats SP-D11 of the sign-in fragment. */
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);line-height:1.5}
+.cl-page{max-width:1280px;margin:0 auto;padding:16px var(--gutter) 96px}
+.cl-page h1{font:700 1.7rem var(--head);margin:8px 0}.cl-page h2{font:700 1.2rem var(--head);margin:36px 0 6px}
+.cl-page h3{font:700 1rem var(--head);margin:0}
+.cl-page p,.cl-page li{max-width:52rem}.cl-page a{color:var(--accent)}
+.cl-page code{font-size:.92em;overflow-wrap:anywhere}
+.cl-note{border:2px solid var(--accent);border-radius:var(--r-card);padding:14px;background:var(--surface);margin:16px 0}
+.cl-note .k{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--accent)}
+.cl-note p{margin:6px 0 0}
+.cl-tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:var(--r-pill);border:1px solid var(--border);margin-left:6px;vertical-align:middle}
+.cl-tag.o{background:var(--accent);color:var(--on-accent);border-color:transparent}
+.cl-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),390px));gap:26px 18px;justify-content:center;margin-top:14px}
+.cl-grid figure,.cl-dk figure{margin:0;min-width:0}
+.cl-grid figcaption,.cl-dk figcaption{margin:0 0 6px;font-weight:700;font-size:14px}
+.cl-grid figcaption small,.cl-dk figcaption small{display:block;font-weight:400;color:var(--muted);font-size:12.5px}
+.cl-ph{width:100%;max-width:390px;border:1px solid var(--border);border-radius:var(--r-card);background:var(--bg);padding:0 var(--gutter) 20px;overflow:hidden;position:relative}
+.cl-ph .mtop{height:60px;margin:0 calc(-1 * var(--gutter)) 18px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);font:700 19px var(--head)}
+.cl-ph .mtop .bk{color:var(--accent);font:600 15px var(--body);min-width:64px;display:inline-flex;align-items:center;min-height:44px}
+.cl-ph .mtop i{min-width:64px}
+.cl-stack{display:flex;flex-direction:column;gap:16px}
+.cl-who{display:flex;gap:12px;align-items:center}.cl-av{width:56px;height:56px;border-radius:50%;background:var(--surface);border:1px solid var(--border);display:grid;place-items:center;font-weight:700;font-size:20px;flex:none}
+.cl-who b{font-size:20px}.cl-who p{margin:0;color:var(--muted);font-size:13px}
+.lbl{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted);margin:0 0 6px}
+.cl-out{display:flex;align-items:center;min-height:48px;font:600 16px var(--body);color:var(--danger)}
+.cl-dim{position:absolute;inset:0;background:var(--dim)}
+/* ---- Desktop window: drawn at 1040px and scaled to fit by the tiny script at the foot of index.html. ---- */
+.cl-dk{display:grid;grid-template-columns:1fr;gap:26px;margin-top:14px}
+.cl-sc{width:100%;max-width:1040px;margin-inline:auto;overflow:hidden;position:relative;border:1px solid var(--border);border-radius:var(--r-card);background:var(--bg)}
+.cl-sc>.cl-in{width:1040px;transform-origin:0 0}
+.cl-sc:not([data-k])>.cl-in{overflow-x:auto}
+.cl-win{display:flex;min-height:560px;position:relative}
+.cl-rail{width:224px;flex:none;border-right:1px solid var(--border);padding:16px 10px;display:flex;flex-direction:column;gap:2px}
+.cl-rail div{display:flex;align-items:center;min-height:var(--tap);padding:0 10px;border-radius:var(--r-ctl);font-weight:600}
+.cl-rail div[aria-selected=true]{background:var(--surface);box-shadow:inset 3px 0 0 var(--accent)}
+.cl-pane{flex:1;padding:28px 36px;display:flex;flex-direction:column;gap:18px;min-width:0}
+.cl-pane h4{font:700 1.4rem var(--head);margin:0}
+.cl-pane .lm-card{max-width:34rem}
+.cl-dlg{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:440px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-card);padding:20px;box-shadow:0 12px 40px rgba(0,0,0,.35)}
+/* ---- Feature: the row and the card (lm-) ---- */
+.lm-card{display:flex;flex-direction:column;width:100%;margin:0;padding:6px 18px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card)}
+.lm-card>*+*{border-top:1px solid var(--border)}
+.lm-cur{display:flex;align-items:center;gap:.75rem;min-height:56px;font:600 16px var(--body)}
+.lm-cur .sub{margin-left:auto;font:400 13px var(--body);color:var(--muted);text-align:right}
+a.lm-row,button.lm-row{display:flex;align-items:center;justify-content:space-between;gap:.5rem;width:100%;min-height:56px;padding:0;border:0;background:none;color:var(--fg);font:600 16px var(--body);text-decoration:none;text-align:left;cursor:pointer}
+.lm-row svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;color:var(--muted)}
+.lm-row:focus-visible,.lm-btn:focus-visible,.lm-pv .btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.lm-g{display:inline-flex;align-items:center;justify-content:center;flex:none;width:28px;height:28px}
+.lm-g .lg{width:22px;height:22px}.lm-g .lg-microsoft,.lm-g .lg-google{width:20px;height:20px}
+.lm-g .lg-facebook path{fill:#1877F2}
+/* status */
+.lm-state{padding:14px 0 16px;display:flex;flex-direction:column;gap:10px}
+.lm-line{margin:0;font:600 16px/1.4 var(--body);color:var(--fg)}
+.lm-help{margin:0;font-size:14px;line-height:1.45;color:var(--muted)}
+.lm-pips{display:flex;gap:8px;list-style:none;margin:0;padding:0}
+.lm-pips li{width:24px;height:24px;border-radius:50%;border:2px solid var(--muted);display:grid;place-items:center;color:var(--on-accent)}
+.lm-pips li svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+.lm-pips li.on{background:var(--accent);border-color:var(--accent)}
+.lm-pips li:not(.on) svg{display:none}
+.lm-state[data-paused] .lm-pips li:not(.on){border-style:dashed}
+.lm-done{padding:14px 0 16px;display:flex;gap:12px;align-items:flex-start}
+.lm-done .ok{flex:none;width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center}
+.lm-done .ok svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+.lm-done p{margin:0}.lm-done .lm-line{margin-bottom:4px}
+.lm-quiet{margin:0;padding:12px 0;font-size:13px;color:var(--muted)}
+.lm-btn{display:inline-flex;align-items:center;justify-content:center;min-height:var(--tap);padding:0 16px;border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--surface);color:var(--fg);font:600 15px var(--body);text-decoration:none;cursor:pointer}
+.lm-btn.pri{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.lm-btn.txt{border-color:transparent;background:none;color:var(--accent);padding:0 8px}
+.lm-acts{display:flex;flex-wrap:wrap;gap:8px}
+/* picker */
+.lm-sheet{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-card) var(--r-card) 0 0;padding:10px var(--gutter) 16px;margin:0 calc(-1 * var(--gutter)) -20px;position:relative;display:flex;flex-direction:column;gap:12px}
+.lm-sheet .grab{width:40px;height:4px;border-radius:2px;background:var(--border);margin:0 auto}
+.lm-sheet h3,.cl-dlg h3{font:700 1.2rem var(--head)}
+.lm-sheet p,.cl-dlg p{margin:0;font-size:14px;color:var(--muted)}
+.lm-pv{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.5rem}
+.lm-pv .btn{display:flex;align-items:center;gap:.6rem;width:100%;min-height:56px;padding:.35rem .75rem;border:1px solid color-mix(in srgb,var(--fg) 26%,var(--border));border-radius:var(--r-ctl);background:var(--surface);color:var(--fg);font:600 16px/1.25 var(--body);text-align:left;text-decoration:none;cursor:pointer}
+@media (hover:hover){.lm-pv a.btn:hover{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--surface))}}
+.lm-pv .btn .g{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;flex:none}
+.lm-pv .btn .lg{width:22px;height:22px}.lm-pv .lg-microsoft,.lm-pv .lg-google{width:20px;height:20px}.lm-pv .lg-facebook path{fill:#1877F2}
+.lm-pv .btn .t{margin-left:auto;display:inline-flex;align-items:center;gap:6px;font:700 12px var(--body);color:var(--muted)}
+.lm-pv .btn .t svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.lm-pv .btn[aria-disabled=true]{background:transparent;cursor:default;border-style:solid;border-color:var(--border);color:var(--muted)}
+.lm-empty{border:1px dashed var(--border);border-radius:var(--r-ctl);padding:14px;display:flex;gap:10px;align-items:flex-start;font-size:14px}
+.lm-empty svg,.lm-msg>svg{flex:none;width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;color:var(--muted)}
+.lm-empty p{margin:0;color:var(--fg)}
+/* failure message */
+.lm-msg{display:flex;gap:12px;padding:14px;border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:var(--r-ctl);background:var(--surface)}
+.lm-msg>div{display:flex;flex-direction:column;gap:6px;min-width:0}
+.lm-msg h3{font:700 1rem var(--head);margin:0}.lm-msg p{margin:0;font-size:14px;line-height:1.5}
+.lm-msg .lm-acts{margin-top:4px}
+/* nudge */
+.lm-nudge{display:flex;gap:12px;padding:12px 14px;border:1px solid var(--accent);border-radius:var(--r-ctl);background:var(--surface)}
+.lm-nudge svg{flex:none;width:22px;height:22px;fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;margin-top:1px}
+.lm-nudge>div{display:flex;flex-direction:column;gap:6px;min-width:0}.lm-nudge p{margin:0;font-size:14px;line-height:1.45}.lm-nudge b{font-weight:700}
+/* sign-in page sample (repeats the option D grid in short form; the real one is fragments/sign-in-providers) */
+.cl-si{display:flex;flex-direction:column;gap:12px}
+.cl-si h1{font:700 1.7rem/1.1 var(--head);margin:0;text-align:center}
+.cl-si .pot{height:64px;border-radius:var(--r-ctl);border:1px dashed var(--border);display:grid;place-items:center;font-size:12px;color:var(--muted)}
+.cl-si .lm-pv{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.cl-si .lm-pv .btn{min-height:56px;font-size:15px;padding:.35rem .6rem;gap:.5rem}
+.cl-si .lm-pv .btn.feat{border:2px solid var(--accent)}
+.cl-si .lm-pv .btn.down{border-style:dashed;opacity:.6;pointer-events:none}
+.cl-si .small{margin:0;text-align:center;font-size:13px;color:var(--muted)}
+.cl-home-stub{height:12px;border-radius:6px;background:var(--surface);border:1px solid var(--border)}
+/* support view */
+.lm-adm{display:flex;flex-direction:column;gap:14px}
+.lm-pc{border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface);padding:14px 16px}
+.lm-pc h3{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.lm-pc dl{margin:0;display:grid;grid-template-columns:minmax(0,9.5rem) minmax(0,1fr);gap:6px 12px;font-size:14px}
+.lm-pc dt{color:var(--muted)}.lm-pc dd{margin:0;overflow-wrap:anywhere}
+.lm-st{display:inline-flex;align-items:center;gap:6px;font:700 12px var(--body);padding:3px 10px;border-radius:var(--r-pill);border:1px solid var(--border);white-space:nowrap}
+.lm-st svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.lm-st.act{border-color:var(--accent)}.lm-st.pau{border-style:dashed}
+.lm-tw{overflow-x:auto}
+.lm-tb{width:100%;border-collapse:collapse;font-size:14px}
+.lm-tb th,.lm-tb td{text-align:left;padding:10px 10px;border-top:1px solid var(--border);vertical-align:top}
+.lm-tb th{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-top:0}
+.lm-tb td small{display:block;color:var(--muted)}
+/* notes */
+.cl-two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px;margin-top:12px}
+.cl-two>div{border:1px solid var(--border);border-radius:var(--r-ctl);background:var(--surface);padding:12px 16px}
+.cl-two b{display:block;margin-bottom:4px}
+.cl-dec{list-style:none;padding:0;margin:10px 0}.cl-dec li{padding:8px 0;border-top:1px solid var(--border)}.cl-dec b{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
