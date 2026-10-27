@@ -118,7 +118,7 @@ main.skin{--r-ctl:.9rem;--r-card:1.2rem;display:flex;flex-direction:column;gap:.
 /* Option D: two equal columns, in the open fold too; an odd last button (1, 3, 5...) is centred at exactly one column width (owner, 26 Oct 2026, SP-D9). */
 .si[data-opt=d] .pv-grid{--pv-gap:.5rem;display:grid;grid-template-columns:1fr 1fr;gap:var(--pv-gap)}
 .si[data-opt=d] .pv-grid .btn{padding:0 .7rem;gap:.5rem}
-.si[data-opt=d] .pv-grid li:nth-child(odd):last-child{grid-column:1/-1;justify-self:center;width:calc((100% - var(--pv-gap))/2)}
+.si[data-opt=d] .pv-grid li:nth-child(odd):last-child,.si[data-opt=d] .pv-grid li.solo{grid-column:1/-1;justify-self:center;width:calc((100% - var(--pv-gap))/2)}
 .si[data-opt=d] details.qa .pv{margin:.2rem 0 .3rem}
 .si[data-opt=d] .pv .lu{position:static;transform:none;margin-left:auto;flex:none;width:20px;height:20px}
 .si[data-opt=d] .acts{gap:.5rem}
@@ -159,7 +159,6 @@ main.skin{--r-ctl:.9rem;--r-card:1.2rem;display:flex;flex-direction:column;gap:.
 .si .ow:hover{color:var(--fg)}
 .si .ow:focus-visible{outline:2px solid var(--accent);outline-offset:0}
 .si .ow svg{transition:transform .15s}
-.si .ow.less svg{transform:rotate(180deg)}
 .si[data-opt=d] .pv-grid li.more:nth-child(n):last-child{grid-column:1/-1;justify-self:center;width:auto}
 .si[data-opt=d] .pv-grid li.more:nth-child(n):last-child .ow{width:auto}
 .si[data-opt=d] .pv-grid li.more{display:flex;justify-content:center;margin-top:.15rem}

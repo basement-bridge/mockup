@@ -14,9 +14,9 @@
      o=f option F: E's page with Email as a plain button, an "or" line, then a compact row of logo-only provider buttons (four to a row).
      bw  desktop button block width: s 20rem | m 22rem (default) | l 24rem
      ft  E on desktop: ft=wide makes the last-used button span both columns (default: same size, accent ring)
-     co  E and F: co=1 draws a "Fewer ways" control once Other ways is open (default: none; the owner has not said)
+     (co=1, a "Fewer ways" control, was removed 27 Oct 2026: owner rule for D, E and F, once "Other ways" is pressed the label goes and the extras join the grid; nothing collapses.)
      open=1 draws the open state; a press on Other ways opens it in a frame too
-   E and F use the order Email, Facebook, Google, Microsoft, X, TikTok (SP-D13, proposed).
+   D, E and F use the order Email, Facebook, Google, Microsoft, X, TikTok (SP-D13, SP-D22). F is the owner's pick (SP-D20).
    SP-D10: in option D the first remembered provider (the most recent) carries the small "Last used" tick (span.lu, visually hidden words), only when something is remembered and only on that one button. Logging out never clears the memory or changes the screen.
    The markup mirrors what Kitchie's sign-in page (server/src/skin.ts signInPageHtml) would write: .skin, .hero, .hello, .acts, a.btn, plus the new .pv list.
    Nothing here is lifted into the app. Links go nowhere; nothing is sent or stored. */
@@ -51,7 +51,7 @@
 
   function list() {
     var on = q.on ? q.on.split(",") : null;
-    return (v ? ORDER_E : ORDER).filter(function (r) { return !(off === "all" || off === r[1]) && (r[0] !== "email" || o === "d") && (!on || on.indexOf(r[0]) > -1); }).map(function (r) { return r[0]; });
+    return (o === "d" ? ORDER_E : ORDER).filter(function (r) { return !(off === "all" || off === r[1]) && (r[0] !== "email" || o === "d") && (!on || on.indexOf(r[0]) > -1); }).map(function (r) { return r[0]; });
   }
   /* SP-D11: in option D the tick carries visible words (small, under the name); the other options keep the ticked circle. */
   var TICKD = '<span class="lu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.500l4.500 4.500L19 7.500"/></svg>Last used</span>';
@@ -90,7 +90,6 @@
     var all = open ? shown.concat(rest) : shown;
     var li = all.map(function (id, i) { return '<li' + (wideFeat && i === 0 ? ' class="feat"' : "") + '>' + btn(id, false, busyId) + '</li>'; }).join("");
     if (rest.length && !open) li += '<li class="more"><button type="button" class="ow" aria-expanded="false" data-ow="open">Other ways' + ARROW + '</button></li>';
-    if (rest.length && open && q.co === "1") li += '<li class="more"><button type="button" class="ow less" aria-expanded="true" data-ow="close">Fewer ways' + ARROW + '</button></li>';
     return '<p class="lead" id="si-l">Continue with</p><ul class="pv pv-grid" aria-labelledby="si-l"' + (busyId ? " data-busy" : "") + (wideFeat ? ' data-feat' : "") + '>' + li + '</ul>';
   }
   /* Option F: Email is a plain button (hands off to WorkOS AuthKit; no field on our page), then "or", then a row of logo-only provider buttons, four to a row. */
@@ -115,7 +114,6 @@
     if (icons.length) {
       var li = all.map(function (id) { return '<li>' + iconBtn(id, id === lastI, busyId === id) + '</li>'; }).join("");
       if (rest.length && !open) li += '<li class="more"><button type="button" class="ow" aria-expanded="false" data-ow="open">Other ways' + ARROW + '</button></li>';
-      if (rest.length && open && q.co === "1") li += '<li class="more"><button type="button" class="ow less" aria-expanded="true" data-ow="close">Fewer ways' + ARROW + '</button></li>';
       if (lastI) li = li.replace(/<li class="more">/, '<li class="cap">' + CHECK + 'Last used: <b>' + NAME[lastI] + '</b></li><li class="more">') + (rest.length && li.indexOf('class="more"') > -1 ? "" : '');
       if (lastI && li.indexOf('class="cap"') < 0) li += '<li class="cap">' + CHECK + 'Last used: <b>' + NAME[lastI] + '</b></li>';
       html += '<ul class="pv pv-ic" aria-label="Sign in with"' + (busyId ? " data-busy" : "") + '>' + li + '</ul>';
@@ -137,10 +135,13 @@
     } else if (v === "e" && wideMQ.matches) {
       body = wideBody(ids, busyId); lead = "";
     } else if (o === "d") {
-      var sp = split(ids); lastD = sp.first ? "" : sp.shown[0];
-      var dn = s === "down" ? q.fail : "", openD = q.open === "1" || sp.rest.indexOf(dn) > -1;
-      body = '<p class="lead" id="si-l">Continue with</p><ul class="pv pv-grid" aria-labelledby="si-l"' + (busyId ? " data-busy" : "") + '>' + items(sp.shown) + '</ul>' +
-        (sp.rest.length ? '<details class="qa"' + (openD ? " open" : "") + '><summary>Other ways' + ARROW + '</summary><ul class="pv pv-grid" aria-label="Other ways to sign in"' + (busyId ? " data-busy" : "") + '>' + items(sp.rest) + '</ul></details>' : "");
+      var sp = split(ids); lastD = sp.first ? "" : sp.shown[0]; restN = sp.rest.length;
+      var dn = s === "down" ? q.fail : "", openD = openX || sp.rest.indexOf(dn) > -1;
+      var allD = openD ? sp.shown.concat(sp.rest) : sp.shown.slice();
+      /* Owner rule, 27 Oct 2026: "Other ways" is one button in the same grid; once pressed it goes and the extras join the grid. No collapse control. An odd last button is centred (SP-D9, class solo). */
+      var liD = allD.map(function (id, i) { return '<li' + (allD.length % 2 && i === allD.length - 1 ? ' class="solo"' : "") + '>' + btn(id, false, busyId) + '</li>'; }).join("");
+      if (sp.rest.length && !openD) liD += '<li class="more"><button type="button" class="ow" aria-expanded="false" data-ow="open">Other ways' + ARROW + '</button></li>';
+      body = '<p class="lead" id="si-l">Continue with</p><ul class="pv pv-grid" aria-labelledby="si-l"' + (busyId ? " data-busy" : "") + '>' + liD + '</ul>';
       lead = "";
     } else if (o === "c") {
       var rest = ids.filter(function (id) { return id !== primary; });
