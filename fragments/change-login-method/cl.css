@@ -55,12 +55,7 @@ a.lm-row,button.lm-row{display:flex;align-items:center;justify-content:space-bet
 .lm-state{padding:14px 0 16px;display:flex;flex-direction:column;gap:10px}
 .lm-line{margin:0;font:600 16px/1.4 var(--body);color:var(--fg)}
 .lm-help{margin:0;font-size:14px;line-height:1.45;color:var(--muted)}
-.lm-pips{display:flex;gap:8px;list-style:none;margin:0;padding:0}
-.lm-pips li{width:24px;height:24px;border-radius:50%;border:2px solid var(--muted);display:grid;place-items:center;color:var(--on-accent)}
-.lm-pips li svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
-.lm-pips li.on{background:var(--accent);border-color:var(--accent)}
-.lm-pips li:not(.on) svg{display:none}
-.lm-state[data-paused] .lm-pips li:not(.on){border-style:dashed}
+.lm-state[data-paused] .lm-line::before{content:"";display:inline-block;box-sizing:border-box;width:10px;height:12px;margin-right:8px;border-left:3px solid currentColor;border-right:3px solid currentColor;vertical-align:-1px}
 .lm-done{padding:14px 0 16px;display:flex;gap:12px;align-items:flex-start}
 .lm-done .ok{flex:none;width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center}
 .lm-done .ok svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}

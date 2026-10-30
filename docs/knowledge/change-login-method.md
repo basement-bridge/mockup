@@ -1,4 +1,4 @@
-# Change login method (swap one login for another, with a 5-sign-in trial)
+# Change login method (swap one login for another, with a trial)
 
 Mockup: `fragments/change-login-method/` (one page, six screens, phone and desktop, light and dark; builds on `sign-in-providers.md`, SP-D numbers). Owner: Arjan, from the voice/text hand-off log, 27 October 2026. **Mockup only. Nothing built in Platform or Kitchie; nothing approved.** Items marked Proposal are the mockup's choice where the owner was silent. The owner converts this into an issue once a direction is chosen.
 
@@ -14,10 +14,10 @@ UAT answers 401 to a signed-out reader, so the real profile screen was **not rea
 
 1. Profile (Me page): a "How you sign in" card with the current login and the row Change login method.
 2. Picker: sheet (phone) or dialog (desktop); only enabled, healthy providers; current one marked Current and not tappable; empty list has one plain line that blames us.
-3. Status line: `Switching to Microsoft: N of 5 sign-ins done`, five decorative markers, one help sentence; shown at 0, 2, 4; finish state; afterwards line; paused state.
-4. Sign-in surfaces: ordinary sign-in page during the trial (nothing about a swap); nudge on the first screen after an old-login sign-in; after retirement the sign-in page shows "You moved from Google to Microsoft" (or a plain no-name note); neutral line when the new provider is down.
+3. Status line (CL-D40, 31 Oct): plain `Switching to Microsoft. Keep signing in with Microsoft.` with no count and no markers; finish state; afterwards line; paused state.
+4. Sign-in surfaces: ordinary sign-in page during the trial (nothing about a swap); transition-only nudge on the first screen after an old-login sign-in (CL-D40); after retirement the sign-in page shows "You moved from Google to Microsoft" (or a plain no-name note); neutral line when the new provider is down.
 5. Failure messages: provider unavailable, cancelled at provider ("No change made"), identity belongs to another member, swap paused, could not save.
-6. Support/admin view (read only): current method, switching to, N of 5, pending retirement, old-login sign-ins in the trial, last failure and when. Provider names and times only.
+6. Support/admin view (read only; the only place the count N of 5 is shown): current method, switching to, N of 5, pending retirement, old-login sign-ins in the trial, last failure and when. Provider names and times only.
 
 ## Decisions
 
@@ -30,16 +30,16 @@ UAT answers 401 to a signed-out reader, so the real profile screen was **not rea
 - **CL-D7** (Owner). Attach and retire are atomic. If the new identity already belongs to another member: refuse and say so. Never merge two people. Never link by email.
 - **CL-D8** (Owner). A provider is offered only if switched on and healthy now. A swap starts only after the new provider has already signed the person in.
 - **CL-D9** (Owner). Failures never count toward 5, never retire the old method, and the old method keeps working. Failure messages blame us, never the person.
-- **CL-D10** (Owner). State is visible: a plain line in the profile ("Switching to Microsoft: 2 of 5 sign-ins done") and a support/admin view per person (current method, pending retirement, N of 5, last failure and when).
-- **CL-D11** (Proposal). The number 5 is read from configuration, never typed into the screens: the line is built as "N of {limit}" and the help text uses the same value.
+- **CL-D10** (Owner). State is visible: a plain line in the profile and a support/admin view per person (current method, pending retirement, N of 5, last failure and when). **Superseded in part by CL-D40:** the profile line no longer carries a count (the 27 Oct wording "Switching to Microsoft: 2 of 5 sign-ins done" is withdrawn); the count stays in the support/admin view.
+- **CL-D11** (Proposal). The number 5 is read from configuration, never typed into the screens: the support view is built as "N of {limit}". **Superseded in part by CL-D40:** no person-facing text uses the value any more.
 - **CL-D12** (Proposal). The row lives on the Me page in a "How you sign in" card (desktop: the Profile pane), not in Settings or Household.
 - **CL-D13** (Proposal). Picker: sheet on phone, dialog on desktop; current provider marked with a tick and the word Current, not tappable; absent providers are not shown and not explained; empty list gets one plain line that blames us. Order is the fixed order of the sign-in fragment.
-- **CL-D14** (Proposal). The status line is one sentence in the card with five decorative markers (done = filled with a tick, to do = hollow) and one help sentence that says the old login still works. Paused swaps use dashed markers and the word "paused".
-- **CL-D15** (Proposal). The proving sign-in (the one that attaches the new identity) does not count: a fresh swap reads 0 of 5. This follows the owner asking for a 0 of 5 screen; it is stated here so it can be corrected.
-- **CL-D16** (Proposal). Trial nudge: a dismissible note on the first screen after an old-login sign-in, with a link to the profile line. It never blocks, and it shows again on the next old-login sign-in. The sign-in page itself is unchanged during the trial.
+- **CL-D14** (Proposal). **Superseded by CL-D40.** Was: a status line with a count and five decorative markers. Now: the status line is plain text without a count and without markers; a paused swap says "paused" with a pause shape.
+- **CL-D15** (Proposal). The proving sign-in (the one that attaches the new identity) does not count in the support count (N of 5; a fresh swap reads 0 of 5 there). **Superseded in part by CL-D40:** no person-facing 0 of 5 screen.
+- **CL-D16** (Proposal). Trial nudge: a dismissible note on the first screen after an old-login sign-in, with a link to the profile line. **Wording replaced by CL-D40** (transition-only note, no count). It never blocks, and it shows again on the next old-login sign-in. The sign-in page itself is unchanged during the trial.
 - **CL-D17** (Proposal). After retirement the old identity is remembered only as "moved to {provider}" (a provider name, no email, no account id) so the nudge can name it. If that is gone, the plain no-name note is used.
 - **CL-D18** (Proposal). Failure copy as drawn (five messages). A cancel is "No change made" and is not called a failure. The "belongs to another member" message never says who.
-- **CL-D19** (Proposal, with a recommendation). Safe fallback for a repeatedly failing new provider: after 3 failed new-method sign-ins in a row (a configuration value) the swap pauses by itself; the old login is kept as is; the count is kept; the profile says so in plain words and blames us; the swap resumes by itself when the provider is healthy again. Recommended over leaving it counting (a failing provider could strand the person) and over cancelling (they lose their progress).
+- **CL-D19** (Proposal, with a recommendation). Safe fallback for a repeatedly failing new provider: after 3 failed new-method sign-ins in a row (a configuration value) the swap pauses by itself; the old login is kept as is; the count is kept (in the support view only, CL-D40); the profile says so in plain words, without a count, and blames us; the swap resumes by itself when the provider is healthy again. Recommended over leaving it counting (a failing provider could strand the person) and over cancelling (they lose their progress).
 - **CL-D20** (Proposal). "Stop switching" in the profile ends a swap that has not finished: it detaches the not-yet-primary new identity and clears the count. The old login is untouched. Needs a confirm step in the build (not drawn).
 - **CL-D21** (Proposal). Support view is read only, shows provider names and times only (no email, no provider ids), and includes the number of old-login sign-ins during the trial.
 - **CL-D22** (Proposal). Layout and look: the app's existing tokens, 56px rows, 44px controls, the SP-D11 button treatment for the picker, a shape (tick, dash, pause) wherever colour could carry meaning.
@@ -62,10 +62,12 @@ UAT answers 401 to a signed-out reader, so the real profile screen was **not rea
 - **CL-D38** (Proposal) A Re-invite works even if Jo's old login still works (the admin cannot tell). If a Change login method swap is in progress, the attach ends it: the new identity is the only login and the count is cleared.
 - **CL-D39** (Proposal) The unknown-login refusal on the sign-in page names the way back: "ask a household admin to Re-invite you", and offers Try another login. It creates nothing and does not say whether the account exists anywhere.
 
+- **CL-D40** (Owner, Arjan, typed, 31 October 2026) The person is never told how many sign-ins they have left. No "N of 5", "X of 5 sign-ins done", progress markers or "5th sign-in" on any of the person's own screens (profile mid-swap line, paused state, finish state, failure messages, picker help, nudge). Instead: (a) signing in with the OLD login during the transition shows a nudge: "Temporary: this login is available during the transition only. Your old account will soon be retired. Sign in with <new provider> from now on." (wording is a proposal: plain, calm, never the person's fault); (b) mid-swap profile line: "Switching to Microsoft. Keep signing in with Microsoft."; (c) paused state keeps "our problem, your old login works as normal", no count; (d) finish state: "You now sign in with Microsoft. Google no longer signs you in."; (e) after retirement the existing "you moved from <old> to <new>" nudge stays. The count (N of 5) stays in the support/admin view only, and 5 stays a configuration value. **Supersedes:** the visible N of 5 profile line (27 Oct entry, CL-D10), CL-D14 (markers), CL-D15 as a person-facing 0 of 5 screen, CL-D11 person-facing use of the value, the CL-D16 nudge wording, and the 0, 2 and 4 of 5 frames. CL-D4, CL-D5 and CL-D9 stand.
+
 ## Open questions (owner picks)
 
 - **CL-O1.** Is the Me page the right place for the row, or Settings? If wrong: A wrong guess moves one row.
-- **CL-O2.** Does the proving sign-in count as the first of the 5? If wrong: Drawn as no (0 of 5). If yes, the swap finishes one sign-in sooner.
+- **CL-O2.** Does the proving sign-in count as the first of the 5? If wrong: Drawn as no. If yes, the swap finishes one sign-in sooner. Now visible to support only (CL-D40); the person never sees a count.
 - **CL-O3.** Pause rule: is 3 failures in a row right, does the count stay while paused (proposed), and should it resume by itself (proposed) or wait for the person? If wrong: Too low pauses on a blip; too high strands someone.
 - **CL-O4.** Where does the support view live: Platform admin, or Household admin for each household? If wrong: Decides who can see another person's sign-in state.
 - **CL-O5.** May support pause, cancel or force-retire a swap, or is the view read only for now? If wrong: Drawn read only.
@@ -82,6 +84,7 @@ UAT answers 401 to a signed-out reader, so the real profile screen was **not rea
 - **CL-O15** Link opened while signed in as someone else: sign out first, or refuse? If wrong: If wrong: Not drawn. Wrong could attach a login to the wrong member; the build needs a rule.
 - **CL-O16** Should withdrawn and expired invites leave a History line (CL-D32 says no) and for how long is History kept? If wrong: If wrong: Wrong means the audit trail misses attempts.
 - **CL-O17** Removed members use Restore (removed-members). Is Re-invite hidden for them? If wrong: If wrong: Drawn: hidden; a removed person is not on the members list.
+- **CL-O18** Is the transition-only nudge (CL-D40) too strong, or too soft, without a number? It says "soon" and never a date. If wrong: Wording only. Drawn calm; a harder line could read as a threat.
 
 ## Recovery: Re-invite, admin only (owner, voice, 27 October 2026; section 7 of the page)
 
@@ -90,6 +93,10 @@ Owner: nobody signs up without an invite, so a signed-out person trying a differ
 Screens (7a to 7f, phone and desktop, light and dark): the members list with Re-invite on a row (admin) and without it (member); confirm then share; the invite landing page with errors (used, expired, withdrawn or replaced, login belongs to someone else) and the unknown-login refusal on the sign-in page; the pending row with Re-send and Withdraw, and the expired row; completion for the person, the admin row afterwards, and the History line "Re-invited by <admin>"; a table of every invite state.
 
 Proposals: 7-day expiry as a config value, one pending re-invite per member, and the History note (the three the owner asked to be marked), plus CL-D33 to CL-D39. Open: CL-O10 to CL-O17. The link is a bearer secret (CL-O10) and an admin could use it to take over a member (CL-O11); these are the two to read first. Mockup only: the schema is reserved until the owner's explicit go.
+
+## Owner decision, 31 October 2026: no count shown to the person (CL-D40)
+
+Arjan, typed: the person must not be told how many sign-ins they have left. Removed from every person-facing screen: the "N of 5" line, the five-tick row, "5th sign-in" and "Your 2 sign-ins are kept". Added: a transition-only nudge on an old-login sign-in ("Temporary: this login is available during the transition only. Your old account will soon be retired. Sign in with Microsoft from now on."), a plain mid-swap line, a count-free paused state, and a finish state "You now sign in with Microsoft. Google no longer signs you in." The count stays in the support/admin view; 5 stays a configuration value. Superseded: the visible N of 5 profile line from the 27 Oct entry, CL-D14, the person-facing part of CL-D15 and CL-D11, the CL-D16 wording. Open question CL-O2 now affects support only; CL-O18 added.
 
 ## Checks and loads
 
