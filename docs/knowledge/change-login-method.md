@@ -44,6 +44,24 @@ UAT answers 401 to a signed-out reader, so the real profile screen was **not rea
 - **CL-D21** (Proposal). Support view is read only, shows provider names and times only (no email, no provider ids), and includes the number of old-login sign-ins during the trial.
 - **CL-D22** (Proposal). Layout and look: the app's existing tokens, 56px rows, 44px controls, the SP-D11 button treatment for the picker, a shape (tick, dash, pause) wherever colour could carry meaning.
 
+- **CL-D23** (Owner) Nobody signs up without an invite. A signed-out person who tries a different provider with no invite is refused, and no new empty account is created.
+- **CL-D24** (Owner) Change login method works only while signed in (CL-D2 stands). A person who lost their old login cannot use it.
+- **CL-D25** (Owner) Recovery is a Re-invite, admin only: on the person's existing row in the household members list an admin taps Re-invite.
+- **CL-D26** (Owner) Kitchie creates a one-time invite tied to that member. The person opens it, signs in with whatever login they have now, and that identity attaches to the same member: history, meals and notes stay.
+- **CL-D27** (Owner) Not admin-heavy: one tap, no passwords and no resets (Kitchie holds none), and admins never see the person's email.
+- **CL-D28** (Owner) Never merge two people, never link by email. If the identity already belongs to another member, refuse plainly; it is never the person's fault.
+- **CL-D29** (Owner) The old login is replaced at the moment the new one attaches, atomically. No trial, no count: this is recovery, not a swap.
+- **CL-D30** (Proposal) Invite expiry is 7 days, read from configuration (never typed into a screen; the landing and row text use the same value). The invite works once.
+- **CL-D31** (Proposal) One pending re-invite per member. Re-invite while one is pending is not offered; Re-send makes a new link and the old one stops working; Withdraw ends it and the row returns to normal.
+- **CL-D32** (Proposal) History gets one line when the person reconnects, with the note "Re-invited by <admin>" (admin name only; no provider id, no email). Creating, withdrawing or expiring an invite leaves no History line.
+- **CL-D33** (Proposal) The Re-invite button is a 44px text button on other people's rows. It is not rendered for non-admins (not greyed), and not on the admin's own row (they use Change login method).
+- **CL-D34** (Proposal) Confirm then share: one confirm that says what will happen, then a share step with Share and Copy link. Kitchie sends nothing itself, because the admin never has the person's email; the admin passes the link on.
+- **CL-D35** (Proposal) Landing page: "Welcome back, <first name>" and "Sign in to reconnect your kitchen." Providers are the on and healthy ones. Errors: used, expired, and one message for withdrawn, replaced or unknown links (so a link never tells a stranger which). "Belongs to someone else" does not use up the invite.
+- **CL-D36** (Proposal) The pending row says Re-invite sent. Expires in N days. with an envelope; expired says Re-invite expired. with a clock. Words and shapes, not colour alone.
+- **CL-D37** (Proposal) Completion: Jo sees "You're back" and that the old login has been replaced, then opens the kitchen. The admin sees an ordinary row with a quiet "Reconnected today" for one day. No push or email to anyone.
+- **CL-D38** (Proposal) A Re-invite works even if Jo's old login still works (the admin cannot tell). If a Change login method swap is in progress, the attach ends it: the new identity is the only login and the count is cleared.
+- **CL-D39** (Proposal) The unknown-login refusal on the sign-in page names the way back: "ask a household admin to Re-invite you", and offers Try another login. It creates nothing and does not say whether the account exists anywhere.
+
 ## Open questions (owner picks)
 
 - **CL-O1.** Is the Me page the right place for the row, or Settings? If wrong: A wrong guess moves one row.
@@ -55,6 +73,23 @@ UAT answers 401 to a signed-out reader, so the real profile screen was **not rea
 - **CL-O7.** How long do we remember "moved from X to Y" after retirement, and may it be shown to someone who signs in with the old identity (it proves they once had that account)? If wrong: A privacy and tidiness call; forever is the worst case.
 - **CL-O8.** Is there a time limit on a swap that never reaches 5? If wrong: Proposed: none; the old login just keeps working. A stale swap may sit forever.
 - **CL-O9.** Which sign-ins count: only interactive ones, or also a session that renews? If wrong: Drawn as interactive only.
+
+- **CL-O10** The invite link is a secret: anyone who opens it first becomes Jo. Do we add a check, such as a short word the admin tells Jo aloud, or accept one-time plus 7 days plus Withdraw? If wrong: If wrong: Drawn without a check. A leaked link means someone takes over a member, history and all.
+- **CL-O11** May an admin re-invite another admin? An admin could use their own link to become another member. If wrong: If wrong: Drawn: yes for any other member, never on one's own row. Wrong means a member can be taken over by an admin, with no trace beyond the History line.
+- **CL-O12** Does the admin pass the link on (drawn), or may Kitchie send it somewhere? Kitchie would need the person's contact, which admins must never see. If wrong: If wrong: Wrong costs a feature: either a sending path or a share sheet.
+- **CL-O13** Is the 7-day expiry right, and may a household set it? If wrong: If wrong: Drawn as one config value for all.
+- **CL-O14** Does Jo, or the old login, get any notice when an attach replaces the old login (CL-D37 says none)? If wrong: If wrong: Wrong means a quiet replacement nobody sees.
+- **CL-O15** Link opened while signed in as someone else: sign out first, or refuse? If wrong: If wrong: Not drawn. Wrong could attach a login to the wrong member; the build needs a rule.
+- **CL-O16** Should withdrawn and expired invites leave a History line (CL-D32 says no) and for how long is History kept? If wrong: If wrong: Wrong means the audit trail misses attempts.
+- **CL-O17** Removed members use Restore (removed-members). Is Re-invite hidden for them? If wrong: If wrong: Drawn: hidden; a removed person is not on the members list.
+
+## Recovery: Re-invite, admin only (owner, voice, 27 October 2026; section 7 of the page)
+
+Owner: nobody signs up without an invite, so a signed-out person trying a different provider with no invite is refused and no empty account is made (CL-D23). Change login method works only while signed in (CL-D24). Recovery is a re-invite, admin only: on the person's existing row in the members list an admin taps Re-invite (CL-D25); Kitchie creates a one-time invite tied to that member; the person opens it, signs in with whatever login they have now, and that identity attaches to the same member, history, meals and notes staying (CL-D26). One tap, no passwords or resets, admins never see the email (CL-D27). Never merge, never link by email, refuse plainly if the identity belongs to another member (CL-D28). The old login is replaced at the moment the new one attaches, atomically (CL-D29).
+
+Screens (7a to 7f, phone and desktop, light and dark): the members list with Re-invite on a row (admin) and without it (member); confirm then share; the invite landing page with errors (used, expired, withdrawn or replaced, login belongs to someone else) and the unknown-login refusal on the sign-in page; the pending row with Re-send and Withdraw, and the expired row; completion for the person, the admin row afterwards, and the History line "Re-invited by <admin>"; a table of every invite state.
+
+Proposals: 7-day expiry as a config value, one pending re-invite per member, and the History note (the three the owner asked to be marked), plus CL-D33 to CL-D39. Open: CL-O10 to CL-O17. The link is a bearer secret (CL-O10) and an admin could use it to take over a member (CL-O11); these are the two to read first. Mockup only: the schema is reserved until the owner's explicit go.
 
 ## Checks and loads
 
