@@ -32,7 +32,7 @@ UAT answers 401 to a signed-out reader, so the real profile screen was **not rea
 - **CL-D9** (Owner). Failures never count toward 5, never retire the old method, and the old method keeps working. Failure messages blame us, never the person.
 - **CL-D10** (Owner). State is visible: a plain line in the profile and a support/admin view per person (current method, pending retirement, N of 5, last failure and when). **Superseded in part by CL-D40:** the profile line no longer carries a count (the 27 Oct wording "Switching to Microsoft: 2 of 5 sign-ins done" is withdrawn); the count stays in the support/admin view.
 - **CL-D11** (Proposal). The number 5 is read from configuration, never typed into the screens: the support view is built as "N of {limit}". **Superseded in part by CL-D40:** no person-facing text uses the value any more.
-- **CL-D12** (Proposal). The row lives on the Me page in a "How you sign in" card (desktop: the Profile pane), not in Settings or Household.
+- **CL-D12** (Proposal; superseded by CL-D44 and CL-D51, 31 Oct). The row lives on the Me page in a "How you sign in" card (desktop: the Profile pane), not in Settings or Household.
 - **CL-D13** (Proposal). Picker: sheet on phone, dialog on desktop; current provider marked with a tick and the word Current, not tappable; absent providers are not shown and not explained; empty list gets one plain line that blames us. Order is the fixed order of the sign-in fragment.
 - **CL-D14** (Proposal). **Superseded by CL-D40.** Was: a status line with a count and five decorative markers. Now: the status line is plain text without a count and without markers; a paused swap says "paused" with a pause shape.
 - **CL-D15** (Proposal). The proving sign-in (the one that attaches the new identity) does not count in the support count (N of 5; a fresh swap reads 0 of 5 there). **Superseded in part by CL-D40:** no person-facing 0 of 5 screen.
@@ -66,7 +66,7 @@ UAT answers 401 to a signed-out reader, so the real profile screen was **not rea
 
 ## Open questions (owner picks)
 
-- **CL-O1.** Is the Me page the right place for the row, or Settings? If wrong: A wrong guess moves one row.
+- **CL-O1** (answered 31 Oct: no Me page, see CL-D44). Is the Me page the right place for the row, or Settings? If wrong: A wrong guess moves one row.
 - **CL-O2.** Does the proving sign-in count as the first of the 5? If wrong: Drawn as no. If yes, the swap finishes one sign-in sooner. Now visible to support only (CL-D40); the person never sees a count.
 - **CL-O3.** Pause rule: is 3 failures in a row right, does the count stay while paused (proposed), and should it resume by itself (proposed) or wait for the person? If wrong: Too low pauses on a blip; too high strands someone.
 - **CL-O4.** Where does the support view live: Platform admin, or Household admin for each household? If wrong: Decides who can see another person's sign-in state.
@@ -97,6 +97,32 @@ Proposals: 7-day expiry as a config value, one pending re-invite per member, and
 ## Owner decision, 31 October 2026: no count shown to the person (CL-D40)
 
 Arjan, typed: the person must not be told how many sign-ins they have left. Removed from every person-facing screen: the "N of 5" line, the five-tick row, "5th sign-in" and "Your 2 sign-ins are kept". Added: a transition-only nudge on an old-login sign-in ("Temporary: this login is available during the transition only. Your old account will soon be retired. Sign in with Microsoft from now on."), a plain mid-swap line, a count-free paused state, and a finish state "You now sign in with Microsoft. Google no longer signs you in." The count stays in the support/admin view; 5 stays a configuration value. Superseded: the visible N of 5 profile line from the 27 Oct entry, CL-D14, the person-facing part of CL-D15 and CL-D11, the CL-D16 wording. Open question CL-O2 now affects support only; CL-O18 added.
+
+## Owner decisions, 31 October 2026 (voice): Menu and Profile layouts (L1 to L4 of the page)
+
+Rule: a mockup of an existing screen starts from what UAT shows, then adds the feature. Drawn from the owner's UAT screenshots (person Brown Bogan, kitchen UAT Kitchen, role Supply Runner): desktop Profile (numbered rail 1 to 6, Kitchen role, AI assistants "Connected through sign-in", My invites) and the phone Menu (search, pinnable Text size and theme, a profile card, assistants list, Household row). The earlier Me page on the phone was wrong and is replaced (section 1 of the old page is gone; L1 to L4 take its place). The screenshots were relayed to the builder as text and not re-read; nothing checked against the running app.
+
+- **CL-D41** (Owner). Desktop Profile order: Kitchen role, My invites, AI assistants, Sign-in last. Sign-in is one row: key icon, provider logo, current login, chevron into Change login method.
+- **CL-D42** (Owner). Phone Menu: critical information stays visible read only; deep things nest. Text size and theme stay pinnable blocks.
+- **CL-D43** (Owner). The Menu profile card is replaced by a read-only summary with no person name (no avatar, no role pill): kitchen and role; the default AI assistant (the only one, or the chosen one); sign-in as key icon plus provider logo. Nothing tappable. While a swap is in progress, a small dot on the key.
+- **CL-D44** (Owner). A row labelled with the person's own name (not "Me"), the level-two entry to the person's own screen (kitchen role, My invites, AI assistants, Sign-in with chevron into Change login method), same order as desktop. Icon is the role icon (basket for Supply Runner), not an avatar.
+- **CL-D45** (Owner). Label rule, 10 characters, spaces count: full name if 10 or fewer; else first name if 10 or fewer; else initials of every name part. Row starts at the same left edge as Household.
+- **CL-D46** (Proposal). The Household row stays as its own row next to the person row (owner did not say replace or next to). CL-O19.
+- **CL-D47** (Proposal). Summary heading "At a glance" (working name) with a "Read only" hint; a description list, not links; none connected reads "None connected".
+- **CL-D48** (Proposal). Swap dot: top right of the key, accent fill with a ring, hidden text; the person screen's Sign-in row also says "Switching to Microsoft".
+- **CL-D49** (Proposal). Key plus logo is one image with the name "Signed in with Google" (plus ". Sign-in change in progress" mid-swap).
+- **CL-D50** (Proposal). Largest text size: label wraps, row grows, no ellipsis; full name is the screen title. Drawn at 1.6 times (real scale not seen) for "Sam Jacobs" and "Maximilian" at 360.
+- **CL-D51** (Proposal). Change login method is its own screen from the Sign-in row; holds current login, status line and one row "Choose a new login". Picker, status, nudge links and failures live there. Replaces the Me page card (CL-D12).
+- **CL-D52** (Proposal). The old-login nudge links to the Sign-in row; the "N of 5" counter stays removed (CL-D40).
+- **CL-D53** (Proposal). Assistants move off the Menu into the person screen: phone keeps the UAT phone list (badge, star, link or unlink, dashed Add an assistant); desktop keeps the UAT cards.
+- **CL-D54** (Proposal). Support view and Re-invite keep their screens; only the desktop rail is re-drawn (numbered, Household is 4).
+- **CL-D55** (Proposal). Desktop frames drawn at 1280 (were 1040).
+
+Label examples (computed by the rule): Ann Lee, Sam Jacobs (exactly 10) show in full; Brown Bogan (11) shows Brown; Mary Jane Watson shows Mary (first-name rule wins over initials); Christopher Lee shows CL; Bartholomew Jane Watson shows BJW; Bartholomew alone shows B.
+
+Open: **CL-O19** replace or sit next to Household (drawn next to); **CL-O20** name-rule edges (one long name gives one letter, shared initials, hyphens, non-Latin); **CL-O21** where Sign out lives now; **CL-O22** heading wording and whether the dot suffices; **CL-O23** rail tab names after Profile are the mockup's, not read from UAT.
+
+Checks: headless Chromium at 360, 390, 1280, light and dark: no sideways scroll, no page errors, controls 44px or more (text-size segments 44px at 360 after phone frames were made full width), no clipped text in the phone frames. Also fixed: section 3's first phone grid was missing its opening `<div class="cl-grid"><figure>` (existing bug). The senior-mobile-UX review is still not done.
 
 ## Checks and loads
 
