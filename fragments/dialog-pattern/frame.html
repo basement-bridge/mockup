@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>Dialog pattern: sample app</title><link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><link rel="stylesheet" href="dialog.css"><link rel="stylesheet" href="dp.css"><script src="../../theme.js"></script></head>
+<body data-no-theme-fab>
+<!-- Sample app page. Sample content only: nothing here is Kitchie markup. The dialogs below are the real pattern, one markup for all. -->
+<div class="fr">
+<header class="fr-top"><b>Pantry</b><a class="back" href="index.html">Back to the notes</a></header>
+<nav class="fr-bar" id="bar" aria-label="Try a dialog">
+<button class="btn" data-open="d-confirm">Confirm</button>
+<button class="btn" data-open="d-used">Used up</button>
+<button class="btn" data-open="d-signin">Sign in again (locked)</button>
+<button class="btn" data-open="d-plan">Plan</button>
+<button class="btn" data-open="d-filters">Filters</button>
+<button class="btn" data-open="d-share">Share</button>
+<button class="btn" data-open="d-photo">Photo</button>
+<button class="btn" data-open="d-keys">Keys</button>
+<button class="btn" data-open="d-default">Default</button>
+</nav>
+<main class="fr-list">
+<div class="fr-row"><span class="n">Oat milk<small>1 carton</small></span><button class="btn" data-open="d-item">Edit</button></div>
+<div class="fr-row"><span class="n">Rice<small>Half a bag</small></span><button class="btn" data-open="d-item">Edit</button></div>
+<div class="fr-row"><span class="n">Lemons<small>3</small></span><button class="btn" data-open="d-item">Edit</button></div>
+<div class="fr-row"><span class="n">Spaghetti<small>2 packs</small></span><button class="btn" data-open="d-item">Edit</button></div>
+<div class="fr-row"><span class="n">Parmesan<small>Low</small></span><button class="btn" data-open="d-item">Edit</button></div>
+<div class="fr-row"><span class="n">Eggs<small>6</small></span><button class="btn" data-open="d-item">Edit</button></div>
+<div class="fr-row"><span class="n">Butter<small>1 block</small></span><button class="btn" data-open="d-item">Edit</button></div>
+<div class="fr-row"><span class="n">Tomatoes<small>4</small></span><button class="btn" data-open="d-item">Edit</button></div>
+</main>
+</div>
+
+<dialog class="dialog" id="d-default" aria-labelledby="d-default-t"><div class="dialog__body">
+<div class="dialog__head"><i class="dialog__grab" aria-hidden="true"></i><h2 id="d-default-t">Default dialog</h2><button type="button" class="close" data-close aria-label="Close"></button></div>
+<p>No modifier classes at all: a sheet on the phone, a centred modal from 600px. Header, close, one body, optional actions.</p>
+<div class="dialog__foot"><button type="button" class="btn btn--primary" data-close autofocus>Done</button></div>
+</div></dialog>
+
+<dialog class="dialog" id="d-confirm" aria-labelledby="d-confirm-t"><div class="dialog__body">
+<div class="dialog__head"><i class="dialog__grab" aria-hidden="true"></i><h2 id="d-confirm-t">Throw out Oat milk?</h2><button type="button" class="close" data-close aria-label="Close"></button></div>
+<p>It moves to History. Undo stays for 5 seconds.</p>
+<div class="dialog__foot"><button type="button" class="btn btn--ghost" data-close autofocus>Cancel</button><button type="button" class="btn btn--primary" data-close="done">Throw out</button></div>
+</div></dialog>
+
+<dialog class="dialog" id="d-used" aria-labelledby="d-used-t"><div class="dialog__body">
+<div class="dialog__head"><i class="dialog__grab" aria-hidden="true"></i><h2 id="d-used-t">Oat milk: used up?</h2><button type="button" class="close" data-close aria-label="Close"></button></div>
+<button type="button" class="btn btn--primary btn--block" data-close="used" autofocus>All gone</button>
+<button type="button" class="btn btn--block" data-close="low">Running low</button>
+<button type="button" class="btn btn--ghost btn--block" data-close>Not yet</button>
+</div></dialog>
+
+<dialog class="dialog" id="d-signin" aria-labelledby="d-signin-t" data-locked><div class="dialog__body">
+<div class="dialog__head"><i class="dialog__grab" aria-hidden="true"></i><h2 id="d-signin-t">Sign in again</h2><button type="button" class="close" data-close aria-label="Close"></button></div>
+<p>Your session ended. Sign in to carry on. Nothing was lost.</p>
+<div class="dialog__foot"><a class="btn btn--primary btn--block" href="index.html" autofocus>Sign in with Google</a></div>
+</div></dialog>
+
+<dialog class="dialog" id="d-plan" aria-labelledby="d-plan-t"><div class="dialog__body">
+<div class="dialog__head"><i class="dialog__grab" aria-hidden="true"></i><h2 id="d-plan-t">Plan Lemon pasta</h2><button type="button" class="close" data-close aria-label="Close"></button></div>
+<button type="button" class="btn btn--block" data-close="mon">Mon 2 Nov</button>
+<button type="button" class="btn btn--block" data-close="tue">Tue 3 Nov</button>
+<button type="button" class="btn btn--block" data-close="wed">Wed 4 Nov</button>
+<button type="button" class="btn btn--block" data-close="thu">Thu 5 Nov</button>
+<button type="button" class="btn btn--block" data-close="fri">Fri 6 Nov</button>
+<button type="button" class="btn btn--block" data-close="sat">Sat 7 Nov</button>
+<button type="button" class="btn btn--block" data-close="sun">Sun 8 Nov</button>
+<button type="button" class="btn btn--block" data-close="mon2">Mon 9 Nov</button>
+<div class="dialog__foot"><button type="button" class="btn btn--ghost" data-close>Cancel</button><button type="button" class="btn btn--primary" data-close="add">Add to plan</button></div>
+</div></dialog>
+
+<dialog class="dialog" id="d-filters" aria-labelledby="d-filters-t"><div class="dialog__body">
+<div class="dialog__head"><i class="dialog__grab" aria-hidden="true"></i><h2 id="d-filters-t">Filters</h2><button type="button" class="close" data-close aria-label="Close"></button></div>
+<fieldset class="fr-set"><legend>Show</legend><label><input type="checkbox" checked> In stock</label><label><input type="checkbox"> Running low</label><label><input type="checkbox"> Use soon</label></fieldset>
+<div class="dialog__foot"><button type="button" class="btn btn--ghost" data-close>Clear</button><button type="button" class="btn btn--primary" data-close="apply" autofocus>Show 12 items</button></div>
+</div></dialog>
+
+<dialog class="dialog" id="d-share" aria-labelledby="d-share-t"><div class="dialog__body">
+<div class="dialog__head"><i class="dialog__grab" aria-hidden="true"></i><h2 id="d-share-t">Share Lemon pasta</h2><button type="button" class="close" data-close aria-label="Close"></button></div>
+<button type="button" class="btn btn--block" data-close="copy">Copy link</button>
+<button type="button" class="btn btn--block" data-close="msg">Message</button>
+<button type="button" class="btn btn--block" data-close="mail">Email</button>
+</div></dialog>
+
+<dialog class="dialog" id="d-photo" aria-labelledby="d-photo-t"><div class="dialog__body">
+<div class="dialog__head"><i class="dialog__grab" aria-hidden="true"></i><h2 id="d-photo-t">Lemon pasta, 2 Oct</h2><button type="button" class="close" data-close aria-label="Close"></button></div>
+<div class="fr-photo" role="img" aria-label="Sample photo placeholder"></div>
+</div></dialog>
+
+<dialog class="dialog" id="d-keys" aria-labelledby="d-keys-t"><div class="dialog__body">
+<div class="dialog__head"><i class="dialog__grab" aria-hidden="true"></i><h2 id="d-keys-t">Keyboard shortcuts</h2><button type="button" class="close" data-close aria-label="Close"></button></div>
+<table><tbody><tr><td><kbd>/</kbd></td><td>Search</td></tr><tr><td><kbd>E</kbd></td><td>Edit the open item</td></tr><tr><td><kbd>,</kbd></td><td>Item history</td></tr><tr><td><kbd>Esc</kbd></td><td>Close this</td></tr></tbody></table>
+</div></dialog>
+
+<dialog class="dialog dialog--flyout" id="d-item" aria-labelledby="d-item-t"><div class="dialog__body">
+<div class="dialog__head"><i class="dialog__grab" aria-hidden="true"></i><h2 id="d-item-t">Oat milk</h2><button type="button" class="close" data-close aria-label="Close"></button></div>
+<label class="fr-f">Name<input value="Oat milk"></label>
+<label class="fr-f">Amount<input value="1 carton"></label>
+<p>Non-modal from 1024px: the list stays usable beside it. Below that it is a sheet or modal.</p>
+<div class="dialog__foot"><button type="button" class="btn btn--ghost" data-close>Cancel</button><button type="button" class="btn btn--primary" data-close="save">Save</button></div>
+</div></dialog>
+
+<script>
+/* Scaffolding for the notes page only (not part of the pattern): ?t=light|dark forces a theme, ?open=<id> renders that dialog
+   already open, the way a server-rendered page would. dialog.js then upgrades it. The build ships none of this. */
+(function(){var q=new URLSearchParams(location.search),t=q.get("t"),o=q.get("open"),d=o&&document.getElementById(o);
+if(t)document.documentElement.setAttribute("data-theme",t==="light"?"kitchie-day":"kitchie");
+if(d){d.setAttribute("open","");document.getElementById("bar").hidden=true}})();
+</script>
+<script src="dialog.js"></script>
+</body></html>

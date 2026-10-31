@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>Dialog pattern: fragment</title><link rel="stylesheet" href="../../theme.css"><link rel="stylesheet" href="../../shared.css"><link rel="stylesheet" href="dialog.css"><link rel="stylesheet" href="dp.css"><script src="../../theme.js"></script></head>
+<body><div class="dp-page">
+<a class="back" href="../../index.html">All mockups</a>
+<h1>One dialog pattern</h1>
+<p><b>Mockup only. Nothing built in Kitchie, nothing approved.</b> Owner (Arjan), voice, 31 October 2026: JavaScript and CSS minimal and used the same way everywhere; <b>one shared dialog component, one stylesheet block, no per-dialog markup</b>. This page shows one dialog / sheet pattern with a header, a close, actions, focus and keyboard behaviour, drawn for the phone (bottom sheet with grab bar) and the desktop (centred modal and a non-modal side flyout), light and dark, with every old variant mapped onto it. Anything the owner did not state is marked <span class="dp-tag o">Proposal</span>. The real, working version is <a href="frame.html">the sample app</a>: open it, press Tab and Escape, resize the window. Every frame below is that same page in an iframe.</p>
+<div class="dp-note" role="note"><span class="k">Evidence this rests on (Kitchie uat audits, not re-audited here)</span><p>About 20 hand-written <code>role=dialog</code> sites in 18 files, none using native <code>&lt;dialog&gt;</code>. Nine close idioms (<code>data-close</code>, <code>data-close-sheet</code>, <code>data-closea</code>, <code>data-fly-close</code>, <code>data-hm-close</code>, <code>data-sheet-close</code>, <code>data-act=closesheet</code>, <code>data-sh=close</code>, <code>data-sheet-dim</code>) and seven close classes (<code>x</code>, <code>ib</code>, <code>pf-x</code>, <code>sib</code>, <code>icon</code>, <code>close</code>, <code>grab</code>). <code>.btn</code> is redefined in about 14 files plus <code>layout.ts</code> (min-height 40, 44, 46, 48 or 52; radius 14.4px, 12px or 14px; pill 99px; weight 600, 700 or 800). <code>.ib</code> is 44, 40 or 38px. <code>--dim</code> has four values. Sheet and scrim rules sit in 15 files.</p></div>
+<div class="dp-note" role="note"><span class="k">Default-look principle</span><p><b>Always cater for a default state.</b> A plain <code>&lt;dialog class="dialog"&gt;</code> with a head, one body and optional actions is already correct: sheet on the phone, centred modal from 600px, closable, focus-safe, in both themes, with no modifier class and no script-set style. Every other look (<code>dialog--flyout</code>, <code>btn--block</code>, <code>data-locked</code>) is an opt-in on top of that, never a prerequisite. A page also keeps a default without script: a real link closes the dialog, a server-rendered <code>&lt;dialog open&gt;</code> is already visible.</p></div>
+
+<h2>1 &middot; The pattern</h2>
+<p>Native <code>&lt;dialog&gt;</code> plus one 27-line helper. <code>showModal()</code> already gives Escape, the focus trap, an inert page and focus restore, so none of that is written by us. The stylesheet is 46 lines: one <code>.btn</code>, one <code>.close</code>, one <code>.dialog</code>. The <code>&lt;dialog&gt;</code> element is itself the scrim, so there is no scrim element.</p>
+<pre>&lt;dialog class="dialog" id="d-confirm" aria-labelledby="d-confirm-t"&gt;
+  &lt;div class="dialog__body"&gt;
+    &lt;div class="dialog__head"&gt;
+      &lt;i class="dialog__grab" aria-hidden="true"&gt;&lt;/i&gt;
+      &lt;h2 id="d-confirm-t"&gt;Throw out Oat milk?&lt;/h2&gt;
+      &lt;button type="button" class="close" data-close aria-label="Close"&gt;&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;p&gt;It moves to History. Undo stays for 5 seconds.&lt;/p&gt;
+    &lt;div class="dialog__foot"&gt;
+      &lt;button type="button" class="btn btn--ghost" data-close autofocus&gt;Cancel&lt;/button&gt;
+      &lt;button type="button" class="btn btn--primary" data-close="done"&gt;Throw out&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/dialog&gt;
+&lt;button class="btn" data-open="d-confirm"&gt;Throw out&lt;/button&gt;</pre>
+<div class="dp-tw"><table class="dp-tb"><thead><tr><th scope="col">Part</th><th scope="col">What it is</th></tr></thead><tbody>
+<tr><td><code>.dialog</code></td><td>The <code>&lt;dialog&gt;</code>. Fills the screen, carries the scrim colour (<code>--dim</code>). Click on it (not on the panel) is a backdrop click.</td></tr>
+<tr><td><code>.dialog__body</code></td><td>The panel. Scrolls; head and foot are sticky.</td></tr>
+<tr><td><code>.dialog__head</code>, <code>.dialog__grab</code></td><td>Title (<code>h2</code>, named by <code>aria-labelledby</code>), the close button, and the grab bar (drawn on the phone only).</td></tr>
+<tr><td><code>.dialog__foot</code></td><td>Actions, optional. Cancel first, the main action last.</td></tr>
+<tr><td><code>.btn</code> + <code>--primary</code> <code>--ghost</code> <code>--pill</code> <code>--block</code></td><td>The one button. Tokens: 44px (<code>--tap</code>), <code>--r-ctl</code>, weight 700.</td></tr>
+<tr><td><code>.close</code> (+ <code>--plain</code>)</td><td>The one close: 44px circle, 1px border; the glyph is drawn by CSS.</td></tr>
+<tr><td><code>dialog--flyout</code></td><td>Side flyout from 1024px, non-modal. Below 1024px the same markup is a normal sheet or modal.</td></tr>
+<tr><td><code>data-open="id"</code>, <code>data-close[="value"]</code>, <code>data-locked</code></td><td>The only three attributes. Close works on a button or a link (the value becomes <code>returnValue</code>). Locked: no close button drawn, Escape and backdrop ignored.</td></tr>
+</tbody></table></div>
+
+<h2>2 &middot; Phone: bottom sheet</h2>
+<p>Under 600px the panel sits on the bottom edge, full width, rounded on top, with the grab bar. The phone is not changed by this proposal except where section 6 lists it.</p>
+<div class="dp-grid"><figure><figcaption>Phone, light: confirm<small>Bottom sheet, grab bar, Cancel is the focused action.</small></figcaption><div class="dp-ph"><iframe loading="lazy" title="Phone, light: confirm" src="frame.html?open=d-confirm&amp;t=light"></iframe></div></figure><figure><figcaption>Phone, dark: confirm<small>Same markup, dark tokens.</small></figcaption><div class="dp-ph"><iframe loading="lazy" title="Phone, dark: confirm" src="frame.html?open=d-confirm&amp;t=dark"></iframe></div></figure></div>
+<div class="dp-grid"><figure><figcaption>Phone, light: plan (long body)<small>Head and actions stay put, the middle scrolls.</small></figcaption><div class="dp-ph"><iframe loading="lazy" title="Phone, light: plan (long body)" src="frame.html?open=d-plan&amp;t=light"></iframe></div></figure><figure><figcaption>Phone, dark: Sign in again (locked)<small>No close button, Escape and backdrop ignored.</small></figcaption><div class="dp-ph"><iframe loading="lazy" title="Phone, dark: Sign in again (locked)" src="frame.html?open=d-signin&amp;t=dark"></iframe></div></figure><figure><figcaption>Phone, light: Used up<small>Block actions, one primary.</small></figcaption><div class="dp-ph"><iframe loading="lazy" title="Phone, light: Used up" src="frame.html?open=d-used&amp;t=light"></iframe></div></figure><figure><figcaption>Phone, dark: lightbox<small>An image in the body, no actions.</small></figcaption><div class="dp-ph"><iframe loading="lazy" title="Phone, dark: lightbox" src="frame.html?open=d-photo&amp;t=dark"></iframe></div></figure></div>
+
+<h2>3 &middot; Desktop: centred modal and side flyout</h2>
+<p>From 600px the same markup becomes a centred modal (the grab bar is hidden). A flyout is the same markup plus <code>dialog--flyout</code>: from 1024px the helper opens it with <code>show()</code>, so it is non-modal and the page beside it stays usable; below 1024px the helper calls <code>showModal()</code> and it is an ordinary sheet or modal.</p>
+<div class="dp-dk"><figure><figcaption>Desktop, light: centred modal<small>The grab bar is hidden; the same markup.</small></figcaption><div class="dp-sc"><iframe loading="lazy" title="Desktop, light: centred modal" src="frame.html?open=d-confirm&amp;t=light"></iframe></div></figure><figure><figcaption>Desktop, dark: centred modal<small></small></figcaption><div class="dp-sc"><iframe loading="lazy" title="Desktop, dark: centred modal" src="frame.html?open=d-confirm&amp;t=dark"></iframe></div></figure></div>
+<div class="dp-dk"><figure><figcaption>Desktop, light: side flyout (non-modal)<small>The list behind stays usable. Scrim and scroll lock are off.</small></figcaption><div class="dp-sc"><iframe loading="lazy" title="Desktop, light: side flyout (non-modal)" src="frame.html?open=d-item&amp;t=light"></iframe></div></figure><figure><figcaption>Desktop, dark: side flyout<small></small></figcaption><div class="dp-sc"><iframe loading="lazy" title="Desktop, dark: side flyout" src="frame.html?open=d-item&amp;t=dark"></iframe></div></figure></div>
+<div class="dp-dk"><figure><figcaption>Desktop, light: keys help<small>Desktop only; not offered on the phone.</small></figcaption><div class="dp-sc"><iframe loading="lazy" title="Desktop, light: keys help" src="frame.html?open=d-keys&amp;t=light"></iframe></div></figure><figure><figcaption>Desktop, dark: filters<small>Same sheet as the phone, centred.</small></figcaption><div class="dp-sc"><iframe loading="lazy" title="Desktop, dark: filters" src="frame.html?open=d-filters&amp;t=dark"></iframe></div></figure></div>
+
+<h2>4 &middot; Focus and keyboard</h2>
+<div class="dp-tw"><table class="dp-tb"><thead><tr><th scope="col">Moment</th><th scope="col">What happens</th><th scope="col">Done by</th></tr></thead><tbody>
+<tr><td>Opens (modal)</td><td>Focus goes to the <code>autofocus</code> element, else the first focusable (the Close button). Rest of the page is inert. Tab and Shift+Tab stay inside.</td><td>Native <code>showModal()</code></td></tr>
+<tr><td>Which action gets <code>autofocus</code></td><td>The safe one: Cancel on a confirm, the only action on a single-action dialog. Enter then never confirms by accident. <span class="dp-tag o">Proposal</span></td><td>Markup</td></tr>
+<tr><td>Escape</td><td>Closes a modal. Closes a flyout when focus is inside it. Ignored when <code>data-locked</code>.</td><td>Native / helper</td></tr>
+<tr><td>Backdrop click</td><td>Closes, only when press and release are both on the scrim (so a text selection that ends outside does not close it). Ignored when locked.</td><td>Helper</td></tr>
+<tr><td>Close button or link</td><td>Anything with <code>data-close</code> inside the dialog. On a link it also works with no script (the link goes where a closed dialog lives).</td><td>Helper</td></tr>
+<tr><td>Focus on close</td><td>Back to the control that opened it.</td><td>Native (modal) / helper (flyout)</td></tr>
+<tr><td>Flyout</td><td>Tab moves freely between the flyout and the page. A second, modal dialog (a confirm) can open over it.</td><td>Native <code>show()</code></td></tr>
+<tr><td>Screen reader</td><td>Native dialog role, named by its title. No <code>role</code> or <code>aria-modal</code> written by hand.</td><td>Native</td></tr>
+<tr><td>Scroll lock</td><td><code>html:has(dialog:modal){overflow:hidden}</code>. Off for a non-modal flyout.</td><td>CSS only</td></tr>
+<tr><td>No script</td><td>A server-rendered <code>&lt;dialog open&gt;</code> shows as an overlay; the helper upgrades it to a modal on load. Sheets that today are a link or <code>?param</code> stay that way.</td><td>CSS + helper</td></tr>
+<tr><td>Motion</td><td>None in stage 1, so nothing needs a reduced-motion rule. <span class="dp-tag o">Proposal</span></td><td>Stylesheet</td></tr>
+</tbody></table></div>
+
+<h2>5 &middot; Old variants mapped onto it</h2>
+<div class="dp-tw"><table class="dp-tb"><thead><tr><th scope="col">Old variant</th><th scope="col">Becomes</th><th scope="col">Phone</th><th scope="col">Desktop</th><th scope="col">Stage 1</th></tr></thead><tbody>
+<tr><td>Confirm sheet</td><td>Default dialog; ghost Cancel (autofocus) + primary</td><td>Sheet</td><td>Centred modal</td><td>Moves</td></tr>
+<tr><td>Used up</td><td>Default dialog; <code>btn--block</code> choices</td><td>Sheet</td><td>Centred modal</td><td>Moves</td></tr>
+<tr><td>Sign in again</td><td>Default dialog with <code>data-locked</code> (no close, no Escape) <span class="dp-tag o">Proposal</span> (DLG-O8)</td><td>Sheet</td><td>Centred modal</td><td>Moves</td></tr>
+<tr><td>Plan sheet</td><td>Default dialog; long body scrolls between sticky head and foot</td><td>Sheet</td><td>Centred modal</td><td>Moves</td></tr>
+<tr><td>Recipe share sheet</td><td>Default dialog; <code>btn--block</code> rows, no foot</td><td>Sheet</td><td>Centred modal</td><td>Moves</td></tr>
+<tr><td>Filters sheet</td><td>Default dialog; foot Clear (ghost) + Apply (primary)</td><td>Sheet</td><td>Centred modal</td><td>Moves</td></tr>
+<tr><td>Item flyout</td><td><code>dialog--flyout</code></td><td>Sheet</td><td>Side flyout, non-modal</td><td>Moves</td></tr>
+<tr><td>Plan flyout</td><td><code>dialog--flyout</code></td><td>Sheet</td><td>Side flyout, non-modal</td><td>Moves</td></tr>
+<tr><td>Keys help</td><td>Default dialog, a table in the body</td><td>Not offered (no keyboard)</td><td>Centred modal</td><td>Moves</td></tr>
+<tr><td>Lightbox</td><td>Default dialog, an image in the body, no foot. The look changes (DLG-O9)</td><td>Sheet</td><td>Centred modal</td><td>Moves</td></tr>
+<tr><td>Receipt scan (<code>pantry-receipt.js</code>, <code>receipt-scan.js</code>)</td><td>Not a dialog: a full-screen camera flow with its own focus and permission handling</td><td colspan="2">Left as it is</td><td><b>Left alone</b></td></tr>
+<tr><td>Profile window (<code>profile.js</code>)</td><td>Not a dialog: a window with a side rail and panes</td><td colspan="2">Left as it is</td><td><b>Left alone</b></td></tr>
+</tbody></table></div>
+<p>Old idioms retired by the move: the nine close attributes become <code>data-close</code>; the classes <code>x</code>, <code>ib</code>, <code>pf-x</code>, <code>sib</code>, <code>icon</code>, <code>close</code> become <code>.close</code>; <code>grab</code> becomes <code>.dialog__grab</code>; the scrim rules in 15 files and the hand-written focus and Escape handlers go; the ~14 <code>.btn</code> copies become the one in <code>dialog.css</code>.</p>
+
+<h2>6 &middot; Visible changes: owner decisions</h2>
+<div class="dp-note" role="note"><span class="k">Nothing here is applied silently</span><p>Each change below shows on screen if the pattern is built. The &ldquo;after&rdquo; is what this mockup draws. If the owner says keep the old look, the token or class changes, not the pattern. Before-samples set the old values by hand; the exact current value in each Kitchie file was taken from the audits, not re-measured.</p></div>
+
+<h3>DLG-O1 &middot; Radius unified to 14px <span class="dp-tag o">Owner decision</span></h3>
+<p><code>--r-ctl</code> is already 14px in <code>theme.css</code>, but <code>skin.ts</code> uses .9rem (14.4px) and settings uses 12px. All buttons and inputs in dialogs would become 14px. Recommended: yes.</p>
+<div class="dp-ba"><div><span class="k">Before</span><div class="row"><button class="btn" style="border-radius:12px">12px settings</button><button class="btn" style="border-radius:.9rem">.9rem skin</button></div></div><div><span class="k">After</span><div class="row"><button class="btn">14px everywhere</button><button class="btn btn--primary">14px</button></div></div></div>
+
+<h3>DLG-O2 &middot; Ghost pills (99px) or rounded <span class="dp-tag o">Owner decision</span></h3>
+<p>Some secondary actions are 99px pills today. In a dialog foot the pattern draws every action with the same rounded corner, so a Cancel next to a primary matches it. <code>btn--pill</code> stays available for chips and in-page controls. Recommended: rounded in dialogs, pill kept elsewhere.</p>
+<div class="dp-ba"><div><span class="k">Before</span><div class="row"><button class="btn btn--pill">Cancel</button><button class="btn btn--pill btn--primary">Save</button></div></div><div><span class="k">After (rounded)</span><div class="row"><button class="btn">Cancel</button><button class="btn btn--primary">Save</button></div></div></div>
+
+<h3>DLG-O3 &middot; Icon buttons 38 and 40px become 44px <span class="dp-tag o">Owner decision</span></h3>
+<p>The close, and the other icon buttons that become <code>.close</code>, are 44px (<code>--tap</code>) everywhere. Head rows get 6px and 4px taller at those sites. Recommended: yes (the repo's minimum tap target is 44px).</p>
+<div class="dp-ba"><div><span class="k">Before</span><div class="row"><button class="close" style="width:38px;height:38px" aria-label="Close 38"></button><button class="close" style="width:40px;height:40px" aria-label="Close 40"></button></div></div><div><span class="k">After</span><div class="row"><button class="close" aria-label="Close"></button><button class="close close--plain" aria-label="Close, plain"></button></div></div></div>
+
+<h3>DLG-O4 &middot; One scrim value <span class="dp-tag o">Owner decision</span></h3>
+<p><code>--dim</code> has four values today (.5, .5 green, .55, .65). One value, <code>rgba(0,0,0,.5)</code>, in both themes. The dark theme loses its .65 and so dims a little less; the light theme turns from a green-grey to plain black. This page already uses the single value. Recommended: yes. (The .55 colour was not recorded; drawn here as black.)</p>
+<div class="dp-ba"><div><span class="k">Before</span><div class="row"><span class="dp-sw"><i style="background:rgba(0,0,0,.5)"></i><span>.5</span></span><span class="dp-sw"><i style="background:rgba(20,25,22,.5)"></i><span>.5 green</span></span><span class="dp-sw"><i style="background:rgba(0,0,0,.55)"></i><span>.55</span></span><span class="dp-sw"><i style="background:rgba(5,10,8,.65)"></i><span>.65</span></span></div></div><div><span class="k">After</span><div class="row"><span class="dp-sw"><i style="background:var(--dim)"></i><span>.5</span></span><span class="dp-sw alt"><i style="background:var(--dim)"></i><span>.5</span></span></div></div></div>
+
+<h3>DLG-O5 &middot; Grab bar geometry <span class="dp-tag o">Owner decision</span></h3>
+<p>Proposal: 36 by 4px, fully rounded, in the border colour, 8px from the top edge, phone only. Sizes are tokens (<code>--grab-w</code>, <code>--grab-h</code>). The current grab differs by file and was not measured, so no honest &ldquo;before&rdquo; is drawn. It is decoration only: the bar is not draggable in stage 1 (DLG-O7).</p>
+<div class="dp-ba"><div><span class="k">After</span><div class="row"><span class="dp-gb"></span></div></div></div>
+
+<h3>DLG-O6 &middot; One button height and weight <span class="dp-tag o">Owner decision</span></h3>
+<p>Min-height 40, 46, 48 and 52 become 44; weight 600 and 800 become 700. Recommended: yes.</p>
+<div class="dp-ba"><div><span class="k">Before</span><div class="row"><button class="btn" style="min-height:40px;font-weight:600">40 / 600</button><button class="btn" style="min-height:52px;font-weight:800">52 / 800</button></div></div><div><span class="k">After</span><div class="row"><button class="btn">44 / 700</button><button class="btn btn--primary">44 / 700</button></div></div></div>
+
+<h2>Decisions</h2>
+<p>Numbered DLG-D1 and on, a new series. Nothing here was stated by the owner except the goal in the first paragraph; all else is <span class="dp-tag o">Proposal</span>. None is confirmed.</p>
+<ul class="dp-dec">
+<li><b>DLG-D1</b> (Owner goal, 31 Oct). One shared dialog component, one stylesheet block, no per-dialog markup; JavaScript and CSS minimal and used the same way everywhere.</li>
+<li><b>DLG-D2</b> (Proposal). Native <code>&lt;dialog&gt;</code> everywhere, opened with <code>showModal()</code>. Hand-written <code>role=dialog</code> and <code>aria-modal</code> go.</li>
+<li><b>DLG-D3</b> (Proposal). One helper (<code>dialog.js</code>, 27 lines): <code>[data-open]</code>, <code>[data-close]</code>, backdrop click, upgrade of a server-rendered <code>&lt;dialog open&gt;</code>, <code>[data-locked]</code> cancel gating, <code>show()</code> for flyouts, focus return for flyouts. Nothing per dialog.</li>
+<li><b>DLG-D4</b> (Proposal). One stylesheet block (<code>dialog.css</code>, 46 lines): tokens, <code>.btn</code>, <code>.close</code>, <code>.dialog</code>, <code>__body</code>, <code>__head</code>, <code>__grab</code>, <code>__foot</code>. Replaces the audit's <code>.dialog / __scrim / __body / __head / __grab</code> list by folding the scrim into the <code>&lt;dialog&gt;</code> element (no scrim element, <code>::backdrop</code> unused) and adding <code>__foot</code> for sticky actions.</li>
+<li><b>DLG-D5</b> (Proposal). One close idiom: the attribute <code>data-close</code>, on a button or a link; its value becomes the dialog's <code>returnValue</code>. The nine old idioms go.</li>
+<li><b>DLG-D6</b> (Proposal). One <code>.close</code> (44px circle, 1px border) with a <code>--plain</code> variant; the glyph is CSS, markup carries only <code>aria-label</code>.</li>
+<li><b>DLG-D7</b> (Proposal). Actions live in <code>.dialog__foot</code>, Cancel first, main action last, <code>autofocus</code> on the safe action. On the phone the actions share the row; from 600px they sit right, at their own width.</li>
+<li><b>DLG-D8</b> (Proposal). Phone under 600px: bottom sheet with grab bar. 600px and up: centred modal, panel width from the token <code>--dialog-w</code>. Flyout from 1024px: non-modal, <code>--flyout-w</code> wide, full height, no scrim, no scroll lock; below 1024px it is the ordinary sheet or modal. The two breakpoints are the repo's existing literals.</li>
+<li><b>DLG-D9</b> (Proposal). Scroll lock is CSS only: <code>html:has(dialog:modal)</code>. No script toggles a body class.</li>
+<li><b>DLG-D10</b> (Proposal). Works without script: close is a real link where it can be, and a server-rendered <code>&lt;dialog open&gt;</code> is visible before the helper runs. The ?param sheets stay.</li>
+<li><b>DLG-D11</b> (Proposal). Non-dismissible flows use <code>data-locked</code>: the close button is not drawn (CSS), Escape and backdrop are ignored. The only way out is an action in the foot.</li>
+<li><b>DLG-D12</b> (Proposal). Default-look principle: a plain <code>.dialog</code> with no modifier is complete and correct in both themes and without script; variants only add.</li>
+<li><b>DLG-D13</b> (Proposal). Tokens only, no width literals: new tokens <code>--dialog-w</code>, <code>--flyout-w</code>, <code>--grab-w</code>, <code>--grab-h</code>, <code>--z-dialog</code> sit in <code>dialog.css</code>; the rest come from <code>theme.css</code>.</li>
+<li><b>DLG-D14</b> (Proposal). Stage 1 leaves alone <code>profile.js</code> (profile window), <code>pantry-receipt.js</code> and <code>receipt-scan.js</code> (receipt scan). Everything else in the mapping table moves.</li>
+<li><b>DLG-D15</b> (Proposal). Mockup and build share class names and data attributes exactly. The build copies <code>dialog.css</code> and <code>dialog.js</code> first and lists each difference in its pull request. <code>dp.css</code>, <code>frame.html</code> and the scaling script are mockup scaffolding and are not lifted.</li>
+<li><b>DLG-D16</b> (Proposal). No animation in stage 1.</li>
+</ul>
+
+<h2>Open questions (owner picks)</h2>
+<ul class="dp-dec">
+<li><b>DLG-O1 to DLG-O6</b> are the visible changes in section 6, each recommended there. A wrong guess costs a visible regression at 14 sites; the fix is one token.</li>
+<li><b>DLG-O7</b> Swipe down on the grab bar to dismiss? Not in stage 1 (it is decoration only), because it needs pointer handling that is not 27 lines. Wrong guess: people try to swipe and nothing happens.</li>
+<li><b>DLG-O8</b> Is Sign in again really non-dismissible? Drawn locked as the one example of cancel gating. If it can be dismissed, nothing else uses <code>data-locked</code> and it can be dropped from the helper.</li>
+<li><b>DLG-O9</b> Lightbox: today a dark full-bleed viewer (not re-checked). As a default dialog it becomes a framed image with a title and a close. Keep the old full-bleed look as a second variant (more CSS) or accept the framed one?</li>
+<li><b>DLG-O10</b> Tablet (600 to 1023px): a centred modal like the desktop, or keep the bottom sheet up to 1023px? Drawn centred. This is the one place the phone-sized look would change on a small tablet.</li>
+<li><b>DLG-O11</b> Is a destructive button style needed (Throw out in danger colour)? Not drawn; one more modifier if yes.</li>
+<li><b>DLG-O12</b> Should <code>data-open</code> be in the helper? It saves a click handler in every page script, at about 3 lines. Drawn in.</li>
+</ul>
+
+<h2>Notes</h2>
+<div class="dp-two">
+<div><b>Not checked against the app</b>Kitchie is not touched and was not re-audited; every Kitchie number above comes from the audits handed over with the request. The mapping of an old site to a variant is a proposal until each site is opened.</div>
+<div><b>Review</b>The separate senior-mobile-UX review required by <code>AGENTS.md</code> is not done. Checked in headless Chromium: see the knowledge note for what was run.</div>
+<div><b>Default path (DESIGN.md section 6)</b>Loads the theme, <code>dialog.css</code> (about 3 KB) and <code>dp.css</code>. The iframes are lazy, so the frames load only when scrolled to. No image, no web font beyond the theme. In the app the helper (about 1.5 KB) is deferred and needs no data; nothing loads on engagement.</div>
+<div><b>Knowledge note</b><a href="../../docs/knowledge/dialog-pattern.md">docs/knowledge/dialog-pattern.md</a></div>
+</div>
+</div>
+<script>(function(){var s=[].slice.call(document.querySelectorAll(".dp-sc"));function fit(){s.forEach(function(e){var k=Math.min(1,e.clientWidth/1280);e.firstElementChild.style.transform="scale("+k+")";e.style.height=720*k+"px"})}fit();addEventListener("resize",fit)})()</script>
+</body></html>
