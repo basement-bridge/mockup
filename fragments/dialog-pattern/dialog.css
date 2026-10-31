@@ -20,13 +20,14 @@
 .dialog[open]{display:flex}
 .dialog::backdrop{background:none}
 .dialog__body{position:relative;display:flex;flex-direction:column;gap:var(--sp-3);width:100%;max-height:calc(100% - var(--sp-5));overflow:auto;overscroll-behavior:contain;padding:0;background:var(--surface);border:1px solid var(--border);border-bottom:0;border-radius:var(--r-card) var(--r-card) 0 0}
-.dialog__body>*{margin-inline:var(--sp-4);max-width:calc(100% - 2 * var(--sp-4))}
+.dialog__body>*{flex-shrink:0;margin-inline:var(--sp-4);max-width:calc(100% - 2 * var(--sp-4))}
 .dialog__body>:last-child{margin-bottom:max(var(--sp-4),env(safe-area-inset-bottom))}
 .dialog__head,.dialog__foot{position:sticky;z-index:1;margin-inline:0;max-width:none;padding-inline:var(--sp-4);background:var(--surface)}
 .dialog__head{top:0;display:flex;align-items:center;justify-content:space-between;gap:var(--sp-3);padding-top:var(--sp-5);padding-bottom:var(--sp-2)}
 .dialog__head h2{flex:1;margin:0;font:700 1.2rem var(--head);overflow-wrap:anywhere}
 .dialog__grab{position:absolute;top:var(--sp-2);left:50%;translate:-50% 0;width:var(--grab-w);height:var(--grab-h);border-radius:var(--r-pill);background:var(--border)}
 .dialog__foot{bottom:0;display:flex;flex-wrap:wrap;gap:var(--sp-2);padding-top:var(--sp-3);padding-bottom:max(var(--sp-4),env(safe-area-inset-bottom));margin-top:auto;margin-bottom:0;border-top:1px solid var(--border)}
+.dialog__body>.dialog__foot{margin-bottom:0} /* the last-child rule above is more specific than .dialog__foot: without this the sticky foot floats 16px above the sheet edge */
 .dialog__foot .btn{flex:1 1 auto}
 .dialog[data-locked] .close{display:none}
 html:has(dialog:modal){overflow:hidden}
