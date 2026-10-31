@@ -104,7 +104,7 @@ Rule: a mockup of an existing screen starts from what UAT shows, then adds the f
 
 - **CL-D41** (Owner). Desktop Profile order: Kitchen role, My invites, AI assistants, Sign-in last. Sign-in is one row: key icon, provider logo, current login, chevron into Change login method.
 - **CL-D42** (Owner). Phone Menu: critical information stays visible read only; deep things nest. Text size and theme stay pinnable blocks.
-- **CL-D43** (Owner). The Menu profile card is replaced by a read-only summary with no person name (no avatar, no role pill): kitchen and role; the default AI assistant (the only one, or the chosen one); sign-in as key icon plus provider logo. Nothing tappable. While a swap is in progress, a small dot on the key.
+- **CL-D43** (Owner). The Menu profile card is replaced by a read-only summary with no person name (no avatar, no role pill): kitchen and role; the default AI assistant (the only one, or the chosen one); sign-in as key icon plus provider logo. Nothing tappable. While a swap is in progress, a small dot on the key. **Superseded in part by CL-D56 (31 Oct):** the assistant and sign-in method moved to the right of the person row; whether the summary stays (kitchen and role only) is open, CL-O24.
 - **CL-D44** (Owner). A row labelled with the person's own name (not "Me"), the level-two entry to the person's own screen (kitchen role, My invites, AI assistants, Sign-in with chevron into Change login method), same order as desktop. Icon is the role icon (basket for Supply Runner), not an avatar.
 - **CL-D45** (Owner). Label rule, 10 characters, spaces count: full name if 10 or fewer; else first name if 10 or fewer; else initials of every name part. Row starts at the same left edge as Household.
 - **CL-D46** (Proposal). The Household row stays as its own row next to the person row (owner did not say replace or next to). CL-O19.
@@ -123,6 +123,24 @@ Label examples (computed by the rule): Ann Lee, Sam Jacobs (exactly 10) show in 
 Open: **CL-O19** replace or sit next to Household (drawn next to); **CL-O20** name-rule edges (one long name gives one letter, shared initials, hyphens, non-Latin); **CL-O21** where Sign out lives now; **CL-O22** heading wording and whether the dot suffices; **CL-O23** rail tab names after Profile are the mockup's, not read from UAT.
 
 Checks: headless Chromium at 360, 390, 1280, light and dark: no sideways scroll, no page errors, controls 44px or more (text-size segments 44px at 360 after phone frames were made full width), no clipped text in the phone frames. Also fixed: section 3's first phone grid was missing its opening `<div class="cl-grid"><figure>` (existing bug). The senior-mobile-UX review is still not done.
+
+## Owner decision, 31 October 2026 (voice): two read-only icons on the person row (CL-D56 to CL-D62, L2 of the page)
+
+- **CL-D56** (Owner). The phone Menu's person row (role icon and name, 10-character budget, starting at Household's left edge) carries two read-only pieces of information on its right side, before the chevron, as simple icons with no labels: (a) the default AI assistant as a tiny round badge in the assistant's own colour matching the assistants list (orange C for Claude, green GPT for ChatGPT), or a dashed empty circle if none is set (like the unconnected Gemini); (b) the sign-in method as a small key icon with the provider logo (for example the Google G) in the accent brown, with a small dot on the key while a swap is in progress. Nothing in them is tappable on its own; tapping the row opens the person's screen. UI only, no functionality change; the Sign-in row is the only new thing and does nothing until the owner says go on the build.
+- **CL-D57** (Proposal). No default assistant: dashed empty circle, muted, named "Default assistant: none".
+- **CL-D58** (Proposal). Several assistants connected: only the chosen default is drawn (one badge). Connected but none chosen: CL-O26.
+- **CL-D59** (Proposal). Email provider: no logo exists, so a generic envelope mark stands in the logo slot (same envelope as the pending Re-invite row), named "Signed in with Email".
+- **CL-D60** (Proposal). Accessible names: one image role per icon ("Default assistant: ChatGPT", "Signed in with Google", plus ". Sign-in change in progress" mid-swap); inner shapes hidden; no focus stop, no button. The row link reads "Brown Default assistant: ChatGPT Signed in with Google" (checked in the browser). Extends CL-D49.
+- **CL-D61** (Proposal). Largest text size (1.6 times, assumed): the label wraps (CL-D50), the icons grow by a quarter at most and stack in a column on the right; they never clip or overlap the label or chevron; row grows, 56px minimum.
+- **CL-D62** (Proposal). Sizes: assistant badge 24px, key 24px with 20px logo; key and logo in the accent token.
+
+Drawn: the row at 360 and 390, light and dark; every state (Claude, ChatGPT, none, several connected, swap dot, Email envelope); the accessible-name table; Variant A and Variant B of the Menu top, light and dark; largest text for "Sam Jacobs" and "Maximilian" including a worst case (no assistant, Email, swap dot). The L3 label examples now also carry the icons.
+
+Caution: CL-D43 put these two facts in a summary section; the owner's latest words put them on the row. **CL-O24** (open): does the summary section stay? Variant A keeps it with kitchen and role only (no duplicate); Variant B removes it. Recommendation (Proposal): **Variant B**, since the summary would hold two lines the person screen already shows, B shortens the Menu and removes the "At a glance" wording question (CL-O22). PROPOSAL consequence of B: kitchen name and role are one tap away (person screen, Household screen) and CL-D47 is withdrawn. Consequence of A: CL-D47 stands narrowed to two rows; A is the only variant with the kitchen name always on the Menu.
+
+Open: **CL-O24** summary section stays (A) or goes (B), recommend B; **CL-O25** icons have no labels: clear enough for a first-time person and at 24px for low vision; **CL-O26** several assistants connected and none chosen: nothing, first connected, or dashed circle. CL-O19 to CL-O23 stand.
+
+Checks: headless Chromium at 360, 390 and 1280, light and dark: no sideways scroll, no page errors, controls 44px or more, icons not clipped and not overlapping at 1.6 times text, screenshots inspected. Not done: the senior-mobile-UX review; the real largest text scale; the real UAT Menu was not seen.
 
 ## Checks and loads
 

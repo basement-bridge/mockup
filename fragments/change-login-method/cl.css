@@ -220,3 +220,23 @@ a.lm-row,button.lm-row{display:flex;align-items:center;justify-content:space-bet
 /* Phone-width frames fill the viewport (like a real 360 or 390 phone) so 44px segments really fit */
 @media(max-width:420px){.cl-grid{margin-inline:calc(-1 * var(--gutter));grid-template-columns:minmax(0,1fr)}.cl-grid .cl-ph{border-inline-width:0;border-radius:0}.cl-grid figcaption{padding-inline:var(--gutter)}}
 .cl-page a.pf-row,.cl-page .mn-nav a{color:var(--fg)}.cl-page a.pf-bk{color:var(--accent)}
+
+/* ---- 31 Oct 2026, CL-D56 to CL-D62: two read-only icons on the right of the Menu person row (build lifts .mn-ids and children). Tokens only; icons are not controls. ---- */
+.mn-ids{display:inline-flex;align-items:center;gap:10px;flex:none}
+.cl-ph{--ik:1}.cl-ph[data-ts=max]{--ik:1.25;--k:1.6}
+.cl-ph[data-ts=max] .mn-ids{flex-direction:column;align-items:flex-end;gap:6px}
+.mn-as,.mn-si{display:inline-flex;align-items:center;flex:none}
+.mn-ids .pf-badge{width:calc(24px*var(--ik));height:calc(24px*var(--ik));font-size:calc(12px*var(--ik))}
+.mn-ids .pf-badge.gp{font-size:calc(8.5px*var(--ik))}
+.pf-badge.none{background:none;border:2px dashed var(--muted);color:var(--muted)}
+.mn-si{gap:1px}
+.mn-ids .pf-key{width:calc(24px*var(--ik));height:calc(24px*var(--ik));color:var(--accent)}
+.mn-ids .pf-key .ic{width:calc(22px*var(--ik));height:calc(22px*var(--ik))}
+.mn-ids .lm-g{width:calc(20px*var(--ik));height:calc(20px*var(--ik))}
+.mn-ids .lm-g .lg{width:calc(18px*var(--ik));height:calc(18px*var(--ik))}
+.mn-ids .lm-g.em .ic{width:calc(18px*var(--ik));height:calc(18px*var(--ik));color:var(--fg)}
+.mn-nav a .mn-ids{margin-left:auto}
+.mn-nav a .nm{flex:1 1 0}
+/* page scaffolding only: show one frame in the other theme next to the page theme (copy of the two default theme token sets) */
+.cl-ph.sc-l{color-scheme:light;--bg:#F6F1E6;--surface:#FFFFFF;--border:#D9D1BF;--fg:#1D2A24;--muted:#56645B;--accent:#8A5600;--on-accent:#FFFFFF;color:var(--fg)}
+.cl-ph.sc-d{color-scheme:dark;--bg:#0F1E19;--surface:#172A23;--border:#24403A;--fg:#F3EEE3;--muted:#A9B8AE;--accent:#F2B84B;--on-accent:#0F1E19;color:var(--fg)}
