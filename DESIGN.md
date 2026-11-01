@@ -265,3 +265,19 @@ Every item answered, with the reviewer's one-line evidence:
 9. **Warmth:** the person, or what they chose, is recognisable as theirs without reading it (9.10); lean cut words, not character.
 
 **Rule: a design review is REQUIRED before any UI change merges.** The reviewer is a **separate agent, briefed as a senior mobile UX designer, that did not build the change.** The builder never reviews its own work. **Any UI pull request states the reviewer's verdict in its description** (Pass, Pass with changes done, or Fail, plus the checklist answers). No verdict, no merge. A mockup PR follows the same rule; the product PR that builds a settled mockup cites that verdict.
+
+## 10. When to use what: purpose, use, not, deviation (owner direction, 1 November 2026, voice)
+
+Per piece, so no one asks the owner again. Kitchie's copy with the full table (and what a machine checks) is `docs/design-principles.md` "When to use what" in `basement-bridge/kitchie`; this section is the short canonical form. It adds no new look; each line cites its decision.
+
+- **Dialog** (native `<dialog class="dialog">`, DLG-D1 to D8). *Use:* a short bounded decision or edit: a confirm, a choice of two to five, one or a few fields. *Not:* a long flow (a page), a status (a toast), a choice that is a control on the page (9.4). *Deviation:* a new dialog idiom is a registry exception in Kitchie's `.agents/components.yaml`; a look change is made once in the one stylesheet, never per dialog.
+- **Primary button** (filled accent). *Use:* the one action the screen or dialog is for, last in a dialog footer. *Not:* a second filled button (9.3); a destructive action (next line).
+- **Ghost button.** *Use:* Cancel and other safe or secondary actions, first in the footer; it takes the focus when the main action is destructive (DLG-D7).
+- **Destructive action** (Clear, Remove, Throw out, Leave). **Owner decision, 1 November 2026: a destructive action gets its own visual language**, separate from the primary button; not designed yet, nothing drawn (DLG-O11). **Temporary: Clear uses the filled accent style for now**; revisited only if the owner says so. Do not paint a destructive action as an ordinary primary, and do not invent a red button in page CSS.
+- **Close X.** One 44px circle in the dialog head (DLG-D5, D6). *Not:* a second close idiom.
+- **Toast and Undo.** *Use:* one short line saying what happened, with the next action; a reversible change gets Undo rather than an "Are you sure?" dialog (agent default). *Not:* a question that must be answered first (a dialog).
+- **Card / section** (Home card language, HC-D1 to D3: one `--surface`, 1px `--border`, `--r-card`; urgency is order, the word pill and default open). *Not:* tint (B) or edge bar (C) unless the owner reopens HC-Q1. A card with nothing in it is absent.
+- **Word pill.** *Use:* a state in words beside the title, only when it changes a decision. *Not:* colour alone; the same state twice (9.1, 9.3).
+- **Controls, accent, empty states:** 9.4, 9.3 and "Empty is absent" decide.
+
+**Deviation rule.** A deviation is a new look, a new component, or another piece used for a purpose this section gives to one piece. It is allowed only when the owner has decided it and the decision is written in `DESIGN.md`, an ADR or the decision notes, or (a dialog) it is a registry exception. Otherwise surface it with options and a recommendation and build the pattern's version meanwhile. Proposed, not in force: a deviations log in governance, only the owner can grant an entry, no entry is a hard stop.

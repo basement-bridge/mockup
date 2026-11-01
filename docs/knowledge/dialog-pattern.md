@@ -31,7 +31,10 @@ Moves onto the pattern: confirm sheet, Used up, Sign in again (locked), plan she
 
 ## Owner decisions and open questions
 Visible changes (each drawn before/after; recommended answer yes unless noted): **DLG-O1** radius to 14px (skin.ts .9rem, settings 12px); **DLG-O2** 99px ghost pills vs rounded in dialogs (pill stays opt-in); **DLG-O3** icon buttons 38/40 to 44px; **DLG-O4** one `--dim` rgba(0,0,0,.5) (dark loses .65; light turns from green-grey to black); **DLG-O5** grab geometry 36x4px, phone only (current not measured); **DLG-O6** one button height 44 and weight 700.
-Open: **DLG-O7** swipe-to-dismiss on the grab (not in stage 1); **DLG-O8** is Sign in again really locked; **DLG-O9** lightbox look (framed default vs old full-bleed variant); **DLG-O10** tablet 600-1023 centred vs sheet; **DLG-O11** destructive button style; **DLG-O12** `data-open` in the helper.
+Open: **DLG-O7** swipe-to-dismiss on the grab (not in stage 1); **DLG-O8** is Sign in again really locked; **DLG-O9** lightbox look (framed default vs old full-bleed variant); **DLG-O10** tablet 600-1023 centred vs sheet; **DLG-O11** destructive button style (RESOLVED 1 Nov 2026, see below); **DLG-O12** `data-open` in the helper.
 
 ## Checks and limits
 Run in headless Chromium (own script, not committed): index at 360/390/768/1280, light and dark, no sideways scroll, no page errors; on `frame.html` at 390 and 1280: modal state, autofocus, scroll lock, focus trap, Escape and focus return, backdrop close, locked ignores Escape and backdrop, flyout non-modal at 1280 and modal at 390, page behind a flyout clickable, modal over flyout, `?open=` upgrade. `tools/screenshots.mjs` has no entry for this page and `tools/` is out of scope, so it was not run for it. Not done: senior mobile-UX review, real-device iOS/Android, screen reader, no-script rendering, any check against Kitchie code. Pages deploys only from `prototype-v1`, so a push to main may not publish.
+
+## Owner decision, 1 November 2026 (voice): DLG-O11 resolved
+**Destructive actions get their own visual language**, separate from the primary button; it is not designed yet and nothing is drawn. **Clear (DLG-O11) uses the filled accent style for now**, as built in kitchie stage 2a (#1329); revisited only if the owner says so (an agent does not reopen it). General guidance and the deviation rule: `DESIGN.md` section 10.
