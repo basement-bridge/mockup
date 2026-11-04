@@ -45,3 +45,24 @@
     }
   });
 })();
+/* D */
+(function(){
+  /* In the real app this comes from the menu's own route table, so the text follows the screen if it moves. */
+  var NAV={role:{path:['Menu','Your role']}};
+  function where(k){return NAV[k].path.join(' › ');}
+  document.querySelectorAll('.rl-d').forEach(function(n){
+    var d=n.closest('.rs-demo'),ask=n.querySelector('.rl-ask'),done=n.querySelector('.rl-done'),make=n.querySelector('.rl-make');
+    function say(m){var t=d.querySelector('.rl-toast');if(!t){t=document.createElement('div');t.className='rl-toast';t.setAttribute('role','status');d.closest('.rs-pin,.rs-in').appendChild(t);}t.textContent=m;t.hidden=false;clearTimeout(t._t);t._t=setTimeout(function(){t.hidden=true},2600);}
+    function set(icon,name){ask.hidden=true;make.hidden=true;done.hidden=false;done.querySelector('[data-fill]').innerHTML=icon;done.querySelector('[data-name]').textContent=name;}
+    n.querySelectorAll('.rl-tile:not(.own)').forEach(function(t){t.addEventListener('click',function(){set(t.querySelector('.rl-ic').innerHTML,t.dataset.title);});});
+    n.querySelector('.own').addEventListener('click',function(){ask.hidden=true;make.hidden=false;});
+    n.querySelector('[data-cancel]').addEventListener('click',function(){make.hidden=true;ask.hidden=false;});
+    n.querySelector('[data-savemine]').addEventListener('click',function(){set(n.querySelector('.own .rl-ic').innerHTML,make.querySelector('input').value||'My role');});
+    n.querySelector('.rl-undo').addEventListener('click',function(){done.hidden=true;ask.hidden=false;});
+    n.querySelector('.rl-x').addEventListener('click',function(){n.hidden=true;say('Dismissed. Find it in '+where('role')+'. (mockup)');});
+    var lp=n.querySelector('.rl-loop');
+    if(lp){var w=function(){return lp.scrollWidth/2};Array.from(lp.children).forEach(function(c){lp.appendChild(c.cloneNode(true))});
+      lp.querySelectorAll('.rl-tile').forEach(function(t){t.addEventListener('click',function(){set(t.querySelector('.rl-ic').innerHTML,t.dataset.title);});});
+      lp.addEventListener('scroll',function(){if(lp.scrollLeft>=w())lp.scrollLeft-=w();else if(lp.scrollLeft<=0)lp.scrollLeft+=w();});lp.scrollLeft=1;}
+  });
+})();

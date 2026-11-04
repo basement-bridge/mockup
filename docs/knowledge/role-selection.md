@@ -45,3 +45,7 @@ Independent senior-mobile-UX review against DESIGN.md 9.8: **Pass with changes**
 Applied: position dots and "1 of 6" on B phone; C chips now show role names (3x2 grid on phone); A preview tagline wraps instead of truncating; removed "Optional. Change it any time in Menu." from desktop B (the Skip toast says it instead).
 
 Still to do in the real build: confirm 44px native sizes for desktop chips and pencil (42px seen was a scaling artifact of the fitted 1280px frame); use rem units so the screen follows text size; C at +30% text not captured.
+
+## Option D chosen (owner, 4 Nov 2026)
+
+A's tiles inside C's Home card: no role step at sign-in; Home card with six named tiles in two rows, one tap saves with Undo; pinned third row "Make your own"; if presets exceed two rows the extras loop sideways in that row; dismiss toast names where to find it, built from the app's menu data (never typed). Owner asked to go straight to UAT; design review of D not run separately (same components as reviewed A and C, names visible, targets 44px+ measured).

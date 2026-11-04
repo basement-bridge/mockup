@@ -131,3 +131,17 @@ button.rl-ic{cursor:pointer}
 .rl-chip.nm{width:auto;height:auto;min-height:56px;min-width:44px;flex:1 1 30%;border-radius:var(--r-card);flex-direction:column;gap:2px;padding:6px 4px;font-size:12px;line-height:1.2;color:var(--fg)}
 .rl-chip.nm span{overflow-wrap:anywhere;text-align:center}
 .rl-c.rl-dk .rl-chip.nm{flex:0 0 auto;padding:6px 12px}
+
+/* D: A's tiles inside C's card */
+.rl-d .rl-ask{grid-template-columns:1fr auto;gap:8px}
+.rl-dgrid{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.rl-drow{grid-column:1/-1;display:flex;gap:8px;align-items:stretch}
+.rl-tile.sm{min-height:64px;flex:1;padding:8px 4px;gap:4px}.rl-tile.sm b{font-size:12px}
+.rl-tile.own{border-style:dashed;flex-direction:row;gap:8px;min-width:0}
+.rl-drow.has-loop .rl-tile.own{flex:0 0 96px;flex-direction:column}
+.rl-loop{flex:1;min-width:0;display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:none}
+.rl-loop::-webkit-scrollbar{display:none}.rl-loop .rl-tile{flex:0 0 96px;scroll-snap-align:start}
+.rl-make[hidden]{display:none}.rl-make{display:flex;flex-direction:column;gap:8px;padding-top:6px}
+.rl-c.rl-dk .rl-d{max-width:760px;margin:0 auto;width:100%;padding:12px 14px}
+.rl-c.rl-dk .rl-dgrid{grid-template-columns:repeat(6,1fr)}
+.rl-nudge.rl-d{padding:12px}
