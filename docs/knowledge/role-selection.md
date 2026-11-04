@@ -37,3 +37,11 @@ Q1 which option. Q2 does a brand-new person still get the welcome (scene, perks)
 ## Performance
 
 One stylesheet and one ~3 KB script, inline icons, no images, no requests; nothing is deferred because nothing is heavy.
+
+## Design review (4 Nov 2026)
+
+Independent senior-mobile-UX review against DESIGN.md 9.8: **Pass with changes**. B is the sound choice (one item, one accent, one action).
+
+Applied: position dots and "1 of 6" on B phone; C chips now show role names (3x2 grid on phone); A preview tagline wraps instead of truncating; removed "Optional. Change it any time in Menu." from desktop B (the Skip toast says it instead).
+
+Still to do in the real build: confirm 44px native sizes for desktop chips and pencil (42px seen was a scaling artifact of the fitted 1280px frame); use rem units so the screen follows text size; C at +30% text not captured.
